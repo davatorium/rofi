@@ -774,6 +774,13 @@ void run_switcher(Window root, int mode, int fmode)
 			int n = menu(root, list, NULL);
 			if (n >= 0 && list[n])
 			{
+				if (mode == ALLWINDOWS)
+				{
+					// TODO: get rid of strtol
+					window_send_message(root, root, netatoms[_NET_CURRENT_DESKTOP], strtol(list[n], NULL, 10)-1,
+						SubstructureNotifyMask | SubstructureRedirectMask);
+					XSync(display, False);
+				}
 				window_send_message(root, ids->array[n], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
 					SubstructureNotifyMask | SubstructureRedirectMask);
 			}
