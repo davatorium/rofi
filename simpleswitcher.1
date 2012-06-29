@@ -1,0 +1,121 @@
+.TH SIMPLESWITCHER 1 simpleswitcher
+.SH NAME
+simpleswitcher \- a simple EWMH window switcher
+.SH SYNOPSIS
+.B simpleswitcher
+.RB [ \-width
+.IR pct_scr ]
+.RB [ \-lines
+.IR lines ]
+.RB [ \-font
+.IR xftfont ]
+.RB [ \-fg
+.IR color ]
+.RB [ \-bg
+.IR color ]
+.RB [ \-hlfg
+.IR color ]
+.RB [ \-hlbg
+.IR color ]
+.RB [ \-key
+.IR combo ]
+.RB [ \-dkey
+.IR comdo ]
+.RB [ \-now ]
+.RB [ \-dnow ]
+
+.SH DESCRIPTION
+.I simpleswitcher
+is an X11 popup window switcher. A list is displayed center-screen showing open window titles, WM_CLASS, and desktop number. The user may filter the list by typing, navigate with Up/Down or Tab keys, and select a window with Return (Enter). Escape cancels.
+.P
+License: MIT/X11
+.SH USAGE
+See options below for custom key combinations. These are the defaults.
+.TP
+.B F12
+Show all windows on all desktops.
+.TP
+.B F11
+Show windows from the current desktop.
+.SH OPTIONS
+.TP
+.B -key
+Change the key combination to display all windows (default: F12).
+.P
+.RS
+simpleswitcher -key F12
+.br
+simpleswitcher -key control+shift+s
+.br
+simpleswitcher -key mod1+tab
+.RE
+.TP
+.B -dkey
+Change the key combination to display window on the current desktop (default: F11).
+.P
+.RS
+simpleswitcher -key F11
+.br
+simpleswitcher -key control+shift+d
+.br
+simpleswitcher -key mod1+grave (grave=backtick)
+.RE
+.TP
+.B -now
+Run simpleswitcher in all-windows mode once then exit. Does not bind any keys.
+.TP
+.B -dnow
+Run simpleswitcher in current-desktop-windows mode once then exit. Does not bind any keys.
+.TP
+.B -bg
+Set the background text color (X11 named color or hex #rrggbb) for the menu (default: #222222).
+.P
+.RS
+simpleswitcher -fg "#222222"
+.RE
+.TP
+.B -fg
+Set the foreground text color (X11 named color or hex #rrggbb) for the menu (default: #cccccc).
+.P
+.RS
+simpleswitcher -fg "#cccccc"
+.RE
+.TP
+.B -font
+Xft font name for use by the menu (default: mono-14).
+.P
+.RS
+simpleswitcher -font monospace-14:medium
+.RE
+.TP
+.B -hlbg
+Set the background text color (X11 named color or hex #rrggbb) for the highlighted item in the menu (default: #005577).
+.P
+.RS
+simpleswitcher -fg "#005577"
+.RE
+.TP
+.B -hlfg
+Set the foreground text color (X11 named color or hex #rrggbb) for the highlighted item in the menu (default: #ffffff).
+.P
+.RS
+simpleswitcher -fg "#ffffff"
+.RE
+.TP
+.B -lines
+Maximum number of entries the menu may show before scrolling (default: 25).
+.P
+.RS
+simpleswitcher -lines 25
+.RE
+.TP
+.B -width
+Set the width of the menu as a percentage of the screen width (default: 60).
+.P
+.RS
+simpleswitcher -width 60
+.RE
+.SH SEE ALSO
+.BR simpleswitcher (1)
+.SH AUTHOR
+Sean Pringle <sean.pringle@gmail.com>
