@@ -718,7 +718,7 @@ void run_switcher(Window root, int mode, int fmode)
 		&& type == XA_WINDOW)
 	{
 		// calc widths of fields
-		for (i = 0; i < nwins; i++)
+		for (i = nwins-1; i > -1; i--)
 		{
 			if ((c = window_client(wins[i])))
 			{
