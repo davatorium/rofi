@@ -95,12 +95,6 @@ char* find_arg_str(int argc, char *argv[], char *key, char* def)
 	int i = find_arg(argc, argv, key);
 	return (i > 0 && i < argc-1) ? argv[i+1]: def;
 }
-int find_arg_opts(int argc, char *argv[], char *key, char **list, int count)
-{
-	char *s = find_arg_str(argc, argv, key, NULL);
-	int i; for (i = 0; i < count; i++) if (s && !strcasecmp(s, list[i])) return i;
-	return -1;
-}
 int find_arg_int(int argc, char *argv[], char *key, int def)
 {
 	int i = find_arg(argc, argv, key);
@@ -108,7 +102,7 @@ int find_arg_int(int argc, char *argv[], char *key, int def)
 }
 
 unsigned int NumlockMask = 0;
-Display *display;
+Display *display; Screen *screen; Window root; int screen_id;
 
 static int (*xerror)(Display *, XErrorEvent *);
 
@@ -263,12 +257,27 @@ typedef struct {
 	workarea monitor;
 } client;
 
+#define MENUXFTFONT "mono-14"
+#define MENUWIDTH 50
+#define MENULINES 25
+#define MENUFG "#222222"
+#define MENUBG "#f2f1f0"
+#define MENUBGALT "#e9e8e7"
+#define MENUHLFG "#ffffff"
+#define MENUHLBG "#005577"
+#define MENURETURN 1
+#define MENUMODUP 2
+#define MENUBC "black"
+
+char *config_menu_font, *config_menu_fg, *config_menu_bg, *config_menu_hlfg, *config_menu_hlbg, *config_menu_bgalt, *config_menu_bc;
+unsigned int config_menu_width, config_menu_lines, config_focus_mode, config_raise_mode, config_window_placement, config_menu_bw;
+
 // allocate a pixel value for an X named color
-unsigned int color_get(Display *d, const char *name)
+unsigned int color_get(const char *name)
 {
 	XColor color;
-	Colormap map = DefaultColormap(d, DefaultScreen(d));
-	return XAllocNamedColor(d, map, name, &color, &color) ? color.pixel: None;
+	Colormap map = DefaultColormap(display, screen_id);
+	return XAllocNamedColor(display, map, name, &color, &color) ? color.pixel: None;
 }
 
 // find mouse pointer location
@@ -282,6 +291,22 @@ int pointer_get(Window root, int *x, int *y)
 		return 1;
 	}
 	return 0;
+}
+
+int take_keyboard(Window w)
+{
+	int i;
+	for (i = 0; i < 1000; i++)
+	{
+		if (XGrabKeyboard(display, w, True, GrabModeAsync, GrabModeAsync, CurrentTime) == GrabSuccess)
+			return 1;
+		usleep(1000);
+	}
+	return 0;
+}
+void release_keyboard()
+{
+	XUngrabKeyboard(display, CurrentTime);
 }
 
 // XGetWindowAttributes with caching
@@ -403,7 +428,7 @@ void monitor_dimensions(Screen *screen, int x, int y, workarea *mon)
 }
 
 // determine which monitor holds the active window, or failing that the mouse pointer
-void monitor_active(Screen *screen, workarea *mon)
+void monitor_active(workarea *mon)
 {
 	Window root = RootWindow(display, XScreenNumberOfScreen(screen));
 
@@ -482,17 +507,6 @@ client* window_client(Window win)
 	return c;
 }
 
-#define MENUXFTFONT "mono-14"
-#define MENUWIDTH 50
-#define MENULINES 25
-#define MENUFG "#cccccc"
-#define MENUBG "#222222"
-#define MENUHLFG "#ffffff"
-#define MENUHLBG "#005577"
-
-char *config_menu_font, *config_menu_fg, *config_menu_bg, *config_menu_hlfg, *config_menu_hlbg;
-unsigned int config_menu_width, config_menu_lines, config_focus_mode, config_raise_mode, config_window_placement;
-
 // built-in filterable popup menu list
 struct localmenu {
 	Window window;
@@ -501,7 +515,7 @@ struct localmenu {
 	XftFont *font;
 	XftColor *color;
 	XftDraw *draw;
-	XftColor fg, bg, hlfg, hlbg;
+	XftColor fg, bg, hlfg, hlbg, bgalt;
 	unsigned long xbg;
 	char **lines, **filtered;
 	int done, max_lines, num_lines, input_size, line_height;
@@ -517,16 +531,18 @@ void menu_draw(struct localmenu *my)
 	int i, n;
 
 	// draw text input bar
+	char bar[100]; int len = snprintf(bar, 100, ">.%s", my->input), cursor = MAX(2, my->line_height/10);
+	XGlyphInfo extents; XftTextExtentsUtf8(display, my->font, (unsigned char*)bar, len, &extents);
+	bar[1] = ' '; // XftTextExtentsUtf8 trims trailing space. replace the leading period we used to ensure cursor offset
 	XftDrawRect(my->draw, &my->bg, 0, 0, my->width, my->height);
-	XftDrawStringUtf8(my->draw, &my->fg, my->font, my->horz_pad, my->vert_pad+my->line_height-my->font->descent, (unsigned char*)my->input, strlen(my->input));
+	XftDrawStringUtf8(my->draw, &my->fg, my->font, my->horz_pad, my->vert_pad+my->line_height-my->font->descent, (unsigned char*)bar, len);
+	XftDrawRect(my->draw, &my->fg, extents.width + my->horz_pad + cursor, my->vert_pad+2, cursor, my->line_height-4);
 
 	// filter lines by current input text
 	memset(my->filtered, 0, sizeof(char*) * (my->num_lines+1));
 	for (i = 0, n = 0; my->lines[i]; i++)
-	{
 		if (!my->offset || strcasestr(my->lines[i], my->input))
 			my->filtered[n++] = my->lines[i];
-	}
 	// vertical bounds of highlight bar
 	my->current = MAX(0, MIN(my->current, n-1));
 	for (i = 0; my->filtered[i]; i++)
@@ -535,17 +551,33 @@ void menu_draw(struct localmenu *my)
 		// vertical position of *top* of current line
 		int y = my->vert_pad+(my->line_height*(i+1));
 		// http://en.wikipedia.org/wiki/Typeface#Font_metrics
-		int font_baseline = y + my->line_height - my->font->descent -1;
+		int font_baseline = y + my->line_height - my->font->descent -2;
 		// are we highlighting this line?
 		if (i == my->current)
 		{
 			fg = my->hlfg;
 			XftDrawRect(my->draw, &my->hlbg, my->horz_pad, y, my->width-(my->horz_pad*2), my->line_height);
+		} else
+		if (!(i%2))
+		{
+			// shade alternate lines for better readability
+			XftDrawRect(my->draw, &my->bgalt, my->horz_pad, y, my->width-(my->horz_pad*2), my->line_height);
 		}
 		XftDrawStringUtf8(my->draw, &fg, my->font, my->horz_pad, font_baseline, (unsigned char*)my->filtered[i], strlen(my->filtered[i]));
 	}
 	// double buffering
 	XCopyArea(display, my->canvas, my->window, my->gc, 0, 0, my->width, my->height, 0, 0);
+}
+
+// select currently highlighted line and exit
+void menu_select_current(struct localmenu *my)
+{
+	if (my->filtered[my->current])
+		my->selected = my->filtered[my->current];
+	else
+	if (my->manual)
+		strcpy(my->manual, my->input);
+	my->done = 1;
 }
 
 // handle popup menu text input for filtering
@@ -561,27 +593,17 @@ void menu_key(struct localmenu *my, XEvent *ev)
 	if (key == XK_Escape)
 		my->done = 1;
 	else
-	if (key == XK_BackSpace)
-	{
-		if (my->offset > 0)
-			my->input[--(my->offset)] = 0;
-	}
+	if (key == XK_BackSpace && my->offset > 0)
+		my->input[--(my->offset)] = 0;
 	else
-	if (key == XK_Up)
+	if (key == XK_Up || key == XK_KP_Up || key == XK_KP_Subtract)
 		my->current = (my->current == 0 ? my->max_lines-1: my->current-1);
 	else
-	if (key == XK_Down || key == XK_Tab)
+	if (key == XK_Down || key == XK_Tab || key == XK_KP_Add)
 		my->current = (my->current == my->max_lines-1 ? 0: my->current+1);
 	else
-	if (key == XK_Return)
-	{
-		if (my->filtered[my->current])
-			my->selected = my->filtered[my->current];
-		else
-		if (my->manual)
-			strcpy(my->manual, my->input);
-		my->done = 1;
-	}
+	if (key == XK_Return || key == XK_KP_Enter)
+		menu_select_current(my);
 	else
 	if (!iscntrl(*pad) && my->offset < my->input_size-1)
 	{
@@ -591,36 +613,21 @@ void menu_key(struct localmenu *my, XEvent *ev)
 	menu_draw(my);
 }
 
-// take over keyboard for popup menu
-int menu_grab(struct localmenu *my)
-{
-	int i;
-	for (i = 0; i < 1000; i++)
-	{
-		if (XGrabKeyboard(display, my->window, True, GrabModeAsync, GrabModeAsync, CurrentTime) == GrabSuccess)
-			return 1;
-		usleep(1000);
-	}
-	return 0;
-}
-
 // menu
-int menu(Window root, char **lines, char *manual)
+int menu(char **lines, char *manual, int firstsel)
 {
-	int i, l, scr;
+	int i, l;
 	struct localmenu _my, *my = &_my;
-
-	XWindowAttributes *attr = window_get_attributes(root);
-	workarea mon; monitor_active(attr->screen, &mon);
-	scr = XScreenNumberOfScreen(attr->screen);
+	workarea mon; monitor_active(&mon);
 
 	// this never fails, afaics. we get some sort of font, no matter what
-	my->font = XftFontOpenName(display, scr, config_menu_font);
-	XftColorAllocName(display, DefaultVisual(display, scr), DefaultColormap(display, scr), config_menu_fg, &my->fg);
-	XftColorAllocName(display, DefaultVisual(display, scr), DefaultColormap(display, scr), config_menu_bg, &my->bg);
-	XftColorAllocName(display, DefaultVisual(display, scr), DefaultColormap(display, scr), config_menu_hlfg, &my->hlfg);
-	XftColorAllocName(display, DefaultVisual(display, scr), DefaultColormap(display, scr), config_menu_hlbg, &my->hlbg);
-	my->line_height = my->font->ascent + my->font->descent +2; // +2 pixel extra line spacing
+	my->font = XftFontOpenName(display, screen_id, config_menu_font);
+	XftColorAllocName(display, DefaultVisual(display, screen_id), DefaultColormap(display, screen_id), config_menu_fg,    &my->fg);
+	XftColorAllocName(display, DefaultVisual(display, screen_id), DefaultColormap(display, screen_id), config_menu_bg,    &my->bg);
+	XftColorAllocName(display, DefaultVisual(display, screen_id), DefaultColormap(display, screen_id), config_menu_bgalt, &my->bgalt);
+	XftColorAllocName(display, DefaultVisual(display, screen_id), DefaultColormap(display, screen_id), config_menu_hlfg,  &my->hlfg);
+	XftColorAllocName(display, DefaultVisual(display, screen_id), DefaultColormap(display, screen_id), config_menu_hlbg,  &my->hlbg);
+	my->line_height = my->font->ascent + my->font->descent +4; // +2 pixel extra line spacing
 
 	for (l = 0, i = 0; lines[i]; i++) l = MAX(l, strlen(lines[i]));
 
@@ -630,21 +637,22 @@ int menu(Window root, char **lines, char *manual)
 	my->input_size  = MAX(l, 100);
 	my->filtered    = allocate_clear(sizeof(char*) * (my->num_lines+1));
 	my->input       = allocate_clear((my->input_size+1)*3); // utf8 in copied line
-	my->current     = 0; // index of currently highlighted line
+	my->current     = firstsel; // index of currently highlighted line
 	my->offset      = 0; // length of text in input buffer
 	my->done        = 0; // bailout flag
 	my->horz_pad    = 5; // horizontal padding
 	my->vert_pad    = 5; // vertical padding
-	my->width       = (mon.w/100)*config_menu_width;
+	my->width       = config_menu_width < 101 ? (mon.w/100)*config_menu_width: config_menu_width;
 	my->height      = ((my->line_height) * (my->max_lines+1)) + (my->vert_pad*2);
-	my->xbg         = color_get(display, config_menu_bg);
+	my->xbg         = color_get(config_menu_bg);
 	my->selected    = NULL;
 	my->manual      = manual;
 
 	int x = mon.x + ((mon.w - my->width)/2);
 	int y = mon.y + (mon.h/2) - (my->height/2);
+	int b = 1;
 
-	my->window = XCreateSimpleWindow(display, root, x, y, my->width, my->height, 0, my->xbg, my->xbg);
+	my->window = XCreateSimpleWindow(display, root, x-b, y-b, my->width, my->height, b, color_get(config_menu_bc), my->xbg);
 	// make it an unmanaged window
 	window_set_atom_prop(my->window, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1);
 	window_set_atom_prop(my->window, netatoms[_NET_WM_WINDOW_TYPE], &netatoms[_NET_WM_WINDOW_TYPE_DOCK], 1);
@@ -652,8 +660,8 @@ int menu(Window root, char **lines, char *manual)
 
 	// drawing environment
 	my->gc     = XCreateGC(display, my->window, 0, 0);
-	my->canvas = XCreatePixmap(display, root, my->width, my->height, DefaultDepth(display, scr));
-	my->draw   = XftDrawCreate(display, my->canvas, DefaultVisual(display, scr), DefaultColormap(display, scr));
+	my->canvas = XCreatePixmap(display, root, my->width, my->height, DefaultDepth(display, screen_id));
+	my->draw   = XftDrawCreate(display, my->canvas, DefaultVisual(display, screen_id), DefaultColormap(display, screen_id));
 
 	// input keymap->charmap handling
 	my->xim = XOpenIM(display, NULL, NULL, NULL);
@@ -661,7 +669,7 @@ int menu(Window root, char **lines, char *manual)
 
 	menu_draw(my);
 	XMapRaised(display, my->window);
-	if (!menu_grab(my))
+	if (!take_keyboard(my->window))
 	{
 		fprintf(stderr, "cannot grab keyboard!\n");
 		return my->max_lines;
@@ -682,7 +690,8 @@ int menu(Window root, char **lines, char *manual)
 	XftDrawDestroy(my->draw);
 	XFreeGC(display, my->gc);
 	XftFontClose(display, my->font);
-	XUngrabKeyboard(display, CurrentTime);
+	XDestroyWindow(display, my->window);
+	release_keyboard();
 	free(my->input);
 
 	if (my->selected)
@@ -698,7 +707,7 @@ int menu(Window root, char **lines, char *manual)
 #define FORK 1
 #define NOFORK 2
 
-void run_switcher(Window root, int mode, int fmode)
+void run_switcher(int mode, int fmode)
 {
 	// TODO: this whole function is messy. build a nicer solution
 	char pattern[50], **list = NULL;
@@ -771,7 +780,7 @@ void run_switcher(Window root, int mode, int fmode)
 			// strangeness...
 			display = XOpenDisplay(0);
 			XSync(display, True);
-			int n = menu(root, list, NULL);
+			int n = menu(list, NULL, 1);
 			if (n >= 0 && list[n])
 			{
 				if (mode == ALLWINDOWS)
@@ -802,10 +811,10 @@ void handle_keypress(XEvent *ev)
 	KeySym key = XkbKeycodeToKeysym(display, ev->xkey.keycode, 0, 0);
 
 	if ((all_windows_modmask == AnyModifier || ev->xkey.state & all_windows_modmask) && key == all_windows_keysym)
-		run_switcher(ev->xany.window, ALLWINDOWS, FORK);
+		run_switcher(ALLWINDOWS, FORK);
 
 	if ((desktop_windows_modmask == AnyModifier || ev->xkey.state & desktop_windows_modmask) && key == desktop_windows_keysym)
-		run_switcher(ev->xany.window, DESKTOPWINDOWS, FORK);
+		run_switcher(DESKTOPWINDOWS, FORK);
 }
 
 // convert a Mod+key arg to mod mask and keysym
@@ -834,7 +843,7 @@ void parse_key(char *combo, unsigned int *mod, KeySym *key)
 }
 
 // bind a key combination on a root window, compensating for Lock* states
-void grab_key(Window root, unsigned int modmask, KeySym key)
+void grab_key(unsigned int modmask, KeySym key)
 {
 	KeyCode keycode = XKeysymToKeycode(display, key);
 	XUngrabKey(display, keycode, AnyModifier, root);
@@ -859,7 +868,7 @@ void grab_key(Window root, unsigned int modmask, KeySym key)
 
 int main(int argc, char *argv[])
 {
-	int i, j, scr;
+	int i, j;
 
 	// catch help request
 	if (find_arg(argc, argv, "-help") >= 0
@@ -875,6 +884,9 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 	signal(SIGCHLD, catch_exit);
+	screen = DefaultScreenOfDisplay(display);
+	screen_id = DefaultScreen(display);
+	root = DefaultRootWindow(display);
 	XSync(display, False); xerror = XSetErrorHandler(oops); XSync(display, False);
 
 	// determine numlock mask so we can bind on keys with and without it
@@ -897,18 +909,21 @@ int main(int argc, char *argv[])
 	config_menu_font  = find_arg_str(ac, av, "-font", MENUXFTFONT);
 	config_menu_fg    = find_arg_str(ac, av, "-fg", MENUFG);
 	config_menu_bg    = find_arg_str(ac, av, "-bg", MENUBG);
+	config_menu_bgalt = find_arg_str(ac, av, "-bgalt", MENUBGALT);
 	config_menu_hlfg  = find_arg_str(ac, av, "-hlfg", MENUHLFG);
 	config_menu_hlbg  = find_arg_str(ac, av, "-hlbg", MENUHLBG);
+	config_menu_bc    = find_arg_str(ac, av, "-bc", MENUBC);
+	config_menu_bw    = find_arg_int(ac, av, "-bw", 1);
 
 	// flags to run immediately and exit
 	if (find_arg(ac, av, "-now") >= 0)
 	{
-		run_switcher(RootWindow(display, DefaultScreen(display)), ALLWINDOWS, NOFORK);
+		run_switcher(ALLWINDOWS, NOFORK);
 		exit(EXIT_SUCCESS);
 	}
 	if (find_arg(ac, av, "-dnow") >= 0)
 	{
-		run_switcher(RootWindow(display, DefaultScreen(display)), DESKTOPWINDOWS, NOFORK);
+		run_switcher(DESKTOPWINDOWS, NOFORK);
 		exit(EXIT_SUCCESS);
 	}
 	// in background mode from here on
@@ -920,12 +935,8 @@ int main(int argc, char *argv[])
 	parse_key(find_arg_str(ac, av, "-dkey", "F11"), &desktop_windows_modmask, &desktop_windows_keysym);
 
 	// bind key combos
-	for (scr = 0; scr < ScreenCount(display); scr++)
-	{
-		Window root = RootWindow(display, scr);
-		grab_key(root, all_windows_modmask, all_windows_keysym);
-		grab_key(root, desktop_windows_modmask, desktop_windows_keysym);
-	}
+	grab_key(all_windows_modmask, all_windows_keysym);
+	grab_key(desktop_windows_modmask, desktop_windows_keysym);
 
 	XEvent ev;
 	for (;;)
