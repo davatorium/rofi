@@ -476,7 +476,9 @@ void monitor_active(workarea *mon)
 // _NET_WM_STATE_*
 int client_has_state(client *c, Atom state)
 {
-	int i; for (i = 0; i < c->states; i++) if (c->state[i] == state) return 1;
+	int i;
+	for (i = 0; i < c->states; i++)
+		if (c->state[i] == state) return 1;
 	return 0;
 }
 
@@ -713,7 +715,9 @@ void run_switcher(int mode, int fmode)
 		// calc widths of fields
 		for (i = nwins-1; i > -1; i--)
 		{
-			if ((c = window_client(wins[i])))
+			if ((c = window_client(wins[i]))
+				&& !client_has_state(c, netatoms[_NET_WM_STATE_SKIP_PAGER])
+				&& !client_has_state(c, netatoms[_NET_WM_STATE_SKIP_TASKBAR]))
 			{
 				if (mode == DESKTOPWINDOWS)
 				{
