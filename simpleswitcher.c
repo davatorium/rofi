@@ -52,6 +52,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define OVERLAP(a,b,c,d) (((a)==(c) && (b)==(d)) || MIN((a)+(b), (c)+(d)) - MAX((a), (c)) > 0)
 #define INTERSECT(x,y,w,h,x1,y1,w1,h1) (OVERLAP((x),(w),(x1),(w1)) && OVERLAP((y),(h),(y1),(h1)))
 
+typedef unsigned char bool;
+typedef unsigned long long bitmap;
+
 void* allocate(unsigned long bytes)
 {
 	void *ptr = malloc(bytes);
@@ -159,6 +162,7 @@ Atom netatoms[NETATOMS];
 #define ADD 1
 #define REMOVE 0
 #define TOGGLE 2
+
 
 // X error handler
 int oops(Display *d, XErrorEvent *ee)
@@ -507,198 +511,142 @@ client* window_client(Window win)
 	return c;
 }
 
-// built-in filterable popup menu list
-struct localmenu {
-	Window window;
-	GC gc;
-	Pixmap canvas;
-	XftFont *font;
-	XftColor *color;
-	XftDraw *draw;
-	XftColor fg, bg, hlfg, hlbg, bgalt;
-	unsigned long xbg;
-	char **lines, **filtered;
-	int done, max_lines, num_lines, input_size, line_height;
-	int current, width, height, horz_pad, vert_pad, offset;
-	char *input, *selected, *manual;
-	XIM xim;
-	XIC xic;
-};
+#include "textbox.c"
 
-// redraw the popup menu window
-void menu_draw(struct localmenu *my)
+void menu_draw(textbox *text, textbox **boxes, int max_lines, int selected, char **filtered)
 {
-	int i, n;
-
-	// draw text input bar
-	char bar[100]; int len = snprintf(bar, 100, ">.%s", my->input), cursor = MAX(2, my->line_height/10);
-	XGlyphInfo extents; XftTextExtentsUtf8(display, my->font, (unsigned char*)bar, len, &extents);
-	bar[1] = ' '; // XftTextExtentsUtf8 trims trailing space. replace the leading period we used to ensure cursor offset
-	XftDrawRect(my->draw, &my->bg, 0, 0, my->width, my->height);
-	XftDrawStringUtf8(my->draw, &my->fg, my->font, my->horz_pad, my->vert_pad+my->line_height-my->font->descent, (unsigned char*)bar, len);
-	XftDrawRect(my->draw, &my->fg, extents.width + my->horz_pad + cursor, my->vert_pad+2, cursor, my->line_height-4);
-
-	// filter lines by current input text
-	memset(my->filtered, 0, sizeof(char*) * (my->num_lines+1));
-	for (i = 0, n = 0; my->lines[i]; i++)
-		if (!my->offset || strcasestr(my->lines[i], my->input))
-			my->filtered[n++] = my->lines[i];
-	// vertical bounds of highlight bar
-	my->current = MAX(0, MIN(my->current, n-1));
-	for (i = 0; my->filtered[i]; i++)
+	int i;
+	textbox_draw(text);
+	for (i = 0; i < max_lines; i++)
 	{
-		XftColor fg = my->fg;
-		// vertical position of *top* of current line
-		int y = my->vert_pad+(my->line_height*(i+1));
-		// http://en.wikipedia.org/wiki/Typeface#Font_metrics
-		int font_baseline = y + my->line_height - my->font->descent -2;
-		// are we highlighting this line?
-		if (i == my->current)
-		{
-			fg = my->hlfg;
-			XftDrawRect(my->draw, &my->hlbg, my->horz_pad, y, my->width-(my->horz_pad*2), my->line_height);
-		} else
-		if (!(i%2))
-		{
-			// shade alternate lines for better readability
-			XftDrawRect(my->draw, &my->bgalt, my->horz_pad, y, my->width-(my->horz_pad*2), my->line_height);
-		}
-		XftDrawStringUtf8(my->draw, &fg, my->font, my->horz_pad, font_baseline, (unsigned char*)my->filtered[i], strlen(my->filtered[i]));
+		textbox_font(boxes[i], config_menu_font,
+			i == selected ? config_menu_hlfg: config_menu_fg,
+			i == selected ? config_menu_hlbg: config_menu_bg);
+		textbox_text(boxes[i], filtered[i] ? filtered[i]: "");
+		textbox_draw(boxes[i]);
 	}
-	// double buffering
-	XCopyArea(display, my->canvas, my->window, my->gc, 0, 0, my->width, my->height, 0, 0);
 }
 
-// select currently highlighted line and exit
-void menu_select_current(struct localmenu *my)
+int menu(char **lines, char **input, char *prompt, int selected)
 {
-	if (my->filtered[my->current])
-		my->selected = my->filtered[my->current];
-	else
-	if (my->manual)
-		strcpy(my->manual, my->input);
-	my->done = 1;
-}
-
-// handle popup menu text input for filtering
-void menu_key(struct localmenu *my, XEvent *ev)
-{
-	char pad[32]; KeySym key; Status stat;
-	int len = XmbLookupString(my->xic, &ev->xkey, pad, sizeof(pad), &key, &stat);
-	if (stat == XBufferOverflow) return;
-	pad[len] = 0;
-
-	key = XkbKeycodeToKeysym(display, ev->xkey.keycode, 0, 0);
-
-	if (key == XK_Escape)
-		my->done = 1;
-	else
-	if (key == XK_BackSpace && my->offset > 0)
-		my->input[--(my->offset)] = 0;
-	else
-	if (key == XK_Up || key == XK_KP_Up || key == XK_KP_Subtract)
-		my->current = (my->current == 0 ? my->max_lines-1: my->current-1);
-	else
-	if (key == XK_Down || key == XK_Tab || key == XK_KP_Add)
-		my->current = (my->current == my->max_lines-1 ? 0: my->current+1);
-	else
-	if (key == XK_Return || key == XK_KP_Enter)
-		menu_select_current(my);
-	else
-	if (!iscntrl(*pad) && my->offset < my->input_size-1)
-	{
-		my->input[my->offset++] = *pad;
-		my->input[my->offset] = 0;
-	}
-	menu_draw(my);
-}
-
-// menu
-int menu(char **lines, char *manual, int firstsel)
-{
-	int i, l;
-	struct localmenu _my, *my = &_my;
+	int line = -1, i, j, chosen = 0;
 	workarea mon; monitor_active(&mon);
 
-	// this never fails, afaics. we get some sort of font, no matter what
-	my->font = XftFontOpenName(display, screen_id, config_menu_font);
-	XftColorAllocName(display, DefaultVisual(display, screen_id), DefaultColormap(display, screen_id), config_menu_fg,    &my->fg);
-	XftColorAllocName(display, DefaultVisual(display, screen_id), DefaultColormap(display, screen_id), config_menu_bg,    &my->bg);
-	XftColorAllocName(display, DefaultVisual(display, screen_id), DefaultColormap(display, screen_id), config_menu_bgalt, &my->bgalt);
-	XftColorAllocName(display, DefaultVisual(display, screen_id), DefaultColormap(display, screen_id), config_menu_hlfg,  &my->hlfg);
-	XftColorAllocName(display, DefaultVisual(display, screen_id), DefaultColormap(display, screen_id), config_menu_hlbg,  &my->hlbg);
-	my->line_height = my->font->ascent + my->font->descent +4; // +2 pixel extra line spacing
+	int num_lines = 0; for (; lines[num_lines]; num_lines++);
+	int max_lines = MIN(config_menu_lines, num_lines);
+	selected = MAX(MIN(num_lines-1, selected), 0);
 
-	for (l = 0, i = 0; lines[i]; i++) l = MAX(l, strlen(lines[i]));
+	int w = config_menu_width < 101 ? (mon.w/100)*config_menu_width: config_menu_width;
+	int x = mon.x + (mon.w - w)/2;
 
-	my->lines       = lines;
-	my->num_lines   = i;
-	my->max_lines   = MIN(config_menu_lines, my->num_lines);
-	my->input_size  = MAX(l, 100);
-	my->filtered    = allocate_clear(sizeof(char*) * (my->num_lines+1));
-	my->input       = allocate_clear((my->input_size+1)*3); // utf8 in copied line
-	my->current     = firstsel; // index of currently highlighted line
-	my->offset      = 0; // length of text in input buffer
-	my->done        = 0; // bailout flag
-	my->horz_pad    = 5; // horizontal padding
-	my->vert_pad    = 5; // vertical padding
-	my->width       = config_menu_width < 101 ? (mon.w/100)*config_menu_width: config_menu_width;
-	my->height      = ((my->line_height) * (my->max_lines+1)) + (my->vert_pad*2);
-	my->xbg         = color_get(config_menu_bg);
-	my->selected    = NULL;
-	my->manual      = manual;
+	Window box = XCreateSimpleWindow(display, root, x, 0, w, 300, 1, color_get(config_menu_bc), color_get(config_menu_bg));
+	XSelectInput(display, box, ExposureMask);
 
-	int x = mon.x + ((mon.w - my->width)/2);
-	int y = mon.y + (mon.h/2) - (my->height/2);
-	int b = 1;
-
-	my->window = XCreateSimpleWindow(display, root, x-b, y-b, my->width, my->height, b, color_get(config_menu_bc), my->xbg);
 	// make it an unmanaged window
-	window_set_atom_prop(my->window, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1);
-	window_set_atom_prop(my->window, netatoms[_NET_WM_WINDOW_TYPE], &netatoms[_NET_WM_WINDOW_TYPE_DOCK], 1);
-	XSelectInput(display, my->window, ExposureMask|KeyPressMask);
+	window_set_atom_prop(box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1);
+	//window_set_atom_prop(box, netatoms[_NET_WM_WINDOW_TYPE], &netatoms[_NET_WM_WINDOW_TYPE_DOCK], 1);
+	XSetWindowAttributes attr; attr.override_redirect = True;
+	XChangeWindowAttributes(display, box, CWOverrideRedirect, &attr);
 
-	// drawing environment
-	my->gc     = XCreateGC(display, my->window, 0, 0);
-	my->canvas = XCreatePixmap(display, root, my->width, my->height, DefaultDepth(display, screen_id));
-	my->draw   = XftDrawCreate(display, my->canvas, DefaultVisual(display, screen_id), DefaultColormap(display, screen_id));
+	// search text input
+	textbox *text = textbox_create(box, TB_AUTOHEIGHT|TB_EDITABLE, 5, 5, w-10, 1,
+		config_menu_font, config_menu_fg, config_menu_bg, "", prompt);
+	textbox_show(text);
 
-	// input keymap->charmap handling
-	my->xim = XOpenIM(display, NULL, NULL, NULL);
-	my->xic = XCreateIC(my->xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, my->window, XNFocusWindow, my->window, NULL);
+	int line_height = text->font->ascent + text->font->descent;
+	line_height += line_height/10;
 
-	menu_draw(my);
-	XMapRaised(display, my->window);
-	if (!take_keyboard(my->window))
+	// filtered list display
+	textbox **boxes = allocate_clear(sizeof(textbox*) * max_lines);
+
+	for (i = 0; i < max_lines; i++)
 	{
-		fprintf(stderr, "cannot grab keyboard!\n");
-		return my->max_lines;
+		boxes[i] = textbox_create(box, TB_AUTOHEIGHT, 5, (i+1) * line_height + 5, w-10, 1,
+			config_menu_font, config_menu_fg, config_menu_bg, lines[i], NULL);
+		textbox_show(boxes[i]);
 	}
-	menu_draw(my);
-	// main event loop
-	for(;!my->done;)
+
+	// filtered list
+	char **filtered = allocate_clear(sizeof(char*) * max_lines);
+	int filtered_lines = max_lines;
+
+	for (i = 0; i < max_lines; i++)
+		filtered[i] = lines[i];
+
+	// resize window vertically to suit
+	int h = line_height * (max_lines+1) + 8;
+	int y = mon.y + (mon.h - h)/2;
+	XMoveResizeWindow(display, box, x, y, w, h);
+	XMapRaised(display, box);
+
+	take_keyboard(box);
+	for (;;)
 	{
 		XEvent ev;
 		XNextEvent(display, &ev);
+
 		if (ev.type == Expose)
-			menu_draw(my);
+		{
+			while (XCheckTypedEvent(display, Expose, &ev));
+			menu_draw(text, boxes, max_lines, selected, filtered);
+		}
 		else
 		if (ev.type == KeyPress)
-			menu_key(my, &ev);
-	}
-	free(my->filtered);
-	XftDrawDestroy(my->draw);
-	XFreeGC(display, my->gc);
-	XftFontClose(display, my->font);
-	XDestroyWindow(display, my->window);
-	release_keyboard();
-	free(my->input);
+		{
+			while (XCheckTypedEvent(display, KeyPress, &ev));
 
-	if (my->selected)
-		for (i = 0; my->lines[i]; i++)
-			if (my->lines[i] == my->selected)
-				return i;
-	return -1;
+			int rc = textbox_keypress(text, &ev);
+			if (rc < 0)
+			{
+				chosen = 1;
+				break;
+			}
+			else
+			if (rc)
+			{
+				// input changed
+				for (i = 0, j = 0; i < num_lines && j < max_lines; i++)
+					if (strcasestr(lines[i], text->text))
+						filtered[j++] = lines[i];
+				filtered_lines = j;
+				selected = MAX(0, MIN(selected, j-1));
+				for (; j < max_lines; j++)
+					filtered[j] = NULL;
+			}
+			else
+			{
+				// unhandled key
+				KeySym key = XkbKeycodeToKeysym(display, ev.xkey.keycode, 0, 0);
+
+				if (key == XK_Escape)
+					break;
+
+				if (key == XK_Up)
+					selected = selected ? MAX(0, selected-1): MAX(0, filtered_lines-1);
+
+				if (key == XK_Down)
+					selected = selected < filtered_lines-1 ? MIN(filtered_lines-1, selected+1): 0;
+			}
+			menu_draw(text, boxes, max_lines, selected, filtered);
+		}
+	}
+	release_keyboard();
+
+	if (chosen && filtered[selected])
+		for (i = 0; line < 0 && i < num_lines; i++)
+			if (!strcmp(lines[i], filtered[selected]))
+				line = i;
+
+	if (line < 0 && input)
+		*input = strdup(text->text);
+
+	textbox_free(text);
+	for (i = 0; i < max_lines; i++)
+		textbox_free(boxes[i]);
+	XDestroyWindow(display, box);
+	free(filtered);
+
+	return line;
 }
 
 #define ALLWINDOWS 1
@@ -780,7 +728,7 @@ void run_switcher(int mode, int fmode)
 			// strangeness...
 			display = XOpenDisplay(0);
 			XSync(display, True);
-			int n = menu(list, NULL, 1);
+			int n = menu(list, NULL, "> ", 1);
 			if (n >= 0 && list[n])
 			{
 				if (mode == ALLWINDOWS)
