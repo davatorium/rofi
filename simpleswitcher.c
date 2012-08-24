@@ -87,6 +87,26 @@ void catch_exit(int sig)
 	while (0 < waitpid(-1, NULL, WNOHANG));
 }
 
+int execsh(char *cmd)
+{
+	// use sh for args parsing
+	return execlp("/bin/sh", "sh", "-c", cmd, NULL);
+}
+
+// execute sub-process
+pid_t exec_cmd(char *cmd)
+{
+	if (!cmd || !cmd[0]) return -1;
+	signal(SIGCHLD, catch_exit);
+	pid_t pid = fork();
+	if (!pid)
+	{
+		setsid();
+		execsh(cmd);
+		exit(EXIT_FAILURE);
+	}
+	return pid;
+}
 // cli arg handling
 int find_arg(int argc, char *argv[], char *key)
 {
@@ -728,7 +748,8 @@ void run_switcher(int mode, int fmode)
 			// strangeness...
 			display = XOpenDisplay(0);
 			XSync(display, True);
-			int n = menu(list, NULL, "> ", 1);
+			char *input = NULL;
+			int n = menu(list, &input, "> ", 1);
 			if (n >= 0 && list[n])
 			{
 				if (mode == ALLWINDOWS)
@@ -740,6 +761,12 @@ void run_switcher(int mode, int fmode)
 				}
 				window_send_message(root, ids->array[n], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
 					SubstructureNotifyMask | SubstructureRedirectMask);
+			}
+			else
+			// act as a launcher
+			if (input)
+			{
+				exec_cmd(input);
 			}
 			exit(EXIT_SUCCESS);
 		}
