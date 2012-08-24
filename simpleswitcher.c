@@ -414,12 +414,12 @@ int window_get_cardinal_prop(Window w, Atom atom, unsigned long *list, int count
 }
 
 // a ClientMessage
-int window_send_message(Window target, Window subject, Atom atom, unsigned long protocol, unsigned long mask)
+int window_send_message(Window target, Window subject, Atom atom, unsigned long protocol, unsigned long mask, Time time)
 {
 	XEvent e; memset(&e, 0, sizeof(XEvent));
 	e.xclient.type = ClientMessage;
 	e.xclient.message_type = atom;     e.xclient.window    = subject;
-	e.xclient.data.l[0]    = protocol; e.xclient.data.l[1] = CurrentTime;
+	e.xclient.data.l[0]    = protocol; e.xclient.data.l[1] = time;
 	e.xclient.send_event   = True;     e.xclient.format    = 32;
 	int r = XSendEvent(display, target, False, mask, &e) ?1:0;
 	XFlush(display);
@@ -531,6 +531,12 @@ client* window_client(Window win)
 	return c;
 }
 
+#define ALLWINDOWS 1
+#define DESKTOPWINDOWS 2
+
+unsigned int all_windows_modmask; KeySym all_windows_keysym;
+unsigned int desktop_windows_modmask; KeySym desktop_windows_keysym;
+
 #include "textbox.c"
 
 void menu_draw(textbox *text, textbox **boxes, int max_lines, int selected, char **filtered)
@@ -547,7 +553,7 @@ void menu_draw(textbox *text, textbox **boxes, int max_lines, int selected, char
 	}
 }
 
-int menu(char **lines, char **input, char *prompt, int selected)
+int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 {
 	int line = -1, i, j, chosen = 0;
 	workarea mon; monitor_active(&mon);
@@ -619,6 +625,9 @@ int menu(char **lines, char **input, char *prompt, int selected)
 		{
 			while (XCheckTypedEvent(display, KeyPress, &ev));
 
+			if (time)
+				*time = ev.xkey.time;
+
 			int rc = textbox_keypress(text, &ev);
 			if (rc < 0)
 			{
@@ -647,8 +656,10 @@ int menu(char **lines, char **input, char *prompt, int selected)
 				// unhandled key
 				KeySym key = XkbKeycodeToKeysym(display, ev.xkey.keycode, 0, 0);
 
-				if (key == XK_Escape)
-					break;
+				if (key == XK_Escape
+					|| ((all_windows_modmask     == AnyModifier || ev.xkey.state & all_windows_modmask    ) && key == all_windows_keysym)
+					|| ((desktop_windows_modmask == AnyModifier || ev.xkey.state & desktop_windows_modmask) && key == desktop_windows_keysym))
+						break;
 
 				if (key == XK_Up)
 					selected = selected ? MAX(0, selected-1): MAX(0, filtered_lines-1);
@@ -676,9 +687,6 @@ int menu(char **lines, char **input, char *prompt, int selected)
 
 	return line;
 }
-
-#define ALLWINDOWS 1
-#define DESKTOPWINDOWS 2
 
 #define FORK 1
 #define NOFORK 2
@@ -757,18 +765,19 @@ void run_switcher(int mode, int fmode)
 			display = XOpenDisplay(0);
 			XSync(display, True);
 			char *input = NULL;
-			int n = menu(list, &input, "> ", 1);
+			Time time;
+			int n = menu(list, &input, "> ", 1, &time);
 			if (n >= 0 && list[n])
 			{
 				if (mode == ALLWINDOWS)
 				{
 					// TODO: get rid of strtol
 					window_send_message(root, root, netatoms[_NET_CURRENT_DESKTOP], strtol(list[n], NULL, 10)-1,
-						SubstructureNotifyMask | SubstructureRedirectMask);
+						SubstructureNotifyMask | SubstructureRedirectMask, time);
 					XSync(display, False);
 				}
 				window_send_message(root, ids->array[n], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
-					SubstructureNotifyMask | SubstructureRedirectMask);
+					SubstructureNotifyMask | SubstructureRedirectMask, time);
 			}
 			else
 			// act as a launcher
@@ -784,9 +793,6 @@ void run_switcher(int mode, int fmode)
 	free(wins);
 	winlist_free(ids);
 }
-
-unsigned int all_windows_modmask; KeySym all_windows_keysym;
-unsigned int desktop_windows_modmask; KeySym desktop_windows_keysym;
 
 // KeyPress event
 void handle_keypress(XEvent *ev)
