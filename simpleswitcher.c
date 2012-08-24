@@ -588,10 +588,14 @@ int menu(char **lines, char **input, char *prompt, int selected)
 
 	// filtered list
 	char **filtered = allocate_clear(sizeof(char*) * max_lines);
+	int *line_map = allocate_clear(sizeof(int) * max_lines);
 	int filtered_lines = max_lines;
 
 	for (i = 0; i < max_lines; i++)
+	{
 		filtered[i] = lines[i];
+		line_map[i] = i;
+	}
 
 	// resize window vertically to suit
 	int h = line_height * (max_lines+1) + 8;
@@ -626,8 +630,13 @@ int menu(char **lines, char **input, char *prompt, int selected)
 			{
 				// input changed
 				for (i = 0, j = 0; i < num_lines && j < max_lines; i++)
+				{
 					if (strcasestr(lines[i], text->text))
+					{
+						line_map[j] = i;
 						filtered[j++] = lines[i];
+					}
+				}
 				filtered_lines = j;
 				selected = MAX(0, MIN(selected, j-1));
 				for (; j < max_lines; j++)
@@ -644,7 +653,7 @@ int menu(char **lines, char **input, char *prompt, int selected)
 				if (key == XK_Up)
 					selected = selected ? MAX(0, selected-1): MAX(0, filtered_lines-1);
 
-				if (key == XK_Down)
+				if (key == XK_Down || key == XK_Tab)
 					selected = selected < filtered_lines-1 ? MIN(filtered_lines-1, selected+1): 0;
 			}
 			menu_draw(text, boxes, max_lines, selected, filtered);
@@ -653,9 +662,7 @@ int menu(char **lines, char **input, char *prompt, int selected)
 	release_keyboard();
 
 	if (chosen && filtered[selected])
-		for (i = 0; line < 0 && i < num_lines; i++)
-			if (!strcmp(lines[i], filtered[selected]))
-				line = i;
+		line = line_map[selected];
 
 	if (line < 0 && input)
 		*input = strdup(text->text);
@@ -665,6 +672,7 @@ int menu(char **lines, char **input, char *prompt, int selected)
 		textbox_free(boxes[i]);
 	XDestroyWindow(display, box);
 	free(filtered);
+	free(line_map);
 
 	return line;
 }
