@@ -1,5 +1,7 @@
 CFLAGS?=-Wall -O2
 LDADD?=$(shell pkg-config --cflags --libs x11 xinerama x11 xft)
+PREFIX?=$(DESTDIR)/usr
+BINDIR?=$(PREFIX)/bin
 
 all: normal
 
@@ -8,6 +10,9 @@ normal:
 
 debug:
 	$(CC) $(CFLAGS) -Wunused-parameter -g -DDEBUG $(LDADD) -o simpleswitcher-debug simpleswitcher.c
+
+install:
+	install -Dm 755 simpleswitcher $(BINDIR)/simpleswitcher
 
 clean:
 	rm -f simpleswitcher simpleswitcher-debug
