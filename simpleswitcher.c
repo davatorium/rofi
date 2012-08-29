@@ -557,7 +557,7 @@ void menu_draw(textbox *text, textbox **boxes, int max_lines, int selected, char
 
 int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 {
-	int line = -1, i, j, chosen = 0;
+	int line = -1, i, j, chosen = 0, aborted = 0;
 	workarea mon; monitor_active(&mon);
 
 	int num_lines = 0; for (; lines[num_lines]; num_lines++);
@@ -659,9 +659,12 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 				KeySym key = XkbKeycodeToKeysym(display, ev.xkey.keycode, 0, 0);
 
 				if (key == XK_Escape
-					|| ((all_windows_modmask     == AnyModifier || ev.xkey.state & all_windows_modmask    ) && key == all_windows_keysym)
+					|| ((all_windows_modmask == AnyModifier || ev.xkey.state & all_windows_modmask) && key == all_windows_keysym)
 					|| ((desktop_windows_modmask == AnyModifier || ev.xkey.state & desktop_windows_modmask) && key == desktop_windows_keysym))
-						break;
+				{
+					aborted = 1;
+					break;
+				}
 
 				if (key == XK_Up)
 					selected = selected ? MAX(0, selected-1): MAX(0, filtered_lines-1);
@@ -677,7 +680,7 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 	if (chosen && filtered[selected])
 		line = line_map[selected];
 
-	if (line < 0 && input)
+	if (line < 0 && !aborted && input)
 		*input = strdup(text->text);
 
 	textbox_free(text);
