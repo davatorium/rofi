@@ -44,6 +44,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <signal.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <err.h>
 #include <X11/extensions/Xinerama.h>
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -708,7 +709,8 @@ void run_switcher(int mode, int fmode)
 	// if we happen to have a window destroyed while we're working...
 	winlist *ids = winlist_new();
 
-	window_get_cardinal_prop(root, netatoms[_NET_CURRENT_DESKTOP], &current_desktop, 1);
+	if (!window_get_cardinal_prop(root, netatoms[_NET_CURRENT_DESKTOP], &current_desktop, 1))
+		current_desktop = 0;
 
 	// find window list
 	Atom type; int nwins; unsigned long *wins = allocate_clear(sizeof(unsigned long) * 100);
@@ -732,13 +734,16 @@ void run_switcher(int mode, int fmode)
 				}
 				classfield = MAX(classfield, strlen(c->class));
 				winlist_append(ids, c->window, NULL);
+				warnx("%s", c->class);
 			}
 		}
 
 		// build line sprintf pattern
 		if (mode == ALLWINDOWS)
 		{
-			window_get_cardinal_prop(root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1);
+			if (!window_get_cardinal_prop(root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1))
+				desktops = 1;
+
 			plen += sprintf(pattern+plen, "%%-%ds  ", desktops < 10 ? 1: 2);
 		}
 		plen += sprintf(pattern+plen, "%%-%ds   %%s", MAX(5, classfield));
@@ -756,8 +761,12 @@ void run_switcher(int mode, int fmode)
 				{
 					// find client's desktop. this is zero-based, so we adjust by since most
 					// normal people don't think like this :-)
-					window_get_cardinal_prop(c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1);
-					if (wmdesktop < 0xFFFFFFFF) sprintf(desktop, "%d", (int)wmdesktop+1);
+					if (!window_get_cardinal_prop(c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1))
+						wmdesktop = 0xFFFFFFFF;
+
+					if (wmdesktop < 0xFFFFFFFF)
+						sprintf(desktop, "%d", (int)wmdesktop+1);
+
 					sprintf(line, pattern, desktop, c->class, c->title);
 				}
 				else	sprintf(line, pattern, c->class, c->title);
@@ -778,7 +787,7 @@ void run_switcher(int mode, int fmode)
 			int n = menu(list, &input, "> ", 1, &time);
 			if (n >= 0 && list[n])
 			{
-				if (mode == ALLWINDOWS)
+				if (mode == ALLWINDOWS && isdigit(list[n][0]))
 				{
 					// TODO: get rid of strtol
 					window_send_message(root, root, netatoms[_NET_CURRENT_DESKTOP], strtol(list[n], NULL, 10)-1,
