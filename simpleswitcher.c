@@ -734,7 +734,6 @@ void run_switcher(int mode, int fmode)
 				}
 				classfield = MAX(classfield, strlen(c->class));
 				winlist_append(ids, c->window, NULL);
-				warnx("%s", c->class);
 			}
 		}
 
