@@ -721,7 +721,6 @@ void run_switcher(int mode, int fmode)
 		for (i = nwins-1; i > -1; i--)
 		{
 			if ((c = window_client(wins[i]))
-				&& c->xattr.map_state == IsViewable
 				&& !c->xattr.override_redirect
 				&& !client_has_state(c, netatoms[_NET_WM_STATE_SKIP_PAGER])
 				&& !client_has_state(c, netatoms[_NET_WM_STATE_SKIP_TASKBAR]))
