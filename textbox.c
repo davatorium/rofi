@@ -1,4 +1,4 @@
-/* GoomwWM, Get out of my way, Window Manager!
+/*
 
 MIT/X11 License
 Copyright (c) 2012 Sean Pringle <sean.pringle@gmail.com>
@@ -32,7 +32,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define TB_EDITABLE 1<<19
 
 typedef struct {
-	bitmap flags;
+	unsigned long flags;
 	Window window, parent;
 	short x, y, w, h;
 	short cursor;
@@ -49,15 +49,19 @@ void textbox_text(textbox *tb, char *text);
 void textbox_moveresize(textbox *tb, int x, int y, int w, int h);
 
 // Xft text box, optionally editable
-textbox* textbox_create(Window parent, bitmap flags, short x, short y, short w, short h, char *font, char *fg, char *bg, char *text, char *prompt)
+textbox* textbox_create(Window parent, unsigned long flags, short x, short y, short w, short h, char *font, char *fg, char *bg, char *text, char *prompt)
 {
-	textbox *tb = allocate_clear(sizeof(textbox));
+	textbox *tb = calloc(1, sizeof(textbox));
 
 	tb->flags = flags;
 	tb->parent = parent;
 
 	tb->x = x; tb->y = y; tb->w = MAX(1, w); tb->h = MAX(1, h);
-	tb->window = XCreateSimpleWindow(display, tb->parent, tb->x, tb->y, tb->w, tb->h, 0, None, color_get(bg));
+
+	XColor color; Colormap map = DefaultColormap(display, DefaultScreen(display));
+	unsigned int cp = XAllocNamedColor(display, map, bg, &color, &color) ? color.pixel: None;
+
+	tb->window = XCreateSimpleWindow(display, tb->parent, tb->x, tb->y, tb->w, tb->h, 0, None, cp);
 
 	// need to preload the font to calc line height
 	textbox_font(tb, font, fg, bg);
@@ -82,10 +86,10 @@ textbox* textbox_create(Window parent, bitmap flags, short x, short y, short w, 
 void textbox_font(textbox *tb, char *font, char *fg, char *bg)
 {
 	if (tb->font) XftFontClose(display, tb->font);
-	tb->font = XftFontOpenName(display, screen_id, font);
+	tb->font = XftFontOpenName(display, DefaultScreen(display), font);
 
-	XftColorAllocName(display, DefaultVisual(display, screen_id), DefaultColormap(display, screen_id), fg, &tb->color_fg);
-	XftColorAllocName(display, DefaultVisual(display, screen_id), DefaultColormap(display, screen_id), bg, &tb->color_bg);
+	XftColorAllocName(display, DefaultVisual(display, DefaultScreen(display)), DefaultColormap(display, DefaultScreen(display)), fg, &tb->color_fg);
+	XftColorAllocName(display, DefaultVisual(display, DefaultScreen(display)), DefaultColormap(display, DefaultScreen(display)), bg, &tb->color_bg);
 }
 
 // outer code may need line height, width, etc
@@ -163,8 +167,8 @@ void textbox_draw(textbox *tb)
 	XGlyphInfo extents;
 
 	GC context    = XCreateGC(display, tb->window, 0, 0);
-	Pixmap canvas = XCreatePixmap(display, tb->window, tb->w, tb->h, DefaultDepth(display, screen_id));
-	XftDraw *draw = XftDrawCreate(display, canvas, DefaultVisual(display, screen_id), DefaultColormap(display, screen_id));
+	Pixmap canvas = XCreatePixmap(display, tb->window, tb->w, tb->h, DefaultDepth(display, DefaultScreen(display)));
+	XftDraw *draw = XftDrawCreate(display, canvas, DefaultVisual(display, DefaultScreen(display)), DefaultColormap(display, DefaultScreen(display)));
 
 	// clear canvas
 	XftDrawRect(draw, &tb->color_bg, 0, 0, tb->w, tb->h);
@@ -261,7 +265,7 @@ void textbox_insert(textbox *tb, int pos, char *str)
 	int len = strlen(tb->text), slen = strlen(str);
 	pos = MAX(0, MIN(len, pos));
 	// expand buffer
-	tb->text = reallocate(tb->text, len + slen + 1);
+	tb->text = realloc(tb->text, len + slen + 1);
 	// move everything after cursor upward
 	char *at = tb->text + pos;
 	memmove(at + slen, at, len - pos + 1);

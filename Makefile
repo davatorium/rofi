@@ -1,4 +1,4 @@
-CFLAGS?=-Wall -O2
+CFLAGS?=-Wall -Os
 LDADD?=`pkg-config --cflags --libs x11 xinerama xft`
 PREFIX?=$(DESTDIR)/usr
 BINDIR?=$(PREFIX)/bin
