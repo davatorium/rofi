@@ -667,9 +667,13 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 					break;
 				}
 
-				if (key == XK_Up)
+				else
+				// Up or Shift-Tab
+				if (key == XK_Up || (key == XK_Tab && ev.xkey.state & ShiftMask))
 					selected = selected ? MAX(0, selected-1): MAX(0, filtered_lines-1);
 
+				else
+				// Down or Tab
 				if (key == XK_Down || key == XK_Tab)
 					selected = selected < filtered_lines-1 ? MIN(filtered_lines-1, selected+1): 0;
 			}
