@@ -539,6 +539,9 @@ client* window_client(Window win)
 
 unsigned int all_windows_modmask; KeySym all_windows_keysym;
 unsigned int desktop_windows_modmask; KeySym desktop_windows_keysym;
+// flags to set if we switch modes on the fly
+int run_all_windows = 0, run_desktop_windows = 0, current_mode = 0;
+Window main_window = None;
 
 #include "textbox.c"
 
@@ -568,8 +571,19 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 	int w = config_menu_width < 101 ? (mon.w/100)*config_menu_width: config_menu_width;
 	int x = mon.x + (mon.w - w)/2;
 
-	Window box = XCreateSimpleWindow(display, root, x, 0, w, 300, 1, color_get(config_menu_bc), color_get(config_menu_bg));
-	XSelectInput(display, box, ExposureMask);
+	Window box;
+
+	// main window isn't explictly destroyed in case we switch modes. reusing it prevents flicker
+	if (main_window != None)
+	{
+		box = main_window;
+		XMoveResizeWindow(display, box, x, 0, w, 300);
+	}
+	else
+	{
+		box = XCreateSimpleWindow(display, root, x, 0, w, 300, 1, color_get(config_menu_bc), color_get(config_menu_bg));
+		XSelectInput(display, box, ExposureMask);
+	}
 
 	// make it an unmanaged window
 	window_set_atom_prop(box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1);
@@ -660,10 +674,18 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 				KeySym key = XkbKeycodeToKeysym(display, ev.xkey.keycode, 0, 0);
 
 				if (key == XK_Escape
+					// pressing one of the global key bindings closes the switcher. this allows fast closing of the menu if an item is not selected
 					|| ((all_windows_modmask == AnyModifier || ev.xkey.state & all_windows_modmask) && key == all_windows_keysym)
 					|| ((desktop_windows_modmask == AnyModifier || ev.xkey.state & desktop_windows_modmask) && key == desktop_windows_keysym))
 				{
 					aborted = 1;
+
+					// pressing a global key binding that does not match the current mode switches modes on the fly. this allow fast flipping back and forth
+					if (current_mode == DESKTOPWINDOWS && (all_windows_modmask == AnyModifier || ev.xkey.state & all_windows_modmask) && key == all_windows_keysym)
+						run_all_windows = 1;
+					if (current_mode == ALLWINDOWS && (desktop_windows_modmask == AnyModifier || ev.xkey.state & desktop_windows_modmask) && key == desktop_windows_keysym)
+						run_desktop_windows = 1;
+
 					break;
 				}
 
@@ -691,7 +713,7 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 	textbox_free(text);
 	for (i = 0; i < max_lines; i++)
 		textbox_free(boxes[i]);
-	XDestroyWindow(display, box);
+
 	free(filtered);
 	free(line_map);
 
@@ -704,86 +726,97 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 void run_switcher(int mode, int fmode)
 {
 	// TODO: this whole function is messy. build a nicer solution
-	char pattern[50], **list = NULL;
-	int i, classfield = 0, plen = 0, lines = 0;
-	unsigned long desktops = 0, current_desktop = 0;
-	Window w; client *c;
 
-	// windows we actually display. may be slightly different to _NET_CLIENT_LIST_STACKING
-	// if we happen to have a window destroyed while we're working...
-	winlist *ids = winlist_new();
-
-	if (!window_get_cardinal_prop(root, netatoms[_NET_CURRENT_DESKTOP], &current_desktop, 1))
-		current_desktop = 0;
-
-	// find window list
-	Atom type; int nwins; unsigned long *wins = allocate_clear(sizeof(unsigned long) * 100);
-	if (window_get_prop(root, netatoms[_NET_CLIENT_LIST_STACKING], &type, &nwins, wins, 100 * sizeof(unsigned long))
-		&& type == XA_WINDOW)
+	// we fork because it's technically possible to have multiple window
+	// lists up at once on a zaphod multihead X setup.
+	// this also happens to isolate the Xft font stuff in a child process
+	// that gets cleaned up every time. that library shows some valgrind
+	// strangeness...
+	if (fmode == FORK)
 	{
-		// calc widths of fields
-		for (i = nwins-1; i > -1; i--)
+		if (fork()) return;
+		display = XOpenDisplay(0);
+		XSync(display, True);
+	}
+
+	do {
+		if (run_all_windows)     mode = ALLWINDOWS;
+		if (run_desktop_windows) mode = DESKTOPWINDOWS;
+
+		run_all_windows = run_desktop_windows = 0;
+		current_mode = mode;
+
+		char pattern[50], **list = NULL;
+		int i, classfield = 0, plen = 0, lines = 0;
+		unsigned long desktops = 0, current_desktop = 0;
+		Window w; client *c;
+
+		// windows we actually display. may be slightly different to _NET_CLIENT_LIST_STACKING
+		// if we happen to have a window destroyed while we're working...
+		winlist *ids = winlist_new();
+
+		if (!window_get_cardinal_prop(root, netatoms[_NET_CURRENT_DESKTOP], &current_desktop, 1))
+			current_desktop = 0;
+
+		// find window list
+		Atom type; int nwins; unsigned long *wins = allocate_clear(sizeof(unsigned long) * 100);
+		if (window_get_prop(root, netatoms[_NET_CLIENT_LIST_STACKING], &type, &nwins, wins, 100 * sizeof(unsigned long))
+			&& type == XA_WINDOW)
 		{
-			if ((c = window_client(wins[i]))
-				&& !c->xattr.override_redirect
-				&& !client_has_state(c, netatoms[_NET_WM_STATE_SKIP_PAGER])
-				&& !client_has_state(c, netatoms[_NET_WM_STATE_SKIP_TASKBAR]))
+			// calc widths of fields
+			for (i = nwins-1; i > -1; i--)
 			{
-				if (mode == DESKTOPWINDOWS)
+				if ((c = window_client(wins[i]))
+					&& !c->xattr.override_redirect
+					&& !client_has_state(c, netatoms[_NET_WM_STATE_SKIP_PAGER])
+					&& !client_has_state(c, netatoms[_NET_WM_STATE_SKIP_TASKBAR]))
 				{
-					unsigned long wmdesktop = 0;
-					window_get_cardinal_prop(c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1);
-					if (wmdesktop != current_desktop) continue;
+					if (mode == DESKTOPWINDOWS)
+					{
+						unsigned long wmdesktop = 0;
+						window_get_cardinal_prop(c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1);
+						if (wmdesktop != current_desktop) continue;
+					}
+					classfield = MAX(classfield, strlen(c->class));
+					winlist_append(ids, c->window, NULL);
 				}
-				classfield = MAX(classfield, strlen(c->class));
-				winlist_append(ids, c->window, NULL);
 			}
-		}
 
-		// build line sprintf pattern
-		if (mode == ALLWINDOWS)
-		{
-			if (!window_get_cardinal_prop(root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1))
-				desktops = 1;
-
-			plen += sprintf(pattern+plen, "%%-%ds  ", desktops < 10 ? 1: 2);
-		}
-		plen += sprintf(pattern+plen, "%%-%ds   %%s", MAX(5, classfield));
-		list = allocate_clear(sizeof(char*) * (ids->len+1)); lines = 0;
-
-		// build the actual list
-		winlist_ascend(ids, i, w)
-		{
-			if ((c = window_client(w)))
+			// build line sprintf pattern
+			if (mode == ALLWINDOWS)
 			{
-				// final line format
-				unsigned long wmdesktop; char desktop[5]; desktop[0] = 0;
-				char *line = allocate(strlen(c->title) + strlen(c->class) + classfield + 50);
-				if (mode == ALLWINDOWS)
-				{
-					// find client's desktop. this is zero-based, so we adjust by since most
-					// normal people don't think like this :-)
-					if (!window_get_cardinal_prop(c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1))
-						wmdesktop = 0xFFFFFFFF;
+				if (!window_get_cardinal_prop(root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1))
+					desktops = 1;
 
-					if (wmdesktop < 0xFFFFFFFF)
-						sprintf(desktop, "%d", (int)wmdesktop+1);
-
-					sprintf(line, pattern, desktop, c->class, c->title);
-				}
-				else	sprintf(line, pattern, c->class, c->title);
-				list[lines++] = line;
+				plen += sprintf(pattern+plen, "%%-%ds  ", desktops < 10 ? 1: 2);
 			}
-		}
-		if (fmode == NOFORK || !fork())
-		{
-			// we fork because it's technically possible to have multiple window
-			// lists up at once on a zaphod multihead X setup.
-			// this also happens to isolate the Xft font stuff in a child process
-			// that gets cleaned up every time. that library shows some valgrind
-			// strangeness...
-			display = XOpenDisplay(0);
-			XSync(display, True);
+			plen += sprintf(pattern+plen, "%%-%ds   %%s", MAX(5, classfield));
+			list = allocate_clear(sizeof(char*) * (ids->len+1)); lines = 0;
+
+			// build the actual list
+			winlist_ascend(ids, i, w)
+			{
+				if ((c = window_client(w)))
+				{
+					// final line format
+					unsigned long wmdesktop; char desktop[5]; desktop[0] = 0;
+					char *line = allocate(strlen(c->title) + strlen(c->class) + classfield + 50);
+					if (mode == ALLWINDOWS)
+					{
+						// find client's desktop. this is zero-based, so we adjust by since most
+						// normal people don't think like this :-)
+						if (!window_get_cardinal_prop(c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1))
+							wmdesktop = 0xFFFFFFFF;
+
+						if (wmdesktop < 0xFFFFFFFF)
+							sprintf(desktop, "%d", (int)wmdesktop+1);
+
+						sprintf(line, pattern, desktop, c->class, c->title);
+					}
+					else	sprintf(line, pattern, c->class, c->title);
+					list[lines++] = line;
+				}
+			}
 			char *input = NULL;
 			Time time;
 			int n = menu(list, &input, "> ", 1, &time);
@@ -805,13 +838,17 @@ void run_switcher(int mode, int fmode)
 			{
 				exec_cmd(input);
 			}
-			exit(EXIT_SUCCESS);
+			for (i = 0; i < lines; i++)
+				free(list[i]);
+			free(list);
 		}
-		for (i = 0; i < lines; i++) free(list[i]);
-		free(list);
+		free(wins);
+		winlist_free(ids);
 	}
-	free(wins);
-	winlist_free(ids);
+	while (run_all_windows || run_desktop_windows);
+
+	if (fmode == FORK)
+		exit(EXIT_SUCCESS);
 }
 
 // KeyPress event
