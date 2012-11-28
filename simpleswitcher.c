@@ -572,24 +572,24 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 	int x = mon.x + (mon.w - w)/2;
 
 	Window box;
+	XWindowAttributes attr;
 
 	// main window isn't explictly destroyed in case we switch modes. reusing it prevents flicker
-	if (main_window != None)
+	if (main_window != None && XGetWindowAttributes(display, main_window, &attr))
 	{
 		box = main_window;
-		XMoveResizeWindow(display, box, x, 0, w, 300);
 	}
 	else
 	{
 		box = XCreateSimpleWindow(display, root, x, 0, w, 300, 1, color_get(config_menu_bc), color_get(config_menu_bg));
 		XSelectInput(display, box, ExposureMask);
+		// make it an unmanaged window
+		window_set_atom_prop(box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1);
+		//window_set_atom_prop(box, netatoms[_NET_WM_WINDOW_TYPE], &netatoms[_NET_WM_WINDOW_TYPE_DOCK], 1);
+		XSetWindowAttributes sattr; sattr.override_redirect = True;
+		XChangeWindowAttributes(display, box, CWOverrideRedirect, &sattr);
+		main_window = box;
 	}
-
-	// make it an unmanaged window
-	window_set_atom_prop(box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1);
-	//window_set_atom_prop(box, netatoms[_NET_WM_WINDOW_TYPE], &netatoms[_NET_WM_WINDOW_TYPE_DOCK], 1);
-	XSetWindowAttributes attr; attr.override_redirect = True;
-	XChangeWindowAttributes(display, box, CWOverrideRedirect, &attr);
 
 	// search text input
 	textbox *text = textbox_create(box, TB_AUTOHEIGHT|TB_EDITABLE, 5, 5, w-10, 1,
