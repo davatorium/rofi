@@ -18,10 +18,10 @@ endif
 all: normal
 
 normal:
-	$(CC) $(CFLAGS) $(LDADD) $(LDFLAGS) -o simpleswitcher simpleswitcher.c
+	$(CC)  -o simpleswitcher simpleswitcher.c $(CFLAGS) $(LDADD) $(LDFLAGS)
 
 debug:
-	$(CC) $(CFLAGS) -Wunused-parameter -g -DDEBUG $(LDADD) -o simpleswitcher-debug simpleswitcher.c
+	$(CC) -o simpleswitcher-debug simpleswitcher.c $(CFLAGS) -Wunused-parameter -g -DDEBUG $(LDADD) 
 
 install:
 	install -Dm 755 simpleswitcher $(BINDIR)/simpleswitcher
