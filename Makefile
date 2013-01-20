@@ -1,7 +1,19 @@
 CFLAGS?=-Wall -Os
-LDADD?=`pkg-config --cflags --libs x11 xinerama xft`
 PREFIX?=$(DESTDIR)/usr
 BINDIR?=$(PREFIX)/bin
+
+# Check deps.
+
+PKG_CONFIG?=$(shell which pkg-config)
+ifeq (${PKG_CONFIG},${EMPTY})
+$(error Failed to find pkg-config. Please install pkg-config)
+endif
+
+LDADD?=$(shell ${PKG_CONFIG} --cflags --libs x11 xinerama xft)
+
+ifeq (${LDADD},${EMPTY})
+$(error Failed to find the required dependencies: x11, xinerama, xft)
+endif
 
 all: normal
 
