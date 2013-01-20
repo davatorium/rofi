@@ -53,6 +53,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define OVERLAP(a,b,c,d) (((a)==(c) && (b)==(d)) || MIN((a)+(b), (c)+(d)) - MAX((a), (c)) > 0)
 #define INTERSECT(x,y,w,h,x1,y1,w1,h1) (OVERLAP((x),(w),(x1),(w1)) && OVERLAP((y),(h),(y1),(h1)))
 
+#define OPAQUE 0xffffffff
+#define OPACITY    "_NET_WM_WINDOW_OPACITY"
 typedef unsigned char bool;
 typedef unsigned long long bitmap;
 
@@ -295,7 +297,7 @@ typedef struct {
 #define MENUBC "black"
 
 char *config_menu_font, *config_menu_fg, *config_menu_bg, *config_menu_hlfg, *config_menu_hlbg, *config_menu_bgalt, *config_menu_bc;
-unsigned int config_menu_width, config_menu_lines, config_focus_mode, config_raise_mode, config_window_placement, config_menu_bw;
+unsigned int config_menu_width, config_menu_lines, config_focus_mode, config_raise_mode, config_window_placement, config_menu_bw, config_window_opacity;
 
 // allocate a pixel value for an X named color
 unsigned int color_get(const char *name)
@@ -592,7 +594,13 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 
         // Set the WM_NAME
         XStoreName(display, box, "simpleswitcher");
-	}
+
+        // Hack to set window opacity.
+        unsigned int opacity_set = (unsigned int)((config_window_opacity/100.0)* OPAQUE);
+        XChangeProperty(display, box, XInternAtom(display, OPACITY, False),
+                    XA_CARDINAL, 32, PropModeReplace,
+                    (unsigned char *) &opacity_set, 1L);
+    }
 
 	// search text input
 	textbox *text = textbox_create(box, TB_AUTOHEIGHT|TB_EDITABLE, 5, 5, w-10, 1,
@@ -963,6 +971,7 @@ int main(int argc, char *argv[])
 	config_menu_hlbg  = find_arg_str(ac, av, "-hlbg", MENUHLBG);
 	config_menu_bc    = find_arg_str(ac, av, "-bc", MENUBC);
 	config_menu_bw    = find_arg_int(ac, av, "-bw", 1);
+	config_window_opacity = find_arg_int(ac, av, "-o", 100);
 
 	// flags to run immediately and exit
 	if (find_arg(ac, av, "-now") >= 0)
