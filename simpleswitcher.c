@@ -589,6 +589,9 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 		XSetWindowAttributes sattr; sattr.override_redirect = True;
 		XChangeWindowAttributes(display, box, CWOverrideRedirect, &sattr);
 		main_window = box;
+
+        // Set the WM_NAME
+        XStoreName(display, box, "simpleswitcher");
 	}
 
 	// search text input
