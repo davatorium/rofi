@@ -725,6 +725,8 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 	for (i = 0; i < max_lines; i++)
 		textbox_free(boxes[i]);
 
+    free(boxes);
+
 	free(filtered);
 	free(line_map);
 
