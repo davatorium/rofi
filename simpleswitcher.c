@@ -2,6 +2,7 @@
 
 MIT/X11 License
 Copyright (c) 2012 Sean Pringle <sean.pringle@gmail.com>
+Modified 2013 Qball  Cow <qball@gmpclient.org>
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -561,6 +562,32 @@ void menu_draw(textbox *text, textbox **boxes, int max_lines, int selected, char
 	}
 }
 
+
+/* Very bad implementation of tab completion.
+ * It will complete to the common prefix
+ */
+static int calculate_common_prefix(char **filtered, int max_lines)
+{
+    int length_prefix = 0,j,found = 1;
+    if(filtered[0] != NULL) {
+        char *p = filtered[0];
+        do{
+            found = 1;
+            for(j=0; j < max_lines && filtered[j] != NULL; j++) {
+                if(filtered[j][length_prefix] == '\0' || filtered[j][length_prefix] != *p) {
+                    if(found)
+                        found=0;
+                    break;
+                }
+            }
+            if(found)
+                length_prefix++;
+            p++;
+        }while(found );
+    }
+    return length_prefix;
+}
+
 int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 {
 	int line = -1, i, j, chosen = 0, aborted = 0;
@@ -707,9 +734,21 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 
 				else
 				// Down or Tab
-				if (key == XK_Down || key == XK_Tab)
-					selected = selected < filtered_lines-1 ? MIN(filtered_lines-1, selected+1): 0;
-			}
+				if (key == XK_Down || key == XK_Tab) {
+                    int length_prefix = calculate_common_prefix(filtered, max_lines);
+                    printf("Prefix: %s:%d\n", filtered[0], length_prefix);
+                    if(length_prefix) {
+                        // Do not want to modify original string, so make copy.
+                        // not eff..
+                        char * str = strndup(filtered[0], length_prefix);
+                        textbox_text(text, str);
+                        textbox_cursor_end(text);
+                        free(str);
+                    } else {
+                        selected = selected < filtered_lines-1 ? MIN(filtered_lines-1, selected+1): 0;
+                    }
+                }
+            }
 			menu_draw(text, boxes, max_lines, selected, filtered);
 		}
 	}
@@ -796,6 +835,7 @@ void run_switcher(int mode, int fmode)
 			}
 
 			// build line sprintf pattern
+/*
 			if (mode == ALLWINDOWS)
 			{
 				if (!window_get_cardinal_prop(root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1))
@@ -803,6 +843,7 @@ void run_switcher(int mode, int fmode)
 
 				plen += sprintf(pattern+plen, "%%-%ds  ", desktops < 10 ? 1: 2);
 			}
+*/
 			plen += sprintf(pattern+plen, "%%-%ds   %%s", MAX(5, classfield));
 			list = allocate_clear(sizeof(char*) * (ids->len+1)); lines = 0;
 
@@ -814,6 +855,7 @@ void run_switcher(int mode, int fmode)
 					// final line format
 					unsigned long wmdesktop; char desktop[5]; desktop[0] = 0;
 					char *line = allocate(strlen(c->title) + strlen(c->class) + classfield + 50);
+/*
 					if (mode == ALLWINDOWS)
 					{
 						// find client's desktop. this is zero-based, so we adjust by since most
@@ -826,7 +868,7 @@ void run_switcher(int mode, int fmode)
 
 						sprintf(line, pattern, desktop, c->class, c->title);
 					}
-					else	sprintf(line, pattern, c->class, c->title);
+					else	*/sprintf(line, pattern, c->class, c->title);
 					list[lines++] = line;
 				}
 			}
