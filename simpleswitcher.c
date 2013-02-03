@@ -734,7 +734,12 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 
 				else
 				// Down or Tab
-				if (key == XK_Down || key == XK_Tab) {
+                if (key == XK_Down || key == XK_Tab)
+                {
+                    if(filtered_lines == 1) {
+                        chosen = 1;
+                        break;
+                    }
                     int length_prefix = calculate_common_prefix(filtered, max_lines);
                     printf("Prefix: %s:%d\n", filtered[0], length_prefix);
                     if(length_prefix) {
@@ -744,9 +749,9 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
                         textbox_text(text, str);
                         textbox_cursor_end(text);
                         free(str);
-                    } else {
-                        selected = selected < filtered_lines-1 ? MIN(filtered_lines-1, selected+1): 0;
                     }
+                    else
+                        selected = selected < filtered_lines-1 ? MIN(filtered_lines-1, selected+1): 0;
                 }
             }
 			menu_draw(text, boxes, max_lines, selected, filtered);
