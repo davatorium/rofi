@@ -692,16 +692,36 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 			else
 			if (rc)
 			{
+                /**
+                 * This is stupidly inefficient.
+                 */
 				// input changed
 				for (i = 0, j = 0; i < num_lines && j < max_lines; i++)
-				{
-					if (strcasestr(lines[i], text->text))
-					{
-						line_map[j] = i;
-						filtered[j++] = lines[i];
-					}
-				}
-				filtered_lines = j;
+                {
+                    char *saveptr = NULL, *token;
+                    // Copy string as strtok will modify it.
+                    char *text_cp = strdup(text->text);
+                    // Default, it is matched, until a token is not found.
+                    int match = 1;
+                    // Do a tokenized match.
+                    for(
+                            token = strtok_r(text_cp, " ", &saveptr);
+                            token != NULL && match;
+                            token = strtok_r(NULL, " ", &saveptr))
+                    {
+                        match = (strcasestr(lines[i], token) != NULL);
+                    }
+
+                    // If each token was matched, add it to list. 
+                    if(match)
+                    {
+                        line_map[j] = i;
+                        filtered[j++] = lines[i];
+                    }
+                    free(text_cp);
+                }
+                // Cleanup + bookkeeping.
+                filtered_lines = j;
 				selected = MAX(0, MIN(selected, j-1));
 				for (; j < max_lines; j++)
 					filtered[j] = NULL;
@@ -715,17 +735,28 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 					// pressing one of the global key bindings closes the switcher. this allows fast closing of the menu if an item is not selected
 					|| ((all_windows_modmask == AnyModifier || ev.xkey.state & all_windows_modmask) && key == all_windows_keysym)
 					|| ((desktop_windows_modmask == AnyModifier || ev.xkey.state & desktop_windows_modmask) && key == desktop_windows_keysym))
-				{
-					aborted = 1;
+                {
+                    aborted = 1;
 
-					// pressing a global key binding that does not match the current mode switches modes on the fly. this allow fast flipping back and forth
-					if (current_mode == DESKTOPWINDOWS && (all_windows_modmask == AnyModifier || ev.xkey.state & all_windows_modmask) && key == all_windows_keysym)
-						run_all_windows = 1;
-					if (current_mode == ALLWINDOWS && (desktop_windows_modmask == AnyModifier || ev.xkey.state & desktop_windows_modmask) && key == desktop_windows_keysym)
-						run_desktop_windows = 1;
-
-					break;
-				}
+                    // pressing a global key binding that does not match the current mode switches modes on the fly. this allow fast flipping back and forth
+                    if (
+                            current_mode == DESKTOPWINDOWS && 
+                            (all_windows_modmask == AnyModifier || ev.xkey.state & all_windows_modmask) &&
+                            key == all_windows_keysym
+                       )
+                    {
+                        run_all_windows = 1;
+                    }
+                    if (
+                            current_mode == ALLWINDOWS &&
+                            (desktop_windows_modmask == AnyModifier || ev.xkey.state & desktop_windows_modmask) &&
+                            key == desktop_windows_keysym
+                       )
+                    {
+                        run_desktop_windows = 1;
+                    }
+                    break;
+                }
 
 				else
 				// Up or Shift-Tab
