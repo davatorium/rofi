@@ -299,6 +299,7 @@ typedef struct {
 
 char *config_menu_font, *config_menu_fg, *config_menu_bg, *config_menu_hlfg, *config_menu_hlbg, *config_menu_bgalt, *config_menu_bc;
 unsigned int config_menu_width, config_menu_lines, config_focus_mode, config_raise_mode, config_window_placement, config_menu_bw, config_window_opacity;
+unsigned int config_zeltak_mode;
 
 // allocate a pixel value for an X named color
 unsigned int color_get(const char *name)
@@ -725,6 +726,10 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 				selected = MAX(0, MIN(selected, j-1));
 				for (; j < max_lines; j++)
 					filtered[j] = NULL;
+                if(config_zeltak_mode && filtered_lines == 1){
+                    chosen = 1;
+                    break;
+                }
 			}
 			else
 			{
@@ -773,7 +778,7 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
                     }
                     int length_prefix = calculate_common_prefix(filtered, max_lines);
                     printf("Prefix: %s:%d\n", filtered[0], length_prefix);
-                    if(length_prefix) {
+                    if(length_prefix && strncmp(filtered[0], text->text, length_prefix)) {
                         // Do not want to modify original string, so make copy.
                         // not eff..
                         char * str = strndup(filtered[0], length_prefix);
@@ -1052,6 +1057,8 @@ int main(int argc, char *argv[])
 	config_menu_bc    = find_arg_str(ac, av, "-bc", MENUBC);
 	config_menu_bw    = find_arg_int(ac, av, "-bw", 1);
 	config_window_opacity = find_arg_int(ac, av, "-o", 100);
+    
+    config_zeltak_mode = (find_arg(ac, av, "-zeltak") >= 0);
 
 	// flags to run immediately and exit
 	if (find_arg(ac, av, "-now") >= 0)
