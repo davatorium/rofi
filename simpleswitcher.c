@@ -777,8 +777,8 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
                         break;
                     }
                     int length_prefix = calculate_common_prefix(filtered, max_lines);
-                    printf("Prefix: %s:%d\n", filtered[0], length_prefix);
-                    if(length_prefix && strncmp(filtered[0], text->text, length_prefix)) {
+                    printf("Prefix: %s:%s:%d\n", filtered[0],text->text, length_prefix);
+                    if(length_prefix && strncasecmp(filtered[0], text->text, length_prefix)) {
                         // Do not want to modify original string, so make copy.
                         // not eff..
                         char * str = strndup(filtered[0], length_prefix);
