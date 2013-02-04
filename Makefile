@@ -1,4 +1,4 @@
-CFLAGS?=-Wall -Os -std=c99
+CFLAGS?=-Wall -Os 
 PREFIX?=$(DESTDIR)/usr
 BINDIR?=$(PREFIX)/bin
 
@@ -18,10 +18,10 @@ endif
 all: normal
 
 normal:
-	$(CC)  -o simpleswitcher simpleswitcher.c $(CFLAGS) $(LDADD) $(LDFLAGS)
+	$(CC)  -o simpleswitcher simpleswitcher.c -std=c99 $(CFLAGS) $(LDADD) $(LDFLAGS)
 
 debug:
-	$(CC) -o simpleswitcher-debug simpleswitcher.c $(CFLAGS) -Wunused-parameter -g -DDEBUG $(LDADD) 
+	$(CC) -o simpleswitcher-debug simpleswitcher.c -std=c99 $(CFLAGS) -Wunused-parameter -g -DDEBUG $(LDADD) 
 
 install:
 	install -Dm 755 simpleswitcher $(BINDIR)/simpleswitcher
