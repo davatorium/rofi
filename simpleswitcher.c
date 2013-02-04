@@ -86,6 +86,42 @@ void* reallocate(void *ptr, unsigned long bytes)
 	return ptr;
 }
 
+static inline char **tokenize(const char *input)
+{
+    if(input == NULL) return NULL;
+    char *saveptr = NULL, *token;
+    char **retv  = NULL;
+    // First entry is always full (modified) stringtext.
+    int num_tokens = 1;
+
+    //First entry is string that is modified.
+    retv = malloc(2*sizeof(char*));
+    retv[0] = strdup(input);
+    retv[1] = NULL;
+
+    // Iterate over tokens.
+    for(
+            token = strtok_r(retv[0], " ", &saveptr);
+            token != NULL; 
+            token = strtok_r(NULL, " ", &saveptr))
+    {
+        retv = realloc(retv, sizeof(char*)*(num_tokens+2)); 
+        retv[num_tokens+1] = NULL;
+        retv[num_tokens] = token;
+        num_tokens++;
+    }
+
+    return retv;
+}
+
+static inline void tokenize_free(char **ip)
+{
+    if(ip == NULL) return;
+    if(ip[0])
+        free(ip[0]);
+    free(ip);
+}
+
 void catch_exit(int sig)
 {
 	while (0 < waitpid(-1, NULL, WNOHANG));
@@ -693,24 +729,15 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 			else
 			if (rc)
 			{
-                /**
-                 * This is stupidly inefficient.
-                 */
+                char **tokens = tokenize(text->text);
 				// input changed
 				for (i = 0, j = 0; i < num_lines && j < max_lines; i++)
                 {
-                    char *saveptr = NULL, *token;
-                    // Copy string as strtok will modify it.
-                    char *text_cp = strdup(text->text);
-                    // Default, it is matched, until a token is not found.
                     int match = 1;
                     // Do a tokenized match.
-                    for(
-                            token = strtok_r(text_cp, " ", &saveptr);
-                            token != NULL && match;
-                            token = strtok_r(NULL, " ", &saveptr))
+                    if(tokens) for(int j  = 1; match && tokens[j]; j++)
                     {
-                        match = (strcasestr(lines[i], token) != NULL);
+                        match = (strcasestr(lines[i], tokens[j]) != NULL);
                     }
 
                     // If each token was matched, add it to list. 
@@ -719,7 +746,6 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
                         line_map[j] = i;
                         filtered[j++] = lines[i];
                     }
-                    free(text_cp);
                 }
                 // Cleanup + bookkeeping.
                 filtered_lines = j;
@@ -730,6 +756,7 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
                     chosen = 1;
                     break;
                 }
+                tokenize_free(tokens);
 			}
 			else
 			{
@@ -876,7 +903,6 @@ void run_switcher(int mode, int fmode)
 			}
 
 			// build line sprintf pattern
-/*
 			if (mode == ALLWINDOWS)
 			{
 				if (!window_get_cardinal_prop(root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1))
@@ -884,7 +910,7 @@ void run_switcher(int mode, int fmode)
 
 				plen += sprintf(pattern+plen, "%%-%ds  ", desktops < 10 ? 1: 2);
 			}
-*/
+
 			plen += sprintf(pattern+plen, "%%-%ds   %%s", MAX(5, classfield));
 			list = allocate_clear(sizeof(char*) * (ids->len+1)); lines = 0;
 
@@ -896,7 +922,6 @@ void run_switcher(int mode, int fmode)
 					// final line format
 					unsigned long wmdesktop; char desktop[5]; desktop[0] = 0;
 					char *line = allocate(strlen(c->title) + strlen(c->class) + classfield + 50);
-/*
 					if (mode == ALLWINDOWS)
 					{
 						// find client's desktop. this is zero-based, so we adjust by since most
@@ -909,8 +934,11 @@ void run_switcher(int mode, int fmode)
 
 						sprintf(line, pattern, desktop, c->class, c->title);
 					}
-					else	*/sprintf(line, pattern, c->class, c->title);
-					list[lines++] = line;
+					else
+                    {
+                        sprintf(line, pattern, c->class, c->title);
+                    }
+                    list[lines++] = line;
 				}
 			}
 			char *input = NULL;

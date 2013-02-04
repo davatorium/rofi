@@ -1,4 +1,4 @@
-CFLAGS?=-Wall -Os
+CFLAGS?=-Wall -Os -std=c99
 PREFIX?=$(DESTDIR)/usr
 BINDIR?=$(PREFIX)/bin
 
