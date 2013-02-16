@@ -336,6 +336,7 @@ typedef struct {
 char *config_menu_font, *config_menu_fg, *config_menu_bg, *config_menu_hlfg, *config_menu_hlbg, *config_menu_bgalt, *config_menu_bc;
 unsigned int config_menu_width, config_menu_lines, config_focus_mode, config_raise_mode, config_window_placement, config_menu_bw, config_window_opacity;
 unsigned int config_zeltak_mode;
+unsigned int config_i3_mode;
 
 // allocate a pixel value for an X named color
 unsigned int color_get(const char *name)
@@ -946,20 +947,25 @@ void run_switcher(int mode, int fmode)
 			int n = menu(list, &input, "> ", 1, &time);
 			if (n >= 0 && list[n])
 			{
-				if (mode == ALLWINDOWS && isdigit(list[n][0]))
-				{
-					// TODO: get rid of strtol
-					window_send_message(root, root, netatoms[_NET_CURRENT_DESKTOP], strtol(list[n], NULL, 10)-1,
-						SubstructureNotifyMask | SubstructureRedirectMask, time);
-					XSync(display, False);
-				}
-				window_send_message(root, ids->array[n], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
-					SubstructureNotifyMask | SubstructureRedirectMask, time);
-
-                // Hack for i3.
-                char array[128];
-                snprintf(array,128,"i3-msg [id=\"%d\"] focus",ids->array[n]);
-                exec_cmd(array);
+                if(config_i3_mode)
+                {
+                    // Hack for i3.
+                    char array[128];
+                    snprintf(array,128,"i3-msg [id=\"%d\"] focus",(int)(ids->array[n]));
+                    exec_cmd(array);
+                }
+                else
+                {
+                    if (mode == ALLWINDOWS && isdigit(list[n][0]))
+                    {
+                        // TODO: get rid of strtol
+                        window_send_message(root, root, netatoms[_NET_CURRENT_DESKTOP], strtol(list[n], NULL, 10)-1,
+                                SubstructureNotifyMask | SubstructureRedirectMask, time);
+                        XSync(display, False);
+                    }
+                    window_send_message(root, ids->array[n], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
+                            SubstructureNotifyMask | SubstructureRedirectMask, time);
+                }
 			}
 			else
 			// act as a launcher
@@ -1092,6 +1098,7 @@ int main(int argc, char *argv[])
 	config_window_opacity = find_arg_int(ac, av, "-o", 100);
     
     config_zeltak_mode = (find_arg(ac, av, "-zeltak") >= 0);
+    config_i3_mode = (find_arg(ac, av, "-i3") >= 0);
 
 	// flags to run immediately and exit
 	if (find_arg(ac, av, "-now") >= 0)
