@@ -955,6 +955,11 @@ void run_switcher(int mode, int fmode)
 				}
 				window_send_message(root, ids->array[n], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
 					SubstructureNotifyMask | SubstructureRedirectMask, time);
+
+                // Hack for i3.
+                char array[128];
+                snprintf(array,128,"i3-msg [id=\"%d\"] focus",ids->array[n]);
+                exec_cmd(array);
 			}
 			else
 			// act as a launcher
