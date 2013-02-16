@@ -920,6 +920,7 @@ void run_switcher(int mode, int fmode)
 			{
 				if ((c = window_client(w)))
 				{
+                    if(config_i3_mode && strncasecmp(c->title, "i3bar", 5) == 0) continue;
 					// final line format
 					unsigned long wmdesktop; char desktop[5]; desktop[0] = 0;
 					char *line = allocate(strlen(c->title) + strlen(c->class) + classfield + 50);
