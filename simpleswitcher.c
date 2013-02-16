@@ -690,10 +690,13 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 	int *line_map = allocate_clear(sizeof(int) * max_lines);
 	int filtered_lines = max_lines;
 
+    int jin = 0;
 	for (i = 0; i < max_lines; i++)
 	{
-		filtered[i] = lines[i];
-		line_map[i] = i;
+        if(config_i3_mode && strstr(lines[i], "i3bar") != NULL) continue;
+        filtered[jin] = lines[i];
+		line_map[jin] = i;
+        jin++;
 	}
 
 	// resize window vertically to suit
@@ -920,7 +923,6 @@ void run_switcher(int mode, int fmode)
 			{
 				if ((c = window_client(w)))
 				{
-                    if(config_i3_mode && strncasecmp(c->title, "i3bar", 5) == 0) continue;
 					// final line format
 					unsigned long wmdesktop; char desktop[5]; desktop[0] = 0;
 					char *line = allocate(strlen(c->title) + strlen(c->class) + classfield + 50);
