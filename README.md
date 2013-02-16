@@ -19,3 +19,7 @@ A popup window switcher roughly based on [superswitcher](http://code.google.com/
 	* Only windows on current desktop.
 
 * Runs in background or once-off.
+
+For i3, run with -i3
+e.g.
+  bindsym $mod+Tab exec simpleswitcher -i3 -now -font "snap-10" -fg "#505050" -bg "#000000" -hlfg "#ffb964" -hlbg "#000000" -o 85
