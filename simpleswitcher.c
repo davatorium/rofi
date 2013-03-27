@@ -747,6 +747,7 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
                     // If each token was matched, add it to list. 
                     if(match)
                     {
+                        if(config_i3_mode && strstr(lines[i], "i3bar") != NULL) continue;
                         line_map[j] = i;
                         filtered[j++] = lines[i];
                     }
