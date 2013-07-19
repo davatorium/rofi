@@ -1,29 +1,30 @@
-/* simpleswitcher
-
-MIT/X11 License
-Copyright (c) 2012 Sean Pringle <sean.pringle@gmail.com>
-Modified 2013 Qball  Cow <qball@gmpclient.org>
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-*/
+/**
+ * simpleswitcher
+ * 
+ * MIT/X11 License
+ * Copyright (c) 2012 Sean Pringle <sean.pringle@gmail.com>
+ * Modified 2013 Qball  Cow <qball@gmpclient.org>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * 
+ */
 
 #define _GNU_SOURCE
 #include <X11/X.h>
@@ -56,10 +57,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #define OPAQUE 0xffffffff
 #define OPACITY    "_NET_WM_WINDOW_OPACITY"
-typedef unsigned char bool;
-typedef unsigned long long bitmap;
 
-void* allocate(unsigned long bytes)
+static void* allocate(unsigned long bytes)
 {
 	void *ptr = malloc(bytes);
 	if (!ptr)
@@ -69,13 +68,13 @@ void* allocate(unsigned long bytes)
 	}
 	return ptr;
 }
-void* allocate_clear(unsigned long bytes)
+static void* allocate_clear(unsigned long bytes)
 {
 	void *ptr = allocate(bytes);
 	memset(ptr, 0, bytes);
 	return ptr;
 }
-void* reallocate(void *ptr, unsigned long bytes)
+static void* reallocate(void *ptr, unsigned long bytes)
 {
 	ptr = realloc(ptr, bytes);
 	if (!ptr)
@@ -148,24 +147,27 @@ pid_t exec_cmd(char *cmd)
 	return pid;
 }
 // cli arg handling
-int find_arg(int argc, char *argv[], char *key)
+static int find_arg(const int argc, char * const argv[], const char * const key)
 {
-	int i; for (i = 0; i < argc && strcasecmp(argv[i], key); i++);
-	return i < argc ? i: -1;
+	int i;
+    for (i = 0; i < argc && strcasecmp(argv[i], key); i++);
+    return i < argc ? i: -1;
 }
-char* find_arg_str(int argc, char *argv[], char *key, char* def)
+static char* find_arg_str(int argc, char *argv[], char *key, char* def)
 {
 	int i = find_arg(argc, argv, key);
 	return (i > 0 && i < argc-1) ? argv[i+1]: def;
 }
-int find_arg_int(int argc, char *argv[], char *key, int def)
+static int find_arg_int(int argc, char *argv[], char *key, int def)
 {
 	int i = find_arg(argc, argv, key);
 	return (i > 0 && i < argc-1) ? strtol(argv[i+1], NULL, 10): def;
 }
 
 unsigned int NumlockMask = 0;
-Display *display; Screen *screen; Window root; int screen_id;
+Display *display; Screen *screen; 
+Window root;
+int screen_id;
 
 static int (*xerror)(Display *, XErrorEvent *);
 
@@ -218,11 +220,6 @@ static int (*xerror)(Display *, XErrorEvent *);
 enum { EWMH_ATOMS(ATOM_ENUM), NETATOMS };
 const char *netatom_names[] = { EWMH_ATOMS(ATOM_CHAR) };
 Atom netatoms[NETATOMS];
-
-#define ADD 1
-#define REMOVE 0
-#define TOGGLE 2
-
 
 // X error handler
 int oops(Display *d, XErrorEvent *ee)
@@ -333,13 +330,25 @@ typedef struct {
 #define MENUMODUP 2
 #define MENUBC "black"
 
-char *config_menu_font, *config_menu_fg, *config_menu_bg, *config_menu_hlfg, *config_menu_hlbg, *config_menu_bgalt, *config_menu_bc;
-unsigned int config_menu_width, config_menu_lines, config_focus_mode, config_raise_mode, config_window_placement, config_menu_bw, config_window_opacity;
+char *config_menu_font;
+char *config_menu_fg;
+char *config_menu_bg;
+char *config_menu_hlfg;
+char *config_menu_hlbg;
+char *config_menu_bgalt;
+char *config_menu_bc;
+unsigned int config_menu_width;
+unsigned int config_menu_lines;
+unsigned int config_focus_mode;
+unsigned int config_raise_mode;
+unsigned int config_window_placement;
+unsigned int config_menu_bw;
+unsigned int config_window_opacity;
 unsigned int config_zeltak_mode;
 unsigned int config_i3_mode;
 
 // allocate a pixel value for an X named color
-unsigned int color_get(const char *name)
+static unsigned int color_get(const char *const name)
 {
 	XColor color;
 	Colormap map = DefaultColormap(display, screen_id);
@@ -1089,20 +1098,20 @@ int main(int argc, char *argv[])
 	// X atom values
 	for (i = 0; i < NETATOMS; i++) netatoms[i] = XInternAtom(display, netatom_names[i], False);
 
-	config_menu_width = find_arg_int(ac, av, "-width", MENUWIDTH);
-	config_menu_lines = find_arg_int(ac, av, "-lines", MENULINES);
-	config_menu_font  = find_arg_str(ac, av, "-font", MENUXFTFONT);
-	config_menu_fg    = find_arg_str(ac, av, "-fg", MENUFG);
-	config_menu_bg    = find_arg_str(ac, av, "-bg", MENUBG);
-	config_menu_bgalt = find_arg_str(ac, av, "-bgalt", MENUBGALT);
-	config_menu_hlfg  = find_arg_str(ac, av, "-hlfg", MENUHLFG);
-	config_menu_hlbg  = find_arg_str(ac, av, "-hlbg", MENUHLBG);
-	config_menu_bc    = find_arg_str(ac, av, "-bc", MENUBC);
-	config_menu_bw    = find_arg_int(ac, av, "-bw", 1);
+	config_menu_width     = find_arg_int(ac, av, "-width", MENUWIDTH);
+	config_menu_lines     = find_arg_int(ac, av, "-lines", MENULINES);
+	config_menu_font      = find_arg_str(ac, av, "-font", MENUXFTFONT);
+	config_menu_fg        = find_arg_str(ac, av, "-fg", MENUFG);
+	config_menu_bg        = find_arg_str(ac, av, "-bg", MENUBG);
+	config_menu_bgalt     = find_arg_str(ac, av, "-bgalt", MENUBGALT);
+	config_menu_hlfg      = find_arg_str(ac, av, "-hlfg", MENUHLFG);
+	config_menu_hlbg      = find_arg_str(ac, av, "-hlbg", MENUHLBG);
+	config_menu_bc        = find_arg_str(ac, av, "-bc", MENUBC);
+	config_menu_bw        = find_arg_int(ac, av, "-bw", 1);
 	config_window_opacity = find_arg_int(ac, av, "-o", 100);
     
-    config_zeltak_mode = (find_arg(ac, av, "-zeltak") >= 0);
-    config_i3_mode = (find_arg(ac, av, "-i3") >= 0);
+    config_zeltak_mode    = (find_arg(ac, av, "-zeltak") >= 0);
+    config_i3_mode        = (find_arg(ac, av, "-i3") >= 0);
 
 	// flags to run immediately and exit
 	if (find_arg(ac, av, "-now") >= 0)
