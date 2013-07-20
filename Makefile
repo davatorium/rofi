@@ -1,6 +1,7 @@
 CFLAGS?=-Wall -Os 
 PREFIX?=$(DESTDIR)/usr
 BINDIR?=$(PREFIX)/bin
+MANDIR?=$(PREFIX)/share/man/man1
 
 # Check deps.
 
@@ -23,8 +24,12 @@ normal:
 debug:
 	$(CC) -o simpleswitcher-debug simpleswitcher.c -std=c99 $(CFLAGS) -Wunused-parameter -g -DDEBUG $(LDADD) 
 
-install:
+install: install-man
 	install -Dm 755 simpleswitcher $(BINDIR)/simpleswitcher
+
+install-man:
+	install -Dm 644 simpleswitcher.1 $(MANDIR)
+	gzip $(MANDIR)/simpleswitcher.1
 
 clean:
 	rm -f simpleswitcher simpleswitcher-debug
