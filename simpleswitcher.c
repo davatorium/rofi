@@ -650,7 +650,7 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 	Window box;
 	XWindowAttributes attr;
 
-	// main window isn't explictly destroyed in case we switch modes. reusing it prevents flicker
+	// main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
 	if (main_window != None && XGetWindowAttributes(display, main_window, &attr))
 	{
 		box = main_window;
