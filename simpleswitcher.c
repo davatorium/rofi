@@ -922,7 +922,7 @@ void run_switcher(int mode, int fmode)
 				if (!window_get_cardinal_prop(root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1))
 					desktops = 1;
 
-				plen += sprintf(pattern+plen, "%%-%ds  ", desktops < 10 ? 1: 2);
+			//	plen += sprintf(pattern+plen, "%%-%ds  ", desktops < 10 ? 1: 2);
 			}
 
 			plen += sprintf(pattern+plen, "%%-%ds   %%s", MAX(5, classfield));
@@ -946,7 +946,7 @@ void run_switcher(int mode, int fmode)
 						if (wmdesktop < 0xFFFFFFFF)
 							sprintf(desktop, "%d", (int)wmdesktop+1);
 
-						sprintf(line, pattern, desktop, c->class, c->title);
+						sprintf(line, pattern, c->class, c->title);
 					}
 					else
                     {
