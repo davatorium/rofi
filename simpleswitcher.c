@@ -587,10 +587,9 @@ client* window_client(Window win)
 #define ALLWINDOWS 1
 #define DESKTOPWINDOWS 2
 
-unsigned int all_windows_modmask; KeySym all_windows_keysym;
-unsigned int desktop_windows_modmask; KeySym desktop_windows_keysym;
+unsigned int windows_modmask; KeySym windows_keysym;
 // flags to set if we switch modes on the fly
-int run_all_windows = 0, run_desktop_windows = 0, current_mode = 0;
+int run_windows = 0;
 Window main_window = None;
 
 #include "textbox.c"
@@ -779,28 +778,10 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 
 				if (key == XK_Escape
 					// pressing one of the global key bindings closes the switcher. this allows fast closing of the menu if an item is not selected
-					|| ((all_windows_modmask == AnyModifier || ev.xkey.state & all_windows_modmask) && key == all_windows_keysym)
-					|| ((desktop_windows_modmask == AnyModifier || ev.xkey.state & desktop_windows_modmask) && key == desktop_windows_keysym))
+					|| ((windows_modmask == AnyModifier || ev.xkey.state & windows_modmask) && key == windows_keysym)
+					)
                 {
                     aborted = 1;
-
-                    // pressing a global key binding that does not match the current mode switches modes on the fly. this allow fast flipping back and forth
-                    if (
-                            current_mode == DESKTOPWINDOWS && 
-                            (all_windows_modmask == AnyModifier || ev.xkey.state & all_windows_modmask) &&
-                            key == all_windows_keysym
-                       )
-                    {
-                        run_all_windows = 1;
-                    }
-                    if (
-                            current_mode == ALLWINDOWS &&
-                            (desktop_windows_modmask == AnyModifier || ev.xkey.state & desktop_windows_modmask) &&
-                            key == desktop_windows_keysym
-                       )
-                    {
-                        run_desktop_windows = 1;
-                    }
                     break;
                 }
 
@@ -857,7 +838,7 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 #define FORK 1
 #define NOFORK 2
 
-void run_switcher(int mode, int fmode)
+void run_switcher(int fmode)
 {
 	// TODO: this whole function is messy. build a nicer solution
 
@@ -874,11 +855,6 @@ void run_switcher(int mode, int fmode)
 	}
 
 	do {
-		if (run_all_windows)     mode = ALLWINDOWS;
-		if (run_desktop_windows) mode = DESKTOPWINDOWS;
-
-		run_all_windows = run_desktop_windows = 0;
-		current_mode = mode;
 
 		char pattern[50], **list = NULL;
 		int i, classfield = 0, plen = 0, lines = 0;
@@ -905,25 +881,14 @@ void run_switcher(int mode, int fmode)
 					&& !client_has_state(c, netatoms[_NET_WM_STATE_SKIP_PAGER])
 					&& !client_has_state(c, netatoms[_NET_WM_STATE_SKIP_TASKBAR]))
 				{
-					if (mode == DESKTOPWINDOWS)
-					{
-						unsigned long wmdesktop = 0;
-						window_get_cardinal_prop(c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1);
-						if (wmdesktop != current_desktop) continue;
-					}
 					classfield = MAX(classfield, strlen(c->class));
 					winlist_append(ids, c->window, NULL);
 				}
 			}
 
-			// build line sprintf pattern
-			if (mode == ALLWINDOWS)
-			{
-				if (!window_get_cardinal_prop(root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1))
-					desktops = 1;
+            if (!window_get_cardinal_prop(root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1))
+                desktops = 1;
 
-			//	plen += sprintf(pattern+plen, "%%-%ds  ", desktops < 10 ? 1: 2);
-			}
 
 			plen += sprintf(pattern+plen, "%%-%ds   %%s", MAX(5, classfield));
 			list = allocate_clear(sizeof(char*) * (ids->len+1)); lines = 0;
@@ -932,28 +897,21 @@ void run_switcher(int mode, int fmode)
 			winlist_ascend(ids, i, w)
 			{
 				if ((c = window_client(w)))
-				{
-					// final line format
-					unsigned long wmdesktop; char desktop[5]; desktop[0] = 0;
-					char *line = allocate(strlen(c->title) + strlen(c->class) + classfield + 50);
-					if (mode == ALLWINDOWS)
-					{
-						// find client's desktop. this is zero-based, so we adjust by since most
-						// normal people don't think like this :-)
-						if (!window_get_cardinal_prop(c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1))
-							wmdesktop = 0xFFFFFFFF;
+                {
+                    // final line format
+                    unsigned long wmdesktop; char desktop[5]; desktop[0] = 0;
+                    char *line = allocate(strlen(c->title) + strlen(c->class) + classfield + 50);
+                    // find client's desktop. this is zero-based, so we adjust by since most
+                    // normal people don't think like this :-)
+                    if (!window_get_cardinal_prop(c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1))
+                        wmdesktop = 0xFFFFFFFF;
 
-						if (wmdesktop < 0xFFFFFFFF)
-							sprintf(desktop, "%d", (int)wmdesktop+1);
+                    if (wmdesktop < 0xFFFFFFFF)
+                        sprintf(desktop, "%d", (int)wmdesktop+1);
 
-						sprintf(line, pattern, c->class, c->title);
-					}
-					else
-                    {
-                        sprintf(line, pattern, c->class, c->title);
-                    }
+                    sprintf(line, pattern, c->class, c->title);
                     list[lines++] = line;
-				}
+                }
 			}
 			char *input = NULL;
 			Time time;
@@ -969,7 +927,7 @@ void run_switcher(int mode, int fmode)
                 }
                 else
                 {
-                    if (mode == ALLWINDOWS && isdigit(list[n][0]))
+                    if (isdigit(list[n][0]))
                     {
                         // TODO: get rid of strtol
                         window_send_message(root, root, netatoms[_NET_CURRENT_DESKTOP], strtol(list[n], NULL, 10)-1,
@@ -993,7 +951,7 @@ void run_switcher(int mode, int fmode)
 		free(wins);
 		winlist_free(ids);
 	}
-	while (run_all_windows || run_desktop_windows);
+	while (run_windows );
 
 	if (fmode == FORK)
 		exit(EXIT_SUCCESS);
@@ -1004,11 +962,8 @@ void handle_keypress(XEvent *ev)
 {
 	KeySym key = XkbKeycodeToKeysym(display, ev->xkey.keycode, 0, 0);
 
-	if ((all_windows_modmask == AnyModifier || ev->xkey.state & all_windows_modmask) && key == all_windows_keysym)
-		run_switcher(ALLWINDOWS, FORK);
-
-	if ((desktop_windows_modmask == AnyModifier || ev->xkey.state & desktop_windows_modmask) && key == desktop_windows_keysym)
-		run_switcher(DESKTOPWINDOWS, FORK);
+	if ((windows_modmask == AnyModifier || ev->xkey.state & windows_modmask) && key == windows_keysym)
+		run_switcher(FORK);
 }
 
 // convert a Mod+key arg to mod mask and keysym
@@ -1116,25 +1071,18 @@ int main(int argc, char *argv[])
 	// flags to run immediately and exit
 	if (find_arg(ac, av, "-now") >= 0)
 	{
-		run_switcher(ALLWINDOWS, NOFORK);
+		run_switcher(NOFORK);
 		exit(EXIT_SUCCESS);
 	}
-	if (find_arg(ac, av, "-dnow") >= 0)
-	{
-		run_switcher(DESKTOPWINDOWS, NOFORK);
-		exit(EXIT_SUCCESS);
-	}
+
 	// in background mode from here on
 
 	// key combination to display all windows from all desktops
-	parse_key(find_arg_str(ac, av, "-key", "F12"), &all_windows_modmask, &all_windows_keysym);
+	parse_key(find_arg_str(ac, av, "-key", "F12"), &windows_modmask, &windows_keysym);
 
-	// key combination to display only window on the current desktop
-	parse_key(find_arg_str(ac, av, "-dkey", "F11"), &desktop_windows_modmask, &desktop_windows_keysym);
 
 	// bind key combos
-	grab_key(all_windows_modmask, all_windows_keysym);
-	grab_key(desktop_windows_modmask, desktop_windows_keysym);
+	grab_key(windows_modmask, windows_keysym);
 
 	XEvent ev;
 	for (;;)
