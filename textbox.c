@@ -210,7 +210,7 @@ void textbox_draw(textbox *tb)
 	XftTextExtents8(display, tb->font, (unsigned char*)line, length, &extents);
 	line_width = extents.width;
 
-	int x = 0, y = tb->font->ascent;
+	int x = 2, y = tb->font->ascent;
 	if (tb->flags & TB_RIGHT)  x = tb->w - line_width;
 	if (tb->flags & TB_CENTER) x = (tb->w - line_width) / 2;
 
