@@ -701,7 +701,6 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
     int jin = 0;
 	for (i = 0; i < max_lines; i++)
 	{
-        if(config_i3_mode && strstr(lines[i], "i3bar") != NULL) continue;
         filtered[jin] = lines[i];
 		line_map[jin] = i;
         jin++;
@@ -756,7 +755,6 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
                     // If each token was matched, add it to list. 
                     if(match)
                     {
-                        if(config_i3_mode && strstr(lines[i], "i3bar") != NULL) continue;
                         line_map[j] = i;
                         filtered[j++] = lines[i];
                     }
@@ -882,6 +880,8 @@ void run_switcher(int fmode)
 					&& !client_has_state(c, netatoms[_NET_WM_STATE_SKIP_TASKBAR]))
 				{
 					classfield = MAX(classfield, strlen(c->class));
+                    // In i3 mode, skip the i3bar completely.
+                    if(config_i3_mode && strstr(c->class, "i3bar") != NULL) continue;
 					winlist_append(ids, c->window, NULL);
 				}
 			}
@@ -910,6 +910,7 @@ void run_switcher(int fmode)
                         sprintf(desktop, "%d", (int)wmdesktop+1);
 
                     sprintf(line, pattern, c->class, c->title);
+                    
                     list[lines++] = line;
                 }
 			}
@@ -923,6 +924,7 @@ void run_switcher(int fmode)
                     // Hack for i3.
                     char array[128];
                     snprintf(array,128,"i3-msg [id=\"%d\"] focus",(int)(ids->array[n]));
+                    printf("Executing: %s\n", array);
                     exec_cmd(array);
                 }
                 else
