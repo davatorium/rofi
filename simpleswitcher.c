@@ -696,7 +696,7 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
 	// filtered list
 	char **filtered = allocate_clear(sizeof(char*) * max_lines);
 	int *line_map = allocate_clear(sizeof(int) * max_lines);
-	int filtered_lines = max_lines;
+	int filtered_lines = 0;
 
     int jin = 0;
 	for (i = 0; i < max_lines; i++)
@@ -705,6 +705,7 @@ int menu(char **lines, char **input, char *prompt, int selected, Time *time)
         filtered[jin] = lines[i];
 		line_map[jin] = i;
         jin++;
+        filtered_lines++;
 	}
 
 	// resize window vertically to suit
