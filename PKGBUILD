@@ -1,17 +1,18 @@
 # Contributor: Sean Pringle <sean.pringle@gmail.com>
+# Contributor: Dave Davenport
 
 pkgname=simpleswitcher-git
 pkgver=20120625
 pkgrel=1
 pkgdesc="simple EWMH window switcher"
 arch=('i686' 'x86_64')
-url="http://github.com/seanpringle/simpleswitcher"
+url="http://github.com/DaveDavenport/simpleswitcher"
 license=('MIT')
 depends=('libx11' 'libxft' 'freetype2')
 makedepends=('git')
 provides=('simpleswitcher')
 
-_gitroot="git://github.com/seanpringle/simpleswitcher.git"
+_gitroot="git://github.com/DaveDavenport/simpleswitcher.git"
 _gitname="simpleswitcher"
 
 build() {
