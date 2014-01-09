@@ -1024,7 +1024,8 @@ int main(int argc, char *argv[])
 		|| find_arg(argc, argv, "--help") >= 0
 		|| find_arg(argc, argv, "-h") >= 0)
 	{
-		fprintf(stderr, "See the man page or visit http://github.com/seanpringle/simpleswitcher\n");
+		fprintf(stderr, "See the man page or visit http://github.com/DaveDavenport/simpleswitcher\n");
+        fprintf(stderr, "Original code can be found: http://github.com/seanpringle/simpleswitcher\n");
 		return EXIT_FAILURE;
 	}
 	if(!(display = XOpenDisplay(0)))
