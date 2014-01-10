@@ -144,7 +144,7 @@ static void focus_window_i3( const char *socket_path, int id )
     struct sockaddr_un remote;
 
     if ( strlen( socket_path ) > UNIX_PATH_MAX ) {
-        fprintf( stderr, "Socket path is to long. %ld > %d\n", strlen( socket_path ), UNIX_PATH_MAX );
+        fprintf( stderr, "Socket path is to long. %zd > %d\n", strlen( socket_path ), UNIX_PATH_MAX );
         return;
     }
 
