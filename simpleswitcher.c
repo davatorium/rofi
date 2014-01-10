@@ -3,7 +3,7 @@
  *
  * MIT/X11 License
  * Copyright (c) 2012 Sean Pringle <sean.pringle@gmail.com>
- * Modified 2013 Qball  Cow <qball@gmpclient.org>
+ * Modified 2013-2014 Qball  Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -48,6 +48,14 @@
 #include <fcntl.h>
 #include <err.h>
 #include <X11/extensions/Xinerama.h>
+#ifdef I3
+#include <errno.h>
+#include <linux/un.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <i3/ipc.h>
+#endif
+
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -57,6 +65,7 @@
 
 #define OPAQUE 0xffffffff
 #define OPACITY    "_NET_WM_WINDOW_OPACITY"
+#define I3_SOCKET_PATH_PROP "I3_SOCKET_PATH"
 
 static void* allocate( unsigned long bytes )
 {
@@ -124,6 +133,67 @@ static inline void tokenize_free( char **ip )
 
     free( ip );
 }
+
+#ifdef I3
+// Path to I3 socket.
+char *i3_socket_path = NULL;
+// Focus window on I3 window manager.
+static void focus_window_i3( const char *socket_path, int id )
+{
+    int s, t, len;
+    struct sockaddr_un remote;
+
+    if ( strlen( socket_path ) > UNIX_PATH_MAX ) {
+        fprintf( stderr, "Socket path is to long. %ld > %d\n", strlen( socket_path ), UNIX_PATH_MAX );
+        return;
+    }
+
+    if ( ( s = socket( AF_UNIX, SOCK_STREAM, 0 ) ) == -1 ) {
+        fprintf( stderr, "Failed to open connection to I3: %s\n", strerror( errno ) );
+        return;
+    }
+
+    remote.sun_family = AF_UNIX;
+    strcpy( remote.sun_path, socket_path );
+    len = strlen( remote.sun_path ) + sizeof( remote.sun_family );
+
+    if ( connect( s, ( struct sockaddr * )&remote, len ) == -1 ) {
+        fprintf( stderr, "Failed to connect to I3 (%s): %s\n", socket_path,strerror( errno ) );
+        close( s );
+        return ;
+    }
+
+
+    // Formulate command
+    {
+        i3_ipc_header_t head;
+        char command[128];
+        snprintf( command, 128, "[id=\"%d\"] focus", id );
+        // Prepare header.
+        memcpy( head.magic, I3_IPC_MAGIC, 6 );
+        head.size = strlen( command );
+        head.type = I3_IPC_MESSAGE_TYPE_COMMAND;
+        // Send header.
+        send( s, &head, sizeof( head ),0 );
+        // Send message
+        send( s, command, strlen( command ),0 );
+    }
+    {
+        i3_ipc_header_t head;
+        char reply[128];
+        // Receive header.
+        t = recv( s, &head, sizeof( head ),0 );
+
+        if ( t == sizeof( head ) ) {
+            t= recv( s, reply, head.size, 0 );
+            reply[t] = '\0';
+            printf( "%s\n", reply );
+        }
+    }
+
+    close( s );
+}
+#endif
 
 void catch_exit( __attribute__( ( unused ) ) int sig )
 {
@@ -368,7 +438,9 @@ unsigned int config_window_placement;
 unsigned int config_menu_bw;
 unsigned int config_window_opacity;
 unsigned int config_zeltak_mode;
-unsigned int config_i3_mode;
+#ifdef I3
+int config_i3_mode = 0;
+#endif
 
 // allocate a pixel value for an X named color
 static unsigned int color_get( const char *const name )
@@ -950,9 +1022,12 @@ void run_switcher( int fmode )
                      && !client_has_state( c, netatoms[_NET_WM_STATE_SKIP_PAGER] )
                      && !client_has_state( c, netatoms[_NET_WM_STATE_SKIP_TASKBAR] ) ) {
                     classfield = MAX( classfield, strlen( c->class ) );
+#ifdef I3
 
                     // In i3 mode, skip the i3bar completely.
                     if ( config_i3_mode && strstr( c->class, "i3bar" ) != NULL ) continue;
+
+#endif
 
                     winlist_append( ids, c->window, NULL );
                 }
@@ -982,13 +1057,14 @@ void run_switcher( int fmode )
             int n = menu( list, &input, "> ", 1, &time );
 
             if ( n >= 0 && list[n] ) {
+#ifdef I3
+
                 if ( config_i3_mode ) {
                     // Hack for i3.
-                    char array[128];
-                    snprintf( array,128,"i3-msg [id=\"%d\"] focus",( int )( ids->array[n] ) );
-                    printf( "Executing: %s\n", array );
-                    exec_cmd( array );
-                } else {
+                    focus_window_i3( i3_socket_path,ids->array[n] );
+                } else
+#endif
+                {
                     if ( isdigit( list[n][0] ) ) {
                         // TODO: get rid of strtol
                         window_send_message( root, root, netatoms[_NET_CURRENT_DESKTOP], strtol( list[n], NULL, 10 )-1,
@@ -1142,11 +1218,33 @@ int main( int argc, char *argv[] )
     config_window_opacity = find_arg_int( ac, av, "-o", 100 );
 
     config_zeltak_mode    = ( find_arg( ac, av, "-zeltak" ) >= 0 );
-    config_i3_mode        = ( find_arg( ac, av, "-i3" ) >= 0 );
+
+#ifdef I3
+    // Check for i3
+    {
+        config_i3_mode = 0;
+        Atom atom = XInternAtom( display, I3_SOCKET_PATH_PROP,True );
+
+        if ( atom != None ) {
+            i3_socket_path = window_get_text_prop( root, atom );
+
+            if ( i3_socket_path != NULL ) {
+                printf( "Auto detected I3 running, switching to I3 mode: %s\n",
+                        i3_socket_path );
+                config_i3_mode = 1;
+            }
+        }
+    }
+#endif
 
     // flags to run immediately and exit
     if ( find_arg( ac, av, "-now" ) >= 0 ) {
         run_switcher( NOFORK );
+#ifdef I3
+
+        if ( i3_socket_path != NULL ) free( i3_socket_path );
+
+#endif
         exit( EXIT_SUCCESS );
     }
 
@@ -1174,5 +1272,10 @@ int main( int argc, char *argv[] )
         if ( ev.type == KeyPress ) handle_keypress( &ev );
     }
 
+#ifdef I3
+
+    if ( i3_socket_path != NULL ) free( i3_socket_path );
+
+#endif
     return EXIT_SUCCESS;
 }

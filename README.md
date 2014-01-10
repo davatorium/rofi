@@ -1,6 +1,8 @@
 # simpleswitcher
 
 A popup window switcher roughly based on [superswitcher](http://code.google.com/p/superswitcher/), requiring only xlib and xft.
+This version is based on the version from [Sean
+Pringle](http://github.com/seanpringle/simpleswitcher). All credit for this great tool should to to him.
 
 * Switcher centered on screen (or monitor for multi-head).
 
@@ -16,10 +18,21 @@ A popup window switcher roughly based on [superswitcher](http://code.google.com/
 
 * Runs in background or once-off.
 
-Hackish support for the I3 window manager:
+If compiled with I3 support, it should autodetect if I3 window manager is running. 
 
- For i3, run with -i3
+Usage
+-----
 
 e.g.
 
-  bindsym $mod+Tab exec simpleswitcher -i3 -now -font "snap-10" -fg "#505050" -bg "#000000" -hlfg "#ffb964" -hlbg "#000000" -o 85
+  bindsym $mod+Tab exec simpleswitcher -now -font "snap-10" -fg "#505050" -bg "#000000" -hlfg "#ffb964" -hlbg "#000000" -o 85
+
+
+Compilation
+-----------
+
+Type `make I3=` to disable compiling with i3 support.
+If during compilation it complains about not finding i3/ipc.h either disable i3 support
+or install the headers.
+
+Type `make PREFIX=<path> install` to install in a different prefix.

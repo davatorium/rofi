@@ -16,6 +16,12 @@ ifeq (${LDADD},${EMPTY})
 $(error Failed to find the required dependencies: x11, xinerama, xft)
 endif
 
+I3?=$(shell which i3)
+ifneq (${I3},${EMPTY})
+$(info I3 mode is enabled)
+CFLAGS+=-DI3
+endif
+
 all: normal
 
 normal:
