@@ -106,7 +106,7 @@ void textbox_text(textbox *tb, char *text)
 {
 	if (tb->text) free(tb->text);
 	tb->text = strdup(text);
-	tb->cursor = MAX(0, MIN(strlen(text), tb->cursor));
+	tb->cursor = MAX(0,MIN((int)strlen(text), tb->cursor));
 	textbox_extents(tb);
 }
 
@@ -232,7 +232,7 @@ void textbox_draw(textbox *tb)
 // cursor handling for edit mode
 void textbox_cursor(textbox *tb, int pos)
 {
-	tb->cursor = MAX(0, MIN(strlen(tb->text), pos));
+	tb->cursor = MAX(0, MIN((int)strlen(tb->text), pos));
 }
 
 // move right
@@ -256,13 +256,13 @@ void textbox_cursor_home(textbox *tb)
 // end of line
 void textbox_cursor_end(textbox *tb)
 {
-	tb->cursor = strlen(tb->text);
+	tb->cursor = (int)strlen(tb->text);
 }
 
 // insert text
 void textbox_insert(textbox *tb, int pos, char *str)
 {
-	int len = strlen(tb->text), slen = strlen(str);
+	int len = (int)strlen(tb->text), slen = (int)strlen(str);
 	pos = MAX(0, MIN(len, pos));
 	// expand buffer
 	tb->text = realloc(tb->text, len + slen + 1);
