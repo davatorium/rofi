@@ -34,7 +34,7 @@ install: normal install-man
 	install -Dm 755 simpleswitcher $(BINDIR)/simpleswitcher
 
 install-man:
-	install -Dm 644 simpleswitcher.1 $(MANDIR)
+	install -Dm 644 simpleswitcher.1 $(MANDIR)/simpleswitcher.1
 	gzip -f $(MANDIR)/simpleswitcher.1
 
 clean:
