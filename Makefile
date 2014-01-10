@@ -24,12 +24,16 @@ normal:
 debug:
 	$(CC) -o simpleswitcher-debug simpleswitcher.c -std=c99 $(CFLAGS) -Wunused-parameter -g -DDEBUG $(LDADD) 
 
-install: install-man
+install: normal install-man
 	install -Dm 755 simpleswitcher $(BINDIR)/simpleswitcher
 
 install-man:
 	install -Dm 644 simpleswitcher.1 $(MANDIR)
-	gzip $(MANDIR)/simpleswitcher.1
+	gzip -f $(MANDIR)/simpleswitcher.1
 
 clean:
 	rm -f simpleswitcher simpleswitcher-debug
+
+
+indent:
+	@astyle --style=linux -S -C -D -N -H -L -W3 -f simpleswitcher.c textbox.c
