@@ -121,7 +121,7 @@ static inline void tokenize_free(char **ip)
     free(ip);
 }
 
-void catch_exit(int sig)
+void catch_exit(__attribute__((unused)) int sig)
 {
 	while (0 < waitpid(-1, NULL, WNOHANG));
 }
@@ -222,7 +222,7 @@ const char *netatom_names[] = { EWMH_ATOMS(ATOM_CHAR) };
 Atom netatoms[NETATOMS];
 
 // X error handler
-int oops(Display *d, XErrorEvent *ee)
+int oops(__attribute__((unused)) Display *d, XErrorEvent *ee)
 {
 	if (ee->error_code == BadWindow
 		|| (ee->request_code == X_GrabButton && ee->error_code == BadAccess)
@@ -338,7 +338,7 @@ char *config_menu_hlbg;
 char *config_menu_bgalt;
 char *config_menu_bc;
 unsigned int config_menu_width;
-unsigned int config_menu_lines;
+int config_menu_lines;
 unsigned int config_focus_mode;
 unsigned int config_raise_mode;
 unsigned int config_window_placement;
@@ -403,7 +403,7 @@ XWindowAttributes* window_get_attributes(Window w)
 }
 
 // retrieve a property of any type from a window
-int window_get_prop(Window w, Atom prop, Atom *type, int *items, void *buffer, int bytes)
+int window_get_prop(Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes)
 {
 	Atom _type; if (!type) type = &_type;
 	int _items; if (!items) items = &_items;
@@ -855,7 +855,8 @@ void run_switcher(int fmode)
 	do {
 
 		char pattern[50], **list = NULL;
-		int i, classfield = 0, plen = 0, lines = 0;
+		int i, plen = 0, lines = 0;
+        unsigned int classfield = 0;
 		unsigned long desktops = 0, current_desktop = 0;
 		Window w; client *c;
 
@@ -899,15 +900,7 @@ void run_switcher(int fmode)
 				if ((c = window_client(w)))
                 {
                     // final line format
-                    unsigned long wmdesktop; char desktop[5]; desktop[0] = 0;
                     char *line = allocate(strlen(c->title) + strlen(c->class) + classfield + 50);
-                    // find client's desktop. this is zero-based, so we adjust by since most
-                    // normal people don't think like this :-)
-                    if (!window_get_cardinal_prop(c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1))
-                        wmdesktop = 0xFFFFFFFF;
-
-                    if (wmdesktop < 0xFFFFFFFF)
-                        sprintf(desktop, "%d", (int)wmdesktop+1);
 
                     sprintf(line, pattern, c->class, c->title);
                     
