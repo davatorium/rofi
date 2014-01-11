@@ -2,7 +2,7 @@
 
 A popup window switcher roughly based on [superswitcher](http://code.google.com/p/superswitcher/), requiring only xlib and xft.
 This version is based on the version from [Sean
-Pringle](http://github.com/seanpringle/simpleswitcher). All credit for this great tool should to to him.
+Pringle](http://github.com/seanpringle/simpleswitcher). All credit for this great tool should go to him.
 
 * Switcher centered on screen (or monitor for multi-head).
 
