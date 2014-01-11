@@ -41,4 +41,4 @@ Archlinux
 ---------
 
 This version of simpleswitcher has been made available on the
-[AUR](https://aur.archilinux.org/packages/simpleswitcher-dd-git/) by 1ace.
+[AUR](https://aur.archlinux.org/packages/simpleswitcher-dd-git/) by 1ace.
