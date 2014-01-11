@@ -36,3 +36,9 @@ If during compilation it complains about not finding i3/ipc.h either disable i3 
 or install the headers.
 
 Type `make PREFIX=<path> install` to install in a different prefix.
+
+Archlinux
+---------
+
+This version of simpleswitcher has been made available on the
+[AUR](https://aur.archilinux.org/packages/simpleswitcher-dd-git/) by 1ace.
