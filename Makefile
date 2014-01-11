@@ -19,7 +19,7 @@ endif
 I3?=$(shell which i3)
 ifneq (${I3},${EMPTY})
 $(info I3 mode is enabled)
-CFLAGS+=-DI3
+CFLAGS+=-DI3 -I${PREFIX}/include/
 endif
 
 all: normal
