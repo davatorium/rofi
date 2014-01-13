@@ -90,7 +90,18 @@ textbox* textbox_create( Window parent, unsigned long flags, short x, short y, s
 // set an Xft font by name
 void textbox_font( textbox *tb, char *font, char *fg, char *bg )
 {
-    if ( tb->font ) XftFontClose( display, tb->font );
+    if ( tb->font ) {
+        XftColorFree ( display,
+                       DefaultVisual( display, DefaultScreen( display ) ),
+                       DefaultColormap( display, DefaultScreen( display ) ),
+                       &tb->color_fg );
+        XftColorFree ( display,
+                       DefaultVisual( display, DefaultScreen( display ) ),
+                       DefaultColormap( display, DefaultScreen( display ) ),
+                       &tb->color_bg );
+
+        XftFontClose( display, tb->font );
+    }
 
     tb->font = XftFontOpenName( display, DefaultScreen( display ), font );
 
@@ -219,10 +230,12 @@ void textbox_draw( textbox *tb )
     // calc full input text width
     // Calculate the right size, so no characters are cut off.
     // TODO: Check performance of this.
-    while(1) {
+    while ( 1 ) {
         XftTextExtents8( display, tb->font, ( unsigned char* )line, length, &extents );
         line_width = extents.width;
-        if(line_width < (tb->w-2*SIDE_MARGIN)) break;
+
+        if ( line_width < ( tb->w-2*SIDE_MARGIN ) ) break;
+
         length--;
     }
 

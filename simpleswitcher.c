@@ -166,7 +166,7 @@ static void focus_window_i3( const char *socket_path, int id )
     }
 
 
-    // Formulate command
+// Formulate command
     {
         i3_ipc_header_t head;
         char command[128];
@@ -204,7 +204,7 @@ void catch_exit( __attribute__( ( unused ) ) int sig )
 
 int execsh( char *cmd )
 {
-    // use sh for args parsing
+// use sh for args parsing
     return execlp( "/bin/sh", "sh", "-c", cmd, NULL );
 }
 
@@ -256,47 +256,47 @@ static int ( *xerror )( Display *, XErrorEvent * );
 #define ATOM_CHAR(x) #x
 
 #define EWMH_ATOMS(X) \
-	X(_NET_SUPPORTING_WM_CHECK),\
-	X(_NET_CLIENT_LIST),\
-	X(_NET_CLIENT_LIST_STACKING),\
-	X(_NET_NUMBER_OF_DESKTOPS),\
-	X(_NET_CURRENT_DESKTOP),\
-	X(_NET_DESKTOP_GEOMETRY),\
-	X(_NET_DESKTOP_VIEWPORT),\
-	X(_NET_WORKAREA),\
-	X(_NET_ACTIVE_WINDOW),\
-	X(_NET_CLOSE_WINDOW),\
-	X(_NET_MOVERESIZE_WINDOW),\
-	X(_NET_WM_NAME),\
-	X(_NET_WM_WINDOW_TYPE),\
-	X(_NET_WM_WINDOW_TYPE_DESKTOP),\
-	X(_NET_WM_WINDOW_TYPE_DOCK),\
-	X(_NET_WM_WINDOW_TYPE_SPLASH),\
-	X(_NET_WM_WINDOW_TYPE_UTILITY),\
-	X(_NET_WM_WINDOW_TYPE_TOOLBAR),\
-	X(_NET_WM_WINDOW_TYPE_MENU),\
-	X(_NET_WM_WINDOW_TYPE_DIALOG),\
-	X(_NET_WM_WINDOW_TYPE_NORMAL),\
-	X(_NET_WM_STATE),\
-	X(_NET_WM_STATE_MODAL),\
-	X(_NET_WM_STATE_STICKY),\
-	X(_NET_WM_STATE_MAXIMIZED_VERT),\
-	X(_NET_WM_STATE_MAXIMIZED_HORZ),\
-	X(_NET_WM_STATE_SHADED),\
-	X(_NET_WM_STATE_SKIP_TASKBAR),\
-	X(_NET_WM_STATE_SKIP_PAGER),\
-	X(_NET_WM_STATE_HIDDEN),\
-	X(_NET_WM_STATE_FULLSCREEN),\
-	X(_NET_WM_STATE_ABOVE),\
-	X(_NET_WM_STATE_BELOW),\
-	X(_NET_WM_STATE_DEMANDS_ATTENTION),\
-	X(_NET_WM_STATE_ADD),\
-	X(_NET_WM_STATE_REMOVE),\
-	X(_NET_WM_STATE_TOGGLE),\
-	X(_NET_WM_STRUT),\
-	X(_NET_WM_STRUT_PARTIAL),\
-	X(_NET_WM_DESKTOP),\
-	X(_NET_SUPPORTED)
+X(_NET_SUPPORTING_WM_CHECK),\
+X(_NET_CLIENT_LIST),\
+X(_NET_CLIENT_LIST_STACKING),\
+X(_NET_NUMBER_OF_DESKTOPS),\
+X(_NET_CURRENT_DESKTOP),\
+X(_NET_DESKTOP_GEOMETRY),\
+X(_NET_DESKTOP_VIEWPORT),\
+X(_NET_WORKAREA),\
+X(_NET_ACTIVE_WINDOW),\
+X(_NET_CLOSE_WINDOW),\
+X(_NET_MOVERESIZE_WINDOW),\
+X(_NET_WM_NAME),\
+X(_NET_WM_WINDOW_TYPE),\
+X(_NET_WM_WINDOW_TYPE_DESKTOP),\
+X(_NET_WM_WINDOW_TYPE_DOCK),\
+X(_NET_WM_WINDOW_TYPE_SPLASH),\
+X(_NET_WM_WINDOW_TYPE_UTILITY),\
+X(_NET_WM_WINDOW_TYPE_TOOLBAR),\
+X(_NET_WM_WINDOW_TYPE_MENU),\
+X(_NET_WM_WINDOW_TYPE_DIALOG),\
+X(_NET_WM_WINDOW_TYPE_NORMAL),\
+X(_NET_WM_STATE),\
+X(_NET_WM_STATE_MODAL),\
+X(_NET_WM_STATE_STICKY),\
+X(_NET_WM_STATE_MAXIMIZED_VERT),\
+X(_NET_WM_STATE_MAXIMIZED_HORZ),\
+X(_NET_WM_STATE_SHADED),\
+X(_NET_WM_STATE_SKIP_TASKBAR),\
+X(_NET_WM_STATE_SKIP_PAGER),\
+X(_NET_WM_STATE_HIDDEN),\
+X(_NET_WM_STATE_FULLSCREEN),\
+X(_NET_WM_STATE_ABOVE),\
+X(_NET_WM_STATE_BELOW),\
+X(_NET_WM_STATE_DEMANDS_ATTENTION),\
+X(_NET_WM_STATE_ADD),\
+X(_NET_WM_STATE_REMOVE),\
+X(_NET_WM_STATE_TOGGLE),\
+X(_NET_WM_STRUT),\
+X(_NET_WM_STRUT_PARTIAL),\
+X(_NET_WM_DESKTOP),\
+X(_NET_SUPPORTED)
 
 enum { EWMH_ATOMS( ATOM_ENUM ), NETATOMS };
 const char *netatom_names[] = { EWMH_ATOMS( ATOM_CHAR ) };
@@ -371,8 +371,8 @@ void winlist_empty_2d( winlist *l )
 }
 int winlist_find( winlist *l, Window w )
 {
-    // iterate backwards. theory is: windows most often accessed will be
-    // nearer the end. testing with kcachegrind seems to support this...
+// iterate backwards. theory is: windows most often accessed will be
+// nearer the end. testing with kcachegrind seems to support this...
     int i;
     Window o;
 
@@ -608,7 +608,7 @@ void monitor_dimensions( Screen *screen, int x, int y, workarea *mon )
     mon->w = WidthOfScreen( screen );
     mon->h = HeightOfScreen( screen );
 
-    // locate the current monitor
+// locate the current monitor
     if ( XineramaIsActive( display ) ) {
         int monitors, i;
         XineramaScreenInfo *info = XineramaQueryScreens( display, &monitors );
@@ -674,14 +674,14 @@ client* window_client( Window win )
 
     if ( idx >= 0 ) return cache_client->data[idx];
 
-    // if this fails, we're up that creek
+// if this fails, we're up that creek
     XWindowAttributes *attr = window_get_attributes( win );
 
     if ( !attr ) return NULL;
 
     client *c = allocate_clear( sizeof( client ) );
     c->window = win;
-    // copy xattr so we don't have to care when stuff is freed
+// copy xattr so we don't have to care when stuff is freed
     memmove( &c->xattr, attr, sizeof( XWindowAttributes ) );
     XGetTransientForHint( display, win, &c->trans );
 
@@ -734,25 +734,26 @@ void menu_draw( textbox *text, textbox **boxes, int max_lines, int selected, cha
     textbox_draw( text );
 
     for ( i = 0; i < max_lines; i++ ) {
-        if(filtered[i] == NULL) {
+        if ( filtered[i] == NULL ) {
             textbox_font( boxes[i], config_menu_font,
-                    config_menu_fg,
-                    config_menu_bg );
+                          config_menu_fg,
+                          config_menu_bg );
             textbox_text( boxes[i], "" );
-        }else {
+        } else {
             textbox_font( boxes[i], config_menu_font,
-                    i == selected ? config_menu_hlfg: config_menu_fg,
-                    i == selected ? config_menu_hlbg: config_menu_bg );
-            textbox_text( boxes[i], filtered[i]);
+                          i == selected ? config_menu_hlfg: config_menu_fg,
+                          i == selected ? config_menu_hlbg: config_menu_bg );
+            textbox_text( boxes[i], filtered[i] );
         }
+
         textbox_draw( boxes[i] );
     }
 }
 
 
 /* Very bad implementation of tab completion.
- * It will complete to the common prefix
- */
+* It will complete to the common prefix
+*/
 static int calculate_common_prefix( char **filtered, int max_lines )
 {
     int length_prefix = 0,j,found = 1;
@@ -827,8 +828,8 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time )
 
     // search text input
     textbox *text = textbox_create( box, TB_AUTOHEIGHT|TB_EDITABLE, INNER_MARGIN, INNER_MARGIN,
-            w-(2*INNER_MARGIN), 1,
-            config_menu_font, config_menu_fg, config_menu_bg, "", prompt );
+                                    w-( 2*INNER_MARGIN ), 1,
+                                    config_menu_font, config_menu_fg, config_menu_bg, "", prompt );
     textbox_show( text );
 
     int line_height = text->font->ascent + text->font->descent;
@@ -841,8 +842,8 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time )
 
     for ( i = 0; i < max_lines; i++ ) {
         boxes[i] = textbox_create( box, TB_AUTOHEIGHT, INNER_MARGIN, ( i+1 ) * line_height +
-                INNER_MARGIN, w-(2*INNER_MARGIN), 1,
-                config_menu_font, config_menu_fg, config_menu_bg, lines[i], NULL );
+                                   INNER_MARGIN, w-( 2*INNER_MARGIN ), 1,
+                                   config_menu_font, config_menu_fg, config_menu_bg, lines[i], NULL );
         textbox_show( boxes[i] );
     }
 
@@ -989,6 +990,56 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time )
 #define FORK 1
 #define NOFORK 2
 
+static char ** get_apps ( )
+{
+
+    int fd[2];
+    pid_t childpid;
+
+    int retp = pipe( fd );
+
+    if ( retp != 0 ) {
+        perror( "Pipe" );
+        exit( 1 );
+    }
+
+    if ( ( childpid = fork() ) == -1 ) {
+        perror( "fork" );
+        exit( 1 );
+    }
+
+    if ( childpid == 0 ) {
+        close( fd[0] );
+        close( 1 );
+        /* Child process closes up output side of pipe */
+        dup2( fd[1],1 );
+        char command[256];
+        snprintf( command,256, "compgen -c" );
+        int retv = execlp ( "bash", "bash", "-c" , command, NULL );
+        close( fd[1] );
+        exit( retv );
+    } else {
+        /* Parent process closes up input side of pipe */
+        close( fd[1] );
+    }
+
+    char **retv = NULL;
+    int index = 0;
+    char buffer[1024];
+    FILE *file = fdopen( fd[0],"r" );
+
+    while ( fgets( buffer, 1024, file ) != NULL ) {
+        retv = realloc( retv, ( index+2 )*sizeof( char* ) );
+        retv[index] = strdup( buffer );
+        retv[index][strlen( buffer )-1] = '\0';
+        retv[index+1] = NULL;
+        index++;
+    }
+
+    close( fd[0] );
+    return retv;
+}
+
 void run_switcher( int fmode )
 {
     // TODO: this whole function is messy. build a nicer solution
@@ -1092,7 +1143,18 @@ void run_switcher( int fmode )
 
                 // act as a launcher
                 if ( input ) {
-                    exec_cmd( input );
+                    char **cmd_list = get_apps( );
+                    int n = menu( cmd_list, &input, "$ ", 0, &time );
+
+                    if ( n >=0 && cmd_list[n] != NULL ) {
+                        exec_cmd( cmd_list[n] );
+                    }
+
+                    for ( i=0; cmd_list[i] != NULL; i++ ) {
+                        free( cmd_list[i] );
+                    }
+
+                    free( cmd_list );
                 }
 
             for ( i = 0; i < lines; i++ )
