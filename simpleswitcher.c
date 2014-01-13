@@ -735,10 +735,17 @@ void menu_draw( textbox *text, textbox **boxes, int max_lines, int selected, cha
     textbox_draw( text );
 
     for ( i = 0; i < max_lines; i++ ) {
-        textbox_font( boxes[i], config_menu_font,
-                      i == selected ? config_menu_hlfg: config_menu_fg,
-                      i == selected ? config_menu_hlbg: config_menu_bg );
-        textbox_text( boxes[i], filtered[i] ? filtered[i]: "" );
+        if(filtered[i] == NULL) {
+            textbox_font( boxes[i], config_menu_font,
+                    config_menu_fg,
+                    config_menu_bg );
+            textbox_text( boxes[i], "" );
+        }else {
+            textbox_font( boxes[i], config_menu_font,
+                    i == selected ? config_menu_hlfg: config_menu_fg,
+                    i == selected ? config_menu_hlbg: config_menu_bg );
+            textbox_text( boxes[i], filtered[i]);
+        }
         textbox_draw( boxes[i] );
     }
 }
