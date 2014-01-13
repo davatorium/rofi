@@ -2,6 +2,7 @@
 
 MIT/X11 License
 Copyright (c) 2012 Sean Pringle <sean.pringle@gmail.com>
+Modified  (c) 2013-2014 Qball Cow <qball@gmpclient.org>
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -24,6 +25,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
+#define SIDE_MARGIN 3
 #define TB_AUTOHEIGHT 1<<0
 #define TB_AUTOWIDTH 1<<1
 #define TB_LEFT 1<<16
@@ -215,10 +217,16 @@ void textbox_draw( textbox *tb )
     }
 
     // calc full input text width
-    XftTextExtents8( display, tb->font, ( unsigned char* )line, length, &extents );
-    line_width = extents.width;
+    // Calculate the right size, so no characters are cut off.
+    // TODO: Check performance of this.
+    while(1) {
+        XftTextExtents8( display, tb->font, ( unsigned char* )line, length, &extents );
+        line_width = extents.width;
+        if(line_width < (tb->w-2*SIDE_MARGIN)) break;
+        length--;
+    }
 
-    int x = 2, y = tb->font->ascent;
+    int x = SIDE_MARGIN, y = tb->font->ascent;
 
     if ( tb->flags & TB_RIGHT )  x = tb->w - line_width;
 
@@ -229,8 +237,9 @@ void textbox_draw( textbox *tb )
 
     // draw the cursor
     if ( tb->flags & TB_EDITABLE )
-        XftDrawRect( draw, &tb->color_fg, cursor_x, 2, cursor_width, line_height-4 );
+        XftDrawRect( draw, &tb->color_fg, cursor_x+SIDE_MARGIN, 2, cursor_width, line_height-4 );
 
+    XftDrawRect( draw, &tb->color_bg, tb->w-SIDE_MARGIN, 0, SIDE_MARGIN, tb->h );
     // flip canvas to window
     XCopyArea( display, canvas, tb->window, context, 0, 0, tb->w, tb->h, 0, 0 );
 

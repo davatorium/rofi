@@ -63,6 +63,8 @@
 #define OVERLAP(a,b,c,d) (((a)==(c) && (b)==(d)) || MIN((a)+(b), (c)+(d)) - MAX((a), (c)) > 0)
 #define INTERSECT(x,y,w,h,x1,y1,w1,h1) (OVERLAP((x),(w),(x1),(w1)) && OVERLAP((y),(h),(y1),(h1)))
 
+#define INNER_MARGIN 5
+
 #define OPAQUE 0xffffffff
 #define OPACITY    "_NET_WM_WINDOW_OPACITY"
 #define I3_SOCKET_PATH_PROP "I3_SOCKET_PATH"
@@ -818,19 +820,23 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time )
     }
 
     // search text input
-    textbox *text = textbox_create( box, TB_AUTOHEIGHT|TB_EDITABLE, 5, 5, w-10, 1,
-                                    config_menu_font, config_menu_fg, config_menu_bg, "", prompt );
+    textbox *text = textbox_create( box, TB_AUTOHEIGHT|TB_EDITABLE, INNER_MARGIN, INNER_MARGIN,
+            w-(2*INNER_MARGIN), 1,
+            config_menu_font, config_menu_fg, config_menu_bg, "", prompt );
     textbox_show( text );
 
     int line_height = text->font->ascent + text->font->descent;
-    line_height += line_height/10;
+    //line_height += line_height/10;
+    int row_margin = line_height/10;
+    line_height+=row_margin;
 
     // filtered list display
     textbox **boxes = allocate_clear( sizeof( textbox* ) * max_lines );
 
     for ( i = 0; i < max_lines; i++ ) {
-        boxes[i] = textbox_create( box, TB_AUTOHEIGHT, 5, ( i+1 ) * line_height + 5, w-10, 1,
-                                   config_menu_font, config_menu_fg, config_menu_bg, lines[i], NULL );
+        boxes[i] = textbox_create( box, TB_AUTOHEIGHT, INNER_MARGIN, ( i+1 ) * line_height +
+                INNER_MARGIN, w-(2*INNER_MARGIN), 1,
+                config_menu_font, config_menu_fg, config_menu_bg, lines[i], NULL );
         textbox_show( boxes[i] );
     }
 
@@ -849,7 +855,8 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time )
     }
 
     // resize window vertically to suit
-    int h = line_height * ( max_lines+1 ) + 8;
+    // Subtract the margin of the last row.
+    int h = line_height * ( max_lines+1 ) + INNER_MARGIN*2 - row_margin;
     int y = mon.y + ( mon.h - h )/2;
     XMoveResizeWindow( display, box, x, y, w, h );
     XMapRaised( display, box );
