@@ -724,7 +724,6 @@ client* window_client( Window win )
 unsigned int windows_modmask;
 KeySym windows_keysym;
 // flags to set if we switch modes on the fly
-int run_windows = 0;
 Window main_window = None;
 
 #include "textbox.c"
@@ -1006,7 +1005,7 @@ void run_switcher( int fmode )
         XSync( display, True );
     }
 
-    do {
+    {
 
         char pattern[50], **list = NULL;
         int i, plen = 0, lines = 0;
@@ -1104,7 +1103,7 @@ void run_switcher( int fmode )
 
         free( wins );
         winlist_free( ids );
-    } while ( run_windows );
+    }
 
     if ( fmode == FORK )
         exit( EXIT_SUCCESS );
