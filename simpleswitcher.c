@@ -48,6 +48,8 @@
 #include <fcntl.h>
 #include <err.h>
 #include <X11/extensions/Xinerama.h>
+#include <sys/types.h>
+#include <dirent.h>
 #ifdef I3
 #include <errno.h>
 #include <linux/un.h>
@@ -415,7 +417,7 @@ typedef struct {
 
 #define MENUXFTFONT "mono-14"
 #define MENUWIDTH 50
-#define MENULINES 25
+#define MENULINES 15
 #define MENUFG "#222222"
 #define MENUBG "#f2f1f0"
 #define MENUBGALT "#e9e8e7"
@@ -992,51 +994,28 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time )
 
 static char ** get_apps ( )
 {
-
-    int fd[2];
-    pid_t childpid;
-
-    int retp = pipe( fd );
-
-    if ( retp != 0 ) {
-        perror( "Pipe" );
-        exit( 1 );
-    }
-
-    if ( ( childpid = fork() ) == -1 ) {
-        perror( "fork" );
-        exit( 1 );
-    }
-
-    if ( childpid == 0 ) {
-        close( fd[0] );
-        close( 1 );
-        /* Child process closes up output side of pipe */
-        dup2( fd[1],1 );
-        char command[256];
-        snprintf( command,256, "compgen -c" );
-        int retv = execlp ( "bash", "bash", "-c" , command, NULL );
-        close( fd[1] );
-        exit( retv );
-    } else {
-        /* Parent process closes up input side of pipe */
-        close( fd[1] );
-    }
-
+    if(getenv("PATH") == NULL) return NULL;
+    char *path = strdup(getenv("PATH"));
     char **retv = NULL;
     int index = 0;
-    char buffer[1024];
-    FILE *file = fdopen( fd[0],"r" );
 
-    while ( fgets( buffer, 1024, file ) != NULL ) {
-        retv = realloc( retv, ( index+2 )*sizeof( char* ) );
-        retv[index] = strdup( buffer );
-        retv[index][strlen( buffer )-1] = '\0';
-        retv[index+1] = NULL;
-        index++;
+    for(const char *dirname = strtok(path, ":"); dirname != NULL; dirname = strtok(NULL, ":"))
+    {
+        DIR *dir = opendir(dirname);
+        if(dir != NULL) {
+            struct dirent *dent;
+            while((dent=readdir(dir))!=NULL)
+            {
+                if(dent->d_name[0] == '.') continue;
+                retv = realloc( retv, ( index+2 )*sizeof( char* ) );
+                retv[index] = strdup( dent->d_name );
+                retv[index+1] = NULL;
+                index++;
+            }
+            closedir(dir);
+        }
     }
-
-    close( fd[0] );
+    free(path);
     return retv;
 }
 
@@ -1144,6 +1123,11 @@ void run_switcher( int fmode )
                 // act as a launcher
                 if ( input ) {
                     char **cmd_list = get_apps( );
+                    if(cmd_list == NULL) {
+                        cmd_list = allocate(2*sizeof(char *));
+                        cmd_list[0] = strdup("No applications found");
+                        cmd_list[1] = NULL;
+                    }
                     int n = menu( cmd_list, &input, "$ ", 0, &time );
 
                     if ( n >=0 && cmd_list[n] != NULL ) {
