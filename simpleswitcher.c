@@ -71,6 +71,10 @@
 #define OPACITY    "_NET_WM_WINDOW_OPACITY"
 #define I3_SOCKET_PATH_PROP "I3_SOCKET_PATH"
 
+#ifdef TIMING
+#include <time.h>
+#endif
+
 static void* allocate( unsigned long bytes )
 {
     void *ptr = malloc( bytes );
@@ -994,14 +998,23 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time )
 
 #define FORK 1
 #define NOFORK 2
-
+int sort_func ( const void *a, const void *b )
+{
+    const char *astr = *( const char * const * )a;
+    const char *bstr = *( const char * const * )b;
+    return strcasecmp( astr,bstr );
+}
 static char ** get_apps ( )
 {
+#ifdef TIMING
+    struct timespec start, stop;
+    clock_gettime(CLOCK_REALTIME, &start);
+#endif
     if ( getenv( "PATH" ) == NULL ) return NULL;
 
     char *path = strdup( getenv( "PATH" ) );
     char **retv = NULL;
-    int index = 0;
+    unsigned int index = 0;
 
     for ( const char *dirname = strtok( path, ":" ); dirname != NULL; dirname = strtok( NULL, ":" ) ) {
         DIR *dir = opendir( dirname );
@@ -1010,7 +1023,11 @@ static char ** get_apps ( )
             struct dirent *dent;
 
             while ( ( dent=readdir( dir ) )!=NULL ) {
-                if ( dent->d_name[0] == '.' ) continue;
+                if ( dent->d_type != DT_REG &&
+                     dent->d_type != DT_LNK &&
+                     dent->d_type != DT_UNKNOWN ) {
+                    continue;
+                }
 
                 retv = realloc( retv, ( index+2 )*sizeof( char* ) );
                 retv[index] = strdup( dent->d_name );
@@ -1021,8 +1038,17 @@ static char ** get_apps ( )
             closedir( dir );
         }
     }
-
+    // TODO: check this is still fast enough. (takes 1ms on laptop.)
+    qsort( retv,index, sizeof( char* ), sort_func );
     free( path );
+#ifdef TIMING
+    clock_gettime(CLOCK_REALTIME, &stop);
+    if(stop.tv_sec != start.tv_sec) {
+        stop.tv_nsec += (stop.tv_sec-start.tv_sec)*1e9;
+    }
+    long diff = stop.tv_nsec-start.tv_nsec;
+    printf("Time elapsed: %ld us\n", diff/1000);
+#endif
     return retv;
 }
 

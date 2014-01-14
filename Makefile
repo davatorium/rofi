@@ -1,16 +1,20 @@
-CFLAGS?=-Wall -Wextra -Os -g3
+CFLAGS?=-Wall -Wextra -Os
 PREFIX?=$(DESTDIR)/usr
 BINDIR?=$(PREFIX)/bin
 MANDIR?=$(PREFIX)/share/man/man1
 
 # Check deps.
+ifeq (${DEBUG},1)
+CFLAGS+=-DTIMING=1
+LDADD+=-lrt
+endif
 
 PKG_CONFIG?=$(shell which pkg-config)
 ifeq (${PKG_CONFIG},${EMPTY})
 $(error Failed to find pkg-config. Please install pkg-config)
 endif
 
-LDADD?=$(shell ${PKG_CONFIG} --cflags --libs x11 xinerama xft)
+LDADD+=$(shell ${PKG_CONFIG} --cflags --libs x11 xinerama xft)
 
 ifeq (${LDADD},${EMPTY})
 $(error Failed to find the required dependencies: x11, xinerama, xft)
