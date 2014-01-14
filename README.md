@@ -7,11 +7,17 @@ Pringle](http://github.com/seanpringle/simpleswitcher). All credit for this grea
 * Switcher centered on screen (or monitor for multi-head).
 
 * Vertical list with two columns:
-	2. Window class.
-	3. Window title.
+	1. Window class.
+	2. Window title.
 
 * Controls like dmenu:
 	* Type to filter windows.
+    * Tokonized filter. Type any word in any order to filter.
+	* Arrows to highlight selections.
+	* Return to select.
+
+* Rudimentary run dialog
+    * Type to filter.
     * Tokonized filter. Type any word in any order to filter.
 	* Arrows to highlight selections.
 	* Return to select.

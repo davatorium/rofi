@@ -22,6 +22,7 @@ simpleswitcher \- a simple EWMH window switcher
 .RB [ \-dkey
 .IR comdo ]
 .RB [ \-now ]
+.RB [ \-rnow ]
 
 .SH DESCRIPTION
 .I simpleswitcher
@@ -34,8 +35,8 @@ See options below for custom key combinations. These are the defaults.
 .B F12
 Show all windows on all desktops.
 .TP
-.B F11
-Show windows from the current desktop.
+.B mod1-F2 
+Show run-dialog.
 .SH OPTIONS
 .TP
 .B -key
@@ -49,19 +50,22 @@ simpleswitcher -key control+shift+s
 simpleswitcher -key mod1+Tab
 .RE
 .TP
-.B -dkey
-Change the key combination to display window on the current desktop (default: F11).
+.B -rkey
+Change the key combination to display the run dialog (default: mod1-F2).
 .P
 .RS
-simpleswitcher -key F11
+simpleswitcher -rkey F11
 .br
-simpleswitcher -key control+shift+d
+simpleswitcher -rkey control+shift+d
 .br
-simpleswitcher -key mod1+grave (grave=backtick)
+simpleswitcher -rkey mod1+grave (grave=backtick)
 .RE
 .TP
 .B -now
 Run simpleswitcher in all-windows mode once then exit. Does not bind any keys.
+.TP
+.B -rnow
+Run simpleswitcher in run-dialog mode once then exit. Does not bind any keys.
 .TP
 .B -bg
 Set the background text color (X11 named color or hex #rrggbb) for the menu (default: #222222).
@@ -136,3 +140,4 @@ simpleswitcher -width 60
 .BR simpleswitcher (1)
 .SH AUTHOR
 Sean Pringle <sean.pringle@gmail.com>
+Qball Cow <qball@gmpclient.org>
