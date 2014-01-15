@@ -208,14 +208,17 @@ void catch_exit( __attribute__( ( unused ) ) int sig )
     while ( 0 < waitpid( -1, NULL, WNOHANG ) );
 }
 
-int execsh( char *cmd )
+inline int execsh( char *cmd , int run_in_term )
 {
 // use sh for args parsing
+    if ( run_in_term )
+        return execlp( "x-terminal-emulator", "x-terminal-emulator", "-e", cmd, NULL );
+
     return execlp( "/bin/sh", "sh", "-c", cmd, NULL );
 }
 
 // execute sub-process
-pid_t exec_cmd( char *cmd )
+static pid_t exec_cmd( char *cmd, int run_in_term )
 {
     if ( !cmd || !cmd[0] ) return -1;
 
@@ -224,7 +227,7 @@ pid_t exec_cmd( char *cmd )
 
     if ( !pid ) {
         setsid();
-        execsh( cmd );
+        execsh( cmd, run_in_term );
         exit( EXIT_FAILURE );
     }
 
@@ -791,7 +794,7 @@ static int calculate_common_prefix( char **filtered, int max_lines )
     return length_prefix;
 }
 
-int menu( char **lines, char **input, char *prompt, int selected, Time *time )
+int menu( char **lines, char **input, char *prompt, int selected, Time *time, int *shift )
 {
     int line = -1, i, j, chosen = 0, aborted = 0;
     workarea mon;
@@ -895,6 +898,9 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time )
             int rc = textbox_keypress( text, &ev );
 
             if ( rc < 0 ) {
+                if ( shift != NULL )
+                    ( *shift ) = ( ( ev.xkey.state&ShiftMask ) == ShiftMask );
+
                 chosen = 1;
                 break;
             } else if ( rc ) {
@@ -1008,8 +1014,9 @@ static char ** get_apps ( )
 {
 #ifdef TIMING
     struct timespec start, stop;
-    clock_gettime(CLOCK_REALTIME, &start);
+    clock_gettime( CLOCK_REALTIME, &start );
 #endif
+
     if ( getenv( "PATH" ) == NULL ) return NULL;
 
     char *path = strdup( getenv( "PATH" ) );
@@ -1038,16 +1045,19 @@ static char ** get_apps ( )
             closedir( dir );
         }
     }
+
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
     qsort( retv,index, sizeof( char* ), sort_func );
     free( path );
 #ifdef TIMING
-    clock_gettime(CLOCK_REALTIME, &stop);
-    if(stop.tv_sec != start.tv_sec) {
-        stop.tv_nsec += (stop.tv_sec-start.tv_sec)*1e9;
+    clock_gettime( CLOCK_REALTIME, &stop );
+
+    if ( stop.tv_sec != start.tv_sec ) {
+        stop.tv_nsec += ( stop.tv_sec-start.tv_sec )*1e9;
     }
+
     long diff = stop.tv_nsec-start.tv_nsec;
-    printf("Time elapsed: %ld us\n", diff/1000);
+    printf( "Time elapsed: %ld us\n", diff/1000 );
 #endif
     return retv;
 }
@@ -1141,7 +1151,7 @@ void run_switcher( int fmode )
                 }
                 char *input = NULL;
                 Time time;
-                int n = menu( list, &input, "> ", 1, &time );
+                int n = menu( list, &input, "> ", 1, &time, NULL );
 
                 if ( input != NULL && input[0] == '!' ) {
                     mode = RUN_DIALOG;
@@ -1189,12 +1199,14 @@ void run_switcher( int fmode )
                 cmd_list[1] = NULL;
             }
 
-            int n = menu( cmd_list, &input, "$ ", 0, &time );
+            int shift;
+            int n = menu( cmd_list, &input, "$ ", 0, &time, &shift );
 
             if ( input != NULL && *input == '>' ) {
                 mode = WINDOW_SWITCHER;
             } else if ( n >=0 && cmd_list[n] != NULL ) {
-                exec_cmd( cmd_list[n] );
+
+                exec_cmd( cmd_list[n] ,shift );
             }
 
             for ( int i=0; cmd_list[i] != NULL; i++ ) {
@@ -1298,7 +1310,8 @@ int main( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
-    const char *display_str= find_arg_str(argc, argv, "-display", getenv("DISPLAY"));
+    const char *display_str= find_arg_str( argc, argv, "-display", getenv( "DISPLAY" ) );
+
     if ( !( display = XOpenDisplay( display_str ) ) ) {
         fprintf( stderr, "cannot open display!\n" );
         return EXIT_FAILURE;

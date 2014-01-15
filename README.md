@@ -21,6 +21,7 @@ Pringle](http://github.com/seanpringle/simpleswitcher). All credit for this grea
     * Tokonized filter. Type any word in any order to filter.
 	* Arrows to highlight selections.
 	* Return to select.
+    * Shift-Return to run in terminal.
 
 * Runs in background or once-off.
 
