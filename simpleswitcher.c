@@ -796,7 +796,7 @@ static int calculate_common_prefix( char **filtered, int max_lines )
 
 int menu( char **lines, char **input, char *prompt, int selected, Time *time, int *shift )
 {
-    int line = -1, i, j, chosen = 0, aborted = 0;
+    int line = -1, i, j, chosen = 0;
     workarea mon;
     monitor_active( &mon );
 
@@ -840,7 +840,8 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
     // search text input
     textbox *text = textbox_create( box, TB_AUTOHEIGHT|TB_EDITABLE, INNER_MARGIN, INNER_MARGIN,
                                     w-( 2*INNER_MARGIN ), 1,
-                                    config_menu_font, config_menu_fg, config_menu_bg, "", prompt );
+                                    config_menu_font, config_menu_fg, config_menu_bg,
+                                    (input!= NULL)?*input:"", prompt );
     textbox_show( text );
 
     int line_height = text->font->ascent + text->font->descent;
@@ -865,11 +866,33 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
 
     int jin = 0;
 
-    for ( i = 0; i < max_lines; i++ ) {
-        filtered[jin] = lines[i];
-        line_map[jin] = i;
-        jin++;
-        filtered_lines++;
+    if(input && *input) {
+        char **tokens = tokenize( *input );
+
+        // input changed
+        for ( i = 0, j = 0; i < num_lines && j < max_lines; i++ ) {
+            int match = 1;
+
+            // Do a tokenized match.
+            if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
+                match = ( strcasestr( lines[i], tokens[j] ) != NULL );
+            }
+
+            // If each token was matched, add it to list.
+            if ( match ) {
+                line_map[j] = i;
+                filtered[j++] = lines[i];
+                filtered_lines++;
+            }
+        }
+        tokenize_free(tokens);
+    }else{
+        for ( i = 0; i < max_lines; i++ ) {
+            filtered[jin] = lines[i];
+            line_map[jin] = i;
+            jin++;
+            filtered_lines++;
+        }
     }
 
     // resize window vertically to suit
@@ -895,6 +918,12 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
             if ( time )
                 *time = ev.xkey.time;
 
+            KeySym key = XkbKeycodeToKeysym( display, ev.xkey.keycode, 0, 0 );
+            if(((ev.xkey.state&ShiftMask) == ShiftMask) &&
+                    key == XK_slash ) {
+                    line = -2;
+                    break;
+            }
             int rc = textbox_keypress( text, &ev );
 
             if ( rc < 0 ) {
@@ -944,7 +973,6 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
                      || ( ( windows_modmask == AnyModifier || ev.xkey.state & windows_modmask ) && key == windows_keysym )
                      || ( ( rundialog_modmask == AnyModifier || ev.xkey.state & rundialog_modmask ) && key == rundialog_keysym )
                    ) {
-                    aborted = 1;
                     break;
                 }
 
@@ -986,8 +1014,12 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
     if ( chosen && filtered[selected] )
         line = line_map[selected];
 
-    if ( line < 0 && !aborted && input )
+    if ( line < 0 && input )
+    {
+        if(*input != NULL) free(*input);
         *input = strdup( text->text );
+    }
+
 
     textbox_free( text );
 
@@ -1087,6 +1119,7 @@ void run_switcher( int fmode )
         XSync( display, True );
     }
 
+    char *input = NULL;
     do {
         if ( mode == WINDOW_SWITCHER ) {
 
@@ -1149,11 +1182,10 @@ void run_switcher( int fmode )
                         list[lines++] = line;
                     }
                 }
-                char *input = NULL;
                 Time time;
-                int n = menu( list, &input, "> ", 1, &time, NULL );
+                int n = menu( list, &input, "> ", 0, &time, NULL );
 
-                if ( input != NULL && input[0] == '!' ) {
+                if ( n == -2 ) {
                     mode = RUN_DIALOG;
                 } else if ( n >= 0 && list[n] ) {
                     // Normally we want to exit.
@@ -1187,7 +1219,6 @@ void run_switcher( int fmode )
             winlist_free( ids );
         } else if ( mode == RUN_DIALOG ) {
             Time time;
-            char *input = NULL;
 
             mode = MODE_EXIT;
             // act as a launcher
@@ -1202,7 +1233,7 @@ void run_switcher( int fmode )
             int shift;
             int n = menu( cmd_list, &input, "$ ", 0, &time, &shift );
 
-            if ( input != NULL && *input == '>' ) {
+            if ( n == -2 ) {
                 mode = WINDOW_SWITCHER;
             } else if ( n >=0 && cmd_list[n] != NULL ) {
 
@@ -1216,7 +1247,7 @@ void run_switcher( int fmode )
             free( cmd_list );
         }
     } while ( mode != MODE_EXIT );
-
+    if(input != NULL) free(input);
     if ( fmode == FORK )
         exit( EXIT_SUCCESS );
 }

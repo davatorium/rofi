@@ -49,6 +49,7 @@ typedef struct {
 void textbox_font( textbox *tb, char *font, char *fg, char *bg );
 void textbox_text( textbox *tb, char *text );
 void textbox_moveresize( textbox *tb, int x, int y, int w, int h );
+void textbox_cursor_end( textbox *tb );
 
 // Xft text box, optionally editable
 textbox* textbox_create( Window parent, unsigned long flags, short x, short y, short w, short h, char *font, char *fg, char *bg, char *text, char *prompt )
@@ -74,6 +75,7 @@ textbox* textbox_create( Window parent, unsigned long flags, short x, short y, s
 
     tb->prompt = strdup( prompt ? prompt: "" );
     textbox_text( tb, text ? text: "" );
+    textbox_cursor_end(tb);
 
     // auto height/width modes get handled here
     textbox_moveresize( tb, tb->x, tb->y, tb->w, tb->h );

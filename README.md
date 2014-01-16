@@ -34,6 +34,10 @@ e.g.
 
   bindsym $mod+Tab exec simpleswitcher -now -font "snap-10" -fg "#505050" -bg "#000000" -hlfg "#ffb964" -hlbg "#000000" -o 85
 
+Switching Between Modi
+----------------------
+
+Type '?' (enter)  to switch from Window list mode to Run mode and back.
 
 Compilation
 -----------
