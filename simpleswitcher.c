@@ -231,6 +231,60 @@ static pid_t exec_cmd( char *cmd, int run_in_term )
         exit( EXIT_FAILURE );
     }
 
+    int curr = -1;
+    unsigned int index = 0;
+    char **retv = NULL;
+    const char *hd = getenv( "HOME" );
+
+    if ( hd == NULL ) return pid;
+
+    char *path = allocate( strlen( hd ) + strlen( "/.simpleswitcher.cache" )+2 );
+    sprintf( path, "%s/%s", hd, ".simpleswitcher.cache" );
+    FILE *fd = fopen ( path, "r" );
+    char buffer[1024];
+
+    if ( fd != NULL ) {
+        while ( fgets( buffer,1024,fd ) != NULL ) {
+            retv = realloc( retv, ( index+2 )*sizeof( char* ) );
+            buffer[strlen( buffer )-1] = '\0';
+            retv[index] = strdup( buffer );
+            retv[index+1] = NULL;
+
+            if ( strcasecmp( retv[index], cmd ) == 0 ) {
+                curr = index;
+            }
+
+            index++;
+        }
+
+        fclose( fd );
+    }
+
+    fd = fopen ( path, "w" );
+
+    if ( fd ) {
+        // Last one goes on top!
+        fputs( cmd, fd );
+        fputc( '\n', fd );
+
+        for ( int i = 0; i < ( int )index && i < 20; i++ ) {
+            if ( i != curr ) {
+                fputs( retv[i], fd );
+                fputc( '\n', fd );
+            }
+        }
+
+        fclose( fd );
+    }
+
+    for ( int i=0; retv[i] != NULL; i++ ) {
+        free( retv[i] );
+    }
+
+    free( retv );
+
+    free( path );
+
     return pid;
 }
 // cli arg handling
@@ -841,7 +895,7 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
     textbox *text = textbox_create( box, TB_AUTOHEIGHT|TB_EDITABLE, INNER_MARGIN, INNER_MARGIN,
                                     w-( 2*INNER_MARGIN ), 1,
                                     config_menu_font, config_menu_fg, config_menu_bg,
-                                    (input!= NULL)?*input:"", prompt );
+                                    ( input!= NULL )?*input:"", prompt );
     textbox_show( text );
 
     int line_height = text->font->ascent + text->font->descent;
@@ -866,7 +920,7 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
 
     int jin = 0;
 
-    if(input && *input) {
+    if ( input && *input ) {
         char **tokens = tokenize( *input );
 
         // input changed
@@ -875,8 +929,8 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
 
             // Do a tokenized match.
             if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
-                match = ( strcasestr( lines[i], tokens[j] ) != NULL );
-            }
+                    match = ( strcasestr( lines[i], tokens[j] ) != NULL );
+                }
 
             // If each token was matched, add it to list.
             if ( match ) {
@@ -885,8 +939,9 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
                 filtered_lines++;
             }
         }
-        tokenize_free(tokens);
-    }else{
+
+        tokenize_free( tokens );
+    } else {
         for ( i = 0; i < max_lines; i++ ) {
             filtered[jin] = lines[i];
             line_map[jin] = i;
@@ -919,11 +974,13 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
                 *time = ev.xkey.time;
 
             KeySym key = XkbKeycodeToKeysym( display, ev.xkey.keycode, 0, 0 );
-            if(((ev.xkey.state&ShiftMask) == ShiftMask) &&
-                    key == XK_slash ) {
-                    line = -2;
-                    break;
+
+            if ( ( ( ev.xkey.state&ShiftMask ) == ShiftMask ) &&
+                 key == XK_slash ) {
+                line = -2;
+                break;
             }
+
             int rc = textbox_keypress( text, &ev );
 
             if ( rc < 0 ) {
@@ -1014,9 +1071,9 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
     if ( chosen && filtered[selected] )
         line = line_map[selected];
 
-    if ( line < 0 && input )
-    {
-        if(*input != NULL) free(*input);
+    if ( line < 0 && input ) {
+        if ( *input != NULL ) free( *input );
+
         *input = strdup( text->text );
     }
 
@@ -1044,6 +1101,10 @@ int sort_func ( const void *a, const void *b )
 }
 static char ** get_apps ( )
 {
+    int num_favorites = 0;
+    unsigned int index = 0;
+    char *path;
+    char **retv = NULL;
 #ifdef TIMING
     struct timespec start, stop;
     clock_gettime( CLOCK_REALTIME, &start );
@@ -1051,9 +1112,32 @@ static char ** get_apps ( )
 
     if ( getenv( "PATH" ) == NULL ) return NULL;
 
-    char *path = strdup( getenv( "PATH" ) );
-    char **retv = NULL;
-    unsigned int index = 0;
+    const char *hd = getenv( "HOME" );
+
+    if ( hd == NULL ) return NULL;
+
+    path = allocate( strlen( hd ) + strlen( "/.simpleswitcher.cache" )+2 );
+    sprintf( path, "%s/%s", hd, ".simpleswitcher.cache" );
+    FILE *fd = fopen ( path, "r" );
+    char buffer[1024];
+
+    if ( fd != NULL ) {
+        while ( fgets( buffer,1024,fd ) != NULL ) {
+            retv = realloc( retv, ( index+2 )*sizeof( char* ) );
+            buffer[strlen( buffer )-1] = '\0';
+            retv[index] = strdup( buffer );
+            retv[index+1] = NULL;
+            index++;
+            num_favorites++;
+        }
+
+        fclose( fd );
+    }
+
+    free( path );
+
+
+    path = strdup( getenv( "PATH" ) );
 
     for ( const char *dirname = strtok( path, ":" ); dirname != NULL; dirname = strtok( NULL, ":" ) ) {
         DIR *dir = opendir( dirname );
@@ -1079,7 +1163,7 @@ static char ** get_apps ( )
     }
 
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
-    qsort( retv,index, sizeof( char* ), sort_func );
+    qsort( &retv[num_favorites],index-num_favorites, sizeof( char* ), sort_func );
     free( path );
 #ifdef TIMING
     clock_gettime( CLOCK_REALTIME, &stop );
@@ -1120,6 +1204,7 @@ void run_switcher( int fmode )
     }
 
     char *input = NULL;
+
     do {
         if ( mode == WINDOW_SWITCHER ) {
 
@@ -1247,7 +1332,9 @@ void run_switcher( int fmode )
             free( cmd_list );
         }
     } while ( mode != MODE_EXIT );
-    if(input != NULL) free(input);
+
+    if ( input != NULL ) free( input );
+
     if ( fmode == FORK )
         exit( EXIT_SUCCESS );
 }

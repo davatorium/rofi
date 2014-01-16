@@ -75,7 +75,7 @@ textbox* textbox_create( Window parent, unsigned long flags, short x, short y, s
 
     tb->prompt = strdup( prompt ? prompt: "" );
     textbox_text( tb, text ? text: "" );
-    textbox_cursor_end(tb);
+    textbox_cursor_end( tb );
 
     // auto height/width modes get handled here
     textbox_moveresize( tb, tb->x, tb->y, tb->w, tb->h );
