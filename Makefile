@@ -1,4 +1,4 @@
-CFLAGS?=-Wall -Wextra -Os
+CFLAGS?=-Wall -Wextra -O3
 PREFIX?=$(DESTDIR)/usr
 BINDIR?=$(PREFIX)/bin
 MANDIR?=$(PREFIX)/share/man/man1

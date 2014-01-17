@@ -238,6 +238,10 @@ static pid_t exec_cmd( char *cmd, int run_in_term )
 
     if ( hd == NULL ) return pid;
 
+    /**
+     * This happens in non-critical time (After launching app)
+     * It is allowed to be a bit slower.
+     */
     char *path = allocate( strlen( hd ) + strlen( "/.simpleswitcher.cache" )+2 );
     sprintf( path, "%s/%s", hd, ".simpleswitcher.cache" );
     FILE *fd = fopen ( path, "r" );
@@ -259,7 +263,9 @@ static pid_t exec_cmd( char *cmd, int run_in_term )
 
         fclose( fd );
     }
-
+    /**
+     * Write out the last 25 results again.
+     */
     fd = fopen ( path, "w" );
 
     if ( fd ) {
@@ -1151,7 +1157,13 @@ static char ** get_apps ( )
                      dent->d_type != DT_UNKNOWN ) {
                     continue;
                 }
-
+                int found = 0;
+                // This is a nice little penalty, but doable? time will tell.
+                // given num_favorites is max 25. 
+                for(int j = 0; found == 0 && j < num_favorites; j++) {
+                    if(strcasecmp(dent->d_name, retv[j]) == 0) found = 1;
+                }
+                if(found == 1) continue;
                 retv = realloc( retv, ( index+2 )*sizeof( char* ) );
                 retv[index] = strdup( dent->d_name );
                 retv[index+1] = NULL;
