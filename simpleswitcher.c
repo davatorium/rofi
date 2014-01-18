@@ -742,8 +742,9 @@ client* window_client( Window win )
     if ( win == None ) return NULL;
 
     int idx = winlist_find( cache_client, win );
-
-    if ( idx >= 0 ) return cache_client->data[idx];
+    if ( idx >= 0 ){
+        return cache_client->data[idx];
+    }
 
 // if this fails, we're up that creek
     XWindowAttributes *attr = window_get_attributes( win );
@@ -1013,7 +1014,7 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
                     int match = 1;
                     // If ids provided match on that.
                     if ( ids != NULL ) {
-                        client *c = ids->data[i];
+                        client *c = window_client(ids->array[i]); 
 
                         if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
                                 int test = 0;
@@ -1293,7 +1294,7 @@ void run_switcher( int fmode )
 
 #endif
 
-                        winlist_append( ids, c->window, c );
+                        winlist_append( ids, c->window, NULL);
                     }
                 }
 
