@@ -208,7 +208,7 @@ void catch_exit( __attribute__( ( unused ) ) int sig )
     while ( 0 < waitpid( -1, NULL, WNOHANG ) );
 }
 
-inline int execsh( char *cmd , int run_in_term )
+static inline int execsh( char *cmd , int run_in_term )
 {
 // use sh for args parsing
     if ( run_in_term )
