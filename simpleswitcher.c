@@ -263,6 +263,7 @@ static pid_t exec_cmd( char *cmd, int run_in_term )
 
         fclose( fd );
     }
+
     /**
      * Write out the last 25 results again.
      */
@@ -471,12 +472,13 @@ int winlist_forget( winlist *l, Window w )
 #define CLIENTCLASS 50
 #define CLIENTNAME 50
 #define CLIENTSTATE 10
+#define CLIENTROLE 50
 
 // a managable window
 typedef struct {
     Window window, trans;
     XWindowAttributes xattr;
-    char title[CLIENTTITLE], class[CLIENTCLASS], name[CLIENTNAME];
+    char title[CLIENTTITLE], class[CLIENTCLASS], name[CLIENTNAME], role[CLIENTROLE];
     int states;
     Atom state[CLIENTSTATE], type;
     workarea monitor;
@@ -773,6 +775,13 @@ client* window_client( Window win )
         XFree( name );
     }
 
+    name = window_get_text_prop ( c->window, XInternAtom( display, "WM_WINDOW_ROLE", False ) );
+
+    if ( name != NULL ) {
+        snprintf( c->role, CLIENTROLE, "%s", name );
+        XFree( name );
+    }
+
     XClassHint chint;
 
     if ( XGetClassHint( display, c->window, &chint ) ) {
@@ -854,7 +863,8 @@ static int calculate_common_prefix( char **filtered, int max_lines )
     return length_prefix;
 }
 
-int menu( char **lines, char **input, char *prompt, int selected, Time *time, int *shift )
+int menu( char **lines, char **input, char *prompt, int selected, Time *time, int *shift, winlist
+          *ids )
 {
     int line = -1, i, j, chosen = 0;
     workarea mon;
@@ -1001,11 +1011,34 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
                 // input changed
                 for ( i = 0, j = 0; i < num_lines && j < max_lines; i++ ) {
                     int match = 1;
+                    // If ids provided match on that.
+                    if ( ids != NULL ) {
+                        client *c = ids->data[i];
 
-                    // Do a tokenized match.
-                    if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
-                            match = ( strcasestr( lines[i], tokens[j] ) != NULL );
-                        }
+                        if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
+                                int test = 0;
+
+                                if ( !test && c->title[0] != '\0' )
+                                    test = ( strcasestr( c->title, tokens[j] ) != NULL );
+
+                                if ( !test && c->class[0] != '\0' )
+                                    test = ( strcasestr( c->class, tokens[j] ) != NULL );
+
+                                if ( !test && c->role[0] != '\0' )
+                                    test = ( strcasestr( c->role, tokens[j] ) != NULL );
+
+                                if ( !test && c->name[0] != '\0' )
+                                    test = ( strcasestr( c->name, tokens[j] ) != NULL );
+
+                                if ( test == 0 ) match = 0;
+                            }
+
+                    } else {
+                        // Do a tokenized match.
+                        if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
+                                match = ( strcasestr( lines[i], tokens[j] ) != NULL );
+                            }
+                    }
 
                     // If each token was matched, add it to list.
                     if ( match ) {
@@ -1157,13 +1190,17 @@ static char ** get_apps ( )
                      dent->d_type != DT_UNKNOWN ) {
                     continue;
                 }
+
                 int found = 0;
+
                 // This is a nice little penalty, but doable? time will tell.
-                // given num_favorites is max 25. 
-                for(int j = 0; found == 0 && j < num_favorites; j++) {
-                    if(strcasecmp(dent->d_name, retv[j]) == 0) found = 1;
+                // given num_favorites is max 25.
+                for ( int j = 0; found == 0 && j < num_favorites; j++ ) {
+                    if ( strcasecmp( dent->d_name, retv[j] ) == 0 ) found = 1;
                 }
-                if(found == 1) continue;
+
+                if ( found == 1 ) continue;
+
                 retv = realloc( retv, ( index+2 )*sizeof( char* ) );
                 retv[index] = strdup( dent->d_name );
                 retv[index+1] = NULL;
@@ -1256,7 +1293,7 @@ void run_switcher( int fmode )
 
 #endif
 
-                        winlist_append( ids, c->window, NULL );
+                        winlist_append( ids, c->window, c );
                     }
                 }
 
@@ -1274,13 +1311,13 @@ void run_switcher( int fmode )
                         // final line format
                         char *line = allocate( strlen( c->title ) + strlen( c->class ) + classfield + 50 );
 
-                        sprintf( line, pattern, c->class, c->title );
+                        sprintf( line, pattern, c->class, c->title);
 
                         list[lines++] = line;
                     }
                 }
                 Time time;
-                int n = menu( list, &input, "> ", 0, &time, NULL );
+                int n = menu( list, &input, "> ", 0, &time, NULL,ids );
 
                 if ( n == -2 ) {
                     mode = RUN_DIALOG;
@@ -1327,8 +1364,8 @@ void run_switcher( int fmode )
                 cmd_list[1] = NULL;
             }
 
-            int shift;
-            int n = menu( cmd_list, &input, "$ ", 0, &time, &shift );
+            int shift=0;
+            int n = menu( cmd_list, &input, "$ ", 0, &time, &shift,NULL );
 
             if ( n == -2 ) {
                 mode = WINDOW_SWITCHER;
