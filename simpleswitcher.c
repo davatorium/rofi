@@ -67,8 +67,8 @@
 
 #define INNER_MARGIN 5
 
-#define OPAQUE 0xffffffff
-#define OPACITY    "_NET_WM_WINDOW_OPACITY"
+#define OPAQUE      0xffffffff
+#define OPACITY     "_NET_WM_WINDOW_OPACITY"
 #define I3_SOCKET_PATH_PROP "I3_SOCKET_PATH"
 
 #ifdef TIMING
@@ -104,7 +104,7 @@ static void* reallocate( void *ptr, unsigned long bytes )
     return ptr;
 }
 
-static inline char **tokenize( const char *input )
+static char **tokenize( const char *input )
 {
     if ( input == NULL ) return NULL;
 
@@ -114,7 +114,7 @@ static inline char **tokenize( const char *input )
     int num_tokens = 1;
 
     //First entry is string that is modified.
-    retv = malloc( 2*sizeof( char* ) );
+    retv = allocate ( 2*sizeof( char* ) );
     retv[0] = strdup( input );
     retv[1] = NULL;
 
@@ -123,7 +123,7 @@ static inline char **tokenize( const char *input )
         token = strtok_r( retv[0], " ", &saveptr );
         token != NULL;
         token = strtok_r( NULL, " ", &saveptr ) ) {
-        retv = realloc( retv, sizeof( char* )*( num_tokens+2 ) );
+        retv = reallocate( retv, sizeof( char* )*( num_tokens+2 ) );
         retv[num_tokens+1] = NULL;
         retv[num_tokens] = token;
         num_tokens++;
@@ -492,8 +492,6 @@ typedef struct {
 #define MENUBGALT "#e9e8e7"
 #define MENUHLFG "#ffffff"
 #define MENUHLBG "#005577"
-#define MENURETURN 1
-#define MENUMODUP 2
 #define MENUBC "black"
 
 char *config_menu_font;
@@ -508,7 +506,6 @@ int config_menu_lines;
 unsigned int config_focus_mode;
 unsigned int config_raise_mode;
 unsigned int config_window_placement;
-unsigned int config_menu_bw;
 unsigned int config_window_opacity;
 unsigned int config_zeltak_mode;
 #ifdef I3
@@ -742,7 +739,8 @@ client* window_client( Window win )
     if ( win == None ) return NULL;
 
     int idx = winlist_find( cache_client, win );
-    if ( idx >= 0 ){
+
+    if ( idx >= 0 ) {
         return cache_client->data[idx];
     }
 
@@ -797,9 +795,6 @@ client* window_client( Window win )
     return c;
 }
 
-#define ALLWINDOWS 1
-#define DESKTOPWINDOWS 2
-
 unsigned int windows_modmask;
 KeySym windows_keysym;
 unsigned int rundialog_modmask;
@@ -807,7 +802,7 @@ KeySym rundialog_keysym;
 // flags to set if we switch modes on the fly
 Window main_window = None;
 
-#include "textbox.c"
+#include "textbox.h"
 
 void menu_draw( textbox *text, textbox **boxes, int max_lines, int selected, char **filtered )
 {
@@ -1012,9 +1007,10 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
                 // input changed
                 for ( i = 0, j = 0; i < num_lines && j < max_lines; i++ ) {
                     int match = 1;
+
                     // If ids provided match on that.
                     if ( ids != NULL ) {
-                        client *c = window_client(ids->array[i]); 
+                        client *c = window_client( ids->array[i] );
 
                         if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
                                 int test = 0;
@@ -1294,7 +1290,7 @@ void run_switcher( int fmode )
 
 #endif
 
-                        winlist_append( ids, c->window, NULL);
+                        winlist_append( ids, c->window, NULL );
                     }
                 }
 
@@ -1312,7 +1308,7 @@ void run_switcher( int fmode )
                         // final line format
                         char *line = allocate( strlen( c->title ) + strlen( c->class ) + classfield + 50 );
 
-                        sprintf( line, pattern, c->class, c->title);
+                        sprintf( line, pattern, c->class, c->title );
 
                         list[lines++] = line;
                     }
@@ -1465,6 +1461,23 @@ void grab_key( unsigned int modmask, KeySym key )
     }
 }
 
+
+
+/**
+ * Help function. This calls man.
+ */
+void help()
+{
+    int code = execlp( "man","man", MANPAGE_PATH,NULL );
+
+    if ( code == -1 ) {
+        fprintf( stderr, "Failed to execute man: %s\n", strerror( errno ) );
+    }
+}
+
+
+
+
 int main( int argc, char *argv[] )
 {
     int i, j;
@@ -1473,9 +1486,8 @@ int main( int argc, char *argv[] )
     if ( find_arg( argc, argv, "-help" ) >= 0
          || find_arg( argc, argv, "--help" ) >= 0
          || find_arg( argc, argv, "-h" ) >= 0 ) {
-        fprintf( stderr, "See the man (man 1 simpleswitcher) page or visit http://github.com/DaveDavenport/simpleswitcher\n" );
-        fprintf( stderr, "Original code can be found: http://github.com/seanpringle/simpleswitcher\n" );
-        return EXIT_FAILURE;
+        help();
+        return EXIT_SUCCESS;
     }
 
     const char *display_str= find_arg_str( argc, argv, "-display", getenv( "DISPLAY" ) );
@@ -1520,7 +1532,6 @@ int main( int argc, char *argv[] )
     config_menu_hlfg      = find_arg_str( ac, av, "-hlfg", MENUHLFG );
     config_menu_hlbg      = find_arg_str( ac, av, "-hlbg", MENUHLBG );
     config_menu_bc        = find_arg_str( ac, av, "-bc", MENUBC );
-    config_menu_bw        = find_arg_int( ac, av, "-bw", 1 );
     config_window_opacity = find_arg_int( ac, av, "-o", 100 );
 
     config_zeltak_mode    = ( find_arg( ac, av, "-zeltak" ) >= 0 );

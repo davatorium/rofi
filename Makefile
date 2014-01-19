@@ -3,23 +3,40 @@ PREFIX?=$(DESTDIR)/usr
 BINDIR?=$(PREFIX)/bin
 MANDIR?=$(PREFIX)/share/man/man1
 
+SOURCES=$(wildcard *.c)
+OBJECTS=$(SOURCES:%.c=%.o)
+
+MANPAGE_PATH=$(MANDIR)/simpleswitcher.1.gz
+
+CFLAGS+=-DMANPAGE_PATH="\"$(MANPAGE_PATH)\""
+CFLAGS+=-std=c99
+
 # Check deps.
 ifeq (${DEBUG},1)
-CFLAGS+=-DTIMING=1
+CFLAGS+=-DTIMING=1 -g3
 LDADD+=-lrt
 endif
 
+
+##
+# Check dependencies
+##
 PKG_CONFIG?=$(shell which pkg-config)
 ifeq (${PKG_CONFIG},${EMPTY})
 $(error Failed to find pkg-config. Please install pkg-config)
 endif
 
-LDADD+=$(shell ${PKG_CONFIG} --cflags --libs x11 xinerama xft)
+CFLAGS+=$(shell ${PKG_CONFIG} --cflags x11 xinerama xft)
+LDADD+=$(shell ${PKG_CONFIG} --libs x11 xinerama xft)
 
 ifeq (${LDADD},${EMPTY})
 $(error Failed to find the required dependencies: x11, xinerama, xft)
 endif
 
+
+##
+# Check for i3.
+##
 I3?=$(shell which i3)
 ifneq (${I3},${EMPTY})
 $(info I3 mode is enabled)
@@ -28,11 +45,9 @@ endif
 
 all: normal
 
-normal:
-	$(CC)  -o simpleswitcher simpleswitcher.c -std=c99 $(CFLAGS) $(LDADD) $(LDFLAGS)
 
-debug:
-	$(CC) -o simpleswitcher-debug simpleswitcher.c -std=c99 $(CFLAGS) -Wunused-parameter -g -DDEBUG $(LDADD) 
+normal: $(OBJECTS) | Makefile
+	$(CC)  -o simpleswitcher $^  $(LDADD) $(LDFLAGS)
 
 install: normal install-man
 	install -Dm 755 simpleswitcher $(BINDIR)/simpleswitcher
@@ -42,7 +57,7 @@ install-man:
 	gzip -f $(MANDIR)/simpleswitcher.1
 
 clean:
-	rm -f simpleswitcher simpleswitcher-debug
+	rm -f simpleswitcher $(OBJECTS)
 
 
 indent:

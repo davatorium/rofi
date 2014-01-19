@@ -25,34 +25,34 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
+#define _GNU_SOURCE
+#include <X11/X.h>
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#include <X11/Xmd.h>
+#include <X11/Xutil.h>
+#include <X11/Xproto.h>
+#include <X11/keysym.h>
+#include <X11/XKBlib.h>
+#include <X11/Xft/Xft.h>
+#include <ctype.h>
+
+
+#include "textbox.h"
 #define SIDE_MARGIN 3
-#define TB_AUTOHEIGHT 1<<0
-#define TB_AUTOWIDTH 1<<1
-#define TB_LEFT 1<<16
-#define TB_RIGHT 1<<17
-#define TB_CENTER 1<<18
-#define TB_EDITABLE 1<<19
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-typedef struct {
-    unsigned long flags;
-    Window window, parent;
-    short x, y, w, h;
-    short cursor;
-    XftFont *font;
-    XftColor color_fg, color_bg;
-    char *text, *prompt;
-    XIM xim;
-    XIC xic;
-    XGlyphInfo extents;
-} textbox;
+extern Display *display;
 
-void textbox_font( textbox *tb, char *font, char *fg, char *bg );
-void textbox_text( textbox *tb, char *text );
 void textbox_moveresize( textbox *tb, int x, int y, int w, int h );
-void textbox_cursor_end( textbox *tb );
 
 // Xft text box, optionally editable
-textbox* textbox_create( Window parent, unsigned long flags, short x, short y, short w, short h, char *font, char *fg, char *bg, char *text, char *prompt )
+textbox* textbox_create( Window parent,
+        TextboxFlags flags,
+        short x, short y, short w, short h,
+        char *font, char *fg, char *bg,
+        char *text, char *prompt )
 {
     textbox *tb = calloc( 1, sizeof( textbox ) );
 
