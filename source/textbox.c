@@ -49,10 +49,10 @@ void textbox_moveresize( textbox *tb, int x, int y, int w, int h );
 
 // Xft text box, optionally editable
 textbox* textbox_create( Window parent,
-        TextboxFlags flags,
-        short x, short y, short w, short h,
-        char *font, char *fg, char *bg,
-        char *text, char *prompt )
+                         TextboxFlags flags,
+                         short x, short y, short w, short h,
+                         char *font, char *fg, char *bg,
+                         char *text, char *prompt )
 {
     textbox *tb = calloc( 1, sizeof( textbox ) );
 

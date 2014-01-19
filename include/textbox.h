@@ -28,10 +28,10 @@ typedef enum {
 
 
 textbox* textbox_create( Window parent,
-        TextboxFlags flags,
-        short x, short y, short w, short h,
-        char *font, char *fg, char *bg,
-        char *text, char *prompt );
+                         TextboxFlags flags,
+                         short x, short y, short w, short h,
+                         char *font, char *fg, char *bg,
+                         char *text, char *prompt );
 
 void textbox_free( textbox *tb );
 

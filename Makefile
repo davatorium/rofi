@@ -1,15 +1,25 @@
 CFLAGS?=-Wall -Wextra -O3
+
+PROGRAM=simpleswitcher
+
+
 PREFIX?=$(DESTDIR)/usr
 BINDIR?=$(PREFIX)/bin
 MANDIR?=$(PREFIX)/share/man/man1
 
-SOURCES=$(wildcard *.c)
-OBJECTS=$(SOURCES:%.c=%.o)
+BUILD_DIR=build
+SOURCE_DIR=source
+DOC_DIR=doc
+
+SOURCES=$(wildcard $(SOURCE_DIR)/*.c)
+OBJECTS=$(SOURCES:$(SOURCE_DIR)/%.c=$(BUILD_DIR)/%.o)
+HEADERS=$(wildcard include/*.h)
 
 MANPAGE_PATH=$(MANDIR)/simpleswitcher.1.gz
 
 CFLAGS+=-DMANPAGE_PATH="\"$(MANPAGE_PATH)\""
 CFLAGS+=-std=c99
+CFLAGS+=-Iinclude/
 
 # Check deps.
 ifeq (${DEBUG},1)
@@ -43,22 +53,28 @@ $(info I3 mode is enabled)
 CFLAGS+=-DI3 -I${PREFIX}/include/
 endif
 
-all: normal
+all: $(BUILD_DIR)/$(PROGRAM)
 
+$(BUILD_DIR):
+	mkdir -p $@
+# Objects depend on header files and makefile too.
 
-normal: $(OBJECTS) | Makefile
-	$(CC)  -o simpleswitcher $^  $(LDADD) $(LDFLAGS)
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c | Makefile $(HEADERS) $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c -o $@ $^
 
-install: normal install-man
-	install -Dm 755 simpleswitcher $(BINDIR)/simpleswitcher
+$(BUILD_DIR)/$(PROGRAM): $(OBJECTS)
+	$(CC) -o $@ $^  $(LDADD) $(LDFLAGS)
+
+install: $(BUILD_DIR)/$(PROGRAM) install-man
+	install -Dm 755 $(BUILD_DIR)/$(PROGRAM) $(BINDIR)/$(PROGRAM)
 
 install-man:
-	install -Dm 644 simpleswitcher.1 $(MANDIR)/simpleswitcher.1
+	install -Dm 644 $(DOC_DIR)/simpleswitcher.1 $(MANDIR)/simpleswitcher.1
 	gzip -f $(MANDIR)/simpleswitcher.1
 
 clean:
-	rm -f simpleswitcher $(OBJECTS)
+	rm -rf $(BUILD_DIR)
 
 
 indent:
-	@astyle --style=linux -S -C -D -N -H -L -W3 -f simpleswitcher.c textbox.c
+	@astyle --style=linux -S -C -D -N -H -L -W3 -f $(SOURCES) $(HEADERS)
