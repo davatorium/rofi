@@ -208,17 +208,17 @@ void catch_exit( __attribute__( ( unused ) ) int sig )
     while ( 0 < waitpid( -1, NULL, WNOHANG ) );
 }
 
-static inline int execsh( char *cmd , int run_in_term )
+static inline int execsh( const char *cmd ,int run_in_term )
 {
 // use sh for args parsing
     if ( run_in_term )
-        return execlp( "x-terminal-emulator", "x-terminal-emulator", "-e", cmd, NULL );
+        return execlp( "x-terminal-emulator", "x-terminal-emulator", "-e", "sh", "-c", cmd, NULL );
 
     return execlp( "/bin/sh", "sh", "-c", cmd, NULL );
 }
 
 // execute sub-process
-static pid_t exec_cmd( char *cmd, int run_in_term )
+static pid_t exec_cmd( const char *cmd, int run_in_term )
 {
     if ( !cmd || !cmd[0] ) return -1;
 
@@ -1367,8 +1367,9 @@ void run_switcher( int fmode )
             if ( n == -2 ) {
                 mode = WINDOW_SWITCHER;
             } else if ( n >=0 && cmd_list[n] != NULL ) {
-
-                exec_cmd( cmd_list[n] ,shift );
+                exec_cmd( cmd_list[n], shift );
+            } else if ( n == -1 ) {
+                exec_cmd( input, shift );
             }
 
             for ( int i=0; cmd_list[i] != NULL; i++ ) {
