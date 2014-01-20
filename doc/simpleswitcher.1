@@ -23,6 +23,8 @@ simpleswitcher \- a simple EWMH window switcher
 .IR comdo ]
 .RB [ \-now ]
 .RB [ \-rnow ]
+.RB [ \-term
+.IR terminal ]
 
 .SH DESCRIPTION
 .I simpleswitcher
@@ -135,6 +137,13 @@ Set the width of the menu as a percentage of the screen width (default: 60).
 .P
 .RS
 simpleswitcher -width 60
+.RE
+.TP
+.B -term
+Specify what terminal to start (default x-terminal-emulator)
+.P
+.RS
+simpleswitcher -term xterm
 .RE
 .SH Switch between modi
 Type '?'<enter> to switch between window list and run mode.

@@ -71,9 +71,18 @@
 #define OPACITY     "_NET_WM_WINDOW_OPACITY"
 #define I3_SOCKET_PATH_PROP "I3_SOCKET_PATH"
 
+
+
+
+#define TERMINAL_DEFAULT "x-terminal-emulator"
+char *config_terminal_emulator;
+
 #ifdef TIMING
 #include <time.h>
 #endif
+
+
+
 
 static void* allocate( unsigned long bytes )
 {
@@ -212,7 +221,7 @@ static inline int execsh( const char *cmd ,int run_in_term )
 {
 // use sh for args parsing
     if ( run_in_term )
-        return execlp( "x-terminal-emulator", "x-terminal-emulator", "-e", "sh", "-c", cmd, NULL );
+        return execlp( config_terminal_emulator, config_terminal_emulator, "-e", "sh", "-c", cmd, NULL );
 
     return execlp( "/bin/sh", "sh", "-c", cmd, NULL );
 }
@@ -1538,6 +1547,8 @@ int main( int argc, char *argv[] )
     config_menu_hlbg      = find_arg_str( ac, av, "-hlbg", MENUHLBG );
     config_menu_bc        = find_arg_str( ac, av, "-bc", MENUBC );
     config_window_opacity = find_arg_int( ac, av, "-o", 100 );
+
+    config_terminal_emulator = find_arg_str( ac, av, "-term", TERMINAL_DEFAULT);
 
     config_zeltak_mode    = ( find_arg( ac, av, "-zeltak" ) >= 0 );
 
