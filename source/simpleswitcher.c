@@ -1104,13 +1104,17 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
 
     release_keyboard();
 
-    if ( chosen && filtered[selected] )
+    if ( chosen && filtered[selected] ) {
         line = line_map[selected];
+    }
 
     if ( line < 0 && input ) {
         if ( *input != NULL ) free( *input );
 
         *input = strdup( text->text );
+        // If chosen and the like.
+        if(chosen)
+            line = -3;
     }
 
 
@@ -1368,7 +1372,7 @@ void run_switcher( int fmode )
                 mode = WINDOW_SWITCHER;
             } else if ( n >=0 && cmd_list[n] != NULL ) {
                 exec_cmd( cmd_list[n], shift );
-            } else if ( n == -1 ) {
+            } else if ( n == -3 && input != NULL && input[0] != '\0' ) {
                 exec_cmd( input, shift );
             }
 
