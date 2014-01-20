@@ -1,11 +1,15 @@
+QUIET?=@
 CFLAGS?=-Wall -Wextra -O3
+VERSION?=0.14.1
 
 PROGRAM=simpleswitcher
 
 
 PREFIX?=$(DESTDIR)/usr
-BINDIR?=$(PREFIX)/bin
-MANDIR?=$(PREFIX)/share/man/man1
+BIN_DIR?=$(PREFIX)/bin
+MAN_DIR?=$(PREFIX)/share/man/man1
+
+MAN_PAGE=$(PROGRAM).1
 
 BUILD_DIR=build
 SOURCE_DIR=source
@@ -14,10 +18,17 @@ DOC_DIR=doc
 SOURCES=$(wildcard $(SOURCE_DIR)/*.c)
 OBJECTS=$(SOURCES:$(SOURCE_DIR)/%.c=$(BUILD_DIR)/%.o)
 HEADERS=$(wildcard include/*.h)
+OTHERS=Makefile LICENSE README.md
 
-MANPAGE_PATH=$(MANDIR)/simpleswitcher.1.gz
 
-CFLAGS+=-DMANPAGE_PATH="\"$(MANPAGE_PATH)\""
+INSTALL_MANPAGE_PATH=$(MAN_DIR)/$(MAN_PAGE).gz
+INSTALL_PROGRAM=$(BIN_DIR)/$(PROGRAM)
+
+
+DIST_TARGET=$(BUILD_DIR)/$(PROGRAM)-$(VERSION).tar.xz
+
+
+CFLAGS+=-DMANPAGE_PATH="\"$(INSTALL_MANPAGE_PATH)\""
 CFLAGS+=-std=c99
 CFLAGS+=-Iinclude/
 
@@ -56,25 +67,49 @@ endif
 all: $(BUILD_DIR)/$(PROGRAM)
 
 $(BUILD_DIR):
-	mkdir -p $@
-# Objects depend on header files and makefile too.
+	$(info Creating build dir)
+	$(QUIET)mkdir -p $@
 
+# Objects depend on header files and makefile too.
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c | Makefile $(HEADERS) $(BUILD_DIR)
-	$(CC) $(CFLAGS) -c -o $@ $^
+	$(info Compiling $^ -> $@)
+	$(QUIET) $(CC) $(CFLAGS) -c -o $@ $^
 
 $(BUILD_DIR)/$(PROGRAM): $(OBJECTS)
-	$(CC) -o $@ $^  $(LDADD) $(LDFLAGS)
+	$(info Linking   $@)
+	$(QUIET)$(CC) -o $@ $^  $(LDADD) $(LDFLAGS)
 
-install: $(BUILD_DIR)/$(PROGRAM) install-man
-	install -Dm 755 $(BUILD_DIR)/$(PROGRAM) $(BINDIR)/$(PROGRAM)
+install: $(INSTALL_PROGRAM) $(INSTALL_MANPAGE_PATH) 
 
-install-man:
-	install -Dm 644 $(DOC_DIR)/simpleswitcher.1 $(MANDIR)/simpleswitcher.1
-	gzip -f $(MANDIR)/simpleswitcher.1
+$(INSTALL_PROGRAM): $(BUILD_DIR)/$(PROGRAM)
+	$(info Install   $^ -> $@ )
+	$(QUIET)install -Dm 755 $^ $@ 
+
+
+$(BUILD_DIR)/$(MAN_PAGE).gz: $(DOC_DIR)/$(MAN_PAGE)
+	$(info Creating  man page)
+	$(QUIET) gzip -c $^ > $@
+
+$(INSTALL_MANPAGE_PATH): $(BUILD_DIR)/$(MAN_PAGE).gz
+	$(info Install   $^ -> $@)
+	$(QUIET) install -Dm 644 $^ $(INSTALL_MANPAGE_PATH) 
 
 clean:
-	rm -rf $(BUILD_DIR)
+	$(info Clean build dir)
+	$(QUIET)rm -rf $(BUILD_DIR)
 
 
 indent:
 	@astyle --style=linux -S -C -D -N -H -L -W3 -f $(SOURCES) $(HEADERS)
+
+dist: $(DIST_TARGET)
+
+$(BUILD_DIR)/$(PROGRAM)-$(VERSION): $(SOURCES) $(HEADERS) $(DOC_DIR)/$(MAN_PAGE) $(OTHERS) | $(BUILD_DIR)
+	$(info Create release directory)
+	$(QUIET)mkdir -p $@
+	$(QUIET)cp -a --parents $^ $@
+
+
+$(DIST_TARGET): $(BUILD_DIR)/$(PROGRAM)-$(VERSION) 
+	$(info Creating release tarball: $@)
+	$(QUIET) tar -C $(BUILD_DIR) -cavvJf $@ $(PROGRAM)-$(VERSION)
