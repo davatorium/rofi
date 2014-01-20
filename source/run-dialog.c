@@ -26,15 +26,9 @@
  */
 
 #define _GNU_SOURCE
+#include <stdlib.h>
+#include <stdio.h>
 #include <X11/X.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/Xmd.h>
-#include <X11/Xutil.h>
-#include <X11/Xproto.h>
-#include <X11/keysym.h>
-#include <X11/XKBlib.h>
-#include <X11/Xft/Xft.h>
 
 #include <unistd.h>
 #include <signal.h>
@@ -45,6 +39,9 @@
 
 #include "simpleswitcher.h"
 #include "run-dialog.h"
+#ifdef TIMING
+#include <time.h>
+#endif
 
 extern char *config_terminal_emulator;
 
@@ -228,6 +225,17 @@ static char ** get_apps ( )
     return retv;
 }
 
+int token_match ( char **tokens, const char *input,
+                  __attribute__( ( unused ) )int index,
+                  __attribute__( ( unused ) )void *data)
+{
+    int match = 1;
+    // Do a tokenized match.
+    if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
+        match = ( strcasestr( input, tokens[j] ) != NULL );
+    }
+    return match;
+}
 
 SwitcherMode run_switcher_dialog ( char **input )
 {
@@ -242,7 +250,7 @@ SwitcherMode run_switcher_dialog ( char **input )
     }
 
     int shift=0;
-    int n = menu( cmd_list, input, "$ ", 0, NULL, &shift,NULL );
+    int n = menu( cmd_list, input, "$ ", 0, NULL, &shift,token_match, NULL);
 
     if ( n == -2 ) {
         retv = WINDOW_SWITCHER;

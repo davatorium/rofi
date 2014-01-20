@@ -72,9 +72,6 @@
 #define TERMINAL_DEFAULT "x-terminal-emulator"
 char *config_terminal_emulator;
 
-#ifdef TIMING
-#include <time.h>
-#endif
 
 
 
@@ -310,6 +307,13 @@ typedef struct {
     int l, r, t, b;
 } workarea;
 
+
+// window lists
+typedef struct {
+    Window *array;
+    void **data;
+    int len;
+} winlist;
 
 winlist *cache_client;
 winlist *cache_xattr;
@@ -773,8 +777,35 @@ static int calculate_common_prefix( char **filtered, int max_lines )
     return length_prefix;
 }
 
-int menu( char **lines, char **input, char *prompt, int selected, Time *time, int *shift, winlist
-          *ids )
+
+int window_match ( char **tokens, const char *input, int index, void *data)
+{
+    int match =1;
+    winlist *ids = (winlist *)data;
+    client *c = window_client(ids->array[index]);
+    if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
+        int test = 0;
+
+        if ( !test && c->title[0] != '\0' )
+            test = ( strcasestr( c->title, tokens[j] ) != NULL );
+
+        if ( !test && c->class[0] != '\0' )
+            test = ( strcasestr( c->class, tokens[j] ) != NULL );
+
+        if ( !test && c->role[0] != '\0' )
+            test = ( strcasestr( c->role, tokens[j] ) != NULL );
+
+        if ( !test && c->name[0] != '\0' )
+            test = ( strcasestr( c->name, tokens[j] ) != NULL );
+
+        if ( test == 0 ) match = 0;
+    }
+
+    return match;
+} 
+
+int menu( char **lines, char **input, char *prompt, int selected, Time *time, int *shift,
+        menu_match_cb mmc, void *mmc_data)
 {
     int line = -1, i, j, chosen = 0;
     workarea mon;
@@ -851,12 +882,7 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
 
         // input changed
         for ( i = 0, j = 0; i < num_lines && j < max_lines; i++ ) {
-            int match = 1;
-
-            // Do a tokenized match.
-            if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
-                    match = ( strcasestr( lines[i], tokens[j] ) != NULL );
-                }
+            int match = mmc(tokens,lines[i], i, mmc_data); 
 
             // If each token was matched, add it to list.
             if ( match ) {
@@ -920,36 +946,7 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
 
                 // input changed
                 for ( i = 0, j = 0; i < num_lines && j < max_lines; i++ ) {
-                    int match = 1;
-
-                    // If ids provided match on that.
-                    if ( ids != NULL ) {
-                        client *c = window_client( ids->array[i] );
-
-                        if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
-                                int test = 0;
-
-                                if ( !test && c->title[0] != '\0' )
-                                    test = ( strcasestr( c->title, tokens[j] ) != NULL );
-
-                                if ( !test && c->class[0] != '\0' )
-                                    test = ( strcasestr( c->class, tokens[j] ) != NULL );
-
-                                if ( !test && c->role[0] != '\0' )
-                                    test = ( strcasestr( c->role, tokens[j] ) != NULL );
-
-                                if ( !test && c->name[0] != '\0' )
-                                    test = ( strcasestr( c->name, tokens[j] ) != NULL );
-
-                                if ( test == 0 ) match = 0;
-                            }
-
-                    } else {
-                        // Do a tokenized match.
-                        if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
-                                match = ( strcasestr( lines[i], tokens[j] ) != NULL );
-                            }
-                    }
+                    int match = mmc(tokens,lines[i], i, mmc_data); 
 
                     // If each token was matched, add it to list.
                     if ( match ) {
@@ -1112,7 +1109,7 @@ SwitcherMode run_switcher_window ( char **input )
             }
         }
         Time time;
-        int n = menu( list, input, "> ", 0, &time, NULL,ids );
+        int n = menu( list, input, "> ", 0, &time, NULL,window_match, ids );
 
         if ( n == -2 ) {
             retv = RUN_DIALOG;
