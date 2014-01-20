@@ -37,11 +37,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <X11/Xft/Xft.h>
 #include <ctype.h>
 
-
+#include "simpleswitcher.h"
 #include "textbox.h"
 #define SIDE_MARGIN 3
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 extern Display *display;
 
