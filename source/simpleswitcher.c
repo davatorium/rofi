@@ -1121,8 +1121,9 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
         if ( *input != NULL ) free( *input );
 
         *input = strdup( text->text );
+
         // If chosen and the like.
-        if(chosen)
+        if ( chosen )
             line = -3;
     }
 
@@ -1244,9 +1245,129 @@ typedef enum {
 } SwitcherMode;
 
 
-SwitcherMode mode = WINDOW_SWITCHER;
+SwitcherMode run_switcher_dialog ( char **input )
+{
+    Time time;
+    SwitcherMode retv = MODE_EXIT;
+    // act as a launcher
+    char **cmd_list = get_apps( );
 
-void run_switcher( int fmode )
+    if ( cmd_list == NULL ) {
+        cmd_list = allocate( 2*sizeof( char * ) );
+        cmd_list[0] = strdup( "No applications found" );
+        cmd_list[1] = NULL;
+    }
+
+    int shift=0;
+    int n = menu( cmd_list, input, "$ ", 0, &time, &shift,NULL );
+
+    if ( n == -2 ) {
+        retv = WINDOW_SWITCHER;
+    } else if ( n >=0 && cmd_list[n] != NULL ) {
+        exec_cmd( cmd_list[n], shift );
+    } else if ( n == -3 && *input != NULL && *input[0] != '\0' ) {
+        exec_cmd( *input, shift );
+    }
+
+    for ( int i=0; cmd_list[i] != NULL; i++ ) {
+        free( cmd_list[i] );
+    }
+
+    free( cmd_list );
+
+    return retv;
+}
+
+SwitcherMode run_switcher_window ( char **input )
+{
+    SwitcherMode retv = MODE_EXIT;
+    // find window list
+    Atom type;
+    int nwins;
+    unsigned long wins[100];
+
+    if ( window_get_prop( root, netatoms[_NET_CLIENT_LIST_STACKING],
+                          &type, &nwins, wins, 100 * sizeof( unsigned long ) )
+         && type == XA_WINDOW ) {
+        char pattern[50];
+        int i;
+        unsigned int classfield = 0;
+        // windows we actually display. may be slightly different to _NET_CLIENT_LIST_STACKING
+        // if we happen to have a window destroyed while we're working...
+        winlist *ids = winlist_new();
+
+        // calc widths of fields
+        for ( i = nwins-1; i > -1; i-- ) {
+            client *c;
+
+            if ( ( c = window_client( wins[i] ) )
+                 && !c->xattr.override_redirect
+                 && !client_has_state( c, netatoms[_NET_WM_STATE_SKIP_PAGER] )
+                 && !client_has_state( c, netatoms[_NET_WM_STATE_SKIP_TASKBAR] ) ) {
+
+                classfield = MAX( classfield, strlen( c->class ) );
+
+#ifdef I3
+
+                // In i3 mode, skip the i3bar completely.
+                if ( config_i3_mode && strstr( c->class, "i3bar" ) != NULL ) continue;
+
+#endif
+
+                winlist_append( ids, c->window, NULL );
+            }
+        }
+
+        // Create pattern for printing the line.
+        sprintf( pattern, "%%-%ds   %%s", MAX( 5, classfield ) );
+        char **list = allocate_clear( sizeof( char* ) * ( ids->len+1 ) );
+        int lines = 0;
+
+        // build the actual list
+        Window w;
+        winlist_ascend( ids, i, w ) {
+            client *c;
+
+            if ( ( c = window_client( w ) ) ) {
+                // final line format
+                char *line = allocate( strlen( c->title ) + strlen( c->class ) + classfield + 50 );
+
+                sprintf( line, pattern, c->class, c->title );
+
+                list[lines++] = line;
+            }
+        }
+        Time time;
+        int n = menu( list, input, "> ", 0, &time, NULL,ids );
+
+        if ( n == -2 ) {
+            retv = RUN_DIALOG;
+        } else if ( n >= 0 && list[n] ) {
+#ifdef I3
+
+            if ( config_i3_mode ) {
+                // Hack for i3.
+                focus_window_i3( i3_socket_path,ids->array[n] );
+            } else
+#endif
+            {
+                window_send_message( root, ids->array[n], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
+                                     SubstructureNotifyMask | SubstructureRedirectMask, time );
+            }
+        }
+
+
+        for ( i = 0; i < lines; i++ )
+            free( list[i] );
+
+        free( list );
+        winlist_free( ids );
+    }
+
+    return retv;
+}
+
+void run_switcher( int fmode, SwitcherMode mode )
 {
     // TODO: this whole function is messy. build a nicer solution
 
@@ -1266,137 +1387,19 @@ void run_switcher( int fmode )
 
     do {
         if ( mode == WINDOW_SWITCHER ) {
-
-            char pattern[50], **list = NULL;
-            int i, plen = 0, lines = 0;
-            unsigned int classfield = 0;
-            unsigned long desktops = 0, current_desktop = 0;
-            Window w;
-            client *c;
-
-            mode = MODE_EXIT;
-            // windows we actually display. may be slightly different to _NET_CLIENT_LIST_STACKING
-            // if we happen to have a window destroyed while we're working...
-            winlist *ids = winlist_new();
-
-            if ( !window_get_cardinal_prop( root, netatoms[_NET_CURRENT_DESKTOP], &current_desktop, 1 ) )
-                current_desktop = 0;
-
-            // find window list
-            Atom type;
-            int nwins;
-            unsigned long *wins = allocate_clear( sizeof( unsigned long ) * 100 );
-
-            if ( window_get_prop( root, netatoms[_NET_CLIENT_LIST_STACKING], &type, &nwins, wins, 100 * sizeof( unsigned long ) )
-                 && type == XA_WINDOW ) {
-                // calc widths of fields
-                for ( i = nwins-1; i > -1; i-- ) {
-                    if ( ( c = window_client( wins[i] ) )
-                         && !c->xattr.override_redirect
-                         && !client_has_state( c, netatoms[_NET_WM_STATE_SKIP_PAGER] )
-                         && !client_has_state( c, netatoms[_NET_WM_STATE_SKIP_TASKBAR] ) ) {
-                        classfield = MAX( classfield, strlen( c->class ) );
-#ifdef I3
-
-                        // In i3 mode, skip the i3bar completely.
-                        if ( config_i3_mode && strstr( c->class, "i3bar" ) != NULL ) continue;
-
-#endif
-
-                        winlist_append( ids, c->window, NULL );
-                    }
-                }
-
-                if ( !window_get_cardinal_prop( root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1 ) )
-                    desktops = 1;
-
-
-                plen += sprintf( pattern+plen, "%%-%ds   %%s", MAX( 5, classfield ) );
-                list = allocate_clear( sizeof( char* ) * ( ids->len+1 ) );
-                lines = 0;
-
-                // build the actual list
-                winlist_ascend( ids, i, w ) {
-                    if ( ( c = window_client( w ) ) ) {
-                        // final line format
-                        char *line = allocate( strlen( c->title ) + strlen( c->class ) + classfield + 50 );
-
-                        sprintf( line, pattern, c->class, c->title );
-
-                        list[lines++] = line;
-                    }
-                }
-                Time time;
-                int n = menu( list, &input, "> ", 0, &time, NULL,ids );
-
-                if ( n == -2 ) {
-                    mode = RUN_DIALOG;
-                } else if ( n >= 0 && list[n] ) {
-                    // Normally we want to exit.
-#ifdef I3
-
-                    if ( config_i3_mode ) {
-                        // Hack for i3.
-                        focus_window_i3( i3_socket_path,ids->array[n] );
-                    } else
-#endif
-                    {
-                        if ( isdigit( list[n][0] ) ) {
-                            // TODO: get rid of strtol
-                            window_send_message( root, root, netatoms[_NET_CURRENT_DESKTOP], strtol( list[n], NULL, 10 )-1,
-                                                 SubstructureNotifyMask | SubstructureRedirectMask, time );
-                            XSync( display, False );
-                        }
-
-                        window_send_message( root, ids->array[n], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
-                                             SubstructureNotifyMask | SubstructureRedirectMask, time );
-                    }
-                }
-            }
-
-            for ( i = 0; i < lines; i++ )
-                free( list[i] );
-
-            free( list );
-
-            free( wins );
-            winlist_free( ids );
+            mode = run_switcher_window( &input );
         } else if ( mode == RUN_DIALOG ) {
-            Time time;
-
-            mode = MODE_EXIT;
-            // act as a launcher
-            char **cmd_list = get_apps( );
-
-            if ( cmd_list == NULL ) {
-                cmd_list = allocate( 2*sizeof( char * ) );
-                cmd_list[0] = strdup( "No applications found" );
-                cmd_list[1] = NULL;
-            }
-
-            int shift=0;
-            int n = menu( cmd_list, &input, "$ ", 0, &time, &shift,NULL );
-
-            if ( n == -2 ) {
-                mode = WINDOW_SWITCHER;
-            } else if ( n >=0 && cmd_list[n] != NULL ) {
-                exec_cmd( cmd_list[n], shift );
-            } else if ( n == -3 && input != NULL && input[0] != '\0' ) {
-                exec_cmd( input, shift );
-            }
-
-            for ( int i=0; cmd_list[i] != NULL; i++ ) {
-                free( cmd_list[i] );
-            }
-
-            free( cmd_list );
+            mode = run_switcher_dialog( &input );
         }
     } while ( mode != MODE_EXIT );
 
-    if ( input != NULL ) free( input );
+    if ( input != NULL ) {
+        free( input );
+    }
 
-    if ( fmode == FORK )
+    if ( fmode == FORK ) {
         exit( EXIT_SUCCESS );
+    }
 }
 
 // KeyPress event
@@ -1406,14 +1409,12 @@ void handle_keypress( XEvent *ev )
 
     if ( ( windows_modmask == AnyModifier || ev->xkey.state & windows_modmask ) &&
          key == windows_keysym ) {
-        mode = WINDOW_SWITCHER;
-        run_switcher( FORK );
+        run_switcher( FORK , WINDOW_SWITCHER );
     }
 
     if ( ( rundialog_modmask == AnyModifier || ev->xkey.state & rundialog_modmask ) &&
          key == rundialog_keysym ) {
-        mode = RUN_DIALOG;
-        run_switcher( FORK );
+        run_switcher( FORK , RUN_DIALOG );
     }
 }
 
@@ -1548,7 +1549,7 @@ int main( int argc, char *argv[] )
     config_menu_bc        = find_arg_str( ac, av, "-bc", MENUBC );
     config_window_opacity = find_arg_int( ac, av, "-o", 100 );
 
-    config_terminal_emulator = find_arg_str( ac, av, "-term", TERMINAL_DEFAULT);
+    config_terminal_emulator = find_arg_str( ac, av, "-term", TERMINAL_DEFAULT );
 
     config_zeltak_mode    = ( find_arg( ac, av, "-zeltak" ) >= 0 );
 
@@ -1572,7 +1573,7 @@ int main( int argc, char *argv[] )
 
     // flags to run immediately and exit
     if ( find_arg( ac, av, "-now" ) >= 0 ) {
-        run_switcher( NOFORK );
+        run_switcher( NOFORK, WINDOW_SWITCHER );
 #ifdef I3
 
         if ( i3_socket_path != NULL ) free( i3_socket_path );
@@ -1582,8 +1583,7 @@ int main( int argc, char *argv[] )
     }
 
     if ( find_arg( ac, av, "-rnow" ) >= 0 ) {
-        mode = RUN_DIALOG;
-        run_switcher( NOFORK );
+        run_switcher( NOFORK, RUN_DIALOG );
 #ifdef I3
 
         if ( i3_socket_path != NULL ) free( i3_socket_path );
