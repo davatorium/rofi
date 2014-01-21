@@ -23,6 +23,7 @@ simpleswitcher \- a simple EWMH window switcher
 .IR comdo ]
 .RB [ \-now ]
 .RB [ \-rnow ]
+.RB [ \-snow ]
 .RB [ \-term
 .IR terminal ]
 
@@ -63,11 +64,25 @@ simpleswitcher -rkey control+shift+d
 simpleswitcher -rkey mod1+grave (grave=backtick)
 .RE
 .TP
+.B -skey
+Change the key combination to display the ssh dialog (default: mod1-F3).
+.P
+.RS
+simpleswitcher -skey F10
+.br
+simpleswitcher -skey control+shift+s
+.br
+simpleswitcher -skey mod1+grave (grave=backtick)
+.RE
+.TP
 .B -now
 Run simpleswitcher in all-windows mode once then exit. Does not bind any keys.
 .TP
 .B -rnow
 Run simpleswitcher in run-dialog mode once then exit. Does not bind any keys.
+.TP
+.B -snow
+Run simpleswitcher in ssh mode once then exit. Does not bind any keys.
 .TP
 .B -bg
 Set the background text color (X11 named color or hex #rrggbb) for the menu (default: #222222).

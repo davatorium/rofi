@@ -176,11 +176,14 @@ static char ** get_ssh ( )
 
     if ( fd != NULL ) {
         while ( fgets( buffer,1024,fd ) != NULL ) {
-            if(strncasecmp(buffer, "Host", 4) == 0) {
+            if ( strncasecmp( buffer, "Host", 4 ) == 0 ) {
                 int start = 0, stop=0;
                 buffer[strlen( buffer )-1] = '\0';
-                for(start=4; isspace(buffer[start]);start++);
-                for(stop=start; isalnum(buffer[stop]);stop++);
+
+                for ( start=4; isspace( buffer[start] ); start++ );
+
+                for ( stop=start; isalnum( buffer[stop] ); stop++ );
+
                 retv = realloc( retv, ( index+2 )*sizeof( char* ) );
                 retv[index] = strndup( &buffer[start], stop-start );
                 retv[index+1] = NULL;
@@ -209,14 +212,16 @@ static char ** get_ssh ( )
 }
 
 static int token_match ( char **tokens, const char *input,
-                  __attribute__( ( unused ) )int index,
-                  __attribute__( ( unused ) )void *data)
+                         __attribute__( ( unused ) )int index,
+                         __attribute__( ( unused ) )void *data )
 {
     int match = 1;
+
     // Do a tokenized match.
     if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
-        match = ( strcasestr( input, tokens[j] ) != NULL );
-    }
+            match = ( strcasestr( input, tokens[j] ) != NULL );
+        }
+
     return match;
 }
 
@@ -233,7 +238,7 @@ SwitcherMode ssh_switcher_dialog ( char **input )
     }
 
     int shift=0;
-    int n = menu( cmd_list, input, "ssh ", 0, NULL, &shift,token_match, NULL);
+    int n = menu( cmd_list, input, "ssh ", 0, NULL, &shift,token_match, NULL );
 
     if ( n == -2 ) {
         retv = WINDOW_SWITCHER;

@@ -226,14 +226,16 @@ static char ** get_apps ( )
 }
 
 static int token_match ( char **tokens, const char *input,
-                  __attribute__( ( unused ) )int index,
-                  __attribute__( ( unused ) )void *data)
+                         __attribute__( ( unused ) )int index,
+                         __attribute__( ( unused ) )void *data )
 {
     int match = 1;
+
     // Do a tokenized match.
     if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
-        match = ( strcasestr( input, tokens[j] ) != NULL );
-    }
+            match = ( strcasestr( input, tokens[j] ) != NULL );
+        }
+
     return match;
 }
 
@@ -250,7 +252,7 @@ SwitcherMode run_switcher_dialog ( char **input )
     }
 
     int shift=0;
-    int n = menu( cmd_list, input, "$ ", 0, NULL, &shift,token_match, NULL);
+    int n = menu( cmd_list, input, "$ ", 0, NULL, &shift,token_match, NULL );
 
     if ( n == -2 ) {
         retv = SSH_DIALOG;

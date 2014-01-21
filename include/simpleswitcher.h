@@ -17,9 +17,9 @@ typedef enum {
 
 
 
-typedef int (*menu_match_cb)(char **tokens, const char *input, int index, void *data);
+typedef int ( *menu_match_cb )( char **tokens, const char *input, int index, void *data );
 int menu( char **lines, char **input, char *prompt,
-          int selected, Time *time, int *shift, menu_match_cb mmc, void *mmc_data); 
+          int selected, Time *time, int *shift, menu_match_cb mmc, void *mmc_data );
 
 
 /**

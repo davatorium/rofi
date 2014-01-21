@@ -718,6 +718,8 @@ unsigned int windows_modmask;
 KeySym windows_keysym;
 unsigned int rundialog_modmask;
 KeySym rundialog_keysym;
+unsigned int sshdialog_modmask;
+KeySym sshdialog_keysym;
 // flags to set if we switch modes on the fly
 Window main_window = None;
 
@@ -779,34 +781,35 @@ static int calculate_common_prefix( char **filtered, int max_lines )
 }
 
 
-int window_match ( char **tokens, __attribute__((unused))const char *input, int index, void *data)
+int window_match ( char **tokens, __attribute__( ( unused ) )const char *input, int index, void *data )
 {
     int match =1;
-    winlist *ids = (winlist *)data;
-    client *c = window_client(ids->array[index]);
+    winlist *ids = ( winlist * )data;
+    client *c = window_client( ids->array[index] );
+
     if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
-        int test = 0;
+            int test = 0;
 
-        if ( !test && c->title[0] != '\0' )
-            test = ( strcasestr( c->title, tokens[j] ) != NULL );
+            if ( !test && c->title[0] != '\0' )
+                test = ( strcasestr( c->title, tokens[j] ) != NULL );
 
-        if ( !test && c->class[0] != '\0' )
-            test = ( strcasestr( c->class, tokens[j] ) != NULL );
+            if ( !test && c->class[0] != '\0' )
+                test = ( strcasestr( c->class, tokens[j] ) != NULL );
 
-        if ( !test && c->role[0] != '\0' )
-            test = ( strcasestr( c->role, tokens[j] ) != NULL );
+            if ( !test && c->role[0] != '\0' )
+                test = ( strcasestr( c->role, tokens[j] ) != NULL );
 
-        if ( !test && c->name[0] != '\0' )
-            test = ( strcasestr( c->name, tokens[j] ) != NULL );
+            if ( !test && c->name[0] != '\0' )
+                test = ( strcasestr( c->name, tokens[j] ) != NULL );
 
-        if ( test == 0 ) match = 0;
-    }
+            if ( test == 0 ) match = 0;
+        }
 
     return match;
-} 
+}
 
 int menu( char **lines, char **input, char *prompt, int selected, Time *time, int *shift,
-        menu_match_cb mmc, void *mmc_data)
+          menu_match_cb mmc, void *mmc_data )
 {
     int line = -1, i, j, chosen = 0;
     workarea mon;
@@ -883,7 +886,7 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
 
         // input changed
         for ( i = 0, j = 0; i < num_lines && j < max_lines; i++ ) {
-            int match = mmc(tokens,lines[i], i, mmc_data); 
+            int match = mmc( tokens,lines[i], i, mmc_data );
 
             // If each token was matched, add it to list.
             if ( match ) {
@@ -947,7 +950,7 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
 
                 // input changed
                 for ( i = 0, j = 0; i < num_lines && j < max_lines; i++ ) {
-                    int match = mmc(tokens,lines[i], i, mmc_data); 
+                    int match = mmc( tokens,lines[i], i, mmc_data );
 
                     // If each token was matched, add it to list.
                     if ( match ) {
@@ -977,6 +980,7 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
                      // pressing one of the global key bindings closes the switcher. this allows fast closing of the menu if an item is not selected
                      || ( ( windows_modmask == AnyModifier || ev.xkey.state & windows_modmask ) && key == windows_keysym )
                      || ( ( rundialog_modmask == AnyModifier || ev.xkey.state & rundialog_modmask ) && key == rundialog_keysym )
+                     || ( ( sshdialog_modmask == AnyModifier || ev.xkey.state & sshdialog_modmask ) && key == sshdialog_keysym )
                    ) {
                     break;
                 }
@@ -1190,6 +1194,11 @@ void handle_keypress( XEvent *ev )
          key == rundialog_keysym ) {
         run_switcher( FORK , RUN_DIALOG );
     }
+
+    if ( ( sshdialog_modmask == AnyModifier || ev->xkey.state & sshdialog_modmask ) &&
+         key == sshdialog_keysym ) {
+        run_switcher( FORK , SSH_DIALOG );
+    }
 }
 
 // convert a Mod+key arg to mod mask and keysym
@@ -1366,16 +1375,28 @@ int main( int argc, char *argv[] )
         exit( EXIT_SUCCESS );
     }
 
+    if ( find_arg( ac, av, "-snow" ) >= 0 ) {
+        run_switcher( NOFORK, SSH_DIALOG );
+#ifdef I3
+
+        if ( i3_socket_path != NULL ) free( i3_socket_path );
+
+#endif
+        exit( EXIT_SUCCESS );
+    }
+
     // in background mode from here on
 
     // key combination to display all windows from all desktops
     parse_key( find_arg_str( ac, av, "-key", "F12" ), &windows_modmask, &windows_keysym );
     parse_key( find_arg_str( ac, av, "-rkey", "mod1+F2" ), &rundialog_modmask, &rundialog_keysym );
+    parse_key( find_arg_str( ac, av, "-skey", "mod1+F3" ), &sshdialog_modmask, &sshdialog_keysym );
 
 
     // bind key combos
     grab_key( windows_modmask, windows_keysym );
     grab_key( rundialog_modmask, rundialog_keysym );
+    grab_key( sshdialog_modmask, sshdialog_keysym );
 
     XEvent ev;
 
