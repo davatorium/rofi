@@ -184,11 +184,18 @@ static char ** get_ssh ( )
 
                 for ( stop=start; isalnum( buffer[stop] ); stop++ );
 
+                int found = 0;
+                // This is a nice little penalty, but doable? time will tell.
+                // given num_favorites is max 25.
+                for ( int j = 0; found == 0 && j < num_favorites; j++ ) {
+                    if ( strncasecmp( &buffer[start], retv[j],stop-start ) == 0 ) found = 1;
+                }
+                if ( found == 1 ) continue;
+
                 retv = realloc( retv, ( index+2 )*sizeof( char* ) );
                 retv[index] = strndup( &buffer[start], stop-start );
                 retv[index+1] = NULL;
                 index++;
-                num_favorites++;
             }
         }
 

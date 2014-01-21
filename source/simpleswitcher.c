@@ -354,10 +354,6 @@ void winlist_free( winlist *l )
     free( l->data );
     free( l );
 }
-void winlist_empty_2d( winlist *l )
-{
-    while ( l->len > 0 ) winlist_free( l->data[--( l->len )] );
-}
 int winlist_find( winlist *l, Window w )
 {
 // iterate backwards. theory is: windows most often accessed will be
@@ -368,23 +364,6 @@ int winlist_find( winlist *l, Window w )
     winlist_descend( l, i, o ) if ( w == o ) return i;
 
     return -1;
-}
-int winlist_forget( winlist *l, Window w )
-{
-    int i, j;
-
-    for ( i = 0, j = 0; i < l->len; i++, j++ ) {
-        l->array[j] = l->array[i];
-        l->data[j]  = l->data[i];
-
-        if ( l->array[i] == w ) {
-            free( l->data[i] );
-            j--;
-        }
-    }
-
-    l->len -= ( i-j );
-    return j != i ?1:0;
 }
 
 #define CLIENTTITLE 100
@@ -1273,7 +1252,17 @@ void help()
     }
 }
 
+inline int program_end()
+{
+    winlist_free( cache_xattr );
+    winlist_free( cache_client );
+#ifdef I3
 
+    if ( i3_socket_path != NULL ) free( i3_socket_path );
+
+#endif
+    return EXIT_SUCCESS;
+}
 
 
 int main( int argc, char *argv[] )
@@ -1357,32 +1346,17 @@ int main( int argc, char *argv[] )
     // flags to run immediately and exit
     if ( find_arg( ac, av, "-now" ) >= 0 ) {
         run_switcher( NOFORK, WINDOW_SWITCHER );
-#ifdef I3
-
-        if ( i3_socket_path != NULL ) free( i3_socket_path );
-
-#endif
-        exit( EXIT_SUCCESS );
+        return program_end();
     }
 
     if ( find_arg( ac, av, "-rnow" ) >= 0 ) {
         run_switcher( NOFORK, RUN_DIALOG );
-#ifdef I3
-
-        if ( i3_socket_path != NULL ) free( i3_socket_path );
-
-#endif
-        exit( EXIT_SUCCESS );
+        return program_end();
     }
 
     if ( find_arg( ac, av, "-snow" ) >= 0 ) {
         run_switcher( NOFORK, SSH_DIALOG );
-#ifdef I3
-
-        if ( i3_socket_path != NULL ) free( i3_socket_path );
-
-#endif
-        exit( EXIT_SUCCESS );
+        return program_end();
     }
 
     // in background mode from here on
@@ -1413,10 +1387,5 @@ int main( int argc, char *argv[] )
         if ( ev.type == KeyPress ) handle_keypress( &ev );
     }
 
-#ifdef I3
-
-    if ( i3_socket_path != NULL ) free( i3_socket_path );
-
-#endif
-    return EXIT_SUCCESS;
+    return program_end();
 }
