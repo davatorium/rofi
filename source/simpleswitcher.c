@@ -59,6 +59,7 @@
 
 #include "simpleswitcher.h"
 #include "run-dialog.h"
+#include "ssh-dialog.h"
 
 #define INNER_MARGIN 5
 
@@ -778,7 +779,7 @@ static int calculate_common_prefix( char **filtered, int max_lines )
 }
 
 
-int window_match ( char **tokens, const char *input, int index, void *data)
+int window_match ( char **tokens, __attribute__((unused))const char *input, int index, void *data)
 {
     int match =1;
     winlist *ids = (winlist *)data;
@@ -1161,6 +1162,8 @@ void run_switcher( int fmode, SwitcherMode mode )
             mode = run_switcher_window( &input );
         } else if ( mode == RUN_DIALOG ) {
             mode = run_switcher_dialog( &input );
+        } else if ( mode == SSH_DIALOG ) {
+            mode = ssh_switcher_dialog( &input );
         }
     } while ( mode != MODE_EXIT );
 

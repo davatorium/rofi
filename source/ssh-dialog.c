@@ -36,25 +36,22 @@
 #include <dirent.h>
 #include <strings.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "simpleswitcher.h"
-#include "run-dialog.h"
+#include "ssh-dialog.h"
 #ifdef TIMING
 #include <time.h>
 #endif
 
 extern char *config_terminal_emulator;
 
-static inline int execsh( const char *cmd ,int run_in_term )
+static inline int execshssh( const char *host )
 {
-// use sh for args parsing
-    if ( run_in_term )
-        return execlp( config_terminal_emulator, config_terminal_emulator, "-e", "sh", "-c", cmd, NULL );
-
-    return execlp( "/bin/sh", "sh", "-c", cmd, NULL );
+    return execlp( config_terminal_emulator, config_terminal_emulator, "-e", "ssh", host, NULL );
 }
 // execute sub-process
-static pid_t exec_cmd( const char *cmd, int run_in_term )
+static pid_t exec_ssh( const char *cmd )
 {
     if ( !cmd || !cmd[0] ) return -1;
 
@@ -63,7 +60,7 @@ static pid_t exec_cmd( const char *cmd, int run_in_term )
 
     if ( !pid ) {
         setsid();
-        execsh( cmd, run_in_term );
+        execshssh( cmd );
         exit( EXIT_FAILURE );
     }
 
@@ -78,8 +75,8 @@ static pid_t exec_cmd( const char *cmd, int run_in_term )
      * This happens in non-critical time (After launching app)
      * It is allowed to be a bit slower.
      */
-    char *path = allocate( strlen( hd ) + strlen( "/.simpleswitcher.cache" )+2 );
-    sprintf( path, "%s/%s", hd, ".simpleswitcher.cache" );
+    char *path = allocate( strlen( hd ) + strlen( "/.simpleswitcher.sshcache" )+2 );
+    sprintf( path, "%s/%s", hd, ".simpleswitcher.sshcache" );
     FILE *fd = fopen ( path, "r" );
     char buffer[1024];
 
@@ -136,7 +133,7 @@ static int sort_func ( const void *a, const void *b )
     const char *bstr = *( const char * const * )b;
     return strcasecmp( astr,bstr );
 }
-static char ** get_apps ( )
+static char ** get_ssh ( )
 {
     int num_favorites = 0;
     unsigned int index = 0;
@@ -153,8 +150,8 @@ static char ** get_apps ( )
 
     if ( hd == NULL ) return NULL;
 
-    path = allocate( strlen( hd ) + strlen( "/.simpleswitcher.cache" )+2 );
-    sprintf( path, "%s/%s", hd, ".simpleswitcher.cache" );
+    path = allocate( strlen( hd ) + strlen( "/.simpleswitcher.sshcache" )+2 );
+    sprintf( path, "%s/%s", hd, ".simpleswitcher.sshcache" );
     FILE *fd = fopen ( path, "r" );
     char buffer[1024];
 
@@ -173,40 +170,26 @@ static char ** get_apps ( )
 
     free( path );
 
+    path = allocate( strlen( hd ) + strlen( "/.ssh/config" )+2 );
+    sprintf( path, "%s/%s", hd, ".ssh/config" );
+    fd = fopen ( path, "r" );
 
-    path = strdup( getenv( "PATH" ) );
-
-    for ( const char *dirname = strtok( path, ":" ); dirname != NULL; dirname = strtok( NULL, ":" ) ) {
-        DIR *dir = opendir( dirname );
-
-        if ( dir != NULL ) {
-            struct dirent *dent;
-
-            while ( ( dent=readdir( dir ) )!=NULL ) {
-                if ( dent->d_type != DT_REG &&
-                     dent->d_type != DT_LNK &&
-                     dent->d_type != DT_UNKNOWN ) {
-                    continue;
-                }
-
-                int found = 0;
-
-                // This is a nice little penalty, but doable? time will tell.
-                // given num_favorites is max 25.
-                for ( int j = 0; found == 0 && j < num_favorites; j++ ) {
-                    if ( strcasecmp( dent->d_name, retv[j] ) == 0 ) found = 1;
-                }
-
-                if ( found == 1 ) continue;
-
+    if ( fd != NULL ) {
+        while ( fgets( buffer,1024,fd ) != NULL ) {
+            if(strncasecmp(buffer, "Host", 4) == 0) {
+                int start = 0, stop=0;
+                buffer[strlen( buffer )-1] = '\0';
+                for(start=4; isspace(buffer[start]);start++);
+                for(stop=start; isalnum(buffer[stop]);stop++);
                 retv = realloc( retv, ( index+2 )*sizeof( char* ) );
-                retv[index] = strdup( dent->d_name );
+                retv[index] = strndup( &buffer[start], stop-start );
                 retv[index+1] = NULL;
                 index++;
+                num_favorites++;
             }
-
-            closedir( dir );
         }
+
+        fclose( fd );
     }
 
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
@@ -237,27 +220,27 @@ static int token_match ( char **tokens, const char *input,
     return match;
 }
 
-SwitcherMode run_switcher_dialog ( char **input )
+SwitcherMode ssh_switcher_dialog ( char **input )
 {
     SwitcherMode retv = MODE_EXIT;
     // act as a launcher
-    char **cmd_list = get_apps( );
+    char **cmd_list = get_ssh( );
 
     if ( cmd_list == NULL ) {
         cmd_list = allocate( 2*sizeof( char * ) );
-        cmd_list[0] = strdup( "No applications found" );
+        cmd_list[0] = strdup( "No ssh hosts found" );
         cmd_list[1] = NULL;
     }
 
     int shift=0;
-    int n = menu( cmd_list, input, "$ ", 0, NULL, &shift,token_match, NULL);
+    int n = menu( cmd_list, input, "ssh ", 0, NULL, &shift,token_match, NULL);
 
     if ( n == -2 ) {
-        retv = SSH_DIALOG;
+        retv = WINDOW_SWITCHER;
     } else if ( n >=0 && cmd_list[n] != NULL ) {
-        exec_cmd( cmd_list[n], shift );
+        exec_ssh( cmd_list[n] );
     } else if ( n == -3 && *input != NULL && *input[0] != '\0' ) {
-        exec_cmd( *input, shift );
+        exec_ssh( *input );
     }
 
     for ( int i=0; cmd_list[i] != NULL; i++ ) {

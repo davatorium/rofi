@@ -11,6 +11,7 @@
 typedef enum {
     WINDOW_SWITCHER,
     RUN_DIALOG,
+    SSH_DIALOG,
     MODE_EXIT
 } SwitcherMode;
 
