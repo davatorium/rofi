@@ -36,6 +36,7 @@
 #include <dirent.h>
 #include <strings.h>
 #include <string.h>
+#include <errno.h>
 
 #include "simpleswitcher.h"
 #include "run-dialog.h"

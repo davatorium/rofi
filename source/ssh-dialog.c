@@ -37,6 +37,7 @@
 #include <strings.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include "simpleswitcher.h"
 #include "ssh-dialog.h"
@@ -44,6 +45,7 @@
 #include <time.h>
 #endif
 
+#define SSH_CACHE_FILE ".simpleswitcher.sshcache"
 extern char *config_terminal_emulator;
 
 static inline int execshssh( const char *host )
@@ -75,8 +77,8 @@ static pid_t exec_ssh( const char *cmd )
      * This happens in non-critical time (After launching app)
      * It is allowed to be a bit slower.
      */
-    char *path = allocate( strlen( hd ) + strlen( "/.simpleswitcher.sshcache" )+2 );
-    sprintf( path, "%s/%s", hd, ".simpleswitcher.sshcache" );
+    char *path = allocate( strlen( hd ) + strlen( "/"SSH_CACHE_FILE )+2 );
+    sprintf( path, "%s/%s", hd, SSH_CACHE_FILE );
     FILE *fd = fopen ( path, "r" );
     char buffer[1024];
 
@@ -150,8 +152,8 @@ static char ** get_ssh ( )
 
     if ( hd == NULL ) return NULL;
 
-    path = allocate( strlen( hd ) + strlen( "/.simpleswitcher.sshcache" )+2 );
-    sprintf( path, "%s/%s", hd, ".simpleswitcher.sshcache" );
+    path = allocate( strlen( hd ) + strlen( "/"SSH_CACHE_FILE )+2 );
+    sprintf( path, "%s/%s", hd, SSH_CACHE_FILE );
     FILE *fd = fopen ( path, "r" );
     char buffer[1024];
 
@@ -185,11 +187,13 @@ static char ** get_ssh ( )
                 for ( stop=start; isalnum( buffer[stop] ); stop++ );
 
                 int found = 0;
+
                 // This is a nice little penalty, but doable? time will tell.
                 // given num_favorites is max 25.
                 for ( int j = 0; found == 0 && j < num_favorites; j++ ) {
                     if ( strncasecmp( &buffer[start], retv[j],stop-start ) == 0 ) found = 1;
                 }
+
                 if ( found == 1 ) continue;
 
                 retv = realloc( retv, ( index+2 )*sizeof( char* ) );
