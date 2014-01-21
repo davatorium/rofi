@@ -1253,7 +1253,7 @@ void help()
     }
 }
 
-inline int program_end()
+static inline int program_end()
 {
     winlist_free( cache_xattr );
     winlist_free( cache_client );
