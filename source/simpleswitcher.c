@@ -62,6 +62,7 @@
 #include "run-dialog.h"
 #include "ssh-dialog.h"
 
+#define LINE_MARGIN 3
 #define INNER_MARGIN 5
 
 #define OPAQUE      0xffffffff
@@ -234,7 +235,7 @@ static int find_arg_int( int argc, char *argv[], char *key, int def )
 }
 
 unsigned int NumlockMask = 0;
-Display *display;
+Display *display = NULL;
 Screen *screen;
 Window root;
 int screen_id;
@@ -700,8 +701,8 @@ unsigned int rundialog_modmask;
 KeySym rundialog_keysym;
 unsigned int sshdialog_modmask;
 KeySym sshdialog_keysym;
-// flags to set if we switch modes on the fly
 Window main_window = None;
+GC gc = NULL;
 
 #include "textbox.h"
 
@@ -814,6 +815,11 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
     } else {
         box = XCreateSimpleWindow( display, root, x, 0, w, 300, 1, color_get( config_menu_bc ), color_get( config_menu_bg ) );
         XSelectInput( display, box, ExposureMask );
+
+
+        gc = XCreateGC( display, box, 0, 0 );
+        XSetLineAttributes(display, gc, 2, LineOnOffDash, CapButt, JoinMiter);
+        XSetForeground( display, gc, color_get( config_menu_bc ) );
         // make it an unmanaged window
         window_set_atom_prop( box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
         //window_set_atom_prop(box, netatoms[_NET_WM_WINDOW_TYPE], &netatoms[_NET_WM_WINDOW_TYPE_DOCK], 1);
@@ -849,7 +855,7 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
 
     for ( i = 0; i < max_lines; i++ ) {
         boxes[i] = textbox_create( box, TB_AUTOHEIGHT, INNER_MARGIN, ( i+1 ) * line_height +
-                                   INNER_MARGIN, w-( 2*INNER_MARGIN ), 1,
+                                   INNER_MARGIN+LINE_MARGIN, w-( 2*INNER_MARGIN ), 1,
                                    config_menu_font, config_menu_fg, config_menu_bg, lines[i], NULL );
         textbox_show( boxes[i] );
     }
@@ -888,7 +894,7 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
-    int h = line_height * ( max_lines+1 ) + INNER_MARGIN*2 - row_margin;
+    int h = line_height * ( max_lines+1 ) + INNER_MARGIN*2 - row_margin+LINE_MARGIN;
     int y = mon.y + ( mon.h - h )/2;
     XMoveResizeWindow( display, box, x, y, w, h );
     XMapRaised( display, box );
@@ -903,6 +909,9 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
             while ( XCheckTypedEvent( display, Expose, &ev ) );
 
             menu_draw( text, boxes, max_lines, selected, filtered );
+            // Why do we need the specian -1?
+            XDrawLine( display, main_window, gc, INNER_MARGIN, line_height+INNER_MARGIN,
+                       w-( INNER_MARGIN )-1, line_height+INNER_MARGIN );
         } else if ( ev.type == KeyPress ) {
             while ( XCheckTypedEvent( display, KeyPress, &ev ) );
 
@@ -1143,6 +1152,7 @@ void run_switcher( int fmode, SwitcherMode mode )
 
     do {
         SwitcherMode retv = MODE_EXIT;
+
         if ( mode == WINDOW_SWITCHER ) {
             retv = run_switcher_window( &input );
         } else if ( mode == RUN_DIALOG ) {
@@ -1150,8 +1160,9 @@ void run_switcher( int fmode, SwitcherMode mode )
         } else if ( mode == SSH_DIALOG ) {
             retv = ssh_switcher_dialog( &input );
         }
-        if(retv == NEXT_DIALOG) {
-            mode = (mode+1)%NUM_DIALOGS;
+
+        if ( retv == NEXT_DIALOG ) {
+            mode = ( mode+1 )%NUM_DIALOGS;
         } else {
             mode = retv;
         }
@@ -1261,6 +1272,15 @@ void help()
 
 static inline int program_end()
 {
+    if ( display != NULL ) {
+
+        if ( main_window != None ) {
+            XFreeGC( display,gc );
+            XDestroyWindow( display,main_window );
+            XCloseDisplay( display );
+        }
+    }
+
     winlist_free( cache_xattr );
     winlist_free( cache_client );
 #ifdef I3

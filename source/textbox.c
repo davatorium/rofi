@@ -177,7 +177,18 @@ void textbox_free( textbox *tb )
 
     if ( tb->prompt ) free( tb->prompt );
 
-    if ( tb->font ) XftFontClose( display, tb->font );
+    if ( tb->font ) {
+        XftColorFree ( display,
+                       DefaultVisual( display, DefaultScreen( display ) ),
+                       DefaultColormap( display, DefaultScreen( display ) ),
+                       &tb->color_fg );
+        XftColorFree ( display,
+                       DefaultVisual( display, DefaultScreen( display ) ),
+                       DefaultColormap( display, DefaultScreen( display ) ),
+                       &tb->color_bg );
+
+        XftFontClose( display, tb->font );
+    }
 
     XDestroyWindow( display, tb->window );
     free( tb );

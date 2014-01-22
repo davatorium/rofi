@@ -188,7 +188,7 @@ static char ** get_ssh ( )
 
                 int found = 0;
 
-                if(start == stop) continue;
+                if ( start == stop ) continue;
 
                 // This is a nice little penalty, but doable? time will tell.
                 // given num_favorites is max 25.
