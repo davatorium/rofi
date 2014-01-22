@@ -188,6 +188,8 @@ static char ** get_ssh ( )
 
                 int found = 0;
 
+                if(start == stop) continue;
+
                 // This is a nice little penalty, but doable? time will tell.
                 // given num_favorites is max 25.
                 for ( int j = 0; found == 0 && j < num_favorites; j++ ) {
