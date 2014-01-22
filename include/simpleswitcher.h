@@ -12,9 +12,10 @@ typedef enum {
     WINDOW_SWITCHER,
     RUN_DIALOG,
     SSH_DIALOG,
-    MODE_EXIT
+    NUM_DIALOGS,
+    MODE_EXIT,
+    NEXT_DIALOG
 } SwitcherMode;
-
 
 
 typedef int ( *menu_match_cb )( char **tokens, const char *input, int index, void *data );

@@ -256,7 +256,7 @@ SwitcherMode run_switcher_dialog ( char **input )
     int n = menu( cmd_list, input, "$ ", 0, NULL, &shift,token_match, NULL );
 
     if ( n == -2 ) {
-        retv = SSH_DIALOG;
+        retv = NEXT_DIALOG;
     } else if ( n >=0 && cmd_list[n] != NULL ) {
         exec_cmd( cmd_list[n], shift );
     } else if ( n == -3 && *input != NULL && *input[0] != '\0' ) {

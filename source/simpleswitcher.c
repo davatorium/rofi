@@ -1097,7 +1097,7 @@ SwitcherMode run_switcher_window ( char **input )
         int n = menu( list, input, "> ", 0, &time, NULL,window_match, ids );
 
         if ( n == -2 ) {
-            retv = RUN_DIALOG;
+            retv = NEXT_DIALOG;
         } else if ( n >= 0 && list[n] ) {
 #ifdef I3
 
@@ -1142,12 +1142,18 @@ void run_switcher( int fmode, SwitcherMode mode )
     char *input = NULL;
 
     do {
+        SwitcherMode retv = MODE_EXIT;
         if ( mode == WINDOW_SWITCHER ) {
-            mode = run_switcher_window( &input );
+            retv = run_switcher_window( &input );
         } else if ( mode == RUN_DIALOG ) {
-            mode = run_switcher_dialog( &input );
+            retv = run_switcher_dialog( &input );
         } else if ( mode == SSH_DIALOG ) {
-            mode = ssh_switcher_dialog( &input );
+            retv = ssh_switcher_dialog( &input );
+        }
+        if(retv == NEXT_DIALOG) {
+            mode = (mode+1)%NUM_DIALOGS;
+        } else {
+            mode = retv;
         }
     } while ( mode != MODE_EXIT );
 
