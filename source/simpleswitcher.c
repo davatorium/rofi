@@ -62,7 +62,7 @@
 #include "run-dialog.h"
 #include "ssh-dialog.h"
 
-#define LINE_MARGIN 3
+#define LINE_MARGIN 4
 #define INNER_MARGIN 5
 
 #define OPAQUE      0xffffffff
@@ -813,7 +813,8 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
     if ( main_window != None && XGetWindowAttributes( display, main_window, &attr ) ) {
         box = main_window;
     } else {
-        box = XCreateSimpleWindow( display, root, x, 0, w, 300, 1, color_get( config_menu_bc ), color_get( config_menu_bg ) );
+        box = XCreateSimpleWindow( display, root, x, 0, w, 300, 1,
+                color_get( config_menu_bc ), color_get( config_menu_bg ) );
         XSelectInput( display, box, ExposureMask );
 
 
@@ -910,8 +911,10 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
 
             menu_draw( text, boxes, max_lines, selected, filtered );
             // Why do we need the specian -1?
-            XDrawLine( display, main_window, gc, INNER_MARGIN, line_height+INNER_MARGIN,
-                       w-( INNER_MARGIN )-1, line_height+INNER_MARGIN );
+            XDrawLine( display, main_window, gc, INNER_MARGIN,
+                    line_height+INNER_MARGIN+(LINE_MARGIN-2)/2,
+                    w-( INNER_MARGIN )-1,
+                    line_height+INNER_MARGIN +(LINE_MARGIN-2)/2);
         } else if ( ev.type == KeyPress ) {
             while ( XCheckTypedEvent( display, KeyPress, &ev ) );
 
