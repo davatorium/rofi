@@ -44,13 +44,11 @@
 #include <time.h>
 #endif
 
-extern char *config_terminal_emulator;
-
 static inline int execsh( const char *cmd ,int run_in_term )
 {
 // use sh for args parsing
     if ( run_in_term )
-        return execlp( config_terminal_emulator, config_terminal_emulator, "-e", "sh", "-c", cmd, NULL );
+        return execlp( config.terminal_emulator, config.terminal_emulator, "-e", "sh", "-c", cmd, NULL );
 
     return execlp( "/bin/sh", "sh", "-c", cmd, NULL );
 }

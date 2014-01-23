@@ -65,18 +65,34 @@
 #define LINE_MARGIN 4
 #define INNER_MARGIN 5
 
-#define OPAQUE      0xffffffff
-#define OPACITY     "_NET_WM_WINDOW_OPACITY"
+#define OPAQUE              0xffffffff
+#define OPACITY             "_NET_WM_WINDOW_OPACITY"
 #define I3_SOCKET_PATH_PROP "I3_SOCKET_PATH"
 
 
-
-
-#define TERMINAL_DEFAULT "x-terminal-emulator"
-char *config_terminal_emulator;
-
-
-
+Settings config = {
+    // Window settings
+    .window_opacity = 100,
+    // Menu settings
+    .menu_bw        = 1,
+    .menu_width     = 50,
+    .menu_lines     = 15,
+    .menu_font      = "mono-12",
+    .menu_fg        = "#222222",
+    .menu_bg        = "#f2f1f0",
+    .menu_bgalt     = "#e9e8e7",
+    .menu_hlfg      = "#ffffff",
+    .menu_hlbg      = "#005577",
+    .menu_bc        = "black",
+    // Behavior
+    .zeltak_mode    = 0,
+    .terminal_emulator = "x-terminal-emulator",
+    .i3_mode        = 0,
+    // Key binding
+    .window_key     = "F12",
+    .run_key        = "mod1+F2",
+    .ssh_key        = "mod1+F3",
+};
 
 
 void* allocate( unsigned long bytes )
@@ -223,15 +239,22 @@ static int find_arg( const int argc, char * const argv[], const char * const key
 
     return i < argc ? i: -1;
 }
-static char* find_arg_str( int argc, char *argv[], char *key, char* def )
+static void find_arg_str( int argc, char *argv[], char *key, char** val )
 {
     int i = find_arg( argc, argv, key );
-    return ( i > 0 && i < argc-1 ) ? argv[i+1]: def;
+
+    if ( val != NULL &&  i > 0 && i < argc-1 ) {
+        *val = argv[i+1];
+    }
 }
-static int find_arg_int( int argc, char *argv[], char *key, int def )
+
+static void find_arg_int ( int argc, char *argv[], char *key, unsigned int *val )
 {
     int i = find_arg( argc, argv, key );
-    return ( i > 0 && i < argc-1 ) ? strtol( argv[i+1], NULL, 10 ): def;
+
+    if ( val != NULL && i > 0 && i < ( argc-1 ) ) {
+        *val = strtol( argv[i+1], NULL, 10 );
+    }
 }
 
 unsigned int NumlockMask = 0;
@@ -384,33 +407,7 @@ typedef struct {
     workarea monitor;
 } client;
 
-#define MENUXFTFONT "mono-14"
-#define MENUWIDTH 50
-#define MENULINES 15
-#define MENUFG "#222222"
-#define MENUBG "#f2f1f0"
-#define MENUBGALT "#e9e8e7"
-#define MENUHLFG "#ffffff"
-#define MENUHLBG "#005577"
-#define MENUBC "black"
 
-char *config_menu_font;
-char *config_menu_fg;
-char *config_menu_bg;
-char *config_menu_hlfg;
-char *config_menu_hlbg;
-char *config_menu_bgalt;
-char *config_menu_bc;
-unsigned int config_menu_width;
-int config_menu_lines;
-unsigned int config_focus_mode;
-unsigned int config_raise_mode;
-unsigned int config_window_placement;
-unsigned int config_window_opacity;
-unsigned int config_zeltak_mode;
-#ifdef I3
-int config_i3_mode = 0;
-#endif
 
 // allocate a pixel value for an X named color
 static unsigned int color_get( const char *const name )
@@ -713,14 +710,14 @@ void menu_draw( textbox *text, textbox **boxes, int max_lines, int selected, cha
 
     for ( i = 0; i < max_lines; i++ ) {
         if ( filtered[i] == NULL ) {
-            textbox_font( boxes[i], config_menu_font,
-                          config_menu_fg,
-                          config_menu_bg );
+            textbox_font( boxes[i], config.menu_font,
+                          config.menu_fg,
+                          config.menu_bg );
             textbox_text( boxes[i], "" );
         } else {
-            textbox_font( boxes[i], config_menu_font,
-                          i == selected ? config_menu_hlfg: config_menu_fg,
-                          i == selected ? config_menu_hlbg: config_menu_bg );
+            textbox_font( boxes[i], config.menu_font,
+                          i == selected ? config.menu_hlfg: config.menu_fg,
+                          i == selected ? config.menu_hlbg: config.menu_bg );
             textbox_text( boxes[i], filtered[i] );
         }
 
@@ -789,21 +786,22 @@ int window_match ( char **tokens, __attribute__( ( unused ) )const char *input, 
     return match;
 }
 
-int menu( char **lines, char **input, char *prompt, int selected, Time *time, int *shift,
+int menu( char **lines, char **input, char *prompt, unsigned int selected, Time *time, int *shift,
           menu_match_cb mmc, void *mmc_data )
 {
-    int line = -1, i, j, chosen = 0;
+    int line = -1, chosen = 0;
+    unsigned int i,j;
     workarea mon;
     monitor_active( &mon );
 
-    int num_lines = 0;
+    unsigned int num_lines = 0;
 
     for ( ; lines[num_lines]; num_lines++ );
 
-    int max_lines = MIN( config_menu_lines, num_lines );
+    unsigned int max_lines = MIN( config.menu_lines, num_lines );
     selected = MAX( MIN( num_lines-1, selected ), 0 );
 
-    int w = config_menu_width < 101 ? ( mon.w/100 )*config_menu_width: config_menu_width;
+    int w = config.menu_width < 101 ? ( mon.w/100 )*config.menu_width: config.menu_width;
     int x = mon.x + ( mon.w - w )/2;
 
     Window box;
@@ -813,14 +811,15 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
     if ( main_window != None && XGetWindowAttributes( display, main_window, &attr ) ) {
         box = main_window;
     } else {
-        box = XCreateSimpleWindow( display, root, x, 0, w, 300, 1,
-                color_get( config_menu_bc ), color_get( config_menu_bg ) );
+        box = XCreateSimpleWindow( display, root, x, 0, w, 300,
+                                   config.menu_bw, color_get( config.menu_bc ),
+                                   color_get( config.menu_bg ) );
         XSelectInput( display, box, ExposureMask );
 
 
         gc = XCreateGC( display, box, 0, 0 );
-        XSetLineAttributes(display, gc, 2, LineOnOffDash, CapButt, JoinMiter);
-        XSetForeground( display, gc, color_get( config_menu_bc ) );
+        XSetLineAttributes( display, gc, 2, LineOnOffDash, CapButt, JoinMiter );
+        XSetForeground( display, gc, color_get( config.menu_bc ) );
         // make it an unmanaged window
         window_set_atom_prop( box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
         //window_set_atom_prop(box, netatoms[_NET_WM_WINDOW_TYPE], &netatoms[_NET_WM_WINDOW_TYPE_DOCK], 1);
@@ -833,7 +832,7 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
         XStoreName( display, box, "simpleswitcher" );
 
         // Hack to set window opacity.
-        unsigned int opacity_set = ( unsigned int )( ( config_window_opacity/100.0 )* OPAQUE );
+        unsigned int opacity_set = ( unsigned int )( ( config.window_opacity/100.0 )* OPAQUE );
         XChangeProperty( display, box, XInternAtom( display, OPACITY, False ),
                          XA_CARDINAL, 32, PropModeReplace,
                          ( unsigned char * ) &opacity_set, 1L );
@@ -842,7 +841,7 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
     // search text input
     textbox *text = textbox_create( box, TB_AUTOHEIGHT|TB_EDITABLE, INNER_MARGIN, INNER_MARGIN,
                                     w-( 2*INNER_MARGIN ), 1,
-                                    config_menu_font, config_menu_fg, config_menu_bg,
+                                    config.menu_font, config.menu_fg, config.menu_bg,
                                     ( input!= NULL )?*input:"", prompt );
     textbox_show( text );
 
@@ -857,14 +856,14 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
     for ( i = 0; i < max_lines; i++ ) {
         boxes[i] = textbox_create( box, TB_AUTOHEIGHT, INNER_MARGIN, ( i+1 ) * line_height +
                                    INNER_MARGIN+LINE_MARGIN, w-( 2*INNER_MARGIN ), 1,
-                                   config_menu_font, config_menu_fg, config_menu_bg, lines[i], NULL );
+                                   config.menu_font, config.menu_fg, config.menu_bg, lines[i], NULL );
         textbox_show( boxes[i] );
     }
 
     // filtered list
     char **filtered = allocate_clear( sizeof( char* ) * max_lines );
     int *line_map = allocate_clear( sizeof( int ) * max_lines );
-    int filtered_lines = 0;
+    unsigned int filtered_lines = 0;
 
     int jin = 0;
 
@@ -912,9 +911,9 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
             menu_draw( text, boxes, max_lines, selected, filtered );
             // Why do we need the specian -1?
             XDrawLine( display, main_window, gc, INNER_MARGIN,
-                    line_height+INNER_MARGIN+(LINE_MARGIN-2)/2,
-                    w-( INNER_MARGIN )-1,
-                    line_height+INNER_MARGIN +(LINE_MARGIN-2)/2);
+                       line_height+INNER_MARGIN+( LINE_MARGIN-2 )/2,
+                       w-( INNER_MARGIN )-1,
+                       line_height+INNER_MARGIN +( LINE_MARGIN-2 )/2 );
         } else if ( ev.type == KeyPress ) {
             while ( XCheckTypedEvent( display, KeyPress, &ev ) );
 
@@ -958,7 +957,7 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
                 for ( ; j < max_lines; j++ )
                     filtered[j] = NULL;
 
-                if ( config_zeltak_mode && filtered_lines == 1 ) {
+                if ( config.zeltak_mode && filtered_lines == 1 ) {
                     chosen = 1;
                     break;
                 }
@@ -982,28 +981,26 @@ int menu( char **lines, char **input, char *prompt, int selected, Time *time, in
                     // Up or Shift-Tab
                     if ( key == XK_Up || ( key == XK_Tab && ev.xkey.state & ShiftMask ) ) {
                         selected = selected ? MAX( 0, selected-1 ): MAX( 0, filtered_lines-1 );
-                    }
-                    else if ( key == XK_Down ) {
+                    } else if ( key == XK_Down ) {
                         selected = selected < filtered_lines-1 ? MIN( filtered_lines-1, selected+1 ): 0;
-                    }
-                    else if ( key == XK_Tab ) {
-                            if ( filtered_lines == 1 ) {
-                                chosen = 1;
-                                break;
-                            }
-
-                            int length_prefix = calculate_common_prefix( filtered, max_lines );
-
-                            if ( length_prefix && strncasecmp( filtered[0], text->text, length_prefix ) ) {
-                                // Do not want to modify original string, so make copy.
-                                // not eff..
-                                char * str = strndup( filtered[0], length_prefix );
-                                textbox_text( text, str );
-                                textbox_cursor_end( text );
-                                free( str );
-                            } else
-                                selected = selected < filtered_lines-1 ? MIN( filtered_lines-1, selected+1 ): 0;
+                    } else if ( key == XK_Tab ) {
+                        if ( filtered_lines == 1 ) {
+                            chosen = 1;
+                            break;
                         }
+
+                        int length_prefix = calculate_common_prefix( filtered, max_lines );
+
+                        if ( length_prefix && strncasecmp( filtered[0], text->text, length_prefix ) ) {
+                            // Do not want to modify original string, so make copy.
+                            // not eff..
+                            char * str = strndup( filtered[0], length_prefix );
+                            textbox_text( text, str );
+                            textbox_cursor_end( text );
+                            free( str );
+                        } else
+                            selected = selected < filtered_lines-1 ? MIN( filtered_lines-1, selected+1 ): 0;
+                    }
             }
 
             menu_draw( text, boxes, max_lines, selected, filtered );
@@ -1078,7 +1075,7 @@ SwitcherMode run_switcher_window ( char **input )
 #ifdef I3
 
                 // In i3 mode, skip the i3bar completely.
-                if ( config_i3_mode && strstr( c->class, "i3bar" ) != NULL ) continue;
+                if ( config.i3_mode && strstr( c->class, "i3bar" ) != NULL ) continue;
 
 #endif
 
@@ -1113,7 +1110,7 @@ SwitcherMode run_switcher_window ( char **input )
         } else if ( n >= 0 && list[n] ) {
 #ifdef I3
 
-            if ( config_i3_mode ) {
+            if ( config.i3_mode ) {
                 // Hack for i3.
                 focus_window_i3( i3_socket_path,ids->array[n] );
             } else
@@ -1307,7 +1304,8 @@ int main( int argc, char *argv[] )
         return EXIT_SUCCESS;
     }
 
-    const char *display_str= find_arg_str( argc, argv, "-display", getenv( "DISPLAY" ) );
+    char *display_str= getenv( "DISPLAY" );
+    find_arg_str( argc, argv, "-display", &display_str );
 
     if ( !( display = XOpenDisplay( display_str ) ) ) {
         fprintf( stderr, "cannot open display!\n" );
@@ -1340,25 +1338,28 @@ int main( int argc, char *argv[] )
     // X atom values
     for ( i = 0; i < NETATOMS; i++ ) netatoms[i] = XInternAtom( display, netatom_names[i], False );
 
-    config_menu_width     = find_arg_int( ac, av, "-width", MENUWIDTH );
-    config_menu_lines     = find_arg_int( ac, av, "-lines", MENULINES );
-    config_menu_font      = find_arg_str( ac, av, "-font", MENUXFTFONT );
-    config_menu_fg        = find_arg_str( ac, av, "-fg", MENUFG );
-    config_menu_bg        = find_arg_str( ac, av, "-bg", MENUBG );
-    config_menu_bgalt     = find_arg_str( ac, av, "-bgalt", MENUBGALT );
-    config_menu_hlfg      = find_arg_str( ac, av, "-hlfg", MENUHLFG );
-    config_menu_hlbg      = find_arg_str( ac, av, "-hlbg", MENUHLBG );
-    config_menu_bc        = find_arg_str( ac, av, "-bc", MENUBC );
-    config_window_opacity = find_arg_int( ac, av, "-o", 100 );
+    find_arg_str( ac, av, "-font", &( config.menu_font ) );
+    find_arg_str( ac, av, "-fg", &( config.menu_fg ) );
+    find_arg_str( ac, av, "-bg", &( config.menu_bg ) );
+    find_arg_str( ac, av, "-bgalt", &( config.menu_bgalt ) );
+    find_arg_str( ac, av, "-hlfg",  &( config.menu_hlfg ) );
+    find_arg_str( ac, av, "-hlbg", &( config.menu_hlbg ) );
+    find_arg_str( ac, av, "-bc", &( config.menu_bc ) );
 
-    config_terminal_emulator = find_arg_str( ac, av, "-term", TERMINAL_DEFAULT );
+    find_arg_str( ac, av, "-term", &( config.terminal_emulator ) );
 
-    config_zeltak_mode    = ( find_arg( ac, av, "-zeltak" ) >= 0 );
+    config.zeltak_mode    = ( find_arg( ac, av, "-zeltak" ) >= 0 );
+
+
+    find_arg_int( ac, av, "-bw",   &( config.menu_bw ) );
+    find_arg_int( ac, av, "-o",    &( config.window_opacity ) );
+    find_arg_int( ac, av, "-width",&( config.menu_width ) );
+    find_arg_int( ac, av, "-lines",&( config.menu_lines ) );
 
 #ifdef I3
     // Check for i3
     {
-        config_i3_mode = 0;
+        config.i3_mode = 0;
         Atom atom = XInternAtom( display, I3_SOCKET_PATH_PROP,True );
 
         if ( atom != None ) {
@@ -1367,7 +1368,7 @@ int main( int argc, char *argv[] )
             if ( i3_socket_path != NULL ) {
                 printf( "Auto detected I3 running, switching to I3 mode: %s\n",
                         i3_socket_path );
-                config_i3_mode = 1;
+                config.i3_mode = 1;
             }
         }
     }
@@ -1389,13 +1390,15 @@ int main( int argc, char *argv[] )
         return program_end();
     }
 
-    // in background mode from here on
-
     // key combination to display all windows from all desktops
-    parse_key( find_arg_str( ac, av, "-key", "F12" ), &windows_modmask, &windows_keysym );
-    parse_key( find_arg_str( ac, av, "-rkey", "mod1+F2" ), &rundialog_modmask, &rundialog_keysym );
-    parse_key( find_arg_str( ac, av, "-skey", "mod1+F3" ), &sshdialog_modmask, &sshdialog_keysym );
 
+    find_arg_str( ac, av, "-key", &( config.window_key ) );
+    find_arg_str( ac, av, "-rkey",&( config.run_key ) );
+    find_arg_str( ac, av, "-skey",&( config.ssh_key ) );
+
+    parse_key( config.window_key,  &windows_modmask, &windows_keysym );
+    parse_key( config.run_key, &rundialog_modmask, &rundialog_keysym );
+    parse_key( config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
 
     // bind key combos
     grab_key( windows_modmask, windows_keysym );

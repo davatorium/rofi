@@ -46,11 +46,10 @@
 #endif
 
 #define SSH_CACHE_FILE ".simpleswitcher.sshcache"
-extern char *config_terminal_emulator;
 
 static inline int execshssh( const char *host )
 {
-    return execlp( config_terminal_emulator, config_terminal_emulator, "-e", "ssh", host, NULL );
+    return execlp( config.terminal_emulator, config.terminal_emulator, "-e", "ssh", host, NULL );
 }
 // execute sub-process
 static pid_t exec_ssh( const char *cmd )
