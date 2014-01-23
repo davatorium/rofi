@@ -786,7 +786,7 @@ int window_match ( char **tokens, __attribute__( ( unused ) )const char *input, 
     return match;
 }
 
-int menu( char **lines, char **input, char *prompt, unsigned int selected, Time *time, int *shift,
+int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
           menu_match_cb mmc, void *mmc_data )
 {
     int line = -1, chosen = 0;
@@ -795,11 +795,11 @@ int menu( char **lines, char **input, char *prompt, unsigned int selected, Time 
     monitor_active( &mon );
 
     unsigned int num_lines = 0;
+    unsigned int selected = 0;
 
     for ( ; lines[num_lines]; num_lines++ );
 
     unsigned int max_lines = MIN( config.menu_lines, num_lines );
-    selected = MAX( MIN( num_lines-1, selected ), 0 );
 
     int w = config.menu_width < 101 ? ( mon.w/100 )*config.menu_width: config.menu_width;
     int x = mon.x + ( mon.w - w )/2;
@@ -952,7 +952,7 @@ int menu( char **lines, char **input, char *prompt, unsigned int selected, Time 
 
                 // Cleanup + bookkeeping.
                 filtered_lines = j;
-                selected = MAX( 0, MIN( selected, j-1 ) );
+                selected = MIN( selected, j-1 );
 
                 for ( ; j < max_lines; j++ )
                     filtered[j] = NULL;
@@ -980,7 +980,8 @@ int menu( char **lines, char **input, char *prompt, unsigned int selected, Time 
 
                     // Up or Shift-Tab
                     if ( key == XK_Up || ( key == XK_Tab && ev.xkey.state & ShiftMask ) ) {
-                        selected = selected ? MAX( 0, selected-1 ): MAX( 0, filtered_lines-1 );
+                        if(selected == 0) selected = filtered_lines;
+                        if(selected > 0) selected --;
                     } else if ( key == XK_Down ) {
                         selected = selected < filtered_lines-1 ? MIN( filtered_lines-1, selected+1 ): 0;
                     } else if ( key == XK_Tab ) {
@@ -1103,7 +1104,7 @@ SwitcherMode run_switcher_window ( char **input )
             }
         }
         Time time;
-        int n = menu( list, input, "> ", 0, &time, NULL,window_match, ids );
+        int n = menu( list, input, "> ", &time, NULL,window_match, ids );
 
         if ( n == -2 ) {
             retv = NEXT_DIALOG;
