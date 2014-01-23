@@ -1271,28 +1271,6 @@ void help()
     }
 }
 
-static inline int program_end()
-{
-    if ( display != NULL ) {
-
-        if ( main_window != None ) {
-            XFreeGC( display,gc );
-            XDestroyWindow( display,main_window );
-            XCloseDisplay( display );
-        }
-    }
-
-    winlist_free( cache_xattr );
-    winlist_free( cache_client );
-#ifdef I3
-
-    if ( i3_socket_path != NULL ) free( i3_socket_path );
-
-#endif
-    return EXIT_SUCCESS;
-}
-
-
 int main( int argc, char *argv[] )
 {
     int i, j;
@@ -1331,31 +1309,29 @@ int main( int argc, char *argv[] )
 
     XFreeModifiermap( modmap );
 
-    int ac = argc;
-    char **av = argv;
     cache_client = winlist_new();
     cache_xattr  = winlist_new();
 
     // X atom values
     for ( i = 0; i < NETATOMS; i++ ) netatoms[i] = XInternAtom( display, netatom_names[i], False );
 
-    find_arg_str( ac, av, "-font", &( config.menu_font ) );
-    find_arg_str( ac, av, "-fg", &( config.menu_fg ) );
-    find_arg_str( ac, av, "-bg", &( config.menu_bg ) );
-    find_arg_str( ac, av, "-bgalt", &( config.menu_bgalt ) );
-    find_arg_str( ac, av, "-hlfg",  &( config.menu_hlfg ) );
-    find_arg_str( ac, av, "-hlbg", &( config.menu_hlbg ) );
-    find_arg_str( ac, av, "-bc", &( config.menu_bc ) );
+    find_arg_str( argc, argv, "-font", &( config.menu_font ) );
+    find_arg_str( argc, argv, "-fg", &( config.menu_fg ) );
+    find_arg_str( argc, argv, "-bg", &( config.menu_bg ) );
+    find_arg_str( argc, argv, "-bgalt", &( config.menu_bgalt ) );
+    find_arg_str( argc, argv, "-hlfg",  &( config.menu_hlfg ) );
+    find_arg_str( argc, argv, "-hlbg", &( config.menu_hlbg ) );
+    find_arg_str( argc, argv, "-bc", &( config.menu_bc ) );
 
-    find_arg_str( ac, av, "-term", &( config.terminal_emulator ) );
+    find_arg_str( argc, argv, "-term", &( config.terminal_emulator ) );
 
-    config.zeltak_mode    = ( find_arg( ac, av, "-zeltak" ) >= 0 );
+    config.zeltak_mode    = ( find_arg( argc, argv, "-zeltak" ) >= 0 );
 
 
-    find_arg_int( ac, av, "-bw",   &( config.menu_bw ) );
-    find_arg_int( ac, av, "-o",    &( config.window_opacity ) );
-    find_arg_int( ac, av, "-width",&( config.menu_width ) );
-    find_arg_int( ac, av, "-lines",&( config.menu_lines ) );
+    find_arg_int( argc, argv, "-bw",   &( config.menu_bw ) );
+    find_arg_int( argc, argv, "-o",    &( config.window_opacity ) );
+    find_arg_int( argc, argv, "-width",&( config.menu_width ) );
+    find_arg_int( argc, argv, "-lines",&( config.menu_lines ) );
 
 #ifdef I3
     // Check for i3
@@ -1376,50 +1352,59 @@ int main( int argc, char *argv[] )
 #endif
 
     // flags to run immediately and exit
-    if ( find_arg( ac, av, "-now" ) >= 0 ) {
+    if ( find_arg( argc, argv, "-now" ) >= 0 ) {
         run_switcher( NOFORK, WINDOW_SWITCHER );
-        return program_end();
-    }
-
-    if ( find_arg( ac, av, "-rnow" ) >= 0 ) {
+    } else if ( find_arg( argc, argv, "-rnow" ) >= 0 ) {
         run_switcher( NOFORK, RUN_DIALOG );
-        return program_end();
-    }
-
-    if ( find_arg( ac, av, "-snow" ) >= 0 ) {
+    } else if ( find_arg( argc, argv, "-snow" ) >= 0 ) {
         run_switcher( NOFORK, SSH_DIALOG );
-        return program_end();
+    } else {
+        // Daemon mode, Listen to key presses.. 
+
+        find_arg_str( argc, argv, "-key", &( config.window_key ) );
+        find_arg_str( argc, argv, "-rkey",&( config.run_key ) );
+        find_arg_str( argc, argv, "-skey",&( config.ssh_key ) );
+
+        parse_key( config.window_key,  &windows_modmask, &windows_keysym );
+        parse_key( config.run_key, &rundialog_modmask, &rundialog_keysym );
+        parse_key( config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
+
+        // bind key combos
+        grab_key( windows_modmask, windows_keysym );
+        grab_key( rundialog_modmask, rundialog_keysym );
+        grab_key( sshdialog_modmask, sshdialog_keysym );
+
+        XEvent ev;
+
+        for ( ;; ) {
+            // caches only live for a single event
+            winlist_empty( cache_xattr );
+            winlist_empty( cache_client );
+
+            // block and wait for something
+            XNextEvent( display, &ev );
+
+            if ( ev.xany.window == None ) continue;
+
+            if ( ev.type == KeyPress ) handle_keypress( &ev );
+        }
+    }
+    // Cleanup
+    if ( display != NULL ) {
+
+        if ( main_window != None ) {
+            XFreeGC( display,gc );
+            XDestroyWindow( display,main_window );
+            XCloseDisplay( display );
+        }
     }
 
-    // key combination to display all windows from all desktops
+    winlist_free( cache_xattr );
+    winlist_free( cache_client );
+#ifdef I3
 
-    find_arg_str( ac, av, "-key", &( config.window_key ) );
-    find_arg_str( ac, av, "-rkey",&( config.run_key ) );
-    find_arg_str( ac, av, "-skey",&( config.ssh_key ) );
+    if ( i3_socket_path != NULL ) free( i3_socket_path );
 
-    parse_key( config.window_key,  &windows_modmask, &windows_keysym );
-    parse_key( config.run_key, &rundialog_modmask, &rundialog_keysym );
-    parse_key( config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
-
-    // bind key combos
-    grab_key( windows_modmask, windows_keysym );
-    grab_key( rundialog_modmask, rundialog_keysym );
-    grab_key( sshdialog_modmask, sshdialog_keysym );
-
-    XEvent ev;
-
-    for ( ;; ) {
-        // caches only live for a single event
-        winlist_empty( cache_xattr );
-        winlist_empty( cache_client );
-
-        // block and wait for something
-        XNextEvent( display, &ev );
-
-        if ( ev.xany.window == None ) continue;
-
-        if ( ev.type == KeyPress ) handle_keypress( &ev );
-    }
-
-    return program_end();
+#endif
+    return EXIT_SUCCESS;
 }
