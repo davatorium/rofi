@@ -169,6 +169,8 @@ char *i3_socket_path = NULL;
 // Focus window on I3 window manager.
 static void focus_window_i3( const char *socket_path, int id )
 {
+    i3_ipc_header_t head;
+    char command[128];
     int s, t, len;
     struct sockaddr_un remote;
 
@@ -194,9 +196,6 @@ static void focus_window_i3( const char *socket_path, int id )
 
 
 // Formulate command
-    {
-        i3_ipc_header_t head;
-        char command[128];
         snprintf( command, 128, "[id=\"%d\"] focus", id );
         // Prepare header.
         memcpy( head.magic, I3_IPC_MAGIC, 6 );
@@ -206,19 +205,14 @@ static void focus_window_i3( const char *socket_path, int id )
         send( s, &head, sizeof( head ),0 );
         // Send message
         send( s, command, strlen( command ),0 );
-    }
-    {
-        i3_ipc_header_t head;
-        char reply[128];
         // Receive header.
         t = recv( s, &head, sizeof( head ),0 );
 
         if ( t == sizeof( head ) ) {
-            t= recv( s, reply, head.size, 0 );
-            reply[t] = '\0';
-            printf( "%s\n", reply );
+            t= recv( s, command, head.size, 0 );
+            command[t] = '\0';
+            printf( "%s\n", command );
         }
-    }
 
     close( s );
 }
@@ -281,33 +275,13 @@ X(_NET_ACTIVE_WINDOW),\
 X(_NET_CLOSE_WINDOW),\
 X(_NET_MOVERESIZE_WINDOW),\
 X(_NET_WM_NAME),\
-X(_NET_WM_WINDOW_TYPE),\
-X(_NET_WM_WINDOW_TYPE_DESKTOP),\
-X(_NET_WM_WINDOW_TYPE_DOCK),\
-X(_NET_WM_WINDOW_TYPE_SPLASH),\
-X(_NET_WM_WINDOW_TYPE_UTILITY),\
-X(_NET_WM_WINDOW_TYPE_TOOLBAR),\
-X(_NET_WM_WINDOW_TYPE_MENU),\
-X(_NET_WM_WINDOW_TYPE_DIALOG),\
-X(_NET_WM_WINDOW_TYPE_NORMAL),\
 X(_NET_WM_STATE),\
-X(_NET_WM_STATE_MODAL),\
-X(_NET_WM_STATE_STICKY),\
-X(_NET_WM_STATE_MAXIMIZED_VERT),\
-X(_NET_WM_STATE_MAXIMIZED_HORZ),\
-X(_NET_WM_STATE_SHADED),\
 X(_NET_WM_STATE_SKIP_TASKBAR),\
 X(_NET_WM_STATE_SKIP_PAGER),\
-X(_NET_WM_STATE_HIDDEN),\
 X(_NET_WM_STATE_FULLSCREEN),\
 X(_NET_WM_STATE_ABOVE),\
 X(_NET_WM_STATE_BELOW),\
 X(_NET_WM_STATE_DEMANDS_ATTENTION),\
-X(_NET_WM_STATE_ADD),\
-X(_NET_WM_STATE_REMOVE),\
-X(_NET_WM_STATE_TOGGLE),\
-X(_NET_WM_STRUT),\
-X(_NET_WM_STRUT_PARTIAL),\
 X(_NET_WM_DESKTOP),\
 X(_NET_SUPPORTED)
 
@@ -401,9 +375,12 @@ int winlist_find( winlist *l, Window w )
 typedef struct {
     Window window, trans;
     XWindowAttributes xattr;
-    char title[CLIENTTITLE], class[CLIENTCLASS], name[CLIENTNAME], role[CLIENTROLE];
+    char title[CLIENTTITLE];
+    char class[CLIENTCLASS];
+    char name[CLIENTNAME];
+    char role[CLIENTROLE];
     int states;
-    Atom state[CLIENTSTATE], type;
+    Atom state[CLIENTSTATE];
     workarea monitor;
 } client;
 
@@ -653,13 +630,6 @@ client* window_client( Window win )
     XGetTransientForHint( display, win, &c->trans );
 
     c->states = window_get_atom_prop( win, netatoms[_NET_WM_STATE], c->state, CLIENTSTATE );
-    window_get_atom_prop( win, netatoms[_NET_WM_WINDOW_TYPE], &c->type, 1 );
-
-    if ( c->type == None ) c->type = ( c->trans != None )
-                                         // trasients default to dialog
-                                         ? netatoms[_NET_WM_WINDOW_TYPE_DIALOG]
-                                         // non-transients default to normal
-                                         : netatoms[_NET_WM_WINDOW_TYPE_NORMAL];
 
     char *name;
 
@@ -822,7 +792,6 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
         XSetForeground( display, gc, color_get( config.menu_bc ) );
         // make it an unmanaged window
         window_set_atom_prop( box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
-        //window_set_atom_prop(box, netatoms[_NET_WM_WINDOW_TYPE], &netatoms[_NET_WM_WINDOW_TYPE_DOCK], 1);
         XSetWindowAttributes sattr;
         sattr.override_redirect = True;
         XChangeWindowAttributes( display, box, CWOverrideRedirect, &sattr );
@@ -980,8 +949,9 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
 
                     // Up or Shift-Tab
                     if ( key == XK_Up || ( key == XK_Tab && ev.xkey.state & ShiftMask ) ) {
-                        if(selected == 0) selected = filtered_lines;
-                        if(selected > 0) selected --;
+                        if ( selected == 0 ) selected = filtered_lines;
+
+                        if ( selected > 0 ) selected --;
                     } else if ( key == XK_Down ) {
                         selected = selected < filtered_lines-1 ? MIN( filtered_lines-1, selected+1 ): 0;
                     } else if ( key == XK_Tab ) {
@@ -1359,7 +1329,7 @@ int main( int argc, char *argv[] )
     } else if ( find_arg( argc, argv, "-snow" ) >= 0 ) {
         run_switcher( NOFORK, SSH_DIALOG );
     } else {
-        // Daemon mode, Listen to key presses.. 
+        // Daemon mode, Listen to key presses..
 
         find_arg_str( argc, argv, "-key", &( config.window_key ) );
         find_arg_str( argc, argv, "-rkey",&( config.run_key ) );
@@ -1389,6 +1359,7 @@ int main( int argc, char *argv[] )
             if ( ev.type == KeyPress ) handle_keypress( &ev );
         }
     }
+
     // Cleanup
     if ( display != NULL ) {
 
