@@ -26,6 +26,8 @@ simpleswitcher \- a simple EWMH window switcher
 .RB [ \-snow ]
 .RB [ \-term
 .IR terminal ]
+.RB [ \-loc 
+.IR position ]
 
 .SH DESCRIPTION
 .I simpleswitcher
@@ -160,6 +162,11 @@ Specify what terminal to start (default x-terminal-emulator)
 .RS
 simpleswitcher -term xterm
 .RE
+.TP
+.B -loc
+Specify where the window should be located.
+(0 center, 1 north-east,2 north, 3 north-west, etc)
+.P
 .SH Switch between modi
 Type '?'<enter> to switch between window list and run mode.
 .SH SEE ALSO

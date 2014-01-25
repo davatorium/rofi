@@ -96,6 +96,7 @@ Settings config = {
     .window_key     = "F12",
     .run_key        = "mod1+F2",
     .ssh_key        = "mod1+F3",
+    .location       = CENTER
 };
 
 
@@ -869,6 +870,35 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
     // Subtract the margin of the last row.
     int h = line_height * ( max_lines+1 ) + INNER_MARGIN*2 - row_margin+LINE_MARGIN;
     int y = mon.y + ( mon.h - h )/2;
+
+    switch(config.location)
+    {
+        case NORTH_WEST:
+            x=mon.x;
+        case NORTH:
+            y=mon.y;
+            break;
+        case NORTH_EAST:
+            y=mon.y;
+        case EAST:
+            x=mon.x+mon.w-w;
+            break;
+        case EAST_SOUTH:
+            x=mon.x+mon.w-w;
+        case SOUTH:
+            y=mon.y+mon.h-h;
+            break;
+        case SOUTH_WEST:
+            y=mon.y+mon.h-h;
+        case WEST:
+            x=mon.x;
+            break;
+        case CENTER:
+        default:
+            break;
+    }
+
+
     XMoveResizeWindow( display, box, x, y, w, h );
     XMapRaised( display, box );
 
@@ -1315,6 +1345,8 @@ int main( int argc, char *argv[] )
     find_arg_int( argc, argv, "-o",    &( config.window_opacity ) );
     find_arg_int( argc, argv, "-width",&( config.menu_width ) );
     find_arg_int( argc, argv, "-lines",&( config.menu_lines ) );
+
+    find_arg_int( argc, argv, "-loc", &( config.location ) );
 
 #ifdef I3
     // Check for i3

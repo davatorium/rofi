@@ -36,6 +36,18 @@ void* reallocate( void *ptr, unsigned long bytes );
 
 void catch_exit( __attribute__( ( unused ) ) int sig );
 
+typedef enum _WindowLocation {
+    CENTER      = 0,
+    NORTH_WEST  = 1,
+    NORTH       = 2,
+    NORTH_EAST  = 3,
+    EAST        = 4,
+    EAST_SOUTH  = 5,
+    SOUTH       = 6,
+    SOUTH_WEST  = 7,
+    WEST        = 8
+} WindowLocation;
+
 /**
  * Settings
  */
@@ -62,6 +74,7 @@ typedef struct _Settings {
     char *       window_key;
     char *       run_key;
     char *       ssh_key;
+    WindowLocation location;
 } Settings;
 
 extern Settings config;
