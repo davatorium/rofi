@@ -50,6 +50,7 @@
 #include <X11/Xft/Xft.h>
 #include <X11/extensions/Xinerama.h>
 
+
 #ifdef I3
 #include <errno.h>
 #include <linux/un.h>
@@ -68,6 +69,9 @@
 #define OPAQUE              0xffffffff
 #define OPACITY             "_NET_WM_WINDOW_OPACITY"
 #define I3_SOCKET_PATH_PROP "I3_SOCKET_PATH"
+
+xdgHandle xdg_handle;
+const char *cache_dir = NULL;
 
 
 Settings config = {
@@ -1261,6 +1265,15 @@ int main( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
+    if(xdgInitHandle(&xdg_handle) == NULL) {
+        fprintf(stderr, "Failed to initialize XDG\n");
+        return EXIT_FAILURE;
+    }
+
+    cache_dir = xdgCacheHome(&xdg_handle);
+    printf("Cache directory: %s\n", cache_dir);
+
+
     signal( SIGCHLD, catch_exit );
     screen = DefaultScreenOfDisplay( display );
     screen_id = DefaultScreen( display );
@@ -1377,5 +1390,6 @@ int main( int argc, char *argv[] )
     if ( i3_socket_path != NULL ) free( i3_socket_path );
 
 #endif
+    xdgWipeHandle(&xdg_handle);
     return EXIT_SUCCESS;
 }

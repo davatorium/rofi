@@ -1,12 +1,15 @@
 #ifndef __SIMPLESWITCHER_H__
 #define __SIMPLESWITCHER_H__
 
+#include <basedir.h>
+
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define NEAR(a,o,b) ((b) > (a)-(o) && (b) < (a)+(o))
 #define OVERLAP(a,b,c,d) (((a)==(c) && (b)==(d)) || MIN((a)+(b), (c)+(d)) - MAX((a), (c)) > 0)
 #define INTERSECT(x,y,w,h,x1,y1,w1,h1) (OVERLAP((x),(w),(x1),(w1)) && OVERLAP((y),(h),(y1),(h1)))
 
+extern const char *cache_dir;
 
 typedef enum {
     WINDOW_SWITCHER,

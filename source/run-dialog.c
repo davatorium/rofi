@@ -44,6 +44,8 @@
 #include <time.h>
 #endif
 
+#define RUN_CACHE_FILE "simpleswitcher.runcache"
+
 static inline int execsh( const char *cmd ,int run_in_term )
 {
 // use sh for args parsing
@@ -69,16 +71,13 @@ static pid_t exec_cmd( const char *cmd, int run_in_term )
     int curr = -1;
     unsigned int index = 0;
     char **retv = NULL;
-    const char *hd = getenv( "HOME" );
-
-    if ( hd == NULL ) return pid;
 
     /**
      * This happens in non-critical time (After launching app)
      * It is allowed to be a bit slower.
      */
-    char *path = allocate( strlen( hd ) + strlen( "/.simpleswitcher.cache" )+2 );
-    sprintf( path, "%s/%s", hd, ".simpleswitcher.cache" );
+    char *path = allocate( strlen( cache_dir ) + strlen( RUN_CACHE_FILE )+3 );
+    sprintf( path, "%s/%s", cache_dir, RUN_CACHE_FILE );
     FILE *fd = fopen ( path, "r" );
     char buffer[1024];
 
@@ -148,12 +147,9 @@ static char ** get_apps ( )
 
     if ( getenv( "PATH" ) == NULL ) return NULL;
 
-    const char *hd = getenv( "HOME" );
 
-    if ( hd == NULL ) return NULL;
-
-    path = allocate( strlen( hd ) + strlen( "/.simpleswitcher.cache" )+2 );
-    sprintf( path, "%s/%s", hd, ".simpleswitcher.cache" );
+    path = allocate( strlen( cache_dir ) + strlen( RUN_CACHE_FILE )+3 );
+    sprintf( path, "%s/%s", cache_dir, RUN_CACHE_FILE );
     FILE *fd = fopen ( path, "r" );
     char buffer[1024];
 

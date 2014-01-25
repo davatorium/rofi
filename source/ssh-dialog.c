@@ -45,7 +45,7 @@
 #include <time.h>
 #endif
 
-#define SSH_CACHE_FILE ".simpleswitcher.sshcache"
+#define SSH_CACHE_FILE "simpleswitcher.sshcache"
 
 static inline int execshssh( const char *host )
 {
@@ -68,16 +68,13 @@ static pid_t exec_ssh( const char *cmd )
     int curr = -1;
     unsigned int index = 0;
     char **retv = NULL;
-    const char *hd = getenv( "HOME" );
-
-    if ( hd == NULL ) return pid;
 
     /**
      * This happens in non-critical time (After launching app)
      * It is allowed to be a bit slower.
      */
-    char *path = allocate( strlen( hd ) + strlen( "/"SSH_CACHE_FILE )+2 );
-    sprintf( path, "%s/%s", hd, SSH_CACHE_FILE );
+    char *path = allocate( strlen( cache_dir ) + strlen( SSH_CACHE_FILE )+3 );
+    sprintf( path, "%s/%s", cache_dir, SSH_CACHE_FILE );
     FILE *fd = fopen ( path, "r" );
     char buffer[1024];
 
@@ -145,14 +142,10 @@ static char ** get_ssh ( )
     clock_gettime( CLOCK_REALTIME, &start );
 #endif
 
-    if ( getenv( "PATH" ) == NULL ) return NULL;
+    if ( getenv( "HOME" ) == NULL ) return NULL;
 
-    const char *hd = getenv( "HOME" );
-
-    if ( hd == NULL ) return NULL;
-
-    path = allocate( strlen( hd ) + strlen( "/"SSH_CACHE_FILE )+2 );
-    sprintf( path, "%s/%s", hd, SSH_CACHE_FILE );
+    path = allocate( strlen( cache_dir ) + strlen( "/"SSH_CACHE_FILE )+2 );
+    sprintf( path, "%s/%s", cache_dir, SSH_CACHE_FILE );
     FILE *fd = fopen ( path, "r" );
     char buffer[1024];
 
@@ -170,8 +163,8 @@ static char ** get_ssh ( )
     }
 
     free( path );
-
-    path = allocate( strlen( hd ) + strlen( "/.ssh/config" )+2 );
+    const char *hd = getenv("HOME");
+    path = allocate( strlen( hd ) + strlen( ".ssh/config" )+3 );
     sprintf( path, "%s/%s", hd, ".ssh/config" );
     fd = fopen ( path, "r" );
 
