@@ -164,9 +164,16 @@ simpleswitcher -term xterm
 .RE
 .TP
 .B -loc
-Specify where the window should be located.
-(0 center, 1 north-east,2 north, 3 north-west, etc)
-.P
+Specify where the window should be located. The numbers map to the following location on the
+monitor:
+.RS
+.TP
+1 2 3
+.TP
+8 0 4
+.TP
+7 6 5
+.RE
 .SH Switch between modi
 Type '?'<enter> to switch between window list and run mode.
 .SH SEE ALSO
