@@ -51,32 +51,36 @@
 #include <time.h>
 #endif
 
-static char * escape_name(const char *mark, ssize_t *length)
+static char * escape_name( const char *mark, ssize_t *length )
 {
-	// Escape the mark.
-	// Max length is twice the old size + trailing \0.
-	char *escaped_mark = malloc(sizeof(char)*(strlen(mark)*2+1));
-	ssize_t lm = strlen(mark);
-	*length = 0;
-	for(ssize_t iter = 0; iter < lm; iter++) {
-		if(mark[iter] == '\'' || mark[iter] == '\"' || mark[iter] == '\\') {
-			escaped_mark[(*length)++] = '\\';	
-		}
-		escaped_mark[(*length)++] = mark[iter];
-		escaped_mark[(*length)] = '\0';
-	}
-	return escaped_mark;
+    // Escape the mark.
+    // Max length is twice the old size + trailing \0.
+    char *escaped_mark = malloc( sizeof( char )*( strlen( mark )*2+1 ) );
+    ssize_t lm = strlen( mark );
+    *length = 0;
+
+    for ( ssize_t iter = 0; iter < lm; iter++ ) {
+        if ( mark[iter] == '\'' || mark[iter] == '\"' || mark[iter] == '\\' ) {
+            escaped_mark[( *length )++] = '\\';
+        }
+
+        escaped_mark[( *length )++] = mark[iter];
+        escaped_mark[( *length )] = '\0';
+    }
+
+    return escaped_mark;
 }
 
 
-static void exec_mark(const char *mark) 
+static void exec_mark( const char *mark )
 {
     int s, t, len;
     struct sockaddr_un remote;
-	if(config.i3_mode == 0) {
-		fprintf(stderr, "Cannot use marks without i3 running\n");
-		return ;
-	}
+
+    if ( config.i3_mode == 0 ) {
+        fprintf( stderr, "Cannot use marks without i3 running\n" );
+        return ;
+    }
 
     if ( strlen( i3_socket_path ) > UNIX_PATH_MAX ) {
         fprintf( stderr, "Socket path is to long. %zd > %d\n", strlen( i3_socket_path ), UNIX_PATH_MAX );
@@ -100,10 +104,10 @@ static void exec_mark(const char *mark)
 
 
 // Formulate command
-	ssize_t lem = 0;
-	char *escaped_mark = escape_name(mark, &lem);
+    ssize_t lem = 0;
+    char *escaped_mark = escape_name( mark, &lem );
     char command[lem+20];
-    snprintf( command, lem+20, "[con_mark=\"%s\"] focus", escaped_mark);
+    snprintf( command, lem+20, "[con_mark=\"%s\"] focus", escaped_mark );
 
     // Prepare header.
     i3_ipc_header_t head;
@@ -127,17 +131,19 @@ static void exec_mark(const char *mark)
 
     close( s );
 
-	free(escaped_mark);
+    free( escaped_mark );
 }
 
 static char ** get_mark ( )
 {
     unsigned int retv_index = 0;
     char **retv = NULL;
-	if(config.i3_mode == 0) {
-		fprintf(stderr, "Cannot use marks without i3 running\n");
-		return retv;
-	}
+
+    if ( config.i3_mode == 0 ) {
+        fprintf( stderr, "Cannot use marks without i3 running\n" );
+        return retv;
+    }
+
 #ifdef TIMING
     struct timespec start, stop;
     clock_gettime( CLOCK_REALTIME, &start );
@@ -171,7 +177,7 @@ static char ** get_mark ( )
 // Formulate command
     // Prepare header.
     memcpy( head.magic, I3_IPC_MAGIC, 6 );
-    head.size = 0; 
+    head.size = 0;
     head.type = I3_IPC_MESSAGE_TYPE_GET_MARKS;
     // Send header.
     send( s, &head, sizeof( head ),0 );
@@ -179,40 +185,48 @@ static char ** get_mark ( )
     t = recv( s, &head, sizeof( head ),0 );
 
     if ( t == sizeof( head ) ) {
-		char *result = malloc(sizeof(char)*(head.size+1));
-		ssize_t index = 0;
-		// Grab results.
-        while(index < head.size) {
-			t= recv( s, &result[index], (head.size-t), 0 );
-			if(t < 0 ) break;
-			result[index+t] = '\0';
-			index+=t;
-		}
-		for(int iter_start = 1; iter_start < index-1 ; iter_start++) {
-			// Skip , and opening "
-			if(result[iter_start] == '"' || result[iter_start] == ',') continue;
-			int iter_end = iter_start;
+        char *result = malloc( sizeof( char )*( head.size+1 ) );
+        ssize_t index = 0;
 
-			// Find closing tag.. make sure to ignore escaped chars.
-			// Copy the un-escaped string into the first part.
-			int rindex = 0;
-			do{
-				result[rindex++] = result[iter_end]; 
-				iter_end++;
-				if(result[iter_end] == '\\') iter_end+=1;
-			}while(result[iter_end] != '"');
-			result[rindex] = '\0';
+        // Grab results.
+        while ( index < head.size ) {
+            t= recv( s, &result[index], ( head.size-t ), 0 );
 
-			// Add element to list.
-			retv = realloc( retv, ( retv_index+2 )*sizeof( char* ) );
-			retv[retv_index] = strndup(result,rindex);
-			retv[retv_index+1] = NULL;
-			retv_index++;
+            if ( t < 0 ) break;
 
-			iter_start = iter_end;
-		}
+            result[index+t] = '\0';
+            index+=t;
+        }
 
-		free(result);
+        for ( int iter_start = 1; iter_start < index-1 ; iter_start++ ) {
+            // Skip , and opening "
+            if ( result[iter_start] == '"' || result[iter_start] == ',' ) continue;
+
+            int iter_end = iter_start;
+
+            // Find closing tag.. make sure to ignore escaped chars.
+            // Copy the un-escaped string into the first part.
+            int rindex = 0;
+
+            do {
+                result[rindex++] = result[iter_end];
+                iter_end++;
+
+                if ( result[iter_end] == '\\' ) iter_end+=1;
+            } while ( result[iter_end] != '"' );
+
+            result[rindex] = '\0';
+
+            // Add element to list.
+            retv = realloc( retv, ( retv_index+2 )*sizeof( char* ) );
+            retv[retv_index] = strndup( result,rindex );
+            retv[retv_index+1] = NULL;
+            retv_index++;
+
+            iter_start = iter_end;
+        }
+
+        free( result );
     }
 
     close( s );

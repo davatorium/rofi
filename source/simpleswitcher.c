@@ -1185,11 +1185,14 @@ void run_switcher( int fmode, SwitcherMode mode )
         } else if ( mode == SSH_DIALOG ) {
             retv = ssh_switcher_dialog( &input );
         }
+
 #ifdef I3
         else if ( mode == MARK_DIALOG ) {
             retv = mark_switcher_dialog ( &input );
         }
+
 #endif
+
         if ( retv == NEXT_DIALOG ) {
             mode = ( mode+1 )%NUM_DIALOGS;
         } else {
@@ -1225,11 +1228,14 @@ void handle_keypress( XEvent *ev )
          key == sshdialog_keysym ) {
         run_switcher( FORK , SSH_DIALOG );
     }
+
 #ifdef I3
+
     if ( ( markdialog_modmask == AnyModifier || ev->xkey.state & markdialog_modmask ) &&
          key == markdialog_keysym ) {
         run_switcher( FORK , MARK_DIALOG );
     }
+
 #endif
 }
 
