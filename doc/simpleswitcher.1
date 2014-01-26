@@ -26,8 +26,11 @@ simpleswitcher \- a simple EWMH window switcher
 .RB [ \-snow ]
 .RB [ \-term
 .IR terminal ]
-.RB [ \-loc 
+.RB [ \-loc
 .IR position ]
+.RB [ \-hmode ]
+.RB [ \-padding
+.IR padding ]
 
 .SH DESCRIPTION
 .I simpleswitcher
@@ -40,7 +43,7 @@ See options below for custom key combinations. These are the defaults.
 .B F12
 Show all windows on all desktops.
 .TP
-.B mod1-F2 
+.B mod1-F2
 Show run-dialog.
 .SH OPTIONS
 .TP
@@ -136,7 +139,7 @@ simpleswitcher -fg "#ffffff"
 .RE
 .TP
 .B -o
-Set the window opacity (0-100). 
+Set the window opacity (0-100).
 .P
 .RS
 simpleswitcher -o "75"
@@ -173,6 +176,19 @@ monitor:
 8 0 4
 .TP
 7 6 5
+.RE
+.TP
+.B -hmode
+Switch to horizontal mode (ala dmenu). You can specify the number of elements with the
+.IR -lines
+option.
+.TP
+.B -padding
+Define the inner margin of the window. Default is 5 pixels.
+.RS
+To make simpleswitcher look like dmenu:
+.TP
+simpleswitcher -hmode -padding 0
 .RE
 .SH Switch between modi
 Type '?'<enter> to switch between window list and run mode.

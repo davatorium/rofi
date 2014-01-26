@@ -21,6 +21,7 @@ typedef enum {
 } SwitcherMode;
 
 
+
 typedef int ( *menu_match_cb )( char **tokens, const char *input, int index, void *data );
 int menu( char **lines, char **input, char *prompt,
           Time *time, int *shift, menu_match_cb mmc, void *mmc_data );
@@ -48,33 +49,39 @@ typedef enum _WindowLocation {
     WEST        = 8
 } WindowLocation;
 
+typedef enum {
+    VERTICAL   = 0,
+    HORIZONTAL = 1
+} WindowMode;
 /**
  * Settings
  */
 
 typedef struct _Settings {
     // Window settings
-    unsigned int window_opacity;
+    unsigned int    window_opacity;
     // Menu settings
-    unsigned int menu_bw;
-    unsigned int menu_width;
-    unsigned int menu_lines;
-    char *       menu_font;
-    char *       menu_fg;
-    char *       menu_bg;
-    char *       menu_bgalt;
-    char *       menu_hlfg;
-    char *       menu_hlbg;
-    char *       menu_bc;
+    unsigned int    menu_bw;
+    unsigned int    menu_width;
+    unsigned int    menu_lines;
+    char *          menu_font;
+    char *          menu_fg;
+    char *          menu_bg;
+    char *          menu_bgalt;
+    char *          menu_hlfg;
+    char *          menu_hlbg;
+    char *          menu_bc;
     // Behavior
-    unsigned int zeltak_mode;
-    char *       terminal_emulator;
-    unsigned int i3_mode;
+    unsigned int    zeltak_mode;
+    char *          terminal_emulator;
+    unsigned int    i3_mode;
     // Key bindings
-    char *       window_key;
-    char *       run_key;
-    char *       ssh_key;
-    WindowLocation location;
+    char *          window_key;
+    char *          run_key;
+    char *          ssh_key;
+    WindowLocation  location;
+    WindowMode      wmode;
+    unsigned int    inner_margin;
 } Settings;
 
 extern Settings config;

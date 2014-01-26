@@ -163,7 +163,7 @@ static char ** get_ssh ( )
     }
 
     free( path );
-    const char *hd = getenv("HOME");
+    const char *hd = getenv( "HOME" );
     path = allocate( strlen( hd ) + strlen( ".ssh/config" )+3 );
     sprintf( path, "%s/%s", hd, ".ssh/config" );
     fd = fopen ( path, "r" );

@@ -64,7 +64,6 @@
 #include "ssh-dialog.h"
 
 #define LINE_MARGIN 4
-#define INNER_MARGIN 5
 
 #define OPAQUE              0xffffffff
 #define OPACITY             "_NET_WM_WINDOW_OPACITY"
@@ -96,7 +95,9 @@ Settings config = {
     .window_key     = "F12",
     .run_key        = "mod1+F2",
     .ssh_key        = "mod1+F3",
-    .location       = CENTER
+    .location       = CENTER,
+    .wmode          = VERTICAL,
+    .inner_margin   = 5
 };
 
 
@@ -201,23 +202,23 @@ static void focus_window_i3( const char *socket_path, int id )
 
 
 // Formulate command
-        snprintf( command, 128, "[id=\"%d\"] focus", id );
-        // Prepare header.
-        memcpy( head.magic, I3_IPC_MAGIC, 6 );
-        head.size = strlen( command );
-        head.type = I3_IPC_MESSAGE_TYPE_COMMAND;
-        // Send header.
-        send( s, &head, sizeof( head ),0 );
-        // Send message
-        send( s, command, strlen( command ),0 );
-        // Receive header.
-        t = recv( s, &head, sizeof( head ),0 );
+    snprintf( command, 128, "[id=\"%d\"] focus", id );
+    // Prepare header.
+    memcpy( head.magic, I3_IPC_MAGIC, 6 );
+    head.size = strlen( command );
+    head.type = I3_IPC_MESSAGE_TYPE_COMMAND;
+    // Send header.
+    send( s, &head, sizeof( head ),0 );
+    // Send message
+    send( s, command, strlen( command ),0 );
+    // Receive header.
+    t = recv( s, &head, sizeof( head ),0 );
 
-        if ( t == sizeof( head ) ) {
-            t= recv( s, command, head.size, 0 );
-            command[t] = '\0';
-            printf( "%s\n", command );
-        }
+    if ( t == sizeof( head ) ) {
+        t= recv( s, command, head.size, 0 );
+        command[t] = '\0';
+        printf( "%s\n", command );
+    }
 
     close( s );
 }
@@ -776,8 +777,14 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
 
     unsigned int max_lines = MIN( config.menu_lines, num_lines );
 
-    int w = config.menu_width < 101 ? ( mon.w/100 )*config.menu_width: config.menu_width;
+    // Calculate as float to stop silly, big rounding down errors.
+    int w = config.menu_width < 101 ? ( mon.w/100.0f )*( float )config.menu_width: config.menu_width;
     int x = mon.x + ( mon.w - w )/2;
+    int element_width = w -( 2*( config.inner_margin ) );
+
+    if ( config.wmode == HORIZONTAL ) {
+        element_width = ( w-( 2*( config.inner_margin ) )-max_lines*LINE_MARGIN )/( max_lines+1 );
+    }
 
     Window box;
     XWindowAttributes attr;
@@ -813,23 +820,35 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
     }
 
     // search text input
-    textbox *text = textbox_create( box, TB_AUTOHEIGHT|TB_EDITABLE, INNER_MARGIN, INNER_MARGIN,
-                                    w-( 2*INNER_MARGIN ), 1,
+    textbox *text = textbox_create( box, TB_AUTOHEIGHT|TB_EDITABLE,
+                                    ( config.inner_margin ),
+                                    ( config.inner_margin ),
+                                    element_width, 1,
                                     config.menu_font, config.menu_fg, config.menu_bg,
                                     ( input!= NULL )?*input:"", prompt );
     textbox_show( text );
 
     int line_height = text->font->ascent + text->font->descent;
-    //line_height += line_height/10;
-    int row_margin = line_height/10;
-    line_height+=row_margin;
 
     // filtered list display
     textbox **boxes = allocate_clear( sizeof( textbox* ) * max_lines );
 
+    int columns = 1;
+
+    if ( config.wmode == HORIZONTAL ) {
+        // Number of columns is the width of the screen - the inner margins + trailing line margin.
+        columns = ( w-2*( config.inner_margin )+LINE_MARGIN )/( element_width+LINE_MARGIN );
+    }
+
     for ( i = 0; i < max_lines; i++ ) {
-        boxes[i] = textbox_create( box, TB_AUTOHEIGHT, INNER_MARGIN, ( i+1 ) * line_height +
-                                   INNER_MARGIN+LINE_MARGIN, w-( 2*INNER_MARGIN ), 1,
+        int col = ( i+1 )%columns;
+        int line = ( i+1 )/columns;
+        boxes[i] = textbox_create( box,
+                                   0,
+                                   ( config.inner_margin )+col*( element_width+LINE_MARGIN ), // X
+                                   line * line_height + config.inner_margin +( ( config.wmode == HORIZONTAL )?0:LINE_MARGIN ), // y
+                                   element_width, // w
+                                   line_height, // h
                                    config.menu_font, config.menu_fg, config.menu_bg, lines[i], NULL );
         textbox_show( boxes[i] );
     }
@@ -868,31 +887,45 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
-    int h = line_height * ( max_lines+1 ) + INNER_MARGIN*2 - row_margin+LINE_MARGIN;
+    int h = line_height * ( max_lines+1 ) + ( config.inner_margin )*2 +LINE_MARGIN;
+
+    if ( config.wmode == HORIZONTAL ) {
+        h = line_height+( config.inner_margin )*2;
+    }
+
+    // Default location is center.
     int y = mon.y + ( mon.h - h )/2;
 
-    switch(config.location)
-    {
+    // Determine window location
+    switch ( config.location ) {
         case NORTH_WEST:
             x=mon.x;
+
         case NORTH:
             y=mon.y;
             break;
+
         case NORTH_EAST:
             y=mon.y;
+
         case EAST:
             x=mon.x+mon.w-w;
             break;
+
         case EAST_SOUTH:
             x=mon.x+mon.w-w;
+
         case SOUTH:
             y=mon.y+mon.h-h;
             break;
+
         case SOUTH_WEST:
             y=mon.y+mon.h-h;
+
         case WEST:
             x=mon.x;
             break;
+
         case CENTER:
         default:
             break;
@@ -912,11 +945,14 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
             while ( XCheckTypedEvent( display, Expose, &ev ) );
 
             menu_draw( text, boxes, max_lines, selected, filtered );
+
             // Why do we need the specian -1?
-            XDrawLine( display, main_window, gc, INNER_MARGIN,
-                       line_height+INNER_MARGIN+( LINE_MARGIN-2 )/2,
-                       w-( INNER_MARGIN )-1,
-                       line_height+INNER_MARGIN +( LINE_MARGIN-2 )/2 );
+            if ( config.wmode == VERTICAL ) {
+                XDrawLine( display, main_window, gc, ( config.inner_margin ),
+                           line_height+( config.inner_margin )+( LINE_MARGIN-2 )/2,
+                           w-( ( config.inner_margin ) )-1,
+                           line_height+( config.inner_margin ) +( LINE_MARGIN-2 )/2 );
+            }
         } else if ( ev.type == KeyPress ) {
             while ( XCheckTypedEvent( display, KeyPress, &ev ) );
 
@@ -1295,13 +1331,13 @@ int main( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
-    if(xdgInitHandle(&xdg_handle) == NULL) {
-        fprintf(stderr, "Failed to initialize XDG\n");
+    if ( xdgInitHandle( &xdg_handle ) == NULL ) {
+        fprintf( stderr, "Failed to initialize XDG\n" );
         return EXIT_FAILURE;
     }
 
-    cache_dir = xdgCacheHome(&xdg_handle);
-    printf("Cache directory: %s\n", cache_dir);
+    cache_dir = xdgCacheHome( &xdg_handle );
+    printf( "Cache directory: %s\n", cache_dir );
 
 
     signal( SIGCHLD, catch_exit );
@@ -1347,6 +1383,9 @@ int main( int argc, char *argv[] )
     find_arg_int( argc, argv, "-lines",&( config.menu_lines ) );
 
     find_arg_int( argc, argv, "-loc", &( config.location ) );
+    config.wmode = ( find_arg( argc, argv, "-hmode" )  >= 0 )?HORIZONTAL:VERTICAL;
+
+    find_arg_int( argc, argv, "-padding", &( config.inner_margin ) );
 
 #ifdef I3
     // Check for i3
@@ -1422,6 +1461,6 @@ int main( int argc, char *argv[] )
     if ( i3_socket_path != NULL ) free( i3_socket_path );
 
 #endif
-    xdgWipeHandle(&xdg_handle);
+    xdgWipeHandle( &xdg_handle );
     return EXIT_SUCCESS;
 }
