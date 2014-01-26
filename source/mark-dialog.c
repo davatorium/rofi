@@ -73,6 +73,10 @@ static void exec_mark(const char *mark)
 {
     int s, t, len;
     struct sockaddr_un remote;
+	if(config.i3_mode == 0) {
+		fprintf(stderr, "Cannot use marks without i3 running\n");
+		return ;
+	}
 
     if ( strlen( i3_socket_path ) > UNIX_PATH_MAX ) {
         fprintf( stderr, "Socket path is to long. %zd > %d\n", strlen( i3_socket_path ), UNIX_PATH_MAX );
@@ -130,6 +134,10 @@ static char ** get_mark ( )
 {
     unsigned int retv_index = 0;
     char **retv = NULL;
+	if(config.i3_mode == 0) {
+		fprintf(stderr, "Cannot use marks without i3 running\n");
+		return retv;
+	}
 #ifdef TIMING
     struct timespec start, stop;
     clock_gettime( CLOCK_REALTIME, &start );
