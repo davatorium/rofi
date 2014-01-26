@@ -1018,11 +1018,13 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
                 else
 
                     // Up or Shift-Tab
-                    if ( key == XK_Up || ( key == XK_Tab && ev.xkey.state & ShiftMask ) ) {
+                    if ( key == XK_Up || ( key == XK_Tab && ev.xkey.state & ShiftMask ) ||
+                         ( key == XK_j && ev.xkey.state& ControlMask )  ) {
                         if ( selected == 0 ) selected = filtered_lines;
 
                         if ( selected > 0 ) selected --;
-                    } else if ( key == XK_Down ) {
+                    } else if ( key == XK_Down  ||
+                                ( key == XK_k && ev.xkey.state& ControlMask ) ) {
                         selected = selected < filtered_lines-1 ? MIN( filtered_lines-1, selected+1 ): 0;
                     } else if ( key == XK_Tab ) {
                         if ( filtered_lines == 1 ) {
