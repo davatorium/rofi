@@ -11,15 +11,15 @@ MAN_DIR?=$(PREFIX)/share/man/man1
 
 MAN_PAGE=$(PROGRAM).1
 
-BUILD_DIR=build
 SOURCE_DIR=source
+CONFIG_DIR=config
 DOC_DIR=doc
+BUILD_DIR=build
 
-SOURCES=$(wildcard $(SOURCE_DIR)/*.c)
-OBJECTS=$(SOURCES:$(SOURCE_DIR)/%.c=$(BUILD_DIR)/%.o)
+SOURCES=$(wildcard $(SOURCE_DIR)/*.c $(CONFIG_DIR)/*.c )
+OBJECTS=$(SOURCES:%.c=$(BUILD_DIR)/%.o)
 HEADERS=$(wildcard include/*.h)
 OTHERS=Makefile LICENSE README.md
-
 
 INSTALL_MANPAGE_PATH=$(MAN_DIR)/$(MAN_PAGE).gz
 INSTALL_PROGRAM=$(BIN_DIR)/$(PROGRAM)
@@ -69,9 +69,11 @@ all: $(BUILD_DIR)/$(PROGRAM)
 $(BUILD_DIR):
 	$(info Creating build dir)
 	$(QUIET)mkdir -p $@
+	$(QUIET)mkdir -p $@/$(SOURCE_DIR)
+	$(QUIET)mkdir -p $@/$(CONFIG_DIR)
 
 # Objects depend on header files and makefile too.
-$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c | Makefile $(HEADERS) $(BUILD_DIR)
+$(BUILD_DIR)/%.o: %.c | Makefile $(HEADERS) $(BUILD_DIR)
 	$(info Compiling $^ -> $@)
 	$(QUIET) $(CC) $(CFLAGS) -c -o $@ $^
 

@@ -1,7 +1,7 @@
 #ifndef __SIMPLESWITCHER_H__
 #define __SIMPLESWITCHER_H__
 
-#include <basedir.h>
+#include <X11/X.h>
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))

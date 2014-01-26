@@ -59,6 +59,8 @@
 #include <i3/ipc.h>
 #endif
 
+#include <basedir.h>
+
 #include "simpleswitcher.h"
 #include "run-dialog.h"
 #include "ssh-dialog.h"
@@ -72,33 +74,6 @@
 xdgHandle xdg_handle;
 const char *cache_dir = NULL;
 
-
-Settings config = {
-    // Window settings
-    .window_opacity = 100,
-    // Menu settings
-    .menu_bw        = 1,
-    .menu_width     = 50,
-    .menu_lines     = 15,
-    .menu_font      = "mono-12",
-    .menu_fg        = "#222222",
-    .menu_bg        = "#f2f1f0",
-    .menu_bgalt     = "#e9e8e7",
-    .menu_hlfg      = "#ffffff",
-    .menu_hlbg      = "#005577",
-    .menu_bc        = "black",
-    // Behavior
-    .zeltak_mode    = 0,
-    .terminal_emulator = "x-terminal-emulator",
-    .i3_mode        = 0,
-    // Key binding
-    .window_key     = "F12",
-    .run_key        = "mod1+F2",
-    .ssh_key        = "mod1+F3",
-    .location       = CENTER,
-    .wmode          = VERTICAL,
-    .inner_margin   = 5
-};
 
 
 void* allocate( unsigned long bytes )
