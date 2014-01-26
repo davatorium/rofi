@@ -176,7 +176,7 @@ static char ** get_ssh ( )
 
                 for ( start=4; isspace( buffer[start] ); start++ );
 
-                for ( stop=start; isalnum( buffer[stop] ); stop++ );
+                for ( stop=start; isalnum( buffer[stop] ) || buffer[stop] == '_' ; stop++ );
 
                 int found = 0;
 
