@@ -10,11 +10,17 @@
 #define INTERSECT(x,y,w,h,x1,y1,w1,h1) (OVERLAP((x),(w),(x1),(w1)) && OVERLAP((y),(h),(y1),(h1)))
 
 extern const char *cache_dir;
+#ifdef I3
+extern char *i3_socket_path;
+#endif
 
 typedef enum {
     WINDOW_SWITCHER,
     RUN_DIALOG,
     SSH_DIALOG,
+#ifdef I3
+    MARK_DIALOG,
+#endif
     NUM_DIALOGS,
     MODE_EXIT,
     NEXT_DIALOG
@@ -82,6 +88,9 @@ typedef struct _Settings {
     WindowLocation  location;
     WindowMode      wmode;
     unsigned int    inner_margin;
+#ifdef I3
+    char *          mark_key;
+#endif
 } Settings;
 
 extern Settings config;

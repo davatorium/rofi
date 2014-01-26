@@ -48,6 +48,9 @@ Settings config = {
     .window_key     = "F12",
     .run_key        = "mod1+F2",
     .ssh_key        = "mod1+F3",
+#ifdef I3
+	.mark_key		= "mod1+F5",
+#endif
     .location       = CENTER,
     .wmode          = VERTICAL,
     .inner_margin   = 5
