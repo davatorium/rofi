@@ -189,7 +189,7 @@ static char ** get_mark ( )
         ssize_t index = 0;
 
         // Grab results.
-        while ( index < (ssize_t)head.size ) {
+        while ( index < ( ssize_t )head.size ) {
             t= recv( s, &result[index], ( head.size-t ), 0 );
 
             if ( t < 0 ) break;

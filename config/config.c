@@ -51,7 +51,7 @@ Settings config = {
     .menu_hlbg      = "#005577",
     // Border color.
     .menu_bc        = "black",
-    // Directly select when only 1 choice is left 
+    // Directly select when only 1 choice is left
     .zeltak_mode    = 0,
     // Terminal to use. (for ssh and open in terminal)
     .terminal_emulator = "x-terminal-emulator",
@@ -64,7 +64,7 @@ Settings config = {
 #ifdef I3
     .mark_key		= "mod1+F5",
 #endif
-    // Location of the window.   CENTER, NORTH_WEST, NORTH,NORTH_EAST, etc. 
+    // Location of the window.   CENTER, NORTH_WEST, NORTH,NORTH_EAST, etc.
     .location       = CENTER,
     // Mode of window, list (Vertical) or dmenu like (Horizontal)
     .wmode          = VERTICAL,

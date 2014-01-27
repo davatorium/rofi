@@ -65,6 +65,7 @@
 #include "run-dialog.h"
 #include "ssh-dialog.h"
 #include "mark-dialog.h"
+#include "profile-dialog.h"
 
 #define LINE_MARGIN 4
 
@@ -1192,6 +1193,12 @@ void run_switcher( int fmode, SwitcherMode mode )
         }
 
 #endif
+#ifdef __QC_MODE__
+        else if ( mode == PROFILE_DIALOG ) {
+            retv = profile_switcher_dialog ( &input );
+        }
+
+#endif // __QC_MODE__
 
         if ( retv == NEXT_DIALOG ) {
             mode = ( mode+1 )%NUM_DIALOGS;

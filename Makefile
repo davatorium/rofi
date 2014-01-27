@@ -38,6 +38,10 @@ CFLAGS+=-DTIMING=1 -g3
 LDADD+=-lrt
 endif
 
+ifeq (${QC_MODE},1)
+CFLAGS+=-D__QC_MODE__
+endif
+
 
 ##
 # Check dependencies

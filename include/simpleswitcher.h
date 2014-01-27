@@ -21,6 +21,9 @@ typedef enum {
 #ifdef I3
     MARK_DIALOG,
 #endif
+#ifdef __QC_MODE__
+    PROFILE_DIALOG,
+#endif
     NUM_DIALOGS,
     MODE_EXIT,
     NEXT_DIALOG
