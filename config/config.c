@@ -27,22 +27,35 @@
 #include "simpleswitcher.h"
 
 Settings config = {
-    // Window settings
+    // Set the default window opacity.
+    // This option only works when running a composite manager.
+    // -o
     .window_opacity = 100,
-    // Menu settings
+    // Border width around the window.
     .menu_bw        = 1,
+    // The width of the switcher. (0-100 in % > 100 in pixels)
     .menu_width     = 50,
+    // Maximum number of options to show.
     .menu_lines     = 15,
+    // Font
     .menu_font      = "mono-12",
+    // Foreground color
     .menu_fg        = "#222222",
+    // Background color
     .menu_bg        = "#f2f1f0",
+    // Background alternative color
     .menu_bgalt     = "#e9e8e7",
+    // Foreground color (selected)
     .menu_hlfg      = "#ffffff",
+    // Background color (selected)
     .menu_hlbg      = "#005577",
+    // Border color.
     .menu_bc        = "black",
-    // Behavior
+    // Directly select when only 1 choice is left 
     .zeltak_mode    = 0,
+    // Terminal to use. (for ssh and open in terminal)
     .terminal_emulator = "x-terminal-emulator",
+    // Auto-detected. no longer used.
     .i3_mode        = 0,
     // Key binding
     .window_key     = "F12",
@@ -51,7 +64,10 @@ Settings config = {
 #ifdef I3
     .mark_key		= "mod1+F5",
 #endif
+    // Location of the window.   CENTER, NORTH_WEST, NORTH,NORTH_EAST, etc. 
     .location       = CENTER,
+    // Mode of window, list (Vertical) or dmenu like (Horizontal)
     .wmode          = VERTICAL,
+    // Inner margin of the window.
     .inner_margin   = 5
 };
