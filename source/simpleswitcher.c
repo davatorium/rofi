@@ -1381,7 +1381,9 @@ int main( int argc, char *argv[] )
 
     find_arg_str( argc, argv, "-term", &( config.terminal_emulator ) );
 
-    config.zeltak_mode    = ( find_arg( argc, argv, "-zeltak" ) >= 0 );
+    if(find_arg ( argc, argv, "-zeltak") >= 0) {
+        config.zeltak_mode    = 1;
+    }
 
 
     find_arg_int( argc, argv, "-bw",   &( config.menu_bw ) );
@@ -1390,7 +1392,9 @@ int main( int argc, char *argv[] )
     find_arg_int( argc, argv, "-lines",&( config.menu_lines ) );
 
     find_arg_int( argc, argv, "-loc", &( config.location ) );
-    config.wmode = ( find_arg( argc, argv, "-hmode" )  >= 0 )?HORIZONTAL:VERTICAL;
+    if( find_arg( argc, argv, "-hmode" ) >= 0) {
+        config.wmode = HORIZONTAL;
+    }
 
     find_arg_int( argc, argv, "-padding", &( config.padding ) );
 
