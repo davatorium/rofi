@@ -68,6 +68,6 @@ Settings config = {
     .location       = CENTER,
     // Mode of window, list (Vertical) or dmenu like (Horizontal)
     .wmode          = VERTICAL,
-    // Inner margin of the window.
-    .inner_margin   = 5
+    // Padding of the window.
+    .padding        = 5
 };

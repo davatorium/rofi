@@ -90,7 +90,7 @@ typedef struct _Settings {
     char *          ssh_key;
     WindowLocation  location;
     WindowMode      wmode;
-    unsigned int    inner_margin;
+    unsigned int    padding;
 #ifdef I3
     char *          mark_key;
 #endif

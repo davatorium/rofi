@@ -763,10 +763,10 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
     // Calculate as float to stop silly, big rounding down errors.
     int w = config.menu_width < 101 ? ( mon.w/100.0f )*( float )config.menu_width: config.menu_width;
     int x = mon.x + ( mon.w - w )/2;
-    int element_width = w -( 2*( config.inner_margin ) );
+    int element_width = w -( 2*( config.padding ) );
 
     if ( config.wmode == HORIZONTAL ) {
-        element_width = ( w-( 2*( config.inner_margin ) )-max_lines*LINE_MARGIN )/( max_lines+1 );
+        element_width = ( w-( 2*( config.padding ) )-max_lines*LINE_MARGIN )/( max_lines+1 );
     }
 
     Window box;
@@ -804,8 +804,8 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
 
     // search text input
     textbox *text = textbox_create( box, TB_AUTOHEIGHT|TB_EDITABLE,
-                                    ( config.inner_margin ),
-                                    ( config.inner_margin ),
+                                    ( config.padding ),
+                                    ( config.padding ),
                                     element_width, 1,
                                     config.menu_font, config.menu_fg, config.menu_bg,
                                     ( input!= NULL )?*input:"", prompt );
@@ -820,7 +820,7 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
 
     if ( config.wmode == HORIZONTAL ) {
         // Number of columns is the width of the screen - the inner margins + trailing line margin.
-        columns = ( w-2*( config.inner_margin )+LINE_MARGIN )/( element_width+LINE_MARGIN );
+        columns = ( w-2*( config.padding )+LINE_MARGIN )/( element_width+LINE_MARGIN );
     }
 
     for ( i = 0; i < max_lines; i++ ) {
@@ -828,8 +828,8 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
         int line = ( i+1 )/columns;
         boxes[i] = textbox_create( box,
                                    0,
-                                   ( config.inner_margin )+col*( element_width+LINE_MARGIN ), // X
-                                   line * line_height + config.inner_margin +( ( config.wmode == HORIZONTAL )?0:LINE_MARGIN ), // y
+                                   ( config.padding )+col*( element_width+LINE_MARGIN ), // X
+                                   line * line_height + config.padding +( ( config.wmode == HORIZONTAL )?0:LINE_MARGIN ), // y
                                    element_width, // w
                                    line_height, // h
                                    config.menu_font, config.menu_fg, config.menu_bg, lines[i], NULL );
@@ -870,10 +870,10 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
-    int h = line_height * ( max_lines+1 ) + ( config.inner_margin )*2 +LINE_MARGIN;
+    int h = line_height * ( max_lines+1 ) + ( config.padding )*2 +LINE_MARGIN;
 
     if ( config.wmode == HORIZONTAL ) {
-        h = line_height+( config.inner_margin )*2;
+        h = line_height+( config.padding )*2;
     }
 
     // Default location is center.
@@ -931,10 +931,10 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
 
             // Why do we need the specian -1?
             if ( config.wmode == VERTICAL ) {
-                XDrawLine( display, main_window, gc, ( config.inner_margin ),
-                           line_height+( config.inner_margin )+( LINE_MARGIN-2 )/2,
-                           w-( ( config.inner_margin ) )-1,
-                           line_height+( config.inner_margin ) +( LINE_MARGIN-2 )/2 );
+                XDrawLine( display, main_window, gc, ( config.padding ),
+                           line_height+( config.padding )+( LINE_MARGIN-2 )/2,
+                           w-( ( config.padding ) )-1,
+                           line_height+( config.padding ) +( LINE_MARGIN-2 )/2 );
             }
         } else if ( ev.type == KeyPress ) {
             while ( XCheckTypedEvent( display, KeyPress, &ev ) );
@@ -1392,7 +1392,7 @@ int main( int argc, char *argv[] )
     find_arg_int( argc, argv, "-loc", &( config.location ) );
     config.wmode = ( find_arg( argc, argv, "-hmode" )  >= 0 )?HORIZONTAL:VERTICAL;
 
-    find_arg_int( argc, argv, "-padding", &( config.inner_margin ) );
+    find_arg_int( argc, argv, "-padding", &( config.padding ) );
 
 #ifdef I3
     // Check for i3
