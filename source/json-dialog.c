@@ -86,9 +86,34 @@ typedef struct pmenu {
     char **commands;
 } pmenu;
 
+static struct json_object * read_json_file_descr(FILE *fd)
+{
+    struct json_object *jo = NULL;
+    enum json_tokener_error err;
+    struct json_tokener *tok = json_tokener_new();
+    char buffer[64];
+    ssize_t len = 0;
+
+    while( (len = fread(buffer, 1, 64, fd)) > 0) {
+        jo = json_tokener_parse_ex(tok, buffer, len);
+
+        if((err = json_tokener_get_error(tok)) != json_tokener_continue)
+        {
+            if(err != json_tokener_success) {
+                fprintf(stderr, "Error parsing json file: %s\n", json_tokener_error_desc(err)); 
+                jo = NULL;
+            }
+            break;
+        } 
+    }
+    // Get reference before we destroy the tokener.
+    if(jo) json_object_get(jo);
+    json_tokener_free(tok);
+    return jo;
+}
+
 static pmenu *get_json ( )
 {
-    pmenu *retv = allocate_clear(sizeof(*retv));
 
 #ifdef TIMING
     struct timespec start, stop;
@@ -97,21 +122,33 @@ static pmenu *get_json ( )
 
     struct json_object *jo = NULL;
     if(json_input_file != NULL) {
-        jo = json_object_from_file(json_input_file);
-    }
+        if (json_input_file[0] == '-' && json_input_file[1] == '\0') {
+            jo = read_json_file_descr(stdin);
+        }
+        else
+        {
+            FILE *fd = fopen(json_input_file, "r");
+            if(fd == NULL) {
+                fprintf(stderr, "Failed to open file: %s: %s\n",
+                        json_input_file, strerror(errno));
+                return NULL;
+            }
+            jo = read_json_file_descr(fd);
+            fclose(fd);
 
+        }
+    } 
+
+    if(jo && json_object_get_type(jo) != json_type_object) {
+        fprintf(stderr, "Json file has invalid root type.\n");
+        json_object_put(jo);
+        jo = NULL;
+    }
     // Create error and exit.
-    if(jo == NULL) {
-        retv->entries= realloc( retv->entries, ( retv->num_entries+2 )*sizeof( char* ) );
-        retv->entries[retv->num_entries] = strdup( "Failed to parse json input file" );
-        retv->entries[retv->num_entries+1] = NULL;
-        retv->commands= realloc( retv->commands, ( retv->num_entries+2 )*sizeof( char* ) );
-        retv->commands[retv->num_entries] = strdup( "" );
-        retv->commands[retv->num_entries+1] = NULL;
-
-        retv->num_entries++;
-        return retv;
+    if(jo == NULL ) {
+        return NULL;
     }
+    pmenu *retv = allocate_clear(sizeof(*retv));
 
     struct json_object *jo2;
     if(json_object_object_get_ex(jo, "prompt", &jo2)) {
@@ -174,15 +211,20 @@ SwitcherMode json_switcher_dialog ( char **input )
         return retv;
     }
 
-    int shift=0;
-    int n = menu( list->entries, input, list->prompt, NULL, &shift,token_match, NULL );
+    if(list->num_entries > 0) {
 
-    if ( n == -2 ) {
-        retv = JSON_DIALOG;
-    } else if ( n >=0 && list->commands[n] != NULL ) {
-        exec_json( list->commands[n], list->execute_in_term);
+        int shift=0;
+        int n = menu( list->entries, input, list->prompt, NULL, &shift,token_match, NULL );
+
+        if ( n == -2 ) {
+            retv = JSON_DIALOG;
+        } else if ( n >=0 && list->commands[n] != NULL ) {
+            exec_json( list->commands[n], list->execute_in_term);
+        }
+
+    } else {
+        fprintf(stderr, "No commands found in json file\n");
     }
-
     for ( unsigned int i=0; i < list->num_entries; i++ ) {
         free( list->entries[i] );
         free( list->commands[i] );
