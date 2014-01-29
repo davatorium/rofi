@@ -66,7 +66,6 @@ static void exec_json( const char *cmd, int run_in_term)
 {
     if ( !cmd || !cmd[0] ) return;
 
-    printf("execute: %s\n", cmd);
     signal( SIGCHLD, catch_exit );
     pid_t pid = fork();
 
