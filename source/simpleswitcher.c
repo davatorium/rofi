@@ -66,6 +66,7 @@
 #include "ssh-dialog.h"
 #include "mark-dialog.h"
 #include "profile-dialog.h"
+#include "json-dialog.h"
 
 #define LINE_MARGIN 4
 
@@ -1199,6 +1200,9 @@ void run_switcher( int fmode, SwitcherMode mode )
         }
 
 #endif // __QC_MODE__
+        else if ( mode == JSON_DIALOG ) {
+            retv = json_switcher_dialog ( &input );
+        }
 
         if ( retv == NEXT_DIALOG ) {
             mode = ( mode+1 )%NUM_DIALOGS;
@@ -1427,6 +1431,10 @@ int main( int argc, char *argv[] )
     } else if ( find_arg( argc, argv, "-mnow" ) >= 0 ) {
         run_switcher( NOFORK, MARK_DIALOG );
 #endif
+    } else if ( find_arg( argc, argv, "-json" ) >= 0 ) {
+        find_arg_str( argc, argv, "-json", &json_input_file);
+        run_switcher( NOFORK, JSON_DIALOG );
+
     } else {
         // Daemon mode, Listen to key presses..
 

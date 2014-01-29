@@ -51,8 +51,8 @@ ifeq (${PKG_CONFIG},${EMPTY})
 $(error Failed to find pkg-config. Please install pkg-config)
 endif
 
-CFLAGS+=$(shell ${PKG_CONFIG} --cflags x11 xinerama xft libxdg-basedir)
-LDADD+=$(shell ${PKG_CONFIG} --libs x11 xinerama xft libxdg-basedir)
+CFLAGS+=$(shell ${PKG_CONFIG} --cflags x11 xinerama xft libxdg-basedir json)
+LDADD+=$(shell ${PKG_CONFIG} --libs x11 xinerama xft libxdg-basedir json)
 
 ifeq (${LDADD},${EMPTY})
 $(error Failed to find the required dependencies: x11, xinerama, xft)
