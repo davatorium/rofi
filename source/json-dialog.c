@@ -124,6 +124,9 @@ static pmenu *get_json ( )
         if (json_input_file[0] == '-' && json_input_file[1] == '\0') {
             jo = read_json_file_descr(stdin);
         }
+        else if (json_input_file[0] == '{' && strlen(json_input_file) > 3) { 
+            jo = json_tokener_parse(json_input_file); 
+        }
         else
         {
             FILE *fd = fopen(json_input_file, "r");
