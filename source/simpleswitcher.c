@@ -195,7 +195,6 @@ static void focus_window_i3( const char *socket_path, int id )
     if ( t == sizeof( head ) ) {
         t= recv( s, command, head.size, 0 );
         command[t] = '\0';
-        printf( "%s\n", command );
     }
 
     close( s );
@@ -1348,7 +1347,6 @@ int main( int argc, char *argv[] )
     }
 
     cache_dir = xdgCacheHome( &xdg_handle );
-    printf( "Cache directory: %s\n", cache_dir );
 
 
     signal( SIGCHLD, catch_exit );
@@ -1412,8 +1410,6 @@ int main( int argc, char *argv[] )
             i3_socket_path = window_get_text_prop( root, atom );
 
             if ( i3_socket_path != NULL ) {
-                printf( "Auto detected I3 running, switching to I3 mode: %s\n",
-                        i3_socket_path );
                 config.i3_mode = 1;
             }
         }
