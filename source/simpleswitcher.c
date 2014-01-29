@@ -67,6 +67,7 @@
 #include "mark-dialog.h"
 #include "profile-dialog.h"
 #include "json-dialog.h"
+#include "dmenu-dialog.h"
 
 #define LINE_MARGIN 4
 
@@ -1202,6 +1203,9 @@ void run_switcher( int fmode, SwitcherMode mode )
         else if ( mode == JSON_DIALOG ) {
             retv = json_switcher_dialog ( &input );
         }
+        else if ( mode == DMENU_DIALOG ) {
+            retv = dmenu_switcher_dialog ( &input );
+        }
 
         if ( retv == NEXT_DIALOG ) {
             mode = ( mode+1 )%NUM_DIALOGS;
@@ -1430,7 +1434,9 @@ int main( int argc, char *argv[] )
     } else if ( find_arg( argc, argv, "-json" ) >= 0 ) {
         find_arg_str( argc, argv, "-json", &json_input_file);
         run_switcher( NOFORK, JSON_DIALOG );
-
+    } else if ( find_arg( argc, argv, "-dmenu" ) >= 0 ) {
+        find_arg_str( argc, argv, "-dmenu", &dmenu_prompt);
+        run_switcher( NOFORK, DMENU_DIALOG);
     } else {
         // Daemon mode, Listen to key presses..
 
