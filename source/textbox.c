@@ -112,7 +112,7 @@ void textbox_font( textbox *tb, char *font, char *fg, char *bg )
 // outer code may need line height, width, etc
 void textbox_extents( textbox *tb )
 {
-    int length = strlen( tb->text ) + strlen( tb->prompt) +1;
+    int length = strlen( tb->text ) + strlen( tb->prompt ) +1;
     char *line = alloca( length + 1 );
     sprintf( line, "%s %s", tb->prompt, tb->text );
     XftTextExtents8( display, tb->font, ( unsigned char* )line, length, &tb->extents );
