@@ -1435,7 +1435,7 @@ int main( int argc, char *argv[] )
         find_arg_str( argc, argv, "-json", &json_input_file );
         run_switcher( NOFORK, JSON_DIALOG );
     } else if ( find_arg( argc, argv, "-dmenu" ) >= 0 ) {
-        find_arg_str( argc, argv, "-dmenu", &dmenu_prompt );
+        find_arg_str( argc, argv, "-p", &dmenu_prompt );
         run_switcher( NOFORK, DMENU_DIALOG );
     } else {
         // Daemon mode, Listen to key presses..
