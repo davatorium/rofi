@@ -62,7 +62,7 @@ static inline int execsh( const char *cmd ,int run_in_term )
 
     return execlp( "/bin/sh", "sh", "-c", cmd, NULL );
 }
-static void exec_json( const char *cmd, int run_in_term)
+static void exec_json( const char *cmd, int run_in_term )
 {
     if ( !cmd || !cmd[0] ) return;
 
@@ -85,7 +85,7 @@ typedef struct pmenu {
     char **commands;
 } pmenu;
 
-static struct json_object * read_json_file_descr(FILE *fd)
+static struct json_object * read_json_file_descr( FILE *fd )
 {
     struct json_object *jo = NULL;
     enum json_tokener_error err;
@@ -93,21 +93,23 @@ static struct json_object * read_json_file_descr(FILE *fd)
     char buffer[64];
     ssize_t len = 0;
 
-    while( (len = fread(buffer, 1, 64, fd)) > 0) {
-        jo = json_tokener_parse_ex(tok, buffer, len);
+    while ( ( len = fread( buffer, 1, 64, fd ) ) > 0 ) {
+        jo = json_tokener_parse_ex( tok, buffer, len );
 
-        if((err = json_tokener_get_error(tok)) != json_tokener_continue)
-        {
-            if(err != json_tokener_success) {
-                fprintf(stderr, "Error parsing json file: %s\n", json_tokener_error_desc(err)); 
+        if ( ( err = json_tokener_get_error( tok ) ) != json_tokener_continue ) {
+            if ( err != json_tokener_success ) {
+                fprintf( stderr, "Error parsing json file: %s\n", json_tokener_error_desc( err ) );
                 jo = NULL;
             }
+
             break;
-        } 
+        }
     }
+
     // Get reference before we destroy the tokener.
-    if(jo) json_object_get(jo);
-    json_tokener_free(tok);
+    if ( jo ) json_object_get( jo );
+
+    json_tokener_free( tok );
     return jo;
 }
 
@@ -120,59 +122,64 @@ static pmenu *get_json ( )
 #endif
 
     struct json_object *jo = NULL;
-    if(json_input_file != NULL) {
-        if (json_input_file[0] == '-' && json_input_file[1] == '\0') {
-            jo = read_json_file_descr(stdin);
-        }
-        else if (json_input_file[0] == '{' && strlen(json_input_file) > 3) { 
-            jo = json_tokener_parse(json_input_file); 
-        }
-        else
-        {
-            FILE *fd = fopen(json_input_file, "r");
-            if(fd == NULL) {
-                fprintf(stderr, "Failed to open file: %s: %s\n",
-                        json_input_file, strerror(errno));
+
+    if ( json_input_file != NULL ) {
+        if ( json_input_file[0] == '-' && json_input_file[1] == '\0' ) {
+            jo = read_json_file_descr( stdin );
+        } else if ( json_input_file[0] == '{' && strlen( json_input_file ) > 3 ) {
+            jo = json_tokener_parse( json_input_file );
+        } else {
+            FILE *fd = fopen( json_input_file, "r" );
+
+            if ( fd == NULL ) {
+                fprintf( stderr, "Failed to open file: %s: %s\n",
+                         json_input_file, strerror( errno ) );
                 return NULL;
             }
-            jo = read_json_file_descr(fd);
-            fclose(fd);
+
+            jo = read_json_file_descr( fd );
+            fclose( fd );
 
         }
-    } 
+    }
 
-    if(jo && json_object_get_type(jo) != json_type_object) {
-        fprintf(stderr, "Json file has invalid root type.\n");
-        json_object_put(jo);
+    if ( jo && json_object_get_type( jo ) != json_type_object ) {
+        fprintf( stderr, "Json file has invalid root type.\n" );
+        json_object_put( jo );
         jo = NULL;
     }
+
     // Create error and exit.
-    if(jo == NULL ) {
+    if ( jo == NULL ) {
         return NULL;
     }
-    pmenu *retv = allocate_clear(sizeof(*retv));
+
+    pmenu *retv = allocate_clear( sizeof( *retv ) );
 
     struct json_object *jo2;
-    if(json_object_object_get_ex(jo, "prompt", &jo2)) {
-        retv->prompt = strdup(json_object_get_string(jo2));
-    }
-    if(json_object_object_get_ex(jo, "run-in-terminal", &jo2)) {
-        retv->execute_in_term = json_object_get_int(jo2);
+
+    if ( json_object_object_get_ex( jo, "prompt", &jo2 ) ) {
+        retv->prompt = strdup( json_object_get_string( jo2 ) );
     }
 
-    if(json_object_object_get_ex(jo, "commands", &jo2)) {
-        json_object_object_foreach(jo2, key, child) {
+    if ( json_object_object_get_ex( jo, "run-in-terminal", &jo2 ) ) {
+        retv->execute_in_term = json_object_get_int( jo2 );
+    }
+
+    if ( json_object_object_get_ex( jo, "commands", &jo2 ) ) {
+        json_object_object_foreach( jo2, key, child ) {
             retv->entries= realloc( retv->entries, ( retv->num_entries+2 )*sizeof( char* ) );
-            retv->entries[retv->num_entries] = strdup( key);
+            retv->entries[retv->num_entries] = strdup( key );
             retv->entries[retv->num_entries+1] = NULL;
             retv->commands= realloc( retv->commands, ( retv->num_entries+2 )*sizeof( char* ) );
-            retv->commands[retv->num_entries] = strdup( json_object_get_string(child));
+            retv->commands[retv->num_entries] = strdup( json_object_get_string( child ) );
             retv->commands[retv->num_entries+1] = NULL;
 
             retv->num_entries++;
         }
     }
-    json_object_put(jo);
+
+    json_object_put( jo );
 
 
 
@@ -213,7 +220,7 @@ SwitcherMode json_switcher_dialog ( char **input )
         return retv;
     }
 
-    if(list->num_entries > 0) {
+    if ( list->num_entries > 0 ) {
 
         int shift=0;
         int n = menu( list->entries, input, list->prompt, NULL, &shift,token_match, NULL );
@@ -221,20 +228,23 @@ SwitcherMode json_switcher_dialog ( char **input )
         if ( n == -2 ) {
             retv = JSON_DIALOG;
         } else if ( n >=0 && list->commands[n] != NULL ) {
-            exec_json( list->commands[n], list->execute_in_term);
+            exec_json( list->commands[n], list->execute_in_term );
         }
 
     } else {
-        fprintf(stderr, "No commands found in json file\n");
+        fprintf( stderr, "No commands found in json file\n" );
     }
+
     for ( unsigned int i=0; i < list->num_entries; i++ ) {
         free( list->entries[i] );
         free( list->commands[i] );
     }
 
-    if(list->entries)free( list->entries );
-    if(list->commands)free( list->commands );
-    if(list->prompt)free( list->prompt );
+    if ( list->entries )free( list->entries );
+
+    if ( list->commands )free( list->commands );
+
+    if ( list->prompt )free( list->prompt );
 
     return retv;
 }

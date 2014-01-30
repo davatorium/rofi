@@ -63,10 +63,11 @@ static char **get_dmenu ( )
     int index = 0;
 
     char buffer[1024];
-    while(fgets(buffer, 1024, stdin) != NULL) {
-        retv = realloc(retv, (index+2)*sizeof(char*));
-        retv[index] = strdup(buffer);
-        retv[index][strlen(buffer)-1] = '\0';
+
+    while ( fgets( buffer, 1024, stdin ) != NULL ) {
+        retv = realloc( retv, ( index+2 )*sizeof( char* ) );
+        retv[index] = strdup( buffer );
+        retv[index][strlen( buffer )-1] = '\0';
         retv[index+1] = NULL;
         index++;
     }
@@ -116,13 +117,14 @@ SwitcherMode dmenu_switcher_dialog ( char **input )
     if ( n == -2 ) {
         retv = DMENU_DIALOG;
     } else if ( n >=0 && list[n] != NULL ) {
-        fputs(list[n],stdout);
+        fputs( list[n],stdout );
     }
 
     for ( unsigned int i=0; list[i] != NULL; i++ ) {
         free( list[i] );
     }
-    free(list);
+
+    free( list );
 
     return retv;
 }

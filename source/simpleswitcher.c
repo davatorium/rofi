@@ -1202,8 +1202,7 @@ void run_switcher( int fmode, SwitcherMode mode )
 #endif // __QC_MODE__
         else if ( mode == JSON_DIALOG ) {
             retv = json_switcher_dialog ( &input );
-        }
-        else if ( mode == DMENU_DIALOG ) {
+        } else if ( mode == DMENU_DIALOG ) {
             retv = dmenu_switcher_dialog ( &input );
         }
 
@@ -1387,7 +1386,7 @@ int main( int argc, char *argv[] )
 
     find_arg_str( argc, argv, "-term", &( config.terminal_emulator ) );
 
-    if(find_arg ( argc, argv, "-zeltak") >= 0) {
+    if ( find_arg ( argc, argv, "-zeltak" ) >= 0 ) {
         config.zeltak_mode    = 1;
     }
 
@@ -1398,7 +1397,8 @@ int main( int argc, char *argv[] )
     find_arg_int( argc, argv, "-lines",&( config.menu_lines ) );
 
     find_arg_int( argc, argv, "-loc", &( config.location ) );
-    if( find_arg( argc, argv, "-hmode" ) >= 0) {
+
+    if ( find_arg( argc, argv, "-hmode" ) >= 0 ) {
         config.wmode = HORIZONTAL;
     }
 
@@ -1432,11 +1432,11 @@ int main( int argc, char *argv[] )
         run_switcher( NOFORK, MARK_DIALOG );
 #endif
     } else if ( find_arg( argc, argv, "-json" ) >= 0 ) {
-        find_arg_str( argc, argv, "-json", &json_input_file);
+        find_arg_str( argc, argv, "-json", &json_input_file );
         run_switcher( NOFORK, JSON_DIALOG );
     } else if ( find_arg( argc, argv, "-dmenu" ) >= 0 ) {
-        find_arg_str( argc, argv, "-dmenu", &dmenu_prompt);
-        run_switcher( NOFORK, DMENU_DIALOG);
+        find_arg_str( argc, argv, "-dmenu", &dmenu_prompt );
+        run_switcher( NOFORK, DMENU_DIALOG );
     } else {
         // Daemon mode, Listen to key presses..
 
