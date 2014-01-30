@@ -112,9 +112,9 @@ void textbox_font( textbox *tb, char *font, char *fg, char *bg )
 // outer code may need line height, width, etc
 void textbox_extents( textbox *tb )
 {
-    int length = strlen( tb->text ) + strlen( tb->prompt );
+    int length = strlen( tb->text ) + strlen( tb->prompt) +1;
     char *line = alloca( length + 1 );
-    sprintf( line, "%s%s", tb->prompt, tb->text );
+    sprintf( line, "%s %s", tb->prompt, tb->text );
     XftTextExtents8( display, tb->font, ( unsigned char* )line, length, &tb->extents );
 }
 
@@ -220,12 +220,12 @@ void textbox_draw( textbox *tb )
     int cursor_width  = MAX( 2, line_height/10 );
 
     if ( tb->flags & TB_EDITABLE ) {
-        int prompt_len = strlen( prompt );
+        int prompt_len = strlen( prompt ) +1;
         length = text_len + prompt_len;
         cursor_offset = MIN( tb->cursor + prompt_len, length );
 
         line = alloca( length + 10 );
-        sprintf( line, "%s%s", prompt, text );
+        sprintf( line, "%s %s", prompt, text );
 
         // replace spaces so XftTextExtents8 includes their width
         for ( i = 0; i < length; i++ ) if ( isspace( line[i] ) ) line[i] = '_';
@@ -235,7 +235,7 @@ void textbox_draw( textbox *tb )
         cursor_x = extents.width;
 
         // restore correct text string with spaces
-        sprintf( line, "%s%s", prompt, text );
+        sprintf( line, "%s %s", prompt, text );
     }
 
     // calc full input text width

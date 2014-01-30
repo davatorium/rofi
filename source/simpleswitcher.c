@@ -1130,7 +1130,7 @@ SwitcherMode run_switcher_window ( char **input )
             }
         }
         Time time;
-        int n = menu( list, input, "> ", &time, NULL,window_match, ids );
+        int n = menu( list, input, ">", &time, NULL,window_match, ids );
 
         if ( n == -2 ) {
             retv = NEXT_DIALOG;

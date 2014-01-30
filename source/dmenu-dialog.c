@@ -118,8 +118,9 @@ SwitcherMode dmenu_switcher_dialog ( char **input )
         retv = DMENU_DIALOG;
     } else if ( n >=0 && list[n] != NULL ) {
         fputs( list[n],stdout );
+    } else if ( n == -3 && *input != NULL && *input[0] != '\0' ) {
+        fputs( *input, stdout ); 
     }
-
     for ( unsigned int i=0; list[i] != NULL; i++ ) {
         free( list[i] );
     }

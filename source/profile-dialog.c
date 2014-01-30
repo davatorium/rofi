@@ -178,7 +178,7 @@ SwitcherMode profile_switcher_dialog ( char **input )
     }
 
     int shift=0;
-    int n = menu( cmd_list, input, "profile ", NULL, &shift,token_match, NULL );
+    int n = menu( cmd_list, input, "profile:", NULL, &shift,token_match, NULL );
 
     if ( n == -2 ) {
         retv = NEXT_DIALOG;
