@@ -66,7 +66,8 @@ static char **get_dmenu ( )
     while ( fgets( buffer, 1024, stdin ) != NULL ) {
         retv = realloc( retv, ( index+2 )*sizeof( char* ) );
         retv[index] = strdup( buffer );
-        retv[index][strlen( buffer )-1] = '\0';
+        if( retv[index][strlen(buffer)-1] == '\n')
+            retv[index][strlen( buffer )-1] = '\0';
         retv[index+1] = NULL;
         index++;
     }
