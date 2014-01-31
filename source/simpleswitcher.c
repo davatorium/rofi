@@ -1026,6 +1026,13 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
                     } else if ( key == XK_Down  ||
                                 ( key == XK_k && ev.xkey.state& ControlMask ) ) {
                         selected = selected < filtered_lines-1 ? MIN( filtered_lines-1, selected+1 ): 0;
+                    } else if ( key == XK_Page_Up) {
+                        if(selected < max_lines) selected = 0;
+                        else
+                            selected -= (max_lines-1);
+                    } else if ( key == XK_Page_Down) {
+                        selected += (max_lines-1);
+                        if(selected >= num_lines) selected = num_lines-1;
                     } else if ( key == XK_Tab ) {
                         if ( filtered_lines == 1 ) {
                             chosen = 1;
