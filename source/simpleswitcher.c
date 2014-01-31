@@ -1055,7 +1055,7 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
                         } else{
                             selected = selected < filtered_lines-1 ? MIN( filtered_lines-1, selected+1 ): 0;
                         }                    
-                    }
+                    } 
             }
 
             menu_draw( text, boxes, max_lines,num_lines, &last_offset, selected, filtered );
