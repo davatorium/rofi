@@ -1,8 +1,0 @@
-[{ "prompt" : "mpd " , "run-in-terminal" : false , "commands" : { "play" : "mpc play" , "stop" :
-"mpc stop",
-"next" : "mpc next" , "prev" : "mpc prev" , "Options: Single" : "mpc single" , "Options: Random" :
-"mpc random",
-"Options: Consume" : "mpc consume" , "Options: Repeat" : "mpc repeat" , "Options: Replaygain Track"
-: "mpc replaygain track",
-"Options: Replaygain Album" : "mpc replaygain album" , "Options: Replaygain None" : "mpc replaygain
-none" }}] 

@@ -25,7 +25,6 @@ typedef enum {
     PROFILE_DIALOG,
 #endif
     NUM_DIALOGS,
-    JSON_DIALOG,
     DMENU_DIALOG,
     MODE_EXIT,
     NEXT_DIALOG

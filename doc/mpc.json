@@ -1,1 +1,0 @@
-{"prompt": "mpd ","run-in-terminal":false, "commands": { "play": "mpc play", "stop": "mpc stop", "start": "mpc start"}}
