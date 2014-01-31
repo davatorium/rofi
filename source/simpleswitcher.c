@@ -1033,6 +1033,10 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
                     } else if ( key == XK_Page_Down) {
                         selected += (max_lines-1);
                         if(selected >= num_lines) selected = num_lines-1;
+                    } else if ( key  == XK_Home) {
+                        selected = 0;
+                    } else if ( key  == XK_End) {
+                        selected = num_lines-1;
                     } else if ( key == XK_Tab ) {
                         if ( filtered_lines == 1 ) {
                             chosen = 1;
