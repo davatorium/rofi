@@ -1033,9 +1033,9 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
                     } else if ( key == XK_Page_Down) {
                         selected += (max_lines-1);
                         if(selected >= num_lines) selected = num_lines-1;
-                    } else if ( key  == XK_Home) {
+                    } else if ( key  == XK_Home || key == XK_KP_Home) {
                         selected = 0;
-                    } else if ( key  == XK_End) {
+                    } else if ( key  == XK_End || key == XK_KP_End) {
                         selected = num_lines-1;
                     } else if ( key == XK_Tab ) {
                         if ( filtered_lines == 1 ) {
