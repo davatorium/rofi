@@ -44,7 +44,6 @@
 #include <linux/un.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <i3/ipc.h>
 
 #ifdef TIMING
 #include <time.h>
