@@ -663,22 +663,38 @@ GC gc = NULL;
 
 #include "textbox.h"
 
-void menu_draw( textbox *text, textbox **boxes, int max_lines, int selected, char **filtered )
+void menu_draw( textbox *text, textbox **boxes, int max_lines,int num_lines, int *last_offset, int selected, char **filtered )
 {
-    int i;
+    int i,offset=0;
     textbox_draw( text );
 
+    // selected row is always visible.
+    // If selected is visible do not scroll.
+    if((selected - (*last_offset)) < (max_lines) &&(selected-(*last_offset)) >= 0) offset = *last_offset;
+    else {
+        // If selected is above visible, scroll up.
+        if((selected-(*last_offset)) >= (max_lines)) {
+            offset = selected-max_lines+1;
+        // Scroll down otherwise
+        }else if ((selected-(*last_offset)) < 0){
+            offset = selected;
+        }
+        // Sanitize
+        if(offset >= (num_lines)) offset = num_lines-max_lines-1;
+        *last_offset = offset;
+    }
+
     for ( i = 0; i < max_lines; i++ ) {
-        if ( filtered[i] == NULL ) {
+        if ( filtered[i+offset] == NULL ) {
             textbox_font( boxes[i], config.menu_font,
                           config.menu_fg,
                           config.menu_bg );
             textbox_text( boxes[i], "" );
         } else {
             textbox_font( boxes[i], config.menu_font,
-                          i == selected ? config.menu_hlfg: config.menu_fg,
-                          i == selected ? config.menu_hlbg: config.menu_bg );
-            textbox_text( boxes[i], filtered[i] );
+                          (i+offset) == selected ? config.menu_hlfg: config.menu_fg,
+                          (i+offset) == selected ? config.menu_hlbg: config.menu_bg );
+            textbox_text( boxes[i], filtered[i+offset] );
         }
 
         textbox_draw( boxes[i] );
@@ -755,6 +771,7 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
     monitor_active( &mon );
 
     unsigned int num_lines = 0;
+    int last_offset = 0;
     unsigned int selected = 0;
 
     for ( ; lines[num_lines]; num_lines++ );
@@ -838,8 +855,8 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
     }
 
     // filtered list
-    char **filtered = allocate_clear( sizeof( char* ) * max_lines );
-    int *line_map = allocate_clear( sizeof( int ) * max_lines );
+    char **filtered = allocate_clear( sizeof( char* ) * num_lines );
+    int *line_map = allocate_clear( sizeof( int ) * num_lines );
     unsigned int filtered_lines = 0;
 
     int jin = 0;
@@ -848,7 +865,7 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
         char **tokens = tokenize( *input );
 
         // input changed
-        for ( i = 0, j = 0; i < num_lines && j < max_lines; i++ ) {
+        for ( i = 0, j = 0; i < num_lines ; i++ ) {
             int match = mmc( tokens,lines[i], i, mmc_data );
 
             // If each token was matched, add it to list.
@@ -861,7 +878,7 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
 
         tokenize_free( tokens );
     } else {
-        for ( i = 0; i < max_lines; i++ ) {
+        for ( i = 0; i < num_lines; i++ ) {
             filtered[jin] = lines[i];
             line_map[jin] = i;
             jin++;
@@ -928,7 +945,7 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
         if ( ev.type == Expose ) {
             while ( XCheckTypedEvent( display, Expose, &ev ) );
 
-            menu_draw( text, boxes, max_lines, selected, filtered );
+            menu_draw( text, boxes, max_lines,num_lines,&last_offset, selected, filtered );
 
             // Why do we need the specian -1?
             if ( config.wmode == VERTICAL ) {
@@ -963,7 +980,7 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
                 char **tokens = tokenize( text->text );
 
                 // input changed
-                for ( i = 0, j = 0; i < num_lines && j < max_lines; i++ ) {
+                for ( i = 0, j = 0; i < num_lines ; i++ ) {
                     int match = mmc( tokens,lines[i], i, mmc_data );
 
                     // If each token was matched, add it to list.
@@ -977,7 +994,7 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
                 filtered_lines = j;
                 selected = MIN( selected, j-1 );
 
-                for ( ; j < max_lines; j++ )
+                for ( ; j < num_lines; j++ )
                     filtered[j] = NULL;
 
                 if ( config.zeltak_mode && filtered_lines == 1 ) {
@@ -1016,7 +1033,7 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
                             break;
                         }
 
-                        int length_prefix = calculate_common_prefix( filtered, max_lines );
+                        int length_prefix = calculate_common_prefix( filtered, num_lines );
 
                         if ( length_prefix && strncasecmp( filtered[0], text->text, length_prefix ) ) {
                             // Do not want to modify original string, so make copy.
@@ -1025,12 +1042,13 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
                             textbox_text( text, str );
                             textbox_cursor_end( text );
                             free( str );
-                        } else
+                        } else{
                             selected = selected < filtered_lines-1 ? MIN( filtered_lines-1, selected+1 ): 0;
+                        }                    
                     }
             }
 
-            menu_draw( text, boxes, max_lines, selected, filtered );
+            menu_draw( text, boxes, max_lines,num_lines, &last_offset, selected, filtered );
         }
     }
 
