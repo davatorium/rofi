@@ -103,6 +103,8 @@ XrmOption xrmOptions[] = {
     { xrm_String, "highlightbg", { .str = &config.menu_hlbg } },
     { xrm_String, "bordercolor", { .str = &config.menu_bc } },
     { xrm_Number, "padding",     { .num = &config.padding } },
+    { xrm_Number, "borderwidth", { .num = &config.menu_bw} },
+    { xrm_String, "terminal",    { .str = &config.terminal_emulator } },
 };
 
 void* allocate( unsigned long bytes )
