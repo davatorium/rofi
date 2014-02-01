@@ -55,7 +55,7 @@ static char * escape_name( const char *mark, ssize_t *length )
 {
     // Escape the mark.
     // Max length is twice the old size + trailing \0.
-    char *escaped_mark = malloc( sizeof( char )*( strlen( mark )*2+1 ) );
+    char *escaped_mark = allocate ( sizeof( char )*( strlen( mark )*2+1 ) );
     ssize_t lm = strlen( mark );
     *length = 0;
 
@@ -185,7 +185,7 @@ static char ** get_mark ( )
     t = recv( s, &head, sizeof( head ),0 );
 
     if ( t == sizeof( head ) ) {
-        char *result = malloc( sizeof( char )*( head.size+1 ) );
+        char *result = allocate ( sizeof( char )*( head.size+1 ) );
         ssize_t index = 0;
         t = 0;
 

@@ -1480,7 +1480,7 @@ int main( int argc, char *argv[] )
             if ( XrmGetResource ( xDB, name, class, &xrmType, &xrmValue ) ) {
 
                 if ( xrmOptions[i].type == xrm_String ) {
-                    *xrmOptions[i].str = ( char * ) malloc ( xrmValue.size * sizeof ( char ) );
+                    *xrmOptions[i].str = ( char * ) allocate ( xrmValue.size * sizeof ( char ) );
                     strncpy ( *xrmOptions[i].str, xrmValue.addr, xrmValue.size );
                 } else if ( xrmOptions[i].type == xrm_Number ) {
                     *xrmOptions[i].num = strtol ( xrmValue.addr, NULL, 10 );
