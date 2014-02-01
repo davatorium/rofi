@@ -30,11 +30,21 @@ typedef enum {
     NEXT_DIALOG
 } SwitcherMode;
 
+typedef enum {
+    MENU_OK           =  0,
+    MENU_CANCEL       = -1,
+    MENU_NEXT         = -2,
+    MENU_CUSTOM_INPUT = -3,
+    MENU_ENTRY_DELETE = -4
+
+} MenuReturn;
 
 
 typedef int ( *menu_match_cb )( char **tokens, const char *input, int index, void *data );
-int menu( char **lines, char **input, char *prompt,
-          Time *time, int *shift, menu_match_cb mmc, void *mmc_data );
+MenuReturn menu( char **lines, char **input, char *prompt,
+                 Time *time, int *shift,
+                 menu_match_cb mmc, void *mmc_data,
+                 int *selected_line );
 
 
 /**

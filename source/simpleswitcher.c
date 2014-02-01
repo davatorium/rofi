@@ -669,17 +669,19 @@ void menu_draw( textbox *text, textbox **boxes, int max_lines,int num_lines, int
 
     // selected row is always visible.
     // If selected is visible do not scroll.
-    if((selected - (*last_offset)) < (max_lines) &&(selected-(*last_offset)) >= 0) offset = *last_offset;
+    if ( ( selected - ( *last_offset ) ) < ( max_lines ) &&( selected-( *last_offset ) ) >= 0 ) offset = *last_offset;
     else {
         // If selected is above visible, scroll up.
-        if((selected-(*last_offset)) >= (max_lines)) {
+        if ( ( selected-( *last_offset ) ) >= ( max_lines ) ) {
             offset = selected-max_lines+1;
-        // Scroll down otherwise
-        }else if ((selected-(*last_offset)) < 0){
+            // Scroll down otherwise
+        } else if ( ( selected-( *last_offset ) ) < 0 ) {
             offset = selected;
         }
+
         // Sanitize
-        if(offset >= (num_lines)) offset = num_lines-max_lines-1;
+        if ( offset >= ( num_lines ) ) offset = num_lines-max_lines-1;
+
         *last_offset = offset;
     }
 
@@ -691,8 +693,8 @@ void menu_draw( textbox *text, textbox **boxes, int max_lines,int num_lines, int
             textbox_text( boxes[i], "" );
         } else {
             textbox_font( boxes[i], config.menu_font,
-                          (i+offset) == selected ? config.menu_hlfg: config.menu_fg,
-                          (i+offset) == selected ? config.menu_hlbg: config.menu_bg );
+                          ( i+offset ) == selected ? config.menu_hlfg: config.menu_fg,
+                          ( i+offset ) == selected ? config.menu_hlbg: config.menu_bg );
             textbox_text( boxes[i], filtered[i+offset] );
         }
 
@@ -761,10 +763,10 @@ int window_match ( char **tokens, __attribute__( ( unused ) )const char *input, 
     return match;
 }
 
-int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
-          menu_match_cb mmc, void *mmc_data )
+MenuReturn menu( char **lines, char **input, char *prompt, Time *time, int *shift,
+                 menu_match_cb mmc, void *mmc_data, int *selected_line )
 {
-    int line = -1, chosen = 0;
+    int retv = MENU_CANCEL;
     unsigned int i,j;
     workarea mon;
     monitor_active( &mon );
@@ -963,8 +965,16 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
 
             if ( ( ( ev.xkey.state&ShiftMask ) == ShiftMask ) &&
                  key == XK_slash ) {
-                line = -2;
+                retv = MENU_NEXT;
+                *selected_line = 0;
                 break;
+            } else if ( ( ( ev.xkey.state&ShiftMask ) == ShiftMask ) &&
+                        key == XK_Delete ) {
+                if ( filtered[selected] != NULL ) {
+                    *selected_line = line_map[selected];
+                    retv = MENU_ENTRY_DELETE;
+                    break;
+                }
             }
 
             int rc = textbox_keypress( text, &ev );
@@ -973,7 +983,13 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
                 if ( shift != NULL )
                     ( *shift ) = ( ( ev.xkey.state&ShiftMask ) == ShiftMask );
 
-                chosen = 1;
+                if ( filtered[selected] ) {
+                    retv = MENU_OK;
+                    *selected_line = line_map[selected];
+                } else {
+                    retv = MENU_CUSTOM_INPUT;
+                }
+
                 break;
             } else if ( rc ) {
                 char **tokens = tokenize( text->text );
@@ -997,7 +1013,14 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
                     filtered[j] = NULL;
 
                 if ( config.zeltak_mode && filtered_lines == 1 ) {
-                    chosen = 1;
+                    if ( filtered[selected] ) {
+                        retv = MENU_OK;
+                        *selected_line = line_map[selected];
+                    } else {
+                        fprintf( stderr, "We should never hit this." );
+                        abort();
+                    }
+
                     break;
                 }
 
@@ -1012,11 +1035,9 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
                      || ( ( rundialog_modmask == AnyModifier || ev.xkey.state & rundialog_modmask ) && key == rundialog_keysym )
                      || ( ( sshdialog_modmask == AnyModifier || ev.xkey.state & sshdialog_modmask ) && key == sshdialog_keysym )
                    ) {
+                    retv = MENU_CANCEL;
                     break;
-                }
-
-                else
-
+                } else {
                     // Up or Shift-Tab
                     if ( key == XK_Up || ( key == XK_Tab && ev.xkey.state & ShiftMask ) ||
                          ( key == XK_j && ev.xkey.state& ControlMask )  ) {
@@ -1026,20 +1047,28 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
                     } else if ( key == XK_Down  ||
                                 ( key == XK_k && ev.xkey.state& ControlMask ) ) {
                         selected = selected < filtered_lines-1 ? MIN( filtered_lines-1, selected+1 ): 0;
-                    } else if ( key == XK_Page_Up) {
-                        if(selected < max_lines) selected = 0;
+                    } else if ( key == XK_Page_Up ) {
+                        if ( selected < max_lines ) selected = 0;
                         else
-                            selected -= (max_lines-1);
-                    } else if ( key == XK_Page_Down) {
-                        selected += (max_lines-1);
-                        if(selected >= num_lines) selected = num_lines-1;
-                    } else if ( key  == XK_Home || key == XK_KP_Home) {
+                            selected -= ( max_lines-1 );
+                    } else if ( key == XK_Page_Down ) {
+                        selected += ( max_lines-1 );
+
+                        if ( selected >= num_lines ) selected = num_lines-1;
+                    } else if ( key  == XK_Home || key == XK_KP_Home ) {
                         selected = 0;
-                    } else if ( key  == XK_End || key == XK_KP_End) {
+                    } else if ( key  == XK_End || key == XK_KP_End ) {
                         selected = num_lines-1;
                     } else if ( key == XK_Tab ) {
                         if ( filtered_lines == 1 ) {
-                            chosen = 1;
+                            if ( filtered[selected] ) {
+                                retv = MENU_OK;
+                                *selected_line = line_map[selected];
+                            } else {
+                                fprintf( stderr, "We should never hit this." );
+                                abort();
+                            }
+
                             break;
                         }
 
@@ -1052,10 +1081,11 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
                             textbox_text( text, str );
                             textbox_cursor_end( text );
                             free( str );
-                        } else{
+                        } else {
                             selected = selected < filtered_lines-1 ? MIN( filtered_lines-1, selected+1 ): 0;
-                        }                    
-                    } 
+                        }
+                    }
+                }
             }
 
             menu_draw( text, boxes, max_lines,num_lines, &last_offset, selected, filtered );
@@ -1064,19 +1094,10 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
 
     release_keyboard();
 
-    if ( chosen && filtered[selected] ) {
-        line = line_map[selected];
-    }
+    if ( *input != NULL ) free( *input );
 
-    if ( line < 0 && input ) {
-        if ( *input != NULL ) free( *input );
+    *input = strdup( text->text );
 
-        *input = strdup( text->text );
-
-        // If chosen and the like.
-        if ( chosen )
-            line = -3;
-    }
 
 
     textbox_free( text );
@@ -1089,7 +1110,7 @@ int menu( char **lines, char **input, char *prompt, Time *time, int *shift,
     free( filtered );
     free( line_map );
 
-    return line;
+    return retv;
 }
 
 #define FORK 1
@@ -1158,20 +1179,21 @@ SwitcherMode run_switcher_window ( char **input )
             }
         }
         Time time;
-        int n = menu( list, input, ">", &time, NULL,window_match, ids );
+        int selected_line = 0;
+        MenuReturn mretv = menu( list, input, ">", &time, NULL,window_match, ids ,&selected_line );
 
-        if ( n == -2 ) {
+        if ( mretv == MENU_NEXT ) {
             retv = NEXT_DIALOG;
-        } else if ( n >= 0 && list[n] ) {
+        } else if ( mretv == MENU_OK && list[selected_line] ) {
 #ifdef I3
 
             if ( config.i3_mode ) {
                 // Hack for i3.
-                focus_window_i3( i3_socket_path,ids->array[n] );
+                focus_window_i3( i3_socket_path,ids->array[selected_line] );
             } else
 #endif
             {
-                window_send_message( root, ids->array[n], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
+                window_send_message( root, ids->array[selected_line], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
                                      SubstructureNotifyMask | SubstructureRedirectMask, time );
             }
         }

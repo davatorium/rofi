@@ -374,6 +374,7 @@ int textbox_keypress( textbox *tb, XEvent *ev )
         textbox_cursor_inc( tb );
         return 1;
     } /*else if ( key == XK_Home ) {
+
         textbox_cursor_home( tb );
         return 1;
     } else if ( key == XK_End ) {

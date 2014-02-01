@@ -178,14 +178,13 @@ SwitcherMode profile_switcher_dialog ( char **input )
     }
 
     int shift=0;
-    int n = menu( cmd_list, input, "profile:", NULL, &shift,token_match, NULL );
+    int selected_line = 0;
+    int retvm = menu( cmd_list, input, "profile:", NULL, &shift,token_match, NULL, &selected_line );
 
-    if ( n == -2 ) {
+    if ( retvm == MENU_NEXT ) {
         retv = NEXT_DIALOG;
-    } else if ( n >=0 && cmd_list[n] != NULL ) {
-        exec_profile( cmd_list[n] );
-    } else if ( n == -3 && *input != NULL && *input[0] != '\0' ) {
-        exec_profile( *input );
+    } else if ( retvm == MENU_OK && cmd_list[selected_line] != NULL ) {
+        exec_profile( cmd_list[selected_line] );
     }
 
     for ( int i=0; cmd_list[i] != NULL; i++ ) {

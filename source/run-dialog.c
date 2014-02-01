@@ -128,6 +128,66 @@ static pid_t exec_cmd( const char *cmd, int run_in_term )
 
     return pid;
 }
+// execute sub-process
+static void delete_entry( const char *cmd )
+{
+    int curr = -1;
+    unsigned int index = 0;
+    char **retv = NULL;
+
+    printf( "Delete entry: %s\n", cmd );
+
+    /**
+     * This happens in non-critical time (After launching app)
+     * It is allowed to be a bit slower.
+     */
+    char *path = allocate( strlen( cache_dir ) + strlen( RUN_CACHE_FILE )+3 );
+    sprintf( path, "%s/%s", cache_dir, RUN_CACHE_FILE );
+    FILE *fd = fopen ( path, "r" );
+    char buffer[1024];
+
+    if ( fd != NULL ) {
+        while ( fgets( buffer,1024,fd ) != NULL ) {
+            retv = realloc( retv, ( index+2 )*sizeof( char* ) );
+            buffer[strlen( buffer )-1] = '\0';
+            retv[index] = strdup( buffer );
+            retv[index+1] = NULL;
+
+            if ( strcasecmp( retv[index], cmd ) == 0 ) {
+                curr = index;
+            }
+
+            index++;
+        }
+
+        fclose( fd );
+    }
+
+    /**
+     * Write out the last 25 results again.
+     */
+    fd = fopen ( path, "w" );
+
+    if ( fd ) {
+        for ( int i = 0; i < ( int )index && i < 20; i++ ) {
+            if ( i != curr ) {
+                fputs( retv[i], fd );
+                fputc( '\n', fd );
+            }
+        }
+
+        fclose( fd );
+    }
+
+    for ( int i=0; retv[i] != NULL; i++ ) {
+        free( retv[i] );
+    }
+
+    free( retv );
+
+    free( path );
+
+}
 static int sort_func ( const void *a, const void *b )
 {
     const char *astr = *( const char * const * )a;
@@ -247,14 +307,17 @@ SwitcherMode run_switcher_dialog ( char **input )
     }
 
     int shift=0;
-    int n = menu( cmd_list, input, "$", NULL, &shift,token_match, NULL );
+    int selected_line = 0;
+    int mretv = menu( cmd_list, input, "$", NULL, &shift,token_match, NULL, &selected_line );
 
-    if ( n == -2 ) {
+    if ( mretv == MENU_NEXT ) {
         retv = NEXT_DIALOG;
-    } else if ( n >=0 && cmd_list[n] != NULL ) {
-        exec_cmd( cmd_list[n], shift );
-    } else if ( n == -3 && *input != NULL && *input[0] != '\0' ) {
+    } else if ( mretv == MENU_OK && cmd_list[selected_line] != NULL ) {
+        exec_cmd( cmd_list[selected_line], shift );
+    } else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' ) {
         exec_cmd( *input, shift );
+    } else if ( mretv == MENU_ENTRY_DELETE && cmd_list[selected_line] ) {
+        delete_entry ( cmd_list[selected_line] );
     }
 
     for ( int i=0; cmd_list[i] != NULL; i++ ) {

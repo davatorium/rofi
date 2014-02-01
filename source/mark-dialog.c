@@ -271,13 +271,14 @@ SwitcherMode mark_switcher_dialog ( char **input )
     }
 
     int shift=0;
-    int n = menu( cmd_list, input, "mark:", NULL, &shift,token_match, NULL );
+    int selected_line = 0;
+    int mretv = menu( cmd_list, input, "mark:", NULL, &shift,token_match,NULL, &selected_line );
 
-    if ( n == -2 ) {
+    if ( mretv == MENU_NEXT ) {
         retv = NEXT_DIALOG;
-    } else if ( n >=0 && cmd_list[n] != NULL ) {
-        exec_mark( cmd_list[n] );
-    } else if ( n == -3 && *input != NULL && *input[0] != '\0' ) {
+    } else if ( mretv == MENU_OK && cmd_list[selected_line] != NULL ) {
+        exec_mark( cmd_list[selected_line] );
+    } else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' ) {
         exec_mark( *input );
     }
 
