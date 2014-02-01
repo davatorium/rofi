@@ -125,6 +125,66 @@ static pid_t exec_ssh( const char *cmd )
 
     return pid;
 }
+static void delete_ssh( const char *cmd )
+{
+    if ( !cmd || !cmd[0] ) return ;
+
+    int curr = -1;
+    unsigned int index = 0;
+    char **retv = NULL;
+
+    /**
+     * This happens in non-critical time (After launching app)
+     * It is allowed to be a bit slower.
+     */
+    char *path = allocate( strlen( cache_dir ) + strlen( SSH_CACHE_FILE )+3 );
+    sprintf( path, "%s/%s", cache_dir, SSH_CACHE_FILE );
+    FILE *fd = fopen ( path, "r" );
+    char buffer[1024];
+
+    if ( fd != NULL ) {
+        while ( fgets( buffer,1024,fd ) != NULL ) {
+            retv = realloc( retv, ( index+2 )*sizeof( char* ) );
+            buffer[strlen( buffer )-1] = '\0';
+            retv[index] = strdup( buffer );
+            retv[index+1] = NULL;
+
+            if ( strcasecmp( retv[index], cmd ) == 0 ) {
+                curr = index;
+            }
+
+            index++;
+        }
+
+        fclose( fd );
+    }
+
+    /**
+     * Write out the last 25 results again.
+     */
+    fd = fopen ( path, "w" );
+
+    if ( fd ) {
+
+        for ( int i = 0; i < ( int )index && i < 20; i++ ) {
+            if ( i != curr ) {
+                fputs( retv[i], fd );
+                fputc( '\n', fd );
+            }
+        }
+
+        fclose( fd );
+    }
+
+    for ( int i=0; retv[i] != NULL; i++ ) {
+        free( retv[i] );
+    }
+
+    free( retv );
+
+    free( path );
+
+}
 static int sort_func ( const void *a, const void *b )
 {
     const char *astr = *( const char * const * )a;
@@ -254,6 +314,8 @@ SwitcherMode ssh_switcher_dialog ( char **input )
         exec_ssh( cmd_list[selected_line] );
     } else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' ) {
         exec_ssh( *input );
+    } else if ( mretv == MENU_ENTRY_DELETE && cmd_list[selected_line] ) {
+        delete_ssh ( cmd_list[selected_line] );
     }
 
     for ( int i=0; cmd_list[i] != NULL; i++ ) {
