@@ -81,6 +81,7 @@ const char *cache_dir = NULL;
 
 void* allocate( unsigned long bytes )
 {
+    if(bytes == 0) return NULL;
     void *ptr = malloc( bytes );
 
     if ( !ptr ) {
@@ -92,12 +93,14 @@ void* allocate( unsigned long bytes )
 }
 void* allocate_clear( unsigned long bytes )
 {
+    if(bytes == 0) return NULL;
     void *ptr = allocate( bytes );
     memset( ptr, 0, bytes );
     return ptr;
 }
 void* reallocate( void *ptr, unsigned long bytes )
 {
+    if(bytes == 0) return NULL;
     ptr = realloc( ptr, bytes );
 
     if ( !ptr ) {
@@ -775,7 +778,7 @@ MenuReturn menu( char **lines, char **input, char *prompt, Time *time, int *shif
     int last_offset = 0;
     unsigned int selected = 0;
 
-    for ( ; lines[num_lines]; num_lines++ );
+    for ( ; lines != NULL && lines[num_lines]; num_lines++ );
 
     unsigned int max_lines = MIN( config.menu_lines, num_lines );
 
@@ -983,7 +986,7 @@ MenuReturn menu( char **lines, char **input, char *prompt, Time *time, int *shif
                 if ( shift != NULL )
                     ( *shift ) = ( ( ev.xkey.state&ShiftMask ) == ShiftMask );
 
-                if ( filtered[selected] ) {
+                if ( filtered && filtered[selected] ) {
                     retv = MENU_OK;
                     *selected_line = line_map[selected];
                 } else {

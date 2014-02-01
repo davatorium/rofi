@@ -109,9 +109,6 @@ SwitcherMode dmenu_switcher_dialog ( char **input )
     // act as a launcher
     char **list = get_dmenu( );
 
-    if ( list == NULL ) {
-        return retv;
-    }
 
     int shift=0;
     int selected_line = 0;
@@ -125,11 +122,11 @@ SwitcherMode dmenu_switcher_dialog ( char **input )
         fputs( *input, stdout );
     }
 
-    for ( unsigned int i=0; list[i] != NULL; i++ ) {
+    for ( unsigned int i=0; list != NULL && list[i] != NULL; i++ ) {
         free( list[i] );
     }
 
-    free( list );
+    if(list != NULL) free( list );
 
     return retv;
 }
