@@ -43,8 +43,6 @@ Settings config = {
     .menu_fg        = "#222222",
     // Background color
     .menu_bg        = "#f2f1f0",
-    // Background alternative color
-    .menu_bgalt     = "#e9e8e7",
     // Foreground color (selected)
     .menu_hlfg      = "#ffffff",
     // Background color (selected)

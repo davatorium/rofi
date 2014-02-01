@@ -87,7 +87,6 @@ typedef struct _Settings {
     char *          menu_font;
     char *          menu_fg;
     char *          menu_bg;
-    char *          menu_bgalt;
     char *          menu_hlfg;
     char *          menu_hlbg;
     char *          menu_bc;
