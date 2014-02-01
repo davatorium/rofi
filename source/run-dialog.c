@@ -118,7 +118,7 @@ static pid_t exec_cmd( const char *cmd, int run_in_term )
         fclose( fd );
     }
 
-    for ( int i=0; retv[i] != NULL; i++ ) {
+    for ( int i=0; retv != NULL &&  retv[i] != NULL; i++ ) {
         free( retv[i] );
     }
 
@@ -179,7 +179,7 @@ static void delete_entry( const char *cmd )
         fclose( fd );
     }
 
-    for ( int i=0; retv[i] != NULL; i++ ) {
+    for ( int i=0; retv != NULL &&  retv[i] != NULL; i++ ) {
         free( retv[i] );
     }
 
@@ -318,9 +318,10 @@ SwitcherMode run_switcher_dialog ( char **input )
         exec_cmd( *input, shift );
     } else if ( mretv == MENU_ENTRY_DELETE && cmd_list[selected_line] ) {
         delete_entry ( cmd_list[selected_line] );
+        retv = RUN_DIALOG;
     }
 
-    for ( int i=0; cmd_list[i] != NULL; i++ ) {
+    for ( int i=0; cmd_list != NULL && cmd_list[i] != NULL; i++ ) {
         free( cmd_list[i] );
     }
 

@@ -1,5 +1,5 @@
 QUIET?=@
-CFLAGS?=-Wall -Wextra -O3
+CFLAGS?=-Wall -Wextra -O3 
 VERSION?=0.14.1
 
 PROGRAM=simpleswitcher

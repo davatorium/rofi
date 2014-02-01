@@ -187,7 +187,7 @@ static char ** get_mark ( )
     if ( t == sizeof( head ) ) {
         char *result = malloc( sizeof( char )*( head.size+1 ) );
         ssize_t index = 0;
-
+        t = 0;
         // Grab results.
         while ( index < ( ssize_t )head.size ) {
             t= recv( s, &result[index], ( head.size-t ), 0 );
@@ -273,7 +273,6 @@ SwitcherMode mark_switcher_dialog ( char **input )
     int shift=0;
     int selected_line = 0;
     int mretv = menu( cmd_list, input, "mark:", NULL, &shift,token_match,NULL, &selected_line );
-
     if ( mretv == MENU_NEXT ) {
         retv = NEXT_DIALOG;
     } else if ( mretv == MENU_OK && cmd_list[selected_line] != NULL ) {
@@ -281,12 +280,12 @@ SwitcherMode mark_switcher_dialog ( char **input )
     } else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' ) {
         exec_mark( *input );
     }
-
-    for ( int i=0; cmd_list[i] != NULL; i++ ) {
+    for ( int i=0; cmd_list != NULL &&  cmd_list[i] != NULL; i++ ) {
         free( cmd_list[i] );
     }
 
-    free( cmd_list );
+    if (cmd_list) free( cmd_list );
+
 
     return retv;
 }

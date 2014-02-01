@@ -1095,7 +1095,6 @@ MenuReturn menu( char **lines, char **input, char *prompt, Time *time, int *shif
     release_keyboard();
 
     if ( *input != NULL ) free( *input );
-
     *input = strdup( text->text );
 
 
