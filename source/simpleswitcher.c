@@ -51,7 +51,6 @@
 #include <X11/Xresource.h>
 #include <X11/extensions/Xinerama.h>
 
-
 #ifdef I3
 #include <errno.h>
 #include <linux/un.h>
@@ -69,6 +68,8 @@
 #include "profile-dialog.h"
 #include "dmenu-dialog.h"
 
+#include "xrmoptions.h"
+
 #define LINE_MARGIN 4
 
 #define OPAQUE              0xffffffff
@@ -79,33 +80,6 @@ xdgHandle xdg_handle;
 const char *cache_dir = NULL;
 
 
-// Big thanks to Sean Pringle for this code.
-// This maps xresource options to config structure.
-#define xrm_String 0
-#define xrm_Number 1
-
-typedef struct {
-    int type;
-    char * name ;
-    union {
-        unsigned int * num;
-        char ** str;
-    };
-} XrmOption;
-XrmOption xrmOptions[] = {
-    { xrm_Number, "opacity",     { .num = &config.window_opacity } },
-    { xrm_Number, "width",       { .num = &config.menu_width } },
-    { xrm_Number, "lines",       { .num = &config.menu_lines } },
-    { xrm_String, "font",        { .str = &config.menu_font } },
-    { xrm_String, "foreground",  { .str = &config.menu_fg } },
-    { xrm_String, "background",  { .str = &config.menu_bg } },
-    { xrm_String, "highlightfg", { .str = &config.menu_hlfg } },
-    { xrm_String, "highlightbg", { .str = &config.menu_hlbg } },
-    { xrm_String, "bordercolor", { .str = &config.menu_bc } },
-    { xrm_Number, "padding",     { .num = &config.padding } },
-    { xrm_Number, "borderwidth", { .num = &config.menu_bw} },
-    { xrm_String, "terminal",    { .str = &config.terminal_emulator } },
-};
 
 void* allocate( unsigned long bytes )
 {
@@ -1393,6 +1367,22 @@ void grab_key( unsigned int modmask, KeySym key )
 }
 
 
+#ifdef I3
+static inline void display_get_i3_path( Display *display )
+{
+    config.i3_mode = 0;
+    Atom atom = XInternAtom( display, I3_SOCKET_PATH_PROP,True );
+
+    if ( atom != None ) {
+        i3_socket_path = window_get_text_prop( root, atom );
+
+        if ( i3_socket_path != NULL ) {
+            config.i3_mode = 1;
+        }
+    }
+}
+#endif //I3
+
 
 /**
  * Help function. This calls man.
@@ -1418,6 +1408,14 @@ int main( int argc, char *argv[] )
         return EXIT_SUCCESS;
     }
 
+    if ( find_arg( argc, argv, "-v" ) >= 0 ||
+         find_arg( argc, argv, "-version" ) >= 0 ) {
+
+        fprintf( stdout, "Version: "VERSION"\n" );
+        return EXIT_SUCCESS;
+    }
+
+    // Get DISPLAY
     char *display_str= getenv( "DISPLAY" );
     find_arg_str( argc, argv, "-display", &display_str );
 
@@ -1426,6 +1424,7 @@ int main( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
+    // Initialize xdg, so we can grab the xdgCacheHome
     if ( xdgInitHandle( &xdg_handle ) == NULL ) {
         fprintf( stderr, "Failed to initialize XDG\n" );
         return EXIT_FAILURE;
@@ -1458,43 +1457,7 @@ int main( int argc, char *argv[] )
     // X atom values
     for ( i = 0; i < NETATOMS; i++ ) netatoms[i] = XInternAtom( display, netatom_names[i], False );
 
-    // Map Xresource entries to simpleswitcher config options.
-    XrmInitialize();
-    char * xRMS = XResourceManagerString ( display );
-
-    if ( xRMS != NULL ) {
-        XrmDatabase xDB = XrmGetStringDatabase ( xRMS );
-
-        char * xrmType;
-        XrmValue xrmValue;
-        // TODO: update when we have new name.
-        const char * namePrefix = "simpleswitcher";
-        const char * classPrefix = "Simpleswitcher";
-
-        for ( unsigned int  i = 0; i < sizeof ( xrmOptions ) / sizeof ( *xrmOptions ); ++i ) {
-            char *name = ( char* ) allocate( ( strlen ( namePrefix ) + 1 + strlen ( xrmOptions[i].name ) ) *
-                                             sizeof ( char ) + 1 );
-            char *class = ( char* ) allocate( ( strlen ( classPrefix ) + 1 + strlen ( xrmOptions[i].name ) ) *
-                                                      sizeof ( char ) + 1 );
-            sprintf ( name, "%s.%s", namePrefix, xrmOptions[i].name );
-            sprintf ( class, "%s.%s", classPrefix, xrmOptions[i].name );
-
-            if ( XrmGetResource ( xDB, name, class, &xrmType, &xrmValue ) ) {
-
-                if ( xrmOptions[i].type == xrm_String ) {
-                    *xrmOptions[i].str = ( char * ) allocate ( xrmValue.size * sizeof ( char ) );
-                    strncpy ( *xrmOptions[i].str, xrmValue.addr, xrmValue.size );
-                } else if ( xrmOptions[i].type == xrm_Number ) {
-                    *xrmOptions[i].num = strtol ( xrmValue.addr, NULL, 10 );
-                }
-            }
-
-            free ( name );
-            free ( class );
-        }
-
-        XFree ( xRMS );
-    }
+    parse_xresource_options( display );
 
     find_arg_str( argc, argv, "-font", &( config.menu_font ) );
     find_arg_str( argc, argv, "-fg", &( config.menu_fg ) );
@@ -1525,18 +1488,7 @@ int main( int argc, char *argv[] )
 
 #ifdef I3
     // Check for i3
-    {
-        config.i3_mode = 0;
-        Atom atom = XInternAtom( display, I3_SOCKET_PATH_PROP,True );
-
-        if ( atom != None ) {
-            i3_socket_path = window_get_text_prop( root, atom );
-
-            if ( i3_socket_path != NULL ) {
-                config.i3_mode = 1;
-            }
-        }
-    }
+    display_get_i3_path( display );
 #endif
 
     // flags to run immediately and exit

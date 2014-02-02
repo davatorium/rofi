@@ -1,6 +1,6 @@
 QUIET?=@
 CFLAGS?=-Wall -Wextra -O3 -g 
-VERSION?=0.14.1
+VERSION?=0.14.2
 
 PROGRAM=simpleswitcher
 
@@ -31,6 +31,7 @@ DIST_TARGET=$(BUILD_DIR)/$(PROGRAM)-$(VERSION).tar.xz
 CFLAGS+=-DMANPAGE_PATH="\"$(INSTALL_MANPAGE_PATH)\""
 CFLAGS+=-std=c99
 CFLAGS+=-Iinclude/
+CFLAGS+=-DVERSION="\"$(VERSION)\""
 
 # Check deps.
 ifeq (${DEBUG},1)
