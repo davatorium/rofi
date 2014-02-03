@@ -64,7 +64,6 @@
 #include "simpleswitcher.h"
 #include "run-dialog.h"
 #include "ssh-dialog.h"
-#include "mark-dialog.h"
 #include "profile-dialog.h"
 #include "dmenu-dialog.h"
 
@@ -660,11 +659,6 @@ KeySym rundialog_keysym;
 unsigned int sshdialog_modmask;
 KeySym sshdialog_keysym;
 
-#ifdef I3
-unsigned int markdialog_modmask;
-KeySym markdialog_keysym;
-#endif
-
 Window main_window = None;
 GC gc = NULL;
 
@@ -1245,13 +1239,6 @@ void run_switcher( int fmode, SwitcherMode mode )
         } else if ( mode == SSH_DIALOG ) {
             retv = ssh_switcher_dialog( &input );
         }
-
-#ifdef I3
-        else if ( mode == MARK_DIALOG ) {
-            retv = mark_switcher_dialog ( &input );
-        }
-
-#endif
 #ifdef __QC_MODE__
         else if ( mode == PROFILE_DIALOG ) {
             retv = profile_switcher_dialog ( &input );
@@ -1298,14 +1285,6 @@ void handle_keypress( XEvent *ev )
         run_switcher( FORK , SSH_DIALOG );
     }
 
-#ifdef I3
-
-    if ( ( markdialog_modmask == AnyModifier || ev->xkey.state & markdialog_modmask ) &&
-         key == markdialog_keysym ) {
-        run_switcher( FORK , MARK_DIALOG );
-    }
-
-#endif
 }
 
 // convert a Mod+key arg to mod mask and keysym
@@ -1498,10 +1477,6 @@ int main( int argc, char *argv[] )
         run_switcher( NOFORK, RUN_DIALOG );
     } else if ( find_arg( argc, argv, "-snow" ) >= 0 ) {
         run_switcher( NOFORK, SSH_DIALOG );
-#ifdef I3
-    } else if ( find_arg( argc, argv, "-mnow" ) >= 0 ) {
-        run_switcher( NOFORK, MARK_DIALOG );
-#endif
     } else if ( find_arg( argc, argv, "-dmenu" ) >= 0 ) {
         find_arg_str( argc, argv, "-p", &dmenu_prompt );
         run_switcher( NOFORK, DMENU_DIALOG );
@@ -1519,13 +1494,6 @@ int main( int argc, char *argv[] )
         find_arg_str( argc, argv, "-skey",&( config.ssh_key ) );
         parse_key( config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
         grab_key( sshdialog_modmask, sshdialog_keysym );
-        // bind key combos
-#ifdef I3
-        find_arg_str( argc, argv, "-mkey",&( config.mark_key ) );
-        parse_key( config.mark_key, &markdialog_modmask, &markdialog_keysym );
-        grab_key( markdialog_modmask, markdialog_keysym );
-#endif
-
 
         XEvent ev;
 

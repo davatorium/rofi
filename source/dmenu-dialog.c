@@ -39,29 +39,14 @@
 #include <errno.h>
 
 #include "simpleswitcher.h"
-#include "mark-dialog.h"
-#include <errno.h>
-#include <linux/un.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-
-#ifdef TIMING
-#include <time.h>
-#endif
 
 char *dmenu_prompt = "dmenu ";
 
 static char **get_dmenu ( )
 {
-
-#ifdef TIMING
-    struct timespec start, stop;
-    clock_gettime( CLOCK_REALTIME, &start );
-#endif
+    char buffer[1024];
     char **retv = NULL;
     int index = 0;
-
-    char buffer[1024];
 
     while ( fgets( buffer, 1024, stdin ) != NULL ) {
         retv = realloc( retv, ( index+2 )*sizeof( char* ) );
@@ -74,18 +59,6 @@ static char **get_dmenu ( )
         index++;
     }
 
-
-
-#ifdef TIMING
-    clock_gettime( CLOCK_REALTIME, &stop );
-
-    if ( stop.tv_sec != start.tv_sec ) {
-        stop.tv_nsec += ( stop.tv_sec-start.tv_sec )*1e9;
-    }
-
-    long diff = stop.tv_nsec-start.tv_nsec;
-    printf( "Time elapsed: %ld us\n", diff/1000 );
-#endif
     return retv;
 }
 
@@ -105,14 +78,14 @@ static int token_match ( char **tokens, const char *input,
 
 SwitcherMode dmenu_switcher_dialog ( char **input )
 {
+    int shift=0;
+    int selected_line = 0;
     SwitcherMode retv = MODE_EXIT;
     // act as a launcher
     char **list = get_dmenu( );
 
-
-    int shift=0;
-    int selected_line = 0;
-    int mretv = menu( list, input, dmenu_prompt,NULL, &shift,token_match, NULL, &selected_line );
+    int mretv = menu( list, input, dmenu_prompt,NULL, &shift,
+            token_match, NULL, &selected_line );
 
     if ( mretv == MENU_NEXT ) {
         retv = DMENU_DIALOG;
