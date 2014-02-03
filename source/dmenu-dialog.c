@@ -27,16 +27,12 @@
 
 
 #define _GNU_SOURCE
-#include <stdlib.h>
 #include <stdio.h>
-#include <X11/X.h>
-
+#include <stdlib.h>
 #include <unistd.h>
-#include <signal.h>
 #include <strings.h>
 #include <string.h>
 #include <ctype.h>
-#include <errno.h>
 
 #include "simpleswitcher.h"
 
@@ -51,41 +47,27 @@ static char **get_dmenu ( )
     while ( fgets( buffer, 1024, stdin ) != NULL ) {
         retv = realloc( retv, ( index+2 )*sizeof( char* ) );
         retv[index] = strdup( buffer );
+        retv[index+1] = NULL;
 
+        // Filter out line-end.
         if ( retv[index][strlen( buffer )-1] == '\n' )
             retv[index][strlen( buffer )-1] = '\0';
 
-        retv[index+1] = NULL;
         index++;
     }
 
     return retv;
 }
 
-static int token_match ( char **tokens, const char *input,
-                         __attribute__( ( unused ) )int index,
-                         __attribute__( ( unused ) )void *data )
-{
-    int match = 1;
-
-    // Do a tokenized match.
-    if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
-            match = ( strcasestr( input, tokens[j] ) != NULL );
-        }
-
-    return match;
-}
-
 SwitcherMode dmenu_switcher_dialog ( char **input )
 {
-    int shift=0;
     int selected_line = 0;
     SwitcherMode retv = MODE_EXIT;
     // act as a launcher
     char **list = get_dmenu( );
 
-    int mretv = menu( list, input, dmenu_prompt,NULL, &shift,
-            token_match, NULL, &selected_line );
+    int mretv = menu( list, input, dmenu_prompt,NULL, NULL,
+                      token_match, NULL, &selected_line );
 
     if ( mretv == MENU_NEXT ) {
         retv = DMENU_DIALOG;
@@ -100,7 +82,6 @@ SwitcherMode dmenu_switcher_dialog ( char **input )
     }
 
     if ( list != NULL ) free( list );
-
     return retv;
 }
 

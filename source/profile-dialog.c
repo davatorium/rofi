@@ -42,9 +42,6 @@
 
 #include "simpleswitcher.h"
 #include "profile-dialog.h"
-#ifdef TIMING
-#include <time.h>
-#endif
 
 static inline int execshprofile( const char *profile )
 {
@@ -66,7 +63,7 @@ static pid_t exec_profile( const char *cmd )
 
     return pid;
 }
-static char ** add_elements( char **retv, char *element, unsigned int *retv_index )
+static inline char ** add_elements( char **retv, char *element, unsigned int *retv_index )
 {
     retv = realloc( retv, ( ( *retv_index )+2 )*sizeof( char* ) );
     retv[( *retv_index )] = element;
@@ -80,10 +77,6 @@ static char ** get_profile ( )
     unsigned int retv_index = 0;
     char *path;
     char **retv = NULL;
-#ifdef TIMING
-    struct timespec start, stop;
-    clock_gettime( CLOCK_REALTIME, &start );
-#endif
 
     if ( getenv( "HOME" ) == NULL ) return NULL;
 
@@ -138,32 +131,9 @@ static char ** get_profile ( )
     }
 
     free( path );
-#ifdef TIMING
-    clock_gettime( CLOCK_REALTIME, &stop );
-
-    if ( stop.tv_sec != start.tv_sec ) {
-        stop.tv_nsec += ( stop.tv_sec-start.tv_sec )*1e9;
-    }
-
-    long diff = stop.tv_nsec-start.tv_nsec;
-    printf( "Time elapsed: %ld us\n", diff/1000 );
-#endif
     return retv;
 }
 
-static int token_match ( char **tokens, const char *input,
-                         __attribute__( ( unused ) )int index,
-                         __attribute__( ( unused ) )void *data )
-{
-    int match = 1;
-
-    // Do a tokenized match.
-    if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
-            match = ( strcasestr( input, tokens[j] ) != NULL );
-        }
-
-    return match;
-}
 
 SwitcherMode profile_switcher_dialog ( char **input )
 {
@@ -172,9 +142,8 @@ SwitcherMode profile_switcher_dialog ( char **input )
     char **cmd_list = get_profile( );
 
     if ( cmd_list == NULL ) {
-        cmd_list = allocate( 2*sizeof( char * ) );
-        cmd_list[0] = strdup( "No profiles found" );
-        cmd_list[1] = NULL;
+        unsigned int retv_index = 0;
+        cmd_list = add_elements( cmd_list, "No profiles found", &retv_index );
     }
 
     int shift=0;

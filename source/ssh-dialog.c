@@ -278,20 +278,6 @@ static char ** get_ssh ( )
     return retv;
 }
 
-static int token_match ( char **tokens, const char *input,
-                         __attribute__( ( unused ) )int index,
-                         __attribute__( ( unused ) )void *data )
-{
-    int match = 1;
-
-    // Do a tokenized match.
-    if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
-            match = ( strcasestr( input, tokens[j] ) != NULL );
-        }
-
-    return match;
-}
-
 SwitcherMode ssh_switcher_dialog ( char **input )
 {
     SwitcherMode retv = MODE_EXIT;
@@ -324,7 +310,7 @@ SwitcherMode ssh_switcher_dialog ( char **input )
         free( cmd_list[i] );
     }
 
-    free( cmd_list );
+    if(cmd_list != NULL) free( cmd_list );
 
     return retv;
 }

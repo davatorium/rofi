@@ -135,8 +135,6 @@ static void delete_entry( const char *cmd )
     unsigned int index = 0;
     char **retv = NULL;
 
-    printf( "Delete entry: %s\n", cmd );
-
     /**
      * This happens in non-critical time (After launching app)
      * It is allowed to be a bit slower.
@@ -280,22 +278,10 @@ static char ** get_apps ( )
     return retv;
 }
 
-static int token_match ( char **tokens, const char *input,
-                         __attribute__( ( unused ) )int index,
-                         __attribute__( ( unused ) )void *data )
-{
-    int match = 1;
-
-    // Do a tokenized match.
-    if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
-            match = ( strcasestr( input, tokens[j] ) != NULL );
-        }
-
-    return match;
-}
-
 SwitcherMode run_switcher_dialog ( char **input )
 {
+    int shift=0;
+    int selected_line = 0;
     SwitcherMode retv = MODE_EXIT;
     // act as a launcher
     char **cmd_list = get_apps( );
@@ -306,8 +292,6 @@ SwitcherMode run_switcher_dialog ( char **input )
         cmd_list[1] = NULL;
     }
 
-    int shift=0;
-    int selected_line = 0;
     int mretv = menu( cmd_list, input, "$", NULL, &shift,token_match, NULL, &selected_line );
 
     if ( mretv == MENU_NEXT ) {
@@ -325,7 +309,7 @@ SwitcherMode run_switcher_dialog ( char **input )
         free( cmd_list[i] );
     }
 
-    free( cmd_list );
+    if (cmd_list != NULL) free( cmd_list );
 
     return retv;
 }

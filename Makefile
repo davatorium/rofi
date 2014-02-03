@@ -78,9 +78,9 @@ $(BUILD_DIR):
 	$(QUIET)mkdir -p $@/$(CONFIG_DIR)
 
 # Objects depend on header files and makefile too.
-$(BUILD_DIR)/%.o: %.c | Makefile $(HEADERS) $(BUILD_DIR)
-	$(info Compiling $^ -> $@)
-	$(QUIET) $(CC) $(CFLAGS) -c -o $@ $^
+$(BUILD_DIR)/%.o: %.c Makefile $(HEADERS) | $(BUILD_DIR)
+	$(info Compiling $< -> $@)
+	$(QUIET) $(CC) $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/$(PROGRAM): $(OBJECTS)
 	$(info Linking   $@)

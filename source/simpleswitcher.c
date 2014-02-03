@@ -78,7 +78,23 @@
 xdgHandle xdg_handle;
 const char *cache_dir = NULL;
 
+/**
+ * Shared 'token_match' function.
+ * Matches tokenized.
+ */
+int token_match ( char **tokens, const char *input,
+                  __attribute__( ( unused ) )int index,
+                  __attribute__( ( unused ) )void *data )
+{
+    int match = 1;
 
+    // Do a tokenized match.
+    if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
+            match = ( strcasestr( input, tokens[j] ) != NULL );
+        }
+
+    return match;
+}
 
 void* allocate( unsigned long bytes )
 {
@@ -1239,6 +1255,7 @@ void run_switcher( int fmode, SwitcherMode mode )
         } else if ( mode == SSH_DIALOG ) {
             retv = ssh_switcher_dialog( &input );
         }
+
 #ifdef __QC_MODE__
         else if ( mode == PROFILE_DIALOG ) {
             retv = profile_switcher_dialog ( &input );
