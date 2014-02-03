@@ -310,7 +310,7 @@ SwitcherMode ssh_switcher_dialog ( char **input )
         free( cmd_list[i] );
     }
 
-    if(cmd_list != NULL) free( cmd_list );
+    if ( cmd_list != NULL ) free( cmd_list );
 
     return retv;
 }

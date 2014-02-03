@@ -82,6 +82,7 @@ SwitcherMode dmenu_switcher_dialog ( char **input )
     }
 
     if ( list != NULL ) free( list );
+
     return retv;
 }
 

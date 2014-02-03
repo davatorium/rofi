@@ -98,9 +98,6 @@ typedef struct _Settings {
     WindowLocation  location;
     WindowMode      wmode;
     unsigned int    padding;
-#ifdef I3
-    char *          mark_key;
-#endif
 } Settings;
 
 extern Settings config;

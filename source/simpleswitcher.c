@@ -74,6 +74,9 @@
 #define OPAQUE              0xffffffff
 #define OPACITY             "_NET_WM_WINDOW_OPACITY"
 #define I3_SOCKET_PATH_PROP "I3_SOCKET_PATH"
+#define FORK 1
+#define NOFORK 2
+
 
 xdgHandle xdg_handle;
 const char *cache_dir = NULL;
@@ -202,7 +205,7 @@ static void focus_window_i3( const char *socket_path, int id )
     }
 
 
-// Formulate command
+    // Formulate command
     snprintf( command, 128, "[id=\"%d\"] focus", id );
     // Prepare header.
     memcpy( head.magic, I3_IPC_MAGIC, 6 );
@@ -1131,9 +1134,6 @@ MenuReturn menu( char **lines, char **input, char *prompt, Time *time, int *shif
     return retv;
 }
 
-#define FORK 1
-#define NOFORK 2
-
 
 
 
@@ -1455,32 +1455,28 @@ int main( int argc, char *argv[] )
 
     parse_xresource_options( display );
 
-    find_arg_str( argc, argv, "-font", &( config.menu_font ) );
-    find_arg_str( argc, argv, "-fg", &( config.menu_fg ) );
-    find_arg_str( argc, argv, "-bg", &( config.menu_bg ) );
-    find_arg_str( argc, argv, "-hlfg",  &( config.menu_hlfg ) );
-    find_arg_str( argc, argv, "-hlbg", &( config.menu_hlbg ) );
-    find_arg_str( argc, argv, "-bc", &( config.menu_bc ) );
-
-    find_arg_str( argc, argv, "-term", &( config.terminal_emulator ) );
+    find_arg_str( argc, argv, "-font",    &( config.menu_font ) );
+    find_arg_str( argc, argv, "-fg",      &( config.menu_fg ) );
+    find_arg_str( argc, argv, "-bg",      &( config.menu_bg ) );
+    find_arg_str( argc, argv, "-hlfg",    &( config.menu_hlfg ) );
+    find_arg_str( argc, argv, "-hlbg",    &( config.menu_hlbg ) );
+    find_arg_str( argc, argv, "-bc",      &( config.menu_bc ) );
+    find_arg_str( argc, argv, "-term",    &( config.terminal_emulator ) );
+    find_arg_int( argc, argv, "-bw",      &( config.menu_bw ) );
+    find_arg_int( argc, argv, "-o",       &( config.window_opacity ) );
+    find_arg_int( argc, argv, "-width",   &( config.menu_width ) );
+    find_arg_int( argc, argv, "-lines",   &( config.menu_lines ) );
+    find_arg_int( argc, argv, "-loc",     &( config.location ) );
+    find_arg_int( argc, argv, "-padding", &( config.padding ) );
 
     if ( find_arg ( argc, argv, "-zeltak" ) >= 0 ) {
         config.zeltak_mode    = 1;
     }
 
-
-    find_arg_int( argc, argv, "-bw",   &( config.menu_bw ) );
-    find_arg_int( argc, argv, "-o",    &( config.window_opacity ) );
-    find_arg_int( argc, argv, "-width",&( config.menu_width ) );
-    find_arg_int( argc, argv, "-lines",&( config.menu_lines ) );
-
-    find_arg_int( argc, argv, "-loc", &( config.location ) );
-
     if ( find_arg( argc, argv, "-hmode" ) >= 0 ) {
         config.wmode = HORIZONTAL;
     }
 
-    find_arg_int( argc, argv, "-padding", &( config.padding ) );
 
 #ifdef I3
     // Check for i3

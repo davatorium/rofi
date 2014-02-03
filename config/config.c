@@ -59,9 +59,6 @@ Settings config = {
     .window_key     = "F12",
     .run_key        = "mod1+F2",
     .ssh_key        = "mod1+F3",
-#ifdef I3
-    .mark_key		= "mod1+F5",
-#endif
     // Location of the window.   CENTER, NORTH_WEST, NORTH,NORTH_EAST, etc.
     .location       = CENTER,
     // Mode of window, list (Vertical) or dmenu like (Horizontal)
