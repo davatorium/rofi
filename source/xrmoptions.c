@@ -99,8 +99,6 @@ void parse_xresource_options( Display *display )
             free ( name );
             free ( class );
         }
-
-        XFree ( xRMS );
     }
 
 }
