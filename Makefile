@@ -44,6 +44,14 @@ CFLAGS+=-D__QC_MODE__
 endif
 
 
+CLANG=$(shell which clang)
+
+ifneq (${CLANG},${EMPTY})
+    $(info Using clang compiler: ${CLANG})
+    CC=${CLANG}
+endif
+
+
 ##
 # Check dependencies
 ##
