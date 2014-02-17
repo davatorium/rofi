@@ -44,7 +44,7 @@ CFLAGS+=-D__QC_MODE__
 endif
 
 
-CLANG=$(shell which clang)
+CLANG=$(shell which clang 2>/dev/null)
 
 ifneq (${CLANG},${EMPTY})
     $(info Using clang compiler: ${CLANG})
