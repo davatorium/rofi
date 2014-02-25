@@ -115,7 +115,7 @@ void textbox_extents( textbox *tb )
     int length = strlen( tb->text ) + strlen( tb->prompt ) +1;
     char *line = alloca( length + 1 );
     sprintf( line, "%s %s", tb->prompt, tb->text );
-    XftTextExtents8( display, tb->font, ( unsigned char* )line, length, &tb->extents );
+    XftTextExtentsUtf8( display, tb->font, ( unsigned char* )line, length, &tb->extents );
 }
 
 // set the default text to display
@@ -231,7 +231,7 @@ void textbox_draw( textbox *tb )
         for ( i = 0; i < length; i++ ) if ( isspace( line[i] ) ) line[i] = '_';
 
         // calc cursor position
-        XftTextExtents8( display, tb->font, ( unsigned char* )line, cursor_offset, &extents );
+        XftTextExtentsUtf8( display, tb->font, ( unsigned char* )line, cursor_offset, &extents );
         cursor_x = extents.width;
 
         // restore correct text string with spaces
@@ -242,12 +242,12 @@ void textbox_draw( textbox *tb )
     // Calculate the right size, so no characters are cut off.
     // TODO: Check performance of this.
     while ( 1 ) {
-        XftTextExtents8( display, tb->font, ( unsigned char* )line, length, &extents );
+        XftTextExtentsUtf8( display, tb->font, ( unsigned char* )line, length, &extents );
         line_width = extents.width;
 
         if ( line_width < ( tb->w-2*SIDE_MARGIN ) ) break;
 
-        length--;
+        for(length-=1; length > 0 && (line[length]&0xc0) == 0x80; length -=1);
     }
 
     int x = SIDE_MARGIN, y = tb->font->ascent;
@@ -257,7 +257,7 @@ void textbox_draw( textbox *tb )
     if ( tb->flags & TB_CENTER ) x = ( tb->w - line_width ) / 2;
 
     // draw the text, including any prompt in edit mode
-    XftDrawString8( draw, &tb->color_fg, tb->font, x, y, ( unsigned char* )line, length );
+    XftDrawStringUtf8( draw, &tb->color_fg, tb->font, x, y, ( unsigned char* )line, length );
 
     // draw the cursor
     if ( tb->flags & TB_EDITABLE )
@@ -272,6 +272,14 @@ void textbox_draw( textbox *tb )
     XFreePixmap( display, canvas );
 }
 
+
+static size_t nextrune(textbox *tb, int inc) {
+    ssize_t n;
+
+    /* return location of next utf8 rune in the given direction (+1 or -1) */
+    for(n = tb->cursor + inc; n + inc >= 0 && (tb->text[n] & 0xc0) == 0x80; n += inc);
+    return n;
+}
 // cursor handling for edit mode
 void textbox_cursor( textbox *tb, int pos )
 {
@@ -281,13 +289,13 @@ void textbox_cursor( textbox *tb, int pos )
 // move right
 void textbox_cursor_inc( textbox *tb )
 {
-    textbox_cursor( tb, tb->cursor+1 );
+    textbox_cursor( tb, nextrune(tb, 1) );
 }
 
 // move left
 void textbox_cursor_dec( textbox *tb )
 {
-    textbox_cursor( tb, tb->cursor-1 );
+    textbox_cursor( tb, nextrune(tb,-1) );
 }
 
 // beginning of line
@@ -339,7 +347,8 @@ void textbox_cursor_ins( textbox *tb, char c )
 // delete on character
 void textbox_cursor_del( textbox *tb )
 {
-    textbox_delete( tb, tb->cursor, 1 );
+    int del_r = nextrune(tb, 1);
+    textbox_delete( tb, tb->cursor, del_r-tb->cursor );
 }
 
 // back up and delete one character

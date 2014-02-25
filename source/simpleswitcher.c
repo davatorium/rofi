@@ -150,6 +150,7 @@ static char **tokenize( const char *input )
     retv[1] = NULL;
 
     // Iterate over tokens.
+    // strtok should still be valid for utf8.
     for (
         token = strtok_r( retv[0], " ", &saveptr );
         token != NULL;
@@ -751,8 +752,24 @@ static int calculate_common_prefix( char **filtered, int max_lines )
 
             p++;
         } while ( found );
+        // cut off to be valid utf8.
+        for ( j = 0; j < length_prefix; ) {
+            if((filtered[0][j]&0x80) == 0){j++;}
+            else if ((filtered[0][j]&0xf0) == 0xc0) {
+                // 2 bytes
+                if((j+2) >= length_prefix) length_prefix = j; 
+                j+=2;
+            }else if ((filtered[0][j]&0xf0) == 0xe0) {
+                // 3 bytes
+                if((j+3) >= length_prefix) length_prefix = j; 
+                j+=3;
+            }else if ((filtered[0][j]&0xf0) == 0xf0) {
+                // 4 bytes
+                if((j+4) >= length_prefix) length_prefix = j; 
+                j+=4;
+            }else{j++;};
+        }
     }
-
     return length_prefix;
 }
 
@@ -1095,10 +1112,13 @@ MenuReturn menu( char **lines, char **input, char *prompt, Time *time, int *shif
 
                         int length_prefix = calculate_common_prefix( filtered, num_lines );
 
-                        if ( length_prefix && strncasecmp( filtered[0], text->text, length_prefix ) ) {
+                        // TODO: memcmp to utf8 aware cmp.
+                        if ( length_prefix && memcmp( filtered[0], text->text, length_prefix ) ) {
                             // Do not want to modify original string, so make copy.
                             // not eff..
-                            char * str = strndup( filtered[0], length_prefix );
+                            char * str = allocate (sizeof(char)*(length_prefix+1)); 
+                            memcpy( str,filtered[0], length_prefix );
+                            str[length_prefix] = '\0';
                             textbox_text( text, str );
                             textbox_cursor_end( text );
                             free( str );
