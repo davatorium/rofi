@@ -373,7 +373,7 @@ int textbox_keypress( textbox *tb, XEvent *ev )
 
     if ( !( tb->flags & TB_EDITABLE ) ) return 0;
 
-    len = XmbLookupString( tb->xic, &ev->xkey, pad, sizeof( pad ), &key, &stat );
+    len = Xutf8LookupString( tb->xic, &ev->xkey, pad, sizeof( pad ), &key, &stat );
     pad[len] = 0;
 
     if ( key == XK_Left ) {
