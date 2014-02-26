@@ -80,7 +80,7 @@ static pid_t exec_ssh( const char *cmd )
 
     if ( fd != NULL ) {
         while ( fgets( buffer,1024,fd ) != NULL ) {
-            retv = realloc( retv, ( index+2 )*sizeof( char* ) );
+            retv = reallocate( retv, ( index+2 )*sizeof( char* ) );
             buffer[strlen( buffer )-1] = '\0';
             retv[index] = strdup( buffer );
             retv[index+1] = NULL;
@@ -144,7 +144,7 @@ static void delete_ssh( const char *cmd )
 
     if ( fd != NULL ) {
         while ( fgets( buffer,1024,fd ) != NULL ) {
-            retv = realloc( retv, ( index+2 )*sizeof( char* ) );
+            retv = reallocate( retv, ( index+2 )*sizeof( char* ) );
             buffer[strlen( buffer )-1] = '\0';
             retv[index] = strdup( buffer );
             retv[index+1] = NULL;
@@ -211,7 +211,7 @@ static char ** get_ssh ( )
 
     if ( fd != NULL ) {
         while ( fgets( buffer,1024,fd ) != NULL ) {
-            retv = realloc( retv, ( index+2 )*sizeof( char* ) );
+            retv = reallocate( retv, ( index+2 )*sizeof( char* ) );
             buffer[strlen( buffer )-1] = '\0';
             retv[index] = strdup( buffer );
             retv[index+1] = NULL;
@@ -252,7 +252,7 @@ static char ** get_ssh ( )
 
                 if ( found == 1 ) continue;
 
-                retv = realloc( retv, ( index+2 )*sizeof( char* ) );
+                retv = reallocate( retv, ( index+2 )*sizeof( char* ) );
                 retv[index] = strndup( &buffer[start], stop-start );
                 retv[index+1] = NULL;
                 index++;

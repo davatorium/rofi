@@ -368,7 +368,7 @@ int winlist_find( winlist *l, Window w )
 // iterate backwards. theory is: windows most often accessed will be
 // nearer the end. testing with kcachegrind seems to support this...
     int i;
-    Window o;
+    Window o = 0;
 
     winlist_descend( l, i, o ) if ( w == o ) return i;
 
@@ -1203,7 +1203,7 @@ SwitcherMode run_switcher_window ( char **input )
         int lines = 0;
 
         // build the actual list
-        Window w;
+        Window w = 0;
         winlist_ascend( ids, i, w ) {
             client *c;
 
