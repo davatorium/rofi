@@ -220,8 +220,7 @@ static void focus_window_i3( const char *socket_path, int id )
     t = recv( s, &head, sizeof( head ),0 );
 
     if ( t == sizeof( head ) ) {
-        t= recv( s, command, head.size, 0 );
-        command[t] = '\0';
+        recv( s, command, head.size, 0 );
     }
 
     close( s );
@@ -529,13 +528,6 @@ void window_set_atom_prop( Window w, Atom prop, Atom *atoms, int count )
     XChangeProperty( display, w, prop, XA_ATOM, 32, PropModeReplace, ( unsigned char* )atoms, count );
 }
 
-int window_get_cardinal_prop( Window w, Atom atom, unsigned long *list, int count )
-{
-    Atom type;
-    int items;
-    return window_get_prop( w, atom, &type, &items, list, count*sizeof( unsigned long ) ) && type == XA_CARDINAL ? items:0;
-}
-
 // a ClientMessage
 int window_send_message( Window target, Window subject, Atom atom, unsigned long protocol, unsigned long mask, Time time )
 {
@@ -562,10 +554,11 @@ void monitor_dimensions( Screen *screen, int x, int y, workarea *mon )
 
 // locate the current monitor
     if ( XineramaIsActive( display ) ) {
-        int monitors, i;
+        int monitors;
         XineramaScreenInfo *info = XineramaQueryScreens( display, &monitors );
 
-        if ( info ) for ( i = 0; i < monitors; i++ ) {
+        if ( info ) {
+            for ( int i = 0; i < monitors; i++ ) {
                 if ( INTERSECT( x, y, 1, 1, info[i].x_org, info[i].y_org, info[i].width, info[i].height ) ) {
                     mon->x = info[i].x_org;
                     mon->y = info[i].y_org;
@@ -574,6 +567,7 @@ void monitor_dimensions( Screen *screen, int x, int y, workarea *mon )
                     break;
                 }
             }
+        }
 
         XFree( info );
     }
@@ -730,15 +724,16 @@ void menu_draw( textbox *text, textbox **boxes, int max_lines,int num_lines, int
 */
 static int calculate_common_prefix( char **filtered, int max_lines )
 {
-    int length_prefix = 0,j,found = 1;
+    int length_prefix = 0;
 
     if ( filtered[0] != NULL ) {
+        int found = 1;
         char *p = filtered[0];
 
         do {
             found = 1;
 
-            for ( j=0; j < max_lines && filtered[j] != NULL; j++ ) {
+            for ( int j=0; j < max_lines && filtered[j] != NULL; j++ ) {
                 if ( filtered[j][length_prefix] == '\0' || filtered[j][length_prefix] != *p ) {
                     if ( found )
                         found=0;
@@ -753,7 +748,7 @@ static int calculate_common_prefix( char **filtered, int max_lines )
             p++;
         } while ( found );
         // cut off to be valid utf8.
-        for ( j = 0; j < length_prefix; ) {
+        for ( int j = 0; j < length_prefix; ) {
             if((filtered[0][j]&0x80) == 0){j++;}
             else if ((filtered[0][j]&0xf0) == 0xc0) {
                 // 2 bytes
@@ -898,8 +893,6 @@ MenuReturn menu( char **lines, char **input, char *prompt, Time *time, int *shif
     int *line_map = allocate_clear( sizeof( int ) * num_lines );
     unsigned int filtered_lines = 0;
 
-    int jin = 0;
-
     if ( input && *input ) {
         char **tokens = tokenize( *input );
 
@@ -917,6 +910,7 @@ MenuReturn menu( char **lines, char **input, char *prompt, Time *time, int *shif
 
         tokenize_free( tokens );
     } else {
+        int jin = 0;
         for ( i = 0; i < num_lines; i++ ) {
             filtered[jin] = lines[i];
             line_map[jin] = i;

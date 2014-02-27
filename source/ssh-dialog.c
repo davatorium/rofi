@@ -76,9 +76,9 @@ static pid_t exec_ssh( const char *cmd )
     char *path = allocate( strlen( cache_dir ) + strlen( SSH_CACHE_FILE )+3 );
     sprintf( path, "%s/%s", cache_dir, SSH_CACHE_FILE );
     FILE *fd = fopen ( path, "r" );
-    char buffer[1024];
 
     if ( fd != NULL ) {
+        char buffer[1024];
         while ( fgets( buffer,1024,fd ) != NULL ) {
             retv = reallocate( retv, ( index+2 )*sizeof( char* ) );
             buffer[strlen( buffer )-1] = '\0';
@@ -140,9 +140,9 @@ static void delete_ssh( const char *cmd )
     char *path = allocate( strlen( cache_dir ) + strlen( SSH_CACHE_FILE )+3 );
     sprintf( path, "%s/%s", cache_dir, SSH_CACHE_FILE );
     FILE *fd = fopen ( path, "r" );
-    char buffer[1024];
 
     if ( fd != NULL ) {
+        char buffer[1024];
         while ( fgets( buffer,1024,fd ) != NULL ) {
             retv = reallocate( retv, ( index+2 )*sizeof( char* ) );
             buffer[strlen( buffer )-1] = '\0';

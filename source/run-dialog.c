@@ -79,9 +79,9 @@ static pid_t exec_cmd( const char *cmd, int run_in_term )
     char *path = allocate( strlen( cache_dir ) + strlen( RUN_CACHE_FILE )+3 );
     sprintf( path, "%s/%s", cache_dir, RUN_CACHE_FILE );
     FILE *fd = fopen ( path, "r" );
-    char buffer[1024];
 
     if ( fd != NULL ) {
+        char buffer[1024];
         while ( fgets( buffer,1024,fd ) != NULL ) {
             retv = reallocate( retv, ( index+2 )*sizeof( char* ) );
             buffer[strlen( buffer )-1] = '\0';
@@ -142,9 +142,9 @@ static void delete_entry( const char *cmd )
     char *path = allocate( strlen( cache_dir ) + strlen( RUN_CACHE_FILE )+3 );
     sprintf( path, "%s/%s", cache_dir, RUN_CACHE_FILE );
     FILE *fd = fopen ( path, "r" );
-    char buffer[1024];
 
     if ( fd != NULL ) {
+        char buffer[1024];
         while ( fgets( buffer,1024,fd ) != NULL ) {
             retv = reallocate( retv, ( index+2 )*sizeof( char* ) );
             buffer[strlen( buffer )-1] = '\0';
@@ -209,9 +209,9 @@ static char ** get_apps ( )
     path = allocate( strlen( cache_dir ) + strlen( RUN_CACHE_FILE )+3 );
     sprintf( path, "%s/%s", cache_dir, RUN_CACHE_FILE );
     FILE *fd = fopen ( path, "r" );
-    char buffer[1024];
 
     if ( fd != NULL ) {
+        char buffer[1024];
         while ( fgets( buffer,1024,fd ) != NULL ) {
             retv = reallocate( retv, ( index+2 )*sizeof( char* ) );
             buffer[strlen( buffer )-1] = '\0';

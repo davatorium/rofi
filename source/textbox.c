@@ -113,7 +113,7 @@ void textbox_font( textbox *tb, char *font, char *fg, char *bg )
 void textbox_extents( textbox *tb )
 {
     int length = strlen( tb->text ) + strlen( tb->prompt ) +1;
-    char *line = alloca( length + 1 );
+    char line[length + 1 ];
     sprintf( line, "%s %s", tb->prompt, tb->text );
     XftTextExtentsUtf8( display, tb->font, ( unsigned char* )line, length, &tb->extents );
 }
@@ -125,15 +125,6 @@ void textbox_text( textbox *tb, char *text )
 
     tb->text = strdup( text );
     tb->cursor = MAX( 0,MIN( ( int )strlen( text ), tb->cursor ) );
-    textbox_extents( tb );
-}
-
-// set an input prompt for edit mode
-void textbox_prompt( textbox *tb, char *text )
-{
-    if ( tb->prompt ) free( tb->prompt );
-
-    tb->prompt = strdup( text );
     textbox_extents( tb );
 }
 
@@ -160,10 +151,6 @@ void textbox_show( textbox *tb )
     XMapWindow( display, tb->window );
 }
 
-void textbox_hide( textbox *tb )
-{
-    XUnmapWindow( display, tb->window );
-}
 
 // will also unmap the window if still displayed
 void textbox_free( textbox *tb )
@@ -196,7 +183,6 @@ void textbox_free( textbox *tb )
 
 void textbox_draw( textbox *tb )
 {
-    int i;
     XGlyphInfo extents;
 
     GC context    = XCreateGC( display, tb->window, 0, 0 );
@@ -216,10 +202,10 @@ void textbox_draw( textbox *tb )
     int line_width  = 0;
 
     int cursor_x      = 0;
-    int cursor_offset = 0;
     int cursor_width  = MAX( 2, line_height/10 );
 
     if ( tb->flags & TB_EDITABLE ) {
+        int cursor_offset = 0;
         int prompt_len = strlen( prompt ) +1;
         length = text_len + prompt_len;
         cursor_offset = MIN( tb->cursor + prompt_len, length );
@@ -228,7 +214,7 @@ void textbox_draw( textbox *tb )
         sprintf( line, "%s %s", prompt, text );
 
         // replace spaces so XftTextExtents8 includes their width
-        for ( i = 0; i < length; i++ ) if ( isspace( line[i] ) ) line[i] = '_';
+        for ( int i = 0; i < length; i++ ) if ( isspace( line[i] ) ) line[i] = '_';
 
         // calc cursor position
         XftTextExtentsUtf8( display, tb->font, ( unsigned char* )line, cursor_offset, &extents );
@@ -298,11 +284,6 @@ void textbox_cursor_dec( textbox *tb )
     textbox_cursor( tb, nextrune(tb,-1) );
 }
 
-// beginning of line
-void textbox_cursor_home( textbox *tb )
-{
-    tb->cursor = 0;
-}
 
 // end of line
 void textbox_cursor_end( textbox *tb )
@@ -334,14 +315,6 @@ void textbox_delete( textbox *tb, int pos, int dlen )
     char *at = tb->text + pos;
     memmove( at, at + dlen, len - pos );
     textbox_extents( tb );
-}
-
-// insert one character
-void textbox_cursor_ins( textbox *tb, char c )
-{
-    char tmp[2] = { c, 0 };
-    textbox_insert( tb, tb->cursor, tmp );
-    textbox_cursor_inc( tb );
 }
 
 // delete on character
