@@ -2,7 +2,7 @@ QUIET?=@
 CFLAGS?=-Wall -Wextra -O3 -g 
 VERSION?=0.14.2
 
-PROGRAM=simpleswitcher
+PROGRAM=rofi
 
 
 PREFIX?=$(DESTDIR)/usr

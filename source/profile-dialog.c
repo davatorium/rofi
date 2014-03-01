@@ -1,5 +1,5 @@
 /**
- * simpleswitcher
+ * rofi
  *
  * MIT/X11 License
  * Copyright 2013-2014 Qball  Cow <qball@gmpclient.org>

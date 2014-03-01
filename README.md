@@ -1,4 +1,4 @@
-# simpleswitcher
+# Rofi 
 
 A popup window switcher roughly based on [superswitcher](http://code.google.com/p/superswitcher/), requiring only xlib and xft.
 This version is based on the version from [Sean
@@ -32,7 +32,7 @@ Usage
 
 e.g.
 
-  bindsym $mod+Tab exec simpleswitcher -now -font "snap-10" -fg "#505050" -bg "#000000" -hlfg "#ffb964" -hlbg "#000000" -o 85
+  bindsym $mod+Tab exec rofi -now -font "snap-10" -fg "#505050" -bg "#000000" -hlfg "#ffb964" -hlbg "#000000" -o 85
 
 Switching Between Modi
 ----------------------
@@ -51,5 +51,5 @@ Type `make PREFIX=<path> install` to install in a different prefix.
 Archlinux
 ---------
 
-This version of simpleswitcher has been made available on the
+This version of rofi has been made available on the
 [AUR](https://aur.archlinux.org/packages/simpleswitcher-dd-git/) by 1ace.

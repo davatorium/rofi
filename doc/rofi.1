@@ -1,8 +1,8 @@
-.TH SIMPLESWITCHER 1 simpleswitcher
+.TH ROFI 1 rofi 
 .SH NAME
-simpleswitcher \- a simple EWMH window switcher
+rofi \- a simple EWMH window switcher
 .SH SYNOPSIS
-.B simpleswitcher
+.B rofi 
 .RB [ \-width
 .IR pct_scr ]
 .RB [ \-lines
@@ -36,7 +36,7 @@ simpleswitcher \- a simple EWMH window switcher
 .IR padding ]
 
 .SH DESCRIPTION
-.I simpleswitcher
+.I rofi
 is an X11 popup window switcher. A list is displayed center-screen showing open window titles, WM_CLASS, and desktop number. The user may filter the list by typing, navigate with Up/Down or Tab keys, and select a window with Return (Enter). Escape cancels.
 .P
 License: MIT/X11
@@ -54,33 +54,33 @@ Show run-dialog.
 Change the key combination to display all windows (default: F12).
 .P
 .RS
-simpleswitcher -key F12
+rofi -key F12
 .br
-simpleswitcher -key control+shift+s
+rofi -key control+shift+s
 .br
-simpleswitcher -key mod1+Tab
+rofi -key mod1+Tab
 .RE
 .TP
 .B -rkey
 Change the key combination to display the run dialog (default: mod1-F2).
 .P
 .RS
-simpleswitcher -rkey F11
+rofi -rkey F11
 .br
-simpleswitcher -rkey control+shift+d
+rofi -rkey control+shift+d
 .br
-simpleswitcher -rkey mod1+grave (grave=backtick)
+rofi -rkey mod1+grave (grave=backtick)
 .RE
 .TP
 .B -skey
 Change the key combination to display the ssh dialog (default: Alt-F3).
 .P
 .RS
-simpleswitcher -skey F10
+rofi -skey F10
 .br
-simpleswitcher -skey control+shift+s
+rofi -skey control+shift+s
 .br
-simpleswitcher -skey mod1+grave (grave=backtick)
+rofi -skey mod1+grave (grave=backtick)
 .RE
 .TP
 .B -mkey
@@ -88,97 +88,97 @@ Change the key combination to display the mark dialog (default: Alt-F5)
 (only if i3 support is enabled).
 .P
 .RS
-simpleswitcher -mkey Alt-F2
+rofi -mkey Alt-F2
 .RE
 .TP
 .B -now
-Run simpleswitcher in all-windows mode once then exit. Does not bind any keys.
+Run rofi in all-windows mode once then exit. Does not bind any keys.
 .TP
 .B -rnow
-Run simpleswitcher in run-dialog mode once then exit. Does not bind any keys.
+Run rofi in run-dialog mode once then exit. Does not bind any keys.
 .TP
 .B -snow
-Run simpleswitcher in ssh mode once then exit. Does not bind any keys.
+Run rofi in ssh mode once then exit. Does not bind any keys.
 .TP
 .B -mnow
-Run simpleswitcher in mark mode once then exit. Does not bind any keys (only if i3 support is
+Run rofi in mark mode once then exit. Does not bind any keys (only if i3 support is
 enabled).
 .TP
 .B -bg
 Set the background text color (X11 named color or hex #rrggbb) for the menu (default: #222222).
 .P
 .RS
-simpleswitcher -fg "#222222"
+rofi -fg "#222222"
 .RE
 .TP
 .B -bc
 Set the border color (X11 named color or hex #rrggbb) for the menu (default: #000000).
 .P
 .RS
-simpleswitcher -bc black
+rofi -bc black
 .RE
 .TP
 .B -bw
 Set the border width in pixels (default: 1).
 .P
 .RS
-simpleswitcher -bw 1
+rofi -bw 1
 .RE
 .TP
 .B -fg
 Set the foreground text color (X11 named color or hex #rrggbb) for the menu (default: #cccccc).
 .P
 .RS
-simpleswitcher -fg "#cccccc"
+rofi -fg "#cccccc"
 .RE
 .TP
 .B -font
 Xft font name for use by the menu (default: mono-14).
 .P
 .RS
-simpleswitcher -font monospace-14:medium
+rofi -font monospace-14:medium
 .RE
 .TP
 .B -hlbg
 Set the background text color (X11 named color or hex #rrggbb) for the highlighted item in the menu (default: #005577).
 .P
 .RS
-simpleswitcher -fg "#005577"
+rofi -fg "#005577"
 .RE
 .TP
 .B -hlfg
 Set the foreground text color (X11 named color or hex #rrggbb) for the highlighted item in the menu (default: #ffffff).
 .P
 .RS
-simpleswitcher -fg "#ffffff"
+rofi -fg "#ffffff"
 .RE
 .TP
 .B -o
 Set the window opacity (0-100).
 .P
 .RS
-simpleswitcher -o "75"
+rofi -o "75"
 .RE
 .TP
 .B -lines
 Maximum number of entries the menu may show before scrolling (default: 25).
 .P
 .RS
-simpleswitcher -lines 25
+rofi -lines 25
 .RE
 .TP
 .B -width
 Set the width of the menu as a percentage of the screen width (default: 60).
 .P
 .RS
-simpleswitcher -width 60
+rofi -width 60
 .RE
 .TP
 .B -term
 Specify what terminal to start (default x-terminal-emulator)
 .P
 .RS
-simpleswitcher -term xterm
+rofi -term xterm
 .RE
 .TP
 .B -loc
@@ -201,14 +201,15 @@ option.
 .B -padding
 Define the inner margin of the window. Default is 5 pixels.
 .RS
-To make simpleswitcher look like dmenu:
+To make rofi look like dmenu:
 .TP
-simpleswitcher -hmode -padding 0
+rofi -hmode -padding 0
 .RE
 .SH Switch between modi
 Type '?'<enter> to switch between window list and run mode.
 .SH SEE ALSO
-.BR simpleswitcher (1)
+.BR rofi (1)
 .SH AUTHOR
-Sean Pringle <sean.pringle@gmail.com>
 Qball Cow <qball@gmpclient.org>
+.br
+Original code based on work by: Sean Pringle <sean.pringle@gmail.com>

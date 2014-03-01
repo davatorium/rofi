@@ -1,5 +1,5 @@
 /**
- * simpleswitcher
+ * rofi
  *
  * MIT/X11 License
  * Copyright 2013-2014 Qball  Cow <qball@gmpclient.org>
@@ -75,7 +75,7 @@ void parse_xresource_options( Display *display )
         char * xrmType;
         XrmValue xrmValue;
         // TODO: update when we have new name.
-        const char * namePrefix = "simpleswitcher";
+        const char * namePrefix = "rofi";
         const char * classPrefix = "Simpleswitcher";
 
         for ( unsigned int  i = 0; i < sizeof ( xrmOptions ) / sizeof ( *xrmOptions ); ++i ) {

@@ -1,5 +1,5 @@
 /**
- * simpleswitcher
+ * rofi
  *
  * MIT/X11 License
  * Copyright (c) 2012 Sean Pringle <sean.pringle@gmail.com>
