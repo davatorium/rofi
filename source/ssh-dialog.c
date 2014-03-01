@@ -45,7 +45,7 @@
 #include <time.h>
 #endif
 
-#define SSH_CACHE_FILE "simpleswitcher.sshcache"
+#define SSH_CACHE_FILE "rofi.sshcache"
 
 static inline int execshssh( const char *host )
 {

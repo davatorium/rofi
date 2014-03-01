@@ -44,7 +44,7 @@
 #include <time.h>
 #endif
 
-#define RUN_CACHE_FILE "simpleswitcher.runcache"
+#define RUN_CACHE_FILE "rofi.runcache"
 
 static inline int execsh( const char *cmd ,int run_in_term )
 {
