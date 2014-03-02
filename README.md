@@ -53,3 +53,13 @@ Archlinux
 
 This version of rofi has been made available on the
 [AUR](https://aur.archlinux.org/packages/simpleswitcher-dd-git/) by 1ace.
+
+Contact
+-------
+
+Issues, feature requests can be filed at the github [issue
+tracker](https://github.com/DaveDavenport/rofi/issues).
+
+If you need to ask a direct question or get support installing, please find us on IRC: #gmpc on
+[freenode.net](https://webchat.freenode.net/?channels=#gmpc).
+
