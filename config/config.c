@@ -53,8 +53,10 @@ Settings config = {
     .zeltak_mode    = 0,
     // Terminal to use. (for ssh and open in terminal)
     .terminal_emulator = "x-terminal-emulator",
+#ifdef I3
     // Auto-detected. no longer used.
     .i3_mode        = 0,
+#endif
     // Key binding
     .window_key     = "F12",
     .run_key        = "mod1+F2",

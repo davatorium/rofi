@@ -90,7 +90,9 @@ typedef struct _Settings {
     // Behavior
     unsigned int    zeltak_mode;
     char *          terminal_emulator;
+#ifdef I3
     unsigned int    i3_mode;
+#endif
     // Key bindings
     char *          window_key;
     char *          run_key;

@@ -1201,7 +1201,15 @@ SwitcherMode run_switcher_window ( char **input )
         // Create pattern for printing the line.
         if (!window_get_cardinal_prop(root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1))
             desktops = 1;
-        sprintf(pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX(5, classfield));
+#ifdef I3
+        if(config.i3_mode) {
+            sprintf(pattern, "%%-%ds   %%s", MAX(5, classfield));
+        }else {
+#endif
+            sprintf(pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX(5, classfield));
+#ifdef I3
+        }
+#endif
         char **list = allocate_clear( sizeof( char* ) * ( ids->len+1 ) );
         int lines = 0;
 
@@ -1216,16 +1224,23 @@ SwitcherMode run_switcher_window ( char **input )
                 char desktop[5];
                 desktop[0] = 0;
                 char *line = allocate( strlen( c->title ) + strlen( c->class ) + classfield + 50 );
+#ifdef I3
+                if(!config.i3_mode) {
+#endif
+                    // find client's desktop. this is zero-based, so we adjust by since most
+                    // normal people don't think like this :-)
+                    if (!window_get_cardinal_prop(c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1))
+                        wmdesktop = 0xFFFFFFFF;
 
-                // find client's desktop. this is zero-based, so we adjust by since most
-                // normal people don't think like this :-)
-                if (!window_get_cardinal_prop(c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1))
-                    wmdesktop = 0xFFFFFFFF;
+                    if (wmdesktop < 0xFFFFFFFF)
+                        sprintf(desktop, "%d", (int)wmdesktop+1);
 
-                if (wmdesktop < 0xFFFFFFFF)
-                    sprintf(desktop, "%d", (int)wmdesktop+1);
-
-                sprintf(line, pattern, desktop, c->class, c->title);
+                    sprintf(line, pattern, desktop, c->class, c->title);
+#ifdef I3
+                }else{
+                    sprintf(line, pattern, c->class, c->title);
+                }
+#endif
 
                 list[lines++] = line;
             }
