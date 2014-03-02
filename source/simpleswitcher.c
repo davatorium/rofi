@@ -528,6 +528,12 @@ void window_set_atom_prop( Window w, Atom prop, Atom *atoms, int count )
     XChangeProperty( display, w, prop, XA_ATOM, 32, PropModeReplace, ( unsigned char* )atoms, count );
 }
 
+int window_get_cardinal_prop(Window w, Atom atom, unsigned long *list, int count)
+{
+    Atom type; int items;
+    return window_get_prop(w, atom, &type, &items, list, count*sizeof(unsigned long)) && type == XA_CARDINAL ? items:0;
+}
+
 // a ClientMessage
 int window_send_message( Window target, Window subject, Atom atom, unsigned long protocol, unsigned long mask, Time time )
 {
@@ -1165,6 +1171,7 @@ SwitcherMode run_switcher_window ( char **input )
         char pattern[50];
         int i;
         unsigned int classfield = 0;
+        unsigned long desktops = 0;
         // windows we actually display. may be slightly different to _NET_CLIENT_LIST_STACKING
         // if we happen to have a window destroyed while we're working...
         winlist *ids = winlist_new();
@@ -1192,7 +1199,9 @@ SwitcherMode run_switcher_window ( char **input )
         }
 
         // Create pattern for printing the line.
-        sprintf( pattern, "%%-%ds   %%s", MAX( 5, classfield ) );
+        if (!window_get_cardinal_prop(root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1))
+            desktops = 1;
+        sprintf(pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX(5, classfield));
         char **list = allocate_clear( sizeof( char* ) * ( ids->len+1 ) );
         int lines = 0;
 
@@ -1203,9 +1212,20 @@ SwitcherMode run_switcher_window ( char **input )
 
             if ( ( c = window_client( w ) ) ) {
                 // final line format
+                unsigned long wmdesktop;
+                char desktop[5];
+                desktop[0] = 0;
                 char *line = allocate( strlen( c->title ) + strlen( c->class ) + classfield + 50 );
 
-                sprintf( line, pattern, c->class, c->title );
+                // find client's desktop. this is zero-based, so we adjust by since most
+                // normal people don't think like this :-)
+                if (!window_get_cardinal_prop(c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1))
+                    wmdesktop = 0xFFFFFFFF;
+
+                if (wmdesktop < 0xFFFFFFFF)
+                    sprintf(desktop, "%d", (int)wmdesktop+1);
+
+                sprintf(line, pattern, desktop, c->class, c->title);
 
                 list[lines++] = line;
             }
@@ -1225,6 +1245,12 @@ SwitcherMode run_switcher_window ( char **input )
             } else
 #endif
             {
+                // Change to the desktop of the selected window/client.
+                // TODO: get rid of strtol
+                window_send_message(root, root, netatoms[_NET_CURRENT_DESKTOP], strtol(list[selected_line], NULL, 10)-1,
+                        SubstructureNotifyMask | SubstructureRedirectMask, time);
+                XSync(display, False);
+
                 window_send_message( root, ids->array[selected_line], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
                                      SubstructureNotifyMask | SubstructureRedirectMask, time );
             }
