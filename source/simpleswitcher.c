@@ -1245,6 +1245,12 @@ SwitcherMode run_switcher_window ( char **input )
             } else
 #endif
             {
+                // Change to the desktop of the selected window/client.
+                // TODO: get rid of strtol
+                window_send_message(root, root, netatoms[_NET_CURRENT_DESKTOP], strtol(list[selected_line], NULL, 10)-1,
+                        SubstructureNotifyMask | SubstructureRedirectMask, time);
+                XSync(display, False);
+
                 window_send_message( root, ids->array[selected_line], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
                                      SubstructureNotifyMask | SubstructureRedirectMask, time );
             }
