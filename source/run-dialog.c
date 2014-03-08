@@ -31,6 +31,7 @@
 #include <X11/X.h>
 
 #include <unistd.h>
+#include <limits.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -44,7 +45,7 @@
 #include <time.h>
 #endif
 
-#define RUN_CACHE_FILE "rofi.runcache"
+#define RUN_CACHE_FILE "rofi-2.runcache"
 
 static inline int execsh( const char *cmd ,int run_in_term )
 {
@@ -53,6 +54,17 @@ static inline int execsh( const char *cmd ,int run_in_term )
         return execlp( config.terminal_emulator, config.terminal_emulator, "-e", "sh", "-c", cmd, NULL );
 
     return execlp( "/bin/sh", "sh", "-c", cmd, NULL );
+}
+
+typedef struct _element{
+    long int index;
+    char name[1024];
+}element;
+static int element_sort_func(const void *ea,const void *eb) 
+{
+    element *a = *(element **)ea;
+    element *b = *(element **)eb;
+    return b->index - a->index;
 }
 // execute sub-process
 static pid_t exec_cmd( const char *cmd, int run_in_term )
@@ -70,7 +82,7 @@ static pid_t exec_cmd( const char *cmd, int run_in_term )
 
     int curr = -1;
     unsigned int index = 0;
-    char **retv = NULL;
+    element **retv = NULL;
 
     /**
      * This happens in non-critical time (After launching app)
@@ -83,20 +95,34 @@ static pid_t exec_cmd( const char *cmd, int run_in_term )
     if ( fd != NULL ) {
         char buffer[1024];
         while ( fgets( buffer,1024,fd ) != NULL ) {
-            retv = reallocate( retv, ( index+2 )*sizeof( char* ) );
+            retv = reallocate( retv, ( index+2 )*sizeof( element* ) );
+            retv[index] = allocate(sizeof(element));
             buffer[strlen( buffer )-1] = '\0';
-            retv[index] = strdup( buffer );
+            char * start = NULL;
+            retv[index]->index = strtol(buffer, &start, 10);
+            snprintf(retv[index]->name, 1024, "%s", start+1);
             retv[index+1] = NULL;
 
-            if ( strcasecmp( retv[index], cmd ) == 0 ) {
+            if ( strcasecmp( retv[index]->name, cmd ) == 0 ) {
                 curr = index;
             }
-
             index++;
         }
 
         fclose( fd );
     }
+
+    if(curr < 0) {
+            retv = reallocate( retv, ( index+2 )*sizeof( element* ) );
+            retv[index] = allocate(sizeof(element));
+            retv[index]->index = 1;
+            snprintf(retv[index]->name, 1024, "%s\n", cmd);
+            index++;
+    }else {
+            retv[curr]->index++;
+    }
+    // Sort the list.
+    qsort(retv, index, sizeof(element*), element_sort_func);
 
     /**
      * Write out the last 25 results again.
@@ -104,15 +130,12 @@ static pid_t exec_cmd( const char *cmd, int run_in_term )
     fd = fopen ( path, "w" );
 
     if ( fd ) {
-        // Last one goes on top!
-        fputs( cmd, fd );
-        fputc( '\n', fd );
 
         for ( int i = 0; i < ( int )index && i < 20; i++ ) {
-            if ( i != curr ) {
-                fputs( retv[i], fd );
-                fputc( '\n', fd );
-            }
+            fprintf(fd, "%ld %s\n",
+                    retv[i]->index,
+                    retv[i]->name
+                   );
         }
 
         fclose( fd );
@@ -146,9 +169,13 @@ static void delete_entry( const char *cmd )
     if ( fd != NULL ) {
         char buffer[1024];
         while ( fgets( buffer,1024,fd ) != NULL ) {
-            retv = reallocate( retv, ( index+2 )*sizeof( char* ) );
             buffer[strlen( buffer )-1] = '\0';
-            retv[index] = strdup( buffer );
+            char *start = NULL;
+            // Don't use result.
+            strtol(buffer, &start, 10);
+            if(start == NULL) continue;
+            retv = reallocate( retv, ( index+2 )*sizeof( char* ) );
+            retv[index] = strdup( start );
             retv[index+1] = NULL;
 
             if ( strcasecmp( retv[index], cmd ) == 0 ) {
@@ -213,9 +240,13 @@ static char ** get_apps ( )
     if ( fd != NULL ) {
         char buffer[1024];
         while ( fgets( buffer,1024,fd ) != NULL ) {
-            retv = reallocate( retv, ( index+2 )*sizeof( char* ) );
             buffer[strlen( buffer )-1] = '\0';
-            retv[index] = strdup( buffer );
+            char *start = NULL;
+            // Don't use result.
+            strtol(buffer, &start, 10);
+            if(start == NULL) continue;
+            retv = reallocate( retv, ( index+2 )*sizeof( char* ) );
+            retv[index] = strdup( start+1 );
             retv[index+1] = NULL;
             index++;
             num_favorites++;
