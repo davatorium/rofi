@@ -5,7 +5,7 @@ VERSION?=0.14.2
 PROGRAM=rofi
 
 
-PREFIX?=$(DESTDIR)/usr/local/
+PREFIX?=$(DESTDIR)/usr/local
 BIN_DIR?=$(PREFIX)/bin
 MAN_DIR?=$(PREFIX)/share/man/man1
 
