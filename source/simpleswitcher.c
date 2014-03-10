@@ -504,7 +504,7 @@ char* window_get_text_prop( Window w, Atom atom )
         if ( prop.encoding == XA_STRING ) {
             res = allocate( strlen( ( char* )prop.value )+1 );
             strcpy( res, ( char* )prop.value );
-        } else if ( XmbTextPropertyToTextList( display, &prop, &list, &count ) >= Success && count > 0 && *list ) {
+        } else if ( Xutf8TextPropertyToTextList( display, &prop, &list, &count ) >= Success && count > 0 && *list ) {
             res = allocate( strlen( *list )+1 );
             strcpy( res, *list );
             XFreeStringList( list );
