@@ -47,7 +47,7 @@ MenuReturn menu( char **lines, char **input, char *prompt,
 /**
  * Allocator wrappers
  */
-void* allocate( unsigned long bytes );
+void* allocate( unsigned long bytes ) __attribute__((malloc));
 void* allocate_clear( unsigned long bytes );
 void* reallocate( void *ptr, unsigned long bytes );
 

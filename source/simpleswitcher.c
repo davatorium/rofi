@@ -340,12 +340,15 @@ winlist* winlist_new()
     l->data  = allocate( sizeof( void* ) * ( WINLIST+1 ) );
     return l;
 }
-int winlist_append( winlist *l, Window w, void *d )
+int winlist_append( winlist *l , Window w, void *d )
 {
     if ( l->len > 0 && !( l->len % WINLIST ) ) {
         l->array = reallocate( l->array, sizeof( Window ) * ( l->len+WINLIST+1 ) );
         l->data  = reallocate( l->data,  sizeof( void* )  * ( l->len+WINLIST+1 ) );
     }
+    // Make clang-check happy.
+    // TODO: make clang-check clear this should never be 0.
+    if(l->data == NULL || l->array == NULL) return 0;
 
     l->data[l->len] = d;
     l->array[l->len++] = w;
@@ -503,10 +506,16 @@ char* window_get_text_prop( Window w, Atom atom )
     if ( XGetTextProperty( display, w, &prop, atom ) && prop.value && prop.nitems ) {
         if ( prop.encoding == XA_STRING ) {
             res = allocate( strlen( ( char* )prop.value )+1 );
-            strcpy( res, ( char* )prop.value );
+            // make clang-check happy.
+            if(res) {
+                strcpy( res, ( char* )prop.value );
+            }
         } else if ( Xutf8TextPropertyToTextList( display, &prop, &list, &count ) >= Success && count > 0 && *list ) {
             res = allocate( strlen( *list )+1 );
-            strcpy( res, *list );
+            // make clang-check happy.
+            if(res) {
+                strcpy( res, *list );
+            }
             XFreeStringList( list );
         }
     }
@@ -732,7 +741,7 @@ static int calculate_common_prefix( char **filtered, int max_lines )
 {
     int length_prefix = 0;
 
-    if ( filtered[0] != NULL ) {
+    if ( filtered && filtered[0] != NULL ) {
         int found = 1;
         char *p = filtered[0];
 

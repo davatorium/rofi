@@ -193,7 +193,7 @@ static int sort_func ( const void *a, const void *b )
 }
 static char ** get_ssh ( )
 {
-    int num_favorites = 0;
+    unsigned int num_favorites = 0;
     unsigned int index = 0;
     char *path;
     char **retv = NULL;
@@ -246,7 +246,7 @@ static char ** get_ssh ( )
 
                 // This is a nice little penalty, but doable? time will tell.
                 // given num_favorites is max 25.
-                for ( int j = 0; found == 0 && j < num_favorites; j++ ) {
+                for ( unsigned int j = 0; found == 0 && j < num_favorites; j++ ) {
                     if ( strncasecmp( &buffer[start], retv[j],stop-start ) == 0 ) found = 1;
                 }
 
@@ -263,7 +263,9 @@ static char ** get_ssh ( )
     }
 
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
-    qsort( &retv[num_favorites],index-num_favorites, sizeof( char* ), sort_func );
+    if(index > num_favorites) {
+        qsort( &retv[num_favorites],index-num_favorites, sizeof( char* ), sort_func );
+    }
     free( path );
 #ifdef TIMING
     clock_gettime( CLOCK_REALTIME, &stop );
