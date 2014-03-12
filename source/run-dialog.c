@@ -95,6 +95,7 @@ static pid_t exec_cmd( const char *cmd, int run_in_term )
     if ( fd != NULL ) {
         char buffer[1024];
         while ( fgets( buffer,1024,fd ) != NULL ) {
+            if(strlen(buffer) == 0) continue;
             retv = reallocate( retv, ( index+2 )*sizeof( element* ) );
             retv[index] = allocate(sizeof(element));
             buffer[strlen( buffer )-1] = '\0';
@@ -116,7 +117,7 @@ static pid_t exec_cmd( const char *cmd, int run_in_term )
             retv = reallocate( retv, ( index+2 )*sizeof( element* ) );
             retv[index] = allocate(sizeof(element));
             retv[index]->index = 1;
-            snprintf(retv[index]->name, 1024, "%s\n", cmd);
+            snprintf(retv[index]->name, 1024, "%s", cmd);
             index++;
     }else {
             retv[curr]->index++;
@@ -132,10 +133,12 @@ static pid_t exec_cmd( const char *cmd, int run_in_term )
     if ( fd ) {
 
         for ( int i = 0; i < ( int )index && i < 20; i++ ) {
-            fprintf(fd, "%ld %s\n",
-                    retv[i]->index,
-                    retv[i]->name
-                   );
+            if(retv[i]->name && retv[i]->name[0] != '\0') {
+                fprintf(fd, "%ld %s\n",
+                        retv[i]->index,
+                        retv[i]->name
+                       );
+            }
         }
 
         fclose( fd );
@@ -156,7 +159,8 @@ static void delete_entry( const char *cmd )
 {
     int curr = -1;
     unsigned int index = 0;
-    char **retv = NULL;
+    element **retv = NULL;
+
 
     /**
      * This happens in non-critical time (After launching app)
@@ -169,19 +173,18 @@ static void delete_entry( const char *cmd )
     if ( fd != NULL ) {
         char buffer[1024];
         while ( fgets( buffer,1024,fd ) != NULL ) {
+            if(strlen(buffer) == 0) continue;
+            retv = reallocate( retv, ( index+2 )*sizeof( element* ) );
+            retv[index] = allocate(sizeof(element));
             buffer[strlen( buffer )-1] = '\0';
-            char *start = NULL;
-            // Don't use result.
-            strtol(buffer, &start, 10);
-            if(start == NULL) continue;
-            retv = reallocate( retv, ( index+2 )*sizeof( char* ) );
-            retv[index] = strdup( start );
+            char * start = NULL;
+            retv[index]->index = strtol(buffer, &start, 10);
+            snprintf(retv[index]->name, 1024, "%s", start+1);
             retv[index+1] = NULL;
 
-            if ( strcasecmp( retv[index], cmd ) == 0 ) {
+            if ( strcasecmp( retv[index]->name, cmd ) == 0 ) {
                 curr = index;
             }
-
             index++;
         }
 
@@ -196,8 +199,12 @@ static void delete_entry( const char *cmd )
     if ( fd ) {
         for ( int i = 0; i < ( int )index && i < 20; i++ ) {
             if ( i != curr ) {
-                fputs( retv[i], fd );
-                fputc( '\n', fd );
+                if(retv[i]->name && retv[i]->name[0] != '\0') {
+                    fprintf(fd, "%ld %s\n",
+                            retv[i]->index,
+                            retv[i]->name
+                           );
+                }
             }
         }
 
@@ -240,6 +247,7 @@ static char ** get_apps ( )
     if ( fd != NULL ) {
         char buffer[1024];
         while ( fgets( buffer,1024,fd ) != NULL ) {
+            if(strlen(buffer) == 0) continue;
             buffer[strlen( buffer )-1] = '\0';
             char *start = NULL;
             // Don't use result.
