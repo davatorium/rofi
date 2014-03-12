@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-#include "simpleswitcher.h"
+#include "rofi.h"
 
 Settings config = {
     // Set the default window opacity.

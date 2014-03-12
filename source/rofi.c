@@ -860,7 +860,7 @@ MenuReturn menu( char **lines, char **input, char *prompt, Time *time, int *shif
         main_window = box;
 
         // Set the WM_NAME
-        XStoreName( display, box, "simpleswitcher" );
+        XStoreName( display, box, "rofi" );
 
         // Hack to set window opacity.
         unsigned int opacity_set = ( unsigned int )( ( config.window_opacity/100.0 )* OPAQUE );
