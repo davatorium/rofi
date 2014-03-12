@@ -52,7 +52,7 @@ Archlinux
 ---------
 
 This version of rofi has been made available on the
-[AUR](https://aur.archlinux.org/packages/simpleswitcher-dd-git/) by 1ace.
+[AUR](https://aur.archlinux.org/packages/rofi-git/).
 
 Contact
 -------
