@@ -37,7 +37,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <X11/Xft/Xft.h>
 #include <ctype.h>
 
-#include "simpleswitcher.h"
+#include "rofi.h"
 #include "textbox.h"
 #define SIDE_MARGIN 3
 

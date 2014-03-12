@@ -40,7 +40,7 @@
 #include <ctype.h>
 #include <errno.h>
 
-#include "simpleswitcher.h"
+#include "rofi.h"
 #include "profile-dialog.h"
 
 static inline int execshprofile( const char *profile )

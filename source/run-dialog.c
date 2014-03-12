@@ -39,7 +39,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include "simpleswitcher.h"
+#include "rofi.h"
 #include "run-dialog.h"
 #ifdef TIMING
 #include <time.h>

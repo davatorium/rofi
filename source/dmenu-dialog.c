@@ -34,7 +34,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "simpleswitcher.h"
+#include "rofi.h"
 
 char *dmenu_prompt = "dmenu ";
 

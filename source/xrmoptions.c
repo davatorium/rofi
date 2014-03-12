@@ -29,7 +29,7 @@
 #include <string.h>
 #include <X11/X.h>
 #include <X11/Xresource.h>
-#include "simpleswitcher.h"
+#include "rofi.h"
 #include "xrmoptions.h"
 
 // Big thanks to Sean Pringle for this code.

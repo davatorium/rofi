@@ -61,7 +61,7 @@
 
 #include <basedir.h>
 
-#include "simpleswitcher.h"
+#include "rofi.h"
 #include "run-dialog.h"
 #include "ssh-dialog.h"
 #include "profile-dialog.h"

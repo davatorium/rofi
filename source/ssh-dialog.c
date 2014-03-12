@@ -39,7 +39,7 @@
 #include <ctype.h>
 #include <errno.h>
 
-#include "simpleswitcher.h"
+#include "rofi.h"
 #include "ssh-dialog.h"
 #ifdef TIMING
 #include <time.h>
