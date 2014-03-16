@@ -39,6 +39,7 @@
 #include <fcntl.h>
 #include <err.h>
 #include <errno.h>
+#include <time.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -432,7 +433,9 @@ int take_keyboard( Window w )
         if ( XGrabKeyboard( display, w, True, GrabModeAsync, GrabModeAsync, CurrentTime ) == GrabSuccess )
             return 1;
 
-        usleep( 1000 );
+
+        struct timespec rsl = { 1, 0L };
+        nanosleep(&rsl, NULL);
     }
 
     return 0;

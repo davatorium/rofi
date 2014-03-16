@@ -81,8 +81,9 @@ static char ** get_profile ( )
     if ( getenv( "HOME" ) == NULL ) return NULL;
 
     const char *hd = getenv( "HOME" );
-    path = allocate( strlen( hd ) + strlen( ".switch_profile.conf" )+3 );
-    sprintf( path, "%s/%s", hd, ".switch_profile.conf" );
+    unsigned int path_length = strlen( hd ) + strlen( ".switch_profile.conf" )+3;
+    path = allocate( path_length );
+    snprintf( path, path_length, "%s/%s", hd, ".switch_profile.conf" );
     FILE *fd = fopen ( path, "r" );
 
     if ( fd != NULL ) {

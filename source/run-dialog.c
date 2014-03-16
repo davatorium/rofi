@@ -88,8 +88,9 @@ static pid_t exec_cmd( const char *cmd, int run_in_term )
      * This happens in non-critical time (After launching app)
      * It is allowed to be a bit slower.
      */
-    char *path = allocate( strlen( cache_dir ) + strlen( RUN_CACHE_FILE )+3 );
-    sprintf( path, "%s/%s", cache_dir, RUN_CACHE_FILE );
+    size_t path_length = strlen( cache_dir ) + strlen( RUN_CACHE_FILE )+3;
+    char *path = allocate( path_length );
+    snprintf( path, path_length, "%s/%s", cache_dir, RUN_CACHE_FILE );
     FILE *fd = fopen ( path, "r" );
 
     if ( fd != NULL ) {
