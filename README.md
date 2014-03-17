@@ -42,6 +42,11 @@ Type '?' (enter)  to switch from Window list mode to Run mode and back.
 Compilation
 -----------
 
+    autoreconf --install
+    ./configure
+    make
+    make install
+
 Type `make I3=` to disable compiling with i3 support.
 If during compilation it complains about not finding i3/ipc.h either disable i3 support
 or install the headers.
