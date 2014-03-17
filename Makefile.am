@@ -11,7 +11,7 @@ AM_CFLAGS=\
     @x11_CFLAGS@\
     @xdgbasedir_CFLAGS@\
     @xinerama_CFLAGS@\
-    -DMANPAGE_PATH="\"$(datadir)/man/man1/rofi.1\""\
+    -DMANPAGE_PATH="\"$(mandir)/man1/rofi.1\""\
     -I$(top_srcdir)/include/\
     -I$(top_srcdir)/config/\
     -I$(top_builddir)/
@@ -24,9 +24,7 @@ rofi_SOURCES=\
     source/run-dialog.c\
     source/ssh-dialog.c\
     source/profile-dialog.c\
-    config/config.c
-
-rofi_FILES=\
+    config/config.c\
     include/rofi.h\
     include/run-dialog.h\
     include/ssh-dialog.h\
@@ -46,5 +44,4 @@ man1_MANS=\
 # Extra DIST
 ##
 EXTRA_DIST=\
-    $(rofi_FILES)\
     $(man1_MANS)
