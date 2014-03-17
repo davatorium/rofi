@@ -23,13 +23,11 @@ rofi_SOURCES=\
     source/dmenu-dialog.c\
     source/run-dialog.c\
     source/ssh-dialog.c\
-    source/profile-dialog.c\
     config/config.c\
     include/rofi.h\
     include/run-dialog.h\
     include/ssh-dialog.h\
     include/dmenu-dialog.h\
-    include/profile-dialog.h\
     include/xrmoptions.h\
     include/textbox.h 
 

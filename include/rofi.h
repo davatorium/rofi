@@ -18,9 +18,6 @@ typedef enum {
     WINDOW_SWITCHER,
     RUN_DIALOG,
     SSH_DIALOG,
-#ifdef __QC_MODE__
-    PROFILE_DIALOG,
-#endif
     NUM_DIALOGS,
     DMENU_DIALOG,
     MODE_EXIT,

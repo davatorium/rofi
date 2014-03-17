@@ -65,7 +65,6 @@
 #include "rofi.h"
 #include "run-dialog.h"
 #include "ssh-dialog.h"
-#include "profile-dialog.h"
 #include "dmenu-dialog.h"
 
 #include "xrmoptions.h"
@@ -1324,13 +1323,6 @@ void run_switcher( int fmode, SwitcherMode mode )
         } else if ( mode == SSH_DIALOG ) {
             retv = ssh_switcher_dialog( &input );
         }
-
-#ifdef __QC_MODE__
-        else if ( mode == PROFILE_DIALOG ) {
-            retv = profile_switcher_dialog ( &input );
-        }
-
-#endif // __QC_MODE__
         else if ( mode == DMENU_DIALOG ) {
             retv = dmenu_switcher_dialog ( &input );
         }
