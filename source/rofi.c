@@ -70,6 +70,8 @@
 
 #include "xrmoptions.h"
 
+#include <config.h>
+
 #define LINE_MARGIN 4
 
 #define OPAQUE              0xffffffff
