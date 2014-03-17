@@ -34,7 +34,6 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <ctype.h>
-#include <math.h>
 #include <signal.h>
 #include <sys/wait.h>
 #include <fcntl.h>
