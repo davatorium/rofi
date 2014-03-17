@@ -26,6 +26,7 @@
  *
  */
 
+#include <config.h>
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,7 +70,6 @@
 
 #include "xrmoptions.h"
 
-#include <config.h>
 
 #define LINE_MARGIN 4
 
@@ -435,7 +435,7 @@ int take_keyboard( Window w )
             return 1;
 
 
-        struct timespec rsl = { 1, 0L };
+        struct timespec rsl = { 0, 100000L };
         nanosleep(&rsl, NULL);
     }
 
