@@ -4,6 +4,7 @@ AC_CONFIG_SRCDIR([source])
 AC_CONFIG_HEADER([config.h])
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
+AM_SILENT_RULES([yes])
 
 AC_PROG_CC
 AC_PROG_CC_STDC
