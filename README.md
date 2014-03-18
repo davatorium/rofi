@@ -36,20 +36,17 @@ Some of the features of rofi are:
 
 If compiled with I3 support, it should autodetect if I3 window manager is running. 
 
-Usage
------
+## Usage
 
 e.g.
 
   bindsym $mod+Tab exec rofi -now -font "snap-10" -fg "#505050" -bg "#000000" -hlfg "#ffb964" -hlbg "#000000" -o 85
 
-Switching Between Modi
-----------------------
+## Switching Between Modi
 
 Type '?' (enter)  to switch from Window list mode to Run mode and back.
 
-Compilation
------------
+## Compilation
 
 If compiling from GIT, first run to generate the needed build files:
 
@@ -66,8 +63,7 @@ To build rofi, run the following steps:
 The build system will autodetect the i3 header file during compilation. If it fails, make sure you 
 have i3/ipc.h installed. Check config.log for more information. 
 
-Dependencies
-------------
+## Dependencies
 
 Rofi requires the following tools and libraries to be installed:
 
@@ -76,14 +72,39 @@ Rofi requires the following tools and libraries to be installed:
  * libxdg-basedir
  * libxft 
 
-Archlinux
----------
+## Configuration
+
+There are 3 ways to configure rofi:
+
+### 1. Pre-compile time
+
+You can change the default behavior by modifying config/config.c
+
+### 2. Xresources
+
+Another solution is to configure it via X resources, e.g. add the following to your 
+Xresources file:
+
+    rofi.background: #333
+    rofi.foreground: #1aa
+    rofi.highlightbg: #1aa
+    rofi.highlightfg: #111
+    rofi.bordercolor: #277
+    rofi.font: times-10
+    rofi.padding: 3
+    rofi.lines: 5
+    rofi.borderwidth: 3
+
+### 3. Runtime
+
+All the above settings can be overridden by rofi's commandline flags.
+
+## Archlinux
 
 This version of rofi has been made available on the
 [AUR](https://aur.archlinux.org/packages/rofi-git/).
 
-Contact
--------
+# Contact
 
 Issues, feature requests can be filed at the github [issue
 tracker](https://github.com/DaveDavenport/rofi/issues).
