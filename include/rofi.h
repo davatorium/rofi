@@ -1,6 +1,6 @@
 #ifndef __SIMPLESWITCHER_H__
 #define __SIMPLESWITCHER_H__
-
+#include <config.h>
 #include <X11/X.h>
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -52,15 +52,15 @@ void* reallocate( void *ptr, unsigned long bytes );
 void catch_exit( __attribute__( ( unused ) ) int sig );
 
 typedef enum _WindowLocation {
-    CENTER      = 0,
-    NORTH_WEST  = 1,
-    NORTH       = 2,
-    NORTH_EAST  = 3,
-    EAST        = 4,
-    EAST_SOUTH  = 5,
-    SOUTH       = 6,
-    SOUTH_WEST  = 7,
-    WEST        = 8
+    WL_CENTER      = 0,
+    WL_NORTH_WEST  = 1,
+    WL_NORTH       = 2,
+    WL_NORTH_EAST  = 3,
+    WL_EAST        = 4,
+    WL_EAST_SOUTH  = 5,
+    WL_SOUTH       = 6,
+    WL_SOUTH_WEST  = 7,
+    WL_WEST        = 8
 } WindowLocation;
 
 typedef enum {

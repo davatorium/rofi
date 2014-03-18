@@ -26,7 +26,6 @@
  *
  */
 
-#include <config.h>
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,6 +51,8 @@
 #include <X11/Xresource.h>
 #include <X11/extensions/Xinerama.h>
 
+#include "rofi.h"
+
 #ifdef HAVE_I3_IPC_H
 #include <errno.h>
 #include <linux/un.h>
@@ -62,7 +63,6 @@
 
 #include <basedir.h>
 
-#include "rofi.h"
 #include "run-dialog.h"
 #include "ssh-dialog.h"
 #include "dmenu-dialog.h"
@@ -950,35 +950,35 @@ MenuReturn menu( char **lines, char **input, char *prompt, Time *time, int *shif
 
     // Determine window location
     switch ( config.location ) {
-        case NORTH_WEST:
+        case WL_NORTH_WEST:
             x=mon.x;
 
-        case NORTH:
+        case WL_NORTH:
             y=mon.y;
             break;
 
-        case NORTH_EAST:
+        case WL_NORTH_EAST:
             y=mon.y;
 
-        case EAST:
+        case WL_EAST:
             x=mon.x+mon.w-w;
             break;
 
-        case EAST_SOUTH:
+        case WL_EAST_SOUTH:
             x=mon.x+mon.w-w;
 
-        case SOUTH:
+        case WL_SOUTH:
             y=mon.y+mon.h-h;
             break;
 
-        case SOUTH_WEST:
+        case WL_SOUTH_WEST:
             y=mon.y+mon.h-h;
 
-        case WEST:
+        case WL_WEST:
             x=mon.x;
             break;
 
-        case CENTER:
+        case WL_CENTER:
         default:
             break;
     }

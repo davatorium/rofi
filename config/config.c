@@ -61,8 +61,8 @@ Settings config = {
     .window_key     = "F12",
     .run_key        = "mod1+F2",
     .ssh_key        = "mod1+F3",
-    // Location of the window.   CENTER, NORTH_WEST, NORTH,NORTH_EAST, etc.
-    .location       = CENTER,
+    // Location of the window.   WL_CENTER, WL_NORTH_WEST, WL_NORTH,WL_NORTH_EAST, etc.
+    .location       = WL_CENTER,
     // Mode of window, list (Vertical) or dmenu like (Horizontal)
     .wmode          = VERTICAL,
     // Padding of the window.
