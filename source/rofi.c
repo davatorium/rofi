@@ -52,7 +52,7 @@
 #include <X11/Xresource.h>
 #include <X11/extensions/Xinerama.h>
 
-#ifdef I3
+#ifdef HAVE_I3_IPC_H
 #include <errno.h>
 #include <linux/un.h>
 #include <sys/types.h>
@@ -175,10 +175,10 @@ static inline void tokenize_free( char **ip )
     free( ip );
 }
 
-#ifdef I3
-// Path to I3 socket.
+#ifdef HAVE_I3_IPC_H
+// Path to HAVE_I3_IPC_H socket.
 char *i3_socket_path = NULL;
-// Focus window on I3 window manager.
+// Focus window on HAVE_I3_IPC_H window manager.
 static void focus_window_i3( const char *socket_path, int id )
 {
     i3_ipc_header_t head;
@@ -1199,7 +1199,7 @@ SwitcherMode run_switcher_window ( char **input )
 
                 classfield = MAX( classfield, strlen( c->class ) );
 
-#ifdef I3
+#ifdef HAVE_I3_IPC_H
 
                 // In i3 mode, skip the i3bar completely.
                 if ( config.i3_mode && strstr( c->class, "i3bar" ) != NULL ) continue;
@@ -1213,13 +1213,13 @@ SwitcherMode run_switcher_window ( char **input )
         // Create pattern for printing the line.
         if (!window_get_cardinal_prop(root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1))
             desktops = 1;
-#ifdef I3
+#ifdef HAVE_I3_IPC_H
         if(config.i3_mode) {
             sprintf(pattern, "%%-%ds   %%s", MAX(5, classfield));
         }else {
 #endif
             sprintf(pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX(5, classfield));
-#ifdef I3
+#ifdef HAVE_I3_IPC_H
         }
 #endif
         char **list = allocate_clear( sizeof( char* ) * ( ids->len+1 ) );
@@ -1236,7 +1236,7 @@ SwitcherMode run_switcher_window ( char **input )
                 char desktop[5];
                 desktop[0] = 0;
                 char *line = allocate( strlen( c->title ) + strlen( c->class ) + classfield + 50 );
-#ifdef I3
+#ifdef HAVE_I3_IPC_H
                 if(!config.i3_mode) {
 #endif
                     // find client's desktop. this is zero-based, so we adjust by since most
@@ -1248,7 +1248,7 @@ SwitcherMode run_switcher_window ( char **input )
                         sprintf(desktop, "%d", (int)wmdesktop+1);
 
                     sprintf(line, pattern, desktop, c->class, c->title);
-#ifdef I3
+#ifdef HAVE_I3_IPC_H
                 }else{
                     sprintf(line, pattern, c->class, c->title);
                 }
@@ -1264,7 +1264,7 @@ SwitcherMode run_switcher_window ( char **input )
         if ( mretv == MENU_NEXT ) {
             retv = NEXT_DIALOG;
         } else if ( mretv == MENU_OK && list[selected_line] ) {
-#ifdef I3
+#ifdef HAVE_I3_IPC_H
 
             if ( config.i3_mode ) {
                 // Hack for i3.
@@ -1423,7 +1423,7 @@ void grab_key( unsigned int modmask, KeySym key )
 }
 
 
-#ifdef I3
+#ifdef HAVE_I3_IPC_H
 static inline void display_get_i3_path( Display *display )
 {
     config.i3_mode = 0;
@@ -1437,7 +1437,7 @@ static inline void display_get_i3_path( Display *display )
         }
     }
 }
-#endif //I3
+#endif //HAVE_I3_IPC_H
 
 
 /**
@@ -1538,7 +1538,7 @@ int main( int argc, char *argv[] )
     }
 
 
-#ifdef I3
+#ifdef HAVE_I3_IPC_H
     // Check for i3
     display_get_i3_path( display );
 #endif
@@ -1596,7 +1596,7 @@ int main( int argc, char *argv[] )
 
     winlist_free( cache_xattr );
     winlist_free( cache_client );
-#ifdef I3
+#ifdef HAVE_I3_IPC_H
 
     if ( i3_socket_path != NULL ) free( i3_socket_path );
 
