@@ -1,11 +1,17 @@
 AC_INIT([rofi], [0.14.3], [qball@gmpclient.org])
 
-AC_CONFIG_SRCDIR([source])
+AC_CONFIG_SRCDIR([source/rofi.c])
 AC_CONFIG_HEADER([config.h])
 
+##
+# Setup automake to be silent and in foreign mode.
+##
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 AM_SILENT_RULES([yes])
 
+##
+# Check for compiler
+##
 AC_PROG_CC
 AC_PROG_CC_STDC
 AM_PROG_CC_C_O

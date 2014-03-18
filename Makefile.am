@@ -1,3 +1,6 @@
+##
+# Rofi the program
+##
 bin_PROGRAMS=rofi
 
 LIBS=\
