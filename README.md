@@ -4,11 +4,14 @@ A popup window switcher roughly based on [superswitcher](http://code.google.com/
 This version is based on the version from [Sean
 Pringle](http://github.com/seanpringle/simpleswitcher). All credit for this great tool should go to him.
 
+Some of the features of rofi are:
+
 * Switcher centered on screen (or monitor for multi-head).
 
 * Vertical list with two columns:
-	1. Window class.
-	2. Window title.
+    1. Desktop number (optional, not shown in i3 mode)
+	2. Window class.
+	3. Window title.
 
 * Controls like dmenu:
 	* Type to filter windows.
@@ -22,8 +25,14 @@ Pringle](http://github.com/seanpringle/simpleswitcher). All credit for this grea
 	* Arrows to highlight selections.
 	* Return to select.
     * Shift-Return to run in terminal.
+    * Favorites list.
+
+* Quickly ssh into remote machines
+    * Parses ~/.ssh/config to find hosts.
 
 * Runs in background or once-off.
+
+* Drop in dmenu replacement.
 
 If compiled with I3 support, it should autodetect if I3 window manager is running. 
 
@@ -42,16 +51,30 @@ Type '?' (enter)  to switch from Window list mode to Run mode and back.
 Compilation
 -----------
 
+If compiling from GIT, first run to generate the needed build files:
+
     autoreconf --install
-    ./configure
+
+To build rofi, run the following steps:
+
+    mkdir build/
+    cd build/
+    ../configure
     make
     make install
 
-Type `make I3=` to disable compiling with i3 support.
-If during compilation it complains about not finding i3/ipc.h either disable i3 support
-or install the headers.
+The build system will autodetect the i3 header file during compilation. If it fails, make sure you 
+have i3/ipc.h installed. Check config.log for more information. 
 
-Type `make PREFIX=<path> install` to install in a different prefix.
+Dependencies
+------------
+
+Rofi requires the following tools and libraries to be installed:
+
+ * libx11
+ * libxinerama
+ * libxdg-basedir
+ * libxft 
 
 Archlinux
 ---------

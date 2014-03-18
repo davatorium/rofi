@@ -37,9 +37,16 @@ rofi_SOURCES=\
 man1_MANS=\
     doc/rofi.1
 
+##
+# Readme.md
+##
+markdown_FILES=\
+    README.md
+
 
 ## 
 # Extra DIST
 ##
 EXTRA_DIST=\
-    $(man1_MANS)
+    $(man1_MANS)\
+    $(markdown_FILES)
