@@ -104,7 +104,7 @@ All the above settings can be overridden by rofi's commandline flags.
 This version of rofi has been made available on the
 [AUR](https://aur.archlinux.org/packages/rofi-git/).
 
-# Contact
+## Contact
 
 Issues, feature requests can be filed at the github [issue
 tracker](https://github.com/DaveDavenport/rofi/issues).
