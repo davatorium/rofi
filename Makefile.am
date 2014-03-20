@@ -43,9 +43,19 @@ man1_MANS=\
 ##
 # Readme.md
 ##
-markdown_FILES=\
+markdown_SC_FILES=\
     README.md
 
+# want the html to show up in release.
+md_verbose = $(md_verbose_@AM_V@)
+md_verbose_ = $(md_verbose_@AM_DEFAULT_V@)
+md_verbose_0 = @echo "  MD" $@;
+
+markdown_FILES=\
+    README.html
+
+%.html: %.md
+	$(md_verbose) markdown $< > $@
 
 ## 
 # Extra DIST
