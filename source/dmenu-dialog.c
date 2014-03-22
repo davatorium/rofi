@@ -42,16 +42,19 @@ static char **get_dmenu ( )
 {
     char buffer[1024];
     char **retv = NULL;
-    int index = 0;
+    int  index  = 0;
 
-    while ( fgets( buffer, 1024, stdin ) != NULL ) {
-        retv = reallocate( retv, ( index+2 )*sizeof( char* ) );
-        retv[index] = strdup( buffer );
-        retv[index+1] = NULL;
+    while ( fgets ( buffer, 1024, stdin ) != NULL )
+    {
+        retv            = reallocate ( retv, ( index + 2 ) * sizeof ( char* ) );
+        retv[index]     = strdup ( buffer );
+        retv[index + 1] = NULL;
 
         // Filter out line-end.
-        if ( retv[index][strlen( buffer )-1] == '\n' )
-            retv[index][strlen( buffer )-1] = '\0';
+        if ( retv[index][strlen ( buffer ) - 1] == '\n' )
+        {
+            retv[index][strlen ( buffer ) - 1] = '\0';
+        }
 
         index++;
     }
@@ -61,27 +64,36 @@ static char **get_dmenu ( )
 
 SwitcherMode dmenu_switcher_dialog ( char **input )
 {
-    int selected_line = 0;
-    SwitcherMode retv = MODE_EXIT;
+    int          selected_line = 0;
+    SwitcherMode retv          = MODE_EXIT;
     // act as a launcher
-    char **list = get_dmenu( );
+    char         **list = get_dmenu ( );
 
-    int mretv = menu( list, input, dmenu_prompt,NULL, NULL,
-                      token_match, NULL, &selected_line );
+    int          mretv = menu ( list, input, dmenu_prompt, NULL, NULL,
+                                token_match, NULL, &selected_line );
 
-    if ( mretv == MENU_NEXT ) {
+    if ( mretv == MENU_NEXT )
+    {
         retv = DMENU_DIALOG;
-    } else if ( mretv == MENU_OK && list[selected_line] != NULL ) {
-        fputs( list[selected_line],stdout );
-    } else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' ) {
-        fputs( *input, stdout );
+    }
+    else if ( mretv == MENU_OK && list[selected_line] != NULL )
+    {
+        fputs ( list[selected_line], stdout );
+    }
+    else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' )
+    {
+        fputs ( *input, stdout );
     }
 
-    for ( unsigned int i=0; list != NULL && list[i] != NULL; i++ ) {
-        free( list[i] );
+    for ( unsigned int i = 0; list != NULL && list[i] != NULL; i++ )
+    {
+        free ( list[i] );
     }
 
-    if ( list != NULL ) free( list );
+    if ( list != NULL )
+    {
+        free ( list );
+    }
 
     return retv;
 }

@@ -3,18 +3,19 @@
 #include <config.h>
 #include <X11/X.h>
 
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define NEAR(a,o,b) ((b) > (a)-(o) && (b) < (a)+(o))
-#define OVERLAP(a,b,c,d) (((a)==(c) && (b)==(d)) || MIN((a)+(b), (c)+(d)) - MAX((a), (c)) > 0)
-#define INTERSECT(x,y,w,h,x1,y1,w1,h1) (OVERLAP((x),(w),(x1),(w1)) && OVERLAP((y),(h),(y1),(h1)))
+#define MAX( a, b )                                ( ( a ) > ( b ) ? ( a ) : ( b ) )
+#define MIN( a, b )                                ( ( a ) < ( b ) ? ( a ) : ( b ) )
+#define NEAR( a, o, b )                            ( ( b ) > ( a ) - ( o ) && ( b ) < ( a ) + ( o ) )
+#define OVERLAP( a, b, c, d )                      ( ( ( a ) == ( c ) && ( b ) == ( d ) ) || MIN ( ( a ) + ( b ), ( c ) + ( d ) ) - MAX ( ( a ), ( c ) ) > 0 )
+#define INTERSECT( x, y, w, h, x1, y1, w1, h1 )    ( OVERLAP ( ( x ), ( w ), ( x1 ), ( w1 ) ) && OVERLAP ( ( y ), ( h ), ( y1 ), ( h1 ) ) )
 
 extern const char *cache_dir;
 #ifdef HAVE_I3_IPC_H
-extern char *i3_socket_path;
+extern char       *i3_socket_path;
 #endif
 
-typedef enum {
+typedef enum
+{
     WINDOW_SWITCHER,
     RUN_DIALOG,
     SSH_DIALOG,
@@ -24,46 +25,48 @@ typedef enum {
     NEXT_DIALOG
 } SwitcherMode;
 
-typedef enum {
-    MENU_OK           =  0,
+typedef enum
+{
+    MENU_OK           = 0,
     MENU_CANCEL       = -1,
     MENU_NEXT         = -2,
     MENU_CUSTOM_INPUT = -3,
     MENU_ENTRY_DELETE = -4
-
 } MenuReturn;
 
 
 typedef int ( *menu_match_cb )( char **tokens, const char *input, int index, void *data );
-MenuReturn menu( char **lines, char **input, char *prompt,
-                 Time *time, int *shift,
-                 menu_match_cb mmc, void *mmc_data,
-                 int *selected_line );
+MenuReturn menu ( char **lines, char **input, char *prompt,
+                  Time *time, int *shift,
+                  menu_match_cb mmc, void *mmc_data,
+                  int *selected_line );
 
 
 /**
  * Allocator wrappers
  */
-void* allocate( unsigned long bytes ) __attribute__((malloc));
-void* allocate_clear( unsigned long bytes );
-void* reallocate( void *ptr, unsigned long bytes );
+void* allocate ( unsigned long bytes ) __attribute__( ( malloc ) );
+void* allocate_clear ( unsigned long bytes );
+void* reallocate ( void *ptr, unsigned long bytes );
 
 
-void catch_exit( __attribute__( ( unused ) ) int sig );
+void catch_exit ( __attribute__( ( unused ) ) int sig );
 
-typedef enum _WindowLocation {
-    WL_CENTER      = 0,
-    WL_NORTH_WEST  = 1,
-    WL_NORTH       = 2,
-    WL_NORTH_EAST  = 3,
-    WL_EAST        = 4,
-    WL_EAST_SOUTH  = 5,
-    WL_SOUTH       = 6,
-    WL_SOUTH_WEST  = 7,
-    WL_WEST        = 8
+typedef enum _WindowLocation
+{
+    WL_CENTER     = 0,
+    WL_NORTH_WEST = 1,
+    WL_NORTH      = 2,
+    WL_NORTH_EAST = 3,
+    WL_EAST       = 4,
+    WL_EAST_SOUTH = 5,
+    WL_SOUTH      = 6,
+    WL_SOUTH_WEST = 7,
+    WL_WEST       = 8
 } WindowLocation;
 
-typedef enum {
+typedef enum
+{
     VERTICAL   = 0,
     HORIZONTAL = 1
 } WindowMode;
@@ -71,38 +74,39 @@ typedef enum {
  * Settings
  */
 
-typedef struct _Settings {
+typedef struct _Settings
+{
     // Window settings
-    unsigned int    window_opacity;
+    unsigned int   window_opacity;
     // Menu settings
-    unsigned int    menu_bw;
-    unsigned int    menu_width;
-    unsigned int    menu_lines;
-    char *          menu_font;
-    char *          menu_fg;
-    char *          menu_bg;
-    char *          menu_hlfg;
-    char *          menu_hlbg;
-    char *          menu_bc;
+    unsigned int   menu_bw;
+    unsigned int   menu_width;
+    unsigned int   menu_lines;
+    char           * menu_font;
+    char           * menu_fg;
+    char           * menu_bg;
+    char           * menu_hlfg;
+    char           * menu_hlbg;
+    char           * menu_bc;
     // Behavior
-    unsigned int    zeltak_mode;
-    char *          terminal_emulator;
+    unsigned int   zeltak_mode;
+    char           * terminal_emulator;
 #ifdef HAVE_I3_IPC_H
-    unsigned int    i3_mode;
+    unsigned int   i3_mode;
 #endif
     // Key bindings
-    char *          window_key;
-    char *          run_key;
-    char *          ssh_key;
-    WindowLocation  location;
-    WindowMode      wmode;
-    unsigned int    padding;
+    char           * window_key;
+    char           * run_key;
+    char           * ssh_key;
+    WindowLocation location;
+    WindowMode     wmode;
+    unsigned int   padding;
 } Settings;
 
 extern Settings config;
 
 
 int token_match ( char **tokens, const char *input,
-                  __attribute__( ( unused ) )int index,
-                  __attribute__( ( unused ) )void *data );
+                  __attribute__( ( unused ) ) int index,
+                  __attribute__( ( unused ) ) void *data );
 #endif
