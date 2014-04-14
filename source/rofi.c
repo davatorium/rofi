@@ -70,16 +70,16 @@
 #include "xrmoptions.h"
 
 
-#define LINE_MARGIN 4
+#define LINE_MARGIN            4
 
-#define OPAQUE              0xffffffff
-#define OPACITY             "_NET_WM_WINDOW_OPACITY"
-#define I3_SOCKET_PATH_PROP "I3_SOCKET_PATH"
-#define FORK 1
-#define NOFORK 2
+#define OPAQUE                 0xffffffff
+#define OPACITY                "_NET_WM_WINDOW_OPACITY"
+#define I3_SOCKET_PATH_PROP    "I3_SOCKET_PATH"
+#define FORK                   1
+#define NOFORK                 2
 
 
-xdgHandle xdg_handle;
+xdgHandle  xdg_handle;
 const char *cache_dir = NULL;
 
 /**
@@ -87,336 +87,389 @@ const char *cache_dir = NULL;
  * Matches tokenized.
  */
 int token_match ( char **tokens, const char *input,
-                  __attribute__( ( unused ) )int index,
-                  __attribute__( ( unused ) )void *data )
+                  __attribute__( ( unused ) ) int index,
+                  __attribute__( ( unused ) ) void *data )
 {
     int match = 1;
 
     // Do a tokenized match.
-    if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
-            match = ( strcasestr( input, tokens[j] ) != NULL );
+    if ( tokens )
+    {
+        for ( int j = 1; match && tokens[j]; j++ )
+        {
+            match = ( strcasestr ( input, tokens[j] ) != NULL );
         }
+    }
 
     return match;
 }
 
-void* allocate( unsigned long bytes )
+void* allocate ( unsigned long bytes )
 {
-    if ( bytes == 0 ) return NULL;
+    if ( bytes == 0 )
+    {
+        return NULL;
+    }
 
-    void *ptr = malloc( bytes );
+    void *ptr = malloc ( bytes );
 
-    if ( !ptr ) {
-        fprintf( stderr, "malloc failed!\n" );
-        exit( EXIT_FAILURE );
+    if ( !ptr )
+    {
+        fprintf ( stderr, "malloc failed!\n" );
+        exit ( EXIT_FAILURE );
     }
 
     return ptr;
 }
-void* allocate_clear( unsigned long bytes )
+void* allocate_clear ( unsigned long bytes )
 {
-    if ( bytes == 0 ) return NULL;
+    if ( bytes == 0 )
+    {
+        return NULL;
+    }
 
-    void *ptr = allocate( bytes );
-    memset( ptr, 0, bytes );
+    void *ptr = allocate ( bytes );
+    memset ( ptr, 0, bytes );
     return ptr;
 }
-void* reallocate( void *ptr, unsigned long bytes )
+void* reallocate ( void *ptr, unsigned long bytes )
 {
-    if ( bytes == 0 ) return NULL;
+    if ( bytes == 0 )
+    {
+        return NULL;
+    }
 
-    ptr = realloc( ptr, bytes );
+    ptr = realloc ( ptr, bytes );
 
-    if ( !ptr ) {
-        fprintf( stderr, "realloc failed!\n" );
-        exit( EXIT_FAILURE );
+    if ( !ptr )
+    {
+        fprintf ( stderr, "realloc failed!\n" );
+        exit ( EXIT_FAILURE );
     }
 
     return ptr;
 }
 
 
-static char **tokenize( const char *input )
+static char **tokenize ( const char *input )
 {
-    if ( input == NULL ) return NULL;
+    if ( input == NULL )
+    {
+        return NULL;
+    }
 
     char *saveptr = NULL, *token;
-    char **retv  = NULL;
+    char **retv   = NULL;
     // First entry is always full (modified) stringtext.
-    int num_tokens = 1;
+    int  num_tokens = 1;
 
     //First entry is string that is modified.
-    retv = allocate ( 2*sizeof( char* ) );
-    retv[0] = strdup( input );
+    retv    = allocate ( 2 * sizeof ( char* ) );
+    retv[0] = strdup ( input );
     retv[1] = NULL;
 
     // Iterate over tokens.
     // strtok should still be valid for utf8.
     for (
-        token = strtok_r( retv[0], " ", &saveptr );
+        token = strtok_r ( retv[0], " ", &saveptr );
         token != NULL;
-        token = strtok_r( NULL, " ", &saveptr ) ) {
-        retv = reallocate( retv, sizeof( char* )*( num_tokens+2 ) );
-        retv[num_tokens+1] = NULL;
-        retv[num_tokens] = token;
+        token = strtok_r ( NULL, " ", &saveptr ) )
+    {
+        retv                 = reallocate ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
+        retv[num_tokens + 1] = NULL;
+        retv[num_tokens]     = token;
         num_tokens++;
     }
 
     return retv;
 }
 
-static inline void tokenize_free( char **ip )
+static inline void tokenize_free ( char **ip )
 {
-    if ( ip == NULL ) return;
+    if ( ip == NULL )
+    {
+        return;
+    }
 
     if ( ip[0] )
-        free( ip[0] );
+    {
+        free ( ip[0] );
+    }
 
-    free( ip );
+    free ( ip );
 }
 
 #ifdef HAVE_I3_IPC_H
 // Path to HAVE_I3_IPC_H socket.
 char *i3_socket_path = NULL;
 // Focus window on HAVE_I3_IPC_H window manager.
-static void focus_window_i3( const char *socket_path, int id )
+static void focus_window_i3 ( const char *socket_path, int id )
 {
-    i3_ipc_header_t head;
-    char command[128];
-    int s, t, len;
+    i3_ipc_header_t    head;
+    char               command[128];
+    int                s, t, len;
     struct sockaddr_un remote;
 
-    if ( strlen( socket_path ) > UNIX_PATH_MAX ) {
-        fprintf( stderr, "Socket path is to long. %zd > %d\n", strlen( socket_path ), UNIX_PATH_MAX );
+    if ( strlen ( socket_path ) > UNIX_PATH_MAX )
+    {
+        fprintf ( stderr, "Socket path is to long. %zd > %d\n", strlen ( socket_path ), UNIX_PATH_MAX );
         return;
     }
 
-    if ( ( s = socket( AF_UNIX, SOCK_STREAM, 0 ) ) == -1 ) {
-        fprintf( stderr, "Failed to open connection to I3: %s\n", strerror( errno ) );
+    if ( ( s = socket ( AF_UNIX, SOCK_STREAM, 0 ) ) == -1 )
+    {
+        fprintf ( stderr, "Failed to open connection to I3: %s\n", strerror ( errno ) );
         return;
     }
 
     remote.sun_family = AF_UNIX;
-    strcpy( remote.sun_path, socket_path );
-    len = strlen( remote.sun_path ) + sizeof( remote.sun_family );
+    strcpy ( remote.sun_path, socket_path );
+    len = strlen ( remote.sun_path ) + sizeof ( remote.sun_family );
 
-    if ( connect( s, ( struct sockaddr * )&remote, len ) == -1 ) {
-        fprintf( stderr, "Failed to connect to I3 (%s): %s\n", socket_path,strerror( errno ) );
-        close( s );
-        return ;
+    if ( connect ( s, ( struct sockaddr * ) &remote, len ) == -1 )
+    {
+        fprintf ( stderr, "Failed to connect to I3 (%s): %s\n", socket_path, strerror ( errno ) );
+        close ( s );
+        return;
     }
 
 
     // Formulate command
-    snprintf( command, 128, "[id=\"%d\"] focus", id );
+    snprintf ( command, 128, "[id=\"%d\"] focus", id );
     // Prepare header.
-    memcpy( head.magic, I3_IPC_MAGIC, 6 );
-    head.size = strlen( command );
+    memcpy ( head.magic, I3_IPC_MAGIC, 6 );
+    head.size = strlen ( command );
     head.type = I3_IPC_MESSAGE_TYPE_COMMAND;
     // Send header.
-    send( s, &head, sizeof( head ),0 );
+    send ( s, &head, sizeof ( head ), 0 );
     // Send message
-    send( s, command, strlen( command ),0 );
+    send ( s, command, strlen ( command ), 0 );
     // Receive header.
-    t = recv( s, &head, sizeof( head ),0 );
+    t = recv ( s, &head, sizeof ( head ), 0 );
 
-    if ( t == sizeof( head ) ) {
-        recv( s, command, head.size, 0 );
+    if ( t == sizeof ( head ) )
+    {
+        recv ( s, command, head.size, 0 );
     }
 
-    close( s );
+    close ( s );
 }
 #endif
 
-void catch_exit( __attribute__( ( unused ) ) int sig )
+void catch_exit ( __attribute__( ( unused ) ) int sig )
 {
-    while ( 0 < waitpid( -1, NULL, WNOHANG ) );
+    while ( 0 < waitpid ( -1, NULL, WNOHANG ) )
+    {
+        ;
+    }
 }
 
 
 // cli arg handling
-static int find_arg( const int argc, char * const argv[], const char * const key )
+static int find_arg ( const int argc, char * const argv[], const char * const key )
 {
     int i;
 
-    for ( i = 0; i < argc && strcasecmp( argv[i], key ); i++ );
+    for ( i = 0; i < argc && strcasecmp ( argv[i], key ); i++ )
+    {
+        ;
+    }
 
-    return i < argc ? i: -1;
+    return i < argc ? i : -1;
 }
-static void find_arg_str( int argc, char *argv[], char *key, char** val )
+static void find_arg_str ( int argc, char *argv[], char *key, char** val )
 {
-    int i = find_arg( argc, argv, key );
+    int i = find_arg ( argc, argv, key );
 
-    if ( val != NULL &&  i > 0 && i < argc-1 ) {
-        *val = argv[i+1];
+    if ( val != NULL && i > 0 && i < argc - 1 )
+    {
+        *val = argv[i + 1];
     }
 }
 
 static void find_arg_int ( int argc, char *argv[], char *key, unsigned int *val )
 {
-    int i = find_arg( argc, argv, key );
+    int i = find_arg ( argc, argv, key );
 
-    if ( val != NULL && i > 0 && i < ( argc-1 ) ) {
-        *val = strtol( argv[i+1], NULL, 10 );
+    if ( val != NULL && i > 0 && i < ( argc - 1 ) )
+    {
+        *val = strtol ( argv[i + 1], NULL, 10 );
     }
 }
 
 unsigned int NumlockMask = 0;
-Display *display = NULL;
-Screen *screen;
-Window root;
-int screen_id;
+Display      *display    = NULL;
+Screen       *screen;
+Window       root;
+int          screen_id;
 
-static int ( *xerror )( Display *, XErrorEvent * );
+static int   ( *xerror )( Display *, XErrorEvent * );
 
-#define ATOM_ENUM(x) x
-#define ATOM_CHAR(x) #x
+#define ATOM_ENUM( x )    x
+#define ATOM_CHAR( x )    # x
 
-#define EWMH_ATOMS(X) \
-X(_NET_SUPPORTING_WM_CHECK),\
-X(_NET_CLIENT_LIST),\
-X(_NET_CLIENT_LIST_STACKING),\
-X(_NET_NUMBER_OF_DESKTOPS),\
-X(_NET_CURRENT_DESKTOP),\
-X(_NET_DESKTOP_GEOMETRY),\
-X(_NET_DESKTOP_VIEWPORT),\
-X(_NET_WORKAREA),\
-X(_NET_ACTIVE_WINDOW),\
-X(_NET_CLOSE_WINDOW),\
-X(_NET_MOVERESIZE_WINDOW),\
-X(_NET_WM_NAME),\
-X(_NET_WM_STATE),\
-X(_NET_WM_STATE_SKIP_TASKBAR),\
-X(_NET_WM_STATE_SKIP_PAGER),\
-X(_NET_WM_STATE_FULLSCREEN),\
-X(_NET_WM_STATE_ABOVE),\
-X(_NET_WM_STATE_BELOW),\
-X(_NET_WM_STATE_DEMANDS_ATTENTION),\
-X(_NET_WM_DESKTOP),\
-X(_NET_SUPPORTED)
+#define EWMH_ATOMS( X )                    \
+    X ( _NET_SUPPORTING_WM_CHECK ),        \
+    X ( _NET_CLIENT_LIST ),                \
+    X ( _NET_CLIENT_LIST_STACKING ),       \
+    X ( _NET_NUMBER_OF_DESKTOPS ),         \
+    X ( _NET_CURRENT_DESKTOP ),            \
+    X ( _NET_DESKTOP_GEOMETRY ),           \
+    X ( _NET_DESKTOP_VIEWPORT ),           \
+    X ( _NET_WORKAREA ),                   \
+    X ( _NET_ACTIVE_WINDOW ),              \
+    X ( _NET_CLOSE_WINDOW ),               \
+    X ( _NET_MOVERESIZE_WINDOW ),          \
+    X ( _NET_WM_NAME ),                    \
+    X ( _NET_WM_STATE ),                   \
+    X ( _NET_WM_STATE_SKIP_TASKBAR ),      \
+    X ( _NET_WM_STATE_SKIP_PAGER ),        \
+    X ( _NET_WM_STATE_FULLSCREEN ),        \
+    X ( _NET_WM_STATE_ABOVE ),             \
+    X ( _NET_WM_STATE_BELOW ),             \
+    X ( _NET_WM_STATE_DEMANDS_ATTENTION ), \
+    X ( _NET_WM_DESKTOP ),                 \
+    X ( _NET_SUPPORTED )
 
-enum { EWMH_ATOMS( ATOM_ENUM ), NETATOMS };
-const char *netatom_names[] = { EWMH_ATOMS( ATOM_CHAR ) };
-Atom netatoms[NETATOMS];
+enum { EWMH_ATOMS ( ATOM_ENUM ), NETATOMS };
+const char *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
+Atom       netatoms[NETATOMS];
 
 // X error handler
-int oops( __attribute__( ( unused ) ) Display *d, XErrorEvent *ee )
+int oops ( __attribute__( ( unused ) ) Display *d, XErrorEvent *ee )
 {
     if ( ee->error_code == BadWindow
          || ( ee->request_code == X_GrabButton && ee->error_code == BadAccess )
          || ( ee->request_code == X_GrabKey && ee->error_code == BadAccess )
-       ) return 0;
+         )
+    {
+        return 0;
+    }
 
-    fprintf( stderr, "error: request code=%d, error code=%d\n", ee->request_code, ee->error_code );
-    return xerror( display, ee );
+    fprintf ( stderr, "error: request code=%d, error code=%d\n", ee->request_code, ee->error_code );
+    return xerror ( display, ee );
 }
 
 // usable space on a monitor
-typedef struct {
+typedef struct
+{
     int x, y, w, h;
     int l, r, t, b;
 } workarea;
 
 
 // window lists
-typedef struct {
+typedef struct
+{
     Window *array;
-    void **data;
-    int len;
+    void   **data;
+    int    len;
 } winlist;
 
 winlist *cache_client;
 winlist *cache_xattr;
 
-#define winlist_ascend(l,i,w) for ((i) = 0; (i) < (l)->len && (((w) = (l)->array[i]) || 1); (i)++)
-#define winlist_descend(l,i,w) for ((i) = (l)->len-1; (i) >= 0 && (((w) = (l)->array[i]) || 1); (i)--)
+#define winlist_ascend( l, i, w )     for ( ( i ) = 0; ( i ) < ( l )->len && ( ( ( w ) = ( l )->array[i] ) || 1 ); ( i )++ )
+#define winlist_descend( l, i, w )    for ( ( i ) = ( l )->len - 1; ( i ) >= 0 && ( ( ( w ) = ( l )->array[i] ) || 1 ); ( i )-- )
 
-#define WINLIST 32
+#define WINLIST    32
 
-winlist* winlist_new()
+winlist* winlist_new ()
 {
-    winlist *l = allocate( sizeof( winlist ) );
-    l->len = 0;
-    l->array = allocate( sizeof( Window ) * ( WINLIST+1 ) );
-    l->data  = allocate( sizeof( void* ) * ( WINLIST+1 ) );
+    winlist *l = allocate ( sizeof ( winlist ) );
+    l->len   = 0;
+    l->array = allocate ( sizeof ( Window ) * ( WINLIST + 1 ) );
+    l->data  = allocate ( sizeof ( void* ) * ( WINLIST + 1 ) );
     return l;
 }
-int winlist_append( winlist *l , Window w, void *d )
+int winlist_append ( winlist *l, Window w, void *d )
 {
-    if ( l->len > 0 && !( l->len % WINLIST ) ) {
-        l->array = reallocate( l->array, sizeof( Window ) * ( l->len+WINLIST+1 ) );
-        l->data  = reallocate( l->data,  sizeof( void* )  * ( l->len+WINLIST+1 ) );
+    if ( l->len > 0 && !( l->len % WINLIST ) )
+    {
+        l->array = reallocate ( l->array, sizeof ( Window ) * ( l->len + WINLIST + 1 ) );
+        l->data  = reallocate ( l->data, sizeof ( void* ) * ( l->len + WINLIST + 1 ) );
     }
     // Make clang-check happy.
     // TODO: make clang-check clear this should never be 0.
-    if(l->data == NULL || l->array == NULL) return 0;
+    if ( l->data == NULL || l->array == NULL )
+    {
+        return 0;
+    }
 
-    l->data[l->len] = d;
+    l->data[l->len]    = d;
     l->array[l->len++] = w;
-    return l->len-1;
+    return l->len - 1;
 }
-void winlist_empty( winlist *l )
+void winlist_empty ( winlist *l )
 {
-    while ( l->len > 0 ) free( l->data[--( l->len )] );
+    while ( l->len > 0 )
+    {
+        free ( l->data[--( l->len )] );
+    }
 }
-void winlist_free( winlist *l )
+void winlist_free ( winlist *l )
 {
-    winlist_empty( l );
-    free( l->array );
-    free( l->data );
-    free( l );
+    winlist_empty ( l );
+    free ( l->array );
+    free ( l->data );
+    free ( l );
 }
-int winlist_find( winlist *l, Window w )
+int winlist_find ( winlist *l, Window w )
 {
 // iterate backwards. theory is: windows most often accessed will be
 // nearer the end. testing with kcachegrind seems to support this...
-    int i;
+    int    i;
     Window o = 0;
 
-    winlist_descend( l, i, o ) if ( w == o ) return i;
+    winlist_descend ( l, i, o ) if ( w == o )
+    {
+        return i;
+    }
 
     return -1;
 }
 
-#define CLIENTTITLE 100
-#define CLIENTCLASS 50
-#define CLIENTNAME 50
-#define CLIENTSTATE 10
-#define CLIENTROLE 50
+#define CLIENTTITLE    100
+#define CLIENTCLASS    50
+#define CLIENTNAME     50
+#define CLIENTSTATE    10
+#define CLIENTROLE     50
 
 // a managable window
-typedef struct {
-    Window window, trans;
+typedef struct
+{
+    Window            window, trans;
     XWindowAttributes xattr;
-    char title[CLIENTTITLE];
-    char class[CLIENTCLASS];
-    char name[CLIENTNAME];
-    char role[CLIENTROLE];
-    int states;
-    Atom state[CLIENTSTATE];
-    workarea monitor;
+    char              title[CLIENTTITLE];
+    char              class[CLIENTCLASS];
+    char              name[CLIENTNAME];
+    char              role[CLIENTROLE];
+    int               states;
+    Atom              state[CLIENTSTATE];
+    workarea          monitor;
 } client;
 
 
 
 // allocate a pixel value for an X named color
-static unsigned int color_get( const char *const name )
+static unsigned int color_get ( const char *const name )
 {
-    XColor color;
-    Colormap map = DefaultColormap( display, screen_id );
-    return XAllocNamedColor( display, map, name, &color, &color ) ? color.pixel: None;
+    XColor   color;
+    Colormap map = DefaultColormap ( display, screen_id );
+    return XAllocNamedColor ( display, map, name, &color, &color ) ? color.pixel : None;
 }
 
 // find mouse pointer location
-int pointer_get( Window root, int *x, int *y )
+int pointer_get ( Window root, int *x, int *y )
 {
     *x = 0;
     *y = 0;
-    Window rr, cr;
-    int rxr, ryr, wxr, wyr;
+    Window       rr, cr;
+    int          rxr, ryr, wxr, wyr;
     unsigned int mr;
 
-    if ( XQueryPointer( display, root, &rr, &cr, &rxr, &ryr, &wxr, &wyr, &mr ) ) {
+    if ( XQueryPointer ( display, root, &rr, &cr, &rxr, &ryr, &wxr, &wyr, &mr ) )
+    {
         *x = rxr;
         *y = ryr;
         return 1;
@@ -425,40 +478,45 @@ int pointer_get( Window root, int *x, int *y )
     return 0;
 }
 
-int take_keyboard( Window w )
+int take_keyboard ( Window w )
 {
     int i;
 
-    for ( i = 0; i < 1000; i++ ) {
-        if ( XGrabKeyboard( display, w, True, GrabModeAsync, GrabModeAsync, CurrentTime ) == GrabSuccess )
+    for ( i = 0; i < 1000; i++ )
+    {
+        if ( XGrabKeyboard ( display, w, True, GrabModeAsync, GrabModeAsync, CurrentTime ) == GrabSuccess )
+        {
             return 1;
+        }
 
 
         struct timespec rsl = { 0, 100000L };
-        nanosleep(&rsl, NULL);
+        nanosleep ( &rsl, NULL );
     }
 
     return 0;
 }
-void release_keyboard()
+void release_keyboard ()
 {
-    XUngrabKeyboard( display, CurrentTime );
+    XUngrabKeyboard ( display, CurrentTime );
 }
 
 // XGetWindowAttributes with caching
-XWindowAttributes* window_get_attributes( Window w )
+XWindowAttributes* window_get_attributes ( Window w )
 {
-    int idx = winlist_find( cache_xattr, w );
+    int idx = winlist_find ( cache_xattr, w );
 
-    if ( idx < 0 ) {
-        XWindowAttributes *cattr = allocate( sizeof( XWindowAttributes ) );
+    if ( idx < 0 )
+    {
+        XWindowAttributes *cattr = allocate ( sizeof ( XWindowAttributes ) );
 
-        if ( XGetWindowAttributes( display, w, cattr ) ) {
-            winlist_append( cache_xattr, w, cattr );
+        if ( XGetWindowAttributes ( display, w, cattr ) )
+        {
+            winlist_append ( cache_xattr, w, cattr );
             return cattr;
         }
 
-        free( cattr );
+        free ( cattr );
         return NULL;
     }
 
@@ -466,31 +524,47 @@ XWindowAttributes* window_get_attributes( Window w )
 }
 
 // retrieve a property of any type from a window
-int window_get_prop( Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes )
+int window_get_prop ( Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes )
 {
     Atom _type;
 
-    if ( !type ) type = &_type;
+    if ( !type )
+    {
+        type = &_type;
+    }
 
     int _items;
 
-    if ( !items ) items = &_items;
+    if ( !items )
+    {
+        items = &_items;
+    }
 
-    int format;
+    int           format;
     unsigned long nitems, nbytes;
     unsigned char *ret = NULL;
-    memset( buffer, 0, bytes );
+    memset ( buffer, 0, bytes );
 
-    if ( XGetWindowProperty( display, w, prop, 0, bytes/4, False, AnyPropertyType, type,
-                             &format, &nitems, &nbytes, &ret ) == Success && ret && *type != None && format ) {
-        if ( format ==  8 ) memmove( buffer, ret, MIN( bytes, nitems ) );
+    if ( XGetWindowProperty ( display, w, prop, 0, bytes / 4, False, AnyPropertyType, type,
+                              &format, &nitems, &nbytes, &ret ) == Success && ret && *type != None && format )
+    {
+        if ( format == 8 )
+        {
+            memmove ( buffer, ret, MIN ( bytes, nitems ) );
+        }
 
-        if ( format == 16 ) memmove( buffer, ret, MIN( bytes, nitems * sizeof( short ) ) );
+        if ( format == 16 )
+        {
+            memmove ( buffer, ret, MIN ( bytes, nitems * sizeof ( short ) ) );
+        }
 
-        if ( format == 32 ) memmove( buffer, ret, MIN( bytes, nitems * sizeof( long ) ) );
+        if ( format == 32 )
+        {
+            memmove ( buffer, ret, MIN ( bytes, nitems * sizeof ( long ) ) );
+        }
 
-        *items = ( int )nitems;
-        XFree( ret );
+        *items = ( int ) nitems;
+        XFree ( ret );
         return 1;
     }
 
@@ -499,85 +573,98 @@ int window_get_prop( Window w, Atom prop, Atom *type, int *items, void *buffer, 
 
 // retrieve a text property from a window
 // technically we could use window_get_prop(), but this is better for character set support
-char* window_get_text_prop( Window w, Atom atom )
+char* window_get_text_prop ( Window w, Atom atom )
 {
     XTextProperty prop;
-    char *res = NULL;
-    char **list = NULL;
-    int count;
+    char          *res   = NULL;
+    char          **list = NULL;
+    int           count;
 
-    if ( XGetTextProperty( display, w, &prop, atom ) && prop.value && prop.nitems ) {
-        if ( prop.encoding == XA_STRING ) {
-            res = allocate( strlen( ( char* )prop.value )+1 );
+    if ( XGetTextProperty ( display, w, &prop, atom ) && prop.value && prop.nitems )
+    {
+        if ( prop.encoding == XA_STRING )
+        {
+            res = allocate ( strlen ( ( char * ) prop.value ) + 1 );
             // make clang-check happy.
-            if(res) {
-                strcpy( res, ( char* )prop.value );
+            if ( res )
+            {
+                strcpy ( res, ( char * ) prop.value );
             }
-        } else if ( Xutf8TextPropertyToTextList( display, &prop, &list, &count ) >= Success && count > 0 && *list ) {
-            res = allocate( strlen( *list )+1 );
+        }
+        else if ( Xutf8TextPropertyToTextList ( display, &prop, &list, &count ) >= Success && count > 0 && *list )
+        {
+            res = allocate ( strlen ( *list ) + 1 );
             // make clang-check happy.
-            if(res) {
-                strcpy( res, *list );
+            if ( res )
+            {
+                strcpy ( res, *list );
             }
-            XFreeStringList( list );
+            XFreeStringList ( list );
         }
     }
 
-    if ( prop.value ) XFree( prop.value );
+    if ( prop.value )
+    {
+        XFree ( prop.value );
+    }
 
     return res;
 }
 
-int window_get_atom_prop( Window w, Atom atom, Atom *list, int count )
+int window_get_atom_prop ( Window w, Atom atom, Atom *list, int count )
 {
     Atom type;
-    int items;
-    return window_get_prop( w, atom, &type, &items, list, count*sizeof( Atom ) ) && type == XA_ATOM ? items:0;
+    int  items;
+    return window_get_prop ( w, atom, &type, &items, list, count * sizeof ( Atom ) ) && type == XA_ATOM ? items : 0;
 }
 
-void window_set_atom_prop( Window w, Atom prop, Atom *atoms, int count )
+void window_set_atom_prop ( Window w, Atom prop, Atom *atoms, int count )
 {
-    XChangeProperty( display, w, prop, XA_ATOM, 32, PropModeReplace, ( unsigned char* )atoms, count );
+    XChangeProperty ( display, w, prop, XA_ATOM, 32, PropModeReplace, ( unsigned char * ) atoms, count );
 }
 
-int window_get_cardinal_prop(Window w, Atom atom, unsigned long *list, int count)
+int window_get_cardinal_prop ( Window w, Atom atom, unsigned long *list, int count )
 {
     Atom type; int items;
-    return window_get_prop(w, atom, &type, &items, list, count*sizeof(unsigned long)) && type == XA_CARDINAL ? items:0;
+    return window_get_prop ( w, atom, &type, &items, list, count * sizeof ( unsigned long ) ) && type == XA_CARDINAL ? items : 0;
 }
 
 // a ClientMessage
-int window_send_message( Window target, Window subject, Atom atom, unsigned long protocol, unsigned long mask, Time time )
+int window_send_message ( Window target, Window subject, Atom atom, unsigned long protocol, unsigned long mask, Time time )
 {
     XEvent e;
-    memset( &e, 0, sizeof( XEvent ) );
-    e.xclient.type = ClientMessage;
+    memset ( &e, 0, sizeof ( XEvent ) );
+    e.xclient.type         = ClientMessage;
     e.xclient.message_type = atom;
-    e.xclient.window    = subject;
+    e.xclient.window       = subject;
     e.xclient.data.l[0]    = protocol;
-    e.xclient.data.l[1] = time;
+    e.xclient.data.l[1]    = time;
     e.xclient.send_event   = True;
-    e.xclient.format    = 32;
-    int r = XSendEvent( display, target, False, mask, &e ) ?1:0;
-    XFlush( display );
+    e.xclient.format       = 32;
+    int r = XSendEvent ( display, target, False, mask, &e ) ? 1 : 0;
+    XFlush ( display );
     return r;
 }
 
 // find the dimensions of the monitor displaying point x,y
-void monitor_dimensions( Screen *screen, int x, int y, workarea *mon )
+void monitor_dimensions ( Screen *screen, int x, int y, workarea *mon )
 {
-    memset( mon, 0, sizeof( workarea ) );
-    mon->w = WidthOfScreen( screen );
-    mon->h = HeightOfScreen( screen );
+    memset ( mon, 0, sizeof ( workarea ) );
+    mon->w = WidthOfScreen ( screen );
+    mon->h = HeightOfScreen ( screen );
 
 // locate the current monitor
-    if ( XineramaIsActive( display ) ) {
-        int monitors;
-        XineramaScreenInfo *info = XineramaQueryScreens( display, &monitors );
+    if ( XineramaIsActive ( display ) )
+    {
+        int                monitors;
+        XineramaScreenInfo *info = XineramaQueryScreens ( display, &monitors );
 
-        if ( info ) {
-            for ( int i = 0; i < monitors; i++ ) {
-                if ( INTERSECT( x, y, 1, 1, info[i].x_org, info[i].y_org, info[i].width, info[i].height ) ) {
+        if ( info )
+        {
+            for ( int i = 0; i < monitors; i++ )
+            {
+                if ( INTERSECT ( x, y, 1, 1, info[i].x_org, info[i].y_org, info[i].width, info[i].height ) )
+                {
                     mon->x = info[i].x_org;
                     mon->y = info[i].y_org;
                     mon->w = info[i].width;
@@ -587,349 +674,442 @@ void monitor_dimensions( Screen *screen, int x, int y, workarea *mon )
             }
         }
 
-        XFree( info );
+        XFree ( info );
     }
 }
 
 // determine which monitor holds the active window, or failing that the mouse pointer
-void monitor_active( workarea *mon )
+void monitor_active ( workarea *mon )
 {
-    Window root = RootWindow( display, XScreenNumberOfScreen( screen ) );
+    Window        root = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
 
     unsigned long id;
-    Atom type;
-    int count;
+    Atom          type;
+    int           count;
 
-    if ( window_get_prop( root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id, 1 )
-         && type == XA_WINDOW && count > 0 ) {
-        XWindowAttributes *attr = window_get_attributes( id );
-        monitor_dimensions( screen, attr->x, attr->y, mon );
+    if ( window_get_prop ( root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id, 1 )
+         && type == XA_WINDOW && count > 0 )
+    {
+        XWindowAttributes *attr = window_get_attributes ( id );
+        monitor_dimensions ( screen, attr->x, attr->y, mon );
         return;
     }
 
     int x, y;
 
-    if ( pointer_get( root, &x, &y ) ) {
-        monitor_dimensions( screen, x, y, mon );
+    if ( pointer_get ( root, &x, &y ) )
+    {
+        monitor_dimensions ( screen, x, y, mon );
         return;
     }
 
-    monitor_dimensions( screen, 0, 0, mon );
+    monitor_dimensions ( screen, 0, 0, mon );
 }
 
 // _NET_WM_STATE_*
-int client_has_state( client *c, Atom state )
+int client_has_state ( client *c, Atom state )
 {
     int i;
 
     for ( i = 0; i < c->states; i++ )
-        if ( c->state[i] == state ) return 1;
+    {
+        if ( c->state[i] == state )
+        {
+            return 1;
+        }
+    }
 
     return 0;
 }
 
 // collect info on any window
 // doesn't have to be a window we'll end up managing
-client* window_client( Window win )
+client* window_client ( Window win )
 {
-    if ( win == None ) return NULL;
+    if ( win == None )
+    {
+        return NULL;
+    }
 
-    int idx = winlist_find( cache_client, win );
+    int idx = winlist_find ( cache_client, win );
 
-    if ( idx >= 0 ) {
+    if ( idx >= 0 )
+    {
         return cache_client->data[idx];
     }
 
 // if this fails, we're up that creek
-    XWindowAttributes *attr = window_get_attributes( win );
+    XWindowAttributes *attr = window_get_attributes ( win );
 
-    if ( !attr ) return NULL;
+    if ( !attr )
+    {
+        return NULL;
+    }
 
-    client *c = allocate_clear( sizeof( client ) );
+    client *c = allocate_clear ( sizeof ( client ) );
     c->window = win;
 // copy xattr so we don't have to care when stuff is freed
-    memmove( &c->xattr, attr, sizeof( XWindowAttributes ) );
-    XGetTransientForHint( display, win, &c->trans );
+    memmove ( &c->xattr, attr, sizeof ( XWindowAttributes ) );
+    XGetTransientForHint ( display, win, &c->trans );
 
-    c->states = window_get_atom_prop( win, netatoms[_NET_WM_STATE], c->state, CLIENTSTATE );
+    c->states = window_get_atom_prop ( win, netatoms[_NET_WM_STATE], c->state, CLIENTSTATE );
 
     char *name;
 
-    if ( ( name = window_get_text_prop( c->window, netatoms[_NET_WM_NAME] ) ) && name ) {
-        snprintf( c->title, CLIENTTITLE, "%s", name );
-        free( name );
-    } else if ( XFetchName( display, c->window, &name ) ) {
-        snprintf( c->title, CLIENTTITLE, "%s", name );
-        XFree( name );
+    if ( ( name = window_get_text_prop ( c->window, netatoms[_NET_WM_NAME] ) ) && name )
+    {
+        snprintf ( c->title, CLIENTTITLE, "%s", name );
+        free ( name );
+    }
+    else if ( XFetchName ( display, c->window, &name ) )
+    {
+        snprintf ( c->title, CLIENTTITLE, "%s", name );
+        XFree ( name );
     }
 
-    name = window_get_text_prop ( c->window, XInternAtom( display, "WM_WINDOW_ROLE", False ) );
+    name = window_get_text_prop ( c->window, XInternAtom ( display, "WM_WINDOW_ROLE", False ) );
 
-    if ( name != NULL ) {
-        snprintf( c->role, CLIENTROLE, "%s", name );
-        XFree( name );
+    if ( name != NULL )
+    {
+        snprintf ( c->role, CLIENTROLE, "%s", name );
+        XFree ( name );
     }
 
     XClassHint chint;
 
-    if ( XGetClassHint( display, c->window, &chint ) ) {
-        snprintf( c->class, CLIENTCLASS, "%s", chint.res_class );
-        snprintf( c->name, CLIENTNAME, "%s", chint.res_name );
-        XFree( chint.res_class );
-        XFree( chint.res_name );
+    if ( XGetClassHint ( display, c->window, &chint ) )
+    {
+        snprintf ( c->class, CLIENTCLASS, "%s", chint.res_class );
+        snprintf ( c->name, CLIENTNAME, "%s", chint.res_name );
+        XFree ( chint.res_class );
+        XFree ( chint.res_name );
     }
 
-    monitor_dimensions( c->xattr.screen, c->xattr.x, c->xattr.y, &c->monitor );
-    winlist_append( cache_client, c->window, c );
+    monitor_dimensions ( c->xattr.screen, c->xattr.x, c->xattr.y, &c->monitor );
+    winlist_append ( cache_client, c->window, c );
     return c;
 }
 
 unsigned int windows_modmask;
-KeySym windows_keysym;
+KeySym       windows_keysym;
 unsigned int rundialog_modmask;
-KeySym rundialog_keysym;
+KeySym       rundialog_keysym;
 unsigned int sshdialog_modmask;
-KeySym sshdialog_keysym;
+KeySym       sshdialog_keysym;
 
-Window main_window = None;
-GC gc = NULL;
+Window       main_window = None;
+GC           gc          = NULL;
 
 #include "textbox.h"
 
-void menu_draw( textbox *text, textbox **boxes, int max_lines,int num_lines, int *last_offset, int selected, char **filtered )
+void menu_draw ( textbox *text, textbox **boxes, int max_lines, int num_lines, int *last_offset, int selected, char **filtered )
 {
-    int i,offset=0;
-    textbox_draw( text );
+    int i, offset = 0;
+    textbox_draw ( text );
 
     // selected row is always visible.
     // If selected is visible do not scroll.
-    if ( ( selected - ( *last_offset ) ) < ( max_lines ) &&( selected-( *last_offset ) ) >= 0 ) offset = *last_offset;
-    else {
+    if ( ( selected - ( *last_offset ) ) < ( max_lines ) && ( selected - ( *last_offset ) ) >= 0 )
+    {
+        offset = *last_offset;
+    }
+    else
+    {
         // If selected is above visible, scroll up.
-        if ( ( selected-( *last_offset ) ) >= ( max_lines ) ) {
-            offset = selected-max_lines+1;
+        if ( ( selected - ( *last_offset ) ) >= ( max_lines ) )
+        {
+            offset = selected - max_lines + 1;
             // Scroll down otherwise
-        } else if ( ( selected-( *last_offset ) ) < 0 ) {
+        }
+        else if ( ( selected - ( *last_offset ) ) < 0 )
+        {
             offset = selected;
         }
 
         // Sanitize
-        if ( offset >= ( num_lines ) ) offset = num_lines-max_lines-1;
+        if ( offset >= ( num_lines ) )
+        {
+            offset = num_lines - max_lines - 1;
+        }
 
         *last_offset = offset;
     }
 
-    for ( i = 0; i < max_lines; i++ ) {
-        if ( filtered[i+offset] == NULL ) {
-            textbox_font( boxes[i], config.menu_font,
-                          config.menu_fg,
-                          config.menu_bg );
-            textbox_text( boxes[i], "" );
-        } else {
-            textbox_font( boxes[i], config.menu_font,
-                          ( i+offset ) == selected ? config.menu_hlfg: config.menu_fg,
-                          ( i+offset ) == selected ? config.menu_hlbg: config.menu_bg );
-            textbox_text( boxes[i], filtered[i+offset] );
+    for ( i = 0; i < max_lines; i++ )
+    {
+        if ( filtered[i + offset] == NULL )
+        {
+            textbox_font ( boxes[i], config.menu_font,
+                           config.menu_fg,
+                           config.menu_bg );
+            textbox_text ( boxes[i], "" );
+        }
+        else
+        {
+            textbox_font ( boxes[i], config.menu_font,
+                           ( i + offset ) == selected ? config.menu_hlfg : config.menu_fg,
+                           ( i + offset ) == selected ? config.menu_hlbg : config.menu_bg );
+            textbox_text ( boxes[i], filtered[i + offset] );
         }
 
-        textbox_draw( boxes[i] );
+        textbox_draw ( boxes[i] );
     }
 }
 
 
 /* Very bad implementation of tab completion.
-* It will complete to the common prefix
-*/
-static int calculate_common_prefix( char **filtered, int max_lines )
+ * It will complete to the common prefix
+ */
+static int calculate_common_prefix ( char **filtered, int max_lines )
 {
     int length_prefix = 0;
 
-    if ( filtered && filtered[0] != NULL ) {
-        int found = 1;
-        char *p = filtered[0];
+    if ( filtered && filtered[0] != NULL )
+    {
+        int  found = 1;
+        char *p    = filtered[0];
 
-        do {
+        do
+        {
             found = 1;
 
-            for ( int j=0; j < max_lines && filtered[j] != NULL; j++ ) {
-                if ( filtered[j][length_prefix] == '\0' || filtered[j][length_prefix] != *p ) {
+            for ( int j = 0; j < max_lines && filtered[j] != NULL; j++ )
+            {
+                if ( filtered[j][length_prefix] == '\0' || filtered[j][length_prefix] != *p )
+                {
                     if ( found )
-                        found=0;
+                    {
+                        found = 0;
+                    }
 
                     break;
                 }
             }
 
             if ( found )
+            {
                 length_prefix++;
+            }
 
             p++;
         } while ( found );
         // cut off to be valid utf8.
-        for ( int j = 0; j < length_prefix; ) {
-            if((filtered[0][j]&0x80) == 0){j++;}
-            else if ((filtered[0][j]&0xf0) == 0xc0) {
+        for ( int j = 0; j < length_prefix; )
+        {
+            if ( ( filtered[0][j] & 0x80 ) == 0 )
+            {
+                j++;
+            }
+            else if ( ( filtered[0][j] & 0xf0 ) == 0xc0 )
+            {
                 // 2 bytes
-                if((j+2) >= length_prefix) length_prefix = j; 
-                j+=2;
-            }else if ((filtered[0][j]&0xf0) == 0xe0) {
+                if ( ( j + 2 ) >= length_prefix )
+                {
+                    length_prefix = j;
+                }
+                j += 2;
+            }
+            else if ( ( filtered[0][j] & 0xf0 ) == 0xe0 )
+            {
                 // 3 bytes
-                if((j+3) >= length_prefix) length_prefix = j; 
-                j+=3;
-            }else if ((filtered[0][j]&0xf0) == 0xf0) {
+                if ( ( j + 3 ) >= length_prefix )
+                {
+                    length_prefix = j;
+                }
+                j += 3;
+            }
+            else if ( ( filtered[0][j] & 0xf0 ) == 0xf0 )
+            {
                 // 4 bytes
-                if((j+4) >= length_prefix) length_prefix = j; 
-                j+=4;
-            }else{j++;};
+                if ( ( j + 4 ) >= length_prefix )
+                {
+                    length_prefix = j;
+                }
+                j += 4;
+            }
+            else
+            {
+                j++;
+            };
         }
     }
     return length_prefix;
 }
 
 
-int window_match ( char **tokens, __attribute__( ( unused ) )const char *input, int index, void *data )
+int window_match ( char **tokens, __attribute__( ( unused ) ) const char *input, int index, void *data )
 {
-    int match =1;
-    winlist *ids = ( winlist * )data;
-    client *c = window_client( ids->array[index] );
+    int     match = 1;
+    winlist *ids  = ( winlist * ) data;
+    client  *c    = window_client ( ids->array[index] );
 
-    if ( tokens ) for ( int j  = 1; match && tokens[j]; j++ ) {
+    if ( tokens )
+    {
+        for ( int j = 1; match && tokens[j]; j++ )
+        {
             int test = 0;
 
             if ( !test && c->title[0] != '\0' )
-                test = ( strcasestr( c->title, tokens[j] ) != NULL );
+            {
+                test = ( strcasestr ( c->title, tokens[j] ) != NULL );
+            }
 
             if ( !test && c->class[0] != '\0' )
-                test = ( strcasestr( c->class, tokens[j] ) != NULL );
+            {
+                test = ( strcasestr ( c->class, tokens[j] ) != NULL );
+            }
 
             if ( !test && c->role[0] != '\0' )
-                test = ( strcasestr( c->role, tokens[j] ) != NULL );
+            {
+                test = ( strcasestr ( c->role, tokens[j] ) != NULL );
+            }
 
             if ( !test && c->name[0] != '\0' )
-                test = ( strcasestr( c->name, tokens[j] ) != NULL );
+            {
+                test = ( strcasestr ( c->name, tokens[j] ) != NULL );
+            }
 
-            if ( test == 0 ) match = 0;
+            if ( test == 0 )
+            {
+                match = 0;
+            }
         }
+    }
 
     return match;
 }
 
-MenuReturn menu( char **lines, char **input, char *prompt, Time *time, int *shift,
-                 menu_match_cb mmc, void *mmc_data, int *selected_line )
+MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shift,
+                  menu_match_cb mmc, void *mmc_data, int *selected_line )
 {
-    int retv = MENU_CANCEL;
-    unsigned int i,j;
-    workarea mon;
-    monitor_active( &mon );
+    int          retv = MENU_CANCEL;
+    unsigned int i, j;
+    workarea     mon;
+    monitor_active ( &mon );
 
-    unsigned int num_lines = 0;
-    int last_offset = 0;
-    unsigned int selected = 0;
+    unsigned int num_lines   = 0;
+    int          last_offset = 0;
+    unsigned int selected    = 0;
 
-    for ( ; lines != NULL && lines[num_lines]; num_lines++ );
-
-    unsigned int max_lines = MIN( config.menu_lines, num_lines );
-
-    // Calculate as float to stop silly, big rounding down errors.
-    int w = config.menu_width < 101 ? ( mon.w/100.0f )*( float )config.menu_width: config.menu_width;
-    int x = mon.x + ( mon.w - w )/2;
-    int element_width = w -( 2*( config.padding ) );
-
-    if ( config.wmode == HORIZONTAL ) {
-        element_width = ( w-( 2*( config.padding ) )-max_lines*LINE_MARGIN )/( max_lines+1 );
+    for (; lines != NULL && lines[num_lines]; num_lines++ )
+    {
+        ;
     }
 
-    Window box;
+    unsigned int max_lines = MIN ( config.menu_lines, num_lines );
+
+    // Calculate as float to stop silly, big rounding down errors.
+    int w             = config.menu_width < 101 ? ( mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
+    int x             = mon.x + ( mon.w - w ) / 2;
+    int element_width = w - ( 2 * ( config.padding ) );
+
+    if ( config.wmode == HORIZONTAL )
+    {
+        element_width = ( w - ( 2 * ( config.padding ) ) - max_lines * LINE_MARGIN ) / ( max_lines + 1 );
+    }
+
+    Window            box;
     XWindowAttributes attr;
 
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
-    if ( main_window != None && XGetWindowAttributes( display, main_window, &attr ) ) {
+    if ( main_window != None && XGetWindowAttributes ( display, main_window, &attr ) )
+    {
         box = main_window;
-    } else {
-        box = XCreateSimpleWindow( display, root, x, 0, w, 300,
-                                   config.menu_bw, color_get( config.menu_bc ),
-                                   color_get( config.menu_bg ) );
-        XSelectInput( display, box, ExposureMask );
+    }
+    else
+    {
+        box = XCreateSimpleWindow ( display, root, x, 0, w, 300,
+                                    config.menu_bw, color_get ( config.menu_bc ),
+                                    color_get ( config.menu_bg ) );
+        XSelectInput ( display, box, ExposureMask );
 
 
-        gc = XCreateGC( display, box, 0, 0 );
-        XSetLineAttributes( display, gc, 2, LineOnOffDash, CapButt, JoinMiter );
-        XSetForeground( display, gc, color_get( config.menu_bc ) );
+        gc = XCreateGC ( display, box, 0, 0 );
+        XSetLineAttributes ( display, gc, 2, LineOnOffDash, CapButt, JoinMiter );
+        XSetForeground ( display, gc, color_get ( config.menu_bc ) );
         // make it an unmanaged window
-        window_set_atom_prop( box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
+        window_set_atom_prop ( box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
         XSetWindowAttributes sattr;
         sattr.override_redirect = True;
-        XChangeWindowAttributes( display, box, CWOverrideRedirect, &sattr );
+        XChangeWindowAttributes ( display, box, CWOverrideRedirect, &sattr );
         main_window = box;
 
         // Set the WM_NAME
-        XStoreName( display, box, "rofi" );
+        XStoreName ( display, box, "rofi" );
 
         // Hack to set window opacity.
-        unsigned int opacity_set = ( unsigned int )( ( config.window_opacity/100.0 )* OPAQUE );
-        XChangeProperty( display, box, XInternAtom( display, OPACITY, False ),
-                         XA_CARDINAL, 32, PropModeReplace,
-                         ( unsigned char * ) &opacity_set, 1L );
+        unsigned int opacity_set = ( unsigned int ) ( ( config.window_opacity / 100.0 ) * OPAQUE );
+        XChangeProperty ( display, box, XInternAtom ( display, OPACITY, False ),
+                          XA_CARDINAL, 32, PropModeReplace,
+                          ( unsigned char * ) &opacity_set, 1L );
     }
 
     // search text input
-    textbox *text = textbox_create( box, TB_AUTOHEIGHT|TB_EDITABLE,
-                                    ( config.padding ),
-                                    ( config.padding ),
-                                    element_width, 1,
-                                    config.menu_font, config.menu_fg, config.menu_bg,
-                                    ( input!= NULL )?*input:"", prompt );
-    textbox_show( text );
+    textbox *text = textbox_create ( box, TB_AUTOHEIGHT | TB_EDITABLE,
+                                     ( config.padding ),
+                                     ( config.padding ),
+                                     element_width, 1,
+                                     config.menu_font, config.menu_fg, config.menu_bg,
+                                     ( input != NULL ) ? *input : "", prompt );
+    textbox_show ( text );
 
     int line_height = text->font->ascent + text->font->descent;
 
     // filtered list display
-    textbox **boxes = allocate_clear( sizeof( textbox* ) * max_lines );
+    textbox **boxes = allocate_clear ( sizeof ( textbox* ) * max_lines );
 
-    int columns = 1;
+    int     columns = 1;
 
-    if ( config.wmode == HORIZONTAL ) {
+    if ( config.wmode == HORIZONTAL )
+    {
         // Number of columns is the width of the screen - the inner margins + trailing line margin.
-        columns = ( w-2*( config.padding )+LINE_MARGIN )/( element_width+LINE_MARGIN );
+        columns = ( w - 2 * ( config.padding ) + LINE_MARGIN ) / ( element_width + LINE_MARGIN );
     }
 
-    for ( i = 0; i < max_lines; i++ ) {
-        int col = ( i+1 )%columns;
-        int line = ( i+1 )/columns;
-        boxes[i] = textbox_create( box,
-                                   0,
-                                   ( config.padding )+col*( element_width+LINE_MARGIN ), // X
-                                   line * line_height + config.padding +( ( config.wmode == HORIZONTAL )?0:LINE_MARGIN ), // y
-                                   element_width, // w
-                                   line_height, // h
-                                   config.menu_font, config.menu_fg, config.menu_bg, lines[i], NULL );
-        textbox_show( boxes[i] );
+    for ( i = 0; i < max_lines; i++ )
+    {
+        int col  = ( i + 1 ) % columns;
+        int line = ( i + 1 ) / columns;
+        boxes[i] = textbox_create ( box,
+                                    0,
+                                    ( config.padding ) + col * ( element_width + LINE_MARGIN ),                                 // X
+                                    line * line_height + config.padding + ( ( config.wmode == HORIZONTAL ) ? 0 : LINE_MARGIN ), // y
+                                    element_width,                                                                              // w
+                                    line_height,                                                                                // h
+                                    config.menu_font, config.menu_fg, config.menu_bg, lines[i], NULL );
+        textbox_show ( boxes[i] );
     }
 
     // filtered list
-    char **filtered = allocate_clear( sizeof( char* ) * num_lines );
-    int *line_map = allocate_clear( sizeof( int ) * num_lines );
+    char         **filtered     = allocate_clear ( sizeof ( char* ) * num_lines );
+    int          *line_map      = allocate_clear ( sizeof ( int ) * num_lines );
     unsigned int filtered_lines = 0;
 
-    if ( input && *input ) {
-        char **tokens = tokenize( *input );
+    if ( input && *input )
+    {
+        char **tokens = tokenize ( *input );
 
         // input changed
-        for ( i = 0, j = 0; i < num_lines ; i++ ) {
-            int match = mmc( tokens,lines[i], i, mmc_data );
+        for ( i = 0, j = 0; i < num_lines; i++ )
+        {
+            int match = mmc ( tokens, lines[i], i, mmc_data );
 
             // If each token was matched, add it to list.
-            if ( match ) {
-                line_map[j] = i;
+            if ( match )
+            {
+                line_map[j]   = i;
                 filtered[j++] = lines[i];
                 filtered_lines++;
             }
         }
 
-        tokenize_free( tokens );
-    } else {
+        tokenize_free ( tokens );
+    }
+    else
+    {
         int jin = 0;
-        for ( i = 0; i < num_lines; i++ ) {
+        for ( i = 0; i < num_lines; i++ )
+        {
             filtered[jin] = lines[i];
             line_map[jin] = i;
             jin++;
@@ -939,229 +1119,308 @@ MenuReturn menu( char **lines, char **input, char *prompt, Time *time, int *shif
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
-    int h = line_height * ( max_lines+1 ) + ( config.padding )*2 +LINE_MARGIN;
+    int h = line_height * ( max_lines + 1 ) + ( config.padding ) * 2 + LINE_MARGIN;
 
-    if ( config.wmode == HORIZONTAL ) {
-        h = line_height+( config.padding )*2;
+    if ( config.wmode == HORIZONTAL )
+    {
+        h = line_height + ( config.padding ) * 2;
     }
 
     // Default location is center.
-    int y = mon.y + ( mon.h - h )/2;
+    int y = mon.y + ( mon.h - h ) / 2;
 
     // Determine window location
-    switch ( config.location ) {
-        case WL_NORTH_WEST:
-            x=mon.x;
+    switch ( config.location )
+    {
+    case WL_NORTH_WEST:
+        x = mon.x;
 
-        case WL_NORTH:
-            y=mon.y;
-            break;
+    case WL_NORTH:
+        y = mon.y;
+        break;
 
-        case WL_NORTH_EAST:
-            y=mon.y;
+    case WL_NORTH_EAST:
+        y = mon.y;
 
-        case WL_EAST:
-            x=mon.x+mon.w-w;
-            break;
+    case WL_EAST:
+        x = mon.x + mon.w - w;
+        break;
 
-        case WL_EAST_SOUTH:
-            x=mon.x+mon.w-w;
+    case WL_EAST_SOUTH:
+        x = mon.x + mon.w - w;
 
-        case WL_SOUTH:
-            y=mon.y+mon.h-h;
-            break;
+    case WL_SOUTH:
+        y = mon.y + mon.h - h;
+        break;
 
-        case WL_SOUTH_WEST:
-            y=mon.y+mon.h-h;
+    case WL_SOUTH_WEST:
+        y = mon.y + mon.h - h;
 
-        case WL_WEST:
-            x=mon.x;
-            break;
+    case WL_WEST:
+        x = mon.x;
+        break;
 
-        case WL_CENTER:
-        default:
-            break;
+    case WL_CENTER:
+    default:
+        break;
     }
 
 
-    XMoveResizeWindow( display, box, x, y, w, h );
-    XMapRaised( display, box );
+    XMoveResizeWindow ( display, box, x, y, w, h );
+    XMapRaised ( display, box );
 
-    take_keyboard( box );
+    take_keyboard ( box );
 
-    for ( ;; ) {
+    for (;; )
+    {
         XEvent ev;
-        XNextEvent( display, &ev );
+        XNextEvent ( display, &ev );
 
-        if ( ev.type == Expose ) {
-            while ( XCheckTypedEvent( display, Expose, &ev ) );
+        if ( ev.type == Expose )
+        {
+            while ( XCheckTypedEvent ( display, Expose, &ev ) )
+            {
+                ;
+            }
 
-            menu_draw( text, boxes, max_lines,num_lines,&last_offset, selected, filtered );
+            menu_draw ( text, boxes, max_lines, num_lines, &last_offset, selected, filtered );
 
             // Why do we need the specian -1?
-            if ( config.wmode == VERTICAL ) {
-                XDrawLine( display, main_window, gc, ( config.padding ),
-                           line_height+( config.padding )+( LINE_MARGIN-2 )/2,
-                           w-( ( config.padding ) )-1,
-                           line_height+( config.padding ) +( LINE_MARGIN-2 )/2 );
+            if ( config.wmode == VERTICAL )
+            {
+                XDrawLine ( display, main_window, gc, ( config.padding ),
+                            line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2,
+                            w - ( ( config.padding ) ) - 1,
+                            line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2 );
             }
-        } else if ( ev.type == KeyPress ) {
-            while ( XCheckTypedEvent( display, KeyPress, &ev ) );
+        }
+        else if ( ev.type == KeyPress )
+        {
+            while ( XCheckTypedEvent ( display, KeyPress, &ev ) )
+            {
+                ;
+            }
 
             if ( time )
+            {
                 *time = ev.xkey.time;
+            }
 
-            KeySym key = XkbKeycodeToKeysym( display, ev.xkey.keycode, 0, 0 );
+            KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
 
-            if ( ( ( ev.xkey.state&ShiftMask ) == ShiftMask ) &&
-                 key == XK_slash ) {
-                retv = MENU_NEXT;
+            if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
+                 key == XK_slash )
+            {
+                retv           = MENU_NEXT;
                 *selected_line = 0;
                 break;
-            } else if ( ( ( ev.xkey.state&ShiftMask ) == ShiftMask ) &&
-                        key == XK_Delete ) {
-                if ( filtered[selected] != NULL ) {
+            }
+            else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
+                      key == XK_Delete )
+            {
+                if ( filtered[selected] != NULL )
+                {
                     *selected_line = line_map[selected];
-                    retv = MENU_ENTRY_DELETE;
+                    retv           = MENU_ENTRY_DELETE;
                     break;
                 }
             }
 
-            int rc = textbox_keypress( text, &ev );
+            int rc = textbox_keypress ( text, &ev );
 
-            if ( rc < 0 ) {
+            if ( rc < 0 )
+            {
                 if ( shift != NULL )
-                    ( *shift ) = ( ( ev.xkey.state&ShiftMask ) == ShiftMask );
+                {
+                    ( *shift ) = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
+                }
 
-                if ( filtered && filtered[selected] ) {
-                    retv = MENU_OK;
+                if ( filtered && filtered[selected] )
+                {
+                    retv           = MENU_OK;
                     *selected_line = line_map[selected];
-                } else {
+                }
+                else
+                {
                     retv = MENU_CUSTOM_INPUT;
                 }
 
                 break;
-            } else if ( rc ) {
-                char **tokens = tokenize( text->text );
+            }
+            else if ( rc )
+            {
+                char **tokens = tokenize ( text->text );
 
                 // input changed
-                for ( i = 0, j = 0; i < num_lines ; i++ ) {
-                    int match = mmc( tokens,lines[i], i, mmc_data );
+                for ( i = 0, j = 0; i < num_lines; i++ )
+                {
+                    int match = mmc ( tokens, lines[i], i, mmc_data );
 
                     // If each token was matched, add it to list.
-                    if ( match ) {
-                        line_map[j] = i;
+                    if ( match )
+                    {
+                        line_map[j]   = i;
                         filtered[j++] = lines[i];
                     }
                 }
 
                 // Cleanup + bookkeeping.
                 filtered_lines = j;
-                selected = MIN( selected, j-1 );
+                selected       = MIN ( selected, j - 1 );
 
-                for ( ; j < num_lines; j++ )
+                for (; j < num_lines; j++ )
+                {
                     filtered[j] = NULL;
+                }
 
-                if ( config.zeltak_mode && filtered_lines == 1 ) {
-                    if ( filtered[selected] ) {
-                        retv = MENU_OK;
+                if ( config.zeltak_mode && filtered_lines == 1 )
+                {
+                    if ( filtered[selected] )
+                    {
+                        retv           = MENU_OK;
                         *selected_line = line_map[selected];
-                    } else {
-                        fprintf( stderr, "We should never hit this." );
-                        abort();
+                    }
+                    else
+                    {
+                        fprintf ( stderr, "We should never hit this." );
+                        abort ();
                     }
 
                     break;
                 }
 
-                tokenize_free( tokens );
-            } else {
+                tokenize_free ( tokens );
+            }
+            else
+            {
                 // unhandled key
-                KeySym key = XkbKeycodeToKeysym( display, ev.xkey.keycode, 0, 0 );
+                KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
 
                 if ( key == XK_Escape
                      // pressing one of the global key bindings closes the switcher. this allows fast closing of the menu if an item is not selected
                      || ( ( windows_modmask == AnyModifier || ev.xkey.state & windows_modmask ) && key == windows_keysym )
                      || ( ( rundialog_modmask == AnyModifier || ev.xkey.state & rundialog_modmask ) && key == rundialog_keysym )
                      || ( ( sshdialog_modmask == AnyModifier || ev.xkey.state & sshdialog_modmask ) && key == sshdialog_keysym )
-                   ) {
+                     )
+                {
                     retv = MENU_CANCEL;
                     break;
-                } else {
+                }
+                else
+                {
                     // Up or Shift-Tab
                     if ( key == XK_Up || ( key == XK_Tab && ev.xkey.state & ShiftMask ) ||
-                         ( key == XK_j && ev.xkey.state& ControlMask )  ) {
-                        if ( selected == 0 ) selected = filtered_lines;
+                         ( key == XK_j && ev.xkey.state & ControlMask )  )
+                    {
+                        if ( selected == 0 )
+                        {
+                            selected = filtered_lines;
+                        }
 
-                        if ( selected > 0 ) selected --;
-                    } else if ( key == XK_Down  ||
-                                ( key == XK_k && ev.xkey.state& ControlMask ) ) {
-                        selected = selected < filtered_lines-1 ? MIN( filtered_lines-1, selected+1 ): 0;
-                    } else if ( key == XK_Page_Up ) {
-                        if ( selected < max_lines ) selected = 0;
+                        if ( selected > 0 )
+                        {
+                            selected--;
+                        }
+                    }
+                    else if ( key == XK_Down ||
+                              ( key == XK_k && ev.xkey.state & ControlMask ) )
+                    {
+                        selected = selected < filtered_lines - 1 ? MIN ( filtered_lines - 1, selected + 1 ) : 0;
+                    }
+                    else if ( key == XK_Page_Up )
+                    {
+                        if ( selected < max_lines )
+                        {
+                            selected = 0;
+                        }
                         else
-                            selected -= ( max_lines-1 );
-                    } else if ( key == XK_Page_Down ) {
-                        selected += ( max_lines-1 );
+                        {
+                            selected -= ( max_lines - 1 );
+                        }
+                    }
+                    else if ( key == XK_Page_Down )
+                    {
+                        selected += ( max_lines - 1 );
 
-                        if ( selected >= num_lines ) selected = num_lines-1;
-                    } else if ( key  == XK_Home || key == XK_KP_Home ) {
+                        if ( selected >= num_lines )
+                        {
+                            selected = num_lines - 1;
+                        }
+                    }
+                    else if ( key == XK_Home || key == XK_KP_Home )
+                    {
                         selected = 0;
-                    } else if ( key  == XK_End || key == XK_KP_End ) {
-                        selected = num_lines-1;
-                    } else if ( key == XK_Tab ) {
-                        if ( filtered_lines == 1 ) {
-                            if ( filtered[selected] ) {
-                                retv = MENU_OK;
+                    }
+                    else if ( key == XK_End || key == XK_KP_End )
+                    {
+                        selected = num_lines - 1;
+                    }
+                    else if ( key == XK_Tab )
+                    {
+                        if ( filtered_lines == 1 )
+                        {
+                            if ( filtered[selected] )
+                            {
+                                retv           = MENU_OK;
                                 *selected_line = line_map[selected];
-                            } else {
-                                fprintf( stderr, "We should never hit this." );
-                                abort();
+                            }
+                            else
+                            {
+                                fprintf ( stderr, "We should never hit this." );
+                                abort ();
                             }
 
                             break;
                         }
 
-                        int length_prefix = calculate_common_prefix( filtered, num_lines );
+                        int length_prefix = calculate_common_prefix ( filtered, num_lines );
 
                         // TODO: memcmp to utf8 aware cmp.
-                        if ( length_prefix && memcmp( filtered[0], text->text, length_prefix ) ) {
+                        if ( length_prefix && memcmp ( filtered[0], text->text, length_prefix ) )
+                        {
                             // Do not want to modify original string, so make copy.
                             // not eff..
-                            char * str = allocate (sizeof(char)*(length_prefix+1)); 
-                            memcpy( str,filtered[0], length_prefix );
+                            char * str = allocate ( sizeof ( char ) * ( length_prefix + 1 ) );
+                            memcpy ( str, filtered[0], length_prefix );
                             str[length_prefix] = '\0';
-                            textbox_text( text, str );
-                            textbox_cursor_end( text );
-                            free( str );
-                        } else {
-                            selected = selected < filtered_lines-1 ? MIN( filtered_lines-1, selected+1 ): 0;
+                            textbox_text ( text, str );
+                            textbox_cursor_end ( text );
+                            free ( str );
+                        }
+                        else
+                        {
+                            selected = selected < filtered_lines - 1 ? MIN ( filtered_lines - 1, selected + 1 ) : 0;
                         }
                     }
                 }
             }
 
-            menu_draw( text, boxes, max_lines,num_lines, &last_offset, selected, filtered );
+            menu_draw ( text, boxes, max_lines, num_lines, &last_offset, selected, filtered );
         }
     }
 
-    release_keyboard();
+    release_keyboard ();
 
-    if ( *input != NULL ) free( *input );
+    if ( *input != NULL )
+    {
+        free ( *input );
+    }
 
-    *input = strdup( text->text );
+    *input = strdup ( text->text );
 
 
 
-    textbox_free( text );
+    textbox_free ( text );
 
     for ( i = 0; i < max_lines; i++ )
-        textbox_free( boxes[i] );
+    {
+        textbox_free ( boxes[i] );
+    }
 
-    free( boxes );
+    free ( boxes );
 
-    free( filtered );
-    free( line_map );
+    free ( filtered );
+    free ( line_map );
 
     return retv;
 }
@@ -1171,87 +1430,106 @@ MenuReturn menu( char **lines, char **input, char *prompt, Time *time, int *shif
 
 SwitcherMode run_switcher_window ( char **input )
 {
-    SwitcherMode retv = MODE_EXIT;
+    SwitcherMode  retv = MODE_EXIT;
     // find window list
-    Atom type;
-    int nwins;
+    Atom          type;
+    int           nwins;
     unsigned long wins[100];
 
-    if ( window_get_prop( root, netatoms[_NET_CLIENT_LIST_STACKING],
-                          &type, &nwins, wins, 100 * sizeof( unsigned long ) )
-         && type == XA_WINDOW ) {
-        char pattern[50];
-        int i;
-        unsigned int classfield = 0;
-        unsigned long desktops = 0;
+    if ( window_get_prop ( root, netatoms[_NET_CLIENT_LIST_STACKING],
+                           &type, &nwins, wins, 100 * sizeof ( unsigned long ) )
+         && type == XA_WINDOW )
+    {
+        char          pattern[50];
+        int           i;
+        unsigned int  classfield = 0;
+        unsigned long desktops   = 0;
         // windows we actually display. may be slightly different to _NET_CLIENT_LIST_STACKING
         // if we happen to have a window destroyed while we're working...
-        winlist *ids = winlist_new();
+        winlist *ids = winlist_new ();
 
         // calc widths of fields
-        for ( i = nwins-1; i > -1; i-- ) {
+        for ( i = nwins - 1; i > -1; i-- )
+        {
             client *c;
 
-            if ( ( c = window_client( wins[i] ) )
+            if ( ( c = window_client ( wins[i] ) )
                  && !c->xattr.override_redirect
-                 && !client_has_state( c, netatoms[_NET_WM_STATE_SKIP_PAGER] )
-                 && !client_has_state( c, netatoms[_NET_WM_STATE_SKIP_TASKBAR] ) ) {
-
-                classfield = MAX( classfield, strlen( c->class ) );
+                 && !client_has_state ( c, netatoms[_NET_WM_STATE_SKIP_PAGER] )
+                 && !client_has_state ( c, netatoms[_NET_WM_STATE_SKIP_TASKBAR] ) )
+            {
+                classfield = MAX ( classfield, strlen ( c->class ) );
 
 #ifdef HAVE_I3_IPC_H
 
                 // In i3 mode, skip the i3bar completely.
-                if ( config.i3_mode && strstr( c->class, "i3bar" ) != NULL ) continue;
+                if ( config.i3_mode && strstr ( c->class, "i3bar" ) != NULL )
+                {
+                    continue;
+                }
 
 #endif
 
-                winlist_append( ids, c->window, NULL );
+                winlist_append ( ids, c->window, NULL );
             }
         }
 
         // Create pattern for printing the line.
-        if (!window_get_cardinal_prop(root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1))
+        if ( !window_get_cardinal_prop ( root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1 ) )
+        {
             desktops = 1;
-#ifdef HAVE_I3_IPC_H
-        if(config.i3_mode) {
-            sprintf(pattern, "%%-%ds   %%s", MAX(5, classfield));
-        }else {
-#endif
-            sprintf(pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX(5, classfield));
-#ifdef HAVE_I3_IPC_H
         }
+#ifdef HAVE_I3_IPC_H
+        if ( config.i3_mode )
+        {
+            sprintf ( pattern, "%%-%ds   %%s", MAX ( 5, classfield ) );
+        }
+        else
+        {
 #endif
-        char **list = allocate_clear( sizeof( char* ) * ( ids->len+1 ) );
-        int lines = 0;
+        sprintf ( pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX ( 5, classfield ) );
+#ifdef HAVE_I3_IPC_H
+    }
+#endif
+        char **list = allocate_clear ( sizeof ( char* ) * ( ids->len + 1 ) );
+        int lines   = 0;
 
         // build the actual list
         Window w = 0;
-        winlist_ascend( ids, i, w ) {
+        winlist_ascend ( ids, i, w )
+        {
             client *c;
 
-            if ( ( c = window_client( w ) ) ) {
+            if ( ( c = window_client ( w ) ) )
+            {
                 // final line format
                 unsigned long wmdesktop;
-                char desktop[5];
+                char          desktop[5];
                 desktop[0] = 0;
-                char *line = allocate( strlen( c->title ) + strlen( c->class ) + classfield + 50 );
+                char          *line = allocate ( strlen ( c->title ) + strlen ( c->class ) + classfield + 50 );
 #ifdef HAVE_I3_IPC_H
-                if(!config.i3_mode) {
+                if ( !config.i3_mode )
+                {
 #endif
-                    // find client's desktop. this is zero-based, so we adjust by since most
-                    // normal people don't think like this :-)
-                    if (!window_get_cardinal_prop(c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1))
-                        wmdesktop = 0xFFFFFFFF;
-
-                    if (wmdesktop < 0xFFFFFFFF)
-                        sprintf(desktop, "%d", (int)wmdesktop+1);
-
-                    sprintf(line, pattern, desktop, c->class, c->title);
-#ifdef HAVE_I3_IPC_H
-                }else{
-                    sprintf(line, pattern, c->class, c->title);
+                // find client's desktop. this is zero-based, so we adjust by since most
+                // normal people don't think like this :-)
+                if ( !window_get_cardinal_prop ( c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1 ) )
+                {
+                    wmdesktop = 0xFFFFFFFF;
                 }
+
+                if ( wmdesktop < 0xFFFFFFFF )
+                {
+                    sprintf ( desktop, "%d", (int) wmdesktop + 1 );
+                }
+
+                sprintf ( line, pattern, desktop, c->class, c->title );
+#ifdef HAVE_I3_IPC_H
+            }
+            else
+            {
+                sprintf ( line, pattern, c->class, c->title );
+            }
 #endif
 
                 list[lines++] = line;
@@ -1259,42 +1537,49 @@ SwitcherMode run_switcher_window ( char **input )
         }
         Time time;
         int selected_line = 0;
-        MenuReturn mretv = menu( list, input, ">", &time, NULL,window_match, ids ,&selected_line );
+        MenuReturn mretv  = menu ( list, input, ">", &time, NULL, window_match, ids, &selected_line );
 
-        if ( mretv == MENU_NEXT ) {
+        if ( mretv == MENU_NEXT )
+        {
             retv = NEXT_DIALOG;
-        } else if ( mretv == MENU_OK && list[selected_line] ) {
+        }
+        else if ( mretv == MENU_OK && list[selected_line] )
+        {
 #ifdef HAVE_I3_IPC_H
 
-            if ( config.i3_mode ) {
+            if ( config.i3_mode )
+            {
                 // Hack for i3.
-                focus_window_i3( i3_socket_path,ids->array[selected_line] );
-            } else
+                focus_window_i3 ( i3_socket_path, ids->array[selected_line] );
+            }
+            else
 #endif
             {
                 // Change to the desktop of the selected window/client.
                 // TODO: get rid of strtol
-                window_send_message(root, root, netatoms[_NET_CURRENT_DESKTOP], strtol(list[selected_line], NULL, 10)-1,
-                        SubstructureNotifyMask | SubstructureRedirectMask, time);
-                XSync(display, False);
+                window_send_message ( root, root, netatoms[_NET_CURRENT_DESKTOP], strtol ( list[selected_line], NULL, 10 ) - 1,
+                                      SubstructureNotifyMask | SubstructureRedirectMask, time );
+                XSync ( display, False );
 
-                window_send_message( root, ids->array[selected_line], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
-                                     SubstructureNotifyMask | SubstructureRedirectMask, time );
+                window_send_message ( root, ids->array[selected_line], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
+                                      SubstructureNotifyMask | SubstructureRedirectMask, time );
             }
         }
 
 
         for ( i = 0; i < lines; i++ )
-            free( list[i] );
+        {
+            free ( list[i] );
+        }
 
-        free( list );
-        winlist_free( ids );
+        free ( list );
+        winlist_free ( ids );
     }
 
     return retv;
 }
 
-void run_switcher( int fmode, SwitcherMode mode )
+void run_switcher ( int fmode, SwitcherMode mode )
 {
     // TODO: this whole function is messy. build a nicer solution
 
@@ -1303,136 +1588,188 @@ void run_switcher( int fmode, SwitcherMode mode )
     // this also happens to isolate the Xft font stuff in a child process
     // that gets cleaned up every time. that library shows some valgrind
     // strangeness...
-    if ( fmode == FORK ) {
-        if ( fork() ) return;
+    if ( fmode == FORK )
+    {
+        if ( fork () )
+        {
+            return;
+        }
 
-        display = XOpenDisplay( 0 );
-        XSync( display, True );
+        display = XOpenDisplay ( 0 );
+        XSync ( display, True );
     }
 
     char *input = NULL;
 
-    do {
+    do
+    {
         SwitcherMode retv = MODE_EXIT;
 
-        if ( mode == WINDOW_SWITCHER ) {
-            retv = run_switcher_window( &input );
-        } else if ( mode == RUN_DIALOG ) {
-            retv = run_switcher_dialog( &input );
-        } else if ( mode == SSH_DIALOG ) {
-            retv = ssh_switcher_dialog( &input );
+        if ( mode == WINDOW_SWITCHER )
+        {
+            retv = run_switcher_window ( &input );
         }
-        else if ( mode == DMENU_DIALOG ) {
+        else if ( mode == RUN_DIALOG )
+        {
+            retv = run_switcher_dialog ( &input );
+        }
+        else if ( mode == SSH_DIALOG )
+        {
+            retv = ssh_switcher_dialog ( &input );
+        }
+        else if ( mode == DMENU_DIALOG )
+        {
             retv = dmenu_switcher_dialog ( &input );
         }
 
-        if ( retv == NEXT_DIALOG ) {
-            mode = ( mode+1 )%NUM_DIALOGS;
-        } else {
+        if ( retv == NEXT_DIALOG )
+        {
+            mode = ( mode + 1 ) % NUM_DIALOGS;
+        }
+        else
+        {
             mode = retv;
         }
     } while ( mode != MODE_EXIT );
 
-    if ( input != NULL ) {
-        free( input );
+    if ( input != NULL )
+    {
+        free ( input );
     }
 
-    if ( fmode == FORK ) {
-        exit( EXIT_SUCCESS );
+    if ( fmode == FORK )
+    {
+        exit ( EXIT_SUCCESS );
     }
 }
 
 // KeyPress event
-void handle_keypress( XEvent *ev )
+void handle_keypress ( XEvent *ev )
 {
-    KeySym key = XkbKeycodeToKeysym( display, ev->xkey.keycode, 0, 0 );
+    KeySym key = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
 
     if ( ( windows_modmask == AnyModifier || ev->xkey.state & windows_modmask ) &&
-         key == windows_keysym ) {
-        run_switcher( FORK , WINDOW_SWITCHER );
+         key == windows_keysym )
+    {
+        run_switcher ( FORK, WINDOW_SWITCHER );
     }
 
     if ( ( rundialog_modmask == AnyModifier || ev->xkey.state & rundialog_modmask ) &&
-         key == rundialog_keysym ) {
-        run_switcher( FORK , RUN_DIALOG );
+         key == rundialog_keysym )
+    {
+        run_switcher ( FORK, RUN_DIALOG );
     }
 
     if ( ( sshdialog_modmask == AnyModifier || ev->xkey.state & sshdialog_modmask ) &&
-         key == sshdialog_keysym ) {
-        run_switcher( FORK , SSH_DIALOG );
+         key == sshdialog_keysym )
+    {
+        run_switcher ( FORK, SSH_DIALOG );
     }
-
 }
 
 // convert a Mod+key arg to mod mask and keysym
-void parse_key( char *combo, unsigned int *mod, KeySym *key )
+void parse_key ( char *combo, unsigned int *mod, KeySym *key )
 {
     unsigned int modmask = 0;
 
-    if ( strcasestr( combo, "shift" ) )   modmask |= ShiftMask;
+    if ( strcasestr ( combo, "shift" ) )
+    {
+        modmask |= ShiftMask;
+    }
 
-    if ( strcasestr( combo, "control" ) ) modmask |= ControlMask;
+    if ( strcasestr ( combo, "control" ) )
+    {
+        modmask |= ControlMask;
+    }
 
-    if ( strcasestr( combo, "mod1" ) )    modmask |= Mod1Mask;
+    if ( strcasestr ( combo, "mod1" ) )
+    {
+        modmask |= Mod1Mask;
+    }
 
-    if ( strcasestr( combo, "alt" ) )    modmask |= Mod1Mask;
+    if ( strcasestr ( combo, "alt" ) )
+    {
+        modmask |= Mod1Mask;
+    }
 
-    if ( strcasestr( combo, "mod2" ) )    modmask |= Mod2Mask;
+    if ( strcasestr ( combo, "mod2" ) )
+    {
+        modmask |= Mod2Mask;
+    }
 
-    if ( strcasestr( combo, "mod3" ) )    modmask |= Mod3Mask;
+    if ( strcasestr ( combo, "mod3" ) )
+    {
+        modmask |= Mod3Mask;
+    }
 
-    if ( strcasestr( combo, "mod4" ) )    modmask |= Mod4Mask;
+    if ( strcasestr ( combo, "mod4" ) )
+    {
+        modmask |= Mod4Mask;
+    }
 
-    if ( strcasestr( combo, "mod5" ) )    modmask |= Mod5Mask;
+    if ( strcasestr ( combo, "mod5" ) )
+    {
+        modmask |= Mod5Mask;
+    }
 
-    *mod = modmask ? modmask: AnyModifier;
+    *mod = modmask ? modmask : AnyModifier;
 
-    char i = strlen( combo );
+    char i = strlen ( combo );
 
-    while ( i > 0 && !strchr( "-+", combo[i-1] ) ) i--;
+    while ( i > 0 && !strchr ( "-+", combo[i - 1] ) )
+    {
+        i--;
+    }
 
-    KeySym sym = XStringToKeysym( combo+i );
+    KeySym sym = XStringToKeysym ( combo + i );
 
-    if ( sym == NoSymbol || ( !modmask && ( strchr( combo, '-' ) || strchr( combo, '+' ) ) ) ) {
-        fprintf( stderr, "sorry, cannot understand key combination: %s\n", combo );
-        exit( EXIT_FAILURE );
+    if ( sym == NoSymbol || ( !modmask && ( strchr ( combo, '-' ) || strchr ( combo, '+' ) ) ) )
+    {
+        fprintf ( stderr, "sorry, cannot understand key combination: %s\n", combo );
+        exit ( EXIT_FAILURE );
     }
 
     *key = sym;
 }
 
 // bind a key combination on a root window, compensating for Lock* states
-void grab_key( unsigned int modmask, KeySym key )
+void grab_key ( unsigned int modmask, KeySym key )
 {
-    KeyCode keycode = XKeysymToKeycode( display, key );
-    XUngrabKey( display, keycode, AnyModifier, root );
+    KeyCode keycode = XKeysymToKeycode ( display, key );
+    XUngrabKey ( display, keycode, AnyModifier, root );
 
-    if ( modmask != AnyModifier ) {
+    if ( modmask != AnyModifier )
+    {
         // bind to combinations of mod and lock masks, so caps and numlock don't confuse people
-        XGrabKey( display, keycode, modmask, root, True, GrabModeAsync, GrabModeAsync );
-        XGrabKey( display, keycode, modmask|LockMask, root, True, GrabModeAsync, GrabModeAsync );
+        XGrabKey ( display, keycode, modmask, root, True, GrabModeAsync, GrabModeAsync );
+        XGrabKey ( display, keycode, modmask | LockMask, root, True, GrabModeAsync, GrabModeAsync );
 
-        if ( NumlockMask ) {
-            XGrabKey( display, keycode, modmask|NumlockMask, root, True, GrabModeAsync, GrabModeAsync );
-            XGrabKey( display, keycode, modmask|NumlockMask|LockMask, root, True, GrabModeAsync, GrabModeAsync );
+        if ( NumlockMask )
+        {
+            XGrabKey ( display, keycode, modmask | NumlockMask, root, True, GrabModeAsync, GrabModeAsync );
+            XGrabKey ( display, keycode, modmask | NumlockMask | LockMask, root, True, GrabModeAsync, GrabModeAsync );
         }
-    } else {
+    }
+    else
+    {
         // nice simple single key bind
-        XGrabKey( display, keycode, AnyModifier, root, True, GrabModeAsync, GrabModeAsync );
+        XGrabKey ( display, keycode, AnyModifier, root, True, GrabModeAsync, GrabModeAsync );
     }
 }
 
 
 #ifdef HAVE_I3_IPC_H
-static inline void display_get_i3_path( Display *display )
+static inline void display_get_i3_path ( Display *display )
 {
     config.i3_mode = 0;
-    Atom atom = XInternAtom( display, I3_SOCKET_PATH_PROP,True );
+    Atom atom = XInternAtom ( display, I3_SOCKET_PATH_PROP, True );
 
-    if ( atom != None ) {
-        i3_socket_path = window_get_text_prop( root, atom );
+    if ( atom != None )
+    {
+        i3_socket_path = window_get_text_prop ( root, atom );
 
-        if ( i3_socket_path != NULL ) {
+        if ( i3_socket_path != NULL )
+        {
             config.i3_mode = 1;
         }
     }
@@ -1443,164 +1780,199 @@ static inline void display_get_i3_path( Display *display )
 /**
  * Help function. This calls man.
  */
-void help()
+void help ()
 {
-    int code = execlp( "man","man", MANPAGE_PATH,NULL );
+    int code = execlp ( "man", "man", MANPAGE_PATH, NULL );
 
-    if ( code == -1 ) {
-        fprintf( stderr, "Failed to execute man: %s\n", strerror( errno ) );
+    if ( code == -1 )
+    {
+        fprintf ( stderr, "Failed to execute man: %s\n", strerror ( errno ) );
     }
 }
 
-int main( int argc, char *argv[] )
+int main ( int argc, char *argv[] )
 {
     int i, j;
 
     // catch help request
-    if ( find_arg( argc, argv, "-help" ) >= 0
-         || find_arg( argc, argv, "--help" ) >= 0
-         || find_arg( argc, argv, "-h" ) >= 0 ) {
-        help();
+    if ( find_arg ( argc, argv, "-help" ) >= 0
+         || find_arg ( argc, argv, "--help" ) >= 0
+         || find_arg ( argc, argv, "-h" ) >= 0 )
+    {
+        help ();
         return EXIT_SUCCESS;
     }
 
-    if ( find_arg( argc, argv, "-v" ) >= 0 ||
-         find_arg( argc, argv, "-version" ) >= 0 ) {
-
-        fprintf( stdout, "Version: "VERSION"\n" );
+    if ( find_arg ( argc, argv, "-v" ) >= 0 ||
+         find_arg ( argc, argv, "-version" ) >= 0 )
+    {
+        fprintf ( stdout, "Version: "VERSION "\n" );
         return EXIT_SUCCESS;
     }
 
     // Get DISPLAY
-    char *display_str= getenv( "DISPLAY" );
-    find_arg_str( argc, argv, "-display", &display_str );
+    char *display_str = getenv ( "DISPLAY" );
+    find_arg_str ( argc, argv, "-display", &display_str );
 
-    if ( !( display = XOpenDisplay( display_str ) ) ) {
-        fprintf( stderr, "cannot open display!\n" );
+    if ( !( display = XOpenDisplay ( display_str ) ) )
+    {
+        fprintf ( stderr, "cannot open display!\n" );
         return EXIT_FAILURE;
     }
 
     // Initialize xdg, so we can grab the xdgCacheHome
-    if ( xdgInitHandle( &xdg_handle ) == NULL ) {
-        fprintf( stderr, "Failed to initialize XDG\n" );
+    if ( xdgInitHandle ( &xdg_handle ) == NULL )
+    {
+        fprintf ( stderr, "Failed to initialize XDG\n" );
         return EXIT_FAILURE;
     }
 
-    cache_dir = xdgCacheHome( &xdg_handle );
+    cache_dir = xdgCacheHome ( &xdg_handle );
 
 
-    signal( SIGCHLD, catch_exit );
-    screen = DefaultScreenOfDisplay( display );
-    screen_id = DefaultScreen( display );
-    root = DefaultRootWindow( display );
-    XSync( display, False );
-    xerror = XSetErrorHandler( oops );
-    XSync( display, False );
+    signal ( SIGCHLD, catch_exit );
+    screen    = DefaultScreenOfDisplay ( display );
+    screen_id = DefaultScreen ( display );
+    root      = DefaultRootWindow ( display );
+    XSync ( display, False );
+    xerror = XSetErrorHandler ( oops );
+    XSync ( display, False );
 
     // determine numlock mask so we can bind on keys with and without it
-    XModifierKeymap *modmap = XGetModifierMapping( display );
+    XModifierKeymap *modmap = XGetModifierMapping ( display );
 
     for ( i = 0; i < 8; i++ )
-        for ( j = 0; j < ( int )modmap->max_keypermod; j++ )
-            if ( modmap->modifiermap[i*modmap->max_keypermod+j] == XKeysymToKeycode( display, XK_Num_Lock ) )
-                NumlockMask = ( 1<<i );
-
-    XFreeModifiermap( modmap );
-
-    cache_client = winlist_new();
-    cache_xattr  = winlist_new();
-
-    // X atom values
-    for ( i = 0; i < NETATOMS; i++ ) netatoms[i] = XInternAtom( display, netatom_names[i], False );
-
-    parse_xresource_options( display );
-
-    find_arg_str( argc, argv, "-font",    &( config.menu_font ) );
-    find_arg_str( argc, argv, "-fg",      &( config.menu_fg ) );
-    find_arg_str( argc, argv, "-bg",      &( config.menu_bg ) );
-    find_arg_str( argc, argv, "-hlfg",    &( config.menu_hlfg ) );
-    find_arg_str( argc, argv, "-hlbg",    &( config.menu_hlbg ) );
-    find_arg_str( argc, argv, "-bc",      &( config.menu_bc ) );
-    find_arg_str( argc, argv, "-term",    &( config.terminal_emulator ) );
-    find_arg_int( argc, argv, "-bw",      &( config.menu_bw ) );
-    find_arg_int( argc, argv, "-o",       &( config.window_opacity ) );
-    find_arg_int( argc, argv, "-width",   &( config.menu_width ) );
-    find_arg_int( argc, argv, "-lines",   &( config.menu_lines ) );
-    find_arg_int( argc, argv, "-loc",     &( config.location ) );
-    find_arg_int( argc, argv, "-padding", &( config.padding ) );
-
-    if ( find_arg ( argc, argv, "-zeltak" ) >= 0 ) {
-        config.zeltak_mode    = 1;
+    {
+        for ( j = 0; j < ( int ) modmap->max_keypermod; j++ )
+        {
+            if ( modmap->modifiermap[i * modmap->max_keypermod + j] == XKeysymToKeycode ( display, XK_Num_Lock ) )
+            {
+                NumlockMask = ( 1 << i );
+            }
+        }
     }
 
-    if ( find_arg( argc, argv, "-hmode" ) >= 0 ) {
+    XFreeModifiermap ( modmap );
+
+    cache_client = winlist_new ();
+    cache_xattr  = winlist_new ();
+
+    // X atom values
+    for ( i = 0; i < NETATOMS; i++ )
+    {
+        netatoms[i] = XInternAtom ( display, netatom_names[i], False );
+    }
+
+    parse_xresource_options ( display );
+
+    find_arg_str ( argc, argv, "-font", &( config.menu_font ) );
+    find_arg_str ( argc, argv, "-fg", &( config.menu_fg ) );
+    find_arg_str ( argc, argv, "-bg", &( config.menu_bg ) );
+    find_arg_str ( argc, argv, "-hlfg", &( config.menu_hlfg ) );
+    find_arg_str ( argc, argv, "-hlbg", &( config.menu_hlbg ) );
+    find_arg_str ( argc, argv, "-bc", &( config.menu_bc ) );
+    find_arg_str ( argc, argv, "-term", &( config.terminal_emulator ) );
+    find_arg_int ( argc, argv, "-bw", &( config.menu_bw ) );
+    find_arg_int ( argc, argv, "-o", &( config.window_opacity ) );
+    find_arg_int ( argc, argv, "-width", &( config.menu_width ) );
+    find_arg_int ( argc, argv, "-lines", &( config.menu_lines ) );
+    find_arg_int ( argc, argv, "-loc", &( config.location ) );
+    find_arg_int ( argc, argv, "-padding", &( config.padding ) );
+
+    if ( find_arg ( argc, argv, "-zeltak" ) >= 0 )
+    {
+        config.zeltak_mode = 1;
+    }
+
+    if ( find_arg ( argc, argv, "-hmode" ) >= 0 )
+    {
         config.wmode = HORIZONTAL;
     }
 
 
 #ifdef HAVE_I3_IPC_H
     // Check for i3
-    display_get_i3_path( display );
+    display_get_i3_path ( display );
 #endif
 
     // flags to run immediately and exit
-    if ( find_arg( argc, argv, "-now" ) >= 0 ) {
-        run_switcher( NOFORK, WINDOW_SWITCHER );
-    } else if ( find_arg( argc, argv, "-rnow" ) >= 0 ) {
-        run_switcher( NOFORK, RUN_DIALOG );
-    } else if ( find_arg( argc, argv, "-snow" ) >= 0 ) {
-        run_switcher( NOFORK, SSH_DIALOG );
-    } else if ( find_arg( argc, argv, "-dmenu" ) >= 0 ) {
-        find_arg_str( argc, argv, "-p", &dmenu_prompt );
-        run_switcher( NOFORK, DMENU_DIALOG );
-    } else {
+    if ( find_arg ( argc, argv, "-now" ) >= 0 )
+    {
+        run_switcher ( NOFORK, WINDOW_SWITCHER );
+    }
+    else if ( find_arg ( argc, argv, "-rnow" ) >= 0 )
+    {
+        run_switcher ( NOFORK, RUN_DIALOG );
+    }
+    else if ( find_arg ( argc, argv, "-snow" ) >= 0 )
+    {
+        run_switcher ( NOFORK, SSH_DIALOG );
+    }
+    else if ( find_arg ( argc, argv, "-dmenu" ) >= 0 )
+    {
+        find_arg_str ( argc, argv, "-p", &dmenu_prompt );
+        run_switcher ( NOFORK, DMENU_DIALOG );
+    }
+    else
+    {
         // Daemon mode, Listen to key presses..
 
-        find_arg_str( argc, argv, "-key", &( config.window_key ) );
-        parse_key( config.window_key,  &windows_modmask, &windows_keysym );
-        grab_key( windows_modmask, windows_keysym );
+        find_arg_str ( argc, argv, "-key", &( config.window_key ) );
+        parse_key ( config.window_key, &windows_modmask, &windows_keysym );
+        grab_key ( windows_modmask, windows_keysym );
 
-        find_arg_str( argc, argv, "-rkey",&( config.run_key ) );
-        parse_key( config.run_key, &rundialog_modmask, &rundialog_keysym );
-        grab_key( rundialog_modmask, rundialog_keysym );
+        find_arg_str ( argc, argv, "-rkey", &( config.run_key ) );
+        parse_key ( config.run_key, &rundialog_modmask, &rundialog_keysym );
+        grab_key ( rundialog_modmask, rundialog_keysym );
 
-        find_arg_str( argc, argv, "-skey",&( config.ssh_key ) );
-        parse_key( config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
-        grab_key( sshdialog_modmask, sshdialog_keysym );
+        find_arg_str ( argc, argv, "-skey", &( config.ssh_key ) );
+        parse_key ( config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
+        grab_key ( sshdialog_modmask, sshdialog_keysym );
 
         XEvent ev;
 
-        for ( ;; ) {
+        for (;; )
+        {
             // caches only live for a single event
-            winlist_empty( cache_xattr );
-            winlist_empty( cache_client );
+            winlist_empty ( cache_xattr );
+            winlist_empty ( cache_client );
 
             // block and wait for something
-            XNextEvent( display, &ev );
+            XNextEvent ( display, &ev );
 
-            if ( ev.xany.window == None ) continue;
+            if ( ev.xany.window == None )
+            {
+                continue;
+            }
 
-            if ( ev.type == KeyPress ) handle_keypress( &ev );
+            if ( ev.type == KeyPress )
+            {
+                handle_keypress ( &ev );
+            }
         }
     }
 
     // Cleanup
-    if ( display != NULL ) {
-
-        if ( main_window != None ) {
-            XFreeGC( display,gc );
-            XDestroyWindow( display,main_window );
-            XCloseDisplay( display );
+    if ( display != NULL )
+    {
+        if ( main_window != None )
+        {
+            XFreeGC ( display, gc );
+            XDestroyWindow ( display, main_window );
+            XCloseDisplay ( display );
         }
     }
 
-    winlist_free( cache_xattr );
-    winlist_free( cache_client );
+    winlist_free ( cache_xattr );
+    winlist_free ( cache_client );
 #ifdef HAVE_I3_IPC_H
 
-    if ( i3_socket_path != NULL ) free( i3_socket_path );
+    if ( i3_socket_path != NULL )
+    {
+        free ( i3_socket_path );
+    }
 
 #endif
-    xdgWipeHandle( &xdg_handle );
+    xdgWipeHandle ( &xdg_handle );
     return EXIT_SUCCESS;
 }
