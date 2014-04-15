@@ -54,7 +54,7 @@ md_verbose_0 = @echo "  MD" $@;
 markdown_FILES=\
     README.html
 
-%.html: %.md
+README.html: README.md
 	$(md_verbose) markdown $< > $@
 
 ## 
