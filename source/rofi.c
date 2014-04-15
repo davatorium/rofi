@@ -802,7 +802,13 @@ GC           gc          = NULL;
 
 #include "textbox.h"
 
-void menu_draw ( textbox *text, textbox **boxes, int max_lines, int num_lines, int *last_offset, int selected, char **filtered )
+void menu_draw ( textbox *text,
+                 textbox **boxes,
+                 int max_lines,
+                 int num_lines,
+                 int *last_offset,
+                 int selected,
+                 char **filtered )
 {
     int i, offset = 0;
     textbox_draw ( text );
@@ -815,29 +821,15 @@ void menu_draw ( textbox *text, textbox **boxes, int max_lines, int num_lines, i
     }
     else
     {
-        // If selected is above visible, scroll up.
-        if ( ( selected - ( *last_offset ) ) >= ( max_lines ) )
-        {
-            offset = selected - max_lines + 1;
-            // Scroll down otherwise
-        }
-        else if ( ( selected - ( *last_offset ) ) < 0 )
-        {
-            offset = selected;
-        }
-
-        // Sanitize
-        if ( offset >= ( num_lines ) )
-        {
-            offset = num_lines - max_lines - 1;
-        }
-
+        // Do pageinating 
+        int page = selected/max_lines;
+        offset = page*max_lines;
         *last_offset = offset;
     }
 
-    for ( i = 0; i < max_lines; i++ )
+    for ( i = 0; i < max_lines ; i++ )
     {
-        if ( filtered[i + offset] == NULL )
+        if ( (i+offset) >= num_lines || filtered[i + offset] == NULL )
         {
             textbox_font ( boxes[i], config.menu_font,
                            config.menu_fg,
