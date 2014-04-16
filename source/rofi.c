@@ -821,15 +821,15 @@ void menu_draw ( textbox *text,
     }
     else
     {
-        // Do pageinating 
-        int page = selected/max_lines;
-        offset = page*max_lines;
+        // Do pageinating
+        int page = selected / max_lines;
+        offset       = page * max_lines;
         *last_offset = offset;
     }
 
-    for ( i = 0; i < max_lines ; i++ )
+    for ( i = 0; i < max_lines; i++ )
     {
-        if ( (i+offset) >= num_lines || filtered[i + offset] == NULL )
+        if ( ( i + offset ) >= num_lines || filtered[i + offset] == NULL )
         {
             textbox_font ( boxes[i], config.menu_font,
                            config.menu_fg,
