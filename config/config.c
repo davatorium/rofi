@@ -66,5 +66,6 @@ Settings config = {
     // Mode of window, list (Vertical) or dmenu like (Horizontal)
     .wmode             = VERTICAL,
     // Padding of the window.
-    .padding           = 5
+    .padding           = 5,
+    .show_title        = 1
 };

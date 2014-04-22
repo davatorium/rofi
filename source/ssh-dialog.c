@@ -49,7 +49,31 @@
 
 static inline int execshssh ( const char *host )
 {
-    return execlp ( config.terminal_emulator, config.terminal_emulator, "-e", "ssh", host, NULL );
+    /**
+     * I am not happy about this code, it causes 7 mallocs and frees
+     */
+    char **args = allocate(sizeof(char*)*7);
+    int i=0;
+    args[i++] = config.terminal_emulator;
+    if(config.show_title) {
+        ssize_t length = strlen(host)+5;
+        char buffer[length];
+        snprintf(buffer, length, "ssh %s", host);
+        args[i++] = strdup("-T");
+        args[i++] = strdup(buffer);
+    }
+    args[i++] = strdup("-e");
+    args[i++] = strdup("ssh");
+    args[i++] = strdup(host);
+    args[i++] = NULL;
+    int retv = execvp ( config.terminal_emulator, (char * const *)args ); 
+
+    // Free the args list.
+    for(int i =0; i < 7 && args[i] != NULL;i++) {
+        free(args[i]);
+    }
+    free(args);
+    return retv;
 }
 // execute sub-process
 static pid_t exec_ssh ( const char *cmd )

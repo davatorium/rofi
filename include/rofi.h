@@ -101,6 +101,8 @@ typedef struct _Settings
     WindowLocation location;
     WindowMode     wmode;
     unsigned int   padding;
+
+    unsigned int   show_title;
 } Settings;
 
 extern Settings config;
