@@ -56,11 +56,12 @@ static inline int execshssh ( const char *host )
     int i=0;
     args[i++] = config.terminal_emulator;
     if(config.show_title) {
-        ssize_t length = strlen(host)+5;
-        char buffer[length];
-        snprintf(buffer, length, "ssh %s", host);
-        args[i++] = strdup("-T");
-        args[i++] = strdup(buffer);
+        char *buffer = NULL;
+        if( asprintf(&buffer, "ssh %s", host) > 0)
+        {
+            args[i++] = strdup("-T");
+            args[i++] = buffer;
+        }
     }
     args[i++] = strdup("-e");
     args[i++] = strdup("ssh");
@@ -69,8 +70,10 @@ static inline int execshssh ( const char *host )
     int retv = execvp ( config.terminal_emulator, (char * const *)args ); 
 
     // Free the args list.
-    for(int i =0; i < 7 && args[i] != NULL;i++) {
-        free(args[i]);
+    for(int i =0; i < 7;i++) {
+        if(args[i] != NULL) {
+            free(args[i]);
+        }
     }
     free(args);
     return retv;
