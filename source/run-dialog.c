@@ -58,10 +58,11 @@ static inline int execsh ( const char *cmd, int run_in_term )
     return execlp ( "/bin/sh", "sh", "-c", cmd, NULL );
 }
 
+#define RUN_DIALOG_NAME_LENGTH 256
 typedef struct _element
 {
     long int index;
-    char     name[1024];
+    char     name[RUN_DIALOG_NAME_LENGTH];
 }element;
 static int element_sort_func ( const void *ea, const void *eb )
 {
@@ -96,8 +97,11 @@ static pid_t exec_cmd ( const char *cmd, int run_in_term )
      * It is allowed to be a bit slower.
      */
     size_t path_length = strlen ( cache_dir ) + strlen ( RUN_CACHE_FILE ) + 3;
-    char   *path       = allocate ( path_length );
-    snprintf ( path, path_length, "%s/%s", cache_dir, RUN_CACHE_FILE );
+    char   *path       = NULL; 
+    if(asprintf ( &path,  "%s/%s", cache_dir, RUN_CACHE_FILE ) == -1) {
+        return -1;
+    }
+
     FILE   *fd = fopen ( path, "r" );
 
     if ( fd != NULL )
@@ -109,12 +113,11 @@ static pid_t exec_cmd ( const char *cmd, int run_in_term )
             {
                 continue;
             }
-            retv                          = reallocate ( retv, ( index + 2 ) * sizeof ( element* ) );
-            retv[index]                   = allocate ( sizeof ( element ) );
-            buffer[strlen ( buffer ) - 1] = '\0';
+            retv         = reallocate ( retv, ( index + 2 ) * sizeof ( element* ) );
+            retv[index]  = allocate ( sizeof ( element ) );
             char * start = NULL;
             retv[index]->index = strtol ( buffer, &start, 10 );
-            snprintf ( retv[index]->name, 1024, "%s", start + 1 );
+            snprintf ( retv[index]->name, RUN_DIALOG_NAME_LENGTH, "%s", start + 1 );
             retv[index + 1] = NULL;
 
             if ( strcasecmp ( retv[index]->name, cmd ) == 0 )
@@ -132,7 +135,7 @@ static pid_t exec_cmd ( const char *cmd, int run_in_term )
         retv               = reallocate ( retv, ( index + 2 ) * sizeof ( element* ) );
         retv[index]        = allocate ( sizeof ( element ) );
         retv[index]->index = 1;
-        snprintf ( retv[index]->name, 1024, "%s", cmd );
+        snprintf ( retv[index]->name, RUN_DIALOG_NAME_LENGTH, "%s", cmd );
         index++;
     }
     else
@@ -186,8 +189,11 @@ static void delete_entry ( const char *cmd )
      * This happens in non-critical time (After launching app)
      * It is allowed to be a bit slower.
      */
-    char *path = allocate ( strlen ( cache_dir ) + strlen ( RUN_CACHE_FILE ) + 3 );
-    sprintf ( path, "%s/%s", cache_dir, RUN_CACHE_FILE );
+    char *path = NULL; 
+    if(asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) == -1) {
+        return;
+    } 
+
     FILE *fd = fopen ( path, "r" );
 
     if ( fd != NULL )
@@ -195,16 +201,15 @@ static void delete_entry ( const char *cmd )
         char buffer[1024];
         while ( fgets ( buffer, 1024, fd ) != NULL )
         {
+            char * start = NULL;
             if ( strlen ( buffer ) == 0 )
             {
                 continue;
             }
-            retv                          = reallocate ( retv, ( index + 2 ) * sizeof ( element* ) );
-            retv[index]                   = allocate ( sizeof ( element ) );
-            buffer[strlen ( buffer ) - 1] = '\0';
-            char * start = NULL;
+            retv               = reallocate ( retv, ( index + 2 ) * sizeof ( element* ) );
+            retv[index]        = allocate ( sizeof ( element ) );
             retv[index]->index = strtol ( buffer, &start, 10 );
-            snprintf ( retv[index]->name, 1024, "%s", start + 1 );
+            snprintf ( retv[index]->name, RUN_DIALOG_NAME_LENGTH, "%s", start + 1 );
             retv[index + 1] = NULL;
 
             if ( strcasecmp ( retv[index]->name, cmd ) == 0 )
@@ -273,43 +278,45 @@ static char ** get_apps ( )
     }
 
 
-    path = allocate ( strlen ( cache_dir ) + strlen ( RUN_CACHE_FILE ) + 3 );
-    sprintf ( path, "%s/%s", cache_dir, RUN_CACHE_FILE );
-    FILE *fd = fopen ( path, "r" );
+    if(asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) > 0) {
+        FILE *fd = fopen ( path, "r" );
 
-    if ( fd != NULL )
-    {
-        char buffer[1024];
-        while ( fgets ( buffer, 1024, fd ) != NULL )
+        if ( fd != NULL )
         {
-            if ( strlen ( buffer ) == 0 )
+            char buffer[1024];
+            while ( fgets ( buffer, 1024, fd ) != NULL )
             {
-                continue;
+                if ( strlen ( buffer ) == 0 )
+                {
+                    continue;
+                }
+                buffer[strlen ( buffer ) - 1] = '\0';
+                char *start = NULL;
+                // Don't use result.
+                strtol ( buffer, &start, 10 );
+                if ( start == NULL )
+                {
+                    continue;
+                }
+                retv            = reallocate ( retv, ( index + 2 ) * sizeof ( char* ) );
+                retv[index]     = strdup ( start + 1 );
+                retv[index + 1] = NULL;
+                index++;
+                num_favorites++;
             }
-            buffer[strlen ( buffer ) - 1] = '\0';
-            char *start = NULL;
-            // Don't use result.
-            strtol ( buffer, &start, 10 );
-            if ( start == NULL )
-            {
-                continue;
-            }
-            retv            = reallocate ( retv, ( index + 2 ) * sizeof ( char* ) );
-            retv[index]     = strdup ( start + 1 );
-            retv[index + 1] = NULL;
-            index++;
-            num_favorites++;
+
+            fclose ( fd );
         }
 
-        fclose ( fd );
+        free ( path );
     }
-
-    free ( path );
 
 
     path = strdup ( getenv ( "PATH" ) );
 
-    for ( const char *dirname = strtok ( path, ":" ); dirname != NULL; dirname = strtok ( NULL, ":" ) )
+    for ( const char *dirname = strtok ( path, ":" );
+            dirname != NULL;
+            dirname = strtok ( NULL, ":" ) )
     {
         DIR *dir = opendir ( dirname );
 
