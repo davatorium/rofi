@@ -21,12 +21,11 @@ rofi \- a simple EWMH window switcher
 .IR combo ]
 .RB [ \-dkey
 .IR comdo ]
-.RB [ \-mkey
+.RB [ \-rkey
 .IR comdo ]
 .RB [ \-now ]
 .RB [ \-rnow ]
 .RB [ \-snow ]
-.RB [ \-mnow ]
 .RB [ \-term
 .IR terminal ]
 .RB [ \-loc
@@ -34,6 +33,17 @@ rofi \- a simple EWMH window switcher
 .RB [ \-hmode ]
 .RB [ \-padding
 .IR padding ]
+.RB [ \-version ]
+.RB [ \-help]
+.RB [ \-display
+.IR display ]
+.RB [ \-bc 
+.IR color ]
+.RB [ \-bw 
+.IR width ]
+.RB [ \-dmenu 
+.RB [ \-p
+.IR prompt ]]
 
 .SH DESCRIPTION
 .I rofi
@@ -83,14 +93,6 @@ rofi -skey control+shift+s
 rofi -skey mod1+grave (grave=backtick)
 .RE
 .TP
-.B -mkey
-Change the key combination to display the mark dialog (default: Alt-F5)
-(only if i3 support is enabled).
-.P
-.RS
-rofi -mkey Alt-F2
-.RE
-.TP
 .B -now
 Run rofi in all-windows mode once then exit. Does not bind any keys.
 .TP
@@ -99,10 +101,6 @@ Run rofi in run-dialog mode once then exit. Does not bind any keys.
 .TP
 .B -snow
 Run rofi in ssh mode once then exit. Does not bind any keys.
-.TP
-.B -mnow
-Run rofi in mark mode once then exit. Does not bind any keys (only if i3 support is
-enabled).
 .TP
 .B -bg
 Set the background text color (X11 named color or hex #rrggbb) for the menu (default: #222222).
@@ -205,8 +203,12 @@ To make rofi look like dmenu:
 .TP
 rofi -hmode -padding 0
 .RE
+.TP
+.B -dmenu
+Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.
+.RS
 .SH Switch between modi
-Type '?'<enter> to switch between window list and run mode.
+Type '?'<enter> to switch between window list, run and ssh mode.
 .SH SEE ALSO
 .BR rofi (1)
 .SH AUTHOR
