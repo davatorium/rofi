@@ -96,7 +96,6 @@ static pid_t exec_cmd ( const char *cmd, int run_in_term )
      * This happens in non-critical time (After launching app)
      * It is allowed to be a bit slower.
      */
-    size_t path_length = strlen ( cache_dir ) + strlen ( RUN_CACHE_FILE ) + 3;
     char   *path       = NULL; 
     if(asprintf ( &path,  "%s/%s", cache_dir, RUN_CACHE_FILE ) == -1) {
         return -1;

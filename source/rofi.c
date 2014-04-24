@@ -1862,22 +1862,31 @@ int main ( int argc, char *argv[] )
         netatoms[i] = XInternAtom ( display, netatom_names[i], False );
     }
 
+#ifdef HAVE_I3_IPC_H
+    // Check for i3
+    display_get_i3_path ( display );
+#endif
+    // Load in config from X resources.
     parse_xresource_options ( display );
 
+    // Parse commandline arguments about the looks.
     find_arg_str ( argc, argv, "-font", &( config.menu_font ) );
     find_arg_str ( argc, argv, "-fg", &( config.menu_fg ) );
     find_arg_str ( argc, argv, "-bg", &( config.menu_bg ) );
     find_arg_str ( argc, argv, "-hlfg", &( config.menu_hlfg ) );
     find_arg_str ( argc, argv, "-hlbg", &( config.menu_hlbg ) );
     find_arg_str ( argc, argv, "-bc", &( config.menu_bc ) );
-    find_arg_str ( argc, argv, "-term", &( config.terminal_emulator ) );
     find_arg_int ( argc, argv, "-bw", &( config.menu_bw ) );
     find_arg_int ( argc, argv, "-o", &( config.window_opacity ) );
+
+    // Parse commandline arguments about size and position
     find_arg_int ( argc, argv, "-width", &( config.menu_width ) );
     find_arg_int ( argc, argv, "-lines", &( config.menu_lines ) );
     find_arg_int ( argc, argv, "-loc", &( config.location ) );
     find_arg_int ( argc, argv, "-padding", &( config.padding ) );
 
+    // Parse commandline arguments about behavior
+    find_arg_str ( argc, argv, "-term", &( config.terminal_emulator ) );
     if ( find_arg ( argc, argv, "-zeltak" ) >= 0 )
     {
         config.zeltak_mode = 1;
@@ -1887,12 +1896,6 @@ int main ( int argc, char *argv[] )
     {
         config.wmode = HORIZONTAL;
     }
-
-
-#ifdef HAVE_I3_IPC_H
-    // Check for i3
-    display_get_i3_path ( display );
-#endif
 
     // flags to run immediately and exit
     if ( find_arg ( argc, argv, "-now" ) >= 0 )
@@ -1928,10 +1931,10 @@ int main ( int argc, char *argv[] )
         parse_key ( config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
         grab_key ( sshdialog_modmask, sshdialog_keysym );
 
-        XEvent ev;
-
+        // Main loop
         for (;; )
         {
+            XEvent ev;
             // caches only live for a single event
             winlist_empty ( cache_xattr );
             winlist_empty ( cache_client );
