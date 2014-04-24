@@ -485,7 +485,7 @@ int pointer_get ( Window root, int *x, int *y )
     return 0;
 }
 
-int take_keyboard ( Window w )
+static int take_keyboard ( Window w )
 {
     int i;
 
@@ -1131,274 +1131,276 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     // Determine window location
     switch ( config.location )
     {
-    case WL_NORTH_WEST:
-        x = mon.x;
+        case WL_NORTH_WEST:
+            x = mon.x;
 
-    case WL_NORTH:
-        y = mon.y;
-        break;
+        case WL_NORTH:
+            y = mon.y;
+            break;
 
-    case WL_NORTH_EAST:
-        y = mon.y;
+        case WL_NORTH_EAST:
+            y = mon.y;
 
-    case WL_EAST:
-        x = mon.x + mon.w - w;
-        break;
+        case WL_EAST:
+            x = mon.x + mon.w - w;
+            break;
 
-    case WL_EAST_SOUTH:
-        x = mon.x + mon.w - w;
+        case WL_EAST_SOUTH:
+            x = mon.x + mon.w - w;
 
-    case WL_SOUTH:
-        y = mon.y + mon.h - h;
-        break;
+        case WL_SOUTH:
+            y = mon.y + mon.h - h;
+            break;
 
-    case WL_SOUTH_WEST:
-        y = mon.y + mon.h - h;
+        case WL_SOUTH_WEST:
+            y = mon.y + mon.h - h;
 
-    case WL_WEST:
-        x = mon.x;
-        break;
+        case WL_WEST:
+            x = mon.x;
+            break;
 
-    case WL_CENTER:
-    default:
-        break;
+        case WL_CENTER:
+        default:
+            break;
     }
 
 
     XMoveResizeWindow ( display, box, x, y, w, h );
     XMapRaised ( display, box );
 
-    take_keyboard ( box );
-
-    for (;; )
+    // if grabbing keyboard failed, fall through
+    if(take_keyboard ( box ))
     {
-        XEvent ev;
-        XNextEvent ( display, &ev );
-
-        if ( ev.type == Expose )
+        for (;; )
         {
-            while ( XCheckTypedEvent ( display, Expose, &ev ) )
-            {
-                ;
-            }
+            XEvent ev;
+            XNextEvent ( display, &ev );
 
-            menu_draw ( text, boxes, max_lines, num_lines, &last_offset, selected, filtered );
-
-            // Why do we need the specian -1?
-            if ( config.wmode == VERTICAL )
+            if ( ev.type == Expose )
             {
-                XDrawLine ( display, main_window, gc, ( config.padding ),
+                while ( XCheckTypedEvent ( display, Expose, &ev ) )
+                {
+                    ;
+                }
+
+                menu_draw ( text, boxes, max_lines, num_lines, &last_offset, selected, filtered );
+
+                // Why do we need the specian -1?
+                if ( config.wmode == VERTICAL )
+                {
+                    XDrawLine ( display, main_window, gc, ( config.padding ),
                             line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2,
                             w - ( ( config.padding ) ) - 1,
                             line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2 );
+                }
             }
-        }
-        else if ( ev.type == KeyPress )
-        {
-            while ( XCheckTypedEvent ( display, KeyPress, &ev ) )
+            else if ( ev.type == KeyPress )
             {
-                ;
-            }
-
-            if ( time )
-            {
-                *time = ev.xkey.time;
-            }
-
-            KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
-
-            if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
-                 key == XK_slash )
-            {
-                retv           = MENU_NEXT;
-                *selected_line = 0;
-                break;
-            }
-            else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
-                      key == XK_Delete )
-            {
-                if ( filtered[selected] != NULL )
+                while ( XCheckTypedEvent ( display, KeyPress, &ev ) )
                 {
-                    *selected_line = line_map[selected];
-                    retv           = MENU_ENTRY_DELETE;
+                    ;
+                }
+
+                if ( time )
+                {
+                    *time = ev.xkey.time;
+                }
+
+                KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
+
+                if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
+                        key == XK_slash )
+                {
+                    retv           = MENU_NEXT;
+                    *selected_line = 0;
                     break;
                 }
-            }
-
-            int rc = textbox_keypress ( text, &ev );
-
-            if ( rc < 0 )
-            {
-                if ( shift != NULL )
+                else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
+                        key == XK_Delete )
                 {
-                    ( *shift ) = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
-                }
-
-                if ( filtered && filtered[selected] )
-                {
-                    retv           = MENU_OK;
-                    *selected_line = line_map[selected];
-                }
-                else
-                {
-                    retv = MENU_CUSTOM_INPUT;
-                }
-
-                break;
-            }
-            else if ( rc )
-            {
-                char **tokens = tokenize ( text->text );
-
-                // input changed
-                for ( i = 0, j = 0; i < num_lines; i++ )
-                {
-                    int match = mmc ( tokens, lines[i], i, mmc_data );
-
-                    // If each token was matched, add it to list.
-                    if ( match )
+                    if ( filtered[selected] != NULL )
                     {
-                        line_map[j]   = i;
-                        filtered[j++] = lines[i];
+                        *selected_line = line_map[selected];
+                        retv           = MENU_ENTRY_DELETE;
+                        break;
                     }
                 }
 
-                // Cleanup + bookkeeping.
-                filtered_lines = j;
-                selected       = MIN ( selected, j - 1 );
+                int rc = textbox_keypress ( text, &ev );
 
-                for (; j < num_lines; j++ )
+                if ( rc < 0 )
                 {
-                    filtered[j] = NULL;
-                }
+                    if ( shift != NULL )
+                    {
+                        ( *shift ) = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
+                    }
 
-                if ( config.zeltak_mode && filtered_lines == 1 )
-                {
-                    if ( filtered[selected] )
+                    if ( filtered && filtered[selected] )
                     {
                         retv           = MENU_OK;
                         *selected_line = line_map[selected];
                     }
                     else
                     {
-                        fprintf ( stderr, "We should never hit this." );
-                        abort ();
+                        retv = MENU_CUSTOM_INPUT;
                     }
 
                     break;
                 }
-
-                tokenize_free ( tokens );
-            }
-            else
-            {
-                // unhandled key
-                KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
-
-                if ( key == XK_Escape
-                     // pressing one of the global key bindings closes the switcher. this allows fast closing of the menu if an item is not selected
-                     || ( ( windows_modmask == AnyModifier || ev.xkey.state & windows_modmask ) && key == windows_keysym )
-                     || ( ( rundialog_modmask == AnyModifier || ev.xkey.state & rundialog_modmask ) && key == rundialog_keysym )
-                     || ( ( sshdialog_modmask == AnyModifier || ev.xkey.state & sshdialog_modmask ) && key == sshdialog_keysym )
-                     )
+                else if ( rc )
                 {
-                    retv = MENU_CANCEL;
-                    break;
+                    char **tokens = tokenize ( text->text );
+
+                    // input changed
+                    for ( i = 0, j = 0; i < num_lines; i++ )
+                    {
+                        int match = mmc ( tokens, lines[i], i, mmc_data );
+
+                        // If each token was matched, add it to list.
+                        if ( match )
+                        {
+                            line_map[j]   = i;
+                            filtered[j++] = lines[i];
+                        }
+                    }
+
+                    // Cleanup + bookkeeping.
+                    filtered_lines = j;
+                    selected       = MIN ( selected, j - 1 );
+
+                    for (; j < num_lines; j++ )
+                    {
+                        filtered[j] = NULL;
+                    }
+
+                    if ( config.zeltak_mode && filtered_lines == 1 )
+                    {
+                        if ( filtered[selected] )
+                        {
+                            retv           = MENU_OK;
+                            *selected_line = line_map[selected];
+                        }
+                        else
+                        {
+                            fprintf ( stderr, "We should never hit this." );
+                            abort ();
+                        }
+
+                        break;
+                    }
+
+                    tokenize_free ( tokens );
                 }
                 else
                 {
-                    // Up or Shift-Tab
-                    if ( key == XK_Up || ( key == XK_Tab && ev.xkey.state & ShiftMask ) ||
-                         ( key == XK_j && ev.xkey.state & ControlMask )  )
-                    {
-                        if ( selected == 0 )
-                        {
-                            selected = filtered_lines;
-                        }
+                    // unhandled key
+                    KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
 
-                        if ( selected > 0 )
+                    if ( key == XK_Escape
+                            // pressing one of the global key bindings closes the switcher. this allows fast closing of the menu if an item is not selected
+                            || ( ( windows_modmask == AnyModifier || ev.xkey.state & windows_modmask ) && key == windows_keysym )
+                            || ( ( rundialog_modmask == AnyModifier || ev.xkey.state & rundialog_modmask ) && key == rundialog_keysym )
+                            || ( ( sshdialog_modmask == AnyModifier || ev.xkey.state & sshdialog_modmask ) && key == sshdialog_keysym )
+                       )
+                    {
+                        retv = MENU_CANCEL;
+                        break;
+                    }
+                    else
+                    {
+                        // Up or Shift-Tab
+                        if ( key == XK_Up || ( key == XK_Tab && ev.xkey.state & ShiftMask ) ||
+                                ( key == XK_j && ev.xkey.state & ControlMask )  )
                         {
-                            selected--;
-                        }
-                    }
-                    else if ( key == XK_Down ||
-                              ( key == XK_k && ev.xkey.state & ControlMask ) )
-                    {
-                        selected = selected < filtered_lines - 1 ? MIN ( filtered_lines - 1, selected + 1 ) : 0;
-                    }
-                    else if ( key == XK_Page_Up )
-                    {
-                        if ( selected < max_lines )
-                        {
-                            selected = 0;
-                        }
-                        else
-                        {
-                            selected -= ( max_lines - 1 );
-                        }
-                    }
-                    else if ( key == XK_Page_Down )
-                    {
-                        selected += ( max_lines - 1 );
-
-                        if ( selected >= num_lines )
-                        {
-                            selected = num_lines - 1;
-                        }
-                    }
-                    else if ( key == XK_Home || key == XK_KP_Home )
-                    {
-                        selected = 0;
-                    }
-                    else if ( key == XK_End || key == XK_KP_End )
-                    {
-                        selected = num_lines - 1;
-                    }
-                    else if ( key == XK_Tab )
-                    {
-                        if ( filtered_lines == 1 )
-                        {
-                            if ( filtered[selected] )
+                            if ( selected == 0 )
                             {
-                                retv           = MENU_OK;
-                                *selected_line = line_map[selected];
-                            }
-                            else
-                            {
-                                fprintf ( stderr, "We should never hit this." );
-                                abort ();
+                                selected = filtered_lines;
                             }
 
-                            break;
+                            if ( selected > 0 )
+                            {
+                                selected--;
+                            }
                         }
-
-                        int length_prefix = calculate_common_prefix ( filtered, num_lines );
-
-                        // TODO: memcmp to utf8 aware cmp.
-                        if ( length_prefix && memcmp ( filtered[0], text->text, length_prefix ) )
-                        {
-                            // Do not want to modify original string, so make copy.
-                            // not eff..
-                            char * str = allocate ( sizeof ( char ) * ( length_prefix + 1 ) );
-                            memcpy ( str, filtered[0], length_prefix );
-                            str[length_prefix] = '\0';
-                            textbox_text ( text, str );
-                            textbox_cursor_end ( text );
-                            free ( str );
-                        }
-                        else
+                        else if ( key == XK_Down ||
+                                ( key == XK_k && ev.xkey.state & ControlMask ) )
                         {
                             selected = selected < filtered_lines - 1 ? MIN ( filtered_lines - 1, selected + 1 ) : 0;
                         }
+                        else if ( key == XK_Page_Up )
+                        {
+                            if ( selected < max_lines )
+                            {
+                                selected = 0;
+                            }
+                            else
+                            {
+                                selected -= ( max_lines - 1 );
+                            }
+                        }
+                        else if ( key == XK_Page_Down )
+                        {
+                            selected += ( max_lines - 1 );
+
+                            if ( selected >= num_lines )
+                            {
+                                selected = num_lines - 1;
+                            }
+                        }
+                        else if ( key == XK_Home || key == XK_KP_Home )
+                        {
+                            selected = 0;
+                        }
+                        else if ( key == XK_End || key == XK_KP_End )
+                        {
+                            selected = num_lines - 1;
+                        }
+                        else if ( key == XK_Tab )
+                        {
+                            if ( filtered_lines == 1 )
+                            {
+                                if ( filtered[selected] )
+                                {
+                                    retv           = MENU_OK;
+                                    *selected_line = line_map[selected];
+                                }
+                                else
+                                {
+                                    fprintf ( stderr, "We should never hit this." );
+                                    abort ();
+                                }
+
+                                break;
+                            }
+
+                            int length_prefix = calculate_common_prefix ( filtered, num_lines );
+
+                            // TODO: memcmp to utf8 aware cmp.
+                            if ( length_prefix && memcmp ( filtered[0], text->text, length_prefix ) )
+                            {
+                                // Do not want to modify original string, so make copy.
+                                // not eff..
+                                char * str = allocate ( sizeof ( char ) * ( length_prefix + 1 ) );
+                                memcpy ( str, filtered[0], length_prefix );
+                                str[length_prefix] = '\0';
+                                textbox_text ( text, str );
+                                textbox_cursor_end ( text );
+                                free ( str );
+                            }
+                            else
+                            {
+                                selected = selected < filtered_lines - 1 ? MIN ( filtered_lines - 1, selected + 1 ) : 0;
+                            }
+                        }
                     }
                 }
+
+                menu_draw ( text, boxes, max_lines, num_lines, &last_offset, selected, filtered );
             }
-
-            menu_draw ( text, boxes, max_lines, num_lines, &last_offset, selected, filtered );
         }
-    }
 
-    release_keyboard ();
+        release_keyboard ();
+    }
 
     if ( *input != NULL )
     {
@@ -1406,8 +1408,6 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     }
 
     *input = strdup ( text->text );
-
-
 
     textbox_free ( text );
 
