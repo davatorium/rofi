@@ -128,8 +128,15 @@ void* allocate_clear ( unsigned long bytes )
         return NULL;
     }
 
-    void *ptr = allocate ( bytes );
-    memset ( ptr, 0, bytes );
+    // malloc+memset we can do in one call using calloc.
+    void *ptr = calloc ( bytes, 1 );
+
+    if ( !ptr )
+    {
+        fprintf ( stderr, "calloc failed!\n" );
+        exit ( EXIT_FAILURE );
+    }
+
     return ptr;
 }
 void* reallocate ( void *ptr, unsigned long bytes )
