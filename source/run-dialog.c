@@ -114,6 +114,7 @@ static pid_t exec_cmd ( const char *cmd, int run_in_term )
             }
             retv         = reallocate ( retv, ( index + 2 ) * sizeof ( element* ) );
             retv[index]  = allocate ( sizeof ( element ) );
+            buffer[strlen ( buffer ) - 1] = '\0';
             char * start = NULL;
             retv[index]->index = strtol ( buffer, &start, 10 );
             snprintf ( retv[index]->name, RUN_DIALOG_NAME_LENGTH, "%s", start + 1 );
@@ -207,6 +208,7 @@ static void delete_entry ( const char *cmd )
             }
             retv               = reallocate ( retv, ( index + 2 ) * sizeof ( element* ) );
             retv[index]        = allocate ( sizeof ( element ) );
+            buffer[strlen ( buffer ) - 1] = '\0';
             retv[index]->index = strtol ( buffer, &start, 10 );
             snprintf ( retv[index]->name, RUN_DIALOG_NAME_LENGTH, "%s", start + 1 );
             retv[index + 1] = NULL;
