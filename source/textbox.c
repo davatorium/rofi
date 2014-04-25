@@ -210,7 +210,7 @@ void textbox_draw ( textbox *tb )
     // clear canvas
     XftDrawRect ( draw, &tb->color_bg, 0, 0, tb->w, tb->h );
 
-    char *line = tb->text,
+    char *line = NULL,
     *text      = tb->text ? tb->text : "",
     *prompt    = tb->prompt ? tb->prompt : "";
 
@@ -229,8 +229,11 @@ void textbox_draw ( textbox *tb )
         length        = text_len + prompt_len;
         cursor_offset = MIN ( tb->cursor + prompt_len, length );
 
-        line = alloca ( length + 10 );
-        sprintf ( line, "%s %s", prompt, text );
+        if(asprintf ( &line, "%s %s", prompt, text ) == -1) {
+            // Something is _really_ wrong.. bail out
+            fprintf(stderr, "Failed to allocate string\n");
+            abort();
+        }
 
         // replace spaces so XftTextExtents8 includes their width
         for ( int i = 0; i < length; i++ )
@@ -247,6 +250,10 @@ void textbox_draw ( textbox *tb )
 
         // restore correct text string with spaces
         sprintf ( line, "%s %s", prompt, text );
+    }
+    else
+    {
+        line = strdup(text);
     }
 
     // calc full input text width
@@ -288,6 +295,8 @@ void textbox_draw ( textbox *tb )
     {
         XftDrawRect ( draw, &tb->color_fg, cursor_x + SIDE_MARGIN, 2, cursor_width, line_height - 4 );
     }
+
+    free(line);
 
     XftDrawRect ( draw, &tb->color_bg, tb->w - SIDE_MARGIN, 0, SIDE_MARGIN, tb->h );
     // flip canvas to window
