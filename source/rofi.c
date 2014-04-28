@@ -828,8 +828,8 @@ void menu_draw ( textbox *text,
     }
     else
     {
-        // Do pageinating
-        int page = selected / max_lines;
+        // Do paginating
+        int page = (max_lines > 0)?(selected / max_lines):0;
         offset       = page * max_lines;
         *last_offset = offset;
     }
