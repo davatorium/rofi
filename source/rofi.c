@@ -1186,7 +1186,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                 menu_draw ( text, boxes, max_lines, num_lines, &last_offset, selected, filtered );
 
                 // Why do we need the specian -1?
-                if ( config.wmode == VERTICAL )
+                if ( config.wmode == VERTICAL && max_lines > 0)
                 {
                     XDrawLine ( display, main_window, gc, ( config.padding ),
                             line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2,
