@@ -40,6 +40,7 @@
 #include <errno.h>
 
 #include "rofi.h"
+#include "history.h"
 #include "run-dialog.h"
 #ifdef TIMING
 #include <time.h>
@@ -88,10 +89,6 @@ static pid_t exec_cmd ( const char *cmd, int run_in_term )
         exit ( EXIT_FAILURE );
     }
 
-    int          curr   = -1;
-    unsigned int index  = 0;
-    element      **retv = NULL;
-
     /**
      * This happens in non-critical time (After launching app)
      * It is allowed to be a bit slower.
@@ -100,79 +97,7 @@ static pid_t exec_cmd ( const char *cmd, int run_in_term )
     if(asprintf ( &path,  "%s/%s", cache_dir, RUN_CACHE_FILE ) == -1) {
         return -1;
     }
-
-    FILE   *fd = fopen ( path, "r" );
-
-    if ( fd != NULL )
-    {
-        char buffer[1024];
-        while ( fgets ( buffer, 1024, fd ) != NULL )
-        {
-            if ( strlen ( buffer ) == 0 )
-            {
-                continue;
-            }
-            retv         = reallocate ( retv, ( index + 2 ) * sizeof ( element* ) );
-            retv[index]  = allocate ( sizeof ( element ) );
-            // remove trailing \n
-            buffer[strlen ( buffer ) - 1] = '\0';
-            char * start = NULL;
-            retv[index]->index = strtol ( buffer, &start, 10 );
-            snprintf ( retv[index]->name, RUN_DIALOG_NAME_LENGTH, "%s", start + 1 );
-            retv[index + 1] = NULL;
-
-            if ( strcasecmp ( retv[index]->name, cmd ) == 0 )
-            {
-                curr = index;
-            }
-            index++;
-        }
-
-        fclose ( fd );
-    }
-
-    if ( curr < 0 )
-    {
-        retv               = reallocate ( retv, ( index + 2 ) * sizeof ( element* ) );
-        retv[index]        = allocate ( sizeof ( element ) );
-        retv[index]->index = 1;
-        snprintf ( retv[index]->name, RUN_DIALOG_NAME_LENGTH, "%s", cmd );
-        index++;
-    }
-    else
-    {
-        retv[curr]->index++;
-    }
-    // Sort the list.
-    qsort ( retv, index, sizeof ( element* ), element_sort_func );
-
-    /**
-     * Write out the last 25 results again.
-     */
-    fd = fopen ( path, "w" );
-
-    if ( fd )
-    {
-        for ( int i = 0; i < ( int ) index && i < 20; i++ )
-        {
-            if ( retv[i]->name && retv[i]->name[0] != '\0' )
-            {
-                fprintf ( fd, "%ld %s\n",
-                          retv[i]->index,
-                          retv[i]->name
-                          );
-            }
-        }
-
-        fclose ( fd );
-    }
-
-    for ( int i = 0; retv != NULL && retv[i] != NULL; i++ )
-    {
-        free ( retv[i] );
-    }
-
-    free ( retv );
+    history_set(path, cmd);
 
     free ( path );
 
@@ -181,11 +106,6 @@ static pid_t exec_cmd ( const char *cmd, int run_in_term )
 // execute sub-process
 static void delete_entry ( const char *cmd )
 {
-    int          curr   = -1;
-    unsigned int index  = 0;
-    element      **retv = NULL;
-
-
     /**
      * This happens in non-critical time (After launching app)
      * It is allowed to be a bit slower.
@@ -194,67 +114,7 @@ static void delete_entry ( const char *cmd )
     if(asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) == -1) {
         return;
     } 
-
-    FILE *fd = fopen ( path, "r" );
-
-    if ( fd != NULL )
-    {
-        char buffer[1024];
-        while ( fgets ( buffer, 1024, fd ) != NULL )
-        {
-            char * start = NULL;
-            if ( strlen ( buffer ) == 0 )
-            {
-                continue;
-            }
-            retv               = reallocate ( retv, ( index + 2 ) * sizeof ( element* ) );
-            retv[index]        = allocate ( sizeof ( element ) );
-            // remove trailing \n
-            buffer[strlen ( buffer ) - 1] = '\0';
-            retv[index]->index = strtol ( buffer, &start, 10 );
-            snprintf ( retv[index]->name, RUN_DIALOG_NAME_LENGTH, "%s", start + 1 );
-            retv[index + 1] = NULL;
-
-            if ( strcasecmp ( retv[index]->name, cmd ) == 0 )
-            {
-                curr = index;
-            }
-            index++;
-        }
-
-        fclose ( fd );
-    }
-
-    /**
-     * Write out the last 25 results again.
-     */
-    fd = fopen ( path, "w" );
-
-    if ( fd )
-    {
-        for ( int i = 0; i < ( int ) index && i < 20; i++ )
-        {
-            if ( i != curr )
-            {
-                if ( retv[i]->name && retv[i]->name[0] != '\0' )
-                {
-                    fprintf ( fd, "%ld %s\n",
-                              retv[i]->index,
-                              retv[i]->name
-                              );
-                }
-            }
-        }
-
-        fclose ( fd );
-    }
-
-    for ( int i = 0; retv != NULL && retv[i] != NULL; i++ )
-    {
-        free ( retv[i] );
-    }
-
-    free ( retv );
+    history_remove(path, cmd);
 
     free ( path );
 }
@@ -282,37 +142,10 @@ static char ** get_apps ( )
 
 
     if(asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) > 0) {
-        FILE *fd = fopen ( path, "r" );
-
-        if ( fd != NULL )
-        {
-            char buffer[1024];
-            while ( fgets ( buffer, 1024, fd ) != NULL )
-            {
-                if ( strlen ( buffer ) == 0 )
-                {
-                    continue;
-                }
-                // remove trailing \n
-                buffer[strlen ( buffer ) - 1] = '\0';
-                char *start = NULL;
-                // Don't use result.
-                strtol ( buffer, &start, 10 );
-                if ( start == NULL )
-                {
-                    continue;
-                }
-                retv            = reallocate ( retv, ( index + 2 ) * sizeof ( char* ) );
-                retv[index]     = strdup ( start + 1 );
-                retv[index + 1] = NULL;
-                index++;
-                num_favorites++;
-            }
-
-            fclose ( fd );
-        }
-
+        retv = history_get_list(path, &index);
         free ( path );
+        // Keep track of how many where loaded as favorite.
+        num_favorites=index;
     }
 
 

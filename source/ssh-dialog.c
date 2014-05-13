@@ -40,12 +40,13 @@
 #include <errno.h>
 
 #include "rofi.h"
+#include "history.h"
 #include "ssh-dialog.h"
 #ifdef TIMING
 #include <time.h>
 #endif
 
-#define SSH_CACHE_FILE    "rofi.sshcache"
+#define SSH_CACHE_FILE    "rofi-2.sshcache"
 
 static inline int execshssh ( const char *host )
 {
@@ -96,71 +97,16 @@ static pid_t exec_ssh ( const char *cmd )
         exit ( EXIT_FAILURE );
     }
 
-    int          curr   = -1;
-    unsigned int index  = 0;
-    char         **retv = NULL;
-
     /**
      * This happens in non-critical time (After launching app)
      * It is allowed to be a bit slower.
      */
-    char *path = allocate ( strlen ( cache_dir ) + strlen ( SSH_CACHE_FILE ) + 3 );
-    sprintf ( path, "%s/%s", cache_dir, SSH_CACHE_FILE );
-    FILE *fd = fopen ( path, "r" );
-
-    if ( fd != NULL )
+    char *path = NULL;
+    if(asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0)
     {
-        char buffer[1024];
-        while ( fgets ( buffer, 1024, fd ) != NULL )
-        {
-            retv                          = reallocate ( retv, ( index + 2 ) * sizeof ( char* ) );
-            buffer[strlen ( buffer ) - 1] = '\0';
-            retv[index]                   = strdup ( buffer );
-            retv[index + 1]               = NULL;
-
-            if ( strcasecmp ( retv[index], cmd ) == 0 )
-            {
-                curr = index;
-            }
-
-            index++;
-        }
-
-        fclose ( fd );
+        history_set(path, cmd);
+        free(path);
     }
-
-    /**
-     * Write out the last 25 results again.
-     */
-    fd = fopen ( path, "w" );
-
-    if ( fd )
-    {
-        // Last one goes on top!
-        fputs ( cmd, fd );
-        fputc ( '\n', fd );
-
-        for ( int i = 0; i < ( int ) index && i < 20; i++ )
-        {
-            if ( i != curr )
-            {
-                fputs ( retv[i], fd );
-                fputc ( '\n', fd );
-            }
-        }
-
-        fclose ( fd );
-    }
-
-    for ( int i = 0; retv != NULL && retv[i] != NULL; i++ )
-    {
-        free ( retv[i] );
-    }
-
-    free ( retv );
-
-    free ( path );
-
     return pid;
 }
 static void delete_ssh ( const char *cmd )
@@ -169,67 +115,12 @@ static void delete_ssh ( const char *cmd )
     {
         return;
     }
-
-    int          curr   = -1;
-    unsigned int index  = 0;
-    char         **retv = NULL;
-
-    /**
-     * This happens in non-critical time (After launching app)
-     * It is allowed to be a bit slower.
-     */
-    char *path = allocate ( strlen ( cache_dir ) + strlen ( SSH_CACHE_FILE ) + 3 );
-    sprintf ( path, "%s/%s", cache_dir, SSH_CACHE_FILE );
-    FILE *fd = fopen ( path, "r" );
-
-    if ( fd != NULL )
+    char *path = NULL;
+    if(asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0)
     {
-        char buffer[1024];
-        while ( fgets ( buffer, 1024, fd ) != NULL )
-        {
-            retv                          = reallocate ( retv, ( index + 2 ) * sizeof ( char* ) );
-            buffer[strlen ( buffer ) - 1] = '\0';
-            retv[index]                   = strdup ( buffer );
-            retv[index + 1]               = NULL;
-
-            if ( strcasecmp ( retv[index], cmd ) == 0 )
-            {
-                curr = index;
-            }
-
-            index++;
-        }
-
-        fclose ( fd );
+        history_remove(path, cmd);
+        free(path);
     }
-
-    /**
-     * Write out the last 25 results again.
-     */
-    fd = fopen ( path, "w" );
-
-    if ( fd )
-    {
-        for ( int i = 0; i < ( int ) index && i < 20; i++ )
-        {
-            if ( i != curr )
-            {
-                fputs ( retv[i], fd );
-                fputc ( '\n', fd );
-            }
-        }
-
-        fclose ( fd );
-    }
-
-    for ( int i = 0; retv != NULL && retv[i] != NULL; i++ )
-    {
-        free ( retv[i] );
-    }
-
-    free ( retv );
-
-    free ( path );
 }
 static int sort_func ( const void *a, const void *b )
 {
@@ -253,34 +144,20 @@ static char ** get_ssh ( )
         return NULL;
     }
 
-    path = allocate ( strlen ( cache_dir ) + strlen ( "/"SSH_CACHE_FILE ) + 2 );
-    sprintf ( path, "%s/%s", cache_dir, SSH_CACHE_FILE );
-    FILE *fd = fopen ( path, "r" );
-    char buffer[1024];
-
-    if ( fd != NULL )
+    if(asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0)
     {
-        while ( fgets ( buffer, 1024, fd ) != NULL )
-        {
-            retv                          = reallocate ( retv, ( index + 2 ) * sizeof ( char* ) );
-            buffer[strlen ( buffer ) - 1] = '\0';
-            retv[index]                   = strdup ( buffer );
-            retv[index + 1]               = NULL;
-            index++;
-            num_favorites++;
-        }
-
-        fclose ( fd );
+       retv = history_get_list(path, &index);
+       free(path);
+       num_favorites = index;
     }
 
-    free ( path );
     const char *hd = getenv ( "HOME" );
-    path = allocate ( strlen ( hd ) + strlen ( ".ssh/config" ) + 3 );
-    sprintf ( path, "%s/%s", hd, ".ssh/config" );
-    fd = fopen ( path, "r" );
+    asprintf ( &path, "%s/%s", hd, ".ssh/config" );
+    FILE *fd = fopen ( path, "r" );
 
     if ( fd != NULL )
     {
+        char buffer[1024];
         while ( fgets ( buffer, 1024, fd ) != NULL )
         {
             if ( strncasecmp ( buffer, "Host", 4 ) == 0 )
