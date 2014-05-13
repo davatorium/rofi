@@ -153,12 +153,13 @@ void history_set ( const char *filename, const char *entry )
     // Rewind.
     fseek(fd, 0L, SEEK_SET);
     // Clear file.
-    ftruncate(fileno(fd), 0);
-
-    // Write list.
-    __history_write_element_list(fd, list, length);
-    
-
+    if ( ftruncate(fileno(fd), 0) == 0)
+    {
+        // Write list.
+        __history_write_element_list(fd, list, length);
+    }else {
+        fprintf(stderr, "Failed to truncate file: %s\n", strerror(errno));
+    }
     // Free the list.
     for(unsigned int iter = 0; iter < length; iter++)
     {
@@ -207,10 +208,12 @@ void history_remove ( const char *filename, const char *entry )
         // Rewind.
         fseek(fd, 0L, SEEK_SET);
         // Clear list.
-        ftruncate(fileno(fd), 0);
-
-        // Write list.
-        __history_write_element_list(fd, list, length);
+        if(ftruncate(fileno(fd), 0) == 0) {
+            // Write list.
+            __history_write_element_list(fd, list, length);
+        } else {
+            fprintf(stderr, "Failed to open file: %s\n", strerror(errno));
+        }
     }
 
     // Free the list.

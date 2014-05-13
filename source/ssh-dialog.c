@@ -151,9 +151,12 @@ static char ** get_ssh ( )
        num_favorites = index;
     }
 
+
+    FILE *fd = NULL;
     const char *hd = getenv ( "HOME" );
-    asprintf ( &path, "%s/%s", hd, ".ssh/config" );
-    FILE *fd = fopen ( path, "r" );
+    if(asprintf ( &path, "%s/%s", hd, ".ssh/config" )>= 0){
+        fd = fopen ( path, "r" );
+    }
 
     if ( fd != NULL )
     {
