@@ -808,18 +808,40 @@ Window       main_window = None;
 GC           gc          = NULL;
 
 #include "textbox.h"
-inline char *menu_set_arrow_text(int filtered_lines, int selected, int max_lines)
+
+void menu_hide_arrow_text(int filtered_lines, int selected, int max_lines,
+        textbox *arrowbox_top, textbox *arrowbox_bottom)
 {
     int page   = (filtered_lines > 0)? selected/max_lines:0;
     int npages = (filtered_lines > 0)? ((filtered_lines+max_lines-1)/max_lines):1;
-    if( page != 0  && page != (npages-1)) {
-        return "⇵";
-    } else if (page != 0) {
-        return "↑";
-    } else if (page != (npages-1)) {
-        return "↓";
-    } 
-    return " ";
+    if(!(page != 0  && npages > 1)) {
+        textbox_hide( arrowbox_top );
+    }
+    if(!((npages-1) != page && npages > 1)) {
+        textbox_hide( arrowbox_bottom );
+    }
+}
+
+void menu_set_arrow_text(int filtered_lines, int selected, int max_lines,
+        textbox *arrowbox_top, textbox *arrowbox_bottom)
+{
+    int page   = (filtered_lines > 0)? selected/max_lines:0;
+    int npages = (filtered_lines > 0)? ((filtered_lines+max_lines-1)/max_lines):1;
+    int entry  = selected%max_lines;
+    if(page != 0  && npages > 1) {
+        textbox_show( arrowbox_top );
+        textbox_font ( arrowbox_top, config.menu_font,
+                (entry == 0 )? config.menu_hlfg : config.menu_fg,
+                (entry == 0 )? config.menu_hlbg : config.menu_bg );
+        textbox_draw( arrowbox_top  );
+    }
+    if((npages-1) != page && npages > 1) {
+        textbox_show( arrowbox_bottom );
+        textbox_font ( arrowbox_bottom, config.menu_font,
+                (entry == (max_lines-1) )? config.menu_hlfg : config.menu_fg,
+                (entry == (max_lines-1) )? config.menu_hlbg : config.menu_bg );
+        textbox_draw( arrowbox_bottom  );
+    }
 }
 
 void menu_draw ( textbox *text,
@@ -1001,7 +1023,6 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
     unsigned int num_lines   = 0;
     int          last_offset = 0;
-    unsigned int selected    = 0;
 
     for (; lines != NULL && lines[num_lines]; num_lines++ )
     {
@@ -1057,24 +1078,19 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     }
 
     // search text input
-    textbox *arrowbox = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH, 
-                                         (config.padding),
-                                         (config.padding),
-                                         0, 0, 
-                                         config.menu_font, config.menu_fg, config.menu_bg,
-                                         "W", NULL);
+
 
     textbox *text = textbox_create ( box, TB_AUTOHEIGHT | TB_EDITABLE,
                                      ( config.padding ),
                                      ( config.padding ),
-                                     element_width-arrowbox->w, 1,
+                                     element_width, 1,
                                      config.menu_font, config.menu_fg, config.menu_bg,
                                      ( input != NULL ) ? *input : "", prompt );
-    textbox_move ( arrowbox, w-config.padding-arrowbox->w, config.padding);
-    textbox_show ( text );
-    textbox_show ( arrowbox );
 
     int line_height = text->font->ascent + text->font->descent;
+
+    textbox_show ( text );
+
 
     // filtered list display
     textbox **boxes = allocate_clear ( sizeof ( textbox* ) * max_lines );
@@ -1100,6 +1116,26 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                     config.menu_font, config.menu_fg, config.menu_bg, lines[i], NULL );
         textbox_show ( boxes[i] );
     }
+    // Arrows
+    textbox *arrowbox_top = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+                                         (config.padding),
+                                         (config.padding),
+                                         0, 0,
+                                         config.menu_font, config.menu_fg, config.menu_bg,
+                                         "↑", NULL);
+    textbox *arrowbox_bottom = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+                                         (config.padding),
+                                         (config.padding),
+                                         0, 0,
+                                         config.menu_font, config.menu_fg, config.menu_bg,
+                                         "↓", NULL);
+
+    textbox_move ( arrowbox_top,
+            w-config.padding-arrowbox_top->w,
+            config.padding+line_height+LINE_MARGIN);
+    textbox_move ( arrowbox_bottom,
+            w-config.padding-arrowbox_bottom->w,
+            config.padding+max_lines*line_height+LINE_MARGIN);
 
     // filtered list
     char         **filtered     = allocate_clear ( sizeof ( char* ) * num_lines );
@@ -1193,6 +1229,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     // if grabbing keyboard failed, fall through
     if(take_keyboard ( box ))
     {
+        unsigned int selected = 0;
         for (;; )
         {
             XEvent ev;
@@ -1206,9 +1243,9 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                 }
 
                 menu_draw ( text, boxes, max_lines, num_lines, &last_offset, selected, filtered );
-                textbox_text( arrowbox, menu_set_arrow_text(filtered_lines, selected, max_lines));
-                textbox_draw( arrowbox );
-
+                menu_set_arrow_text(filtered_lines, selected,
+                        max_lines, arrowbox_top,
+                        arrowbox_bottom);
                 // Why do we need the specian -1?
                 if ( config.wmode == VERTICAL && max_lines > 0)
                 {
@@ -1418,10 +1455,13 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                         }
                     }
                 }
-
+                menu_hide_arrow_text(filtered_lines, selected,
+                        max_lines, arrowbox_top,
+                        arrowbox_bottom);
                 menu_draw ( text, boxes, max_lines, num_lines, &last_offset, selected, filtered );
-                textbox_text( arrowbox, menu_set_arrow_text(filtered_lines, selected, max_lines));
-                textbox_draw( arrowbox );
+                menu_set_arrow_text(filtered_lines, selected,
+                        max_lines, arrowbox_top,
+                        arrowbox_bottom);
             }
         }
 

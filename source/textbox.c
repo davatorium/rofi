@@ -176,6 +176,10 @@ void textbox_show ( textbox *tb )
 {
     XMapWindow ( display, tb->window );
 }
+void textbox_hide ( textbox *tb )
+{
+    XUnmapWindow ( display, tb->window );
+}
 
 
 // will also unmap the window if still displayed
