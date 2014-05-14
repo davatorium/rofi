@@ -812,6 +812,7 @@ GC           gc          = NULL;
 void menu_hide_arrow_text(int filtered_lines, int selected, int max_lines,
         textbox *arrowbox_top, textbox *arrowbox_bottom)
 {
+    if(arrowbox_top == NULL || arrowbox_bottom == NULL ) return;
     int page   = (filtered_lines > 0)? selected/max_lines:0;
     int npages = (filtered_lines > 0)? ((filtered_lines+max_lines-1)/max_lines):1;
     if(!(page != 0  && npages > 1)) {
@@ -825,6 +826,7 @@ void menu_hide_arrow_text(int filtered_lines, int selected, int max_lines,
 void menu_set_arrow_text(int filtered_lines, int selected, int max_lines,
         textbox *arrowbox_top, textbox *arrowbox_bottom)
 {
+    if(arrowbox_top == NULL || arrowbox_bottom == NULL ) return;
     int page   = (filtered_lines > 0)? selected/max_lines:0;
     int npages = (filtered_lines > 0)? ((filtered_lines+max_lines-1)/max_lines):1;
     int entry  = selected%max_lines;
@@ -1117,25 +1119,29 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
         textbox_show ( boxes[i] );
     }
     // Arrows
-    textbox *arrowbox_top = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                                         (config.padding),
-                                         (config.padding),
-                                         0, 0,
-                                         config.menu_font, config.menu_fg, config.menu_bg,
-                                         "↑", NULL);
-    textbox *arrowbox_bottom = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                                         (config.padding),
-                                         (config.padding),
-                                         0, 0,
-                                         config.menu_font, config.menu_fg, config.menu_bg,
-                                         "↓", NULL);
+    textbox *arrowbox_top = NULL, *arrowbox_bottom = NULL;
+    if(config.wmode == VERTICAL)
+    {
+        arrowbox_top = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+                (config.padding),
+                (config.padding),
+                0, 0,
+                config.menu_font, config.menu_fg, config.menu_bg,
+                "↑", NULL);
+        arrowbox_bottom = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+                (config.padding),
+                (config.padding),
+                0, 0,
+                config.menu_font, config.menu_fg, config.menu_bg,
+                "↓", NULL);
 
-    textbox_move ( arrowbox_top,
-            w-config.padding-arrowbox_top->w,
-            config.padding+line_height+LINE_MARGIN);
-    textbox_move ( arrowbox_bottom,
-            w-config.padding-arrowbox_bottom->w,
-            config.padding+max_lines*line_height+LINE_MARGIN);
+        textbox_move ( arrowbox_top,
+                w-config.padding-arrowbox_top->w,
+                config.padding+line_height+LINE_MARGIN);
+        textbox_move ( arrowbox_bottom,
+                w-config.padding-arrowbox_bottom->w,
+                config.padding+max_lines*line_height+LINE_MARGIN);
+    }
 
     // filtered list
     char         **filtered     = allocate_clear ( sizeof ( char* ) * num_lines );
