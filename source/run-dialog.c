@@ -59,18 +59,6 @@ static inline int execsh ( const char *cmd, int run_in_term )
     return execlp ( "/bin/sh", "sh", "-c", cmd, NULL );
 }
 
-#define RUN_DIALOG_NAME_LENGTH 256
-typedef struct _element
-{
-    long int index;
-    char     name[RUN_DIALOG_NAME_LENGTH];
-}element;
-static int element_sort_func ( const void *ea, const void *eb )
-{
-    element *a = *(element * *) ea;
-    element *b = *(element * *) eb;
-    return b->index - a->index;
-}
 // execute sub-process
 static pid_t exec_cmd ( const char *cmd, int run_in_term )
 {

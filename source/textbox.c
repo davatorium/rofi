@@ -39,7 +39,7 @@
 
 #include "rofi.h"
 #include "textbox.h"
-#define SIDE_MARGIN    3
+#define SIDE_MARGIN    2
 
 extern Display *display;
 
@@ -133,6 +133,15 @@ void textbox_text ( textbox *tb, char *text )
     textbox_extents ( tb );
 }
 
+void textbox_move (textbox *tb, int x, int y)
+{
+    if ( x != tb->x || y != tb->y )
+    {
+        tb->x = x;
+        tb->y = y;
+        XMoveResizeWindow ( display, tb->window, tb->x, tb->y, tb->w, tb->h );
+    }
+}
 // within the parent. handled auto width/height modes
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
@@ -143,7 +152,14 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 
     if ( tb->flags & TB_AUTOWIDTH )
     {
-        w = tb->extents.width;
+        if(w > 1)
+        {
+            w = MIN(w, tb->extents.width+2*SIDE_MARGIN);
+        }
+        else
+        {
+            w = tb->extents.width+2*SIDE_MARGIN;
+        }
     }
 
     if ( x != tb->x || y != tb->y || w != tb->w || h != tb->h )
@@ -259,12 +275,10 @@ void textbox_draw ( textbox *tb )
     // calc full input text width
     // Calculate the right size, so no characters are cut off.
     // TODO: Check performance of this.
-    while ( 1 )
-    {
+    do{
         XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) line, length, &extents );
         line_width = extents.width;
-
-        if ( line_width < ( tb->w - 2 * SIDE_MARGIN ) )
+        if ( line_width <= ( tb->w - 2 * SIDE_MARGIN ) )
         {
             break;
         }
@@ -274,6 +288,7 @@ void textbox_draw ( textbox *tb )
             ;
         }
     }
+    while ( line_width >0 );
 
     int x = SIDE_MARGIN, y = tb->font->ascent;
 

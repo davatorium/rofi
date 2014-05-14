@@ -808,6 +808,19 @@ Window       main_window = None;
 GC           gc          = NULL;
 
 #include "textbox.h"
+inline char *menu_set_arrow_text(int filtered_lines, int selected, int max_lines)
+{
+    int page   = (filtered_lines > 0)? selected/max_lines:0;
+    int npages = (filtered_lines > 0)? ((filtered_lines+max_lines-1)/max_lines):1;
+    if( page != 0  && page != (npages-1)) {
+        return "⇵";
+    } else if (page != 0) {
+        return "↑";
+    } else if (page != (npages-1)) {
+        return "↓";
+    } 
+    return " ";
+}
 
 void menu_draw ( textbox *text,
                  textbox **boxes,
@@ -1044,13 +1057,22 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     }
 
     // search text input
+    textbox *arrowbox = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH, 
+                                         (config.padding),
+                                         (config.padding),
+                                         0, 0, 
+                                         config.menu_font, config.menu_fg, config.menu_bg,
+                                         "W", NULL);
+
     textbox *text = textbox_create ( box, TB_AUTOHEIGHT | TB_EDITABLE,
                                      ( config.padding ),
                                      ( config.padding ),
-                                     element_width, 1,
+                                     element_width-arrowbox->w, 1,
                                      config.menu_font, config.menu_fg, config.menu_bg,
                                      ( input != NULL ) ? *input : "", prompt );
+    textbox_move ( arrowbox, w-config.padding-arrowbox->w, config.padding);
     textbox_show ( text );
+    textbox_show ( arrowbox );
 
     int line_height = text->font->ascent + text->font->descent;
 
@@ -1184,6 +1206,8 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                 }
 
                 menu_draw ( text, boxes, max_lines, num_lines, &last_offset, selected, filtered );
+                textbox_text( arrowbox, menu_set_arrow_text(filtered_lines, selected, max_lines));
+                textbox_draw( arrowbox );
 
                 // Why do we need the specian -1?
                 if ( config.wmode == VERTICAL && max_lines > 0)
@@ -1396,6 +1420,8 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                 }
 
                 menu_draw ( text, boxes, max_lines, num_lines, &last_offset, selected, filtered );
+                textbox_text( arrowbox, menu_set_arrow_text(filtered_lines, selected, max_lines));
+                textbox_draw( arrowbox );
             }
         }
 
