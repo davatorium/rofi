@@ -68,5 +68,6 @@ Settings config = {
     // Padding of the window.
     .padding           = 5,
     .show_title        = 1,
-    .y_offset          = 0
+    .y_offset          = 0,
+    .x_offset          = 0
 };

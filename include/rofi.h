@@ -102,6 +102,7 @@ typedef struct _Settings
     WindowMode     wmode;
     unsigned int   padding;
     int            y_offset;
+    int            x_offset;
 
     unsigned int   show_title;
 

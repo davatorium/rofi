@@ -1206,18 +1206,18 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
             y = mon.y;
 
         case WL_EAST:
-            x = mon.x + mon.w - w;
+            x = mon.x + mon.w - w-config.menu_bw*2;
             break;
 
         case WL_EAST_SOUTH:
-            x = mon.x + mon.w - w;
+            x = mon.x + mon.w - w-config.menu_bw*2;
 
         case WL_SOUTH:
-            y = mon.y + mon.h - h;
+            y = mon.y + mon.h - h-config.menu_bw*2;
             break;
 
         case WL_SOUTH_WEST:
-            y = mon.y + mon.h - h;
+            y = mon.y + mon.h - h-config.menu_bw*2;
 
         case WL_WEST:
             x = mon.x;
@@ -1229,6 +1229,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     }
     // Apply offset.
     y+= config.y_offset;
+    x+= config.x_offset;
 
 
     XMoveResizeWindow ( display, box, x, y, w, h );

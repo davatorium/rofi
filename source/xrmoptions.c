@@ -65,6 +65,7 @@ XrmOption xrmOptions[] = {
     { xrm_String, "terminal",    { .str = &config.terminal_emulator } },
     { xrm_Number, "location",    { .num = &config.location          } },
     { xrm_Number, "yoffset",     { .num = &config.y_offset          } },
+    { xrm_Number, "xoffset",     { .num = &config.x_offset          } },
 };
 
 
