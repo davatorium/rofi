@@ -1227,6 +1227,8 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
         default:
             break;
     }
+    // Apply offset.
+    y+= config.y_offset;
 
 
     XMoveResizeWindow ( display, box, x, y, w, h );

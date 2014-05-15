@@ -67,5 +67,6 @@ Settings config = {
     .wmode             = VERTICAL,
     // Padding of the window.
     .padding           = 5,
-    .show_title        = 1
+    .show_title        = 1,
+    .y_offset          = 0
 };
