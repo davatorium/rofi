@@ -63,6 +63,7 @@ XrmOption xrmOptions[] = {
     { xrm_Number, "padding",     { .num = &config.padding           } },
     { xrm_Number, "borderwidth", { .num = &config.menu_bw           } },
     { xrm_String, "terminal",    { .str = &config.terminal_emulator } },
+    { xrm_Number, "location",    { .num = &config.location} },
 };
 
 
