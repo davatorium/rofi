@@ -255,21 +255,11 @@ void textbox_draw ( textbox *tb )
             abort();
         }
 
-        // replace spaces so XftTextExtents8 includes their width
-        for ( int i = 0; i < length; i++ )
-        {
-            if ( isspace ( line[i] ) )
-            {
-                line[i] = '_';
-            }
-        }
 
         // calc cursor position
         XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) line, cursor_offset, &extents );
-        cursor_x = extents.width;
-
-        // restore correct text string with spaces
-        sprintf ( line, "%s %s", prompt, text );
+        // Add a small 2px offset between cursor and last glyph.
+        cursor_x = extents.width+2;
     }
     else
     {
