@@ -105,6 +105,7 @@ typedef struct _Settings
     int            x_offset;
 
     unsigned int   show_title;
+    unsigned int   fixed_num_lines;
 
 } Settings;
 

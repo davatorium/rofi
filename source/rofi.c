@@ -1031,7 +1031,13 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
         ;
     }
 
+
     unsigned int max_lines = MIN ( config.menu_lines, num_lines );
+
+    if ( config.fixed_num_lines  == 1 )
+    {
+        max_lines = config.menu_lines;
+    }
 
     // Calculate as float to stop silly, big rounding down errors.
     int w             = config.menu_width < 101 ? ( mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
@@ -1183,6 +1189,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     // resize window vertically to suit
     // Subtract the margin of the last row.
     int h = line_height * ( max_lines + 1 ) + ( config.padding ) * 2 + LINE_MARGIN;
+
 
     if ( config.wmode == HORIZONTAL )
     {

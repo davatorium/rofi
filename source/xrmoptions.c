@@ -51,21 +51,22 @@ typedef struct
     };
 } XrmOption;
 XrmOption xrmOptions[] = {
-    { xrm_Number, "opacity",     { .num = &config.window_opacity    } },
-    { xrm_Number, "width",       { .num = &config.menu_width        } },
-    { xrm_Number, "lines",       { .num = &config.menu_lines        } },
-    { xrm_String, "font",        { .str = &config.menu_font         } },
-    { xrm_String, "foreground",  { .str = &config.menu_fg           } },
-    { xrm_String, "background",  { .str = &config.menu_bg           } },
-    { xrm_String, "highlightfg", { .str = &config.menu_hlfg         } },
-    { xrm_String, "highlightbg", { .str = &config.menu_hlbg         } },
-    { xrm_String, "bordercolor", { .str = &config.menu_bc           } },
-    { xrm_Number, "padding",     { .num = &config.padding           } },
-    { xrm_Number, "borderwidth", { .num = &config.menu_bw           } },
-    { xrm_String, "terminal",    { .str = &config.terminal_emulator } },
-    { xrm_Number, "location",    { .num = &config.location          } },
-    { xrm_Number, "yoffset",     { .num = &config.y_offset          } },
-    { xrm_Number, "xoffset",     { .num = &config.x_offset          } },
+    { xrm_Number, "opacity",            { .num = &config.window_opacity    } },
+    { xrm_Number, "width",              { .num = &config.menu_width        } },
+    { xrm_Number, "lines",              { .num = &config.menu_lines        } },
+    { xrm_String, "font",               { .str = &config.menu_font         } },
+    { xrm_String, "foreground",         { .str = &config.menu_fg           } },
+    { xrm_String, "background",         { .str = &config.menu_bg           } },
+    { xrm_String, "highlightfg",        { .str = &config.menu_hlfg         } },
+    { xrm_String, "highlightbg",        { .str = &config.menu_hlbg         } },
+    { xrm_String, "bordercolor",        { .str = &config.menu_bc           } },
+    { xrm_Number, "padding",            { .num = &config.padding           } },
+    { xrm_Number, "borderwidth",        { .num = &config.menu_bw           } },
+    { xrm_String, "terminal",           { .str = &config.terminal_emulator } },
+    { xrm_Number, "location",           { .num = &config.location          } },
+    { xrm_Number, "yoffset",            { .num = &config.y_offset          } },
+    { xrm_Number, "xoffset",            { .num = &config.x_offset          } },
+    { xrm_Number, "fixed_num_lines",    { .num = &config.fixed_num_lines } },
 };
 
 
