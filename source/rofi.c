@@ -1121,7 +1121,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                     line * line_height + config.padding + ( ( config.wmode == HORIZONTAL ) ? 0 : LINE_MARGIN ), // y
                                     element_width,                                                                              // w
                                     line_height,                                                                                // h
-                                    config.menu_font, config.menu_fg, config.menu_bg, lines[i], NULL );
+                                    config.menu_font, config.menu_fg, config.menu_bg, "", NULL );
         textbox_show ( boxes[i] );
     }
     // Arrows
