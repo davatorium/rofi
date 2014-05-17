@@ -69,6 +69,7 @@ static void __history_write_element_list( FILE *fd, _element **list, unsigned in
 
 static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
 {
+    char buffer[HISTORY_NAME_LENGTH+16];
     _element **retv = NULL;
 
     if  (length == NULL)
@@ -81,9 +82,9 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
     {
         return NULL;
     }
-    char buffer[HISTORY_NAME_LENGTH+16];
     while ( fgets (buffer, HISTORY_NAME_LENGTH+16, fd ) != NULL)
     {
+        char * start = NULL;
         // Skip empty lines.
         if ( strlen ( buffer ) == 0 )
         {
@@ -94,7 +95,6 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
         // remove trailing \n
         buffer[strlen ( buffer ) - 1] = '\0';
         // Parse the number of times.
-        char * start = NULL;
         retv[(*length)]->index = strtol ( buffer, &start, 10 );
         strncpy(retv[(*length)]->name, (start+1),HISTORY_NAME_LENGTH);
         // Force trailing '\0'
@@ -112,6 +112,7 @@ void history_set ( const char *filename, const char *entry )
     int found = 0;
     unsigned int curr   = 0;
     unsigned int length = 0;
+    _element **list     = NULL;
     // Open file for reading and writing.
     FILE *fd = fopen(filename, "a+");
     if(fd == NULL) 
@@ -120,7 +121,7 @@ void history_set ( const char *filename, const char *entry )
         return ;
     }
     // Get list.
-    _element ** list = __history_get_element_list(fd, &length);
+    list = __history_get_element_list(fd, &length);
    
     // Look if the entry exists. 
     for(unsigned int iter = 0;!found && iter < length; iter++)
@@ -172,6 +173,7 @@ void history_set ( const char *filename, const char *entry )
 
 void history_remove ( const char *filename, const char *entry )
 {
+    _element ** list = NULL;
     int found = 0;
     unsigned int curr   = 0;
     unsigned int length = 0;
@@ -183,7 +185,7 @@ void history_remove ( const char *filename, const char *entry )
         return ;
     }
     // Get list.
-    _element ** list = __history_get_element_list(fd, &length);
+    list = __history_get_element_list(fd, &length);
    
     // Find entry. 
     for(unsigned int iter = 0;!found && iter < length; iter++)
@@ -228,7 +230,8 @@ void history_remove ( const char *filename, const char *entry )
 
 char ** history_get_list ( const char *filename, unsigned int *length )
 {
-    char **retv = NULL;
+    _element **list = NULL;
+    char **retv     = NULL;
     // Open file.
     FILE *fd = fopen(filename, "r");
     if(fd == NULL) 
@@ -239,7 +242,7 @@ char ** history_get_list ( const char *filename, unsigned int *length )
         return NULL;
     }
     // Get list.
-    _element ** list = __history_get_element_list(fd, length);
+    list = __history_get_element_list(fd, length);
 
     // Copy list in right format. 
     if((*length) > 0 )

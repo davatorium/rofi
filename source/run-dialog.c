@@ -112,7 +112,7 @@ static int sort_func ( const void *a, const void *b )
     const char *bstr = *( const char * const * ) b;
     return strcasecmp ( astr, bstr );
 }
-static char ** get_apps ( )
+static char ** get_apps ( void )
 {
     unsigned int    num_favorites = 0;
     unsigned int    index         = 0;

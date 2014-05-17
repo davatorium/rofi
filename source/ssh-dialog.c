@@ -71,7 +71,7 @@ static inline int execshssh ( const char *host )
     int retv = execvp ( config.terminal_emulator, (char * const *)args ); 
 
     // Free the args list.
-    for(int i =0; i < 7;i++) {
+    for(i =0; i < 7;i++) {
         if(args[i] != NULL) {
             free(args[i]);
         }
@@ -128,7 +128,7 @@ static int sort_func ( const void *a, const void *b )
     const char *bstr = *( const char * const * ) b;
     return strcasecmp ( astr, bstr );
 }
-static char ** get_ssh ( )
+static char ** get_ssh ( void )
 {
     unsigned int    num_favorites = 0;
     unsigned int    index         = 0;

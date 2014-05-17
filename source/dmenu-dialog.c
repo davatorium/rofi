@@ -33,12 +33,12 @@
 #include <strings.h>
 #include <string.h>
 #include <ctype.h>
-
 #include "rofi.h"
+#include "dmenu-dialog.h"
 
 char *dmenu_prompt = "dmenu ";
 
-static char **get_dmenu ( )
+static char **get_dmenu ( void )
 {
     char buffer[1024];
     char **retv = NULL;

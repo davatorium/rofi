@@ -50,7 +50,7 @@ typedef struct
         char         ** str;
     };
 } XrmOption;
-XrmOption xrmOptions[] = {
+static XrmOption xrmOptions[] = {
     { xrm_Number, "opacity",            { .num = &config.window_opacity    } },
     { xrm_Number, "width",              { .num = &config.menu_width        } },
     { xrm_Number, "lines",              { .num = &config.menu_lines        } },
@@ -72,9 +72,10 @@ XrmOption xrmOptions[] = {
 
 void parse_xresource_options ( Display *display )
 {
+    char *xRMS;
     // Map Xresource entries to simpleswitcher config options.
     XrmInitialize ();
-    char * xRMS = XResourceManagerString ( display );
+    xRMS = XResourceManagerString ( display );
 
     if ( xRMS != NULL )
     {
