@@ -28,12 +28,18 @@
     <div id="content-wrapper">
       <div class="inner clearfix">
         <section id="main-content">
-          
+          <h1>{{ page.title }}</h1> 
           {{ content }}
 
         </section>
 
         <aside id="sidebar">
+        <h1>Pages</h1>
+        {% for iter_page in site.pages %}
+        {% if iter_page.url != page.url %} 
+        <h2 id="menuentry"><a href="{{ iter_page.url }}">{{ iter_page.title }}</a></h2>
+        {% endif %}
+        {% endfor %} <!-- page -->
 <!-- to be enabled when we have a stable release.
           <h1>Stable</h1>
           <a href="{{ site.github-url }}/archive/{{ site.github-version-stable }}.zip" class="button">

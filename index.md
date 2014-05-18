@@ -5,8 +5,6 @@ title: Rofi
 subtitle: A window switcher, run dialog and dmenu replacement
 ---
 
-# Rofi 
-
 A popup window switcher roughly based on [superswitcher](http://code.google.com/p/superswitcher/), requiring only xlib and xft.
 This version started off as a clone of simpleswitcher, the version from [Sean
 Pringle](http://github.com/seanpringle/simpleswitcher). All credit for this great tool should go to him.
@@ -65,7 +63,7 @@ Drop in dmenu replacement. (Screenshot shows rofi used by
 [teiler](https://github.com/carnager/teiler) ).
 
 
-## Usage
+# Usage
 
 e.g. a one-shot launch:
 
@@ -79,7 +77,7 @@ or run it as a daemon that sits in the background waiting for the hotkey 'F12':
 
 Type '?' (enter)  to switch from Window list mode to Run mode and back.
 
-## Compilation
+# Compilation
 
 If compiling from GIT, first run to generate the needed build files:
 
@@ -96,7 +94,7 @@ To build rofi, run the following steps:
 The build system will autodetect the i3 header file during compilation. If it fails, make sure you 
 have i3/ipc.h installed. Check config.log for more information. 
 
-## Dependencies
+# Dependencies
 
 Rofi requires the following tools and libraries to be installed:
 
@@ -105,15 +103,15 @@ Rofi requires the following tools and libraries to be installed:
  * libxdg-basedir
  * libxft 
 
-## Configuration
+# Configuration
 
 There are 3 ways to configure rofi:
 
-### 1. Pre-compile time
+## 1. Pre-compile time
 
 You can change the default behavior by modifying config/config.c
 
-### 2. Xresources
+## 2. Xresources
 
 Another solution is to configure it via X resources, e.g. add the following to your 
 Xresources file:
@@ -128,16 +126,16 @@ Xresources file:
     rofi.lines: 5
     rofi.borderwidth: 3
 
-### 3. Runtime
+## 3. Runtime
 
 All the above settings can be overridden by rofi's commandline flags.
 
-## Archlinux
+# Archlinux
 
 This version of rofi has been made available on the
 [AUR](https://aur.archlinux.org/packages/rofi-git/).
 
-## Contact
+# Contact
 
 Issues, feature requests can be filed at the github [issue
 tracker](https://github.com/DaveDavenport/rofi/issues).

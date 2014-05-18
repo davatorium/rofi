@@ -124,6 +124,18 @@ aside#sidebar h1 {
     font-weight: bold;
 }
 
+aside#sidebar h2#menuentry {
+  font-size:  1.5em; 
+  padding-top: 0.6em;
+  padding-bottom: 0.6em;
+  font-weight: bold;
+}
+aside#sidebar h2#menuentry:before{
+  content: "/";
+  color: #339a9a;
+  padding-right: 0.3em;
+}
+
 aside#sidebar p.repo-owner,
 aside#sidebar p.repo-owner a {
   font-weight: bold;
