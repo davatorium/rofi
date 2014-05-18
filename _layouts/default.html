@@ -37,7 +37,7 @@
         <h1>Pages</h1>
         {% for iter_page in site.pages %}
         {% if iter_page.url != page.url %} 
-        <h2 id="menuentry"><a href="{{ iter_page.url }}">{{ iter_page.title }}</a></h2>
+        <h2 id="menuentry"><a href="{{ site.url }}{{ iter_page.url }}">{{ iter_page.title }}</a></h2>
         {% endif %}
         {% endfor %} <!-- page -->
 <!-- to be enabled when we have a stable release.
