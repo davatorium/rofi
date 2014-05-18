@@ -15,12 +15,12 @@ replacement, making it a very versatile tool.
 
 Using Rofi is a lot like dmenu, but extended for an improved work flow. You can: 
 
-	* Type to filter windows.
-    * Tokonized filter. Type any word in any order to filter.
-	* Arrows or ctrl-hjkl to highlight selections.
-	* Return to select.
-    * Tab completion.
-    * UTF-8 support.
+* Type to filter windows.
+* Tokonized filter. Type any word in any order to filter.
+* Arrows or ctrl-hjkl to highlight selections.
+* Return to select.
+* Tab completion.
+* UTF-8 support.
 
 The 4 Main functions of rofi are:
 
@@ -29,10 +29,14 @@ The 4 Main functions of rofi are:
 ![Window List](images/rofi/window-list.png)
 
 The window switcher shows the following informations in columns:
-    1. Desktop number (optional, not shown in i3 mode)
-	2. Window class.
-	3. Window title.
 
+1. Desktop number (optional, not shown in i3 mode)
+2. Window class.
+3. Window title.
+
+If compiled with I3 support, it should autodetect if I3 window manager is running and switch into 
+I3 compatibility mode. This will disable Desktop numbers and hide the i3-bar, also it sends an IPC
+message to I3 to change focus.
 
 ## Run dialog
 
@@ -60,7 +64,6 @@ Quickly ssh into remote machines
 Drop in dmenu replacement. (Screenshot shows rofi used by
 [teiler](https://github.com/carnager/teiler) ).
 
-If compiled with I3 support, it should autodetect if I3 window manager is running. 
 
 ## Usage
 
