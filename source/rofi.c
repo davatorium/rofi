@@ -1245,6 +1245,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     // if grabbing keyboard failed, fall through
     if(take_keyboard ( box ))
     {
+        KeySym prev_key = 0;
         unsigned int selected = 0;
         for (;; )
         {
@@ -1464,6 +1465,13 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                 textbox_cursor_end ( text );
                                 free ( str );
                             }
+                            // Double tab!
+                            else if (filtered_lines == 0 && key == prev_key )
+                            {
+                                retv           = MENU_NEXT;
+                                *selected_line = 0;
+                                break;
+                            }
                             else
                             {
                                 selected = selected < filtered_lines - 1 ? MIN ( filtered_lines - 1, selected + 1 ) : 0;
@@ -1478,6 +1486,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                 menu_set_arrow_text(filtered_lines, selected,
                         max_lines, arrowbox_top,
                         arrowbox_bottom);
+                prev_key = key;
             }
         }
 
