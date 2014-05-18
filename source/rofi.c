@@ -1880,6 +1880,43 @@ void help ()
     }
 }
 
+static void parse_cmd_options( int argc, char ** argv )
+{
+    // Parse commandline arguments about the looks.
+    find_arg_str ( argc, argv, "-font", &( config.menu_font ) );
+    find_arg_str ( argc, argv, "-fg", &( config.menu_fg ) );
+    find_arg_str ( argc, argv, "-bg", &( config.menu_bg ) );
+    find_arg_str ( argc, argv, "-hlfg", &( config.menu_hlfg ) );
+    find_arg_str ( argc, argv, "-hlbg", &( config.menu_hlbg ) );
+    find_arg_str ( argc, argv, "-bc", &( config.menu_bc ) );
+    find_arg_int ( argc, argv, "-bw", &( config.menu_bw ) );
+    find_arg_int ( argc, argv, "-o", &( config.window_opacity ) );
+
+    // Parse commandline arguments about size and position
+    find_arg_int ( argc, argv, "-width", &( config.menu_width ) );
+    find_arg_int ( argc, argv, "-lines", &( config.menu_lines ) );
+    find_arg_int ( argc, argv, "-loc", &( config.location ) );
+    find_arg_int ( argc, argv, "-padding", &( config.padding ) );
+    find_arg_int ( argc, argv, "-xoffset", &( config.x_offset ) );
+    find_arg_int ( argc, argv, "-yoffset", &( config.y_offset ) );
+    if ( find_arg ( argc, argv, "-fixed-num-lines" ) ) 
+    {
+        config.fixed_num_lines = 1;
+    }
+
+    // Parse commandline arguments about behavior
+    find_arg_str ( argc, argv, "-term", &( config.terminal_emulator ) );
+    if ( find_arg ( argc, argv, "-zeltak" ) >= 0 )
+    {
+        config.zeltak_mode = 1;
+    }
+
+    if ( find_arg ( argc, argv, "-hmode" ) >= 0 )
+    {
+        config.wmode = HORIZONTAL;
+    }
+}
+
 int main ( int argc, char *argv[] )
 {
     int i, j;
@@ -1960,33 +1997,8 @@ int main ( int argc, char *argv[] )
     // Load in config from X resources.
     parse_xresource_options ( display );
 
-    // Parse commandline arguments about the looks.
-    find_arg_str ( argc, argv, "-font", &( config.menu_font ) );
-    find_arg_str ( argc, argv, "-fg", &( config.menu_fg ) );
-    find_arg_str ( argc, argv, "-bg", &( config.menu_bg ) );
-    find_arg_str ( argc, argv, "-hlfg", &( config.menu_hlfg ) );
-    find_arg_str ( argc, argv, "-hlbg", &( config.menu_hlbg ) );
-    find_arg_str ( argc, argv, "-bc", &( config.menu_bc ) );
-    find_arg_int ( argc, argv, "-bw", &( config.menu_bw ) );
-    find_arg_int ( argc, argv, "-o", &( config.window_opacity ) );
-
-    // Parse commandline arguments about size and position
-    find_arg_int ( argc, argv, "-width", &( config.menu_width ) );
-    find_arg_int ( argc, argv, "-lines", &( config.menu_lines ) );
-    find_arg_int ( argc, argv, "-loc", &( config.location ) );
-    find_arg_int ( argc, argv, "-padding", &( config.padding ) );
-
-    // Parse commandline arguments about behavior
-    find_arg_str ( argc, argv, "-term", &( config.terminal_emulator ) );
-    if ( find_arg ( argc, argv, "-zeltak" ) >= 0 )
-    {
-        config.zeltak_mode = 1;
-    }
-
-    if ( find_arg ( argc, argv, "-hmode" ) >= 0 )
-    {
-        config.wmode = HORIZONTAL;
-    }
+    // Parse command line for settings.
+    parse_cmd_options ( argc, argv );
 
     // flags to run immediately and exit
     if ( find_arg ( argc, argv, "-now" ) >= 0 )
