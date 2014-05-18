@@ -255,11 +255,19 @@ void textbox_draw ( textbox *tb )
             abort();
         }
 
+        // Trailing spaces are ignored, so fix this.
+        // Previous version replaced all spaces, this seems to be incorrect.
+        for( int j = strlen(line)-1; j >= 0 && line[j] == ' '; j--) {
+            line[j] = '_';
+        }
 
         // calc cursor position
         XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) line, cursor_offset, &extents );
         // Add a small 2px offset between cursor and last glyph.
-        cursor_x = extents.width+2;
+        cursor_x = extents.width;
+
+        // We known size it good, no need for double check.
+        sprintf(line, "%s %s", prompt, text);
     }
     else
     {
