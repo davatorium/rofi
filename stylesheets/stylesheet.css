@@ -119,6 +119,11 @@ aside#sidebar {
   line-height: 1.3;
 }
 
+aside#sidebar h1 {
+  font-size:  1.5em; 
+    font-weight: bold;
+}
+
 aside#sidebar p.repo-owner,
 aside#sidebar p.repo-owner a {
   font-weight: bold;
