@@ -320,8 +320,8 @@ typedef struct
     int    len;
 } winlist;
 
-winlist *cache_client;
-winlist *cache_xattr;
+winlist *cache_client = NULL;
+winlist *cache_xattr  = NULL;
 
 #define winlist_ascend( l, i, w )     for ( ( i ) = 0; ( i ) < ( l )->len && ( ( ( w ) = ( l )->array[i] ) || 1 ); ( i )++ )
 #define winlist_descend( l, i, w )    for ( ( i ) = ( l )->len - 1; ( i ) >= 0 && ( ( ( w ) = ( l )->array[i] ) || 1 ); ( i )-- )
@@ -1893,6 +1893,38 @@ static void parse_cmd_options( int argc, char ** argv )
     }
 }
 
+static void cleanup()
+{
+printf("cleanup\n");
+    // Cleanup
+    if ( display != NULL )
+    {
+        if ( main_window != None )
+        {
+            XFreeGC ( display, gc );
+            XDestroyWindow ( display, main_window );
+            XCloseDisplay ( display );
+        }
+    }
+    if(cache_xattr != NULL)
+    { 
+        winlist_free ( cache_xattr );
+    }
+    if(cache_client != NULL)
+    {
+        winlist_free ( cache_client );
+    }
+#ifdef HAVE_I3_IPC_H
+
+    if ( i3_socket_path != NULL )
+    {
+        free ( i3_socket_path );
+    }
+
+#endif
+    xdgWipeHandle ( &xdg_handle );
+
+}
 int main ( int argc, char *argv[] )
 {
     int i, j;
@@ -1913,6 +1945,7 @@ int main ( int argc, char *argv[] )
         return EXIT_SUCCESS;
     }
 
+
     // Get DISPLAY
     char *display_str = getenv ( "DISPLAY" );
     find_arg_str ( argc, argv, "-display", &display_str );
@@ -1929,6 +1962,9 @@ int main ( int argc, char *argv[] )
         fprintf ( stderr, "Failed to initialize XDG\n" );
         return EXIT_FAILURE;
     }
+
+    // Register cleanup function.
+    atexit(cleanup);
 
     cache_dir = xdgCacheHome ( &xdg_handle );
 
@@ -1975,6 +2011,9 @@ int main ( int argc, char *argv[] )
 
     // Parse command line for settings.
     parse_cmd_options ( argc, argv );
+
+    // Sanity check
+    config_sanity_check ();
 
     // flags to run immediately and exit
     if ( find_arg ( argc, argv, "-now" ) >= 0 )
@@ -2033,27 +2072,5 @@ int main ( int argc, char *argv[] )
         }
     }
 
-    // Cleanup
-    if ( display != NULL )
-    {
-        if ( main_window != None )
-        {
-            XFreeGC ( display, gc );
-            XDestroyWindow ( display, main_window );
-            XCloseDisplay ( display );
-        }
-    }
-
-    winlist_free ( cache_xattr );
-    winlist_free ( cache_client );
-#ifdef HAVE_I3_IPC_H
-
-    if ( i3_socket_path != NULL )
-    {
-        free ( i3_socket_path );
-    }
-
-#endif
-    xdgWipeHandle ( &xdg_handle );
     return EXIT_SUCCESS;
 }

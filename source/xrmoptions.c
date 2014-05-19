@@ -105,6 +105,7 @@ void parse_xresource_options ( Display *display )
             {
                 if ( xrmOptions[i].type == xrm_String )
                 {
+                    //TODO this leaks memory.
                     *xrmOptions[i].str = ( char * ) malloc ( xrmValue.size * sizeof ( char ) );
                     strncpy ( *xrmOptions[i].str, xrmValue.addr, xrmValue.size );
                 }

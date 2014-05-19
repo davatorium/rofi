@@ -24,6 +24,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+#include <stdio.h>
+#include <stdlib.h>
 #include "rofi.h"
 
 Settings config = {
@@ -33,14 +35,14 @@ Settings config = {
     .window_opacity    =                   100,
     // Border width around the window.
     .menu_bw           =                     1,
-    // The width of the switcher. (0-100 in % > 100 in pixels)
+    // The width of the switcher. (0100 in % > 100 in pixels)
     .menu_width        =                    50,
     // Maximum number of options to show.
     .menu_lines        =                    15,
     // Number of columns
     .menu_columns      =                     1,
     // Font
-    .menu_font         = "mono-12",
+    .menu_font         = "mono12",
     // Foreground color
     .menu_fg           = "#222222",
     // Background color
@@ -74,3 +76,33 @@ Settings config = {
     .x_offset          = 0,
     .fixed_num_lines   = 0
 };
+
+/**
+ * Do some input validation, especially the first few could break things.
+ * It is good to catch them beforehand.
+ *
+ * This functions exits the program with 1 when it finds an invalid configuration.
+ */
+void config_sanity_check( void )
+{
+    if ( config.menu_lines == 0 ) {
+        fprintf(stderr, "config.menu_lines is invalid. You need at least one visible line.\n");
+        exit(1);
+    }
+    if ( config.menu_columns == 0 ) {
+        fprintf(stderr, "config.menu_columns is invalid. You need at least one visible column.\n");
+        exit(1);
+    }
+
+    if ( config.menu_width == 0 ) {
+        fprintf(stderr, "config.menu_width is invalid. You cannot have a window with no width.\n");
+        exit(1);
+    }
+
+    if ( !( config.location >= WL_CENTER &&  config.location <= WL_WEST ) ) 
+    {
+        fprintf(stderr, "config.location is invalid. ( %d >= %d >= %d) does not hold.\n",
+                WL_WEST, config.location, WL_CENTER);
+        exit(1);
+    }
+}
