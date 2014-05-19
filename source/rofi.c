@@ -809,12 +809,12 @@ GC           gc          = NULL;
 
 #include "textbox.h"
 
-void menu_hide_arrow_text(int filtered_lines, int selected, int max_lines,
+void menu_hide_arrow_text(int filtered_lines, int selected, int max_elements,
         textbox *arrowbox_top, textbox *arrowbox_bottom)
 {
     if(arrowbox_top == NULL || arrowbox_bottom == NULL ) return;
-    int page   = (filtered_lines > 0)? selected/max_lines:0;
-    int npages = (filtered_lines > 0)? ((filtered_lines+max_lines-1)/max_lines):1;
+    int page   = (filtered_lines > 0)? selected/max_elements:0;
+    int npages = (filtered_lines > 0)? ((filtered_lines+max_elements-1)/max_elements):1;
     if(!(page != 0  && npages > 1)) {
         textbox_hide( arrowbox_top );
     }
@@ -823,13 +823,13 @@ void menu_hide_arrow_text(int filtered_lines, int selected, int max_lines,
     }
 }
 
-void menu_set_arrow_text(int filtered_lines, int selected, int max_lines,
+void menu_set_arrow_text(int filtered_lines, int selected, int max_elements,
         textbox *arrowbox_top, textbox *arrowbox_bottom)
 {
     if(arrowbox_top == NULL || arrowbox_bottom == NULL ) return;
-    int page   = (filtered_lines > 0)? selected/max_lines:0;
-    int npages = (filtered_lines > 0)? ((filtered_lines+max_lines-1)/max_lines):1;
-    int entry  = selected%max_lines;
+    int page   = (filtered_lines > 0)? selected/max_elements:0;
+    int npages = (filtered_lines > 0)? ((filtered_lines+max_elements-1)/max_elements):1;
+    int entry  = selected%max_elements;
     if(page != 0  && npages > 1) {
         textbox_show( arrowbox_top );
         textbox_font ( arrowbox_top, config.menu_font,
@@ -840,15 +840,15 @@ void menu_set_arrow_text(int filtered_lines, int selected, int max_lines,
     if((npages-1) != page && npages > 1) {
         textbox_show( arrowbox_bottom );
         textbox_font ( arrowbox_bottom, config.menu_font,
-                (entry == (max_lines-1) )? config.menu_hlfg : config.menu_fg,
-                (entry == (max_lines-1) )? config.menu_hlbg : config.menu_bg );
+                (entry == (max_elements-1) )? config.menu_hlfg : config.menu_fg,
+                (entry == (max_elements-1) )? config.menu_hlbg : config.menu_bg );
         textbox_draw( arrowbox_bottom  );
     }
 }
 
 void menu_draw ( textbox *text,
                  textbox **boxes,
-                 int max_lines,
+                 int max_elements,
                  int num_lines,
                  int *last_offset,
                  int selected,
@@ -859,19 +859,19 @@ void menu_draw ( textbox *text,
 
     // selected row is always visible.
     // If selected is visible do not scroll.
-    if ( ( selected - ( *last_offset ) ) < ( max_lines ) && ( selected - ( *last_offset ) ) >= 0 )
+    if ( ( selected - ( *last_offset ) ) < ( max_elements ) && ( selected - ( *last_offset ) ) >= 0 )
     {
         offset = *last_offset;
     }
     else
     {
         // Do paginating
-        int page = (max_lines > 0)?(selected / max_lines):0;
-        offset       = page * max_lines;
+        int page = (max_elements > 0)?(selected / max_elements):0;
+        offset       = page * max_elements;
         *last_offset = offset;
     }
 
-    for ( i = 0; i < max_lines; i++ )
+    for ( i = 0; i < max_elements; i++ )
     {
         if ( ( i + offset ) >= num_lines || filtered[i + offset] == NULL )
         {
@@ -896,7 +896,7 @@ void menu_draw ( textbox *text,
 /* Very bad implementation of tab completion.
  * It will complete to the common prefix
  */
-static int calculate_common_prefix ( char **filtered, int max_lines )
+static int calculate_common_prefix ( char **filtered, int max_elements )
 {
     int length_prefix = 0;
 
@@ -909,7 +909,7 @@ static int calculate_common_prefix ( char **filtered, int max_lines )
         {
             found = 1;
 
-            for ( int j = 0; j < max_lines && filtered[j] != NULL; j++ )
+            for ( int j = 0; j < max_elements && filtered[j] != NULL; j++ )
             {
                 if ( filtered[j][length_prefix] == '\0' || filtered[j][length_prefix] != *p )
                 {
@@ -1021,7 +1021,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     int          retv = MENU_CANCEL;
     unsigned int i, j;
     workarea     mon;
-    monitor_active ( &mon );
+
 
     unsigned int num_lines   = 0;
     int          last_offset = 0;
@@ -1032,21 +1032,40 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     }
 
 
-    unsigned int max_lines = MIN ( config.menu_lines, num_lines );
+    unsigned int max_elements = MIN ( config.menu_lines*config.menu_columns, num_lines );
+    // TODO, clean this up.
+    // Calculate the number or rows.
+    // we do this by getting the num_lines rounded up to X columns (num elements is better name)
+    // then dividing by columns.
+    unsigned int max_rows = MIN ( config.menu_lines, 
+            (unsigned int)(
+                (num_lines+(config.menu_columns-num_lines%config.menu_columns)%config.menu_columns)/
+                (config.menu_columns)
+                ));
 
     if ( config.fixed_num_lines  == 1 )
     {
-        max_lines = config.menu_lines;
+        max_elements = config.menu_lines*config.menu_columns;
+        max_rows  = config.menu_lines;
     }
+    // More hacks.
+    if ( config.wmode == HORIZONTAL )
+    {
+        max_rows = 1;
+    }
+
+    // Get active monitor size.
+    monitor_active ( &mon );
 
     // Calculate as float to stop silly, big rounding down errors.
     int w             = config.menu_width < 101 ? ( mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
     int x             = mon.x + ( mon.w - w ) / 2;
     int element_width = w - ( 2 * ( config.padding ) );
-
+    // Divide by the # columns
+    element_width /= config.menu_columns;
     if ( config.wmode == HORIZONTAL )
     {
-        element_width = ( w - ( 2 * ( config.padding ) ) - max_lines * LINE_MARGIN ) / ( max_lines + 1 );
+        element_width = ( w - ( 2 * ( config.padding ) ) - max_elements * LINE_MARGIN ) / ( max_elements + 1 );
     }
 
     Window            box;
@@ -1101,20 +1120,12 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
 
     // filtered list display
-    textbox **boxes = allocate_clear ( sizeof ( textbox* ) * max_lines );
+    textbox **boxes = allocate_clear ( sizeof ( textbox* ) * max_elements );
 
-    int     columns = 1;
-
-    if ( config.wmode == HORIZONTAL )
+    for ( i = 0; i < max_elements; i++ )
     {
-        // Number of columns is the width of the screen - the inner margins + trailing line margin.
-        columns = ( w - 2 * ( config.padding ) + LINE_MARGIN ) / ( element_width + LINE_MARGIN );
-    }
-
-    for ( i = 0; i < max_lines; i++ )
-    {
-        int col  = ( i + 1 ) % columns;
-        int line = ( i + 1 ) / columns;
+        int line  = ( i ) % max_rows +( ( config.wmode == VERTICAL )?1:0);
+        int col = ( i ) / max_rows   +( ( config.wmode == VERTICAL )?0:1);
         boxes[i] = textbox_create ( box,
                                     0,
                                     ( config.padding ) + col * ( element_width + LINE_MARGIN ),                                 // X
@@ -1146,7 +1157,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                 config.padding+line_height+LINE_MARGIN);
         textbox_move ( arrowbox_bottom,
                 w-config.padding-arrowbox_bottom->w,
-                config.padding+max_lines*line_height+LINE_MARGIN);
+                config.padding+max_rows*line_height+LINE_MARGIN);
     }
 
     // filtered list
@@ -1188,7 +1199,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
-    int h = line_height * ( max_lines + 1 ) + ( config.padding ) * 2 + LINE_MARGIN;
+    int h = line_height * ( max_rows + 1 ) + ( config.padding ) * 2 + LINE_MARGIN;
 
 
     if ( config.wmode == HORIZONTAL )
@@ -1259,12 +1270,12 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                     ;
                 }
 
-                menu_draw ( text, boxes, max_lines, num_lines, &last_offset, selected, filtered );
+                menu_draw ( text, boxes, max_elements, num_lines, &last_offset, selected, filtered );
                 menu_set_arrow_text(filtered_lines, selected,
-                        max_lines, arrowbox_top,
+                        max_elements, arrowbox_top,
                         arrowbox_bottom);
                 // Why do we need the specian -1?
-                if ( config.wmode == VERTICAL && max_lines > 0)
+                if ( config.wmode == VERTICAL && max_elements > 0)
                 {
                     XDrawLine ( display, main_window, gc, ( config.padding ),
                             line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2,
@@ -1407,22 +1418,39 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                         }
                         else if ( key == XK_Page_Up )
                         {
-                            if ( selected < max_lines )
+                            if ( selected < max_elements )
                             {
                                 selected = 0;
                             }
                             else
                             {
-                                selected -= ( max_lines - 1 );
+                                selected -= ( max_elements - 1 );
                             }
                         }
                         else if ( key == XK_Page_Down )
                         {
-                            selected += ( max_lines - 1 );
+                            selected += ( max_elements - 1 );
 
                             if ( selected >= num_lines )
                             {
                                 selected = num_lines - 1;
+                            }
+                        }
+                        else if ( key == XK_h && ev.xkey.state & ControlMask ) {
+                            if(selected < max_rows )
+                            {
+                                selected = 0;
+                            }
+                            else
+                            {
+                                selected-=max_rows;
+                            }
+                        }
+                        else if (  key == XK_l && ev.xkey.state & ControlMask ) {
+                            selected += max_rows;
+                            if(selected >= num_lines )
+                            {
+                                selected = num_lines-1;
                             }
                         }
                         else if ( key == XK_Home || key == XK_KP_Home )
@@ -1480,11 +1508,11 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                     }
                 }
                 menu_hide_arrow_text(filtered_lines, selected,
-                        max_lines, arrowbox_top,
+                        max_elements, arrowbox_top,
                         arrowbox_bottom);
-                menu_draw ( text, boxes, max_lines, num_lines, &last_offset, selected, filtered );
+                menu_draw ( text, boxes, max_elements, num_lines, &last_offset, selected, filtered );
                 menu_set_arrow_text(filtered_lines, selected,
-                        max_lines, arrowbox_top,
+                        max_elements, arrowbox_top,
                         arrowbox_bottom);
                 prev_key = key;
             }
@@ -1502,7 +1530,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
     textbox_free ( text );
 
-    for ( i = 0; i < max_lines; i++ )
+    for ( i = 0; i < max_elements; i++ )
     {
         textbox_free ( boxes[i] );
     }
@@ -1895,11 +1923,12 @@ static void parse_cmd_options( int argc, char ** argv )
     // Parse commandline arguments about size and position
     find_arg_int ( argc, argv, "-width", &( config.menu_width ) );
     find_arg_int ( argc, argv, "-lines", &( config.menu_lines ) );
+    find_arg_int ( argc, argv, "-columns", &( config.menu_columns ) );
     find_arg_int ( argc, argv, "-loc", &( config.location ) );
     find_arg_int ( argc, argv, "-padding", &( config.padding ) );
     find_arg_int ( argc, argv, "-xoffset", &( config.x_offset ) );
     find_arg_int ( argc, argv, "-yoffset", &( config.y_offset ) );
-    if ( find_arg ( argc, argv, "-fixed-num-lines" ) ) 
+    if ( find_arg ( argc, argv, "-fixed-num-lines" ) >= 0 ) 
     {
         config.fixed_num_lines = 1;
     }

@@ -66,7 +66,8 @@ static XrmOption xrmOptions[] = {
     { xrm_Number, "location",           { .num = &config.location          } },
     { xrm_Number, "yoffset",            { .num = &config.y_offset          } },
     { xrm_Number, "xoffset",            { .num = &config.x_offset          } },
-    { xrm_Number, "fixed_num_lines",    { .num = &config.fixed_num_lines } },
+    { xrm_Number, "fixed_num_lines",    { .num = &config.fixed_num_lines   } },
+    { xrm_Number, "columns",            { .num = &config.menu_columns      } },
 };
 
 

@@ -82,6 +82,7 @@ typedef struct _Settings
     unsigned int   menu_bw;
     unsigned int   menu_width;
     unsigned int   menu_lines;
+    unsigned int   menu_columns;
     char           * menu_font;
     char           * menu_fg;
     char           * menu_bg;
