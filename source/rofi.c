@@ -756,40 +756,50 @@ GC           gc          = NULL;
 
 #include "textbox.h"
 
-void menu_hide_arrow_text(int filtered_lines, int selected, int max_elements,
-        textbox *arrowbox_top, textbox *arrowbox_bottom)
+void menu_hide_arrow_text ( int filtered_lines, int selected, int max_elements,
+                            textbox *arrowbox_top, textbox *arrowbox_bottom )
 {
-    if(arrowbox_top == NULL || arrowbox_bottom == NULL ) return;
-    int page   = (filtered_lines > 0)? selected/max_elements:0;
-    int npages = (filtered_lines > 0)? ((filtered_lines+max_elements-1)/max_elements):1;
-    if(!(page != 0  && npages > 1)) {
-        textbox_hide( arrowbox_top );
+    if ( arrowbox_top == NULL || arrowbox_bottom == NULL )
+    {
+        return;
     }
-    if(!((npages-1) != page && npages > 1)) {
-        textbox_hide( arrowbox_bottom );
+    int page   = ( filtered_lines > 0 ) ? selected / max_elements : 0;
+    int npages = ( filtered_lines > 0 ) ? ( ( filtered_lines + max_elements - 1 ) / max_elements ) : 1;
+    if ( !( page != 0 && npages > 1 ) )
+    {
+        textbox_hide ( arrowbox_top );
+    }
+    if ( !( ( npages - 1 ) != page && npages > 1 ) )
+    {
+        textbox_hide ( arrowbox_bottom );
     }
 }
 
-void menu_set_arrow_text(int filtered_lines, int selected, int max_elements,
-        textbox *arrowbox_top, textbox *arrowbox_bottom)
+void menu_set_arrow_text ( int filtered_lines, int selected, int max_elements,
+                           textbox *arrowbox_top, textbox *arrowbox_bottom )
 {
-    if(arrowbox_top == NULL || arrowbox_bottom == NULL ) return;
-    int page   = (filtered_lines > 0)? selected/max_elements:0;
-    int npages = (filtered_lines > 0)? ((filtered_lines+max_elements-1)/max_elements):1;
-    int entry  = selected%max_elements;
-    if(page != 0  && npages > 1) {
-        textbox_show( arrowbox_top );
-        textbox_font ( arrowbox_top, config.menu_font,
-                (entry == 0 )? config.menu_hlfg : config.menu_fg,
-                (entry == 0 )? config.menu_hlbg : config.menu_bg );
-        textbox_draw( arrowbox_top  );
+    if ( arrowbox_top == NULL || arrowbox_bottom == NULL )
+    {
+        return;
     }
-    if((npages-1) != page && npages > 1) {
-        textbox_show( arrowbox_bottom );
+    int page   = ( filtered_lines > 0 ) ? selected / max_elements : 0;
+    int npages = ( filtered_lines > 0 ) ? ( ( filtered_lines + max_elements - 1 ) / max_elements ) : 1;
+    int entry  = selected % max_elements;
+    if ( page != 0 && npages > 1 )
+    {
+        textbox_show ( arrowbox_top );
+        textbox_font ( arrowbox_top, config.menu_font,
+                       ( entry == 0 ) ? config.menu_hlfg : config.menu_fg,
+                       ( entry == 0 ) ? config.menu_hlbg : config.menu_bg );
+        textbox_draw ( arrowbox_top  );
+    }
+    if ( ( npages - 1 ) != page && npages > 1 )
+    {
+        textbox_show ( arrowbox_bottom );
         textbox_font ( arrowbox_bottom, config.menu_font,
-                (entry == (max_elements-1) )? config.menu_hlfg : config.menu_fg,
-                (entry == (max_elements-1) )? config.menu_hlbg : config.menu_bg );
-        textbox_draw( arrowbox_bottom  );
+                       ( entry == ( max_elements - 1 ) ) ? config.menu_hlfg : config.menu_fg,
+                       ( entry == ( max_elements - 1 ) ) ? config.menu_hlbg : config.menu_bg );
+        textbox_draw ( arrowbox_bottom  );
     }
 }
 
@@ -813,7 +823,7 @@ void menu_draw ( textbox *text,
     else
     {
         // Do paginating
-        int page = (max_elements > 0)?(selected / max_elements):0;
+        int page = ( max_elements > 0 ) ? ( selected / max_elements ) : 0;
         offset       = page * max_elements;
         *last_offset = offset;
     }
@@ -979,21 +989,21 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     }
 
 
-    unsigned int max_elements = MIN ( config.menu_lines*config.menu_columns, num_lines );
+    unsigned int max_elements = MIN ( config.menu_lines * config.menu_columns, num_lines );
     // TODO, clean this up.
     // Calculate the number or rows.
     // we do this by getting the num_lines rounded up to X columns (num elements is better name)
     // then dividing by columns.
-    unsigned int max_rows = MIN ( config.menu_lines, 
-            (unsigned int)(
-                (num_lines+(config.menu_columns-num_lines%config.menu_columns)%config.menu_columns)/
-                (config.menu_columns)
-                ));
+    unsigned int max_rows = MIN ( config.menu_lines,
+                                  (unsigned int) (
+                                      ( num_lines + ( config.menu_columns - num_lines % config.menu_columns ) % config.menu_columns ) /
+                                      ( config.menu_columns )
+                                      ) );
 
-    if ( config.fixed_num_lines  == 1 )
+    if ( config.fixed_num_lines == 1 )
     {
-        max_elements = config.menu_lines*config.menu_columns;
-        max_rows  = config.menu_lines;
+        max_elements = config.menu_lines * config.menu_columns;
+        max_rows     = config.menu_lines;
     }
     // More hacks.
     if ( config.wmode == HORIZONTAL )
@@ -1071,8 +1081,8 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
     for ( i = 0; i < max_elements; i++ )
     {
-        int line  = ( i ) % max_rows +( ( config.wmode == VERTICAL )?1:0);
-        int col = ( i ) / max_rows   +( ( config.wmode == VERTICAL )?0:1);
+        int line = ( i ) % max_rows + ( ( config.wmode == VERTICAL ) ? 1 : 0 );
+        int col  = ( i ) / max_rows + ( ( config.wmode == VERTICAL ) ? 0 : 1 );
         boxes[i] = textbox_create ( box,
                                     0,
                                     ( config.padding ) + col * ( element_width + LINE_MARGIN ),                                 // X
@@ -1084,32 +1094,32 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     }
     // Arrows
     textbox *arrowbox_top = NULL, *arrowbox_bottom = NULL;
-    if(config.wmode == VERTICAL)
+    if ( config.wmode == VERTICAL )
     {
         arrowbox_top = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                (config.padding),
-                (config.padding),
-                0, 0,
-                config.menu_font, config.menu_fg, config.menu_bg,
-                "↑", NULL);
+                                        ( config.padding ),
+                                        ( config.padding ),
+                                        0, 0,
+                                        config.menu_font, config.menu_fg, config.menu_bg,
+                                        "↑", NULL );
         arrowbox_bottom = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                (config.padding),
-                (config.padding),
-                0, 0,
-                config.menu_font, config.menu_fg, config.menu_bg,
-                "↓", NULL);
+                                           ( config.padding ),
+                                           ( config.padding ),
+                                           0, 0,
+                                           config.menu_font, config.menu_fg, config.menu_bg,
+                                           "↓", NULL );
 
         textbox_move ( arrowbox_top,
-                w-config.padding-arrowbox_top->w,
-                config.padding+line_height+LINE_MARGIN);
+                       w - config.padding - arrowbox_top->w,
+                       config.padding + line_height + LINE_MARGIN );
         textbox_move ( arrowbox_bottom,
-                w-config.padding-arrowbox_bottom->w,
-                config.padding+max_rows*line_height+LINE_MARGIN);
+                       w - config.padding - arrowbox_bottom->w,
+                       config.padding + max_rows * line_height + LINE_MARGIN );
     }
 
     // filtered list
-    char         **filtered     = calloc ( num_lines,  sizeof ( char* ) );
-    int          *line_map      = calloc ( num_lines,  sizeof ( int ) );
+    char         **filtered     = calloc ( num_lines, sizeof ( char* ) );
+    int          *line_map      = calloc ( num_lines, sizeof ( int ) );
     unsigned int filtered_lines = 0;
 
     if ( input && *input )
@@ -1160,50 +1170,50 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     // Determine window location
     switch ( config.location )
     {
-        case WL_NORTH_WEST:
-            x = mon.x;
+    case WL_NORTH_WEST:
+        x = mon.x;
 
-        case WL_NORTH:
-            y = mon.y;
-            break;
+    case WL_NORTH:
+        y = mon.y;
+        break;
 
-        case WL_NORTH_EAST:
-            y = mon.y;
+    case WL_NORTH_EAST:
+        y = mon.y;
 
-        case WL_EAST:
-            x = mon.x + mon.w - w-config.menu_bw*2;
-            break;
+    case WL_EAST:
+        x = mon.x + mon.w - w - config.menu_bw * 2;
+        break;
 
-        case WL_EAST_SOUTH:
-            x = mon.x + mon.w - w-config.menu_bw*2;
+    case WL_EAST_SOUTH:
+        x = mon.x + mon.w - w - config.menu_bw * 2;
 
-        case WL_SOUTH:
-            y = mon.y + mon.h - h-config.menu_bw*2;
-            break;
+    case WL_SOUTH:
+        y = mon.y + mon.h - h - config.menu_bw * 2;
+        break;
 
-        case WL_SOUTH_WEST:
-            y = mon.y + mon.h - h-config.menu_bw*2;
+    case WL_SOUTH_WEST:
+        y = mon.y + mon.h - h - config.menu_bw * 2;
 
-        case WL_WEST:
-            x = mon.x;
-            break;
+    case WL_WEST:
+        x = mon.x;
+        break;
 
-        case WL_CENTER:
-        default:
-            break;
+    case WL_CENTER:
+    default:
+        break;
     }
     // Apply offset.
-    y+= config.y_offset;
-    x+= config.x_offset;
+    y += config.y_offset;
+    x += config.x_offset;
 
 
     XMoveResizeWindow ( display, box, x, y, w, h );
     XMapRaised ( display, box );
 
     // if grabbing keyboard failed, fall through
-    if(take_keyboard ( box ))
+    if ( take_keyboard ( box ) )
     {
-        KeySym prev_key = 0;
+        KeySym       prev_key = 0;
         unsigned int selected = 0;
         for (;; )
         {
@@ -1218,16 +1228,16 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                 }
 
                 menu_draw ( text, boxes, max_elements, num_lines, &last_offset, selected, filtered );
-                menu_set_arrow_text(filtered_lines, selected,
-                        max_elements, arrowbox_top,
-                        arrowbox_bottom);
+                menu_set_arrow_text ( filtered_lines, selected,
+                                      max_elements, arrowbox_top,
+                                      arrowbox_bottom );
                 // Why do we need the specian -1?
-                if ( config.wmode == VERTICAL && max_elements > 0)
+                if ( config.wmode == VERTICAL && max_elements > 0 )
                 {
                     XDrawLine ( display, main_window, gc, ( config.padding ),
-                            line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2,
-                            w - ( ( config.padding ) ) - 1,
-                            line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2 );
+                                line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2,
+                                w - ( ( config.padding ) ) - 1,
+                                line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2 );
                 }
             }
             else if ( ev.type == KeyPress )
@@ -1245,14 +1255,14 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                 KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
 
                 if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
-                        key == XK_slash )
+                     key == XK_slash )
                 {
                     retv           = MENU_NEXT;
                     *selected_line = 0;
                     break;
                 }
                 else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
-                        key == XK_Delete )
+                          key == XK_Delete )
                 {
                     if ( filtered[selected] != NULL )
                     {
@@ -1333,11 +1343,11 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                     KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
 
                     if ( key == XK_Escape
-                            // pressing one of the global key bindings closes the switcher. this allows fast closing of the menu if an item is not selected
-                            || ( ( windows_modmask == AnyModifier || ev.xkey.state & windows_modmask ) && key == windows_keysym )
-                            || ( ( rundialog_modmask == AnyModifier || ev.xkey.state & rundialog_modmask ) && key == rundialog_keysym )
-                            || ( ( sshdialog_modmask == AnyModifier || ev.xkey.state & sshdialog_modmask ) && key == sshdialog_keysym )
-                       )
+                         // pressing one of the global key bindings closes the switcher. this allows fast closing of the menu if an item is not selected
+                         || ( ( windows_modmask == AnyModifier || ev.xkey.state & windows_modmask ) && key == windows_keysym )
+                         || ( ( rundialog_modmask == AnyModifier || ev.xkey.state & rundialog_modmask ) && key == rundialog_keysym )
+                         || ( ( sshdialog_modmask == AnyModifier || ev.xkey.state & sshdialog_modmask ) && key == sshdialog_keysym )
+                         )
                     {
                         retv = MENU_CANCEL;
                         break;
@@ -1346,7 +1356,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                     {
                         // Up or Shift-Tab
                         if ( key == XK_Up || ( key == XK_Tab && ev.xkey.state & ShiftMask ) ||
-                                ( key == XK_j && ev.xkey.state & ControlMask )  )
+                             ( key == XK_j && ev.xkey.state & ControlMask )  )
                         {
                             if ( selected == 0 )
                             {
@@ -1359,7 +1369,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                             }
                         }
                         else if ( key == XK_Down ||
-                                ( key == XK_k && ev.xkey.state & ControlMask ) )
+                                  ( key == XK_k && ev.xkey.state & ControlMask ) )
                         {
                             selected = selected < filtered_lines - 1 ? MIN ( filtered_lines - 1, selected + 1 ) : 0;
                         }
@@ -1383,21 +1393,23 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                 selected = num_lines - 1;
                             }
                         }
-                        else if ( key == XK_h && ev.xkey.state & ControlMask ) {
-                            if(selected < max_rows )
+                        else if ( key == XK_h && ev.xkey.state & ControlMask )
+                        {
+                            if ( selected < max_rows )
                             {
                                 selected = 0;
                             }
                             else
                             {
-                                selected-=max_rows;
+                                selected -= max_rows;
                             }
                         }
-                        else if (  key == XK_l && ev.xkey.state & ControlMask ) {
+                        else if (  key == XK_l && ev.xkey.state & ControlMask )
+                        {
                             selected += max_rows;
-                            if(selected >= num_lines )
+                            if ( selected >= num_lines )
                             {
-                                selected = num_lines-1;
+                                selected = num_lines - 1;
                             }
                         }
                         else if ( key == XK_Home || key == XK_KP_Home )
@@ -1441,7 +1453,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                 free ( str );
                             }
                             // Double tab!
-                            else if (filtered_lines == 0 && key == prev_key )
+                            else if ( filtered_lines == 0 && key == prev_key )
                             {
                                 retv           = MENU_NEXT;
                                 *selected_line = 0;
@@ -1454,13 +1466,13 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                         }
                     }
                 }
-                menu_hide_arrow_text(filtered_lines, selected,
-                        max_elements, arrowbox_top,
-                        arrowbox_bottom);
+                menu_hide_arrow_text ( filtered_lines, selected,
+                                       max_elements, arrowbox_top,
+                                       arrowbox_bottom );
                 menu_draw ( text, boxes, max_elements, num_lines, &last_offset, selected, filtered );
-                menu_set_arrow_text(filtered_lines, selected,
-                        max_elements, arrowbox_top,
-                        arrowbox_bottom);
+                menu_set_arrow_text ( filtered_lines, selected,
+                                      max_elements, arrowbox_top,
+                                      arrowbox_bottom );
                 prev_key = key;
             }
         }
@@ -1855,7 +1867,7 @@ void help ()
     }
 }
 
-static void parse_cmd_options( int argc, char ** argv )
+static void parse_cmd_options ( int argc, char ** argv )
 {
     // Parse commandline arguments about the looks.
     find_arg_str ( argc, argv, "-font", &( config.menu_font ) );
@@ -1875,7 +1887,7 @@ static void parse_cmd_options( int argc, char ** argv )
     find_arg_int ( argc, argv, "-padding", &( config.padding ) );
     find_arg_int ( argc, argv, "-xoffset", &( config.x_offset ) );
     find_arg_int ( argc, argv, "-yoffset", &( config.y_offset ) );
-    if ( find_arg ( argc, argv, "-fixed-num-lines" ) >= 0 ) 
+    if ( find_arg ( argc, argv, "-fixed-num-lines" ) >= 0 )
     {
         config.fixed_num_lines = 1;
     }
@@ -1893,9 +1905,8 @@ static void parse_cmd_options( int argc, char ** argv )
     }
 }
 
-static void cleanup()
+static void cleanup ()
 {
-printf("cleanup\n");
     // Cleanup
     if ( display != NULL )
     {
@@ -1906,11 +1917,11 @@ printf("cleanup\n");
             XCloseDisplay ( display );
         }
     }
-    if(cache_xattr != NULL)
-    { 
+    if ( cache_xattr != NULL )
+    {
         winlist_free ( cache_xattr );
     }
-    if(cache_client != NULL)
+    if ( cache_client != NULL )
     {
         winlist_free ( cache_client );
     }
@@ -1922,8 +1933,13 @@ printf("cleanup\n");
     }
 
 #endif
-    xdgWipeHandle ( &xdg_handle );
 
+    // Cleaning up memory allocated by the Xresources file.
+    // TODO, not happy with this.
+    parse_xresource_free ();
+
+    // Whipe the handle.. (not working)
+    xdgWipeHandle ( &xdg_handle );
 }
 int main ( int argc, char *argv[] )
 {
@@ -1964,7 +1980,7 @@ int main ( int argc, char *argv[] )
     }
 
     // Register cleanup function.
-    atexit(cleanup);
+    atexit ( cleanup );
 
     cache_dir = xdgCacheHome ( &xdg_handle );
 

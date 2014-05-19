@@ -50,29 +50,30 @@ typedef struct
         unsigned int * num;
         char         ** str;
     };
+    char *mem;
 } XrmOption;
 /**
- * Map X resource settings to internal options 
+ * Map X resource settings to internal options
  * Currently supports string and number.
  */
 static XrmOption xrmOptions[] = {
-    { xrm_Number, "opacity",            { .num = &config.window_opacity    } },
-    { xrm_Number, "width",              { .num = &config.menu_width        } },
-    { xrm_Number, "lines",              { .num = &config.menu_lines        } },
-    { xrm_String, "font",               { .str = &config.menu_font         } },
-    { xrm_String, "foreground",         { .str = &config.menu_fg           } },
-    { xrm_String, "background",         { .str = &config.menu_bg           } },
-    { xrm_String, "highlightfg",        { .str = &config.menu_hlfg         } },
-    { xrm_String, "highlightbg",        { .str = &config.menu_hlbg         } },
-    { xrm_String, "bordercolor",        { .str = &config.menu_bc           } },
-    { xrm_Number, "padding",            { .num = &config.padding           } },
-    { xrm_Number, "borderwidth",        { .num = &config.menu_bw           } },
-    { xrm_String, "terminal",           { .str = &config.terminal_emulator } },
-    { xrm_Number, "location",           { .num = &config.location          } },
-    { xrm_Number, "yoffset",            { .num = &config.y_offset          } },
-    { xrm_Number, "xoffset",            { .num = &config.x_offset          } },
-    { xrm_Number, "fixed_num_lines",    { .num = &config.fixed_num_lines   } },
-    { xrm_Number, "columns",            { .num = &config.menu_columns      } },
+    { xrm_Number, "opacity",         { .num = &config.window_opacity    }, NULL },
+    { xrm_Number, "width",           { .num = &config.menu_width        }, NULL },
+    { xrm_Number, "lines",           { .num = &config.menu_lines        }, NULL },
+    { xrm_String, "font",            { .str = &config.menu_font         }, NULL },
+    { xrm_String, "foreground",      { .str = &config.menu_fg           }, NULL },
+    { xrm_String, "background",      { .str = &config.menu_bg           }, NULL },
+    { xrm_String, "highlightfg",     { .str = &config.menu_hlfg         }, NULL },
+    { xrm_String, "highlightbg",     { .str = &config.menu_hlbg         }, NULL },
+    { xrm_String, "bordercolor",     { .str = &config.menu_bc           }, NULL },
+    { xrm_Number, "padding",         { .num = &config.padding           }, NULL },
+    { xrm_Number, "borderwidth",     { .num = &config.menu_bw           }, NULL },
+    { xrm_String, "terminal",        { .str = &config.terminal_emulator }, NULL },
+    { xrm_Number, "location",        { .num = &config.location          }, NULL },
+    { xrm_Number, "yoffset",         { .num = &config.y_offset          }, NULL },
+    { xrm_Number, "xoffset",         { .num = &config.x_offset          }, NULL },
+    { xrm_Number, "fixed_num_lines", { .num = &config.fixed_num_lines   }, NULL },
+    { xrm_Number, "columns",         { .num = &config.menu_columns      }, NULL },
 };
 
 
@@ -91,23 +92,33 @@ void parse_xresource_options ( Display *display )
 
     char        * xrmType;
     XrmValue    xrmValue;
-    // TODO: update when we have new name.
     const char  * namePrefix  = "rofi";
-    const char  * classPrefix = "Simpleswitcher";
+    const char  * classPrefix = "rofi";
 
     for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( *xrmOptions ); ++i )
     {
-        char *name, *class; 
-        if ( asprintf ( &name, "%s.%s", namePrefix, xrmOptions[i].name ) == -1) continue;
-        if ( asprintf ( &class, "%s.%s", classPrefix, xrmOptions[i].name ) > 0)
+        char *name, *class;
+        if ( asprintf ( &name, "%s.%s", namePrefix, xrmOptions[i].name ) == -1 )
+        {
+            continue;
+        }
+        if ( asprintf ( &class, "%s.%s", classPrefix, xrmOptions[i].name ) > 0 )
         {
             if ( XrmGetResource ( xDB, name, class, &xrmType, &xrmValue ) )
             {
                 if ( xrmOptions[i].type == xrm_String )
                 {
+                    if ( xrmOptions[i].mem != NULL )
+                    {
+                        free ( xrmOptions[i].mem );
+                        xrmOptions[i].mem = NULL;
+                    }
                     //TODO this leaks memory.
                     *xrmOptions[i].str = ( char * ) malloc ( xrmValue.size * sizeof ( char ) );
                     strncpy ( *xrmOptions[i].str, xrmValue.addr, xrmValue.size );
+
+                    // Memory
+                    xrmOptions[i].mem = ( *xrmOptions[i].str );
                 }
                 else if ( xrmOptions[i].type == xrm_Number )
                 {
@@ -118,5 +129,18 @@ void parse_xresource_options ( Display *display )
             free ( class );
         }
         free ( name );
+    }
+    XrmDestroyDatabase ( xDB );
+}
+
+void parse_xresource_free ( void )
+{
+    for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( *xrmOptions ); ++i )
+    {
+        if ( xrmOptions[i].mem != NULL )
+        {
+            free ( xrmOptions[i].mem );
+            xrmOptions[i].mem = NULL;
+        }
     }
 }
