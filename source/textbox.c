@@ -263,8 +263,8 @@ void textbox_draw ( textbox *tb )
 
         // calc cursor position
         XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) line, cursor_offset, &extents );
-        // Add a small 2px offset between cursor and last glyph.
-        cursor_x = extents.width;
+        // Add a small 4px offset between cursor and last glyph.
+        cursor_x = extents.width+4;
 
         // We known size it good, no need for double check.
         sprintf(line, "%s %s", prompt, text);
