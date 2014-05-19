@@ -91,7 +91,7 @@ typedef struct _Settings
     char           * run_key;
     char           * ssh_key;
     WindowLocation location;
-    WindowMode     wmode;
+    WindowMode     hmode;
     unsigned int   padding;
     int            y_offset;
     int            x_offset;

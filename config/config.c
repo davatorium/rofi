@@ -68,7 +68,7 @@ Settings config = {
     // Location of the window.   WL_CENTER, WL_NORTH_WEST, WL_NORTH,WL_NORTH_EAST, etc.
     .location          = WL_CENTER,
     // Mode of window, list (Vertical) or dmenu like (Horizontal)
-    .wmode             = VERTICAL,
+    .hmode             = VERTICAL,
     // Padding of the window.
     .padding           = 5,
     .show_title        = 1,
@@ -103,6 +103,12 @@ void config_sanity_check( void )
     {
         fprintf(stderr, "config.location is invalid. ( %d >= %d >= %d) does not hold.\n",
                 WL_WEST, config.location, WL_CENTER);
+        exit(1);
+    }
+
+    if ( !( config.hmode == VERTICAL || config.hmode == HORIZONTAL ) )
+    {
+        fprintf(stderr, "config.hmode is invalid.\n");
         exit(1);
     }
 }
