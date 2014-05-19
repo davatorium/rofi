@@ -104,59 +104,6 @@ int token_match ( char **tokens, const char *input,
     return match;
 }
 
-void* allocate ( unsigned long bytes )
-{
-    if ( bytes == 0 )
-    {
-        return NULL;
-    }
-
-    void *ptr = malloc ( bytes );
-
-    if ( !ptr )
-    {
-        fprintf ( stderr, "malloc failed!\n" );
-        exit ( EXIT_FAILURE );
-    }
-
-    return ptr;
-}
-void* allocate_clear ( unsigned long bytes )
-{
-    if ( bytes == 0 )
-    {
-        return NULL;
-    }
-
-    // malloc+memset we can do in one call using calloc.
-    void *ptr = calloc ( bytes, 1 );
-
-    if ( !ptr )
-    {
-        fprintf ( stderr, "calloc failed!\n" );
-        exit ( EXIT_FAILURE );
-    }
-
-    return ptr;
-}
-void* reallocate ( void *ptr, unsigned long bytes )
-{
-    if ( bytes == 0 )
-    {
-        return NULL;
-    }
-
-    ptr = realloc ( ptr, bytes );
-
-    if ( !ptr )
-    {
-        fprintf ( stderr, "realloc failed!\n" );
-        exit ( EXIT_FAILURE );
-    }
-
-    return ptr;
-}
-
 
 static char **tokenize ( const char *input )
 {
@@ -171,7 +118,7 @@ static char **tokenize ( const char *input )
     int  num_tokens = 1;
 
     //First entry is string that is modified.
-    retv    = allocate ( 2 * sizeof ( char* ) );
+    retv    = malloc ( 2 * sizeof ( char* ) );
     retv[0] = strdup ( input );
     retv[1] = NULL;
 
@@ -182,7 +129,7 @@ static char **tokenize ( const char *input )
         token != NULL;
         token = strtok_r ( NULL, " ", &saveptr ) )
     {
-        retv                 = reallocate ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
+        retv                 = realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
         retv[num_tokens + 1] = NULL;
         retv[num_tokens]     = token;
         num_tokens++;
@@ -383,18 +330,18 @@ winlist *cache_xattr;
 
 winlist* winlist_new ()
 {
-    winlist *l = allocate ( sizeof ( winlist ) );
+    winlist *l = malloc ( sizeof ( winlist ) );
     l->len   = 0;
-    l->array = allocate ( sizeof ( Window ) * ( WINLIST + 1 ) );
-    l->data  = allocate ( sizeof ( void* ) * ( WINLIST + 1 ) );
+    l->array = malloc ( sizeof ( Window ) * ( WINLIST + 1 ) );
+    l->data  = malloc ( sizeof ( void* ) * ( WINLIST + 1 ) );
     return l;
 }
 int winlist_append ( winlist *l, Window w, void *d )
 {
     if ( l->len > 0 && !( l->len % WINLIST ) )
     {
-        l->array = reallocate ( l->array, sizeof ( Window ) * ( l->len + WINLIST + 1 ) );
-        l->data  = reallocate ( l->data, sizeof ( void* ) * ( l->len + WINLIST + 1 ) );
+        l->array = realloc ( l->array, sizeof ( Window ) * ( l->len + WINLIST + 1 ) );
+        l->data  = realloc ( l->data, sizeof ( void* ) * ( l->len + WINLIST + 1 ) );
     }
     // Make clang-check happy.
     // TODO: make clang-check clear this should never be 0.
@@ -458,7 +405,7 @@ typedef struct
 
 
 
-// allocate a pixel value for an X named color
+// malloc a pixel value for an X named color
 static unsigned int color_get ( const char *const name )
 {
     XColor   color;
@@ -515,7 +462,7 @@ XWindowAttributes* window_get_attributes ( Window w )
 
     if ( idx < 0 )
     {
-        XWindowAttributes *cattr = allocate ( sizeof ( XWindowAttributes ) );
+        XWindowAttributes *cattr = malloc ( sizeof ( XWindowAttributes ) );
 
         if ( XGetWindowAttributes ( display, w, cattr ) )
         {
@@ -591,7 +538,7 @@ char* window_get_text_prop ( Window w, Atom atom )
     {
         if ( prop.encoding == XA_STRING )
         {
-            res = allocate ( strlen ( ( char * ) prop.value ) + 1 );
+            res = malloc ( strlen ( ( char * ) prop.value ) + 1 );
             // make clang-check happy.
             if ( res )
             {
@@ -600,7 +547,7 @@ char* window_get_text_prop ( Window w, Atom atom )
         }
         else if ( Xutf8TextPropertyToTextList ( display, &prop, &list, &count ) >= Success && count > 0 && *list )
         {
-            res = allocate ( strlen ( *list ) + 1 );
+            res = malloc ( strlen ( *list ) + 1 );
             // make clang-check happy.
             if ( res )
             {
@@ -753,7 +700,7 @@ client* window_client ( Window win )
         return NULL;
     }
 
-    client *c = allocate_clear ( sizeof ( client ) );
+    client *c = calloc ( 1, sizeof ( client ) );
     c->window = win;
 // copy xattr so we don't have to care when stuff is freed
     memmove ( &c->xattr, attr, sizeof ( XWindowAttributes ) );
@@ -1120,7 +1067,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
 
     // filtered list display
-    textbox **boxes = allocate_clear ( sizeof ( textbox* ) * max_elements );
+    textbox **boxes = calloc ( 1, sizeof ( textbox* ) * max_elements );
 
     for ( i = 0; i < max_elements; i++ )
     {
@@ -1161,8 +1108,8 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     }
 
     // filtered list
-    char         **filtered     = allocate_clear ( sizeof ( char* ) * num_lines );
-    int          *line_map      = allocate_clear ( sizeof ( int ) * num_lines );
+    char         **filtered     = calloc ( num_lines,  sizeof ( char* ) );
+    int          *line_map      = calloc ( num_lines,  sizeof ( int ) );
     unsigned int filtered_lines = 0;
 
     if ( input && *input )
@@ -1486,7 +1433,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                             {
                                 // Do not want to modify original string, so make copy.
                                 // not eff..
-                                char * str = allocate ( sizeof ( char ) * ( length_prefix + 1 ) );
+                                char * str = malloc ( sizeof ( char ) * ( length_prefix + 1 ) );
                                 memcpy ( str, filtered[0], length_prefix );
                                 str[length_prefix] = '\0';
                                 textbox_text ( text, str );
@@ -1609,7 +1556,7 @@ SwitcherMode run_switcher_window ( char **input )
 #ifdef HAVE_I3_IPC_H
     }
 #endif
-        char **list = allocate_clear ( sizeof ( char* ) * ( ids->len + 1 ) );
+        char **list = calloc ( ( ids->len + 1 ), sizeof ( char* ) );
         int lines   = 0;
 
         // build the actual list
@@ -1624,7 +1571,7 @@ SwitcherMode run_switcher_window ( char **input )
                 unsigned long wmdesktop;
                 char          desktop[5];
                 desktop[0] = 0;
-                char          *line = allocate ( strlen ( c->title ) + strlen ( c->class ) + classfield + 50 );
+                char          *line = malloc ( strlen ( c->title ) + strlen ( c->class ) + classfield + 50 );
 #ifdef HAVE_I3_IPC_H
                 if ( !config.i3_mode )
                 {

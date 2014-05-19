@@ -90,9 +90,9 @@ void parse_xresource_options ( Display *display )
 
         for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( *xrmOptions ); ++i )
         {
-            char *name = ( char * ) allocate ( ( strlen ( namePrefix ) + 1 + strlen ( xrmOptions[i].name ) ) *
+            char *name = ( char * ) malloc ( ( strlen ( namePrefix ) + 1 + strlen ( xrmOptions[i].name ) ) *
                                                sizeof ( char ) + 1 );
-            char *class = ( char * ) allocate ( ( strlen ( classPrefix ) + 1 + strlen ( xrmOptions[i].name ) ) *
+            char *class = ( char * ) malloc ( ( strlen ( classPrefix ) + 1 + strlen ( xrmOptions[i].name ) ) *
                                                 sizeof ( char ) + 1 );
             sprintf ( name, "%s.%s", namePrefix, xrmOptions[i].name );
             sprintf ( class, "%s.%s", classPrefix, xrmOptions[i].name );
@@ -101,7 +101,7 @@ void parse_xresource_options ( Display *display )
             {
                 if ( xrmOptions[i].type == xrm_String )
                 {
-                    *xrmOptions[i].str = ( char * ) allocate ( xrmValue.size * sizeof ( char ) );
+                    *xrmOptions[i].str = ( char * ) malloc ( xrmValue.size * sizeof ( char ) );
                     strncpy ( *xrmOptions[i].str, xrmValue.addr, xrmValue.size );
                 }
                 else if ( xrmOptions[i].type == xrm_Number )

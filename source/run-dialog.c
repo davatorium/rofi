@@ -175,7 +175,7 @@ static char ** get_apps ( void )
                     continue;
                 }
 
-                retv            = reallocate ( retv, ( index + 2 ) * sizeof ( char* ) );
+                retv            = realloc ( retv, ( index + 2 ) * sizeof ( char* ) );
                 retv[index]     = strdup ( dent->d_name );
                 retv[index + 1] = NULL;
                 index++;
@@ -215,7 +215,7 @@ SwitcherMode run_switcher_dialog ( char **input )
 
     if ( cmd_list == NULL )
     {
-        cmd_list    = allocate ( 2 * sizeof ( char * ) );
+        cmd_list    = malloc ( 2 * sizeof ( char * ) );
         cmd_list[0] = strdup ( "No applications found" );
         cmd_list[1] = NULL;
     }

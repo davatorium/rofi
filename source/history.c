@@ -90,8 +90,8 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
         {
             continue;
         }
-        retv         = reallocate ( retv, ( *length + 2 ) * sizeof ( _element* ) );
-        retv[(*length)]  = allocate ( sizeof ( _element ) );
+        retv         = realloc ( retv, ( *length + 2 ) * sizeof ( _element* ) );
+        retv[(*length)]  = malloc ( sizeof ( _element ) );
         // remove trailing \n
         buffer[strlen ( buffer ) - 1] = '\0';
         // Parse the number of times.
@@ -139,8 +139,8 @@ void history_set ( const char *filename, const char *entry )
     }else{
         // If not exists, add it.
         // Increase list by one
-        list = reallocate(list,(length+2)*sizeof(_element *));
-        list[length] = allocate(sizeof(_element));
+        list = realloc(list,(length+2)*sizeof(_element *));
+        list[length] = malloc(sizeof(_element));
         // Copy name
         strncpy(list[length]->name, entry, HISTORY_NAME_LENGTH);
         list[length]->name[HISTORY_NAME_LENGTH-1] = '\0';
@@ -247,7 +247,7 @@ char ** history_get_list ( const char *filename, unsigned int *length )
     // Copy list in right format. 
     if((*length) > 0 )
     {
-        retv = allocate(((*length)+1)*sizeof(char *));
+        retv = malloc(((*length)+1)*sizeof(char *));
         for ( int iter = 0; iter < (*length); iter++)
         {
             retv[iter] = strdup(list[iter]->name); 

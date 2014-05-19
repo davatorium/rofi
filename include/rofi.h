@@ -41,15 +41,6 @@ MenuReturn menu ( char **lines, char **input, char *prompt,
                   menu_match_cb mmc, void *mmc_data,
                   int *selected_line );
 
-
-/**
- * Allocator wrappers
- */
-void* allocate ( unsigned long bytes ) __attribute__( ( malloc ) );
-void* allocate_clear ( unsigned long bytes );
-void* reallocate ( void *ptr, unsigned long bytes );
-
-
 void catch_exit ( __attribute__( ( unused ) ) int sig );
 
 typedef enum _WindowLocation

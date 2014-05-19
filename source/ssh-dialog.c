@@ -53,7 +53,7 @@ static inline int execshssh ( const char *host )
     /**
      * I am not happy about this code, it causes 7 mallocs and frees
      */
-    char **args = allocate(sizeof(char*)*7);
+    char **args = malloc(sizeof(char*)*7);
     int i=0;
     args[i++] = config.terminal_emulator;
     if(config.show_title) {
@@ -202,7 +202,7 @@ static char ** get_ssh ( void )
                     continue;
                 }
 
-                retv            = reallocate ( retv, ( index + 2 ) * sizeof ( char* ) );
+                retv            = realloc ( retv, ( index + 2 ) * sizeof ( char* ) );
                 retv[index]     = strndup ( &buffer[start], stop - start );
                 retv[index + 1] = NULL;
                 index++;
@@ -240,7 +240,7 @@ SwitcherMode ssh_switcher_dialog ( char **input )
 
     if ( cmd_list == NULL )
     {
-        cmd_list    = allocate ( 2 * sizeof ( char * ) );
+        cmd_list    = malloc ( 2 * sizeof ( char * ) );
         cmd_list[0] = strdup ( "No ssh hosts found" );
         cmd_list[1] = NULL;
     }
