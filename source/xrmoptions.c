@@ -24,6 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -50,6 +51,10 @@ typedef struct
         char         ** str;
     };
 } XrmOption;
+/**
+ * Map X resource settings to internal options 
+ * Currently supports string and number.
+ */
 static XrmOption xrmOptions[] = {
     { xrm_Number, "opacity",            { .num = &config.window_opacity    } },
     { xrm_Number, "width",              { .num = &config.menu_width        } },
@@ -74,29 +79,28 @@ static XrmOption xrmOptions[] = {
 void parse_xresource_options ( Display *display )
 {
     char *xRMS;
-    // Map Xresource entries to simpleswitcher config options.
+    // Map Xresource entries to rofi config options.
     XrmInitialize ();
     xRMS = XResourceManagerString ( display );
 
-    if ( xRMS != NULL )
+    if ( xRMS == NULL )
     {
-        XrmDatabase xDB = XrmGetStringDatabase ( xRMS );
+        return;
+    }
+    XrmDatabase xDB = XrmGetStringDatabase ( xRMS );
 
-        char        * xrmType;
-        XrmValue    xrmValue;
-        // TODO: update when we have new name.
-        const char  * namePrefix  = "rofi";
-        const char  * classPrefix = "Simpleswitcher";
+    char        * xrmType;
+    XrmValue    xrmValue;
+    // TODO: update when we have new name.
+    const char  * namePrefix  = "rofi";
+    const char  * classPrefix = "Simpleswitcher";
 
-        for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( *xrmOptions ); ++i )
+    for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( *xrmOptions ); ++i )
+    {
+        char *name, *class; 
+        if ( asprintf ( &name, "%s.%s", namePrefix, xrmOptions[i].name ) == -1) continue;
+        if ( asprintf ( &class, "%s.%s", classPrefix, xrmOptions[i].name ) > 0)
         {
-            char *name = ( char * ) malloc ( ( strlen ( namePrefix ) + 1 + strlen ( xrmOptions[i].name ) ) *
-                                               sizeof ( char ) + 1 );
-            char *class = ( char * ) malloc ( ( strlen ( classPrefix ) + 1 + strlen ( xrmOptions[i].name ) ) *
-                                                sizeof ( char ) + 1 );
-            sprintf ( name, "%s.%s", namePrefix, xrmOptions[i].name );
-            sprintf ( class, "%s.%s", classPrefix, xrmOptions[i].name );
-
             if ( XrmGetResource ( xDB, name, class, &xrmType, &xrmValue ) )
             {
                 if ( xrmOptions[i].type == xrm_String )
@@ -110,8 +114,8 @@ void parse_xresource_options ( Display *display )
                 }
             }
 
-            free ( name );
             free ( class );
         }
+        free ( name );
     }
 }
