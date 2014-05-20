@@ -121,13 +121,13 @@ aside#sidebar {
 
 aside#sidebar h1 {
   font-size:  1.5em; 
-    font-weight: bold;
+  font-weight: bold;
+  padding-top: 0.6em;
+  padding-bottom: 0.6em;
 }
 
 aside#sidebar h2#menuentry {
   font-size:  1.5em; 
-  padding-top: 0.6em;
-  padding-bottom: 0.6em;
   font-weight: bold;
 }
 aside#sidebar h2#menuentry:before{
