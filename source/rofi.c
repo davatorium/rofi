@@ -81,7 +81,8 @@
 #define I3_SOCKET_PATH_PROP    "I3_SOCKET_PATH"
 // This setting is no longer user configurable, but partial to this file:
 int         config_i3_mode = 0;
-extern char *i3_socket_path;
+// Path to HAVE_I3_IPC_H socket.
+char       *i3_socket_path = NULL;
 #endif
 
 
@@ -160,8 +161,6 @@ static inline void tokenize_free ( char **ip )
 }
 
 #ifdef HAVE_I3_IPC_H
-// Path to HAVE_I3_IPC_H socket.
-char *i3_socket_path = NULL;
 // Focus window on HAVE_I3_IPC_H window manager.
 static void focus_window_i3 ( const char *socket_path, int id )
 {
