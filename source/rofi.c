@@ -74,11 +74,11 @@
 
 #define OPAQUE                 0xffffffff
 #define OPACITY                "_NET_WM_WINDOW_OPACITY"
-#define I3_SOCKET_PATH_PROP    "I3_SOCKET_PATH"
 #define FORK                   1
 #define NOFORK                 2
 
 #ifdef HAVE_I3_IPC_H
+#define I3_SOCKET_PATH_PROP    "I3_SOCKET_PATH"
 // This setting is no longer user configurable, but partial to this file:
 int         config_i3_mode = 0;
 extern char *i3_socket_path;
@@ -296,7 +296,7 @@ const char *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 Atom       netatoms[NETATOMS];
 
 // X error handler
-int oops ( __attribute__( ( unused ) ) Display *d, XErrorEvent *ee )
+static int display_oops ( __attribute__( ( unused ) ) Display *d, XErrorEvent *ee )
 {
     if ( ee->error_code == BadWindow
          || ( ee->request_code == X_GrabButton && ee->error_code == BadAccess )
@@ -1875,6 +1875,22 @@ void help ()
 
 static void parse_cmd_options ( int argc, char ** argv )
 {
+    // catch help request
+    if ( find_arg ( argc, argv, "-help" ) >= 0
+         || find_arg ( argc, argv, "--help" ) >= 0
+         || find_arg ( argc, argv, "-h" ) >= 0 )
+    {
+        help ();
+        exit( EXIT_SUCCESS );
+    }
+
+    if ( find_arg ( argc, argv, "-v" ) >= 0 ||
+         find_arg ( argc, argv, "-version" ) >= 0 )
+    {
+        fprintf ( stdout, "Version: "VERSION "\n" );
+        exit( EXIT_SUCCESS );
+    }
+
     // Parse commandline arguments about the looks.
     find_arg_str ( argc, argv, "-font", &( config.menu_font ) );
     find_arg_str ( argc, argv, "-fg", &( config.menu_fg ) );
@@ -1914,6 +1930,17 @@ static void parse_cmd_options ( int argc, char ** argv )
     find_arg_str ( argc, argv, "-key", &( config.window_key ) );
     find_arg_str ( argc, argv, "-rkey", &( config.run_key ) );
     find_arg_str ( argc, argv, "-skey", &( config.ssh_key ) );
+
+
+    // Dump.
+    if ( find_arg ( argc, argv, "-dump" ) >= 0 )
+    {
+        config_print();
+        exit(EXIT_SUCCESS);
+    }
+
+    // Sanity check
+    config_sanity_check ();
 }
 
 static void cleanup ()
@@ -1952,26 +1979,23 @@ static void cleanup ()
     // Whipe the handle.. (not working)
     xdgWipeHandle ( &xdg_handle );
 }
+
 int main ( int argc, char *argv[] )
 {
     int i, j;
 
-    // catch help request
-    if ( find_arg ( argc, argv, "-help" ) >= 0
-         || find_arg ( argc, argv, "--help" ) >= 0
-         || find_arg ( argc, argv, "-h" ) >= 0 )
+    // Initialize xdg, so we can grab the xdgCacheHome
+    if ( xdgInitHandle ( &xdg_handle ) == NULL )
     {
-        help ();
-        return EXIT_SUCCESS;
+        fprintf ( stderr, "Failed to initialize XDG\n" );
+        return EXIT_FAILURE;
     }
 
-    if ( find_arg ( argc, argv, "-v" ) >= 0 ||
-         find_arg ( argc, argv, "-version" ) >= 0 )
-    {
-        fprintf ( stdout, "Version: "VERSION "\n" );
-        return EXIT_SUCCESS;
-    }
+    // Get the path to the cache dir.
+    cache_dir = xdgCacheHome ( &xdg_handle );
 
+    // Register cleanup function.
+    atexit ( cleanup );
 
     // Get DISPLAY
     char *display_str = getenv ( "DISPLAY" );
@@ -1983,25 +2007,21 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
-    // Initialize xdg, so we can grab the xdgCacheHome
-    if ( xdgInitHandle ( &xdg_handle ) == NULL )
-    {
-        fprintf ( stderr, "Failed to initialize XDG\n" );
-        return EXIT_FAILURE;
-    }
+    // Load in config from X resources.
+    parse_xresource_options ( display );
 
-    // Register cleanup function.
-    atexit ( cleanup );
+    // Parse command line for settings.
+    parse_cmd_options ( argc, argv );
 
-    cache_dir = xdgCacheHome ( &xdg_handle );
 
 
     signal ( SIGCHLD, catch_exit );
     screen    = DefaultScreenOfDisplay ( display );
     screen_id = DefaultScreen ( display );
     root      = DefaultRootWindow ( display );
+    // Set error handle
     XSync ( display, False );
-    xerror = XSetErrorHandler ( oops );
+    xerror = XSetErrorHandler ( display_oops );
     XSync ( display, False );
 
     // determine numlock mask so we can bind on keys with and without it
@@ -2033,20 +2053,7 @@ int main ( int argc, char *argv[] )
     // Check for i3
     display_get_i3_path ( display );
 #endif
-    // Load in config from X resources.
-    parse_xresource_options ( display );
 
-    // Parse command line for settings.
-    parse_cmd_options ( argc, argv );
-
-    if ( find_arg ( argc, argv, "-dump" ) >= 0 )
-    {
-        config_print();    
-        return EXIT_SUCCESS;
-    }
-
-    // Sanity check
-    config_sanity_check ();
 
     // flags to run immediately and exit
     if ( find_arg ( argc, argv, "-now" ) >= 0 )
