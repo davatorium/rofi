@@ -10,9 +10,6 @@
 #define INTERSECT( x, y, w, h, x1, y1, w1, h1 )    ( OVERLAP ( ( x ), ( w ), ( x1 ), ( w1 ) ) && OVERLAP ( ( y ), ( h ), ( y1 ), ( h1 ) ) )
 
 extern const char *cache_dir;
-#ifdef HAVE_I3_IPC_H
-extern char       *i3_socket_path;
-#endif
 
 typedef enum
 {
@@ -83,9 +80,7 @@ typedef struct _Settings
     // Behavior
     unsigned int   zeltak_mode;
     char           * terminal_emulator;
-#ifdef HAVE_I3_IPC_H
-    unsigned int   i3_mode;
-#endif
+
     // Key bindings
     char           * window_key;
     char           * run_key;

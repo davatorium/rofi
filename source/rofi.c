@@ -78,6 +78,12 @@
 #define FORK                   1
 #define NOFORK                 2
 
+#ifdef HAVE_I3_IPC_H
+// This setting is no longer user configurable, but partial to this file:
+int         config_i3_mode = 0;
+extern char *i3_socket_path;
+#endif
+
 
 xdgHandle  xdg_handle;
 const char *cache_dir = NULL;
@@ -1540,7 +1546,7 @@ SwitcherMode run_switcher_window ( char **input )
 #ifdef HAVE_I3_IPC_H
 
                 // In i3 mode, skip the i3bar completely.
-                if ( config.i3_mode && strstr ( c->class, "i3bar" ) != NULL )
+                if ( config_i3_mode && strstr ( c->class, "i3bar" ) != NULL )
                 {
                     continue;
                 }
@@ -1557,7 +1563,7 @@ SwitcherMode run_switcher_window ( char **input )
             desktops = 1;
         }
 #ifdef HAVE_I3_IPC_H
-        if ( config.i3_mode )
+        if ( config_i3_mode )
         {
             sprintf ( pattern, "%%-%ds   %%s", MAX ( 5, classfield ) );
         }
@@ -1585,7 +1591,7 @@ SwitcherMode run_switcher_window ( char **input )
                 desktop[0] = 0;
                 char          *line = malloc ( strlen ( c->title ) + strlen ( c->class ) + classfield + 50 );
 #ifdef HAVE_I3_IPC_H
-                if ( !config.i3_mode )
+                if ( !config_i3_mode )
                 {
 #endif
                 // find client's desktop. this is zero-based, so we adjust by since most
@@ -1624,7 +1630,7 @@ SwitcherMode run_switcher_window ( char **input )
         {
 #ifdef HAVE_I3_IPC_H
 
-            if ( config.i3_mode )
+            if ( config_i3_mode )
             {
                 // Hack for i3.
                 focus_window_i3 ( i3_socket_path, ids->array[selected_line] );
@@ -1838,7 +1844,7 @@ void grab_key ( unsigned int modmask, KeySym key )
 #ifdef HAVE_I3_IPC_H
 static inline void display_get_i3_path ( Display *display )
 {
-    config.i3_mode = 0;
+    config_i3_mode = 0;
     Atom atom = XInternAtom ( display, I3_SOCKET_PATH_PROP, True );
 
     if ( atom != None )
@@ -1847,7 +1853,7 @@ static inline void display_get_i3_path ( Display *display )
 
         if ( i3_socket_path != NULL )
         {
-            config.i3_mode = 1;
+            config_i3_mode = 1;
         }
     }
 }
