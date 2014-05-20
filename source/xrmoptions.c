@@ -75,6 +75,10 @@ static XrmOption xrmOptions[] = {
     { xrm_Number, "fixed_num_lines", { .num = &config.fixed_num_lines   }, NULL },
     { xrm_Number, "columns",         { .num = &config.menu_columns      }, NULL },
     { xrm_Number, "hmode",           { .num = &config.hmode             }, NULL },
+    /* Key bindings */
+    { xrm_String, "key",             { .str = &config.window_key        }, NULL },
+    { xrm_String, "rkey",            { .str = &config.run_key           }, NULL },
+    { xrm_String, "skey",            { .str = &config.ssh_key           }, NULL },
 };
 
 

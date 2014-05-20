@@ -1903,6 +1903,11 @@ static void parse_cmd_options ( int argc, char ** argv )
     {
         config.hmode = HORIZONTAL;
     }
+
+    // Keybindings
+    find_arg_str ( argc, argv, "-key", &( config.window_key ) );
+    find_arg_str ( argc, argv, "-rkey", &( config.run_key ) );
+    find_arg_str ( argc, argv, "-skey", &( config.ssh_key ) );
 }
 
 static void cleanup ()
@@ -2028,6 +2033,12 @@ int main ( int argc, char *argv[] )
     // Parse command line for settings.
     parse_cmd_options ( argc, argv );
 
+    if ( find_arg ( argc, argv, "-dump" ) >= 0 )
+    {
+        config_print();    
+        return EXIT_SUCCESS;
+    }
+
     // Sanity check
     config_sanity_check ();
 
@@ -2052,16 +2063,12 @@ int main ( int argc, char *argv[] )
     else
     {
         // Daemon mode, Listen to key presses..
-
-        find_arg_str ( argc, argv, "-key", &( config.window_key ) );
         parse_key ( config.window_key, &windows_modmask, &windows_keysym );
         grab_key ( windows_modmask, windows_keysym );
 
-        find_arg_str ( argc, argv, "-rkey", &( config.run_key ) );
         parse_key ( config.run_key, &rundialog_modmask, &rundialog_keysym );
         grab_key ( rundialog_modmask, rundialog_keysym );
 
-        find_arg_str ( argc, argv, "-skey", &( config.ssh_key ) );
         parse_key ( config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
         grab_key ( sshdialog_modmask, sshdialog_keysym );
 
