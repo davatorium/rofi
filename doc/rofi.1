@@ -44,6 +44,7 @@ rofi \- a simple EWMH window switcher
 .RB [ \-dmenu 
 .RB [ \-p
 .IR prompt ]]
+.RB [ \-dump ]
 
 .SH DESCRIPTION
 .I rofi
@@ -206,6 +207,10 @@ rofi -hmode -padding 0
 .TP
 .B -dmenu
 Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.
+.RE
+.TP
+.B -dump
+Dump the current active configuration to the command-line.
 .RS
 .SH Switch between modi
 Type '?'<enter> to switch between window list, run and ssh mode.
