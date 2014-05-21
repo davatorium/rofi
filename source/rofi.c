@@ -1072,7 +1072,8 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     textbox *text = textbox_create ( box, TB_AUTOHEIGHT | TB_EDITABLE,
                                      ( config.padding ),
                                      ( config.padding ),
-                                     element_width, 1,
+                                     (config.hmode == HORIZONTAL)?
+                                        element_width:(w - (2 * ( config.padding ) ) ), 1,
                                      config.menu_font, config.menu_fg, config.menu_bg,
                                      ( input != NULL ) ? *input : "", prompt );
 
