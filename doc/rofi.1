@@ -7,6 +7,8 @@ rofi \- a simple EWMH window switcher
 .IR pct_scr ]
 .RB [ \-lines
 .IR lines ]
+.RB [ \-columns
+.IR columns ]
 .RB [ \-font
 .IR xftfont ]
 .RB [ \-fg
@@ -31,6 +33,7 @@ rofi \- a simple EWMH window switcher
 .RB [ \-loc
 .IR position ]
 .RB [ \-hmode ]
+.RB [ \-fixed\-num\-lines ]
 .RB [ \-padding
 .IR padding ]
 .RB [ \-version ]
@@ -160,10 +163,17 @@ rofi -o "75"
 .RE
 .TP
 .B -lines
-Maximum number of entries the menu may show before scrolling (default: 25).
+Maximum number of lines the menu may show before scrolling (default: 25).
 .P
 .RS
 rofi -lines 25
+.RE
+.TP
+.B -columns
+The number of columns the menu may show before scrolling (default: 25).
+.P
+.RS
+rofi -columns 2
 .RE
 .TP
 .B -width
@@ -193,9 +203,16 @@ monitor:
 .RE
 .TP
 .B -hmode
-Switch to horizontal mode (ala dmenu). You can specify the number of elements with the
+Switch to horizontal mode (ala dmenu). The number of elements is the number of
+.IR lines
+times the number of 
+.IR columns
+.
+.TP
+.B -fixed-num-lines
+Keep a fixed number of visible lines (See the 
 .IR -lines
-option.
+option.)
 .TP
 .B -padding
 Define the inner margin of the window. Default is 5 pixels.

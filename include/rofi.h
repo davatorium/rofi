@@ -9,6 +9,14 @@
 #define OVERLAP( a, b, c, d )                      ( ( ( a ) == ( c ) && ( b ) == ( d ) ) || MIN ( ( a ) + ( b ), ( c ) + ( d ) ) - MAX ( ( a ), ( c ) ) > 0 )
 #define INTERSECT( x, y, w, h, x1, y1, w1, h1 )    ( OVERLAP ( ( x ), ( w ), ( x1 ), ( w1 ) ) && OVERLAP ( ( y ), ( h ), ( y1 ), ( h1 ) ) )
 
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
 extern const char *cache_dir;
 
 typedef enum
@@ -53,11 +61,6 @@ typedef enum _WindowLocation
     WL_WEST       = 8
 } WindowLocation;
 
-typedef enum
-{
-    VERTICAL   = 0,
-    HORIZONTAL = 1
-} WindowMode;
 /**
  * Settings
  */
@@ -86,7 +89,7 @@ typedef struct _Settings
     char           * run_key;
     char           * ssh_key;
     WindowLocation location;
-    WindowMode     hmode;
+    unsigned int   hmode;
     unsigned int   padding;
     int            y_offset;
     int            x_offset;

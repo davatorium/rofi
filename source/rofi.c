@@ -1009,7 +1009,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
         max_rows     = config.menu_lines;
     }
     // More hacks.
-    if ( config.hmode == HORIZONTAL )
+    if ( config.hmode == TRUE )
     {
         max_rows = 1;
     }
@@ -1023,7 +1023,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     int element_width = w - ( 2 * ( config.padding ) );
     // Divide by the # columns
     element_width /= config.menu_columns;
-    if ( config.hmode == HORIZONTAL )
+    if ( config.hmode == TRUE )
     {
         element_width = ( w - ( 2 * ( config.padding ) ) - max_elements * LINE_MARGIN ) / ( max_elements + 1 );
     }
@@ -1076,7 +1076,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     textbox *text = textbox_create ( box, TB_AUTOHEIGHT | TB_EDITABLE,
                                      ( config.padding )+prompt_tb->w,
                                      ( config.padding ),
-                                     ((config.hmode == HORIZONTAL)?
+                                     ((config.hmode == TRUE)?
                                         element_width:(w - (2 * ( config.padding ) ) ))-prompt_tb->w, 1,
                                      config.menu_font, config.menu_fg, config.menu_bg,
                                      ( input != NULL ) ? *input : "" );
@@ -1092,12 +1092,12 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
     for ( i = 0; i < max_elements; i++ )
     {
-        int line = ( i ) % max_rows + ( ( config.hmode == VERTICAL ) ? 1 : 0 );
-        int col  = ( i ) / max_rows + ( ( config.hmode == VERTICAL ) ? 0 : 1 );
+        int line = ( i ) % max_rows + ( ( config.hmode == FALSE ) ? 1 : 0 );
+        int col  = ( i ) / max_rows + ( ( config.hmode == FALSE ) ? 0 : 1 );
         boxes[i] = textbox_create ( box,
                                     0,
                                     ( config.padding ) + col * ( element_width + LINE_MARGIN ),                                 // X
-                                    line * line_height + config.padding + ( ( config.hmode == HORIZONTAL ) ? 0 : LINE_MARGIN ), // y
+                                    line * line_height + config.padding + ( ( config.hmode == TRUE ) ? 0 : LINE_MARGIN ), // y
                                     element_width,                                                                              // w
                                     line_height,                                                                                // h
                                     config.menu_font, config.menu_fg, config.menu_bg, "" );
@@ -1105,7 +1105,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     }
     // Arrows
     textbox *arrowbox_top = NULL, *arrowbox_bottom = NULL;
-    if ( config.hmode == VERTICAL )
+    if ( config.hmode == FALSE )
     {
         arrowbox_top = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
                                         ( config.padding ),
@@ -1170,7 +1170,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     int h = line_height * ( max_rows + 1 ) + ( config.padding ) * 2 + LINE_MARGIN;
 
 
-    if ( config.hmode == HORIZONTAL )
+    if ( config.hmode == TRUE )
     {
         h = line_height + ( config.padding ) * 2;
     }
@@ -1245,7 +1245,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                       max_elements, arrowbox_top,
                                       arrowbox_bottom );
                 // Why do we need the specian -1?
-                if ( config.hmode == VERTICAL && max_elements > 0 )
+                if ( config.hmode == FALSE && max_elements > 0 )
                 {
                     XDrawLine ( display, main_window, gc, ( config.padding ),
                                 line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2,
@@ -1932,7 +1932,7 @@ static void parse_cmd_options ( int argc, char ** argv )
 
     if ( find_arg ( argc, argv, "-hmode" ) >= 0 )
     {
-        config.hmode = HORIZONTAL;
+        config.hmode = TRUE;
     }
 
     // Keybindings

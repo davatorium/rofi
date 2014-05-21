@@ -38,7 +38,8 @@
 typedef enum
 {
     xrm_String = 0,
-    xrm_Number = 1
+    xrm_Number = 1,
+    xrm_Boolean= 2
 } XrmOptionType;
 
 typedef struct
@@ -72,9 +73,9 @@ static XrmOption xrmOptions[] = {
     { xrm_Number, "location",        { .num = &config.location          }, NULL },
     { xrm_Number, "yoffset",         { .num = &config.y_offset          }, NULL },
     { xrm_Number, "xoffset",         { .num = &config.x_offset          }, NULL },
-    { xrm_Number, "fixed_num_lines", { .num = &config.fixed_num_lines   }, NULL },
+    { xrm_Boolean,"fixed-num-lines", { .num = &config.fixed_num_lines   }, NULL },
     { xrm_Number, "columns",         { .num = &config.menu_columns      }, NULL },
-    { xrm_Number, "hmode",           { .num = &config.hmode             }, NULL },
+    { xrm_Boolean,"hmode",           { .num = &config.hmode             }, NULL },
     /* Key bindings */
     { xrm_String, "key",             { .str = &config.window_key        }, NULL },
     { xrm_String, "rkey",            { .str = &config.run_key           }, NULL },
@@ -128,6 +129,14 @@ void parse_xresource_options ( Display *display )
                 else if ( xrmOptions[i].type == xrm_Number )
                 {
                     *xrmOptions[i].num = strtol ( xrmValue.addr, NULL, 10 );
+                }
+                else if ( xrmOptions[i].type == xrm_Boolean )
+                {
+                    if(xrmValue.size > 0 && strncasecmp(xrmValue.addr, "true", xrmValue.size) == 0) {
+                        *xrmOptions[i].num = TRUE;
+                    } else {
+                        *xrmOptions[i].num = FALSE;
+                    }
                 }
             }
 
