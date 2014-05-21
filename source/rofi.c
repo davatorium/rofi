@@ -1629,7 +1629,7 @@ SwitcherMode run_switcher_window ( char **input )
         }
         Time time;
         int selected_line = 0;
-        MenuReturn mretv  = menu ( list, input, ">", &time, NULL, window_match, ids, &selected_line );
+        MenuReturn mretv  = menu ( list, input, "window:", &time, NULL, window_match, ids, &selected_line );
 
         if ( mretv == MENU_NEXT )
         {

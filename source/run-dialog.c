@@ -220,7 +220,7 @@ SwitcherMode run_switcher_dialog ( char **input )
         cmd_list[1] = NULL;
     }
 
-    int mretv = menu ( cmd_list, input, "run", NULL, &shift, token_match, NULL, &selected_line );
+    int mretv = menu ( cmd_list, input, "run:", NULL, &shift, token_match, NULL, &selected_line );
 
     if ( mretv == MENU_NEXT )
     {

@@ -247,7 +247,7 @@ SwitcherMode ssh_switcher_dialog ( char **input )
 
     int shift         = 0;
     int selected_line = 0;
-    int mretv         = menu ( cmd_list, input, "ssh", NULL, &shift, token_match, NULL, &selected_line );
+    int mretv         = menu ( cmd_list, input, "ssh:", NULL, &shift, token_match, NULL, &selected_line );
 
     if ( mretv == MENU_NEXT )
     {
