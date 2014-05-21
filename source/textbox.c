@@ -50,7 +50,7 @@ textbox* textbox_create ( Window parent,
                           TextboxFlags flags,
                           short x, short y, short w, short h,
                           char *font, char *fg, char *bg,
-                          char *text, char *prompt )
+                          char *text )
 {
     textbox *tb = calloc ( 1, sizeof ( textbox ) );
 
@@ -71,7 +71,6 @@ textbox* textbox_create ( Window parent,
     // need to preload the font to calc line height
     textbox_font ( tb, font, fg, bg );
 
-    tb->prompt = strdup ( prompt ? prompt : "" );
     textbox_text ( tb, text ? text : "" );
     textbox_cursor_end ( tb );
 
@@ -114,10 +113,7 @@ void textbox_font ( textbox *tb, char *font, char *fg, char *bg )
 // outer code may need line height, width, etc
 void textbox_extents ( textbox *tb )
 {
-    int  length = strlen ( tb->text ) + strlen ( tb->prompt ) + 1;
-    char line[length + 1 ];
-    sprintf ( line, "%s %s", tb->prompt, tb->text );
-    XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) line, length, &tb->extents );
+    XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) tb->text, strlen ( tb->text ), &tb->extents );
 }
 
 // set the default text to display
@@ -196,11 +192,6 @@ void textbox_free ( textbox *tb )
         free ( tb->text );
     }
 
-    if ( tb->prompt )
-    {
-        free ( tb->prompt );
-    }
-
     if ( tb->font )
     {
         XftColorFree ( display,
@@ -230,10 +221,7 @@ void textbox_draw ( textbox *tb )
     // clear canvas
     XftDrawRect ( draw, &tb->color_bg, 0, 0, tb->w, tb->h );
 
-    char *line = NULL,
-    *text      = tb->text ? tb->text : "",
-    *prompt    = tb->prompt ? tb->prompt : "";
-
+    char *text      = tb->text ? tb->text : "";
     int text_len    = strlen ( text );
     int length      = text_len;
     int line_height = tb->font->ascent + tb->font->descent;
@@ -245,47 +233,26 @@ void textbox_draw ( textbox *tb )
     if ( tb->flags & TB_EDITABLE )
     {
         int cursor_offset = 0;
-        int prompt_len    = strlen ( prompt ) + 1;
-        length        = text_len + prompt_len;
-        cursor_offset = MIN ( tb->cursor + prompt_len, length );
-
-        if(asprintf ( &line, "%s %s", prompt, text ) == -1) {
-            // Something is _really_ wrong.. bail out
-            fprintf(stderr, "Failed to allocate string\n");
-            abort();
-        }
-
-        // Trailing spaces are ignored, so fix this.
-        // Previous version replaced all spaces, this seems to be incorrect.
-        for( int j = strlen(line)-1; j >= 0 && line[j] == ' '; j--) {
-            line[j] = '_';
-        }
+        cursor_offset = MIN ( tb->cursor, text_len );
 
         // calc cursor position
-        XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) line, cursor_offset, &extents );
+        XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) text, cursor_offset, &extents );
         // Add a small 4px offset between cursor and last glyph.
-        cursor_x = extents.width+4;
-
-        // We known size it good, no need for double check.
-        sprintf(line, "%s %s", prompt, text);
-    }
-    else
-    {
-        line = strdup(text);
+        cursor_x = extents.width + ((extents.width > 0)?2:0);
     }
 
     // calc full input text width
     // Calculate the right size, so no characters are cut off.
     // TODO: Check performance of this.
     do{
-        XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) line, length, &extents );
+        XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) text, length, &extents );
         line_width = extents.width;
         if ( line_width <= ( tb->w - 2 * SIDE_MARGIN ) )
         {
             break;
         }
 
-        for ( length -= 1; length > 0 && ( line[length] & 0xc0 ) == 0x80; length -= 1 )
+        for ( length -= 1; length > 0 && ( text[length] & 0xc0 ) == 0x80; length -= 1 )
         {
             ;
         }
@@ -304,8 +271,8 @@ void textbox_draw ( textbox *tb )
         x = ( tb->w - line_width ) / 2;
     }
 
-    // draw the text, including any prompt in edit mode
-    XftDrawStringUtf8 ( draw, &tb->color_fg, tb->font, x, y, ( unsigned char * ) line, length );
+    // draw the text.
+    XftDrawStringUtf8 ( draw, &tb->color_fg, tb->font, x, y, ( unsigned char * ) text, length );
 
     // draw the cursor
     if ( tb->flags & TB_EDITABLE )
@@ -313,9 +280,7 @@ void textbox_draw ( textbox *tb )
         XftDrawRect ( draw, &tb->color_fg, cursor_x + SIDE_MARGIN, 2, cursor_width, line_height - 4 );
     }
 
-    free(line);
-
-    XftDrawRect ( draw, &tb->color_bg, tb->w - SIDE_MARGIN, 0, SIDE_MARGIN, tb->h );
+    XftDrawRect ( draw, &tb->color_bg, tb->w, 0,0, tb->h );
     // flip canvas to window
     XCopyArea ( display, canvas, tb->window, context, 0, 0, tb->w, tb->h, 0, 0 );
 

@@ -9,7 +9,7 @@ typedef struct
     short         cursor;
     XftFont       *font;
     XftColor      color_fg, color_bg;
-    char          *text, *prompt;
+    char          *text;
     XIM           xim;
     XIC           xic;
     XGlyphInfo    extents;
@@ -33,7 +33,7 @@ textbox* textbox_create ( Window parent,
                           TextboxFlags flags,
                           short x, short y, short w, short h,
                           char *font, char *fg, char *bg,
-                          char *text, char *prompt );
+                          char *text );
 
 void textbox_free ( textbox *tb );
 

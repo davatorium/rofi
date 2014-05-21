@@ -808,8 +808,7 @@ void menu_set_arrow_text ( int filtered_lines, int selected, int max_elements,
     }
 }
 
-void menu_draw ( textbox *text,
-                 textbox **boxes,
+void menu_draw ( textbox **boxes,
                  int max_elements,
                  int num_lines,
                  int *last_offset,
@@ -817,7 +816,6 @@ void menu_draw ( textbox *text,
                  char **filtered )
 {
     int i, offset = 0;
-    textbox_draw ( text );
 
     // selected row is always visible.
     // If selected is visible do not scroll.
@@ -1068,18 +1066,25 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
     // search text input
 
+    textbox *prompt_tb = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+                                     ( config.padding ),
+                                     ( config.padding ),
+                                     0,0,
+                                     config.menu_font, config.menu_fg, config.menu_bg,
+                                     prompt);
 
     textbox *text = textbox_create ( box, TB_AUTOHEIGHT | TB_EDITABLE,
+                                     ( config.padding )+prompt_tb->w,
                                      ( config.padding ),
-                                     ( config.padding ),
-                                     (config.hmode == HORIZONTAL)?
-                                        element_width:(w - (2 * ( config.padding ) ) ), 1,
+                                     ((config.hmode == HORIZONTAL)?
+                                        element_width:(w - (2 * ( config.padding ) ) ))-prompt_tb->w, 1,
                                      config.menu_font, config.menu_fg, config.menu_bg,
-                                     ( input != NULL ) ? *input : "", prompt );
+                                     ( input != NULL ) ? *input : "" );
 
     int line_height = text->font->ascent + text->font->descent;
 
     textbox_show ( text );
+    textbox_show ( prompt_tb );
 
 
     // filtered list display
@@ -1095,7 +1100,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                     line * line_height + config.padding + ( ( config.hmode == HORIZONTAL ) ? 0 : LINE_MARGIN ), // y
                                     element_width,                                                                              // w
                                     line_height,                                                                                // h
-                                    config.menu_font, config.menu_fg, config.menu_bg, "", NULL );
+                                    config.menu_font, config.menu_fg, config.menu_bg, "" );
         textbox_show ( boxes[i] );
     }
     // Arrows
@@ -1107,13 +1112,13 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                         ( config.padding ),
                                         0, 0,
                                         config.menu_font, config.menu_fg, config.menu_bg,
-                                        "↑", NULL );
+                                        "↑" );
         arrowbox_bottom = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
                                            ( config.padding ),
                                            ( config.padding ),
                                            0, 0,
                                            config.menu_font, config.menu_fg, config.menu_bg,
-                                           "↓", NULL );
+                                           "↓" );
 
         textbox_move ( arrowbox_top,
                        w - config.padding - arrowbox_top->w,
@@ -1233,7 +1238,9 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                     ;
                 }
 
-                menu_draw ( text, boxes, max_elements, num_lines, &last_offset, selected, filtered );
+                textbox_draw ( text );
+                textbox_draw( prompt_tb );
+                menu_draw ( boxes, max_elements, num_lines, &last_offset, selected, filtered );
                 menu_set_arrow_text ( filtered_lines, selected,
                                       max_elements, arrowbox_top,
                                       arrowbox_bottom );
@@ -1475,7 +1482,9 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                 menu_hide_arrow_text ( filtered_lines, selected,
                                        max_elements, arrowbox_top,
                                        arrowbox_bottom );
-                menu_draw ( text, boxes, max_elements, num_lines, &last_offset, selected, filtered );
+                textbox_draw ( text );
+                textbox_draw( prompt_tb );
+                menu_draw ( boxes, max_elements, num_lines, &last_offset, selected, filtered );
                 menu_set_arrow_text ( filtered_lines, selected,
                                       max_elements, arrowbox_top,
                                       arrowbox_bottom );
