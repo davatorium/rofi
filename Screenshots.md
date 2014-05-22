@@ -45,7 +45,7 @@ Xresources file:
 [ ![Rofi dmenu mode: Well Hidden](images/rofi/screenshots/dmenu_greg.jpg)
 ](images/rofi/screenshots/dmenu_greg.jpg)
 
-Config file `config/config.c`:
+Xresources entries:
 
         rofi.background: #073642
         rofi.foreground: #eee8d5
