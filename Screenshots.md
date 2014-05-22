@@ -17,21 +17,28 @@ You can easily get your current configuration by typing:
 
 Xresources file:
 
-    rofi.background: #333
-    rofi.foreground: #1aa
-    rofi.highlightbg: #1aa
-    rofi.highlightfg: #111
-    rofi.bordercolor: #1aa
-    rofi.padding: 2
-    rofi.lines: 8
-    rofi.borderwidth: 2
-    rofi.opacity: 90
-    rofi.font: SourceCodePro-9
-    rofi.location: 1
-    rofi.yoffset: -2
-    rofi.xoffset: -2
-    rofi.width: 1920
-    rofi.fixed_num_lines: 1
+        rofi.opacity: 90
+        rofi.width: 50
+        rofi.lines: 5
+        rofi.columns: 1
+        rofi.font: SourceCodePro-9
+        rofi.fg: #1aa
+        rofi.bg: #333
+        rofi.hlfg: #333
+        rofi.hlbg: #1aa
+        rofi.bc: #1aa
+        rofi.bw: 2
+        rofi.loc: 0
+        rofi.padding: 2
+        rofi.yoffset: -2
+        rofi.xoffset: 0
+        rofi.fixed-num-lines: false
+        rofi.hmode: false
+        rofi.terminal: x-terminal-emulator
+        rofi.ssh-set-title: true
+        rofi.key: F12
+        rofi.rkey: mod1+F2
+        rofi.skey: mod1+F3
 
 ## DMenu mode: Well hidden
 
