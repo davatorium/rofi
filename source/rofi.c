@@ -152,11 +152,7 @@ static inline void tokenize_free ( char **ip )
         return;
     }
 
-    if ( ip[0] )
-    {
-        free ( ip[0] );
-    }
-
+    free ( ip[0] );
     free ( ip );
 }
 
@@ -1495,10 +1491,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
         release_keyboard ();
     }
 
-    if ( *input != NULL )
-    {
-        free ( *input );
-    }
+    free ( *input );
 
     *input = strdup ( text->text );
 
@@ -1673,8 +1666,6 @@ SwitcherMode run_switcher_window ( char **input )
 
 void run_switcher ( int fmode, SwitcherMode mode )
 {
-    // TODO: this whole function is messy. build a nicer solution
-
     // we fork because it's technically possible to have multiple window
     // lists up at once on a zaphod multihead X setup.
     // this also happens to isolate the Xft font stuff in a child process
@@ -1724,10 +1715,7 @@ void run_switcher ( int fmode, SwitcherMode mode )
         }
     } while ( mode != MODE_EXIT );
 
-    if ( input != NULL )
-    {
-        free ( input );
-    }
+    free ( input );
 
     if ( fmode == FORK )
     {
@@ -1950,9 +1938,6 @@ static void parse_cmd_options ( int argc, char ** argv )
         config_print ();
         exit ( EXIT_SUCCESS );
     }
-
-    // Sanity check
-    config_sanity_check ();
 }
 
 static void cleanup ()
@@ -1992,10 +1977,96 @@ static void cleanup ()
     xdgWipeHandle ( &xdg_handle );
 }
 
+/**
+ * Do some input validation, especially the first few could break things.
+ * It is good to catch them beforehand.
+ *
+ * This functions exits the program with 1 when it finds an invalid configuration.
+ */
+void config_sanity_check ( void )
+{
+    if ( config.menu_lines == 0 )
+    {
+        fprintf ( stderr, "config.menu_lines is invalid. You need at least one visible line.\n" );
+        exit ( 1 );
+    }
+    if ( config.menu_columns == 0 )
+    {
+        fprintf ( stderr, "config.menu_columns is invalid. You need at least one visible column.\n" );
+        exit ( 1 );
+    }
+
+    if ( config.menu_width == 0 )
+    {
+        fprintf ( stderr, "config.menu_width is invalid. You cannot have a window with no width.\n" );
+        exit ( 1 );
+    }
+
+    if ( !( config.location >= WL_CENTER && config.location <= WL_WEST ) )
+    {
+        fprintf ( stderr, "config.location is invalid. ( %d >= %d >= %d) does not hold.\n",
+                  WL_WEST, config.location, WL_CENTER );
+        exit ( 1 );
+    }
+
+    if ( !( config.hmode == TRUE || config.hmode == FALSE ) )
+    {
+        fprintf ( stderr, "config.hmode is invalid.\n" );
+        exit ( 1 );
+    }
+}
+
+/**
+ * Print out the current configuration.
+ */
+void config_print ( void )
+{
+    printf ( "Windows opacity:                      %3d%%\n", config.window_opacity );
+    printf ( "Border width:                         %3d\n", config.menu_bw );
+    printf ( "Padding:                              %3d\n", config.padding );
+    printf ( "Width:                               %4d%s\n", config.menu_width,
+             config.menu_width > 100 ? "px" : "%" );
+    printf ( "offset (x,y):                     (%2d,%2d)px\n", config.x_offset, config.y_offset );
+    printf ( "Location:                      " );
+    switch ( config.location )
+    {
+    case WL_CENTER:     printf ( "    Center\n" ); break;
+    case WL_NORTH_WEST: printf ( "North West\n" ); break;
+    case WL_NORTH:      printf ( "     North\n" ); break;
+    case WL_NORTH_EAST: printf ( "North East\n" ); break;
+    case WL_EAST:       printf ( "      East\n" ); break;
+    case WL_EAST_SOUTH: printf ( "East South\n" ); break;
+    case WL_SOUTH:      printf ( "     South\n" ); break;
+    case WL_SOUTH_WEST: printf ( "South West\n" ); break;
+    case WL_WEST:       printf ( "      West\n" ); break;
+    default:            printf ( "   Invalid\n" ); break;
+    }
+    printf ( "# Lines:                              %3d\n", config.menu_lines );
+    printf ( "# Columns:                            %3d\n", config.menu_columns );
+    printf ( "Fixed number of lines:              %5s\n", config.fixed_num_lines ? "true" : "false" );
+    printf ( "Horizontal model:                   %5s\n", config.hmode == TRUE ? "true" : "false" );
+
+
+    printf ( "Font: %35s\n", config.menu_font );
+    /* Colors */
+    printf ( "FG Color:                         %7s\n", config.menu_fg );
+    printf ( "BG Color:                         %7s\n", config.menu_bg );
+    printf ( "Highlight FG Color:               %7s\n", config.menu_hlfg );
+    printf ( "Highlight BG Color:               %7s\n", config.menu_hlbg );
+    printf ( "Border color:                     %7s\n", config.menu_bc );
+
+    /* Terminal */
+    printf ( "Terminal emulator: %22s\n", config.terminal_emulator );
+    /* Keybindings. */
+    printf ( "Window switcher key:              %7s\n", config.window_key );
+    printf ( "Run dialog key:                   %7s\n", config.run_key );
+    printf ( "SSH dialog key:                   %7s\n", config.ssh_key );
+}
+
+
+
 int main ( int argc, char *argv[] )
 {
-    int i, j;
-
     // Initialize xdg, so we can grab the xdgCacheHome
     if ( xdgInitHandle ( &xdg_handle ) == NULL )
     {
@@ -2025,8 +2096,10 @@ int main ( int argc, char *argv[] )
     // Parse command line for settings.
     parse_cmd_options ( argc, argv );
 
+    // Sanity check
+    config_sanity_check ();
 
-
+    // Set up X interaction.
     signal ( SIGCHLD, catch_exit );
     screen    = DefaultScreenOfDisplay ( display );
     screen_id = DefaultScreen ( display );
@@ -2039,9 +2112,9 @@ int main ( int argc, char *argv[] )
     // determine numlock mask so we can bind on keys with and without it
     XModifierKeymap *modmap = XGetModifierMapping ( display );
 
-    for ( i = 0; i < 8; i++ )
+    for ( int i = 0; i < 8; i++ )
     {
-        for ( j = 0; j < ( int ) modmap->max_keypermod; j++ )
+        for ( int j = 0; j < ( int ) modmap->max_keypermod; j++ )
         {
             if ( modmap->modifiermap[i * modmap->max_keypermod + j] == XKeysymToKeycode ( display, XK_Num_Lock ) )
             {
@@ -2056,7 +2129,7 @@ int main ( int argc, char *argv[] )
     cache_xattr  = winlist_new ();
 
     // X atom values
-    for ( i = 0; i < NETATOMS; i++ )
+    for ( int i = 0; i < NETATOMS; i++ )
     {
         netatoms[i] = XInternAtom ( display, netatom_names[i], False );
     }

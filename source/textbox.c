@@ -129,7 +129,7 @@ void textbox_text ( textbox *tb, char *text )
     textbox_extents ( tb );
 }
 
-void textbox_move (textbox *tb, int x, int y)
+void textbox_move ( textbox *tb, int x, int y )
 {
     if ( x != tb->x || y != tb->y )
     {
@@ -148,13 +148,13 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 
     if ( tb->flags & TB_AUTOWIDTH )
     {
-        if(w > 1)
+        if ( w > 1 )
         {
-            w = MIN(w, tb->extents.width+2*SIDE_MARGIN);
+            w = MIN ( w, tb->extents.width + 2 * SIDE_MARGIN );
         }
         else
         {
-            w = tb->extents.width+2*SIDE_MARGIN;
+            w = tb->extents.width + 2 * SIDE_MARGIN;
         }
     }
 
@@ -221,14 +221,14 @@ void textbox_draw ( textbox *tb )
     // clear canvas
     XftDrawRect ( draw, &tb->color_bg, 0, 0, tb->w, tb->h );
 
-    char *text      = tb->text ? tb->text : "";
-    int text_len    = strlen ( text );
-    int length      = text_len;
-    int line_height = tb->font->ascent + tb->font->descent;
-    int line_width  = 0;
+    char *text       = tb->text ? tb->text : "";
+    int  text_len    = strlen ( text );
+    int  length      = text_len;
+    int  line_height = tb->font->ascent + tb->font->descent;
+    int  line_width  = 0;
 
-    int cursor_x     = 0;
-    int cursor_width = MAX ( 2, line_height / 10 );
+    int  cursor_x     = 0;
+    int  cursor_width = MAX ( 2, line_height / 10 );
 
     if ( tb->flags & TB_EDITABLE )
     {
@@ -238,13 +238,14 @@ void textbox_draw ( textbox *tb )
         // calc cursor position
         XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) text, cursor_offset, &extents );
         // Add a small 4px offset between cursor and last glyph.
-        cursor_x = extents.width + ((extents.width > 0)?2:0);
+        cursor_x = extents.width + ( ( extents.width > 0 ) ? 2 : 0 );
     }
 
     // calc full input text width
     // Calculate the right size, so no characters are cut off.
     // TODO: Check performance of this.
-    do{
+    do
+    {
         XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) text, length, &extents );
         line_width = extents.width;
         if ( line_width <= ( tb->w - 2 * SIDE_MARGIN ) )
@@ -256,8 +257,7 @@ void textbox_draw ( textbox *tb )
         {
             ;
         }
-    }
-    while ( line_width >0 );
+    } while ( line_width > 0 );
 
     int x = SIDE_MARGIN, y = tb->font->ascent;
 
@@ -280,7 +280,7 @@ void textbox_draw ( textbox *tb )
         XftDrawRect ( draw, &tb->color_fg, cursor_x + SIDE_MARGIN, 2, cursor_width, line_height - 4 );
     }
 
-    XftDrawRect ( draw, &tb->color_bg, tb->w, 0,0, tb->h );
+    XftDrawRect ( draw, &tb->color_bg, tb->w, 0, 0, tb->h );
     // flip canvas to window
     XCopyArea ( display, canvas, tb->window, context, 0, 0, tb->w, tb->h, 0, 0 );
 

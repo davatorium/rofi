@@ -53,30 +53,33 @@ static inline int execshssh ( const char *host )
     /**
      * I am not happy about this code, it causes 7 mallocs and frees
      */
-    char **args = malloc(sizeof(char*)*7);
-    int i=0;
+    char **args = malloc ( sizeof ( char* ) * 7 );
+    int  i      = 0;
     args[i++] = config.terminal_emulator;
-    if(config.show_title) {
+    if ( config.show_title )
+    {
         char *buffer = NULL;
-        if( asprintf(&buffer, "ssh %s", host) > 0)
+        if ( asprintf ( &buffer, "ssh %s", host ) > 0 )
         {
-            args[i++] = strdup("-T");
+            args[i++] = strdup ( "-T" );
             args[i++] = buffer;
         }
     }
-    args[i++] = strdup("-e");
-    args[i++] = strdup("ssh");
-    args[i++] = strdup(host);
+    args[i++] = strdup ( "-e" );
+    args[i++] = strdup ( "ssh" );
+    args[i++] = strdup ( host );
     args[i++] = NULL;
-    int retv = execvp ( config.terminal_emulator, (char * const *)args ); 
+    int retv = execvp ( config.terminal_emulator, (char * const *) args );
 
     // Free the args list.
-    for(i =0; i < 7;i++) {
-        if(args[i] != NULL) {
-            free(args[i]);
+    for ( i = 0; i < 7; i++ )
+    {
+        if ( args[i] != NULL )
+        {
+            free ( args[i] );
         }
     }
-    free(args);
+    free ( args );
     return retv;
 }
 // execute sub-process
@@ -102,10 +105,10 @@ static pid_t exec_ssh ( const char *cmd )
      * It is allowed to be a bit slower.
      */
     char *path = NULL;
-    if(asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0)
+    if ( asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0 )
     {
-        history_set(path, cmd);
-        free(path);
+        history_set ( path, cmd );
+        free ( path );
     }
     return pid;
 }
@@ -116,10 +119,10 @@ static void delete_ssh ( const char *cmd )
         return;
     }
     char *path = NULL;
-    if(asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0)
+    if ( asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0 )
     {
-        history_remove(path, cmd);
-        free(path);
+        history_remove ( path, cmd );
+        free ( path );
     }
 }
 static int sort_func ( const void *a, const void *b )
@@ -144,17 +147,18 @@ static char ** get_ssh ( void )
         return NULL;
     }
 
-    if(asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0)
+    if ( asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0 )
     {
-       retv = history_get_list(path, &index);
-       free(path);
-       num_favorites = index;
+        retv = history_get_list ( path, &index );
+        free ( path );
+        num_favorites = index;
     }
 
 
-    FILE *fd = NULL;
+    FILE       *fd = NULL;
     const char *hd = getenv ( "HOME" );
-    if(asprintf ( &path, "%s/%s", hd, ".ssh/config" )>= 0){
+    if ( asprintf ( &path, "%s/%s", hd, ".ssh/config" ) >= 0 )
+    {
         fd = fopen ( path, "r" );
     }
 

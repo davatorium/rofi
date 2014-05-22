@@ -81,11 +81,12 @@ static pid_t exec_cmd ( const char *cmd, int run_in_term )
      * This happens in non-critical time (After launching app)
      * It is allowed to be a bit slower.
      */
-    char   *path       = NULL; 
-    if(asprintf ( &path,  "%s/%s", cache_dir, RUN_CACHE_FILE ) == -1) {
+    char *path = NULL;
+    if ( asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) == -1 )
+    {
         return -1;
     }
-    history_set(path, cmd);
+    history_set ( path, cmd );
 
     free ( path );
 
@@ -98,11 +99,12 @@ static void delete_entry ( const char *cmd )
      * This happens in non-critical time (After launching app)
      * It is allowed to be a bit slower.
      */
-    char *path = NULL; 
-    if(asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) == -1) {
+    char *path = NULL;
+    if ( asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) == -1 )
+    {
         return;
-    } 
-    history_remove(path, cmd);
+    }
+    history_remove ( path, cmd );
 
     free ( path );
 }
@@ -129,19 +131,20 @@ static char ** get_apps ( void )
     }
 
 
-    if(asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) > 0) {
-        retv = history_get_list(path, &index);
+    if ( asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) > 0 )
+    {
+        retv = history_get_list ( path, &index );
         free ( path );
         // Keep track of how many where loaded as favorite.
-        num_favorites=index;
+        num_favorites = index;
     }
 
 
     path = strdup ( getenv ( "PATH" ) );
 
     for ( const char *dirname = strtok ( path, ":" );
-            dirname != NULL;
-            dirname = strtok ( NULL, ":" ) )
+          dirname != NULL;
+          dirname = strtok ( NULL, ":" ) )
     {
         DIR *dir = opendir ( dirname );
 
