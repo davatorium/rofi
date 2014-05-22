@@ -1,0 +1,4 @@
+Update manpage using md2man
+
+
+  md2man-roff rofi-manpage.markdown > rofi.1
