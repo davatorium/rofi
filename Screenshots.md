@@ -4,6 +4,12 @@ github: DaveDavenport
 title: Screenshots
 ---
 
+
+This place lists a set of nice setups for rofi.
+You can easily get your current configuration by typing:
+
+    rofi -dump-xresources
+
 ## Dropdown menu
 
 [ ![Rofi in dropdown menu mode](images/rofi/screenshots/dropdown.png)

@@ -2,7 +2,8 @@
 [ -bg <em>color</em> ] [ -hlfg <em>color</em> ] [ -hlbg <em>color</em> ] [ -key <em>combo</em> ] [ -dkey <em>comdo</em> ] [ -rkey <em>comdo</em> ]
 [ -terminal <em>terminal</em> ] [ -loc <em>position</em> ] [ -hmode ] [ -fixed-num-lines ] [ -padding <em>padding</em> ]
 [ -opacity <em>opacity%</em> ] [ -display <em>display</em> ] [ -bc <em>color</em> ] [ -bw <em>width</em> ] [ -dmenu [ -p <em>prompt</em> ] ]
-[ -ssh-set-title <em>true|false</em> ] [ -now ] [ -rnow ] [ -snow ] [ -version ] [ -help] [ -dump ]</p><h2 id="DESCRIPTION">DESCRIPTION<a name="DESCRIPTION" href="#DESCRIPTION" class="md2man-permalink"></a></h2><p><code>rofi</code> is an X11 popup window switcher. A list is displayed center-screen showing open window titles, WM_CLASS, and desktop number. 
+[ -ssh-set-title <em>true|false</em> ] [ -now ] [ -rnow ] [ -snow ] [ -version ] [ -help] [ -dump ] 
+[ -dump-xresources ]</p><h2 id="DESCRIPTION">DESCRIPTION<a name="DESCRIPTION" href="#DESCRIPTION" class="md2man-permalink"></a></h2><p><code>rofi</code> is an X11 popup window switcher. A list is displayed center-screen showing open window titles, WM_CLASS, and desktop number. 
 The user may filter the list by typing, navigate with Up/Down or Tab keys, and select a window with Return (Enter). Escape cancels.</p><h2 id="License">License<a name="License" href="#License" class="md2man-permalink"></a></h2><p>MIT/X11</p><h2 id="USAGE">USAGE<a name="USAGE" href="#USAGE" class="md2man-permalink"></a></h2><p><code>rofi</code> can be used in two ways, single-shot; executes once and directly exits when done or as
 daemon listening to specific key-combinations.</p><p>The default key combinations are:</p>
 <ul>
@@ -127,6 +128,6 @@ To make rofi look like dmenu:
 
     rofi -hmode -padding 0
 </code></pre>
-<p><code>-dmenu</code></p><dl><dd>Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.</dd></dl><p><code>-dump</code></p><dl><dd>Dump the current active configuration to the command-line.</dd></dl><p><code>-ssh-set-title</code> <em>true|false</em></p><dl><dd>SSH dialogs tries to set &#39;ssh hostname&#39; of the spawned terminal.
+<p><code>-dmenu</code></p><dl><dd>Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.</dd></dl><p><code>-dump</code></p><dl><dd>Dump the current active configuration to the command-line.</dd></dl><p><code>-dump-xresources</code></p><dl><dd>Dump the current active configuration in xresources format to the command-line.</dd></dl><p><code>-ssh-set-title</code> <em>true|false</em></p><dl><dd>SSH dialogs tries to set &#39;ssh hostname&#39; of the spawned terminal.
 Not all terminals support this.
 Default value is true.</dd></dl><h2 id="Switch-between-modi">Switch between modi<a name="Switch-between-modi" href="#Switch-between-modi" class="md2man-permalink"></a></h2><p>Type &#39;?&#39; <em>enter</em> to switch between window list, run and ssh mode.</p><h2 id="WEBSITE">WEBSITE<a name="WEBSITE" href="#WEBSITE" class="md2man-permalink"></a></h2><p><code>rofi</code> website can be found at <a href="https://davedavenport.github.io/rofi/">here</a></p><h2 id="AUTHOR">AUTHOR<a name="AUTHOR" href="#AUTHOR" class="md2man-permalink"></a></h2><p>Qball Cow <a href="mailto:qball@gmpclient.org">qball@gmpclient.org</a></p><p>Original code based on work by: Sean Pringle <a href="mailto:sean.pringle@gmail.com">sean.pringle@gmail.com</a></p>
