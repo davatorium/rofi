@@ -80,9 +80,9 @@
 #ifdef HAVE_I3_IPC_H
 #define I3_SOCKET_PATH_PROP    "I3_SOCKET_PATH"
 // This setting is no longer user configurable, but partial to this file:
-int         config_i3_mode = 0;
+int  config_i3_mode = 0;
 // Path to HAVE_I3_IPC_H socket.
-char       *i3_socket_path = NULL;
+char *i3_socket_path = NULL;
 #endif
 
 
@@ -1067,17 +1067,17 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     // search text input
 
     textbox *prompt_tb = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                                     ( config.padding ),
-                                     ( config.padding ),
-                                     0,0,
-                                     config.menu_font, config.menu_fg, config.menu_bg,
-                                     prompt);
+                                          ( config.padding ),
+                                          ( config.padding ),
+                                          0, 0,
+                                          config.menu_font, config.menu_fg, config.menu_bg,
+                                          prompt );
 
     textbox *text = textbox_create ( box, TB_AUTOHEIGHT | TB_EDITABLE,
-                                     ( config.padding )+prompt_tb->w,
+                                     ( config.padding ) + prompt_tb->w,
                                      ( config.padding ),
-                                     ((config.hmode == TRUE)?
-                                        element_width:(w - (2 * ( config.padding ) ) ))-prompt_tb->w, 1,
+                                     ( ( config.hmode == TRUE ) ?
+                                       element_width : ( w - ( 2 * ( config.padding ) ) ) ) - prompt_tb->w, 1,
                                      config.menu_font, config.menu_fg, config.menu_bg,
                                      ( input != NULL ) ? *input : "" );
 
@@ -1096,10 +1096,10 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
         int col  = ( i ) / max_rows + ( ( config.hmode == FALSE ) ? 0 : 1 );
         boxes[i] = textbox_create ( box,
                                     0,
-                                    ( config.padding ) + col * ( element_width + LINE_MARGIN ),                                 // X
+                                    ( config.padding ) + col * ( element_width + LINE_MARGIN ),                           // X
                                     line * line_height + config.padding + ( ( config.hmode == TRUE ) ? 0 : LINE_MARGIN ), // y
-                                    element_width,                                                                              // w
-                                    line_height,                                                                                // h
+                                    element_width,                                                                        // w
+                                    line_height,                                                                          // h
                                     config.menu_font, config.menu_fg, config.menu_bg, "" );
         textbox_show ( boxes[i] );
     }
@@ -1239,7 +1239,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                 }
 
                 textbox_draw ( text );
-                textbox_draw( prompt_tb );
+                textbox_draw ( prompt_tb );
                 menu_draw ( boxes, max_elements, num_lines, &last_offset, selected, filtered );
                 menu_set_arrow_text ( filtered_lines, selected,
                                       max_elements, arrowbox_top,
@@ -1483,7 +1483,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                        max_elements, arrowbox_top,
                                        arrowbox_bottom );
                 textbox_draw ( text );
-                textbox_draw( prompt_tb );
+                textbox_draw ( prompt_tb );
                 menu_draw ( boxes, max_elements, num_lines, &last_offset, selected, filtered );
                 menu_set_arrow_text ( filtered_lines, selected,
                                       max_elements, arrowbox_top,
@@ -1890,17 +1890,24 @@ static void parse_cmd_options ( int argc, char ** argv )
          || find_arg ( argc, argv, "-h" ) >= 0 )
     {
         help ();
-        exit( EXIT_SUCCESS );
+        exit ( EXIT_SUCCESS );
     }
 
     if ( find_arg ( argc, argv, "-v" ) >= 0 ||
          find_arg ( argc, argv, "-version" ) >= 0 )
     {
         fprintf ( stdout, "Version: "VERSION "\n" );
-        exit( EXIT_SUCCESS );
+        exit ( EXIT_SUCCESS );
     }
 
     // Parse commandline arguments about the looks.
+    find_arg_int ( argc, argv, "-opacity", &( config.window_opacity ) );
+
+    find_arg_int ( argc, argv, "-width", &( config.menu_width ) );
+
+    find_arg_int ( argc, argv, "-lines", &( config.menu_lines ) );
+    find_arg_int ( argc, argv, "-columns", &( config.menu_columns ) );
+
     find_arg_str ( argc, argv, "-font", &( config.menu_font ) );
     find_arg_str ( argc, argv, "-fg", &( config.menu_fg ) );
     find_arg_str ( argc, argv, "-bg", &( config.menu_bg ) );
@@ -1908,12 +1915,8 @@ static void parse_cmd_options ( int argc, char ** argv )
     find_arg_str ( argc, argv, "-hlbg", &( config.menu_hlbg ) );
     find_arg_str ( argc, argv, "-bc", &( config.menu_bc ) );
     find_arg_int ( argc, argv, "-bw", &( config.menu_bw ) );
-    find_arg_int ( argc, argv, "-o", &( config.window_opacity ) );
 
     // Parse commandline arguments about size and position
-    find_arg_int ( argc, argv, "-width", &( config.menu_width ) );
-    find_arg_int ( argc, argv, "-lines", &( config.menu_lines ) );
-    find_arg_int ( argc, argv, "-columns", &( config.menu_columns ) );
     find_arg_int ( argc, argv, "-loc", &( config.location ) );
     find_arg_int ( argc, argv, "-padding", &( config.padding ) );
     find_arg_int ( argc, argv, "-xoffset", &( config.x_offset ) );
@@ -1924,7 +1927,7 @@ static void parse_cmd_options ( int argc, char ** argv )
     }
 
     // Parse commandline arguments about behavior
-    find_arg_str ( argc, argv, "-term", &( config.terminal_emulator ) );
+    find_arg_str ( argc, argv, "-terminal", &( config.terminal_emulator ) );
     if ( find_arg ( argc, argv, "-zeltak" ) >= 0 )
     {
         config.zeltak_mode = 1;
@@ -1944,8 +1947,8 @@ static void parse_cmd_options ( int argc, char ** argv )
     // Dump.
     if ( find_arg ( argc, argv, "-dump" ) >= 0 )
     {
-        config_print();
-        exit(EXIT_SUCCESS);
+        config_print ();
+        exit ( EXIT_SUCCESS );
     }
 
     // Sanity check

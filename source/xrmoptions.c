@@ -59,23 +59,43 @@ typedef struct
  */
 static XrmOption xrmOptions[] = {
     { xrm_Number, "opacity",         { .num = &config.window_opacity    }, NULL },
+
     { xrm_Number, "width",           { .num = &config.menu_width        }, NULL },
+
     { xrm_Number, "lines",           { .num = &config.menu_lines        }, NULL },
+    { xrm_Number, "columns",         { .num = &config.menu_columns      }, NULL },
+
     { xrm_String, "font",            { .str = &config.menu_font         }, NULL },
+    /* Foreground color */
     { xrm_String, "foreground",      { .str = &config.menu_fg           }, NULL },
+    { xrm_String, "fg",              { .str = &config.menu_fg           }, NULL },
+
     { xrm_String, "background",      { .str = &config.menu_bg           }, NULL },
+    { xrm_String, "bg",              { .str = &config.menu_bg           }, NULL },
+
     { xrm_String, "highlightfg",     { .str = &config.menu_hlfg         }, NULL },
+    { xrm_String, "hlbg",            { .str = &config.menu_hlfg         }, NULL },
+
     { xrm_String, "highlightbg",     { .str = &config.menu_hlbg         }, NULL },
+    { xrm_String, "hlbg",            { .str = &config.menu_hlbg         }, NULL },
+
     { xrm_String, "bordercolor",     { .str = &config.menu_bc           }, NULL },
-    { xrm_Number, "padding",         { .num = &config.padding           }, NULL },
+    { xrm_String, "bc",              { .str = &config.menu_bc           }, NULL },
+
     { xrm_Number, "borderwidth",     { .num = &config.menu_bw           }, NULL },
-    { xrm_String, "terminal",        { .str = &config.terminal_emulator }, NULL },
+    { xrm_Number, "bw",              { .num = &config.menu_bw           }, NULL },
+
     { xrm_Number, "location",        { .num = &config.location          }, NULL },
+    { xrm_Number, "loc",             { .num = &config.location          }, NULL },
+
+    { xrm_Number, "padding",         { .num = &config.padding           }, NULL },
     { xrm_Number, "yoffset",         { .num = &config.y_offset          }, NULL },
     { xrm_Number, "xoffset",         { .num = &config.x_offset          }, NULL },
     { xrm_Boolean,"fixed-num-lines", { .num = &config.fixed_num_lines   }, NULL },
-    { xrm_Number, "columns",         { .num = &config.menu_columns      }, NULL },
     { xrm_Boolean,"hmode",           { .num = &config.hmode             }, NULL },
+
+
+    { xrm_String, "terminal",        { .str = &config.terminal_emulator }, NULL },
     /* Key bindings */
     { xrm_String, "key",             { .str = &config.window_key        }, NULL },
     { xrm_String, "rkey",            { .str = &config.run_key           }, NULL },
@@ -119,7 +139,6 @@ void parse_xresource_options ( Display *display )
                         free ( xrmOptions[i].mem );
                         xrmOptions[i].mem = NULL;
                     }
-                    //TODO this leaks memory.
                     *xrmOptions[i].str = ( char * ) malloc ( xrmValue.size * sizeof ( char ) );
                     strncpy ( *xrmOptions[i].str, xrmValue.addr, xrmValue.size );
 

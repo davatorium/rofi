@@ -28,14 +28,19 @@ rofi \- a simple EWMH window switcher
 .RB [ \-now ]
 .RB [ \-rnow ]
 .RB [ \-snow ]
-.RB [ \-term
-.IR terminal ]
+.RB [ \-terminal
+.IR terminal
+]
 .RB [ \-loc
 .IR position ]
 .RB [ \-hmode ]
 .RB [ \-fixed\-num\-lines ]
 .RB [ \-padding
-.IR padding ]
+.IR padding
+]
+.RB [ \-opacity
+.IR opacity %
+]
 .RB [ \-version ]
 .RB [ \-help]
 .RB [ \-display
@@ -46,7 +51,8 @@ rofi \- a simple EWMH window switcher
 .IR width ]
 .RB [ \-dmenu 
 .RB [ \-p
-.IR prompt ]]
+.IR prompt
+]
 .RB [ \-dump ]
 
 .SH DESCRIPTION
@@ -155,11 +161,11 @@ Set the foreground text color (X11 named color or hex #rrggbb) for the highlight
 rofi -fg "#ffffff"
 .RE
 .TP
-.B -o
+.B -opacity
 Set the window opacity (0-100).
 .P
 .RS
-rofi -o "75"
+rofi -opacity "75"
 .RE
 .TP
 .B -lines
@@ -183,11 +189,11 @@ Set the width of the menu as a percentage of the screen width (default: 60).
 rofi -width 60
 .RE
 .TP
-.B -term
+.B -terminal
 Specify what terminal to start (default x-terminal-emulator)
 .P
 .RS
-rofi -term xterm
+rofi -terminal xterm
 .RE
 .TP
 .B -loc
