@@ -1952,6 +1952,12 @@ static void parse_cmd_options ( int argc, char ** argv )
         config_print ();
         exit ( EXIT_SUCCESS );
     }
+
+    if ( find_arg ( argc, argv, "-dump-xresources" ) >= 0 )
+    {
+        xresource_dump ();
+        exit ( EXIT_SUCCESS );
+    }
 }
 
 static void cleanup ()

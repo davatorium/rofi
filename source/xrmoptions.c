@@ -182,3 +182,38 @@ void parse_xresource_free ( void )
         }
     }
 }
+
+void xresource_dump ( void )
+{
+    const char   * namePrefix  = "rofi";
+    const char   * classPrefix = "rofi";
+    unsigned int entries       = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
+    for ( unsigned int i = 0; i < entries; ++i )
+    {
+        // Skip duplicates.
+        if ( ( i + 1 ) < entries )
+        {
+            if ( xrmOptions[i].str == xrmOptions[i + 1].str )
+            {
+                continue;
+            }
+        }
+
+        printf ( "%s.%s: ", namePrefix, xrmOptions[i].name );
+        switch ( xrmOptions[i].type )
+        {
+        case xrm_Number:
+            printf ( "%i", *xrmOptions[i].num );
+            break;
+        case xrm_String:
+            printf ( "%s", *xrmOptions[i].str );
+            break;
+        case xrm_Boolean:
+            printf ( "%s", ( ( *xrmOptions[i].num ) == TRUE ) ? "true" : "false" );
+            break;
+        default:
+            break;
+        }
+        printf ( "\n" );
+    }
+}

@@ -8,7 +8,8 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-bg \fIcolor\fP ] [ \-hlfg \fIcolor\fP ] [ \-hlbg \fIcolor\fP ] [ \-key \fIcombo\fP ] [ \-dkey \fIcomdo\fP ] [ \-rkey \fIcomdo\fP ]
 [ \-terminal \fIterminal\fP ] [ \-loc \fIposition\fP ] [ \-hmode ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fP ]
 [ \-opacity \fIopacity%\fP ] [ \-display \fIdisplay\fP ] [ \-bc \fIcolor\fP ] [ \-bw \fIwidth\fP ] [ \-dmenu [ \-p \fIprompt\fP ] ]
-[ \-ssh\-set\-title \fItrue|false\fP ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help] [ \-dump ]
+[ \-ssh\-set\-title \fItrue|false\fP ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help] [ \-dump ] 
+[ \-dump\-xresources ]
 .SH DESCRIPTION
 .PP
 \fB\fCrofi\fR is an X11 popup window switcher. A list is displayed center\-screen showing open window titles, WM_CLASS, and desktop number. 
@@ -247,6 +248,10 @@ Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.
 \fB\fC\-dump\fR
 .IP
 Dump the current active configuration to the command\-line.
+.PP
+\fB\fC\-dump\-xresources\fR
+.IP
+Dump the current active configuration in xresources format to the command\-line.
 .PP
 \fB\fC\-ssh\-set\-title\fR \fItrue|false\fP
 .IP
