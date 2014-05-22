@@ -1,8 +1,8 @@
-.TH ROFI 1 rofi 
+.TH ROFI 1 rofi
 .SH NAME
 rofi \- a simple EWMH window switcher
 .SH SYNOPSIS
-.B rofi 
+.B rofi
 .RB [ \-width
 .IR pct_scr ]
 .RB [ \-lines
@@ -45,15 +45,18 @@ rofi \- a simple EWMH window switcher
 .RB [ \-help]
 .RB [ \-display
 .IR display ]
-.RB [ \-bc 
+.RB [ \-bc
 .IR color ]
-.RB [ \-bw 
+.RB [ \-bw
 .IR width ]
-.RB [ \-dmenu 
+.RB [ \-dmenu
 .RB [ \-p
 .IR prompt
 ]
 .RB [ \-dump ]
+.RB [ \-ssh\-set\-title
+true|false
+]
 
 .SH DESCRIPTION
 .I rofi
@@ -211,12 +214,12 @@ monitor:
 .B -hmode
 Switch to horizontal mode (ala dmenu). The number of elements is the number of
 .IR lines
-times the number of 
+times the number of
 .IR columns
 .
 .TP
 .B -fixed-num-lines
-Keep a fixed number of visible lines (See the 
+Keep a fixed number of visible lines (See the
 .IR -lines
 option.)
 .TP
@@ -234,6 +237,12 @@ Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.
 .TP
 .B -dump
 Dump the current active configuration to the command-line.
+.RE
+.TP
+.B -ssh-set-title true|false
+SSH dialogs tries to set 'ssh <hostname>' of the spawned terminal.
+Not all terminals support this.
+Default value is true.
 .RS
 .SH Switch between modi
 Type '?'<enter> to switch between window list, run and ssh mode.

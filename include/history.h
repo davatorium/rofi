@@ -39,7 +39,7 @@ void history_set ( const char *filename, const char *entry );
 
 /**
  * @param filename The filename of the history cache.
- * @param entry    The entry to remove 
+ * @param entry    The entry to remove
  *
  * Removes the entry from the history.
  */
@@ -48,12 +48,12 @@ void history_remove ( const char *filename, const char *entry );
 
 /**
  * @param filename The filename of the history cache.
- * @param length   The length of the returned list. 
+ * @param length   The length of the returned list.
  *
  * Gets the entries in the list (in order of usage)
  * @returns a list of entries length long. (and NULL terminated).
  */
-char ** history_get_list ( const char *filename, unsigned int * length);
+char ** history_get_list ( const char *filename, unsigned int * length );
 
 
 

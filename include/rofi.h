@@ -10,11 +10,11 @@
 #define INTERSECT( x, y, w, h, x1, y1, w1, h1 )    ( OVERLAP ( ( x ), ( w ), ( x1 ), ( w1 ) ) && OVERLAP ( ( y ), ( h ), ( y1 ), ( h1 ) ) )
 
 #ifndef TRUE
-#define TRUE 1
+#define TRUE    1
 #endif
 
 #ifndef FALSE
-#define FALSE 0
+#define FALSE    0
 #endif
 
 extern const char *cache_dir;
@@ -94,9 +94,8 @@ typedef struct _Settings
     int            y_offset;
     int            x_offset;
 
-    unsigned int   show_title;
+    unsigned int   ssh_set_title;
     unsigned int   fixed_num_lines;
-
 } Settings;
 
 extern Settings config;

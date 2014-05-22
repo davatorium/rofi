@@ -71,7 +71,7 @@ Settings config = {
     .hmode             = FALSE,
     // Padding of the window.
     .padding         =                     5,
-    .show_title      =                     1,
+    .ssh_set_title   = TRUE,
     .y_offset        =                     0,
     .x_offset        =                     0,
     .fixed_num_lines = FALSE

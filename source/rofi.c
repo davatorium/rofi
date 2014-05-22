@@ -1926,6 +1926,20 @@ static void parse_cmd_options ( int argc, char ** argv )
         config.hmode = TRUE;
     }
 
+    if ( find_arg ( argc, argv, "-ssh-set-title" ) >= 0 )
+    {
+        char *value;
+        find_arg_str ( argc, argv, "-ssh-set-title", &value );
+        if ( strcasecmp ( value, "true" ) == 0 )
+        {
+            config.ssh_set_title = TRUE;
+        }
+        else
+        {
+            config.ssh_set_title = FALSE;
+        }
+    }
+
     // Keybindings
     find_arg_str ( argc, argv, "-key", &( config.window_key ) );
     find_arg_str ( argc, argv, "-rkey", &( config.run_key ) );
@@ -2057,6 +2071,7 @@ void config_print ( void )
 
     /* Terminal */
     printf ( "Terminal emulator: %22s\n", config.terminal_emulator );
+    printf ( "SSH dialog set terminal title:      %5s\n", config.ssh_set_title ? "true" : "false" );
     /* Keybindings. */
     printf ( "Window switcher key:              %7s\n", config.window_key );
     printf ( "Run dialog key:                   %7s\n", config.run_key );

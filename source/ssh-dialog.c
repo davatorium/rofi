@@ -56,7 +56,7 @@ static inline int execshssh ( const char *host )
     char **args = malloc ( sizeof ( char* ) * 7 );
     int  i      = 0;
     args[i++] = config.terminal_emulator;
-    if ( config.show_title )
+    if ( config.ssh_set_title )
     {
         char *buffer = NULL;
         if ( asprintf ( &buffer, "ssh %s", host ) > 0 )

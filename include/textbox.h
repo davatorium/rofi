@@ -46,6 +46,6 @@ void textbox_draw ( textbox *tb );
 int textbox_keypress ( textbox *tb, XEvent *ev );
 
 void textbox_cursor_end ( textbox *tb );
-void textbox_move (textbox *tb, int x, int y);
+void textbox_move ( textbox *tb, int x, int y );
 void textbox_hide ( textbox *tb );
 #endif //__TEXTBOX_H__
