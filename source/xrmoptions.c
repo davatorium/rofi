@@ -74,7 +74,7 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "bg",              { .str = &config.menu_bg           }, NULL },
 
     { xrm_String,  "highlightfg",     { .str = &config.menu_hlfg         }, NULL },
-    { xrm_String,  "hlbg",            { .str = &config.menu_hlfg         }, NULL },
+    { xrm_String,  "hlfg",            { .str = &config.menu_hlfg         }, NULL },
 
     { xrm_String,  "highlightbg",     { .str = &config.menu_hlbg         }, NULL },
     { xrm_String,  "hlbg",            { .str = &config.menu_hlbg         }, NULL },
