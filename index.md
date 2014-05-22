@@ -129,6 +129,7 @@ Xresources file:
 ## 3. Runtime
 
 All the above settings can be overridden by rofi's commandline flags.
+See the [manpage](manpage.html).
 
 # Archlinux
 
