@@ -185,9 +185,8 @@ void parse_xresource_free ( void )
 
 void xresource_dump ( void )
 {
-    const char   * namePrefix  = "rofi";
-    const char   * classPrefix = "rofi";
-    unsigned int entries       = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
+    const char   * namePrefix = "rofi";
+    unsigned int entries      = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
     for ( unsigned int i = 0; i < entries; ++i )
     {
         // Skip duplicates.

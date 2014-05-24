@@ -995,7 +995,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     // then dividing by columns.
     unsigned int max_rows = MIN ( config.menu_lines,
                                   (unsigned int) (
-                                      ( num_lines + ( columns - num_lines % columns ) ) /
+                                      ( num_lines + ( columns - num_lines % columns ) % columns ) /
                                       ( columns )
                                       ) );
 
@@ -1006,7 +1006,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
         // If it would fit in one column, only use one column.
         if ( num_lines < max_elements )
         {
-            columns      = ( num_lines + ( max_rows - num_lines % max_rows ) ) / max_rows;
+            columns      = ( num_lines + ( max_rows - num_lines % max_rows ) % max_rows ) / max_rows;
             max_elements = config.menu_lines * columns;
         }
     }
