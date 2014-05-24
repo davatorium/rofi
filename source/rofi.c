@@ -74,8 +74,6 @@
 
 #define OPAQUE                 0xffffffff
 #define OPACITY                "_NET_WM_WINDOW_OPACITY"
-#define FORK                   1
-#define NOFORK                 2
 
 #ifdef HAVE_I3_IPC_H
 #define I3_SOCKET_PATH_PROP    "I3_SOCKET_PATH"
@@ -693,7 +691,7 @@ client* window_client ( Window win )
         return cache_client->data[idx];
     }
 
-// if this fails, we're up that creek
+    // if this fails, we're up that creek
     XWindowAttributes *attr = window_get_attributes ( win );
 
     if ( !attr )
@@ -703,7 +701,8 @@ client* window_client ( Window win )
 
     client *c = calloc ( 1, sizeof ( client ) );
     c->window = win;
-// copy xattr so we don't have to care when stuff is freed
+
+    // copy xattr so we don't have to care when stuff is freed
     memmove ( &c->xattr, attr, sizeof ( XWindowAttributes ) );
     XGetTransientForHint ( display, win, &c->trans );
 
@@ -1671,14 +1670,14 @@ SwitcherMode run_switcher_window ( char **input )
     return retv;
 }
 
-void run_switcher ( int fmode, SwitcherMode mode )
+static void run_switcher ( int do_fork, SwitcherMode mode )
 {
     // we fork because it's technically possible to have multiple window
     // lists up at once on a zaphod multihead X setup.
     // this also happens to isolate the Xft font stuff in a child process
     // that gets cleaned up every time. that library shows some valgrind
     // strangeness...
-    if ( fmode == FORK )
+    if ( do_fork == TRUE )
     {
         if ( fork () )
         {
@@ -1724,7 +1723,7 @@ void run_switcher ( int fmode, SwitcherMode mode )
 
     free ( input );
 
-    if ( fmode == FORK )
+    if ( do_fork == TRUE )
     {
         exit ( EXIT_SUCCESS );
     }
@@ -1738,19 +1737,19 @@ void handle_keypress ( XEvent *ev )
     if ( ( windows_modmask == AnyModifier || ev->xkey.state & windows_modmask ) &&
          key == windows_keysym )
     {
-        run_switcher ( FORK, WINDOW_SWITCHER );
+        run_switcher ( TRUE, WINDOW_SWITCHER );
     }
 
     if ( ( rundialog_modmask == AnyModifier || ev->xkey.state & rundialog_modmask ) &&
          key == rundialog_keysym )
     {
-        run_switcher ( FORK, RUN_DIALOG );
+        run_switcher ( TRUE, RUN_DIALOG );
     }
 
     if ( ( sshdialog_modmask == AnyModifier || ev->xkey.state & sshdialog_modmask ) &&
          key == sshdialog_keysym )
     {
-        run_switcher ( FORK, SSH_DIALOG );
+        run_switcher ( TRUE, SSH_DIALOG );
     }
 }
 
@@ -1880,9 +1879,8 @@ void help ()
 static void parse_cmd_options ( int argc, char ** argv )
 {
     // catch help request
-    if ( find_arg ( argc, argv, "-help" ) >= 0
-         || find_arg ( argc, argv, "--help" ) >= 0
-         || find_arg ( argc, argv, "-h" ) >= 0 )
+    if ( find_arg ( argc, argv, "-h" ) >= 0 ||
+         find_arg ( argc, argv, "-help" ) >= 0 )
     {
         help ();
         exit ( EXIT_SUCCESS );
@@ -2116,20 +2114,20 @@ int main ( int argc, char *argv[] )
     // flags to run immediately and exit
     if ( find_arg ( argc, argv, "-now" ) >= 0 )
     {
-        run_switcher ( NOFORK, WINDOW_SWITCHER );
+        run_switcher ( FALSE, WINDOW_SWITCHER );
     }
     else if ( find_arg ( argc, argv, "-rnow" ) >= 0 )
     {
-        run_switcher ( NOFORK, RUN_DIALOG );
+        run_switcher ( FALSE, RUN_DIALOG );
     }
     else if ( find_arg ( argc, argv, "-snow" ) >= 0 )
     {
-        run_switcher ( NOFORK, SSH_DIALOG );
+        run_switcher ( FALSE, SSH_DIALOG );
     }
     else if ( find_arg ( argc, argv, "-dmenu" ) >= 0 )
     {
         find_arg_str ( argc, argv, "-p", &dmenu_prompt );
-        run_switcher ( NOFORK, DMENU_DIALOG );
+        run_switcher ( FALSE, DMENU_DIALOG );
     }
     else
     {
