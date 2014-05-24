@@ -976,6 +976,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 {
     int          retv = MENU_CANCEL;
     unsigned int i, j;
+    unsigned int columns = config.menu_columns;
     workarea     mon;
 
 
@@ -988,21 +989,27 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     }
 
 
-    unsigned int max_elements = MIN ( config.menu_lines * config.menu_columns, num_lines );
+    unsigned int max_elements = MIN ( config.menu_lines * columns, num_lines );
     // TODO, clean this up.
     // Calculate the number or rows.
     // we do this by getting the num_lines rounded up to X columns (num elements is better name)
     // then dividing by columns.
     unsigned int max_rows = MIN ( config.menu_lines,
                                   (unsigned int) (
-                                      ( num_lines + ( config.menu_columns - num_lines % config.menu_columns ) % config.menu_columns ) /
-                                      ( config.menu_columns )
+                                      ( num_lines + ( columns - num_lines % columns ) ) /
+                                      ( columns )
                                       ) );
 
-    if ( config.fixed_num_lines == 1 )
+    if ( config.fixed_num_lines == TRUE )
     {
-        max_elements = config.menu_lines * config.menu_columns;
+        max_elements = config.menu_lines * columns;
         max_rows     = config.menu_lines;
+        // If it would fit in one column, only use one column.
+        if ( num_lines < max_elements )
+        {
+            columns      = ( num_lines + ( max_rows - num_lines % max_rows ) ) / max_rows;
+            max_elements = config.menu_lines * columns;
+        }
     }
     // More hacks.
     if ( config.hmode == TRUE )
@@ -1018,7 +1025,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     int x             = mon.x + ( mon.w - w ) / 2;
     int element_width = w - ( 2 * ( config.padding ) );
     // Divide by the # columns
-    element_width /= config.menu_columns;
+    element_width /= columns;
     if ( config.hmode == TRUE )
     {
         element_width = ( w - ( 2 * ( config.padding ) ) - max_elements * LINE_MARGIN ) / ( max_elements + 1 );
