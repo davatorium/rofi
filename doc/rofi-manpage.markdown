@@ -13,8 +13,7 @@ SYNOPSIS
 [ -bg *color* ] [ -hlfg *color* ] [ -hlbg *color* ] [ -key *combo* ] [ -dkey *comdo* ] [ -rkey *comdo* ]
 [ -terminal *terminal* ] [ -loc *position* ] [ -hmode ] [ -fixed-num-lines ] [ -padding *padding* ]
 [ -opacity *opacity%* ] [ -display *display* ] [ -bc *color* ] [ -bw *width* ] [ -dmenu [ -p *prompt* ] ]
-[ -ssh-set-title *true|false* ] [ -now ] [ -rnow ] [ -snow ] [ -version ] [ -help] [ -dump ] 
-[ -dump-xresources ]
+[ -ssh-set-title *true|false* ] [ -now ] [ -rnow ] [ -snow ] [ -version ] [ -help] [ -dump-xresources ]
 
 DESCRIPTION
 -----------
@@ -200,10 +199,6 @@ OPTIONS
 `-dmenu`
 
   Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.
-
-`-dump`
-
-  Dump the current active configuration to the command-line.
 
 `-dump-xresources`
 

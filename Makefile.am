@@ -66,3 +66,13 @@ EXTRA_DIST=\
     $(man1_MANS)\
     $(markdown_FILES)\
     $(markdown_SC_FILES)
+
+##
+# Indent
+##
+
+indent: ${rofi_SOURCES}
+	uncrustify -c ${top_srcdir}/data/uncrustify.cfg --replace $^
+
+update-manpage: ${top_srcdir}/doc/rofi-manpage.markdown
+	md2man-roff $^ > ${top_srcdir}/doc/rofi.1 
