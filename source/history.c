@@ -58,13 +58,16 @@ static void __history_write_element_list ( FILE *fd, _element **list, unsigned i
     // Sort the list before writing out.
     qsort ( list, length, sizeof ( _element* ), __element_sort_func );
 
+    // Get minimum index.
+    int min_value = list[length-1]->index;
+
     // Set the max length of the list.
     length = ( length > HISTORY_MAX_ENTRIES ) ? HISTORY_MAX_ENTRIES : length;
 
     // Write out entries.
     for ( unsigned int iter = 0; iter < length; iter++ )
     {
-        fprintf ( fd, "%ld %s\n", list[iter]->index, list[iter]->name );
+        fprintf ( fd, "%ld %s\n", list[iter]->index-min_value, list[iter]->name );
     }
 }
 
