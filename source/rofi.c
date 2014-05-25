@@ -639,10 +639,10 @@ void monitor_active ( workarea *mon )
 {
     Window root = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
 
+#if 0
     Window id;
     Atom   type;
     int    count;
-
     if ( window_get_prop ( root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id, sizeof ( Window ) )
          && type == XA_WINDOW && count > 0 )
     {
@@ -655,7 +655,7 @@ void monitor_active ( workarea *mon )
             return;
         }
     }
-
+#endif
     int x, y;
 
     if ( pointer_get ( root, &x, &y ) )
