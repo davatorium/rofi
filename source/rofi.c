@@ -640,6 +640,9 @@ void monitor_active ( workarea *mon )
     Window root = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
 
 #if 0
+    // Comment this code out as it seems to break things.
+    // This code was not working before in simpleswitcher to begin with.
+    // After fixing the broken code, problems started.
     Window id;
     Atom   type;
     int    count;
