@@ -87,6 +87,8 @@ char *i3_socket_path = NULL;
 xdgHandle  xdg_handle;
 const char *cache_dir = NULL;
 
+char       *active_font = NULL;
+
 /**
  * Shared 'token_match' function.
  * Matches tokenized.
@@ -400,6 +402,7 @@ typedef struct
     int               states;
     Atom              state[CLIENTSTATE];
     workarea          monitor;
+    int               active;
 } client;
 
 
@@ -634,13 +637,13 @@ void monitor_dimensions ( Screen *screen, int x, int y, workarea *mon )
 // determine which monitor holds the active window, or failing that the mouse pointer
 void monitor_active ( workarea *mon )
 {
-    Window        root = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
+    Window root = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
 
-    unsigned long id;
-    Atom          type;
-    int           count;
+    Window id;
+    Atom   type;
+    int    count;
 
-    if ( window_get_prop ( root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id, 1 )
+    if ( window_get_prop ( root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id, sizeof ( Window ) )
          && type == XA_WINDOW && count > 0 )
     {
         XWindowAttributes *attr = window_get_attributes ( id );
@@ -837,10 +840,22 @@ void menu_draw ( textbox **boxes,
         }
         else
         {
-            textbox_font ( boxes[i], config.menu_font,
-                           ( i + offset ) == selected ? config.menu_hlfg : config.menu_fg,
-                           ( i + offset ) == selected ? config.menu_hlbg : config.menu_bg );
-            textbox_text ( boxes[i], filtered[i + offset] );
+            char *text = filtered[i + offset];
+            char *f_fg = ( i + offset ) == selected ? config.menu_hlfg : config.menu_fg;
+            char *f_bg = ( i + offset ) == selected ? config.menu_hlbg : config.menu_bg;
+            char *font = config.menu_font;
+            // Check for active
+            if ( text[0] == '*' )
+            {
+                // Skip the '*'
+                text++;
+                // Use the active version of font.
+                font = active_font;
+            }
+            textbox_font ( boxes[i], font,
+                           f_fg,
+                           f_bg );
+            textbox_text ( boxes[i], text );
         }
 
         textbox_draw ( boxes[i] );
@@ -1008,6 +1023,11 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
         {
             columns      = ( num_lines + ( max_rows - num_lines % max_rows ) % max_rows ) / max_rows;
             max_elements = config.menu_lines * columns;
+        }
+        // Sanitize.
+        if ( columns == 0 )
+        {
+            columns = 1;
         }
     }
     // More hacks.
@@ -1521,14 +1541,24 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
 SwitcherMode run_switcher_window ( char **input )
 {
-    SwitcherMode  retv = MODE_EXIT;
+    SwitcherMode retv = MODE_EXIT;
     // find window list
-    Atom          type;
-    int           nwins;
-    unsigned long wins[100];
+    Atom         type;
+    int          nwins;
+    Window       wins[100];
+    int          count       = 0;
+    Window       curr_win_id = 0;
+
+    // Get the active window so we can highlight this.
+    if ( !( window_get_prop ( root, netatoms[_NET_ACTIVE_WINDOW], &type,
+                              &count, &curr_win_id, sizeof ( Window ) )
+            && type == XA_WINDOW && count > 0 ) )
+    {
+        curr_win_id = 0;
+    }
 
     if ( window_get_prop ( root, netatoms[_NET_CLIENT_LIST_STACKING],
-                           &type, &nwins, wins, 100 * sizeof ( unsigned long ) )
+                           &type, &nwins, wins, 100 * sizeof ( Window ) )
          && type == XA_WINDOW )
     {
         char          pattern[50];
@@ -1538,6 +1568,8 @@ SwitcherMode run_switcher_window ( char **input )
         // windows we actually display. may be slightly different to _NET_CLIENT_LIST_STACKING
         // if we happen to have a window destroyed while we're working...
         winlist *ids = winlist_new ();
+
+
 
         // calc widths of fields
         for ( i = nwins - 1; i > -1; i-- )
@@ -1560,7 +1592,10 @@ SwitcherMode run_switcher_window ( char **input )
                 }
 
 #endif
-
+                if ( c->window == curr_win_id )
+                {
+                    c->active = TRUE;
+                }
                 winlist_append ( ids, c->window, NULL );
             }
         }
@@ -1573,12 +1608,12 @@ SwitcherMode run_switcher_window ( char **input )
 #ifdef HAVE_I3_IPC_H
         if ( config_i3_mode )
         {
-            sprintf ( pattern, "%%-%ds   %%s", MAX ( 5, classfield ) );
+            sprintf ( pattern, "%%s%%-%ds   %%s", MAX ( 5, classfield ) );
         }
         else
         {
 #endif
-        sprintf ( pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX ( 5, classfield ) );
+        sprintf ( pattern, "%%s%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX ( 5, classfield ) );
 #ifdef HAVE_I3_IPC_H
     }
 #endif
@@ -1614,12 +1649,12 @@ SwitcherMode run_switcher_window ( char **input )
                     sprintf ( desktop, "%d", (int) wmdesktop + 1 );
                 }
 
-                sprintf ( line, pattern, desktop, c->class, c->title );
+                sprintf ( line, pattern, ( c->active ) ? "*" : "", desktop, c->class, c->title );
 #ifdef HAVE_I3_IPC_H
             }
             else
             {
-                sprintf ( line, pattern, c->class, c->title );
+                sprintf ( line, pattern, ( c->active ) ? "*" : "", c->class, c->title );
             }
 #endif
 
@@ -1730,7 +1765,7 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
 }
 
 // KeyPress event
-void handle_keypress ( XEvent *ev )
+static void handle_keypress ( XEvent *ev )
 {
     KeySym key = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
 
@@ -1994,6 +2029,8 @@ static void cleanup ()
 
     // Whipe the handle.. (not working)
     xdgWipeHandle ( &xdg_handle );
+
+    free ( active_font );
 }
 
 /**
@@ -2069,6 +2106,13 @@ int main ( int argc, char *argv[] )
 
     // Sanity check
     config_sanity_check ();
+
+    // Generate the font string for the line that indicates a selected item.
+    if ( asprintf ( &active_font, "%s:slant=italic", config.menu_font ) < 0 )
+    {
+        fprintf ( stderr, "Failed to construct active string: %s\n", strerror ( errno ) );
+        return EXIT_FAILURE;
+    }
 
     // Set up X interaction.
     signal ( SIGCHLD, catch_exit );
