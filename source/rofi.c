@@ -647,8 +647,13 @@ void monitor_active ( workarea *mon )
          && type == XA_WINDOW && count > 0 )
     {
         XWindowAttributes *attr = window_get_attributes ( id );
-        monitor_dimensions ( screen, attr->x, attr->y, mon );
-        return;
+        // Window might not exists anymore.
+        // This could very well be a bug in i3.
+        if ( attr != NULL )
+        {
+            monitor_dimensions ( screen, attr->x, attr->y, mon );
+            return;
+        }
     }
 
     int x, y;
