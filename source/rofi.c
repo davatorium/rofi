@@ -798,13 +798,13 @@ void menu_set_arrow_text ( int filtered_lines, int selected, int max_elements,
     if ( page != 0 && npages > 1 )
     {
         textbox_show ( arrowbox_top );
-        textbox_font ( arrowbox_top, ( entry == 0 ) ? NORMAL : HIGHLIGHT );
+        textbox_font ( arrowbox_top, ( entry != 0 ) ? NORMAL : HIGHLIGHT );
         textbox_draw ( arrowbox_top  );
     }
     if ( ( npages - 1 ) != page && npages > 1 )
     {
         textbox_show ( arrowbox_bottom );
-        textbox_font ( arrowbox_bottom, ( entry == 0 ) ? NORMAL : HIGHLIGHT );
+        textbox_font ( arrowbox_bottom, ( entry != ( max_elements - 1 ) ) ? NORMAL : HIGHLIGHT );
         textbox_draw ( arrowbox_bottom  );
     }
 }
