@@ -26,18 +26,23 @@ typedef enum
     TB_EDITABLE   = 1 << 19,
 } TextboxFlags;
 
-
-
+typedef enum
+{
+    NORMAL,
+    HIGHLIGHT,
+    ACTIVE_HIGHLIGHT,
+    ACTIVE
+} TextBoxFontType;
 
 textbox* textbox_create ( Window parent,
                           TextboxFlags flags,
                           short x, short y, short w, short h,
-                          char *font, char *fg, char *bg,
+                          TextBoxFontType tbft,
                           char *text );
 
 void textbox_free ( textbox *tb );
 
-void textbox_font ( textbox *tb, char *font, char *fg, char *bg );
+void textbox_font ( textbox *tb, TextBoxFontType tbft );
 
 void textbox_text ( textbox *tb, char *text );
 void textbox_show ( textbox *tb );
@@ -48,4 +53,12 @@ int textbox_keypress ( textbox *tb, XEvent *ev );
 void textbox_cursor_end ( textbox *tb );
 void textbox_move ( textbox *tb, int x, int y );
 void textbox_hide ( textbox *tb );
+
+
+void textbox_setup (
+    const char *font_str, const char *font_active_str,
+    const char *bg, const char *fg,
+    const char *hlbg, const char *hlfg
+    );
+void textbox_cleanup ();
 #endif //__TEXTBOX_H__

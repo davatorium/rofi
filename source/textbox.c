@@ -43,13 +43,22 @@
 
 extern Display *display;
 
+
+
+XftFont  *font        = NULL;
+XftFont  *font_active = NULL;
+XftColor color_fg;
+XftColor color_bg;
+XftColor color_hlfg;
+XftColor color_hlbg;
+
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
 
 // Xft text box, optionally editable
 textbox* textbox_create ( Window parent,
                           TextboxFlags flags,
                           short x, short y, short w, short h,
-                          char *font, char *fg, char *bg,
+                          TextBoxFontType tbft,
                           char *text )
 {
     textbox *tb = calloc ( 1, sizeof ( textbox ) );
@@ -64,12 +73,12 @@ textbox* textbox_create ( Window parent,
 
     XColor       color;
     Colormap     map = DefaultColormap ( display, DefaultScreen ( display ) );
-    unsigned int cp  = XAllocNamedColor ( display, map, bg, &color, &color ) ? color.pixel : None;
+    unsigned int cp  = ( tbft == NORMAL ) ? color_bg.pixel : color_hlbg.pixel;
 
     tb->window = XCreateSimpleWindow ( display, tb->parent, tb->x, tb->y, tb->w, tb->h, 0, None, cp );
 
     // need to preload the font to calc line height
-    textbox_font ( tb, font, fg, bg );
+    textbox_font ( tb, tbft );
 
     textbox_text ( tb, text ? text : "" );
     textbox_cursor_end ( tb );
@@ -88,26 +97,32 @@ textbox* textbox_create ( Window parent,
 }
 
 // set an Xft font by name
-void textbox_font ( textbox *tb, char *font, char *fg, char *bg )
+void textbox_font ( textbox *tb, TextBoxFontType tbft )
 {
-    if ( tb->font )
+    switch ( tbft )
     {
-        XftColorFree ( display,
-                       DefaultVisual ( display, DefaultScreen ( display ) ),
-                       DefaultColormap ( display, DefaultScreen ( display ) ),
-                       &tb->color_fg );
-        XftColorFree ( display,
-                       DefaultVisual ( display, DefaultScreen ( display ) ),
-                       DefaultColormap ( display, DefaultScreen ( display ) ),
-                       &tb->color_bg );
-
-        XftFontClose ( display, tb->font );
+    case HIGHLIGHT:
+        tb->font     = font;
+        tb->color_bg = color_hlbg;
+        tb->color_fg = color_hlfg;
+        break;
+    case ACTIVE:
+        tb->font     = font_active;
+        tb->color_bg = color_bg;
+        tb->color_fg = color_fg;
+        break;
+    case ACTIVE_HIGHLIGHT:
+        tb->font     = font_active;
+        tb->color_bg = color_hlbg;
+        tb->color_fg = color_hlfg;
+        break;
+    case NORMAL:
+    default:
+        tb->font     = font;
+        tb->color_bg = color_bg;
+        tb->color_fg = color_fg;
+        break;
     }
-
-    tb->font = XftFontOpenName ( display, DefaultScreen ( display ), font );
-
-    XftColorAllocName ( display, DefaultVisual ( display, DefaultScreen ( display ) ), DefaultColormap ( display, DefaultScreen ( display ) ), fg, &tb->color_fg );
-    XftColorAllocName ( display, DefaultVisual ( display, DefaultScreen ( display ) ), DefaultColormap ( display, DefaultScreen ( display ) ), bg, &tb->color_bg );
 }
 
 // outer code may need line height, width, etc
@@ -190,20 +205,6 @@ void textbox_free ( textbox *tb )
     if ( tb->text )
     {
         free ( tb->text );
-    }
-
-    if ( tb->font )
-    {
-        XftColorFree ( display,
-                       DefaultVisual ( display, DefaultScreen ( display ) ),
-                       DefaultColormap ( display, DefaultScreen ( display ) ),
-                       &tb->color_fg );
-        XftColorFree ( display,
-                       DefaultVisual ( display, DefaultScreen ( display ) ),
-                       DefaultColormap ( display, DefaultScreen ( display ) ),
-                       &tb->color_bg );
-
-        XftFontClose ( display, tb->font );
     }
 
     XDestroyWindow ( display, tb->window );
@@ -427,4 +428,59 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
     }
 
     return 0;
+}
+
+
+
+/***
+ * Font setup.
+ */
+
+void textbox_setup (
+    const char *font_str, const char *font_active_str,
+    const char *bg, const char *fg,
+    const char *hlbg, const char *hlfg
+    )
+{
+    font        = XftFontOpenName ( display, DefaultScreen ( display ), font_str );
+    font_active = XftFontOpenName ( display, DefaultScreen ( display ), font_active_str );
+
+    XftColorAllocName ( display, DefaultVisual ( display, DefaultScreen ( display ) ),
+                        DefaultColormap ( display, DefaultScreen ( display ) ), fg, &color_fg );
+    XftColorAllocName ( display, DefaultVisual ( display, DefaultScreen ( display ) ),
+                        DefaultColormap ( display, DefaultScreen ( display ) ), bg, &color_bg );
+    XftColorAllocName ( display, DefaultVisual ( display, DefaultScreen ( display ) ),
+                        DefaultColormap ( display, DefaultScreen ( display ) ), hlfg, &color_hlfg );
+    XftColorAllocName ( display, DefaultVisual ( display, DefaultScreen ( display ) ),
+                        DefaultColormap ( display, DefaultScreen ( display ) ), hlbg, &color_hlbg );
+}
+
+
+void textbox_cleanup ()
+{
+    if ( font != NULL )
+    {
+        XftFontClose ( display, font );
+        font = NULL;
+
+        XftFontClose ( display, font_active );
+        font_active = NULL;
+
+        XftColorFree ( display,
+                       DefaultVisual ( display, DefaultScreen ( display ) ),
+                       DefaultColormap ( display, DefaultScreen ( display ) ),
+                       &color_fg );
+        XftColorFree ( display,
+                       DefaultVisual ( display, DefaultScreen ( display ) ),
+                       DefaultColormap ( display, DefaultScreen ( display ) ),
+                       &color_bg );
+        XftColorFree ( display,
+                       DefaultVisual ( display, DefaultScreen ( display ) ),
+                       DefaultColormap ( display, DefaultScreen ( display ) ),
+                       &color_hlfg );
+        XftColorFree ( display,
+                       DefaultVisual ( display, DefaultScreen ( display ) ),
+                       DefaultColormap ( display, DefaultScreen ( display ) ),
+                       &color_hlbg );
+    }
 }

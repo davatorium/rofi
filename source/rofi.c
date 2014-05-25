@@ -445,8 +445,7 @@ static int take_keyboard ( Window w )
             return 1;
         }
 
-
-        struct timespec rsl = { 0, 100000L };
+        struct timespec rsl = { 0, 50000L };
         nanosleep ( &rsl, NULL );
     }
 
@@ -799,17 +798,13 @@ void menu_set_arrow_text ( int filtered_lines, int selected, int max_elements,
     if ( page != 0 && npages > 1 )
     {
         textbox_show ( arrowbox_top );
-        textbox_font ( arrowbox_top, config.menu_font,
-                       ( entry == 0 ) ? config.menu_hlfg : config.menu_fg,
-                       ( entry == 0 ) ? config.menu_hlbg : config.menu_bg );
+        textbox_font ( arrowbox_top, ( entry == 0 ) ? NORMAL : HIGHLIGHT );
         textbox_draw ( arrowbox_top  );
     }
     if ( ( npages - 1 ) != page && npages > 1 )
     {
         textbox_show ( arrowbox_bottom );
-        textbox_font ( arrowbox_bottom, config.menu_font,
-                       ( entry == ( max_elements - 1 ) ) ? config.menu_hlfg : config.menu_fg,
-                       ( entry == ( max_elements - 1 ) ) ? config.menu_hlbg : config.menu_bg );
+        textbox_font ( arrowbox_bottom, ( entry == 0 ) ? NORMAL : HIGHLIGHT );
         textbox_draw ( arrowbox_bottom  );
     }
 }
@@ -841,28 +836,23 @@ void menu_draw ( textbox **boxes,
     {
         if ( ( i + offset ) >= num_lines || filtered[i + offset] == NULL )
         {
-            textbox_font ( boxes[i], config.menu_font,
-                           config.menu_fg,
-                           config.menu_bg );
+            textbox_font ( boxes[i], NORMAL );
             textbox_text ( boxes[i], "" );
         }
         else
         {
-            char *text = filtered[i + offset];
-            char *f_fg = ( i + offset ) == selected ? config.menu_hlfg : config.menu_fg;
-            char *f_bg = ( i + offset ) == selected ? config.menu_hlbg : config.menu_bg;
-            char *font = config.menu_font;
+            char            *text = filtered[i + offset];
+            TextBoxFontType tbft  = ( i + offset ) == selected ? HIGHLIGHT : NORMAL;
+            char            *font = config.menu_font;
             // Check for active
             if ( text[0] == '*' )
             {
                 // Skip the '*'
                 text++;
                 // Use the active version of font.
-                font = active_font;
+                tbft = ( tbft == HIGHLIGHT ) ? ACTIVE_HIGHLIGHT : ACTIVE;
             }
-            textbox_font ( boxes[i], font,
-                           f_fg,
-                           f_bg );
+            textbox_font ( boxes[i], tbft );
             textbox_text ( boxes[i], text );
         }
 
@@ -1100,7 +1090,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                           ( config.padding ),
                                           ( config.padding ),
                                           0, 0,
-                                          config.menu_font, config.menu_fg, config.menu_bg,
+                                          NORMAL,
                                           prompt );
 
     textbox *text = textbox_create ( box, TB_AUTOHEIGHT | TB_EDITABLE,
@@ -1108,7 +1098,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                      ( config.padding ),
                                      ( ( config.hmode == TRUE ) ?
                                        element_width : ( w - ( 2 * ( config.padding ) ) ) ) - prompt_tb->w, 1,
-                                     config.menu_font, config.menu_fg, config.menu_bg,
+                                     NORMAL,
                                      ( input != NULL ) ? *input : "" );
 
     int line_height = text->font->ascent + text->font->descent;
@@ -1130,7 +1120,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                     line * line_height + config.padding + ( ( config.hmode == TRUE ) ? 0 : LINE_MARGIN ), // y
                                     element_width,                                                                        // w
                                     line_height,                                                                          // h
-                                    config.menu_font, config.menu_fg, config.menu_bg, "" );
+                                    NORMAL, "" );
         textbox_show ( boxes[i] );
     }
     // Arrows
@@ -1141,13 +1131,13 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                         ( config.padding ),
                                         ( config.padding ),
                                         0, 0,
-                                        config.menu_font, config.menu_fg, config.menu_bg,
+                                        NORMAL,
                                         "↑" );
         arrowbox_bottom = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
                                            ( config.padding ),
                                            ( config.padding ),
                                            0, 0,
-                                           config.menu_font, config.menu_fg, config.menu_bg,
+                                           NORMAL,
                                            "↓" );
 
         textbox_move ( arrowbox_top,
@@ -1530,6 +1520,9 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     *input = strdup ( text->text );
 
     textbox_free ( text );
+    textbox_free ( prompt_tb );
+    textbox_free ( arrowbox_bottom );
+    textbox_free ( arrowbox_top );
 
     for ( i = 0; i < max_elements; i++ )
     {
@@ -2004,6 +1997,7 @@ static void parse_cmd_options ( int argc, char ** argv )
 
 static void cleanup ()
 {
+    textbox_cleanup ();
     // Cleanup
     if ( display != NULL )
     {
@@ -2145,6 +2139,12 @@ int main ( int argc, char *argv[] )
             }
         }
     }
+
+
+    textbox_setup ( config.menu_font, active_font,
+                    config.menu_bg, config.menu_fg,
+                    config.menu_hlbg,
+                    config.menu_hlfg );
 
     XFreeModifiermap ( modmap );
 
