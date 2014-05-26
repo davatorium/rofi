@@ -46,7 +46,12 @@ static char **get_dmenu ( void )
 
     while ( fgets ( buffer, 1024, stdin ) != NULL )
     {
-        retv            = realloc ( retv, ( index + 2 ) * sizeof ( char* ) );
+        char **tr = realloc ( retv, ( index + 2 ) * sizeof ( char* ) );
+        if ( tr == NULL )
+        {
+            return retv;
+        }
+        retv            = tr;
         retv[index]     = strdup ( buffer );
         retv[index + 1] = NULL;
 

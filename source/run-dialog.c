@@ -178,10 +178,14 @@ static char ** get_apps ( void )
                     continue;
                 }
 
-                retv            = realloc ( retv, ( index + 2 ) * sizeof ( char* ) );
-                retv[index]     = strdup ( dent->d_name );
-                retv[index + 1] = NULL;
-                index++;
+                char ** tr = realloc ( retv, ( index + 2 ) * sizeof ( char* ) );
+                if ( tr != NULL )
+                {
+                    retv            = tr;
+                    retv[index]     = strdup ( dent->d_name );
+                    retv[index + 1] = NULL;
+                    index++;
+                }
             }
 
             closedir ( dir );

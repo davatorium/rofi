@@ -94,7 +94,14 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
         {
             continue;
         }
-        retv              = realloc ( retv, ( *length + 2 ) * sizeof ( _element* ) );
+        // Resize and check.
+        _element **tr = realloc ( retv, ( *length + 2 ) * sizeof ( _element* ) );
+        if ( tr == NULL )
+        {
+            return retv;
+        }
+        retv = tr;
+
         retv[( *length )] = malloc ( sizeof ( _element ) );
         // remove trailing \n
         buffer[strlen ( buffer ) - 1] = '\0';
@@ -146,16 +153,23 @@ void history_set ( const char *filename, const char *entry )
     {
         // If not exists, add it.
         // Increase list by one
-        list         = realloc ( list, ( length + 2 ) * sizeof ( _element * ) );
-        list[length] = malloc ( sizeof ( _element ) );
-        // Copy name
-        strncpy ( list[length]->name, entry, HISTORY_NAME_LENGTH );
-        list[length]->name[HISTORY_NAME_LENGTH - 1] = '\0';
-        // set # hits
-        list[length]->index = 1;
+        _element **tr = realloc ( list, ( length + 2 ) * sizeof ( _element* ) );
+        if ( tr != NULL )
+        {
+            list         = tr;
+            list[length] = malloc ( sizeof ( _element ) );
+            // Copy name
+            if ( list[length] != NULL )
+            {
+                strncpy ( list[length]->name, entry, HISTORY_NAME_LENGTH );
+                list[length]->name[HISTORY_NAME_LENGTH - 1] = '\0';
+                // set # hits
+                list[length]->index = 1;
 
-        length++;
-        list[length] = NULL;
+                length++;
+                list[length] = NULL;
+            }
+        }
     }
 
     // Rewind.
@@ -173,15 +187,9 @@ void history_set ( const char *filename, const char *entry )
     // Free the list.
     for ( unsigned int iter = 0; iter < length; iter++ )
     {
-        if ( list[iter] != NULL )
-        {
-            free ( list[iter] );
-        }
+        free ( list[iter] );
     }
-    if ( list != NULL )
-    {
-        free ( list );
-    }
+    free ( list );
     // Close file.
     fclose ( fd );
 }

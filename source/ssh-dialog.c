@@ -206,10 +206,14 @@ static char ** get_ssh ( void )
                     continue;
                 }
 
-                retv            = realloc ( retv, ( index + 2 ) * sizeof ( char* ) );
-                retv[index]     = strndup ( &buffer[start], stop - start );
-                retv[index + 1] = NULL;
-                index++;
+                char **tr = realloc ( retv, ( index + 2 ) * sizeof ( char* ) );
+                if ( tr != NULL )
+                {
+                    retv            = tr;
+                    retv[index]     = strndup ( &buffer[start], stop - start );
+                    retv[index + 1] = NULL;
+                    index++;
+                }
             }
         }
 

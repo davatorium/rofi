@@ -136,10 +136,14 @@ static char **tokenize ( const char *input )
         token != NULL;
         token = strtok_r ( NULL, " ", &saveptr ) )
     {
-        retv                 = realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
-        retv[num_tokens + 1] = NULL;
-        retv[num_tokens]     = token;
-        num_tokens++;
+        char **tr = realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
+        if ( tr != NULL )
+        {
+            retv = tr;
+            retv[num_tokens + 1] = NULL;
+            retv[num_tokens]     = token;
+            num_tokens++;
+        }
     }
 
     return retv;
@@ -608,7 +612,7 @@ void monitor_dimensions ( Screen *screen, int x, int y, workarea *mon )
     mon->w = WidthOfScreen ( screen );
     mon->h = HeightOfScreen ( screen );
 
-// locate the current monitor
+    // locate the current monitor
     if ( XineramaIsActive ( display ) )
     {
         int                monitors;
