@@ -1723,7 +1723,12 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
         display = XOpenDisplay ( 0 );
         XSync ( display, True );
     }
-
+    // Because of the above fork, we want to do this here.
+    // Make sure this is isolated to its own thread.
+    textbox_setup ( config.menu_font, active_font,
+                    config.menu_bg, config.menu_fg,
+                    config.menu_hlbg,
+                    config.menu_hlfg );
     char *input = NULL;
 
     do
@@ -1758,6 +1763,9 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
     } while ( mode != MODE_EXIT );
 
     free ( input );
+
+    // Cleanup font setup.
+    textbox_cleanup ();
 
     if ( do_fork == TRUE )
     {
@@ -1997,7 +2005,6 @@ static void parse_cmd_options ( int argc, char ** argv )
 
 static void cleanup ()
 {
-    textbox_cleanup ();
     // Cleanup
     if ( display != NULL )
     {
@@ -2141,10 +2148,6 @@ int main ( int argc, char *argv[] )
     }
 
 
-    textbox_setup ( config.menu_font, active_font,
-                    config.menu_bg, config.menu_fg,
-                    config.menu_hlbg,
-                    config.menu_hlfg );
 
     XFreeModifiermap ( modmap );
 

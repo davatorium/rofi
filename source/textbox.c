@@ -43,8 +43,10 @@
 
 extern Display *display;
 
-
-
+/**
+ * Font + font color cache.
+ * Avoid re-loading font on every change on every textbox.
+ */
 XftFont  *font        = NULL;
 XftFont  *font_active = NULL;
 XftColor color_fg;
@@ -442,17 +444,15 @@ void textbox_setup (
     const char *hlbg, const char *hlfg
     )
 {
+    Visual   *visual  = DefaultVisual ( display, DefaultScreen ( display )  );
+    Colormap colormap = DefaultColormap ( display, DefaultScreen ( display ) );
     font        = XftFontOpenName ( display, DefaultScreen ( display ), font_str );
     font_active = XftFontOpenName ( display, DefaultScreen ( display ), font_active_str );
 
-    XftColorAllocName ( display, DefaultVisual ( display, DefaultScreen ( display ) ),
-                        DefaultColormap ( display, DefaultScreen ( display ) ), fg, &color_fg );
-    XftColorAllocName ( display, DefaultVisual ( display, DefaultScreen ( display ) ),
-                        DefaultColormap ( display, DefaultScreen ( display ) ), bg, &color_bg );
-    XftColorAllocName ( display, DefaultVisual ( display, DefaultScreen ( display ) ),
-                        DefaultColormap ( display, DefaultScreen ( display ) ), hlfg, &color_hlfg );
-    XftColorAllocName ( display, DefaultVisual ( display, DefaultScreen ( display ) ),
-                        DefaultColormap ( display, DefaultScreen ( display ) ), hlbg, &color_hlbg );
+    XftColorAllocName ( display, visual, colormap, fg, &color_fg );
+    XftColorAllocName ( display, visual, colormap, bg, &color_bg );
+    XftColorAllocName ( display, visual, colormap, hlfg, &color_hlfg );
+    XftColorAllocName ( display, visual, colormap, hlbg, &color_hlbg );
 }
 
 
@@ -460,27 +460,18 @@ void textbox_cleanup ()
 {
     if ( font != NULL )
     {
+        Visual   *visual  = DefaultVisual ( display, DefaultScreen ( display )  );
+        Colormap colormap = DefaultColormap ( display, DefaultScreen ( display ) );
+
         XftFontClose ( display, font );
         font = NULL;
 
         XftFontClose ( display, font_active );
         font_active = NULL;
 
-        XftColorFree ( display,
-                       DefaultVisual ( display, DefaultScreen ( display ) ),
-                       DefaultColormap ( display, DefaultScreen ( display ) ),
-                       &color_fg );
-        XftColorFree ( display,
-                       DefaultVisual ( display, DefaultScreen ( display ) ),
-                       DefaultColormap ( display, DefaultScreen ( display ) ),
-                       &color_bg );
-        XftColorFree ( display,
-                       DefaultVisual ( display, DefaultScreen ( display ) ),
-                       DefaultColormap ( display, DefaultScreen ( display ) ),
-                       &color_hlfg );
-        XftColorFree ( display,
-                       DefaultVisual ( display, DefaultScreen ( display ) ),
-                       DefaultColormap ( display, DefaultScreen ( display ) ),
-                       &color_hlbg );
+        XftColorFree ( display, visual, colormap, &color_fg );
+        XftColorFree ( display, visual, colormap, &color_bg );
+        XftColorFree ( display, visual, colormap, &color_hlfg );
+        XftColorFree ( display, visual, colormap, &color_hlbg );
     }
 }
