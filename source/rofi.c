@@ -139,7 +139,7 @@ static char **tokenize ( const char *input )
         char **tr = realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
         if ( tr != NULL )
         {
-            retv = tr;
+            retv                 = tr;
             retv[num_tokens + 1] = NULL;
             retv[num_tokens]     = token;
             num_tokens++;
@@ -258,11 +258,9 @@ static void find_arg_int ( int argc, char *argv[], char *key, unsigned int *val 
 
 unsigned int NumlockMask = 0;
 Display      *display    = NULL;
-Screen       *screen;
-Window       root;
-int          screen_id;
+//Window       root;
 
-static int   ( *xerror )( Display *, XErrorEvent * );
+static int ( *xerror )( Display *, XErrorEvent * );
 
 #define ATOM_ENUM( x )    x
 #define ATOM_CHAR( x )    # x
@@ -414,6 +412,7 @@ typedef struct
 // malloc a pixel value for an X named color
 static unsigned int color_get ( const char *const name )
 {
+    int      screen_id = DefaultScreen ( display );
     XColor   color;
     Colormap map = DefaultColormap ( display, screen_id );
     return XAllocNamedColor ( display, map, name, &color, &color ) ? color.pixel : None;
@@ -640,7 +639,8 @@ void monitor_dimensions ( Screen *screen, int x, int y, workarea *mon )
 // determine which monitor holds the active window, or failing that the mouse pointer
 void monitor_active ( workarea *mon )
 {
-    Window root = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
+    Screen *screen = DefaultScreenOfDisplay ( display );
+    Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
 
 #if 0
     // Comment this code out as it seems to break things.
@@ -1061,6 +1061,8 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     }
     else
     {
+        Screen *screen = DefaultScreenOfDisplay ( display );
+        Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
         box = XCreateSimpleWindow ( display, root, x, 0, w, 300,
                                     config.menu_bw, color_get ( config.menu_bc ),
                                     color_get ( config.menu_bg ) );
@@ -1545,7 +1547,9 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
 SwitcherMode run_switcher_window ( char **input )
 {
-    SwitcherMode retv = MODE_EXIT;
+    Screen       *screen = DefaultScreenOfDisplay ( display );
+    Window       root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
+    SwitcherMode retv    = MODE_EXIT;
     // find window list
     Atom         type;
     int          nwins;
@@ -1868,6 +1872,8 @@ void parse_key ( char *combo, unsigned int *mod, KeySym *key )
 // bind a key combination on a root window, compensating for Lock* states
 void grab_key ( unsigned int modmask, KeySym key )
 {
+    Screen *screen  = DefaultScreenOfDisplay ( display );
+    Window root     = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
     KeyCode keycode = XKeysymToKeycode ( display, key );
     XUngrabKey ( display, keycode, AnyModifier, root );
 
@@ -1894,8 +1900,11 @@ void grab_key ( unsigned int modmask, KeySym key )
 #ifdef HAVE_I3_IPC_H
 static inline void display_get_i3_path ( Display *display )
 {
+    Screen *screen = DefaultScreenOfDisplay ( display );
+    Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
+    Atom atom      = XInternAtom ( display, I3_SOCKET_PATH_PROP, True );
+
     config_i3_mode = 0;
-    Atom atom = XInternAtom ( display, I3_SOCKET_PATH_PROP, True );
 
     if ( atom != None )
     {
@@ -2128,9 +2137,7 @@ int main ( int argc, char *argv[] )
 
     // Set up X interaction.
     signal ( SIGCHLD, catch_exit );
-    screen    = DefaultScreenOfDisplay ( display );
-    screen_id = DefaultScreen ( display );
-    root      = DefaultRootWindow ( display );
+
     // Set error handle
     XSync ( display, False );
     xerror = XSetErrorHandler ( display_oops );
