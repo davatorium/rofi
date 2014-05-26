@@ -847,7 +847,6 @@ void menu_draw ( textbox **boxes,
         {
             char            *text = filtered[i + offset];
             TextBoxFontType tbft  = ( i + offset ) == selected ? HIGHLIGHT : NORMAL;
-            char            *font = config.menu_font;
             // Check for active
             if ( text[0] == '*' )
             {

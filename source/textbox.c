@@ -73,8 +73,6 @@ textbox* textbox_create ( Window parent,
     tb->w = MAX ( 1, w );
     tb->h = MAX ( 1, h );
 
-    XColor       color;
-    Colormap     map = DefaultColormap ( display, DefaultScreen ( display ) );
     unsigned int cp  = ( tbft == NORMAL ) ? color_bg.pixel : color_hlbg.pixel;
 
     tb->window = XCreateSimpleWindow ( display, tb->parent, tb->x, tb->y, tb->w, tb->h, 0, None, cp );
