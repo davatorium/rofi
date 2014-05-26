@@ -448,7 +448,7 @@ static int take_keyboard ( Window w )
             return 1;
         }
 
-        struct timespec rsl = { 0, 50000L };
+        struct timespec rsl = { 0, 100000L };
         nanosleep ( &rsl, NULL );
     }
 
