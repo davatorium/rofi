@@ -1341,7 +1341,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                     Atom clip = XInternAtom ( display, "CLIPBOARD", False );
                     Atom utf8 = XInternAtom ( display, "UTF8_STRING", False );
                     XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ? clip : XA_PRIMARY,
-                                        utf8, utf8, main_window, *time );
+                                        utf8, utf8, main_window, CurrentTime );
                 }
                 else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
                           key == XK_slash )
