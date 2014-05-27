@@ -248,10 +248,7 @@ void history_remove ( const char *filename, const char *entry )
     // Free the list.
     for ( unsigned int iter = 0; iter < length; iter++ )
     {
-        if ( list[iter] != NULL )
-        {
-            free ( list[iter] );
-        }
+        free ( list[iter] );
     }
     if ( list != NULL )
     {
@@ -269,6 +266,8 @@ char ** history_get_list ( const char *filename, unsigned int *length )
     FILE     *fd = fopen ( filename, "r" );
     if ( fd == NULL )
     {
+        // File that does not exists is not an error, so ignore it.
+        // Everything else? panic.
         if ( errno != ENOENT )
         {
             fprintf ( stderr, "Failed to open file: %s\n", strerror ( errno ) );
@@ -279,6 +278,7 @@ char ** history_get_list ( const char *filename, unsigned int *length )
     list = __history_get_element_list ( fd, length );
 
     // Copy list in right format.
+    // Lists are always short, so performance should not be an issue.
     if ( ( *length ) > 0 )
     {
         retv = malloc ( ( ( *length ) + 1 ) * sizeof ( char * ) );

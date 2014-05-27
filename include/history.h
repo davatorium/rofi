@@ -34,7 +34,8 @@
  * Sets the entry in the history, if it exists its use-count is incremented.
  *
  */
-void history_set ( const char *filename, const char *entry );
+void history_set ( const char *filename, const char *entry )
+    __attribute__((nonnull));
 
 
 /**
@@ -43,7 +44,8 @@ void history_set ( const char *filename, const char *entry );
  *
  * Removes the entry from the history.
  */
-void history_remove ( const char *filename, const char *entry );
+void history_remove ( const char *filename, const char *entry )
+    __attribute__((nonnull));
 
 
 /**
@@ -53,7 +55,8 @@ void history_remove ( const char *filename, const char *entry );
  * Gets the entries in the list (in order of usage)
  * @returns a list of entries length long. (and NULL terminated).
  */
-char ** history_get_list ( const char *filename, unsigned int * length );
+char ** history_get_list ( const char *filename, unsigned int * length )
+    __attribute__((nonnull));
 
 
 
