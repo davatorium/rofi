@@ -1276,6 +1276,51 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                 line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2 );
                 }
             }
+            else if ( ev.type == SelectionNotify )
+            {
+                // TODO move this.
+                Atom utf8 = XInternAtom ( display, "UTF8_STRING", False );
+                if ( ev.xselection.property == utf8 )
+                {
+                    char          *pbuf = NULL;
+                    int           di;
+                    unsigned long dl, rm;
+                    Atom          da;
+
+                    /* we have been given the current selection, now insert it into input */
+                    XGetWindowProperty (
+                        display,
+                        main_window,
+                        utf8,
+                        0,
+                        256 / 4,   // max length in words.
+                        False,     // Do not delete clipboard.
+                        utf8, &da, &di, &dl, &rm, (unsigned char * *) &pbuf );
+                    // If There was remaining data left.. lets ignore this.
+                    // Only accept it when we get bytes!
+                    if ( di == 8 )
+                    {
+                        char *index;
+                        if ( ( index = strchr ( pbuf, '\n' ) ) != NULL )
+                        {
+                            // Calc new length;
+                            dl = index - pbuf;
+                        }
+                        // Create a NULL terminated string. I am not sure how the data is returned.
+                        // With or without trailing 0
+                        char str[dl + 1];
+                        memcpy ( str, pbuf, dl );
+                        str[dl] = '\0';
+
+                        // Insert string move cursor.
+                        textbox_insert ( text, text->cursor, str );
+                        textbox_cursor ( text, text->cursor + dl );
+                        // Force a redraw
+                        textbox_draw ( text );
+                    }
+                    XFree ( pbuf );
+                }
+            }
             else if ( ev.type == KeyPress )
             {
                 while ( XCheckTypedEvent ( display, KeyPress, &ev ) )
@@ -1290,8 +1335,16 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
                 KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
 
-                if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
-                     key == XK_slash )
+                if ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_v )
+                {
+                    // TODO move these.
+                    Atom clip = XInternAtom ( display, "CLIPBOARD", False );
+                    Atom utf8 = XInternAtom ( display, "UTF8_STRING", False );
+                    XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ? clip : XA_PRIMARY,
+                                        utf8, utf8, main_window, *time );
+                }
+                else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
+                          key == XK_slash )
                 {
                     retv           = MENU_NEXT;
                     *selected_line = 0;

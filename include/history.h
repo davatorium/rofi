@@ -35,7 +35,7 @@
  *
  */
 void history_set ( const char *filename, const char *entry )
-    __attribute__((nonnull));
+__attribute__( ( nonnull ) );
 
 
 /**
@@ -45,7 +45,7 @@ void history_set ( const char *filename, const char *entry )
  * Removes the entry from the history.
  */
 void history_remove ( const char *filename, const char *entry )
-    __attribute__((nonnull));
+__attribute__( ( nonnull ) );
 
 
 /**
@@ -56,7 +56,7 @@ void history_remove ( const char *filename, const char *entry )
  * @returns a list of entries length long. (and NULL terminated).
  */
 char ** history_get_list ( const char *filename, unsigned int * length )
-    __attribute__((nonnull));
+__attribute__( ( nonnull ) );
 
 
 
