@@ -1251,6 +1251,8 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
         unsigned int selected = 0;
         for (;; )
         {
+            int    refilter = FALSE;
+            int    update   = FALSE;
             XEvent ev;
             XNextEvent ( display, &ev );
 
@@ -1315,8 +1317,9 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                         // Insert string move cursor.
                         textbox_insert ( text, text->cursor, str );
                         textbox_cursor ( text, text->cursor + dl );
-                        // Force a redraw
-                        textbox_draw ( text );
+                        // Force a redraw and refiltering of the text.
+                        update   = TRUE;
+                        refilter = TRUE;
                     }
                     XFree ( pbuf );
                 }
@@ -1384,47 +1387,8 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                 }
                 else if ( rc )
                 {
-                    char **tokens = tokenize ( text->text );
-
-                    // input changed
-                    for ( i = 0, j = 0; i < num_lines; i++ )
-                    {
-                        int match = mmc ( tokens, lines[i], i, mmc_data );
-
-                        // If each token was matched, add it to list.
-                        if ( match )
-                        {
-                            line_map[j]   = i;
-                            filtered[j++] = lines[i];
-                        }
-                    }
-
-                    // Cleanup + bookkeeping.
-                    filtered_lines = j;
-                    selected       = MIN ( selected, j - 1 );
-
-                    for (; j < num_lines; j++ )
-                    {
-                        filtered[j] = NULL;
-                    }
-
-                    if ( config.zeltak_mode && filtered_lines == 1 )
-                    {
-                        if ( filtered[selected] )
-                        {
-                            retv           = MENU_OK;
-                            *selected_line = line_map[selected];
-                        }
-                        else
-                        {
-                            fprintf ( stderr, "We should never hit this." );
-                            abort ();
-                        }
-
-                        break;
-                    }
-
-                    tokenize_free ( tokens );
+                    refilter = TRUE;
+                    update   = TRUE;
                 }
                 else
                 {
@@ -1456,11 +1420,13 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                             {
                                 selected--;
                             }
+                            update = TRUE;
                         }
                         else if ( key == XK_Down ||
                                   ( key == XK_k && ev.xkey.state & ControlMask ) )
                         {
                             selected = selected < filtered_lines - 1 ? MIN ( filtered_lines - 1, selected + 1 ) : 0;
+                            update   = TRUE;
                         }
                         else if ( key == XK_Page_Up )
                         {
@@ -1472,6 +1438,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                             {
                                 selected -= ( max_elements - 1 );
                             }
+                            update = TRUE;
                         }
                         else if ( key == XK_Page_Down )
                         {
@@ -1481,6 +1448,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                             {
                                 selected = num_lines - 1;
                             }
+                            update = TRUE;
                         }
                         else if ( key == XK_h && ev.xkey.state & ControlMask )
                         {
@@ -1492,6 +1460,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                             {
                                 selected -= max_rows;
                             }
+                            update = TRUE;
                         }
                         else if (  key == XK_l && ev.xkey.state & ControlMask )
                         {
@@ -1500,14 +1469,17 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                             {
                                 selected = num_lines - 1;
                             }
+                            update = TRUE;
                         }
                         else if ( key == XK_Home || key == XK_KP_Home )
                         {
                             selected = 0;
+                            update   = TRUE;
                         }
                         else if ( key == XK_End || key == XK_KP_End )
                         {
                             selected = num_lines - 1;
+                            update   = TRUE;
                         }
                         else if ( key == XK_Tab )
                         {
@@ -1540,6 +1512,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                 textbox_text ( text, str );
                                 textbox_cursor_end ( text );
                                 free ( str );
+                                update = TRUE;
                             }
                             // Double tab!
                             else if ( filtered_lines == 0 && key == prev_key )
@@ -1551,10 +1524,61 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                             else
                             {
                                 selected = selected < filtered_lines - 1 ? MIN ( filtered_lines - 1, selected + 1 ) : 0;
+                                update   = TRUE;
                             }
                         }
                     }
                 }
+                prev_key = key;
+            }
+            // If something changed, refilter the list. (paste or text entered)
+            if ( refilter )
+            {
+                char **tokens = tokenize ( text->text );
+
+                // input changed
+                for ( i = 0, j = 0; i < num_lines; i++ )
+                {
+                    int match = mmc ( tokens, lines[i], i, mmc_data );
+
+                    // If each token was matched, add it to list.
+                    if ( match )
+                    {
+                        line_map[j]   = i;
+                        filtered[j++] = lines[i];
+                    }
+                }
+
+                // Cleanup + bookkeeping.
+                filtered_lines = j;
+                selected       = MIN ( selected, j - 1 );
+
+                for (; j < num_lines; j++ )
+                {
+                    filtered[j] = NULL;
+                }
+
+                if ( config.zeltak_mode && filtered_lines == 1 )
+                {
+                    if ( filtered[selected] )
+                    {
+                        retv           = MENU_OK;
+                        *selected_line = line_map[selected];
+                    }
+                    else
+                    {
+                        fprintf ( stderr, "We should never hit this." );
+                        abort ();
+                    }
+
+                    break;
+                }
+
+                tokenize_free ( tokens );
+            }
+            // Update if requested.
+            if ( update )
+            {
                 menu_hide_arrow_text ( filtered_lines, selected,
                                        max_elements, arrowbox_top,
                                        arrowbox_bottom );
@@ -1564,7 +1588,6 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                 menu_set_arrow_text ( filtered_lines, selected,
                                       max_elements, arrowbox_top,
                                       arrowbox_bottom );
-                prev_key = key;
             }
         }
 
