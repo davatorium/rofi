@@ -71,8 +71,7 @@ SwitcherMode dmenu_switcher_dialog ( char **input )
 {
     int          selected_line = 0;
     SwitcherMode retv          = MODE_EXIT;
-    // act as a launcher
-    char         **list = get_dmenu ( );
+    char         **list        = get_dmenu ( );
 
     int          mretv = menu ( list, input, dmenu_prompt, NULL, NULL,
                                 token_match, NULL, &selected_line );

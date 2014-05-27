@@ -47,8 +47,6 @@
 #include <X11/Xproto.h>
 #include <X11/keysym.h>
 #include <X11/XKBlib.h>
-#include <X11/Xft/Xft.h>
-#include <X11/Xresource.h>
 #include <X11/extensions/Xinerama.h>
 
 #include "rofi.h"
@@ -1805,7 +1803,7 @@ static void handle_keypress ( XEvent *ev )
 }
 
 // convert a Mod+key arg to mod mask and keysym
-void parse_key ( char *combo, unsigned int *mod, KeySym *key )
+static void parse_key ( char *combo, unsigned int *mod, KeySym *key )
 {
     unsigned int modmask = 0;
 
@@ -1870,7 +1868,7 @@ void parse_key ( char *combo, unsigned int *mod, KeySym *key )
 }
 
 // bind a key combination on a root window, compensating for Lock* states
-void grab_key ( unsigned int modmask, KeySym key )
+static void grab_key ( unsigned int modmask, KeySym key )
 {
     Screen *screen  = DefaultScreenOfDisplay ( display );
     Window root     = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
@@ -1922,7 +1920,7 @@ static inline void display_get_i3_path ( Display *display )
 /**
  * Help function. This calls man.
  */
-void help ()
+static void help ()
 {
     int code = execlp ( "man", "man", MANPAGE_PATH, NULL );
 
