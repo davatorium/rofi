@@ -147,7 +147,14 @@ void history_set ( const char *filename, const char *entry )
     if ( found )
     {
         // If exists, increment list index number
-        list[curr]->index++;
+        if ( strstr(list[curr]->name, "pkill") ==NULL)
+        {
+           list[curr]->index =1;
+        }
+        else
+        {
+           list[curr]->index++;
+        }
     }
     else
     {
