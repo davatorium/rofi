@@ -794,6 +794,10 @@ void menu_set_arrow_text ( int filtered_lines, int selected, int max_elements,
     {
         return;
     }
+    if(filtered_lines == 0 || max_elements == 0)
+    {
+        return;
+    }
     int page   = ( filtered_lines > 0 ) ? selected / max_elements : 0;
     int npages = ( filtered_lines > 0 ) ? ( ( filtered_lines + max_elements - 1 ) / max_elements ) : 1;
     int entry  = selected % max_elements;
