@@ -1338,7 +1338,8 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
                 KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
 
-                if ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_v )
+                if ( ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_v ) ||
+                     key == XK_Insert )
                 {
                     // TODO move these.
                     Atom clip = XInternAtom ( display, "CLIPBOARD", False );

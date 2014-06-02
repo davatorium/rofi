@@ -239,8 +239,8 @@ void textbox_draw ( textbox *tb )
         // Trailing spaces still go wrong....
         // The replace by _ is needed, one way or the other.
         // Make a copy, and replace all trailing spaces.
-        char *test = strdup(text);
-        for(int iter = strlen(text)-1; iter >= 0 && test[iter] == ' '; iter--) 
+        char *test = strdup ( text );
+        for ( int iter = strlen ( text ) - 1; iter >= 0 && test[iter] == ' '; iter-- )
         {
             test[iter] = '_';
         }
@@ -248,7 +248,7 @@ void textbox_draw ( textbox *tb )
         XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) test, cursor_offset, &extents );
         // Add a small 4px offset between cursor and last glyph.
         cursor_x = extents.width + ( ( extents.width > 0 ) ? 2 : 0 );
-        free(test);
+        free ( test );
     }
 
     // calc full input text width
