@@ -19,32 +19,69 @@
 
 extern const char *cache_dir;
 
+/**
+ * Enum used to sum the possible states of ROFI.
+ */
 typedef enum
 {
+    /** Show the window switcher */
     WINDOW_SWITCHER,
+    /** Show the run dialog */
     RUN_DIALOG,
+    /** Show the ssh dialog */
     SSH_DIALOG,
+    /** Number of cycle-able dialogs */
     NUM_DIALOGS,
+    /** Dmenu mode */
     DMENU_DIALOG,
+    /** Exit. */
     MODE_EXIT,
+    /** Skip to the next cycle-able dialog. */
     NEXT_DIALOG
 } SwitcherMode;
 
+
+/**
+ * State returned by the rofi window.
+ */
 typedef enum
 {
+    /** Entry is selected. */
     MENU_OK           = 0,
+    /** User canceled the operation. (e.g. pressed escape) */
     MENU_CANCEL       = -1,
+    /** User requested a mode switch */
     MENU_NEXT         = -2,
+    /** Custom (non-matched) input was entered. */
     MENU_CUSTOM_INPUT = -3,
+    /** User wanted to delete entry from history. */
     MENU_ENTRY_DELETE = -4
 } MenuReturn;
 
 
+/**
+ * Function prototype for the matching algorithm.
+ */
 typedef int ( *menu_match_cb )( char **tokens, const char *input, int index, void *data );
+
+/**
+ * @param lines An array of strings to display.
+ * @param input A pointer to a string where the inputted data is placed.
+ * @param prompt The prompt to show.
+ * @param time The current time (used for window interaction.)
+ * @param shift pointer to integer that is set to the state of the shift key.
+ * @param mmc Menu menu match callback, used for matching user input.
+ * @param mmc_data data to pass to mmc.
+ * @param selected_line pointer to integer holding the selected line.
+ *
+ * Main menu callback.
+ *
+ * @returns The command issued (see MenuReturn)
+ */
 MenuReturn menu ( char **lines, char **input, char *prompt,
                   Time *time, int *shift,
                   menu_match_cb mmc, void *mmc_data,
-                  int *selected_line );
+                  int *selected_line ) __attribute__ ((nonnull(1,2,3,8)));
 
 void catch_exit ( __attribute__( ( unused ) ) int sig );
 
