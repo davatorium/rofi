@@ -87,8 +87,7 @@ textbox* textbox_create ( Window parent,
     textbox_moveresize ( tb, tb->x, tb->y, tb->w, tb->h );
 
     // edit mode controls
-    if ( tb->flags & TB_EDITABLE )
-    {
+    if ( tb->flags & TB_EDITABLE ) {
         tb->xim = XOpenIM ( display, NULL, NULL, NULL );
         tb->xic = XCreateIC ( tb->xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, tb->window, XNFocusWindow, tb->window, NULL );
     }
@@ -134,8 +133,7 @@ void textbox_extents ( textbox *tb )
 // set the default text to display
 void textbox_text ( textbox *tb, char *text )
 {
-    if ( tb->text )
-    {
+    if ( tb->text ) {
         free ( tb->text );
     }
 
@@ -146,8 +144,7 @@ void textbox_text ( textbox *tb, char *text )
 
 void textbox_move ( textbox *tb, int x, int y )
 {
-    if ( x != tb->x || y != tb->y )
-    {
+    if ( x != tb->x || y != tb->y ) {
         tb->x = x;
         tb->y = y;
         XMoveResizeWindow ( display, tb->window, tb->x, tb->y, tb->w, tb->h );
@@ -156,25 +153,20 @@ void textbox_move ( textbox *tb, int x, int y )
 // within the parent. handled auto width/height modes
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
-    if ( tb->flags & TB_AUTOHEIGHT )
-    {
+    if ( tb->flags & TB_AUTOHEIGHT ) {
         h = tb->font->ascent + tb->font->descent;
     }
 
-    if ( tb->flags & TB_AUTOWIDTH )
-    {
-        if ( w > 1 )
-        {
+    if ( tb->flags & TB_AUTOWIDTH ) {
+        if ( w > 1 ) {
             w = MIN ( w, tb->extents.width + 2 * SIDE_MARGIN );
         }
-        else
-        {
+        else{
             w = tb->extents.width + 2 * SIDE_MARGIN;
         }
     }
 
-    if ( x != tb->x || y != tb->y || w != tb->w || h != tb->h )
-    {
+    if ( x != tb->x || y != tb->y || w != tb->w || h != tb->h ) {
         tb->x = x;
         tb->y = y;
         tb->w = MAX ( 1, w );
@@ -196,14 +188,12 @@ void textbox_hide ( textbox *tb )
 // will also unmap the window if still displayed
 void textbox_free ( textbox *tb )
 {
-    if ( tb->flags & TB_EDITABLE )
-    {
+    if ( tb->flags & TB_EDITABLE ) {
         XDestroyIC ( tb->xic );
         XCloseIM ( tb->xim );
     }
 
-    if ( tb->text )
-    {
+    if ( tb->text ) {
         free ( tb->text );
     }
 
@@ -231,8 +221,7 @@ void textbox_draw ( textbox *tb )
     int  cursor_x     = 0;
     int  cursor_width = MAX ( 2, line_height / 10 );
 
-    if ( tb->flags & TB_EDITABLE )
-    {
+    if ( tb->flags & TB_EDITABLE ) {
         int cursor_offset = 0;
         cursor_offset = MIN ( tb->cursor, text_len );
 
@@ -240,8 +229,7 @@ void textbox_draw ( textbox *tb )
         // The replace by _ is needed, one way or the other.
         // Make a copy, and replace all trailing spaces.
         char *test = strdup ( text );
-        for ( int iter = strlen ( text ) - 1; iter >= 0 && test[iter] == ' '; iter-- )
-        {
+        for ( int iter = strlen ( text ) - 1; iter >= 0 && test[iter] == ' '; iter-- ) {
             test[iter] = '_';
         }
         // calc cursor position
@@ -254,30 +242,25 @@ void textbox_draw ( textbox *tb )
     // calc full input text width
     // Calculate the right size, so no characters are cut off.
     // TODO: Check performance of this.
-    do
-    {
+    do {
         XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) text, length, &extents );
         line_width = extents.width;
-        if ( line_width <= ( tb->w - 2 * SIDE_MARGIN ) )
-        {
+        if ( line_width <= ( tb->w - 2 * SIDE_MARGIN ) ) {
             break;
         }
 
-        for ( length -= 1; length > 0 && ( text[length] & 0xc0 ) == 0x80; length -= 1 )
-        {
+        for ( length -= 1; length > 0 && ( text[length] & 0xc0 ) == 0x80; length -= 1 ) {
             ;
         }
     } while ( line_width > 0 );
 
     int x = SIDE_MARGIN, y = tb->font->ascent;
 
-    if ( tb->flags & TB_RIGHT )
-    {
+    if ( tb->flags & TB_RIGHT ) {
         x = tb->w - line_width;
     }
 
-    if ( tb->flags & TB_CENTER )
-    {
+    if ( tb->flags & TB_CENTER ) {
         x = ( tb->w - line_width ) / 2;
     }
 
@@ -285,8 +268,7 @@ void textbox_draw ( textbox *tb )
     XftDrawStringUtf8 ( draw, &tb->color_fg, tb->font, x, y, ( unsigned char * ) text, length );
 
     // draw the cursor
-    if ( tb->flags & TB_EDITABLE )
-    {
+    if ( tb->flags & TB_EDITABLE ) {
         XftDrawRect ( draw, &tb->color_fg, cursor_x + SIDE_MARGIN, 2, cursor_width, line_height - 4 );
     }
 
@@ -305,8 +287,7 @@ static size_t nextrune ( textbox *tb, int inc )
     ssize_t n;
 
     /* return location of next utf8 rune in the given direction (+1 or -1) */
-    for ( n = tb->cursor + inc; n + inc >= 0 && ( tb->text[n] & 0xc0 ) == 0x80; n += inc )
-    {
+    for ( n = tb->cursor + inc; n + inc >= 0 && ( tb->text[n] & 0xc0 ) == 0x80; n += inc ) {
         ;
     }
     return n;
@@ -372,8 +353,7 @@ void textbox_cursor_del ( textbox *tb )
 // back up and delete one character
 void textbox_cursor_bkspc ( textbox *tb )
 {
-    if ( tb->cursor > 0 )
-    {
+    if ( tb->cursor > 0 ) {
         textbox_cursor_dec ( tb );
         textbox_cursor_del ( tb );
     }
@@ -390,21 +370,18 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
     char   pad[32];
     int    len;
 
-    if ( !( tb->flags & TB_EDITABLE ) )
-    {
+    if ( !( tb->flags & TB_EDITABLE ) ) {
         return 0;
     }
 
     len      = Xutf8LookupString ( tb->xic, &ev->xkey, pad, sizeof ( pad ), &key, &stat );
     pad[len] = 0;
 
-    if ( key == XK_Left )
-    {
+    if ( key == XK_Left ) {
         textbox_cursor_dec ( tb );
         return 1;
     }
-    else if ( key == XK_Right )
-    {
+    else if ( key == XK_Right ) {
         textbox_cursor_inc ( tb );
         return 1;
     } /*else if ( key == XK_Home ) {
@@ -415,22 +392,18 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
          textbox_cursor_end( tb );
          return 1;
          } */
-    else if ( key == XK_Delete )
-    {
+    else if ( key == XK_Delete ) {
         textbox_cursor_del ( tb );
         return 1;
     }
-    else if ( key == XK_BackSpace )
-    {
+    else if ( key == XK_BackSpace ) {
         textbox_cursor_bkspc ( tb );
         return 1;
     }
-    else if ( key == XK_Return )
-    {
+    else if ( key == XK_Return ) {
         return -1;
     }
-    else if ( !iscntrl ( *pad ) )
-    {
+    else if ( !iscntrl ( *pad ) ) {
         textbox_insert ( tb, tb->cursor, pad );
         textbox_cursor_inc ( tb );
         return 1;
@@ -465,8 +438,7 @@ void textbox_setup (
 
 void textbox_cleanup ()
 {
-    if ( font != NULL )
-    {
+    if ( font != NULL ) {
         Visual   *visual  = DefaultVisual ( display, DefaultScreen ( display )  );
         Colormap colormap = DefaultColormap ( display, DefaultScreen ( display ) );
 

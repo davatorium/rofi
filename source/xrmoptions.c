@@ -112,8 +112,7 @@ void parse_xresource_options ( Display *display )
     XrmInitialize ();
     xRMS = XResourceManagerString ( display );
 
-    if ( xRMS == NULL )
-    {
+    if ( xRMS == NULL ) {
         return;
     }
     XrmDatabase xDB = XrmGetStringDatabase ( xRMS );
@@ -123,21 +122,15 @@ void parse_xresource_options ( Display *display )
     const char  * namePrefix  = "rofi";
     const char  * classPrefix = "rofi";
 
-    for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( *xrmOptions ); ++i )
-    {
+    for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( *xrmOptions ); ++i ) {
         char *name, *class;
-        if ( asprintf ( &name, "%s.%s", namePrefix, xrmOptions[i].name ) == -1 )
-        {
+        if ( asprintf ( &name, "%s.%s", namePrefix, xrmOptions[i].name ) == -1 ) {
             continue;
         }
-        if ( asprintf ( &class, "%s.%s", classPrefix, xrmOptions[i].name ) > 0 )
-        {
-            if ( XrmGetResource ( xDB, name, class, &xrmType, &xrmValue ) )
-            {
-                if ( xrmOptions[i].type == xrm_String )
-                {
-                    if ( xrmOptions[i].mem != NULL )
-                    {
+        if ( asprintf ( &class, "%s.%s", classPrefix, xrmOptions[i].name ) > 0 ) {
+            if ( XrmGetResource ( xDB, name, class, &xrmType, &xrmValue ) ) {
+                if ( xrmOptions[i].type == xrm_String ) {
+                    if ( xrmOptions[i].mem != NULL ) {
                         free ( xrmOptions[i].mem );
                         xrmOptions[i].mem = NULL;
                     }
@@ -147,18 +140,14 @@ void parse_xresource_options ( Display *display )
                     // Memory
                     xrmOptions[i].mem = ( *xrmOptions[i].str );
                 }
-                else if ( xrmOptions[i].type == xrm_Number )
-                {
+                else if ( xrmOptions[i].type == xrm_Number ) {
                     *xrmOptions[i].num = strtol ( xrmValue.addr, NULL, 10 );
                 }
-                else if ( xrmOptions[i].type == xrm_Boolean )
-                {
-                    if ( xrmValue.size > 0 && strncasecmp ( xrmValue.addr, "true", xrmValue.size ) == 0 )
-                    {
+                else if ( xrmOptions[i].type == xrm_Boolean ) {
+                    if ( xrmValue.size > 0 && strncasecmp ( xrmValue.addr, "true", xrmValue.size ) == 0 ) {
                         *xrmOptions[i].num = TRUE;
                     }
-                    else
-                    {
+                    else{
                         *xrmOptions[i].num = FALSE;
                     }
                 }
@@ -173,10 +162,8 @@ void parse_xresource_options ( Display *display )
 
 void parse_xresource_free ( void )
 {
-    for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( *xrmOptions ); ++i )
-    {
-        if ( xrmOptions[i].mem != NULL )
-        {
+    for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( *xrmOptions ); ++i ) {
+        if ( xrmOptions[i].mem != NULL ) {
             free ( xrmOptions[i].mem );
             xrmOptions[i].mem = NULL;
         }
@@ -187,13 +174,10 @@ void xresource_dump ( void )
 {
     const char   * namePrefix = "rofi";
     unsigned int entries      = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
-    for ( unsigned int i = 0; i < entries; ++i )
-    {
+    for ( unsigned int i = 0; i < entries; ++i ) {
         // Skip duplicates.
-        if ( ( i + 1 ) < entries )
-        {
-            if ( xrmOptions[i].str == xrmOptions[i + 1].str )
-            {
+        if ( ( i + 1 ) < entries ) {
+            if ( xrmOptions[i].str == xrmOptions[i + 1].str ) {
                 continue;
             }
         }

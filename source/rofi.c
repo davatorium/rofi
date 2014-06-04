@@ -82,10 +82,11 @@ char *i3_socket_path = NULL;
 #endif
 
 
-xdgHandle  xdg_handle;
-const char *cache_dir = NULL;
-
-char       *active_font = NULL;
+xdgHandle    xdg_handle;
+const char   *cache_dir   = NULL;
+char         *active_font = NULL;
+unsigned int NumlockMask  = 0;
+Display      *display     = NULL;
 
 /**
  * Shared 'token_match' function.
@@ -98,10 +99,8 @@ int token_match ( char **tokens, const char *input,
     int match = 1;
 
     // Do a tokenized match.
-    if ( tokens )
-    {
-        for ( int j = 1; match && tokens[j]; j++ )
-        {
+    if ( tokens ) {
+        for ( int j = 1; match && tokens[j]; j++ ) {
             match = ( strcasestr ( input, tokens[j] ) != NULL );
         }
     }
@@ -112,8 +111,7 @@ int token_match ( char **tokens, const char *input,
 
 static char **tokenize ( const char *input )
 {
-    if ( input == NULL )
-    {
+    if ( input == NULL ) {
         return NULL;
     }
 
@@ -129,14 +127,11 @@ static char **tokenize ( const char *input )
 
     // Iterate over tokens.
     // strtok should still be valid for utf8.
-    for (
-        token = strtok_r ( retv[0], " ", &saveptr );
-        token != NULL;
-        token = strtok_r ( NULL, " ", &saveptr ) )
-    {
+    for ( token = strtok_r ( retv[0], " ", &saveptr );
+          token != NULL;
+          token = strtok_r ( NULL, " ", &saveptr ) ) {
         char **tr = realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
-        if ( tr != NULL )
-        {
+        if ( tr != NULL ) {
             retv                 = tr;
             retv[num_tokens + 1] = NULL;
             retv[num_tokens]     = token;
@@ -149,8 +144,7 @@ static char **tokenize ( const char *input )
 
 static inline void tokenize_free ( char **ip )
 {
-    if ( ip == NULL )
-    {
+    if ( ip == NULL ) {
         return;
     }
 
@@ -167,14 +161,12 @@ static void focus_window_i3 ( const char *socket_path, int id )
     int                s, t, len;
     struct sockaddr_un remote;
 
-    if ( strlen ( socket_path ) > UNIX_PATH_MAX )
-    {
+    if ( strlen ( socket_path ) > UNIX_PATH_MAX ) {
         fprintf ( stderr, "Socket path is to long. %zd > %d\n", strlen ( socket_path ), UNIX_PATH_MAX );
         return;
     }
 
-    if ( ( s = socket ( AF_UNIX, SOCK_STREAM, 0 ) ) == -1 )
-    {
+    if ( ( s = socket ( AF_UNIX, SOCK_STREAM, 0 ) ) == -1 ) {
         fprintf ( stderr, "Failed to open connection to I3: %s\n", strerror ( errno ) );
         return;
     }
@@ -183,8 +175,7 @@ static void focus_window_i3 ( const char *socket_path, int id )
     strcpy ( remote.sun_path, socket_path );
     len = strlen ( remote.sun_path ) + sizeof ( remote.sun_family );
 
-    if ( connect ( s, ( struct sockaddr * ) &remote, len ) == -1 )
-    {
+    if ( connect ( s, ( struct sockaddr * ) &remote, len ) == -1 ) {
         fprintf ( stderr, "Failed to connect to I3 (%s): %s\n", socket_path, strerror ( errno ) );
         close ( s );
         return;
@@ -204,8 +195,7 @@ static void focus_window_i3 ( const char *socket_path, int id )
     // Receive header.
     t = recv ( s, &head, sizeof ( head ), 0 );
 
-    if ( t == sizeof ( head ) )
-    {
+    if ( t == sizeof ( head ) ) {
         recv ( s, command, head.size, 0 );
     }
 
@@ -215,8 +205,7 @@ static void focus_window_i3 ( const char *socket_path, int id )
 
 void catch_exit ( __attribute__( ( unused ) ) int sig )
 {
-    while ( 0 < waitpid ( -1, NULL, WNOHANG ) )
-    {
+    while ( 0 < waitpid ( -1, NULL, WNOHANG ) ) {
         ;
     }
 }
@@ -227,8 +216,7 @@ static int find_arg ( const int argc, char * const argv[], const char * const ke
 {
     int i;
 
-    for ( i = 0; i < argc && strcasecmp ( argv[i], key ); i++ )
-    {
+    for ( i = 0; i < argc && strcasecmp ( argv[i], key ); i++ ) {
         ;
     }
 
@@ -238,8 +226,7 @@ static void find_arg_str ( int argc, char *argv[], char *key, char** val )
 {
     int i = find_arg ( argc, argv, key );
 
-    if ( val != NULL && i > 0 && i < argc - 1 )
-    {
+    if ( val != NULL && i > 0 && i < argc - 1 ) {
         *val = argv[i + 1];
     }
 }
@@ -248,43 +235,28 @@ static void find_arg_int ( int argc, char *argv[], char *key, unsigned int *val 
 {
     int i = find_arg ( argc, argv, key );
 
-    if ( val != NULL && i > 0 && i < ( argc - 1 ) )
-    {
+    if ( val != NULL && i > 0 && i < ( argc - 1 ) ) {
         *val = strtol ( argv[i + 1], NULL, 10 );
     }
 }
 
-unsigned int NumlockMask = 0;
-Display      *display    = NULL;
-//Window       root;
 
 static int ( *xerror )( Display *, XErrorEvent * );
 
 #define ATOM_ENUM( x )    x
 #define ATOM_CHAR( x )    # x
 
-#define EWMH_ATOMS( X )                    \
-    X ( _NET_SUPPORTING_WM_CHECK ),        \
-    X ( _NET_CLIENT_LIST ),                \
-    X ( _NET_CLIENT_LIST_STACKING ),       \
-    X ( _NET_NUMBER_OF_DESKTOPS ),         \
-    X ( _NET_CURRENT_DESKTOP ),            \
-    X ( _NET_DESKTOP_GEOMETRY ),           \
-    X ( _NET_DESKTOP_VIEWPORT ),           \
-    X ( _NET_WORKAREA ),                   \
-    X ( _NET_ACTIVE_WINDOW ),              \
-    X ( _NET_CLOSE_WINDOW ),               \
-    X ( _NET_MOVERESIZE_WINDOW ),          \
-    X ( _NET_WM_NAME ),                    \
-    X ( _NET_WM_STATE ),                   \
-    X ( _NET_WM_STATE_SKIP_TASKBAR ),      \
-    X ( _NET_WM_STATE_SKIP_PAGER ),        \
-    X ( _NET_WM_STATE_FULLSCREEN ),        \
-    X ( _NET_WM_STATE_ABOVE ),             \
-    X ( _NET_WM_STATE_BELOW ),             \
-    X ( _NET_WM_STATE_DEMANDS_ATTENTION ), \
-    X ( _NET_WM_DESKTOP ),                 \
-    X ( _NET_SUPPORTED )
+#define EWMH_ATOMS( X )               \
+    X ( _NET_CLIENT_LIST_STACKING ),  \
+    X ( _NET_NUMBER_OF_DESKTOPS ),    \
+    X ( _NET_CURRENT_DESKTOP ),       \
+    X ( _NET_ACTIVE_WINDOW ),         \
+    X ( _NET_WM_NAME ),               \
+    X ( _NET_WM_STATE ),              \
+    X ( _NET_WM_STATE_SKIP_TASKBAR ), \
+    X ( _NET_WM_STATE_SKIP_PAGER ),   \
+    X ( _NET_WM_STATE_ABOVE ),        \
+    X ( _NET_WM_DESKTOP )
 
 enum { EWMH_ATOMS ( ATOM_ENUM ), NETATOMS };
 const char *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
@@ -296,8 +268,7 @@ static int display_oops ( __attribute__( ( unused ) ) Display *d, XErrorEvent *e
     if ( ee->error_code == BadWindow
          || ( ee->request_code == X_GrabButton && ee->error_code == BadAccess )
          || ( ee->request_code == X_GrabKey && ee->error_code == BadAccess )
-         )
-    {
+         ) {
         return 0;
     }
 
@@ -339,15 +310,13 @@ winlist* winlist_new ()
 }
 int winlist_append ( winlist *l, Window w, void *d )
 {
-    if ( l->len > 0 && !( l->len % WINLIST ) )
-    {
+    if ( l->len > 0 && !( l->len % WINLIST ) ) {
         l->array = realloc ( l->array, sizeof ( Window ) * ( l->len + WINLIST + 1 ) );
         l->data  = realloc ( l->data, sizeof ( void* ) * ( l->len + WINLIST + 1 ) );
     }
     // Make clang-check happy.
     // TODO: make clang-check clear this should never be 0.
-    if ( l->data == NULL || l->array == NULL )
-    {
+    if ( l->data == NULL || l->array == NULL ) {
         return 0;
     }
 
@@ -357,8 +326,7 @@ int winlist_append ( winlist *l, Window w, void *d )
 }
 void winlist_empty ( winlist *l )
 {
-    while ( l->len > 0 )
-    {
+    while ( l->len > 0 ) {
         free ( l->data[--( l->len )] );
     }
 }
@@ -376,8 +344,7 @@ int winlist_find ( winlist *l, Window w )
     int    i;
     Window o = 0;
 
-    winlist_descend ( l, i, o ) if ( w == o )
-    {
+    winlist_descend ( l, i, o ) if ( w == o ) {
         return i;
     }
 
@@ -425,8 +392,7 @@ int pointer_get ( Window root, int *x, int *y )
     int          rxr, ryr, wxr, wyr;
     unsigned int mr;
 
-    if ( XQueryPointer ( display, root, &rr, &cr, &rxr, &ryr, &wxr, &wyr, &mr ) )
-    {
+    if ( XQueryPointer ( display, root, &rr, &cr, &rxr, &ryr, &wxr, &wyr, &mr ) ) {
         *x = rxr;
         *y = ryr;
         return 1;
@@ -439,10 +405,8 @@ static int take_keyboard ( Window w )
 {
     int i;
 
-    for ( i = 0; i < 1000; i++ )
-    {
-        if ( XGrabKeyboard ( display, w, True, GrabModeAsync, GrabModeAsync, CurrentTime ) == GrabSuccess )
-        {
+    for ( i = 0; i < 1000; i++ ) {
+        if ( XGrabKeyboard ( display, w, True, GrabModeAsync, GrabModeAsync, CurrentTime ) == GrabSuccess ) {
             return 1;
         }
 
@@ -462,12 +426,10 @@ XWindowAttributes* window_get_attributes ( Window w )
 {
     int idx = winlist_find ( cache_xattr, w );
 
-    if ( idx < 0 )
-    {
+    if ( idx < 0 ) {
         XWindowAttributes *cattr = malloc ( sizeof ( XWindowAttributes ) );
 
-        if ( XGetWindowAttributes ( display, w, cattr ) )
-        {
+        if ( XGetWindowAttributes ( display, w, cattr ) ) {
             winlist_append ( cache_xattr, w, cattr );
             return cattr;
         }
@@ -484,15 +446,13 @@ int window_get_prop ( Window w, Atom prop, Atom *type, int *items, void *buffer,
 {
     Atom _type;
 
-    if ( !type )
-    {
+    if ( !type ) {
         type = &_type;
     }
 
     int _items;
 
-    if ( !items )
-    {
+    if ( !items ) {
         items = &_items;
     }
 
@@ -502,20 +462,16 @@ int window_get_prop ( Window w, Atom prop, Atom *type, int *items, void *buffer,
     memset ( buffer, 0, bytes );
 
     if ( XGetWindowProperty ( display, w, prop, 0, bytes / 4, False, AnyPropertyType, type,
-                              &format, &nitems, &nbytes, &ret ) == Success && ret && *type != None && format )
-    {
-        if ( format == 8 )
-        {
+                              &format, &nitems, &nbytes, &ret ) == Success && ret && *type != None && format ) {
+        if ( format == 8 ) {
             memmove ( buffer, ret, MIN ( bytes, nitems ) );
         }
 
-        if ( format == 16 )
-        {
+        if ( format == 16 ) {
             memmove ( buffer, ret, MIN ( bytes, nitems * sizeof ( short ) ) );
         }
 
-        if ( format == 32 )
-        {
+        if ( format == 32 ) {
             memmove ( buffer, ret, MIN ( bytes, nitems * sizeof ( long ) ) );
         }
 
@@ -536,31 +492,25 @@ char* window_get_text_prop ( Window w, Atom atom )
     char          **list = NULL;
     int           count;
 
-    if ( XGetTextProperty ( display, w, &prop, atom ) && prop.value && prop.nitems )
-    {
-        if ( prop.encoding == XA_STRING )
-        {
+    if ( XGetTextProperty ( display, w, &prop, atom ) && prop.value && prop.nitems ) {
+        if ( prop.encoding == XA_STRING ) {
             res = malloc ( strlen ( ( char * ) prop.value ) + 1 );
             // make clang-check happy.
-            if ( res )
-            {
+            if ( res ) {
                 strcpy ( res, ( char * ) prop.value );
             }
         }
-        else if ( Xutf8TextPropertyToTextList ( display, &prop, &list, &count ) >= Success && count > 0 && *list )
-        {
+        else if ( Xutf8TextPropertyToTextList ( display, &prop, &list, &count ) >= Success && count > 0 && *list ) {
             res = malloc ( strlen ( *list ) + 1 );
             // make clang-check happy.
-            if ( res )
-            {
+            if ( res ) {
                 strcpy ( res, *list );
             }
             XFreeStringList ( list );
         }
     }
 
-    if ( prop.value )
-    {
+    if ( prop.value ) {
         XFree ( prop.value );
     }
 
@@ -610,17 +560,13 @@ void monitor_dimensions ( Screen *screen, int x, int y, workarea *mon )
     mon->h = HeightOfScreen ( screen );
 
     // locate the current monitor
-    if ( XineramaIsActive ( display ) )
-    {
+    if ( XineramaIsActive ( display ) ) {
         int                monitors;
         XineramaScreenInfo *info = XineramaQueryScreens ( display, &monitors );
 
-        if ( info )
-        {
-            for ( int i = 0; i < monitors; i++ )
-            {
-                if ( INTERSECT ( x, y, 1, 1, info[i].x_org, info[i].y_org, info[i].width, info[i].height ) )
-                {
+        if ( info ) {
+            for ( int i = 0; i < monitors; i++ ) {
+                if ( INTERSECT ( x, y, 1, 1, info[i].x_org, info[i].y_org, info[i].width, info[i].height ) ) {
                     mon->x = info[i].x_org;
                     mon->y = info[i].y_org;
                     mon->w = info[i].width;
@@ -639,31 +585,9 @@ void monitor_active ( workarea *mon )
 {
     Screen *screen = DefaultScreenOfDisplay ( display );
     Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
+    int    x, y;
 
-#if 0
-    // Comment this code out as it seems to break things.
-    // This code was not working before in simpleswitcher to begin with.
-    // After fixing the broken code, problems started.
-    Window id;
-    Atom   type;
-    int    count;
-    if ( window_get_prop ( root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id, sizeof ( Window ) )
-         && type == XA_WINDOW && count > 0 )
-    {
-        XWindowAttributes *attr = window_get_attributes ( id );
-        // Window might not exists anymore.
-        // This could very well be a bug in i3.
-        if ( attr != NULL )
-        {
-            monitor_dimensions ( screen, attr->x, attr->y, mon );
-            return;
-        }
-    }
-#endif
-    int x, y;
-
-    if ( pointer_get ( root, &x, &y ) )
-    {
+    if ( pointer_get ( root, &x, &y ) ) {
         monitor_dimensions ( screen, x, y, mon );
         return;
     }
@@ -676,10 +600,8 @@ int client_has_state ( client *c, Atom state )
 {
     int i;
 
-    for ( i = 0; i < c->states; i++ )
-    {
-        if ( c->state[i] == state )
-        {
+    for ( i = 0; i < c->states; i++ ) {
+        if ( c->state[i] == state ) {
             return 1;
         }
     }
@@ -691,23 +613,20 @@ int client_has_state ( client *c, Atom state )
 // doesn't have to be a window we'll end up managing
 client* window_client ( Window win )
 {
-    if ( win == None )
-    {
+    if ( win == None ) {
         return NULL;
     }
 
     int idx = winlist_find ( cache_client, win );
 
-    if ( idx >= 0 )
-    {
+    if ( idx >= 0 ) {
         return cache_client->data[idx];
     }
 
     // if this fails, we're up that creek
     XWindowAttributes *attr = window_get_attributes ( win );
 
-    if ( !attr )
-    {
+    if ( !attr ) {
         return NULL;
     }
 
@@ -722,29 +641,25 @@ client* window_client ( Window win )
 
     char *name;
 
-    if ( ( name = window_get_text_prop ( c->window, netatoms[_NET_WM_NAME] ) ) && name )
-    {
+    if ( ( name = window_get_text_prop ( c->window, netatoms[_NET_WM_NAME] ) ) && name ) {
         snprintf ( c->title, CLIENTTITLE, "%s", name );
         free ( name );
     }
-    else if ( XFetchName ( display, c->window, &name ) )
-    {
+    else if ( XFetchName ( display, c->window, &name ) ) {
         snprintf ( c->title, CLIENTTITLE, "%s", name );
         XFree ( name );
     }
 
     name = window_get_text_prop ( c->window, XInternAtom ( display, "WM_WINDOW_ROLE", False ) );
 
-    if ( name != NULL )
-    {
+    if ( name != NULL ) {
         snprintf ( c->role, CLIENTROLE, "%s", name );
         XFree ( name );
     }
 
     XClassHint chint;
 
-    if ( XGetClassHint ( display, c->window, &chint ) )
-    {
+    if ( XGetClassHint ( display, c->window, &chint ) ) {
         snprintf ( c->class, CLIENTCLASS, "%s", chint.res_class );
         snprintf ( c->name, CLIENTNAME, "%s", chint.res_name );
         XFree ( chint.res_class );
@@ -771,18 +686,15 @@ GC           gc          = NULL;
 void menu_hide_arrow_text ( int filtered_lines, int selected, int max_elements,
                             textbox *arrowbox_top, textbox *arrowbox_bottom )
 {
-    if ( arrowbox_top == NULL || arrowbox_bottom == NULL )
-    {
+    if ( arrowbox_top == NULL || arrowbox_bottom == NULL ) {
         return;
     }
     int page   = ( filtered_lines > 0 ) ? selected / max_elements : 0;
     int npages = ( filtered_lines > 0 ) ? ( ( filtered_lines + max_elements - 1 ) / max_elements ) : 1;
-    if ( !( page != 0 && npages > 1 ) )
-    {
+    if ( !( page != 0 && npages > 1 ) ) {
         textbox_hide ( arrowbox_top );
     }
-    if ( !( ( npages - 1 ) != page && npages > 1 ) )
-    {
+    if ( !( ( npages - 1 ) != page && npages > 1 ) ) {
         textbox_hide ( arrowbox_bottom );
     }
 }
@@ -790,25 +702,21 @@ void menu_hide_arrow_text ( int filtered_lines, int selected, int max_elements,
 void menu_set_arrow_text ( int filtered_lines, int selected, int max_elements,
                            textbox *arrowbox_top, textbox *arrowbox_bottom )
 {
-    if ( arrowbox_top == NULL || arrowbox_bottom == NULL )
-    {
+    if ( arrowbox_top == NULL || arrowbox_bottom == NULL ) {
         return;
     }
-    if(filtered_lines == 0 || max_elements == 0)
-    {
+    if ( filtered_lines == 0 || max_elements == 0 ) {
         return;
     }
     int page   = ( filtered_lines > 0 ) ? selected / max_elements : 0;
     int npages = ( filtered_lines > 0 ) ? ( ( filtered_lines + max_elements - 1 ) / max_elements ) : 1;
     int entry  = selected % max_elements;
-    if ( page != 0 && npages > 1 )
-    {
+    if ( page != 0 && npages > 1 ) {
         textbox_show ( arrowbox_top );
         textbox_font ( arrowbox_top, ( entry != 0 ) ? NORMAL : HIGHLIGHT );
         textbox_draw ( arrowbox_top  );
     }
-    if ( ( npages - 1 ) != page && npages > 1 )
-    {
+    if ( ( npages - 1 ) != page && npages > 1 ) {
         textbox_show ( arrowbox_bottom );
         textbox_font ( arrowbox_bottom, ( entry != ( max_elements - 1 ) ) ? NORMAL : HIGHLIGHT );
         textbox_draw ( arrowbox_bottom  );
@@ -826,32 +734,26 @@ void menu_draw ( textbox **boxes,
 
     // selected row is always visible.
     // If selected is visible do not scroll.
-    if ( ( selected - ( *last_offset ) ) < ( max_elements ) && ( selected - ( *last_offset ) ) >= 0 )
-    {
+    if ( ( selected - ( *last_offset ) ) < ( max_elements ) && ( selected - ( *last_offset ) ) >= 0 ) {
         offset = *last_offset;
     }
-    else
-    {
+    else{
         // Do paginating
         int page = ( max_elements > 0 ) ? ( selected / max_elements ) : 0;
         offset       = page * max_elements;
         *last_offset = offset;
     }
 
-    for ( i = 0; i < max_elements; i++ )
-    {
-        if ( ( i + offset ) >= num_lines || filtered[i + offset] == NULL )
-        {
+    for ( i = 0; i < max_elements; i++ ) {
+        if ( ( i + offset ) >= num_lines || filtered[i + offset] == NULL ) {
             textbox_font ( boxes[i], NORMAL );
             textbox_text ( boxes[i], "" );
         }
-        else
-        {
+        else{
             char            *text = filtered[i + offset];
             TextBoxFontType tbft  = ( i + offset ) == selected ? HIGHLIGHT : NORMAL;
             // Check for active
-            if ( text[0] == '*' )
-            {
+            if ( text[0] == '*' ) {
                 // Skip the '*'
                 text++;
                 // Use the active version of font.
@@ -873,21 +775,16 @@ static int calculate_common_prefix ( char **filtered, int max_elements )
 {
     int length_prefix = 0;
 
-    if ( filtered && filtered[0] != NULL )
-    {
+    if ( filtered && filtered[0] != NULL ) {
         int  found = 1;
         char *p    = filtered[0];
 
-        do
-        {
+        do {
             found = 1;
 
-            for ( int j = 0; j < max_elements && filtered[j] != NULL; j++ )
-            {
-                if ( filtered[j][length_prefix] == '\0' || filtered[j][length_prefix] != *p )
-                {
-                    if ( found )
-                    {
+            for ( int j = 0; j < max_elements && filtered[j] != NULL; j++ ) {
+                if ( filtered[j][length_prefix] == '\0' || filtered[j][length_prefix] != *p ) {
+                    if ( found ) {
                         found = 0;
                     }
 
@@ -895,49 +792,39 @@ static int calculate_common_prefix ( char **filtered, int max_elements )
                 }
             }
 
-            if ( found )
-            {
+            if ( found ) {
                 length_prefix++;
             }
 
             p++;
         } while ( found );
         // cut off to be valid utf8.
-        for ( int j = 0; j < length_prefix; )
-        {
-            if ( ( filtered[0][j] & 0x80 ) == 0 )
-            {
+        for ( int j = 0; j < length_prefix; ) {
+            if ( ( filtered[0][j] & 0x80 ) == 0 ) {
                 j++;
             }
-            else if ( ( filtered[0][j] & 0xf0 ) == 0xc0 )
-            {
+            else if ( ( filtered[0][j] & 0xf0 ) == 0xc0 ) {
                 // 2 bytes
-                if ( ( j + 2 ) >= length_prefix )
-                {
+                if ( ( j + 2 ) >= length_prefix ) {
                     length_prefix = j;
                 }
                 j += 2;
             }
-            else if ( ( filtered[0][j] & 0xf0 ) == 0xe0 )
-            {
+            else if ( ( filtered[0][j] & 0xf0 ) == 0xe0 ) {
                 // 3 bytes
-                if ( ( j + 3 ) >= length_prefix )
-                {
+                if ( ( j + 3 ) >= length_prefix ) {
                     length_prefix = j;
                 }
                 j += 3;
             }
-            else if ( ( filtered[0][j] & 0xf0 ) == 0xf0 )
-            {
+            else if ( ( filtered[0][j] & 0xf0 ) == 0xf0 ) {
                 // 4 bytes
-                if ( ( j + 4 ) >= length_prefix )
-                {
+                if ( ( j + 4 ) >= length_prefix ) {
                     length_prefix = j;
                 }
                 j += 4;
             }
-            else
-            {
+            else{
                 j++;
             };
         }
@@ -952,34 +839,27 @@ int window_match ( char **tokens, __attribute__( ( unused ) ) const char *input,
     winlist *ids  = ( winlist * ) data;
     client  *c    = window_client ( ids->array[index] );
 
-    if ( tokens )
-    {
-        for ( int j = 1; match && tokens[j]; j++ )
-        {
+    if ( tokens ) {
+        for ( int j = 1; match && tokens[j]; j++ ) {
             int test = 0;
 
-            if ( !test && c->title[0] != '\0' )
-            {
+            if ( !test && c->title[0] != '\0' ) {
                 test = ( strcasestr ( c->title, tokens[j] ) != NULL );
             }
 
-            if ( !test && c->class[0] != '\0' )
-            {
+            if ( !test && c->class[0] != '\0' ) {
                 test = ( strcasestr ( c->class, tokens[j] ) != NULL );
             }
 
-            if ( !test && c->role[0] != '\0' )
-            {
+            if ( !test && c->role[0] != '\0' ) {
                 test = ( strcasestr ( c->role, tokens[j] ) != NULL );
             }
 
-            if ( !test && c->name[0] != '\0' )
-            {
+            if ( !test && c->name[0] != '\0' ) {
                 test = ( strcasestr ( c->name, tokens[j] ) != NULL );
             }
 
-            if ( test == 0 )
-            {
+            if ( test == 0 ) {
                 match = 0;
             }
         }
@@ -1000,8 +880,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     unsigned int num_lines   = 0;
     int          last_offset = 0;
 
-    for (; lines != NULL && lines[num_lines]; num_lines++ )
-    {
+    for (; lines != NULL && lines[num_lines]; num_lines++ ) {
         ;
     }
 
@@ -1017,25 +896,21 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                       ( columns )
                                       ) );
 
-    if ( config.fixed_num_lines == TRUE )
-    {
+    if ( config.fixed_num_lines == TRUE ) {
         max_elements = config.menu_lines * columns;
         max_rows     = config.menu_lines;
         // If it would fit in one column, only use one column.
-        if ( num_lines < max_elements )
-        {
+        if ( num_lines < max_elements ) {
             columns      = ( num_lines + ( max_rows - num_lines % max_rows ) % max_rows ) / max_rows;
             max_elements = config.menu_lines * columns;
         }
         // Sanitize.
-        if ( columns == 0 )
-        {
+        if ( columns == 0 ) {
             columns = 1;
         }
     }
     // More hacks.
-    if ( config.hmode == TRUE )
-    {
+    if ( config.hmode == TRUE ) {
         max_rows = 1;
     }
 
@@ -1048,8 +923,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     int element_width = w - ( 2 * ( config.padding ) );
     // Divide by the # columns
     element_width /= columns;
-    if ( config.hmode == TRUE )
-    {
+    if ( config.hmode == TRUE ) {
         element_width = ( w - ( 2 * ( config.padding ) ) - max_elements * LINE_MARGIN ) / ( max_elements + 1 );
     }
 
@@ -1057,12 +931,10 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     XWindowAttributes attr;
 
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
-    if ( main_window != None && XGetWindowAttributes ( display, main_window, &attr ) )
-    {
+    if ( main_window != None && XGetWindowAttributes ( display, main_window, &attr ) ) {
         box = main_window;
     }
-    else
-    {
+    else{
         Screen *screen = DefaultScreenOfDisplay ( display );
         Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
         box = XCreateSimpleWindow ( display, root, x, 0, w, 300,
@@ -1117,8 +989,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     // filtered list display
     textbox **boxes = calloc ( 1, sizeof ( textbox* ) * max_elements );
 
-    for ( i = 0; i < max_elements; i++ )
-    {
+    for ( i = 0; i < max_elements; i++ ) {
         int line = ( i ) % max_rows + ( ( config.hmode == FALSE ) ? 1 : 0 );
         int col  = ( i ) / max_rows + ( ( config.hmode == FALSE ) ? 0 : 1 );
         boxes[i] = textbox_create ( box,
@@ -1132,8 +1003,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     }
     // Arrows
     textbox *arrowbox_top = NULL, *arrowbox_bottom = NULL;
-    if ( config.hmode == FALSE )
-    {
+    if ( config.hmode == FALSE ) {
         arrowbox_top = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
                                         ( config.padding ),
                                         ( config.padding ),
@@ -1160,18 +1030,15 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     int          *line_map      = calloc ( num_lines, sizeof ( int ) );
     unsigned int filtered_lines = 0;
 
-    if ( input && *input )
-    {
+    if ( input && *input ) {
         char **tokens = tokenize ( *input );
 
         // input changed
-        for ( i = 0, j = 0; i < num_lines; i++ )
-        {
+        for ( i = 0, j = 0; i < num_lines; i++ ) {
             int match = mmc ( tokens, lines[i], i, mmc_data );
 
             // If each token was matched, add it to list.
-            if ( match )
-            {
+            if ( match ) {
                 line_map[j]   = i;
                 filtered[j++] = lines[i];
                 filtered_lines++;
@@ -1180,11 +1047,9 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
         tokenize_free ( tokens );
     }
-    else
-    {
+    else{
         int jin = 0;
-        for ( i = 0; i < num_lines; i++ )
-        {
+        for ( i = 0; i < num_lines; i++ ) {
             filtered[jin] = lines[i];
             line_map[jin] = i;
             jin++;
@@ -1197,8 +1062,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     int h = line_height * ( max_rows + 1 ) + ( config.padding ) * 2 + LINE_MARGIN;
 
 
-    if ( config.hmode == TRUE )
-    {
+    if ( config.hmode == TRUE ) {
         h = line_height + ( config.padding ) * 2;
     }
 
@@ -1249,21 +1113,17 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     XMapRaised ( display, box );
 
     // if grabbing keyboard failed, fall through
-    if ( take_keyboard ( box ) )
-    {
+    if ( take_keyboard ( box ) ) {
         KeySym       prev_key = 0;
         unsigned int selected = 0;
-        for (;; )
-        {
+        for (;; ) {
             int    refilter = FALSE;
             int    update   = FALSE;
             XEvent ev;
             XNextEvent ( display, &ev );
 
-            if ( ev.type == Expose )
-            {
-                while ( XCheckTypedEvent ( display, Expose, &ev ) )
-                {
+            if ( ev.type == Expose ) {
+                while ( XCheckTypedEvent ( display, Expose, &ev ) ) {
                     ;
                 }
 
@@ -1274,20 +1134,17 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                       max_elements, arrowbox_top,
                                       arrowbox_bottom );
                 // Why do we need the specian -1?
-                if ( config.hmode == FALSE && max_elements > 0 )
-                {
+                if ( config.hmode == FALSE && max_elements > 0 ) {
                     XDrawLine ( display, main_window, gc, ( config.padding ),
                                 line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2,
                                 w - ( ( config.padding ) ) - 1,
                                 line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2 );
                 }
             }
-            else if ( ev.type == SelectionNotify )
-            {
+            else if ( ev.type == SelectionNotify ) {
                 // TODO move this.
                 Atom utf8 = XInternAtom ( display, "UTF8_STRING", False );
-                if ( ev.xselection.property == utf8 )
-                {
+                if ( ev.xselection.property == utf8 ) {
                     char          *pbuf = NULL;
                     int           di;
                     unsigned long dl, rm;
@@ -1304,11 +1161,9 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                         utf8, &da, &di, &dl, &rm, (unsigned char * *) &pbuf );
                     // If There was remaining data left.. lets ignore this.
                     // Only accept it when we get bytes!
-                    if ( di == 8 )
-                    {
+                    if ( di == 8 ) {
                         char *index;
-                        if ( ( index = strchr ( pbuf, '\n' ) ) != NULL )
-                        {
+                        if ( ( index = strchr ( pbuf, '\n' ) ) != NULL ) {
                             // Calc new length;
                             dl = index - pbuf;
                         }
@@ -1328,23 +1183,19 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                     XFree ( pbuf );
                 }
             }
-            else if ( ev.type == KeyPress )
-            {
-                while ( XCheckTypedEvent ( display, KeyPress, &ev ) )
-                {
+            else if ( ev.type == KeyPress ) {
+                while ( XCheckTypedEvent ( display, KeyPress, &ev ) ) {
                     ;
                 }
 
-                if ( time )
-                {
+                if ( time ) {
                     *time = ev.xkey.time;
                 }
 
                 KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
 
                 if ( ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_v ) ||
-                     key == XK_Insert )
-                {
+                     key == XK_Insert ) {
                     // TODO move these.
                     Atom clip = XInternAtom ( display, "CLIPBOARD", False );
                     Atom utf8 = XInternAtom ( display, "UTF8_STRING", False );
@@ -1352,17 +1203,14 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                         utf8, utf8, main_window, CurrentTime );
                 }
                 else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
-                          key == XK_slash )
-                {
+                          key == XK_slash ) {
                     retv           = MENU_NEXT;
                     *selected_line = 0;
                     break;
                 }
                 else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
-                          key == XK_Delete )
-                {
-                    if ( filtered[selected] != NULL )
-                    {
+                          key == XK_Delete ) {
+                    if ( filtered[selected] != NULL ) {
                         *selected_line = line_map[selected];
                         retv           = MENU_ENTRY_DELETE;
                         break;
@@ -1371,32 +1219,26 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
                 int rc = textbox_keypress ( text, &ev );
 
-                if ( rc < 0 )
-                {
-                    if ( shift != NULL )
-                    {
+                if ( rc < 0 ) {
+                    if ( shift != NULL ) {
                         ( *shift ) = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
                     }
 
-                    if ( filtered && filtered[selected] )
-                    {
+                    if ( filtered && filtered[selected] ) {
                         retv           = MENU_OK;
                         *selected_line = line_map[selected];
                     }
-                    else
-                    {
+                    else{
                         retv = MENU_CUSTOM_INPUT;
                     }
 
                     break;
                 }
-                else if ( rc )
-                {
+                else if ( rc ) {
                     refilter = TRUE;
                     update   = TRUE;
                 }
-                else
-                {
+                else{
                     // unhandled key
                     KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
 
@@ -1405,98 +1247,76 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                          || ( ( windows_modmask == AnyModifier || ev.xkey.state & windows_modmask ) && key == windows_keysym )
                          || ( ( rundialog_modmask == AnyModifier || ev.xkey.state & rundialog_modmask ) && key == rundialog_keysym )
                          || ( ( sshdialog_modmask == AnyModifier || ev.xkey.state & sshdialog_modmask ) && key == sshdialog_keysym )
-                         )
-                    {
+                         ) {
                         retv = MENU_CANCEL;
                         break;
                     }
-                    else
-                    {
+                    else{
                         // Up or Shift-Tab
                         if ( key == XK_Up || ( key == XK_Tab && ev.xkey.state & ShiftMask ) ||
-                             ( key == XK_j && ev.xkey.state & ControlMask )  )
-                        {
-                            if ( selected == 0 )
-                            {
+                             ( key == XK_j && ev.xkey.state & ControlMask )  ) {
+                            if ( selected == 0 ) {
                                 selected = filtered_lines;
                             }
 
-                            if ( selected > 0 )
-                            {
+                            if ( selected > 0 ) {
                                 selected--;
                             }
                             update = TRUE;
                         }
                         else if ( key == XK_Down ||
-                                  ( key == XK_k && ev.xkey.state & ControlMask ) )
-                        {
+                                  ( key == XK_k && ev.xkey.state & ControlMask ) ) {
                             selected = selected < filtered_lines - 1 ? MIN ( filtered_lines - 1, selected + 1 ) : 0;
                             update   = TRUE;
                         }
-                        else if ( key == XK_Page_Up )
-                        {
-                            if ( selected < max_elements )
-                            {
+                        else if ( key == XK_Page_Up ) {
+                            if ( selected < max_elements ) {
                                 selected = 0;
                             }
-                            else
-                            {
+                            else{
                                 selected -= ( max_elements - 1 );
                             }
                             update = TRUE;
                         }
-                        else if ( key == XK_Page_Down )
-                        {
+                        else if ( key == XK_Page_Down ) {
                             selected += ( max_elements - 1 );
 
-                            if ( selected >= num_lines )
-                            {
+                            if ( selected >= num_lines ) {
                                 selected = num_lines - 1;
                             }
                             update = TRUE;
                         }
-                        else if ( key == XK_h && ev.xkey.state & ControlMask )
-                        {
-                            if ( selected < max_rows )
-                            {
+                        else if ( key == XK_h && ev.xkey.state & ControlMask ) {
+                            if ( selected < max_rows ) {
                                 selected = 0;
                             }
-                            else
-                            {
+                            else{
                                 selected -= max_rows;
                             }
                             update = TRUE;
                         }
-                        else if (  key == XK_l && ev.xkey.state & ControlMask )
-                        {
+                        else if (  key == XK_l && ev.xkey.state & ControlMask ) {
                             selected += max_rows;
-                            if ( selected >= num_lines )
-                            {
+                            if ( selected >= num_lines ) {
                                 selected = num_lines - 1;
                             }
                             update = TRUE;
                         }
-                        else if ( key == XK_Home || key == XK_KP_Home )
-                        {
+                        else if ( key == XK_Home || key == XK_KP_Home ) {
                             selected = 0;
                             update   = TRUE;
                         }
-                        else if ( key == XK_End || key == XK_KP_End )
-                        {
+                        else if ( key == XK_End || key == XK_KP_End ) {
                             selected = num_lines - 1;
                             update   = TRUE;
                         }
-                        else if ( key == XK_Tab )
-                        {
-                            if ( filtered_lines == 1 )
-                            {
-                                if ( filtered[selected] )
-                                {
+                        else if ( key == XK_Tab ) {
+                            if ( filtered_lines == 1 ) {
+                                if ( filtered[selected] ) {
                                     retv           = MENU_OK;
                                     *selected_line = line_map[selected];
                                 }
-                                else
-                                {
+                                else{
                                     fprintf ( stderr, "We should never hit this." );
                                     abort ();
                                 }
@@ -1507,8 +1327,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                             int length_prefix = calculate_common_prefix ( filtered, num_lines );
 
                             // TODO: memcmp to utf8 aware cmp.
-                            if ( length_prefix && memcmp ( filtered[0], text->text, length_prefix ) )
-                            {
+                            if ( length_prefix && memcmp ( filtered[0], text->text, length_prefix ) ) {
                                 // Do not want to modify original string, so make copy.
                                 // not eff..
                                 char * str = malloc ( sizeof ( char ) * ( length_prefix + 1 ) );
@@ -1520,14 +1339,12 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                                 update = TRUE;
                             }
                             // Double tab!
-                            else if ( filtered_lines == 0 && key == prev_key )
-                            {
+                            else if ( filtered_lines == 0 && key == prev_key ) {
                                 retv           = MENU_NEXT;
                                 *selected_line = 0;
                                 break;
                             }
-                            else
-                            {
+                            else{
                                 selected = selected < filtered_lines - 1 ? MIN ( filtered_lines - 1, selected + 1 ) : 0;
                                 update   = TRUE;
                             }
@@ -1537,18 +1354,15 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                 prev_key = key;
             }
             // If something changed, refilter the list. (paste or text entered)
-            if ( refilter )
-            {
+            if ( refilter ) {
                 char **tokens = tokenize ( text->text );
 
                 // input changed
-                for ( i = 0, j = 0; i < num_lines; i++ )
-                {
+                for ( i = 0, j = 0; i < num_lines; i++ ) {
                     int match = mmc ( tokens, lines[i], i, mmc_data );
 
                     // If each token was matched, add it to list.
-                    if ( match )
-                    {
+                    if ( match ) {
                         line_map[j]   = i;
                         filtered[j++] = lines[i];
                     }
@@ -1558,20 +1372,16 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                 filtered_lines = j;
                 selected       = MIN ( selected, j - 1 );
 
-                for (; j < num_lines; j++ )
-                {
+                for (; j < num_lines; j++ ) {
                     filtered[j] = NULL;
                 }
 
-                if ( config.zeltak_mode && filtered_lines == 1 )
-                {
-                    if ( filtered[selected] )
-                    {
+                if ( config.zeltak_mode && filtered_lines == 1 ) {
+                    if ( filtered[selected] ) {
                         retv           = MENU_OK;
                         *selected_line = line_map[selected];
                     }
-                    else
-                    {
+                    else{
                         fprintf ( stderr, "We should never hit this." );
                         abort ();
                     }
@@ -1582,8 +1392,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                 tokenize_free ( tokens );
             }
             // Update if requested.
-            if ( update )
-            {
+            if ( update ) {
                 menu_hide_arrow_text ( filtered_lines, selected,
                                        max_elements, arrowbox_top,
                                        arrowbox_bottom );
@@ -1608,8 +1417,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     textbox_free ( arrowbox_bottom );
     textbox_free ( arrowbox_top );
 
-    for ( i = 0; i < max_elements; i++ )
-    {
+    for ( i = 0; i < max_elements; i++ ) {
         textbox_free ( boxes[i] );
     }
 
@@ -1639,15 +1447,13 @@ SwitcherMode run_switcher_window ( char **input )
     // Get the active window so we can highlight this.
     if ( !( window_get_prop ( root, netatoms[_NET_ACTIVE_WINDOW], &type,
                               &count, &curr_win_id, sizeof ( Window ) )
-            && type == XA_WINDOW && count > 0 ) )
-    {
+            && type == XA_WINDOW && count > 0 ) ) {
         curr_win_id = 0;
     }
 
     if ( window_get_prop ( root, netatoms[_NET_CLIENT_LIST_STACKING],
                            &type, &nwins, wins, 100 * sizeof ( Window ) )
-         && type == XA_WINDOW )
-    {
+         && type == XA_WINDOW ) {
         char          pattern[50];
         int           i;
         unsigned int  classfield = 0;
@@ -1659,28 +1465,24 @@ SwitcherMode run_switcher_window ( char **input )
 
 
         // calc widths of fields
-        for ( i = nwins - 1; i > -1; i-- )
-        {
+        for ( i = nwins - 1; i > -1; i-- ) {
             client *c;
 
             if ( ( c = window_client ( wins[i] ) )
                  && !c->xattr.override_redirect
                  && !client_has_state ( c, netatoms[_NET_WM_STATE_SKIP_PAGER] )
-                 && !client_has_state ( c, netatoms[_NET_WM_STATE_SKIP_TASKBAR] ) )
-            {
+                 && !client_has_state ( c, netatoms[_NET_WM_STATE_SKIP_TASKBAR] ) ) {
                 classfield = MAX ( classfield, strlen ( c->class ) );
 
 #ifdef HAVE_I3_IPC_H
 
                 // In i3 mode, skip the i3bar completely.
-                if ( config_i3_mode && strstr ( c->class, "i3bar" ) != NULL )
-                {
+                if ( config_i3_mode && strstr ( c->class, "i3bar" ) != NULL ) {
                     continue;
                 }
 
 #endif
-                if ( c->window == curr_win_id )
-                {
+                if ( c->window == curr_win_id ) {
                     c->active = TRUE;
                 }
                 winlist_append ( ids, c->window, NULL );
@@ -1688,17 +1490,14 @@ SwitcherMode run_switcher_window ( char **input )
         }
 
         // Create pattern for printing the line.
-        if ( !window_get_cardinal_prop ( root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1 ) )
-        {
+        if ( !window_get_cardinal_prop ( root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1 ) ) {
             desktops = 1;
         }
 #ifdef HAVE_I3_IPC_H
-        if ( config_i3_mode )
-        {
+        if ( config_i3_mode ) {
             sprintf ( pattern, "%%s%%-%ds   %%s", MAX ( 5, classfield ) );
         }
-        else
-        {
+        else{
 #endif
         sprintf ( pattern, "%%s%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX ( 5, classfield ) );
 #ifdef HAVE_I3_IPC_H
@@ -1713,34 +1512,29 @@ SwitcherMode run_switcher_window ( char **input )
         {
             client *c;
 
-            if ( ( c = window_client ( w ) ) )
-            {
+            if ( ( c = window_client ( w ) ) ) {
                 // final line format
                 unsigned long wmdesktop;
                 char          desktop[5];
                 desktop[0] = 0;
                 char          *line = malloc ( strlen ( c->title ) + strlen ( c->class ) + classfield + 50 );
 #ifdef HAVE_I3_IPC_H
-                if ( !config_i3_mode )
-                {
+                if ( !config_i3_mode ) {
 #endif
                 // find client's desktop. this is zero-based, so we adjust by since most
                 // normal people don't think like this :-)
-                if ( !window_get_cardinal_prop ( c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1 ) )
-                {
+                if ( !window_get_cardinal_prop ( c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1 ) ) {
                     wmdesktop = 0xFFFFFFFF;
                 }
 
-                if ( wmdesktop < 0xFFFFFFFF )
-                {
+                if ( wmdesktop < 0xFFFFFFFF ) {
                     sprintf ( desktop, "%d", (int) wmdesktop + 1 );
                 }
 
                 sprintf ( line, pattern, ( c->active ) ? "*" : "", desktop, c->class, c->title );
 #ifdef HAVE_I3_IPC_H
             }
-            else
-            {
+            else{
                 sprintf ( line, pattern, ( c->active ) ? "*" : "", c->class, c->title );
             }
 #endif
@@ -1752,16 +1546,13 @@ SwitcherMode run_switcher_window ( char **input )
         int selected_line = 0;
         MenuReturn mretv  = menu ( list, input, "window:", &time, NULL, window_match, ids, &selected_line );
 
-        if ( mretv == MENU_NEXT )
-        {
+        if ( mretv == MENU_NEXT ) {
             retv = NEXT_DIALOG;
         }
-        else if ( mretv == MENU_OK && list[selected_line] )
-        {
+        else if ( mretv == MENU_OK && list[selected_line] ) {
 #ifdef HAVE_I3_IPC_H
 
-            if ( config_i3_mode )
-            {
+            if ( config_i3_mode ) {
                 // Hack for i3.
                 focus_window_i3 ( i3_socket_path, ids->array[selected_line] );
             }
@@ -1780,8 +1571,7 @@ SwitcherMode run_switcher_window ( char **input )
         }
 
 
-        for ( i = 0; i < lines; i++ )
-        {
+        for ( i = 0; i < lines; i++ ) {
             free ( list[i] );
         }
 
@@ -1799,10 +1589,8 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
     // this also happens to isolate the Xft font stuff in a child process
     // that gets cleaned up every time. that library shows some valgrind
     // strangeness...
-    if ( do_fork == TRUE )
-    {
-        if ( fork () )
-        {
+    if ( do_fork == TRUE ) {
+        if ( fork () ) {
             return;
         }
 
@@ -1817,33 +1605,26 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
                     config.menu_hlfg );
     char *input = NULL;
 
-    do
-    {
+    do {
         SwitcherMode retv = MODE_EXIT;
 
-        if ( mode == WINDOW_SWITCHER )
-        {
+        if ( mode == WINDOW_SWITCHER ) {
             retv = run_switcher_window ( &input );
         }
-        else if ( mode == RUN_DIALOG )
-        {
+        else if ( mode == RUN_DIALOG ) {
             retv = run_switcher_dialog ( &input );
         }
-        else if ( mode == SSH_DIALOG )
-        {
+        else if ( mode == SSH_DIALOG ) {
             retv = ssh_switcher_dialog ( &input );
         }
-        else if ( mode == DMENU_DIALOG )
-        {
+        else if ( mode == DMENU_DIALOG ) {
             retv = dmenu_switcher_dialog ( &input );
         }
 
-        if ( retv == NEXT_DIALOG )
-        {
+        if ( retv == NEXT_DIALOG ) {
             mode = ( mode + 1 ) % NUM_DIALOGS;
         }
-        else
-        {
+        else{
             mode = retv;
         }
     } while ( mode != MODE_EXIT );
@@ -1853,8 +1634,7 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
     // Cleanup font setup.
     textbox_cleanup ();
 
-    if ( do_fork == TRUE )
-    {
+    if ( do_fork == TRUE ) {
         exit ( EXIT_SUCCESS );
     }
 }
@@ -1865,20 +1645,17 @@ static void handle_keypress ( XEvent *ev )
     KeySym key = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
 
     if ( ( windows_modmask == AnyModifier || ev->xkey.state & windows_modmask ) &&
-         key == windows_keysym )
-    {
+         key == windows_keysym ) {
         run_switcher ( TRUE, WINDOW_SWITCHER );
     }
 
     if ( ( rundialog_modmask == AnyModifier || ev->xkey.state & rundialog_modmask ) &&
-         key == rundialog_keysym )
-    {
+         key == rundialog_keysym ) {
         run_switcher ( TRUE, RUN_DIALOG );
     }
 
     if ( ( sshdialog_modmask == AnyModifier || ev->xkey.state & sshdialog_modmask ) &&
-         key == sshdialog_keysym )
-    {
+         key == sshdialog_keysym ) {
         run_switcher ( TRUE, SSH_DIALOG );
     }
 }
@@ -1888,43 +1665,35 @@ static void parse_key ( char *combo, unsigned int *mod, KeySym *key )
 {
     unsigned int modmask = 0;
 
-    if ( strcasestr ( combo, "shift" ) )
-    {
+    if ( strcasestr ( combo, "shift" ) ) {
         modmask |= ShiftMask;
     }
 
-    if ( strcasestr ( combo, "control" ) )
-    {
+    if ( strcasestr ( combo, "control" ) ) {
         modmask |= ControlMask;
     }
 
-    if ( strcasestr ( combo, "mod1" ) )
-    {
+    if ( strcasestr ( combo, "mod1" ) ) {
         modmask |= Mod1Mask;
     }
 
-    if ( strcasestr ( combo, "alt" ) )
-    {
+    if ( strcasestr ( combo, "alt" ) ) {
         modmask |= Mod1Mask;
     }
 
-    if ( strcasestr ( combo, "mod2" ) )
-    {
+    if ( strcasestr ( combo, "mod2" ) ) {
         modmask |= Mod2Mask;
     }
 
-    if ( strcasestr ( combo, "mod3" ) )
-    {
+    if ( strcasestr ( combo, "mod3" ) ) {
         modmask |= Mod3Mask;
     }
 
-    if ( strcasestr ( combo, "mod4" ) )
-    {
+    if ( strcasestr ( combo, "mod4" ) ) {
         modmask |= Mod4Mask;
     }
 
-    if ( strcasestr ( combo, "mod5" ) )
-    {
+    if ( strcasestr ( combo, "mod5" ) ) {
         modmask |= Mod5Mask;
     }
 
@@ -1932,15 +1701,13 @@ static void parse_key ( char *combo, unsigned int *mod, KeySym *key )
 
     char i = strlen ( combo );
 
-    while ( i > 0 && !strchr ( "-+", combo[i - 1] ) )
-    {
+    while ( i > 0 && !strchr ( "-+", combo[i - 1] ) ) {
         i--;
     }
 
     KeySym sym = XStringToKeysym ( combo + i );
 
-    if ( sym == NoSymbol || ( !modmask && ( strchr ( combo, '-' ) || strchr ( combo, '+' ) ) ) )
-    {
+    if ( sym == NoSymbol || ( !modmask && ( strchr ( combo, '-' ) || strchr ( combo, '+' ) ) ) ) {
         fprintf ( stderr, "sorry, cannot understand key combination: %s\n", combo );
         exit ( EXIT_FAILURE );
     }
@@ -1956,20 +1723,17 @@ static void grab_key ( unsigned int modmask, KeySym key )
     KeyCode keycode = XKeysymToKeycode ( display, key );
     XUngrabKey ( display, keycode, AnyModifier, root );
 
-    if ( modmask != AnyModifier )
-    {
+    if ( modmask != AnyModifier ) {
         // bind to combinations of mod and lock masks, so caps and numlock don't confuse people
         XGrabKey ( display, keycode, modmask, root, True, GrabModeAsync, GrabModeAsync );
         XGrabKey ( display, keycode, modmask | LockMask, root, True, GrabModeAsync, GrabModeAsync );
 
-        if ( NumlockMask )
-        {
+        if ( NumlockMask ) {
             XGrabKey ( display, keycode, modmask | NumlockMask, root, True, GrabModeAsync, GrabModeAsync );
             XGrabKey ( display, keycode, modmask | NumlockMask | LockMask, root, True, GrabModeAsync, GrabModeAsync );
         }
     }
-    else
-    {
+    else{
         // nice simple single key bind
         XGrabKey ( display, keycode, AnyModifier, root, True, GrabModeAsync, GrabModeAsync );
     }
@@ -1985,12 +1749,10 @@ static inline void display_get_i3_path ( Display *display )
 
     config_i3_mode = 0;
 
-    if ( atom != None )
-    {
+    if ( atom != None ) {
         i3_socket_path = window_get_text_prop ( root, atom );
 
-        if ( i3_socket_path != NULL )
-        {
+        if ( i3_socket_path != NULL ) {
             config_i3_mode = 1;
         }
     }
@@ -2005,8 +1767,7 @@ static void help ()
 {
     int code = execlp ( "man", "man", MANPAGE_PATH, NULL );
 
-    if ( code == -1 )
-    {
+    if ( code == -1 ) {
         fprintf ( stderr, "Failed to execute man: %s\n", strerror ( errno ) );
     }
 }
@@ -2015,15 +1776,13 @@ static void parse_cmd_options ( int argc, char ** argv )
 {
     // catch help request
     if ( find_arg ( argc, argv, "-h" ) >= 0 ||
-         find_arg ( argc, argv, "-help" ) >= 0 )
-    {
+         find_arg ( argc, argv, "-help" ) >= 0 ) {
         help ();
         exit ( EXIT_SUCCESS );
     }
 
     if ( find_arg ( argc, argv, "-v" ) >= 0 ||
-         find_arg ( argc, argv, "-version" ) >= 0 )
-    {
+         find_arg ( argc, argv, "-version" ) >= 0 ) {
         fprintf ( stdout, "Version: "VERSION "\n" );
         exit ( EXIT_SUCCESS );
     }
@@ -2049,33 +1808,27 @@ static void parse_cmd_options ( int argc, char ** argv )
     find_arg_int ( argc, argv, "-padding", &( config.padding ) );
     find_arg_int ( argc, argv, "-xoffset", &( config.x_offset ) );
     find_arg_int ( argc, argv, "-yoffset", &( config.y_offset ) );
-    if ( find_arg ( argc, argv, "-fixed-num-lines" ) >= 0 )
-    {
+    if ( find_arg ( argc, argv, "-fixed-num-lines" ) >= 0 ) {
         config.fixed_num_lines = 1;
     }
 
     // Parse commandline arguments about behavior
     find_arg_str ( argc, argv, "-terminal", &( config.terminal_emulator ) );
-    if ( find_arg ( argc, argv, "-zeltak" ) >= 0 )
-    {
+    if ( find_arg ( argc, argv, "-zeltak" ) >= 0 ) {
         config.zeltak_mode = 1;
     }
 
-    if ( find_arg ( argc, argv, "-hmode" ) >= 0 )
-    {
+    if ( find_arg ( argc, argv, "-hmode" ) >= 0 ) {
         config.hmode = TRUE;
     }
 
-    if ( find_arg ( argc, argv, "-ssh-set-title" ) >= 0 )
-    {
+    if ( find_arg ( argc, argv, "-ssh-set-title" ) >= 0 ) {
         char *value;
         find_arg_str ( argc, argv, "-ssh-set-title", &value );
-        if ( strcasecmp ( value, "true" ) == 0 )
-        {
+        if ( strcasecmp ( value, "true" ) == 0 ) {
             config.ssh_set_title = TRUE;
         }
-        else
-        {
+        else{
             config.ssh_set_title = FALSE;
         }
     }
@@ -2087,8 +1840,7 @@ static void parse_cmd_options ( int argc, char ** argv )
 
 
     // Dump.
-    if ( find_arg ( argc, argv, "-dump-xresources" ) >= 0 )
-    {
+    if ( find_arg ( argc, argv, "-dump-xresources" ) >= 0 ) {
         xresource_dump ();
         exit ( EXIT_SUCCESS );
     }
@@ -2097,27 +1849,22 @@ static void parse_cmd_options ( int argc, char ** argv )
 static void cleanup ()
 {
     // Cleanup
-    if ( display != NULL )
-    {
-        if ( main_window != None )
-        {
+    if ( display != NULL ) {
+        if ( main_window != None ) {
             XFreeGC ( display, gc );
             XDestroyWindow ( display, main_window );
             XCloseDisplay ( display );
         }
     }
-    if ( cache_xattr != NULL )
-    {
+    if ( cache_xattr != NULL ) {
         winlist_free ( cache_xattr );
     }
-    if ( cache_client != NULL )
-    {
+    if ( cache_client != NULL ) {
         winlist_free ( cache_client );
     }
 #ifdef HAVE_I3_IPC_H
 
-    if ( i3_socket_path != NULL )
-    {
+    if ( i3_socket_path != NULL ) {
         free ( i3_socket_path );
     }
 
@@ -2141,32 +1888,24 @@ static void cleanup ()
  */
 void config_sanity_check ( void )
 {
-    if ( config.menu_lines == 0 )
-    {
+    if ( config.menu_lines == 0 ) {
         fprintf ( stderr, "config.menu_lines is invalid. You need at least one visible line.\n" );
         exit ( 1 );
     }
-    if ( config.menu_columns == 0 )
-    {
+    if ( config.menu_columns == 0 ) {
         fprintf ( stderr, "config.menu_columns is invalid. You need at least one visible column.\n" );
         exit ( 1 );
     }
-
-    if ( config.menu_width == 0 )
-    {
+    if ( config.menu_width == 0 ) {
         fprintf ( stderr, "config.menu_width is invalid. You cannot have a window with no width.\n" );
         exit ( 1 );
     }
-
-    if ( !( config.location >= WL_CENTER && config.location <= WL_WEST ) )
-    {
+    if ( !( config.location >= WL_CENTER && config.location <= WL_WEST ) ) {
         fprintf ( stderr, "config.location is invalid. ( %d >= %d >= %d) does not hold.\n",
                   WL_WEST, config.location, WL_CENTER );
         exit ( 1 );
     }
-
-    if ( !( config.hmode == TRUE || config.hmode == FALSE ) )
-    {
+    if ( !( config.hmode == TRUE || config.hmode == FALSE ) ) {
         fprintf ( stderr, "config.hmode is invalid.\n" );
         exit ( 1 );
     }
@@ -2176,8 +1915,7 @@ void config_sanity_check ( void )
 int main ( int argc, char *argv[] )
 {
     // Initialize xdg, so we can grab the xdgCacheHome
-    if ( xdgInitHandle ( &xdg_handle ) == NULL )
-    {
+    if ( xdgInitHandle ( &xdg_handle ) == NULL ) {
         fprintf ( stderr, "Failed to initialize XDG\n" );
         return EXIT_FAILURE;
     }
@@ -2192,8 +1930,7 @@ int main ( int argc, char *argv[] )
     char *display_str = getenv ( "DISPLAY" );
     find_arg_str ( argc, argv, "-display", &display_str );
 
-    if ( !( display = XOpenDisplay ( display_str ) ) )
-    {
+    if ( !( display = XOpenDisplay ( display_str ) ) ) {
         fprintf ( stderr, "cannot open display!\n" );
         return EXIT_FAILURE;
     }
@@ -2208,8 +1945,7 @@ int main ( int argc, char *argv[] )
     config_sanity_check ();
 
     // Generate the font string for the line that indicates a selected item.
-    if ( asprintf ( &active_font, "%s:slant=italic", config.menu_font ) < 0 )
-    {
+    if ( asprintf ( &active_font, "%s:slant=italic", config.menu_font ) < 0 ) {
         fprintf ( stderr, "Failed to construct active string: %s\n", strerror ( errno ) );
         return EXIT_FAILURE;
     }
@@ -2225,12 +1961,9 @@ int main ( int argc, char *argv[] )
     // determine numlock mask so we can bind on keys with and without it
     XModifierKeymap *modmap = XGetModifierMapping ( display );
 
-    for ( int i = 0; i < 8; i++ )
-    {
-        for ( int j = 0; j < ( int ) modmap->max_keypermod; j++ )
-        {
-            if ( modmap->modifiermap[i * modmap->max_keypermod + j] == XKeysymToKeycode ( display, XK_Num_Lock ) )
-            {
+    for ( int i = 0; i < 8; i++ ) {
+        for ( int j = 0; j < ( int ) modmap->max_keypermod; j++ ) {
+            if ( modmap->modifiermap[i * modmap->max_keypermod + j] == XKeysymToKeycode ( display, XK_Num_Lock ) ) {
                 NumlockMask = ( 1 << i );
             }
         }
@@ -2244,8 +1977,7 @@ int main ( int argc, char *argv[] )
     cache_xattr  = winlist_new ();
 
     // X atom values
-    for ( int i = 0; i < NETATOMS; i++ )
-    {
+    for ( int i = 0; i < NETATOMS; i++ ) {
         netatoms[i] = XInternAtom ( display, netatom_names[i], False );
     }
 
@@ -2256,25 +1988,20 @@ int main ( int argc, char *argv[] )
 
 
     // flags to run immediately and exit
-    if ( find_arg ( argc, argv, "-now" ) >= 0 )
-    {
+    if ( find_arg ( argc, argv, "-now" ) >= 0 ) {
         run_switcher ( FALSE, WINDOW_SWITCHER );
     }
-    else if ( find_arg ( argc, argv, "-rnow" ) >= 0 )
-    {
+    else if ( find_arg ( argc, argv, "-rnow" ) >= 0 ) {
         run_switcher ( FALSE, RUN_DIALOG );
     }
-    else if ( find_arg ( argc, argv, "-snow" ) >= 0 )
-    {
+    else if ( find_arg ( argc, argv, "-snow" ) >= 0 ) {
         run_switcher ( FALSE, SSH_DIALOG );
     }
-    else if ( find_arg ( argc, argv, "-dmenu" ) >= 0 )
-    {
+    else if ( find_arg ( argc, argv, "-dmenu" ) >= 0 ) {
         find_arg_str ( argc, argv, "-p", &dmenu_prompt );
         run_switcher ( FALSE, DMENU_DIALOG );
     }
-    else
-    {
+    else{
         // Daemon mode, Listen to key presses..
         parse_key ( config.window_key, &windows_modmask, &windows_keysym );
         grab_key ( windows_modmask, windows_keysym );
@@ -2286,8 +2013,7 @@ int main ( int argc, char *argv[] )
         grab_key ( sshdialog_modmask, sshdialog_keysym );
 
         // Main loop
-        for (;; )
-        {
+        for (;; ) {
             XEvent ev;
             // caches only live for a single event
             winlist_empty ( cache_xattr );
@@ -2296,13 +2022,11 @@ int main ( int argc, char *argv[] )
             // block and wait for something
             XNextEvent ( display, &ev );
 
-            if ( ev.xany.window == None )
-            {
+            if ( ev.xany.window == None ) {
                 continue;
             }
 
-            if ( ev.type == KeyPress )
-            {
+            if ( ev.type == KeyPress ) {
                 handle_keypress ( &ev );
             }
         }

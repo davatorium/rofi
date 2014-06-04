@@ -51,8 +51,7 @@ static int __element_sort_func ( const void *ea, const void *eb )
 
 static void __history_write_element_list ( FILE *fd, _element **list, unsigned int length )
 {
-    if ( list == NULL )
-    {
+    if ( list == NULL ) {
         return;
     }
     // Sort the list before writing out.
@@ -65,8 +64,7 @@ static void __history_write_element_list ( FILE *fd, _element **list, unsigned i
     length = ( length > HISTORY_MAX_ENTRIES ) ? HISTORY_MAX_ENTRIES : length;
 
     // Write out entries.
-    for ( unsigned int iter = 0; iter < length; iter++ )
-    {
+    for ( unsigned int iter = 0; iter < length; iter++ ) {
         fprintf ( fd, "%ld %s\n", list[iter]->index - min_value, list[iter]->name );
     }
 }
@@ -76,28 +74,23 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
     char     buffer[HISTORY_NAME_LENGTH + 16];
     _element **retv = NULL;
 
-    if  ( length == NULL )
-    {
+    if  ( length == NULL ) {
         return NULL;
     }
     *length = 0;
 
-    if ( fd == NULL )
-    {
+    if ( fd == NULL ) {
         return NULL;
     }
-    while ( fgets ( buffer, HISTORY_NAME_LENGTH + 16, fd ) != NULL )
-    {
+    while ( fgets ( buffer, HISTORY_NAME_LENGTH + 16, fd ) != NULL ) {
         char * start = NULL;
         // Skip empty lines.
-        if ( strlen ( buffer ) == 0 )
-        {
+        if ( strlen ( buffer ) == 0 ) {
             continue;
         }
         // Resize and check.
         _element **tr = realloc ( retv, ( *length + 2 ) * sizeof ( _element* ) );
-        if ( tr == NULL )
-        {
+        if ( tr == NULL ) {
             return retv;
         }
         retv = tr;
@@ -126,8 +119,7 @@ void history_set ( const char *filename, const char *entry )
     _element     **list = NULL;
     // Open file for reading and writing.
     FILE         *fd = fopen ( filename, "a+" );
-    if ( fd == NULL )
-    {
+    if ( fd == NULL ) {
         fprintf ( stderr, "Failed to open file: %s\n", strerror ( errno ) );
         return;
     }
@@ -135,32 +127,26 @@ void history_set ( const char *filename, const char *entry )
     list = __history_get_element_list ( fd, &length );
 
     // Look if the entry exists.
-    for ( unsigned int iter = 0; !found && iter < length; iter++ )
-    {
-        if ( strcmp ( list[iter]->name, entry ) == 0 )
-        {
+    for ( unsigned int iter = 0; !found && iter < length; iter++ ) {
+        if ( strcmp ( list[iter]->name, entry ) == 0 ) {
             curr  = iter;
             found = 1;
         }
     }
 
-    if ( found )
-    {
+    if ( found ) {
         // If exists, increment list index number
         list[curr]->index++;
     }
-    else
-    {
+    else{
         // If not exists, add it.
         // Increase list by one
         _element **tr = realloc ( list, ( length + 2 ) * sizeof ( _element* ) );
-        if ( tr != NULL )
-        {
+        if ( tr != NULL ) {
             list         = tr;
             list[length] = malloc ( sizeof ( _element ) );
             // Copy name
-            if ( list[length] != NULL )
-            {
+            if ( list[length] != NULL ) {
                 strncpy ( list[length]->name, entry, HISTORY_NAME_LENGTH );
                 list[length]->name[HISTORY_NAME_LENGTH - 1] = '\0';
                 // set # hits
@@ -175,18 +161,15 @@ void history_set ( const char *filename, const char *entry )
     // Rewind.
     fseek ( fd, 0L, SEEK_SET );
     // Clear file.
-    if ( ftruncate ( fileno ( fd ), 0 ) == 0 )
-    {
+    if ( ftruncate ( fileno ( fd ), 0 ) == 0 ) {
         // Write list.
         __history_write_element_list ( fd, list, length );
     }
-    else
-    {
+    else{
         fprintf ( stderr, "Failed to truncate file: %s\n", strerror ( errno ) );
     }
     // Free the list.
-    for ( unsigned int iter = 0; iter < length; iter++ )
-    {
+    for ( unsigned int iter = 0; iter < length; iter++ ) {
         free ( list[iter] );
     }
     free ( list );
@@ -202,8 +185,7 @@ void history_remove ( const char *filename, const char *entry )
     unsigned int length  = 0;
     // Open file for reading and writing.
     FILE         *fd = fopen ( filename, "a+" );
-    if ( fd == NULL )
-    {
+    if ( fd == NULL ) {
         fprintf ( stderr, "Failed to open file: %s\n", strerror ( errno ) );
         return;
     }
@@ -211,18 +193,15 @@ void history_remove ( const char *filename, const char *entry )
     list = __history_get_element_list ( fd, &length );
 
     // Find entry.
-    for ( unsigned int iter = 0; !found && iter < length; iter++ )
-    {
-        if ( strcmp ( list[iter]->name, entry ) == 0 )
-        {
+    for ( unsigned int iter = 0; !found && iter < length; iter++ ) {
+        if ( strcmp ( list[iter]->name, entry ) == 0 ) {
             curr  = iter;
             found = 1;
         }
     }
 
     // If found, remove it and write out new file.
-    if ( found )
-    {
+    if ( found ) {
         // Remove the entry.
         free ( list[curr] );
         // Swap last to here (if list is size 1, we just swap empty sets).
@@ -234,24 +213,20 @@ void history_remove ( const char *filename, const char *entry )
         // Rewind.
         fseek ( fd, 0L, SEEK_SET );
         // Clear list.
-        if ( ftruncate ( fileno ( fd ), 0 ) == 0 )
-        {
+        if ( ftruncate ( fileno ( fd ), 0 ) == 0 ) {
             // Write list.
             __history_write_element_list ( fd, list, length );
         }
-        else
-        {
+        else{
             fprintf ( stderr, "Failed to open file: %s\n", strerror ( errno ) );
         }
     }
 
     // Free the list.
-    for ( unsigned int iter = 0; iter < length; iter++ )
-    {
+    for ( unsigned int iter = 0; iter < length; iter++ ) {
         free ( list[iter] );
     }
-    if ( list != NULL )
-    {
+    if ( list != NULL ) {
         free ( list );
     }
     // Close file.
@@ -264,12 +239,10 @@ char ** history_get_list ( const char *filename, unsigned int *length )
     char     **retv = NULL;
     // Open file.
     FILE     *fd = fopen ( filename, "r" );
-    if ( fd == NULL )
-    {
+    if ( fd == NULL ) {
         // File that does not exists is not an error, so ignore it.
         // Everything else? panic.
-        if ( errno != ENOENT )
-        {
+        if ( errno != ENOENT ) {
             fprintf ( stderr, "Failed to open file: %s\n", strerror ( errno ) );
         }
         return NULL;
@@ -279,11 +252,9 @@ char ** history_get_list ( const char *filename, unsigned int *length )
 
     // Copy list in right format.
     // Lists are always short, so performance should not be an issue.
-    if ( ( *length ) > 0 )
-    {
+    if ( ( *length ) > 0 ) {
         retv = malloc ( ( ( *length ) + 1 ) * sizeof ( char * ) );
-        for ( int iter = 0; iter < ( *length ); iter++ )
-        {
+        for ( int iter = 0; iter < ( *length ); iter++ ) {
             retv[iter] = strdup ( list[iter]->name );
             free ( list[iter] );
         }

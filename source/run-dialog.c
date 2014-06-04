@@ -51,8 +51,7 @@
 static inline int execsh ( const char *cmd, int run_in_term )
 {
 // use sh for args parsing
-    if ( run_in_term )
-    {
+    if ( run_in_term ) {
         return execlp ( config.terminal_emulator, config.terminal_emulator, "-e", "sh", "-c", cmd, NULL );
     }
 
@@ -62,16 +61,14 @@ static inline int execsh ( const char *cmd, int run_in_term )
 // execute sub-process
 static pid_t exec_cmd ( const char *cmd, int run_in_term )
 {
-    if ( !cmd || !cmd[0] )
-    {
+    if ( !cmd || !cmd[0] ) {
         return -1;
     }
 
     signal ( SIGCHLD, catch_exit );
     pid_t pid = fork ();
 
-    if ( !pid )
-    {
+    if ( !pid ) {
         setsid ();
         execsh ( cmd, run_in_term );
         exit ( EXIT_FAILURE );
@@ -82,8 +79,7 @@ static pid_t exec_cmd ( const char *cmd, int run_in_term )
      * It is allowed to be a bit slower.
      */
     char *path = NULL;
-    if ( asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) == -1 )
-    {
+    if ( asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) == -1 ) {
         return -1;
     }
     history_set ( path, cmd );
@@ -100,8 +96,7 @@ static void delete_entry ( const char *cmd )
      * It is allowed to be a bit slower.
      */
     char *path = NULL;
-    if ( asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) == -1 )
-    {
+    if ( asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) == -1 ) {
         return;
     }
     history_remove ( path, cmd );
@@ -125,14 +120,12 @@ static char ** get_apps ( void )
     clock_gettime ( CLOCK_REALTIME, &start );
 #endif
 
-    if ( getenv ( "PATH" ) == NULL )
-    {
+    if ( getenv ( "PATH" ) == NULL ) {
         return NULL;
     }
 
 
-    if ( asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) > 0 )
-    {
+    if ( asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) > 0 ) {
         retv = history_get_list ( path, &index );
         free ( path );
         // Keep track of how many where loaded as favorite.
@@ -144,20 +137,16 @@ static char ** get_apps ( void )
 
     for ( const char *dirname = strtok ( path, ":" );
           dirname != NULL;
-          dirname = strtok ( NULL, ":" ) )
-    {
+          dirname = strtok ( NULL, ":" ) ) {
         DIR *dir = opendir ( dirname );
 
-        if ( dir != NULL )
-        {
+        if ( dir != NULL ) {
             struct dirent *dent;
 
-            while ( ( dent = readdir ( dir ) ) != NULL )
-            {
+            while ( ( dent = readdir ( dir ) ) != NULL ) {
                 if ( dent->d_type != DT_REG &&
                      dent->d_type != DT_LNK &&
-                     dent->d_type != DT_UNKNOWN )
-                {
+                     dent->d_type != DT_UNKNOWN ) {
                     continue;
                 }
 
@@ -165,22 +154,18 @@ static char ** get_apps ( void )
 
                 // This is a nice little penalty, but doable? time will tell.
                 // given num_favorites is max 25.
-                for ( unsigned int j = 0; found == 0 && j < num_favorites; j++ )
-                {
-                    if ( strcasecmp ( dent->d_name, retv[j] ) == 0 )
-                    {
+                for ( unsigned int j = 0; found == 0 && j < num_favorites; j++ ) {
+                    if ( strcasecmp ( dent->d_name, retv[j] ) == 0 ) {
                         found = 1;
                     }
                 }
 
-                if ( found == 1 )
-                {
+                if ( found == 1 ) {
                     continue;
                 }
 
                 char ** tr = realloc ( retv, ( index + 2 ) * sizeof ( char* ) );
-                if ( tr != NULL )
-                {
+                if ( tr != NULL ) {
                     retv            = tr;
                     retv[index]     = strdup ( dent->d_name );
                     retv[index + 1] = NULL;
@@ -193,16 +178,14 @@ static char ** get_apps ( void )
     }
 
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
-    if ( index > num_favorites )
-    {
+    if ( index > num_favorites ) {
         qsort ( &retv[num_favorites], index - num_favorites, sizeof ( char* ), sort_func );
     }
     free ( path );
 #ifdef TIMING
     clock_gettime ( CLOCK_REALTIME, &stop );
 
-    if ( stop.tv_sec != start.tv_sec )
-    {
+    if ( stop.tv_sec != start.tv_sec ) {
         stop.tv_nsec += ( stop.tv_sec - start.tv_sec ) * 1e9;
     }
 
@@ -220,8 +203,7 @@ SwitcherMode run_switcher_dialog ( char **input )
     // act as a launcher
     char         **cmd_list = get_apps ( );
 
-    if ( cmd_list == NULL )
-    {
+    if ( cmd_list == NULL ) {
         cmd_list    = malloc ( 2 * sizeof ( char * ) );
         cmd_list[0] = strdup ( "No applications found" );
         cmd_list[1] = NULL;
@@ -229,31 +211,25 @@ SwitcherMode run_switcher_dialog ( char **input )
 
     int mretv = menu ( cmd_list, input, "run:", NULL, &shift, token_match, NULL, &selected_line );
 
-    if ( mretv == MENU_NEXT )
-    {
+    if ( mretv == MENU_NEXT ) {
         retv = NEXT_DIALOG;
     }
-    else if ( mretv == MENU_OK && cmd_list[selected_line] != NULL )
-    {
+    else if ( mretv == MENU_OK && cmd_list[selected_line] != NULL ) {
         exec_cmd ( cmd_list[selected_line], shift );
     }
-    else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' )
-    {
+    else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' ) {
         exec_cmd ( *input, shift );
     }
-    else if ( mretv == MENU_ENTRY_DELETE && cmd_list[selected_line] )
-    {
+    else if ( mretv == MENU_ENTRY_DELETE && cmd_list[selected_line] ) {
         delete_entry ( cmd_list[selected_line] );
         retv = RUN_DIALOG;
     }
 
-    for ( int i = 0; cmd_list != NULL && cmd_list[i] != NULL; i++ )
-    {
+    for ( int i = 0; cmd_list != NULL && cmd_list[i] != NULL; i++ ) {
         free ( cmd_list[i] );
     }
 
-    if ( cmd_list != NULL )
-    {
+    if ( cmd_list != NULL ) {
         free ( cmd_list );
     }
 

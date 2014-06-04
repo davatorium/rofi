@@ -56,11 +56,9 @@ static inline int execshssh ( const char *host )
     char **args = malloc ( sizeof ( char* ) * 7 );
     int  i      = 0;
     args[i++] = config.terminal_emulator;
-    if ( config.ssh_set_title )
-    {
+    if ( config.ssh_set_title ) {
         char *buffer = NULL;
-        if ( asprintf ( &buffer, "ssh %s", host ) > 0 )
-        {
+        if ( asprintf ( &buffer, "ssh %s", host ) > 0 ) {
             args[i++] = strdup ( "-T" );
             args[i++] = buffer;
         }
@@ -72,10 +70,8 @@ static inline int execshssh ( const char *host )
     int retv = execvp ( config.terminal_emulator, (char * const *) args );
 
     // Free the args list.
-    for ( i = 0; i < 7; i++ )
-    {
-        if ( args[i] != NULL )
-        {
+    for ( i = 0; i < 7; i++ ) {
+        if ( args[i] != NULL ) {
             free ( args[i] );
         }
     }
@@ -85,16 +81,14 @@ static inline int execshssh ( const char *host )
 // execute sub-process
 static pid_t exec_ssh ( const char *cmd )
 {
-    if ( !cmd || !cmd[0] )
-    {
+    if ( !cmd || !cmd[0] ) {
         return -1;
     }
 
     signal ( SIGCHLD, catch_exit );
     pid_t pid = fork ();
 
-    if ( !pid )
-    {
+    if ( !pid ) {
         setsid ();
         execshssh ( cmd );
         exit ( EXIT_FAILURE );
@@ -105,8 +99,7 @@ static pid_t exec_ssh ( const char *cmd )
      * It is allowed to be a bit slower.
      */
     char *path = NULL;
-    if ( asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0 )
-    {
+    if ( asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0 ) {
         history_set ( path, cmd );
         free ( path );
     }
@@ -114,13 +107,11 @@ static pid_t exec_ssh ( const char *cmd )
 }
 static void delete_ssh ( const char *cmd )
 {
-    if ( !cmd || !cmd[0] )
-    {
+    if ( !cmd || !cmd[0] ) {
         return;
     }
     char *path = NULL;
-    if ( asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0 )
-    {
+    if ( asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0 ) {
         history_remove ( path, cmd );
         free ( path );
     }
@@ -142,13 +133,11 @@ static char ** get_ssh ( void )
     clock_gettime ( CLOCK_REALTIME, &start );
 #endif
 
-    if ( getenv ( "HOME" ) == NULL )
-    {
+    if ( getenv ( "HOME" ) == NULL ) {
         return NULL;
     }
 
-    if ( asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0 )
-    {
+    if ( asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0 ) {
         retv = history_get_list ( path, &index );
         free ( path );
         num_favorites = index;
@@ -157,58 +146,47 @@ static char ** get_ssh ( void )
 
     FILE       *fd = NULL;
     const char *hd = getenv ( "HOME" );
-    if ( asprintf ( &path, "%s/%s", hd, ".ssh/config" ) >= 0 )
-    {
+    if ( asprintf ( &path, "%s/%s", hd, ".ssh/config" ) >= 0 ) {
         fd = fopen ( path, "r" );
     }
 
-    if ( fd != NULL )
-    {
+    if ( fd != NULL ) {
         char buffer[1024];
-        while ( fgets ( buffer, 1024, fd ) != NULL )
-        {
-            if ( strncasecmp ( buffer, "Host", 4 ) == 0 )
-            {
+        while ( fgets ( buffer, 1024, fd ) != NULL ) {
+            if ( strncasecmp ( buffer, "Host", 4 ) == 0 ) {
                 int start = 0, stop = 0;
                 buffer[strlen ( buffer ) - 1] = '\0';
 
-                for ( start = 4; isspace ( buffer[start] ); start++ )
-                {
+                for ( start = 4; isspace ( buffer[start] ); start++ ) {
                     ;
                 }
 
                 for ( stop = start; isalnum ( buffer[stop] ) ||
                       buffer[stop] == '_' ||
-                      buffer[stop] == '.'; stop++ )
-                {
+                      buffer[stop] == '.'; stop++ ) {
                     ;
                 }
 
                 int found = 0;
 
-                if ( start == stop )
-                {
+                if ( start == stop ) {
                     continue;
                 }
 
                 // This is a nice little penalty, but doable? time will tell.
                 // given num_favorites is max 25.
-                for ( unsigned int j = 0; found == 0 && j < num_favorites; j++ )
-                {
-                    if ( strncasecmp ( &buffer[start], retv[j], stop - start ) == 0 )
-                    {
+                for ( unsigned int j = 0; found == 0 && j < num_favorites; j++ ) {
+                    if ( strncasecmp ( &buffer[start], retv[j], stop - start ) == 0 ) {
                         found = 1;
                     }
                 }
 
-                if ( found == 1 )
-                {
+                if ( found == 1 ) {
                     continue;
                 }
 
                 char **tr = realloc ( retv, ( index + 2 ) * sizeof ( char* ) );
-                if ( tr != NULL )
-                {
+                if ( tr != NULL ) {
                     retv            = tr;
                     retv[index]     = strndup ( &buffer[start], stop - start );
                     retv[index + 1] = NULL;
@@ -221,16 +199,14 @@ static char ** get_ssh ( void )
     }
 
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
-    if ( index > num_favorites )
-    {
+    if ( index > num_favorites ) {
         qsort ( &retv[num_favorites], index - num_favorites, sizeof ( char* ), sort_func );
     }
     free ( path );
 #ifdef TIMING
     clock_gettime ( CLOCK_REALTIME, &stop );
 
-    if ( stop.tv_sec != start.tv_sec )
-    {
+    if ( stop.tv_sec != start.tv_sec ) {
         stop.tv_nsec += ( stop.tv_sec - start.tv_sec ) * 1e9;
     }
 
@@ -246,8 +222,7 @@ SwitcherMode ssh_switcher_dialog ( char **input )
     // act as a launcher
     char         **cmd_list = get_ssh ( );
 
-    if ( cmd_list == NULL )
-    {
+    if ( cmd_list == NULL ) {
         cmd_list    = malloc ( 2 * sizeof ( char * ) );
         cmd_list[0] = strdup ( "No ssh hosts found" );
         cmd_list[1] = NULL;
@@ -257,32 +232,26 @@ SwitcherMode ssh_switcher_dialog ( char **input )
     int selected_line = 0;
     int mretv         = menu ( cmd_list, input, "ssh:", NULL, &shift, token_match, NULL, &selected_line );
 
-    if ( mretv == MENU_NEXT )
-    {
+    if ( mretv == MENU_NEXT ) {
         retv = NEXT_DIALOG;
     }
-    else if ( mretv == MENU_OK && cmd_list[selected_line] != NULL )
-    {
+    else if ( mretv == MENU_OK && cmd_list[selected_line] != NULL ) {
         exec_ssh ( cmd_list[selected_line] );
     }
-    else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' )
-    {
+    else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' ) {
         exec_ssh ( *input );
     }
-    else if ( mretv == MENU_ENTRY_DELETE && cmd_list[selected_line] )
-    {
+    else if ( mretv == MENU_ENTRY_DELETE && cmd_list[selected_line] ) {
         delete_ssh ( cmd_list[selected_line] );
         // Stay
         retv = SSH_DIALOG;
     }
 
-    for ( int i = 0; cmd_list[i] != NULL; i++ )
-    {
+    for ( int i = 0; cmd_list[i] != NULL; i++ ) {
         free ( cmd_list[i] );
     }
 
-    if ( cmd_list != NULL )
-    {
+    if ( cmd_list != NULL ) {
         free ( cmd_list );
     }
 
