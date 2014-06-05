@@ -133,6 +133,8 @@ typedef struct _Settings
 
     unsigned int   ssh_set_title;
     unsigned int   fixed_num_lines;
+
+    unsigned int   disable_history;
 } Settings;
 
 extern Settings config;

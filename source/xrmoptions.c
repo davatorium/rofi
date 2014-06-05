@@ -98,6 +98,7 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "terminal",        { .str = &config.terminal_emulator }, NULL },
 
     { xrm_Boolean, "ssh-set-title",   { .num = &config.ssh_set_title     }, NULL },
+    { xrm_Boolean, "disable-history", { .num = &config.disable_history   }, NULL },
     /* Key bindings */
     { xrm_String,  "key",             { .str = &config.window_key        }, NULL },
     { xrm_String,  "rkey",            { .str = &config.run_key           }, NULL },

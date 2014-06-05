@@ -956,7 +956,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
         XStoreName ( display, box, "rofi" );
 
         // Hack to set window opacity.
-        unsigned int opacity_set = ( unsigned int ) ( ( config.window_opacity / 100.0 ) * UINT32_MAX);
+        unsigned int opacity_set = ( unsigned int ) ( ( config.window_opacity / 100.0 ) * UINT32_MAX );
         XChangeProperty ( display, box, netatoms[_NET_WM_WINDOW_OPACITY],
                           XA_CARDINAL, 32, PropModeReplace,
                           ( unsigned char * ) &opacity_set, 1L );
@@ -1745,7 +1745,7 @@ static inline void display_get_i3_path ( Display *display )
     Screen *screen = DefaultScreenOfDisplay ( display );
     Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
     i3_socket_path = window_get_text_prop ( root, netatoms[I3_SOCKET_PATH] );
-    config_i3_mode = (i3_socket_path != NULL)?TRUE:FALSE;
+    config_i3_mode = ( i3_socket_path != NULL ) ? TRUE : FALSE;
 }
 #endif //HAVE_I3_IPC_H
 
@@ -1800,6 +1800,9 @@ static void parse_cmd_options ( int argc, char ** argv )
     find_arg_int ( argc, argv, "-yoffset", &( config.y_offset ) );
     if ( find_arg ( argc, argv, "-fixed-num-lines" ) >= 0 ) {
         config.fixed_num_lines = 1;
+    }
+    if ( find_arg ( argc, argv, "-disable-history" ) >= 0 ) {
+        config.disable_history = TRUE;
     }
 
     // Parse commandline arguments about behavior

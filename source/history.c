@@ -113,6 +113,9 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
 
 void history_set ( const char *filename, const char *entry )
 {
+    if ( config.disable_history ) {
+        return;
+    }
     int          found  = 0;
     unsigned int curr   = 0;
     unsigned int length = 0;
@@ -179,6 +182,9 @@ void history_set ( const char *filename, const char *entry )
 
 void history_remove ( const char *filename, const char *entry )
 {
+    if ( config.disable_history ) {
+        return;
+    }
     _element     ** list = NULL;
     int          found   = 0;
     unsigned int curr    = 0;
@@ -235,6 +241,9 @@ void history_remove ( const char *filename, const char *entry )
 
 char ** history_get_list ( const char *filename, unsigned int *length )
 {
+    if ( config.disable_history ) {
+        return NULL;
+    }
     _element **list = NULL;
     char     **retv = NULL;
     // Open file.

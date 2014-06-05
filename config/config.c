@@ -74,6 +74,7 @@ Settings config = {
     .ssh_set_title   = TRUE,
     .y_offset        =                     0,
     .x_offset        =                     0,
-    .fixed_num_lines = FALSE
+    .fixed_num_lines = FALSE,
+    .disable_history = FALSE
 };
 
