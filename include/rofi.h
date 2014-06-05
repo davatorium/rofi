@@ -142,6 +142,4 @@ int token_match ( char **tokens, const char *input,
                   __attribute__( ( unused ) ) int index,
                   __attribute__( ( unused ) ) void *data );
 
-void config_sanity_check ( void );
-void config_print ( void );
 #endif

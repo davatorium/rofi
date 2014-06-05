@@ -67,11 +67,7 @@
 
 #include "xrmoptions.h"
 
-
 #define LINE_MARGIN            4
-
-#define OPAQUE                 0xffffffff
-#define OPACITY                "_NET_WM_WINDOW_OPACITY"
 
 #ifdef HAVE_I3_IPC_H
 #define I3_SOCKET_PATH_PROP    "I3_SOCKET_PATH"
@@ -256,7 +252,8 @@ static int ( *xerror )( Display *, XErrorEvent * );
     X ( _NET_WM_STATE_SKIP_TASKBAR ), \
     X ( _NET_WM_STATE_SKIP_PAGER ),   \
     X ( _NET_WM_STATE_ABOVE ),        \
-    X ( _NET_WM_DESKTOP )
+    X ( _NET_WM_DESKTOP ),            \
+    X ( _NET_WM_WINDOW_OPACITY )
 
 enum { EWMH_ATOMS ( ATOM_ENUM ), NETATOMS };
 const char *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
@@ -957,8 +954,8 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
         XStoreName ( display, box, "rofi" );
 
         // Hack to set window opacity.
-        unsigned int opacity_set = ( unsigned int ) ( ( config.window_opacity / 100.0 ) * OPAQUE );
-        XChangeProperty ( display, box, XInternAtom ( display, OPACITY, False ),
+        unsigned int opacity_set = ( unsigned int ) ( ( config.window_opacity / 100.0 ) * UINT32_MAX);
+        XChangeProperty ( display, box, netatoms[_NET_WM_WINDOW_OPACITY],
                           XA_CARDINAL, 32, PropModeReplace,
                           ( unsigned char * ) &opacity_set, 1L );
     }
@@ -1886,7 +1883,7 @@ static void cleanup ()
  *
  * This functions exits the program with 1 when it finds an invalid configuration.
  */
-void config_sanity_check ( void )
+static void config_sanity_check ( void )
 {
     if ( config.menu_lines == 0 ) {
         fprintf ( stderr, "config.menu_lines is invalid. You need at least one visible line.\n" );
