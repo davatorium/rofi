@@ -67,7 +67,7 @@
 
 #include "xrmoptions.h"
 
-#define LINE_MARGIN            4
+#define LINE_MARGIN            3
 
 #ifdef HAVE_I3_IPC_H
 #define I3_SOCKET_PATH_PROP    "I3_SOCKET_PATH"
@@ -253,6 +253,7 @@ static int ( *xerror )( Display *, XErrorEvent * );
     X ( _NET_WM_STATE_SKIP_PAGER ),   \
     X ( _NET_WM_STATE_ABOVE ),        \
     X ( _NET_WM_DESKTOP ),            \
+    X ( I3_SOCKET_PATH ),             \
     X ( _NET_WM_WINDOW_OPACITY )
 
 enum { EWMH_ATOMS ( ATOM_ENUM ), NETATOMS };
@@ -260,7 +261,7 @@ const char *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 Atom       netatoms[NETATOMS];
 
 // X error handler
-static int display_oops ( __attribute__( ( unused ) ) Display *d, XErrorEvent *ee )
+static int display_oops ( Display *d, XErrorEvent *ee )
 {
     if ( ee->error_code == BadWindow
          || ( ee->request_code == X_GrabButton && ee->error_code == BadAccess )
@@ -270,7 +271,7 @@ static int display_oops ( __attribute__( ( unused ) ) Display *d, XErrorEvent *e
     }
 
     fprintf ( stderr, "error: request code=%d, error code=%d\n", ee->request_code, ee->error_code );
-    return xerror ( display, ee );
+    return xerror ( d, ee );
 }
 
 // usable space on a monitor
@@ -372,7 +373,7 @@ typedef struct
 
 
 // malloc a pixel value for an X named color
-static unsigned int color_get ( const char *const name )
+static unsigned int color_get ( Display *display, const char *const name )
 {
     int      screen_id = DefaultScreen ( display );
     XColor   color;
@@ -935,14 +936,14 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
         Screen *screen = DefaultScreenOfDisplay ( display );
         Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
         box = XCreateSimpleWindow ( display, root, x, 0, w, 300,
-                                    config.menu_bw, color_get ( config.menu_bc ),
-                                    color_get ( config.menu_bg ) );
+                                    config.menu_bw, color_get ( display, config.menu_bc ),
+                                    color_get ( display, config.menu_bg ) );
         XSelectInput ( display, box, ExposureMask );
 
 
         gc = XCreateGC ( display, box, 0, 0 );
         XSetLineAttributes ( display, gc, 2, LineOnOffDash, CapButt, JoinMiter );
-        XSetForeground ( display, gc, color_get ( config.menu_bc ) );
+        XSetForeground ( display, gc, color_get ( display, config.menu_bc ) );
         // make it an unmanaged window
         window_set_atom_prop ( box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
         XSetWindowAttributes sattr;
@@ -1658,7 +1659,7 @@ static void handle_keypress ( XEvent *ev )
 }
 
 // convert a Mod+key arg to mod mask and keysym
-static void parse_key ( char *combo, unsigned int *mod, KeySym *key )
+static void parse_key ( Display *display, char *combo, unsigned int *mod, KeySym *key )
 {
     unsigned int modmask = 0;
 
@@ -1713,7 +1714,7 @@ static void parse_key ( char *combo, unsigned int *mod, KeySym *key )
 }
 
 // bind a key combination on a root window, compensating for Lock* states
-static void grab_key ( unsigned int modmask, KeySym key )
+static void grab_key ( Display *display, unsigned int modmask, KeySym key )
 {
     Screen *screen  = DefaultScreenOfDisplay ( display );
     Window root     = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
@@ -1742,17 +1743,8 @@ static inline void display_get_i3_path ( Display *display )
 {
     Screen *screen = DefaultScreenOfDisplay ( display );
     Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
-    Atom atom      = XInternAtom ( display, I3_SOCKET_PATH_PROP, True );
-
-    config_i3_mode = 0;
-
-    if ( atom != None ) {
-        i3_socket_path = window_get_text_prop ( root, atom );
-
-        if ( i3_socket_path != NULL ) {
-            config_i3_mode = 1;
-        }
-    }
+    i3_socket_path = window_get_text_prop ( root, netatoms[I3_SOCKET_PATH] );
+    config_i3_mode = (i3_socket_path != NULL)?TRUE:FALSE;
 }
 #endif //HAVE_I3_IPC_H
 
@@ -2000,14 +1992,14 @@ int main ( int argc, char *argv[] )
     }
     else{
         // Daemon mode, Listen to key presses..
-        parse_key ( config.window_key, &windows_modmask, &windows_keysym );
-        grab_key ( windows_modmask, windows_keysym );
+        parse_key ( display, config.window_key, &windows_modmask, &windows_keysym );
+        grab_key ( display, windows_modmask, windows_keysym );
 
-        parse_key ( config.run_key, &rundialog_modmask, &rundialog_keysym );
-        grab_key ( rundialog_modmask, rundialog_keysym );
+        parse_key ( display, config.run_key, &rundialog_modmask, &rundialog_keysym );
+        grab_key ( display, rundialog_modmask, rundialog_keysym );
 
-        parse_key ( config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
-        grab_key ( sshdialog_modmask, sshdialog_keysym );
+        parse_key ( display, config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
+        grab_key ( display, sshdialog_modmask, sshdialog_keysym );
 
         // Main loop
         for (;; ) {
