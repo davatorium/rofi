@@ -188,6 +188,9 @@ void textbox_hide ( textbox *tb )
 // will also unmap the window if still displayed
 void textbox_free ( textbox *tb )
 {
+    if ( tb == NULL ) {
+        return;
+    }
     if ( tb->flags & TB_EDITABLE ) {
         XDestroyIC ( tb->xic );
         XCloseIM ( tb->xim );
