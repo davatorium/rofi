@@ -255,6 +255,8 @@ static int ( *xerror )( Display *, XErrorEvent * );
     X ( _NET_WM_STATE_ABOVE ),        \
     X ( _NET_WM_DESKTOP ),            \
     X ( I3_SOCKET_PATH ),             \
+    X ( CLIPBOARD ),                  \
+    X ( UTF8_STRING ),                \
     X ( _NET_WM_WINDOW_OPACITY )
 
 enum { EWMH_ATOMS ( ATOM_ENUM ), NETATOMS };
@@ -1142,8 +1144,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
             }
             else if ( ev.type == SelectionNotify ) {
                 // TODO move this.
-                Atom utf8 = XInternAtom ( display, "UTF8_STRING", False );
-                if ( ev.xselection.property == utf8 ) {
+                if ( ev.xselection.property == netatoms[UTF8_STRING] ) {
                     char          *pbuf = NULL;
                     int           di;
                     unsigned long dl, rm;
@@ -1153,11 +1154,11 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                     XGetWindowProperty (
                         display,
                         main_window,
-                        utf8,
+                        netatoms[UTF8_STRING],
                         0,
                         256 / 4,   // max length in words.
                         False,     // Do not delete clipboard.
-                        utf8, &da, &di, &dl, &rm, (unsigned char * *) &pbuf );
+                        netatoms[UTF8_STRING], &da, &di, &dl, &rm, (unsigned char * *) &pbuf );
                     // If There was remaining data left.. lets ignore this.
                     // Only accept it when we get bytes!
                     if ( di == 8 ) {
@@ -1195,11 +1196,9 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
                 if ( ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_v ) ||
                      key == XK_Insert ) {
-                    // TODO move these.
-                    Atom clip = XInternAtom ( display, "CLIPBOARD", False );
-                    Atom utf8 = XInternAtom ( display, "UTF8_STRING", False );
-                    XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ? clip : XA_PRIMARY,
-                                        utf8, utf8, main_window, CurrentTime );
+                    XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
+                            netatoms[CLIPBOARD] : XA_PRIMARY,
+                            netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
                 }
                 else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
                           key == XK_slash ) {
