@@ -149,6 +149,10 @@ static char ** get_apps ( void )
                      dent->d_type != DT_UNKNOWN ) {
                     continue;
                 }
+                // Skip dot files.
+                if(dent->d_name[0] == '.') {
+                    continue;
+                }
 
                 int found = 0;
 
