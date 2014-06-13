@@ -259,9 +259,9 @@ static int ( *xerror )( Display *, XErrorEvent * );
     X ( UTF8_STRING ),                \
     X ( _NET_WM_WINDOW_OPACITY )
 
-enum { EWMH_ATOMS ( ATOM_ENUM ), NETATOMS };
+enum { EWMH_ATOMS ( ATOM_ENUM ), NUM_NETATOMS };
 const char *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
-Atom       netatoms[NETATOMS];
+Atom       netatoms[NUM_NETATOMS];
 
 // X error handler
 static int display_oops ( Display *d, XErrorEvent *ee )
@@ -1004,18 +1004,18 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     }
     // Arrows
     textbox *arrowbox_top = NULL, *arrowbox_bottom = NULL;
-        arrowbox_top = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                                        ( config.padding ),
-                                        ( config.padding ),
-                                        0, 0,
-                                        NORMAL,
-                                        ( config.hmode == FALSE ) ? "↑" : "←" );
-        arrowbox_bottom = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                                           ( config.padding ),
-                                           ( config.padding ),
-                                           0, 0,
-                                           NORMAL,
-                                           ( config.hmode == FALSE ) ? "↓" : "→" );
+    arrowbox_top = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+                                    ( config.padding ),
+                                    ( config.padding ),
+                                    0, 0,
+                                    NORMAL,
+                                    ( config.hmode == FALSE ) ? "↑" : "←" );
+    arrowbox_bottom = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+                                       ( config.padding ),
+                                       ( config.padding ),
+                                       0, 0,
+                                       NORMAL,
+                                       ( config.hmode == FALSE ) ? "↓" : "→" );
 
     if ( config.hmode == FALSE ) {
         textbox_move ( arrowbox_top,
@@ -1977,7 +1977,7 @@ int main ( int argc, char *argv[] )
     cache_xattr  = winlist_new ();
 
     // X atom values
-    for ( int i = 0; i < NETATOMS; i++ ) {
+    for ( int i = 0; i < NUM_NETATOMS; i++ ) {
         netatoms[i] = XInternAtom ( display, netatom_names[i], False );
     }
 
