@@ -1004,26 +1004,34 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     }
     // Arrows
     textbox *arrowbox_top = NULL, *arrowbox_bottom = NULL;
-    if ( config.hmode == FALSE ) {
         arrowbox_top = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
                                         ( config.padding ),
                                         ( config.padding ),
                                         0, 0,
                                         NORMAL,
-                                        "↑" );
+                                        ( config.hmode == FALSE ) ? "↑" : "←" );
         arrowbox_bottom = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
                                            ( config.padding ),
                                            ( config.padding ),
                                            0, 0,
                                            NORMAL,
-                                           "↓" );
+                                           ( config.hmode == FALSE ) ? "↓" : "→" );
 
+    if ( config.hmode == FALSE ) {
         textbox_move ( arrowbox_top,
                        w - config.padding - arrowbox_top->w,
                        config.padding + line_height + LINE_MARGIN );
         textbox_move ( arrowbox_bottom,
                        w - config.padding - arrowbox_bottom->w,
                        config.padding + max_rows * line_height + LINE_MARGIN );
+    }
+    else {
+        textbox_move ( arrowbox_bottom,
+                       w - config.padding - arrowbox_top->w,
+                       config.padding );
+        textbox_move ( arrowbox_top,
+                       w - config.padding - arrowbox_bottom->w - arrowbox_top->w,
+                       config.padding );
     }
 
     // filtered list
