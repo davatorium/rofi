@@ -40,8 +40,12 @@
         <h2 id="menuentry"><a href="{{ site.url }}{{ iter_page.url }}">{{ iter_page.title }}</a></h2>
         {% endif %}
         {% endfor %} <!-- page -->
+          <a href="http://download.sarine.nl/rofi/rofi-{{ site.github-version-stable }}.tar.gz" class="button">
+            <small>Download</small>
+            rofi-{{ site.github-version-stable }}.tar.gz
+          </a>
 <!-- to be enabled when we have a stable release. -->
-          <h1>Stable</h1>
+          <h1>Snaphot</h1>
           <a href="{{ site.github-url }}/archive/{{ site.github-version-stable }}.zip" class="button">
             <small>Download</small>
             {{ site.github-version-stable }}.zip
