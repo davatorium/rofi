@@ -923,7 +923,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     int x             = mon.x + ( mon.w - w ) / 2;
     int element_width = w - ( 2 * ( config.padding ) );
     // Divide by the # columns
-    element_width /= columns;
+    element_width = (element_width-(columns-1)*LINE_MARGIN)/columns;
     if ( config.hmode == TRUE ) {
         element_width = ( w - ( 2 * ( config.padding ) ) - max_elements * LINE_MARGIN ) / ( max_elements + 1 );
     }
@@ -939,7 +939,8 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
         Screen *screen = DefaultScreenOfDisplay ( display );
         Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
         box = XCreateSimpleWindow ( display, root, x, 0, w, 300,
-                                    config.menu_bw, color_get ( display, config.menu_bc ),
+                                    config.menu_bw,
+                                    color_get ( display, config.menu_bc ),
                                     color_get ( display, config.menu_bg ) );
         XSelectInput ( display, box, ExposureMask );
 
