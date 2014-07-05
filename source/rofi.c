@@ -869,6 +869,59 @@ int window_match ( char **tokens, __attribute__( ( unused ) ) const char *input,
     return match;
 }
 
+static int lev_sort ( const void *p1, const void *p2, void *arg )
+{
+    const int *a         = p1;
+    const int *b         = p2;
+    int       *distances = arg;
+
+    return distances[*a] - distances[*b];
+}
+
+static int levenshtein ( const char *s, const char *t )
+{
+    int ls = strlen ( s ), lt = strlen ( t );
+    int d[ls + 1][lt + 1];
+
+    for ( int i = 0; i <= ls; i++ ) {
+        for ( int j = 0; j <= lt; j++ ) {
+            d[i][j] = -1;
+        }
+    }
+
+    int dist ( int i, int j )
+    {
+        if ( d[i][j] >= 0 ) {
+            return d[i][j];
+        }
+
+        int x;
+        if ( i == ls ) {
+            x = lt - j;
+        }
+        else if ( j == lt ) {
+            x = ls - i;
+        }
+        else if ( s[i] == t[j] ) {
+            x = dist ( i + 1, j + 1 );
+        }
+        else {
+            x = dist ( i + 1, j + 1 );
+
+            int y;
+            if ( ( y = dist ( i, j + 1 ) ) < x ) {
+                x = y;
+            }
+            if ( ( y = dist ( i + 1, j ) ) < x ) {
+                x = y;
+            }
+            x++;
+        }
+        return d[i][j] = x;
+    }
+    return dist ( 0, 0 );
+}
+
 MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shift,
                   menu_match_cb mmc, void *mmc_data, int *selected_line )
 {
@@ -923,7 +976,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     int x             = mon.x + ( mon.w - w ) / 2;
     int element_width = w - ( 2 * ( config.padding ) );
     // Divide by the # columns
-    element_width = (element_width-(columns-1)*LINE_MARGIN)/columns;
+    element_width = ( element_width - ( columns - 1 ) * LINE_MARGIN ) / columns;
     if ( config.hmode == TRUE ) {
         element_width = ( w - ( 2 * ( config.padding ) ) - max_elements * LINE_MARGIN ) / ( max_elements + 1 );
     }
@@ -1036,11 +1089,15 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     }
 
     // filtered list
-    char         **filtered     = calloc ( num_lines, sizeof ( char* ) );
-    int          *line_map      = calloc ( num_lines, sizeof ( int ) );
+    char **filtered = calloc ( num_lines, sizeof ( char* ) );
+    int  *line_map  = calloc ( num_lines, sizeof ( int ) );
+    int  *distance  = NULL;
+    if ( config.disable_history ) {
+        distance = calloc ( num_lines, sizeof ( int ) );
+    }
     unsigned int filtered_lines = 0;
 
-    if ( input && *input ) {
+    if ( input && *input && strlen ( *input ) > 0 ) {
         char **tokens = tokenize ( *input );
 
         // input changed
@@ -1049,11 +1106,20 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
             // If each token was matched, add it to list.
             if ( match ) {
-                line_map[j]   = i;
-                filtered[j++] = lines[i];
-                filtered_lines++;
+                line_map[j] = i;
+                if ( config.disable_history ) {
+                    distance[i] = levenshtein ( *input, lines[i] );
+                }
+                j++;
             }
         }
+        if ( config.disable_history ) {
+            qsort_r ( line_map, j, sizeof ( int ), lev_sort, distance );
+        }
+        for ( i = 0; i < j; i++ ) {
+            filtered[i] = lines[line_map[i]];
+        }
+        filtered_lines = j;
 
         tokenize_free ( tokens );
     }
@@ -1206,8 +1272,8 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                 if ( ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_v ) ||
                      key == XK_Insert ) {
                     XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
-                            netatoms[CLIPBOARD] : XA_PRIMARY,
-                            netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
+                                        netatoms[CLIPBOARD] : XA_PRIMARY,
+                                        netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
                 }
                 else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
                           key == XK_slash ) {
@@ -1362,22 +1428,43 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
             }
             // If something changed, refilter the list. (paste or text entered)
             if ( refilter ) {
-                char **tokens = tokenize ( text->text );
+                if ( strlen ( text->text ) > 0 ) {
+                    char **tokens = tokenize ( text->text );
 
-                // input changed
-                for ( i = 0, j = 0; i < num_lines; i++ ) {
-                    int match = mmc ( tokens, lines[i], i, mmc_data );
+                    // input changed
+                    for ( i = 0, j = 0; i < num_lines; i++ ) {
+                        int match = mmc ( tokens, lines[i], i, mmc_data );
 
-                    // If each token was matched, add it to list.
-                    if ( match ) {
-                        line_map[j]   = i;
-                        filtered[j++] = lines[i];
+                        // If each token was matched, add it to list.
+                        if ( match ) {
+                            line_map[j] = i;
+                            if ( config.disable_history ) {
+                                distance[i] = levenshtein ( text->text, lines[i] );
+                            }
+                            j++;
+                        }
+                    }
+                    if ( config.disable_history ) {
+                        qsort_r ( line_map, j, sizeof ( int ), lev_sort, distance );
+                    }
+                    for ( i = 0; i < j; i++ ) {
+                        filtered[i] = lines[line_map[i]];
+                    }
+
+                    // Cleanup + bookkeeping.
+                    filtered_lines = j;
+                    tokenize_free ( tokens );
+                }
+                else{
+                    int jin = 0;
+                    for ( i = 0; i < num_lines; i++ ) {
+                        filtered[jin] = lines[i];
+                        line_map[jin] = i;
+                        jin++;
+                        filtered_lines++;
                     }
                 }
-
-                // Cleanup + bookkeeping.
-                filtered_lines = j;
-                selected       = MIN ( selected, j - 1 );
+                selected = MIN ( selected, j - 1 );
 
                 for (; j < num_lines; j++ ) {
                     filtered[j] = NULL;
@@ -1395,8 +1482,6 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
                     break;
                 }
-
-                tokenize_free ( tokens );
             }
             // Update if requested.
             if ( update ) {
@@ -1432,6 +1517,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
     free ( filtered );
     free ( line_map );
+    free ( distance );
 
     return retv;
 }

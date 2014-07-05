@@ -150,7 +150,7 @@ static char ** get_apps ( void )
                     continue;
                 }
                 // Skip dot files.
-                if(dent->d_name[0] == '.') {
+                if ( dent->d_name[0] == '.' ) {
                     continue;
                 }
 
