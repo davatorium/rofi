@@ -1461,8 +1461,8 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                         filtered[jin] = lines[i];
                         line_map[jin] = i;
                         jin++;
-                        filtered_lines++;
                     }
+                    filtered_lines = jin;
                 }
                 selected = MIN ( selected, j - 1 );
 
