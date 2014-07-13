@@ -974,6 +974,9 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     // Calculate as float to stop silly, big rounding down errors.
     int w             = config.menu_width < 101 ? ( mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
     int x             = mon.x + ( mon.w - w ) / 2;
+    // Compensate for border width.
+    w -= config.menu_bw*2;
+
     int element_width = w - ( 2 * ( config.padding ) );
     // Divide by the # columns
     element_width = ( element_width - ( columns - 1 ) * LINE_MARGIN ) / columns;
