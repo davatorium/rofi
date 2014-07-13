@@ -14,7 +14,7 @@ replacement, making it a very versatile tool.
 Using Rofi is a lot like dmenu, but extended for an improved work flow. You can: 
 
 * Type to filter windows.
-* Tokonized filter. Type any word in any order to filter.
+* Tokenized filter. Type any word in any order to filter.
 * Arrows or ctrl-hjkl to highlight selections.
 * Return to select.
 * Tab completion.
