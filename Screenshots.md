@@ -65,3 +65,37 @@ Xresources entries:
         rofi.hmode: false
         rofi.terminal: st
         rofi.ssh-set-title: false
+
+
+
+## Pop-pup Mode
+
+[ ![Rofi pop-pup mode](images/rofi/screenshots/dropup.png)
+](images/rofi/screenshots/dropup.png)
+
+Xresources entries:
+
+        rofi.opacity: 85
+        rofi.width: 1924
+        rofi.lines: 7
+        rofi.columns: 4
+        rofi.font: SourceCodePro-9
+        rofi.fg: #E5DBCF
+        rofi.bg: #0F3B5F
+        rofi.hlfg: #0F3B5F
+        rofi.hlbg: #CC9752
+        rofi.bc: #CC9752
+        rofi.bw: 2
+        rofi.loc: 6
+        rofi.padding: 2
+        rofi.yoffset: -22
+        rofi.xoffset: 0
+        rofi.fixed-num-lines: true
+        rofi.hmode: false
+        rofi.terminal: x-terminal-emulator
+        rofi.ssh-set-title: true
+        rofi.disable-history: true
+        rofi.key: F12
+        rofi.rkey: mod1+F2
+        rofi.skey: mod1+F3
+
