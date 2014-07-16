@@ -99,6 +99,7 @@ static XrmOption xrmOptions[] = {
 
     { xrm_Boolean, "ssh-set-title",   { .num = &config.ssh_set_title     }, NULL },
     { xrm_Boolean, "disable-history", { .num = &config.disable_history   }, NULL },
+    { xrm_Boolean, "levenshtein-sort",{ .num = &config.levenshtein_sort  }, NULL },
     /* Key bindings */
     { xrm_String,  "key",             { .str = &config.window_key        }, NULL },
     { xrm_String,  "rkey",            { .str = &config.run_key           }, NULL },

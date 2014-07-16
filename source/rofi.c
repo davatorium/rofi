@@ -1095,7 +1095,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     char **filtered = calloc ( num_lines, sizeof ( char* ) );
     int  *line_map  = calloc ( num_lines, sizeof ( int ) );
     int  *distance  = NULL;
-    if ( config.disable_history ) {
+    if ( config.levenshtein_sort ) {
         distance = calloc ( num_lines, sizeof ( int ) );
     }
     unsigned int filtered_lines = 0;
@@ -1110,13 +1110,13 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
             // If each token was matched, add it to list.
             if ( match ) {
                 line_map[j] = i;
-                if ( config.disable_history ) {
+                if ( config.levenshtein_sort ) {
                     distance[i] = levenshtein ( *input, lines[i] );
                 }
                 j++;
             }
         }
-        if ( config.disable_history ) {
+        if ( config.levenshtein_sort ) {
             qsort_r ( line_map, j, sizeof ( int ), lev_sort, distance );
         }
         for ( i = 0; i < j; i++ ) {
@@ -1441,13 +1441,13 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                         // If each token was matched, add it to list.
                         if ( match ) {
                             line_map[j] = i;
-                            if ( config.disable_history ) {
+                            if ( config.levenshtein_sort ) {
                                 distance[i] = levenshtein ( text->text, lines[i] );
                             }
                             j++;
                         }
                     }
-                    if ( config.disable_history ) {
+                    if ( config.levenshtein_sort ) {
                         qsort_r ( line_map, j, sizeof ( int ), lev_sort, distance );
                     }
                     for ( i = 0; i < j; i++ ) {
@@ -1900,6 +1900,9 @@ static void parse_cmd_options ( int argc, char ** argv )
     }
     if ( find_arg ( argc, argv, "-disable-history" ) >= 0 ) {
         config.disable_history = TRUE;
+    }
+    if ( find_arg ( argc, argv, "-levenshtein-sort" ) >= 0 ) {
+        config.levenshtein_sort = TRUE;
     }
 
     // Parse commandline arguments about behavior

@@ -14,7 +14,7 @@ SYNOPSIS
 [ -terminal *terminal* ] [ -loc *position* ] [ -hmode ] [ -fixed-num-lines ] [ -padding *padding* ]
 [ -opacity *opacity%* ] [ -display *display* ] [ -bc *color* ] [ -bw *width* ] [ -dmenu [ -p *prompt* ] ]
 [ -ssh-set-title *true|false* ] [ -now ] [ -rnow ] [ -snow ] [ -version ] [ -help] [ -dump-xresources ]
-[ -disable-history ]
+[ -disable-history ] [ -levenshtein-sort ]
 
 DESCRIPTION
 -----------
@@ -214,6 +214,10 @@ OPTIONS
 `-disable-history`
 
   Disable history
+
+`-levenshtein-sort`
+
+  When searching sort the result based on levenshtein distance.
 
 
 Switch between modi

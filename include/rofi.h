@@ -135,6 +135,8 @@ typedef struct _Settings
     unsigned int   fixed_num_lines;
 
     unsigned int   disable_history;
+
+    unsigned int   levenshtein_sort;
 } Settings;
 
 extern Settings config;
