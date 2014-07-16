@@ -9,7 +9,7 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-terminal \fIterminal\fP ] [ \-loc \fIposition\fP ] [ \-hmode ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fP ]
 [ \-opacity \fIopacity%\fP ] [ \-display \fIdisplay\fP ] [ \-bc \fIcolor\fP ] [ \-bw \fIwidth\fP ] [ \-dmenu [ \-p \fIprompt\fP ] ]
 [ \-ssh\-set\-title \fItrue|false\fP ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help] [ \-dump\-xresources ]
-[ \-disable\-history ]
+[ \-disable\-history ] [ \-levenshtein\-sort ]
 .SH DESCRIPTION
 .PP
 \fB\fCrofi\fR is an X11 popup window switcher. A list is displayed center\-screen showing open window titles, WM_CLASS, and desktop number. 
@@ -258,6 +258,10 @@ Default value is true.
 \fB\fC\-disable\-history\fR
 .IP
 Disable history
+.PP
+\fB\fC\-levenshtein\-sort\fR
+.IP
+When searching sort the result based on levenshtein distance.
 .SH Switch between modi
 .PP
 Type '?' \fIenter\fP to switch between window list, run and ssh mode.
