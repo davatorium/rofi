@@ -922,6 +922,39 @@ static int levenshtein ( const char *s, const char *t )
     return dist ( 0, 0 );
 }
 
+Window create_window ( Display *display )
+{
+    Screen *screen = DefaultScreenOfDisplay ( display );
+    Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
+    Window box     = XCreateSimpleWindow ( display, root, 0, 0, 10, 300,
+                                           config.menu_bw,
+                                           color_get ( display, config.menu_bc ),
+                                           color_get ( display, config.menu_bg ) );
+    XSelectInput ( display, box, ExposureMask );
+
+
+    gc = XCreateGC ( display, box, 0, 0 );
+    XSetLineAttributes ( display, gc, 2, LineOnOffDash, CapButt, JoinMiter );
+    XSetForeground ( display, gc, color_get ( display, config.menu_bc ) );
+    // make it an unmanaged window
+    window_set_atom_prop ( box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
+    XSetWindowAttributes sattr;
+    sattr.override_redirect = True;
+    XChangeWindowAttributes ( display, box, CWOverrideRedirect, &sattr );
+    main_window = box;
+
+    // Set the WM_NAME
+    XStoreName ( display, box, "rofi" );
+
+    // Hack to set window opacity.
+    unsigned int opacity_set = ( unsigned int ) ( ( config.window_opacity / 100.0 ) * UINT32_MAX );
+    XChangeProperty ( display, box, netatoms[_NET_WM_WINDOW_OPACITY],
+                      XA_CARDINAL, 32, PropModeReplace,
+                      ( unsigned char * ) &opacity_set, 1L );
+
+    return box;
+}
+
 /**
  * @param x [out] the calculated x position.
  * @param y [out] the calculated y position.
@@ -1038,53 +1071,23 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
         element_width = ( w - ( 2 * ( config.padding ) ) - max_elements * LINE_MARGIN ) / ( max_elements + 1 );
     }
 
-    Window            box;
     XWindowAttributes attr;
 
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
-    if ( main_window != None && XGetWindowAttributes ( display, main_window, &attr ) ) {
-        box = main_window;
-    }
-    else{
-        Screen *screen = DefaultScreenOfDisplay ( display );
-        Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
-        box = XCreateSimpleWindow ( display, root, 0, 0, w, 300,
-                                    config.menu_bw,
-                                    color_get ( display, config.menu_bc ),
-                                    color_get ( display, config.menu_bg ) );
-        XSelectInput ( display, box, ExposureMask );
-
-
-        gc = XCreateGC ( display, box, 0, 0 );
-        XSetLineAttributes ( display, gc, 2, LineOnOffDash, CapButt, JoinMiter );
-        XSetForeground ( display, gc, color_get ( display, config.menu_bc ) );
-        // make it an unmanaged window
-        window_set_atom_prop ( box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
-        XSetWindowAttributes sattr;
-        sattr.override_redirect = True;
-        XChangeWindowAttributes ( display, box, CWOverrideRedirect, &sattr );
-        main_window = box;
-
-        // Set the WM_NAME
-        XStoreName ( display, box, "rofi" );
-
-        // Hack to set window opacity.
-        unsigned int opacity_set = ( unsigned int ) ( ( config.window_opacity / 100.0 ) * UINT32_MAX );
-        XChangeProperty ( display, box, netatoms[_NET_WM_WINDOW_OPACITY],
-                          XA_CARDINAL, 32, PropModeReplace,
-                          ( unsigned char * ) &opacity_set, 1L );
+    if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) ) {
+        main_window = create_window ( display );
     }
 
     // search text input
 
-    textbox *prompt_tb = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+    textbox *prompt_tb = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
                                           ( config.padding ),
                                           ( config.padding ),
                                           0, 0,
                                           NORMAL,
                                           prompt );
 
-    textbox *text = textbox_create ( box, TB_AUTOHEIGHT | TB_EDITABLE,
+    textbox *text = textbox_create ( main_window, TB_AUTOHEIGHT | TB_EDITABLE,
                                      ( config.padding ) + prompt_tb->w,
                                      ( config.padding ),
                                      ( ( config.hmode == TRUE ) ?
@@ -1104,24 +1107,21 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     for ( i = 0; i < max_elements; i++ ) {
         int line = ( i ) % max_rows + ( ( config.hmode == FALSE ) ? 1 : 0 );
         int col  = ( i ) / max_rows + ( ( config.hmode == FALSE ) ? 0 : 1 );
-        boxes[i] = textbox_create ( box,
-                                    0,
-                                    ( config.padding ) + col * ( element_width + LINE_MARGIN ),                           // X
-                                    line * line_height + config.padding + ( ( config.hmode == TRUE ) ? 0 : LINE_MARGIN ), // y
-                                    element_width,                                                                        // w
-                                    line_height,                                                                          // h
-                                    NORMAL, "" );
+
+        int ex = ( config.padding ) + col * ( element_width + LINE_MARGIN );
+        int ey = line * line_height + config.padding + ( ( config.hmode == TRUE ) ? 0 : LINE_MARGIN );
+        boxes[i] = textbox_create ( main_window, 0, ex, ey, element_width, line_height, NORMAL, "" );
         textbox_show ( boxes[i] );
     }
     // Arrows
     textbox *arrowbox_top = NULL, *arrowbox_bottom = NULL;
-    arrowbox_top = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+    arrowbox_top = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
                                     ( config.padding ),
                                     ( config.padding ),
                                     0, 0,
                                     NORMAL,
                                     ( config.hmode == FALSE ) ? "↑" : "←" );
-    arrowbox_bottom = textbox_create ( box, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+    arrowbox_bottom = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
                                        ( config.padding ),
                                        ( config.padding ),
                                        0, 0,
@@ -1167,12 +1167,12 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     // Move the window to the correct x,y position.
     int x, y;
     calculate_window_position ( &mon, &x, &y, w, h );
-    XMoveResizeWindow ( display, box, x, y, w, h );
+    XMoveResizeWindow ( display, main_window, x, y, w, h );
 
-    XMapRaised ( display, box );
+    XMapRaised ( display, main_window );
 
     // if grabbing keyboard failed, fall through
-    if ( take_keyboard ( box ) ) {
+    if ( take_keyboard ( main_window ) ) {
         KeySym       prev_key = 0;
         unsigned int selected = 0;
 
