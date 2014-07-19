@@ -20,6 +20,11 @@ Using Rofi is a lot like dmenu, but extended for an improved work flow. You can:
 * Tab completion.
 * UTF-8 support.
 
+For the run and ssh modi:
+
+* History based ordering last 25 choices are ordered on top based on use. (optional)
+* Levenshtein distance ordering of matches. (optional)
+
 The 4 Main functions of rofi are:
 
 ## Window Switcher
