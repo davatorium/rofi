@@ -922,6 +922,61 @@ static int levenshtein ( const char *s, const char *t )
     return dist ( 0, 0 );
 }
 
+/**
+ * @param x [out] the calculated x position.
+ * @param y [out] the calculated y position.
+ * @param mon     the workarea.
+ * @param h       the required height of the window.
+ * @param w       the required width of the window.
+ */
+static void calculate_window_position ( const workarea *mon, int *x, int *y, int w, int h )
+{
+    // Default location is center.
+    *y = mon->y + ( mon->h - h ) / 2;
+    *x = mon->x + ( mon->w - w ) / 2;
+    // Determine window location
+    switch ( config.location )
+    {
+    case WL_NORTH_WEST:
+        *x = mon->x;
+
+    case WL_NORTH:
+        *y = mon->y;
+        break;
+
+    case WL_NORTH_EAST:
+        *y = mon->y;
+
+    case WL_EAST:
+        *x = mon->x + mon->w - w - config.menu_bw * 2;
+        break;
+
+    case WL_EAST_SOUTH:
+        *x = mon->x + mon->w - w - config.menu_bw * 2;
+
+    case WL_SOUTH:
+        *y = mon->y + mon->h - h - config.menu_bw * 2;
+        break;
+
+    case WL_SOUTH_WEST:
+        *y = mon->y + mon->h - h - config.menu_bw * 2;
+
+    case WL_WEST:
+        *x = mon->x;
+        break;
+
+    case WL_CENTER:
+    default:
+        break;
+    }
+    // Compensate again for border.
+    *x -= config.menu_bw;
+    *y -= config.menu_bw;
+    // Apply offset.
+    *x += config.x_offset;
+    *y += config.y_offset;
+}
+
 MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shift,
                   menu_match_cb mmc, void *mmc_data, int *selected_line )
 {
@@ -972,10 +1027,9 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     monitor_active ( &mon );
 
     // Calculate as float to stop silly, big rounding down errors.
-    int w             = config.menu_width < 101 ? ( mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
-    int x             = mon.x + ( mon.w - w ) / 2;
+    int w = config.menu_width < 101 ? ( mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
     // Compensate for border width.
-    w -= config.menu_bw*2;
+    w -= config.menu_bw * 2;
 
     int element_width = w - ( 2 * ( config.padding ) );
     // Divide by the # columns
@@ -994,7 +1048,7 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     else{
         Screen *screen = DefaultScreenOfDisplay ( display );
         Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
-        box = XCreateSimpleWindow ( display, root, x, 0, w, 300,
+        box = XCreateSimpleWindow ( display, root, 0, 0, w, 300,
                                     config.menu_bw,
                                     color_get ( display, config.menu_bc ),
                                     color_get ( display, config.menu_bg ) );
@@ -1099,108 +1153,105 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
         distance = calloc ( num_lines, sizeof ( int ) );
     }
     unsigned int filtered_lines = 0;
-
-    if ( input && *input && strlen ( *input ) > 0 ) {
-        char **tokens = tokenize ( *input );
-
-        // input changed
-        for ( i = 0, j = 0; i < num_lines; i++ ) {
-            int match = mmc ( tokens, lines[i], i, mmc_data );
-
-            // If each token was matched, add it to list.
-            if ( match ) {
-                line_map[j] = i;
-                if ( config.levenshtein_sort ) {
-                    distance[i] = levenshtein ( *input, lines[i] );
-                }
-                j++;
-            }
-        }
-        if ( config.levenshtein_sort ) {
-            qsort_r ( line_map, j, sizeof ( int ), lev_sort, distance );
-        }
-        for ( i = 0; i < j; i++ ) {
-            filtered[i] = lines[line_map[i]];
-        }
-        filtered_lines = j;
-
-        tokenize_free ( tokens );
-    }
-    else{
-        int jin = 0;
-        for ( i = 0; i < num_lines; i++ ) {
-            filtered[jin] = lines[i];
-            line_map[jin] = i;
-            jin++;
-            filtered_lines++;
-        }
-    }
+    // We want to filter on the first run.
+    int          refilter = TRUE;
+    int          update   = FALSE;
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
     int h = line_height * ( max_rows + 1 ) + ( config.padding ) * 2 + LINE_MARGIN;
-
-
     if ( config.hmode == TRUE ) {
         h = line_height + ( config.padding ) * 2;
     }
 
-    // Default location is center.
-    int y = mon.y + ( mon.h - h ) / 2;
-
-    // Determine window location
-    switch ( config.location )
-    {
-    case WL_NORTH_WEST:
-        x = mon.x;
-
-    case WL_NORTH:
-        y = mon.y;
-        break;
-
-    case WL_NORTH_EAST:
-        y = mon.y;
-
-    case WL_EAST:
-        x = mon.x + mon.w - w - config.menu_bw * 2;
-        break;
-
-    case WL_EAST_SOUTH:
-        x = mon.x + mon.w - w - config.menu_bw * 2;
-
-    case WL_SOUTH:
-        y = mon.y + mon.h - h - config.menu_bw * 2;
-        break;
-
-    case WL_SOUTH_WEST:
-        y = mon.y + mon.h - h - config.menu_bw * 2;
-
-    case WL_WEST:
-        x = mon.x;
-        break;
-
-    case WL_CENTER:
-    default:
-        break;
-    }
-    // Apply offset.
-    y += config.y_offset;
-    x += config.x_offset;
-
-
+    // Move the window to the correct x,y position.
+    int x, y;
+    calculate_window_position ( &mon, &x, &y, w, h );
     XMoveResizeWindow ( display, box, x, y, w, h );
+
     XMapRaised ( display, box );
 
     // if grabbing keyboard failed, fall through
     if ( take_keyboard ( box ) ) {
         KeySym       prev_key = 0;
         unsigned int selected = 0;
+
         for (;; ) {
-            int    refilter = FALSE;
-            int    update   = FALSE;
+            // If something changed, refilter the list. (paste or text entered)
+            if ( refilter ) {
+                if ( strlen ( text->text ) > 0 ) {
+                    char **tokens = tokenize ( text->text );
+
+                    // input changed
+                    for ( i = 0, j = 0; i < num_lines; i++ ) {
+                        int match = mmc ( tokens, lines[i], i, mmc_data );
+
+                        // If each token was matched, add it to list.
+                        if ( match ) {
+                            line_map[j] = i;
+                            if ( config.levenshtein_sort ) {
+                                distance[i] = levenshtein ( text->text, lines[i] );
+                            }
+                            j++;
+                        }
+                    }
+                    if ( config.levenshtein_sort ) {
+                        qsort_r ( line_map, j, sizeof ( int ), lev_sort, distance );
+                    }
+                    // Update the filtered list.
+                    for ( i = 0; i < j; i++ ) {
+                        filtered[i] = lines[line_map[i]];
+                    }
+                    for ( i = j; i < num_lines; i++ ) {
+                        filtered[i] = NULL;
+                    }
+
+                    // Cleanup + bookkeeping.
+                    filtered_lines = j;
+                    tokenize_free ( tokens );
+                }
+                else{
+                    for ( i = 0; i < num_lines; i++ ) {
+                        filtered[i] = lines[i];
+                        line_map[i] = i;
+                    }
+                    filtered_lines = num_lines;
+                }
+                selected = MIN ( selected, j - 1 );
+
+                if ( config.zeltak_mode && filtered_lines == 1 ) {
+                    if ( filtered[selected] ) {
+                        retv           = MENU_OK;
+                        *selected_line = line_map[selected];
+                    }
+                    else{
+                        fprintf ( stderr, "We should never hit this." );
+                        abort ();
+                    }
+
+                    break;
+                }
+                refilter = FALSE;
+            }
+            // Update if requested.
+            if ( update ) {
+                menu_hide_arrow_text ( filtered_lines, selected,
+                                       max_elements, arrowbox_top,
+                                       arrowbox_bottom );
+                textbox_draw ( text );
+                textbox_draw ( prompt_tb );
+                menu_draw ( boxes, max_elements, num_lines, &last_offset, selected, filtered );
+                menu_set_arrow_text ( filtered_lines, selected,
+                                      max_elements, arrowbox_top,
+                                      arrowbox_bottom );
+                update = FALSE;
+            }
+
+            // Wait for event.
             XEvent ev;
             XNextEvent ( display, &ev );
 
+            // Handle event.
             if ( ev.type == Expose ) {
                 while ( XCheckTypedEvent ( display, Expose, &ev ) ) {
                     ;
@@ -1428,75 +1479,6 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
                     }
                 }
                 prev_key = key;
-            }
-            // If something changed, refilter the list. (paste or text entered)
-            if ( refilter ) {
-                if ( strlen ( text->text ) > 0 ) {
-                    char **tokens = tokenize ( text->text );
-
-                    // input changed
-                    for ( i = 0, j = 0; i < num_lines; i++ ) {
-                        int match = mmc ( tokens, lines[i], i, mmc_data );
-
-                        // If each token was matched, add it to list.
-                        if ( match ) {
-                            line_map[j] = i;
-                            if ( config.levenshtein_sort ) {
-                                distance[i] = levenshtein ( text->text, lines[i] );
-                            }
-                            j++;
-                        }
-                    }
-                    if ( config.levenshtein_sort ) {
-                        qsort_r ( line_map, j, sizeof ( int ), lev_sort, distance );
-                    }
-                    for ( i = 0; i < j; i++ ) {
-                        filtered[i] = lines[line_map[i]];
-                    }
-
-                    // Cleanup + bookkeeping.
-                    filtered_lines = j;
-                    tokenize_free ( tokens );
-                }
-                else{
-                    int jin = 0;
-                    for ( i = 0; i < num_lines; i++ ) {
-                        filtered[jin] = lines[i];
-                        line_map[jin] = i;
-                        jin++;
-                    }
-                    filtered_lines = jin;
-                }
-                selected = MIN ( selected, j - 1 );
-
-                for (; j < num_lines; j++ ) {
-                    filtered[j] = NULL;
-                }
-
-                if ( config.zeltak_mode && filtered_lines == 1 ) {
-                    if ( filtered[selected] ) {
-                        retv           = MENU_OK;
-                        *selected_line = line_map[selected];
-                    }
-                    else{
-                        fprintf ( stderr, "We should never hit this." );
-                        abort ();
-                    }
-
-                    break;
-                }
-            }
-            // Update if requested.
-            if ( update ) {
-                menu_hide_arrow_text ( filtered_lines, selected,
-                                       max_elements, arrowbox_top,
-                                       arrowbox_bottom );
-                textbox_draw ( text );
-                textbox_draw ( prompt_tb );
-                menu_draw ( boxes, max_elements, num_lines, &last_offset, selected, filtered );
-                menu_set_arrow_text ( filtered_lines, selected,
-                                      max_elements, arrowbox_top,
-                                      arrowbox_bottom );
             }
         }
 

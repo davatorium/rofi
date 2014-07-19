@@ -1,2 +1,13 @@
 *.swp
+*.*~
 build/
+missing
+install-sh
+configure
+config.h.in
+Makefile.in
+aclocal.m4
+autom4te.cache/
+compile
+depcomp
+
