@@ -1017,21 +1017,16 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     unsigned int i, j;
     unsigned int columns = config.menu_columns;
     workarea     mon;
+    unsigned int num_lines    = 0;
+    unsigned int max_elements = MIN ( config.menu_lines * columns, num_lines );
 
-
-    unsigned int num_lines   = 0;
-    int          last_offset = 0;
-
+    // Calculate the number entries.
     for (; lines != NULL && lines[num_lines]; num_lines++ ) {
         ;
     }
 
-
-    unsigned int max_elements = MIN ( config.menu_lines * columns, num_lines );
-    // TODO, clean this up.
-    // Calculate the number or rows.
-    // we do this by getting the num_lines rounded up to X columns (num elements is better name)
-    // then dividing by columns.
+    // Calculate the number or rows. We do this by getting the num_lines rounded up to X columns
+    // (num elements is better name) then dividing by columns.
     unsigned int max_rows = MIN ( config.menu_lines,
                                   (unsigned int) (
                                       ( num_lines + ( columns - num_lines % columns ) % columns ) /
@@ -1071,9 +1066,8 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
         element_width = ( w - ( 2 * ( config.padding ) ) - max_elements * LINE_MARGIN ) / ( max_elements + 1 );
     }
 
-    XWindowAttributes attr;
-
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
+    XWindowAttributes attr;
     if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) ) {
         main_window = create_window ( display );
     }
@@ -1081,11 +1075,8 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     // search text input
 
     textbox *prompt_tb = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                                          ( config.padding ),
-                                          ( config.padding ),
-                                          0, 0,
-                                          NORMAL,
-                                          prompt );
+                                          ( config.padding ), ( config.padding ),
+                                          0, 0, NORMAL, prompt );
 
     textbox *text = textbox_create ( main_window, TB_AUTOHEIGHT | TB_EDITABLE,
                                      ( config.padding ) + prompt_tb->w,
@@ -1099,7 +1090,6 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
     textbox_show ( text );
     textbox_show ( prompt_tb );
-
 
     // filtered list display
     textbox **boxes = calloc ( 1, sizeof ( textbox* ) * max_elements );
@@ -1173,8 +1163,9 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
     // if grabbing keyboard failed, fall through
     if ( take_keyboard ( main_window ) ) {
-        KeySym       prev_key = 0;
-        unsigned int selected = 0;
+        KeySym       prev_key    = 0;
+        unsigned int selected    = 0;
+        int          last_offset = 0;
 
         for (;; ) {
             // If something changed, refilter the list. (paste or text entered)
@@ -1506,9 +1497,6 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
 
     return retv;
 }
-
-
-
 
 SwitcherMode run_switcher_window ( char **input )
 {
