@@ -1018,12 +1018,12 @@ MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shi
     unsigned int columns = config.menu_columns;
     workarea     mon;
     unsigned int num_lines    = 0;
-    unsigned int max_elements = MIN ( config.menu_lines * columns, num_lines );
 
     // Calculate the number entries.
     for (; lines != NULL && lines[num_lines]; num_lines++ ) {
         ;
     }
+    unsigned int max_elements = MIN ( config.menu_lines * columns, num_lines );
 
     // Calculate the number or rows. We do this by getting the num_lines rounded up to X columns
     // (num elements is better name) then dividing by columns.
