@@ -926,7 +926,7 @@ Window create_window ( Display *display )
 {
     Screen *screen = DefaultScreenOfDisplay ( display );
     Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
-    Window box     = XCreateSimpleWindow ( display, root, 0, 0, 10, 300,
+    Window box     = XCreateSimpleWindow ( display, root, 0, 0, 200, 100,
                                            config.menu_bw,
                                            color_get ( display, config.menu_bc ),
                                            color_get ( display, config.menu_bg ) );
