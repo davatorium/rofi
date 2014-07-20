@@ -403,7 +403,7 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
         textbox_cursor_bkspc ( tb );
         return 1;
     }
-    else if ( key == XK_Return ) {
+    else if ( key == XK_Return || key == XK_KP_Enter ) {
         return -1;
     }
     else if ( !iscntrl ( *pad ) ) {

@@ -85,7 +85,7 @@ SwitcherMode dmenu_switcher_dialog ( char **input )
         fputs ( *input, stdout );
     }
 
-    for ( unsigned int i = 0; i < length ; i++ ) {
+    for ( unsigned int i = 0; i < length; i++ ) {
         free ( list[i] );
     }
 
