@@ -66,6 +66,7 @@ typedef int ( *menu_match_cb )( char **tokens, const char *input, int index, voi
 
 /**
  * @param lines An array of strings to display.
+ * @param num_lines Length of the array with strings to display.
  * @param input A pointer to a string where the inputted data is placed.
  * @param prompt The prompt to show.
  * @param time The current time (used for window interaction.)
@@ -78,10 +79,10 @@ typedef int ( *menu_match_cb )( char **tokens, const char *input, int index, voi
  *
  * @returns The command issued (see MenuReturn)
  */
-MenuReturn menu ( char **lines, char **input, char *prompt,
+MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt,
                   Time *time, int *shift,
                   menu_match_cb mmc, void *mmc_data,
-                  int *selected_line ) __attribute__ ( ( nonnull ( 1, 2, 3, 8 ) ) );
+                  int *selected_line ) __attribute__ ( ( nonnull ( 1, 3, 4, 9 ) ) );
 
 void catch_exit ( __attribute__( ( unused ) ) int sig );
 

@@ -38,27 +38,28 @@
 
 char *dmenu_prompt = "dmenu ";
 
-static char **get_dmenu ( void )
+static char **get_dmenu ( unsigned int *length )
 {
     char buffer[1024];
     char **retv = NULL;
-    int  index  = 0;
+
+    *length = 0;
 
     while ( fgets ( buffer, 1024, stdin ) != NULL ) {
-        char **tr = realloc ( retv, ( index + 2 ) * sizeof ( char* ) );
+        char **tr = realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
         if ( tr == NULL ) {
             return retv;
         }
-        retv            = tr;
-        retv[index]     = strdup ( buffer );
-        retv[index + 1] = NULL;
+        retv                  = tr;
+        retv[( *length )]     = strdup ( buffer );
+        retv[( *length ) + 1] = NULL;
 
         // Filter out line-end.
-        if ( retv[index][strlen ( buffer ) - 1] == '\n' ) {
-            retv[index][strlen ( buffer ) - 1] = '\0';
+        if ( retv[( *length )][strlen ( buffer ) - 1] == '\n' ) {
+            retv[( *length )][strlen ( buffer ) - 1] = '\0';
         }
 
-        index++;
+        ( *length )++;
     }
 
     return retv;
@@ -68,9 +69,10 @@ SwitcherMode dmenu_switcher_dialog ( char **input )
 {
     int          selected_line = 0;
     SwitcherMode retv          = MODE_EXIT;
-    char         **list        = get_dmenu ( );
+    unsigned int length        = 0;
+    char         **list        = get_dmenu ( &length );
 
-    int          mretv = menu ( list, input, dmenu_prompt, NULL, NULL,
+    int          mretv = menu ( list, length, input, dmenu_prompt, NULL, NULL,
                                 token_match, NULL, &selected_line );
 
     if ( mretv == MENU_NEXT ) {
@@ -83,7 +85,7 @@ SwitcherMode dmenu_switcher_dialog ( char **input )
         fputs ( *input, stdout );
     }
 
-    for ( unsigned int i = 0; list != NULL && list[i] != NULL; i++ ) {
+    for ( unsigned int i = 0; i < length ; i++ ) {
         free ( list[i] );
     }
 

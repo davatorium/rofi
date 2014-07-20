@@ -109,10 +109,9 @@ static int sort_func ( const void *a, const void *b )
     const char *bstr = *( const char * const * ) b;
     return strcasecmp ( astr, bstr );
 }
-static char ** get_apps ( void )
+static char ** get_apps ( unsigned int *length )
 {
     unsigned int    num_favorites = 0;
-    unsigned int    index         = 0;
     char            *path;
     char            **retv = NULL;
 #ifdef TIMING
@@ -126,10 +125,10 @@ static char ** get_apps ( void )
 
 
     if ( asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) > 0 ) {
-        retv = history_get_list ( path, &index );
+        retv = history_get_list ( path, length );
         free ( path );
         // Keep track of how many where loaded as favorite.
-        num_favorites = index;
+        num_favorites = ( *length );
     }
 
 
@@ -168,12 +167,12 @@ static char ** get_apps ( void )
                     continue;
                 }
 
-                char ** tr = realloc ( retv, ( index + 2 ) * sizeof ( char* ) );
+                char ** tr = realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
                 if ( tr != NULL ) {
-                    retv            = tr;
-                    retv[index]     = strdup ( dent->d_name );
-                    retv[index + 1] = NULL;
-                    index++;
+                    retv                  = tr;
+                    retv[( *length )]     = strdup ( dent->d_name );
+                    retv[( *length ) + 1] = NULL;
+                    ( *length )++;
                 }
             }
 
@@ -182,8 +181,8 @@ static char ** get_apps ( void )
     }
 
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
-    if ( index > num_favorites ) {
-        qsort ( &retv[num_favorites], index - num_favorites, sizeof ( char* ), sort_func );
+    if ( ( *length ) > num_favorites ) {
+        qsort ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func );
     }
     free ( path );
 #ifdef TIMING
@@ -205,7 +204,8 @@ SwitcherMode run_switcher_dialog ( char **input )
     int          selected_line = 0;
     SwitcherMode retv          = MODE_EXIT;
     // act as a launcher
-    char         **cmd_list = get_apps ( );
+    unsigned int cmd_list_length = 0;
+    char         **cmd_list      = get_apps ( &cmd_list_length );
 
     if ( cmd_list == NULL ) {
         cmd_list    = malloc ( 2 * sizeof ( char * ) );
@@ -213,7 +213,7 @@ SwitcherMode run_switcher_dialog ( char **input )
         cmd_list[1] = NULL;
     }
 
-    int mretv = menu ( cmd_list, input, "run:", NULL, &shift, token_match, NULL, &selected_line );
+    int mretv = menu ( cmd_list, cmd_list_length, input, "run:", NULL, &shift, token_match, NULL, &selected_line );
 
     if ( mretv == MENU_NEXT ) {
         retv = NEXT_DIALOG;

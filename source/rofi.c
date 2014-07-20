@@ -1010,19 +1010,13 @@ static void calculate_window_position ( const workarea *mon, int *x, int *y, int
     *y += config.y_offset;
 }
 
-MenuReturn menu ( char **lines, char **input, char *prompt, Time *time, int *shift,
-                  menu_match_cb mmc, void *mmc_data, int *selected_line )
+MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt, Time *time,
+                  int *shift, menu_match_cb mmc, void *mmc_data, int *selected_line )
 {
     int          retv = MENU_CANCEL;
     unsigned int i, j;
     unsigned int columns = config.menu_columns;
     workarea     mon;
-    unsigned int num_lines    = 0;
-
-    // Calculate the number entries.
-    for (; lines != NULL && lines[num_lines]; num_lines++ ) {
-        ;
-    }
     unsigned int max_elements = MIN ( config.menu_lines * columns, num_lines );
 
     // Calculate the number or rows. We do this by getting the num_lines rounded up to X columns
@@ -1569,8 +1563,8 @@ SwitcherMode run_switcher_window ( char **input )
 #ifdef HAVE_I3_IPC_H
     }
 #endif
-        char **list = calloc ( ( ids->len + 1 ), sizeof ( char* ) );
-        int lines   = 0;
+        char **list        = calloc ( ( ids->len + 1 ), sizeof ( char* ) );
+        unsigned int lines = 0;
 
         // build the actual list
         Window w = 0;
@@ -1610,7 +1604,7 @@ SwitcherMode run_switcher_window ( char **input )
         }
         Time time;
         int selected_line = 0;
-        MenuReturn mretv  = menu ( list, input, "window:", &time, NULL, window_match, ids, &selected_line );
+        MenuReturn mretv  = menu ( list, lines, input, "window:", &time, NULL, window_match, ids, &selected_line );
 
         if ( mretv == MENU_NEXT ) {
             retv = NEXT_DIALOG;

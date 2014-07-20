@@ -122,10 +122,9 @@ static int sort_func ( const void *a, const void *b )
     const char *bstr = *( const char * const * ) b;
     return strcasecmp ( astr, bstr );
 }
-static char ** get_ssh ( void )
+static char ** get_ssh ( unsigned int *length )
 {
     unsigned int    num_favorites = 0;
-    unsigned int    index         = 0;
     char            *path;
     char            **retv = NULL;
 #ifdef TIMING
@@ -138,9 +137,9 @@ static char ** get_ssh ( void )
     }
 
     if ( asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0 ) {
-        retv = history_get_list ( path, &index );
+        retv = history_get_list ( path, length );
         free ( path );
-        num_favorites = index;
+        num_favorites = ( *length );
     }
 
 
@@ -185,12 +184,12 @@ static char ** get_ssh ( void )
                     continue;
                 }
 
-                char **tr = realloc ( retv, ( index + 2 ) * sizeof ( char* ) );
+                char **tr = realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
                 if ( tr != NULL ) {
-                    retv            = tr;
-                    retv[index]     = strndup ( &buffer[start], stop - start );
-                    retv[index + 1] = NULL;
-                    index++;
+                    retv                  = tr;
+                    retv[( *length )]     = strndup ( &buffer[start], stop - start );
+                    retv[( *length ) + 1] = NULL;
+                    ( *length )++;
                 }
             }
         }
@@ -199,8 +198,8 @@ static char ** get_ssh ( void )
     }
 
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
-    if ( index > num_favorites ) {
-        qsort ( &retv[num_favorites], index - num_favorites, sizeof ( char* ), sort_func );
+    if ( ( *length ) > num_favorites ) {
+        qsort ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func );
     }
     free ( path );
 #ifdef TIMING
@@ -220,7 +219,8 @@ SwitcherMode ssh_switcher_dialog ( char **input )
 {
     SwitcherMode retv = MODE_EXIT;
     // act as a launcher
-    char         **cmd_list = get_ssh ( );
+    unsigned int cmd_list_length = 0;
+    char         **cmd_list      = get_ssh ( &cmd_list_length );
 
     if ( cmd_list == NULL ) {
         cmd_list    = malloc ( 2 * sizeof ( char * ) );
@@ -230,7 +230,7 @@ SwitcherMode ssh_switcher_dialog ( char **input )
 
     int shift         = 0;
     int selected_line = 0;
-    int mretv         = menu ( cmd_list, input, "ssh:", NULL, &shift, token_match, NULL, &selected_line );
+    int mretv         = menu ( cmd_list, cmd_list_length, input, "ssh:", NULL, &shift, token_match, NULL, &selected_line );
 
     if ( mretv == MENU_NEXT ) {
         retv = NEXT_DIALOG;
