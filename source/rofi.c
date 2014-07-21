@@ -1386,12 +1386,12 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                 selected = 0;
                             }
                             else{
-                                selected -= ( max_elements - 1 );
+                                selected -= ( max_elements );
                             }
                             update = TRUE;
                         }
                         else if ( key == XK_Page_Down ) {
-                            selected += ( max_elements - 1 );
+                            selected += ( max_elements );
 
                             if ( selected >= num_lines ) {
                                 selected = num_lines - 1;
