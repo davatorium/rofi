@@ -65,7 +65,8 @@ README.html: README.md
 EXTRA_DIST=\
     $(man1_MANS)\
     $(markdown_FILES)\
-    $(markdown_SC_FILES)
+    $(markdown_SC_FILES)\
+    INSTALL.md
 
 ##
 # Indent
