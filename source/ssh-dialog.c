@@ -215,7 +215,7 @@ static char ** get_ssh ( unsigned int *length )
     return retv;
 }
 
-SwitcherMode ssh_switcher_dialog ( char **input )
+SwitcherMode ssh_switcher_dialog ( char **input, void *data )
 {
     SwitcherMode retv = MODE_EXIT;
     // act as a launcher
@@ -244,7 +244,7 @@ SwitcherMode ssh_switcher_dialog ( char **input )
     else if ( mretv == MENU_ENTRY_DELETE && cmd_list[selected_line] ) {
         delete_ssh ( cmd_list[selected_line] );
         // Stay
-        retv = SSH_DIALOG;
+        retv = RELOAD_DIALOG;
     }
 
     for ( int i = 0; cmd_list[i] != NULL; i++ ) {

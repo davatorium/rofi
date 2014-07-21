@@ -19,27 +19,24 @@
 
 extern const char *cache_dir;
 
+
 /**
  * Enum used to sum the possible states of ROFI.
  */
 typedef enum
 {
-    /** Show the window switcher */
-    WINDOW_SWITCHER,
-    /** Show the run dialog */
-    RUN_DIALOG,
-    /** Show the ssh dialog */
-    SSH_DIALOG,
-    /** Number of cycle-able dialogs */
-    NUM_DIALOGS,
     /** Dmenu mode */
-    DMENU_DIALOG,
+    DMENU_DIALOG  = 999,
     /** Exit. */
-    MODE_EXIT,
+    MODE_EXIT     = 1000,
     /** Skip to the next cycle-able dialog. */
-    NEXT_DIALOG
+    NEXT_DIALOG   = 1001,
+    /** Reload current DIALOG */
+    RELOAD_DIALOG = 1002
 } SwitcherMode;
 
+// switcher callback
+typedef SwitcherMode ( *switcher_callback )( char **input, void *data );
 
 /**
  * State returned by the rofi window.
@@ -105,6 +102,7 @@ typedef enum _WindowLocation
 
 typedef struct _Settings
 {
+    char           *switchers;
     // Window settings
     unsigned int   window_opacity;
     // Menu settings

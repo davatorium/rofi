@@ -3,6 +3,6 @@
 
 
 
-SwitcherMode ssh_switcher_dialog ( char **input );
+SwitcherMode ssh_switcher_dialog ( char **input, void *data );
 
 #endif

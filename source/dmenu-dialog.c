@@ -65,7 +65,7 @@ static char **get_dmenu ( unsigned int *length )
     return retv;
 }
 
-SwitcherMode dmenu_switcher_dialog ( char **input )
+SwitcherMode dmenu_switcher_dialog ( char **input, void *data )
 {
     int          selected_line = 0;
     SwitcherMode retv          = MODE_EXIT;
@@ -76,7 +76,7 @@ SwitcherMode dmenu_switcher_dialog ( char **input )
                                 token_match, NULL, &selected_line );
 
     if ( mretv == MENU_NEXT ) {
-        retv = DMENU_DIALOG;
+        retv = RELOAD_DIALOG;
     }
     else if ( mretv == MENU_OK && list[selected_line] != NULL ) {
         fputs ( list[selected_line], stdout );

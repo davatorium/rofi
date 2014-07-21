@@ -198,7 +198,7 @@ static char ** get_apps ( unsigned int *length )
     return retv;
 }
 
-SwitcherMode run_switcher_dialog ( char **input )
+SwitcherMode run_switcher_dialog ( char **input, void *data )
 {
     int          shift         = 0;
     int          selected_line = 0;
@@ -226,7 +226,7 @@ SwitcherMode run_switcher_dialog ( char **input )
     }
     else if ( mretv == MENU_ENTRY_DELETE && cmd_list[selected_line] ) {
         delete_entry ( cmd_list[selected_line] );
-        retv = RUN_DIALOG;
+        retv = RELOAD_DIALOG;
     }
 
     for ( int i = 0; cmd_list != NULL && cmd_list[i] != NULL; i++ ) {

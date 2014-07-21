@@ -65,6 +65,7 @@
 #include "run-dialog.h"
 #include "ssh-dialog.h"
 #include "dmenu-dialog.h"
+#include "script-dialog.h"
 
 #include "xrmoptions.h"
 
@@ -84,6 +85,48 @@ const char   *cache_dir   = NULL;
 char         *active_font = NULL;
 unsigned int NumlockMask  = 0;
 Display      *display     = NULL;
+
+
+typedef struct _Switcher
+{
+    char              name[32];
+    switcher_callback cb;
+    void              *cb_data;
+} Switcher;
+
+Switcher *switchers    = NULL;
+int      num_switchers = 0;
+
+int switcher_get ( const char *name )
+{
+    for ( int i = 0; i < num_switchers; i++ ) {
+        if ( strcmp ( switchers[i].name, name ) == 0 ) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+/**
+ * Not every platform has strlcpy. (Why god why?)
+ * So a quick implementation to fix this.
+ */
+static size_t copy_string ( char *dest, const char *src, size_t len )
+{
+    size_t size;
+
+    if ( !len ) {
+        return 0;
+    }
+    size = strlen ( src );
+    if ( size >= len ) {
+        size = len - 1;
+    }
+    memcpy ( dest, src, size );
+    dest[size] = '\0';
+    return size;
+}
 
 /**
  * Shared 'token_match' function.
@@ -219,22 +262,26 @@ static int find_arg ( const int argc, char * const argv[], const char * const ke
 
     return i < argc ? i : -1;
 }
-static void find_arg_str ( int argc, char *argv[], char *key, char** val )
+static int find_arg_str ( int argc, char *argv[], char *key, char** val )
 {
     int i = find_arg ( argc, argv, key );
 
     if ( val != NULL && i > 0 && i < argc - 1 ) {
         *val = argv[i + 1];
+        return TRUE;
     }
+    return FALSE;
 }
 
-static void find_arg_int ( int argc, char *argv[], char *key, unsigned int *val )
+static int find_arg_int ( int argc, char *argv[], char *key, unsigned int *val )
 {
     int i = find_arg ( argc, argv, key );
 
     if ( val != NULL && i > 0 && i < ( argc - 1 ) ) {
         *val = strtol ( argv[i + 1], NULL, 10 );
+        return TRUE;
     }
+    return FALSE;
 }
 
 
@@ -1333,8 +1380,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                     if ( shift != NULL ) {
                         ( *shift ) = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
                     }
-
-                    if ( filtered && filtered[selected] ) {
+                    if ( filtered[selected] != NULL ) {
                         retv           = MENU_OK;
                         *selected_line = line_map[selected];
                     }
@@ -1490,7 +1536,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     return retv;
 }
 
-SwitcherMode run_switcher_window ( char **input )
+SwitcherMode run_switcher_window ( char **input, void *data )
 {
     Screen       *screen = DefaultScreenOfDisplay ( display );
     Window       root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
@@ -1662,31 +1708,29 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
                     config.menu_hlbg,
                     config.menu_hlfg );
     char *input = NULL;
+    // Dmenu is a special mode. You can cycle away from it.
+    if ( mode == DMENU_DIALOG ) {
+        dmenu_switcher_dialog ( &input, NULL );
+    }
+    // Otherwise check if requested mode is enabled.
+    else if ( switchers[mode].cb != NULL ) {
+        do {
+            SwitcherMode retv = MODE_EXIT;
 
-    do {
-        SwitcherMode retv = MODE_EXIT;
+            retv = switchers[mode].cb ( &input, switchers[mode].cb_data );
 
-        if ( mode == WINDOW_SWITCHER ) {
-            retv = run_switcher_window ( &input );
-        }
-        else if ( mode == RUN_DIALOG ) {
-            retv = run_switcher_dialog ( &input );
-        }
-        else if ( mode == SSH_DIALOG ) {
-            retv = ssh_switcher_dialog ( &input );
-        }
-        else if ( mode == DMENU_DIALOG ) {
-            retv = dmenu_switcher_dialog ( &input );
-        }
-
-        if ( retv == NEXT_DIALOG ) {
-            mode = ( mode + 1 ) % NUM_DIALOGS;
-        }
-        else{
-            mode = retv;
-        }
-    } while ( mode != MODE_EXIT );
-
+            // Find next enabled
+            if ( retv == NEXT_DIALOG ) {
+                mode = ( mode + 1 ) % num_switchers;
+            }
+            else if ( retv == RELOAD_DIALOG ) {
+                // do nothing.
+            }
+            else {
+                mode = retv;
+            }
+        } while ( mode != MODE_EXIT );
+    }
     free ( input );
 
     // Cleanup font setup.
@@ -1704,17 +1748,26 @@ static void handle_keypress ( XEvent *ev )
 
     if ( ( windows_modmask == AnyModifier || ev->xkey.state & windows_modmask ) &&
          key == windows_keysym ) {
-        run_switcher ( TRUE, WINDOW_SWITCHER );
+        int index = switcher_get ( "window" );
+        if ( index >= 0 ) {
+            run_switcher ( TRUE, index );
+        }
     }
 
     if ( ( rundialog_modmask == AnyModifier || ev->xkey.state & rundialog_modmask ) &&
          key == rundialog_keysym ) {
-        run_switcher ( TRUE, RUN_DIALOG );
+        int index = switcher_get ( "run" );
+        if ( index >= 0 ) {
+            run_switcher ( TRUE, index );
+        }
     }
 
     if ( ( sshdialog_modmask == AnyModifier || ev->xkey.state & sshdialog_modmask ) &&
          key == sshdialog_keysym ) {
-        run_switcher ( TRUE, SSH_DIALOG );
+        int index = switcher_get ( "ssh" );
+        if ( index >= 0 ) {
+            run_switcher ( TRUE, index );
+        }
     }
 }
 
@@ -1836,6 +1889,7 @@ static void parse_cmd_options ( int argc, char ** argv )
         exit ( EXIT_SUCCESS );
     }
 
+    find_arg_str ( argc, argv, "-switchers", &( config.switchers ) );
     // Parse commandline arguments about the looks.
     find_arg_int ( argc, argv, "-opacity", &( config.window_opacity ) );
 
@@ -1933,6 +1987,14 @@ static void cleanup ()
     xdgWipeHandle ( &xdg_handle );
 
     free ( active_font );
+
+    for ( unsigned int i = 0; i < num_switchers; i++ ) {
+        // only used for script dialog.
+        if ( switchers[i].cb_data != NULL ) {
+            script_switcher_free_options ( switchers[i].cb_data );
+        }
+    }
+    free ( switchers );
 }
 
 /**
@@ -1964,6 +2026,51 @@ static void config_sanity_check ( void )
         fprintf ( stderr, "config.hmode is invalid.\n" );
         exit ( 1 );
     }
+}
+
+static void setup_switchers ( void )
+{
+    char *switcher_str = strdup ( config.switchers );
+    char *token;
+    for ( token = strtok ( switcher_str, "," ); token != NULL; token = strtok ( NULL, "," ) ) {
+        if ( strcasecmp ( token, "window" ) == 0 ) {
+            switchers = (Switcher *) realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
+            copy_string ( switchers[num_switchers].name, "window", 32 );
+            switchers[num_switchers].cb      = run_switcher_window;
+            switchers[num_switchers].cb_data = NULL;
+            num_switchers++;
+        }
+        else if ( strcasecmp ( token, "ssh" ) == 0 ) {
+            switchers = (Switcher *) realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
+            copy_string ( switchers[num_switchers].name, "ssh", 32 );
+            switchers[num_switchers].cb      = ssh_switcher_dialog;
+            switchers[num_switchers].cb_data = NULL;
+            num_switchers++;
+        }
+        else if ( strcasecmp ( token, "run" ) == 0 ) {
+            switchers = (Switcher *) realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
+            copy_string ( switchers[num_switchers].name, "run", 32 );
+            switchers[num_switchers].cb      = run_switcher_dialog;
+            switchers[num_switchers].cb_data = NULL;
+            num_switchers++;
+        }
+        else {
+            ScriptOptions *sw = script_switcher_parse_setup ( token );
+            if ( sw != NULL ) {
+                switchers = (Switcher *) realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
+                copy_string ( switchers[num_switchers].name, sw->name, 32 );
+                switchers[num_switchers].cb      = script_switcher_dialog;
+                switchers[num_switchers].cb_data = sw;
+                num_switchers++;
+            }
+            else{
+                fprintf ( stderr, "Invalid script switcher: %s\n", token );
+                token = NULL;
+            }
+        }
+    }
+
+    free ( switcher_str );
 }
 
 
@@ -1998,6 +2105,9 @@ int main ( int argc, char *argv[] )
 
     // Sanity check
     config_sanity_check ();
+
+    // setup_switchers
+    setup_switchers ();
 
     // Generate the font string for the line that indicates a selected item.
     if ( asprintf ( &active_font, "%s:slant=italic", config.menu_font ) < 0 ) {
@@ -2043,14 +2153,43 @@ int main ( int argc, char *argv[] )
 
 
     // flags to run immediately and exit
-    if ( find_arg ( argc, argv, "-now" ) >= 0 ) {
-        run_switcher ( FALSE, WINDOW_SWITCHER );
+    char *sname = NULL;
+    if ( find_arg_str ( argc, argv, "-show", &sname ) == TRUE ) {
+        int index = switcher_get ( sname );
+        if ( index >= 0 ) {
+            run_switcher ( FALSE, index );
+        }
+        else {
+            fprintf ( stderr, "The %s switcher has not been enabled\n", sname );
+        }
+    }
+    // Old modi.
+    else if ( find_arg ( argc, argv, "-now" ) >= 0 ) {
+        int index = switcher_get ( "window" );
+        if ( index >= 0 ) {
+            run_switcher ( FALSE, index );
+        }
+        else {
+            fprintf ( stderr, "The window switcher has not been enabled\n" );
+        }
     }
     else if ( find_arg ( argc, argv, "-rnow" ) >= 0 ) {
-        run_switcher ( FALSE, RUN_DIALOG );
+        int index = switcher_get ( "run" );
+        if ( index >= 0 ) {
+            run_switcher ( FALSE, index );
+        }
+        else {
+            fprintf ( stderr, "The run dialog has not been enabled\n" );
+        }
     }
     else if ( find_arg ( argc, argv, "-snow" ) >= 0 ) {
-        run_switcher ( FALSE, SSH_DIALOG );
+        int index = switcher_get ( "ssh" );
+        if ( index >= 0 ) {
+            run_switcher ( FALSE, index );
+        }
+        else {
+            fprintf ( stderr, "The ssh dialog has not been enabled\n" );
+        }
     }
     else if ( find_arg ( argc, argv, "-dmenu" ) >= 0 ) {
         find_arg_str ( argc, argv, "-p", &dmenu_prompt );
@@ -2058,14 +2197,20 @@ int main ( int argc, char *argv[] )
     }
     else{
         // Daemon mode, Listen to key presses..
-        parse_key ( display, config.window_key, &windows_modmask, &windows_keysym );
-        grab_key ( display, windows_modmask, windows_keysym );
+        if ( switcher_get ( "window" ) >= 0 ) {
+            parse_key ( display, config.window_key, &windows_modmask, &windows_keysym );
+            grab_key ( display, windows_modmask, windows_keysym );
+        }
 
-        parse_key ( display, config.run_key, &rundialog_modmask, &rundialog_keysym );
-        grab_key ( display, rundialog_modmask, rundialog_keysym );
+        if ( switcher_get ( "run" ) >= 0 ) {
+            parse_key ( display, config.run_key, &rundialog_modmask, &rundialog_keysym );
+            grab_key ( display, rundialog_modmask, rundialog_keysym );
+        }
 
-        parse_key ( display, config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
-        grab_key ( display, sshdialog_modmask, sshdialog_keysym );
+        if ( switcher_get ( "ssh" ) >= 0 ) {
+            parse_key ( display, config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
+            grab_key ( display, sshdialog_modmask, sshdialog_keysym );
+        }
 
         // Main loop
         for (;; ) {

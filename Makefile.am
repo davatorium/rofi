@@ -26,12 +26,14 @@ rofi_SOURCES=\
     source/dmenu-dialog.c\
     source/run-dialog.c\
     source/ssh-dialog.c\
+    source/script-dialog.c\
     source/history.c\
     config/config.c\
     include/rofi.h\
     include/run-dialog.h\
     include/ssh-dialog.h\
     include/dmenu-dialog.h\
+    include/script-dialog.h\
     include/xrmoptions.h\
     include/history.h\
     include/textbox.h 
@@ -66,6 +68,7 @@ EXTRA_DIST=\
     $(man1_MANS)\
     $(markdown_FILES)\
     $(markdown_SC_FILES)\
+    Examples/i3_switch_workspaces.sh\
     INSTALL.md
 
 ##

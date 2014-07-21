@@ -14,11 +14,11 @@ SYNOPSIS
 [ -terminal *terminal* ] [ -loc *position* ] [ -hmode ] [ -fixed-num-lines ] [ -padding *padding* ]
 [ -opacity *opacity%* ] [ -display *display* ] [ -bc *color* ] [ -bw *width* ] [ -dmenu [ -p *prompt* ] ]
 [ -ssh-set-title *true|false* ] [ -now ] [ -rnow ] [ -snow ] [ -version ] [ -help] [ -dump-xresources ]
-[ -disable-history ] [ -levenshtein-sort ]
+[ -disable-history ] [ -levenshtein-sort ] [ -show *mode* ] [ -switcher *mode1,mode2* ]
 
 DESCRIPTION
 -----------
-`rofi` is an X11 popup window switcher. A list is displayed center-screen showing open window titles, WM_CLASS, and desktop number. 
+`rofi` is an X11 popup window switcher. A list is displayed center-screen showing open window titles, WM_CLASS, and desktop number.
 The user may filter the list by typing, navigate with Up/Down or Tab keys, and select a window with Return (Enter). Escape cancels.
 
 License
@@ -219,11 +219,38 @@ OPTIONS
 
   When searching sort the result based on levenshtein distance.
 
+`-show` *mode*
+
+  Open rofi in a certain mode.
+
+  For example to show the run-dialog:
+
+        rofi -show run
+
+  This function deprecates -rnow,-snow and -now
+
+`-switchers` *mode1,mode1*
+
+  Give a comma separated list of modes to enable, in what order.
+
+  For example to only show the run and ssh dialog (in that order):
+
+        rofi -switchers "run,ssh" -show run
+
+  Custom modes can be added using the internal 'script' mode. Each mode has two parameters:
+
+        <name>:<script>
+
+  So to have a mode 'Workspaces' using the `i3_switch_workspace.sh` script type:
+
+        rofi -switchers "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
+
 
 Switch between modi
 -------------------
 
-Type '?' *enter* to switch between window list, run and ssh mode.
+Type '?' *enter* to switch between window list, run and ssh mode. The list can be customized with
+the `-switchers` argument.
 
 WEBSITE
 -------

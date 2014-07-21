@@ -29,6 +29,9 @@
 #include "rofi.h"
 
 Settings config = {
+    // List of enabled switchers.
+    // -switchers
+    .switchers         = "window,run,ssh",
     // Set the default window opacity.
     // This option only works when running a composite manager.
     // -o

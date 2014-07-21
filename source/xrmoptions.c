@@ -58,6 +58,7 @@ typedef struct
  * Currently supports string and number.
  */
 static XrmOption xrmOptions[] = {
+    { xrm_String,  "switchers",        { .str = &config.switchers         }, NULL },
     { xrm_Number,  "opacity",          { .num = &config.window_opacity    }, NULL },
 
     { xrm_Number,  "width",            { .num = &config.menu_width        }, NULL },

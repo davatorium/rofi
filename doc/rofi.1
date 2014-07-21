@@ -9,10 +9,10 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-terminal \fIterminal\fP ] [ \-loc \fIposition\fP ] [ \-hmode ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fP ]
 [ \-opacity \fIopacity%\fP ] [ \-display \fIdisplay\fP ] [ \-bc \fIcolor\fP ] [ \-bw \fIwidth\fP ] [ \-dmenu [ \-p \fIprompt\fP ] ]
 [ \-ssh\-set\-title \fItrue|false\fP ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help] [ \-dump\-xresources ]
-[ \-disable\-history ] [ \-levenshtein\-sort ]
+[ \-disable\-history ] [ \-levenshtein\-sort ] [ \-show \fImode\fP ] [ \-switcher \fImode1,mode2\fP ]
 .SH DESCRIPTION
 .PP
-\fB\fCrofi\fR is an X11 popup window switcher. A list is displayed center\-screen showing open window titles, WM_CLASS, and desktop number. 
+\fB\fCrofi\fR is an X11 popup window switcher. A list is displayed center\-screen showing open window titles, WM_CLASS, and desktop number.
 The user may filter the list by typing, navigate with Up/Down or Tab keys, and select a window with Return (Enter). Escape cancels.
 .SH License
 .PP
@@ -262,9 +262,52 @@ Disable history
 \fB\fC\-levenshtein\-sort\fR
 .IP
 When searching sort the result based on levenshtein distance.
+.PP
+\fB\fC\-show\fR \fImode\fP
+.IP
+Open rofi in a certain mode.
+.IP
+For example to show the run\-dialog:
+.PP
+.RS
+.nf
+    rofi \-show run
+.fi
+.RE
+.IP
+This function deprecates \-rnow,\-snow and \-now
+.PP
+\fB\fC\-switchers\fR \fImode1,mode1\fP
+.IP
+Give a comma separated list of modes to enable, in what order.
+.IP
+For example to only show the run and ssh dialog (in that order):
+.PP
+.RS
+.nf
+    rofi \-switchers "run,ssh" \-show run
+.fi
+.RE
+.IP
+Custom modes can be added using the internal 'script' mode. Each mode has two parameters:
+.PP
+.RS
+.nf
+    <name>:<script>
+.fi
+.RE
+.IP
+So to have a mode 'Workspaces' using the \fB\fCi3_switch_workspace.sh\fR script type:
+.PP
+.RS
+.nf
+    rofi \-switchers "window,run,ssh,Workspaces:i3_switch_workspaces.sh" \-show Workspaces
+.fi
+.RE
 .SH Switch between modi
 .PP
-Type '?' \fIenter\fP to switch between window list, run and ssh mode.
+Type '?' \fIenter\fP to switch between window list, run and ssh mode. The list can be customized with
+the \fB\fC\-switchers\fR argument.
 .SH WEBSITE
 .PP
 \fB\fCrofi\fR website can be found at here

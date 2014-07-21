@@ -3,6 +3,6 @@
 
 
 
-SwitcherMode run_switcher_dialog ( char **input );
+SwitcherMode run_switcher_dialog ( char **input, void *data );
 
 #endif
