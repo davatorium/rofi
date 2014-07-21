@@ -932,7 +932,6 @@ Window create_window ( Display *display )
                                            color_get ( display, config.menu_bg ) );
     XSelectInput ( display, box, ExposureMask );
 
-
     gc = XCreateGC ( display, box, 0, 0 );
     XSetLineAttributes ( display, gc, 2, LineOnOffDash, CapButt, JoinMiter );
     XSetForeground ( display, gc, color_get ( display, config.menu_bc ) );
@@ -941,7 +940,6 @@ Window create_window ( Display *display )
     XSetWindowAttributes sattr;
     sattr.override_redirect = True;
     XChangeWindowAttributes ( display, box, CWOverrideRedirect, &sattr );
-    main_window = box;
 
     // Set the WM_NAME
     XStoreName ( display, box, "rofi" );
@@ -1062,7 +1060,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     XWindowAttributes attr;
-    if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) ) {
+    if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
         main_window = create_window ( display );
     }
 
