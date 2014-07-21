@@ -108,7 +108,7 @@ char **execute_executor ( ScriptOptions *options, const char *result, unsigned i
 {
     char **retv = NULL;
     char *command;
-    if ( asprintf ( &command, "%s %s", options->script_path, result ) > 0 ) {
+    if ( asprintf ( &command, "%s '%s'", options->script_path, result ) > 0 ) {
         retv = get_script_output ( command, length );
         free ( command );
     }
