@@ -134,6 +134,9 @@ SwitcherMode script_switcher_dialog ( char **input, void *data )
         if ( mretv == MENU_NEXT ) {
             retv = NEXT_DIALOG;
         }
+        else if ( mretv == MENU_QUICK_SWITCH ) {
+            retv = selected_line;
+        }
         else if ( mretv == MENU_OK && list[selected_line] != NULL ) {
             new_list = execute_executor ( options, list[selected_line], &new_length );
         }

@@ -52,7 +52,8 @@ typedef enum
     /** Custom (non-matched) input was entered. */
     MENU_CUSTOM_INPUT = -3,
     /** User wanted to delete entry from history. */
-    MENU_ENTRY_DELETE = -4
+    MENU_ENTRY_DELETE = -4,
+    MENU_QUICK_SWITCH = -5,
 } MenuReturn;
 
 

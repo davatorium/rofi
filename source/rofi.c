@@ -1373,6 +1373,12 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                         break;
                     }
                 }
+                else if ( ( ( ev.xkey.state & Mod1Mask ) == Mod1Mask ) &&
+                          key >= XK_1 && key <= XK_9 ) {
+                    *selected_line = ( key - XK_1 );
+                    retv           = MENU_QUICK_SWITCH;
+                    break;
+                }
 
                 int rc = textbox_keypress ( text, &ev );
 
@@ -1653,6 +1659,9 @@ SwitcherMode run_switcher_window ( char **input, void *data )
         if ( mretv == MENU_NEXT ) {
             retv = NEXT_DIALOG;
         }
+        else if ( mretv == MENU_QUICK_SWITCH ) {
+            retv = selected_line;
+        }
         else if ( mretv == MENU_OK && list[selected_line] ) {
 #ifdef HAVE_I3_IPC_H
 
@@ -1725,6 +1734,9 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
             }
             else if ( retv == RELOAD_DIALOG ) {
                 // do nothing.
+            }
+            else if ( retv < DMENU_DIALOG ) {
+                mode = ( retv ) % num_switchers;
             }
             else {
                 mode = retv;

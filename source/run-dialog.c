@@ -218,6 +218,9 @@ SwitcherMode run_switcher_dialog ( char **input, void *data )
     if ( mretv == MENU_NEXT ) {
         retv = NEXT_DIALOG;
     }
+    else if ( mretv == MENU_QUICK_SWITCH ) {
+        retv = selected_line;
+    }
     else if ( mretv == MENU_OK && cmd_list[selected_line] != NULL ) {
         exec_cmd ( cmd_list[selected_line], shift );
     }
