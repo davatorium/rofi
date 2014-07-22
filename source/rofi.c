@@ -2042,9 +2042,12 @@ static void config_sanity_check ( void )
 
 static void setup_switchers ( void )
 {
+    char *savept;
     char *switcher_str = strdup ( config.switchers );
     char *token;
-    for ( token = strtok ( switcher_str, "," ); token != NULL; token = strtok ( NULL, "," ) ) {
+    for ( token = strtok_r ( switcher_str, "," ,&savept);
+            token != NULL;
+            token = strtok_r ( NULL, ",",&savept ) ) {
         if ( strcasecmp ( token, "window" ) == 0 ) {
             switchers = (Switcher *) realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
             copy_string ( switchers[num_switchers].name, "window", 32 );
