@@ -185,7 +185,10 @@ ScriptOptions *script_switcher_parse_setup ( const char *str )
     // TODO: This is naive and can be improved.
     for ( char *token = strtok_r ( parse, ":", &endp ); token != NULL; token = strtok_r ( NULL, ":", &endp ) ) {
         if ( index == 0 ) {
-            sw->name = strdup ( token );
+            if(asprintf(&(sw->name), "%s:", token) <= 0) {
+                fprintf(stderr, "Failed to allocate string.\n");
+                abort();
+            }
         }
         else if ( index == 1 ) {
             sw->script_path = strdup ( token );
