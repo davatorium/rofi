@@ -1,6 +1,11 @@
 Installation guide:
 ===================
 
+DEPENDENCY
+----------
+
+For i3 support, you need at least i3 version 4.5 or up.
+
 Install from a release
 ----------------------
 

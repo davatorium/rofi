@@ -69,6 +69,8 @@ EXTRA_DIST=\
     $(markdown_FILES)\
     $(markdown_SC_FILES)\
     Examples/i3_switch_workspaces.sh\
+    Examples/brightness_rofi.sh\
+    Examples/domo_rofi_script.sh\
     INSTALL.md
 
 ##
