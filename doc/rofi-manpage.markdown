@@ -11,7 +11,7 @@ SYNOPSIS
 
 `rofi` [ -width *pct_scr* ] [ -lines *lines* ] [ -columns *columns* ] [ -font *xftfont* ] [ -fg *color* ]
 [ -bg *color* ] [ -hlfg *color* ] [ -hlbg *color* ] [ -key *combo* ] [ -dkey *comdo* ] [ -rkey *comdo* ]
-[ -terminal *terminal* ] [ -loc *position* ] [ -hmode ] [ -fixed-num-lines ] [ -padding *padding* ]
+[ -terminal *terminal* ] [ -location *position* ] [ -hmode ] [ -fixed-num-lines ] [ -padding *padding* ]
 [ -opacity *opacity%* ] [ -display *display* ] [ -bc *color* ] [ -bw *width* ] [ -dmenu [ -p *prompt* ] ]
 [ -ssh-set-title *true|false* ] [ -now ] [ -rnow ] [ -snow ] [ -version ] [ -help] [ -dump-xresources ]
 [ -disable-history ] [ -levenshtein-sort ] [ -show *mode* ] [ -switcher *mode1,mode2* ]
@@ -171,7 +171,7 @@ OPTIONS
 
         rofi -terminal xterm
 
-`-loc`
+`-location`
 
     Specify where the window should be located. The numbers map to the following location on the
     monitor:

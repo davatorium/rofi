@@ -87,7 +87,6 @@ static XrmOption xrmOptions[] = {
     { xrm_Number,  "bw",               { .num = &config.menu_bw           }, NULL },
 
     { xrm_Number,  "location",         { .num = &config.location          }, NULL },
-    { xrm_Number,  "loc",              { .num = &config.location          }, NULL },
 
     { xrm_Number,  "padding",          { .num = &config.padding           }, NULL },
     { xrm_Number,  "yoffset",          { .num = &config.y_offset          }, NULL },

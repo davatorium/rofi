@@ -1916,7 +1916,7 @@ static void parse_cmd_options ( int argc, char ** argv )
     find_arg_int ( argc, argv, "-bw", &( config.menu_bw ) );
 
     // Parse commandline arguments about size and position
-    find_arg_int ( argc, argv, "-loc", &( config.location ) );
+    find_arg_int ( argc, argv, "-location", &( config.location ) );
     find_arg_int ( argc, argv, "-padding", &( config.padding ) );
     find_arg_int ( argc, argv, "-xoffset", &( config.x_offset ) );
     find_arg_int ( argc, argv, "-yoffset", &( config.y_offset ) );
