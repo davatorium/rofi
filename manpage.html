@@ -1,6 +1,6 @@
 <h1 id="ROFI-1-rofi"><span class="md2man-title">ROFI</span> <span class="md2man-section">1</span> <span class="md2man-date">rofi</span><a name="ROFI-1-rofi" href="#ROFI-1-rofi" class="md2man-permalink"></a></h1><h2 id="NAME">NAME<a name="NAME" href="#NAME" class="md2man-permalink"></a></h2><p>rofi - A window switcher, run dialog and dmenu replacement</p><h2 id="SYNOPSIS">SYNOPSIS<a name="SYNOPSIS" href="#SYNOPSIS" class="md2man-permalink"></a></h2><p><code>rofi</code> [ -width <em>pct_scr</em> ] [ -lines <em>lines</em> ] [ -columns <em>columns</em> ] [ -font <em>xftfont</em> ] [ -fg <em>color</em> ]
 [ -bg <em>color</em> ] [ -hlfg <em>color</em> ] [ -hlbg <em>color</em> ] [ -key <em>combo</em> ] [ -dkey <em>comdo</em> ] [ -rkey <em>comdo</em> ]
-[ -terminal <em>terminal</em> ] [ -loc <em>position</em> ] [ -hmode ] [ -fixed-num-lines ] [ -padding <em>padding</em> ]
+[ -terminal <em>terminal</em> ] [ -location <em>position</em> ] [ -hmode ] [ -fixed-num-lines ] [ -padding <em>padding</em> ]
 [ -opacity <em>opacity%</em> ] [ -display <em>display</em> ] [ -bc <em>color</em> ] [ -bw <em>width</em> ] [ -dmenu [ -p <em>prompt</em> ] ]
 [ -ssh-set-title <em>true|false</em> ] [ -now ] [ -rnow ] [ -snow ] [ -version ] [ -help] [ -dump-xresources ]
 [ -disable-history ] [ -levenshtein-sort ] [ -show <em>mode</em> ] [ -switcher <em>mode1,mode2</em> ]</p><h2 id="DESCRIPTION">DESCRIPTION<a name="DESCRIPTION" href="#DESCRIPTION" class="md2man-permalink"></a></h2><p><code>rofi</code> is an X11 popup window switcher. A list is displayed center-screen showing open window titles, WM_CLASS, and desktop number.
@@ -112,7 +112,7 @@ menu (default: #ffffff).
 
     rofi -terminal xterm
 </code></pre>
-<p><code>-loc</code></p>
+<p><code>-location</code></p>
 <pre><code>Specify where the window should be located. The numbers map to the following location on the
 monitor:
 

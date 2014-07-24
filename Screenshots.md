@@ -86,7 +86,7 @@ Xresources entries:
         rofi.hlbg: #CC9752
         rofi.bc: #CC9752
         rofi.bw: 2
-        rofi.loc: 6
+        rofi.location: 6
         rofi.padding: 2
         rofi.yoffset: -22
         rofi.xoffset: 0
