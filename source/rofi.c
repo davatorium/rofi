@@ -1010,8 +1010,8 @@ Window create_window ( Display *display )
 static void calculate_window_position ( const workarea *mon, int *x, int *y, int w, int h )
 {
     // Default location is center.
-    *y = mon->y + ( mon->h - h ) / 2;
-    *x = mon->x + ( mon->w - w ) / 2;
+    *y = mon->y + ( mon->h - h  - config.menu_bw * 2) / 2;
+    *x = mon->x + ( mon->w - w  - config.menu_bw * 2) / 2;
     // Determine window location
     switch ( config.location )
     {
