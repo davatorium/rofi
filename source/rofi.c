@@ -1047,9 +1047,6 @@ static void calculate_window_position ( const workarea *mon, int *x, int *y, int
     default:
         break;
     }
-    // Compensate again for border.
-    *x -= config.menu_bw;
-    *y -= config.menu_bw;
     // Apply offset.
     *x += config.x_offset;
     *y += config.y_offset;
