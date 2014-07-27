@@ -8,7 +8,7 @@ title: Installation guide
 
 ### For building:
 
-* C compiler (gcc or clang)
+* C compiler that supports the c99 standard. (gcc or clang)
 * make
 * autoconf
 * automake
@@ -26,8 +26,7 @@ title: Installation guide
 
 
 
-Install from a release
-----------------------
+## Install from a release
 
 Check dependencies and configure build system:
 
@@ -48,8 +47,7 @@ make install
 ```
 
 
-Install a checkout from git
----------------------------
+## Install a checkout from git
 
 Generate build system:
 
@@ -82,8 +80,7 @@ make install
 ```
 
 
-Options for configure
----------------------
+## Options for configure
 
 When you run the configure step there are several you can configure. (To see the full list type
 `./configure --help` ).
@@ -100,9 +97,20 @@ f.e.
 ./configure --prefix=/usr/
 ```
 
+### Install locally
+
 or to install locally:
 
 ```
 ./configure --prefix=${HOME}/.local/
+```
+
+###  I3 workaround
+
+ If i3 is installed in a non-standard prefix, point it to the right location using:
+
+```
+CFLAGS="-I/weird/i3/path/include/" ../configure
+CFLAGS="-I/weird/i3/path/include/" make
 ```
 
