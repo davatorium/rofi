@@ -1,26 +1,47 @@
-Installation guide:
-===================
+# Installation guide:
 
-DEPENDENCY
-----------
+## DEPENDENCY
 
-For i3 support, you need at least i3 version 4.5 or up.
+### For building:
+
+* C compiler (gcc or clang)
+* make
+* autoconf
+* automake
+
+### External libraries
+
+* libxinerama
+* libxft
+* libx11
+* libxdg-basedir
+
+### Optional:
+
+* For i3 support, you need at least i3 version 4.5 or up.
+
+
 
 Install from a release
 ----------------------
 
 Check dependencies and configure build system:
 
-    ./configure
+```
+./configure
+```
 
 Build Rofi:
 
-    make
+```
+make
+```
 
 The actual install, execute as root (if needed):
 
-    make install
-
+```
+make install
+```
 
 
 Install a checkout from git
@@ -28,23 +49,33 @@ Install a checkout from git
 
 Generate build system:
 
-    autoreconf -i
+```
+autoreconf -i
+```
 
 Create a build directory:
 
-    mkdir build
+```
+mkdir build
+```
 
 Check dependencies and configure build system:
 
-   ../configure
+```
+../configure
+```
 
 Build rofi:
 
-    make
+```
+make
+```
 
 The actual install, execute as root (if needed):
 
-    make install
+```
+make install
+```
 
 
 Options for configure
@@ -55,14 +86,19 @@ When you run the configure step there are several you can configure. (To see the
 
 The most useful one to set the installation prefix:
 
-    ./configure --prefix=<installation path>
+```
+./configure --prefix=<installation path>
+```
 
 f.e.
 
-    ./configure --prefix=/usr/
+```
+./configure --prefix=/usr/
+```
 
 or to install locally:
 
-    ./configure --prefix=${HOME}/.local/
-
+```
+./configure --prefix=${HOME}/.local/
+```
 
