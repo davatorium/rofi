@@ -1,3 +1,8 @@
+---
+layout: default
+github: DaveDavenport
+title: Installation
+---
 # Installation guide:
 
 ## DEPENDENCY
