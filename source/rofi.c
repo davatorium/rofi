@@ -97,6 +97,10 @@ typedef struct _Switcher
 Switcher *switchers    = NULL;
 int      num_switchers = 0;
 
+
+void window_set_opacity ( Display *display, Window box, unsigned int opacity );
+
+
 int switcher_get ( const char *name )
 {
     for ( int i = 0; i < num_switchers; i++ ) {
@@ -969,6 +973,15 @@ static int levenshtein ( const char *s, const char *t )
     return dist ( 0, 0 );
 }
 
+void window_set_opacity ( Display *display, Window box, unsigned int opacity )
+{
+    // Hack to set window opacity.
+    unsigned int opacity_set = ( unsigned int ) ( ( opacity / 100.0 ) * UINT32_MAX );
+    XChangeProperty ( display, box, netatoms[_NET_WM_WINDOW_OPACITY],
+                      XA_CARDINAL, 32, PropModeReplace,
+                      ( unsigned char * ) &opacity_set, 1L );
+}
+
 Window create_window ( Display *display )
 {
     Screen *screen = DefaultScreenOfDisplay ( display );
@@ -991,12 +1004,7 @@ Window create_window ( Display *display )
     // Set the WM_NAME
     XStoreName ( display, box, "rofi" );
 
-    // Hack to set window opacity.
-    unsigned int opacity_set = ( unsigned int ) ( ( config.window_opacity / 100.0 ) * UINT32_MAX );
-    XChangeProperty ( display, box, netatoms[_NET_WM_WINDOW_OPACITY],
-                      XA_CARDINAL, 32, PropModeReplace,
-                      ( unsigned char * ) &opacity_set, 1L );
-
+    window_set_opacity ( display, box, config.window_opacity );
     return box;
 }
 
@@ -1010,8 +1018,8 @@ Window create_window ( Display *display )
 static void calculate_window_position ( const workarea *mon, int *x, int *y, int w, int h )
 {
     // Default location is center.
-    *y = mon->y + ( mon->h - h  - config.menu_bw * 2) / 2;
-    *x = mon->x + ( mon->w - w  - config.menu_bw * 2) / 2;
+    *y = mon->y + ( mon->h - h - config.menu_bw * 2 ) / 2;
+    *x = mon->x + ( mon->w - w - config.menu_bw * 2 ) / 2;
     // Determine window location
     switch ( config.location )
     {
@@ -2042,9 +2050,9 @@ static void setup_switchers ( void )
     char *savept;
     char *switcher_str = strdup ( config.switchers );
     char *token;
-    for ( token = strtok_r ( switcher_str, "," ,&savept);
-            token != NULL;
-            token = strtok_r ( NULL, ",",&savept ) ) {
+    for ( token = strtok_r ( switcher_str, ",", &savept );
+          token != NULL;
+          token = strtok_r ( NULL, ",", &savept ) ) {
         if ( strcasecmp ( token, "window" ) == 0 ) {
             switchers = (Switcher *) realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
             copy_string ( switchers[num_switchers].name, "window", 32 );

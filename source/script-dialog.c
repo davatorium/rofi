@@ -124,9 +124,9 @@ SwitcherMode script_switcher_dialog ( char **input, void *data )
     unsigned int  length        = 0;
     char          **list        = get_script_output ( options->script_path, &length );
     char          *prompt       = NULL;
-    if(asprintf(&(prompt), "%s:", options->name) <= 0) {
-        fprintf(stderr, "Failed to allocate string.\n");
-        abort();
+    if ( asprintf ( &( prompt ), "%s:", options->name ) <= 0 ) {
+        fprintf ( stderr, "Failed to allocate string.\n" );
+        abort ();
     }
 
 
@@ -167,7 +167,7 @@ SwitcherMode script_switcher_dialog ( char **input, void *data )
         }
     } while ( list != NULL );
 
-    free(prompt);
+    free ( prompt );
     return retv;
 }
 
@@ -191,7 +191,7 @@ ScriptOptions *script_switcher_parse_setup ( const char *str )
     // TODO: This is naive and can be improved.
     for ( char *token = strtok_r ( parse, ":", &endp ); token != NULL; token = strtok_r ( NULL, ":", &endp ) ) {
         if ( index == 0 ) {
-            sw->name = strdup(token);
+            sw->name = strdup ( token );
         }
         else if ( index == 1 ) {
             sw->script_path = strdup ( token );
