@@ -4,7 +4,7 @@
 rofi \- A window switcher, run dialog and dmenu replacement
 .SH SYNOPSIS
 .PP
-\fB\fCrofi\fR [ \-width \fIpct_scr\fP ] [ \-lines \fIlines\fP ] [ \-columns \fIcolumns\fP ] [ \-font \fIxftfont\fP ] [ \-fg \fIcolor\fP ]
+\fBrofi\fP [ \-width \fIpct_scr\fP ] [ \-lines \fIlines\fP ] [ \-columns \fIcolumns\fP ] [ \-font \fIxftfont\fP ] [ \-fg \fIcolor\fP ]
 [ \-bg \fIcolor\fP ] [ \-hlfg \fIcolor\fP ] [ \-hlbg \fIcolor\fP ] [ \-key \fIcombo\fP ] [ \-dkey \fIcomdo\fP ] [ \-rkey \fIcomdo\fP ]
 [ \-terminal \fIterminal\fP ] [ \-location \fIposition\fP ] [ \-hmode ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fP ]
 [ \-opacity \fIopacity%\fP ] [ \-display \fIdisplay\fP ] [ \-bc \fIcolor\fP ] [ \-bw \fIwidth\fP ] [ \-dmenu [ \-p \fIprompt\fP ] ]
@@ -12,14 +12,14 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-show \fImode\fP ] [ \-switcher \fImode1,mode2\fP ]
 .SH DESCRIPTION
 .PP
-\fB\fCrofi\fR is an X11 popup window switcher. A list is displayed center\-screen showing open window titles, WM_CLASS, and desktop number.
+\fBrofi\fP is an X11 popup window switcher. A list is displayed center\-screen showing open window titles, WM_CLASS, and desktop number.
 The user may filter the list by typing, navigate with Up/Down or Tab keys, and select a window with Return (Enter). Escape cancels.
 .SH License
 .PP
 MIT/X11
 .SH USAGE
 .PP
-\fB\fCrofi\fR can be used in two ways, single\-shot; executes once and directly exits when done or as
+\fBrofi\fP can be used in two ways, single\-shot; executes once and directly exits when done or as
 daemon listening to specific key\-combinations.
 .PP
 The default key combinations are:
@@ -44,181 +44,185 @@ The default key combinations are:
 .SH OPTIONS
 .PP
 \fB\fC\-key\fR
+.IP
+Change the key combination to display all windows (default: F12).
 .PP
 .RS
 .nf
-Change the key combination to display all windows (default: F12).
-    rofi \-key F12
-    rofi \-key control+shift+s
-    rofi \-key mod1+Tab
+  rofi \-key F12
+  rofi \-key control+shift+s
+  rofi \-key mod1+Tab
 .fi
 .RE
 .PP
 \fB\fC\-rkey\fR
+.IP
+Change the key combination to display the run dialog (default: mod1\-F2).
 .PP
 .RS
 .nf
-Change the key combination to display the run dialog (default: mod1\-F2).
-    rofi \-rkey F11
-    rofi \-rkey control+shift+d
-    rofi \-rkey mod1+grave (grave=backtick)
+  rofi \-rkey F11
+  rofi \-rkey control+shift+d
+  rofi \-rkey mod1+grave (grave=backtick)
 .fi
 .RE
 .PP
 \fB\fC\-skey\fR
+.IP
+Change the key combination to display the ssh dialog (default: Alt\-F3).
 .PP
 .RS
 .nf
-Change the key combination to display the ssh dialog (default: Alt\-F3).
-    rofi \-skey F10
-    rofi \-skey control+shift+s
-    rofi \-skey mod1+grave (grave=backtick)
+  rofi \-skey F10
+  rofi \-skey control+shift+s
+  rofi \-skey mod1+grave (grave=backtick)
 .fi
 .RE
 .PP
 \fB\fC\-now\fR
-.PP
-.RS
-.nf
+.IP
 Run rofi in all\-windows mode once then exit. Does not bind any keys.
-.fi
-.RE
 .PP
 \fB\fC\-rnow\fR
-.PP
-.RS
-.nf
+.IP
 Run rofi in run\-dialog mode once then exit. Does not bind any keys.
-.fi
-.RE
 .PP
 \fB\fC\-snow\fR
-.PP
-.RS
-.nf
+.IP
 Run rofi in ssh mode once then exit. Does not bind any keys.
-.fi
-.RE
 .PP
 \fB\fC\-bg\fR
+.IP
+Set the background text color (X11 named color or hex #rrggbb) for the menu (default: #222222).
 .PP
 .RS
 .nf
-Set the background text color (X11 named color or hex #rrggbb) for the menu (default: #222222).
-    rofi \-fg "#222222"
+  rofi \-fg "#222222"
 .fi
 .RE
 .PP
 \fB\fC\-bc\fR
+.IP
+Set the border color (X11 named color or hex #rrggbb) for the menu (default: #000000).
 .PP
 .RS
 .nf
-Set the border color (X11 named color or hex #rrggbb) for the menu (default: #000000).
-    rofi \-bc black
+  rofi \-bc black
 .fi
 .RE
 .PP
 \fB\fC\-bw\fR
+.IP
+Set the border width in pixels (default: 1).
 .PP
 .RS
 .nf
-Set the border width in pixels (default: 1).
-    rofi \-bw 1
+  rofi \-bw 1
 .fi
 .RE
 .PP
 \fB\fC\-fg\fR
+.IP
+Set the foreground text color (X11 named color or hex #rrggbb) for the menu (default: #cccccc).
 .PP
 .RS
 .nf
-Set the foreground text color (X11 named color or hex #rrggbb) for the menu (default: #cccccc).
-    rofi \-fg "#cccccc"
+  rofi \-fg "#cccccc"
 .fi
 .RE
 .PP
 \fB\fC\-font\fR
+.IP
+Xft font name for use by the menu (default: mono\-14).
 .PP
 .RS
 .nf
-Xft font name for use by the menu (default: mono\-14).
-    rofi \-font monospace\-14:medium
+  rofi \-font monospace\-14:medium
 .fi
 .RE
 .PP
 \fB\fC\-hlbg\fR
+.IP
+Set the background text color (X11 named color or hex #rrggbb) for the highlighted item in the
+menu (default: #005577).
 .PP
 .RS
 .nf
-Set the background text color (X11 named color or hex #rrggbb) for the highlighted item in the
-menu (default: #005577).
-    rofi \-fg "#005577"
+  rofi \-fg "#005577"
 .fi
 .RE
 .PP
 \fB\fC\-hlfg\fR
+.IP
+Set the foreground text color (X11 named color or hex #rrggbb) for the highlighted item in the
+menu (default: #ffffff).
 .PP
 .RS
 .nf
-Set the foreground text color (X11 named color or hex #rrggbb) for the highlighted item in the
-menu (default: #ffffff).
-    rofi \-fg "#ffffff"
+  rofi \-fg "#ffffff"
 .fi
 .RE
 .PP
 \fB\fC\-opacity\fR
+.IP
+Set the window opacity (0\-100).
 .PP
 .RS
 .nf
-Set the window opacity (0\-100).
-    rofi \-opacity "75"
+  rofi \-opacity "75"
 .fi
 .RE
 .PP
 \fB\fC\-lines\fR
+.IP
+Maximum number of lines the menu may show before scrolling (default: 25).
 .PP
 .RS
 .nf
-Maximum number of lines the menu may show before scrolling (default: 25).
-    rofi \-lines 25
+  rofi \-lines 25
 .fi
 .RE
 .PP
 \fB\fC\-columns\fR
+.IP
+The number of columns the menu may show before scrolling (default: 25).
 .PP
 .RS
 .nf
-The number of columns the menu may show before scrolling (default: 25).
-    rofi \-columns 2
+  rofi \-columns 2
 .fi
 .RE
 .PP
 \fB\fC\-width\fR
+.IP
+Set the width of the menu as a percentage of the screen width (default: 60).
 .PP
 .RS
 .nf
-Set the width of the menu as a percentage of the screen width (default: 60).
-    rofi \-width 60
+  rofi \-width 60
 .fi
 .RE
 .PP
 \fB\fC\-terminal\fR
+.IP
+Specify what terminal to start (default x\-terminal\-emulator)
 .PP
 .RS
 .nf
-Specify what terminal to start (default x\-terminal\-emulator)
-    rofi \-terminal xterm
+  rofi \-terminal xterm
 .fi
 .RE
 .PP
 \fB\fC\-location\fR
+.IP
+Specify where the window should be located. The numbers map to the following location on the
+monitor:
 .PP
 .RS
 .nf
-Specify where the window should be located. The numbers map to the following location on the
-monitor:
-    1 2 3
-    8 0 4
-    7 6 5
+  1 2 3
+  8 0 4
+  7 6 5
 .fi
 .RE
 .PP
@@ -228,22 +232,26 @@ Switch to horizontal mode (ala dmenu). The number of elements is the number of \
 number of \fB\fCcolumns\fR\&.
 .PP
 \fB\fC\-fixed\-num\-lines\fR
-.PP
-   Keep a fixed number of visible lines (See the \fB\fC\-lines\fR option.)
+.IP
+Keep a fixed number of visible lines (See the \fB\fC\-lines\fR option.)
 .PP
 \fB\fC\-padding\fR
+.IP
+Define the inner margin of the window. Default is 5 pixels.
+.IP
+To make rofi look like dmenu:
 .PP
 .RS
 .nf
-Define the inner margin of the window. Default is 5 pixels.
-To make rofi look like dmenu:
-    rofi \-hmode \-padding 0
+  rofi \-hmode \-padding 0
 .fi
 .RE
 .PP
 \fB\fC\-dmenu\fR
 .IP
 Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.
+.IP
+Pressing \fB\fCshift\-enter\fR will open the selected entries and move to the next entry.
 .PP
 \fB\fC\-dump\-xresources\fR
 .IP
@@ -310,7 +318,7 @@ Type '?' \fIenter\fP to switch between window list, run and ssh mode. The list c
 the \fB\fC\-switchers\fR argument.
 .SH WEBSITE
 .PP
-\fB\fCrofi\fR website can be found at here
+\fBrofi\fP website can be found at here
 .UR https://davedavenport.github.io/rofi/
 .UE
 .SH AUTHOR

@@ -1210,6 +1210,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         KeySym       prev_key    = 0;
         unsigned int selected    = 0;
         int          last_offset = 0;
+        if ( selected_line != NULL ) {
+            if ( *selected_line >= 0 && *selected_line <= num_lines ) {
+                selected = *selected_line;
+            }
+        }
 
         for (;; ) {
             // If something changed, refilter the list. (paste or text entered)

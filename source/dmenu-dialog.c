@@ -71,20 +71,39 @@ SwitcherMode dmenu_switcher_dialog ( char **input, void *data )
     SwitcherMode retv          = MODE_EXIT;
     unsigned int length        = 0;
     char         **list        = get_dmenu ( &length );
+    int          restart       = FALSE;
 
-    int          mretv = menu ( list, length, input, dmenu_prompt, NULL, NULL,
-                                token_match, NULL, &selected_line );
+    do {
+        int shift = 0;
+        int mretv = menu ( list, length, input, dmenu_prompt, NULL, &shift,
+                           token_match, NULL, &selected_line );
 
-    if ( mretv == MENU_NEXT ) {
-        retv = RELOAD_DIALOG;
-    }
-    else if ( mretv == MENU_OK && list[selected_line] != NULL ) {
-        fputs ( list[selected_line], stdout );
-    }
-    else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' ) {
-        fputs ( *input, stdout );
-    }
-
+        // We normally do not want to restart the loop.
+        restart = FALSE;
+        if ( mretv == MENU_NEXT ) {
+            retv = RELOAD_DIALOG;
+        }
+        else if ( mretv == MENU_OK && list[selected_line] != NULL ) {
+            fputs ( list[selected_line], stdout );
+            fputc ( '\n', stdout );
+            fflush ( stdout );
+            if ( shift ) {
+                restart = TRUE;
+                // Move to next line.
+                selected_line = MIN ( selected_line + 1, length - 1 );
+            }
+        }
+        else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' ) {
+            fputs ( *input, stdout );
+            fputc ( '\n', stdout );
+            fflush ( stdout );
+            if ( shift ) {
+                restart = TRUE;
+                // Move to next line.
+                selected_line = MIN ( selected_line + 1, length - 1 );
+            }
+        }
+    } while ( restart );
     for ( unsigned int i = 0; i < length; i++ ) {
         free ( list[i] );
     }
@@ -92,7 +111,6 @@ SwitcherMode dmenu_switcher_dialog ( char **input, void *data )
     if ( list != NULL ) {
         free ( list );
     }
-
     return retv;
 }
 
