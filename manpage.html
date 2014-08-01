@@ -1,10 +1,10 @@
-<h1 id="ROFI-1-rofi"><span class="md2man-title">ROFI</span> <span class="md2man-section">1</span> <span class="md2man-date">rofi</span><a name="ROFI-1-rofi" href="#ROFI-1-rofi" class="md2man-permalink"></a></h1><h2 id="NAME">NAME<a name="NAME" href="#NAME" class="md2man-permalink"></a></h2><p>rofi - A window switcher, run dialog and dmenu replacement</p><h2 id="SYNOPSIS">SYNOPSIS<a name="SYNOPSIS" href="#SYNOPSIS" class="md2man-permalink"></a></h2><p><code>rofi</code> [ -width <em>pct_scr</em> ] [ -lines <em>lines</em> ] [ -columns <em>columns</em> ] [ -font <em>xftfont</em> ] [ -fg <em>color</em> ]
+<h1 id="ROFI-1-rofi"><span class="md2man-title">ROFI</span> <span class="md2man-section">1</span> <span class="md2man-date">rofi</span><a name="ROFI-1-rofi" href="#ROFI-1-rofi" class="md2man-permalink"></a></h1><h2 id="NAME">NAME<a name="NAME" href="#NAME" class="md2man-permalink"></a></h2><p>rofi - A window switcher, run dialog and dmenu replacement</p><h2 id="SYNOPSIS">SYNOPSIS<a name="SYNOPSIS" href="#SYNOPSIS" class="md2man-permalink"></a></h2><p><strong>rofi</strong> [ -width <em>pct_scr</em> ] [ -lines <em>lines</em> ] [ -columns <em>columns</em> ] [ -font <em>xftfont</em> ] [ -fg <em>color</em> ]
 [ -bg <em>color</em> ] [ -hlfg <em>color</em> ] [ -hlbg <em>color</em> ] [ -key <em>combo</em> ] [ -dkey <em>comdo</em> ] [ -rkey <em>comdo</em> ]
 [ -terminal <em>terminal</em> ] [ -location <em>position</em> ] [ -hmode ] [ -fixed-num-lines ] [ -padding <em>padding</em> ]
 [ -opacity <em>opacity%</em> ] [ -display <em>display</em> ] [ -bc <em>color</em> ] [ -bw <em>width</em> ] [ -dmenu [ -p <em>prompt</em> ] ]
 [ -ssh-set-title <em>true|false</em> ] [ -now ] [ -rnow ] [ -snow ] [ -version ] [ -help] [ -dump-xresources ]
-[ -disable-history ] [ -levenshtein-sort ] [ -show <em>mode</em> ] [ -switcher <em>mode1,mode2</em> ]</p><h2 id="DESCRIPTION">DESCRIPTION<a name="DESCRIPTION" href="#DESCRIPTION" class="md2man-permalink"></a></h2><p><code>rofi</code> is an X11 popup window switcher. A list is displayed center-screen showing open window titles, WM_CLASS, and desktop number.
-The user may filter the list by typing, navigate with Up/Down or Tab keys, and select a window with Return (Enter). Escape cancels.</p><h2 id="License">License<a name="License" href="#License" class="md2man-permalink"></a></h2><p>MIT/X11</p><h2 id="USAGE">USAGE<a name="USAGE" href="#USAGE" class="md2man-permalink"></a></h2><p><code>rofi</code> can be used in two ways, single-shot; executes once and directly exits when done or as
+[ -disable-history ] [ -levenshtein-sort ] [ -show <em>mode</em> ] [ -switcher <em>mode1,mode2</em> ]</p><h2 id="DESCRIPTION">DESCRIPTION<a name="DESCRIPTION" href="#DESCRIPTION" class="md2man-permalink"></a></h2><p><strong>rofi</strong> is an X11 popup window switcher. A list is displayed center-screen showing open window titles, WM_CLASS, and desktop number.
+The user may filter the list by typing, navigate with Up/Down or Tab keys, and select a window with Return (Enter). Escape cancels.</p><h2 id="License">License<a name="License" href="#License" class="md2man-permalink"></a></h2><p>MIT/X11</p><h2 id="USAGE">USAGE<a name="USAGE" href="#USAGE" class="md2man-permalink"></a></h2><p><strong>rofi</strong> can be used in two ways, single-shot; executes once and directly exits when done or as
 daemon listening to specific key-combinations.</p><p>The default key combinations are:</p>
 <ul>
 <li><code>F12</code></li>
@@ -17,118 +17,70 @@ daemon listening to specific key-combinations.</p><p>The default key combination
 <ul>
 <li><code>mod1-F3</code></li>
 </ul>
-<p>   Show run-dialog.</p><h2 id="OPTIONS">OPTIONS<a name="OPTIONS" href="#OPTIONS" class="md2man-permalink"></a></h2><p><code>-key</code></p>
-<pre><code>Change the key combination to display all windows (default: F12).
-
-    rofi -key F12
-    rofi -key control+shift+s
-    rofi -key mod1+Tab
+<p>   Show run-dialog.</p><h2 id="OPTIONS">OPTIONS<a name="OPTIONS" href="#OPTIONS" class="md2man-permalink"></a></h2><p><code>-key</code></p><dl><dd>Change the key combination to display all windows (default: F12).</dd></dl>
+<pre><code>  rofi -key F12
+  rofi -key control+shift+s
+  rofi -key mod1+Tab
 </code></pre>
-<p><code>-rkey</code></p>
-<pre><code>Change the key combination to display the run dialog (default: mod1-F2).
-
-
-    rofi -rkey F11
-    rofi -rkey control+shift+d
-    rofi -rkey mod1+grave (grave=backtick)
+<p><code>-rkey</code></p><dl><dd>Change the key combination to display the run dialog (default: mod1-F2).</dd></dl>
+<pre><code>  rofi -rkey F11
+  rofi -rkey control+shift+d
+  rofi -rkey mod1+grave (grave=backtick)
 </code></pre>
-<p><code>-skey</code></p>
-<pre><code>Change the key combination to display the ssh dialog (default: Alt-F3).
-
-
-    rofi -skey F10
-    rofi -skey control+shift+s
-    rofi -skey mod1+grave (grave=backtick)
+<p><code>-skey</code></p><dl><dd>Change the key combination to display the ssh dialog (default: Alt-F3).</dd></dl>
+<pre><code>  rofi -skey F10
+  rofi -skey control+shift+s
+  rofi -skey mod1+grave (grave=backtick)
 </code></pre>
-<p><code>-now</code></p>
-<pre><code>Run rofi in all-windows mode once then exit. Does not bind any keys.
+<p><code>-now</code></p><dl><dd>Run rofi in all-windows mode once then exit. Does not bind any keys.</dd></dl><p><code>-rnow</code></p><dl><dd>Run rofi in run-dialog mode once then exit. Does not bind any keys.</dd></dl><p><code>-snow</code></p><dl><dd>Run rofi in ssh mode once then exit. Does not bind any keys.</dd></dl><p><code>-bg</code></p><dl><dd>Set the background text color (X11 named color or hex #rrggbb) for the menu (default: #222222).</dd></dl>
+<pre><code>  rofi -fg &quot;#222222&quot;
 </code></pre>
-<p><code>-rnow</code></p>
-<pre><code>Run rofi in run-dialog mode once then exit. Does not bind any keys.
+<p><code>-bc</code></p><dl><dd>Set the border color (X11 named color or hex #rrggbb) for the menu (default: #000000).</dd></dl>
+<pre><code>  rofi -bc black
 </code></pre>
-<p><code>-snow</code></p>
-<pre><code>Run rofi in ssh mode once then exit. Does not bind any keys.
+<p><code>-bw</code></p><dl><dd>Set the border width in pixels (default: 1).</dd></dl>
+<pre><code>  rofi -bw 1
 </code></pre>
-<p><code>-bg</code></p>
-<pre><code>Set the background text color (X11 named color or hex #rrggbb) for the menu (default: #222222).
-
-    rofi -fg &quot;#222222&quot;
+<p><code>-fg</code></p><dl><dd>Set the foreground text color (X11 named color or hex #rrggbb) for the menu (default: #cccccc).</dd></dl>
+<pre><code>  rofi -fg &quot;#cccccc&quot;
 </code></pre>
-<p><code>-bc</code></p>
-<pre><code>Set the border color (X11 named color or hex #rrggbb) for the menu (default: #000000).
-
-    rofi -bc black
+<p><code>-font</code></p><dl><dd>Xft font name for use by the menu (default: mono-14).</dd></dl>
+<pre><code>  rofi -font monospace-14:medium
 </code></pre>
-<p><code>-bw</code></p>
-<pre><code>Set the border width in pixels (default: 1).
-
-    rofi -bw 1
+<p><code>-hlbg</code></p><dl><dd>Set the background text color (X11 named color or hex #rrggbb) for the highlighted item in the
+menu (default: #005577).</dd></dl>
+<pre><code>  rofi -fg &quot;#005577&quot;
 </code></pre>
-<p><code>-fg</code></p>
-<pre><code>Set the foreground text color (X11 named color or hex #rrggbb) for the menu (default: #cccccc).
-
-    rofi -fg &quot;#cccccc&quot;
+<p><code>-hlfg</code></p><dl><dd>Set the foreground text color (X11 named color or hex #rrggbb) for the highlighted item in the
+menu (default: #ffffff).</dd></dl>
+<pre><code>  rofi -fg &quot;#ffffff&quot;
 </code></pre>
-<p><code>-font</code></p>
-<pre><code>Xft font name for use by the menu (default: mono-14).
-
-
-    rofi -font monospace-14:medium
+<p><code>-opacity</code></p><dl><dd>Set the window opacity (0-100).</dd></dl>
+<pre><code>  rofi -opacity &quot;75&quot;
 </code></pre>
-<p><code>-hlbg</code></p>
-<pre><code>Set the background text color (X11 named color or hex #rrggbb) for the highlighted item in the
-menu (default: #005577).
-
-    rofi -fg &quot;#005577&quot;
+<p><code>-lines</code></p><dl><dd>Maximum number of lines the menu may show before scrolling (default: 25).</dd></dl>
+<pre><code>  rofi -lines 25
 </code></pre>
-<p><code>-hlfg</code></p>
-<pre><code>Set the foreground text color (X11 named color or hex #rrggbb) for the highlighted item in the
-menu (default: #ffffff).
-
-    rofi -fg &quot;#ffffff&quot;
+<p><code>-columns</code></p><dl><dd>The number of columns the menu may show before scrolling (default: 25).</dd></dl>
+<pre><code>  rofi -columns 2
 </code></pre>
-<p><code>-opacity</code></p>
-<pre><code>Set the window opacity (0-100).
-
-    rofi -opacity &quot;75&quot;
+<p><code>-width</code></p><dl><dd>Set the width of the menu as a percentage of the screen width (default: 60).</dd></dl>
+<pre><code>  rofi -width 60
 </code></pre>
-<p><code>-lines</code></p>
-<pre><code>Maximum number of lines the menu may show before scrolling (default: 25).
-
-    rofi -lines 25
+<p><code>-terminal</code></p><dl><dd>Specify what terminal to start (default x-terminal-emulator)</dd></dl>
+<pre><code>  rofi -terminal xterm
 </code></pre>
-<p><code>-columns</code></p>
-<pre><code>The number of columns the menu may show before scrolling (default: 25).
-
-    rofi -columns 2
-</code></pre>
-<p><code>-width</code></p>
-<pre><code>Set the width of the menu as a percentage of the screen width (default: 60).
-
-    rofi -width 60
-</code></pre>
-<p><code>-terminal</code></p>
-<pre><code>Specify what terminal to start (default x-terminal-emulator)
-
-    rofi -terminal xterm
-</code></pre>
-<p><code>-location</code></p>
-<pre><code>Specify where the window should be located. The numbers map to the following location on the
-monitor:
-
-    1 2 3
-    8 0 4
-    7 6 5
+<p><code>-location</code></p><dl><dd>Specify where the window should be located. The numbers map to the following location on the
+monitor:</dd></dl>
+<pre><code>  1 2 3
+  8 0 4
+  7 6 5
 </code></pre>
 <p><code>-hmode</code></p><dl><dd>Switch to horizontal mode (ala dmenu). The number of elements is the number of <code>lines</code> times the
-number of <code>columns</code>.</dd></dl><p><code>-fixed-num-lines</code></p><p>   Keep a fixed number of visible lines (See the <code>-lines</code> option.)</p><p><code>-padding</code></p>
-<pre><code>Define the inner margin of the window. Default is 5 pixels.
-
-To make rofi look like dmenu:
-
-    rofi -hmode -padding 0
+number of <code>columns</code>.</dd></dl><p><code>-fixed-num-lines</code></p><dl><dd>Keep a fixed number of visible lines (See the <code>-lines</code> option.)</dd></dl><p><code>-padding</code></p><dl><dd>Define the inner margin of the window. Default is 5 pixels.</dd></dl><dl><dd>To make rofi look like dmenu:</dd></dl>
+<pre><code>  rofi -hmode -padding 0
 </code></pre>
-<p><code>-dmenu</code></p><dl><dd>Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.</dd></dl><p><code>-dump-xresources</code></p><dl><dd>Dump the current active configuration in xresources format to the command-line.</dd></dl><p><code>-ssh-set-title</code> <em>true|false</em></p><dl><dd>SSH dialogs tries to set &#39;ssh hostname&#39; of the spawned terminal.
+<p><code>-dmenu</code></p><dl><dd>Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.</dd></dl><dl><dd>Pressing <code>shift-enter</code> will open the selected entries and move to the next entry.</dd></dl><p><code>-dump-xresources</code></p><dl><dd>Dump the current active configuration in xresources format to the command-line.</dd></dl><p><code>-ssh-set-title</code> <em>true|false</em></p><dl><dd>SSH dialogs tries to set &#39;ssh hostname&#39; of the spawned terminal.
 Not all terminals support this.
 Default value is true.</dd></dl><p><code>-disable-history</code></p><dl><dd>Disable history</dd></dl><p><code>-levenshtein-sort</code></p><dl><dd>When searching sort the result based on levenshtein distance.</dd></dl><p><code>-show</code> <em>mode</em></p><dl><dd>Open rofi in a certain mode.</dd></dl><dl><dd>For example to show the run-dialog:</dd></dl>
 <pre><code>    rofi -show run
@@ -143,4 +95,4 @@ Default value is true.</dd></dl><p><code>-disable-history</code></p><dl><dd>Disa
 <pre><code>    rofi -switchers &quot;window,run,ssh,Workspaces:i3_switch_workspaces.sh&quot; -show Workspaces
 </code></pre>
 <h2 id="Switch-between-modi">Switch between modi<a name="Switch-between-modi" href="#Switch-between-modi" class="md2man-permalink"></a></h2><p>Type &#39;?&#39; <em>enter</em> to switch between window list, run and ssh mode. The list can be customized with
-the <code>-switchers</code> argument.</p><h2 id="WEBSITE">WEBSITE<a name="WEBSITE" href="#WEBSITE" class="md2man-permalink"></a></h2><p><code>rofi</code> website can be found at <a href="https://davedavenport.github.io/rofi/">here</a></p><h2 id="AUTHOR">AUTHOR<a name="AUTHOR" href="#AUTHOR" class="md2man-permalink"></a></h2><p>Qball Cow <a href="mailto:qball@gmpclient.org">qball@gmpclient.org</a></p><p>Original code based on work by: Sean Pringle <a href="mailto:sean.pringle@gmail.com">sean.pringle@gmail.com</a></p>
+the <code>-switchers</code> argument.</p><h2 id="WEBSITE">WEBSITE<a name="WEBSITE" href="#WEBSITE" class="md2man-permalink"></a></h2><p><strong>rofi</strong> website can be found at <a href="https://davedavenport.github.io/rofi/">here</a></p><h2 id="AUTHOR">AUTHOR<a name="AUTHOR" href="#AUTHOR" class="md2man-permalink"></a></h2><p>Qball Cow <a href="mailto:qball@gmpclient.org">qball@gmpclient.org</a></p><p>Original code based on work by: Sean Pringle <a href="mailto:sean.pringle@gmail.com">sean.pringle@gmail.com</a></p>
