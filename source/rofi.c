@@ -1453,8 +1453,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                         else if ( key == XK_Page_Down ) {
                             selected += ( max_elements );
 
-                            if ( selected >= num_lines ) {
-                                selected = num_lines - 1;
+                            if ( selected >= filtered_lines ) {
+                                selected = filtered_lines - 1;
                             }
                             update = TRUE;
                         }
@@ -1469,8 +1469,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                         }
                         else if (  key == XK_l && ev.xkey.state & ControlMask ) {
                             selected += max_rows;
-                            if ( selected >= num_lines ) {
-                                selected = num_lines - 1;
+                            if ( selected >= filtered_lines ) {
+                                selected = filtered_lines - 1;
                             }
                             update = TRUE;
                         }
@@ -1479,7 +1479,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                             update   = TRUE;
                         }
                         else if ( key == XK_End || key == XK_KP_End ) {
-                            selected = num_lines - 1;
+                            selected = filtered_lines - 1;
                             update   = TRUE;
                         }
                         else if ( key == XK_Tab ) {
@@ -1496,7 +1496,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                 break;
                             }
 
-                            int length_prefix = calculate_common_prefix ( filtered, num_lines );
+                            int length_prefix = calculate_common_prefix ( filtered, filtered_lines );
 
                             // TODO: memcmp to utf8 aware cmp.
                             if ( length_prefix && memcmp ( filtered[0], text->text, length_prefix ) ) {
