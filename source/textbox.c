@@ -257,17 +257,18 @@ void textbox_draw ( textbox *tb )
 
     pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->w - 2 * SIDE_MARGIN ) );
 
-    int x = SIDE_MARGIN, y = 0;
+    int x = PANGO_SCALE*SIDE_MARGIN, y = 0;
 
     if ( tb->flags & TB_RIGHT ) {
-        x = tb->w - line_width;
+        x = (tb->w - line_width)*PANGO_SCALE;
     }
-
-    if ( tb->flags & TB_CENTER ) {
-        x = ( tb->w - line_width ) / 2;
+    else if ( tb->flags & TB_CENTER ) {
+        x = (PANGO_SCALE*( tb->w - line_width )) / 2;
     }
+    y = (PANGO_SCALE*(textbox_get_width(tb) - textbox_get_font_width(tb)))/2;
     // Render the layout.
-    pango_xft_render_layout ( draw, &( tb->color_fg ), tb->layout, x, y );
+    pango_xft_render_layout ( draw, &( tb->color_fg ), tb->layout,
+            x , y );
 
     // draw the cursor
     if ( tb->flags & TB_EDITABLE ) {
@@ -461,7 +462,7 @@ int textbox_get_width ( textbox *tb )
 
 int textbox_get_height ( textbox *tb )
 {
-    return textbox_get_font_height ( tb );
+    return textbox_get_font_height ( tb ) + 2 * SIDE_MARGIN;
 }
 
 int textbox_get_font_height ( textbox *tb )
