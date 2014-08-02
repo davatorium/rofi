@@ -1364,8 +1364,12 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
                 KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
 
-                if ( ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_v ) ||
-                     key == XK_Insert ) {
+                if ( ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_v ) ) {
+                    XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
+                                        XA_PRIMARY : netatoms[CLIPBOARD],
+                                        netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
+                }
+                if ( key == XK_Insert ) {
                     XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
                                         netatoms[CLIPBOARD] : XA_PRIMARY,
                                         netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );

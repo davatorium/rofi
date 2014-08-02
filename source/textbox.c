@@ -178,9 +178,10 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     }
     else {
         // set ellipsize
-        if( (tb->flags & TB_EDITABLE) == TB_EDITABLE ) {
+        if ( ( tb->flags & TB_EDITABLE ) == TB_EDITABLE ) {
             pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_MIDDLE );
-        }else{
+        }
+        else{
             pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_END );
         }
     }
@@ -257,18 +258,18 @@ void textbox_draw ( textbox *tb )
 
     pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->w - 2 * SIDE_MARGIN ) );
 
-    int x = PANGO_SCALE*SIDE_MARGIN, y = 0;
+    int x = PANGO_SCALE * SIDE_MARGIN, y = 0;
 
     if ( tb->flags & TB_RIGHT ) {
-        x = (tb->w - line_width)*PANGO_SCALE;
+        x = ( tb->w - line_width ) * PANGO_SCALE;
     }
     else if ( tb->flags & TB_CENTER ) {
-        x = (PANGO_SCALE*( tb->w - line_width )) / 2;
+        x = ( PANGO_SCALE * ( tb->w - line_width ) ) / 2;
     }
-    y = (PANGO_SCALE*(textbox_get_width(tb) - textbox_get_font_width(tb)))/2;
+    y = ( PANGO_SCALE * ( textbox_get_width ( tb ) - textbox_get_font_width ( tb ) ) ) / 2;
     // Render the layout.
     pango_xft_render_layout ( draw, &( tb->color_fg ), tb->layout,
-            x , y );
+                              x, y );
 
     // draw the cursor
     if ( tb->flags & TB_EDITABLE ) {
