@@ -2,18 +2,21 @@
 #define __TEXTBOX_H__
 #include <X11/Xft/Xft.h>
 
+#include <pango/pango.h>
+#include <pango/pangoxft.h>
+#include <pango/pango-fontmap.h>
+
 typedef struct
 {
     unsigned long flags;
     Window        window, parent;
     short         x, y, w, h;
     short         cursor;
-    XftFont       *font;
     XftColor      color_fg, color_bg;
     char          *text;
     XIM           xim;
     XIC           xic;
-    XGlyphInfo    extents;
+    PangoLayout   *layout;
 } textbox;
 
 
@@ -76,7 +79,6 @@ void textbox_hide ( textbox *tb );
  * Clean with textbox_cleanup()
  */
 void textbox_setup (
-    const char *font_str, const char *font_active_str,
     const char *bg, const char *fg,
     const char *hlbg, const char *hlfg
     );
@@ -85,5 +87,10 @@ void textbox_setup (
  * Cleanup the allocated colors and fonts by textbox_setup().
  */
 void textbox_cleanup ();
+
+int textbox_get_height ( textbox *tb );
+int textbox_get_width ( textbox *tb );
+int textbox_get_font_height ( textbox *tb );
+int textbox_get_font_width ( textbox *tb );
 
 #endif //__TEXTBOX_H__

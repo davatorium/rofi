@@ -7,13 +7,15 @@ LIBS=\
     @xft_LIBS@\
     @x11_LIBS@\
     @xdgbasedir_LIBS@\
-    @xinerama_LIBS@
+    @xinerama_LIBS@\
+	@pango_LIBS@
 
 AM_CFLAGS=\
     @xft_CFLAGS@\
     @x11_CFLAGS@\
     @xdgbasedir_CFLAGS@\
     @xinerama_CFLAGS@\
+    @pango_CFLAGS@\
     -DMANPAGE_PATH="\"$(mandir)/man1/rofi.1\""\
     -I$(top_srcdir)/include/\
     -I$(top_srcdir)/config/\

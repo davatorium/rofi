@@ -1123,14 +1123,15 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                           0, 0, NORMAL, prompt );
 
     textbox *text = textbox_create ( main_window, TB_AUTOHEIGHT | TB_EDITABLE,
-                                     ( config.padding ) + prompt_tb->w,
+                                     ( config.padding ) + textbox_get_width ( prompt_tb ),
                                      ( config.padding ),
                                      ( ( config.hmode == TRUE ) ?
-                                       element_width : ( w - ( 2 * ( config.padding ) ) ) ) - prompt_tb->w, 1,
+                                       element_width : ( w - ( 2 * ( config.padding ) ) ) )
+                                     - textbox_get_width ( prompt_tb ), 1,
                                      NORMAL,
                                      ( input != NULL ) ? *input : "" );
 
-    int line_height = text->font->ascent + text->font->descent;
+    int line_height = textbox_get_height ( text ); //text->font->ascent + text->font->descent;
 
     textbox_show ( text );
     textbox_show ( prompt_tb );
@@ -1722,10 +1723,10 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
     }
     // Because of the above fork, we want to do this here.
     // Make sure this is isolated to its own thread.
-    textbox_setup ( config.menu_font, active_font,
-                    config.menu_bg, config.menu_fg,
-                    config.menu_hlbg,
-                    config.menu_hlfg );
+    textbox_setup (
+        config.menu_bg, config.menu_fg,
+        config.menu_hlbg,
+        config.menu_hlfg );
     char *input = NULL;
     // Dmenu is a special mode. You can cycle away from it.
     if ( mode == DMENU_DIALOG ) {

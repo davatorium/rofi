@@ -37,9 +37,11 @@
 #include <X11/Xft/Xft.h>
 #include <ctype.h>
 
+
 #include "rofi.h"
 #include "textbox.h"
 #define SIDE_MARGIN    2
+
 
 extern Display *display;
 
@@ -47,12 +49,13 @@ extern Display *display;
  * Font + font color cache.
  * Avoid re-loading font on every change on every textbox.
  */
-XftFont  *font        = NULL;
-XftFont  *font_active = NULL;
-XftColor color_fg;
-XftColor color_bg;
-XftColor color_hlfg;
-XftColor color_hlbg;
+XftColor     color_fg;
+XftColor     color_bg;
+XftColor     color_hlfg;
+XftColor     color_hlbg;
+
+PangoContext *p_context = NULL;
+
 
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
 
@@ -72,6 +75,12 @@ textbox* textbox_create ( Window parent,
     tb->y = y;
     tb->w = MAX ( 1, w );
     tb->h = MAX ( 1, h );
+
+    tb->layout = pango_layout_new ( p_context );
+
+    PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
+    pango_layout_set_font_description ( tb->layout, pfd );
+    pango_font_description_free ( pfd );
 
     unsigned int cp = ( tbft == NORMAL ) ? color_bg.pixel : color_hlbg.pixel;
 
@@ -98,36 +107,36 @@ textbox* textbox_create ( Window parent,
 // set an Xft font by name
 void textbox_font ( textbox *tb, TextBoxFontType tbft )
 {
+    PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
     switch ( tbft )
     {
     case HIGHLIGHT:
-        tb->font     = font;
         tb->color_bg = color_hlbg;
         tb->color_fg = color_hlfg;
         break;
     case ACTIVE:
-        tb->font     = font_active;
+        pango_font_description_set_style ( pfd, PANGO_STYLE_ITALIC );
         tb->color_bg = color_bg;
         tb->color_fg = color_fg;
         break;
     case ACTIVE_HIGHLIGHT:
-        tb->font     = font_active;
+        pango_font_description_set_style ( pfd, PANGO_STYLE_ITALIC );
         tb->color_bg = color_hlbg;
         tb->color_fg = color_hlfg;
         break;
     case NORMAL:
     default:
-        tb->font     = font;
         tb->color_bg = color_bg;
         tb->color_fg = color_fg;
         break;
     }
+    pango_layout_set_font_description ( tb->layout, pfd );
+    pango_font_description_free ( pfd );
 }
 
 // outer code may need line height, width, etc
 void textbox_extents ( textbox *tb )
 {
-    XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) tb->text, strlen ( tb->text ), &tb->extents );
 }
 
 // set the default text to display
@@ -137,7 +146,9 @@ void textbox_text ( textbox *tb, char *text )
         free ( tb->text );
     }
 
-    tb->text   = strdup ( text );
+    tb->text = strdup ( text );
+    pango_layout_set_text ( tb->layout, tb->text, strlen ( tb->text ) );
+
     tb->cursor = MAX ( 0, MIN ( ( int ) strlen ( text ), tb->cursor ) );
     textbox_extents ( tb );
 }
@@ -154,16 +165,20 @@ void textbox_move ( textbox *tb, int x, int y )
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
     if ( tb->flags & TB_AUTOHEIGHT ) {
-        h = tb->font->ascent + tb->font->descent;
+        h = textbox_get_font_height ( tb );
     }
 
     if ( tb->flags & TB_AUTOWIDTH ) {
         if ( w > 1 ) {
-            w = MIN ( w, tb->extents.width + 2 * SIDE_MARGIN );
+            w = MIN ( w, textbox_get_font_width ( tb ) + 2 * SIDE_MARGIN );
         }
         else{
-            w = tb->extents.width + 2 * SIDE_MARGIN;
+            w = textbox_get_font_width ( tb ) + 2 * SIDE_MARGIN;
         }
+    }
+    else {
+        // set ellipsize
+        pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_END );
     }
 
     if ( x != tb->x || y != tb->y || w != tb->w || h != tb->h ) {
@@ -199,6 +214,9 @@ void textbox_free ( textbox *tb )
     if ( tb->text ) {
         free ( tb->text );
     }
+    if ( tb->layout == NULL ) {
+        g_object_unref ( tb->layout );
+    }
 
     XDestroyWindow ( display, tb->window );
     free ( tb );
@@ -206,11 +224,9 @@ void textbox_free ( textbox *tb )
 
 void textbox_draw ( textbox *tb )
 {
-    XGlyphInfo extents;
-
-    GC         context = XCreateGC ( display, tb->window, 0, 0 );
-    Pixmap     canvas  = XCreatePixmap ( display, tb->window, tb->w, tb->h, DefaultDepth ( display, DefaultScreen ( display ) ) );
-    XftDraw    *draw   = XftDrawCreate ( display, canvas, DefaultVisual ( display, DefaultScreen ( display ) ), DefaultColormap ( display, DefaultScreen ( display ) ) );
+    GC      context = XCreateGC ( display, tb->window, 0, 0 );
+    Pixmap  canvas  = XCreatePixmap ( display, tb->window, tb->w, tb->h, DefaultDepth ( display, DefaultScreen ( display ) ) );
+    XftDraw *draw   = XftDrawCreate ( display, canvas, DefaultVisual ( display, DefaultScreen ( display ) ), DefaultColormap ( display, DefaultScreen ( display ) ) );
 
     // clear canvas
     XftDrawRect ( draw, &tb->color_bg, 0, 0, tb->w, tb->h );
@@ -218,46 +234,26 @@ void textbox_draw ( textbox *tb )
     char *text       = tb->text ? tb->text : "";
     int  text_len    = strlen ( text );
     int  length      = text_len;
-    int  line_height = tb->font->ascent + tb->font->descent;
+    int  line_height = textbox_get_font_height ( tb );
     int  line_width  = 0;
 
     int  cursor_x     = 0;
     int  cursor_width = MAX ( 2, line_height / 10 );
 
-    if ( tb->flags & TB_EDITABLE ) {
-        int cursor_offset = 0;
-        cursor_offset = MIN ( tb->cursor, text_len );
+    pango_layout_set_text ( tb->layout, tb->text, strlen ( tb->text ) );
 
-        // Trailing spaces still go wrong....
-        // The replace by _ is needed, one way or the other.
-        // Make a copy, and replace all trailing spaces.
-        char *test = strdup ( text );
-        for ( int iter = strlen ( text ) - 1; iter >= 0 && test[iter] == ' '; iter-- ) {
-            test[iter] = '_';
-        }
-        // calc cursor position
-        XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) test, cursor_offset, &extents );
+    if ( tb->flags & TB_EDITABLE ) {
+        PangoRectangle pos;
+        int            cursor_offset = 0;
+        cursor_offset = MIN ( tb->cursor, text_len );
+        pango_layout_get_cursor_pos ( tb->layout, cursor_offset, &pos, NULL );
         // Add a small 4px offset between cursor and last glyph.
-        cursor_x = extents.width + ( ( extents.width > 0 ) ? 2 : 0 );
-        free ( test );
+        cursor_x = pos.x / PANGO_SCALE;
     }
 
-    // calc full input text width
-    // Calculate the right size, so no characters are cut off.
-    // TODO: Check performance of this.
-    do {
-        XftTextExtentsUtf8 ( display, tb->font, ( unsigned char * ) text, length, &extents );
-        line_width = extents.width;
-        if ( line_width <= ( tb->w - 2 * SIDE_MARGIN ) ) {
-            break;
-        }
+    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->w - 2 * SIDE_MARGIN ) );
 
-        for ( length -= 1; length > 0 && ( text[length] & 0xc0 ) == 0x80; length -= 1 ) {
-            ;
-        }
-    } while ( line_width > 0 );
-
-    int x = SIDE_MARGIN, y = tb->font->ascent;
+    int x = SIDE_MARGIN, y = 0;
 
     if ( tb->flags & TB_RIGHT ) {
         x = tb->w - line_width;
@@ -268,7 +264,9 @@ void textbox_draw ( textbox *tb )
     }
 
     // draw the text.
-    XftDrawStringUtf8 ( draw, &tb->color_fg, tb->font, x, y, ( unsigned char * ) text, length );
+//    XftDrawStringUtf8 ( draw, &tb->color_fg, tb->font, x, y, ( unsigned char * ) text, length );
+
+    pango_xft_render_layout ( draw, &( tb->color_fg ), tb->layout, x, y );
 
     // draw the cursor
     if ( tb->flags & TB_EDITABLE ) {
@@ -422,38 +420,59 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
  */
 
 void textbox_setup (
-    const char *font_str, const char *font_active_str,
     const char *bg, const char *fg,
     const char *hlbg, const char *hlfg
     )
 {
     Visual   *visual  = DefaultVisual ( display, DefaultScreen ( display )  );
     Colormap colormap = DefaultColormap ( display, DefaultScreen ( display ) );
-    font        = XftFontOpenName ( display, DefaultScreen ( display ), font_str );
-    font_active = XftFontOpenName ( display, DefaultScreen ( display ), font_active_str );
 
     XftColorAllocName ( display, visual, colormap, fg, &color_fg );
     XftColorAllocName ( display, visual, colormap, bg, &color_bg );
     XftColorAllocName ( display, visual, colormap, hlfg, &color_hlfg );
     XftColorAllocName ( display, visual, colormap, hlbg, &color_hlbg );
+
+    PangoFontMap *font_map = pango_xft_get_font_map ( display, DefaultScreen ( display ) );
+    p_context = pango_font_map_create_context ( font_map );
 }
 
 
 void textbox_cleanup ()
 {
-    if ( font != NULL ) {
+    if ( p_context ) {
         Visual   *visual  = DefaultVisual ( display, DefaultScreen ( display )  );
         Colormap colormap = DefaultColormap ( display, DefaultScreen ( display ) );
 
-        XftFontClose ( display, font );
-        font = NULL;
-
-        XftFontClose ( display, font_active );
-        font_active = NULL;
 
         XftColorFree ( display, visual, colormap, &color_fg );
         XftColorFree ( display, visual, colormap, &color_bg );
         XftColorFree ( display, visual, colormap, &color_hlfg );
         XftColorFree ( display, visual, colormap, &color_hlbg );
+        g_object_unref ( p_context );
+        p_context = NULL;
     }
+}
+
+int textbox_get_width ( textbox *tb )
+{
+    return textbox_get_font_width ( tb ) + 2 * SIDE_MARGIN;
+}
+
+int textbox_get_height ( textbox *tb )
+{
+    return textbox_get_font_height ( tb );
+}
+
+int textbox_get_font_height ( textbox *tb )
+{
+    int height;
+    pango_layout_get_pixel_size ( tb->layout, NULL, &height );
+    return height;
+}
+
+int textbox_get_font_width ( textbox *tb )
+{
+    int width;
+    pango_layout_get_pixel_size ( tb->layout, &width, NULL );
+    return width;
 }
