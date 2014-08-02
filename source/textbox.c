@@ -178,7 +178,11 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     }
     else {
         // set ellipsize
-        pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_END );
+        if( (tb->flags & TB_EDITABLE) == TB_EDITABLE ) {
+            pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_MIDDLE );
+        }else{
+            pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_END );
+        }
     }
 
     if ( x != tb->x || y != tb->y || w != tb->w || h != tb->h ) {
@@ -263,9 +267,7 @@ void textbox_draw ( textbox *tb )
         x = ( tb->w - line_width ) / 2;
     }
 
-    // draw the text.
-//    XftDrawStringUtf8 ( draw, &tb->color_fg, tb->font, x, y, ( unsigned char * ) text, length );
-
+    // Render the layout.
     pango_xft_render_layout ( draw, &( tb->color_fg ), tb->layout, x, y );
 
     // draw the cursor
