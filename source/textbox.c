@@ -170,10 +170,10 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 
     if ( tb->flags & TB_AUTOWIDTH ) {
         if ( w > 1 ) {
-            w = MIN ( w, textbox_get_font_width ( tb ) + 2 * SIDE_MARGIN );
+            w = MIN ( w, textbox_get_width ( tb ) );
         }
         else{
-            w = textbox_get_font_width ( tb ) + 2 * SIDE_MARGIN;
+            w = textbox_get_width ( tb );
         }
     }
     else {
