@@ -165,7 +165,7 @@ void textbox_move ( textbox *tb, int x, int y )
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
     if ( tb->flags & TB_AUTOHEIGHT ) {
-        h = textbox_get_font_height ( tb );
+        h = textbox_get_height ( tb );
     }
 
     if ( tb->flags & TB_AUTOWIDTH ) {
@@ -266,7 +266,6 @@ void textbox_draw ( textbox *tb )
     if ( tb->flags & TB_CENTER ) {
         x = ( tb->w - line_width ) / 2;
     }
-
     // Render the layout.
     pango_xft_render_layout ( draw, &( tb->color_fg ), tb->layout, x, y );
 
