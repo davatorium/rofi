@@ -21,7 +21,7 @@ Now becomes:
 
 ```
 <name> <size>
-````
+```
 
 ## Dropdown menu
 
