@@ -82,7 +82,6 @@ char *i3_socket_path = NULL;
 
 xdgHandle    xdg_handle;
 const char   *cache_dir   = NULL;
-char         *active_font = NULL;
 unsigned int NumlockMask  = 0;
 Display      *display     = NULL;
 
@@ -2021,8 +2020,6 @@ static void cleanup ()
     // Whipe the handle.. (not working)
     xdgWipeHandle ( &xdg_handle );
 
-    free ( active_font );
-
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
         // only used for script dialog.
         if ( switchers[i].cb_data != NULL ) {
@@ -2146,12 +2143,6 @@ int main ( int argc, char *argv[] )
 
     // setup_switchers
     setup_switchers ();
-
-    // Generate the font string for the line that indicates a selected item.
-    if ( asprintf ( &active_font, "%s:slant=italic", config.menu_font ) < 0 ) {
-        fprintf ( stderr, "Failed to construct active string: %s\n", strerror ( errno ) );
-        return EXIT_FAILURE;
-    }
 
     // Set up X interaction.
     signal ( SIGCHLD, catch_exit );
