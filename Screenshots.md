@@ -10,6 +10,19 @@ You can easily get your current configuration by typing:
 
     rofi -dump-xresources
 
+In recent git version (2014-08-03) the formatting of the font-string has slightly changed. It
+currently uses pango to parse the font specifier. The change is mostly minimal:
+
+```
+<name>-<size>
+```
+
+Now becomes:
+
+```
+<name> <size>
+````
+
 ## Dropdown menu
 
 [ ![Rofi in dropdown menu mode](images/rofi/screenshots/dropdown.png)
@@ -21,7 +34,7 @@ Xresources file:
         rofi.width: 50
         rofi.lines: 5
         rofi.columns: 1
-        rofi.font: SourceCodePro-9
+        rofi.font: SourceCodePro 9
         rofi.fg: #1aa
         rofi.bg: #333
         rofi.hlfg: #333
@@ -56,7 +69,7 @@ Xresources entries:
         rofi.lines: 10
         rofi.borderwidth: 1
         rofi.opacity: 100
-        rofi.font: Inconsolata:pixelsize=16
+        rofi.font: Inconsolata 16
         rofi.location: 7
         rofi.yoffset: 0
         rofi.xoffset: 0
@@ -79,7 +92,7 @@ Xresources entries:
         rofi.width: 1924
         rofi.lines: 7
         rofi.columns: 4
-        rofi.font: SourceCodePro-9
+        rofi.font: SourceCodePro 9
         rofi.fg: #E5DBCF
         rofi.bg: #0F3B5F
         rofi.hlfg: #0F3B5F
