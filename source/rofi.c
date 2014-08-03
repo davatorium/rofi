@@ -1428,9 +1428,9 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                         break;
                     }
                     else{
-                        // Up or Shift-Tab
+                        // Up, Ctrl-p or Shift-Tab
                         if ( key == XK_Up || ( key == XK_Tab && ev.xkey.state & ShiftMask ) ||
-                             ( key == XK_k && ev.xkey.state & ControlMask )  ) {
+                             ( key == XK_p && ev.xkey.state & ControlMask )  ) {
                             if ( selected == 0 ) {
                                 selected = filtered_lines;
                             }
@@ -1440,10 +1440,27 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                             }
                             update = TRUE;
                         }
+                        // Down, Ctrl-n
                         else if ( key == XK_Down ||
-                                  ( key == XK_j && ev.xkey.state & ControlMask ) ) {
+                                  ( key == XK_n && ev.xkey.state & ControlMask ) ) {
                             selected = selected < filtered_lines - 1 ? MIN ( filtered_lines - 1, selected + 1 ) : 0;
                             update   = TRUE;
+                        }
+                        else if ( key == XK_Page_Up && ev.xkey.state & ControlMask ) {
+                            if ( selected < max_rows ) {
+                                selected = 0;
+                            }
+                            else{
+                                selected -= max_rows;
+                            }
+                            update = TRUE;
+                        }
+                        else if (  key == XK_Page_Down && ev.xkey.state & ControlMask ) {
+                            selected += max_rows;
+                            if ( selected >= filtered_lines ) {
+                                selected = filtered_lines - 1;
+                            }
+                            update = TRUE;
                         }
                         else if ( key == XK_Page_Up ) {
                             if ( selected < max_elements ) {
@@ -1457,22 +1474,6 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                         else if ( key == XK_Page_Down ) {
                             selected += ( max_elements );
 
-                            if ( selected >= filtered_lines ) {
-                                selected = filtered_lines - 1;
-                            }
-                            update = TRUE;
-                        }
-                        else if ( key == XK_h && ev.xkey.state & ControlMask ) {
-                            if ( selected < max_rows ) {
-                                selected = 0;
-                            }
-                            else{
-                                selected -= max_rows;
-                            }
-                            update = TRUE;
-                        }
-                        else if (  key == XK_l && ev.xkey.state & ControlMask ) {
-                            selected += max_rows;
                             if ( selected >= filtered_lines ) {
                                 selected = filtered_lines - 1;
                             }

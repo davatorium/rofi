@@ -253,6 +253,25 @@ the `-switchers` argument.
 
 **rofi** website can be found at [here](https://davedavenport.github.io/rofi/)
 
+## Keybinding
+
+* `Ctrl-v, Insert`: Paste clipboard
+* `Ctrl-Shift-v, Shift-Insert`: Paste primary selection
+* `Ctrl-u`: Clear the line
+* `Ctrl-a`: Beginning of line
+* `Ctrl-e`: End of line
+* `Ctrl-f, Right`: Forward one character
+* `Ctrl-b, Left`: Back one character
+* `Ctrl-d, Delete`: Delete character
+* `Ctrl-h, Backspace`: Backspace (delete previous character)
+* `Ctrl-j,Ctrl-m,Enter`: Accept entry
+* `Ctrl-n,Down`: Select next entry
+* `Ctrl-p,Up`: Select previous entry
+* `Page Up`: Go to the previous page
+* `Page Down`: Go to the next page
+* `Ctrl-Page Up`: Go to the previous column
+* `Ctrl-Page Down`: Go to the next column
+
 ## AUTHOR
 
 Qball Cow <qball@gmpclient.org>

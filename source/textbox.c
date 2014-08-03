@@ -368,30 +368,48 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
     len      = Xutf8LookupString ( tb->xic, &ev->xkey, pad, sizeof ( pad ), &key, &stat );
     pad[len] = 0;
 
-    if ( key == XK_Left ) {
-        textbox_cursor_dec ( tb );
+    // Left or Ctrl-b
+    if ( key == XK_Left ||
+            (( ev->xkey.state&ControlMask) && key == XK_b) ) {
+                textbox_cursor_dec ( tb );
         return 1;
     }
-    else if ( key == XK_Right ) {
+    // Right or Ctrl-F
+    else if ( key == XK_Right ||
+            (( ev->xkey.state&ControlMask) && key == XK_f) ) {
         textbox_cursor_inc ( tb );
         return 1;
-    } /*else if ( key == XK_Home ) {
-
-         textbox_cursor_home( tb );
-         return 1;
-         } else if ( key == XK_End ) {
-         textbox_cursor_end( tb );
-         return 1;
-         } */
-    else if ( key == XK_Delete ) {
+    }
+    // Delete or Ctrl-D
+    else if ( key == XK_Delete ||
+            (( ev->xkey.state&ControlMask) && key == XK_d) ) {
         textbox_cursor_del ( tb );
         return 1;
     }
-    else if ( key == XK_BackSpace ) {
+    // Ctrl-U: Kill from the beginning to the end of the line.
+    else if ( ( ev->xkey.state&ControlMask) && key == XK_u) {
+        textbox_text( tb, "");
+        return 1;
+    }
+    // Ctrl-A
+    else if ( ( ev->xkey.state&ControlMask) && key == XK_a) {
+        textbox_cursor ( tb, 0 );
+        return 1;
+    }
+    // Ctrl-E
+    else if ( ( ev->xkey.state&ControlMask) && key == XK_e) {
+        textbox_cursor_end ( tb );
+        return 1;
+    }
+    // BackSpace, Ctrl-h
+    else if ( key == XK_BackSpace ||
+            (( ev->xkey.state&ControlMask) && key == XK_h) ) {
         textbox_cursor_bkspc ( tb );
         return 1;
     }
-    else if ( key == XK_Return || key == XK_KP_Enter ) {
+    else if ( key == XK_Return || key == XK_KP_Enter ||
+            ((ev->xkey.state&ControlMask) && key == XK_j) ||
+            ((ev->xkey.state&ControlMask) && key == XK_m)) {
         return -1;
     }
     else if ( !iscntrl ( *pad ) ) {
