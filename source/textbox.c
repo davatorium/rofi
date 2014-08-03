@@ -239,11 +239,11 @@ void textbox_draw ( textbox *tb )
     char *text       = tb->text ? tb->text : "";
     int  text_len    = strlen ( text );
     int  length      = text_len;
-    int  line_height = textbox_get_font_height ( tb );
+    int  font_height = textbox_get_font_height ( tb );
     int  line_width  = 0;
 
     int  cursor_x     = 0;
-    int  cursor_width = MAX ( 2, line_height / 10 );
+    int  cursor_width = MAX ( 2, font_height / 10 );
 
     pango_layout_set_text ( tb->layout, tb->text, strlen ( tb->text ) );
 
@@ -273,7 +273,7 @@ void textbox_draw ( textbox *tb )
 
     // draw the cursor
     if ( tb->flags & TB_EDITABLE ) {
-        XftDrawRect ( draw, &tb->color_fg, cursor_x + SIDE_MARGIN, 2, cursor_width, line_height - 4 );
+        XftDrawRect ( draw, &tb->color_fg, cursor_x + SIDE_MARGIN, SIDE_MARGIN, cursor_width, font_height );
     }
 
     XftDrawRect ( draw, &tb->color_bg, tb->w, 0, 0, tb->h );
