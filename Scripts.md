@@ -37,7 +37,7 @@ teiler in addition can
 
 [clerk](https://github.com/carnager/clerk) is a mpd client using mpc, mppc [see here](https://github.com/carnager/mppc) and rofi.
 
-It offers the usual features. 
+It offers the usual features.
 * Simple playlist management.
 * Library Browser (in various ways)
 * play random albums/tracks
@@ -48,4 +48,4 @@ It offers the usual features.
 It also offers unique features like rating of albums or tracks in a 100% portable way
 All options are available as command line arguments, to make it easy to associate hotkeys with most used features.
 
-![Screenshot](images/rofi/scripts/clerk.png)
+![Screenshot](images/rofi/scripts/clerk.jpg)
