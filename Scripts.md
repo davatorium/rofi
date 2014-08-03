@@ -35,7 +35,7 @@ teiler in addition can
 
 ## clerk
 
-[clerk](https://github.com/carnager/clerk) is a mpd client using mpc, mppc[see here](https://github.com/carnager/mppc) and rofi.
+[clerk](https://github.com/carnager/clerk) is a mpd client using mpc, mppc [see here](https://github.com/carnager/mppc) and rofi.
 
 It offers the usual features. 
 * Simple playlist management.
