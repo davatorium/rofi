@@ -17,6 +17,7 @@ title: Installation guide
 
 * libxinerama
 * libxft
+* libpango
 * libx11
 * libxdg-basedir
 
