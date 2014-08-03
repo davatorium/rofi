@@ -81,9 +81,9 @@ char *i3_socket_path = NULL;
 
 
 xdgHandle    xdg_handle;
-const char   *cache_dir   = NULL;
-unsigned int NumlockMask  = 0;
-Display      *display     = NULL;
+const char   *cache_dir  = NULL;
+unsigned int NumlockMask = 0;
+Display      *display    = NULL;
 
 
 typedef struct _Switcher
@@ -1053,7 +1053,7 @@ static void calculate_window_position ( const workarea *mon, int *x, int *y, int
 }
 
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt, Time *time,
-                  int *shift, menu_match_cb mmc, void *mmc_data, int *selected_line , int sorting)
+                  int *shift, menu_match_cb mmc, void *mmc_data, int *selected_line, int sorting )
 {
     int          retv = MENU_CANCEL;
     unsigned int i, j;
@@ -1203,7 +1203,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         KeySym       prev_key    = 0;
         unsigned int selected    = 0;
         int          last_offset = 0;
-        int init = 0;
+        int          init        = 0;
         if ( selected_line != NULL ) {
             if ( *selected_line >= 0 && *selected_line <= num_lines ) {
                 selected = *selected_line;
@@ -1228,9 +1228,9 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                             }
                             // Try to look-up the selected line and highlight that.
                             // This is needed 'hack' to fix the dmenu 'next row' modi.
-                            if(init == 0   && selected_line != NULL && (*selected_line) == i) {
+                            if ( init == 0 && selected_line != NULL && ( *selected_line ) == i ) {
                                 selected = j;
-                                init = 1;
+                                init     = 1;
                             }
                             j++;
                         }
@@ -1370,7 +1370,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                 }
                 if ( key == XK_Insert ) {
                     XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
-                                        netatoms[CLIPBOARD] : XA_PRIMARY,
+                                        XA_PRIMARY : netatoms[CLIPBOARD],
                                         netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
                 }
                 else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
@@ -1669,7 +1669,7 @@ SwitcherMode run_switcher_window ( char **input, void *data )
         Time time;
         int selected_line = 0;
         MenuReturn mretv  = menu ( list, lines, input, "window:", &time, NULL,
-                window_match, ids, &selected_line, config.levenshtein_sort );
+                                   window_match, ids, &selected_line, config.levenshtein_sort );
 
         if ( mretv == MENU_NEXT ) {
             retv = NEXT_DIALOG;
