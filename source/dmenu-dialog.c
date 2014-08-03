@@ -73,6 +73,9 @@ SwitcherMode dmenu_switcher_dialog ( char **input, void *data )
     char         **list        = get_dmenu ( &length );
     int          restart       = FALSE;
 
+    // Force off sorting. (TODO: should be an argument to menu, and not hacking the user config.)
+    config.levenshtein_sort = FALSE;
+
     do {
         int shift = 0;
         int mretv = menu ( list, length, input, dmenu_prompt, NULL, &shift,

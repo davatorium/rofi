@@ -1211,6 +1211,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         KeySym       prev_key    = 0;
         unsigned int selected    = 0;
         int          last_offset = 0;
+        int init = 0;
         if ( selected_line != NULL ) {
             if ( *selected_line >= 0 && *selected_line <= num_lines ) {
                 selected = *selected_line;
@@ -1232,6 +1233,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                             line_map[j] = i;
                             if ( config.levenshtein_sort ) {
                                 distance[i] = levenshtein ( text->text, lines[i] );
+                            }
+                            // Try to look-up the selected line and highlight that.
+                            if(init == 0   && selected_line != NULL && (*selected_line) == i) {
+                                selected = j;
+                                init = 1;
                             }
                             j++;
                         }
