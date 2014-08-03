@@ -14,14 +14,15 @@ In recent git version (2014-08-03) the formatting of the font-string has slightl
 currently uses pango to parse the font specifier. The change is mostly minimal:
 
 ```
-<name>-<size>
+name-size
 ```
 
 Now becomes:
 
 ```
-<name> <size>
+name size
 ```
+
 
 ## Dropdown menu
 
