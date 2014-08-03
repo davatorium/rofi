@@ -21,12 +21,14 @@ powered by rofi, scrot and ffmpeg it offers the following features:
 Screenshots (fullscreen, windows, area - with and without delays)
 Screencasts
 Uploading images and videos to a remote server.
+
 * [filebin](http://git.server-speed.net/users/flo/filebin/)
 * openssh
 * imgur (only images)
 * amazon s3
 
 teiler in addition can
+
 * copy the last image to clipboard
 * keep a history of your screenshots
 
@@ -38,6 +40,7 @@ teiler in addition can
 [clerk](https://github.com/carnager/clerk) is a mpd client using mpc, mppc [see here](https://github.com/carnager/mppc) and rofi.
 
 It offers the usual features.
+
 * Simple playlist management.
 * Library Browser (in various ways)
 * play random albums/tracks
