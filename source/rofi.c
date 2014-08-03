@@ -1061,7 +1061,7 @@ static void calculate_window_position ( const workarea *mon, int *x, int *y, int
 }
 
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt, Time *time,
-                  int *shift, menu_match_cb mmc, void *mmc_data, int *selected_line )
+                  int *shift, menu_match_cb mmc, void *mmc_data, int *selected_line , int sorting)
 {
     int          retv = MENU_CANCEL;
     unsigned int i, j;
@@ -1184,7 +1184,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     char **filtered = calloc ( num_lines, sizeof ( char* ) );
     int  *line_map  = calloc ( num_lines, sizeof ( int ) );
     int  *distance  = NULL;
-    if ( config.levenshtein_sort ) {
+    if ( sorting ) {
         distance = calloc ( num_lines, sizeof ( int ) );
     }
     unsigned int filtered_lines = 0;
@@ -1231,10 +1231,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                         // If each token was matched, add it to list.
                         if ( match ) {
                             line_map[j] = i;
-                            if ( config.levenshtein_sort ) {
+                            if ( sorting ) {
                                 distance[i] = levenshtein ( text->text, lines[i] );
                             }
                             // Try to look-up the selected line and highlight that.
+                            // This is needed 'hack' to fix the dmenu 'next row' modi.
                             if(init == 0   && selected_line != NULL && (*selected_line) == i) {
                                 selected = j;
                                 init = 1;
@@ -1242,7 +1243,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                             j++;
                         }
                     }
-                    if ( config.levenshtein_sort ) {
+                    if ( sorting ) {
                         qsort_r ( line_map, j, sizeof ( int ), lev_sort, distance );
                     }
                     // Update the filtered list.
@@ -1675,7 +1676,8 @@ SwitcherMode run_switcher_window ( char **input, void *data )
         }
         Time time;
         int selected_line = 0;
-        MenuReturn mretv  = menu ( list, lines, input, "window:", &time, NULL, window_match, ids, &selected_line );
+        MenuReturn mretv  = menu ( list, lines, input, "window:", &time, NULL,
+                window_match, ids, &selected_line, config.levenshtein_sort );
 
         if ( mretv == MENU_NEXT ) {
             retv = NEXT_DIALOG;

@@ -80,7 +80,7 @@ typedef int ( *menu_match_cb )( char **tokens, const char *input, int index, voi
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt,
                   Time *time, int *shift,
                   menu_match_cb mmc, void *mmc_data,
-                  int *selected_line ) __attribute__ ( ( nonnull ( 1, 3, 4, 9 ) ) );
+                  int *selected_line, int sorting ) __attribute__ ( ( nonnull ( 1, 3, 4, 9 ) ) );
 
 void catch_exit ( __attribute__( ( unused ) ) int sig );
 

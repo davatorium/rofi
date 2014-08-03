@@ -134,7 +134,7 @@ SwitcherMode script_switcher_dialog ( char **input, void *data )
         unsigned int new_length = 0;
         char         **new_list = NULL;
         int          mretv      = menu ( list, length, input, prompt, NULL, NULL,
-                                         token_match, NULL, &selected_line );
+                                         token_match, NULL, &selected_line , FALSE);
 
         if ( mretv == MENU_NEXT ) {
             retv = NEXT_DIALOG;
