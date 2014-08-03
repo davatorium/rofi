@@ -18,9 +18,12 @@ The script can be found
 
 with teiler you can create screenshots and screencasts easily.
 powered by rofi, scrot and ffmpeg it offers the following features:
-Screenshots (fullscreen, windows, area - with and without delays)
-Screencasts
-Uploading images and videos to a remote server.
+
+* Screenshots (fullscreen, windows, area - with and without delays)
+* Screencasts
+* Uploading images and videos to a remote server.
+
+Servers supported:
 
 * [filebin](http://git.server-speed.net/users/flo/filebin/)
 * openssh
