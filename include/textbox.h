@@ -34,8 +34,6 @@ typedef enum
 {
     NORMAL,
     HIGHLIGHT,
-    ACTIVE_HIGHLIGHT,
-    ACTIVE
 } TextBoxFontType;
 
 textbox* textbox_create ( Window parent,

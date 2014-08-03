@@ -107,20 +107,9 @@ textbox* textbox_create ( Window parent,
 // set an Xft font by name
 void textbox_font ( textbox *tb, TextBoxFontType tbft )
 {
-    PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
     switch ( tbft )
     {
     case HIGHLIGHT:
-        tb->color_bg = color_hlbg;
-        tb->color_fg = color_hlfg;
-        break;
-    case ACTIVE:
-        pango_font_description_set_style ( pfd, PANGO_STYLE_ITALIC );
-        tb->color_bg = color_bg;
-        tb->color_fg = color_fg;
-        break;
-    case ACTIVE_HIGHLIGHT:
-        pango_font_description_set_style ( pfd, PANGO_STYLE_ITALIC );
         tb->color_bg = color_hlbg;
         tb->color_fg = color_hlfg;
         break;
@@ -130,8 +119,6 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
         tb->color_fg = color_fg;
         break;
     }
-    pango_layout_set_font_description ( tb->layout, pfd );
-    pango_font_description_free ( pfd );
 }
 
 // outer code may need line height, width, etc

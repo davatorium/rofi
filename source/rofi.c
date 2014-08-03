@@ -803,13 +803,6 @@ void menu_draw ( textbox **boxes,
         else{
             char            *text = filtered[i + offset];
             TextBoxFontType tbft  = ( i + offset ) == selected ? HIGHLIGHT : NORMAL;
-            // Check for active
-            if ( text[0] == '*' ) {
-                // Skip the '*'
-                text++;
-                // Use the active version of font.
-                tbft = ( tbft == HIGHLIGHT ) ? ACTIVE_HIGHLIGHT : ACTIVE;
-            }
             textbox_font ( boxes[i], tbft );
             textbox_text ( boxes[i], text );
         }
@@ -1626,11 +1619,11 @@ SwitcherMode run_switcher_window ( char **input, void *data )
         }
 #ifdef HAVE_I3_IPC_H
         if ( config_i3_mode ) {
-            sprintf ( pattern, "%%s%%-%ds   %%s", MAX ( 5, classfield ) );
+            sprintf ( pattern, "%%-%ds   %%s", MAX ( 5, classfield ) );
         }
         else{
 #endif
-        sprintf ( pattern, "%%s%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX ( 5, classfield ) );
+        sprintf ( pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX ( 5, classfield ) );
 #ifdef HAVE_I3_IPC_H
     }
 #endif
@@ -1662,11 +1655,11 @@ SwitcherMode run_switcher_window ( char **input, void *data )
                     sprintf ( desktop, "%d", (int) wmdesktop + 1 );
                 }
 
-                sprintf ( line, pattern, ( c->active ) ? "*" : "", desktop, c->class, c->title );
+                sprintf ( line, pattern, desktop, c->class, c->title );
 #ifdef HAVE_I3_IPC_H
             }
             else{
-                sprintf ( line, pattern, ( c->active ) ? "*" : "", c->class, c->title );
+                sprintf ( line, pattern, c->class, c->title );
             }
 #endif
 
