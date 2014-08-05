@@ -244,16 +244,10 @@ The default key combinations are:
         rofi -switchers "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
 
 
-## Switch between modi
 
-Type '?' *enter* to switch between window list, run and ssh mode. The list can be customized with
-the `-switchers` argument.
+## Keybindings
 
-## WEBSITE
-
-**rofi** website can be found at [here](https://davedavenport.github.io/rofi/)
-
-## Keybinding
+Rofi supports the following keybindings:
 
 * `Ctrl-v, Insert`: Paste clipboard
 * `Ctrl-Shift-v, Shift-Insert`: Paste primary selection
@@ -271,6 +265,11 @@ the `-switchers` argument.
 * `Page Down`: Go to the next page
 * `Ctrl-Page Up`: Go to the previous column
 * `Ctrl-Page Down`: Go to the next column
+* `?`: Switch to the next modi. The list can be customized with the `-switchers` argument.
+
+## WEBSITE
+
+**rofi** website can be found at [here](https://davedavenport.github.io/rofi/)
 
 ## AUTHOR
 

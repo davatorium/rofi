@@ -312,16 +312,9 @@ So to have a mode 'Workspaces' using the \fB\fCi3_switch_workspace.sh\fR script 
     rofi \-switchers "window,run,ssh,Workspaces:i3_switch_workspaces.sh" \-show Workspaces
 .fi
 .RE
-.SH Switch between modi
+.SH Keybindings
 .PP
-Type '?' \fIenter\fP to switch between window list, run and ssh mode. The list can be customized with
-the \fB\fC\-switchers\fR argument.
-.SH WEBSITE
-.PP
-\fBrofi\fP website can be found at here
-.UR https://davedavenport.github.io/rofi/
-.UE
-.SH Keybinding
+Rofi supports the following keybindings:
 .RS
 .IP \(bu 2
 \fB\fCCtrl\-v, Insert\fR: Paste clipboard
@@ -355,7 +348,14 @@ the \fB\fC\-switchers\fR argument.
 \fB\fCCtrl\-Page Up\fR: Go to the previous column
 .IP \(bu 2
 \fB\fCCtrl\-Page Down\fR: Go to the next column
+.IP \(bu 2
+\fB\fC?\fR: Switch to the next modi. The list can be customized with the \fB\fC\-switchers\fR argument.
 .RE
+.SH WEBSITE
+.PP
+\fBrofi\fP website can be found at here
+.UR https://davedavenport.github.io/rofi/
+.UE
 .SH AUTHOR
 .PP
 Qball Cow 
