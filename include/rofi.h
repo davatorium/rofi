@@ -25,8 +25,6 @@ extern const char *cache_dir;
  */
 typedef enum
 {
-    /** Dmenu mode */
-    DMENU_DIALOG  = 999,
     /** Exit. */
     MODE_EXIT     = 1000,
     /** Skip to the next cycle-able dialog. */

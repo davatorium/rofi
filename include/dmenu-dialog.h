@@ -2,6 +2,9 @@
 #define __DMENU_DIALOG_H__
 
 extern char *dmenu_prompt;
-SwitcherMode dmenu_switcher_dialog ( char **input, void *data );
+/**
+ * Returns TRUE when success, FALSE when canceled.
+ */
+int dmenu_switcher_dialog ( char **input );
 
 #endif

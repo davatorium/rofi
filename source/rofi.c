@@ -1711,6 +1711,25 @@ SwitcherMode run_switcher_window ( char **input, void *data )
     return retv;
 }
 
+static int run_dmenu ()
+{
+    int ret_state = TRUE;
+    textbox_setup (
+        config.menu_bg, config.menu_fg,
+        config.menu_hlbg,
+        config.menu_hlfg );
+    char *input = NULL;
+
+    // Dmenu modi has a return state.
+    ret_state = dmenu_switcher_dialog ( &input );
+
+    free ( input );
+
+    // Cleanup font setup.
+    textbox_cleanup ();
+    return ret_state;
+}
+
 static void run_switcher ( int do_fork, SwitcherMode mode )
 {
     // we fork because it's technically possible to have multiple window
@@ -1720,7 +1739,7 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
     // strangeness...
     if ( do_fork == TRUE ) {
         if ( fork () ) {
-            return;
+            return ;
         }
 
         display = XOpenDisplay ( 0 );
@@ -1733,12 +1752,8 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
         config.menu_hlbg,
         config.menu_hlfg );
     char *input = NULL;
-    // Dmenu is a special mode. You can cycle away from it.
-    if ( mode == DMENU_DIALOG ) {
-        dmenu_switcher_dialog ( &input, NULL );
-    }
     // Otherwise check if requested mode is enabled.
-    else if ( switchers[mode].cb != NULL ) {
+    if ( switchers[mode].cb != NULL ) {
         do {
             SwitcherMode retv = MODE_EXIT;
 
@@ -1751,7 +1766,7 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
             else if ( retv == RELOAD_DIALOG ) {
                 // do nothing.
             }
-            else if ( retv < DMENU_DIALOG ) {
+            else if ( retv < MODE_EXIT ) {
                 mode = ( retv ) % num_switchers;
             }
             else {
@@ -2216,7 +2231,11 @@ int main ( int argc, char *argv[] )
     }
     else if ( find_arg ( argc, argv, "-dmenu" ) >= 0 ) {
         find_arg_str ( argc, argv, "-p", &dmenu_prompt );
-        run_switcher ( FALSE, DMENU_DIALOG );
+        int retv = run_dmenu();
+        // User cancelled the operation.
+        if(retv == FALSE) {
+            return EXIT_FAILURE;
+        }
     }
     else{
         // Daemon mode, Listen to key presses..

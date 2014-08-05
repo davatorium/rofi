@@ -65,10 +65,10 @@ static char **get_dmenu ( unsigned int *length )
     return retv;
 }
 
-SwitcherMode dmenu_switcher_dialog ( char **input, void *data )
+int dmenu_switcher_dialog ( char **input )
 {
     int          selected_line = 0;
-    SwitcherMode retv          = MODE_EXIT;
+    int          retv          = FALSE;
     unsigned int length        = 0;
     char         **list        = get_dmenu ( &length );
     int          restart       = FALSE;
@@ -80,10 +80,7 @@ SwitcherMode dmenu_switcher_dialog ( char **input, void *data )
 
         // We normally do not want to restart the loop.
         restart = FALSE;
-        if ( mretv == MENU_NEXT ) {
-            retv = RELOAD_DIALOG;
-        }
-        else if ( mretv == MENU_OK && list[selected_line] != NULL ) {
+        if ( mretv == MENU_OK && list[selected_line] != NULL ) {
             fputs ( list[selected_line], stdout );
             fputc ( '\n', stdout );
             fflush ( stdout );
@@ -92,6 +89,7 @@ SwitcherMode dmenu_switcher_dialog ( char **input, void *data )
                 // Move to next line.
                 selected_line = MIN ( selected_line + 1, length - 1 );
             }
+            retv = TRUE;
         }
         else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' ) {
             fputs ( *input, stdout );
@@ -102,6 +100,7 @@ SwitcherMode dmenu_switcher_dialog ( char **input, void *data )
                 // Move to next line.
                 selected_line = MIN ( selected_line + 1, length - 1 );
             }
+            retv = TRUE;
         }
     } while ( restart );
     for ( unsigned int i = 0; i < length; i++ ) {
