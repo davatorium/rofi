@@ -120,7 +120,7 @@ static int sort_func ( const void *a, const void *b )
 {
     const char *astr = *( const char * const * ) a;
     const char *bstr = *( const char * const * ) b;
-    return strcasecmp ( astr, bstr );
+    return g_utf8_collate ( astr, bstr );
 }
 static char ** get_ssh ( unsigned int *length )
 {

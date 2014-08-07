@@ -40,6 +40,7 @@
 
 #include "rofi.h"
 #include "textbox.h"
+#include <glib.h>
 #define SIDE_MARGIN    2
 
 
@@ -132,8 +133,12 @@ void textbox_text ( textbox *tb, char *text )
     if ( tb->text ) {
         free ( tb->text );
     }
-
-    tb->text = strdup ( text );
+    if ( g_utf8_validate ( text, -1, NULL ) ) {
+        tb->text = strdup ( text );
+    }
+    else {
+        tb->text = strdup ( "Invalid UTF-8 string." );
+    }
     pango_layout_set_text ( tb->layout, tb->text, strlen ( tb->text ) );
 
     tb->cursor = MAX ( 0, MIN ( ( int ) strlen ( text ), tb->cursor ) );
@@ -206,7 +211,7 @@ void textbox_free ( textbox *tb )
     if ( tb->text ) {
         free ( tb->text );
     }
-    if ( tb->layout == NULL ) {
+    if ( tb->layout != NULL ) {
         g_object_unref ( tb->layout );
     }
 
@@ -272,17 +277,6 @@ void textbox_draw ( textbox *tb )
     XFreePixmap ( display, canvas );
 }
 
-
-static size_t nextrune ( textbox *tb, int inc )
-{
-    ssize_t n;
-
-    /* return location of next utf8 rune in the given direction (+1 or -1) */
-    for ( n = tb->cursor + inc; n + inc >= 0 && ( tb->text[n] & 0xc0 ) == 0x80; n += inc ) {
-        ;
-    }
-    return n;
-}
 // cursor handling for edit mode
 void textbox_cursor ( textbox *tb, int pos )
 {
@@ -292,15 +286,16 @@ void textbox_cursor ( textbox *tb, int pos )
 // move right
 void textbox_cursor_inc ( textbox *tb )
 {
-    textbox_cursor ( tb, nextrune ( tb, 1 ) );
+    int index = g_utf8_next_char ( &( tb->text[tb->cursor] ) ) - tb->text;
+    textbox_cursor ( tb, index );
 }
 
 // move left
 void textbox_cursor_dec ( textbox *tb )
 {
-    textbox_cursor ( tb, nextrune ( tb, -1 ) );
+    int index = g_utf8_prev_char ( &( tb->text[tb->cursor] ) ) - tb->text;
+    textbox_cursor ( tb, index );
 }
-
 
 // end of line
 void textbox_cursor_end ( textbox *tb )
@@ -337,8 +332,8 @@ void textbox_delete ( textbox *tb, int pos, int dlen )
 // delete on character
 void textbox_cursor_del ( textbox *tb )
 {
-    int del_r = nextrune ( tb, 1 );
-    textbox_delete ( tb, tb->cursor, del_r - tb->cursor );
+    int index = g_utf8_next_char ( &( tb->text[tb->cursor] ) ) - tb->text;
+    textbox_delete ( tb, tb->cursor, index - tb->cursor );
 }
 
 // back up and delete one character
@@ -370,46 +365,46 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
 
     // Left or Ctrl-b
     if ( key == XK_Left ||
-            (( ev->xkey.state&ControlMask) && key == XK_b) ) {
-                textbox_cursor_dec ( tb );
+         ( ( ev->xkey.state & ControlMask ) && key == XK_b ) ) {
+        textbox_cursor_dec ( tb );
         return 1;
     }
     // Right or Ctrl-F
     else if ( key == XK_Right ||
-            (( ev->xkey.state&ControlMask) && key == XK_f) ) {
+              ( ( ev->xkey.state & ControlMask ) && key == XK_f ) ) {
         textbox_cursor_inc ( tb );
         return 1;
     }
     // Delete or Ctrl-D
     else if ( key == XK_Delete ||
-            (( ev->xkey.state&ControlMask) && key == XK_d) ) {
+              ( ( ev->xkey.state & ControlMask ) && key == XK_d ) ) {
         textbox_cursor_del ( tb );
         return 1;
     }
     // Ctrl-U: Kill from the beginning to the end of the line.
-    else if ( ( ev->xkey.state&ControlMask) && key == XK_u) {
-        textbox_text( tb, "");
+    else if ( ( ev->xkey.state & ControlMask ) && key == XK_u ) {
+        textbox_text ( tb, "" );
         return 1;
     }
     // Ctrl-A
-    else if ( ( ev->xkey.state&ControlMask) && key == XK_a) {
+    else if ( ( ev->xkey.state & ControlMask ) && key == XK_a ) {
         textbox_cursor ( tb, 0 );
         return 1;
     }
     // Ctrl-E
-    else if ( ( ev->xkey.state&ControlMask) && key == XK_e) {
+    else if ( ( ev->xkey.state & ControlMask ) && key == XK_e ) {
         textbox_cursor_end ( tb );
         return 1;
     }
     // BackSpace, Ctrl-h
     else if ( key == XK_BackSpace ||
-            (( ev->xkey.state&ControlMask) && key == XK_h) ) {
+              ( ( ev->xkey.state & ControlMask ) && key == XK_h ) ) {
         textbox_cursor_bkspc ( tb );
         return 1;
     }
     else if ( key == XK_Return || key == XK_KP_Enter ||
-            ((ev->xkey.state&ControlMask) && key == XK_j) ||
-            ((ev->xkey.state&ControlMask) && key == XK_m)) {
+              ( ( ev->xkey.state & ControlMask ) && key == XK_j ) ||
+              ( ( ev->xkey.state & ControlMask ) && key == XK_m ) ) {
         return -1;
     }
     else if ( !iscntrl ( *pad ) ) {

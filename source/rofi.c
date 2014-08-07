@@ -139,15 +139,18 @@ int token_match ( char **tokens, const char *input,
                   __attribute__( ( unused ) ) int index,
                   __attribute__( ( unused ) ) void *data )
 {
-    int match = 1;
+    int  match = 1;
 
+    char *lowerc = g_utf8_casefold ( input, -1 );
+    char *compk  = g_utf8_collate_key ( lowerc, -1 );
     // Do a tokenized match.
     if ( tokens ) {
-        for ( int j = 1; match && tokens[j]; j++ ) {
-            match = ( strcasestr ( input, tokens[j] ) != NULL );
+        for ( int j = 0; match && tokens[j]; j++ ) {
+            match = ( strstr ( compk, tokens[j] ) != NULL );
         }
     }
-
+    g_free ( lowerc );
+    g_free ( compk );
     return match;
 }
 
@@ -161,27 +164,28 @@ static char **tokenize ( const char *input )
     char *saveptr = NULL, *token;
     char **retv   = NULL;
     // First entry is always full (modified) stringtext.
-    int  num_tokens = 1;
+    int  num_tokens = 0;
 
-    //First entry is string that is modified.
-    retv    = malloc ( 2 * sizeof ( char* ) );
-    retv[0] = strdup ( input );
-    retv[1] = NULL;
+    // Copy the string, 'strtok_r' modifies it.
+    char *str = strdup ( input );
 
     // Iterate over tokens.
     // strtok should still be valid for utf8.
-    for ( token = strtok_r ( retv[0], " ", &saveptr );
+    for ( token = strtok_r ( str, " ", &saveptr );
           token != NULL;
           token = strtok_r ( NULL, " ", &saveptr ) ) {
         char **tr = realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
         if ( tr != NULL ) {
+            char *tmp = g_utf8_casefold ( token, -1 );
             retv                 = tr;
             retv[num_tokens + 1] = NULL;
-            retv[num_tokens]     = token;
+            retv[num_tokens]     = g_utf8_collate_key ( tmp, -1 );
             num_tokens++;
+            g_free ( tmp );
         }
     }
-
+    // Free str.
+    free ( str );
     return retv;
 }
 
@@ -191,7 +195,10 @@ static inline void tokenize_free ( char **ip )
         return;
     }
 
-    free ( ip[0] );
+    // Free with g_free.
+    for ( int i = 0; ip[i] != NULL; i++ ) {
+        g_free ( ip[i] );
+    }
     free ( ip );
 }
 
@@ -785,7 +792,8 @@ void menu_draw ( textbox **boxes,
 
     // selected row is always visible.
     // If selected is visible do not scroll.
-    if ( ( selected - ( *last_offset ) ) < ( max_elements ) && ( selected - ( *last_offset ) ) >= 0 ) {
+    if ( ( ( selected - ( *last_offset ) ) < ( max_elements ) )
+         && ( ( selected - ( *last_offset ) ) >= 0 ) ) {
         offset = *last_offset;
     }
     else{
@@ -883,25 +891,38 @@ int window_match ( char **tokens, __attribute__( ( unused ) ) const char *input,
     winlist *ids  = ( winlist * ) data;
     client  *c    = window_client ( ids->array[index] );
 
+
     if ( tokens ) {
-        for ( int j = 1; match && tokens[j]; j++ ) {
-            int test = 0;
+        for ( int j = 0; match && tokens[j]; j++ ) {
+            int  test = 0;
 
+            char *sml = g_utf8_casefold ( c->title, -1 );
+            char *key = g_utf8_collate_key ( sml, -1 );
             if ( !test && c->title[0] != '\0' ) {
-                test = ( strcasestr ( c->title, tokens[j] ) != NULL );
+                test = ( strstr ( key, tokens[j] ) != NULL );
             }
+            g_free ( sml ); g_free ( key );
 
+            sml = g_utf8_casefold ( c->class, -1 );
+            key = g_utf8_collate_key ( sml, -1 );
             if ( !test && c->class[0] != '\0' ) {
-                test = ( strcasestr ( c->class, tokens[j] ) != NULL );
+                test = ( strstr ( key, tokens[j] ) != NULL );
             }
+            g_free ( sml ); g_free ( key );
 
+            sml = g_utf8_casefold ( c->role, -1 );
+            key = g_utf8_collate_key ( sml, -1 );
             if ( !test && c->role[0] != '\0' ) {
-                test = ( strcasestr ( c->role, tokens[j] ) != NULL );
+                test = ( strstr ( key, tokens[j] ) != NULL );
             }
+            g_free ( sml ); g_free ( key );
 
+            sml = g_utf8_casefold ( c->name, -1 );
+            key = g_utf8_collate_key ( sml, -1 );
             if ( !test && c->name[0] != '\0' ) {
-                test = ( strcasestr ( c->name, tokens[j] ) != NULL );
+                test = ( strstr ( key, tokens[j] ) != NULL );
             }
+            g_free ( sml ); g_free ( key );
 
             if ( test == 0 ) {
                 match = 0;
@@ -1739,7 +1760,7 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
     // strangeness...
     if ( do_fork == TRUE ) {
         if ( fork () ) {
-            return ;
+            return;
         }
 
         display = XOpenDisplay ( 0 );
@@ -2231,9 +2252,9 @@ int main ( int argc, char *argv[] )
     }
     else if ( find_arg ( argc, argv, "-dmenu" ) >= 0 ) {
         find_arg_str ( argc, argv, "-p", &dmenu_prompt );
-        int retv = run_dmenu();
+        int retv = run_dmenu ();
         // User cancelled the operation.
-        if(retv == FALSE) {
+        if ( retv == FALSE ) {
             return EXIT_FAILURE;
         }
     }
