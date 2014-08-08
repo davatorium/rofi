@@ -819,72 +819,6 @@ void menu_draw ( textbox **boxes,
     }
 }
 
-
-/* Very bad implementation of tab completion.
- * It will complete to the common prefix
- */
-static int calculate_common_prefix ( char **filtered, int max_elements )
-{
-    int length_prefix = 0;
-
-    if ( filtered && filtered[0] != NULL ) {
-        int  found = 1;
-        char *p    = filtered[0];
-
-        do {
-            found = 1;
-
-            for ( int j = 0; j < max_elements && filtered[j] != NULL; j++ ) {
-                if ( filtered[j][length_prefix] == '\0' || filtered[j][length_prefix] != *p ) {
-                    if ( found ) {
-                        found = 0;
-                    }
-
-                    break;
-                }
-            }
-
-            if ( found ) {
-                length_prefix++;
-            }
-
-            p++;
-        } while ( found );
-        // cut off to be valid utf8.
-        for ( int j = 0; j < length_prefix; ) {
-            if ( ( filtered[0][j] & 0x80 ) == 0 ) {
-                j++;
-            }
-            else if ( ( filtered[0][j] & 0xf0 ) == 0xc0 ) {
-                // 2 bytes
-                if ( ( j + 2 ) >= length_prefix ) {
-                    length_prefix = j;
-                }
-                j += 2;
-            }
-            else if ( ( filtered[0][j] & 0xf0 ) == 0xe0 ) {
-                // 3 bytes
-                if ( ( j + 3 ) >= length_prefix ) {
-                    length_prefix = j;
-                }
-                j += 3;
-            }
-            else if ( ( filtered[0][j] & 0xf0 ) == 0xf0 ) {
-                // 4 bytes
-                if ( ( j + 4 ) >= length_prefix ) {
-                    length_prefix = j;
-                }
-                j += 4;
-            }
-            else{
-                j++;
-            };
-        }
-    }
-    return length_prefix;
-}
-
-
 int window_match ( char **tokens, __attribute__( ( unused ) ) const char *input, int index, void *data )
 {
     int     match = 1;
@@ -1522,22 +1456,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                 break;
                             }
 
-                            int length_prefix = calculate_common_prefix ( filtered, filtered_lines );
-
-                            // TODO: memcmp to utf8 aware cmp.
-                            if ( length_prefix && memcmp ( filtered[0], text->text, length_prefix ) ) {
-                                // Do not want to modify original string, so make copy.
-                                // not eff..
-                                char * str = malloc ( sizeof ( char ) * ( length_prefix + 1 ) );
-                                memcpy ( str, filtered[0], length_prefix );
-                                str[length_prefix] = '\0';
-                                textbox_text ( text, str );
-                                textbox_cursor_end ( text );
-                                free ( str );
-                                update = TRUE;
-                            }
                             // Double tab!
-                            else if ( filtered_lines == 0 && key == prev_key ) {
+                            if ( filtered_lines == 0 && key == prev_key ) {
                                 retv           = MENU_NEXT;
                                 *selected_line = 0;
                                 break;
