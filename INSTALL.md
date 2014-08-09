@@ -15,7 +15,6 @@
 * libxft
 * libpango
 * libx11
-* libxdg-basedir
 
 ### Optional:
 
