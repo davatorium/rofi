@@ -11,19 +11,25 @@ Pringle](http://github.com/seanpringle/simpleswitcher). All credit for this grea
 Rofi developed extra features, like a run-dialog, ssh-launcher and can act as a drop-in dmenu
 replacement, making it a very versatile tool.
 
-Using Rofi is a lot like dmenu, but extended for an improved work flow. You can: 
+Using Rofi is a lot like dmenu, but extended for an improved work flow.
+It main features are:
 
-* Type to filter windows.
-* Tokenized filter. Type any word in any order to filter.
-* Arrows or ctrl-hjkl to highlight selections.
-* Return to select.
-* Tab completion.
-* UTF-8 support.
-
-For the run and ssh modi:
-
+* Full keyboard navigation.
+* Type to filter
+    - Tokenized: Type any word in any order to filter.
+    - Case insensitive
+* UTF-8 enabled.
+    - UTF-8 aware string collating.
+* Pango font rendering.
+* RTL language support.
+* Window Switcher.
+    - I3 support.
+* Run dialog.
+* SSH launcher.
 * History based ordering last 25 choices are ordered on top based on use. (optional)
 * Levenshtein distance ordering of matches. (optional)
+* Drop in dmenu replacement.
+* Can be easily extended using scripts.
 
 The 4 Main functions of rofi are:
 
@@ -37,7 +43,7 @@ The window switcher shows the following informations in columns:
 2. Window class.
 3. Window title.
 
-If compiled with I3 support, it should autodetect if I3 window manager is running and switch into 
+If compiled with I3 support, it should autodetect if I3 window manager is running and switch into
 I3 compatibility mode. This will disable Desktop numbers and hide the i3-bar, also it sends an IPC
 message to I3 to change focus.
 
@@ -67,12 +73,33 @@ Quickly ssh into remote machines
 Drop in dmenu replacement. (Screenshot shows rofi used by
 [teiler](https://github.com/carnager/teiler) ).
 
+## Keybindings
+
+| Key                        | Action                                                             |
+|:---------------------------|:-------------------------------------------------------------------|
+|`Ctrl-v, Insert`            | Paste clipboard                                                    |
+|`Ctrl-Shift-v, Shift-Insert`| Paste primary selection                                            |
+|`Ctrl-u`                    | Clear the line                                                     |
+|`Ctrl-a`                    | Beginning of line                                                  |
+|`Ctrl-e`                    | End of line                                                        |
+|`Ctrl-f, Right`             | Forward one character                                              |
+|`Ctrl-b, Left`              | Back one character                                                 |
+|`Ctrl-d, Delete`            | Delete character                                                   |
+|`Ctrl-h, Backspace`         | Backspace (delete previous character)                              |
+|`Ctrl-j,Ctrl-m,Enter`       | Accept entry                                                       |
+|`Ctrl-n,Down`               | Select next entry                                                  |
+|`Ctrl-p,Up`                 | Select previous entry                                              |
+|`Page Up`                   | Go to the previous page                                            |
+|`Page Down`                 | Go to the next page                                                |
+|`Ctrl-Page Up`              | Go to the previous column                                          |
+|`Ctrl-Page Down`            | Go to the next column                                              |
+|`?`                         | Switch to the next modi. See the `-switchers` argument.            |
 
 # Usage
 
 e.g. a one-shot launch:
 
-  rofi -now -font "snap-10" -fg "#505050" -bg "#000000" -hlfg "#ffb964" -hlbg "#000000" -o 85
+  rofi -now -font "snap 10" -fg "#505050" -bg "#000000" -hlfg "#ffb964" -hlbg "#000000" -o 85
 
 or run it as a daemon that sits in the background waiting for the hotkey 'F12':
 
@@ -96,8 +123,12 @@ To build rofi, run the following steps:
     make
     make install
 
-The build system will autodetect the i3 header file during compilation. If it fails, make sure you 
-have i3/ipc.h installed. Check config.log for more information. 
+The build system will autodetect the i3 header file during compilation. If it fails, make sure you
+have i3/ipc.h installed. Check config.log for more information.
+
+# Keybindings
+
+
 
 # Dependencies
 
@@ -106,7 +137,7 @@ Rofi requires the following tools and libraries to be installed:
  * libx11
  * libxinerama
  * libxdg-basedir
- * libxft 
+ * libxft
 
 # Configuration
 
@@ -118,7 +149,7 @@ You can change the default behavior by modifying config/config.c
 
 ## 2. Xresources
 
-Another solution is to configure it via X resources, e.g. add the following to your 
+Another solution is to configure it via X resources, e.g. add the following to your
 Xresources file:
 
     rofi.background: #333
@@ -156,4 +187,4 @@ If you need to ask a direct question or get support installing, please find us o
 When reporting bugs keep in mind that the people working on it do this unpaid, in their free time
 and as a hobby. So be polite and helpful. Bug reports that *demand*, contain *insults* to this
 or other projects, or have a general unfriendly tone will be closed without discussion. Everybody
-has it own way of working; What might be the *norm* for you, might not be for others. 
+has it own way of working; What might be the *norm* for you, might not be for others.
