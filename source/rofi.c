@@ -60,8 +60,6 @@
 #include <i3/ipc.h>
 #endif
 
-#include <basedir.h>
-
 #include "run-dialog.h"
 #include "ssh-dialog.h"
 #include "dmenu-dialog.h"
@@ -79,8 +77,6 @@ int  config_i3_mode = 0;
 char *i3_socket_path = NULL;
 #endif
 
-
-xdgHandle    xdg_handle;
 const char   *cache_dir  = NULL;
 unsigned int NumlockMask = 0;
 Display      *display    = NULL;
@@ -1967,9 +1963,6 @@ static void cleanup ()
     // TODO, not happy with this.
     parse_xresource_free ();
 
-    // Whipe the handle.. (not working)
-    xdgWipeHandle ( &xdg_handle );
-
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
         // only used for script dialog.
         if ( switchers[i].cb_data != NULL ) {
@@ -2061,14 +2054,8 @@ static void setup_switchers ( void )
 
 int main ( int argc, char *argv[] )
 {
-    // Initialize xdg, so we can grab the xdgCacheHome
-    if ( xdgInitHandle ( &xdg_handle ) == NULL ) {
-        fprintf ( stderr, "Failed to initialize XDG\n" );
-        return EXIT_FAILURE;
-    }
-
     // Get the path to the cache dir.
-    cache_dir = xdgCacheHome ( &xdg_handle );
+    cache_dir = g_get_user_cache_dir ();
 
     // Register cleanup function.
     atexit ( cleanup );
