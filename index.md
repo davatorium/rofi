@@ -87,22 +87,6 @@ or run it as a daemon that sits in the background waiting for the hotkey 'F12':
 
 Type '?' (enter)  to switch from Window list mode to Run mode and back.
 
-# Compilation
-
-If compiling from GIT, first run to generate the needed build files:
-
-    autoreconf --install
-
-To build rofi, run the following steps:
-
-    mkdir build/
-    cd build/
-    ../configure
-    make
-    make install
-
-The build system will autodetect the i3 header file during compilation. If it fails, make sure you
-have i3/ipc.h installed. Check config.log for more information.
 
 ## Keybindings
 
@@ -127,6 +111,22 @@ have i3/ipc.h installed. Check config.log for more information.
 |`?`                         | Switch to the next modi. See the `-switchers` argument.            |
 
 
+# Compilation
+
+If compiling from GIT, first run to generate the needed build files:
+
+    autoreconf --install
+
+To build rofi, run the following steps:
+
+    mkdir build/
+    cd build/
+    ../configure
+    make
+    make install
+
+The build system will autodetect the i3 header file during compilation. If it fails, make sure you
+have i3/ipc.h installed. Check config.log for more information.
 
 # Dependencies
 
