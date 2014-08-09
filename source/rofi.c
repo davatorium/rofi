@@ -106,27 +106,6 @@ int switcher_get ( const char *name )
     return -1;
 }
 
-
-/**
- * Not every platform has strlcpy. (Why god why?)
- * So a quick implementation to fix this.
- */
-static size_t copy_string ( char *dest, const char *src, size_t len )
-{
-    size_t size;
-
-    if ( !len ) {
-        return 0;
-    }
-    size = strlen ( src );
-    if ( size >= len ) {
-        size = len - 1;
-    }
-    memcpy ( dest, src, size );
-    dest[size] = '\0';
-    return size;
-}
-
 /**
  * Shared 'token_match' function.
  * Matches tokenized.
@@ -2013,21 +1992,21 @@ static void setup_switchers ( void )
           token = strtok_r ( NULL, ",", &savept ) ) {
         if ( strcasecmp ( token, "window" ) == 0 ) {
             switchers = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
-            copy_string ( switchers[num_switchers].name, "window", 32 );
+            g_strlcpy ( switchers[num_switchers].name, "window", 32 );
             switchers[num_switchers].cb      = run_switcher_window;
             switchers[num_switchers].cb_data = NULL;
             num_switchers++;
         }
         else if ( strcasecmp ( token, "ssh" ) == 0 ) {
             switchers = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
-            copy_string ( switchers[num_switchers].name, "ssh", 32 );
+            g_strlcpy ( switchers[num_switchers].name, "ssh", 32 );
             switchers[num_switchers].cb      = ssh_switcher_dialog;
             switchers[num_switchers].cb_data = NULL;
             num_switchers++;
         }
         else if ( strcasecmp ( token, "run" ) == 0 ) {
             switchers = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
-            copy_string ( switchers[num_switchers].name, "run", 32 );
+            g_strlcpy ( switchers[num_switchers].name, "run", 32 );
             switchers[num_switchers].cb      = run_switcher_dialog;
             switchers[num_switchers].cb_data = NULL;
             num_switchers++;
@@ -2036,7 +2015,7 @@ static void setup_switchers ( void )
             ScriptOptions *sw = script_switcher_parse_setup ( token );
             if ( sw != NULL ) {
                 switchers = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
-                copy_string ( switchers[num_switchers].name, sw->name, 32 );
+                g_strlcpy ( switchers[num_switchers].name, sw->name, 32 );
                 switchers[num_switchers].cb      = script_switcher_dialog;
                 switchers[num_switchers].cb_data = sw;
                 num_switchers++;
