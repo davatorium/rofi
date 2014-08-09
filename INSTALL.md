@@ -19,7 +19,6 @@ title: Installation guide
 * libxft
 * libpango
 * libx11
-* libxdg-basedir
 
 ### Optional:
 
