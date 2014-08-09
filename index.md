@@ -73,28 +73,6 @@ Quickly ssh into remote machines
 Drop in dmenu replacement. (Screenshot shows rofi used by
 [teiler](https://github.com/carnager/teiler) ).
 
-## Keybindings
-
-| Key                        | Action                                                             |
-|:---------------------------|:-------------------------------------------------------------------|
-|`Ctrl-v, Insert`            | Paste clipboard                                                    |
-|`Ctrl-Shift-v, Shift-Insert`| Paste primary selection                                            |
-|`Ctrl-u`                    | Clear the line                                                     |
-|`Ctrl-a`                    | Beginning of line                                                  |
-|`Ctrl-e`                    | End of line                                                        |
-|`Ctrl-f, Right`             | Forward one character                                              |
-|`Ctrl-b, Left`              | Back one character                                                 |
-|`Ctrl-d, Delete`            | Delete character                                                   |
-|`Ctrl-h, Backspace`         | Backspace (delete previous character)                              |
-|`Ctrl-j,Ctrl-m,Enter`       | Accept entry                                                       |
-|`Ctrl-n,Down`               | Select next entry                                                  |
-|`Ctrl-p,Up`                 | Select previous entry                                              |
-|`Page Up`                   | Go to the previous page                                            |
-|`Page Down`                 | Go to the next page                                                |
-|`Ctrl-Page Up`              | Go to the previous column                                          |
-|`Ctrl-Page Down`            | Go to the next column                                              |
-|`?`                         | Switch to the next modi. See the `-switchers` argument.            |
-
 # Usage
 
 e.g. a one-shot launch:
@@ -126,7 +104,27 @@ To build rofi, run the following steps:
 The build system will autodetect the i3 header file during compilation. If it fails, make sure you
 have i3/ipc.h installed. Check config.log for more information.
 
-# Keybindings
+## Keybindings
+
+| Key                        | Action                                                             |
+|:---------------------------|:-------------------------------------------------------------------|
+|`Ctrl-v, Insert`            | Paste clipboard                                                    |
+|`Ctrl-Shift-v, Shift-Insert`| Paste primary selection                                            |
+|`Ctrl-u`                    | Clear the line                                                     |
+|`Ctrl-a`                    | Beginning of line                                                  |
+|`Ctrl-e`                    | End of line                                                        |
+|`Ctrl-f, Right`             | Forward one character                                              |
+|`Ctrl-b, Left`              | Back one character                                                 |
+|`Ctrl-d, Delete`            | Delete character                                                   |
+|`Ctrl-h, Backspace`         | Backspace (delete previous character)                              |
+|`Ctrl-j,Ctrl-m,Enter`       | Accept entry                                                       |
+|`Ctrl-n,Down`               | Select next entry                                                  |
+|`Ctrl-p,Up`                 | Select previous entry                                              |
+|`Page Up`                   | Go to the previous page                                            |
+|`Page Down`                 | Go to the next page                                                |
+|`Ctrl-Page Up`              | Go to the previous column                                          |
+|`Ctrl-Page Down`            | Go to the next column                                              |
+|`?`                         | Switch to the next modi. See the `-switchers` argument.            |
 
 
 
@@ -136,8 +134,8 @@ Rofi requires the following tools and libraries to be installed:
 
  * libx11
  * libxinerama
- * libxdg-basedir
  * libxft
+ * pango
 
 # Configuration
 
