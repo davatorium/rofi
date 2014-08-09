@@ -85,12 +85,8 @@ static char **get_script_output ( char *command, unsigned int *length )
     *length = 0;
     execute_generator ( command );
     while ( fgets ( buffer, 1024, stdin ) != NULL ) {
-        char **tr = realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-        if ( tr == NULL ) {
-            return retv;
-        }
-        retv                  = tr;
-        retv[( *length )]     = strdup ( buffer );
+        retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
+        retv[( *length )]     = g_strdup ( buffer );
         retv[( *length ) + 1] = NULL;
 
         // Filter out line-end.
@@ -106,12 +102,10 @@ static char **get_script_output ( char *command, unsigned int *length )
 
 char **execute_executor ( ScriptOptions *options, const char *result, unsigned int *length )
 {
-    char **retv = NULL;
-    char *command;
-    if ( asprintf ( &command, "%s '%s'", options->script_path, result ) > 0 ) {
-        retv = get_script_output ( command, length );
-        free ( command );
-    }
+    char **retv   = NULL;
+    char *command = g_strdup_printf ( "%s '%s'", options->script_path, result );
+    retv = get_script_output ( command, length );
+    g_free ( command );
     return retv;
 }
 
@@ -123,12 +117,7 @@ SwitcherMode script_switcher_dialog ( char **input, void *data )
     SwitcherMode  retv          = MODE_EXIT;
     unsigned int  length        = 0;
     char          **list        = get_script_output ( options->script_path, &length );
-    char          *prompt       = NULL;
-    if ( asprintf ( &( prompt ), "%s:", options->name ) <= 0 ) {
-        fprintf ( stderr, "Failed to allocate string.\n" );
-        abort ();
-    }
-
+    char          *prompt       = g_strdup_printf ( "%s:", options->name );
 
     do {
         unsigned int new_length = 0;
@@ -150,24 +139,19 @@ SwitcherMode script_switcher_dialog ( char **input, void *data )
         }
 
         // Free old list.
-        for ( unsigned int i = 0; i < length; i++ ) {
-            free ( list[i] );
-        }
+        g_strfreev ( list );
+        list = NULL;
 
-        if ( list != NULL ) {
-            free ( list );
-            list = NULL;
-        }
         // If a new list was generated, use that an loop around.
         if ( new_list != NULL ) {
             list   = new_list;
             length = new_length;
-            free ( *input );
+            g_free ( *input );
             *input = NULL;
         }
     } while ( list != NULL );
 
-    free ( prompt );
+    g_free ( prompt );
     return retv;
 }
 
@@ -176,29 +160,29 @@ void script_switcher_free_options ( ScriptOptions *sw )
     if ( sw == NULL ) {
         return;
     }
-    free ( sw->name );
-    free ( sw->script_path );
-    free ( sw );
+    g_free ( sw->name );
+    g_free ( sw->script_path );
+    g_free ( sw );
 }
 
 
 ScriptOptions *script_switcher_parse_setup ( const char *str )
 {
-    ScriptOptions *sw    = calloc ( 1, sizeof ( *sw ) );
+    ScriptOptions *sw    = g_malloc0 ( sizeof ( *sw ) );
     char          *endp  = NULL;
-    char          *parse = strdup ( str );
+    char          *parse = g_strdup ( str );
     unsigned int  index  = 0;
     // TODO: This is naive and can be improved.
     for ( char *token = strtok_r ( parse, ":", &endp ); token != NULL; token = strtok_r ( NULL, ":", &endp ) ) {
         if ( index == 0 ) {
-            sw->name = strdup ( token );
+            sw->name = g_strdup ( token );
         }
         else if ( index == 1 ) {
-            sw->script_path = strdup ( token );
+            sw->script_path = g_strdup ( token );
         }
         index++;
     }
-    free ( parse );
+    g_free ( parse );
     if ( index == 2 ) {
         return sw;
     }

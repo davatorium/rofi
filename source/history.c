@@ -89,13 +89,9 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
             continue;
         }
         // Resize and check.
-        _element **tr = realloc ( retv, ( *length + 2 ) * sizeof ( _element* ) );
-        if ( tr == NULL ) {
-            return retv;
-        }
-        retv = tr;
+        retv = g_realloc ( retv, ( *length + 2 ) * sizeof ( _element* ) );
 
-        retv[( *length )] = malloc ( sizeof ( _element ) );
+        retv[( *length )] = g_malloc ( sizeof ( _element ) );
         // remove trailing \n
         buffer[strlen ( buffer ) - 1] = '\0';
         // Parse the number of times.
@@ -144,20 +140,17 @@ void history_set ( const char *filename, const char *entry )
     else{
         // If not exists, add it.
         // Increase list by one
-        _element **tr = realloc ( list, ( length + 2 ) * sizeof ( _element* ) );
-        if ( tr != NULL ) {
-            list         = tr;
-            list[length] = malloc ( sizeof ( _element ) );
-            // Copy name
-            if ( list[length] != NULL ) {
-                strncpy ( list[length]->name, entry, HISTORY_NAME_LENGTH );
-                list[length]->name[HISTORY_NAME_LENGTH - 1] = '\0';
-                // set # hits
-                list[length]->index = 1;
+        list         = g_realloc ( list, ( length + 2 ) * sizeof ( _element* ) );
+        list[length] = g_malloc ( sizeof ( _element ) );
+        // Copy name
+        if ( list[length] != NULL ) {
+            strncpy ( list[length]->name, entry, HISTORY_NAME_LENGTH );
+            list[length]->name[HISTORY_NAME_LENGTH - 1] = '\0';
+            // set # hits
+            list[length]->index = 1;
 
-                length++;
-                list[length] = NULL;
-            }
+            length++;
+            list[length] = NULL;
         }
     }
 
@@ -173,9 +166,9 @@ void history_set ( const char *filename, const char *entry )
     }
     // Free the list.
     for ( unsigned int iter = 0; iter < length; iter++ ) {
-        free ( list[iter] );
+        g_free ( list[iter] );
     }
-    free ( list );
+    g_free ( list );
     // Close file.
     fclose ( fd );
 }
@@ -209,7 +202,7 @@ void history_remove ( const char *filename, const char *entry )
     // If found, remove it and write out new file.
     if ( found ) {
         // Remove the entry.
-        free ( list[curr] );
+        g_free ( list[curr] );
         // Swap last to here (if list is size 1, we just swap empty sets).
         list[curr] = list[length - 1];
         // Empty last.
@@ -230,10 +223,10 @@ void history_remove ( const char *filename, const char *entry )
 
     // Free the list.
     for ( unsigned int iter = 0; iter < length; iter++ ) {
-        free ( list[iter] );
+        g_free ( list[iter] );
     }
     if ( list != NULL ) {
-        free ( list );
+        g_free ( list );
     }
     // Close file.
     fclose ( fd );
@@ -262,13 +255,13 @@ char ** history_get_list ( const char *filename, unsigned int *length )
     // Copy list in right format.
     // Lists are always short, so performance should not be an issue.
     if ( ( *length ) > 0 ) {
-        retv = malloc ( ( ( *length ) + 1 ) * sizeof ( char * ) );
+        retv = g_malloc ( ( ( *length ) + 1 ) * sizeof ( char * ) );
         for ( int iter = 0; iter < ( *length ); iter++ ) {
-            retv[iter] = strdup ( list[iter]->name );
-            free ( list[iter] );
+            retv[iter] = g_strdup ( list[iter]->name );
+            g_free ( list[iter] );
         }
         retv[( *length )] = NULL;
-        free ( list );
+        g_free ( list );
     }
 
     fclose ( fd );

@@ -78,13 +78,11 @@ static pid_t exec_cmd ( const char *cmd, int run_in_term )
      * This happens in non-critical time (After launching app)
      * It is allowed to be a bit slower.
      */
-    char *path = NULL;
-    if ( asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) == -1 ) {
-        return -1;
-    }
+    char *path = g_strdup_printf ( "%s/%s", cache_dir, RUN_CACHE_FILE );
+
     history_set ( path, cmd );
 
-    free ( path );
+    g_free ( path );
 
     return pid;
 }
@@ -95,13 +93,11 @@ static void delete_entry ( const char *cmd )
      * This happens in non-critical time (After launching app)
      * It is allowed to be a bit slower.
      */
-    char *path = NULL;
-    if ( asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) == -1 ) {
-        return;
-    }
+    char *path = g_strdup_printf ( "%s/%s", cache_dir, RUN_CACHE_FILE );
+
     history_remove ( path, cmd );
 
-    free ( path );
+    g_free ( path );
 }
 static int sort_func ( const void *a, const void *b )
 {
@@ -124,15 +120,14 @@ static char ** get_apps ( unsigned int *length )
     }
 
 
-    if ( asprintf ( &path, "%s/%s", cache_dir, RUN_CACHE_FILE ) > 0 ) {
-        retv = history_get_list ( path, length );
-        free ( path );
-        // Keep track of how many where loaded as favorite.
-        num_favorites = ( *length );
-    }
+    path = g_strdup_printf ( "%s/%s", cache_dir, RUN_CACHE_FILE );
+    retv = history_get_list ( path, length );
+    g_free ( path );
+    // Keep track of how many where loaded as favorite.
+    num_favorites = ( *length );
 
 
-    path = strdup ( getenv ( "PATH" ) );
+    path = g_strdup ( getenv ( "PATH" ) );
 
     for ( const char *dirname = strtok ( path, ":" );
           dirname != NULL;
@@ -167,13 +162,10 @@ static char ** get_apps ( unsigned int *length )
                     continue;
                 }
 
-                char ** tr = realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-                if ( tr != NULL ) {
-                    retv                  = tr;
-                    retv[( *length )]     = strdup ( dent->d_name );
-                    retv[( *length ) + 1] = NULL;
-                    ( *length )++;
-                }
+                retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
+                retv[( *length )]     = g_strdup ( dent->d_name );
+                retv[( *length ) + 1] = NULL;
+                ( *length )++;
             }
 
             closedir ( dir );
@@ -184,7 +176,7 @@ static char ** get_apps ( unsigned int *length )
     if ( ( *length ) > num_favorites ) {
         qsort ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func );
     }
-    free ( path );
+    g_free ( path );
 #ifdef TIMING
     clock_gettime ( CLOCK_REALTIME, &stop );
 
@@ -208,8 +200,8 @@ SwitcherMode run_switcher_dialog ( char **input, void *data )
     char         **cmd_list      = get_apps ( &cmd_list_length );
 
     if ( cmd_list == NULL ) {
-        cmd_list    = malloc ( 2 * sizeof ( char * ) );
-        cmd_list[0] = strdup ( "No applications found" );
+        cmd_list    = g_malloc_n ( 2, sizeof ( char * ) );
+        cmd_list[0] = g_strdup ( "No applications found" );
         cmd_list[1] = NULL;
     }
 
@@ -233,13 +225,7 @@ SwitcherMode run_switcher_dialog ( char **input, void *data )
         retv = RELOAD_DIALOG;
     }
 
-    for ( int i = 0; cmd_list != NULL && cmd_list[i] != NULL; i++ ) {
-        free ( cmd_list[i] );
-    }
-
-    if ( cmd_list != NULL ) {
-        free ( cmd_list );
-    }
+    g_strfreev ( cmd_list );
 
     return retv;
 }

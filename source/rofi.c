@@ -167,25 +167,25 @@ static char **tokenize ( const char *input )
     int  num_tokens = 0;
 
     // Copy the string, 'strtok_r' modifies it.
-    char *str = strdup ( input );
+    char *str = g_strdup ( input );
 
     // Iterate over tokens.
     // strtok should still be valid for utf8.
     for ( token = strtok_r ( str, " ", &saveptr );
           token != NULL;
           token = strtok_r ( NULL, " ", &saveptr ) ) {
-        char **tr = realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
-        if ( tr != NULL ) {
-            char *tmp = g_utf8_casefold ( token, -1 );
-            retv                 = tr;
-            retv[num_tokens + 1] = NULL;
-            retv[num_tokens]     = g_utf8_collate_key ( tmp, -1 );
-            num_tokens++;
-            g_free ( tmp );
-        }
+        // Get case insensitive version of the string.
+        char *tmp = g_utf8_casefold ( token, -1 );
+
+        retv                 = g_realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
+        retv[num_tokens + 1] = NULL;
+        // Create compare key from the case insensitive version.
+        retv[num_tokens] = g_utf8_collate_key ( tmp, -1 );
+        num_tokens++;
+        g_free ( tmp );
     }
     // Free str.
-    free ( str );
+    g_free ( str );
     return retv;
 }
 
@@ -199,7 +199,7 @@ static inline void tokenize_free ( char **ip )
     for ( int i = 0; ip[i] != NULL; i++ ) {
         g_free ( ip[i] );
     }
-    free ( ip );
+    g_free ( ip );
 }
 
 #ifdef HAVE_I3_IPC_H
@@ -360,17 +360,17 @@ winlist *cache_xattr  = NULL;
 
 winlist* winlist_new ()
 {
-    winlist *l = malloc ( sizeof ( winlist ) );
+    winlist *l = g_malloc ( sizeof ( winlist ) );
     l->len   = 0;
-    l->array = malloc ( sizeof ( Window ) * ( WINLIST + 1 ) );
-    l->data  = malloc ( sizeof ( void* ) * ( WINLIST + 1 ) );
+    l->array = g_malloc_n ( WINLIST + 1, sizeof ( Window ) );
+    l->data  = g_malloc_n ( WINLIST + 1, sizeof ( void* ) );
     return l;
 }
 int winlist_append ( winlist *l, Window w, void *d )
 {
     if ( l->len > 0 && !( l->len % WINLIST ) ) {
-        l->array = realloc ( l->array, sizeof ( Window ) * ( l->len + WINLIST + 1 ) );
-        l->data  = realloc ( l->data, sizeof ( void* ) * ( l->len + WINLIST + 1 ) );
+        l->array = g_realloc ( l->array, sizeof ( Window ) * ( l->len + WINLIST + 1 ) );
+        l->data  = g_realloc ( l->data, sizeof ( void* ) * ( l->len + WINLIST + 1 ) );
     }
     // Make clang-check happy.
     // TODO: make clang-check clear this should never be 0.
@@ -385,15 +385,15 @@ int winlist_append ( winlist *l, Window w, void *d )
 void winlist_empty ( winlist *l )
 {
     while ( l->len > 0 ) {
-        free ( l->data[--( l->len )] );
+        g_free ( l->data[--( l->len )] );
     }
 }
 void winlist_free ( winlist *l )
 {
     winlist_empty ( l );
-    free ( l->array );
-    free ( l->data );
-    free ( l );
+    g_free ( l->array );
+    g_free ( l->data );
+    g_free ( l );
 }
 int winlist_find ( winlist *l, Window w )
 {
@@ -432,7 +432,7 @@ typedef struct
 
 
 
-// malloc a pixel value for an X named color
+// g_malloc a pixel value for an X named color
 static unsigned int color_get ( Display *display, const char *const name )
 {
     int      screen_id = DefaultScreen ( display );
@@ -485,14 +485,14 @@ XWindowAttributes* window_get_attributes ( Window w )
     int idx = winlist_find ( cache_xattr, w );
 
     if ( idx < 0 ) {
-        XWindowAttributes *cattr = malloc ( sizeof ( XWindowAttributes ) );
+        XWindowAttributes *cattr = g_malloc ( sizeof ( XWindowAttributes ) );
 
         if ( XGetWindowAttributes ( display, w, cattr ) ) {
             winlist_append ( cache_xattr, w, cattr );
             return cattr;
         }
 
-        free ( cattr );
+        g_free ( cattr );
         return NULL;
     }
 
@@ -552,14 +552,14 @@ char* window_get_text_prop ( Window w, Atom atom )
 
     if ( XGetTextProperty ( display, w, &prop, atom ) && prop.value && prop.nitems ) {
         if ( prop.encoding == XA_STRING ) {
-            res = malloc ( strlen ( ( char * ) prop.value ) + 1 );
+            res = g_malloc ( strlen ( ( char * ) prop.value ) + 1 );
             // make clang-check happy.
             if ( res ) {
                 strcpy ( res, ( char * ) prop.value );
             }
         }
         else if ( Xutf8TextPropertyToTextList ( display, &prop, &list, &count ) >= Success && count > 0 && *list ) {
-            res = malloc ( strlen ( *list ) + 1 );
+            res = g_malloc ( strlen ( *list ) + 1 );
             // make clang-check happy.
             if ( res ) {
                 strcpy ( res, *list );
@@ -688,7 +688,7 @@ client* window_client ( Window win )
         return NULL;
     }
 
-    client *c = calloc ( 1, sizeof ( client ) );
+    client *c = g_malloc0 ( sizeof ( client ) );
     c->window = win;
 
     // copy xattr so we don't have to care when stuff is freed
@@ -701,7 +701,7 @@ client* window_client ( Window win )
 
     if ( ( name = window_get_text_prop ( c->window, netatoms[_NET_WM_NAME] ) ) && name ) {
         snprintf ( c->title, CLIENTTITLE, "%s", name );
-        free ( name );
+        g_free ( name );
     }
     else if ( XFetchName ( display, c->window, &name ) ) {
         snprintf ( c->title, CLIENTTITLE, "%s", name );
@@ -1084,7 +1084,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     textbox_show ( prompt_tb );
 
     // filtered list display
-    textbox **boxes = calloc ( 1, sizeof ( textbox* ) * max_elements );
+    textbox **boxes = g_malloc0_n ( max_elements, sizeof ( textbox* ) );
 
     for ( i = 0; i < max_elements; i++ ) {
         int line = ( i ) % max_rows + ( ( config.hmode == FALSE ) ? 1 : 0 );
@@ -1128,11 +1128,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     }
 
     // filtered list
-    char **filtered = calloc ( num_lines, sizeof ( char* ) );
-    int  *line_map  = calloc ( num_lines, sizeof ( int ) );
+    char **filtered = g_malloc0_n ( num_lines, sizeof ( char* ) );
+    int  *line_map  = g_malloc0_n ( num_lines, sizeof ( int ) );
     int  *distance  = NULL;
     if ( sorting ) {
-        distance = calloc ( num_lines, sizeof ( int ) );
+        distance = g_malloc0_n ( num_lines, sizeof ( int ) );
     }
     unsigned int filtered_lines = 0;
     // We want to filter on the first run.
@@ -1476,9 +1476,9 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         release_keyboard ();
     }
 
-    free ( *input );
+    g_free ( *input );
 
-    *input = strdup ( text->text );
+    *input = g_strdup ( text->text );
 
     textbox_free ( text );
     textbox_free ( prompt_tb );
@@ -1489,11 +1489,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         textbox_free ( boxes[i] );
     }
 
-    free ( boxes );
+    g_free ( boxes );
 
-    free ( filtered );
-    free ( line_map );
-    free ( distance );
+    g_free ( filtered );
+    g_free ( line_map );
+    g_free ( distance );
 
     return retv;
 }
@@ -1569,7 +1569,7 @@ SwitcherMode run_switcher_window ( char **input, void *data )
 #ifdef HAVE_I3_IPC_H
     }
 #endif
-        char **list        = calloc ( ( ids->len + 1 ), sizeof ( char* ) );
+        char **list        = g_malloc0_n ( ( ids->len + 1 ), sizeof ( char* ) );
         unsigned int lines = 0;
 
         // build the actual list
@@ -1583,7 +1583,7 @@ SwitcherMode run_switcher_window ( char **input, void *data )
                 unsigned long wmdesktop;
                 char          desktop[5];
                 desktop[0] = 0;
-                char          *line = malloc ( strlen ( c->title ) + strlen ( c->class ) + classfield + 50 );
+                char          *line = g_malloc ( strlen ( c->title ) + strlen ( c->class ) + classfield + 50 );
 #ifdef HAVE_I3_IPC_H
                 if ( !config_i3_mode ) {
 #endif
@@ -1642,10 +1642,10 @@ SwitcherMode run_switcher_window ( char **input, void *data )
 
 
         for ( i = 0; i < lines; i++ ) {
-            free ( list[i] );
+            g_free ( list[i] );
         }
 
-        free ( list );
+        g_free ( list );
         winlist_free ( ids );
     }
 
@@ -1664,7 +1664,7 @@ static int run_dmenu ()
     // Dmenu modi has a return state.
     ret_state = dmenu_switcher_dialog ( &input );
 
-    free ( input );
+    g_free ( input );
 
     // Cleanup font setup.
     textbox_cleanup ();
@@ -1715,7 +1715,7 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
             }
         } while ( mode != MODE_EXIT );
     }
-    free ( input );
+    g_free ( input );
 
     // Cleanup font setup.
     textbox_cleanup ();
@@ -1958,7 +1958,7 @@ static void cleanup ()
 #ifdef HAVE_I3_IPC_H
 
     if ( i3_socket_path != NULL ) {
-        free ( i3_socket_path );
+        g_free ( i3_socket_path );
     }
 
 #endif
@@ -1976,7 +1976,7 @@ static void cleanup ()
             script_switcher_free_options ( switchers[i].cb_data );
         }
     }
-    free ( switchers );
+    g_free ( switchers );
 }
 
 /**
@@ -2013,27 +2013,27 @@ static void config_sanity_check ( void )
 static void setup_switchers ( void )
 {
     char *savept;
-    char *switcher_str = strdup ( config.switchers );
+    char *switcher_str = g_strdup ( config.switchers );
     char *token;
     for ( token = strtok_r ( switcher_str, ",", &savept );
           token != NULL;
           token = strtok_r ( NULL, ",", &savept ) ) {
         if ( strcasecmp ( token, "window" ) == 0 ) {
-            switchers = (Switcher *) realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
+            switchers = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
             copy_string ( switchers[num_switchers].name, "window", 32 );
             switchers[num_switchers].cb      = run_switcher_window;
             switchers[num_switchers].cb_data = NULL;
             num_switchers++;
         }
         else if ( strcasecmp ( token, "ssh" ) == 0 ) {
-            switchers = (Switcher *) realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
+            switchers = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
             copy_string ( switchers[num_switchers].name, "ssh", 32 );
             switchers[num_switchers].cb      = ssh_switcher_dialog;
             switchers[num_switchers].cb_data = NULL;
             num_switchers++;
         }
         else if ( strcasecmp ( token, "run" ) == 0 ) {
-            switchers = (Switcher *) realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
+            switchers = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
             copy_string ( switchers[num_switchers].name, "run", 32 );
             switchers[num_switchers].cb      = run_switcher_dialog;
             switchers[num_switchers].cb_data = NULL;
@@ -2042,7 +2042,7 @@ static void setup_switchers ( void )
         else {
             ScriptOptions *sw = script_switcher_parse_setup ( token );
             if ( sw != NULL ) {
-                switchers = (Switcher *) realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
+                switchers = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
                 copy_string ( switchers[num_switchers].name, sw->name, 32 );
                 switchers[num_switchers].cb      = script_switcher_dialog;
                 switchers[num_switchers].cb_data = sw;
@@ -2055,7 +2055,7 @@ static void setup_switchers ( void )
         }
     }
 
-    free ( switcher_str );
+    g_free ( switcher_str );
 }
 
 

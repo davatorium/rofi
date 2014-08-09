@@ -53,29 +53,21 @@ static inline int execshssh ( const char *host )
     /**
      * I am not happy about this code, it causes 7 mallocs and frees
      */
-    char **args = malloc ( sizeof ( char* ) * 7 );
+    char **args = g_malloc_n ( 7, sizeof ( char* ) );
     int  i      = 0;
     args[i++] = config.terminal_emulator;
     if ( config.ssh_set_title ) {
-        char *buffer = NULL;
-        if ( asprintf ( &buffer, "ssh %s", host ) > 0 ) {
-            args[i++] = strdup ( "-T" );
-            args[i++] = buffer;
-        }
+        args[i++] = g_strdup ( "-T" );
+        args[i++] = g_strdup_printf ( "ssh %s", host );
     }
-    args[i++] = strdup ( "-e" );
-    args[i++] = strdup ( "ssh" );
-    args[i++] = strdup ( host );
+    args[i++] = g_strdup ( "-e" );
+    args[i++] = g_strdup ( "ssh" );
+    args[i++] = g_strdup ( host );
     args[i++] = NULL;
     int retv = execvp ( config.terminal_emulator, (char * const *) args );
 
     // Free the args list.
-    for ( i = 0; i < 7; i++ ) {
-        if ( args[i] != NULL ) {
-            free ( args[i] );
-        }
-    }
-    free ( args );
+    g_strfreev ( args );
     return retv;
 }
 // execute sub-process
@@ -98,11 +90,10 @@ static pid_t exec_ssh ( const char *cmd )
      * This happens in non-critical time (After launching app)
      * It is allowed to be a bit slower.
      */
-    char *path = NULL;
-    if ( asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0 ) {
-        history_set ( path, cmd );
-        free ( path );
-    }
+    char *path = g_strdup_printf ( "%s/%s", cache_dir, SSH_CACHE_FILE );
+    history_set ( path, cmd );
+    g_free ( path );
+
     return pid;
 }
 static void delete_ssh ( const char *cmd )
@@ -111,10 +102,9 @@ static void delete_ssh ( const char *cmd )
         return;
     }
     char *path = NULL;
-    if ( asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0 ) {
-        history_remove ( path, cmd );
-        free ( path );
-    }
+    path = g_strdup_printf ( "%s/%s", cache_dir, SSH_CACHE_FILE );
+    history_remove ( path, cmd );
+    g_free ( path );
 }
 static int sort_func ( const void *a, const void *b )
 {
@@ -136,18 +126,15 @@ static char ** get_ssh ( unsigned int *length )
         return NULL;
     }
 
-    if ( asprintf ( &path, "%s/%s", cache_dir, SSH_CACHE_FILE ) > 0 ) {
-        retv = history_get_list ( path, length );
-        free ( path );
-        num_favorites = ( *length );
-    }
-
+    path = g_strdup_printf ( "%s/%s", cache_dir, SSH_CACHE_FILE );
+    retv = history_get_list ( path, length );
+    g_free ( path );
+    num_favorites = ( *length );
 
     FILE       *fd = NULL;
     const char *hd = getenv ( "HOME" );
-    if ( asprintf ( &path, "%s/%s", hd, ".ssh/config" ) >= 0 ) {
-        fd = fopen ( path, "r" );
-    }
+    path = g_strdup_printf ( "%s/%s", hd, ".ssh/config" );
+    fd   = fopen ( path, "r" );
 
     if ( fd != NULL ) {
         char buffer[1024];
@@ -184,13 +171,10 @@ static char ** get_ssh ( unsigned int *length )
                     continue;
                 }
 
-                char **tr = realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-                if ( tr != NULL ) {
-                    retv                  = tr;
-                    retv[( *length )]     = strndup ( &buffer[start], stop - start );
-                    retv[( *length ) + 1] = NULL;
-                    ( *length )++;
-                }
+                retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
+                retv[( *length )]     = strndup ( &buffer[start], stop - start );
+                retv[( *length ) + 1] = NULL;
+                ( *length )++;
             }
         }
 
@@ -201,7 +185,7 @@ static char ** get_ssh ( unsigned int *length )
     if ( ( *length ) > num_favorites ) {
         qsort ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func );
     }
-    free ( path );
+    g_free ( path );
 #ifdef TIMING
     clock_gettime ( CLOCK_REALTIME, &stop );
 
@@ -223,8 +207,8 @@ SwitcherMode ssh_switcher_dialog ( char **input, void *data )
     char         **cmd_list      = get_ssh ( &cmd_list_length );
 
     if ( cmd_list == NULL ) {
-        cmd_list    = malloc ( 2 * sizeof ( char * ) );
-        cmd_list[0] = strdup ( "No ssh hosts found" );
+        cmd_list    = g_malloc_n ( 2, sizeof ( char * ) );
+        cmd_list[0] = g_strdup ( "No ssh hosts found" );
         cmd_list[1] = NULL;
     }
 
@@ -251,13 +235,7 @@ SwitcherMode ssh_switcher_dialog ( char **input, void *data )
         retv = RELOAD_DIALOG;
     }
 
-    for ( int i = 0; cmd_list[i] != NULL; i++ ) {
-        free ( cmd_list[i] );
-    }
-
-    if ( cmd_list != NULL ) {
-        free ( cmd_list );
-    }
+    g_strfreev ( cmd_list );
 
     return retv;
 }

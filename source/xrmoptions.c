@@ -126,38 +126,36 @@ void parse_xresource_options ( Display *display )
 
     for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( *xrmOptions ); ++i ) {
         char *name, *class;
-        if ( asprintf ( &name, "%s.%s", namePrefix, xrmOptions[i].name ) == -1 ) {
-            continue;
-        }
-        if ( asprintf ( &class, "%s.%s", classPrefix, xrmOptions[i].name ) > 0 ) {
-            if ( XrmGetResource ( xDB, name, class, &xrmType, &xrmValue ) ) {
-                if ( xrmOptions[i].type == xrm_String ) {
-                    if ( xrmOptions[i].mem != NULL ) {
-                        free ( xrmOptions[i].mem );
-                        xrmOptions[i].mem = NULL;
-                    }
-                    *xrmOptions[i].str = ( char * ) malloc ( xrmValue.size * sizeof ( char ) );
-                    strncpy ( *xrmOptions[i].str, xrmValue.addr, xrmValue.size );
 
-                    // Memory
-                    xrmOptions[i].mem = ( *xrmOptions[i].str );
+        name  = g_strdup_printf ( "%s.%s", namePrefix, xrmOptions[i].name );
+        class = g_strdup_printf ( "%s.%s", classPrefix, xrmOptions[i].name );
+
+        if ( XrmGetResource ( xDB, name, class, &xrmType, &xrmValue ) ) {
+            if ( xrmOptions[i].type == xrm_String ) {
+                if ( xrmOptions[i].mem != NULL ) {
+                    g_free ( xrmOptions[i].mem );
+                    xrmOptions[i].mem = NULL;
                 }
-                else if ( xrmOptions[i].type == xrm_Number ) {
-                    *xrmOptions[i].num = strtol ( xrmValue.addr, NULL, 10 );
+                *xrmOptions[i].str = g_strndup ( xrmValue.addr, xrmValue.size );
+
+                // Memory
+                xrmOptions[i].mem = ( *xrmOptions[i].str );
+            }
+            else if ( xrmOptions[i].type == xrm_Number ) {
+                *xrmOptions[i].num = strtol ( xrmValue.addr, NULL, 10 );
+            }
+            else if ( xrmOptions[i].type == xrm_Boolean ) {
+                if ( xrmValue.size > 0 && strncasecmp ( xrmValue.addr, "true", xrmValue.size ) == 0 ) {
+                    *xrmOptions[i].num = TRUE;
                 }
-                else if ( xrmOptions[i].type == xrm_Boolean ) {
-                    if ( xrmValue.size > 0 && strncasecmp ( xrmValue.addr, "true", xrmValue.size ) == 0 ) {
-                        *xrmOptions[i].num = TRUE;
-                    }
-                    else{
-                        *xrmOptions[i].num = FALSE;
-                    }
+                else{
+                    *xrmOptions[i].num = FALSE;
                 }
             }
-
-            free ( class );
         }
-        free ( name );
+
+        g_free ( class );
+        g_free ( name );
     }
     XrmDestroyDatabase ( xDB );
 }
@@ -166,7 +164,7 @@ void parse_xresource_free ( void )
 {
     for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( *xrmOptions ); ++i ) {
         if ( xrmOptions[i].mem != NULL ) {
-            free ( xrmOptions[i].mem );
+            g_free ( xrmOptions[i].mem );
             xrmOptions[i].mem = NULL;
         }
     }

@@ -67,7 +67,7 @@ textbox* textbox_create ( Window parent,
                           TextBoxFontType tbft,
                           char *text )
 {
-    textbox *tb = calloc ( 1, sizeof ( textbox ) );
+    textbox *tb = g_malloc0 ( sizeof ( textbox ) );
 
     tb->flags  = flags;
     tb->parent = parent;
@@ -130,14 +130,13 @@ void textbox_extents ( textbox *tb )
 // set the default text to display
 void textbox_text ( textbox *tb, char *text )
 {
-    if ( tb->text ) {
-        free ( tb->text );
-    }
+    g_free ( tb->text );
+
     if ( g_utf8_validate ( text, -1, NULL ) ) {
-        tb->text = strdup ( text );
+        tb->text = g_strdup ( text );
     }
     else {
-        tb->text = strdup ( "Invalid UTF-8 string." );
+        tb->text = g_strdup ( "Invalid UTF-8 string." );
     }
     pango_layout_set_text ( tb->layout, tb->text, strlen ( tb->text ) );
 
@@ -208,15 +207,14 @@ void textbox_free ( textbox *tb )
         XCloseIM ( tb->xim );
     }
 
-    if ( tb->text ) {
-        free ( tb->text );
-    }
+    g_free ( tb->text );
+
     if ( tb->layout != NULL ) {
         g_object_unref ( tb->layout );
     }
 
     XDestroyWindow ( display, tb->window );
-    free ( tb );
+    g_free ( tb );
 }
 
 void textbox_draw ( textbox *tb )
@@ -309,7 +307,7 @@ void textbox_insert ( textbox *tb, int pos, char *str )
     int len = ( int ) strlen ( tb->text ), slen = ( int ) strlen ( str );
     pos = MAX ( 0, MIN ( len, pos ) );
     // expand buffer
-    tb->text = realloc ( tb->text, len + slen + 1 );
+    tb->text = g_realloc ( tb->text, len + slen + 1 );
     // move everything after cursor upward
     char *at = tb->text + pos;
     memmove ( at + slen, at, len - pos + 1 );

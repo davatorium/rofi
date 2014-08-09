@@ -46,12 +46,8 @@ static char **get_dmenu ( unsigned int *length )
     *length = 0;
 
     while ( fgets ( buffer, 1024, stdin ) != NULL ) {
-        char **tr = realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-        if ( tr == NULL ) {
-            return retv;
-        }
-        retv                  = tr;
-        retv[( *length )]     = strdup ( buffer );
+        retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
+        retv[( *length )]     = g_strdup ( buffer );
         retv[( *length ) + 1] = NULL;
 
         // Filter out line-end.
@@ -103,13 +99,9 @@ int dmenu_switcher_dialog ( char **input )
             retv = TRUE;
         }
     } while ( restart );
-    for ( unsigned int i = 0; i < length; i++ ) {
-        free ( list[i] );
-    }
 
-    if ( list != NULL ) {
-        free ( list );
-    }
+    g_strfreev ( list );
+
     return retv;
 }
 
