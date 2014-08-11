@@ -477,3 +477,12 @@ int textbox_get_font_width ( textbox *tb )
     pango_layout_get_pixel_size ( tb->layout, &width, NULL );
     return width;
 }
+
+double textbox_get_estimated_char_width ( textbox *tb )
+{
+    PangoContext     *context = pango_layout_get_context ( tb->layout );
+    PangoFontMetrics *metric  = pango_context_get_metrics ( context, NULL, NULL );
+    int              width    = pango_font_metrics_get_approximate_char_width ( metric );
+    pango_font_metrics_unref ( metric );
+    return ( width ) / (double) PANGO_SCALE;
+}

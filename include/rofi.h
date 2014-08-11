@@ -97,7 +97,7 @@ typedef struct _Settings
     unsigned int   window_opacity;
     // Menu settings
     unsigned int   menu_bw;
-    unsigned int   menu_width;
+    int            menu_width;
     unsigned int   menu_lines;
     unsigned int   menu_columns;
     char           * menu_font;

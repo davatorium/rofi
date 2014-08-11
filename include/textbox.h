@@ -91,4 +91,5 @@ int textbox_get_width ( textbox *tb );
 int textbox_get_font_height ( textbox *tb );
 int textbox_get_font_width ( textbox *tb );
 
+double textbox_get_estimated_char_width ( textbox *tb );
 #endif //__TEXTBOX_H__

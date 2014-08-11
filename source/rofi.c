@@ -258,12 +258,22 @@ static int find_arg_str ( int argc, char *argv[], char *key, char** val )
     return FALSE;
 }
 
-static int find_arg_int ( int argc, char *argv[], char *key, unsigned int *val )
+static int find_arg_int ( int argc, char *argv[], char *key, int *val )
 {
     int i = find_arg ( argc, argv, key );
 
     if ( val != NULL && i > 0 && i < ( argc - 1 ) ) {
         *val = strtol ( argv[i + 1], NULL, 10 );
+        return TRUE;
+    }
+    return FALSE;
+}
+static int find_arg_uint ( int argc, char *argv[], char *key, unsigned int *val )
+{
+    int i = find_arg ( argc, argv, key );
+
+    if ( val != NULL && i > 0 && i < ( argc - 1 ) ) {
+        *val = strtoul ( argv[i + 1], NULL, 10 );
         return TRUE;
     }
     return FALSE;
@@ -1020,10 +1030,33 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     // Get active monitor size.
     monitor_active ( &mon );
 
-    // Calculate as float to stop silly, big rounding down errors.
-    int w = config.menu_width < 101 ? ( mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
-    // Compensate for border width.
-    w -= config.menu_bw * 2;
+    // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
+    XWindowAttributes attr;
+    if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
+        main_window = create_window ( display );
+    }
+
+
+    // search text input
+
+    textbox *prompt_tb = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+                                          ( config.padding ), ( config.padding ),
+                                          0, 0, NORMAL, prompt );
+
+    int w = 0;
+    if ( config.menu_width < 0 ) {
+        double fw = textbox_get_estimated_char_width ( prompt_tb );
+        w  = -( fw * config.menu_width );
+        w += 2 * config.padding + 4; // 4 = 2*SIDE_MARGIN
+        // Compensate for border width.
+        w -= config.menu_bw * 2;
+    }
+    else{
+        // Calculate as float to stop silly, big rounding down errors.
+        w = config.menu_width < 101 ? ( mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
+        // Compensate for border width.
+        w -= config.menu_bw * 2;
+    }
 
     int element_width = w - ( 2 * ( config.padding ) );
     // Divide by the # columns
@@ -1032,17 +1065,6 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         element_width = ( w - ( 2 * ( config.padding ) ) - max_elements * LINE_MARGIN ) / ( max_elements + 1 );
     }
 
-    // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
-    XWindowAttributes attr;
-    if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
-        main_window = create_window ( display );
-    }
-
-    // search text input
-
-    textbox *prompt_tb = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                                          ( config.padding ), ( config.padding ),
-                                          0, 0, NORMAL, prompt );
 
     textbox *text = textbox_create ( main_window, TB_AUTOHEIGHT | TB_EDITABLE,
                                      ( config.padding ) + textbox_get_width ( prompt_tb ),
@@ -1057,6 +1079,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     textbox_show ( text );
     textbox_show ( prompt_tb );
+
 
     // filtered list display
     textbox **boxes = g_malloc0_n ( max_elements, sizeof ( textbox* ) );
@@ -1850,12 +1873,12 @@ static void parse_cmd_options ( int argc, char ** argv )
 
     find_arg_str ( argc, argv, "-switchers", &( config.switchers ) );
     // Parse commandline arguments about the looks.
-    find_arg_int ( argc, argv, "-opacity", &( config.window_opacity ) );
+    find_arg_uint ( argc, argv, "-opacity", &( config.window_opacity ) );
 
     find_arg_int ( argc, argv, "-width", &( config.menu_width ) );
 
-    find_arg_int ( argc, argv, "-lines", &( config.menu_lines ) );
-    find_arg_int ( argc, argv, "-columns", &( config.menu_columns ) );
+    find_arg_uint ( argc, argv, "-lines", &( config.menu_lines ) );
+    find_arg_uint ( argc, argv, "-columns", &( config.menu_columns ) );
 
     find_arg_str ( argc, argv, "-font", &( config.menu_font ) );
     find_arg_str ( argc, argv, "-fg", &( config.menu_fg ) );
@@ -1863,11 +1886,11 @@ static void parse_cmd_options ( int argc, char ** argv )
     find_arg_str ( argc, argv, "-hlfg", &( config.menu_hlfg ) );
     find_arg_str ( argc, argv, "-hlbg", &( config.menu_hlbg ) );
     find_arg_str ( argc, argv, "-bc", &( config.menu_bc ) );
-    find_arg_int ( argc, argv, "-bw", &( config.menu_bw ) );
+    find_arg_uint ( argc, argv, "-bw", &( config.menu_bw ) );
 
     // Parse commandline arguments about size and position
-    find_arg_int ( argc, argv, "-location", &( config.location ) );
-    find_arg_int ( argc, argv, "-padding", &( config.padding ) );
+    find_arg_uint ( argc, argv, "-location", &( config.location ) );
+    find_arg_uint ( argc, argv, "-padding", &( config.padding ) );
     find_arg_int ( argc, argv, "-xoffset", &( config.x_offset ) );
     find_arg_int ( argc, argv, "-yoffset", &( config.y_offset ) );
     if ( find_arg ( argc, argv, "-fixed-num-lines" ) >= 0 ) {
