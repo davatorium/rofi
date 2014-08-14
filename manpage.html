@@ -64,10 +64,16 @@ menu (default: #ffffff).</dd></dl>
 <p><code>-columns</code></p><dl><dd>The number of columns the menu may show before scrolling (default: 25).</dd></dl>
 <pre><code>  rofi -columns 2
 </code></pre>
-<p><code>-width</code></p><dl><dd>Set the width of the menu as a percentage of the screen width (default: 60).</dd></dl>
+<p><code>-width</code> [value]</p><dl><dd>Set the width of the menu as a percentage of the screen width (default: 60).</dd></dl>
 <pre><code>  rofi -width 60
 </code></pre>
-<p><code>-terminal</code></p><dl><dd>Specify what terminal to start (default x-terminal-emulator)</dd></dl>
+<dl><dd>If value is larger then 100, the size is set in pixels. e.g. to span a full hd monitor:</dd></dl>
+<pre><code> rofi -width 1980
+</code></pre>
+<dl><dd>If the value is negative, it tries to estimates a character width. To show 30 characters on a row:</dd></dl>
+<pre><code>rofi -width -30
+</code></pre>
+<dl><dt>(Character width is a rough estimation, and might not be correct, but should work for most</dt><dd>   monospaced fonts..)</dd></dl><p><code>-terminal</code></p><dl><dd>Specify what terminal to start (default x-terminal-emulator)</dd></dl>
 <pre><code>  rofi -terminal xterm
 </code></pre>
 <p><code>-location</code></p><dl><dd>Specify where the window should be located. The numbers map to the following location on the
@@ -94,8 +100,7 @@ Default value is true.</dd></dl><p><code>-disable-history</code></p><dl><dd>Disa
 <dl><dd>So to have a mode &#39;Workspaces&#39; using the <code>i3_switch_workspace.sh</code> script type:</dd></dl>
 <pre><code>    rofi -switchers &quot;window,run,ssh,Workspaces:i3_switch_workspaces.sh&quot; -show Workspaces
 </code></pre>
-<h2 id="Switch-between-modi">Switch between modi<a name="Switch-between-modi" href="#Switch-between-modi" class="md2man-permalink"></a></h2><p>Type &#39;?&#39; <em>enter</em> to switch between window list, run and ssh mode. The list can be customized with
-the <code>-switchers</code> argument.</p><h2 id="WEBSITE">WEBSITE<a name="WEBSITE" href="#WEBSITE" class="md2man-permalink"></a></h2><p><strong>rofi</strong> website can be found at <a href="https://davedavenport.github.io/rofi/">here</a></p><h2 id="Keybinding">Keybinding<a name="Keybinding" href="#Keybinding" class="md2man-permalink"></a></h2>
+<h2 id="Keybindings">Keybindings<a name="Keybindings" href="#Keybindings" class="md2man-permalink"></a></h2><p>Rofi supports the following keybindings:</p>
 <ul>
 <li><code>Ctrl-v, Insert</code>: Paste clipboard</li>
 <li><code>Ctrl-Shift-v, Shift-Insert</code>: Paste primary selection</li>
@@ -113,5 +118,6 @@ the <code>-switchers</code> argument.</p><h2 id="WEBSITE">WEBSITE<a name="WEBSIT
 <li><code>Page Down</code>: Go to the next page</li>
 <li><code>Ctrl-Page Up</code>: Go to the previous column</li>
 <li><code>Ctrl-Page Down</code>: Go to the next column</li>
+<li><code>?</code>: Switch to the next modi. The list can be customized with the <code>-switchers</code> argument.</li>
 </ul>
-<h2 id="AUTHOR">AUTHOR<a name="AUTHOR" href="#AUTHOR" class="md2man-permalink"></a></h2><p>Qball Cow <a href="mailto:qball@gmpclient.org">qball@gmpclient.org</a></p><p>Original code based on work by: Sean Pringle <a href="mailto:sean.pringle@gmail.com">sean.pringle@gmail.com</a></p>
+<h2 id="WEBSITE">WEBSITE<a name="WEBSITE" href="#WEBSITE" class="md2man-permalink"></a></h2><p><strong>rofi</strong> website can be found at <a href="https://davedavenport.github.io/rofi/">here</a></p><h2 id="AUTHOR">AUTHOR<a name="AUTHOR" href="#AUTHOR" class="md2man-permalink"></a></h2><p>Qball Cow <a href="mailto:qball@gmpclient.org">qball@gmpclient.org</a></p><p>Original code based on work by: Sean Pringle <a href="mailto:sean.pringle@gmail.com">sean.pringle@gmail.com</a></p>
