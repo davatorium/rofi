@@ -154,11 +154,22 @@ The default key combinations are:
 
       rofi -columns 2
 
-`-width`
+`-width` [value]
 
   Set the width of the menu as a percentage of the screen width (default: 60).
 
       rofi -width 60
+
+  If value is larger then 100, the size is set in pixels. e.g. to span a full hd monitor:
+
+     rofi -width 1980
+
+  If the value is negative, it tries to estimates a character width. To show 30 characters on a row:
+
+    rofi -width -30
+
+  (Character width is a rough estimation, and might not be correct, but should work for most
+   monospaced fonts..)
 
 `-terminal`
 

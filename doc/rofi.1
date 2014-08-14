@@ -193,7 +193,7 @@ The number of columns the menu may show before scrolling (default: 25).
 .fi
 .RE
 .PP
-\fB\fC\-width\fR
+\fB\fC\-width\fR [value]
 .IP
 Set the width of the menu as a percentage of the screen width (default: 60).
 .PP
@@ -202,6 +202,25 @@ Set the width of the menu as a percentage of the screen width (default: 60).
   rofi \-width 60
 .fi
 .RE
+.IP
+If value is larger then 100, the size is set in pixels. e.g. to span a full hd monitor:
+.PP
+.RS
+.nf
+ rofi \-width 1980
+.fi
+.RE
+.IP
+If the value is negative, it tries to estimates a character width. To show 30 characters on a row:
+.PP
+.RS
+.nf
+rofi \-width \-30
+.fi
+.RE
+.TP
+(Character width is a rough estimation, and might not be correct, but should work for most
+   monospaced fonts..)
 .PP
 \fB\fC\-terminal\fR
 .IP
