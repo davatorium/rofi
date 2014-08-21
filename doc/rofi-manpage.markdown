@@ -228,6 +228,8 @@ The default key combinations are:
 
   When searching sort the result based on levenshtein distance.
 
+  Note that levenshtein sort is disabled in dmenu mode.
+
 `-show` *mode*
 
   Open rofi in a certain mode.
