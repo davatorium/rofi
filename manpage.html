@@ -88,7 +88,7 @@ number of <code>columns</code>.</dd></dl><p><code>-fixed-num-lines</code></p><dl
 </code></pre>
 <p><code>-dmenu</code></p><dl><dd>Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.</dd></dl><dl><dd>Pressing <code>shift-enter</code> will open the selected entries and move to the next entry.</dd></dl><p><code>-dump-xresources</code></p><dl><dd>Dump the current active configuration in xresources format to the command-line.</dd></dl><p><code>-ssh-set-title</code> <em>true|false</em></p><dl><dd>SSH dialogs tries to set &#39;ssh hostname&#39; of the spawned terminal.
 Not all terminals support this.
-Default value is true.</dd></dl><p><code>-disable-history</code></p><dl><dd>Disable history</dd></dl><p><code>-levenshtein-sort</code></p><dl><dd>When searching sort the result based on levenshtein distance.</dd></dl><p><code>-show</code> <em>mode</em></p><dl><dd>Open rofi in a certain mode.</dd></dl><dl><dd>For example to show the run-dialog:</dd></dl>
+Default value is true.</dd></dl><p><code>-disable-history</code></p><dl><dd>Disable history</dd></dl><p><code>-levenshtein-sort</code></p><dl><dd>When searching sort the result based on levenshtein distance.</dd></dl><dl><dd>Note that levenshtein sort is disabled in dmenu mode.</dd></dl><p><code>-show</code> <em>mode</em></p><dl><dd>Open rofi in a certain mode.</dd></dl><dl><dd>For example to show the run-dialog:</dd></dl>
 <pre><code>    rofi -show run
 </code></pre>
 <dl><dd>This function deprecates -rnow,-snow and -now</dd></dl><p><code>-switchers</code> <em>mode1,mode1</em></p><dl><dd>Give a comma separated list of modes to enable, in what order.</dd></dl><dl><dd>For example to only show the run and ssh dialog (in that order):</dd></dl>
