@@ -67,10 +67,9 @@
 
 #include "xrmoptions.h"
 
-#define LINE_MARGIN            3
+#define LINE_MARGIN    3
 
 #ifdef HAVE_I3_IPC_H
-#define I3_SOCKET_PATH_PROP    "I3_SOCKET_PATH"
 // This setting is no longer user configurable, but partial to this file:
 int  config_i3_mode = 0;
 // Path to HAVE_I3_IPC_H socket.
@@ -162,19 +161,6 @@ static char **tokenize ( const char *input )
     // Free str.
     g_free ( str );
     return retv;
-}
-
-static inline void tokenize_free ( char **ip )
-{
-    if ( ip == NULL ) {
-        return;
-    }
-
-    // Free with g_free.
-    for ( int i = 0; ip[i] != NULL; i++ ) {
-        g_free ( ip[i] );
-    }
-    g_free ( ip );
 }
 
 #ifdef HAVE_I3_IPC_H
@@ -813,35 +799,35 @@ int window_match ( char **tokens, __attribute__( ( unused ) ) const char *input,
 
     if ( tokens ) {
         for ( int j = 0; match && tokens[j]; j++ ) {
-            int  test = 0;
+            int test = 0;
 
-            char *sml = g_utf8_casefold ( c->title, -1 );
-            char *key = g_utf8_collate_key ( sml, -1 );
             if ( !test && c->title[0] != '\0' ) {
+                char *sml = g_utf8_casefold ( c->title, -1 );
+                char *key = g_utf8_collate_key ( sml, -1 );
                 test = ( strstr ( key, tokens[j] ) != NULL );
+                g_free ( sml ); g_free ( key );
             }
-            g_free ( sml ); g_free ( key );
 
-            sml = g_utf8_casefold ( c->class, -1 );
-            key = g_utf8_collate_key ( sml, -1 );
             if ( !test && c->class[0] != '\0' ) {
+                char *sml = g_utf8_casefold ( c->class, -1 );
+                char *key = g_utf8_collate_key ( sml, -1 );
                 test = ( strstr ( key, tokens[j] ) != NULL );
+                g_free ( sml ); g_free ( key );
             }
-            g_free ( sml ); g_free ( key );
 
-            sml = g_utf8_casefold ( c->role, -1 );
-            key = g_utf8_collate_key ( sml, -1 );
             if ( !test && c->role[0] != '\0' ) {
+                char *sml = g_utf8_casefold ( c->role, -1 );
+                char *key = g_utf8_collate_key ( sml, -1 );
                 test = ( strstr ( key, tokens[j] ) != NULL );
+                g_free ( sml ); g_free ( key );
             }
-            g_free ( sml ); g_free ( key );
 
-            sml = g_utf8_casefold ( c->name, -1 );
-            key = g_utf8_collate_key ( sml, -1 );
             if ( !test && c->name[0] != '\0' ) {
+                char *sml = g_utf8_casefold ( c->name, -1 );
+                char *key = g_utf8_collate_key ( sml, -1 );
                 test = ( strstr ( key, tokens[j] ) != NULL );
+                g_free ( sml ); g_free ( key );
             }
-            g_free ( sml ); g_free ( key );
 
             if ( test == 0 ) {
                 match = 0;
@@ -861,48 +847,46 @@ static int lev_sort ( const void *p1, const void *p2, void *arg )
     return distances[*a] - distances[*b];
 }
 
+static int dist ( const char *s, const char *t, int *d, int ls, int lt, int i, int j )
+{
+    if ( d[i * ( lt + 1 ) + j] >= 0 ) {
+        return d[i * ( lt + 1 ) + j];
+    }
+
+    int x;
+    if ( i == ls ) {
+        x = lt - j;
+    }
+    else if ( j == lt ) {
+        x = ls - i;
+    }
+    else if ( s[i] == t[j] ) {
+        x = dist ( s, t, d, ls, lt, i + 1, j + 1 );
+    }
+    else {
+        x = dist ( s, t, d, ls, lt, i + 1, j + 1 );
+
+        int y;
+        if ( ( y = dist ( s, t, d, ls, lt, i, j + 1 ) ) < x ) {
+            x = y;
+        }
+        if ( ( y = dist ( s, t, d, ls, lt, i + 1, j ) ) < x ) {
+            x = y;
+        }
+        x++;
+    }
+    return d[i * ( lt + 1 ) + j] = x;
+}
 static int levenshtein ( const char *s, const char *t )
 {
     int ls = strlen ( s ), lt = strlen ( t );
-    int d[ls + 1][lt + 1];
+    int d[( ls + 1 ) * ( lt + 1 )];
 
-    for ( int i = 0; i <= ls; i++ ) {
-        for ( int j = 0; j <= lt; j++ ) {
-            d[i][j] = -1;
-        }
+    for ( int i = 0; i < ( ( ls + 1 ) * ( lt + 1 ) ); i++ ) {
+        d[i] = -1;
     }
 
-    int dist ( int i, int j )
-    {
-        if ( d[i][j] >= 0 ) {
-            return d[i][j];
-        }
-
-        int x;
-        if ( i == ls ) {
-            x = lt - j;
-        }
-        else if ( j == lt ) {
-            x = ls - i;
-        }
-        else if ( s[i] == t[j] ) {
-            x = dist ( i + 1, j + 1 );
-        }
-        else {
-            x = dist ( i + 1, j + 1 );
-
-            int y;
-            if ( ( y = dist ( i, j + 1 ) ) < x ) {
-                x = y;
-            }
-            if ( ( y = dist ( i + 1, j ) ) < x ) {
-                x = y;
-            }
-            x++;
-        }
-        return d[i][j] = x;
-    }
-    return dist ( 0, 0 );
+    return dist ( s, t, d, ls, lt, 0, 0 );
 }
 
 void window_set_opacity ( Display *display, Window box, unsigned int opacity )
@@ -1201,7 +1185,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
                     // Cleanup + bookkeeping.
                     filtered_lines = j;
-                    tokenize_free ( tokens );
+                    g_strfreev ( tokens );
                 }
                 else{
                     for ( i = 0; i < num_lines; i++ ) {
@@ -1638,12 +1622,7 @@ SwitcherMode run_switcher_window ( char **input, void *data )
             }
         }
 
-
-        for ( i = 0; i < lines; i++ ) {
-            g_free ( list[i] );
-        }
-
-        g_free ( list );
+        g_strfreev ( list );
         winlist_free ( ids );
     }
 

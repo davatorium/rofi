@@ -39,7 +39,8 @@ typedef enum
 {
     xrm_String  = 0,
     xrm_Number  = 1,
-    xrm_Boolean = 2
+    xrm_SNumber = 2,
+    xrm_Boolean = 3
 } XrmOptionType;
 
 typedef struct
@@ -49,6 +50,7 @@ typedef struct
     union
     {
         unsigned int * num;
+        int          * snum;
         char         ** str;
     };
     char *mem;
@@ -58,52 +60,52 @@ typedef struct
  * Currently supports string and number.
  */
 static XrmOption xrmOptions[] = {
-    { xrm_String,  "switchers",        { .str = &config.switchers         }, NULL },
-    { xrm_Number,  "opacity",          { .num = &config.window_opacity    }, NULL },
+    { xrm_String,  "switchers",        { .str  = &config.switchers         }, NULL },
+    { xrm_Number,  "opacity",          { .num  = &config.window_opacity    }, NULL },
 
-    { xrm_Number,  "width",            { .num = &config.menu_width        }, NULL },
+    { xrm_SNumber, "width",            { .snum = &config.menu_width        }, NULL },
 
-    { xrm_Number,  "lines",            { .num = &config.menu_lines        }, NULL },
-    { xrm_Number,  "columns",          { .num = &config.menu_columns      }, NULL },
+    { xrm_Number,  "lines",            { .num  = &config.menu_lines        }, NULL },
+    { xrm_Number,  "columns",          { .num  = &config.menu_columns      }, NULL },
 
-    { xrm_String,  "font",             { .str = &config.menu_font         }, NULL },
+    { xrm_String,  "font",             { .str  = &config.menu_font         }, NULL },
     /* Foreground color */
-    { xrm_String,  "foreground",       { .str = &config.menu_fg           }, NULL },
-    { xrm_String,  "fg",               { .str = &config.menu_fg           }, NULL },
+    { xrm_String,  "foreground",       { .str  = &config.menu_fg           }, NULL },
+    { xrm_String,  "fg",               { .str  = &config.menu_fg           }, NULL },
 
-    { xrm_String,  "background",       { .str = &config.menu_bg           }, NULL },
-    { xrm_String,  "bg",               { .str = &config.menu_bg           }, NULL },
+    { xrm_String,  "background",       { .str  = &config.menu_bg           }, NULL },
+    { xrm_String,  "bg",               { .str  = &config.menu_bg           }, NULL },
 
-    { xrm_String,  "highlightfg",      { .str = &config.menu_hlfg         }, NULL },
-    { xrm_String,  "hlfg",             { .str = &config.menu_hlfg         }, NULL },
+    { xrm_String,  "highlightfg",      { .str  = &config.menu_hlfg         }, NULL },
+    { xrm_String,  "hlfg",             { .str  = &config.menu_hlfg         }, NULL },
 
-    { xrm_String,  "highlightbg",      { .str = &config.menu_hlbg         }, NULL },
-    { xrm_String,  "hlbg",             { .str = &config.menu_hlbg         }, NULL },
+    { xrm_String,  "highlightbg",      { .str  = &config.menu_hlbg         }, NULL },
+    { xrm_String,  "hlbg",             { .str  = &config.menu_hlbg         }, NULL },
 
-    { xrm_String,  "bordercolor",      { .str = &config.menu_bc           }, NULL },
-    { xrm_String,  "bc",               { .str = &config.menu_bc           }, NULL },
+    { xrm_String,  "bordercolor",      { .str  = &config.menu_bc           }, NULL },
+    { xrm_String,  "bc",               { .str  = &config.menu_bc           }, NULL },
 
-    { xrm_Number,  "borderwidth",      { .num = &config.menu_bw           }, NULL },
-    { xrm_Number,  "bw",               { .num = &config.menu_bw           }, NULL },
+    { xrm_Number,  "borderwidth",      { .num  = &config.menu_bw           }, NULL },
+    { xrm_Number,  "bw",               { .num  = &config.menu_bw           }, NULL },
 
-    { xrm_Number,  "location",         { .num = &config.location          }, NULL },
+    { xrm_Number,  "location",         { .num  = &config.location          }, NULL },
 
-    { xrm_Number,  "padding",          { .num = &config.padding           }, NULL },
-    { xrm_Number,  "yoffset",          { .num = &config.y_offset          }, NULL },
-    { xrm_Number,  "xoffset",          { .num = &config.x_offset          }, NULL },
-    { xrm_Boolean, "fixed-num-lines",  { .num = &config.fixed_num_lines   }, NULL },
-    { xrm_Boolean, "hmode",            { .num = &config.hmode             }, NULL },
+    { xrm_Number,  "padding",          { .num  = &config.padding           }, NULL },
+    { xrm_SNumber, "yoffset",          { .snum = &config.y_offset          }, NULL },
+    { xrm_SNumber, "xoffset",          { .snum = &config.x_offset          }, NULL },
+    { xrm_Boolean, "fixed-num-lines",  { .num  = &config.fixed_num_lines   }, NULL },
+    { xrm_Boolean, "hmode",            { .num  = &config.hmode             }, NULL },
 
 
-    { xrm_String,  "terminal",         { .str = &config.terminal_emulator }, NULL },
+    { xrm_String,  "terminal",         { .str  = &config.terminal_emulator }, NULL },
 
-    { xrm_Boolean, "ssh-set-title",    { .num = &config.ssh_set_title     }, NULL },
-    { xrm_Boolean, "disable-history",  { .num = &config.disable_history   }, NULL },
-    { xrm_Boolean, "levenshtein-sort", { .num = &config.levenshtein_sort  }, NULL },
+    { xrm_Boolean, "ssh-set-title",    { .num  = &config.ssh_set_title     }, NULL },
+    { xrm_Boolean, "disable-history",  { .num  = &config.disable_history   }, NULL },
+    { xrm_Boolean, "levenshtein-sort", { .num  = &config.levenshtein_sort  }, NULL },
     /* Key bindings */
-    { xrm_String,  "key",              { .str = &config.window_key        }, NULL },
-    { xrm_String,  "rkey",             { .str = &config.run_key           }, NULL },
-    { xrm_String,  "skey",             { .str = &config.ssh_key           }, NULL },
+    { xrm_String,  "key",              { .str  = &config.window_key        }, NULL },
+    { xrm_String,  "rkey",             { .str  = &config.run_key           }, NULL },
+    { xrm_String,  "skey",             { .str  = &config.ssh_key           }, NULL },
 };
 
 
@@ -142,10 +144,13 @@ void parse_xresource_options ( Display *display )
                 xrmOptions[i].mem = ( *xrmOptions[i].str );
             }
             else if ( xrmOptions[i].type == xrm_Number ) {
-                *xrmOptions[i].num = strtol ( xrmValue.addr, NULL, 10 );
+                *xrmOptions[i].num = (unsigned int) g_ascii_strtoll ( xrmValue.addr, NULL, 10 );
+            }
+            else if ( xrmOptions[i].type == xrm_SNumber ) {
+                *xrmOptions[i].num = (int) g_ascii_strtoull ( xrmValue.addr, NULL, 10 );
             }
             else if ( xrmOptions[i].type == xrm_Boolean ) {
-                if ( xrmValue.size > 0 && strncasecmp ( xrmValue.addr, "true", xrmValue.size ) == 0 ) {
+                if ( xrmValue.size > 0 && g_ascii_strncasecmp ( xrmValue.addr, "true", xrmValue.size ) == 0 ) {
                     *xrmOptions[i].num = TRUE;
                 }
                 else{
@@ -182,11 +187,15 @@ void xresource_dump ( void )
             }
         }
 
-        printf ( "%s.%s: ", namePrefix, xrmOptions[i].name );
+        printf ( "%s.%s: %*s", namePrefix, xrmOptions[i].name, (int) ( 16 - strlen ( xrmOptions[i].name ) ),
+                 "" );
         switch ( xrmOptions[i].type )
         {
         case xrm_Number:
-            printf ( "%i", *xrmOptions[i].num );
+            printf ( "%u", *xrmOptions[i].num );
+            break;
+        case xrm_SNumber:
+            printf ( "%i", *xrmOptions[i].snum );
             break;
         case xrm_String:
             printf ( "%s", *xrmOptions[i].str );

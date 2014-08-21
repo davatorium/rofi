@@ -144,7 +144,7 @@ void history_set ( const char *filename, const char *entry )
         list[length] = g_malloc ( sizeof ( _element ) );
         // Copy name
         if ( list[length] != NULL ) {
-            strncpy ( list[length]->name, entry, HISTORY_NAME_LENGTH );
+            g_strlcpy ( list[length]->name, entry, HISTORY_NAME_LENGTH );
             list[length]->name[HISTORY_NAME_LENGTH - 1] = '\0';
             // set # hits
             list[length]->index = 1;
