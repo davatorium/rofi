@@ -189,7 +189,7 @@ static char ** get_apps ( unsigned int *length )
     return retv;
 }
 
-SwitcherMode run_switcher_dialog ( char **input, void *data )
+SwitcherMode run_switcher_dialog ( char **input, G_GNUC_UNUSED void *data )
 {
     int          shift         = 0;
     int          selected_line = 0;

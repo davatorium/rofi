@@ -122,11 +122,6 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
     }
 }
 
-// outer code may need line height, width, etc
-void textbox_extents ( textbox *tb )
-{
-}
-
 // set the default text to display
 void textbox_text ( textbox *tb, char *text )
 {
@@ -141,7 +136,6 @@ void textbox_text ( textbox *tb, char *text )
     pango_layout_set_text ( tb->layout, tb->text, strlen ( tb->text ) );
 
     tb->cursor = MAX ( 0, MIN ( ( int ) strlen ( text ), tb->cursor ) );
-    textbox_extents ( tb );
 }
 
 void textbox_move ( textbox *tb, int x, int y )
@@ -228,7 +222,6 @@ void textbox_draw ( textbox *tb )
 
     char *text       = tb->text ? tb->text : "";
     int  text_len    = strlen ( text );
-    int  length      = text_len;
     int  font_height = textbox_get_font_height ( tb );
     int  line_width  = 0;
 
@@ -313,7 +306,6 @@ void textbox_insert ( textbox *tb, int pos, char *str )
     memmove ( at + slen, at, len - pos + 1 );
     // insert new str
     memmove ( at, str, slen );
-    textbox_extents ( tb );
 }
 
 // remove text
@@ -324,7 +316,6 @@ void textbox_delete ( textbox *tb, int pos, int dlen )
     // move everything after pos+dlen down
     char *at = tb->text + pos;
     memmove ( at, at + dlen, len - pos );
-    textbox_extents ( tb );
 }
 
 // delete on character

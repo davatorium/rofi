@@ -87,8 +87,8 @@ typedef struct _Switcher
     void              *cb_data;
 } Switcher;
 
-Switcher *switchers    = NULL;
-int      num_switchers = 0;
+Switcher     *switchers    = NULL;
+unsigned int num_switchers = 0;
 
 
 void window_set_opacity ( Display *display, Window box, unsigned int opacity );
@@ -96,7 +96,7 @@ void window_set_opacity ( Display *display, Window box, unsigned int opacity );
 
 int switcher_get ( const char *name )
 {
-    for ( int i = 0; i < num_switchers; i++ ) {
+    for ( unsigned int i = 0; i < num_switchers; i++ ) {
         if ( strcmp ( switchers[i].name, name ) == 0 ) {
             return i;
         }
@@ -1479,7 +1479,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     return retv;
 }
 
-SwitcherMode run_switcher_window ( char **input, void *data )
+SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
 {
     Screen       *screen = DefaultScreenOfDisplay ( display );
     Window       root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
@@ -1732,7 +1732,7 @@ static void handle_keypress ( XEvent *ev )
 }
 
 // convert a Mod+key arg to mod mask and keysym
-static void parse_key ( Display *display, char *combo, unsigned int *mod, KeySym *key )
+static void parse_key ( char *combo, unsigned int *mod, KeySym *key )
 {
     unsigned int modmask = 0;
 
@@ -2148,17 +2148,17 @@ int main ( int argc, char *argv[] )
     else{
         // Daemon mode, Listen to key presses..
         if ( switcher_get ( "window" ) >= 0 ) {
-            parse_key ( display, config.window_key, &windows_modmask, &windows_keysym );
+            parse_key ( config.window_key, &windows_modmask, &windows_keysym );
             grab_key ( display, windows_modmask, windows_keysym );
         }
 
         if ( switcher_get ( "run" ) >= 0 ) {
-            parse_key ( display, config.run_key, &rundialog_modmask, &rundialog_keysym );
+            parse_key ( config.run_key, &rundialog_modmask, &rundialog_keysym );
             grab_key ( display, rundialog_modmask, rundialog_keysym );
         }
 
         if ( switcher_get ( "ssh" ) >= 0 ) {
-            parse_key ( display, config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
+            parse_key ( config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
             grab_key ( display, sshdialog_modmask, sshdialog_keysym );
         }
 

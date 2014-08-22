@@ -199,7 +199,7 @@ static char ** get_ssh ( unsigned int *length )
     return retv;
 }
 
-SwitcherMode ssh_switcher_dialog ( char **input, void *data )
+SwitcherMode ssh_switcher_dialog ( char **input, G_GNUC_UNUSED void *data )
 {
     SwitcherMode retv = MODE_EXIT;
     // act as a launcher

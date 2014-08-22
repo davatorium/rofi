@@ -257,7 +257,7 @@ char ** history_get_list ( const char *filename, unsigned int *length )
     // Lists are always short, so performance should not be an issue.
     if ( ( *length ) > 0 ) {
         retv = g_malloc ( ( ( *length ) + 1 ) * sizeof ( char * ) );
-        for ( int iter = 0; iter < ( *length ); iter++ ) {
+        for ( unsigned int iter = 0; iter < ( *length ); iter++ ) {
             retv[iter] = g_strdup ( list[iter]->name );
             g_free ( list[iter] );
         }
