@@ -37,7 +37,7 @@
 
 char *dmenu_prompt = "dmenu ";
 
-static char **get_dmenu ( unsigned int *length )
+static char **get_dmenu ( int *length )
 {
     char buffer[1024];
     char **retv = NULL;
@@ -55,6 +55,10 @@ static char **get_dmenu ( unsigned int *length )
         }
 
         ( *length )++;
+        // Stop when we hit 2³¹ entries.
+        if( (*length) == INT_MAX) {
+            return retv;
+        }
     }
 
     return retv;
@@ -64,7 +68,7 @@ int dmenu_switcher_dialog ( char **input )
 {
     int          selected_line = 0;
     int          retv          = FALSE;
-    unsigned int length        = 0;
+    int length        = 0;
     char         **list        = get_dmenu ( &length );
     int          restart       = FALSE;
 

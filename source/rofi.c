@@ -1141,7 +1141,9 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         int          last_offset = 0;
         int          init        = 0;
         if ( selected_line != NULL ) {
-            if ( *selected_line >= 0 && *selected_line <= num_lines ) {
+            // The cast to unsigned in here is valid, we checked if selected_line > 0.
+            // So its maximum range is 0-2³¹, well within the num_lines range.
+            if ( *selected_line >= 0 && (unsigned int)(*selected_line) <= num_lines ) {
                 selected = *selected_line;
             }
         }
@@ -1164,7 +1166,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                             }
                             // Try to look-up the selected line and highlight that.
                             // This is needed 'hack' to fix the dmenu 'next row' modi.
-                            if ( init == 0 && selected_line != NULL && ( *selected_line ) == i ) {
+                            // int to unsigned int is valid because we check negativeness of 
+                            // selected_line
+                            if ( init == 0 && selected_line != NULL && 
+                                    (*selected_line) >= 0 &&
+                                    ((unsigned int)( *selected_line )) == i ) {
                                 selected = j;
                                 init     = 1;
                             }
