@@ -24,9 +24,10 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+#include <config.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <errno.h>

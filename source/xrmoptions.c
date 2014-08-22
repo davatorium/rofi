@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-#define _GNU_SOURCE
+#include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -144,10 +144,10 @@ void parse_xresource_options ( Display *display )
                 xrmOptions[i].mem = ( *xrmOptions[i].str );
             }
             else if ( xrmOptions[i].type == xrm_Number ) {
-                *xrmOptions[i].num = (unsigned int) g_ascii_strtoll ( xrmValue.addr, NULL, 10 );
+                *xrmOptions[i].num = (unsigned int) strtoul ( xrmValue.addr, NULL, 10 );
             }
             else if ( xrmOptions[i].type == xrm_SNumber ) {
-                *xrmOptions[i].num = (int) g_ascii_strtoull ( xrmValue.addr, NULL, 10 );
+                *xrmOptions[i].snum = (int) strtol ( xrmValue.addr, NULL, 10 );
             }
             else if ( xrmOptions[i].type == xrm_Boolean ) {
                 if ( xrmValue.size > 0 && g_ascii_strncasecmp ( xrmValue.addr, "true", xrmValue.size ) == 0 ) {

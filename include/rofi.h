@@ -1,6 +1,5 @@
 #ifndef __SIMPLESWITCHER_H__
 #define __SIMPLESWITCHER_H__
-#include <config.h>
 #include <X11/X.h>
 #include <glib.h>
 
