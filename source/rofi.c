@@ -905,7 +905,8 @@ Window create_window ( Display *display )
                                            config.menu_bw,
                                            color_get ( display, config.menu_bc ),
                                            color_get ( display, config.menu_bg ) );
-    XSelectInput ( display, box, ExposureMask );
+
+    XSelectInput ( display, box, ExposureMask | ButtonPressMask );
 
     gc = XCreateGC ( display, box, 0, 0 );
     XSetLineAttributes ( display, gc, 2, LineOnOffDash, CapButt, JoinMiter );
@@ -978,7 +979,8 @@ static void calculate_window_position ( const workarea *mon, int *x, int *y, int
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt, Time *time,
                   int *shift, menu_match_cb mmc, void *mmc_data, int *selected_line, int sorting )
 {
-    int          retv = MENU_CANCEL;
+    Time         last_press = 0;
+    int          retv       = MENU_CANCEL;
     unsigned int i, j;
     unsigned int columns = config.menu_columns;
     workarea     mon;
@@ -1143,12 +1145,13 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         if ( selected_line != NULL ) {
             // The cast to unsigned in here is valid, we checked if selected_line > 0.
             // So its maximum range is 0-2³¹, well within the num_lines range.
-            if ( *selected_line >= 0 && (unsigned int)(*selected_line) <= num_lines ) {
+            if ( *selected_line >= 0 && (unsigned int) ( *selected_line ) <= num_lines ) {
                 selected = *selected_line;
             }
         }
 
-        for (;; ) {
+        int quit = FALSE;
+        while ( !quit ) {
             // If something changed, refilter the list. (paste or text entered)
             if ( refilter ) {
                 if ( strlen ( text->text ) > 0 ) {
@@ -1166,11 +1169,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                             }
                             // Try to look-up the selected line and highlight that.
                             // This is needed 'hack' to fix the dmenu 'next row' modi.
-                            // int to unsigned int is valid because we check negativeness of 
+                            // int to unsigned int is valid because we check negativeness of
                             // selected_line
-                            if ( init == 0 && selected_line != NULL && 
-                                    (*selected_line) >= 0 &&
-                                    ((unsigned int)( *selected_line )) == i ) {
+                            if ( init == 0 && selected_line != NULL &&
+                                 ( *selected_line ) >= 0 &&
+                                 ( (unsigned int) ( *selected_line ) ) == i ) {
                                 selected = j;
                                 init     = 1;
                             }
@@ -1253,6 +1256,43 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                 line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2 );
                 }
             }
+            else if ( ev.type == ButtonPress ) {
+                XButtonEvent *xbe = (XButtonEvent *) &( ev.xbutton );
+                if ( xbe->window == arrowbox_top->window ) {
+                    // Page up.
+                    if ( selected < max_rows ) {
+                        selected = 0;
+                    }
+                    else{
+                        selected -= max_elements;
+                    }
+                    update = TRUE;
+                }
+                else if ( xbe->window == arrowbox_bottom->window ) {
+                    // Page down.
+                    selected += max_elements;
+                    if ( selected >= filtered_lines ) {
+                        selected = filtered_lines - 1;
+                    }
+                    update = TRUE;
+                }
+                else {
+                    for ( int i = 0; i < max_elements; i++ ) {
+                        if ( ( xbe->window ) == ( boxes[i]->window ) ) {
+                            selected = last_offset + i;
+                            update   = TRUE;
+                            if ( ( xbe->time - last_press ) < 200 ) {
+                                retv           = MENU_OK;
+                                *selected_line = line_map[selected];
+                                // Quit
+                                quit = TRUE;
+                                break;
+                            }
+                            last_press = xbe->time;
+                        }
+                    }
+                }
+            }
             else if ( ev.type == SelectionNotify ) {
                 // TODO move this.
                 if ( ev.xselection.property == netatoms[UTF8_STRING] ) {
@@ -1319,6 +1359,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                           key == XK_slash ) {
                     retv           = MENU_NEXT;
                     *selected_line = 0;
+                    quit           = TRUE;
                     break;
                 }
                 else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
@@ -1326,6 +1367,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                     if ( filtered[selected] != NULL ) {
                         *selected_line = line_map[selected];
                         retv           = MENU_ENTRY_DELETE;
+                        quit           = TRUE;
                         break;
                     }
                 }
@@ -1333,6 +1375,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                           key >= XK_1 && key <= XK_9 ) {
                     *selected_line = ( key - XK_1 );
                     retv           = MENU_QUICK_SWITCH;
+                    quit           = TRUE;
                     break;
                 }
 
@@ -1350,6 +1393,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                         retv = MENU_CUSTOM_INPUT;
                     }
 
+                    quit = TRUE;
                     break;
                 }
                 else if ( rc ) {
@@ -1367,6 +1411,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                          || ( ( sshdialog_modmask == AnyModifier || ev.xkey.state & sshdialog_modmask ) && key == sshdialog_keysym )
                          ) {
                         retv = MENU_CANCEL;
+                        quit = TRUE;
                         break;
                     }
                     else{
@@ -1447,6 +1492,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                             if ( filtered_lines == 0 && key == prev_key ) {
                                 retv           = MENU_NEXT;
                                 *selected_line = 0;
+                                quit           = TRUE;
                                 break;
                             }
                             else{

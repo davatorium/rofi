@@ -96,10 +96,15 @@ textbox* textbox_create ( Window parent,
     // auto height/width modes get handled here
     textbox_moveresize ( tb, tb->x, tb->y, tb->w, tb->h );
 
+
+
     // edit mode controls
     if ( tb->flags & TB_EDITABLE ) {
         tb->xim = XOpenIM ( display, NULL, NULL, NULL );
         tb->xic = XCreateIC ( tb->xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, tb->window, XNFocusWindow, tb->window, NULL );
+    }
+    else {
+        XSelectInput ( display, tb->window, ButtonPressMask );
     }
 
     return tb;
@@ -344,6 +349,7 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
     Status stat;
     char   pad[32];
     int    len;
+
 
     if ( !( tb->flags & TB_EDITABLE ) ) {
         return 0;
