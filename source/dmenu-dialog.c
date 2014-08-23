@@ -75,7 +75,7 @@ int dmenu_switcher_dialog ( char **input )
     do {
         int shift = 0;
         int mretv = menu ( list, length, input, dmenu_prompt, NULL, &shift,
-                           token_match, NULL, &selected_line, FALSE );
+                           token_match, NULL, &selected_line, config.levenshtein_sort );
 
         // We normally do not want to restart the loop.
         restart = FALSE;
