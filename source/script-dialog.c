@@ -186,7 +186,7 @@ ScriptOptions *script_switcher_parse_setup ( const char *str )
     if ( index == 2 ) {
         return sw;
     }
-    fprintf ( stderr, "The script command '%s' has %d options, but needs 2: <name>:<script>.\n",
+    fprintf ( stderr, "The script command '%s' has %u options, but needs 2: <name>:<script>.\n",
               str, index );
     script_switcher_free_options ( sw );
     return NULL;

@@ -1687,7 +1687,7 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
 
 static int run_dmenu ()
 {
-    int ret_state = TRUE;
+    int ret_state;
     textbox_setup (
         config.menu_bg, config.menu_fg,
         config.menu_hlbg,
@@ -1729,7 +1729,7 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
     // Otherwise check if requested mode is enabled.
     if ( switchers[mode].cb != NULL ) {
         do {
-            SwitcherMode retv = MODE_EXIT;
+            SwitcherMode retv ;
 
             retv = switchers[mode].cb ( &input, switchers[mode].cb_data );
 
