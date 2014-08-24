@@ -1279,6 +1279,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                 else {
                     for ( int i = 0; i < max_elements; i++ ) {
                         if ( ( xbe->window ) == ( boxes[i]->window ) ) {
+                            // Only allow items that are visible to be selected.
+                            if ( ( last_offset + i ) < 0 || ( last_offset + i ) >= filtered_lines ) {
+                                continue;
+                            }
+                            //
                             selected = last_offset + i;
                             update   = TRUE;
                             if ( ( xbe->time - last_press ) < 200 ) {
