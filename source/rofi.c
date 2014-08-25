@@ -1390,12 +1390,17 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                     if ( shift != NULL ) {
                         ( *shift ) = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
                     }
-                    if ( filtered[selected] != NULL ) {
+
+                    // If a valid item is selected, return that..
+                    if ( selected < filtered_lines && filtered[selected] != NULL ) {
                         retv           = MENU_OK;
                         *selected_line = line_map[selected];
                     }
-                    else{
+                    // No item selected, but user entered something
+                    else if ( strlen (text->text) > 0 ){
                         retv = MENU_CUSTOM_INPUT;
+                    }else{
+                        retv = MENU_CANCEL;
                     }
 
                     quit = TRUE;
