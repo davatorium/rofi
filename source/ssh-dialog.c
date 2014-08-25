@@ -55,7 +55,7 @@ static inline int execshssh ( const char *host )
      */
     char **args = g_malloc_n ( 7, sizeof ( char* ) );
     int  i      = 0;
-    args[i++] = config.terminal_emulator;
+    args[i++] = g_strdup ( config.terminal_emulator );
     if ( config.ssh_set_title ) {
         args[i++] = g_strdup ( "-T" );
         args[i++] = g_strdup_printf ( "ssh %s", host );
@@ -64,11 +64,15 @@ static inline int execshssh ( const char *host )
     args[i++] = g_strdup ( "ssh" );
     args[i++] = g_strdup ( host );
     args[i++] = NULL;
-    int retv = execvp ( config.terminal_emulator, (char * const *) args );
+
+    g_spawn_async ( NULL, args, NULL,
+                    G_SPAWN_SEARCH_PATH,
+                    NULL, NULL, NULL, NULL );
 
     // Free the args list.
     g_strfreev ( args );
-    return retv;
+
+    return 0;
 }
 // execute sub-process
 static pid_t exec_ssh ( const char *cmd )
@@ -77,14 +81,7 @@ static pid_t exec_ssh ( const char *cmd )
         return -1;
     }
 
-    signal ( SIGCHLD, catch_exit );
-    pid_t pid = fork ();
-
-    if ( !pid ) {
-        setsid ();
-        execshssh ( cmd );
-        exit ( EXIT_FAILURE );
-    }
+    execshssh ( cmd );
 
     /**
      * This happens in non-critical time (After launching app)
@@ -94,7 +91,7 @@ static pid_t exec_ssh ( const char *cmd )
     history_set ( path, cmd );
     g_free ( path );
 
-    return pid;
+    return 0;
 }
 static void delete_ssh ( const char *cmd )
 {

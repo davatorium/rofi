@@ -49,29 +49,34 @@
 
 static inline int execsh ( const char *cmd, int run_in_term )
 {
-// use sh for args parsing
+    char **args = g_malloc_n ( 6, sizeof ( char* ) );
+    int  i      = 0;
     if ( run_in_term ) {
-        return execlp ( config.terminal_emulator, config.terminal_emulator, "-e", "sh", "-c", cmd, NULL );
+        args[i++] = g_strdup ( config.terminal_emulator );
+        args[i++] = g_strdup ( "-e" );
     }
+    args[i++] = g_strdup ( "sh" );
+    args[i++] = g_strdup ( "-c" );
+    args[i++] = g_strdup ( cmd );
+    args[i++] = NULL;
 
-    return execlp ( "/bin/sh", "sh", "-c", cmd, NULL );
+    g_spawn_async ( NULL, args, NULL,
+                    G_SPAWN_SEARCH_PATH,
+                    NULL, NULL, NULL, NULL );
+
+    // Free the args list.
+    g_strfreev ( args );
 }
 
 // execute sub-process
-static pid_t exec_cmd ( const char *cmd, int run_in_term )
+static void exec_cmd ( const char *cmd, int run_in_term )
 {
     if ( !cmd || !cmd[0] ) {
-        return -1;
+        return;
     }
 
-    signal ( SIGCHLD, catch_exit );
-    pid_t pid = fork ();
 
-    if ( !pid ) {
-        setsid ();
-        execsh ( cmd, run_in_term );
-        exit ( EXIT_FAILURE );
-    }
+    execsh ( cmd, run_in_term );
 
     /**
      * This happens in non-critical time (After launching app)
@@ -82,8 +87,6 @@ static pid_t exec_cmd ( const char *cmd, int run_in_term )
     history_set ( path, cmd );
 
     g_free ( path );
-
-    return pid;
 }
 // execute sub-process
 static void delete_entry ( const char *cmd )

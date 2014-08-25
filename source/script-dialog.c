@@ -41,39 +41,24 @@
 
 pid_t execute_generator ( char * cmd )
 {
-    int   filedes[2];
-    pid_t pid;
+    char **args = g_malloc_n ( 4, sizeof ( char* ) );
+    args[0] = g_strdup ( "sh" );
+    args[1] = g_strdup ( "-c" );
+    args[2] = g_strdup ( cmd );
+    args[3] = NULL;
 
-
-    if ( -1 == pipe ( filedes ) ) {
-        perror ( "pipe failed" );
-        return 0;
-    }
-
-    switch ( pid = fork () )
-    {
-    case -1:
-        perror ( "Failed to fork, executing generator failed" );
-        pid = 0;
-        break;
-
-    case 0:       /* child */
-        close ( 1 );
-        dup ( filedes[1] );
-        close ( filedes[1] );
-        execlp ( "/bin/sh", "sh", "-c", cmd, NULL );
-        perror ( cmd );
-        break;
-
-    default:     /* parent */
-        close ( 0 );
-        dup ( filedes[0] );
-        close ( filedes[0] );
-        close ( filedes[1] );
-        break;
-    }
-
-    return pid;
+    int fd;
+    g_spawn_async_with_pipes ( NULL,
+                               args,
+                               NULL,
+                               G_SPAWN_SEARCH_PATH,
+                               NULL,
+                               NULL,
+                               NULL,
+                               NULL, &fd, NULL,
+                               NULL );
+    g_strfreev ( args );
+    return fd;
 }
 
 
@@ -83,20 +68,25 @@ static char **get_script_output ( char *command, unsigned int *length )
     char **retv = NULL;
 
     *length = 0;
-    execute_generator ( command );
-    while ( fgets ( buffer, 1024, stdin ) != NULL ) {
-        retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-        retv[( *length )]     = g_strdup ( buffer );
-        retv[( *length ) + 1] = NULL;
+    int fd = execute_generator ( command );
+    if ( fd >= 0 ) {
+        FILE *inp = fdopen ( fd, "r" );
+        if ( inp ) {
+            while ( fgets ( buffer, 1024, inp ) != NULL ) {
+                retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
+                retv[( *length )]     = g_strdup ( buffer );
+                retv[( *length ) + 1] = NULL;
 
-        // Filter out line-end.
-        if ( retv[( *length )][strlen ( buffer ) - 1] == '\n' ) {
-            retv[( *length )][strlen ( buffer ) - 1] = '\0';
+                // Filter out line-end.
+                if ( retv[( *length )][strlen ( buffer ) - 1] == '\n' ) {
+                    retv[( *length )][strlen ( buffer ) - 1] = '\0';
+                }
+
+                ( *length )++;
+            }
+            fclose ( inp );
         }
-
-        ( *length )++;
     }
-
     return retv;
 }
 

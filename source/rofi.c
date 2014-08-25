@@ -1397,9 +1397,10 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                         *selected_line = line_map[selected];
                     }
                     // No item selected, but user entered something
-                    else if ( strlen (text->text) > 0 ){
+                    else if ( strlen ( text->text ) > 0 ) {
                         retv = MENU_CUSTOM_INPUT;
-                    }else{
+                    }
+                    else{
                         retv = MENU_CANCEL;
                     }
 
@@ -1734,7 +1735,7 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
     // Otherwise check if requested mode is enabled.
     if ( switchers[mode].cb != NULL ) {
         do {
-            SwitcherMode retv ;
+            SwitcherMode retv;
 
             retv = switchers[mode].cb ( &input, switchers[mode].cb_data );
 
