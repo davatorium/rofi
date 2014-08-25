@@ -47,7 +47,7 @@ pid_t execute_generator ( char * cmd )
     args[2] = g_strdup ( cmd );
     args[3] = NULL;
 
-    int fd;
+    int fd = -1;
     g_spawn_async_with_pipes ( NULL,
                                args,
                                NULL,
