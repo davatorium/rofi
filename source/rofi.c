@@ -751,43 +751,6 @@ void menu_set_arrow_text ( int filtered_lines, int selected, int max_elements,
     }
 }
 
-void menu_draw ( textbox **boxes,
-                 int max_elements,
-                 int num_lines,
-                 int *last_offset,
-                 int selected,
-                 char **filtered )
-{
-    int i, offset = 0;
-
-    // selected row is always visible.
-    // If selected is visible do not scroll.
-    if ( ( ( selected - ( *last_offset ) ) < ( max_elements ) )
-         && ( ( selected - ( *last_offset ) ) >= 0 ) ) {
-        offset = *last_offset;
-    }
-    else{
-        // Do paginating
-        int page = ( max_elements > 0 ) ? ( selected / max_elements ) : 0;
-        offset       = page * max_elements;
-        *last_offset = offset;
-    }
-
-    for ( i = 0; i < max_elements; i++ ) {
-        if ( ( i + offset ) >= num_lines || filtered[i + offset] == NULL ) {
-            textbox_font ( boxes[i], NORMAL );
-            textbox_text ( boxes[i], "" );
-        }
-        else{
-            char            *text = filtered[i + offset];
-            TextBoxFontType tbft  = ( i + offset ) == selected ? HIGHLIGHT : NORMAL;
-            textbox_font ( boxes[i], tbft );
-            textbox_text ( boxes[i], text );
-        }
-
-        textbox_draw ( boxes[i] );
-    }
-}
 
 int window_match ( char **tokens, __attribute__( ( unused ) ) const char *input, int index, void *data )
 {
@@ -924,6 +887,74 @@ Window create_window ( Display *display )
     return box;
 }
 
+// State of the menu.
+
+typedef struct MenuState
+{
+    unsigned int max_elements;
+    unsigned int max_rows;
+    unsigned int columns;
+
+    // window width,height
+    unsigned int w, h;
+    int          x, y;
+    unsigned int element_width;
+
+    // Update/Refilter list.
+    int          update;
+    int          refilter;
+
+    // Entries
+    textbox      *text;
+    textbox      *prompt_tb;
+    textbox      *arrowbox_top;
+    textbox      *arrowbox_bottom;
+    textbox      **boxes;
+    char         **filtered;
+    int          *distance;
+    int          *line_map;
+
+    unsigned int num_lines;
+
+    // Selected element.
+    unsigned int selected;
+    unsigned int filtered_lines;
+    // Last offset in paginating.
+    unsigned int last_offset;
+
+    KeySym       prev_key;
+    Time         last_button_press;
+
+    int          quit;
+    int          init;
+    // Return state
+    int          *selected_line;
+    MenuReturn   retv;
+}MenuState;
+
+/**
+ * @param state Internal state of the menu.
+ *
+ * Free the allocated fields in the state.
+ */
+static void menu_free_state ( MenuState *state )
+{
+    textbox_free ( state->text );
+    textbox_free ( state->prompt_tb );
+    textbox_free ( state->arrowbox_bottom );
+    textbox_free ( state->arrowbox_top );
+
+    for ( unsigned int i = 0; i < state->max_elements; i++ ) {
+        textbox_free ( state->boxes[i] );
+    }
+
+    g_free ( state->boxes );
+
+    g_free ( state->filtered );
+    g_free ( state->line_map );
+    g_free ( state->distance );
+}
+
 /**
  * @param x [out] the calculated x position.
  * @param y [out] the calculated y position.
@@ -931,40 +962,40 @@ Window create_window ( Display *display )
  * @param h       the required height of the window.
  * @param w       the required width of the window.
  */
-static void calculate_window_position ( const workarea *mon, int *x, int *y, int w, int h )
+static void calculate_window_position ( MenuState *state, const workarea *mon )
 {
     // Default location is center.
-    *y = mon->y + ( mon->h - h - config.menu_bw * 2 ) / 2;
-    *x = mon->x + ( mon->w - w - config.menu_bw * 2 ) / 2;
+    state->y = mon->y + ( mon->h - state->h - config.menu_bw * 2 ) / 2;
+    state->x = mon->x + ( mon->w - state->w - config.menu_bw * 2 ) / 2;
     // Determine window location
     switch ( config.location )
     {
     case WL_NORTH_WEST:
-        *x = mon->x;
+        state->x = mon->x;
 
     case WL_NORTH:
-        *y = mon->y;
+        state->y = mon->y;
         break;
 
     case WL_NORTH_EAST:
-        *y = mon->y;
+        state->y = mon->y;
 
     case WL_EAST:
-        *x = mon->x + mon->w - w - config.menu_bw * 2;
+        state->x = mon->x + mon->w - state->w - config.menu_bw * 2;
         break;
 
     case WL_EAST_SOUTH:
-        *x = mon->x + mon->w - w - config.menu_bw * 2;
+        state->x = mon->x + mon->w - state->w - config.menu_bw * 2;
 
     case WL_SOUTH:
-        *y = mon->y + mon->h - h - config.menu_bw * 2;
+        state->y = mon->y + mon->h - state->h - config.menu_bw * 2;
         break;
 
     case WL_SOUTH_WEST:
-        *y = mon->y + mon->h - h - config.menu_bw * 2;
+        state->y = mon->y + mon->h - state->h - config.menu_bw * 2;
 
     case WL_WEST:
-        *x = mon->x;
+        state->x = mon->x;
         break;
 
     case WL_CENTER:
@@ -972,45 +1003,421 @@ static void calculate_window_position ( const workarea *mon, int *x, int *y, int
         break;
     }
     // Apply offset.
-    *x += config.x_offset;
-    *y += config.y_offset;
+    state->x += config.x_offset;
+    state->y += config.y_offset;
+}
+
+
+/**
+ * @param state Internal state of the menu.
+ * @param num_lines the number of entries passed to the menu.
+ *
+ * Calculate the number of rows, columns and elements to display based on the
+ * configuration and available data.
+ */
+static void menu_calculate_rows_columns ( MenuState *state )
+{
+    state->columns      = config.menu_columns;
+    state->max_elements = MIN ( config.menu_lines * state->columns, state->num_lines );
+
+    // Calculate the number or rows. We do this by getting the num_lines rounded up to X columns
+    // (num elements is better name) then dividing by columns.
+    state->max_rows = MIN ( config.menu_lines,
+                            (unsigned int) (
+                                ( state->num_lines + ( state->columns - state->num_lines % state->columns ) %
+                                  state->columns ) / ( state->columns )
+                                ) );
+
+    if ( config.fixed_num_lines == TRUE ) {
+        state->max_elements = config.menu_lines * state->columns;
+        state->max_rows     = config.menu_lines;
+        // If it would fit in one column, only use one column.
+        if ( state->num_lines < state->max_elements ) {
+            state->columns = ( state->num_lines + ( state->max_rows - state->num_lines % state->max_rows ) %
+                               state->max_rows ) / state->max_rows;
+            state->max_elements = config.menu_lines * state->columns;
+        }
+        // Sanitize.
+        if ( state->columns == 0 ) {
+            state->columns = 1;
+        }
+    }
+    // More hacks.
+    if ( config.hmode == TRUE ) {
+        state->max_rows = 1;
+    }
+}
+
+/**
+ * @param state Internal state of the menu.
+ * @param mon the dimensions of the monitor rofi is displayed on.
+ *
+ * Calculate the width of the window and the width of an element.
+ */
+static void menu_calculate_window_and_element_width ( MenuState *state, workarea *mon )
+{
+    if ( config.menu_width < 0 ) {
+        double fw = textbox_get_estimated_char_width ( );
+        state->w  = -( fw * config.menu_width );
+        state->w += 2 * config.padding + 4; // 4 = 2*SIDE_MARGIN
+        // Compensate for border width.
+        state->w -= config.menu_bw * 2;
+    }
+    else{
+        // Calculate as float to stop silly, big rounding down errors.
+        state->w = config.menu_width < 101 ? ( mon->w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
+        // Compensate for border width.
+        state->w -= config.menu_bw * 2;
+    }
+
+    state->element_width = state->w - ( 2 * ( config.padding ) );
+    // Divide by the # columns
+    state->element_width = ( state->element_width - ( state->columns - 1 ) * LINE_MARGIN ) / state->columns;
+    if ( config.hmode == TRUE ) {
+        state->element_width = ( state->w - ( 2 * ( config.padding ) ) - state->max_elements * LINE_MARGIN ) / (
+            state->max_elements + 1 );
+    }
+}
+
+/**
+ * @param state Internal state of the menu.
+ * @param key the Key being pressed.
+ * @param modstate the modifier state.
+ *
+ * Keyboard navigation through the elements.
+ */
+static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned int modstate )
+{
+    if ( key == XK_Escape
+         // pressing one of the global key bindings closes the switcher. this allows fast closing of the menu if an item is not selected
+         || ( ( windows_modmask == AnyModifier || modstate & windows_modmask ) && key == windows_keysym )
+         || ( ( rundialog_modmask == AnyModifier || modstate & rundialog_modmask ) && key == rundialog_keysym )
+         || ( ( sshdialog_modmask == AnyModifier || modstate & sshdialog_modmask ) && key == sshdialog_keysym )
+         ) {
+        state->retv = MENU_CANCEL;
+        state->quit = TRUE;
+    }
+    // Up, Ctrl-p or Shift-Tab
+    else if ( key == XK_Up || ( key == XK_Tab && modstate & ShiftMask ) ||
+              ( key == XK_p && modstate & ControlMask )  ) {
+        if ( state->selected == 0 ) {
+            state->selected = state->filtered_lines;
+        }
+
+        if ( state->selected > 0 ) {
+            state->selected--;
+        }
+        state->update = TRUE;
+    }
+    else if ( key == XK_Tab ) {
+        if ( state->filtered_lines == 1 ) {
+            if ( state->filtered[state->selected] ) {
+                state->retv               = MENU_OK;
+                *( state->selected_line ) = state->line_map[state->selected];
+                state->quit               = 1;
+            }
+            else{
+                fprintf ( stderr, "We should never hit this." );
+                abort ();
+            }
+            return;
+        }
+
+        // Double tab!
+        if ( state->filtered_lines == 0 && key == state->prev_key ) {
+            state->retv               = MENU_NEXT;
+            *( state->selected_line ) = 0;
+            state->quit               = TRUE;
+        }
+        else{
+            state->selected = state->selected < state->filtered_lines - 1 ? MIN (
+                state->filtered_lines - 1, state->selected + 1 ) : 0;
+            state->update = TRUE;
+        }
+    }
+    // Down, Ctrl-n
+    else if ( key == XK_Down ||
+              ( key == XK_n && ( modstate & ControlMask ) ) ) {
+        state->selected = state->selected < state->filtered_lines - 1 ? MIN (
+            state->filtered_lines - 1, state->selected + 1 ) : 0;
+        state->update = TRUE;
+    }
+    else if ( key == XK_Page_Up && ( modstate & ControlMask ) ) {
+        if ( state->selected < state->max_rows ) {
+            state->selected = 0;
+        }
+        else{
+            state->selected -= state->max_rows;
+        }
+        state->update = TRUE;
+    }
+    else if (  key == XK_Page_Down && ( modstate & ControlMask ) ) {
+        state->selected += state->max_rows;
+        if ( state->selected >= state->filtered_lines ) {
+            state->selected = state->filtered_lines - 1;
+        }
+        state->update = TRUE;
+    }
+    else if ( key == XK_Page_Up ) {
+        if ( state->selected < state->max_elements ) {
+            state->selected = 0;
+        }
+        else{
+            state->selected -= ( state->max_elements );
+        }
+        state->update = TRUE;
+    }
+    else if ( key == XK_Page_Down ) {
+        state->selected += ( state->max_elements );
+        if ( state->selected >= state->filtered_lines ) {
+            state->selected = state->filtered_lines - 1;
+        }
+        state->update = TRUE;
+    }
+    else if ( key == XK_Home || key == XK_KP_Home ) {
+        state->selected = 0;
+        state->update   = TRUE;
+    }
+    else if ( key == XK_End || key == XK_KP_End ) {
+        state->selected = state->filtered_lines - 1;
+        state->update   = TRUE;
+    }
+    state->prev_key = key;
+}
+
+/**
+ * @param state Internal state of the menu.
+ * @param xbe   The mouse button press event.
+ *
+ * mouse navigation through the elements.
+ *
+ * TODO: Scroll wheel.
+ */
+static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
+{
+    if ( xbe->window == state->arrowbox_top->window ) {
+        // Page up.
+        if ( state->selected < state->max_rows ) {
+            state->selected = 0;
+        }
+        else{
+            state->selected -= state->max_elements;
+        }
+        state->update = TRUE;
+    }
+    else if ( xbe->window == state->arrowbox_bottom->window ) {
+        // Page down.
+        state->selected += state->max_elements;
+        if ( state->selected >= state->filtered_lines ) {
+            state->selected = state->filtered_lines - 1;
+        }
+        state->update = TRUE;
+    }
+    else {
+        for ( unsigned int i = 0; i < state->max_elements; i++ ) {
+            if ( ( xbe->window ) == ( state->boxes[i]->window ) ) {
+                // Only allow items that are visible to be selected.
+                if ( ( state->last_offset + i ) >= state->filtered_lines ) {
+                    continue;
+                }
+                //
+                state->selected = state->last_offset + i;
+                state->update   = TRUE;
+                if ( ( xbe->time - state->last_button_press ) < 200 ) {
+                    state->retv               = MENU_OK;
+                    *( state->selected_line ) = state->line_map[state->selected];
+                    // Quit
+                    state->quit = TRUE;
+                    break;
+                }
+                state->last_button_press = xbe->time;
+            }
+        }
+    }
+}
+
+static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, void *mmc_data, int sorting )
+{
+    unsigned int i, j = 0;
+    if ( strlen ( state->text->text ) > 0 ) {
+        char **tokens = tokenize ( state->text->text );
+
+        // input changed
+        for ( i = 0; i < state->num_lines; i++ ) {
+            int match = mmc ( tokens, lines[i], i, mmc_data );
+
+            // If each token was matched, add it to list.
+            if ( match ) {
+                state->line_map[j] = i;
+                if ( sorting ) {
+                    state->distance[i] = levenshtein ( state->text->text, lines[i] );
+                }
+                // Try to look-up the selected line and highlight that.
+                // This is needed 'hack' to fix the dmenu 'next row' modi.
+                // int to unsigned int is valid because we check negativeness of
+                // selected_line
+                if ( state->init == TRUE && ( state->selected_line ) != NULL &&
+                     ( *( state->selected_line ) ) >= 0 &&
+                     ( (unsigned int) ( *( state->selected_line ) ) ) == i ) {
+                    state->selected = j;
+                    state->init     = FALSE;
+                }
+                j++;
+            }
+        }
+        if ( sorting ) {
+            qsort_r ( state->line_map, j, sizeof ( int ), lev_sort, state->distance );
+        }
+        // Update the filtered list.
+        for ( i = 0; i < j; i++ ) {
+            state->filtered[i] = lines[state->line_map[i]];
+        }
+        for ( i = j; i < state->num_lines; i++ ) {
+            state->filtered[i] = NULL;
+        }
+
+        // Cleanup + bookkeeping.
+        state->filtered_lines = j;
+        g_strfreev ( tokens );
+    }
+    else{
+        for ( i = 0; i < state->num_lines; i++ ) {
+            state->filtered[i] = lines[i];
+            state->line_map[i] = i;
+        }
+        state->filtered_lines = state->num_lines;
+    }
+    state->selected = MIN ( state->selected, state->filtered_lines - 1 );
+
+    state->refilter = FALSE;
+}
+
+
+static void menu_draw ( MenuState *state )
+{
+    unsigned int i, offset = 0;
+
+    // selected row is always visible.
+    // If selected is visible do not scroll.
+    if ( ( ( state->selected - ( state->last_offset ) ) < ( state->max_elements ) )
+         && ( state->selected >= ( state->last_offset ) ) ) {
+        offset = state->last_offset;
+    }
+    else{
+        // Do paginating
+        int page = ( state->max_elements > 0 ) ? ( state->selected / state->max_elements ) : 0;
+        offset             = page * state->max_elements;
+        state->last_offset = offset;
+    }
+
+    for ( i = 0; i < state->max_elements; i++ ) {
+        if ( ( i + offset ) >= state->num_lines || state->filtered[i + offset] == NULL ) {
+            textbox_font ( state->boxes[i], NORMAL );
+            textbox_text ( state->boxes[i], "" );
+        }
+        else{
+            char            *text = state->filtered[i + offset];
+            TextBoxFontType tbft  = ( i + offset ) == state->selected ? HIGHLIGHT : NORMAL;
+            textbox_font ( state->boxes[i], tbft );
+            textbox_text ( state->boxes[i], text );
+        }
+
+        textbox_draw ( state->boxes[i] );
+    }
+}
+
+static void menu_update ( MenuState *state )
+{
+    menu_hide_arrow_text ( state->filtered_lines, state->selected,
+                           state->max_elements, state->arrowbox_top,
+                           state->arrowbox_bottom );
+    textbox_draw ( state->text );
+    textbox_draw ( state->prompt_tb );
+    menu_draw ( state );
+    menu_set_arrow_text ( state->filtered_lines, state->selected,
+                          state->max_elements, state->arrowbox_top,
+                          state->arrowbox_bottom );
+    // Why do we need the specian -1?
+    if ( config.hmode == FALSE ) {
+        int line_height = textbox_get_height ( state->text );
+        XDrawLine ( display, main_window, gc, ( config.padding ),
+                    line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2,
+                    state->w - ( ( config.padding ) ) - 1,
+                    line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2 );
+    }
+    state->update = FALSE;
+}
+
+/**
+ * @param state Internal state of the menu.
+ * @param xse   X selection event.
+ *
+ * Handle paste event.
+ */
+static void menu_paste ( MenuState *state, XSelectionEvent *xse )
+{
+    if ( xse->property == netatoms[UTF8_STRING] ) {
+        char          *pbuf = NULL;
+        int           di;
+        unsigned long dl, rm;
+        Atom          da;
+
+        /* we have been given the current selection, now insert it into input */
+        XGetWindowProperty (
+            display,
+            main_window,
+            netatoms[UTF8_STRING],
+            0,
+            256 / 4,       // max length in words.
+            False,         // Do not delete clipboard.
+            netatoms[UTF8_STRING], &da, &di, &dl, &rm, (unsigned char * *) &pbuf );
+        // If There was remaining data left.. lets ignore this.
+        // Only accept it when we get bytes!
+        if ( di == 8 ) {
+            char *index;
+            if ( ( index = strchr ( pbuf, '\n' ) ) != NULL ) {
+                // Calc new length;
+                dl = index - pbuf;
+            }
+            // Create a NULL terminated string. I am not sure how the data is returned.
+            // With or without trailing 0
+            char str[dl + 1];
+            memcpy ( str, pbuf, dl );
+            str[dl] = '\0';
+
+            // Insert string move cursor.
+            textbox_insert ( state->text, state->text->cursor, str );
+            textbox_cursor ( state->text, state->text->cursor + dl );
+            // Force a redraw and refiltering of the text.
+            state->update   = TRUE;
+            state->refilter = TRUE;
+        }
+        XFree ( pbuf );
+    }
 }
 
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt, Time *time,
                   int *shift, menu_match_cb mmc, void *mmc_data, int *selected_line, int sorting )
 {
-    Time         last_press = 0;
-    int          retv       = MENU_CANCEL;
-    unsigned int i, j;
-    unsigned int columns = config.menu_columns;
+    MenuState    state = {
+        .selected_line     = selected_line,
+        .retv              = MENU_CANCEL,
+        .prev_key          =             0,
+        .last_button_press =             0,
+        .last_offset       =             0,
+        .num_lines         = num_lines,
+        .distance          = NULL,
+        .init              = TRUE,
+        .quit              = FALSE,
+        .filtered_lines    =             0,
+        // We want to filter on the first run.
+        .refilter = TRUE,
+        .update   = FALSE
+    };
+    unsigned int i;
     workarea     mon;
-    unsigned int max_elements = MIN ( config.menu_lines * columns, num_lines );
 
-    // Calculate the number or rows. We do this by getting the num_lines rounded up to X columns
-    // (num elements is better name) then dividing by columns.
-    unsigned int max_rows = MIN ( config.menu_lines,
-                                  (unsigned int) (
-                                      ( num_lines + ( columns - num_lines % columns ) % columns ) /
-                                      ( columns )
-                                      ) );
-
-    if ( config.fixed_num_lines == TRUE ) {
-        max_elements = config.menu_lines * columns;
-        max_rows     = config.menu_lines;
-        // If it would fit in one column, only use one column.
-        if ( num_lines < max_elements ) {
-            columns      = ( num_lines + ( max_rows - num_lines % max_rows ) % max_rows ) / max_rows;
-            max_elements = config.menu_lines * columns;
-        }
-        // Sanitize.
-        if ( columns == 0 ) {
-            columns = 1;
-        }
-    }
-    // More hacks.
-    if ( config.hmode == TRUE ) {
-        max_rows = 1;
-    }
+    menu_calculate_rows_columns ( &state );
 
     // Get active monitor size.
     monitor_active ( &mon );
@@ -1022,214 +1429,113 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     }
 
 
+    menu_calculate_window_and_element_width ( &state, &mon );
+
     // search text input
 
-    textbox *prompt_tb = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                                          ( config.padding ), ( config.padding ),
-                                          0, 0, NORMAL, prompt );
+    state.prompt_tb = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+                                       ( config.padding ), ( config.padding ),
+                                       0, 0, NORMAL, prompt );
 
-    int w = 0;
-    if ( config.menu_width < 0 ) {
-        double fw = textbox_get_estimated_char_width ( prompt_tb );
-        w  = -( fw * config.menu_width );
-        w += 2 * config.padding + 4; // 4 = 2*SIDE_MARGIN
-        // Compensate for border width.
-        w -= config.menu_bw * 2;
-    }
-    else{
-        // Calculate as float to stop silly, big rounding down errors.
-        w = config.menu_width < 101 ? ( mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
-        // Compensate for border width.
-        w -= config.menu_bw * 2;
-    }
-
-    int element_width = w - ( 2 * ( config.padding ) );
-    // Divide by the # columns
-    element_width = ( element_width - ( columns - 1 ) * LINE_MARGIN ) / columns;
-    if ( config.hmode == TRUE ) {
-        element_width = ( w - ( 2 * ( config.padding ) ) - max_elements * LINE_MARGIN ) / ( max_elements + 1 );
-    }
+    state.text = textbox_create ( main_window, TB_AUTOHEIGHT | TB_EDITABLE,
+                                  ( config.padding ) + textbox_get_width ( state.prompt_tb ),
+                                  ( config.padding ),
+                                  ( ( config.hmode == TRUE ) ?
+                                    state.element_width : ( state.w - ( 2 * ( config.padding ) ) ) )
+                                  - textbox_get_width ( state.prompt_tb ), 1,
+                                  NORMAL,
+                                  ( input != NULL ) ? *input : "" );
 
 
-    textbox *text = textbox_create ( main_window, TB_AUTOHEIGHT | TB_EDITABLE,
-                                     ( config.padding ) + textbox_get_width ( prompt_tb ),
-                                     ( config.padding ),
-                                     ( ( config.hmode == TRUE ) ?
-                                       element_width : ( w - ( 2 * ( config.padding ) ) ) )
-                                     - textbox_get_width ( prompt_tb ), 1,
-                                     NORMAL,
-                                     ( input != NULL ) ? *input : "" );
-
-    int line_height = textbox_get_height ( text ); //text->font->ascent + text->font->descent;
-
-    textbox_show ( text );
-    textbox_show ( prompt_tb );
+    textbox_show ( state.text );
+    textbox_show ( state.prompt_tb );
 
 
+    int line_height = textbox_get_height ( state.text );
     // filtered list display
-    textbox **boxes = g_malloc0_n ( max_elements, sizeof ( textbox* ) );
+    state.boxes = g_malloc0_n ( state.max_elements, sizeof ( textbox* ) );
 
-    for ( i = 0; i < max_elements; i++ ) {
-        int line = ( i ) % max_rows + ( ( config.hmode == FALSE ) ? 1 : 0 );
-        int col  = ( i ) / max_rows + ( ( config.hmode == FALSE ) ? 0 : 1 );
+    for ( i = 0; i < state.max_elements; i++ ) {
+        int line = ( i ) % state.max_rows + ( ( config.hmode == FALSE ) ? 1 : 0 );
+        int col  = ( i ) / state.max_rows + ( ( config.hmode == FALSE ) ? 0 : 1 );
 
-        int ex = ( config.padding ) + col * ( element_width + LINE_MARGIN );
+        int ex = ( config.padding ) + col * ( state.element_width + LINE_MARGIN );
         int ey = line * line_height + config.padding + ( ( config.hmode == TRUE ) ? 0 : LINE_MARGIN );
-        boxes[i] = textbox_create ( main_window, 0, ex, ey, element_width, line_height, NORMAL, "" );
-        textbox_show ( boxes[i] );
+        state.boxes[i] = textbox_create ( main_window, 0, ex, ey, state.element_width, line_height, NORMAL, "" );
+        textbox_show ( state.boxes[i] );
     }
     // Arrows
-    textbox *arrowbox_top = NULL, *arrowbox_bottom = NULL;
-    arrowbox_top = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                                    ( config.padding ),
-                                    ( config.padding ),
-                                    0, 0,
-                                    NORMAL,
-                                    ( config.hmode == FALSE ) ? "↑" : "←" );
-    arrowbox_bottom = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                                       ( config.padding ),
-                                       ( config.padding ),
-                                       0, 0,
-                                       NORMAL,
-                                       ( config.hmode == FALSE ) ? "↓" : "→" );
+    state.arrowbox_top = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+                                          ( config.padding ),
+                                          ( config.padding ),
+                                          0, 0,
+                                          NORMAL,
+                                          ( config.hmode == FALSE ) ? "↑" : "←" );
+    state.arrowbox_bottom = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+                                             ( config.padding ),
+                                             ( config.padding ),
+                                             0, 0,
+                                             NORMAL,
+                                             ( config.hmode == FALSE ) ? "↓" : "→" );
 
     if ( config.hmode == FALSE ) {
-        textbox_move ( arrowbox_top,
-                       w - config.padding - arrowbox_top->w,
+        textbox_move ( state.arrowbox_top,
+                       state.w - config.padding - state.arrowbox_top->w,
                        config.padding + line_height + LINE_MARGIN );
-        textbox_move ( arrowbox_bottom,
-                       w - config.padding - arrowbox_bottom->w,
-                       config.padding + max_rows * line_height + LINE_MARGIN );
+        textbox_move ( state.arrowbox_bottom,
+                       state.w - config.padding - state.arrowbox_bottom->w,
+                       config.padding + state.max_rows * line_height + LINE_MARGIN );
     }
     else {
-        textbox_move ( arrowbox_bottom,
-                       w - config.padding - arrowbox_top->w,
+        textbox_move ( state.arrowbox_bottom,
+                       state.w - config.padding - state.arrowbox_top->w,
                        config.padding );
-        textbox_move ( arrowbox_top,
-                       w - config.padding - arrowbox_bottom->w - arrowbox_top->w,
+        textbox_move ( state.arrowbox_top,
+                       state.w - config.padding - state.arrowbox_bottom->w - state.arrowbox_top->w,
                        config.padding );
     }
 
     // filtered list
-    char **filtered = g_malloc0_n ( num_lines, sizeof ( char* ) );
-    int  *line_map  = g_malloc0_n ( num_lines, sizeof ( int ) );
-    int  *distance  = NULL;
+    state.filtered = (char * *) g_malloc0_n ( state.num_lines, sizeof ( char* ) );
+    state.line_map = g_malloc0_n ( state.num_lines, sizeof ( int ) );
     if ( sorting ) {
-        distance = g_malloc0_n ( num_lines, sizeof ( int ) );
+        state.distance = (int *) g_malloc0_n ( state.num_lines, sizeof ( int ) );
     }
-    unsigned int filtered_lines = 0;
-    // We want to filter on the first run.
-    int          refilter = TRUE;
-    int          update   = FALSE;
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
-    int h = line_height * ( max_rows + 1 ) + ( config.padding ) * 2 + LINE_MARGIN;
+    state.h = line_height * ( state.max_rows + 1 ) + ( config.padding ) * 2 + LINE_MARGIN;
     if ( config.hmode == TRUE ) {
-        h = line_height + ( config.padding ) * 2;
+        state.h = line_height + ( config.padding ) * 2;
     }
 
     // Move the window to the correct x,y position.
-    int x, y;
-    calculate_window_position ( &mon, &x, &y, w, h );
-    XMoveResizeWindow ( display, main_window, x, y, w, h );
+    calculate_window_position ( &state, &mon );
+    XMoveResizeWindow ( display, main_window, state.x, state.y, state.w, state.h );
 
+    // Display it.
     XMapRaised ( display, main_window );
 
     // if grabbing keyboard failed, fall through
     if ( take_keyboard ( main_window ) ) {
-        KeySym       prev_key    = 0;
-        unsigned int selected    = 0;
-        int          last_offset = 0;
-        int          init        = 0;
-        if ( selected_line != NULL ) {
+        state.selected = 0;
+        if ( state.selected_line != NULL ) {
             // The cast to unsigned in here is valid, we checked if selected_line > 0.
             // So its maximum range is 0-2³¹, well within the num_lines range.
-            if ( *selected_line >= 0 && (unsigned int) ( *selected_line ) <= num_lines ) {
-                selected = *selected_line;
+            if ( *( state.selected_line ) >= 0 && (unsigned int) ( *( state.selected_line ) ) <= state.num_lines ) {
+                state.selected = *( state.selected_line );
             }
         }
 
-        int quit = FALSE;
-        while ( !quit ) {
+        state.quit = FALSE;
+        while ( !state.quit ) {
             // If something changed, refilter the list. (paste or text entered)
-            if ( refilter ) {
-                if ( strlen ( text->text ) > 0 ) {
-                    char **tokens = tokenize ( text->text );
-
-                    // input changed
-                    for ( i = 0, j = 0; i < num_lines; i++ ) {
-                        int match = mmc ( tokens, lines[i], i, mmc_data );
-
-                        // If each token was matched, add it to list.
-                        if ( match ) {
-                            line_map[j] = i;
-                            if ( sorting ) {
-                                distance[i] = levenshtein ( text->text, lines[i] );
-                            }
-                            // Try to look-up the selected line and highlight that.
-                            // This is needed 'hack' to fix the dmenu 'next row' modi.
-                            // int to unsigned int is valid because we check negativeness of
-                            // selected_line
-                            if ( init == 0 && selected_line != NULL &&
-                                 ( *selected_line ) >= 0 &&
-                                 ( (unsigned int) ( *selected_line ) ) == i ) {
-                                selected = j;
-                                init     = 1;
-                            }
-                            j++;
-                        }
-                    }
-                    if ( sorting ) {
-                        qsort_r ( line_map, j, sizeof ( int ), lev_sort, distance );
-                    }
-                    // Update the filtered list.
-                    for ( i = 0; i < j; i++ ) {
-                        filtered[i] = lines[line_map[i]];
-                    }
-                    for ( i = j; i < num_lines; i++ ) {
-                        filtered[i] = NULL;
-                    }
-
-                    // Cleanup + bookkeeping.
-                    filtered_lines = j;
-                    g_strfreev ( tokens );
-                }
-                else{
-                    for ( i = 0; i < num_lines; i++ ) {
-                        filtered[i] = lines[i];
-                        line_map[i] = i;
-                    }
-                    filtered_lines = num_lines;
-                }
-                selected = MIN ( selected, j - 1 );
-
-                if ( config.zeltak_mode && filtered_lines == 1 ) {
-                    if ( filtered[selected] ) {
-                        retv           = MENU_OK;
-                        *selected_line = line_map[selected];
-                    }
-                    else{
-                        fprintf ( stderr, "We should never hit this." );
-                        abort ();
-                    }
-
-                    break;
-                }
-                refilter = FALSE;
+            if ( state.refilter ) {
+                menu_refilter ( &state, lines, mmc, mmc_data, sorting );
             }
             // Update if requested.
-            if ( update ) {
-                menu_hide_arrow_text ( filtered_lines, selected,
-                                       max_elements, arrowbox_top,
-                                       arrowbox_bottom );
-                textbox_draw ( text );
-                textbox_draw ( prompt_tb );
-                menu_draw ( boxes, max_elements, num_lines, &last_offset, selected, filtered );
-                menu_set_arrow_text ( filtered_lines, selected,
-                                      max_elements, arrowbox_top,
-                                      arrowbox_bottom );
-                update = FALSE;
+            if ( state.update ) {
+                menu_update ( &state );
             }
 
             // Wait for event.
@@ -1241,104 +1547,23 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                 while ( XCheckTypedEvent ( display, Expose, &ev ) ) {
                     ;
                 }
-
-                textbox_draw ( text );
-                textbox_draw ( prompt_tb );
-                menu_draw ( boxes, max_elements, num_lines, &last_offset, selected, filtered );
-                menu_set_arrow_text ( filtered_lines, selected,
-                                      max_elements, arrowbox_top,
-                                      arrowbox_bottom );
-                // Why do we need the specian -1?
-                if ( config.hmode == FALSE && max_elements > 0 ) {
-                    XDrawLine ( display, main_window, gc, ( config.padding ),
-                                line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2,
-                                w - ( ( config.padding ) ) - 1,
-                                line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2 );
-                }
+                state.update = TRUE;
             }
+            // Button press event.
             else if ( ev.type == ButtonPress ) {
-                XButtonEvent *xbe = (XButtonEvent *) &( ev.xbutton );
-                if ( xbe->window == arrowbox_top->window ) {
-                    // Page up.
-                    if ( selected < max_rows ) {
-                        selected = 0;
-                    }
-                    else{
-                        selected -= max_elements;
-                    }
-                    update = TRUE;
+                while ( XCheckTypedEvent ( display, ButtonPress, &ev ) ) {
+                    ;
                 }
-                else if ( xbe->window == arrowbox_bottom->window ) {
-                    // Page down.
-                    selected += max_elements;
-                    if ( selected >= filtered_lines ) {
-                        selected = filtered_lines - 1;
-                    }
-                    update = TRUE;
-                }
-                else {
-                    for ( int i = 0; i < max_elements; i++ ) {
-                        if ( ( xbe->window ) == ( boxes[i]->window ) ) {
-                            // Only allow items that are visible to be selected.
-                            if ( ( last_offset + i ) < 0 || ( last_offset + i ) >= filtered_lines ) {
-                                continue;
-                            }
-                            //
-                            selected = last_offset + i;
-                            update   = TRUE;
-                            if ( ( xbe->time - last_press ) < 200 ) {
-                                retv           = MENU_OK;
-                                *selected_line = line_map[selected];
-                                // Quit
-                                quit = TRUE;
-                                break;
-                            }
-                            last_press = xbe->time;
-                        }
-                    }
-                }
+                menu_mouse_navigation ( &state, &( ev.xbutton ) );
             }
+            // Paste event.
             else if ( ev.type == SelectionNotify ) {
-                // TODO move this.
-                if ( ev.xselection.property == netatoms[UTF8_STRING] ) {
-                    char          *pbuf = NULL;
-                    int           di;
-                    unsigned long dl, rm;
-                    Atom          da;
-
-                    /* we have been given the current selection, now insert it into input */
-                    XGetWindowProperty (
-                        display,
-                        main_window,
-                        netatoms[UTF8_STRING],
-                        0,
-                        256 / 4,   // max length in words.
-                        False,     // Do not delete clipboard.
-                        netatoms[UTF8_STRING], &da, &di, &dl, &rm, (unsigned char * *) &pbuf );
-                    // If There was remaining data left.. lets ignore this.
-                    // Only accept it when we get bytes!
-                    if ( di == 8 ) {
-                        char *index;
-                        if ( ( index = strchr ( pbuf, '\n' ) ) != NULL ) {
-                            // Calc new length;
-                            dl = index - pbuf;
-                        }
-                        // Create a NULL terminated string. I am not sure how the data is returned.
-                        // With or without trailing 0
-                        char str[dl + 1];
-                        memcpy ( str, pbuf, dl );
-                        str[dl] = '\0';
-
-                        // Insert string move cursor.
-                        textbox_insert ( text, text->cursor, str );
-                        textbox_cursor ( text, text->cursor + dl );
-                        // Force a redraw and refiltering of the text.
-                        update   = TRUE;
-                        refilter = TRUE;
-                    }
-                    XFree ( pbuf );
+                while ( XCheckTypedEvent ( display, SelectionNotify, &ev ) ) {
+                    ;
                 }
+                menu_paste ( &state, &( ev.xselection ) );
             }
+            // Key press event.
             else if ( ev.type == KeyPress ) {
                 while ( XCheckTypedEvent ( display, KeyPress, &ev ) ) {
                     ;
@@ -1350,196 +1575,90 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
                 KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
 
+                // Handling of paste
                 if ( ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_v ) ) {
                     XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
                                         XA_PRIMARY : netatoms[CLIPBOARD],
                                         netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
                 }
-                if ( key == XK_Insert ) {
+                else if ( key == XK_Insert ) {
                     XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
                                         XA_PRIMARY : netatoms[CLIPBOARD],
                                         netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
                 }
+                // Menu navigation.
                 else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
                           key == XK_slash ) {
-                    retv           = MENU_NEXT;
-                    *selected_line = 0;
-                    quit           = TRUE;
+                    state.retv               = MENU_NEXT;
+                    *( state.selected_line ) = 0;
+                    state.quit               = TRUE;
                     break;
                 }
-                else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
-                          key == XK_Delete ) {
-                    if ( filtered[selected] != NULL ) {
-                        *selected_line = line_map[selected];
-                        retv           = MENU_ENTRY_DELETE;
-                        quit           = TRUE;
-                        break;
-                    }
-                }
+                // Switcher short-cut
                 else if ( ( ( ev.xkey.state & Mod1Mask ) == Mod1Mask ) &&
                           key >= XK_1 && key <= XK_9 ) {
-                    *selected_line = ( key - XK_1 );
-                    retv           = MENU_QUICK_SWITCH;
-                    quit           = TRUE;
+                    *( state.selected_line ) = ( key - XK_1 );
+                    state.retv               = MENU_QUICK_SWITCH;
+                    state.quit               = TRUE;
                     break;
                 }
-
-                int rc = textbox_keypress ( text, &ev );
-
-                if ( rc < 0 ) {
-                    if ( shift != NULL ) {
-                        ( *shift ) = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
-                    }
-
-                    // If a valid item is selected, return that..
-                    if ( selected < filtered_lines && filtered[selected] != NULL ) {
-                        retv           = MENU_OK;
-                        *selected_line = line_map[selected];
-                    }
-                    // No item selected, but user entered something
-                    else if ( strlen ( text->text ) > 0 ) {
-                        retv = MENU_CUSTOM_INPUT;
-                    }
-                    else{
-                        retv = MENU_CANCEL;
-                    }
-
-                    quit = TRUE;
-                    break;
-                }
-                else if ( rc ) {
-                    refilter = TRUE;
-                    update   = TRUE;
-                }
-                else{
-                    // unhandled key
-                    KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
-
-                    if ( key == XK_Escape
-                         // pressing one of the global key bindings closes the switcher. this allows fast closing of the menu if an item is not selected
-                         || ( ( windows_modmask == AnyModifier || ev.xkey.state & windows_modmask ) && key == windows_keysym )
-                         || ( ( rundialog_modmask == AnyModifier || ev.xkey.state & rundialog_modmask ) && key == rundialog_keysym )
-                         || ( ( sshdialog_modmask == AnyModifier || ev.xkey.state & sshdialog_modmask ) && key == sshdialog_keysym )
-                         ) {
-                        retv = MENU_CANCEL;
-                        quit = TRUE;
+                // Special delete entry command.
+                else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
+                          key == XK_Delete ) {
+                    if ( state.filtered[state.selected] != NULL ) {
+                        *( state.selected_line ) = state.line_map[state.selected];
+                        state.retv               = MENU_ENTRY_DELETE;
+                        state.quit               = TRUE;
                         break;
                     }
+                }
+                else{
+                    int rc = textbox_keypress ( state.text, &ev );
+                    // Row is accepted.
+                    if ( rc < 0 ) {
+                        if ( shift != NULL ) {
+                            ( *shift ) = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
+                        }
+
+                        // If a valid item is selected, return that..
+                        if ( state.selected < state.filtered_lines && state.filtered[state.selected] != NULL ) {
+                            state.retv               = MENU_OK;
+                            *( state.selected_line ) = state.line_map[state.selected];
+                        }
+                        // No item selected, but user entered something
+                        else if ( strlen ( state.text->text ) > 0 ) {
+                            state.retv = MENU_CUSTOM_INPUT;
+                        }
+                        // Nothing entered and nothing selected.
+                        else{
+                            state.retv = MENU_CANCEL;
+                        }
+
+                        state.quit = TRUE;
+                    }
+                    // Key press is handled by entry box.
+                    else if ( rc > 0 ) {
+                        state.refilter = TRUE;
+                        state.update   = TRUE;
+                    }
+                    // Other keys.
                     else{
-                        // Up, Ctrl-p or Shift-Tab
-                        if ( key == XK_Up || ( key == XK_Tab && ev.xkey.state & ShiftMask ) ||
-                             ( key == XK_p && ev.xkey.state & ControlMask )  ) {
-                            if ( selected == 0 ) {
-                                selected = filtered_lines;
-                            }
-
-                            if ( selected > 0 ) {
-                                selected--;
-                            }
-                            update = TRUE;
-                        }
-                        // Down, Ctrl-n
-                        else if ( key == XK_Down ||
-                                  ( key == XK_n && ev.xkey.state & ControlMask ) ) {
-                            selected = selected < filtered_lines - 1 ? MIN ( filtered_lines - 1, selected + 1 ) : 0;
-                            update   = TRUE;
-                        }
-                        else if ( key == XK_Page_Up && ev.xkey.state & ControlMask ) {
-                            if ( selected < max_rows ) {
-                                selected = 0;
-                            }
-                            else{
-                                selected -= max_rows;
-                            }
-                            update = TRUE;
-                        }
-                        else if (  key == XK_Page_Down && ev.xkey.state & ControlMask ) {
-                            selected += max_rows;
-                            if ( selected >= filtered_lines ) {
-                                selected = filtered_lines - 1;
-                            }
-                            update = TRUE;
-                        }
-                        else if ( key == XK_Page_Up ) {
-                            if ( selected < max_elements ) {
-                                selected = 0;
-                            }
-                            else{
-                                selected -= ( max_elements );
-                            }
-                            update = TRUE;
-                        }
-                        else if ( key == XK_Page_Down ) {
-                            selected += ( max_elements );
-
-                            if ( selected >= filtered_lines ) {
-                                selected = filtered_lines - 1;
-                            }
-                            update = TRUE;
-                        }
-                        else if ( key == XK_Home || key == XK_KP_Home ) {
-                            selected = 0;
-                            update   = TRUE;
-                        }
-                        else if ( key == XK_End || key == XK_KP_End ) {
-                            selected = filtered_lines - 1;
-                            update   = TRUE;
-                        }
-                        else if ( key == XK_Tab ) {
-                            if ( filtered_lines == 1 ) {
-                                if ( filtered[selected] ) {
-                                    retv           = MENU_OK;
-                                    *selected_line = line_map[selected];
-                                }
-                                else{
-                                    fprintf ( stderr, "We should never hit this." );
-                                    abort ();
-                                }
-
-                                break;
-                            }
-
-                            // Double tab!
-                            if ( filtered_lines == 0 && key == prev_key ) {
-                                retv           = MENU_NEXT;
-                                *selected_line = 0;
-                                quit           = TRUE;
-                                break;
-                            }
-                            else{
-                                selected = selected < filtered_lines - 1 ? MIN ( filtered_lines - 1, selected + 1 ) : 0;
-                                update   = TRUE;
-                            }
-                        }
+                        // unhandled key
+                        menu_keyboard_navigation ( &state, key, ev.xkey.state );
                     }
                 }
-                prev_key = key;
             }
         }
 
         release_keyboard ();
     }
 
+    // Update input string.
     g_free ( *input );
+    *input = g_strdup ( state.text->text );
 
-    *input = g_strdup ( text->text );
-
-    textbox_free ( text );
-    textbox_free ( prompt_tb );
-    textbox_free ( arrowbox_bottom );
-    textbox_free ( arrowbox_top );
-
-    for ( i = 0; i < max_elements; i++ ) {
-        textbox_free ( boxes[i] );
-    }
-
-    g_free ( boxes );
-
-    g_free ( filtered );
-    g_free ( line_map );
-    g_free ( distance );
-
-    return retv;
+    menu_free_state ( &state );
+    return state.retv;
 }
 
 SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
@@ -1946,9 +2065,6 @@ static void parse_cmd_options ( int argc, char ** argv )
 
     // Parse commandline arguments about behavior
     find_arg_str ( argc, argv, "-terminal", &( config.terminal_emulator ) );
-    if ( find_arg ( argc, argv, "-zeltak" ) >= 0 ) {
-        config.zeltak_mode = 1;
-    }
 
     if ( find_arg ( argc, argv, "-hmode" ) >= 0 ) {
         config.hmode = TRUE;

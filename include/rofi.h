@@ -105,7 +105,6 @@ typedef struct _Settings
     char           * menu_hlbg;
     char           * menu_bc;
     // Behavior
-    unsigned int   zeltak_mode;
     char           * terminal_emulator;
 
     // Key bindings

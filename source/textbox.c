@@ -475,11 +475,21 @@ int textbox_get_font_width ( textbox *tb )
     return width;
 }
 
-double textbox_get_estimated_char_width ( textbox *tb )
+double textbox_get_estimated_char_width ( )
 {
-    PangoContext     *context = pango_layout_get_context ( tb->layout );
+    // Create a temp layout with right font.
+    PangoLayout          *layout = pango_layout_new ( p_context );
+    // Set font.
+    PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
+    pango_layout_set_font_description ( layout, pfd );
+    pango_font_description_free ( pfd );
+
+    // Get width
+    PangoContext     *context = pango_layout_get_context ( layout );
     PangoFontMetrics *metric  = pango_context_get_metrics ( context, NULL, NULL );
     int              width    = pango_font_metrics_get_approximate_char_width ( metric );
     pango_font_metrics_unref ( metric );
+
+    g_object_unref ( layout );
     return ( width ) / (double) PANGO_SCALE;
 }

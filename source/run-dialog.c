@@ -47,7 +47,7 @@
 
 #define RUN_CACHE_FILE    "rofi-2.runcache"
 
-static inline int execsh ( const char *cmd, int run_in_term )
+static inline void execsh ( const char *cmd, int run_in_term )
 {
     char **args = g_malloc_n ( 6, sizeof ( char* ) );
     int  i      = 0;
