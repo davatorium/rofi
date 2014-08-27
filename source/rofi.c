@@ -1070,12 +1070,14 @@ static void menu_calculate_window_and_element_width ( MenuState *state, workarea
         state->w -= config.menu_bw * 2;
     }
 
-    state->element_width = state->w - ( 2 * ( config.padding ) );
-    // Divide by the # columns
-    state->element_width = ( state->element_width - ( state->columns - 1 ) * LINE_MARGIN ) / state->columns;
-    if ( config.hmode == TRUE ) {
-        state->element_width = ( state->w - ( 2 * ( config.padding ) ) - state->max_elements * LINE_MARGIN ) / (
-            state->max_elements + 1 );
+    if(state->columns > 0 ) {
+        state->element_width = state->w - ( 2 * ( config.padding ) );
+        // Divide by the # columns
+        state->element_width = ( state->element_width - ( state->columns - 1 ) * LINE_MARGIN ) / state->columns;
+        if ( config.hmode == TRUE ) {
+            state->element_width = ( state->w - ( 2 * ( config.padding ) ) - state->max_elements * LINE_MARGIN ) / (
+                    state->max_elements + 1 );
+        }
     }
 }
 
@@ -1410,6 +1412,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         .init              = TRUE,
         .quit              = FALSE,
         .filtered_lines    =             0,
+        .max_elements      =             0,
         // We want to filter on the first run.
         .refilter = TRUE,
         .update   = FALSE
@@ -1661,6 +1664,91 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     return state.retv;
 }
 
+void error_dialog ( char *msg )
+{
+    MenuState    state = {
+        .selected_line     = NULL,
+        .retv              = MENU_CANCEL,
+        .prev_key          =             0,
+        .last_button_press =             0,
+        .last_offset       =             0,
+        .num_lines         = 0,
+        .distance          = NULL,
+        .init              = FALSE,
+        .quit              = FALSE,
+        .filtered_lines    = 0,
+        .columns           = 0,
+        .update   =TRUE, 
+    };
+    workarea     mon;
+    // Get active monitor size.
+    monitor_active ( &mon );
+    // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
+    XWindowAttributes attr;
+    if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
+        main_window = create_window ( display );
+    }
+
+
+    menu_calculate_window_and_element_width ( &state, &mon );
+    state.max_elements      = 0;
+
+    state.text = textbox_create ( main_window, TB_AUTOHEIGHT,
+                                  ( config.padding ),
+                                  ( config.padding ),
+                                  ( state.w - ( 2 * ( config.padding ) ) ),
+                                  1,
+                                  NORMAL,
+                                  ( msg != NULL ) ? msg : "" );
+    textbox_show ( state.text );
+    int line_height = textbox_get_height ( state.text );
+
+    // resize window vertically to suit
+    // Subtract the margin of the last row.
+    state.h = line_height * ( state.max_rows + 1 ) + ( config.padding ) * 2 + LINE_MARGIN;
+    if ( config.hmode == TRUE ) {
+        state.h = line_height + ( config.padding ) * 2;
+    }
+
+    // Move the window to the correct x,y position.
+    calculate_window_position ( &state, &mon );
+    XMoveResizeWindow ( display, main_window, state.x, state.y, state.w, state.h );
+
+    // Display it.
+    XMapRaised ( display, main_window );
+
+    if ( take_keyboard ( main_window ) ) {
+
+        while(!state.quit) {
+            // Update if requested.
+            if ( state.update ) {
+                textbox_draw ( state.text );
+                state.update = FALSE;
+            }
+            // Wait for event.
+            XEvent ev;
+            XNextEvent ( display, &ev );
+
+
+            // Handle event.
+            if ( ev.type == Expose ) {
+                while ( XCheckTypedEvent ( display, Expose, &ev ) ) {
+                    ;
+                }
+                state.update = TRUE;
+            }
+            // Key press event.
+            else if ( ev.type == KeyPress ) {
+                while ( XCheckTypedEvent ( display, KeyPress, &ev ) ) {
+                    ;
+                }
+                state.quit = TRUE;
+            }
+        }
+        release_keyboard ();
+    }
+
+}
 SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
 {
     Screen       *screen = DefaultScreenOfDisplay ( display );
@@ -2275,6 +2363,17 @@ int main ( int argc, char *argv[] )
     // Check for i3
     display_get_i3_path ( display );
 #endif
+
+    char *msg = NULL; 
+    if ( find_arg_str ( argc, argv, "-e", &(msg) ) ) {
+        textbox_setup (
+                config.menu_bg, config.menu_fg,
+                config.menu_hlbg,
+                config.menu_hlfg );
+        error_dialog(msg);
+        textbox_cleanup ();
+        exit (EXIT_SUCCESS);
+    }
 
 
     // flags to run immediately and exit

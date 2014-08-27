@@ -11,7 +11,7 @@ rofi - A window switcher, run dialog and dmenu replacement
 [ -terminal *terminal* ] [ -location *position* ] [ -hmode ] [ -fixed-num-lines ] [ -padding *padding* ]
 [ -opacity *opacity%* ] [ -display *display* ] [ -bc *color* ] [ -bw *width* ] [ -dmenu [ -p *prompt* ] ]
 [ -ssh-set-title *true|false* ] [ -now ] [ -rnow ] [ -snow ] [ -version ] [ -help] [ -dump-xresources ]
-[ -disable-history ] [ -levenshtein-sort ] [ -show *mode* ] [ -switcher *mode1,mode2* ]
+[ -disable-history ] [ -levenshtein-sort ] [ -show *mode* ] [ -switcher *mode1,mode2* ] [ -e *message*]
 
 ## DESCRIPTION
 
@@ -256,6 +256,9 @@ The default key combinations are:
 
         rofi -switchers "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
 
+`-e` *message*
+
+    Popup a message dialog (used internally for showing errors) with *message*.
 
 
 ## Keybindings

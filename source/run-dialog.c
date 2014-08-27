@@ -60,9 +60,19 @@ static inline void execsh ( const char *cmd, int run_in_term )
     args[i++] = g_strdup ( cmd );
     args[i++] = NULL;
 
+    GError *error = NULL;
     g_spawn_async ( NULL, args, NULL,
                     G_SPAWN_SEARCH_PATH,
-                    NULL, NULL, NULL, NULL );
+                    NULL, NULL, NULL, &error );
+    if( error != NULL )
+    {
+        char *msg = g_strdup_printf("Failed to execute: '%s'\nError: '%s'", cmd,
+                error->message);
+        error_dialog(msg);
+        g_free(msg);
+        // print error.
+        g_error_free(error);
+    }
 
     // Free the args list.
     g_strfreev ( args );

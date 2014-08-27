@@ -65,10 +65,20 @@ static inline int execshssh ( const char *host )
     args[i++] = g_strdup ( host );
     args[i++] = NULL;
 
+    GError *error = NULL;
     g_spawn_async ( NULL, args, NULL,
                     G_SPAWN_SEARCH_PATH,
-                    NULL, NULL, NULL, NULL );
+                    NULL, NULL, NULL, &error );
 
+    if( error != NULL )
+    {
+        char *msg = g_strdup_printf("Failed to execute: 'ssh %s'\nError: '%s'", host,
+                error->message);
+        error_dialog(msg);
+        g_free(msg);
+        // print error.
+        g_error_free(error);
+    }
     // Free the args list.
     g_strfreev ( args );
 

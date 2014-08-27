@@ -48,6 +48,7 @@ pid_t execute_generator ( char * cmd )
     args[3] = NULL;
 
     int fd = -1;
+    GError *error = NULL;
     g_spawn_async_with_pipes ( NULL,
                                args,
                                NULL,
@@ -56,7 +57,17 @@ pid_t execute_generator ( char * cmd )
                                NULL,
                                NULL,
                                NULL, &fd, NULL,
-                               NULL );
+                               &error );
+
+    if( error != NULL )
+    {
+        char *msg = g_strdup_printf("Failed to execute: '%s'\nError: '%s'", cmd,
+                error->message);
+        error_dialog(msg);
+        g_free(msg);
+        // print error.
+        g_error_free(error);
+    }
     g_strfreev ( args );
     return fd;
 }

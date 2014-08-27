@@ -132,4 +132,6 @@ int token_match ( char **tokens, const char *input,
                   __attribute__( ( unused ) ) int index,
                   __attribute__( ( unused ) ) void *data );
 
+
+void error_dialog ( char *msg );
 #endif
