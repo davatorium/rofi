@@ -5,6 +5,6 @@ compiler:
 
 before_install:
     -   sudo apt-get update -qq
-    -   sudo apt-get install -y libxinerama-dev autoconf automake make libxft-dev i3-wm libx11-dev libpango1.0-dev
+    -   sudo apt-get install -y libxinerama-dev autoconf automake make libxft-dev libx11-dev libpango1.0-dev
 
 script: autoreconf -i && ./configure && make
