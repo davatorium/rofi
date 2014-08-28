@@ -113,7 +113,7 @@ static void delete_ssh ( const char *cmd )
     history_remove ( path, cmd );
     g_free ( path );
 }
-static int sort_func ( const void *a, const void *b )
+static int ssh_sort_func ( const void *a, const void *b )
 {
     const char *astr = *( const char * const * ) a;
     const char *bstr = *( const char * const * ) b;
@@ -190,7 +190,7 @@ static char ** get_ssh ( unsigned int *length )
 
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
     if ( ( *length ) > num_favorites ) {
-        qsort ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func );
+        qsort ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), ssh_sort_func );
     }
     g_free ( path );
 #ifdef TIMING

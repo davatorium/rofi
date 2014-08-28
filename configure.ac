@@ -24,6 +24,15 @@ AC_USE_SYSTEM_EXTENSIONS
 AC_CHECK_HEADERS([i3/ipc.h],
 	[i3_header=yes; break;])
 
+
+dnl ---------------------------------------------------------------------
+dnl Enable source code coverage reporting for GCC
+dnl ---------------------------------------------------------------------
+
+AC_ARG_ENABLE(gcov,
+        [  --enable-gcov           Enable source code coverage testing using gcov],
+        [CFLAGS="$CFLAGS -fprofile-arcs -ftest-coverage"])
+
 ##
 # Check dependencies
 ##
