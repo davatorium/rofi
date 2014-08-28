@@ -1704,11 +1704,7 @@ void error_dialog ( char *msg )
     int line_height = textbox_get_height ( state.text );
 
     // resize window vertically to suit
-    // Subtract the margin of the last row.
-    state.h = line_height * ( state.max_rows + 1 ) + ( config.padding ) * 2 + LINE_MARGIN;
-    if ( config.hmode == TRUE ) {
-        state.h = line_height + ( config.padding ) * 2;
-    }
+    state.h = line_height + ( config.padding ) * 2; 
 
     // Move the window to the correct x,y position.
     calculate_window_position ( &state, &mon );
@@ -1747,8 +1743,8 @@ void error_dialog ( char *msg )
         }
         release_keyboard ();
     }
-
 }
+
 SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
 {
     Screen       *screen = DefaultScreenOfDisplay ( display );
