@@ -5,9 +5,10 @@ compiler:
 
 before_install:
     -   sudo apt-get update -qq
-    -   sudo apt-get install -y libxinerama-dev autoconf automake make libxft-dev libx11-dev libpango1.0-dev
+    -   sudo apt-get install -y libxinerama-dev autoconf automake make libxft-dev libx11-dev libpango1.0-dev xvfb xdotool
     -   sudo pip install cpp-coveralls
 
-script: autoreconf -i && ./configure --enable-gcov && make &&  make -C test/ test
+script:
+    - autoreconf -i && ./configure --enable-gcov && make &&  make -C test/ test && ./test/run_errormsg_test.sh
 after_success:
   - coveralls --exclude lib --gcov-options '\-lp'

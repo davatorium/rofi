@@ -16,7 +16,7 @@ static int test = 0;
 
 const char *file = "text";
 
-int main ( int argc, char **argv )
+void history_test()
 {
     unlink(file);
 
@@ -95,6 +95,12 @@ int main ( int argc, char **argv )
     history_remove ( NULL, "aap" );
     printf("Test %i passed\n", ++test);
 
+
+}
+
+int main ( int argc, char **argv )
+{
+    history_test();
 
     return 0;
 }
