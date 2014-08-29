@@ -8,6 +8,6 @@ before_install:
     -   sudo apt-get install -y libxinerama-dev autoconf automake make libxft-dev libx11-dev libpango1.0-dev
     -   sudo pip install cpp-coveralls
 
-script: autoreconf -i && ./configure && make &&  make -C test/ test
+script: autoreconf -i && ./configure --enable-gcov && make &&  make -C test/ test
 after_success:
   - coveralls --exclude lib --gcov-options '\-lp'

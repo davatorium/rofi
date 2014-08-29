@@ -1,3 +1,5 @@
+SUBDIRS=test
+
 ##
 # Rofi the program
 ##

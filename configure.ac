@@ -44,5 +44,5 @@ PKG_CHECK_MODULES([xinerama], [xinerama])
 PKG_CHECK_MODULES([pango], [pango pangoxft])
 
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile test/Makefile])
 AC_OUTPUT
