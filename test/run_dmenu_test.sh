@@ -24,7 +24,7 @@ kill ${XPID}
 
 sleep 1
 
-if [ `cat output.txt` != 'aap' ]
+if [ `cat output.txt` != 'mies' ]
 then
     exit 1
 fi
