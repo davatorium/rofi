@@ -1,0 +1,26 @@
+rofi.opacity: 85
+rofi.width: 300
+rofi.lines: 40
+rofi.columns: 1
+rofi.font: Terminus bold 10
+rofi.bw: 2
+rofi.padding: 2
+rofi.yoffset: 0
+rofi.xoffset: -2
+rofi.fixed-num-lines: true 
+rofi.hmode: false
+rofi.terminal: x-terminal-emulator
+rofi.ssh-set-title: true
+rofi.key: F12
+rofi.rkey: mod1+F2
+rofi.skey: mod1+F3
+rofi.location: 8
+
+rofi.fg:   #AAAAAA
+rofi.bg:   #000000
+rofi.hlfg: #000000
+rofi.hlbg: #AAAAAA
+rofi.bc:   #CCCCCC
+rofi.disable-history: false 
+rofi.levenshtein-sort: true 
+rofi.switchers: window,run,ssh,Workspace:i3_switch_workspace_script.sh,Domotica:domo_rofi_script.sh

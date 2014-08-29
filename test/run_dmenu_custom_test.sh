@@ -6,6 +6,7 @@ XPID=$!
 
 # wait till it is up, run rofi with error message
 sleep 1;
+xrdb -display :202 -load doc/example.xresources
 echo -e -n "aap\nnoot\nmies" | ./rofi -width -30 -dmenu -display :202 > output.txt & 
 RPID=$!
 
