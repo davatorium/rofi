@@ -11,4 +11,4 @@ before_install:
 script:
     - autoreconf -i && ./configure --enable-gcov && make &&  make -C test/ test && ./test/run_errormsg_test.sh
 after_success:
-  - coveralls -E **/*.h -e config.h --exclude lib --gcov-options '\-lp'
+  - coveralls -x c  --gcov-options '\-lp'
