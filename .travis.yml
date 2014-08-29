@@ -9,6 +9,6 @@ before_install:
     -   sudo pip install cpp-coveralls
 
 script:
-    - autoreconf -i && ./configure --enable-gcov && make &&  make -C test/ test && ./test/run_errormsg_test.sh
+    - autoreconf -i && ./configure --enable-gcov && make &&  make test
 after_success:
   - coveralls -x c  --gcov-options '\-lp'
