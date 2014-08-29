@@ -52,7 +52,7 @@ static int __element_sort_func ( const void *ea, const void *eb )
 
 static void __history_write_element_list ( FILE *fd, _element **list, unsigned int length )
 {
-    if ( list == NULL ) {
+    if ( list == NULL || length == 0 ) {
         return;
     }
     // Sort the list before writing out.
@@ -235,6 +235,8 @@ void history_remove ( const char *filename, const char *entry )
 
 char ** history_get_list ( const char *filename, unsigned int *length )
 {
+    *length = 0;
+
     if ( config.disable_history ) {
         return NULL;
     }
