@@ -15,4 +15,5 @@ sleep 5 && DISPLAY=:200 xdotool key Return
 wait ${RPID}
 RETV=$?
 kill ${XPID}
+sleep 1
 exit ${RETV}
