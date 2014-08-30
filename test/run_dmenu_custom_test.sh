@@ -1,37 +1,27 @@
 #!/usr/bin/env bash
 
-# Create fake X
-Xvfb :202 &
-XPID=$!
-
-# wait till it is up, run rofi with error message
-sleep 1;
-xrdb -display :202 -load doc/example.xresources
-echo -e -n "aap\nnoot\nmies" | ./rofi -width -30 -dmenu -display :202 > output.txt & 
+echo -e -n "aap\nnoot\nmies" | rofi -width -30 -dmenu > output.txt & 
 RPID=$!
 
 # send enter.
 sleep 5;
-DISPLAY=:202 xdotool key 'c'
+xdotool key 'c'
 sleep 0.2
-DISPLAY=:202 xdotool key 'o'
+xdotool key 'o'
 sleep 0.2
-DISPLAY=:202 xdotool key 'f'
+xdotool key 'f'
 sleep 0.2
-DISPLAY=:202 xdotool key 'f'
+xdotool key 'f'
 sleep 0.2
-DISPLAY=:202 xdotool key 'e'
+xdotool key 'e'
 sleep 0.2
-DISPLAY=:202 xdotool key 'e'
+xdotool key 'e'
 sleep 0.2
-DISPLAY=:202 xdotool key Return
+xdotool key Return
 
 #  Get result, kill xvfb
 wait ${RPID}
 RETV=$?
-kill ${XPID}
-
-sleep 1
 
 if [ `cat output.txt` != 'coffee' ]
 then

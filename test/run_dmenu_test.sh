@@ -1,28 +1,21 @@
 #!/usr/bin/env bash
 
-# Create fake X
-Xvfb :202 &
-XPID=$!
-
 # wait till it is up, run rofi with error message
 sleep 1;
-echo -e -n "aap\nnoot\nmies" | ./rofi -dmenu -display :202 > output.txt & 
+echo -e -n "aap\nnoot\nmies" | rofi -dmenu  > output.txt & 
 RPID=$!
 
 # send enter.
 sleep 5;
-DISPLAY=:202 xdotool key 'Down' 
+xdotool key 'Down' 
 sleep 0.4
-DISPLAY=:202 xdotool key 'Down'
+xdotool key 'Down'
 sleep 0.4
-DISPLAY=:202 xdotool key Return
+xdotool key Return
 
 #  Get result, kill xvfb
 wait ${RPID}
 RETV=$?
-kill ${XPID}
-
-sleep 1
 
 if [ `cat output.txt` != 'mies' ]
 then

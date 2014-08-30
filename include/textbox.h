@@ -92,4 +92,13 @@ int textbox_get_font_height ( textbox *tb );
 int textbox_get_font_width ( textbox *tb );
 
 double textbox_get_estimated_char_width ( );
+
+
+void textbox_cursor_bkspc ( textbox *tb );
+void textbox_cursor_del ( textbox *tb );
+void textbox_cursor_dec ( textbox *tb );
+void textbox_cursor_inc ( textbox *tb );
+
+void textbox_delete ( textbox *tb, int pos, int dlen );
+
 #endif //__TEXTBOX_H__

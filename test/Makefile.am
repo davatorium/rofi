@@ -1,7 +1,7 @@
 ##
 # Rofi the program
 ##
-bin_PROGRAMS=rofi_test
+bin_PROGRAMS=rofi_test textbox_test
 
 LIBS=\
     @xft_LIBS@\
@@ -26,6 +26,19 @@ rofi_test_SOURCES=\
     ../include/history.h\
 	history-test.c
 
+textbox_test_SOURCES=\
+    ../source/textbox.c\
+    ../config/config.c\
+    ../include/rofi.h\
+    ../include/textbox.h\
+	textbox-test.c
+
 .PHONY: test
-test: rofi_test
-	./$^ 
+test: ${bin_PROGRAMS} 
+	./rofi_test
+	$(top_srcdir)/test/run_test.sh 123 $(top_builddir)/test/textbox_test $(top_builddir)
+	$(top_srcdir)/test/run_test.sh 200 $(top_srcdir)/test/run_errormsg_test.sh $(top_builddir)
+	$(top_srcdir)/test/run_test.sh 201 $(top_srcdir)/test/run_switchdialog_test.sh $(top_builddir)
+	$(top_srcdir)/test/run_test.sh 202 $(top_srcdir)/test/run_dmenu_test.sh $(top_builddir)
+	$(top_srcdir)/test/run_test.sh 203 $(top_srcdir)/test/run_dmenu_custom_test.sh $(top_builddir)
+	$(top_srcdir)/test/run_test.sh 204 $(top_srcdir)/test/run_run_test.sh $(top_builddir)

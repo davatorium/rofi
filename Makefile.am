@@ -88,8 +88,3 @@ update-manpage: ${top_srcdir}/doc/rofi-manpage.markdown
 .PHONY: test
 test: rofi
 	make -C test/ test
-	./test/run_errormsg_test.sh
-	./test/run_switchdialog_test.sh
-	./test/run_dmenu_test.sh
-	./test/run_dmenu_custom_test.sh
-	./test/run_run_test.sh
