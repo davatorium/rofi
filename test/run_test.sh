@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
 XPID=
-DISPLAY=":0"
 function create_fake_x ( )
 {
-    DISPLAY=":$1"
+    export DISPLAY=":$1"
     echo "Starting fake X: ${DISPLAY}"
     Xvfb ${DISPLAY} &
     XPID=$!
@@ -23,10 +22,11 @@ function destroy_fake_x ( )
 
 if [ -n "$3"  ]
 then
-    PATH=$3:$PATH
+    export PATH=$3:$PATH
 fi
 
 create_fake_x "$1"
+echo "$DISPLAY"
 $2
 RES=$?
 
