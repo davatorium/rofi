@@ -10,4 +10,7 @@ aclocal.m4
 autom4te.cache/
 compile
 depcomp
-
+*.o
+*.gcov
+*.gcda
+*.gcno
