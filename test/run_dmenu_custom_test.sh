@@ -21,6 +21,7 @@ sleep 0.2
 xdotool key Shift+Return
 xdotool key Return
 
+
 #  Get result, kill xvfb
 wait ${RPID}
 RETV=$?
@@ -29,4 +30,11 @@ if [ "${OUTPUT}" != 'coffee coffee ' ]
 then
     exit 1
 fi
+
+OUTPUT=$(rofi -dump-xresources)
+if [ -z "${OUTPUT}" ]
+then
+    exit 1
+fi
+
 exit ${RETV}
