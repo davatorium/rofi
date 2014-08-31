@@ -9,15 +9,14 @@ RPID=$!
 sleep 5;
 xdotool key 'Down' 
 sleep 0.4
-xdotool key 'Down'
-sleep 0.4
+xdotool key Shift+Return
 xdotool key Return
 
 #  Get result, kill xvfb
 wait ${RPID}
 RETV=$?
-
-if [ `cat output.txt` != 'mies' ]
+OUTPUT=$(cat output.txt | tr '\n' ' ')
+if [ "${OUTPUT}" != 'noot mies ' ]
 then
     exit 1
 fi
