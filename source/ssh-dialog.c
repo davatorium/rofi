@@ -154,14 +154,15 @@ static char ** get_ssh ( unsigned int *length )
                     ;
                 }
 
-                for ( stop = start; isalnum ( buffer[stop] ) ||
-                      buffer[stop] == '_' ||
-                      buffer[stop] == '.'; stop++ ) {
-                    ;
+                for ( stop = start; !isspace(buffer[stop]) ; stop++ ) {
+                    // We do not want to show wildcard entries, as you cannot ssh to them.
+                    if (  buffer[stop] == '?' || buffer[stop] == '*' ) {
+                        stop = start;
+                        break;
+                    }
                 }
 
                 int found = 0;
-
                 if ( start == stop ) {
                     continue;
                 }
