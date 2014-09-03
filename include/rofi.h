@@ -106,6 +106,13 @@ typedef struct _Settings
     char           * menu_bc;
     // Behavior
     char           * terminal_emulator;
+    char           * ssh_client;
+
+    // Command to execute when ssh session is selected.
+    char           * ssh_command;
+    // Command for executing an application.
+    char           * run_command;
+    char           * run_shell_command;
 
     // Key bindings
     char           * window_key;
@@ -117,7 +124,6 @@ typedef struct _Settings
     int            y_offset;
     int            x_offset;
 
-    unsigned int   ssh_set_title;
     unsigned int   fixed_num_lines;
 
     unsigned int   disable_history;

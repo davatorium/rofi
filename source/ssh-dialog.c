@@ -38,6 +38,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#include <helper.h>
 
 #include "rofi.h"
 #include "history.h"
@@ -53,31 +54,22 @@ static inline int execshssh ( const char *host )
     /**
      * I am not happy about this code, it causes 7 mallocs and frees
      */
-    char **args = g_malloc_n ( 7, sizeof ( char* ) );
-    int  i      = 0;
-    args[i++] = g_strdup ( config.terminal_emulator );
-    if ( config.ssh_set_title ) {
-        args[i++] = g_strdup ( "-T" );
-        args[i++] = g_strdup_printf ( "ssh %s", host );
-    }
-    args[i++] = g_strdup ( "-e" );
-    args[i++] = g_strdup ( "ssh" );
-    args[i++] = g_strdup ( host );
-    args[i++] = NULL;
+    char **args = NULL;
+    int  argsv  = 0;
+    helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, NULL );
 
     GError *error = NULL;
     g_spawn_async ( NULL, args, NULL,
                     G_SPAWN_SEARCH_PATH,
                     NULL, NULL, NULL, &error );
 
-    if( error != NULL )
-    {
-        char *msg = g_strdup_printf("Failed to execute: 'ssh %s'\nError: '%s'", host,
-                error->message);
-        error_dialog(msg);
-        g_free(msg);
+    if ( error != NULL ) {
+        char *msg = g_strdup_printf ( "Failed to execute: 'ssh %s'\nError: '%s'", host,
+                                      error->message );
+        error_dialog ( msg );
+        g_free ( msg );
         // print error.
-        g_error_free(error);
+        g_error_free ( error );
     }
     // Free the args list.
     g_strfreev ( args );
@@ -154,7 +146,7 @@ static char ** get_ssh ( unsigned int *length )
                     ;
                 }
 
-                for ( stop = start; !isspace(buffer[stop]) ; stop++ ) {
+                for ( stop = start; !isspace ( buffer[stop] ); stop++ ) {
                     // We do not want to show wildcard entries, as you cannot ssh to them.
                     if (  buffer[stop] == '?' || buffer[stop] == '*' ) {
                         stop = start;

@@ -36,18 +36,17 @@
 #include <assert.h>
 #include "rofi.h"
 #include "script-dialog.h"
+#include "helper.h"
 
 
 
 pid_t execute_generator ( char * cmd )
 {
-    char **args = g_malloc_n ( 4, sizeof ( char* ) );
-    args[0] = g_strdup ( "sh" );
-    args[1] = g_strdup ( "-c" );
-    args[2] = g_strdup ( cmd );
-    args[3] = NULL;
+    char **args = NULL;
+    int  argv   = 0;
+    helper_parse_setup ( config.run_command, &args, &argv, "{cmd}", cmd, NULL );
 
-    int fd = -1;
+    int    fd     = -1;
     GError *error = NULL;
     g_spawn_async_with_pipes ( NULL,
                                args,
@@ -59,14 +58,13 @@ pid_t execute_generator ( char * cmd )
                                NULL, &fd, NULL,
                                &error );
 
-    if( error != NULL )
-    {
-        char *msg = g_strdup_printf("Failed to execute: '%s'\nError: '%s'", cmd,
-                error->message);
-        error_dialog(msg);
-        g_free(msg);
+    if ( error != NULL ) {
+        char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd,
+                                      error->message );
+        error_dialog ( msg );
+        g_free ( msg );
         // print error.
-        g_error_free(error);
+        g_error_free ( error );
     }
     g_strfreev ( args );
     return fd;

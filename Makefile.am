@@ -31,6 +31,7 @@ rofi_SOURCES=\
     source/script-dialog.c\
     source/history.c\
     config/config.c\
+	source/helper.c\
     include/rofi.h\
     include/run-dialog.h\
     include/ssh-dialog.h\
@@ -38,7 +39,8 @@ rofi_SOURCES=\
     include/script-dialog.h\
     include/xrmoptions.h\
     include/history.h\
-    include/textbox.h 
+    include/textbox.h\
+	include/helper.h
 
 ##
 # Manpage

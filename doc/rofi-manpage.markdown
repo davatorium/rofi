@@ -10,8 +10,9 @@ rofi - A window switcher, run dialog and dmenu replacement
 [ -bg *color* ] [ -hlfg *color* ] [ -hlbg *color* ] [ -key *combo* ] [ -dkey *comdo* ] [ -rkey *comdo* ]
 [ -terminal *terminal* ] [ -location *position* ] [ -hmode ] [ -fixed-num-lines ] [ -padding *padding* ]
 [ -opacity *opacity%* ] [ -display *display* ] [ -bc *color* ] [ -bw *width* ] [ -dmenu [ -p *prompt* ] ]
-[ -ssh-set-title *true|false* ] [ -now ] [ -rnow ] [ -snow ] [ -version ] [ -help] [ -dump-xresources ]
-[ -disable-history ] [ -levenshtein-sort ] [ -show *mode* ] [ -switcher *mode1,mode2* ] [ -e *message*]
+[ -ssh-client *client* ] [ -ssh-command *command* ] [ -now ] [ -rnow ] [ -snow ] [ -version ]
+[ -help] [ -dump-xresources ] [ -disable-history ] [ -levenshtein-sort ] [ -show *mode* ] [ -switcher
+*mode1,mode2* ] [ -e *message*]
 
 ## DESCRIPTION
 
@@ -220,6 +221,26 @@ The default key combinations are:
   Not all terminals support this.
   Default value is true.
 
+  *This command has been deprecated for the ssh-command string*
+
+`-ssh-command` *cmd*
+
+  Set the command to execute when starting a ssh session.
+
+`-run-command` *cmd*
+
+  Set the command to execute when running an application.
+  See *PATTERN*.
+
+`-run-shell-command` *cmd*
+
+  Set the command to execute when running an application in a shell.
+  See *PATTERN*.
+
+`-ssh-client` *client*
+
+  Override the used ssh client. Default is `ssh`.
+
 `-disable-history`
 
   Disable history
@@ -260,6 +281,15 @@ The default key combinations are:
 
     Popup a message dialog (used internally for showing errors) with *message*.
 
+## Pattern
+
+To launch commands (e.g. when using the ssh dialog) the user can enter the used commandline, 
+the following keys can be used that will be replaced at runtime:
+
+* `{host}`: The host to connect to.
+* `{terminal}`: The configured terminal (See -terminal-emulator)
+* `{ssh-client}`: The configured ssh client (See -ssh-client)
+* `{cmd}`: The command to execute.
 
 ## Keybindings
 

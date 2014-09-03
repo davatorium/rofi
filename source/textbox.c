@@ -321,10 +321,11 @@ void textbox_delete ( textbox *tb, int pos, int dlen )
     // move everything after pos+dlen down
     char *at = tb->text + pos;
     // Move remainder + closing \0
-    memmove ( at, at + dlen, len - pos-dlen+1 );
-    if ( tb->cursor >= pos && tb->cursor < (pos+dlen) ) {
-        tb->cursor = pos; 
-    } else if ( tb->cursor >= (pos+dlen) ) {
+    memmove ( at, at + dlen, len - pos - dlen + 1 );
+    if ( tb->cursor >= pos && tb->cursor < ( pos + dlen ) ) {
+        tb->cursor = pos;
+    }
+    else if ( tb->cursor >= ( pos + dlen ) ) {
         tb->cursor -= dlen;
     }
 }

@@ -35,15 +35,15 @@ Settings config = {
     // Set the default window opacity.
     // This option only works when running a composite manager.
     // -o
-    .window_opacity    =                   100,
+    .window_opacity    =                                 100,
     // Border width around the window.
-    .menu_bw           =                     1,
+    .menu_bw           =                                   1,
     // The width of the switcher. (0100 in % > 100 in pixels)
-    .menu_width        =                    50,
+    .menu_width        =                                  50,
     // Maximum number of options to show.
-    .menu_lines        =                    15,
+    .menu_lines        =                                  15,
     // Number of columns
-    .menu_columns      =                     1,
+    .menu_columns      =                                   1,
     // Font
     .menu_font         = "mono12",
     // Foreground color
@@ -58,6 +58,12 @@ Settings config = {
     .menu_bc           = "black",
     // Terminal to use. (for ssh and open in terminal)
     .terminal_emulator = "x-terminal-emulator",
+    .ssh_client        = "ssh",
+    // Command when executing ssh.
+    .ssh_command       = "{terminal} -e {ssh-client} {host}",
+    // Command when running
+    .run_command       = "{cmd}",
+    .run_shell_command = "{terminal} -e {cmd}",
     // Key binding
     .window_key = "F12",
     .run_key    = "mod1+F2",
@@ -67,10 +73,9 @@ Settings config = {
     // Mode of window, list (Vertical) or dmenu like (Horizontal)
     .hmode             = FALSE,
     // Padding of the window.
-    .padding          =                     5,
-    .ssh_set_title    = TRUE,
-    .y_offset         =                     0,
-    .x_offset         =                     0,
+    .padding          =                                   5,
+    .y_offset         =                                   0,
+    .x_offset         =                                   0,
     .fixed_num_lines  = FALSE,
     .disable_history  = FALSE,
     .levenshtein_sort = FALSE
