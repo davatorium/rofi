@@ -34,11 +34,11 @@ textbox_test_SOURCES=\
 	textbox-test.c
 
 helper_test_SOURCES=\
-    helper-test.c\
     ../config/config.c\
     ../include/rofi.h\
     ../source/helper.c\
-    ../include/helper.h
+    ../include/helper.h\
+    helper-test.c
 
 .PHONY: test
 test: ${bin_PROGRAMS} 

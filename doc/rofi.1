@@ -8,8 +8,9 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-bg \fIcolor\fP ] [ \-hlfg \fIcolor\fP ] [ \-hlbg \fIcolor\fP ] [ \-key \fIcombo\fP ] [ \-dkey \fIcomdo\fP ] [ \-rkey \fIcomdo\fP ]
 [ \-terminal \fIterminal\fP ] [ \-location \fIposition\fP ] [ \-hmode ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fP ]
 [ \-opacity \fIopacity%\fP ] [ \-display \fIdisplay\fP ] [ \-bc \fIcolor\fP ] [ \-bw \fIwidth\fP ] [ \-dmenu [ \-p \fIprompt\fP ] ]
-[ \-ssh\-set\-title \fItrue|false\fP ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help] [ \-dump\-xresources ]
-[ \-disable\-history ] [ \-levenshtein\-sort ] [ \-show \fImode\fP ] [ \-switcher \fImode1,mode2\fP ] [ \-e \fImessage\fP]
+[ \-ssh\-client \fIclient\fP ] [ \-ssh\-command \fIcommand\fP ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ]
+[ \-help] [ \-dump\-xresources ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-show \fImode\fP ] [ \-switcher
+\fImode1,mode2\fP ] [ \-e \fImessage\fP]
 .SH DESCRIPTION
 .PP
 \fBrofi\fP is an X11 popup window switcher. A list is displayed center\-screen showing open window titles, WM_CLASS, and desktop number.
@@ -281,6 +282,26 @@ Dump the current active configuration in xresources format to the command\-line.
 SSH dialogs tries to set 'ssh hostname' of the spawned terminal.
 Not all terminals support this.
 Default value is true.
+.IP
+\fIThis command has been deprecated for the ssh\-command string\fP
+.PP
+\fB\fC\-ssh\-command\fR \fIcmd\fP
+.IP
+Set the command to execute when starting a ssh session.
+.PP
+\fB\fC\-run\-command\fR \fIcmd\fP
+.IP
+Set the command to execute when running an application.
+See \fIPATTERN\fP\&.
+.PP
+\fB\fC\-run\-shell\-command\fR \fIcmd\fP
+.IP
+Set the command to execute when running an application in a shell.
+See \fIPATTERN\fP\&.
+.PP
+\fB\fC\-ssh\-client\fR \fIclient\fP
+.IP
+Override the used ssh client. Default is \fB\fCssh\fR\&.
 .PP
 \fB\fC\-disable\-history\fR
 .IP
@@ -341,6 +362,20 @@ So to have a mode 'Workspaces' using the \fB\fCi3_switch_workspace.sh\fR script 
 Popup a message dialog (used internally for showing errors) with *message*.
 .fi
 .RE
+.SH Pattern
+.PP
+To launch commands (e.g. when using the ssh dialog) the user can enter the used commandline, 
+the following keys can be used that will be replaced at runtime:
+.RS
+.IP \(bu 2
+\fB\fC{host}\fR: The host to connect to.
+.IP \(bu 2
+\fB\fC{terminal}\fR: The configured terminal (See \-terminal\-emulator)
+.IP \(bu 2
+\fB\fC{ssh\-client}\fR: The configured ssh client (See \-ssh\-client)
+.IP \(bu 2
+\fB\fC{cmd}\fR: The command to execute.
+.RE
 .SH Keybindings
 .PP
 Rofi supports the following keybindings:
@@ -379,6 +414,8 @@ Rofi supports the following keybindings:
 \fB\fCCtrl\-Page Down\fR: Go to the next column
 .IP \(bu 2
 \fB\fC?\fR: Switch to the next modi. The list can be customized with the \fB\fC\-switchers\fR argument.
+.IP \(bu 2
+\fB\fCCtrl\-space\fR: Set selected item as input text.
 .RE
 .SH WEBSITE
 .PP

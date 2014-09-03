@@ -930,6 +930,7 @@ typedef struct MenuState
     // Return state
     int          *selected_line;
     MenuReturn   retv;
+    char **lines;
 }MenuState;
 
 /**
@@ -1184,6 +1185,15 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
         state->selected = state->filtered_lines - 1;
         state->update   = TRUE;
     }
+    else if ( key == XK_space && (modstate  & ControlMask ) == ControlMask ) {
+        // If a valid item is selected, return that..
+        if ( state->selected < state->filtered_lines && state->filtered[state->selected] != NULL ) {
+            textbox_text( state->text, state->lines[state->line_map[state->selected]] );
+            textbox_cursor_end( state->text );
+            state->update = TRUE;
+            state->refilter = TRUE;
+        }
+    }
     state->prev_key = key;
 }
 
@@ -1415,7 +1425,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         .max_elements      =             0,
         // We want to filter on the first run.
         .refilter = TRUE,
-        .update   = FALSE
+        .update   = FALSE,
+        .lines    = lines
     };
     unsigned int i;
     workarea     mon;
