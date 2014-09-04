@@ -192,7 +192,7 @@ void xresource_dump ( void )
             }
         }
 
-        printf ( "%s.%s: %*s", namePrefix, xrmOptions[i].name, (int) ( 16 - strlen ( xrmOptions[i].name ) ),
+        printf ( "%s.%s: %*s", namePrefix, xrmOptions[i].name, (int) ( 20 - strlen ( xrmOptions[i].name ) ),
                  "" );
         switch ( xrmOptions[i].type )
         {
