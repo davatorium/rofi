@@ -615,6 +615,23 @@ void monitor_active ( workarea *mon )
     Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
     int    x, y;
 
+    Window id;
+    Atom   type;
+    int    count;
+    if ( window_get_prop ( root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id, sizeof ( Window ) )
+         && type == XA_WINDOW && count > 0 ) {
+        XWindowAttributes *attr = window_get_attributes ( id );
+        if ( attr != NULL ) {
+            Window junkwin;
+            if ( XTranslateCoordinates ( display, id, attr->root,
+                                         -attr->border_width,
+                                         -attr->border_width,
+                                         &x, &y, &junkwin ) == True ) {
+                monitor_dimensions ( screen, x, y, mon );
+                return;
+            }
+        }
+    }
     if ( pointer_get ( root, &x, &y ) ) {
         monitor_dimensions ( screen, x, y, mon );
         return;
@@ -930,7 +947,7 @@ typedef struct MenuState
     // Return state
     int          *selected_line;
     MenuReturn   retv;
-    char **lines;
+    char         **lines;
 }MenuState;
 
 /**
@@ -1185,12 +1202,12 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
         state->selected = state->filtered_lines - 1;
         state->update   = TRUE;
     }
-    else if ( key == XK_space && (modstate  & ControlMask ) == ControlMask ) {
+    else if ( key == XK_space && ( modstate & ControlMask ) == ControlMask ) {
         // If a valid item is selected, return that..
         if ( state->selected < state->filtered_lines && state->filtered[state->selected] != NULL ) {
-            textbox_text( state->text, state->lines[state->line_map[state->selected]] );
-            textbox_cursor_end( state->text );
-            state->update = TRUE;
+            textbox_text ( state->text, state->lines[state->line_map[state->selected]] );
+            textbox_cursor_end ( state->text );
+            state->update   = TRUE;
             state->refilter = TRUE;
         }
     }
