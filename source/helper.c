@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <glib.h>
 #include <rofi.h>
 #include <helper.h>
@@ -64,6 +65,8 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
                                       error->message );
 #ifdef error_dialog
         error_dialog ( msg );
+#else
+        fputs ( msg, stderr );
 #endif
         g_free ( msg );
         // print error.

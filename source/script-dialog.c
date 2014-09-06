@@ -73,7 +73,6 @@ pid_t execute_generator ( char * cmd )
 
 static char **get_script_output ( char *command, unsigned int *length )
 {
-    char buffer[1024];
     char **retv = NULL;
 
     *length = 0;
@@ -81,6 +80,7 @@ static char **get_script_output ( char *command, unsigned int *length )
     if ( fd >= 0 ) {
         FILE *inp = fdopen ( fd, "r" );
         if ( inp ) {
+            char buffer[1024];
             while ( fgets ( buffer, 1024, inp ) != NULL ) {
                 retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
                 retv[( *length )]     = g_strdup ( buffer );

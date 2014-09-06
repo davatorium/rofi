@@ -318,6 +318,8 @@ Rofi supports the following keybindings:
 
 **rofi** website can be found at [here](https://davedavenport.github.io/rofi/)
 
+**rofi** bugtracker can be found [here](https://github.com/DaveDavenport/rofi/issues)
+
 ## AUTHOR
 
 Qball Cow <qball@gmpclient.org>
