@@ -1,7 +1,7 @@
 ##
 # Rofi the program
 ##
-bin_PROGRAMS=rofi_test textbox_test helper_test
+noinst_PROGRAMS=rofi_test textbox_test helper_test
 
 LIBS=\
     @xft_LIBS@\
