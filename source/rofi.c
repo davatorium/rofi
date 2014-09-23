@@ -232,7 +232,7 @@ static int find_arg ( const int argc, char * const argv[], const char * const ke
 
     return i < argc ? i : -1;
 }
-static int find_arg_str ( int argc, char *argv[], char *key, char** val )
+static int find_arg_str ( const int argc, char * const argv[], const char * const key, char** val )
 {
     int i = find_arg ( argc, argv, key );
 
@@ -243,7 +243,7 @@ static int find_arg_str ( int argc, char *argv[], char *key, char** val )
     return FALSE;
 }
 
-static int find_arg_int ( int argc, char *argv[], char *key, int *val )
+static int find_arg_int ( const int argc, char * const argv[], const char * const key, int *val )
 {
     int i = find_arg ( argc, argv, key );
 
@@ -253,7 +253,7 @@ static int find_arg_int ( int argc, char *argv[], char *key, int *val )
     }
     return FALSE;
 }
-static int find_arg_uint ( int argc, char *argv[], char *key, unsigned int *val )
+static int find_arg_uint ( const int argc, char * const argv[], const char * const key, unsigned int *val )
 {
     int i = find_arg ( argc, argv, key );
 
@@ -2105,6 +2105,9 @@ static void grab_key ( Display *display, unsigned int modmask, KeySym key )
 
 
 #ifdef HAVE_I3_IPC_H
+/**
+ * Get the i3 socket from the X root window.
+ */
 static inline void display_get_i3_path ( Display *display )
 {
     Screen *screen = DefaultScreenOfDisplay ( display );
@@ -2127,6 +2130,9 @@ static void help ()
     }
 }
 
+/**
+ * Parse commandline options.
+ */
 static void parse_cmd_options ( int argc, char ** argv )
 {
     // catch help request
@@ -2199,6 +2205,10 @@ static void parse_cmd_options ( int argc, char ** argv )
     }
 }
 
+/**
+ * Function bound by 'atexit'.
+ * Cleanup globally allocated memory.
+ */
 static void cleanup ()
 {
     // Cleanup
@@ -2267,6 +2277,13 @@ static void config_sanity_check ( void )
     }
 }
 
+/**
+ * Parse the switcher string, into internal array of type Switcher.
+ *
+ * String is split on separator ','
+ * First the three build-in modi are checked: window, run, ssh
+ * if that fails, a script-switcher is created.
+ */
 static void setup_switchers ( void )
 {
     char *savept;
