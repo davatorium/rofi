@@ -1553,7 +1553,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         if ( state.selected_line != NULL ) {
             // The cast to unsigned in here is valid, we checked if selected_line > 0.
             // So its maximum range is 0-2³¹, well within the num_lines range.
-            if ( (*( state.selected_line )) >= 0 && (unsigned int) ( *( state.selected_line ) ) <= state.num_lines ) {
+            if ( ( *( state.selected_line ) ) >= 0 && (unsigned int) ( *( state.selected_line ) ) <= state.num_lines ) {
                 state.selected = *( state.selected_line );
             }
         }
