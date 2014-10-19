@@ -263,6 +263,53 @@ static int find_arg_uint ( const int argc, char * const argv[], const char * con
     }
     return FALSE;
 }
+static int find_arg_char ( const int argc, char * const argv[], const char * const key, char *val )
+{
+    int i = find_arg ( argc, argv, key );
+
+    if ( val != NULL && i > 0 && i < ( argc - 1 ) ) {
+        int len = strlen ( argv[i + 1] );
+        if ( len == 1 ) {
+            *val = argv[i + 1][0];
+        }
+        else if ( len == 2 && argv[i + 1][0] == '\\' ) {
+            if ( argv[i + 1][1] == 'n' ) {
+                *val = '\n';
+            }
+            else if ( argv[i + 1][1] == 'a' ) {
+                *val = '\a';
+            }
+            else if ( argv[i + 1][1] == 'b' ) {
+                *val = '\b';
+            }
+            else if ( argv[i + 1][1] == 't' ) {
+                *val = '\t';
+            }
+            else if ( argv[i + 1][1] == 'v' ) {
+                *val = '\v';
+            }
+            else if ( argv[i + 1][1] == 'f' ) {
+                *val = '\f';
+            }
+            else if ( argv[i + 1][1] == 'r' ) {
+                *val = '\r';
+            }
+            else if ( argv[i + 1][1] == '\\' ) {
+                *val = '\\';
+            }
+            else {
+                fprintf ( stderr, "Failed to parse command-line argument." );
+                exit ( 1 );
+            }
+        }
+        else{
+            fprintf ( stderr, "Failed to parse command-line argument." );
+            exit ( 1 );
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
 
 
 static int ( *xerror )( Display *, XErrorEvent * );
@@ -2198,6 +2245,8 @@ static void parse_cmd_options ( int argc, char ** argv )
     find_arg_str ( argc, argv, "-skey", &( config.ssh_key ) );
 
 
+
+    find_arg_char ( argc, argv, "-sep", &( config.separator ) );
     // Dump.
     if ( find_arg ( argc, argv, "-dump-xresources" ) >= 0 ) {
         xresource_dump ();

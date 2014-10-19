@@ -10,7 +10,7 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-opacity \fIopacity%\fP ] [ \-display \fIdisplay\fP ] [ \-bc \fIcolor\fP ] [ \-bw \fIwidth\fP ] [ \-dmenu [ \-p \fIprompt\fP ] ]
 [ \-ssh\-client \fIclient\fP ] [ \-ssh\-command \fIcommand\fP ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ]
 [ \-help] [ \-dump\-xresources ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-show \fImode\fP ] [ \-switcher
-\fImode1,mode2\fP ] [ \-e \fImessage\fP]
+\fImode1,mode2\fP ] [ \-e \fImessage\fP] [ \-sep \fIseparator\fP ]
 .SH DESCRIPTION
 .PP
 \fBrofi\fP is an X11 popup window switcher. A list is displayed center\-screen showing open window titles, WM_CLASS, and desktop number.
@@ -360,6 +360,14 @@ So to have a mode 'Workspaces' using the \fB\fCi3_switch_workspace.sh\fR script 
 .RS
 .nf
 Popup a message dialog (used internally for showing errors) with *message*.
+.fi
+.RE
+.PP
+\fB\fC\-sep\fR \fIseparator\fP
+.PP
+.RS
+.nf
+Separator for dmenu.
 .fi
 .RE
 .SH Pattern

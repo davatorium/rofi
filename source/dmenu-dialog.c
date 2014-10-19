@@ -34,6 +34,7 @@
 #include <ctype.h>
 #include "rofi.h"
 #include "dmenu-dialog.h"
+#include "helper.h"
 
 char *dmenu_prompt = "dmenu ";
 
@@ -44,7 +45,7 @@ static char **get_dmenu ( int *length )
 
     *length = 0;
 
-    while ( fgets ( buffer, 1024, stdin ) != NULL ) {
+    while ( fgets_s ( buffer, 1024, stdin, (char) config.separator ) != NULL ) {
         retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
         retv[( *length )]     = g_strdup ( buffer );
         retv[( *length ) + 1] = NULL;

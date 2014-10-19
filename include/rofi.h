@@ -129,6 +129,7 @@ typedef struct _Settings
     unsigned int   disable_history;
 
     unsigned int   levenshtein_sort;
+    char           separator;
 } Settings;
 
 extern Settings config;

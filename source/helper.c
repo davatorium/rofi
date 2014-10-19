@@ -4,6 +4,27 @@
 #include <helper.h>
 #include <config.h>
 
+
+char* fgets_s ( char* s, int n, FILE *iop, char sep )
+{
+    register int c;
+    register char* cs;
+    cs = s;
+
+    while ( --n > 0 && ( c = getc ( iop ) ) != EOF ) {
+        // put the input char into the current pointer position, then increment it
+        // if a newline entered, break
+        if ( ( *cs++ = c ) == sep ) {
+            // Whipe separator
+            cs[-1] = '\0';
+            break;
+        }
+    }
+
+    *cs = '\0';
+    return ( c == EOF && cs == s ) ? NULL : s;
+}
+
 /**
  * Replace the entries
  */

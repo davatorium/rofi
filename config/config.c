@@ -78,6 +78,7 @@ Settings config = {
     .x_offset         =                                   0,
     .fixed_num_lines  = FALSE,
     .disable_history  = FALSE,
-    .levenshtein_sort = FALSE
+    .levenshtein_sort = FALSE,
+    .separator        = '\n'
 };
 
