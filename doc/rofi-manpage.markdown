@@ -277,13 +277,26 @@ The default key combinations are:
 
         rofi -switchers "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
 
-`-e` *message*
-
-    Popup a message dialog (used internally for showing errors) with *message*.
+### Dmenu specific
 
 `-sep` *separator*
 
-    Separator for dmenu.
+    Separator for dmenu. For example to show list a to e with '|' as separator:
+
+            echo "a|b|c|d|e" | rofi -sep '|' -dmenu
+
+`-p` *prompt*
+
+    Specify the prompt to show in dmenu mode. E.g. select monkey a,b,c,d or e.
+
+            echo "a|b|c|d|e" | rofi -sep '|' -dmenu -p "monkey:"
+
+### Message dialog
+
+`-e` *message*
+
+    Popup a message dialog (used internally for showing errors) with *message*.
+    Message can be multi-line.
 
 ## Pattern
 
