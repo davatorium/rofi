@@ -2,8 +2,9 @@
 [ -bg <em>color</em> ] [ -hlfg <em>color</em> ] [ -hlbg <em>color</em> ] [ -key <em>combo</em> ] [ -dkey <em>comdo</em> ] [ -rkey <em>comdo</em> ]
 [ -terminal <em>terminal</em> ] [ -location <em>position</em> ] [ -hmode ] [ -fixed-num-lines ] [ -padding <em>padding</em> ]
 [ -opacity <em>opacity%</em> ] [ -display <em>display</em> ] [ -bc <em>color</em> ] [ -bw <em>width</em> ] [ -dmenu [ -p <em>prompt</em> ] ]
-[ -ssh-set-title <em>true|false</em> ] [ -now ] [ -rnow ] [ -snow ] [ -version ] [ -help] [ -dump-xresources ]
-[ -disable-history ] [ -levenshtein-sort ] [ -show <em>mode</em> ] [ -switcher <em>mode1,mode2</em> ]</p><h2 id="DESCRIPTION">DESCRIPTION<a name="DESCRIPTION" href="#DESCRIPTION" class="md2man-permalink"></a></h2><p><strong>rofi</strong> is an X11 popup window switcher. A list is displayed center-screen showing open window titles, WM_CLASS, and desktop number.
+[ -ssh-client <em>client</em> ] [ -ssh-command <em>command</em> ] [ -now ] [ -rnow ] [ -snow ] [ -version ]
+[ -help] [ -dump-xresources ] [ -disable-history ] [ -levenshtein-sort ] [ -show <em>mode</em> ] [ -switcher
+<em>mode1,mode2</em> ] [ -e <em>message</em>] [ -sep <em>separator</em> ]</p><h2 id="DESCRIPTION">DESCRIPTION<a name="DESCRIPTION" href="#DESCRIPTION" class="md2man-permalink"></a></h2><p><strong>rofi</strong> is an X11 popup window switcher. A list is displayed center-screen showing open window titles, WM_CLASS, and desktop number.
 The user may filter the list by typing, navigate with Up/Down or Tab keys, and select a window with Return (Enter). Escape cancels.</p><h2 id="License">License<a name="License" href="#License" class="md2man-permalink"></a></h2><p>MIT/X11</p><h2 id="USAGE">USAGE<a name="USAGE" href="#USAGE" class="md2man-permalink"></a></h2><p><strong>rofi</strong> can be used in two ways, single-shot; executes once and directly exits when done or as
 daemon listening to specific key-combinations.</p><p>The default key combinations are:</p>
 <ul>
@@ -32,7 +33,19 @@ daemon listening to specific key-combinations.</p><p>The default key combination
   rofi -skey control+shift+s
   rofi -skey mod1+grave (grave=backtick)
 </code></pre>
-<p><code>-now</code></p><dl><dd>Run rofi in all-windows mode once then exit. Does not bind any keys.</dd></dl><p><code>-rnow</code></p><dl><dd>Run rofi in run-dialog mode once then exit. Does not bind any keys.</dd></dl><p><code>-snow</code></p><dl><dd>Run rofi in ssh mode once then exit. Does not bind any keys.</dd></dl><p><code>-bg</code></p><dl><dd>Set the background text color (X11 named color or hex #rrggbb) for the menu (default: #222222).</dd></dl>
+<p><code>-now</code></p><dl><dd>Run rofi in all-windows mode once then exit. Does not bind any keys.</dd></dl><p><code>-rnow</code></p><dl><dd>Run rofi in run-dialog mode once then exit. Does not bind any keys.</dd></dl><p><code>-snow</code></p><dl><dd>Run rofi in ssh mode once then exit. Does not bind any keys.</dd></dl><p><code>-dmenu</code></p><dl><dd>Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.</dd></dl><dl><dd>Pressing <code>shift-enter</code> will open the selected entries and move to the next entry.</dd></dl><p><code>-show</code> <em>mode</em></p><dl><dd>Open rofi in a certain mode.</dd></dl><dl><dd>For example to show the run-dialog:</dd></dl>
+<pre><code>    rofi -show run
+</code></pre>
+<dl><dd>This function deprecates -rnow,-snow and -now</dd></dl><p><code>-switchers</code> <em>mode1,mode1</em></p><dl><dd>Give a comma separated list of modes to enable, in what order.</dd></dl><dl><dd>For example to only show the run and ssh dialog (in that order):</dd></dl>
+<pre><code>    rofi -switchers &quot;run,ssh&quot; -show run
+</code></pre>
+<dl><dd>Custom modes can be added using the internal &#39;script&#39; mode. Each mode has two parameters:</dd></dl>
+<pre><code>    &lt;name&gt;:&lt;script&gt;
+</code></pre>
+<dl><dd>So to have a mode &#39;Workspaces&#39; using the <code>i3_switch_workspace.sh</code> script type:</dd></dl>
+<pre><code>    rofi -switchers &quot;window,run,ssh,Workspaces:i3_switch_workspaces.sh&quot; -show Workspaces
+</code></pre>
+<h3 id="Theming">Theming<a name="Theming" href="#Theming" class="md2man-permalink"></a></h3><p><code>-bg</code></p><dl><dd>Set the background text color (X11 named color or hex #rrggbb) for the menu (default: #222222).</dd></dl>
 <pre><code>  rofi -fg &quot;#222222&quot;
 </code></pre>
 <p><code>-bc</code></p><dl><dd>Set the border color (X11 named color or hex #rrggbb) for the menu (default: #000000).</dd></dl>
@@ -58,7 +71,7 @@ menu (default: #ffffff).</dd></dl>
 <p><code>-opacity</code></p><dl><dd>Set the window opacity (0-100).</dd></dl>
 <pre><code>  rofi -opacity &quot;75&quot;
 </code></pre>
-<p><code>-lines</code></p><dl><dd>Maximum number of lines the menu may show before scrolling (default: 25).</dd></dl>
+<h3 id="Layout">Layout<a name="Layout" href="#Layout" class="md2man-permalink"></a></h3><p><code>-lines</code></p><dl><dd>Maximum number of lines the menu may show before scrolling (default: 25).</dd></dl>
 <pre><code>  rofi -lines 25
 </code></pre>
 <p><code>-columns</code></p><dl><dd>The number of columns the menu may show before scrolling (default: 25).</dd></dl>
@@ -68,15 +81,12 @@ menu (default: #ffffff).</dd></dl>
 <pre><code>  rofi -width 60
 </code></pre>
 <dl><dd>If value is larger then 100, the size is set in pixels. e.g. to span a full hd monitor:</dd></dl>
-<pre><code> rofi -width 1980
+<pre><code>  rofi -width 1980
 </code></pre>
 <dl><dd>If the value is negative, it tries to estimates a character width. To show 30 characters on a row:</dd></dl>
-<pre><code>rofi -width -30
+<pre><code>  rofi -width -30
 </code></pre>
-<dl><dt>(Character width is a rough estimation, and might not be correct, but should work for most</dt><dd>   monospaced fonts..)</dd></dl><p><code>-terminal</code></p><dl><dd>Specify what terminal to start (default x-terminal-emulator)</dd></dl>
-<pre><code>  rofi -terminal xterm
-</code></pre>
-<p><code>-location</code></p><dl><dd>Specify where the window should be located. The numbers map to the following location on the
+<dl><dd>Character width is a rough estimation, and might not be correct, but should work for most monospaced fonts.</dd></dl><p><code>-location</code></p><dl><dd>Specify where the window should be located. The numbers map to the following location on the
 monitor:</dd></dl>
 <pre><code>  1 2 3
   8 0 4
@@ -86,20 +96,35 @@ monitor:</dd></dl>
 number of <code>columns</code>.</dd></dl><p><code>-fixed-num-lines</code></p><dl><dd>Keep a fixed number of visible lines (See the <code>-lines</code> option.)</dd></dl><p><code>-padding</code></p><dl><dd>Define the inner margin of the window. Default is 5 pixels.</dd></dl><dl><dd>To make rofi look like dmenu:</dd></dl>
 <pre><code>  rofi -hmode -padding 0
 </code></pre>
-<p><code>-dmenu</code></p><dl><dd>Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.</dd></dl><dl><dd>Pressing <code>shift-enter</code> will open the selected entries and move to the next entry.</dd></dl><p><code>-dump-xresources</code></p><dl><dd>Dump the current active configuration in xresources format to the command-line.</dd></dl><p><code>-ssh-set-title</code> <em>true|false</em></p><dl><dd>SSH dialogs tries to set &#39;ssh hostname&#39; of the spawned terminal.
+<h3 id="Pattern-setting">Pattern setting<a name="Pattern-setting" href="#Pattern-setting" class="md2man-permalink"></a></h3><p><code>-terminal</code></p><dl><dd>Specify what terminal to start (default x-terminal-emulator)</dd></dl>
+<pre><code>  rofi -terminal xterm
+</code></pre>
+<p><code>-ssh-client</code> <em>client</em></p><dl><dd>Override the used ssh client. Default is <code>ssh</code>.</dd></dl><h3 id="SSH-settings">SSH settings<a name="SSH-settings" href="#SSH-settings" class="md2man-permalink"></a></h3><p><code>-ssh-set-title</code> <em>true|false</em></p><dl><dd>SSH dialogs tries to set &#39;ssh hostname&#39; of the spawned terminal.
 Not all terminals support this.
-Default value is true.</dd></dl><p><code>-disable-history</code></p><dl><dd>Disable history</dd></dl><p><code>-levenshtein-sort</code></p><dl><dd>When searching sort the result based on levenshtein distance.</dd></dl><dl><dd>Note that levenshtein sort is disabled in dmenu mode.</dd></dl><p><code>-show</code> <em>mode</em></p><dl><dd>Open rofi in a certain mode.</dd></dl><dl><dd>For example to show the run-dialog:</dd></dl>
-<pre><code>    rofi -show run
+Default value is true.</dd></dl><dl><dd><em>This command has been deprecated for the ssh-command string</em></dd></dl><p><code>-ssh-command</code> <em>cmd</em></p><dl><dd>Set the command to execute when starting a ssh session.</dd></dl><h3 id="Run-settings">Run settings<a name="Run-settings" href="#Run-settings" class="md2man-permalink"></a></h3><p><code>-run-command</code> <em>cmd</em></p><dl><dd>Set the command to execute when running an application.
+See <em>PATTERN</em>.</dd></dl><p><code>-run-shell-command</code> <em>cmd</em></p><dl><dd>Set the command to execute when running an application in a shell.
+See <em>PATTERN</em>.</dd></dl><h3 id="History-and-Sorting">History and Sorting<a name="History-and-Sorting" href="#History-and-Sorting" class="md2man-permalink"></a></h3><p><code>-disable-history</code></p><dl><dd>Disable history</dd></dl><p><code>-levenshtein-sort</code></p><dl><dd>When searching sort the result based on levenshtein distance.</dd></dl><dl><dd>Note that levenshtein sort is disabled in dmenu mode.</dd></dl><h3 id="Dmenu-specific">Dmenu specific<a name="Dmenu-specific" href="#Dmenu-specific" class="md2man-permalink"></a></h3><p><code>-sep</code> <em>separator</em></p>
+<pre><code>Separator for dmenu. For example to show list a to e with &#39;|&#39; as separator:
+
+        echo &quot;a|b|c|d|e&quot; | rofi -sep &#39;|&#39; -dmenu
 </code></pre>
-<dl><dd>This function deprecates -rnow,-snow and -now</dd></dl><p><code>-switchers</code> <em>mode1,mode1</em></p><dl><dd>Give a comma separated list of modes to enable, in what order.</dd></dl><dl><dd>For example to only show the run and ssh dialog (in that order):</dd></dl>
-<pre><code>    rofi -switchers &quot;run,ssh&quot; -show run
+<p><code>-p</code> <em>prompt</em></p>
+<pre><code>Specify the prompt to show in dmenu mode. E.g. select monkey a,b,c,d or e.
+
+        echo &quot;a|b|c|d|e&quot; | rofi -sep &#39;|&#39; -dmenu -p &quot;monkey:&quot;
 </code></pre>
-<dl><dd>Custom modes can be added using the internal &#39;script&#39; mode. Each mode has two parameters:</dd></dl>
-<pre><code>    &lt;name&gt;:&lt;script&gt;
+<h3 id="Message-dialog">Message dialog<a name="Message-dialog" href="#Message-dialog" class="md2man-permalink"></a></h3><p><code>-e</code> <em>message</em></p>
+<pre><code>Popup a message dialog (used internally for showing errors) with *message*.
+Message can be multi-line.
 </code></pre>
-<dl><dd>So to have a mode &#39;Workspaces&#39; using the <code>i3_switch_workspace.sh</code> script type:</dd></dl>
-<pre><code>    rofi -switchers &quot;window,run,ssh,Workspaces:i3_switch_workspaces.sh&quot; -show Workspaces
-</code></pre>
+<h3 id="Dumping">Dumping<a name="Dumping" href="#Dumping" class="md2man-permalink"></a></h3><p><code>-dump-xresources</code></p><dl><dd>Dump the current active configuration in xresources format to the command-line.</dd></dl><h2 id="Pattern">Pattern<a name="Pattern" href="#Pattern" class="md2man-permalink"></a></h2><p>To launch commands (e.g. when using the ssh dialog) the user can enter the used commandline, 
+the following keys can be used that will be replaced at runtime:</p>
+<ul>
+<li><code>{host}</code>: The host to connect to.</li>
+<li><code>{terminal}</code>: The configured terminal (See -terminal-emulator)</li>
+<li><code>{ssh-client}</code>: The configured ssh client (See -ssh-client)</li>
+<li><code>{cmd}</code>: The command to execute.</li>
+</ul>
 <h2 id="Keybindings">Keybindings<a name="Keybindings" href="#Keybindings" class="md2man-permalink"></a></h2><p>Rofi supports the following keybindings:</p>
 <ul>
 <li><code>Ctrl-v, Insert</code>: Paste clipboard</li>
@@ -119,5 +144,6 @@ Default value is true.</dd></dl><p><code>-disable-history</code></p><dl><dd>Disa
 <li><code>Ctrl-Page Up</code>: Go to the previous column</li>
 <li><code>Ctrl-Page Down</code>: Go to the next column</li>
 <li><code>?</code>: Switch to the next modi. The list can be customized with the <code>-switchers</code> argument.</li>
+<li><code>Ctrl-space</code>: Set selected item as input text.</li>
 </ul>
-<h2 id="WEBSITE">WEBSITE<a name="WEBSITE" href="#WEBSITE" class="md2man-permalink"></a></h2><p><strong>rofi</strong> website can be found at <a href="https://davedavenport.github.io/rofi/">here</a></p><h2 id="AUTHOR">AUTHOR<a name="AUTHOR" href="#AUTHOR" class="md2man-permalink"></a></h2><p>Qball Cow <a href="mailto:qball@gmpclient.org">qball@gmpclient.org</a></p><p>Original code based on work by: Sean Pringle <a href="mailto:sean.pringle@gmail.com">sean.pringle@gmail.com</a></p>
+<h2 id="WEBSITE">WEBSITE<a name="WEBSITE" href="#WEBSITE" class="md2man-permalink"></a></h2><p><strong>rofi</strong> website can be found at <a href="https://davedavenport.github.io/rofi/">here</a></p><p><strong>rofi</strong> bugtracker can be found <a href="https://github.com/DaveDavenport/rofi/issues">here</a></p><h2 id="AUTHOR">AUTHOR<a name="AUTHOR" href="#AUTHOR" class="md2man-permalink"></a></h2><p>Qball Cow <a href="mailto:qball@gmpclient.org">qball@gmpclient.org</a></p><p>Original code based on work by: Sean Pringle <a href="mailto:sean.pringle@gmail.com">sean.pringle@gmail.com</a></p>
