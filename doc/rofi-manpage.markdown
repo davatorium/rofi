@@ -86,6 +86,41 @@ The default key combinations are:
 
   Run rofi in ssh mode once then exit. Does not bind any keys.
 
+`-dmenu`
+
+  Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.
+
+  Pressing `shift-enter` will open the selected entries and move to the next entry.
+
+`-show` *mode*
+
+  Open rofi in a certain mode.
+
+  For example to show the run-dialog:
+
+        rofi -show run
+
+  This function deprecates -rnow,-snow and -now
+
+`-switchers` *mode1,mode1*
+
+  Give a comma separated list of modes to enable, in what order.
+
+  For example to only show the run and ssh dialog (in that order):
+
+        rofi -switchers "run,ssh" -show run
+
+  Custom modes can be added using the internal 'script' mode. Each mode has two parameters:
+
+        <name>:<script>
+
+  So to have a mode 'Workspaces' using the `i3_switch_workspace.sh` script type:
+
+        rofi -switchers "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
+
+
+### Theming 
+
 `-bg`
 
   Set the background text color (X11 named color or hex #rrggbb) for the menu (default: #222222).
@@ -143,6 +178,8 @@ The default key combinations are:
 
       rofi -opacity "75"
 
+### Layout
+
 `-lines`
 
   Maximum number of lines the menu may show before scrolling (default: 25).
@@ -163,20 +200,13 @@ The default key combinations are:
 
   If value is larger then 100, the size is set in pixels. e.g. to span a full hd monitor:
 
-     rofi -width 1980
+      rofi -width 1980
 
   If the value is negative, it tries to estimates a character width. To show 30 characters on a row:
 
-    rofi -width -30
+      rofi -width -30
 
-  (Character width is a rough estimation, and might not be correct, but should work for most
-   monospaced fonts..)
-
-`-terminal`
-
-  Specify what terminal to start (default x-terminal-emulator)
-
-      rofi -terminal xterm
+  Character width is a rough estimation, and might not be correct, but should work for most monospaced fonts.
 
 `-location`
 
@@ -204,16 +234,21 @@ The default key combinations are:
 
       rofi -hmode -padding 0
 
-`-dmenu`
+### Pattern setting
 
-  Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.
+`-terminal`
 
-  Pressing `shift-enter` will open the selected entries and move to the next entry.
+  Specify what terminal to start (default x-terminal-emulator)
+
+      rofi -terminal xterm
+
+`-ssh-client` *client*
+
+  Override the used ssh client. Default is `ssh`.
 
 
-`-dump-xresources`
 
-  Dump the current active configuration in xresources format to the command-line.
+### SSH settings
 
 `-ssh-set-title` *true|false*
 
@@ -227,6 +262,8 @@ The default key combinations are:
 
   Set the command to execute when starting a ssh session.
 
+### Run settings
+
 `-run-command` *cmd*
 
   Set the command to execute when running an application.
@@ -237,9 +274,7 @@ The default key combinations are:
   Set the command to execute when running an application in a shell.
   See *PATTERN*.
 
-`-ssh-client` *client*
-
-  Override the used ssh client. Default is `ssh`.
+### History and Sorting
 
 `-disable-history`
 
@@ -250,32 +285,6 @@ The default key combinations are:
   When searching sort the result based on levenshtein distance.
 
   Note that levenshtein sort is disabled in dmenu mode.
-
-`-show` *mode*
-
-  Open rofi in a certain mode.
-
-  For example to show the run-dialog:
-
-        rofi -show run
-
-  This function deprecates -rnow,-snow and -now
-
-`-switchers` *mode1,mode1*
-
-  Give a comma separated list of modes to enable, in what order.
-
-  For example to only show the run and ssh dialog (in that order):
-
-        rofi -switchers "run,ssh" -show run
-
-  Custom modes can be added using the internal 'script' mode. Each mode has two parameters:
-
-        <name>:<script>
-
-  So to have a mode 'Workspaces' using the `i3_switch_workspace.sh` script type:
-
-        rofi -switchers "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
 
 ### Dmenu specific
 
@@ -297,6 +306,12 @@ The default key combinations are:
 
     Popup a message dialog (used internally for showing errors) with *message*.
     Message can be multi-line.
+
+### Dumping
+
+`-dump-xresources`
+
+  Dump the current active configuration in xresources format to the command-line.
 
 ## Pattern
 

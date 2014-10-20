@@ -92,6 +92,55 @@ Run rofi in run\-dialog mode once then exit. Does not bind any keys.
 .IP
 Run rofi in ssh mode once then exit. Does not bind any keys.
 .PP
+\fB\fC\-dmenu\fR
+.IP
+Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.
+.IP
+Pressing \fB\fCshift\-enter\fR will open the selected entries and move to the next entry.
+.PP
+\fB\fC\-show\fR \fImode\fP
+.IP
+Open rofi in a certain mode.
+.IP
+For example to show the run\-dialog:
+.PP
+.RS
+.nf
+    rofi \-show run
+.fi
+.RE
+.IP
+This function deprecates \-rnow,\-snow and \-now
+.PP
+\fB\fC\-switchers\fR \fImode1,mode1\fP
+.IP
+Give a comma separated list of modes to enable, in what order.
+.IP
+For example to only show the run and ssh dialog (in that order):
+.PP
+.RS
+.nf
+    rofi \-switchers "run,ssh" \-show run
+.fi
+.RE
+.IP
+Custom modes can be added using the internal 'script' mode. Each mode has two parameters:
+.PP
+.RS
+.nf
+    <name>:<script>
+.fi
+.RE
+.IP
+So to have a mode 'Workspaces' using the \fB\fCi3_switch_workspace.sh\fR script type:
+.PP
+.RS
+.nf
+    rofi \-switchers "window,run,ssh,Workspaces:i3_switch_workspaces.sh" \-show Workspaces
+.fi
+.RE
+.SS Theming
+.PP
 \fB\fC\-bg\fR
 .IP
 Set the background text color (X11 named color or hex #rrggbb) for the menu (default: #222222).
@@ -173,6 +222,7 @@ Set the window opacity (0\-100).
   rofi \-opacity "75"
 .fi
 .RE
+.SS Layout
 .PP
 \fB\fC\-lines\fR
 .IP
@@ -208,7 +258,7 @@ If value is larger then 100, the size is set in pixels. e.g. to span a full hd m
 .PP
 .RS
 .nf
- rofi \-width 1980
+  rofi \-width 1980
 .fi
 .RE
 .IP
@@ -216,22 +266,11 @@ If the value is negative, it tries to estimates a character width. To show 30 ch
 .PP
 .RS
 .nf
-rofi \-width \-30
+  rofi \-width \-30
 .fi
 .RE
-.TP
-(Character width is a rough estimation, and might not be correct, but should work for most
-   monospaced fonts..)
-.PP
-\fB\fC\-terminal\fR
 .IP
-Specify what terminal to start (default x\-terminal\-emulator)
-.PP
-.RS
-.nf
-  rofi \-terminal xterm
-.fi
-.RE
+Character width is a rough estimation, and might not be correct, but should work for most monospaced fonts.
 .PP
 \fB\fC\-location\fR
 .IP
@@ -266,16 +305,22 @@ To make rofi look like dmenu:
   rofi \-hmode \-padding 0
 .fi
 .RE
+.SS Pattern setting
 .PP
-\fB\fC\-dmenu\fR
+\fB\fC\-terminal\fR
 .IP
-Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.
-.IP
-Pressing \fB\fCshift\-enter\fR will open the selected entries and move to the next entry.
+Specify what terminal to start (default x\-terminal\-emulator)
 .PP
-\fB\fC\-dump\-xresources\fR
+.RS
+.nf
+  rofi \-terminal xterm
+.fi
+.RE
+.PP
+\fB\fC\-ssh\-client\fR \fIclient\fP
 .IP
-Dump the current active configuration in xresources format to the command\-line.
+Override the used ssh client. Default is \fB\fCssh\fR\&.
+.SS SSH settings
 .PP
 \fB\fC\-ssh\-set\-title\fR \fItrue|false\fP
 .IP
@@ -288,6 +333,7 @@ Default value is true.
 \fB\fC\-ssh\-command\fR \fIcmd\fP
 .IP
 Set the command to execute when starting a ssh session.
+.SS Run settings
 .PP
 \fB\fC\-run\-command\fR \fIcmd\fP
 .IP
@@ -298,10 +344,7 @@ See \fIPATTERN\fP\&.
 .IP
 Set the command to execute when running an application in a shell.
 See \fIPATTERN\fP\&.
-.PP
-\fB\fC\-ssh\-client\fR \fIclient\fP
-.IP
-Override the used ssh client. Default is \fB\fCssh\fR\&.
+.SS History and Sorting
 .PP
 \fB\fC\-disable\-history\fR
 .IP
@@ -312,64 +355,40 @@ Disable history
 When searching sort the result based on levenshtein distance.
 .IP
 Note that levenshtein sort is disabled in dmenu mode.
+.SS Dmenu specific
 .PP
-\fB\fC\-show\fR \fImode\fP
-.IP
-Open rofi in a certain mode.
-.IP
-For example to show the run\-dialog:
+\fB\fC\-sep\fR \fIseparator\fP
 .PP
 .RS
 .nf
-    rofi \-show run
+Separator for dmenu. For example to show list a to e with '|' as separator:
+        echo "a|b|c|d|e" | rofi \-sep '|' \-dmenu
 .fi
 .RE
-.IP
-This function deprecates \-rnow,\-snow and \-now
 .PP
-\fB\fC\-switchers\fR \fImode1,mode1\fP
-.IP
-Give a comma separated list of modes to enable, in what order.
-.IP
-For example to only show the run and ssh dialog (in that order):
+\fB\fC\-p\fR \fIprompt\fP
 .PP
 .RS
 .nf
-    rofi \-switchers "run,ssh" \-show run
+Specify the prompt to show in dmenu mode. E.g. select monkey a,b,c,d or e.
+        echo "a|b|c|d|e" | rofi \-sep '|' \-dmenu \-p "monkey:"
 .fi
 .RE
-.IP
-Custom modes can be added using the internal 'script' mode. Each mode has two parameters:
-.PP
-.RS
-.nf
-    <name>:<script>
-.fi
-.RE
-.IP
-So to have a mode 'Workspaces' using the \fB\fCi3_switch_workspace.sh\fR script type:
-.PP
-.RS
-.nf
-    rofi \-switchers "window,run,ssh,Workspaces:i3_switch_workspaces.sh" \-show Workspaces
-.fi
-.RE
+.SS Message dialog
 .PP
 \fB\fC\-e\fR \fImessage\fP
 .PP
 .RS
 .nf
 Popup a message dialog (used internally for showing errors) with *message*.
+Message can be multi\-line.
 .fi
 .RE
+.SS Dumping
 .PP
-\fB\fC\-sep\fR \fIseparator\fP
-.PP
-.RS
-.nf
-Separator for dmenu.
-.fi
-.RE
+\fB\fC\-dump\-xresources\fR
+.IP
+Dump the current active configuration in xresources format to the command\-line.
 .SH Pattern
 .PP
 To launch commands (e.g. when using the ssh dialog) the user can enter the used commandline, 
