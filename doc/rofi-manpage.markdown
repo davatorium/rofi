@@ -307,7 +307,7 @@ The default key combinations are:
     Popup a message dialog (used internally for showing errors) with *message*.
     Message can be multi-line.
 
-### Dumping
+### Debug
 
 `-dump-xresources`
 
