@@ -79,6 +79,7 @@ Settings config = {
     .fixed_num_lines  = FALSE,
     .disable_history  = FALSE,
     .levenshtein_sort = FALSE,
-    .separator        = '\n'
+    .separator        = '\n',
+    .element_height   = 1
 };
 

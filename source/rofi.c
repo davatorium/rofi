@@ -1529,17 +1529,25 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     textbox_show ( state.prompt_tb );
 
 
-    int line_height = textbox_get_height ( state.text );
+    int line_height    = textbox_get_height ( state.text );
+    int element_height = line_height * config.element_height;
     // filtered list display
     state.boxes = g_malloc0_n ( state.max_elements, sizeof ( textbox* ) );
 
-    for ( i = 0; i < state.max_elements; i++ ) {
-        int line = ( i ) % state.max_rows + ( ( config.hmode == FALSE ) ? 1 : 0 );
-        int col  = ( i ) / state.max_rows + ( ( config.hmode == FALSE ) ? 0 : 1 );
+    int y_offset = config.padding + ( ( config.hmode == FALSE ) ? line_height : 0 );
+    int x_offset = config.padding + ( ( config.hmode == FALSE ) ? 0 : ( state.element_width + LINE_MARGIN ) );
 
-        int ex = ( config.padding ) + col * ( state.element_width + LINE_MARGIN );
-        int ey = line * line_height + config.padding + ( ( config.hmode == TRUE ) ? 0 : LINE_MARGIN );
-        state.boxes[i] = textbox_create ( main_window, 0, ex, ey, state.element_width, line_height, NORMAL, "" );
+    for ( i = 0; i < state.max_elements; i++ ) {
+        int line = ( i ) % state.max_rows;
+        int col  = ( i ) / state.max_rows;
+
+        int ex = col * ( state.element_width + LINE_MARGIN );
+        int ey = line * element_height + ( ( config.hmode == TRUE ) ? 0 : LINE_MARGIN );
+
+        state.boxes[i] = textbox_create ( main_window, 0,
+                                          ex + x_offset,
+                                          ey + y_offset,
+                                          state.element_width, element_height, NORMAL, "" );
         textbox_show ( state.boxes[i] );
     }
     // Arrows
@@ -1562,7 +1570,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                        config.padding + line_height + LINE_MARGIN );
         textbox_move ( state.arrowbox_bottom,
                        state.w - config.padding - state.arrowbox_bottom->w,
-                       config.padding + state.max_rows * line_height + LINE_MARGIN );
+                       config.padding + state.max_rows * element_height + LINE_MARGIN );
     }
     else {
         textbox_move ( state.arrowbox_bottom,
@@ -1582,7 +1590,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
-    state.h = line_height * ( state.max_rows + 1 ) + ( config.padding ) * 2 + LINE_MARGIN;
+    state.h = line_height + element_height * state.max_rows + ( config.padding ) * 2 + LINE_MARGIN;
     if ( config.hmode == TRUE ) {
         state.h = line_height + ( config.padding ) * 2;
     }
@@ -2247,6 +2255,9 @@ static void parse_cmd_options ( int argc, char ** argv )
 
 
     find_arg_char ( argc, argv, "-sep", &( config.separator ) );
+
+
+    find_arg_int ( argc, argv, "-eh", &( config.element_height ) );
     // Dump.
     if ( find_arg ( argc, argv, "-dump-xresources" ) >= 0 ) {
         xresource_dump ();
