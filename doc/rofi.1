@@ -10,7 +10,7 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-opacity \fIopacity%\fP ] [ \-display \fIdisplay\fP ] [ \-bc \fIcolor\fP ] [ \-bw \fIwidth\fP ] [ \-dmenu [ \-p \fIprompt\fP ] ]
 [ \-ssh\-client \fIclient\fP ] [ \-ssh\-command \fIcommand\fP ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ]
 [ \-help] [ \-dump\-xresources ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-show \fImode\fP ] [ \-switcher
-\fImode1,mode2\fP ] [ \-e \fImessage\fP] [ \-sep \fIseparator\fP ]
+\fImode1,mode2\fP ] [ \-e \fImessage\fP] [ \-sep \fIseparator\fP ] [ \-eh \fIelement height\fP ]
 .SH DESCRIPTION
 .PP
 \fBrofi\fP is an X11 popup window switcher. A list is displayed center\-screen showing open window titles, WM_CLASS, and desktop number.
@@ -372,6 +372,15 @@ Separator for dmenu. For example to show list a to e with '|' as separator:
 .nf
 Specify the prompt to show in dmenu mode. E.g. select monkey a,b,c,d or e.
         echo "a|b|c|d|e" | rofi \-sep '|' \-dmenu \-p "monkey:"
+.fi
+.RE
+.PP
+\fB\fC\-eh\fR \fIelement height\fP
+.PP
+.RS
+.nf
+The height of a field in lines. e.g.
+        echo \-e "a\\n3|b\\n4|c\\n5" | rofi \-sep '|' \-eh 2 \-dmenu
 .fi
 .RE
 .SS Message dialog
