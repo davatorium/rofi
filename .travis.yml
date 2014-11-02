@@ -10,4 +10,4 @@ before_install:
 script:
     - autoreconf -i && ./configure --enable-gcov && make &&  make test
 after_success:
-  - coveralls -x c  --gcov-options '\-lp' -E '<built-in>'
+  - coveralls -x c  --gcov-options '\-lp' -e '<built-in>'
