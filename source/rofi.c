@@ -78,6 +78,7 @@ char *i3_socket_path = NULL;
 const char   *cache_dir  = NULL;
 unsigned int NumlockMask = 0;
 Display      *display    = NULL;
+char *display_str = NULL;
 
 
 typedef struct _Switcher
@@ -1894,7 +1895,7 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
         }
         else{
 #endif
-        sprintf ( pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX ( 5, classfield ) );
+            sprintf ( pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX ( 5, classfield ) );
 #ifdef HAVE_I3_IPC_H
     }
 #endif
@@ -2007,7 +2008,7 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
             return;
         }
 
-        display = XOpenDisplay ( 0 );
+        display = XOpenDisplay ( display_str );
         XSync ( display, True );
     }
     // Because of the above fork, we want to do this here.
@@ -2318,6 +2319,10 @@ static void config_sanity_check ( void )
         fprintf ( stderr, "config.menu_lines is invalid. You need at least one visible line.\n" );
         exit ( 1 );
     }
+    if ( config.element_height < 1 ) {
+        fprintf( stderr, "config.element_height is invalid. It needs to be atleast 1 line high.\n");
+        exit ( 1 );
+    }
     if ( config.menu_columns == 0 ) {
         fprintf ( stderr, "config.menu_columns is invalid. You need at least one visible column.\n" );
         exit ( 1 );
@@ -2402,7 +2407,7 @@ int main ( int argc, char *argv[] )
     atexit ( cleanup );
 
     // Get DISPLAY
-    char *display_str = getenv ( "DISPLAY" );
+    display_str = getenv ( "DISPLAY" );
     find_arg_str ( argc, argv, "-display", &display_str );
 
     if ( !( display = XOpenDisplay ( display_str ) ) ) {
