@@ -329,6 +329,14 @@ the following keys can be used that will be replaced at runtime:
 * `{ssh-client}`: The configured ssh client (See -ssh-client)
 * `{cmd}`: The command to execute.
 
+## Dmenu replacemnt
+
+If `argv[0]` (calling command) is dmenu, **rofi** will start in dmenu mode.
+This way it can be used as a drop-in replacement for dmenu. just copy or symlink **rofi** to dmenu in `$PATH`.
+
+
+    ln -s /usr/bin/dmenu /usr/bin/rofi
+
 ## Keybindings
 
 Rofi supports the following keybindings:

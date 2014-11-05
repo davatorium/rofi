@@ -75,10 +75,10 @@ int  config_i3_mode = 0;
 char *i3_socket_path = NULL;
 #endif
 
-const char   *cache_dir  = NULL;
-unsigned int NumlockMask = 0;
-Display      *display    = NULL;
-char *display_str = NULL;
+const char   *cache_dir   = NULL;
+unsigned int NumlockMask  = 0;
+Display      *display     = NULL;
+char         *display_str = NULL;
 
 
 typedef struct _Switcher
@@ -1895,7 +1895,7 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
         }
         else{
 #endif
-            sprintf ( pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX ( 5, classfield ) );
+        sprintf ( pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX ( 5, classfield ) );
 #ifdef HAVE_I3_IPC_H
     }
 #endif
@@ -2320,7 +2320,7 @@ static void config_sanity_check ( void )
         exit ( 1 );
     }
     if ( config.element_height < 1 ) {
-        fprintf( stderr, "config.element_height is invalid. It needs to be atleast 1 line high.\n");
+        fprintf ( stderr, "config.element_height is invalid. It needs to be atleast 1 line high.\n" );
         exit ( 1 );
     }
     if ( config.menu_columns == 0 ) {
@@ -2477,7 +2477,15 @@ int main ( int argc, char *argv[] )
 
     // flags to run immediately and exit
     char *sname = NULL;
-    if ( find_arg_str ( argc, argv, "-show", &sname ) == TRUE ) {
+    if ( find_arg ( argc, argv, "-dmenu" ) >= 0 || strcmp ( argv[0], "dmenu" ) == 0 ) {
+        find_arg_str ( argc, argv, "-p", &dmenu_prompt );
+        int retv = run_dmenu ();
+        // User cancelled the operation.
+        if ( retv == FALSE ) {
+            return EXIT_FAILURE;
+        }
+    }
+    else if ( find_arg_str ( argc, argv, "-show", &sname ) == TRUE ) {
         int index = switcher_get ( sname );
         if ( index >= 0 ) {
             run_switcher ( FALSE, index );
@@ -2512,14 +2520,6 @@ int main ( int argc, char *argv[] )
         }
         else {
             fprintf ( stderr, "The ssh dialog has not been enabled\n" );
-        }
-    }
-    else if ( find_arg ( argc, argv, "-dmenu" ) >= 0 ) {
-        find_arg_str ( argc, argv, "-p", &dmenu_prompt );
-        int retv = run_dmenu ();
-        // User cancelled the operation.
-        if ( retv == FALSE ) {
-            return EXIT_FAILURE;
         }
     }
     else{

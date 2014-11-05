@@ -412,6 +412,16 @@ the following keys can be used that will be replaced at runtime:
 .IP \(bu 2
 \fB\fC{cmd}\fR: The command to execute.
 .RE
+.SH Dmenu replacemnt
+.PP
+If \fB\fCargv[0]\fR (calling command) is dmenu, \fBrofi\fP will start in dmenu mode.
+This way it can be used as a drop\-in replacement for dmenu. just copy or symlink \fBrofi\fP to dmenu in \fB\fC$PATH\fR\&.
+.PP
+.RS
+.nf
+ln \-s /usr/bin/dmenu /usr/bin/rofi
+.fi
+.RE
 .SH Keybindings
 .PP
 Rofi supports the following keybindings:
@@ -456,18 +466,14 @@ Rofi supports the following keybindings:
 .SH WEBSITE
 .PP
 \fBrofi\fP website can be found at here
-.UR https://davedavenport.github.io/rofi/
-.UE
+\[la]https://davedavenport.github.io/rofi/\[ra]
 .PP
 \fBrofi\fP bugtracker can be found here
-.UR https://github.com/DaveDavenport/rofi/issues
-.UE
+\[la]https://github.com/DaveDavenport/rofi/issues\[ra]
 .SH AUTHOR
 .PP
 Qball Cow 
-.MT qball@gmpclient.org
-.ME
+\[la]qball@gmpclient.org\[ra]
 .PP
 Original code based on work by: Sean Pringle 
-.MT sean.pringle@gmail.com
-.ME
+\[la]sean.pringle@gmail.com\[ra]
