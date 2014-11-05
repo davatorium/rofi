@@ -337,6 +337,12 @@ This way it can be used as a drop-in replacement for dmenu. just copy or symlink
 
     ln -s /usr/bin/dmenu /usr/bin/rofi
 
+## Signals
+
+`HUP`
+
+    If in daemon mode, reload the configuration from Xresources. (arguments still override).
+
 ## Keybindings
 
 Rofi supports the following keybindings:

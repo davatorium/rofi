@@ -2397,9 +2397,52 @@ static void setup_switchers ( void )
     g_free ( switcher_str );
 }
 
+/**
+ * Keep a copy of arc, argv around, so we can use the same parsing method
+ */
+int stored_argc;
+char **stored_argv;
+
+/**
+ * @param display Pointer to the X connection to use.
+ * Load configuration.
+ * Following priority: (current), X, commandline arguments
+ */
+static inline void load_configuration ( Display *display )
+{
+    // Load in config from X resources.
+    parse_xresource_options ( display );
+
+    // Parse command line for settings.
+    parse_cmd_options ( stored_argc, stored_argv );
+
+    // Sanity check
+    config_sanity_check ();
+}
+
+/**
+ * Handle sighub request.
+ * Currently we just reload the configuration.
+ */
+static void hup_action_handler ( int num )
+{
+    /**
+     * Open new connection to X. It seems the XResources do not get updated
+     * on the old connection.
+     */
+    Display *display = XOpenDisplay ( display_str );
+    if ( display ) {
+        load_configuration ( display );
+        XCloseDisplay ( display );
+    }
+}
+
 
 int main ( int argc, char *argv[] )
 {
+    stored_argc = argc;
+    stored_argv = argv;
+
     // Get the path to the cache dir.
     cache_dir = g_get_user_cache_dir ();
 
@@ -2415,14 +2458,7 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
-    // Load in config from X resources.
-    parse_xresource_options ( display );
-
-    // Parse command line for settings.
-    parse_cmd_options ( argc, argv );
-
-    // Sanity check
-    config_sanity_check ();
+    load_configuration ( display );
 
     // setup_switchers
     setup_switchers ();
@@ -2538,6 +2574,11 @@ int main ( int argc, char *argv[] )
             parse_key ( config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
             grab_key ( display, sshdialog_modmask, sshdialog_keysym );
         }
+
+        // Setup handler for sighub (reload config)
+        const struct sigaction hup_action = { hup_action_handler, };
+        sigaction ( SIGHUP, &hup_action, NULL );
+
 
         // Main loop
         for (;; ) {
