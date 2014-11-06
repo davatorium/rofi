@@ -33,6 +33,15 @@ AC_ARG_ENABLE(gcov,
         [  --enable-gcov           Enable source code coverage testing using gcov],
         [CFLAGS="$CFLAGS -fprofile-arcs -ftest-coverage"])
 
+
+dnl
+dnl Enable timing debug output.
+dnl
+
+AC_ARG_ENABLE(timings,
+        [ --enable-timings         Enable debug information about timings],
+        [CFLAGS="$CFLAGS -DTIMING"])
+
 ##
 # Check dependencies
 ##
