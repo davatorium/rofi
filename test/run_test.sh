@@ -26,6 +26,10 @@ then
 fi
 
 create_fake_x "$1"
+if [ -n "$4" ]
+then
+    xrdb -load "$4"
+fi
 echo "$DISPLAY"
 $2
 RES=$?
