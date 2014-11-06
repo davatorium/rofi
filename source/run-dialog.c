@@ -112,6 +112,16 @@ static int sort_func ( const void *a, const void *b )
 {
     const char *astr = *( const char * const * ) a;
     const char *bstr = *( const char * const * ) b;
+
+    if ( astr == NULL && bstr == NULL ) {
+        return 0;
+    }
+    else if ( astr == NULL ) {
+        return 1;
+    }
+    else if ( bstr == NULL ) {
+        return -1;
+    }
     return strcasecmp ( astr, bstr );
 }
 static char ** get_apps ( unsigned int *length )
@@ -187,14 +197,45 @@ static char ** get_apps ( unsigned int *length )
     }
     g_free ( path );
 #ifdef TIMING
-    clock_gettime ( CLOCK_REALTIME, &stop );
+    {
+        clock_gettime ( CLOCK_REALTIME, &stop );
 
-    if ( stop.tv_sec != start.tv_sec ) {
-        stop.tv_nsec += ( stop.tv_sec - start.tv_sec ) * 1e9;
+        if ( stop.tv_sec != start.tv_sec ) {
+            stop.tv_nsec += ( stop.tv_sec - start.tv_sec ) * 1e9;
+        }
+
+        long diff = stop.tv_nsec - start.tv_nsec;
+        printf ( "Time elapsed: %ld us\n", diff / 1000 );
+    }
+#endif
+
+    unsigned int removed = 0;
+    for ( unsigned int index = num_favorites; index < ( ( *length ) - 1 ); index++ ) {
+        if ( strcmp ( retv[index], retv[index + 1] ) == 0 ) {
+            g_free ( retv[index] );
+            retv[index] = NULL;
+            removed++;
+        }
     }
 
-    long diff = stop.tv_nsec - start.tv_nsec;
-    printf ( "Time elapsed: %ld us\n", diff / 1000 );
+
+    if ( ( *length ) > num_favorites ) {
+        qsort ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func );
+    }
+    // Reduce array length;
+    ( *length ) -= removed;
+
+#ifdef TIMING
+    {
+        clock_gettime ( CLOCK_REALTIME, &stop );
+
+        if ( stop.tv_sec != start.tv_sec ) {
+            stop.tv_nsec += ( stop.tv_sec - start.tv_sec ) * 1e9;
+        }
+
+        long diff = stop.tv_nsec - start.tv_nsec;
+        printf ( "Time elapsed: %ld us\n", diff / 1000 );
+    }
 #endif
     return retv;
 }
