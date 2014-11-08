@@ -366,6 +366,12 @@ Rofi supports the following keybindings:
 * `?`: Switch to the next modi. The list can be customized with the `-switchers` argument.
 * `Ctrl-space`: Set selected item as input text.
 
+## FAQ
+
+`Text in window switcher is not nicely lined out`
+
+    Try using a mono-space font.
+
 ## WEBSITE
 
 **rofi** website can be found at [here](https://davedavenport.github.io/rofi/)
