@@ -80,6 +80,7 @@ Settings config = {
     .disable_history  = FALSE,
     .levenshtein_sort = FALSE,
     .separator        = '\n',
-    .element_height   = 1
+    .element_height   =                                   1,
+    .sidebar_mode     = FALSE
 };
 

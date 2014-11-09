@@ -108,7 +108,8 @@ static XrmOption xrmOptions[] = {
     /* Key bindings */
     { xrm_String,  "key",               { .str  = &config.window_key        }, NULL },
     { xrm_String,  "rkey",              { .str  = &config.run_key           }, NULL },
-    { xrm_String,  "skey",              { .str  = &config.ssh_key           }, NULL }
+    { xrm_String,  "skey",              { .str  = &config.ssh_key           }, NULL },
+    { xrm_Boolean, "sidebar-mode",      { .num  = &config.sidebar_mode      }, NULL }
 };
 
 

@@ -131,6 +131,7 @@ typedef struct _Settings
     unsigned int   levenshtein_sort;
     char           separator;
     int            element_height;
+    int            sidebar_mode;
 } Settings;
 
 extern Settings config;

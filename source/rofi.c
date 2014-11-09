@@ -65,6 +65,7 @@
 #include "script-dialog.h"
 
 #include "xrmoptions.h"
+#include "textbox.h"
 
 #define LINE_MARGIN    3
 
@@ -86,10 +87,12 @@ typedef struct _Switcher
     char              name[32];
     switcher_callback cb;
     void              *cb_data;
+    textbox           *tb;
 } Switcher;
 
 Switcher     *switchers    = NULL;
 unsigned int num_switchers = 0;
+unsigned int curr_switcher = 0;
 
 
 void window_set_opacity ( Display *display, Window box, unsigned int opacity );
@@ -774,7 +777,6 @@ KeySym       sshdialog_keysym;
 Window       main_window = None;
 GC           gc          = NULL;
 
-#include "textbox.h"
 
 void menu_hide_arrow_text ( int filtered_lines, int selected, int max_elements,
                             textbox *arrowbox_top, textbox *arrowbox_bottom )
@@ -956,6 +958,7 @@ Window create_window ( Display *display )
 
 typedef struct MenuState
 {
+    unsigned int menu_lines;
     unsigned int max_elements;
     unsigned int max_rows;
     unsigned int columns;
@@ -1084,24 +1087,24 @@ static void calculate_window_position ( MenuState *state, const workarea *mon )
 static void menu_calculate_rows_columns ( MenuState *state )
 {
     state->columns      = config.menu_columns;
-    state->max_elements = MIN ( config.menu_lines * state->columns, state->num_lines );
+    state->max_elements = MIN ( state->menu_lines * state->columns, state->num_lines );
 
     // Calculate the number or rows. We do this by getting the num_lines rounded up to X columns
     // (num elements is better name) then dividing by columns.
-    state->max_rows = MIN ( config.menu_lines,
+    state->max_rows = MIN ( state->menu_lines,
                             (unsigned int) (
                                 ( state->num_lines + ( state->columns - state->num_lines % state->columns ) %
                                   state->columns ) / ( state->columns )
                                 ) );
 
     if ( config.fixed_num_lines == TRUE ) {
-        state->max_elements = config.menu_lines * state->columns;
-        state->max_rows     = config.menu_lines;
+        state->max_elements = state->menu_lines * state->columns;
+        state->max_rows     = state->menu_lines;
         // If it would fit in one column, only use one column.
         if ( state->num_lines < state->max_elements ) {
             state->columns = ( state->num_lines + ( state->max_rows - state->num_lines % state->max_rows ) %
                                state->max_rows ) / state->max_rows;
-            state->max_elements = config.menu_lines * state->columns;
+            state->max_elements = state->menu_lines * state->columns;
         }
         // Sanitize.
         if ( state->columns == 0 ) {
@@ -1418,10 +1421,26 @@ static void menu_update ( MenuState *state )
     if ( config.hmode == FALSE ) {
         int line_height = textbox_get_height ( state->text );
         XDrawLine ( display, main_window, gc, ( config.padding ),
-                    line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2,
+                    line_height + ( config.padding ) + ( LINE_MARGIN  ) / 2,
                     state->w - ( ( config.padding ) ) - 1,
-                    line_height + ( config.padding ) + ( LINE_MARGIN - 2 ) / 2 );
+                    line_height + ( config.padding ) + ( LINE_MARGIN  ) / 2 );
     }
+
+    if ( config.sidebar_mode == TRUE ) {
+        int line_height = textbox_get_height ( state->text );
+        XDrawLine ( display, main_window, gc,
+                    ( config.padding ),
+                    state->h - line_height - ( config.padding ) + LINE_MARGIN - 1,
+                    state->w - ( ( config.padding ) ) - 1,
+                    state->h - line_height - ( config.padding ) + LINE_MARGIN - 1 );
+        if ( config.sidebar_mode == TRUE ) {
+            for ( int j = 0; j < num_switchers; j++ ) {
+                textbox_draw ( switchers[j].tb );
+            }
+        }
+    }
+
+
     state->update = FALSE;
 }
 
@@ -1496,21 +1515,16 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     unsigned int i;
     workarea     mon;
 
-    menu_calculate_rows_columns ( &state );
 
-    // Get active monitor size.
-    monitor_active ( &mon );
 
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     XWindowAttributes attr;
     if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
         main_window = create_window ( display );
     }
-
-
     menu_calculate_window_and_element_width ( &state, &mon );
-
     // search text input
+    // we need this at this point so we can get height.
 
     state.prompt_tb = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
                                        ( config.padding ), ( config.padding ),
@@ -1529,8 +1543,27 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     textbox_show ( state.text );
     textbox_show ( state.prompt_tb );
 
+    // Height of a row.
+    int line_height = textbox_get_height ( state.text );
+    // Get active monitor size.
+    monitor_active ( &mon );
+    if ( config.menu_lines == 0 ) {
+        // Autosize it.
+        int h = mon.h - config.padding * 2 - LINE_MARGIN;
+        int r = ( h ) / ( line_height * config.element_height ) - 1 - config.sidebar_mode;
+        // HACK todo fix this.
+        state.menu_lines = r;
+        menu_calculate_rows_columns ( &state );
+    }
+    else {
+        state.menu_lines = config.menu_lines;
+        menu_calculate_rows_columns ( &state );
+    }
 
-    int line_height    = textbox_get_height ( state.text );
+
+
+    menu_calculate_window_and_element_width ( &state, &mon );
+
     int element_height = line_height * config.element_height;
     // filtered list display
     state.boxes = g_malloc0_n ( state.max_elements, sizeof ( textbox* ) );
@@ -1595,12 +1628,32 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     if ( config.hmode == TRUE ) {
         state.h = line_height + ( config.padding ) * 2;
     }
+    // Add entry
+    if ( config.sidebar_mode == TRUE ) {
+        state.h += line_height + LINE_MARGIN;
+    }
+
+    // Sidebar mode.
+    if ( config.menu_lines == 0 ) {
+        state.h = mon.h - config.menu_bw * 2;
+    }
 
     // Move the window to the correct x,y position.
     calculate_window_position ( &state, &mon );
-    XMoveResizeWindow ( display, main_window, state.x, state.y, state.w, state.h );
+
+    if ( config.sidebar_mode == TRUE ) {
+        int line_height = textbox_get_height ( state.text );
+        int width       = ( state.w - ( 2 * ( config.padding ) ) ) / num_switchers;
+        for ( int j = 0; j < num_switchers; j++ ) {
+            switchers[j].tb = textbox_create ( main_window, TB_CENTER,
+                                               config.padding + j * width, state.h - line_height - config.padding + LINE_MARGIN,
+                                               width, line_height, ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, switchers[j].name );
+            textbox_show ( switchers[j].tb );
+        }
+    }
 
     // Display it.
+    XMoveResizeWindow ( display, main_window, state.x, state.y, state.w, state.h );
     XMapRaised ( display, main_window );
 
     // if grabbing keyboard failed, fall through
@@ -1792,7 +1845,6 @@ void error_dialog ( char *msg )
 
     // Move the window to the correct x,y position.
     calculate_window_position ( &state, &mon );
-    XMoveResizeWindow ( display, main_window, state.x, state.y, state.w, state.h );
 
     // Display it.
     XMapRaised ( display, main_window );
@@ -2023,7 +2075,8 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
         do {
             SwitcherMode retv;
 
-            retv = switchers[mode].cb ( &input, switchers[mode].cb_data );
+            curr_switcher = mode;
+            retv          = switchers[mode].cb ( &input, switchers[mode].cb_data );
 
             // Find next enabled
             if ( retv == NEXT_DIALOG ) {
@@ -2259,6 +2312,10 @@ static void parse_cmd_options ( int argc, char ** argv )
 
 
     find_arg_int ( argc, argv, "-eh", &( config.element_height ) );
+
+    if ( find_arg ( argc, argv, "-sidebar-mode" ) >= 0 ) {
+        config.sidebar_mode = TRUE;
+    }
     // Dump.
     if ( find_arg ( argc, argv, "-dump-xresources" ) >= 0 ) {
         xresource_dump ();
@@ -2315,10 +2372,10 @@ static void cleanup ()
  */
 static void config_sanity_check ( void )
 {
-    if ( config.menu_lines == 0 ) {
-        fprintf ( stderr, "config.menu_lines is invalid. You need at least one visible line.\n" );
-        exit ( 1 );
-    }
+//    if ( config.menu_lines == 0 ) {
+//        fprintf ( stderr, "config.menu_lines is invalid. You need at least one visible line.\n" );
+//        exit ( 1 );
+//    }
     if ( config.element_height < 1 ) {
         fprintf ( stderr, "config.element_height is invalid. It needs to be atleast 1 line high.\n" );
         exit ( 1 );
@@ -2514,6 +2571,9 @@ int main ( int argc, char *argv[] )
     // flags to run immediately and exit
     char *sname = NULL;
     if ( find_arg ( argc, argv, "-dmenu" ) >= 0 || strcmp ( argv[0], "dmenu" ) == 0 ) {
+        // force off sidebar mode:
+        config.sidebar_mode = FALSE;
+        // Check prompt
         find_arg_str ( argc, argv, "-p", &dmenu_prompt );
         int retv = run_dmenu ();
         // User cancelled the operation.

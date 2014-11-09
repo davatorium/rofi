@@ -234,6 +234,13 @@ The default key combinations are:
 
       rofi -hmode -padding 0
 
+`-sidebar-mode`
+
+    Go into side-bar mode, it will show list of modi at the bottom.
+    To show sidebar use:
+
+        rofi -rnow -sidebar-mode -lines 0
+
 ### Pattern setting
 
 `-terminal`
