@@ -252,7 +252,8 @@ void textbox_draw ( textbox *tb )
         x = ( tb->w - line_width ) * PANGO_SCALE;
     }
     else if ( tb->flags & TB_CENTER ) {
-        x = ( PANGO_SCALE * ( tb->w - line_width ) ) / 2;
+        int tw = textbox_get_font_width ( tb );
+        x = ( PANGO_SCALE * ( tb->w - tw ) ) / 2;
     }
     y = ( PANGO_SCALE * ( textbox_get_width ( tb ) - textbox_get_font_width ( tb ) ) ) / 2;
     // Render the layout.
@@ -261,7 +262,7 @@ void textbox_draw ( textbox *tb )
 
     // draw the cursor
     if ( tb->flags & TB_EDITABLE ) {
-        XftDrawRect ( draw, &tb->color_fg, cursor_x + SIDE_MARGIN, SIDE_MARGIN, cursor_width, font_height );
+        XftDrawRect ( draw, &tb->color_fg, x / PANGO_SCALE + cursor_x + SIDE_MARGIN, SIDE_MARGIN, cursor_width, font_height );
     }
 
     XftDrawRect ( draw, &tb->color_bg, tb->w, 0, 0, tb->h );
