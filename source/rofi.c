@@ -1430,13 +1430,11 @@ static void menu_update ( MenuState *state )
         int line_height = textbox_get_height ( state->text );
         XDrawLine ( display, main_window, gc,
                     ( config.padding ),
-                    state->h - line_height - ( config.padding ) + LINE_MARGIN - 1,
+                    state->h - line_height - ( config.padding ) - 1,
                     state->w - ( ( config.padding ) ) - 1,
-                    state->h - line_height - ( config.padding ) + LINE_MARGIN - 1 );
-        if ( config.sidebar_mode == TRUE ) {
-            for ( int j = 0; j < num_switchers; j++ ) {
-                textbox_draw ( switchers[j].tb );
-            }
+                    state->h - line_height - ( config.padding ) - 1 );
+        for ( int j = 0; j < num_switchers; j++ ) {
+            textbox_draw ( switchers[j].tb );
         }
     }
 
@@ -2576,7 +2574,7 @@ int main ( int argc, char *argv[] )
         // Check prompt
         find_arg_str ( argc, argv, "-p", &dmenu_prompt );
         int retv = run_dmenu ();
-        // User cancelled the operation.
+        // User canceled the operation.
         if ( retv == FALSE ) {
             return EXIT_FAILURE;
         }
