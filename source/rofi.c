@@ -1555,16 +1555,14 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     monitor_active ( &mon );
     if ( config.menu_lines == 0 ) {
         // Autosize it.
-        int h = mon.h - config.padding * 2 - LINE_MARGIN;
+        int h = mon.h - config.padding * 2 - LINE_MARGIN - config.menu_bw * 2;
         int r = ( h ) / ( line_height * config.element_height ) - 1 - config.sidebar_mode;
-        // HACK todo fix this.
         state.menu_lines = r;
-        menu_calculate_rows_columns ( &state );
     }
     else {
         state.menu_lines = config.menu_lines;
-        menu_calculate_rows_columns ( &state );
     }
+    menu_calculate_rows_columns ( &state );
 
 
 
