@@ -1294,6 +1294,14 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
         state->update = TRUE;
     }
     else {
+        for ( unsigned int i = 0; config.sidebar_mode == TRUE && i < num_switchers; i++ ) {
+            if ( switchers[i].tb->window == ( xbe->window ) ) {
+                *( state->selected_line ) = i;
+                state->retv               = MENU_QUICK_SWITCH;
+                state->quit               = TRUE;
+                return;
+            }
+        }
         for ( unsigned int i = 0; i < state->max_elements; i++ ) {
             if ( ( xbe->window ) == ( state->boxes[i]->window ) ) {
                 // Only allow items that are visible to be selected.
@@ -1795,8 +1803,9 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     g_free ( *input );
     *input = g_strdup ( state.text->text );
 
+    int retv = state.retv;
     menu_free_state ( &state );
-    return state.retv;
+    return retv;
 }
 
 void error_dialog ( char *msg )
@@ -2075,7 +2084,6 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
 
             curr_switcher = mode;
             retv          = switchers[mode].cb ( &input, switchers[mode].cb_data );
-
             // Find next enabled
             if ( retv == NEXT_DIALOG ) {
                 mode = ( mode + 1 ) % num_switchers;
