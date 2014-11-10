@@ -1650,8 +1650,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         int width       = ( state.w - ( 2 * ( config.padding ) ) ) / num_switchers;
         for ( int j = 0; j < num_switchers; j++ ) {
             switchers[j].tb = textbox_create ( main_window, TB_CENTER,
-                                               config.padding + j * width, state.h - line_height - config.padding + LINE_MARGIN,
-                                               width, line_height, ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, switchers[j].name );
+                    config.padding + j * width, state.h - line_height - config.padding,
+                    width, line_height, ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, switchers[j].name );
             textbox_show ( switchers[j].tb );
         }
     }
