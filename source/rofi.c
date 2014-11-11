@@ -1528,6 +1528,9 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
         main_window = create_window ( display );
     }
+    // Get active monitor size.
+    monitor_active ( &mon );
+
     menu_calculate_window_and_element_width ( &state, &mon );
     // search text input
     // we need this at this point so we can get height.
@@ -1551,8 +1554,6 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     // Height of a row.
     int line_height = textbox_get_height ( state.text );
-    // Get active monitor size.
-    monitor_active ( &mon );
     if ( config.menu_lines == 0 ) {
         // Autosize it.
         int h = mon.h - config.padding * 2 - LINE_MARGIN - config.menu_bw * 2;
