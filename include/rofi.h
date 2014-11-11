@@ -15,11 +15,13 @@ extern const char *cache_dir;
 typedef enum
 {
     /** Exit. */
-    MODE_EXIT     = 1000,
+    MODE_EXIT       = 1000,
     /** Skip to the next cycle-able dialog. */
-    NEXT_DIALOG   = 1001,
+    NEXT_DIALOG     = 1001,
     /** Reload current DIALOG */
-    RELOAD_DIALOG = 1002
+    RELOAD_DIALOG   = 1002,
+    /** Previous dialog */
+    PREVIOUS_DIALOG = 1003
 } SwitcherMode;
 
 // switcher callback
@@ -41,6 +43,7 @@ typedef enum
     /** User wanted to delete entry from history. */
     MENU_ENTRY_DELETE = -4,
     MENU_QUICK_SWITCH = -5,
+    MENU_PREVIOUS     = -6
 } MenuReturn;
 
 

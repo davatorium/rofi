@@ -371,6 +371,7 @@ Rofi supports the following keybindings:
 * `Ctrl-Page Up`: Go to the previous column
 * `Ctrl-Page Down`: Go to the next column
 * `?`: Switch to the next modi. The list can be customized with the `-switchers` argument.
+* `ctrl-/`: Switch to the previous modi. The list can be customized with the `-switchers` argument.
 * `Ctrl-space`: Set selected item as input text.
 
 ## FAQ

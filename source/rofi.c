@@ -1730,6 +1730,12 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                         XA_PRIMARY : netatoms[CLIPBOARD],
                                         netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
                 }
+                else if ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) &&  key == XK_slash ) {
+                    state.retv               = MENU_PREVIOUS;
+                    *( state.selected_line ) = 0;
+                    state.quit               = TRUE;
+                    break;
+                }
                 // Menu navigation.
                 else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
                           key == XK_slash ) {
@@ -2003,6 +2009,9 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
         if ( mretv == MENU_NEXT ) {
             retv = NEXT_DIALOG;
         }
+        else if ( mretv == MENU_PREVIOUS ) {
+            retv = PREVIOUS_DIALOG;
+        }
         else if ( mretv == MENU_QUICK_SWITCH ) {
             retv = selected_line;
         }
@@ -2085,6 +2094,12 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
             // Find next enabled
             if ( retv == NEXT_DIALOG ) {
                 mode = ( mode + 1 ) % num_switchers;
+            }
+            else if ( retv == PREVIOUS_DIALOG ) {
+                mode = ( mode - 1 ) % num_switchers;
+                if(mode < 0) {
+                    mode = num_switchers-1;
+                }
             }
             else if ( retv == RELOAD_DIALOG ) {
                 // do nothing.
