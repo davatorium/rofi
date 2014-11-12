@@ -1651,8 +1651,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         int width       = ( state.w - ( 2 * ( config.padding ) ) ) / num_switchers;
         for ( int j = 0; j < num_switchers; j++ ) {
             switchers[j].tb = textbox_create ( main_window, TB_CENTER,
-                    config.padding + j * width, state.h - line_height - config.padding,
-                    width, line_height, ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, switchers[j].name );
+                                               config.padding + j * width, state.h - line_height - config.padding,
+                                               width, line_height, ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, switchers[j].name );
             textbox_show ( switchers[j].tb );
         }
     }
@@ -1731,7 +1731,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                         XA_PRIMARY : netatoms[CLIPBOARD],
                                         netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
                 }
-                else if ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) &&  key == XK_slash ) {
+                else if ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_slash ) {
                     state.retv               = MENU_PREVIOUS;
                     *( state.selected_line ) = 0;
                     state.quit               = TRUE;
@@ -2098,8 +2098,8 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
             }
             else if ( retv == PREVIOUS_DIALOG ) {
                 mode = ( mode - 1 ) % num_switchers;
-                if(mode < 0) {
-                    mode = num_switchers-1;
+                if ( mode < 0 ) {
+                    mode = num_switchers - 1;
                 }
             }
             else if ( retv == RELOAD_DIALOG ) {
