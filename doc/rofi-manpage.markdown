@@ -6,7 +6,7 @@ rofi - A window switcher, run dialog and dmenu replacement
 
 ## SYNOPSIS
 
-**rofi** [ -width *pct_scr* ] [ -lines *lines* ] [ -columns *columns* ] [ -font *xftfont* ] [ -fg *color* ]
+**rofi** [ -width *pct_scr* ] [ -lines *lines* ] [ -columns *columns* ] [ -font *pangofont* ] [ -fg *color* ]
 [ -bg *color* ] [ -hlfg *color* ] [ -hlbg *color* ] [ -key *combo* ] [ -dkey *comdo* ] [ -rkey *comdo* ]
 [ -terminal *terminal* ] [ -location *position* ] [ -hmode ] [ -fixed-num-lines ] [ -padding *padding* ]
 [ -opacity *opacity%* ] [ -display *display* ] [ -bc *color* ] [ -bw *width* ] [ -dmenu [ -p *prompt* ] ]
@@ -150,10 +150,10 @@ The default key combinations are:
 
 `-font`
 
-  Xft font name for use by the menu (default: mono-14).
+  Pango font name for use by the menu (default: mono 14).
 
 
-      rofi -font monospace-14:medium
+      rofi -font monospace\ 14
 
 
 `-hlbg`

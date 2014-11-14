@@ -45,7 +45,7 @@ Settings config = {
     // Number of columns
     .menu_columns      =                                   1,
     // Font
-    .menu_font         = "mono12",
+    .menu_font         = "mono 12",
     // Foreground color
     .menu_fg           = "#222222",
     // Background color

@@ -4,7 +4,7 @@
 rofi \- A window switcher, run dialog and dmenu replacement
 .SH SYNOPSIS
 .PP
-\fBrofi\fP [ \-width \fIpct_scr\fP ] [ \-lines \fIlines\fP ] [ \-columns \fIcolumns\fP ] [ \-font \fIxftfont\fP ] [ \-fg \fIcolor\fP ]
+\fBrofi\fP [ \-width \fIpct_scr\fP ] [ \-lines \fIlines\fP ] [ \-columns \fIcolumns\fP ] [ \-font \fIpangofont\fP ] [ \-fg \fIcolor\fP ]
 [ \-bg \fIcolor\fP ] [ \-hlfg \fIcolor\fP ] [ \-hlbg \fIcolor\fP ] [ \-key \fIcombo\fP ] [ \-dkey \fIcomdo\fP ] [ \-rkey \fIcomdo\fP ]
 [ \-terminal \fIterminal\fP ] [ \-location \fIposition\fP ] [ \-hmode ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fP ]
 [ \-opacity \fIopacity%\fP ] [ \-display \fIdisplay\fP ] [ \-bc \fIcolor\fP ] [ \-bw \fIwidth\fP ] [ \-dmenu [ \-p \fIprompt\fP ] ]
@@ -183,11 +183,11 @@ Set the foreground text color (X11 named color or hex #rrggbb) for the menu (def
 .PP
 \fB\fC\-font\fR
 .IP
-Xft font name for use by the menu (default: mono\-14).
+Pango font name for use by the menu (default: mono 14).
 .PP
 .RS
 .nf
-  rofi \-font monospace\-14:medium
+  rofi \-font monospace\\ 14
 .fi
 .RE
 .PP
@@ -496,18 +496,14 @@ Try using a mono\-space font.
 .SH WEBSITE
 .PP
 \fBrofi\fP website can be found at here
-.UR https://davedavenport.github.io/rofi/
-.UE
+\[la]https://davedavenport.github.io/rofi/\[ra]
 .PP
 \fBrofi\fP bugtracker can be found here
-.UR https://github.com/DaveDavenport/rofi/issues
-.UE
+\[la]https://github.com/DaveDavenport/rofi/issues\[ra]
 .SH AUTHOR
 .PP
 Qball Cow 
-.MT qball@gmpclient.org
-.ME
+\[la]qball@gmpclient.org\[ra]
 .PP
 Original code based on work by: Sean Pringle 
-.MT sean.pringle@gmail.com
-.ME
+\[la]sean.pringle@gmail.com\[ra]
