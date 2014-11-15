@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <glib.h>
+#include <string.h>
 #include <rofi.h>
 #include <helper.h>
 #include <config.h>
@@ -95,3 +97,129 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
     }
     return FALSE;
 }
+
+char **tokenize ( const char *input )
+{
+    if ( input == NULL ) {
+        return NULL;
+    }
+
+    char *saveptr = NULL, *token;
+    char **retv   = NULL;
+    // First entry is always full (modified) stringtext.
+    int  num_tokens = 0;
+
+    // Copy the string, 'strtok_r' modifies it.
+    char *str = g_strdup ( input );
+
+    // Iterate over tokens.
+    // strtok should still be valid for utf8.
+    for ( token = strtok_r ( str, " ", &saveptr );
+          token != NULL;
+          token = strtok_r ( NULL, " ", &saveptr ) ) {
+        // Get case insensitive version of the string.
+        char *tmp = g_utf8_casefold ( token, -1 );
+
+        retv                 = g_realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
+        retv[num_tokens + 1] = NULL;
+        // Create compare key from the case insensitive version.
+        retv[num_tokens] = g_utf8_collate_key ( tmp, -1 );
+        num_tokens++;
+        g_free ( tmp );
+    }
+    // Free str.
+    g_free ( str );
+    return retv;
+}
+
+// cli arg handling
+int find_arg ( const int argc, char * const argv[], const char * const key )
+{
+    int i;
+
+    for ( i = 0; i < argc && strcasecmp ( argv[i], key ); i++ ) {
+        ;
+    }
+
+    return i < argc ? i : -1;
+}
+int find_arg_str ( const int argc, char * const argv[], const char * const key, char** val )
+{
+    int i = find_arg ( argc, argv, key );
+
+    if ( val != NULL && i > 0 && i < argc - 1 ) {
+        *val = argv[i + 1];
+        return TRUE;
+    }
+    return FALSE;
+}
+
+int find_arg_int ( const int argc, char * const argv[], const char * const key, int *val )
+{
+    int i = find_arg ( argc, argv, key );
+
+    if ( val != NULL && i > 0 && i < ( argc - 1 ) ) {
+        *val = strtol ( argv[i + 1], NULL, 10 );
+        return TRUE;
+    }
+    return FALSE;
+}
+int find_arg_uint ( const int argc, char * const argv[], const char * const key, unsigned int *val )
+{
+    int i = find_arg ( argc, argv, key );
+
+    if ( val != NULL && i > 0 && i < ( argc - 1 ) ) {
+        *val = strtoul ( argv[i + 1], NULL, 10 );
+        return TRUE;
+    }
+    return FALSE;
+}
+
+int find_arg_char ( const int argc, char * const argv[], const char * const key, char *val )
+{
+    int i = find_arg ( argc, argv, key );
+
+    if ( val != NULL && i > 0 && i < ( argc - 1 ) ) {
+        int len = strlen ( argv[i + 1] );
+        if ( len == 1 ) {
+            *val = argv[i + 1][0];
+        }
+        else if ( len == 2 && argv[i + 1][0] == '\\' ) {
+            if ( argv[i + 1][1] == 'n' ) {
+                *val = '\n';
+            }
+            else if ( argv[i + 1][1] == 'a' ) {
+                *val = '\a';
+            }
+            else if ( argv[i + 1][1] == 'b' ) {
+                *val = '\b';
+            }
+            else if ( argv[i + 1][1] == 't' ) {
+                *val = '\t';
+            }
+            else if ( argv[i + 1][1] == 'v' ) {
+                *val = '\v';
+            }
+            else if ( argv[i + 1][1] == 'f' ) {
+                *val = '\f';
+            }
+            else if ( argv[i + 1][1] == 'r' ) {
+                *val = '\r';
+            }
+            else if ( argv[i + 1][1] == '\\' ) {
+                *val = '\\';
+            }
+            else {
+                fprintf ( stderr, "Failed to parse command-line argument." );
+                exit ( 1 );
+            }
+        }
+        else{
+            fprintf ( stderr, "Failed to parse command-line argument." );
+            exit ( 1 );
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
+

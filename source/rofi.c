@@ -49,6 +49,7 @@
 #include <X11/XKBlib.h>
 #include <X11/extensions/Xinerama.h>
 
+#include "helper.h"
 #include "rofi.h"
 
 #ifdef HAVE_I3_IPC_H
@@ -132,39 +133,6 @@ int token_match ( char **tokens, const char *input,
 }
 
 
-static char **tokenize ( const char *input )
-{
-    if ( input == NULL ) {
-        return NULL;
-    }
-
-    char *saveptr = NULL, *token;
-    char **retv   = NULL;
-    // First entry is always full (modified) stringtext.
-    int  num_tokens = 0;
-
-    // Copy the string, 'strtok_r' modifies it.
-    char *str = g_strdup ( input );
-
-    // Iterate over tokens.
-    // strtok should still be valid for utf8.
-    for ( token = strtok_r ( str, " ", &saveptr );
-          token != NULL;
-          token = strtok_r ( NULL, " ", &saveptr ) ) {
-        // Get case insensitive version of the string.
-        char *tmp = g_utf8_casefold ( token, -1 );
-
-        retv                 = g_realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
-        retv[num_tokens + 1] = NULL;
-        // Create compare key from the case insensitive version.
-        retv[num_tokens] = g_utf8_collate_key ( tmp, -1 );
-        num_tokens++;
-        g_free ( tmp );
-    }
-    // Free str.
-    g_free ( str );
-    return retv;
-}
 
 #ifdef HAVE_I3_IPC_H
 // Focus window on HAVE_I3_IPC_H window manager.
@@ -224,96 +192,6 @@ void catch_exit ( __attribute__( ( unused ) ) int sig )
     }
 }
 
-
-// cli arg handling
-static int find_arg ( const int argc, char * const argv[], const char * const key )
-{
-    int i;
-
-    for ( i = 0; i < argc && strcasecmp ( argv[i], key ); i++ ) {
-        ;
-    }
-
-    return i < argc ? i : -1;
-}
-static int find_arg_str ( const int argc, char * const argv[], const char * const key, char** val )
-{
-    int i = find_arg ( argc, argv, key );
-
-    if ( val != NULL && i > 0 && i < argc - 1 ) {
-        *val = argv[i + 1];
-        return TRUE;
-    }
-    return FALSE;
-}
-
-static int find_arg_int ( const int argc, char * const argv[], const char * const key, int *val )
-{
-    int i = find_arg ( argc, argv, key );
-
-    if ( val != NULL && i > 0 && i < ( argc - 1 ) ) {
-        *val = strtol ( argv[i + 1], NULL, 10 );
-        return TRUE;
-    }
-    return FALSE;
-}
-static int find_arg_uint ( const int argc, char * const argv[], const char * const key, unsigned int *val )
-{
-    int i = find_arg ( argc, argv, key );
-
-    if ( val != NULL && i > 0 && i < ( argc - 1 ) ) {
-        *val = strtoul ( argv[i + 1], NULL, 10 );
-        return TRUE;
-    }
-    return FALSE;
-}
-static int find_arg_char ( const int argc, char * const argv[], const char * const key, char *val )
-{
-    int i = find_arg ( argc, argv, key );
-
-    if ( val != NULL && i > 0 && i < ( argc - 1 ) ) {
-        int len = strlen ( argv[i + 1] );
-        if ( len == 1 ) {
-            *val = argv[i + 1][0];
-        }
-        else if ( len == 2 && argv[i + 1][0] == '\\' ) {
-            if ( argv[i + 1][1] == 'n' ) {
-                *val = '\n';
-            }
-            else if ( argv[i + 1][1] == 'a' ) {
-                *val = '\a';
-            }
-            else if ( argv[i + 1][1] == 'b' ) {
-                *val = '\b';
-            }
-            else if ( argv[i + 1][1] == 't' ) {
-                *val = '\t';
-            }
-            else if ( argv[i + 1][1] == 'v' ) {
-                *val = '\v';
-            }
-            else if ( argv[i + 1][1] == 'f' ) {
-                *val = '\f';
-            }
-            else if ( argv[i + 1][1] == 'r' ) {
-                *val = '\r';
-            }
-            else if ( argv[i + 1][1] == '\\' ) {
-                *val = '\\';
-            }
-            else {
-                fprintf ( stderr, "Failed to parse command-line argument." );
-                exit ( 1 );
-            }
-        }
-        else{
-            fprintf ( stderr, "Failed to parse command-line argument." );
-            exit ( 1 );
-        }
-        return TRUE;
-    }
-    return FALSE;
-}
 
 
 static int ( *xerror )( Display *, XErrorEvent * );
@@ -452,6 +330,15 @@ typedef struct
 } client;
 
 
+unsigned int windows_modmask;
+KeySym       windows_keysym;
+unsigned int rundialog_modmask;
+KeySym       rundialog_keysym;
+unsigned int sshdialog_modmask;
+KeySym       sshdialog_keysym;
+
+Window       main_window = None;
+GC           gc          = NULL;
 
 // g_malloc a pixel value for an X named color
 static unsigned int color_get ( Display *display, const char *const name )
@@ -767,15 +654,6 @@ client* window_client ( Window win )
     return c;
 }
 
-unsigned int windows_modmask;
-KeySym       windows_keysym;
-unsigned int rundialog_modmask;
-KeySym       rundialog_keysym;
-unsigned int sshdialog_modmask;
-KeySym       sshdialog_keysym;
-
-Window       main_window = None;
-GC           gc          = NULL;
 
 
 void menu_hide_arrow_text ( int filtered_lines, int selected, int max_elements,
@@ -1857,6 +1735,7 @@ void error_dialog ( char *msg )
 
     // Move the window to the correct x,y position.
     calculate_window_position ( &state, &mon );
+    XMoveResizeWindow ( display, main_window, state.x, state.y, state.w, state.h );
 
     // Display it.
     XMapRaised ( display, main_window );
