@@ -99,45 +99,11 @@ static char **get_script_output ( char *command, unsigned int *length )
     return retv;
 }
 
-// There should be a glib version for this.
-// Fixing.
-char *escape_string ( const char *string )
-{
-    int new_length = 0;
-    int length     = strlen ( string );
-
-    // Characters to escape
-    const char echars[]   = "'\\ \"";
-    const char num_echars = sizeof ( echars ) / sizeof ( char );
-
-    // Count strings, Calculate new length.
-    for ( int i = 0; i < length; i++ ) {
-        for ( int j = 0; j < num_echars; j++ ) {
-            if ( echars[j] == string[i] ) {
-                new_length++;
-            }
-        }
-        new_length++;
-    }
-    // Create escaped string.
-    char *retv = g_malloc0 ( ( new_length + 1 ) * sizeof ( char ) );
-    new_length = 0;
-    for ( int i = 0; i < length; i++ ) {
-        for ( int j = 0; j < num_echars; j++ ) {
-            if ( echars[j] == string[i] ) {
-                retv[new_length++] = '\\';
-            }
-        }
-        retv[new_length++] = string[i];
-    }
-    return retv;
-}
-
 char **execute_executor ( ScriptOptions *options, const char *result, unsigned int *length )
 {
     char **retv = NULL;
 
-    char *arg     = escape_string ( result );
+    char *arg     = g_shell_quote ( result );
     char *command = g_strdup_printf ( "%s %s", options->script_path, arg );
     retv = get_script_output ( command, length );
     g_free ( command );
