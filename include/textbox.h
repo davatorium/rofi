@@ -41,9 +41,19 @@ textbox* textbox_create ( Window parent,
                           short x, short y, short w, short h,
                           TextBoxFontType tbft,
                           char *text );
-
+/**
+ * @param tb  Handle to the textbox
+ *
+ * Free the textbox and all allocated memory.
+ */
 void textbox_free ( textbox *tb );
 
+/**
+ * @param tb  Handle to the textbox
+ * @param tbft The style of font to render.
+ *
+ * Set the font render style. 
+ */
 void textbox_font ( textbox *tb, TextBoxFontType tbft );
 
 void textbox_text ( textbox *tb, char *text );
@@ -57,6 +67,7 @@ void textbox_cursor ( textbox *tb, int pos );
 void textbox_move ( textbox *tb, int x, int y );
 
 void textbox_insert ( textbox *tb, int pos, char *str );
+
 /**
  * @param tb  Handle to the textbox
  *
@@ -86,17 +97,76 @@ void textbox_setup (
  */
 void textbox_cleanup ();
 
+/**
+ * @param tb Handle to the textbox
+ *
+ * Get the height of the textbox 
+ *
+ * @returns the height of the textbox in pixels. 
+ */
 int textbox_get_height ( textbox *tb );
+
+/**
+ * @param tb Handle to the textbox
+ *
+ * Get the width of the textbox 
+ *
+ * @returns the width of the textbox in pixels. 
+ */
 int textbox_get_width ( textbox *tb );
+
+/**
+ * @param tb Handle to the textbox
+ *
+ * Get the height of the rendered string.
+ *
+ * @returns the height of the string in pixels. 
+ */
 int textbox_get_font_height ( textbox *tb );
+
+/**
+ * @param tb Handle to the textbox
+ *
+ * Get the width of the rendered string.
+ *
+ * @returns the width of the string in pixels. 
+ */
 int textbox_get_font_width ( textbox *tb );
 
+/**
+ * Estimate the width of a character.
+ *
+ * @returns the width of a character in pixels.
+ */
 double textbox_get_estimated_char_width ( );
 
 
+/**
+ * @param tb Handle to the textbox
+ *
+ * Delete character before cursor.
+ */
 void textbox_cursor_bkspc ( textbox *tb );
+
+/**
+ * @param tb Handle to the textbox
+ *
+ * Delete character after cursor.
+ */
 void textbox_cursor_del ( textbox *tb );
+
+/**
+ * @param tb Handle to the textbox
+ *
+ * Move cursor one position backward.
+ */
 void textbox_cursor_dec ( textbox *tb );
+
+/**
+ * @param tb Handle to the textbox
+ *
+ * Move cursor one position forward.
+ */
 void textbox_cursor_inc ( textbox *tb );
 
 void textbox_delete ( textbox *tb, int pos, int dlen );
