@@ -30,9 +30,12 @@ typedef enum
     TB_EDITABLE   = 1 << 19,
 } TextboxFlags;
 
+
 typedef enum
 {
+    // Render font normally
     NORMAL,
+    // Render font highlighted (inverted colors.)
     HIGHLIGHT,
 } TextBoxFontType;
 
@@ -52,20 +55,73 @@ void textbox_free ( textbox *tb );
  * @param tb  Handle to the textbox
  * @param tbft The style of font to render.
  *
- * Set the font render style. 
+ * Set the font render style.
  */
 void textbox_font ( textbox *tb, TextBoxFontType tbft );
 
+/**
+ * @param tb  Handle to the textbox
+ * @param text The text to show in the textbox
+ *
+ * Set the text to show. Cursor is moved to end (if visible)
+ */
 void textbox_text ( textbox *tb, char *text );
+
+/**
+ * @param tb  Handle to the textbox
+ *
+ * Show the textbox (map window)
+ */
 void textbox_show ( textbox *tb );
+
+/**
+ * @param tb  Handle to the textbox
+ *
+ * Render the textbox.
+ */
 void textbox_draw ( textbox *tb );
 
+/**
+ * @param tb  Handle to the textbox
+ * @param ev  XEvent key inputs to textbox
+ *
+ * Let the textbox handle the input event.
+ *
+ * @returns if the key was handled (1), unhandled(0) or handled and return was pressed (-1)
+ */
 int textbox_keypress ( textbox *tb, XEvent *ev );
 
+/**
+ * @param tb  Handle to the textbox
+ *
+ * Move the cursor to the end of the string.
+ */
 void textbox_cursor_end ( textbox *tb );
+
+/**
+ * @param tb  Handle to the textbox
+ * @param pos New cursor position
+ *
+ * Set the cursor position (string index)
+ */
 void textbox_cursor ( textbox *tb, int pos );
+
+/**
+ * @param tb  Handle to the textbox
+ * @param x   The new x coordinate to move the window to
+ * @param y   The new y coordinate to move the window to
+ *
+ * Move the window to x,y position.
+ */
 void textbox_move ( textbox *tb, int x, int y );
 
+/**
+ * @param tb  Handle to the textbox
+ * @param pos The position to insert the string at
+ * @param str The string to insert.
+ *
+ * Insert the string str at position pos.
+ */
 void textbox_insert ( textbox *tb, int pos, char *str );
 
 /**
@@ -100,18 +156,18 @@ void textbox_cleanup ();
 /**
  * @param tb Handle to the textbox
  *
- * Get the height of the textbox 
+ * Get the height of the textbox
  *
- * @returns the height of the textbox in pixels. 
+ * @returns the height of the textbox in pixels.
  */
 int textbox_get_height ( textbox *tb );
 
 /**
  * @param tb Handle to the textbox
  *
- * Get the width of the textbox 
+ * Get the width of the textbox
  *
- * @returns the width of the textbox in pixels. 
+ * @returns the width of the textbox in pixels.
  */
 int textbox_get_width ( textbox *tb );
 
@@ -120,7 +176,7 @@ int textbox_get_width ( textbox *tb );
  *
  * Get the height of the rendered string.
  *
- * @returns the height of the string in pixels. 
+ * @returns the height of the string in pixels.
  */
 int textbox_get_font_height ( textbox *tb );
 
@@ -129,7 +185,7 @@ int textbox_get_font_height ( textbox *tb );
  *
  * Get the width of the rendered string.
  *
- * @returns the width of the string in pixels. 
+ * @returns the width of the string in pixels.
  */
 int textbox_get_font_width ( textbox *tb );
 
@@ -169,6 +225,13 @@ void textbox_cursor_dec ( textbox *tb );
  */
 void textbox_cursor_inc ( textbox *tb );
 
+/**
+ * @param tb Handle to the textbox
+ * @param pos The start position
+ * @param dlen The length
+ *
+ * Remove dlen bytes from position pos.
+ */
 void textbox_delete ( textbox *tb, int pos, int dlen );
 
 #endif //__TEXTBOX_H__

@@ -10,9 +10,9 @@ extern char *dmenu_prompt;
 /**
  * @param input Pointer to the user-input string.
  *
- * dmenu dialog. 
+ * dmenu dialog.
  *
- * @returns TRUE if script was successful. 
+ * @returns TRUE if script was successful.
  */
 int dmenu_switcher_dialog ( char **input );
 

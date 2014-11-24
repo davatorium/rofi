@@ -10,7 +10,7 @@
  * Parses a string into arguments. While replacing keys with values.
  *
  * @returns TRUE when successful, FALSE when failed.
- */ 
+ */
 int helper_parse_setup ( char * string, char ***output, int *length, ... );
 
 /**
@@ -36,7 +36,7 @@ char **tokenize ( const char *input );
  * Parse command line argument 'key' to character.
  * This one supports character escaping.
  *
- * @returns TRUE if key was found and val was set. 
+ * @returns TRUE if key was found and val was set.
  */
 int find_arg_char ( const int argc, char * const argv[], const char * const key, char *val );
 
@@ -48,7 +48,7 @@ int find_arg_char ( const int argc, char * const argv[], const char * const key,
  *
  * Parse command line argument 'key' to unsigned int.
  *
- * @returns TRUE if key was found and val was set. 
+ * @returns TRUE if key was found and val was set.
  */
 int find_arg_uint ( const int argc, char * const argv[], const char * const key, unsigned int *val );
 
@@ -60,7 +60,7 @@ int find_arg_uint ( const int argc, char * const argv[], const char * const key,
  *
  * Parse command line argument 'key' to int.
  *
- * @returns TRUE if key was found and val was set. 
+ * @returns TRUE if key was found and val was set.
  */
 int find_arg_int ( const int argc, char * const argv[], const char * const key, int *val );
 
@@ -73,7 +73,7 @@ int find_arg_int ( const int argc, char * const argv[], const char * const key, 
  *
  * Parse command line argument 'key' to string.
  *
- * @returns TRUE if key was found and val was set. 
+ * @returns TRUE if key was found and val was set.
  */
 int find_arg_str ( const int argc, char * const argv[], const char * const key, char** val );
 
@@ -84,7 +84,7 @@ int find_arg_str ( const int argc, char * const argv[], const char * const key, 
  *
  * Check if key is passed as argument.
  *
- * @returns return position of string or -1 if not found. 
+ * @returns return position of string or -1 if not found.
  */
 int find_arg ( const int argc, char * const argv[], const char * const key );
 

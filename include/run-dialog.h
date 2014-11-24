@@ -1,7 +1,6 @@
 #ifndef __RUN_DIALOG_H__
 #define __RUN_DIALOG_H__
 
-
 /**
  * @param input Pointer to the user-input string.
  * @param data  Custom data pointer for callback.
