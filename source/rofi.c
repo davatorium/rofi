@@ -54,9 +54,9 @@
 
 #ifdef HAVE_I3_IPC_H
 #include <errno.h>
-#include <linux/un.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <linux/un.h>
 #include <i3/ipc.h>
 #endif
 
