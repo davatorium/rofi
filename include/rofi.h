@@ -61,7 +61,7 @@ typedef enum
 
 /**
  * @param tokens  List of (input) tokens to match.
- * @param input   The entry to match against. 
+ * @param input   The entry to match against.
  * @param index   The current selected index.
  * @param data    User data.
  *
@@ -204,9 +204,9 @@ typedef struct _Settings
 extern Settings config;
 
 /**
- * @params tokens 
+ * @params tokens
  * @param tokens  List of (input) tokens to match.
- * @param input   The entry to match against. 
+ * @param input   The entry to match against.
  * @param index   The current selected index.
  * @param data    User data.
  *

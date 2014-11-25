@@ -2539,7 +2539,9 @@ int main ( int argc, char *argv[] )
         sigaction ( SIGHUP, &hup_action, NULL );
 
 
-        // Main loop
+        // Application Main loop.
+        // This listens in the background for any events on the Xserver
+        // catching global key presses.
         for (;; ) {
             XEvent ev;
             // caches only live for a single event
@@ -2548,11 +2550,12 @@ int main ( int argc, char *argv[] )
 
             // block and wait for something
             XNextEvent ( display, &ev );
-
+            // If we get an event that does not belong to a window:
+            // Ignore it.
             if ( ev.xany.window == None ) {
                 continue;
             }
-
+            // If keypress, handle it.
             if ( ev.type == KeyPress ) {
                 handle_keypress ( &ev );
             }

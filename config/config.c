@@ -66,12 +66,12 @@ Settings config = {
     /** Command executed when running application in terminal */
     .run_shell_command = "{terminal} -e {cmd}",
     /** Key binding */
-    .window_key = "F12",
+    .window_key        = "F12",
     /** Key to open run dialog */
-    .run_key    = "mod1+F2",
+    .run_key           = "mod1+F2",
     /** Key to open ssh dialog */
-    .ssh_key    = "mod1+F3",
-    /** 
+    .ssh_key           = "mod1+F3",
+    /**
      * Location of the window.
      * Enumeration indicating location or gravity of window.
      *
@@ -86,22 +86,22 @@ Settings config = {
     /** Mode of window, list (Vertical) or dmenu like (Horizontal) */
     .hmode             = FALSE,
     /** Padding between elements */
-    .padding          =                                   5,
+    .padding           =                                   5,
     /** Y offset */
-    .y_offset         =                                   0,
+    .y_offset          =                                   0,
     /** X offset */
-    .x_offset         =                                   0,
+    .x_offset          =                                   0,
     /** Always should config.menu_lines lines, even if less lines are available */
-    .fixed_num_lines  = FALSE,
+    .fixed_num_lines   = FALSE,
     /** Do not use history */
-    .disable_history  = FALSE,
+    .disable_history   = FALSE,
     /** Use levenshtein sorting when matching */
-    .levenshtein_sort = FALSE,
+    .levenshtein_sort  = FALSE,
     /** Separator to use for dmenu mode */
-    .separator        = '\n',
+    .separator         = '\n',
     /** Height of an element in #chars */
-    .element_height   =                                   1,
+    .element_height    =                                   1,
     /** Sidebar mode, show the switchers */
-    .sidebar_mode     = FALSE
+    .sidebar_mode      = FALSE
 };
 

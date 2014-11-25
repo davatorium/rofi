@@ -6,13 +6,16 @@
 #include <helper.h>
 #include <config.h>
 
-
+/**
+ *  `fgets` implementation with custom separator.
+ */
 char* fgets_s ( char* s, int n, FILE *iop, char sep )
 {
+    // Map these to registers.
     register int c;
     register char* cs;
     cs = s;
-
+    // read until EOF or buffer is full.
     while ( --n > 0 && ( c = getc ( iop ) ) != EOF ) {
         // put the input char into the current pointer position, then increment it
         // if a newline entered, break
@@ -22,28 +25,40 @@ char* fgets_s ( char* s, int n, FILE *iop, char sep )
             break;
         }
     }
-
+    // Always, 0 terminate the buffer.
     *cs = '\0';
+    // if last read was end of file and current index is start, we are done:
+    // Return NULL.
     return ( c == EOF && cs == s ) ? NULL : s;
 }
 
 /**
- * Replace the entries
+ * @param info The Match informati  on.
+ * @param res  The string being generated.
+ * @param data User data
+ *
+ * Replace the entries. This function gets called by g_regex_replace_eval.
+ *
+ * @returns TRUE to stop replacement, FALSE to continue
  */
 static gboolean helper_eval_cb ( const GMatchInfo *info,
                                  GString          *res,
                                  gpointer data )
 {
-    gchar *match;
-    gchar *r;
-
+    gchar *match, *r;
+    // Get the match
     match = g_match_info_fetch ( info, 0 );
-    r     = g_hash_table_lookup ( (GHashTable *) data, match );
-    if ( r != NULL ) {
-        g_string_append ( res, r );
+    if ( match != NULL ) {
+        // Lookup the match, so we can replace it.
+        r = g_hash_table_lookup ( (GHashTable *) data, match );
+        if ( r != NULL ) {
+            // Append the replacement to the string.
+            g_string_append ( res, r );
+        }
+        // Free match.
         g_free ( match );
     }
-
+    // Continue replacement.
     return FALSE;
 }
 
@@ -52,9 +67,10 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
     GError     *error = NULL;
     GHashTable *h;
     h = g_hash_table_new ( g_str_hash, g_str_equal );
+    // By default, we insert terminal and ssh-client
     g_hash_table_insert ( h, "{terminal}", config.terminal_emulator );
     g_hash_table_insert ( h, "{ssh-client}", config.ssh_client );
-    // Add list.
+    // Add list from variable arguments.
     va_list ap;
     va_start ( ap, length );
     while ( 1 ) {
@@ -76,13 +92,17 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
                                          string, -1,
                                          0, 0, helper_eval_cb, h,
                                          NULL );
+    // Free regex.
     g_regex_unref ( reg );
+    // Destroy key-value storage.
     g_hash_table_destroy ( h );
+    // Parse the string into shell arguments.
     if ( g_shell_parse_argv ( res, length, output, &error ) ) {
         g_free ( res );
         return TRUE;
     }
     g_free ( res );
+    // Throw error if shell parsing fails.
     if ( error ) {
         char *msg = g_strdup_printf ( "Failed to parse: '%s'\nError: '%s'", string,
                                       error->message );
@@ -181,34 +201,45 @@ int find_arg_char ( const int argc, char * const argv[], const char * const key,
 
     if ( val != NULL && i > 0 && i < ( argc - 1 ) ) {
         int len = strlen ( argv[i + 1] );
+        // If the length is 1, it is not escaped.
         if ( len == 1 ) {
             *val = argv[i + 1][0];
         }
+        // If the length is 2 and the first character is '\', we unescape it.
         else if ( len == 2 && argv[i + 1][0] == '\\' ) {
+            // New line
             if ( argv[i + 1][1] == 'n' ) {
                 *val = '\n';
             }
+            // Bell
             else if ( argv[i + 1][1] == 'a' ) {
                 *val = '\a';
             }
+            // Backspace
             else if ( argv[i + 1][1] == 'b' ) {
                 *val = '\b';
             }
+            // Tab
             else if ( argv[i + 1][1] == 't' ) {
                 *val = '\t';
             }
+            // Vertical tab
             else if ( argv[i + 1][1] == 'v' ) {
                 *val = '\v';
             }
+            // Form feed
             else if ( argv[i + 1][1] == 'f' ) {
                 *val = '\f';
             }
+            // Carriage return
             else if ( argv[i + 1][1] == 'r' ) {
                 *val = '\r';
             }
+            // Forward slash
             else if ( argv[i + 1][1] == '\\' ) {
                 *val = '\\';
             }
+            // Otherwise it is not valid and throw error
             else {
                 fprintf ( stderr, "Failed to parse command-line argument." );
                 exit ( 1 );
