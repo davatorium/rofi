@@ -29,58 +29,79 @@
 #include "rofi.h"
 
 Settings config = {
-    // List of enabled switchers.
-    // -switchers
+    /** List of enabled switchers. */
+    /** -switchers */
     .switchers         = "window,run,ssh",
-    // Set the default window opacity.
-    // This option only works when running a composite manager.
-    // -o
+    /** Set the default window opacity. */
+    /** This option only works when running a composite manager. */
+    /** -o */
     .window_opacity    =                                 100,
-    // Border width around the window.
+    /** Border width around the window. */
     .menu_bw           =                                   1,
-    // The width of the switcher. (0100 in % > 100 in pixels)
+    /** The width of the switcher. (0100 in % > 100 in pixels) */
     .menu_width        =                                  50,
-    // Maximum number of options to show.
+    /** Maximum number of options to show. */
     .menu_lines        =                                  15,
-    // Number of columns
+    /** Number of columns */
     .menu_columns      =                                   1,
-    // Font
+    /** Font */
     .menu_font         = "mono 12",
-    // Foreground color
+    /** Foreground color */
     .menu_fg           = "#222222",
-    // Background color
+    /** Background color */
     .menu_bg           = "#f2f1f0",
-    // Foreground color (selected)
+    /** Foreground color (selected) */
     .menu_hlfg         = "#ffffff",
-    // Background color (selected)
+    /** Background color (selected) */
     .menu_hlbg         = "#005577",
-    // Border color.
+    /** Border color. */
     .menu_bc           = "black",
-    // Terminal to use. (for ssh and open in terminal)
+    /** Terminal to use. (for ssh and open in terminal) */
     .terminal_emulator = "x-terminal-emulator",
     .ssh_client        = "ssh",
-    // Command when executing ssh.
+    /** Command when executing ssh. */
     .ssh_command       = "{terminal} -e {ssh-client} {host}",
-    // Command when running
+    /** Command when running */
     .run_command       = "{cmd}",
+    /** Command executed when running application in terminal */
     .run_shell_command = "{terminal} -e {cmd}",
-    // Key binding
+    /** Key binding */
     .window_key = "F12",
+    /** Key to open run dialog */
     .run_key    = "mod1+F2",
+    /** Key to open ssh dialog */
     .ssh_key    = "mod1+F3",
-    // Location of the window.   WL_CENTER, WL_NORTH_WEST, WL_NORTH,WL_NORTH_EAST, etc.
+    /** 
+     * Location of the window.
+     * Enumeration indicating location or gravity of window.
+     *
+     * WL_NORTH_WEST      WL_NORTH      WL_NORTH_EAST
+     *
+     * WL_EAST            WL_CENTER     WL_EAST
+     *
+     * WL_SOUTH_WEST      WL_SOUTH      WL_SOUTH_EAST
+     *
+     */
     .location          = WL_CENTER,
-    // Mode of window, list (Vertical) or dmenu like (Horizontal)
+    /** Mode of window, list (Vertical) or dmenu like (Horizontal) */
     .hmode             = FALSE,
-    // Padding of the window.
+    /** Padding between elements */
     .padding          =                                   5,
+    /** Y offset */
     .y_offset         =                                   0,
+    /** X offset */
     .x_offset         =                                   0,
+    /** Always should config.menu_lines lines, even if less lines are available */
     .fixed_num_lines  = FALSE,
+    /** Do not use history */
     .disable_history  = FALSE,
+    /** Use levenshtein sorting when matching */
     .levenshtein_sort = FALSE,
+    /** Separator to use for dmenu mode */
     .separator        = '\n',
+    /** Height of an element in #chars */
     .element_height   =                                   1,
+    /** Sidebar mode, show the switchers */
     .sidebar_mode     = FALSE
 };
 
