@@ -1,4 +1,3 @@
-SUBDIRS=test
 
 ##
 # Rofi the program
@@ -90,3 +89,41 @@ update-manpage: ${top_srcdir}/doc/rofi-manpage.markdown
 .PHONY: test
 test: rofi
 	make -C test/ test
+##
+# Rofi test program
+##
+noinst_PROGRAMS=rofi_test textbox_test helper_test
+
+
+rofi_test_SOURCES=\
+    source/history.c\
+    config/config.c\
+    include/rofi.h\
+    include/history.h\
+	test/history-test.c
+
+textbox_test_SOURCES=\
+    source/textbox.c\
+    config/config.c\
+    include/rofi.h\
+    include/textbox.h\
+	test/textbox-test.c
+
+helper_test_SOURCES=\
+    config/config.c\
+    include/rofi.h\
+    source/helper.c\
+    include/helper.h\
+    test/helper-test.c
+
+.PHONY: test
+test: ${bin_PROGRAMS} 
+	./rofi_test
+	./helper_test
+	$(top_srcdir)/test/run_test.sh 123 $(top_builddir)/textbox_test $(top_builddir) $(top_srcdir)/doc/example.xresources
+	$(top_srcdir)/test/run_test.sh 200 $(top_srcdir)/test/run_errormsg_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
+	$(top_srcdir)/test/run_test.sh 201 $(top_srcdir)/test/run_switchdialog_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
+	$(top_srcdir)/test/run_test.sh 202 $(top_srcdir)/test/run_dmenu_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
+	$(top_srcdir)/test/run_test.sh 203 $(top_srcdir)/test/run_dmenu_custom_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
+	$(top_srcdir)/test/run_test.sh 204 $(top_srcdir)/test/run_run_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
+	$(top_srcdir)/test/run_test.sh 205 $(top_srcdir)/test/run_script_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
