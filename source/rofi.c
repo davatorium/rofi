@@ -1650,10 +1650,14 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                         }
 
                         // If a valid item is selected, return that..
-                        if ( state.selected < state.filtered_lines && state.filtered[state.selected] != NULL ) {
+                        if ( rc != -2 
+                              && state.selected < state.filtered_lines && state.filtered[state.selected] != NULL ) {
                             state.retv               = MENU_OK;
                             *( state.selected_line ) = state.line_map[state.selected];
                         }
+                        // Either:
+                        // Ctrl+Enter was used to force using custom input (-2)
+                        // or
                         // No item selected, but user entered something
                         else if ( strlen ( state.text->text ) > 0 ) {
                             state.retv = MENU_CUSTOM_INPUT;
