@@ -405,6 +405,9 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
         textbox_cursor_bkspc ( tb );
         return 1;
     }
+    else if ( ( ev->xkey.state & ControlMask ) && ( key == XK_Return || key == XK_KP_Enter) ) {
+        return -2;
+    }
     else if ( key == XK_Return || key == XK_KP_Enter ||
               ( ( ev->xkey.state & ControlMask ) && key == XK_j ) ||
               ( ( ev->xkey.state & ControlMask ) && key == XK_m ) ) {
