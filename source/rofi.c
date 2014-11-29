@@ -1652,14 +1652,18 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                         // If a valid item is selected, return that..
                         if ( state.selected < state.filtered_lines && state.filtered[state.selected] != NULL ) {
                             *( state.selected_line ) = state.line_map[state.selected];
-                            if ( strlen( state.text->text ) > 0 &&  rc == -2 ) {
+                            if ( strlen ( state.text->text ) > 0 && rc == -2 ) {
                                 state.retv = MENU_CUSTOM_INPUT;
-                            } else {
+                            }
+                            else {
                                 state.retv = MENU_OK;
                             }
                         }
-                        // Nothing entered and nothing selected.
+                        else if ( rc == -2 ) {
+                            state.retv = MENU_CUSTOM_INPUT;
+                        }
                         else{
+                            // Nothing entered and nothing selected.
                             state.retv = MENU_CANCEL;
                         }
 
