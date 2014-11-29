@@ -1659,7 +1659,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                 state.retv = MENU_OK;
                             }
                         }
-                        else if ( rc == -2 ) {
+                        else if ( strlen( state.text->text) > 0 ) {
                             state.retv = MENU_CUSTOM_INPUT;
                         }
                         else{
