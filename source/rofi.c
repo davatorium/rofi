@@ -1650,17 +1650,13 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                         }
 
                         // If a valid item is selected, return that..
-                        if ( rc != -2 
-                              && state.selected < state.filtered_lines && state.filtered[state.selected] != NULL ) {
-                            state.retv               = MENU_OK;
+                        if ( state.selected < state.filtered_lines && state.filtered[state.selected] != NULL ) {
                             *( state.selected_line ) = state.line_map[state.selected];
-                        }
-                        // Either:
-                        // Ctrl+Enter was used to force using custom input (-2)
-                        // or
-                        // No item selected, but user entered something
-                        else if ( strlen ( state.text->text ) > 0 ) {
-                            state.retv = MENU_CUSTOM_INPUT;
+                            if ( strlen( state.text->text ) > 0 &&  rc == -2 ) {
+                                state.retv = MENU_CUSTOM_INPUT;
+                            } else {
+                                state.retv = MENU_OK;
+                            }
                         }
                         // Nothing entered and nothing selected.
                         else{
@@ -1899,7 +1895,7 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
         else if ( mretv == MENU_QUICK_SWITCH ) {
             retv = selected_line;
         }
-        else if ( mretv == MENU_OK && list[selected_line] ) {
+        else if ( ( mretv == MENU_OK || mretv == MENU_CUSTOM_INPUT ) && list[selected_line] ) {
 #ifdef HAVE_I3_IPC_H
 
             if ( config_i3_mode ) {
