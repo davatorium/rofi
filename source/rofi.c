@@ -115,30 +115,6 @@ static int switcher_get ( const char *name )
     return -1;
 }
 
-/**
- * Shared 'token_match' function.
- * Matches tokenized.
- */
-int token_match ( char **tokens, const char *input,
-                  __attribute__( ( unused ) ) int index,
-                  __attribute__( ( unused ) ) void *data )
-{
-    int  match = 1;
-
-    char *lowerc = g_utf8_casefold ( input, -1 );
-    char *compk  = g_utf8_collate_key ( lowerc, -1 );
-    // Do a tokenized match.
-    if ( tokens ) {
-        for ( int j = 0; match && tokens[j]; j++ ) {
-            match = ( strstr ( compk, tokens[j] ) != NULL );
-        }
-    }
-    g_free ( lowerc );
-    g_free ( compk );
-    return match;
-}
-
-
 
 #ifdef HAVE_I3_IPC_H
 // Focus window on HAVE_I3_IPC_H window manager.
@@ -355,8 +331,15 @@ static unsigned int color_get ( Display *display, const char *const name )
     return XAllocNamedColor ( display, map, name, &color, &color ) ? color.pixel : None;
 }
 
-// find mouse pointer location
-int pointer_get ( Window root, int *x, int *y )
+/**
+ * @param x  The x position of the mouse [out]
+ * @param y  The y position of the mouse [out]
+ *
+ * find mouse pointer location
+ *
+ * @returns 1 when found
+ */
+static int pointer_get ( Display *display, Window root, int *x, int *y )
 {
     *x = 0;
     *y = 0;
@@ -388,13 +371,13 @@ static int take_keyboard ( Window w )
 
     return 0;
 }
-void release_keyboard ()
+static void release_keyboard ()
 {
     XUngrabKeyboard ( display, CurrentTime );
 }
 
 // XGetWindowAttributes with caching
-XWindowAttributes* window_get_attributes ( Window w )
+static XWindowAttributes* window_get_attributes ( Window w )
 {
     int idx = winlist_find ( cache_xattr, w );
 
@@ -414,19 +397,8 @@ XWindowAttributes* window_get_attributes ( Window w )
 }
 
 // retrieve a property of any type from a window
-int window_get_prop ( Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes )
+static int window_get_prop ( Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes )
 {
-    Atom _type;
-
-    if ( !type ) {
-        type = &_type;
-    }
-
-    int _items;
-
-    if ( !items ) {
-        items = &_items;
-    }
 
     int           format;
     unsigned long nitems, nbytes;
@@ -576,7 +548,7 @@ void monitor_active ( workarea *mon )
             }
         }
     }
-    if ( pointer_get ( root, &x, &y ) ) {
+    if ( pointer_get ( display, root, &x, &y ) ) {
         monitor_dimensions ( screen, x, y, mon );
         return;
     }

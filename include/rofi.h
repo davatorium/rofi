@@ -204,21 +204,6 @@ typedef struct _Settings
 extern Settings config;
 
 /**
- * @params tokens
- * @param tokens  List of (input) tokens to match.
- * @param input   The entry to match against.
- * @param index   The current selected index.
- * @param data    User data.
- *
- * Tokenized match, match tokens to line input.
- *
- * @returns 1 when matches, 0 otherwise
- */
-int token_match ( char **tokens, const char *input,
-                  __attribute__( ( unused ) ) int index,
-                  __attribute__( ( unused ) ) void *data );
-
-/**
  * @param msg The error message to show.
  *
  * The error message to show.

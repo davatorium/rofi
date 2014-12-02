@@ -254,3 +254,25 @@ int find_arg_char ( const int argc, char * const argv[], const char * const key,
     return FALSE;
 }
 
+/**
+ * Shared 'token_match' function.
+ * Matches tokenized.
+ */
+int token_match ( char **tokens, const char *input,
+                  __attribute__( ( unused ) ) int index,
+                  __attribute__( ( unused ) ) void *data )
+{
+    int  match = 1;
+
+    char *lowerc = g_utf8_casefold ( input, -1 );
+    char *compk  = g_utf8_collate_key ( lowerc, -1 );
+    // Do a tokenized match.
+    if ( tokens ) {
+        for ( int j = 0; match && tokens[j]; j++ ) {
+            match = ( strstr ( compk, tokens[j] ) != NULL );
+        }
+    }
+    g_free ( lowerc );
+    g_free ( compk );
+    return match;
+}
