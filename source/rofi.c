@@ -98,8 +98,14 @@ unsigned int curr_switcher = 0;
 
 void window_set_opacity ( Display *display, Window box, unsigned int opacity );
 
-
-int switcher_get ( const char *name )
+/**
+ * @param name Name of the switcher to lookup.
+ *
+ * Find the index of the switcher with name.
+ *
+ * @returns index of the switcher in switchers, -1 if not found.
+ */
+static int switcher_get ( const char *name )
 {
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
         if ( strcmp ( switchers[i].name, name ) == 0 ) {
@@ -1659,7 +1665,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                 state.retv = MENU_OK;
                             }
                         }
-                        else if ( strlen( state.text->text) > 0 ) {
+                        else if ( strlen ( state.text->text ) > 0 ) {
                             state.retv = MENU_CUSTOM_INPUT;
                         }
                         else{
@@ -2275,10 +2281,6 @@ static void cleanup ()
  */
 static void config_sanity_check ( void )
 {
-//    if ( config.menu_lines == 0 ) {
-//        fprintf ( stderr, "config.menu_lines is invalid. You need at least one visible line.\n" );
-//        exit ( 1 );
-//    }
     if ( config.element_height < 1 ) {
         fprintf ( stderr, "config.element_height is invalid. It needs to be atleast 1 line high.\n" );
         exit ( 1 );
@@ -2314,24 +2316,31 @@ static void setup_switchers ( void )
     char *savept;
     char *switcher_str = g_strdup ( config.switchers );
     char *token;
+    // Split token on ','. This modifies switcher_str.
     for ( token = strtok_r ( switcher_str, ",", &savept );
           token != NULL;
           token = strtok_r ( NULL, ",", &savept ) ) {
+        // Window switcher.
         if ( strcasecmp ( token, "window" ) == 0 ) {
+            // Resize and add entry.
             switchers = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
             g_strlcpy ( switchers[num_switchers].name, "window", 32 );
             switchers[num_switchers].cb      = run_switcher_window;
             switchers[num_switchers].cb_data = NULL;
             num_switchers++;
         }
+        // SSh dialog
         else if ( strcasecmp ( token, "ssh" ) == 0 ) {
+            // Resize and add entry.
             switchers = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
             g_strlcpy ( switchers[num_switchers].name, "ssh", 32 );
             switchers[num_switchers].cb      = ssh_switcher_dialog;
             switchers[num_switchers].cb_data = NULL;
             num_switchers++;
         }
+        // Run dialog
         else if ( strcasecmp ( token, "run" ) == 0 ) {
+            // Resize and add entry.
             switchers = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
             g_strlcpy ( switchers[num_switchers].name, "run", 32 );
             switchers[num_switchers].cb      = run_switcher_dialog;
@@ -2339,8 +2348,10 @@ static void setup_switchers ( void )
             num_switchers++;
         }
         else {
+            // If not build in, use custom switchers.
             ScriptOptions *sw = script_switcher_parse_setup ( token );
             if ( sw != NULL ) {
+                // Resize and add entry.
                 switchers = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
                 g_strlcpy ( switchers[num_switchers].name, sw->name, 32 );
                 switchers[num_switchers].cb      = script_switcher_dialog;
@@ -2348,12 +2359,13 @@ static void setup_switchers ( void )
                 num_switchers++;
             }
             else{
+                // Report error, don't continue.
                 fprintf ( stderr, "Invalid script switcher: %s\n", token );
                 token = NULL;
             }
         }
     }
-
+    // Free string that was modified by strtok_r
     g_free ( switcher_str );
 }
 

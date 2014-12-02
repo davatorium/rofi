@@ -86,9 +86,6 @@ indent: ${rofi_SOURCES}
 update-manpage: ${top_srcdir}/doc/rofi-manpage.markdown
 	md2man-roff $^ > ${top_srcdir}/doc/rofi.1 
 
-.PHONY: test
-test: rofi
-	make -C test/ test
 ##
 # Rofi test program
 ##

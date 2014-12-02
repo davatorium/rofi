@@ -228,7 +228,6 @@ void textbox_draw ( textbox *tb )
     char *text       = tb->text ? tb->text : "";
     int  text_len    = strlen ( text );
     int  font_height = textbox_get_font_height ( tb );
-    int  line_width  = 0;
 
     int  cursor_x     = 0;
     int  cursor_width = MAX ( 2, font_height / 10 );
@@ -246,26 +245,30 @@ void textbox_draw ( textbox *tb )
 
     pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->w - 2 * SIDE_MARGIN ) );
 
-    int x = PANGO_SCALE * SIDE_MARGIN, y = 0;
+
+    // Skip the side MARGIN on the X axis.
+    int x = PANGO_SCALE * SIDE_MARGIN;
+    int y = 0;
 
     if ( tb->flags & TB_RIGHT ) {
-        x = ( tb->w - line_width ) * PANGO_SCALE;
+        int line_width = 0;
+        // Get actual width.
+        pango_layout_get_pixel_size ( tb->layout, &line_width, NULL );
+        x = ( tb->w - line_width - SIDE_MARGIN ) * PANGO_SCALE;
     }
     else if ( tb->flags & TB_CENTER ) {
         int tw = textbox_get_font_width ( tb );
-        x = ( PANGO_SCALE * ( tb->w - tw ) ) / 2;
+        x = ( PANGO_SCALE * ( tb->w - tw - 2 * SIDE_MARGIN ) ) / 2;
     }
     y = ( PANGO_SCALE * ( textbox_get_width ( tb ) - textbox_get_font_width ( tb ) ) ) / 2;
     // Render the layout.
-    pango_xft_render_layout ( draw, &( tb->color_fg ), tb->layout,
-                              x, y );
+    pango_xft_render_layout ( draw, &( tb->color_fg ), tb->layout, x, y );
 
     // draw the cursor
     if ( tb->flags & TB_EDITABLE ) {
-        XftDrawRect ( draw, &tb->color_fg, x / PANGO_SCALE + cursor_x + SIDE_MARGIN, SIDE_MARGIN, cursor_width, font_height );
+        XftDrawRect ( draw, &tb->color_fg, x / PANGO_SCALE + cursor_x, SIDE_MARGIN, cursor_width, font_height );
     }
 
-    XftDrawRect ( draw, &tb->color_bg, tb->w, 0, 0, tb->h );
     // flip canvas to window
     XCopyArea ( display, canvas, tb->window, context, 0, 0, tb->w, tb->h, 0, 0 );
 
