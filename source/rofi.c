@@ -95,9 +95,6 @@ Switcher     *switchers    = NULL;
 unsigned int num_switchers = 0;
 unsigned int curr_switcher = 0;
 
-
-void window_set_opacity ( Display *display, Window box, unsigned int opacity );
-
 /**
  * @param name Name of the switcher to lookup.
  *
@@ -397,6 +394,7 @@ static XWindowAttributes* window_get_attributes ( Window w )
 }
 
 // retrieve a property of any type from a window
+static int window_get_prop ( Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes ) __attribute__ ((nonnull(3,4)));
 static int window_get_prop ( Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes )
 {
 
@@ -429,7 +427,7 @@ static int window_get_prop ( Window w, Atom prop, Atom *type, int *items, void *
 
 // retrieve a text property from a window
 // technically we could use window_get_prop(), but this is better for character set support
-char* window_get_text_prop ( Window w, Atom atom )
+static char* window_get_text_prop ( Window w, Atom atom )
 {
     XTextProperty prop;
     char          *res   = NULL;
@@ -461,26 +459,26 @@ char* window_get_text_prop ( Window w, Atom atom )
     return res;
 }
 
-int window_get_atom_prop ( Window w, Atom atom, Atom *list, int count )
+static int window_get_atom_prop ( Window w, Atom atom, Atom *list, int count )
 {
     Atom type;
     int  items;
     return window_get_prop ( w, atom, &type, &items, list, count * sizeof ( Atom ) ) && type == XA_ATOM ? items : 0;
 }
 
-void window_set_atom_prop ( Window w, Atom prop, Atom *atoms, int count )
+static void window_set_atom_prop ( Window w, Atom prop, Atom *atoms, int count )
 {
     XChangeProperty ( display, w, prop, XA_ATOM, 32, PropModeReplace, ( unsigned char * ) atoms, count );
 }
 
-int window_get_cardinal_prop ( Window w, Atom atom, unsigned long *list, int count )
+static int window_get_cardinal_prop ( Window w, Atom atom, unsigned long *list, int count )
 {
     Atom type; int items;
     return window_get_prop ( w, atom, &type, &items, list, count * sizeof ( unsigned long ) ) && type == XA_CARDINAL ? items : 0;
 }
 
 // a ClientMessage
-int window_send_message ( Window target, Window subject, Atom atom, unsigned long protocol, unsigned long mask, Time time )
+static int window_send_message ( Window target, Window subject, Atom atom, unsigned long protocol, unsigned long mask, Time time )
 {
     XEvent e;
     memset ( &e, 0, sizeof ( XEvent ) );
@@ -497,7 +495,7 @@ int window_send_message ( Window target, Window subject, Atom atom, unsigned lon
 }
 
 // find the dimensions of the monitor displaying point x,y
-void monitor_dimensions ( Screen *screen, int x, int y, workarea *mon )
+static void monitor_dimensions ( Screen *screen, int x, int y, workarea *mon )
 {
     memset ( mon, 0, sizeof ( workarea ) );
     mon->w = WidthOfScreen ( screen );
@@ -525,7 +523,7 @@ void monitor_dimensions ( Screen *screen, int x, int y, workarea *mon )
 }
 
 // determine which monitor holds the active window, or failing that the mouse pointer
-void monitor_active ( workarea *mon )
+static void monitor_active ( workarea *mon )
 {
     Screen *screen = DefaultScreenOfDisplay ( display );
     Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
@@ -557,7 +555,7 @@ void monitor_active ( workarea *mon )
 }
 
 // _NET_WM_STATE_*
-int client_has_state ( client *c, Atom state )
+static int client_has_state ( client *c, Atom state )
 {
     int i;
 
@@ -572,7 +570,7 @@ int client_has_state ( client *c, Atom state )
 
 // collect info on any window
 // doesn't have to be a window we'll end up managing
-client* window_client ( Window win )
+static client* window_client ( Window win )
 {
     if ( win == None ) {
         return NULL;
@@ -634,7 +632,7 @@ client* window_client ( Window win )
 
 
 
-void menu_hide_arrow_text ( int filtered_lines, int selected, int max_elements,
+static void menu_hide_arrow_text ( int filtered_lines, int selected, int max_elements,
                             textbox *arrowbox_top, textbox *arrowbox_bottom )
 {
     if ( arrowbox_top == NULL || arrowbox_bottom == NULL ) {
@@ -650,7 +648,7 @@ void menu_hide_arrow_text ( int filtered_lines, int selected, int max_elements,
     }
 }
 
-void menu_set_arrow_text ( int filtered_lines, int selected, int max_elements,
+static void menu_set_arrow_text ( int filtered_lines, int selected, int max_elements,
                            textbox *arrowbox_top, textbox *arrowbox_bottom )
 {
     if ( arrowbox_top == NULL || arrowbox_bottom == NULL ) {
@@ -675,7 +673,7 @@ void menu_set_arrow_text ( int filtered_lines, int selected, int max_elements,
 }
 
 
-int window_match ( char **tokens, __attribute__( ( unused ) ) const char *input, int index, void *data )
+static int window_match ( char **tokens, __attribute__( ( unused ) ) const char *input, int index, void *data )
 {
     int     match = 1;
     winlist *ids  = ( winlist * ) data;
@@ -774,7 +772,7 @@ static int levenshtein ( const char *s, const char *t )
     return dist ( s, t, d, ls, lt, 0, 0 );
 }
 
-void window_set_opacity ( Display *display, Window box, unsigned int opacity )
+static void window_set_opacity ( Display *display, Window box, unsigned int opacity )
 {
     // Hack to set window opacity.
     unsigned int opacity_set = ( unsigned int ) ( ( opacity / 100.0 ) * UINT32_MAX );
