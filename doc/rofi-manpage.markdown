@@ -381,6 +381,10 @@ Rofi supports the following keybindings:
 
     Try using a mono-space font.
 
+`Rofi is completely black.`
+
+    Check quotes used on the commandline: e.g. used “ instead of ".
+
 ## WEBSITE
 
 **rofi** website can be found at [here](https://davedavenport.github.io/rofi/)
