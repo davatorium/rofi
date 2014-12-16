@@ -10,7 +10,7 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-opacity \fIopacity%\fP ] [ \-display \fIdisplay\fP ] [ \-bc \fIcolor\fP ] [ \-bw \fIwidth\fP ] [ \-dmenu [ \-p \fIprompt\fP ] ]
 [ \-ssh\-client \fIclient\fP ] [ \-ssh\-command \fIcommand\fP ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ]
 [ \-help] [ \-dump\-xresources ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-show \fImode\fP ] [ \-switcher
-\fImode1,mode2\fP ] [ \-e \fImessage\fP] [ \-sep \fIseparator\fP ] [ \-eh \fIelement height\fP ]
+\fImode1,mode2\fP ] [ \-e \fImessage\fP] [ \-sep \fIseparator\fP ] [ \-eh \fIelement height\fP ] [ \-l \fIselected line\fP ]
 .SH DESCRIPTION
 .PP
 \fBrofi\fP is an X11 popup window switcher. A list is displayed center\-screen showing open window titles, WM_CLASS, and desktop number.
@@ -391,6 +391,14 @@ Specify the prompt to show in dmenu mode. E.g. select monkey a,b,c,d or e.
 .nf
 The height of a field in lines. e.g.
         echo \-e "a\\n3|b\\n4|c\\n5" | rofi \-sep '|' \-eh 2 \-dmenu
+.fi
+.RE
+.PP
+\fB\fC\-l\fR \fIselected line\fP
+.PP
+.RS
+.nf
+Select a certain line.
 .fi
 .RE
 .SS Message dialog

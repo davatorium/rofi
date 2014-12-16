@@ -36,7 +36,8 @@
 #include "dmenu-dialog.h"
 #include "helper.h"
 
-char *dmenu_prompt = "dmenu ";
+char *dmenu_prompt       = "dmenu ";
+int  dmenu_selected_line = 0;
 
 static char **get_dmenu ( int *length )
 {
@@ -67,7 +68,7 @@ static char **get_dmenu ( int *length )
 
 int dmenu_switcher_dialog ( char **input )
 {
-    int  selected_line = 0;
+    int  selected_line = dmenu_selected_line;
     int  retv          = FALSE;
     int  length        = 0;
     char **list        = get_dmenu ( &length );

@@ -5,6 +5,7 @@
  * Prompt used in dmenu.
  */
 extern char *dmenu_prompt;
+extern int  dmenu_selected_line;
 
 
 /**

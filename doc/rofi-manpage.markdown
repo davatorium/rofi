@@ -12,7 +12,7 @@ rofi - A window switcher, run dialog and dmenu replacement
 [ -opacity *opacity%* ] [ -display *display* ] [ -bc *color* ] [ -bw *width* ] [ -dmenu [ -p *prompt* ] ]
 [ -ssh-client *client* ] [ -ssh-command *command* ] [ -now ] [ -rnow ] [ -snow ] [ -version ]
 [ -help] [ -dump-xresources ] [ -disable-history ] [ -levenshtein-sort ] [ -show *mode* ] [ -switcher
-*mode1,mode2* ] [ -e *message*] [ -sep *separator* ] [ -eh *element height* ]
+*mode1,mode2* ] [ -e *message*] [ -sep *separator* ] [ -eh *element height* ] [ -l *selected line* ]
 
 ## DESCRIPTION
 
@@ -312,6 +312,10 @@ The default key combinations are:
     The height of a field in lines. e.g.
         
             echo -e "a\n3|b\n4|c\n5" | rofi -sep '|' -eh 2 -dmenu
+
+`-l` *selected line*
+
+    Select a certain line.
 
 ### Message dialog
 

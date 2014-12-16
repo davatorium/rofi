@@ -95,6 +95,7 @@ Switcher     *switchers    = NULL;
 unsigned int num_switchers = 0;
 unsigned int curr_switcher = 0;
 
+
 /**
  * @param name Name of the switcher to lookup.
  *
@@ -394,10 +395,9 @@ static XWindowAttributes* window_get_attributes ( Window w )
 }
 
 // retrieve a property of any type from a window
-static int window_get_prop ( Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes ) __attribute__ ((nonnull(3,4)));
+static int window_get_prop ( Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes ) __attribute__ ( ( nonnull ( 3, 4 ) ) );
 static int window_get_prop ( Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes )
 {
-
     int           format;
     unsigned long nitems, nbytes;
     unsigned char *ret = NULL;
@@ -633,7 +633,7 @@ static client* window_client ( Window win )
 
 
 static void menu_hide_arrow_text ( int filtered_lines, int selected, int max_elements,
-                            textbox *arrowbox_top, textbox *arrowbox_bottom )
+                                   textbox *arrowbox_top, textbox *arrowbox_bottom )
 {
     if ( arrowbox_top == NULL || arrowbox_bottom == NULL ) {
         return;
@@ -649,7 +649,7 @@ static void menu_hide_arrow_text ( int filtered_lines, int selected, int max_ele
 }
 
 static void menu_set_arrow_text ( int filtered_lines, int selected, int max_elements,
-                           textbox *arrowbox_top, textbox *arrowbox_bottom )
+                                  textbox *arrowbox_top, textbox *arrowbox_bottom )
 {
     if ( arrowbox_top == NULL || arrowbox_bottom == NULL ) {
         return;
@@ -2460,7 +2460,9 @@ int main ( int argc, char *argv[] )
         config.sidebar_mode = FALSE;
         // Check prompt
         find_arg_str ( argc, argv, "-p", &dmenu_prompt );
+        find_arg_int ( argc, argv, "-l", &dmenu_selected_line );
         int retv = run_dmenu ();
+
         // User canceled the operation.
         if ( retv == FALSE ) {
             return EXIT_FAILURE;
