@@ -378,6 +378,7 @@ Rofi supports the following keybindings:
 * `?`: Switch to the next modi. The list can be customized with the `-switchers` argument.
 * `ctrl-/`: Switch to the previous modi. The list can be customized with the `-switchers` argument.
 * `Ctrl-space`: Set selected item as input text.
+* `Shift-Del`: Delete entry from history.
 
 ## FAQ
 
