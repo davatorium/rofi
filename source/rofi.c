@@ -1668,6 +1668,16 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     int retv = state.retv;
     menu_free_state ( &state );
+
+    // Free the switcher boxes.
+    // When state is free'ed we should no longer need these.
+    if ( config.sidebar_mode == TRUE ) {
+        for ( int j = 0; j < num_switchers; j++ ) {
+            textbox_free ( switchers[j].tb );
+            switchers[j].tb = NULL;
+        }
+    }
+
     return retv;
 }
 
