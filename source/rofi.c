@@ -2188,6 +2188,7 @@ static void parse_cmd_options ( int argc, char ** argv )
     find_arg_str ( argc, argv, "-ssh-client", &( config.ssh_client ) );
     find_arg_str ( argc, argv, "-ssh-command", &( config.ssh_command ) );
     find_arg_str ( argc, argv, "-run-command", &( config.run_command ) );
+    find_arg_str ( argc, argv, "-run-list-command", &( config.run_list_command ) );
     find_arg_str ( argc, argv, "-run-shell-command", &( config.run_shell_command ) );
 
     // Keybindings
@@ -2425,17 +2426,14 @@ int main ( int argc, char *argv[] )
 
     // determine numlock mask so we can bind on keys with and without it
     XModifierKeymap *modmap = XGetModifierMapping ( display );
-
+    KeyCode kc              = XKeysymToKeycode ( display, XK_Num_Lock );
     for ( int i = 0; i < 8; i++ ) {
         for ( int j = 0; j < ( int ) modmap->max_keypermod; j++ ) {
-            if ( modmap->modifiermap[i * modmap->max_keypermod + j] == XKeysymToKeycode ( display, XK_Num_Lock ) ) {
+            if ( modmap->modifiermap[i * modmap->max_keypermod + j] == kc ) {
                 NumlockMask = ( 1 << i );
             }
         }
     }
-
-
-
     XFreeModifiermap ( modmap );
 
     cache_client = winlist_new ();

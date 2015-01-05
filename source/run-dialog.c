@@ -124,6 +124,38 @@ static int sort_func ( const void *a, const void *b )
     }
     return strcasecmp ( astr, bstr );
 }
+
+/**
+ * External spider to get list of executables.
+ */
+static char ** get_apps_external ( char **retv, unsigned int *length )
+{
+    int fd = execute_generator ( config.run_list_command );
+    if ( fd >= 0 ) {
+        FILE *inp = fdopen ( fd, "r" );
+        if ( inp ) {
+            char buffer[1024];
+            while ( fgets ( buffer, 1024, inp ) != NULL ) {
+                retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
+                retv[( *length )]     = g_strdup ( buffer );
+                retv[( *length ) + 1] = NULL;
+
+                // Filter out line-end.
+                if ( retv[( *length )][strlen ( buffer ) - 1] == '\n' ) {
+                    retv[( *length )][strlen ( buffer ) - 1] = '\0';
+                }
+
+                ( *length )++;
+            }
+            fclose ( inp );
+        }
+    }
+    return retv;
+}
+
+/**
+ * Internal spider used to get list of executables.
+ */
 static char ** get_apps ( unsigned int *length )
 {
     unsigned int    num_favorites = 0;
@@ -247,7 +279,11 @@ SwitcherMode run_switcher_dialog ( char **input, G_GNUC_UNUSED void *data )
     SwitcherMode retv          = MODE_EXIT;
     // act as a launcher
     unsigned int cmd_list_length = 0;
-    char         **cmd_list      = get_apps ( &cmd_list_length );
+    char         **cmd_list      = NULL;
+    cmd_list = get_apps ( &cmd_list_length );
+    if ( config.run_list_command != NULL && config.run_list_command[0] != '\0' ) {
+        cmd_list = get_apps_external ( cmd_list, &cmd_list_length );
+    }
 
     if ( cmd_list == NULL ) {
         cmd_list    = g_malloc_n ( 2, sizeof ( char * ) );

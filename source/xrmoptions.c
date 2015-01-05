@@ -101,6 +101,7 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "ssh-client",        { .str  = &config.ssh_client        }, NULL },
     { xrm_String,  "ssh-command",       { .str  = &config.ssh_command       }, NULL },
     { xrm_String,  "run-command",       { .str  = &config.run_command       }, NULL },
+    { xrm_String,  "run-list-command",  { .str  = &config.run_list_command  }, NULL },
     { xrm_String,  "run-shell-command", { .str  = &config.run_shell_command }, NULL },
 
     { xrm_Boolean, "disable-history",   { .num  = &config.disable_history   }, NULL },

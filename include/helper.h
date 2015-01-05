@@ -103,4 +103,13 @@ int token_match ( char **tokens, const char *input,
                   __attribute__( ( unused ) ) int index,
                   __attribute__( ( unused ) ) void *data );
 
+/**
+ * @param cmd The command to execute.
+ *
+ * Execute cmd using config.run_command and outputs the result (stdout) to the opened file
+ * descriptor.
+ *
+ * @returns a valid file descriptor on success, or -1 on failure.
+ */
+int execute_generator ( char * cmd ) __attribute__( ( nonnull ) );
 #endif // __HELPER_H__

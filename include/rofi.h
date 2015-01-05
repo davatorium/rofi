@@ -169,6 +169,8 @@ typedef struct _Settings
     char           * run_command;
     /** Command for executing an application in a terminal */
     char           * run_shell_command;
+    /** Command for listing executables */
+    char           * run_list_command;
 
     /** Key to open window switcher */
     char           * window_key;

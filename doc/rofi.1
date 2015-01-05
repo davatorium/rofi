@@ -4,13 +4,14 @@
 rofi \- A window switcher, run dialog and dmenu replacement
 .SH SYNOPSIS
 .PP
-\fBrofi\fP [ \-width \fIpct_scr\fP ] [ \-lines \fIlines\fP ] [ \-columns \fIcolumns\fP ] [ \-font \fIpangofont\fP ] [ \-fg \fIcolor\fP ]
-[ \-bg \fIcolor\fP ] [ \-hlfg \fIcolor\fP ] [ \-hlbg \fIcolor\fP ] [ \-key \fIcombo\fP ] [ \-dkey \fIcomdo\fP ] [ \-rkey \fIcomdo\fP ]
-[ \-terminal \fIterminal\fP ] [ \-location \fIposition\fP ] [ \-hmode ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fP ]
-[ \-opacity \fIopacity%\fP ] [ \-display \fIdisplay\fP ] [ \-bc \fIcolor\fP ] [ \-bw \fIwidth\fP ] [ \-dmenu [ \-p \fIprompt\fP ] ]
-[ \-ssh\-client \fIclient\fP ] [ \-ssh\-command \fIcommand\fP ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ]
-[ \-help] [ \-dump\-xresources ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-show \fImode\fP ] [ \-switcher
-\fImode1,mode2\fP ] [ \-e \fImessage\fP] [ \-sep \fIseparator\fP ] [ \-eh \fIelement height\fP ] [ \-l \fIselected line\fP ]
+\fBrofi\fP [ \-width \fIpct_scr\fP ] [ \-lines \fIlines\fP ] [ \-columns \fIcolumns\fP ] [ \-font \fIpangofont\fP ] [ \-fg
+\fIcolor\fP ] [ \-bg \fIcolor\fP ] [ \-hlfg \fIcolor\fP ] [ \-hlbg \fIcolor\fP ] [ \-key \fIcombo\fP ] [ \-dkey \fIcomdo\fP ] [
+\-rkey \fIcomdo\fP ] [ \-terminal \fIterminal\fP ] [ \-location \fIposition\fP ] [ \-hmode ] [ \-fixed\-num\-lines ] [
+\-padding \fIpadding\fP ] [ \-opacity \fIopacity%\fP ] [ \-display \fIdisplay\fP ] [ \-bc \fIcolor\fP ] [ \-bw \fIwidth\fP ]
+[ \-dmenu [ \-p \fIprompt\fP ] ] [ \-ssh\-client \fIclient\fP ] [ \-ssh\-command \fIcommand\fP ] [ \-now ] [ \-rnow ] [
+\-snow ] [ \-version ] [ \-help] [ \-dump\-xresources ] [ \-disable\-history ] [ \-levenshtein\-sort ] [
+\-show \fImode\fP ] [ \-switcher \fImode1,mode2\fP ] [ \-e \fImessage\fP] [ \-sep \fIseparator\fP ] [ \-eh \fIelement
+height\fP ] [ \-l \fIselected line\fP ] [ \-run\-list\-command \fIcmd\fP ]
 .SH DESCRIPTION
 .PP
 \fBrofi\fP is an X11 popup window switcher. A list is displayed center\-screen showing open window titles, WM_CLASS, and desktop number.
@@ -354,6 +355,10 @@ See \fIPATTERN\fP\&.
 .IP
 Set the command to execute when running an application in a shell.
 See \fIPATTERN\fP\&.
+.PP
+\fB\fC\-run\-list\-command\fR \fIcmd\fP
+.IP
+If set, use an external tool to generate list of executable commands. Uses 'run\-command'
 .SS History and Sorting
 .PP
 \fB\fC\-disable\-history\fR
@@ -516,18 +521,14 @@ Check quotes used on the commandline: e.g. used “ instead of ".
 .SH WEBSITE
 .PP
 \fBrofi\fP website can be found at here
-.UR https://davedavenport.github.io/rofi/
-.UE
+\[la]https://davedavenport.github.io/rofi/\[ra]
 .PP
 \fBrofi\fP bugtracker can be found here
-.UR https://github.com/DaveDavenport/rofi/issues
-.UE
+\[la]https://github.com/DaveDavenport/rofi/issues\[ra]
 .SH AUTHOR
 .PP
 Qball Cow 
-.MT qball@gmpclient.org
-.ME
+\[la]qball@gmpclient.org\[ra]
 .PP
 Original code based on work by: Sean Pringle 
-.MT sean.pringle@gmail.com
-.ME
+\[la]sean.pringle@gmail.com\[ra]

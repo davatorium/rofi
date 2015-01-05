@@ -40,35 +40,6 @@
 
 
 
-pid_t execute_generator ( char * cmd )
-{
-    char **args = NULL;
-    int  argv   = 0;
-    helper_parse_setup ( config.run_command, &args, &argv, "{cmd}", cmd, NULL );
-
-    int    fd     = -1;
-    GError *error = NULL;
-    g_spawn_async_with_pipes ( NULL,
-                               args,
-                               NULL,
-                               G_SPAWN_SEARCH_PATH,
-                               NULL,
-                               NULL,
-                               NULL,
-                               NULL, &fd, NULL,
-                               &error );
-
-    if ( error != NULL ) {
-        char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd,
-                                      error->message );
-        error_dialog ( msg );
-        g_free ( msg );
-        // print error.
-        g_error_free ( error );
-    }
-    g_strfreev ( args );
-    return fd;
-}
 
 
 static char **get_script_output ( char *command, unsigned int *length )
