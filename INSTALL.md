@@ -8,6 +8,7 @@
 * make
 * autoconf
 * automake
+* Dev packages of the external libraries
 
 ### External libraries
 
@@ -15,6 +16,7 @@
 * libxft
 * libpango
 * libx11
+
 
 ### Optional:
 
