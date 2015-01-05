@@ -156,11 +156,10 @@ static char ** get_apps_external ( char **retv, unsigned int *length )
 /**
  * Internal spider used to get list of executables.
  */
-static char ** get_apps ( unsigned int *length )
+static char ** get_apps ( char **retv, unsigned int *length )
 {
     unsigned int    num_favorites = 0;
     char            *path;
-    char            **retv = NULL;
 #ifdef TIMING
     struct timespec start, stop;
     clock_gettime ( CLOCK_REALTIME, &start );
@@ -223,6 +222,9 @@ static char ** get_apps ( unsigned int *length )
         }
     }
 
+    if ( config.run_list_command != NULL && config.run_list_command[0] != '\0' ) {
+        retv = get_apps_external ( retv, length );
+    }
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
     if ( ( *length ) > num_favorites ) {
         qsort ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func );
@@ -280,10 +282,7 @@ SwitcherMode run_switcher_dialog ( char **input, G_GNUC_UNUSED void *data )
     // act as a launcher
     unsigned int cmd_list_length = 0;
     char         **cmd_list      = NULL;
-    cmd_list = get_apps ( &cmd_list_length );
-    if ( config.run_list_command != NULL && config.run_list_command[0] != '\0' ) {
-        cmd_list = get_apps_external ( cmd_list, &cmd_list_length );
-    }
+    cmd_list = get_apps ( cmd_list, &cmd_list_length );
 
     if ( cmd_list == NULL ) {
         cmd_list    = g_malloc_n ( 2, sizeof ( char * ) );
