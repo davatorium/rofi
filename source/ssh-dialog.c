@@ -138,7 +138,7 @@ static char ** get_ssh ( unsigned int *length )
     if ( fd != NULL ) {
         char buffer[1024];
         while ( fgets ( buffer, 1024, fd ) != NULL ) {
-            if ( strncasecmp ( buffer, "Host", 4 ) == 0 ) {
+            if ( strncasecmp ( buffer, "Host", 4 ) == 0 && isspace ( buffer[4] ) ) {
                 int start = 0, stop = 0;
                 buffer[strlen ( buffer ) - 1] = '\0';
 
