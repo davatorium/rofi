@@ -225,6 +225,10 @@ static char ** get_apps ( char **retv, unsigned int *length )
     if ( config.run_list_command != NULL && config.run_list_command[0] != '\0' ) {
         retv = get_apps_external ( retv, length );
     }
+    // No sorting needed.
+    if((*length) == 0) {
+        return retv;
+    }
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
     if ( ( *length ) > num_favorites ) {
         qsort ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func );
