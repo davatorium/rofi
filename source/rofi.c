@@ -120,7 +120,8 @@ static void focus_window_i3 ( const char *socket_path, int id )
 {
     i3_ipc_header_t    head;
     char               command[128];
-    int                s, t, len;
+    int                s, len;
+    ssize_t            t;
     struct sockaddr_un remote;
 
     if ( strlen ( socket_path ) > UNIX_PATH_MAX ) {
@@ -151,14 +152,31 @@ static void focus_window_i3 ( const char *socket_path, int id )
     head.size = strlen ( command );
     head.type = I3_IPC_MESSAGE_TYPE_COMMAND;
     // Send header.
-    send ( s, &head, sizeof ( head ), 0 );
+    t = send ( s, &head, sizeof ( i3_ipc_header_t ), 0 );
+    if ( t == -1 ) {
+        char *msg = g_strdup_printf ( "Failed to send message header to i3: %s\n", strerror ( errno ) );
+        error_dialog ( msg );
+        g_free ( msg );
+        close ( s );
+        return;
+    }
     // Send message
-    send ( s, command, strlen ( command ), 0 );
+    t = send ( s, command, strlen ( command ), 0 );
+    if ( t == -1 ) {
+        char *msg = g_strdup_printf ( "Failed to send message body to i3: %s\n", strerror ( errno ) );
+        error_dialog ( msg );
+        g_free ( msg );
+        close ( s );
+        return;
+    }
     // Receive header.
     t = recv ( s, &head, sizeof ( head ), 0 );
 
     if ( t == sizeof ( head ) ) {
-        recv ( s, command, head.size, 0 );
+        t = recv ( s, command, head.size, 0 );
+        if ( t == head.size ) {
+            // Response.
+        }
     }
 
     close ( s );
