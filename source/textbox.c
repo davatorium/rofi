@@ -232,7 +232,7 @@ void textbox_draw ( textbox *tb )
     int  cursor_x     = 0;
     int  cursor_width = MAX ( 2, font_height / 10 );
 
-    pango_layout_set_text ( tb->layout, tb->text, strlen ( tb->text ) );
+    pango_layout_set_text ( tb->layout, text, text_len );
 
     if ( tb->flags & TB_EDITABLE ) {
         PangoRectangle pos;
