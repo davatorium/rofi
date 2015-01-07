@@ -1518,12 +1518,10 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     // if grabbing keyboard failed, fall through
     if ( take_keyboard ( main_window ) ) {
         state.selected = 0;
-        if ( state.selected_line != NULL ) {
-            // The cast to unsigned in here is valid, we checked if selected_line > 0.
-            // So its maximum range is 0-2³¹, well within the num_lines range.
-            if ( ( *( state.selected_line ) ) >= 0 && (unsigned int) ( *( state.selected_line ) ) <= state.num_lines ) {
-                state.selected = *( state.selected_line );
-            }
+        // The cast to unsigned in here is valid, we checked if selected_line > 0.
+        // So its maximum range is 0-2³¹, well within the num_lines range.
+        if ( ( *( state.selected_line ) ) >= 0 && (unsigned int) ( *( state.selected_line ) ) <= state.num_lines ) {
+            state.selected = *( state.selected_line );
         }
 
         state.quit = FALSE;
@@ -2294,7 +2292,7 @@ static void config_sanity_check ( void )
  */
 static void setup_switchers ( void )
 {
-    char *savept = NULL;
+    char *savept       = NULL;
     char *switcher_str = g_strdup ( config.switchers );
     char *token;
     // Split token on ','. This modifies switcher_str.
