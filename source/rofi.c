@@ -762,10 +762,11 @@ static int dist ( const char *s, const char *t, int *d, int ls, int lt, int i, i
 }
 static int levenshtein ( const char *s, const char *t )
 {
-    int ls = strlen ( s ), lt = strlen ( t );
-    int d[( ls + 1 ) * ( lt + 1 )];
+    int     ls           = strlen ( s ), lt = strlen ( t );
+    ssize_t array_length = ( ls + 1 ) * ( lt + 1 );
+    int     d[array_length];
 
-    for ( int i = 0; i < ( ( ls + 1 ) * ( lt + 1 ) ); i++ ) {
+    for ( ssize_t i = 0; i < array_length; i++ ) {
         d[i] = -1;
     }
 
