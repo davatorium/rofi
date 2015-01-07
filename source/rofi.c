@@ -2294,7 +2294,7 @@ static void config_sanity_check ( void )
  */
 static void setup_switchers ( void )
 {
-    char *savept;
+    char *savept = NULL;
     char *switcher_str = g_strdup ( config.switchers );
     char *token;
     // Split token on ','. This modifies switcher_str.
