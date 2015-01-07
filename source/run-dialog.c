@@ -128,7 +128,7 @@ static int sort_func ( const void *a, const void *b )
 /**
  * External spider to get list of executables.
  */
-static char ** get_apps_external ( char **retv, unsigned int *length )
+static char ** get_apps_external ( char **retv, unsigned int *length, unsigned int num_favorites )
 {
     int fd = execute_generator ( config.run_list_command );
     if ( fd >= 0 ) {
@@ -136,14 +136,29 @@ static char ** get_apps_external ( char **retv, unsigned int *length )
         if ( inp ) {
             char buffer[1024];
             while ( fgets ( buffer, 1024, inp ) != NULL ) {
+                int found = 0;
+                // Filter out line-end.
+                if ( buffer[strlen ( buffer ) - 1] == '\n' ) {
+                    buffer[strlen ( buffer ) - 1] = '\0';
+                }
+
+                // This is a nice little penalty, but doable? time will tell.
+                // given num_favorites is max 25.
+                for ( unsigned int j = 0; found == 0 && j < num_favorites; j++ ) {
+                    if ( strcasecmp ( buffer, retv[j] ) == 0 ) {
+                        found = 1;
+                    }
+                }
+
+                if ( found == 1 ) {
+                    continue;
+                }
+
+                // No duplicate, add it.
                 retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
                 retv[( *length )]     = g_strdup ( buffer );
                 retv[( *length ) + 1] = NULL;
 
-                // Filter out line-end.
-                if ( retv[( *length )][strlen ( buffer ) - 1] == '\n' ) {
-                    retv[( *length )][strlen ( buffer ) - 1] = '\0';
-                }
 
                 ( *length )++;
             }
@@ -222,11 +237,12 @@ static char ** get_apps ( char **retv, unsigned int *length )
         }
     }
 
+    // Get external apps.
     if ( config.run_list_command != NULL && config.run_list_command[0] != '\0' ) {
-        retv = get_apps_external ( retv, length );
+        retv = get_apps_external ( retv, length, num_favorites );
     }
     // No sorting needed.
-    if((*length) == 0) {
+    if ( ( *length ) == 0 ) {
         return retv;
     }
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
