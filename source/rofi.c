@@ -780,11 +780,13 @@ static int dist ( const char *s, const char *t, int *d, int ls, int lt, int i, i
 }
 static int levenshtein ( const char *s, const char *t )
 {
-    int     ls           = strlen ( s ), lt = strlen ( t );
-    ssize_t array_length = ( ls + 1 ) * ( lt + 1 );
-    int     d[array_length];
+    int    ls           = strlen ( s ), lt = strlen ( t );
+    size_t array_length = ( ls + 1 ) * ( lt + 1 );
+    // For some reason Coverity does not get that I initialize the
+    // array in for loop.
+    int d[array_length];
 
-    for ( ssize_t i = 0; i < array_length; i++ ) {
+    for ( size_t i = 0; i < array_length; i++ ) {
         d[i] = -1;
     }
 
