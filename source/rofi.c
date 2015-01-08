@@ -1932,6 +1932,9 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
     return retv;
 }
 
+/**
+ * Start dmenu mode.
+ */
 static int run_dmenu ()
 {
     int ret_state;
@@ -2011,7 +2014,10 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
     }
 }
 
-// KeyPress event
+/**
+ * Function that listens for global key-presses.
+ * This is only used when in daemon mode.
+ */
 static void handle_keypress ( XEvent *ev )
 {
     KeySym key = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
@@ -2078,8 +2084,10 @@ static void parse_key ( char *combo, unsigned int *mod, KeySym *key )
         modmask |= Mod5Mask;
     }
 
+    // If no modifier mask is set, allow any modifier.
     *mod = modmask ? modmask : AnyModifier;
 
+    // Skip modifier (if exist( and parse key.
     char i = strlen ( combo );
 
     while ( i > 0 && !strchr ( "-+", combo[i - 1] ) ) {
@@ -2127,9 +2135,13 @@ static void grab_key ( Display *display, unsigned int modmask, KeySym key )
  */
 static inline void display_get_i3_path ( Display *display )
 {
+    // Get the default screen.
     Screen *screen = DefaultScreenOfDisplay ( display );
+    // Find the root window (each X has one.).
     Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
+    // Get the i3 path property.
     i3_socket_path = window_get_text_prop ( root, netatoms[I3_SOCKET_PATH] );
+    // If we find it, go into i3 mode. 
     config_i3_mode = ( i3_socket_path != NULL ) ? TRUE : FALSE;
 }
 #endif //HAVE_I3_IPC_H
@@ -2314,10 +2326,10 @@ static void config_sanity_check ( void )
 static void setup_switchers ( void )
 {
     char *savept       = NULL;
+    // Make a copy, as strtok will modify it.
     char *switcher_str = g_strdup ( config.switchers );
-    char *token;
     // Split token on ','. This modifies switcher_str.
-    for ( token = strtok_r ( switcher_str, ",", &savept );
+    for ( char *token = strtok_r ( switcher_str, ",", &savept );
           token != NULL;
           token = strtok_r ( NULL, ",", &savept ) ) {
         // Window switcher.
@@ -2372,8 +2384,8 @@ static void setup_switchers ( void )
 /**
  * Keep a copy of arc, argv around, so we can use the same parsing method
  */
-int stored_argc;
-char **stored_argv;
+static int stored_argc;
+static char **stored_argv;
 
 /**
  * @param display Pointer to the X connection to use.
