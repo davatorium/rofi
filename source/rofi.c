@@ -250,9 +250,6 @@ typedef struct
 winlist *cache_client = NULL;
 winlist *cache_xattr  = NULL;
 
-#define winlist_ascend( l, i, w )     for ( ( i ) = 0; ( i ) < ( l )->len && ( ( ( w ) = ( l )->array[i] ) || 1 ); ( i )++ )
-#define winlist_descend( l, i, w )    for ( ( i ) = ( l )->len - 1; ( i ) >= 0 && ( ( ( w ) = ( l )->array[i] ) || 1 ); ( i )-- )
-
 #define WINLIST    32
 
 winlist* winlist_new ()
@@ -299,8 +296,10 @@ int winlist_find ( winlist *l, Window w )
     int    i;
     Window o = 0;
 
-    winlist_descend ( l, i, o ) if ( w == o ) {
-        return i;
+    for ( i = ( l->len - 1 ); i >= 0; i-- ) {
+        if ( l->array[i] == w ) {
+            return i;
+        }
     }
 
     return -1;
@@ -1855,9 +1854,8 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
         unsigned int lines = 0;
 
         // build the actual list
-        Window w = 0;
-        winlist_ascend ( ids, i, w )
-        {
+        for ( i = 0; i < ( ids->len ); i++ ) {
+            Window w = ids->array[i];
             client *c;
 
             if ( ( c = window_client ( w ) ) ) {
@@ -2138,10 +2136,10 @@ static inline void display_get_i3_path ( Display *display )
     // Get the default screen.
     Screen *screen = DefaultScreenOfDisplay ( display );
     // Find the root window (each X has one.).
-    Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
+    Window root = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
     // Get the i3 path property.
     i3_socket_path = window_get_text_prop ( root, netatoms[I3_SOCKET_PATH] );
-    // If we find it, go into i3 mode. 
+    // If we find it, go into i3 mode.
     config_i3_mode = ( i3_socket_path != NULL ) ? TRUE : FALSE;
 }
 #endif //HAVE_I3_IPC_H
@@ -2325,7 +2323,7 @@ static void config_sanity_check ( void )
  */
 static void setup_switchers ( void )
 {
-    char *savept       = NULL;
+    char *savept = NULL;
     // Make a copy, as strtok will modify it.
     char *switcher_str = g_strdup ( config.switchers );
     // Split token on ','. This modifies switcher_str.
