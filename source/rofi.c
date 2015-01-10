@@ -781,15 +781,18 @@ static int levenshtein ( const char *s, const char *t )
 {
     int    ls           = strlen ( s ), lt = strlen ( t );
     size_t array_length = ( ls + 1 ) * ( lt + 1 );
+
     // For some reason Coverity does not get that I initialize the
     // array in for loop.
-    int d[array_length];
+    int *d = g_malloc_n ( array_length, sizeof ( int ) );
 
     for ( size_t i = 0; i < array_length; i++ ) {
         d[i] = -1;
     }
 
-    return dist ( s, t, d, ls, lt, 0, 0 );
+    int retv = dist ( s, t, d, ls, lt, 0, 0 );
+    g_free ( d );
+    return retv;
 }
 
 static void window_set_opacity ( Display *display, Window box, unsigned int opacity )
