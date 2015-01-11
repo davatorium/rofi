@@ -29,7 +29,7 @@ rofi_SOURCES=\
     source/ssh-dialog.c\
     source/script-dialog.c\
     source/history.c\
-    config/config.c\
+    ${top_builddir}/config/config.c\
 	source/helper.c\
     include/rofi.h\
     include/run-dialog.h\
@@ -64,6 +64,13 @@ markdown_FILES=\
 README.html: README.md
 	$(md_verbose) markdown $< > $@
 
+
+##
+# config directory
+##
+${top_builddir}/config/config.c: | ${top_srcdir}/config/config.def.c
+	install ${top_srcdir}/config/config.def.c $@
+
 ## 
 # Extra DIST
 ##
@@ -80,7 +87,7 @@ EXTRA_DIST=\
 # Indent
 ##
 
-indent: ${rofi_SOURCES}
+indent: ${rofi_SOURCES} ${top_srcdir}/config/config.def.c
 	uncrustify -c ${top_srcdir}/data/uncrustify.cfg --replace $^
 
 update-manpage: ${top_srcdir}/doc/rofi-manpage.markdown
