@@ -29,7 +29,7 @@ rofi_SOURCES=\
     source/ssh-dialog.c\
     source/script-dialog.c\
     source/history.c\
-    ${top_builddir}/config/config.c\
+    config/config.c\
 	source/helper.c\
     include/rofi.h\
     include/run-dialog.h\
@@ -68,7 +68,7 @@ README.html: README.md
 ##
 # config directory
 ##
-${top_builddir}/config/config.c: | ${top_srcdir}/config/config.def.c
+${top_builddir}/config/config.c: ${top_srcdir}/config/config.def.c
 	install ${top_srcdir}/config/config.def.c $@
 
 ## 
@@ -81,6 +81,7 @@ EXTRA_DIST=\
     Examples/i3_switch_workspaces.sh\
     Examples/brightness_rofi.sh\
     Examples/domo_rofi_script.sh\
+    ${top_srcdir}/config/config.def.c\
     INSTALL.md
 
 ##
