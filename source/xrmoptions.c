@@ -108,6 +108,7 @@ static XrmOption xrmOptions[] = {
 
     { xrm_Boolean, "disable-history",      { .num  = &config.disable_history       }, NULL },
     { xrm_Boolean, "levenshtein-sort",     { .num  = &config.levenshtein_sort      }, NULL },
+    { xrm_Boolean, "case-sensitive",       { .num  = &config.case_sensitive        }, NULL },
     /* Key bindings */
     { xrm_String,  "key",                  { .str  = &config.window_key            }, NULL },
     { xrm_String,  "rkey",                 { .str  = &config.run_key               }, NULL },
