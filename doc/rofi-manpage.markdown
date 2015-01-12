@@ -12,8 +12,8 @@ rofi - A window switcher, run dialog and dmenu replacement
 -padding *padding* ] [ -opacity *opacity%* ] [ -display *display* ] [ -bc *color* ] [ -bw *width* ]
 [ -dmenu [ -p *prompt* ] ] [ -ssh-client *client* ] [ -ssh-command *command* ] [ -now ] [ -rnow ] [
 -snow ] [ -version ] [ -help] [ -dump-xresources ] [ -disable-history ] [ -levenshtein-sort ] [
--show *mode* ] [ -switcher *mode1,mode2* ] [ -e *message*] [ -sep *separator* ] [ -eh *element
-height* ] [ -l *selected line* ] [ -run-list-command *cmd* ]
+-case-sensitive ] [ -show *mode* ] [ -switcher *mode1,mode2* ] [ -e *message*] [ -sep *separator* ]
+[ -eh *element height* ] [ -l *selected line* ] [ -run-list-command *cmd* ]
 
 ## DESCRIPTION
 
@@ -119,6 +119,9 @@ The default key combinations are:
 
         rofi -switchers "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
 
+`-case-sensitive`
+
+  Start in case sensitive mode.
 
 ### Theming 
 
@@ -255,7 +258,6 @@ The default key combinations are:
   Override the used ssh client. Default is `ssh`.
 
 
-
 ### SSH settings
 
 `-ssh-set-title` *true|false*
@@ -384,6 +386,7 @@ Rofi supports the following keybindings:
 * `ctrl-/`: Switch to the previous modi. The list can be customized with the `-switchers` argument.
 * `Ctrl-space`: Set selected item as input text.
 * `Shift-Del`: Delete entry from history.
+* `grave`: Toggle case sensitivity.
 
 ## FAQ
 

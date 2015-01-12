@@ -99,6 +99,8 @@ Settings config = {
     .disable_history   = FALSE,
     /** Use levenshtein sorting when matching */
     .levenshtein_sort  = FALSE,
+    /** Case sensitivity of the search */
+    .case_sensitive    = FALSE,
     /** Separator to use for dmenu mode */
     .separator         = '\n',
     /** Height of an element in #chars */

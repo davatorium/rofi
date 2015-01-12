@@ -62,6 +62,7 @@ typedef enum
 /**
  * @param tokens  List of (input) tokens to match.
  * @param input   The entry to match against.
+ * @param case_sensitive Whether case is significant.
  * @param index   The current selected index.
  * @param data    User data.
  *
@@ -69,7 +70,7 @@ typedef enum
  *
  * @returns 1 when it matches, 0 if not.
  */
-typedef int ( *menu_match_cb )( char **tokens, const char *input, int index, void *data );
+typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensitive, int index, void *data );
 
 /**
  * @param lines An array of strings to display.
@@ -194,6 +195,8 @@ typedef struct _Settings
     unsigned int   disable_history;
     /** Use levenshtein sorting when matching */
     unsigned int   levenshtein_sort;
+    /** Search case sensitivity */
+    unsigned int   case_sensitive;
     /** Separator to use for dmenu mode */
     char           separator;
     /** Height of an element in #chars */

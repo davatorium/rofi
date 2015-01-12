@@ -118,7 +118,23 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
     return FALSE;
 }
 
-char **tokenize ( const char *input )
+char *token_collate_key ( const char *token, int case_sensitive )
+{
+    char *tmp, *compk;
+
+    if ( case_sensitive ) {
+        tmp = g_strdup ( token );
+    } else {
+        tmp = g_utf8_casefold ( token, -1 );
+    }
+
+    compk = g_utf8_collate_key ( tmp, -1 );
+    g_free ( tmp );
+
+    return compk;
+}
+
+char **tokenize ( const char *input, int case_sensitive )
 {
     if ( input == NULL ) {
         return NULL;
@@ -137,15 +153,10 @@ char **tokenize ( const char *input )
     for ( token = strtok_r ( str, " ", &saveptr );
           token != NULL;
           token = strtok_r ( NULL, " ", &saveptr ) ) {
-        // Get case insensitive version of the string.
-        char *tmp = g_utf8_casefold ( token, -1 );
-
         retv                 = g_realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
+        retv[num_tokens]     = token_collate_key ( token, case_sensitive );
         retv[num_tokens + 1] = NULL;
-        // Create compare key from the case insensitive version.
-        retv[num_tokens] = g_utf8_collate_key ( tmp, -1 );
         num_tokens++;
-        g_free ( tmp );
     }
     // Free str.
     g_free ( str );
@@ -258,21 +269,19 @@ int find_arg_char ( const int argc, char * const argv[], const char * const key,
  * Shared 'token_match' function.
  * Matches tokenized.
  */
-int token_match ( char **tokens, const char *input,
+int token_match ( char **tokens, const char *input, int case_sensitive,
                   __attribute__( ( unused ) ) int index,
                   __attribute__( ( unused ) ) void *data )
 {
     int  match = 1;
+    char *compk = token_collate_key ( input, case_sensitive );
 
-    char *lowerc = g_utf8_casefold ( input, -1 );
-    char *compk  = g_utf8_collate_key ( lowerc, -1 );
     // Do a tokenized match.
     if ( tokens ) {
         for ( int j = 0; match && tokens[j]; j++ ) {
             match = ( strstr ( compk, tokens[j] ) != NULL );
         }
     }
-    g_free ( lowerc );
     g_free ( compk );
     return match;
 }

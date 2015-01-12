@@ -311,7 +311,8 @@ SwitcherMode run_switcher_dialog ( char **input, G_GNUC_UNUSED void *data )
     }
 
     int mretv = menu ( cmd_list, cmd_list_length, input, "run:",
-                       NULL, &shift, token_match, NULL, &selected_line, config.levenshtein_sort );
+                       NULL, &shift, token_match, NULL, &selected_line,
+                       config.levenshtein_sort );
 
     if ( mretv == MENU_NEXT ) {
         retv = NEXT_DIALOG;

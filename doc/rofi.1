@@ -10,8 +10,8 @@ rofi \- A window switcher, run dialog and dmenu replacement
 \-padding \fIpadding\fP ] [ \-opacity \fIopacity%\fP ] [ \-display \fIdisplay\fP ] [ \-bc \fIcolor\fP ] [ \-bw \fIwidth\fP ]
 [ \-dmenu [ \-p \fIprompt\fP ] ] [ \-ssh\-client \fIclient\fP ] [ \-ssh\-command \fIcommand\fP ] [ \-now ] [ \-rnow ] [
 \-snow ] [ \-version ] [ \-help] [ \-dump\-xresources ] [ \-disable\-history ] [ \-levenshtein\-sort ] [
-\-show \fImode\fP ] [ \-switcher \fImode1,mode2\fP ] [ \-e \fImessage\fP] [ \-sep \fIseparator\fP ] [ \-eh \fIelement
-height\fP ] [ \-l \fIselected line\fP ] [ \-run\-list\-command \fIcmd\fP ]
+\-case\-sensitive ] [ \-show \fImode\fP ] [ \-switcher \fImode1,mode2\fP ] [ \-e \fImessage\fP] [ \-sep \fIseparator\fP ]
+[ \-eh \fIelement height\fP ] [ \-l \fIselected line\fP ] [ \-run\-list\-command \fIcmd\fP ]
 .SH DESCRIPTION
 .PP
 \fBrofi\fP is an X11 popup window switcher. A list is displayed center\-screen showing open window titles, WM_CLASS, and desktop number.
@@ -140,6 +140,10 @@ So to have a mode 'Workspaces' using the \fB\fCi3_switch_workspace.sh\fR script 
     rofi \-switchers "window,run,ssh,Workspaces:i3_switch_workspaces.sh" \-show Workspaces
 .fi
 .RE
+.PP
+\fB\fC\-case\-sensitive\fR
+.IP
+Start in case sensitive mode.
 .SS Theming
 .PP
 \fB\fC\-bg\fR
@@ -500,6 +504,8 @@ Rofi supports the following keybindings:
 \fB\fCCtrl\-space\fR: Set selected item as input text.
 .IP \(bu 2
 \fB\fCShift\-Del\fR: Delete entry from history.
+.IP \(bu 2
+\fB\fCgrave\fR: Toggle case sensitivity.
 .RE
 .SH FAQ
 .PP

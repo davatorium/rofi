@@ -225,7 +225,8 @@ SwitcherMode ssh_switcher_dialog ( char **input, G_GNUC_UNUSED void *data )
     int shift         = 0;
     int selected_line = 0;
     int mretv         = menu ( cmd_list, cmd_list_length, input, "ssh:",
-                               NULL, &shift, token_match, NULL, &selected_line, config.levenshtein_sort );
+                               NULL, &shift, token_match, NULL, &selected_line,
+                               config.levenshtein_sort );
 
     if ( mretv == MENU_NEXT ) {
         retv = NEXT_DIALOG;

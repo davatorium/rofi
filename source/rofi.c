@@ -690,43 +690,39 @@ static void menu_set_arrow_text ( int filtered_lines, int selected, int max_elem
 }
 
 
-static int window_match ( char **tokens, __attribute__( ( unused ) ) const char *input, int index, void *data )
+static int window_match ( char **tokens, __attribute__( ( unused ) ) const char *input,
+                          int case_sensitive, int index, void *data )
 {
     int     match = 1;
     winlist *ids  = ( winlist * ) data;
     client  *c    = window_client ( ids->array[index] );
-
 
     if ( tokens ) {
         for ( int j = 0; match && tokens[j]; j++ ) {
             int test = 0;
 
             if ( !test && c->title[0] != '\0' ) {
-                char *sml = g_utf8_casefold ( c->title, -1 );
-                char *key = g_utf8_collate_key ( sml, -1 );
+                char *key = token_collate_key ( c->title, case_sensitive );
                 test = ( strstr ( key, tokens[j] ) != NULL );
-                g_free ( sml ); g_free ( key );
+                g_free ( key );
             }
 
             if ( !test && c->class[0] != '\0' ) {
-                char *sml = g_utf8_casefold ( c->class, -1 );
-                char *key = g_utf8_collate_key ( sml, -1 );
+                char *key = token_collate_key ( c->title, case_sensitive );
                 test = ( strstr ( key, tokens[j] ) != NULL );
-                g_free ( sml ); g_free ( key );
+                g_free ( key );
             }
 
             if ( !test && c->role[0] != '\0' ) {
-                char *sml = g_utf8_casefold ( c->role, -1 );
-                char *key = g_utf8_collate_key ( sml, -1 );
+                char *key = token_collate_key ( c->title, case_sensitive );
                 test = ( strstr ( key, tokens[j] ) != NULL );
-                g_free ( sml ); g_free ( key );
+                g_free ( key );
             }
 
             if ( !test && c->name[0] != '\0' ) {
-                char *sml = g_utf8_casefold ( c->name, -1 );
-                char *key = g_utf8_collate_key ( sml, -1 );
+                char *key = token_collate_key ( c->title, case_sensitive );
                 test = ( strstr ( key, tokens[j] ) != NULL );
-                g_free ( sml ); g_free ( key );
+                g_free ( key );
             }
 
             if ( test == 0 ) {
@@ -1201,15 +1197,16 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
     }
 }
 
-static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, void *mmc_data, int sorting )
+static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, void *mmc_data,
+                            int sorting,  int case_sensitive )
 {
     unsigned int i, j = 0;
     if ( strlen ( state->text->text ) > 0 ) {
-        char **tokens = tokenize ( state->text->text );
+        char **tokens = tokenize ( state->text->text, case_sensitive );
 
         // input changed
         for ( i = 0; i < state->num_lines; i++ ) {
-            int match = mmc ( tokens, lines[i], i, mmc_data );
+            int match = mmc ( tokens, lines[i], case_sensitive, i, mmc_data );
 
             // If each token was matched, add it to list.
             if ( match ) {
@@ -1551,7 +1548,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         while ( !state.quit ) {
             // If something changed, refilter the list. (paste or text entered)
             if ( state.refilter ) {
-                menu_refilter ( &state, lines, mmc, mmc_data, sorting );
+                menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
             }
             // Update if requested.
             if ( state.update ) {
@@ -1619,6 +1616,13 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                     *( state.selected_line ) = 0;
                     state.quit               = TRUE;
                     break;
+                }
+                // Toggle case sensitivity.
+                else if ( key == XK_grave ) {
+                    config.case_sensitive = !config.case_sensitive;
+                    *( state.selected_line ) = 0;
+                    state.refilter = TRUE;
+                    state.update = TRUE;
                 }
                 // Switcher short-cut
                 else if ( ( ( ev.xkey.state & Mod1Mask ) == Mod1Mask ) &&
@@ -2208,6 +2212,9 @@ static void parse_cmd_options ( int argc, char ** argv )
     }
     if ( find_arg ( argc, argv, "-levenshtein-sort" ) >= 0 ) {
         config.levenshtein_sort = TRUE;
+    }
+    if ( find_arg ( argc, argv, "-case-sensitive" ) >= 0 ) {
+        config.case_sensitive = TRUE;
     }
 
     // Parse commandline arguments about behavior

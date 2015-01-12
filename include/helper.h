@@ -19,13 +19,26 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... );
 char* fgets_s ( char* s, int n, FILE *iop, char sep );
 
 /**
+ * @param token The string for which we want a collation key.
+ * @param case_sensitive Whether case is significant.
+ *
+ * Get a collation key for @p token. @p token must be a null-terminated string.
+ * This collation key can be used for matching the user input against the list
+ * of commands, windows, or ssh commands.
+ *
+ * @returns A newly allocated string containing the collation key.
+ */
+char *token_collate_key ( const char *token, int case_sensitive );
+
+/**
  * @param input The input string.
+ * @param case_sensitive Whether case is significant.
  *
  * Tokenize the string on spaces.
  *
  * @returns a newly allocated 2 dimensional array of strings.
  */
-char **tokenize ( const char *input );
+char **tokenize ( const char *input, int case_sensitive );
 
 /**
  * @param argc Number of arguments.
@@ -92,6 +105,7 @@ int find_arg ( const int argc, char * const argv[], const char * const key );
  * @params tokens
  * @param tokens  List of (input) tokens to match.
  * @param input   The entry to match against.
+ * @param case_sensitive Whether case is significant.
  * @param index   The current selected index.
  * @param data    User data.
  *
@@ -99,7 +113,7 @@ int find_arg ( const int argc, char * const argv[], const char * const key );
  *
  * @returns 1 when matches, 0 otherwise
  */
-int token_match ( char **tokens, const char *input,
+int token_match ( char **tokens, const char *input, int case_sensitive,
                   __attribute__( ( unused ) ) int index,
                   __attribute__( ( unused ) ) void *data );
 
