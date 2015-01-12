@@ -153,6 +153,8 @@ typedef struct _Settings
     char           * menu_fg;
     /** Background color */
     char           * menu_bg;
+    /** Background color alt */
+    char           * menu_bg_alt;
     /** Highlight foreground color */
     char           * menu_hlfg;
     /** Highlight background color */

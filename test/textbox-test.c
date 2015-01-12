@@ -49,7 +49,7 @@ int main ( int argc, char **argv )
                                            color_get ( display, config.menu_bg ) );
     TASSERT( mw != None );
 
-    textbox_setup ( config.menu_bg, config.menu_fg, 
+    textbox_setup ( config.menu_bg, config.menu_bg_alt, config.menu_fg,
                     config.menu_hlbg, config.menu_hlfg ); 
     textbox *box = textbox_create(mw , TB_EDITABLE|TB_AUTOWIDTH|TB_AUTOHEIGHT, 0,0, -1, -1, NORMAL, "test");
     TASSERT( box != NULL );

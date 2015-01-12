@@ -60,57 +60,59 @@ typedef struct
  * Currently supports string and number.
  */
 static XrmOption xrmOptions[] = {
-    { xrm_String,  "switchers",         { .str  = &config.switchers         }, NULL },
-    { xrm_Number,  "opacity",           { .num  = &config.window_opacity    }, NULL },
+    { xrm_String,  "switchers",            { .str  = &config.switchers             }, NULL },
+    { xrm_Number,  "opacity",              { .num  = &config.window_opacity        }, NULL },
 
-    { xrm_SNumber, "width",             { .snum = &config.menu_width        }, NULL },
+    { xrm_SNumber, "width",                { .snum = &config.menu_width            }, NULL },
 
-    { xrm_Number,  "lines",             { .num  = &config.menu_lines        }, NULL },
-    { xrm_Number,  "columns",           { .num  = &config.menu_columns      }, NULL },
+    { xrm_Number,  "lines",                { .num  = &config.menu_lines            }, NULL },
+    { xrm_Number,  "columns",              { .num  = &config.menu_columns          }, NULL },
 
-    { xrm_String,  "font",              { .str  = &config.menu_font         }, NULL },
+    { xrm_String,  "font",                 { .str  = &config.menu_font             }, NULL },
     /* Foreground color */
-    { xrm_String,  "foreground",        { .str  = &config.menu_fg           }, NULL },
-    { xrm_String,  "fg",                { .str  = &config.menu_fg           }, NULL },
+    { xrm_String,  "foreground",           { .str  = &config.menu_fg               }, NULL },
+    { xrm_String,  "fg",                   { .str  = &config.menu_fg               }, NULL },
 
-    { xrm_String,  "background",        { .str  = &config.menu_bg           }, NULL },
-    { xrm_String,  "bg",                { .str  = &config.menu_bg           }, NULL },
+    { xrm_String,  "background",           { .str  = &config.menu_bg               }, NULL },
+    { xrm_String,  "bg",                   { .str  = &config.menu_bg               }, NULL },
+    { xrm_String,  "background-alternate", { .str  = &config.menu_bg_alt           }, NULL },
+    { xrm_String,  "bgalt",                { .str  = &config.menu_bg_alt           }, NULL },
 
-    { xrm_String,  "highlightfg",       { .str  = &config.menu_hlfg         }, NULL },
-    { xrm_String,  "hlfg",              { .str  = &config.menu_hlfg         }, NULL },
+    { xrm_String,  "highlightfg",          { .str  = &config.menu_hlfg             }, NULL },
+    { xrm_String,  "hlfg",                 { .str  = &config.menu_hlfg             }, NULL },
 
-    { xrm_String,  "highlightbg",       { .str  = &config.menu_hlbg         }, NULL },
-    { xrm_String,  "hlbg",              { .str  = &config.menu_hlbg         }, NULL },
+    { xrm_String,  "highlightbg",          { .str  = &config.menu_hlbg             }, NULL },
+    { xrm_String,  "hlbg",                 { .str  = &config.menu_hlbg             }, NULL },
 
-    { xrm_String,  "bordercolor",       { .str  = &config.menu_bc           }, NULL },
-    { xrm_String,  "bc",                { .str  = &config.menu_bc           }, NULL },
+    { xrm_String,  "bordercolor",          { .str  = &config.menu_bc               }, NULL },
+    { xrm_String,  "bc",                   { .str  = &config.menu_bc               }, NULL },
 
-    { xrm_Number,  "borderwidth",       { .num  = &config.menu_bw           }, NULL },
-    { xrm_Number,  "bw",                { .num  = &config.menu_bw           }, NULL },
+    { xrm_Number,  "borderwidth",          { .num  = &config.menu_bw               }, NULL },
+    { xrm_Number,  "bw",                   { .num  = &config.menu_bw               }, NULL },
 
-    { xrm_Number,  "location",          { .num  = &config.location          }, NULL },
+    { xrm_Number,  "location",             { .num  = &config.location              }, NULL },
 
-    { xrm_Number,  "padding",           { .num  = &config.padding           }, NULL },
-    { xrm_SNumber, "yoffset",           { .snum = &config.y_offset          }, NULL },
-    { xrm_SNumber, "xoffset",           { .snum = &config.x_offset          }, NULL },
-    { xrm_Boolean, "fixed-num-lines",   { .num  = &config.fixed_num_lines   }, NULL },
-    { xrm_Boolean, "hmode",             { .num  = &config.hmode             }, NULL },
+    { xrm_Number,  "padding",              { .num  = &config.padding               }, NULL },
+    { xrm_SNumber, "yoffset",              { .snum = &config.y_offset              }, NULL },
+    { xrm_SNumber, "xoffset",              { .snum = &config.x_offset              }, NULL },
+    { xrm_Boolean, "fixed-num-lines",      { .num  = &config.fixed_num_lines       }, NULL },
+    { xrm_Boolean, "hmode",                { .num  = &config.hmode                 }, NULL },
 
 
-    { xrm_String,  "terminal",          { .str  = &config.terminal_emulator }, NULL },
-    { xrm_String,  "ssh-client",        { .str  = &config.ssh_client        }, NULL },
-    { xrm_String,  "ssh-command",       { .str  = &config.ssh_command       }, NULL },
-    { xrm_String,  "run-command",       { .str  = &config.run_command       }, NULL },
-    { xrm_String,  "run-list-command",  { .str  = &config.run_list_command  }, NULL },
-    { xrm_String,  "run-shell-command", { .str  = &config.run_shell_command }, NULL },
+    { xrm_String,  "terminal",             { .str  = &config.terminal_emulator     }, NULL },
+    { xrm_String,  "ssh-client",           { .str  = &config.ssh_client            }, NULL },
+    { xrm_String,  "ssh-command",          { .str  = &config.ssh_command           }, NULL },
+    { xrm_String,  "run-command",          { .str  = &config.run_command           }, NULL },
+    { xrm_String,  "run-list-command",     { .str  = &config.run_list_command      }, NULL },
+    { xrm_String,  "run-shell-command",    { .str  = &config.run_shell_command     }, NULL },
 
-    { xrm_Boolean, "disable-history",   { .num  = &config.disable_history   }, NULL },
-    { xrm_Boolean, "levenshtein-sort",  { .num  = &config.levenshtein_sort  }, NULL },
+    { xrm_Boolean, "disable-history",      { .num  = &config.disable_history       }, NULL },
+    { xrm_Boolean, "levenshtein-sort",     { .num  = &config.levenshtein_sort      }, NULL },
     /* Key bindings */
-    { xrm_String,  "key",               { .str  = &config.window_key        }, NULL },
-    { xrm_String,  "rkey",              { .str  = &config.run_key           }, NULL },
-    { xrm_String,  "skey",              { .str  = &config.ssh_key           }, NULL },
-    { xrm_Boolean, "sidebar-mode",      { .num  = &config.sidebar_mode      }, NULL }
+    { xrm_String,  "key",                  { .str  = &config.window_key            }, NULL },
+    { xrm_String,  "rkey",                 { .str  = &config.run_key               }, NULL },
+    { xrm_String,  "skey",                 { .str  = &config.ssh_key               }, NULL },
+    { xrm_Boolean, "sidebar-mode",         { .num  = &config.sidebar_mode          }, NULL }
 };
 
 
