@@ -848,6 +848,7 @@ typedef struct MenuState
     // Entries
     textbox      *text;
     textbox      *prompt_tb;
+    textbox      *case_indicator;
     textbox      *arrowbox_top;
     textbox      *arrowbox_bottom;
     textbox      **boxes;
@@ -883,6 +884,7 @@ static void menu_free_state ( MenuState *state )
 {
     textbox_free ( state->text );
     textbox_free ( state->prompt_tb );
+    textbox_free ( state->case_indicator );
     textbox_free ( state->arrowbox_bottom );
     textbox_free ( state->arrowbox_top );
 
@@ -1294,8 +1296,9 @@ static void menu_update ( MenuState *state )
     menu_hide_arrow_text ( state->filtered_lines, state->selected,
                            state->max_elements, state->arrowbox_top,
                            state->arrowbox_bottom );
-    textbox_draw ( state->text );
+    textbox_draw ( state->case_indicator );
     textbox_draw ( state->prompt_tb );
+    textbox_draw ( state->text );
     menu_draw ( state );
     menu_set_arrow_text ( state->filtered_lines, state->selected,
                           state->max_elements, state->arrowbox_top,
@@ -1410,22 +1413,34 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     // search text input
     // we need this at this point so we can get height.
 
+    state.case_indicator = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+                                            ( config.padding ), ( config.padding ),
+                                            0, 0,
+                                            NORMAL, "*" );
+
     state.prompt_tb = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                                       ( config.padding ), ( config.padding ),
+                                       ( config.padding ) + textbox_get_width ( state.case_indicator ),
+                                       ( config.padding ),
                                        0, 0, NORMAL, prompt );
 
     state.text = textbox_create ( main_window, TB_AUTOHEIGHT | TB_EDITABLE,
-                                  ( config.padding ) + textbox_get_width ( state.prompt_tb ),
+                                  ( config.padding ) + textbox_get_width ( state.prompt_tb )
+                                  + textbox_get_width ( state.case_indicator ),
                                   ( config.padding ),
                                   ( ( config.hmode == TRUE ) ?
                                     state.element_width : ( state.w - ( 2 * ( config.padding ) ) ) )
-                                  - textbox_get_width ( state.prompt_tb ), 1,
+                                  - textbox_get_width ( state.prompt_tb )
+                                  - textbox_get_width ( state.case_indicator ), 1,
                                   NORMAL,
                                   ( input != NULL ) ? *input : "" );
 
 
     textbox_show ( state.text );
     textbox_show ( state.prompt_tb );
+
+    if ( config.case_sensitive ) {
+        textbox_show ( state.case_indicator );
+    }
 
     // Height of a row.
     int line_height = textbox_get_height ( state.text );
@@ -1624,6 +1639,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                     *( state.selected_line ) = 0;
                     state.refilter = TRUE;
                     state.update = TRUE;
+                    if ( config.case_sensitive ) {
+                      textbox_show ( state.case_indicator );
+                    } else {
+                      textbox_hide ( state.case_indicator );
+                    }
                 }
                 // Switcher short-cut
                 else if ( ( ( ev.xkey.state & Mod1Mask ) == Mod1Mask ) &&
