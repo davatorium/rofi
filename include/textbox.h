@@ -35,6 +35,8 @@ typedef enum
 {
     // Render font normally
     NORMAL,
+    // Alternating row.
+    ALT,
     // Render font highlighted (inverted colors.)
     HIGHLIGHT,
 } TextBoxFontType;
@@ -132,9 +134,8 @@ void textbox_insert ( textbox *tb, int pos, char *str );
 void textbox_hide ( textbox *tb );
 
 /**
- * @param font_str          The font to use.
- * @param font_active_str   The font to use for active entries.
  * @param bg                The background color.
+ * @param bg_alt            The background color for alternating row.
  * @param fg                The foreground color.
  * @param hlbg              The background color for a highlighted entry.
  * @param hlfg              The foreground color for a highlighted entry.
@@ -144,7 +145,7 @@ void textbox_hide ( textbox *tb );
  * Clean with textbox_cleanup()
  */
 void textbox_setup (
-    const char *bg, const char *fg,
+    const char *bg, const char *bg_alt, const char *fg,
     const char *hlbg, const char *hlfg
     );
 

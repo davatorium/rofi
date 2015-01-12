@@ -50,6 +50,8 @@ Settings config = {
     .menu_fg           = "#222222",
     /** Background color */
     .menu_bg           = "#f2f1f0",
+    /** Background color alternate row */
+    .menu_bg_alt       = NULL,
     /** Foreground color (selected) */
     .menu_hlfg         = "#ffffff",
     /** Background color (selected) */

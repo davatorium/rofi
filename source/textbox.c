@@ -54,6 +54,7 @@ XftColor     color_fg;
 XftColor     color_bg;
 XftColor     color_hlfg;
 XftColor     color_hlbg;
+XftColor     color_bg_alt;
 
 PangoContext *p_context = NULL;
 
@@ -83,7 +84,19 @@ textbox* textbox_create ( Window parent,
     pango_layout_set_font_description ( tb->layout, pfd );
     pango_font_description_free ( pfd );
 
-    unsigned int cp = ( tbft == NORMAL ) ? color_bg.pixel : color_hlbg.pixel;
+    unsigned int cp;
+    switch ( tbft )
+    {
+    case HIGHLIGHT:
+        cp = color_hlbg.pixel;
+        break;
+    case ALT:
+        cp = color_bg_alt.pixel;
+        break;
+    default:
+        cp = color_bg.pixel;
+        break;
+    }
 
     tb->window = XCreateSimpleWindow ( display, tb->parent, tb->x, tb->y, tb->w, tb->h, 0, None, cp );
 
@@ -118,6 +131,10 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
     case HIGHLIGHT:
         tb->color_bg = color_hlbg;
         tb->color_fg = color_hlfg;
+        break;
+    case ALT:
+        tb->color_bg = color_bg_alt;
+        tb->color_fg = color_fg;
         break;
     case NORMAL:
     default:
@@ -432,7 +449,7 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
  */
 
 void textbox_setup (
-    const char *bg, const char *fg,
+    const char *bg, const char *bg_alt, const char *fg,
     const char *hlbg, const char *hlfg
     )
 {
@@ -441,6 +458,7 @@ void textbox_setup (
 
     XftColorAllocName ( display, visual, colormap, fg, &color_fg );
     XftColorAllocName ( display, visual, colormap, bg, &color_bg );
+    XftColorAllocName ( display, visual, colormap, bg_alt, &color_bg_alt );
     XftColorAllocName ( display, visual, colormap, hlfg, &color_hlfg );
     XftColorAllocName ( display, visual, colormap, hlbg, &color_hlbg );
 
@@ -458,6 +476,7 @@ void textbox_cleanup ()
 
         XftColorFree ( display, visual, colormap, &color_fg );
         XftColorFree ( display, visual, colormap, &color_bg );
+        XftColorFree ( display, visual, colormap, &color_bg_alt );
         XftColorFree ( display, visual, colormap, &color_hlfg );
         XftColorFree ( display, visual, colormap, &color_hlbg );
         g_object_unref ( p_context );

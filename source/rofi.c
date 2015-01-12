@@ -1278,8 +1278,9 @@ static void menu_draw ( MenuState *state )
             textbox_text ( state->boxes[i], "" );
         }
         else{
+            TextBoxFontType type  = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
             char            *text = state->filtered[i + offset];
-            TextBoxFontType tbft  = ( i + offset ) == state->selected ? HIGHLIGHT : NORMAL;
+            TextBoxFontType tbft  = ( i + offset ) == state->selected ? HIGHLIGHT : type;
             textbox_font ( state->boxes[i], tbft );
             textbox_text ( state->boxes[i], text );
         }
@@ -1944,7 +1945,7 @@ static int run_dmenu ()
 {
     int ret_state;
     textbox_setup (
-        config.menu_bg, config.menu_fg,
+        config.menu_bg, config.menu_bg_alt, config.menu_fg,
         config.menu_hlbg,
         config.menu_hlfg );
     char *input = NULL;
@@ -1977,7 +1978,7 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
     // Because of the above fork, we want to do this here.
     // Make sure this is isolated to its own thread.
     textbox_setup (
-        config.menu_bg, config.menu_fg,
+        config.menu_bg, config.menu_bg_alt, config.menu_fg,
         config.menu_hlbg,
         config.menu_hlfg );
     char *input = NULL;
@@ -2194,6 +2195,7 @@ static void parse_cmd_options ( int argc, char ** argv )
     find_arg_str ( argc, argv, "-font", &( config.menu_font ) );
     find_arg_str ( argc, argv, "-fg", &( config.menu_fg ) );
     find_arg_str ( argc, argv, "-bg", &( config.menu_bg ) );
+    find_arg_str ( argc, argv, "-bgalt", &( config.menu_bg_alt ) );
     find_arg_str ( argc, argv, "-hlfg", &( config.menu_hlfg ) );
     find_arg_str ( argc, argv, "-hlbg", &( config.menu_hlbg ) );
     find_arg_str ( argc, argv, "-bc", &( config.menu_bc ) );
@@ -2244,11 +2246,6 @@ static void parse_cmd_options ( int argc, char ** argv )
 
     if ( find_arg ( argc, argv, "-sidebar-mode" ) >= 0 ) {
         config.sidebar_mode = TRUE;
-    }
-    // Dump.
-    if ( find_arg ( argc, argv, "-dump-xresources" ) >= 0 ) {
-        xresource_dump ();
-        exit ( EXIT_SUCCESS );
     }
 }
 
@@ -2321,6 +2318,10 @@ static void config_sanity_check ( void )
     if ( !( config.hmode == TRUE || config.hmode == FALSE ) ) {
         fprintf ( stderr, "config.hmode is invalid.\n" );
         exit ( 1 );
+    }
+    // If alternative row is not set, copy the normal background color.
+    if ( config.menu_bg_alt == NULL ) {
+        config.menu_bg_alt = config.menu_bg;
     }
 }
 
@@ -2452,6 +2453,12 @@ int main ( int argc, char *argv[] )
 
     load_configuration ( display );
 
+    // Dump.
+    if ( find_arg ( argc, argv, "-dump-xresources" ) >= 0 ) {
+        xresource_dump ();
+        exit ( EXIT_SUCCESS );
+    }
+
     // setup_switchers
     setup_switchers ();
 
@@ -2491,7 +2498,7 @@ int main ( int argc, char *argv[] )
     char *msg = NULL;
     if ( find_arg_str ( argc, argv, "-e", &( msg ) ) ) {
         textbox_setup (
-            config.menu_bg, config.menu_fg,
+            config.menu_bg, config.menu_bg_alt, config.menu_fg,
             config.menu_hlbg,
             config.menu_hlfg );
         error_dialog ( msg );

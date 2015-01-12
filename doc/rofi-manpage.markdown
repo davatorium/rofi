@@ -7,13 +7,14 @@ rofi - A window switcher, run dialog and dmenu replacement
 ## SYNOPSIS
 
 **rofi** [ -width *pct_scr* ] [ -lines *lines* ] [ -columns *columns* ] [ -font *pangofont* ] [ -fg
-*color* ] [ -bg *color* ] [ -hlfg *color* ] [ -hlbg *color* ] [ -key *combo* ] [ -dkey *comdo* ] [
--rkey *comdo* ] [ -terminal *terminal* ] [ -location *position* ] [ -hmode ] [ -fixed-num-lines ] [
--padding *padding* ] [ -opacity *opacity%* ] [ -display *display* ] [ -bc *color* ] [ -bw *width* ]
-[ -dmenu [ -p *prompt* ] ] [ -ssh-client *client* ] [ -ssh-command *command* ] [ -now ] [ -rnow ] [
--snow ] [ -version ] [ -help] [ -dump-xresources ] [ -disable-history ] [ -levenshtein-sort ] [
--case-sensitive ] [ -show *mode* ] [ -switcher *mode1,mode2* ] [ -e *message*] [ -sep *separator* ]
-[ -eh *element height* ] [ -l *selected line* ] [ -run-list-command *cmd* ]
+*color* ] [ -bg *color* ] [ -bgalt *color* ] [ -hlfg *color* ] [ -hlbg *color* ] [ -key *combo* ] [
+-dkey *comdo* ] [ -rkey *comdo* ] [ -terminal *terminal* ] [ -location *position* ] [ -hmode ] [
+-fixed-num-lines ] [ -padding *padding* ] [ -opacity *opacity%* ] [ -display *display* ] [ -bc
+*color* ] [ -bw *width* ] [ -dmenu [ -p *prompt* ] ] [ -ssh-client *client* ] [ -ssh-command
+*command* ] [ -now ] [ -rnow ] [ -snow ] [ -version ] [ -help] [ -dump-xresources ] [
+-disable-history ] [ -levenshtein-sort ] [ -case-sensitive ] [ -show *mode* ] [ -switcher *mode1,
+mode2* ] [ -e *message*] [ -sep *separator* ] [ -eh *element height* ] [ -l *selected line* ] [
+-run-list-command *cmd* ]
 
 ## DESCRIPTION
 
@@ -129,8 +130,14 @@ The default key combinations are:
 
   Set the background text color (X11 named color or hex #rrggbb) for the menu (default: #222222).
 
-      rofi -fg "#222222"
+      rofi -bg "#222222"
 
+`-bg`
+
+  Set the background text color  for alternating rows (X11 named color or hex #rrggbb) for the menu
+  (default: #222222).
+
+      rofi -bgalt "#222222"
 
 `-bc`
 
