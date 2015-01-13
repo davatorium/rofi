@@ -1409,43 +1409,15 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     // Get active monitor size.
     monitor_active ( &mon );
 
-    menu_calculate_window_and_element_width ( &state, &mon );
-    // search text input
-    // we need this at this point so we can get height.
 
+    // we need this at this point so we can get height.
     state.case_indicator = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
                                             ( config.padding ), ( config.padding ),
                                             0, 0,
                                             NORMAL, "*" );
 
-    state.prompt_tb = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                                       ( config.padding ),
-                                       ( config.padding ),
-                                       0, 0, NORMAL, prompt );
-
-    state.text = textbox_create ( main_window, TB_AUTOHEIGHT | TB_EDITABLE,
-                                  ( config.padding ) + textbox_get_width ( state.prompt_tb ),
-                                  ( config.padding ),
-                                  ( ( config.hmode == TRUE ) ?
-                                    state.element_width : ( state.w - ( 2 * ( config.padding ) ) ) )
-                                  - textbox_get_width ( state.prompt_tb )
-                                  - textbox_get_width ( state.case_indicator ), 0,
-                                  NORMAL,
-                                  ( input != NULL ) ? *input : "" );
-    // Move indicator to end.
-    textbox_move ( state.case_indicator,
-                   state.w - ( 2 * ( config.padding ) ) - textbox_get_width ( state.case_indicator ),
-                   0 );
-
-    textbox_show ( state.text );
-    textbox_show ( state.prompt_tb );
-
-    if ( config.case_sensitive ) {
-        textbox_show ( state.case_indicator );
-    }
-
     // Height of a row.
-    int line_height = textbox_get_height ( state.text );
+    int line_height = textbox_get_height ( state.case_indicator );
     if ( config.menu_lines == 0 ) {
         // Autosize it.
         int h = mon.h - config.padding * 2 - LINE_MARGIN - config.menu_bw * 2;
@@ -1456,10 +1428,39 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         state.menu_lines = config.menu_lines;
     }
     menu_calculate_rows_columns ( &state );
-
-
-
     menu_calculate_window_and_element_width ( &state, &mon );
+
+    // Prompt box.
+    state.prompt_tb = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+                                       ( config.padding ),
+                                       ( config.padding ),
+                                       0, 0, NORMAL, prompt );
+    // Entry box
+    int entrybox_width = (
+        ( config.hmode == TRUE ) ? state.element_width : ( state.w - ( 2 * ( config.padding ) ) ) )
+                         - textbox_get_width ( state.prompt_tb )
+                         - textbox_get_width ( state.case_indicator );
+
+    state.text = textbox_create ( main_window, TB_AUTOHEIGHT | TB_EDITABLE,
+                                  ( config.padding ) + textbox_get_width ( state.prompt_tb ),
+                                  ( config.padding ),
+                                  entrybox_width, 0,
+                                  NORMAL,
+                                  ( input != NULL ) ? *input : "" );
+    // Move indicator to end.
+    textbox_move ( state.case_indicator,
+                   config.padding + textbox_get_width ( state.prompt_tb ) + entrybox_width,
+                   0 );
+
+    textbox_show ( state.text );
+    textbox_show ( state.prompt_tb );
+
+    if ( config.case_sensitive ) {
+        textbox_show ( state.case_indicator );
+    }
+
+
+
 
     int element_height = line_height * config.element_height;
     // filtered list display
