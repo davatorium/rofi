@@ -1200,7 +1200,7 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
 }
 
 static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, void *mmc_data,
-                            int sorting,  int case_sensitive )
+                            int sorting, int case_sensitive )
 {
     unsigned int i, j = 0;
     if ( strlen ( state->text->text ) > 0 ) {
@@ -1419,21 +1419,23 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                             NORMAL, "*" );
 
     state.prompt_tb = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                                       ( config.padding ) + textbox_get_width ( state.case_indicator ),
+                                       ( config.padding ),
                                        ( config.padding ),
                                        0, 0, NORMAL, prompt );
 
     state.text = textbox_create ( main_window, TB_AUTOHEIGHT | TB_EDITABLE,
-                                  ( config.padding ) + textbox_get_width ( state.prompt_tb )
-                                  + textbox_get_width ( state.case_indicator ),
+                                  ( config.padding ) + textbox_get_width ( state.prompt_tb ),
                                   ( config.padding ),
                                   ( ( config.hmode == TRUE ) ?
                                     state.element_width : ( state.w - ( 2 * ( config.padding ) ) ) )
                                   - textbox_get_width ( state.prompt_tb )
-                                  - textbox_get_width ( state.case_indicator ), 1,
+                                  - textbox_get_width ( state.case_indicator ), 0,
                                   NORMAL,
                                   ( input != NULL ) ? *input : "" );
-
+    // Move indicator to end.
+    textbox_move ( state.case_indicator,
+                   state.w - ( 2 * ( config.padding ) ) - textbox_get_width ( state.case_indicator ),
+                   0 );
 
     textbox_show ( state.text );
     textbox_show ( state.prompt_tb );
@@ -1635,14 +1637,15 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                 }
                 // Toggle case sensitivity.
                 else if ( key == XK_grave ) {
-                    config.case_sensitive = !config.case_sensitive;
+                    config.case_sensitive    = !config.case_sensitive;
                     *( state.selected_line ) = 0;
-                    state.refilter = TRUE;
-                    state.update = TRUE;
+                    state.refilter           = TRUE;
+                    state.update             = TRUE;
                     if ( config.case_sensitive ) {
-                      textbox_show ( state.case_indicator );
-                    } else {
-                      textbox_hide ( state.case_indicator );
+                        textbox_show ( state.case_indicator );
+                    }
+                    else {
+                        textbox_hide ( state.case_indicator );
                     }
                 }
                 // Switcher short-cut

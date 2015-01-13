@@ -124,7 +124,8 @@ char *token_collate_key ( const char *token, int case_sensitive )
 
     if ( case_sensitive ) {
         tmp = g_strdup ( token );
-    } else {
+    }
+    else {
         tmp = g_utf8_casefold ( token, -1 );
     }
 
@@ -273,7 +274,7 @@ int token_match ( char **tokens, const char *input, int case_sensitive,
                   __attribute__( ( unused ) ) int index,
                   __attribute__( ( unused ) ) void *data )
 {
-    int  match = 1;
+    int  match  = 1;
     char *compk = token_collate_key ( input, case_sensitive );
 
     // Do a tokenized match.
