@@ -183,7 +183,7 @@ static char ** get_ssh ( unsigned int *length )
 
                 // Add this host name to the list.
                 retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-                retv[( *length )]     = strdup ( token );
+                retv[( *length )]     = g_strdup ( token );
                 retv[( *length ) + 1] = NULL;
                 ( *length )++;
             }
