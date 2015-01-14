@@ -166,7 +166,7 @@ static char ** get_ssh ( unsigned int *length )
                     continue;
                 }
 
-                // Do we have seen this host name already?
+                // Is this host name already in the history file?
                 // This is a nice little penalty, but doable? time will tell.
                 // given num_favorites is max 25.
                 int found = 0;
