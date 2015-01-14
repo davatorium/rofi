@@ -993,7 +993,7 @@ static void menu_calculate_rows_columns ( MenuState *state )
 }
 
 /**
- *
+ * @returns The width of the window.
  */
 static int window_get_width ( )
 {
