@@ -957,11 +957,11 @@ static void calculate_window_position ( MenuState *state, const workarea *mon )
  * @returns Number of lines contained in the menu.
  */
 static int menu_num_lines ( int line_height ) {
-    workarea mon;
-    monitor_active ( &mon );
-
     int lines = config.menu_lines;
     if ( lines == 0 ) {
+        workarea mon;
+        monitor_active ( &mon );
+
         // Autosize it.
         int h = mon.h - config.padding * 2 - LINE_MARGIN - config.menu_bw * 2;
         int r = ( h ) / ( line_height * config.element_height ) - 1 - config.sidebar_mode;
@@ -982,17 +982,17 @@ static int menu_num_lines ( int line_height ) {
  */
 static int menu_rows_per_page ( int line_height, int num_elements )
 {
+    if ( config.hmode == TRUE ) {
+        return 1;
+    }
+
     int cols = config.menu_columns;
     int rpp = menu_num_lines ( line_height );
 
     if ( config.fixed_num_lines == FALSE ) {
         rpp = MIN ( rpp, (unsigned int) (
-                    ( num_elements + ( cols - num_elements % cols ) % cols ) / cols
-                    ) );
-    }
-
-    if ( config.hmode == TRUE ) {
-        rpp = 1;
+                    ( num_elements
+                      + ( cols - num_elements % cols ) % cols ) / cols ) );
     }
 
     return rpp;
