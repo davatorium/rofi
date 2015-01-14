@@ -708,19 +708,19 @@ static int window_match ( char **tokens, __attribute__( ( unused ) ) const char 
             }
 
             if ( !test && c->class[0] != '\0' ) {
-                char *key = token_collate_key ( c->title, case_sensitive );
+                char *key = token_collate_key ( c->class, case_sensitive );
                 test = ( strstr ( key, tokens[j] ) != NULL );
                 g_free ( key );
             }
 
             if ( !test && c->role[0] != '\0' ) {
-                char *key = token_collate_key ( c->title, case_sensitive );
+                char *key = token_collate_key ( c->role, case_sensitive );
                 test = ( strstr ( key, tokens[j] ) != NULL );
                 g_free ( key );
             }
 
             if ( !test && c->name[0] != '\0' ) {
-                char *key = token_collate_key ( c->title, case_sensitive );
+                char *key = token_collate_key ( c->name, case_sensitive );
                 test = ( strstr ( key, tokens[j] ) != NULL );
                 g_free ( key );
             }
