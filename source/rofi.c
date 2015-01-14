@@ -973,6 +973,7 @@ static int menu_num_lines ( int line_height ) {
 
 /**
  * @param line_height The uniform height of a line of text.
+ * @param num_elements Total number of elements to match against.
  *
  * Calculate the number or rows. We do this by getting the num_elements rounded up
  * to X columns then dividing by columns.
@@ -998,6 +999,56 @@ static int menu_rows_per_page ( int line_height, int num_elements )
 }
 
 /**
+ * @param line_height The uniform height of a line of text.
+ * @param num_elements Total number of elements to match against.
+ *
+ * @returns The number of elements per page.
+ */
+static int menu_elements_per_page ( int line_height, int num_elements )
+{
+    int cols = config.menu_columns;
+    int rows = menu_num_lines ( line_height );
+    int size = MIN ( rows * cols, num_elements );
+
+    if ( config.fixed_num_lines == TRUE ) {
+        size = rows * cols;
+        if ( num_elements < size ) {
+            int rpp = menu_rows_per_page ( line_height, num_elements );
+            cols = ( num_elements + ( rpp - num_elements % rpp ) % rpp ) / rpp;
+            size = rows * cols;
+        }
+    }
+
+    return size;
+}
+
+/**
+ * @param line_height The uniform height of a line of text.
+ * @param num_elements Total number of elements to match against.
+ *
+ * @returns The number of columns per page.
+ */
+static int menu_columns_per_page ( int line_height, int num_elements )
+{
+    int cols = config.menu_columns;
+    int rows = menu_num_lines ( line_height );
+
+    if ( config.fixed_num_lines == TRUE ) {
+        // If it would fit in one column, only use one column.
+        if ( num_elements < rows * cols ) {
+            int rpp = menu_rows_per_page ( line_height, num_elements );
+            cols = ( num_elements + ( rpp - num_elements % rpp ) % rpp ) / rpp;
+        }
+        // Sanitize.
+        if ( cols == 0 ) {
+            cols = 1;
+        }
+    }
+
+    return cols;
+}
+
+/**
  * @param state Internal state of the menu.
  * @param num_lines the number of entries passed to the menu.
  *
@@ -1007,23 +1058,9 @@ static int menu_rows_per_page ( int line_height, int num_elements )
 static void menu_calculate_rows_columns ( MenuState *state, int line_height )
 {
     state->menu_lines   = menu_num_lines ( line_height );
-    state->columns      = config.menu_columns;
-    state->max_elements = MIN ( state->menu_lines * state->columns, state->num_lines );
+    state->columns      = menu_columns_per_page ( line_height, state->num_lines );
+    state->max_elements = menu_elements_per_page ( line_height, state->num_lines );
     state->max_rows     = menu_rows_per_page ( line_height, state->num_lines );
-
-    if ( config.fixed_num_lines == TRUE ) {
-        state->max_elements = state->menu_lines * state->columns;
-        // If it would fit in one column, only use one column.
-        if ( state->num_lines < state->max_elements ) {
-            state->columns = ( state->num_lines + ( state->max_rows - state->num_lines % state->max_rows ) %
-                               state->max_rows ) / state->max_rows;
-            state->max_elements = state->menu_lines * state->columns;
-        }
-        // Sanitize.
-        if ( state->columns == 0 ) {
-            state->columns = 1;
-        }
-    }
 }
 
 /**
