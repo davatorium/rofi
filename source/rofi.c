@@ -951,6 +951,51 @@ static void calculate_window_position ( MenuState *state, const workarea *mon )
     state->y += config.y_offset;
 }
 
+/**
+ * @param line_height The uniform height of a line of text.
+ *
+ * @returns Number of lines contained in the menu.
+ */
+static int menu_num_lines ( int line_height ) {
+    workarea mon;
+    monitor_active ( &mon );
+
+    int lines = config.menu_lines;
+    if ( lines == 0 ) {
+        // Autosize it.
+        int h = mon.h - config.padding * 2 - LINE_MARGIN - config.menu_bw * 2;
+        int r = ( h ) / ( line_height * config.element_height ) - 1 - config.sidebar_mode;
+        lines = r;
+    }
+
+    return lines;
+}
+
+/**
+ * @param line_height The uniform height of a line of text.
+ *
+ * Calculate the number or rows. We do this by getting the num_elements rounded up
+ * to X columns then dividing by columns.
+ *
+ * @returns The number of visible rows of the menu.
+ */
+static int menu_rows_per_page ( int line_height, int num_elements )
+{
+    int cols = config.menu_columns;
+    int rpp = menu_num_lines ( line_height );
+
+    if ( config.fixed_num_lines == FALSE ) {
+        rpp = MIN ( rpp, (unsigned int) (
+                    ( num_elements + ( cols - num_elements % cols ) % cols ) / cols
+                    ) );
+    }
+
+    if ( config.hmode == TRUE ) {
+        rpp = 1;
+    }
+
+    return rpp;
+}
 
 /**
  * @param state Internal state of the menu.
@@ -959,22 +1004,15 @@ static void calculate_window_position ( MenuState *state, const workarea *mon )
  * Calculate the number of rows, columns and elements to display based on the
  * configuration and available data.
  */
-static void menu_calculate_rows_columns ( MenuState *state )
+static void menu_calculate_rows_columns ( MenuState *state, int line_height )
 {
+    state->menu_lines   = menu_num_lines ( line_height );
     state->columns      = config.menu_columns;
     state->max_elements = MIN ( state->menu_lines * state->columns, state->num_lines );
-
-    // Calculate the number or rows. We do this by getting the num_lines rounded up to X columns
-    // (num elements is better name) then dividing by columns.
-    state->max_rows = MIN ( state->menu_lines,
-                            (unsigned int) (
-                                ( state->num_lines + ( state->columns - state->num_lines % state->columns ) %
-                                  state->columns ) / ( state->columns )
-                                ) );
+    state->max_rows     = menu_rows_per_page ( line_height, state->num_lines );
 
     if ( config.fixed_num_lines == TRUE ) {
         state->max_elements = state->menu_lines * state->columns;
-        state->max_rows     = state->menu_lines;
         // If it would fit in one column, only use one column.
         if ( state->num_lines < state->max_elements ) {
             state->columns = ( state->num_lines + ( state->max_rows - state->num_lines % state->max_rows ) %
@@ -985,10 +1023,6 @@ static void menu_calculate_rows_columns ( MenuState *state )
         if ( state->columns == 0 ) {
             state->columns = 1;
         }
-    }
-    // More hacks.
-    if ( config.hmode == TRUE ) {
-        state->max_rows = 1;
     }
 }
 
@@ -1432,16 +1466,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     // Height of a row.
     int line_height = textbox_get_height ( state.case_indicator );
-    if ( config.menu_lines == 0 ) {
-        // Autosize it.
-        int h = mon.h - config.padding * 2 - LINE_MARGIN - config.menu_bw * 2;
-        int r = ( h ) / ( line_height * config.element_height ) - 1 - config.sidebar_mode;
-        state.menu_lines = r;
-    }
-    else {
-        state.menu_lines = config.menu_lines;
-    }
-    menu_calculate_rows_columns ( &state );
+    menu_calculate_rows_columns ( &state, line_height );
     menu_calculate_window_and_element_width ( &state, &mon );
 
     // Prompt box.
