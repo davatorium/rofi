@@ -49,6 +49,10 @@
 
 #define SSH_CACHE_FILE    "rofi-2.sshcache"
 
+// Used in get_ssh() when splitting lines from the user's
+// SSH config file into tokens.
+#define SSH_TOKEN_DELIM   "= \t\r\n"
+
 static inline int execshssh ( const char *host )
 {
     /**
@@ -137,52 +141,49 @@ static char ** get_ssh ( unsigned int *length )
 
     if ( fd != NULL ) {
         char buffer[1024];
-        while ( fgets ( buffer, 1024, fd ) != NULL ) {
-            char *token = &buffer[0];
-            // Skip initial spaces.
-            while ( ( *token ) != '\n' && ( *token ) != '\0' && isspace ( *token ) ) {
-                token++;
-            }
-            // Skip empty lines.
-            if ( ( *token ) == '\n' || ( *token ) == '\0' ) {
+        while ( fgets ( buffer, sizeof( buffer ), fd ) ) {
+            // Each line is either empty, a comment line starting with a '#'
+            // character or of the form "keyword [=] arguments", where there may
+            // be multiple (possibly quoted) arguments separated by whitespace.
+            // The keyword is separated from its arguments by whitespace OR by
+            // optional whitespace and a '=' character.
+            char *token = strtok( buffer, SSH_TOKEN_DELIM );
+
+            // Skip empty lines and comment lines. Also skip lines where the
+            // keyword is not "Host".
+            if ( ! token || *token == '#' || strcasecmp( token, "Host" ) ) {
                 continue;
             }
-            // Check for "Host[::space::]"
-            if ( strncasecmp ( token, "Host", 4 ) == 0 && isspace ( token[4] ) ) {
-                int start = 0, stop = 0;
-                buffer[strlen ( buffer ) - 1] = '\0';
 
-                for ( start = 4; isspace ( buffer[start] ); start++ ) {
-                    ;
+            // Now we know that this is a "Host" line.
+            // The "Host" keyword is followed by one more host names separated
+            // by whitespace; while host names may be quoted with double quotes
+            // to represent host names containing spaces, we don't support this
+            // (how many host names contain spaces?).
+            while ( ( token = strtok( NULL, SSH_TOKEN_DELIM ) ) ) {
+                // We do not want to show wildcard entries, as you cannot ssh to them.
+                if ( *token == '!' || strpbrk( token, "*?" ) ) {
+                    continue;
                 }
 
-                for ( stop = start; !isspace ( buffer[stop] ); stop++ ) {
-                    // We do not want to show wildcard entries, as you cannot ssh to them.
-                    if (  buffer[stop] == '?' || buffer[stop] == '*' ) {
-                        stop = start;
+                // Do we have seen this host name already?
+                // This is a nice little penalty, but doable? time will tell.
+                // given num_favorites is max 25.
+                int found = 0;
+                for ( unsigned int j = 0; j < num_favorites; j++ ) {
+                    if ( ! strcasecmp ( token, retv[j] ) ) {
+                        found = 1;
                         break;
                     }
                 }
 
-                int found = 0;
-                if ( start == stop ) {
+                if ( found ) {
                     continue;
                 }
 
-                // This is a nice little penalty, but doable? time will tell.
-                // given num_favorites is max 25.
-                for ( unsigned int j = 0; found == 0 && j < num_favorites; j++ ) {
-                    if ( strncasecmp ( &buffer[start], retv[j], stop - start ) == 0 ) {
-                        found = 1;
-                    }
-                }
-
-                if ( found == 1 ) {
-                    continue;
-                }
-
+                // Add this host name to the list.
                 retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-                retv[( *length )]     = strndup ( &buffer[start], stop - start );
+                retv[( *length )]     = strdup ( token );
                 retv[( *length ) + 1] = NULL;
                 ( *length )++;
             }
