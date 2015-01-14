@@ -1049,21 +1049,6 @@ static int menu_columns_per_page ( int line_height, int num_elements )
 }
 
 /**
- * @param state Internal state of the menu.
- * @param num_lines the number of entries passed to the menu.
- *
- * Calculate the number of rows, columns and elements to display based on the
- * configuration and available data.
- */
-static void menu_calculate_rows_columns ( MenuState *state, int line_height )
-{
-    state->menu_lines   = menu_num_lines ( line_height );
-    state->columns      = menu_columns_per_page ( line_height, state->num_lines );
-    state->max_elements = menu_elements_per_page ( line_height, state->num_lines );
-    state->max_rows     = menu_rows_per_page ( line_height, state->num_lines );
-}
-
-/**
  * @returns The width of the window.
  */
 static int window_get_width ( )
@@ -1090,24 +1075,33 @@ static int window_get_width ( )
 }
 
 /**
- * @param state Internal state of the menu.
- * @param mon the dimensions of the monitor rofi is displayed on.
+ * @param line_height The uniform height of a line of text.
+ * @param num_elements Total number of elements to match against.
  *
- * Calculate the width of the window and the width of an element.
+ * Assuming all element are constrained to the same width, this function
+ * returns this common width.
+ *
+ * @returns The uniform width of the elements.
  */
-static void menu_calculate_window_and_element_width ( MenuState *state, workarea *mon )
+static int menu_element_width ( int line_height, int num_elements )
 {
-    state->w = window_get_width ( );
+    int    w = window_get_width ( );
+    int cols = menu_columns_per_page ( line_height, num_elements );
+    int elems_per_page = menu_elements_per_page ( line_height, num_elements );
+    int elem_width = 0;
 
-    if ( state->columns > 0 ) {
-        state->element_width = state->w - ( 2 * ( config.padding ) );
-        // Divide by the # columns
-        state->element_width = ( state->element_width - ( state->columns - 1 ) * LINE_MARGIN ) / state->columns;
+    if ( cols > 0 ) {
+        elem_width = w - ( 2 * ( config.padding ) );
+        elem_width -= ( cols - 1 ) * LINE_MARGIN;
+        elem_width /= cols;
         if ( config.hmode == TRUE ) {
-            state->element_width = ( state->w - ( 2 * ( config.padding ) ) - state->max_elements * LINE_MARGIN ) / (
-                state->max_elements + 1 );
+            elem_width =
+                ( w - ( 2 * ( config.padding ) ) - elems_per_page * LINE_MARGIN )
+                / ( elems_per_page + 1 );
         }
     }
+
+    return elem_width;
 }
 
 /**
@@ -1503,8 +1497,12 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     // Height of a row.
     int line_height = textbox_get_height ( state.case_indicator );
-    menu_calculate_rows_columns ( &state, line_height );
-    menu_calculate_window_and_element_width ( &state, &mon );
+    state.w             = window_get_width ( );
+    state.menu_lines    = menu_num_lines ( line_height );
+    state.columns       = menu_columns_per_page ( line_height, state.num_lines );
+    state.max_elements  = menu_elements_per_page ( line_height, state.num_lines );
+    state.max_rows      = menu_rows_per_page ( line_height, state.num_lines );
+    state.element_width = menu_element_width ( line_height, state.num_lines );
 
     // Prompt box.
     state.prompt_tb = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
@@ -1832,10 +1830,7 @@ void error_dialog ( char *msg )
         main_window = create_window ( display );
     }
 
-
-    menu_calculate_window_and_element_width ( &state, &mon );
-    state.max_elements = 0;
-
+    state.w = window_get_width ( );
     state.text = textbox_create ( main_window, TB_AUTOHEIGHT,
                                   ( config.padding ),
                                   ( config.padding ),
