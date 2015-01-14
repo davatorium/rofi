@@ -993,6 +993,32 @@ static void menu_calculate_rows_columns ( MenuState *state )
 }
 
 /**
+ *
+ */
+static int window_get_width ( )
+{
+    int width = 0;
+    workarea mon;
+
+    monitor_active ( &mon );
+
+    if ( config.menu_width < 0 ) {
+        double fw = textbox_get_estimated_char_width ( );
+        width += -( fw * config.menu_width );
+        width += 2 * config.padding + 4; // 4 = 2*SIDE_MARGIN
+    }
+    else{
+        // Calculate as float to stop silly, big rounding down errors.
+        width = config.menu_width < 101 ? ( mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
+    }
+
+    // Compensate for border width.
+    width -= config.menu_bw * 2;
+
+    return width;
+}
+
+/**
  * @param state Internal state of the menu.
  * @param mon the dimensions of the monitor rofi is displayed on.
  *
@@ -1000,19 +1026,7 @@ static void menu_calculate_rows_columns ( MenuState *state )
  */
 static void menu_calculate_window_and_element_width ( MenuState *state, workarea *mon )
 {
-    if ( config.menu_width < 0 ) {
-        double fw = textbox_get_estimated_char_width ( );
-        state->w  = -( fw * config.menu_width );
-        state->w += 2 * config.padding + 4; // 4 = 2*SIDE_MARGIN
-        // Compensate for border width.
-        state->w -= config.menu_bw * 2;
-    }
-    else{
-        // Calculate as float to stop silly, big rounding down errors.
-        state->w = config.menu_width < 101 ? ( mon->w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
-        // Compensate for border width.
-        state->w -= config.menu_bw * 2;
-    }
+    state->w = window_get_width ( );
 
     if ( state->columns > 0 ) {
         state->element_width = state->w - ( 2 * ( config.padding ) );
