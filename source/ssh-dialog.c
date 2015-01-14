@@ -151,7 +151,7 @@ static char ** get_ssh ( unsigned int *length )
 
             // Skip empty lines and comment lines. Also skip lines where the
             // keyword is not "Host".
-            if ( ! token || *token == '#' || strcasecmp( token, "Host" ) ) {
+            if ( ! token || *token == '#' || g_ascii_strcasecmp( token, "Host" ) ) {
                 continue;
             }
 
@@ -171,7 +171,7 @@ static char ** get_ssh ( unsigned int *length )
                 // given num_favorites is max 25.
                 int found = 0;
                 for ( unsigned int j = 0; j < num_favorites; j++ ) {
-                    if ( ! strcasecmp ( token, retv[j] ) ) {
+                    if ( ! g_ascii_strcasecmp ( token, retv[j] ) ) {
                         found = 1;
                         break;
                     }
