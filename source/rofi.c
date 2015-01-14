@@ -1026,6 +1026,44 @@ static void menu_calculate_window_and_element_width ( MenuState *state, workarea
 }
 
 /**
+ * Nav helper functions, to avoid duplicate code.
+ */
+inline static void menu_nav_right ( MenuState *state )
+{
+    state->selected += state->max_rows;
+    if ( state->selected >= state->filtered_lines ) {
+        state->selected = state->filtered_lines - 1;
+    }
+    state->update = TRUE;
+}
+inline static void menu_nav_left ( MenuState *state )
+{
+    if ( state->selected < state->max_rows ) {
+        state->selected = 0;
+    }
+    else{
+        state->selected -= state->max_rows;
+    }
+    state->update = TRUE;
+}
+inline static void menu_nav_up ( MenuState *state )
+{
+    if ( state->selected == 0 ) {
+        state->selected = state->filtered_lines;
+    }
+
+    if ( state->selected > 0 ) {
+        state->selected--;
+    }
+    state->update = TRUE;
+}
+inline static void menu_nav_down ( MenuState *state )
+{
+    state->selected = state->selected < state->filtered_lines - 1 ? MIN (
+        state->filtered_lines - 1, state->selected + 1 ) : 0;
+    state->update = TRUE;
+}
+/**
  * @param state Internal state of the menu.
  * @param key the Key being pressed.
  * @param modstate the modifier state.
@@ -1046,14 +1084,7 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
     // Up, Ctrl-p or Shift-Tab
     else if ( key == XK_Up || ( key == XK_Tab && modstate & ShiftMask ) ||
               ( key == XK_p && modstate & ControlMask )  ) {
-        if ( state->selected == 0 ) {
-            state->selected = state->filtered_lines;
-        }
-
-        if ( state->selected > 0 ) {
-            state->selected--;
-        }
-        state->update = TRUE;
+        menu_nav_up ( state );
     }
     else if ( key == XK_Tab ) {
         if ( state->filtered_lines == 1 ) {
@@ -1084,25 +1115,13 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
     // Down, Ctrl-n
     else if ( key == XK_Down ||
               ( key == XK_n && ( modstate & ControlMask ) ) ) {
-        state->selected = state->selected < state->filtered_lines - 1 ? MIN (
-            state->filtered_lines - 1, state->selected + 1 ) : 0;
-        state->update = TRUE;
+        menu_nav_down ( state );
     }
     else if ( key == XK_Page_Up && ( modstate & ControlMask ) ) {
-        if ( state->selected < state->max_rows ) {
-            state->selected = 0;
-        }
-        else{
-            state->selected -= state->max_rows;
-        }
-        state->update = TRUE;
+        menu_nav_left ( state );
     }
     else if (  key == XK_Page_Down && ( modstate & ControlMask ) ) {
-        state->selected += state->max_rows;
-        if ( state->selected >= state->filtered_lines ) {
-            state->selected = state->filtered_lines - 1;
-        }
-        state->update = TRUE;
+        menu_nav_right ( state );
     }
     else if ( key == XK_Page_Up ) {
         if ( state->selected < state->max_elements ) {
@@ -1150,6 +1169,22 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
  */
 static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
 {
+    // Scroll event
+    if ( xbe->button > 3 ) {
+        if ( xbe->button == 4 ) {
+            menu_nav_up ( state );
+        }
+        else if ( xbe->button == 5 ) {
+            menu_nav_down ( state );
+        }
+        else if ( xbe->button == 6 ) {
+            menu_nav_left ( state );
+        }
+        else if ( xbe->button == 7 ) {
+            menu_nav_right ( state );
+        }
+        return;
+    }
     if ( xbe->window == state->arrowbox_top->window ) {
         // Page up.
         if ( state->selected < state->max_rows ) {

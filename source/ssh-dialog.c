@@ -51,7 +51,7 @@
 
 // Used in get_ssh() when splitting lines from the user's
 // SSH config file into tokens.
-#define SSH_TOKEN_DELIM   "= \t\r\n"
+#define SSH_TOKEN_DELIM    "= \t\r\n"
 
 static inline int execshssh ( const char *host )
 {
@@ -141,17 +141,17 @@ static char ** get_ssh ( unsigned int *length )
 
     if ( fd != NULL ) {
         char buffer[1024];
-        while ( fgets ( buffer, sizeof( buffer ), fd ) ) {
+        while ( fgets ( buffer, sizeof ( buffer ), fd ) ) {
             // Each line is either empty, a comment line starting with a '#'
             // character or of the form "keyword [=] arguments", where there may
             // be multiple (possibly quoted) arguments separated by whitespace.
             // The keyword is separated from its arguments by whitespace OR by
             // optional whitespace and a '=' character.
-            char *token = strtok( buffer, SSH_TOKEN_DELIM );
+            char *token = strtok ( buffer, SSH_TOKEN_DELIM );
 
             // Skip empty lines and comment lines. Also skip lines where the
             // keyword is not "Host".
-            if ( ! token || *token == '#' || g_ascii_strcasecmp( token, "Host" ) ) {
+            if ( !token || *token == '#' || g_ascii_strcasecmp ( token, "Host" ) ) {
                 continue;
             }
 
@@ -160,9 +160,9 @@ static char ** get_ssh ( unsigned int *length )
             // by whitespace; while host names may be quoted with double quotes
             // to represent host names containing spaces, we don't support this
             // (how many host names contain spaces?).
-            while ( ( token = strtok( NULL, SSH_TOKEN_DELIM ) ) ) {
+            while ( ( token = strtok ( NULL, SSH_TOKEN_DELIM ) ) ) {
                 // We do not want to show wildcard entries, as you cannot ssh to them.
-                if ( *token == '!' || strpbrk( token, "*?" ) ) {
+                if ( *token == '!' || strpbrk ( token, "*?" ) ) {
                     continue;
                 }
 
@@ -171,7 +171,7 @@ static char ** get_ssh ( unsigned int *length )
                 // given num_favorites is max 25.
                 int found = 0;
                 for ( unsigned int j = 0; j < num_favorites; j++ ) {
-                    if ( ! g_ascii_strcasecmp ( token, retv[j] ) ) {
+                    if ( !g_ascii_strcasecmp ( token, retv[j] ) ) {
                         found = 1;
                         break;
                     }
