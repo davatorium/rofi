@@ -45,12 +45,12 @@ static gboolean helper_eval_cb ( const GMatchInfo *info,
                                  GString          *res,
                                  gpointer data )
 {
-    gchar *match, *r;
+    gchar *match;
     // Get the match
     match = g_match_info_fetch ( info, 0 );
     if ( match != NULL ) {
         // Lookup the match, so we can replace it.
-        r = g_hash_table_lookup ( (GHashTable *) data, match );
+        gchar *r = g_hash_table_lookup ( (GHashTable *) data, match );
         if ( r != NULL ) {
             // Append the replacement to the string.
             g_string_append ( res, r );

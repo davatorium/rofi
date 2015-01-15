@@ -293,8 +293,7 @@ int winlist_find ( winlist *l, Window w )
 {
 // iterate backwards. theory is: windows most often accessed will be
 // nearer the end. testing with kcachegrind seems to support this...
-    int    i;
-    Window o = 0;
+    int i;
 
     for ( i = ( l->len - 1 ); i >= 0; i-- ) {
         if ( l->array[i] == w ) {
@@ -1272,12 +1271,12 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
 static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, void *mmc_data,
                             int sorting, int case_sensitive )
 {
-    unsigned int i, j = 0;
     if ( strlen ( state->text->text ) > 0 ) {
-        char **tokens = tokenize ( state->text->text, case_sensitive );
+        unsigned int j        = 0;
+        char         **tokens = tokenize ( state->text->text, case_sensitive );
 
         // input changed
-        for ( i = 0; i < state->num_lines; i++ ) {
+        for ( unsigned int i = 0; i < state->num_lines; i++ ) {
             int match = mmc ( tokens, lines[i], case_sensitive, i, mmc_data );
 
             // If each token was matched, add it to list.
@@ -1303,10 +1302,10 @@ static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, v
             qsort_r ( state->line_map, j, sizeof ( int ), lev_sort, state->distance );
         }
         // Update the filtered list.
-        for ( i = 0; i < j; i++ ) {
+        for ( unsigned int i = 0; i < j; i++ ) {
             state->filtered[i] = lines[state->line_map[i]];
         }
-        for ( i = j; i < state->num_lines; i++ ) {
+        for ( unsigned int i = j; i < state->num_lines; i++ ) {
             state->filtered[i] = NULL;
         }
 
@@ -1315,7 +1314,7 @@ static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, v
         g_strfreev ( tokens );
     }
     else{
-        for ( i = 0; i < state->num_lines; i++ ) {
+        for ( unsigned int i = 0; i < state->num_lines; i++ ) {
             state->filtered[i] = lines[i];
             state->line_map[i] = i;
         }
