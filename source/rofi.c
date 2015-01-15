@@ -1028,26 +1028,55 @@ static void menu_calculate_window_and_element_width ( MenuState *state, workarea
 /**
  * Nav helper functions, to avoid duplicate code.
  */
+/**
+ * @param state The current MenuState
+ *
+ * Move the selection one column to the right.
+ * - No wrap around.
+ * - Do not move to top row when at start.
+ */
 inline static void menu_nav_right ( MenuState *state )
 {
-    state->selected += state->max_rows;
-    if ( state->selected >= state->filtered_lines ) {
-        state->selected = state->filtered_lines - 1;
+    if ( ( state->selected + state->max_rows ) < state->filtered_lines ) {
+        state->selected += state->max_rows;
+        state->update    = TRUE;
     }
-    state->update = TRUE;
+    else if ( state->selected < ( state->filtered_lines - 1 ) ) {
+        // We do not want to move to last item, UNLESS the last column is only
+        // partially filled, then we still want to move column and select last entry.
+        // First check the column we are currently in.
+        int col = state->selected / state->max_rows;
+        // Check total number of columns.
+        int ncol = state->filtered_lines / state->max_rows;
+        // If there is an extra column, move.
+        if ( col != ncol ) {
+            state->selected = state->filtered_lines - 1;
+            state->update   = TRUE;
+        }
+    }
 }
+/**
+ * @param state The current MenuState
+ *
+ * Move the selection one column to the left.
+ * - No wrap around.
+ */
 inline static void menu_nav_left ( MenuState *state )
 {
-    if ( state->selected < state->max_rows ) {
-        state->selected = 0;
-    }
-    else{
+    if ( state->selected >= state->max_rows ) {
         state->selected -= state->max_rows;
+        state->update    = TRUE;
     }
-    state->update = TRUE;
 }
+/**
+ * @param state The current MenuState
+ *
+ * Move the selection one row up.
+ * - Wrap around.
+ */
 inline static void menu_nav_up ( MenuState *state )
 {
+    // Wrap around.
     if ( state->selected == 0 ) {
         state->selected = state->filtered_lines;
     }
@@ -1057,6 +1086,12 @@ inline static void menu_nav_up ( MenuState *state )
     }
     state->update = TRUE;
 }
+/**
+ * @param state The current MenuState
+ *
+ * Move the selection one row down.
+ * - Wrap around.
+ */
 inline static void menu_nav_down ( MenuState *state )
 {
     state->selected = state->selected < state->filtered_lines - 1 ? MIN (
