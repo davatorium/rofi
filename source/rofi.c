@@ -1216,7 +1216,7 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
             if ( ( xbe->window ) == ( state->boxes[i]->window ) ) {
                 // Only allow items that are visible to be selected.
                 if ( ( state->last_offset + i ) >= state->filtered_lines ) {
-                    continue;
+                    break;
                 }
                 //
                 state->selected = state->last_offset + i;
