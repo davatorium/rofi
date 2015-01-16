@@ -132,3 +132,9 @@ test: ${bin_PROGRAMS}
 	$(top_srcdir)/test/run_test.sh 203 $(top_srcdir)/test/run_dmenu_custom_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
 	$(top_srcdir)/test/run_test.sh 204 $(top_srcdir)/test/run_run_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
 	$(top_srcdir)/test/run_test.sh 205 $(top_srcdir)/test/run_script_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
+
+
+.PHONY: cppcheck
+
+cppcheck: ${rofi_SOURCES}
+	cppcheck --std=c99 --platform=unix64 --enable=all -Uerror_dialog -I ${top_srcdir}/include/  $^
