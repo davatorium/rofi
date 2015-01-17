@@ -138,3 +138,8 @@ test: ${bin_PROGRAMS}
 
 cppcheck: ${rofi_SOURCES}
 	cppcheck --std=c99 --platform=unix64 --enable=all -Uerror_dialog -I ${top_srcdir}/include/  $^
+
+.PHONY: ohcount
+
+ohcount: ${rofi_SOURCES}
+	ohcount -i ${top_srcdir}/source/ 

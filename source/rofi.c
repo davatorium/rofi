@@ -82,17 +82,53 @@ unsigned int NumlockMask  = 0;
 Display      *display     = NULL;
 char         *display_str = NULL;
 
+static int ( *xerror )( Display *, XErrorEvent * );
 
+#define ATOM_ENUM( x )    x
+#define ATOM_CHAR( x )    # x
+
+#define EWMH_ATOMS( X )               \
+    X ( _NET_CLIENT_LIST_STACKING ),  \
+    X ( _NET_NUMBER_OF_DESKTOPS ),    \
+    X ( _NET_CURRENT_DESKTOP ),       \
+    X ( _NET_ACTIVE_WINDOW ),         \
+    X ( _NET_WM_NAME ),               \
+    X ( _NET_WM_STATE ),              \
+    X ( _NET_WM_STATE_SKIP_TASKBAR ), \
+    X ( _NET_WM_STATE_SKIP_PAGER ),   \
+    X ( _NET_WM_STATE_ABOVE ),        \
+    X ( _NET_WM_DESKTOP ),            \
+    X ( I3_SOCKET_PATH ),             \
+    X ( CLIPBOARD ),                  \
+    X ( UTF8_STRING ),                \
+    X ( _NET_WM_WINDOW_OPACITY )
+
+enum { EWMH_ATOMS ( ATOM_ENUM ), NUM_NETATOMS };
+const char *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
+Atom       netatoms[NUM_NETATOMS];
+
+/**
+ * Structure defining a switcher.
+ * It consists of a name, callback and if enabled
+ * a textbox for the sidebar-mode.
+ */
 typedef struct _Switcher
 {
+    // Name (max 31 char long)
     char              name[32];
+    // Switcher callback.
     switcher_callback cb;
+    // Callback data.
     void              *cb_data;
+    // Textbox used in the sidebar-mode.
     textbox           *tb;
 } Switcher;
 
-Switcher     *switchers    = NULL;
+// Array of switchers.
+Switcher     *switchers = NULL;
+// Number of switchers.
 unsigned int num_switchers = 0;
+// Current selected switcher.
 unsigned int curr_switcher = 0;
 
 
@@ -115,8 +151,16 @@ static int switcher_get ( const char *name )
 
 
 #ifdef HAVE_I3_IPC_H
-// Focus window on HAVE_I3_IPC_H window manager.
-static void focus_window_i3 ( const char *socket_path, int id )
+/**
+ * @param socket_path The I3 IPC socket.
+ * @param id          The window to focus on.
+ *
+ * If we want to switch windows in I3, we use I3 IPC mode.
+ * This works more better then sending messages via X11.
+ * Hopefully at some point, I3 gets fixed and this is not needed.
+ * This function takes the path to the i3 IPC socket, and the XID of the window.
+ */
+static void focus_window_i3 ( const char *socket_path, Window id )
 {
     i3_ipc_header_t    head;
     char               command[128];
@@ -192,32 +236,12 @@ void catch_exit ( __attribute__( ( unused ) ) int sig )
 
 
 
-static int ( *xerror )( Display *, XErrorEvent * );
-
-#define ATOM_ENUM( x )    x
-#define ATOM_CHAR( x )    # x
-
-#define EWMH_ATOMS( X )               \
-    X ( _NET_CLIENT_LIST_STACKING ),  \
-    X ( _NET_NUMBER_OF_DESKTOPS ),    \
-    X ( _NET_CURRENT_DESKTOP ),       \
-    X ( _NET_ACTIVE_WINDOW ),         \
-    X ( _NET_WM_NAME ),               \
-    X ( _NET_WM_STATE ),              \
-    X ( _NET_WM_STATE_SKIP_TASKBAR ), \
-    X ( _NET_WM_STATE_SKIP_PAGER ),   \
-    X ( _NET_WM_STATE_ABOVE ),        \
-    X ( _NET_WM_DESKTOP ),            \
-    X ( I3_SOCKET_PATH ),             \
-    X ( CLIPBOARD ),                  \
-    X ( UTF8_STRING ),                \
-    X ( _NET_WM_WINDOW_OPACITY )
-
-enum { EWMH_ATOMS ( ATOM_ENUM ), NUM_NETATOMS };
-const char *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
-Atom       netatoms[NUM_NETATOMS];
-
-// X error handler
+/**
+ * @param d The display on witch the error occurred.
+ * @param ee The XErrorEvent
+ *
+ * X11 Error handler.
+ */
 static int display_oops ( Display *d, XErrorEvent *ee )
 {
     if ( ee->error_code == BadWindow
@@ -336,7 +360,9 @@ KeySym       sshdialog_keysym;
 Window       main_window = None;
 GC           gc          = NULL;
 
-// g_malloc a pixel value for an X named color
+/**
+ * Allocate a pixel value for an X named color
+ */
 static unsigned int color_get ( Display *display, const char *const name )
 {
     int      screen_id = DefaultScreen ( display );
