@@ -12,7 +12,7 @@ rofi \- A window switcher, run dialog and dmenu replacement
 \fIcommand\fP ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help] [ \-dump\-xresources ] [
 \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-show \fImode\fP ] [ \-switcher \fImode1,
 mode2\fP ] [ \-e \fImessage\fP] [ \-sep \fIseparator\fP ] [ \-eh \fIelement height\fP ] [ \-l \fIselected line\fP ] [
-\-run\-list\-command \fIcmd\fP ]
+\-run\-list\-command \fIcmd\fP ] [ \-lazy\-filter\-limit \fIlimit\fP ]
 .SH DESCRIPTION
 .PP
 \fBrofi\fP is an X11 popup window switcher. A list is displayed center\-screen showing open window titles, WM_CLASS, and desktop number.
@@ -332,6 +332,12 @@ To show sidebar use:
     rofi \-rnow \-sidebar\-mode \-lines 0
 .fi
 .RE
+.PP
+\fB\fC\-lazy\-filter\-limit\fR \fIlimit\fP
+.PP
+   The number of entries required for Rofi to go into lazy filter mode.
+   In lazy filter mode, it won't refilter the list on each keypress, but only after rofi been idle
+   for 250ms. Default is 5000 lines, set to 0 to always enable.
 .SS Pattern setting
 .PP
 \fB\fC\-terminal\fR
@@ -539,14 +545,18 @@ Check quotes used on the commandline: e.g. used “ instead of ".
 .SH WEBSITE
 .PP
 \fBrofi\fP website can be found at here
-\[la]https://davedavenport.github.io/rofi/\[ra]
+.UR https://davedavenport.github.io/rofi/
+.UE
 .PP
 \fBrofi\fP bugtracker can be found here
-\[la]https://github.com/DaveDavenport/rofi/issues\[ra]
+.UR https://github.com/DaveDavenport/rofi/issues
+.UE
 .SH AUTHOR
 .PP
 Qball Cow 
-\[la]qball@gmpclient.org\[ra]
+.MT qball@gmpclient.org
+.ME
 .PP
 Original code based on work by: Sean Pringle 
-\[la]sean.pringle@gmail.com\[ra]
+.MT sean.pringle@gmail.com
+.ME

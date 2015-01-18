@@ -113,7 +113,8 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "key",                  { .str  = &config.window_key            }, NULL },
     { xrm_String,  "rkey",                 { .str  = &config.run_key               }, NULL },
     { xrm_String,  "skey",                 { .str  = &config.ssh_key               }, NULL },
-    { xrm_Boolean, "sidebar-mode",         { .num  = &config.sidebar_mode          }, NULL }
+    { xrm_Boolean, "sidebar-mode",         { .num  = &config.sidebar_mode          }, NULL },
+    { xrm_Number,  "lazy-filter-limit",    { .num  = &config.lazy_filter_limit     }, NULL }
 };
 
 

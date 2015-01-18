@@ -108,6 +108,8 @@ Settings config = {
     /** Height of an element in #chars */
     .element_height    =                                   1,
     /** Sidebar mode, show the switchers */
-    .sidebar_mode      = FALSE
+    .sidebar_mode      = FALSE,
+    /** Lazy mode setting */
+    .lazy_filter_limit = 5000
 };
 

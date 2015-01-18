@@ -14,7 +14,7 @@ rofi - A window switcher, run dialog and dmenu replacement
 *command* ] [ -now ] [ -rnow ] [ -snow ] [ -version ] [ -help] [ -dump-xresources ] [
 -disable-history ] [ -levenshtein-sort ] [ -case-sensitive ] [ -show *mode* ] [ -switcher *mode1,
 mode2* ] [ -e *message*] [ -sep *separator* ] [ -eh *element height* ] [ -l *selected line* ] [
--run-list-command *cmd* ]
+-run-list-command *cmd* ] [ -lazy-filter-limit *limit* ]
 
 ## DESCRIPTION
 
@@ -251,6 +251,12 @@ The default key combinations are:
     To show sidebar use:
 
         rofi -rnow -sidebar-mode -lines 0
+
+`-lazy-filter-limit` *limit*
+
+   The number of entries required for Rofi to go into lazy filter mode.
+   In lazy filter mode, it won't refilter the list on each keypress, but only after rofi been idle
+   for 250ms. Default is 5000 lines, set to 0 to always enable.
 
 ### Pattern setting
 

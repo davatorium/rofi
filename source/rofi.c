@@ -1659,11 +1659,10 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         }
 
         state.quit = FALSE;
+        menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
+
+        int x11_fd = ConnectionNumber ( display );
         while ( !state.quit ) {
-            // If something changed, refilter the list. (paste or text entered)
-            if ( state.refilter ) {
-                menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
-            }
             // Update if requested.
             if ( state.update ) {
                 menu_update ( &state );
@@ -1671,6 +1670,34 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
             // Wait for event.
             XEvent ev;
+            // Only use lazy mode above 5000 lines.
+            if ( state.num_lines > config.lazy_filter_limit ) {
+                // No message waiting, update been set, do timeout trick.
+                if ( state.refilter && !XPending ( display ) ) {
+                    // This implements a lazy re-filtering.
+                    struct timeval tv;
+                    fd_set         in_fds;
+                    // Create a File Description Set containing x11_fd
+                    FD_ZERO ( &in_fds );
+                    FD_SET ( x11_fd, &in_fds );
+
+                    // Set our timer.  200ms is a decent delay
+                    tv.tv_usec = 200000;
+                    tv.tv_sec  = 0;
+                    // Wait for X Event or a Timer
+                    if ( select ( x11_fd + 1, &in_fds, 0, 0, &tv ) == 0 ) {
+                        // Timer expired, update.
+                        menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
+                        menu_update ( &state );
+                    }
+                }
+            }
+            else {
+                if ( state.refilter ) {
+                    menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
+                    menu_update ( &state );
+                }
+            }
             XNextEvent ( display, &ev );
 
             // Handle event.
@@ -1697,10 +1724,6 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
             // Key press event.
             else if ( ev.type == KeyPress ) {
                 do {
-                    //    while ( XCheckTypedEvent ( display, KeyPress, &ev ) ) {
-                    //        ;
-                    //    }
-
                     if ( time ) {
                         *time = ev.xkey.time;
                     }
@@ -2364,6 +2387,8 @@ static void parse_cmd_options ( int argc, char ** argv )
 
 
     find_arg_int ( argc, argv, "-eh", &( config.element_height ) );
+
+    find_arg_int ( argc, argv, "-lazy-filter-limit", &( config.lazy_filter_limit ) );
 
     if ( find_arg ( argc, argv, "-sidebar-mode" ) >= 0 ) {
         config.sidebar_mode = TRUE;

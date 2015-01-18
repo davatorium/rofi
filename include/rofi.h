@@ -205,6 +205,8 @@ typedef struct _Settings
     int            element_height;
     /** Sidebar mode, show the switchers */
     int            sidebar_mode;
+    /** Lazy filter limit. */
+    unsigned int   lazy_filter_limit;
 } Settings;
 
 /** Global Settings structure. */
