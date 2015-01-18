@@ -82,7 +82,7 @@ unsigned int NumlockMask  = 0;
 Display      *display     = NULL;
 char         *display_str = NULL;
 
-static int ( *xerror )( Display *, XErrorEvent * );
+static int   ( *xerror )( Display *, XErrorEvent * );
 
 #define ATOM_ENUM( x )    x
 #define ATOM_CHAR( x )    # x
@@ -1696,111 +1696,113 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
             }
             // Key press event.
             else if ( ev.type == KeyPress ) {
-                while ( XCheckTypedEvent ( display, KeyPress, &ev ) ) {
-                    ;
-                }
+                do {
+                    //    while ( XCheckTypedEvent ( display, KeyPress, &ev ) ) {
+                    //        ;
+                    //    }
 
-                if ( time ) {
-                    *time = ev.xkey.time;
-                }
-
-                KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
-
-                // Handling of paste
-                if ( ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_v ) ) {
-                    XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
-                                        XA_PRIMARY : netatoms[CLIPBOARD],
-                                        netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
-                }
-                else if ( key == XK_Insert ) {
-                    XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
-                                        XA_PRIMARY : netatoms[CLIPBOARD],
-                                        netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
-                }
-                else if ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_slash ) {
-                    state.retv               = MENU_PREVIOUS;
-                    *( state.selected_line ) = 0;
-                    state.quit               = TRUE;
-                    break;
-                }
-                // Menu navigation.
-                else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
-                          key == XK_slash ) {
-                    state.retv               = MENU_NEXT;
-                    *( state.selected_line ) = 0;
-                    state.quit               = TRUE;
-                    break;
-                }
-                // Toggle case sensitivity.
-                else if ( key == XK_grave || key == XK_dead_grave ) {
-                    config.case_sensitive    = !config.case_sensitive;
-                    *( state.selected_line ) = 0;
-                    state.refilter           = TRUE;
-                    state.update             = TRUE;
-                    if ( config.case_sensitive ) {
-                        textbox_show ( state.case_indicator );
+                    if ( time ) {
+                        *time = ev.xkey.time;
                     }
-                    else {
-                        textbox_hide ( state.case_indicator );
+
+                    KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
+
+                    // Handling of paste
+                    if ( ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_v ) ) {
+                        XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
+                                            XA_PRIMARY : netatoms[CLIPBOARD],
+                                            netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
                     }
-                }
-                // Switcher short-cut
-                else if ( ( ( ev.xkey.state & Mod1Mask ) == Mod1Mask ) &&
-                          key >= XK_1 && key <= XK_9 ) {
-                    *( state.selected_line ) = ( key - XK_1 );
-                    state.retv               = MENU_QUICK_SWITCH;
-                    state.quit               = TRUE;
-                    break;
-                }
-                // Special delete entry command.
-                else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
-                          key == XK_Delete ) {
-                    if ( state.filtered[state.selected] != NULL ) {
-                        *( state.selected_line ) = state.line_map[state.selected];
-                        state.retv               = MENU_ENTRY_DELETE;
+                    else if ( key == XK_Insert ) {
+                        XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
+                                            XA_PRIMARY : netatoms[CLIPBOARD],
+                                            netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
+                    }
+                    else if ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_slash ) {
+                        state.retv               = MENU_PREVIOUS;
+                        *( state.selected_line ) = 0;
                         state.quit               = TRUE;
                         break;
                     }
-                }
-                else{
-                    int rc = textbox_keypress ( state.text, &ev );
-                    // Row is accepted.
-                    if ( rc < 0 ) {
-                        if ( shift != NULL ) {
-                            ( *shift ) = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
+                    // Menu navigation.
+                    else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
+                              key == XK_slash ) {
+                        state.retv               = MENU_NEXT;
+                        *( state.selected_line ) = 0;
+                        state.quit               = TRUE;
+                        break;
+                    }
+                    // Toggle case sensitivity.
+                    else if ( key == XK_grave || key == XK_dead_grave ) {
+                        config.case_sensitive    = !config.case_sensitive;
+                        *( state.selected_line ) = 0;
+                        state.refilter           = TRUE;
+                        state.update             = TRUE;
+                        if ( config.case_sensitive ) {
+                            textbox_show ( state.case_indicator );
                         }
-
-                        // If a valid item is selected, return that..
-                        if ( state.selected < state.filtered_lines && state.filtered[state.selected] != NULL ) {
+                        else {
+                            textbox_hide ( state.case_indicator );
+                        }
+                    }
+                    // Switcher short-cut
+                    else if ( ( ( ev.xkey.state & Mod1Mask ) == Mod1Mask ) &&
+                              key >= XK_1 && key <= XK_9 ) {
+                        *( state.selected_line ) = ( key - XK_1 );
+                        state.retv               = MENU_QUICK_SWITCH;
+                        state.quit               = TRUE;
+                        break;
+                    }
+                    // Special delete entry command.
+                    else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
+                              key == XK_Delete ) {
+                        if ( state.filtered[state.selected] != NULL ) {
                             *( state.selected_line ) = state.line_map[state.selected];
-                            if ( strlen ( state.text->text ) > 0 && rc == -2 ) {
+                            state.retv               = MENU_ENTRY_DELETE;
+                            state.quit               = TRUE;
+                            break;
+                        }
+                    }
+                    else{
+                        int rc = textbox_keypress ( state.text, &ev );
+                        // Row is accepted.
+                        if ( rc < 0 ) {
+                            if ( shift != NULL ) {
+                                ( *shift ) = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
+                            }
+
+                            // If a valid item is selected, return that..
+                            if ( state.selected < state.filtered_lines && state.filtered[state.selected] != NULL ) {
+                                *( state.selected_line ) = state.line_map[state.selected];
+                                if ( strlen ( state.text->text ) > 0 && rc == -2 ) {
+                                    state.retv = MENU_CUSTOM_INPUT;
+                                }
+                                else {
+                                    state.retv = MENU_OK;
+                                }
+                            }
+                            else if ( strlen ( state.text->text ) > 0 ) {
                                 state.retv = MENU_CUSTOM_INPUT;
                             }
-                            else {
-                                state.retv = MENU_OK;
+                            else{
+                                // Nothing entered and nothing selected.
+                                state.retv = MENU_CANCEL;
                             }
-                        }
-                        else if ( strlen ( state.text->text ) > 0 ) {
-                            state.retv = MENU_CUSTOM_INPUT;
-                        }
-                        else{
-                            // Nothing entered and nothing selected.
-                            state.retv = MENU_CANCEL;
-                        }
 
-                        state.quit = TRUE;
+                            state.quit = TRUE;
+                        }
+                        // Key press is handled by entry box.
+                        else if ( rc > 0 ) {
+                            state.refilter = TRUE;
+                            state.update   = TRUE;
+                        }
+                        // Other keys.
+                        else{
+                            // unhandled key
+                            menu_keyboard_navigation ( &state, key, ev.xkey.state );
+                        }
                     }
-                    // Key press is handled by entry box.
-                    else if ( rc > 0 ) {
-                        state.refilter = TRUE;
-                        state.update   = TRUE;
-                    }
-                    // Other keys.
-                    else{
-                        // unhandled key
-                        menu_keyboard_navigation ( &state, key, ev.xkey.state );
-                    }
-                }
+                } while ( XCheckTypedEvent ( display, KeyPress, &ev ) );
             }
         }
 
