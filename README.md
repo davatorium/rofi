@@ -8,6 +8,7 @@ Please check the [website](https://davedavenport.github.io/rofi/) for the latest
 
 ## Author
 
+{{{
  yhooooooooooooooooooooooooooo++++++++++++++++++++++++/////////d
  h:                        `s`          `-`                    m
  h:                       `y.         +so/od`                  N
@@ -53,3 +54,4 @@ NMMNmMMms.:``h/-.` h:o+h.   h`.-oNodNhmMMMMMNmd:.             M-
 MysdMMMMMNysssoo+/:o/--y:/ohhsoosdooydNd:.`                  `M.
 M:  `/++oossyyyhhdddmmmmmmdddddhyyho--/.                     `M`
 ddyyyyhhhhhhhhyyyyyyhhhhhhhhyyyyyyyhhhhhhhyyyyyyyhhhhhhhyyyyyyd 
+}}}
