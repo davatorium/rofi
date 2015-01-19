@@ -6,20 +6,51 @@ rofi - A window switcher, run dialog and dmenu replacement
 
 ## SYNOPSIS
 
-**rofi** [ -width *pct_scr* ] [ -lines *lines* ] [ -columns *columns* ] [ -font *pangofont* ] [ -fg
-*color* ] [ -bg *color* ] [ -bgalt *color* ] [ -hlfg *color* ] [ -hlbg *color* ] [ -key *combo* ] [
--dkey *comdo* ] [ -rkey *comdo* ] [ -terminal *terminal* ] [ -location *position* ] [ -hmode ] [
--fixed-num-lines ] [ -padding *padding* ] [ -opacity *opacity%* ] [ -display *display* ] [ -bc
-*color* ] [ -bw *width* ] [ -dmenu [ -p *prompt* ] ] [ -ssh-client *client* ] [ -ssh-command
-*command* ] [ -now ] [ -rnow ] [ -snow ] [ -version ] [ -help] [ -dump-xresources ] [
--disable-history ] [ -levenshtein-sort ] [ -case-sensitive ] [ -show *mode* ] [ -switcher *mode1,
-mode2* ] [ -e *message*] [ -sep *separator* ] [ -eh *element height* ] [ -l *selected line* ] [
--run-list-command *cmd* ] [ -lazy-filter-limit *limit* ]
+**rofi**
+[ -width *pct_scr* ]
+[ -lines *lines* ]
+[ -columns *columns* ]
+[ -font *pangofont* ]
+[ -fg *color* ]
+[ -bg *color* ]
+[ -bgalt *color* ]
+[ -hlfg *color* ]
+[ -hlbg *color* ]
+[ -key *combo* ]
+[ -dkey *comdo* ]
+[ -rkey *comdo* ]
+[ -terminal *terminal* ]
+[ -location *position* ]
+[ -hmode ]
+[ -fixed-num-lines ]
+[ -padding *padding* ]
+[ -opacity *opacity%* ]
+[ -display *display* ]
+[ -bc *color* ]
+[ -bw *width* ]
+[ -dmenu [ -p *prompt* ] [ -sep *separator* ] [ -l *selected line* ] ]
+[ -ssh-client *client* ]
+[ -ssh-command *command* ]
+[ -disable-history ]
+[ -levenshtein-sort ]
+[ -case-sensitive ]
+[ -show *mode* ]
+[ -switcher *mode1,mode2* ]
+[ -eh *element height* ]
+[ -lazy-filter-limit *limit* ]
+[ -e *message*]
+[ -now ]
+[ -rnow ]
+[ -snow ]
+[ -version ]
+[ -help]
+[ -dump-xresources ]
 
 ## DESCRIPTION
 
-**rofi** is an X11 popup window switcher. A list is displayed center-screen showing open window titles, WM_CLASS, and desktop number.
-The user may filter the list by typing, navigate with Up/Down or Tab keys, and select a window with Return (Enter). Escape cancels.
+**rofi** is an X11 popup window switcher, run dialog, dmenu replacement and more. It focusses on
+being fast to use and have minimal distraction. It supports keyboard and mouse navigation, type to
+filter, tokenized search and more.
 
 ## License
 
@@ -42,39 +73,45 @@ The default key combinations are:
 
 * `mod1-F3`
 
-   Show run-dialog.
+   Show ssh-dialog.
 
 
 ## OPTIONS
 
+
 `-key`
 
-  Change the key combination to display all windows (default: F12).
+  Change the key combination to display all windows.
+
 
       rofi -key F12
       rofi -key control+shift+s
       rofi -key mod1+Tab
 
+  Default: *F12*
+
 
 `-rkey`
 
-  Change the key combination to display the run dialog (default: mod1-F2).
+  Change the key combination to display the run dialog.
 
 
       rofi -rkey F11
       rofi -rkey control+shift+d
       rofi -rkey mod1+grave (grave=backtick)
 
+  Default: *Alt-F2*
 
 `-skey`
 
-  Change the key combination to display the ssh dialog (default: Alt-F3).
+  Change the key combination to display the ssh dialog.
 
 
       rofi -skey F10
       rofi -skey control+shift+s
       rofi -skey mod1+grave (grave=backtick)
 
+  Default: *Alt-F3*
 
 `-now`
 
@@ -124,64 +161,75 @@ The default key combinations are:
 
   Start in case sensitive mode.
 
-### Theming 
+
+### Theming
 
 `-bg`
 
-  Set the background text color (X11 named color or hex #rrggbb) for the menu (default: #222222).
+  Set the background text color (X11 named color or hex #rrggbb) for the menu.
 
       rofi -bg "#222222"
 
-`-bg`
+  Default: *#f2f1f0*
 
-  Set the background text color  for alternating rows (X11 named color or hex #rrggbb) for the menu
-  (default: #222222).
+`-bgalt`
+
+  Set the background text color  for alternating rows (X11 named color or hex #rrggbb) for the menu.
 
       rofi -bgalt "#222222"
 
+  Default: *#f2f1f0*
+
 `-bc`
 
-  Set the border color (X11 named color or hex #rrggbb) for the menu (default: #000000).
+  Set the border color (X11 named color or hex #rrggbb) for the menu.
 
       rofi -bc black
 
+  Default: *black*
 
 `-bw`
 
-  Set the border width in pixels (default: 1).
+  Set the border width in pixels.
 
       rofi -bw 1
 
+  Default: *1*
 
 `-fg`
 
-  Set the foreground text color (X11 named color or hex #rrggbb) for the menu (default: #cccccc).
+  Set the foreground text color (X11 named color or hex #rrggbb) for the menu.
 
       rofi -fg "#cccccc"
 
-`-font`
-
-  Pango font name for use by the menu (default: mono 14).
-
-
-      rofi -font monospace\ 14
-
+  Default: *#222222*
 
 `-hlbg`
 
   Set the background text color (X11 named color or hex #rrggbb) for the highlighted item in the
-  menu (default: #005577).
+  menu.
 
       rofi -fg "#005577"
 
+  Default: *#005577*
 
 `-hlfg`
 
   Set the foreground text color (X11 named color or hex #rrggbb) for the highlighted item in the
-  menu (default: #ffffff).
+  menu.
 
       rofi -fg "#ffffff"
 
+  Default: *#FFFFFF*
+
+`-font`
+
+  Pango font name for use by the menu.
+
+
+      rofi -font monospace\ 14
+
+  Default: *mono 12*
 
 `-opacity`
 
@@ -189,23 +237,37 @@ The default key combinations are:
 
       rofi -opacity "75"
 
+  Default: *100*
+
+`-eh` *element height*
+
+  The height of a field in lines. e.g.
+
+            echo -e "a\n3|b\n4|c\n5" | rofi -sep '|' -eh 2 -dmenu
+
+  Default: *1*
+
 ### Layout
 
 `-lines`
 
-  Maximum number of lines the menu may show before scrolling (default: 25).
+  Maximum number of lines the menu may show before scrolling.
 
       rofi -lines 25
 
+  Default: *15*
+
 `-columns`
 
-  The number of columns the menu may show before scrolling (default: 25).
+  The number of columns the menu may show before scrolling.
 
       rofi -columns 2
 
+  Default: *1*
+
 `-width` [value]
 
-  Set the width of the menu as a percentage of the screen width (default: 60).
+  Set the width of the menu as a percentage of the screen width.
 
       rofi -width 60
 
@@ -219,6 +281,8 @@ The default key combinations are:
 
   Character width is a rough estimation, and might not be correct, but should work for most monospaced fonts.
 
+  Default: *50*
+
 `-location`
 
   Specify where the window should be located. The numbers map to the following location on the
@@ -227,6 +291,8 @@ The default key combinations are:
       1 2 3
       8 0 4
       7 6 5
+
+  Default: *0*
 
 `-hmode`
 
@@ -239,11 +305,13 @@ The default key combinations are:
 
 `-padding`
 
-  Define the inner margin of the window. Default is 5 pixels.
+  Define the inner margin of the window.
 
   To make rofi look like dmenu:
 
       rofi -hmode -padding 0
+
+  Default: *5*
 
 `-sidebar-mode`
 
@@ -256,50 +324,59 @@ The default key combinations are:
 
    The number of entries required for Rofi to go into lazy filter mode.
    In lazy filter mode, it won't refilter the list on each keypress, but only after rofi been idle
-   for 250ms. Default is 5000 lines, set to 0 to always enable.
+   for 250ms. Experiments shows that the default (5000 lines) works well, set to 0 to always enable.
 
-### Pattern setting
+   Default: *5000*
+
+### PATTERN setting
 
 `-terminal`
 
-  Specify what terminal to start (default x-terminal-emulator)
+  Specify what terminal to start.
 
       rofi -terminal xterm
 
+  Pattern: *{terminal}*
+  Default: *x-terminal-emulator*
+
 `-ssh-client` *client*
 
-  Override the used ssh client. Default is `ssh`.
+  Override the used ssh client.
+
+  Pattern: *{ssh-client}*
+  Default: *ssh*
 
 
 ### SSH settings
 
-`-ssh-set-title` *true|false*
-
-  SSH dialogs tries to set 'ssh hostname' of the spawned terminal.
-  Not all terminals support this.
-  Default value is true.
-
-  *This command has been deprecated for the ssh-command string*
-
 `-ssh-command` *cmd*
 
   Set the command to execute when starting a ssh session.
+  The pattern *{host}* is replaced by the selected ssh entry.
+
+  Default: *{terminal} -e {ssh-client} {host}*
 
 ### Run settings
 
 `-run-command` *cmd*
 
-  Set the command to execute when running an application.
+  Set the command (*{cmd}*) to execute when running an application.
   See *PATTERN*.
+
+  Default: *{cmd}*
 
 `-run-shell-command` *cmd*
 
   Set the command to execute when running an application in a shell.
   See *PATTERN*.
 
+  Default: *{terminal} -e {cmd}*
+
 `-run-list-command` *cmd*
 
   If set, use an external tool to generate list of executable commands. Uses 'run-command'
+
+  Default: *""*
 
 ### History and Sorting
 
@@ -327,15 +404,13 @@ The default key combinations are:
 
             echo "a|b|c|d|e" | rofi -sep '|' -dmenu -p "monkey:"
 
-`-eh` *element height*
-
-    The height of a field in lines. e.g.
-        
-            echo -e "a\n3|b\n4|c\n5" | rofi -sep '|' -eh 2 -dmenu
+    Default: *dmenu*
 
 `-l` *selected line*
 
     Select a certain line.
+
+    Default: *0*
 
 ### Message dialog
 
@@ -350,9 +425,9 @@ The default key combinations are:
 
   Dump the current active configuration in xresources format to the command-line.
 
-## Pattern
+## PATTERN
 
-To launch commands (e.g. when using the ssh dialog) the user can enter the used commandline, 
+To launch commands (e.g. when using the ssh dialog) the user can enter the used commandline,
 the following keys can be used that will be replaced at runtime:
 
 * `{host}`: The host to connect to.
@@ -372,7 +447,8 @@ This way it can be used as a drop-in replacement for dmenu. just copy or symlink
 
 `HUP`
 
-    If in daemon mode, reload the configuration from Xresources. (arguments still override).
+    If in daemon mode, reload the configuration from Xresources. (commandline arguments still
+override xresources).
 
 ## Keybindings
 
