@@ -360,15 +360,23 @@ KeySym       sshdialog_keysym;
 Window       main_window = None;
 GC           gc          = NULL;
 
+
+Colormap    map = None;
+XVisualInfo vinfo;
 /**
  * Allocate a pixel value for an X named color
  */
 static unsigned int color_get ( Display *display, const char *const name )
 {
-    int      screen_id = DefaultScreen ( display );
-    XColor   color;
-    Colormap map = DefaultColormap ( display, screen_id );
-    return XAllocNamedColor ( display, map, name, &color, &color ) ? color.pixel : None;
+    int    screen_id = DefaultScreen ( display );
+    XColor color;
+    // Special format.
+    if ( strncmp ( name, "argb:", 5 ) == 0 ) {
+        return strtoul ( &name[5], NULL, 16 );
+    }
+    else {
+        return XAllocNamedColor ( display, map, name, &color, &color ) ? color.pixel : None;
+    }
 }
 
 /**
@@ -829,11 +837,22 @@ Window create_window ( Display *display )
 {
     Screen *screen = DefaultScreenOfDisplay ( display );
     Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
-    Window box     = XCreateSimpleWindow ( display, root, 0, 0, 200, 100,
+
+
+    XSetWindowAttributes attr;
+    attr.colormap         = map;
+    attr.border_pixel     = color_get ( display, config.menu_bc );
+    attr.background_pixel = color_get ( display, config.menu_bg );
+
+    Window box = XCreateWindow ( display, DefaultRootWindow ( display ),
+                                 0, 0, 200, 100, config.menu_bw, vinfo.depth, InputOutput,
+                                 vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
+    /*
+       Window box     = XCreateSimpleWindow ( display, root, 0, 0, 200, 100,
                                            config.menu_bw,
                                            color_get ( display, config.menu_bc ),
                                            color_get ( display, config.menu_bg ) );
-
+     */
     XSelectInput ( display, box, ExposureMask | ButtonPressMask );
 
     gc = XCreateGC ( display, box, 0, 0 );
@@ -2087,6 +2106,8 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
  */
 static int run_dmenu ()
 {
+    XMatchVisualInfo ( display, DefaultScreen ( display ), 32, TrueColor, &vinfo );
+    map = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
     int ret_state;
     textbox_setup (
         config.menu_bg, config.menu_bg_alt, config.menu_fg,
@@ -2119,6 +2140,10 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
         display = XOpenDisplay ( display_str );
         XSync ( display, True );
     }
+
+    XMatchVisualInfo ( display, DefaultScreen ( display ), 32, TrueColor, &vinfo );
+    map = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
+
     // Because of the above fork, we want to do this here.
     // Make sure this is isolated to its own thread.
     textbox_setup (
@@ -2403,6 +2428,9 @@ static void cleanup ()
 {
     // Cleanup
     if ( display != NULL ) {
+        if ( map != None ) {
+            XFreeColormap ( display, map );
+        }
         if ( main_window != None ) {
             XFreeGC ( display, gc );
             XDestroyWindow ( display, main_window );
@@ -2643,6 +2671,8 @@ int main ( int argc, char *argv[] )
 
     char *msg = NULL;
     if ( find_arg_str ( argc, argv, "-e", &( msg ) ) ) {
+        XMatchVisualInfo ( display, DefaultScreen ( display ), 32, TrueColor, &vinfo );
+        map = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
         textbox_setup (
             config.menu_bg, config.menu_bg_alt, config.menu_fg,
             config.menu_hlbg,

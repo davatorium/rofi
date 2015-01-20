@@ -43,8 +43,9 @@
 #include <glib.h>
 #define SIDE_MARGIN    2
 
-
-extern Display *display;
+extern Colormap    map;
+extern XVisualInfo vinfo;
+extern Display     *display;
 
 /**
  * Font + font color cache.
@@ -236,8 +237,8 @@ void textbox_free ( textbox *tb )
 void textbox_draw ( textbox *tb )
 {
     GC      context = XCreateGC ( display, tb->window, 0, 0 );
-    Pixmap  canvas  = XCreatePixmap ( display, tb->window, tb->w, tb->h, DefaultDepth ( display, DefaultScreen ( display ) ) );
-    XftDraw *draw   = XftDrawCreate ( display, canvas, DefaultVisual ( display, DefaultScreen ( display ) ), DefaultColormap ( display, DefaultScreen ( display ) ) );
+    Pixmap  canvas  = XCreatePixmap ( display, tb->window, tb->w, tb->h, vinfo.depth );
+    XftDraw *draw   = XftDrawCreate ( display, canvas, vinfo.visual, map );
 
     // clear canvas
     XftDrawRect ( draw, &tb->color_bg, 0, 0, tb->w, tb->h );
@@ -287,6 +288,7 @@ void textbox_draw ( textbox *tb )
     }
 
     // flip canvas to window
+    //  XClearWindow ( display, tb->window);
     XCopyArea ( display, canvas, tb->window, context, 0, 0, tb->w, tb->h, 0, 0 );
 
     XFreeGC ( display, context );
@@ -447,20 +449,34 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
 /***
  * Font setup.
  */
+static void parse_color ( const char *bg, XftColor *color )
+{
+    Visual   *visual  = vinfo.visual;
+    Colormap colormap = map;
+    if ( strncmp ( bg, "argb:", 5 ) == 0 ) {
+        XRenderColor col;
+        unsigned int val = strtoul ( &bg[5], NULL, 16 );
+        col.alpha = ( ( val & 0xFF000000 ) >> 24 ) * 255;
+        col.red   = ( ( val & 0x00FF0000 ) >> 16 ) * 255;
+        col.green = ( ( val & 0x0000FF00 ) >> 8  ) * 255;
+        col.blue  = ( ( val & 0x000000FF )       ) * 255;
+        XftColorAllocValue ( display, visual, colormap, &col, color );
+    }
+    else {
+        XftColorAllocName ( display, visual, colormap, bg, color );
+    }
+}
 
 void textbox_setup (
     const char *bg, const char *bg_alt, const char *fg,
     const char *hlbg, const char *hlfg
     )
 {
-    Visual   *visual  = DefaultVisual ( display, DefaultScreen ( display )  );
-    Colormap colormap = DefaultColormap ( display, DefaultScreen ( display ) );
-
-    XftColorAllocName ( display, visual, colormap, fg, &color_fg );
-    XftColorAllocName ( display, visual, colormap, bg, &color_bg );
-    XftColorAllocName ( display, visual, colormap, bg_alt, &color_bg_alt );
-    XftColorAllocName ( display, visual, colormap, hlfg, &color_hlfg );
-    XftColorAllocName ( display, visual, colormap, hlbg, &color_hlbg );
+    parse_color ( bg, &color_bg );
+    parse_color ( fg, &color_fg );
+    parse_color ( bg_alt, &color_bg_alt );
+    parse_color ( hlfg, &color_hlfg );
+    parse_color ( hlbg, &color_hlbg );
 
     PangoFontMap *font_map = pango_xft_get_font_map ( display, DefaultScreen ( display ) );
     p_context = pango_font_map_create_context ( font_map );
@@ -470,8 +486,8 @@ void textbox_setup (
 void textbox_cleanup ()
 {
     if ( p_context ) {
-        Visual   *visual  = DefaultVisual ( display, DefaultScreen ( display )  );
-        Colormap colormap = DefaultColormap ( display, DefaultScreen ( display ) );
+        Visual   *visual  = vinfo.visual;
+        Colormap colormap = map;
 
 
         XftColorFree ( display, visual, colormap, &color_fg );
