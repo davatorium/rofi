@@ -1756,7 +1756,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                         break;
                     }
                     // Toggle case sensitivity.
-                    else if ( key == XK_grave || key == XK_dead_grave ) {
+                    else if ( key == XK_grave || key == XK_dead_grave
+                              || key == XK_acute ) {
                         config.case_sensitive    = !config.case_sensitive;
                         *( state.selected_line ) = 0;
                         state.refilter           = TRUE;
