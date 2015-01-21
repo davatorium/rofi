@@ -976,78 +976,157 @@ static void calculate_window_position ( MenuState *state, const workarea *mon )
     state->y += config.y_offset;
 }
 
-
 /**
- * @param state Internal state of the menu.
- * @param num_lines the number of entries passed to the menu.
+ * @param line_height The uniform height of a line of text.
  *
- * Calculate the number of rows, columns and elements to display based on the
- * configuration and available data.
+ * @returns Number of lines contained in the menu.
  */
-static void menu_calculate_rows_columns ( MenuState *state )
-{
-    state->columns      = config.menu_columns;
-    state->max_elements = MIN ( state->menu_lines * state->columns, state->num_lines );
+static int menu_num_lines ( int line_height ) {
+    int lines = config.menu_lines;
+    if ( lines == 0 ) {
+        workarea mon;
+        monitor_active ( &mon );
 
-    // Calculate the number or rows. We do this by getting the num_lines rounded up to X columns
-    // (num elements is better name) then dividing by columns.
-    state->max_rows = MIN ( state->menu_lines,
-                            (unsigned int) (
-                                ( state->num_lines + ( state->columns - state->num_lines % state->columns ) %
-                                  state->columns ) / ( state->columns )
-                                ) );
+        // Autosize it.
+        int h = mon.h - config.padding * 2 - LINE_MARGIN - config.menu_bw * 2;
+        int r = ( h ) / ( line_height * config.element_height ) - 1 - config.sidebar_mode;
+        lines = r;
+    }
 
-    if ( config.fixed_num_lines == TRUE ) {
-        state->max_elements = state->menu_lines * state->columns;
-        state->max_rows     = state->menu_lines;
-        // If it would fit in one column, only use one column.
-        if ( state->num_lines < state->max_elements ) {
-            state->columns = ( state->num_lines + ( state->max_rows - state->num_lines % state->max_rows ) %
-                               state->max_rows ) / state->max_rows;
-            state->max_elements = state->menu_lines * state->columns;
-        }
-        // Sanitize.
-        if ( state->columns == 0 ) {
-            state->columns = 1;
-        }
-    }
-    // More hacks.
-    if ( config.hmode == TRUE ) {
-        state->max_rows = 1;
-    }
+    return lines;
 }
 
 /**
- * @param state Internal state of the menu.
- * @param mon the dimensions of the monitor rofi is displayed on.
+ * @param line_height The uniform height of a line of text.
+ * @param num_elements Total number of elements to match against.
  *
- * Calculate the width of the window and the width of an element.
+ * Calculate the number or rows. We do this by getting the num_elements rounded up
+ * to X columns then dividing by columns.
+ *
+ * @returns The number of visible rows of the menu.
  */
-static void menu_calculate_window_and_element_width ( MenuState *state, workarea *mon )
+static int menu_rows_per_page ( int line_height, int num_elements )
 {
+    if ( config.hmode == TRUE ) {
+        return 1;
+    }
+
+    int cols = config.menu_columns;
+    int rpp = menu_num_lines ( line_height );
+
+    if ( config.fixed_num_lines == FALSE ) {
+        rpp = MIN ( rpp, (unsigned int) (
+                    ( num_elements
+                      + ( cols - num_elements % cols ) % cols ) / cols ) );
+    }
+
+    return rpp;
+}
+
+/**
+ * @param line_height The uniform height of a line of text.
+ * @param num_elements Total number of elements to match against.
+ *
+ * @returns The number of elements per page.
+ */
+static int menu_elements_per_page ( int line_height, int num_elements )
+{
+    int cols = config.menu_columns;
+    int rows = menu_num_lines ( line_height );
+    int size = MIN ( rows * cols, num_elements );
+
+    if ( config.fixed_num_lines == TRUE ) {
+        size = rows * cols;
+        if ( num_elements < size ) {
+            int rpp = menu_rows_per_page ( line_height, num_elements );
+            cols = ( num_elements + ( rpp - num_elements % rpp ) % rpp ) / rpp;
+            size = rows * cols;
+        }
+    }
+
+    return size;
+}
+
+/**
+ * @param line_height The uniform height of a line of text.
+ * @param num_elements Total number of elements to match against.
+ *
+ * @returns The number of columns per page.
+ */
+static int menu_columns_per_page ( int line_height, int num_elements )
+{
+    int cols = config.menu_columns;
+    int rows = menu_num_lines ( line_height );
+
+    if ( config.fixed_num_lines == TRUE ) {
+        // If it would fit in one column, only use one column.
+        if ( num_elements < rows * cols ) {
+            int rpp = menu_rows_per_page ( line_height, num_elements );
+            cols = ( num_elements + ( rpp - num_elements % rpp ) % rpp ) / rpp;
+        }
+        // Sanitize.
+        if ( cols == 0 ) {
+            cols = 1;
+        }
+    }
+
+    return cols;
+}
+
+/**
+ * @returns The width of the window.
+ */
+static int window_get_width ( )
+{
+    int width = 0;
+    workarea mon;
+
+    monitor_active ( &mon );
+
     if ( config.menu_width < 0 ) {
         double fw = textbox_get_estimated_char_width ( );
-        state->w  = -( fw * config.menu_width );
-        state->w += 2 * config.padding + 4; // 4 = 2*SIDE_MARGIN
-        // Compensate for border width.
-        state->w -= config.menu_bw * 2;
+        width += -( fw * config.menu_width );
+        width += 2 * config.padding + 4; // 4 = 2*SIDE_MARGIN
     }
     else{
         // Calculate as float to stop silly, big rounding down errors.
-        state->w = config.menu_width < 101 ? ( mon->w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
-        // Compensate for border width.
-        state->w -= config.menu_bw * 2;
+        width = config.menu_width < 101 ? ( mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
     }
 
-    if ( state->columns > 0 ) {
-        state->element_width = state->w - ( 2 * ( config.padding ) );
-        // Divide by the # columns
-        state->element_width = ( state->element_width - ( state->columns - 1 ) * LINE_MARGIN ) / state->columns;
+    // Compensate for border width.
+    width -= config.menu_bw * 2;
+
+    return width;
+}
+
+/**
+ * @param line_height The uniform height of a line of text.
+ * @param num_elements Total number of elements to match against.
+ *
+ * Assuming all element are constrained to the same width, this function
+ * returns this common width.
+ *
+ * @returns The uniform width of the elements.
+ */
+static int menu_element_width ( int line_height, int num_elements )
+{
+    int    w = window_get_width ( );
+    int cols = menu_columns_per_page ( line_height, num_elements );
+    int elems_per_page = menu_elements_per_page ( line_height, num_elements );
+    int elem_width = 0;
+
+    if ( cols > 0 ) {
+        elem_width = w - ( 2 * ( config.padding ) );
+        elem_width -= ( cols - 1 ) * LINE_MARGIN;
+        elem_width /= cols;
         if ( config.hmode == TRUE ) {
-            state->element_width = ( state->w - ( 2 * ( config.padding ) ) - state->max_elements * LINE_MARGIN ) / (
-                state->max_elements + 1 );
+            elem_width =
+                ( w - ( 2 * ( config.padding ) ) - elems_per_page * LINE_MARGIN )
+                / ( elems_per_page + 1 );
         }
     }
+
+    return elem_width;
 }
 
 /**
@@ -1513,17 +1592,12 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     // Height of a row.
     int line_height = textbox_get_height ( state.case_indicator );
-    if ( config.menu_lines == 0 ) {
-        // Autosize it.
-        int h = mon.h - config.padding * 2 - LINE_MARGIN - config.menu_bw * 2;
-        int r = ( h ) / ( line_height * config.element_height ) - 1 - config.sidebar_mode;
-        state.menu_lines = r;
-    }
-    else {
-        state.menu_lines = config.menu_lines;
-    }
-    menu_calculate_rows_columns ( &state );
-    menu_calculate_window_and_element_width ( &state, &mon );
+    state.w             = window_get_width ( );
+    state.menu_lines    = menu_num_lines ( line_height );
+    state.columns       = menu_columns_per_page ( line_height, state.num_lines );
+    state.max_elements  = menu_elements_per_page ( line_height, state.num_lines );
+    state.max_rows      = menu_rows_per_page ( line_height, state.num_lines );
+    state.element_width = menu_element_width ( line_height, state.num_lines );
 
     // Prompt box.
     state.prompt_tb = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
@@ -1877,10 +1951,7 @@ void error_dialog ( char *msg )
         main_window = create_window ( display );
     }
 
-
-    menu_calculate_window_and_element_width ( &state, &mon );
-    state.max_elements = 0;
-
+    state.w = window_get_width ( );
     state.text = textbox_create ( main_window, TB_AUTOHEIGHT,
                                   ( config.padding ),
                                   ( config.padding ),
