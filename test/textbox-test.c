@@ -37,6 +37,22 @@ static unsigned int color_get ( Display *display, const char *const name )
     }
 }
 
+static void create_visual_and_colormap()
+{
+    map = None;
+    // Try to create TrueColor map
+    if(XMatchVisualInfo ( display, DefaultScreen ( display ), 32, TrueColor, &vinfo )) {
+        // Visual found, lets try to create map.
+        map = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
+    }
+    // Failed to create map.
+    if (map == None ) {
+        // Two fields we use.
+        vinfo.visual = DefaultVisual(display, DefaultScreen(display));
+        vinfo.depth = DefaultDepth(display, DefaultScreen(display));
+        map = DefaultColormap( display, DefaultScreen (display));
+    }
+}
 int main ( int argc, char **argv )
 {
 
@@ -46,9 +62,7 @@ int main ( int argc, char **argv )
         fprintf ( stderr, "cannot open display!\n" );
         return EXIT_FAILURE;
     }
-    XMatchVisualInfo ( display, DefaultScreen ( display ), 32, TrueColor, &vinfo );
-    map = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
-
+    create_visual_and_colormap();
     TASSERT( display != NULL );
     Screen *screen = DefaultScreenOfDisplay ( display );
     Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );

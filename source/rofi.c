@@ -363,6 +363,25 @@ GC           gc          = NULL;
 
 Colormap    map = None;
 XVisualInfo vinfo;
+
+static void create_visual_and_colormap ()
+{
+    map = None;
+    // Try to create TrueColor map
+    if ( XMatchVisualInfo ( display, DefaultScreen ( display ), 32, TrueColor, &vinfo ) ) {
+        // Visual found, lets try to create map.
+        map = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
+    }
+    // Failed to create map.
+    // Use the defaults then.
+    if ( map == None ) {
+        // Two fields we use.
+        vinfo.visual = DefaultVisual ( display, DefaultScreen ( display ) );
+        vinfo.depth  = DefaultDepth ( display, DefaultScreen ( display ) );
+        map          = DefaultColormap ( display, DefaultScreen ( display ) );
+    }
+}
+
 /**
  * Allocate a pixel value for an X named color
  */
@@ -2107,8 +2126,7 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
 static int run_dmenu ()
 {
     // Request truecolor visual.
-    XMatchVisualInfo ( display, DefaultScreen ( display ), 32, TrueColor, &vinfo );
-    map = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
+    create_visual_and_colormap ();
     int ret_state;
     textbox_setup ( &vinfo, map,
                     config.menu_bg, config.menu_bg_alt, config.menu_fg,
@@ -2146,8 +2164,7 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
         XSync ( display, True );
     }
 
-    XMatchVisualInfo ( display, DefaultScreen ( display ), 32, TrueColor, &vinfo );
-    map = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
+    create_visual_and_colormap ();
 
     // Because of the above fork, we want to do this here.
     // Make sure this is isolated to its own thread.
@@ -2677,8 +2694,7 @@ int main ( int argc, char *argv[] )
     char *msg = NULL;
     if ( find_arg_str ( argc, argv, "-e", &( msg ) ) ) {
         // Request truecolor visual.
-        XMatchVisualInfo ( display, DefaultScreen ( display ), 32, TrueColor, &vinfo );
-        map = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
+        create_visual_and_colormap ();
         textbox_setup ( &vinfo, map,
                         config.menu_bg, config.menu_bg_alt, config.menu_fg,
                         config.menu_hlbg,
