@@ -42,6 +42,8 @@ typedef enum
 } TextBoxFontType;
 
 textbox* textbox_create ( Window parent,
+                          XVisualInfo *vinfo,
+                          Colormap map,
                           TextboxFlags flags,
                           short x, short y, short w, short h,
                           TextBoxFontType tbft,
@@ -81,7 +83,7 @@ void textbox_show ( textbox *tb );
  *
  * Render the textbox.
  */
-void textbox_draw ( textbox *tb );
+void textbox_draw ( textbox * tb );
 
 /**
  * @param tb  Handle to the textbox
@@ -134,6 +136,8 @@ void textbox_insert ( textbox *tb, int pos, char *str );
 void textbox_hide ( textbox *tb );
 
 /**
+ * @param visual            Information about the visual to target
+ * @param colormap          The colormap to set the colors for.
  * @param bg                The background color.
  * @param bg_alt            The background color for alternating row.
  * @param fg                The foreground color.
@@ -144,15 +148,15 @@ void textbox_hide ( textbox *tb );
  * before any of the textbox_ functions is called.
  * Clean with textbox_cleanup()
  */
-void textbox_setup (
-    const char *bg, const char *bg_alt, const char *fg,
-    const char *hlbg, const char *hlfg
-    );
+void textbox_setup ( XVisualInfo *visual, Colormap colormap,
+                     const char *bg, const char *bg_alt, const char *fg,
+                     const char *hlbg, const char *hlfg
+                     );
 
 /**
  * Cleanup the allocated colors and fonts by textbox_setup().
  */
-void textbox_cleanup ();
+void textbox_cleanup ( );
 
 /**
  * @param tb Handle to the textbox

@@ -713,12 +713,12 @@ static void menu_set_arrow_text ( int filtered_lines, int selected, int max_elem
     if ( page != 0 && npages > 1 ) {
         textbox_show ( arrowbox_top );
         textbox_font ( arrowbox_top, ( entry != 0 ) ? NORMAL : HIGHLIGHT );
-        textbox_draw ( arrowbox_top  );
+        textbox_draw ( arrowbox_top );
     }
     if ( ( npages - 1 ) != page && npages > 1 ) {
         textbox_show ( arrowbox_bottom );
         textbox_font ( arrowbox_bottom, ( entry != ( max_elements - 1 ) ) ? NORMAL : HIGHLIGHT );
-        textbox_draw ( arrowbox_bottom  );
+        textbox_draw ( arrowbox_bottom );
     }
 }
 
@@ -1525,7 +1525,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
 
     // we need this at this point so we can get height.
-    state.case_indicator = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+    state.case_indicator = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_AUTOWIDTH,
                                             ( config.padding ), ( config.padding ),
                                             0, 0,
                                             NORMAL, "*" );
@@ -1545,7 +1545,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     menu_calculate_window_and_element_width ( &state, &mon );
 
     // Prompt box.
-    state.prompt_tb = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+    state.prompt_tb = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_AUTOWIDTH,
                                        ( config.padding ),
                                        ( config.padding ),
                                        0, 0, NORMAL, prompt );
@@ -1555,7 +1555,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                          - textbox_get_width ( state.prompt_tb )
                          - textbox_get_width ( state.case_indicator );
 
-    state.text = textbox_create ( main_window, TB_AUTOHEIGHT | TB_EDITABLE,
+    state.text = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_EDITABLE,
                                   ( config.padding ) + textbox_get_width ( state.prompt_tb ),
                                   ( config.padding ),
                                   entrybox_width, 0,
@@ -1590,20 +1590,20 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         int ex = col * ( state.element_width + LINE_MARGIN );
         int ey = line * element_height + ( ( config.hmode == TRUE ) ? 0 : LINE_MARGIN );
 
-        state.boxes[i] = textbox_create ( main_window, 0,
+        state.boxes[i] = textbox_create ( main_window, &vinfo, map, 0,
                                           ex + x_offset,
                                           ey + y_offset,
                                           state.element_width, element_height, NORMAL, "" );
         textbox_show ( state.boxes[i] );
     }
     // Arrows
-    state.arrowbox_top = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+    state.arrowbox_top = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_AUTOWIDTH,
                                           ( config.padding ),
                                           ( config.padding ),
                                           0, 0,
                                           NORMAL,
                                           ( config.hmode == FALSE ) ? "↑" : "←" );
-    state.arrowbox_bottom = textbox_create ( main_window, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+    state.arrowbox_bottom = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_AUTOWIDTH,
                                              ( config.padding ),
                                              ( config.padding ),
                                              0, 0,
@@ -1657,7 +1657,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         int line_height = textbox_get_height ( state.text );
         int width       = ( state.w - ( 2 * ( config.padding ) ) ) / num_switchers;
         for ( int j = 0; j < num_switchers; j++ ) {
-            switchers[j].tb = textbox_create ( main_window, TB_CENTER,
+            switchers[j].tb = textbox_create ( main_window, &vinfo, map, TB_CENTER,
                                                config.padding + j * width, state.h - line_height - config.padding,
                                                width, line_height, ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, switchers[j].name );
             textbox_show ( switchers[j].tb );
@@ -1899,7 +1899,7 @@ void error_dialog ( char *msg )
     menu_calculate_window_and_element_width ( &state, &mon );
     state.max_elements = 0;
 
-    state.text = textbox_create ( main_window, TB_AUTOHEIGHT,
+    state.text = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT,
                                   ( config.padding ),
                                   ( config.padding ),
                                   ( state.w - ( 2 * ( config.padding ) ) ),
@@ -2106,13 +2106,14 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
  */
 static int run_dmenu ()
 {
+    // Request truecolor visual.
     XMatchVisualInfo ( display, DefaultScreen ( display ), 32, TrueColor, &vinfo );
     map = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
     int ret_state;
-    textbox_setup (
-        config.menu_bg, config.menu_bg_alt, config.menu_fg,
-        config.menu_hlbg,
-        config.menu_hlfg );
+    textbox_setup ( &vinfo, map,
+                    config.menu_bg, config.menu_bg_alt, config.menu_fg,
+                    config.menu_hlbg,
+                    config.menu_hlfg );
     char *input = NULL;
 
     // Dmenu modi has a return state.
@@ -2121,7 +2122,11 @@ static int run_dmenu ()
     g_free ( input );
 
     // Cleanup font setup.
-    textbox_cleanup ();
+    textbox_cleanup ( );
+
+    if ( map != None ) {
+        XFreeColormap ( display, map );
+    }
     return ret_state;
 }
 
@@ -2146,10 +2151,10 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
 
     // Because of the above fork, we want to do this here.
     // Make sure this is isolated to its own thread.
-    textbox_setup (
-        config.menu_bg, config.menu_bg_alt, config.menu_fg,
-        config.menu_hlbg,
-        config.menu_hlfg );
+    textbox_setup ( &vinfo, map,
+                    config.menu_bg, config.menu_bg_alt, config.menu_fg,
+                    config.menu_hlbg,
+                    config.menu_hlfg );
     char *input = NULL;
     // Otherwise check if requested mode is enabled.
     if ( switchers[mode].cb != NULL ) {
@@ -2182,7 +2187,10 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
     g_free ( input );
 
     // Cleanup font setup.
-    textbox_cleanup ();
+    textbox_cleanup ( );
+    if ( map != None ) {
+        XFreeColormap ( display, map );
+    }
 
     if ( do_fork == TRUE ) {
         exit ( EXIT_SUCCESS );
@@ -2428,9 +2436,6 @@ static void cleanup ()
 {
     // Cleanup
     if ( display != NULL ) {
-        if ( map != None ) {
-            XFreeColormap ( display, map );
-        }
         if ( main_window != None ) {
             XFreeGC ( display, gc );
             XDestroyWindow ( display, main_window );
@@ -2671,14 +2676,18 @@ int main ( int argc, char *argv[] )
 
     char *msg = NULL;
     if ( find_arg_str ( argc, argv, "-e", &( msg ) ) ) {
+        // Request truecolor visual.
         XMatchVisualInfo ( display, DefaultScreen ( display ), 32, TrueColor, &vinfo );
         map = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
-        textbox_setup (
-            config.menu_bg, config.menu_bg_alt, config.menu_fg,
-            config.menu_hlbg,
-            config.menu_hlfg );
+        textbox_setup ( &vinfo, map,
+                        config.menu_bg, config.menu_bg_alt, config.menu_fg,
+                        config.menu_hlbg,
+                        config.menu_hlfg );
         error_dialog ( msg );
-        textbox_cleanup ();
+        textbox_cleanup ( );
+        if ( map != None ) {
+            XFreeColormap ( display, map );
+        }
         exit ( EXIT_SUCCESS );
     }
 

@@ -43,9 +43,7 @@
 #include <glib.h>
 #define SIDE_MARGIN    2
 
-extern Colormap    map;
-extern XVisualInfo vinfo;
-extern Display     *display;
+extern Display *display;
 
 /**
  * Font + font color cache.
@@ -56,6 +54,8 @@ XftColor     color_bg;
 XftColor     color_hlfg;
 XftColor     color_hlbg;
 XftColor     color_bg_alt;
+XVisualInfo  *visual_info;
+Colormap     target_colormap;
 
 PangoContext *p_context = NULL;
 
@@ -64,6 +64,8 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
 
 // Xft text box, optionally editable
 textbox* textbox_create ( Window parent,
+                          XVisualInfo *vinfo,
+                          Colormap map,
                           TextboxFlags flags,
                           short x, short y, short w, short h,
                           TextBoxFontType tbft,
@@ -99,7 +101,12 @@ textbox* textbox_create ( Window parent,
         break;
     }
 
-    tb->window = XCreateSimpleWindow ( display, tb->parent, tb->x, tb->y, tb->w, tb->h, 0, None, cp );
+    XSetWindowAttributes attr;
+    attr.colormap         = map;
+    attr.border_pixel     = cp;
+    attr.background_pixel = cp;
+    tb->window            = XCreateWindow ( display, tb->parent, tb->x, tb->y, tb->w, tb->h, 0, vinfo->depth,
+                                            InputOutput, vinfo->visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
 
     // need to preload the font to calc line height
     textbox_font ( tb, tbft );
@@ -237,8 +244,8 @@ void textbox_free ( textbox *tb )
 void textbox_draw ( textbox *tb )
 {
     GC      context = XCreateGC ( display, tb->window, 0, 0 );
-    Pixmap  canvas  = XCreatePixmap ( display, tb->window, tb->w, tb->h, vinfo.depth );
-    XftDraw *draw   = XftDrawCreate ( display, canvas, vinfo.visual, map );
+    Pixmap  canvas  = XCreatePixmap ( display, tb->window, tb->w, tb->h, visual_info->depth );
+    XftDraw *draw   = XftDrawCreate ( display, canvas, visual_info->visual, target_colormap );
 
     // clear canvas
     XftDrawRect ( draw, &tb->color_bg, 0, 0, tb->w, tb->h );
@@ -449,10 +456,9 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
 /***
  * Font setup.
  */
-static void parse_color ( const char *bg, XftColor *color )
+static void parse_color ( Visual *visual, Colormap colormap,
+                          const char *bg, XftColor *color )
 {
-    Visual   *visual  = vinfo.visual;
-    Colormap colormap = map;
     if ( strncmp ( bg, "argb:", 5 ) == 0 ) {
         XRenderColor col;
         unsigned int val = strtoul ( &bg[5], NULL, 16 );
@@ -467,36 +473,37 @@ static void parse_color ( const char *bg, XftColor *color )
     }
 }
 
-void textbox_setup (
-    const char *bg, const char *bg_alt, const char *fg,
-    const char *hlbg, const char *hlfg
-    )
+void textbox_setup ( XVisualInfo *visual, Colormap colormap,
+                     const char *bg, const char *bg_alt, const char *fg,
+                     const char *hlbg, const char *hlfg
+                     )
 {
-    parse_color ( bg, &color_bg );
-    parse_color ( fg, &color_fg );
-    parse_color ( bg_alt, &color_bg_alt );
-    parse_color ( hlfg, &color_hlfg );
-    parse_color ( hlbg, &color_hlbg );
+    visual_info     = visual;
+    target_colormap = colormap;
+
+    parse_color ( visual_info->visual, target_colormap, bg, &color_bg );
+    parse_color ( visual_info->visual, target_colormap, fg, &color_fg );
+    parse_color ( visual_info->visual, target_colormap, bg_alt, &color_bg_alt );
+    parse_color ( visual_info->visual, target_colormap, hlfg, &color_hlfg );
+    parse_color ( visual_info->visual, target_colormap, hlbg, &color_hlbg );
 
     PangoFontMap *font_map = pango_xft_get_font_map ( display, DefaultScreen ( display ) );
     p_context = pango_font_map_create_context ( font_map );
 }
 
 
-void textbox_cleanup ()
+void textbox_cleanup ( )
 {
     if ( p_context ) {
-        Visual   *visual  = vinfo.visual;
-        Colormap colormap = map;
-
-
-        XftColorFree ( display, visual, colormap, &color_fg );
-        XftColorFree ( display, visual, colormap, &color_bg );
-        XftColorFree ( display, visual, colormap, &color_bg_alt );
-        XftColorFree ( display, visual, colormap, &color_hlfg );
-        XftColorFree ( display, visual, colormap, &color_hlbg );
+        XftColorFree ( display, visual_info->visual, target_colormap, &color_fg );
+        XftColorFree ( display, visual_info->visual, target_colormap, &color_bg );
+        XftColorFree ( display, visual_info->visual, target_colormap, &color_bg_alt );
+        XftColorFree ( display, visual_info->visual, target_colormap, &color_hlfg );
+        XftColorFree ( display, visual_info->visual, target_colormap, &color_hlbg );
         g_object_unref ( p_context );
-        p_context = NULL;
+        p_context       = NULL;
+        visual_info     = NULL;
+        target_colormap = None;
     }
 }
 

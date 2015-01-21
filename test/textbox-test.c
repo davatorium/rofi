@@ -21,13 +21,20 @@ static int test = 0;
 }
 
 Display *display = NULL;
+Colormap    map = None;
+XVisualInfo vinfo;
 
 static unsigned int color_get ( Display *display, const char *const name )
 {
-    int      screen_id = DefaultScreen ( display );
-    XColor   color;
-    Colormap map = DefaultColormap ( display, screen_id );
-    return XAllocNamedColor ( display, map, name, &color, &color ) ? color.pixel : None;
+    int    screen_id = DefaultScreen ( display );
+    XColor color;
+    // Special format.
+    if ( strncmp ( name, "argb:", 5 ) == 0 ) {
+        return strtoul ( &name[5], NULL, 16 );
+    }
+    else {
+        return XAllocNamedColor ( display, map, name, &color, &color ) ? color.pixel : None;
+    }
 }
 
 int main ( int argc, char **argv )
@@ -39,20 +46,25 @@ int main ( int argc, char **argv )
         fprintf ( stderr, "cannot open display!\n" );
         return EXIT_FAILURE;
     }
+    XMatchVisualInfo ( display, DefaultScreen ( display ), 32, TrueColor, &vinfo );
+    map = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
 
     TASSERT( display != NULL );
     Screen *screen = DefaultScreenOfDisplay ( display );
     Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
-    Window mw = XCreateSimpleWindow ( display, root, 0, 0, 200, 100,
-                                           config.menu_bw,
-                                           color_get ( display, config.menu_bc ),
-                                           color_get ( display, config.menu_bg ) );
+    XSetWindowAttributes attr;
+    attr.colormap         = map;
+    attr.border_pixel     = color_get ( display, config.menu_bc );
+    attr.background_pixel = color_get ( display, config.menu_bg );
+    Window mw = XCreateWindow ( display, DefaultRootWindow ( display ),
+                                 0, 0, 200, 100, config.menu_bw, vinfo.depth, InputOutput,
+                                 vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
     TASSERT( mw != None );
     // Set alternate row to normal row.
     config.menu_bg_alt = config.menu_bg;
-    textbox_setup ( config.menu_bg, config.menu_bg_alt, config.menu_fg,
+    textbox_setup ( &vinfo, map, config.menu_bg, config.menu_bg_alt, config.menu_fg,
                     config.menu_hlbg, config.menu_hlfg ); 
-    textbox *box = textbox_create(mw , TB_EDITABLE|TB_AUTOWIDTH|TB_AUTOHEIGHT, 0,0, -1, -1, NORMAL, "test");
+    textbox *box = textbox_create(mw , &vinfo, map, TB_EDITABLE|TB_AUTOWIDTH|TB_AUTOHEIGHT, 0,0, -1, -1, NORMAL, "test");
     TASSERT( box != NULL );
 
     textbox_cursor_end ( box );
@@ -122,7 +134,7 @@ int main ( int argc, char **argv )
 
 
     textbox_font ( box, HIGHLIGHT );
-    textbox_draw( box );
+    textbox_draw( box);
 
     textbox_show( box );
     textbox_move ( box, 12, 13);
@@ -131,7 +143,7 @@ int main ( int argc, char **argv )
     textbox_hide( box );
 
     textbox_free(box);
-    textbox_cleanup();
+    textbox_cleanup( );
     XDestroyWindow ( display, mw);
     XCloseDisplay ( display );
 }
