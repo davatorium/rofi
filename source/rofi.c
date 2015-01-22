@@ -363,6 +363,7 @@ GC           gc          = NULL;
 
 Colormap    map = None;
 XVisualInfo vinfo;
+int         truecolor = FALSE;
 
 static void create_visual_and_colormap ()
 {
@@ -370,11 +371,14 @@ static void create_visual_and_colormap ()
     // Try to create TrueColor map
     if ( XMatchVisualInfo ( display, DefaultScreen ( display ), 32, TrueColor, &vinfo ) ) {
         // Visual found, lets try to create map.
-        map = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
+        map       = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
+        truecolor = TRUE;
     }
     // Failed to create map.
     // Use the defaults then.
     if ( map == None ) {
+        printf ( "fallback\n" );
+        truecolor = FALSE;
         // Two fields we use.
         vinfo.visual = DefaultVisual ( display, DefaultScreen ( display ) );
         vinfo.depth  = DefaultDepth ( display, DefaultScreen ( display ) );
@@ -388,10 +392,18 @@ static void create_visual_and_colormap ()
 static unsigned int color_get ( Display *display, const char *const name )
 {
     int    screen_id = DefaultScreen ( display );
-    XColor color;
+    XColor color     = { 0, };
     // Special format.
     if ( strncmp ( name, "argb:", 5 ) == 0 ) {
-        return strtoul ( &name[5], NULL, 16 );
+        color.pixel = strtoul ( &name[5], NULL, 16 );
+        color.red   = ( ( color.pixel & 0x00FF0000 ) >> 16 ) * 255;
+        color.green = ( ( color.pixel & 0x0000FF00 ) >> 8  ) * 255;
+        color.blue  = ( ( color.pixel & 0x000000FF )       ) * 255;
+        if ( !truecolor ) {
+            // This will drop alpha part.
+            return XAllocColor ( display, map, &color ) ? color.pixel : None;
+        }
+        return color.pixel;
     }
     else {
         return XAllocNamedColor ( display, map, name, &color, &color ) ? color.pixel : None;
