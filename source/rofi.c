@@ -377,7 +377,6 @@ static void create_visual_and_colormap ()
     // Failed to create map.
     // Use the defaults then.
     if ( map == None ) {
-        printf ( "fallback\n" );
         truecolor = FALSE;
         // Two fields we use.
         vinfo.visual = DefaultVisual ( display, DefaultScreen ( display ) );
