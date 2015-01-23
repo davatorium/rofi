@@ -488,6 +488,8 @@ Rofi supports the following keybindings:
 * `Ctrl-Page Up`: Go to the previous column
 * `Ctrl-Page Down`: Go to the next column
 * `Ctrl-Enter`: Use entered text as command (in ssh/run dialog)
+* `Shift-Enter`: Launch the application in a terminal (in run dialog)
+* `Shift-Enter`: Return the selected entry and move to the next item while keeping Rofi open. (in dmenu)
 * `?`: Switch to the next modi. The list can be customized with the `-switchers` argument.
 * `ctrl-/`: Switch to the previous modi. The list can be customized with the `-switchers` argument.
 * `Ctrl-space`: Set selected item as input text.
