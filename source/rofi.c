@@ -877,12 +877,6 @@ Window create_window ( Display *display )
     Window box = XCreateWindow ( display, DefaultRootWindow ( display ),
                                  0, 0, 200, 100, config.menu_bw, vinfo.depth, InputOutput,
                                  vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
-    /*
-       Window box     = XCreateSimpleWindow ( display, root, 0, 0, 200, 100,
-                                           config.menu_bw,
-                                           color_get ( display, config.menu_bc ),
-                                           color_get ( display, config.menu_bg ) );
-     */
     XSelectInput ( display, box, ExposureMask | ButtonPressMask );
 
     gc = XCreateGC ( display, box, 0, 0 );
@@ -1335,9 +1329,9 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
                     *( state->selected_line ) = state->line_map[state->selected];
                     // Quit
                     state->quit = TRUE;
-                    break;
                 }
                 state->last_button_press = xbe->time;
+                break;
             }
         }
     }
