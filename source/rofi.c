@@ -390,7 +390,6 @@ static void create_visual_and_colormap ()
  */
 static unsigned int color_get ( Display *display, const char *const name )
 {
-    int    screen_id = DefaultScreen ( display );
     XColor color     = { 0, };
     // Special format.
     if ( strncmp ( name, "argb:", 5 ) == 0 ) {
@@ -865,10 +864,6 @@ static void window_set_opacity ( Display *display, Window box, unsigned int opac
 
 Window create_window ( Display *display )
 {
-    Screen *screen = DefaultScreenOfDisplay ( display );
-    Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
-
-
     XSetWindowAttributes attr;
     attr.colormap         = map;
     attr.border_pixel     = color_get ( display, config.menu_bc );
