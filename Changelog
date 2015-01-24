@@ -1,0 +1,17 @@
+0.15.1:
+	New features:
+		- Improved transparency	
+		- Changelog
+		- Case sensitivity support, with indicator. (Edwin Pujols)
+		- Mouse scroll wheel support
+		- Alternate Row colors
+		- Run-list command for adding entries to run-dialog
+		- Dmenu: preselect line.
+	Bug fixes:
+		- Manpage fixes
+		- SSH viewer, support lists of hostnames (Tblue)
+		- SSH improve parsing of odly indented host files
+		- Do not loose keypresses when system under load
+		- Cleanups, small fixes. (Edwin Pujols, blueyed )
+	Performance improvements:
+		- Lazy refilter for large lists
