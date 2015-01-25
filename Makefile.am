@@ -82,7 +82,9 @@ EXTRA_DIST=\
     Examples/brightness_rofi.sh\
     Examples/domo_rofi_script.sh\
     ${top_srcdir}/config/config.def.c\
-    INSTALL.md
+    INSTALL.md\
+	AUTHORS\
+	Changelog
 
 ##
 # Indent
