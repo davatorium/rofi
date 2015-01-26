@@ -190,7 +190,7 @@ static void focus_window_i3 ( const char *socket_path, Window id )
 
 
     // Formulate command
-    snprintf ( command, 128, "[id=\"%d\"] focus", id );
+    snprintf ( command, 128, "[id=\"%ul\"] focus", id );
     // Prepare header.
     memcpy ( head.magic, I3_IPC_MAGIC, 6 );
     head.size = strlen ( command );
@@ -390,7 +390,7 @@ static void create_visual_and_colormap ()
  */
 static unsigned int color_get ( Display *display, const char *const name )
 {
-    XColor color     = { 0, };
+    XColor color = { 0, };
     // Special format.
     if ( strncmp ( name, "argb:", 5 ) == 0 ) {
         color.pixel = strtoul ( &name[5], NULL, 16 );
