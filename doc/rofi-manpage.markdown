@@ -454,7 +454,7 @@ override xresources).
 ## Colors
 
 Rofi has an experimental mode for a 'nicer' transparency. The idea is that you can make the
-background of the window transparent but the text not. This way, in contract to the `-opacity`
+background of the window transparent but the text not. This way, in contrast to the `-opacity`
 option, the text is still fully visible and readable.
 To use this there are 2 requirements: 1. Your Xserver supports TrueColor, 2. You are running a
 composite manager. If this is satisfied you can use the following format for colors:
@@ -464,7 +464,7 @@ composite manager. If this is satisfied you can use the following format for col
 The first two fields specify the alpha level. This determines how much the background shines through
 the color (00 everything, FF nothing). E.g. 'argb:00FF0000' gives you a bright red color with the
 background shining through. If you want a dark greenish transparent color use: 'argb:dd2c3311'. This
-can be done for any color; it is therefor possible to have solid borders,  the selected row solid,
+can be done for any color; it is therefore possible to have solid borders,  the selected row solid,
 and the others slightly transparent.
 
 ## Keybindings
