@@ -190,7 +190,7 @@ static void focus_window_i3 ( const char *socket_path, Window id )
 
 
     // Formulate command
-    snprintf ( command, 128, "[id=\"%ul\"] focus", id );
+    snprintf ( command, 128, "[id=\"%lu\"] focus", id );
     // Prepare header.
     memcpy ( head.magic, I3_IPC_MAGIC, 6 );
     head.size = strlen ( command );
