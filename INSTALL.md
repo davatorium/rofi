@@ -64,7 +64,7 @@ mkdir build
 Check dependencies and configure build system:
 
 ```
-../configure
+./configure
 ```
 
 Build rofi:
