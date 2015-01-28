@@ -61,6 +61,12 @@ Create a build directory:
 mkdir build
 ```
 
+Enter build directory:
+
+```
+cd build
+```
+
 Check dependencies and configure build system:
 
 ```
