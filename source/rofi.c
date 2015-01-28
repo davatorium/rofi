@@ -276,6 +276,11 @@ winlist *cache_xattr  = NULL;
 
 #define WINLIST    32
 
+/**
+ * Create a window list, pre-seeded with WINLIST entries.
+ *
+ * @returns A new window list.
+ */
 winlist* winlist_new ()
 {
     winlist *l = g_malloc ( sizeof ( winlist ) );
@@ -284,6 +289,16 @@ winlist* winlist_new ()
     l->data  = g_malloc_n ( WINLIST + 1, sizeof ( void* ) );
     return l;
 }
+
+/**
+ * @param l The winlist.
+ * @param w The window to add.
+ * @param d Data pointer.
+ *
+ * Add one entry. If Full, extend with WINLIST entries.
+ *
+ * @returns 0 if failed, 1 is successful.
+ */
 int winlist_append ( winlist *l, Window w, void *d )
 {
     if ( l->len > 0 && !( l->len % WINLIST ) ) {
@@ -300,12 +315,24 @@ int winlist_append ( winlist *l, Window w, void *d )
     l->array[l->len++] = w;
     return l->len - 1;
 }
+
+/**
+ * @param l The winlist entry
+ *
+ * Empty winlist without free-ing
+ */
 void winlist_empty ( winlist *l )
 {
     while ( l->len > 0 ) {
         g_free ( l->data[--( l->len )] );
     }
 }
+
+/**
+ * @param l The winlist entry
+ *
+ * Free the winlist.
+ */
 void winlist_free ( winlist *l )
 {
     winlist_empty ( l );
@@ -313,6 +340,15 @@ void winlist_free ( winlist *l )
     g_free ( l->data );
     g_free ( l );
 }
+
+/**
+ * @param l The winlist.
+ * @param w The window to find.
+ *
+ * Find the window in the list, and return the array entry.
+ *
+ * @returns -1 if failed, index is successful.
+ */
 int winlist_find ( winlist *l, Window w )
 {
 // iterate backwards. theory is: windows most often accessed will be
@@ -1870,7 +1906,6 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
         release_keyboard ();
     }
-
     // Update input string.
     g_free ( *input );
     *input = g_strdup ( state.text->text );
