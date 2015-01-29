@@ -469,17 +469,38 @@ static int pointer_get ( Display *display, Window root, int *x, int *y )
     return 0;
 }
 
-static int take_keyboard ( Window w )
+typedef enum _MainLoopEvent
 {
-    int i;
+    ML_XEVENT,
+    ML_TIMEOUT
+} MainLoopEvent;
+static inline MainLoopEvent wait_for_xevent_or_timeout ( Display *display, int x11_fd )
+{
+    // Check if events are pending.
+    if ( XPending ( display ) ) {
+        return ML_XEVENT;
+    }
+    // If not, wait for timeout.
+    struct timeval tv;
+    fd_set         in_fds;
+    // Create a File Description Set containing x11_fd
+    FD_ZERO ( &in_fds );
+    FD_SET ( x11_fd, &in_fds );
 
-    for ( i = 0; i < 1000; i++ ) {
-        if ( XGrabKeyboard ( display, w, True, GrabModeAsync, GrabModeAsync, CurrentTime ) == GrabSuccess ) {
-            return 1;
-        }
+    // Set our timer.  200ms is a decent delay
+    tv.tv_usec = 200000;
+    tv.tv_sec  = 0;
+    // Wait for X Event or a Timer
+    if ( select ( x11_fd + 1, &in_fds, 0, 0, &tv ) == 0 ) {
+        return ML_TIMEOUT;
+    }
+    return ML_XEVENT;
+}
 
-        struct timespec rsl = { 0, 100000L };
-        nanosleep ( &rsl, NULL );
+static int take_keyboard ( Display *display, Window w )
+{
+    if ( XGrabKeyboard ( display, w, True, GrabModeAsync, GrabModeAsync, CurrentTime ) == GrabSuccess ) {
+        return 1;
     }
 
     return 0;
@@ -1724,188 +1745,187 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     XMapRaised ( display, main_window );
 
     // if grabbing keyboard failed, fall through
-    if ( take_keyboard ( main_window ) ) {
-        state.selected = 0;
-        // The cast to unsigned in here is valid, we checked if selected_line > 0.
-        // So its maximum range is 0-2³¹, well within the num_lines range.
-        if ( ( *( state.selected_line ) ) >= 0 && (unsigned int) ( *( state.selected_line ) ) <= state.num_lines ) {
-            state.selected = *( state.selected_line );
+    state.selected = 0;
+    // The cast to unsigned in here is valid, we checked if selected_line > 0.
+    // So its maximum range is 0-2³¹, well within the num_lines range.
+    if ( ( *( state.selected_line ) ) >= 0 && (unsigned int) ( *( state.selected_line ) ) <= state.num_lines ) {
+        state.selected = *( state.selected_line );
+    }
+
+    state.quit = FALSE;
+    menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
+
+    int x11_fd       = ConnectionNumber ( display );
+    int has_keyboard = take_keyboard ( display, main_window );
+    while ( !state.quit ) {
+        // Update if requested.
+        if ( state.update ) {
+            menu_update ( &state );
         }
 
-        state.quit = FALSE;
-        menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
-
-        int x11_fd = ConnectionNumber ( display );
-        while ( !state.quit ) {
-            // Update if requested.
-            if ( state.update ) {
+        // Wait for event.
+        XEvent ev;
+        // Only use lazy mode above 5000 lines.
+        // Or if we still need to get window.
+        MainLoopEvent mle = ML_XEVENT;
+        // If we are in lazy mode, or trying to grab keyboard, go into timeout.
+        // Otherwise continue like we had an XEvent (and we will block on fetching this event).
+        if ( !has_keyboard || ( state.refilter && state.num_lines > config.lazy_filter_limit ) ) {
+            mle = wait_for_xevent_or_timeout ( display, x11_fd );
+            // Whatever happened, try to get keyboard.
+            has_keyboard = take_keyboard ( display, main_window );
+        }
+        // If not in lazy mode, refilter.
+        if ( state.num_lines <= config.lazy_filter_limit ) {
+            if ( state.refilter ) {
+                menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
                 menu_update ( &state );
             }
+        }
+        else if ( mle == ML_TIMEOUT ) {
+            // When timeout (and in lazy filter mode)
+            // We refilter then loop back and wait for Xevent.
+            if ( state.refilter ) {
+                menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
+                menu_update ( &state );
+            }
+            // Return like normal.
+            continue;
+        }
+        // Get next event. (might block)
+        XNextEvent ( display, &ev );
 
-            // Wait for event.
-            XEvent ev;
-            // Only use lazy mode above 5000 lines.
-            if ( state.num_lines > config.lazy_filter_limit ) {
-                // No message waiting, update been set, do timeout trick.
-                if ( state.refilter && !XPending ( display ) ) {
-                    // This implements a lazy re-filtering.
-                    struct timeval tv;
-                    fd_set         in_fds;
-                    // Create a File Description Set containing x11_fd
-                    FD_ZERO ( &in_fds );
-                    FD_SET ( x11_fd, &in_fds );
+        // Handle event.
+        if ( ev.type == Expose ) {
+            while ( XCheckTypedEvent ( display, Expose, &ev ) ) {
+                ;
+            }
+            state.update = TRUE;
+        }
+        // Button press event.
+        else if ( ev.type == ButtonPress ) {
+            while ( XCheckTypedEvent ( display, ButtonPress, &ev ) ) {
+                ;
+            }
+            menu_mouse_navigation ( &state, &( ev.xbutton ) );
+        }
+        // Paste event.
+        else if ( ev.type == SelectionNotify ) {
+            while ( XCheckTypedEvent ( display, SelectionNotify, &ev ) ) {
+                ;
+            }
+            menu_paste ( &state, &( ev.xselection ) );
+        }
+        // Key press event.
+        else if ( ev.type == KeyPress ) {
+            do {
+                if ( time ) {
+                    *time = ev.xkey.time;
+                }
 
-                    // Set our timer.  200ms is a decent delay
-                    tv.tv_usec = 200000;
-                    tv.tv_sec  = 0;
-                    // Wait for X Event or a Timer
-                    if ( select ( x11_fd + 1, &in_fds, 0, 0, &tv ) == 0 ) {
-                        // Timer expired, update.
-                        menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
-                        menu_update ( &state );
+                KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
+
+                // Handling of paste
+                if ( ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_v ) ) {
+                    XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
+                                        XA_PRIMARY : netatoms[CLIPBOARD],
+                                        netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
+                }
+                else if ( key == XK_Insert ) {
+                    XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
+                                        XA_PRIMARY : netatoms[CLIPBOARD],
+                                        netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
+                }
+                else if ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_slash ) {
+                    state.retv               = MENU_PREVIOUS;
+                    *( state.selected_line ) = 0;
+                    state.quit               = TRUE;
+                    break;
+                }
+                // Menu navigation.
+                else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
+                          key == XK_slash ) {
+                    state.retv               = MENU_NEXT;
+                    *( state.selected_line ) = 0;
+                    state.quit               = TRUE;
+                    break;
+                }
+                // Toggle case sensitivity.
+                else if ( key == XK_grave || key == XK_dead_grave
+                          || key == XK_acute ) {
+                    config.case_sensitive    = !config.case_sensitive;
+                    *( state.selected_line ) = 0;
+                    state.refilter           = TRUE;
+                    state.update             = TRUE;
+                    if ( config.case_sensitive ) {
+                        textbox_show ( state.case_indicator );
+                    }
+                    else {
+                        textbox_hide ( state.case_indicator );
                     }
                 }
-            }
-            else {
-                if ( state.refilter ) {
-                    menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
-                    menu_update ( &state );
+                // Switcher short-cut
+                else if ( ( ( ev.xkey.state & Mod1Mask ) == Mod1Mask ) &&
+                          key >= XK_1 && key <= XK_9 ) {
+                    *( state.selected_line ) = ( key - XK_1 );
+                    state.retv               = MENU_QUICK_SWITCH;
+                    state.quit               = TRUE;
+                    break;
                 }
-            }
-            XNextEvent ( display, &ev );
-
-            // Handle event.
-            if ( ev.type == Expose ) {
-                while ( XCheckTypedEvent ( display, Expose, &ev ) ) {
-                    ;
-                }
-                state.update = TRUE;
-            }
-            // Button press event.
-            else if ( ev.type == ButtonPress ) {
-                while ( XCheckTypedEvent ( display, ButtonPress, &ev ) ) {
-                    ;
-                }
-                menu_mouse_navigation ( &state, &( ev.xbutton ) );
-            }
-            // Paste event.
-            else if ( ev.type == SelectionNotify ) {
-                while ( XCheckTypedEvent ( display, SelectionNotify, &ev ) ) {
-                    ;
-                }
-                menu_paste ( &state, &( ev.xselection ) );
-            }
-            // Key press event.
-            else if ( ev.type == KeyPress ) {
-                do {
-                    if ( time ) {
-                        *time = ev.xkey.time;
-                    }
-
-                    KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
-
-                    // Handling of paste
-                    if ( ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_v ) ) {
-                        XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
-                                            XA_PRIMARY : netatoms[CLIPBOARD],
-                                            netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
-                    }
-                    else if ( key == XK_Insert ) {
-                        XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
-                                            XA_PRIMARY : netatoms[CLIPBOARD],
-                                            netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
-                    }
-                    else if ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_slash ) {
-                        state.retv               = MENU_PREVIOUS;
-                        *( state.selected_line ) = 0;
+                // Special delete entry command.
+                else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
+                          key == XK_Delete ) {
+                    if ( state.filtered[state.selected] != NULL ) {
+                        *( state.selected_line ) = state.line_map[state.selected];
+                        state.retv               = MENU_ENTRY_DELETE;
                         state.quit               = TRUE;
                         break;
                     }
-                    // Menu navigation.
-                    else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
-                              key == XK_slash ) {
-                        state.retv               = MENU_NEXT;
-                        *( state.selected_line ) = 0;
-                        state.quit               = TRUE;
-                        break;
-                    }
-                    // Toggle case sensitivity.
-                    else if ( key == XK_grave || key == XK_dead_grave
-                              || key == XK_acute ) {
-                        config.case_sensitive    = !config.case_sensitive;
-                        *( state.selected_line ) = 0;
-                        state.refilter           = TRUE;
-                        state.update             = TRUE;
-                        if ( config.case_sensitive ) {
-                            textbox_show ( state.case_indicator );
+                }
+                else{
+                    int rc = textbox_keypress ( state.text, &ev );
+                    // Row is accepted.
+                    if ( rc < 0 ) {
+                        if ( shift != NULL ) {
+                            ( *shift ) = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
                         }
-                        else {
-                            textbox_hide ( state.case_indicator );
-                        }
-                    }
-                    // Switcher short-cut
-                    else if ( ( ( ev.xkey.state & Mod1Mask ) == Mod1Mask ) &&
-                              key >= XK_1 && key <= XK_9 ) {
-                        *( state.selected_line ) = ( key - XK_1 );
-                        state.retv               = MENU_QUICK_SWITCH;
-                        state.quit               = TRUE;
-                        break;
-                    }
-                    // Special delete entry command.
-                    else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
-                              key == XK_Delete ) {
-                        if ( state.filtered[state.selected] != NULL ) {
+
+                        // If a valid item is selected, return that..
+                        if ( state.selected < state.filtered_lines && state.filtered[state.selected] != NULL ) {
                             *( state.selected_line ) = state.line_map[state.selected];
-                            state.retv               = MENU_ENTRY_DELETE;
-                            state.quit               = TRUE;
-                            break;
-                        }
-                    }
-                    else{
-                        int rc = textbox_keypress ( state.text, &ev );
-                        // Row is accepted.
-                        if ( rc < 0 ) {
-                            if ( shift != NULL ) {
-                                ( *shift ) = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
-                            }
-
-                            // If a valid item is selected, return that..
-                            if ( state.selected < state.filtered_lines && state.filtered[state.selected] != NULL ) {
-                                *( state.selected_line ) = state.line_map[state.selected];
-                                if ( strlen ( state.text->text ) > 0 && rc == -2 ) {
-                                    state.retv = MENU_CUSTOM_INPUT;
-                                }
-                                else {
-                                    state.retv = MENU_OK;
-                                }
-                            }
-                            else if ( strlen ( state.text->text ) > 0 ) {
+                            if ( strlen ( state.text->text ) > 0 && rc == -2 ) {
                                 state.retv = MENU_CUSTOM_INPUT;
                             }
-                            else{
-                                // Nothing entered and nothing selected.
-                                state.retv = MENU_CANCEL;
+                            else {
+                                state.retv = MENU_OK;
                             }
-
-                            state.quit = TRUE;
                         }
-                        // Key press is handled by entry box.
-                        else if ( rc > 0 ) {
-                            state.refilter = TRUE;
-                            state.update   = TRUE;
+                        else if ( strlen ( state.text->text ) > 0 ) {
+                            state.retv = MENU_CUSTOM_INPUT;
                         }
-                        // Other keys.
                         else{
-                            // unhandled key
-                            menu_keyboard_navigation ( &state, key, ev.xkey.state );
+                            // Nothing entered and nothing selected.
+                            state.retv = MENU_CANCEL;
                         }
-                    }
-                } while ( XCheckTypedEvent ( display, KeyPress, &ev ) );
-            }
-        }
 
-        release_keyboard ();
+                        state.quit = TRUE;
+                    }
+                    // Key press is handled by entry box.
+                    else if ( rc > 0 ) {
+                        state.refilter = TRUE;
+                        state.update   = TRUE;
+                    }
+                    // Other keys.
+                    else{
+                        // unhandled key
+                        menu_keyboard_navigation ( &state, key, ev.xkey.state );
+                    }
+                }
+            } while ( XCheckTypedEvent ( display, KeyPress, &ev ) );
+        }
     }
+
+    release_keyboard ();
     // Update input string.
     g_free ( *input );
     *input = g_strdup ( state.text->text );
@@ -1974,35 +1994,44 @@ void error_dialog ( char *msg )
     // Display it.
     XMapRaised ( display, main_window );
 
-    if ( take_keyboard ( main_window ) ) {
-        while ( !state.quit ) {
-            // Update if requested.
-            if ( state.update ) {
-                textbox_draw ( state.text );
-                state.update = FALSE;
-            }
-            // Wait for event.
-            XEvent ev;
-            XNextEvent ( display, &ev );
-
-
-            // Handle event.
-            if ( ev.type == Expose ) {
-                while ( XCheckTypedEvent ( display, Expose, &ev ) ) {
-                    ;
-                }
-                state.update = TRUE;
-            }
-            // Key press event.
-            else if ( ev.type == KeyPress ) {
-                while ( XCheckTypedEvent ( display, KeyPress, &ev ) ) {
-                    ;
-                }
-                state.quit = TRUE;
-            }
+    int x11_fd       = ConnectionNumber ( display );
+    int has_keyboard = take_keyboard ( display, main_window );
+    while ( !state.quit ) {
+        // Update if requested.
+        if ( state.update ) {
+            textbox_draw ( state.text );
+            state.update = FALSE;
         }
-        release_keyboard ();
+        // Wait for event.
+        XEvent        ev;
+        MainLoopEvent mle = ML_XEVENT;
+        if ( !has_keyboard ) {
+            mle          = wait_for_xevent_or_timeout ( display, x11_fd );
+            has_keyboard = take_keyboard ( display, main_window );
+        }
+        if ( mle == ML_TIMEOUT ) {
+            // Loop.
+            continue;
+        }
+        XNextEvent ( display, &ev );
+
+
+        // Handle event.
+        if ( ev.type == Expose ) {
+            while ( XCheckTypedEvent ( display, Expose, &ev ) ) {
+                ;
+            }
+            state.update = TRUE;
+        }
+        // Key press event.
+        else if ( ev.type == KeyPress ) {
+            while ( XCheckTypedEvent ( display, KeyPress, &ev ) ) {
+                ;
+            }
+            state.quit = TRUE;
+        }
     }
+    release_keyboard ();
 }
 
 SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
