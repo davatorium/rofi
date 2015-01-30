@@ -497,6 +497,14 @@ static inline MainLoopEvent wait_for_xevent_or_timeout ( Display *display, int x
     return ML_XEVENT;
 }
 
+/**
+ * @param display The display.
+ * @param w       Window we want to grab keyboard on.
+ *
+ * Grab keyboard and mouse.
+ *
+ * @return 1 when keyboard is grabbed, 0 not.
+ */
 static int take_keyboard ( Display *display, Window w )
 {
     if ( XGrabKeyboard ( display, w, True, GrabModeAsync, GrabModeAsync, CurrentTime ) == GrabSuccess ) {
@@ -505,7 +513,13 @@ static int take_keyboard ( Display *display, Window w )
 
     return 0;
 }
-static void release_keyboard ()
+
+/**
+ * @param display The display.
+ *
+ * Release keyboard.
+ */
+static void release_keyboard ( Display *display )
 {
     XUngrabKeyboard ( display, CurrentTime );
 }
@@ -1925,7 +1939,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         }
     }
 
-    release_keyboard ();
+    release_keyboard ( display );
     // Update input string.
     g_free ( *input );
     *input = g_strdup ( state.text->text );
@@ -2031,7 +2045,7 @@ void error_dialog ( char *msg )
             state.quit = TRUE;
         }
     }
-    release_keyboard ();
+    release_keyboard ( display );
 }
 
 SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
