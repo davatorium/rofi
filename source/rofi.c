@@ -29,14 +29,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
 #include <unistd.h>
 #include <stdint.h>
-#include <ctype.h>
 #include <signal.h>
-#include <sys/wait.h>
 #include <fcntl.h>
-#include <err.h>
 #include <errno.h>
 #include <time.h>
 #include <X11/X.h>
@@ -49,16 +45,17 @@
 #include <X11/XKBlib.h>
 #include <X11/extensions/Xinerama.h>
 
-#include "helper.h"
-#include "rofi.h"
+#include <sys/wait.h>
 
 #ifdef HAVE_I3_IPC_H
-#include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <linux/un.h>
 #include <i3/ipc.h>
 #endif
+
+#include "helper.h"
+#include "rofi.h"
 
 #include "run-dialog.h"
 #include "ssh-dialog.h"
