@@ -39,6 +39,7 @@ rofi - A window switcher, run dialog and dmenu replacement
 [ -eh *element height* ]
 [ -lazy-filter-limit *limit* ]
 [ -e *message*]
+[ -pid *path* ]
 [ -now ]
 [ -rnow ]
 [ -snow ]
@@ -418,6 +419,13 @@ The default key combinations are:
 
     Popup a message dialog (used internally for showing errors) with *message*.
     Message can be multi-line.
+
+### Other
+
+'-pid' *path*
+
+    Make **rofi** create a pid file and check this on startup. Avoiding multiple copies running
+    simultaneous. This is useful when running rofi from a keybinding daemon. 
 
 ### Debug
 

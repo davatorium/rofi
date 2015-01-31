@@ -46,6 +46,7 @@
 #include <X11/extensions/Xinerama.h>
 
 #include <sys/wait.h>
+#include <sys/file.h>
 
 #ifdef HAVE_I3_IPC_H
 #include <sys/types.h>
@@ -73,6 +74,8 @@ int  config_i3_mode = 0;
 // Path to HAVE_I3_IPC_H socket.
 char *i3_socket_path = NULL;
 #endif
+
+char         *pidfile = NULL;
 
 const char   *cache_dir   = NULL;
 unsigned int NumlockMask  = 0;
@@ -1800,7 +1803,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                 menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
                 menu_update ( &state );
             }
-            // Return like normal.
+        }
+        if ( mle == ML_TIMEOUT ) {
             continue;
         }
         // Get next event. (might block)
@@ -2453,6 +2457,8 @@ static void parse_cmd_options ( int argc, char ** argv )
         exit ( EXIT_SUCCESS );
     }
 
+    find_arg_str_alloc ( argc, argv, "-pid", &( pidfile ) );
+
     find_arg_str ( argc, argv, "-switchers", &( config.switchers ) );
     // Parse commandline arguments about the looks.
     find_arg_uint ( argc, argv, "-opacity", &( config.window_opacity ) );
@@ -2560,6 +2566,12 @@ static void cleanup ()
         }
     }
     g_free ( switchers );
+
+    // Cleanup pid file.
+    if ( pidfile ) {
+        unlink ( pidfile );
+        g_free ( pidfile );
+    }
 }
 
 /**
@@ -2701,7 +2713,42 @@ static void hup_action_handler ( int num )
         XCloseDisplay ( display );
     }
 }
+/**
+ * @param pidfile The pidfile to create.
+ */
+static void create_pid_file ( const char *pidfile )
+{
+    if ( pidfile == NULL ) {
+        return;
+    }
 
+    int fd = open ( pidfile, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
+    if ( fd < 0 ) {
+        fprintf ( stderr, "Failed to create pid file." );
+        exit ( 1 );
+    }
+    // Set it to close the File Descriptor on exit.
+    int flags = fcntl ( fd, F_GETFD, NULL );
+    flags = flags | FD_CLOEXEC;
+    if ( fcntl ( fd, F_SETFD, flags, NULL ) < 0 ) {
+        fprintf ( stderr, "Failed to set CLOEXEC on pidfile." );
+        close ( fd );
+        exit ( 1 );
+    }
+    // Try to get exclusive write lock on FD
+    int retv = flock ( fd, LOCK_EX | LOCK_NB );
+    if ( retv != 0 ) {
+        fprintf ( stderr, "Failed to set lock on pidfile: Rofi already running?\n" );
+        fprintf ( stderr, "%d %s\n", retv, strerror ( errno ) );
+        exit ( 1 );
+    }
+    ftruncate ( fd, (off_t) 0 );
+
+    // Write pid.
+    char buffer[64];
+    int length = snprintf ( buffer, 64, "%i", getpid () );
+    write ( fd, buffer, length );
+}
 
 int main ( int argc, char *argv[] )
 {
@@ -2710,6 +2757,12 @@ int main ( int argc, char *argv[] )
 
     // Get the path to the cache dir.
     cache_dir = g_get_user_cache_dir ();
+
+    // Create pid file path.
+    const char *path = g_get_user_runtime_dir ();
+    if ( path ) {
+        pidfile = g_build_filename ( path, "rofi.pid", NULL );
+    }
 
     // Register cleanup function.
     atexit ( cleanup );
@@ -2723,12 +2776,18 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
+
     load_configuration ( display );
 
     // Dump.
     if ( find_arg ( argc, argv, "-dump-xresources" ) >= 0 ) {
         xresource_dump ();
         exit ( EXIT_SUCCESS );
+    }
+
+    // Create pid file
+    if ( pidfile != NULL ) {
+        create_pid_file ( pidfile );
     }
 
     // setup_switchers

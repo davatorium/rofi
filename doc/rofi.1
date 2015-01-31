@@ -37,6 +37,7 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-eh \fIelement height\fP ]
 [ \-lazy\-filter\-limit \fIlimit\fP ]
 [ \-e \fImessage\fP]
+[ \-pid \fIpath\fP ]
 [ \-now ]
 [ \-rnow ]
 [ \-snow ]
@@ -516,6 +517,16 @@ Popup a message dialog (used internally for showing errors) with *message*.
 Message can be multi\-line.
 .fi
 .RE
+.SS Other
+.PP
+\&'\-pid' \fIpath\fP
+.PP
+.RS
+.nf
+Make **rofi** create a pid file and check this on startup. Avoiding multiple copies running
+simultaneous. This is useful when running rofi from a keybinding daemon. 
+.fi
+.RE
 .SS Debug
 .PP
 \fB\fC\-dump\-xresources\fR
@@ -652,10 +663,10 @@ Check quotes used on the commandline: e.g. used “ instead of ".
 .UE
 .SH AUTHOR
 .PP
-Qball Cow
+Qball Cow 
 .MT qball@gmpclient.org
 .ME
 .PP
-Original code based on work by: Sean Pringle
+Original code based on work by: Sean Pringle 
 .MT sean.pringle@gmail.com
 .ME

@@ -185,6 +185,16 @@ int find_arg_str ( const int argc, char * const argv[], const char * const key, 
     }
     return FALSE;
 }
+int find_arg_str_alloc ( const int argc, char * const argv[], const char * const key, char** val )
+{
+    int i = find_arg ( argc, argv, key );
+
+    if ( val != NULL && i > 0 && i < argc - 1 ) {
+        *val = g_strdup ( argv[i + 1] );
+        return TRUE;
+    }
+    return FALSE;
+}
 
 int find_arg_int ( const int argc, char * const argv[], const char * const key, int *val )
 {
