@@ -2859,10 +2859,24 @@ int main ( int argc, char *argv[] )
         exit ( EXIT_SUCCESS );
     }
 
+    // Detect if we are in dmenu mode.
+    // This has two possible causes.
+    int dmenu_mode = FALSE;
+    // 1 the user specifies it on the command-line.
+    if ( find_arg ( argc, argv, "-dmenu" ) >= 0 ) {
+        dmenu_mode = TRUE;
+    }
+    // 2 the binary that executed is called dmenu (e.g. symlink to rofi)
+    else{
+        // Get the base name of the executable called.
+        char *base_name = g_path_get_basename ( argv[0] );
+        dmenu_mode = ( strcmp ( base_name, "dmenu" ) == 0 );
+        // Free the basename for dmenu detection.
+        g_free ( base_name );
+    }
 
-    // flags to run immediately and exit
-    char *sname = NULL;
-    if ( find_arg ( argc, argv, "-dmenu" ) >= 0 || strcmp ( argv[0], "dmenu" ) == 0 ) {
+    // Dmenu mode.
+    if ( dmenu_mode == TRUE ) {
         // force off sidebar mode:
         config.sidebar_mode = FALSE;
         // Check prompt
@@ -2874,8 +2888,12 @@ int main ( int argc, char *argv[] )
         if ( retv == FALSE ) {
             return EXIT_FAILURE;
         }
+        return EXIT_SUCCESS;
     }
-    else if ( find_arg_str ( argc, argv, "-show", &sname ) == TRUE ) {
+
+    // flags to run immediately and exit
+    char *sname = NULL;
+    if ( find_arg_str ( argc, argv, "-show", &sname ) == TRUE ) {
         int index = switcher_get ( sname );
         if ( index >= 0 ) {
             run_switcher ( FALSE, index );
