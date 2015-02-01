@@ -426,7 +426,7 @@ static void create_visual_and_colormap ()
  */
 static unsigned int color_get ( Display *display, const char *const name )
 {
-    XColor color = { 0, };
+    XColor color = { 0, 0, 0, 0, 0, 0 };
     // Special format.
     if ( strncmp ( name, "argb:", 5 ) == 0 ) {
         color.pixel = strtoul ( &name[5], NULL, 16 );
@@ -1523,7 +1523,7 @@ static void menu_update ( MenuState *state )
                     state->h - line_height - ( config.padding ) - 1,
                     state->w - ( ( config.padding ) ) - 1,
                     state->h - line_height - ( config.padding ) - 1 );
-        for ( int j = 0; j < num_switchers; j++ ) {
+        for ( unsigned int j = 0; j < num_switchers; j++ ) {
             textbox_draw ( switchers[j].tb );
         }
     }
@@ -1746,7 +1746,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     if ( config.sidebar_mode == TRUE ) {
         int line_height = textbox_get_height ( state.text );
         int width       = ( state.w - ( 2 * ( config.padding ) ) ) / num_switchers;
-        for ( int j = 0; j < num_switchers; j++ ) {
+        for ( unsigned int j = 0; j < num_switchers; j++ ) {
             switchers[j].tb = textbox_create ( main_window, &vinfo, map, TB_CENTER,
                                                config.padding + j * width, state.h - line_height - config.padding,
                                                width, line_height, ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, switchers[j].name );
@@ -1951,7 +1951,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     // Free the switcher boxes.
     // When state is free'ed we should no longer need these.
     if ( config.sidebar_mode == TRUE ) {
-        for ( int j = 0; j < num_switchers; j++ ) {
+        for ( unsigned int j = 0; j < num_switchers; j++ ) {
             textbox_free ( switchers[j].tb );
             switchers[j].tb = NULL;
         }
@@ -2265,9 +2265,10 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
                 mode = ( mode + 1 ) % num_switchers;
             }
             else if ( retv == PREVIOUS_DIALOG ) {
-                if(mode == 0 ) {
+                if ( mode == 0 ) {
                     mode = num_switchers - 1;
-                }else {
+                }
+                else {
                     mode = ( mode - 1 ) % num_switchers;
                 }
             }
@@ -2704,14 +2705,16 @@ static inline void load_configuration ( Display *display )
  */
 static void hup_action_handler ( int num )
 {
-    /**
-     * Open new connection to X. It seems the XResources do not get updated
-     * on the old connection.
-     */
-    Display *display = XOpenDisplay ( display_str );
-    if ( display ) {
-        load_configuration ( display );
-        XCloseDisplay ( display );
+    if ( num == SIGHUP ) {
+        /**
+         * Open new connection to X. It seems the XResources do not get updated on the old
+         * connection.
+         */
+        Display *display = XOpenDisplay ( display_str );
+        if ( display ) {
+            load_configuration ( display );
+            XCloseDisplay ( display );
+        }
     }
 }
 /**
@@ -2914,7 +2917,12 @@ int main ( int argc, char *argv[] )
         }
 
         // Setup handler for sighub (reload config)
-        const struct sigaction hup_action = { hup_action_handler, };
+        const struct sigaction hup_action = {
+            .sa_handler  = hup_action_handler,
+            .sa_mask     =                  0,
+            .sa_flags    =                  0,
+            .sa_restorer = NULL
+        };
         sigaction ( SIGHUP, &hup_action, NULL );
 
 
