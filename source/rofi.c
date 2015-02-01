@@ -47,9 +47,9 @@
 
 #include <sys/wait.h>
 #include <sys/file.h>
+#include <sys/types.h>
 
 #ifdef HAVE_I3_IPC_H
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <linux/un.h>
 #include <i3/ipc.h>
@@ -2742,12 +2742,12 @@ static void create_pid_file ( const char *pidfile )
         fprintf ( stderr, "%d %s\n", retv, strerror ( errno ) );
         exit ( 1 );
     }
-    ftruncate ( fd, (off_t) 0 );
-
-    // Write pid.
-    char buffer[64];
-    int length = snprintf ( buffer, 64, "%i", getpid () );
-    write ( fd, buffer, length );
+    if ( ftruncate ( fd, (off_t) 0 ) == 0 ) {
+        // Write pid, not needed, but for completeness sake.
+        char buffer[64];
+        int length = snprintf ( buffer, 64, "%i", getpid () );
+        ssize_t l  = write ( fd, buffer, length );
+    }
 }
 
 int main ( int argc, char *argv[] )
