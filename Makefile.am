@@ -11,6 +11,7 @@ LIBS=\
 	@pango_LIBS@
 
 AM_CFLAGS=\
+	@EXTRA_CFLAGS@\
     @xft_CFLAGS@\
     @x11_CFLAGS@\
     @xinerama_CFLAGS@\

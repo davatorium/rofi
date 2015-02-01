@@ -2750,7 +2750,10 @@ static void create_pid_file ( const char *pidfile )
         // Write pid, not needed, but for completeness sake.
         char buffer[64];
         int length = snprintf ( buffer, 64, "%i", getpid () );
-        ssize_t l  = write ( fd, buffer, length );
+        ssize_t l  = 0;
+        while ( l < length ) {
+            l += write ( fd, &buffer[l], length - l );
+        }
     }
 }
 
@@ -2918,10 +2921,7 @@ int main ( int argc, char *argv[] )
 
         // Setup handler for sighub (reload config)
         const struct sigaction hup_action = {
-            .sa_handler  = hup_action_handler,
-            .sa_mask     =                  0,
-            .sa_flags    =                  0,
-            .sa_restorer = NULL
+            .sa_handler = hup_action_handler
         };
         sigaction ( SIGHUP, &hup_action, NULL );
 
