@@ -75,7 +75,8 @@ int  config_i3_mode = 0;
 char *i3_socket_path = NULL;
 #endif
 
-char         *pidfile = NULL;
+char *pidfile = NULL;
+static void create_pid_file ( const char *pidfile );
 
 const char   *cache_dir   = NULL;
 unsigned int NumlockMask  = 0;
@@ -2205,6 +2206,11 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
  */
 static int run_dmenu ()
 {
+    // Create pid file
+    if ( pidfile != NULL ) {
+        create_pid_file ( pidfile );
+    }
+
     // Request truecolor visual.
     create_visual_and_colormap ();
     int ret_state;
@@ -2242,6 +2248,10 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
 
         display = XOpenDisplay ( display_str );
         XSync ( display, True );
+    }
+    // Create pid file
+    if ( pidfile != NULL ) {
+        create_pid_file ( pidfile );
     }
 
     create_visual_and_colormap ();
@@ -2792,10 +2802,6 @@ int main ( int argc, char *argv[] )
         exit ( EXIT_SUCCESS );
     }
 
-    // Create pid file
-    if ( pidfile != NULL ) {
-        create_pid_file ( pidfile );
-    }
 
     // setup_switchers
     setup_switchers ();
@@ -2835,6 +2841,10 @@ int main ( int argc, char *argv[] )
 
     char *msg = NULL;
     if ( find_arg_str ( argc, argv, "-e", &( msg ) ) ) {
+        // Create pid file
+        if ( pidfile != NULL ) {
+            create_pid_file ( pidfile );
+        }
         // Request truecolor visual.
         create_visual_and_colormap ();
         textbox_setup ( &vinfo, map,
