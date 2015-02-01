@@ -2265,9 +2265,10 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
                 mode = ( mode + 1 ) % num_switchers;
             }
             else if ( retv == PREVIOUS_DIALOG ) {
-                mode = ( mode - 1 ) % num_switchers;
-                if ( mode < 0 ) {
+                if(mode == 0 ) {
                     mode = num_switchers - 1;
+                }else {
+                    mode = ( mode - 1 ) % num_switchers;
                 }
             }
             else if ( retv == RELOAD_DIALOG ) {
@@ -2520,7 +2521,7 @@ static void parse_cmd_options ( int argc, char ** argv )
 
     find_arg_int ( argc, argv, "-eh", &( config.element_height ) );
 
-    find_arg_int ( argc, argv, "-lazy-filter-limit", &( config.lazy_filter_limit ) );
+    find_arg_uint ( argc, argv, "-lazy-filter-limit", &( config.lazy_filter_limit ) );
 
     if ( find_arg ( argc, argv, "-sidebar-mode" ) >= 0 ) {
         config.sidebar_mode = TRUE;

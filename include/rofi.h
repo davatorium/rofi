@@ -204,7 +204,7 @@ typedef struct _Settings
     /** Height of an element in #chars */
     int            element_height;
     /** Sidebar mode, show the switchers */
-    int            sidebar_mode;
+    unsigned int   sidebar_mode;
     /** Lazy filter limit. */
     unsigned int   lazy_filter_limit;
 } Settings;
