@@ -49,14 +49,10 @@
 #include <sys/file.h>
 #include <sys/types.h>
 
-#ifdef HAVE_I3_IPC_H
-#include <sys/socket.h>
-#include <linux/un.h>
-#include <i3/ipc.h>
-#endif
 
 #include "helper.h"
 #include "rofi.h"
+#include "rofi-i3.h"
 
 #include "run-dialog.h"
 #include "ssh-dialog.h"
@@ -68,12 +64,8 @@
 
 #define LINE_MARGIN    3
 
-#ifdef HAVE_I3_IPC_H
 // This setting is no longer user configurable, but partial to this file:
 int  config_i3_mode = 0;
-// Path to HAVE_I3_IPC_H socket.
-char *i3_socket_path = NULL;
-#endif
 
 char *pidfile = NULL;
 static void create_pid_file ( const char *pidfile );
@@ -99,7 +91,6 @@ static int   ( *xerror )( Display *, XErrorEvent * );
     X ( _NET_WM_STATE_SKIP_PAGER ),   \
     X ( _NET_WM_STATE_ABOVE ),        \
     X ( _NET_WM_DESKTOP ),            \
-    X ( I3_SOCKET_PATH ),             \
     X ( CLIPBOARD ),                  \
     X ( UTF8_STRING ),                \
     X ( _NET_WM_WINDOW_OPACITY )
@@ -151,82 +142,6 @@ static int switcher_get ( const char *name )
 }
 
 
-#ifdef HAVE_I3_IPC_H
-/**
- * @param socket_path The I3 IPC socket.
- * @param id          The window to focus on.
- *
- * If we want to switch windows in I3, we use I3 IPC mode.
- * This works more better then sending messages via X11.
- * Hopefully at some point, I3 gets fixed and this is not needed.
- * This function takes the path to the i3 IPC socket, and the XID of the window.
- */
-static void focus_window_i3 ( const char *socket_path, Window id )
-{
-    i3_ipc_header_t    head;
-    char               command[128];
-    int                s, len;
-    ssize_t            t;
-    struct sockaddr_un remote;
-
-    if ( strlen ( socket_path ) > UNIX_PATH_MAX ) {
-        fprintf ( stderr, "Socket path is to long. %zd > %d\n", strlen ( socket_path ), UNIX_PATH_MAX );
-        return;
-    }
-
-    if ( ( s = socket ( AF_UNIX, SOCK_STREAM, 0 ) ) == -1 ) {
-        fprintf ( stderr, "Failed to open connection to I3: %s\n", strerror ( errno ) );
-        return;
-    }
-
-    remote.sun_family = AF_UNIX;
-    strcpy ( remote.sun_path, socket_path );
-    len = strlen ( remote.sun_path ) + sizeof ( remote.sun_family );
-
-    if ( connect ( s, ( struct sockaddr * ) &remote, len ) == -1 ) {
-        fprintf ( stderr, "Failed to connect to I3 (%s): %s\n", socket_path, strerror ( errno ) );
-        close ( s );
-        return;
-    }
-
-
-    // Formulate command
-    snprintf ( command, 128, "[id=\"%lu\"] focus", id );
-    // Prepare header.
-    memcpy ( head.magic, I3_IPC_MAGIC, 6 );
-    head.size = strlen ( command );
-    head.type = I3_IPC_MESSAGE_TYPE_COMMAND;
-    // Send header.
-    t = send ( s, &head, sizeof ( i3_ipc_header_t ), 0 );
-    if ( t == -1 ) {
-        char *msg = g_strdup_printf ( "Failed to send message header to i3: %s\n", strerror ( errno ) );
-        error_dialog ( msg );
-        g_free ( msg );
-        close ( s );
-        return;
-    }
-    // Send message
-    t = send ( s, command, strlen ( command ), 0 );
-    if ( t == -1 ) {
-        char *msg = g_strdup_printf ( "Failed to send message body to i3: %s\n", strerror ( errno ) );
-        error_dialog ( msg );
-        g_free ( msg );
-        close ( s );
-        return;
-    }
-    // Receive header.
-    t = recv ( s, &head, sizeof ( head ), 0 );
-
-    if ( t == sizeof ( head ) ) {
-        t = recv ( s, command, head.size, 0 );
-        if ( t == head.size ) {
-            // Response.
-        }
-    }
-
-    close ( s );
-}
-#endif
 
 void catch_exit ( __attribute__( ( unused ) ) int sig )
 {
@@ -578,7 +493,7 @@ static int window_get_prop ( Window w, Atom prop, Atom *type, int *items, void *
 
 // retrieve a text property from a window
 // technically we could use window_get_prop(), but this is better for character set support
-static char* window_get_text_prop ( Window w, Atom atom )
+char* window_get_text_prop ( Window w, Atom atom )
 {
     XTextProperty prop;
     char          *res   = NULL;
@@ -2092,14 +2007,11 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
                  && !client_has_state ( c, netatoms[_NET_WM_STATE_SKIP_TASKBAR] ) ) {
                 classfield = MAX ( classfield, strlen ( c->class ) );
 
-#ifdef HAVE_I3_IPC_H
-
                 // In i3 mode, skip the i3bar completely.
                 if ( config_i3_mode && strstr ( c->class, "i3bar" ) != NULL ) {
                     continue;
                 }
 
-#endif
                 if ( c->window == curr_win_id ) {
                     c->active = TRUE;
                 }
@@ -2111,18 +2023,14 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
         if ( !window_get_cardinal_prop ( root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1 ) ) {
             desktops = 1;
         }
-#ifdef HAVE_I3_IPC_H
         if ( config_i3_mode ) {
             sprintf ( pattern, "%%-%ds   %%s", MAX ( 5, classfield ) );
         }
         else{
-#endif
-        sprintf ( pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX ( 5, classfield ) );
-#ifdef HAVE_I3_IPC_H
-    }
-#endif
-        char **list        = g_malloc0_n ( ( ids->len + 1 ), sizeof ( char* ) );
-        unsigned int lines = 0;
+            sprintf ( pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX ( 5, classfield ) );
+        }
+        char         **list = g_malloc0_n ( ( ids->len + 1 ), sizeof ( char* ) );
+        unsigned int lines  = 0;
 
         // build the actual list
         for ( i = 0; i < ( ids->len ); i++ ) {
@@ -2135,34 +2043,30 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
                 char          desktop[5];
                 desktop[0] = 0;
                 char          *line = g_malloc ( strlen ( c->title ) + strlen ( c->class ) + classfield + 50 );
-#ifdef HAVE_I3_IPC_H
                 if ( !config_i3_mode ) {
-#endif
-                // find client's desktop. this is zero-based, so we adjust by since most
-                // normal people don't think like this :-)
-                if ( !window_get_cardinal_prop ( c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1 ) ) {
-                    wmdesktop = 0xFFFFFFFF;
-                }
+                    // find client's desktop. this is zero-based, so we adjust by since most
+                    // normal people don't think like this :-)
+                    if ( !window_get_cardinal_prop ( c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1 ) ) {
+                        wmdesktop = 0xFFFFFFFF;
+                    }
 
-                if ( wmdesktop < 0xFFFFFFFF ) {
-                    sprintf ( desktop, "%d", (int) wmdesktop + 1 );
-                }
+                    if ( wmdesktop < 0xFFFFFFFF ) {
+                        sprintf ( desktop, "%d", (int) wmdesktop + 1 );
+                    }
 
-                sprintf ( line, pattern, desktop, c->class, c->title );
-#ifdef HAVE_I3_IPC_H
-            }
-            else{
-                sprintf ( line, pattern, c->class, c->title );
-            }
-#endif
+                    sprintf ( line, pattern, desktop, c->class, c->title );
+                }
+                else{
+                    sprintf ( line, pattern, c->class, c->title );
+                }
 
                 list[lines++] = line;
             }
         }
-        Time time;
-        int selected_line = 0;
-        MenuReturn mretv  = menu ( list, lines, input, "window:", &time, NULL,
-                                   window_match, ids, &selected_line, config.levenshtein_sort );
+        Time       time;
+        int        selected_line = 0;
+        MenuReturn mretv         = menu ( list, lines, input, "window:", &time, NULL,
+                                          window_match, ids, &selected_line, config.levenshtein_sort );
 
         if ( mretv == MENU_NEXT ) {
             retv = NEXT_DIALOG;
@@ -2174,15 +2078,11 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
             retv = selected_line;
         }
         else if ( ( mretv == MENU_OK || mretv == MENU_CUSTOM_INPUT ) && list[selected_line] ) {
-#ifdef HAVE_I3_IPC_H
-
             if ( config_i3_mode ) {
                 // Hack for i3.
-                focus_window_i3 ( i3_socket_path, ids->array[selected_line] );
+                i3_support_focus_window ( ids->array[selected_line] );
             }
-            else
-#endif
-            {
+            else{
                 // Change to the desktop of the selected window/client.
                 // TODO: get rid of strtol
                 window_send_message ( root, root, netatoms[_NET_CURRENT_DESKTOP], strtol ( list[selected_line], NULL, 10 ) - 1,
@@ -2399,8 +2299,8 @@ static void parse_key ( char *combo, unsigned int *mod, KeySym *key )
 // bind a key combination on a root window, compensating for Lock* states
 static void grab_key ( Display *display, unsigned int modmask, KeySym key )
 {
-    Screen *screen  = DefaultScreenOfDisplay ( display );
-    Window root     = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
+    Screen  *screen = DefaultScreenOfDisplay ( display );
+    Window  root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
     KeyCode keycode = XKeysymToKeycode ( display, key );
     XUngrabKey ( display, keycode, AnyModifier, root );
 
@@ -2421,22 +2321,6 @@ static void grab_key ( Display *display, unsigned int modmask, KeySym key )
 }
 
 
-#ifdef HAVE_I3_IPC_H
-/**
- * Get the i3 socket from the X root window.
- */
-static inline void display_get_i3_path ( Display *display )
-{
-    // Get the default screen.
-    Screen *screen = DefaultScreenOfDisplay ( display );
-    // Find the root window (each X has one.).
-    Window root = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
-    // Get the i3 path property.
-    i3_socket_path = window_get_text_prop ( root, netatoms[I3_SOCKET_PATH] );
-    // If we find it, go into i3 mode.
-    config_i3_mode = ( i3_socket_path != NULL ) ? TRUE : FALSE;
-}
-#endif //HAVE_I3_IPC_H
 
 
 /**
@@ -2559,13 +2443,9 @@ static void cleanup ()
     if ( cache_client != NULL ) {
         winlist_free ( cache_client );
     }
-#ifdef HAVE_I3_IPC_H
 
-    if ( i3_socket_path != NULL ) {
-        g_free ( i3_socket_path );
-    }
+    i3_support_free_internals ();
 
-#endif
 
     // Cleaning up memory allocated by the Xresources file.
     // TODO, not happy with this.
@@ -2689,7 +2569,7 @@ static void setup_switchers ( void )
 /**
  * Keep a copy of arc, argv around, so we can use the same parsing method
  */
-static int stored_argc;
+static int  stored_argc;
 static char **stored_argv;
 
 /**
@@ -2758,9 +2638,9 @@ static void create_pid_file ( const char *pidfile )
     }
     if ( ftruncate ( fd, (off_t) 0 ) == 0 ) {
         // Write pid, not needed, but for completeness sake.
-        char buffer[64];
-        int length = snprintf ( buffer, 64, "%i", getpid () );
-        ssize_t l  = 0;
+        char    buffer[64];
+        int     length = snprintf ( buffer, 64, "%i", getpid () );
+        ssize_t l      = 0;
         while ( l < length ) {
             l += write ( fd, &buffer[l], length - l );
         }
@@ -2816,7 +2696,7 @@ int main ( int argc, char *argv[] )
 
     // determine numlock mask so we can bind on keys with and without it
     XModifierKeymap *modmap = XGetModifierMapping ( display );
-    KeyCode kc              = XKeysymToKeycode ( display, XK_Num_Lock );
+    KeyCode         kc      = XKeysymToKeycode ( display, XK_Num_Lock );
     for ( int i = 0; i < 8; i++ ) {
         for ( int j = 0; j < ( int ) modmap->max_keypermod; j++ ) {
             if ( modmap->modifiermap[i * modmap->max_keypermod + j] == kc ) {
@@ -2834,10 +2714,8 @@ int main ( int argc, char *argv[] )
         netatoms[i] = XInternAtom ( display, netatom_names[i], False );
     }
 
-#ifdef HAVE_I3_IPC_H
     // Check for i3
-    display_get_i3_path ( display );
-#endif
+    config_i3_mode = i3_support_initialize ( display );
 
     char *msg = NULL;
     if ( find_arg_str ( argc, argv, "-e", &( msg ) ) ) {

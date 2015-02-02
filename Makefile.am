@@ -23,6 +23,7 @@ AM_CFLAGS=\
 
 rofi_SOURCES=\
     source/rofi.c\
+	source/rofi-i3.c\
     source/textbox.c\
     source/xrmoptions.c\
     source/dmenu-dialog.c\
@@ -33,6 +34,7 @@ rofi_SOURCES=\
     config/config.c\
 	source/helper.c\
     include/rofi.h\
+    include/rofi-i3.h\
     include/run-dialog.h\
     include/ssh-dialog.h\
     include/dmenu-dialog.h\

@@ -21,8 +21,13 @@ AC_USE_SYSTEM_EXTENSIONS
 ##
 # I3 check
 ##
-AC_CHECK_HEADERS([i3/ipc.h],
-	[i3_header=yes; break;])
+AC_ARG_ENABLE(i3support,
+        [AS_HELP_STRING([--disable-i3support], [Disable check for i3 support])])
+if test "x$enable_i3support" != xno;
+then
+    AC_CHECK_HEADERS([i3/ipc.h],
+        [i3_header=yes; break;])
+fi
 
 
 dnl ---------------------------------------------------------------------

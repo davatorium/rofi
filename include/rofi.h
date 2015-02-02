@@ -219,4 +219,14 @@ extern Settings config;
  */
 void error_dialog ( char *msg );
 
+/**
+ * @param w The Window to read property from.
+ * @param atom The property identifier
+ *
+ * Get text property defined by atom from window.
+ * Support utf8.
+ *
+ * @returns a newly allocated string with the result or NULL
+ */
+char* window_get_text_prop ( Window w, Atom atom );
 #endif
