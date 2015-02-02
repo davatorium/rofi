@@ -4,10 +4,11 @@ compiler:
 
 before_install:
     -   sudo apt-get update -qq
-    -   sudo apt-get install -y libxinerama-dev autoconf automake make libxft-dev libx11-dev libpango1.0-dev xvfb xdotool
+    -   sudo apt-get install -y i3-wm libxinerama-dev autoconf automake make libxft-dev libx11-dev libpango1.0-dev xvfb xdotool
     -   sudo pip install cpp-coveralls
 
 script:
     - autoreconf -i && ./configure --enable-gcov && make &&  make test
+    - make clean && autoreconf -i && ./configure --disable-i3support && make 
 after_success:
   - coveralls -x c  --gcov-options '\-lp' -e '<built-in>'
