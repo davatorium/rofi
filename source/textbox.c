@@ -156,12 +156,18 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
 void textbox_text ( textbox *tb, char *text )
 {
     g_free ( tb->text );
-
-    if ( g_utf8_validate ( text, -1, NULL ) ) {
+    const gchar *last_pointer = NULL;
+    if ( g_utf8_validate ( text, -1, &last_pointer ) ) {
         tb->text = g_strdup ( text );
     }
     else {
-        tb->text = g_strdup ( "Invalid UTF-8 string." );
+        if ( last_pointer != NULL ) {
+            // Copy string up to invalid character.
+            tb->text = g_strndup ( text, ( last_pointer - text ) );
+        }
+        else {
+            tb->text = g_strdup ( "Invalid UTF-8 string." );
+        }
     }
     pango_layout_set_text ( tb->layout, tb->text, strlen ( tb->text ) );
 
