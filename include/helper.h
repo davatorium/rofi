@@ -138,4 +138,11 @@ int token_match ( char **tokens, const char *input, int case_sensitive,
  * @returns a valid file descriptor on success, or -1 on failure.
  */
 int execute_generator ( char * cmd ) __attribute__( ( nonnull ) );
+
+/**
+ * @param pidfile The pidfile to create.
+ *
+ * Calls exit (1) when failed.
+ */
+void create_pid_file ( const char *pidfile );
 #endif // __HELPER_H__

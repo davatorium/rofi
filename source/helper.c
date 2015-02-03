@@ -1,10 +1,15 @@
+#include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
 #include <string.h>
-#include <helper.h>
-#include <config.h>
-#include <rofi.h>
+#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/file.h>
+#include "helper.h"
+#include "rofi.h"
 
 /**
  *  `fgets` implementation with custom separator.
@@ -190,6 +195,9 @@ int find_arg_str_alloc ( const int argc, char * const argv[], const char * const
     int i = find_arg ( argc, argv, key );
 
     if ( val != NULL && i > 0 && i < argc - 1 ) {
+        if ( *val != NULL ) {
+            g_free ( *val );
+        }
         *val = g_strdup ( argv[i + 1] );
         return TRUE;
     }
@@ -330,4 +338,42 @@ int execute_generator ( char * cmd )
     }
     g_strfreev ( args );
     return fd;
+}
+
+
+void create_pid_file ( const char *pidfile )
+{
+    if ( pidfile == NULL ) {
+        return;
+    }
+
+    int fd = open ( pidfile, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
+    if ( fd < 0 ) {
+        fprintf ( stderr, "Failed to create pid file." );
+        exit ( EXIT_FAILURE );
+    }
+    // Set it to close the File Descriptor on exit.
+    int flags = fcntl ( fd, F_GETFD, NULL );
+    flags = flags | FD_CLOEXEC;
+    if ( fcntl ( fd, F_SETFD, flags, NULL ) < 0 ) {
+        fprintf ( stderr, "Failed to set CLOEXEC on pidfile." );
+        close ( fd );
+        exit ( EXIT_FAILURE );
+    }
+    // Try to get exclusive write lock on FD
+    int retv = flock ( fd, LOCK_EX | LOCK_NB );
+    if ( retv != 0 ) {
+        fprintf ( stderr, "Failed to set lock on pidfile: Rofi already running?\n" );
+        fprintf ( stderr, "%d %s\n", retv, strerror ( errno ) );
+        exit ( EXIT_FAILURE );
+    }
+    if ( ftruncate ( fd, (off_t) 0 ) == 0 ) {
+        // Write pid, not needed, but for completeness sake.
+        char    buffer[64];
+        int     length = snprintf ( buffer, 64, "%i", getpid () );
+        ssize_t l      = 0;
+        while ( l < length ) {
+            l += write ( fd, &buffer[l], length - l );
+        }
+    }
 }

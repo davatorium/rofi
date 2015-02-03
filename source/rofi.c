@@ -32,7 +32,6 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <signal.h>
-#include <fcntl.h>
 #include <errno.h>
 #include <time.h>
 #include <X11/X.h>
@@ -46,9 +45,7 @@
 #include <X11/extensions/Xinerama.h>
 
 #include <sys/wait.h>
-#include <sys/file.h>
 #include <sys/types.h>
-
 
 #include "helper.h"
 #include "rofi.h"
@@ -65,10 +62,10 @@
 #define LINE_MARGIN    3
 
 // This setting is no longer user configurable, but partial to this file:
-int  config_i3_mode = 0;
+int config_i3_mode = 0;
 
-char *pidfile = NULL;
-static void create_pid_file ( const char *pidfile );
+// Pidfile.
+char         *pidfile = NULL;
 
 const char   *cache_dir   = NULL;
 unsigned int NumlockMask  = 0;
@@ -2107,9 +2104,7 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
 static int run_dmenu ()
 {
     // Create pid file
-    if ( pidfile != NULL ) {
-        create_pid_file ( pidfile );
-    }
+    create_pid_file ( pidfile );
 
     // Request truecolor visual.
     create_visual_and_colormap ();
@@ -2150,9 +2145,7 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
         XSync ( display, True );
     }
     // Create pid file
-    if ( pidfile != NULL ) {
-        create_pid_file ( pidfile );
-    }
+    create_pid_file ( pidfile );
 
     create_visual_and_colormap ();
 
@@ -2607,45 +2600,6 @@ static void hup_action_handler ( int num )
         }
     }
 }
-/**
- * @param pidfile The pidfile to create.
- */
-static void create_pid_file ( const char *pidfile )
-{
-    if ( pidfile == NULL ) {
-        return;
-    }
-
-    int fd = open ( pidfile, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
-    if ( fd < 0 ) {
-        fprintf ( stderr, "Failed to create pid file." );
-        exit ( 1 );
-    }
-    // Set it to close the File Descriptor on exit.
-    int flags = fcntl ( fd, F_GETFD, NULL );
-    flags = flags | FD_CLOEXEC;
-    if ( fcntl ( fd, F_SETFD, flags, NULL ) < 0 ) {
-        fprintf ( stderr, "Failed to set CLOEXEC on pidfile." );
-        close ( fd );
-        exit ( 1 );
-    }
-    // Try to get exclusive write lock on FD
-    int retv = flock ( fd, LOCK_EX | LOCK_NB );
-    if ( retv != 0 ) {
-        fprintf ( stderr, "Failed to set lock on pidfile: Rofi already running?\n" );
-        fprintf ( stderr, "%d %s\n", retv, strerror ( errno ) );
-        exit ( 1 );
-    }
-    if ( ftruncate ( fd, (off_t) 0 ) == 0 ) {
-        // Write pid, not needed, but for completeness sake.
-        char    buffer[64];
-        int     length = snprintf ( buffer, 64, "%i", getpid () );
-        ssize_t l      = 0;
-        while ( l < length ) {
-            l += write ( fd, &buffer[l], length - l );
-        }
-    }
-}
 
 int main ( int argc, char *argv[] )
 {
@@ -2720,9 +2674,8 @@ int main ( int argc, char *argv[] )
     char *msg = NULL;
     if ( find_arg_str ( argc, argv, "-e", &( msg ) ) ) {
         // Create pid file
-        if ( pidfile != NULL ) {
-            create_pid_file ( pidfile );
-        }
+        create_pid_file ( pidfile );
+
         // Request truecolor visual.
         create_visual_and_colormap ();
         textbox_setup ( &vinfo, map,
