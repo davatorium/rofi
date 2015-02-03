@@ -118,7 +118,7 @@ static XrmOption xrmOptions[] = {
 };
 
 
-void parse_xresource_options ( Display *display )
+void config_parse_xresource_options ( Display *display )
 {
     char *xRMS;
     // Map Xresource entries to rofi config options.
@@ -174,7 +174,7 @@ void parse_xresource_options ( Display *display )
     XrmDestroyDatabase ( xDB );
 }
 
-void parse_xresource_free ( void )
+void config_xresource_free ( void )
 {
     for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( *xrmOptions ); ++i ) {
         if ( xrmOptions[i].mem != NULL ) {

@@ -7,12 +7,12 @@
  * Parse the rofi related X resource options of the
  * connected X server.
  */
-void parse_xresource_options ( Display *display );
+void config_parse_xresource_options ( Display *display );
 
 /**
  * Free any allocated memory.
  */
-void parse_xresource_free ( void );
+void config_xresource_free ( void );
 
 /**
  * Dump the settings in a Xresources compatible way to

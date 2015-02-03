@@ -217,7 +217,7 @@ extern Settings config;
  *
  * The error message to show.
  */
-void error_dialog ( char *msg );
+void error_dialog ( const char *msg );
 
 /**
  * @param w The Window to read property from.

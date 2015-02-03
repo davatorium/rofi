@@ -47,7 +47,7 @@ textbox* textbox_create ( Window parent,
                           TextboxFlags flags,
                           short x, short y, short w, short h,
                           TextBoxFontType tbft,
-                          char *text );
+                          const char *text );
 /**
  * @param tb  Handle to the textbox
  *
@@ -69,7 +69,7 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft );
  *
  * Set the text to show. Cursor is moved to end (if visible)
  */
-void textbox_text ( textbox *tb, char *text );
+void textbox_text ( textbox *tb, const char *text );
 
 /**
  * @param tb  Handle to the textbox

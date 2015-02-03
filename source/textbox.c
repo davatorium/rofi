@@ -69,7 +69,7 @@ textbox* textbox_create ( Window parent,
                           TextboxFlags flags,
                           short x, short y, short w, short h,
                           TextBoxFontType tbft,
-                          char *text )
+                          const char *text )
 {
     textbox *tb = g_malloc0 ( sizeof ( textbox ) );
 
@@ -153,7 +153,7 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
 }
 
 // set the default text to display
-void textbox_text ( textbox *tb, char *text )
+void textbox_text ( textbox *tb, const char *text )
 {
     g_free ( tb->text );
     const gchar *last_pointer = NULL;

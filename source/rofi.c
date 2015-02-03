@@ -1873,7 +1873,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     return retv;
 }
 
-void error_dialog ( char *msg )
+void error_dialog ( const char *msg )
 {
     MenuState state = {
         .selected_line     = NULL,
@@ -2314,8 +2314,6 @@ static void grab_key ( Display *display, unsigned int modmask, KeySym key )
 }
 
 
-
-
 /**
  * Help function. This calls man.
  */
@@ -2328,93 +2326,6 @@ static void help ()
     }
 }
 
-/**
- * Parse commandline options.
- */
-static void parse_cmd_options ( int argc, char ** argv )
-{
-    // catch help request
-    if ( find_arg ( argc, argv, "-h" ) >= 0 ||
-         find_arg ( argc, argv, "-help" ) >= 0 ) {
-        help ();
-        exit ( EXIT_SUCCESS );
-    }
-
-    if ( find_arg ( argc, argv, "-v" ) >= 0 ||
-         find_arg ( argc, argv, "-version" ) >= 0 ) {
-        fprintf ( stdout, "Version: "VERSION "\n" );
-        exit ( EXIT_SUCCESS );
-    }
-
-    find_arg_str_alloc ( argc, argv, "-pid", &( pidfile ) );
-
-    find_arg_str ( argc, argv, "-switchers", &( config.switchers ) );
-    // Parse commandline arguments about the looks.
-    find_arg_uint ( argc, argv, "-opacity", &( config.window_opacity ) );
-
-    find_arg_int ( argc, argv, "-width", &( config.menu_width ) );
-
-    find_arg_uint ( argc, argv, "-lines", &( config.menu_lines ) );
-    find_arg_uint ( argc, argv, "-columns", &( config.menu_columns ) );
-
-    find_arg_str ( argc, argv, "-font", &( config.menu_font ) );
-    find_arg_str ( argc, argv, "-fg", &( config.menu_fg ) );
-    find_arg_str ( argc, argv, "-bg", &( config.menu_bg ) );
-    find_arg_str ( argc, argv, "-bgalt", &( config.menu_bg_alt ) );
-    find_arg_str ( argc, argv, "-hlfg", &( config.menu_hlfg ) );
-    find_arg_str ( argc, argv, "-hlbg", &( config.menu_hlbg ) );
-    find_arg_str ( argc, argv, "-bc", &( config.menu_bc ) );
-    find_arg_uint ( argc, argv, "-bw", &( config.menu_bw ) );
-
-    // Parse commandline arguments about size and position
-    find_arg_uint ( argc, argv, "-location", &( config.location ) );
-    find_arg_uint ( argc, argv, "-padding", &( config.padding ) );
-    find_arg_int ( argc, argv, "-xoffset", &( config.x_offset ) );
-    find_arg_int ( argc, argv, "-yoffset", &( config.y_offset ) );
-    if ( find_arg ( argc, argv, "-fixed-num-lines" ) >= 0 ) {
-        config.fixed_num_lines = 1;
-    }
-    if ( find_arg ( argc, argv, "-disable-history" ) >= 0 ) {
-        config.disable_history = TRUE;
-    }
-    if ( find_arg ( argc, argv, "-levenshtein-sort" ) >= 0 ) {
-        config.levenshtein_sort = TRUE;
-    }
-    if ( find_arg ( argc, argv, "-case-sensitive" ) >= 0 ) {
-        config.case_sensitive = TRUE;
-    }
-
-    // Parse commandline arguments about behavior
-    find_arg_str ( argc, argv, "-terminal", &( config.terminal_emulator ) );
-
-    if ( find_arg ( argc, argv, "-hmode" ) >= 0 ) {
-        config.hmode = TRUE;
-    }
-
-    find_arg_str ( argc, argv, "-ssh-client", &( config.ssh_client ) );
-    find_arg_str ( argc, argv, "-ssh-command", &( config.ssh_command ) );
-    find_arg_str ( argc, argv, "-run-command", &( config.run_command ) );
-    find_arg_str ( argc, argv, "-run-list-command", &( config.run_list_command ) );
-    find_arg_str ( argc, argv, "-run-shell-command", &( config.run_shell_command ) );
-
-    // Keybindings
-    find_arg_str ( argc, argv, "-key", &( config.window_key ) );
-    find_arg_str ( argc, argv, "-rkey", &( config.run_key ) );
-    find_arg_str ( argc, argv, "-skey", &( config.ssh_key ) );
-
-
-
-    find_arg_char ( argc, argv, "-sep", &( config.separator ) );
-
-
-    find_arg_int ( argc, argv, "-eh", &( config.element_height ) );
-
-    find_arg_uint ( argc, argv, "-lazy-filter-limit", &( config.lazy_filter_limit ) );
-
-    if ( find_arg ( argc, argv, "-sidebar-mode" ) >= 0 ) {
-        config.sidebar_mode = TRUE;
-    }
-}
 
 /**
  * Function bound by 'atexit'.
@@ -2442,7 +2353,7 @@ static void cleanup ()
 
     // Cleaning up memory allocated by the Xresources file.
     // TODO, not happy with this.
-    parse_xresource_free ();
+    config_xresource_free ();
 
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
         // only used for script dialog.
@@ -2456,41 +2367,6 @@ static void cleanup ()
     if ( pidfile ) {
         unlink ( pidfile );
         g_free ( pidfile );
-    }
-}
-
-/**
- * Do some input validation, especially the first few could break things.
- * It is good to catch them beforehand.
- *
- * This functions exits the program with 1 when it finds an invalid configuration.
- */
-static void config_sanity_check ( void )
-{
-    if ( config.element_height < 1 ) {
-        fprintf ( stderr, "config.element_height is invalid. It needs to be atleast 1 line high.\n" );
-        exit ( 1 );
-    }
-    if ( config.menu_columns == 0 ) {
-        fprintf ( stderr, "config.menu_columns is invalid. You need at least one visible column.\n" );
-        exit ( 1 );
-    }
-    if ( config.menu_width == 0 ) {
-        fprintf ( stderr, "config.menu_width is invalid. You cannot have a window with no width.\n" );
-        exit ( 1 );
-    }
-    if ( !( config.location >= WL_CENTER && config.location <= WL_WEST ) ) {
-        fprintf ( stderr, "config.location is invalid. ( %d >= %d >= %d) does not hold.\n",
-                  WL_WEST, config.location, WL_CENTER );
-        exit ( 1 );
-    }
-    if ( !( config.hmode == TRUE || config.hmode == FALSE ) ) {
-        fprintf ( stderr, "config.hmode is invalid.\n" );
-        exit ( 1 );
-    }
-    // If alternative row is not set, copy the normal background color.
-    if ( config.menu_bg_alt == NULL ) {
-        config.menu_bg_alt = config.menu_bg;
     }
 }
 
@@ -2573,10 +2449,10 @@ static char **stored_argv;
 static inline void load_configuration ( Display *display )
 {
     // Load in config from X resources.
-    parse_xresource_options ( display );
+    config_parse_xresource_options ( display );
 
     // Parse command line for settings.
-    parse_cmd_options ( stored_argc, stored_argv );
+    config_parse_cmd_options ( stored_argc, stored_argv );
 
     // Sanity check
     config_sanity_check ();
@@ -2601,18 +2477,52 @@ static void hup_action_handler ( int num )
     }
 }
 
+static void show_error_message( const char *msg )
+{
+    // Create pid file
+    create_pid_file ( pidfile );
+
+    // Request truecolor visual.
+    create_visual_and_colormap ();
+    textbox_setup ( &vinfo, map,
+            config.menu_bg, config.menu_bg_alt, config.menu_fg,
+            config.menu_hlbg,
+            config.menu_hlfg );
+    error_dialog ( msg );
+    textbox_cleanup ( );
+    if ( map != None ) {
+        XFreeColormap ( display, map );
+    }
+}
+
 int main ( int argc, char *argv[] )
 {
     stored_argc = argc;
     stored_argv = argv;
 
+    // catch help request
+    if ( find_arg ( argc, argv, "-h" ) >= 0 ||
+         find_arg ( argc, argv, "-help" ) >= 0 ) {
+        help ();
+        exit ( EXIT_SUCCESS );
+    }
+    // Version
+    if ( find_arg ( argc, argv, "-v" ) >= 0 ||
+         find_arg ( argc, argv, "-version" ) >= 0 ) {
+        fprintf ( stdout, "Version: "VERSION "\n" );
+        exit ( EXIT_SUCCESS );
+    }
+
+
     // Get the path to the cache dir.
     cache_dir = g_get_user_cache_dir ();
 
     // Create pid file path.
-    const char *path = g_get_user_runtime_dir ();
-    if ( path ) {
-        pidfile = g_build_filename ( path, "rofi.pid", NULL );
+    if( find_arg_str_alloc ( argc, argv, "-pid", &( pidfile ) ) == FALSE ) {
+        const char *path = g_get_user_runtime_dir ();
+        if ( path ) {
+            pidfile = g_build_filename ( path, "rofi.pid", NULL );
+        }
     }
 
     // Register cleanup function.
@@ -2673,20 +2583,7 @@ int main ( int argc, char *argv[] )
 
     char *msg = NULL;
     if ( find_arg_str ( argc, argv, "-e", &( msg ) ) ) {
-        // Create pid file
-        create_pid_file ( pidfile );
-
-        // Request truecolor visual.
-        create_visual_and_colormap ();
-        textbox_setup ( &vinfo, map,
-                        config.menu_bg, config.menu_bg_alt, config.menu_fg,
-                        config.menu_hlbg,
-                        config.menu_hlfg );
-        error_dialog ( msg );
-        textbox_cleanup ( );
-        if ( map != None ) {
-            XFreeColormap ( display, map );
-        }
+        show_error_message(msg);
         exit ( EXIT_SUCCESS );
     }
 
