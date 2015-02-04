@@ -380,7 +380,6 @@ void create_pid_file ( const char *pidfile )
 
 void config_parse_cmd_options ( int argc, char ** argv )
 {
-
     find_arg_str ( argc, argv, "-switchers", &( config.switchers ) );
     // Parse commandline arguments about the looks.
     find_arg_uint ( argc, argv, "-opacity", &( config.window_opacity ) );

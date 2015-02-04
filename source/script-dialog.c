@@ -131,8 +131,9 @@ SwitcherMode script_switcher_dialog ( char **input, void *data )
     return retv;
 }
 
-void script_switcher_free_options ( ScriptOptions *sw )
+void script_switcher_free_options ( void *data )
 {
+    ScriptOptions *sw = (ScriptOptions *) data;
     if ( sw == NULL ) {
         return;
     }

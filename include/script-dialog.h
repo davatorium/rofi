@@ -38,5 +38,5 @@ ScriptOptions *script_switcher_parse_setup ( const char *str );
  *
  * Free the ScriptOptions block.
  */
-void script_switcher_free_options ( ScriptOptions *sw );
+void script_switcher_free_options ( void *data );
 #endif

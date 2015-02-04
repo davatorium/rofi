@@ -104,13 +104,14 @@ Atom       netatoms[NUM_NETATOMS];
 typedef struct _Switcher
 {
     // Name (max 31 char long)
-    char              name[32];
+    char                        name[32];
     // Switcher callback.
-    switcher_callback cb;
+    switcher_callback           cb;
     // Callback data.
-    void              *cb_data;
+    void                        *cb_data;
+    switcher_callback_free_data cb_data_free;
     // Textbox used in the sidebar-mode.
-    textbox           *tb;
+    textbox                     *tb;
 } Switcher;
 
 // Array of switchers.
@@ -248,10 +249,12 @@ void winlist_empty ( winlist *l )
  */
 void winlist_free ( winlist *l )
 {
-    winlist_empty ( l );
-    g_free ( l->array );
-    g_free ( l->data );
-    g_free ( l );
+    if ( l != NULL ) {
+        winlist_empty ( l );
+        g_free ( l->array );
+        g_free ( l->data );
+        g_free ( l );
+    }
 }
 
 /**
@@ -2144,9 +2147,9 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
         display = XOpenDisplay ( display_str );
         XSync ( display, True );
     }
-    // Create pid file
+    // Create pid file to avoid multiple instances.
     create_pid_file ( pidfile );
-
+    // Create the colormap and the main visual.
     create_visual_and_colormap ();
 
     // Because of the above fork, we want to do this here.
@@ -2155,9 +2158,9 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
                     config.menu_bg, config.menu_bg_alt, config.menu_fg,
                     config.menu_hlbg,
                     config.menu_hlfg );
-    char *input = NULL;
     // Otherwise check if requested mode is enabled.
     if ( switchers[mode].cb != NULL ) {
+        char *input = NULL;
         do {
             SwitcherMode retv;
 
@@ -2185,8 +2188,8 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
                 mode = retv;
             }
         } while ( mode != MODE_EXIT );
+        g_free ( input );
     }
-    g_free ( input );
 
     // Cleanup font setup.
     textbox_cleanup ( );
@@ -2205,30 +2208,24 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
  */
 static void handle_keypress ( XEvent *ev )
 {
-    KeySym key = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
-
+    int    index = -1;
+    KeySym key   = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
     if ( ( windows_modmask == AnyModifier || ev->xkey.state & windows_modmask ) &&
          key == windows_keysym ) {
-        int index = switcher_get ( "window" );
-        if ( index >= 0 ) {
-            run_switcher ( TRUE, index );
-        }
+        index = switcher_get ( "window" );
     }
 
     if ( ( rundialog_modmask == AnyModifier || ev->xkey.state & rundialog_modmask ) &&
          key == rundialog_keysym ) {
-        int index = switcher_get ( "run" );
-        if ( index >= 0 ) {
-            run_switcher ( TRUE, index );
-        }
+        index = switcher_get ( "run" );
     }
 
     if ( ( sshdialog_modmask == AnyModifier || ev->xkey.state & sshdialog_modmask ) &&
          key == sshdialog_keysym ) {
-        int index = switcher_get ( "ssh" );
-        if ( index >= 0 ) {
-            run_switcher ( TRUE, index );
-        }
+        index = switcher_get ( "ssh" );
+    }
+    if ( index >= 0 ) {
+        run_switcher ( TRUE, index );
     }
 }
 
@@ -2341,24 +2338,18 @@ static void cleanup ()
             XCloseDisplay ( display );
         }
     }
-    if ( cache_xattr != NULL ) {
-        winlist_free ( cache_xattr );
-    }
-    if ( cache_client != NULL ) {
-        winlist_free ( cache_client );
-    }
+    winlist_free ( cache_xattr );
+    winlist_free ( cache_client );
 
     i3_support_free_internals ();
 
-
     // Cleaning up memory allocated by the Xresources file.
-    // TODO, not happy with this.
     config_xresource_free ();
 
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
         // only used for script dialog.
-        if ( switchers[i].cb_data != NULL ) {
-            script_switcher_free_options ( switchers[i].cb_data );
+        if ( switchers[i].cb_data_free != NULL ) {
+            switchers[i].cb_data_free ( switchers[i].cb_data );
         }
     }
     g_free ( switchers );
@@ -2391,8 +2382,9 @@ static void setup_switchers ( void )
             // Resize and add entry.
             switchers = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
             g_strlcpy ( switchers[num_switchers].name, "window", 32 );
-            switchers[num_switchers].cb      = run_switcher_window;
-            switchers[num_switchers].cb_data = NULL;
+            switchers[num_switchers].cb           = run_switcher_window;
+            switchers[num_switchers].cb_data      = NULL;
+            switchers[num_switchers].cb_data_free = NULL;
             num_switchers++;
         }
         // SSh dialog
@@ -2400,8 +2392,9 @@ static void setup_switchers ( void )
             // Resize and add entry.
             switchers = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
             g_strlcpy ( switchers[num_switchers].name, "ssh", 32 );
-            switchers[num_switchers].cb      = ssh_switcher_dialog;
-            switchers[num_switchers].cb_data = NULL;
+            switchers[num_switchers].cb           = ssh_switcher_dialog;
+            switchers[num_switchers].cb_data      = NULL;
+            switchers[num_switchers].cb_data_free = NULL;
             num_switchers++;
         }
         // Run dialog
@@ -2409,8 +2402,9 @@ static void setup_switchers ( void )
             // Resize and add entry.
             switchers = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
             g_strlcpy ( switchers[num_switchers].name, "run", 32 );
-            switchers[num_switchers].cb      = run_switcher_dialog;
-            switchers[num_switchers].cb_data = NULL;
+            switchers[num_switchers].cb           = run_switcher_dialog;
+            switchers[num_switchers].cb_data      = NULL;
+            switchers[num_switchers].cb_data_free = NULL;
             num_switchers++;
         }
         else {
@@ -2420,8 +2414,9 @@ static void setup_switchers ( void )
                 // Resize and add entry.
                 switchers = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
                 g_strlcpy ( switchers[num_switchers].name, sw->name, 32 );
-                switchers[num_switchers].cb      = script_switcher_dialog;
-                switchers[num_switchers].cb_data = sw;
+                switchers[num_switchers].cb           = script_switcher_dialog;
+                switchers[num_switchers].cb_data      = sw;
+                switchers[num_switchers].cb_data_free = script_switcher_free_options;
                 num_switchers++;
             }
             else{
@@ -2477,7 +2472,7 @@ static void hup_action_handler ( int num )
     }
 }
 
-static void show_error_message( const char *msg )
+static void show_error_message ( const char *msg )
 {
     // Create pid file
     create_pid_file ( pidfile );
@@ -2485,9 +2480,9 @@ static void show_error_message( const char *msg )
     // Request truecolor visual.
     create_visual_and_colormap ();
     textbox_setup ( &vinfo, map,
-            config.menu_bg, config.menu_bg_alt, config.menu_fg,
-            config.menu_hlbg,
-            config.menu_hlfg );
+                    config.menu_bg, config.menu_bg_alt, config.menu_fg,
+                    config.menu_hlbg,
+                    config.menu_hlfg );
     error_dialog ( msg );
     textbox_cleanup ( );
     if ( map != None ) {
@@ -2518,7 +2513,7 @@ int main ( int argc, char *argv[] )
     cache_dir = g_get_user_cache_dir ();
 
     // Create pid file path.
-    if( find_arg_str_alloc ( argc, argv, "-pid", &( pidfile ) ) == FALSE ) {
+    if ( find_arg_str_alloc ( argc, argv, "-pid", &( pidfile ) ) == FALSE ) {
         const char *path = g_get_user_runtime_dir ();
         if ( path ) {
             pidfile = g_build_filename ( path, "rofi.pid", NULL );
@@ -2583,7 +2578,7 @@ int main ( int argc, char *argv[] )
 
     char *msg = NULL;
     if ( find_arg_str ( argc, argv, "-e", &( msg ) ) ) {
-        show_error_message(msg);
+        show_error_message ( msg );
         exit ( EXIT_SUCCESS );
     }
 

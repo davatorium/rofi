@@ -36,6 +36,7 @@ typedef enum
  * @returns SwitcherMode
  */
 typedef SwitcherMode ( *switcher_callback )( char **input, void *data );
+typedef void ( *switcher_callback_free_data )( void *data );
 
 /**
  * State returned by the rofi window.
