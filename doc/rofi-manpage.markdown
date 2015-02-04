@@ -274,7 +274,7 @@ The default key combinations are:
 
   If value is larger then 100, the size is set in pixels. e.g. to span a full hd monitor:
 
-      rofi -width 1980
+      rofi -width 1920
 
   If the value is negative, it tries to estimates a character width. To show 30 characters on a row:
 
