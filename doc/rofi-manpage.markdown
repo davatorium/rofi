@@ -210,7 +210,7 @@ The default key combinations are:
   Set the background text color (X11 named color or hex #rrggbb) for the highlighted item in the
   menu.
 
-      rofi -fg "#005577"
+      rofi -hlbg "#005577"
 
   Default: *#005577*
 
@@ -219,7 +219,7 @@ The default key combinations are:
   Set the foreground text color (X11 named color or hex #rrggbb) for the highlighted item in the
   menu.
 
-      rofi -fg "#ffffff"
+      rofi -hlfg "#ffffff"
 
   Default: *#FFFFFF*
 
