@@ -498,8 +498,8 @@ Rofi supports the following keybindings:
 * `Ctrl-Enter`: Use entered text as command (in ssh/run dialog)
 * `Shift-Enter`: Launch the application in a terminal (in run dialog)
 * `Shift-Enter`: Return the selected entry and move to the next item while keeping Rofi open. (in dmenu)
-* `?`: Switch to the next modi. The list can be customized with the `-switchers` argument.
-* `ctrl-/`: Switch to the previous modi. The list can be customized with the `-switchers` argument.
+* `Shift-Right`: Switch to the next modi. The list can be customized with the `-switchers` argument.
+* `Shift-Left`: Switch to the previous modi. The list can be customized with the `-switchers` argument.
 * `Ctrl-space`: Set selected item as input text.
 * `Shift-Del`: Delete entry from history.
 * `grave`: Toggle case sensitivity.

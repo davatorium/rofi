@@ -1767,7 +1767,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                         XA_PRIMARY : netatoms[CLIPBOARD],
                                         netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
                 }
-                else if ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_slash ) {
+                else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) && key == XK_Left ) {
                     state.retv               = MENU_PREVIOUS;
                     *( state.selected_line ) = 0;
                     state.quit               = TRUE;
@@ -1775,7 +1775,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                 }
                 // Menu navigation.
                 else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
-                          key == XK_slash ) {
+                          key == XK_Right ) {
                     state.retv               = MENU_NEXT;
                     *( state.selected_line ) = 0;
                     state.quit               = TRUE;
