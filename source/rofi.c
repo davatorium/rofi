@@ -2269,7 +2269,7 @@ static void parse_key ( char *combo, unsigned int *mod, KeySym *key )
     // If no modifier mask is set, allow any modifier.
     *mod = modmask ? modmask : AnyModifier;
 
-    // Skip modifier (if exist( and parse key.
+    // Skip modifier (if exist) and parse key.
     char i = strlen ( combo );
 
     while ( i > 0 && !strchr ( "-+", combo[i - 1] ) ) {
