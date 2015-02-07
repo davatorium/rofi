@@ -329,6 +329,82 @@ void textbox_cursor_dec ( textbox *tb )
     textbox_cursor ( tb, index );
 }
 
+// Move word right
+void textbox_cursor_inc_word ( textbox *tb )
+{
+    // Find word boundaries, with pango_Break?
+    gchar *c = &( tb->text[tb->cursor] );
+    while ( ( c = g_utf8_next_char ( c ) ) ) {
+        gunichar          uc = g_utf8_get_char ( c );
+        GUnicodeBreakType bt = g_unichar_break_type ( uc );
+        if ( (
+                 bt == G_UNICODE_BREAK_ALPHABETIC ||
+                 bt == G_UNICODE_BREAK_HEBREW_LETTER ||
+                 bt == G_UNICODE_BREAK_NUMERIC ||
+                 bt == G_UNICODE_BREAK_QUOTATION
+                 )
+             ) {
+            break;
+        }
+    }
+    while ( ( c = g_utf8_next_char ( c ) ) ) {
+        gunichar          uc = g_utf8_get_char ( c );
+        GUnicodeBreakType bt = g_unichar_break_type ( uc );
+        if ( !(
+                 bt == G_UNICODE_BREAK_ALPHABETIC ||
+                 bt == G_UNICODE_BREAK_HEBREW_LETTER ||
+                 bt == G_UNICODE_BREAK_NUMERIC ||
+                 bt == G_UNICODE_BREAK_QUOTATION
+                 )
+             ) {
+            break;
+        }
+    }
+    int index = c - tb->text;
+    textbox_cursor ( tb, index );
+}
+// move word left
+void textbox_cursor_dec_word ( textbox *tb )
+{
+    // Find word boundaries, with pango_Break?
+    gchar *n;
+    gchar *c = &( tb->text[tb->cursor] );
+    while ( ( c = g_utf8_prev_char ( c ) ) && c != tb->text ) {
+        gunichar          uc = g_utf8_get_char ( c );
+        GUnicodeBreakType bt = g_unichar_break_type ( uc );
+        if ( (
+                 bt == G_UNICODE_BREAK_ALPHABETIC ||
+                 bt == G_UNICODE_BREAK_HEBREW_LETTER ||
+                 bt == G_UNICODE_BREAK_NUMERIC ||
+                 bt == G_UNICODE_BREAK_QUOTATION
+                 )
+             ) {
+            break;
+        }
+    }
+    if ( c != tb->text ) {
+        while ( ( n = g_utf8_prev_char ( c ) ) ) {
+            gunichar          uc = g_utf8_get_char ( n );
+            GUnicodeBreakType bt = g_unichar_break_type ( uc );
+            if ( !(
+                     bt == G_UNICODE_BREAK_ALPHABETIC ||
+                     bt == G_UNICODE_BREAK_HEBREW_LETTER ||
+                     bt == G_UNICODE_BREAK_NUMERIC ||
+                     bt == G_UNICODE_BREAK_QUOTATION
+                     )
+                 ) {
+                break;
+            }
+            c = n;
+            if ( n == tb->text ) {
+                break;
+            }
+        }
+    }
+    int index = c - tb->text;
+    textbox_cursor ( tb, index );
+}
+
 // end of line
 void textbox_cursor_end ( textbox *tb )
 {
@@ -381,6 +457,26 @@ void textbox_cursor_bkspc ( textbox *tb )
         textbox_cursor_del ( tb );
     }
 }
+void textbox_cursor_bkspc_word ( textbox *tb )
+{
+    if ( tb->cursor > 0 ) {
+        int cursor = tb->cursor;
+        textbox_cursor_dec_word ( tb );
+        if ( cursor > tb->cursor ) {
+            textbox_delete ( tb, tb->cursor, cursor - tb->cursor );
+        }
+    }
+}
+void textbox_cursor_del_word ( textbox *tb )
+{
+    if ( tb->cursor >= 0 ) {
+        int cursor = tb->cursor;
+        textbox_cursor_inc_word ( tb );
+        if ( cursor < tb->cursor ) {
+            textbox_delete ( tb, cursor, tb->cursor - cursor );
+        }
+    }
+}
 
 // handle a keypress in edit mode
 // 0 = unhandled
@@ -413,12 +509,7 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
         textbox_cursor_inc ( tb );
         return 1;
     }
-    // Delete or Ctrl-D
-    else if ( key == XK_Delete ||
-              ( ( ev->xkey.state & ControlMask ) && key == XK_d ) ) {
-        textbox_cursor_del ( tb );
-        return 1;
-    }
+
     // Ctrl-U: Kill from the beginning to the end of the line.
     else if ( ( ev->xkey.state & ControlMask ) && key == XK_u ) {
         textbox_text ( tb, "" );
@@ -432,6 +523,33 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
     // Ctrl-E
     else if ( ( ev->xkey.state & ControlMask ) && key == XK_e ) {
         textbox_cursor_end ( tb );
+        return 1;
+    }
+    // Ctrl-Alt-h
+    else if ( ( ev->xkey.state & ControlMask ) &&
+              ( ev->xkey.state & Mod1Mask ) && key == XK_h ) {
+        textbox_cursor_bkspc_word ( tb );
+        return 1;
+    }
+    // Ctrl-Alt-d
+    else if ( ( ev->xkey.state & ControlMask ) &&
+              ( ev->xkey.state & Mod1Mask ) && key == XK_d ) {
+        textbox_cursor_del_word ( tb );
+        return 1;
+    }    // Delete or Ctrl-D
+    else if ( key == XK_Delete ||
+              ( ( ev->xkey.state & ControlMask ) && key == XK_d ) ) {
+        textbox_cursor_del ( tb );
+        return 1;
+    }
+    // Alt-B
+    else if ( ( ev->xkey.state & Mod1Mask ) && key == XK_b ) {
+        textbox_cursor_dec_word ( tb );
+        return 1;
+    }
+    // Alt-F
+    else if ( ( ev->xkey.state & Mod1Mask ) && key == XK_f ) {
+        textbox_cursor_inc_word ( tb );
         return 1;
     }
     // BackSpace, Ctrl-h
