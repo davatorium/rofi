@@ -183,8 +183,22 @@ void release_keyboard ( Display *display );
  */
 int take_keyboard ( Display *display, Window w );
 
+/**
+ * @param display Connection to the X server.
+ * @param modmask Modifier mask.
+ * @param key     Key.
+ *
+ * Grab key on display.
+ */
+void x11_grab_key ( Display *display, unsigned int modmask, KeySym key );
 
-void grab_key ( Display *display, unsigned int modmask, KeySym key );
+/**
+ * @param combo String representing the key combo
+ * @param mod [out]  The modifier specified (or AnyModifier if not specified)
+ * @param key [out]  The key specified
+ *
+ * Parse key from user input string.
+ */
 void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key );
 
 /**

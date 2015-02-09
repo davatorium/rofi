@@ -398,7 +398,7 @@ void release_keyboard ( Display *display )
     XUngrabKeyboard ( display, CurrentTime );
 }
 // bind a key combination on a root window, compensating for Lock* states
-void grab_key ( Display *display, unsigned int modmask, KeySym key )
+void x11_grab_key ( Display *display, unsigned int modmask, KeySym key )
 {
     Screen  *screen = DefaultScreenOfDisplay ( display );
     Window  root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );

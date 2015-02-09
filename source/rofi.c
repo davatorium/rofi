@@ -2034,17 +2034,17 @@ int main ( int argc, char *argv[] )
         // Daemon mode, Listen to key presses..
         if ( switcher_get ( "window" ) >= 0 ) {
             x11_parse_key ( config.window_key, &windows_modmask, &windows_keysym );
-            grab_key ( display, windows_modmask, windows_keysym );
+            x11_grab_key ( display, windows_modmask, windows_keysym );
         }
 
         if ( switcher_get ( "run" ) >= 0 ) {
             x11_parse_key ( config.run_key, &rundialog_modmask, &rundialog_keysym );
-            grab_key ( display, rundialog_modmask, rundialog_keysym );
+            x11_grab_key ( display, rundialog_modmask, rundialog_keysym );
         }
 
         if ( switcher_get ( "ssh" ) >= 0 ) {
             x11_parse_key ( config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
-            grab_key ( display, sshdialog_modmask, sshdialog_keysym );
+            x11_grab_key ( display, sshdialog_modmask, sshdialog_keysym );
         }
 
         // Setup handler for sighub (reload config)
