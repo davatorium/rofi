@@ -61,7 +61,7 @@ void history_test()
 
     g_strfreev(retv);
 
-    for(int in=length+1; in < 26; in++) {
+    for(unsigned int in=length+1; in < 26; in++) {
         char *p = g_strdup_printf("aap%i", in);
         printf("%s- %d\n",p, in);
         history_set( file, p);
@@ -83,22 +83,9 @@ void history_test()
 
     g_strfreev(retv);
 
-    // Test fail.
-    history_set ( NULL, "aap");
-
-    retv = history_get_list ( NULL , &length);
-    printf("Test %i passed\n", ++test);
-
-    TASSERT ( retv  == NULL );
-    TASSERT ( length  == 0 );
-
-    history_remove ( NULL, "aap" );
-    printf("Test %i passed\n", ++test);
-
-
 }
 
-int main ( int argc, char **argv )
+int main (  G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
     history_test();
 

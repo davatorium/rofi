@@ -26,7 +26,6 @@ XVisualInfo vinfo;
 
 static unsigned int color_get ( Display *display, const char *const name )
 {
-    int    screen_id = DefaultScreen ( display );
     XColor color;
     // Special format.
     if ( strncmp ( name, "argb:", 5 ) == 0 ) {
@@ -53,7 +52,7 @@ static void create_visual_and_colormap()
         map = DefaultColormap( display, DefaultScreen (display));
     }
 }
-int main ( int argc, char **argv )
+int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
 
     // Get DISPLAY
@@ -64,8 +63,6 @@ int main ( int argc, char **argv )
     }
     create_visual_and_colormap();
     TASSERT( display != NULL );
-    Screen *screen = DefaultScreenOfDisplay ( display );
-    Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
     XSetWindowAttributes attr;
     attr.colormap         = map;
     attr.border_pixel     = color_get ( display, config.menu_bc );

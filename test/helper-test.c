@@ -11,7 +11,7 @@ static int test = 0;
     printf("Test %i passed (%s)\n", ++test, #a);\
 }
 
-int main ( int argc, char ** argv )
+int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
 {
 	char **list = NULL;
 	int llength = 0;
