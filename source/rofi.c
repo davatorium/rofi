@@ -949,22 +949,22 @@ static void menu_update ( MenuState *state )
 static void menu_paste ( MenuState *state, XSelectionEvent *xse )
 {
     if ( xse->property == netatoms[UTF8_STRING] ) {
-        gchar *text = window_get_text_prop(display, main_window, netatoms[UTF8_STRING]);
-        if(text != NULL && text[0] != '\0' ) {
-            unsigned int dl = strlen(text);
+        gchar *text = window_get_text_prop ( display, main_window, netatoms[UTF8_STRING] );
+        if ( text != NULL && text[0] != '\0' ) {
+            unsigned int dl = strlen ( text );
             // Strip new line
-            while ( dl > 0 && text[dl] == '\n') {
+            while ( dl > 0 && text[dl] == '\n' ) {
                 text[dl] = '\0';
                 dl--;
             }
             // Insert string move cursor.
             textbox_insert ( state->text, state->text->cursor, text );
-            textbox_cursor ( state->text, state->text->cursor + dl -1 );
+            textbox_cursor ( state->text, state->text->cursor + dl - 1 );
             // Force a redraw and refiltering of the text.
             state->update   = TRUE;
             state->refilter = TRUE;
         }
-        g_free(text);
+        g_free ( text );
     }
 }
 
@@ -1216,7 +1216,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         else if ( ev.type == SelectionNotify ) {
             do {
                 menu_paste ( &state, &( ev.xselection ) );
-            }while ( XCheckTypedEvent ( display, SelectionNotify, &ev ) );
+            } while ( XCheckTypedEvent ( display, SelectionNotify, &ev ) );
         }
         // Key press event.
         else if ( ev.type == KeyPress ) {
