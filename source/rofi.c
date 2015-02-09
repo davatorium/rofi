@@ -743,7 +743,6 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
  *
  * mouse navigation through the elements.
  *
- * TODO: Scroll wheel.
  */
 static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
 {
@@ -950,40 +949,22 @@ static void menu_update ( MenuState *state )
 static void menu_paste ( MenuState *state, XSelectionEvent *xse )
 {
     if ( xse->property == netatoms[UTF8_STRING] ) {
-        char          *pbuf = NULL;
-        int           di;
-        unsigned long dl, rm;
-        Atom          da;
-
-        // TODO: use window_get_prop?
-        /* we have been given the current selection, now insert it into input */
-        XGetWindowProperty ( display, main_window, netatoms[UTF8_STRING],
-                             0,
-                             256 / 4, // max length in words.
-                             False,   // Do not delete clipboard.
-                             netatoms[UTF8_STRING], &da, &di, &dl, &rm, (unsigned char * *) &pbuf );
-        // If There was remaining data left.. lets ignore this.
-        // Only accept it when we get bytes!
-        if ( di == 8 ) {
-            char *index;
-            if ( ( index = strchr ( pbuf, '\n' ) ) != NULL ) {
-                // Calc new length;
-                dl = index - pbuf;
+        gchar *text = window_get_text_prop(display, main_window, netatoms[UTF8_STRING]);
+        if(text != NULL && text[0] != '\0' ) {
+            unsigned int dl = strlen(text);
+            // Strip new line
+            while ( dl > 0 && text[dl] == '\n') {
+                text[dl] = '\0';
+                dl--;
             }
-            // Create a NULL terminated string. I am not sure how the data is returned.
-            // With or without trailing 0
-            char str[dl + 1];
-            memcpy ( str, pbuf, dl );
-            str[dl] = '\0';
-
             // Insert string move cursor.
-            textbox_insert ( state->text, state->text->cursor, str );
-            textbox_cursor ( state->text, state->text->cursor + dl );
+            textbox_insert ( state->text, state->text->cursor, text );
+            textbox_cursor ( state->text, state->text->cursor + dl -1 );
             // Force a redraw and refiltering of the text.
             state->update   = TRUE;
             state->refilter = TRUE;
         }
-        XFree ( pbuf );
+        g_free(text);
     }
 }
 
@@ -1233,10 +1214,9 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         }
         // Paste event.
         else if ( ev.type == SelectionNotify ) {
-            while ( XCheckTypedEvent ( display, SelectionNotify, &ev ) ) {
-                ;
-            }
-            menu_paste ( &state, &( ev.xselection ) );
+            do {
+                menu_paste ( &state, &( ev.xselection ) );
+            }while ( XCheckTypedEvent ( display, SelectionNotify, &ev ) );
         }
         // Key press event.
         else if ( ev.type == KeyPress ) {
