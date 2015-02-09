@@ -39,6 +39,7 @@
 #include <linux/un.h>
 
 #include "rofi.h"
+#include "x11-helper.h"
 #include "rofi-i3.h"
 
 #ifdef HAVE_I3_IPC_H
@@ -122,7 +123,7 @@ int i3_support_initialize ( Display *display )
         // Find the root window (each X has one.).
         Window root = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
         // Get the i3 path property.
-        i3_socket_path = window_get_text_prop ( root, i3_sp_atom );
+        i3_socket_path = window_get_text_prop ( display, root, i3_sp_atom );
     }
     // If we find it, go into i3 mode.
     return ( i3_socket_path != NULL ) ? TRUE : FALSE;

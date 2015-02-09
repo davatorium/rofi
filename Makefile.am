@@ -33,6 +33,7 @@ rofi_SOURCES=\
     source/history.c\
     config/config.c\
 	source/helper.c\
+	source/x11-helper.c\
     include/rofi.h\
     include/rofi-i3.h\
     include/run-dialog.h\
@@ -42,7 +43,8 @@ rofi_SOURCES=\
     include/xrmoptions.h\
     include/history.h\
     include/textbox.h\
-	include/helper.h
+	include/helper.h\
+	include/x11-helper.h
 
 ##
 # Manpage
