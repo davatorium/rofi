@@ -421,6 +421,12 @@ void x11_grab_key ( Display *display, unsigned int modmask, KeySym key )
     }
 }
 
+/**
+ * @param display The connection to the X server.
+ *
+ * Figure out what entry in the modifiermap is NumLock.
+ * This sets global variable: NumlockMask
+ */
 static void x11_figure_out_numlock_mask ( Display *display )
 {
     XModifierKeymap *modmap = XGetModifierMapping ( display );
@@ -494,13 +500,19 @@ void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key )
 
 void x11_set_window_opacity ( Display *display, Window box, unsigned int opacity )
 {
-    // Hack to set window opacity.
+    // Scale 0-100 to 0 - UINT32_MAX.
     unsigned int opacity_set = ( unsigned int ) ( ( opacity / 100.0 ) * UINT32_MAX );
+    // Set opacity.
     XChangeProperty ( display, box, netatoms[_NET_WM_WINDOW_OPACITY],
                       XA_CARDINAL, 32, PropModeReplace,
                       ( unsigned char * ) &opacity_set, 1L );
 }
 
+/**
+ * @param display The connection to the X server.
+ *
+ * Fill in the list of Atoms.
+ */
 static void x11_create_frequently_used_atoms ( Display *display )
 {
     // X atom values
@@ -512,7 +524,7 @@ static void x11_create_frequently_used_atoms ( Display *display )
 
 static int ( *xerror )( Display *, XErrorEvent * );
 /**
- * @param d The display on witch the error occurred.
+ * @param d  The connection to the X server.
  * @param ee The XErrorEvent
  *
  * X11 Error handler.
