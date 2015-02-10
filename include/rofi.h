@@ -182,8 +182,6 @@ typedef struct _Settings
     char           * ssh_key;
     /** Windows location/gravity */
     WindowLocation location;
-    /** Horizontal mode. */
-    unsigned int   hmode;
     /** Padding between elements */
     unsigned int   padding;
     /** Y offset */

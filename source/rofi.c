@@ -529,10 +529,6 @@ static void menu_calculate_rows_columns ( MenuState *state )
             state->columns = 1;
         }
     }
-    // More hacks.
-    if ( config.hmode == TRUE ) {
-        state->max_rows = 1;
-    }
 }
 
 /**
@@ -561,10 +557,6 @@ static void menu_calculate_window_and_element_width ( MenuState *state, workarea
         state->element_width = state->w - ( 2 * ( config.padding ) );
         // Divide by the # columns
         state->element_width = ( state->element_width - ( state->columns - 1 ) * LINE_MARGIN ) / state->columns;
-        if ( config.hmode == TRUE ) {
-            state->element_width = ( state->w - ( 2 * ( config.padding ) ) - state->max_elements * LINE_MARGIN ) / (
-                state->max_elements + 1 );
-        }
     }
 }
 
@@ -916,13 +908,11 @@ static void menu_update ( MenuState *state )
                           state->max_elements, state->arrowbox_top,
                           state->arrowbox_bottom );
     // Why do we need the specian -1?
-    if ( config.hmode == FALSE ) {
-        int line_height = textbox_get_height ( state->text );
-        XDrawLine ( display, main_window, gc, ( config.padding ),
-                    line_height + ( config.padding ) + ( LINE_MARGIN  ) / 2,
-                    state->w - ( ( config.padding ) ) - 1,
-                    line_height + ( config.padding ) + ( LINE_MARGIN  ) / 2 );
-    }
+    int line_height = textbox_get_height ( state->text );
+    XDrawLine ( display, main_window, gc, ( config.padding ),
+                line_height + ( config.padding ) + ( LINE_MARGIN  ) / 2,
+                state->w - ( ( config.padding ) ) - 1,
+                line_height + ( config.padding ) + ( LINE_MARGIN  ) / 2 );
 
     if ( config.sidebar_mode == TRUE ) {
         int line_height = textbox_get_height ( state->text );
@@ -1028,8 +1018,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                        ( config.padding ),
                                        0, 0, NORMAL, prompt );
     // Entry box
-    int entrybox_width = (
-        ( config.hmode == TRUE ) ? state.element_width : ( state.w - ( 2 * ( config.padding ) ) ) )
+    int entrybox_width = state.w
+                         - ( 2 * ( config.padding ) )
                          - textbox_get_width ( state.prompt_tb )
                          - textbox_get_width ( state.case_indicator );
 
@@ -1058,15 +1048,15 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     // filtered list display
     state.boxes = g_malloc0_n ( state.max_elements, sizeof ( textbox* ) );
 
-    int y_offset = config.padding + ( ( config.hmode == FALSE ) ? line_height : 0 );
-    int x_offset = config.padding + ( ( config.hmode == FALSE ) ? 0 : ( state.element_width + LINE_MARGIN ) );
+    int y_offset = config.padding + line_height;
+    int x_offset = config.padding;
 
     for ( i = 0; i < state.max_elements; i++ ) {
         int line = ( i ) % state.max_rows;
         int col  = ( i ) / state.max_rows;
 
         int ex = col * ( state.element_width + LINE_MARGIN );
-        int ey = line * element_height + ( ( config.hmode == TRUE ) ? 0 : LINE_MARGIN );
+        int ey = line * element_height + LINE_MARGIN;
 
         state.boxes[i] = textbox_create ( main_window, &vinfo, map, 0,
                                           ex + x_offset,
@@ -1076,34 +1066,20 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     }
     // Arrows
     state.arrowbox_top = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                                          ( config.padding ),
-                                          ( config.padding ),
-                                          0, 0,
-                                          NORMAL,
-                                          ( config.hmode == FALSE ) ? "↑" : "←" );
+                                          ( config.padding ), ( config.padding ),
+                                          0, 0, NORMAL,
+                                          "↑" );
     state.arrowbox_bottom = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_AUTOWIDTH,
-                                             ( config.padding ),
-                                             ( config.padding ),
-                                             0, 0,
-                                             NORMAL,
-                                             ( config.hmode == FALSE ) ? "↓" : "→" );
+                                             ( config.padding ), ( config.padding ),
+                                             0, 0, NORMAL,
+                                             "↓" );
 
-    if ( config.hmode == FALSE ) {
-        textbox_move ( state.arrowbox_top,
-                       state.w - config.padding - state.arrowbox_top->w,
-                       config.padding + line_height + LINE_MARGIN );
-        textbox_move ( state.arrowbox_bottom,
-                       state.w - config.padding - state.arrowbox_bottom->w,
-                       config.padding + state.max_rows * element_height + LINE_MARGIN );
-    }
-    else {
-        textbox_move ( state.arrowbox_bottom,
-                       state.w - config.padding - state.arrowbox_top->w,
-                       config.padding );
-        textbox_move ( state.arrowbox_top,
-                       state.w - config.padding - state.arrowbox_bottom->w - state.arrowbox_top->w,
-                       config.padding );
-    }
+    textbox_move ( state.arrowbox_top,
+                   state.w - config.padding - state.arrowbox_top->w,
+                   config.padding + line_height + LINE_MARGIN );
+    textbox_move ( state.arrowbox_bottom,
+                   state.w - config.padding - state.arrowbox_bottom->w,
+                   config.padding + state.max_rows * element_height + LINE_MARGIN );
 
     // filtered list
     state.filtered = (char * *) g_malloc0_n ( state.num_lines, sizeof ( char* ) );
@@ -1115,9 +1091,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     // resize window vertically to suit
     // Subtract the margin of the last row.
     state.h = line_height + element_height * state.max_rows + ( config.padding ) * 2 + LINE_MARGIN;
-    if ( config.hmode == TRUE ) {
-        state.h = line_height + ( config.padding ) * 2;
-    }
+
     // Add entry
     if ( config.sidebar_mode == TRUE ) {
         state.h += line_height + LINE_MARGIN;

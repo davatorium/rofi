@@ -96,8 +96,6 @@ static XrmOption xrmOptions[] = {
     { xrm_SNumber, "yoffset",              { .snum = &config.y_offset              }, NULL },
     { xrm_SNumber, "xoffset",              { .snum = &config.x_offset              }, NULL },
     { xrm_Boolean, "fixed-num-lines",      { .num  = &config.fixed_num_lines       }, NULL },
-    { xrm_Boolean, "hmode",                { .num  = &config.hmode                 }, NULL },
-
 
     { xrm_String,  "terminal",             { .str  = &config.terminal_emulator     }, NULL },
     { xrm_String,  "ssh-client",           { .str  = &config.ssh_client            }, NULL },

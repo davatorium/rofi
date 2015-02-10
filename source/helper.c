@@ -419,10 +419,6 @@ void config_parse_cmd_options ( int argc, char ** argv )
     // Parse commandline arguments about behavior
     find_arg_str ( argc, argv, "-terminal", &( config.terminal_emulator ) );
 
-    if ( find_arg ( argc, argv, "-hmode" ) >= 0 ) {
-        config.hmode = TRUE;
-    }
-
     find_arg_str ( argc, argv, "-ssh-client", &( config.ssh_client ) );
     find_arg_str ( argc, argv, "-ssh-command", &( config.ssh_command ) );
     find_arg_str ( argc, argv, "-run-command", &( config.run_command ) );
@@ -471,10 +467,6 @@ void config_sanity_check ( void )
     if ( !( config.location >= WL_CENTER && config.location <= WL_WEST ) ) {
         fprintf ( stderr, "config.location is invalid. ( %d >= %d >= %d) does not hold.\n",
                   WL_WEST, config.location, WL_CENTER );
-        exit ( 1 );
-    }
-    if ( !( config.hmode == TRUE || config.hmode == FALSE ) ) {
-        fprintf ( stderr, "config.hmode is invalid.\n" );
         exit ( 1 );
     }
     // If alternative row is not set, copy the normal background color.

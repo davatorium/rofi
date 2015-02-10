@@ -19,7 +19,6 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-rkey \fIcomdo\fP ]
 [ \-terminal \fIterminal\fP ]
 [ \-location \fIposition\fP ]
-[ \-hmode ]
 [ \-fixed\-num\-lines ]
 [ \-padding \fIpadding\fP ]
 [ \-opacity \fIopacity%\fP ]
@@ -377,11 +376,6 @@ monitor:
 .IP
 Default: \fI0\fP
 .PP
-\fB\fC\-hmode\fR
-.IP
-Switch to horizontal mode (ala dmenu). The number of elements is the number of \fB\fClines\fR times the
-number of \fB\fCcolumns\fR\&.
-.PP
 \fB\fC\-fixed\-num\-lines\fR
 .IP
 Keep a fixed number of visible lines (See the \fB\fC\-lines\fR option.)
@@ -389,14 +383,6 @@ Keep a fixed number of visible lines (See the \fB\fC\-lines\fR option.)
 \fB\fC\-padding\fR
 .IP
 Define the inner margin of the window.
-.IP
-To make rofi look like dmenu:
-.PP
-.RS
-.nf
-  rofi \-hmode \-padding 0
-.fi
-.RE
 .IP
 Default: \fI5\fP
 .PP

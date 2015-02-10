@@ -87,8 +87,6 @@ Settings config = {
      *
      */
     .location          = WL_CENTER,
-    /** Mode of window, list (Vertical) or dmenu like (Horizontal) */
-    .hmode             = FALSE,
     /** Padding between elements */
     .padding           =                                   5,
     /** Y offset */

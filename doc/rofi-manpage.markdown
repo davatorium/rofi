@@ -21,7 +21,6 @@ rofi - A window switcher, run dialog and dmenu replacement
 [ -rkey *comdo* ]
 [ -terminal *terminal* ]
 [ -location *position* ]
-[ -hmode ]
 [ -fixed-num-lines ]
 [ -padding *padding* ]
 [ -opacity *opacity%* ]
@@ -295,11 +294,6 @@ The default key combinations are:
 
   Default: *0*
 
-`-hmode`
-
-  Switch to horizontal mode (ala dmenu). The number of elements is the number of `lines` times the
-  number of `columns`.
-
 `-fixed-num-lines`
 
   Keep a fixed number of visible lines (See the `-lines` option.)
@@ -307,10 +301,6 @@ The default key combinations are:
 `-padding`
 
   Define the inner margin of the window.
-
-  To make rofi look like dmenu:
-
-      rofi -hmode -padding 0
 
   Default: *5*
 
