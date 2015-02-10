@@ -190,8 +190,8 @@ static inline MainLoopEvent wait_for_xevent_or_timeout ( Display *display, int x
     FD_ZERO ( &in_fds );
     FD_SET ( x11_fd, &in_fds );
 
-    // Set our timer.  200ms is a decent delay
-    tv.tv_usec = 200000;
+    // Set our timer.  50ms is a decent delay
+    tv.tv_usec = 50000;
     tv.tv_sec  = 0;
     // Wait for X Event or a Timer
     if ( select ( x11_fd + 1, &in_fds, 0, 0, &tv ) == 0 ) {
