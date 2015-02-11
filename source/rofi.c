@@ -331,15 +331,12 @@ static int levenshtein ( const char *s, const char *t )
 
     // For some reason Coverity does not get that I initialize the
     // array in for loop.
-    int *d = g_malloc_n ( array_length, sizeof ( int ) );
-
+    int d[array_length];
     for ( size_t i = 0; i < array_length; i++ ) {
         d[i] = -1;
     }
 
-    int retv = dist ( s, t, d, ls, lt, 0, 0 );
-    g_free ( d );
-    return retv;
+    return dist ( s, t, d, ls, lt, 0, 0 );
 }
 
 Window create_window ( Display *display )
@@ -436,7 +433,6 @@ static void menu_free_state ( MenuState *state )
     }
 
     g_free ( state->boxes );
-
     g_free ( state->filtered );
     g_free ( state->line_map );
     g_free ( state->distance );
@@ -459,28 +455,24 @@ static void calculate_window_position ( MenuState *state, const workarea *mon )
     {
     case WL_NORTH_WEST:
         state->x = mon->x;
-
     case WL_NORTH:
         state->y = mon->y;
         break;
 
     case WL_NORTH_EAST:
         state->y = mon->y;
-
     case WL_EAST:
         state->x = mon->x + mon->w - state->w - config.menu_bw * 2;
         break;
 
     case WL_EAST_SOUTH:
         state->x = mon->x + mon->w - state->w - config.menu_bw * 2;
-
     case WL_SOUTH:
         state->y = mon->y + mon->h - state->h - config.menu_bw * 2;
         break;
 
     case WL_SOUTH_WEST:
         state->y = mon->y + mon->h - state->h - config.menu_bw * 2;
-
     case WL_WEST:
         state->x = mon->x;
         break;
@@ -926,7 +918,6 @@ static void menu_update ( MenuState *state )
         }
     }
 
-
     state->update = FALSE;
 }
 
@@ -981,8 +972,6 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     unsigned int i;
     workarea     mon;
 
-
-
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     XWindowAttributes attr;
     if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
@@ -990,7 +979,6 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     }
     // Get active monitor size.
     monitor_active ( display, &mon );
-
 
     // we need this at this point so we can get height.
     state.case_indicator = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_AUTOWIDTH,
@@ -1041,9 +1029,6 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         textbox_show ( state.case_indicator );
     }
 
-
-
-
     int element_height = line_height * config.element_height;
     // filtered list display
     state.boxes = g_malloc0_n ( state.max_elements, sizeof ( textbox* ) );
@@ -1052,15 +1037,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     int x_offset = config.padding;
 
     for ( i = 0; i < state.max_elements; i++ ) {
-        int line = ( i ) % state.max_rows;
-        int col  = ( i ) / state.max_rows;
-
-        int ex = col * ( state.element_width + LINE_MARGIN );
-        int ey = line * element_height + LINE_MARGIN;
+        unsigned int ex = ( ( i ) % state.max_rows ) * ( state.element_width + LINE_MARGIN );
+        unsigned int ey = ( ( i ) / state.max_rows ) * element_height + LINE_MARGIN;
 
         state.boxes[i] = textbox_create ( main_window, &vinfo, map, 0,
-                                          ex + x_offset,
-                                          ey + y_offset,
+                                          ex + x_offset, ey + y_offset,
                                           state.element_width, element_height, NORMAL, "" );
         textbox_show ( state.boxes[i] );
     }
@@ -1391,7 +1372,6 @@ void error_dialog ( const char *msg )
         }
         XNextEvent ( display, &ev );
 
-
         // Handle event.
         if ( ev.type == Expose ) {
             while ( XCheckTypedEvent ( display, Expose, &ev ) ) {
@@ -1556,7 +1536,6 @@ static int run_dmenu ()
 
     // Request truecolor visual.
     create_visual_and_colormap ();
-    int ret_state;
     textbox_setup ( &vinfo, map,
                     config.menu_bg, config.menu_bg_alt, config.menu_fg,
                     config.menu_hlbg,
@@ -1564,7 +1543,7 @@ static int run_dmenu ()
     char *input = NULL;
 
     // Dmenu modi has a return state.
-    ret_state = dmenu_switcher_dialog ( &input );
+    int ret_state = dmenu_switcher_dialog ( &input );
 
     g_free ( input );
 
