@@ -33,7 +33,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "rofi.h"
-#include "dmenu-dialog.h"
+#include "dialogs/dmenu-dialog.h"
 #include "helper.h"
 
 char *dmenu_prompt       = "dmenu ";

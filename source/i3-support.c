@@ -40,7 +40,7 @@
 
 #include "rofi.h"
 #include "x11-helper.h"
-#include "rofi-i3.h"
+#include "i3-support.h"
 
 #ifdef HAVE_I3_IPC_H
 #include <i3/ipc.h>

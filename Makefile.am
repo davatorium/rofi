@@ -23,30 +23,30 @@ AM_CFLAGS=\
 
 rofi_SOURCES=\
     source/rofi.c\
-	source/rofi-i3.c\
+	source/i3-support.c\
     source/textbox.c\
     source/xrmoptions.c\
-    source/dmenu-dialog.c\
-    source/run-dialog.c\
-    source/window-dialog.c\
-    source/ssh-dialog.c\
-    source/script-dialog.c\
     source/history.c\
     config/config.c\
 	source/helper.c\
+    source/dialogs/dmenu-dialog.c\
+    source/dialogs/run-dialog.c\
+    source/dialogs/window-dialog.c\
+    source/dialogs/ssh-dialog.c\
+    source/dialogs/script-dialog.c\
 	source/x11-helper.c\
     include/rofi.h\
-    include/rofi-i3.h\
-    include/run-dialog.h\
-    include/window-dialog.h\
-    include/ssh-dialog.h\
-    include/dmenu-dialog.h\
-    include/script-dialog.h\
+    include/i3-support.h\
     include/xrmoptions.h\
     include/history.h\
     include/textbox.h\
 	include/helper.h\
-	include/x11-helper.h
+	include/x11-helper.h\
+    include/dialogs/run-dialog.h\
+    include/dialogs/window-dialog.h\
+    include/dialogs/ssh-dialog.h\
+    include/dialogs/dmenu-dialog.h\
+    include/dialogs/script-dialog.h
 
 ##
 # Manpage

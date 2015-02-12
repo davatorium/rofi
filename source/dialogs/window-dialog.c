@@ -48,8 +48,8 @@
 #include "rofi.h"
 #include "helper.h"
 #include "x11-helper.h"
-#include "rofi-i3.h"
-#include "window-dialog.h"
+#include "i3-support.h"
+#include "dialogs/window-dialog.h"
 
 
 #define WINLIST        32
@@ -460,12 +460,14 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
             else{
                 // Change to the desktop of the selected window/client.
                 // TODO: get rid of strtol
-                window_send_message ( display, root, root, netatoms[_NET_CURRENT_DESKTOP], strtol ( list[selected_line], NULL, 10 ) - 1,
-                                      SubstructureNotifyMask | SubstructureRedirectMask, time );
+                window_send_message ( display, root, root, netatoms[_NET_CURRENT_DESKTOP],
+                        strtol ( list[selected_line], NULL, 10 ) - 1,
+                        SubstructureNotifyMask | SubstructureRedirectMask, time );
                 XSync ( display, False );
 
-                window_send_message ( display, root, ids->array[selected_line], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
-                                      SubstructureNotifyMask | SubstructureRedirectMask, time );
+                window_send_message ( display, root, ids->array[selected_line],
+                        netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
+                        SubstructureNotifyMask | SubstructureRedirectMask, time );
             }
         }
 

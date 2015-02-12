@@ -41,7 +41,7 @@
 #include "rofi.h"
 #include "helper.h"
 #include "history.h"
-#include "run-dialog.h"
+#include "dialogs/run-dialog.h"
 #ifdef TIMING
 #include <time.h>
 #endif

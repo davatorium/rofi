@@ -50,11 +50,11 @@
 #include "xrmoptions.h"
 #include "textbox.h"
 // Switchers.
-#include "run-dialog.h"
-#include "ssh-dialog.h"
-#include "dmenu-dialog.h"
-#include "script-dialog.h"
-#include "window-dialog.h"
+#include "dialogs/run-dialog.h"
+#include "dialogs/ssh-dialog.h"
+#include "dialogs/dmenu-dialog.h"
+#include "dialogs/script-dialog.h"
+#include "dialogs/window-dialog.h"
 
 #define LINE_MARGIN    3
 

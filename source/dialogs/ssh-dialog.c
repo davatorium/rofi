@@ -42,7 +42,7 @@
 
 #include "rofi.h"
 #include "history.h"
-#include "ssh-dialog.h"
+#include "dialogs/ssh-dialog.h"
 #ifdef TIMING
 #include <time.h>
 #endif
