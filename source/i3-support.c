@@ -135,9 +135,8 @@ int i3_support_initialize ( Display *display )
 
 void i3_support_free_internals ( void )
 {
-    if ( i3_socket_path != NULL ) {
-        g_free ( i3_socket_path );
-    }
+    g_free ( i3_socket_path );
+    i3_socket_path = NULL;
 }
 
 #else
