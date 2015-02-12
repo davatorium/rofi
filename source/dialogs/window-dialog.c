@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright 2013-2014 Qball  Cow <qball@gmpclient.org>
+ * Copyright 2013-2015 Qball  Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -27,23 +27,13 @@
 #include <config.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <X11/X.h>
-
 #include <unistd.h>
-#include <limits.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <dirent.h>
 #include <strings.h>
 #include <string.h>
 #include <errno.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
-#include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include <X11/Xproto.h>
-#include <X11/keysym.h>
-#include <X11/XKBlib.h>
 
 #include "rofi.h"
 #include "helper.h"

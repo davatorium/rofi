@@ -2,7 +2,7 @@
 
    MIT/X11 License
    Copyright (c) 2012 Sean Pringle <sean.pringle@gmail.com>
-   Modified  (c) 2013-2014 Qball Cow <qball@gmpclient.org>
+   Modified  (c) 2013-2015 Qball Cow <qball@gmpclient.org>
 
    Permission is hereby granted, free of charge, to any person obtaining
    a copy of this software and associated documentation files (the

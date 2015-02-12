@@ -11,7 +11,7 @@
 		- Fix missing keystrokes.
 		- On broken UTF-8 show everything up to the broken character. (#121)
 	Others:
-		- Code refactoring.
+		- Significant code refactoring.
 	Performance improvements:
 		- Fix blocking on grabbing keyboard.
 
