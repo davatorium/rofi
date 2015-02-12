@@ -1037,8 +1037,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     int x_offset = config.padding;
 
     for ( i = 0; i < state.max_elements; i++ ) {
-        unsigned int ex = ( ( i ) % state.max_rows ) * ( state.element_width + LINE_MARGIN );
-        unsigned int ey = ( ( i ) / state.max_rows ) * element_height + LINE_MARGIN;
+        unsigned int ex = ( ( i ) / state.max_rows ) * ( state.element_width + LINE_MARGIN );
+        unsigned int ey = ( ( i ) % state.max_rows ) * element_height + LINE_MARGIN;
 
         state.boxes[i] = textbox_create ( main_window, &vinfo, map, 0,
                                           ex + x_offset, ey + y_offset,
