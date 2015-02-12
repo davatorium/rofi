@@ -20,91 +20,8 @@
 #define INTERSECT( x, y, w, h, x1, y1, w1, h1 )    ( OVERLAP ( ( x ), ( w ), ( x1 ), ( w1 ) ) && OVERLAP ( ( y ), ( h ), ( y1 ), ( h1 ) ) )
 #include "x11-helper.h"
 
-#define WINLIST    32
-
 // Mask indicating num-lock.
 unsigned int NumlockMask = 0;
-
-winlist      *cache_client = NULL;
-winlist      *cache_xattr  = NULL;
-
-winlist* winlist_new ()
-{
-    winlist *l = g_malloc ( sizeof ( winlist ) );
-    l->len   = 0;
-    l->array = g_malloc_n ( WINLIST + 1, sizeof ( Window ) );
-    l->data  = g_malloc_n ( WINLIST + 1, sizeof ( void* ) );
-    return l;
-}
-
-int winlist_append ( winlist *l, Window w, void *d )
-{
-    if ( l->len > 0 && !( l->len % WINLIST ) ) {
-        l->array = g_realloc ( l->array, sizeof ( Window ) * ( l->len + WINLIST + 1 ) );
-        l->data  = g_realloc ( l->data, sizeof ( void* ) * ( l->len + WINLIST + 1 ) );
-    }
-    // Make clang-check happy.
-    // TODO: make clang-check clear this should never be 0.
-    if ( l->data == NULL || l->array == NULL ) {
-        return 0;
-    }
-
-    l->data[l->len]    = d;
-    l->array[l->len++] = w;
-    return l->len - 1;
-}
-
-void winlist_empty ( winlist *l )
-{
-    while ( l->len > 0 ) {
-        g_free ( l->data[--( l->len )] );
-    }
-}
-
-void winlist_free ( winlist *l )
-{
-    if ( l != NULL ) {
-        winlist_empty ( l );
-        g_free ( l->array );
-        g_free ( l->data );
-        g_free ( l );
-    }
-}
-
-int winlist_find ( winlist *l, Window w )
-{
-// iterate backwards. theory is: windows most often accessed will be
-// nearer the end. testing with kcachegrind seems to support this...
-    int i;
-
-    for ( i = ( l->len - 1 ); i >= 0; i-- ) {
-        if ( l->array[i] == w ) {
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-
-XWindowAttributes* window_get_attributes ( Display *display, Window w )
-{
-    int idx = winlist_find ( cache_xattr, w );
-
-    if ( idx < 0 ) {
-        XWindowAttributes *cattr = g_malloc ( sizeof ( XWindowAttributes ) );
-
-        if ( XGetWindowAttributes ( display, w, cattr ) ) {
-            winlist_append ( cache_xattr, w, cattr );
-            return cattr;
-        }
-
-        g_free ( cattr );
-        return NULL;
-    }
-
-    return cache_xattr->data[idx];
-}
 
 // retrieve a property of any type from a window
 int window_get_prop ( Display *display, Window w, Atom prop,
@@ -190,26 +107,8 @@ int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned l
 }
 
 
-void x11_cache_create ( void )
-{
-    cache_client = winlist_new ();
-    cache_xattr  = winlist_new ();
-}
-
-void x11_cache_empty ( void )
-{
-    winlist_empty ( cache_xattr );
-    winlist_empty ( cache_client );
-}
-
-void x11_cache_free ( void )
-{
-    winlist_free ( cache_xattr );
-    winlist_free ( cache_client );
-}
-
 // find the dimensions of the monitor displaying point x,y
-static void monitor_dimensions ( Display *display, Screen *screen, int x, int y, workarea *mon )
+void monitor_dimensions ( Display *display, Screen *screen, int x, int y, workarea *mon )
 {
     memset ( mon, 0, sizeof ( workarea ) );
     mon->w = WidthOfScreen ( screen );
@@ -234,78 +133,6 @@ static void monitor_dimensions ( Display *display, Screen *screen, int x, int y,
 
         XFree ( info );
     }
-}
-
-// _NET_WM_STATE_*
-int client_has_state ( client *c, Atom state )
-{
-    for ( int i = 0; i < c->states; i++ ) {
-        if ( c->state[i] == state ) {
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
-client* window_client ( Display *display, Window win )
-{
-    if ( win == None ) {
-        return NULL;
-    }
-
-    int idx = winlist_find ( cache_client, win );
-
-    if ( idx >= 0 ) {
-        return cache_client->data[idx];
-    }
-
-    // if this fails, we're up that creek
-    XWindowAttributes *attr = window_get_attributes ( display, win );
-
-    if ( !attr ) {
-        return NULL;
-    }
-
-    client *c = g_malloc0 ( sizeof ( client ) );
-    c->window = win;
-
-    // copy xattr so we don't have to care when stuff is freed
-    memmove ( &c->xattr, attr, sizeof ( XWindowAttributes ) );
-    XGetTransientForHint ( display, win, &c->trans );
-
-    c->states = window_get_atom_prop ( display, win, netatoms[_NET_WM_STATE], c->state, CLIENTSTATE );
-
-    char *name;
-
-    if ( ( name = window_get_text_prop ( display, c->window, netatoms[_NET_WM_NAME] ) ) && name ) {
-        snprintf ( c->title, CLIENTTITLE, "%s", name );
-        g_free ( name );
-    }
-    else if ( XFetchName ( display, c->window, &name ) ) {
-        snprintf ( c->title, CLIENTTITLE, "%s", name );
-        XFree ( name );
-    }
-
-    name = window_get_text_prop ( display, c->window, XInternAtom ( display, "WM_WINDOW_ROLE", False ) );
-
-    if ( name != NULL ) {
-        snprintf ( c->role, CLIENTROLE, "%s", name );
-        XFree ( name );
-    }
-
-    XClassHint chint;
-
-    if ( XGetClassHint ( display, c->window, &chint ) ) {
-        snprintf ( c->class, CLIENTCLASS, "%s", chint.res_class );
-        snprintf ( c->name, CLIENTNAME, "%s", chint.res_name );
-        XFree ( chint.res_class );
-        XFree ( chint.res_name );
-    }
-
-    monitor_dimensions ( display, c->xattr.screen, c->xattr.x, c->xattr.y, &c->monitor );
-    winlist_append ( cache_client, c->window, c );
-    return c;
 }
 
 /**
@@ -346,12 +173,12 @@ void monitor_active ( Display *display, workarea *mon )
     int    count;
     if ( window_get_prop ( display, root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id, sizeof ( Window ) )
          && type == XA_WINDOW && count > 0 ) {
-        XWindowAttributes *attr = window_get_attributes ( display, id );
-        if ( attr != NULL ) {
+        XWindowAttributes attr;
+        if ( XGetWindowAttributes ( display, id, &attr ) ) {
             Window junkwin;
-            if ( XTranslateCoordinates ( display, id, attr->root,
-                                         -attr->border_width,
-                                         -attr->border_width,
+            if ( XTranslateCoordinates ( display, id, attr.root,
+                                         -attr.border_width,
+                                         -attr.border_width,
                                          &x, &y, &junkwin ) == True ) {
                 monitor_dimensions ( display, screen, x, y, mon );
                 return;
@@ -551,6 +378,5 @@ void x11_setup ( Display *display )
 
     // determine numlock mask so we can bind on keys with and without it
     x11_figure_out_numlock_mask ( display );
-    x11_cache_create ();
     x11_create_frequently_used_atoms ( display );
 }

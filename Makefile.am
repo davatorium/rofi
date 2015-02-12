@@ -28,6 +28,7 @@ rofi_SOURCES=\
     source/xrmoptions.c\
     source/dmenu-dialog.c\
     source/run-dialog.c\
+    source/window-dialog.c\
     source/ssh-dialog.c\
     source/script-dialog.c\
     source/history.c\
@@ -37,6 +38,7 @@ rofi_SOURCES=\
     include/rofi.h\
     include/rofi-i3.h\
     include/run-dialog.h\
+    include/window-dialog.h\
     include/ssh-dialog.h\
     include/dmenu-dialog.h\
     include/script-dialog.h\

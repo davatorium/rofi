@@ -47,7 +47,6 @@
 #include "helper.h"
 #include "x11-helper.h"
 #include "rofi.h"
-#include "rofi-i3.h"
 #include "xrmoptions.h"
 #include "textbox.h"
 // Switchers.
@@ -55,6 +54,7 @@
 #include "ssh-dialog.h"
 #include "dmenu-dialog.h"
 #include "script-dialog.h"
+#include "window-dialog.h"
 
 #define LINE_MARGIN    3
 
@@ -63,9 +63,6 @@ typedef enum _MainLoopEvent
     ML_XEVENT,
     ML_TIMEOUT
 } MainLoopEvent;
-
-// This setting is no longer user configurable, but partial to this file:
-int config_i3_mode            = 0;
 
 // Pidfile.
 char         *pidfile         = NULL;
@@ -241,49 +238,6 @@ static void menu_set_arrow_text ( int filtered_lines, int selected, int max_elem
 }
 
 
-static int window_match ( char **tokens, __attribute__( ( unused ) ) const char *input,
-                          int case_sensitive, int index, void *data )
-{
-    int     match = 1;
-    winlist *ids  = ( winlist * ) data;
-    client  *c    = window_client ( display, ids->array[index] );
-
-    if ( tokens ) {
-        for ( int j = 0; match && tokens[j]; j++ ) {
-            int test = 0;
-
-            if ( !test && c->title[0] != '\0' ) {
-                char *key = token_collate_key ( c->title, case_sensitive );
-                test = ( strstr ( key, tokens[j] ) != NULL );
-                g_free ( key );
-            }
-
-            if ( !test && c->class[0] != '\0' ) {
-                char *key = token_collate_key ( c->class, case_sensitive );
-                test = ( strstr ( key, tokens[j] ) != NULL );
-                g_free ( key );
-            }
-
-            if ( !test && c->role[0] != '\0' ) {
-                char *key = token_collate_key ( c->role, case_sensitive );
-                test = ( strstr ( key, tokens[j] ) != NULL );
-                g_free ( key );
-            }
-
-            if ( !test && c->name[0] != '\0' ) {
-                char *key = token_collate_key ( c->name, case_sensitive );
-                test = ( strstr ( key, tokens[j] ) != NULL );
-                g_free ( key );
-            }
-
-            if ( test == 0 ) {
-                match = 0;
-            }
-        }
-    }
-
-    return match;
-}
 
 static int lev_sort ( const void *p1, const void *p2, void *arg )
 {
@@ -1390,141 +1344,6 @@ void error_dialog ( const char *msg )
     release_keyboard ( display );
 }
 
-SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
-{
-    Screen       *screen = DefaultScreenOfDisplay ( display );
-    Window       root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
-    SwitcherMode retv    = MODE_EXIT;
-    // find window list
-    Atom         type;
-    int          nwins;
-    Window       wins[100];
-    int          count       = 0;
-    Window       curr_win_id = 0;
-
-    // Get the active window so we can highlight this.
-    if ( !( window_get_prop ( display, root, netatoms[_NET_ACTIVE_WINDOW], &type,
-                              &count, &curr_win_id, sizeof ( Window ) )
-            && type == XA_WINDOW && count > 0 ) ) {
-        curr_win_id = 0;
-    }
-
-    if ( window_get_prop ( display, root, netatoms[_NET_CLIENT_LIST_STACKING],
-                           &type, &nwins, wins, 100 * sizeof ( Window ) )
-         && type == XA_WINDOW ) {
-        char          pattern[50];
-        int           i;
-        unsigned int  classfield = 0;
-        unsigned long desktops   = 0;
-        // windows we actually display. may be slightly different to _NET_CLIENT_LIST_STACKING
-        // if we happen to have a window destroyed while we're working...
-        winlist *ids = winlist_new ();
-
-
-
-        // calc widths of fields
-        for ( i = nwins - 1; i > -1; i-- ) {
-            client *c;
-
-            if ( ( c = window_client ( display, wins[i] ) )
-                 && !c->xattr.override_redirect
-                 && !client_has_state ( c, netatoms[_NET_WM_STATE_SKIP_PAGER] )
-                 && !client_has_state ( c, netatoms[_NET_WM_STATE_SKIP_TASKBAR] ) ) {
-                classfield = MAX ( classfield, strlen ( c->class ) );
-
-                // In i3 mode, skip the i3bar completely.
-                if ( config_i3_mode && strstr ( c->class, "i3bar" ) != NULL ) {
-                    continue;
-                }
-
-                if ( c->window == curr_win_id ) {
-                    c->active = TRUE;
-                }
-                winlist_append ( ids, c->window, NULL );
-            }
-        }
-
-        // Create pattern for printing the line.
-        if ( !window_get_cardinal_prop ( display, root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1 ) ) {
-            desktops = 1;
-        }
-        if ( config_i3_mode ) {
-            sprintf ( pattern, "%%-%ds   %%s", MAX ( 5, classfield ) );
-        }
-        else{
-            sprintf ( pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX ( 5, classfield ) );
-        }
-        char         **list = g_malloc0_n ( ( ids->len + 1 ), sizeof ( char* ) );
-        unsigned int lines  = 0;
-
-        // build the actual list
-        for ( i = 0; i < ( ids->len ); i++ ) {
-            Window w = ids->array[i];
-            client *c;
-
-            if ( ( c = window_client ( display, w ) ) ) {
-                // final line format
-                unsigned long wmdesktop;
-                char          desktop[5];
-                desktop[0] = 0;
-                char          *line = g_malloc ( strlen ( c->title ) + strlen ( c->class ) + classfield + 50 );
-                if ( !config_i3_mode ) {
-                    // find client's desktop. this is zero-based, so we adjust by since most
-                    // normal people don't think like this :-)
-                    if ( !window_get_cardinal_prop ( display, c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1 ) ) {
-                        wmdesktop = 0xFFFFFFFF;
-                    }
-
-                    if ( wmdesktop < 0xFFFFFFFF ) {
-                        sprintf ( desktop, "%d", (int) wmdesktop + 1 );
-                    }
-
-                    sprintf ( line, pattern, desktop, c->class, c->title );
-                }
-                else{
-                    sprintf ( line, pattern, c->class, c->title );
-                }
-
-                list[lines++] = line;
-            }
-        }
-        Time       time;
-        int        selected_line = 0;
-        MenuReturn mretv         = menu ( list, lines, input, "window:", &time, NULL,
-                                          window_match, ids, &selected_line, config.levenshtein_sort );
-
-        if ( mretv == MENU_NEXT ) {
-            retv = NEXT_DIALOG;
-        }
-        else if ( mretv == MENU_PREVIOUS ) {
-            retv = PREVIOUS_DIALOG;
-        }
-        else if ( mretv == MENU_QUICK_SWITCH ) {
-            retv = selected_line;
-        }
-        else if ( ( mretv == MENU_OK || mretv == MENU_CUSTOM_INPUT ) && list[selected_line] ) {
-            if ( config_i3_mode ) {
-                // Hack for i3.
-                i3_support_focus_window ( ids->array[selected_line] );
-            }
-            else{
-                // Change to the desktop of the selected window/client.
-                // TODO: get rid of strtol
-                window_send_message ( display, root, root, netatoms[_NET_CURRENT_DESKTOP], strtol ( list[selected_line], NULL, 10 ) - 1,
-                                      SubstructureNotifyMask | SubstructureRedirectMask, time );
-                XSync ( display, False );
-
-                window_send_message ( display, root, ids->array[selected_line], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
-                                      SubstructureNotifyMask | SubstructureRedirectMask, time );
-            }
-        }
-
-        g_strfreev ( list );
-        winlist_free ( ids );
-    }
-
-    return retv;
-}
 
 /**
  * Start dmenu mode.
@@ -1683,9 +1502,6 @@ static void cleanup ()
             XCloseDisplay ( display );
         }
     }
-    x11_cache_free ();
-
-    i3_support_free_internals ();
 
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
@@ -1883,9 +1699,6 @@ int main ( int argc, char *argv[] )
 
     x11_setup ( display );
 
-    // Check for i3
-    config_i3_mode = i3_support_initialize ( display );
-
     char *msg = NULL;
     if ( find_arg_str ( argc, argv, "-e", &( msg ) ) ) {
         show_error_message ( msg );
@@ -1992,8 +1805,6 @@ int main ( int argc, char *argv[] )
         // catching global key presses.
         for (;; ) {
             XEvent ev;
-            // caches only live for a single event
-            x11_cache_empty ();
 
             // block and wait for something
             XNextEvent ( display, &ev );

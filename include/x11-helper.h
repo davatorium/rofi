@@ -1,69 +1,6 @@
 #ifndef __X11_HELPER_H__
 #define __X11_HELPER_H__
 
-// window lists
-typedef struct
-{
-    Window *array;
-    void   **data;
-    int    len;
-} winlist;
-
-
-/**
- * Create a window list, pre-seeded with WINLIST entries.
- *
- * @returns A new window list.
- */
-winlist* winlist_new ();
-
-
-/**
- * @param l The winlist.
- * @param w The window to find.
- *
- * Find the window in the list, and return the array entry.
- *
- * @returns -1 if failed, index is successful.
- */
-int winlist_find ( winlist *l, Window w );
-
-/**
- * @param l The winlist entry
- *
- * Free the winlist.
- */
-void winlist_free ( winlist *l );
-
-/**
- * @param l The winlist entry
- *
- * Empty winlist without free-ing
- */
-void winlist_empty ( winlist *l );
-
-/**
- * @param l The winlist.
- * @param w The window to add.
- * @param d Data pointer.
- *
- * Add one entry. If Full, extend with WINLIST entries.
- *
- * @returns 0 if failed, 1 is successful.
- */
-int winlist_append ( winlist *l, Window w, void *d );
-
-/**
- * @param d Display connection to X server
- * @param w window
- *
- * Get window attributes.
- * This functions uses caching.
- *
- * @returns a XWindowAttributes
- */
-XWindowAttributes* window_get_attributes ( Display *display, Window w );
-
 
 int window_get_prop ( Display *display, Window w, Atom prop,
                       Atom *type, int *items,
@@ -84,22 +21,6 @@ char* window_get_text_prop ( Display *display, Window w, Atom atom );
 int window_get_atom_prop ( Display *display, Window w, Atom atom, Atom *list, int count );
 void window_set_atom_prop ( Display *display, Window w, Atom prop, Atom *atoms, int count );
 int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned long *list, int count );
-
-/**
- * Create empty X11 cache for windows and windows attributes.
- */
-void x11_cache_create ( void );
-
-/**
- * Empty the X11 cache.
- * (does not free it.)
- */
-void x11_cache_empty ( void );
-
-/**
- * Free the cache.
- */
-void x11_cache_free ( void );
 
 
 /**
@@ -134,37 +55,14 @@ typedef struct
     int l, r, t, b;
 } workarea;
 
-#define CLIENTTITLE    100
-#define CLIENTCLASS    50
-#define CLIENTNAME     50
-#define CLIENTSTATE    10
-#define CLIENTROLE     50
-
-// a managable window
-typedef struct
-{
-    Window            window, trans;
-    XWindowAttributes xattr;
-    char              title[CLIENTTITLE];
-    char class[CLIENTCLASS];
-    char              name[CLIENTNAME];
-    char              role[CLIENTROLE];
-    int               states;
-    Atom              state[CLIENTSTATE];
-    workarea          monitor;
-    int               active;
-} client;
-// collect info on any window
-// doesn't have to be a window we'll end up managing
-client* window_client ( Display *display, Window win );
-int client_has_state ( client *c, Atom state );
-
 void monitor_active ( Display *display, workarea *mon );
 
 int window_send_message ( Display *display, Window target, Window subject,
                           Atom atom, unsigned long protocol,
                           unsigned long mask, Time time );
 
+// find the dimensions of the monitor displaying point x,y
+void monitor_dimensions ( Display *display, Screen *screen, int x, int y, workarea *mon );
 
 /**
  * @param display The display.

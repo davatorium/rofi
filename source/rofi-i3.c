@@ -115,6 +115,10 @@ void i3_support_focus_window ( Window id )
 
 int i3_support_initialize ( Display *display )
 {
+    // Free it,
+    g_free ( i3_socket_path );
+    i3_socket_path = NULL;
+    // Get atom for I3_SOCKET_PATH
     Atom i3_sp_atom = XInternAtom ( display, "I3_SOCKET_PATH", False );
 
     if ( i3_sp_atom != None ) {
