@@ -132,10 +132,17 @@ Colormap    map         = None;
 XVisualInfo vinfo;
 int         truecolor = FALSE;
 
-static void create_visual_and_colormap ()
+/**
+ * @param display Connection to the X server.
+ *
+ * This function tries to create a 32bit TrueColor colormap.
+ * If this fails, it falls back to the default for the connected display.
+ */
+static void create_visual_and_colormap ( Display *display )
 {
+    int screen = DefaultScreen ( display );
     // Try to create TrueColor map
-    if ( XMatchVisualInfo ( display, DefaultScreen ( display ), 32, TrueColor, &vinfo ) ) {
+    if ( XMatchVisualInfo ( display, screen, 32, TrueColor, &vinfo ) ) {
         // Visual found, lets try to create map.
         map       = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
         truecolor = TRUE;
@@ -145,13 +152,16 @@ static void create_visual_and_colormap ()
     if ( map == None ) {
         truecolor = FALSE;
         // Two fields we use.
-        vinfo.visual = DefaultVisual ( display, DefaultScreen ( display ) );
-        vinfo.depth  = DefaultDepth ( display, DefaultScreen ( display ) );
-        map          = DefaultColormap ( display, DefaultScreen ( display ) );
+        vinfo.visual = DefaultVisual ( display, screen );
+        vinfo.depth  = DefaultDepth ( display, screen );
+        map          = DefaultColormap ( display, screen );
     }
 }
 
 /**
+ * @param display Connection to the X server.
+ * @param name    String representing the color.
+ *
  * Allocate a pixel value for an X named color
  */
 static unsigned int color_get ( Display *display, const char *const name )
@@ -174,6 +184,12 @@ static unsigned int color_get ( Display *display, const char *const name )
     }
 }
 
+/**
+ * @param display Connection to the X server.
+ * @param x11_fd  File descriptor from the X server to listen on.
+ *
+ * Function waits for a new XEvent with a timeout.
+ */
 static inline MainLoopEvent wait_for_xevent_or_timeout ( Display *display, int x11_fd )
 {
     // Check if events are pending.
@@ -1354,7 +1370,7 @@ static int run_dmenu ()
     create_pid_file ( pidfile );
 
     // Request truecolor visual.
-    create_visual_and_colormap ();
+    create_visual_and_colormap ( display );
     textbox_setup ( &vinfo, map,
                     config.menu_bg, config.menu_bg_alt, config.menu_fg,
                     config.menu_hlbg,
@@ -1394,7 +1410,7 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
     // Create pid file to avoid multiple instances.
     create_pid_file ( pidfile );
     // Create the colormap and the main visual.
-    create_visual_and_colormap ();
+    create_visual_and_colormap ( display );
 
     // Because of the above fork, we want to do this here.
     // Make sure this is isolated to its own thread.
@@ -1630,7 +1646,7 @@ static void show_error_message ( const char *msg )
     create_pid_file ( pidfile );
 
     // Request truecolor visual.
-    create_visual_and_colormap ();
+    create_visual_and_colormap ( display );
     textbox_setup ( &vinfo, map,
                     config.menu_bg, config.menu_bg_alt, config.menu_fg,
                     config.menu_hlbg,

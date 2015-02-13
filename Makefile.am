@@ -29,12 +29,12 @@ rofi_SOURCES=\
     source/history.c\
     config/config.c\
 	source/helper.c\
+	source/x11-helper.c\
     source/dialogs/dmenu-dialog.c\
     source/dialogs/run-dialog.c\
     source/dialogs/window-dialog.c\
     source/dialogs/ssh-dialog.c\
     source/dialogs/script-dialog.c\
-	source/x11-helper.c\
     include/rofi.h\
     include/i3-support.h\
     include/xrmoptions.h\
