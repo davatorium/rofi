@@ -312,7 +312,8 @@ void textbox_draw ( textbox *tb )
 // cursor handling for edit mode
 void textbox_cursor ( textbox *tb, int pos )
 {
-    tb->cursor = MAX ( 0, MIN ( ( int ) strlen ( tb->text ), pos ) );
+    int length = (tb->text == NULL)? 0: strlen(tb->text);
+    tb->cursor = MAX ( 0, MIN ( length, pos ) );
 }
 
 // move right
@@ -332,6 +333,9 @@ void textbox_cursor_dec ( textbox *tb )
 // Move word right
 void textbox_cursor_inc_word ( textbox *tb )
 {
+    if(tb->text == NULL) {
+        return;
+    }
     // Find word boundaries, with pango_Break?
     gchar *c = &( tb->text[tb->cursor] );
     while ( ( c = g_utf8_next_char ( c ) ) ) {
@@ -346,6 +350,9 @@ void textbox_cursor_inc_word ( textbox *tb )
              ) {
             break;
         }
+    }
+    if(c == NULL) {
+        return;
     }
     while ( ( c = g_utf8_next_char ( c ) ) ) {
         gunichar          uc = g_utf8_get_char ( c );
@@ -445,6 +452,9 @@ void textbox_delete ( textbox *tb, int pos, int dlen )
 // delete on character
 void textbox_cursor_del ( textbox *tb )
 {
+    if(tb->text == NULL) {
+        return;
+    }
     int index = g_utf8_next_char ( &( tb->text[tb->cursor] ) ) - tb->text;
     textbox_delete ( tb, tb->cursor, index - tb->cursor );
 }

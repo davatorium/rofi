@@ -44,7 +44,7 @@
 char* fgets_s ( char* s, int n, FILE *iop, char sep )
 {
     // Map these to registers.
-    register int c;
+    register int c = EOF;
     register char* cs;
     cs = s;
     // read until EOF or buffer is full.
