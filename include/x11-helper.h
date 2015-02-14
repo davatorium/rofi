@@ -115,4 +115,21 @@ void x11_set_window_opacity ( Display *display, Window box, unsigned int opacity
  * * Cache
  */
 void x11_setup ( Display *display );
+
+/**
+ * @param display Connection to the X server.
+ *
+ * This function tries to create a 32bit TrueColor colormap.
+ * If this fails, it falls back to the default for the connected display.
+ */
+void create_visual_and_colormap ( Display *display );
+
+
+/**
+ * @param display Connection to the X server.
+ * @param name    String representing the color.
+ *
+ * Allocate a pixel value for an X named color
+ */
+unsigned int color_get ( Display *display, const char *const name );
 #endif

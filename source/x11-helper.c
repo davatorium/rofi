@@ -407,3 +407,48 @@ void x11_setup ( Display *display )
     x11_figure_out_numlock_mask ( display );
     x11_create_frequently_used_atoms ( display );
 }
+
+
+
+extern Colormap    map;
+extern XVisualInfo vinfo;
+int         truecolor = FALSE;
+void create_visual_and_colormap ( Display *display )
+{
+    int screen = DefaultScreen ( display );
+    // Try to create TrueColor map
+    if ( XMatchVisualInfo ( display, screen, 32, TrueColor, &vinfo ) ) {
+        // Visual found, lets try to create map.
+        map       = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
+        truecolor = TRUE;
+    }
+    // Failed to create map.
+    // Use the defaults then.
+    if ( map == None ) {
+        truecolor = FALSE;
+        // Two fields we use.
+        vinfo.visual = DefaultVisual ( display, screen );
+        vinfo.depth  = DefaultDepth ( display, screen );
+        map          = DefaultColormap ( display, screen );
+    }
+}
+
+unsigned int color_get ( Display *display, const char *const name )
+{
+    XColor color = { 0, 0, 0, 0, 0, 0 };
+    // Special format.
+    if ( strncmp ( name, "argb:", 5 ) == 0 ) {
+        color.pixel = strtoul ( &name[5], NULL, 16 );
+        color.red   = ( ( color.pixel & 0x00FF0000 ) >> 16 ) * 255;
+        color.green = ( ( color.pixel & 0x0000FF00 ) >> 8  ) * 255;
+        color.blue  = ( ( color.pixel & 0x000000FF )       ) * 255;
+        if ( !truecolor ) {
+            // This will drop alpha part.
+            return XAllocColor ( display, map, &color ) ? color.pixel : None;
+        }
+        return color.pixel;
+    }
+    else {
+        return XAllocNamedColor ( display, map, name, &color, &color ) ? color.pixel : None;
+    }
+}

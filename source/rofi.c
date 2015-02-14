@@ -44,11 +44,11 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 
-#include "helper.h"
-#include "x11-helper.h"
 #include "rofi.h"
-#include "xrmoptions.h"
+#include "helper.h"
 #include "textbox.h"
+#include "x11-helper.h"
+#include "xrmoptions.h"
 // Switchers.
 #include "dialogs/run-dialog.h"
 #include "dialogs/ssh-dialog.h"
@@ -130,59 +130,6 @@ Window      main_window = None;
 GC          gc          = NULL;
 Colormap    map         = None;
 XVisualInfo vinfo;
-int         truecolor = FALSE;
-
-/**
- * @param display Connection to the X server.
- *
- * This function tries to create a 32bit TrueColor colormap.
- * If this fails, it falls back to the default for the connected display.
- */
-static void create_visual_and_colormap ( Display *display )
-{
-    int screen = DefaultScreen ( display );
-    // Try to create TrueColor map
-    if ( XMatchVisualInfo ( display, screen, 32, TrueColor, &vinfo ) ) {
-        // Visual found, lets try to create map.
-        map       = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
-        truecolor = TRUE;
-    }
-    // Failed to create map.
-    // Use the defaults then.
-    if ( map == None ) {
-        truecolor = FALSE;
-        // Two fields we use.
-        vinfo.visual = DefaultVisual ( display, screen );
-        vinfo.depth  = DefaultDepth ( display, screen );
-        map          = DefaultColormap ( display, screen );
-    }
-}
-
-/**
- * @param display Connection to the X server.
- * @param name    String representing the color.
- *
- * Allocate a pixel value for an X named color
- */
-static unsigned int color_get ( Display *display, const char *const name )
-{
-    XColor color = { 0, 0, 0, 0, 0, 0 };
-    // Special format.
-    if ( strncmp ( name, "argb:", 5 ) == 0 ) {
-        color.pixel = strtoul ( &name[5], NULL, 16 );
-        color.red   = ( ( color.pixel & 0x00FF0000 ) >> 16 ) * 255;
-        color.green = ( ( color.pixel & 0x0000FF00 ) >> 8  ) * 255;
-        color.blue  = ( ( color.pixel & 0x000000FF )       ) * 255;
-        if ( !truecolor ) {
-            // This will drop alpha part.
-            return XAllocColor ( display, map, &color ) ? color.pixel : None;
-        }
-        return color.pixel;
-    }
-    else {
-        return XAllocNamedColor ( display, map, name, &color, &color ) ? color.pixel : None;
-    }
-}
 
 /**
  * @param display Connection to the X server.
