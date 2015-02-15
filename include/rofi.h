@@ -174,12 +174,6 @@ typedef struct _Settings
     /** Command for listing executables */
     char           * run_list_command;
 
-    /** Key to open window switcher */
-    char           * window_key;
-    /** Key to open run dialog */
-    char           * run_key;
-    /** Key to open ssh dialog */
-    char           * ssh_key;
     /** Windows location/gravity */
     WindowLocation location;
     /** Padding between elements */

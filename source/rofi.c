@@ -65,17 +65,13 @@ typedef enum _MainLoopEvent
 } MainLoopEvent;
 
 // Pidfile.
-char         *pidfile         = NULL;
-const char   *cache_dir       = NULL;
-Display      *display         = NULL;
-char         *display_str     = NULL;
+char       *pidfile         = NULL;
+const char *cache_dir       = NULL;
+Display    *display         = NULL;
+char       *display_str     = NULL;
 
-const char   *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
-Atom         netatoms[NUM_NETATOMS];
-
-unsigned int windows_modmask, rundialog_modmask, sshdialog_modmask;
-KeySym       rundialog_keysym, sshdialog_keysym, windows_keysym;
-
+const char *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
+Atom       netatoms[NUM_NETATOMS];
 
 /**
  * Structure defining a switcher.
@@ -93,6 +89,11 @@ typedef struct _Switcher
     switcher_callback_free_data cb_data_free;
     // Textbox used in the sidebar-mode.
     textbox                     *tb;
+    // Keybindings (keysym and modmask)
+    char                        * keycfg;
+    char                        * keystr;
+    KeySym                      keysym;
+    unsigned int                modmask;
 } Switcher;
 
 // Array of switchers.
@@ -551,12 +552,20 @@ inline static void menu_nav_down ( MenuState *state )
  */
 static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned int modstate )
 {
-    if ( key == XK_Escape
-         // pressing one of the global key bindings closes the switcher. this allows fast closing of the menu if an item is not selected
-         || ( ( windows_modmask == AnyModifier || modstate & windows_modmask ) && key == windows_keysym )
-         || ( ( rundialog_modmask == AnyModifier || modstate & rundialog_modmask ) && key == rundialog_keysym )
-         || ( ( sshdialog_modmask == AnyModifier || modstate & sshdialog_modmask ) && key == sshdialog_keysym )
-         ) {
+    // pressing one of the global key bindings closes the switcher. this allows fast closing of the
+    // menu if an item is not selected
+    for ( unsigned int i = 0; i < num_switchers; i++ ) {
+        if ( switchers[i].keystr != NULL ) {
+            if ( ( switchers[i].modmask == AnyModifier || modstate & ( switchers[i].keysym ) ) &&
+                 switchers[i].keysym == key ) {
+                state->retv     = MENU_CANCEL;
+                state->quit     = TRUE;
+                state->prev_key = key;
+                return;
+            }
+        }
+    }
+    if ( key == XK_Escape ) {
         state->retv = MENU_CANCEL;
         state->quit = TRUE;
     }
@@ -1418,19 +1427,13 @@ static void handle_keypress ( XEvent *ev )
 {
     int    index = -1;
     KeySym key   = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
-    if ( ( windows_modmask == AnyModifier || ev->xkey.state & windows_modmask ) &&
-         key == windows_keysym ) {
-        index = switcher_get ( "window" );
-    }
-
-    if ( ( rundialog_modmask == AnyModifier || ev->xkey.state & rundialog_modmask ) &&
-         key == rundialog_keysym ) {
-        index = switcher_get ( "run" );
-    }
-
-    if ( ( sshdialog_modmask == AnyModifier || ev->xkey.state & sshdialog_modmask ) &&
-         key == sshdialog_keysym ) {
-        index = switcher_get ( "ssh" );
+    for ( unsigned int i = 0; i < num_switchers; i++ ) {
+        if ( switchers[i].keystr != NULL ) {
+            if ( ( switchers[i].modmask == AnyModifier || ( ev->xkey.state ) & ( switchers[i].keysym ) ) &&
+                 switchers[i].keysym == key ) {
+                index = i;
+            }
+        }
     }
     if ( index >= 0 ) {
         run_switcher ( TRUE, index );
@@ -1468,11 +1471,18 @@ static void cleanup ()
 
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
-
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
         // only used for script dialog.
         if ( switchers[i].cb_data_free != NULL ) {
             switchers[i].cb_data_free ( switchers[i].cb_data );
+        }
+        if ( switchers[i].keystr != NULL ) {
+            g_free ( switchers[i].keystr );
+            switchers[i].keystr = NULL;
+        }
+        if ( switchers[i].keycfg != NULL ) {
+            g_free ( switchers[i].keycfg );
+            switchers[i].keycfg = NULL;
         }
     }
     g_free ( switchers );
@@ -1501,9 +1511,14 @@ static void setup_switchers ( void )
           token != NULL;
           token = strtok_r ( NULL, ",", &savept ) ) {
         // Resize and add entry.
-        switchers                             = (Switcher *) g_realloc ( switchers, sizeof ( Switcher ) * ( num_switchers + 1 ) );
+        switchers = (Switcher *) g_realloc ( switchers,
+                                             sizeof ( Switcher ) * ( num_switchers + 1 ) );
         switchers[num_switchers].cb_data      = NULL;
         switchers[num_switchers].cb_data_free = NULL;
+        switchers[num_switchers].keystr       = NULL;
+        switchers[num_switchers].keycfg       = NULL;
+        switchers[num_switchers].keysym       = None;
+        switchers[num_switchers].modmask      = AnyModifier;
 
         // Window switcher.
         if ( strcasecmp ( token, "window" ) == 0 ) {
@@ -1540,9 +1555,19 @@ static void setup_switchers ( void )
                 token = NULL;
             }
         }
+        // Keybinding.
     }
     // Free string that was modified by strtok_r
     g_free ( switcher_str );
+    // We cannot do this in main loop, as we create pointer to string,
+    // and re-alloc moves that pointer.
+    for ( unsigned int i = 0; i < num_switchers; i++ ) {
+        switchers[i].keycfg = g_strdup_printf ( "key-%s",
+                                                switchers[i].name );
+        config_parser_add_option ( xrm_String,
+                                   switchers[i].keycfg,
+                                   (void * *) &( switchers[i].keystr ) );
+    }
 }
 
 /**
@@ -1563,10 +1588,23 @@ static inline void load_configuration ( Display *display )
 
     // Parse command line for settings.
     config_parse_cmd_options ( stored_argc, stored_argv );
+}
+static inline void load_configuration_dynamic ( Display *display )
+{
+    // Load in config from X resources.
+    config_parse_xresource_options_dynamic ( display );
 
+    for ( unsigned int i = 0; i < num_switchers; i++ ) {
+        if ( switchers[i].keycfg != NULL ) {
+            char *flag = g_strdup_printf ( "-%s", switchers[i].keycfg );
+            find_arg_str_alloc ( stored_argc, stored_argv, flag, &( switchers[i].keystr ) );
+            g_free ( flag );
+        }
+    }
     // Sanity check
     config_sanity_check ();
 }
+
 
 /**
  * Handle sighub request.
@@ -1582,6 +1620,7 @@ static void hup_action_handler ( int num )
         Display *display = XOpenDisplay ( display_str );
         if ( display ) {
             load_configuration ( display );
+            load_configuration_dynamic ( display );
             XCloseDisplay ( display );
         }
     }
@@ -1647,15 +1686,16 @@ int main ( int argc, char *argv[] )
 
 
     load_configuration ( display );
+    // setup_switchers
+    setup_switchers ();
+    // Reload for dynamic part.
+    load_configuration_dynamic ( display );
 
     // Dump.
     if ( find_arg ( argc, argv, "-dump-xresources" ) >= 0 ) {
         xresource_dump ();
         exit ( EXIT_SUCCESS );
     }
-
-    // setup_switchers
-    setup_switchers ();
 
     // Set up X interaction.
     signal ( SIGCHLD, catch_exit );
@@ -1711,51 +1751,14 @@ int main ( int argc, char *argv[] )
             fprintf ( stderr, "The %s switcher has not been enabled\n", sname );
         }
     }
-    // Old modi.
-    else if ( find_arg ( argc, argv, "-now" ) >= 0 ) {
-        int index = switcher_get ( "window" );
-        if ( index >= 0 ) {
-            run_switcher ( FALSE, index );
-        }
-        else {
-            fprintf ( stderr, "The window switcher has not been enabled\n" );
-        }
-    }
-    else if ( find_arg ( argc, argv, "-rnow" ) >= 0 ) {
-        int index = switcher_get ( "run" );
-        if ( index >= 0 ) {
-            run_switcher ( FALSE, index );
-        }
-        else {
-            fprintf ( stderr, "The run dialog has not been enabled\n" );
-        }
-    }
-    else if ( find_arg ( argc, argv, "-snow" ) >= 0 ) {
-        int index = switcher_get ( "ssh" );
-        if ( index >= 0 ) {
-            run_switcher ( FALSE, index );
-        }
-        else {
-            fprintf ( stderr, "The ssh dialog has not been enabled\n" );
-        }
-    }
     else{
         // Daemon mode, Listen to key presses..
-        if ( switcher_get ( "window" ) >= 0 ) {
-            x11_parse_key ( config.window_key, &windows_modmask, &windows_keysym );
-            x11_grab_key ( display, windows_modmask, windows_keysym );
+        for ( unsigned int i = 0; i < num_switchers; i++ ) {
+            if ( switchers[i].keystr != NULL ) {
+                x11_parse_key ( switchers[i].keystr, &( switchers[i].modmask ), &( switchers[i].keysym ) );
+                x11_grab_key ( display, switchers[i].modmask, switchers[i].keysym );
+            }
         }
-
-        if ( switcher_get ( "run" ) >= 0 ) {
-            x11_parse_key ( config.run_key, &rundialog_modmask, &rundialog_keysym );
-            x11_grab_key ( display, rundialog_modmask, rundialog_keysym );
-        }
-
-        if ( switcher_get ( "ssh" ) >= 0 ) {
-            x11_parse_key ( config.ssh_key, &sshdialog_modmask, &sshdialog_keysym );
-            x11_grab_key ( display, sshdialog_modmask, sshdialog_keysym );
-        }
-
         // Setup handler for sighub (reload config)
         const struct sigaction hup_action = {
             .sa_handler = hup_action_handler

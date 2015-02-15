@@ -452,15 +452,7 @@ void config_parse_cmd_options ( int argc, char ** argv )
     find_arg_str ( argc, argv, "-run-list-command", &( config.run_list_command ) );
     find_arg_str ( argc, argv, "-run-shell-command", &( config.run_shell_command ) );
 
-    // Keybindings
-    find_arg_str ( argc, argv, "-key", &( config.window_key ) );
-    find_arg_str ( argc, argv, "-rkey", &( config.run_key ) );
-    find_arg_str ( argc, argv, "-skey", &( config.ssh_key ) );
-
-
-
     find_arg_char ( argc, argv, "-sep", &( config.separator ) );
-
 
     find_arg_int ( argc, argv, "-eh", &( config.element_height ) );
 

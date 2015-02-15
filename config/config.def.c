@@ -69,12 +69,6 @@ Settings config = {
     .run_list_command  = "",
     /** Command executed when running application in terminal */
     .run_shell_command = "{terminal} -e {cmd}",
-    /** Key binding */
-    .window_key        = "F12",
-    /** Key to open run dialog */
-    .run_key           = "mod1+F2",
-    /** Key to open ssh dialog */
-    .ssh_key           = "mod1+F3",
     /**
      * Location of the window.
      * Enumeration indicating location or gravity of window.

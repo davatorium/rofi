@@ -412,7 +412,7 @@ void x11_setup ( Display *display )
 
 extern Colormap    map;
 extern XVisualInfo vinfo;
-int         truecolor = FALSE;
+int                truecolor = FALSE;
 void create_visual_and_colormap ( Display *display )
 {
     int screen = DefaultScreen ( display );

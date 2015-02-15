@@ -33,25 +33,16 @@
 #include "rofi.h"
 #include "xrmoptions.h"
 
-// Big thanks to Sean Pringle for this code.
-// This maps xresource options to config structure.
-typedef enum
-{
-    xrm_String  = 0,
-    xrm_Number  = 1,
-    xrm_SNumber = 2,
-    xrm_Boolean = 3
-} XrmOptionType;
-
 typedef struct
 {
-    int  type;
-    char * name;
+    int        type;
+    const char * name;
     union
     {
         unsigned int * num;
         int          * snum;
         char         ** str;
+        void         *pointer;
     };
     char *mem;
 } XrmOption;
@@ -108,13 +99,58 @@ static XrmOption xrmOptions[] = {
     { xrm_Boolean, "levenshtein-sort",     { .num  = &config.levenshtein_sort      }, NULL },
     { xrm_Boolean, "case-sensitive",       { .num  = &config.case_sensitive        }, NULL },
     /* Key bindings */
-    { xrm_String,  "key",                  { .str  = &config.window_key            }, NULL },
-    { xrm_String,  "rkey",                 { .str  = &config.run_key               }, NULL },
-    { xrm_String,  "skey",                 { .str  = &config.ssh_key               }, NULL },
     { xrm_Boolean, "sidebar-mode",         { .num  = &config.sidebar_mode          }, NULL },
     { xrm_Number,  "lazy-filter-limit",    { .num  = &config.lazy_filter_limit     }, NULL }
 };
 
+// Dynamic options.
+XrmOption    *extra_options    = NULL;
+unsigned int num_extra_options = 0;
+
+void config_parser_add_option ( XrmOptionType type, const char *key, void **value )
+{
+    extra_options = g_realloc ( extra_options, ( num_extra_options + 1 ) * sizeof ( XrmOption ) );
+
+    extra_options[num_extra_options].type    = type;
+    extra_options[num_extra_options].name    = key;
+    extra_options[num_extra_options].pointer = value;
+    if ( type == xrm_String ) {
+        extra_options[num_extra_options].mem = ( (char *) ( *value ) );
+    }
+    else {
+        extra_options[num_extra_options].mem = NULL;
+    }
+
+    num_extra_options++;
+}
+
+static void config_parser_set ( XrmOption *option, XrmValue *xrmValue )
+{
+    if ( option->type == xrm_String ) {
+        if ( ( option )->mem != NULL ) {
+            g_free ( option->mem );
+            option->mem = NULL;
+        }
+        *( option->str ) = g_strndup ( xrmValue->addr, xrmValue->size );
+
+        // Memory
+        ( option )->mem = *( option->str );
+    }
+    else if ( option->type == xrm_Number ) {
+        *( option->num ) = (unsigned int) strtoul ( xrmValue->addr, NULL, 10 );
+    }
+    else if ( option->type == xrm_SNumber ) {
+        *( option->snum ) = (int) strtol ( xrmValue->addr, NULL, 10 );
+    }
+    else if ( option->type == xrm_Boolean ) {
+        if ( xrmValue->size > 0 && g_ascii_strncasecmp ( xrmValue->addr, "true", xrmValue->size ) == 0 ) {
+            *( option->num ) = TRUE;
+        }
+        else{
+            *( option->num ) = FALSE;
+        }
+    }
+}
 
 void config_parse_xresource_options ( Display *display )
 {
@@ -133,37 +169,46 @@ void config_parse_xresource_options ( Display *display )
     const char  * namePrefix  = "rofi";
     const char  * classPrefix = "rofi";
 
-    for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( *xrmOptions ); ++i ) {
+    for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( XrmOption ); ++i ) {
         char *name, *class;
 
         name  = g_strdup_printf ( "%s.%s", namePrefix, xrmOptions[i].name );
         class = g_strdup_printf ( "%s.%s", classPrefix, xrmOptions[i].name );
 
         if ( XrmGetResource ( xDB, name, class, &xrmType, &xrmValue ) ) {
-            if ( xrmOptions[i].type == xrm_String ) {
-                if ( xrmOptions[i].mem != NULL ) {
-                    g_free ( xrmOptions[i].mem );
-                    xrmOptions[i].mem = NULL;
-                }
-                *xrmOptions[i].str = g_strndup ( xrmValue.addr, xrmValue.size );
+            config_parser_set ( &( xrmOptions[i] ), &xrmValue );
+        }
 
-                // Memory
-                xrmOptions[i].mem = ( *xrmOptions[i].str );
-            }
-            else if ( xrmOptions[i].type == xrm_Number ) {
-                *xrmOptions[i].num = (unsigned int) strtoul ( xrmValue.addr, NULL, 10 );
-            }
-            else if ( xrmOptions[i].type == xrm_SNumber ) {
-                *xrmOptions[i].snum = (int) strtol ( xrmValue.addr, NULL, 10 );
-            }
-            else if ( xrmOptions[i].type == xrm_Boolean ) {
-                if ( xrmValue.size > 0 && g_ascii_strncasecmp ( xrmValue.addr, "true", xrmValue.size ) == 0 ) {
-                    *xrmOptions[i].num = TRUE;
-                }
-                else{
-                    *xrmOptions[i].num = FALSE;
-                }
-            }
+        g_free ( class );
+        g_free ( name );
+    }
+    XrmDestroyDatabase ( xDB );
+}
+
+void config_parse_xresource_options_dynamic ( Display *display )
+{
+    char *xRMS;
+    // Map Xresource entries to rofi config options.
+    XrmInitialize ();
+    xRMS = XResourceManagerString ( display );
+
+    if ( xRMS == NULL ) {
+        return;
+    }
+    XrmDatabase xDB = XrmGetStringDatabase ( xRMS );
+
+    char        * xrmType;
+    XrmValue    xrmValue;
+    const char  * namePrefix  = "rofi";
+    const char  * classPrefix = "rofi";
+
+    for ( unsigned int i = 0; i < num_extra_options; ++i ) {
+        char *name, *class;
+
+        name  = g_strdup_printf ( "%s.%s", namePrefix, extra_options[i].name );
+        class = g_strdup_printf ( "%s.%s", classPrefix, extra_options[i].name );
+        if ( XrmGetResource ( xDB, name, class, &xrmType, &xrmValue ) ) {
+            config_parser_set ( &( extra_options[i] ), &xrmValue );
         }
 
         g_free ( class );
@@ -174,12 +219,47 @@ void config_parse_xresource_options ( Display *display )
 
 void config_xresource_free ( void )
 {
-    for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( *xrmOptions ); ++i ) {
+    for ( unsigned int i = 0; i < ( sizeof ( xrmOptions ) / sizeof ( *xrmOptions ) ); ++i ) {
         if ( xrmOptions[i].mem != NULL ) {
             g_free ( xrmOptions[i].mem );
             xrmOptions[i].mem = NULL;
         }
     }
+    for ( unsigned int i = 0; i < num_extra_options; ++i ) {
+        if ( extra_options[i].mem != NULL ) {
+            g_free ( extra_options[i].mem );
+            extra_options[i].mem = NULL;
+        }
+    }
+    if ( extra_options != NULL ) {
+        g_free ( extra_options );
+    }
+}
+
+void xresource_dump_entry ( const char *namePrefix, XrmOption *option )
+{
+    printf ( "%s.%s: %*s", namePrefix, option->name,
+             (int) ( 20 - strlen ( option->name ) ), "" );
+    switch ( option->type )
+    {
+    case xrm_Number:
+        printf ( "%u", *( option->num ) );
+        break;
+    case xrm_SNumber:
+        printf ( "%i", *( option->snum ) );
+        break;
+    case xrm_String:
+        if ( ( *( option->str ) ) != NULL ) {
+            printf ( "%s", *( option->str ) );
+        }
+        break;
+    case xrm_Boolean:
+        printf ( "%s", ( *( option->num ) == TRUE ) ? "true" : "false" );
+        break;
+    default:
+        break;
+    }
+    printf ( "\n" );
 }
 
 void xresource_dump ( void )
@@ -193,26 +273,9 @@ void xresource_dump ( void )
                 continue;
             }
         }
-
-        printf ( "%s.%s: %*s", namePrefix, xrmOptions[i].name, (int) ( 20 - strlen ( xrmOptions[i].name ) ),
-                 "" );
-        switch ( xrmOptions[i].type )
-        {
-        case xrm_Number:
-            printf ( "%u", *xrmOptions[i].num );
-            break;
-        case xrm_SNumber:
-            printf ( "%i", *xrmOptions[i].snum );
-            break;
-        case xrm_String:
-            printf ( "%s", *xrmOptions[i].str );
-            break;
-        case xrm_Boolean:
-            printf ( "%s", ( ( *xrmOptions[i].num ) == TRUE ) ? "true" : "false" );
-            break;
-        default:
-            break;
-        }
-        printf ( "\n" );
+        xresource_dump_entry ( namePrefix, &( xrmOptions[i] ) );
+    }
+    for ( unsigned int i = 0; i < num_extra_options; i++ ) {
+        xresource_dump_entry ( namePrefix, &( extra_options[i] ) );
     }
 }

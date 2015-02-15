@@ -1,12 +1,14 @@
 0.15.2: (unreleased)
 	Removed features:
 		- Remove (broken) hmode
+		- Old style key binding and mode launcher.
 	New features:
 		- Word movement in entry box. (#126)
 		- PID file to avoid duplicate Rofi.
+		- Generic keybinding and launching for modi. (#128)
 	Bug fixes:
 		- Shift left/right movement between swtichers (#125)
-		- Document updates (#123,#116,#124,etc.) 
+		- Document updates (#123,#116,#124,etc.)
 		- DMenu mode based on executable name with full path (#119)
 		- Fix missing keystrokes.
 		- On broken UTF-8 show everything up to the broken character. (#121)
@@ -17,7 +19,7 @@
 
 0.15.1:
 	New features:
-		- Improved transparency	
+		- Improved transparency
 		- Changelog
 		- Case sensitivity support, with indicator. (Edwin Pujols)
 		- Mouse scroll wheel support

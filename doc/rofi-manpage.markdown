@@ -16,9 +16,7 @@ rofi - A window switcher, run dialog and dmenu replacement
 [ -bgalt *color* ]
 [ -hlfg *color* ]
 [ -hlbg *color* ]
-[ -key *combo* ]
-[ -dkey *comdo* ]
-[ -rkey *comdo* ]
+[ -key-**mode** *combo* ]
 [ -terminal *terminal* ]
 [ -location *position* ]
 [ -fixed-num-lines ]
@@ -79,51 +77,14 @@ The default key combinations are:
 ## OPTIONS
 
 
-`-key`
+`-key-**mode**` **KEY**
 
-  Change the key combination to display all windows.
-
-
-      rofi -key F12
-      rofi -key control+shift+s
-      rofi -key mod1+Tab
-
-  Default: *F12*
+  Change the key combination to display a **mode** 
 
 
-`-rkey`
-
-  Change the key combination to display the run dialog.
-
-
-      rofi -rkey F11
-      rofi -rkey control+shift+d
-      rofi -rkey mod1+grave (grave=backtick)
-
-  Default: *Alt-F2*
-
-`-skey`
-
-  Change the key combination to display the ssh dialog.
-
-
-      rofi -skey F10
-      rofi -skey control+shift+s
-      rofi -skey mod1+grave (grave=backtick)
-
-  Default: *Alt-F3*
-
-`-now`
-
-  Run rofi in all-windows mode once then exit. Does not bind any keys.
-
-`-rnow`
-
-  Run rofi in run-dialog mode once then exit. Does not bind any keys.
-
-`-snow`
-
-  Run rofi in ssh mode once then exit. Does not bind any keys.
+      rofi -key-run F12
+      rofi -key-ssh control+shift+s
+      rofi -key-window mod1+Tab
 
 `-dmenu`
 
