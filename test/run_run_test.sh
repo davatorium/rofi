@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-rofi -rnow   & 
+rofi -show run   &
 RPID=$!
 
 # send enter.
