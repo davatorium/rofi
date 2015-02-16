@@ -257,21 +257,14 @@ void x11_grab_key ( Display *display, unsigned int modmask, KeySym key )
     Screen  *screen = DefaultScreenOfDisplay ( display );
     Window  root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
     KeyCode keycode = XKeysymToKeycode ( display, key );
-    XUngrabKey ( display, keycode, AnyModifier, root );
 
-    if ( modmask != AnyModifier ) {
-        // bind to combinations of mod and lock masks, so caps and numlock don't confuse people
-        XGrabKey ( display, keycode, modmask, root, True, GrabModeAsync, GrabModeAsync );
-        XGrabKey ( display, keycode, modmask | LockMask, root, True, GrabModeAsync, GrabModeAsync );
+    // bind to combinations of mod and lock masks, so caps and numlock don't confuse people
+    XGrabKey ( display, keycode, modmask, root, True, GrabModeAsync, GrabModeAsync );
+    XGrabKey ( display, keycode, modmask | LockMask, root, True, GrabModeAsync, GrabModeAsync );
 
-        if ( NumlockMask ) {
-            XGrabKey ( display, keycode, modmask | NumlockMask, root, True, GrabModeAsync, GrabModeAsync );
-            XGrabKey ( display, keycode, modmask | NumlockMask | LockMask, root, True, GrabModeAsync, GrabModeAsync );
-        }
-    }
-    else{
-        // nice simple single key bind
-        XGrabKey ( display, keycode, AnyModifier, root, True, GrabModeAsync, GrabModeAsync );
+    if ( NumlockMask ) {
+        XGrabKey ( display, keycode, modmask | NumlockMask, root, True, GrabModeAsync, GrabModeAsync );
+        XGrabKey ( display, keycode, modmask | NumlockMask | LockMask, root, True, GrabModeAsync, GrabModeAsync );
     }
 }
 
@@ -332,8 +325,7 @@ void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key )
         modmask |= Mod5Mask;
     }
 
-    // If no modifier mask is set, allow any modifier.
-    *mod = modmask ? modmask : AnyModifier;
+    *mod = modmask;
 
     // Skip modifier (if exist) and parse key.
     char i = strlen ( combo );
