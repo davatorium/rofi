@@ -544,6 +544,27 @@ inline static void menu_nav_down ( MenuState *state )
     state->update = TRUE;
 }
 /**
+ * @param key the Key to match
+ * @param modstate the modifier state to match
+ *
+ * Return the index of the switcher that matches the key combination
+ * specified by key and modstate. Returns -1 if none was found
+ */
+extern unsigned int NumlockMask;
+static int locate_switcher( KeySym key, unsigned int modstate ) {
+    // ignore annoying modifiers
+    unsigned int modstate_filtered = modstate & ~(LockMask | NumlockMask);
+    for ( unsigned int i = 0; i < num_switchers; i++ ) {
+        if ( switchers[i].keystr != NULL ) {
+            if ( ( modstate_filtered == switchers[i].modmask ) &&
+                 switchers[i].keysym == key ) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+/**
  * @param state Internal state of the menu.
  * @param key the Key being pressed.
  * @param modstate the modifier state.
@@ -554,18 +575,7 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
 {
     // pressing one of the global key bindings closes the switcher. this allows fast closing of the
     // menu if an item is not selected
-    for ( unsigned int i = 0; i < num_switchers; i++ ) {
-        if ( switchers[i].keystr != NULL ) {
-            if ( ( switchers[i].modmask == AnyModifier || modstate & ( switchers[i].keysym ) ) &&
-                 switchers[i].keysym == key ) {
-                state->retv     = MENU_CANCEL;
-                state->quit     = TRUE;
-                state->prev_key = key;
-                return;
-            }
-        }
-    }
-    if ( key == XK_Escape ) {
+    if ( locate_switcher( key, modstate ) != -1 || key == XK_Escape ) {
         state->retv = MENU_CANCEL;
         state->quit = TRUE;
     }
@@ -1425,18 +1435,14 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
  */
 static void handle_keypress ( XEvent *ev )
 {
-    int    index = -1;
+    int    index;
     KeySym key   = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
-    for ( unsigned int i = 0; i < num_switchers; i++ ) {
-        if ( switchers[i].keystr != NULL ) {
-            if ( ( switchers[i].modmask == AnyModifier || ( ev->xkey.state ) & ( switchers[i].keysym ) ) &&
-                 switchers[i].keysym == key ) {
-                index = i;
-            }
-        }
-    }
-    if ( index >= 0 ) {
+    index = locate_switcher( key, ev->xkey.state );
+    if( index >= 0 ) {
         run_switcher ( TRUE, index );
+    }
+    else {
+        fprintf ( stderr, "Warning: Unhandled keypress in global keyhandler, keycode = %u mask = %u\n", ev->xkey.keycode, ev->xkey.state );
     }
 }
 
