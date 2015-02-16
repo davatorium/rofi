@@ -407,6 +407,18 @@ void create_pid_file ( const char *pidfile )
 
 void config_parse_cmd_options ( int argc, char ** argv )
 {
+    if ( find_arg ( argc, argv, "-rnow") >= 0 ||
+            find_arg ( argc, argv, "-snow") >= 0 ||
+            find_arg ( argc, argv, "-now") >= 0 ||
+            find_arg ( argc, argv, "-key") >= 0 ||
+            find_arg ( argc, argv, "-skey") >= 0 ||
+            find_arg ( argc, argv, "-rkey") >= 0 ) {
+        fprintf(stderr, "The -snow, -now, -rnow, -key, -rkey, -skey are deprecated "
+                "and have been removed.\n"
+                "Please see the manpage: %s -help for the correct syntax.", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
     find_arg_str ( argc, argv, "-switchers", &( config.switchers ) );
     // Parse commandline arguments about the looks.
     find_arg_uint ( argc, argv, "-opacity", &( config.window_opacity ) );

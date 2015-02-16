@@ -59,27 +59,13 @@ MIT/X11
 **rofi** can be used in two ways, single-shot; executes once and directly exits when done or as
 daemon listening to specific key-combinations.
 
-The default key combinations are:
-
-* `F12`
-
-   Show all windows on all desktops.
-
-* `mod1-F2`
-
-   Show run-dialog.
-
-* `mod1-F3`
-
-   Show ssh-dialog.
-
 
 ## OPTIONS
 
 
-`-key-**mode**` **KEY**
+`-key-{mode}` **KEY**
 
-  Change the key combination to display a **mode** 
+  Set the key combination to display a {mode} in daemon mode. 
 
 
       rofi -key-run F12

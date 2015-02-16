@@ -547,7 +547,9 @@ inline static void menu_nav_down ( MenuState *state )
  * @param key the Key to match
  * @param modstate the modifier state to match
  *
- * Return the index of the switcher that matches the key combination
+ * Match key and modifier state against switchers.
+ *
+ * @return the index of the switcher that matches the key combination
  * specified by key and modstate. Returns -1 if none was found
  */
 extern unsigned int NumlockMask;
