@@ -128,7 +128,7 @@ helper_test_SOURCES=\
     include/rofi.h\
     source/helper.c\
     include/helper.h\
-	source/xrmoptions.h\
+	include/xrmoptions.h\
 	source/xrmoptions.c\
     test/helper-test.c
 
