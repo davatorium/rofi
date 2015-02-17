@@ -22,12 +22,12 @@ typedef struct
 
 typedef enum
 {
-    TB_AUTOHEIGHT = 1 << 0,
-    TB_AUTOWIDTH  = 1 << 1,
-    TB_LEFT       = 1 << 16,
-    TB_RIGHT      = 1 << 17,
-    TB_CENTER     = 1 << 18,
-    TB_EDITABLE   = 1 << 19,
+    TB_AUTOHEIGHT    = 1 << 0,
+        TB_AUTOWIDTH = 1 << 1,
+        TB_LEFT      = 1 << 16,
+        TB_RIGHT     = 1 << 17,
+        TB_CENTER    = 1 << 18,
+        TB_EDITABLE  = 1 << 19,
 } TextboxFlags;
 
 

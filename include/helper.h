@@ -89,18 +89,6 @@ int find_arg_int ( const int argc, char * const argv[], const char * const key, 
  * @returns TRUE if key was found and val was set.
  */
 int find_arg_str ( const int argc, char * const argv[], const char * const key, char** val );
-/**
- * @param argc Number of arguments.
- * @param argv 2 dimensional array of arguments.
- * @param key The key to search for
- * @param val Pointer to the string to set to the key value (if found)
- *
- * Parse command line argument 'key' to string.
- * Creates an allocated copy of the string.
- *
- * @returns TRUE if key was found and val was set.
- */
-int find_arg_str_alloc ( const int argc, char * const argv[], const char * const key, char** val );
 
 /**
  * @param argc Number of arguments.
