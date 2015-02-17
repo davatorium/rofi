@@ -252,60 +252,65 @@ int find_arg_uint ( const int argc, char * const argv[], const char * const key,
     return FALSE;
 }
 
+char helper_parse_char ( const char *arg )
+{
+    char retv = -1;
+    int  len  = strlen ( arg );
+    // If the length is 1, it is not escaped.
+    if ( len == 1 ) {
+        retv = arg[0];
+    }
+    // If the length is 2 and the first character is '\', we unescape it.
+    else if ( len == 2 && arg[0] == '\\' ) {
+        // New line
+        if ( arg[1] == 'n' ) {
+            retv = '\n';
+        }
+        // Bell
+        else if ( arg[1] == 'a' ) {
+            retv = '\a';
+        }
+        // Backspace
+        else if ( arg[1] == 'b' ) {
+            retv = '\b';
+        }
+        // Tab
+        else if ( arg[1] == 't' ) {
+            retv = '\t';
+        }
+        // Vertical tab
+        else if ( arg[1] == 'v' ) {
+            retv = '\v';
+        }
+        // Form feed
+        else if ( arg[1] == 'f' ) {
+            retv = '\f';
+        }
+        // Carriage return
+        else if ( arg[1] == 'r' ) {
+            retv = '\r';
+        }
+        // Forward slash
+        else if ( arg[1] == '\\' ) {
+            retv = '\\';
+        }
+    }
+    else if ( len > 2 && arg[0] == '\\' && arg[1] == 'x' ) {
+        retv = (char) strtol ( &arg[2], NULL, 16 );
+    }
+    if ( retv < 0 ) {
+        fprintf ( stderr, "Failed to parse character string: \"%s\"\n", arg );
+        exit ( 1 );
+    }
+    return retv;
+}
+
 int find_arg_char ( const int argc, char * const argv[], const char * const key, char *val )
 {
     int i = find_arg ( argc, argv, key );
 
     if ( val != NULL && i > 0 && i < ( argc - 1 ) ) {
-        int len = strlen ( argv[i + 1] );
-        // If the length is 1, it is not escaped.
-        if ( len == 1 ) {
-            *val = argv[i + 1][0];
-        }
-        // If the length is 2 and the first character is '\', we unescape it.
-        else if ( len == 2 && argv[i + 1][0] == '\\' ) {
-            // New line
-            if ( argv[i + 1][1] == 'n' ) {
-                *val = '\n';
-            }
-            // Bell
-            else if ( argv[i + 1][1] == 'a' ) {
-                *val = '\a';
-            }
-            // Backspace
-            else if ( argv[i + 1][1] == 'b' ) {
-                *val = '\b';
-            }
-            // Tab
-            else if ( argv[i + 1][1] == 't' ) {
-                *val = '\t';
-            }
-            // Vertical tab
-            else if ( argv[i + 1][1] == 'v' ) {
-                *val = '\v';
-            }
-            // Form feed
-            else if ( argv[i + 1][1] == 'f' ) {
-                *val = '\f';
-            }
-            // Carriage return
-            else if ( argv[i + 1][1] == 'r' ) {
-                *val = '\r';
-            }
-            // Forward slash
-            else if ( argv[i + 1][1] == '\\' ) {
-                *val = '\\';
-            }
-            // Otherwise it is not valid and throw error
-            else {
-                fprintf ( stderr, "Failed to parse command-line argument." );
-                exit ( 1 );
-            }
-        }
-        else{
-            fprintf ( stderr, "Failed to parse command-line argument." );
-            exit ( 1 );
-        }
+        *val = helper_parse_char ( argv[i + 1] );
         return TRUE;
     }
     return FALSE;
@@ -405,84 +410,25 @@ void create_pid_file ( const char *pidfile )
     }
 }
 
-void config_parse_cmd_options ( int argc, char ** argv )
-{
-    if ( find_arg ( argc, argv, "-rnow") >= 0 ||
-            find_arg ( argc, argv, "-snow") >= 0 ||
-            find_arg ( argc, argv, "-now") >= 0 ||
-            find_arg ( argc, argv, "-key") >= 0 ||
-            find_arg ( argc, argv, "-skey") >= 0 ||
-            find_arg ( argc, argv, "-rkey") >= 0 ) {
-        fprintf(stderr, "The -snow, -now, -rnow, -key, -rkey, -skey are deprecated "
-                "and have been removed.\n"
-                "Please see the manpage: %s -help for the correct syntax.", argv[0]);
-        exit(EXIT_FAILURE);
-    }
-
-    find_arg_str ( argc, argv, "-switchers", &( config.switchers ) );
-    // Parse commandline arguments about the looks.
-    find_arg_uint ( argc, argv, "-opacity", &( config.window_opacity ) );
-
-    find_arg_int ( argc, argv, "-width", &( config.menu_width ) );
-
-    find_arg_uint ( argc, argv, "-lines", &( config.menu_lines ) );
-    find_arg_uint ( argc, argv, "-columns", &( config.menu_columns ) );
-
-    find_arg_str ( argc, argv, "-font", &( config.menu_font ) );
-    find_arg_str ( argc, argv, "-fg", &( config.menu_fg ) );
-    find_arg_str ( argc, argv, "-bg", &( config.menu_bg ) );
-    find_arg_str ( argc, argv, "-bgalt", &( config.menu_bg_alt ) );
-    find_arg_str ( argc, argv, "-hlfg", &( config.menu_hlfg ) );
-    find_arg_str ( argc, argv, "-hlbg", &( config.menu_hlbg ) );
-    find_arg_str ( argc, argv, "-bc", &( config.menu_bc ) );
-    find_arg_uint ( argc, argv, "-bw", &( config.menu_bw ) );
-
-    // Parse commandline arguments about size and position
-    find_arg_uint ( argc, argv, "-location", &( config.location ) );
-    find_arg_uint ( argc, argv, "-padding", &( config.padding ) );
-    find_arg_int ( argc, argv, "-xoffset", &( config.x_offset ) );
-    find_arg_int ( argc, argv, "-yoffset", &( config.y_offset ) );
-    if ( find_arg ( argc, argv, "-fixed-num-lines" ) >= 0 ) {
-        config.fixed_num_lines = 1;
-    }
-    if ( find_arg ( argc, argv, "-disable-history" ) >= 0 ) {
-        config.disable_history = TRUE;
-    }
-    if ( find_arg ( argc, argv, "-levenshtein-sort" ) >= 0 ) {
-        config.levenshtein_sort = TRUE;
-    }
-    if ( find_arg ( argc, argv, "-case-sensitive" ) >= 0 ) {
-        config.case_sensitive = TRUE;
-    }
-
-    // Parse commandline arguments about behavior
-    find_arg_str ( argc, argv, "-terminal", &( config.terminal_emulator ) );
-
-    find_arg_str ( argc, argv, "-ssh-client", &( config.ssh_client ) );
-    find_arg_str ( argc, argv, "-ssh-command", &( config.ssh_command ) );
-    find_arg_str ( argc, argv, "-run-command", &( config.run_command ) );
-    find_arg_str ( argc, argv, "-run-list-command", &( config.run_list_command ) );
-    find_arg_str ( argc, argv, "-run-shell-command", &( config.run_shell_command ) );
-
-    find_arg_char ( argc, argv, "-sep", &( config.separator ) );
-
-    find_arg_int ( argc, argv, "-eh", &( config.element_height ) );
-
-    find_arg_uint ( argc, argv, "-lazy-filter-limit", &( config.lazy_filter_limit ) );
-
-    if ( find_arg ( argc, argv, "-sidebar-mode" ) >= 0 ) {
-        config.sidebar_mode = TRUE;
-    }
-}
-
 /**
  * Do some input validation, especially the first few could break things.
  * It is good to catch them beforehand.
  *
  * This functions exits the program with 1 when it finds an invalid configuration.
  */
-void config_sanity_check ( void )
+void config_sanity_check ( int argc, char **argv )
 {
+    if ( find_arg ( argc, argv, "-rnow" ) >= 0 ||
+         find_arg ( argc, argv, "-snow" ) >= 0 ||
+         find_arg ( argc, argv, "-now" ) >= 0 ||
+         find_arg ( argc, argv, "-key" ) >= 0 ||
+         find_arg ( argc, argv, "-skey" ) >= 0 ||
+         find_arg ( argc, argv, "-rkey" ) >= 0 ) {
+        fprintf ( stderr, "The -snow, -now, -rnow, -key, -rkey, -skey are deprecated "
+                  "and have been removed.\n"
+                  "Please see the manpage: %s -help for the correct syntax.", argv[0] );
+        exit ( EXIT_FAILURE );
+    }
     if ( config.element_height < 1 ) {
         fprintf ( stderr, "config.element_height is invalid. It needs to be atleast 1 line high.\n" );
         exit ( 1 );

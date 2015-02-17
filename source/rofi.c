@@ -553,9 +553,10 @@ inline static void menu_nav_down ( MenuState *state )
  * specified by key and modstate. Returns -1 if none was found
  */
 extern unsigned int NumlockMask;
-static int locate_switcher( KeySym key, unsigned int modstate ) {
+static int locate_switcher ( KeySym key, unsigned int modstate )
+{
     // ignore annoying modifiers
-    unsigned int modstate_filtered = modstate & ~(LockMask | NumlockMask);
+    unsigned int modstate_filtered = modstate & ~( LockMask | NumlockMask );
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
         if ( switchers[i].keystr != NULL ) {
             if ( ( modstate_filtered == switchers[i].modmask ) &&
@@ -577,7 +578,7 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
 {
     // pressing one of the global key bindings closes the switcher. this allows fast closing of the
     // menu if an item is not selected
-    if ( locate_switcher( key, modstate ) != -1 || key == XK_Escape ) {
+    if ( locate_switcher ( key, modstate ) != -1 || key == XK_Escape ) {
         state->retv = MENU_CANCEL;
         state->quit = TRUE;
     }
@@ -1438,9 +1439,9 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
 static void handle_keypress ( XEvent *ev )
 {
     int    index;
-    KeySym key   = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
-    index = locate_switcher( key, ev->xkey.state );
-    if( index >= 0 ) {
+    KeySym key = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
+    index = locate_switcher ( key, ev->xkey.state );
+    if ( index >= 0 ) {
         run_switcher ( TRUE, index );
     }
     else {
@@ -1476,6 +1477,10 @@ static void cleanup ()
             XCloseDisplay ( display );
         }
     }
+    // Cleanup pid file.
+    if ( pidfile ) {
+        unlink ( pidfile );
+    }
 
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
@@ -1484,22 +1489,13 @@ static void cleanup ()
         if ( switchers[i].cb_data_free != NULL ) {
             switchers[i].cb_data_free ( switchers[i].cb_data );
         }
-        if ( switchers[i].keystr != NULL ) {
-            g_free ( switchers[i].keystr );
-            switchers[i].keystr = NULL;
-        }
+        // Switcher keystr is free'ed when needed by config system.
         if ( switchers[i].keycfg != NULL ) {
             g_free ( switchers[i].keycfg );
             switchers[i].keycfg = NULL;
         }
     }
     g_free ( switchers );
-
-    // Cleanup pid file.
-    if ( pidfile ) {
-        unlink ( pidfile );
-        g_free ( pidfile );
-    }
 }
 
 /**
@@ -1570,8 +1566,7 @@ static void setup_switchers ( void )
     // We cannot do this in main loop, as we create pointer to string,
     // and re-alloc moves that pointer.
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
-        switchers[i].keycfg = g_strdup_printf ( "key-%s",
-                                                switchers[i].name );
+        switchers[i].keycfg = g_strdup_printf ( "key-%s", switchers[i].name );
         config_parser_add_option ( xrm_String,
                                    switchers[i].keycfg,
                                    (void * *) &( switchers[i].keystr ) );
@@ -1601,16 +1596,10 @@ static inline void load_configuration_dynamic ( Display *display )
 {
     // Load in config from X resources.
     config_parse_xresource_options_dynamic ( display );
+    config_parse_cmd_options_dynamic ( stored_argc, stored_argv );
 
-    for ( unsigned int i = 0; i < num_switchers; i++ ) {
-        if ( switchers[i].keycfg != NULL ) {
-            char *flag = g_strdup_printf ( "-%s", switchers[i].keycfg );
-            find_arg_str_alloc ( stored_argc, stored_argv, flag, &( switchers[i].keystr ) );
-            g_free ( flag );
-        }
-    }
     // Sanity check
-    config_sanity_check ();
+    config_sanity_check ( stored_argc, stored_argv );
 }
 
 
@@ -1655,6 +1644,7 @@ static void show_error_message ( const char *msg )
 
 int main ( int argc, char *argv[] )
 {
+    int dmenu_mode = FALSE;
     stored_argc = argc;
     stored_argv = argv;
 
@@ -1669,16 +1659,30 @@ int main ( int argc, char *argv[] )
         exit ( EXIT_SUCCESS );
     }
 
+    // Detect if we are in dmenu mode.
+    // This has two possible causes.
+    // 1 the user specifies it on the command-line.
+    if ( find_arg ( argc, argv, "-dmenu" ) >= 0 ) {
+        dmenu_mode = TRUE;
+    }
+    // 2 the binary that executed is called dmenu (e.g. symlink to rofi)
+    else{
+        // Get the base name of the executable called.
+        char *base_name = g_path_get_basename ( argv[0] );
+        dmenu_mode = ( strcmp ( base_name, "dmenu" ) == 0 );
+        // Free the basename for dmenu detection.
+        g_free ( base_name );
+    }
+
     // Get the path to the cache dir.
     cache_dir = g_get_user_cache_dir ();
 
     // Create pid file path.
-    if ( find_arg_str_alloc ( argc, argv, "-pid", &( pidfile ) ) == FALSE ) {
-        const char *path = g_get_user_runtime_dir ();
-        if ( path ) {
-            pidfile = g_build_filename ( path, "rofi.pid", NULL );
-        }
+    const char *path = g_get_user_runtime_dir ();
+    if ( path ) {
+        pidfile = g_build_filename ( path, "rofi.pid", NULL );
     }
+    config_parser_add_option ( xrm_String, "pid", (void * *) &pidfile );
 
     // Register cleanup function.
     atexit ( cleanup );
@@ -1692,10 +1696,15 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
-
     load_configuration ( display );
-    // setup_switchers
-    setup_switchers ();
+    if ( !dmenu_mode ) {
+        // setup_switchers
+        setup_switchers ();
+    }
+    else {
+        // Add dmenu options.
+        config_parser_add_option ( xrm_Char, "sep", (void * *) &( config.separator ) );
+    }
     // Reload for dynamic part.
     load_configuration_dynamic ( display );
 
@@ -1716,21 +1725,6 @@ int main ( int argc, char *argv[] )
         exit ( EXIT_SUCCESS );
     }
 
-    // Detect if we are in dmenu mode.
-    // This has two possible causes.
-    int dmenu_mode = FALSE;
-    // 1 the user specifies it on the command-line.
-    if ( find_arg ( argc, argv, "-dmenu" ) >= 0 ) {
-        dmenu_mode = TRUE;
-    }
-    // 2 the binary that executed is called dmenu (e.g. symlink to rofi)
-    else{
-        // Get the base name of the executable called.
-        char *base_name = g_path_get_basename ( argv[0] );
-        dmenu_mode = ( strcmp ( base_name, "dmenu" ) == 0 );
-        // Free the basename for dmenu detection.
-        g_free ( base_name );
-    }
 
     // Dmenu mode.
     if ( dmenu_mode == TRUE ) {

@@ -147,18 +147,11 @@ int execute_generator ( char * cmd ) __attribute__( ( nonnull ) );
 void create_pid_file ( const char *pidfile );
 
 /**
- * @param argc Number of arguments.
- * @param argv Array of arguments.
- *
- * Parse commandline options.
- */
-void config_parse_cmd_options ( int argc, char ** argv );
-
-/**
  * Do some input validation, especially the first few could break things.
  * It is good to catch them beforehand.
  *
  * This functions exits the program with 1 when it finds an invalid configuration.
  */
-void config_sanity_check ( void );
+void config_sanity_check ( int argc, char **argv );
+char helper_parse_char ( const char *arg );
 #endif // __HELPER_H__

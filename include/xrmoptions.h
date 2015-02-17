@@ -8,7 +8,8 @@ typedef enum
     xrm_String  = 0,
     xrm_Number  = 1,
     xrm_SNumber = 2,
-    xrm_Boolean = 3
+    xrm_Boolean = 3,
+    xrm_Char    = 4
 } XrmOptionType;
 
 /**
@@ -19,6 +20,21 @@ typedef enum
  */
 void config_parse_xresource_options ( Display *display );
 
+
+/**
+ * @param argc Number of arguments.
+ * @param argv Array of arguments.
+ *
+ * Parse commandline options.
+ */
+void config_parse_cmd_options ( int argc, char ** argv );
+/**
+ * @param argc Number of arguments.
+ * @param argv Array of arguments.
+ *
+ * Parse dynamic commandline options.
+ */
+void config_parse_cmd_options_dynamic ( int argc, char ** argv );
 /**
  * @param display Handler of the display to fetch the settings from.
  *
@@ -38,5 +54,8 @@ void config_xresource_free ( void );
  */
 void xresource_dump ( void );
 
+/**
+ * Add option to the dynamic option parser.
+ */
 void config_parser_add_option ( XrmOptionType type, const char *key, void **value );
 #endif

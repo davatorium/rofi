@@ -32,6 +32,7 @@
 #include <X11/Xresource.h>
 #include "rofi.h"
 #include "xrmoptions.h"
+#include "helper.h"
 
 typedef struct
 {
@@ -43,12 +44,13 @@ typedef struct
         int          * snum;
         char         ** str;
         void         *pointer;
+        char         * charc;
     };
     char *mem;
 } XrmOption;
 /**
- * Map X resource settings to internal options
- * Currently supports string and number.
+ * Map X resource and commandline options to internal options
+ * Currently supports string, boolean and number (signed and unsigned).
  */
 static XrmOption xrmOptions[] = {
     { xrm_String,  "switchers",            { .str  = &config.switchers             }, NULL },
@@ -98,9 +100,9 @@ static XrmOption xrmOptions[] = {
     { xrm_Boolean, "disable-history",      { .num  = &config.disable_history       }, NULL },
     { xrm_Boolean, "levenshtein-sort",     { .num  = &config.levenshtein_sort      }, NULL },
     { xrm_Boolean, "case-sensitive",       { .num  = &config.case_sensitive        }, NULL },
-    /* Key bindings */
     { xrm_Boolean, "sidebar-mode",         { .num  = &config.sidebar_mode          }, NULL },
-    { xrm_Number,  "lazy-filter-limit",    { .num  = &config.lazy_filter_limit     }, NULL }
+    { xrm_Number,  "lazy-filter-limit",    { .num  = &config.lazy_filter_limit     }, NULL },
+    { xrm_SNumber, "eh",                   { .snum = &config.element_height        }, NULL }
 };
 
 // Dynamic options.
@@ -150,6 +152,9 @@ static void config_parser_set ( XrmOption *option, XrmValue *xrmValue )
             *( option->num ) = FALSE;
         }
     }
+    else if ( option->type == xrm_Char ) {
+        *( option->charc ) = helper_parse_char ( xrmValue->addr );
+    }
 }
 
 void config_parse_xresource_options ( Display *display )
@@ -183,6 +188,59 @@ void config_parse_xresource_options ( Display *display )
         g_free ( name );
     }
     XrmDestroyDatabase ( xDB );
+}
+
+/**
+ * Parse an option from the commandline vector.
+ */
+static void config_parse_cmd_option ( XrmOption *option, int argc, char **argv )
+{
+    // Prepend a - to the option name.
+    char *key = g_strdup_printf ( "-%s", option->name );
+    switch ( option->type )
+    {
+    case xrm_Number:
+        find_arg_uint ( argc, argv, key, option->num );
+        break;
+    case xrm_SNumber:
+        find_arg_int ( argc, argv, key, option->snum );
+        break;
+    case xrm_String:
+        if ( find_arg_str ( argc, argv, key, option->str ) == TRUE ) {
+            if ( option->mem != NULL ) {
+                g_free ( option->mem );
+                option->mem = NULL;
+            }
+        }
+        break;
+    case xrm_Boolean:
+        if ( find_arg ( argc, argv, key ) >= 0 ) {
+            *( option->num ) = TRUE;
+        }
+        break;
+    case xrm_Char:
+        find_arg_char ( argc, argv, key, option->charc );
+        break;
+    default:
+        break;
+    }
+    g_free ( key );
+}
+
+void config_parse_cmd_options ( int argc, char ** argv )
+{
+    for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( XrmOption ); ++i ) {
+        XrmOption *op = &( xrmOptions[i] );
+        config_parse_cmd_option ( op, argc, argv );
+    }
+}
+
+void config_parse_cmd_options_dynamic ( int argc, char ** argv )
+{
+    for ( unsigned int i = 0; i < num_extra_options; ++i ) {
+        XrmOption *op = &( extra_options[i] );
+        config_parse_cmd_option ( op, argc, argv );
+    }
 }
 
 void config_parse_xresource_options_dynamic ( Display *display )
@@ -255,6 +313,14 @@ void xresource_dump_entry ( const char *namePrefix, XrmOption *option )
         break;
     case xrm_Boolean:
         printf ( "%s", ( *( option->num ) == TRUE ) ? "true" : "false" );
+        break;
+    case xrm_Char:
+        if ( *( option->charc ) > 32 && *( option->charc ) < 127 ) {
+            printf ( "%c", *( option->charc ) );
+        }
+        else {
+            printf ( "\\x%02X", *( option->charc ) );
+        }
         break;
     default:
         break;

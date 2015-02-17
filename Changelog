@@ -14,6 +14,8 @@
 		- On broken UTF-8 show everything up to the broken character. (#121)
 	Others:
 		- Significant code refactoring.
+		- Rewriting of config parser, Commandline Parser uses structure from Xresource parser.
+		  Avoiding duplication and making it easier to maintain.
 	Performance improvements:
 		- Fix blocking on grabbing keyboard.
 
