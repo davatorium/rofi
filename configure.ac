@@ -12,9 +12,8 @@ AM_SILENT_RULES([yes])
 ##
 # Check for compiler
 ##
-AC_PROG_CC
-AC_PROG_CC_STDC
-AM_PROG_CC_C_O
+AC_PROG_CC([clang gcc cc])
+AC_PROG_CC_C99
 
 AC_USE_SYSTEM_EXTENSIONS
 
@@ -57,7 +56,7 @@ PKG_CHECK_MODULES([x11], [x11])
 PKG_CHECK_MODULES([xinerama], [xinerama])
 PKG_CHECK_MODULES([pango], [pango pangoxft])
 
-AC_SUBST([EXTRA_CFLAGS], ["-Wall -Wextra"])
+AC_SUBST([EXTRA_CFLAGS], ["-Wall -Wextra -Wparentheses -Winline"])
 
 AC_CONFIG_FILES([Makefile ])
 AC_OUTPUT
