@@ -19,7 +19,8 @@ AM_CFLAGS=\
     -DMANPAGE_PATH="\"$(mandir)/man1/rofi.1\""\
     -I$(top_srcdir)/include/\
     -I$(top_srcdir)/config/\
-    -I$(top_builddir)/
+    -I$(top_builddir)/\
+	-Werror=missing-prototypes
 
 rofi_SOURCES=\
     source/rofi.c\

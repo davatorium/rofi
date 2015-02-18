@@ -97,7 +97,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERT( textbox_get_width( box) >= textbox_get_font_width( box)  );
     TASSERT( textbox_get_height( box) >= textbox_get_font_height( box)  );
 
-    TASSERT( textbox_get_estimated_char_width ( box) > 0 );
+    TASSERT( textbox_get_estimated_char_width ( ) > 0 );
 
     textbox_cursor_bkspc ( box );
     TASSERT ( strcmp(box->text, "tesbo") == 0 ); 

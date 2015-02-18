@@ -156,7 +156,7 @@ void textbox_setup ( XVisualInfo *visual, Colormap colormap,
 /**
  * Cleanup the allocated colors and fonts by textbox_setup().
  */
-void textbox_cleanup ( );
+void textbox_cleanup ( void );
 
 /**
  * @param tb Handle to the textbox
@@ -199,7 +199,7 @@ int textbox_get_font_width ( textbox *tb );
  *
  * @returns the width of a character in pixels.
  */
-double textbox_get_estimated_char_width ( );
+double textbox_get_estimated_char_width ( void );
 
 
 /**

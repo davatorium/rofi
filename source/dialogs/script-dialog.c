@@ -70,7 +70,7 @@ static char **get_script_output ( char *command, unsigned int *length )
     return retv;
 }
 
-char **execute_executor ( ScriptOptions *options, const char *result, unsigned int *length )
+static char **execute_executor ( ScriptOptions *options, const char *result, unsigned int *length )
 {
     char **retv = NULL;
 

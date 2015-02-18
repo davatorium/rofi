@@ -257,7 +257,7 @@ static int levenshtein ( const char *s, const char *t )
     return dist ( s, t, d, ls, lt, 0, 0 );
 }
 
-Window create_window ( Display *display )
+static Window create_window ( Display *display )
 {
     XSetWindowAttributes attr;
     attr.colormap         = map;

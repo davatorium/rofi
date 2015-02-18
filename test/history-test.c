@@ -16,7 +16,7 @@ static int test = 0;
 
 const char *file = "text";
 
-void history_test()
+static void history_test( void )
 {
     unlink(file);
 

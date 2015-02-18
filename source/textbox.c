@@ -331,7 +331,7 @@ void textbox_cursor_dec ( textbox *tb )
 }
 
 // Move word right
-void textbox_cursor_inc_word ( textbox *tb )
+static void textbox_cursor_inc_word ( textbox *tb )
 {
     if ( tb->text == NULL ) {
         return;
@@ -371,7 +371,7 @@ void textbox_cursor_inc_word ( textbox *tb )
     textbox_cursor ( tb, index );
 }
 // move word left
-void textbox_cursor_dec_word ( textbox *tb )
+static void textbox_cursor_dec_word ( textbox *tb )
 {
     // Find word boundaries, with pango_Break?
     gchar *n;
@@ -467,7 +467,7 @@ void textbox_cursor_bkspc ( textbox *tb )
         textbox_cursor_del ( tb );
     }
 }
-void textbox_cursor_bkspc_word ( textbox *tb )
+static void textbox_cursor_bkspc_word ( textbox *tb )
 {
     if ( tb->cursor > 0 ) {
         int cursor = tb->cursor;
@@ -477,7 +477,7 @@ void textbox_cursor_bkspc_word ( textbox *tb )
         }
     }
 }
-void textbox_cursor_del_word ( textbox *tb )
+static void textbox_cursor_del_word ( textbox *tb )
 {
     if ( tb->cursor >= 0 ) {
         int cursor = tb->cursor;
@@ -626,7 +626,7 @@ void textbox_setup ( XVisualInfo *visual, Colormap colormap,
 }
 
 
-void textbox_cleanup ( )
+void textbox_cleanup ( void )
 {
     if ( p_context ) {
         XftColorFree ( display, visual_info->visual, target_colormap, &color_fg );
@@ -665,7 +665,7 @@ int textbox_get_font_width ( textbox *tb )
     return width;
 }
 
-double textbox_get_estimated_char_width ( )
+double textbox_get_estimated_char_width ( void )
 {
     // Create a temp layout with right font.
     PangoLayout          *layout = pango_layout_new ( p_context );

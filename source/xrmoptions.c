@@ -294,7 +294,7 @@ void config_xresource_free ( void )
     }
 }
 
-void xresource_dump_entry ( const char *namePrefix, XrmOption *option )
+static void xresource_dump_entry ( const char *namePrefix, XrmOption *option )
 {
     printf ( "%s.%s: %*s", namePrefix, option->name,
              (int) ( 20 - strlen ( option->name ) ), "" );
