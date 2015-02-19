@@ -42,9 +42,6 @@
 #include "helper.h"
 #include "history.h"
 #include "dialogs/run-dialog.h"
-#ifdef TIMING
-#include <time.h>
-#endif
 
 #define RUN_CACHE_FILE    "rofi-2.runcache"
 
@@ -175,10 +172,6 @@ static char ** get_apps ( char **retv, unsigned int *length )
 {
     unsigned int    num_favorites = 0;
     char            *path;
-#ifdef TIMING
-    struct timespec start, stop;
-    clock_gettime ( CLOCK_REALTIME, &start );
-#endif
 
     if ( getenv ( "PATH" ) == NULL ) {
         return NULL;
@@ -250,18 +243,6 @@ static char ** get_apps ( char **retv, unsigned int *length )
         qsort ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func );
     }
     g_free ( path );
-#ifdef TIMING
-    {
-        clock_gettime ( CLOCK_REALTIME, &stop );
-
-        if ( stop.tv_sec != start.tv_sec ) {
-            stop.tv_nsec += ( stop.tv_sec - start.tv_sec ) * 1e9;
-        }
-
-        long diff = stop.tv_nsec - start.tv_nsec;
-        printf ( "Time elapsed: %ld us\n", diff / 1000 );
-    }
-#endif
 
     unsigned int removed = 0;
     for ( unsigned int index = num_favorites; index < ( ( *length ) - 1 ); index++ ) {
@@ -279,18 +260,6 @@ static char ** get_apps ( char **retv, unsigned int *length )
     // Reduce array length;
     ( *length ) -= removed;
 
-#ifdef TIMING
-    {
-        clock_gettime ( CLOCK_REALTIME, &stop );
-
-        if ( stop.tv_sec != start.tv_sec ) {
-            stop.tv_nsec += ( stop.tv_sec - start.tv_sec ) * 1e9;
-        }
-
-        long diff = stop.tv_nsec - start.tv_nsec;
-        printf ( "Time elapsed: %ld us\n", diff / 1000 );
-    }
-#endif
     return retv;
 }
 

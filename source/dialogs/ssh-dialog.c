@@ -43,9 +43,6 @@
 #include "rofi.h"
 #include "history.h"
 #include "dialogs/ssh-dialog.h"
-#ifdef TIMING
-#include <time.h>
-#endif
 
 #define SSH_CACHE_FILE    "rofi-2.sshcache"
 
@@ -120,10 +117,6 @@ static char ** get_ssh ( unsigned int *length )
     unsigned int    num_favorites = 0;
     char            *path;
     char            **retv = NULL;
-#ifdef TIMING
-    struct timespec start, stop;
-    clock_gettime ( CLOCK_REALTIME, &start );
-#endif
 
     if ( getenv ( "HOME" ) == NULL ) {
         return NULL;
@@ -197,16 +190,7 @@ static char ** get_ssh ( unsigned int *length )
         qsort ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), ssh_sort_func );
     }
     g_free ( path );
-#ifdef TIMING
-    clock_gettime ( CLOCK_REALTIME, &stop );
 
-    if ( stop.tv_sec != start.tv_sec ) {
-        stop.tv_nsec += ( stop.tv_sec - start.tv_sec ) * 1e9;
-    }
-
-    long diff = stop.tv_nsec - start.tv_nsec;
-    printf ( "Time elapsed: %ld us\n", diff / 1000 );
-#endif
     return retv;
 }
 
