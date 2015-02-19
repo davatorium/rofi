@@ -1715,7 +1715,10 @@ int main ( int argc, char *argv[] )
     }
 
     // Set up X interaction.
-    signal ( SIGCHLD, catch_exit );
+    const struct sigaction sigchld_action = {
+        .sa_handler = catch_exit
+    };
+    sigaction ( SIGCHLD, &sigchld_action, NULL );
 
     x11_setup ( display );
 

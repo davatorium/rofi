@@ -2,6 +2,7 @@
 	Removed features:
 		- Remove (broken) hmode
 		- Old style key binding and mode launcher.
+		- Old TIMING code.
 	New features:
 		- Word movement in entry box. (#126)
 		- PID file to avoid duplicate Rofi.

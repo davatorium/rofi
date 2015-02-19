@@ -170,8 +170,8 @@ static char ** get_apps_external ( char **retv, unsigned int *length, unsigned i
  */
 static char ** get_apps ( char **retv, unsigned int *length )
 {
-    unsigned int    num_favorites = 0;
-    char            *path;
+    unsigned int num_favorites = 0;
+    char         *path;
 
     if ( getenv ( "PATH" ) == NULL ) {
         return NULL;

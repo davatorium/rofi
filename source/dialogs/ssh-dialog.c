@@ -114,9 +114,9 @@ static int ssh_sort_func ( const void *a, const void *b )
 }
 static char ** get_ssh ( unsigned int *length )
 {
-    unsigned int    num_favorites = 0;
-    char            *path;
-    char            **retv = NULL;
+    unsigned int num_favorites = 0;
+    char         *path;
+    char         **retv = NULL;
 
     if ( getenv ( "HOME" ) == NULL ) {
         return NULL;
