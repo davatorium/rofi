@@ -405,12 +405,9 @@ void create_pid_file ( const char *pidfile )
  */
 void config_sanity_check ( int argc, char **argv )
 {
-    if ( find_arg ( argc, argv, "-rnow" ) >= 0 ||
-         find_arg ( argc, argv, "-snow" ) >= 0 ||
-         find_arg ( argc, argv, "-now" ) >= 0 ||
-         find_arg ( argc, argv, "-key" ) >= 0 ||
-         find_arg ( argc, argv, "-skey" ) >= 0 ||
-         find_arg ( argc, argv, "-rkey" ) >= 0 ) {
+    if ( find_arg ( argc, argv, "-rnow" ) >= 0 || find_arg ( argc, argv, "-snow" ) >= 0 ||
+         find_arg ( argc, argv, "-now"  ) >= 0 || find_arg ( argc, argv, "-key"  ) >= 0 ||
+         find_arg ( argc, argv, "-skey" ) >= 0 || find_arg ( argc, argv, "-rkey" ) >= 0 ) {
         fprintf ( stderr, "The -snow, -now, -rnow, -key, -rkey, -skey are deprecated "
                   "and have been removed.\n"
                   "Please see the manpage: %s -help for the correct syntax.", argv[0] );
