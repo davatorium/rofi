@@ -47,7 +47,7 @@ PKG_CHECK_MODULES([x11], [x11])
 PKG_CHECK_MODULES([xinerama], [xinerama])
 PKG_CHECK_MODULES([pango], [pango pangoxft])
 
-AC_SUBST([EXTRA_CFLAGS], ["-Wall -Wextra -Wparentheses -Winline"])
+AC_SUBST([EXTRA_CFLAGS], ["-Wall -Wextra -Wparentheses -Winline -pedantic"])
 
 AC_CONFIG_FILES([Makefile ])
 AC_OUTPUT
