@@ -54,6 +54,7 @@ typedef struct
  */
 static XrmOption xrmOptions[] = {
     { xrm_String,  "switchers",            { .str  = &config.switchers             }, NULL },
+    { xrm_String,  "modi",                 { .str  = &config.switchers             }, NULL },
     { xrm_Number,  "opacity",              { .num  = &config.window_opacity        }, NULL },
 
     { xrm_SNumber, "width",                { .snum = &config.menu_width            }, NULL },

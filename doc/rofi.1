@@ -30,7 +30,7 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-levenshtein\-sort ]
 [ \-case\-sensitive ]
 [ \-show \fImode\fP ]
-[ \-switcher \fImode1,mode2\fP ]
+[ \-modi \fImode1,mode2\fP ]
 [ \-eh \fIelement height\fP ]
 [ \-lazy\-filter\-limit \fIlimit\fP ]
 [ \-e \fImessage\fP]
@@ -88,14 +88,15 @@ For example to show the run\-dialog:
 This function deprecates \-rnow,\-snow and \-now
 .PP
 \fB\fC\-switchers\fR \fImode1,mode1\fP
+\fB\fC\-modi\fR \fImode1,mode1\fP
 .IP
 Give a comma separated list of modes to enable, in what order.
 .IP
-For example to only show the run and ssh dialog (in that order):
+For example to only show the run and ssh launcher (in that order):
 .PP
 .RS
 .nf
-    rofi \-switchers "run,ssh" \-show run
+    rofi \-modi "run,ssh" \-show run
 .fi
 .RE
 .IP
@@ -111,7 +112,7 @@ So to have a mode 'Workspaces' using the \fB\fCi3_switch_workspace.sh\fR script 
 .PP
 .RS
 .nf
-    rofi \-switchers "window,run,ssh,Workspaces:i3_switch_workspaces.sh" \-show Workspaces
+    rofi \-modi "window,run,ssh,Workspaces:i3_switch_workspaces.sh" \-show Workspaces
 .fi
 .RE
 .PP
@@ -456,7 +457,7 @@ simultaneous. This is useful when running rofi from a keybinding daemon.
 Dump the current active configuration in xresources format to the command\-line.
 .SH PATTERN
 .PP
-To launch commands (e.g. when using the ssh dialog) the user can enter the used commandline,
+To launch commands (e.g. when using the ssh launcher) the user can enter the used commandline,
 the following keys can be used that will be replaced at runtime:
 .RS
 .IP \(bu 2
@@ -549,9 +550,9 @@ Rofi supports the following keybindings:
 .IP \(bu 2
 \fB\fCCtrl\-Page Down\fR: Go to the next column
 .IP \(bu 2
-\fB\fCCtrl\-Enter\fR: Use entered text as command (in ssh/run dialog)
+\fB\fCCtrl\-Enter\fR: Use entered text as command (in ssh/run modi)
 .IP \(bu 2
-\fB\fCShift\-Enter\fR: Launch the application in a terminal (in run dialog)
+\fB\fCShift\-Enter\fR: Launch the application in a terminal (in run mode)
 .IP \(bu 2
 \fB\fCShift\-Enter\fR: Return the selected entry and move to the next item while keeping Rofi open. (in dmenu)
 .IP \(bu 2

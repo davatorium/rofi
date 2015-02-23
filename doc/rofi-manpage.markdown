@@ -32,7 +32,7 @@ rofi - A window switcher, run dialog and dmenu replacement
 [ -levenshtein-sort ]
 [ -case-sensitive ]
 [ -show *mode* ]
-[ -switcher *mode1,mode2* ]
+[ -modi *mode1,mode2* ]
 [ -eh *element height* ]
 [ -lazy-filter-limit *limit* ]
 [ -e *message*]
@@ -89,12 +89,13 @@ daemon listening to specific key-combinations.
   This function deprecates -rnow,-snow and -now
 
 `-switchers` *mode1,mode1*
+`-modi` *mode1,mode1*
 
   Give a comma separated list of modes to enable, in what order.
 
-  For example to only show the run and ssh dialog (in that order):
+  For example to only show the run and ssh launcher (in that order):
 
-        rofi -switchers "run,ssh" -show run
+        rofi -modi "run,ssh" -show run
 
   Custom modes can be added using the internal 'script' mode. Each mode has two parameters:
 
@@ -102,7 +103,7 @@ daemon listening to specific key-combinations.
 
   So to have a mode 'Workspaces' using the `i3_switch_workspace.sh` script type:
 
-        rofi -switchers "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
+        rofi -modi "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
 
 `-case-sensitive`
 
@@ -372,7 +373,7 @@ daemon listening to specific key-combinations.
 
 ## PATTERN
 
-To launch commands (e.g. when using the ssh dialog) the user can enter the used commandline,
+To launch commands (e.g. when using the ssh launcher) the user can enter the used commandline,
 the following keys can be used that will be replaced at runtime:
 
 * `{host}`: The host to connect to.
@@ -436,8 +437,8 @@ Rofi supports the following keybindings:
 * `Page Down`: Go to the next page
 * `Ctrl-Page Up`: Go to the previous column
 * `Ctrl-Page Down`: Go to the next column
-* `Ctrl-Enter`: Use entered text as command (in ssh/run dialog)
-* `Shift-Enter`: Launch the application in a terminal (in run dialog)
+* `Ctrl-Enter`: Use entered text as command (in ssh/run modi)
+* `Shift-Enter`: Launch the application in a terminal (in run mode)
 * `Shift-Enter`: Return the selected entry and move to the next item while keeping Rofi open. (in dmenu)
 * `Shift-Right`: Switch to the next modi. The list can be customized with the `-switchers` argument.
 * `Shift-Left`: Switch to the previous modi. The list can be customized with the `-switchers` argument.
