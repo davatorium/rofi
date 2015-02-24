@@ -41,6 +41,7 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-version ]
 [ \-help]
 [ \-dump\-xresources ]
+[ \-auto\-select ]
 .SH DESCRIPTION
 .PP
 \fBrofi\fP is an X11 popup window switcher, run dialog, dmenu replacement and more. It focusses on
@@ -340,6 +341,14 @@ To show sidebar use:
    for 250ms. Experiments shows that the default (5000 lines) works well, set to 0 to always enable.
 .PP
    Default: \fI5000\fP
+.PP
+\fB\fC\-auto\-select\fR
+.PP
+.RS
+.nf
+When one entry is left, automatically select this.
+.fi
+.RE
 .SS PATTERN setting
 .PP
 \fB\fC\-terminal\fR

@@ -788,6 +788,12 @@ static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, v
     }
     state->selected = MIN ( state->selected, state->filtered_lines - 1 );
 
+    if ( config.auto_select == TRUE && state->filtered_lines == 1 ) {
+        *( state->selected_line ) = state->line_map[state->selected];
+        state->retv               = MENU_OK;
+        state->quit               = TRUE;
+    }
+
     state->refilter = FALSE;
 }
 

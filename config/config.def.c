@@ -102,6 +102,8 @@ Settings config = {
     /** Sidebar mode, show the switchers */
     .sidebar_mode      = FALSE,
     /** Lazy mode setting */
-    .lazy_filter_limit = 5000
+    .lazy_filter_limit =                                5000,
+    /** auto select */
+    .auto_select       = FALSE
 };
 

@@ -198,6 +198,8 @@ typedef struct _Settings
     unsigned int   sidebar_mode;
     /** Lazy filter limit. */
     unsigned int   lazy_filter_limit;
+    /** Auto select. */
+    unsigned int   auto_select;
 } Settings;
 
 /** Global Settings structure. */

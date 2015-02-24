@@ -43,6 +43,7 @@ rofi - A window switcher, run dialog and dmenu replacement
 [ -version ]
 [ -help]
 [ -dump-xresources ]
+[ -auto-select ]
 
 ## DESCRIPTION
 
@@ -266,6 +267,10 @@ daemon listening to specific key-combinations.
    for 250ms. Experiments shows that the default (5000 lines) works well, set to 0 to always enable.
 
    Default: *5000*
+
+`-auto-select`
+
+    When one entry is left, automatically select this.
 
 ### PATTERN setting
 
