@@ -11,7 +11,7 @@ title: Installation guide
 * C compiler that supports the c99 standard. (gcc or clang)
 * make
 * autoconf
-* automake
+* automake (1.14.0)
 
 ### External libraries
 
