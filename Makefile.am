@@ -1,3 +1,5 @@
+# Specify automake version.
+AUTOMAKE_OPTIONS  = 1.14.0
 
 ##
 # Rofi the program
