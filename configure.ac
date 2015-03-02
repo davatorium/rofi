@@ -6,7 +6,7 @@ AC_CONFIG_HEADER([config.h])
 ##
 # Setup automake to be silent and in foreign mode.
 ##
-AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects dist-xz])
 AM_SILENT_RULES([yes])
 
 ##
