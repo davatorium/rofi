@@ -8,7 +8,7 @@ before_install:
     -   sudo pip install cpp-coveralls
 
 script:
-    - autoreconf -i && ./configure --enable-gcov && make &&  make test
+    - autoreconf -i && ./configure --enable-gcov && make &&  make test && make test-x
 #    - make clean && autoreconf -i && ./configure --disable-i3support && make 
 after_success:
   - coveralls -x c  --gcov-options '\-lp' -e '<built-in>'
