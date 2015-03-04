@@ -50,7 +50,7 @@
 #define CLIENTSTATE    10
 #define CLIENTROLE     50
 
-// a managable window
+// a manageable window
 typedef struct
 {
     Window            window, trans;
