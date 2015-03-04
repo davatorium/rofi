@@ -45,7 +45,7 @@ typedef struct
         char         ** str;
         void         *pointer;
         char         * charc;
-    };
+    } value;
     char *mem;
 } XrmOption;
 /**
@@ -117,7 +117,7 @@ void config_parser_add_option ( XrmOptionType type, const char *key, void **valu
 
     extra_options[num_extra_options].type    = type;
     extra_options[num_extra_options].name    = key;
-    extra_options[num_extra_options].pointer = value;
+    extra_options[num_extra_options].value.pointer = value;
     if ( type == xrm_String ) {
         extra_options[num_extra_options].mem = ( (char *) ( *value ) );
     }
@@ -135,27 +135,27 @@ static void config_parser_set ( XrmOption *option, XrmValue *xrmValue )
             g_free ( option->mem );
             option->mem = NULL;
         }
-        *( option->str ) = g_strndup ( xrmValue->addr, xrmValue->size );
+        *( option->value.str ) = g_strndup ( xrmValue->addr, xrmValue->size );
 
         // Memory
-        ( option )->mem = *( option->str );
+        ( option )->mem = *( option->value.str );
     }
     else if ( option->type == xrm_Number ) {
-        *( option->num ) = (unsigned int) strtoul ( xrmValue->addr, NULL, 10 );
+        *( option->value.num ) = (unsigned int) strtoul ( xrmValue->addr, NULL, 10 );
     }
     else if ( option->type == xrm_SNumber ) {
-        *( option->snum ) = (int) strtol ( xrmValue->addr, NULL, 10 );
+        *( option->value.snum ) = (int) strtol ( xrmValue->addr, NULL, 10 );
     }
     else if ( option->type == xrm_Boolean ) {
         if ( xrmValue->size > 0 && g_ascii_strncasecmp ( xrmValue->addr, "true", xrmValue->size ) == 0 ) {
-            *( option->num ) = TRUE;
+            *( option->value.num ) = TRUE;
         }
         else{
-            *( option->num ) = FALSE;
+            *( option->value.num ) = FALSE;
         }
     }
     else if ( option->type == xrm_Char ) {
-        *( option->charc ) = helper_parse_char ( xrmValue->addr );
+        *( option->value.charc ) = helper_parse_char ( xrmValue->addr );
     }
 }
 
@@ -202,13 +202,13 @@ static void config_parse_cmd_option ( XrmOption *option, int argc, char **argv )
     switch ( option->type )
     {
     case xrm_Number:
-        find_arg_uint ( argc, argv, key, option->num );
+        find_arg_uint ( argc, argv, key, option->value.num );
         break;
     case xrm_SNumber:
-        find_arg_int ( argc, argv, key, option->snum );
+        find_arg_int ( argc, argv, key, option->value.snum );
         break;
     case xrm_String:
-        if ( find_arg_str ( argc, argv, key, option->str ) == TRUE ) {
+        if ( find_arg_str ( argc, argv, key, option->value.str ) == TRUE ) {
             if ( option->mem != NULL ) {
                 g_free ( option->mem );
                 option->mem = NULL;
@@ -217,11 +217,11 @@ static void config_parse_cmd_option ( XrmOption *option, int argc, char **argv )
         break;
     case xrm_Boolean:
         if ( find_arg ( argc, argv, key ) >= 0 ) {
-            *( option->num ) = TRUE;
+            *( option->value.num ) = TRUE;
         }
         break;
     case xrm_Char:
-        find_arg_char ( argc, argv, key, option->charc );
+        find_arg_char ( argc, argv, key, option->value.charc );
         break;
     default:
         break;
@@ -303,25 +303,25 @@ static void xresource_dump_entry ( const char *namePrefix, XrmOption *option )
     switch ( option->type )
     {
     case xrm_Number:
-        printf ( "%u", *( option->num ) );
+        printf ( "%u", *( option->value.num ) );
         break;
     case xrm_SNumber:
-        printf ( "%i", *( option->snum ) );
+        printf ( "%i", *( option->value.snum ) );
         break;
     case xrm_String:
-        if ( ( *( option->str ) ) != NULL ) {
-            printf ( "%s", *( option->str ) );
+        if ( ( *( option->value.str ) ) != NULL ) {
+            printf ( "%s", *( option->value.str ) );
         }
         break;
     case xrm_Boolean:
-        printf ( "%s", ( *( option->num ) == TRUE ) ? "true" : "false" );
+        printf ( "%s", ( *( option->value.num ) == TRUE ) ? "true" : "false" );
         break;
     case xrm_Char:
-        if ( *( option->charc ) > 32 && *( option->charc ) < 127 ) {
-            printf ( "%c", *( option->charc ) );
+        if ( *( option->value.charc ) > 32 && *( option->value.charc ) < 127 ) {
+            printf ( "%c", *( option->value.charc ) );
         }
         else {
-            printf ( "\\x%02X", *( option->charc ) );
+            printf ( "\\x%02X", *( option->value.charc ) );
         }
         break;
     default:
@@ -337,7 +337,7 @@ void xresource_dump ( void )
     for ( unsigned int i = 0; i < entries; ++i ) {
         // Skip duplicates.
         if ( ( i + 1 ) < entries ) {
-            if ( xrmOptions[i].str == xrmOptions[i + 1].str ) {
+            if ( xrmOptions[i].value.str == xrmOptions[i + 1].value.str ) {
                 continue;
             }
         }
