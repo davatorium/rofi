@@ -52,9 +52,6 @@
 
 static inline int execshssh ( const char *host )
 {
-    /**
-     * I am not happy about this code, it causes 7 mallocs and frees
-     */
     char **args = NULL;
     int  argsv  = 0;
     helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, NULL );

@@ -65,7 +65,7 @@ char* fgets_s ( char* s, int n, FILE *iop, char sep )
 }
 
 /**
- * @param info The Match informati  on.
+ * @param info To Match information on.
  * @param res  The string being generated.
  * @param data User data
  *

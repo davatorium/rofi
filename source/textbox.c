@@ -182,7 +182,7 @@ void textbox_move ( textbox *tb, int x, int y )
         XMoveResizeWindow ( display, tb->window, tb->x, tb->y, tb->w, tb->h );
     }
 }
-// within the parent. handled auto width/height modes
+// within the parent handled auto width/height modes
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
     if ( tb->flags & TB_AUTOHEIGHT ) {

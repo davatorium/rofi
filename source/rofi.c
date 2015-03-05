@@ -359,7 +359,7 @@ static void menu_free_state ( MenuState *state )
 /**
  * @param x [out] the calculated x position.
  * @param y [out] the calculated y position.
- * @param mon     the workarea.
+ * @param mon     the work area.
  * @param h       the required height of the window.
  * @param w       the required width of the window.
  */
@@ -576,7 +576,7 @@ static int locate_switcher ( KeySym key, unsigned int modstate )
  */
 static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned int modstate )
 {
-    // pressing one of the global key bindings closes the switcher. this allows fast closing of the
+    // pressing one of the global key bindings closes the switcher. This allows fast closing of the
     // menu if an item is not selected
     if ( locate_switcher ( key, modstate ) != -1 || key == XK_Escape ) {
         state->retv = MENU_CANCEL;
@@ -844,7 +844,7 @@ static void menu_update ( MenuState *state )
     menu_set_arrow_text ( state->filtered_lines, state->selected,
                           state->max_elements, state->arrowbox_top,
                           state->arrowbox_bottom );
-    // Why do we need the specian -1?
+    // Why do we need the special -1?
     int line_height = textbox_get_height ( state->text );
     XDrawLine ( display, main_window, gc, ( config.padding ),
                 line_height + ( config.padding ) + ( LINE_MARGIN  ) / 2,
@@ -1372,7 +1372,7 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
     // we fork because it's technically possible to have multiple window
     // lists up at once on a zaphod multihead X setup.
     // this also happens to isolate the Xft font stuff in a child process
-    // that gets cleaned up every time. that library shows some valgrind
+    // that gets cleaned up every time. That library shows some valgrind
     // strangeness...
     if ( do_fork == TRUE ) {
         if ( fork () ) {
@@ -1610,7 +1610,7 @@ static inline void load_configuration_dynamic ( Display *display )
 
 
 /**
- * Handle sighub request.
+ * Handle sighup request.
  * Currently we just reload the configuration.
  */
 static void hup_action_handler ( int num )
@@ -1770,7 +1770,7 @@ int main ( int argc, char *argv[] )
                 x11_grab_key ( display, switchers[i].modmask, switchers[i].keysym );
             }
         }
-        // Setup handler for sighub (reload config)
+        // Setup handler for sighup (reload config)
         const struct sigaction hup_action = {
             .sa_handler = hup_action_handler
         };

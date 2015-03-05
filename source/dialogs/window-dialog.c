@@ -149,8 +149,8 @@ static void winlist_free ( winlist *l )
  */
 static int winlist_find ( winlist *l, Window w )
 {
-// iterate backwards. theory is: windows most often accessed will be
-// nearer the end. testing with kcachegrind seems to support this...
+// iterate backwards. Theory is: windows most often accessed will be
+// nearer the end. Testing with kcachegrind seems to support this...
     int i;
 
     for ( i = ( l->len - 1 ); i >= 0; i-- ) {
@@ -356,7 +356,7 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
         int           i;
         unsigned int  classfield = 0;
         unsigned long desktops   = 0;
-        // windows we actually display. may be slightly different to _NET_CLIENT_LIST_STACKING
+        // windows we actually display. May be slightly different to _NET_CLIENT_LIST_STACKING
         // if we happen to have a window destroyed while we're working...
         winlist *ids = winlist_new ();
 
@@ -409,7 +409,7 @@ SwitcherMode run_switcher_window ( char **input, G_GNUC_UNUSED void *data )
                 desktop[0] = 0;
                 char          *line = g_malloc ( strlen ( c->title ) + strlen ( c->class ) + classfield + 50 );
                 if ( !config_i3_mode ) {
-                    // find client's desktop. this is zero-based, so we adjust by since most
+                    // find client's desktop. This is zero-based, so we adjust by since most
                     // normal people don't think like this :-)
                     if ( !window_get_cardinal_prop ( display, c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1 ) ) {
                         wmdesktop = 0xFFFFFFFF;
