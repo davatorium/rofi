@@ -961,7 +961,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                   ( config.padding ),
                                   entrybox_width, 0,
                                   NORMAL,
-                                  ( input != NULL ) ? *input : "" );
+                                  *input );
     // Move indicator to end.
     textbox_move ( state.case_indicator,
                    config.padding + textbox_get_width ( state.prompt_tb ) + entrybox_width,
