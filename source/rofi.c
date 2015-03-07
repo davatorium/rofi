@@ -120,7 +120,7 @@ static int switcher_get ( const char *name )
     return -1;
 }
 
-void catch_exit ( __attribute__( ( unused ) ) int sig )
+void catch_exit ( G_GNUC_UNUSED int sig )
 {
     while ( 0 < waitpid ( -1, NULL, WNOHANG ) ) {
         ;

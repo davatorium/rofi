@@ -45,7 +45,7 @@ typedef struct
         char         ** str;
         void         *pointer;
         char         * charc;
-    } value;
+    }    value;
     char *mem;
 } XrmOption;
 /**
@@ -115,8 +115,8 @@ void config_parser_add_option ( XrmOptionType type, const char *key, void **valu
 {
     extra_options = g_realloc ( extra_options, ( num_extra_options + 1 ) * sizeof ( XrmOption ) );
 
-    extra_options[num_extra_options].type    = type;
-    extra_options[num_extra_options].name    = key;
+    extra_options[num_extra_options].type          = type;
+    extra_options[num_extra_options].name          = key;
     extra_options[num_extra_options].value.pointer = value;
     if ( type == xrm_String ) {
         extra_options[num_extra_options].mem = ( (char *) ( *value ) );
