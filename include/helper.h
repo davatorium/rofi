@@ -41,8 +41,6 @@ char *token_collate_key ( const char *token, int case_sensitive );
 char **tokenize ( const char *input, int case_sensitive );
 
 /**
- * @param argc Number of arguments.
- * @param argv 2 dimensional array of arguments.
  * @param key The key to search for
  * @param val Pointer to the string to set to the key value (if found)
  *
@@ -51,11 +49,9 @@ char **tokenize ( const char *input, int case_sensitive );
  *
  * @returns TRUE if key was found and val was set.
  */
-int find_arg_char ( const int argc, char * const argv[], const char * const key, char *val );
+int find_arg_char ( const char * const key, char *val );
 
 /**
- * @param argc Number of arguments.
- * @param argv 2 dimensional array of arguments.
  * @param key The key to search for
  * @param val Pointer to the string to set to the key value (if found)
  *
@@ -63,11 +59,9 @@ int find_arg_char ( const int argc, char * const argv[], const char * const key,
  *
  * @returns TRUE if key was found and val was set.
  */
-int find_arg_uint ( const int argc, char * const argv[], const char * const key, unsigned int *val );
+int find_arg_uint ( const char * const key, unsigned int *val );
 
 /**
- * @param argc Number of arguments.
- * @param argv 2 dimensional array of arguments.
  * @param key The key to search for
  * @param val Pointer to the string to set to the key value (if found)
  *
@@ -75,12 +69,10 @@ int find_arg_uint ( const int argc, char * const argv[], const char * const key,
  *
  * @returns TRUE if key was found and val was set.
  */
-int find_arg_int ( const int argc, char * const argv[], const char * const key, int *val );
+int find_arg_int ( const char * const key, int *val );
 
 
 /**
- * @param argc Number of arguments.
- * @param argv 2 dimensional array of arguments.
  * @param key The key to search for
  * @param val Pointer to the string to set to the key value (if found)
  *
@@ -88,18 +80,16 @@ int find_arg_int ( const int argc, char * const argv[], const char * const key, 
  *
  * @returns TRUE if key was found and val was set.
  */
-int find_arg_str ( const int argc, char * const argv[], const char * const key, char** val );
+int find_arg_str ( const char * const key, char** val );
 
 /**
- * @param argc Number of arguments.
- * @param argv 2 dimensional array of arguments.
  * @param key The key to search for
  *
  * Check if key is passed as argument.
  *
  * @returns return position of string or -1 if not found.
  */
-int find_arg ( const int argc, char * const argv[], const char * const key );
+int find_arg ( const char * const key );
 
 /**
  * @params tokens
@@ -140,6 +130,7 @@ void create_pid_file ( const char *pidfile );
  *
  * This functions exits the program with 1 when it finds an invalid configuration.
  */
-void config_sanity_check ( int argc, char **argv );
+void config_sanity_check ( void );
 char helper_parse_char ( const char *arg );
+void cmd_set_arguments ( int argc, char **argv );
 #endif // __HELPER_H__

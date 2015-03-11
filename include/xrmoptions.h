@@ -22,19 +22,13 @@ void config_parse_xresource_options ( Display *display );
 
 
 /**
- * @param argc Number of arguments.
- * @param argv Array of arguments.
- *
  * Parse commandline options.
  */
-void config_parse_cmd_options ( int argc, char ** argv );
+void config_parse_cmd_options ( void );
 /**
- * @param argc Number of arguments.
- * @param argv Array of arguments.
- *
  * Parse dynamic commandline options.
  */
-void config_parse_cmd_options_dynamic ( int argc, char ** argv );
+void config_parse_cmd_options_dynamic ( void );
 /**
  * @param display Handler of the display to fetch the settings from.
  *

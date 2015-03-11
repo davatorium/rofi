@@ -1,6 +1,8 @@
 0.15.3: (unreleased)
 	New feature:
 		- Number mode for dmenu. allows user to get index back instead of content.
+	Cleanup:
+		- Do not lug argc,argv around everywhere.
 
 0.15.2: 
 	Removed features:

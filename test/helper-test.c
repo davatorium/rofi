@@ -10,9 +10,9 @@ static int test = 0;
     assert ( a );\
     printf("Test %i passed (%s)\n", ++test, #a);\
 }
-
-int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
+int main ( int argc, char ** argv )
 {
+    cmd_set_arguments(argc, argv);
 	char **list = NULL;
 	int llength = 0;
 	char * test_str = "{host} {terminal} -e bash -c \"{ssh-client} {host}; echo '{terminal} {host}'\"";

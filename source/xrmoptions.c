@@ -195,20 +195,20 @@ void config_parse_xresource_options ( Display *display )
 /**
  * Parse an option from the commandline vector.
  */
-static void config_parse_cmd_option ( XrmOption *option, int argc, char **argv )
+static void config_parse_cmd_option ( XrmOption *option )
 {
     // Prepend a - to the option name.
     char *key = g_strdup_printf ( "-%s", option->name );
     switch ( option->type )
     {
     case xrm_Number:
-        find_arg_uint ( argc, argv, key, option->value.num );
+        find_arg_uint ( key, option->value.num );
         break;
     case xrm_SNumber:
-        find_arg_int ( argc, argv, key, option->value.snum );
+        find_arg_int (  key, option->value.snum );
         break;
     case xrm_String:
-        if ( find_arg_str ( argc, argv, key, option->value.str ) == TRUE ) {
+        if ( find_arg_str (  key, option->value.str ) == TRUE ) {
             if ( option->mem != NULL ) {
                 g_free ( option->mem );
                 option->mem = NULL;
@@ -216,12 +216,12 @@ static void config_parse_cmd_option ( XrmOption *option, int argc, char **argv )
         }
         break;
     case xrm_Boolean:
-        if ( find_arg ( argc, argv, key ) >= 0 ) {
+        if ( find_arg (  key ) >= 0 ) {
             *( option->value.num ) = TRUE;
         }
         break;
     case xrm_Char:
-        find_arg_char ( argc, argv, key, option->value.charc );
+        find_arg_char (  key, option->value.charc );
         break;
     default:
         break;
@@ -229,19 +229,19 @@ static void config_parse_cmd_option ( XrmOption *option, int argc, char **argv )
     g_free ( key );
 }
 
-void config_parse_cmd_options ( int argc, char ** argv )
+void config_parse_cmd_options ( void )
 {
     for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( XrmOption ); ++i ) {
         XrmOption *op = &( xrmOptions[i] );
-        config_parse_cmd_option ( op, argc, argv );
+        config_parse_cmd_option ( op );
     }
 }
 
-void config_parse_cmd_options_dynamic ( int argc, char ** argv )
+void config_parse_cmd_options_dynamic ( void )
 {
     for ( unsigned int i = 0; i < num_extra_options; ++i ) {
         XrmOption *op = &( extra_options[i] );
-        config_parse_cmd_option ( op, argc, argv );
+        config_parse_cmd_option ( op  );
     }
 }
 

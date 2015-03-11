@@ -38,6 +38,15 @@
 #include "helper.h"
 #include "rofi.h"
 
+int  stored_argc   = 0;
+char **stored_argv = NULL;
+
+void cmd_set_arguments ( int argc, char **argv )
+{
+    stored_argc = argc;
+    stored_argv = argv;
+}
+
 /**
  *  `fgets` implementation with custom separator.
  */
@@ -197,43 +206,43 @@ char **tokenize ( const char *input, int case_sensitive )
 }
 
 // cli arg handling
-int find_arg ( const int argc, char * const argv[], const char * const key )
+int find_arg ( const char * const key )
 {
     int i;
 
-    for ( i = 0; i < argc && strcasecmp ( argv[i], key ); i++ ) {
+    for ( i = 0; i < stored_argc && strcasecmp ( stored_argv[i], key ); i++ ) {
         ;
     }
 
-    return i < argc ? i : -1;
+    return i < stored_argc ? i : -1;
 }
-int find_arg_str ( const int argc, char * const argv[], const char * const key, char** val )
+int find_arg_str ( const char * const key, char** val )
 {
-    int i = find_arg ( argc, argv, key );
+    int i = find_arg ( key );
 
-    if ( val != NULL && i > 0 && i < argc - 1 ) {
-        *val = argv[i + 1];
+    if ( val != NULL && i > 0 && i < stored_argc - 1 ) {
+        *val = stored_argv[i + 1];
         return TRUE;
     }
     return FALSE;
 }
 
-int find_arg_int ( const int argc, char * const argv[], const char * const key, int *val )
+int find_arg_int ( const char * const key, int *val )
 {
-    int i = find_arg ( argc, argv, key );
+    int i = find_arg ( key );
 
-    if ( val != NULL && i > 0 && i < ( argc - 1 ) ) {
-        *val = strtol ( argv[i + 1], NULL, 10 );
+    if ( val != NULL && i > 0 && i < ( stored_argc - 1 ) ) {
+        *val = strtol ( stored_argv[i + 1], NULL, 10 );
         return TRUE;
     }
     return FALSE;
 }
-int find_arg_uint ( const int argc, char * const argv[], const char * const key, unsigned int *val )
+int find_arg_uint ( const char * const key, unsigned int *val )
 {
-    int i = find_arg ( argc, argv, key );
+    int i = find_arg ( key );
 
-    if ( val != NULL && i > 0 && i < ( argc - 1 ) ) {
-        *val = strtoul ( argv[i + 1], NULL, 10 );
+    if ( val != NULL && i > 0 && i < ( stored_argc - 1 ) ) {
+        *val = strtoul ( stored_argv[i + 1], NULL, 10 );
         return TRUE;
     }
     return FALSE;
@@ -292,12 +301,12 @@ char helper_parse_char ( const char *arg )
     return retv;
 }
 
-int find_arg_char ( const int argc, char * const argv[], const char * const key, char *val )
+int find_arg_char ( const char * const key, char *val )
 {
-    int i = find_arg ( argc, argv, key );
+    int i = find_arg ( key );
 
-    if ( val != NULL && i > 0 && i < ( argc - 1 ) ) {
-        *val = helper_parse_char ( argv[i + 1] );
+    if ( val != NULL && i > 0 && i < ( stored_argc - 1 ) ) {
+        *val = helper_parse_char ( stored_argv[i + 1] );
         return TRUE;
     }
     return FALSE;
@@ -403,14 +412,14 @@ void create_pid_file ( const char *pidfile )
  *
  * This functions exits the program with 1 when it finds an invalid configuration.
  */
-void config_sanity_check ( int argc, char **argv )
+void config_sanity_check (  )
 {
-    if ( find_arg ( argc, argv, "-rnow" ) >= 0 || find_arg ( argc, argv, "-snow" ) >= 0 ||
-         find_arg ( argc, argv, "-now"  ) >= 0 || find_arg ( argc, argv, "-key"  ) >= 0 ||
-         find_arg ( argc, argv, "-skey" ) >= 0 || find_arg ( argc, argv, "-rkey" ) >= 0 ) {
+    if ( find_arg ( "-rnow" ) >= 0 || find_arg ( "-snow" ) >= 0 ||
+         find_arg ( "-now"  ) >= 0 || find_arg ( "-key"  ) >= 0 ||
+         find_arg ( "-skey" ) >= 0 || find_arg ( "-rkey" ) >= 0 ) {
         fprintf ( stderr, "The -snow, -now, -rnow, -key, -rkey, -skey are deprecated "
                   "and have been removed.\n"
-                  "Please see the manpage: %s -help for the correct syntax.", argv[0] );
+                  "Please see the manpage: %s -help for the correct syntax.", stored_argv[0] );
         exit ( EXIT_FAILURE );
     }
     if ( config.element_height < 1 ) {

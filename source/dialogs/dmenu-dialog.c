@@ -64,10 +64,6 @@ static char **get_dmenu ( int *length )
     return retv;
 }
 
-// Remote pointer to input arguments.
-extern int  stored_argc;
-extern char **stored_argv;
-
 int dmenu_switcher_dialog ( char **input )
 {
     char *dmenu_prompt = "dmenu ";
@@ -79,12 +75,12 @@ int dmenu_switcher_dialog ( char **input )
 
     int  number_mode = FALSE;
     // Check if the user requested number mode.
-    if ( find_arg ( stored_argc, stored_argv, "-i" ) >= 0 ) {
+    if ( find_arg (  "-i" ) >= 0 ) {
         number_mode = TRUE;
     }
     // Check prompt
-    find_arg_str ( stored_argc, stored_argv, "-p", &dmenu_prompt );
-    find_arg_int ( stored_argc, stored_argv, "-l", &selected_line );
+    find_arg_str (  "-p", &dmenu_prompt );
+    find_arg_int (  "-l", &selected_line );
 
     do {
         int shift = 0;

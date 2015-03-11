@@ -1580,12 +1580,6 @@ static void setup_switchers ( void )
 }
 
 /**
- * Keep a copy of arc, argv around, so we can use the same parsing method
- */
-int  stored_argc;
-char **stored_argv;
-
-/**
  * @param display Pointer to the X connection to use.
  * Load configuration.
  * Following priority: (current), X, commandline arguments
@@ -1596,16 +1590,16 @@ static inline void load_configuration ( Display *display )
     config_parse_xresource_options ( display );
 
     // Parse command line for settings.
-    config_parse_cmd_options ( stored_argc, stored_argv );
+    config_parse_cmd_options ( );
 }
 static inline void load_configuration_dynamic ( Display *display )
 {
     // Load in config from X resources.
     config_parse_xresource_options_dynamic ( display );
-    config_parse_cmd_options_dynamic ( stored_argc, stored_argv );
+    config_parse_cmd_options_dynamic (  );
 
     // Sanity check
-    config_sanity_check ( stored_argc, stored_argv );
+    config_sanity_check ( );
 }
 
 
@@ -1651,16 +1645,14 @@ static void show_error_message ( const char *msg )
 int main ( int argc, char *argv[] )
 {
     int dmenu_mode = FALSE;
-    stored_argc = argc;
-    stored_argv = argv;
-
+    cmd_set_arguments ( argc, argv );
     // catch help request
-    if ( find_arg ( argc, argv, "-h" ) >= 0 || find_arg ( argc, argv, "-help" ) >= 0 ) {
+    if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 ) {
         help ();
         exit ( EXIT_SUCCESS );
     }
     // Version
-    if ( find_arg ( argc, argv, "-v" ) >= 0 || find_arg ( argc, argv, "-version" ) >= 0 ) {
+    if ( find_arg (  "-v" ) >= 0 || find_arg (  "-version" ) >= 0 ) {
         fprintf ( stdout, "Version: "VERSION "\n" );
         exit ( EXIT_SUCCESS );
     }
@@ -1668,7 +1660,7 @@ int main ( int argc, char *argv[] )
     // Detect if we are in dmenu mode.
     // This has two possible causes.
     // 1 the user specifies it on the command-line.
-    if ( find_arg ( argc, argv, "-dmenu" ) >= 0 ) {
+    if ( find_arg (  "-dmenu" ) >= 0 ) {
         dmenu_mode = TRUE;
     }
     // 2 the binary that executed is called dmenu (e.g. symlink to rofi)
@@ -1695,7 +1687,7 @@ int main ( int argc, char *argv[] )
 
     // Get DISPLAY, first env, then argument.
     display_str = getenv ( "DISPLAY" );
-    find_arg_str ( argc, argv, "-display", &display_str );
+    find_arg_str (  "-display", &display_str );
 
     if ( !( display = XOpenDisplay ( display_str ) ) ) {
         fprintf ( stderr, "cannot open display!\n" );
@@ -1715,7 +1707,7 @@ int main ( int argc, char *argv[] )
     load_configuration_dynamic ( display );
 
     // Dump.
-    if ( find_arg ( argc, argv, "-dump-xresources" ) >= 0 ) {
+    if ( find_arg (  "-dump-xresources" ) >= 0 ) {
         xresource_dump ();
         exit ( EXIT_SUCCESS );
     }
@@ -1729,7 +1721,7 @@ int main ( int argc, char *argv[] )
     x11_setup ( display );
 
     char *msg = NULL;
-    if ( find_arg_str ( argc, argv, "-e", &( msg ) ) ) {
+    if ( find_arg_str (  "-e", &( msg ) ) ) {
         show_error_message ( msg );
         exit ( EXIT_SUCCESS );
     }
@@ -1750,7 +1742,7 @@ int main ( int argc, char *argv[] )
 
     // flags to run immediately and exit
     char *sname = NULL;
-    if ( find_arg_str ( argc, argv, "-show", &sname ) == TRUE ) {
+    if ( find_arg_str ( "-show", &sname ) == TRUE ) {
         int index = switcher_get ( sname );
         if ( index >= 0 ) {
             run_switcher ( FALSE, index );
