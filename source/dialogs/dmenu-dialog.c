@@ -36,8 +36,6 @@
 #include "dialogs/dmenu-dialog.h"
 #include "helper.h"
 
-char *dmenu_prompt       = "dmenu ";
-int  dmenu_selected_line = 0;
 
 static char **get_dmenu ( int *length )
 {
@@ -66,13 +64,27 @@ static char **get_dmenu ( int *length )
     return retv;
 }
 
+// Remote pointer to input arguments.
+extern int  stored_argc;
+extern char **stored_argv;
+
 int dmenu_switcher_dialog ( char **input )
 {
-    int  selected_line = dmenu_selected_line;
+    char *dmenu_prompt = "dmenu ";
+    int  selected_line = 0;
     int  retv          = FALSE;
     int  length        = 0;
     char **list        = get_dmenu ( &length );
     int  restart       = FALSE;
+
+    int  number_mode = FALSE;
+    // Check if the user requested number mode.
+    if ( find_arg ( stored_argc, stored_argv, "-i" ) >= 0 ) {
+        number_mode = TRUE;
+    }
+    // Check prompt
+    find_arg_str ( stored_argc, stored_argv, "-p", &dmenu_prompt );
+    find_arg_int ( stored_argc, stored_argv, "-l", &selected_line );
 
     do {
         int shift = 0;
@@ -82,7 +94,12 @@ int dmenu_switcher_dialog ( char **input )
         // We normally do not want to restart the loop.
         restart = FALSE;
         if ( mretv == MENU_OK && list[selected_line] != NULL ) {
-            fputs ( list[selected_line], stdout );
+            if ( number_mode ) {
+                fprintf ( stdout, "%d", selected_line );
+            }
+            else {
+                fputs ( list[selected_line], stdout );
+            }
             fputc ( '\n', stdout );
             fflush ( stdout );
             if ( shift ) {
@@ -93,9 +110,11 @@ int dmenu_switcher_dialog ( char **input )
             retv = TRUE;
         }
         else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' ) {
-            fputs ( *input, stdout );
-            fputc ( '\n', stdout );
-            fflush ( stdout );
+            if ( !number_mode ) {
+                fputs ( *input, stdout );
+                fputc ( '\n', stdout );
+                fflush ( stdout );
+            }
             if ( shift ) {
                 restart = TRUE;
                 // Move to next line.

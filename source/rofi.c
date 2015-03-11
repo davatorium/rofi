@@ -1582,8 +1582,8 @@ static void setup_switchers ( void )
 /**
  * Keep a copy of arc, argv around, so we can use the same parsing method
  */
-static int  stored_argc;
-static char **stored_argv;
+int  stored_argc;
+char **stored_argv;
 
 /**
  * @param display Pointer to the X connection to use.
@@ -1739,9 +1739,6 @@ int main ( int argc, char *argv[] )
     if ( dmenu_mode == TRUE ) {
         // force off sidebar mode:
         config.sidebar_mode = FALSE;
-        // Check prompt
-        find_arg_str ( argc, argv, "-p", &dmenu_prompt );
-        find_arg_int ( argc, argv, "-l", &dmenu_selected_line );
         int retv = run_dmenu ();
 
         // User canceled the operation.

@@ -356,6 +356,10 @@ daemon listening to specific key-combinations.
 
     Default: *0*
 
+`-i`
+
+    Number mode, return the index of the selected row. (starting at 0)
+
 ### Message dialog
 
 `-e` *message*
