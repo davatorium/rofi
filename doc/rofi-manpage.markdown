@@ -451,6 +451,8 @@ Rofi supports the following keybindings:
 * `Shift-Enter`: Return the selected entry and move to the next item while keeping Rofi open. (in dmenu)
 * `Shift-Right`: Switch to the next modi. The list can be customized with the `-switchers` argument.
 * `Shift-Left`: Switch to the previous modi. The list can be customized with the `-switchers` argument.
+* `Ctrl-Tab`: Switch to the next modi. The list can be customized with the `-switchers` argument.
+* `Ctrl-Shift-Tab`: Switch to the previous modi. The list can be customized with the `-switchers` argument.
 * `Ctrl-space`: Set selected item as input text.
 * `Shift-Del`: Delete entry from history.
 * `grave`: Toggle case sensitivity.

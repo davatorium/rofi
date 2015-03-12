@@ -1144,6 +1144,17 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                     state.quit               = TRUE;
                     break;
                 }
+                else if  ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_Tab ) {
+                    if ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) {
+                        state.retv = MENU_PREVIOUS;
+                    }
+                    else{
+                        state.retv = MENU_NEXT;
+                    }
+                    *( state.selected_line ) = 0;
+                    state.quit               = TRUE;
+                    break;
+                }
                 // Menu navigation.
                 else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
                           key == XK_Right ) {
