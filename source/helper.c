@@ -38,8 +38,8 @@
 #include "helper.h"
 #include "rofi.h"
 
-int  stored_argc   = 0;
-char **stored_argv = NULL;
+static int  stored_argc   = 0;
+static char **stored_argv = NULL;
 
 void cmd_set_arguments ( int argc, char **argv )
 {
