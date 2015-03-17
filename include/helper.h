@@ -131,6 +131,21 @@ void create_pid_file ( const char *pidfile );
  * This functions exits the program with 1 when it finds an invalid configuration.
  */
 void config_sanity_check ( void );
+
+/**
+ * @param arg string to parse.
+ *
+ * Parses a string into an character.
+ *
+ * @returns character.
+ */
 char helper_parse_char ( const char *arg );
+
+/**
+ * @param argc number of arguments.
+ * @param argv Array of arguments.
+ *
+ * Set the application arguments.
+ */
 void cmd_set_arguments ( int argc, char **argv );
 #endif // __HELPER_H__
