@@ -239,4 +239,5 @@ void textbox_cursor_inc ( textbox *tb );
  */
 void textbox_delete ( textbox *tb, int pos, int dlen );
 
+void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
 #endif //__TEXTBOX_H__

@@ -815,7 +815,40 @@ static void menu_draw ( MenuState *state )
         state->last_offset = offset;
     }
 
-    for ( i = 0; i < state->max_elements; i++ ) {
+    // Re calculate the boxes and sizes, see if we can move this in the menu_calc*rowscolumns
+    // Get number of remaining lines to display.
+    unsigned int a_lines = MIN ( ( state->filtered_lines - offset ), state->max_elements );
+
+    // Calculate number of columns
+    unsigned int columns = ( a_lines + ( state->max_rows - a_lines % state->max_rows ) %
+                             state->max_rows ) / state->max_rows;
+    columns = MIN ( columns, state->columns );
+
+    // Element width.
+    unsigned int element_width = state->w - ( 2 * ( config.padding ) );
+    if ( columns > 0 ) {
+        element_width = ( element_width - ( columns - 1 ) * LINE_MARGIN ) / columns;
+    }
+
+    int          line_height    = textbox_get_height ( state->text );
+    int          element_height = line_height * config.element_height;
+    int          y_offset       = config.padding + line_height;
+    int          x_offset       = config.padding;
+    // Calculate number of visible rows.
+    unsigned int max_elements = MIN ( a_lines, state->max_rows * columns );
+
+    // Hide now invisible boxes.
+    for ( i = max_elements; i < state->max_elements; i++ ) {
+        textbox_hide ( state->boxes[i] );
+    }
+    // Move, resize visible boxes and show them.
+    for ( i = 0; i < max_elements; i++ ) {
+        unsigned int ex = ( ( i ) / state->max_rows ) * ( element_width + LINE_MARGIN );
+        unsigned int ey = ( ( i ) % state->max_rows ) * element_height + LINE_MARGIN;
+        // Move it around.
+        textbox_moveresize ( state->boxes[i],
+                             ex + x_offset, ey + y_offset,
+                             element_width, element_height );
         if ( ( i + offset ) >= state->num_lines || state->filtered[i + offset] == NULL ) {
             textbox_font ( state->boxes[i], NORMAL );
             textbox_text ( state->boxes[i], "" );
@@ -827,7 +860,7 @@ static void menu_draw ( MenuState *state )
             textbox_font ( state->boxes[i], tbft );
             textbox_text ( state->boxes[i], text );
         }
-
+        textbox_show ( state->boxes[i] );
         textbox_draw ( state->boxes[i] );
     }
 }
@@ -982,11 +1015,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     int x_offset = config.padding;
 
     for ( i = 0; i < state.max_elements; i++ ) {
-        unsigned int ex = ( ( i ) / state.max_rows ) * ( state.element_width + LINE_MARGIN );
-        unsigned int ey = ( ( i ) % state.max_rows ) * element_height + LINE_MARGIN;
-
         state.boxes[i] = textbox_create ( main_window, &vinfo, map, 0,
-                                          ex + x_offset, ey + y_offset,
+                                          x_offset, y_offset,
                                           state.element_width, element_height, NORMAL, "" );
         textbox_show ( state.boxes[i] );
     }
