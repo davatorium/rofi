@@ -5,6 +5,7 @@
 		- On a single item in list disable auto-select.
 	Improvements:
 		- Add Ctrl(Shift)Tab to switch modi's.
+		- Auto size number of columns based on available columns.
 	Cleanup:
 		- Do not lug argc,argv around everywhere.
 
