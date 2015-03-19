@@ -289,7 +289,7 @@ void textbox_draw ( textbox *tb )
         int tw = textbox_get_font_width ( tb );
         x = ( PANGO_SCALE * ( tb->w - tw - 2 * SIDE_MARGIN ) ) / 2;
     }
-    y = ( PANGO_SCALE * ( textbox_get_width ( tb ) - textbox_get_font_width ( tb ) ) ) / 2;
+    y = (  PANGO_SCALE * ( tb->h - textbox_get_height ( tb ) + 2 * SIDE_MARGIN ) ) / 2;
     // Render the layout.
     pango_xft_render_layout ( draw, &( tb->color_fg ), tb->layout, x, y );
 

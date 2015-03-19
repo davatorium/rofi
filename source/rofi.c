@@ -1018,13 +1018,13 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         textbox_show ( state.boxes[i] );
     }
     // Arrows
-    state.arrowbox_top = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+    state.arrowbox_top = textbox_create ( main_window, &vinfo, map, TB_AUTOWIDTH,
                                           ( config.padding ), ( config.padding ),
-                                          0, 0, NORMAL,
+                                          0, element_height, NORMAL,
                                           "↑" );
-    state.arrowbox_bottom = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+    state.arrowbox_bottom = textbox_create ( main_window, &vinfo, map, TB_AUTOWIDTH,
                                              ( config.padding ), ( config.padding ),
-                                             0, 0, NORMAL,
+                                             0, element_height, NORMAL,
                                              "↓" );
     textbox_move ( state.arrowbox_top,
                    state.w - config.padding - state.arrowbox_top->w,

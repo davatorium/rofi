@@ -7,6 +7,7 @@
 		- Add Ctrl(Shift)Tab to switch modi's.
 		- Auto size number of columns based on available columns.
 		- Better way to determine font height.
+		- Fix font vertical centering.
 		- One-off when pasting text.
 	Cleanup:
 		- Do not lug argc,argv around everywhere.
