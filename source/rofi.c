@@ -331,6 +331,7 @@ typedef struct MenuState
     int          *selected_line;
     MenuReturn   retv;
     char         **lines;
+    int          line_height;
 }MenuState;
 
 /**
@@ -830,9 +831,8 @@ static void menu_draw ( MenuState *state )
         element_width = ( element_width - ( columns - 1 ) * LINE_MARGIN ) / columns;
     }
 
-    int          line_height    = textbox_get_height ( state->text );
-    int          element_height = line_height * config.element_height;
-    int          y_offset       = config.padding + line_height;
+    int          element_height = state->line_height * config.element_height;
+    int          y_offset       = config.padding + state->line_height;
     int          x_offset       = config.padding;
     // Calculate number of visible rows.
     unsigned int max_elements = MIN ( a_lines, state->max_rows * columns );
@@ -878,19 +878,17 @@ static void menu_update ( MenuState *state )
                           state->max_elements, state->arrowbox_top,
                           state->arrowbox_bottom );
     // Why do we need the special -1?
-    int line_height = textbox_get_height ( state->text );
     XDrawLine ( display, main_window, gc, ( config.padding ),
-                line_height + ( config.padding ) + ( LINE_MARGIN  ) / 2,
+                state->line_height + ( config.padding ) + ( LINE_MARGIN  ) / 2,
                 state->w - ( ( config.padding ) ) - 1,
-                line_height + ( config.padding ) + ( LINE_MARGIN  ) / 2 );
+                state->line_height + ( config.padding ) + ( LINE_MARGIN  ) / 2 );
 
     if ( config.sidebar_mode == TRUE ) {
-        int line_height = textbox_get_height ( state->text );
         XDrawLine ( display, main_window, gc,
                     ( config.padding ),
-                    state->h - line_height - ( config.padding ) - 1,
+                    state->h - state->line_height - ( config.padding ) - 1,
                     state->w - ( ( config.padding ) ) - 1,
-                    state->h - line_height - ( config.padding ) - 1 );
+                    state->h - state->line_height - ( config.padding ) - 1 );
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
             textbox_draw ( switchers[j].tb );
         }
@@ -963,13 +961,12 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                             ( config.padding ), ( config.padding ),
                                             0, 0,
                                             NORMAL, "*" );
-
+    state.line_height = textbox_get_estimated_char_height ();
     // Height of a row.
-    int line_height = textbox_get_height ( state.case_indicator );
     if ( config.menu_lines == 0 ) {
         // Autosize it.
         int h = mon.h - config.padding * 2 - LINE_MARGIN - config.menu_bw * 2;
-        int r = ( h ) / ( line_height * config.element_height ) - 1 - config.sidebar_mode;
+        int r = ( h ) / ( state.line_height * config.element_height ) - 1 - config.sidebar_mode;
         state.menu_lines = r;
     }
     else {
@@ -1007,11 +1004,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         textbox_show ( state.case_indicator );
     }
 
-    int element_height = line_height * config.element_height;
+    int element_height = state.line_height * config.element_height;
     // filtered list display
     state.boxes = g_malloc0_n ( state.max_elements, sizeof ( textbox* ) );
 
-    int y_offset = config.padding + line_height;
+    int y_offset = config.padding + state.line_height;
     int x_offset = config.padding;
 
     for ( i = 0; i < state.max_elements; i++ ) {
@@ -1029,10 +1026,10 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                              ( config.padding ), ( config.padding ),
                                              0, 0, NORMAL,
                                              "↓" );
-
     textbox_move ( state.arrowbox_top,
                    state.w - config.padding - state.arrowbox_top->w,
-                   config.padding + line_height + LINE_MARGIN );
+                   config.padding + state.line_height + LINE_MARGIN );
+    // TODO calculate from top.
     textbox_move ( state.arrowbox_bottom,
                    state.w - config.padding - state.arrowbox_bottom->w,
                    config.padding + state.max_rows * element_height + LINE_MARGIN );
@@ -1046,11 +1043,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
-    state.h = line_height + element_height * state.max_rows + ( config.padding ) * 2 + LINE_MARGIN;
+    state.h = state.line_height + element_height * state.max_rows + ( config.padding ) * 2 + LINE_MARGIN;
 
     // Add entry
     if ( config.sidebar_mode == TRUE ) {
-        state.h += line_height + LINE_MARGIN;
+        state.h += state.line_height + LINE_MARGIN;
     }
 
     // Sidebar mode.
@@ -1062,12 +1059,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     calculate_window_position ( &state, &mon );
 
     if ( config.sidebar_mode == TRUE ) {
-        int line_height = textbox_get_height ( state.text );
-        int width       = ( state.w - ( 2 * ( config.padding ) ) ) / num_switchers;
+        int width = ( state.w - ( 2 * ( config.padding ) ) ) / num_switchers;
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
             switchers[j].tb = textbox_create ( main_window, &vinfo, map, TB_CENTER,
-                                               config.padding + j * width, state.h - line_height - config.padding,
-                                               width, line_height, ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, switchers[j].name );
+                                               config.padding + j * width, state.h - state.line_height - config.padding,
+                                               width, state.line_height, ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, switchers[j].name );
             textbox_show ( switchers[j].tb );
         }
     }
@@ -1325,10 +1321,10 @@ void error_dialog ( const char *msg )
                                   NORMAL,
                                   ( msg != NULL ) ? msg : "" );
     textbox_show ( state.text );
-    int line_height = textbox_get_height ( state.text );
+    state.line_height = textbox_get_height ( state.text );
 
     // resize window vertically to suit
-    state.h = line_height + ( config.padding ) * 2;
+    state.h = state.line_height + ( config.padding ) * 2;
 
     // Move the window to the correct x,y position.
     calculate_window_position ( &state, &mon );

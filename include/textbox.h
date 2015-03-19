@@ -240,4 +240,5 @@ void textbox_cursor_inc ( textbox *tb );
 void textbox_delete ( textbox *tb, int pos, int dlen );
 
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
+int textbox_get_estimated_char_height ( void );
 #endif //__TEXTBOX_H__
