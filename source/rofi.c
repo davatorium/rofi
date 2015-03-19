@@ -916,7 +916,7 @@ static void menu_paste ( MenuState *state, XSelectionEvent *xse )
             }
             // Insert string move cursor.
             textbox_insert ( state->text, state->text->cursor, text );
-            textbox_cursor ( state->text, state->text->cursor + dl - 1 );
+            textbox_cursor ( state->text, state->text->cursor + dl  );
             // Force a redraw and refiltering of the text.
             state->update   = TRUE;
             state->refilter = TRUE;
