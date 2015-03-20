@@ -9,6 +9,7 @@
 		- Better way to determine font height.
 		- Fix font vertical centering.
 		- One-off when pasting text.
+		- Improve rendering of boxes (fixed height 	and margins)
 	Cleanup:
 		- Do not lug argc,argv around everywhere.
 

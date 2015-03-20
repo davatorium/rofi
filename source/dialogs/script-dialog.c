@@ -149,7 +149,6 @@ ScriptOptions *script_switcher_parse_setup ( const char *str )
     char          *endp  = NULL;
     char          *parse = g_strdup ( str );
     unsigned int  index  = 0;
-    // TODO: This is naive and can be improved.
     for ( char *token = strtok_r ( parse, ":", &endp ); token != NULL; token = strtok_r ( NULL, ":", &endp ) ) {
         if ( index == 0 ) {
             sw->name = g_strdup ( token );

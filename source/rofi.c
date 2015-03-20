@@ -886,9 +886,9 @@ static void menu_update ( MenuState *state )
     if ( config.sidebar_mode == TRUE ) {
         XDrawLine ( display, main_window, gc,
                     ( config.padding ),
-                    state->h - state->line_height - ( config.padding ) - 1,
+                    state->h - state->line_height - ( config.padding ) - 1 - LINE_MARGIN,
                     state->w - ( ( config.padding ) ) - 1,
-                    state->h - state->line_height - ( config.padding ) - 1 );
+                    state->h - state->line_height - ( config.padding ) - 1 - LINE_MARGIN );
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
             textbox_draw ( switchers[j].tb );
         }
@@ -976,20 +976,20 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     menu_calculate_window_and_element_width ( &state, &mon );
 
     // Prompt box.
-    state.prompt_tb = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+    state.prompt_tb = textbox_create ( main_window, &vinfo, map, TB_AUTOWIDTH,
                                        ( config.padding ),
                                        ( config.padding ),
-                                       0, 0, NORMAL, prompt );
+                                       0, state.line_height, NORMAL, prompt );
     // Entry box
     int entrybox_width = state.w
                          - ( 2 * ( config.padding ) )
                          - textbox_get_width ( state.prompt_tb )
                          - textbox_get_width ( state.case_indicator );
 
-    state.text = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_EDITABLE,
+    state.text = textbox_create ( main_window, &vinfo, map, TB_EDITABLE,
                                   ( config.padding ) + textbox_get_width ( state.prompt_tb ),
                                   ( config.padding ),
-                                  entrybox_width, 0,
+                                  entrybox_width, state.line_height,
                                   NORMAL,
                                   *input );
     // Move indicator to end.
@@ -1047,7 +1047,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     // Add entry
     if ( config.sidebar_mode == TRUE ) {
-        state.h += state.line_height + LINE_MARGIN;
+        state.h += state.line_height + LINE_MARGIN * 2;
     }
 
     // Sidebar mode.
