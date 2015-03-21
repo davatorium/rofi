@@ -1059,10 +1059,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     calculate_window_position ( &state, &mon );
 
     if ( config.sidebar_mode == TRUE ) {
-        int width = ( state.w - ( 2 * ( config.padding ) ) ) / num_switchers;
+        int width = ( state.w - ( 2 * ( config.padding ) + ( num_switchers - 1 ) * LINE_MARGIN ) ) / num_switchers;
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
             switchers[j].tb = textbox_create ( main_window, &vinfo, map, TB_CENTER,
-                                               config.padding + j * width, state.h - state.line_height - config.padding,
+                                               config.padding + j * ( width + LINE_MARGIN ),
+                                               state.h - state.line_height - config.padding,
                                                width, state.line_height, ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, switchers[j].name );
             textbox_show ( switchers[j].tb );
         }
