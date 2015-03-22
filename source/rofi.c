@@ -886,9 +886,9 @@ static void menu_update ( MenuState *state )
     if ( config.sidebar_mode == TRUE ) {
         XDrawLine ( display, main_window, gc,
                     ( config.padding ),
-                    state->h - state->line_height - ( config.padding ) - 1 - LINE_MARGIN,
+                    state->h - state->line_height - ( config.padding ) - LINE_MARGIN,
                     state->w - ( ( config.padding ) ) - 1,
-                    state->h - state->line_height - ( config.padding ) - 1 - LINE_MARGIN );
+                    state->h - state->line_height - ( config.padding ) - LINE_MARGIN );
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
             textbox_draw ( switchers[j].tb );
         }

@@ -39,7 +39,7 @@
 #include "rofi.h"
 #include "textbox.h"
 #include <glib.h>
-#define SIDE_MARGIN    2
+#define SIDE_MARGIN    1
 
 extern Display *display;
 
