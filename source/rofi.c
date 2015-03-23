@@ -302,6 +302,8 @@ typedef struct MenuState
     // Update/Refilter list.
     int          update;
     int          refilter;
+    int          rchanged;
+    int          cur_page;
 
     // Entries
     textbox      *text;
@@ -796,6 +798,7 @@ static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, v
     }
 
     state->refilter = FALSE;
+    state->rchanged = TRUE;
 }
 
 
@@ -814,6 +817,10 @@ static void menu_draw ( MenuState *state )
         int page = ( state->max_elements > 0 ) ? ( state->selected / state->max_elements ) : 0;
         offset             = page * state->max_elements;
         state->last_offset = offset;
+        if ( page != state->cur_page ) {
+            state->cur_page = page;
+            state->rchanged = TRUE;
+        }
     }
 
     // Re calculate the boxes and sizes, see if we can move this in the menu_calc*rowscolumns
@@ -841,27 +848,35 @@ static void menu_draw ( MenuState *state )
     for ( i = max_elements; i < state->max_elements; i++ ) {
         textbox_hide ( state->boxes[i] );
     }
-    // Move, resize visible boxes and show them.
-    for ( i = 0; i < max_elements; i++ ) {
-        unsigned int ex = ( ( i ) / state->max_rows ) * ( element_width + LINE_MARGIN );
-        unsigned int ey = ( ( i ) % state->max_rows ) * element_height + LINE_MARGIN;
-        // Move it around.
-        textbox_moveresize ( state->boxes[i],
-                             ex + x_offset, ey + y_offset,
-                             element_width, element_height );
-        if ( ( i + offset ) >= state->num_lines || state->filtered[i + offset] == NULL ) {
-            textbox_font ( state->boxes[i], NORMAL );
-            textbox_text ( state->boxes[i], "" );
+    if ( state->rchanged ) {
+        // Move, resize visible boxes and show them.
+        for ( i = 0; i < max_elements; i++ ) {
+            unsigned int ex = ( ( i ) / state->max_rows ) * ( element_width + LINE_MARGIN );
+            unsigned int ey = ( ( i ) % state->max_rows ) * element_height + LINE_MARGIN;
+            // Move it around.
+            textbox_moveresize ( state->boxes[i],
+                                 ex + x_offset, ey + y_offset,
+                                 element_width, element_height );
+            {
+                TextBoxFontType type  = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
+                char            *text = state->filtered[i + offset];
+                TextBoxFontType tbft  = ( i + offset ) == state->selected ? HIGHLIGHT : type;
+                textbox_font ( state->boxes[i], tbft );
+                textbox_text ( state->boxes[i], text );
+            }
+            textbox_show ( state->boxes[i] );
+            textbox_draw ( state->boxes[i] );
         }
-        else{
-            TextBoxFontType type  = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
-            char            *text = state->filtered[i + offset];
-            TextBoxFontType tbft  = ( i + offset ) == state->selected ? HIGHLIGHT : type;
+        state->rchanged = FALSE;
+    }
+    else{
+        // Only do basic redrawing + highlight of row.
+        for ( i = 0; i < max_elements; i++ ) {
+            TextBoxFontType type = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
+            TextBoxFontType tbft = ( i + offset ) == state->selected ? HIGHLIGHT : type;
             textbox_font ( state->boxes[i], tbft );
-            textbox_text ( state->boxes[i], text );
+            textbox_draw ( state->boxes[i] );
         }
-        textbox_show ( state->boxes[i] );
-        textbox_draw ( state->boxes[i] );
     }
 }
 
@@ -943,6 +958,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         // We want to filter on the first run.
         .refilter = TRUE,
         .update   = FALSE,
+        .rchanged = TRUE,
+        .cur_page =            -1,
         .lines    = lines
     };
     unsigned int i;

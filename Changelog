@@ -11,6 +11,7 @@
 		- One-off when pasting text.
 		- Improve rendering of boxes (fixed height 	and margins)
 		- Fix modi switcher boxes size+layout.
+		- Reduce work on redraws (do not always calculate new size/position), set text, etc.
 	Cleanup:
 		- Do not lug argc,argv around everywhere.
 

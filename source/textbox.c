@@ -57,9 +57,6 @@ Colormap     target_colormap;
 
 PangoContext *p_context = NULL;
 
-
-void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
-
 // Xft text box, optionally editable
 textbox* textbox_create ( Window parent,
                           XVisualInfo *vinfo,
@@ -168,6 +165,10 @@ void textbox_text ( textbox *tb, const char *text )
         }
     }
     pango_layout_set_text ( tb->layout, tb->text, strlen ( tb->text ) );
+    if ( tb->flags & TB_AUTOWIDTH ) {
+        textbox_moveresize ( tb, tb->x, tb->y, tb->w, tb->h );
+    }
+
 
     tb->cursor = MAX ( 0, MIN ( ( int ) strlen ( text ), tb->cursor ) );
 }
@@ -188,6 +189,7 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     }
 
     if ( tb->flags & TB_AUTOWIDTH ) {
+        pango_layout_set_width ( tb->layout, -1 );
         if ( w > 1 ) {
             w = MIN ( w, textbox_get_width ( tb ) );
         }
@@ -211,6 +213,7 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
         tb->w = MAX ( 1, w );
         tb->h = MAX ( 1, h );
         XMoveResizeWindow ( display, tb->window, tb->x, tb->y, tb->w, tb->h );
+        pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->w - 2 * SIDE_MARGIN ) );
     }
 }
 
@@ -272,7 +275,7 @@ void textbox_draw ( textbox *tb )
         cursor_x = pos.x / PANGO_SCALE;
     }
 
-    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->w - 2 * SIDE_MARGIN ) );
+//    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->w - 2 * SIDE_MARGIN ) );
 
 
     // Skip the side MARGIN on the X axis.
