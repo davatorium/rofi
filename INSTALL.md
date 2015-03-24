@@ -7,14 +7,15 @@
 * C compiler that supports the c99 standard. (gcc or clang)
 * make
 * autoconf
-* automake (1.14.0 or up)
-* Dev packages of the external libraries
+* automake (1.11.3 or up)
+* Developer packages of the external libraries
 
 ### External libraries
 
 * libxinerama
 * libxft
 * libpango
+* libpangoxft
 * libx11
 
 
@@ -118,5 +119,25 @@ or to install locally:
 ```
 CFLAGS="-I/weird/i3/path/include/" ../configure
 CFLAGS="-I/weird/i3/path/include/" make
+```
+
+## Options for make
+
+When you run make you can tweak the build process a little.
+
+### Verbose output
+
+Show the commands called:
+
+```
+make V=1
+```
+
+### Debug build
+
+Compile with debug symbols and no optimization
+
+```
+make CFLAGS="-O0 -g3" clean rofi
 ```
 

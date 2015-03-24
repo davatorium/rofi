@@ -52,3 +52,18 @@ AC_SUBST([EXTRA_CFLAGS], ["-Wall -Wextra -Wparentheses -Winline -pedantic"])
 
 AC_CONFIG_FILES([Makefile ])
 AC_OUTPUT
+
+dnl -----------------------------------------------
+dnl Some output to easily spot if I3 is enabled.
+dnl -----------------------------------------------
+
+echo ""
+echo "-------------------------------------"
+if test x$i3_header = xyes; then
+echo "I3 support:                  Enabled"
+else
+echo "I3 support:                  Disabled"
+fi
+echo "-------------------------------------"
+echo "Now type 'make' to build"
+echo ""
