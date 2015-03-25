@@ -50,11 +50,11 @@
 #include "x11-helper.h"
 #include "xrmoptions.h"
 // Switchers.
-#include "dialogs/run-dialog.h"
-#include "dialogs/ssh-dialog.h"
-#include "dialogs/dmenu-dialog.h"
-#include "dialogs/script-dialog.h"
-#include "dialogs/window-dialog.h"
+#include "dialogs/run.h"
+#include "dialogs/ssh.h"
+#include "dialogs/dmenu.h"
+#include "dialogs/script.h"
+#include "dialogs/window.h"
 
 #define LINE_MARGIN    3
 

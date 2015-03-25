@@ -35,7 +35,7 @@
 #include <ctype.h>
 #include <assert.h>
 #include "rofi.h"
-#include "dialogs/script-dialog.h"
+#include "dialogs/script.h"
 #include "helper.h"
 
 

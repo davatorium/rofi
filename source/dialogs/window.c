@@ -39,7 +39,7 @@
 #include "helper.h"
 #include "x11-helper.h"
 #include "i3-support.h"
-#include "dialogs/window-dialog.h"
+#include "dialogs/window.h"
 
 
 #define WINLIST        32

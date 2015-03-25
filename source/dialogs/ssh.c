@@ -42,7 +42,7 @@
 
 #include "rofi.h"
 #include "history.h"
-#include "dialogs/ssh-dialog.h"
+#include "dialogs/ssh.h"
 
 #define SSH_CACHE_FILE    "rofi-2.sshcache"
 

@@ -33,11 +33,11 @@ rofi_SOURCES=\
     config/config.c\
 	source/helper.c\
 	source/x11-helper.c\
-    source/dialogs/dmenu-dialog.c\
-    source/dialogs/run-dialog.c\
-    source/dialogs/window-dialog.c\
-    source/dialogs/ssh-dialog.c\
-    source/dialogs/script-dialog.c\
+    source/dialogs/dmenu.c\
+    source/dialogs/run.c\
+    source/dialogs/window.c\
+    source/dialogs/ssh.c\
+    source/dialogs/script.c\
     include/rofi.h\
     include/i3-support.h\
     include/xrmoptions.h\
@@ -45,11 +45,11 @@ rofi_SOURCES=\
     include/textbox.h\
 	include/helper.h\
 	include/x11-helper.h\
-    include/dialogs/run-dialog.h\
-    include/dialogs/window-dialog.h\
-    include/dialogs/ssh-dialog.h\
-    include/dialogs/dmenu-dialog.h\
-    include/dialogs/script-dialog.h
+    include/dialogs/run.h\
+    include/dialogs/window.h\
+    include/dialogs/ssh.h\
+    include/dialogs/dmenu.h\
+    include/dialogs/script.h
 
 ##
 # Manpage
