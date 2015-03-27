@@ -1263,7 +1263,6 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         }
     }
 
-    release_keyboard ( display );
     // Update input string.
     g_free ( *input );
     *input = g_strdup ( state.text->text );
@@ -1522,6 +1521,7 @@ static void cleanup ()
     // Cleanup
     if ( display != NULL ) {
         if ( main_window != None ) {
+            release_keyboard ( display );
             XFreeGC ( display, gc );
             XDestroyWindow ( display, main_window );
             XCloseDisplay ( display );
