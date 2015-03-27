@@ -109,11 +109,11 @@ static int ssh_sort_func ( const void *a, const void *b )
     const char *bstr = *( const char * const * ) b;
     return g_utf8_collate ( astr, bstr );
 }
-static char ** get_ssh ( unsigned int *length )
+static char ** get_ssh (  unsigned int *length )
 {
+    char         **retv        = NULL;
     unsigned int num_favorites = 0;
     char         *path;
-    char         **retv = NULL;
 
     if ( getenv ( "HOME" ) == NULL ) {
         return NULL;
@@ -191,47 +191,80 @@ static char ** get_ssh ( unsigned int *length )
     return retv;
 }
 
-SwitcherMode ssh_switcher_dialog ( char **input, G_GNUC_UNUSED void *data )
+typedef struct _SSHModePrivateData
 {
-    SwitcherMode retv = MODE_EXIT;
-    // act as a launcher
-    unsigned int cmd_list_length = 0;
-    char         **cmd_list      = get_ssh ( &cmd_list_length );
+    unsigned int id;
+    char         **cmd_list;
+    unsigned int cmd_list_length;
+} SSHModePrivateData;
 
-    if ( cmd_list == NULL ) {
-        cmd_list    = g_malloc_n ( 2, sizeof ( char * ) );
-        cmd_list[0] = g_strdup ( "No ssh hosts found" );
-        cmd_list[1] = NULL;
+static void ssh_mode_init ( Switcher *sw )
+{
+    if ( sw->private_data == NULL ) {
+        SSHModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
+        sw->private_data = (void *) pd;
     }
+}
 
-    int shift         = 0;
-    int selected_line = 0;
-    int mretv         = menu ( cmd_list, cmd_list_length, input, "ssh:",
-                               NULL, &shift, token_match, NULL, &selected_line,
-                               config.levenshtein_sort );
-
-    if ( mretv == MENU_NEXT ) {
+static char ** ssh_mode_get_data ( unsigned int *length, Switcher *sw )
+{
+    SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
+    if ( rmpd->cmd_list == NULL ) {
+        rmpd->cmd_list_length = 0;
+        rmpd->cmd_list        = get_ssh ( &( rmpd->cmd_list_length ) );
+    }
+    *length = rmpd->cmd_list_length;
+    return rmpd->cmd_list;
+}
+static SwitcherMode ssh_mode_result ( int mretv, char **input, unsigned int selected_line, Switcher *sw )
+{
+    SwitcherMode       retv  = MODE_EXIT;
+    SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
+    if ( mretv & MENU_NEXT ) {
         retv = NEXT_DIALOG;
     }
-    else if ( mretv == MENU_PREVIOUS ) {
+    else if ( mretv & MENU_PREVIOUS ) {
         retv = PREVIOUS_DIALOG;
     }
-    else if ( mretv == MENU_QUICK_SWITCH ) {
+    else if ( mretv & MENU_QUICK_SWITCH ) {
         retv = selected_line;
     }
-    else if ( mretv == MENU_OK && cmd_list[selected_line] != NULL ) {
-        exec_ssh ( cmd_list[selected_line] );
+    else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
+        exec_ssh ( rmpd->cmd_list[selected_line] );
     }
-    else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' ) {
+    else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
         exec_ssh ( *input );
     }
-    else if ( mretv == MENU_ENTRY_DELETE && cmd_list[selected_line] ) {
-        delete_ssh ( cmd_list[selected_line] );
+    else if ( ( mretv & MENU_ENTRY_DELETE ) && rmpd->cmd_list[selected_line] ) {
+        delete_ssh ( rmpd->cmd_list[selected_line] );
         // Stay
         retv = RELOAD_DIALOG;
     }
-
-    g_strfreev ( cmd_list );
-
     return retv;
 }
+
+static void ssh_mode_destroy ( Switcher *sw )
+{
+    SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
+    if ( rmpd != NULL ) {
+        g_strfreev ( rmpd->cmd_list );
+        g_free ( rmpd );
+        sw->private_data = NULL;
+    }
+}
+
+Switcher ssh_mode =
+{
+    .name         = "ssh",
+    .tb           = NULL,
+    .keycfg       = NULL,
+    .keystr       = NULL,
+    .modmask      = AnyModifier,
+    .init         = ssh_mode_init,
+    .get_data     = ssh_mode_get_data,
+    .result       = ssh_mode_result,
+    .destroy      = ssh_mode_destroy,
+    .token_match  = token_match,
+    .private_data = NULL,
+    .free         = NULL
+};

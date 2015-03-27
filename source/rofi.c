@@ -58,6 +58,10 @@
 
 #define LINE_MARGIN    3
 
+
+// TEMP
+SwitcherMode switcher_run ( char **input, Switcher *sw );
+
 typedef enum _MainLoopEvent
 {
     ML_XEVENT,
@@ -73,31 +77,9 @@ char       *display_str     = NULL;
 const char *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 Atom       netatoms[NUM_NETATOMS];
 
-/**
- * Structure defining a switcher.
- * It consists of a name, callback and if enabled
- * a textbox for the sidebar-mode.
- */
-typedef struct _Switcher
-{
-    // Name (max 31 char long)
-    char                        name[32];
-    // Switcher callback.
-    switcher_callback           cb;
-    // Callback data.
-    void                        *cb_data;
-    switcher_callback_free_data cb_data_free;
-    // Textbox used in the sidebar-mode.
-    textbox                     *tb;
-    // Keybindings (keysym and modmask)
-    char                        * keycfg;
-    char                        * keystr;
-    KeySym                      keysym;
-    unsigned int                modmask;
-} Switcher;
 
 // Array of switchers.
-Switcher     *switchers = NULL;
+Switcher     **switchers = NULL;
 // Number of switchers.
 unsigned int num_switchers = 0;
 // Current selected switcher.
@@ -113,7 +95,7 @@ unsigned int curr_switcher = 0;
 static int switcher_get ( const char *name )
 {
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
-        if ( strcmp ( switchers[i].name, name ) == 0 ) {
+        if ( strcmp ( switchers[i]->name, name ) == 0 ) {
             return i;
         }
     }
@@ -561,9 +543,9 @@ static int locate_switcher ( KeySym key, unsigned int modstate )
     // ignore annoying modifiers
     unsigned int modstate_filtered = modstate & ~( LockMask | NumlockMask );
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
-        if ( switchers[i].keystr != NULL ) {
-            if ( ( modstate_filtered == switchers[i].modmask ) &&
-                 switchers[i].keysym == key ) {
+        if ( switchers[i]->keystr != NULL ) {
+            if ( ( modstate_filtered == switchers[i]->modmask ) &&
+                 switchers[i]->keysym == key ) {
                 return i;
             }
         }
@@ -708,7 +690,7 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
     }
     else {
         for ( unsigned int i = 0; config.sidebar_mode == TRUE && i < num_switchers; i++ ) {
-            if ( switchers[i].tb->window == ( xbe->window ) ) {
+            if ( switchers[i]->tb->window == ( xbe->window ) ) {
                 *( state->selected_line ) = i;
                 state->retv               = MENU_QUICK_SWITCH;
                 state->quit               = TRUE;
@@ -905,7 +887,7 @@ static void menu_update ( MenuState *state )
                     state->w - ( ( config.padding ) ) - 1,
                     state->h - state->line_height - ( config.padding ) - LINE_MARGIN );
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
-            textbox_draw ( switchers[j].tb );
+            textbox_draw ( switchers[j]->tb );
         }
     }
 
@@ -941,8 +923,9 @@ static void menu_paste ( MenuState *state, XSelectionEvent *xse )
 }
 
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt, Time *time,
-                  int *shift, menu_match_cb mmc, void *mmc_data, int *selected_line, int sorting )
+                  menu_match_cb mmc, void *mmc_data, int *selected_line, int sorting )
 {
+    int          shift = FALSE;
     MenuState    state = {
         .selected_line     = selected_line,
         .retv              = MENU_CANCEL,
@@ -1078,11 +1061,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     if ( config.sidebar_mode == TRUE ) {
         int width = ( state.w - ( 2 * ( config.padding ) + ( num_switchers - 1 ) * LINE_MARGIN ) ) / num_switchers;
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
-            switchers[j].tb = textbox_create ( main_window, &vinfo, map, TB_CENTER,
-                                               config.padding + j * ( width + LINE_MARGIN ),
-                                               state.h - state.line_height - config.padding,
-                                               width, state.line_height, ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, switchers[j].name );
-            textbox_show ( switchers[j].tb );
+            switchers[j]->tb = textbox_create ( main_window, &vinfo, map, TB_CENTER,
+                                                config.padding + j * ( width + LINE_MARGIN ),
+                                                state.h - state.line_height - config.padding,
+                                                width, state.line_height, ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, switchers[j]->name );
+            textbox_show ( switchers[j]->tb );
         }
     }
 
@@ -1243,9 +1226,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                     int rc = textbox_keypress ( state.text, &ev );
                     // Row is accepted.
                     if ( rc < 0 ) {
-                        if ( shift != NULL ) {
-                            ( *shift ) = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
-                        }
+                        shift = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
 
                         // If a valid item is selected, return that..
                         if ( state.selected < state.filtered_lines && state.filtered[state.selected] != NULL ) {
@@ -1290,12 +1271,16 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     int retv = state.retv;
     menu_free_state ( &state );
 
+    if ( shift ) {
+        retv |= MENU_SHIFT;
+    }
+
     // Free the switcher boxes.
     // When state is free'ed we should no longer need these.
     if ( config.sidebar_mode == TRUE ) {
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
-            textbox_free ( switchers[j].tb );
-            switchers[j].tb = NULL;
+            textbox_free ( switchers[j]->tb );
+            switchers[j]->tb = NULL;
         }
     }
 
@@ -1449,36 +1434,40 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
                     config.menu_hlbg,
                     config.menu_hlfg );
     // Otherwise check if requested mode is enabled.
-    if ( switchers[mode].cb != NULL ) {
-        char *input = NULL;
-        do {
-            SwitcherMode retv;
+    char *input = NULL;
+    for ( unsigned int i = 0; i < num_switchers; i++ ) {
+        switchers[i]->init ( switchers[i] );
+    }
+    do {
+        SwitcherMode retv;
 
-            curr_switcher = mode;
-            retv          = switchers[mode].cb ( &input, switchers[mode].cb_data );
-            // Find next enabled
-            if ( retv == NEXT_DIALOG ) {
-                mode = ( mode + 1 ) % num_switchers;
-            }
-            else if ( retv == PREVIOUS_DIALOG ) {
-                if ( mode == 0 ) {
-                    mode = num_switchers - 1;
-                }
-                else {
-                    mode = ( mode - 1 ) % num_switchers;
-                }
-            }
-            else if ( retv == RELOAD_DIALOG ) {
-                // do nothing.
-            }
-            else if ( retv < MODE_EXIT ) {
-                mode = ( retv ) % num_switchers;
+        curr_switcher = mode;
+        retv          = switcher_run ( &input, switchers[mode] );
+        // Find next enabled
+        if ( retv == NEXT_DIALOG ) {
+            mode = ( mode + 1 ) % num_switchers;
+        }
+        else if ( retv == PREVIOUS_DIALOG ) {
+            if ( mode == 0 ) {
+                mode = num_switchers - 1;
             }
             else {
-                mode = retv;
+                mode = ( mode - 1 ) % num_switchers;
             }
-        } while ( mode != MODE_EXIT );
-        g_free ( input );
+        }
+        else if ( retv == RELOAD_DIALOG ) {
+            // do nothing.
+        }
+        else if ( retv < MODE_EXIT ) {
+            mode = ( retv ) % num_switchers;
+        }
+        else {
+            mode = retv;
+        }
+    } while ( mode != MODE_EXIT );
+    g_free ( input );
+    for ( unsigned int i = 0; i < num_switchers; i++ ) {
+        switchers[i]->destroy ( switchers[i] );
     }
 
     // Cleanup font setup.
@@ -1546,14 +1535,14 @@ static void cleanup ()
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
-        // only used for script dialog.
-        if ( switchers[i].cb_data_free != NULL ) {
-            switchers[i].cb_data_free ( switchers[i].cb_data );
-        }
         // Switcher keystr is free'ed when needed by config system.
-        if ( switchers[i].keycfg != NULL ) {
-            g_free ( switchers[i].keycfg );
-            switchers[i].keycfg = NULL;
+        if ( switchers[i]->keycfg != NULL ) {
+            g_free ( switchers[i]->keycfg );
+            switchers[i]->keycfg = NULL;
+        }
+        // only used for script dialog.
+        if ( switchers[i]->free != NULL ) {
+            switchers[i]->free ( switchers[i] );
         }
     }
     g_free ( switchers );
@@ -1576,42 +1565,29 @@ static void setup_switchers ( void )
           token != NULL;
           token = strtok_r ( NULL, ",", &savept ) ) {
         // Resize and add entry.
-        switchers = (Switcher *) g_realloc ( switchers,
-                                             sizeof ( Switcher ) * ( num_switchers + 1 ) );
-        switchers[num_switchers].cb_data      = NULL;
-        switchers[num_switchers].cb_data_free = NULL;
-        switchers[num_switchers].keystr       = NULL;
-        switchers[num_switchers].keycfg       = NULL;
-        switchers[num_switchers].keysym       = None;
-        switchers[num_switchers].modmask      = AnyModifier;
+        switchers = (Switcher * *) g_realloc ( switchers,
+                                               sizeof ( Switcher* ) * ( num_switchers + 1 ) );
 
         // Window switcher.
         if ( strcasecmp ( token, "window" ) == 0 ) {
-            g_strlcpy ( switchers[num_switchers].name, "window", 32 );
-            switchers[num_switchers].cb = run_switcher_window;
+            switchers[num_switchers] = &window_mode;
             num_switchers++;
         }
         // SSh dialog
         else if ( strcasecmp ( token, "ssh" ) == 0 ) {
-            g_strlcpy ( switchers[num_switchers].name, "ssh", 32 );
-            switchers[num_switchers].cb = ssh_switcher_dialog;
+            switchers[num_switchers] = &ssh_mode;
             num_switchers++;
         }
         // Run dialog
         else if ( strcasecmp ( token, "run" ) == 0 ) {
-            g_strlcpy ( switchers[num_switchers].name, "run", 32 );
-            switchers[num_switchers].cb = run_switcher_dialog;
+            switchers[num_switchers] = &run_mode;
             num_switchers++;
         }
         else {
             // If not build in, use custom switchers.
-            ScriptOptions *sw = script_switcher_parse_setup ( token );
+            Switcher *sw = script_switcher_parse_setup ( token );
             if ( sw != NULL ) {
-                // Resize and add entry.
-                g_strlcpy ( switchers[num_switchers].name, sw->name, 32 );
-                switchers[num_switchers].cb           = script_switcher_dialog;
-                switchers[num_switchers].cb_data      = sw;
-                switchers[num_switchers].cb_data_free = script_switcher_free_options;
+                switchers[num_switchers] = sw;
                 num_switchers++;
             }
             else{
@@ -1627,10 +1603,10 @@ static void setup_switchers ( void )
     // We cannot do this in main loop, as we create pointer to string,
     // and re-alloc moves that pointer.
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
-        switchers[i].keycfg = g_strdup_printf ( "key-%s", switchers[i].name );
+        switchers[i]->keycfg = g_strdup_printf ( "key-%s", switchers[i]->name );
         config_parser_add_option ( xrm_String,
-                                   switchers[i].keycfg,
-                                   (void * *) &( switchers[i].keystr ) );
+                                   switchers[i]->keycfg,
+                                   (void * *) &( switchers[i]->keystr ) );
     }
 }
 
@@ -1809,9 +1785,9 @@ int main ( int argc, char *argv[] )
     else{
         // Daemon mode, Listen to key presses..
         for ( unsigned int i = 0; i < num_switchers; i++ ) {
-            if ( switchers[i].keystr != NULL ) {
-                x11_parse_key ( switchers[i].keystr, &( switchers[i].modmask ), &( switchers[i].keysym ) );
-                x11_grab_key ( display, switchers[i].modmask, switchers[i].keysym );
+            if ( switchers[i]->keystr != NULL ) {
+                x11_parse_key ( switchers[i]->keystr, &( switchers[i]->modmask ), &( switchers[i]->keysym ) );
+                x11_grab_key ( display, switchers[i]->modmask, switchers[i]->keysym );
             }
         }
         // Setup handler for sighup (reload config)
@@ -1843,3 +1819,33 @@ int main ( int argc, char *argv[] )
 
     return EXIT_SUCCESS;
 }
+
+
+SwitcherMode switcher_run ( char **input, Switcher *sw )
+{
+    int          selected_line   = 0;
+    SwitcherMode retv            = MODE_EXIT;
+    unsigned int cmd_list_length = 0;
+    char         **cmd_list      = NULL;
+
+    cmd_list = sw->get_data ( &cmd_list_length, sw );
+
+    if ( cmd_list == NULL ) {
+        cmd_list    = g_malloc_n ( 2, sizeof ( char * ) );
+        cmd_list[0] = g_strdup ( "No applications found" );
+        cmd_list[1] = NULL;
+    }
+
+    char *prompt = g_strdup_printf ( "%s:", sw->name );
+
+    int  mretv = menu ( cmd_list, cmd_list_length, input, prompt,
+                        NULL, sw->token_match, sw, &selected_line,
+                        config.levenshtein_sort );
+
+    retv = sw->result ( mretv, input, selected_line, sw );
+
+    g_free ( prompt );
+
+    return retv;
+}
+

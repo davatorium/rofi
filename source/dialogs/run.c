@@ -152,9 +152,8 @@ static char ** get_apps_external ( char **retv, unsigned int *length, unsigned i
                 }
 
                 // No duplicate, add it.
-                retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-                retv[( *length )]     = g_strdup ( buffer );
-                retv[( *length ) + 1] = NULL;
+                retv              = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
+                retv[( *length )] = g_strdup ( buffer );
 
 
                 ( *length )++;
@@ -162,14 +161,16 @@ static char ** get_apps_external ( char **retv, unsigned int *length, unsigned i
             fclose ( inp );
         }
     }
+    retv[( *length ) ] = NULL;
     return retv;
 }
 
 /**
  * Internal spider used to get list of executables.
  */
-static char ** get_apps ( char **retv, unsigned int *length )
+static char ** get_apps ( unsigned int *length )
 {
+    char         **retv        = NULL;
     unsigned int num_favorites = 0;
     char         *path;
 
@@ -263,47 +264,85 @@ static char ** get_apps ( char **retv, unsigned int *length )
     return retv;
 }
 
-SwitcherMode run_switcher_dialog ( char **input, G_GNUC_UNUSED void *data )
+typedef struct _RunModePrivateData
 {
-    int          shift         = 0;
-    int          selected_line = 0;
-    SwitcherMode retv          = MODE_EXIT;
-    // act as a launcher
-    unsigned int cmd_list_length = 0;
-    char         **cmd_list      = NULL;
-    cmd_list = get_apps ( cmd_list, &cmd_list_length );
+    unsigned int id;
+    char         **cmd_list;
+    unsigned int cmd_list_length;
+} RunModePrivateData;
 
-    if ( cmd_list == NULL ) {
-        cmd_list    = g_malloc_n ( 2, sizeof ( char * ) );
-        cmd_list[0] = g_strdup ( "No applications found" );
-        cmd_list[1] = NULL;
+
+static void run_mode_init ( Switcher *sw )
+{
+    if ( sw->private_data == NULL ) {
+        RunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
+        sw->private_data = (void *) pd;
     }
+}
 
-    int mretv = menu ( cmd_list, cmd_list_length, input, "run:",
-                       NULL, &shift, token_match, NULL, &selected_line,
-                       config.levenshtein_sort );
+static char ** run_mode_get_data ( unsigned int *length, Switcher *sw )
+{
+    RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
+    if ( rmpd->cmd_list == NULL ) {
+        rmpd->cmd_list_length = 0;
+        rmpd->cmd_list        = get_apps ( &( rmpd->cmd_list_length ) );
+    }
+    *length = rmpd->cmd_list_length;
+    return rmpd->cmd_list;
+}
 
-    if ( mretv == MENU_NEXT ) {
+static SwitcherMode run_mode_result ( int mretv, char **input, unsigned int selected_line, Switcher *sw )
+{
+    RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
+    SwitcherMode       retv  = MODE_EXIT;
+
+    int                shift = ( ( mretv & MENU_SHIFT ) == MENU_SHIFT );
+
+    if ( mretv & MENU_NEXT ) {
         retv = NEXT_DIALOG;
     }
-    else if ( mretv == MENU_PREVIOUS ) {
+    else if ( mretv & MENU_PREVIOUS ) {
         retv = PREVIOUS_DIALOG;
     }
-    else if ( mretv == MENU_QUICK_SWITCH ) {
+    else if ( mretv & MENU_QUICK_SWITCH ) {
         retv = selected_line;
     }
-    else if ( mretv == MENU_OK && cmd_list[selected_line] != NULL ) {
-        exec_cmd ( cmd_list[selected_line], shift );
+    else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
+        exec_cmd ( rmpd->cmd_list[selected_line], shift );
     }
-    else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' ) {
+    else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
         exec_cmd ( *input, shift );
     }
-    else if ( mretv == MENU_ENTRY_DELETE && cmd_list[selected_line] ) {
-        delete_entry ( cmd_list[selected_line] );
+    else if ( ( mretv & MENU_ENTRY_DELETE ) && rmpd->cmd_list[selected_line] ) {
+        delete_entry ( rmpd->cmd_list[selected_line] );
         retv = RELOAD_DIALOG;
     }
-
-    g_strfreev ( cmd_list );
-
     return retv;
 }
+
+
+static void run_mode_destroy ( Switcher *sw )
+{
+    RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
+    if ( rmpd != NULL ) {
+        g_strfreev ( rmpd->cmd_list );
+        g_free ( rmpd );
+        sw->private_data = NULL;
+    }
+}
+
+Switcher run_mode =
+{
+    .name         = "run",
+    .tb           = NULL,
+    .keycfg       = NULL,
+    .keystr       = NULL,
+    .modmask      = AnyModifier,
+    .init         = run_mode_init,
+    .get_data     = run_mode_get_data,
+    .result       = run_mode_result,
+    .destroy      = run_mode_destroy,
+    .token_match  = token_match,
+    .private_data = NULL,
+    .free         = NULL
+};

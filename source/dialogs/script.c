@@ -42,7 +42,7 @@
 
 
 
-static char **get_script_output ( char *command, unsigned int *length )
+static char **get_script_output ( const char *command, unsigned int *length )
 {
     char **retv = NULL;
 
@@ -70,101 +70,131 @@ static char **get_script_output ( char *command, unsigned int *length )
     return retv;
 }
 
-static char **execute_executor ( ScriptOptions *options, const char *result, unsigned int *length )
+static char **execute_executor ( Switcher *sw, const char *result, unsigned int *length )
 {
     char **retv = NULL;
 
     char *arg     = g_shell_quote ( result );
-    char *command = g_strdup_printf ( "%s %s", options->script_path, arg );
+    char *command = g_strdup_printf ( "%s %s", (const char *) sw->ed, arg );
     retv = get_script_output ( command, length );
     g_free ( command );
     g_free ( arg );
     return retv;
 }
 
-SwitcherMode script_switcher_dialog ( char **input, void *data )
+static void script_switcher_free ( Switcher *sw )
 {
-    ScriptOptions *options = (ScriptOptions *) data;
-    assert ( options != NULL );
-    int           selected_line = 0;
-    SwitcherMode  retv          = MODE_EXIT;
-    unsigned int  length        = 0;
-    char          **list        = get_script_output ( options->script_path, &length );
-    char          *prompt       = g_strdup_printf ( "%s:", options->name );
-
-    do {
-        unsigned int new_length = 0;
-        char         **new_list = NULL;
-        int          mretv      = menu ( list, length, input, prompt, NULL, NULL,
-                                         token_match, NULL, &selected_line, FALSE );
-
-        if ( mretv == MENU_NEXT ) {
-            retv = NEXT_DIALOG;
-        }
-        else if ( mretv == MENU_PREVIOUS ) {
-            retv = PREVIOUS_DIALOG;
-        }
-        else if ( mretv == MENU_QUICK_SWITCH ) {
-            retv = selected_line;
-        }
-        else if ( mretv == MENU_OK && list[selected_line] != NULL ) {
-            new_list = execute_executor ( options, list[selected_line], &new_length );
-        }
-        else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' ) {
-            new_list = execute_executor ( options, *input, &new_length );
-        }
-
-        // Free old list.
-        g_strfreev ( list );
-        list = NULL;
-
-        // If a new list was generated, use that an loop around.
-        if ( new_list != NULL ) {
-            list   = new_list;
-            length = new_length;
-            g_free ( *input );
-            *input = NULL;
-        }
-    } while ( list != NULL );
-
-    g_free ( prompt );
-    return retv;
-}
-
-void script_switcher_free_options ( void *data )
-{
-    ScriptOptions *sw = (ScriptOptions *) data;
     if ( sw == NULL ) {
         return;
     }
-    g_free ( sw->name );
-    g_free ( sw->script_path );
+    g_free ( sw->ed );
     g_free ( sw );
 }
 
-
-ScriptOptions *script_switcher_parse_setup ( const char *str )
+typedef struct _ScriptModePrivateData
 {
-    ScriptOptions *sw    = g_malloc0 ( sizeof ( *sw ) );
-    char          *endp  = NULL;
-    char          *parse = g_strdup ( str );
-    unsigned int  index  = 0;
+    unsigned int id;
+    char         **cmd_list;
+    unsigned int cmd_list_length;
+} ScriptModePrivateData;
+
+
+static void script_mode_init ( Switcher *sw )
+{
+    if ( sw->private_data == NULL ) {
+        ScriptModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
+        sw->private_data = (void *) pd;
+    }
+}
+static char ** script_mode_get_data ( unsigned int *length, Switcher *sw )
+{
+    ScriptModePrivateData *rmpd = (ScriptModePrivateData *) sw->private_data;
+    if ( rmpd->cmd_list == NULL ) {
+        rmpd->cmd_list_length = 0;
+        rmpd->cmd_list        = get_script_output ( (const char *) sw->ed, &( rmpd->cmd_list_length ) );
+    }
+    *length = rmpd->cmd_list_length;
+    return rmpd->cmd_list;
+}
+
+static SwitcherMode script_mode_result ( int mretv, char **input, unsigned int selected_line, Switcher *sw )
+{
+    ScriptModePrivateData *rmpd      = (ScriptModePrivateData *) sw->private_data;
+    SwitcherMode          retv       = MODE_EXIT;
+    char                  **new_list = NULL;
+    unsigned int          new_length = 0;
+
+    if ( ( mretv & MENU_NEXT ) ) {
+        retv = NEXT_DIALOG;
+    }
+    else if ( ( mretv & MENU_PREVIOUS ) ) {
+        retv = PREVIOUS_DIALOG;
+    }
+    else if ( ( mretv & MENU_QUICK_SWITCH ) ) {
+        retv = selected_line;
+    }
+    else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
+        new_list = execute_executor ( sw, rmpd->cmd_list[selected_line], &new_length );
+    }
+    else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
+        new_list = execute_executor ( sw, *input, &new_length );
+    }
+
+
+    // If a new list was generated, use that an loop around.
+    if ( new_list != NULL ) {
+        g_strfreev ( rmpd->cmd_list );
+
+        rmpd->cmd_list        = new_list;
+        rmpd->cmd_list_length = new_length;
+        g_free ( *input );
+        *input = NULL;
+        retv   = RELOAD_DIALOG;
+    }
+    return retv;
+}
+
+static void script_mode_destroy ( Switcher *sw )
+{
+    ScriptModePrivateData *rmpd = (ScriptModePrivateData *) sw->private_data;
+    if ( rmpd != NULL ) {
+        g_strfreev ( rmpd->cmd_list );
+        g_free ( rmpd );
+        sw->private_data = NULL;
+    }
+}
+
+Switcher *script_switcher_parse_setup ( const char *str )
+{
+    Switcher     *sw    = g_malloc0 ( sizeof ( *sw ) );
+    char         *endp  = NULL;
+    char         *parse = g_strdup ( str );
+    unsigned int index  = 0;
     for ( char *token = strtok_r ( parse, ":", &endp ); token != NULL; token = strtok_r ( NULL, ":", &endp ) ) {
         if ( index == 0 ) {
-            sw->name = g_strdup ( token );
+            g_strlcpy ( sw->name, token, 32 );
         }
         else if ( index == 1 ) {
-            sw->script_path = g_strdup ( token );
+            sw->ed = (void *) g_strdup ( token );
         }
         index++;
     }
     g_free ( parse );
     if ( index == 2 ) {
+        sw->free        = script_switcher_free;
+        sw->keysym      = None;
+        sw->modmask     = AnyModifier;
+        sw->init        = script_mode_init;
+        sw->get_data    = script_mode_get_data;
+        sw->result      = script_mode_result;
+        sw->destroy     = script_mode_destroy;
+        sw->token_match = token_match;
+
         return sw;
     }
     fprintf ( stderr, "The script command '%s' has %u options, but needs 2: <name>:<script>.\n",
               str, index );
-    script_switcher_free_options ( sw );
+    script_switcher_free ( sw );
     return NULL;
 }
 

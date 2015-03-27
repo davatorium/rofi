@@ -318,7 +318,7 @@ int find_arg_char ( const char * const key, char *val )
  */
 int token_match ( char **tokens, const char *input, int case_sensitive,
                   __attribute__( ( unused ) ) int index,
-                  __attribute__( ( unused ) ) void *data )
+                  __attribute__( ( unused ) ) Switcher *data )
 {
     int  match  = 1;
     char *compk = token_collate_key ( input, case_sensitive );
@@ -333,7 +333,7 @@ int token_match ( char **tokens, const char *input, int case_sensitive,
     return match;
 }
 
-int execute_generator ( char * cmd )
+int execute_generator ( const char * cmd )
 {
     char **args = NULL;
     int  argv   = 0;

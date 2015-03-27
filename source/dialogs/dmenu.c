@@ -83,13 +83,12 @@ int dmenu_switcher_dialog ( char **input )
     find_arg_int (  "-l", &selected_line );
 
     do {
-        int shift = 0;
-        int mretv = menu ( list, length, input, dmenu_prompt, NULL, &shift,
+        int mretv = menu ( list, length, input, dmenu_prompt, NULL,
                            token_match, NULL, &selected_line, FALSE );
 
         // We normally do not want to restart the loop.
         restart = FALSE;
-        if ( mretv == MENU_OK && list[selected_line] != NULL ) {
+        if ( ( mretv & MENU_OK ) && list[selected_line] != NULL ) {
             if ( number_mode ) {
                 fprintf ( stdout, "%d", selected_line );
             }
@@ -98,20 +97,20 @@ int dmenu_switcher_dialog ( char **input )
             }
             fputc ( '\n', stdout );
             fflush ( stdout );
-            if ( shift ) {
+            if ( ( mretv & MENU_SHIFT ) ) {
                 restart = TRUE;
                 // Move to next line.
                 selected_line = MIN ( selected_line + 1, length - 1 );
             }
             retv = TRUE;
         }
-        else if ( mretv == MENU_CUSTOM_INPUT && *input != NULL && *input[0] != '\0' ) {
+        else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
             if ( !number_mode ) {
                 fputs ( *input, stdout );
                 fputc ( '\n', stdout );
                 fflush ( stdout );
             }
-            if ( shift ) {
+            if ( ( mretv & MENU_SHIFT ) ) {
                 restart = TRUE;
                 // Move to next line.
                 selected_line = MIN ( selected_line + 1, length - 1 );

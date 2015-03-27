@@ -12,6 +12,7 @@
 		- Improve rendering of boxes (fixed height 	and margins)
 		- Fix modi switcher boxes size+layout.
 		- Reduce work on redraws (do not always calculate new size/position), set text, etc.
+		- OO-ify the switchers.
 	Cleanup:
 		- Do not lug argc,argv around everywhere.
 

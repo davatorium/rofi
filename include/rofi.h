@@ -2,6 +2,7 @@
 #define __SIMPLESWITCHER_H__
 #include <X11/X.h>
 #include <glib.h>
+#include <textbox.h>
 
 
 /**
@@ -9,7 +10,7 @@
  */
 extern const char *cache_dir;
 
-
+typedef struct _Switcher   Switcher;
 /**
  * Enum used to sum the possible states of ROFI.
  */
@@ -34,7 +35,7 @@ typedef enum
  * @returns SwitcherMode
  */
 typedef SwitcherMode ( *switcher_callback )( char **input, void *data );
-typedef void ( *switcher_callback_free_data )( void *data );
+typedef void ( *switcher_free )( Switcher *data );
 
 /**
  * State returned by the rofi window.
@@ -42,19 +43,21 @@ typedef void ( *switcher_callback_free_data )( void *data );
 typedef enum
 {
     /** Entry is selected. */
-    MENU_OK           = 0,
+    MENU_OK           = 0x1,
     /** User canceled the operation. (e.g. pressed escape) */
-    MENU_CANCEL       = -1,
+    MENU_CANCEL       = 0x2,
     /** User requested a mode switch */
-    MENU_NEXT         = -2,
+    MENU_NEXT         = 0x4,
     /** Custom (non-matched) input was entered. */
-    MENU_CUSTOM_INPUT = -3,
+    MENU_CUSTOM_INPUT = 0x8,
     /** User wanted to delete entry from history. */
-    MENU_ENTRY_DELETE = -4,
+    MENU_ENTRY_DELETE = 0x10,
     /** User wants to jump to another switcher. */
-    MENU_QUICK_SWITCH = -5,
+    MENU_QUICK_SWITCH = 0x20,
     /** Go to the previous menu. */
-    MENU_PREVIOUS     = -6
+    MENU_PREVIOUS     = 0x40,
+    /** Modifiers */
+    MENU_SHIFT        = 0x1000
 } MenuReturn;
 
 
@@ -69,7 +72,7 @@ typedef enum
  *
  * @returns 1 when it matches, 0 if not.
  */
-typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensitive, int index, void *data );
+typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensitive, int index, Switcher *data );
 
 /**
  * @param lines An array of strings to display.
@@ -87,9 +90,9 @@ typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensi
  * @returns The command issued (see MenuReturn)
  */
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt,
-                  Time *time, int *shift,
+                  Time *time,
                   menu_match_cb mmc, void *mmc_data,
-                  int *selected_line, int sorting ) __attribute__ ( ( nonnull ( 1, 3, 4, 9 ) ) );
+                  int *selected_line, int sorting ) __attribute__ ( ( nonnull ( 1, 3, 4, 8 ) ) );
 /**
  * @param sig  The caught signal
  *
@@ -211,5 +214,43 @@ extern Settings config;
  * The error message to show.
  */
 void error_dialog ( const char *msg );
+
+/**
+ * Structure defining a switcher.
+ * It consists of a name, callback and if enabled
+ * a textbox for the sidebar-mode.
+ */
+struct _Switcher
+{
+    // Name (max 31 char long)
+    char         name[32];
+    // Textbox used in the sidebar-mode.
+    textbox      *tb;
+    // Keybindings (keysym and modmask)
+    char         * keycfg;
+    char         * keystr;
+    KeySym       keysym;
+    unsigned int modmask;
+
+
+    /**
+     * A switcher normally consists of the following parts:
+     */
+    void          ( *init )( struct _Switcher *sw );
+    char          ** ( *get_data )( unsigned int *length, struct _Switcher *pd );
+    int           ( *match )( char **tokens, const char *input, int case_sensitive, int index, struct _Switcher *data );
+    SwitcherMode  ( *result )( int menu_retv, char **input, unsigned int selected_line, struct _Switcher *pd );
+    void          ( *destroy )( struct _Switcher *pd );
+    // Token match.
+    menu_match_cb token_match;
+
+    // Pointer to private data.
+    void          *private_data;
+
+    // Extra fields for script
+    void          *ed;
+    // Free SWitcher
+    switcher_free free;
+};
 
 #endif

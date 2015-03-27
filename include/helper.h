@@ -1,6 +1,6 @@
 #ifndef __HELPER_H__
 #define __HELPER_H__
-
+#include "rofi.h"
 /**
  * @param string The input string.
  * @param output Pointer to 2 dimensional array with parsed string.
@@ -105,7 +105,7 @@ int find_arg ( const char * const key );
  */
 int token_match ( char **tokens, const char *input, int case_sensitive,
                   __attribute__( ( unused ) ) int index,
-                  __attribute__( ( unused ) ) void *data );
+                  __attribute__( ( unused ) ) Switcher * data );
 
 /**
  * @param cmd The command to execute.
@@ -115,7 +115,7 @@ int token_match ( char **tokens, const char *input, int case_sensitive,
  *
  * @returns a valid file descriptor on success, or -1 on failure.
  */
-int execute_generator ( char * cmd ) __attribute__( ( nonnull ) );
+int execute_generator ( const char * cmd ) __attribute__( ( nonnull ) );
 
 /**
  * @param pidfile The pidfile to create.
