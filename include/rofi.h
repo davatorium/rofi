@@ -79,7 +79,6 @@ typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensi
  * @param num_lines Length of the array with strings to display.
  * @param input A pointer to a string where the inputted data is placed.
  * @param prompt The prompt to show.
- * @param time The current time (used for window interaction.)
  * @param shift pointer to integer that is set to the state of the shift key.
  * @param mmc Menu menu match callback, used for matching user input.
  * @param mmc_data data to pass to mmc.
@@ -90,9 +89,8 @@ typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensi
  * @returns The command issued (see MenuReturn)
  */
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt,
-                  Time *time,
                   menu_match_cb mmc, void *mmc_data,
-                  int *selected_line, int sorting ) __attribute__ ( ( nonnull ( 1, 3, 4, 8 ) ) );
+                  int *selected_line, int sorting ) __attribute__ ( ( nonnull ( 1, 3, 4, 7 ) ) );
 /**
  * @param sig  The caught signal
  *

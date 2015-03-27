@@ -83,7 +83,7 @@ int dmenu_switcher_dialog ( char **input )
     find_arg_int (  "-l", &selected_line );
 
     do {
-        int mretv = menu ( list, length, input, dmenu_prompt, NULL,
+        int mretv = menu ( list, length, input, dmenu_prompt,
                            token_match, NULL, &selected_line, FALSE );
 
         // We normally do not want to restart the loop.

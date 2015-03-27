@@ -922,7 +922,7 @@ static void menu_paste ( MenuState *state, XSelectionEvent *xse )
     }
 }
 
-MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt, Time *time,
+MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt,
                   menu_match_cb mmc, void *mmc_data, int *selected_line, int sorting )
 {
     int          shift = FALSE;
@@ -1148,10 +1148,6 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         // Key press event.
         else if ( ev.type == KeyPress ) {
             do {
-                if ( time ) {
-                    *time = ev.xkey.time;
-                }
-
                 KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
 
                 // Handling of paste
@@ -1823,26 +1819,20 @@ int main ( int argc, char *argv[] )
 
 SwitcherMode switcher_run ( char **input, Switcher *sw )
 {
+    char         *prompt         = g_strdup_printf ( "%s:", sw->name );
     int          selected_line   = 0;
-    SwitcherMode retv            = MODE_EXIT;
     unsigned int cmd_list_length = 0;
     char         **cmd_list      = NULL;
 
     cmd_list = sw->get_data ( &cmd_list_length, sw );
 
-    if ( cmd_list == NULL ) {
-        cmd_list    = g_malloc_n ( 2, sizeof ( char * ) );
-        cmd_list[0] = g_strdup ( "No applications found" );
-        cmd_list[1] = NULL;
-    }
+    int mretv = menu ( cmd_list, cmd_list_length,
+                       input, prompt,
+                       sw->token_match, sw,
+                       &selected_line,
+                       config.levenshtein_sort );
 
-    char *prompt = g_strdup_printf ( "%s:", sw->name );
-
-    int  mretv = menu ( cmd_list, cmd_list_length, input, prompt,
-                        NULL, sw->token_match, sw, &selected_line,
-                        config.levenshtein_sort );
-
-    retv = sw->result ( mretv, input, selected_line, sw );
+    SwitcherMode retv = sw->result ( mretv, input, selected_line, sw );
 
     g_free ( prompt );
 
