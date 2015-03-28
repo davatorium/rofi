@@ -141,3 +141,13 @@ Compile with debug symbols and no optimization
 make CFLAGS="-O0 -g3" clean rofi
 ```
 
+### Get a backtrace
+
+Getting a backtrace using GDB is not very handy. Because if rofi get stuck, it grabs keyboard and
+mouse. So if it crashes in GDB you are stuck.
+The best way to go is to enable core file. (ulimit -c unlimited in bash) then make rofi crash. You
+can then load the core in GDB.
+
+```
+gdb rofi core
+```
