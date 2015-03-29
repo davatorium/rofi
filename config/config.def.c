@@ -104,6 +104,7 @@ Settings config = {
     /** Lazy mode setting */
     .lazy_filter_limit =                                5000,
     /** auto select */
-    .auto_select       = FALSE
+    .auto_select = FALSE,
+    .parse_hosts = FALSE
 };
 

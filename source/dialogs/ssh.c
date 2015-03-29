@@ -109,6 +109,70 @@ static int ssh_sort_func ( const void *a, const void *b )
     const char *bstr = *( const char * const * ) b;
     return g_utf8_collate ( astr, bstr );
 }
+
+/**
+ * Read /etc/hosts
+ */
+static char **read_hosts_file ( char ** retv, unsigned int *length )
+{
+    // Read the hosts file.
+    FILE *fd = fopen ( "/etc/hosts", "r" );
+    if ( fd != NULL ) {
+        char buffer[1024];
+        // Reading one line per time.
+        while ( fgets ( buffer, sizeof ( buffer ), fd ) ) {
+            // Evaluate one line.
+            unsigned int index  = 0, ti = 0;
+            char         *token = buffer;
+
+            // Tokenize it.
+            do {
+                char c = buffer[index];
+                // Break on space, tab, newline and \0.
+                if ( c == ' ' || c == '\t' || c == '\n' || c == '\0' || c == '#' ) {
+                    buffer[index] = '\0';
+                    // Ignore empty tokens
+                    if ( token[0] != '\0' ) {
+                        ti++;
+                        // and first token.
+                        if ( ti > 1 ) {
+                            // Is this host name already in the list?
+                            // We often get duplicates in hosts file, so lets check this.
+                            int found = 0;
+                            for ( unsigned int j = 0; j < ( *length ); j++ ) {
+                                if ( !g_ascii_strcasecmp ( token, retv[j] ) ) {
+                                    found = 1;
+                                    break;
+                                }
+                            }
+
+                            if ( !found ) {
+                                // Add this host name to the list.
+                                retv = g_realloc ( retv,
+                                                   ( ( *length ) + 2 ) * sizeof ( char* ) );
+                                retv[( *length )]     = g_strdup ( token );
+                                retv[( *length ) + 1] = NULL;
+                                ( *length )++;
+                            }
+                        }
+                    }
+                    // Set start to next element.
+                    token = &buffer[index + 1];
+                    // Everything after comment ignore.
+                    if ( c == '#' ) {
+                        break;
+                    }
+                }
+                // Skip to the next entry.
+                index++;
+            } while ( buffer[index] != '\0' && buffer[index] != '#' );
+        }
+        fclose ( fd );
+    }
+
+    return retv;
+}
+
 static char ** get_ssh (  unsigned int *length )
 {
     char         **retv        = NULL;
@@ -123,6 +187,10 @@ static char ** get_ssh (  unsigned int *length )
     retv = history_get_list ( path, length );
     g_free ( path );
     num_favorites = ( *length );
+
+    if ( config.parse_hosts == TRUE ) {
+        retv = read_hosts_file ( retv, length );
+    }
 
     FILE       *fd = NULL;
     const char *hd = getenv ( "HOME" );

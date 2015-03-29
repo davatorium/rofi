@@ -44,6 +44,7 @@ rofi - A window switcher, run dialog and dmenu replacement
 [ -help]
 [ -dump-xresources ]
 [ -auto-select ]
+[ -parse-hosts ]
 
 ## DESCRIPTION
 
@@ -299,6 +300,11 @@ daemon listening to specific key-combinations.
   The pattern *{host}* is replaced by the selected ssh entry.
 
   Default: *{terminal} -e {ssh-client} {host}*
+
+`-parse-hosts`
+
+    Parse the `/etc/hosts` files for entries.
+
 
 ### Run settings
 

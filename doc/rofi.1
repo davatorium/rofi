@@ -42,6 +42,7 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-help]
 [ \-dump\-xresources ]
 [ \-auto\-select ]
+[ \-parse\-hosts ]
 .SH DESCRIPTION
 .PP
 \fBrofi\fP is an X11 popup window switcher, run dialog, dmenu replacement and more. It focusses on
@@ -378,6 +379,14 @@ Set the command to execute when starting a ssh session.
 The pattern \fI{host}\fP is replaced by the selected ssh entry.
 .IP
 Default: \fI{terminal} \-e {ssh\-client} {host}\fP
+.PP
+\fB\fC\-parse\-hosts\fR
+.PP
+.RS
+.nf
+Parse the `/etc/hosts` files for entries.
+.fi
+.RE
 .SS Run settings
 .PP
 \fB\fC\-run\-command\fR \fIcmd\fP
@@ -607,14 +616,18 @@ Check quotes used on the commandline: e.g. used “ instead of ".
 .SH WEBSITE
 .PP
 \fBrofi\fP website can be found at here
-\[la]https://davedavenport.github.io/rofi/\[ra]
+.UR https://davedavenport.github.io/rofi/
+.UE
 .PP
 \fBrofi\fP bugtracker can be found here
-\[la]https://github.com/DaveDavenport/rofi/issues\[ra]
+.UR https://github.com/DaveDavenport/rofi/issues
+.UE
 .SH AUTHOR
 .PP
 Qball Cow 
-\[la]qball@gmpclient.org\[ra]
+.MT qball@gmpclient.org
+.ME
 .PP
 Original code based on work by: Sean Pringle 
-\[la]sean.pringle@gmail.com\[ra]
+.MT sean.pringle@gmail.com
+.ME

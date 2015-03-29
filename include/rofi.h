@@ -201,6 +201,8 @@ typedef struct _Settings
     unsigned int   lazy_filter_limit;
     /** Auto select. */
     unsigned int   auto_select;
+    /** Hosts file parsing */
+    unsigned int   parse_hosts;
 } Settings;
 
 /** Global Settings structure. */
