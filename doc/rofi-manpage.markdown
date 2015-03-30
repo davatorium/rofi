@@ -259,7 +259,7 @@ daemon listening to specific key-combinations.
     Go into side-bar mode, it will show list of modi at the bottom.
     To show sidebar use:
 
-        rofi -rnow -sidebar-mode -lines 0
+        rofi -show run -sidebar-mode -lines 0
 
 `-lazy-filter-limit` *limit*
 
