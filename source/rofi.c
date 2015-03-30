@@ -55,6 +55,7 @@
 #include "dialogs/dmenu.h"
 #include "dialogs/script.h"
 #include "dialogs/window.h"
+#include "dialogs/combi.h"
 
 #define LINE_MARGIN    3
 
@@ -1579,6 +1580,11 @@ static void setup_switchers ( void )
             switchers[num_switchers] = &run_mode;
             num_switchers++;
         }
+        // combi dialog
+        else if ( strcasecmp ( token, "combi" ) == 0 ) {
+            switchers[num_switchers] = &combi_mode;
+            num_switchers++;
+        }
         else {
             // If not build in, use custom switchers.
             Switcher *sw = script_switcher_parse_setup ( token );
@@ -1838,4 +1844,3 @@ SwitcherMode switcher_run ( char **input, Switcher *sw )
 
     return retv;
 }
-

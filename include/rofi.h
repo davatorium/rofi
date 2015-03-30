@@ -72,7 +72,7 @@ typedef enum
  *
  * @returns 1 when it matches, 0 if not.
  */
-typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensitive, int index, Switcher *data );
+typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensitive, unsigned int index, Switcher *data );
 
 /**
  * @param lines An array of strings to display.

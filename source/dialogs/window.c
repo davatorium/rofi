@@ -289,7 +289,7 @@ typedef struct _SwitcherModePrivateData
 } SwitcherModePrivateData;
 
 static int window_match ( char **tokens, __attribute__( ( unused ) ) const char *input,
-                          int case_sensitive, int index, Switcher *sw )
+                          int case_sensitive, unsigned int index, Switcher *sw )
 {
     SwitcherModePrivateData *rmpd = (SwitcherModePrivateData *) sw->private_data;
     int                     match = 1;

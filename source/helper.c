@@ -317,7 +317,7 @@ int find_arg_char ( const char * const key, char *val )
  * Matches tokenized.
  */
 int token_match ( char **tokens, const char *input, int case_sensitive,
-                  __attribute__( ( unused ) ) int index,
+                  __attribute__( ( unused ) ) unsigned int index,
                   __attribute__( ( unused ) ) Switcher *data )
 {
     int  match  = 1;
