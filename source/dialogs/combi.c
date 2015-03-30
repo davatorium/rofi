@@ -78,8 +78,8 @@ static char ** combi_mode_get_data ( unsigned int *length, Switcher *sw )
         for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
             unsigned int length = 0;
             pd->switchers[i]->get_data ( &length, pd->switchers[i] );
-            pd->starts[i]  = pd->cmd_list_length;
-            pd->lengths[i] = length;
+            pd->starts[i]        = pd->cmd_list_length;
+            pd->lengths[i]       = length;
             pd->cmd_list_length += length;
         }
         // Fill the list.
@@ -102,7 +102,7 @@ static void combi_mode_destroy ( Switcher *sw )
         g_free ( pd->cmd_list );
         g_free ( pd->starts );
         g_free ( pd->lengths );
-g_free(pd->switchers);
+        g_free ( pd->switchers );
         g_free ( pd );
         sw->private_data = NULL;
     }
