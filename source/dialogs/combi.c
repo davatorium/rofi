@@ -62,7 +62,6 @@ static void combi_mode_init ( Switcher *sw )
         sw->private_data = (void *) pd;
         for ( unsigned int i = 0; i < num_switchers; i++ ) {
             if ( switchers[i] != sw ) {
-                fprintf ( stderr, "Adding: %s\n", switchers[i]->name );
                 combi_add_switcher ( sw, switchers[i] );
             }
         }
