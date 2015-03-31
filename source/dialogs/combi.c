@@ -29,8 +29,11 @@
 #include <stdio.h>
 #include <rofi.h>
 
-extern unsigned int num_switchers;
-extern Switcher     **switchers;
+#include <dialogs/run.h>
+#include <dialogs/ssh.h>
+#include <dialogs/window.h>
+#include <dialogs/script.h>
+
 /**
  * Combi Switcher
  */
@@ -45,28 +48,64 @@ typedef struct _CombiModePrivateData
     // List of switchers to combine.
     unsigned int num_switchers;
     Switcher     **switchers;
+    char         *cache;
 } CombiModePrivateData;
 
-static void combi_add_switcher ( Switcher *sw, Switcher *m )
+static void combi_mode_parse_switchers ( Switcher *sw )
 {
-    CombiModePrivateData *pd = sw->private_data;
-    pd->switchers                        = g_realloc ( pd->switchers, ( pd->num_switchers + 2 ) * sizeof ( Switcher * ) );
-    pd->switchers[pd->num_switchers]     = m;
-    pd->switchers[pd->num_switchers + 1] = NULL;
-    pd->num_switchers++;
+    CombiModePrivateData *pd     = sw->private_data;
+    char                 *savept = NULL;
+    // Make a copy, as strtok will modify it.
+    char                 *switcher_str = g_strdup ( config.combi_modi );
+    // Split token on ','. This modifies switcher_str.
+    for ( char *token = strtok_r ( switcher_str, ",", &savept );
+          token != NULL;
+          token = strtok_r ( NULL, ",", &savept ) ) {
+        // Resize and add entry.
+        pd->switchers = (Switcher * *) g_realloc ( pd->switchers,
+                                                   sizeof ( Switcher* ) * ( pd->num_switchers + 1 ) );
+
+        // Window switcher.
+        if ( strcasecmp ( token, "window" ) == 0 ) {
+            pd->switchers[pd->num_switchers++] = &window_mode;
+        }
+        // SSh dialog
+        else if ( strcasecmp ( token, "ssh" ) == 0 ) {
+            pd->switchers[pd->num_switchers++] = &ssh_mode;
+        }
+        // Run dialog
+        else if ( strcasecmp ( token, "run" ) == 0 ) {
+            pd->switchers[pd->num_switchers++] = &run_mode;
+        }
+        else {
+            // If not build in, use custom switchers.
+            Switcher *sw = script_switcher_parse_setup ( token );
+            if ( sw != NULL ) {
+                pd->switchers[pd->num_switchers++] = sw;
+            }
+            else{
+                // Report error, don't continue.
+                fprintf ( stderr, "Invalid script switcher: %s\n", token );
+                token = NULL;
+            }
+        }
+        // Keybinding.
+    }
+    // Free string that was modified by strtok_r
+    g_free ( switcher_str );
 }
+
 static void combi_mode_init ( Switcher *sw )
 {
     if ( sw->private_data == NULL ) {
         CombiModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         sw->private_data = (void *) pd;
-        for ( unsigned int i = 0; i < num_switchers; i++ ) {
-            if ( switchers[i] != sw ) {
-                combi_add_switcher ( sw, switchers[i] );
-            }
-        }
+        combi_mode_parse_switchers ( sw );
         pd->starts  = g_malloc0 ( sizeof ( int ) * pd->num_switchers );
         pd->lengths = g_malloc0 ( sizeof ( int ) * pd->num_switchers );
+        for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
+            pd->switchers[i]->init ( pd->switchers[i] );
+        }
     }
 }
 static char ** combi_mode_get_data ( unsigned int *length, Switcher *sw )
@@ -101,8 +140,13 @@ static void combi_mode_destroy ( Switcher *sw )
         g_free ( pd->cmd_list );
         g_free ( pd->starts );
         g_free ( pd->lengths );
+        // Cleanup switchers.
+        for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
+            pd->switchers[i]->destroy ( pd->switchers[i] );
+        }
         g_free ( pd->switchers );
         g_free ( pd );
+        g_free ( pd->cache );
         sw->private_data = NULL;
     }
 }
@@ -138,6 +182,21 @@ static int combi_mode_match ( char **tokens, const char *input,
     abort ();
     return 0;
 }
+static const char * combi_mgrv ( unsigned int selected_line, void *sw, int *state )
+{
+    CombiModePrivateData *pd = ( (Switcher *) sw )->private_data;
+    for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
+        if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
+            g_free ( pd->cache );
+            pd->cache = g_strdup_printf ( "(%s) %s",
+                                          pd->switchers[i]->name,
+                                          pd->switchers[i]->mgrv ( selected_line - pd->starts[i], (void *) pd->switchers[i], state ) );
+            return pd->cache;
+        }
+    }
+
+    return NULL;
+}
 
 Switcher combi_mode =
 {
@@ -151,6 +210,7 @@ Switcher combi_mode =
     .result       = combi_mode_result,
     .destroy      = combi_mode_destroy,
     .token_match  = combi_mode_match,
+    .mgrv         = combi_mgrv,
     .private_data = NULL,
     .free         = NULL
 };

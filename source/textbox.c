@@ -78,10 +78,6 @@ textbox* textbox_create ( Window parent,
 
     tb->layout = pango_layout_new ( p_context );
 
-    PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
-    pango_layout_set_font_description ( tb->layout, pfd );
-    pango_font_description_free ( pfd );
-
     unsigned int cp;
     switch ( tbft )
     {
@@ -104,6 +100,8 @@ textbox* textbox_create ( Window parent,
                                             InputOutput, vinfo->visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
 
     // need to preload the font to calc line height
+    // Force update of font descriptor.
+    tb->tbft = ~tbft;
     textbox_font ( tb, tbft );
 
     textbox_text ( tb, text ? text : "" );
@@ -129,7 +127,15 @@ textbox* textbox_create ( Window parent,
 // set an Xft font by name
 void textbox_font ( textbox *tb, TextBoxFontType tbft )
 {
-    switch ( tbft )
+    if ( ( tbft & BOLD ) != ( tb->tbft & BOLD ) ) {
+        PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
+        if ( ( tbft & BOLD ) == BOLD ) {
+            pango_font_description_set_weight ( pfd, PANGO_WEIGHT_BOLD );
+        }
+        pango_layout_set_font_description ( tb->layout, pfd );
+        pango_font_description_free ( pfd );
+    }
+    switch ( ( tbft & STATE_MASK ) )
     {
     case HIGHLIGHT:
         tb->color_bg = color_hlbg;
@@ -145,6 +151,7 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
         tb->color_fg = color_fg;
         break;
     }
+    tb->tbft = tbft;
 }
 
 // set the default text to display

@@ -64,6 +64,12 @@ static char **get_dmenu ( int *length )
     return retv;
 }
 
+static const char *get_display_data ( unsigned int index, void *data, G_GNUC_UNUSED int *state )
+{
+    char **retv = (char * *) data;
+    return retv[index];
+}
+
 int dmenu_switcher_dialog ( char **input )
 {
     char *dmenu_prompt = "dmenu ";
@@ -84,7 +90,7 @@ int dmenu_switcher_dialog ( char **input )
 
     do {
         int mretv = menu ( list, length, input, dmenu_prompt,
-                           token_match, NULL, &selected_line, FALSE );
+                           token_match, NULL, &selected_line, FALSE, get_display_data, list );
 
         // We normally do not want to restart the loop.
         restart = FALSE;

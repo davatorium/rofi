@@ -321,6 +321,12 @@ static void ssh_mode_destroy ( Switcher *sw )
     }
 }
 
+static const char *mgrv ( unsigned int selected_line, void *sw, G_GNUC_UNUSED int *state )
+{
+    SSHModePrivateData *rmpd = ( (Switcher *) sw )->private_data;
+    return rmpd->cmd_list[selected_line];
+}
+
 Switcher ssh_mode =
 {
     .name         = "ssh",
@@ -333,6 +339,7 @@ Switcher ssh_mode =
     .result       = ssh_mode_result,
     .destroy      = ssh_mode_destroy,
     .token_match  = token_match,
+    .mgrv         = mgrv,
     .private_data = NULL,
     .free         = NULL
 };

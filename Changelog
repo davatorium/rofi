@@ -1,6 +1,8 @@
-0.15.3: (unreleased)
+0.15.4: (unreleased)
 	New feature:
 		- Number mode for dmenu. allows user to get index back instead of content.
+		- Combi mode. Combine multiple views into one.
+		- Highlight current window.
 	Bug fixes:
 		- On a single item in list disable auto-select.
 	Improvements:
@@ -13,6 +15,7 @@
 		- Fix modi switcher boxes size+layout.
 		- Reduce work on redraws (do not always calculate new size/position), set text, etc.
 		- OO-ify the switchers.
+		- Remove unneeded filtered array.
 	Cleanup:
 		- Do not lug argc,argv around everywhere.
 

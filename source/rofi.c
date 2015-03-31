@@ -272,51 +272,52 @@ static Window create_window ( Display *display )
 
 typedef struct MenuState
 {
-    unsigned int menu_lines;
-    unsigned int max_elements;
-    unsigned int max_rows;
-    unsigned int columns;
+    unsigned int      menu_lines;
+    unsigned int      max_elements;
+    unsigned int      max_rows;
+    unsigned int      columns;
 
     // window width,height
-    unsigned int w, h;
-    int          x, y;
-    unsigned int element_width;
+    unsigned int      w, h;
+    int               x, y;
+    unsigned int      element_width;
 
     // Update/Refilter list.
-    int          update;
-    int          refilter;
-    int          rchanged;
-    int          cur_page;
+    int               update;
+    int               refilter;
+    int               rchanged;
+    int               cur_page;
 
     // Entries
-    textbox      *text;
-    textbox      *prompt_tb;
-    textbox      *case_indicator;
-    textbox      *arrowbox_top;
-    textbox      *arrowbox_bottom;
-    textbox      **boxes;
-    char         **filtered;
-    int          *distance;
-    int          *line_map;
+    textbox           *text;
+    textbox           *prompt_tb;
+    textbox           *case_indicator;
+    textbox           *arrowbox_top;
+    textbox           *arrowbox_bottom;
+    textbox           **boxes;
+    int               *distance;
+    int               *line_map;
 
-    unsigned int num_lines;
+    unsigned int      num_lines;
 
     // Selected element.
-    unsigned int selected;
-    unsigned int filtered_lines;
+    unsigned int      selected;
+    unsigned int      filtered_lines;
     // Last offset in paginating.
-    unsigned int last_offset;
+    unsigned int      last_offset;
 
-    KeySym       prev_key;
-    Time         last_button_press;
+    KeySym            prev_key;
+    Time              last_button_press;
 
-    int          quit;
-    int          init;
+    int               quit;
+    int               init;
     // Return state
-    int          *selected_line;
-    MenuReturn   retv;
-    char         **lines;
-    int          line_height;
+    int               *selected_line;
+    MenuReturn        retv;
+    char              **lines;
+    int               line_height;
+    get_display_value mgrv;
+    void              *mgrv_data;
 }MenuState;
 
 /**
@@ -337,7 +338,6 @@ static void menu_free_state ( MenuState *state )
     }
 
     g_free ( state->boxes );
-    g_free ( state->filtered );
     g_free ( state->line_map );
     g_free ( state->distance );
 }
@@ -575,15 +575,9 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
     }
     else if ( key == XK_Tab ) {
         if ( state->filtered_lines == 1 ) {
-            if ( state->filtered[state->selected] ) {
-                state->retv               = MENU_OK;
-                *( state->selected_line ) = state->line_map[state->selected];
-                state->quit               = 1;
-            }
-            else{
-                fprintf ( stderr, "We should never hit this." );
-                abort ();
-            }
+            state->retv               = MENU_OK;
+            *( state->selected_line ) = state->line_map[state->selected];
+            state->quit               = 1;
             return;
         }
 
@@ -636,7 +630,7 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
     }
     else if ( key == XK_space && ( modstate & ControlMask ) == ControlMask ) {
         // If a valid item is selected, return that..
-        if ( state->selected < state->filtered_lines && state->filtered[state->selected] != NULL ) {
+        if ( state->selected < state->filtered_lines ) {
             textbox_text ( state->text, state->lines[state->line_map[state->selected]] );
             textbox_cursor_end ( state->text );
             state->update   = TRUE;
@@ -753,13 +747,6 @@ static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, v
         if ( sorting ) {
             qsort_r ( state->line_map, j, sizeof ( int ), lev_sort, state->distance );
         }
-        // Update the filtered list.
-        for ( unsigned int i = 0; i < j; i++ ) {
-            state->filtered[i] = lines[state->line_map[i]];
-        }
-        for ( unsigned int i = j; i < state->num_lines; i++ ) {
-            state->filtered[i] = NULL;
-        }
 
         // Cleanup + bookkeeping.
         state->filtered_lines = j;
@@ -767,7 +754,6 @@ static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, v
     }
     else{
         for ( unsigned int i = 0; i < state->num_lines; i++ ) {
-            state->filtered[i] = lines[i];
             state->line_map[i] = i;
         }
         state->filtered_lines = state->num_lines;
@@ -841,9 +827,10 @@ static void menu_draw ( MenuState *state )
                                  ex + x_offset, ey + y_offset,
                                  element_width, element_height );
             {
-                TextBoxFontType type  = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
-                char            *text = state->filtered[i + offset];
-                TextBoxFontType tbft  = ( i + offset ) == state->selected ? HIGHLIGHT : type;
+                TextBoxFontType type   = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
+                int             fstate = 0;
+                const char      *text  = state->mgrv ( state->line_map[i + offset], state->mgrv_data, &fstate );
+                TextBoxFontType tbft   = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
                 textbox_font ( state->boxes[i], tbft );
                 textbox_text ( state->boxes[i], text );
             }
@@ -855,8 +842,10 @@ static void menu_draw ( MenuState *state )
     else{
         // Only do basic redrawing + highlight of row.
         for ( i = 0; i < max_elements; i++ ) {
-            TextBoxFontType type = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
-            TextBoxFontType tbft = ( i + offset ) == state->selected ? HIGHLIGHT : type;
+            TextBoxFontType type   = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
+            int             fstate = 0;
+            state->mgrv ( state->line_map[i + offset], state->mgrv_data, &fstate );
+            TextBoxFontType tbft = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
             textbox_font ( state->boxes[i], tbft );
             textbox_draw ( state->boxes[i] );
         }
@@ -924,7 +913,8 @@ static void menu_paste ( MenuState *state, XSelectionEvent *xse )
 }
 
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt,
-                  menu_match_cb mmc, void *mmc_data, int *selected_line, int sorting )
+                  menu_match_cb mmc, void *mmc_data, int *selected_line, int sorting,
+                  get_display_value mgrv, void *mgrv_data )
 {
     int          shift = FALSE;
     MenuState    state = {
@@ -940,11 +930,13 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         .filtered_lines    =             0,
         .max_elements      =             0,
         // We want to filter on the first run.
-        .refilter = TRUE,
-        .update   = FALSE,
-        .rchanged = TRUE,
-        .cur_page =            -1,
-        .lines    = lines
+        .refilter  = TRUE,
+        .update    = FALSE,
+        .rchanged  = TRUE,
+        .cur_page  =            -1,
+        .lines     = lines,
+        .mgrv      = mgrv,
+        .mgrv_data = mgrv_data
     };
     unsigned int i;
     workarea     mon;
@@ -1036,7 +1028,6 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                    config.padding + state.max_rows * element_height + LINE_MARGIN );
 
     // filtered list
-    state.filtered = (char * *) g_malloc0_n ( state.num_lines, sizeof ( char* ) );
     state.line_map = g_malloc0_n ( state.num_lines, sizeof ( int ) );
     if ( sorting ) {
         state.distance = (int *) g_malloc0_n ( state.num_lines, sizeof ( int ) );
@@ -1212,7 +1203,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                 // Special delete entry command.
                 else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
                           key == XK_Delete ) {
-                    if ( state.filtered[state.selected] != NULL ) {
+                    if ( state.selected < state.filtered_lines ) {
                         *( state.selected_line ) = state.line_map[state.selected];
                         state.retv               = MENU_ENTRY_DELETE;
                         state.quit               = TRUE;
@@ -1226,7 +1217,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                         shift = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
 
                         // If a valid item is selected, return that..
-                        if ( state.selected < state.filtered_lines && state.filtered[state.selected] != NULL ) {
+                        if ( state.selected < state.filtered_lines ) {
                             *( state.selected_line ) = state.line_map[state.selected];
                             if ( strlen ( state.text->text ) > 0 && rc == -2 ) {
                                 state.retv = MENU_CUSTOM_INPUT;
@@ -1836,7 +1827,9 @@ SwitcherMode switcher_run ( char **input, Switcher *sw )
                        input, prompt,
                        sw->token_match, sw,
                        &selected_line,
-                       config.levenshtein_sort );
+                       config.levenshtein_sort,
+                       sw->mgrv,
+                       sw );
 
     SwitcherMode retv = sw->result ( mretv, input, selected_line, sw );
 

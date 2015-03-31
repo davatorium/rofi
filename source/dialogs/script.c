@@ -163,6 +163,11 @@ static void script_mode_destroy ( Switcher *sw )
         sw->private_data = NULL;
     }
 }
+static const char *mgrv ( unsigned int selected_line, void *sw, G_GNUC_UNUSED int *state )
+{
+    ScriptModePrivateData *rmpd = ( (Switcher *) sw )->private_data;
+    return rmpd->cmd_list[selected_line];
+}
 
 Switcher *script_switcher_parse_setup ( const char *str )
 {
@@ -189,6 +194,7 @@ Switcher *script_switcher_parse_setup ( const char *str )
         sw->result      = script_mode_result;
         sw->destroy     = script_mode_destroy;
         sw->token_match = token_match;
+        sw->mgrv        = mgrv;
 
         return sw;
     }

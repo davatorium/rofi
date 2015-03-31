@@ -331,6 +331,12 @@ static void run_mode_destroy ( Switcher *sw )
     }
 }
 
+static const char *mgrv ( unsigned int selected_line, void *sw, G_GNUC_UNUSED int *state )
+{
+    RunModePrivateData *rmpd = ( (Switcher *) sw )->private_data;
+    return rmpd->cmd_list[selected_line];
+}
+
 Switcher run_mode =
 {
     .name         = "run",
@@ -343,6 +349,7 @@ Switcher run_mode =
     .result       = run_mode_result,
     .destroy      = run_mode_destroy,
     .token_match  = token_match,
+    .mgrv         = mgrv,
     .private_data = NULL,
     .free         = NULL
 };

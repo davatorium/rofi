@@ -105,7 +105,8 @@ static XrmOption xrmOptions[] = {
     { xrm_Number,  "lazy-filter-limit",    { .num  = &config.lazy_filter_limit     }, NULL },
     { xrm_SNumber, "eh",                   { .snum = &config.element_height        }, NULL },
     { xrm_Boolean, "auto-select",          { .num  = &config.auto_select           }, NULL },
-    { xrm_Boolean, "parse-hosts",          { .num  = &config.parse_hosts           }, NULL }
+    { xrm_Boolean, "parse-hosts",          { .num  = &config.parse_hosts           }, NULL },
+    { xrm_String,  "combi-modi",           { .str  = &config.combi_modi            }, NULL }
 };
 
 // Dynamic options.

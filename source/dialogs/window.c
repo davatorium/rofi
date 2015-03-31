@@ -286,6 +286,9 @@ typedef struct _SwitcherModePrivateData
     winlist      *ids;
     int          config_i3_mode;
     int          init;
+    // Current window.
+    unsigned int index;
+    char         *cache;
 } SwitcherModePrivateData;
 
 static int window_match ( char **tokens, __attribute__( ( unused ) ) const char *input,
@@ -496,9 +499,19 @@ static void window_mode_destroy ( Switcher *sw )
         winlist_free ( rmpd->ids );
         i3_support_free_internals ();
         x11_cache_free ();
+        g_free ( rmpd->cache );
         g_free ( rmpd );
         sw->private_data = NULL;
     }
+}
+
+static const char *mgrv ( unsigned int selected_line, void *sw, G_GNUC_UNUSED int *state )
+{
+    SwitcherModePrivateData *rmpd = ( (Switcher *) sw )->private_data;
+    if ( window_client ( display, rmpd->ids->array[selected_line] )->active ) {
+        *state = BOLD;
+    }
+    return rmpd->cmd_list[selected_line];
 }
 
 Switcher window_mode =
@@ -513,6 +526,7 @@ Switcher window_mode =
     .result       = window_mode_result,
     .destroy      = window_mode_destroy,
     .token_match  = window_match,
+    .mgrv         = mgrv,
     .private_data = NULL,
     .free         = NULL
 };

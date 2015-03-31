@@ -37,6 +37,8 @@ typedef enum
 typedef SwitcherMode ( *switcher_callback )( char **input, void *data );
 typedef void ( *switcher_free )( Switcher *data );
 
+
+typedef const char * ( *get_display_value )( unsigned int selected_line, void *data, int *state );
 /**
  * State returned by the rofi window.
  */
@@ -90,7 +92,7 @@ typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensi
  */
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt,
                   menu_match_cb mmc, void *mmc_data,
-                  int *selected_line, int sorting ) __attribute__ ( ( nonnull ( 1, 3, 4, 7 ) ) );
+                  int *selected_line, int sorting, get_display_value mgrv, void *mgrv_data ) __attribute__ ( ( nonnull ( 1, 3, 4, 7 ) ) );
 /**
  * @param sig  The caught signal
  *
@@ -203,6 +205,8 @@ typedef struct _Settings
     unsigned int   auto_select;
     /** Hosts file parsing */
     unsigned int   parse_hosts;
+    /** Combi Switchers */
+    char           *combi_modi;
 } Settings;
 
 /** Global Settings structure. */
@@ -236,21 +240,23 @@ struct _Switcher
     /**
      * A switcher normally consists of the following parts:
      */
-    void          ( *init )( struct _Switcher *sw );
-    char          ** ( *get_data )( unsigned int *length, struct _Switcher *pd );
-    int           ( *match )( char **tokens, const char *input, int case_sensitive, int index, struct _Switcher *data );
-    SwitcherMode  ( *result )( int menu_retv, char **input, unsigned int selected_line, struct _Switcher *pd );
-    void          ( *destroy )( struct _Switcher *pd );
+    void              ( *init )( struct _Switcher *sw );
+    char              ** ( *get_data )( unsigned int *length, struct _Switcher *pd );
+    int               ( *match )( char **tokens, const char *input, int case_sensitive, int index, struct _Switcher *data );
+    SwitcherMode      ( *result )( int menu_retv, char **input, unsigned int selected_line, struct _Switcher *pd );
+    void              ( *destroy )( struct _Switcher *pd );
     // Token match.
-    menu_match_cb token_match;
+    menu_match_cb     token_match;
+
+    get_display_value mgrv;
 
     // Pointer to private data.
-    void          *private_data;
+    void              *private_data;
 
     // Extra fields for script
-    void          *ed;
+    void              *ed;
     // Free SWitcher
-    switcher_free free;
+    switcher_free     free;
 };
 
 #endif

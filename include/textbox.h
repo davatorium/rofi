@@ -17,6 +17,7 @@ typedef struct
     XIM           xim;
     XIC           xic;
     PangoLayout   *layout;
+    int           tbft;
 } textbox;
 
 
@@ -34,11 +35,15 @@ typedef enum
 typedef enum
 {
     // Render font normally
-    NORMAL,
+    NORMAL     = 1,
     // Alternating row.
-    ALT,
+    ALT        = 2,
     // Render font highlighted (inverted colors.)
-    HIGHLIGHT,
+    HIGHLIGHT  = 4,
+
+    STATE_MASK = ( NORMAL | ALT | HIGHLIGHT ),
+
+    BOLD       = 8,
 } TextBoxFontType;
 
 textbox* textbox_create ( Window parent,

@@ -104,7 +104,10 @@ Settings config = {
     /** Lazy mode setting */
     .lazy_filter_limit =                                5000,
     /** auto select */
-    .auto_select = FALSE,
-    .parse_hosts = FALSE
+    .auto_select       = FALSE,
+    /** Parse /etc/hosts file in ssh view. */
+    .parse_hosts       = FALSE,
+    /** Modi to combine into one view. */
+    .combi_modi        = "window,run"
 };
 
