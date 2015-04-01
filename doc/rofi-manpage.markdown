@@ -45,6 +45,7 @@ rofi - A window switcher, run dialog and dmenu replacement
 [ -dump-xresources ]
 [ -auto-select ]
 [ -parse-hosts ]
+[ -combi-modi *mode1,mode2* ]
 
 ## DESCRIPTION
 
@@ -327,6 +328,16 @@ daemon listening to specific key-combinations.
   If set, use an external tool to generate list of executable commands. Uses 'run-command'
 
   Default: *""*
+
+### Combi settings
+
+`-combi-modi` *mode1,mode2*
+
+    The modi to combine in the combi mode.
+    For syntax to see `-modi`. 
+    To get one merge view, of window,run,ssh:
+
+            rofi -show combi -combi-mode "window,run,ssh"
 
 ### History and Sorting
 

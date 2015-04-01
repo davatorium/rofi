@@ -43,6 +43,7 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-dump\-xresources ]
 [ \-auto\-select ]
 [ \-parse\-hosts ]
+[ \-combi\-modi \fImode1,mode2\fP ]
 .SH DESCRIPTION
 .PP
 \fBrofi\fP is an X11 popup window switcher, run dialog, dmenu replacement and more. It focusses on
@@ -408,6 +409,18 @@ Default: \fI{terminal} \-e {cmd}\fP
 If set, use an external tool to generate list of executable commands. Uses 'run\-command'
 .IP
 Default: \fI""\fP
+.SS Combi settings
+.PP
+\fB\fC\-combi\-modi\fR \fImode1,mode2\fP
+.PP
+.RS
+.nf
+The modi to combine in the combi mode.
+For syntax to see `\-modi`. 
+To get one merge view, of window,run,ssh:
+        rofi \-show combi \-combi\-mode "window,run,ssh"
+.fi
+.RE
 .SS History and Sorting
 .PP
 \fB\fC\-disable\-history\fR
@@ -616,18 +629,14 @@ Check quotes used on the commandline: e.g. used “ instead of ".
 .SH WEBSITE
 .PP
 \fBrofi\fP website can be found at here
-.UR https://davedavenport.github.io/rofi/
-.UE
+\[la]https://davedavenport.github.io/rofi/\[ra]
 .PP
 \fBrofi\fP bugtracker can be found here
-.UR https://github.com/DaveDavenport/rofi/issues
-.UE
+\[la]https://github.com/DaveDavenport/rofi/issues\[ra]
 .SH AUTHOR
 .PP
 Qball Cow 
-.MT qball@gmpclient.org
-.ME
+\[la]qball@gmpclient.org\[ra]
 .PP
 Original code based on work by: Sean Pringle 
-.MT sean.pringle@gmail.com
-.ME
+\[la]sean.pringle@gmail.com\[ra]
