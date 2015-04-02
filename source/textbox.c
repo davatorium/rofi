@@ -127,10 +127,13 @@ textbox* textbox_create ( Window parent,
 // set an Xft font by name
 void textbox_font ( textbox *tb, TextBoxFontType tbft )
 {
-    if ( ( tbft & BOLD ) != ( tb->tbft & BOLD ) ) {
+    if ( ( tbft & FMOD_MASK ) != ( tb->tbft & FMOD_MASK ) ) {
         PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
         if ( ( tbft & BOLD ) == BOLD ) {
             pango_font_description_set_weight ( pfd, PANGO_WEIGHT_BOLD );
+        }
+        if ( ( tbft & ITALIC ) == ITALIC ) {
+            pango_font_description_set_style ( pfd, PANGO_STYLE_ITALIC );
         }
         pango_layout_set_font_description ( tb->layout, pfd );
         pango_font_description_free ( pfd );

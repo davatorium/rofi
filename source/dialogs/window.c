@@ -47,7 +47,7 @@
 #define CLIENTTITLE    100
 #define CLIENTCLASS    50
 #define CLIENTNAME     50
-#define CLIENTSTATE    10
+#define CLIENTSTATE    20
 #define CLIENTROLE     50
 
 // a manageable window
@@ -63,6 +63,7 @@ typedef struct
     Atom              state[CLIENTSTATE];
     workarea          monitor;
     int               active;
+    int               demands;
 } client;
 // TODO
 extern Display *display;
@@ -397,6 +398,9 @@ static char ** window_mode_get_data ( unsigned int *length, Switcher *sw )
                     if ( pd->config_i3_mode && strstr ( c->class, "i3bar" ) != NULL ) {
                         continue;
                     }
+                    if ( client_has_state ( c, netatoms[_NET_WM_STATE_DEMANDS_ATTENTION] ) ) {
+                        c->demands = TRUE;
+                    }
 
                     if ( c->window == curr_win_id ) {
                         c->active = TRUE;
@@ -508,8 +512,11 @@ static void window_mode_destroy ( Switcher *sw )
 static const char *mgrv ( unsigned int selected_line, void *sw, G_GNUC_UNUSED int *state )
 {
     SwitcherModePrivateData *rmpd = ( (Switcher *) sw )->private_data;
+    if ( window_client ( display, rmpd->ids->array[selected_line] )->demands ) {
+        *state |= ITALIC;
+    }
     if ( window_client ( display, rmpd->ids->array[selected_line] )->active ) {
-        *state = BOLD;
+        *state |= BOLD;
     }
     return rmpd->cmd_list[selected_line];
 }
