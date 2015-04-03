@@ -43,10 +43,10 @@ typedef enum
 
     STATE_MASK = ( NORMAL | ALT | HIGHLIGHT ),
 
-    BOLD       = 8,
-    ITALIC     = 16,
+    ACTIVE     = 8,
+    URGENT     = 16,
 
-    FMOD_MASK  = ( BOLD | ITALIC )
+    FMOD_MASK  = ( ACTIVE | URGENT )
 } TextBoxFontType;
 
 textbox* textbox_create ( Window parent,

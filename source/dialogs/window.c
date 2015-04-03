@@ -523,10 +523,10 @@ static const char *mgrv ( unsigned int selected_line, void *sw, G_GNUC_UNUSED in
 {
     SwitcherModePrivateData *rmpd = ( (Switcher *) sw )->private_data;
     if ( window_client ( display, rmpd->ids->array[selected_line] )->demands ) {
-        *state |= ITALIC;
+        *state |= URGENT;
     }
     if ( window_client ( display, rmpd->ids->array[selected_line] )->active ) {
-        *state |= BOLD;
+        *state |= ACTIVE;
     }
     return rmpd->cmd_list[selected_line];
 }

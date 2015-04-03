@@ -47,6 +47,8 @@ extern Display *display;
  * Font + font color cache.
  * Avoid re-loading font on every change on every textbox.
  */
+XftColor     color_fg_urgent;
+XftColor     color_fg_active;
 XftColor     color_fg;
 XftColor     color_bg;
 XftColor     color_hlfg;
@@ -99,9 +101,9 @@ textbox* textbox_create ( Window parent,
     tb->window            = XCreateWindow ( display, tb->parent, tb->x, tb->y, tb->w, tb->h, 0, vinfo->depth,
                                             InputOutput, vinfo->visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
 
-    // need to preload the font to calc line height
-    // Force update of font descriptor.
-    tb->tbft = ~tbft;
+    PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
+    pango_layout_set_font_description ( tb->layout, pfd );
+    pango_font_description_free ( pfd );
     textbox_font ( tb, tbft );
 
     textbox_text ( tb, text ? text : "" );
@@ -127,17 +129,6 @@ textbox* textbox_create ( Window parent,
 // set an Xft font by name
 void textbox_font ( textbox *tb, TextBoxFontType tbft )
 {
-    if ( ( tbft & FMOD_MASK ) != ( tb->tbft & FMOD_MASK ) ) {
-        PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
-        if ( ( tbft & BOLD ) == BOLD ) {
-            pango_font_description_set_weight ( pfd, PANGO_WEIGHT_BOLD );
-        }
-        if ( ( tbft & ITALIC ) == ITALIC ) {
-            pango_font_description_set_style ( pfd, PANGO_STYLE_ITALIC );
-        }
-        pango_layout_set_font_description ( tb->layout, pfd );
-        pango_font_description_free ( pfd );
-    }
     switch ( ( tbft & STATE_MASK ) )
     {
     case HIGHLIGHT:
@@ -153,6 +144,14 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
         tb->color_bg = color_bg;
         tb->color_fg = color_fg;
         break;
+    }
+    if ( ( tbft & FMOD_MASK ) ) {
+        if ( ( tbft & ACTIVE ) ) {
+            tb->color_fg = color_fg_active;
+        }
+        else if ( ( tbft & URGENT ) ) {
+            tb->color_fg = color_fg_urgent;
+        }
     }
     tb->tbft = tbft;
 }
@@ -628,6 +627,8 @@ void textbox_setup ( XVisualInfo *visual, Colormap colormap,
 
     parse_color ( visual_info->visual, target_colormap, bg, &color_bg );
     parse_color ( visual_info->visual, target_colormap, fg, &color_fg );
+    parse_color ( visual_info->visual, target_colormap, config.menu_fg_active, &color_fg_active );
+    parse_color ( visual_info->visual, target_colormap, config.menu_fg_urgent, &color_fg_urgent );
     parse_color ( visual_info->visual, target_colormap, bg_alt, &color_bg_alt );
     parse_color ( visual_info->visual, target_colormap, hlfg, &color_hlfg );
     parse_color ( visual_info->visual, target_colormap, hlbg, &color_hlbg );
@@ -641,6 +642,8 @@ void textbox_cleanup ( void )
 {
     if ( p_context ) {
         XftColorFree ( display, visual_info->visual, target_colormap, &color_fg );
+        XftColorFree ( display, visual_info->visual, target_colormap, &color_fg_urgent );
+        XftColorFree ( display, visual_info->visual, target_colormap, &color_fg_active );
         XftColorFree ( display, visual_info->visual, target_colormap, &color_bg );
         XftColorFree ( display, visual_info->visual, target_colormap, &color_bg_alt );
         XftColorFree ( display, visual_info->visual, target_colormap, &color_hlfg );
