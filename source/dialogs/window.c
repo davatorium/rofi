@@ -47,7 +47,7 @@
 #define CLIENTTITLE    100
 #define CLIENTCLASS    50
 #define CLIENTNAME     50
-#define CLIENTSTATE    20
+#define CLIENTSTATE    10
 #define CLIENTROLE     50
 
 // a manageable window
@@ -64,6 +64,7 @@ typedef struct
     workarea          monitor;
     int               active;
     int               demands;
+    long              hint_flags;
 } client;
 // TODO
 extern Display *display;
@@ -274,6 +275,12 @@ static client* window_client ( Display *display, Window win )
         XFree ( chint.res_name );
     }
 
+    XWMHints *wh;
+    if ( ( wh = XGetWMHints ( display, c->window ) ) != NULL ) {
+        c->hint_flags = wh->flags;
+        XFree ( wh );
+    }
+
     monitor_dimensions ( display, c->xattr.screen, c->xattr.x, c->xattr.y, &c->monitor );
     winlist_append ( cache_client, c->window, c );
     return c;
@@ -399,6 +406,9 @@ static char ** window_mode_get_data ( unsigned int *length, Switcher *sw )
                         continue;
                     }
                     if ( client_has_state ( c, netatoms[_NET_WM_STATE_DEMANDS_ATTENTION] ) ) {
+                        c->demands = TRUE;
+                    }
+                    if ( ( c->hint_flags & XUrgencyHint ) == XUrgencyHint ) {
                         c->demands = TRUE;
                     }
 
