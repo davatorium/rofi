@@ -12,6 +12,8 @@ rofi - A window switcher, run dialog and dmenu replacement
 [ -columns *columns* ]
 [ -font *pangofont* ]
 [ -fg *color* ]
+[ -fg-urgent *color* ]
+[ -fg-active *color* ]
 [ -bg *color* ]
 [ -bgalt *color* ]
 [ -hlfg *color* ]
@@ -36,6 +38,8 @@ rofi - A window switcher, run dialog and dmenu replacement
 [ -eh *element height* ]
 [ -lazy-filter-limit *limit* ]
 [ -e *message*]
+[ -a *row* ]
+[ -u *row* ]
 [ -pid *path* ]
 [ -now ]
 [ -rnow ]
@@ -154,6 +158,22 @@ daemon listening to specific key-combinations.
       rofi -fg "#cccccc"
 
   Default: *#222222*
+
+`-fg-urgent`
+
+  Set the foreground text color (X11 named color or hex #rrggbb) for the menu.
+
+      rofi -fg-urgent "#ffcccc"
+
+  Default: *#ff2222*
+
+`-fg-active`
+
+  Set the foreground text color (X11 named color or hex #rrggbb) for the menu.
+
+      rofi -fg-active "#ccccff"
+
+  Default: *#2222ff*
 
 `-hlbg`
 
@@ -376,6 +396,14 @@ daemon listening to specific key-combinations.
 `-i`
 
     Number mode, return the index of the selected row. (starting at 0)
+
+`-a` *X*
+
+    Active row, mark row X as active. (starting at 0)
+
+`-u` *X*
+
+    Urgent row, mark row X as urgent. (starting at 0)
 
 ### Message dialog
 
