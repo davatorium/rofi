@@ -64,9 +64,19 @@ static char **get_dmenu ( int *length )
     return retv;
 }
 
+
+static unsigned int row_urgent = 0xFFFFFFFF;
+static unsigned int row_active = 0xFFFFFFFF;
+
 static const char *get_display_data ( unsigned int index, void *data, G_GNUC_UNUSED int *state )
 {
     char **retv = (char * *) data;
+    if ( index == row_urgent ) {
+        *state |= URGENT;
+    }
+    if ( index == row_active ) {
+        *state |= ACTIVE;
+    }
     return retv[index];
 }
 
@@ -87,6 +97,8 @@ int dmenu_switcher_dialog ( char **input )
     // Check prompt
     find_arg_str (  "-p", &dmenu_prompt );
     find_arg_int (  "-l", &selected_line );
+    find_arg_uint (  "-u", &row_urgent );
+    find_arg_uint (  "-a", &row_active );
 
     do {
         int mretv = menu ( list, length, input, dmenu_prompt,

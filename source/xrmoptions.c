@@ -67,6 +67,9 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "foreground",           { .str  = &config.menu_fg               }, NULL },
     { xrm_String,  "fg",                   { .str  = &config.menu_fg               }, NULL },
 
+    { xrm_String,  "fg-active",            { .str  = &config.menu_fg_active        }, NULL },
+    { xrm_String,  "fg-urgent",            { .str  = &config.menu_fg_urgent        }, NULL },
+
     { xrm_String,  "background",           { .str  = &config.menu_bg               }, NULL },
     { xrm_String,  "bg",                   { .str  = &config.menu_bg               }, NULL },
     { xrm_String,  "background-alternate", { .str  = &config.menu_bg_alt           }, NULL },

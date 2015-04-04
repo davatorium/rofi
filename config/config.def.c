@@ -47,9 +47,11 @@ Settings config = {
     /** Font */
     .menu_font         = "mono 12",
     /** Foreground color */
-    .menu_fg        = "#222222",
-    .menu_fg_urgent = "#aa0000",
-    .menu_fg_active = "#00aaff",
+    .menu_fg           = "#222222",
+    /** Text color used for urgent windows */
+    .menu_fg_urgent    = "#ff2222",
+    /** Text color used for active window */
+    .menu_fg_active    = "#2222ff",
     /** Background color */
     .menu_bg           = "#f2f1f0",
     /** Background color alternate row */
