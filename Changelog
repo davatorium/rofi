@@ -9,6 +9,8 @@
 		- On a single item in list disable auto-select.
 		- Fix cursor position (#140)
 	Improvements:
+		- Be more verbose about starting in daemon mode.
+		- Print a user-understandable error when launching in daemon mode without a key bound.
 		- Add Ctrl(Shift)Tab to switch modi's.
 		- Auto size number of columns based on available columns.
 		- Better way to determine font height.
