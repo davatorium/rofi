@@ -18,7 +18,7 @@ AM_CFLAGS=\
     @x11_CFLAGS@\
     @xinerama_CFLAGS@\
     @pango_CFLAGS@\
-    -DMANPAGE_PATH="\"$(mandir)/man1/rofi.1\""\
+    -DMANPAGE_PATH="\"$(mandir)/\""\
     -I$(top_srcdir)/include/\
     -I$(top_srcdir)/config/\
     -I$(top_builddir)/\

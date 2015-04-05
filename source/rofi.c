@@ -1505,7 +1505,7 @@ static void handle_keypress ( XEvent *ev )
  */
 static void help ()
 {
-    int code = execlp ( "man", "man", MANPAGE_PATH, NULL );
+    int code = execlp ( "man", "man", "-M",  MANPAGE_PATH, "rofi",NULL );
 
     if ( code == -1 ) {
         fprintf ( stderr, "Failed to execute man: %s\n", strerror ( errno ) );
