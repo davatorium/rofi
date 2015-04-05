@@ -64,18 +64,65 @@ static char **get_dmenu ( int *length )
     return retv;
 }
 
+struct range_pair
+{
+    unsigned int start;
+    unsigned int stop;
+};
 
-static unsigned int row_urgent = 0xFFFFFFFF;
-static unsigned int row_active = 0xFFFFFFFF;
+struct range_pair * urgent_list   = NULL;
+unsigned int      num_urgent_list = 0;
+struct range_pair * active_list   = NULL;
+unsigned int      num_active_list = 0;
+
+static void parse_pair ( char  *input, struct range_pair  *item )
+{
+    int index = 0;
+    for ( char *token = strsep ( &input, "-" );
+          token != NULL;
+          token = strsep ( &input, "-" ) ) {
+        if ( index == 0 ) {
+            item->start = item->stop = (unsigned int) strtoul ( token, NULL, 10 );
+            index++;
+        }
+        else {
+            if ( token[0] == '\0' ) {
+                item->stop = 0xFFFFFFFF;
+            }
+            else{
+                item->stop = (unsigned int) strtoul ( token, NULL, 10 );
+            }
+        }
+    }
+}
+
+static void parse_ranges ( char *input, struct range_pair **list, unsigned int *length )
+{
+    char *endp;
+    for ( char *token = strtok_r ( input, ",", &endp );
+          token != NULL;
+          token = strtok_r ( NULL, ",", &endp ) ) {
+        // Make space.
+        *list = g_realloc ( ( *list ), ( ( *length ) + 1 ) * sizeof ( struct range_pair ) );
+        // Parse a single pair.
+        parse_pair ( token, &( ( *list )[*length] ) );
+
+        ( *length )++;
+    }
+}
 
 static const char *get_display_data ( unsigned int index, void *data, G_GNUC_UNUSED int *state )
 {
     char **retv = (char * *) data;
-    if ( index == row_urgent ) {
-        *state |= URGENT;
+    for ( unsigned int i = 0; i < num_active_list; i++ ) {
+        if ( index >= active_list[i].start && index <= active_list[i].stop ) {
+            *state |= ACTIVE;
+        }
     }
-    if ( index == row_active ) {
-        *state |= ACTIVE;
+    for ( unsigned int i = 0; i < num_urgent_list; i++ ) {
+        if ( index >= urgent_list[i].start && index <= urgent_list[i].stop ) {
+            *state |= URGENT;
+        }
     }
     return retv[index];
 }
@@ -97,8 +144,18 @@ int dmenu_switcher_dialog ( char **input )
     // Check prompt
     find_arg_str (  "-p", &dmenu_prompt );
     find_arg_int (  "-l", &selected_line );
-    find_arg_uint (  "-u", &row_urgent );
-    find_arg_uint (  "-a", &row_active );
+    // Urgent.
+    char *str = NULL;
+    find_arg_str (  "-u", &str );
+    if ( str != NULL ) {
+        parse_ranges ( str, &urgent_list, &num_urgent_list );
+    }
+    // Active
+    str = NULL;
+    find_arg_str (  "-a", &str );
+    if ( str != NULL ) {
+        parse_ranges ( str, &active_list, &num_active_list );
+    }
 
     do {
         int mretv = menu ( list, length, input, dmenu_prompt,
@@ -138,6 +195,8 @@ int dmenu_switcher_dialog ( char **input )
     } while ( restart );
 
     g_strfreev ( list );
+    g_free ( urgent_list );
+    g_free ( active_list );
 
     return retv;
 }

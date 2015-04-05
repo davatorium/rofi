@@ -400,10 +400,18 @@ daemon listening to specific key-combinations.
 `-a` *X*
 
     Active row, mark row X as active. (starting at 0)
+    You can specify single element: -a 3
+    A range: -a 3-8
+    or a set of rows: -a 0,2
+    Or any combination: -a 0,2-3,9
 
 `-u` *X*
 
     Urgent row, mark row X as urgent. (starting at 0)
+    You can specify single element: -u 3
+    A range: -u 3-8
+    or a set of rows: -u 0,2
+    Or any combination: -u 0,2-3,9
 
 ### Message dialog
 

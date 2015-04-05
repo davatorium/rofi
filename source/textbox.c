@@ -147,18 +147,20 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
     }
     if ( ( tbft & FMOD_MASK ) ) {
         if ( ( tbft & ACTIVE ) ) {
-            if(tbft&HIGHLIGHT) {
+            if ( tbft & HIGHLIGHT ) {
                 tb->color_fg = color_hlfg;
                 tb->color_bg = color_fg_active;
-            }else {
+            }
+            else {
                 tb->color_fg = color_fg_active;
             }
         }
         else if ( ( tbft & URGENT ) ) {
-            if(tbft&HIGHLIGHT) {
+            if ( tbft & HIGHLIGHT ) {
                 tb->color_fg = color_hlfg;
                 tb->color_bg = color_fg_urgent;
-            }else {
+            }
+            else {
                 tb->color_fg = color_fg_urgent;
             }
         }
@@ -318,8 +320,8 @@ void textbox_draw ( textbox *tb )
     // draw the cursor
     if ( tb->flags & TB_EDITABLE ) {
         XftDrawRect ( draw, &tb->color_fg,
-                x / PANGO_SCALE + cursor_x, y/PANGO_SCALE, // Align with font
-                cursor_width, font_height );
+                      x / PANGO_SCALE + cursor_x, y / PANGO_SCALE, // Align with font
+                      cursor_width, font_height );
     }
 
     // flip canvas to window

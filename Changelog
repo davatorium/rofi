@@ -3,8 +3,11 @@
 		- Number mode for dmenu. allows user to get index back instead of content.
 		- Combi mode. Combine multiple views into one.
 		- Highlight current window.
+		- Highlight urgent and active row in window view.
+		- DMenu allow rows to be highlighted.
 	Bug fixes:
 		- On a single item in list disable auto-select.
+		- Fix cursor position (#140)
 	Improvements:
 		- Add Ctrl(Shift)Tab to switch modi's.
 		- Auto size number of columns based on available columns.
