@@ -147,10 +147,20 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
     }
     if ( ( tbft & FMOD_MASK ) ) {
         if ( ( tbft & ACTIVE ) ) {
-            tb->color_fg = color_fg_active;
+            if(tbft&HIGHLIGHT) {
+                tb->color_fg = color_hlfg;
+                tb->color_bg = color_fg_active;
+            }else {
+                tb->color_fg = color_fg_active;
+            }
         }
         else if ( ( tbft & URGENT ) ) {
-            tb->color_fg = color_fg_urgent;
+            if(tbft&HIGHLIGHT) {
+                tb->color_fg = color_hlfg;
+                tb->color_bg = color_fg_urgent;
+            }else {
+                tb->color_fg = color_fg_urgent;
+            }
         }
     }
     tb->tbft = tbft;
