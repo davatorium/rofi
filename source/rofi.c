@@ -119,9 +119,8 @@ XVisualInfo vinfo;
 void menu_unmap ( void )
 {
     if ( main_window != None ) {
-        release_keyboard(display);
-        XUnmapWindow(display, main_window);
-
+        release_keyboard ( display );
+        XUnmapWindow ( display, main_window );
     }
 }
 
@@ -422,7 +421,7 @@ static void menu_calculate_rows_columns ( MenuState *state )
                                   state->columns ) / ( state->columns )
                                 ) );
     // Always have at least one row.
-    state->max_rows = MAX( 1, state->max_rows);
+    state->max_rows = MAX ( 1, state->max_rows );
 
     if ( config.fixed_num_lines == TRUE ) {
         state->max_elements = state->menu_lines * state->columns;
@@ -1505,7 +1504,7 @@ static void handle_keypress ( XEvent *ev )
  */
 static void help ()
 {
-    int code = execlp ( "man", "man", "-M",  MANPAGE_PATH, "rofi",NULL );
+    int code = execlp ( "man", "man", "-M", MANPAGE_PATH, "rofi", NULL );
 
     if ( code == -1 ) {
         fprintf ( stderr, "Failed to execute man: %s\n", strerror ( errno ) );
@@ -1681,8 +1680,13 @@ static void show_error_message ( const char *msg )
 
 int main ( int argc, char *argv[] )
 {
+    int quiet      = FALSE;
     int dmenu_mode = FALSE;
     cmd_set_arguments ( argc, argv );
+    // Quiet flag
+    if ( find_arg ( "-quiet" ) >= 0 ) {
+        quiet = TRUE;
+    }
     // catch help request
     if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 ) {
         help ();
@@ -1789,11 +1793,39 @@ int main ( int argc, char *argv[] )
         }
     }
     else{
+        int          key_bound  = FALSE;
+        unsigned int key_length = 0;
         // Daemon mode, Listen to key presses..
         for ( unsigned int i = 0; i < num_switchers; i++ ) {
+            key_length = MAX ( key_length, strlen ( switchers[i]->name ) );
             if ( switchers[i]->keystr != NULL ) {
                 x11_parse_key ( switchers[i]->keystr, &( switchers[i]->modmask ), &( switchers[i]->keysym ) );
                 x11_grab_key ( display, switchers[i]->modmask, switchers[i]->keysym );
+                key_bound = TRUE;
+            }
+        }
+        if ( !key_bound ) {
+            fprintf ( stderr, "Rofi was launched in daemon mode, but no key-binding was specified.\n" );
+            fprintf ( stderr, "Please check the manpage on how to specify a key-binding.\n" );
+            fprintf ( stderr, "The following modi are enabled and keys can be specified:\n" );
+            for ( unsigned int i = 0; i < num_switchers; i++ ) {
+                fprintf ( stderr, "\t* "color_bold "%*s"color_reset ": -key-%s <key>\n",
+                          key_length, switchers[i]->name, switchers[i]->name );
+            }
+            return EXIT_FAILURE;
+        }
+        if ( !quiet ) {
+            fprintf ( stdout, "Rofi is launched in daemon mode.\n" );
+            fprintf ( stdout, "listening to the following keys:\n" );
+            for ( unsigned int i = 0; i < num_switchers; i++ ) {
+                if ( switchers[i]->keystr != NULL ) {
+                    fprintf ( stdout, "\t* "color_bold "%*s"color_reset " on %s\n",
+                              key_length, switchers[i]->name, switchers[i]->keystr );
+                }
+                else {
+                    fprintf ( stdout, "\t* "color_bold "%*s"color_reset " on <unspecified>\n",
+                              key_length, switchers[i]->name );
+                }
             }
         }
         // Setup handler for sighup (reload config)

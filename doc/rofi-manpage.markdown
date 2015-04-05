@@ -50,6 +50,7 @@ rofi - A window switcher, run dialog and dmenu replacement
 [ -auto-select ]
 [ -parse-hosts ]
 [ -combi-modi *mode1,mode2* ]
+[ -quiet ]
 
 ## DESCRIPTION
 
@@ -92,7 +93,6 @@ Keybindings can also be specified in the `Xresources` file.
 The official website for `dmenu` can be found: http://tools.suckless.org/dmenu/
 
 ## OPTIONS
-
 
 `-key-{mode}` **KEY**
 
@@ -139,6 +139,10 @@ The official website for `dmenu` can be found: http://tools.suckless.org/dmenu/
 `-case-sensitive`
 
   Start in case sensitive mode.
+
+`-quiet`
+
+  Do not print any message when starting in daemon mode.
 
 
 ### Theming
@@ -457,6 +461,11 @@ The official website for `dmenu` can be found: http://tools.suckless.org/dmenu/
 
   Dump the current active configuration in xresources format to the command-line.
 
+## OPTIONS via XResources
+
+Any of the above options can be specified via Xresources. Check `rofi -dump-xresources` for the
+available options. As a general rule option: `-key-run *key*` can be set as `rofi.key-run: *key*`.
+
 ## PATTERN
 
 To launch commands (e.g. when using the ssh launcher) the user can enter the used commandline,
@@ -501,7 +510,7 @@ and the others slightly transparent.
 
 ## Keybindings
 
-Rofi supports the following keybindings:
+**rofi** has the following key-bindings:
 
 * `Ctrl-v, Insert`: Paste clipboard
 * `Ctrl-Shift-v, Shift-Insert`: Paste primary selection

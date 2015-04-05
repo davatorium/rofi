@@ -48,6 +48,7 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-auto\-select ]
 [ \-parse\-hosts ]
 [ \-combi\-modi \fImode1,mode2\fP ]
+[ \-quiet ]
 .SH DESCRIPTION
 .PP
 \fBrofi\fP is an X11 popup window switcher, run dialog, dmenu replacement and more. It focusses on
@@ -155,6 +156,10 @@ So to have a mode 'Workspaces' using the \fB\fCi3_switch_workspace.sh\fR script 
 \fB\fC\-case\-sensitive\fR
 .IP
 Start in case sensitive mode.
+.PP
+\fB\fC\-quiet\fR
+.IP
+Do not print any message when starting in daemon mode.
 .SS Theming
 .PP
 \fB\fC\-bg\fR
@@ -575,6 +580,10 @@ simultaneous. This is useful when running rofi from a keybinding daemon.
 \fB\fC\-dump\-xresources\fR
 .IP
 Dump the current active configuration in xresources format to the command\-line.
+.SH OPTIONS via XResources
+.PP
+Any of the above options can be specified via Xresources. Check \fB\fCrofi \-dump\-xresources\fR for the
+available options. As a general rule option: \fB\fC\-key\-run *key*\fR can be set as \fB\fCrofi.key\-run: *key*\fR\&.
 .SH PATTERN
 .PP
 To launch commands (e.g. when using the ssh launcher) the user can enter the used commandline,
@@ -627,7 +636,7 @@ can be done for any color; it is therefore possible to have solid borders,  the 
 and the others slightly transparent.
 .SH Keybindings
 .PP
-Rofi supports the following keybindings:
+\fBrofi\fP has the following key\-bindings:
 .RS
 .IP \(bu 2
 \fB\fCCtrl\-v, Insert\fR: Paste clipboard
