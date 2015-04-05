@@ -60,6 +60,28 @@ MIT/X11
 .PP
 \fBrofi\fP can be used in two ways, single\-shot; executes once and directly exits when done or as
 daemon listening to specific key\-combinations.
+.SS Single\-shot mode
+.PP
+To launch \fBrofi\fP directly in a certain mode, specifying \fB\fCrofi \-show <mode>\fR\&.
+To show the run dialog:
+.PP
+.RS
+.nf
+    rofi \-show run
+.fi
+.RE
+.SS Deamon mode
+.PP
+To launch \fBrofi\fP in daemon mode don't specify a mode to show (\fB\fC\-show <mode>\fR), instead you can
+bind keys to launch a certain mode. To have run mode open when pressing \fB\fCF2\fR start \fBrofi\fP like:
+.PP
+.RS
+.nf
+    rofi \-key\-run F2
+.fi
+.RE
+.PP
+Keybindings can also be specified in the \fB\fCXresources\fR file.
 .SH OPTIONS
 .PP
 \fB\fC\-key\-{mode}\fR \fBKEY\fP

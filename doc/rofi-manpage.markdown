@@ -66,6 +66,25 @@ MIT/X11
 **rofi** can be used in two ways, single-shot; executes once and directly exits when done or as
 daemon listening to specific key-combinations.
 
+### Single-shot mode
+
+To launch **rofi** directly in a certain mode, specifying `rofi -show <mode>`.
+To show the run dialog:
+
+```
+    rofi -show run
+```
+
+### Deamon mode
+
+To launch **rofi** in daemon mode don't specify a mode to show (`-show <mode>`), instead you can
+bind keys to launch a certain mode. To have run mode open when pressing `F2` start **rofi** like:
+
+```
+    rofi -key-run F2
+```
+Keybindings can also be specified in the `Xresources` file.
+
 
 ## OPTIONS
 
