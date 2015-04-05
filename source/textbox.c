@@ -307,7 +307,9 @@ void textbox_draw ( textbox *tb )
 
     // draw the cursor
     if ( tb->flags & TB_EDITABLE ) {
-        XftDrawRect ( draw, &tb->color_fg, x / PANGO_SCALE + cursor_x, SIDE_MARGIN, cursor_width, font_height );
+        XftDrawRect ( draw, &tb->color_fg,
+                x / PANGO_SCALE + cursor_x, y/PANGO_SCALE, // Align with font
+                cursor_width, font_height );
     }
 
     // flip canvas to window
