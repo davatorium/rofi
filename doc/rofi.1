@@ -58,8 +58,8 @@ filter, tokenized search and more.
 MIT/X11
 .SH USAGE
 .PP
-\fBrofi\fP can be used in two ways, single\-shot; executes once and directly exits when done or as
-daemon listening to specific key\-combinations.
+\fBrofi\fP can be used in three ways, single\-shot; executes once and directly exits when done, as a
+daemon listening to specific key\-combination or emulating dmenu.
 .SS Single\-shot mode
 .PP
 To launch \fBrofi\fP directly in a certain mode, specifying \fB\fCrofi \-show <mode>\fR\&.
@@ -70,7 +70,7 @@ To show the run dialog:
     rofi \-show run
 .fi
 .RE
-.SS Deamon mode
+.SS Daemon mode
 .PP
 To launch \fBrofi\fP in daemon mode don't specify a mode to show (\fB\fC\-show <mode>\fR), instead you can
 bind keys to launch a certain mode. To have run mode open when pressing \fB\fCF2\fR start \fBrofi\fP like:
@@ -82,6 +82,13 @@ bind keys to launch a certain mode. To have run mode open when pressing \fB\fCF2
 .RE
 .PP
 Keybindings can also be specified in the \fB\fCXresources\fR file.
+.SS Emulating dmenu
+.PP
+\fBrofi\fP can emulate \fB\fCdmenu\fR (a dynamic menu for X) when launched with the \fB\fC\-dmenu\fR flag.
+.PP
+The official website for \fB\fCdmenu\fR can be found: 
+.UR http://tools.suckless.org/dmenu/
+.UE
 .SH OPTIONS
 .PP
 \fB\fC\-key\-{mode}\fR \fBKEY\fP

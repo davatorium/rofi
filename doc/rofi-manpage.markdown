@@ -63,8 +63,8 @@ MIT/X11
 
 ## USAGE
 
-**rofi** can be used in two ways, single-shot; executes once and directly exits when done or as
-daemon listening to specific key-combinations.
+**rofi** can be used in three ways, single-shot; executes once and directly exits when done, as a
+daemon listening to specific key-combination or emulating dmenu.
 
 ### Single-shot mode
 
@@ -75,7 +75,7 @@ To show the run dialog:
     rofi -show run
 ```
 
-### Deamon mode
+### Daemon mode
 
 To launch **rofi** in daemon mode don't specify a mode to show (`-show <mode>`), instead you can
 bind keys to launch a certain mode. To have run mode open when pressing `F2` start **rofi** like:
@@ -85,6 +85,11 @@ bind keys to launch a certain mode. To have run mode open when pressing `F2` sta
 ```
 Keybindings can also be specified in the `Xresources` file.
 
+### Emulating dmenu
+
+**rofi** can emulate `dmenu` (a dynamic menu for X) when launched with the `-dmenu` flag.
+
+The official website for `dmenu` can be found: http://tools.suckless.org/dmenu/
 
 ## OPTIONS
 
