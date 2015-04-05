@@ -261,4 +261,5 @@ struct _Switcher
     switcher_free     free;
 };
 
+void menu_unmap ( void );
 #endif

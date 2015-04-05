@@ -482,6 +482,10 @@ static SwitcherMode window_mode_result ( int mretv, G_GNUC_UNUSED char **input, 
         retv = selected_line;
     }
     else if ( ( mretv & ( MENU_OK | MENU_CUSTOM_INPUT ) ) && rmpd->cmd_list[selected_line] ) {
+        // Window is going to be removed later (retv == MODE_EXIT).
+        // Unmap it first, so (not so)awesomewm does not get confused and give application beneath
+        // rofi focus on destory.
+        menu_unmap ();
         if ( rmpd->config_i3_mode ) {
             // Hack for i3.
             i3_support_focus_window ( rmpd->ids->array[selected_line] );

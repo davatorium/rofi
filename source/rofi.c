@@ -115,6 +115,17 @@ GC          gc          = NULL;
 Colormap    map         = None;
 XVisualInfo vinfo;
 
+
+void menu_unmap ( void )
+{
+    if ( main_window != None ) {
+        release_keyboard(display);
+        XUnmapWindow(display, main_window);
+
+    }
+}
+
+
 /**
  * @param display Connection to the X server.
  * @param x11_fd  File descriptor from the X server to listen on.
@@ -410,6 +421,8 @@ static void menu_calculate_rows_columns ( MenuState *state )
                                 ( state->num_lines + ( state->columns - state->num_lines % state->columns ) %
                                   state->columns ) / ( state->columns )
                                 ) );
+    // Always have at least one row.
+    state->max_rows = MAX( 1, state->max_rows);
 
     if ( config.fixed_num_lines == TRUE ) {
         state->max_elements = state->menu_lines * state->columns;
