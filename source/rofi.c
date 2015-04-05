@@ -1688,7 +1688,7 @@ int main ( int argc, char *argv[] )
         quiet = TRUE;
     }
     // catch help request
-    if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 ) {
+    if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 || find_arg(  "--help" ) >= 0 ) {
         help ();
         exit ( EXIT_SUCCESS );
     }
