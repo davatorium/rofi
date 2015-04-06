@@ -65,8 +65,8 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERT( display != NULL );
     XSetWindowAttributes attr;
     attr.colormap         = map;
-    attr.border_pixel     = color_get ( display, config.menu_bc );
-    attr.background_pixel = color_get ( display, config.menu_bg );
+    attr.border_pixel     = color_get ( display, "white" );
+    attr.background_pixel = color_get ( display, "black");
     Window mw = XCreateWindow ( display, DefaultRootWindow ( display ),
                                  0, 0, 200, 100, config.menu_bw, vinfo.depth, InputOutput,
                                  vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
