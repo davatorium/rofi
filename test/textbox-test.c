@@ -73,8 +73,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERT( mw != None );
     // Set alternate row to normal row.
     config.menu_bg_alt = config.menu_bg;
-    textbox_setup ( &vinfo, map, config.menu_bg, config.menu_bg_alt, config.menu_fg,
-                    config.menu_hlbg, config.menu_hlfg ); 
+    textbox_setup ( &vinfo, map ); 
     textbox *box = textbox_create(mw , &vinfo, map, TB_EDITABLE|TB_AUTOWIDTH|TB_AUTOHEIGHT, 0,0, -1, -1, NORMAL, "test");
     TASSERT( box != NULL );
 

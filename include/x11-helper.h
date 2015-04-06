@@ -133,4 +133,7 @@ void create_visual_and_colormap ( Display *display );
  * Allocate a pixel value for an X named color
  */
 unsigned int color_get ( Display *display, const char *const name );
+
+unsigned int color_background ( Display *display );
+unsigned int color_border ( Display *display );
 #endif

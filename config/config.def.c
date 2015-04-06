@@ -35,39 +35,46 @@ Settings config = {
     /** Set the default window opacity. */
     /** This option only works when running a composite manager. */
     /** -o */
-    .window_opacity    =                                 100,
+    .window_opacity    =                                       100,
     /** Border width around the window. */
-    .menu_bw           =                                   1,
+    .menu_bw           =                                         1,
     /** The width of the switcher. (0100 in % > 100 in pixels) */
-    .menu_width        =                                  50,
+    .menu_width        =                                        50,
     /** Maximum number of options to show. */
-    .menu_lines        =                                  15,
+    .menu_lines        =                                        15,
     /** Number of columns */
-    .menu_columns      =                                   1,
+    .menu_columns      =                                         1,
     /** Font */
     .menu_font         = "mono 12",
-    /** Foreground color */
-    .menu_fg           = "#222222",
-    /** Text color used for urgent windows */
-    .menu_fg_urgent    = "#ff2222",
-    /** Text color used for active window */
-    .menu_fg_active    = "#2222ff",
+
     /** Background color */
-    .menu_bg        = "#f2f1f0",
-    .menu_bg_urgent = "#f2f1f0",
-    .menu_bg_active = "#f2f1f0",
+    .menu_bg           = NULL,
+    /** Border color. */
+    .menu_bc           = NULL,
+    /** Row colors */
+    .color_normal = "#F2F1F0,#222222,#F2F1F0,#222222,#F1F1F0",
+    .color_urgent = "#F2F1F0,#FF2222,#F2F1F0,#FF2222,#F2F1F0",
+    .color_active = "#F2F1F0,#2222FF,#F2F1F0,#2222FF,#F2F1F0",
+    .color_window = "#F2F1F0,#000000",
+
+    /** Foreground color */
+    .menu_fg           = NULL,
+    /** Text color used for urgent windows */
+    .menu_fg_urgent    = NULL,
+    /** Text color used for active window */
+    .menu_fg_active = NULL,
+    .menu_bg_urgent = NULL,
+    .menu_bg_active = NULL,
     /** Background color alternate row */
     .menu_bg_alt       = NULL,
     /** Foreground color (selected) */
-    .menu_hlfg        = "#ffffff",
-    .menu_hlfg_urgent = "#ffffff",
-    .menu_hlfg_active = "#ffffff",
+    .menu_hlfg        = NULL,
+    .menu_hlfg_urgent = NULL,
+    .menu_hlfg_active = NULL,
     /** Background color (selected) */
-    .menu_hlbg        = "#005577",
-    .menu_hlbg_urgent = "#005577",
-    .menu_hlbg_active = "#005577",
-    /** Border color. */
-    .menu_bc           = "black",
+    .menu_hlbg        = NULL,
+    .menu_hlbg_urgent = NULL,
+    .menu_hlbg_active = NULL,
     /** Terminal to use. (for ssh and open in terminal) */
     .terminal_emulator = "x-terminal-emulator",
     .ssh_client        = "ssh",
@@ -92,11 +99,11 @@ Settings config = {
      */
     .location          = WL_CENTER,
     /** Padding between elements */
-    .padding           =                                   5,
+    .padding           =                                         5,
     /** Y offset */
-    .y_offset          =                                   0,
+    .y_offset          =                                         0,
     /** X offset */
-    .x_offset          =                                   0,
+    .x_offset          =                                         0,
     /** Always should config.menu_lines lines, even if less lines are available */
     .fixed_num_lines   = FALSE,
     /** Do not use history */
@@ -108,11 +115,11 @@ Settings config = {
     /** Separator to use for dmenu mode */
     .separator         = '\n',
     /** Height of an element in #chars */
-    .element_height    =                                   1,
+    .element_height    =                                         1,
     /** Sidebar mode, show the switchers */
     .sidebar_mode      = FALSE,
     /** Lazy mode setting */
-    .lazy_filter_limit =                                5000,
+    .lazy_filter_limit =                                      5000,
     /** auto select */
     .auto_select       = FALSE,
     /** Parse /etc/hosts file in ssh view. */

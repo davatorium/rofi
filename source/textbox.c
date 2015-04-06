@@ -47,25 +47,25 @@ extern Display *display;
  * Font + font color cache.
  * Avoid re-loading font on every change on every textbox.
  */
-//
-XftColor     color_fg;
-XftColor     color_bg;
-XftColor     color_fg_urgent;
-XftColor     color_fg_active;
-XftColor     color_bg_urgent;
-XftColor     color_bg_active;
-//
-XftColor     color_hlfg;
-XftColor     color_hlbg;
-XftColor     color_hlfg_urgent;
-XftColor     color_hlfg_active;
-XftColor     color_hlbg_urgent;
-XftColor     color_hlbg_active;
-XftColor     color_bg_alt;
-XVisualInfo  *visual_info;
-Colormap     target_colormap;
+XVisualInfo *visual_info;
+Colormap    target_colormap;
+
+
+typedef struct _RowColor
+{
+    XftColor fg;
+    XftColor bg;
+    XftColor bgalt;
+    XftColor hlfg;
+    XftColor hlbg;
+} RowColor;
+
+#define num_states    3
+RowColor colors[num_states];
+
 
 PangoContext *p_context = NULL;
+
 
 // Xft text box, optionally editable
 textbox* textbox_create ( Window parent,
@@ -92,13 +92,13 @@ textbox* textbox_create ( Window parent,
     switch ( tbft )
     {
     case HIGHLIGHT:
-        cp = color_hlbg.pixel;
+        cp = colors[NORMAL].hlbg.pixel;
         break;
     case ALT:
-        cp = color_bg_alt.pixel;
+        cp = colors[NORMAL].bgalt.pixel;
         break;
     default:
-        cp = color_bg.pixel;
+        cp = colors[NORMAL].bg.pixel;
         break;
     }
 
@@ -137,43 +137,21 @@ textbox* textbox_create ( Window parent,
 // set an Xft font by name
 void textbox_font ( textbox *tb, TextBoxFontType tbft )
 {
-    switch ( ( tbft & STATE_MASK ) )
+    RowColor *color = &( colors[tbft & STATE_MASK] );
+    switch ( ( tbft & FMOD_MASK ) )
     {
     case HIGHLIGHT:
-        tb->color_bg = color_hlbg;
-        tb->color_fg = color_hlfg;
+        tb->color_bg = color->hlbg;
+        tb->color_fg = color->hlfg;
         break;
     case ALT:
-        tb->color_bg = color_bg_alt;
-        tb->color_fg = color_fg;
+        tb->color_bg = color->bgalt;
+        tb->color_fg = color->fg;
         break;
-    case NORMAL:
     default:
-        tb->color_bg = color_bg;
-        tb->color_fg = color_fg;
+        tb->color_bg = color->bg;
+        tb->color_fg = color->fg;
         break;
-    }
-    if ( ( tbft & FMOD_MASK ) ) {
-        if ( ( tbft & ACTIVE ) ) {
-            if ( tbft & HIGHLIGHT ) {
-                tb->color_fg = color_hlfg_active;
-                tb->color_bg = color_hlbg_active;
-            }
-            else {
-                tb->color_fg = color_fg_active;
-                tb->color_bg = color_bg_active;
-            }
-        }
-        else if ( ( tbft & URGENT ) ) {
-            if ( tbft & HIGHLIGHT ) {
-                tb->color_fg = color_hlfg_urgent;
-                tb->color_bg = color_hlbg_urgent;
-            }
-            else {
-                tb->color_fg = color_fg_urgent;
-                tb->color_bg = color_bg_urgent;
-            }
-        }
     }
     tb->tbft = tbft;
 }
@@ -627,6 +605,9 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
 static void parse_color ( Visual *visual, Colormap colormap,
                           const char *bg, XftColor *color )
 {
+    if ( bg == NULL ) {
+        return;
+    }
     if ( strncmp ( bg, "argb:", 5 ) == 0 ) {
         XRenderColor col;
         unsigned int val = strtoul ( &bg[5], NULL, 16 );
@@ -640,52 +621,95 @@ static void parse_color ( Visual *visual, Colormap colormap,
         XftColorAllocName ( display, visual, colormap, bg, color );
     }
 }
-
-void textbox_setup ( XVisualInfo *visual, Colormap colormap,
-                     const char *bg, const char *bg_alt, const char *fg,
-                     const char *hlbg, const char *hlfg
-                     )
+#if 1
+static void textbox_parse_string ( XVisualInfo *visual, Colormap colormap, const char *str, RowColor *color )
+{
+    if ( str == NULL ) {
+        return;
+    }
+    char *cstr = g_strdup ( str );
+    char *endp;
+    char *token;
+    int  index = 0;
+    for ( token = strtok_r ( cstr, ",", &endp ); token != NULL; token = strtok_r ( NULL, ",", &endp ) ) {
+        switch ( index )
+        {
+        case 0:
+            parse_color ( visual->visual, colormap, token, &( color->bg ) );
+            break;
+        case 1:
+            parse_color ( visual->visual, colormap, token, &( color->fg ) );
+            break;
+        case 2:
+            parse_color ( visual->visual, colormap, token, &( color->bgalt ) );
+            break;
+        case 3:
+            parse_color ( visual->visual, colormap, token, &( color->hlbg ) );
+            break;
+        case 4:
+            parse_color ( visual->visual, colormap, token, &( color->hlfg ) );
+            break;
+        }
+        index++;
+    }
+    g_free ( cstr );
+}
+#endif
+void textbox_setup ( XVisualInfo *visual, Colormap colormap )
 {
     visual_info     = visual;
     target_colormap = colormap;
 
-    parse_color ( visual_info->visual, target_colormap, bg, &color_bg );
-    parse_color ( visual_info->visual, target_colormap, fg, &color_fg );
+    textbox_parse_string ( visual_info->visual, target_colormap,
+                           config.color_normal, &( colors[NORMAL] ) );
+    textbox_parse_string ( visual_info->visual, target_colormap,
+                           config.color_urgent, &( colors[URGENT] ) );
+    textbox_parse_string ( visual_info->visual, target_colormap,
+                           config.color_active, &( colors[ACTIVE] ) );
+#if 1
+    parse_color ( visual_info->visual, target_colormap, config.menu_bg, &( colors[NORMAL].bg ) );
+    parse_color ( visual_info->visual, target_colormap, config.menu_fg, &( colors[NORMAL].fg ) );
+    parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt, &( colors[NORMAL].bgalt ) );
+    parse_color ( visual_info->visual, target_colormap, config.menu_hlfg, &( colors[NORMAL].hlfg ) );
+    parse_color ( visual_info->visual, target_colormap, config.menu_hlbg, &( colors[NORMAL].hlbg ) );
 
-    parse_color ( visual_info->visual, target_colormap, bg_alt, &color_bg_alt );
-    parse_color ( visual_info->visual, target_colormap, hlfg, &color_hlfg );
-    parse_color ( visual_info->visual, target_colormap, hlbg, &color_hlbg );
+    parse_color ( visual_info->visual, target_colormap, config.menu_bg_urgent, &( colors[URGENT].bg ) );
+    parse_color ( visual_info->visual, target_colormap, config.menu_fg_urgent, &( colors[URGENT].fg ) );
+    parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt, &( colors[URGENT].bgalt ) );
+    parse_color ( visual_info->visual, target_colormap, config.menu_hlfg_urgent, &( colors[URGENT].hlfg ) );
+    parse_color ( visual_info->visual, target_colormap, config.menu_hlbg_urgent, &( colors[URGENT].hlbg ) );
 
-    parse_color ( visual_info->visual, target_colormap, config.menu_fg_active, &color_fg_active );
-    parse_color ( visual_info->visual, target_colormap, config.menu_fg_urgent, &color_fg_urgent );
-    parse_color ( visual_info->visual, target_colormap, config.menu_bg_active, &color_bg_active );
-    parse_color ( visual_info->visual, target_colormap, config.menu_bg_urgent, &color_bg_urgent );
-    parse_color ( visual_info->visual, target_colormap, config.menu_hlbg_active, &color_hlbg_active );
-    parse_color ( visual_info->visual, target_colormap, config.menu_hlbg_urgent, &color_hlbg_urgent );
-    parse_color ( visual_info->visual, target_colormap, config.menu_hlfg_active, &color_hlfg_active );
-    parse_color ( visual_info->visual, target_colormap, config.menu_hlfg_urgent, &color_hlfg_urgent );
-
+    parse_color ( visual_info->visual, target_colormap, config.menu_bg_active, &( colors[ACTIVE].bg ) );
+    parse_color ( visual_info->visual, target_colormap, config.menu_fg_active, &( colors[ACTIVE].fg ) );
+    parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt, &( colors[ACTIVE].bgalt ) );
+    parse_color ( visual_info->visual, target_colormap, config.menu_hlfg_active, &( colors[ACTIVE].hlfg ) );
+    parse_color ( visual_info->visual, target_colormap, config.menu_hlbg_active, &( colors[ACTIVE].hlbg ) );
+#endif
     PangoFontMap *font_map = pango_xft_get_font_map ( display, DefaultScreen ( display ) );
     p_context = pango_font_map_create_context ( font_map );
 }
 
+static void textbox_clean_rowcolor ( RowColor * color )
+{
+    XftColorFree ( display, visual_info->visual, target_colormap,
+                   &( color->fg ) );
+    XftColorFree ( display, visual_info->visual, target_colormap,
+                   &( color->bg ) );
+    XftColorFree ( display, visual_info->visual, target_colormap,
+                   &( color->bgalt ) );
+    XftColorFree ( display, visual_info->visual, target_colormap,
+                   &( color->hlfg ) );
+    XftColorFree ( display, visual_info->visual, target_colormap,
+                   &( color->hlbg ) );
+}
 
 void textbox_cleanup ( void )
 {
     if ( p_context ) {
-        XftColorFree ( display, visual_info->visual, target_colormap, &color_fg );
-        XftColorFree ( display, visual_info->visual, target_colormap, &color_fg_urgent );
-        XftColorFree ( display, visual_info->visual, target_colormap, &color_fg_active );
-        XftColorFree ( display, visual_info->visual, target_colormap, &color_bg );
-        XftColorFree ( display, visual_info->visual, target_colormap, &color_bg_urgent );
-        XftColorFree ( display, visual_info->visual, target_colormap, &color_bg_active );
-        XftColorFree ( display, visual_info->visual, target_colormap, &color_bg_alt );
-        XftColorFree ( display, visual_info->visual, target_colormap, &color_hlfg );
-        XftColorFree ( display, visual_info->visual, target_colormap, &color_hlbg );
-        XftColorFree ( display, visual_info->visual, target_colormap, &color_hlbg_active );
-        XftColorFree ( display, visual_info->visual, target_colormap, &color_hlbg_urgent );
-        XftColorFree ( display, visual_info->visual, target_colormap, &color_hlfg_active );
-        XftColorFree ( display, visual_info->visual, target_colormap, &color_hlfg_urgent );
+        for ( unsigned int st = 0; st < num_states; st++ ) {
+            textbox_clean_rowcolor ( &colors[st] );
+        }
+
         g_object_unref ( p_context );
         p_context       = NULL;
         visual_info     = NULL;

@@ -254,8 +254,8 @@ static Window create_window ( Display *display )
 {
     XSetWindowAttributes attr;
     attr.colormap         = map;
-    attr.border_pixel     = color_get ( display, config.menu_bc );
-    attr.background_pixel = color_get ( display, config.menu_bg );
+    attr.border_pixel     = color_border ( display );
+    attr.background_pixel = color_background ( display );
 
     Window box = XCreateWindow ( display, DefaultRootWindow ( display ),
                                  0, 0, 200, 100, config.menu_bw, vinfo.depth, InputOutput,
@@ -264,7 +264,7 @@ static Window create_window ( Display *display )
 
     gc = XCreateGC ( display, box, 0, 0 );
     XSetLineAttributes ( display, gc, 2, LineOnOffDash, CapButt, JoinMiter );
-    XSetForeground ( display, gc, color_get ( display, config.menu_bc ) );
+    XSetForeground ( display, gc, color_border ( display ) );
     // make it an unmanaged window
     window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
     XSetWindowAttributes sattr;
@@ -962,11 +962,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     monitor_active ( display, &mon );
 
     // we need this at this point so we can get height.
-    state.case_indicator = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_AUTOWIDTH,
+    state.line_height    = textbox_get_estimated_char_height ();
+    state.case_indicator = textbox_create ( main_window, &vinfo, map, TB_AUTOWIDTH,
                                             ( config.padding ), ( config.padding ),
-                                            0, 0,
+                                            0, state.line_height,
                                             NORMAL, "*" );
-    state.line_height = textbox_get_estimated_char_height ();
     // Height of a row.
     if ( config.menu_lines == 0 ) {
         // Autosize it.
@@ -1000,7 +1000,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     // Move indicator to end.
     textbox_move ( state.case_indicator,
                    config.padding + textbox_get_width ( state.prompt_tb ) + entrybox_width,
-                   0 );
+                   config.padding );
 
     textbox_show ( state.text );
     textbox_show ( state.prompt_tb );
@@ -1385,10 +1385,7 @@ static int run_dmenu ()
 
     // Request truecolor visual.
     create_visual_and_colormap ( display );
-    textbox_setup ( &vinfo, map,
-                    config.menu_bg, config.menu_bg_alt, config.menu_fg,
-                    config.menu_hlbg,
-                    config.menu_hlfg );
+    textbox_setup ( &vinfo, map );
     char *input = NULL;
 
     // Dmenu modi has a return state.
@@ -1428,10 +1425,7 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
 
     // Because of the above fork, we want to do this here.
     // Make sure this is isolated to its own thread.
-    textbox_setup ( &vinfo, map,
-                    config.menu_bg, config.menu_bg_alt, config.menu_fg,
-                    config.menu_hlbg,
-                    config.menu_hlfg );
+    textbox_setup ( &vinfo, map );
     // Otherwise check if requested mode is enabled.
     char *input = NULL;
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
@@ -1666,10 +1660,7 @@ static void show_error_message ( const char *msg )
 
     // Request truecolor visual.
     create_visual_and_colormap ( display );
-    textbox_setup ( &vinfo, map,
-                    config.menu_bg, config.menu_bg_alt, config.menu_fg,
-                    config.menu_hlbg,
-                    config.menu_hlfg );
+    textbox_setup ( &vinfo, map );
     error_dialog ( msg );
     textbox_cleanup ( );
     if ( map != None ) {

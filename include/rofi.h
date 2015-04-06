@@ -152,6 +152,12 @@ typedef struct _Settings
     unsigned int   menu_columns;
     /** Font string (pango format) */
     char           * menu_font;
+
+    /** New row colors */
+    char           * color_normal;
+    char           * color_active;
+    char           * color_urgent;
+    char           * color_window;
     /** Foreground color */
     char           * menu_fg;
     char           * menu_fg_urgent;

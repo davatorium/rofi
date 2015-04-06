@@ -43,6 +43,7 @@
 #include <X11/XKBlib.h>
 #include <X11/extensions/Xinerama.h>
 
+#include <rofi.h>
 #define OVERLAP( a, b, c, d )                      ( ( ( a ) == ( c ) && ( b ) == ( d ) ) || MIN ( ( a ) + ( b ), ( c ) + ( d ) ) - MAX ( ( a ), ( c ) ) > 0 )
 #define INTERSECT( x, y, w, h, x1, y1, w1, h1 )    ( OVERLAP ( ( x ), ( w ), ( x1 ), ( w1 ) ) && OVERLAP ( ( y ), ( h ), ( y1 ), ( h1 ) ) )
 #include "x11-helper.h"
@@ -424,7 +425,6 @@ void create_visual_and_colormap ( Display *display )
         map          = DefaultColormap ( display, screen );
     }
 }
-
 unsigned int color_get ( Display *display, const char *const name )
 {
     XColor color = { 0, 0, 0, 0, 0, 0 };
@@ -443,4 +443,34 @@ unsigned int color_get ( Display *display, const char *const name )
     else {
         return XAllocNamedColor ( display, map, name, &color, &color ) ? color.pixel : None;
     }
+}
+
+unsigned int color_background ( Display *display )
+{
+    if ( config.menu_bg ) {
+        return color_get ( display, config.menu_bg );
+    }
+    unsigned int retv = 0;
+
+    gchar        **vals = g_strsplit ( config.color_window, ",", 2 );
+    if ( vals != NULL && vals[0] != NULL ) {
+        retv = color_get ( display, vals[0] );
+    }
+    g_strfreev ( vals );
+    return retv;
+}
+
+unsigned int color_border ( Display *display )
+{
+    if ( config.menu_bc ) {
+        return color_get ( display, config.menu_bc );
+    }
+    unsigned int retv = 0;
+
+    gchar        **vals = g_strsplit ( config.color_window, ",", 2 );
+    if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
+        retv = color_get ( display, vals[1] );
+    }
+    g_strfreev ( vals );
+    return retv;
 }
