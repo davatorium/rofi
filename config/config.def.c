@@ -52,10 +52,10 @@ Settings config = {
     /** Border color. */
     .menu_bc           = NULL,
     /** Row colors */
-    .color_normal = "#F2F1F0,#222222,#F2F1F0,#222222,#F1F1F0",
-    .color_urgent = "#F2F1F0,#FF2222,#F2F1F0,#FF2222,#F2F1F0",
-    .color_active = "#F2F1F0,#2222FF,#F2F1F0,#2222FF,#F2F1F0",
-    .color_window = "#F2F1F0,#000000",
+    .color_normal = "#fdf6e3,#002b36,#eee8d5,#eee8d5,#eee8d5",
+    .color_urgent = "#fdf6e3,#dc322f,#eee8d5,#dc322f,#fdf6e3",
+    .color_active = "#fdf6e3,#268bd2,#eee8d5,#268bd2,#fdf6e3",
+    .color_window = "#fdf6e3,#002b36",
 
     /** Foreground color */
     .menu_fg           = NULL,
