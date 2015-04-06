@@ -677,9 +677,15 @@ void textbox_cleanup ( void )
         XftColorFree ( display, visual_info->visual, target_colormap, &color_fg_urgent );
         XftColorFree ( display, visual_info->visual, target_colormap, &color_fg_active );
         XftColorFree ( display, visual_info->visual, target_colormap, &color_bg );
+        XftColorFree ( display, visual_info->visual, target_colormap, &color_bg_urgent );
+        XftColorFree ( display, visual_info->visual, target_colormap, &color_bg_active );
         XftColorFree ( display, visual_info->visual, target_colormap, &color_bg_alt );
         XftColorFree ( display, visual_info->visual, target_colormap, &color_hlfg );
         XftColorFree ( display, visual_info->visual, target_colormap, &color_hlbg );
+        XftColorFree ( display, visual_info->visual, target_colormap, &color_hlbg_active );
+        XftColorFree ( display, visual_info->visual, target_colormap, &color_hlbg_urgent );
+        XftColorFree ( display, visual_info->visual, target_colormap, &color_hlfg_active );
+        XftColorFree ( display, visual_info->visual, target_colormap, &color_hlfg_urgent );
         g_object_unref ( p_context );
         p_context       = NULL;
         visual_info     = NULL;
