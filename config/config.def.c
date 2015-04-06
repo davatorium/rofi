@@ -53,13 +53,19 @@ Settings config = {
     /** Text color used for active window */
     .menu_fg_active    = "#2222ff",
     /** Background color */
-    .menu_bg           = "#f2f1f0",
+    .menu_bg        = "#f2f1f0",
+    .menu_bg_urgent = "#f2f1f0",
+    .menu_bg_active = "#f2f1f0",
     /** Background color alternate row */
     .menu_bg_alt       = NULL,
     /** Foreground color (selected) */
-    .menu_hlfg         = "#ffffff",
+    .menu_hlfg        = "#ffffff",
+    .menu_hlfg_urgent = "#ffffff",
+    .menu_hlfg_active = "#ffffff",
     /** Background color (selected) */
-    .menu_hlbg         = "#005577",
+    .menu_hlbg        = "#005577",
+    .menu_hlbg_urgent = "#005577",
+    .menu_hlbg_active = "#005577",
     /** Border color. */
     .menu_bc           = "black",
     /** Terminal to use. (for ssh and open in terminal) */

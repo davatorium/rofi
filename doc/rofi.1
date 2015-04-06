@@ -12,6 +12,8 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-fg \fIcolor\fP ]
 [ \-fg\-urgent \fIcolor\fP ]
 [ \-fg\-active \fIcolor\fP ]
+[ \-bg\-urgent \fIcolor\fP ]
+[ \-bg\-active \fIcolor\fP ]
 [ \-bg \fIcolor\fP ]
 [ \-bgalt \fIcolor\fP ]
 [ \-hlfg \fIcolor\fP ]
@@ -163,6 +165,10 @@ Do not print any message when starting in daemon mode.
 .SS Theming
 .PP
 \fB\fC\-bg\fR
+.PP
+\fB\fC\-bg\-active\fR
+.PP
+\fB\fC\-bg\-urgent\fR
 .IP
 Set the background text color (X11 named color or hex #rrggbb) for the menu.
 .PP
@@ -211,6 +217,10 @@ Set the border width in pixels.
 Default: \fI1\fP
 .PP
 \fB\fC\-fg\fR
+.PP
+\fB\fC\-fg\-urgent\fR
+.PP
+\fB\fC\-fg\-active\fR
 .IP
 Set the foreground text color (X11 named color or hex #rrggbb) for the menu.
 .PP
@@ -222,31 +232,11 @@ Set the foreground text color (X11 named color or hex #rrggbb) for the menu.
 .IP
 Default: \fI#222222\fP
 .PP
-\fB\fC\-fg\-urgent\fR
-.IP
-Set the foreground text color (X11 named color or hex #rrggbb) for the menu.
-.PP
-.RS
-.nf
-  rofi \-fg\-urgent "#ffcccc"
-.fi
-.RE
-.IP
-Default: \fI#ff2222\fP
-.PP
-\fB\fC\-fg\-active\fR
-.IP
-Set the foreground text color (X11 named color or hex #rrggbb) for the menu.
-.PP
-.RS
-.nf
-  rofi \-fg\-active "#ccccff"
-.fi
-.RE
-.IP
-Default: \fI#2222ff\fP
-.PP
 \fB\fC\-hlbg\fR
+.PP
+\fB\fC\-hlbg\-active\fR
+.PP
+\fB\fC\-hlbg\-urgent\fR
 .IP
 Set the background text color (X11 named color or hex #rrggbb) for the highlighted item in the
 menu.
@@ -260,6 +250,10 @@ menu.
 Default: \fI#005577\fP
 .PP
 \fB\fC\-hlfg\fR
+.PP
+\fB\fC\-hlfg\-active\fR
+.PP
+\fB\fC\-hlfg\-urgent\fR
 .IP
 Set the foreground text color (X11 named color or hex #rrggbb) for the highlighted item in the
 menu.

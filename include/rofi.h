@@ -158,12 +158,18 @@ typedef struct _Settings
     char           * menu_fg_active;
     /** Background color */
     char           * menu_bg;
+    char           * menu_bg_urgent;
+    char           * menu_bg_active;
     /** Background color alt */
     char           * menu_bg_alt;
     /** Highlight foreground color */
     char           * menu_hlfg;
+    char           * menu_hlfg_urgent;
+    char           * menu_hlfg_active;
     /** Highlight background color */
     char           * menu_hlbg;
+    char           * menu_hlbg_urgent;
+    char           * menu_hlbg_active;
     /** Border color */
     char           * menu_bc;
     /** Terminal to use  */

@@ -47,12 +47,20 @@ extern Display *display;
  * Font + font color cache.
  * Avoid re-loading font on every change on every textbox.
  */
-XftColor     color_fg_urgent;
-XftColor     color_fg_active;
+//
 XftColor     color_fg;
 XftColor     color_bg;
+XftColor     color_fg_urgent;
+XftColor     color_fg_active;
+XftColor     color_bg_urgent;
+XftColor     color_bg_active;
+//
 XftColor     color_hlfg;
 XftColor     color_hlbg;
+XftColor     color_hlfg_urgent;
+XftColor     color_hlfg_active;
+XftColor     color_hlbg_urgent;
+XftColor     color_hlbg_active;
 XftColor     color_bg_alt;
 XVisualInfo  *visual_info;
 Colormap     target_colormap;
@@ -148,20 +156,22 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
     if ( ( tbft & FMOD_MASK ) ) {
         if ( ( tbft & ACTIVE ) ) {
             if ( tbft & HIGHLIGHT ) {
-                tb->color_fg = color_hlfg;
-                tb->color_bg = color_fg_active;
+                tb->color_fg = color_hlfg_active;
+                tb->color_bg = color_hlbg_active;
             }
             else {
                 tb->color_fg = color_fg_active;
+                tb->color_bg = color_bg_active;
             }
         }
         else if ( ( tbft & URGENT ) ) {
             if ( tbft & HIGHLIGHT ) {
-                tb->color_fg = color_hlfg;
-                tb->color_bg = color_fg_urgent;
+                tb->color_fg = color_hlfg_urgent;
+                tb->color_bg = color_hlbg_urgent;
             }
             else {
                 tb->color_fg = color_fg_urgent;
+                tb->color_bg = color_bg_urgent;
             }
         }
     }
@@ -641,11 +651,19 @@ void textbox_setup ( XVisualInfo *visual, Colormap colormap,
 
     parse_color ( visual_info->visual, target_colormap, bg, &color_bg );
     parse_color ( visual_info->visual, target_colormap, fg, &color_fg );
-    parse_color ( visual_info->visual, target_colormap, config.menu_fg_active, &color_fg_active );
-    parse_color ( visual_info->visual, target_colormap, config.menu_fg_urgent, &color_fg_urgent );
+
     parse_color ( visual_info->visual, target_colormap, bg_alt, &color_bg_alt );
     parse_color ( visual_info->visual, target_colormap, hlfg, &color_hlfg );
     parse_color ( visual_info->visual, target_colormap, hlbg, &color_hlbg );
+
+    parse_color ( visual_info->visual, target_colormap, config.menu_fg_active, &color_fg_active );
+    parse_color ( visual_info->visual, target_colormap, config.menu_fg_urgent, &color_fg_urgent );
+    parse_color ( visual_info->visual, target_colormap, config.menu_bg_active, &color_bg_active );
+    parse_color ( visual_info->visual, target_colormap, config.menu_bg_urgent, &color_bg_urgent );
+    parse_color ( visual_info->visual, target_colormap, config.menu_hlbg_active, &color_hlbg_active );
+    parse_color ( visual_info->visual, target_colormap, config.menu_hlbg_urgent, &color_hlbg_urgent );
+    parse_color ( visual_info->visual, target_colormap, config.menu_hlfg_active, &color_hlfg_active );
+    parse_color ( visual_info->visual, target_colormap, config.menu_hlfg_urgent, &color_hlfg_urgent );
 
     PangoFontMap *font_map = pango_xft_get_font_map ( display, DefaultScreen ( display ) );
     p_context = pango_font_map_create_context ( font_map );

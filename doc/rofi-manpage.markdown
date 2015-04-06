@@ -14,6 +14,8 @@ rofi - A window switcher, run dialog and dmenu replacement
 [ -fg *color* ]
 [ -fg-urgent *color* ]
 [ -fg-active *color* ]
+[ -bg-urgent *color* ]
+[ -bg-active *color* ]
 [ -bg *color* ]
 [ -bgalt *color* ]
 [ -hlfg *color* ]
@@ -149,6 +151,10 @@ The official website for `dmenu` can be found: http://tools.suckless.org/dmenu/
 
 `-bg`
 
+`-bg-active`
+
+`-bg-urgent`
+
   Set the background text color (X11 named color or hex #rrggbb) for the menu.
 
       rofi -bg "#222222"
@@ -181,29 +187,22 @@ The official website for `dmenu` can be found: http://tools.suckless.org/dmenu/
 
 `-fg`
 
+`-fg-urgent`
+
+`-fg-active`
+
   Set the foreground text color (X11 named color or hex #rrggbb) for the menu.
 
       rofi -fg "#cccccc"
 
   Default: *#222222*
 
-`-fg-urgent`
-
-  Set the foreground text color (X11 named color or hex #rrggbb) for the menu.
-
-      rofi -fg-urgent "#ffcccc"
-
-  Default: *#ff2222*
-
-`-fg-active`
-
-  Set the foreground text color (X11 named color or hex #rrggbb) for the menu.
-
-      rofi -fg-active "#ccccff"
-
-  Default: *#2222ff*
 
 `-hlbg`
+
+`-hlbg-active`
+
+`-hlbg-urgent`
 
   Set the background text color (X11 named color or hex #rrggbb) for the highlighted item in the
   menu.
@@ -213,6 +212,10 @@ The official website for `dmenu` can be found: http://tools.suckless.org/dmenu/
   Default: *#005577*
 
 `-hlfg`
+
+`-hlfg-active`
+
+`-hlfg-urgent`
 
   Set the foreground text color (X11 named color or hex #rrggbb) for the highlighted item in the
   menu.
