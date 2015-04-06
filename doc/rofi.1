@@ -613,6 +613,57 @@ If in daemon mode, reload the configuration from Xresources. (commandline argume
 .RE
 .PP
 override xresources).
+.SH Theming
+.PP
+With \fBrofi\fP 0.15.4 we have a new way of specifying colors, the old settings still apply (for now)
+and override the new setup. The new setup allows you to specify colors per state, similar to \fBi3\fP
+Currently 3 states exists:
+.RS
+.IP \(bu 2
+\fBnormal\fP Normal row.
+.IP \(bu 2
+\fBurgent\fP Highlighted row (urgent)
+.br
+.IP \(bu 2
+\fBactive\fP Highlighted row (active)
+.RE
+.PP
+For each state the following 5 colors must be set:
+.RS
+.IP \(bu 2
+\fBbg\fP Background color row
+.IP \(bu 2
+\fBfg\fP Text color
+.IP \(bu 2
+\fBbgalt\fP Background color alternating row
+.IP \(bu 2
+\fBhlfg\fP Foreground color selected row
+.IP \(bu 2
+\fBhlbg\fP Background color selected row
+.RE
+.PP
+The window background and border color should be specified separate. The key \fB\fCcolor\-window\fR contains
+a pair \fB\fCbackground,border\fR\&.
+An example for \fB\fCXresources\fR file:
+.PP
+.RS
+.nf
+! State:           'bg',     'fg',     'bgalt',  'hlfg',   'hlbg'
+rofi.color\-normal: #fdf6e3,  #002b36,  #eee8d5,  #586e75,  #eee8d5
+rofi.color\-urgent: #fdf6e3,  #dc322f,  #eee8d5,  #dc322f,  #fdf6e3
+rofi.color\-active: #fdf6e3,  #268bd2,  #eee8d5,  #268bd2,  #fdf6e3
+!                  'background', 'border'
+rofi.color\-window: #fdf6e3,      #002b36 
+.fi
+.RE
+.PP
+Same settings can also be specified on command\-line:
+.PP
+.RS
+.nf
+rofi \-color\-normal "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5"
+.fi
+.RE
 .SH Colors
 .PP
 Rofi has an experimental mode for a 'nicer' transparency. The idea is that you can make the
