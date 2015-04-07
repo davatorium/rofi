@@ -605,6 +605,7 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
 static void parse_color ( Visual *visual, Colormap colormap,
                           const char *bg, XftColor *color )
 {
+printf("color: %s\n", bg);
     if ( bg == NULL ) {
         return;
     }
@@ -660,11 +661,11 @@ void textbox_setup ( XVisualInfo *visual, Colormap colormap )
     visual_info     = visual;
     target_colormap = colormap;
 
-    textbox_parse_string ( visual_info->visual, target_colormap,
+    textbox_parse_string ( visual, target_colormap,
                            config.color_normal, &( colors[NORMAL] ) );
-    textbox_parse_string ( visual_info->visual, target_colormap,
+    textbox_parse_string ( visual, target_colormap,
                            config.color_urgent, &( colors[URGENT] ) );
-    textbox_parse_string ( visual_info->visual, target_colormap,
+    textbox_parse_string ( visual, target_colormap,
                            config.color_active, &( colors[ACTIVE] ) );
 #if 1
     parse_color ( visual_info->visual, target_colormap, config.menu_bg, &( colors[NORMAL].bg ) );
