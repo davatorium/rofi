@@ -605,7 +605,6 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
 static void parse_color ( Visual *visual, Colormap colormap,
                           const char *bg, XftColor *color )
 {
-printf("color: %s\n", bg);
     if ( bg == NULL ) {
         return;
     }
