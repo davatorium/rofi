@@ -110,6 +110,24 @@ Set the key combination to display a {mode} in daemon mode.
 .IP
 Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.
 .IP
+In \fB\fCdmenu\fR mode, \fBrofi\fP will read input from STDIN, and will output to STDOUT by default.
+.IP
+Example to let the user choose between three pre\-defined options:
+.PP
+.RS
+.nf
+    echo \-e "Option #1\\nOption #2\\nOption #3" | rofi \-dmenu
+.fi
+.RE
+.IP
+Or get the options from a script:
+.PP
+.RS
+.nf
+    ~/my_script.sh | rofi \-dmenu
+.fi
+.RE
+.IP
 Pressing \fB\fCshift\-enter\fR will open the selected entries and move to the next entry.
 .PP
 \fB\fC\-show\fR \fImode\fP

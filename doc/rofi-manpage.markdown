@@ -109,6 +109,16 @@ The official website for `dmenu` can be found: http://tools.suckless.org/dmenu/
 
   Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.
 
+  In `dmenu` mode, **rofi** will read input from STDIN, and will output to STDOUT by default.
+
+  Example to let the user choose between three pre-defined options:
+
+        echo -e "Option #1\nOption #2\nOption #3" | rofi -dmenu
+
+  Or get the options from a script:
+
+        ~/my_script.sh | rofi -dmenu
+
   Pressing `shift-enter` will open the selected entries and move to the next entry.
 
 `-show` *mode*
