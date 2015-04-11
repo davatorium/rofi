@@ -447,30 +447,34 @@ unsigned int color_get ( Display *display, const char *const name )
 
 unsigned int color_background ( Display *display )
 {
-    if ( config.menu_bg ) {
+    if ( !config.color_enabled ) {
         return color_get ( display, config.menu_bg );
     }
-    unsigned int retv = 0;
+    else {
+        unsigned int retv = 0;
 
-    gchar        **vals = g_strsplit ( config.color_window, ",", 2 );
-    if ( vals != NULL && vals[0] != NULL ) {
-        retv = color_get ( display, vals[0] );
+        gchar        **vals = g_strsplit ( config.color_window, ",", 2 );
+        if ( vals != NULL && vals[0] != NULL ) {
+            retv = color_get ( display, vals[0] );
+        }
+        g_strfreev ( vals );
+        return retv;
     }
-    g_strfreev ( vals );
-    return retv;
 }
 
 unsigned int color_border ( Display *display )
 {
-    if ( config.menu_bc ) {
+    if ( !config.color_enabled ) {
         return color_get ( display, config.menu_bc );
     }
-    unsigned int retv = 0;
+    else {
+        unsigned int retv = 0;
 
-    gchar        **vals = g_strsplit ( config.color_window, ",", 2 );
-    if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
-        retv = color_get ( display, vals[1] );
+        gchar        **vals = g_strsplit ( config.color_window, ",", 2 );
+        if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
+            retv = color_get ( display, vals[1] );
+        }
+        g_strfreev ( vals );
+        return retv;
     }
-    g_strfreev ( vals );
-    return retv;
 }

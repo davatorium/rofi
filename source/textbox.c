@@ -621,7 +621,6 @@ static void parse_color ( Visual *visual, Colormap colormap,
         XftColorAllocName ( display, visual, colormap, bg, color );
     }
 }
-#if 1
 static void textbox_parse_string ( XVisualInfo *visual, Colormap colormap, const char *str, RowColor *color )
 {
     if ( str == NULL ) {
@@ -654,37 +653,38 @@ static void textbox_parse_string ( XVisualInfo *visual, Colormap colormap, const
     }
     g_free ( cstr );
 }
-#endif
 void textbox_setup ( XVisualInfo *visual, Colormap colormap )
 {
     visual_info     = visual;
     target_colormap = colormap;
 
-    textbox_parse_string ( visual, target_colormap,
-                           config.color_normal, &( colors[NORMAL] ) );
-    textbox_parse_string ( visual, target_colormap,
-                           config.color_urgent, &( colors[URGENT] ) );
-    textbox_parse_string ( visual, target_colormap,
-                           config.color_active, &( colors[ACTIVE] ) );
-#if 1
-    parse_color ( visual_info->visual, target_colormap, config.menu_bg, &( colors[NORMAL].bg ) );
-    parse_color ( visual_info->visual, target_colormap, config.menu_fg, &( colors[NORMAL].fg ) );
-    parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt, &( colors[NORMAL].bgalt ) );
-    parse_color ( visual_info->visual, target_colormap, config.menu_hlfg, &( colors[NORMAL].hlfg ) );
-    parse_color ( visual_info->visual, target_colormap, config.menu_hlbg, &( colors[NORMAL].hlbg ) );
+    if ( config.color_enabled ) {
+        textbox_parse_string ( visual, target_colormap,
+                               config.color_normal, &( colors[NORMAL] ) );
+        textbox_parse_string ( visual, target_colormap,
+                               config.color_urgent, &( colors[URGENT] ) );
+        textbox_parse_string ( visual, target_colormap,
+                               config.color_active, &( colors[ACTIVE] ) );
+    }
+    else {
+        parse_color ( visual_info->visual, target_colormap, config.menu_bg, &( colors[NORMAL].bg ) );
+        parse_color ( visual_info->visual, target_colormap, config.menu_fg, &( colors[NORMAL].fg ) );
+        parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt, &( colors[NORMAL].bgalt ) );
+        parse_color ( visual_info->visual, target_colormap, config.menu_hlfg, &( colors[NORMAL].hlfg ) );
+        parse_color ( visual_info->visual, target_colormap, config.menu_hlbg, &( colors[NORMAL].hlbg ) );
 
-    parse_color ( visual_info->visual, target_colormap, config.menu_bg_urgent, &( colors[URGENT].bg ) );
-    parse_color ( visual_info->visual, target_colormap, config.menu_fg_urgent, &( colors[URGENT].fg ) );
-    parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt, &( colors[URGENT].bgalt ) );
-    parse_color ( visual_info->visual, target_colormap, config.menu_hlfg_urgent, &( colors[URGENT].hlfg ) );
-    parse_color ( visual_info->visual, target_colormap, config.menu_hlbg_urgent, &( colors[URGENT].hlbg ) );
+        parse_color ( visual_info->visual, target_colormap, config.menu_bg_urgent, &( colors[URGENT].bg ) );
+        parse_color ( visual_info->visual, target_colormap, config.menu_fg_urgent, &( colors[URGENT].fg ) );
+        parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt, &( colors[URGENT].bgalt ) );
+        parse_color ( visual_info->visual, target_colormap, config.menu_hlfg_urgent, &( colors[URGENT].hlfg ) );
+        parse_color ( visual_info->visual, target_colormap, config.menu_hlbg_urgent, &( colors[URGENT].hlbg ) );
 
-    parse_color ( visual_info->visual, target_colormap, config.menu_bg_active, &( colors[ACTIVE].bg ) );
-    parse_color ( visual_info->visual, target_colormap, config.menu_fg_active, &( colors[ACTIVE].fg ) );
-    parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt, &( colors[ACTIVE].bgalt ) );
-    parse_color ( visual_info->visual, target_colormap, config.menu_hlfg_active, &( colors[ACTIVE].hlfg ) );
-    parse_color ( visual_info->visual, target_colormap, config.menu_hlbg_active, &( colors[ACTIVE].hlbg ) );
-#endif
+        parse_color ( visual_info->visual, target_colormap, config.menu_bg_active, &( colors[ACTIVE].bg ) );
+        parse_color ( visual_info->visual, target_colormap, config.menu_fg_active, &( colors[ACTIVE].fg ) );
+        parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt, &( colors[ACTIVE].bgalt ) );
+        parse_color ( visual_info->visual, target_colormap, config.menu_hlfg_active, &( colors[ACTIVE].hlfg ) );
+        parse_color ( visual_info->visual, target_colormap, config.menu_hlbg_active, &( colors[ACTIVE].hlbg ) );
+    }
     PangoFontMap *font_map = pango_xft_get_font_map ( display, DefaultScreen ( display ) );
     p_context = pango_font_map_create_context ( font_map );
 }

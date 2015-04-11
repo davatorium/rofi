@@ -154,6 +154,7 @@ typedef struct _Settings
     char           * menu_font;
 
     /** New row colors */
+    unsigned int   color_enabled;
     char           * color_normal;
     char           * color_active;
     char           * color_urgent;

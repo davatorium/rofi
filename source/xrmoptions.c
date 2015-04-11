@@ -64,11 +64,12 @@ static XrmOption xrmOptions[] = {
 
     { xrm_String,  "font",                 { .str  = &config.menu_font               }, NULL },
     /* Foreground color */
-/*    { xrm_String,  "foreground",           { .str  = &config.menu_fg                 }, NULL },*/
+    { xrm_String,  "foreground",           { .str  = &config.menu_fg                 }, NULL },
     { xrm_String,  "fg",                   { .str  = &config.menu_fg                 }, NULL },
-/*    { xrm_String,  "background",           { .str  = &config.menu_bg                 }, NULL },*/
+    { xrm_String,  "background",           { .str  = &config.menu_bg                 }, NULL },
     { xrm_String,  "bg",                   { .str  = &config.menu_bg                 }, NULL },
 
+    { xrm_Boolean, "color-enabled",        { .num  = &config.color_enabled           }, NULL },
     { xrm_String,  "color-normal",         { .str  = &config.color_normal            }, NULL },
     { xrm_String,  "color-urgent",         { .str  = &config.color_urgent            }, NULL },
     { xrm_String,  "color-active",         { .str  = &config.color_active            }, NULL },

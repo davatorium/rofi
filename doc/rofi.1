@@ -633,8 +633,9 @@ If in daemon mode, reload the configuration from Xresources. (commandline argume
 override xresources).
 .SH Theming
 .PP
-With \fBrofi\fP 0.15.4 we have a new way of specifying colors, the old settings still apply (for now)
-and override the new setup. The new setup allows you to specify colors per state, similar to \fBi3\fP
+With \fBrofi\fP 0.15.4 we have a new way of specifying colors, the old settings still apply (for now).
+To enable the new setup, set \fB\fCrofi.color\-enabled\fR to true. The new setup allows you to specify
+colors per state, similar to \fBi3\fP
 Currently 3 states exists:
 .RS
 .IP \(bu 2
@@ -666,7 +667,7 @@ An example for \fB\fCXresources\fR file:
 .PP
 .RS
 .nf
-! State:           'bg',     'fg',     'bgalt',  'hlfg',   'hlbg'
+! State:           'bg',     'fg',     'bgalt',  'hlbg',   'hlfg'
 rofi.color\-normal: #fdf6e3,  #002b36,  #eee8d5,  #586e75,  #eee8d5
 rofi.color\-urgent: #fdf6e3,  #dc322f,  #eee8d5,  #dc322f,  #fdf6e3
 rofi.color\-active: #fdf6e3,  #268bd2,  #eee8d5,  #268bd2,  #fdf6e3
