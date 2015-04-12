@@ -90,8 +90,7 @@ Keybindings can also be specified in the \fB\fCXresources\fR file.
 \fBrofi\fP can emulate \fB\fCdmenu\fR (a dynamic menu for X) when launched with the \fB\fC\-dmenu\fR flag.
 .PP
 The official website for \fB\fCdmenu\fR can be found: 
-.UR http://tools.suckless.org/dmenu/
-.UE
+\[la]http://tools.suckless.org/dmenu/\[ra]
 .SH OPTIONS
 .PP
 \fB\fC\-key\-{mode}\fR \fBKEY\fP
@@ -319,6 +318,34 @@ The height of a field in lines. e.g.
 .RE
 .IP
 Default: \fI1\fP
+.PP
+The following options are further explained in the theming section:
+.PP
+\fB\fC\-color\-enabled\fR
+.PP
+.RS
+.nf
+Enable the exteneded coloring options.
+.fi
+.RE
+.PP
+\fB\fC\-color\-window\fR \fIbackground\fP \fIborder color\fP
+.PP
+.RS
+.nf
+Set window background and border color.
+.fi
+.RE
+.PP
+\fB\fC\-color\-normal\fR \fIbackground,foreground,background alt, highlight background, highlight foreground\fP
+\fB\fC\-color\-urgent\fR \fIbackground,foreground,background alt, highlight background, highlight foreground\fP
+\fB\fC\-color\-active\fR \fIbackground,foreground,background alt, highlight background, highlight foreground\fP
+.PP
+.RS
+.nf
+Specify the colors used in a row per state (normal, active, urgent).
+.fi
+.RE
 .SS Layout
 .PP
 \fB\fC\-lines\fR
@@ -783,18 +810,14 @@ Check quotes used on the commandline: e.g. used “ instead of ".
 .SH WEBSITE
 .PP
 \fBrofi\fP website can be found at here
-.UR https://davedavenport.github.io/rofi/
-.UE
+\[la]https://davedavenport.github.io/rofi/\[ra]
 .PP
 \fBrofi\fP bugtracker can be found here
-.UR https://github.com/DaveDavenport/rofi/issues
-.UE
+\[la]https://github.com/DaveDavenport/rofi/issues\[ra]
 .SH AUTHOR
 .PP
 Qball Cow 
-.MT qball@gmpclient.org
-.ME
+\[la]qball@gmpclient.org\[ra]
 .PP
 Original code based on work by: Sean Pringle 
-.MT sean.pringle@gmail.com
-.ME
+\[la]sean.pringle@gmail.com\[ra]
