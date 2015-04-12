@@ -259,6 +259,22 @@ The official website for `dmenu` can be found: http://tools.suckless.org/dmenu/
 
   Default: *1*
 
+The following options are further explained in the theming section:
+
+`-color-enabled`
+
+    Enable the exteneded coloring options.
+
+`-color-window` *background* *border color*
+
+    Set window background and border color.
+
+`-color-normal` *background,foreground,background alt, highlight background, highlight foreground*
+`-color-urgent` *background,foreground,background alt, highlight background, highlight foreground*
+`-color-active` *background,foreground,background alt, highlight background, highlight foreground*
+
+    Specify the colors used in a row per state (normal, active, urgent).
+
 ### Layout
 
 `-lines`
