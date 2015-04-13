@@ -4,7 +4,7 @@
 		- Combi mode. Combine multiple views into one.
 		- Highlight current window.
 		- Highlight urgent and active row in window view.
-		- DMenu allow rows to be highlighted.
+		- DMenu allow rows to be highlighted. (single, multiple, ranges)
 	Bug fixes:
 		- On a single item in list disable auto-select.
 		- Fix cursor position (#140)
