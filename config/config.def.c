@@ -68,7 +68,7 @@ Settings config = {
     .menu_bg_urgent = "#FDF6E3",
     .menu_bg_active = "#FDF6E3",
     /** Background color alternate row */
-    .menu_bg_alt       = NULL, //"#EEE8D5",
+    .menu_bg_alt       = NULL,                                     //"#EEE8D5",
     /** Foreground color (selected) */
     .menu_hlfg        = "#EEE8D5",
     .menu_hlfg_urgent = "#FDF6E3",

@@ -116,15 +116,6 @@ Colormap    map         = None;
 XVisualInfo vinfo;
 
 
-void menu_unmap ( void )
-{
-    if ( main_window != None ) {
-        release_keyboard ( display );
-        XUnmapWindow ( display, main_window );
-    }
-}
-
-
 /**
  * @param display Connection to the X server.
  * @param x11_fd  File descriptor from the X server to listen on.

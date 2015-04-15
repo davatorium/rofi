@@ -274,8 +274,6 @@ struct _Switcher
     switcher_free     free;
 };
 
-void menu_unmap ( void );
-
 #define  color_reset           "\033[0m"
 #define  color_bold            "\033[1m"
 #define  color_underline       "\033[4m"
