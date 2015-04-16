@@ -426,8 +426,6 @@ The following options are further explained in the theming section:
 
   When searching sort the result based on levenshtein distance.
 
-  Note that levenshtein sort is disabled in dmenu mode.
-
 ### Dmenu specific
 
 `-sep` *separator*

@@ -311,7 +311,6 @@ typedef struct MenuState
     Time              last_button_press;
 
     int               quit;
-    int               init;
     // Return state
     int               *selected_line;
     MenuReturn        retv;
@@ -734,16 +733,6 @@ static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, v
                 if ( sorting ) {
                     state->distance[i] = levenshtein ( state->text->text, lines[i] );
                 }
-                // Try to look-up the selected line and highlight that.
-                // This is needed 'hack' to fix the dmenu 'next row' modi.
-                // int to unsigned int is valid because we check negativeness of
-                // selected_line
-                if ( state->init == TRUE && ( state->selected_line ) != NULL &&
-                     ( *( state->selected_line ) ) >= 0 &&
-                     ( (unsigned int) ( *( state->selected_line ) ) ) == i ) {
-                    state->selected = j;
-                    state->init     = FALSE;
-                }
                 j++;
             }
         }
@@ -917,7 +906,7 @@ static void menu_paste ( MenuState *state, XSelectionEvent *xse )
 
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt,
                   menu_match_cb mmc, void *mmc_data, int *selected_line, int sorting,
-                  get_display_value mgrv, void *mgrv_data )
+                  get_display_value mgrv, void *mgrv_data, int *next_pos )
 {
     int          shift = FALSE;
     MenuState    state = {
@@ -928,7 +917,6 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         .last_offset       =             0,
         .num_lines         = num_lines,
         .distance          = NULL,
-        .init              = TRUE,
         .quit              = FALSE,
         .filtered_lines    =             0,
         .max_elements      =             0,
@@ -942,7 +930,10 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         .mgrv_data = mgrv_data
     };
     unsigned int i;
-    workarea     mon;
+    if ( next_pos ) {
+        *next_pos = *selected_line;
+    }
+    workarea mon;
 
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     XWindowAttributes attr;
@@ -1258,6 +1249,10 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     g_free ( *input );
     *input = g_strdup ( state.text->text );
 
+    if ( next_pos ) {
+        *( next_pos ) = state.selected + 1;
+    }
+
     int retv = state.retv;
     menu_free_state ( &state );
 
@@ -1287,7 +1282,6 @@ void error_dialog ( const char *msg )
         .last_offset       =           0,
         .num_lines         =           0,
         .distance          = NULL,
-        .init              = FALSE,
         .quit              = FALSE,
         .filtered_lines    =           0,
         .columns           =           0,
@@ -1856,7 +1850,7 @@ SwitcherMode switcher_run ( char **input, Switcher *sw )
                        &selected_line,
                        config.levenshtein_sort,
                        sw->mgrv,
-                       sw );
+                       sw, NULL );
 
     SwitcherMode retv = sw->result ( mretv, input, selected_line, sw );
 

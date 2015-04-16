@@ -158,9 +158,9 @@ int dmenu_switcher_dialog ( char **input )
     }
 
     do {
-        int mretv = menu ( list, length, input, dmenu_prompt,
-                           token_match, NULL, &selected_line, FALSE, get_display_data, list );
-
+        int next_pos = selected_line;
+        int mretv    = menu ( list, length, input, dmenu_prompt,
+                              token_match, NULL, &selected_line, config.levenshtein_sort, get_display_data, list, &next_pos );
         // We normally do not want to restart the loop.
         restart = FALSE;
         if ( ( mretv & MENU_OK ) && list[selected_line] != NULL ) {
@@ -175,7 +175,7 @@ int dmenu_switcher_dialog ( char **input )
             if ( ( mretv & MENU_SHIFT ) ) {
                 restart = TRUE;
                 // Move to next line.
-                selected_line = MIN ( selected_line + 1, length - 1 );
+                selected_line = MIN ( next_pos, length - 1 );
             }
             retv = TRUE;
         }
@@ -188,7 +188,7 @@ int dmenu_switcher_dialog ( char **input )
             if ( ( mretv & MENU_SHIFT ) ) {
                 restart = TRUE;
                 // Move to next line.
-                selected_line = MIN ( selected_line + 1, length - 1 );
+                selected_line = MIN ( next_pos, length - 1 );
             }
             retv = TRUE;
         }
