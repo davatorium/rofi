@@ -111,7 +111,7 @@ Settings config = {
     /** Do not use history */
     .disable_history   = FALSE,
     /** Use levenshtein sorting when matching */
-    .levenshtein_sort  = FALSE,
+    .levenshtein_sort  = TRUE,
     /** Case sensitivity of the search */
     .case_sensitive    = FALSE,
     /** Separator to use for dmenu mode */
