@@ -237,6 +237,13 @@ static void config_parse_cmd_option ( XrmOption *option )
         if ( find_arg (  key ) >= 0 ) {
             *( option->value.num ) = TRUE;
         }
+        else {
+            g_free ( key );
+            key = g_strdup_printf ( "-no-%s", option->name );
+            if ( find_arg (  key ) >= 0 ) {
+                *( option->value.num ) = FALSE;
+            }
+        }
         break;
     case xrm_Char:
         find_arg_char (  key, option->value.charc );

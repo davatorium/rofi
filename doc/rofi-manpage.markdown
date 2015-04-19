@@ -419,10 +419,12 @@ The following options are further explained in the theming section:
 ### History and Sorting
 
 `-disable-history`
+`-no-disable-history` (re-enable history)
 
   Disable history
 
-`-levenshtein-sort`
+`-levenshtein-sort` to enable
+`-no-levenshtein-sort` to disable
 
   When searching sort the result based on levenshtein distance.
 
