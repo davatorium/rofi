@@ -5,9 +5,13 @@
 		- Highlight current window.
 		- Highlight urgent and active row in window view.
 		- DMenu allow rows to be highlighted. (single, multiple, ranges)
+		- New color specification based on I3. (Can be enabled by settings) (#147)
+		- /etc/hosts support for ssh mode. (#137)
 	Bug fixes:
 		- On a single item in list disable auto-select.
 		- Fix cursor position (#140)
+		- Resolving manpage. (#142)
+		- Fix pasting cursor one off. (#150)
 	Improvements:
 		- Be more verbose about starting in daemon mode.
 		- Print a user-understandable error when launching in daemon mode without a key bound.
