@@ -90,9 +90,64 @@ Keybindings can also be specified in the \fB\fCXresources\fR file.
 \fBrofi\fP can emulate \fB\fCdmenu\fR (a dynamic menu for X) when launched with the \fB\fC\-dmenu\fR flag.
 .PP
 The official website for \fB\fCdmenu\fR can be found: 
-.UR http://tools.suckless.org/dmenu/
-.UE
+\[la]http://tools.suckless.org/dmenu/\[ra]
 .SH OPTIONS
+.PP
+There are currently three methods of setting configuration options:
+.RS
+.IP \(bu 2
+Compile time: edit config.c. This method is strongly discouraged.
+.IP \(bu 2
+Xresources: A method of storing key values in the Xserver. See
+here
+\[la]https://en.wikipedia.org/wiki/X_resources\[ra] for more information.
+.IP \(bu 2
+Commandline options: Arguments passed to \fBrofi\fP\&.
+.RE
+.PP
+The Xresources options and the commandline options are aliased. So to set option X you would set:
+.IP
+rofi.X: value
+.PP
+In the Xresources file, and to (override) this via the commandline you would pass the same key
+prefixed with a '\-':
+.PP
+.RS
+.nf
+rofi \-X value
+.fi
+.RE
+.PP
+To get a list of available options, formatted as Xresources entries run:
+.PP
+.RS
+.nf
+rofi \-dump\-xresources
+.fi
+.RE
+.PP
+The configuration system supports the following types:
+.RS
+.IP \(bu 2
+String
+.IP \(bu 2
+Integer (signed and unsigned)
+.IP \(bu 2
+Char
+.IP \(bu 2
+Boolean
+.RE
+.PP
+The boolean option has a non\-default commandline syntax, to enable option X  you do:
+.PP
+ \-X
+.PP
+to disable it:
+.PP
+ \-no\-X
+.PP
+Below is a list of the most important options:
+.SS General
 .PP
 \fB\fC\-key\-{mode}\fR \fBKEY\fP
 .IP
@@ -811,18 +866,14 @@ Check quotes used on the commandline: e.g. used “ instead of ".
 .SH WEBSITE
 .PP
 \fBrofi\fP website can be found at here
-.UR https://davedavenport.github.io/rofi/
-.UE
+\[la]https://davedavenport.github.io/rofi/\[ra]
 .PP
 \fBrofi\fP bugtracker can be found here
-.UR https://github.com/DaveDavenport/rofi/issues
-.UE
+\[la]https://github.com/DaveDavenport/rofi/issues\[ra]
 .SH AUTHOR
 .PP
 Qball Cow 
-.MT qball@gmpclient.org
-.ME
+\[la]qball@gmpclient.org\[ra]
 .PP
 Original code based on work by: Sean Pringle 
-.MT sean.pringle@gmail.com
-.ME
+\[la]sean.pringle@gmail.com\[ra]

@@ -96,6 +96,45 @@ The official website for `dmenu` can be found: http://tools.suckless.org/dmenu/
 
 ## OPTIONS
 
+There are currently three methods of setting configuration options:
+
+ * Compile time: edit config.c. This method is strongly discouraged.
+ * Xresources: A method of storing key values in the Xserver. See
+   [here](https://en.wikipedia.org/wiki/X_resources) for more information.
+ * Commandline options: Arguments passed to **rofi**.
+
+The Xresources options and the commandline options are aliased. So to set option X you would set:
+
+  rofi.X: value
+
+In the Xresources file, and to (override) this via the commandline you would pass the same key
+prefixed with a '-':
+
+    rofi -X value
+
+To get a list of available options, formatted as Xresources entries run:
+
+    rofi -dump-xresources
+
+The configuration system supports the following types:
+
+ * String
+ * Integer (signed and unsigned)
+ * Char
+ * Boolean
+
+The boolean option has a non-default commandline syntax, to enable option X  you do:
+
+ -X
+
+to disable it:
+
+ -no-X
+
+Below is a list of the most important options:
+
+### General 
+
 `-key-{mode}` **KEY**
 
   Set the key combination to display a {mode} in daemon mode. 
