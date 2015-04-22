@@ -1,7 +1,7 @@
 .TH ROFI 1 rofi
 .SH NAME
 .PP
-rofi \- A window switcher, run dialog and dmenu replacement
+rofi \- A window switcher, run launcher, ssh dialog and dmenu replacement
 .SH SYNOPSIS
 .PP
 \fBrofi\fP
@@ -53,12 +53,9 @@ rofi \- A window switcher, run dialog and dmenu replacement
 [ \-quiet ]
 .SH DESCRIPTION
 .PP
-\fBrofi\fP is an X11 popup window switcher, run dialog, dmenu replacement and more. It focusses on
+\fBrofi\fP is an X11 popup window switcher, run dialog, dmenu replacement and more. It focuses on
 being fast to use and have minimal distraction. It supports keyboard and mouse navigation, type to
 filter, tokenized search and more.
-.SH License
-.PP
-MIT/X11
 .SH USAGE
 .PP
 \fBrofi\fP can be used in three ways, single\-shot; executes once and directly exits when done, as a
@@ -675,10 +672,6 @@ simultaneous. This is useful when running rofi from a keybinding daemon.
 \fB\fC\-dump\-xresources\fR
 .IP
 Dump the current active configuration in xresources format to the command\-line.
-.SH OPTIONS via XResources
-.PP
-Any of the above options can be specified via Xresources. Check \fB\fCrofi \-dump\-xresources\fR for the
-available options. As a general rule option: \fB\fC\-key\-run *key*\fR can be set as \fB\fCrofi.key\-run: *key*\fR\&.
 .SH PATTERN
 .PP
 To launch commands (e.g. when using the ssh launcher) the user can enter the used commandline,
@@ -693,7 +686,7 @@ the following keys can be used that will be replaced at runtime:
 .IP \(bu 2
 \fB\fC{cmd}\fR: The command to execute.
 .RE
-.SH Dmenu replacemnt
+.SH DMENU REPLACEMNT
 .PP
 If \fB\fCargv[0]\fR (calling command) is dmenu, \fBrofi\fP will start in dmenu mode.
 This way it can be used as a drop\-in replacement for dmenu. just copy or symlink \fBrofi\fP to dmenu in \fB\fC$PATH\fR\&.
@@ -703,7 +696,7 @@ This way it can be used as a drop\-in replacement for dmenu. just copy or symlin
 ln \-s /usr/bin/dmenu /usr/bin/rofi
 .fi
 .RE
-.SH Signals
+.SH SIGNALS
 .PP
 \fB\fCHUP\fR
 .PP
@@ -714,7 +707,7 @@ If in daemon mode, reload the configuration from Xresources. (commandline argume
 .RE
 .PP
 override xresources).
-.SH Theming
+.SH THEMING
 .PP
 With \fBrofi\fP 0.15.4 we have a new way of specifying colors, the old settings still apply (for now).
 To enable the new setup, set \fB\fCrofi.color\-enabled\fR to true. The new setup allows you to specify
@@ -766,7 +759,7 @@ Same settings can also be specified on command\-line:
 rofi \-color\-normal "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5"
 .fi
 .RE
-.SH Colors
+.SH COLORS
 .PP
 Rofi has an experimental mode for a 'nicer' transparency. The idea is that you can make the
 background of the window transparent but the text not. This way, in contrast to the \fB\fC\-opacity\fR
@@ -781,7 +774,7 @@ the color (00 everything, FF nothing). E.g. 'argb:00FF0000' gives you a bright r
 background shining through. If you want a dark greenish transparent color use: 'argb:dd2c3311'. This
 can be done for any color; it is therefore possible to have solid borders,  the selected row solid,
 and the others slightly transparent.
-.SH Keybindings
+.SH KEYBINDINGS
 .PP
 \fBrofi\fP has the following key\-bindings:
 .RS
@@ -863,6 +856,28 @@ Try using a mono\-space font.
 Check quotes used on the commandline: e.g. used “ instead of ".
 .fi
 .RE
+.SH LICENSE
+.PP
+MIT/X11
+.PP
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+.PP
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+.PP
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 .SH WEBSITE
 .PP
 \fBrofi\fP website can be found at here

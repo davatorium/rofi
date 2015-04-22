@@ -2,7 +2,7 @@
 
 ## NAME
 
-rofi - A window switcher, run dialog and dmenu replacement
+rofi - A window switcher, run launcher, ssh dialog and dmenu replacement
 
 ## SYNOPSIS
 
@@ -56,13 +56,10 @@ rofi - A window switcher, run dialog and dmenu replacement
 
 ## DESCRIPTION
 
-**rofi** is an X11 popup window switcher, run dialog, dmenu replacement and more. It focusses on
+**rofi** is an X11 popup window switcher, run dialog, dmenu replacement and more. It focuses on
 being fast to use and have minimal distraction. It supports keyboard and mouse navigation, type to
 filter, tokenized search and more.
 
-## License
-
-MIT/X11
 
 ## USAGE
 
@@ -529,11 +526,6 @@ The following options are further explained in the theming section:
 
   Dump the current active configuration in xresources format to the command-line.
 
-## OPTIONS via XResources
-
-Any of the above options can be specified via Xresources. Check `rofi -dump-xresources` for the
-available options. As a general rule option: `-key-run *key*` can be set as `rofi.key-run: *key*`.
-
 ## PATTERN
 
 To launch commands (e.g. when using the ssh launcher) the user can enter the used commandline,
@@ -544,7 +536,7 @@ the following keys can be used that will be replaced at runtime:
 * `{ssh-client}`: The configured ssh client (See -ssh-client)
 * `{cmd}`: The command to execute.
 
-## Dmenu replacemnt
+## DMENU REPLACEMNT
 
 If `argv[0]` (calling command) is dmenu, **rofi** will start in dmenu mode.
 This way it can be used as a drop-in replacement for dmenu. just copy or symlink **rofi** to dmenu in `$PATH`.
@@ -552,14 +544,14 @@ This way it can be used as a drop-in replacement for dmenu. just copy or symlink
 
     ln -s /usr/bin/dmenu /usr/bin/rofi
 
-## Signals
+## SIGNALS
 
 `HUP`
 
     If in daemon mode, reload the configuration from Xresources. (commandline arguments still
 override xresources).
 
-## Theming
+## THEMING
 
 With **rofi** 0.15.4 we have a new way of specifying colors, the old settings still apply (for now).
 To enable the new setup, set `rofi.color-enabled` to true. The new setup allows you to specify
@@ -598,7 +590,7 @@ Same settings can also be specified on command-line:
 rofi -color-normal "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5"
 ```
 
-## Colors
+## COLORS
 
 Rofi has an experimental mode for a 'nicer' transparency. The idea is that you can make the
 background of the window transparent but the text not. This way, in contrast to the `-opacity`
@@ -614,7 +606,7 @@ background shining through. If you want a dark greenish transparent color use: '
 can be done for any color; it is therefore possible to have solid borders,  the selected row solid,
 and the others slightly transparent.
 
-## Keybindings
+## KEYBINDINGS
 
 **rofi** has the following key-bindings:
 
@@ -658,6 +650,29 @@ and the others slightly transparent.
 `Rofi is completely black.`
 
     Check quotes used on the commandline: e.g. used “ instead of ".
+
+## LICENSE
+
+MIT/X11
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ## WEBSITE
 
