@@ -511,6 +511,12 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
     char   pad[32];
     int    len;
 
+    // This is needed for letting the Input Method handle combined keys.
+    // E.g. `e into è
+    if ( XFilterEvent ( ev, tb->window ) ) {
+        return 0;
+    }
+
 
     if ( !( tb->flags & TB_EDITABLE ) ) {
         return 0;
@@ -518,7 +524,6 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
 
     len      = Xutf8LookupString ( tb->xic, &ev->xkey, pad, sizeof ( pad ), &key, &stat );
     pad[len] = 0;
-
     // Left or Ctrl-b
     if ( key == XK_Left ||
          ( ( ev->xkey.state & ControlMask ) && key == XK_b ) ) {

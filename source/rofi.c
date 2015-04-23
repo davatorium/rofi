@@ -1110,9 +1110,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         }
         // Get next event. (might block)
         XNextEvent ( display, &ev );
-
+        if ( ev.type == KeymapNotify ) {
+            XRefreshKeyboardMapping ( &ev.xmapping );
+        }
         // Handle event.
-        if ( ev.type == Expose ) {
+        else if ( ev.type == Expose ) {
             while ( XCheckTypedEvent ( display, Expose, &ev ) ) {
                 ;
             }
@@ -1173,8 +1175,9 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                     break;
                 }
                 // Toggle case sensitivity.
-                else if ( key == XK_grave || key == XK_dead_grave
-                          || key == XK_acute ) {
+                else if ( ( ev.xkey.state & ControlMask ) == ControlMask && (
+                              key == XK_grave || key == XK_dead_grave || key == XK_acute
+                              ) ) {
                     config.case_sensitive    = !config.case_sensitive;
                     *( state.selected_line ) = 0;
                     state.refilter           = TRUE;
@@ -1340,7 +1343,6 @@ void error_dialog ( const char *msg )
             continue;
         }
         XNextEvent ( display, &ev );
-
         // Handle event.
         if ( ev.type == Expose ) {
             while ( XCheckTypedEvent ( display, Expose, &ev ) ) {
@@ -1706,6 +1708,15 @@ int main ( int argc, char *argv[] )
     display_str = getenv ( "DISPLAY" );
     find_arg_str (  "-display", &display_str );
 
+
+    if ( !XSupportsLocale () ) {
+        fprintf ( stderr, "X11 does not support locales\n" );
+        return 11;
+    }
+    if ( XSetLocaleModifiers ( "@im=none" ) == NULL ) {
+        fprintf ( stderr, "Failed to set locale modifier.\n" );
+        return 10;
+    }
     if ( !( display = XOpenDisplay ( display_str ) ) ) {
         fprintf ( stderr, "cannot open display!\n" );
         return EXIT_FAILURE;

@@ -639,7 +639,7 @@ and the others slightly transparent.
 * `Ctrl-Shift-Tab`: Switch to the previous modi. The list can be customized with the `-switchers` argument.
 * `Ctrl-space`: Set selected item as input text.
 * `Shift-Del`: Delete entry from history.
-* `grave`: Toggle case sensitivity.
+* `Ctrl-grave`: Toggle case sensitivity.
 
 ## FAQ
 
