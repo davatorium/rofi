@@ -13,6 +13,7 @@
 		- Resolving manpage. (#142)
 		- Fix pasting cursor one off. (#150)
 	Improvements:
+		- Better handle input methods.. Now international keyboard layout works as expected: `e ->è
 		- Be more verbose about starting in daemon mode.
 		- Print a user-understandable error when launching in daemon mode without a key bound.
 		- Add Ctrl(Shift)Tab to switch modi's.
