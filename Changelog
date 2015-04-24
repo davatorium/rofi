@@ -12,6 +12,7 @@
 		- Fix cursor position (#140)
 		- Resolving manpage. (#142)
 		- Fix pasting cursor one off. (#150)
+		- Fix grave key -> ctrl+grave (#151)
 	Improvements:
 		- Better handle input methods.. Now international keyboard layout works as expected: `e ->è
 		- Be more verbose about starting in daemon mode.
