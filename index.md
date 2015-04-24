@@ -148,6 +148,44 @@ Type `Shift-Right` to switch from Window list mode to Run mode and back.
 |`Shift-Del`                  | Delete entry from history. |
 |`grave`                      | Toggle case sensitivity. |
 
+
+## Configuration
+
+There are currently three methods of setting configuration options:
+
+ * Compile time: edit config.c. This method is strongly discouraged.
+ * Xresources: A method of storing key values in the Xserver. See
+   [here](https://en.wikipedia.org/wiki/X_resources) for more information.
+ * Commandline options: Arguments passed to **rofi**.
+
+The Xresources options and the commandline options are aliased. So to set option X you would set:
+
+`rofi.X: value`
+
+In the Xresources file, and to (override) this via the commandline you would pass the same key
+prefixed with a '-':
+
+    rofi -X value
+
+To get a list of available options, formatted as Xresources entries run:
+
+    rofi -dump-Xresources
+
+The configuration system supports the following types:
+
+ * String
+ * Integer (signed and unsigned)
+ * Char
+ * Boolean
+
+The boolean option has a non-default commandline syntax, to enable option X  you do:
+
+	rofi -X
+
+to disable it:
+
+	rofi -no-X
+
 # Compilation
 
 If compiling from GIT, first run to generate the needed build files:
