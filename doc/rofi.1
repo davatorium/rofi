@@ -46,7 +46,7 @@ rofi \- A window switcher, run launcher, ssh dialog and dmenu replacement
 [ \-snow ]
 [ \-version ]
 [ \-help]
-[ \-dump\-xresources ]
+[ \-dump\-Xresources ]
 [ \-auto\-select ]
 [ \-parse\-hosts ]
 [ \-combi\-modi \fImode1,mode2\fP ]
@@ -86,8 +86,9 @@ Keybindings can also be specified in the \fB\fCXresources\fR file.
 .PP
 \fBrofi\fP can emulate \fB\fCdmenu\fR (a dynamic menu for X) when launched with the \fB\fC\-dmenu\fR flag.
 .PP
-The official website for \fB\fCdmenu\fR can be found: 
-\[la]http://tools.suckless.org/dmenu/\[ra]
+The official website for \fB\fCdmenu\fR can be found here
+.UR http://tools.suckless.org/dmenu/
+.UE \&.
 .SH OPTIONS
 .PP
 There are currently three methods of setting configuration options:
@@ -97,16 +98,22 @@ Compile time: edit config.c. This method is strongly discouraged.
 .IP \(bu 2
 Xresources: A method of storing key values in the Xserver. See
 here
-\[la]https://en.wikipedia.org/wiki/X_resources\[ra] for more information.
+.UR https://en.wikipedia.org/wiki/X_resources
+.UE
+for more information.
 .IP \(bu 2
-Commandline options: Arguments passed to \fBrofi\fP\&.
+Command\-line options: Arguments passed to \fBrofi\fP\&.
 .RE
 .PP
-The Xresources options and the commandline options are aliased. So to set option X you would set:
-.IP
-rofi.X: value
+The Xresources options and the command\-line options are aliased. So to set option X you would set:
 .PP
-In the Xresources file, and to (override) this via the commandline you would pass the same key
+.RS
+.nf
+rofi.X: value
+.fi
+.RE
+.PP
+In the Xresources file, and to (override) this via the command\-line you would pass the same key
 prefixed with a '\-':
 .PP
 .RS
@@ -119,7 +126,7 @@ To get a list of available options, formatted as Xresources entries run:
 .PP
 .RS
 .nf
-rofi \-dump\-xresources
+rofi \-dump\-Xresources
 .fi
 .RE
 .PP
@@ -135,13 +142,21 @@ Char
 Boolean
 .RE
 .PP
-The boolean option has a non\-default commandline syntax, to enable option X  you do:
+The boolean option has a non\-default command\-line syntax, to enable option X  you do:
 .PP
- \-X
+.RS
+.nf
+\-X
+.fi
+.RE
 .PP
 to disable it:
 .PP
- \-no\-X
+.RS
+.nf
+\-no\-X
+.fi
+.RE
 .PP
 Below is a list of the most important options:
 .SS General
@@ -160,7 +175,7 @@ Set the key combination to display a {mode} in daemon mode.
 .PP
 \fB\fC\-dmenu\fR
 .IP
-Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.
+Run \fBrofi\fP in dmenu mode. Allowing it to be used for user interaction in scripts.
 .IP
 In \fB\fCdmenu\fR mode, \fBrofi\fP will read input from STDIN, and will output to STDOUT by default.
 .IP
@@ -184,7 +199,7 @@ Pressing \fB\fCshift\-enter\fR will open the selected entries and move to the ne
 .PP
 \fB\fC\-show\fR \fImode\fP
 .IP
-Open rofi in a certain mode.
+Open \fBrofi\fP in a certain mode.
 .IP
 For example to show the run\-dialog:
 .PP
@@ -492,9 +507,10 @@ To show sidebar use:
 .PP
 \fB\fC\-lazy\-filter\-limit\fR \fIlimit\fP
 .PP
-   The number of entries required for Rofi to go into lazy filter mode.
-   In lazy filter mode, it won't refilter the list on each keypress, but only after rofi been idle
-   for 250ms. Experiments shows that the default (5000 lines) works well, set to 0 to always enable.
+   The number of entries required for \fBrofi\fP to go into lazy filter mode.
+   In lazy filter mode, it won't re\-filter the list on each keypress, but only after \fBrofi\fP been
+   idle for 250ms. Experiments shows that the default (5000 lines) works well, set to 0 to always
+   enable.
 .PP
    Default: \fI5000\fP
 .PP
@@ -664,14 +680,14 @@ Message can be multi\-line.
 .RS
 .nf
 Make **rofi** create a pid file and check this on startup. Avoiding multiple copies running
-simultaneous. This is useful when running rofi from a keybinding daemon. 
+simultaneous. This is useful when running **rofi** from a keybinding daemon. 
 .fi
 .RE
 .SS Debug
 .PP
-\fB\fC\-dump\-xresources\fR
+\fB\fC\-dump\-Xresources\fR
 .IP
-Dump the current active configuration in xresources format to the command\-line.
+Dump the current active configuration in Xresources format to the command\-line.
 .SH PATTERN
 .PP
 To launch commands (e.g. when using the ssh launcher) the user can enter the used commandline,
@@ -686,7 +702,7 @@ the following keys can be used that will be replaced at runtime:
 .IP \(bu 2
 \fB\fC{cmd}\fR: The command to execute.
 .RE
-.SH DMENU REPLACEMNT
+.SH DMENU REPLACEMENT
 .PP
 If \fB\fCargv[0]\fR (calling command) is dmenu, \fBrofi\fP will start in dmenu mode.
 This way it can be used as a drop\-in replacement for dmenu. just copy or symlink \fBrofi\fP to dmenu in \fB\fC$PATH\fR\&.
@@ -706,7 +722,7 @@ If in daemon mode, reload the configuration from Xresources. (commandline argume
 .fi
 .RE
 .PP
-override xresources).
+override Xresources).
 .SH THEMING
 .PP
 With \fBrofi\fP 0.15.4 we have a new way of specifying colors, the old settings still apply (for now).
@@ -849,7 +865,7 @@ Try using a mono\-space font.
 .fi
 .RE
 .PP
-\fB\fCRofi is completely black.\fR
+\fB\fC**rofi** is completely black.\fR
 .PP
 .RS
 .nf
@@ -858,8 +874,9 @@ Check quotes used on the commandline: e.g. used “ instead of ".
 .RE
 .SH LICENSE
 .PP
+.RS
+.nf
 MIT/X11
-.PP
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
 "Software"), to deal in the Software without restriction, including
@@ -867,10 +884,8 @@ without limitation the rights to use, copy, modify, merge, publish,
 distribute, sublicense, and/or sell copies of the Software, and to
 permit persons to whom the Software is furnished to do so, subject to
 the following conditions:
-.PP
 The above copyright notice and this permission notice shall be
 included in all copies or substantial portions of the Software.
-.PP
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -878,17 +893,25 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+.fi
+.RE
 .SH WEBSITE
 .PP
 \fBrofi\fP website can be found at here
-\[la]https://davedavenport.github.io/rofi/\[ra]
+.UR https://davedavenport.github.io/rofi/
+.UE
 .PP
 \fBrofi\fP bugtracker can be found here
-\[la]https://github.com/DaveDavenport/rofi/issues\[ra]
+.UR https://github.com/DaveDavenport/rofi/issues
+.UE
 .SH AUTHOR
 .PP
 Qball Cow 
-\[la]qball@gmpclient.org\[ra]
+.MT qball@gmpclient.org
+.ME
 .PP
 Original code based on work by: Sean Pringle 
-\[la]sean.pringle@gmail.com\[ra]
+.MT sean.pringle@gmail.com
+.ME
+.PP
+For a full list of authors, check the AUTHORS file.

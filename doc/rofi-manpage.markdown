@@ -48,7 +48,7 @@ rofi - A window switcher, run launcher, ssh dialog and dmenu replacement
 [ -snow ]
 [ -version ]
 [ -help]
-[ -dump-xresources ]
+[ -dump-Xresources ]
 [ -auto-select ]
 [ -parse-hosts ]
 [ -combi-modi *mode1,mode2* ]
@@ -89,7 +89,7 @@ Keybindings can also be specified in the `Xresources` file.
 
 **rofi** can emulate `dmenu` (a dynamic menu for X) when launched with the `-dmenu` flag.
 
-The official website for `dmenu` can be found: http://tools.suckless.org/dmenu/
+The official website for `dmenu` can be found [here](http://tools.suckless.org/dmenu/).
 
 ## OPTIONS
 
@@ -98,20 +98,20 @@ There are currently three methods of setting configuration options:
  * Compile time: edit config.c. This method is strongly discouraged.
  * Xresources: A method of storing key values in the Xserver. See
    [here](https://en.wikipedia.org/wiki/X_resources) for more information.
- * Commandline options: Arguments passed to **rofi**.
+ * Command-line options: Arguments passed to **rofi**.
 
-The Xresources options and the commandline options are aliased. So to set option X you would set:
+The Xresources options and the command-line options are aliased. So to set option X you would set:
 
-  rofi.X: value
+    rofi.X: value
 
-In the Xresources file, and to (override) this via the commandline you would pass the same key
+In the Xresources file, and to (override) this via the command-line you would pass the same key
 prefixed with a '-':
 
     rofi -X value
 
 To get a list of available options, formatted as Xresources entries run:
 
-    rofi -dump-xresources
+    rofi -dump-Xresources
 
 The configuration system supports the following types:
 
@@ -120,13 +120,13 @@ The configuration system supports the following types:
  * Char
  * Boolean
 
-The boolean option has a non-default commandline syntax, to enable option X  you do:
+The boolean option has a non-default command-line syntax, to enable option X  you do:
 
- -X
+    -X
 
 to disable it:
 
- -no-X
+    -no-X
 
 Below is a list of the most important options:
 
@@ -143,7 +143,7 @@ Below is a list of the most important options:
 
 `-dmenu`
 
-  Run rofi in dmenu mode. Allowing it to be used for user interaction in scripts.
+  Run **rofi** in dmenu mode. Allowing it to be used for user interaction in scripts.
 
   In `dmenu` mode, **rofi** will read input from STDIN, and will output to STDOUT by default.
 
@@ -159,7 +159,7 @@ Below is a list of the most important options:
 
 `-show` *mode*
 
-  Open rofi in a certain mode.
+  Open **rofi** in a certain mode.
 
   For example to show the run-dialog:
 
@@ -377,9 +377,10 @@ The following options are further explained in the theming section:
 
 `-lazy-filter-limit` *limit*
 
-   The number of entries required for Rofi to go into lazy filter mode.
-   In lazy filter mode, it won't refilter the list on each keypress, but only after rofi been idle
-   for 250ms. Experiments shows that the default (5000 lines) works well, set to 0 to always enable.
+   The number of entries required for **rofi** to go into lazy filter mode.
+   In lazy filter mode, it won't re-filter the list on each keypress, but only after **rofi** been
+   idle for 250ms. Experiments shows that the default (5000 lines) works well, set to 0 to always
+   enable.
 
    Default: *5000*
 
@@ -518,13 +519,13 @@ The following options are further explained in the theming section:
 '-pid' *path*
 
     Make **rofi** create a pid file and check this on startup. Avoiding multiple copies running
-    simultaneous. This is useful when running rofi from a keybinding daemon. 
+    simultaneous. This is useful when running **rofi** from a keybinding daemon. 
 
 ### Debug
 
-`-dump-xresources`
+`-dump-Xresources`
 
-  Dump the current active configuration in xresources format to the command-line.
+  Dump the current active configuration in Xresources format to the command-line.
 
 ## PATTERN
 
@@ -536,7 +537,7 @@ the following keys can be used that will be replaced at runtime:
 * `{ssh-client}`: The configured ssh client (See -ssh-client)
 * `{cmd}`: The command to execute.
 
-## DMENU REPLACEMNT
+## DMENU REPLACEMENT
 
 If `argv[0]` (calling command) is dmenu, **rofi** will start in dmenu mode.
 This way it can be used as a drop-in replacement for dmenu. just copy or symlink **rofi** to dmenu in `$PATH`.
@@ -549,7 +550,7 @@ This way it can be used as a drop-in replacement for dmenu. just copy or symlink
 `HUP`
 
     If in daemon mode, reload the configuration from Xresources. (commandline arguments still
-override xresources).
+override Xresources).
 
 ## THEMING
 
@@ -647,32 +648,32 @@ and the others slightly transparent.
 
     Try using a mono-space font.
 
-`Rofi is completely black.`
+`**rofi** is completely black.`
 
     Check quotes used on the commandline: e.g. used “ instead of ".
 
 ## LICENSE
 
-MIT/X11
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    MIT/X11
+    
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+    
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ## WEBSITE
 
@@ -685,3 +686,5 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 Qball Cow <qball@gmpclient.org>
 
 Original code based on work by: Sean Pringle <sean.pringle@gmail.com>
+
+For a full list of authors, check the AUTHORS file.
