@@ -1,4 +1,6 @@
-0.15.4: (unreleased)
+0.15.5:
+
+0.15.4:
 	New feature:
 		- Number mode for dmenu. allows user to get index back instead of content.
 		- Combi mode. Combine multiple views into one.
