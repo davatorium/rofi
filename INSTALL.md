@@ -58,7 +58,8 @@ autoreconf -i
 Create a build directory:
 
 ```
-mkdir build
+mkdir build/
+cd build/
 ```
 
 Check dependencies and configure build system:

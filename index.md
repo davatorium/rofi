@@ -76,41 +76,115 @@ Drop in dmenu replacement. (Screenshot shows rofi used by
 
 # Usage
 
-e.g. a one-shot launch:
+If used with `-show [mode]`, rofi will immediately open in the specified [mode]
 
-  rofi -now -font "snap 10" -fg "#505050" -bg "#000000" -hlfg "#ffb964" -hlbg "#000000" -o 85
+If used with `-dmenu`, rofi will use data from STDIN to let the user select an option.
 
-or run it as a daemon that sits in the background waiting for the hotkey 'F12':
+If use with neither of those options, rofi will launch in daemon-mode, waiting for a key (configured beforehand) to launch.
 
-  rofi -key F12
+## Single-shot
+
+Show a run dialog with some font / color options:
+
+  `rofi -show run -font "snap 10" -fg "#505050" -bg "#000000" -hlfg "#ffb964" -hlbg "#000000" -o 85`
+
+Show a ssh dialog:
+
+  `rofi -show ssh`
+
+## dmenu
+
+If passed the `-dmenu` option, or ran as `dmenu` (ie, /usr/bin/dmenu is symlinked to /usr/bin/rofi),
+rofi will use the data passed from STDIN.
+
+`~/scripts/my_script.sh | rofi -dmenu`
+`echo -e "Option #1\nOption #2\nOption #3\n" | rofi -dmenu`
+
+In both cases, rofi will output the user's selection to STDOUT.
+
+## Daemon mode
+
+Let rofi sit in the background, waiting for the user to press `F12` to open the window run dialog:
+
+`rofi -key-run F12`
 
 ## Switching Between Modi
 
-Type '?' (enter)  to switch from Window list mode to Run mode and back.
+Type `Shift-Right` to switch from Window list mode to Run mode and back.
 
 
 ## Keybindings
 
-| Key                        | Action                                                             |
-|:---------------------------|:-------------------------------------------------------------------|
-|`Ctrl-v, Insert`            | Paste clipboard                                                    |
-|`Ctrl-Shift-v, Shift-Insert`| Paste primary selection                                            |
-|`Ctrl-u`                    | Clear the line                                                     |
-|`Ctrl-a`                    | Beginning of line                                                  |
-|`Ctrl-e`                    | End of line                                                        |
-|`Ctrl-f, Right`             | Forward one character                                              |
-|`Ctrl-b, Left`              | Back one character                                                 |
-|`Ctrl-d, Delete`            | Delete character                                                   |
-|`Ctrl-h, Backspace`         | Backspace (delete previous character)                              |
-|`Ctrl-j,Ctrl-m,Enter`       | Accept entry                                                       |
-|`Ctrl-n,Down`               | Select next entry                                                  |
-|`Ctrl-p,Up`                 | Select previous entry                                              |
-|`Page Up`                   | Go to the previous page                                            |
-|`Page Down`                 | Go to the next page                                                |
-|`Ctrl-Page Up`              | Go to the previous column                                          |
-|`Ctrl-Page Down`            | Go to the next column                                              |
-|`?`                         | Switch to the next modi. See the `-switchers` argument.            |
+| Key                         | Action                                                             |
+|:----------------------------|:-------------------------------------------------------------------|
+|`Ctrl-v, Insert`             | Paste clipboard |
+|`Ctrl-Shift-v, Shift-Insert` | Paste primary selection |
+|`Ctrl-u`                     | Clear the line |
+|`Ctrl-a`                     | Beginning of line |
+|`Ctrl-e`                     | End of line |
+|`Ctrl-f, Right`              | Forward one character |
+|`Alt-f`                      | Forward one word |
+|`Ctrl-b, Left`               | Back one character |
+|`Alt-b`                      | Back one word |
+|`Ctrl-d, Delete`             | Delete character |
+|`Ctrl-Alt-d`                 | Delete word |
+|`Ctrl-h, Backspace`          | Backspace (delete previous character) |
+|`Ctrl-Alt-h`                 | Delete previous word |
+|`Ctrl-j,Ctrl-m,Enter`        | Accept entry |
+|`Ctrl-n,Down`                | Select next entry |
+|`Ctrl-p,Up`                  | Select previous entry |
+|`Page Up`                    | Go to the previous page |
+|`Page Down`                  | Go to the next page |
+|`Ctrl-Page Up`               | Go to the previous column |
+|`Ctrl-Page Down`             | Go to the next column |
+|`Ctrl-Enter`                 | Use entered text as command (in ssh/run modi) |
+|`Shift-Enter`                | Launch the application in a terminal (in run mode) |
+|`Shift-Enter`                | Return the selected entry and move to the next item while keeping Rofi open. (in dmenu) |
+|`Shift-Right`                | Switch to the next modi. The list can be customized with the -switchers argument. |
+|`Shift-Left`                 | Switch to the previous modi. The list can be customized with the -switchers argument. |
+|`Ctrl-Tab`                   | Switch to the next modi. The list can be customized with the -switchers argument. |
+|`Ctrl-Shift-Tab`             | Switch to the previous modi. The list can be customized with the -switchers argument. |
+|`Ctrl-space`                 | Set selected item as input text. |
+|`Shift-Del`                  | Delete entry from history. |
+|`grave`                      | Toggle case sensitivity. |
 
+
+## Configuration
+
+There are currently three methods of setting configuration options:
+
+ * Compile time: edit config.c. This method is strongly discouraged.
+ * Xresources: A method of storing key values in the Xserver. See
+   [here](https://en.wikipedia.org/wiki/X_resources) for more information.
+ * Commandline options: Arguments passed to **rofi**.
+
+The Xresources options and the commandline options are aliased. So to set option X you would set:
+
+`rofi.X: value`
+
+In the Xresources file, and to (override) this via the commandline you would pass the same key
+prefixed with a '-':
+
+    rofi -X value
+
+To get a list of available options, formatted as Xresources entries run:
+
+    rofi -dump-Xresources
+
+The configuration system supports the following types:
+
+ * String
+ * Integer (signed and unsigned)
+ * Char
+ * Boolean
+
+The boolean option has a non-default commandline syntax, to enable option X  you do:
+
+	rofi -X
+
+to disable it:
+
+	rofi -no-X
 
 # Compilation
 
@@ -170,6 +244,10 @@ See the [manpage](manpage.html).
 
 This version of rofi has been made available on the
 [AUR](https://aur.archlinux.org/packages/rofi-git/).
+
+# Debian
+
+rofi is also available in the [Debian archives](https://packages.debian.org/rofi). You can install it with: `apt install rofi`
 
 # Contact
 
