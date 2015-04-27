@@ -115,3 +115,12 @@ CFLAGS="-I/weird/i3/path/include/" ../configure
 CFLAGS="-I/weird/i3/path/include/" make
 ```
 
+## Archlinux
+
+This version of rofi has been made available on the
+[AUR](https://aur.archlinux.org/packages/rofi-git/).
+
+## Debian
+
+rofi is also available in the [Debian archives](https://packages.debian.org/rofi). You can install it with: `apt install rofi`
+

@@ -240,15 +240,6 @@ Xresources file:
 All the above settings can be overridden by rofi's commandline flags.
 See the [manpage](manpage.html).
 
-# Archlinux
-
-This version of rofi has been made available on the
-[AUR](https://aur.archlinux.org/packages/rofi-git/).
-
-# Debian
-
-rofi is also available in the [Debian archives](https://packages.debian.org/rofi). You can install it with: `apt install rofi`
-
 # Contact
 
 Issues, feature requests can be filed at the github [issue
