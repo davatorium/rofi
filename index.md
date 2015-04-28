@@ -146,10 +146,10 @@ Type `Shift-Right` to switch from Window list mode to Run mode and back.
 |`Ctrl-Shift-Tab`             | Switch to the previous modi. The list can be customized with the -switchers argument. |
 |`Ctrl-space`                 | Set selected item as input text. |
 |`Shift-Del`                  | Delete entry from history. |
-|`grave`                      | Toggle case sensitivity. |
+|`Ctrl-grave`                 | Toggle case sensitivity. |
 
 
-## Configuration
+# Configuration
 
 There are currently three methods of setting configuration options:
 
@@ -186,59 +186,9 @@ to disable it:
 
 	rofi -no-X
 
-# Compilation
+# Installation
 
-If compiling from GIT, first run to generate the needed build files:
-
-    autoreconf --install
-
-To build rofi, run the following steps:
-
-    mkdir build/
-    cd build/
-    ../configure
-    make
-    make install
-
-The build system will autodetect the i3 header file during compilation. If it fails, make sure you
-have i3/ipc.h installed. Check config.log for more information.
-
-# Dependencies
-
-Rofi requires the following tools and libraries to be installed:
-
- * libx11
- * libxinerama
- * libxft
- * pango
-
-# Configuration
-
-There are 3 ways to configure rofi:
-
-## 1. Pre-compile time
-
-You can change the default behavior by modifying config/config.c
-
-## 2. Xresources
-
-Another solution is to configure it via X resources, e.g. add the following to your
-Xresources file:
-
-    rofi.background: #333
-    rofi.foreground: #1aa
-    rofi.highlightbg: #1aa
-    rofi.highlightfg: #111
-    rofi.bordercolor: #277
-    rofi.font: times 10
-    rofi.padding: 3
-    rofi.lines: 5
-    rofi.borderwidth: 3
-
-## 3. Runtime
-
-All the above settings can be overridden by rofi's commandline flags.
-See the [manpage](manpage.html).
+Please see the [installation guide](INSTALL.html) for instruction on how to install *rofi*.
 
 # Contact
 
@@ -254,5 +204,5 @@ If you need to ask a direct question or get support installing, please find us o
 
 When reporting bugs keep in mind that the people working on it do this unpaid, in their free time
 and as a hobby. So be polite and helpful. Bug reports that *demand*, contain *insults* to this
-or other projects, or have a general unfriendly tone will be closed without discussion. Everybody
-has it own way of working; What might be the *norm* for you, might not be for others.
+or other projects, or have a general unfriendly tone will be closed without discussion. Keep in mind
+that everybody has it own way of working; What might be the *norm* for you, might not be for others.
