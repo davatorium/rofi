@@ -21,10 +21,12 @@ It main features are:
     - Case insensitive
 * UTF-8 enabled.
     - UTF-8 aware string collating.
+    - intl. keyboard support (`e -> è)
 * Pango font rendering.
 * RTL language support.
 * Window Switcher.
     - I3 support.
+    - EWHM compatible WM.
 * Run dialog.
 * SSH launcher.
 * History based ordering last 25 choices are ordered on top based on use. (optional)
@@ -40,7 +42,7 @@ The 4 Main functions of rofi are:
 
 The window switcher shows the following informations in columns:
 
-1. Desktop number (optional, not shown in i3 mode)
+1. Desktop number (optional, not shown in I3 mode)
 2. Window class.
 3. Window title.
 
