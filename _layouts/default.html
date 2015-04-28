@@ -35,7 +35,8 @@
 
         <aside id="sidebar">
         <h1>Pages</h1>
-        {% for iter_page in site.pages %}
+        {% assign sorted_pages = site.pages | sort:"path" %}
+        {% for iter_page in sorted_pages %}
         {% if iter_page.url != page.url %} 
         <h2 id="menuentry"><a href="{{ site.url }}{{ iter_page.url }}">{{ iter_page.title }}</a></h2>
         {% else %}
