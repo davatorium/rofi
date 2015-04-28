@@ -12,9 +12,17 @@ If you need to ask a direct question or get support installing, please find us o
 [freenode.net](https://webchat.freenode.net/?channels=#gmpc).
 
 
-# Reporting Bugs
+## Reporting Bugs
 
 When reporting bugs keep in mind that the people working on it do this unpaid, in their free time
 and as a hobby. So be polite and helpful. Bug reports that *demand*, contain *insults* to this
 or other projects, or have a general unfriendly tone will be closed without discussion. Keep in mind
 that everybody has it own way of working; What might be the *norm* for you, might not be for others.
+
+When reporting bugs try to include the following information:
+
+  * **Rofi** version. `rofi -v`
+  * **Rofi** configuration. `rofi -dump-xresources`
+  * Steps to reproduce.
+  * What behavior you see.
+  * What behavior you expect to see.
