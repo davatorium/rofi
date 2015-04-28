@@ -38,6 +38,8 @@
         {% for iter_page in site.pages %}
         {% if iter_page.url != page.url %} 
         <h2 id="menuentry"><a href="{{ site.url }}{{ iter_page.url }}">{{ iter_page.title }}</a></h2>
+        {% else %}
+        <h2 id="menuentry">{{ iter_page.title }}</h2>
         {% endif %}
         {% endfor %} <!-- page -->
             <h1>Stable</h1>
