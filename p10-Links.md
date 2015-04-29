@@ -16,3 +16,5 @@ title: Links
  * [i3-color-rofi](https://github.com/okraits/i3-color-rofi)    Use i3 colors within Rofi   
 
  * [fmenu](https://github.com/dbordak/fmenu-rofi)    File search/browser for Rofi. (I think)
+
+ * [Menu Generator](https://github.com/a-roy/MenGen)
