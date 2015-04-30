@@ -8,12 +8,12 @@ typedef enum _KeyBindingAction
     CLEAR_LINE,
     MOVE_FRONT,
     MOVE_END,
+    MOVE_WORD_BACK,
+    MOVE_WORD_FORWARD,
     REMOVE_WORD_BACK,
     REMOVE_WORD_FORWARD,
     REMOVE_CHAR_FORWARD,
     REMOVE_CHAR_BACK,
-    MOVE_WORD_BACK,
-    MOVE_WORD_FORWARD,
     NUM_ABE
 } KeyBindingAction;
 

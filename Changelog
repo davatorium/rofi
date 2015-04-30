@@ -1,6 +1,8 @@
 0.15.5:
 	Bug fixes:
 		- Reduce time waiting for keyboard grab (#153)
+	Improvements:
+		- (Start) adding keybinding support (#131)
 
 0.15.4:
 	New feature:

@@ -69,7 +69,7 @@ void setup_abe ( void )
         abe[iter].kb           = NULL;
 
         config_parser_add_option ( xrm_String,
-                                   abe[iter].name, &( abe[iter].keystr ) );
+                                   abe[iter].name, (void **)&( abe[iter].keystr ) );
     }
 }
 
