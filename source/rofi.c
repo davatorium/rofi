@@ -1540,6 +1540,9 @@ static void cleanup ()
         }
     }
     g_free ( switchers );
+
+    // Cleanup the custom keybinding
+    cleanup_abe ();
 }
 
 /**
@@ -1648,6 +1651,7 @@ static void hup_action_handler ( int num )
         if ( display ) {
             load_configuration ( display );
             load_configuration_dynamic ( display );
+            parse_keys_abe ();
             XCloseDisplay ( display );
         }
     }
@@ -1735,6 +1739,9 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
+    // Setup keybinding
+    setup_abe ();
+
     load_configuration ( display );
     if ( !dmenu_mode ) {
         // setup_switchers
@@ -1746,13 +1753,13 @@ int main ( int argc, char *argv[] )
     }
     // Reload for dynamic part.
     load_configuration_dynamic ( display );
-
-    setup_abe ();
     // Dump.
     if ( find_arg (  "-dump-xresources" ) >= 0 ) {
         xresource_dump ();
         exit ( EXIT_SUCCESS );
     }
+    // Parse the keybindings.
+    parse_keys_abe ();
 
     // Set up X interaction.
     const struct sigaction sigchld_action = {

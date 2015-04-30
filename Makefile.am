@@ -128,10 +128,14 @@ textbox_test_SOURCES=\
     config/config.c\
 	source/keyb.c\
 	source/x11-helper.c\
+	source/xrmoptions.c\
+	source/helper.c\
 	include/keyb.h\
     include/rofi.h\
     include/textbox.h\
-	source/x11-helper.h\
+	include/x11-helper.h\
+	include/xrmoptions.h\
+	include/helper.h\
 	test/textbox-test.c
 
 helper_test_SOURCES=\

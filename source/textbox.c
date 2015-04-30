@@ -568,18 +568,17 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
         return 1;
     }
     // Alt-B
-    else if ( ( ev->xkey.state & Mod1Mask ) && key == XK_b ) {
+    else if ( abe_test_action ( MOVE_WORD_BACK, ev->xkey.state, key ) ) {
         textbox_cursor_dec_word ( tb );
         return 1;
     }
     // Alt-F
-    else if ( ( ev->xkey.state & Mod1Mask ) && key == XK_f ) {
+    else if ( abe_test_action ( MOVE_WORD_FORWARD, ev->xkey.state, key ) ) {
         textbox_cursor_inc_word ( tb );
         return 1;
     }
     // BackSpace, Ctrl-h
-    else if ( key == XK_BackSpace ||
-              ( ( ev->xkey.state & ControlMask ) && key == XK_h ) ) {
+    else if ( abe_test_action ( REMOVE_CHAR_BACK, ev->xkey.state, key ) ) {
         textbox_cursor_bkspc ( tb );
         return 1;
     }

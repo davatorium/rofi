@@ -1,6 +1,7 @@
 #include "rofi.h"
 #include <X11/keysym.h>
 #include "x11-helper.h"
+#include "xrmoptions.h"
 
 ActionBindingEntry abe[NUM_ABE];
 // Use this so we can ignore numlock mask.
@@ -23,10 +24,16 @@ const char          *KeyBindingActionName[NUM_ABE] =
     // REMOVE_WORD_FORWARD
     "remove-word-forward",
     // REMOVE_CHAR_FORWARD
-    "remove-char-forward"
+    "remove-char-forward",
+    // REMOVE_CHAR_BACK
+    "remove-char-back",
+    // MOVE_WORD_BACK
+    "move-word-back",
+    // MOVE_WORD_FORWARD
+    "move-word-forward",
 };
 
-const char *KeyBindingActionDefault[NUM_ABE] =
+char *KeyBindingActionDefault[NUM_ABE] =
 {
     // PASTE_PRIMARY
     "Control+Shift+v,Shift+Insert",
@@ -44,15 +51,36 @@ const char *KeyBindingActionDefault[NUM_ABE] =
     "Control+Alt+d",
     // REMOVE_CHAR_FORWARD
     "Delete,Control+d",
+    // REMOVE_CHAR_BACK
+    "BackSpace,Control+h",
+    // MOVE_WORD_BACK
+    "Alt+b",
+    // MOVE_WORD_FORWARD
+    "Alt+f",
 };
 
 void setup_abe ( void )
 {
     for ( int iter = 0; iter < NUM_ABE; iter++ ) {
-        char *keystr = g_strdup ( KeyBindingActionDefault[iter] );
-        char *sp     = NULL;
         // set pointer to name.
-        abe[iter].name = KeyBindingActionName[iter];
+        abe[iter].name         = KeyBindingActionName[iter];
+        abe[iter].keystr       = g_strdup ( KeyBindingActionDefault[iter] );
+        abe[iter].num_bindings = 0;
+        abe[iter].kb           = NULL;
+
+        config_parser_add_option ( xrm_String,
+                                   abe[iter].name, &( abe[iter].keystr ) );
+    }
+}
+
+void parse_keys_abe ( void )
+{
+    for ( int iter = 0; iter < NUM_ABE; iter++ ) {
+        char *keystr = g_strdup ( abe[iter].keystr );
+        char *sp     = NULL;
+
+        g_free ( abe[iter].kb );
+        abe[iter].num_bindings = 0;
 
         // Iter over bindings.
         for ( char *entry = strtok_r ( keystr, ",", &sp ); entry != NULL; entry = strtok_r ( NULL, ",", &sp ) ) {
@@ -63,6 +91,15 @@ void setup_abe ( void )
         }
 
         g_free ( keystr );
+    }
+}
+
+void cleanup_abe ( void )
+{
+    for ( int iter = 0; iter < NUM_ABE; iter++ ) {
+        g_free ( abe[iter].kb );
+        abe[iter].kb           = NULL;
+        abe[iter].num_bindings = 0;
     }
 }
 

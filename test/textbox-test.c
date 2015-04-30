@@ -156,6 +156,9 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 
     textbox_free(box);
     textbox_cleanup( );
+
+    cleanup_abe();
+
     XDestroyWindow ( display, mw);
     XCloseDisplay ( display );
 }
