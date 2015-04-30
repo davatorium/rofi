@@ -935,6 +935,21 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     }
     workarea mon;
 
+    // Try to grab the keyboard as early as possible.
+    // We grab this using the rootwindow (as dmenu does it).
+    // this seems to result in the smallest delay for most people.
+    // TODO: Merge this loop back into take_keyboard.
+    int has_keyboard = FALSE;
+    for ( int i = 0; i < 500 &&
+          !( has_keyboard = take_keyboard ( display, DefaultRootWindow ( display ) ) );
+          i++ ) {
+        usleep ( 1000 );
+    }
+
+    if ( !has_keyboard ) {
+        fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
+        exit ( EXIT_FAILURE );
+    }
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     XWindowAttributes attr;
     if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
@@ -1070,8 +1085,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     state.quit = FALSE;
     menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
 
-    int x11_fd       = ConnectionNumber ( display );
-    int has_keyboard = take_keyboard ( display, main_window );
+    int x11_fd = ConnectionNumber ( display );
     while ( !state.quit ) {
         // Update if requested.
         if ( state.update ) {
@@ -1085,10 +1099,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         MainLoopEvent mle = ML_XEVENT;
         // If we are in lazy mode, or trying to grab keyboard, go into timeout.
         // Otherwise continue like we had an XEvent (and we will block on fetching this event).
-        if ( !has_keyboard || ( state.refilter && state.num_lines > config.lazy_filter_limit ) ) {
+        if ( ( state.refilter && state.num_lines > config.lazy_filter_limit ) ) {
             mle = wait_for_xevent_or_timeout ( display, x11_fd );
-            // Whatever happened, try to get keyboard.
-            has_keyboard = take_keyboard ( display, main_window );
         }
         // If not in lazy mode, refilter.
         if ( state.num_lines <= config.lazy_filter_limit ) {
@@ -1291,6 +1303,22 @@ void error_dialog ( const char *msg )
         .update            = TRUE,
     };
     workarea  mon;
+
+    // Try to grab the keyboard as early as possible.
+    // We grab this using the rootwindow (as dmenu does it).
+    // this seems to result in the smallest delay for most people.
+    // TODO: Merge this loop back into take_keyboard.
+    int has_keyboard = FALSE;
+    for ( int i = 0; i < 500 &&
+          !( has_keyboard = take_keyboard ( display, DefaultRootWindow ( display ) ) );
+          i++ ) {
+        usleep ( 1000 );
+    }
+
+    if ( !has_keyboard ) {
+        fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
+        exit ( EXIT_FAILURE );
+    }
     // Get active monitor size.
     monitor_active ( display, &mon );
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
@@ -1323,8 +1351,6 @@ void error_dialog ( const char *msg )
     // Display it.
     XMapRaised ( display, main_window );
 
-    int x11_fd       = ConnectionNumber ( display );
-    int has_keyboard = take_keyboard ( display, main_window );
     while ( !state.quit ) {
         // Update if requested.
         if ( state.update ) {
@@ -1332,16 +1358,7 @@ void error_dialog ( const char *msg )
             state.update = FALSE;
         }
         // Wait for event.
-        XEvent        ev;
-        MainLoopEvent mle = ML_XEVENT;
-        if ( !has_keyboard ) {
-            mle          = wait_for_xevent_or_timeout ( display, x11_fd );
-            has_keyboard = take_keyboard ( display, main_window );
-        }
-        if ( mle == ML_TIMEOUT ) {
-            // Loop.
-            continue;
-        }
+        XEvent ev;
         XNextEvent ( display, &ev );
         // Handle event.
         if ( ev.type == Expose ) {
