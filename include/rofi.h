@@ -3,7 +3,7 @@
 #include <X11/X.h>
 #include <glib.h>
 #include <textbox.h>
-
+#include "keyb.h"
 
 /**
  * Pointer to xdg cache directory.

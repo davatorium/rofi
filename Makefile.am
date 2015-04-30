@@ -32,6 +32,7 @@ rofi_SOURCES=\
     source/history.c\
     config/config.c\
 	source/helper.c\
+	source/keyb.c\
 	source/x11-helper.c\
     source/dialogs/dmenu.c\
     source/dialogs/run.c\
@@ -45,6 +46,7 @@ rofi_SOURCES=\
     include/history.h\
     include/textbox.h\
 	include/helper.h\
+	include/keyb.h\
 	include/x11-helper.h\
     include/dialogs/run.h\
     include/dialogs/combi.h\
@@ -124,8 +126,12 @@ rofi_test_SOURCES=\
 textbox_test_SOURCES=\
     source/textbox.c\
     config/config.c\
+	source/keyb.c\
+	source/x11-helper.c\
+	include/keyb.h\
     include/rofi.h\
     include/textbox.h\
+	source/x11-helper.h\
 	test/textbox-test.c
 
 helper_test_SOURCES=\

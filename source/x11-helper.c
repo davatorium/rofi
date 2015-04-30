@@ -48,6 +48,8 @@
 #define INTERSECT( x, y, w, h, x1, y1, w1, h1 )    ( OVERLAP ( ( x ), ( w ), ( x1 ), ( w1 ) ) && OVERLAP ( ( y ), ( h ), ( y1 ), ( h1 ) ) )
 #include "x11-helper.h"
 
+Atom         netatoms[NUM_NETATOMS];
+const char   *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 // Mask indicating num-lock.
 unsigned int NumlockMask = 0;
 

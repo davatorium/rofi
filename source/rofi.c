@@ -70,17 +70,15 @@ typedef enum _MainLoopEvent
 } MainLoopEvent;
 
 // Pidfile.
-char       *pidfile         = NULL;
-const char *cache_dir       = NULL;
-Display    *display         = NULL;
-char       *display_str     = NULL;
+char        *pidfile     = NULL;
+const char  *cache_dir   = NULL;
+Display     *display     = NULL;
+char        *display_str = NULL;
 
-const char *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
-Atom       netatoms[NUM_NETATOMS];
-
+extern Atom netatoms[NUM_NETATOMS];
 
 // Array of switchers.
-Switcher     **switchers = NULL;
+Switcher     **switchers   = NULL;
 // Number of switchers.
 unsigned int num_switchers = 0;
 // Current selected switcher.
@@ -1151,14 +1149,12 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                 KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
 
                 // Handling of paste
-                if ( ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_v ) ) {
-                    XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
-                                        XA_PRIMARY : netatoms[CLIPBOARD],
+                if ( abe_test_action ( PASTE_PRIMARY, ev.xkey.state, key ) ) {
+                    XConvertSelection ( display, XA_PRIMARY,
                                         netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
                 }
-                else if ( key == XK_Insert ) {
-                    XConvertSelection ( display, ( ev.xkey.state & ShiftMask ) ?
-                                        XA_PRIMARY : netatoms[CLIPBOARD],
+                else if ( abe_test_action ( PASTE_SECONDARY, ev.xkey.state, key ) ) {
+                    XConvertSelection ( display, netatoms[CLIPBOARD],
                                         netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
                 }
                 else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) && key == XK_Left ) {
@@ -1751,6 +1747,7 @@ int main ( int argc, char *argv[] )
     // Reload for dynamic part.
     load_configuration_dynamic ( display );
 
+    setup_abe ();
     // Dump.
     if ( find_arg (  "-dump-xresources" ) >= 0 ) {
         xresource_dump ();

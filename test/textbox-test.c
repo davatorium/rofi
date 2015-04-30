@@ -62,6 +62,8 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         return EXIT_FAILURE;
     }
     create_visual_and_colormap();
+
+    setup_abe();
     TASSERT( display != NULL );
     XSetWindowAttributes attr;
     attr.colormap         = map;

@@ -38,6 +38,7 @@
 
 #include "rofi.h"
 #include "textbox.h"
+#include "keyb.h"
 #include <glib.h>
 #define SIDE_MARGIN    1
 
@@ -538,34 +539,31 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
     }
 
     // Ctrl-U: Kill from the beginning to the end of the line.
-    else if ( ( ev->xkey.state & ControlMask ) && key == XK_u ) {
+    else if ( abe_test_action ( CLEAR_LINE, ev->xkey.state, key ) ) {
         textbox_text ( tb, "" );
         return 1;
     }
     // Ctrl-A
-    else if ( ( ev->xkey.state & ControlMask ) && key == XK_a ) {
+    else if ( abe_test_action ( MOVE_FRONT, ev->xkey.state, key ) ) {
         textbox_cursor ( tb, 0 );
         return 1;
     }
     // Ctrl-E
-    else if ( ( ev->xkey.state & ControlMask ) && key == XK_e ) {
+    else if ( abe_test_action ( MOVE_END, ev->xkey.state, key ) ) {
         textbox_cursor_end ( tb );
         return 1;
     }
     // Ctrl-Alt-h
-    else if ( ( ev->xkey.state & ControlMask ) &&
-              ( ev->xkey.state & Mod1Mask ) && key == XK_h ) {
+    else if ( abe_test_action ( REMOVE_WORD_BACK, ev->xkey.state, key ) ) {
         textbox_cursor_bkspc_word ( tb );
         return 1;
     }
     // Ctrl-Alt-d
-    else if ( ( ev->xkey.state & ControlMask ) &&
-              ( ev->xkey.state & Mod1Mask ) && key == XK_d ) {
+    else if ( abe_test_action ( REMOVE_WORD_FORWARD, ev->xkey.state, key ) ) {
         textbox_cursor_del_word ( tb );
         return 1;
     }    // Delete or Ctrl-D
-    else if ( key == XK_Delete ||
-              ( ( ev->xkey.state & ControlMask ) && key == XK_d ) ) {
+    else if ( abe_test_action ( REMOVE_CHAR_FORWARD, ev->xkey.state, key ) ) {
         textbox_cursor_del ( tb );
         return 1;
     }
