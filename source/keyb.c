@@ -19,6 +19,10 @@ const char          *KeyBindingActionName[NUM_ABE] =
     "move-front",
     // MOVE_END
     "move-end",
+    // MOVE_WORD_BACK
+    "move-word-back",
+    // MOVE_WORD_FORWARD
+    "move-word-forward",
     // REMOVE_WORD_BACK
     "remove-word-back",
     // REMOVE_WORD_FORWARD
@@ -27,10 +31,6 @@ const char          *KeyBindingActionName[NUM_ABE] =
     "remove-char-forward",
     // REMOVE_CHAR_BACK
     "remove-char-back",
-    // MOVE_WORD_BACK
-    "move-word-back",
-    // MOVE_WORD_FORWARD
-    "move-word-forward",
     // ACCEPT_ENTRY
     "accept-entry",
     // ACCEPT_CUSTOM
@@ -51,6 +51,10 @@ char *KeyBindingActionDefault[NUM_ABE] =
     "Control+a",
     // MOVE_END
     "Control+e",
+    // MOVE_WORD_BACK
+    "Alt+b",
+    // MOVE_WORD_FORWARD
+    "Alt+f",
     // REMOVE_WORD_BACK
     "Control+Alt+h",
     // REMOVE_WORD_FORWARD
@@ -59,10 +63,6 @@ char *KeyBindingActionDefault[NUM_ABE] =
     "Delete,Control+d",
     // REMOVE_CHAR_BACK
     "BackSpace,Control+h",
-    // MOVE_WORD_BACK
-    "Alt+b",
-    // MOVE_WORD_FORWARD
-    "Alt+f",
     // ACCEPT_ENTRY
     // TODO: split Shift return in separate state.
     "Control+j,Control+m,Return",
