@@ -31,6 +31,12 @@ const char          *KeyBindingActionName[NUM_ABE] =
     "move-word-back",
     // MOVE_WORD_FORWARD
     "move-word-forward",
+    // ACCEPT_ENTRY
+    "accept-entry",
+    // ACCEPT_CUSTOM
+    "accept-custom",
+    // ACCEPT_ENTRY_CONTINUE
+    "accept-entry-continue",
 };
 
 char *KeyBindingActionDefault[NUM_ABE] =
@@ -57,6 +63,13 @@ char *KeyBindingActionDefault[NUM_ABE] =
     "Alt+b",
     // MOVE_WORD_FORWARD
     "Alt+f",
+    // ACCEPT_ENTRY
+    // TODO: split Shift return in separate state.
+    "Control+j,Control+m,Return",
+    // ACCEPT_CUSTOM
+    "Control+Return",
+    // ACCEPT_ENTRY_CONTINUE
+    "Shift+Return",
 };
 
 void setup_abe ( void )

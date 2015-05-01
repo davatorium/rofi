@@ -582,12 +582,16 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
         textbox_cursor_bkspc ( tb );
         return 1;
     }
-    else if ( ( ev->xkey.state & ControlMask ) && ( key == XK_Return || key == XK_KP_Enter ) ) {
+    else if ( ( ( ev->xkey.state & ControlMask ) && ( key == XK_Return  )) ||
+            abe_test_action ( ACCEPT_CUSTOM, ev->xkey.state, key ) ) {
         return -2;
     }
-    else if ( key == XK_Return || key == XK_KP_Enter ||
-              ( ( ev->xkey.state & ControlMask ) && key == XK_j ) ||
-              ( ( ev->xkey.state & ControlMask ) && key == XK_m ) ) {
+    else if  ( abe_test_action ( ACCEPT_ENTRY_CONTINUE, ev->xkey.state, key) ) {
+        return -3;
+    }
+    // TODO fix keypad.
+    else if ( key == XK_KP_Enter ||
+              abe_test_action ( ACCEPT_ENTRY, ev->xkey.state, key) ) {
         return -1;
     }
     else if ( !iscntrl ( *pad ) ) {

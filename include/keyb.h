@@ -14,6 +14,9 @@ typedef enum _KeyBindingAction
     REMOVE_WORD_FORWARD,
     REMOVE_CHAR_FORWARD,
     REMOVE_CHAR_BACK,
+    ACCEPT_ENTRY,
+    ACCEPT_CUSTOM,
+    ACCEPT_ENTRY_CONTINUE,
     NUM_ABE
 } KeyBindingAction;
 
