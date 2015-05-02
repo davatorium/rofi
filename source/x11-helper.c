@@ -243,8 +243,11 @@ int window_send_message ( Display *display, Window target,
 
 int take_keyboard ( Display *display, Window w )
 {
-    if ( XGrabKeyboard ( display, w, True, GrabModeAsync, GrabModeAsync, CurrentTime ) == GrabSuccess ) {
-        return 1;
+    for ( int i = 0; i < 500; i++) {
+        if ( XGrabKeyboard ( display, w, True, GrabModeAsync, GrabModeAsync, CurrentTime ) == GrabSuccess ) {
+            return 1;
+        }
+        usleep ( 1000 );
     }
 
     return 0;

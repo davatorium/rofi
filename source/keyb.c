@@ -104,7 +104,6 @@ DefaultBinding bindings[NUM_ABE] =
     },
     {
         .id = ACCEPT_ENTRY,
-        // TODO: split Shift return in separate state.
         .name       = "kb-accept-entry",
         .keybinding = "Control+j,Control+m,Return,KP_Enter",
     },

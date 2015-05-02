@@ -936,13 +936,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
-    // TODO: Merge this loop back into take_keyboard.
-    int has_keyboard = FALSE;
-    for ( int i = 0; i < 500 &&
-          !( has_keyboard = take_keyboard ( display, DefaultRootWindow ( display ) ) );
-          i++ ) {
-        usleep ( 1000 );
-    }
+    int has_keyboard = take_keyboard ( display, DefaultRootWindow ( display ) );
 
     if ( !has_keyboard ) {
         fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
@@ -1288,13 +1282,7 @@ void error_dialog ( const char *msg )
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
-    // TODO: Merge this loop back into take_keyboard.
-    int has_keyboard = FALSE;
-    for ( int i = 0; i < 500 &&
-          !( has_keyboard = take_keyboard ( display, DefaultRootWindow ( display ) ) );
-          i++ ) {
-        usleep ( 1000 );
-    }
+    int has_keyboard = take_keyboard ( display, DefaultRootWindow ( display ) );
 
     if ( !has_keyboard ) {
         fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
