@@ -324,7 +324,7 @@ void config_xresource_free ( void )
 static void xresource_dump_entry ( const char *namePrefix, XrmOption *option )
 {
     printf ( "%s.%s: %*s", namePrefix, option->name,
-             (int) ( 25 - strlen ( option->name ) ), "" );
+             (int) ( 30 - strlen ( option->name ) ), "" );
     switch ( option->type )
     {
     case xrm_Number:
