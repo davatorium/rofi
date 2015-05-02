@@ -1157,35 +1157,21 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                     XConvertSelection ( display, netatoms[CLIPBOARD],
                                         netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
                 }
-                else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) && key == XK_Left ) {
+                else if ( abe_test_action ( MODE_PREVIOUS, ev.xkey.state, key ) ) {
                     state.retv               = MENU_PREVIOUS;
                     *( state.selected_line ) = 0;
                     state.quit               = TRUE;
                     break;
                 }
-                else if  ( ( ( ev.xkey.state & ControlMask ) == ControlMask ) && key == XK_Tab ) {
-                    if ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) {
-                        state.retv = MENU_PREVIOUS;
-                    }
-                    else{
-                        state.retv = MENU_NEXT;
-                    }
-                    *( state.selected_line ) = 0;
-                    state.quit               = TRUE;
-                    break;
-                }
                 // Menu navigation.
-                else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
-                          key == XK_Right ) {
+                else if ( abe_test_action ( MODE_NEXT, ev.xkey.state, key ) ) {
                     state.retv               = MENU_NEXT;
                     *( state.selected_line ) = 0;
                     state.quit               = TRUE;
                     break;
                 }
                 // Toggle case sensitivity.
-                else if ( ( ev.xkey.state & ControlMask ) == ControlMask && (
-                              key == XK_grave || key == XK_dead_grave || key == XK_acute
-                              ) ) {
+                else if ( abe_test_action ( TOGGLE_CASE_SENSITIVITY, ev.xkey.state, key ) ) {
                     config.case_sensitive    = !config.case_sensitive;
                     *( state.selected_line ) = 0;
                     state.refilter           = TRUE;
@@ -1206,8 +1192,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                     break;
                 }
                 // Special delete entry command.
-                else if ( ( ( ev.xkey.state & ShiftMask ) == ShiftMask ) &&
-                          key == XK_Delete ) {
+                else if ( abe_test_action ( DELETE_ENTRY, ev.xkey.state, key ) ) {
                     if ( state.selected < state.filtered_lines ) {
                         *( state.selected_line ) = state.line_map[state.selected];
                         state.retv               = MENU_ENTRY_DELETE;

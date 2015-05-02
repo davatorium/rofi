@@ -315,6 +315,11 @@ static SwitcherMode run_mode_result ( int mretv, char **input, unsigned int sele
     }
     else if ( ( mretv & MENU_ENTRY_DELETE ) && rmpd->cmd_list[selected_line] ) {
         delete_entry ( rmpd->cmd_list[selected_line] );
+
+        g_free(rmpd->cmd_list);
+        // Clear the list.
+        rmpd->cmd_list = NULL;
+        rmpd->cmd_list_length = 0;
         retv = RELOAD_DIALOG;
     }
     return retv;

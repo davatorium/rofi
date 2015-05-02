@@ -7,82 +7,132 @@ ActionBindingEntry abe[NUM_ABE];
 // Use this so we can ignore numlock mask.
 // TODO: maybe use something smarter here..
 extern unsigned int NumlockMask;
-const char          *KeyBindingActionName[NUM_ABE] =
+
+typedef struct _DefaultBinding
 {
-    // PASTE_PRIMARY
-    "primary-paste",
-    // PASTE_SECONDARY
-    "secondary-paste",
-    // CLEAR_LINE
-    "clear-line",
-    // MOVE_FRONT
-    "move-front",
-    // MOVE_END
-    "move-end",
-    // MOVE_WORD_BACK
-    "move-word-back",
-    // MOVE_WORD_FORWARD
-    "move-word-forward",
-    // REMOVE_WORD_BACK
-    "remove-word-back",
-    // REMOVE_WORD_FORWARD
-    "remove-word-forward",
-    // REMOVE_CHAR_FORWARD
-    "remove-char-forward",
-    // REMOVE_CHAR_BACK
-    "remove-char-back",
-    // ACCEPT_ENTRY
-    "accept-entry",
-    // ACCEPT_CUSTOM
-    "accept-custom",
-    // ACCEPT_ENTRY_CONTINUE
-    "accept-entry-continue",
+    KeyBindingAction id;
+    char             *name;
+    char             *keybinding;
+} DefaultBinding;
+
+DefaultBinding bindings[NUM_ABE] =
+{
+    {
+        .id         = PASTE_PRIMARY,
+        .name       = "primary-paste",
+        .keybinding = "Control+Shift+v,Shift+Insert",
+    },
+    {
+        .id         = PASTE_SECONDARY,
+        .name       = "secondary-paste",
+        .keybinding = "Control+v,Insert",
+    },
+    {
+        .id         = CLEAR_LINE,
+        .name       = "clear-line",
+        .keybinding = "Control+u",
+    },
+    {
+        .id         = MOVE_FRONT,
+        .name       = "move-front",
+        .keybinding = "Control+a",
+    },
+    {
+        .id         = MOVE_END,
+        .name       = "move-end",
+        .keybinding = "Control+e",
+    },
+    {
+        .id         = MOVE_WORD_BACK,
+        .name       = "move-word-back",
+        .keybinding = "Alt+b",
+    },
+    {
+        .id         = MOVE_WORD_FORWARD,
+        .name       = "move-word-forward",
+        .keybinding = "Alt+f",
+    },
+    {
+        .id         = MOVE_CHAR_BACK,
+        .name       = "move-char-back",
+        .keybinding = "Left,Control+b"
+    },
+    {
+        .id         = MOVE_CHAR_FORWARD,
+        .name       = "move-char-forward",
+        .keybinding = "Right,Control+f"
+    },
+    {
+        .id         = REMOVE_WORD_BACK,
+        .name       = "remove-word-back",
+        .keybinding = "Control+Alt+h",
+    },
+    {
+        .id         = REMOVE_WORD_FORWARD,
+        .name       = "remove-word-forward",
+        .keybinding = "Control+Alt+d",
+    },
+    {
+        .id         = REMOVE_CHAR_FORWARD,
+        .name       = "remove-char-forward",
+        .keybinding = "Delete,Control+d",
+    },
+    {
+        .id         = REMOVE_CHAR_BACK,
+        .name       = "remove-char-back",
+        .keybinding = "BackSpace,Control+h",
+    },
+    {
+        .id = ACCEPT_ENTRY,
+        // TODO: split Shift return in separate state.
+        .name       = "accept-entry",
+        .keybinding = "Control+j,Control+m,Return,KP_Enter",
+    },
+    {
+        .id         = ACCEPT_CUSTOM,
+        .name       = "accept-custom",
+        .keybinding = "Control+Return",
+    },
+    {
+        .id         = ACCEPT_ENTRY_CONTINUE,
+        .name       = "accept-entry-continue",
+        .keybinding = "Shift+Return",
+    },
+    {
+        .id         = MODE_NEXT,
+        .name       = "mode-next",
+        .keybinding = "Shift+Right,Control+Tab"
+    },
+    {
+        .id         = MODE_PREVIOUS,
+        .name       = "mode-previous",
+        .keybinding = "Shift+Left,Control+Shift+Tab"
+    },
+    {
+        .id         = TOGGLE_CASE_SENSITIVITY,
+        .name       = "toggle-case-sensitivity",
+        .keybinding = "grave,dead_grave"
+    },
+    {
+        .id         = DELETE_ENTRY,
+        .name       = "delete-entry",
+        .keybinding = "Shift+Delete"
+    }
 };
 
-char *KeyBindingActionDefault[NUM_ABE] =
-{
-    // PASTE_PRIMARY
-    "Control+Shift+v,Shift+Insert",
-    // PASTE_SECONDARY
-    "Control+v,Insert",
-    // CLEAR_LINE
-    "Control+u",
-    // MOVE_FRONT
-    "Control+a",
-    // MOVE_END
-    "Control+e",
-    // MOVE_WORD_BACK
-    "Alt+b",
-    // MOVE_WORD_FORWARD
-    "Alt+f",
-    // REMOVE_WORD_BACK
-    "Control+Alt+h",
-    // REMOVE_WORD_FORWARD
-    "Control+Alt+d",
-    // REMOVE_CHAR_FORWARD
-    "Delete,Control+d",
-    // REMOVE_CHAR_BACK
-    "BackSpace,Control+h",
-    // ACCEPT_ENTRY
-    // TODO: split Shift return in separate state.
-    "Control+j,Control+m,Return",
-    // ACCEPT_CUSTOM
-    "Control+Return",
-    // ACCEPT_ENTRY_CONTINUE
-    "Shift+Return",
-};
 
 void setup_abe ( void )
 {
     for ( int iter = 0; iter < NUM_ABE; iter++ ) {
+        int id = bindings[iter].id;
         // set pointer to name.
-        abe[iter].name         = KeyBindingActionName[iter];
-        abe[iter].keystr       = g_strdup ( KeyBindingActionDefault[iter] );
-        abe[iter].num_bindings = 0;
-        abe[iter].kb           = NULL;
+        abe[id].name         = bindings[iter].name;
+        abe[id].keystr       = g_strdup ( bindings[iter].keybinding );
+        abe[id].num_bindings = 0;
+        abe[id].kb           = NULL;
 
         config_parser_add_option ( xrm_String,
-                                   abe[iter].name, (void **)&( abe[iter].keystr ) );
+                                   abe[id].name, (void * *) &( abe[id].keystr ) );
     }
 }
 

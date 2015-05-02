@@ -526,14 +526,12 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
     len      = Xutf8LookupString ( tb->xic, &ev->xkey, pad, sizeof ( pad ), &key, &stat );
     pad[len] = 0;
     // Left or Ctrl-b
-    if ( key == XK_Left ||
-         ( ( ev->xkey.state & ControlMask ) && key == XK_b ) ) {
+    if ( abe_test_action ( MOVE_CHAR_BACK, ev->xkey.state, key ) ) {
         textbox_cursor_dec ( tb );
         return 1;
     }
     // Right or Ctrl-F
-    else if ( key == XK_Right ||
-              ( ( ev->xkey.state & ControlMask ) && key == XK_f ) ) {
+    else if ( abe_test_action ( MOVE_CHAR_FORWARD, ev->xkey.state, key ) ) {
         textbox_cursor_inc ( tb );
         return 1;
     }
@@ -582,16 +580,13 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
         textbox_cursor_bkspc ( tb );
         return 1;
     }
-    else if ( ( ( ev->xkey.state & ControlMask ) && ( key == XK_Return  )) ||
-            abe_test_action ( ACCEPT_CUSTOM, ev->xkey.state, key ) ) {
+    else if ( abe_test_action ( ACCEPT_CUSTOM, ev->xkey.state, key ) ) {
         return -2;
     }
-    else if  ( abe_test_action ( ACCEPT_ENTRY_CONTINUE, ev->xkey.state, key) ) {
+    else if  ( abe_test_action ( ACCEPT_ENTRY_CONTINUE, ev->xkey.state, key ) ) {
         return -3;
     }
-    // TODO fix keypad.
-    else if ( key == XK_KP_Enter ||
-              abe_test_action ( ACCEPT_ENTRY, ev->xkey.state, key) ) {
+    else if ( abe_test_action ( ACCEPT_ENTRY, ev->xkey.state, key ) ) {
         return -1;
     }
     else if ( !iscntrl ( *pad ) ) {
