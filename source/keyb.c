@@ -19,103 +19,103 @@ DefaultBinding bindings[NUM_ABE] =
 {
     {
         .id         = PASTE_PRIMARY,
-        .name       = "primary-paste",
+        .name       = "kb-primary-paste",
         .keybinding = "Control+Shift+v,Shift+Insert",
     },
     {
         .id         = PASTE_SECONDARY,
-        .name       = "secondary-paste",
+        .name       = "kb-secondary-paste",
         .keybinding = "Control+v,Insert",
     },
     {
         .id         = CLEAR_LINE,
-        .name       = "clear-line",
+        .name       = "kb-clear-line",
         .keybinding = "Control+u",
     },
     {
         .id         = MOVE_FRONT,
-        .name       = "move-front",
+        .name       = "kb-move-front",
         .keybinding = "Control+a",
     },
     {
         .id         = MOVE_END,
-        .name       = "move-end",
+        .name       = "kb-move-end",
         .keybinding = "Control+e",
     },
     {
         .id         = MOVE_WORD_BACK,
-        .name       = "move-word-back",
+        .name       = "kb-move-word-back",
         .keybinding = "Alt+b",
     },
     {
         .id         = MOVE_WORD_FORWARD,
-        .name       = "move-word-forward",
+        .name       = "kb-move-word-forward",
         .keybinding = "Alt+f",
     },
     {
         .id         = MOVE_CHAR_BACK,
-        .name       = "move-char-back",
+        .name       = "kb-move-char-back",
         .keybinding = "Left,Control+b"
     },
     {
         .id         = MOVE_CHAR_FORWARD,
-        .name       = "move-char-forward",
+        .name       = "kb-move-char-forward",
         .keybinding = "Right,Control+f"
     },
     {
         .id         = REMOVE_WORD_BACK,
-        .name       = "remove-word-back",
+        .name       = "kb-remove-word-back",
         .keybinding = "Control+Alt+h",
     },
     {
         .id         = REMOVE_WORD_FORWARD,
-        .name       = "remove-word-forward",
+        .name       = "kb-remove-word-forward",
         .keybinding = "Control+Alt+d",
     },
     {
         .id         = REMOVE_CHAR_FORWARD,
-        .name       = "remove-char-forward",
+        .name       = "kb-remove-char-forward",
         .keybinding = "Delete,Control+d",
     },
     {
         .id         = REMOVE_CHAR_BACK,
-        .name       = "remove-char-back",
+        .name       = "kb-remove-char-back",
         .keybinding = "BackSpace,Control+h",
     },
     {
         .id = ACCEPT_ENTRY,
         // TODO: split Shift return in separate state.
-        .name       = "accept-entry",
+        .name       = "kb-accept-entry",
         .keybinding = "Control+j,Control+m,Return,KP_Enter",
     },
     {
         .id         = ACCEPT_CUSTOM,
-        .name       = "accept-custom",
+        .name       = "kb-accept-custom",
         .keybinding = "Control+Return",
     },
     {
         .id         = ACCEPT_ENTRY_CONTINUE,
-        .name       = "accept-entry-continue",
+        .name       = "kb-accept-entry-continue",
         .keybinding = "Shift+Return",
     },
     {
         .id         = MODE_NEXT,
-        .name       = "mode-next",
+        .name       = "kb-mode-next",
         .keybinding = "Shift+Right,Control+Tab"
     },
     {
         .id         = MODE_PREVIOUS,
-        .name       = "mode-previous",
+        .name       = "kb-mode-previous",
         .keybinding = "Shift+Left,Control+Shift+Tab"
     },
     {
         .id         = TOGGLE_CASE_SENSITIVITY,
-        .name       = "toggle-case-sensitivity",
+        .name       = "kb-toggle-case-sensitivity",
         .keybinding = "grave,dead_grave"
     },
     {
         .id         = DELETE_ENTRY,
-        .name       = "delete-entry",
+        .name       = "kb-delete-entry",
         .keybinding = "Shift+Delete"
     }
 };
