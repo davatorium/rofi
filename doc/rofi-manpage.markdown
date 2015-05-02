@@ -642,6 +642,9 @@ and the others slightly transparent.
 * `Shift-Del`: Delete entry from history.
 * `Ctrl-grave`: Toggle case sensitivity.
 
+To get a full list of keybindings, see `rofi -dump-xresources | grep kb-`.
+Keybindings can be modified using the configuration systems.
+
 ## FAQ
 
 `Text in window switcher is not nicely lined out`
