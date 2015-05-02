@@ -27,26 +27,26 @@ typedef enum _KeyBindingAction
 } KeyBindingAction;
 
 
-typedef struct _KeyBinding
-{
-    unsigned int modmask;
-    KeySym       keysym;
-} KeyBinding;
-
-typedef struct _ActionBindingEntry
-{
-    const char *name;
-    char       *keystr;
-    int        num_bindings;
-    KeyBinding *kb;
-} ActionBindingEntry;
-
-
+/**
+ * Parse the keybindings.
+ * This should be called after the setting system is initialized.
+ */
 void parse_keys_abe ( void );
+
+/**
+ * Setup the keybindings
+ * This adds all the entries to the settings system.
+ */
 void setup_abe ( void );
 
+/**
+ * Cleanup.
+ */
 void cleanup_abe ( void );
 
-extern ActionBindingEntry abe[NUM_ABE];
+/**
+ * Check if this key has been triggered.
+ * @returns TRUE if key combo matches, FALSE otherwise.
+ */
 int abe_test_action ( KeyBindingAction action, unsigned int mask, KeySym key );
 #endif // __KEYB_H__

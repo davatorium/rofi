@@ -3,10 +3,22 @@
 #include "x11-helper.h"
 #include "xrmoptions.h"
 
-ActionBindingEntry abe[NUM_ABE];
-// Use this so we can ignore numlock mask.
-// TODO: maybe use something smarter here..
-extern unsigned int NumlockMask;
+
+
+
+typedef struct _KeyBinding
+{
+    unsigned int modmask;
+    KeySym       keysym;
+} KeyBinding;
+
+typedef struct _ActionBindingEntry
+{
+    const char *name;
+    char       *keystr;
+    int        num_bindings;
+    KeyBinding *kb;
+} ActionBindingEntry;
 
 typedef struct _DefaultBinding
 {
@@ -15,6 +27,14 @@ typedef struct _DefaultBinding
     char             *keybinding;
 } DefaultBinding;
 
+ActionBindingEntry abe[NUM_ABE];
+// Use this so we can ignore numlock mask.
+// TODO: maybe use something smarter here..
+extern unsigned int NumlockMask;
+
+/**
+ * LIST OF DEFAULT SETTINGS
+ */
 DefaultBinding bindings[NUM_ABE] =
 {
     {
