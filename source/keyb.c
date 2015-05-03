@@ -103,7 +103,7 @@ DefaultBinding bindings[NUM_ABE] =
         .keybinding = "BackSpace,Control+h",
     },
     {
-        .id = ACCEPT_ENTRY,
+        .id         = ACCEPT_ENTRY,
         .name       = "kb-accept-entry",
         .keybinding = "Control+j,Control+m,Return,KP_Enter",
     },

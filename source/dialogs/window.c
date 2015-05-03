@@ -478,8 +478,8 @@ static SwitcherMode window_mode_result ( int mretv, G_GNUC_UNUSED char **input, 
     else if ( mretv & MENU_PREVIOUS ) {
         retv = PREVIOUS_DIALOG;
     }
-    else if ( mretv == MENU_QUICK_SWITCH ) {
-        retv = selected_line;
+    else if ( ( mretv & MENU_QUICK_SWITCH ) == MENU_QUICK_SWITCH ) {
+        retv = ( mretv & MENU_LOWER_MASK );
     }
     else if ( ( mretv & ( MENU_OK | MENU_CUSTOM_INPUT ) ) && rmpd->cmd_list[selected_line] ) {
         if ( rmpd->config_i3_mode ) {

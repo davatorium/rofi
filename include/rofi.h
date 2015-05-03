@@ -45,21 +45,23 @@ typedef const char * ( *get_display_value )( unsigned int selected_line, void *d
 typedef enum
 {
     /** Entry is selected. */
-    MENU_OK           = 0x1,
+    MENU_OK           = 0x0010000,
     /** User canceled the operation. (e.g. pressed escape) */
-    MENU_CANCEL       = 0x2,
+    MENU_CANCEL       = 0x0020000,
     /** User requested a mode switch */
-    MENU_NEXT         = 0x4,
+    MENU_NEXT         = 0x0040000,
     /** Custom (non-matched) input was entered. */
-    MENU_CUSTOM_INPUT = 0x8,
+    MENU_CUSTOM_INPUT = 0x0080000,
     /** User wanted to delete entry from history. */
-    MENU_ENTRY_DELETE = 0x10,
+    MENU_ENTRY_DELETE = 0x00100000,
     /** User wants to jump to another switcher. */
-    MENU_QUICK_SWITCH = 0x20,
+    MENU_QUICK_SWITCH = 0x00200000,
     /** Go to the previous menu. */
-    MENU_PREVIOUS     = 0x40,
+    MENU_PREVIOUS     = 0x00400000,
     /** Modifiers */
-    MENU_SHIFT        = 0x1000
+    MENU_SHIFT        = 0x10000000,
+    /** Mask */
+    MENU_LOWER_MASK   = 0x0000FFFF
 } MenuReturn;
 
 

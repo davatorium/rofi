@@ -686,8 +686,8 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
     else {
         for ( unsigned int i = 0; config.sidebar_mode == TRUE && i < num_switchers; i++ ) {
             if ( switchers[i]->tb->window == ( xbe->window ) ) {
-                *( state->selected_line ) = i;
-                state->retv               = MENU_QUICK_SWITCH;
+                *( state->selected_line ) = 0;
+                state->retv               = MENU_QUICK_SWITCH | ( i & MENU_LOWER_MASK );
                 state->quit               = TRUE;
                 return;
             }
@@ -1180,9 +1180,13 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                 // Switcher short-cut
                 else if ( ( ( ev.xkey.state & Mod1Mask ) == Mod1Mask ) &&
                           key >= XK_1 && key <= XK_9 ) {
-                    *( state.selected_line ) = ( key - XK_1 );
-                    state.retv               = MENU_QUICK_SWITCH;
-                    state.quit               = TRUE;
+                    if ( state.selected < state.filtered_lines ) {
+                        *( state.selected_line ) = state.line_map[state.selected];
+                    }
+                    //*( state.selected_line ) = ( key - XK_1 );
+                    unsigned int data = ( key - XK_1 );
+                    state.retv = MENU_QUICK_SWITCH | ( data & MENU_LOWER_MASK );
+                    state.quit = TRUE;
                     break;
                 }
                 // Special delete entry command.
@@ -1758,6 +1762,9 @@ int main ( int argc, char *argv[] )
         // User canceled the operation.
         if ( retv == FALSE ) {
             return EXIT_FAILURE;
+        }
+        else if ( retv < 0 ) {
+            return -retv;
         }
         return EXIT_SUCCESS;
     }

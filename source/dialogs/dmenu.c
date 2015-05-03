@@ -192,6 +192,19 @@ int dmenu_switcher_dialog ( char **input )
             }
             retv = TRUE;
         }
+        else if ( ( mretv & MENU_QUICK_SWITCH ) ) {
+            if ( number_mode ) {
+                fprintf ( stdout, "%d", selected_line );
+            }
+            else {
+                fputs ( list[selected_line], stdout );
+            }
+            fputc ( '\n', stdout );
+            fflush ( stdout );
+
+            restart = FALSE;
+            retv    = -( mretv & MENU_LOWER_MASK ) - 1;
+        }
     } while ( restart );
 
     g_strfreev ( list );

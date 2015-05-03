@@ -295,7 +295,7 @@ static SwitcherMode ssh_mode_result ( int mretv, char **input, unsigned int sele
         retv = PREVIOUS_DIALOG;
     }
     else if ( mretv & MENU_QUICK_SWITCH ) {
-        retv = selected_line;
+        retv = ( mretv & MENU_LOWER_MASK );
     }
     else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
         exec_ssh ( rmpd->cmd_list[selected_line] );
