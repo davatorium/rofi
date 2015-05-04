@@ -94,8 +94,10 @@ Show a ssh dialog:
 If passed the `-dmenu` option, or ran as `dmenu` (ie, /usr/bin/dmenu is symlinked to /usr/bin/rofi),
 rofi will use the data passed from STDIN.
 
-`~/scripts/my_script.sh | rofi -dmenu`
-`echo -e "Option #1\nOption #2\nOption #3\n" | rofi -dmenu`
+```
+~/scripts/my_script.sh | rofi -dmenu
+echo -e "Option #1\nOption #2\nOption #3" | rofi -dmenu
+```
 
 In both cases, rofi will output the user's selection to STDOUT.
 
