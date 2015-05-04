@@ -185,5 +185,5 @@ to disable it:
 
 # Installation
 
-Please see the [installation guide](https://davedavenport.github.io/rofi/INSTALL.html) for instruction on how to install *rofi*.
+Please see the [installation guide](https://davedavenport.github.io/rofi/p08-INSTALL.html) for instruction on how to install *rofi*.
 
