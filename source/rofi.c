@@ -1763,8 +1763,8 @@ int main ( int argc, char *argv[] )
         if ( retv == FALSE ) {
             return EXIT_FAILURE;
         }
-        else if ( retv < 0 ) {
-            return -retv;
+        else if ( retv >= 10 ) {
+            return retv;
         }
         return EXIT_SUCCESS;
     }
