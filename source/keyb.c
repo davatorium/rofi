@@ -136,7 +136,52 @@ DefaultBinding bindings[NUM_ABE] =
         .id         = DELETE_ENTRY,
         .name       = "kb-delete-entry",
         .keybinding = "Shift+Delete"
-    }
+    },
+    {
+        .id         = CUSTOM_1,
+        .name       = "kb-custom-1",
+        .keybinding = "Alt+1"
+    },
+    {
+        .id         = CUSTOM_2,
+        .name       = "kb-custom-2",
+        .keybinding = "Alt+2"
+    },
+    {
+        .id         = CUSTOM_3,
+        .name       = "kb-custom-3",
+        .keybinding = "Alt+3"
+    },
+    {
+        .id         = CUSTOM_4,
+        .name       = "kb-custom-4",
+        .keybinding = "Alt+4"
+    },
+    {
+        .id         = CUSTOM_5,
+        .name       = "kb-custom-5",
+        .keybinding = "Alt+5"
+    },
+    {
+        .id         = CUSTOM_6,
+        .name       = "kb-custom-6",
+        .keybinding = "Alt+6"
+    },
+    {
+        .id         = CUSTOM_7,
+        .name       = "kb-custom-7",
+        .keybinding = "Alt+7"
+    },
+    {
+        .id         = CUSTOM_8,
+        .name       = "kb-custom-8",
+        .keybinding = "Alt+8"
+    },
+    {
+        .id         = CUSTOM_9,
+        .name       = "kb-custom-9",
+        .keybinding = "Alt+9"
+    },
 };
 
 

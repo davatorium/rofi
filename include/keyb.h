@@ -23,6 +23,15 @@ typedef enum _KeyBindingAction
     MODE_PREVIOUS,
     TOGGLE_CASE_SENSITIVITY,
     DELETE_ENTRY,
+    CUSTOM_1,
+    CUSTOM_2,
+    CUSTOM_3,
+    CUSTOM_4,
+    CUSTOM_5,
+    CUSTOM_6,
+    CUSTOM_7,
+    CUSTOM_8,
+    CUSTOM_9,
     NUM_ABE
 } KeyBindingAction;
 

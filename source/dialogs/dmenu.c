@@ -203,7 +203,7 @@ int dmenu_switcher_dialog ( char **input )
             fflush ( stdout );
 
             restart = FALSE;
-            retv    = 10+ ( mretv & MENU_LOWER_MASK ) ;
+            retv    = 10 + ( mretv & MENU_LOWER_MASK );
         }
     } while ( restart );
 

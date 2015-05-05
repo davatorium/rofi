@@ -1177,15 +1177,48 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                         textbox_hide ( state.case_indicator );
                     }
                 }
-                // Switcher short-cut
-                else if ( ( ( ev.xkey.state & Mod1Mask ) == Mod1Mask ) &&
-                          key >= XK_1 && key <= XK_9 ) {
-                    if ( state.selected < state.filtered_lines ) {
-                        *( state.selected_line ) = state.line_map[state.selected];
-                    }
-                    //*( state.selected_line ) = ( key - XK_1 );
-                    unsigned int data = ( key - XK_1 );
-                    state.retv = MENU_QUICK_SWITCH | ( data & MENU_LOWER_MASK );
+                else if ( abe_test_action ( CUSTOM_1, ev.xkey.state, key ) ) {
+                    state.retv = MENU_QUICK_SWITCH | ( 0 & MENU_LOWER_MASK );
+                    state.quit = TRUE;
+                    break;
+                }
+                else if ( abe_test_action ( CUSTOM_2, ev.xkey.state, key ) ) {
+                    state.retv = MENU_QUICK_SWITCH | ( 1 & MENU_LOWER_MASK );
+                    state.quit = TRUE;
+                    break;
+                }
+                else if ( abe_test_action ( CUSTOM_3, ev.xkey.state, key ) ) {
+                    state.retv = MENU_QUICK_SWITCH | ( 2 & MENU_LOWER_MASK );
+                    state.quit = TRUE;
+                    break;
+                }
+                else if ( abe_test_action ( CUSTOM_4, ev.xkey.state, key ) ) {
+                    state.retv = MENU_QUICK_SWITCH | ( 3 & MENU_LOWER_MASK );
+                    state.quit = TRUE;
+                    break;
+                }
+                else if ( abe_test_action ( CUSTOM_5, ev.xkey.state, key ) ) {
+                    state.retv = MENU_QUICK_SWITCH | ( 4 & MENU_LOWER_MASK );
+                    state.quit = TRUE;
+                    break;
+                }
+                else if ( abe_test_action ( CUSTOM_6, ev.xkey.state, key ) ) {
+                    state.retv = MENU_QUICK_SWITCH | ( 5 & MENU_LOWER_MASK );
+                    state.quit = TRUE;
+                    break;
+                }
+                else if ( abe_test_action ( CUSTOM_7, ev.xkey.state, key ) ) {
+                    state.retv = MENU_QUICK_SWITCH | ( 6 & MENU_LOWER_MASK );
+                    state.quit = TRUE;
+                    break;
+                }
+                else if ( abe_test_action ( CUSTOM_8, ev.xkey.state, key ) ) {
+                    state.retv = MENU_QUICK_SWITCH | ( 7 & MENU_LOWER_MASK );
+                    state.quit = TRUE;
+                    break;
+                }
+                else if ( abe_test_action ( CUSTOM_9, ev.xkey.state, key ) ) {
+                    state.retv = MENU_QUICK_SWITCH | ( 8 & MENU_LOWER_MASK );
                     state.quit = TRUE;
                     break;
                 }
