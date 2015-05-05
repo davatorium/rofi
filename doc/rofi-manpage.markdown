@@ -2,7 +2,7 @@
 
 ## NAME
 
-rofi - A window switcher, run launcher, ssh dialog and dmenu replacement
+**rofi** - A window switcher, run launcher, ssh dialog and dmenu replacement
 
 ## SYNOPSIS
 
@@ -529,7 +529,7 @@ The following options are further explained in the theming section:
 
 ## PATTERN
 
-To launch commands (e.g. when using the ssh launcher) the user can enter the used commandline,
+To launch commands (e.g. when using the ssh launcher) the user can enter the used command-line,
 the following keys can be used that will be replaced at runtime:
 
 * `{host}`: The host to connect to.
@@ -688,6 +688,9 @@ Keybindings can be modified using the configuration systems.
 
 Qball Cow <qball@gmpclient.org>
 
+Rasmus Steinke
+
 Original code based on work by: Sean Pringle <sean.pringle@gmail.com>
 
 For a full list of authors, check the AUTHORS file.
+

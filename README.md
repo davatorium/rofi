@@ -1,4 +1,4 @@
-# subtitle: A window switcher, run dialog and dmenu replacement
+# A window switcher, run dialog and dmenu replacement
 
 A popup window switcher roughly based on [superswitcher](http://code.google.com/p/superswitcher/),
 requiring only xlib and pango.
