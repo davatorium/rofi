@@ -157,10 +157,39 @@ int dmenu_switcher_dialog ( char **input )
         parse_ranges ( str, &active_list, &num_active_list );
     }
 
+    int only_selected = FALSE;
+    if ( find_arg ( "-only-match" ) >= 0 ) {
+        only_selected = TRUE;
+        if ( length == 0 ) {
+            return TRUE;
+        }
+    }
+
     do {
         int next_pos = selected_line;
         int mretv    = menu ( list, length, input, dmenu_prompt,
                               token_match, NULL, &selected_line, config.levenshtein_sort, get_display_data, list, &next_pos );
+        // Special behavior.
+        if ( only_selected ) {
+            restart = TRUE;
+            if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && list[selected_line] != NULL ) {
+                if ( number_mode ) {
+                    fprintf ( stdout, "%d", selected_line );
+                }
+                else {
+                    fputs ( list[selected_line], stdout );
+                }
+                retv = TRUE;
+                if ( ( mretv & MENU_QUICK_SWITCH ) ) {
+                    retv = 10 + ( mretv & MENU_LOWER_MASK );
+                }
+                fputc ( '\n', stdout );
+                fflush ( stdout );
+                return retv;
+            }
+            selected_line = next_pos - 1;
+            continue;
+        }
         // We normally do not want to restart the loop.
         restart = FALSE;
         if ( ( mretv & MENU_OK ) && list[selected_line] != NULL ) {

@@ -507,6 +507,11 @@ The following options are further explained in the theming section:
     or a set of rows: -u 0,2
     Or any combination: -u 0,2-3,9
 
+`-only-match`
+
+    Only return a selected item, do not allow custom entry. 
+    This mode always returns an entry, or returns directly when no entries given.
+
 ### Message dialog
 
 `-e` *message*
