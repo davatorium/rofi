@@ -171,6 +171,9 @@ int dmenu_switcher_dialog ( char **input )
                               token_match, NULL, &selected_line, config.levenshtein_sort, get_display_data, list, &next_pos );
         // Special behavior.
         if ( only_selected ) {
+            /**
+             * Select item mode.
+             */
             restart = TRUE;
             if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && list[selected_line] != NULL ) {
                 if ( number_mode ) {
@@ -192,7 +195,7 @@ int dmenu_switcher_dialog ( char **input )
         }
         // We normally do not want to restart the loop.
         restart = FALSE;
-        if ( ( mretv & MENU_OK ) && list[selected_line] != NULL ) {
+        if ( ( mretv & ( MENU_OK | MENU_CUSTOM_INPUT ) ) && list[selected_line] != NULL ) {
             if ( number_mode ) {
                 fprintf ( stdout, "%d", selected_line );
             }
@@ -207,19 +210,9 @@ int dmenu_switcher_dialog ( char **input )
                 selected_line = MIN ( next_pos, length - 1 );
             }
             retv = TRUE;
-        }
-        else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
-            if ( !number_mode ) {
-                fputs ( *input, stdout );
-                fputc ( '\n', stdout );
-                fflush ( stdout );
+            if ( ( mretv & MENU_QUICK_SWITCH ) ) {
+                retv = 10 + ( mretv & MENU_LOWER_MASK );
             }
-            if ( ( mretv & MENU_SHIFT ) ) {
-                restart = TRUE;
-                // Move to next line.
-                selected_line = MIN ( next_pos, length - 1 );
-            }
-            retv = TRUE;
         }
         else if ( ( mretv & MENU_QUICK_SWITCH ) ) {
             if ( number_mode ) {
