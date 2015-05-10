@@ -408,6 +408,9 @@ static char ** window_mode_get_data ( unsigned int *length, Switcher *sw )
                     if ( client_has_state ( c, netatoms[_NET_WM_STATE_DEMANDS_ATTENTION] ) ) {
                         c->demands = TRUE;
                     }
+                    if ( client_has_state ( c, netatoms[_NET_WM_STATE_WITHDRAWN] ) ) {
+                        c->demands = TRUE;
+                    }
                     if ( ( c->hint_flags & XUrgencyHint ) == XUrgencyHint ) {
                         c->demands = TRUE;
                     }

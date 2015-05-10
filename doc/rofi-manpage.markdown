@@ -512,6 +512,16 @@ The following options are further explained in the theming section:
     Only return a selected item, do not allow custom entry. 
     This mode always returns an entry, or returns directly when no entries given.
 
+`-format` *format*
+
+    Allows the output of dmenu to be customized:
+
+     * 's' selected string.
+     * 'i' index.
+     * 'e' selected string escaped.
+
+    Default: 's'
+
 ### Message dialog
 
 `-e` *message*

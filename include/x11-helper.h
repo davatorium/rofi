@@ -41,6 +41,7 @@ int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned l
     X ( _NET_WM_STATE_SKIP_PAGER ),        \
     X ( _NET_WM_STATE_ABOVE ),             \
     X ( _NET_WM_STATE_DEMANDS_ATTENTION ), \
+    X ( _NET_WM_STATE_WITHDRAWN ),         \
     X ( _NET_WM_DESKTOP ),                 \
     X ( CLIPBOARD ),                       \
     X ( UTF8_STRING ),                     \

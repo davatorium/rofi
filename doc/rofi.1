@@ -663,6 +663,27 @@ or a set of rows: \-u 0,2
 Or any combination: \-u 0,2\-3,9
 .fi
 .RE
+.PP
+\fB\fC\-only\-match\fR
+.PP
+.RS
+.nf
+Only return a selected item, do not allow custom entry. 
+This mode always returns an entry, or returns directly when no entries given.
+.fi
+.RE
+.PP
+\fB\fC\-format\fR \fIformat\fP
+.PP
+.RS
+.nf
+Allows the output of dmenu to be customized:
+ * 's' selected string.
+ * 'i' index.
+ * 'e' selected string escaped.
+Default: 's'
+.fi
+.RE
 .SS Message dialog
 .PP
 \fB\fC\-e\fR \fImessage\fP

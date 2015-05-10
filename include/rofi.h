@@ -45,13 +45,13 @@ typedef const char * ( *get_display_value )( unsigned int selected_line, void *d
 typedef enum
 {
     /** Entry is selected. */
-    MENU_OK           = 0x0010000,
+    MENU_OK           = 0x00010000,
     /** User canceled the operation. (e.g. pressed escape) */
-    MENU_CANCEL       = 0x0020000,
+    MENU_CANCEL       = 0x00020000,
     /** User requested a mode switch */
-    MENU_NEXT         = 0x0040000,
+    MENU_NEXT         = 0x00040000,
     /** Custom (non-matched) input was entered. */
-    MENU_CUSTOM_INPUT = 0x0080000,
+    MENU_CUSTOM_INPUT = 0x00080000,
     /** User wanted to delete entry from history. */
     MENU_ENTRY_DELETE = 0x00100000,
     /** User wants to jump to another switcher. */

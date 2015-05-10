@@ -127,6 +127,28 @@ static const char *get_display_data ( unsigned int index, void *data, G_GNUC_UNU
     return retv[index];
 }
 
+static void dmenu_format_line ( const char *format, const char *string, int selected_line )
+{
+    for ( int i = 0; format && format[i]; i++ ) {
+        if ( format[i] == 'i' ) {
+            fprintf ( stdout, "%d", selected_line );
+        }
+        else if ( format[i] == 's' ) {
+            fputs ( string, stdout );
+        }
+        else if ( format[i] == 'e' ) {
+            char *quote = g_shell_quote ( string );
+            fputs ( quote, stdout );
+            g_free ( quote );
+        }
+        else {
+            fputc ( format[i], stdout );
+        }
+    }
+    fputc ( '\n', stdout );
+    fflush ( stdout );
+}
+
 int dmenu_switcher_dialog ( char **input )
 {
     char *dmenu_prompt = "dmenu ";
@@ -137,10 +159,14 @@ int dmenu_switcher_dialog ( char **input )
     int  restart       = FALSE;
 
     int  number_mode = FALSE;
+    char *format     = "s";
     // Check if the user requested number mode.
     if ( find_arg (  "-i" ) >= 0 ) {
         number_mode = TRUE;
+        format      = "i";
     }
+
+    find_arg_str ( "-format", &format );
     // Check prompt
     find_arg_str (  "-p", &dmenu_prompt );
     find_arg_int (  "-l", &selected_line );
@@ -176,18 +202,11 @@ int dmenu_switcher_dialog ( char **input )
              */
             restart = TRUE;
             if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && list[selected_line] != NULL ) {
-                if ( number_mode ) {
-                    fprintf ( stdout, "%d", selected_line );
-                }
-                else {
-                    fputs ( list[selected_line], stdout );
-                }
+                dmenu_format_line ( format, list[selected_line], selected_line );
                 retv = TRUE;
                 if ( ( mretv & MENU_QUICK_SWITCH ) ) {
                     retv = 10 + ( mretv & MENU_LOWER_MASK );
                 }
-                fputc ( '\n', stdout );
-                fflush ( stdout );
                 return retv;
             }
             selected_line = next_pos - 1;
@@ -196,14 +215,12 @@ int dmenu_switcher_dialog ( char **input )
         // We normally do not want to restart the loop.
         restart = FALSE;
         if ( ( mretv & ( MENU_OK | MENU_CUSTOM_INPUT ) ) && list[selected_line] != NULL ) {
-            if ( number_mode ) {
-                fprintf ( stdout, "%d", selected_line );
+            if ( ( mretv & MENU_CUSTOM_INPUT ) ) {
+                dmenu_format_line ( format, *input, -1 );
             }
-            else {
-                fputs ( list[selected_line], stdout );
+            else{
+                dmenu_format_line ( format, list[selected_line], selected_line );
             }
-            fputc ( '\n', stdout );
-            fflush ( stdout );
             if ( ( mretv & MENU_SHIFT ) ) {
                 restart = TRUE;
                 // Move to next line.
@@ -215,14 +232,12 @@ int dmenu_switcher_dialog ( char **input )
             }
         }
         else if ( ( mretv & MENU_QUICK_SWITCH ) ) {
-            if ( number_mode ) {
-                fprintf ( stdout, "%d", selected_line );
+            if ( ( mretv & MENU_CUSTOM_INPUT ) ) {
+                dmenu_format_line ( format, *input, -1 );
             }
-            else {
-                fputs ( list[selected_line], stdout );
+            else{
+                dmenu_format_line ( format, list[selected_line], selected_line );
             }
-            fputc ( '\n', stdout );
-            fflush ( stdout );
 
             restart = FALSE;
             retv    = 10 + ( mretv & MENU_LOWER_MASK );
