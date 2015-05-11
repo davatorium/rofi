@@ -514,10 +514,11 @@ The following options are further explained in the theming section:
 
 `-format` *format*
 
-    Allows the output of dmenu to be customized:
+    Allows the output of dmenu to be customized (N is total number of input entries):
 
      * 's' selected string.
-     * 'i' index.
+     * 'i' index (0 - (N-1)).
+     * 'd' index (1 - N).
      * 'e' selected string escaped.
 
     Default: 's'

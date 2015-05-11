@@ -87,8 +87,7 @@ Keybindings can also be specified in the \fB\fCXresources\fR file.
 \fBrofi\fP can emulate \fB\fCdmenu\fR (a dynamic menu for X) when launched with the \fB\fC\-dmenu\fR flag.
 .PP
 The official website for \fB\fCdmenu\fR can be found here
-.UR http://tools.suckless.org/dmenu/
-.UE \&.
+\[la]http://tools.suckless.org/dmenu/\[ra]\&.
 .SH OPTIONS
 .PP
 There are currently three methods of setting configuration options:
@@ -98,9 +97,7 @@ Compile time: edit config.c. This method is strongly discouraged.
 .IP \(bu 2
 Xresources: A method of storing key values in the Xserver. See
 here
-.UR https://en.wikipedia.org/wiki/X_resources
-.UE
-for more information.
+\[la]https://en.wikipedia.org/wiki/X_resources\[ra] for more information.
 .IP \(bu 2
 Command\-line options: Arguments passed to \fBrofi\fP\&.
 .RE
@@ -677,9 +674,10 @@ This mode always returns an entry, or returns directly when no entries given.
 .PP
 .RS
 .nf
-Allows the output of dmenu to be customized:
+Allows the output of dmenu to be customized (N is total number of input entries):
  * 's' selected string.
- * 'i' index.
+ * 'i' index (0 \- (N\-1)).
+ * 'd' index (1 \- N).
  * 'e' selected string escaped.
 Default: 's'
 .fi
@@ -922,22 +920,18 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 .SH WEBSITE
 .PP
 \fBrofi\fP website can be found at here
-.UR https://davedavenport.github.io/rofi/
-.UE
+\[la]https://davedavenport.github.io/rofi/\[ra]
 .PP
 \fBrofi\fP bugtracker can be found here
-.UR https://github.com/DaveDavenport/rofi/issues
-.UE
+\[la]https://github.com/DaveDavenport/rofi/issues\[ra]
 .SH AUTHOR
 .PP
 Qball Cow 
-.MT qball@gmpclient.org
-.ME
+\[la]qball@gmpclient.org\[ra]
 .PP
 Rasmus Steinke
 .PP
 Original code based on work by: Sean Pringle 
-.MT sean.pringle@gmail.com
-.ME
+\[la]sean.pringle@gmail.com\[ra]
 .PP
 For a full list of authors, check the AUTHORS file.

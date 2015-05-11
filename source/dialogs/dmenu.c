@@ -127,11 +127,29 @@ static const char *get_display_data ( unsigned int index, void *data, G_GNUC_UNU
     return retv[index];
 }
 
-static void dmenu_format_line ( const char *format, const char *string, int selected_line )
+/**
+ * @param format The format string used. See below for possible syntax.
+ * @param string The selected entry.
+ * @param selected_line The selected line index.
+ * 
+ * Function that outputs the selected line in the user-specified format.
+ * Currently the following formats are supported:
+ *   * i: Print the index (0-(N-1))
+ *   * d: Print the index (1-N) 
+ *   * s: Print input string.
+ *   * e: Print input string shell quoted.
+ *
+ * This functions outputs the formatted string to stdout, appends a newline (\n) character and
+ * calls flush on the file descriptor.
+ */
+static void dmenu_output_formatted_line ( const char *format, const char *string, int selected_line )
 {
     for ( int i = 0; format && format[i]; i++ ) {
         if ( format[i] == 'i' ) {
             fprintf ( stdout, "%d", selected_line );
+        }
+        else if ( format[i] == 'd' ) {
+            fprintf ( stdout, "%d", (selected_line+1) );
         }
         else if ( format[i] == 's' ) {
             fputs ( string, stdout );
@@ -158,14 +176,14 @@ int dmenu_switcher_dialog ( char **input )
     char **list        = get_dmenu ( &length );
     int  restart       = FALSE;
 
-    int  number_mode = FALSE;
+    // By default we print the unescaped line back.
     char *format     = "s";
-    // Check if the user requested number mode.
+    // This is here for compatibility reason.
+    // Use -format 'i' instead. 
     if ( find_arg (  "-i" ) >= 0 ) {
-        number_mode = TRUE;
         format      = "i";
     }
-
+    // Allow user to override the output format.
     find_arg_str ( "-format", &format );
     // Check prompt
     find_arg_str (  "-p", &dmenu_prompt );
@@ -202,7 +220,7 @@ int dmenu_switcher_dialog ( char **input )
              */
             restart = TRUE;
             if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && list[selected_line] != NULL ) {
-                dmenu_format_line ( format, list[selected_line], selected_line );
+                dmenu_output_formatted_line ( format, list[selected_line], selected_line );
                 retv = TRUE;
                 if ( ( mretv & MENU_QUICK_SWITCH ) ) {
                     retv = 10 + ( mretv & MENU_LOWER_MASK );
@@ -216,10 +234,10 @@ int dmenu_switcher_dialog ( char **input )
         restart = FALSE;
         if ( ( mretv & ( MENU_OK | MENU_CUSTOM_INPUT ) ) && list[selected_line] != NULL ) {
             if ( ( mretv & MENU_CUSTOM_INPUT ) ) {
-                dmenu_format_line ( format, *input, -1 );
+                dmenu_output_formatted_line ( format, *input, -1 );
             }
             else{
-                dmenu_format_line ( format, list[selected_line], selected_line );
+                dmenu_output_formatted_line ( format, list[selected_line], selected_line );
             }
             if ( ( mretv & MENU_SHIFT ) ) {
                 restart = TRUE;
@@ -233,10 +251,10 @@ int dmenu_switcher_dialog ( char **input )
         }
         else if ( ( mretv & MENU_QUICK_SWITCH ) ) {
             if ( ( mretv & MENU_CUSTOM_INPUT ) ) {
-                dmenu_format_line ( format, *input, -1 );
+                dmenu_output_formatted_line ( format, *input, -1 );
             }
             else{
-                dmenu_format_line ( format, list[selected_line], selected_line );
+                dmenu_output_formatted_line ( format, list[selected_line], selected_line );
             }
 
             restart = FALSE;
