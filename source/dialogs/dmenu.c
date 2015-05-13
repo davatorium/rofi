@@ -154,8 +154,13 @@ static void dmenu_output_formatted_line ( const char *format, const char *string
         else if ( format[i] == 's' ) {
             fputs ( string, stdout );
         }
-        else if ( format[i] == 'e' ) {
+        else if ( format[i] == 'q' ) {
             char *quote = g_shell_quote ( string );
+            fputs ( quote, stdout );
+            g_free ( quote );
+        }
+        else if ( format[i] == 'e' ) {
+            char *quote = g_strescape ( string, "" );
             fputs ( quote, stdout );
             g_free ( quote );
         }

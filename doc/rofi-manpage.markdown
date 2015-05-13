@@ -519,7 +519,8 @@ The following options are further explained in the theming section:
      * 's' selected string.
      * 'i' index (0 - (N-1)).
      * 'd' index (1 - N).
-     * 'e' selected string escaped.
+     * 'q' quote string.
+     * 'e' escape string.
 
     Default: 's'
 
