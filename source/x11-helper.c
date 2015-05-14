@@ -96,17 +96,19 @@ char* window_get_text_prop ( Display *display, Window w, Atom atom )
 
     if ( XGetTextProperty ( display, w, &prop, atom ) && prop.value && prop.nitems ) {
         if ( prop.encoding == XA_STRING ) {
-            res = g_malloc ( strlen ( ( char * ) prop.value ) + 1 );
+            size_t l = strlen ( ( char *) prop.value ) + 1;
+            res = g_malloc ( l );
             // make clang-check happy.
             if ( res ) {
-                strcpy ( res, ( char * ) prop.value );
+                g_strlcpy ( res, ( char * ) prop.value, l );
             }
         }
         else if ( Xutf8TextPropertyToTextList ( display, &prop, &list, &count ) >= Success && count > 0 && *list ) {
-            res = g_malloc ( strlen ( *list ) + 1 );
+            size_t l = strlen ( *list ) + 1;
+            res = g_malloc ( l );
             // make clang-check happy.
             if ( res ) {
-                strcpy ( res, *list );
+                g_strlcpy ( res, *list, l );
             }
             XFreeStringList ( list );
         }

@@ -131,11 +131,11 @@ static const char *get_display_data ( unsigned int index, void *data, G_GNUC_UNU
  * @param format The format string used. See below for possible syntax.
  * @param string The selected entry.
  * @param selected_line The selected line index.
- * 
+ *
  * Function that outputs the selected line in the user-specified format.
  * Currently the following formats are supported:
  *   * i: Print the index (0-(N-1))
- *   * d: Print the index (1-N) 
+ *   * d: Print the index (1-N)
  *   * s: Print input string.
  *   * e: Print input string shell quoted.
  *
@@ -149,7 +149,7 @@ static void dmenu_output_formatted_line ( const char *format, const char *string
             fprintf ( stdout, "%d", selected_line );
         }
         else if ( format[i] == 'd' ) {
-            fprintf ( stdout, "%d", (selected_line+1) );
+            fprintf ( stdout, "%d", ( selected_line + 1 ) );
         }
         else if ( format[i] == 's' ) {
             fputs ( string, stdout );
@@ -182,11 +182,11 @@ int dmenu_switcher_dialog ( char **input )
     int  restart       = FALSE;
 
     // By default we print the unescaped line back.
-    char *format     = "s";
+    char *format = "s";
     // This is here for compatibility reason.
-    // Use -format 'i' instead. 
+    // Use -format 'i' instead.
     if ( find_arg (  "-i" ) >= 0 ) {
-        format      = "i";
+        format = "i";
     }
     // Allow user to override the output format.
     find_arg_str ( "-format", &format );

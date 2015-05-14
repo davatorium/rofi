@@ -66,7 +66,7 @@ void i3_support_focus_window ( Window id )
     }
 
     remote.sun_family = AF_UNIX;
-    strcpy ( remote.sun_path, i3_socket_path );
+    g_strlcpy ( remote.sun_path, i3_socket_path, strlen ( i3_socket_path ) );
     len = strlen ( remote.sun_path ) + sizeof ( remote.sun_family );
 
     if ( connect ( s, ( struct sockaddr * ) &remote, len ) == -1 ) {
