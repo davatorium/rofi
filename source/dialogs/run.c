@@ -174,7 +174,7 @@ static char ** get_apps ( unsigned int *length )
     unsigned int num_favorites = 0;
     char         *path;
 
-    if ( getenv ( "PATH" ) == NULL ) {
+    if ( g_getenv ( "PATH" ) == NULL ) {
         return NULL;
     }
 
@@ -247,7 +247,7 @@ static char ** get_apps ( unsigned int *length )
 
     unsigned int removed = 0;
     for ( unsigned int index = num_favorites; index < ( ( *length ) - 1 ); index++ ) {
-        if ( strcmp ( retv[index], retv[index + 1] ) == 0 ) {
+        if ( g_strcmp0 ( retv[index], retv[index + 1] ) == 0 ) {
             g_free ( retv[index] );
             retv[index] = NULL;
             removed++;
