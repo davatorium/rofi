@@ -50,7 +50,7 @@ char *i3_socket_path = NULL;
 void i3_support_focus_window ( Window id )
 {
     i3_ipc_header_t    head;
-    char               command[128];
+    char               command[UNIX_PATH_MAX + 1];
     int                s, len;
     ssize_t            t;
     struct sockaddr_un remote;
@@ -66,7 +66,7 @@ void i3_support_focus_window ( Window id )
     }
 
     remote.sun_family = AF_UNIX;
-    g_strlcpy ( remote.sun_path, i3_socket_path, strlen ( i3_socket_path ) );
+    g_strlcpy ( remote.sun_path, i3_socket_path, strlen ( i3_socket_path ) + 1 );
     len = strlen ( remote.sun_path ) + sizeof ( remote.sun_family );
 
     if ( connect ( s, ( struct sockaddr * ) &remote, len ) == -1 ) {
