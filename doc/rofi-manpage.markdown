@@ -520,8 +520,9 @@ The following options are further explained in the theming section:
      * 'i' index (0 - (N-1)).
      * 'd' index (1 - N).
      * 'q' quote string.
-     * 'e' escape string.
-
+     * 'f' filter string (user input).
+     * 'F' quoted filter string (user input).
+ 
     Default: 's'
 
 ### Message dialog

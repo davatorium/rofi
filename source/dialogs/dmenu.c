@@ -131,18 +131,21 @@ static const char *get_display_data ( unsigned int index, void *data, G_GNUC_UNU
  * @param format The format string used. See below for possible syntax.
  * @param string The selected entry.
  * @param selected_line The selected line index.
+ * @param filter The entered filter.
  *
  * Function that outputs the selected line in the user-specified format.
  * Currently the following formats are supported:
  *   * i: Print the index (0-(N-1))
  *   * d: Print the index (1-N)
  *   * s: Print input string.
- *   * e: Print input string shell quoted.
+ *   * q: Print quoted input string.
+ *   * f: Print the entered filter.
+ *   * F: Print the entered filter, quoted
  *
  * This functions outputs the formatted string to stdout, appends a newline (\n) character and
  * calls flush on the file descriptor.
  */
-static void dmenu_output_formatted_line ( const char *format, const char *string, int selected_line )
+static void dmenu_output_formatted_line ( const char *format, const char *string, int selected_line, const char *filter )
 {
     for ( int i = 0; format && format[i]; i++ ) {
         if ( format[i] == 'i' ) {
@@ -159,8 +162,11 @@ static void dmenu_output_formatted_line ( const char *format, const char *string
             fputs ( quote, stdout );
             g_free ( quote );
         }
-        else if ( format[i] == 'e' ) {
-            char *quote = g_strescape ( string, "" );
+        else if ( format[i] == 'f' ) {
+            fputs ( filter, stdout );
+        }
+        else if ( format[i] == 'F' ) {
+            char *quote = g_shell_quote ( filter );
             fputs ( quote, stdout );
             g_free ( quote );
         }
@@ -213,6 +219,7 @@ int dmenu_switcher_dialog ( char **input )
             return TRUE;
         }
     }
+    find_arg_str_alloc ( "-filter", input );
 
     do {
         int next_pos = selected_line;
@@ -225,7 +232,7 @@ int dmenu_switcher_dialog ( char **input )
              */
             restart = TRUE;
             if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && list[selected_line] != NULL ) {
-                dmenu_output_formatted_line ( format, list[selected_line], selected_line );
+                dmenu_output_formatted_line ( format, list[selected_line], selected_line, *input );
                 retv = TRUE;
                 if ( ( mretv & MENU_QUICK_SWITCH ) ) {
                     retv = 10 + ( mretv & MENU_LOWER_MASK );
@@ -239,10 +246,10 @@ int dmenu_switcher_dialog ( char **input )
         restart = FALSE;
         if ( ( mretv & ( MENU_OK | MENU_CUSTOM_INPUT ) ) && list[selected_line] != NULL ) {
             if ( ( mretv & MENU_CUSTOM_INPUT ) ) {
-                dmenu_output_formatted_line ( format, *input, -1 );
+                dmenu_output_formatted_line ( format, *input, -1, *input );
             }
             else{
-                dmenu_output_formatted_line ( format, list[selected_line], selected_line );
+                dmenu_output_formatted_line ( format, list[selected_line], selected_line, *input );
             }
             if ( ( mretv & MENU_SHIFT ) ) {
                 restart = TRUE;
@@ -256,10 +263,10 @@ int dmenu_switcher_dialog ( char **input )
         }
         else if ( ( mretv & MENU_QUICK_SWITCH ) ) {
             if ( ( mretv & MENU_CUSTOM_INPUT ) ) {
-                dmenu_output_formatted_line ( format, *input, -1 );
+                dmenu_output_formatted_line ( format, *input, -1, *input );
             }
             else{
-                dmenu_output_formatted_line ( format, list[selected_line], selected_line );
+                dmenu_output_formatted_line ( format, list[selected_line], selected_line, *input );
             }
 
             restart = FALSE;
