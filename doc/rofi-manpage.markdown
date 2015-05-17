@@ -525,6 +525,10 @@ The following options are further explained in the theming section:
  
     Default: 's'
 
+`-filter` *filter*
+
+    Preset user filter to *filter* in the entry box and pre-filter the list.
+
 ### Message dialog
 
 `-e` *message*
