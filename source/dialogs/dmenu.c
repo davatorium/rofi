@@ -221,6 +221,20 @@ int dmenu_switcher_dialog ( char **input )
     }
     find_arg_str_alloc ( "-filter", input );
 
+    char *select = NULL;
+    find_arg_str ( "-select", &select );
+    if ( select != NULL && find_arg ( "-filter" ) >= 0 ) {
+        char **tokens = tokenize ( select, config.case_sensitive );
+        int  i        = 0;
+        for ( i = 0; i < length; i++ ) {
+            if ( token_match ( tokens, list[i], config.case_sensitive, 0, NULL ) ) {
+                selected_line = i;
+                break;
+            }
+        }
+        g_strfreev ( tokens );
+    }
+
     do {
         int next_pos = selected_line;
         int mretv    = menu ( list, length, input, dmenu_prompt,
