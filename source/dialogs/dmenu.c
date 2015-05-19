@@ -181,7 +181,7 @@ static void dmenu_output_formatted_line ( const char *format, const char *string
 int dmenu_switcher_dialog ( char **input )
 {
     char *dmenu_prompt = "dmenu ";
-    int  selected_line = 0;
+    int  selected_line = -1;
     int  retv          = FALSE;
     int  length        = 0;
     char **list        = get_dmenu ( &length );
@@ -223,7 +223,7 @@ int dmenu_switcher_dialog ( char **input )
 
     char *select = NULL;
     find_arg_str ( "-select", &select );
-    if ( select != NULL && find_arg ( "-filter" ) >= 0 ) {
+    if ( select != NULL /*&& find_arg ( "-filter" ) >= 0 */ ) {
         char **tokens = tokenize ( select, config.case_sensitive );
         int  i        = 0;
         for ( i = 0; i < length; i++ ) {

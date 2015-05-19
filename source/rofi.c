@@ -1070,12 +1070,18 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     state.selected = 0;
     // The cast to unsigned in here is valid, we checked if selected_line > 0.
     // So its maximum range is 0-2³¹, well within the num_lines range.
-    if ( ( *( state.selected_line ) ) >= 0 && (unsigned int) ( *( state.selected_line ) ) <= state.num_lines ) {
-        state.selected = *( state.selected_line );
-    }
+//    if ( ( *( state.selected_line ) ) >= 0 && (unsigned int) ( *( state.selected_line ) ) <= state.num_lines ) {
+//        state.selected = *( state.selected_line );
+//    }
 
     state.quit = FALSE;
     menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
+
+    for ( unsigned int i = 0; ( *( state.selected_line ) ) >= 0 && !state.selected && i < state.filtered_lines; i++ ) {
+        if ( state.line_map[i] == *( state.selected_line ) ) {
+            state.selected = i;
+        }
+    }
 
     int x11_fd = ConnectionNumber ( display );
     while ( !state.quit ) {
@@ -1910,7 +1916,7 @@ int main ( int argc, char *argv[] )
 SwitcherMode switcher_run ( char **input, Switcher *sw )
 {
     char         *prompt         = g_strdup_printf ( "%s:", sw->name );
-    int          selected_line   = 0;
+    int          selected_line   = -1;
     unsigned int cmd_list_length = 0;
     char         **cmd_list      = NULL;
 
