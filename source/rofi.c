@@ -1304,6 +1304,14 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
             } while ( XCheckTypedEvent ( display, KeyPress, &ev ) );
         }
     }
+    // Wait for final release?
+    {
+        XEvent ev;
+        do {
+            XNextEvent ( display, &ev );
+        } while ( ev.type != KeyRelease );
+    }
+
 
     // Update input string.
     g_free ( *input );
