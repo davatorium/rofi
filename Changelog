@@ -1,8 +1,16 @@
 0.15.5:
 	Bug fixes:
 		- Reduce time waiting for keyboard grab (#153)
+		- Also grab Key Release on exit. (#167)
+	New feature:
+		- [DMENU] Allow to select line matching pattern from cmdline.(#165) 
+		- [DMENU] Allow to set filter from cmdline. (#164)
+		- [DMENU] Allow output to be formatted (string, filter, index, index 1 based)
+		- [DMENU] Only match input lines mode.
+		- [DMENU] Custom keybinding for return value.
 	Improvements:
 		- (Start) adding keybinding support (#131)
+		- Cleanup warnings from clang checkers.
 
 0.15.4:
 	New feature:
