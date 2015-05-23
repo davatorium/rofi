@@ -89,6 +89,9 @@ textbox* textbox_create ( Window parent,
 
     tb->layout = pango_layout_new ( p_context );
 
+    tb->markup  = FALSE;
+    tb->changed = FALSE;
+
     unsigned int cp;
     switch ( tbft )
     {
@@ -115,7 +118,12 @@ textbox* textbox_create ( Window parent,
     pango_font_description_free ( pfd );
     textbox_font ( tb, tbft );
 
-    textbox_text ( tb, text ? text : "" );
+    if ( ( flags & TB_MARKUP ) == TB_MARKUP ) {
+        textbox_text_markup ( tb, text ? text : "" );
+    }
+    else{
+        textbox_text ( tb, text ? text : "" );
+    }
     textbox_cursor_end ( tb );
 
     // auto height/width modes get handled here
@@ -175,6 +183,32 @@ void textbox_text ( textbox *tb, const char *text )
         }
     }
     pango_layout_set_text ( tb->layout, tb->text, strlen ( tb->text ) );
+    if ( tb->flags & TB_AUTOWIDTH ) {
+        textbox_moveresize ( tb, tb->x, tb->y, tb->w, tb->h );
+    }
+
+
+    tb->cursor = MAX ( 0, MIN ( ( int ) strlen ( text ), tb->cursor ) );
+}
+// set the default text to display
+void textbox_text_markup ( textbox *tb, const char *text )
+{
+    g_free ( tb->text );
+    const gchar *last_pointer = NULL;
+    if ( g_utf8_validate ( text, -1, &last_pointer ) ) {
+        tb->text = g_strdup ( text );
+    }
+    else {
+        if ( last_pointer != NULL ) {
+            // Copy string up to invalid character.
+            tb->text = g_strndup ( text, ( last_pointer - text ) );
+        }
+        else {
+            tb->text = g_strdup ( "Invalid UTF-8 string." );
+        }
+    }
+    tb->markup = TRUE;
+    pango_layout_set_markup ( tb->layout, tb->text, strlen ( tb->text ) );
     if ( tb->flags & TB_AUTOWIDTH ) {
         textbox_moveresize ( tb, tb->x, tb->y, tb->w, tb->h );
     }
@@ -274,7 +308,14 @@ void textbox_draw ( textbox *tb )
     int  cursor_x     = 0;
     int  cursor_width = MAX ( 2, font_height / 10 );
 
-    pango_layout_set_text ( tb->layout, text, text_len );
+    if ( tb->changed ) {
+        if ( tb->markup ) {
+            pango_layout_set_markup ( tb->layout, text, text_len );
+        }
+        else{
+            pango_layout_set_text ( tb->layout, text, text_len );
+        }
+    }
 
     if ( tb->flags & TB_EDITABLE ) {
         PangoRectangle pos;
@@ -443,6 +484,9 @@ void textbox_insert ( textbox *tb, int pos, char *str )
     memmove ( at + slen, at, len - pos + 1 );
     // insert new str
     memmove ( at, str, slen );
+
+    // Set modified, lay out need te be redrawn
+    tb->changed = TRUE;
 }
 
 // remove text
@@ -460,6 +504,8 @@ void textbox_delete ( textbox *tb, int pos, int dlen )
     else if ( tb->cursor >= ( pos + dlen ) ) {
         tb->cursor -= dlen;
     }
+    // Set modified, lay out need te be redrawn
+    tb->changed = TRUE;
 }
 
 // delete on character

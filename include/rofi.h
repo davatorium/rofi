@@ -87,6 +87,7 @@ typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensi
  * @param mmc Menu menu match callback, used for matching user input.
  * @param mmc_data data to pass to mmc.
  * @param selected_line pointer to integer holding the selected line.
+ * @param message Extra message to display.
  *
  * Main menu callback.
  *
@@ -94,8 +95,8 @@ typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensi
  */
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt,
                   menu_match_cb mmc, void *mmc_data, int *selected_line, int sorting,
-                  get_display_value mgrv, void *mgrv_data, int *next_pos ) __attribute__ ( ( nonnull ( 1, 3,
-                                                                                                       4, 7 ) ) );
+                  get_display_value mgrv, void *mgrv_data, int *next_pos, const char *message ) __attribute__ ( ( nonnull ( 1, 3,
+                                                                                                                            4, 7 ) ) );
 /**
  * @param sig  The caught signal
  *

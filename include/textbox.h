@@ -18,6 +18,8 @@ typedef struct
     XIC           xic;
     PangoLayout   *layout;
     int           tbft;
+    int           markup;
+    int           changed;
 } textbox;
 
 
@@ -29,6 +31,7 @@ typedef enum
     TB_RIGHT      = 1 << 17,
     TB_CENTER     = 1 << 18,
     TB_EDITABLE   = 1 << 19,
+    TB_MARKUP     = 1 << 20,
 } TextboxFlags;
 
 
@@ -240,4 +243,7 @@ void textbox_delete ( textbox *tb, int pos, int dlen );
 
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
 int textbox_get_estimated_char_height ( void );
+
+
+void textbox_text_markup ( textbox *tb, const char *text );
 #endif //__TEXTBOX_H__

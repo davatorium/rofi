@@ -280,6 +280,7 @@ typedef struct MenuState
     unsigned int      w, h;
     int               x, y;
     unsigned int      element_width;
+    int               top_offset;
 
     // Update/Refilter list.
     int               update;
@@ -290,6 +291,7 @@ typedef struct MenuState
     // Entries
     textbox           *text;
     textbox           *prompt_tb;
+    textbox           *message_tb;
     textbox           *case_indicator;
     textbox           *arrowbox_top;
     textbox           *arrowbox_bottom;
@@ -798,7 +800,7 @@ static void menu_draw ( MenuState *state )
     }
 
     int          element_height = state->line_height * config.element_height;
-    int          y_offset       = config.padding + state->line_height;
+    int          y_offset       = state->top_offset;
     int          x_offset       = config.padding;
     // Calculate number of visible rows.
     unsigned int max_elements = MIN ( a_lines, state->max_rows * columns );
@@ -850,6 +852,9 @@ static void menu_update ( MenuState *state )
     textbox_draw ( state->case_indicator );
     textbox_draw ( state->prompt_tb );
     textbox_draw ( state->text );
+    if ( state->message_tb ) {
+        textbox_draw ( state->message_tb );
+    }
     menu_draw ( state );
     menu_set_arrow_text ( state->filtered_lines, state->selected,
                           state->max_elements, state->arrowbox_top,
@@ -859,6 +864,13 @@ static void menu_update ( MenuState *state )
                 state->line_height + ( config.padding ) + ( LINE_MARGIN  ) / 2,
                 state->w - ( ( config.padding ) ) - 1,
                 state->line_height + ( config.padding ) + ( LINE_MARGIN  ) / 2 );
+    if ( state->message_tb ) {
+        XDrawLine ( display, main_window, gc,
+                    ( config.padding ),
+                    state->top_offset + ( LINE_MARGIN  ) / 2,
+                    state->w - ( ( config.padding ) ) - 1,
+                    state->top_offset + ( LINE_MARGIN  ) / 2 );
+    }
 
     if ( config.sidebar_mode == TRUE ) {
         XDrawLine ( display, main_window, gc,
@@ -904,7 +916,7 @@ static void menu_paste ( MenuState *state, XSelectionEvent *xse )
 
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt,
                   menu_match_cb mmc, void *mmc_data, int *selected_line, int sorting,
-                  get_display_value mgrv, void *mgrv_data, int *next_pos )
+                  get_display_value mgrv, void *mgrv_data, int *next_pos, const char *message )
 {
     int          shift = FALSE;
     MenuState    state = {
@@ -919,13 +931,14 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         .filtered_lines    =             0,
         .max_elements      =             0,
         // We want to filter on the first run.
-        .refilter  = TRUE,
-        .update    = FALSE,
-        .rchanged  = TRUE,
-        .cur_page  =            -1,
-        .lines     = lines,
-        .mgrv      = mgrv,
-        .mgrv_data = mgrv_data
+        .refilter   = TRUE,
+        .update     = FALSE,
+        .rchanged   = TRUE,
+        .cur_page   =            -1,
+        .lines      = lines,
+        .mgrv       = mgrv,
+        .mgrv_data  = mgrv_data,
+        .top_offset = 0
     };
     unsigned int i;
     if ( next_pos ) {
@@ -986,6 +999,9 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                   entrybox_width, state.line_height,
                                   NORMAL,
                                   *input );
+
+    state.top_offset = config.padding + state.line_height;
+
     // Move indicator to end.
     textbox_move ( state.case_indicator,
                    config.padding + textbox_get_width ( state.prompt_tb ) + entrybox_width,
@@ -998,11 +1014,25 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         textbox_show ( state.case_indicator );
     }
 
+    state.message_tb = NULL;
+    if ( message ) {
+        state.top_offset += config.menu_bw;
+        state.message_tb  = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_MARKUP,
+                                             ( config.padding ),
+                                             state.top_offset,
+                                             entrybox_width, -1,
+                                             NORMAL,
+                                             message );
+        textbox_show ( state.message_tb );
+        state.top_offset += textbox_get_height ( state.message_tb );
+        state.top_offset += config.menu_bw;
+    }
+
     int element_height = state.line_height * config.element_height;
     // filtered list display
     state.boxes = g_malloc0_n ( state.max_elements, sizeof ( textbox* ) );
 
-    int y_offset = config.padding + state.line_height;
+    int y_offset = state.top_offset;
     int x_offset = config.padding;
 
     for ( i = 0; i < state.max_elements; i++ ) {
@@ -1022,7 +1052,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                              "↓" );
     textbox_move ( state.arrowbox_top,
                    state.w - config.padding - state.arrowbox_top->w,
-                   config.padding + state.line_height + LINE_MARGIN );
+                   state.top_offset + LINE_MARGIN );
     // TODO calculate from top.
     textbox_move ( state.arrowbox_bottom,
                    state.w - config.padding - state.arrowbox_bottom->w,
@@ -1036,7 +1066,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
-    state.h = state.line_height + element_height * state.max_rows + ( config.padding ) * 2 + LINE_MARGIN;
+    state.h = state.top_offset + element_height * state.max_rows + ( config.padding ) + LINE_MARGIN;
 
     // Add entry
     if ( config.sidebar_mode == TRUE ) {
@@ -1936,7 +1966,7 @@ SwitcherMode switcher_run ( char **input, Switcher *sw )
                        &selected_line,
                        config.levenshtein_sort,
                        sw->mgrv,
-                       sw, NULL );
+                       sw, NULL, NULL );
 
     SwitcherMode retv = sw->result ( mretv, input, selected_line, sw );
 

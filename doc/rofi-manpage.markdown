@@ -529,6 +529,10 @@ The following options are further explained in the theming section:
 
     Preset user filter to *filter* in the entry box and pre-filter the list.
 
+`-mesg` *str*
+
+    Add a message line beneath filter. Supports pango markdown.
+
 ### Message dialog
 
 `-e` *message*

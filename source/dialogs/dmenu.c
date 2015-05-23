@@ -186,6 +186,10 @@ int dmenu_switcher_dialog ( char **input )
     int  length        = 0;
     char **list        = get_dmenu ( &length );
     int  restart       = FALSE;
+    char *message      = NULL;
+
+
+    find_arg_str ( "-mesg", &message );
 
     // By default we print the unescaped line back.
     char *format = "s";
@@ -238,7 +242,7 @@ int dmenu_switcher_dialog ( char **input )
     do {
         int next_pos = selected_line;
         int mretv    = menu ( list, length, input, dmenu_prompt,
-                              token_match, NULL, &selected_line, config.levenshtein_sort, get_display_data, list, &next_pos );
+                              token_match, NULL, &selected_line, config.levenshtein_sort, get_display_data, list, &next_pos, message );
         // Special behavior.
         if ( only_selected ) {
             /**
