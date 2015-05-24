@@ -27,7 +27,7 @@
 [ \-display \fIdisplay\fP ]
 [ \-bc \fIcolor\fP ]
 [ \-bw \fIwidth\fP ]
-[ \-dmenu [ \-p \fIprompt\fP ] [ \-sep \fIseparator\fP ] [ \-l \fIselected line\fP ] ]
+[ \-dmenu [ \-p \fIprompt\fP ] [ \-sep \fIseparator\fP ] [ \-l \fIselected line\fP ] [ \-mesg ] [ \-filter ] [ \-select ] ]
 [ \-ssh\-client \fIclient\fP ]
 [ \-ssh\-command \fIcommand\fP ]
 [ \-disable\-history ]
@@ -163,7 +163,7 @@ Below is a list of the most important options:
 .PP
 \fB\fC\-key\-{mode}\fR \fBKEY\fP
 .IP
-Set the key combination to display a {mode} in daemon mode. 
+Set the key combination to display a {mode} in daemon mode.
 .PP
 .RS
 .nf
@@ -586,7 +586,7 @@ Default: \fI""\fP
 .RS
 .nf
 The modi to combine in the combi mode.
-For syntax to see `\-modi`. 
+For syntax to see `\-modi`.
 To get one merge view, of window,run,ssh:
         rofi \-show combi \-combi\-mode "window,run,ssh"
 .fi
@@ -668,7 +668,7 @@ Or any combination: \-u 0,2\-3,9
 .PP
 .RS
 .nf
-Only return a selected item, do not allow custom entry. 
+Only return a selected item, do not allow custom entry.
 This mode always returns an entry, or returns directly when no entries given.
 .fi
 .RE
@@ -696,7 +696,15 @@ Preset user filter to *filter* in the entry box and pre\-filter the list.
 .fi
 .RE
 .PP
-\fB\fC\-mesg\fR \fIstr\fP
+\fB\fC\-select\fR \fIstring\fP
+.PP
+.RS
+.nf
+Select first line that matches the given string
+.fi
+.RE
+.PP
+\fB\fC\-mesg\fR \fIstring\fP
 .PP
 .RS
 .nf
@@ -720,7 +728,7 @@ Message can be multi\-line.
 .RS
 .nf
 Make **rofi** create a pid file and check this on startup. Avoiding multiple copies running
-simultaneous. This is useful when running **rofi** from a keybinding daemon. 
+simultaneous. This is useful when running **rofi** from a keybinding daemon.
 .fi
 .RE
 .SS Debug
@@ -774,7 +782,6 @@ Currently 3 states exists:
 \fBnormal\fP Normal row.
 .IP \(bu 2
 \fBurgent\fP Highlighted row (urgent)
-.br
 .IP \(bu 2
 \fBactive\fP Highlighted row (active)
 .RE
@@ -804,7 +811,7 @@ rofi.color\-normal: #fdf6e3,  #002b36,  #eee8d5,  #586e75,  #eee8d5
 rofi.color\-urgent: #fdf6e3,  #dc322f,  #eee8d5,  #dc322f,  #fdf6e3
 rofi.color\-active: #fdf6e3,  #268bd2,  #eee8d5,  #268bd2,  #fdf6e3
 !                  'background', 'border'
-rofi.color\-window: #fdf6e3,      #002b36 
+rofi.color\-window: #fdf6e3,      #002b36
 .fi
 .RE
 .PP
