@@ -29,7 +29,7 @@
 [ -display *display* ]
 [ -bc *color* ]
 [ -bw *width* ]
-[ -dmenu [ -p *prompt* ] [ -sep *separator* ] [ -l *selected line* ] ]
+[ -dmenu [ -p *prompt* ] [ -sep *separator* ] [ -l *selected line* ] [ -mesg ] [ -filter ] [ -select ] ]
 [ -ssh-client *client* ]
 [ -ssh-command *command* ]
 [ -disable-history ]
@@ -130,11 +130,11 @@ to disable it:
 
 Below is a list of the most important options:
 
-### General 
+### General
 
 `-key-{mode}` **KEY**
 
-  Set the key combination to display a {mode} in daemon mode. 
+  Set the key combination to display a {mode} in daemon mode.
 
 
       rofi -key-run F12
@@ -448,7 +448,7 @@ The following options are further explained in the theming section:
 `-combi-modi` *mode1,mode2*
 
     The modi to combine in the combi mode.
-    For syntax to see `-modi`. 
+    For syntax to see `-modi`.
     To get one merge view, of window,run,ssh:
 
             rofi -show combi -combi-mode "window,run,ssh"
@@ -509,7 +509,7 @@ The following options are further explained in the theming section:
 
 `-only-match`
 
-    Only return a selected item, do not allow custom entry. 
+    Only return a selected item, do not allow custom entry.
     This mode always returns an entry, or returns directly when no entries given.
 
 `-format` *format*
@@ -522,14 +522,18 @@ The following options are further explained in the theming section:
      * 'q' quote string.
      * 'f' filter string (user input).
      * 'F' quoted filter string (user input).
- 
+
     Default: 's'
 
 `-filter` *filter*
 
     Preset user filter to *filter* in the entry box and pre-filter the list.
 
-`-mesg` *str*
+`-select` *string*
+
+    Select first line that matches the given string
+
+`-mesg` *string*
 
     Add a message line beneath filter. Supports pango markdown.
 
@@ -545,7 +549,7 @@ The following options are further explained in the theming section:
 '-pid' *path*
 
     Make **rofi** create a pid file and check this on startup. Avoiding multiple copies running
-    simultaneous. This is useful when running **rofi** from a keybinding daemon. 
+    simultaneous. This is useful when running **rofi** from a keybinding daemon.
 
 ### Debug
 
@@ -586,7 +590,7 @@ colors per state, similar to **i3**
 Currently 3 states exists:
 
 * **normal** Normal row.
-* **urgent** Highlighted row (urgent)  
+* **urgent** Highlighted row (urgent)
 * **active** Highlighted row (active)
 
 For each state the following 5 colors must be set:
@@ -606,9 +610,9 @@ An example for `Xresources` file:
 rofi.color-normal: #fdf6e3,  #002b36,  #eee8d5,  #586e75,  #eee8d5
 rofi.color-urgent: #fdf6e3,  #dc322f,  #eee8d5,  #dc322f,  #fdf6e3
 rofi.color-active: #fdf6e3,  #268bd2,  #eee8d5,  #268bd2,  #fdf6e3
- 
+
 !                  'background', 'border'
-rofi.color-window: #fdf6e3,      #002b36 
+rofi.color-window: #fdf6e3,      #002b36
 ```
 
 Same settings can also be specified on command-line:
@@ -684,7 +688,7 @@ Keybindings can be modified using the configuration systems.
 ## LICENSE
 
     MIT/X11
-    
+
     Permission is hereby granted, free of charge, to any person obtaining
     a copy of this software and associated documentation files (the
     "Software"), to deal in the Software without restriction, including
@@ -692,10 +696,10 @@ Keybindings can be modified using the configuration systems.
     distribute, sublicense, and/or sell copies of the Software, and to
     permit persons to whom the Software is furnished to do so, subject to
     the following conditions:
-    
+
     The above copyright notice and this permission notice shall be
     included in all copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
     OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
