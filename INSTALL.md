@@ -8,15 +8,20 @@
 * make
 * autoconf
 * automake (1.11.3 or up)
+* pkg-config
 * Developer packages of the external libraries
 
 ### External libraries
 
 * libxinerama
-* libxft
+* libxft2
 * libpango
 * libpangoxft
+* libglib2.0
 * libx11
+
+On debian based systems, the developer packages are in the form of: `<package>-dev` on rpm based
+'<package>-devel'.
 
 
 ### Optional:
