@@ -7,10 +7,12 @@
 		- [DMENU] Allow to set filter from cmdline. (#164)
 		- [DMENU] Allow output to be formatted (string, filter, index, index 1 based)
 		- [DMENU] Only match input lines mode.
-		- [DMENU] Custom keybinding for return value.
+		- [DMENU] Custom keybinding for return value.(#154,#156)
+		- [DMENU] Allow additional message line. (#166)
 	Improvements:
 		- (Start) adding keybinding support (#131)
 		- Cleanup warnings from clang checkers.
+		- Fix keybindings on Russian layout (#169)
 
 0.15.4:
 	New feature:
