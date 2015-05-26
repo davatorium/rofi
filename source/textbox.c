@@ -809,19 +809,14 @@ double textbox_get_estimated_char_width ( void )
 
 int textbox_get_estimated_char_height ( void )
 {
-    // Create a temp layout with right font.
-    PangoLayout          *layout = pango_layout_new ( p_context );
     // Set font.
     PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
-    pango_layout_set_font_description ( layout, pfd );
-    pango_font_description_free ( pfd );
 
     // Get width
-    PangoContext     *context = pango_layout_get_context ( layout );
-    PangoFontMetrics *metric  = pango_context_get_metrics ( context, NULL, NULL );
-    int              height   = pango_font_metrics_get_ascent ( metric ) + pango_font_metrics_get_descent ( metric );
+    PangoFontMetrics *metric = pango_context_get_metrics ( p_context, pfd, NULL );
+    int              height  = pango_font_metrics_get_ascent ( metric ) + pango_font_metrics_get_descent ( metric );
     pango_font_metrics_unref ( metric );
 
-    g_object_unref ( layout );
+    pango_font_description_free ( pfd );
     return ( height ) / PANGO_SCALE + 2 * SIDE_MARGIN;
 }
