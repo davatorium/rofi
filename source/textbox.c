@@ -816,11 +816,10 @@ int textbox_get_estimated_char_height ( void )
     pango_layout_set_font_description ( layout, pfd );
     pango_font_description_free ( pfd );
 
-    // Get width
+    // Get height
     PangoContext     *context = pango_layout_get_context ( layout );
-    PangoFontMetrics *metric  = pango_context_get_metrics ( context, NULL, NULL );
-    int              height   = pango_font_metrics_get_ascent ( metric ) + pango_font_metrics_get_descent ( metric );
-    pango_font_metrics_unref ( metric );
+    int              height;
+    pango_layout_get_size( layout, NULL, &height );
 
     g_object_unref ( layout );
     return ( height ) / PANGO_SCALE + 2 * SIDE_MARGIN;
