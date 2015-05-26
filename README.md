@@ -10,7 +10,7 @@ replacement, making it a very versatile tool.
 Using Rofi is a lot like dmenu, but extended for an improved work flow.
 It main features are:
 
-* Full keyboard navigation.
+* Full (configurable) keyboard navigation.
 * Type to filter
     - Tokenized: Type any word in any order to filter.
     - Case insensitive
@@ -27,6 +27,7 @@ It main features are:
 * History based ordering last 25 choices are ordered on top based on use. (optional)
 * Levenshtein distance ordering of matches. (optional)
 * Drop in dmenu replacement.
+    - With many added improvements.
 * Can be easily extended using scripts.
 
 The 4 Main functions of rofi are:
@@ -70,6 +71,11 @@ Quickly ssh into remote machines
 
 Drop in dmenu replacement. (Screenshot shows rofi used by
 [teiler](https://github.com/carnager/teiler) ).
+
+**rofi** features several improvements over dmenu to improve usability. There is the option to add
+an extra message bar (`-mesg`), pre-entering of text (`-filter`) or selecting entries based on a
+pattern (`-select`). Also highlighting (`-u` and `-a`) options and modi to force user to select one
+provided option (`-only-match`).
 
 # Usage
 
