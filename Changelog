@@ -2,6 +2,7 @@
 	Bug fixes:
 		- Reduce time waiting for keyboard grab (#153)
 		- Also grab Key Release on exit. (#167)
+		- Fix failing font size estimation code.
 	New feature:
 		- [DMENU] Allow to select line matching pattern from cmdline.(#165) 
 		- [DMENU] Allow to set filter from cmdline. (#164)
