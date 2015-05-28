@@ -535,7 +535,8 @@ The following options are further explained in the theming section:
 
 `-mesg` *string*
 
-    Add a message line beneath filter. Supports pango markdown.
+Add a message line below the filter entry box. Supports pango markup.
+For more information on supported markup see [here](https://developer.gnome.org/pango/stable/PangoMarkupFormat.html)
 
 ### Message dialog
 
