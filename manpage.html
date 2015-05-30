@@ -1,4 +1,4 @@
-<h1 id="ROFI-1-rofi"><span class="md2man-title">ROFI</span> <span class="md2man-section">1</span> <span class="md2man-date">rofi</span><a name="ROFI-1-rofi" href="#ROFI-1-rofi" class="md2man-permalink"></a></h1><h2 id="NAME">NAME<a name="NAME" href="#NAME" class="md2man-permalink"></a></h2><p>rofi - A window switcher, run launcher, ssh dialog and dmenu replacement</p><h2 id="SYNOPSIS">SYNOPSIS<a name="SYNOPSIS" href="#SYNOPSIS" class="md2man-permalink"></a></h2><p><strong>rofi</strong>
+<h1 id="ROFI-1-rofi"><span class="md2man-title">ROFI</span> <span class="md2man-section">1</span> <span class="md2man-date">rofi</span><a name="ROFI-1-rofi" href="#ROFI-1-rofi" class="md2man-permalink"></a></h1><h2 id="NAME">NAME<a name="NAME" href="#NAME" class="md2man-permalink"></a></h2><p><strong>rofi</strong> - A window switcher, run launcher, ssh dialog and dmenu replacement</p><h2 id="SYNOPSIS">SYNOPSIS<a name="SYNOPSIS" href="#SYNOPSIS" class="md2man-permalink"></a></h2><p><strong>rofi</strong>
 [ -width <em>pct_scr</em> ]
 [ -lines <em>lines</em> ]
 [ -columns <em>columns</em> ]
@@ -21,7 +21,7 @@
 [ -display <em>display</em> ]
 [ -bc <em>color</em> ]
 [ -bw <em>width</em> ]
-[ -dmenu [ -p <em>prompt</em> ] [ -sep <em>separator</em> ] [ -l <em>selected line</em> ] ]
+[ -dmenu [ -p <em>prompt</em> ] [ -sep <em>separator</em> ] [ -l <em>selected line</em> ] [ -mesg ] [ -filter ] [ -select ] ]
 [ -ssh-client <em>client</em> ]
 [ -ssh-command <em>command</em> ]
 [ -disable-history ]
@@ -85,7 +85,7 @@ prefixed with a &#39;-&#39;:</p>
 <p>to disable it:</p>
 <pre><code>-no-X
 </code></pre>
-<p>Below is a list of the most important options:</p><h3 id="General">General<a name="General" href="#General" class="md2man-permalink"></a></h3><p><code>-key-{mode}</code> <strong>KEY</strong></p><dl><dd>Set the key combination to display a {mode} in daemon mode. </dd></dl>
+<p>Below is a list of the most important options:</p><h3 id="General">General<a name="General" href="#General" class="md2man-permalink"></a></h3><p><code>-key-{mode}</code> <strong>KEY</strong></p><dl><dd>Set the key combination to display a {mode} in daemon mode.</dd></dl>
 <pre><code>  rofi -key-run F12
   rofi -key-ssh control+shift+s
   rofi -key-window mod1+Tab
@@ -198,7 +198,7 @@ The pattern <em>{host}</em> is replaced by the selected ssh entry.</dd></dl><dl>
 See <em>PATTERN</em>.</dd></dl><dl><dd>Default: <em>{cmd}</em></dd></dl><p><code>-run-shell-command</code> <em>cmd</em></p><dl><dd>Set the command to execute when running an application in a shell.
 See <em>PATTERN</em>.</dd></dl><dl><dd>Default: <em>{terminal} -e {cmd}</em></dd></dl><p><code>-run-list-command</code> <em>cmd</em></p><dl><dd>If set, use an external tool to generate list of executable commands. Uses &#39;run-command&#39;</dd></dl><dl><dd>Default: <em>&quot;&quot;</em></dd></dl><h3 id="Combi-settings">Combi settings<a name="Combi-settings" href="#Combi-settings" class="md2man-permalink"></a></h3><p><code>-combi-modi</code> <em>mode1,mode2</em></p>
 <pre><code>The modi to combine in the combi mode.
-For syntax to see `-modi`. 
+For syntax to see `-modi`.
 To get one merge view, of window,run,ssh:
 
         rofi -show combi -combi-mode &quot;window,run,ssh&quot;
@@ -239,15 +239,38 @@ A range: -u 3-8
 or a set of rows: -u 0,2
 Or any combination: -u 0,2-3,9
 </code></pre>
-<h3 id="Message-dialog">Message dialog<a name="Message-dialog" href="#Message-dialog" class="md2man-permalink"></a></h3><p><code>-e</code> <em>message</em></p>
+<p><code>-only-match</code></p>
+<pre><code>Only return a selected item, do not allow custom entry.
+This mode always returns an entry, or returns directly when no entries given.
+</code></pre>
+<p><code>-format</code> <em>format</em></p>
+<pre><code>Allows the output of dmenu to be customized (N is total number of input entries):
+
+ * &#39;s&#39; selected string.
+ * &#39;i&#39; index (0 - (N-1)).
+ * &#39;d&#39; index (1 - N).
+ * &#39;q&#39; quote string.
+ * &#39;f&#39; filter string (user input).
+ * &#39;F&#39; quoted filter string (user input).
+
+Default: &#39;s&#39;
+</code></pre>
+<p><code>-filter</code> <em>filter</em></p>
+<pre><code>Preset user filter to *filter* in the entry box and pre-filter the list.
+</code></pre>
+<p><code>-select</code> <em>string</em></p>
+<pre><code>Select first line that matches the given string
+</code></pre>
+<p><code>-mesg</code> <em>string</em></p><p>Add a message line below the filter entry box. Supports pango markup.
+For more information on supported markup see <a href="https://developer.gnome.org/pango/stable/PangoMarkupFormat.html">here</a></p><h3 id="Message-dialog">Message dialog<a name="Message-dialog" href="#Message-dialog" class="md2man-permalink"></a></h3><p><code>-e</code> <em>message</em></p>
 <pre><code>Popup a message dialog (used internally for showing errors) with *message*.
 Message can be multi-line.
 </code></pre>
 <h3 id="Other">Other<a name="Other" href="#Other" class="md2man-permalink"></a></h3><p>&#39;-pid&#39; <em>path</em></p>
 <pre><code>Make **rofi** create a pid file and check this on startup. Avoiding multiple copies running
-simultaneous. This is useful when running **rofi** from a keybinding daemon. 
+simultaneous. This is useful when running **rofi** from a keybinding daemon.
 </code></pre>
-<h3 id="Debug">Debug<a name="Debug" href="#Debug" class="md2man-permalink"></a></h3><p><code>-dump-Xresources</code></p><dl><dd>Dump the current active configuration in Xresources format to the command-line.</dd></dl><h2 id="PATTERN">PATTERN<a name="PATTERN" href="#PATTERN" class="md2man-permalink"></a></h2><p>To launch commands (e.g. when using the ssh launcher) the user can enter the used commandline,
+<h3 id="Debug">Debug<a name="Debug" href="#Debug" class="md2man-permalink"></a></h3><p><code>-dump-Xresources</code></p><dl><dd>Dump the current active configuration in Xresources format to the command-line.</dd></dl><h2 id="PATTERN">PATTERN<a name="PATTERN" href="#PATTERN" class="md2man-permalink"></a></h2><p>To launch commands (e.g. when using the ssh launcher) the user can enter the used command-line,
 the following keys can be used that will be replaced at runtime:</p>
 <ul>
 <li><code>{host}</code>: The host to connect to.</li>
@@ -268,7 +291,7 @@ colors per state, similar to <strong>i3</strong>
 Currently 3 states exists:</p>
 <ul>
 <li><strong>normal</strong> Normal row.</li>
-<li><strong>urgent</strong> Highlighted row (urgent)<br></li>
+<li><strong>urgent</strong> Highlighted row (urgent)</li>
 <li><strong>active</strong> Highlighted row (active)</li>
 </ul>
 <p>For each state the following 5 colors must be set:</p>
@@ -288,7 +311,7 @@ rofi.color-urgent: #fdf6e3,  #dc322f,  #eee8d5,  #dc322f,  #fdf6e3
 rofi.color-active: #fdf6e3,  #268bd2,  #eee8d5,  #268bd2,  #fdf6e3
 
 !                  &#39;background&#39;, &#39;border&#39;
-rofi.color-window: #fdf6e3,      #002b36 
+rofi.color-window: #fdf6e3,      #002b36
 </code></pre>
 <p>Same settings can also be specified on command-line:</p>
 <pre><code>rofi -color-normal &quot;#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5&quot;
@@ -334,7 +357,8 @@ and the others slightly transparent.</p><h2 id="KEYBINDINGS">KEYBINDINGS<a name=
 <li><code>Shift-Del</code>: Delete entry from history.</li>
 <li><code>Ctrl-grave</code>: Toggle case sensitivity.</li>
 </ul>
-<h2 id="FAQ">FAQ<a name="FAQ" href="#FAQ" class="md2man-permalink"></a></h2><p><code>Text in window switcher is not nicely lined out</code></p>
+<p>To get a full list of keybindings, see <code>rofi -dump-xresources | grep kb-</code>.
+Keybindings can be modified using the configuration systems.</p><h2 id="FAQ">FAQ<a name="FAQ" href="#FAQ" class="md2man-permalink"></a></h2><p><code>Text in window switcher is not nicely lined out</code></p>
 <pre><code>Try using a mono-space font.
 </code></pre>
 <p><code>**rofi** is completely black.</code></p>
@@ -362,4 +386,4 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 </code></pre>
-<h2 id="WEBSITE">WEBSITE<a name="WEBSITE" href="#WEBSITE" class="md2man-permalink"></a></h2><p><strong>rofi</strong> website can be found at <a href="https://davedavenport.github.io/rofi/">here</a></p><p><strong>rofi</strong> bugtracker can be found <a href="https://github.com/DaveDavenport/rofi/issues">here</a></p><h2 id="AUTHOR">AUTHOR<a name="AUTHOR" href="#AUTHOR" class="md2man-permalink"></a></h2><p>Qball Cow <a href="mailto:qball@gmpclient.org">qball@gmpclient.org</a></p><p>Original code based on work by: Sean Pringle <a href="mailto:sean.pringle@gmail.com">sean.pringle@gmail.com</a></p><p>For a full list of authors, check the AUTHORS file.</p>
+<h2 id="WEBSITE">WEBSITE<a name="WEBSITE" href="#WEBSITE" class="md2man-permalink"></a></h2><p><strong>rofi</strong> website can be found at <a href="https://davedavenport.github.io/rofi/">here</a></p><p><strong>rofi</strong> bugtracker can be found <a href="https://github.com/DaveDavenport/rofi/issues">here</a></p><h2 id="AUTHOR">AUTHOR<a name="AUTHOR" href="#AUTHOR" class="md2man-permalink"></a></h2><p>Qball Cow <a href="mailto:qball@gmpclient.org">qball@gmpclient.org</a></p><p>Rasmus Steinke</p><p>Original code based on work by: Sean Pringle <a href="mailto:sean.pringle@gmail.com">sean.pringle@gmail.com</a></p><p>For a full list of authors, check the AUTHORS file.</p>
