@@ -1,4 +1,4 @@
-AC_INIT([rofi], [0.15.4], [qball@gmpclient.org])
+AC_INIT([rofi], [0.15.5], [qball@gmpclient.org])
 
 AC_CONFIG_SRCDIR([source/rofi.c])
 AC_CONFIG_HEADER([config.h])
