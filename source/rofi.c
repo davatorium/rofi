@@ -1711,9 +1711,6 @@ static inline void load_configuration_dynamic ( Display *display )
     // Load in config from X resources.
     config_parse_xresource_options_dynamic ( display );
     config_parse_cmd_options_dynamic (  );
-
-    // Sanity check
-    config_sanity_check ( );
 }
 
 
@@ -1728,12 +1725,17 @@ static void hup_action_handler ( int num )
          * Open new connection to X. It seems the XResources do not get updated on the old
          * connection.
          */
-        Display *display = XOpenDisplay ( display_str );
-        if ( display ) {
-            load_configuration ( display );
-            load_configuration_dynamic ( display );
-            parse_keys_abe ();
-            XCloseDisplay ( display );
+        if ( find_arg ( "-no-config" ) < 0 ) {
+            Display *display = XOpenDisplay ( display_str );
+            if ( display ) {
+                load_configuration ( display );
+                load_configuration_dynamic ( display );
+
+                // Sanity check
+                config_sanity_check ( );
+                parse_keys_abe ();
+                XCloseDisplay ( display );
+            }
         }
     }
 }
@@ -1823,7 +1825,9 @@ int main ( int argc, char *argv[] )
     // Setup keybinding
     setup_abe ();
 
-    load_configuration ( display );
+    if ( find_arg ( "-no-config" ) < 0 ) {
+        load_configuration ( display );
+    }
     if ( !dmenu_mode ) {
         // setup_switchers
         setup_switchers ();
@@ -1832,8 +1836,12 @@ int main ( int argc, char *argv[] )
         // Add dmenu options.
         config_parser_add_option ( xrm_Char, "sep", (void * *) &( config.separator ) );
     }
-    // Reload for dynamic part.
-    load_configuration_dynamic ( display );
+    if ( find_arg ( "-no-config" ) < 0 ) {
+        // Reload for dynamic part.
+        load_configuration_dynamic ( display );
+    }
+    // Sanity check
+    config_sanity_check ( );
     // Dump.
     if ( find_arg (  "-dump-xresources" ) >= 0 ) {
         xresource_dump ();

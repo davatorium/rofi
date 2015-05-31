@@ -558,6 +558,10 @@ For more information on supported markup see [here](https://developer.gnome.org/
 
   Dump the current active configuration in Xresources format to the command-line.
 
+`-no-config`
+
+  Disable parsing of configuration. This runs rofi in *stock* mode.
+
 ## PATTERN
 
 To launch commands (e.g. when using the ssh launcher) the user can enter the used command-line,
