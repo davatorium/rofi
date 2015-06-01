@@ -451,7 +451,7 @@ The following options are further explained in the theming section:
     For syntax to see `-modi`.
     To get one merge view, of window,run,ssh:
 
-            rofi -show combi -combi-mode "window,run,ssh"
+            rofi -show combi -combi-modi "window,run,ssh"
 
 ### History and Sorting
 
