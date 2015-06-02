@@ -108,7 +108,7 @@ indent: ${rofi_SOURCES} ${top_srcdir}/config/config.def.c
 	uncrustify -c ${top_srcdir}/data/uncrustify.cfg --replace $^
 
 update-manpage: ${top_srcdir}/doc/rofi-manpage.markdown
-	md2man-roff $^ > ${top_srcdir}/doc/rofi.1 
+	ronn --roff --pipe $^ > ${top_srcdir}/doc/rofi.1
 
 ##
 # Rofi test program

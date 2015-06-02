@@ -306,9 +306,11 @@ The following options are further explained in the theming section:
 
     Set window background and border color.
 
-`-color-normal` *background,foreground,background alt, highlight background, highlight foreground*
-`-color-urgent` *background,foreground,background alt, highlight background, highlight foreground*
-`-color-active` *background,foreground,background alt, highlight background, highlight foreground*
+`-color-normal` *background, foreground, background alt, highlight background, highlight foreground*
+
+`-color-urgent` *background, foreground, background alt, highlight background, highlight foreground*
+
+`-color-active` *background, foreground, background alt, highlight background, highlight foreground*
 
     Specify the colors used in a row per state (normal, active, urgent).
 
