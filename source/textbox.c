@@ -119,6 +119,7 @@ textbox* textbox_create ( Window parent,
     textbox_font ( tb, tbft );
 
     if ( ( flags & TB_MARKUP ) == TB_MARKUP ) {
+        pango_layout_set_wrap ( tb->layout, PANGO_WRAP_WORD_CHAR );
         textbox_text_markup ( tb, text ? text : "" );
     }
     else{
@@ -228,10 +229,6 @@ void textbox_move ( textbox *tb, int x, int y )
 // within the parent handled auto width/height modes
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
-    if ( tb->flags & TB_AUTOHEIGHT ) {
-        h = textbox_get_height ( tb );
-    }
-
     if ( tb->flags & TB_AUTOWIDTH ) {
         pango_layout_set_width ( tb->layout, -1 );
         if ( w > 1 ) {
@@ -246,19 +243,27 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
         if ( ( tb->flags & TB_EDITABLE ) == TB_EDITABLE ) {
             pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_MIDDLE );
         }
-        else{
+        else if ( ( tb->flags & TB_MARKUP ) != TB_MARKUP ) {
             pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_END );
         }
+    }
+
+    if ( tb->flags & TB_AUTOHEIGHT ) {
+        // Width determines height!
+        int tw = MAX ( 1, w );
+        pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tw - 2 * SIDE_MARGIN ) );
+        h = textbox_get_height ( tb );
     }
 
     if ( x != tb->x || y != tb->y || w != tb->w || h != tb->h ) {
         tb->x = x;
         tb->y = y;
-        tb->w = MAX ( 1, w );
         tb->h = MAX ( 1, h );
+        tb->w = MAX ( 1, w );
         XMoveResizeWindow ( display, tb->window, tb->x, tb->y, tb->w, tb->h );
-        pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->w - 2 * SIDE_MARGIN ) );
     }
+    // We always want to update this
+    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->w - 2 * SIDE_MARGIN ) );
 }
 
 void textbox_show ( textbox *tb )

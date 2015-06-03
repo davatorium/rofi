@@ -1020,7 +1020,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         state.message_tb  = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_MARKUP,
                                              ( config.padding ),
                                              state.top_offset,
-                                             entrybox_width, -1,
+                                             state.w - ( 2 * ( config.padding ) ),
+                                             -1,
                                              NORMAL,
                                              message );
         textbox_show ( state.message_tb );
