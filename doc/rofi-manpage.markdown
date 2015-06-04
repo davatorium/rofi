@@ -726,7 +726,7 @@ Keybindings can be modified using the configuration systems.
 
 Qball Cow <qball@gmpclient.org>
 
-Rasmus Steinke
+Rasmus Steinke <rasi@xssn.at>
 
 Original code based on work by: Sean Pringle <sean.pringle@gmail.com>
 
