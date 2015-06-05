@@ -227,7 +227,7 @@ int dmenu_switcher_dialog ( char **input )
 
     char *select = NULL;
     find_arg_str ( "-select", &select );
-    if ( select != NULL /*&& find_arg ( "-filter" ) >= 0 */ ) {
+    if ( select != NULL ) {
         char **tokens = tokenize ( select, config.case_sensitive );
         int  i        = 0;
         for ( i = 0; i < length; i++ ) {
