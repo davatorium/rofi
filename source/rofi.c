@@ -1371,7 +1371,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     return retv;
 }
 
-void error_dialog ( const char *msg )
+void error_dialog ( const char *msg, int markup )
 {
     MenuState state = {
         .selected_line     = NULL,
@@ -1409,7 +1409,7 @@ void error_dialog ( const char *msg )
     menu_calculate_window_and_element_width ( &state, &mon );
     state.max_elements = 0;
 
-    state.text = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT,
+    state.text = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT + ( ( markup ) ? TB_MARKUP : 0 ),
                                   ( config.padding ),
                                   ( config.padding ),
                                   ( state.w - ( 2 * ( config.padding ) ) ),
@@ -1741,7 +1741,7 @@ static void hup_action_handler ( int num )
     }
 }
 
-static void show_error_message ( const char *msg )
+static void show_error_message ( const char *msg, int markup )
 {
     // Create pid file
     create_pid_file ( pidfile );
@@ -1749,7 +1749,7 @@ static void show_error_message ( const char *msg )
     // Request truecolor visual.
     create_visual_and_colormap ( display );
     textbox_setup ( &vinfo, map );
-    error_dialog ( msg );
+    error_dialog ( msg, markup );
     textbox_cleanup ( );
     if ( map != None ) {
         XFreeColormap ( display, map );
@@ -1861,7 +1861,11 @@ int main ( int argc, char *argv[] )
 
     char *msg = NULL;
     if ( find_arg_str (  "-e", &( msg ) ) ) {
-        show_error_message ( msg );
+        int markup = FALSE;
+        if ( find_arg ( "-markup" ) >= 0 ) {
+            markup = TRUE;
+        }
+        show_error_message ( msg, markup );
         exit ( EXIT_SUCCESS );
     }
 

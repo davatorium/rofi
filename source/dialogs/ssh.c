@@ -64,7 +64,7 @@ static inline int execshssh ( const char *host )
     if ( error != NULL ) {
         char *msg = g_strdup_printf ( "Failed to execute: 'ssh %s'\nError: '%s'", host,
                                       error->message );
-        error_dialog ( msg );
+        error_dialog ( msg, FALSE  );
         g_free ( msg );
         // print error.
         g_error_free ( error );

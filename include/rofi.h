@@ -233,10 +233,11 @@ extern Settings config;
 
 /**
  * @param msg The error message to show.
+ * @param markup The error message uses pango markup.
  *
  * The error message to show.
  */
-void error_dialog ( const char *msg );
+void error_dialog ( const char *msg, int markup  );
 
 /**
  * Structure defining a switcher.

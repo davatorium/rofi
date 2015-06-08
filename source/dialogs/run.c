@@ -62,7 +62,7 @@ static inline void execsh ( const char *cmd, int run_in_term )
     if ( error != NULL ) {
         char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd,
                                       error->message );
-        error_dialog ( msg );
+        error_dialog ( msg, FALSE  );
         g_free ( msg );
         // print error.
         g_error_free ( error );
