@@ -2,6 +2,7 @@
 	Bug fixes:
 		- Auto-wrap text in message dialog.
 		- Fix ellipsiziing in entry box.
+		- Fix crash on empty list with custom input (#175).
 
 0.15.5:
 	Bug fixes:
