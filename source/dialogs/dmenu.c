@@ -271,8 +271,8 @@ int dmenu_switcher_dialog ( char **input )
                 selected_line = MIN ( next_pos, length - 1 );
             }
             retv = TRUE;
-            // Custom input
         }
+        // Custom input
         else if ( ( mretv & ( MENU_CUSTOM_INPUT ) ) ) {
             dmenu_output_formatted_line ( format, *input, -1, *input );
             retv = TRUE;
