@@ -262,30 +262,31 @@ int dmenu_switcher_dialog ( char **input )
         }
         // We normally do not want to restart the loop.
         restart = FALSE;
-        if ( ( mretv & ( MENU_OK | MENU_CUSTOM_INPUT ) ) && list[selected_line] != NULL ) {
-            if ( ( mretv & MENU_CUSTOM_INPUT ) ) {
-                dmenu_output_formatted_line ( format, *input, -1, *input );
-            }
-            else{
-                dmenu_output_formatted_line ( format, list[selected_line], selected_line, *input );
-            }
+        // Normal mode
+        if ( ( mretv & MENU_OK  ) && list[selected_line] != NULL ) {
+            dmenu_output_formatted_line ( format, list[selected_line], selected_line, *input );
             if ( ( mretv & MENU_SHIFT ) ) {
                 restart = TRUE;
                 // Move to next line.
                 selected_line = MIN ( next_pos, length - 1 );
             }
             retv = TRUE;
-            if ( ( mretv & MENU_QUICK_SWITCH ) ) {
-                retv = 10 + ( mretv & MENU_LOWER_MASK );
-            }
+            // Custom input
         }
-        else if ( ( mretv & MENU_QUICK_SWITCH ) ) {
-            if ( ( mretv & MENU_CUSTOM_INPUT ) ) {
-                dmenu_output_formatted_line ( format, *input, -1, *input );
-            }
-            else{
-                dmenu_output_formatted_line ( format, list[selected_line], selected_line, *input );
-            }
+        else if ( ( mretv & ( MENU_CUSTOM_INPUT ) ) ) {
+            dmenu_output_formatted_line ( format, *input, -1, *input );
+            retv = TRUE;
+        }
+        // Quick switch with entry selected.
+        else if ( ( mretv & MENU_QUICK_SWITCH ) && selected_line > 0 ) {
+            dmenu_output_formatted_line ( format, list[selected_line], selected_line, *input );
+
+            restart = FALSE;
+            retv    = 10 + ( mretv & MENU_LOWER_MASK );
+        }
+        // Quick switch without entry selected.
+        else if ( ( mretv & MENU_QUICK_SWITCH ) && selected_line == -1 ) {
+            dmenu_output_formatted_line ( format, *input, -1, *input );
 
             restart = FALSE;
             retv    = 10 + ( mretv & MENU_LOWER_MASK );
