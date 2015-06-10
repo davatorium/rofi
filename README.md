@@ -196,3 +196,5 @@ to disable it:
 
 Please see the [installation guide](https://davedavenport.github.io/rofi/p08-INSTALL.html) for instruction on how to install *rofi*.
 
+
+Quick test to see what happens when committing with wrong data (as seems to have happened).
