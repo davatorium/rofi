@@ -275,6 +275,12 @@ int dmenu_switcher_dialog ( char **input )
         // Custom input
         else if ( ( mretv & ( MENU_CUSTOM_INPUT ) ) ) {
             dmenu_output_formatted_line ( format, *input, -1, *input );
+            if ( ( mretv & MENU_SHIFT ) ) {
+                restart = TRUE;
+                // Move to next line.
+                selected_line = MIN ( next_pos, length - 1 );
+            }
+
             retv = TRUE;
         }
         // Quick switch with entry selected.
