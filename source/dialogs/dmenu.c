@@ -217,7 +217,7 @@ int dmenu_switcher_dialog ( char **input )
     }
 
     int only_selected = FALSE;
-    if ( find_arg ( "-only-match" ) >= 0 ) {
+    if ( find_arg ( "-only-match" ) >= 0 || find_arg ( "-no-custom" ) ) {
         only_selected = TRUE;
         if ( length == 0 ) {
             return TRUE;
@@ -248,7 +248,7 @@ int dmenu_switcher_dialog ( char **input )
             /**
              * Select item mode.
              */
-            restart = TRUE;
+            restart = ( find_arg ( "-only-match" ) >= 0 );
             if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && list[selected_line] != NULL ) {
                 dmenu_output_formatted_line ( format, list[selected_line], selected_line, *input );
                 retv = TRUE;

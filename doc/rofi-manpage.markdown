@@ -515,6 +515,11 @@ The following options are further explained in the theming section:
     Only return a selected item, do not allow custom entry.
     This mode always returns an entry, or returns directly when no entries given.
 
+`-no-custom`
+
+    Only return a selected item, do not allow custom entry.
+    This mode returns directly when no entries given.
+
 `-format` *format*
 
     Allows the output of dmenu to be customized (N is total number of input entries):
