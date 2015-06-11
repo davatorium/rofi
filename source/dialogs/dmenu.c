@@ -217,7 +217,7 @@ int dmenu_switcher_dialog ( char **input )
     }
 
     int only_selected = FALSE;
-    if ( find_arg ( "-only-match" ) >= 0 || find_arg ( "-no-custom" ) ) {
+    if ( find_arg ( "-only-match" ) >= 0 || find_arg ( "-no-custom" ) >= 0 ) {
         only_selected = TRUE;
         if ( length == 0 ) {
             return TRUE;
