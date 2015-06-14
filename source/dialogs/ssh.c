@@ -224,6 +224,11 @@ static char ** get_ssh (  unsigned int *length )
                     continue;
                 }
 
+                // If comment, skip from now on.
+                if ( *token == '#' ) {
+                    break;
+                }
+
                 // Is this host name already in the history file?
                 // This is a nice little penalty, but doable? time will tell.
                 // given num_favorites is max 25.
