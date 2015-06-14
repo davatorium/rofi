@@ -3,6 +3,7 @@
 		- Auto-wrap text in message dialog.
 		- Fix ellipsiziing in entry box.
 		- Fix crash on empty list with custom input (#175).
+		- SSH: Ignore comments in Host line (#178).
 	New feature:
 		- Markup support error message.
 		- Implement -no-custom as alternative to -only-select (#176).
