@@ -37,6 +37,12 @@ typedef enum _KeyBindingAction
     ROW_UP,
     ROW_DOWN,
     ROW_TAB,
+    PAGE_PREV,
+    PAGE_NEXT,
+    ROW_FIRST,
+    ROW_LAST,
+    ROW_SELECT,
+    CANCEL,
     NUM_ABE
 } KeyBindingAction;
 

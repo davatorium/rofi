@@ -7,6 +7,8 @@
 	New feature:
 		- Markup support error message.
 		- Implement -no-custom as alternative to -only-select (#176).
+	Improvements:
+		- Make more keys user-configurable. (#66)
 
 0.15.5:
 	Bug fixes:

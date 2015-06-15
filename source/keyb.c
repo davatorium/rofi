@@ -206,7 +206,37 @@ DefaultBinding bindings[NUM_ABE] =
         .id         = ROW_TAB,
         .name       = "kb-row-tab",
         .keybinding = "Tab"
-    }
+    },
+    {
+        .id         = PAGE_PREV,
+        .name       = "kb-page-prev",
+        .keybinding = "Page_Up"
+    },
+    {
+        .id         = PAGE_NEXT,
+        .name       = "kb-page-next",
+        .keybinding = "Page_Down"
+    },
+    {
+        .id         = ROW_FIRST,
+        .name       = "kb-row-first",
+        .keybinding = "Home,KP_Home"
+    },
+    {
+        .id         = ROW_LAST,
+        .name       = "kb-row-last",
+        .keybinding = "End,KP_End"
+    },
+    {
+        .id         = ROW_SELECT,
+        .name       = "kb-row-select",
+        .keybinding = "Control+space"
+    },
+    {
+        .id         = CANCEL,
+        .name       = "kb-cancel",
+        .keybinding = "Escape"
+    },
 };
 
 

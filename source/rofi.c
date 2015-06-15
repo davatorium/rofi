@@ -566,7 +566,7 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
 {
     // pressing one of the global key bindings closes the switcher. This allows fast closing of the
     // menu if an item is not selected
-    if ( locate_switcher ( key, modstate ) != -1 || key == XK_Escape ) {
+    if ( locate_switcher ( key, modstate ) != -1 || abe_test_action ( CANCEL, modstate, key ) ) {
         state->retv = MENU_CANCEL;
         state->quit = TRUE;
     }
@@ -602,7 +602,7 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
     else if ( abe_test_action ( ROW_RIGHT, modstate, key ) ) {
         menu_nav_right ( state );
     }
-    else if ( key == XK_Page_Up ) {
+    else if ( abe_test_action ( PAGE_PREV, modstate, key ) ) {
         if ( state->selected < state->max_elements ) {
             state->selected = 0;
         }
@@ -611,22 +611,22 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
         }
         state->update = TRUE;
     }
-    else if ( key == XK_Page_Down ) {
+    else if ( abe_test_action ( PAGE_NEXT, modstate, key ) ) {
         state->selected += ( state->max_elements );
         if ( state->selected >= state->filtered_lines ) {
             state->selected = state->filtered_lines - 1;
         }
         state->update = TRUE;
     }
-    else if ( key == XK_Home || key == XK_KP_Home ) {
+    else if  ( abe_test_action ( ROW_FIRST, modstate, key ) ) {
         state->selected = 0;
         state->update   = TRUE;
     }
-    else if ( key == XK_End || key == XK_KP_End ) {
+    else if ( abe_test_action ( ROW_LAST, modstate, key ) ) {
         state->selected = state->filtered_lines - 1;
         state->update   = TRUE;
     }
-    else if ( key == XK_space && ( modstate & ControlMask ) == ControlMask ) {
+    else if ( abe_test_action ( ROW_SELECT, modstate, key ) ) {
         // If a valid item is selected, return that..
         if ( state->selected < state->filtered_lines ) {
             textbox_text ( state->text, state->lines[state->line_map[state->selected]] );
