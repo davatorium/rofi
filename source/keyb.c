@@ -182,6 +182,31 @@ DefaultBinding bindings[NUM_ABE] =
         .name       = "kb-custom-9",
         .keybinding = "Alt+9"
     },
+    {
+        .id         = ROW_LEFT,
+        .name       = "kb-row-left",
+        .keybinding = "Control+Page_Up"
+    },
+    {
+        .id         = ROW_RIGHT,
+        .name       = "kb-row-right",
+        .keybinding = "Control+Page_Down"
+    },
+    {
+        .id         = ROW_UP,
+        .name       = "kb-row-up",
+        .keybinding = "Up,Control+p,Shift+Tab"
+    },
+    {
+        .id         = ROW_DOWN,
+        .name       = "kb-row-down",
+        .keybinding = "Down,Control+n"
+    },
+    {
+        .id         = ROW_TAB,
+        .name       = "kb-row-tab",
+        .keybinding = "Tab"
+    }
 };
 
 

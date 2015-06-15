@@ -571,11 +571,10 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
         state->quit = TRUE;
     }
     // Up, Ctrl-p or Shift-Tab
-    else if ( key == XK_Up || ( key == XK_Tab && modstate & ShiftMask ) ||
-              ( key == XK_p && modstate & ControlMask )  ) {
+    else if ( abe_test_action ( ROW_UP, modstate, key ) ) {
         menu_nav_up ( state );
     }
-    else if ( key == XK_Tab ) {
+    else if ( abe_test_action ( ROW_TAB, modstate, key ) ) {
         if ( state->filtered_lines == 1 ) {
             state->retv               = MENU_OK;
             *( state->selected_line ) = state->line_map[state->selected];
@@ -590,20 +589,17 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
             state->quit               = TRUE;
         }
         else{
-            state->selected = state->selected < state->filtered_lines - 1 ? MIN (
-                state->filtered_lines - 1, state->selected + 1 ) : 0;
-            state->update = TRUE;
+            menu_nav_down ( state );
         }
     }
     // Down, Ctrl-n
-    else if ( key == XK_Down ||
-              ( key == XK_n && ( modstate & ControlMask ) ) ) {
+    else if ( abe_test_action ( ROW_DOWN, modstate, key ) ) {
         menu_nav_down ( state );
     }
-    else if ( key == XK_Page_Up && ( modstate & ControlMask ) ) {
+    else if ( abe_test_action ( ROW_LEFT, modstate, key ) ) {
         menu_nav_left ( state );
     }
-    else if (  key == XK_Page_Down && ( modstate & ControlMask ) ) {
+    else if ( abe_test_action ( ROW_RIGHT, modstate, key ) ) {
         menu_nav_right ( state );
     }
     else if ( key == XK_Page_Up ) {

@@ -32,6 +32,11 @@ typedef enum _KeyBindingAction
     CUSTOM_7,
     CUSTOM_8,
     CUSTOM_9,
+    ROW_LEFT,
+    ROW_RIGHT,
+    ROW_UP,
+    ROW_DOWN,
+    ROW_TAB,
     NUM_ABE
 } KeyBindingAction;
 
