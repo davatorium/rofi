@@ -284,7 +284,7 @@ int dmenu_switcher_dialog ( char **input )
             retv = TRUE;
         }
         // Quick switch with entry selected.
-        else if ( ( mretv & MENU_QUICK_SWITCH ) && selected_line > 0 ) {
+        else if ( ( mretv & MENU_QUICK_SWITCH ) && selected_line >= 0 ) {
             dmenu_output_formatted_line ( format, list[selected_line], selected_line, *input );
 
             restart = FALSE;
