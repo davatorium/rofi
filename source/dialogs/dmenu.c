@@ -178,16 +178,37 @@ static void dmenu_output_formatted_line ( const char *format, const char *string
     fflush ( stdout );
 }
 
+
+static int fuzzy_token_match ( char **tokens, const char *input, int case_sensitive,
+                               __attribute__( ( unused ) ) unsigned int index,
+                               __attribute__( ( unused ) ) Switcher * data )
+{
+    int  match  = 1;
+    char *compk = token_collate_key ( input, case_sensitive );
+    // Do a tokenized match.
+    if ( tokens ) {
+        for ( int j = 0; match && tokens[j]; j++ ) {
+            char *t        = compk;
+            int  compk_len = strlen ( tokens[j] );
+            for ( int id = 0; t != NULL && id < compk_len; id++ ) {
+                match = ( ( t = strchr ( t, tokens[j][id] ) ) != NULL );
+            }
+        }
+    }
+    g_free ( compk );
+    return match;
+}
+
 int dmenu_switcher_dialog ( char **input )
 {
-    char *dmenu_prompt = "dmenu ";
-    int  selected_line = -1;
-    int  retv          = FALSE;
-    int  length        = 0;
-    char **list        = get_dmenu ( &length );
-    int  restart       = FALSE;
-    char *message      = NULL;
-
+    char          *dmenu_prompt = "dmenu ";
+    int           selected_line = -1;
+    int           retv          = FALSE;
+    int           length        = 0;
+    char          **list        = get_dmenu ( &length );
+    int           restart       = FALSE;
+    char          *message      = NULL;
+    menu_match_cb filter        = token_match;
 
     find_arg_str ( "-mesg", &message );
 
@@ -225,6 +246,10 @@ int dmenu_switcher_dialog ( char **input )
     }
     find_arg_str_alloc ( "-filter", input );
 
+    if ( find_arg ( "-z" ) >= 0 ) {
+        filter = fuzzy_token_match;
+    }
+
     char *select = NULL;
     find_arg_str ( "-select", &select );
     if ( select != NULL ) {
@@ -242,7 +267,7 @@ int dmenu_switcher_dialog ( char **input )
     do {
         int next_pos = selected_line;
         int mretv    = menu ( list, length, input, dmenu_prompt,
-                              token_match, NULL, &selected_line, config.levenshtein_sort, get_display_data, list, &next_pos, message );
+                              filter, NULL, &selected_line, config.levenshtein_sort, get_display_data, list, &next_pos, message );
         // Special behavior.
         if ( only_selected ) {
             /**
