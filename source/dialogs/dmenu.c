@@ -192,6 +192,10 @@ static int fuzzy_token_match ( char **tokens, const char *input, int case_sensit
             int  compk_len = strlen ( tokens[j] );
             for ( int id = 0; match && t != NULL && id < compk_len; id++ ) {
                 match = ( ( t = strchr ( t, tokens[j][id] ) ) != NULL );
+                // next should match the next character.
+                if(t != NULL) {
+                    t++;
+                }
             }
         }
     }
