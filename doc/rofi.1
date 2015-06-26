@@ -18,31 +18,40 @@
 .SS "Single\-shot mode"
 To launch \fBrofi\fR directly in a certain mode, specifying \fBrofi \-show <mode>\fR\. To show the run dialog:
 .
-.IP "" 4
-.
-.nf
-
-    rofi \-show run
-.
-.fi
-.
-.IP "" 0
-.
-.SS "Daemon mode"
-To launch \fBrofi\fR in daemon mode don\'t specify a mode to show (\fB\-show <mode>\fR), instead you can bind keys to launch a certain mode\. To have run mode open when pressing \fBF2\fR start \fBrofi\fR like:
+.P
+```
 .
 .IP "" 4
 .
 .nf
 
-    rofi \-key\-run F2
+rofi \-show run
 .
 .fi
 .
 .IP "" 0
 .
 .P
-Keybindings can also be specified in the \fBXresources\fR file\.
+```
+.
+.SS "Daemon mode"
+To launch \fBrofi\fR in daemon mode don\'t specify a mode to show (\fB\-show <mode>\fR), instead you can bind keys to launch a certain mode\. To have run mode open when pressing \fBF2\fR start \fBrofi\fR like:
+.
+.P
+```
+.
+.IP "" 4
+.
+.nf
+
+rofi \-key\-run F2
+.
+.fi
+.
+.IP "" 0
+.
+.P
+\fB`` Keybindings can also be specified in the\fRXresources` file\.
 .
 .SS "Emulating dmenu"
 \fBrofi\fR can emulate \fBdmenu\fR (a dynamic menu for X) when launched with the \fB\-dmenu\fR flag\.
@@ -988,6 +997,19 @@ Select first line that matches the given string
 .P
 Add a message line below the filter entry box\. Supports pango markup\. For more information on supported markup see here \fIhttps://developer\.gnome\.org/pango/stable/PangoMarkupFormat\.html\fR
 .
+.P
+\fB\-z\fR
+.
+.IP "" 4
+.
+.nf
+
+Enable sloppy fuzzy matching\.
+.
+.fi
+.
+.IP "" 0
+.
 .SS "Message dialog"
 \fB\-e\fR \fImessage\fR
 .
@@ -1111,34 +1133,17 @@ For each state the following 5 colors must be set:
 .P
 The window background and border color should be specified separate\. The key \fBcolor\-window\fR contains a pair \fBbackground,border\fR\. An example for \fBXresources\fR file:
 .
-.IP "" 4
+.P
+``` ! State: \'bg\', \'fg\', \'bgalt\', \'hlbg\', \'hlfg\' rofi\.color\-normal: #fdf6e3, #002b36, #eee8d5, #586e75, #eee8d5 rofi\.color\-urgent: #fdf6e3, #dc322f, #eee8d5, #dc322f, #fdf6e3 rofi\.color\-active: #fdf6e3, #268bd2, #eee8d5, #268bd2, #fdf6e3
 .
-.nf
-
-! State:           \'bg\',     \'fg\',     \'bgalt\',  \'hlbg\',   \'hlfg\'
-rofi\.color\-normal: #fdf6e3,  #002b36,  #eee8d5,  #586e75,  #eee8d5
-rofi\.color\-urgent: #fdf6e3,  #dc322f,  #eee8d5,  #dc322f,  #fdf6e3
-rofi\.color\-active: #fdf6e3,  #268bd2,  #eee8d5,  #268bd2,  #fdf6e3
-
-!                  \'background\', \'border\'
-rofi\.color\-window: #fdf6e3,      #002b36
-.
-.fi
-.
-.IP "" 0
+.P
+! \'background\', \'border\' rofi\.color\-window: #fdf6e3, #002b36 ```
 .
 .P
 Same settings can also be specified on command\-line:
 .
-.IP "" 4
-.
-.nf
-
-rofi \-color\-normal "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5"
-.
-.fi
-.
-.IP "" 0
+.P
+\fBrofi \-color\-normal "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5"\fR
 .
 .SH "COLORS"
 Rofi has an experimental mode for a \'nicer\' transparency\. The idea is that you can make the background of the window transparent but the text not\. This way, in contrast to the \fB\-opacity\fR option, the text is still fully visible and readable\. To use this there are 2 requirements: 1\. Your Xserver supports TrueColor, 2\. You are running a composite manager\. If this is satisfied you can use the following format for colors:

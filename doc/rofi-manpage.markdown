@@ -546,6 +546,11 @@ The following options are further explained in the theming section:
 Add a message line below the filter entry box. Supports pango markup.
 For more information on supported markup see [here](https://developer.gnome.org/pango/stable/PangoMarkupFormat.html)
 
+
+`-z` 
+
+    Enable sloppy fuzzy matching.
+
 ### Message dialog
 
 `-e` *message*
