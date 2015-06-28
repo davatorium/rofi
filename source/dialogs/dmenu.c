@@ -178,31 +178,6 @@ static void dmenu_output_formatted_line ( const char *format, const char *string
     fflush ( stdout );
 }
 
-
-static int fuzzy_token_match ( char **tokens, const char *input, int case_sensitive,
-                               __attribute__( ( unused ) ) unsigned int index,
-                               __attribute__( ( unused ) ) Switcher * data )
-{
-    int  match  = 1;
-    char *compk = token_collate_key ( input, case_sensitive );
-    // Do a tokenized match.
-    if ( tokens ) {
-        for ( int j = 0; match && tokens[j]; j++ ) {
-            char *t        = compk;
-            int  token_len = strlen ( tokens[j] );
-            for ( int id = 0; match && t != NULL && id < token_len; id++ ) {
-                match = ( ( t = strchr ( t, tokens[j][id] ) ) != NULL );
-                // next should match the next character.
-                if(t != NULL) {
-                    t++;
-                }
-            }
-        }
-    }
-    g_free ( compk );
-    return match;
-}
-
 int dmenu_switcher_dialog ( char **input )
 {
     char          *dmenu_prompt = "dmenu ";
