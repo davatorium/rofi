@@ -145,8 +145,8 @@ static void combi_mode_destroy ( Switcher *sw )
             pd->switchers[i]->destroy ( pd->switchers[i] );
         }
         g_free ( pd->switchers );
-        g_free ( pd );
         g_free ( pd->cache );
+        g_free ( pd );
         sw->private_data = NULL;
     }
 }
