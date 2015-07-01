@@ -308,38 +308,27 @@ static int window_match ( char **tokens, __attribute__( ( unused ) ) const char 
     client                  *c    = window_client ( display, ids->array[index] );
 
     if ( tokens ) {
-        // Create collate keys.
-        char *title_key = token_collate_key ( c->title, case_sensitive );
-        char *class_key = token_collate_key ( c->class, case_sensitive );
-        char *role_key  = token_collate_key ( c->role, case_sensitive );
-        char *name_key  = token_collate_key ( c->name, case_sensitive );
-        for ( int j = 0; match && tokens[j]; j++ ) {
-            int test = 0;
+        int test = 0;
 
-            if ( !test && title_key[0] != '\0' ) {
-                test = ( strstr ( title_key, tokens[j] ) != NULL );
-            }
-
-            if ( !test && class_key[0] != '\0' ) {
-                test = ( strstr ( class_key, tokens[j] ) != NULL );
-            }
-
-            if ( !test && role_key[0] != '\0' ) {
-                test = ( strstr ( role_key, tokens[j] ) != NULL );
-            }
-
-            if ( !test && name_key[0] != '\0' ) {
-                test = ( strstr ( name_key, tokens[j] ) != NULL );
-            }
-
-            if ( test == 0 ) {
-                match = 0;
-            }
+        if ( !test && c->title[0] != '\0' ) {
+            test = token_match ( tokens, c->title, case_sensitive, 0, NULL );
         }
-        g_free ( title_key );
-        g_free ( class_key );
-        g_free ( role_key );
-        g_free ( name_key );
+
+        if ( !test && c->class[0] != '\0' ) {
+            test = token_match ( tokens, c->class, case_sensitive, 0, NULL );
+        }
+
+        if ( !test && c->role[0] != '\0' ) {
+            test = token_match ( tokens, c->role, case_sensitive, 0, NULL );
+        }
+
+        if ( !test && c->name[0] != '\0' ) {
+            test = token_match ( tokens, c->name, case_sensitive, 0, NULL );
+        }
+
+        if ( test == 0 ) {
+            match = 0;
+        }
     }
 
     return match;
