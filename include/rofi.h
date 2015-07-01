@@ -226,6 +226,8 @@ typedef struct _Settings
     unsigned int   parse_hosts;
     /** Combi Switchers */
     char           *combi_modi;
+    /** Fuzzy match */
+    unsigned int   fuzzy;
 } Settings;
 
 /** Global Settings structure. */

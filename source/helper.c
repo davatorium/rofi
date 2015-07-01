@@ -329,25 +329,7 @@ int find_arg_char ( const char * const key, char *val )
  * Shared 'token_match' function.
  * Matches tokenized.
  */
-int token_match ( char **tokens, const char *input, int case_sensitive,
-                  __attribute__( ( unused ) ) unsigned int index,
-                  __attribute__( ( unused ) ) Switcher *data )
-{
-    int  match  = 1;
-    char *compk = token_collate_key ( input, case_sensitive );
-
-    // Do a tokenized match.
-    if ( tokens ) {
-        for ( int j = 0; match && tokens[j]; j++ ) {
-            match = ( strstr ( compk, tokens[j] ) != NULL );
-        }
-    }
-    g_free ( compk );
-    return match;
-}
-int fuzzy_token_match ( char **tokens, const char *input, int case_sensitive,
-                        __attribute__( ( unused ) ) unsigned int index,
-                        __attribute__( ( unused ) ) Switcher * data )
+static int fuzzy_token_match ( char **tokens, const char *input, int case_sensitive )
 {
     int  match  = 1;
     char *compk = token_collate_key ( input, case_sensitive );
@@ -367,6 +349,29 @@ int fuzzy_token_match ( char **tokens, const char *input, int case_sensitive,
     }
     g_free ( compk );
     return match;
+}
+static int normal_token_match ( char **tokens, const char *input, int case_sensitive )
+{
+    int  match  = 1;
+    char *compk = token_collate_key ( input, case_sensitive );
+
+    // Do a tokenized match.
+    if ( tokens ) {
+        for ( int j = 0; match && tokens[j]; j++ ) {
+            match = ( strstr ( compk, tokens[j] ) != NULL );
+        }
+    }
+    g_free ( compk );
+    return match;
+}
+int token_match ( char **tokens, const char *input, int case_sensitive,
+                  __attribute__( ( unused ) ) unsigned int index,
+                  __attribute__( ( unused ) ) Switcher *data )
+{
+    if ( config.fuzzy ) {
+        return fuzzy_token_match ( tokens, input, case_sensitive );
+    }
+    return normal_token_match ( tokens, input, case_sensitive );
 }
 
 int execute_generator ( const char * cmd )

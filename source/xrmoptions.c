@@ -122,7 +122,8 @@ static XrmOption xrmOptions[] = {
     { xrm_SNumber, "eh",                   { .snum = &config.element_height          }, NULL },
     { xrm_Boolean, "auto-select",          { .num  = &config.auto_select             }, NULL },
     { xrm_Boolean, "parse-hosts",          { .num  = &config.parse_hosts             }, NULL },
-    { xrm_String,  "combi-modi",           { .str  = &config.combi_modi              }, NULL }
+    { xrm_String,  "combi-modi",           { .str  = &config.combi_modi              }, NULL },
+    { xrm_Boolean, "fuzzy",                { .num  = &config.fuzzy                   }, NULL }
 };
 
 // Dynamic options.

@@ -180,14 +180,13 @@ static void dmenu_output_formatted_line ( const char *format, const char *string
 
 int dmenu_switcher_dialog ( char **input )
 {
-    char          *dmenu_prompt = "dmenu ";
-    int           selected_line = -1;
-    int           retv          = FALSE;
-    int           length        = 0;
-    char          **list        = get_dmenu ( &length );
-    int           restart       = FALSE;
-    char          *message      = NULL;
-    menu_match_cb filter        = token_match;
+    char *dmenu_prompt = "dmenu ";
+    int  selected_line = -1;
+    int  retv          = FALSE;
+    int  length        = 0;
+    char **list        = get_dmenu ( &length );
+    int  restart       = FALSE;
+    char *message      = NULL;
 
     find_arg_str ( "-mesg", &message );
 
@@ -225,10 +224,6 @@ int dmenu_switcher_dialog ( char **input )
     }
     find_arg_str_alloc ( "-filter", input );
 
-    if ( find_arg ( "-z" ) >= 0 ) {
-        filter = fuzzy_token_match;
-    }
-
     char *select = NULL;
     find_arg_str ( "-select", &select );
     if ( select != NULL ) {
@@ -246,7 +241,7 @@ int dmenu_switcher_dialog ( char **input )
     do {
         int next_pos = selected_line;
         int mretv    = menu ( list, length, input, dmenu_prompt,
-                              filter, NULL, &selected_line, config.levenshtein_sort, get_display_data, list, &next_pos, message );
+                              token_match, NULL, &selected_line, config.levenshtein_sort, get_display_data, list, &next_pos, message );
         // Special behavior.
         if ( only_selected ) {
             /**

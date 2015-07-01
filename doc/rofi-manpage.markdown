@@ -193,6 +193,10 @@ Below is a list of the most important options:
 
   Do not print any message when starting in daemon mode.
 
+`-fuzzy` 
+
+    Enable experimental fuzzy matching.
+
 
 ### Theming
 
@@ -547,9 +551,6 @@ Add a message line below the filter entry box. Supports pango markup.
 For more information on supported markup see [here](https://developer.gnome.org/pango/stable/PangoMarkupFormat.html)
 
 
-`-z` 
-
-    Enable sloppy fuzzy matching.
 
 ### Message dialog
 

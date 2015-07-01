@@ -108,10 +108,6 @@ int token_match ( char **tokens, const char *input, int case_sensitive,
                   __attribute__( ( unused ) ) unsigned int index,
                   __attribute__( ( unused ) ) Switcher * data );
 
-int fuzzy_token_match ( char **tokens, const char *input, int case_sensitive,
-                        __attribute__( ( unused ) ) unsigned int index,
-                        __attribute__( ( unused ) ) Switcher * data );
-
 /**
  * @param cmd The command to execute.
  *
