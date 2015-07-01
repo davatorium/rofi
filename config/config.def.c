@@ -127,6 +127,8 @@ Settings config = {
     /** Parse /etc/hosts file in ssh view. */
     .parse_hosts       = FALSE,
     /** Modi to combine into one view. */
-    .combi_modi        = "window,run"
+    .combi_modi        = "window,run",
+    /** Fuzzy matching. */
+    .fuzzy             = FALSE,
 };
 
