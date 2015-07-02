@@ -1,4 +1,4 @@
-0.15.6 (unrelease):
+0.15.7 (unrelease):
 	Bug fixes:
 		- Auto-wrap text in message dialog.
 		- Fix ellipsiziing in entry box.
@@ -7,7 +7,7 @@
 	New feature:
 		- Markup support error message.
 		- Implement -no-custom as alternative to -only-select (#176).
-		- Fuzzy match option for dmenu. (#133)
+		- Fuzzy match option. (#133)
 	Improvements:
 		- Make more keys user-configurable. (#66)
 
