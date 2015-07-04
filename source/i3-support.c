@@ -36,17 +36,7 @@
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <sys/socket.h>
-/* Check linux or BSD */
-#if defined(__linux__)
-#include <linux/un.h>
-#else
-#if defined(__unix__)
-#include <sys/param.h>
-#if defined(BSD)
 #include <sys/un.h>
-#endif
-#endif
-#endif
 
 #include "rofi.h"
 #include "x11-helper.h"
@@ -60,13 +50,14 @@ char *i3_socket_path = NULL;
 void i3_support_focus_window ( Window id )
 {
     i3_ipc_header_t    head;
-    char               command[UNIX_PATH_MAX];
     int                s, len;
     ssize_t            t;
     struct sockaddr_un remote;
+    size_t            upm = sizeof(remote.sun_path);
+    char               command[upm];
 
-    if ( strlen ( i3_socket_path ) > UNIX_PATH_MAX ) {
-        fprintf ( stderr, "Socket path is to long. %zd > %d\n", strlen ( i3_socket_path ), UNIX_PATH_MAX );
+    if ( strlen ( i3_socket_path ) > upm) {
+        fprintf ( stderr, "Socket path is to long. %zd > %lu\n", strlen ( i3_socket_path ), upm);
         return;
     }
 
@@ -76,7 +67,7 @@ void i3_support_focus_window ( Window id )
     }
 
     remote.sun_family = AF_UNIX;
-    g_strlcpy ( remote.sun_path, i3_socket_path, UNIX_PATH_MAX );
+    g_strlcpy ( remote.sun_path, i3_socket_path, upm);
     len = strlen ( remote.sun_path ) + sizeof ( remote.sun_family );
 
     if ( connect ( s, ( struct sockaddr * ) &remote, len ) == -1 ) {
@@ -87,7 +78,7 @@ void i3_support_focus_window ( Window id )
 
 
     // Formulate command
-    snprintf ( command, UNIX_PATH_MAX, "[id=\"%lu\"] focus", id );
+    snprintf ( command, upm, "[id=\"%lu\"] focus", id );
     // Prepare header.
     memcpy ( head.magic, I3_IPC_MAGIC, 6 );
     head.size = strlen ( command );
