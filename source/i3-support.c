@@ -57,7 +57,7 @@ void i3_support_focus_window ( Window id )
     char               command[upm];
 
     if ( strlen ( i3_socket_path ) > upm) {
-        fprintf ( stderr, "Socket path is to long. %zd > %lu\n", strlen ( i3_socket_path ), upm);
+        fprintf ( stderr, "Socket path is too long. %zd > %lu\n", strlen ( i3_socket_path ), upm);
         return;
     }
 
