@@ -36,7 +36,17 @@
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <sys/socket.h>
+/* Check linux or BSD */
+#if defined(__linux__)
 #include <linux/un.h>
+#else
+#if defined(__unix__)
+#include <sys/param.h>
+#if defined(BSD)
+#include <sys/un.h>
+#endif
+#endif
+#endif
 
 #include "rofi.h"
 #include "x11-helper.h"
