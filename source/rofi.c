@@ -733,7 +733,7 @@ static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, v
             }
         }
         if ( sorting ) {
-            qsort_r ( state->line_map, j, sizeof ( int ), lev_sort, state->distance );
+            g_qsort_with_data ( state->line_map, j, sizeof ( int ), lev_sort, state->distance );
         }
 
         // Cleanup + bookkeeping.
