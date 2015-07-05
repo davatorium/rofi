@@ -53,11 +53,11 @@ void i3_support_focus_window ( Window id )
     int                s, len;
     ssize_t            t;
     struct sockaddr_un remote;
-    size_t            upm = sizeof(remote.sun_path);
+    size_t             upm = sizeof ( remote.sun_path );
     char               command[upm];
 
-    if ( strlen ( i3_socket_path ) > upm) {
-        fprintf ( stderr, "Socket path is too long. %zd > %lu\n", strlen ( i3_socket_path ), upm);
+    if ( strlen ( i3_socket_path ) > upm ) {
+        fprintf ( stderr, "Socket path is too long. %zd > %lu\n", strlen ( i3_socket_path ), upm );
         return;
     }
 
@@ -67,7 +67,7 @@ void i3_support_focus_window ( Window id )
     }
 
     remote.sun_family = AF_UNIX;
-    g_strlcpy ( remote.sun_path, i3_socket_path, upm);
+    g_strlcpy ( remote.sun_path, i3_socket_path, upm );
     len = strlen ( remote.sun_path ) + sizeof ( remote.sun_family );
 
     if ( connect ( s, ( struct sockaddr * ) &remote, len ) == -1 ) {

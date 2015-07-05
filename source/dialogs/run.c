@@ -105,7 +105,7 @@ static void delete_entry ( const char *cmd )
 
     g_free ( path );
 }
-static int sort_func ( const void *a, const void *b )
+static int sort_func ( const void *a, const void *b, void *data __attribute__( ( unused ) ) )
 {
     const char *astr = *( const char * const * ) a;
     const char *bstr = *( const char * const * ) b;
@@ -241,7 +241,7 @@ static char ** get_apps ( unsigned int *length )
     }
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
     if ( ( *length ) > num_favorites ) {
-        qsort ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func );
+        g_qsort_with_data ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func, NULL );
     }
     g_free ( path );
 
@@ -256,7 +256,7 @@ static char ** get_apps ( unsigned int *length )
 
 
     if ( ( *length ) > num_favorites ) {
-        qsort ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func );
+        g_qsort_with_data ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func, NULL );
     }
     // Reduce array length;
     ( *length ) -= removed;

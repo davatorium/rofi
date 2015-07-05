@@ -43,7 +43,7 @@ typedef struct __element
     char     name[HISTORY_NAME_LENGTH];
 }_element;
 
-static int __element_sort_func ( const void *ea, const void *eb )
+static int __element_sort_func ( const void *ea, const void *eb, void *data __attribute__( ( unused ) ) )
 {
     _element *a = *(_element * *) ea;
     _element *b = *(_element * *) eb;
@@ -56,7 +56,7 @@ static void __history_write_element_list ( FILE *fd, _element **list, unsigned i
         return;
     }
     // Sort the list before writing out.
-    qsort ( list, length, sizeof ( _element* ), __element_sort_func );
+    g_qsort_with_data ( list, length, sizeof ( _element* ), __element_sort_func, NULL );
 
     // Get minimum index.
     int min_value = list[length - 1]->index;
