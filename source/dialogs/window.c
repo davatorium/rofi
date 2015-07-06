@@ -308,26 +308,32 @@ static int window_match ( char **tokens, __attribute__( ( unused ) ) const char 
     client                  *c    = window_client ( display, ids->array[index] );
 
     if ( tokens ) {
-        int test = 0;
+        for ( int j = 0; match && tokens != NULL && tokens[j] != NULL; j++ ) {
+            int test = 0;
+            // Dirty hack. Normally token_match does _all_ the matching,
+            // Now we want it to match only one item at the time.
+            // If hack not in place it would not match queries spanning multiple fields.
+            // e.g. when searching 'title element' and 'class element'
+            char *ftokens[2] = { tokens[j], NULL };
+            if ( !test && c->title[0] != '\0' ) {
+                test = token_match ( ftokens, c->title, case_sensitive, 0, NULL );
+            }
 
-        if ( !test && c->title[0] != '\0' ) {
-            test = token_match ( tokens, c->title, case_sensitive, 0, NULL );
-        }
+            if ( !test && c->class[0] != '\0' ) {
+                test = token_match ( ftokens, c->class, case_sensitive, 0, NULL );
+            }
 
-        if ( !test && c->class[0] != '\0' ) {
-            test = token_match ( tokens, c->class, case_sensitive, 0, NULL );
-        }
+            if ( !test && c->role[0] != '\0' ) {
+                test = token_match ( ftokens, c->role, case_sensitive, 0, NULL );
+            }
 
-        if ( !test && c->role[0] != '\0' ) {
-            test = token_match ( tokens, c->role, case_sensitive, 0, NULL );
-        }
+            if ( !test && c->name[0] != '\0' ) {
+                test = token_match ( ftokens, c->name, case_sensitive, 0, NULL );
+            }
 
-        if ( !test && c->name[0] != '\0' ) {
-            test = token_match ( tokens, c->name, case_sensitive, 0, NULL );
-        }
-
-        if ( test == 0 ) {
-            match = 0;
+            if ( test == 0 ) {
+                match = 0;
+            }
         }
     }
 
