@@ -667,10 +667,16 @@ static void parse_color ( Visual *visual, Colormap colormap,
         col.red   = ( ( val & 0x00FF0000 ) >> 16 ) * 255;
         col.green = ( ( val & 0x0000FF00 ) >> 8  ) * 255;
         col.blue  = ( ( val & 0x000000FF )       ) * 255;
-        XftColorAllocValue ( display, visual, colormap, &col, color );
+        if ( !XftColorAllocValue ( display, visual, colormap, &col, color ) ) {
+            fprintf ( stderr, "Failed to parse color: '%s'\n", bg );
+            exit ( EXIT_FAILURE );
+        }
     }
     else {
-        XftColorAllocName ( display, visual, colormap, bg, color );
+        if ( !XftColorAllocName ( display, visual, colormap, bg, color ) ) {
+            fprintf ( stderr, "Failed to parse color: '%s'\n", bg );
+            exit ( EXIT_FAILURE );
+        }
     }
 }
 static void textbox_parse_string ( XVisualInfo *visual, Colormap colormap, const char *str, RowColor *color )
@@ -686,19 +692,19 @@ static void textbox_parse_string ( XVisualInfo *visual, Colormap colormap, const
         switch ( index )
         {
         case 0:
-            parse_color ( visual->visual, colormap, token, &( color->bg ) );
+            parse_color ( visual->visual, colormap, g_strstrip ( token ), &( color->bg ) );
             break;
         case 1:
-            parse_color ( visual->visual, colormap, token, &( color->fg ) );
+            parse_color ( visual->visual, colormap, g_strstrip ( token ), &( color->fg ) );
             break;
         case 2:
-            parse_color ( visual->visual, colormap, token, &( color->bgalt ) );
+            parse_color ( visual->visual, colormap, g_strstrip ( token ), &( color->bgalt ) );
             break;
         case 3:
-            parse_color ( visual->visual, colormap, token, &( color->hlbg ) );
+            parse_color ( visual->visual, colormap, g_strstrip ( token ), &( color->hlbg ) );
             break;
         case 4:
-            parse_color ( visual->visual, colormap, token, &( color->hlfg ) );
+            parse_color ( visual->visual, colormap, g_strstrip ( token ), &( color->hlfg ) );
             break;
         }
         index++;

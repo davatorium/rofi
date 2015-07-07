@@ -443,12 +443,22 @@ unsigned int color_get ( Display *display, const char *const name )
         color.blue  = ( ( color.pixel & 0x000000FF )       ) * 255;
         if ( !truecolor ) {
             // This will drop alpha part.
-            return XAllocColor ( display, map, &color ) ? color.pixel : None;
+            Status st = XAllocColor ( display, map, &color );
+            if ( st == None ) {
+                fprintf ( stderr, "Failed to parse color: '%s'\n", name );
+                exit ( EXIT_FAILURE );
+            }
+            return color.pixel;
         }
         return color.pixel;
     }
     else {
-        return XAllocNamedColor ( display, map, name, &color, &color ) ? color.pixel : None;
+        Status st = XAllocNamedColor ( display, map, name, &color, &color );
+        if ( st == None ) {
+            fprintf ( stderr, "Failed to parse color: '%s'\n", name );
+            exit ( EXIT_FAILURE );
+        }
+        return color.pixel;
     }
 }
 
@@ -462,7 +472,7 @@ unsigned int color_background ( Display *display )
 
         gchar        **vals = g_strsplit ( config.color_window, ",", 2 );
         if ( vals != NULL && vals[0] != NULL ) {
-            retv = color_get ( display, vals[0] );
+            retv = color_get ( display, g_strstrip ( vals[0] ) );
         }
         g_strfreev ( vals );
         return retv;
