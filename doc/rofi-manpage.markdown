@@ -48,7 +48,7 @@
 [ -snow ]
 [ -version ]
 [ -help]
-[ -dump-Xresources ]
+[ -dump-xresources ]
 [ -auto-select ]
 [ -parse-hosts ]
 [ -combi-modi *mode1,mode2* ]
@@ -112,7 +112,7 @@ prefixed with a '-':
 
 To get a list of available options, formatted as Xresources entries run:
 
-    rofi -dump-Xresources
+    rofi -dump-xresources
 
 The configuration system supports the following types:
 
@@ -568,9 +568,10 @@ For more information on supported markup see [here](https://developer.gnome.org/
 
 ### Debug
 
-`-dump-Xresources`
+`-dump-xresources`
 
   Dump the current active configuration in Xresources format to the command-line.
+  This does not validate all passed values (like colors).
 
 `-no-config`
 

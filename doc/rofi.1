@@ -7,7 +7,7 @@
 \fBrofi\fR \- A window switcher, run launcher, ssh dialog and dmenu replacement
 .
 .SH "SYNOPSIS"
-\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-fg \fIcolor\fR ] [ \-fg\-urgent \fIcolor\fR ] [ \-fg\-active \fIcolor\fR ] [ \-bg\-urgent \fIcolor\fR ] [ \-bg\-active \fIcolor\fR ] [ \-bg \fIcolor\fR ] [ \-bgalt \fIcolor\fR ] [ \-hlfg \fIcolor\fR ] [ \-hlbg \fIcolor\fR ] [ \-key\-\fBmode\fR \fIcombo\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-opacity \fIopacity%\fR ] [ \-display \fIdisplay\fR ] [ \-bc \fIcolor\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-filter ] [ \-select ] ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-lazy\-filter\-limit \fIlimit\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help] [ \-dump\-Xresources ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-quiet ]
+\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-fg \fIcolor\fR ] [ \-fg\-urgent \fIcolor\fR ] [ \-fg\-active \fIcolor\fR ] [ \-bg\-urgent \fIcolor\fR ] [ \-bg\-active \fIcolor\fR ] [ \-bg \fIcolor\fR ] [ \-bgalt \fIcolor\fR ] [ \-hlfg \fIcolor\fR ] [ \-hlbg \fIcolor\fR ] [ \-key\-\fBmode\fR \fIcombo\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-opacity \fIopacity%\fR ] [ \-display \fIdisplay\fR ] [ \-bc \fIcolor\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-filter ] [ \-select ] ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-lazy\-filter\-limit \fIlimit\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help] [ \-dump\-xresources ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-quiet ]
 .
 .SH "DESCRIPTION"
 \fBrofi\fR is an X11 popup window switcher, run dialog, dmenu replacement and more\. It focuses on being fast to use and have minimal distraction\. It supports keyboard and mouse navigation, type to filter, tokenized search and more\.
@@ -18,40 +18,31 @@
 .SS "Single\-shot mode"
 To launch \fBrofi\fR directly in a certain mode, specifying \fBrofi \-show <mode>\fR\. To show the run dialog:
 .
-.P
-```
-.
 .IP "" 4
 .
 .nf
 
-rofi \-show run
+    rofi \-show run
 .
 .fi
 .
 .IP "" 0
-.
-.P
-```
 .
 .SS "Daemon mode"
 To launch \fBrofi\fR in daemon mode don\'t specify a mode to show (\fB\-show <mode>\fR), instead you can bind keys to launch a certain mode\. To have run mode open when pressing \fBF2\fR start \fBrofi\fR like:
 .
-.P
-```
-.
 .IP "" 4
 .
 .nf
 
-rofi \-key\-run F2
+    rofi \-key\-run F2
 .
 .fi
 .
 .IP "" 0
 .
 .P
-\fB`` Keybindings can also be specified in the\fRXresources` file\.
+Keybindings can also be specified in the \fBXresources\fR file\.
 .
 .SS "Emulating dmenu"
 \fBrofi\fR can emulate \fBdmenu\fR (a dynamic menu for X) when launched with the \fB\-dmenu\fR flag\.
@@ -106,7 +97,7 @@ To get a list of available options, formatted as Xresources entries run:
 .
 .nf
 
-rofi \-dump\-Xresources
+rofi \-dump\-xresources
 .
 .fi
 .
@@ -1039,10 +1030,10 @@ simultaneous\. This is useful when running **rofi** from a keybinding daemon\.
 .IP "" 0
 .
 .SS "Debug"
-\fB\-dump\-Xresources\fR
+\fB\-dump\-xresources\fR
 .
 .P
-Dump the current active configuration in Xresources format to the command\-line\.
+Dump the current active configuration in Xresources format to the command\-line\. This does not validate all passed values (like colors)\.
 .
 .P
 \fB\-no\-config\fR
@@ -1133,17 +1124,34 @@ For each state the following 5 colors must be set:
 .P
 The window background and border color should be specified separate\. The key \fBcolor\-window\fR contains a pair \fBbackground,border\fR\. An example for \fBXresources\fR file:
 .
-.P
-``` ! State: \'bg\', \'fg\', \'bgalt\', \'hlbg\', \'hlfg\' rofi\.color\-normal: #fdf6e3, #002b36, #eee8d5, #586e75, #eee8d5 rofi\.color\-urgent: #fdf6e3, #dc322f, #eee8d5, #dc322f, #fdf6e3 rofi\.color\-active: #fdf6e3, #268bd2, #eee8d5, #268bd2, #fdf6e3
+.IP "" 4
 .
-.P
-! \'background\', \'border\' rofi\.color\-window: #fdf6e3, #002b36 ```
+.nf
+
+! State:           \'bg\',     \'fg\',     \'bgalt\',  \'hlbg\',   \'hlfg\'
+rofi\.color\-normal: #fdf6e3,  #002b36,  #eee8d5,  #586e75,  #eee8d5
+rofi\.color\-urgent: #fdf6e3,  #dc322f,  #eee8d5,  #dc322f,  #fdf6e3
+rofi\.color\-active: #fdf6e3,  #268bd2,  #eee8d5,  #268bd2,  #fdf6e3
+
+!                  \'background\', \'border\'
+rofi\.color\-window: #fdf6e3,      #002b36
+.
+.fi
+.
+.IP "" 0
 .
 .P
 Same settings can also be specified on command\-line:
 .
-.P
-\fBrofi \-color\-normal "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5"\fR
+.IP "" 4
+.
+.nf
+
+rofi \-color\-normal "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5"
+.
+.fi
+.
+.IP "" 0
 .
 .SH "COLORS"
 Rofi has an experimental mode for a \'nicer\' transparency\. The idea is that you can make the background of the window transparent but the text not\. This way, in contrast to the \fB\-opacity\fR option, the text is still fully visible and readable\. To use this there are 2 requirements: 1\. Your Xserver supports TrueColor, 2\. You are running a composite manager\. If this is satisfied you can use the following format for colors:
