@@ -571,7 +571,7 @@ For more information on supported markup see [here](https://developer.gnome.org/
 `-dump-xresources`
 
   Dump the current active configuration in Xresources format to the command-line.
-  This does not validate all passed values (like colors).
+  This does not validate all passed values (e.g. colors).
 
 `-no-config`
 
