@@ -727,7 +727,17 @@ static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, v
             if ( match ) {
                 state->line_map[j] = i;
                 if ( sorting ) {
-                    state->distance[i] = levenshtein ( state->text->text, lines[i] );
+                    state->distance[i] = 0;
+                    char **words = tokenize ( lines[i], case_sensitive );
+                    for( int k = 0; tokens && tokens[k]; k++) {
+                        for ( int j = 0; words && words[j]; j++) {
+                            if (strcasecmp ( tokens[k], words[j] ) != 0)
+                                state->distance[i] += levenshtein ( tokens[k], words[j] ) * strlen(tokens[k]);
+                            else
+                                state->distance[i] -= strlen (tokens[k]) << 1;
+                        }
+                    }
+                    g_strfreev ( words );
                 }
                 j++;
             }
