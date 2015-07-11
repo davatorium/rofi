@@ -125,7 +125,7 @@
 [ -snow ]
 [ -version ]
 [ -help]
-[ -dump-Xresources ]
+[ -dump-xresources ]
 [ -auto-select ]
 [ -parse-hosts ]
 [ -combi-modi <em>mode1,mode2</em> ]
@@ -192,7 +192,7 @@ prefixed with a '-':</p>
 
 <p>To get a list of available options, formatted as Xresources entries run:</p>
 
-<pre><code>rofi -dump-Xresources
+<pre><code>rofi -dump-xresources
 </code></pre>
 
 <p>The configuration system supports the following types:</p>
@@ -284,6 +284,11 @@ prefixed with a '-':</p>
 <p><code>-quiet</code></p>
 
 <p>  Do not print any message when starting in daemon mode.</p>
+
+<p><code>-fuzzy</code></p>
+
+<pre><code>Enable experimental fuzzy matching.
+</code></pre>
 
 <h3 id="Theming">Theming</h3>
 
@@ -633,6 +638,12 @@ Or any combination: -u 0,2-3,9
 This mode always returns an entry, or returns directly when no entries given.
 </code></pre>
 
+<p><code>-no-custom</code></p>
+
+<pre><code>Only return a selected item, do not allow custom entry.
+This mode returns directly when no entries given.
+</code></pre>
+
 <p><code>-format</code> <em>format</em></p>
 
 <pre><code>Allows the output of dmenu to be customized (N is total number of input entries):
@@ -680,9 +691,10 @@ simultaneous. This is useful when running **rofi** from a keybinding daemon.
 
 <h3 id="Debug">Debug</h3>
 
-<p><code>-dump-Xresources</code></p>
+<p><code>-dump-xresources</code></p>
 
-<p>  Dump the current active configuration in Xresources format to the command-line.</p>
+<p>  Dump the current active configuration in Xresources format to the command-line.
+  This does not validate all passed values (e.g. colors).</p>
 
 <p><code>-no-config</code></p>
 
@@ -862,18 +874,18 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 <h2 id="AUTHOR">AUTHOR</h2>
 
-<p>Qball Cow <a href="&#109;&#x61;&#105;&#x6c;&#116;&#111;&#58;&#x71;&#98;&#97;&#108;&#x6c;&#64;&#x67;&#109;&#112;&#x63;&#x6c;&#105;&#x65;&#x6e;&#116;&#46;&#111;&#114;&#x67;" data-bare-link="true">&#x71;&#x62;&#x61;&#x6c;&#108;&#64;&#103;&#109;&#x70;&#x63;&#108;&#x69;&#101;&#x6e;&#x74;&#46;&#111;&#114;&#103;</a></p>
+<p>Qball Cow <a href="&#109;&#x61;&#105;&#108;&#x74;&#x6f;&#58;&#x71;&#98;&#x61;&#x6c;&#x6c;&#64;&#103;&#x6d;&#112;&#99;&#x6c;&#x69;&#x65;&#x6e;&#116;&#46;&#x6f;&#x72;&#103;" data-bare-link="true">&#113;&#98;&#x61;&#x6c;&#x6c;&#x40;&#103;&#x6d;&#x70;&#x63;&#108;&#x69;&#101;&#110;&#x74;&#x2e;&#x6f;&#x72;&#x67;</a></p>
 
-<p>Rasmus Steinke <a href="&#109;&#97;&#x69;&#x6c;&#116;&#111;&#58;&#114;&#97;&#115;&#105;&#x40;&#x78;&#x73;&#115;&#110;&#x2e;&#97;&#x74;" data-bare-link="true">&#x72;&#x61;&#115;&#105;&#64;&#120;&#x73;&#115;&#110;&#x2e;&#97;&#116;</a></p>
+<p>Rasmus Steinke <a href="&#109;&#x61;&#105;&#x6c;&#116;&#x6f;&#58;&#x72;&#97;&#x73;&#105;&#64;&#x78;&#x73;&#x73;&#110;&#46;&#97;&#x74;" data-bare-link="true">&#x72;&#97;&#115;&#x69;&#x40;&#x78;&#115;&#115;&#110;&#x2e;&#97;&#116;</a></p>
 
-<p>Original code based on work by: Sean Pringle <a href="&#x6d;&#97;&#x69;&#108;&#116;&#x6f;&#58;&#115;&#x65;&#97;&#110;&#46;&#112;&#x72;&#x69;&#110;&#x67;&#x6c;&#x65;&#64;&#x67;&#x6d;&#97;&#x69;&#x6c;&#x2e;&#x63;&#111;&#109;" data-bare-link="true">&#x73;&#101;&#x61;&#x6e;&#46;&#x70;&#x72;&#x69;&#x6e;&#x67;&#x6c;&#101;&#x40;&#x67;&#109;&#x61;&#105;&#108;&#46;&#99;&#111;&#109;</a></p>
+<p>Original code based on work by: Sean Pringle <a href="&#109;&#x61;&#105;&#x6c;&#116;&#x6f;&#58;&#x73;&#x65;&#x61;&#x6e;&#x2e;&#x70;&#114;&#105;&#x6e;&#103;&#x6c;&#101;&#x40;&#x67;&#x6d;&#x61;&#105;&#108;&#x2e;&#x63;&#111;&#109;" data-bare-link="true">&#x73;&#101;&#97;&#110;&#46;&#112;&#114;&#105;&#110;&#x67;&#x6c;&#x65;&#x40;&#x67;&#109;&#x61;&#x69;&#108;&#46;&#99;&#111;&#x6d;</a></p>
 
 <p>For a full list of authors, check the AUTHORS file.</p>
 
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
-    <li class='tc'>June 2015</li>
+    <li class='tc'>July 2015</li>
     <li class='tr'>rofi-manpage</li>
   </ol>
 
