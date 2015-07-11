@@ -1,4 +1,4 @@
-0.15.7 (unrelease):
+0.15.7:
 	Bug fixes:
 		- Auto-wrap text in message dialog.
 		- Fix ellipsiziing in entry box.
