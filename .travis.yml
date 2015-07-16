@@ -2,26 +2,25 @@ sudo: false
 language: c
 addons:
     apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-        - libxinerama-dev
-        - autoconf
-        - automake
-        - make 
-        - libxft-dev
-        - libx11-dev
-        - libpango1.0-dev
-        - xvfb
-        - xdotool
+      packages:
+          - libxinerama-dev
+          - autoconf
+          - automake
+          - make 
+          - libxft-dev
+          - libx11-dev
+          - libpango1.0-dev
+          - xvfb
+          - xdotool
 
 compiler:
   - gcc
 
 before_install:
+    - autoreconf -i 
 
 script:
-    - autoreconf -i && ./configure --enable-gcov && make &&  make test && make test-x
-#    - make clean && autoreconf -i && ./configure --disable-i3support && make 
-#after_success:
-#  - coveralls -x c  --gcov-options '\-lp' -e '<built-in>'
+    - ./configure --enable-gcov
+    - make
+    - make test
+    - make test-x
