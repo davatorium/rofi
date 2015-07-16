@@ -23,4 +23,5 @@ script:
     - ./configure --enable-gcov
     - make
     - make test
-    - make test-x
+# to re-enable if xdotool is allowed.
+#    - make test-x
