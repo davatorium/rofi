@@ -701,7 +701,6 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
                 state->selected = state->last_offset + i;
                 state->update   = TRUE;
                 if ( ( xbe->time - state->last_button_press ) < 200 ) {
-                    printf ( "double clicked\n" );
                     state->retv               = MENU_OK;
                     *( state->selected_line ) = state->line_map[state->selected];
                     // Quit
