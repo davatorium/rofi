@@ -311,6 +311,7 @@ typedef struct MenuState
     Time              last_button_press;
 
     int               quit;
+    int               skip_absorb;
     // Return state
     int               *selected_line;
     MenuReturn        retv;
@@ -700,10 +701,12 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
                 state->selected = state->last_offset + i;
                 state->update   = TRUE;
                 if ( ( xbe->time - state->last_button_press ) < 200 ) {
+                    printf ( "double clicked\n" );
                     state->retv               = MENU_OK;
                     *( state->selected_line ) = state->line_map[state->selected];
                     // Quit
-                    state->quit = TRUE;
+                    state->quit        = TRUE;
+                    state->skip_absorb = TRUE;
                 }
                 state->last_button_press = xbe->time;
                 break;
@@ -924,6 +927,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         .num_lines         = num_lines,
         .distance          = NULL,
         .quit              = FALSE,
+        .skip_absorb       = FALSE,
         .filtered_lines    =             0,
         .max_elements      =             0,
         // We want to filter on the first run.
@@ -1332,7 +1336,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         }
     }
     // Wait for final release?
-    {
+    if ( !state.skip_absorb ) {
         XEvent ev;
         do {
             XNextEvent ( display, &ev );
@@ -1378,6 +1382,7 @@ void error_dialog ( const char *msg, int markup )
         .num_lines         =           0,
         .distance          = NULL,
         .quit              = FALSE,
+        .skip_absorb       = FALSE,
         .filtered_lines    =           0,
         .columns           =           0,
         .update            = TRUE,
