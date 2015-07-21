@@ -24,4 +24,4 @@ script:
     - make
     - make test
 # to re-enable if xdotool is allowed.
-#    - make test-x
+    - make test-x
