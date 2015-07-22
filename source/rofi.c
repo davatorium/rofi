@@ -688,6 +688,7 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
                 *( state->selected_line ) = 0;
                 state->retv               = MENU_QUICK_SWITCH | ( i & MENU_LOWER_MASK );
                 state->quit               = TRUE;
+                state->skip_absorb        = TRUE;
                 return;
             }
         }
