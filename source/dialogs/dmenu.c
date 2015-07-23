@@ -243,11 +243,12 @@ int dmenu_switcher_dialog ( char **input )
         int mretv    = menu ( list, length, input, dmenu_prompt,
                               token_match, NULL, &selected_line, config.levenshtein_sort, get_display_data, list, &next_pos, message );
         // Special behavior.
+        // TODO clean this up!
         if ( only_selected ) {
             /**
              * Select item mode.
              */
-            restart = ( find_arg ( "-only-match" ) >= 0 );
+            restart = 1;
             if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && list[selected_line] != NULL ) {
                 dmenu_output_formatted_line ( format, list[selected_line], selected_line, *input );
                 retv = TRUE;
@@ -255,6 +256,9 @@ int dmenu_switcher_dialog ( char **input )
                     retv = 10 + ( mretv & MENU_LOWER_MASK );
                 }
                 return retv;
+            } else if ( (mretv&MENU_CANCEL)== MENU_CANCEL) {
+                // In no custom mode we allow canceling.
+                restart = ( find_arg ( "-only-match" ) >= 0 );
             }
             selected_line = next_pos - 1;
             continue;
