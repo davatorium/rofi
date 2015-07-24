@@ -1057,7 +1057,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     // TODO calculate from top.
     textbox_move ( state.arrowbox_bottom,
                    state.w - config.padding - state.arrowbox_bottom->w,
-                   config.padding + state.max_rows * element_height + LINE_MARGIN );
+                   state.top_offset + (state.max_rows-1) * element_height + LINE_MARGIN );
 
     // filtered list
     state.line_map = g_malloc0_n ( state.num_lines, sizeof ( int ) );
