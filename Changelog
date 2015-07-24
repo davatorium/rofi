@@ -1,3 +1,10 @@
+0.15.8 (unreleased):
+	Bug fixes:
+		- Mis-alignment of arrow down box with message (#189)
+		- Fix issue with mouse interaction needing keyboard press to complete.
+		- Fix -no-custom still allows escape to quit.
+		- Fix compiler warnings.
+
 0.15.7:
 	Bug fixes:
 		- Auto-wrap text in message dialog.
