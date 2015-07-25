@@ -83,7 +83,7 @@ README.html: README.md
 # config directory
 ##
 ${top_builddir}/config/config.c: ${top_srcdir}/config/config.def.c
-	install ${top_srcdir}/config/config.def.c $@
+	cp ${top_srcdir}/config/config.def.c $@
 
 ## 
 # Extra DIST
