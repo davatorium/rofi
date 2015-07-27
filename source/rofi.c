@@ -1716,32 +1716,6 @@ static inline void load_configuration_dynamic ( Display *display )
 }
 
 
-/**
- * Handle sighup request.
- * Currently we just reload the configuration.
- */
-static void hup_action_handler ( int num )
-{
-    if ( num == SIGHUP ) {
-        /**
-         * Open new connection to X. It seems the XResources do not get updated on the old
-         * connection.
-         */
-        if ( find_arg ( "-no-config" ) < 0 ) {
-            Display *display = XOpenDisplay ( display_str );
-            if ( display ) {
-                load_configuration ( display );
-                load_configuration_dynamic ( display );
-
-                // Sanity check
-                config_sanity_check ( );
-                parse_keys_abe ();
-                XCloseDisplay ( display );
-            }
-        }
-    }
-}
-
 static void show_error_message ( const char *msg, int markup )
 {
     // Create pid file
@@ -1934,12 +1908,6 @@ int main ( int argc, char *argv[] )
                 }
             }
         }
-        // Setup handler for sighup (reload config)
-        const struct sigaction hup_action = {
-            .sa_handler = hup_action_handler
-        };
-        sigaction ( SIGHUP, &hup_action, NULL );
-
 
         // Application Main loop.
         // This listens in the background for any events on the Xserver

@@ -595,13 +595,6 @@ This way it can be used as a drop-in replacement for dmenu. just copy or symlink
 
     ln -s /usr/bin/dmenu /usr/bin/rofi
 
-## SIGNALS
-
-`HUP`
-
-    If in daemon mode, reload the configuration from Xresources. (commandline arguments still
-override Xresources).
-
 ## THEMING
 
 With **rofi** 0.15.4 we have a new way of specifying colors, the old settings still apply (for now).
