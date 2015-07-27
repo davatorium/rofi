@@ -1,5 +1,5 @@
-#ifndef SIMPLESWITCHER_H
-#define SIMPLESWITCHER_H
+#ifndef ROFI_MAIN_H
+#define ROFI_MAIN_H
 #include <X11/X.h>
 #include <glib.h>
 #include <textbox.h>

@@ -1,5 +1,5 @@
-#ifndef TEXTBOX_H
-#define TEXTBOX_H
+#ifndef ROFI_TEXTBOX_H
+#define ROFI_TEXTBOX_H
 #include <X11/Xft/Xft.h>
 
 #include <pango/pango.h>
@@ -246,4 +246,4 @@ int textbox_get_estimated_char_height ( void );
 
 
 void textbox_text_markup ( textbox *tb, const char *text );
-#endif //TEXTBOX_H
+#endif //ROFI_TEXTBOX_H

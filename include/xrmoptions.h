@@ -1,5 +1,5 @@
-#ifndef XRMOPTIONS_H
-#define XRMOPTIONS_H
+#ifndef ROFI_XRMOPTIONS_H
+#define ROFI_XRMOPTIONS_H
 
 // Big thanks to Sean Pringle for this code.
 // This maps xresource options to config structure.

@@ -24,8 +24,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-#ifndef HISTORY_H
-#define HISTORY_H
+#ifndef ROFI_HISTORY_H
+#define ROFI_HISTORY_H
 
 /**
  * @param filename The filename of the history cache.
