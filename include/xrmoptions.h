@@ -1,5 +1,5 @@
-#ifndef __XRMOPTIONS_H__
-#define __XRMOPTIONS_H__
+#ifndef XRMOPTIONS_H
+#define XRMOPTIONS_H
 
 // Big thanks to Sean Pringle for this code.
 // This maps xresource options to config structure.

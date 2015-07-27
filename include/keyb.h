@@ -1,5 +1,5 @@
-#ifndef __KEYB_H__
-#define __KEYB_H__
+#ifndef KEYB_H
+#define KEYB_H
 
 typedef enum _KeyBindingAction
 {
@@ -69,4 +69,4 @@ void cleanup_abe ( void );
  * @returns TRUE if key combo matches, FALSE otherwise.
  */
 int abe_test_action ( KeyBindingAction action, unsigned int mask, KeySym key );
-#endif // __KEYB_H__
+#endif // KEYB_H

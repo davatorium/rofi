@@ -1,5 +1,5 @@
-#ifndef __HELPER_H__
-#define __HELPER_H__
+#ifndef HELPER_H
+#define HELPER_H
 #include "rofi.h"
 /**
  * @param string The input string.
@@ -149,4 +149,4 @@ char helper_parse_char ( const char *arg );
  * Set the application arguments.
  */
 void cmd_set_arguments ( int argc, char **argv );
-#endif // __HELPER_H__
+#endif // HELPER_H

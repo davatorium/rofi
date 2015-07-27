@@ -1,5 +1,5 @@
-#ifndef __ROFI_I3_H__
-#define __ROFI_I3_H__
+#ifndef ROFI_I3_H
+#define ROFI_I3_H
 
 /**
  * These functions are dummies when i3 support is not compiled in.
@@ -29,4 +29,4 @@ int i3_support_initialize ( Display *display );
  * Cleanup.
  */
 void i3_support_free_internals ( void );
-#endif // __ROFI_I3_H__
+#endif // ROFI_I3_H

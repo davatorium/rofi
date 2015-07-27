@@ -1,5 +1,5 @@
-#ifndef __X11_HELPER_H__
-#define __X11_HELPER_H__
+#ifndef X11_HELPER_H
+#define X11_HELPER_H
 
 
 int window_get_prop ( Display *display, Window w, Atom prop,

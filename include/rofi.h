@@ -1,5 +1,5 @@
-#ifndef __SIMPLESWITCHER_H__
-#define __SIMPLESWITCHER_H__
+#ifndef SIMPLESWITCHER_H
+#define SIMPLESWITCHER_H
 #include <X11/X.h>
 #include <glib.h>
 #include <textbox.h>

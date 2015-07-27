@@ -24,8 +24,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-#ifndef __HISTORY_H__
-#define __HISTORY_H__
+#ifndef HISTORY_H
+#define HISTORY_H
 
 /**
  * @param filename The filename of the history cache.
