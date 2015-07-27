@@ -262,6 +262,7 @@ void parse_keys_abe ( void )
         char *sp     = NULL;
 
         g_free ( abe[iter].kb );
+        abe[iter].kb           = NULL;
         abe[iter].num_bindings = 0;
 
         // Iter over bindings.

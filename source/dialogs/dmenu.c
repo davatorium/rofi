@@ -256,7 +256,8 @@ int dmenu_switcher_dialog ( char **input )
                     retv = 10 + ( mretv & MENU_LOWER_MASK );
                 }
                 return retv;
-            } else if ( (mretv&MENU_CANCEL)== MENU_CANCEL) {
+            }
+            else if ( ( mretv & MENU_CANCEL ) == MENU_CANCEL ) {
                 // In no custom mode we allow canceling.
                 restart = ( find_arg ( "-only-match" ) >= 0 );
             }
