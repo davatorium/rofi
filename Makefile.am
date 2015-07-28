@@ -104,8 +104,6 @@ EXTRA_DIST=\
 # Indent
 ##
 
-indent: ${rofi_SOURCES} ${top_srcdir}/config/config.def.c
-	uncrustify -c ${top_srcdir}/data/uncrustify.cfg --replace $^
 
 update-manpage: ${top_srcdir}/doc/rofi-manpage.markdown
 	ronn --roff --pipe $^ > ${top_srcdir}/doc/rofi.1
@@ -162,6 +160,10 @@ test-x: ${bin_PROGRAMS}
 	$(top_srcdir)/test/run_test.sh 204 $(top_srcdir)/test/run_run_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
 	$(top_srcdir)/test/run_test.sh 205 $(top_srcdir)/test/run_script_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
 
+
+.PHONY: indent
+indent: ${rofi_SOURCES} ${top_srcdir}/config/config.def.c ${helper_test_SOURCES} ${textbox_test_SOURCES} ${rofi_test_SOURCES}
+	uncrustify -c ${top_srcdir}/data/uncrustify.cfg --replace $^
 
 .PHONY: cppcheck
 
