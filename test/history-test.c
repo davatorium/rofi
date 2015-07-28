@@ -27,7 +27,7 @@ static void history_test( void )
     TASSERT ( retv  == NULL );
     TASSERT ( length  == 0 );
 
-    // 1 item 
+    // 1 item
     history_set( file, "aap");
 
     retv = history_get_list ( file, &length);
@@ -48,7 +48,7 @@ static void history_test( void )
     TASSERT ( retv  == NULL );
     TASSERT ( length  == 0 );
 
-    // 2 items 
+    // 2 items
     history_set( file, "aap");
     history_set( file, "aap");
 
