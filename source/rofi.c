@@ -1479,10 +1479,6 @@ static int run_dmenu ()
     // Cleanup font setup.
     textbox_cleanup ( );
 
-    if ( map != None ) {
-        XFreeColormap ( display, map );
-        map = None;
-    }
     // Release the window.
     release_keyboard ( display );
     if ( main_window != None ) {
@@ -1491,6 +1487,10 @@ static int run_dmenu ()
         main_window = None;
         XFreeGC ( display, gc );
         gc = NULL;
+    }
+    if ( map != None ) {
+        XFreeColormap ( display, map );
+        map = None;
     }
     // Cleanup pid file.
     if ( pidfile ) {
@@ -1730,10 +1730,7 @@ void show_error_message ( const char *msg, int markup )
     textbox_setup ( &vinfo, map );
     error_dialog ( msg, markup );
     textbox_cleanup ( );
-    if ( map != None ) {
-        XFreeColormap ( display, map );
-        map = None;
-    }
+    //
     // Cleanup font setup.
     textbox_cleanup ( );
 
@@ -1807,6 +1804,28 @@ static void reload_configuration ()
             XCloseDisplay ( display );
         }
     }
+}
+
+/**
+ * Setup signal handling.
+ * Block all the signals, start a signal processor thread to handle these events.
+ */
+static GThread *setup_signal_thread ( int *fd )
+{
+    // Block all HUP,INT,USR1 signals.
+    // In this and other child (they inherit mask)
+    sigset_t set;
+    sigemptyset ( &set );
+    sigaddset ( &set, SIGHUP );
+    sigaddset ( &set, SIGINT );
+    sigaddset ( &set, SIGUSR1 );
+    sigprocmask ( SIG_BLOCK, &set, NULL );
+    // Create signal handler process.
+    // This will use sigwaitinfo to read signals and forward them back to the main thread again.
+    return g_thread_new (
+               "signal_process",
+               pthread_signal_process,
+               (void *) fd );
 }
 
 int main ( int argc, char *argv[] )
@@ -1987,23 +2006,16 @@ int main ( int argc, char *argv[] )
             }
         }
 
-        sigset_t set;
 
         // Create a pipe to communicate between signal thread an main thread.
         int pfds[2];
-        pipe ( pfds );
-        // Block all HUP signals.
-        // In this and other child (they inherit mask)
-        sigemptyset ( &set );
-        sigaddset ( &set, SIGHUP );
-        sigaddset ( &set, SIGINT );
-        sigaddset ( &set, SIGUSR1 );
-        sigprocmask ( SIG_BLOCK, &set, NULL );
-        // Create signal handler process.
-        GThread *pid_signal_proc = g_thread_new (
-            "signal_process",
-            pthread_signal_process,
-            (void *) &( pfds[1] ) );
+        if ( pipe ( pfds ) != 0 ) {
+            char * msg = g_strdup_printf ( "Failed to start rofi: '<i>%s</i>'", strerror ( errno ) );
+            show_error_message ( msg, TRUE );
+            g_free ( msg );
+            exit ( EXIT_FAILURE );
+        }
+        GThread *pid_signal_proc = setup_signal_thread ( &( pfds[1] ) );
 
         // Application Main loop.
         // This listens in the background for any events on the Xserver
