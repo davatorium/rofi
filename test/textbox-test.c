@@ -75,22 +75,22 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERT( mw != None );
     // Set alternate row to normal row.
     config.menu_bg_alt = config.menu_bg;
-    textbox_setup ( &vinfo, map ); 
+    textbox_setup ( &vinfo, map );
     textbox *box = textbox_create(mw , &vinfo, map, TB_EDITABLE|TB_AUTOWIDTH|TB_AUTOHEIGHT, 0,0, -1, -1, NORMAL, "test");
     TASSERT( box != NULL );
 
     textbox_cursor_end ( box );
-    TASSERT ( box->cursor == 4); 
+    TASSERT ( box->cursor == 4);
     textbox_cursor ( box, -1 );
-    TASSERT ( box->cursor == 0 ); 
+    TASSERT ( box->cursor == 0 );
     textbox_cursor ( box, 8 );
-    TASSERT ( box->cursor == 4 ); 
+    TASSERT ( box->cursor == 4 );
     textbox_cursor ( box, 2 );
-    TASSERT ( box->cursor == 2 ); 
+    TASSERT ( box->cursor == 2 );
     textbox_insert ( box, 3, "bo");
-    TASSERT ( strcmp(box->text, "tesbot") == 0 ); 
+    TASSERT ( strcmp(box->text, "tesbot") == 0 );
     textbox_cursor_end ( box );
-    TASSERT ( box->cursor == 6); 
+    TASSERT ( box->cursor == 6);
 
     TASSERT( textbox_get_width( box) > 0 );
     TASSERT( textbox_get_height( box) > 0 );
@@ -101,48 +101,48 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERT( textbox_get_estimated_char_width ( ) > 0 );
 
     textbox_cursor_bkspc ( box );
-    TASSERT ( strcmp(box->text, "tesbo") == 0 ); 
-    TASSERT ( box->cursor == 5); 
+    TASSERT ( strcmp(box->text, "tesbo") == 0 );
+    TASSERT ( box->cursor == 5);
 
     textbox_cursor_dec ( box );
-    TASSERT ( box->cursor == 4); 
+    TASSERT ( box->cursor == 4);
     textbox_cursor_del ( box );
-    TASSERT ( strcmp(box->text, "tesb") == 0 ); 
+    TASSERT ( strcmp(box->text, "tesb") == 0 );
     textbox_cursor_dec ( box );
-    TASSERT ( box->cursor == 3); 
+    TASSERT ( box->cursor == 3);
     textbox_cursor_inc ( box );
-    TASSERT ( box->cursor == 4); 
+    TASSERT ( box->cursor == 4);
     textbox_cursor_inc ( box );
-    TASSERT ( box->cursor == 4); 
+    TASSERT ( box->cursor == 4);
     // Cursor after delete section.
     textbox_delete ( box, 0, 1 );
-    TASSERT ( strcmp(box->text, "esb") == 0 ); 
-    TASSERT ( box->cursor == 3); 
+    TASSERT ( strcmp(box->text, "esb") == 0 );
+    TASSERT ( box->cursor == 3);
     // Cursor before delete.
     textbox_text( box, "aap noot mies");
-    TASSERT ( strcmp(box->text, "aap noot mies") == 0 ); 
+    TASSERT ( strcmp(box->text, "aap noot mies") == 0 );
     textbox_cursor( box, 3 );
-    TASSERT ( box->cursor == 3); 
+    TASSERT ( box->cursor == 3);
     textbox_delete ( box, 3, 6 );
-    TASSERT ( strcmp(box->text, "aapmies") == 0 ); 
-    TASSERT ( box->cursor == 3); 
+    TASSERT ( strcmp(box->text, "aapmies") == 0 );
+    TASSERT ( box->cursor == 3);
 
     // Cursor within delete
     textbox_text( box, "aap noot mies");
-    TASSERT ( strcmp(box->text, "aap noot mies") == 0 ); 
+    TASSERT ( strcmp(box->text, "aap noot mies") == 0 );
     textbox_cursor( box, 5 );
-    TASSERT ( box->cursor == 5); 
+    TASSERT ( box->cursor == 5);
     textbox_delete ( box, 3, 6 );
-    TASSERT ( strcmp(box->text, "aapmies") == 0 ); 
-    TASSERT ( box->cursor == 3); 
-    // Cursor after delete. 
+    TASSERT ( strcmp(box->text, "aapmies") == 0 );
+    TASSERT ( box->cursor == 3);
+    // Cursor after delete.
     textbox_text( box, "aap noot mies");
-    TASSERT ( strcmp(box->text, "aap noot mies") == 0 ); 
+    TASSERT ( strcmp(box->text, "aap noot mies") == 0 );
     textbox_cursor( box, 11 );
-    TASSERT ( box->cursor == 11); 
+    TASSERT ( box->cursor == 11);
     textbox_delete ( box, 3, 6 );
-    TASSERT ( strcmp(box->text, "aapmies") == 0 ); 
-    TASSERT ( box->cursor == 5); 
+    TASSERT ( strcmp(box->text, "aapmies") == 0 );
+    TASSERT ( box->cursor == 5);
 
 
     textbox_font ( box, HIGHLIGHT );

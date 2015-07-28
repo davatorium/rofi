@@ -26,6 +26,6 @@ int main ( int argc, char ** argv )
 	TASSERT ( strcmp(list[3], "bash")  == 0 );
 	TASSERT ( strcmp(list[4], "-c")  == 0 );
 	TASSERT ( strcmp(list[5], "ssh chuck; echo 'x-terminal-emulator chuck'")  == 0 );
-	
+
 	g_strfreev(list);
 }
