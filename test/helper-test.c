@@ -10,6 +10,17 @@ static int test = 0;
         assert ( a );                                    \
         printf ( "Test %i passed (%s)\n", ++test, # a ); \
 }
+
+void error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
+{
+    fputs ( msg, stderr );
+}
+
+void show_error_message ( const char *msg, int markup )
+{
+    error_dialog ( msg, markup );
+}
+
 int main ( int argc, char ** argv )
 {
     cmd_set_arguments ( argc, argv );

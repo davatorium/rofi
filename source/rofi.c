@@ -1483,31 +1483,28 @@ static int run_dmenu ()
         XFreeColormap ( display, map );
         map = None;
     }
+    // Release the window.
+    release_keyboard ( display );
+    if ( main_window != None ) {
+        XUnmapWindow ( display, main_window );
+        XDestroyWindow ( display, main_window );
+        main_window = None;
+        XFreeGC ( display, gc );
+        gc = NULL;
+    }
+    // Cleanup pid file.
+    if ( pidfile ) {
+        unlink ( pidfile );
+    }
     return ret_state;
 }
 
-static void run_switcher ( int do_fork, SwitcherMode mode )
+static void run_switcher ( SwitcherMode mode )
 {
-    // we fork because it's technically possible to have multiple window
-    // lists up at once on a zaphod multihead X setup.
-    // this also happens to isolate the Xft font stuff in a child process
-    // that gets cleaned up every time. That library shows some valgrind
-    // strangeness...
-    if ( do_fork == TRUE ) {
-        if ( fork () ) {
-            return;
-        }
-
-        display = XOpenDisplay ( display_str );
-        XSync ( display, True );
-    }
     // Create pid file to avoid multiple instances.
     create_pid_file ( pidfile );
     // Create the colormap and the main visual.
     create_visual_and_colormap ( display );
-
-    // Because of the above fork, we want to do this here.
-    // Make sure this is isolated to its own thread.
     textbox_setup ( &vinfo, map );
     // Otherwise check if requested mode is enabled.
     char *input = NULL;
@@ -1548,13 +1545,23 @@ static void run_switcher ( int do_fork, SwitcherMode mode )
 
     // Cleanup font setup.
     textbox_cleanup ( );
+
+    // Release the window.
+    release_keyboard ( display );
+    if ( main_window != None ) {
+        XUnmapWindow ( display, main_window );
+        XDestroyWindow ( display, main_window );
+        main_window = None;
+        XFreeGC ( display, gc );
+        gc = NULL;
+    }
     if ( map != None ) {
         XFreeColormap ( display, map );
         map = None;
     }
-
-    if ( do_fork == TRUE ) {
-        exit ( EXIT_SUCCESS );
+    // Cleanup pid file.
+    if ( pidfile ) {
+        unlink ( pidfile );
     }
 }
 
@@ -1568,7 +1575,7 @@ static void handle_keypress ( XEvent *ev )
     KeySym key = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
     index = locate_switcher ( key, ev->xkey.state );
     if ( index >= 0 ) {
-        run_switcher ( TRUE, index );
+        run_switcher ( index );
     }
     else {
         fprintf ( stderr, "Warning: Unhandled keypress in global keyhandler, keycode = %u mask = %u\n", ev->xkey.keycode, ev->xkey.state );
@@ -1604,10 +1611,7 @@ static void cleanup ()
             XCloseDisplay ( display );
         }
     }
-    // Cleanup pid file.
-    if ( pidfile ) {
-        unlink ( pidfile );
-    }
+
 
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
@@ -1716,7 +1720,7 @@ static inline void load_configuration_dynamic ( Display *display )
 }
 
 
-static void show_error_message ( const char *msg, int markup )
+void show_error_message ( const char *msg, int markup )
 {
     // Create pid file
     create_pid_file ( pidfile );
@@ -1729,6 +1733,79 @@ static void show_error_message ( const char *msg, int markup )
     if ( map != None ) {
         XFreeColormap ( display, map );
         map = None;
+    }
+    // Cleanup font setup.
+    textbox_cleanup ( );
+
+    // Release the window.
+    release_keyboard ( display );
+    if ( main_window != None ) {
+        XUnmapWindow ( display, main_window );
+        XDestroyWindow ( display, main_window );
+        main_window = None;
+        XFreeGC ( display, gc );
+        gc = NULL;
+    }
+    if ( map != None ) {
+        XFreeColormap ( display, map );
+        map = None;
+    }
+    // Cleanup pid file.
+    if ( pidfile ) {
+        unlink ( pidfile );
+    }
+}
+
+static void * pthread_signal_process ( void *arg )
+{
+    int pfd = *( (int *) arg );
+
+    // Create same mask again.
+    sigset_t set;
+    sigemptyset ( &set );
+    sigaddset ( &set, SIGHUP );
+    sigaddset ( &set, SIGINT );
+    sigaddset ( &set, SIGUSR1 );
+    // loop forever.
+    while ( 1 ) {
+        siginfo_t info;
+        int       sig = sigwaitinfo ( &set, &info );
+        if ( sig < 0 ) {
+            perror ( "sigwaitinfo failed" );
+        }
+        else {
+            // Send message to main thread.
+            if ( sig == SIGHUP ) {
+                write ( pfd, "c", 1 );
+            }
+            if ( sig == SIGUSR1 ) {
+                write ( pfd, "i", 1 );
+            }
+            else if ( sig == SIGINT ) {
+                write ( pfd, "q", 1 );
+                // Close my end and exit.
+                return NULL;
+            }
+        }
+    }
+}
+
+
+static void reload_configuration ()
+{
+    if ( find_arg ( "-no-config" ) < 0 ) {
+        // We need to open a new connection to X11, otherwise we get old
+        // configuration
+        Display *display = XOpenDisplay ( display_str );
+        if ( display ) {
+            load_configuration ( display );
+            load_configuration_dynamic ( display );
+
+            // Sanity check
+            config_sanity_check ( );
+            parse_keys_abe ();
+            XCloseDisplay ( display );
+        }
     }
 }
 
@@ -1816,6 +1893,15 @@ int main ( int argc, char *argv[] )
         // Reload for dynamic part.
         load_configuration_dynamic ( display );
     }
+
+    // Set up X interaction.
+    const struct sigaction sigchld_action = {
+        .sa_handler = catch_exit
+    };
+    sigaction ( SIGCHLD, &sigchld_action, NULL );
+
+    x11_setup ( display );
+
     // Sanity check
     config_sanity_check ( );
     // Dump.
@@ -1825,14 +1911,6 @@ int main ( int argc, char *argv[] )
     }
     // Parse the keybindings.
     parse_keys_abe ();
-
-    // Set up X interaction.
-    const struct sigaction sigchld_action = {
-        .sa_handler = catch_exit
-    };
-    sigaction ( SIGCHLD, &sigchld_action, NULL );
-
-    x11_setup ( display );
 
     char *msg = NULL;
     if ( find_arg_str (  "-e", &( msg ) ) ) {
@@ -1866,7 +1944,7 @@ int main ( int argc, char *argv[] )
     if ( find_arg_str ( "-show", &sname ) == TRUE ) {
         int index = switcher_get ( sname );
         if ( index >= 0 ) {
-            run_switcher ( FALSE, index );
+            run_switcher ( index );
         }
         else {
             fprintf ( stderr, "The %s switcher has not been enabled\n", sname );
@@ -1909,24 +1987,85 @@ int main ( int argc, char *argv[] )
             }
         }
 
+        sigset_t set;
+
+        // Create a pipe to communicate between signal thread an main thread.
+        int pfds[2];
+        pipe ( pfds );
+        // Block all HUP signals.
+        // In this and other child (they inherit mask)
+        sigemptyset ( &set );
+        sigaddset ( &set, SIGHUP );
+        sigaddset ( &set, SIGINT );
+        sigaddset ( &set, SIGUSR1 );
+        sigprocmask ( SIG_BLOCK, &set, NULL );
+        // Create signal handler process.
+        GThread *pid_signal_proc = g_thread_new (
+            "signal_process",
+            pthread_signal_process,
+            (void *) &( pfds[1] ) );
+
         // Application Main loop.
         // This listens in the background for any events on the Xserver
         // catching global key presses.
+        // It also listens from messages from the signal process.
+        XSelectInput ( display, DefaultRootWindow ( display ), KeyPressMask );
+        XFlush ( display );
+        int x11_fd = ConnectionNumber ( display );
         for (;; ) {
-            XEvent ev;
+            fd_set in_fds;
+            // Create a File Description Set containing x11_fd
+            FD_ZERO ( &in_fds );
+            FD_SET ( x11_fd, &in_fds );
+            FD_SET ( pfds[0], &in_fds );
 
-            // block and wait for something
-            XNextEvent ( display, &ev );
-            // If we get an event that does not belong to a window:
-            // Ignore it.
-            if ( ev.xany.window == None ) {
-                continue;
-            }
-            // If keypress, handle it.
-            if ( ev.type == KeyPress ) {
-                handle_keypress ( &ev );
+            // Wait for X Event or a Timer
+            if ( select ( MAX ( x11_fd, pfds[0] ) + 1, &in_fds, 0, 0, NULL ) >= 0 ) {
+                if ( FD_ISSET ( x11_fd, &in_fds ) ) {
+                    // X11 produced an event. Consume them.
+                    XEvent ev;
+                    while ( XPending ( display ) ) {
+                        // block and wait for something
+                        XNextEvent ( display, &ev );
+                        // If we get an event that does not belong to a window:
+                        // Ignore it.
+                        if ( ev.xany.window == None ) {
+                            continue;
+                        }
+                        // If keypress, handle it.
+                        if ( ev.type == KeyPress ) {
+                            handle_keypress ( &ev );
+                        }
+                    }
+                }
+                if ( FD_ISSET ( pfds[0], &in_fds ) ) {
+                    // The signal thread send us a message. Process it.
+                    char c;
+                    read ( pfds[0], &c, 1 );
+                    // Reload configuration.
+                    if ( c == 'c' ) {
+                        fprintf ( stdout, "Reload configuration\n" );
+                        reload_configuration ();
+                    }
+                    // Got message to quit.
+                    else if ( c == 'q' ) {
+                        // Break out of loop.
+                        break;
+                    }
+                    // Got message to print info
+                    else if ( c == 'i' ) {
+                        xresource_dump ();
+                    }
+                }
             }
         }
+        // Join the signal process thread. (at this point it should have exited).
+        // this also unrefs (de-allocs) the GThread object.
+        g_thread_join ( pid_signal_proc );
+        // Close pipe
+        close ( pfds[0] );
+        close ( pfds[1] );
+        fprintf ( stdout, "Quit from daemon mode.\n" );
     }
 
     return EXIT_SUCCESS;
