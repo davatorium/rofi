@@ -1605,11 +1605,15 @@ static void cleanup ()
     // Cleanup
     if ( display != NULL ) {
         if ( main_window != None ) {
+            // We should never hit this code.
             release_keyboard ( display );
             XFreeGC ( display, gc );
+            gc = NULL;
             XDestroyWindow ( display, main_window );
-            XCloseDisplay ( display );
+            main_window = None;
         }
+        XCloseDisplay ( display );
+        display = NULL;
     }
 
 
@@ -1753,7 +1757,18 @@ void show_error_message ( const char *msg, int markup )
     }
 }
 
-static void * pthread_signal_process ( void *arg )
+/**
+ * Separate thread that handles signals being send to rofi.
+ * Currently it listens for three signals:
+ *  * HUP: reload the configuration.
+ *  * INT: Quit the program.
+ *  * USR1: Dump the current configuration to stdout.
+ *
+ *  These messages are relayed to the main thread via a pipe, the write side of the pipe is passed
+ *  as argument to this thread.
+ *  When receiving a sig-int the thread quits.
+ */
+static gpointer pthread_signal_process ( gpointer arg )
 {
     int pfd = *( (int *) arg );
 
@@ -1781,27 +1796,56 @@ static void * pthread_signal_process ( void *arg )
             else if ( sig == SIGINT ) {
                 write ( pfd, "q", 1 );
                 // Close my end and exit.
-                return NULL;
+                g_thread_exit ( NULL );
             }
         }
     }
 }
 
+static void release_global_keybindings ()
+{
+    for ( unsigned int i = 0; i < num_switchers; i++ ) {
+        if ( switchers[i]->keystr != NULL ) {
+            // No need to parse key, this should be done when grabbing.
+            if ( switchers[i]->keysym != NoSymbol ) {
+                x11_ungrab_key ( display, switchers[i]->modmask, switchers[i]->keysym );
+            }
+        }
+    }
+}
+static int grab_global_keybindings ()
+{
+    int key_bound = FALSE;
+    for ( unsigned int i = 0; i < num_switchers; i++ ) {
+        if ( switchers[i]->keystr != NULL ) {
+            x11_parse_key ( switchers[i]->keystr, &( switchers[i]->modmask ), &( switchers[i]->keysym ) );
+            if ( switchers[i]->keysym != NoSymbol ) {
+                x11_grab_key ( display, switchers[i]->modmask, switchers[i]->keysym );
+                key_bound = TRUE;
+            }
+        }
+    }
+    return key_bound;
+}
 
 static void reload_configuration ()
 {
     if ( find_arg ( "-no-config" ) < 0 ) {
         // We need to open a new connection to X11, otherwise we get old
         // configuration
-        Display *display = XOpenDisplay ( display_str );
-        if ( display ) {
-            load_configuration ( display );
-            load_configuration_dynamic ( display );
+        Display *temp_display = XOpenDisplay ( display_str );
+        if ( temp_display ) {
+            load_configuration ( temp_display );
+            load_configuration_dynamic ( temp_display );
 
             // Sanity check
             config_sanity_check ( );
             parse_keys_abe ();
-            XCloseDisplay ( display );
+            XCloseDisplay ( temp_display );
+        }
+        else {
+            fprintf ( stderr, "Failed to get a new connection to the X11 server. No point in continuing.\n" );
+            abort ();
         }
     }
 }
@@ -1970,24 +2014,14 @@ int main ( int argc, char *argv[] )
         }
     }
     else{
-        int          key_bound  = FALSE;
-        unsigned int key_length = 0;
         // Daemon mode, Listen to key presses..
-        for ( unsigned int i = 0; i < num_switchers; i++ ) {
-            key_length = MAX ( key_length, strlen ( switchers[i]->name ) );
-            if ( switchers[i]->keystr != NULL ) {
-                x11_parse_key ( switchers[i]->keystr, &( switchers[i]->modmask ), &( switchers[i]->keysym ) );
-                x11_grab_key ( display, switchers[i]->modmask, switchers[i]->keysym );
-                key_bound = TRUE;
-            }
-        }
-        if ( !key_bound ) {
+        if ( !grab_global_keybindings () ) {
             fprintf ( stderr, "Rofi was launched in daemon mode, but no key-binding was specified.\n" );
             fprintf ( stderr, "Please check the manpage on how to specify a key-binding.\n" );
             fprintf ( stderr, "The following modi are enabled and keys can be specified:\n" );
             for ( unsigned int i = 0; i < num_switchers; i++ ) {
-                fprintf ( stderr, "\t* "color_bold "%*s"color_reset ": -key-%s <key>\n",
-                          key_length, switchers[i]->name, switchers[i]->name );
+                fprintf ( stderr, "\t* "color_bold "%s"color_reset ": -key-%s <key>\n",
+                          switchers[i]->name, switchers[i]->name );
             }
             return EXIT_FAILURE;
         }
@@ -1996,12 +2030,12 @@ int main ( int argc, char *argv[] )
             fprintf ( stdout, "listening to the following keys:\n" );
             for ( unsigned int i = 0; i < num_switchers; i++ ) {
                 if ( switchers[i]->keystr != NULL ) {
-                    fprintf ( stdout, "\t* "color_bold "%*s"color_reset " on %s\n",
-                              key_length, switchers[i]->name, switchers[i]->keystr );
+                    fprintf ( stdout, "\t* "color_bold "%s"color_reset " on %s\n",
+                              switchers[i]->name, switchers[i]->keystr );
                 }
                 else {
-                    fprintf ( stdout, "\t* "color_bold "%*s"color_reset " on <unspecified>\n",
-                              key_length, switchers[i]->name );
+                    fprintf ( stdout, "\t* "color_bold "%s"color_reset " on <unspecified>\n",
+                              switchers[i]->name );
                 }
             }
         }
@@ -2057,7 +2091,13 @@ int main ( int argc, char *argv[] )
                     // Reload configuration.
                     if ( c == 'c' ) {
                         fprintf ( stdout, "Reload configuration\n" );
+                        // Release the keybindings.
+                        release_global_keybindings ();
+                        // Reload config
                         reload_configuration ();
+                        // Grab the possibly new keybindings.
+                        grab_global_keybindings ();
+                        XFlush ( display );
                     }
                     // Got message to quit.
                     else if ( c == 'q' ) {
@@ -2071,6 +2111,8 @@ int main ( int argc, char *argv[] )
                 }
             }
         }
+
+        release_global_keybindings ();
         // Join the signal process thread. (at this point it should have exited).
         // this also unrefs (de-allocs) the GThread object.
         g_thread_join ( pid_signal_proc );

@@ -276,6 +276,21 @@ void x11_grab_key ( Display *display, unsigned int modmask, KeySym key )
     }
 }
 
+void x11_ungrab_key ( Display *display, unsigned int modmask, KeySym key )
+{
+    Screen  *screen = DefaultScreenOfDisplay ( display );
+    Window  root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
+    KeyCode keycode = XKeysymToKeycode ( display, key );
+
+    // unbind to combinations of mod and lock masks, so caps and numlock don't confuse people
+    XUngrabKey ( display, keycode, modmask, root );
+    XUngrabKey ( display, keycode, modmask | LockMask, root );
+
+    if ( NumlockMask ) {
+        XUngrabKey ( display, keycode, modmask | NumlockMask, root );
+        XUngrabKey ( display, keycode, modmask | NumlockMask | LockMask, root );
+    }
+}
 /**
  * @param display The connection to the X server.
  *
@@ -345,8 +360,8 @@ void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key )
     KeySym sym = XStringToKeysym ( combo + i );
 
     if ( sym == NoSymbol || ( !modmask && ( strchr ( combo, '-' ) || strchr ( combo, '+' ) ) ) ) {
+        // TODO popup
         fprintf ( stderr, "sorry, cannot understand key combination: %s\n", combo );
-        exit ( EXIT_FAILURE );
     }
 
     *key = sym;
