@@ -148,11 +148,7 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
     if ( error ) {
         char *msg = g_strdup_printf ( "Failed to parse: '%s'\nError: '%s'", string,
                                       error->message );
-#ifdef error_dialog
-        error_dialog ( msg );
-#else
-        fputs ( msg, stderr );
-#endif
+        error_dialog ( msg, FALSE );
         g_free ( msg );
         // print error.
         g_error_free ( error );
@@ -396,11 +392,7 @@ int execute_generator ( const char * cmd )
     if ( error != NULL ) {
         char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd,
                                       error->message );
-#ifdef error_dialog
-        error_dialog ( msg );
-#else
-        fputs ( msg, stderr );
-#endif
+        error_dialog ( msg, FALSE );
         g_free ( msg );
         // print error.
         g_error_free ( error );
@@ -464,23 +456,37 @@ void config_sanity_check (  )
                   "Please see the manpage: %s -help for the correct syntax.", stored_argv[0] );
         exit ( EXIT_FAILURE );
     }
+    int     found_error = FALSE;
+    GString *msg        = g_string_new ( "<big><b>The configuration failed to validate:</b></big>\n" );
     if ( config.element_height < 1 ) {
-        fprintf ( stderr, "config.element_height is invalid. It needs to be atleast 1 line high.\n" );
-        exit ( 1 );
+        g_string_append_printf ( msg, "\t<b>config.element_height</b>=%d is invalid. An element needs to be atleast 1 line high.\n",
+                                 config.element_height );
+        config.element_height = 1;
+        found_error           = TRUE;
     }
     if ( config.menu_columns == 0 ) {
-        fprintf ( stderr, "config.menu_columns is invalid. You need at least one visible column.\n" );
-        exit ( 1 );
+        g_string_append_printf ( msg, "\t<b>config.menu_columns</b>=%d is invalid. You need at least one visible column.\n",
+                                 config.menu_columns );
+        config.menu_columns = 1;
+        found_error         = TRUE;
     }
     if ( config.menu_width == 0 ) {
-        fprintf ( stderr, "config.menu_width is invalid. You cannot have a window with no width.\n" );
-        exit ( 1 );
+        show_error_message ( "<b>config.menu_width</b>=0 is invalid. You cannot have a window with no width.", TRUE );
+        config.menu_columns = 50;
+        found_error         = TRUE;
     }
     if ( !( config.location >= WL_CENTER && config.location <= WL_WEST ) ) {
-        fprintf ( stderr, "config.location is invalid. ( %d >= %d >= %d) does not hold.\n",
-                  WL_WEST, config.location, WL_CENTER );
-        exit ( 1 );
+        g_string_append_printf ( msg, "\t<b>config.location</b>=%d is invalid. Value should be between %d and %d.\n",
+                                 config.location, WL_CENTER, WL_WEST );
+        config.location = WL_CENTER;
+        found_error     = 1;
     }
+    if ( found_error ) {
+        g_string_append ( msg, "Please update your configuration." );
+        show_error_message ( msg->str, TRUE );
+    }
+
+    g_string_free ( msg, TRUE );
     // If alternative row is not set, copy the normal background color.
     if ( config.menu_bg_alt == NULL ) {
         config.menu_bg_alt = config.menu_bg;

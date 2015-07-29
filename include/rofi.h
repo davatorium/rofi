@@ -300,4 +300,8 @@ struct _Switcher
 #define  color_blue_bold       "\033[1;34m"
 #define  color_magenta_bold    "\033[1;35m"
 #define  color_cyan_bold       "\033[1;36m"
+
+
+
+void show_error_message ( const char *msg, int markup );
 #endif
