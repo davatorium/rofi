@@ -1071,6 +1071,24 @@ ln \-s /usr/bin/dmenu /usr/bin/rofi
 .
 .IP "" 0
 .
+.SH "SIGNALS"
+\fBHUP\fR
+.
+.P
+If in daemon mode, reload the configuration from Xresources\. (commandline arguments still \-override Xresources)\. This will also reload configured key\-bindings\.
+.
+.P
+\fBINT\fR
+.
+.P
+If in daemon mode, quits \fBrofi\fR\.
+.
+.P
+\fBUSR1\fR
+.
+.P
+If in daemon mode, dumps the current configuration to stdout\. Similar to \fB\-xresources\-dump\fR
+.
 .SH "THEMING"
 With \fBrofi\fR 0\.15\.4 we have a new way of specifying colors, the old settings still apply (for now)\. To enable the new setup, set \fBrofi\.color\-enabled\fR to true\. The new setup allows you to specify colors per state, similar to \fBi3\fR Currently 3 states exists:
 .

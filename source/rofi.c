@@ -1827,6 +1827,21 @@ static int grab_global_keybindings ()
     }
     return key_bound;
 }
+static void print_global_keybindings ()
+{
+    fprintf ( stdout, "Rofi is launched in daemon mode.\n" );
+    fprintf ( stdout, "listening to the following keys:\n" );
+    for ( unsigned int i = 0; i < num_switchers; i++ ) {
+        if ( switchers[i]->keystr != NULL ) {
+            fprintf ( stdout, "\t* "color_bold "%s"color_reset " on %s\n",
+                      switchers[i]->name, switchers[i]->keystr );
+        }
+        else {
+            fprintf ( stdout, "\t* "color_bold "%s"color_reset " on <unspecified>\n",
+                      switchers[i]->name );
+        }
+    }
+}
 
 static void reload_configuration ()
 {
@@ -2026,18 +2041,7 @@ int main ( int argc, char *argv[] )
             return EXIT_FAILURE;
         }
         if ( !quiet ) {
-            fprintf ( stdout, "Rofi is launched in daemon mode.\n" );
-            fprintf ( stdout, "listening to the following keys:\n" );
-            for ( unsigned int i = 0; i < num_switchers; i++ ) {
-                if ( switchers[i]->keystr != NULL ) {
-                    fprintf ( stdout, "\t* "color_bold "%s"color_reset " on %s\n",
-                              switchers[i]->name, switchers[i]->keystr );
-                }
-                else {
-                    fprintf ( stdout, "\t* "color_bold "%s"color_reset " on <unspecified>\n",
-                              switchers[i]->name );
-                }
-            }
+            print_global_keybindings ();
         }
 
 
@@ -2090,13 +2094,18 @@ int main ( int argc, char *argv[] )
                     read ( pfds[0], &c, 1 );
                     // Reload configuration.
                     if ( c == 'c' ) {
-                        fprintf ( stdout, "Reload configuration\n" );
+                        if ( !quiet ) {
+                            fprintf ( stdout, "Reload configuration\n" );
+                        }
                         // Release the keybindings.
                         release_global_keybindings ();
                         // Reload config
                         reload_configuration ();
                         // Grab the possibly new keybindings.
                         grab_global_keybindings ();
+                        if ( !quiet ) {
+                            print_global_keybindings ();
+                        }
                         XFlush ( display );
                     }
                     // Got message to quit.
@@ -2119,7 +2128,9 @@ int main ( int argc, char *argv[] )
         // Close pipe
         close ( pfds[0] );
         close ( pfds[1] );
-        fprintf ( stdout, "Quit from daemon mode.\n" );
+        if(!quiet) {
+            fprintf ( stdout, "Quit from daemon mode.\n" );
+        }
     }
 
     return EXIT_SUCCESS;
