@@ -1829,7 +1829,6 @@ static int grab_global_keybindings ()
 }
 static void print_global_keybindings ()
 {
-    fprintf ( stdout, "Rofi is launched in daemon mode.\n" );
     fprintf ( stdout, "listening to the following keys:\n" );
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
         if ( switchers[i]->keystr != NULL ) {
@@ -2041,6 +2040,7 @@ int main ( int argc, char *argv[] )
             return EXIT_FAILURE;
         }
         if ( !quiet ) {
+            fprintf ( stdout, "Rofi is launched in daemon mode.\n" );
             print_global_keybindings ();
         }
 
