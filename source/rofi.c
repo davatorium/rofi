@@ -1457,25 +1457,25 @@ void error_dialog ( const char *msg, int markup )
     release_keyboard ( display );
 }
 
-
 /**
- * Start dmenu mode.
+ * Do needed steps to start showing the gui
  */
-static int run_dmenu ()
+static int setup ()
 {
     // Create pid file
-    create_pid_file ( pidfile );
-
-    // Request truecolor visual.
-    create_visual_and_colormap ( display );
-    textbox_setup ( &vinfo, map );
-    char *input = NULL;
-
-    // Dmenu modi has a return state.
-    int ret_state = dmenu_switcher_dialog ( &input );
-
-    g_free ( input );
-
+    int pfd = create_pid_file ( pidfile );
+    if ( pfd >= 0 ) {
+        // Request truecolor visual.
+        create_visual_and_colormap ( display );
+        textbox_setup ( &vinfo, map );
+    }
+    return pfd;
+}
+/**
+ * Teardown the gui.
+ */
+static void teardown ( int pfd )
+{
     // Cleanup font setup.
     textbox_cleanup ( );
 
@@ -1493,19 +1493,35 @@ static int run_dmenu ()
         map = None;
     }
     // Cleanup pid file.
-    if ( pidfile ) {
-        unlink ( pidfile );
+    remove_pid_file ( pfd );
+}
+
+/**
+ * Start dmenu mode.
+ */
+static int run_dmenu ()
+{
+    char *input    = NULL;
+    int  ret_state = EXIT_FAILURE;
+    int  pfd       = setup ();
+    if ( pfd < 0 ) {
+        return ret_state;
     }
+
+    // Dmenu modi has a return state.
+    ret_state = dmenu_switcher_dialog ( &input );
+
+    g_free ( input );
+    teardown ( pfd );
     return ret_state;
 }
 
 static void run_switcher ( SwitcherMode mode )
 {
-    // Create pid file to avoid multiple instances.
-    create_pid_file ( pidfile );
-    // Create the colormap and the main visual.
-    create_visual_and_colormap ( display );
-    textbox_setup ( &vinfo, map );
+    int pfd = setup ();
+    if ( pfd < 0 ) {
+        return;
+    }
     // Otherwise check if requested mode is enabled.
     char *input = NULL;
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
@@ -1542,27 +1558,19 @@ static void run_switcher ( SwitcherMode mode )
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
         switchers[i]->destroy ( switchers[i] );
     }
+    // cleanup
+    teardown ( pfd );
+}
 
-    // Cleanup font setup.
-    textbox_cleanup ( );
-
-    // Release the window.
-    release_keyboard ( display );
-    if ( main_window != None ) {
-        XUnmapWindow ( display, main_window );
-        XDestroyWindow ( display, main_window );
-        main_window = None;
-        XFreeGC ( display, gc );
-        gc = NULL;
+int show_error_message ( const char *msg, int markup )
+{
+    int pfd = setup ();
+    if ( pfd < 0 ) {
+        return EXIT_FAILURE;
     }
-    if ( map != None ) {
-        XFreeColormap ( display, map );
-        map = None;
-    }
-    // Cleanup pid file.
-    if ( pidfile ) {
-        unlink ( pidfile );
-    }
+    error_dialog ( msg, markup );
+    teardown ( pfd );
+    return EXIT_SUCCESS;
 }
 
 /**
@@ -1724,38 +1732,6 @@ static inline void load_configuration_dynamic ( Display *display )
 }
 
 
-void show_error_message ( const char *msg, int markup )
-{
-    // Create pid file
-    create_pid_file ( pidfile );
-
-    // Request truecolor visual.
-    create_visual_and_colormap ( display );
-    textbox_setup ( &vinfo, map );
-    error_dialog ( msg, markup );
-    textbox_cleanup ( );
-    //
-    // Cleanup font setup.
-    textbox_cleanup ( );
-
-    // Release the window.
-    release_keyboard ( display );
-    if ( main_window != None ) {
-        XUnmapWindow ( display, main_window );
-        XDestroyWindow ( display, main_window );
-        main_window = None;
-        XFreeGC ( display, gc );
-        gc = NULL;
-    }
-    if ( map != None ) {
-        XFreeColormap ( display, map );
-        map = None;
-    }
-    // Cleanup pid file.
-    if ( pidfile ) {
-        unlink ( pidfile );
-    }
-}
 
 /**
  * Separate thread that handles signals being send to rofi.
@@ -1995,8 +1971,7 @@ int main ( int argc, char *argv[] )
         if ( find_arg ( "-markup" ) >= 0 ) {
             markup = TRUE;
         }
-        show_error_message ( msg, markup );
-        exit ( EXIT_SUCCESS );
+        return show_error_message ( msg, markup );
     }
 
 
@@ -2128,7 +2103,7 @@ int main ( int argc, char *argv[] )
         // Close pipe
         close ( pfds[0] );
         close ( pfds[1] );
-        if(!quiet) {
+        if ( !quiet ) {
             fprintf ( stdout, "Quit from daemon mode.\n" );
         }
     }

@@ -29,9 +29,10 @@ void error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
     fputs ( msg, stderr );
 }
 
-void show_error_message ( const char *msg, int markup )
+int show_error_message ( const char *msg, int markup )
 {
     error_dialog ( msg, markup );
+    return 0;
 }
 
 static unsigned int color_get ( Display *display, const char *const name )

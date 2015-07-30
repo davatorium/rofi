@@ -121,9 +121,14 @@ int execute_generator ( const char * cmd ) __attribute__( ( nonnull ) );
 /**
  * @param pidfile The pidfile to create.
  *
- * Calls exit (1) when failed.
+ * returns file descriptor (or -1 when failed)
  */
-void create_pid_file ( const char *pidfile );
+int create_pid_file ( const char *pidfile );
+
+/**
+ * Remove pid file
+ */
+void remove_pid_file ( int fd );
 
 /**
  * Do some input validation, especially the first few could break things.

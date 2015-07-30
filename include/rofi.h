@@ -303,5 +303,5 @@ struct _Switcher
 
 
 
-void show_error_message ( const char *msg, int markup );
+int show_error_message ( const char *msg, int markup );
 #endif

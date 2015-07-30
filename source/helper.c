@@ -33,6 +33,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <glib.h>
+#include <glib/gstdio.h>
 #include <sys/types.h>
 #include <sys/file.h>
 #include <sys/stat.h>
@@ -403,31 +405,32 @@ int execute_generator ( const char * cmd )
 }
 
 
-void create_pid_file ( const char *pidfile )
+int create_pid_file ( const char *pidfile )
 {
     if ( pidfile == NULL ) {
-        return;
+        return -1;
     }
 
-    int fd = open ( pidfile, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
+    int fd = g_open ( pidfile, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
     if ( fd < 0 ) {
         fprintf ( stderr, "Failed to create pid file." );
-        exit ( EXIT_FAILURE );
+        return -1;
     }
     // Set it to close the File Descriptor on exit.
     int flags = fcntl ( fd, F_GETFD, NULL );
     flags = flags | FD_CLOEXEC;
     if ( fcntl ( fd, F_SETFD, flags, NULL ) < 0 ) {
         fprintf ( stderr, "Failed to set CLOEXEC on pidfile." );
-        close ( fd );
-        exit ( EXIT_FAILURE );
+        remove_pid_file ( fd );
+        return -1;
     }
     // Try to get exclusive write lock on FD
     int retv = flock ( fd, LOCK_EX | LOCK_NB );
     if ( retv != 0 ) {
         fprintf ( stderr, "Failed to set lock on pidfile: Rofi already running?\n" );
-        fprintf ( stderr, "%d %s\n", retv, strerror ( errno ) );
-        exit ( EXIT_FAILURE );
+        fprintf ( stderr, "Got error: %d %s\n", retv, strerror ( errno ) );
+        remove_pid_file ( fd );
+        return -1;
     }
     if ( ftruncate ( fd, (off_t) 0 ) == 0 ) {
         // Write pid, not needed, but for completeness sake.
@@ -437,6 +440,14 @@ void create_pid_file ( const char *pidfile )
         while ( l < length ) {
             l += write ( fd, &buffer[l], length - l );
         }
+    }
+    return fd;
+}
+
+void remove_pid_file ( int fd )
+{
+    if ( fd >= 0 ) {
+        g_close ( fd, NULL );
     }
 }
 
