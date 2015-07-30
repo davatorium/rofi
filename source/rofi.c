@@ -1485,6 +1485,8 @@ static void teardown ( int pfd )
         XUnmapWindow ( display, main_window );
         XDestroyWindow ( display, main_window );
         main_window = None;
+    }
+    if ( gc != NULL ) {
         XFreeGC ( display, gc );
         gc = NULL;
     }
@@ -1615,10 +1617,12 @@ static void cleanup ()
         if ( main_window != None ) {
             // We should never hit this code.
             release_keyboard ( display );
-            XFreeGC ( display, gc );
-            gc = NULL;
             XDestroyWindow ( display, main_window );
             main_window = None;
+        }
+        if ( gc != NULL ) {
+            XFreeGC ( display, gc );
+            gc = NULL;
         }
         XCloseDisplay ( display );
         display = NULL;

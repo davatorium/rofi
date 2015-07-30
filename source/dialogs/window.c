@@ -178,7 +178,9 @@ static void x11_cache_create ( void )
 static void x11_cache_free ( void )
 {
     winlist_free ( cache_xattr );
+    cache_xattr = NULL;
     winlist_free ( cache_client );
+    cache_client = NULL;
 }
 
 /**
