@@ -14,3 +14,12 @@ depcomp
 *.gcov
 *.gcda
 *.gcno
+
+# I want to ignore log files
+*.log
+
+# Core files should never be checked in
+core
+
+# ignore patches too, the code is either checked in or branch.
+*.patch*
