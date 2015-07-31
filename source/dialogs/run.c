@@ -158,7 +158,9 @@ static char ** get_apps_external ( char **retv, unsigned int *length, unsigned i
 
                 ( *length )++;
             }
-            fclose ( inp );
+            if ( fclose ( inp ) != 0 ) {
+                fprintf ( stderr, "Failed to close stdout off executor script: '%s'\n", strerror ( errno ) );
+            }
         }
     }
     retv[( *length ) ] = NULL;

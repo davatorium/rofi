@@ -31,6 +31,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <glib.h>
+#include <glib/gstdio.h>
 #include "rofi.h"
 #include "history.h"
 
@@ -118,7 +120,7 @@ void history_set ( const char *filename, const char *entry )
     unsigned int length = 0;
     _element     **list = NULL;
     // Open file for reading and writing.
-    FILE         *fd = fopen ( filename, "a+" );
+    FILE         *fd = g_fopen ( filename, "a+" );
     if ( fd == NULL ) {
         fprintf ( stderr, "Failed to open file: %s\n", strerror ( errno ) );
         return;
@@ -170,8 +172,10 @@ void history_set ( const char *filename, const char *entry )
         g_free ( list[iter] );
     }
     g_free ( list );
-    // Close file.
-    fclose ( fd );
+    // Close file, if fails let user know on stderr.
+    if ( fclose ( fd ) != 0 ) {
+        fprintf ( stderr, "Failed to close history file: %s\n", strerror ( errno ) );
+    }
 }
 
 void history_remove ( const char *filename, const char *entry )
@@ -184,7 +188,7 @@ void history_remove ( const char *filename, const char *entry )
     unsigned int curr    = 0;
     unsigned int length  = 0;
     // Open file for reading and writing.
-    FILE         *fd = fopen ( filename, "a+" );
+    FILE         *fd = g_fopen ( filename, "a+" );
     if ( fd == NULL ) {
         fprintf ( stderr, "Failed to open file: %s\n", strerror ( errno ) );
         return;
@@ -229,8 +233,11 @@ void history_remove ( const char *filename, const char *entry )
     if ( list != NULL ) {
         g_free ( list );
     }
-    // Close file.
-    fclose ( fd );
+
+    // Close file, if fails let user know on stderr.
+    if ( fclose ( fd ) != 0 ) {
+        fprintf ( stderr, "Failed to close history file: %s\n", strerror ( errno ) );
+    }
 }
 
 char ** history_get_list ( const char *filename, unsigned int *length )
@@ -243,7 +250,7 @@ char ** history_get_list ( const char *filename, unsigned int *length )
     _element **list = NULL;
     char     **retv = NULL;
     // Open file.
-    FILE     *fd = fopen ( filename, "r" );
+    FILE     *fd = g_fopen ( filename, "r" );
     if ( fd == NULL ) {
         // File that does not exists is not an error, so ignore it.
         // Everything else? panic.
@@ -267,6 +274,9 @@ char ** history_get_list ( const char *filename, unsigned int *length )
         g_free ( list );
     }
 
-    fclose ( fd );
+    // Close file, if fails let user know on stderr.
+    if ( fclose ( fd ) != 0 ) {
+        fprintf ( stderr, "Failed to close history file: %s\n", strerror ( errno ) );
+    }
     return retv;
 }

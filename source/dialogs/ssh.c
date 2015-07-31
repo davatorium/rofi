@@ -167,7 +167,9 @@ static char **read_hosts_file ( char ** retv, unsigned int *length )
                 index++;
             } while ( buffer[index] != '\0' && buffer[index] != '#' );
         }
-        fclose ( fd );
+        if ( fclose ( fd ) != 0 ) {
+            fprintf ( stderr, "Failed to close hosts file: '%s'\n", strerror ( errno ) );
+        }
     }
 
     return retv;
@@ -252,7 +254,9 @@ static char ** get_ssh (  unsigned int *length )
             }
         }
 
-        fclose ( fd );
+        if ( fclose ( fd ) != 0 ) {
+            fprintf ( stderr, "Failed to close ssh configuration file: '%s'\n", strerror ( errno ) );
+        }
     }
 
     // TODO: check this is still fast enough. (takes 1ms on laptop.)

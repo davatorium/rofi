@@ -34,6 +34,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <assert.h>
+#include <errno.h>
 #include "rofi.h"
 #include "dialogs/script.h"
 #include "helper.h"
@@ -64,7 +65,9 @@ static char **get_script_output ( const char *command, unsigned int *length )
 
                 ( *length )++;
             }
-            fclose ( inp );
+            if ( fclose ( inp ) != 0 ) {
+                fprintf ( stderr, "Failed to close stdout off executor script: '%s'\n", strerror ( errno ) );
+            }
         }
     }
     return retv;
