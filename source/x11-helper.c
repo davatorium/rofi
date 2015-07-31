@@ -447,9 +447,10 @@ void create_visual_and_colormap ( Display *display )
         map          = DefaultColormap ( display, screen );
     }
 }
-unsigned int color_get ( Display *display, const char *const name )
+unsigned int color_get ( Display *display, const char *const name, const char * const defn )
 {
     XColor color = { 0, 0, 0, 0, 0, 0 };
+    XColor def;
     // Special format.
     if ( strncmp ( name, "argb:", 5 ) == 0 ) {
         color.pixel = strtoul ( &name[5], NULL, 16 );
@@ -461,17 +462,25 @@ unsigned int color_get ( Display *display, const char *const name )
             Status st = XAllocColor ( display, map, &color );
             if ( st == None ) {
                 fprintf ( stderr, "Failed to parse color: '%s'\n", name );
-                exit ( EXIT_FAILURE );
+                st = XAllocNamedColor ( display, map, defn, &color, &def );
+                if ( st == None  ) {
+                    fprintf ( stderr, "Failed to allocate fallback color\n" );
+                    exit ( EXIT_FAILURE );
+                }
             }
             return color.pixel;
         }
         return color.pixel;
     }
     else {
-        Status st = XAllocNamedColor ( display, map, name, &color, &color );
+        Status st = XAllocNamedColor ( display, map, name, &color, &def );
         if ( st == None ) {
             fprintf ( stderr, "Failed to parse color: '%s'\n", name );
-            exit ( EXIT_FAILURE );
+            st = XAllocNamedColor ( display, map, defn, &color, &def );
+            if ( st == None  ) {
+                fprintf ( stderr, "Failed to allocate fallback color\n" );
+                exit ( EXIT_FAILURE );
+            }
         }
         return color.pixel;
     }
@@ -480,14 +489,14 @@ unsigned int color_get ( Display *display, const char *const name )
 unsigned int color_background ( Display *display )
 {
     if ( !config.color_enabled ) {
-        return color_get ( display, config.menu_bg );
+        return color_get ( display, config.menu_bg, "black" );
     }
     else {
         unsigned int retv = 0;
 
         gchar        **vals = g_strsplit ( config.color_window, ",", 2 );
         if ( vals != NULL && vals[0] != NULL ) {
-            retv = color_get ( display, g_strstrip ( vals[0] ) );
+            retv = color_get ( display, g_strstrip ( vals[0] ), "black" );
         }
         g_strfreev ( vals );
         return retv;
@@ -497,14 +506,14 @@ unsigned int color_background ( Display *display )
 unsigned int color_border ( Display *display )
 {
     if ( !config.color_enabled ) {
-        return color_get ( display, config.menu_bc );
+        return color_get ( display, config.menu_bc, "white" );
     }
     else {
         unsigned int retv = 0;
 
         gchar        **vals = g_strsplit ( config.color_window, ",", 2 );
         if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
-            retv = color_get ( display, vals[1] );
+            retv = color_get ( display, vals[1], "white" );
         }
         g_strfreev ( vals );
         return retv;

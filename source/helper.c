@@ -307,7 +307,8 @@ char helper_parse_char ( const char *arg )
     }
     if ( retv < 0 ) {
         fprintf ( stderr, "Failed to parse character string: \"%s\"\n", arg );
-        exit ( 1 );
+        // for now default to newline.
+        retv = '\n';
     }
     return retv;
 }
@@ -458,14 +459,6 @@ void remove_pid_file ( int fd )
  */
 void config_sanity_check (  )
 {
-    if ( find_arg ( "-rnow" ) >= 0 || find_arg ( "-snow" ) >= 0 ||
-         find_arg ( "-now"  ) >= 0 || find_arg ( "-key"  ) >= 0 ||
-         find_arg ( "-skey" ) >= 0 || find_arg ( "-rkey" ) >= 0 ) {
-        fprintf ( stderr, "The -snow, -now, -rnow, -key, -rkey, -skey are deprecated "
-                  "and have been removed.\n"
-                  "Please see the manpage: %s -help for the correct syntax.", stored_argv[0] );
-        exit ( EXIT_FAILURE );
-    }
     int     found_error = FALSE;
     GString *msg        = g_string_new ( "<big><b>The configuration failed to validate:</b></big>\n" );
     if ( config.element_height < 1 ) {

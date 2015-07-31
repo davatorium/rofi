@@ -953,7 +953,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     if ( !has_keyboard ) {
         fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
-        exit ( EXIT_FAILURE );
+        // Break off.
+        return MENU_CANCEL;
     }
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     XWindowAttributes attr;
@@ -1396,7 +1397,7 @@ void error_dialog ( const char *msg, int markup )
 
     if ( !has_keyboard ) {
         fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
-        exit ( EXIT_FAILURE );
+        return;
     }
     // Get active monitor size.
     monitor_active ( display, &mon );
