@@ -1055,7 +1055,6 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     textbox_move ( state.arrowbox_top,
                    state.w - config.padding - state.arrowbox_top->w,
                    state.top_offset + LINE_MARGIN );
-    // TODO calculate from top.
     textbox_move ( state.arrowbox_bottom,
                    state.w - config.padding - state.arrowbox_bottom->w,
                    state.top_offset + ( state.max_rows - 1 ) * element_height + LINE_MARGIN );
@@ -1737,52 +1736,6 @@ static inline void load_configuration_dynamic ( Display *display )
 }
 
 
-
-/**
- * Separate thread that handles signals being send to rofi.
- * Currently it listens for three signals:
- *  * HUP: reload the configuration.
- *  * INT: Quit the program.
- *  * USR1: Dump the current configuration to stdout.
- *
- *  These messages are relayed to the main thread via a pipe, the write side of the pipe is passed
- *  as argument to this thread.
- *  When receiving a sig-int the thread quits.
- */
-static gpointer pthread_signal_process ( gpointer arg )
-{
-    int pfd = *( (int *) arg );
-
-    // Create same mask again.
-    sigset_t set;
-    sigemptyset ( &set );
-    sigaddset ( &set, SIGHUP );
-    sigaddset ( &set, SIGINT );
-    sigaddset ( &set, SIGUSR1 );
-    // loop forever.
-    while ( 1 ) {
-        siginfo_t info;
-        int       sig = sigwaitinfo ( &set, &info );
-        if ( sig < 0 ) {
-            perror ( "sigwaitinfo failed" );
-        }
-        else {
-            // Send message to main thread.
-            if ( sig == SIGHUP ) {
-                write ( pfd, "c", 1 );
-            }
-            if ( sig == SIGUSR1 ) {
-                write ( pfd, "i", 1 );
-            }
-            else if ( sig == SIGINT ) {
-                write ( pfd, "q", 1 );
-                // Close my end and exit.
-                g_thread_exit ( NULL );
-            }
-        }
-    }
-}
-
 static void release_global_keybindings ()
 {
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
@@ -1846,6 +1799,109 @@ static void reload_configuration ()
 }
 
 /**
+ * Separate thread that handles signals being send to rofi.
+ * Currently it listens for three signals:
+ *  * HUP: reload the configuration.
+ *  * INT: Quit the program.
+ *  * USR1: Dump the current configuration to stdout.
+ *
+ *  These messages are relayed to the main thread via a pipe, the write side of the pipe is passed
+ *  as argument to this thread.
+ *  When receiving a sig-int the thread quits.
+ */
+static gpointer rofi_signal_handler_process ( gpointer arg )
+{
+    int pfd = *( (int *) arg );
+
+    // Create same mask again.
+    sigset_t set;
+    sigemptyset ( &set );
+    sigaddset ( &set, SIGHUP );
+    sigaddset ( &set, SIGINT );
+    sigaddset ( &set, SIGUSR1 );
+    // loop forever.
+    while ( 1 ) {
+        siginfo_t info;
+        int       sig = sigwaitinfo ( &set, &info );
+        if ( sig < 0 ) {
+            perror ( "sigwaitinfo failed, lets restart" );
+        }
+        else {
+            // Send message to main thread.
+            if ( sig == SIGHUP ) {
+                write ( pfd, "c", 1 );
+            }
+            if ( sig == SIGUSR1 ) {
+                write ( pfd, "i", 1 );
+            }
+            else if ( sig == SIGINT ) {
+                write ( pfd, "q", 1 );
+                // Close my end and exit.
+                g_thread_exit ( NULL );
+            }
+        }
+    }
+}
+
+/**
+ * Process X11 events in the main-loop (gui-thread) of the application.
+ */
+static void main_loop_x11_event_handler ( void )
+{
+    // X11 produced an event. Consume them.
+    XEvent ev;
+    while ( XPending ( display ) ) {
+        // Read event, we know this won't block as we checked with XPending.
+        XNextEvent ( display, &ev );
+        // If we get an event that does not belong to a window:
+        // Ignore it.
+        if ( ev.xany.window == None ) {
+            continue;
+        }
+        // If keypress, handle it.
+        if ( ev.type == KeyPress ) {
+            handle_keypress ( &ev );
+        }
+    }
+}
+
+/**
+ * Process signals in the main-loop (gui-thread) of the application.
+ *
+ * returns TRUE when mainloop should be stopped.
+ */
+static int main_loop_signal_handler ( char command , int quiet )
+{
+    if ( command == 'c' ) {
+        if ( !quiet ) {
+            fprintf ( stdout, "Reload configuration\n" );
+        }
+        // Release the keybindings.
+        release_global_keybindings ();
+        // Reload config
+        reload_configuration ();
+        // Grab the possibly new keybindings.
+        grab_global_keybindings ();
+        if ( !quiet ) {
+            print_global_keybindings ();
+        }
+        // We need to flush, otherwise the first key presses are not caught.
+        XFlush ( display );
+    }
+    // Got message to quit.
+    else if ( command == 'q' ) {
+        // Break out of loop.
+        return TRUE;
+    }
+    // Got message to print info
+    else if ( command == 'i' ) {
+        xresource_dump ();
+    }
+    return FALSE;
+}
+
+
+/**
  * Setup signal handling.
  * Block all the signals, start a signal processor thread to handle these events.
  */
@@ -1863,7 +1919,7 @@ static GThread *setup_signal_thread ( int *fd )
     // This will use sigwaitinfo to read signals and forward them back to the main thread again.
     return g_thread_new (
                "signal_process",
-               pthread_signal_process,
+               rofi_signal_handler_process,
                (void *) fd );
 }
 
@@ -2044,58 +2100,25 @@ int main ( int argc, char *argv[] )
         int x11_fd = ConnectionNumber ( display );
         for (;; ) {
             fd_set in_fds;
-            // Create a File Description Set containing x11_fd
+            // Create a File Description Set containing x11_fd, and signal pipe
             FD_ZERO ( &in_fds );
             FD_SET ( x11_fd, &in_fds );
             FD_SET ( pfds[0], &in_fds );
 
-            // Wait for X Event or a Timer
+            // Wait for X Event or a message on signal pipe 
             if ( select ( MAX ( x11_fd, pfds[0] ) + 1, &in_fds, 0, 0, NULL ) >= 0 ) {
+                // X11
                 if ( FD_ISSET ( x11_fd, &in_fds ) ) {
-                    // X11 produced an event. Consume them.
-                    XEvent ev;
-                    while ( XPending ( display ) ) {
-                        // block and wait for something
-                        XNextEvent ( display, &ev );
-                        // If we get an event that does not belong to a window:
-                        // Ignore it.
-                        if ( ev.xany.window == None ) {
-                            continue;
-                        }
-                        // If keypress, handle it.
-                        if ( ev.type == KeyPress ) {
-                            handle_keypress ( &ev );
-                        }
-                    }
+                    main_loop_x11_event_handler();
                 }
+                // Signal Pipe
                 if ( FD_ISSET ( pfds[0], &in_fds ) ) {
                     // The signal thread send us a message. Process it.
                     char c;
                     read ( pfds[0], &c, 1 );
-                    // Reload configuration.
-                    if ( c == 'c' ) {
-                        if ( !quiet ) {
-                            fprintf ( stdout, "Reload configuration\n" );
-                        }
-                        // Release the keybindings.
-                        release_global_keybindings ();
-                        // Reload config
-                        reload_configuration ();
-                        // Grab the possibly new keybindings.
-                        grab_global_keybindings ();
-                        if ( !quiet ) {
-                            print_global_keybindings ();
-                        }
-                        XFlush ( display );
-                    }
-                    // Got message to quit.
-                    else if ( c == 'q' ) {
-                        // Break out of loop.
+                    // Process the signal in the main_loop.
+                    if(main_loop_signal_handler(c, quiet)) {
                         break;
-                    }
-                    // Got message to print info
-                    else if ( c == 'i' ) {
-                        xresource_dump ();
                     }
                 }
             }
