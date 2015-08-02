@@ -447,7 +447,9 @@ int create_pid_file ( const char *pidfile )
 void remove_pid_file ( int fd )
 {
     if ( fd >= 0 ) {
-        g_close ( fd, NULL );
+        if ( close ( fd ) ) {
+            fprintf(stderr, "Failed to close pidfile: '%s'\n", strerror(errno));
+        }
     }
 }
 
