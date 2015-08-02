@@ -192,11 +192,7 @@ int dmenu_switcher_dialog ( char **input )
 
     // By default we print the unescaped line back.
     char *format = "s";
-    // This is here for compatibility reason.
-    // Use -format 'i' instead.
-    if ( find_arg (  "-i" ) >= 0 ) {
-        format = "i";
-    }
+
     // Allow user to override the output format.
     find_arg_str ( "-format", &format );
     // Check prompt
@@ -245,6 +241,11 @@ int dmenu_switcher_dialog ( char **input )
      */
     if ( find_arg ( "-b" ) >= 0 ) {
         config.location = 6;
+    }
+    /* -i case insensitive */
+    config.case_sensitive = TRUE;
+    if ( find_arg ( "-i" ) >= 0 ) {
+        config.case_sensitive = FALSE;
     }
 
     do {
