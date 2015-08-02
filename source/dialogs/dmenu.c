@@ -238,6 +238,15 @@ int dmenu_switcher_dialog ( char **input )
         g_strfreev ( tokens );
     }
 
+
+    /**
+     * Dmenu compatibility.
+     * `-b` put on bottom.
+     */
+    if ( find_arg ( "-b" ) >= 0 ) {
+        config.location = 6;
+    }
+
     do {
         int next_pos = selected_line;
         int mretv    = menu ( list, length, input, dmenu_prompt,
