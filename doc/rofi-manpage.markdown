@@ -493,9 +493,9 @@ The following options are further explained in the theming section:
 
     Default: *dmenu*
 
-`-row` *selected line*
+`-selected-row` *selected row*
 
-    Select a certain line.
+    Select a certain row.
 
     Default: *0*
 
