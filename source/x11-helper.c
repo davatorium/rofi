@@ -139,6 +139,29 @@ int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned l
 }
 
 
+int monitor_get_dimension ( Display *display, Screen *screen, int monitor, workarea *mon )
+{
+    memset ( mon, 0, sizeof ( workarea ) );
+    mon->w = WidthOfScreen ( screen );
+    mon->h = HeightOfScreen ( screen );
+    // locate the current monitor
+    if ( XineramaIsActive ( display ) ) {
+        int                monitors;
+        XineramaScreenInfo *info = XineramaQueryScreens ( display, &monitors );
+
+        if ( info ) {
+            if ( monitor >= 0 && monitor < monitors ) {
+                mon->x = info[monitor].x_org;
+                mon->y = info[monitor].y_org;
+                mon->w = info[monitor].width;
+                mon->h = info[monitor].height;
+                return TRUE;
+            }
+            XFree ( info );
+        }
+    }
+    return FALSE;
+}
 // find the dimensions of the monitor displaying point x,y
 void monitor_dimensions ( Display *display, Screen *screen, int x, int y, workarea *mon )
 {
@@ -203,6 +226,12 @@ void monitor_active ( Display *display, workarea *mon )
     Window id;
     Atom   type;
     int    count;
+    if ( config.monitor >= 0 ) {
+        if ( monitor_get_dimension ( display, screen, config.monitor, mon ) ) {
+            return;
+        }
+        fprintf ( stderr, "Failed to find selected monitor.\n" );
+    }
     if ( window_get_prop ( display, root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id, sizeof ( Window ) )
          && type == XA_WINDOW && count > 0 ) {
         XWindowAttributes attr;

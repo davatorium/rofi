@@ -1870,7 +1870,7 @@ static void main_loop_x11_event_handler ( void )
  *
  * returns TRUE when mainloop should be stopped.
  */
-static int main_loop_signal_handler ( char command , int quiet )
+static int main_loop_signal_handler ( char command, int quiet )
 {
     if ( command == 'c' ) {
         if ( !quiet ) {
@@ -2105,11 +2105,11 @@ int main ( int argc, char *argv[] )
             FD_SET ( x11_fd, &in_fds );
             FD_SET ( pfds[0], &in_fds );
 
-            // Wait for X Event or a message on signal pipe 
+            // Wait for X Event or a message on signal pipe
             if ( select ( MAX ( x11_fd, pfds[0] ) + 1, &in_fds, 0, 0, NULL ) >= 0 ) {
                 // X11
                 if ( FD_ISSET ( x11_fd, &in_fds ) ) {
-                    main_loop_x11_event_handler();
+                    main_loop_x11_event_handler ();
                 }
                 // Signal Pipe
                 if ( FD_ISSET ( pfds[0], &in_fds ) ) {
@@ -2117,7 +2117,7 @@ int main ( int argc, char *argv[] )
                     char c;
                     read ( pfds[0], &c, 1 );
                     // Process the signal in the main_loop.
-                    if(main_loop_signal_handler(c, quiet)) {
+                    if ( main_loop_signal_handler ( c, quiet ) ) {
                         break;
                     }
                 }

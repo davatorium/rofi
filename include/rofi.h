@@ -228,6 +228,8 @@ typedef struct _Settings
     char           *combi_modi;
     /** Fuzzy match */
     unsigned int   fuzzy;
+    /** Monitors */
+    int            monitor;
 } Settings;
 
 /** Global Settings structure. */

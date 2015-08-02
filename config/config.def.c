@@ -130,5 +130,7 @@ Settings config = {
     .combi_modi        = "window,run",
     /** Fuzzy matching. */
     .fuzzy             = FALSE,
+    /** Monitor */
+    .monitor           =                                        -1,
 };
 

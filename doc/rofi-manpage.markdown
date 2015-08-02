@@ -395,6 +395,11 @@ The following options are further explained in the theming section:
 
     When one entry is left, automatically select this.
 
+`-m` *num*
+`-monitor` *num*
+
+    Select (Xinerama) monitor to display **rofi** on.
+
 ### PATTERN setting
 
 `-terminal`
