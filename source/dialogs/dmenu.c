@@ -197,7 +197,7 @@ int dmenu_switcher_dialog ( char **input )
     find_arg_str ( "-format", &format );
     // Check prompt
     find_arg_str (  "-p", &dmenu_prompt );
-    find_arg_int (  "-l", &selected_line );
+    find_arg_int (  "-row", &selected_line );
     // Urgent.
     char *str = NULL;
     find_arg_str (  "-u", &str );
@@ -234,6 +234,7 @@ int dmenu_switcher_dialog ( char **input )
         g_strfreev ( tokens );
     }
 
+    find_arg_uint (  "-l", &(config.menu_lines));
 
     /**
      * Dmenu compatibility.

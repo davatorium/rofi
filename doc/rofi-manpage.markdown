@@ -493,15 +493,23 @@ The following options are further explained in the theming section:
 
     Default: *dmenu*
 
-`-l` *selected line*
+`-row` *selected line*
 
     Select a certain line.
 
     Default: *0*
 
+`-l`  *number of lines to show*
+
+  Maximum number of lines the menu may show before scrolling.
+
+      rofi -lines 25
+
+  Default: *15*
+
 `-i`
 
-    Number mode, return the index of the selected row. (starting at 0)
+    Makes dmenu match menu entries case insensitively.
 
 `-a` *X*
 

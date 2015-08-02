@@ -871,7 +871,7 @@ Default: *dmenu*
 .IP "" 0
 .
 .P
-\fB\-l\fR \fIselected line\fR
+\fB\-row\fR \fIselected line\fR
 .
 .IP "" 4
 .
@@ -886,13 +886,32 @@ Default: *0*
 .IP "" 0
 .
 .P
+\fB\-l\fR \fInumber of lines to show\fR
+.
+.P
+Maximum number of lines the menu may show before scrolling\.
+.
+.IP "" 4
+.
+.nf
+
+  rofi \-lines 25
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Default: \fI15\fR
+.
+.P
 \fB\-i\fR
 .
 .IP "" 4
 .
 .nf
 
-Number mode, return the index of the selected row\. (starting at 0)
+Makes dmenu match menu entries case insensitively\.
 .
 .fi
 .
