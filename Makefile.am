@@ -6,6 +6,8 @@ AUTOMAKE_OPTIONS  = 1.11.3
 ##
 bin_PROGRAMS=rofi
 
+dist_bin_SCRIPTS=script/rofi-sensible-terminal
+
 LIBS=\
     @xft_LIBS@\
     @x11_LIBS@\

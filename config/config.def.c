@@ -78,7 +78,7 @@ Settings config = {
     .menu_hlbg_urgent = "#DC322F",
     .menu_hlbg_active = "#268BD2",
     /** Terminal to use. (for ssh and open in terminal) */
-    .terminal_emulator = "x-terminal-emulator",
+    .terminal_emulator = "rofi-sensible-terminal",
     .ssh_client        = "ssh",
     /** Command when executing ssh. */
     .ssh_command       = "{terminal} -e {ssh-client} {host}",
