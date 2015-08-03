@@ -15,4 +15,4 @@ for terminal in $TERMINAL xdg-terminal x-terminal-emulator termite urxvt rxvt te
     fi
 done
 
-i3-nagbar -m 'i3-sensible-terminal could not find a terminal emulator. Please install one.'
+rofi -e "Failed to find a suitable terminal"
