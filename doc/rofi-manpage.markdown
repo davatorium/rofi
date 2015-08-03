@@ -409,7 +409,7 @@ The following options are further explained in the theming section:
       rofi -terminal xterm
 
   Pattern: *{terminal}*
-  Default: *x-terminal-emulator*
+  Default: *xdg-terminal*
 
 `-ssh-client` *client*
 
