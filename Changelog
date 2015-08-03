@@ -4,6 +4,9 @@
 		- Fix issue with mouse interaction needing keyboard press to complete.
 		- Fix -no-custom still allows escape to quit.
 		- Fix compiler warnings.
+		- Fix dmenu mode. (#200) 
+		- Break CMD AI to have dmenu compatibility.
+		- Fix processing of signals.
 
 0.15.7:
 	Bug fixes:
