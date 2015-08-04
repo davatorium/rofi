@@ -318,6 +318,14 @@ The following options are further explained in the theming section:
 
     Specify the colors used in a row per state (normal, active, urgent).
 
+`-line-margin`
+
+    Set the spacing between the rows.
+
+    Default: *3*
+    Min:     *3*
+    Max:     *50*
+
 ### Layout
 
 `-lines`

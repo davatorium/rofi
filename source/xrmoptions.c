@@ -126,7 +126,8 @@ static XrmOption xrmOptions[] = {
     { xrm_Boolean, "fuzzy",                { .num  = &config.fuzzy                   }, NULL },
     { xrm_Number,  "monitor",              { .snum = &config.monitor                 }, NULL },
     /* Alias for dmenu compatibility. */
-    { xrm_Number,  "m",                    { .snum = &config.monitor                 }, NULL }
+    { xrm_SNumber, "m",                    { .snum = &config.monitor                 }, NULL },
+    { xrm_Number,  "line-margin",          { .num  = &config.line_margin             }, NULL }
 };
 
 // Dynamic options.

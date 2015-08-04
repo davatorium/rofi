@@ -230,6 +230,8 @@ typedef struct _Settings
     unsigned int   fuzzy;
     /** Monitors */
     int            monitor;
+    /** Line margin */
+    unsigned int   line_margin;
 } Settings;
 
 /** Global Settings structure. */

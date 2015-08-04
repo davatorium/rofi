@@ -57,7 +57,6 @@
 #include "dialogs/window.h"
 #include "dialogs/combi.h"
 
-#define LINE_MARGIN    3
 
 
 // TEMP
@@ -455,7 +454,7 @@ static void menu_calculate_window_and_element_width ( MenuState *state, workarea
     if ( state->columns > 0 ) {
         state->element_width = state->w - ( 2 * ( config.padding ) );
         // Divide by the # columns
-        state->element_width = ( state->element_width - ( state->columns - 1 ) * LINE_MARGIN ) / state->columns;
+        state->element_width = ( state->element_width - ( state->columns - 1 ) * config.line_margin ) / state->columns;
     }
 }
 
@@ -795,7 +794,7 @@ static void menu_draw ( MenuState *state )
     // Element width.
     unsigned int element_width = state->w - ( 2 * ( config.padding ) );
     if ( columns > 0 ) {
-        element_width = ( element_width - ( columns - 1 ) * LINE_MARGIN ) / columns;
+        element_width = ( element_width - ( columns - 1 ) * config.line_margin ) / columns;
     }
 
     int          element_height = state->line_height * config.element_height;
@@ -811,8 +810,8 @@ static void menu_draw ( MenuState *state )
     if ( state->rchanged ) {
         // Move, resize visible boxes and show them.
         for ( i = 0; i < max_elements; i++ ) {
-            unsigned int ex = ( ( i ) / state->max_rows ) * ( element_width + LINE_MARGIN );
-            unsigned int ey = ( ( i ) % state->max_rows ) * element_height + LINE_MARGIN;
+            unsigned int ex = ( ( i ) / state->max_rows ) * ( element_width + config.line_margin );
+            unsigned int ey = ( ( i ) % state->max_rows ) * ( element_height + config.line_margin ) + config.line_margin;
             // Move it around.
             textbox_moveresize ( state->boxes[i],
                                  ex + x_offset, ey + y_offset,
@@ -860,23 +859,23 @@ static void menu_update ( MenuState *state )
                           state->arrowbox_bottom );
     // Why do we need the special -1?
     XDrawLine ( display, main_window, gc, ( config.padding ),
-                state->line_height + ( config.padding ) + ( LINE_MARGIN  ) / 2,
+                state->line_height + ( config.padding ) + ( config.line_margin  ) / 2,
                 state->w - ( ( config.padding ) ) - 1,
-                state->line_height + ( config.padding ) + ( LINE_MARGIN  ) / 2 );
+                state->line_height + ( config.padding ) + ( config.line_margin  ) / 2 );
     if ( state->message_tb ) {
         XDrawLine ( display, main_window, gc,
                     ( config.padding ),
-                    state->top_offset + ( LINE_MARGIN  ) / 2,
+                    state->top_offset + ( config.line_margin  ) / 2,
                     state->w - ( ( config.padding ) ) - 1,
-                    state->top_offset + ( LINE_MARGIN  ) / 2 );
+                    state->top_offset + ( config.line_margin  ) / 2 );
     }
 
     if ( config.sidebar_mode == TRUE ) {
         XDrawLine ( display, main_window, gc,
                     ( config.padding ),
-                    state->h - state->line_height - ( config.padding ) - LINE_MARGIN,
+                    state->h - state->line_height - ( config.padding ) - config.line_margin / 2,
                     state->w - ( ( config.padding ) ) - 1,
-                    state->h - state->line_height - ( config.padding ) - LINE_MARGIN );
+                    state->h - state->line_height - ( config.padding ) - config.line_margin / 2 );
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
             textbox_draw ( switchers[j]->tb );
         }
@@ -973,7 +972,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     // Height of a row.
     if ( config.menu_lines == 0 ) {
         // Autosize it.
-        int h = mon.h - config.padding * 2 - LINE_MARGIN - config.menu_bw * 2;
+        int h = mon.h - config.padding * 2 - config.line_margin - config.menu_bw * 2;
         int r = ( h ) / ( state.line_height * config.element_height ) - 1 - config.sidebar_mode;
         state.menu_lines = r;
     }
@@ -1054,10 +1053,10 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                              "↓" );
     textbox_move ( state.arrowbox_top,
                    state.w - config.padding - state.arrowbox_top->w,
-                   state.top_offset + LINE_MARGIN );
+                   state.top_offset + config.line_margin );
     textbox_move ( state.arrowbox_bottom,
                    state.w - config.padding - state.arrowbox_bottom->w,
-                   state.top_offset + ( state.max_rows - 1 ) * element_height + LINE_MARGIN );
+                   state.top_offset + ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + config.line_margin );
 
     // filtered list
     state.line_map = g_malloc0_n ( state.num_lines, sizeof ( int ) );
@@ -1067,11 +1066,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
-    state.h = state.top_offset + element_height * state.max_rows + ( config.padding ) + LINE_MARGIN;
+    state.h = state.top_offset + ( element_height + config.line_margin ) * state.max_rows + ( config.padding ) + config.line_margin;
 
     // Add entry
     if ( config.sidebar_mode == TRUE ) {
-        state.h += state.line_height + LINE_MARGIN * 2;
+        state.h += state.line_height + config.line_margin * 0;
     }
 
     // Sidebar mode.
@@ -1083,10 +1082,10 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     calculate_window_position ( &state, &mon );
 
     if ( config.sidebar_mode == TRUE ) {
-        int width = ( state.w - ( 2 * ( config.padding ) + ( num_switchers - 1 ) * LINE_MARGIN ) ) / num_switchers;
+        int width = ( state.w - ( 2 * ( config.padding ) + ( num_switchers - 1 ) * config.line_margin ) ) / num_switchers;
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
             switchers[j]->tb = textbox_create ( main_window, &vinfo, map, TB_CENTER,
-                                                config.padding + j * ( width + LINE_MARGIN ),
+                                                config.padding + j * ( width + config.line_margin ),
                                                 state.h - state.line_height - config.padding,
                                                 width, state.line_height, ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, switchers[j]->name );
             textbox_show ( switchers[j]->tb );

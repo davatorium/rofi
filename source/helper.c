@@ -448,7 +448,7 @@ void remove_pid_file ( int fd )
 {
     if ( fd >= 0 ) {
         if ( close ( fd ) ) {
-            fprintf(stderr, "Failed to close pidfile: '%s'\n", strerror(errno));
+            fprintf ( stderr, "Failed to close pidfile: '%s'\n", strerror ( errno ) );
         }
     }
 }
@@ -485,6 +485,12 @@ void config_sanity_check (  )
                                  config.location, WL_CENTER, WL_WEST );
         config.location = WL_CENTER;
         found_error     = 1;
+    }
+    if ( !( config.line_margin >= 3 && config.line_margin <= 50 ) ) {
+        g_string_append_printf ( msg, "\t<b>config.line_margin</b>=%d is invalid. Value should be between %d and %d.\n",
+                                 config.line_margin, 3, 50 );
+        config.line_margin = 3;
+        found_error        = 1;
     }
     if ( found_error ) {
         g_string_append ( msg, "Please update your configuration." );

@@ -234,7 +234,7 @@ int dmenu_switcher_dialog ( char **input )
         g_strfreev ( tokens );
     }
 
-    find_arg_uint (  "-l", &(config.menu_lines));
+    find_arg_uint (  "-l", &( config.menu_lines ) );
 
     /**
      * Dmenu compatibility.
