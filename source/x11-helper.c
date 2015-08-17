@@ -241,6 +241,20 @@ void monitor_active ( Display *display, workarea *mon )
                                          -attr.border_width,
                                          -attr.border_width,
                                          &x, &y, &junkwin ) == True ) {
+                if ( config.monitor == -2 ) {
+                    // place the menu above the window
+                    // if some window is focused, place menu above window, else fall
+                    // back to selected monitor.
+                    mon->x = x;
+                    mon->y = y;
+                    mon->w = attr.width;
+                    mon->h = attr.height;
+                    mon->t = attr.border_width;
+                    mon->b = attr.border_width;
+                    mon->l = attr.border_width;
+                    mon->r = attr.border_width;
+                    return;
+                }
                 monitor_dimensions ( display, screen, x, y, mon );
                 return;
             }

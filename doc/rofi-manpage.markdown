@@ -406,7 +406,9 @@ The following options are further explained in the theming section:
 `-m` *num*
 `-monitor` *num*
 
-    Select (Xinerama) monitor to display **rofi** on.
+    Select (Xinerama) monitor to display **rofi** on. The special number -1 denotes the currently focused monitor, the number -2 denotes the currently focused window (i.e. rofi will be displayed on top of the focused window).
+
+    Default: *-1*
 
 ### PATTERN setting
 
