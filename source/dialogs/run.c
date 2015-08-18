@@ -282,8 +282,9 @@ static void run_mode_init ( Switcher *sw )
     }
 }
 
-static char ** run_mode_get_data ( unsigned int *length, Switcher *sw )
+static char ** run_mode_get_data ( unsigned int *length, char *input, Switcher *sw )
 {
+    (void) input;
     RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
     if ( rmpd->cmd_list == NULL ) {
         rmpd->cmd_list_length = 0;

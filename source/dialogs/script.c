@@ -109,10 +109,14 @@ static void script_mode_init ( Switcher *sw )
         sw->private_data = (void *) pd;
     }
 }
-static char ** script_mode_get_data ( unsigned int *length, Switcher *sw )
+static char ** script_mode_get_data ( unsigned int *length, char *input, Switcher *sw )
 {
     ScriptModePrivateData *rmpd = (ScriptModePrivateData *) sw->private_data;
-    if ( rmpd->cmd_list == NULL ) {
+    if (input != NULL) {
+        g_strfreev ( rmpd->cmd_list );
+        rmpd->cmd_list_length = 0;
+        rmpd->cmd_list = execute_executor ( sw, input, &rmpd->cmd_list_length );
+    } else if ( rmpd->cmd_list == NULL ) {
         rmpd->cmd_list_length = 0;
         rmpd->cmd_list        = get_script_output ( (const char *) sw->ed, &( rmpd->cmd_list_length ) );
     }
@@ -178,6 +182,7 @@ Switcher *script_switcher_parse_setup ( const char *str )
     char         *endp  = NULL;
     char         *parse = g_strdup ( str );
     unsigned int index  = 0;
+    char         *opts  = NULL;
     for ( char *token = strtok_r ( parse, ":", &endp ); token != NULL; token = strtok_r ( NULL, ":", &endp ) ) {
         if ( index == 0 ) {
             g_strlcpy ( sw->name, token, 32 );
@@ -185,7 +190,21 @@ Switcher *script_switcher_parse_setup ( const char *str )
         else if ( index == 1 ) {
             sw->ed = (void *) g_strdup ( token );
         }
+        else if ( index == 2 ) {
+            opts = token ;
+        }
         index++;
+    }
+    char continous = 0;
+    if (index == 3) {
+        if (opts != 0 && opts[0] == 'c') {
+            continous = 1;
+            index --;
+        } else {
+            fprintf ( stderr, "The script command takes only one option <name>:<script>:c for _c_ontinous.\n" );
+            script_switcher_free ( sw );
+            return NULL;
+        }
     }
     g_free ( parse );
     if ( index == 2 ) {
@@ -196,7 +215,13 @@ Switcher *script_switcher_parse_setup ( const char *str )
         sw->get_data    = script_mode_get_data;
         sw->result      = script_mode_result;
         sw->destroy     = script_mode_destroy;
-        sw->token_match = token_match;
+        // if we are in continous mode, we call the script for every
+        // iteration
+        if (!continous) {
+            sw->token_match = token_match;
+        } else {
+            sw->token_match = NULL;
+        }
         sw->mgrv        = mgrv;
 
         return sw;

@@ -350,8 +350,9 @@ static void window_mode_init ( Switcher *sw )
     }
 }
 
-static char ** window_mode_get_data ( unsigned int *length, Switcher *sw )
+static char ** window_mode_get_data ( unsigned int *length, char *input, Switcher *sw )
 {
+    (void) input;
     SwitcherModePrivateData *pd = (SwitcherModePrivateData *) sw->private_data;
     if ( !pd->init ) {
         Screen *screen = DefaultScreenOfDisplay ( display );

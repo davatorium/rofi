@@ -723,7 +723,9 @@ static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, v
 
         // input changed
         for ( unsigned int i = 0; i < state->num_lines; i++ ) {
-            int match = mmc ( tokens, lines[i], case_sensitive, i, mmc_data );
+            int match = 1;
+            if (mmc)
+                match = mmc ( tokens, lines[i], case_sensitive, i, mmc_data );
 
             // If each token was matched, add it to list.
             if ( match ) {
@@ -914,7 +916,9 @@ static void menu_paste ( MenuState *state, XSelectionEvent *xse )
 
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt,
                   menu_match_cb mmc, void *mmc_data, int *selected_line, int sorting,
-                  get_display_value mgrv, void *mgrv_data, int *next_pos, const char *message )
+                  get_display_value mgrv, void *mgrv_data,
+                  get_data_cb get_data, void* get_data_data,
+                  int *next_pos, const char *message )
 {
     int          shift = FALSE;
     MenuState    state = {
@@ -1129,6 +1133,20 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         // Otherwise continue like we had an XEvent (and we will block on fetching this event).
         if ( ( state.refilter && state.num_lines > config.lazy_filter_limit ) ) {
             mle = wait_for_xevent_or_timeout ( display, x11_fd );
+        }
+        // If our backend does not expose a matching callback, we
+        // execute the get_data() for every input stroke. For the
+        // script dialog, the program is re-executed in this case.
+        if ( !mmc && state.refilter) {
+            lines = get_data(&state.num_lines, state.text->text, get_data_data);
+            state.lines = lines;
+            // filtered list
+            g_free(state.line_map);
+            state.line_map = g_malloc0_n ( state.num_lines, sizeof ( int ) );
+            if ( sorting ) {
+                g_free(state.distance);
+                state.distance = (int *) g_malloc0_n ( state.num_lines, sizeof ( int ) );
+            }
         }
         // If not in lazy mode, refilter.
         if ( state.num_lines <= config.lazy_filter_limit ) {
@@ -2146,15 +2164,16 @@ SwitcherMode switcher_run ( char **input, Switcher *sw )
     unsigned int cmd_list_length = 0;
     char         **cmd_list      = NULL;
 
-    cmd_list = sw->get_data ( &cmd_list_length, sw );
+    cmd_list = sw->get_data ( &cmd_list_length, NULL, sw );
 
     int mretv = menu ( cmd_list, cmd_list_length,
                        input, prompt,
                        sw->token_match, sw,
                        &selected_line,
                        config.levenshtein_sort,
-                       sw->mgrv,
-                       sw, NULL, NULL );
+                       sw->mgrv, sw,
+                       sw->get_data, sw,
+                       NULL, NULL );
 
     SwitcherMode retv = sw->result ( mretv, input, selected_line, sw );
 

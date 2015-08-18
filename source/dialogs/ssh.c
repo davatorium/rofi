@@ -283,8 +283,9 @@ static void ssh_mode_init ( Switcher *sw )
     }
 }
 
-static char ** ssh_mode_get_data ( unsigned int *length, Switcher *sw )
+static char ** ssh_mode_get_data ( unsigned int *length, char *input, Switcher *sw )
 {
+    (void) input;
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
     if ( rmpd->cmd_list == NULL ) {
         rmpd->cmd_list_length = 0;
