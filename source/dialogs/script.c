@@ -40,7 +40,11 @@
 #include "helper.h"
 
 
-
+typedef struct _ScriptModeConfig
+{
+    char * scriptname;
+    unsigned char labled;
+} ScriptModeConfig;
 
 
 static char **get_script_output ( const char *command, unsigned int *length )
@@ -76,9 +80,10 @@ static char **get_script_output ( const char *command, unsigned int *length )
 static char **execute_executor ( Switcher *sw, const char *result, unsigned int *length )
 {
     char **retv = NULL;
+    ScriptModeConfig *conf = sw->ed;
 
     char *arg     = g_shell_quote ( result );
-    char *command = g_strdup_printf ( "%s %s", (const char *) sw->ed, arg );
+    char *command = g_strdup_printf ( "%s %s", (const char *) conf->scriptname, arg );
     retv = get_script_output ( command, length );
     g_free ( command );
     g_free ( arg );
@@ -90,6 +95,8 @@ static void script_switcher_free ( Switcher *sw )
     if ( sw == NULL ) {
         return;
     }
+    ScriptModeConfig *conf = sw->ed;
+    g_free ( conf->scriptname );
     g_free ( sw->ed );
     g_free ( sw );
 }
@@ -102,6 +109,7 @@ typedef struct _ScriptModePrivateData
 } ScriptModePrivateData;
 
 
+
 static void script_mode_init ( Switcher *sw )
 {
     if ( sw->private_data == NULL ) {
@@ -112,13 +120,14 @@ static void script_mode_init ( Switcher *sw )
 static char ** script_mode_get_data ( unsigned int *length, char *input, Switcher *sw )
 {
     ScriptModePrivateData *rmpd = (ScriptModePrivateData *) sw->private_data;
+    ScriptModeConfig *conf = sw->ed;
     if (input != NULL) {
         g_strfreev ( rmpd->cmd_list );
         rmpd->cmd_list_length = 0;
         rmpd->cmd_list = execute_executor ( sw, input, &rmpd->cmd_list_length );
     } else if ( rmpd->cmd_list == NULL ) {
         rmpd->cmd_list_length = 0;
-        rmpd->cmd_list        = get_script_output ( (const char *) sw->ed, &( rmpd->cmd_list_length ) );
+        rmpd->cmd_list        = get_script_output ( (const char *) conf->scriptname, &( rmpd->cmd_list_length ) );
     }
     *length = rmpd->cmd_list_length;
     return rmpd->cmd_list;
@@ -172,13 +181,21 @@ static void script_mode_destroy ( Switcher *sw )
 }
 static const char *mgrv ( unsigned int selected_line, void *sw, G_GNUC_UNUSED int *state )
 {
+    ScriptModeConfig *conf = ((Switcher *)sw)->ed;
     ScriptModePrivateData *rmpd = ( (Switcher *) sw )->private_data;
+    if (conf->labled) {
+        char *ret = strstr(rmpd->cmd_list[selected_line], "\t");
+        if (ret != NULL)
+            return ret+1;
+    }
     return rmpd->cmd_list[selected_line];
 }
 
 Switcher *script_switcher_parse_setup ( const char *str )
 {
     Switcher     *sw    = g_malloc0 ( sizeof ( *sw ) );
+    ScriptModeConfig *conf = g_malloc0 ( sizeof ( *conf ) );
+    sw->ed = conf;
     char         *endp  = NULL;
     char         *parse = g_strdup ( str );
     unsigned int index  = 0;
@@ -188,7 +205,7 @@ Switcher *script_switcher_parse_setup ( const char *str )
             g_strlcpy ( sw->name, token, 32 );
         }
         else if ( index == 1 ) {
-            sw->ed = (void *) g_strdup ( token );
+            conf->scriptname = (void *) g_strdup ( token );
         }
         else if ( index == 2 ) {
             opts = token ;
@@ -197,14 +214,27 @@ Switcher *script_switcher_parse_setup ( const char *str )
     }
     char continous = 0;
     if (index == 3) {
-        if (opts != 0 && opts[0] == 'c') {
-            continous = 1;
-            index --;
-        } else {
-            fprintf ( stderr, "The script command takes only one option <name>:<script>:c for _c_ontinous.\n" );
-            script_switcher_free ( sw );
-            return NULL;
+        if (opts == NULL) {
+            goto fail;
         }
+
+        int opt_count = strlen(opts);
+
+        for (int i = 0; i < opt_count; i++) {
+            if (opts[i] == 'c') {
+                continous = 1;
+            } else if (opts[i] == 'l') {
+                conf->labled = TRUE;
+            } else {
+                opt_count = -1;
+                break;
+            }
+        }
+
+        if (opt_count == -1) {
+            goto fail;
+        }
+        index --;
     }
     g_free ( parse );
     if ( index == 2 ) {
@@ -226,8 +256,12 @@ Switcher *script_switcher_parse_setup ( const char *str )
 
         return sw;
     }
-    fprintf ( stderr, "The script command '%s' has %u options, but needs 2: <name>:<script>.\n",
-              str, index );
+fail:
+    fprintf ( stderr,
+              "The script command takes only one option <name>:<script>:<opts>\n"
+              " c for _c_ontinous \n"
+              " l for _l_abeled   (\\t as separator)\n"
+        );
     script_switcher_free ( sw );
     return NULL;
 }
