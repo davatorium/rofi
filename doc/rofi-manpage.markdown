@@ -394,10 +394,16 @@ The following options are further explained in the theming section:
 
    The number of entries required for **rofi** to go into lazy filter mode.
    In lazy filter mode, it won't re-filter the list on each keypress, but only after **rofi** been
-   idle for 250ms. Experiments shows that the default (5000 lines) works well, set to 0 to always
+   idle for 200ms (see lazy-filter-timeout). Experiments shows that the default (5000 lines) works well, set to 0 to always
    enable.
 
    Default: *5000*
+
+`-lazy-filter-timeout`
+
+  Number of miliseconds for the lazy filter to react on input.
+
+  Default: *200*
 
 `-auto-select`
 

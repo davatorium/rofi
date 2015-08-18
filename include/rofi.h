@@ -224,6 +224,8 @@ typedef struct _Settings
     unsigned int   sidebar_mode;
     /** Lazy filter limit. */
     unsigned int   lazy_filter_limit;
+    /** Timeout for the refiltering. */
+    unsigned int   lazy_filter_timeout;
     /** Auto select. */
     unsigned int   auto_select;
     /** Hosts file parsing */

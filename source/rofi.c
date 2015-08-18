@@ -132,9 +132,9 @@ static inline MainLoopEvent wait_for_xevent_or_timeout ( Display *display, int x
     FD_ZERO ( &in_fds );
     FD_SET ( x11_fd, &in_fds );
 
-    // Set our timer.  200ms is a decent delay
-    tv.tv_usec = 200000;
-    tv.tv_sec  = 0;
+    // Set our timer.  The default is 200ms y
+    tv.tv_usec = (config.lazy_filter_timeout * 1000) % (1000 * 1000);
+    tv.tv_sec  = (config.lazy_filter_timeout * 1000) / (1000 * 1000);
     // Wait for X Event or a Timer
     if ( select ( x11_fd + 1, &in_fds, 0, 0, &tv ) == 0 ) {
         return ML_TIMEOUT;

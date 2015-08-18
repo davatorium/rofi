@@ -122,6 +122,8 @@ Settings config = {
     .sidebar_mode      = FALSE,
     /** Lazy mode setting */
     .lazy_filter_limit =                                      5000,
+    /** filter timeout in ms */
+    .lazy_filter_timeout  =                                    200,
     /** auto select */
     .auto_select       = FALSE,
     /** Parse /etc/hosts file in ssh view. */
