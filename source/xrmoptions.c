@@ -119,6 +119,7 @@ static XrmOption xrmOptions[] = {
     { xrm_Boolean, "case-sensitive",       { .num  = &config.case_sensitive          }, NULL },
     { xrm_Boolean, "sidebar-mode",         { .num  = &config.sidebar_mode            }, NULL },
     { xrm_Number,  "lazy-filter-limit",    { .num  = &config.lazy_filter_limit       }, NULL },
+    { xrm_Number,  "lazi-filter-timeout",  { .num  = &config.lazy_filter_timeout     }, NULL },
     { xrm_SNumber, "eh",                   { .snum = &config.element_height          }, NULL },
     { xrm_Boolean, "auto-select",          { .num  = &config.auto_select             }, NULL },
     { xrm_Boolean, "parse-hosts",          { .num  = &config.parse_hosts             }, NULL },

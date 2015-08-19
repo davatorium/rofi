@@ -108,14 +108,14 @@ static void combi_mode_init ( Switcher *sw )
         }
     }
 }
-static char ** combi_mode_get_data ( unsigned int *length, Switcher *sw )
+static char ** combi_mode_get_data ( unsigned int *length, char *input, Switcher *sw )
 {
     CombiModePrivateData *pd = sw->private_data;
     if ( pd->cmd_list == NULL ) {
         pd->cmd_list_length = 0;
         for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
             unsigned int length = 0;
-            pd->switchers[i]->get_data ( &length, pd->switchers[i] );
+            pd->switchers[i]->get_data ( &length, input, pd->switchers[i] );
             pd->starts[i]        = pd->cmd_list_length;
             pd->lengths[i]       = length;
             pd->cmd_list_length += length;
@@ -124,7 +124,7 @@ static char ** combi_mode_get_data ( unsigned int *length, Switcher *sw )
         pd->cmd_list = g_malloc0 ( ( pd->cmd_list_length + 1 ) * sizeof ( char* ) );
         for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
             unsigned int length = 0;
-            char         **retv = pd->switchers[i]->get_data ( &length, pd->switchers[i] );
+            char         **retv = pd->switchers[i]->get_data ( &length, input, pd->switchers[i] );
             for ( unsigned int j = 0; j < length; j++ ) {
                 pd->cmd_list[j + pd->starts[i]] = retv[j];
             }

@@ -78,6 +78,8 @@ typedef enum
  */
 typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensitive, unsigned int index, Switcher *data );
 
+
+typedef char ** ( *get_data_cb )( unsigned int *length, char *input, Switcher *data );
 /**
  * @param lines An array of strings to display.
  * @param num_lines Length of the array with strings to display.
@@ -95,7 +97,9 @@ typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensi
  */
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt,
                   menu_match_cb mmc, void *mmc_data, int *selected_line, int sorting,
-                  get_display_value mgrv, void *mgrv_data, int *next_pos, const char *message ) __attribute__ ( ( nonnull ( 1, 3,
+                  get_display_value mgrv, void *mgrv_data,
+                  get_data_cb get_data, void *get_data_data,
+                  int *next_pos, const char *message ) __attribute__ ( ( nonnull ( 1, 3,
                                                                                                                             4, 7 ) ) );
 /**
  * @param sig  The caught signal
@@ -220,6 +224,8 @@ typedef struct _Settings
     unsigned int   sidebar_mode;
     /** Lazy filter limit. */
     unsigned int   lazy_filter_limit;
+    /** Timeout for the refiltering. */
+    unsigned int   lazy_filter_timeout;
     /** Auto select. */
     unsigned int   auto_select;
     /** Hosts file parsing */
@@ -267,7 +273,7 @@ struct _Switcher
      * A switcher normally consists of the following parts:
      */
     void              ( *init )( struct _Switcher *sw );
-    char              ** ( *get_data )( unsigned int *length, struct _Switcher *pd );
+    get_data_cb       get_data;
     int               ( *match )( char **tokens, const char *input, int case_sensitive, int index, struct _Switcher *data );
     SwitcherMode      ( *result )( int menu_retv, char **input, unsigned int selected_line, struct _Switcher *pd );
     void              ( *destroy )( struct _Switcher *pd );
