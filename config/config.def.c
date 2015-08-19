@@ -81,13 +81,13 @@ Settings config = {
     .terminal_emulator = "rofi-sensible-terminal",
     .ssh_client        = "ssh",
     /** Command when executing ssh. */
-    .ssh_command       = "{terminal} -e {ssh-client} {host}",
+    .ssh_command       = "{terminal} -e '{ssh-client} {host}'",
     /** Command when running */
     .run_command       = "{cmd}",
     /** Command used to list executable commands. empty -> internal */
     .run_list_command  = "",
     /** Command executed when running application in terminal */
-    .run_shell_command = "{terminal} -e {cmd}",
+    .run_shell_command = "{terminal} -e '{cmd}'",
     /**
      * Location of the window.
      * Enumeration indicating location or gravity of window.
