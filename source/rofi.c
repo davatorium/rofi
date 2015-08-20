@@ -1502,17 +1502,15 @@ static void teardown ( int pfd )
  */
 static int run_dmenu ()
 {
-    char *input    = NULL;
-    int  ret_state = EXIT_FAILURE;
-    int  pfd       = setup ();
+    int ret_state = EXIT_FAILURE;
+    int pfd       = setup ();
     if ( pfd < 0 ) {
         return ret_state;
     }
 
     // Dmenu modi has a return state.
-    ret_state = dmenu_switcher_dialog ( &input );
+    ret_state = dmenu_switcher_dialog ();
 
-    g_free ( input );
     teardown ( pfd );
     return ret_state;
 }
@@ -1524,7 +1522,7 @@ static void run_switcher ( SwitcherMode mode )
         return;
     }
     // Otherwise check if requested mode is enabled.
-    char *input = NULL;
+    char *input = g_strdup ( config.filter );
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
         switchers[i]->init ( switchers[i] );
     }

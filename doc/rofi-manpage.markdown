@@ -29,7 +29,8 @@
 [ -display *display* ]
 [ -bc *color* ]
 [ -bw *width* ]
-[ -dmenu [ -p *prompt* ] [ -sep *separator* ] [ -l *selected line* ] [ -mesg ] [ -filter ] [ -select ] ]
+[ -dmenu [ -p *prompt* ] [ -sep *separator* ] [ -l *selected line* ] [ -mesg ] [ -select ] ]
+[ -filter *filter* ]
 [ -ssh-client *client* ]
 [ -ssh-command *command* ]
 [ -disable-history ]
@@ -193,9 +194,13 @@ Below is a list of the most important options:
 
   Do not print any message when starting in daemon mode.
 
-`-fuzzy` 
+`-fuzzy`
 
     Enable experimental fuzzy matching.
+
+`-filter` *filter*
+
+    Preset user filter to *filter* in the entry box and pre-filter the list.
 
 
 ### Theming
@@ -559,10 +564,6 @@ The following options are further explained in the theming section:
      * 'F' quoted filter string (user input).
 
     Default: 's'
-
-`-filter` *filter*
-
-    Preset user filter to *filter* in the entry box and pre-filter the list.
 
 `-select` *string*
 

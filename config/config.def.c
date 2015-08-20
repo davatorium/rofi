@@ -133,5 +133,6 @@ Settings config = {
     /** Monitor */
     .monitor     =                                        -1,
     .line_margin =                                         3,
+    .filter      = NULL,
 };
 

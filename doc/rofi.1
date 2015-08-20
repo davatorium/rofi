@@ -7,7 +7,7 @@
 \fBrofi\fR \- A window switcher, run launcher, ssh dialog and dmenu replacement
 .
 .SH "SYNOPSIS"
-\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-fg \fIcolor\fR ] [ \-fg\-urgent \fIcolor\fR ] [ \-fg\-active \fIcolor\fR ] [ \-bg\-urgent \fIcolor\fR ] [ \-bg\-active \fIcolor\fR ] [ \-bg \fIcolor\fR ] [ \-bgalt \fIcolor\fR ] [ \-hlfg \fIcolor\fR ] [ \-hlbg \fIcolor\fR ] [ \-key\-\fBmode\fR \fIcombo\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-opacity \fIopacity%\fR ] [ \-display \fIdisplay\fR ] [ \-bc \fIcolor\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-filter ] [ \-select ] ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-lazy\-filter\-limit \fIlimit\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help] [ \-dump\-xresources ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-quiet ]
+\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-fg \fIcolor\fR ] [ \-fg\-urgent \fIcolor\fR ] [ \-fg\-active \fIcolor\fR ] [ \-bg\-urgent \fIcolor\fR ] [ \-bg\-active \fIcolor\fR ] [ \-bg \fIcolor\fR ] [ \-bgalt \fIcolor\fR ] [ \-hlfg \fIcolor\fR ] [ \-hlbg \fIcolor\fR ] [ \-key\-\fBmode\fR \fIcombo\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-opacity \fIopacity%\fR ] [ \-display \fIdisplay\fR ] [ \-bc \fIcolor\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-select ] ] [ \-filter \fIfilter\fR ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-lazy\-filter\-limit \fIlimit\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help] [ \-dump\-xresources ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-quiet ]
 .
 .SH "DESCRIPTION"
 \fBrofi\fR is an X11 popup window switcher, run dialog, dmenu replacement and more\. It focuses on being fast to use and have minimal distraction\. It supports keyboard and mouse navigation, type to filter, tokenized search and more\.
@@ -292,6 +292,19 @@ Do not print any message when starting in daemon mode\.
 .nf
 
 Enable experimental fuzzy matching\.
+.
+.fi
+.
+.IP "" 0
+.
+.P
+\fB\-filter\fR \fIfilter\fR
+.
+.IP "" 4
+.
+.nf
+
+Preset user filter to *filter* in the entry box and pre\-filter the list\.
 .
 .fi
 .
@@ -741,11 +754,11 @@ When one entry is left, automatically select this\.
 .
 .IP "" 4
 .
-.P
-Select (Xinerama) monitor to display **rofi** on\. The special number -1 denotes the currently focused monitor, the number -2 denotes the currently focused window (i.e. rofi will be displayed on top of the focused window).
-.
-.P
-Default: \fI{cmd}\fR
+.nf
+
+Select (Xinerama) monitor to display **rofi** on\. The special number \-1 denotes the currently focused monitor, the number \-2 denotes the currently focused window (i\.e\. rofi will be displayed on top of the focused window)\.
+
+Default: *\-1*
 .
 .fi
 .
@@ -1015,19 +1028,6 @@ Allows the output of dmenu to be customized (N is total number of input entries)
  * \'F\' quoted filter string (user input)\.
 
 Default: \'s\'
-.
-.fi
-.
-.IP "" 0
-.
-.P
-\fB\-filter\fR \fIfilter\fR
-.
-.IP "" 4
-.
-.nf
-
-Preset user filter to *filter* in the entry box and pre\-filter the list\.
 .
 .fi
 .

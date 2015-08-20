@@ -232,6 +232,8 @@ typedef struct _Settings
     int            monitor;
     /** Line margin */
     unsigned int   line_margin;
+    /** filter */
+    char           *filter;
 } Settings;
 
 /** Global Settings structure. */

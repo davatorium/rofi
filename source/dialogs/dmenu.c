@@ -178,8 +178,9 @@ static void dmenu_output_formatted_line ( const char *format, const char *string
     fflush ( stdout );
 }
 
-int dmenu_switcher_dialog ( char **input )
+int dmenu_switcher_dialog ( void )
 {
+    char *input        = NULL;
     char *dmenu_prompt = "dmenu ";
     int  selected_line = -1;
     int  retv          = FALSE;
@@ -218,7 +219,8 @@ int dmenu_switcher_dialog ( char **input )
             return TRUE;
         }
     }
-    find_arg_str_alloc ( "-filter", input );
+    /* copy filter string */
+    input = g_strdup ( config.filter );
 
     char *select = NULL;
     find_arg_str ( "-select", &select );
@@ -251,7 +253,7 @@ int dmenu_switcher_dialog ( char **input )
 
     do {
         int next_pos = selected_line;
-        int mretv    = menu ( list, length, input, dmenu_prompt,
+        int mretv    = menu ( list, length, &input, dmenu_prompt,
                               token_match, NULL, &selected_line, config.levenshtein_sort, get_display_data, list, &next_pos, message );
         // Special behavior.
         // TODO clean this up!
@@ -261,7 +263,7 @@ int dmenu_switcher_dialog ( char **input )
              */
             restart = 1;
             if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && list[selected_line] != NULL ) {
-                dmenu_output_formatted_line ( format, list[selected_line], selected_line, *input );
+                dmenu_output_formatted_line ( format, list[selected_line], selected_line, input );
                 retv = TRUE;
                 if ( ( mretv & MENU_QUICK_SWITCH ) ) {
                     retv = 10 + ( mretv & MENU_LOWER_MASK );
@@ -279,7 +281,7 @@ int dmenu_switcher_dialog ( char **input )
         restart = FALSE;
         // Normal mode
         if ( ( mretv & MENU_OK  ) && list[selected_line] != NULL ) {
-            dmenu_output_formatted_line ( format, list[selected_line], selected_line, *input );
+            dmenu_output_formatted_line ( format, list[selected_line], selected_line, input );
             if ( ( mretv & MENU_SHIFT ) ) {
                 restart = TRUE;
                 // Move to next line.
@@ -289,7 +291,7 @@ int dmenu_switcher_dialog ( char **input )
         }
         // Custom input
         else if ( ( mretv & ( MENU_CUSTOM_INPUT ) ) ) {
-            dmenu_output_formatted_line ( format, *input, -1, *input );
+            dmenu_output_formatted_line ( format, input, -1, input );
             if ( ( mretv & MENU_SHIFT ) ) {
                 restart = TRUE;
                 // Move to next line.
@@ -300,14 +302,14 @@ int dmenu_switcher_dialog ( char **input )
         }
         // Quick switch with entry selected.
         else if ( ( mretv & MENU_QUICK_SWITCH ) && selected_line >= 0 ) {
-            dmenu_output_formatted_line ( format, list[selected_line], selected_line, *input );
+            dmenu_output_formatted_line ( format, list[selected_line], selected_line, input );
 
             restart = FALSE;
             retv    = 10 + ( mretv & MENU_LOWER_MASK );
         }
         // Quick switch without entry selected.
         else if ( ( mretv & MENU_QUICK_SWITCH ) && selected_line == -1 ) {
-            dmenu_output_formatted_line ( format, *input, -1, *input );
+            dmenu_output_formatted_line ( format, input, -1, input );
 
             restart = FALSE;
             retv    = 10 + ( mretv & MENU_LOWER_MASK );
@@ -317,6 +319,8 @@ int dmenu_switcher_dialog ( char **input )
     g_strfreev ( list );
     g_free ( urgent_list );
     g_free ( active_list );
+
+    g_free ( input );
 
     return retv;
 }

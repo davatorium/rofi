@@ -127,7 +127,8 @@ static XrmOption xrmOptions[] = {
     { xrm_Number,  "monitor",              { .snum = &config.monitor                 }, NULL },
     /* Alias for dmenu compatibility. */
     { xrm_SNumber, "m",                    { .snum = &config.monitor                 }, NULL },
-    { xrm_Number,  "line-margin",          { .num  = &config.line_margin             }, NULL }
+    { xrm_Number,  "line-margin",          { .num  = &config.line_margin             }, NULL },
+    { xrm_String,  "filter",               { .str  = &config.filter                  }, NULL }
 };
 
 // Dynamic options.
