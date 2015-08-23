@@ -440,14 +440,14 @@ static char ** window_mode_get_data ( unsigned int *length, Switcher *sw )
                     desktop[0] = 0;
                     char          *line = g_malloc ( strlen ( c->title ) + strlen ( c->class ) + classfield + 50 );
                     if ( !pd->config_i3_mode ) {
-                        // find client's desktop. This is zero-based, so we adjust by since most
-                        // normal people don't think like this :-)
+                        // find client's desktop.
                         if ( !window_get_cardinal_prop ( display, c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1 ) ) {
+			    // Assume the client is on all desktops.
                             wmdesktop = 0xFFFFFFFF;
                         }
 
                         if ( wmdesktop < 0xFFFFFFFF ) {
-                            sprintf ( desktop, "%d", (int) wmdesktop + 1 );
+                            sprintf ( desktop, "%d", (int) wmdesktop );
                         }
 
                         sprintf ( line, pattern, desktop, c->class, c->title );
@@ -489,7 +489,7 @@ static SwitcherMode window_mode_result ( int mretv, G_GNUC_UNUSED char **input, 
             // Change to the desktop of the selected window/client.
             // TODO: get rid of strtol
             window_send_message ( display, root, root, netatoms[_NET_CURRENT_DESKTOP],
-                                  strtol ( rmpd->cmd_list[selected_line], NULL, 10 ) - 1,
+                                  strtol ( rmpd->cmd_list[selected_line], NULL, 10 ),
                                   SubstructureNotifyMask | SubstructureRedirectMask, 0 );
             XSync ( display, False );
 
