@@ -311,9 +311,9 @@ The following options are further explained in the theming section:
 
     Enable the exteneded coloring options.
 
-`-color-window` *background* *border color*
+`-color-window` *background* *border color* *separator color */
 
-    Set window background and border color.
+    Set window background, border and separator color.
 
 `-color-normal` *background, foreground, background alt, highlight background, highlight foreground*
 
@@ -330,6 +330,12 @@ The following options are further explained in the theming section:
     Default: *3*
     Min:     *3*
     Max:     *50*
+
+`-separator-style` *style*
+
+    Set the separator style, either "solid" or "dash"
+
+    Default: *dash*
 
 ### Layout
 

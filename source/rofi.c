@@ -251,8 +251,15 @@ static Window create_window ( Display *display )
     XSelectInput ( display, box, ExposureMask | ButtonPressMask );
 
     gc = XCreateGC ( display, box, 0, 0 );
-    XSetLineAttributes ( display, gc, 2, LineOnOffDash, CapButt, JoinMiter );
-    XSetForeground ( display, gc, color_border ( display ) );
+    int line_style = LineOnOffDash;
+    if ( strcasecmp ( config.separator_style, "dash" ) == 0 ) {
+        line_style = LineOnOffDash;
+    }
+    else if ( strcasecmp ( config.separator_style, "solid" ) == 0 ) {
+        line_style = LineSolid;
+    }
+    XSetLineAttributes ( display, gc, 2, line_style, CapButt, JoinMiter );
+    XSetForeground ( display, gc, color_separator ( display ) );
     // make it an unmanaged window
     window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
     XSetWindowAttributes sattr;

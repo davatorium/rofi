@@ -234,6 +234,8 @@ typedef struct _Settings
     unsigned int   line_margin;
     /** filter */
     char           *filter;
+    /** style */
+    char           *separator_style;
 } Settings;
 
 /** Global Settings structure. */

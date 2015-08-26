@@ -537,7 +537,7 @@ unsigned int color_background ( Display *display )
     else {
         unsigned int retv = 0;
 
-        gchar        **vals = g_strsplit ( config.color_window, ",", 2 );
+        gchar        **vals = g_strsplit ( config.color_window, ",", 3 );
         if ( vals != NULL && vals[0] != NULL ) {
             retv = color_get ( display, g_strstrip ( vals[0] ), "black" );
         }
@@ -554,8 +554,28 @@ unsigned int color_border ( Display *display )
     else {
         unsigned int retv = 0;
 
-        gchar        **vals = g_strsplit ( config.color_window, ",", 2 );
+        gchar        **vals = g_strsplit ( config.color_window, ",", 3 );
         if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
+            retv = color_get ( display, vals[1], "white" );
+        }
+        g_strfreev ( vals );
+        return retv;
+    }
+}
+
+unsigned int color_separator ( Display *display )
+{
+    if ( !config.color_enabled ) {
+        return color_get ( display, config.menu_bc, "white" );
+    }
+    else {
+        unsigned int retv = 0;
+
+        gchar        **vals = g_strsplit ( config.color_window, ",", 3 );
+        if ( vals != NULL && vals[0] != NULL && vals[1] != NULL && vals[2] != NULL  ) {
+            retv = color_get ( display, vals[2], "white" );
+        }
+        else if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
             retv = color_get ( display, vals[1], "white" );
         }
         g_strfreev ( vals );

@@ -442,7 +442,7 @@ static char ** window_mode_get_data ( unsigned int *length, Switcher *sw )
                     if ( !pd->config_i3_mode ) {
                         // find client's desktop.
                         if ( !window_get_cardinal_prop ( display, c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1 ) ) {
-			    // Assume the client is on all desktops.
+                            // Assume the client is on all desktops.
                             wmdesktop = 0xFFFFFFFF;
                         }
 

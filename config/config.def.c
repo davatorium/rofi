@@ -131,8 +131,9 @@ Settings config = {
     /** Fuzzy matching. */
     .fuzzy             = FALSE,
     /** Monitor */
-    .monitor     =                                        -1,
-    .line_margin =                                         3,
-    .filter      = NULL,
+    .monitor         =                                        -1,
+    .line_margin     =                                         3,
+    .filter          = NULL,
+    .separator_style = "dash",
 };
 

@@ -148,4 +148,5 @@ unsigned int color_get ( Display *display, const char *const name, const char * 
 
 unsigned int color_background ( Display *display );
 unsigned int color_border ( Display *display );
+unsigned int color_separator ( Display *display );
 #endif
