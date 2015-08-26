@@ -818,7 +818,7 @@ static void menu_draw ( MenuState *state )
         // Move, resize visible boxes and show them.
         for ( i = 0; i < max_elements; i++ ) {
             unsigned int ex = ( ( i ) / state->max_rows ) * ( element_width + config.line_margin );
-            unsigned int ey = ( ( i ) % state->max_rows ) * ( element_height + config.line_margin ) + config.line_margin;
+            unsigned int ey = ( ( i ) % state->max_rows ) * ( element_height + config.line_margin );
             // Move it around.
             textbox_moveresize ( state->boxes[i],
                                  ex + x_offset, ey + y_offset,
@@ -865,24 +865,24 @@ static void menu_update ( MenuState *state )
                           state->max_elements, state->arrowbox_top,
                           state->arrowbox_bottom );
     // Why do we need the special -1?
-    XDrawLine ( display, main_window, gc, ( config.padding ),
-                state->line_height + ( config.padding ) + ( config.line_margin  ) / 2,
-                state->w - ( ( config.padding ) ) - 1,
-                state->line_height + ( config.padding ) + ( config.line_margin  ) / 2 );
+    XDrawLine ( display, main_window, gc, 0,
+                state->line_height + ( config.padding ) * 1 + config.line_margin + 1,
+                state->w - 1,
+                state->line_height + ( config.padding ) * 1 + config.line_margin + 1 );
     if ( state->message_tb ) {
         XDrawLine ( display, main_window, gc,
-                    ( config.padding ),
-                    state->top_offset + ( config.line_margin  ) / 2,
-                    state->w - ( ( config.padding ) ) - 1,
-                    state->top_offset + ( config.line_margin  ) / 2 );
+                    0,
+                    state->top_offset - ( config.line_margin ) - 1,
+                    state->w - 1,
+                    state->top_offset - ( config.line_margin ) - 1 );
     }
 
     if ( config.sidebar_mode == TRUE ) {
         XDrawLine ( display, main_window, gc,
-                    ( config.padding ),
-                    state->h - state->line_height - ( config.padding ) - config.line_margin / 2,
-                    state->w - ( ( config.padding ) ) - 1,
-                    state->h - state->line_height - ( config.padding ) - config.line_margin / 2 );
+                    0,
+                    state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin,
+                    state->w - 1,
+                    state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin );
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
             textbox_draw ( switchers[j]->tb );
         }
@@ -1007,7 +1007,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                   NORMAL,
                                   *input );
 
-    state.top_offset = config.padding + state.line_height;
+    state.top_offset = config.padding * 1 + state.line_height + 2 + config.line_margin * 2;
 
     // Move indicator to end.
     textbox_move ( state.case_indicator,
@@ -1023,17 +1023,17 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     state.message_tb = NULL;
     if ( message ) {
-        state.top_offset += config.menu_bw;
-        state.message_tb  = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_MARKUP,
-                                             ( config.padding ),
-                                             state.top_offset,
-                                             state.w - ( 2 * ( config.padding ) ),
-                                             -1,
-                                             NORMAL,
-                                             message );
+//        state.top_offset += config.line_margin;
+        state.message_tb = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_MARKUP,
+                                            ( config.padding ),
+                                            state.top_offset,
+                                            state.w - ( 2 * ( config.padding ) ),
+                                            -1,
+                                            NORMAL,
+                                            message );
         textbox_show ( state.message_tb );
         state.top_offset += textbox_get_height ( state.message_tb );
-        state.top_offset += config.menu_bw;
+        state.top_offset += config.line_margin * 2 + 2;
     }
 
     int element_height = state.line_height * config.element_height;
@@ -1047,7 +1047,6 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         state.boxes[i] = textbox_create ( main_window, &vinfo, map, 0,
                                           x_offset, y_offset,
                                           state.element_width, element_height, NORMAL, "" );
-        textbox_show ( state.boxes[i] );
     }
     // Arrows
     state.arrowbox_top = textbox_create ( main_window, &vinfo, map, TB_AUTOWIDTH,
@@ -1060,10 +1059,10 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                              "↓" );
     textbox_move ( state.arrowbox_top,
                    state.w - config.padding - state.arrowbox_top->w,
-                   state.top_offset + config.line_margin );
+                   state.top_offset );
     textbox_move ( state.arrowbox_bottom,
                    state.w - config.padding - state.arrowbox_bottom->w,
-                   state.top_offset + ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + config.line_margin );
+                   state.top_offset + ( state.max_rows - 1 ) * ( element_height + config.line_margin ) );
 
     // filtered list
     state.line_map = g_malloc0_n ( state.num_lines, sizeof ( int ) );
@@ -1073,11 +1072,12 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
-    state.h = state.top_offset + ( element_height + config.line_margin ) * state.max_rows + ( config.padding ) + config.line_margin;
-
+    state.h  = state.top_offset + ( element_height + config.line_margin ) * ( state.max_rows ) - config.line_margin;
+    state.h += config.padding;
+    state.h += 0;
     // Add entry
     if ( config.sidebar_mode == TRUE ) {
-        state.h += state.line_height + config.line_margin * 0;
+        state.h += state.line_height + 2 * config.line_margin + 2;
     }
 
     // Sidebar mode.
