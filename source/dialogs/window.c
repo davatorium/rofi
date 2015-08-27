@@ -42,13 +42,14 @@
 #include "dialogs/window.h"
 
 
-#define WINLIST        32
+#define WINLIST             32
 
-#define CLIENTTITLE    100
-#define CLIENTCLASS    50
-#define CLIENTNAME     50
-#define CLIENTSTATE    10
-#define CLIENTROLE     50
+#define CLIENTTITLE         100
+#define CLIENTCLASS         50
+#define CLIENTNAME          50
+#define CLIENTSTATE         10
+#define CLIENTWINDOWTYPE    10
+#define CLIENTROLE          50
 
 // a manageable window
 typedef struct
@@ -61,6 +62,8 @@ typedef struct
     char              role[CLIENTROLE];
     int               states;
     Atom              state[CLIENTSTATE];
+    int               window_types;
+    Atom              window_type[CLIENTWINDOWTYPE];
     workarea          monitor;
     int               active;
     int               demands;
@@ -221,6 +224,16 @@ static int client_has_state ( client *c, Atom state )
 
     return 0;
 }
+static int client_has_window_type ( client *c, Atom type )
+{
+    for ( int i = 0; i < c->window_types; i++ ) {
+        if ( c->window_type[i] == type ) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
 
 static client* window_client ( Display *display, Window win )
 {
@@ -250,6 +263,7 @@ static client* window_client ( Display *display, Window win )
 
     c->states = window_get_atom_prop ( display, win, netatoms[_NET_WM_STATE], c->state, CLIENTSTATE );
 
+    c->window_types = window_get_atom_prop ( display, win, netatoms[_NET_WM_WINDOW_TYPE], c->window_type, CLIENTWINDOWTYPE );
     char *name;
 
     if ( ( name = window_get_text_prop ( display, c->window, netatoms[_NET_WM_NAME] ) ) && name ) {
@@ -394,14 +408,11 @@ static char ** window_mode_get_data ( unsigned int *length, Switcher *sw )
 
                 if ( ( c = window_client ( display, wins[i] ) )
                      && !c->xattr.override_redirect
+                     && !client_has_window_type ( c, netatoms[_NET_WM_WINDOW_TYPE_DOCK] )
                      && !client_has_state ( c, netatoms[_NET_WM_STATE_SKIP_PAGER] )
                      && !client_has_state ( c, netatoms[_NET_WM_STATE_SKIP_TASKBAR] ) ) {
                     classfield = MAX ( classfield, strlen ( c->class ) );
 
-                    // In i3 mode, skip the i3bar completely.
-                    if ( pd->config_i3_mode && strstr ( c->class, "i3bar" ) != NULL ) {
-                        continue;
-                    }
                     if ( client_has_state ( c, netatoms[_NET_WM_STATE_DEMANDS_ATTENTION] ) ) {
                         c->demands = TRUE;
                     }
