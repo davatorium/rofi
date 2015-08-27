@@ -867,13 +867,13 @@ static void menu_update ( MenuState *state )
     // Why do we need the special -1?
     XDrawLine ( display, main_window, gc, 0,
                 state->line_height + ( config.padding ) * 1 + config.line_margin + 1,
-                state->w - 1,
+                state->w,
                 state->line_height + ( config.padding ) * 1 + config.line_margin + 1 );
     if ( state->message_tb ) {
         XDrawLine ( display, main_window, gc,
                     0,
                     state->top_offset - ( config.line_margin ) - 1,
-                    state->w - 1,
+                    state->w,
                     state->top_offset - ( config.line_margin ) - 1 );
     }
 
@@ -881,7 +881,7 @@ static void menu_update ( MenuState *state )
         XDrawLine ( display, main_window, gc,
                     0,
                     state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin,
-                    state->w - 1,
+                    state->w,
                     state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin );
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
             textbox_draw ( switchers[j]->tb );
