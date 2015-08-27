@@ -132,7 +132,7 @@ Settings config = {
     .fuzzy             = FALSE,
     /** Monitor */
     .monitor         =                                        -1,
-    .line_margin     =                                         3,
+    .line_margin     =                                         2,
     .filter          = NULL,
     .separator_style = "dash",
 };

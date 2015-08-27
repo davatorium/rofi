@@ -487,10 +487,10 @@ void config_sanity_check (  )
         found_error     = 1;
     }
     if ( 0 ) {
-        if ( !( config.line_margin >= 3 && config.line_margin <= 50 ) ) {
+        if ( !( config.line_margin <= 50 ) ) {
             g_string_append_printf ( msg, "\t<b>config.line_margin</b>=%d is invalid. Value should be between %d and %d.\n",
-                                     config.line_margin, 3, 50 );
-            config.line_margin = 3;
+                                     config.line_margin, 0, 50 );
+            config.line_margin = 2;
             found_error        = 1;
         }
     }
