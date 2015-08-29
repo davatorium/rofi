@@ -224,19 +224,6 @@ int find_arg_str ( const char * const key, char** val )
     }
     return FALSE;
 }
-int find_arg_str_alloc ( const char * const key, char** val )
-{
-    int i = find_arg ( key );
-
-    if ( val != NULL && i > 0 && i < stored_argc - 1 ) {
-        if ( *val != NULL ) {
-            g_free ( *val );
-        }
-        *val = g_strdup ( stored_argv[i + 1] );
-        return TRUE;
-    }
-    return FALSE;
-}
 
 int find_arg_int ( const char * const key, int *val )
 {

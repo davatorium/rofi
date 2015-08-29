@@ -81,7 +81,6 @@ int find_arg_int ( const char * const key, int *val );
  * @returns TRUE if key was found and val was set.
  */
 int find_arg_str ( const char * const key, char** val );
-int find_arg_str_alloc ( const char * const key, char** val );
 
 /**
  * @param key The key to search for

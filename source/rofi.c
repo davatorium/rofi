@@ -182,7 +182,9 @@ static void menu_set_arrow_text ( int filtered_lines, int selected, int max_elem
     }
 }
 
-
+/**
+ * Levenshtein Sorting.
+ */
 
 static int lev_sort ( const void *p1, const void *p2, void *arg )
 {
