@@ -553,6 +553,7 @@ static void textbox_cursor_del_word ( textbox *tb )
 }
 
 // handle a keypress in edit mode
+// 2 = nav
 // 0 = unhandled
 // 1 = handled
 // -1 = handled and return pressed (finished)
@@ -579,12 +580,12 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
     // Left or Ctrl-b
     if ( abe_test_action ( MOVE_CHAR_BACK, ev->xkey.state, key ) ) {
         textbox_cursor_dec ( tb );
-        return 1;
+        return 2;
     }
     // Right or Ctrl-F
     else if ( abe_test_action ( MOVE_CHAR_FORWARD, ev->xkey.state, key ) ) {
         textbox_cursor_inc ( tb );
-        return 1;
+        return 2;
     }
 
     // Ctrl-U: Kill from the beginning to the end of the line.
@@ -595,12 +596,12 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
     // Ctrl-A
     else if ( abe_test_action ( MOVE_FRONT, ev->xkey.state, key ) ) {
         textbox_cursor ( tb, 0 );
-        return 1;
+        return 2;
     }
     // Ctrl-E
     else if ( abe_test_action ( MOVE_END, ev->xkey.state, key ) ) {
         textbox_cursor_end ( tb );
-        return 1;
+        return 2;
     }
     // Ctrl-Alt-h
     else if ( abe_test_action ( REMOVE_WORD_BACK, ev->xkey.state, key ) ) {
@@ -619,12 +620,12 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
     // Alt-B
     else if ( abe_test_action ( MOVE_WORD_BACK, ev->xkey.state, key ) ) {
         textbox_cursor_dec_word ( tb );
-        return 1;
+        return 2;
     }
     // Alt-F
     else if ( abe_test_action ( MOVE_WORD_FORWARD, ev->xkey.state, key ) ) {
         textbox_cursor_inc_word ( tb );
-        return 1;
+        return 2;
     }
     // BackSpace, Ctrl-h
     else if ( abe_test_action ( REMOVE_CHAR_BACK, ev->xkey.state, key ) ) {

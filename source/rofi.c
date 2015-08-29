@@ -1323,9 +1323,13 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                         state.quit = TRUE;
                     }
                     // Key press is handled by entry box.
-                    else if ( rc > 0 ) {
+                    else if ( rc == 1 ) {
                         state.refilter = TRUE;
                         state.update   = TRUE;
+                    }
+                    else if (  rc == 2 ) {
+                        // redraw.
+                        state.update = TRUE;
                     }
                     // Other keys.
                     else{
