@@ -100,13 +100,6 @@ static int switcher_get ( const char *name )
     return -1;
 }
 
-void catch_exit ( G_GNUC_UNUSED int sig )
-{
-    while ( 0 < waitpid ( -1, NULL, WNOHANG ) ) {
-        ;
-    }
-}
-
 Window      main_window = None;
 GC          gc          = NULL;
 Colormap    map         = None;
@@ -1825,6 +1818,7 @@ static gpointer rofi_signal_handler_process ( gpointer arg )
     sigaddset ( &set, SIGHUP );
     sigaddset ( &set, SIGINT );
     sigaddset ( &set, SIGUSR1 );
+    sigaddset ( &set, SIGCHLD );
     // loop forever.
     while ( 1 ) {
         siginfo_t info;
@@ -1844,6 +1838,10 @@ static gpointer rofi_signal_handler_process ( gpointer arg )
                 write ( pfd, "q", 1 );
                 // Close my end and exit.
                 g_thread_exit ( NULL );
+            }else if ( sig == SIGCHLD ) {
+                while ( 0 < waitpid ( -1, NULL, WNOHANG ) ) {
+                    ;
+                }
             }
         }
     }
@@ -1920,6 +1918,7 @@ static GThread *setup_signal_thread ( int *fd )
     sigaddset ( &set, SIGHUP );
     sigaddset ( &set, SIGINT );
     sigaddset ( &set, SIGUSR1 );
+    sigaddset ( &set, SIGCHLD );
     sigprocmask ( SIG_BLOCK, &set, NULL );
     // Create signal handler process.
     // This will use sigwaitinfo to read signals and forward them back to the main thread again.
@@ -2013,12 +2012,6 @@ int main ( int argc, char *argv[] )
         // Reload for dynamic part.
         load_configuration_dynamic ( display );
     }
-
-    // Set up X interaction.
-    const struct sigaction sigchld_action = {
-        .sa_handler = catch_exit
-    };
-    sigaction ( SIGCHLD, &sigchld_action, NULL );
 
     x11_setup ( display );
 
