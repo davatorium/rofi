@@ -409,6 +409,7 @@ static char ** window_mode_get_data ( unsigned int *length, Switcher *sw )
                 if ( ( c = window_client ( display, wins[i] ) )
                      && !c->xattr.override_redirect
                      && !client_has_window_type ( c, netatoms[_NET_WM_WINDOW_TYPE_DOCK] )
+                     && !client_has_window_type ( c, netatoms[_NET_WM_WINDOW_TYPE_DESKTOP] )
                      && !client_has_state ( c, netatoms[_NET_WM_STATE_SKIP_PAGER] )
                      && !client_has_state ( c, netatoms[_NET_WM_STATE_SKIP_TASKBAR] ) ) {
                     classfield = MAX ( classfield, strlen ( c->class ) );
