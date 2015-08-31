@@ -94,7 +94,7 @@ typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensi
  * @returns The command issued (see MenuReturn)
  */
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt,
-                  menu_match_cb mmc, void *mmc_data, int *selected_line, int sorting,
+                  menu_match_cb mmc, void *mmc_data, int *selected_line,
                   get_display_value mgrv, void *mgrv_data, int *next_pos, const char *message ) __attribute__ ( ( nonnull ( 1, 3,
                                                                                                                             4, 7 ) ) );
 /**

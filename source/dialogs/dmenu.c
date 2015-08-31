@@ -254,7 +254,7 @@ int dmenu_switcher_dialog ( void )
     do {
         int next_pos = selected_line;
         int mretv    = menu ( list, length, &input, dmenu_prompt,
-                              token_match, NULL, &selected_line, config.levenshtein_sort, get_display_data, list, &next_pos, message );
+                              token_match, NULL, &selected_line, get_display_data, list, &next_pos, message );
         // Special behavior.
         // TODO clean this up!
         if ( only_selected ) {
