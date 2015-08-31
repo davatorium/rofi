@@ -49,14 +49,7 @@
 #include "textbox.h"
 #include "x11-helper.h"
 #include "xrmoptions.h"
-// Switchers.
-#include "dialogs/run.h"
-#include "dialogs/ssh.h"
-#include "dialogs/dmenu.h"
-#include "dialogs/script.h"
-#include "dialogs/window.h"
-#include "dialogs/combi.h"
-
+#include "dialogs/dialogs.h"
 
 
 // TEMP
@@ -1604,7 +1597,7 @@ static void help ()
     int code = execlp ( "man", "man", "-M", MANPAGE_PATH, "rofi", NULL );
 
     if ( code == -1 ) {
-        fprintf ( stderr, "Failed to execute man: %s\n", strerror ( errno ) );
+        fprintf ( stderr, "Failed to execute manpage viewer: %s\n", strerror ( errno ) );
     }
 }
 
