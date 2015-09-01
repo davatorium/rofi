@@ -1835,7 +1835,8 @@ static gpointer rofi_signal_handler_process ( gpointer arg )
                 write ( pfd, "q", 1 );
                 // Close my end and exit.
                 g_thread_exit ( NULL );
-            }else if ( sig == SIGCHLD ) {
+            }
+            else if ( sig == SIGCHLD ) {
                 while ( 0 < waitpid ( -1, NULL, WNOHANG ) ) {
                     ;
                 }
