@@ -1208,78 +1208,6 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                         textbox_hide ( state.case_indicator );
                     }
                 }
-                else if ( abe_test_action ( CUSTOM_1, ev.xkey.state, key ) ) {
-                    if ( state.selected < state.filtered_lines ) {
-                        *( state.selected_line ) = state.line_map[state.selected];
-                    }
-                    state.retv = MENU_QUICK_SWITCH | ( 0 & MENU_LOWER_MASK );
-                    state.quit = TRUE;
-                    break;
-                }
-                else if ( abe_test_action ( CUSTOM_2, ev.xkey.state, key ) ) {
-                    if ( state.selected < state.filtered_lines ) {
-                        *( state.selected_line ) = state.line_map[state.selected];
-                    }
-                    state.retv = MENU_QUICK_SWITCH | ( 1 & MENU_LOWER_MASK );
-                    state.quit = TRUE;
-                    break;
-                }
-                else if ( abe_test_action ( CUSTOM_3, ev.xkey.state, key ) ) {
-                    if ( state.selected < state.filtered_lines ) {
-                        *( state.selected_line ) = state.line_map[state.selected];
-                    }
-                    state.retv = MENU_QUICK_SWITCH | ( 2 & MENU_LOWER_MASK );
-                    state.quit = TRUE;
-                    break;
-                }
-                else if ( abe_test_action ( CUSTOM_4, ev.xkey.state, key ) ) {
-                    if ( state.selected < state.filtered_lines ) {
-                        *( state.selected_line ) = state.line_map[state.selected];
-                    }
-                    state.retv = MENU_QUICK_SWITCH | ( 3 & MENU_LOWER_MASK );
-                    state.quit = TRUE;
-                    break;
-                }
-                else if ( abe_test_action ( CUSTOM_5, ev.xkey.state, key ) ) {
-                    if ( state.selected < state.filtered_lines ) {
-                        *( state.selected_line ) = state.line_map[state.selected];
-                    }
-                    state.retv = MENU_QUICK_SWITCH | ( 4 & MENU_LOWER_MASK );
-                    state.quit = TRUE;
-                    break;
-                }
-                else if ( abe_test_action ( CUSTOM_6, ev.xkey.state, key ) ) {
-                    if ( state.selected < state.filtered_lines ) {
-                        *( state.selected_line ) = state.line_map[state.selected];
-                    }
-                    state.retv = MENU_QUICK_SWITCH | ( 5 & MENU_LOWER_MASK );
-                    state.quit = TRUE;
-                    break;
-                }
-                else if ( abe_test_action ( CUSTOM_7, ev.xkey.state, key ) ) {
-                    if ( state.selected < state.filtered_lines ) {
-                        *( state.selected_line ) = state.line_map[state.selected];
-                    }
-                    state.retv = MENU_QUICK_SWITCH | ( 6 & MENU_LOWER_MASK );
-                    state.quit = TRUE;
-                    break;
-                }
-                else if ( abe_test_action ( CUSTOM_8, ev.xkey.state, key ) ) {
-                    if ( state.selected < state.filtered_lines ) {
-                        *( state.selected_line ) = state.line_map[state.selected];
-                    }
-                    state.retv = MENU_QUICK_SWITCH | ( 7 & MENU_LOWER_MASK );
-                    state.quit = TRUE;
-                    break;
-                }
-                else if ( abe_test_action ( CUSTOM_9, ev.xkey.state, key ) ) {
-                    if ( state.selected < state.filtered_lines ) {
-                        *( state.selected_line ) = state.line_map[state.selected];
-                    }
-                    state.retv = MENU_QUICK_SWITCH | ( 8 & MENU_LOWER_MASK );
-                    state.quit = TRUE;
-                    break;
-                }
                 // Special delete entry command.
                 else if ( abe_test_action ( DELETE_ENTRY, ev.xkey.state, key ) ) {
                     if ( state.selected < state.filtered_lines ) {
@@ -1290,6 +1218,21 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                     }
                 }
                 else{
+                    for ( unsigned int a = CUSTOM_1; a <= CUSTOM_19; a++ ) {
+                        if ( abe_test_action ( a, ev.xkey.state, key ) ) {
+                            if ( state.selected < state.filtered_lines ) {
+                                *( state.selected_line ) = state.line_map[state.selected];
+                            }
+                            state.retv = MENU_QUICK_SWITCH | ( ( a - CUSTOM_1 ) & MENU_LOWER_MASK );
+                            state.quit = TRUE;
+                            break;
+                        }
+                    }
+                    // Skip if we detected key before.
+                    if ( state.quit ) {
+                        continue;
+                    }
+
                     int rc = textbox_keypress ( state.text, &ev );
                     // Row is accepted.
                     if ( rc < 0 ) {
