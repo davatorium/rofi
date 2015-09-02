@@ -69,7 +69,7 @@ daemon listening to specific key-combination or emulating dmenu.
 
 ### Single-shot mode
 
-To launch **rofi** directly in a certain mode, specifying `rofi -show <mode>`.
+To launch **rofi** directly in a certain mode, specify a mode with `rofi -show <mode>`.
 To show the run dialog:
 
 ```
@@ -78,8 +78,8 @@ To show the run dialog:
 
 ### Daemon mode
 
-To launch **rofi** in daemon mode don't specify a mode to show (`-show <mode>`), instead you can
-bind keys to launch a certain mode. To have run mode open when pressing `F2` start **rofi** like:
+To launch **rofi** in daemon mode don't specify any mode, instead keys can be bound
+to launch a certain mode. To show run-mode by pressing `F2` start **rofi** like this:
 
 ```
     rofi -key-run F2
@@ -102,14 +102,14 @@ There are currently three methods of setting configuration options:
    This is the recommended way of configuring **rofi**.
  * Command-line options: Arguments passed to **rofi**.
 
-The Xresources options and the command-line options are aliased. So to set option X you would set:
+The Xresources file expects options starting with `rofi.` followed by it's name. An Example to set the number of lines:
 
-    rofi.X: value
+    rofi.lines: 10
 
-In the Xresources file, and to (override) this via the command-line you would pass the same key
+Command line options override settings from Xresources file. The same option set as argument:
 prefixed with a '-':
 
-    rofi -X value
+    rofi -lines 10
 
 To get a list of available options, formatted as Xresources entries run:
 
@@ -122,7 +122,7 @@ The configuration system supports the following types:
  * Char
  * Boolean
 
-The boolean option has a non-default command-line syntax, to enable option X  you do:
+Boolean options have a non-default command-line syntax. Example to enable option X:
 
     -X
 
@@ -138,18 +138,15 @@ Below is a list of the most important options:
 
   Set the key combination to display a {mode} in daemon mode.
 
-
       rofi -key-run F12
       rofi -key-ssh control+shift+s
       rofi -key-window mod1+Tab
 
 `-dmenu`
 
-  Run **rofi** in dmenu mode. Allowing it to be used for user interaction in scripts.
-
-  In `dmenu` mode, **rofi** will read input from STDIN, and will output to STDOUT by default.
-
-  Example to let the user choose between three pre-defined options:
+  Run **rofi** in dmenu mode. This allows for interactive scripts.
+  In `dmenu` mode, **rofi** reads from STDIN, and output to STDOUT.
+  A simple example, display 3 pre-defined options:
 
         echo -e "Option #1\nOption #2\nOption #3" | rofi -dmenu
 
@@ -157,24 +154,21 @@ Below is a list of the most important options:
 
         ~/my_script.sh | rofi -dmenu
 
-  Pressing `shift-enter` will open the selected entries and move to the next entry.
+  Pressing `shift-enter` sends the selected entry to STDOUT and moves to the next entry.
 
 `-show` *mode*
 
-  Open **rofi** in a certain mode.
-
-  For example to show the run-dialog:
+  Open **rofi** in a certain mode. Available modes are `window`, `run`, `ssh`
+  To show the run-dialog:
 
         rofi -show run
 
-  This function deprecates -rnow,-snow and -now
-
-`-switchers` *mode1,mode1*
 `-modi` *mode1,mode1*
 
-  Give a comma separated list of modes to enable, in what order.
-
-  For example to only show the run and ssh launcher (in that order):
+  Specify a ordered, comma separated list of modes to enable.
+  Enabled modes can be changed at runtime. Default key is Ctrl+Tab.
+  If no modes are specified all modes will be enabled.
+  To only show the run and ssh launcher:
 
         rofi -modi "run,ssh" -show run
 
@@ -182,7 +176,7 @@ Below is a list of the most important options:
 
         <name>:<script>
 
-  So to have a mode 'Workspaces' using the `i3_switch_workspace.sh` script type:
+  Example: Have a mode 'Workspaces' using the `i3_switch_workspace.sh` script:
 
         rofi -modi "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
 
@@ -196,22 +190,23 @@ Below is a list of the most important options:
 
 `-fuzzy`
 
-    Enable experimental fuzzy matching.
+  Enable experimental fuzzy matching.
 
 `-filter` *filter*
 
-    Preset user filter to *filter* in the entry box and pre-filter the list.
+  Filter the list by setting text in input bar to *filter*
 
 
 ### Theming
 
+All colors are either hex #rrggbb values or X11 color names.
 `-bg`
 
 `-bg-active`
 
 `-bg-urgent`
 
-  Set the background text color (X11 named color or hex #rrggbb) for the menu.
+  Set background color in menu.
 
       rofi -bg "#222222"
 
@@ -219,7 +214,7 @@ Below is a list of the most important options:
 
 `-bgalt`
 
-  Set the background text color  for alternating rows (X11 named color or hex #rrggbb) for the menu.
+  Set background color for alternating rows in menu.
 
       rofi -bgalt "#222222"
 
@@ -227,7 +222,7 @@ Below is a list of the most important options:
 
 `-bc`
 
-  Set the border color (X11 named color or hex #rrggbb) for the menu.
+  Set border color for menu.
 
       rofi -bc black
 
@@ -235,7 +230,7 @@ Below is a list of the most important options:
 
 `-bw`
 
-  Set the border width in pixels.
+  Set border width in pixels.
 
       rofi -bw 1
 
@@ -247,7 +242,7 @@ Below is a list of the most important options:
 
 `-fg-active`
 
-  Set the foreground text color (X11 named color or hex #rrggbb) for the menu.
+  Set foreground text color for the menu.
 
       rofi -fg "#cccccc"
 
@@ -260,8 +255,7 @@ Below is a list of the most important options:
 
 `-hlbg-urgent`
 
-  Set the background text color (X11 named color or hex #rrggbb) for the highlighted item in the
-  menu.
+  Set background color for the highlighted item in the menu.
 
       rofi -hlbg "#005577"
 
@@ -273,8 +267,7 @@ Below is a list of the most important options:
 
 `-hlfg-urgent`
 
-  Set the foreground text color (X11 named color or hex #rrggbb) for the highlighted item in the
-  menu.
+  Set foreground text color for the highlighted item in the menu.
 
       rofi -hlfg "#ffffff"
 
@@ -282,16 +275,15 @@ Below is a list of the most important options:
 
 `-font`
 
-  Pango font name for use by the menu.
+  Specify a font. Pango syntax is used.
 
-
-      rofi -font monospace\ 14
+      rofi -font "Dejavu Sans Mono 14"
 
   Default: *mono 12*
 
 `-opacity`
 
-  Set the window opacity (0-100).
+  Set window opacity (0-100).
 
       rofi -opacity "75"
 
@@ -309,11 +301,11 @@ The following options are further explained in the theming section:
 
 `-color-enabled`
 
-    Enable the exteneded coloring options.
+  Enable the exteneded coloring options.
 
 `-color-window` *background* *border color* *separator color */
 
-    Set window background, border and separator color.
+  Set window background, border and separator color.
 
 `-color-normal` *background, foreground, background alt, highlight background, highlight foreground*
 
@@ -321,11 +313,11 @@ The following options are further explained in the theming section:
 
 `-color-active` *background, foreground, background alt, highlight background, highlight foreground*
 
-    Specify the colors used in a row per state (normal, active, urgent).
+  Specify the colors used in a row per state (normal, active, urgent).
 
 `-line-margin`
 
-    Set the spacing between the rows.
+  Set the spacing between the rows.
 
     Default: *3*
     Min:     *3*
@@ -333,7 +325,7 @@ The following options are further explained in the theming section:
 
 `-separator-style` *style*
 
-    Set the separator style, either "solid" or "dash"
+  Set separator style. Possible options are "solid" or "dash".
 
     Default: *dash*
 
@@ -341,7 +333,7 @@ The following options are further explained in the theming section:
 
 `-lines`
 
-  Maximum number of lines the menu may show before scrolling.
+  Maximum number of lines to show before scrolling.
 
       rofi -lines 25
 
@@ -349,7 +341,7 @@ The following options are further explained in the theming section:
 
 `-columns`
 
-  The number of columns the menu may show before scrolling.
+  Number of columns to show before scrolling.
 
       rofi -columns 2
 
@@ -357,15 +349,15 @@ The following options are further explained in the theming section:
 
 `-width` [value]
 
-  Set the width of the menu as a percentage of the screen width.
+  Set width of menu. `[value]` is specified in percentage.
 
       rofi -width 60
 
-  If value is larger then 100, the size is set in pixels. e.g. to span a full hd monitor:
+  If `[value]` is larger then 100, size is set in pixels. Example to span a full hd monitor:
 
       rofi -width 1920
 
-  If the value is negative, it tries to estimates a character width. To show 30 characters on a row:
+  If `[value]` is negative, it tries to estimates a character width. To show 30 characters on a row:
 
       rofi -width -30
 
@@ -375,8 +367,7 @@ The following options are further explained in the theming section:
 
 `-location`
 
-  Specify where the window should be located. The numbers map to the following location on the
-  monitor:
+  Specify where the window should be located. The numbers map to the following locations on screen:
 
       1 2 3
       8 0 4
@@ -396,28 +387,29 @@ The following options are further explained in the theming section:
 
 `-sidebar-mode`
 
-    Go into side-bar mode, it will show list of modi at the bottom.
-    To show sidebar use:
+  Open in sidebar-mode. In this mode a list of all enabled modes is shown at the bottom.
+  (See `-modi` option)
+  To show sidebar use:
 
         rofi -show run -sidebar-mode -lines 0
 
 `-lazy-filter-limit` *limit*
 
-   The number of entries required for **rofi** to go into lazy filter mode.
-   In lazy filter mode, it won't re-filter the list on each keypress, but only after **rofi** been
-   idle for 250ms. Experiments shows that the default (5000 lines) works well, set to 0 to always
-   enable.
+  The number of entries required for **rofi** to go into lazy filter mode.
+  In lazy filter mode, it won't re-filter the list on each keypress, but only after **rofi** been
+  idle for 250ms. Experiments shows that the default (5000 lines) works well, set to 0 to always
+  enable.
 
-   Default: *5000*
+  Default: *5000*
 
 `-auto-select`
 
-    When one entry is left, automatically select this.
+  When one entry is left, automatically select it.
 
 `-m` *num*
 `-monitor` *num*
 
-    Select (Xinerama) monitor to display **rofi** on. The special number -1 denotes the currently focused monitor, the number -2 denotes the currently focused window (i.e. rofi will be displayed on top of the focused window).
+  Select (Xinerama) monitor to display **rofi** on. The special number -1 denotes the currently focused monitor, the number -2 denotes the currently focused window (i.e. rofi will be displayed on top of the focused window).
 
     Default: *-1*
 
@@ -451,21 +443,20 @@ The following options are further explained in the theming section:
 
 `-parse-hosts`
 
-    Parse the `/etc/hosts` files for entries.
-
+  Parse the `/etc/hosts` file for entries.
 
 ### Run settings
 
 `-run-command` *cmd*
 
-  Set the command (*{cmd}*) to execute when running an application.
+  Set command (*{cmd}*) to execute when running an application.
   See *PATTERN*.
 
   Default: *{cmd}*
 
 `-run-shell-command` *cmd*
 
-  Set the command to execute when running an application in a shell.
+  Set command to execute when running an application in a shell.
   See *PATTERN*.
 
   Default: *{terminal} -e {cmd}*
@@ -480,11 +471,11 @@ The following options are further explained in the theming section:
 
 `-combi-modi` *mode1,mode2*
 
-    The modi to combine in the combi mode.
-    For syntax to see `-modi`.
-    To get one merge view, of window,run,ssh:
+  The modi to combine in combi mode.
+  For syntax to see `-modi`.
+  To get one merge view, of window,run,ssh:
 
-            rofi -show combi -combi-modi "window,run,ssh"
+      rofi -show combi -combi-modi "window,run,ssh"
 
 ### History and Sorting
 
@@ -502,25 +493,25 @@ The following options are further explained in the theming section:
 
 `-sep` *separator*
 
-    Separator for dmenu. For example to show list a to e with '|' as separator:
+  Separator for dmenu. Example: To show list 'a' to 'e' with '|' as separator:
 
-            echo "a|b|c|d|e" | rofi -sep '|' -dmenu
+      echo "a|b|c|d|e" | rofi -sep '|' -dmenu
 
 `-p` *prompt*
 
-    Specify the prompt to show in dmenu mode. E.g. select monkey a,b,c,d or e.
+  Specify the prompt to show in dmenu mode. E.g. select monkey a,b,c,d or e.
 
-            echo "a|b|c|d|e" | rofi -sep '|' -dmenu -p "monkey:"
+      echo "a|b|c|d|e" | rofi -sep '|' -dmenu -p "monkey:"
 
-    Default: *dmenu*
+  Default: *dmenu*
 
 `-selected-row` *selected row*
 
-    Select a certain row.
+  Select a certain row.
 
-    Default: *0*
+  Default: *0*
 
-`-l`  *number of lines to show*
+`-l` *number of lines to show*
 
   Maximum number of lines the menu may show before scrolling.
 
@@ -530,37 +521,37 @@ The following options are further explained in the theming section:
 
 `-i`
 
-    Makes dmenu match menu entries case insensitively.
+  Makes dmenu searches case-insensitive
 
 `-a` *X*
 
-    Active row, mark row X as active. (starting at 0)
-    You can specify single element: -a 3
-    A range: -a 3-8
-    or a set of rows: -a 0,2
-    Or any combination: -a 0,2-3,9
+  Active row, mark row X as active. (starting at 0)
+  You can specify single element: -a 3
+  A range: -a 3-8
+  or a set of rows: -a 0,2
+  Or any combination: -a 0,2-3,9
 
 `-u` *X*
 
-    Urgent row, mark row X as urgent. (starting at 0)
-    You can specify single element: -u 3
-    A range: -u 3-8
-    or a set of rows: -u 0,2
-    Or any combination: -u 0,2-3,9
+  Urgent row, mark row X as urgent. (starting at 0)
+  You can specify single element: -u 3
+  A range: -u 3-8
+  or a set of rows: -u 0,2
+  Or any combination: -u 0,2-3,9
 
 `-only-match`
 
-    Only return a selected item, do not allow custom entry.
-    This mode always returns an entry, or returns directly when no entries given.
+  Only return a selected item, do not allow custom entry.
+  This mode always returns an entry, or returns directly when no entries given.
 
 `-no-custom`
 
-    Only return a selected item, do not allow custom entry.
-    This mode returns directly when no entries given.
+  Only return a selected item, do not allow custom entry.
+  This mode returns directly when no entries given.
 
 `-format` *format*
 
-    Allows the output of dmenu to be customized (N is total number of input entries):
+  Allows the output of dmenu to be customized (N is total number of input entries):
 
      * 's' selected string.
      * 'i' index (0 - (N-1)).
@@ -569,16 +560,16 @@ The following options are further explained in the theming section:
      * 'f' filter string (user input).
      * 'F' quoted filter string (user input).
 
-    Default: 's'
+  Default: 's'
 
 `-select` *string*
 
-    Select first line that matches the given string
+  Select first line that matches the given string
 
 `-mesg` *string*
 
-Add a message line below the filter entry box. Supports pango markup.
-For more information on supported markup see [here](https://developer.gnome.org/pango/stable/PangoMarkupFormat.html)
+  Add a message line below the filter entry box. Supports pango markup.
+  For more information on supported markup see [here](https://developer.gnome.org/pango/stable/PangoMarkupFormat.html)
 
 
 
@@ -586,15 +577,15 @@ For more information on supported markup see [here](https://developer.gnome.org/
 
 `-e` *message*
 
-    Popup a message dialog (used internally for showing errors) with *message*.
-    Message can be multi-line.
+  Popup a message dialog (used internally for showing errors) with *message*.
+  Message can be multi-line.
 
 ### Other
 
 '-pid' *path*
 
-    Make **rofi** create a pid file and check this on startup. Avoiding multiple copies running
-    simultaneous. This is useful when running **rofi** from a keybinding daemon.
+  Make **rofi** create a pid file and check this on startup. Avoiding multiple copies running
+  simultaneously. This is useful when running **rofi** from a keybinding daemon.
 
 ### Debug
 
@@ -609,19 +600,18 @@ For more information on supported markup see [here](https://developer.gnome.org/
 
 ## PATTERN
 
-To launch commands (e.g. when using the ssh launcher) the user can enter the used command-line,
-the following keys can be used that will be replaced at runtime:
+  To launch commands (e.g. when using the ssh launcher) the user can enter the used command-line,
+  the following keys can be used that will be replaced at runtime:
 
-* `{host}`: The host to connect to.
-* `{terminal}`: The configured terminal (See -terminal-emulator)
-* `{ssh-client}`: The configured ssh client (See -ssh-client)
-* `{cmd}`: The command to execute.
+      * `{host}`: The host to connect to.
+      * `{terminal}`: The configured terminal (See -terminal-emulator)
+      * `{ssh-client}`: The configured ssh client (See -ssh-client)
+      * `{cmd}`: The command to execute.
 
 ## DMENU REPLACEMENT
 
-If `argv[0]` (calling command) is dmenu, **rofi** will start in dmenu mode.
-This way it can be used as a drop-in replacement for dmenu. just copy or symlink **rofi** to dmenu in `$PATH`.
-
+  If `argv[0]` (calling command) is dmenu, **rofi** will start in dmenu mode.
+  This way it can be used as a drop-in replacement for dmenu. just copy or symlink **rofi** to dmenu in `$PATH`.
 
     ln -s /usr/bin/dmenu /usr/bin/rofi
 
@@ -629,39 +619,39 @@ This way it can be used as a drop-in replacement for dmenu. just copy or symlink
 
 `HUP`
 
-If in daemon mode, reload the configuration from Xresources. (commandline arguments still -override
-Xresources).  This will also reload configured key-bindings.
+  If in daemon mode, reload the configuration from Xresources. (commandline arguments still -override
+  Xresources). This will also reload configured key-bindings.
 
 `INT`
 
-If in daemon mode, quits **rofi**.
+  If in daemon mode, quits **rofi**.
 
 `USR1`
 
-If in daemon mode, dumps the current configuration to stdout. Similar to `-xresources-dump`
+  If in daemon mode, dumps the current configuration to stdout. Similar to `-xresources-dump`
 
 ## THEMING
 
-With **rofi** 0.15.4 we have a new way of specifying colors, the old settings still apply (for now).
-To enable the new setup, set `rofi.color-enabled` to true. The new setup allows you to specify
-colors per state, similar to **i3**
-Currently 3 states exists:
+  With **rofi** 0.15.4 we have a new way of specifying colors, the old settings still apply (for now).
+  To enable the new setup, set `rofi.color-enabled` to true. The new setup allows you to specify
+  colors per state, similar to **i3**
+  Currently 3 states exists:
 
-* **normal** Normal row.
-* **urgent** Highlighted row (urgent)
-* **active** Highlighted row (active)
+      * **normal** Normal row.
+      * **urgent** Highlighted row (urgent)
+      * **active** Highlighted row (active)
+ 
+  For each state the following 5 colors must be set:
 
-For each state the following 5 colors must be set:
+      * **bg** Background color row
+      * **fg** Text color
+      * **bgalt** Background color alternating row
+      * **hlfg** Foreground color selected row
+      * **hlbg** Background color selected row
 
-* **bg** Background color row
-* **fg** Text color
-* **bgalt** Background color alternating row
-* **hlfg** Foreground color selected row
-* **hlbg** Background color selected row
-
-The window background and border color should be specified separate. The key `color-window` contains
-a pair `background,border`.
-An example for `Xresources` file:
+  The window background and border color should be specified separate. The key `color-window` contains
+  a pair `background,border`.
+  An example for `Xresources` file:
 
 ```
 ! State:           'bg',     'fg',     'bgalt',  'hlbg',   'hlfg'
@@ -681,67 +671,63 @@ rofi -color-normal "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5"
 
 ## COLORS
 
-Rofi has an experimental mode for a 'nicer' transparency. The idea is that you can make the
-background of the window transparent but the text not. This way, in contrast to the `-opacity`
-option, the text is still fully visible and readable.
-To use this there are 2 requirements: 1. Your Xserver supports TrueColor, 2. You are running a
-composite manager. If this is satisfied you can use the following format for colors:
+  Rofi has an experimental mode for a 'nicer' transparency. The idea is to make the
+  background of the window transparent, leaving the text opaque.
+  There are 2 requirements for this feature: 1. Your Xserver supports TrueColor, 2. You are running a
+  composite manager. If this is satisfied you can use the following format for colors:
 
-   argb:FF444444
+       argb:FF444444
 
-The first two fields specify the alpha level. This determines how much the background shines through
-the color (00 everything, FF nothing). E.g. 'argb:00FF0000' gives you a bright red color with the
-background shining through. If you want a dark greenish transparent color use: 'argb:dd2c3311'. This
-can be done for any color; it is therefore possible to have solid borders,  the selected row solid,
-and the others slightly transparent.
+  The first two fields specify the alpha level. This determines the amount of transparency.
+  (00 everything, FF nothing). The other fields represent the actual color, in hex.
 
 ## KEYBINDINGS
 
-**rofi** has the following key-bindings:
+  **rofi** has the following key-bindings:
 
-* `Ctrl-v, Insert`: Paste clipboard
-* `Ctrl-Shift-v, Shift-Insert`: Paste primary selection
-* `Ctrl-u`: Clear the line
-* `Ctrl-a`: Beginning of line
-* `Ctrl-e`: End of line
-* `Ctrl-f, Right`: Forward one character
-* `Alt-f`: Forward one word
-* `Ctrl-b, Left`: Back one character
-* `Alt-b`: Back one word
-* `Ctrl-d, Delete`: Delete character
-* `Ctrl-Alt-d': Delete word
-* `Ctrl-h, Backspace`: Backspace (delete previous character)
-* `Ctrl-Alt-h`: Delete previous word
-* `Ctrl-j,Ctrl-m,Enter`: Accept entry
-* `Ctrl-n,Down`: Select next entry
-* `Ctrl-p,Up`: Select previous entry
-* `Page Up`: Go to the previous page
-* `Page Down`: Go to the next page
-* `Ctrl-Page Up`: Go to the previous column
-* `Ctrl-Page Down`: Go to the next column
-* `Ctrl-Enter`: Use entered text as command (in ssh/run modi)
-* `Shift-Enter`: Launch the application in a terminal (in run mode)
-* `Shift-Enter`: Return the selected entry and move to the next item while keeping Rofi open. (in dmenu)
-* `Shift-Right`: Switch to the next modi. The list can be customized with the `-switchers` argument.
-* `Shift-Left`: Switch to the previous modi. The list can be customized with the `-switchers` argument.
-* `Ctrl-Tab`: Switch to the next modi. The list can be customized with the `-switchers` argument.
-* `Ctrl-Shift-Tab`: Switch to the previous modi. The list can be customized with the `-switchers` argument.
-* `Ctrl-space`: Set selected item as input text.
-* `Shift-Del`: Delete entry from history.
-* `Ctrl-grave`: Toggle case sensitivity.
+  * `Ctrl-v, Insert`: Paste clipboard
+  * `Ctrl-Shift-v, Shift-Insert`: Paste primary selection
+  * `Ctrl-u`: Clear the line
+  * `Ctrl-a`: Beginning of line
+  * `Ctrl-e`: End of line
+  * `Ctrl-f, Right`: Forward one character
+  * `Alt-f`: Forward one word
+  * `Ctrl-b, Left`: Back one character
+  * `Alt-b`: Back one word
+  * `Ctrl-d, Delete`: Delete character
+  * `Ctrl-Alt-d': Delete word
+  * `Ctrl-h, Backspace`: Backspace (delete previous character)
+  * `Ctrl-Alt-h`: Delete previous word
+  * `Ctrl-j,Ctrl-m,Enter`: Accept entry
+  * `Ctrl-n,Down`: Select next entry
+  * `Ctrl-p,Up`: Select previous entry
+  * `Page Up`: Go to the previous page
+  * `Page Down`: Go to the next page
+  * `Ctrl-Page Up`: Go to the previous column
+  * `Ctrl-Page Down`: Go to the next column
+  * `Ctrl-Enter`: Use entered text as command (in ssh/run modi)
+  * `Shift-Enter`: Launch the application in a terminal (in run mode)
+  * `Shift-Enter`: Return the selected entry and move to the next item while keeping Rofi open. (in dmenu)
+  * `Shift-Right`: Switch to the next modi. The list can be customized with the `-switchers` argument.
+  * `Shift-Left`: Switch to the previous modi. The list can be customized with the `-switchers` argument.
+  * `Ctrl-Tab`: Switch to the next modi. The list can be customized with the `-switchers` argument.
+  * `Ctrl-Shift-Tab`: Switch to the previous modi. The list can be customized with the `-switchers` argument.
+  * `Ctrl-space`: Set selected item as input text.
+  * `Shift-Del`: Delete entry from history.
+  * `Ctrl-grave`: Toggle case sensitivity.
 
-To get a full list of keybindings, see `rofi -dump-xresources | grep kb-`.
-Keybindings can be modified using the configuration systems.
+  To get a full list of keybindings, see `rofi -dump-xresources | grep kb-`.
+  Keybindings can be modified using the configuration systems.
 
 ## FAQ
 
-`Text in window switcher is not nicely lined out`
+  `Text in window switcher is not nicely lined out`
 
-    Try using a mono-space font.
+      Try using a mono-space font.
 
 `**rofi** is completely black.`
 
-    Check quotes used on the commandline: e.g. used “ instead of ".
+      Check quotes used on the commandline: e.g. used “ instead of ".
 
 ## LICENSE
 
