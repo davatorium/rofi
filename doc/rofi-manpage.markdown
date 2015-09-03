@@ -72,18 +72,15 @@ daemon listening to specific key-combination or emulating dmenu.
 To launch **rofi** directly in a certain mode, specify a mode with `rofi -show <mode>`.
 To show the run dialog:
 
-```
     rofi -show run
-```
 
 ### Daemon mode
 
 To launch **rofi** in daemon mode don't specify any mode, instead keys can be bound
 to launch a certain mode. To show run-mode by pressing `F2` start **rofi** like this:
 
-```
     rofi -key-run F2
-```
+
 Keybindings can also be specified in the `Xresources` file.
 
 ### Emulating dmenu
@@ -653,21 +650,17 @@ The window background and border color should be specified separate. The key `co
 a pair `background,border`.
 An example for `Xresources` file:
 
-```
-! State:           'bg',     'fg',     'bgalt',  'hlbg',   'hlfg'
-rofi.color-normal: #fdf6e3,  #002b36,  #eee8d5,  #586e75,  #eee8d5
-rofi.color-urgent: #fdf6e3,  #dc322f,  #eee8d5,  #dc322f,  #fdf6e3
-rofi.color-active: #fdf6e3,  #268bd2,  #eee8d5,  #268bd2,  #fdf6e3
+    ! State:           'bg',     'fg',     'bgalt',  'hlbg',   'hlfg'
+    rofi.color-normal: #fdf6e3,  #002b36,  #eee8d5,  #586e75,  #eee8d5
+    rofi.color-urgent: #fdf6e3,  #dc322f,  #eee8d5,  #dc322f,  #fdf6e3
+    rofi.color-active: #fdf6e3,  #268bd2,  #eee8d5,  #268bd2,  #fdf6e3
 
-!                  'background', 'border'
-rofi.color-window: #fdf6e3,      #002b36
-```
+    !                  'background', 'border'
+    rofi.color-window: #fdf6e3,      #002b36
 
 Same settings can also be specified on command-line:
 
-```
-rofi -color-normal "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5"
-```
+    rofi -color-normal "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5"
 
 ## COLORS
 
