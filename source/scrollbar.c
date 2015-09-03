@@ -37,7 +37,7 @@
 
 extern Display *display;
 
-#define SCROLLBAR_WIDTH 10
+#define SCROLLBAR_WIDTH    10
 
 scrollbar *scrollbar_create ( Window parent, XVisualInfo *vinfo, Colormap map,
                               short x, short y, short w, short h )
@@ -108,13 +108,13 @@ void scrollbar_draw ( scrollbar *sb )
     short       height = sb->pos_length * sec;
     short       y      = sb->pos * sec + 1;
     // Set max pos.
-    y      = MIN ( y, bh - 2 );
+    y = MIN ( y, bh - 2 );
     // Never go out of bar.
     height = MAX ( 2, height );
     // Cap length;
-    height = MIN ( bh - y, ( height ) );
+    height = MIN ( bh - y + 1, ( height ) );
     // Redraw base window
     XClearWindow ( display, sb->window );
-    // Paint the handle. 
+    // Paint the handle.
     XFillRectangle ( display, sb->window, sb->gc, 1, y, SCROLLBAR_WIDTH - 2, height );
 }
