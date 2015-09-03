@@ -1,6 +1,5 @@
 #ifndef ROFI_TEXTBOX_H
 #define ROFI_TEXTBOX_H
-#include <X11/Xft/Xft.h>
 
 #include <pango/pango.h>
 #include <pango/pangoxft.h>

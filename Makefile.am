@@ -30,6 +30,7 @@ rofi_SOURCES=\
     source/rofi.c\
 	source/i3-support.c\
     source/textbox.c\
+    source/scrollbar.c\
     source/xrmoptions.c\
     source/history.c\
     config/config.c\
@@ -47,6 +48,7 @@ rofi_SOURCES=\
     include/xrmoptions.h\
     include/history.h\
     include/textbox.h\
+    include/scrollbar.h\
 	include/helper.h\
 	include/keyb.h\
 	include/x11-helper.h\
