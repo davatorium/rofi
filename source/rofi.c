@@ -459,6 +459,38 @@ static void menu_calculate_window_and_element_width ( MenuState *state, workarea
 /**
  * @param state The current MenuState
  *
+ * Move the selection one page down.
+ * - No wrap around.
+ * - Clip at top/bottom
+ */
+inline static void menu_nav_page_next ( MenuState *state )
+{
+    state->selected += ( state->max_elements );
+    if ( state->selected >= state->filtered_lines ) {
+        state->selected = state->filtered_lines - 1;
+    }
+    state->update = TRUE;
+}
+/**
+ * @param state The current MenuState
+ *
+ * Move the selection one page up.
+ * - No wrap around.
+ * - Clip at top/bottom
+ */
+inline static void menu_nav_page_prev ( MenuState * state )
+{
+    if ( state->selected < state->max_elements ) {
+        state->selected = 0;
+    }
+    else{
+        state->selected -= ( state->max_elements );
+    }
+    state->update = TRUE;
+}
+/**
+ * @param state The current MenuState
+ *
  * Move the selection one column to the right.
  * - No wrap around.
  * - Do not move to top row when at start.
@@ -525,6 +557,26 @@ inline static void menu_nav_down ( MenuState *state )
     state->selected = state->selected < state->filtered_lines - 1 ? MIN (
         state->filtered_lines - 1, state->selected + 1 ) : 0;
     state->update = TRUE;
+}
+/**
+ * @param state The current MenuState
+ *
+ * Move the selection to first row.
+ */
+inline static void menu_nav_first ( MenuState * state )
+{
+    state->selected = 0;
+    state->update   = TRUE;
+}
+/**
+ * @param state The current MenuState
+ *
+ * Move the selection to last row.
+ */
+inline static void menu_nav_last ( MenuState * state )
+{
+    state->selected = state->filtered_lines - 1;
+    state->update   = TRUE;
 }
 /**
  * @param key the Key to match
@@ -598,28 +650,16 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
         menu_nav_right ( state );
     }
     else if ( abe_test_action ( PAGE_PREV, modstate, key ) ) {
-        if ( state->selected < state->max_elements ) {
-            state->selected = 0;
-        }
-        else{
-            state->selected -= ( state->max_elements );
-        }
-        state->update = TRUE;
+        menu_nav_page_prev ( state );
     }
     else if ( abe_test_action ( PAGE_NEXT, modstate, key ) ) {
-        state->selected += ( state->max_elements );
-        if ( state->selected >= state->filtered_lines ) {
-            state->selected = state->filtered_lines - 1;
-        }
-        state->update = TRUE;
+        menu_nav_page_next ( state );
     }
     else if  ( abe_test_action ( ROW_FIRST, modstate, key ) ) {
-        state->selected = 0;
-        state->update   = TRUE;
+        menu_nav_first ( state );
     }
     else if ( abe_test_action ( ROW_LAST, modstate, key ) ) {
-        state->selected = state->filtered_lines - 1;
-        state->update   = TRUE;
+        menu_nav_last ( state );
     }
     else if ( abe_test_action ( ROW_SELECT, modstate, key ) ) {
         // If a valid item is selected, return that..
@@ -908,7 +948,7 @@ static void menu_paste ( MenuState *state, XSelectionEvent *xse )
 }
 
 MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt,
-                  menu_match_cb mmc, void *mmc_data, int *selected_line, int sorting,
+                  menu_match_cb mmc, void *mmc_data, int *selected_line,
                   get_display_value mgrv, void *mgrv_data, int *next_pos, const char *message )
 {
     int          shift = FALSE;
@@ -1054,7 +1094,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     // filtered list
     state.line_map = g_malloc0_n ( state.num_lines, sizeof ( int ) );
-    if ( sorting ) {
+    if ( config.levenshtein_sort ) {
         state.distance = (int *) g_malloc0_n ( state.num_lines, sizeof ( int ) );
     }
 
@@ -1093,14 +1133,9 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
     // if grabbing keyboard failed, fall through
     state.selected = 0;
-    // The cast to unsigned in here is valid, we checked if selected_line > 0.
-    // So its maximum range is 0-2³¹, well within the num_lines range.
-//    if ( ( *( state.selected_line ) ) >= 0 && (unsigned int) ( *( state.selected_line ) ) <= state.num_lines ) {
-//        state.selected = *( state.selected_line );
-//    }
 
     state.quit = FALSE;
-    menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
+    menu_refilter ( &state, lines, mmc, mmc_data, config.levenshtein_sort, config.case_sensitive );
 
     for ( unsigned int i = 0; ( *( state.selected_line ) ) >= 0 && !state.selected && i < state.filtered_lines; i++ ) {
         if ( state.line_map[i] == *( state.selected_line ) ) {
@@ -1128,7 +1163,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         // If not in lazy mode, refilter.
         if ( state.num_lines <= config.lazy_filter_limit ) {
             if ( state.refilter ) {
-                menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
+                menu_refilter ( &state, lines, mmc, mmc_data, config.levenshtein_sort, config.case_sensitive );
                 menu_update ( &state );
             }
         }
@@ -1136,7 +1171,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
             // When timeout (and in lazy filter mode)
             // We refilter then loop back and wait for Xevent.
             if ( state.refilter ) {
-                menu_refilter ( &state, lines, mmc, mmc_data, sorting, config.case_sensitive );
+                menu_refilter ( &state, lines, mmc, mmc_data, config.levenshtein_sort, config.case_sensitive );
                 menu_update ( &state );
             }
         }
@@ -1794,8 +1829,8 @@ static gpointer rofi_signal_handler_process ( gpointer arg )
 static void main_loop_x11_event_handler ( void )
 {
     // X11 produced an event. Consume them.
-    XEvent ev;
     while ( XPending ( display ) ) {
+        XEvent ev;
         // Read event, we know this won't block as we checked with XPending.
         XNextEvent ( display, &ev );
         // If we get an event that does not belong to a window:
@@ -1863,10 +1898,7 @@ static GThread *setup_signal_thread ( int *fd )
     sigprocmask ( SIG_BLOCK, &set, NULL );
     // Create signal handler process.
     // This will use sigwaitinfo to read signals and forward them back to the main thread again.
-    return g_thread_new (
-               "signal_process",
-               rofi_signal_handler_process,
-               (void *) fd );
+    return g_thread_new ( "signal_process", rofi_signal_handler_process, (void *) fd );
 }
 
 int main ( int argc, char *argv[] )
@@ -1921,7 +1953,6 @@ int main ( int argc, char *argv[] )
     display_str = getenv ( "DISPLAY" );
     find_arg_str (  "-display", &display_str );
 
-
     if ( !XSupportsLocale () ) {
         fprintf ( stderr, "X11 does not support locales\n" );
         return 11;
@@ -1974,7 +2005,6 @@ int main ( int argc, char *argv[] )
         }
         return show_error_message ( msg, markup );
     }
-
 
     // Dmenu mode.
     if ( dmenu_mode == TRUE ) {
@@ -2085,21 +2115,13 @@ SwitcherMode switcher_run ( char **input, Switcher *sw )
     char         *prompt         = g_strdup_printf ( "%s:", sw->name );
     int          selected_line   = -1;
     unsigned int cmd_list_length = 0;
-    char         **cmd_list      = NULL;
 
-    cmd_list = sw->get_data ( &cmd_list_length, sw );
-
-    int mretv = menu ( cmd_list, cmd_list_length,
-                       input, prompt,
-                       sw->token_match, sw,
-                       &selected_line,
-                       config.levenshtein_sort,
-                       sw->mgrv,
-                       sw, NULL, NULL );
-
-    SwitcherMode retv = sw->result ( mretv, input, selected_line, sw );
+    int          mretv = menu ( sw->get_data ( &cmd_list_length, sw ), cmd_list_length, // List data.
+                                input, prompt,                                          // Input and prompt
+                                sw->token_match, sw,                                    // token match + arg.
+                                &selected_line,                                         // Selected line.
+                                sw->mgrv, sw, NULL, NULL );
 
     g_free ( prompt );
-
-    return retv;
+    return sw->result ( mretv, input, selected_line, sw );
 }
