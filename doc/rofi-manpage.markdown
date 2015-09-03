@@ -143,7 +143,7 @@ Below is a list of the most important options:
 
 Run **rofi** in dmenu mode. This allows for interactive scripts.
 In `dmenu` mode, **rofi** reads from STDIN, and output to STDOUT.
-A simple example, display 3 pre-defined options:
+A simple example, displaying 3 pre-defined options:
 
     echo -e "Option #1\nOption #2\nOption #3" | rofi -dmenu
 
