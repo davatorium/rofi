@@ -2115,8 +2115,12 @@ SwitcherMode switcher_run ( char **input, Switcher *sw )
     char         *prompt         = g_strdup_printf ( "%s:", sw->name );
     int          selected_line   = -1;
     unsigned int cmd_list_length = 0;
+    char         **cmd_list      = NULL;
 
-    int          mretv = menu ( sw->get_data ( &cmd_list_length, sw ), cmd_list_length, // List data.
+    // get the list and get its length, before passing the length to menu
+    cmd_list = sw->get_data ( &cmd_list_length, sw );
+
+    int          mretv = menu ( cmd_list, cmd_list_length, // List data.
                                 input, prompt,                                          // Input and prompt
                                 sw->token_match, sw,                                    // token match + arg.
                                 &selected_line,                                         // Selected line.
