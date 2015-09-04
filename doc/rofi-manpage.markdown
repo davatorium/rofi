@@ -326,6 +326,10 @@ Set separator style. Possible options are "solid" or "dash".
 
     Default: *dash*
 
+`-hide-scrollbar`
+
+Hide the scrollbar.
+
 ### Layout
 
 `-lines`

@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-MANPAGE" "" "August 2015" "" ""
+.TH "ROFI\-MANPAGE" "" "September 2015" "" ""
 .
 .SH "NAME"
 \fBrofi\fR \- A window switcher, run launcher, ssh dialog and dmenu replacement
@@ -16,26 +16,26 @@
 \fBrofi\fR can be used in three ways, single\-shot; executes once and directly exits when done, as a daemon listening to specific key\-combination or emulating dmenu\.
 .
 .SS "Single\-shot mode"
-To launch \fBrofi\fR directly in a certain mode, specifying \fBrofi \-show <mode>\fR\. To show the run dialog:
+To launch \fBrofi\fR directly in a certain mode, specify a mode with \fBrofi \-show <mode>\fR\. To show the run dialog:
 .
 .IP "" 4
 .
 .nf
 
-    rofi \-show run
+rofi \-show run
 .
 .fi
 .
 .IP "" 0
 .
 .SS "Daemon mode"
-To launch \fBrofi\fR in daemon mode don\'t specify a mode to show (\fB\-show <mode>\fR), instead you can bind keys to launch a certain mode\. To have run mode open when pressing \fBF2\fR start \fBrofi\fR like:
+To launch \fBrofi\fR in daemon mode don\'t specify any mode, instead keys can be bound to launch a certain mode\. To show run\-mode by pressing \fBF2\fR start \fBrofi\fR like this:
 .
 .IP "" 4
 .
 .nf
 
-    rofi \-key\-run F2
+rofi \-key\-run F2
 .
 .fi
 .
@@ -65,26 +65,26 @@ Command\-line options: Arguments passed to \fBrofi\fR\.
 .IP "" 0
 .
 .P
-The Xresources options and the command\-line options are aliased\. So to set option X you would set:
+The Xresources file expects options starting with \fBrofi\.\fR followed by it\'s name\. An Example to set the number of lines:
 .
 .IP "" 4
 .
 .nf
 
-rofi\.X: value
+rofi\.lines: 10
 .
 .fi
 .
 .IP "" 0
 .
 .P
-In the Xresources file, and to (override) this via the command\-line you would pass the same key prefixed with a \'\-\':
+Command line options override settings from Xresources file\. The same option set as argument: prefixed with a \'\-\':
 .
 .IP "" 4
 .
 .nf
 
-rofi \-X value
+rofi \-lines 10
 .
 .fi
 .
@@ -121,7 +121,7 @@ Boolean
 .IP "" 0
 .
 .P
-The boolean option has a non\-default command\-line syntax, to enable option X you do:
+Boolean options have a non\-default command\-line syntax\. Example to enable option X:
 .
 .IP "" 4
 .
@@ -159,9 +159,9 @@ Set the key combination to display a {mode} in daemon mode\.
 .
 .nf
 
-  rofi \-key\-run F12
-  rofi \-key\-ssh control+shift+s
-  rofi \-key\-window mod1+Tab
+rofi \-key\-run F12
+rofi \-key\-ssh control+shift+s
+rofi \-key\-window mod1+Tab
 .
 .fi
 .
@@ -171,19 +171,13 @@ Set the key combination to display a {mode} in daemon mode\.
 \fB\-dmenu\fR
 .
 .P
-Run \fBrofi\fR in dmenu mode\. Allowing it to be used for user interaction in scripts\.
-.
-.P
-In \fBdmenu\fR mode, \fBrofi\fR will read input from STDIN, and will output to STDOUT by default\.
-.
-.P
-Example to let the user choose between three pre\-defined options:
+Run \fBrofi\fR in dmenu mode\. This allows for interactive scripts\. In \fBdmenu\fR mode, \fBrofi\fR reads from STDIN, and output to STDOUT\. A simple example, displaying 3 pre\-defined options:
 .
 .IP "" 4
 .
 .nf
 
-    echo \-e "Option #1\enOption #2\enOption #3" | rofi \-dmenu
+echo \-e "Option #1\enOption #2\enOption #3" | rofi \-dmenu
 .
 .fi
 .
@@ -196,51 +190,42 @@ Or get the options from a script:
 .
 .nf
 
-    ~/my_script\.sh | rofi \-dmenu
+~/my_script\.sh | rofi \-dmenu
 .
 .fi
 .
 .IP "" 0
 .
 .P
-Pressing \fBshift\-enter\fR will open the selected entries and move to the next entry\.
+Pressing \fBshift\-enter\fR sends the selected entry to STDOUT and moves to the next entry\.
 .
 .P
 \fB\-show\fR \fImode\fR
 .
 .P
-Open \fBrofi\fR in a certain mode\.
-.
-.P
-For example to show the run\-dialog:
+Open \fBrofi\fR in a certain mode\. Available modes are \fBwindow\fR, \fBrun\fR, \fBssh\fR To show the run\-dialog:
 .
 .IP "" 4
 .
 .nf
 
-    rofi \-show run
+rofi \-show run
 .
 .fi
 .
 .IP "" 0
 .
 .P
-This function deprecates \-rnow,\-snow and \-now
+\fB\-modi\fR \fImode1,mode1\fR
 .
 .P
-\fB\-switchers\fR \fImode1,mode1\fR \fB\-modi\fR \fImode1,mode1\fR
-.
-.P
-Give a comma separated list of modes to enable, in what order\.
-.
-.P
-For example to only show the run and ssh launcher (in that order):
+Specify a ordered, comma separated list of modes to enable\. Enabled modes can be changed at runtime\. Default key is Ctrl+Tab\. If no modes are specified all modes will be enabled\. To only show the run and ssh launcher:
 .
 .IP "" 4
 .
 .nf
 
-    rofi \-modi "run,ssh" \-show run
+rofi \-modi "run,ssh" \-show run
 .
 .fi
 .
@@ -253,20 +238,20 @@ Custom modes can be added using the internal \'script\' mode\. Each mode has two
 .
 .nf
 
-    <name>:<script>
+<name>:<script>
 .
 .fi
 .
 .IP "" 0
 .
 .P
-So to have a mode \'Workspaces\' using the \fBi3_switch_workspace\.sh\fR script type:
+Example: Have a mode \'Workspaces\' using the \fBi3_switch_workspace\.sh\fR script:
 .
 .IP "" 4
 .
 .nf
 
-    rofi \-modi "window,run,ssh,Workspaces:i3_switch_workspaces\.sh" \-show Workspaces
+rofi \-modi "window,run,ssh,Workspaces:i3_switch_workspaces\.sh" \-show Workspaces
 .
 .fi
 .
@@ -287,31 +272,17 @@ Do not print any message when starting in daemon mode\.
 .P
 \fB\-fuzzy\fR
 .
-.IP "" 4
-.
-.nf
-
+.P
 Enable experimental fuzzy matching\.
-.
-.fi
-.
-.IP "" 0
 .
 .P
 \fB\-filter\fR \fIfilter\fR
 .
-.IP "" 4
-.
-.nf
-
-Preset user filter to *filter* in the entry box and pre\-filter the list\.
-.
-.fi
-.
-.IP "" 0
+.P
+Filter the list by setting text in input bar to \fIfilter\fR
 .
 .SS "Theming"
-\fB\-bg\fR
+All colors are either hex #rrggbb values or X11 color names\. \fB\-bg\fR
 .
 .P
 \fB\-bg\-active\fR
@@ -320,13 +291,13 @@ Preset user filter to *filter* in the entry box and pre\-filter the list\.
 \fB\-bg\-urgent\fR
 .
 .P
-Set the background text color (X11 named color or hex #rrggbb) for the menu\.
+Set background color in menu\.
 .
 .IP "" 4
 .
 .nf
 
-  rofi \-bg "#222222"
+rofi \-bg "#222222"
 .
 .fi
 .
@@ -339,13 +310,13 @@ Default: \fI#f2f1f0\fR
 \fB\-bgalt\fR
 .
 .P
-Set the background text color for alternating rows (X11 named color or hex #rrggbb) for the menu\.
+Set background color for alternating rows in menu\.
 .
 .IP "" 4
 .
 .nf
 
-  rofi \-bgalt "#222222"
+rofi \-bgalt "#222222"
 .
 .fi
 .
@@ -358,13 +329,13 @@ Default: \fI#f2f1f0\fR
 \fB\-bc\fR
 .
 .P
-Set the border color (X11 named color or hex #rrggbb) for the menu\.
+Set border color for menu\.
 .
 .IP "" 4
 .
 .nf
 
-  rofi \-bc black
+rofi \-bc black
 .
 .fi
 .
@@ -377,13 +348,13 @@ Default: \fIblack\fR
 \fB\-bw\fR
 .
 .P
-Set the border width in pixels\.
+Set border width in pixels\.
 .
 .IP "" 4
 .
 .nf
 
-  rofi \-bw 1
+rofi \-bw 1
 .
 .fi
 .
@@ -402,13 +373,13 @@ Default: \fI1\fR
 \fB\-fg\-active\fR
 .
 .P
-Set the foreground text color (X11 named color or hex #rrggbb) for the menu\.
+Set foreground text color for the menu\.
 .
 .IP "" 4
 .
 .nf
 
-  rofi \-fg "#cccccc"
+rofi \-fg "#cccccc"
 .
 .fi
 .
@@ -427,13 +398,13 @@ Default: \fI#222222\fR
 \fB\-hlbg\-urgent\fR
 .
 .P
-Set the background text color (X11 named color or hex #rrggbb) for the highlighted item in the menu\.
+Set background color for the highlighted item in the menu\.
 .
 .IP "" 4
 .
 .nf
 
-  rofi \-hlbg "#005577"
+rofi \-hlbg "#005577"
 .
 .fi
 .
@@ -452,13 +423,13 @@ Default: \fI#005577\fR
 \fB\-hlfg\-urgent\fR
 .
 .P
-Set the foreground text color (X11 named color or hex #rrggbb) for the highlighted item in the menu\.
+Set foreground text color for the highlighted item in the menu\.
 .
 .IP "" 4
 .
 .nf
 
-  rofi \-hlfg "#ffffff"
+rofi \-hlfg "#ffffff"
 .
 .fi
 .
@@ -471,13 +442,13 @@ Default: \fI#FFFFFF\fR
 \fB\-font\fR
 .
 .P
-Pango font name for use by the menu\.
+Specify a font\. Pango syntax is used\.
 .
 .IP "" 4
 .
 .nf
 
-  rofi \-font monospace\e 14
+rofi \-font "Dejavu Sans Mono 14"
 .
 .fi
 .
@@ -490,13 +461,13 @@ Default: \fImono 12\fR
 \fB\-opacity\fR
 .
 .P
-Set the window opacity (0\-100)\.
+Set window opacity (0\-100)\.
 .
 .IP "" 4
 .
 .nf
 
-  rofi \-opacity "75"
+rofi \-opacity "75"
 .
 .fi
 .
@@ -515,7 +486,7 @@ The height of a field in lines\. e\.g\.
 .
 .nf
 
-        echo \-e "a\en3|b\en4|c\en5" | rofi \-sep \'|\' \-eh 2 \-dmenu
+echo \-e "a\en3|b\en4|c\en5" | rofi \-sep \'|\' \-eh 2 \-dmenu
 .
 .fi
 .
@@ -530,28 +501,14 @@ The following options are further explained in the theming section:
 .P
 \fB\-color\-enabled\fR
 .
-.IP "" 4
-.
-.nf
-
+.P
 Enable the exteneded coloring options\.
-.
-.fi
-.
-.IP "" 0
 .
 .P
 \fB\-color\-window\fR \fIbackground\fR \fIborder color\fR \fIseparator color\fR/
 .
-.IP "" 4
-.
-.nf
-
+.P
 Set window background, border and separator color\.
-.
-.fi
-.
-.IP "" 0
 .
 .P
 \fB\-color\-normal\fR \fIbackground, foreground, background alt, highlight background, highlight foreground\fR
@@ -562,24 +519,18 @@ Set window background, border and separator color\.
 .P
 \fB\-color\-active\fR \fIbackground, foreground, background alt, highlight background, highlight foreground\fR
 .
-.IP "" 4
-.
-.nf
-
+.P
 Specify the colors used in a row per state (normal, active, urgent)\.
-.
-.fi
-.
-.IP "" 0
 .
 .P
 \fB\-line\-margin\fR
 .
+.P
+Set the spacing between the rows\.
+.
 .IP "" 4
 .
 .nf
-
-Set the spacing between the rows\.
 
 Default: *3*
 Min:     *3*
@@ -592,11 +543,12 @@ Max:     *50*
 .P
 \fB\-separator\-style\fR \fIstyle\fR
 .
+.P
+Set separator style\. Possible options are "solid" or "dash"\.
+.
 .IP "" 4
 .
 .nf
-
-Set the separator style, either "solid" or "dash"
 
 Default: *dash*
 .
@@ -604,17 +556,23 @@ Default: *dash*
 .
 .IP "" 0
 .
+.P
+\fB\-hide\-scrollbar\fR
+.
+.P
+Hide the scrollbar\.
+.
 .SS "Layout"
 \fB\-lines\fR
 .
 .P
-Maximum number of lines the menu may show before scrolling\.
+Maximum number of lines to show before scrolling\.
 .
 .IP "" 4
 .
 .nf
 
-  rofi \-lines 25
+rofi \-lines 25
 .
 .fi
 .
@@ -627,13 +585,13 @@ Default: \fI15\fR
 \fB\-columns\fR
 .
 .P
-The number of columns the menu may show before scrolling\.
+Number of columns to show before scrolling\.
 .
 .IP "" 4
 .
 .nf
 
-  rofi \-columns 2
+rofi \-columns 2
 .
 .fi
 .
@@ -646,39 +604,39 @@ Default: \fI1\fR
 \fB\-width\fR [value]
 .
 .P
-Set the width of the menu as a percentage of the screen width\.
+Set width of menu\. \fB[value]\fR is specified in percentage\.
 .
 .IP "" 4
 .
 .nf
 
-  rofi \-width 60
+rofi \-width 60
 .
 .fi
 .
 .IP "" 0
 .
 .P
-If value is larger then 100, the size is set in pixels\. e\.g\. to span a full hd monitor:
+If \fB[value]\fR is larger then 100, size is set in pixels\. Example to span a full hd monitor:
 .
 .IP "" 4
 .
 .nf
 
-  rofi \-width 1920
+rofi \-width 1920
 .
 .fi
 .
 .IP "" 0
 .
 .P
-If the value is negative, it tries to estimates a character width\. To show 30 characters on a row:
+If \fB[value]\fR is negative, it tries to estimates a character width\. To show 30 characters on a row:
 .
 .IP "" 4
 .
 .nf
 
-  rofi \-width \-30
+rofi \-width \-30
 .
 .fi
 .
@@ -694,7 +652,7 @@ Default: \fI50\fR
 \fB\-location\fR
 .
 .P
-Specify where the window should be located\. The numbers map to the following location on the monitor:
+Specify where the window should be located\. The numbers map to the following locations on screen:
 .
 .IP "" 4
 .
@@ -729,14 +687,14 @@ Default: \fI5\fR
 .P
 \fB\-sidebar\-mode\fR
 .
+.P
+Open in sidebar\-mode\. In this mode a list of all enabled modes is shown at the bottom\. (See \fB\-modi\fR option) To show sidebar use:
+.
 .IP "" 4
 .
 .nf
 
-Go into side\-bar mode, it will show list of modi at the bottom\.
-To show sidebar use:
-
-    rofi \-show run \-sidebar\-mode \-lines 0
+rofi \-show run \-sidebar\-mode \-lines 0
 .
 .fi
 .
@@ -754,24 +712,18 @@ Default: \fI5000\fR
 .P
 \fB\-auto\-select\fR
 .
-.IP "" 4
-.
-.nf
-
-When one entry is left, automatically select this\.
-.
-.fi
-.
-.IP "" 0
+.P
+When one entry is left, automatically select it\.
 .
 .P
 \fB\-m\fR \fInum\fR \fB\-monitor\fR \fInum\fR
 .
+.P
+Select (Xinerama) monitor to display \fBrofi\fR on\. The special number \-1 denotes the currently focused monitor, the number \-2 denotes the currently focused window (i\.e\. rofi will be displayed on top of the focused window)\.
+.
 .IP "" 4
 .
 .nf
-
-Select (Xinerama) monitor to display **rofi** on\. The special number \-1 denotes the currently focused monitor, the number \-2 denotes the currently focused window (i\.e\. rofi will be displayed on top of the focused window)\.
 
 Default: *\-1*
 .
@@ -789,7 +741,7 @@ Specify what terminal to start\.
 .
 .nf
 
-  rofi \-terminal xterm
+rofi \-terminal xterm
 .
 .fi
 .
@@ -819,21 +771,14 @@ Default: \fI{terminal} \-e {ssh\-client} {host}\fR
 .P
 \fB\-parse\-hosts\fR
 .
-.IP "" 4
-.
-.nf
-
-Parse the `/etc/hosts` files for entries\.
-.
-.fi
-.
-.IP "" 0
+.P
+Parse the \fB/etc/hosts\fR file for entries\.
 .
 .SS "Run settings"
 \fB\-run\-command\fR \fIcmd\fR
 .
 .P
-Set the command (\fI{cmd}\fR) to execute when running an application\. See \fIPATTERN\fR\.
+Set command (\fI{cmd}\fR) to execute when running an application\. See \fIPATTERN\fR\.
 .
 .P
 Default: \fI{cmd}\fR
@@ -842,7 +787,7 @@ Default: \fI{cmd}\fR
 \fB\-run\-shell\-command\fR \fIcmd\fR
 .
 .P
-Set the command to execute when running an application in a shell\. See \fIPATTERN\fR\.
+Set command to execute when running an application in a shell\. See \fIPATTERN\fR\.
 .
 .P
 Default: \fI{terminal} \-e {cmd}\fR
@@ -859,15 +804,14 @@ Default: \fI""\fR
 .SS "Combi settings"
 \fB\-combi\-modi\fR \fImode1,mode2\fR
 .
+.P
+The modi to combine in combi mode\. For syntax to see \fB\-modi\fR\. To get one merge view, of window,run,ssh:
+.
 .IP "" 4
 .
 .nf
 
-The modi to combine in the combi mode\.
-For syntax to see `\-modi`\.
-To get one merge view, of window,run,ssh:
-
-        rofi \-show combi \-combi\-modi "window,run,ssh"
+rofi \-show combi \-combi\-modi "window,run,ssh"
 .
 .fi
 .
@@ -888,13 +832,14 @@ When searching sort the result based on levenshtein distance\.
 .SS "Dmenu specific"
 \fB\-sep\fR \fIseparator\fR
 .
+.P
+Separator for dmenu\. Example: To show list \'a\' to \'e\' with \'|\' as separator:
+.
 .IP "" 4
 .
 .nf
 
-Separator for dmenu\. For example to show list a to e with \'|\' as separator:
-
-        echo "a|b|c|d|e" | rofi \-sep \'|\' \-dmenu
+echo "a|b|c|d|e" | rofi \-sep \'|\' \-dmenu
 .
 .fi
 .
@@ -903,34 +848,30 @@ Separator for dmenu\. For example to show list a to e with \'|\' as separator:
 .P
 \fB\-p\fR \fIprompt\fR
 .
+.P
+Specify the prompt to show in dmenu mode\. E\.g\. select monkey a,b,c,d or e\.
+.
 .IP "" 4
 .
 .nf
 
-Specify the prompt to show in dmenu mode\. E\.g\. select monkey a,b,c,d or e\.
-
-        echo "a|b|c|d|e" | rofi \-sep \'|\' \-dmenu \-p "monkey:"
-
-Default: *dmenu*
+echo "a|b|c|d|e" | rofi \-sep \'|\' \-dmenu \-p "monkey:"
 .
 .fi
 .
 .IP "" 0
 .
 .P
+Default: \fIdmenu\fR
+.
+.P
 \fB\-selected\-row\fR \fIselected row\fR
 .
-.IP "" 4
-.
-.nf
-
+.P
 Select a certain row\.
-
-Default: *0*
 .
-.fi
-.
-.IP "" 0
+.P
+Default: \fI0\fR
 .
 .P
 \fB\-l\fR \fInumber of lines to show\fR
@@ -942,7 +883,7 @@ Maximum number of lines the menu may show before scrolling\.
 .
 .nf
 
-  rofi \-lines 25
+rofi \-lines 25
 .
 .fi
 .
@@ -954,112 +895,67 @@ Default: \fI15\fR
 .P
 \fB\-i\fR
 .
-.IP "" 4
-.
-.nf
-
-Makes dmenu match menu entries case insensitively\.
-.
-.fi
-.
-.IP "" 0
+.P
+Makes dmenu searches case\-insensitive
 .
 .P
 \fB\-a\fR \fIX\fR
 .
-.IP "" 4
-.
-.nf
-
-Active row, mark row X as active\. (starting at 0)
-You can specify single element: \-a 3
-A range: \-a 3\-8
-or a set of rows: \-a 0,2
-Or any combination: \-a 0,2\-3,9
-.
-.fi
-.
-.IP "" 0
+.P
+Active row, mark row X as active\. (starting at 0) You can specify single element: \-a 3 A range: \-a 3\-8 or a set of rows: \-a 0,2 or any combination: \-a 0,2\-3,9
 .
 .P
 \fB\-u\fR \fIX\fR
 .
-.IP "" 4
-.
-.nf
-
-Urgent row, mark row X as urgent\. (starting at 0)
-You can specify single element: \-u 3
-A range: \-u 3\-8
-or a set of rows: \-u 0,2
-Or any combination: \-u 0,2\-3,9
-.
-.fi
-.
-.IP "" 0
+.P
+Urgent row, mark row X as urgent\. (starting at 0) You can specify single element: \-u 3 A range: \-u 3\-8 or a set of rows: \-u 0,2 or any combination: \-u 0,2\-3,9
 .
 .P
 \fB\-only\-match\fR
 .
-.IP "" 4
-.
-.nf
-
-Only return a selected item, do not allow custom entry\.
-This mode always returns an entry, or returns directly when no entries given\.
-.
-.fi
-.
-.IP "" 0
+.P
+Only return a selected item, do not allow custom entry\. This mode always returns an entry, or returns directly when no entries given\.
 .
 .P
 \fB\-no\-custom\fR
 .
-.IP "" 4
-.
-.nf
-
-Only return a selected item, do not allow custom entry\.
-This mode returns directly when no entries given\.
-.
-.fi
-.
-.IP "" 0
+.P
+Only return a selected item, do not allow custom entry\. This mode returns directly when no entries given\.
 .
 .P
 \fB\-format\fR \fIformat\fR
 .
-.IP "" 4
-.
-.nf
-
+.P
 Allows the output of dmenu to be customized (N is total number of input entries):
-
- * \'s\' selected string\.
- * \'i\' index (0 \- (N\-1))\.
- * \'d\' index (1 \- N)\.
- * \'q\' quote string\.
- * \'f\' filter string (user input)\.
- * \'F\' quoted filter string (user input)\.
-
-Default: \'s\'
 .
-.fi
+.IP "\(bu" 4
+\'s\' selected string\.
+.
+.IP "\(bu" 4
+\'i\' index (0 \- (N\-1))\.
+.
+.IP "\(bu" 4
+\'d\' index (1 \- N)\.
+.
+.IP "\(bu" 4
+\'q\' quote string\.
+.
+.IP "\(bu" 4
+\'f\' filter string (user input)\.
+.
+.IP "\(bu" 4
+\'F\' quoted filter string (user input)\.
 .
 .IP "" 0
 .
 .P
+Default: \'s\'
+.
+.P
 \fB\-select\fR \fIstring\fR
 .
-.IP "" 4
-.
-.nf
-
+.P
 Select first line that matches the given string
-.
-.fi
-.
-.IP "" 0
 .
 .P
 \fB\-mesg\fR \fIstring\fR
@@ -1070,30 +966,14 @@ Add a message line below the filter entry box\. Supports pango markup\. For more
 .SS "Message dialog"
 \fB\-e\fR \fImessage\fR
 .
-.IP "" 4
-.
-.nf
-
-Popup a message dialog (used internally for showing errors) with *message*\.
-Message can be multi\-line\.
-.
-.fi
-.
-.IP "" 0
+.P
+Popup a message dialog (used internally for showing errors) with \fImessage\fR\. Message can be multi\-line\.
 .
 .SS "Other"
 \'\-pid\' \fIpath\fR
 .
-.IP "" 4
-.
-.nf
-
-Make **rofi** create a pid file and check this on startup\. Avoiding multiple copies running
-simultaneous\. This is useful when running **rofi** from a keybinding daemon\.
-.
-.fi
-.
-.IP "" 0
+.P
+Make \fBrofi\fR create a pid file and check this on startup\. Avoiding multiple copies running simultaneously\. This is useful when running \fBrofi\fR from a keybinding daemon\.
 .
 .SS "Debug"
 \fB\-dump\-xresources\fR
@@ -1222,13 +1102,20 @@ rofi \-color\-normal "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5"
 .IP "" 0
 .
 .SH "COLORS"
-Rofi has an experimental mode for a \'nicer\' transparency\. The idea is that you can make the background of the window transparent but the text not\. This way, in contrast to the \fB\-opacity\fR option, the text is still fully visible and readable\. To use this there are 2 requirements: 1\. Your Xserver supports TrueColor, 2\. You are running a composite manager\. If this is satisfied you can use the following format for colors:
+Rofi has an experimental mode for a \'nicer\' transparency\. The idea is to make the background of the window transparent, leaving the text opaque\. There are 2 requirements for this feature: 1\. Your Xserver supports TrueColor, 2\. You are running a composite manager\. If this is satisfied you can use the following format for colors:
 .
-.P
+.IP "" 4
+.
+.nf
+
 argb:FF444444
 .
+.fi
+.
+.IP "" 0
+.
 .P
-The first two fields specify the alpha level\. This determines how much the background shines through the color (00 everything, FF nothing)\. E\.g\. \'argb:00FF0000\' gives you a bright red color with the background shining through\. If you want a dark greenish transparent color use: \'argb:dd2c3311\'\. This can be done for any color; it is therefore possible to have solid borders, the selected row solid, and the others slightly transparent\.
+The first two fields specify the alpha level\. This determines the amount of transparency\. (00 everything, FF nothing)\. The other fields represent the actual color, in hex\.
 .
 .SH "KEYBINDINGS"
 \fBrofi\fR has the following key\-bindings:

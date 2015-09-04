@@ -131,9 +131,14 @@ Settings config = {
     /** Fuzzy matching. */
     .fuzzy             = FALSE,
     /** Monitor */
-    .monitor         =                                        -1,
-    .line_margin     =                                         2,
-    .filter          = NULL,
-    .separator_style = "dash",
+    .monitor           =                                        -1,
+    /** set line margin */
+    .line_margin       =                                         2,
+    /** Set filter */
+    .filter            = NULL,
+    /** Separator style: dash/solid */
+    .separator_style   = "dash",
+    /** Hide scrollbar */
+    .hide_scrollbar    = FALSE,
 };
 

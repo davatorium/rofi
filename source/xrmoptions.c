@@ -129,7 +129,8 @@ static XrmOption xrmOptions[] = {
     { xrm_SNumber, "m",                    { .snum = &config.monitor                 }, NULL },
     { xrm_Number,  "line-margin",          { .num  = &config.line_margin             }, NULL },
     { xrm_String,  "filter",               { .str  = &config.filter                  }, NULL },
-    { xrm_String,  "separator-style",      { .str  = &config.separator_style         }, NULL }
+    { xrm_String,  "separator-style",      { .str  = &config.separator_style         }, NULL },
+    { xrm_Boolean, "hide-scrollbar",       { .num  = &config.hide_scrollbar          }, NULL }
 };
 
 // Dynamic options.

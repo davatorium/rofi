@@ -1022,8 +1022,13 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                           x_offset, y_offset,
                                           state.element_width, element_height, NORMAL, "" );
     }
-    state.scrollbar = scrollbar_create ( main_window, &vinfo, map, state.w - config.padding-config.line_margin- 8, state.top_offset,
-                                         config.line_margin+8, ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + element_height );
+    if ( !config.hide_scrollbar ) {
+        state.scrollbar = scrollbar_create ( main_window, &vinfo, map,
+                                             state.w - config.padding - config.line_margin - 8,
+                                             state.top_offset,
+                                             config.line_margin + 8,
+                                             ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + element_height );
+    }
 
 
     scrollbar_set_max_value ( state.scrollbar, state.num_lines );
@@ -2056,11 +2061,11 @@ SwitcherMode switcher_run ( char **input, Switcher *sw )
     // get the list and get its length, before passing the length to menu
     cmd_list = sw->get_data ( &cmd_list_length, sw );
 
-    int          mretv = menu ( cmd_list, cmd_list_length, // List data.
-                                input, prompt,                                          // Input and prompt
-                                sw->token_match, sw,                                    // token match + arg.
-                                &selected_line,                                         // Selected line.
-                                sw->mgrv, sw, NULL, NULL );
+    int mretv = menu ( cmd_list, cmd_list_length,          // List data.
+                       input, prompt,                      // Input and prompt
+                       sw->token_match, sw,                // token match + arg.
+                       &selected_line,                     // Selected line.
+                       sw->mgrv, sw, NULL, NULL );
 
     g_free ( prompt );
     return sw->result ( mretv, input, selected_line, sw );

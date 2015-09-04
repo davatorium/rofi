@@ -70,58 +70,75 @@ scrollbar *scrollbar_create ( Window parent, XVisualInfo *vinfo, Colormap map,
 
 void scrollbar_show ( scrollbar *sb )
 {
-    XMapWindow ( display, sb->window );
+    if ( sb != NULL ) {
+        XMapWindow ( display, sb->window );
+    }
 }
 void scrollbar_hide ( scrollbar *sb )
 {
-    XUnmapWindow ( display, sb->window );
+    if ( sb != NULL ) {
+        XUnmapWindow ( display, sb->window );
+    }
 }
 
 void scrollbar_free ( scrollbar *sb )
 {
-    XFreeGC ( display, sb->gc );
-    XDestroyWindow ( display, sb->window );
-    g_free ( sb );
+    if ( sb != NULL ) {
+        XFreeGC ( display, sb->gc );
+        XDestroyWindow ( display, sb->window );
+        g_free ( sb );
+    }
 }
 
 void scrollbar_set_max_value ( scrollbar *sb, unsigned int max )
 {
-    sb->length = MAX ( 1, max );
+    if ( sb != NULL ) {
+        sb->length = MAX ( 1, max );
+    }
 }
 
 void scrollbar_set_handle ( scrollbar *sb, unsigned int pos )
 {
-    sb->pos = MIN ( sb->length, MAX ( 0, pos ) );
+    if ( sb != NULL ) {
+        sb->pos = MIN ( sb->length, MAX ( 0, pos ) );
+    }
 }
 
 void scrollbar_set_handle_length ( scrollbar *sb, unsigned int pos_length )
 {
-    sb->pos_length = MIN ( sb->length, MAX ( 1, pos_length ) );
+    if ( sb != NULL ) {
+        sb->pos_length = MIN ( sb->length, MAX ( 1, pos_length ) );
+    }
 }
 
 void scrollbar_draw ( scrollbar *sb )
 {
-    // Calculate position and size.
-    const short bh     = sb->h - 0;
-    float       sec    = ( ( bh ) / (float) sb->length );
-    short       height = sb->pos_length * sec;
-    short       y      = sb->pos * sec;
-    // Set max pos.
-    y = MIN ( y, bh - 2 );
-    // Never go out of bar.
-    height = MAX ( 2, height );
-    // Cap length;
-    height = MIN ( bh - y + 1, ( height ) );
-    // Redraw base window
-    XClearWindow ( display, sb->window );
-    // Paint the handle.
-    XFillRectangle ( display, sb->window, sb->gc, config.line_margin, y, sb->w-config.line_margin, height );
+    if ( sb != NULL ) {
+        // Calculate position and size.
+        const short bh     = sb->h - 0;
+        float       sec    = ( ( bh ) / (float) sb->length );
+        short       height = sb->pos_length * sec;
+        short       y      = sb->pos * sec;
+        // Set max pos.
+        y = MIN ( y, bh - 2 );
+        // Never go out of bar.
+        height = MAX ( 2, height );
+        // Cap length;
+        height = MIN ( bh - y + 1, ( height ) );
+        // Redraw base window
+        XClearWindow ( display, sb->window );
+        // Paint the handle.
+        XFillRectangle ( display, sb->window, sb->gc, config.line_margin, y, sb->w - config.line_margin, height );
+    }
 }
 
 unsigned int scrollbar_clicked ( scrollbar *sb, int y )
 {
-    const short  bh  = sb->h - 2;
-    float        sec = ( ( bh ) / (float) sb->length );
-    unsigned int sel = y / sec;
-    return sel;
+    if ( sb != NULL ) {
+        const short  bh  = sb->h - 2;
+        float        sec = ( ( bh ) / (float) sb->length );
+        unsigned int sel = y / sec;
+        return sel;
+    }
+    return 0;
 }

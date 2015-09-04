@@ -236,6 +236,8 @@ typedef struct _Settings
     char           *filter;
     /** style */
     char           *separator_style;
+    /** hide scrollbar */
+    unsigned int   hide_scrollbar;
 } Settings;
 
 /** Global Settings structure. */
