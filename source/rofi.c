@@ -368,7 +368,7 @@ static void menu_calculate_rows_columns ( MenuState *state )
     // Always have at least one row.
     state->max_rows = MAX ( 1, state->max_rows );
     if ( state->scrollbar ) {
-        scrollbar_set_pos_length ( state->scrollbar, state->max_rows );
+        scrollbar_set_handle_length ( state->scrollbar, state->max_rows );
     }
 
     if ( config.fixed_num_lines == TRUE ) {
@@ -741,7 +741,7 @@ static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, v
         state->quit               = TRUE;
     }
 
-    scrollbar_set_length ( state->scrollbar, state->filtered_lines );
+    scrollbar_set_max_value ( state->scrollbar, state->filtered_lines );
     state->refilter = FALSE;
     state->rchanged = TRUE;
 }
@@ -766,7 +766,7 @@ static void menu_draw ( MenuState *state )
             state->cur_page = page;
             state->rchanged = TRUE;
         }
-        scrollbar_set_pos ( state->scrollbar, page * state->max_rows );
+        scrollbar_set_handle ( state->scrollbar, page * state->max_rows );
     }
     scrollbar_draw ( state->scrollbar );
     // Re calculate the boxes and sizes, see if we can move this in the menu_calc*rowscolumns
@@ -1026,8 +1026,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                          8, ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + element_height );
 
 
-    scrollbar_set_length ( state.scrollbar, state.num_lines );
-    scrollbar_set_pos_length ( state.scrollbar, state.max_rows );
+    scrollbar_set_max_value ( state.scrollbar, state.num_lines );
+    scrollbar_set_handle_length ( state.scrollbar, state.max_rows );
     // filtered list
     state.line_map = g_malloc0_n ( state.num_lines, sizeof ( int ) );
     if ( config.levenshtein_sort ) {

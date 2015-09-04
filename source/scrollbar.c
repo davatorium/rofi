@@ -84,17 +84,17 @@ void scrollbar_free ( scrollbar *sb )
     g_free ( sb );
 }
 
-void scrollbar_set_length ( scrollbar *sb, unsigned int length )
+void scrollbar_set_max_value ( scrollbar *sb, unsigned int max )
 {
-    sb->length = MAX ( 1, length );
+    sb->length = MAX ( 1, max );
 }
 
-void scrollbar_set_pos ( scrollbar *sb, unsigned int pos )
+void scrollbar_set_handle ( scrollbar *sb, unsigned int pos )
 {
     sb->pos = MIN ( sb->length, MAX ( 0, pos ) );
 }
 
-void scrollbar_set_pos_length ( scrollbar *sb, unsigned int pos_length )
+void scrollbar_set_handle_length ( scrollbar *sb, unsigned int pos_length )
 {
     sb->pos_length = MIN ( sb->length, MAX ( 1, pos_length ) );
 }
@@ -102,10 +102,10 @@ void scrollbar_set_pos_length ( scrollbar *sb, unsigned int pos_length )
 void scrollbar_draw ( scrollbar *sb )
 {
     // Calculate position and size.
-    const short bh     = sb->h - 2;
+    const short bh     = sb->h - 0;
     float       sec    = ( ( bh ) / (float) sb->length );
     short       height = sb->pos_length * sec;
-    short       y      = sb->pos * sec + 1;
+    short       y      = sb->pos * sec;
     // Set max pos.
     y = MIN ( y, bh - 2 );
     // Never go out of bar.
@@ -115,7 +115,7 @@ void scrollbar_draw ( scrollbar *sb )
     // Redraw base window
     XClearWindow ( display, sb->window );
     // Paint the handle.
-    XFillRectangle ( display, sb->window, sb->gc, 1, y, sb->w, height );
+    XFillRectangle ( display, sb->window, sb->gc, 0, y, sb->w, height );
 }
 
 unsigned int scrollbar_clicked ( scrollbar *sb, int y )
