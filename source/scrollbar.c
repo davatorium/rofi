@@ -37,8 +37,6 @@
 
 extern Display *display;
 
-#define SCROLLBAR_WIDTH    10
-
 scrollbar *scrollbar_create ( Window parent, XVisualInfo *vinfo, Colormap map,
                               short x, short y, short w, short h )
 {
@@ -50,7 +48,7 @@ scrollbar *scrollbar_create ( Window parent, XVisualInfo *vinfo, Colormap map,
     sb->w      = MAX ( 1, w );
     sb->h      = MAX ( 1, h );
 
-    sb->length     = SCROLLBAR_WIDTH;
+    sb->length     = 10;
     sb->pos        = 0;
     sb->pos_length = 4;
 
@@ -58,9 +56,10 @@ scrollbar *scrollbar_create ( Window parent, XVisualInfo *vinfo, Colormap map,
     attr.colormap         = map;
     attr.border_pixel     = color_border ( display );
     attr.background_pixel = color_background ( display );
-    sb->window            = XCreateWindow ( display, sb->parent, sb->x, sb->y, sb->w, sb->h, 1, vinfo->depth,
+    sb->window            = XCreateWindow ( display, sb->parent, sb->x, sb->y, sb->w, sb->h, 0, vinfo->depth,
                                             InputOutput, vinfo->visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
 
+    XSelectInput ( display, sb->window, ExposureMask | ButtonPressMask );
     sb->gc = XCreateGC ( display, sb->window, 0, 0 );
     XSetForeground ( display, sb->gc, color_separator ( display ) );
     //XSetFillStyle ( display, sb->gc, FillSolid);
@@ -116,5 +115,13 @@ void scrollbar_draw ( scrollbar *sb )
     // Redraw base window
     XClearWindow ( display, sb->window );
     // Paint the handle.
-    XFillRectangle ( display, sb->window, sb->gc, 1, y, SCROLLBAR_WIDTH - 2, height );
+    XFillRectangle ( display, sb->window, sb->gc, 1, y, sb->w, height );
+}
+
+unsigned int scrollbar_clicked ( scrollbar *sb, int y )
+{
+    const short  bh  = sb->h - 2;
+    float        sec = ( ( bh ) / (float) sb->length );
+    unsigned int sel = y / sec;
+    return sel;
 }

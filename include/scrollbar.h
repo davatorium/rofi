@@ -21,4 +21,5 @@ void scrollbar_set_pos_length ( scrollbar *sb, unsigned int pos_length );
 void scrollbar_set_pos ( scrollbar *sb, unsigned int pos );
 void scrollbar_set_length ( scrollbar *sb, unsigned int length );
 void scrollbar_draw ( scrollbar *sb );
+unsigned int scrollbar_clicked ( scrollbar *sb, int y );
 #endif // ROFI_SCROLLBAR_H

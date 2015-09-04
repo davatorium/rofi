@@ -662,6 +662,11 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
         return;
     }
     else {
+        if ( state->scrollbar && state->scrollbar->window == xbe->window ) {
+            state->selected = scrollbar_clicked ( state->scrollbar, xbe->y );
+            state->update   = TRUE;
+            return;
+        }
         for ( unsigned int i = 0; config.sidebar_mode == TRUE && i < num_switchers; i++ ) {
             if ( switchers[i]->tb->window == ( xbe->window ) ) {
                 *( state->selected_line ) = 0;
@@ -1017,8 +1022,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                           x_offset, y_offset,
                                           state.element_width, element_height, NORMAL, "" );
     }
-    state.scrollbar = scrollbar_create ( main_window, &vinfo, map, state.w - config.padding - 10, state.top_offset,
-                                         10, ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + element_height - 2 );
+    state.scrollbar = scrollbar_create ( main_window, &vinfo, map, state.w - config.padding - 8, state.top_offset,
+                                         8, ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + element_height );
 
 
     scrollbar_set_length ( state.scrollbar, state.num_lines );
