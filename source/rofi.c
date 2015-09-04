@@ -367,9 +367,6 @@ static void menu_calculate_rows_columns ( MenuState *state )
                                 ) );
     // Always have at least one row.
     state->max_rows = MAX ( 1, state->max_rows );
-    if ( state->scrollbar ) {
-        scrollbar_set_handle_length ( state->scrollbar, state->max_rows );
-    }
 
     if ( config.fixed_num_lines == TRUE ) {
         state->max_elements = state->menu_lines * state->columns;
@@ -766,7 +763,8 @@ static void menu_draw ( MenuState *state )
             state->cur_page = page;
             state->rchanged = TRUE;
         }
-        scrollbar_set_handle ( state->scrollbar, page * state->max_rows );
+        // Set the position.
+        scrollbar_set_handle ( state->scrollbar, page * state->max_elements );
     }
     scrollbar_draw ( state->scrollbar );
     // Re calculate the boxes and sizes, see if we can move this in the menu_calc*rowscolumns
@@ -778,6 +776,8 @@ static void menu_draw ( MenuState *state )
                              state->max_rows ) / state->max_rows;
     columns = MIN ( columns, state->columns );
 
+    // Update the handle length.
+    scrollbar_set_handle_length ( state->scrollbar, columns * state->max_rows );
     // Element width.
     unsigned int element_width = state->w - ( 2 * ( config.padding ) );
     if ( columns > 0 ) {
@@ -1027,7 +1027,6 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 
 
     scrollbar_set_max_value ( state.scrollbar, state.num_lines );
-    scrollbar_set_handle_length ( state.scrollbar, state.max_rows );
     // filtered list
     state.line_map = g_malloc0_n ( state.num_lines, sizeof ( int ) );
     if ( config.levenshtein_sort ) {
