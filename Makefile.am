@@ -30,6 +30,7 @@ rofi_SOURCES=\
     source/rofi.c\
 	source/i3-support.c\
     source/textbox.c\
+    source/scrollbar.c\
     source/xrmoptions.c\
     source/history.c\
     config/config.c\
@@ -47,6 +48,7 @@ rofi_SOURCES=\
     include/xrmoptions.h\
     include/history.h\
     include/textbox.h\
+    include/scrollbar.h\
 	include/helper.h\
 	include/keyb.h\
 	include/x11-helper.h\
@@ -154,13 +156,21 @@ test: ${bin_PROGRAMS}
 
 .PHONY: test-x
 test-x: ${bin_PROGRAMS}
+	echo "Test 1"	
 	$(top_srcdir)/test/run_test.sh 123 $(top_builddir)/textbox_test $(top_builddir) $(top_srcdir)/doc/example.xresources
+	echo "Test 2"
 	$(top_srcdir)/test/run_test.sh 200 $(top_srcdir)/test/run_errormsg_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
+	echo "Test 3"
 	$(top_srcdir)/test/run_test.sh 201 $(top_srcdir)/test/run_switchdialog_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
+	echo "Test 4"
 	$(top_srcdir)/test/run_test.sh 202 $(top_srcdir)/test/run_dmenu_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
+	echo "Test 5"
 	$(top_srcdir)/test/run_test.sh 203 $(top_srcdir)/test/run_dmenu_custom_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
+	echo "Test 6"
 	$(top_srcdir)/test/run_test.sh 204 $(top_srcdir)/test/run_run_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
+	echo "Test 7"
 	$(top_srcdir)/test/run_test.sh 205 $(top_srcdir)/test/run_script_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
+	echo "End tests"
 
 
 .PHONY: indent

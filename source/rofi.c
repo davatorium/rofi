@@ -47,6 +47,7 @@
 #include "rofi.h"
 #include "helper.h"
 #include "textbox.h"
+#include "scrollbar.h"
 #include "x11-helper.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
@@ -128,45 +129,6 @@ static inline MainLoopEvent wait_for_xevent_or_timeout ( Display *display, int x
     return ML_XEVENT;
 }
 
-static void menu_hide_arrow_text ( int filtered_lines, int selected, int max_elements,
-                                   textbox *arrowbox_top, textbox *arrowbox_bottom )
-{
-    if ( arrowbox_top == NULL || arrowbox_bottom == NULL ) {
-        return;
-    }
-    int page   = ( filtered_lines > 0 ) ? selected / max_elements : 0;
-    int npages = ( filtered_lines > 0 ) ? ( ( filtered_lines + max_elements - 1 ) / max_elements ) : 1;
-    if ( !( page != 0 && npages > 1 ) ) {
-        textbox_hide ( arrowbox_top );
-    }
-    if ( !( ( npages - 1 ) != page && npages > 1 ) ) {
-        textbox_hide ( arrowbox_bottom );
-    }
-}
-
-static void menu_set_arrow_text ( int filtered_lines, int selected, int max_elements,
-                                  textbox *arrowbox_top, textbox *arrowbox_bottom )
-{
-    if ( arrowbox_top == NULL || arrowbox_bottom == NULL ) {
-        return;
-    }
-    if ( filtered_lines == 0 || max_elements == 0 ) {
-        return;
-    }
-    int page   = ( filtered_lines > 0 ) ? selected / max_elements : 0;
-    int npages = ( filtered_lines > 0 ) ? ( ( filtered_lines + max_elements - 1 ) / max_elements ) : 1;
-    int entry  = selected % max_elements;
-    if ( page != 0 && npages > 1 ) {
-        textbox_show ( arrowbox_top );
-        textbox_font ( arrowbox_top, ( entry != 0 ) ? NORMAL : HIGHLIGHT );
-        textbox_draw ( arrowbox_top );
-    }
-    if ( ( npages - 1 ) != page && npages > 1 ) {
-        textbox_show ( arrowbox_bottom );
-        textbox_font ( arrowbox_bottom, ( entry != ( max_elements - 1 ) ) ? NORMAL : HIGHLIGHT );
-        textbox_draw ( arrowbox_bottom );
-    }
-}
 
 /**
  * Levenshtein Sorting.
@@ -287,9 +249,8 @@ typedef struct MenuState
     textbox           *prompt_tb;
     textbox           *message_tb;
     textbox           *case_indicator;
-    textbox           *arrowbox_top;
-    textbox           *arrowbox_bottom;
     textbox           **boxes;
+    scrollbar         *scrollbar;
     int               *distance;
     int               *line_map;
 
@@ -325,8 +286,7 @@ static void menu_free_state ( MenuState *state )
     textbox_free ( state->text );
     textbox_free ( state->prompt_tb );
     textbox_free ( state->case_indicator );
-    textbox_free ( state->arrowbox_bottom );
-    textbox_free ( state->arrowbox_top );
+    scrollbar_free ( state->scrollbar );
 
     for ( unsigned int i = 0; i < state->max_elements; i++ ) {
         textbox_free ( state->boxes[i] );
@@ -698,25 +658,12 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
         }
         return;
     }
-    if ( xbe->window == state->arrowbox_top->window ) {
-        // Page up.
-        if ( state->selected < state->max_rows ) {
-            state->selected = 0;
-        }
-        else{
-            state->selected -= state->max_elements;
-        }
-        state->update = TRUE;
-    }
-    else if ( xbe->window == state->arrowbox_bottom->window ) {
-        // Page down.
-        state->selected += state->max_elements;
-        if ( state->selected >= state->filtered_lines ) {
-            state->selected = state->filtered_lines - 1;
-        }
-        state->update = TRUE;
-    }
     else {
+        if ( state->scrollbar && state->scrollbar->window == xbe->window ) {
+            state->selected = scrollbar_clicked ( state->scrollbar, xbe->y );
+            state->update   = TRUE;
+            return;
+        }
         for ( unsigned int i = 0; config.sidebar_mode == TRUE && i < num_switchers; i++ ) {
             if ( switchers[i]->tb->window == ( xbe->window ) ) {
                 *( state->selected_line ) = 0;
@@ -791,6 +738,7 @@ static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, v
         state->quit               = TRUE;
     }
 
+    scrollbar_set_max_value ( state->scrollbar, state->filtered_lines );
     state->refilter = FALSE;
     state->rchanged = TRUE;
 }
@@ -815,8 +763,9 @@ static void menu_draw ( MenuState *state )
             state->cur_page = page;
             state->rchanged = TRUE;
         }
+        // Set the position.
+        scrollbar_set_handle ( state->scrollbar, page * state->max_elements );
     }
-
     // Re calculate the boxes and sizes, see if we can move this in the menu_calc*rowscolumns
     // Get number of remaining lines to display.
     unsigned int a_lines = MIN ( ( state->filtered_lines - offset ), state->max_elements );
@@ -826,6 +775,9 @@ static void menu_draw ( MenuState *state )
                              state->max_rows ) / state->max_rows;
     columns = MIN ( columns, state->columns );
 
+    // Update the handle length.
+    scrollbar_set_handle_length ( state->scrollbar, columns * state->max_rows );
+    scrollbar_draw ( state->scrollbar );
     // Element width.
     unsigned int element_width = state->w - ( 2 * ( config.padding ) );
     if ( columns > 0 ) {
@@ -879,9 +831,6 @@ static void menu_draw ( MenuState *state )
 
 static void menu_update ( MenuState *state )
 {
-    menu_hide_arrow_text ( state->filtered_lines, state->selected,
-                           state->max_elements, state->arrowbox_top,
-                           state->arrowbox_bottom );
     textbox_draw ( state->case_indicator );
     textbox_draw ( state->prompt_tb );
     textbox_draw ( state->text );
@@ -889,9 +838,6 @@ static void menu_update ( MenuState *state )
         textbox_draw ( state->message_tb );
     }
     menu_draw ( state );
-    menu_set_arrow_text ( state->filtered_lines, state->selected,
-                          state->max_elements, state->arrowbox_top,
-                          state->arrowbox_bottom );
     // Why do we need the special -1?
     XDrawLine ( display, main_window, gc, 0,
                 state->line_height + ( config.padding ) * 1 + config.line_margin + 1,
@@ -1076,22 +1022,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                           x_offset, y_offset,
                                           state.element_width, element_height, NORMAL, "" );
     }
-    // Arrows
-    state.arrowbox_top = textbox_create ( main_window, &vinfo, map, TB_AUTOWIDTH,
-                                          ( config.padding ), ( config.padding ),
-                                          0, element_height, NORMAL,
-                                          "↑" );
-    state.arrowbox_bottom = textbox_create ( main_window, &vinfo, map, TB_AUTOWIDTH,
-                                             ( config.padding ), ( config.padding ),
-                                             0, element_height, NORMAL,
-                                             "↓" );
-    textbox_move ( state.arrowbox_top,
-                   state.w - config.padding - state.arrowbox_top->w,
-                   state.top_offset );
-    textbox_move ( state.arrowbox_bottom,
-                   state.w - config.padding - state.arrowbox_bottom->w,
-                   state.top_offset + ( state.max_rows - 1 ) * ( element_height + config.line_margin ) );
+    state.scrollbar = scrollbar_create ( main_window, &vinfo, map, state.w - config.padding-config.line_margin- 8, state.top_offset,
+                                         config.line_margin+8, ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + element_height );
 
+
+    scrollbar_set_max_value ( state.scrollbar, state.num_lines );
     // filtered list
     state.line_map = g_malloc0_n ( state.num_lines, sizeof ( int ) );
     if ( config.levenshtein_sort ) {
@@ -1127,6 +1062,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         }
     }
 
+    scrollbar_show ( state.scrollbar );
     // Display it.
     XMoveResizeWindow ( display, main_window, state.x, state.y, state.w, state.h );
     XMapRaised ( display, main_window );
