@@ -170,6 +170,7 @@ test-x: ${bin_PROGRAMS}
 	$(top_srcdir)/test/run_test.sh 204 $(top_srcdir)/test/run_run_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
 	echo "Test 7"
 	$(top_srcdir)/test/run_test.sh 205 $(top_srcdir)/test/run_script_test.sh $(top_builddir) $(top_srcdir)/doc/example.xresources
+	echo "End tests"
 
 
 .PHONY: indent
