@@ -766,7 +766,6 @@ static void menu_draw ( MenuState *state )
         // Set the position.
         scrollbar_set_handle ( state->scrollbar, page * state->max_elements );
     }
-    scrollbar_draw ( state->scrollbar );
     // Re calculate the boxes and sizes, see if we can move this in the menu_calc*rowscolumns
     // Get number of remaining lines to display.
     unsigned int a_lines = MIN ( ( state->filtered_lines - offset ), state->max_elements );
@@ -778,6 +777,7 @@ static void menu_draw ( MenuState *state )
 
     // Update the handle length.
     scrollbar_set_handle_length ( state->scrollbar, columns * state->max_rows );
+    scrollbar_draw ( state->scrollbar );
     // Element width.
     unsigned int element_width = state->w - ( 2 * ( config.padding ) );
     if ( columns > 0 ) {
