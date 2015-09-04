@@ -32,7 +32,7 @@
 #include <X11/Xft/Xft.h>
 #include <glib.h>
 #include "scrollbar.h"
-
+#include "rofi.h"
 #include "x11-helper.h"
 
 extern Display *display;
@@ -115,7 +115,7 @@ void scrollbar_draw ( scrollbar *sb )
     // Redraw base window
     XClearWindow ( display, sb->window );
     // Paint the handle.
-    XFillRectangle ( display, sb->window, sb->gc, 0, y, sb->w, height );
+    XFillRectangle ( display, sb->window, sb->gc, config.line_margin, y, sb->w-config.line_margin, height );
 }
 
 unsigned int scrollbar_clicked ( scrollbar *sb, int y )

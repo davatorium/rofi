@@ -1022,8 +1022,8 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                           x_offset, y_offset,
                                           state.element_width, element_height, NORMAL, "" );
     }
-    state.scrollbar = scrollbar_create ( main_window, &vinfo, map, state.w - config.padding - 8, state.top_offset,
-                                         8, ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + element_height );
+    state.scrollbar = scrollbar_create ( main_window, &vinfo, map, state.w - config.padding-config.line_margin- 8, state.top_offset,
+                                         config.line_margin+8, ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + element_height );
 
 
     scrollbar_set_max_value ( state.scrollbar, state.num_lines );
