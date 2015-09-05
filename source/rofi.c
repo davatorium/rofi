@@ -1844,13 +1844,9 @@ static GThread *setup_signal_thread ( int *fd )
 
 int main ( int argc, char *argv[] )
 {
-    int quiet      = FALSE;
-    int dmenu_mode = FALSE;
     cmd_set_arguments ( argc, argv );
     // Quiet flag
-    if ( find_arg ( "-quiet" ) >= 0 ) {
-        quiet = TRUE;
-    }
+    int quiet = ( find_arg ( "-quiet" ) >= 0 );
     // catch help request
     if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 || find_arg (  "--help" ) >= 0 ) {
         help ();
@@ -1865,6 +1861,7 @@ int main ( int argc, char *argv[] )
     // Detect if we are in dmenu mode.
     // This has two possible causes.
     // 1 the user specifies it on the command-line.
+    int dmenu_mode = FALSE;
     if ( find_arg (  "-dmenu" ) >= 0 ) {
         dmenu_mode = TRUE;
     }
