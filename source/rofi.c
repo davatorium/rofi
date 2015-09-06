@@ -780,6 +780,9 @@ static void menu_draw ( MenuState *state )
     scrollbar_draw ( state->scrollbar );
     // Element width.
     unsigned int element_width = state->w - ( 2 * ( config.padding ) );
+    if ( state->scrollbar != NULL ) {
+        element_width -= state->scrollbar->w;
+    }
     if ( columns > 0 ) {
         element_width = ( element_width - ( columns - 1 ) * config.line_margin ) / columns;
     }
@@ -1023,10 +1026,11 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
                                           state.element_width, element_height, NORMAL, "" );
     }
     if ( !config.hide_scrollbar ) {
+        unsigned int sbw = config.line_margin + 8;
         state.scrollbar = scrollbar_create ( main_window, &vinfo, map,
-                                             state.w - config.padding - config.line_margin - 8,
+                                             state.w - config.padding - sbw,
                                              state.top_offset,
-                                             config.line_margin + 8,
+                                             sbw,
                                              ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + element_height );
     }
 
