@@ -52,6 +52,7 @@ rofi_SOURCES=\
 	include/helper.h\
 	include/keyb.h\
 	include/x11-helper.h\
+    include/dialogs/dialogs.h\
     include/dialogs/run.h\
     include/dialogs/combi.h\
     include/dialogs/window.h\
