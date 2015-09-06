@@ -1,5 +1,13 @@
 0.15.8 (unreleased):
+	New feature:
+		- Scrollbar.
+		- More custom keybindings.
+	Improvements:
+		- dmenu compatibility.
+		- Don't refilter on all keypresses.
+		- Hide Docks and desktops from the window list. (remove i3bar hack)
 	Bug fixes:
+		- Fix Desktop numbering.
 		- Mis-alignment of arrow down box with message (#189)
 		- Fix issue with mouse interaction needing keyboard press to complete.
 		- Fix -no-custom still allows escape to quit.
