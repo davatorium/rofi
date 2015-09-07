@@ -201,7 +201,6 @@ static const char * combi_mgrv ( unsigned int selected_line, void *sw, int *stat
 Switcher combi_mode =
 {
     .name         = "combi",
-    .tb           = NULL,
     .keycfg       = NULL,
     .keystr       = NULL,
     .modmask      = AnyModifier,

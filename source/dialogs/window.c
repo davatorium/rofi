@@ -565,7 +565,6 @@ static const char *mgrv ( unsigned int selected_line, void *sw, G_GNUC_UNUSED in
 Switcher window_mode =
 {
     .name         = "window",
-    .tb           = NULL,
     .keycfg       = NULL,
     .keystr       = NULL,
     .modmask      = AnyModifier,
@@ -581,7 +580,6 @@ Switcher window_mode =
 Switcher window_mode_cd =
 {
     .name         = "windowcd",
-    .tb           = NULL,
     .keycfg       = NULL,
     .keystr       = NULL,
     .modmask      = AnyModifier,

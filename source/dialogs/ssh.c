@@ -339,7 +339,6 @@ static const char *mgrv ( unsigned int selected_line, void *sw, G_GNUC_UNUSED in
 Switcher ssh_mode =
 {
     .name         = "ssh",
-    .tb           = NULL,
     .keycfg       = NULL,
     .keystr       = NULL,
     .modmask      = AnyModifier,

@@ -260,8 +260,6 @@ struct _Switcher
 {
     // Name (max 31 char long)
     char         name[32];
-    // Textbox used in the sidebar-mode.
-    textbox      *tb;
     // Keybindings (keysym and modmask)
     char         * keycfg;
     char         * keystr;
