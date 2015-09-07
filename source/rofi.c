@@ -1593,6 +1593,10 @@ static void setup_switchers ( void )
             switchers[num_switchers] = &window_mode;
             num_switchers++;
         }
+        else if ( strcasecmp ( token, "windowcd" ) == 0 ) {
+            switchers[num_switchers] = &window_mode_cd;
+            num_switchers++;
+        }
         // SSh dialog
         else if ( strcasecmp ( token, "ssh" ) == 0 ) {
             switchers[num_switchers] = &ssh_mode;

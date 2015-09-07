@@ -171,8 +171,12 @@ static int winlist_find ( winlist *l, Window w )
  */
 static void x11_cache_create ( void )
 {
-    cache_client = winlist_new ();
-    cache_xattr  = winlist_new ();
+    if ( cache_client == NULL ) {
+        cache_client = winlist_new ();
+    }
+    if ( cache_xattr == NULL ) {
+        cache_xattr = winlist_new ();
+    }
 }
 
 /**
@@ -364,7 +368,7 @@ static void window_mode_init ( Switcher *sw )
     }
 }
 
-static char ** window_mode_get_data ( unsigned int *length, Switcher *sw )
+static char ** _window_mode_get_data ( unsigned int *length, Switcher *sw, unsigned int cd )
 {
     SwitcherModePrivateData *pd = (SwitcherModePrivateData *) sw->private_data;
     if ( !pd->init ) {
@@ -387,6 +391,12 @@ static char ** window_mode_get_data ( unsigned int *length, Switcher *sw )
                                   &count, &curr_win_id, sizeof ( Window ) )
                 && type == XA_WINDOW && count > 0 ) ) {
             curr_win_id = 0;
+        }
+
+        // Get the current desktop.
+        unsigned long current_desktop = 0;
+        if ( !window_get_cardinal_prop ( display, root, netatoms[_NET_CURRENT_DESKTOP], &current_desktop, 1 ) ) {
+            current_desktop = 0;
         }
 
         if ( window_get_prop ( display, root, netatoms[_NET_CLIENT_LIST_STACKING],
@@ -457,6 +467,10 @@ static char ** window_mode_get_data ( unsigned int *length, Switcher *sw )
                             // Assume the client is on all desktops.
                             wmdesktop = 0xFFFFFFFF;
                         }
+                        else if ( cd && wmdesktop != current_desktop ) {
+                            g_free ( line );
+                            continue;
+                        }
 
                         if ( wmdesktop < 0xFFFFFFFF ) {
                             sprintf ( desktop, "%d", (int) wmdesktop );
@@ -476,6 +490,14 @@ static char ** window_mode_get_data ( unsigned int *length, Switcher *sw )
     }
     *length = pd->cmd_list_length;
     return pd->cmd_list;
+}
+static char ** window_mode_get_data_cd ( unsigned int *length, Switcher *sw )
+{
+    return _window_mode_get_data ( length, sw, TRUE );
+}
+static char ** window_mode_get_data ( unsigned int *length, Switcher *sw )
+{
+    return _window_mode_get_data ( length, sw, FALSE );
 }
 static SwitcherMode window_mode_result ( int mretv, G_GNUC_UNUSED char **input, unsigned int selected_line, Switcher *sw )
 {
@@ -549,6 +571,22 @@ Switcher window_mode =
     .modmask      = AnyModifier,
     .init         = window_mode_init,
     .get_data     = window_mode_get_data,
+    .result       = window_mode_result,
+    .destroy      = window_mode_destroy,
+    .token_match  = window_match,
+    .mgrv         = mgrv,
+    .private_data = NULL,
+    .free         = NULL
+};
+Switcher window_mode_cd =
+{
+    .name         = "windowcd",
+    .tb           = NULL,
+    .keycfg       = NULL,
+    .keystr       = NULL,
+    .modmask      = AnyModifier,
+    .init         = window_mode_init,
+    .get_data     = window_mode_get_data_cd,
     .result       = window_mode_result,
     .destroy      = window_mode_destroy,
     .token_match  = window_match,
