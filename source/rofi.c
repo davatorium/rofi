@@ -1376,6 +1376,7 @@ void error_dialog ( const char *msg, int markup )
         }
     }
     release_keyboard ( display );
+    menu_free_state ( &state );
 }
 
 /**

@@ -778,6 +778,7 @@ void textbox_cleanup ( void )
         }
 
         g_object_unref ( p_context );
+        pango_xft_shutdown_display ( display, DefaultScreen ( display ) );
         p_context       = NULL;
         visual_info     = NULL;
         target_colormap = None;
