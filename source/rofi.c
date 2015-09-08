@@ -233,6 +233,7 @@ static Window create_window ( Display *display )
 
 typedef struct MenuState
 {
+    Switcher          *sw;
     unsigned int      menu_lines;
     unsigned int      max_elements;
     unsigned int      max_rows;
@@ -278,8 +279,6 @@ typedef struct MenuState
     MenuReturn        retv;
     char              **lines;
     int               line_height;
-    get_display_value mgrv;
-    void              *mgrv_data;
 }MenuState;
 
 /**
@@ -815,7 +814,7 @@ static void menu_draw ( MenuState *state )
             {
                 TextBoxFontType type   = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
                 int             fstate = 0;
-                const char      *text  = state->mgrv ( state->line_map[i + offset], state->mgrv_data, &fstate );
+                const char      *text  = state->sw->mgrv ( state->line_map[i + offset], state->sw, &fstate );
                 TextBoxFontType tbft   = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
                 textbox_font ( state->boxes[i], tbft );
                 textbox_text ( state->boxes[i], text );
@@ -830,7 +829,7 @@ static void menu_draw ( MenuState *state )
         for ( i = 0; i < max_elements; i++ ) {
             TextBoxFontType type   = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
             int             fstate = 0;
-            state->mgrv ( state->line_map[i + offset], state->mgrv_data, &fstate );
+            state->sw->mgrv ( state->line_map[i + offset], state->sw, &fstate );
             TextBoxFontType tbft = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
             textbox_font ( state->boxes[i], tbft );
             textbox_draw ( state->boxes[i] );
@@ -902,18 +901,18 @@ static void menu_paste ( MenuState *state, XSelectionEvent *xse )
     }
 }
 
-MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prompt,
-                  menu_match_cb mmc, void *mmc_data, int *selected_line,
-                  get_display_value mgrv, void *mgrv_data, int *next_pos, const char *message )
+MenuReturn menu ( Switcher *sw, char **input, char *prompt,
+                  int *selected_line,
+                  unsigned int *next_pos, const char *message )
 {
     int          shift = FALSE;
     MenuState    state = {
+        .sw = sw,
         .selected_line     = selected_line,
         .retv              = MENU_CANCEL,
         .prev_key          =             0,
         .last_button_press =             0,
         .last_offset       =             0,
-        .num_lines         = num_lines,
         .distance          = NULL,
         .quit              = FALSE,
         .skip_absorb       = FALSE,
@@ -924,11 +923,10 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         .update     = FALSE,
         .rchanged   = TRUE,
         .cur_page   =            -1,
-        .lines      = lines,
-        .mgrv       = mgrv,
-        .mgrv_data  = mgrv_data,
         .top_offset = 0
     };
+    // Request the lines to show.
+    state.lines = sw->get_data ( &( state.num_lines ), sw );
     unsigned int i;
     if ( next_pos ) {
         *next_pos = *selected_line;
@@ -1086,7 +1084,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
     state.selected = 0;
 
     state.quit = FALSE;
-    menu_refilter ( &state, lines, mmc, mmc_data, config.levenshtein_sort, config.case_sensitive );
+    menu_refilter ( &state, state.lines, sw->token_match, sw, config.levenshtein_sort, config.case_sensitive );
 
     for ( unsigned int i = 0; ( *( state.selected_line ) ) >= 0 && !state.selected && i < state.filtered_lines; i++ ) {
         if ( state.line_map[i] == *( state.selected_line ) ) {
@@ -1114,7 +1112,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
         // If not in lazy mode, refilter.
         if ( state.num_lines <= config.lazy_filter_limit ) {
             if ( state.refilter ) {
-                menu_refilter ( &state, lines, mmc, mmc_data, config.levenshtein_sort, config.case_sensitive );
+                menu_refilter ( &state, state.lines, sw->token_match, sw, config.levenshtein_sort, config.case_sensitive );
                 menu_update ( &state );
             }
         }
@@ -1122,7 +1120,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
             // When timeout (and in lazy filter mode)
             // We refilter then loop back and wait for Xevent.
             if ( state.refilter ) {
-                menu_refilter ( &state, lines, mmc, mmc_data, config.levenshtein_sort, config.case_sensitive );
+                menu_refilter ( &state, state.lines, sw->token_match, sw, config.levenshtein_sort, config.case_sensitive );
                 menu_update ( &state );
             }
         }
@@ -1301,6 +1299,7 @@ MenuReturn menu ( char **lines, unsigned int num_lines, char **input, char *prom
 void error_dialog ( const char *msg, int markup )
 {
     MenuState state = {
+        .sw = NULL,
         .selected_line     = NULL,
         .retv              = MENU_CANCEL,
         .prev_key          =           0,
@@ -2065,19 +2064,9 @@ int main ( int argc, char *argv[] )
 
 SwitcherMode switcher_run ( char **input, Switcher *sw )
 {
-    char         *prompt         = g_strdup_printf ( "%s:", sw->name );
-    int          selected_line   = -1;
-    unsigned int cmd_list_length = 0;
-    char         **cmd_list      = NULL;
-
-    // get the list and get its length, before passing the length to menu
-    cmd_list = sw->get_data ( &cmd_list_length, sw );
-
-    int mretv = menu ( cmd_list, cmd_list_length,          // List data.
-                       input, prompt,                      // Input and prompt
-                       sw->token_match, sw,                // token match + arg.
-                       &selected_line,                     // Selected line.
-                       sw->mgrv, sw, NULL, NULL );
+    char *prompt       = g_strdup_printf ( "%s:", sw->name );
+    int  selected_line = -1;
+    int  mretv         = menu ( sw, input, prompt, &selected_line, NULL, NULL );
 
     g_free ( prompt );
     return sw->result ( mretv, input, selected_line, sw );
