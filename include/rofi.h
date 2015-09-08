@@ -95,7 +95,7 @@ typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensi
  * @returns The command issued (see MenuReturn)
  */
 MenuReturn menu ( Switcher *sw, char **input, char *prompt,
-                  int *selected_line,
+                  unsigned int *selected_line,
                   unsigned int *next_pos, const char *message ) __attribute__ ( ( nonnull ( 1, 2, 3, 4 ) ) );
 /**
  * @param sig  The caught signal

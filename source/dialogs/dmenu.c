@@ -32,6 +32,7 @@
 #include <strings.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdint.h>
 #include "rofi.h"
 #include "dialogs/dmenu.h"
 #include "helper.h"
@@ -44,7 +45,7 @@ struct range_pair
 typedef struct _DmenuModePrivateData
 {
     char              *prompt;
-    int               selected_line;
+    unsigned int      selected_line;
     char              *message;
     char              *format;
     struct range_pair * urgent_list;
@@ -225,13 +226,13 @@ static void dmenu_mode_init ( Switcher *sw )
     DmenuModePrivateData *pd = (DmenuModePrivateData *) sw->private_data;
 
     pd->prompt        = "dmenu ";
-    pd->selected_line = -1;
+    pd->selected_line = UINT32_MAX;
 
     find_arg_str ( "-mesg", &( pd->message ) );
 
     // Check prompt
     find_arg_str (  "-p", &( pd->prompt ) );
-    find_arg_int (  "-selected-row", &( pd->selected_line ) );
+    find_arg_uint (  "-selected-row", &( pd->selected_line ) );
     // By default we print the unescaped line back.
     pd->format = "s";
 
@@ -291,7 +292,7 @@ int dmenu_switcher_dialog ( void )
     int                  retv            = FALSE;
     int                  restart         = FALSE;
     unsigned int         cmd_list_length = 0;
-    char                 **cmd_list = dmenu_mode.get_data ( &( cmd_list_length ), &dmenu_mode );
+    char                 **cmd_list      = dmenu_mode.get_data ( &( cmd_list_length ), &dmenu_mode );
 
 
     int only_selected = FALSE;
@@ -368,14 +369,14 @@ int dmenu_switcher_dialog ( void )
             retv = TRUE;
         }
         // Quick switch with entry selected.
-        else if ( ( mretv & MENU_QUICK_SWITCH ) && pd->selected_line >= 0 ) {
+        else if ( ( mretv & MENU_QUICK_SWITCH ) && pd->selected_line < UINT32_MAX ) {
             dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
 
             restart = FALSE;
             retv    = 10 + ( mretv & MENU_LOWER_MASK );
         }
         // Quick switch without entry selected.
-        else if ( ( mretv & MENU_QUICK_SWITCH ) && pd->selected_line == -1 ) {
+        else if ( ( mretv & MENU_QUICK_SWITCH ) && pd->selected_line == UINT32_MAX ) {
             dmenu_output_formatted_line ( pd->format, input, -1, input );
 
             restart = FALSE;

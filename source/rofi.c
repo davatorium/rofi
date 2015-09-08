@@ -233,52 +233,52 @@ static Window create_window ( Display *display )
 
 typedef struct MenuState
 {
-    Switcher          *sw;
-    unsigned int      menu_lines;
-    unsigned int      max_elements;
-    unsigned int      max_rows;
-    unsigned int      columns;
+    Switcher     *sw;
+    unsigned int menu_lines;
+    unsigned int max_elements;
+    unsigned int max_rows;
+    unsigned int columns;
 
     // window width,height
-    unsigned int      w, h;
-    int               x, y;
-    unsigned int      element_width;
-    int               top_offset;
+    unsigned int w, h;
+    int          x, y;
+    unsigned int element_width;
+    int          top_offset;
 
     // Update/Refilter list.
-    int               update;
-    int               refilter;
-    int               rchanged;
-    int               cur_page;
+    int          update;
+    int          refilter;
+    int          rchanged;
+    int          cur_page;
 
     // Entries
-    textbox           *text;
-    textbox           *prompt_tb;
-    textbox           *message_tb;
-    textbox           *case_indicator;
-    textbox           **boxes;
-    scrollbar         *scrollbar;
-    int               *distance;
-    int               *line_map;
+    textbox      *text;
+    textbox      *prompt_tb;
+    textbox      *message_tb;
+    textbox      *case_indicator;
+    textbox      **boxes;
+    scrollbar    *scrollbar;
+    int          *distance;
+    unsigned int *line_map;
 
-    unsigned int      num_lines;
+    unsigned int num_lines;
 
     // Selected element.
-    unsigned int      selected;
-    unsigned int      filtered_lines;
+    unsigned int selected;
+    unsigned int filtered_lines;
     // Last offset in paginating.
-    unsigned int      last_offset;
+    unsigned int last_offset;
 
-    KeySym            prev_key;
-    Time              last_button_press;
+    KeySym       prev_key;
+    Time         last_button_press;
 
-    int               quit;
-    int               skip_absorb;
+    int          quit;
+    int          skip_absorb;
     // Return state
-    int               *selected_line;
-    MenuReturn        retv;
-    char              **lines;
-    int               line_height;
+    unsigned int *selected_line;
+    MenuReturn   retv;
+    char         **lines;
+    int          line_height;
 }MenuState;
 
 /**
@@ -704,6 +704,7 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
 static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, void *mmc_data,
                             int sorting, int case_sensitive )
 {
+    unsigned int sl = state->line_map[state->selected];
     if ( strlen ( state->text->text ) > 0 ) {
         unsigned int j        = 0;
         char         **tokens = tokenize ( state->text->text, case_sensitive );
@@ -746,6 +747,12 @@ static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, v
     scrollbar_set_max_value ( state->scrollbar, state->filtered_lines );
     state->refilter = FALSE;
     state->rchanged = TRUE;
+    for ( unsigned int i = 0; i < state->filtered_lines; i++ ) {
+        if ( state->line_map[i] == sl ) {
+            state->selected = i;
+            break;
+        }
+    }
 }
 
 
@@ -902,12 +909,12 @@ static void menu_paste ( MenuState *state, XSelectionEvent *xse )
 }
 
 MenuReturn menu ( Switcher *sw, char **input, char *prompt,
-                  int *selected_line,
+                  unsigned int *selected_line,
                   unsigned int *next_pos, const char *message )
 {
-    int          shift = FALSE;
-    MenuState    state = {
-        .sw = sw,
+    int       shift = FALSE;
+    MenuState state = {
+        .sw                = sw,
         .selected_line     = selected_line,
         .retv              = MENU_CANCEL,
         .prev_key          =             0,
@@ -1041,7 +1048,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
 
     scrollbar_set_max_value ( state.scrollbar, state.num_lines );
     // filtered list
-    state.line_map = g_malloc0_n ( state.num_lines, sizeof ( int ) );
+    state.line_map = g_malloc0_n ( state.num_lines, sizeof ( unsigned int ) );
     if ( config.levenshtein_sort ) {
         state.distance = (int *) g_malloc0_n ( state.num_lines, sizeof ( int ) );
     }
@@ -1086,9 +1093,10 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
     state.quit = FALSE;
     menu_refilter ( &state, state.lines, sw->token_match, sw, config.levenshtein_sort, config.case_sensitive );
 
-    for ( unsigned int i = 0; ( *( state.selected_line ) ) >= 0 && !state.selected && i < state.filtered_lines; i++ ) {
+    for ( unsigned int i = 0; ( *( state.selected_line ) ) < UINT32_MAX && !state.selected && i < state.filtered_lines; i++ ) {
         if ( state.line_map[i] == *( state.selected_line ) ) {
             state.selected = i;
+            break;
         }
     }
 
@@ -1299,7 +1307,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
 void error_dialog ( const char *msg, int markup )
 {
     MenuState state = {
-        .sw = NULL,
+        .sw                = NULL,
         .selected_line     = NULL,
         .retv              = MENU_CANCEL,
         .prev_key          =           0,
@@ -2064,9 +2072,9 @@ int main ( int argc, char *argv[] )
 
 SwitcherMode switcher_run ( char **input, Switcher *sw )
 {
-    char *prompt       = g_strdup_printf ( "%s:", sw->name );
-    int  selected_line = -1;
-    int  mretv         = menu ( sw, input, prompt, &selected_line, NULL, NULL );
+    char         *prompt       = g_strdup_printf ( "%s:", sw->name );
+    unsigned int selected_line = UINT32_MAX;
+    int          mretv         = menu ( sw, input, prompt, &selected_line, NULL, NULL );
 
     g_free ( prompt );
     return sw->result ( mretv, input, selected_line, sw );
