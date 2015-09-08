@@ -1,3 +1,10 @@
+0.15.9: (unreleased)
+	New feature:
+	Improvements:
+		- Keep same line selected.
+		- Cleanup menu code by re-using Switcher
+	Bug fixes:
+
 0.15.8:
 	New feature:
 		- Scrollbar.
