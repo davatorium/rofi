@@ -51,8 +51,7 @@
 #include "x11-helper.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
-
-
+//
 // TEMP
 SwitcherMode switcher_run ( char **input, Switcher *sw );
 
@@ -69,7 +68,10 @@ Display     *display     = NULL;
 char        *display_str = NULL;
 
 extern Atom netatoms[NUM_NETATOMS];
-
+Window      main_window  = None;
+GC          gc           = NULL;
+Colormap    map          = None;
+XVisualInfo vinfo;
 
 typedef struct _Mode
 {
@@ -99,12 +101,6 @@ static int switcher_get ( const char *name )
     }
     return -1;
 }
-
-Window      main_window = None;
-GC          gc          = NULL;
-Colormap    map         = None;
-XVisualInfo vinfo;
-
 
 /**
  * @param display Connection to the X server.
@@ -218,8 +214,7 @@ static Window create_window ( Display *display )
     XSetForeground ( display, gc, color_separator ( display ) );
     // make it an unmanaged window
     window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
-    XSetWindowAttributes sattr;
-    sattr.override_redirect = True;
+    XSetWindowAttributes sattr = { .override_redirect = True };
     XChangeWindowAttributes ( display, box, CWOverrideRedirect, &sattr );
 
     // Set the WM_NAME
@@ -701,8 +696,7 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
     }
 }
 
-static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, void *mmc_data,
-                            int sorting, int case_sensitive )
+static void menu_refilter ( MenuState *state, char **lines, int sorting, int case_sensitive )
 {
     unsigned int sl = state->line_map[state->selected];
     if ( strlen ( state->text->text ) > 0 ) {
@@ -711,7 +705,7 @@ static void menu_refilter ( MenuState *state, char **lines, menu_match_cb mmc, v
 
         // input changed
         for ( unsigned int i = 0; i < state->num_lines; i++ ) {
-            int match = mmc ( tokens, lines[i], case_sensitive, i, mmc_data );
+            int match = state->sw->token_match ( tokens, lines[i], case_sensitive, i, state->sw );
 
             // If each token was matched, add it to list.
             if ( match ) {
@@ -860,10 +854,8 @@ static void menu_update ( MenuState *state )
                 state->line_height + ( config.padding ) * 1 + config.line_margin + 1 );
     if ( state->message_tb ) {
         XDrawLine ( display, main_window, gc,
-                    0,
-                    state->top_offset - ( config.line_margin ) - 1,
-                    state->w,
-                    state->top_offset - ( config.line_margin ) - 1 );
+                    0, state->top_offset - ( config.line_margin ) - 1,
+                    state->w, state->top_offset - ( config.line_margin ) - 1 );
     }
 
     if ( config.sidebar_mode == TRUE ) {
@@ -934,7 +926,6 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
     };
     // Request the lines to show.
     state.lines = sw->get_data ( &( state.num_lines ), sw );
-    unsigned int i;
     if ( next_pos ) {
         *next_pos = *selected_line;
     }
@@ -1031,7 +1022,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
     int y_offset = state.top_offset;
     int x_offset = config.padding;
 
-    for ( i = 0; i < state.max_elements; i++ ) {
+    for ( unsigned int i = 0; i < state.max_elements; i++ ) {
         state.boxes[i] = textbox_create ( main_window, &vinfo, map, 0,
                                           x_offset, y_offset,
                                           state.element_width, element_height, NORMAL, "" );
@@ -1091,7 +1082,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
     state.selected = 0;
 
     state.quit = FALSE;
-    menu_refilter ( &state, state.lines, sw->token_match, sw, config.levenshtein_sort, config.case_sensitive );
+    menu_refilter ( &state, state.lines, config.levenshtein_sort, config.case_sensitive );
 
     for ( unsigned int i = 0; ( *( state.selected_line ) ) < UINT32_MAX && !state.selected && i < state.filtered_lines; i++ ) {
         if ( state.line_map[i] == *( state.selected_line ) ) {
@@ -1120,7 +1111,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
         // If not in lazy mode, refilter.
         if ( state.num_lines <= config.lazy_filter_limit ) {
             if ( state.refilter ) {
-                menu_refilter ( &state, state.lines, sw->token_match, sw, config.levenshtein_sort, config.case_sensitive );
+                menu_refilter ( &state, state.lines, config.levenshtein_sort, config.case_sensitive );
                 menu_update ( &state );
             }
         }
@@ -1128,7 +1119,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
             // When timeout (and in lazy filter mode)
             // We refilter then loop back and wait for Xevent.
             if ( state.refilter ) {
-                menu_refilter ( &state, state.lines, sw->token_match, sw, config.levenshtein_sort, config.case_sensitive );
+                menu_refilter ( &state, state.lines, config.levenshtein_sort, config.case_sensitive );
                 menu_update ( &state );
             }
         }
