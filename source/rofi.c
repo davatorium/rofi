@@ -62,16 +62,18 @@ typedef enum _MainLoopEvent
 } MainLoopEvent;
 
 // Pidfile.
-char        *pidfile     = NULL;
-const char  *cache_dir   = NULL;
-Display     *display     = NULL;
-char        *display_str = NULL;
+char         *pidfile           = NULL;
+const char   *cache_dir         = NULL;
+Display      *display           = NULL;
+char         *display_str       = NULL;
 
-extern Atom netatoms[NUM_NETATOMS];
-Window      main_window  = None;
-GC          gc           = NULL;
-Colormap    map          = None;
-XVisualInfo vinfo;
+extern Atom  netatoms[NUM_NETATOMS];
+Window       main_window        = None;
+GC           gc                 = NULL;
+Colormap     map                = None;
+XVisualInfo  vinfo;
+
+unsigned int normal_window_mode = FALSE;
 
 typedef struct _Mode
 {
@@ -213,7 +215,7 @@ static Window create_window ( Display *display )
     XSetLineAttributes ( display, gc, 2, line_style, CapButt, JoinMiter );
     XSetForeground ( display, gc, color_separator ( display ) );
     // make it an unmanaged window
-    if ( find_arg ( "-normal-window" ) < 0 ) {
+    if ( !normal_window_mode ) {
         window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
         XSetWindowAttributes sattr = { .override_redirect = True };
         XChangeWindowAttributes ( display, box, CWOverrideRedirect, &sattr );
@@ -921,7 +923,7 @@ static void menu_resize ( MenuState *state )
         }
     }
     state->rchanged = TRUE;
-    state->update = TRUE;
+    state->update   = TRUE;
 }
 
 MenuReturn menu ( Switcher *sw, char **input, char *prompt,
@@ -1164,11 +1166,11 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
                 }
             }
         }
-        else if ( ev.type == FocusIn) {
-            take_keyboard(display, main_window);
+        else if ( ev.type == FocusIn ) {
+            take_keyboard ( display, main_window );
         }
-        else if ( ev.type == FocusOut) {
-            release_keyboard(display);
+        else if ( ev.type == FocusOut ) {
+            release_keyboard ( display );
         }
         // Handle event.
         else if ( ev.type == Expose ) {
@@ -1998,6 +2000,7 @@ int main ( int argc, char *argv[] )
 
     // Dmenu mode.
     if ( dmenu_mode == TRUE ) {
+        normal_window_mode = find_arg ( "-normal-window" ) >= 0;
         // force off sidebar mode:
         config.sidebar_mode = FALSE;
         int retv = run_dmenu ();
