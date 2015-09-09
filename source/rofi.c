@@ -200,7 +200,7 @@ static Window create_window ( Display *display )
     Window box = XCreateWindow ( display, DefaultRootWindow ( display ),
                                  0, 0, 200, 100, config.menu_bw, vinfo.depth, InputOutput,
                                  vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
-    XSelectInput ( display, box, ExposureMask | ButtonPressMask );
+    XSelectInput ( display, box, ExposureMask | ButtonPressMask | StructureNotifyMask );
 
     gc = XCreateGC ( display, box, 0, 0 );
     int line_style = LineOnOffDash;
@@ -213,9 +213,11 @@ static Window create_window ( Display *display )
     XSetLineAttributes ( display, gc, 2, line_style, CapButt, JoinMiter );
     XSetForeground ( display, gc, color_separator ( display ) );
     // make it an unmanaged window
-    window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
-    XSetWindowAttributes sattr = { .override_redirect = True };
-    XChangeWindowAttributes ( display, box, CWOverrideRedirect, &sattr );
+    if ( find_arg ( "-normal-window" ) < 0 ) {
+        window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
+        XSetWindowAttributes sattr = { .override_redirect = True };
+        XChangeWindowAttributes ( display, box, CWOverrideRedirect, &sattr );
+    }
 
     // Set the WM_NAME
     XStoreName ( display, box, "rofi" );
@@ -900,6 +902,26 @@ static void menu_paste ( MenuState *state, XSelectionEvent *xse )
     }
 }
 
+static void menu_resize ( MenuState *state )
+{
+    if ( state->scrollbar ) {
+        unsigned int sbw = config.line_margin + 8;
+        XMoveWindow ( display, state->scrollbar->window, state->w - config.padding - sbw, state->top_offset );
+    }
+    if ( config.sidebar_mode == TRUE ) {
+        int width = ( state->w - ( 2 * ( config.padding ) +
+                                   ( num_switchers - 1 ) * config.line_margin ) ) / num_switchers;
+        for ( unsigned int j = 0; j < num_switchers; j++ ) {
+            textbox_moveresize ( switchers[j].tb,
+                                 config.padding + j * ( width + config.line_margin ),
+                                 state->h - state->line_height - config.padding,
+                                 width, state->line_height );
+            textbox_show ( switchers[j].tb );
+            textbox_draw ( switchers[j].tb );
+        }
+    }
+}
+
 MenuReturn menu ( Switcher *sw, char **input, char *prompt,
                   unsigned int *selected_line,
                   unsigned int *next_pos, const char *message )
@@ -1130,6 +1152,15 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
         XNextEvent ( display, &ev );
         if ( ev.type == KeymapNotify ) {
             XRefreshKeyboardMapping ( &ev.xmapping );
+        }
+        else if ( ev.type == ConfigureNotify ) {
+            XConfigureEvent xce = ev.xconfigure;
+            if ( xce.window == main_window ) {
+                if ( state.w != (unsigned int) xce.width ) {
+                    state.w = xce.width;
+                    menu_resize ( &state );
+                }
+            }
         }
         // Handle event.
         else if ( ev.type == Expose ) {
