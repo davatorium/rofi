@@ -920,6 +920,8 @@ static void menu_resize ( MenuState *state )
             textbox_draw ( switchers[j].tb );
         }
     }
+    state->rchanged = TRUE;
+    state->update = TRUE;
 }
 
 MenuReturn menu ( Switcher *sw, char **input, char *prompt,
