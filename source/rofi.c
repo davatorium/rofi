@@ -200,7 +200,7 @@ static Window create_window ( Display *display )
     Window box = XCreateWindow ( display, DefaultRootWindow ( display ),
                                  0, 0, 200, 100, config.menu_bw, vinfo.depth, InputOutput,
                                  vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
-    XSelectInput ( display, box, ExposureMask | ButtonPressMask | StructureNotifyMask );
+    XSelectInput ( display, box, ExposureMask | ButtonPressMask | StructureNotifyMask | FocusChangeMask );
 
     gc = XCreateGC ( display, box, 0, 0 );
     int line_style = LineOnOffDash;
@@ -1161,6 +1161,12 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
                     menu_resize ( &state );
                 }
             }
+        }
+        else if ( ev.type == FocusIn) {
+            take_keyboard(display, main_window);
+        }
+        else if ( ev.type == FocusOut) {
+            release_keyboard(display);
         }
         // Handle event.
         else if ( ev.type == Expose ) {
