@@ -220,6 +220,10 @@ static Window create_window ( Display *display )
         XSetWindowAttributes sattr = { .override_redirect = True };
         XChangeWindowAttributes ( display, box, CWOverrideRedirect, &sattr );
     }
+    else{
+        window_set_atom_prop ( display, box, netatoms[_NET_WM_WINDOW_TYPE],
+                               &netatoms[_NET_WM_WINDOW_TYPE_NORMAL], 1 );
+    }
 
     // Set the WM_NAME
     XStoreName ( display, box, "rofi" );
