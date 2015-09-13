@@ -1,5 +1,6 @@
 0.15.9: (unreleased)
 	New feature:
+		- Support for Startup Notification
 	Improvements:
 		- Keep same line selected.
 		- Cleanup menu code by re-using Switcher
