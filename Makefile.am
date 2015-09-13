@@ -12,6 +12,7 @@ LIBS=\
     @xft_LIBS@\
     @x11_LIBS@\
     @xinerama_LIBS@\
+	@libsn_LIBS@\
 	@pango_LIBS@
 
 AM_CFLAGS=\
@@ -20,6 +21,7 @@ AM_CFLAGS=\
     @x11_CFLAGS@\
     @xinerama_CFLAGS@\
     @pango_CFLAGS@\
+	@libsn_CFLAGS@\
     -DMANPAGE_PATH="\"$(mandir)/\""\
     -I$(top_srcdir)/include/\
     -I$(top_srcdir)/config/\

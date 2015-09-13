@@ -44,6 +44,9 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 
+#define SN_API_NOT_YET_FROZEN
+#include <libsn/sn.h>
+
 #include "rofi.h"
 #include "helper.h"
 #include "textbox.h"
@@ -62,18 +65,20 @@ typedef enum _MainLoopEvent
 } MainLoopEvent;
 
 // Pidfile.
-char         *pidfile           = NULL;
-const char   *cache_dir         = NULL;
-Display      *display           = NULL;
-char         *display_str       = NULL;
+char              *pidfile           = NULL;
+const char        *cache_dir         = NULL;
+SnDisplay         *sndisplay         = NULL;
+SnLauncheeContext *sncontext         = NULL;
+Display           *display           = NULL;
+char              *display_str       = NULL;
 
-extern Atom  netatoms[NUM_NETATOMS];
-Window       main_window        = None;
-GC           gc                 = NULL;
-Colormap     map                = None;
-XVisualInfo  vinfo;
+extern Atom       netatoms[NUM_NETATOMS];
+Window            main_window        = None;
+GC                gc                 = NULL;
+Colormap          map                = None;
+XVisualInfo       vinfo;
 
-unsigned int normal_window_mode = FALSE;
+unsigned int      normal_window_mode = FALSE;
 
 typedef struct _Mode
 {
@@ -968,6 +973,9 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
     XWindowAttributes attr;
     if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
         main_window = create_window ( display );
+        if ( sncontext != NULL ) {
+            sn_launchee_context_setup_window ( sncontext, main_window );
+        }
     }
     // Get active monitor size.
     monitor_active ( display, &mon );
@@ -1114,6 +1122,9 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
         }
     }
 
+    if ( sncontext != NULL ) {
+        sn_launchee_context_complete ( sncontext );
+    }
     int x11_fd = ConnectionNumber ( display );
     while ( !state.quit ) {
         // Update if requested.
@@ -1151,6 +1162,9 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
         }
         // Get next event. (might block)
         XNextEvent ( display, &ev );
+        if ( sndisplay != NULL ) {
+            sn_display_process_event ( sndisplay, &ev );
+        }
         if ( ev.type == KeymapNotify ) {
             XRefreshKeyboardMapping ( &ev.xmapping );
         }
@@ -1393,6 +1407,9 @@ void error_dialog ( const char *msg, int markup )
     // Display it.
     XMapRaised ( display, main_window );
 
+    if ( sncontext != NULL ) {
+        sn_launchee_context_complete ( sncontext );
+    }
     while ( !state.quit ) {
         // Update if requested.
         if ( state.update ) {
@@ -1402,6 +1419,9 @@ void error_dialog ( const char *msg, int markup )
         // Wait for event.
         XEvent ev;
         XNextEvent ( display, &ev );
+        if ( sndisplay != NULL ) {
+            sn_display_process_event ( sndisplay, &ev );
+        }
         // Handle event.
         if ( ev.type == Expose ) {
             while ( XCheckTypedEvent ( display, Expose, &ev ) ) {
@@ -1585,6 +1605,14 @@ static void cleanup ()
         if ( gc != NULL ) {
             XFreeGC ( display, gc );
             gc = NULL;
+        }
+        if ( sncontext != NULL ) {
+            sn_launchee_context_unref ( sncontext );
+            sncontext = NULL;
+        }
+        if ( sndisplay != NULL ) {
+            sn_display_unref ( sndisplay );
+            sndisplay = NULL;
         }
         XCloseDisplay ( display );
         display = NULL;
@@ -1825,6 +1853,9 @@ static void main_loop_x11_event_handler ( void )
         XEvent ev;
         // Read event, we know this won't block as we checked with XPending.
         XNextEvent ( display, &ev );
+        if ( sndisplay != NULL ) {
+            sn_display_process_event ( sndisplay, &ev );
+        }
         // If we get an event that does not belong to a window:
         // Ignore it.
         if ( ev.xany.window == None ) {
@@ -1893,6 +1924,23 @@ static GThread *setup_signal_thread ( int *fd )
     return g_thread_new ( "signal_process", rofi_signal_handler_process, (void *) fd );
 }
 
+static int error_trap_depth = 0;
+static void error_trap_push ( G_GNUC_UNUSED SnDisplay *display, G_GNUC_UNUSED Display   *xdisplay )
+{
+    ++error_trap_depth;
+}
+
+static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, Display   *xdisplay )
+{
+    if ( error_trap_depth == 0 ) {
+        fprintf ( stderr, "Error trap underflow!\n" );
+        exit ( 1 );
+    }
+
+    XSync ( xdisplay, False ); /* get all errors out of the queue */
+    --error_trap_depth;
+}
+
 int main ( int argc, char *argv[] )
 {
     cmd_set_arguments ( argc, argv );
@@ -1953,6 +2001,12 @@ int main ( int argc, char *argv[] )
     if ( !( display = XOpenDisplay ( display_str ) ) ) {
         fprintf ( stderr, "cannot open display!\n" );
         return EXIT_FAILURE;
+    }
+    // startup not.
+    sndisplay = sn_display_new ( display, error_trap_push, error_trap_pop );
+
+    if ( sndisplay != NULL ) {
+        sncontext = sn_launchee_context_new_from_environment ( sndisplay, DefaultScreen ( display ) );
     }
 
     // Setup keybinding
@@ -2051,6 +2105,11 @@ int main ( int argc, char *argv[] )
         }
         GThread *pid_signal_proc = setup_signal_thread ( &( pfds[1] ) );
 
+        // done starting deamon.
+
+        if ( sncontext != NULL ) {
+            sn_launchee_context_complete ( sncontext );
+        }
         // Application Main loop.
         // This listens in the background for any events on the Xserver
         // catching global key presses.
