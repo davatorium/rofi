@@ -706,7 +706,6 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
 
 static void menu_refilter ( MenuState *state, char **lines, int sorting, int case_sensitive )
 {
-    unsigned int sl = state->line_map[state->selected];
     if ( strlen ( state->text->text ) > 0 ) {
         unsigned int j        = 0;
         char         **tokens = tokenize ( state->text->text, case_sensitive );
@@ -749,12 +748,6 @@ static void menu_refilter ( MenuState *state, char **lines, int sorting, int cas
     scrollbar_set_max_value ( state->scrollbar, state->filtered_lines );
     state->refilter = FALSE;
     state->rchanged = TRUE;
-    for ( unsigned int i = 0; i < state->filtered_lines; i++ ) {
-        if ( state->line_map[i] == sl ) {
-            state->selected = i;
-            break;
-        }
-    }
 }
 
 
