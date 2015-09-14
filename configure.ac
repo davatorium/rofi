@@ -39,12 +39,12 @@ AC_ARG_ENABLE(gcov,
         [CFLAGS="$CFLAGS -fprofile-arcs -ftest-coverage"])
 
 
-dnl
-dnl
-dnl
+dnl ---------------------------------------------------------------------
+dnl Disable window mode
+dnl ---------------------------------------------------------------------
 
 AC_ARG_ENABLE([windowmode],
-        AC_HELP_STRING([--enable-window],[Enable window mode]))
+        AC_HELP_STRING([--disable-windowmode],[Disable window mode]))
 
 AS_IF([ test "x$enable_windowmode" != "xno"], [
 AC_DEFINE([WINDOW_MODE],[1],[Enable the window mode])
