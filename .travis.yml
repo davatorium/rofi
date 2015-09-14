@@ -10,6 +10,7 @@ addons:
           - libxft-dev
           - libx11-dev
           - libpango1.0-dev
+          - libstartup-notification0-dev
           - xvfb
           - xdotool
 
