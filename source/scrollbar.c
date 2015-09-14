@@ -59,7 +59,7 @@ scrollbar *scrollbar_create ( Window parent, XVisualInfo *vinfo, Colormap map,
     sb->window            = XCreateWindow ( display, sb->parent, sb->x, sb->y, sb->w, sb->h, 0, vinfo->depth,
                                             InputOutput, vinfo->visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
 
-    XSelectInput ( display, sb->window, ExposureMask | ButtonPressMask );
+    XSelectInput ( display, sb->window, ExposureMask | ButtonPressMask | Button1MotionMask  );
     sb->gc = XCreateGC ( display, sb->window, 0, 0 );
     XSetForeground ( display, sb->gc, color_separator ( display ) );
     //XSetFillStyle ( display, sb->gc, FillSolid);

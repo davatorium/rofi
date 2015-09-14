@@ -1190,6 +1190,14 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
             }
             state.update = TRUE;
         }
+        else if ( ev.type == MotionNotify ) {
+            while ( XCheckTypedEvent ( display, MotionNotify, &ev ) ) {
+                ;
+            }
+            XMotionEvent xme = ev.xmotion;
+            state.selected = scrollbar_clicked ( state.scrollbar, xme.y );
+            state.update   = TRUE;
+        }
         // Button press event.
         else if ( ev.type == ButtonPress ) {
             while ( XCheckTypedEvent ( display, ButtonPress, &ev ) ) {
