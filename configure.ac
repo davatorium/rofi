@@ -18,16 +18,6 @@ AM_PROG_CC_C_O
 
 AC_USE_SYSTEM_EXTENSIONS
 
-##
-# I3 check
-##
-AC_ARG_ENABLE(i3support,
-        [AS_HELP_STRING([--disable-i3support], [Disable check for i3 support])])
-if test "x$enable_i3support" != xno;
-then
-    AC_CHECK_HEADERS([i3/ipc.h],
-        [i3_header=yes; break;])
-fi
 
 
 dnl ---------------------------------------------------------------------
@@ -48,6 +38,15 @@ AC_ARG_ENABLE([windowmode],
 
 AS_IF([ test "x$enable_windowmode" != "xno"], [
 AC_DEFINE([WINDOW_MODE],[1],[Enable the window mode])
+])
+
+##
+# I3 check
+##
+AC_ARG_ENABLE(i3support,
+        [AS_HELP_STRING([--disable-i3support], [Disable check for i3 support])])
+AS_IF([test "x$enable_i3support" != xno && test "x$enable_windowmode" != "xno"],[
+        AC_CHECK_HEADERS([i3/ipc.h], [i3_header=yes; break;])
 ])
 
 ##
