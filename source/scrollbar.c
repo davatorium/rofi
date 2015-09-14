@@ -135,10 +135,11 @@ void scrollbar_draw ( scrollbar *sb )
 unsigned int scrollbar_clicked ( scrollbar *sb, int y )
 {
     if ( sb != NULL ) {
+        y = MIN ( MAX ( 1, y ), sb->h - 1 ) - 1;
         const short  bh  = sb->h - 2;
         float        sec = ( ( bh ) / (float) sb->length );
         unsigned int sel = y / sec;
-        return sel;
+        return MIN ( sel, sb->length - 1 );
     }
     return 0;
 }
