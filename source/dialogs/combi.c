@@ -66,11 +66,17 @@ static void combi_mode_parse_switchers ( Switcher *sw )
                                                    sizeof ( Switcher* ) * ( pd->num_switchers + 1 ) );
 
         // Window switcher.
+        #ifdef WINDOW_MODE
         if ( strcasecmp ( token, "window" ) == 0 ) {
             pd->switchers[pd->num_switchers++] = &window_mode;
         }
+        else if ( strcasecmp ( token, "windowcd" ) == 0 ) {
+            pd->switchers[pd->num_switchers++] = &window_mode_cd;
+        }
+        else
+        #endif // WINDOW_MODE
         // SSh dialog
-        else if ( strcasecmp ( token, "ssh" ) == 0 ) {
+        if ( strcasecmp ( token, "ssh" ) == 0 ) {
             pd->switchers[pd->num_switchers++] = &ssh_mode;
         }
         // Run dialog

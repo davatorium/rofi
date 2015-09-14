@@ -25,6 +25,9 @@
  *
  */
 #include <config.h>
+
+#ifdef WINDOW_MODE
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -592,3 +595,6 @@ Switcher window_mode_cd =
     .private_data = NULL,
     .free         = NULL
 };
+
+#endif // WINDOW_MODE
+

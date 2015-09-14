@@ -1659,6 +1659,7 @@ static void setup_switchers ( void )
         switchers[num_switchers].tb = NULL;
 
         // Window switcher.
+        #ifdef WINDOW_MODE
         if ( strcasecmp ( token, "window" ) == 0 ) {
             switchers[num_switchers].sw = &window_mode;
             num_switchers++;
@@ -1667,8 +1668,10 @@ static void setup_switchers ( void )
             switchers[num_switchers].sw = &window_mode_cd;
             num_switchers++;
         }
+        else
+        #endif // WINDOW_MODE
         // SSh dialog
-        else if ( strcasecmp ( token, "ssh" ) == 0 ) {
+        if ( strcasecmp ( token, "ssh" ) == 0 ) {
             switchers[num_switchers].sw = &ssh_mode;
             num_switchers++;
         }

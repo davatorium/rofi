@@ -38,6 +38,18 @@ AC_ARG_ENABLE(gcov,
         [  --enable-gcov           Enable source code coverage testing using gcov],
         [CFLAGS="$CFLAGS -fprofile-arcs -ftest-coverage"])
 
+
+dnl
+dnl
+dnl
+
+AC_ARG_ENABLE([windowmode],
+        AC_HELP_STRING([--enable-window],[Enable window mode]))
+
+AS_IF([ test "x$enable_windowmode" != "xno"], [
+AC_DEFINE([WINDOW_MODE],[1],[Enable the window mode])
+])
+
 ##
 # Check dependencies
 ##
