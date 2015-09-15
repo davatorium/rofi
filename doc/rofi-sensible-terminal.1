@@ -1,0 +1,159 @@
+.TH "I3\-SENSIBLE\-TERMIN" "1"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.nh
+.ad l
+.SH "NAME"
+rofi-sensible-terminal \- launches $TERMINAL with fallbacks
+.SH "SYNOPSIS"
+.sp
+rofi\-sensible\-terminal [arguments]
+.SH "DESCRIPTION"
+.sp
+rofi\-sensible\-terminal is invoked in the rofi default config to start a terminal\&. This wrapper script is necessary since there is no distribution\-independent terminal launcher (but for example Debian has x\-terminal\-emulator)\&. Distribution packagers are responsible for shipping this script in a way which is appropriate for the distribution\&.
+.sp
+It tries to start one of the following (in that order):
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+$TERMINAL (this is a non\-standard variable)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+x\-terminal\-emulator
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+termite
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+urxvt
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+rxvt
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+terminator
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Eterm
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+aterm
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+xterm
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+gnome\-terminal
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+roxterm
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+xfce4\-terminal
+.RE
+.sp
+Please don\(cqt complain about the order: If the user has any preference, she will have $TERMINAL set or modified her rofi configuration file\&.
+.SH "SEE ALSO"
+.sp
+rofi(1)
+.SH "AUTHOR"
+.sp
+Dave Davenport and contributors
+.sp
+Copied script from i3:
+.br
+Michael Stapelberg and contributors

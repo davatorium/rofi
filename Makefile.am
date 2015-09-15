@@ -66,7 +66,8 @@ rofi_SOURCES=\
 # Manpage
 ##
 man1_MANS=\
-    doc/rofi.1
+    doc/rofi.1\
+	doc/rofi-sensible-terminal.1
 
 ##
 # Readme.md
