@@ -54,11 +54,11 @@ AS_IF([test "x$enable_i3support" != xno && test "x$enable_windowmode" != "xno"],
 ##
 PKG_PROG_PKG_CONFIG
 
-PKG_CHECK_MODULES([xft], [xft])
-PKG_CHECK_MODULES([x11], [x11])
+PKG_CHECK_MODULES([xft],      [xft])
+PKG_CHECK_MODULES([x11],      [x11])
 PKG_CHECK_MODULES([xinerama], [xinerama])
-PKG_CHECK_MODULES([pango], [pango pangoxft])
-PKG_CHECK_MODULES([libsn], [libstartup-notification-1.0])
+PKG_CHECK_MODULES([pango],    [pango pangoxft])
+PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0])
 
 AC_SUBST([EXTRA_CFLAGS], ["-Wall -Wextra -Wparentheses -Winline -pedantic"])
 
