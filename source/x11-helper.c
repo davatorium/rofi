@@ -286,8 +286,12 @@ int window_send_message ( Display *display, Window target,
     return r;
 }
 
+extern unsigned int normal_window_mode;
 int take_keyboard ( Display *display, Window w )
 {
+    if ( normal_window_mode ) {
+        return 1;
+    }
     for ( int i = 0; i < 500; i++ ) {
         if ( XGrabKeyboard ( display, w, True, GrabModeAsync, GrabModeAsync, CurrentTime ) == GrabSuccess ) {
             return 1;
@@ -300,7 +304,9 @@ int take_keyboard ( Display *display, Window w )
 
 void release_keyboard ( Display *display )
 {
-    XUngrabKeyboard ( display, CurrentTime );
+    if ( !normal_window_mode ) {
+        XUngrabKeyboard ( display, CurrentTime );
+    }
 }
 // bind a key combination on a root window, compensating for Lock* states
 void x11_grab_key ( Display *display, unsigned int modmask, KeySym key )

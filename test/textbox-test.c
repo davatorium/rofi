@@ -13,7 +13,8 @@
 #include <rofi.h>
 
 
-static int test = 0;
+static int   test               = 0;
+unsigned int normal_window_mode = 0;
 
 #define TASSERT( a )    {                                 \
         assert ( a );                                     \
