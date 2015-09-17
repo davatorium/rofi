@@ -926,6 +926,40 @@ static void menu_resize ( MenuState *state )
             textbox_draw ( switchers[j].tb );
         }
     }
+    /**
+     * Resize in Height
+     */
+    {
+        unsigned int last_length    = state->max_elements;
+        int          element_height = state->line_height * config.element_height + config.line_margin;
+        // Calculated new number of boxes.
+        unsigned int h = ( state->h - state->top_offset );
+        if ( config.sidebar_mode == TRUE ) {
+            h -= state->line_height + config.padding;
+        }
+        state->max_rows     = ( h / element_height );
+        state->max_elements = state->max_rows * config.menu_columns;
+        // Free boxes no longer needed.
+        for ( unsigned int i = state->max_elements; i < last_length; i++ ) {
+            textbox_free ( state->boxes[i] );
+        }
+        // resize array.
+        state->boxes = g_realloc ( state->boxes, state->max_elements * sizeof ( textbox* ) );
+
+        int y_offset = state->top_offset;
+        int x_offset = config.padding;
+        // Add newly added boxes.
+        for ( unsigned int i = last_length; i < state->max_elements; i++ ) {
+            state->boxes[i] = textbox_create ( main_window, &vinfo, map, 0,
+                                               x_offset, y_offset,
+                                               state->element_width, element_height, NORMAL, "" );
+        }
+        scrollbar_resize ( state->scrollbar, -1,
+                           ( state->max_rows ) * ( element_height ) - config.line_margin );
+    }
+
+
+
     state->rchanged = TRUE;
     state->update   = TRUE;
 }
@@ -1173,8 +1207,10 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
         else if ( ev.type == ConfigureNotify ) {
             XConfigureEvent xce = ev.xconfigure;
             if ( xce.window == main_window ) {
-                if ( state.w != (unsigned int) xce.width ) {
+                if ( state.w != (unsigned int) xce.width ||
+                     state.h != (unsigned int ) xce.height ) {
                     state.w = xce.width;
+                    state.h = xce.height;
                     menu_resize ( &state );
                 }
             }

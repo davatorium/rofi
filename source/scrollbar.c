@@ -131,6 +131,18 @@ void scrollbar_draw ( scrollbar *sb )
         XFillRectangle ( display, sb->window, sb->gc, config.line_margin, y, sb->w - config.line_margin, height );
     }
 }
+void scrollbar_resize ( scrollbar *sb, int w, int h )
+{
+    if ( sb != NULL ) {
+        if(h > 0 ) {
+            sb->h = h;
+        }
+        if(w > 0 ) {
+            sb->w = w;
+        }
+        XResizeWindow ( display, sb->window, sb->w, sb->h );
+    }
+}
 
 unsigned int scrollbar_clicked ( scrollbar *sb, int y )
 {
