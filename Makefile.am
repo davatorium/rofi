@@ -30,37 +30,37 @@ AM_CFLAGS=\
 
 rofi_SOURCES=\
     source/rofi.c\
-	source/i3-support.c\
-    source/textbox.c\
-    source/scrollbar.c\
-    source/xrmoptions.c\
-    source/history.c\
+	source/keyb.c\
     config/config.c\
 	source/helper.c\
-	source/keyb.c\
+    source/textbox.c\
+    source/history.c\
+    source/scrollbar.c\
+	source/i3-support.c\
+    source/xrmoptions.c\
 	source/x11-helper.c\
-    source/dialogs/dmenu.c\
     source/dialogs/run.c\
-    source/dialogs/window.c\
     source/dialogs/ssh.c\
-    source/dialogs/script.c\
+    source/dialogs/dmenu.c\
     source/dialogs/combi.c\
+    source/dialogs/window.c\
+    source/dialogs/script.c\
     include/rofi.h\
-    include/i3-support.h\
-    include/xrmoptions.h\
+	include/keyb.h\
+	include/helper.h\
     include/history.h\
     include/textbox.h\
     include/scrollbar.h\
-	include/helper.h\
-	include/keyb.h\
+    include/xrmoptions.h\
+    include/i3-support.h\
 	include/x11-helper.h\
-    include/dialogs/dialogs.h\
-    include/dialogs/run.h\
-    include/dialogs/combi.h\
-    include/dialogs/window.h\
     include/dialogs/ssh.h\
+    include/dialogs/run.h\
     include/dialogs/dmenu.h\
-    include/dialogs/script.h
+    include/dialogs/combi.h\
+    include/dialogs/script.h\
+    include/dialogs/window.h\
+    include/dialogs/dialogs.h
 
 ##
 # Manpage
