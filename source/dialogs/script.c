@@ -66,7 +66,8 @@ static char **get_script_output ( const char *command, unsigned int *length )
                 ( *length )++;
             }
             if ( fclose ( inp ) != 0 ) {
-                fprintf ( stderr, "Failed to close stdout off executor script: '%s'\n", strerror ( errno ) );
+                fprintf ( stderr, "Failed to close stdout off executor script: '%s'\n",
+                          strerror ( errno ) );
             }
         }
     }
@@ -120,7 +121,8 @@ static char ** script_mode_get_data ( unsigned int *length, Switcher *sw )
     return rmpd->cmd_list;
 }
 
-static SwitcherMode script_mode_result ( int mretv, char **input, unsigned int selected_line, Switcher *sw )
+static SwitcherMode script_mode_result ( int mretv, char **input, unsigned int selected_line,
+                                         Switcher *sw )
 {
     ScriptModePrivateData *rmpd      = (ScriptModePrivateData *) sw->private_data;
     SwitcherMode          retv       = MODE_EXIT;
@@ -178,7 +180,8 @@ Switcher *script_switcher_parse_setup ( const char *str )
     char         *endp  = NULL;
     char         *parse = g_strdup ( str );
     unsigned int index  = 0;
-    for ( char *token = strtok_r ( parse, ":", &endp ); token != NULL; token = strtok_r ( NULL, ":", &endp ) ) {
+    for ( char *token = strtok_r ( parse, ":", &endp ); token != NULL;
+          token = strtok_r ( NULL, ":", &endp ) ) {
         if ( index == 0 ) {
             g_strlcpy ( sw->name, token, 32 );
         }

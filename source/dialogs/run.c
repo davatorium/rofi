@@ -159,7 +159,8 @@ static char ** get_apps_external ( char **retv, unsigned int *length, unsigned i
                 ( *length )++;
             }
             if ( fclose ( inp ) != 0 ) {
-                fprintf ( stderr, "Failed to close stdout off executor script: '%s'\n", strerror ( errno ) );
+                fprintf ( stderr, "Failed to close stdout off executor script: '%s'\n",
+                          strerror ( errno ) );
             }
         }
     }
@@ -243,7 +244,9 @@ static char ** get_apps ( unsigned int *length )
     }
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
     if ( ( *length ) > num_favorites ) {
-        g_qsort_with_data ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func, NULL );
+        g_qsort_with_data ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ),
+                            sort_func,
+                            NULL );
     }
     g_free ( path );
 
@@ -258,7 +261,9 @@ static char ** get_apps ( unsigned int *length )
 
 
     if ( ( *length ) > num_favorites ) {
-        g_qsort_with_data ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func, NULL );
+        g_qsort_with_data ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ),
+                            sort_func,
+                            NULL );
     }
     // Reduce array length;
     ( *length ) -= removed;
@@ -293,7 +298,8 @@ static char ** run_mode_get_data ( unsigned int *length, Switcher *sw )
     return rmpd->cmd_list;
 }
 
-static SwitcherMode run_mode_result ( int mretv, char **input, unsigned int selected_line, Switcher *sw )
+static SwitcherMode run_mode_result ( int mretv, char **input, unsigned int selected_line,
+                                      Switcher *sw )
 {
     RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
     SwitcherMode       retv  = MODE_EXIT;

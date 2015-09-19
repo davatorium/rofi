@@ -34,36 +34,63 @@ extern unsigned int NumlockMask;
  */
 DefaultBinding bindings[NUM_ABE] =
 {
-    { .id = PASTE_PRIMARY,           .name = "kb-primary-paste",           .keybinding = "Control+Shift+v,Shift+Insert",        },
-    { .id = PASTE_SECONDARY,         .name = "kb-secondary-paste",         .keybinding = "Control+v,Insert",                    },
-    { .id = CLEAR_LINE,              .name = "kb-clear-line",              .keybinding = "Control+u",                           },
-    { .id = MOVE_FRONT,              .name = "kb-move-front",              .keybinding = "Control+a",                           },
-    { .id = MOVE_END,                .name = "kb-move-end",                .keybinding = "Control+e",                           },
+    { .id         = PASTE_PRIMARY,           .name                            = "kb-primary-paste",
+      .keybinding =
+          "Control+Shift+v,Shift+Insert",        },
+    { .id = PASTE_SECONDARY,         .name = "kb-secondary-paste",         .keybinding =
+          "Control+v,Insert",                    },
+    { .id = CLEAR_LINE,              .name = "kb-clear-line",              .keybinding =
+          "Control+u",                           },
+    { .id = MOVE_FRONT,              .name = "kb-move-front",              .keybinding =
+          "Control+a",                           },
+    { .id = MOVE_END,                .name = "kb-move-end",                .keybinding =
+          "Control+e",                           },
     { .id = MOVE_WORD_BACK,          .name = "kb-move-word-back",          .keybinding = "Alt+b",                               },
     { .id = MOVE_WORD_FORWARD,       .name = "kb-move-word-forward",       .keybinding = "Alt+f",                               },
-    { .id = MOVE_CHAR_BACK,          .name = "kb-move-char-back",          .keybinding = "Left,Control+b"                       },
-    { .id = MOVE_CHAR_FORWARD,       .name = "kb-move-char-forward",       .keybinding = "Right,Control+f"                      },
-    { .id = REMOVE_WORD_BACK,        .name = "kb-remove-word-back",        .keybinding = "Control+Alt+h",                       },
-    { .id = REMOVE_WORD_FORWARD,     .name = "kb-remove-word-forward",     .keybinding = "Control+Alt+d",                       },
-    { .id = REMOVE_CHAR_FORWARD,     .name = "kb-remove-char-forward",     .keybinding = "Delete,Control+d",                    },
-    { .id = REMOVE_CHAR_BACK,        .name = "kb-remove-char-back",        .keybinding = "BackSpace,Control+h",                 },
-    { .id = ACCEPT_ENTRY,            .name = "kb-accept-entry",            .keybinding = "Control+j,Control+m,Return,KP_Enter", },
-    { .id = ACCEPT_CUSTOM,           .name = "kb-accept-custom",           .keybinding = "Control+Return",                      },
-    { .id = ACCEPT_ENTRY_CONTINUE,   .name = "kb-accept-entry-continue",   .keybinding = "Shift+Return",                        },
-    { .id = MODE_NEXT,               .name = "kb-mode-next",               .keybinding = "Shift+Right,Control+Tab"              },
-    { .id = MODE_PREVIOUS,           .name = "kb-mode-previous",           .keybinding = "Shift+Left,Control+Shift+Tab"         },
-    { .id = TOGGLE_CASE_SENSITIVITY, .name = "kb-toggle-case-sensitivity", .keybinding = "grave,dead_grave"                     },
-    { .id = DELETE_ENTRY,            .name = "kb-delete-entry",            .keybinding = "Shift+Delete"                         },
-    { .id = ROW_LEFT,                .name = "kb-row-left",                .keybinding = "Control+Page_Up"                      },
-    { .id = ROW_RIGHT,               .name = "kb-row-right",               .keybinding = "Control+Page_Down"                    },
-    { .id = ROW_UP,                  .name = "kb-row-up",                  .keybinding = "Up,Control+p,Shift+Tab"               },
-    { .id = ROW_DOWN,                .name = "kb-row-down",                .keybinding = "Down,Control+n"                       },
+    { .id = MOVE_CHAR_BACK,          .name = "kb-move-char-back",          .keybinding =
+          "Left,Control+b"                       },
+    { .id = MOVE_CHAR_FORWARD,       .name = "kb-move-char-forward",       .keybinding =
+          "Right,Control+f"                      },
+    { .id = REMOVE_WORD_BACK,        .name = "kb-remove-word-back",        .keybinding =
+          "Control+Alt+h",                       },
+    { .id = REMOVE_WORD_FORWARD,     .name = "kb-remove-word-forward",     .keybinding =
+          "Control+Alt+d",                       },
+    { .id = REMOVE_CHAR_FORWARD,     .name = "kb-remove-char-forward",     .keybinding =
+          "Delete,Control+d",                    },
+    { .id = REMOVE_CHAR_BACK,        .name = "kb-remove-char-back",        .keybinding =
+          "BackSpace,Control+h",                 },
+    { .id = ACCEPT_ENTRY,            .name = "kb-accept-entry",            .keybinding =
+          "Control+j,Control+m,Return,KP_Enter", },
+    { .id = ACCEPT_CUSTOM,           .name = "kb-accept-custom",           .keybinding =
+          "Control+Return",                      },
+    { .id = ACCEPT_ENTRY_CONTINUE,   .name = "kb-accept-entry-continue",   .keybinding =
+          "Shift+Return",                        },
+    { .id = MODE_NEXT,               .name = "kb-mode-next",               .keybinding =
+          "Shift+Right,Control+Tab"              },
+    { .id = MODE_PREVIOUS,           .name = "kb-mode-previous",           .keybinding =
+          "Shift+Left,Control+Shift+Tab"         },
+    { .id = TOGGLE_CASE_SENSITIVITY, .name = "kb-toggle-case-sensitivity", .keybinding =
+          "grave,dead_grave"                     },
+    { .id = DELETE_ENTRY,            .name = "kb-delete-entry",            .keybinding =
+          "Shift+Delete"                         },
+    { .id = ROW_LEFT,                .name = "kb-row-left",                .keybinding =
+          "Control+Page_Up"                      },
+    { .id = ROW_RIGHT,               .name = "kb-row-right",               .keybinding =
+          "Control+Page_Down"                    },
+    { .id = ROW_UP,                  .name = "kb-row-up",                  .keybinding =
+          "Up,Control+p,Shift+Tab"               },
+    { .id = ROW_DOWN,                .name = "kb-row-down",                .keybinding =
+          "Down,Control+n"                       },
     { .id = ROW_TAB,                 .name = "kb-row-tab",                 .keybinding = "Tab"                                  },
     { .id = PAGE_PREV,               .name = "kb-page-prev",               .keybinding = "Page_Up"                              },
-    { .id = PAGE_NEXT,               .name = "kb-page-next",               .keybinding = "Page_Down"                            },
-    { .id = ROW_FIRST,               .name = "kb-row-first",               .keybinding = "Home,KP_Home"                         },
-    { .id = ROW_LAST,                .name = "kb-row-last",                .keybinding = "End,KP_End"                           },
-    { .id = ROW_SELECT,              .name = "kb-row-select",              .keybinding = "Control+space"                        },
+    { .id = PAGE_NEXT,               .name = "kb-page-next",               .keybinding =
+          "Page_Down"                            },
+    { .id = ROW_FIRST,               .name = "kb-row-first",               .keybinding =
+          "Home,KP_Home"                         },
+    { .id = ROW_LAST,                .name = "kb-row-last",                .keybinding =
+          "End,KP_End"                           },
+    { .id = ROW_SELECT,              .name = "kb-row-select",              .keybinding =
+          "Control+space"                        },
     { .id = CANCEL,                  .name = "kb-cancel",                  .keybinding = "Escape"                               },
     { .id = CUSTOM_1,                .name = "kb-custom-1",                .keybinding = "Alt+1"                                },
     { .id = CUSTOM_2,                .name = "kb-custom-2",                .keybinding = "Alt+2"                                },
@@ -75,15 +102,24 @@ DefaultBinding bindings[NUM_ABE] =
     { .id = CUSTOM_8,                .name = "kb-custom-8",                .keybinding = "Alt+8"                                },
     { .id = CUSTOM_9,                .name = "kb-custom-9",                .keybinding = "Alt+9"                                },
     { .id = CUSTOM_10,               .name = "kb-custom-10",               .keybinding = "Alt+0"                                },
-    { .id = CUSTOM_11,               .name = "kb-custom-11",               .keybinding = "Alt+Shift+1"                          },
-    { .id = CUSTOM_12,               .name = "kb-custom-12",               .keybinding = "Alt+Shift+2"                          },
-    { .id = CUSTOM_13,               .name = "kb-custom-13",               .keybinding = "Alt+Shift+3"                          },
-    { .id = CUSTOM_14,               .name = "kb-custom-14",               .keybinding = "Alt+Shift+4"                          },
-    { .id = CUSTOM_15,               .name = "kb-custom-15",               .keybinding = "Alt+Shift+5"                          },
-    { .id = CUSTOM_16,               .name = "kb-custom-16",               .keybinding = "Alt+Shift+6"                          },
-    { .id = CUSTOM_17,               .name = "kb-custom-17",               .keybinding = "Alt+Shift+7"                          },
-    { .id = CUSTOM_18,               .name = "kb-custom-18",               .keybinding = "Alt+Shift+8"                          },
-    { .id = CUSTOM_19,               .name = "kb-custom-19",               .keybinding = "Alt+Shift+9"                          },
+    { .id = CUSTOM_11,               .name = "kb-custom-11",               .keybinding =
+          "Alt+Shift+1"                          },
+    { .id = CUSTOM_12,               .name = "kb-custom-12",               .keybinding =
+          "Alt+Shift+2"                          },
+    { .id = CUSTOM_13,               .name = "kb-custom-13",               .keybinding =
+          "Alt+Shift+3"                          },
+    { .id = CUSTOM_14,               .name = "kb-custom-14",               .keybinding =
+          "Alt+Shift+4"                          },
+    { .id = CUSTOM_15,               .name = "kb-custom-15",               .keybinding =
+          "Alt+Shift+5"                          },
+    { .id = CUSTOM_16,               .name = "kb-custom-16",               .keybinding =
+          "Alt+Shift+6"                          },
+    { .id = CUSTOM_17,               .name = "kb-custom-17",               .keybinding =
+          "Alt+Shift+7"                          },
+    { .id = CUSTOM_18,               .name = "kb-custom-18",               .keybinding =
+          "Alt+Shift+8"                          },
+    { .id = CUSTOM_19,               .name = "kb-custom-19",               .keybinding =
+          "Alt+Shift+9"                          },
 };
 
 
@@ -113,8 +149,10 @@ void parse_keys_abe ( void )
         abe[iter].num_bindings = 0;
 
         // Iter over bindings.
-        for ( char *entry = strtok_r ( keystr, ",", &sp ); entry != NULL; entry = strtok_r ( NULL, ",", &sp ) ) {
-            abe[iter].kb = g_realloc ( abe[iter].kb, ( abe[iter].num_bindings + 1 ) * sizeof ( KeyBinding ) );
+        for ( char *entry = strtok_r ( keystr, ",", &sp ); entry != NULL;
+              entry = strtok_r ( NULL, ",", &sp ) ) {
+            abe[iter].kb =
+                g_realloc ( abe[iter].kb, ( abe[iter].num_bindings + 1 ) * sizeof ( KeyBinding ) );
             KeyBinding *kb = &( abe[iter].kb[abe[iter].num_bindings] );
             x11_parse_key ( entry, &( kb->modmask ), &( kb->keysym ) );
             abe[iter].num_bindings++;

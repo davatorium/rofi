@@ -110,8 +110,11 @@ textbox* textbox_create ( Window parent,
     attr.colormap         = map;
     attr.border_pixel     = cp;
     attr.background_pixel = cp;
-    tb->window            = XCreateWindow ( display, tb->parent, tb->x, tb->y, tb->w, tb->h, 0, vinfo->depth,
-                                            InputOutput, vinfo->visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
+    tb->window            =
+        XCreateWindow ( display, tb->parent, tb->x, tb->y, tb->w, tb->h, 0, vinfo->depth,
+                        InputOutput, vinfo->visual, CWColormap |
+                        CWBorderPixel | CWBackPixel,
+                        &attr );
 
     PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
     pango_layout_set_font_description ( tb->layout, pfd );
@@ -135,7 +138,10 @@ textbox* textbox_create ( Window parent,
     // edit mode controls
     if ( tb->flags & TB_EDITABLE ) {
         tb->xim = XOpenIM ( display, NULL, NULL, NULL );
-        tb->xic = XCreateIC ( tb->xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, tb->window, XNFocusWindow, tb->window, NULL );
+        tb->xic =
+            XCreateIC ( tb->xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow,
+                        tb->window, XNFocusWindow, tb->window,
+                        NULL );
     }
     else {
         XSelectInput ( display, tb->window, ButtonPressMask );
@@ -688,7 +694,8 @@ static void parse_color ( Visual *visual, Colormap colormap,
         }
     }
 }
-static void textbox_parse_string ( XVisualInfo *visual, Colormap colormap, const char *str, RowColor *color )
+static void textbox_parse_string ( XVisualInfo *visual, Colormap colormap, const char *str,
+                                   RowColor *color )
 {
     if ( str == NULL ) {
         return;
@@ -697,7 +704,9 @@ static void textbox_parse_string ( XVisualInfo *visual, Colormap colormap, const
     char *endp;
     char *token;
     int  index = 0;
-    for ( token = strtok_r ( cstr, ",", &endp ); token != NULL; token = strtok_r ( NULL, ",", &endp ) ) {
+    for ( token =
+              strtok_r ( cstr, ",",
+                         &endp ); token != NULL; token = strtok_r ( NULL, ",", &endp ) ) {
         switch ( index )
         {
         case 0:
@@ -707,7 +716,8 @@ static void textbox_parse_string ( XVisualInfo *visual, Colormap colormap, const
             parse_color ( visual->visual, colormap, g_strstrip ( token ), &( color->fg ), "white" );
             break;
         case 2:
-            parse_color ( visual->visual, colormap, g_strstrip ( token ), &( color->bgalt ), "black" );
+            parse_color ( visual->visual, colormap, g_strstrip (
+                              token ), &( color->bgalt ), "black" );
             break;
         case 3:
             parse_color ( visual->visual, colormap, g_strstrip ( token ), &( color->hlbg ), "black" );
@@ -734,23 +744,38 @@ void textbox_setup ( XVisualInfo *visual, Colormap colormap )
                                config.color_active, &( colors[ACTIVE] ) );
     }
     else {
-        parse_color ( visual_info->visual, target_colormap, config.menu_bg, &( colors[NORMAL].bg ), "black" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_fg, &( colors[NORMAL].fg ), "white" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt, &( colors[NORMAL].bgalt ), "black" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_hlfg, &( colors[NORMAL].hlfg ), "white" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_hlbg, &( colors[NORMAL].hlbg ), "black" );
+        parse_color ( visual_info->visual, target_colormap, config.menu_bg, &( colors[NORMAL].bg ),
+                      "black" );
+        parse_color ( visual_info->visual, target_colormap, config.menu_fg, &( colors[NORMAL].fg ),
+                      "white" );
+        parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt,
+                      &( colors[NORMAL].bgalt ), "black" );
+        parse_color ( visual_info->visual, target_colormap, config.menu_hlfg,
+                      &( colors[NORMAL].hlfg ), "white" );
+        parse_color ( visual_info->visual, target_colormap, config.menu_hlbg,
+                      &( colors[NORMAL].hlbg ), "black" );
 
-        parse_color ( visual_info->visual, target_colormap, config.menu_bg_urgent, &( colors[URGENT].bg ), "black" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_fg_urgent, &( colors[URGENT].fg ), "white" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt, &( colors[URGENT].bgalt ), "black" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_hlfg_urgent, &( colors[URGENT].hlfg ), "white" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_hlbg_urgent, &( colors[URGENT].hlbg ), "black" );
+        parse_color ( visual_info->visual, target_colormap, config.menu_bg_urgent,
+                      &( colors[URGENT].bg ), "black" );
+        parse_color ( visual_info->visual, target_colormap, config.menu_fg_urgent,
+                      &( colors[URGENT].fg ), "white" );
+        parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt,
+                      &( colors[URGENT].bgalt ), "black" );
+        parse_color ( visual_info->visual, target_colormap, config.menu_hlfg_urgent,
+                      &( colors[URGENT].hlfg ), "white" );
+        parse_color ( visual_info->visual, target_colormap, config.menu_hlbg_urgent,
+                      &( colors[URGENT].hlbg ), "black" );
 
-        parse_color ( visual_info->visual, target_colormap, config.menu_bg_active, &( colors[ACTIVE].bg ), "black" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_fg_active, &( colors[ACTIVE].fg ), "white" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt, &( colors[ACTIVE].bgalt ), "black" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_hlfg_active, &( colors[ACTIVE].hlfg ), "white" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_hlbg_active, &( colors[ACTIVE].hlbg ), "black" );
+        parse_color ( visual_info->visual, target_colormap, config.menu_bg_active,
+                      &( colors[ACTIVE].bg ), "black" );
+        parse_color ( visual_info->visual, target_colormap, config.menu_fg_active,
+                      &( colors[ACTIVE].fg ), "white" );
+        parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt,
+                      &( colors[ACTIVE].bgalt ), "black" );
+        parse_color ( visual_info->visual, target_colormap, config.menu_hlfg_active,
+                      &( colors[ACTIVE].hlfg ), "white" );
+        parse_color ( visual_info->visual, target_colormap, config.menu_hlbg_active,
+                      &( colors[ACTIVE].hlbg ), "black" );
     }
     PangoFontMap *font_map = pango_xft_get_font_map ( display, DefaultScreen ( display ) );
     p_context = pango_font_map_create_context ( font_map );
@@ -835,7 +860,8 @@ int textbox_get_estimated_char_height ( void )
 
     // Get width
     PangoFontMetrics *metric = pango_context_get_metrics ( p_context, pfd, NULL );
-    int              height  = pango_font_metrics_get_ascent ( metric ) + pango_font_metrics_get_descent ( metric );
+    int              height  = pango_font_metrics_get_ascent ( metric ) +
+                               pango_font_metrics_get_descent ( metric );
     pango_font_metrics_unref ( metric );
 
     pango_font_description_free ( pfd );

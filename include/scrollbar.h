@@ -98,4 +98,13 @@ unsigned int scrollbar_clicked ( scrollbar *sb, int y );
  * Resize the scrollbar.
  */
 void scrollbar_resize ( scrollbar *sb, int w, int h );
+
+/**
+ * @param sb scrollbar object
+ * @param x  x pos in pixels
+ * @param y  y pos in pixels
+ *
+ * Move the scrollbar.
+ */
+void scrollbar_move ( scrollbar *sb, int x, int y );
 #endif // ROFI_SCROLLBAR_H

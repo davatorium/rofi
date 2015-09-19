@@ -169,7 +169,8 @@ static const char *get_display_data ( unsigned int index, void *data, G_GNUC_UNU
  * This functions outputs the formatted string to stdout, appends a newline (\n) character and
  * calls flush on the file descriptor.
  */
-static void dmenu_output_formatted_line ( const char *format, const char *string, int selected_line, const char *filter )
+static void dmenu_output_formatted_line ( const char *format, const char *string, int selected_line,
+                                          const char *filter )
 {
     for ( int i = 0; format && format[i]; i++ ) {
         if ( format[i] == 'i' ) {
@@ -330,8 +331,11 @@ int dmenu_switcher_dialog ( void )
              * Select item mode.
              */
             restart = 1;
-            if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line] != NULL ) {
-                dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
+            if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line] !=
+                 NULL ) {
+                dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line],
+                                              pd->selected_line,
+                                              input );
                 retv = TRUE;
                 if ( ( mretv & MENU_QUICK_SWITCH ) ) {
                     retv = 10 + ( mretv & MENU_LOWER_MASK );
@@ -349,7 +353,9 @@ int dmenu_switcher_dialog ( void )
         restart = FALSE;
         // Normal mode
         if ( ( mretv & MENU_OK  ) && cmd_list[pd->selected_line] != NULL ) {
-            dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
+            dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line],
+                                          pd->selected_line,
+                                          input );
             if ( ( mretv & MENU_SHIFT ) ) {
                 restart = TRUE;
                 // Move to next line.
@@ -370,7 +376,9 @@ int dmenu_switcher_dialog ( void )
         }
         // Quick switch with entry selected.
         else if ( ( mretv & MENU_QUICK_SWITCH ) && pd->selected_line < UINT32_MAX ) {
-            dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
+            dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line],
+                                          pd->selected_line,
+                                          input );
 
             restart = FALSE;
             retv    = 10 + ( mretv & MENU_LOWER_MASK );

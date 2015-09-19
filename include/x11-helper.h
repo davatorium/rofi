@@ -20,7 +20,8 @@ char* window_get_text_prop ( Display *display, Window w, Atom atom );
 
 int window_get_atom_prop ( Display *display, Window w, Atom atom, Atom *list, int count );
 void window_set_atom_prop ( Display *display, Window w, Atom prop, Atom *atoms, int count );
-int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned long *list, int count );
+int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned long *list,
+                               int count );
 
 
 /**

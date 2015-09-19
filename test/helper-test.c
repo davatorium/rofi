@@ -27,7 +27,8 @@ int main ( int argc, char ** argv )
     cmd_set_arguments ( argc, argv );
     char **list     = NULL;
     int  llength    = 0;
-    char * test_str = "{host} {terminal} -e bash -c \"{ssh-client} {host}; echo '{terminal} {host}'\"";
+    char * test_str =
+        "{host} {terminal} -e bash -c \"{ssh-client} {host}; echo '{terminal} {host}'\"";
     helper_parse_setup ( test_str, &list, &llength, "{host}", "chuck",
                          "{terminal}", "x-terminal-emulator", NULL );
 

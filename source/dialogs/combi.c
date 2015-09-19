@@ -156,7 +156,8 @@ static void combi_mode_destroy ( Switcher *sw )
         sw->private_data = NULL;
     }
 }
-static SwitcherMode combi_mode_result ( int mretv, char **input, unsigned int selected_line, Switcher *sw )
+static SwitcherMode combi_mode_result ( int mretv, char **input, unsigned int selected_line,
+                                        Switcher *sw )
 {
     CombiModePrivateData *pd = sw->private_data;
 
@@ -192,11 +193,13 @@ static const char * combi_mgrv ( unsigned int selected_line, void *sw, int *stat
 {
     CombiModePrivateData *pd = ( (Switcher *) sw )->private_data;
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
-        if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
+        if ( selected_line >= pd->starts[i] && selected_line <
+             ( pd->starts[i] + pd->lengths[i] ) ) {
             g_free ( pd->cache );
             pd->cache = g_strdup_printf ( "(%s) %s",
                                           pd->switchers[i]->name,
-                                          pd->switchers[i]->mgrv ( selected_line - pd->starts[i], (void *) pd->switchers[i], state ) );
+                                          pd->switchers[i]->mgrv ( selected_line - pd->starts[i],
+                                                                   (void *) pd->switchers[i], state ) );
             return pd->cache;
         }
     }

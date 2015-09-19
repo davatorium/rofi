@@ -449,34 +449,43 @@ void remove_pid_file ( int fd )
 void config_sanity_check (  )
 {
     int     found_error = FALSE;
-    GString *msg        = g_string_new ( "<big><b>The configuration failed to validate:</b></big>\n" );
+    GString *msg        = g_string_new (
+        "<big><b>The configuration failed to validate:</b></big>\n" );
     if ( config.element_height < 1 ) {
-        g_string_append_printf ( msg, "\t<b>config.element_height</b>=%d is invalid. An element needs to be atleast 1 line high.\n",
-                                 config.element_height );
+        g_string_append_printf (
+            msg,
+            "\t<b>config.element_height</b>=%d is invalid. An element needs to be atleast 1 line high.\n",
+            config.element_height );
         config.element_height = 1;
         found_error           = TRUE;
     }
     if ( config.menu_columns == 0 ) {
-        g_string_append_printf ( msg, "\t<b>config.menu_columns</b>=%d is invalid. You need at least one visible column.\n",
-                                 config.menu_columns );
+        g_string_append_printf (
+            msg,
+            "\t<b>config.menu_columns</b>=%d is invalid. You need at least one visible column.\n",
+            config.menu_columns );
         config.menu_columns = 1;
         found_error         = TRUE;
     }
     if ( config.menu_width == 0 ) {
-        show_error_message ( "<b>config.menu_width</b>=0 is invalid. You cannot have a window with no width.", TRUE );
+        show_error_message (
+            "<b>config.menu_width</b>=0 is invalid. You cannot have a window with no width.", TRUE );
         config.menu_columns = 50;
         found_error         = TRUE;
     }
     if ( !( config.location >= WL_CENTER && config.location <= WL_WEST ) ) {
-        g_string_append_printf ( msg, "\t<b>config.location</b>=%d is invalid. Value should be between %d and %d.\n",
-                                 config.location, WL_CENTER, WL_WEST );
+        g_string_append_printf (
+            msg, "\t<b>config.location</b>=%d is invalid. Value should be between %d and %d.\n",
+            config.location, WL_CENTER, WL_WEST );
         config.location = WL_CENTER;
         found_error     = 1;
     }
     if ( 0 ) {
         if ( !( config.line_margin <= 50 ) ) {
-            g_string_append_printf ( msg, "\t<b>config.line_margin</b>=%d is invalid. Value should be between %d and %d.\n",
-                                     config.line_margin, 0, 50 );
+            g_string_append_printf (
+                msg,
+                "\t<b>config.line_margin</b>=%d is invalid. Value should be between %d and %d.\n",
+                config.line_margin, 0, 50 );
             config.line_margin = 2;
             found_error        = 1;
         }

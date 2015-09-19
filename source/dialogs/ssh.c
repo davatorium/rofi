@@ -261,7 +261,9 @@ static char ** get_ssh (  unsigned int *length )
 
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
     if ( ( *length ) > num_favorites ) {
-        g_qsort_with_data ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), ssh_sort_func, NULL );
+        g_qsort_with_data ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ),
+                            ssh_sort_func,
+                            NULL );
     }
     g_free ( path );
 
@@ -293,7 +295,8 @@ static char ** ssh_mode_get_data ( unsigned int *length, Switcher *sw )
     *length = rmpd->cmd_list_length;
     return rmpd->cmd_list;
 }
-static SwitcherMode ssh_mode_result ( int mretv, char **input, unsigned int selected_line, Switcher *sw )
+static SwitcherMode ssh_mode_result ( int mretv, char **input, unsigned int selected_line,
+                                      Switcher *sw )
 {
     SwitcherMode       retv  = MODE_EXIT;
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;

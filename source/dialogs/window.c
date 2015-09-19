@@ -270,7 +270,9 @@ static client* window_client ( Display *display, Window win )
 
     c->states = window_get_atom_prop ( display, win, netatoms[_NET_WM_STATE], c->state, CLIENTSTATE );
 
-    c->window_types = window_get_atom_prop ( display, win, netatoms[_NET_WM_WINDOW_TYPE], c->window_type, CLIENTWINDOWTYPE );
+    c->window_types =
+        window_get_atom_prop ( display, win, netatoms[_NET_WM_WINDOW_TYPE], c->window_type,
+                               CLIENTWINDOWTYPE );
     char *name;
 
     if ( ( name = window_get_text_prop ( display, c->window, netatoms[_NET_WM_NAME] ) ) && name ) {
@@ -282,7 +284,8 @@ static client* window_client ( Display *display, Window win )
         XFree ( name );
     }
 
-    name = window_get_text_prop ( display, c->window, XInternAtom ( display, "WM_WINDOW_ROLE", False ) );
+    name =
+        window_get_text_prop ( display, c->window, XInternAtom ( display, "WM_WINDOW_ROLE", False ) );
 
     if ( name != NULL ) {
         snprintf ( c->role, CLIENTROLE, "%s", name );
@@ -398,7 +401,8 @@ static char ** _window_mode_get_data ( unsigned int *length, Switcher *sw, unsig
 
         // Get the current desktop.
         unsigned long current_desktop = 0;
-        if ( !window_get_cardinal_prop ( display, root, netatoms[_NET_CURRENT_DESKTOP], &current_desktop, 1 ) ) {
+        if ( !window_get_cardinal_prop ( display, root, netatoms[_NET_CURRENT_DESKTOP],
+                                         &current_desktop, 1 ) ) {
             current_desktop = 0;
         }
 
@@ -442,14 +446,16 @@ static char ** _window_mode_get_data ( unsigned int *length, Switcher *sw, unsig
             }
 
             // Create pattern for printing the line.
-            if ( !window_get_cardinal_prop ( display, root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1 ) ) {
+            if ( !window_get_cardinal_prop ( display, root, netatoms[_NET_NUMBER_OF_DESKTOPS],
+                                             &desktops, 1 ) ) {
                 desktops = 1;
             }
             if ( pd->config_i3_mode ) {
                 sprintf ( pattern, "%%-%ds   %%s", MAX ( 5, classfield ) );
             }
             else{
-                sprintf ( pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2, MAX ( 5, classfield ) );
+                sprintf ( pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2,
+                          MAX ( 5, classfield ) );
             }
             pd->cmd_list = g_malloc0_n ( ( pd->ids->len + 1 ), sizeof ( char* ) );
 
@@ -463,10 +469,13 @@ static char ** _window_mode_get_data ( unsigned int *length, Switcher *sw, unsig
                     unsigned long wmdesktop;
                     char          desktop[5];
                     desktop[0] = 0;
-                    char          *line = g_malloc ( strlen ( c->title ) + strlen ( c->class ) + classfield + 50 );
+                    char          *line = g_malloc ( strlen ( c->title ) + strlen (
+                                                         c->class ) + classfield + 50 );
                     if ( !pd->config_i3_mode ) {
                         // find client's desktop.
-                        if ( !window_get_cardinal_prop ( display, c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1 ) ) {
+                        if ( !window_get_cardinal_prop ( display, c->window,
+                                                         netatoms[_NET_WM_DESKTOP], &wmdesktop,
+                                                         1 ) ) {
                             // Assume the client is on all desktops.
                             wmdesktop = 0xFFFFFFFF;
                         }
@@ -502,7 +511,9 @@ static char ** window_mode_get_data ( unsigned int *length, Switcher *sw )
 {
     return _window_mode_get_data ( length, sw, FALSE );
 }
-static SwitcherMode window_mode_result ( int mretv, G_GNUC_UNUSED char **input, unsigned int selected_line, Switcher *sw )
+static SwitcherMode window_mode_result ( int mretv, G_GNUC_UNUSED char **input,
+                                         unsigned int selected_line,
+                                         Switcher *sw )
 {
     SwitcherModePrivateData *rmpd = (SwitcherModePrivateData *) sw->private_data;
     SwitcherMode            retv  = MODE_EXIT;

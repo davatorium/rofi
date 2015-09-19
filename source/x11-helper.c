@@ -44,8 +44,13 @@
 #include <X11/extensions/Xinerama.h>
 
 #include <rofi.h>
-#define OVERLAP( a, b, c, d )                      ( ( ( a ) == ( c ) && ( b ) == ( d ) ) || MIN ( ( a ) + ( b ), ( c ) + ( d ) ) - MAX ( ( a ), ( c ) ) > 0 )
-#define INTERSECT( x, y, w, h, x1, y1, w1, h1 )    ( OVERLAP ( ( x ), ( w ), ( x1 ), ( w1 ) ) && OVERLAP ( ( y ), ( h ), ( y1 ), ( h1 ) ) )
+#define OVERLAP( a, b, c,                          \
+                 d )       ( ( ( a ) == ( c ) &&   \
+                               ( b ) == ( d ) ) || \
+                             MIN ( ( a ) + ( b ), ( c ) + ( d ) ) - MAX ( ( a ), ( c ) ) > 0 )
+#define INTERSECT( x, y, w, h, x1, y1, w1,                   \
+                   h1 )    ( OVERLAP ( ( x ), ( w ), ( x1 ), \
+                                       ( w1 ) ) && OVERLAP ( ( y ), ( h ), ( y1 ), ( h1 ) ) )
 #include "x11-helper.h"
 
 Atom         netatoms[NUM_NETATOMS];
@@ -64,7 +69,8 @@ int window_get_prop ( Display *display, Window w, Atom prop,
     memset ( buffer, 0, bytes );
 
     if ( XGetWindowProperty ( display, w, prop, 0, bytes / 4, False, AnyPropertyType, type,
-                              &format, &nitems, &nbytes, &ret ) == Success && ret && *type != None && format ) {
+                              &format, &nitems, &nbytes,
+                              &ret ) == Success && ret && *type != None && format ) {
         if ( format == 8 ) {
             memmove ( buffer, ret, MIN ( bytes, nitems ) );
         }
@@ -103,7 +109,8 @@ char* window_get_text_prop ( Display *display, Window w, Atom atom )
                 g_strlcpy ( res, ( char * ) prop.value, l );
             }
         }
-        else if ( Xutf8TextPropertyToTextList ( display, &prop, &list, &count ) >= Success && count > 0 && *list ) {
+        else if ( Xutf8TextPropertyToTextList ( display, &prop, &list,
+                                                &count ) >= Success && count > 0 && *list ) {
             size_t l = strlen ( *list ) + 1;
             res = g_malloc ( l );
             // make clang-check happy.
@@ -124,18 +131,22 @@ int window_get_atom_prop ( Display *display, Window w, Atom atom, Atom *list, in
 {
     Atom type;
     int  items;
-    return window_get_prop ( display, w, atom, &type, &items, list, count * sizeof ( Atom ) ) && type == XA_ATOM ? items : 0;
+    return window_get_prop ( display, w, atom, &type, &items, list,
+                             count * sizeof ( Atom ) ) && type == XA_ATOM ? items : 0;
 }
 
 void window_set_atom_prop ( Display *display, Window w, Atom prop, Atom *atoms, int count )
 {
-    XChangeProperty ( display, w, prop, XA_ATOM, 32, PropModeReplace, ( unsigned char * ) atoms, count );
+    XChangeProperty ( display, w, prop, XA_ATOM, 32, PropModeReplace, ( unsigned char * ) atoms,
+                      count );
 }
 
-int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned long *list, int count )
+int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned long *list,
+                               int count )
 {
     Atom type; int items;
-    return window_get_prop ( display, w, atom, &type, &items, list, count * sizeof ( unsigned long ) ) && type == XA_CARDINAL ? items : 0;
+    return window_get_prop ( display, w, atom, &type, &items, list, count *
+                             sizeof ( unsigned long ) ) && type == XA_CARDINAL ? items : 0;
 }
 
 
@@ -176,7 +187,8 @@ void monitor_dimensions ( Display *display, Screen *screen, int x, int y, workar
 
         if ( info ) {
             for ( int i = 0; i < monitors; i++ ) {
-                if ( INTERSECT ( x, y, 1, 1, info[i].x_org, info[i].y_org, info[i].width, info[i].height ) ) {
+                if ( INTERSECT ( x, y, 1, 1, info[i].x_org, info[i].y_org, info[i].width,
+                                 info[i].height ) ) {
                     mon->x = info[i].x_org;
                     mon->y = info[i].y_org;
                     mon->w = info[i].width;
@@ -232,7 +244,8 @@ void monitor_active ( Display *display, workarea *mon )
         }
         fprintf ( stderr, "Failed to find selected monitor.\n" );
     }
-    if ( window_get_prop ( display, root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id, sizeof ( Window ) )
+    if ( window_get_prop ( display, root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id,
+                           sizeof ( Window ) )
          && type == XA_WINDOW && count > 0 ) {
         XWindowAttributes attr;
         if ( XGetWindowAttributes ( display, id, &attr ) ) {
@@ -293,7 +306,8 @@ int take_keyboard ( Display *display, Window w )
         return 1;
     }
     for ( int i = 0; i < 500; i++ ) {
-        if ( XGrabKeyboard ( display, w, True, GrabModeAsync, GrabModeAsync, CurrentTime ) == GrabSuccess ) {
+        if ( XGrabKeyboard ( display, w, True, GrabModeAsync, GrabModeAsync,
+                             CurrentTime ) == GrabSuccess ) {
             return 1;
         }
         usleep ( 1000 );
@@ -320,8 +334,10 @@ void x11_grab_key ( Display *display, unsigned int modmask, KeySym key )
     XGrabKey ( display, keycode, modmask | LockMask, root, True, GrabModeAsync, GrabModeAsync );
 
     if ( NumlockMask ) {
-        XGrabKey ( display, keycode, modmask | NumlockMask, root, True, GrabModeAsync, GrabModeAsync );
-        XGrabKey ( display, keycode, modmask | NumlockMask | LockMask, root, True, GrabModeAsync, GrabModeAsync );
+        XGrabKey ( display, keycode, modmask | NumlockMask, root, True, GrabModeAsync,
+                   GrabModeAsync );
+        XGrabKey ( display, keycode, modmask | NumlockMask | LockMask, root, True, GrabModeAsync,
+                   GrabModeAsync );
     }
 }
 
@@ -483,7 +499,8 @@ void create_visual_and_colormap ( Display *display )
     // Try to create TrueColor map
     if ( XMatchVisualInfo ( display, screen, 32, TrueColor, &vinfo ) ) {
         // Visual found, lets try to create map.
-        map       = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
+        map       = XCreateColormap ( display, DefaultRootWindow (
+                                          display ), vinfo.visual, AllocNone );
         truecolor = TRUE;
     }
     // Failed to create map.

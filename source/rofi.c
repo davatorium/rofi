@@ -54,8 +54,7 @@
 #include "x11-helper.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
-//
-// TEMP
+
 SwitcherMode switcher_run ( char **input, Switcher *sw );
 
 typedef enum _MainLoopEvent
@@ -63,34 +62,30 @@ typedef enum _MainLoopEvent
     ML_XEVENT,
     ML_TIMEOUT
 } MainLoopEvent;
+typedef struct _Mode
+{
+    Switcher *sw;
+    textbox  *tb;
+} Mode;
 
 // Pidfile.
+extern Atom       netatoms[NUM_NETATOMS];
 char              *pidfile           = NULL;
 const char        *cache_dir         = NULL;
 SnDisplay         *sndisplay         = NULL;
 SnLauncheeContext *sncontext         = NULL;
 Display           *display           = NULL;
 char              *display_str       = NULL;
-
-extern Atom       netatoms[NUM_NETATOMS];
 Window            main_window        = None;
 GC                gc                 = NULL;
 Colormap          map                = None;
-XVisualInfo       vinfo;
-
 unsigned int      normal_window_mode = FALSE;
-
-typedef struct _Mode
-{
-    Switcher *sw;
-    textbox  *tb;
-} Mode;
 // Array of switchers.
-Mode         *switchers = NULL;
-// Number of switchers.
-unsigned int num_switchers = 0;
+Mode              *switchers    = NULL;
+unsigned int      num_switchers = 0;
 // Current selected switcher.
-unsigned int curr_switcher = 0;
+unsigned int      curr_switcher = 0;
+XVisualInfo       vinfo;
 
 /**
  * @param name Name of the switcher to lookup.
@@ -122,15 +117,12 @@ static inline MainLoopEvent wait_for_xevent_or_timeout ( Display *display, int x
         return ML_XEVENT;
     }
     // If not, wait for timeout.
-    struct timeval tv;
+    struct timeval tv = { .tv_usec = 200000, .tv_sec = 0 };
     fd_set         in_fds;
     // Create a File Description Set containing x11_fd
     FD_ZERO ( &in_fds );
     FD_SET ( x11_fd, &in_fds );
 
-    // Set our timer.  200ms is a decent delay
-    tv.tv_usec = 200000;
-    tv.tv_sec  = 0;
     // Wait for X Event or a Timer
     if ( select ( x11_fd + 1, &in_fds, 0, 0, &tv ) == 0 ) {
         return ML_TIMEOUT;
@@ -223,7 +215,9 @@ static Window create_window ( Display *display )
     XSetForeground ( display, gc, color_separator ( display ) );
     // make it an unmanaged window
     if ( !normal_window_mode ) {
-        window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
+        window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE],
+                               &netatoms[_NET_WM_STATE_ABOVE],
+                               1 );
         XSetWindowAttributes sattr = { .override_redirect = True };
         XChangeWindowAttributes ( display, box, CWOverrideRedirect, &sattr );
     }
@@ -313,11 +307,10 @@ static void menu_free_state ( MenuState *state )
 }
 
 /**
- * @param x [out] the calculated x position.
- * @param y [out] the calculated y position.
+ * @param state   the state of the View.
  * @param mon     the work area.
- * @param h       the required height of the window.
- * @param w       the required width of the window.
+ *
+ * Calculates the window poslition
  */
 static void calculate_window_position ( MenuState *state, const workarea *mon )
 {
@@ -363,7 +356,6 @@ static void calculate_window_position ( MenuState *state, const workarea *mon )
 
 /**
  * @param state Internal state of the menu.
- * @param num_lines the number of entries passed to the menu.
  *
  * Calculate the number of rows, columns and elements to display based on the
  * configuration and available data.
@@ -377,7 +369,8 @@ static void menu_calculate_rows_columns ( MenuState *state )
     // (num elements is better name) then dividing by columns.
     state->max_rows = MIN ( state->menu_lines,
                             (unsigned int) (
-                                ( state->num_lines + ( state->columns - state->num_lines % state->columns ) %
+                                ( state->num_lines +
+                                  ( state->columns - state->num_lines % state->columns ) %
                                   state->columns ) / ( state->columns )
                                 ) );
     // Always have at least one row.
@@ -388,8 +381,9 @@ static void menu_calculate_rows_columns ( MenuState *state )
         state->max_rows     = state->menu_lines;
         // If it would fit in one column, only use one column.
         if ( state->num_lines < state->max_elements ) {
-            state->columns = ( state->num_lines + ( state->max_rows - state->num_lines % state->max_rows ) %
-                               state->max_rows ) / state->max_rows;
+            state->columns =
+                ( state->num_lines + ( state->max_rows - state->num_lines % state->max_rows ) %
+                  state->max_rows ) / state->max_rows;
             state->max_elements = state->menu_lines * state->columns;
         }
         // Sanitize.
@@ -416,7 +410,8 @@ static void menu_calculate_window_and_element_width ( MenuState *state, workarea
     }
     else{
         // Calculate as float to stop silly, big rounding down errors.
-        state->w = config.menu_width < 101 ? ( mon->w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
+        state->w = config.menu_width <
+                   101 ? ( mon->w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
         // Compensate for border width.
         state->w -= config.menu_bw * 2;
     }
@@ -424,7 +419,8 @@ static void menu_calculate_window_and_element_width ( MenuState *state, workarea
     if ( state->columns > 0 ) {
         state->element_width = state->w - ( 2 * ( config.padding ) );
         // Divide by the # columns
-        state->element_width = ( state->element_width - ( state->columns - 1 ) * config.line_margin ) / state->columns;
+        state->element_width =
+            ( state->element_width - ( state->columns - 1 ) * config.line_margin ) / state->columns;
     }
 }
 
@@ -711,26 +707,27 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
     }
 }
 
-static void menu_refilter ( MenuState *state, char **lines, int sorting, int case_sensitive )
+static void menu_refilter ( MenuState *state )
 {
     if ( strlen ( state->text->text ) > 0 ) {
         unsigned int j        = 0;
-        char         **tokens = tokenize ( state->text->text, case_sensitive );
+        char         **tokens = tokenize ( state->text->text, config.case_sensitive );
 
         // input changed
         for ( unsigned int i = 0; i < state->num_lines; i++ ) {
-            int match = state->sw->token_match ( tokens, lines[i], case_sensitive, i, state->sw );
+            int match = state->sw->token_match ( tokens, state->lines[i], config.case_sensitive, i,
+                                                 state->sw );
 
             // If each token was matched, add it to list.
             if ( match ) {
                 state->line_map[j] = i;
-                if ( sorting ) {
-                    state->distance[i] = levenshtein ( state->text->text, lines[i] );
+                if ( config.levenshtein_sort ) {
+                    state->distance[i] = levenshtein ( state->text->text, state->lines[i] );
                 }
                 j++;
             }
         }
-        if ( sorting ) {
+        if ( config.levenshtein_sort ) {
             g_qsort_with_data ( state->line_map, j, sizeof ( int ), lev_sort, state->distance );
         }
 
@@ -823,8 +820,10 @@ static void menu_draw ( MenuState *state )
             {
                 TextBoxFontType type   = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
                 int             fstate = 0;
-                const char      *text  = state->sw->mgrv ( state->line_map[i + offset], state->sw, &fstate );
-                TextBoxFontType tbft   = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
+                const char      *text  = state->sw->mgrv ( state->line_map[i + offset], state->sw,
+                                                           &fstate );
+                TextBoxFontType tbft   = fstate |
+                                         ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
                 textbox_font ( state->boxes[i], tbft );
                 textbox_text ( state->boxes[i], text );
             }
@@ -910,10 +909,8 @@ static void menu_paste ( MenuState *state, XSelectionEvent *xse )
 
 static void menu_resize ( MenuState *state )
 {
-    if ( state->scrollbar ) {
-        unsigned int sbw = config.line_margin + 8;
-        XMoveWindow ( display, state->scrollbar->window, state->w - config.padding - sbw, state->top_offset );
-    }
+    unsigned int sbw = config.line_margin + 8;
+    scrollbar_move ( state->scrollbar, state->w - config.padding - sbw, state->top_offset );
     if ( config.sidebar_mode == TRUE ) {
         int width = ( state->w - ( 2 * ( config.padding ) +
                                    ( num_switchers - 1 ) * config.line_margin ) ) / num_switchers;
@@ -931,7 +928,8 @@ static void menu_resize ( MenuState *state )
      */
     {
         unsigned int last_length    = state->max_elements;
-        int          element_height = state->line_height * config.element_height + config.line_margin;
+        int          element_height = state->line_height * config.element_height +
+                                      config.line_margin;
         // Calculated new number of boxes.
         unsigned int h = ( state->h - state->top_offset );
         if ( config.sidebar_mode == TRUE ) {
@@ -957,8 +955,6 @@ static void menu_resize ( MenuState *state )
         scrollbar_resize ( state->scrollbar, -1,
                            ( state->max_rows ) * ( element_height ) - config.line_margin );
     }
-
-
 
     state->rchanged = TRUE;
     state->update   = TRUE;
@@ -1096,11 +1092,14 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
     }
     if ( !config.hide_scrollbar ) {
         unsigned int sbw = config.line_margin + 8;
-        state.scrollbar = scrollbar_create ( main_window, &vinfo, map,
-                                             state.w - config.padding - sbw,
-                                             state.top_offset,
-                                             sbw,
-                                             ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + element_height );
+        state.scrollbar = scrollbar_create (
+            main_window, &vinfo, map,
+            state.w - config.padding - sbw,
+            state.top_offset,
+            sbw,
+            ( state.max_rows -
+              1 ) *
+            ( element_height + config.line_margin ) + element_height );
     }
 
 
@@ -1113,7 +1112,8 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
-    state.h  = state.top_offset + ( element_height + config.line_margin ) * ( state.max_rows ) - config.line_margin;
+    state.h = state.top_offset +
+              ( element_height + config.line_margin ) * ( state.max_rows ) - config.line_margin;
     state.h += config.padding;
     state.h += 0;
     // Add entry
@@ -1130,12 +1130,17 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
     calculate_window_position ( &state, &mon );
 
     if ( config.sidebar_mode == TRUE ) {
-        int width = ( state.w - ( 2 * ( config.padding ) + ( num_switchers - 1 ) * config.line_margin ) ) / num_switchers;
+        int width =
+            ( state.w -
+              ( 2 * ( config.padding ) +
+                ( num_switchers - 1 ) * config.line_margin ) ) / num_switchers;
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
             switchers[j].tb = textbox_create ( main_window, &vinfo, map, TB_CENTER,
                                                config.padding + j * ( width + config.line_margin ),
                                                state.h - state.line_height - config.padding,
-                                               width, state.line_height, ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, switchers[j].sw->name );
+                                               width, state.line_height,
+                                               ( j == curr_switcher ) ? HIGHLIGHT : NORMAL,
+                                               switchers[j].sw->name );
             textbox_show ( switchers[j].tb );
         }
     }
@@ -1149,9 +1154,11 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
     state.selected = 0;
 
     state.quit = FALSE;
-    menu_refilter ( &state, state.lines, config.levenshtein_sort, config.case_sensitive );
+    menu_refilter ( &state );
 
-    for ( unsigned int i = 0; ( *( state.selected_line ) ) < UINT32_MAX && !state.selected && i < state.filtered_lines; i++ ) {
+    for ( unsigned int i = 0;
+          ( *( state.selected_line ) ) < UINT32_MAX && !state.selected && i < state.filtered_lines;
+          i++ ) {
         if ( state.line_map[i] == *( state.selected_line ) ) {
             state.selected = i;
             break;
@@ -1181,7 +1188,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
         // If not in lazy mode, refilter.
         if ( state.num_lines <= config.lazy_filter_limit ) {
             if ( state.refilter ) {
-                menu_refilter ( &state, state.lines, config.levenshtein_sort, config.case_sensitive );
+                menu_refilter ( &state );
                 menu_update ( &state );
             }
         }
@@ -1189,7 +1196,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
             // When timeout (and in lazy filter mode)
             // We refilter then loop back and wait for Xevent.
             if ( state.refilter ) {
-                menu_refilter ( &state, state.lines, config.levenshtein_sort, config.case_sensitive );
+                menu_refilter ( &state );
                 menu_update ( &state );
             }
         }
@@ -1257,11 +1264,13 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt,
                 // Handling of paste
                 if ( abe_test_action ( PASTE_PRIMARY, ev.xkey.state, key ) ) {
                     XConvertSelection ( display, XA_PRIMARY,
-                                        netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
+                                        netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window,
+                                        CurrentTime );
                 }
                 else if ( abe_test_action ( PASTE_SECONDARY, ev.xkey.state, key ) ) {
                     XConvertSelection ( display, netatoms[CLIPBOARD],
-                                        netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
+                                        netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window,
+                                        CurrentTime );
                 }
                 else if ( abe_test_action ( MODE_PREVIOUS, ev.xkey.state, key ) ) {
                     state.retv               = MENU_PREVIOUS;
@@ -1433,13 +1442,14 @@ void error_dialog ( const char *msg, int markup )
     menu_calculate_window_and_element_width ( &state, &mon );
     state.max_elements = 0;
 
-    state.text = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT + ( ( markup ) ? TB_MARKUP : 0 ),
-                                  ( config.padding ),
-                                  ( config.padding ),
-                                  ( state.w - ( 2 * ( config.padding ) ) ),
-                                  1,
-                                  NORMAL,
-                                  ( msg != NULL ) ? msg : "" );
+    state.text =
+        textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT + ( ( markup ) ? TB_MARKUP : 0 ),
+                         ( config.padding ),
+                         ( config.padding ),
+                         ( state.w - ( 2 * ( config.padding ) ) ),
+                         1,
+                         NORMAL,
+                         ( msg != NULL ) ? msg : "" );
     textbox_show ( state.text );
     state.line_height = textbox_get_height ( state.text );
 
@@ -1615,7 +1625,10 @@ static void handle_keypress ( XEvent *ev )
         run_switcher ( index );
     }
     else {
-        fprintf ( stderr, "Warning: Unhandled keypress in global keyhandler, keycode = %u mask = %u\n", ev->xkey.keycode, ev->xkey.state );
+        fprintf ( stderr,
+                  "Warning: Unhandled keypress in global keyhandler, keycode = %u mask = %u\n",
+                  ev->xkey.keycode,
+                  ev->xkey.state );
     }
 }
 
@@ -1700,7 +1713,8 @@ static void setup_switchers ( void )
           token != NULL;
           token = strtok_r ( NULL, ",", &savept ) ) {
         // Resize and add entry.
-        switchers                   = (Mode *) g_realloc ( switchers, sizeof ( Mode ) * ( num_switchers + 1 ) );
+        switchers =
+            (Mode *) g_realloc ( switchers, sizeof ( Mode ) * ( num_switchers + 1 ) );
         switchers[num_switchers].tb = NULL;
 
         // Window switcher.
@@ -1794,7 +1808,8 @@ static int grab_global_keybindings ()
     int key_bound = FALSE;
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
         if ( switchers[i].sw->keystr != NULL ) {
-            x11_parse_key ( switchers[i].sw->keystr, &( switchers[i].sw->modmask ), &( switchers[i].sw->keysym ) );
+            x11_parse_key ( switchers[i].sw->keystr, &( switchers[i].sw->modmask ),
+                            &( switchers[i].sw->keysym ) );
             if ( switchers[i].sw->keysym != NoSymbol ) {
                 x11_grab_key ( display, switchers[i].sw->modmask, switchers[i].sw->keysym );
                 key_bound = TRUE;
@@ -1834,7 +1849,9 @@ static void reload_configuration ()
             XCloseDisplay ( temp_display );
         }
         else {
-            fprintf ( stderr, "Failed to get a new connection to the X11 server. No point in continuing.\n" );
+            fprintf (
+                stderr,
+                "Failed to get a new connection to the X11 server. No point in continuing.\n" );
             abort ();
         }
     }
@@ -2128,7 +2145,8 @@ int main ( int argc, char *argv[] )
     else{
         // Daemon mode, Listen to key presses..
         if ( !grab_global_keybindings () ) {
-            fprintf ( stderr, "Rofi was launched in daemon mode, but no key-binding was specified.\n" );
+            fprintf ( stderr,
+                      "Rofi was launched in daemon mode, but no key-binding was specified.\n" );
             fprintf ( stderr, "Please check the manpage on how to specify a key-binding.\n" );
             fprintf ( stderr, "The following modi are enabled and keys can be specified:\n" );
             for ( unsigned int i = 0; i < num_switchers; i++ ) {
