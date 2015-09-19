@@ -269,9 +269,7 @@ static client* window_client ( Display *display, Window win )
 
     c->states = window_get_atom_prop ( display, win, netatoms[_NET_WM_STATE], c->state, CLIENTSTATE );
 
-    c->window_types =
-        window_get_atom_prop ( display, win, netatoms[_NET_WM_WINDOW_TYPE], c->window_type,
-                               CLIENTWINDOWTYPE );
+    c->window_types = window_get_atom_prop ( display, win, netatoms[_NET_WM_WINDOW_TYPE], c->window_type, CLIENTWINDOWTYPE );
     char *name;
 
     if ( ( name = window_get_text_prop ( display, c->window, netatoms[_NET_WM_NAME] ) ) && name ) {
@@ -283,8 +281,7 @@ static client* window_client ( Display *display, Window win )
         XFree ( name );
     }
 
-    name =
-        window_get_text_prop ( display, c->window, XInternAtom ( display, "WM_WINDOW_ROLE", False ) );
+    name = window_get_text_prop ( display, c->window, XInternAtom ( display, "WM_WINDOW_ROLE", False ) );
 
     if ( name != NULL ) {
         snprintf ( c->role, CLIENTROLE, "%s", name );
@@ -392,21 +389,18 @@ static char ** _window_mode_get_data ( unsigned int *length, Switcher *sw, unsig
         pd->config_i3_mode = i3_support_initialize ( display );
 
         // Get the active window so we can highlight this.
-        if ( !( window_get_prop ( display, root, netatoms[_NET_ACTIVE_WINDOW], &type,
-                                  &count, &curr_win_id, sizeof ( Window ) )
+        if ( !( window_get_prop ( display, root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &curr_win_id, sizeof ( Window ) )
                 && type == XA_WINDOW && count > 0 ) ) {
             curr_win_id = 0;
         }
 
         // Get the current desktop.
         unsigned long current_desktop = 0;
-        if ( !window_get_cardinal_prop ( display, root, netatoms[_NET_CURRENT_DESKTOP],
-                                         &current_desktop, 1 ) ) {
+        if ( !window_get_cardinal_prop ( display, root, netatoms[_NET_CURRENT_DESKTOP], &current_desktop, 1 ) ) {
             current_desktop = 0;
         }
 
-        if ( window_get_prop ( display, root, netatoms[_NET_CLIENT_LIST_STACKING],
-                               &type, &nwins, wins, 100 * sizeof ( Window ) )
+        if ( window_get_prop ( display, root, netatoms[_NET_CLIENT_LIST_STACKING], &type, &nwins, wins, 100 * sizeof ( Window ) )
              && type == XA_WINDOW ) {
             char          pattern[50];
             int           i;
@@ -443,8 +437,7 @@ static char ** _window_mode_get_data ( unsigned int *length, Switcher *sw, unsig
             }
 
             // Create pattern for printing the line.
-            if ( !window_get_cardinal_prop ( display, root, netatoms[_NET_NUMBER_OF_DESKTOPS],
-                                             &desktops, 1 ) ) {
+            if ( !window_get_cardinal_prop ( display, root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1 ) ) {
                 desktops = 1;
             }
             if ( pd->config_i3_mode ) {
@@ -466,13 +459,10 @@ static char ** _window_mode_get_data ( unsigned int *length, Switcher *sw, unsig
                     unsigned long wmdesktop;
                     char          desktop[5];
                     desktop[0] = 0;
-                    char          *line = g_malloc ( strlen ( c->title ) + strlen (
-                                                         c->class ) + classfield + 50 );
+                    char          *line = g_malloc ( strlen ( c->title ) + strlen ( c->class ) + classfield + 50 );
                     if ( !pd->config_i3_mode ) {
                         // find client's desktop.
-                        if ( !window_get_cardinal_prop ( display, c->window,
-                                                         netatoms[_NET_WM_DESKTOP], &wmdesktop,
-                                                         1 ) ) {
+                        if ( !window_get_cardinal_prop ( display, c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1 ) ) {
                             // Assume the client is on all desktops.
                             wmdesktop = 0xFFFFFFFF;
                         }
@@ -533,13 +523,11 @@ static SwitcherMode window_mode_result ( int mretv, G_GNUC_UNUSED char **input,
             Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
             // Change to the desktop of the selected window/client.
             // TODO: get rid of strtol
-            window_send_message ( display, root, root, netatoms[_NET_CURRENT_DESKTOP],
-                                  strtol ( rmpd->cmd_list[selected_line], NULL, 10 ),
+            window_send_message ( display, root, root, netatoms[_NET_CURRENT_DESKTOP], strtol ( rmpd->cmd_list[selected_line], NULL, 10 ),
                                   SubstructureNotifyMask | SubstructureRedirectMask, 0 );
             XSync ( display, False );
 
-            window_send_message ( display, root, rmpd->ids->array[selected_line],
-                                  netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
+            window_send_message ( display, root, rmpd->ids->array[selected_line], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
                                   SubstructureNotifyMask | SubstructureRedirectMask, 0 );
         }
     }

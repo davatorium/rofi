@@ -173,8 +173,7 @@ Switcher *script_switcher_parse_setup ( const char *str )
     char         *endp  = NULL;
     char         *parse = g_strdup ( str );
     unsigned int index  = 0;
-    for ( char *token = strtok_r ( parse, ":", &endp ); token != NULL;
-          token = strtok_r ( NULL, ":", &endp ) ) {
+    for ( char *token = strtok_r ( parse, ":", &endp ); token != NULL; token = strtok_r ( NULL, ":", &endp ) ) {
         if ( index == 0 ) {
             g_strlcpy ( sw->name, token, 32 );
         }
@@ -197,8 +196,7 @@ Switcher *script_switcher_parse_setup ( const char *str )
 
         return sw;
     }
-    fprintf ( stderr, "The script command '%s' has %u options, but needs 2: <name>:<script>.\n",
-              str, index );
+    fprintf ( stderr, "The script command '%s' has %u options, but needs 2: <name>:<script>.\n", str, index );
     script_switcher_free ( sw );
     return NULL;
 }

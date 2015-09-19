@@ -57,13 +57,10 @@ static inline int execshssh ( const char *host )
     helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, NULL );
 
     GError *error = NULL;
-    g_spawn_async ( NULL, args, NULL,
-                    G_SPAWN_SEARCH_PATH,
-                    NULL, NULL, NULL, &error );
+    g_spawn_async ( NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error );
 
     if ( error != NULL ) {
-        char *msg = g_strdup_printf ( "Failed to execute: 'ssh %s'\nError: '%s'", host,
-                                      error->message );
+        char *msg = g_strdup_printf ( "Failed to execute: 'ssh %s'\nError: '%s'", host, error->message );
         error_dialog ( msg, FALSE  );
         g_free ( msg );
         // print error.
@@ -261,9 +258,7 @@ static char ** get_ssh (  unsigned int *length )
 
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
     if ( ( *length ) > num_favorites ) {
-        g_qsort_with_data ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ),
-                            ssh_sort_func,
-                            NULL );
+        g_qsort_with_data ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), ssh_sort_func, NULL );
     }
     g_free ( path );
 

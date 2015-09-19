@@ -56,12 +56,9 @@ static inline void execsh ( const char *cmd, int run_in_term )
         helper_parse_setup ( config.run_command, &args, &argc, "{cmd}", cmd, NULL );
     }
     GError *error = NULL;
-    g_spawn_async ( NULL, args, NULL,
-                    G_SPAWN_SEARCH_PATH,
-                    NULL, NULL, NULL, &error );
+    g_spawn_async ( NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error );
     if ( error != NULL ) {
-        char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd,
-                                      error->message );
+        char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd, error->message );
         error_dialog ( msg, FALSE  );
         g_free ( msg );
         // print error.
@@ -187,18 +184,14 @@ static char ** get_apps ( unsigned int *length )
 
     path = g_strdup ( getenv ( "PATH" ) );
 
-    for ( const char *dirname = strtok ( path, ":" );
-          dirname != NULL;
-          dirname = strtok ( NULL, ":" ) ) {
+    for ( const char *dirname = strtok ( path, ":" ); dirname != NULL; dirname = strtok ( NULL, ":" ) ) {
         DIR *dir = opendir ( dirname );
 
         if ( dir != NULL ) {
             struct dirent *dent;
 
             while ( ( dent = readdir ( dir ) ) != NULL ) {
-                if ( dent->d_type != DT_REG &&
-                     dent->d_type != DT_LNK &&
-                     dent->d_type != DT_UNKNOWN ) {
+                if ( dent->d_type != DT_REG && dent->d_type != DT_LNK && dent->d_type != DT_UNKNOWN ) {
                     continue;
                 }
                 // Skip dot files.
@@ -240,9 +233,7 @@ static char ** get_apps ( unsigned int *length )
     }
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
     if ( ( *length ) > num_favorites ) {
-        g_qsort_with_data ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ),
-                            sort_func,
-                            NULL );
+        g_qsort_with_data ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func, NULL );
     }
     g_free ( path );
 

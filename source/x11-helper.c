@@ -66,8 +66,8 @@ int window_get_prop ( Display *display, Window w, Atom prop, Atom *type, int *it
     unsigned char *ret = NULL;
     memset ( buffer, 0, bytes );
 
-    if ( XGetWindowProperty ( display, w, prop, 0, bytes / 4, False, AnyPropertyType, type, &format, &nitems, &nbytes,
-                              &ret ) == Success && ret && *type != None && format ) {
+    if ( XGetWindowProperty ( display, w, prop, 0, bytes / 4, False, AnyPropertyType, type, &format, &nitems, &nbytes, &ret ) == Success &&
+         ret && *type != None && format ) {
         if ( format == 8 ) {
             memmove ( buffer, ret, MIN ( bytes, nitems ) );
         }
@@ -233,8 +233,8 @@ void monitor_active ( Display *display, workarea *mon )
         }
         fprintf ( stderr, "Failed to find selected monitor.\n" );
     }
-    if ( window_get_prop ( display, root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id, sizeof ( Window ) ) 
-            && type == XA_WINDOW && count > 0 ) {
+    if ( window_get_prop ( display, root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id, sizeof ( Window ) )
+         && type == XA_WINDOW && count > 0 ) {
         XWindowAttributes attr;
         if ( XGetWindowAttributes ( display, id, &attr ) ) {
             Window junkwin;
@@ -444,9 +444,8 @@ static int ( *xerror )( Display *, XErrorEvent * );
  */
 static int display_oops ( Display *d, XErrorEvent *ee )
 {
-    if ( ee->error_code == BadWindow
-         || ( ee->request_code == X_GrabButton && ee->error_code == BadAccess )
-         || ( ee->request_code == X_GrabKey && ee->error_code == BadAccess )) {
+    if ( ee->error_code == BadWindow || ( ee->request_code == X_GrabButton && ee->error_code == BadAccess )
+         || ( ee->request_code == X_GrabKey && ee->error_code == BadAccess ) ) {
         return 0;
     }
 
@@ -475,7 +474,7 @@ void create_visual_and_colormap ( Display *display )
     // Try to create TrueColor map
     if ( XMatchVisualInfo ( display, screen, 32, TrueColor, &vinfo ) ) {
         // Visual found, lets try to create map.
-        map = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
+        map       = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
         truecolor = TRUE;
     }
     // Failed to create map.

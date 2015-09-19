@@ -98,9 +98,7 @@ static char ** dmenu_mode_get_data ( unsigned int *length, Switcher *sw )
 static void parse_pair ( char  *input, struct range_pair  *item )
 {
     int index = 0;
-    for ( char *token = strsep ( &input, "-" );
-          token != NULL;
-          token = strsep ( &input, "-" ) ) {
+    for ( char *token = strsep ( &input, "-" ); token != NULL; token = strsep ( &input, "-" ) ) {
         if ( index == 0 ) {
             item->start = item->stop = (unsigned int) strtoul ( token, NULL, 10 );
             index++;
@@ -119,9 +117,7 @@ static void parse_pair ( char  *input, struct range_pair  *item )
 static void parse_ranges ( char *input, struct range_pair **list, unsigned int *length )
 {
     char *endp;
-    for ( char *token = strtok_r ( input, ",", &endp );
-          token != NULL;
-          token = strtok_r ( NULL, ",", &endp ) ) {
+    for ( char *token = strtok_r ( input, ",", &endp ); token != NULL; token = strtok_r ( NULL, ",", &endp ) ) {
         // Make space.
         *list = g_realloc ( ( *list ), ( ( *length ) + 1 ) * sizeof ( struct range_pair ) );
         // Parse a single pair.
@@ -318,8 +314,7 @@ int dmenu_switcher_dialog ( void )
 
     do {
         unsigned int next_pos = pd->selected_line;
-        int          mretv    = menu ( &dmenu_mode, &input, pd->prompt,
-                                       &( pd->selected_line ), &next_pos, pd->message );
+        int          mretv    = menu ( &dmenu_mode, &input, pd->prompt, &( pd->selected_line ), &next_pos, pd->message );
         // Special behavior.
         // TODO clean this up!
         if ( only_selected ) {
@@ -327,11 +322,8 @@ int dmenu_switcher_dialog ( void )
              * Select item mode.
              */
             restart = 1;
-            if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line] !=
-                 NULL ) {
-                dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line],
-                                              pd->selected_line,
-                                              input );
+            if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line] != NULL ) {
+                dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
                 retv = TRUE;
                 if ( ( mretv & MENU_QUICK_SWITCH ) ) {
                     retv = 10 + ( mretv & MENU_LOWER_MASK );
@@ -349,9 +341,7 @@ int dmenu_switcher_dialog ( void )
         restart = FALSE;
         // Normal mode
         if ( ( mretv & MENU_OK  ) && cmd_list[pd->selected_line] != NULL ) {
-            dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line],
-                                          pd->selected_line,
-                                          input );
+            dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
             if ( ( mretv & MENU_SHIFT ) ) {
                 restart = TRUE;
                 // Move to next line.
@@ -372,9 +362,7 @@ int dmenu_switcher_dialog ( void )
         }
         // Quick switch with entry selected.
         else if ( ( mretv & MENU_QUICK_SWITCH ) && pd->selected_line < UINT32_MAX ) {
-            dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line],
-                                          pd->selected_line,
-                                          input );
+            dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
 
             restart = FALSE;
             retv    = 10 + ( mretv & MENU_LOWER_MASK );

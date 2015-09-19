@@ -360,10 +360,9 @@ static void menu_calculate_rows_columns ( MenuState *state )
 
     // Calculate the number or rows. We do this by getting the num_lines rounded up to X columns
     // (num elements is better name) then dividing by columns.
-    state->max_rows = MIN ( state->menu_lines, (unsigned int) ( ( state->num_lines +
-                                                                  ( state->columns - state->num_lines %
-                                                                    state->columns ) % state->columns ) /
-                                                                ( state->columns ) ) );
+    state->max_rows = MIN ( state->menu_lines, (unsigned int) ( ( state->num_lines + ( state->columns - state->num_lines %
+                                                                                       state->columns ) %
+                                                                  state->columns ) / ( state->columns ) ) );
     // Always have at least one row.
     state->max_rows = MAX ( 1, state->max_rows );
 
@@ -834,18 +833,15 @@ static void menu_update ( MenuState *state )
     }
     menu_draw ( state );
     // Why do we need the special -1?
-    XDrawLine ( display, main_window, gc, 0,
-                state->line_height + ( config.padding ) * 1 + config.line_margin + 1, state->w,
+    XDrawLine ( display, main_window, gc, 0, state->line_height + ( config.padding ) * 1 + config.line_margin + 1, state->w,
                 state->line_height + ( config.padding ) * 1 + config.line_margin + 1 );
     if ( state->message_tb ) {
-        XDrawLine ( display, main_window, gc,
-                    0, state->top_offset - ( config.line_margin ) - 1,
+        XDrawLine ( display, main_window, gc, 0, state->top_offset - ( config.line_margin ) - 1,
                     state->w, state->top_offset - ( config.line_margin ) - 1 );
     }
 
     if ( config.sidebar_mode == TRUE ) {
-        XDrawLine ( display, main_window, gc,
-                    0, state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin,
+        XDrawLine ( display, main_window, gc, 0, state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin,
                     state->w, state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin );
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
             textbox_draw ( switchers[j].tb );
@@ -890,8 +886,7 @@ static void menu_resize ( MenuState *state )
     if ( config.sidebar_mode == TRUE ) {
         int width = ( state->w - ( 2 * ( config.padding ) + ( num_switchers - 1 ) * config.line_margin ) ) / num_switchers;
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
-            textbox_moveresize ( switchers[j].tb,
-                                 config.padding + j * ( width + config.line_margin ),
+            textbox_moveresize ( switchers[j].tb, config.padding + j * ( width + config.line_margin ),
                                  state->h - state->line_height - config.padding, width, state->line_height );
             textbox_show ( switchers[j].tb );
             textbox_draw ( switchers[j].tb );
@@ -983,8 +978,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
 
     // we need this at this point so we can get height.
     state.line_height    = textbox_get_estimated_char_height ();
-    state.case_indicator = textbox_create ( main_window, &vinfo, map, TB_AUTOWIDTH,
-                                            ( config.padding ), ( config.padding ),
+    state.case_indicator = textbox_create ( main_window, &vinfo, map, TB_AUTOWIDTH, ( config.padding ), ( config.padding ),
                                             0, state.line_height, NORMAL, "*" );
     // Height of a row.
     if ( config.menu_lines == 0 ) {
@@ -1003,8 +997,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     state.prompt_tb = textbox_create ( main_window, &vinfo, map, TB_AUTOWIDTH, ( config.padding ), ( config.padding ),
                                        0, state.line_height, NORMAL, prompt );
     // Entry box
-    int entrybox_width = state.w - ( 2 * ( config.padding ) )
-                         - textbox_get_width ( state.prompt_tb )
+    int entrybox_width = state.w - ( 2 * ( config.padding ) ) - textbox_get_width ( state.prompt_tb )
                          - textbox_get_width ( state.case_indicator );
 
     state.text = textbox_create ( main_window, &vinfo, map, TB_EDITABLE,
@@ -1726,8 +1719,7 @@ static int grab_global_keybindings ()
     int key_bound = FALSE;
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
         if ( switchers[i].sw->keystr != NULL ) {
-            x11_parse_key ( switchers[i].sw->keystr, &( switchers[i].sw->modmask ),
-                            &( switchers[i].sw->keysym ) );
+            x11_parse_key ( switchers[i].sw->keystr, &( switchers[i].sw->modmask ), &( switchers[i].sw->keysym ) );
             if ( switchers[i].sw->keysym != NoSymbol ) {
                 x11_grab_key ( display, switchers[i].sw->modmask, switchers[i].sw->keysym );
                 key_bound = TRUE;
@@ -2063,8 +2055,7 @@ int main ( int argc, char *argv[] )
             fprintf ( stderr, "Please check the manpage on how to specify a key-binding.\n" );
             fprintf ( stderr, "The following modi are enabled and keys can be specified:\n" );
             for ( unsigned int i = 0; i < num_switchers; i++ ) {
-                fprintf ( stderr, "\t* "color_bold "%s"color_reset ": -key-%s <key>\n",
-                          switchers[i].sw->name, switchers[i].sw->name );
+                fprintf ( stderr, "\t* "color_bold "%s"color_reset ": -key-%s <key>\n", switchers[i].sw->name, switchers[i].sw->name );
             }
             return EXIT_FAILURE;
         }

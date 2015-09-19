@@ -58,8 +58,7 @@ static void combi_mode_parse_switchers ( Switcher *sw )
     // Make a copy, as strtok will modify it.
     char                 *switcher_str = g_strdup ( config.combi_modi );
     // Split token on ','. This modifies switcher_str.
-    for ( char *token = strtok_r ( switcher_str, ",", &savept );
-          token != NULL;
+    for ( char *token = strtok_r ( switcher_str, ",", &savept ); token != NULL;
           token = strtok_r ( NULL, ",", &savept ) ) {
         // Resize and add entry.
         pd->switchers = (Switcher * *) g_realloc ( pd->switchers,
@@ -164,9 +163,7 @@ static SwitcherMode combi_mode_result ( int mretv, char **input, unsigned int se
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( selected_line >= pd->starts[i] &&
              selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
-            return pd->switchers[i]->result ( mretv,
-                                              input,
-                                              selected_line - pd->starts[i],
+            return pd->switchers[i]->result ( mretv, input, selected_line - pd->starts[i],
                                               pd->switchers[i] );
         }
     }
@@ -179,11 +176,8 @@ static int combi_mode_match ( char **tokens, const char *input,
 
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
-            return pd->switchers[i]->token_match ( tokens,
-                                                   input,
-                                                   case_sensitive,
-                                                   index - pd->starts[i],
-                                                   pd->switchers[i] );
+            return pd->switchers[i]->token_match ( tokens, input, case_sensitive,
+                                                   index - pd->starts[i], pd->switchers[i] );
         }
     }
     abort ();
@@ -193,11 +187,9 @@ static const char * combi_mgrv ( unsigned int selected_line, void *sw, int *stat
 {
     CombiModePrivateData *pd = ( (Switcher *) sw )->private_data;
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
-        if ( selected_line >= pd->starts[i] && selected_line <
-             ( pd->starts[i] + pd->lengths[i] ) ) {
+        if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
             g_free ( pd->cache );
-            pd->cache = g_strdup_printf ( "(%s) %s",
-                                          pd->switchers[i]->name,
+            pd->cache = g_strdup_printf ( "(%s) %s", pd->switchers[i]->name,
                                           pd->switchers[i]->mgrv ( selected_line - pd->starts[i],
                                                                    (void *) pd->switchers[i], state ) );
             return pd->cache;
