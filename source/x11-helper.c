@@ -59,17 +59,14 @@ const char   *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 unsigned int NumlockMask = 0;
 
 // retrieve a property of any type from a window
-int window_get_prop ( Display *display, Window w, Atom prop,
-                      Atom *type, int *items,
-                      void *buffer, unsigned int bytes )
+int window_get_prop ( Display *display, Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes )
 {
     int           format;
     unsigned long nitems, nbytes;
     unsigned char *ret = NULL;
     memset ( buffer, 0, bytes );
 
-    if ( XGetWindowProperty ( display, w, prop, 0, bytes / 4, False, AnyPropertyType, type,
-                              &format, &nitems, &nbytes,
+    if ( XGetWindowProperty ( display, w, prop, 0, bytes / 4, False, AnyPropertyType, type, &format, &nitems, &nbytes,
                               &ret ) == Success && ret && *type != None && format ) {
         if ( format == 8 ) {
             memmove ( buffer, ret, MIN ( bytes, nitems ) );
@@ -109,8 +106,7 @@ char* window_get_text_prop ( Display *display, Window w, Atom atom )
                 g_strlcpy ( res, ( char * ) prop.value, l );
             }
         }
-        else if ( Xutf8TextPropertyToTextList ( display, &prop, &list,
-                                                &count ) >= Success && count > 0 && *list ) {
+        else if ( Xutf8TextPropertyToTextList ( display, &prop, &list, &count ) >= Success && count > 0 && *list ) {
             size_t l = strlen ( *list ) + 1;
             res = g_malloc ( l );
             // make clang-check happy.
@@ -131,24 +127,19 @@ int window_get_atom_prop ( Display *display, Window w, Atom atom, Atom *list, in
 {
     Atom type;
     int  items;
-    return window_get_prop ( display, w, atom, &type, &items, list,
-                             count * sizeof ( Atom ) ) && type == XA_ATOM ? items : 0;
+    return window_get_prop ( display, w, atom, &type, &items, list, count * sizeof ( Atom ) ) && type == XA_ATOM ? items : 0;
 }
 
 void window_set_atom_prop ( Display *display, Window w, Atom prop, Atom *atoms, int count )
 {
-    XChangeProperty ( display, w, prop, XA_ATOM, 32, PropModeReplace, ( unsigned char * ) atoms,
-                      count );
+    XChangeProperty ( display, w, prop, XA_ATOM, 32, PropModeReplace, ( unsigned char * ) atoms, count );
 }
 
-int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned long *list,
-                               int count )
+int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned long *list, int count )
 {
     Atom type; int items;
-    return window_get_prop ( display, w, atom, &type, &items, list, count *
-                             sizeof ( unsigned long ) ) && type == XA_CARDINAL ? items : 0;
+    return window_get_prop ( display, w, atom, &type, &items, list, count * sizeof ( unsigned long ) ) && type == XA_CARDINAL ? items : 0;
 }
-
 
 int monitor_get_dimension ( Display *display, Screen *screen, int monitor, workarea *mon )
 {
@@ -187,8 +178,7 @@ void monitor_dimensions ( Display *display, Screen *screen, int x, int y, workar
 
         if ( info ) {
             for ( int i = 0; i < monitors; i++ ) {
-                if ( INTERSECT ( x, y, 1, 1, info[i].x_org, info[i].y_org, info[i].width,
-                                 info[i].height ) ) {
+                if ( INTERSECT ( x, y, 1, 1, info[i].x_org, info[i].y_org, info[i].width, info[i].height ) ) {
                     mon->x = info[i].x_org;
                     mon->y = info[i].y_org;
                     mon->w = info[i].width;
@@ -227,7 +217,6 @@ static int pointer_get ( Display *display, Window root, int *x, int *y )
     return 0;
 }
 
-
 // determine which monitor holds the active window, or failing that the mouse pointer
 void monitor_active ( Display *display, workarea *mon )
 {
@@ -244,16 +233,12 @@ void monitor_active ( Display *display, workarea *mon )
         }
         fprintf ( stderr, "Failed to find selected monitor.\n" );
     }
-    if ( window_get_prop ( display, root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id,
-                           sizeof ( Window ) )
-         && type == XA_WINDOW && count > 0 ) {
+    if ( window_get_prop ( display, root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id, sizeof ( Window ) ) 
+            && type == XA_WINDOW && count > 0 ) {
         XWindowAttributes attr;
         if ( XGetWindowAttributes ( display, id, &attr ) ) {
             Window junkwin;
-            if ( XTranslateCoordinates ( display, id, attr.root,
-                                         -attr.border_width,
-                                         -attr.border_width,
-                                         &x, &y, &junkwin ) == True ) {
+            if ( XTranslateCoordinates ( display, id, attr.root, -attr.border_width, -attr.border_width, &x, &y, &junkwin ) == True ) {
                 if ( config.monitor == -2 ) {
                     // place the menu above the window
                     // if some window is focused, place menu above window, else fall
@@ -281,9 +266,7 @@ void monitor_active ( Display *display, workarea *mon )
     monitor_dimensions ( display, screen, 0, 0, mon );
 }
 
-int window_send_message ( Display *display, Window target,
-                          Window subject, Atom atom,
-                          unsigned long protocol, unsigned long mask, Time time )
+int window_send_message ( Display *display, Window trg, Window subject, Atom atom, unsigned long protocol, unsigned long mask, Time time )
 {
     XEvent e;
     memset ( &e, 0, sizeof ( XEvent ) );
@@ -294,7 +277,7 @@ int window_send_message ( Display *display, Window target,
     e.xclient.data.l[1]    = time;
     e.xclient.send_event   = True;
     e.xclient.format       = 32;
-    int r = XSendEvent ( display, target, False, mask, &e ) ? 1 : 0;
+    int r = XSendEvent ( display, trg, False, mask, &e ) ? 1 : 0;
     XFlush ( display );
     return r;
 }
@@ -334,10 +317,8 @@ void x11_grab_key ( Display *display, unsigned int modmask, KeySym key )
     XGrabKey ( display, keycode, modmask | LockMask, root, True, GrabModeAsync, GrabModeAsync );
 
     if ( NumlockMask ) {
-        XGrabKey ( display, keycode, modmask | NumlockMask, root, True, GrabModeAsync,
-                   GrabModeAsync );
-        XGrabKey ( display, keycode, modmask | NumlockMask | LockMask, root, True, GrabModeAsync,
-                   GrabModeAsync );
+        XGrabKey ( display, keycode, modmask | NumlockMask, root, True, GrabModeAsync, GrabModeAsync );
+        XGrabKey ( display, keycode, modmask | NumlockMask | LockMask, root, True, GrabModeAsync, GrabModeAsync );
     }
 }
 
@@ -437,8 +418,7 @@ void x11_set_window_opacity ( Display *display, Window box, unsigned int opacity
     // Scale 0-100 to 0 - UINT32_MAX.
     unsigned int opacity_set = ( unsigned int ) ( ( opacity / 100.0 ) * UINT32_MAX );
     // Set opacity.
-    XChangeProperty ( display, box, netatoms[_NET_WM_WINDOW_OPACITY],
-                      XA_CARDINAL, 32, PropModeReplace,
+    XChangeProperty ( display, box, netatoms[_NET_WM_WINDOW_OPACITY], XA_CARDINAL, 32, PropModeReplace,
                       ( unsigned char * ) &opacity_set, 1L );
 }
 
@@ -455,7 +435,6 @@ static void x11_create_frequently_used_atoms ( Display *display )
     }
 }
 
-
 static int ( *xerror )( Display *, XErrorEvent * );
 /**
  * @param d  The connection to the X server.
@@ -467,8 +446,7 @@ static int display_oops ( Display *d, XErrorEvent *ee )
 {
     if ( ee->error_code == BadWindow
          || ( ee->request_code == X_GrabButton && ee->error_code == BadAccess )
-         || ( ee->request_code == X_GrabKey && ee->error_code == BadAccess )
-         ) {
+         || ( ee->request_code == X_GrabKey && ee->error_code == BadAccess )) {
         return 0;
     }
 
@@ -488,8 +466,6 @@ void x11_setup ( Display *display )
     x11_create_frequently_used_atoms ( display );
 }
 
-
-
 extern Colormap    map;
 extern XVisualInfo vinfo;
 int                truecolor = FALSE;
@@ -499,8 +475,7 @@ void create_visual_and_colormap ( Display *display )
     // Try to create TrueColor map
     if ( XMatchVisualInfo ( display, screen, 32, TrueColor, &vinfo ) ) {
         // Visual found, lets try to create map.
-        map       = XCreateColormap ( display, DefaultRootWindow (
-                                          display ), vinfo.visual, AllocNone );
+        map = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
         truecolor = TRUE;
     }
     // Failed to create map.

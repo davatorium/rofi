@@ -109,7 +109,6 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
     return retv;
 }
 
-
 void history_set ( const char *filename, const char *entry )
 {
     if ( config.disable_history ) {

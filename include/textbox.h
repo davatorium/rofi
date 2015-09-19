@@ -21,7 +21,6 @@ typedef struct
     int           changed;
 } textbox;
 
-
 typedef enum
 {
     TB_AUTOHEIGHT = 1 << 0,
@@ -32,7 +31,6 @@ typedef enum
     TB_EDITABLE   = 1 << 19,
     TB_MARKUP     = 1 << 20,
 } TextboxFlags;
-
 
 typedef enum
 {
@@ -202,7 +200,6 @@ int textbox_get_font_width ( textbox *tb );
  */
 double textbox_get_estimated_char_width ( void );
 
-
 /**
  * @param tb Handle to the textbox
  *
@@ -242,7 +239,6 @@ void textbox_delete ( textbox *tb, int pos, int dlen );
 
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
 int textbox_get_estimated_char_height ( void );
-
 
 void textbox_text_markup ( textbox *tb, const char *text );
 #endif //ROFI_TEXTBOX_H

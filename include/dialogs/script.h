@@ -1,7 +1,6 @@
 #ifndef __SCRIPT_DIALOG_H__
 #define __SCRIPT_DIALOG_H__
 
-
 /**
  * @param str   The input string to parse
  *

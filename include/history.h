@@ -10,7 +10,6 @@
  */
 void history_set ( const char *filename, const char *entry ) __attribute__( ( nonnull ) );
 
-
 /**
  * @param filename The filename of the history cache.
  * @param entry    The entry to remove
@@ -18,7 +17,6 @@ void history_set ( const char *filename, const char *entry ) __attribute__( ( no
  * Removes the entry from the history.
  */
 void history_remove ( const char *filename, const char *entry ) __attribute__( ( nonnull ) );
-
 
 /**
  * @param filename The filename of the history cache.

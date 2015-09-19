@@ -71,7 +71,6 @@ int find_arg_uint ( const char * const key, unsigned int *val );
  */
 int find_arg_int ( const char * const key, int *val );
 
-
 /**
  * @param key The key to search for
  * @param val Pointer to the string to set to the key value (if found)

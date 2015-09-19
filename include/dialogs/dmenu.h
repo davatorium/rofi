@@ -1,7 +1,6 @@
 #ifndef __DMENU_DIALOG_H__
 #define __DMENU_DIALOG_H__
 
-
 /**
  * dmenu dialog.
  *

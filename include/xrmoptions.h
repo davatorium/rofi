@@ -20,7 +20,6 @@ typedef enum
  */
 void config_parse_xresource_options ( Display *display );
 
-
 /**
  * Parse commandline options.
  */

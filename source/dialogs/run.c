@@ -79,7 +79,6 @@ static void exec_cmd ( const char *cmd, int run_in_term )
         return;
     }
 
-
     execsh ( cmd, run_in_term );
 
     /**
@@ -155,7 +154,6 @@ static char ** get_apps_external ( char **retv, unsigned int *length, unsigned i
                 retv              = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
                 retv[( *length )] = g_strdup ( buffer );
 
-
                 ( *length )++;
             }
             if ( fclose ( inp ) != 0 ) {
@@ -181,13 +179,11 @@ static char ** get_apps ( unsigned int *length )
         return NULL;
     }
 
-
     path = g_strdup_printf ( "%s/%s", cache_dir, RUN_CACHE_FILE );
     retv = history_get_list ( path, length );
     g_free ( path );
     // Keep track of how many where loaded as favorite.
     num_favorites = ( *length );
-
 
     path = g_strdup ( getenv ( "PATH" ) );
 
@@ -259,7 +255,6 @@ static char ** get_apps ( unsigned int *length )
         }
     }
 
-
     if ( ( *length ) > num_favorites ) {
         g_qsort_with_data ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ),
                             sort_func,
@@ -277,7 +272,6 @@ typedef struct _RunModePrivateData
     char         **cmd_list;
     unsigned int cmd_list_length;
 } RunModePrivateData;
-
 
 static void run_mode_init ( Switcher *sw )
 {
@@ -332,7 +326,6 @@ static SwitcherMode run_mode_result ( int mretv, char **input, unsigned int sele
     }
     return retv;
 }
-
 
 static void run_mode_destroy ( Switcher *sw )
 {

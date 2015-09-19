@@ -37,7 +37,6 @@ typedef enum
 typedef SwitcherMode ( *switcher_callback )( char **input, void *data );
 typedef void ( *switcher_free )( Switcher *data );
 
-
 typedef const char * ( *get_display_value )( unsigned int selected_line, void *data, int *state );
 /**
  * State returned by the rofi window.
@@ -64,7 +63,6 @@ typedef enum
     MENU_LOWER_MASK   = 0x0000FFFF
 } MenuReturn;
 
-
 /**
  * @param tokens  List of (input) tokens to match.
  * @param input   The entry to match against.
@@ -76,8 +74,7 @@ typedef enum
  *
  * @returns 1 when it matches, 0 if not.
  */
-typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensitive,
-                                unsigned int index, Switcher *data );
+typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensitive, unsigned int index, Switcher *data );
 
 /**
  * @param sw the Switcher to show.
@@ -95,10 +92,9 @@ typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensi
  *
  * @returns The command issued (see MenuReturn)
  */
-MenuReturn menu ( Switcher *sw, char **input, char *prompt,
-                  unsigned int *selected_line,
-                  unsigned int *next_pos,
-                  const char *message ) __attribute__ ( ( nonnull ( 1, 2, 3, 4 ) ) );
+MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *selected_line, unsigned int *next_pos, const char *message )
+__attribute__ ( ( nonnull ( 1, 2, 3, 4 ) ) );
+
 /**
  * @param sig  The caught signal
  *
@@ -268,7 +264,6 @@ struct _Switcher
     KeySym       keysym;
     unsigned int modmask;
 
-
     /**
      * A switcher normally consists of the following parts:
      */
@@ -312,8 +307,6 @@ struct _Switcher
 #define  color_blue_bold       "\033[1;34m"
 #define  color_magenta_bold    "\033[1;35m"
 #define  color_cyan_bold       "\033[1;36m"
-
-
 
 int show_error_message ( const char *msg, int markup );
 #endif

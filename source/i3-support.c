@@ -76,7 +76,6 @@ void i3_support_focus_window ( Window id )
         return;
     }
 
-
     // Formulate command
     snprintf ( command, upm, "[id=\"%lu\"] focus", id );
     // Prepare header.
@@ -140,7 +139,6 @@ void i3_support_free_internals ( void )
 }
 
 #else
-
 
 void i3_support_focus_window ( Window id )
 {

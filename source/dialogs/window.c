@@ -44,7 +44,6 @@
 #include "i3-support.h"
 #include "dialogs/window.h"
 
-
 #define WINLIST             32
 
 #define CLIENTTITLE         100
@@ -417,8 +416,6 @@ static char ** _window_mode_get_data ( unsigned int *length, Switcher *sw, unsig
             // if we happen to have a window destroyed while we're working...
             pd->ids = winlist_new ();
 
-
-
             // calc widths of fields
             for ( i = nwins - 1; i > -1; i-- ) {
                 client *c;
@@ -548,7 +545,6 @@ static SwitcherMode window_mode_result ( int mretv, G_GNUC_UNUSED char **input,
     }
     return retv;
 }
-
 
 static void window_mode_destroy ( Switcher *sw )
 {

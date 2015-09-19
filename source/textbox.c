@@ -35,7 +35,6 @@
 #include <X11/Xft/Xft.h>
 #include <ctype.h>
 
-
 #include "rofi.h"
 #include "textbox.h"
 #include "keyb.h"
@@ -51,7 +50,6 @@ extern Display *display;
 XVisualInfo *visual_info;
 Colormap    target_colormap;
 
-
 typedef struct _RowColor
 {
     XftColor fg;
@@ -62,20 +60,13 @@ typedef struct _RowColor
 } RowColor;
 
 #define num_states    3
-RowColor colors[num_states];
-
+RowColor     colors[num_states];
 
 PangoContext *p_context = NULL;
 
-
 // Xft text box, optionally editable
-textbox* textbox_create ( Window parent,
-                          XVisualInfo *vinfo,
-                          Colormap map,
-                          TextboxFlags flags,
-                          short x, short y, short w, short h,
-                          TextBoxFontType tbft,
-                          const char *text )
+textbox* textbox_create ( Window parent, XVisualInfo *vinfo, Colormap map, TextboxFlags flags, short x, short y, short w, short h,
+                          TextBoxFontType tbft, const char *text )
 {
     textbox *tb = g_malloc0 ( sizeof ( textbox ) );
 
@@ -132,8 +123,6 @@ textbox* textbox_create ( Window parent,
 
     // auto height/width modes get handled here
     textbox_moveresize ( tb, tb->x, tb->y, tb->w, tb->h );
-
-
 
     // edit mode controls
     if ( tb->flags & TB_EDITABLE ) {
@@ -194,7 +183,6 @@ void textbox_text ( textbox *tb, const char *text )
         textbox_moveresize ( tb, tb->x, tb->y, tb->w, tb->h );
     }
 
-
     tb->cursor = MAX ( 0, MIN ( ( int ) strlen ( text ), tb->cursor ) );
 }
 // set the default text to display
@@ -219,7 +207,6 @@ void textbox_text_markup ( textbox *tb, const char *text )
     if ( tb->flags & TB_AUTOWIDTH ) {
         textbox_moveresize ( tb, tb->x, tb->y, tb->w, tb->h );
     }
-
 
     tb->cursor = MAX ( 0, MIN ( ( int ) strlen ( text ), tb->cursor ) );
 }
@@ -281,7 +268,6 @@ void textbox_hide ( textbox *tb )
     XUnmapWindow ( display, tb->window );
 }
 
-
 // will also unmap the window if still displayed
 void textbox_free ( textbox *tb )
 {
@@ -336,9 +322,6 @@ void textbox_draw ( textbox *tb )
         // Add a small 4px offset between cursor and last glyph.
         cursor_x = pos.x / PANGO_SCALE;
     }
-
-//    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->w - 2 * SIDE_MARGIN ) );
-
 
     // Skip the side MARGIN on the X axis.
     int x = PANGO_SCALE * SIDE_MARGIN;
@@ -576,7 +559,6 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
         return 0;
     }
 
-
     if ( !( tb->flags & TB_EDITABLE ) ) {
         return 0;
     }
@@ -655,8 +637,6 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
 
     return 0;
 }
-
-
 
 /***
  * Font setup.

@@ -84,9 +84,7 @@ char* fgets_s ( char* s, int n, FILE *iop, char sep )
  *
  * @returns TRUE to stop replacement, FALSE to continue
  */
-static gboolean helper_eval_cb ( const GMatchInfo *info,
-                                 GString          *res,
-                                 gpointer data )
+static gboolean helper_eval_cb ( const GMatchInfo *info, GString *res, gpointer data )
 {
     gchar *match;
     // Get the match
@@ -131,10 +129,7 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
 
     // Replace hits within {-\w+}.
     GRegex *reg = g_regex_new ( "{[-\\w]+}", 0, 0, NULL );
-    char   *res = g_regex_replace_eval ( reg,
-                                         string, -1,
-                                         0, 0, helper_eval_cb, h,
-                                         NULL );
+    char   *res = g_regex_replace_eval ( reg, string, -1, 0, 0, helper_eval_cb, h, NULL );
     // Free regex.
     g_regex_unref ( reg );
     // Destroy key-value storage.
@@ -147,8 +142,7 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
     g_free ( res );
     // Throw error if shell parsing fails.
     if ( error ) {
-        char *msg = g_strdup_printf ( "Failed to parse: '%s'\nError: '%s'", string,
-                                      error->message );
+        char *msg = g_strdup_printf ( "Failed to parse: '%s'\nError: '%s'", string, error->message );
         error_dialog ( msg, FALSE );
         g_free ( msg );
         // print error.
@@ -190,9 +184,7 @@ char **tokenize ( const char *input, int case_sensitive )
 
     // Iterate over tokens.
     // strtok should still be valid for utf8.
-    for ( token = strtok_r ( str, " ", &saveptr );
-          token != NULL;
-          token = strtok_r ( NULL, " ", &saveptr ) ) {
+    for ( token = strtok_r ( str, " ", &saveptr ); token != NULL; token = strtok_r ( NULL, " ", &saveptr ) ) {
         retv                 = g_realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
         retv[num_tokens]     = token_collate_key ( token, case_sensitive );
         retv[num_tokens + 1] = NULL;
@@ -368,19 +360,10 @@ int execute_generator ( const char * cmd )
 
     int    fd     = -1;
     GError *error = NULL;
-    g_spawn_async_with_pipes ( NULL,
-                               args,
-                               NULL,
-                               G_SPAWN_SEARCH_PATH,
-                               NULL,
-                               NULL,
-                               NULL,
-                               NULL, &fd, NULL,
-                               &error );
+    g_spawn_async_with_pipes ( NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, &fd, NULL, &error );
 
     if ( error != NULL ) {
-        char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd,
-                                      error->message );
+        char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd, error->message );
         error_dialog ( msg, FALSE );
         g_free ( msg );
         // print error.
@@ -390,7 +373,6 @@ int execute_generator ( const char * cmd )
     g_strfreev ( args );
     return fd;
 }
-
 
 int create_pid_file ( const char *pidfile )
 {
@@ -452,40 +434,32 @@ void config_sanity_check (  )
     GString *msg        = g_string_new (
         "<big><b>The configuration failed to validate:</b></big>\n" );
     if ( config.element_height < 1 ) {
-        g_string_append_printf (
-            msg,
-            "\t<b>config.element_height</b>=%d is invalid. An element needs to be atleast 1 line high.\n",
-            config.element_height );
+        g_string_append_printf ( msg, "\t<b>config.element_height</b>=%d is invalid. An element needs to be atleast 1 line high.\n",
+                                 config.element_height );
         config.element_height = 1;
         found_error           = TRUE;
     }
     if ( config.menu_columns == 0 ) {
-        g_string_append_printf (
-            msg,
-            "\t<b>config.menu_columns</b>=%d is invalid. You need at least one visible column.\n",
-            config.menu_columns );
+        g_string_append_printf ( msg, "\t<b>config.menu_columns</b>=%d is invalid. You need at least one visible column.\n",
+                                 config.menu_columns );
         config.menu_columns = 1;
         found_error         = TRUE;
     }
     if ( config.menu_width == 0 ) {
-        show_error_message (
-            "<b>config.menu_width</b>=0 is invalid. You cannot have a window with no width.", TRUE );
+        show_error_message ( "<b>config.menu_width</b>=0 is invalid. You cannot have a window with no width.", TRUE );
         config.menu_columns = 50;
         found_error         = TRUE;
     }
     if ( !( config.location >= WL_CENTER && config.location <= WL_WEST ) ) {
-        g_string_append_printf (
-            msg, "\t<b>config.location</b>=%d is invalid. Value should be between %d and %d.\n",
-            config.location, WL_CENTER, WL_WEST );
+        g_string_append_printf ( msg, "\t<b>config.location</b>=%d is invalid. Value should be between %d and %d.\n",
+                                 config.location, WL_CENTER, WL_WEST );
         config.location = WL_CENTER;
         found_error     = 1;
     }
     if ( 0 ) {
         if ( !( config.line_margin <= 50 ) ) {
-            g_string_append_printf (
-                msg,
-                "\t<b>config.line_margin</b>=%d is invalid. Value should be between %d and %d.\n",
-                config.line_margin, 0, 50 );
+            g_string_append_printf ( msg, "\t<b>config.line_margin</b>=%d is invalid. Value should be between %d and %d.\n",
+                                     config.line_margin, 0, 50 );
             config.line_margin = 2;
             found_error        = 1;
         }

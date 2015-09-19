@@ -56,7 +56,6 @@ typedef enum _KeyBindingAction
     NUM_ABE
 } KeyBindingAction;
 
-
 /**
  * Parse the keybindings.
  * This should be called after the setting system is initialized.

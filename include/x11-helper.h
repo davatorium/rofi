@@ -1,7 +1,6 @@
 #ifndef X11_ROFI_HELPER_H
 #define X11_ROFI_HELPER_H
 
-
 int window_get_prop ( Display *display, Window w, Atom prop,
                       Atom *type, int *items,
                       void *buffer, unsigned int bytes ) __attribute__ ( ( nonnull ( 4, 5 ) ) );
@@ -22,7 +21,6 @@ int window_get_atom_prop ( Display *display, Window w, Atom atom, Atom *list, in
 void window_set_atom_prop ( Display *display, Window w, Atom prop, Atom *atoms, int count );
 int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned long *list,
                                int count );
-
 
 /**
  * Window info.
@@ -141,7 +139,6 @@ void x11_setup ( Display *display );
  * If this fails, it falls back to the default for the connected display.
  */
 void create_visual_and_colormap ( Display *display );
-
 
 /**
  * @param display Connection to the X server.

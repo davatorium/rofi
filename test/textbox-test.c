@@ -12,7 +12,6 @@
 #include <textbox.h>
 #include <rofi.h>
 
-
 static int   test               = 0;
 unsigned int normal_window_mode = 0;
 
@@ -157,7 +156,6 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     textbox_delete ( box, 3, 6 );
     TASSERT ( strcmp ( box->text, "aapmies" ) == 0 );
     TASSERT ( box->cursor == 5 );
-
 
     textbox_font ( box, HIGHLIGHT );
     textbox_draw ( box );

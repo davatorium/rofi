@@ -57,7 +57,6 @@ typedef struct _DmenuModePrivateData
     unsigned int      cmd_list_length;
 } DmenuModePrivateData;
 
-
 static char **get_dmenu ( unsigned int *length )
 {
     char buffer[1024];
@@ -95,7 +94,6 @@ static char ** dmenu_mode_get_data ( unsigned int *length, Switcher *sw )
     *length = rmpd->cmd_list_length;
     return rmpd->cmd_list;
 }
-
 
 static void parse_pair ( char  *input, struct range_pair  *item )
 {
@@ -209,7 +207,6 @@ static void dmenu_mode_free ( Switcher *sw )
     }
     DmenuModePrivateData *pd = (DmenuModePrivateData *) sw->private_data;
 
-
     g_strfreev ( pd->cmd_list );
     g_free ( pd->urgent_list );
     g_free ( pd->active_list );
@@ -295,8 +292,7 @@ int dmenu_switcher_dialog ( void )
     unsigned int         cmd_list_length = 0;
     char                 **cmd_list      = dmenu_mode.get_data ( &( cmd_list_length ), &dmenu_mode );
 
-
-    int only_selected = FALSE;
+    int                  only_selected = FALSE;
     if ( find_arg ( "-only-match" ) >= 0 || find_arg ( "-no-custom" ) >= 0 ) {
         only_selected = TRUE;
         if ( cmd_list_length == 0 ) {
@@ -391,7 +387,6 @@ int dmenu_switcher_dialog ( void )
             retv    = 10 + ( mretv & MENU_LOWER_MASK );
         }
     } while ( restart );
-
 
     g_free ( input );
     dmenu_mode.destroy ( &dmenu_mode );

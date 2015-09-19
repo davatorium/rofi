@@ -25,7 +25,6 @@
  *
  */
 
-
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,10 +37,6 @@
 #include "rofi.h"
 #include "dialogs/script.h"
 #include "helper.h"
-
-
-
-
 
 static char **get_script_output ( const char *command, unsigned int *length )
 {
@@ -102,7 +97,6 @@ typedef struct _ScriptModePrivateData
     unsigned int cmd_list_length;
 } ScriptModePrivateData;
 
-
 static void script_mode_init ( Switcher *sw )
 {
     if ( sw->private_data == NULL ) {
@@ -144,7 +138,6 @@ static SwitcherMode script_mode_result ( int mretv, char **input, unsigned int s
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
         new_list = execute_executor ( sw, *input, &new_length );
     }
-
 
     // If a new list was generated, use that an loop around.
     if ( new_list != NULL ) {
