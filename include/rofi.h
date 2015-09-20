@@ -269,10 +269,8 @@ struct _Switcher
      */
     void              ( *init )( struct _Switcher *sw );
     char              ** ( *get_data )( unsigned int *length, struct _Switcher *pd );
-    int               ( *match )( char **tokens, const char *input, int case_sensitive, int index,
-                                  struct _Switcher *data );
-    SwitcherMode      ( *result )( int menu_retv, char **input, unsigned int selected_line,
-                                   struct _Switcher *pd );
+    int               ( *match )( char **tokens, const char *input, int case_sensitive, int index, struct _Switcher *data );
+    SwitcherMode      ( *result )( int menu_retv, char **input, unsigned int selected_line, struct _Switcher *pd );
     void              ( *destroy )( struct _Switcher *pd );
     // Token match.
     menu_match_cb     token_match;
