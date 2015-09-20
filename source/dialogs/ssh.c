@@ -108,6 +108,50 @@ static int ssh_sort_func ( const void *a, const void *b, void *data __attribute_
 }
 
 /**
+ * @param retv list of hosts
+ * @pwaram length pointer to length of list
+ *
+ * Read 'known_hosts' file when entries are not hashsed.
+ *
+ * @returns list of hosts.
+ */
+static char **read_known_hosts_file ( char ** retv, unsigned int *length )
+{
+    char *path = g_build_filename ( g_getenv ( "HOME" ), ".ssh", "known_hosts", NULL );
+    FILE *fd   = fopen ( path, "r" );
+    if ( fd != NULL ) {
+        char buffer[1024];
+        // Reading one line per time.
+        while ( fgets ( buffer, sizeof ( buffer ), fd ) ) {
+            char *sep = strstr ( buffer, "," );
+
+            if ( sep != NULL ) {
+                *sep = '\0';
+                // Is this host name already in the list?
+                // We often get duplicates in hosts file, so lets check this.
+                int found = 0;
+                for ( unsigned int j = 0; j < ( *length ); j++ ) {
+                    if ( !g_ascii_strcasecmp ( buffer, retv[j] ) ) {
+                        found = 1;
+                        break;
+                    }
+                }
+
+                if ( !found ) {
+                    // Add this host name to the list.
+                    retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
+                    retv[( *length )]     = g_strdup ( buffer );
+                    retv[( *length ) + 1] = NULL;
+                    ( *length )++;
+                }
+            }
+        }
+    }
+
+    g_free ( path );
+    return retv;
+}
+/**
  * Read /etc/hosts
  */
 static char **read_hosts_file ( char ** retv, unsigned int *length )
@@ -187,6 +231,7 @@ static char ** get_ssh (  unsigned int *length )
     g_free ( path );
     num_favorites = ( *length );
 
+    retv = read_known_hosts_file ( retv, length );
     if ( config.parse_hosts == TRUE ) {
         retv = read_hosts_file ( retv, length );
     }
@@ -312,6 +357,9 @@ static SwitcherMode ssh_mode_result ( int mretv, char **input, unsigned int sele
     }
     else if ( ( mretv & MENU_ENTRY_DELETE ) && rmpd->cmd_list[selected_line] ) {
         delete_ssh ( rmpd->cmd_list[selected_line] );
+        g_strfreev ( rmpd->cmd_list );
+        rmpd->cmd_list_length = 0;
+        rmpd->cmd_list        = NULL;
         // Stay
         retv = RELOAD_DIALOG;
     }

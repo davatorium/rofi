@@ -2,6 +2,7 @@
 	New feature:
 		- Support for Startup Notification
 		- Standalone mode in dmenu
+		- ssh: known_hosts parsing.
 	Improvements:
 		- Keep same line selected
 		- Cleanup menu code by re-using Switcher
