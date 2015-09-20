@@ -121,7 +121,7 @@ Settings config = {
     /** Sidebar mode, show the switchers */
     .sidebar_mode      = FALSE,
     /** Lazy mode setting */
-    .lazy_filter_limit =                                      15000,
+    .lazy_filter_limit =                                     15000,
     /** auto select */
     .auto_select       = FALSE,
     /** Parse /etc/hosts file in ssh view. */

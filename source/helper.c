@@ -280,6 +280,9 @@ char helper_parse_char ( const char *arg )
         else if ( arg[1] == '\\' ) {
             retv = '\\';
         }
+        else if ( arg[1] == '0' ) {
+            retv = '\0';
+        }
     }
     else if ( len > 2 && arg[0] == '\\' && arg[1] == 'x' ) {
         retv = (char) strtol ( &arg[2], NULL, 16 );
@@ -475,4 +478,3 @@ void config_sanity_check (  )
         config.menu_bg_alt = config.menu_bg;
     }
 }
-
