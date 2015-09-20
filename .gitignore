@@ -23,3 +23,8 @@ core
 
 # ignore patches too, the code is either checked in or branch.
 *.patch*
+
+doc/*.html
+doc/*.1
+*.unc-backup~
+*.unc-backup.md5~

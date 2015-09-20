@@ -141,4 +141,3 @@ Settings config = {
     /** Hide scrollbar */
     .hide_scrollbar    = FALSE,
 };
-

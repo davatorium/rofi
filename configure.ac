@@ -33,21 +33,15 @@ dnl ---------------------------------------------------------------------
 dnl Disable window mode
 dnl ---------------------------------------------------------------------
 
-AC_ARG_ENABLE([windowmode],
-        AC_HELP_STRING([--disable-windowmode],[Disable window mode]))
+AC_ARG_ENABLE([windowmode], AC_HELP_STRING([--disable-windowmode],[Disable window mode]))
 
-AS_IF([ test "x$enable_windowmode" != "xno"], [
-AC_DEFINE([WINDOW_MODE],[1],[Enable the window mode])
-])
+AS_IF([ test "x$enable_windowmode" != "xno"], [AC_DEFINE([WINDOW_MODE],[1],[Enable the window mode])])
 
 ##
 # I3 check
 ##
-AC_ARG_ENABLE(i3support,
-        [AS_HELP_STRING([--disable-i3support], [Disable check for i3 support])])
-AS_IF([test "x$enable_i3support" != xno && test "x$enable_windowmode" != "xno"],[
-        AC_CHECK_HEADERS([i3/ipc.h], [i3_header=yes; break;])
-])
+AC_ARG_ENABLE(i3support, [AS_HELP_STRING([--disable-i3support], [Disable check for i3 support])])
+AS_IF([test "x$enable_i3support" != xno && test "x$enable_windowmode" != "xno"],[AC_CHECK_HEADERS([i3/ipc.h], [i3_header=yes; break;])])
 
 ##
 # Check dependencies

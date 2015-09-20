@@ -37,8 +37,7 @@
 
 extern Display *display;
 
-scrollbar *scrollbar_create ( Window parent, XVisualInfo *vinfo, Colormap map,
-                              short x, short y, short w, short h )
+scrollbar *scrollbar_create ( Window parent, XVisualInfo *vinfo, Colormap map, short x, short y, short w, short h )
 {
     scrollbar *sb = g_malloc0 ( sizeof ( scrollbar ) );
 

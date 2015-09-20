@@ -81,8 +81,8 @@ DefaultBinding bindings[NUM_ABE] =
     { .id = CUSTOM_14,               .name = "kb-custom-14",               .keybinding = "Alt+Shift+4"                          },
     { .id = CUSTOM_15,               .name = "kb-custom-15",               .keybinding = "Alt+Shift+5"                          },
     { .id = CUSTOM_16,               .name = "kb-custom-16",               .keybinding = "Alt+Shift+6"                          },
-    { .id = CUSTOM_17,               .name = "kb-custom-17",               .keybinding = "Alt+Shift+7"                          },
     { .id = CUSTOM_18,               .name = "kb-custom-18",               .keybinding = "Alt+Shift+8"                          },
+    { .id = CUSTOM_17,               .name = "kb-custom-17",               .keybinding = "Alt+Shift+7"                          },
     { .id = CUSTOM_19,               .name = "kb-custom-19",               .keybinding = "Alt+Shift+9"                          },
 };
 

@@ -1,8 +1,9 @@
 0.15.9: (unreleased)
 	New feature:
 		- Support for Startup Notification
+		- Standalone mode in dmenu
 	Improvements:
-		- Keep same line selected.
+		- Keep same line selected
 		- Cleanup menu code by re-using Switcher
 	Bug fixes:
 
@@ -20,7 +21,7 @@
 		- Fix issue with mouse interaction needing keyboard press to complete.
 		- Fix -no-custom still allows escape to quit.
 		- Fix compiler warnings.
-		- Fix dmenu mode. (#200) 
+		- Fix dmenu mode. (#200)
 		- Break CMD AI to have dmenu compatibility.
 		- Fix processing of signals.
 
@@ -44,7 +45,7 @@
 		- Also grab Key Release on exit. (#167)
 		- Fix failing font size estimation code.
 	New feature:
-		- [DMENU] Allow to select line matching pattern from cmdline.(#165) 
+		- [DMENU] Allow to select line matching pattern from cmdline.(#165)
 		- [DMENU] Allow to set filter from cmdline. (#164)
 		- [DMENU] Allow output to be formatted (string, filter, index, index 1 based)
 		- [DMENU] Only match input lines mode.
@@ -89,7 +90,7 @@
 	Cleanup:
 		- Do not lug argc,argv around everywhere.
 
-0.15.2: 
+0.15.2:
 	Removed features:
 		- Remove (broken) hmode
 		- Old style key binding and mode launcher.
@@ -98,7 +99,7 @@
 		- Word movement in entry box. (#126)
 		- PID file to avoid duplicate Rofi.
 		- Generic keybinding and launching for modi. (#128)
-		- Auto select mode (previously called zeltak mode) 
+		- Auto select mode (previously called zeltak mode)
 	Bug fixes:
 		- Shift left/right movement between modi (#125)
 		- Document updates (#123,#116,#124,etc.)

@@ -195,8 +195,7 @@ static Window create_window ( Display *display )
     attr.border_pixel     = color_border ( display );
     attr.background_pixel = color_background ( display );
 
-    Window box = XCreateWindow ( display, DefaultRootWindow ( display ),
-                                 0, 0, 200, 100, config.menu_bw, vinfo.depth, InputOutput,
+    Window box = XCreateWindow ( display, DefaultRootWindow ( display ), 0, 0, 200, 100, config.menu_bw, vinfo.depth, InputOutput,
                                  vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
     XSelectInput ( display, box, KeyReleaseMask | KeyPressMask | ExposureMask | ButtonPressMask | StructureNotifyMask | FocusChangeMask );
 
@@ -319,25 +318,21 @@ static void calculate_window_position ( MenuState *state, const workarea *mon )
     case WL_NORTH:
         state->y = mon->y;
         break;
-
     case WL_NORTH_EAST:
         state->y = mon->y;
     case WL_EAST:
         state->x = mon->x + mon->w - state->w - config.menu_bw * 2;
         break;
-
     case WL_EAST_SOUTH:
         state->x = mon->x + mon->w - state->w - config.menu_bw * 2;
     case WL_SOUTH:
         state->y = mon->y + mon->h - state->h - config.menu_bw * 2;
         break;
-
     case WL_SOUTH_WEST:
         state->y = mon->y + mon->h - state->h - config.menu_bw * 2;
     case WL_WEST:
         state->x = mon->x;
         break;
-
     case WL_CENTER:
     default:
         break;
@@ -1874,6 +1869,16 @@ static int main_loop_signal_handler ( char command, int quiet )
     return FALSE;
 }
 
+SwitcherMode switcher_run ( char **input, Switcher *sw )
+{
+    char         *prompt       = g_strdup_printf ( "%s:", sw->name );
+    unsigned int selected_line = UINT32_MAX;
+    int          mretv         = menu ( sw, input, prompt, &selected_line, NULL, NULL );
+
+    g_free ( prompt );
+    return sw->result ( mretv, input, selected_line, sw );
+}
+
 /**
  * Setup signal handling.
  * Block all the signals, start a signal processor thread to handle these events.
@@ -2125,14 +2130,4 @@ int main ( int argc, char *argv[] )
     }
 
     return EXIT_SUCCESS;
-}
-
-SwitcherMode switcher_run ( char **input, Switcher *sw )
-{
-    char         *prompt       = g_strdup_printf ( "%s:", sw->name );
-    unsigned int selected_line = UINT32_MAX;
-    int          mretv         = menu ( sw, input, prompt, &selected_line, NULL, NULL );
-
-    g_free ( prompt );
-    return sw->result ( mretv, input, selected_line, sw );
 }

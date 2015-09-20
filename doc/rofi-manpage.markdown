@@ -53,6 +53,7 @@
 [ -auto-select ]
 [ -parse-hosts ]
 [ -combi-modi *mode1,mode2* ]
+[ -normal-window ]
 [ -quiet ]
 
 ## DESCRIPTION
@@ -572,7 +573,9 @@ Select first line that matches the given string
 Add a message line below the filter entry box. Supports pango markup.
 For more information on supported markup see [here](https://developer.gnome.org/pango/stable/PangoMarkupFormat.html)
 
+`-normal-window`
 
+Make **rofi** reacts like a normal application window. Useful for scripts like Clerk that are basically an application.
 
 ### Message dialog
 
@@ -641,7 +644,7 @@ Currently 3 states exists:
   * **normal** Normal row.
   * **urgent** Highlighted row (urgent)
   * **active** Highlighted row (active)
- 
+
 For each state the following 5 colors must be set:
 
   * **bg** Background color row
@@ -764,4 +767,3 @@ Rasmus Steinke <rasi@xssn.at>
 Original code based on work by: Sean Pringle <sean.pringle@gmail.com>
 
 For a full list of authors, check the AUTHORS file.
-
