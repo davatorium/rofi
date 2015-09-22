@@ -239,6 +239,4 @@ void textbox_delete ( textbox *tb, int pos, int dlen );
 
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
 int textbox_get_estimated_char_height ( void );
-
-void textbox_text_markup ( textbox *tb, const char *text );
 #endif //ROFI_TEXTBOX_H

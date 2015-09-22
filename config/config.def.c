@@ -139,5 +139,6 @@ Settings config = {
     /** Separator style: dash/solid */
     .separator_style   = "dash",
     /** Hide scrollbar */
-    .hide_scrollbar    = FALSE,
+    .hide_scrollbar = FALSE,
+    .markup_rows    = FALSE,
 };

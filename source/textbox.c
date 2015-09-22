@@ -80,7 +80,6 @@ textbox* textbox_create ( Window parent, XVisualInfo *vinfo, Colormap map, Textb
 
     tb->layout = pango_layout_new ( p_context );
 
-    tb->markup  = FALSE;
     tb->changed = FALSE;
 
     unsigned int cp;
@@ -111,11 +110,8 @@ textbox* textbox_create ( Window parent, XVisualInfo *vinfo, Colormap map, Textb
 
     if ( ( flags & TB_MARKUP ) == TB_MARKUP ) {
         pango_layout_set_wrap ( tb->layout, PANGO_WRAP_WORD_CHAR );
-        textbox_text_markup ( tb, text ? text : "" );
     }
-    else{
-        textbox_text ( tb, text ? text : "" );
-    }
+    textbox_text ( tb, text ? text : "" );
     textbox_cursor_end ( tb );
 
     // auto height/width modes get handled here
@@ -173,32 +169,12 @@ void textbox_text ( textbox *tb, const char *text )
             tb->text = g_strdup ( "Invalid UTF-8 string." );
         }
     }
-    pango_layout_set_text ( tb->layout, tb->text, strlen ( tb->text ) );
-    if ( tb->flags & TB_AUTOWIDTH ) {
-        textbox_moveresize ( tb, tb->x, tb->y, tb->w, tb->h );
-    }
-
-    tb->cursor = MAX ( 0, MIN ( ( int ) strlen ( text ), tb->cursor ) );
-}
-// set the default text to display
-void textbox_text_markup ( textbox *tb, const char *text )
-{
-    g_free ( tb->text );
-    const gchar *last_pointer = NULL;
-    if ( g_utf8_validate ( text, -1, &last_pointer ) ) {
-        tb->text = g_strdup ( text );
+    if ( tb->flags & TB_MARKUP ) {
+        pango_layout_set_markup ( tb->layout, tb->text, strlen ( tb->text ) );
     }
     else {
-        if ( last_pointer != NULL ) {
-            // Copy string up to invalid character.
-            tb->text = g_strndup ( text, ( last_pointer - text ) );
-        }
-        else {
-            tb->text = g_strdup ( "Invalid UTF-8 string." );
-        }
+        pango_layout_set_text ( tb->layout, tb->text, strlen ( tb->text ) );
     }
-    tb->markup = TRUE;
-    pango_layout_set_markup ( tb->layout, tb->text, strlen ( tb->text ) );
     if ( tb->flags & TB_AUTOWIDTH ) {
         textbox_moveresize ( tb, tb->x, tb->y, tb->w, tb->h );
     }
@@ -301,7 +277,7 @@ void textbox_draw ( textbox *tb )
     int  cursor_width = MAX ( 2, font_height / 10 );
 
     if ( tb->changed ) {
-        if ( tb->markup ) {
+        if ( tb->flags & TB_MARKUP ) {
             pango_layout_set_markup ( tb->layout, text, text_len );
         }
         else{
