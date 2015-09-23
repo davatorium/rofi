@@ -1017,7 +1017,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
 
     state.message_tb = NULL;
     if ( message ) {
-        state.message_tb = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_MARKUP,
+        state.message_tb = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP,
                                             ( config.padding ), state.top_offset, state.w - ( 2 * ( config.padding ) ),
                                             -1, NORMAL, message );
         textbox_show ( state.message_tb );
@@ -1370,7 +1370,7 @@ void error_dialog ( const char *msg, int markup )
     menu_calculate_window_and_element_width ( &state, &mon );
     state.max_elements = 0;
 
-    state.text = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT + ( ( markup ) ? TB_MARKUP : 0 ),
+    state.text = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT|TB_WRAP + ( ( markup ) ? TB_MARKUP : 0 ),
                                   ( config.padding ), ( config.padding ),
                                   ( state.w - ( 2 * ( config.padding ) ) ), 1, NORMAL, ( msg != NULL ) ? msg : "" );
     textbox_show ( state.text );

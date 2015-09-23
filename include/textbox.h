@@ -30,6 +30,7 @@ typedef enum
     TB_CENTER     = 1 << 18,
     TB_EDITABLE   = 1 << 19,
     TB_MARKUP     = 1 << 20,
+    TB_WRAP       = 1 << 21,
 } TextboxFlags;
 
 typedef enum

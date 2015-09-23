@@ -108,7 +108,7 @@ textbox* textbox_create ( Window parent, XVisualInfo *vinfo, Colormap map, Textb
     pango_font_description_free ( pfd );
     textbox_font ( tb, tbft );
 
-    if ( ( flags & TB_MARKUP ) == TB_MARKUP ) {
+    if ( ( flags & TB_WRAP ) == TB_WRAP ) {
         pango_layout_set_wrap ( tb->layout, PANGO_WRAP_WORD_CHAR );
     }
     textbox_text ( tb, text ? text : "" );
@@ -207,7 +207,7 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
         if ( ( tb->flags & TB_EDITABLE ) == TB_EDITABLE ) {
             pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_MIDDLE );
         }
-        else if ( ( tb->flags & TB_MARKUP ) != TB_MARKUP ) {
+        else if ( ( tb->flags & TB_WRAP ) != TB_WRAP ) {
             pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_END );
         }
     }
