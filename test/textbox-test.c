@@ -83,11 +83,16 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
                                 0, 0, 200, 100, config.menu_bw, vinfo.depth, InputOutput,
                                 vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
     TASSERT ( mw != None );
+
+    cairo_surface_t *surface = cairo_xlib_surface_create ( display, mw, vinfo.visual, 200, 100 );
+    // Create a drawable.
+    cairo_t         *draw = cairo_create ( surface );
+    cairo_set_operator ( draw, CAIRO_OPERATOR_SOURCE );
     // Set alternate row to normal row.
     config.menu_bg_alt = config.menu_bg;
-    textbox_setup ( &vinfo, map );
+    textbox_setup ( );
     textbox *box =
-        textbox_create ( mw, &vinfo, map, TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, 0, 0, -1, -1,
+        textbox_create ( TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, 0, 0, -1, -1,
                          NORMAL,
                          "test" );
     TASSERT ( box != NULL );
@@ -158,19 +163,19 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERT ( box->cursor == 5 );
 
     textbox_font ( box, HIGHLIGHT );
-    textbox_draw ( box );
+    textbox_draw ( box, draw );
 
-    textbox_show ( box );
     textbox_move ( box, 12, 13 );
     TASSERT ( box->x == 12 );
     TASSERT ( box->y == 13 );
-    textbox_hide ( box );
 
     textbox_free ( box );
     textbox_cleanup ( );
 
     cleanup_abe ();
 
+    cairo_destroy ( draw );
+    cairo_surface_destroy ( surface );
     XDestroyWindow ( display, mw );
     XCloseDisplay ( display );
 }

@@ -1,24 +1,34 @@
 #ifndef ROFI_TEXTBOX_H
 #define ROFI_TEXTBOX_H
 
+#include <X11/Xutil.h>
 #include <pango/pango.h>
-#include <pango/pangoxft.h>
 #include <pango/pango-fontmap.h>
+#include <cairo.h>
 
 typedef struct
 {
-    unsigned long flags;
-    Window        window, parent;
-    short         x, y, w, h;
-    short         cursor;
-    XftColor      color_fg, color_bg;
-    char          *text;
-    XIM           xim;
-    XIC           xic;
-    PangoLayout   *layout;
-    int           tbft;
-    int           markup;
-    int           changed;
+    double red, green, blue, alpha;
+} Color;
+
+typedef struct
+{
+    unsigned long   flags;
+    short           x, y, w, h;
+    short           cursor;
+    Color           color_fg, color_bg;
+    char            *text;
+    XIM             xim;
+    XIC             xic;
+    PangoLayout     *layout;
+    int             tbft;
+    int             markup;
+    int             changed;
+
+    cairo_surface_t *main_surface;
+    cairo_t         *main_draw;
+
+    int             update;
 } textbox;
 
 typedef enum
@@ -49,10 +59,7 @@ typedef enum
     STATE_MASK = ~( ALT | HIGHLIGHT )
 } TextBoxFontType;
 
-textbox* textbox_create ( Window parent,
-                          XVisualInfo *vinfo,
-                          Colormap map,
-                          TextboxFlags flags,
+textbox* textbox_create ( TextboxFlags flags,
                           short x, short y, short w, short h,
                           TextBoxFontType tbft,
                           const char *text );
@@ -82,16 +89,9 @@ void textbox_text ( textbox *tb, const char *text );
 /**
  * @param tb  Handle to the textbox
  *
- * Show the textbox (map window)
- */
-void textbox_show ( textbox *tb );
-
-/**
- * @param tb  Handle to the textbox
- *
  * Render the textbox.
  */
-void textbox_draw ( textbox * tb );
+void textbox_draw ( textbox *tb, cairo_t *draw );
 
 /**
  * @param tb  Handle to the textbox
@@ -101,7 +101,7 @@ void textbox_draw ( textbox * tb );
  *
  * @returns if the key was handled (1), unhandled(0) or handled and return was pressed (-1)
  */
-int textbox_keypress ( textbox *tb, XEvent *ev );
+int textbox_keypress ( textbox *tb, XIC xic, XEvent *ev );
 
 /**
  * @param tb  Handle to the textbox
@@ -137,21 +137,11 @@ void textbox_move ( textbox *tb, int x, int y );
 void textbox_insert ( textbox *tb, int pos, char *str );
 
 /**
- * @param tb  Handle to the textbox
- *
- * Unmap the textbox window. Effectively hiding it.
- */
-void textbox_hide ( textbox *tb );
-
-/**
- * @param visual            Information about the visual to target
- * @param colormap          The colormap to set the colors for.
- *
  * Setup the cached fonts. This is required to do
  * before any of the textbox_ functions is called.
  * Clean with textbox_cleanup()
  */
-void textbox_setup ( XVisualInfo *visual, Colormap colormap );
+void textbox_setup ( void );
 
 /**
  * Cleanup the allocated colors and fonts by textbox_setup().

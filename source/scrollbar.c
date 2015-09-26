@@ -37,53 +37,26 @@
 
 extern Display *display;
 
-scrollbar *scrollbar_create ( Window parent, XVisualInfo *vinfo, Colormap map, short x, short y, short w, short h )
+scrollbar *scrollbar_create ( short x, short y, short w, short h )
 {
     scrollbar *sb = g_malloc0 ( sizeof ( scrollbar ) );
 
-    sb->parent = parent;
-    sb->x      = x;
-    sb->y      = y;
-    sb->w      = MAX ( 1, w );
-    sb->h      = MAX ( 1, h );
+    sb->x = x;
+    sb->y = y;
+    sb->w = MAX ( 1, w );
+    sb->h = MAX ( 1, h );
 
     sb->length     = 10;
     sb->pos        = 0;
     sb->pos_length = 4;
 
-    XSetWindowAttributes attr;
-    attr.colormap         = map;
-    attr.border_pixel     = color_border ( display );
-    attr.background_pixel = color_background ( display );
-    sb->window            = XCreateWindow ( display, sb->parent, sb->x, sb->y, sb->w, sb->h, 0, vinfo->depth, InputOutput, vinfo->visual,
-                                            CWColormap | CWBorderPixel | CWBackPixel, &attr );
-
-    XSelectInput ( display, sb->window, ExposureMask | ButtonPressMask | Button1MotionMask  );
-    sb->gc = XCreateGC ( display, sb->window, 0, 0 );
-    XSetForeground ( display, sb->gc, color_separator ( display ) );
-
     // Create GC.
     return sb;
-}
-
-void scrollbar_show ( scrollbar *sb )
-{
-    if ( sb != NULL ) {
-        XMapWindow ( display, sb->window );
-    }
-}
-void scrollbar_hide ( scrollbar *sb )
-{
-    if ( sb != NULL ) {
-        XUnmapWindow ( display, sb->window );
-    }
 }
 
 void scrollbar_free ( scrollbar *sb )
 {
     if ( sb != NULL ) {
-        XFreeGC ( display, sb->gc );
-        XDestroyWindow ( display, sb->window );
         g_free ( sb );
     }
 }
@@ -109,7 +82,7 @@ void scrollbar_set_handle_length ( scrollbar *sb, unsigned int pos_length )
     }
 }
 
-void scrollbar_draw ( scrollbar *sb )
+void scrollbar_draw ( scrollbar *sb, cairo_t *draw )
 {
     if ( sb != NULL ) {
         // Calculate position and size.
@@ -124,9 +97,16 @@ void scrollbar_draw ( scrollbar *sb )
         // Cap length;
         height = MIN ( bh - y + 1, ( height ) );
         // Redraw base window
-        XClearWindow ( display, sb->window );
-        // Paint the handle.
-        XFillRectangle ( display, sb->window, sb->gc, config.line_margin, y, sb->w - config.line_margin, height );
+        unsigned pixel = color_separator ( display );
+
+        cairo_set_source_rgba ( draw,
+                                ( ( pixel & 0x00FF0000 ) >> 16 ) / 256.0,
+                                ( ( pixel & 0x0000FF00 ) >> 8 ) / 256.0,
+                                ( ( pixel & 0x000000FF ) >> 0 ) / 256.0,
+                                ( ( pixel & 0xFF000000 ) >> 24 ) / 256.0
+                                );
+        cairo_rectangle ( draw, sb->x + config.line_margin, sb->y + y, sb->w - config.line_margin, height );
+        cairo_fill ( draw );
     }
 }
 void scrollbar_resize ( scrollbar *sb, int w, int h )
@@ -138,7 +118,6 @@ void scrollbar_resize ( scrollbar *sb, int w, int h )
         if ( w > 0 ) {
             sb->w = w;
         }
-        XResizeWindow ( display, sb->window, sb->w, sb->h );
     }
 }
 void scrollbar_move ( scrollbar *sb, int x, int y )
@@ -146,18 +125,20 @@ void scrollbar_move ( scrollbar *sb, int x, int y )
     if ( sb != NULL ) {
         sb->x = x;
         sb->y = y;
-        XMoveWindow ( display, sb->window, x, y );
     }
 }
 
 unsigned int scrollbar_clicked ( scrollbar *sb, int y )
 {
     if ( sb != NULL ) {
-        y = MIN ( MAX ( 1, y ), sb->h - 1 ) - 1;
-        const short  bh  = sb->h - 2;
-        float        sec = ( ( bh ) / (float) sb->length );
-        unsigned int sel = y / sec;
-        return MIN ( sel, sb->length - 1 );
+        if ( y >= sb->y && y < ( sb->y + sb->h ) ) {
+            y -= sb->y;
+            y  = MIN ( MAX ( 1, y ), sb->h - 1 ) - 1;
+            const short  bh  = sb->h - 2;
+            float        sec = ( ( bh ) / (float) sb->length );
+            unsigned int sel = y / sec;
+            return MIN ( sel, sb->length - 1 );
+        }
     }
     return 0;
 }

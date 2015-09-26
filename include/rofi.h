@@ -2,6 +2,8 @@
 #define ROFI_MAIN_H
 #include <X11/X.h>
 #include <glib.h>
+#include <string.h>
+#include <stdlib.h>
 #include <textbox.h>
 #include "keyb.h"
 

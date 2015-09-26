@@ -32,9 +32,8 @@
 #include <X11/Xproto.h>
 #include <X11/keysym.h>
 #include <X11/XKBlib.h>
-#include <X11/Xft/Xft.h>
 #include <ctype.h>
-
+#include <pango/pangocairo.h>
 #include "rofi.h"
 #include "textbox.h"
 #include "keyb.h"
@@ -47,16 +46,13 @@ extern Display *display;
  * Font + font color cache.
  * Avoid re-loading font on every change on every textbox.
  */
-XVisualInfo *visual_info;
-Colormap    target_colormap;
-
 typedef struct _RowColor
 {
-    XftColor fg;
-    XftColor bg;
-    XftColor bgalt;
-    XftColor hlfg;
-    XftColor hlbg;
+    Color fg;
+    Color bg;
+    Color bgalt;
+    Color hlfg;
+    Color hlbg;
 } RowColor;
 
 #define num_states    3
@@ -64,45 +60,23 @@ RowColor     colors[num_states];
 
 PangoContext *p_context = NULL;
 
-// Xft text box, optionally editable
-textbox* textbox_create ( Window parent, XVisualInfo *vinfo, Colormap map, TextboxFlags flags, short x, short y, short w, short h,
+textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h,
                           TextBoxFontType tbft, const char *text )
 {
     textbox *tb = g_malloc0 ( sizeof ( textbox ) );
 
-    tb->flags  = flags;
-    tb->parent = parent;
+    tb->flags = flags;
 
     tb->x = x;
     tb->y = y;
     tb->w = MAX ( 1, w );
     tb->h = MAX ( 1, h );
 
-    tb->layout = pango_layout_new ( p_context );
-
     tb->changed = FALSE;
 
-    unsigned int cp;
-    switch ( tbft )
-    {
-    case HIGHLIGHT:
-        cp = colors[NORMAL].hlbg.pixel;
-        break;
-    case ALT:
-        cp = colors[NORMAL].bgalt.pixel;
-        break;
-    default:
-        cp = colors[NORMAL].bg.pixel;
-        break;
-    }
-
-    XSetWindowAttributes attr;
-    attr.colormap         = map;
-    attr.border_pixel     = cp;
-    attr.background_pixel = cp;
-    tb->window            = XCreateWindow ( display, tb->parent, tb->x, tb->y, tb->w, tb->h, 0, vinfo->depth,
-                                            InputOutput, vinfo->visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
-
+    tb->main_surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, tb->w, tb->h );
+    tb->main_draw    = cairo_create ( tb->main_surface );
+    tb->layout       = pango_cairo_create_layout ( tb->main_draw );
     PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
     pango_layout_set_font_description ( tb->layout, pfd );
     pango_font_description_free ( pfd );
@@ -117,20 +91,9 @@ textbox* textbox_create ( Window parent, XVisualInfo *vinfo, Colormap map, Textb
     // auto height/width modes get handled here
     textbox_moveresize ( tb, tb->x, tb->y, tb->w, tb->h );
 
-    // edit mode controls
-    if ( tb->flags & TB_EDITABLE ) {
-        tb->xim = XOpenIM ( display, NULL, NULL, NULL );
-        tb->xic = XCreateIC ( tb->xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow,
-                              tb->window, XNFocusWindow, tb->window, NULL );
-    }
-    else {
-        XSelectInput ( display, tb->window, ButtonPressMask );
-    }
-
     return tb;
 }
 
-// set an Xft font by name
 void textbox_font ( textbox *tb, TextBoxFontType tbft )
 {
     RowColor *color = &( colors[tbft & STATE_MASK] );
@@ -149,14 +112,19 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
         tb->color_fg = color->fg;
         break;
     }
+    if ( tb->tbft != tbft ) {
+        tb->update = TRUE;
+    }
     tb->tbft = tbft;
 }
 
 // set the default text to display
 void textbox_text ( textbox *tb, const char *text )
 {
+    tb->update = TRUE;
     g_free ( tb->text );
     const gchar *last_pointer = NULL;
+
     if ( g_utf8_validate ( text, -1, &last_pointer ) ) {
         tb->text = g_strdup ( text );
     }
@@ -169,6 +137,7 @@ void textbox_text ( textbox *tb, const char *text )
             tb->text = g_strdup ( "Invalid UTF-8 string." );
         }
     }
+
     if ( tb->flags & TB_MARKUP ) {
         pango_layout_set_markup ( tb->layout, tb->text, strlen ( tb->text ) );
     }
@@ -187,7 +156,6 @@ void textbox_move ( textbox *tb, int x, int y )
     if ( x != tb->x || y != tb->y ) {
         tb->x = x;
         tb->y = y;
-        XMoveResizeWindow ( display, tb->window, tb->x, tb->y, tb->w, tb->h );
     }
 }
 // within the parent handled auto width/height modes
@@ -195,12 +163,7 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
     if ( tb->flags & TB_AUTOWIDTH ) {
         pango_layout_set_width ( tb->layout, -1 );
-        if ( w > 1 ) {
-            w = MIN ( w, textbox_get_width ( tb ) );
-        }
-        else{
-            w = textbox_get_width ( tb );
-        }
+        w = textbox_get_width ( tb );
     }
     else {
         // set ellipsize
@@ -224,19 +187,10 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
         tb->y = y;
         tb->h = MAX ( 1, h );
         tb->w = MAX ( 1, w );
-        XMoveResizeWindow ( display, tb->window, tb->x, tb->y, tb->w, tb->h );
     }
+
     // We always want to update this
     pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->w - 2 * SIDE_MARGIN ) );
-}
-
-void textbox_show ( textbox *tb )
-{
-    XMapWindow ( display, tb->window );
-}
-void textbox_hide ( textbox *tb )
-{
-    XUnmapWindow ( display, tb->window );
 }
 
 // will also unmap the window if still displayed
@@ -245,85 +199,111 @@ void textbox_free ( textbox *tb )
     if ( tb == NULL ) {
         return;
     }
-    if ( tb->flags & TB_EDITABLE ) {
-        XDestroyIC ( tb->xic );
-        XCloseIM ( tb->xim );
-    }
 
     g_free ( tb->text );
 
     if ( tb->layout != NULL ) {
         g_object_unref ( tb->layout );
     }
+    if ( tb->main_draw ) {
+        cairo_destroy ( tb->main_draw );
+        tb->main_draw = NULL;
+    }
+    if ( tb->main_surface ) {
+        cairo_surface_destroy ( tb->main_surface );
+        tb->main_surface = NULL;
+    }
 
-    XDestroyWindow ( display, tb->window );
     g_free ( tb );
 }
 
-void textbox_draw ( textbox *tb )
+static void texbox_update ( textbox *tb )
 {
-    GC      context = XCreateGC ( display, tb->window, 0, 0 );
-    Pixmap  canvas  = XCreatePixmap ( display, tb->window, tb->w, tb->h, visual_info->depth );
-    XftDraw *draw   = XftDrawCreate ( display, canvas, visual_info->visual, target_colormap );
-
-    // clear canvas
-    XftDrawRect ( draw, &tb->color_bg, 0, 0, tb->w, tb->h );
-
-    char *text       = tb->text ? tb->text : "";
-    int  text_len    = strlen ( text );
-    int  font_height = textbox_get_font_height ( tb );
-
-    int  cursor_x     = 0;
-    int  cursor_width = MAX ( 2, font_height / 10 );
-
-    if ( tb->changed ) {
-        if ( tb->flags & TB_MARKUP ) {
-            pango_layout_set_markup ( tb->layout, text, text_len );
+    if ( tb->update ) {
+        if ( tb->main_surface ) {
+            cairo_destroy ( tb->main_draw );
+            cairo_surface_destroy ( tb->main_surface );
+            tb->main_draw    = NULL;
+            tb->main_surface = NULL;
         }
-        else{
-            pango_layout_set_text ( tb->layout, text, text_len );
+        tb->main_surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, tb->w, tb->h );
+        tb->main_draw    = cairo_create ( tb->main_surface );
+        PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
+        pango_font_description_free ( pfd );
+        cairo_set_operator ( tb->main_draw, CAIRO_OPERATOR_SOURCE );
+
+        pango_cairo_update_layout ( tb->main_draw, tb->layout );
+        char *text       = tb->text ? tb->text : "";
+        int  text_len    = strlen ( text );
+        int  font_height = textbox_get_font_height ( tb );
+
+        int  cursor_x     = 0;
+        int  cursor_width = MAX ( 2, font_height / 10 );
+
+        if ( tb->changed ) {
+            if ( tb->flags & TB_MARKUP ) {
+                pango_layout_set_markup ( tb->layout, text, text_len );
+            }
+            else{
+                pango_layout_set_text ( tb->layout, text, text_len );
+            }
         }
+
+        if ( tb->flags & TB_EDITABLE ) {
+            PangoRectangle pos;
+            int            cursor_offset = 0;
+            cursor_offset = MIN ( tb->cursor, text_len );
+            pango_layout_get_cursor_pos ( tb->layout, cursor_offset, &pos, NULL );
+            // Add a small 4px offset between cursor and last glyph.
+            cursor_x = pos.x / PANGO_SCALE;
+        }
+
+        // Skip the side MARGIN on the X axis.
+        int x = SIDE_MARGIN;
+        int y = 0;
+
+        if ( tb->flags & TB_RIGHT ) {
+            int line_width = 0;
+            // Get actual width.
+            pango_layout_get_pixel_size ( tb->layout, &line_width, NULL );
+            x = ( tb->w - line_width - SIDE_MARGIN );
+        }
+        else if ( tb->flags & TB_CENTER ) {
+            int tw = textbox_get_font_width ( tb );
+            x = (  ( tb->w - tw - 2 * SIDE_MARGIN ) ) / 2;
+        }
+        y = (   ( tb->h - textbox_get_font_height ( tb ) ) ) / 2;
+
+        // Set ARGB
+        Color col = tb->color_bg;
+        cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
+        cairo_paint ( tb->main_draw );
+
+        // Set ARGB
+        col = tb->color_fg;
+        cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
+        cairo_move_to ( tb->main_draw, x, y );
+        pango_cairo_show_layout ( tb->main_draw, tb->layout );
+
+        //cairo_fill(tb->draw);
+        // draw the cursor
+        if ( tb->flags & TB_EDITABLE ) {
+            cairo_rectangle ( tb->main_draw, x + cursor_x, y, cursor_width, font_height );
+            cairo_fill ( tb->main_draw );
+        }
+
+        tb->update = FALSE;
     }
+}
+void textbox_draw ( textbox *tb, cairo_t *draw )
+{
+    texbox_update ( tb );
 
-    if ( tb->flags & TB_EDITABLE ) {
-        PangoRectangle pos;
-        int            cursor_offset = 0;
-        cursor_offset = MIN ( tb->cursor, text_len );
-        pango_layout_get_cursor_pos ( tb->layout, cursor_offset, &pos, NULL );
-        // Add a small 4px offset between cursor and last glyph.
-        cursor_x = pos.x / PANGO_SCALE;
-    }
+    /* Write buffer */
 
-    // Skip the side MARGIN on the X axis.
-    int x = PANGO_SCALE * SIDE_MARGIN;
-    int y = 0;
-
-    if ( tb->flags & TB_RIGHT ) {
-        int line_width = 0;
-        // Get actual width.
-        pango_layout_get_pixel_size ( tb->layout, &line_width, NULL );
-        x = ( tb->w - line_width - SIDE_MARGIN ) * PANGO_SCALE;
-    }
-    else if ( tb->flags & TB_CENTER ) {
-        int tw = textbox_get_font_width ( tb );
-        x = ( PANGO_SCALE * ( tb->w - tw - 2 * SIDE_MARGIN ) ) / 2;
-    }
-    y = (  PANGO_SCALE * ( tb->h - textbox_get_font_height ( tb ) ) ) / 2;
-    // Render the layout.
-    pango_xft_render_layout ( draw, &( tb->color_fg ), tb->layout, x, y );
-
-    // draw the cursor
-    if ( tb->flags & TB_EDITABLE ) {
-        XftDrawRect ( draw, &tb->color_fg, x / PANGO_SCALE + cursor_x, y / PANGO_SCALE, cursor_width, font_height );
-    }
-
-    // flip canvas to window
-    //  XClearWindow ( display, tb->window);
-    XCopyArea ( display, canvas, tb->window, context, 0, 0, tb->w, tb->h, 0, 0 );
-
-    XFreeGC ( display, context );
-    XftDrawDestroy ( draw );
-    XFreePixmap ( display, canvas );
+    cairo_set_source_surface ( draw, tb->main_surface, tb->x, tb->y );
+    cairo_rectangle ( draw, tb->x, tb->y, tb->w, tb->h );
+    cairo_fill ( draw );
 }
 
 // cursor handling for edit mode
@@ -331,6 +311,7 @@ void textbox_cursor ( textbox *tb, int pos )
 {
     int length = ( tb->text == NULL ) ? 0 : strlen ( tb->text );
     tb->cursor = MAX ( 0, MIN ( length, pos ) );
+    tb->update = TRUE;
 }
 
 // move right
@@ -413,6 +394,7 @@ static void textbox_cursor_dec_word ( textbox *tb )
 void textbox_cursor_end ( textbox *tb )
 {
     tb->cursor = ( int ) strlen ( tb->text );
+    tb->update = TRUE;
 }
 
 // insert text
@@ -430,6 +412,7 @@ void textbox_insert ( textbox *tb, int pos, char *str )
 
     // Set modified, lay out need te be redrawn
     tb->changed = TRUE;
+    tb->update  = TRUE;
 }
 
 // remove text
@@ -449,6 +432,7 @@ void textbox_delete ( textbox *tb, int pos, int dlen )
     }
     // Set modified, lay out need te be redrawn
     tb->changed = TRUE;
+    tb->update  = TRUE;
 }
 
 // delete on character
@@ -495,24 +479,18 @@ static void textbox_cursor_del_word ( textbox *tb )
 // 0 = unhandled
 // 1 = handled
 // -1 = handled and return pressed (finished)
-int textbox_keypress ( textbox *tb, XEvent *ev )
+int textbox_keypress ( textbox *tb, XIC xic, XEvent *ev )
 {
     KeySym key;
     Status stat;
     char   pad[32];
     int    len;
 
-    // This is needed for letting the Input Method handle combined keys.
-    // E.g. `e into è
-    if ( XFilterEvent ( ev, tb->window ) ) {
-        return 0;
-    }
-
     if ( !( tb->flags & TB_EDITABLE ) ) {
         return 0;
     }
 
-    len      = Xutf8LookupString ( tb->xic, &ev->xkey, pad, sizeof ( pad ), &key, &stat );
+    len      = Xutf8LookupString ( xic, &ev->xkey, pad, sizeof ( pad ), &key, &stat );
     pad[len] = 0;
     // Left or Ctrl-b
     if ( abe_test_action ( MOVE_CHAR_BACK, ev->xkey.state, key ) ) {
@@ -590,41 +568,27 @@ int textbox_keypress ( textbox *tb, XEvent *ev )
 /***
  * Font setup.
  */
-static void parse_color ( Visual *visual, Colormap colormap,
-                          const char *bg, XftColor *color, const char *def )
+static void parse_color ( char *bg, Color *col )
 {
     if ( bg == NULL ) {
         return;
     }
     if ( strncmp ( bg, "argb:", 5 ) == 0 ) {
-        XRenderColor col;
         unsigned int val = strtoul ( &bg[5], NULL, 16 );
-        col.alpha = ( ( val & 0xFF000000 ) >> 24 ) * 255;
-        col.red   = ( ( val & 0x00FF0000 ) >> 16 ) * 255;
-        col.green = ( ( val & 0x0000FF00 ) >> 8  ) * 255;
-        col.blue  = ( ( val & 0x000000FF )       ) * 255;
-        if ( !XftColorAllocValue ( display, visual, colormap, &col, color ) ) {
-            fprintf ( stderr, "Failed to parse color: '%s'\n", bg );
-            // Go for default.
-            if ( !XftColorAllocName ( display, visual, colormap, def, color ) ) {
-                fprintf ( stderr, "Cannot allocate default color, giving up.\n" );
-                exit ( EXIT_FAILURE );
-            }
-        }
+        col->alpha = ( ( val & 0xFF000000 ) >> 24 ) / 256.0;
+        col->red   = ( ( val & 0x00FF0000 ) >> 16 ) / 256.0;
+        col->green = ( ( val & 0x0000FF00 ) >> 8  ) / 256.0;
+        col->blue  = ( ( val & 0x000000FF )       ) / 256.0;
     }
     else {
-        if ( !XftColorAllocName ( display, visual, colormap, bg, color ) ) {
-            fprintf ( stderr, "Failed to parse color: '%s'\n", bg );
-            // Go for default.
-            if ( !XftColorAllocName ( display, visual, colormap, def, color ) ) {
-                fprintf ( stderr, "Cannot allocate default color, giving up.\n" );
-                exit ( EXIT_FAILURE );
-            }
-        }
+        unsigned int val = strtoul ( &bg[1], NULL, 16 );
+        col->alpha = 1;
+        col->red   = ( ( val & 0x00FF0000 ) >> 16 ) / 256.0;
+        col->green = ( ( val & 0x0000FF00 ) >> 8  ) / 256.0;
+        col->blue  = ( ( val & 0x000000FF )       ) / 256.0;
     }
 }
-static void textbox_parse_string ( XVisualInfo *visual, Colormap colormap, const char *str,
-                                   RowColor *color )
+static void textbox_parse_string (  const char *str, RowColor *color )
 {
     if ( str == NULL ) {
         return;
@@ -637,79 +601,61 @@ static void textbox_parse_string ( XVisualInfo *visual, Colormap colormap, const
         switch ( index )
         {
         case 0:
-            parse_color ( visual->visual, colormap, g_strstrip ( token ), &( color->bg ), "black" );
+            parse_color ( g_strstrip ( token ), &( color->bg ) );
             break;
         case 1:
-            parse_color ( visual->visual, colormap, g_strstrip ( token ), &( color->fg ), "white" );
+            parse_color ( g_strstrip ( token ), &( color->fg ) );
             break;
         case 2:
-            parse_color ( visual->visual, colormap, g_strstrip ( token ), &( color->bgalt ), "black" );
+            parse_color ( g_strstrip ( token ), &( color->bgalt ) );
             break;
         case 3:
-            parse_color ( visual->visual, colormap, g_strstrip ( token ), &( color->hlbg ), "black" );
+            parse_color ( g_strstrip ( token ), &( color->hlbg ) );
             break;
         case 4:
-            parse_color ( visual->visual, colormap, g_strstrip ( token ), &( color->hlfg ), "white" );
+            parse_color ( g_strstrip ( token ), &( color->hlfg ) );
             break;
         }
         index++;
     }
     g_free ( cstr );
 }
-void textbox_setup ( XVisualInfo *visual, Colormap colormap )
+void textbox_setup ( void )
 {
-    visual_info     = visual;
-    target_colormap = colormap;
-
     if ( config.color_enabled ) {
-        textbox_parse_string ( visual, target_colormap, config.color_normal, &( colors[NORMAL] ) );
-        textbox_parse_string ( visual, target_colormap, config.color_urgent, &( colors[URGENT] ) );
-        textbox_parse_string ( visual, target_colormap, config.color_active, &( colors[ACTIVE] ) );
+        textbox_parse_string ( config.color_normal, &( colors[NORMAL] ) );
+        textbox_parse_string ( config.color_urgent, &( colors[URGENT] ) );
+        textbox_parse_string ( config.color_active, &( colors[ACTIVE] ) );
     }
     else {
-        parse_color ( visual_info->visual, target_colormap, config.menu_bg, &( colors[NORMAL].bg ), "black" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_fg, &( colors[NORMAL].fg ), "white" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt, &( colors[NORMAL].bgalt ), "black" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_hlfg, &( colors[NORMAL].hlfg ), "white" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_hlbg, &( colors[NORMAL].hlbg ), "black" );
+        parse_color ( config.menu_bg, &( colors[NORMAL].bg ) );
+        parse_color ( config.menu_fg, &( colors[NORMAL].fg ) );
+        parse_color ( config.menu_bg_alt, &( colors[NORMAL].bgalt ) );
+        parse_color ( config.menu_hlfg, &( colors[NORMAL].hlfg ) );
+        parse_color ( config.menu_hlbg, &( colors[NORMAL].hlbg ) );
 
-        parse_color ( visual_info->visual, target_colormap, config.menu_bg_urgent, &( colors[URGENT].bg ), "black" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_fg_urgent, &( colors[URGENT].fg ), "white" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt, &( colors[URGENT].bgalt ), "black" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_hlfg_urgent, &( colors[URGENT].hlfg ), "white" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_hlbg_urgent, &( colors[URGENT].hlbg ), "black" );
+        parse_color ( config.menu_bg_urgent, &( colors[URGENT].bg ) );
+        parse_color ( config.menu_fg_urgent, &( colors[URGENT].fg ) );
+        parse_color ( config.menu_bg_alt, &( colors[URGENT].bgalt ) );
+        parse_color ( config.menu_hlfg_urgent, &( colors[URGENT].hlfg ) );
+        parse_color ( config.menu_hlbg_urgent, &( colors[URGENT].hlbg ) );
 
-        parse_color ( visual_info->visual, target_colormap, config.menu_bg_active, &( colors[ACTIVE].bg ), "black" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_fg_active, &( colors[ACTIVE].fg ), "white" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_bg_alt, &( colors[ACTIVE].bgalt ), "black" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_hlfg_active, &( colors[ACTIVE].hlfg ), "white" );
-        parse_color ( visual_info->visual, target_colormap, config.menu_hlbg_active, &( colors[ACTIVE].hlbg ), "black" );
+        parse_color ( config.menu_bg_active, &( colors[ACTIVE].bg ) );
+        parse_color ( config.menu_fg_active, &( colors[ACTIVE].fg ) );
+        parse_color ( config.menu_bg_alt, &( colors[ACTIVE].bgalt ) );
+        parse_color ( config.menu_hlfg_active, &( colors[ACTIVE].hlfg ) );
+        parse_color ( config.menu_hlbg_active, &( colors[ACTIVE].hlbg ) );
     }
-    PangoFontMap *font_map = pango_xft_get_font_map ( display, DefaultScreen ( display ) );
+    PangoFontMap *font_map = pango_cairo_font_map_new ();
     p_context = pango_font_map_create_context ( font_map );
-}
-
-static void textbox_clean_rowcolor ( RowColor * color )
-{
-    XftColorFree ( display, visual_info->visual, target_colormap, &( color->fg ) );
-    XftColorFree ( display, visual_info->visual, target_colormap, &( color->bg ) );
-    XftColorFree ( display, visual_info->visual, target_colormap, &( color->bgalt ) );
-    XftColorFree ( display, visual_info->visual, target_colormap, &( color->hlfg ) );
-    XftColorFree ( display, visual_info->visual, target_colormap, &( color->hlbg ) );
+    g_object_unref ( font_map );
 }
 
 void textbox_cleanup ( void )
 {
     if ( p_context ) {
-        for ( unsigned int st = 0; st < num_states; st++ ) {
-            textbox_clean_rowcolor ( &colors[st] );
-        }
-
         g_object_unref ( p_context );
-        pango_xft_shutdown_display ( display, DefaultScreen ( display ) );
-        p_context       = NULL;
-        visual_info     = NULL;
-        target_colormap = None;
+        p_context = NULL;
     }
 }
 

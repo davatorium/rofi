@@ -44,6 +44,9 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 
+#include <cairo.h>
+#include <cairo-xlib.h>
+
 #define SN_API_NOT_YET_FROZEN
 #include <libsn/sn.h>
 
@@ -70,14 +73,14 @@ typedef struct _Mode
 
 // Pidfile.
 extern Atom       netatoms[NUM_NETATOMS];
-char              *pidfile           = NULL;
-const char        *cache_dir         = NULL;
-SnDisplay         *sndisplay         = NULL;
-SnLauncheeContext *sncontext         = NULL;
-Display           *display           = NULL;
-char              *display_str       = NULL;
-Window            main_window        = None;
-GC                gc                 = NULL;
+char              *pidfile     = NULL;
+const char        *cache_dir   = NULL;
+SnDisplay         *sndisplay   = NULL;
+SnLauncheeContext *sncontext   = NULL;
+Display           *display     = NULL;
+char              *display_str = NULL;
+Window            main_window  = None;
+// GC                gc                 = NULL;
 Colormap          map                = None;
 unsigned int      normal_window_mode = FALSE;
 // Array of switchers.
@@ -86,6 +89,11 @@ unsigned int      num_switchers = 0;
 // Current selected switcher.
 unsigned int      curr_switcher = 0;
 XVisualInfo       vinfo;
+
+cairo_surface_t   *surface = NULL;
+cairo_t           *draw    = NULL;
+XIM               xim;
+XIC               xic;
 
 /**
  * @param name Name of the switcher to lookup.
@@ -188,44 +196,6 @@ static int levenshtein ( const char *s, const char *t )
     return dist ( s, t, d, ls, lt, 0, 0 );
 }
 
-static Window create_window ( Display *display )
-{
-    XSetWindowAttributes attr;
-    attr.colormap         = map;
-    attr.border_pixel     = color_border ( display );
-    attr.background_pixel = color_background ( display );
-
-    Window box = XCreateWindow ( display, DefaultRootWindow ( display ), 0, 0, 200, 100, config.menu_bw, vinfo.depth, InputOutput,
-                                 vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
-    XSelectInput ( display, box, KeyReleaseMask | KeyPressMask | ExposureMask | ButtonPressMask | StructureNotifyMask | FocusChangeMask );
-
-    gc = XCreateGC ( display, box, 0, 0 );
-    int line_style = LineOnOffDash;
-    if ( strcasecmp ( config.separator_style, "dash" ) == 0 ) {
-        line_style = LineOnOffDash;
-    }
-    else if ( strcasecmp ( config.separator_style, "solid" ) == 0 ) {
-        line_style = LineSolid;
-    }
-    XSetLineAttributes ( display, gc, 2, line_style, CapButt, JoinMiter );
-    XSetForeground ( display, gc, color_separator ( display ) );
-    // make it an unmanaged window
-    if ( !normal_window_mode ) {
-        window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
-        XSetWindowAttributes sattr = { .override_redirect = True };
-        XChangeWindowAttributes ( display, box, CWOverrideRedirect, &sattr );
-    }
-    else{
-        window_set_atom_prop ( display, box, netatoms[_NET_WM_WINDOW_TYPE], &netatoms[_NET_WM_WINDOW_TYPE_NORMAL], 1 );
-    }
-
-    // Set the WM_NAME
-    XStoreName ( display, box, "rofi" );
-
-    x11_set_window_opacity ( display, box, config.window_opacity );
-    return box;
-}
-
 // State of the menu.
 
 typedef struct MenuState
@@ -277,6 +247,47 @@ typedef struct MenuState
     char         **lines;
     int          line_height;
 }MenuState;
+
+static Window create_window ( Display *display )
+{
+    XSetWindowAttributes attr;
+    attr.colormap         = map;
+    attr.border_pixel     = color_border ( display );
+    attr.background_pixel = color_background ( display );
+
+    Window box = XCreateWindow ( display, DefaultRootWindow ( display ), 0, 0, 200, 100, config.menu_bw, vinfo.depth, InputOutput,
+                                 vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
+    XSelectInput (
+        display,
+        box,
+        KeyReleaseMask | KeyPressMask | ExposureMask | ButtonPressMask | StructureNotifyMask | FocusChangeMask |
+        Button1MotionMask );
+
+    surface = cairo_xlib_surface_create ( display, box, vinfo.visual, 200, 100 );
+    // Create a drawable.
+    draw = cairo_create ( surface );
+    cairo_set_operator ( draw, CAIRO_OPERATOR_SOURCE );
+
+    // // make it an unmanaged window
+    if ( !normal_window_mode ) {
+        window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
+        XSetWindowAttributes sattr = { .override_redirect = True };
+        XChangeWindowAttributes ( display, box, CWOverrideRedirect, &sattr );
+    }
+    else{
+        window_set_atom_prop ( display, box, netatoms[_NET_WM_WINDOW_TYPE], &netatoms[_NET_WM_WINDOW_TYPE_NORMAL], 1 );
+    }
+
+    xim = XOpenIM ( display, NULL, NULL, NULL );
+    xic = XCreateIC ( xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow,
+                      box, XNFocusWindow, box, NULL );
+
+    // Set the WM_NAME
+    XStoreName ( display, box, "rofi" );
+
+    x11_set_window_opacity ( display, box, config.window_opacity );
+    return box;
+}
 
 /**
  * @param state Internal state of the menu.
@@ -632,6 +643,26 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
  * mouse navigation through the elements.
  *
  */
+static int intersect ( textbox *tb, int x, int y )
+{
+    if ( x >= ( tb->x ) && x < ( tb->x + tb->w ) ) {
+        if ( y >= ( tb->y ) && y < ( tb->y + tb->h ) ) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+static int sb_intersect ( scrollbar *tb, int x, int y )
+{
+    if ( x >= ( tb->x ) && x < ( tb->x + tb->w ) ) {
+        if ( y >= ( tb->y ) && y < ( tb->y + tb->h ) ) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
 static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
 {
     // Scroll event
@@ -651,13 +682,13 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
         return;
     }
     else {
-        if ( state->scrollbar && state->scrollbar->window == xbe->window ) {
+        if ( state->scrollbar && sb_intersect ( state->scrollbar, xbe->x, xbe->y ) ) {
             state->selected = scrollbar_clicked ( state->scrollbar, xbe->y );
             state->update   = TRUE;
             return;
         }
         for ( unsigned int i = 0; config.sidebar_mode == TRUE && i < num_switchers; i++ ) {
-            if ( switchers[i].tb->window == ( xbe->window ) ) {
+            if ( intersect ( switchers[i].tb, xbe->x, xbe->y ) ) {
                 *( state->selected_line ) = 0;
                 state->retv               = MENU_QUICK_SWITCH | ( i & MENU_LOWER_MASK );
                 state->quit               = TRUE;
@@ -666,7 +697,7 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
             }
         }
         for ( unsigned int i = 0; i < state->max_elements; i++ ) {
-            if ( ( xbe->window ) == ( state->boxes[i]->window ) ) {
+            if ( intersect ( state->boxes[i], xbe->x, xbe->y ) ) {
                 // Only allow items that are visible to be selected.
                 if ( ( state->last_offset + i ) >= state->filtered_lines ) {
                     break;
@@ -734,9 +765,19 @@ static void menu_refilter ( MenuState *state )
     state->rchanged = TRUE;
 }
 
-static void menu_draw ( MenuState *state )
+static void menu_draw ( MenuState *state, cairo_t *draw )
 {
     unsigned int i, offset = 0;
+
+    unsigned     pixel = color_background ( display );
+
+    cairo_set_source_rgba ( draw,
+                            ( ( pixel & 0x00FF0000 ) >> 16 ) / 256.0,
+                            ( ( pixel & 0x0000FF00 ) >> 8 ) / 256.0,
+                            ( ( pixel & 0x000000FF ) >> 0 ) / 256.0,
+                            ( ( pixel & 0xFF000000 ) >> 24 ) / 256.0
+                            );
+    cairo_paint ( draw );
 
     // selected row is always visible.
     // If selected is visible do not scroll.
@@ -752,7 +793,7 @@ static void menu_draw ( MenuState *state )
             state->cur_page = page;
             state->rchanged = TRUE;
         }
-        // Set the position.
+        // Set the position
         scrollbar_set_handle ( state->scrollbar, page * state->max_elements );
     }
     // Re calculate the boxes and sizes, see if we can move this in the menu_calc*rowscolumns
@@ -765,7 +806,7 @@ static void menu_draw ( MenuState *state )
 
     // Update the handle length.
     scrollbar_set_handle_length ( state->scrollbar, columns * state->max_rows );
-    scrollbar_draw ( state->scrollbar );
+    scrollbar_draw ( state->scrollbar, draw );
     // Element width.
     unsigned int element_width = state->w - ( 2 * ( config.padding ) );
     if ( state->scrollbar != NULL ) {
@@ -781,10 +822,6 @@ static void menu_draw ( MenuState *state )
     // Calculate number of visible rows.
     unsigned int max_elements = MIN ( a_lines, state->max_rows * columns );
 
-    // Hide now invisible boxes.
-    for ( i = max_elements; i < state->max_elements; i++ ) {
-        textbox_hide ( state->boxes[i] );
-    }
     if ( state->rchanged ) {
         // Move, resize visible boxes and show them.
         for ( i = 0; i < max_elements; i++ ) {
@@ -800,8 +837,7 @@ static void menu_draw ( MenuState *state )
                 textbox_font ( state->boxes[i], tbft );
                 textbox_text ( state->boxes[i], text );
             }
-            textbox_show ( state->boxes[i] );
-            textbox_draw ( state->boxes[i] );
+            textbox_draw ( state->boxes[i], draw );
         }
         state->rchanged = FALSE;
     }
@@ -813,37 +849,63 @@ static void menu_draw ( MenuState *state )
             state->sw->mgrv ( state->line_map[i + offset], state->sw, &fstate );
             TextBoxFontType tbft = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
             textbox_font ( state->boxes[i], tbft );
-            textbox_draw ( state->boxes[i] );
+            textbox_draw ( state->boxes[i], draw );
         }
     }
+    cairo_show_page ( draw );
 }
 
 static void menu_update ( MenuState *state )
 {
-    textbox_draw ( state->case_indicator );
-    textbox_draw ( state->prompt_tb );
-    textbox_draw ( state->text );
+    cairo_surface_t *surf = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, state->w, state->h );
+    cairo_t         *d    = cairo_create ( surf );
+    cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
+
+    menu_draw ( state, d );
+    textbox_draw ( state->prompt_tb, d );
+    textbox_draw ( state->text, d );
+    textbox_draw ( state->case_indicator, d );
     if ( state->message_tb ) {
-        textbox_draw ( state->message_tb );
+        textbox_draw ( state->message_tb, d );
     }
-    menu_draw ( state );
-    // Why do we need the special -1?
-    XDrawLine ( display, main_window, gc, 0, state->line_height + ( config.padding ) * 1 + config.line_margin + 1, state->w,
-                state->line_height + ( config.padding ) * 1 + config.line_margin + 1 );
+    unsigned pixel = color_separator ( display );
+
+    cairo_set_source_rgba ( d,
+                            ( ( pixel & 0x00FF0000 ) >> 16 ) / 256.0,
+                            ( ( pixel & 0x0000FF00 ) >> 8 ) / 256.0,
+                            ( ( pixel & 0x000000FF ) >> 0 ) / 256.0,
+                            ( ( pixel & 0xFF000000 ) >> 24 ) / 256.0
+                            );
+    if ( strcmp ( config.separator_style, "dash" ) == 0 ) {
+        const double dashes[1] = { 4 };
+        cairo_set_dash ( d, dashes, 1, 0.0 );
+    }
+    cairo_move_to ( d, 0, state->line_height + ( config.padding ) * 1 + config.line_margin + 1 );
+    cairo_line_to ( d, state->w, state->line_height + ( config.padding ) * 1 + config.line_margin + 1 );
+    cairo_stroke ( d );
     if ( state->message_tb ) {
-        XDrawLine ( display, main_window, gc, 0, state->top_offset - ( config.line_margin ) - 1,
-                    state->w, state->top_offset - ( config.line_margin ) - 1 );
+        cairo_move_to ( d, 0, state->top_offset - ( config.line_margin ) - 1 );
+        cairo_line_to ( d, state->w, state->top_offset - ( config.line_margin ) - 1 );
+        cairo_stroke ( d );
     }
 
     if ( config.sidebar_mode == TRUE ) {
-        XDrawLine ( display, main_window, gc, 0, state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin,
-                    state->w, state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin );
+        cairo_move_to ( d, 0, state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin );
+        cairo_line_to ( d, state->w, state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin );
+        cairo_stroke ( d );
+
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
-            textbox_draw ( switchers[j].tb );
+            textbox_draw ( switchers[j].tb, d );
         }
     }
 
     state->update = FALSE;
+
+    cairo_set_source_surface ( draw, surf, 0, 0 );
+    cairo_paint ( draw );
+
+    cairo_destroy ( d );
+    cairo_surface_destroy ( surf );
 }
 
 /**
@@ -883,8 +945,7 @@ static void menu_resize ( MenuState *state )
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
             textbox_moveresize ( switchers[j].tb, config.padding + j * ( width + config.line_margin ),
                                  state->h - state->line_height - config.padding, width, state->line_height );
-            textbox_show ( switchers[j].tb );
-            textbox_draw ( switchers[j].tb );
+            textbox_draw ( switchers[j].tb, draw );
         }
     }
     /**
@@ -915,7 +976,7 @@ static void menu_resize ( MenuState *state )
         }
         // Add newly added boxes.
         for ( unsigned int i = last_length; i < state->max_elements; i++ ) {
-            state->boxes[i] = textbox_create ( main_window, &vinfo, map, rstate, x_offset, y_offset,
+            state->boxes[i] = textbox_create ( rstate, x_offset, y_offset,
                                                state->element_width, element_height, NORMAL, "" );
         }
         scrollbar_resize ( state->scrollbar, -1, ( state->max_rows ) * ( element_height ) - config.line_margin );
@@ -977,7 +1038,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
 
     // we need this at this point so we can get height.
     state.line_height    = textbox_get_estimated_char_height ();
-    state.case_indicator = textbox_create ( main_window, &vinfo, map, TB_AUTOWIDTH, ( config.padding ), ( config.padding ),
+    state.case_indicator = textbox_create ( TB_AUTOWIDTH, ( config.padding ), ( config.padding ),
                                             0, state.line_height, NORMAL, "*" );
     // Height of a row.
     if ( config.menu_lines == 0 ) {
@@ -993,13 +1054,13 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     menu_calculate_window_and_element_width ( &state, &mon );
 
     // Prompt box.
-    state.prompt_tb = textbox_create ( main_window, &vinfo, map, TB_AUTOWIDTH, ( config.padding ), ( config.padding ),
+    state.prompt_tb = textbox_create ( TB_AUTOWIDTH, ( config.padding ), ( config.padding ),
                                        0, state.line_height, NORMAL, prompt );
     // Entry box
     int entrybox_width = state.w - ( 2 * ( config.padding ) ) - textbox_get_width ( state.prompt_tb )
                          - textbox_get_width ( state.case_indicator );
 
-    state.text = textbox_create ( main_window, &vinfo, map, TB_EDITABLE,
+    state.text = textbox_create ( TB_EDITABLE,
                                   ( config.padding ) + textbox_get_width ( state.prompt_tb ), ( config.padding ),
                                   entrybox_width, state.line_height, NORMAL, *input );
 
@@ -1008,19 +1069,17 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     // Move indicator to end.
     textbox_move ( state.case_indicator, config.padding + textbox_get_width ( state.prompt_tb ) + entrybox_width, config.padding );
 
-    textbox_show ( state.text );
-    textbox_show ( state.prompt_tb );
-
     if ( config.case_sensitive ) {
-        textbox_show ( state.case_indicator );
+        textbox_text ( state.case_indicator, "*" );
     }
-
+    else{
+        textbox_text ( state.case_indicator, "" );
+    }
     state.message_tb = NULL;
     if ( message ) {
-        state.message_tb = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP,
+        state.message_tb = textbox_create ( TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP,
                                             ( config.padding ), state.top_offset, state.w - ( 2 * ( config.padding ) ),
                                             -1, NORMAL, message );
-        textbox_show ( state.message_tb );
         state.top_offset += textbox_get_height ( state.message_tb );
         state.top_offset += config.line_margin * 2 + 2;
     }
@@ -1037,12 +1096,12 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         rstate = TB_MARKUP;
     }
     for ( unsigned int i = 0; i < state.max_elements; i++ ) {
-        state.boxes[i] = textbox_create ( main_window, &vinfo, map, rstate, x_offset, y_offset,
+        state.boxes[i] = textbox_create ( rstate, x_offset, y_offset,
                                           state.element_width, element_height, NORMAL, "" );
     }
     if ( !config.hide_scrollbar ) {
         unsigned int sbw = config.line_margin + 8;
-        state.scrollbar = scrollbar_create ( main_window, &vinfo, map, state.w - config.padding - sbw, state.top_offset,
+        state.scrollbar = scrollbar_create ( state.w - config.padding - sbw, state.top_offset,
                                              sbw, ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + element_height );
     }
 
@@ -1074,22 +1133,22 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     if ( config.sidebar_mode == TRUE ) {
         int width = ( state.w - ( 2 * ( config.padding ) + ( num_switchers - 1 ) * config.line_margin ) ) / num_switchers;
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
-            switchers[j].tb = textbox_create ( main_window, &vinfo, map, TB_CENTER, config.padding + j * ( width + config.line_margin ),
+            switchers[j].tb = textbox_create ( TB_CENTER, config.padding + j * ( width + config.line_margin ),
                                                state.h - state.line_height - config.padding, width, state.line_height,
                                                ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, switchers[j].sw->name );
-            textbox_show ( switchers[j].tb );
         }
     }
 
-    scrollbar_show ( state.scrollbar );
     // Display it.
     XMoveResizeWindow ( display, main_window, state.x, state.y, state.w, state.h );
+    cairo_xlib_surface_set_size ( surface, state.w, state.h );
     XMapRaised ( display, main_window );
 
     // if grabbing keyboard failed, fall through
     state.selected = 0;
 
-    state.quit = FALSE;
+    state.quit   = FALSE;
+    state.update = TRUE;
     menu_refilter ( &state );
 
     for ( unsigned int i = 0; ( *( state.selected_line ) ) < UINT32_MAX && !state.selected && i < state.filtered_lines; i++ ) {
@@ -1151,6 +1210,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
                 if ( state.w != (unsigned int) xce.width || state.h != (unsigned int ) xce.height ) {
                     state.w = xce.width;
                     state.h = xce.height;
+                    cairo_xlib_surface_set_size ( surface, state.w, state.h );
                     menu_resize ( &state );
                 }
             }
@@ -1173,8 +1233,10 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
                 ;
             }
             XMotionEvent xme = ev.xmotion;
-            state.selected = scrollbar_clicked ( state.scrollbar, xme.y );
-            state.update   = TRUE;
+            if ( xme.x >= state.scrollbar->x && xme.x < ( state.scrollbar->x + state.scrollbar->w ) ) {
+                state.selected = scrollbar_clicked ( state.scrollbar, xme.y );
+                state.update   = TRUE;
+            }
         }
         // Button press event.
         else if ( ev.type == ButtonPress ) {
@@ -1222,10 +1284,10 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
                     state.refilter           = TRUE;
                     state.update             = TRUE;
                     if ( config.case_sensitive ) {
-                        textbox_show ( state.case_indicator );
+                        textbox_text ( state.case_indicator, "*" );
                     }
                     else {
-                        textbox_hide ( state.case_indicator );
+                        textbox_text ( state.case_indicator, "" );
                     }
                 }
                 // Special delete entry command.
@@ -1253,7 +1315,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
                         continue;
                     }
 
-                    int rc = textbox_keypress ( state.text, &ev );
+                    int rc = textbox_keypress ( state.text, xic, &ev );
                     // Row is accepted.
                     if ( rc < 0 ) {
                         shift = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
@@ -1370,10 +1432,9 @@ void error_dialog ( const char *msg, int markup )
     menu_calculate_window_and_element_width ( &state, &mon );
     state.max_elements = 0;
 
-    state.text = textbox_create ( main_window, &vinfo, map, TB_AUTOHEIGHT|TB_WRAP + ( ( markup ) ? TB_MARKUP : 0 ),
+    state.text = textbox_create ( TB_AUTOHEIGHT | TB_WRAP + ( ( markup ) ? TB_MARKUP : 0 ),
                                   ( config.padding ), ( config.padding ),
                                   ( state.w - ( 2 * ( config.padding ) ) ), 1, NORMAL, ( msg != NULL ) ? msg : "" );
-    textbox_show ( state.text );
     state.line_height = textbox_get_height ( state.text );
 
     // resize window vertically to suit
@@ -1382,7 +1443,7 @@ void error_dialog ( const char *msg, int markup )
     // Move the window to the correct x,y position.
     calculate_window_position ( &state, &mon );
     XMoveResizeWindow ( display, main_window, state.x, state.y, state.w, state.h );
-
+    cairo_xlib_surface_set_size ( surface, state.w, state.h );
     // Display it.
     XMapRaised ( display, main_window );
 
@@ -1392,7 +1453,7 @@ void error_dialog ( const char *msg, int markup )
     while ( !state.quit ) {
         // Update if requested.
         if ( state.update ) {
-            textbox_draw ( state.text );
+            textbox_draw ( state.text, draw );
             state.update = FALSE;
         }
         // Wait for event.
@@ -1430,7 +1491,7 @@ static int setup ()
     if ( pfd >= 0 ) {
         // Request truecolor visual.
         create_visual_and_colormap ( display );
-        textbox_setup ( &vinfo, map );
+        textbox_setup ( );
     }
     return pfd;
 }
@@ -1448,11 +1509,18 @@ static void teardown ( int pfd )
         XUnmapWindow ( display, main_window );
         XDestroyWindow ( display, main_window );
         main_window = None;
+        XDestroyIC ( xic );
+        XCloseIM ( xim );
     }
-    if ( gc != NULL ) {
-        XFreeGC ( display, gc );
-        gc = NULL;
+    if ( draw ) {
+        cairo_destroy ( draw );
+        draw = NULL;
     }
+    if ( surface ) {
+        cairo_surface_destroy ( surface );
+        surface = NULL;
+    }
+
     if ( map != None ) {
         XFreeColormap ( display, map );
         map = None;
@@ -1580,11 +1648,10 @@ static void cleanup ()
             release_keyboard ( display );
             XDestroyWindow ( display, main_window );
             main_window = None;
+            XDestroyIC ( xic );
+            XCloseIM ( xim );
         }
-        if ( gc != NULL ) {
-            XFreeGC ( display, gc );
-            gc = NULL;
-        }
+
         if ( sncontext != NULL ) {
             sn_launchee_context_unref ( sncontext );
             sncontext = NULL;

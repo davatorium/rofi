@@ -1,14 +1,12 @@
 #ifndef ROFI_SCROLLBAR_H
 #define ROFI_SCROLLBAR_H
-
+#include <cairo.h>
 /**
  * Internal structure for the scrollbar.
  */
 typedef struct _scrollbar
 {
-    Window       window, parent;
     short        x, y, w, h;
-    GC           gc;
     unsigned int length;
     unsigned int pos;
     unsigned int pos_length;
@@ -27,22 +25,7 @@ typedef struct _scrollbar
  *
  * @returns the scrollbar object.
  */
-scrollbar *scrollbar_create ( Window parent, XVisualInfo *vinfo, Colormap map,
-                              short x, short y, short w, short h );
-
-/**
- * @param sb scrollbar object
- *
- * Hide (unmap) the scrollbar.
- */
-void scrollbar_hide ( scrollbar *sb );
-
-/**
- * @param sb scrollbar object
- *
- * Show (map) the scrollbar.
- */
-void scrollbar_show ( scrollbar *sb );
+scrollbar *scrollbar_create ( short x, short y, short w, short h );
 
 /**
  * @param sb scrollbar object
@@ -80,7 +63,7 @@ void scrollbar_set_max_value ( scrollbar *sb, unsigned int max );
  *
  * Draw the scrollbar, used after expose event or update
  */
-void scrollbar_draw ( scrollbar *sb );
+void scrollbar_draw ( scrollbar *sb, cairo_t *draw );
 
 /**
  * @param sb scrollbar object
