@@ -146,6 +146,9 @@ static char **read_known_hosts_file ( char ** retv, unsigned int *length )
                 }
             }
         }
+        if ( fclose ( fd ) != 0 ) {
+            fprintf ( stderr, "Failed to close hosts file: '%s'\n", strerror ( errno ) );
+        }
     }
 
     g_free ( path );

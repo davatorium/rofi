@@ -643,24 +643,22 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
  * mouse navigation through the elements.
  *
  */
-static int intersect ( textbox *tb, int x, int y )
+static int intersect ( const textbox *tb, int x, int y )
 {
     if ( x >= ( tb->x ) && x < ( tb->x + tb->w ) ) {
         if ( y >= ( tb->y ) && y < ( tb->y + tb->h ) ) {
             return TRUE;
         }
     }
-
     return FALSE;
 }
-static int sb_intersect ( scrollbar *tb, int x, int y )
+static int sb_intersect ( const scrollbar *tb, int x, int y )
 {
     if ( x >= ( tb->x ) && x < ( tb->x + tb->w ) ) {
         if ( y >= ( tb->y ) && y < ( tb->y + tb->h ) ) {
             return TRUE;
         }
     }
-
     return FALSE;
 }
 static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
@@ -768,7 +766,6 @@ static void menu_refilter ( MenuState *state )
 static void menu_draw ( MenuState *state, cairo_t *draw )
 {
     unsigned int i, offset = 0;
-
     unsigned     pixel = color_background ( display );
 
     cairo_set_source_rgba ( draw,
