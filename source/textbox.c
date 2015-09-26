@@ -40,8 +40,6 @@
 #include <glib.h>
 #define SIDE_MARGIN    1
 
-extern Display *display;
-
 /**
  * Font + font color cache.
  * Avoid re-loading font on every change on every textbox.
