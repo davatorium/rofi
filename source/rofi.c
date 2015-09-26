@@ -73,14 +73,13 @@ typedef struct _Mode
 
 // Pidfile.
 extern Atom       netatoms[NUM_NETATOMS];
-char              *pidfile     = NULL;
-const char        *cache_dir   = NULL;
-SnDisplay         *sndisplay   = NULL;
-SnLauncheeContext *sncontext   = NULL;
-Display           *display     = NULL;
-char              *display_str = NULL;
-Window            main_window  = None;
-// GC                gc                 = NULL;
+char              *pidfile           = NULL;
+const char        *cache_dir         = NULL;
+SnDisplay         *sndisplay         = NULL;
+SnLauncheeContext *sncontext         = NULL;
+Display           *display           = NULL;
+char              *display_str       = NULL;
+Window            main_window        = None;
 Colormap          map                = None;
 unsigned int      normal_window_mode = FALSE;
 // Array of switchers.
