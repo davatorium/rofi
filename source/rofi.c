@@ -1503,13 +1503,6 @@ static void teardown ( int pfd )
 
     // Release the window.
     release_keyboard ( display );
-    if ( main_window != None ) {
-        XUnmapWindow ( display, main_window );
-        XDestroyWindow ( display, main_window );
-        main_window = None;
-        XDestroyIC ( xic );
-        XCloseIM ( xim );
-    }
     if ( draw ) {
         cairo_destroy ( draw );
         draw = NULL;
@@ -1517,6 +1510,13 @@ static void teardown ( int pfd )
     if ( surface ) {
         cairo_surface_destroy ( surface );
         surface = NULL;
+    }
+    if ( main_window != None ) {
+        XUnmapWindow ( display, main_window );
+        XDestroyWindow ( display, main_window );
+        main_window = None;
+        XDestroyIC ( xic );
+        XCloseIM ( xim );
     }
 
     if ( map != None ) {
