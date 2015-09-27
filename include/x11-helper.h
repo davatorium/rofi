@@ -152,5 +152,5 @@ unsigned int color_background ( Display *display );
 unsigned int color_border ( Display *display );
 unsigned int color_separator ( Display *display );
 
-cairo_format_t get_format(void);
+cairo_format_t get_format ( void );
 #endif

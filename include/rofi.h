@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <textbox.h>
+#include <cairo.h>
+#include <cairo-xlib.h>
 #include "keyb.h"
 
 /**

@@ -762,18 +762,18 @@ static void menu_refilter ( MenuState *state )
     state->rchanged = TRUE;
 }
 
-static void menu_draw ( MenuState *state, cairo_t *draw )
+static void menu_draw ( MenuState *state, cairo_t *d )
 {
     unsigned int i, offset = 0;
     unsigned     pixel = color_background ( display );
 
-    cairo_set_source_rgba ( draw,
+    cairo_set_source_rgba ( d,
                             ( ( pixel & 0x00FF0000 ) >> 16 ) / 256.0,
                             ( ( pixel & 0x0000FF00 ) >> 8 ) / 256.0,
                             ( ( pixel & 0x000000FF ) >> 0 ) / 256.0,
                             ( ( pixel & 0xFF000000 ) >> 24 ) / 256.0
                             );
-    cairo_paint ( draw );
+    cairo_paint ( d );
 
     // selected row is always visible.
     // If selected is visible do not scroll.
@@ -802,7 +802,7 @@ static void menu_draw ( MenuState *state, cairo_t *draw )
 
     // Update the handle length.
     scrollbar_set_handle_length ( state->scrollbar, columns * state->max_rows );
-    scrollbar_draw ( state->scrollbar, draw );
+    scrollbar_draw ( state->scrollbar, d );
     // Element width.
     unsigned int element_width = state->w - ( 2 * ( config.padding ) );
     if ( state->scrollbar != NULL ) {
@@ -833,7 +833,7 @@ static void menu_draw ( MenuState *state, cairo_t *draw )
                 textbox_font ( state->boxes[i], tbft );
                 textbox_text ( state->boxes[i], text );
             }
-            textbox_draw ( state->boxes[i], draw );
+            textbox_draw ( state->boxes[i], d );
         }
         state->rchanged = FALSE;
     }
@@ -845,15 +845,14 @@ static void menu_draw ( MenuState *state, cairo_t *draw )
             state->sw->mgrv ( state->line_map[i + offset], state->sw, &fstate );
             TextBoxFontType tbft = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
             textbox_font ( state->boxes[i], tbft );
-            textbox_draw ( state->boxes[i], draw );
+            textbox_draw ( state->boxes[i], d );
         }
     }
-    cairo_show_page ( draw );
 }
 
 static void menu_update ( MenuState *state )
 {
-    cairo_surface_t *surf = cairo_image_surface_create ( get_format(), state->w, state->h );
+    cairo_surface_t *surf = cairo_image_surface_create ( get_format (), state->w, state->h );
     cairo_t         *d    = cairo_create ( surf );
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
 
@@ -899,9 +898,12 @@ static void menu_update ( MenuState *state )
 
     cairo_set_source_surface ( draw, surf, 0, 0 );
     cairo_paint ( draw );
-
+    cairo_show_page ( draw );
     cairo_destroy ( d );
     cairo_surface_destroy ( surf );
+
+    // Flush the surface.
+    cairo_surface_flush ( surface );
 }
 
 /**

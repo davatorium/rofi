@@ -489,10 +489,9 @@ void create_visual_and_colormap ( Display *display )
     }
 }
 
-
-cairo_format_t get_format(void)
+cairo_format_t get_format ( void )
 {
-    if(truecolor){
+    if ( truecolor ) {
         return CAIRO_FORMAT_ARGB32;
     }
     return CAIRO_FORMAT_RGB24;
