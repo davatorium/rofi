@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <glib.h>
+#include <cairo.h>
 
 #include <X11/X.h>
 #include <X11/Xatom.h>
@@ -487,6 +488,16 @@ void create_visual_and_colormap ( Display *display )
         map          = DefaultColormap ( display, screen );
     }
 }
+
+
+cairo_format_t get_format(void)
+{
+    if(truecolor){
+        return CAIRO_FORMAT_ARGB32;
+    }
+    return CAIRO_FORMAT_RGB24;
+}
+
 unsigned int color_get ( Display *display, const char *const name, const char * const defn )
 {
     XColor color = { 0, 0, 0, 0, 0, 0 };

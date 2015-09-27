@@ -72,7 +72,7 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
 
     tb->changed = FALSE;
 
-    tb->main_surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, tb->w, tb->h );
+    tb->main_surface = cairo_image_surface_create ( get_format(), tb->w, tb->h );
     tb->main_draw    = cairo_create ( tb->main_surface );
     tb->layout       = pango_cairo_create_layout ( tb->main_draw );
     PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
@@ -224,7 +224,7 @@ static void texbox_update ( textbox *tb )
             tb->main_draw    = NULL;
             tb->main_surface = NULL;
         }
-        tb->main_surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, tb->w, tb->h );
+        tb->main_surface = cairo_image_surface_create ( get_format(), tb->w, tb->h );
         tb->main_draw    = cairo_create ( tb->main_surface );
         PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
         pango_font_description_free ( pfd );

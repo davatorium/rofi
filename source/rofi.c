@@ -853,7 +853,7 @@ static void menu_draw ( MenuState *state, cairo_t *draw )
 
 static void menu_update ( MenuState *state )
 {
-    cairo_surface_t *surf = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, state->w, state->h );
+    cairo_surface_t *surf = cairo_image_surface_create ( get_format(), state->w, state->h );
     cairo_t         *d    = cairo_create ( surf );
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
 
