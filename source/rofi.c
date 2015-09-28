@@ -765,16 +765,6 @@ static void menu_refilter ( MenuState *state )
 static void menu_draw ( MenuState *state, cairo_t *d )
 {
     unsigned int i, offset = 0;
-    unsigned     pixel = color_background ( display );
-
-    cairo_set_source_rgba ( d,
-                            ( ( pixel & 0x00FF0000 ) >> 16 ) / 256.0,
-                            ( ( pixel & 0x0000FF00 ) >> 8 ) / 256.0,
-                            ( ( pixel & 0x000000FF ) >> 0 ) / 256.0,
-                            ( ( pixel & 0xFF000000 ) >> 24 ) / 256.0
-                            );
-    cairo_paint ( d );
-
     // selected row is always visible.
     // If selected is visible do not scroll.
     if ( ( ( state->selected - ( state->last_offset ) ) < ( state->max_elements ) ) && ( state->selected >= ( state->last_offset ) ) ) {
@@ -855,6 +845,18 @@ static void menu_update ( MenuState *state )
     cairo_surface_t *surf = cairo_image_surface_create ( get_format (), state->w, state->h );
     cairo_t         *d    = cairo_create ( surf );
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
+    // Paint the background.
+    unsigned pixel = color_background ( display );
+
+    cairo_set_source_rgba ( d,
+                            ( ( pixel & 0x00FF0000 ) >> 16 ) / 256.0,
+                            ( ( pixel & 0x0000FF00 ) >> 8 ) / 256.0,
+                            ( ( pixel & 0x000000FF ) >> 0 ) / 256.0,
+                            ( ( pixel & 0xFF000000 ) >> 24 ) / 256.0
+                            );
+    cairo_paint ( d );
+    // Always paint as overlay over the background.
+    cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
 
     menu_draw ( state, d );
     textbox_draw ( state->prompt_tb, d );
@@ -863,7 +865,7 @@ static void menu_update ( MenuState *state )
     if ( state->message_tb ) {
         textbox_draw ( state->message_tb, d );
     }
-    unsigned pixel = color_separator ( display );
+    pixel = color_separator ( display );
 
     cairo_set_source_rgba ( d,
                             ( ( pixel & 0x00FF0000 ) >> 16 ) / 256.0,
@@ -896,9 +898,10 @@ static void menu_update ( MenuState *state )
 
     state->update = FALSE;
 
+    // Draw to actual window.
     cairo_set_source_surface ( draw, surf, 0, 0 );
     cairo_paint ( draw );
-    cairo_show_page ( draw );
+    // Cleanup
     cairo_destroy ( d );
     cairo_surface_destroy ( surf );
 
