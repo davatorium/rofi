@@ -176,8 +176,17 @@ static int combi_mode_match ( char **tokens, const char *input,
 
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
-            return pd->switchers[i]->token_match ( tokens, input, case_sensitive,
-                                                   index - pd->starts[i], pd->switchers[i] );
+            if ( tokens && input[0] && tokens[0][0] == '!' ) {
+                if ( tokens[0][1] == pd->switchers[i]->name[0] ) {
+                    return pd->switchers[i]->token_match ( &tokens[1], input, case_sensitive,
+                                                           index - pd->starts[i], pd->switchers[i] );
+                }
+                return 0;
+            }
+            else {
+                return pd->switchers[i]->token_match ( tokens, input, case_sensitive,
+                                                       index - pd->starts[i], pd->switchers[i] );
+            }
         }
     }
     abort ();
