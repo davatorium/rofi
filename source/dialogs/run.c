@@ -37,7 +37,6 @@
 #include <strings.h>
 #include <string.h>
 #include <errno.h>
-#include <stdbool.h>
 
 #include "rofi.h"
 #include "helper.h"
@@ -50,7 +49,7 @@
  * Executes the cmd
  * Returns true if successfull
  */
-static inline bool execsh ( const char *cmd, int run_in_term )
+static inline int execsh ( const char *cmd, int run_in_term )
 {
     char **args = NULL;
     int  argc   = 0;
@@ -83,7 +82,7 @@ static void exec_cmd ( const char *cmd, int run_in_term )
         return;
     }
 
-    bool success =  execsh ( cmd, run_in_term );
+    int success =  execsh ( cmd, run_in_term );
 
     /**
      * This happens in non-critical time (After launching app)
