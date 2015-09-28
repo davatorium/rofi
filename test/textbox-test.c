@@ -90,7 +90,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     cairo_set_operator ( draw, CAIRO_OPERATOR_SOURCE );
     // Set alternate row to normal row.
     config.menu_bg_alt = config.menu_bg;
-    textbox_setup ( );
+    textbox_setup ( display );
     textbox *box =
         textbox_create ( TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, 0, 0, -1, -1,
                          NORMAL,

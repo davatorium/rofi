@@ -54,10 +54,12 @@
                                        ( w1 ) ) && OVERLAP ( ( y ), ( h ), ( y1 ), ( h1 ) ) )
 #include "x11-helper.h"
 
-Atom         netatoms[NUM_NETATOMS];
-const char   *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
+Atom            netatoms[NUM_NETATOMS];
+const char      *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 // Mask indicating num-lock.
-unsigned int NumlockMask = 0;
+unsigned int    NumlockMask = 0;
+
+extern Colormap map;
 
 // retrieve a property of any type from a window
 int window_get_prop ( Display *display, Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes )
@@ -466,7 +468,6 @@ void x11_setup ( Display *display )
     x11_create_frequently_used_atoms ( display );
 }
 
-extern Colormap    map;
 extern XVisualInfo vinfo;
 int                truecolor = FALSE;
 void create_visual_and_colormap ( Display *display )
@@ -504,9 +505,9 @@ unsigned int color_get ( Display *display, const char *const name, const char * 
     // Special format.
     if ( strncmp ( name, "argb:", 5 ) == 0 ) {
         color.pixel = strtoul ( &name[5], NULL, 16 );
-        color.red   = ( ( color.pixel & 0x00FF0000 ) >> 16 ) * 255;
-        color.green = ( ( color.pixel & 0x0000FF00 ) >> 8  ) * 255;
-        color.blue  = ( ( color.pixel & 0x000000FF )       ) * 255;
+        color.red   = ( ( color.pixel & 0x00FF0000 ) >> 16 ) * 256;
+        color.green = ( ( color.pixel & 0x0000FF00 ) >> 8  ) * 256;
+        color.blue  = ( ( color.pixel & 0x000000FF )       ) * 256;
         if ( !truecolor ) {
             // This will drop alpha part.
             Status st = XAllocColor ( display, map, &color );

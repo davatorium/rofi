@@ -1492,7 +1492,7 @@ static int setup ()
     if ( pfd >= 0 ) {
         // Request truecolor visual.
         create_visual_and_colormap ( display );
-        textbox_setup ( );
+        textbox_setup ( display );
     }
     return pfd;
 }

@@ -141,7 +141,7 @@ void textbox_insert ( textbox *tb, int pos, char *str );
  * before any of the textbox_ functions is called.
  * Clean with textbox_cleanup()
  */
-void textbox_setup ( void );
+void textbox_setup ( Display *display );
 
 /**
  * Cleanup the allocated colors and fonts by textbox_setup().

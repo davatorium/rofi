@@ -568,27 +568,40 @@ int textbox_keypress ( textbox *tb, XIC xic, XEvent *ev )
 /***
  * Font setup.
  */
-static void parse_color ( char *bg, Color *col )
+extern Colormap map;
+static void parse_color ( Display *display, char *bg, Color *col )
 {
+    unsigned int val     = 0;
+    char         *endptr = NULL;
     if ( bg == NULL ) {
         return;
     }
     if ( strncmp ( bg, "argb:", 5 ) == 0 ) {
-        unsigned int val = strtoul ( &bg[5], NULL, 16 );
+        val        = strtoul ( &bg[5], &endptr, 16 );
         col->alpha = ( ( val & 0xFF000000 ) >> 24 ) / 256.0;
         col->red   = ( ( val & 0x00FF0000 ) >> 16 ) / 256.0;
         col->green = ( ( val & 0x0000FF00 ) >> 8  ) / 256.0;
         col->blue  = ( ( val & 0x000000FF )       ) / 256.0;
     }
-    else {
-        unsigned int val = strtoul ( &bg[1], NULL, 16 );
+    else if ( bg[0] == '#' ) {
+        val        = strtoul ( &bg[1], &endptr, 16 );
         col->alpha = 1;
         col->red   = ( ( val & 0x00FF0000 ) >> 16 ) / 256.0;
         col->green = ( ( val & 0x0000FF00 ) >> 8  ) / 256.0;
         col->blue  = ( ( val & 0x000000FF )       ) / 256.0;
     }
+    else {
+        XColor def, color = { 0, 0, 0, 0, 0, 0 };
+        Status st = XAllocNamedColor ( display, map, bg, &color, &def );
+        if ( st != None ) {
+            col->alpha = 1;
+            col->red   = ( ( def.pixel & 0x00FF0000 ) >> 16 ) / 256.0;
+            col->green = ( ( def.pixel & 0x0000FF00 ) >> 8  ) / 256.0;
+            col->blue  = ( ( def.pixel & 0x000000FF )       ) / 256.0;
+        }
+    }
 }
-static void textbox_parse_string (  const char *str, RowColor *color )
+static void textbox_parse_string (  Display *display, const char *str, RowColor *color )
 {
     if ( str == NULL ) {
         return;
@@ -601,50 +614,50 @@ static void textbox_parse_string (  const char *str, RowColor *color )
         switch ( index )
         {
         case 0:
-            parse_color ( g_strstrip ( token ), &( color->bg ) );
+            parse_color ( display, g_strstrip ( token ), &( color->bg ) );
             break;
         case 1:
-            parse_color ( g_strstrip ( token ), &( color->fg ) );
+            parse_color ( display, g_strstrip ( token ), &( color->fg ) );
             break;
         case 2:
-            parse_color ( g_strstrip ( token ), &( color->bgalt ) );
+            parse_color ( display, g_strstrip ( token ), &( color->bgalt ) );
             break;
         case 3:
-            parse_color ( g_strstrip ( token ), &( color->hlbg ) );
+            parse_color ( display, g_strstrip ( token ), &( color->hlbg ) );
             break;
         case 4:
-            parse_color ( g_strstrip ( token ), &( color->hlfg ) );
+            parse_color ( display, g_strstrip ( token ), &( color->hlfg ) );
             break;
         }
         index++;
     }
     g_free ( cstr );
 }
-void textbox_setup ( void )
+void textbox_setup ( Display *display )
 {
     if ( config.color_enabled ) {
-        textbox_parse_string ( config.color_normal, &( colors[NORMAL] ) );
-        textbox_parse_string ( config.color_urgent, &( colors[URGENT] ) );
-        textbox_parse_string ( config.color_active, &( colors[ACTIVE] ) );
+        textbox_parse_string ( display, config.color_normal, &( colors[NORMAL] ) );
+        textbox_parse_string ( display, config.color_urgent, &( colors[URGENT] ) );
+        textbox_parse_string ( display, config.color_active, &( colors[ACTIVE] ) );
     }
     else {
-        parse_color ( config.menu_bg, &( colors[NORMAL].bg ) );
-        parse_color ( config.menu_fg, &( colors[NORMAL].fg ) );
-        parse_color ( config.menu_bg_alt, &( colors[NORMAL].bgalt ) );
-        parse_color ( config.menu_hlfg, &( colors[NORMAL].hlfg ) );
-        parse_color ( config.menu_hlbg, &( colors[NORMAL].hlbg ) );
+        parse_color ( display, config.menu_bg, &( colors[NORMAL].bg ) );
+        parse_color ( display, config.menu_fg, &( colors[NORMAL].fg ) );
+        parse_color ( display, config.menu_bg_alt, &( colors[NORMAL].bgalt ) );
+        parse_color ( display, config.menu_hlfg, &( colors[NORMAL].hlfg ) );
+        parse_color ( display, config.menu_hlbg, &( colors[NORMAL].hlbg ) );
 
-        parse_color ( config.menu_bg_urgent, &( colors[URGENT].bg ) );
-        parse_color ( config.menu_fg_urgent, &( colors[URGENT].fg ) );
-        parse_color ( config.menu_bg_alt, &( colors[URGENT].bgalt ) );
-        parse_color ( config.menu_hlfg_urgent, &( colors[URGENT].hlfg ) );
-        parse_color ( config.menu_hlbg_urgent, &( colors[URGENT].hlbg ) );
+        parse_color ( display, config.menu_bg_urgent, &( colors[URGENT].bg ) );
+        parse_color ( display, config.menu_fg_urgent, &( colors[URGENT].fg ) );
+        parse_color ( display, config.menu_bg_alt, &( colors[URGENT].bgalt ) );
+        parse_color ( display, config.menu_hlfg_urgent, &( colors[URGENT].hlfg ) );
+        parse_color ( display, config.menu_hlbg_urgent, &( colors[URGENT].hlbg ) );
 
-        parse_color ( config.menu_bg_active, &( colors[ACTIVE].bg ) );
-        parse_color ( config.menu_fg_active, &( colors[ACTIVE].fg ) );
-        parse_color ( config.menu_bg_alt, &( colors[ACTIVE].bgalt ) );
-        parse_color ( config.menu_hlfg_active, &( colors[ACTIVE].hlfg ) );
-        parse_color ( config.menu_hlbg_active, &( colors[ACTIVE].hlbg ) );
+        parse_color ( display, config.menu_bg_active, &( colors[ACTIVE].bg ) );
+        parse_color ( display, config.menu_fg_active, &( colors[ACTIVE].fg ) );
+        parse_color ( display, config.menu_bg_alt, &( colors[ACTIVE].bgalt ) );
+        parse_color ( display, config.menu_hlfg_active, &( colors[ACTIVE].hlfg ) );
+        parse_color ( display, config.menu_hlbg_active, &( colors[ACTIVE].hlbg ) );
     }
     PangoFontMap *font_map = pango_cairo_font_map_new ();
     p_context = pango_font_map_create_context ( font_map );
