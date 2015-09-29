@@ -65,7 +65,7 @@ static inline void execsh ( const char *cmd, int run_in_term )
         g_error_free ( error );
     }
     else {
-        /*
+        /**
          * This happens in non-critical time (After launching app)
          * It is allowed to be a bit slower.
          */
