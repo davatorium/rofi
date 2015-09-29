@@ -64,6 +64,17 @@ static inline void execsh ( const char *cmd, int run_in_term )
         // print error.
         g_error_free ( error );
     }
+    else {
+        /*
+         * This happens in non-critical time (After launching app)
+         * It is allowed to be a bit slower.
+         */
+        char *path = g_strdup_printf ( "%s/%s", cache_dir, RUN_CACHE_FILE );
+
+        history_set ( path, cmd );
+
+        g_free ( path );
+    }
 
     // Free the args list.
     g_strfreev ( args );
@@ -78,15 +89,6 @@ static void exec_cmd ( const char *cmd, int run_in_term )
 
     execsh ( cmd, run_in_term );
 
-    /**
-     * This happens in non-critical time (After launching app)
-     * It is allowed to be a bit slower.
-     */
-    char *path = g_strdup_printf ( "%s/%s", cache_dir, RUN_CACHE_FILE );
-
-    history_set ( path, cmd );
-
-    g_free ( path );
 }
 // execute sub-process
 static void delete_entry ( const char *cmd )
