@@ -873,29 +873,31 @@ static void menu_update ( MenuState *state )
                             ( ( pixel & 0x000000FF ) >> 0 ) / 256.0,
                             ( ( pixel & 0xFF000000 ) >> 24 ) / 256.0
                             );
-    if ( strcmp ( config.separator_style, "dash" ) == 0 ) {
-        const double dashes[1] = { 4 };
-        cairo_set_dash ( d, dashes, 1, 0.0 );
-    }
-    cairo_move_to ( d, 0, state->line_height + ( config.padding ) * 1 + config.line_margin + 1 );
-    cairo_line_to ( d, state->w, state->line_height + ( config.padding ) * 1 + config.line_margin + 1 );
-    cairo_stroke ( d );
-    if ( state->message_tb ) {
-        cairo_move_to ( d, 0, state->top_offset - ( config.line_margin ) - 1 );
-        cairo_line_to ( d, state->w, state->top_offset - ( config.line_margin ) - 1 );
+    if ( strcmp ( config.separator_style, "none" ) ) {
+        if ( strcmp ( config.separator_style, "dash" ) == 0 ) {
+            const double dashes[1] = { 4 };
+            cairo_set_dash ( d, dashes, 1, 0.0 );
+        }
+        cairo_move_to ( d, 0, state->line_height + ( config.padding ) * 1 + config.line_margin + 1 );
+        cairo_line_to ( d, state->w, state->line_height + ( config.padding ) * 1 + config.line_margin + 1 );
         cairo_stroke ( d );
-    }
+        if ( state->message_tb ) {
+            cairo_move_to ( d, 0, state->top_offset - ( config.line_margin ) - 1 );
+            cairo_line_to ( d, state->w, state->top_offset - ( config.line_margin ) - 1 );
+            cairo_stroke ( d );
+        }
 
+        if ( config.sidebar_mode == TRUE ) {
+            cairo_move_to ( d, 0, state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin );
+            cairo_line_to ( d, state->w, state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin );
+            cairo_stroke ( d );
+        }
+    }
     if ( config.sidebar_mode == TRUE ) {
-        cairo_move_to ( d, 0, state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin );
-        cairo_line_to ( d, state->w, state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin );
-        cairo_stroke ( d );
-
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
             textbox_draw ( switchers[j].tb, d );
         }
     }
-
     state->update = FALSE;
 
     // Draw to actual window.

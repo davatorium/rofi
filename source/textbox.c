@@ -666,7 +666,7 @@ void textbox_setup ( Display *display )
 
 void textbox_cleanup ( void )
 {
-printf("cleanup\n");
+    printf ( "cleanup\n" );
     if ( p_context ) {
         g_object_unref ( p_context );
         p_context = NULL;
@@ -701,8 +701,8 @@ double textbox_get_estimated_char_width ( void )
 {
     PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
     // Get width
-    PangoFontMetrics *metric  = pango_context_get_metrics ( p_context, pfd, NULL );
-    int              width    = pango_font_metrics_get_approximate_char_width ( metric );
+    PangoFontMetrics     *metric = pango_context_get_metrics ( p_context, pfd, NULL );
+    int                  width   = pango_font_metrics_get_approximate_char_width ( metric );
     pango_font_metrics_unref ( metric );
 
     pango_font_description_free ( pfd );
