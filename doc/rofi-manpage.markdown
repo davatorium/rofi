@@ -323,7 +323,7 @@ Set the spacing between the rows.
 
 `-separator-style` *style*
 
-Set separator style. Possible options are "solid" or "dash".
+Set separator style. Possible options are "none", "solid" or "dash".
 
     Default: *dash*
 
