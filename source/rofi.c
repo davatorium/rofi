@@ -216,6 +216,7 @@ typedef struct MenuState
     int          refilter;
     int          rchanged;
     int          cur_page;
+    char         **last_matched_tokens;
 
     // Entries
     textbox      *text;
@@ -307,6 +308,10 @@ static void menu_free_state ( MenuState *state )
     g_free ( state->boxes );
     g_free ( state->line_map );
     g_free ( state->distance );
+
+    if (state->last_matched_tokens) {
+      g_strfreev(state->last_matched_tokens);
+    }
 }
 
 /**
@@ -716,32 +721,91 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
     }
 }
 
+static int is_superset(char **old_tokens, char **current_tokens) {
+  //TODO fuzzy matching - how does that relate?
+  if (!config.fuzzy && old_tokens && current_tokens) {
+
+    // T iff string passes new tokens => string passed old tokens
+
+    // string passes some tokens if all tokens are in string
+    // if a token is in a string, every sub-token is also in that string
+
+    // if every token in old tokens is a sub-token of a token in new tokens
+    // then if a string passes new tokens, every new token passes that string
+    //   every old token is a subtoken of a new token
+    //   every old token passes the string QED
+
+    // so we must check that every old token is a subtoken of a new token
+    // TODO case sensitivity might be worth thinking about
+
+    for (unsigned int old_token = 0; old_tokens[old_token]; old_token++) {
+      unsigned int old_token_is_substring_of_new_token = 0;
+      for (unsigned int current_token = 0;
+           current_tokens[current_token] && !(old_token_is_substring_of_new_token) ;
+           current_token++) {
+        if (strstr( current_tokens[current_token], old_tokens[old_token] )) {
+          // this old token is a substring of current token, which means it is OK
+          old_token_is_substring_of_new_token = 1;
+        }
+      }
+      // if the old token was not the substring of any new token, then we
+      // can give up immediately
+      if (!old_token_is_substring_of_new_token) return 0;
+    }
+    // however if we get here, every old_token had a containing current_token.
+    return 1;
+  }
+  return 0;
+}
+
 static void menu_refilter ( MenuState *state )
 {
     if ( strlen ( state->text->text ) > 0 ) {
         unsigned int j        = 0;
         char         **tokens = tokenize ( state->text->text, config.case_sensitive );
+        char         **last_tokens = state->last_matched_tokens;
 
         // input changed
-        for ( unsigned int i = 0; i < state->num_lines; i++ ) {
-            int match = state->sw->token_match ( tokens, state->lines[i], config.case_sensitive, i, state->sw );
+
+        // if the last filtered input was a superset of the current
+        // set of tokens, then we can save some time by filtering
+        // only the lines which matched before
+
+        // otherwise we must match all the lines.
+
+        int superset = is_superset(last_tokens, tokens);
+
+        if (last_tokens) {
+          // free tokens from before
+          // TODO need to hook up the same thing when we destroy the state
+          g_strfreev(last_tokens);
+        }
+
+        state->last_matched_tokens = tokens;
+
+        unsigned int lines_to_match = superset ? state->filtered_lines : state->num_lines;
+
+        for ( unsigned int i = 0; i < lines_to_match; i++ ) {
+            unsigned int line_to_match = superset ? state->line_map[i] : i;
+            int match = state->sw->token_match ( tokens, state->lines[line_to_match],
+                                                 config.case_sensitive, i, state->sw );
 
             // If each token was matched, add it to list.
             if ( match ) {
-                state->line_map[j] = i;
-                if ( config.levenshtein_sort ) {
-                    state->distance[i] = levenshtein ( state->text->text, state->lines[i] );
-                }
-                j++;
+              state->line_map[j] = line_to_match;
+              if ( config.levenshtein_sort ) {
+                state->distance[line_to_match] = levenshtein ( state->text->text, state->lines[line_to_match] );
+              }
+              j++;
             }
         }
+
         if ( config.levenshtein_sort ) {
             g_qsort_with_data ( state->line_map, j, sizeof ( int ), lev_sort, state->distance );
         }
 
         // Cleanup + bookkeeping.
         state->filtered_lines = j;
-        g_strfreev ( tokens );
     }
     else{
         for ( unsigned int i = 0; i < state->num_lines; i++ ) {
@@ -1009,10 +1073,12 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         .update     = FALSE,
         .rchanged   = TRUE,
         .cur_page   =            -1,
-        .top_offset = 0
+        .top_offset = 0,
+        .last_matched_tokens = NULL
     };
     // Request the lines to show.
     state.lines = sw->get_data ( &( state.num_lines ), sw );
+
     if ( next_pos ) {
         *next_pos = *selected_line;
     }
@@ -1286,6 +1352,13 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
                     *( state.selected_line ) = 0;
                     state.refilter           = TRUE;
                     state.update             = TRUE;
+
+                    // clear previous match information
+                    if (state.last_matched_tokens) {
+                      g_strfreev(state.last_matched_tokens);
+                      state.last_matched_tokens = NULL;
+                    }
+
                     if ( config.case_sensitive ) {
                         textbox_text ( state.case_indicator, "*" );
                     }
