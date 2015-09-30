@@ -666,6 +666,7 @@ void textbox_setup ( Display *display )
 
 void textbox_cleanup ( void )
 {
+printf("cleanup\n");
     if ( p_context ) {
         g_object_unref ( p_context );
         p_context = NULL;
@@ -698,20 +699,13 @@ int textbox_get_font_width ( textbox *tb )
 
 double textbox_get_estimated_char_width ( void )
 {
-    // Create a temp layout with right font.
-    PangoLayout          *layout = pango_layout_new ( p_context );
-    // Set font.
     PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
-    pango_layout_set_font_description ( layout, pfd );
-    pango_font_description_free ( pfd );
-
     // Get width
-    PangoContext     *context = pango_layout_get_context ( layout );
-    PangoFontMetrics *metric  = pango_context_get_metrics ( context, NULL, NULL );
+    PangoFontMetrics *metric  = pango_context_get_metrics ( p_context, pfd, NULL );
     int              width    = pango_font_metrics_get_approximate_char_width ( metric );
     pango_font_metrics_unref ( metric );
 
-    g_object_unref ( layout );
+    pango_font_description_free ( pfd );
     return ( width ) / (double) PANGO_SCALE;
 }
 
