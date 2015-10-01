@@ -52,7 +52,7 @@ void cmd_set_arguments ( int argc, char **argv )
 /**
  *  `fgets` implementation with custom separator.
  */
-char* fgets_s ( char* s, int n, FILE *iop, char sep )
+char* fgets_s ( char* s, unsigned int n, FILE *iop, char sep )
 {
     // Map these to registers.
     register int c = EOF;
@@ -72,7 +72,7 @@ char* fgets_s ( char* s, int n, FILE *iop, char sep )
     *cs = '\0';
     // if last read was end of file and current index is start, we are done:
     // Return NULL.
-    return ( c == EOF && cs == s ) ? NULL : s;
+    return ( c == EOF && cs == s ) ? NULL : cs;
 }
 
 /**
