@@ -310,11 +310,13 @@ int find_arg_char ( const char * const key, char *val )
  * Shared 'token_match' function.
  * Matches tokenized.
  */
-static int fuzzy_token_match ( char **tokens, const char *input, int case_sensitive )
+static int fuzzy_token_match ( char **tokens, const char *input, __attribute__( (unused) ) int not_ascii,  int case_sensitive )
 {
     int  match  = 1;
     char *compk = token_collate_key ( input, case_sensitive );
     // Do a tokenized match.
+    // TODO: this doesn't work for unicode input, because it may split a codepoint which is over two bytes.
+    // TODO this does not use the non-ascii speed-up either.
     if ( tokens ) {
         for ( int j = 0; match && tokens[j]; j++ ) {
             char *t        = compk;
@@ -331,28 +333,33 @@ static int fuzzy_token_match ( char **tokens, const char *input, int case_sensit
     g_free ( compk );
     return match;
 }
-static int normal_token_match ( char **tokens, const char *input, int case_sensitive )
+static int normal_token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive )
 {
     int  match  = 1;
-    char *compk = token_collate_key ( input, case_sensitive );
+    char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : (char *) input;
 
     // Do a tokenized match.
+
     if ( tokens ) {
-        for ( int j = 0; match && tokens[j]; j++ ) {
-            match = ( strstr ( compk, tokens[j] ) != NULL );
-        }
+      char *(*comparison)(const char *, const char *);
+      comparison = (case_sensitive || not_ascii) ? strstr : strcasestr;
+      for ( int j = 0; match && tokens[j]; j++ ) {
+        match = (comparison( compk, tokens[j] ) != NULL );
+      }
     }
-    g_free ( compk );
+
+    if (not_ascii) g_free ( compk );
+
     return match;
 }
-int token_match ( char **tokens, const char *input, int case_sensitive,
+int token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive,
                   __attribute__( ( unused ) ) unsigned int index,
                   __attribute__( ( unused ) ) Switcher *data )
 {
     if ( config.fuzzy ) {
-        return fuzzy_token_match ( tokens, input, case_sensitive );
+        return fuzzy_token_match ( tokens, input, not_ascii, case_sensitive );
     }
-    return normal_token_match ( tokens, input, case_sensitive );
+    return normal_token_match ( tokens, input, not_ascii, case_sensitive );
 }
 
 int execute_generator ( const char * cmd )
@@ -477,4 +484,13 @@ void config_sanity_check (  )
     if ( config.menu_bg_alt == NULL ) {
         config.menu_bg_alt = config.menu_bg;
     }
+}
+
+int is_not_ascii ( const char * str )
+{
+   while (*str > 0) {
+     str++;
+   }
+   if (*str) return 1;
+   return 0;
 }

@@ -78,7 +78,7 @@ typedef enum
  *
  * @returns 1 when it matches, 0 if not.
  */
-typedef int ( *menu_match_cb )( char **tokens, const char *input, int case_sensitive, unsigned int index, Switcher *data );
+typedef int ( *menu_match_cb )( char **tokens, const char *input, int not_ascii, int case_sensitive, unsigned int index, Switcher *data );
 
 /**
  * @param sw the Switcher to show.

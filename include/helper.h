@@ -102,7 +102,7 @@ int find_arg ( const char * const key );
  *
  * @returns 1 when matches, 0 otherwise
  */
-int token_match ( char **tokens, const char *input, int case_sensitive,
+int token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive,
                   __attribute__( ( unused ) ) unsigned int index,
                   __attribute__( ( unused ) ) Switcher * data );
 
@@ -152,4 +152,11 @@ char helper_parse_char ( const char *arg );
  * Set the application arguments.
  */
 void cmd_set_arguments ( int argc, char **argv );
+
+/**
+ * @param str a UTF8 string
+ * @return 1 if the string contains any non-ascii codepoints
+ */
+int is_not_ascii ( const char *str );
+
 #endif // ROFI_HELPER_H

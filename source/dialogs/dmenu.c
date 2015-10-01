@@ -316,7 +316,7 @@ int dmenu_switcher_dialog ( void )
         char         **tokens = tokenize ( select, config.case_sensitive );
         unsigned int i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
-            if ( token_match ( tokens, cmd_list[i], config.case_sensitive, 0, NULL ) ) {
+            if ( token_match ( tokens, cmd_list[i], is_not_ascii(cmd_list[i]), config.case_sensitive, 0, NULL ) ) {
                 pd->selected_line = i;
                 break;
             }
