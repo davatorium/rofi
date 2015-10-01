@@ -351,8 +351,6 @@ static int fuzzy_token_match ( char **tokens, const char *input, __attribute__( 
 
     // this could perhaps be a bit more efficient by iterating over all the tokens at once.
 
-    fprintf(stderr, "fz match %s %d\n", input, not_ascii);
-
     if ( tokens ) {
         char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : (char *) input;
         for ( int j = 0; match && tokens[j]; j++ ) {
