@@ -37,6 +37,7 @@
 #include <sys/types.h>
 #include <sys/file.h>
 #include <sys/stat.h>
+#include <ctype.h>
 #include "helper.h"
 #include "rofi.h"
 
@@ -306,6 +307,35 @@ int find_arg_char ( const char * const key, char *val )
     return FALSE;
 }
 
+/*
+ * auxiliary to `fuzzy-token-match' below;
+ */
+static void advance_unicode_glyph( char** token_in, char** input_in ) {
+  // determine the end of the glyph from token
+
+  char *token = *token_in;
+  char *input = *input_in;
+
+  while (*token < 0) {
+    token++;
+  }
+
+  // now we know the glyph length, we can scan for that substring in input
+  // temporarily add a null-terminator in case:
+  char glyph_end = *token;
+  *token = 0;
+  char *match = strstr(input, *token_in);
+  *token = glyph_end;
+
+  if ( match ) {
+    *token_in = token;
+    *input_in = match;
+  } else {
+    // wind input along to the end so that we fail
+    while ( **input_in ) (*input_in)++;
+  }
+}
+
 /**
  * Shared 'token_match' function.
  * Matches tokenized.
@@ -313,42 +343,60 @@ int find_arg_char ( const char * const key, char *val )
 static int fuzzy_token_match ( char **tokens, const char *input, __attribute__( (unused) ) int not_ascii,  int case_sensitive )
 {
     int  match  = 1;
-    char *compk = token_collate_key ( input, case_sensitive );
+
     // Do a tokenized match.
+
     // TODO: this doesn't work for unicode input, because it may split a codepoint which is over two bytes.
-    // TODO this does not use the non-ascii speed-up either.
+    //       mind you, it didn't work before I fiddled with it.
+
+    // this could perhaps be a bit more efficient by iterating over all the tokens at once.
+
+    fprintf(stderr, "fz match %s %d\n", input, not_ascii);
+
     if ( tokens ) {
+        char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : (char *) input;
         for ( int j = 0; match && tokens[j]; j++ ) {
             char *t        = compk;
-            int  token_len = strlen ( tokens[j] );
-            for ( int id = 0; match && t != NULL && id < token_len; id++ ) {
-                match = ( ( t = strchr ( t, tokens[j][id] ) ) != NULL );
-                // next should match the next character.
-                if ( t != NULL ) {
-                    t++;
+            char *token    = tokens[j];
+
+            while (*t && *token) {
+              if ( *token > 0 ) // i.e. we are at an ascii codepoint
+                {
+                  if ( ( case_sensitive && (*t == *token)) ||
+                       (!case_sensitive && (tolower(*t) == tolower(*token))) )
+                    token++;
                 }
+              else
+                {
+                  // we are not at an ascii codepoint, and so we need to do something
+                  // complicated
+                  advance_unicode_glyph( &token, &t );
+                }
+              t++;
             }
+
+            match = !(*token);
         }
+        if (not_ascii) g_free ( compk );
     }
-    g_free ( compk );
+
     return match;
 }
 static int normal_token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive )
 {
     int  match  = 1;
-    char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : (char *) input;
 
     // Do a tokenized match.
 
     if ( tokens ) {
+      char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : (char *) input;
       char *(*comparison)(const char *, const char *);
       comparison = (case_sensitive || not_ascii) ? strstr : strcasestr;
       for ( int j = 0; match && tokens[j]; j++ ) {
         match = (comparison( compk, tokens[j] ) != NULL );
       }
+      if (not_ascii) g_free ( compk );
     }
-
-    if (not_ascii) g_free ( compk );
 
     return match;
 }
