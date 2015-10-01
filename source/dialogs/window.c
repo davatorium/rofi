@@ -343,15 +343,15 @@ static int window_match ( char **tokens, __attribute__( ( unused ) ) const char 
             }
 
             if ( !test && c->class[0] != '\0' ) {
-                test = token_match ( ftokens, c->class, is_not_ascii(c->title), case_sensitive, 0, NULL );
+                test = token_match ( ftokens, c->class, is_not_ascii(c->class), case_sensitive, 0, NULL );
             }
 
             if ( !test && c->role[0] != '\0' ) {
-                test = token_match ( ftokens, c->role, is_not_ascii(c->title), case_sensitive, 0, NULL );
+                test = token_match ( ftokens, c->role, is_not_ascii(c->role), case_sensitive, 0, NULL );
             }
 
             if ( !test && c->name[0] != '\0' ) {
-                test = token_match ( ftokens, c->name, is_not_ascii(c->title), case_sensitive, 0, NULL );
+                test = token_match ( ftokens, c->name, is_not_ascii(c->name), case_sensitive, 0, NULL );
             }
 
             if ( test == 0 ) {
