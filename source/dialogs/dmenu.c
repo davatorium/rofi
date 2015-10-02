@@ -59,7 +59,6 @@ typedef struct _DmenuModePrivateData
 
 static char **get_dmenu ( unsigned int *length )
 {
-    GTimer *t = g_timer_new ();
     char   buffer[1024];
     char   **retv = NULL;
 
@@ -81,8 +80,6 @@ static char **get_dmenu ( unsigned int *length )
             return retv;
         }
     }
-    g_timer_stop ( t );
-    printf ( "%.4f\n", g_timer_elapsed ( t, NULL ) );
     return retv;
 }
 
