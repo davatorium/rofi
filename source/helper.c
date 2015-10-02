@@ -345,11 +345,28 @@ static int normal_token_match ( char **tokens, const char *input, int case_sensi
     g_free ( compk );
     return match;
 }
+static int glob_token_match ( char **tokens, const char *input, int case_sensitive )
+{
+    int  match  = 1;
+    char *compk = token_collate_key ( input, case_sensitive );
+
+    // Do a tokenized match.
+    if ( tokens ) {
+        for ( int j = 0; match && tokens[j]; j++ ) {
+            match = g_pattern_match_simple (  tokens[j], compk );
+        }
+    }
+    g_free ( compk );
+    return match;
+}
 int token_match ( char **tokens, const char *input, int case_sensitive,
                   __attribute__( ( unused ) ) unsigned int index,
                   __attribute__( ( unused ) ) Switcher *data )
 {
-    if ( config.fuzzy ) {
+    if ( config.glob ) {
+        return glob_token_match ( tokens, input, case_sensitive );
+    }
+    else if ( config.fuzzy ) {
         return fuzzy_token_match ( tokens, input, case_sensitive );
     }
     return normal_token_match ( tokens, input, case_sensitive );

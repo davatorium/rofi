@@ -129,7 +129,8 @@ Settings config = {
     /** Modi to combine into one view. */
     .combi_modi        = "window,run",
     /** Fuzzy matching. */
-    .fuzzy             = FALSE,
+    .fuzzy = FALSE,
+    .glob  = FALSE,
     /** Monitor */
     .monitor           =                                        -1,
     /** set line margin */

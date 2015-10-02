@@ -230,6 +230,7 @@ typedef struct _Settings
     char           *combi_modi;
     /** Fuzzy match */
     unsigned int   fuzzy;
+    unsigned int   glob;
     /** Monitors */
     int            monitor;
     /** Line margin */
