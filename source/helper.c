@@ -44,6 +44,10 @@
 static int  stored_argc   = 0;
 static char **stored_argv = NULL;
 
+// TODO: is this safe?
+#define NON_ASCII_NON_NULL( x ) ( ((x) < 0) )
+#define ASCII_NON_NULL( x ) ( ((x) > 0) )
+
 void cmd_set_arguments ( int argc, char **argv )
 {
     stored_argc = argc;
@@ -316,7 +320,7 @@ static void advance_unicode_glyph( char** token_in, char** input_in ) {
   char *token = *token_in;
   char *input = *input_in;
 
-  while (*token < 0) {
+  while (NON_ASCII_NON_NULL(*token)) {
     token++;
   }
 
@@ -534,7 +538,7 @@ void config_sanity_check (  )
 
 int is_not_ascii ( const char * str )
 {
-   while (*str > 0) {
+   while (ASCII_NON_NULL(*str)) {
      str++;
    }
    if (*str) return 1;
