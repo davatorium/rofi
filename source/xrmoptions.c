@@ -123,6 +123,7 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "combi-modi",           { .str  = &config.combi_modi              }, NULL },
     { xrm_Boolean, "fuzzy",                { .num  = &config.fuzzy                   }, NULL },
     { xrm_Boolean, "glob",                 { .num  = &config.glob                    }, NULL },
+    { xrm_Boolean, "tokenize",             { .num  = &config.tokenize                }, NULL },
     { xrm_Number,  "monitor",              { .snum = &config.monitor                 }, NULL },
     /* Alias for dmenu compatibility. */
     { xrm_SNumber, "m",                    { .snum = &config.monitor                 }, NULL },

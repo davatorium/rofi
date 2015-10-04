@@ -59,8 +59,8 @@ typedef struct _DmenuModePrivateData
 
 static char **get_dmenu ( unsigned int *length )
 {
-    char   buffer[1024];
-    char   **retv = NULL;
+    char buffer[1024];
+    char **retv = NULL;
 
     *length = 0;
 

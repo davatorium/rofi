@@ -129,8 +129,9 @@ Settings config = {
     /** Modi to combine into one view. */
     .combi_modi        = "window,run",
     /** Fuzzy matching. */
-    .fuzzy = FALSE,
-    .glob  = FALSE,
+    .fuzzy    = FALSE,
+    .glob     = FALSE,
+    .tokenize = FALSE,
     /** Monitor */
     .monitor           =                                        -1,
     /** set line margin */

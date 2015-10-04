@@ -176,8 +176,21 @@ char **tokenize ( const char *input, int case_sensitive )
 
     char *saveptr = NULL, *token;
     char **retv   = NULL;
+    if ( !config.tokenize ) {
+        retv = g_malloc0 ( sizeof ( char* ) * 2 );
+        if ( config.glob ) {
+            token                   = g_strconcat ( input, "*", NULL );
+            retv[0]                 = token_collate_key ( token, case_sensitive );
+            g_free ( token ); token = NULL;
+        }
+        else{
+            token = token_collate_key ( input, case_sensitive );
+        }
+        return retv;
+    }
+
     // First entry is always full (modified) stringtext.
-    int  num_tokens = 0;
+    int num_tokens = 0;
 
     // Copy the string, 'strtok_r' modifies it.
     char *str = g_strdup ( input );
@@ -185,8 +198,15 @@ char **tokenize ( const char *input, int case_sensitive )
     // Iterate over tokens.
     // strtok should still be valid for utf8.
     for ( token = strtok_r ( str, " ", &saveptr ); token != NULL; token = strtok_r ( NULL, " ", &saveptr ) ) {
-        retv                 = g_realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
-        retv[num_tokens]     = token_collate_key ( token, case_sensitive );
+        retv = g_realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
+        if ( config.glob ) {
+            char *t = token_collate_key ( token, case_sensitive );
+            retv[num_tokens] = g_strconcat ( t, "*", NULL );
+            g_free ( t );
+        }
+        else {
+            retv[num_tokens] = token_collate_key ( token, case_sensitive );
+        }
         retv[num_tokens + 1] = NULL;
         num_tokens++;
     }
