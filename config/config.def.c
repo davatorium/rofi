@@ -131,7 +131,7 @@ Settings config = {
     /** Fuzzy matching. */
     .fuzzy    = FALSE,
     .glob     = FALSE,
-    .tokenize = FALSE,
+    .tokenize = TRUE,
     /** Monitor */
     .monitor           =                                        -1,
     /** set line margin */
