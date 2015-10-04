@@ -184,7 +184,7 @@ char **tokenize ( const char *input, int case_sensitive )
             g_free ( token ); token = NULL;
         }
         else{
-            token = token_collate_key ( input, case_sensitive );
+            retv[0] = token_collate_key ( input, case_sensitive );
         }
         return retv;
     }
