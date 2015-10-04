@@ -113,7 +113,6 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "run-shell-command",    { .str  = &config.run_shell_command       }, NULL },
 
     { xrm_Boolean, "disable-history",      { .num  = &config.disable_history         }, NULL },
-    { xrm_Boolean, "levenshtein-sort",     { .num  = &config.levenshtein_sort        }, NULL },
     { xrm_Boolean, "case-sensitive",       { .num  = &config.case_sensitive          }, NULL },
     { xrm_Boolean, "sidebar-mode",         { .num  = &config.sidebar_mode            }, NULL },
     { xrm_Number,  "lazy-filter-limit",    { .num  = &config.lazy_filter_limit       }, NULL },

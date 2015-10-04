@@ -141,59 +141,6 @@ static inline MainLoopEvent wait_for_xevent_or_timeout ( Display *display, int x
  * Levenshtein Sorting.
  */
 
-static int lev_sort ( const void *p1, const void *p2, void *arg )
-{
-    const int *a         = p1;
-    const int *b         = p2;
-    int       *distances = arg;
-
-    return distances[*a] - distances[*b];
-}
-
-static int dist ( const char *s, const char *t, int *d, int ls, int lt, int i, int j )
-{
-    if ( d[i * ( lt + 1 ) + j] >= 0 ) {
-        return d[i * ( lt + 1 ) + j];
-    }
-
-    int x;
-    if ( i == ls ) {
-        x = lt - j;
-    }
-    else if ( j == lt ) {
-        x = ls - i;
-    }
-    else if ( s[i] == t[j] ) {
-        x = dist ( s, t, d, ls, lt, i + 1, j + 1 );
-    }
-    else {
-        x = dist ( s, t, d, ls, lt, i + 1, j + 1 );
-
-        int y;
-        if ( ( y = dist ( s, t, d, ls, lt, i, j + 1 ) ) < x ) {
-            x = y;
-        }
-        if ( ( y = dist ( s, t, d, ls, lt, i + 1, j ) ) < x ) {
-            x = y;
-        }
-        x++;
-    }
-    return d[i * ( lt + 1 ) + j] = x;
-}
-static int levenshtein ( const char *s, const char *t )
-{
-    int    ls           = strlen ( s ), lt = strlen ( t );
-    size_t array_length = ( ls + 1 ) * ( lt + 1 );
-
-    // For some reason Coverity does not get that I initialize the
-    // array in for loop.
-    int d[array_length];
-    for ( size_t i = 0; i < array_length; i++ ) {
-        d[i] = -1;
-    }
-
-    return dist ( s, t, d, ls, lt, 0, 0 );
-}
 
 // State of the menu.
 
@@ -224,7 +171,6 @@ typedef struct MenuState
     textbox      *case_indicator;
     textbox      **boxes;
     scrollbar    *scrollbar;
-    int          *distance;
     unsigned int *line_map;
 
     unsigned int num_lines;
@@ -306,7 +252,6 @@ static void menu_free_state ( MenuState *state )
 
     g_free ( state->boxes );
     g_free ( state->line_map );
-    g_free ( state->distance );
 }
 
 /**
@@ -729,14 +674,8 @@ static void menu_refilter ( MenuState *state )
             // If each token was matched, add it to list.
             if ( match ) {
                 state->line_map[j] = i;
-                if ( config.levenshtein_sort ) {
-                    state->distance[i] = levenshtein ( state->text->text, state->lines[i] );
-                }
                 j++;
             }
-        }
-        if ( config.levenshtein_sort ) {
-            g_qsort_with_data ( state->line_map, j, sizeof ( int ), lev_sort, state->distance );
         }
 
         // Cleanup + bookkeeping.
@@ -999,7 +938,6 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         .prev_key          =             0,
         .last_button_press =             0,
         .last_offset       =             0,
-        .distance          = NULL,
         .quit              = FALSE,
         .skip_absorb       = FALSE,
         .filtered_lines    =             0,
@@ -1111,9 +1049,6 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     scrollbar_set_max_value ( state.scrollbar, state.num_lines );
     // filtered list
     state.line_map = g_malloc0_n ( state.num_lines, sizeof ( unsigned int ) );
-    if ( config.levenshtein_sort ) {
-        state.distance = (int *) g_malloc0_n ( state.num_lines, sizeof ( int ) );
-    }
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
@@ -1406,7 +1341,6 @@ void error_dialog ( const char *msg, int markup )
         .last_button_press =           0,
         .last_offset       =           0,
         .num_lines         =           0,
-        .distance          = NULL,
         .quit              = FALSE,
         .skip_absorb       = FALSE,
         .filtered_lines    =           0,
