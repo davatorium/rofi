@@ -272,7 +272,12 @@ static void texbox_update ( textbox *tb )
             int tw = textbox_get_font_width ( tb );
             x = (  ( tb->w - tw - 2 * SIDE_MARGIN ) ) / 2;
         }
-        y = (   ( tb->h - textbox_get_font_height ( tb ) ) ) / 2;
+        short fh = textbox_get_font_height ( tb );
+        if(fh > tb->h) {
+            y=0;
+        }else {
+            y = (   ( tb->h - fh ) ) / 2;
+        }
 
         // Set ARGB
         Color col = tb->color_bg;
