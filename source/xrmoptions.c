@@ -113,7 +113,6 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "run-shell-command",    { .str  = &config.run_shell_command       }, NULL },
 
     { xrm_Boolean, "disable-history",      { .num  = &config.disable_history         }, NULL },
-    { xrm_Boolean, "levenshtein-sort",     { .num  = &config.levenshtein_sort        }, NULL },
     { xrm_Boolean, "case-sensitive",       { .num  = &config.case_sensitive          }, NULL },
     { xrm_Boolean, "sidebar-mode",         { .num  = &config.sidebar_mode            }, NULL },
     { xrm_Number,  "lazy-filter-limit",    { .num  = &config.lazy_filter_limit       }, NULL },
@@ -122,6 +121,8 @@ static XrmOption xrmOptions[] = {
     { xrm_Boolean, "parse-hosts",          { .num  = &config.parse_hosts             }, NULL },
     { xrm_String,  "combi-modi",           { .str  = &config.combi_modi              }, NULL },
     { xrm_Boolean, "fuzzy",                { .num  = &config.fuzzy                   }, NULL },
+    { xrm_Boolean, "glob",                 { .num  = &config.glob                    }, NULL },
+    { xrm_Boolean, "tokenize",             { .num  = &config.tokenize                }, NULL },
     { xrm_Number,  "monitor",              { .snum = &config.monitor                 }, NULL },
     /* Alias for dmenu compatibility. */
     { xrm_SNumber, "m",                    { .snum = &config.monitor                 }, NULL },

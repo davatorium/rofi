@@ -210,8 +210,6 @@ typedef struct _Settings
     unsigned int   fixed_num_lines;
     /** Do not use history */
     unsigned int   disable_history;
-    /** Use levenshtein sorting when matching */
-    unsigned int   levenshtein_sort;
     /** Search case sensitivity */
     unsigned int   case_sensitive;
     /** Separator to use for dmenu mode */
@@ -230,6 +228,8 @@ typedef struct _Settings
     char           *combi_modi;
     /** Fuzzy match */
     unsigned int   fuzzy;
+    unsigned int   glob;
+    unsigned int   tokenize;
     /** Monitors */
     int            monitor;
     /** Line margin */

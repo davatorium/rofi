@@ -110,8 +110,6 @@ Settings config = {
     .fixed_num_lines   = FALSE,
     /** Do not use history */
     .disable_history   = FALSE,
-    /** Use levenshtein sorting when matching */
-    .levenshtein_sort  = FALSE,
     /** Case sensitivity of the search */
     .case_sensitive    = FALSE,
     /** Separator to use for dmenu mode */
@@ -129,7 +127,9 @@ Settings config = {
     /** Modi to combine into one view. */
     .combi_modi        = "window,run",
     /** Fuzzy matching. */
-    .fuzzy             = FALSE,
+    .fuzzy    = FALSE,
+    .glob     = FALSE,
+    .tokenize = TRUE,
     /** Monitor */
     .monitor           =                                        -1,
     /** set line margin */

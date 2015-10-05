@@ -666,7 +666,6 @@ void textbox_setup ( Display *display )
 
 void textbox_cleanup ( void )
 {
-    printf ( "cleanup\n" );
     if ( p_context ) {
         g_object_unref ( p_context );
         p_context = NULL;
