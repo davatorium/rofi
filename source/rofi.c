@@ -141,7 +141,6 @@ static inline MainLoopEvent wait_for_xevent_or_timeout ( Display *display, int x
  * Levenshtein Sorting.
  */
 
-
 // State of the menu.
 
 typedef struct MenuState
@@ -191,16 +190,17 @@ typedef struct MenuState
     MenuReturn   retv;
     char         **lines;
     int          line_height;
+    unsigned int border;
 }MenuState;
 
 static Window create_window ( Display *display )
 {
     XSetWindowAttributes attr;
     attr.colormap         = map;
-    attr.border_pixel     = color_border ( display );
-    attr.background_pixel = color_background ( display );
+    attr.border_pixel     = 0;
+    attr.background_pixel = 0;
 
-    Window box = XCreateWindow ( display, DefaultRootWindow ( display ), 0, 0, 200, 100, config.menu_bw, vinfo.depth, InputOutput,
+    Window box = XCreateWindow ( display, DefaultRootWindow ( display ), 0, 0, 200, 100, 0, vinfo.depth, InputOutput,
                                  vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
     XSelectInput (
         display,
@@ -263,8 +263,8 @@ static void menu_free_state ( MenuState *state )
 static void calculate_window_position ( MenuState *state, const workarea *mon )
 {
     // Default location is center.
-    state->y = mon->y + ( mon->h - state->h - config.menu_bw * 2 ) / 2;
-    state->x = mon->x + ( mon->w - state->w - config.menu_bw * 2 ) / 2;
+    state->y = mon->y + ( mon->h - state->h ) / 2;
+    state->x = mon->x + ( mon->w - state->w ) / 2;
     // Determine window location
     switch ( config.location )
     {
@@ -276,15 +276,15 @@ static void calculate_window_position ( MenuState *state, const workarea *mon )
     case WL_NORTH_EAST:
         state->y = mon->y;
     case WL_EAST:
-        state->x = mon->x + mon->w - state->w - config.menu_bw * 2;
+        state->x = mon->x + mon->w - state->w;
         break;
     case WL_EAST_SOUTH:
-        state->x = mon->x + mon->w - state->w - config.menu_bw * 2;
+        state->x = mon->x + mon->w - state->w;
     case WL_SOUTH:
-        state->y = mon->y + mon->h - state->h - config.menu_bw * 2;
+        state->y = mon->y + mon->h - state->h;
         break;
     case WL_SOUTH_WEST:
-        state->y = mon->y + mon->h - state->h - config.menu_bw * 2;
+        state->y = mon->y + mon->h - state->h;
     case WL_WEST:
         state->x = mon->x;
         break;
@@ -343,19 +343,15 @@ static void menu_calculate_window_and_element_width ( MenuState *state, workarea
     if ( config.menu_width < 0 ) {
         double fw = textbox_get_estimated_char_width ( );
         state->w  = -( fw * config.menu_width );
-        state->w += 2 * config.padding + 4; // 4 = 2*SIDE_MARGIN
-        // Compensate for border width.
-        state->w -= config.menu_bw * 2;
+        state->w += 2 * state->border + 4; // 4 = 2*SIDE_MARGIN
     }
     else{
         // Calculate as float to stop silly, big rounding down errors.
         state->w = config.menu_width < 101 ? ( mon->w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
-        // Compensate for border width.
-        state->w -= config.menu_bw * 2;
     }
 
     if ( state->columns > 0 ) {
-        state->element_width = state->w - ( 2 * ( config.padding ) );
+        state->element_width = state->w - ( 2 * ( state->border ) );
         // Divide by the # columns
         state->element_width = ( state->element_width - ( state->columns - 1 ) * config.line_margin ) / state->columns;
     }
@@ -733,7 +729,7 @@ static void menu_draw ( MenuState *state, cairo_t *d )
     scrollbar_set_handle_length ( state->scrollbar, columns * state->max_rows );
     scrollbar_draw ( state->scrollbar, d );
     // Element width.
-    unsigned int element_width = state->w - ( 2 * ( config.padding ) );
+    unsigned int element_width = state->w - ( 2 * ( state->border ) );
     if ( state->scrollbar != NULL ) {
         element_width -= state->scrollbar->w;
     }
@@ -743,7 +739,7 @@ static void menu_draw ( MenuState *state, cairo_t *d )
 
     int          element_height = state->line_height * config.element_height;
     int          y_offset       = state->top_offset;
-    int          x_offset       = config.padding;
+    int          x_offset       = state->border;
     // Calculate number of visible rows.
     unsigned int max_elements = MIN ( a_lines, state->max_rows * columns );
 
@@ -785,15 +781,22 @@ static void menu_update ( MenuState *state )
     cairo_t         *d    = cairo_create ( surf );
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
     // Paint the background.
-    unsigned pixel = color_background ( display );
-
-    cairo_set_source_rgba ( d,
-                            ( ( pixel & 0x00FF0000 ) >> 16 ) / 256.0,
-                            ( ( pixel & 0x0000FF00 ) >> 8 ) / 256.0,
-                            ( ( pixel & 0x000000FF ) >> 0 ) / 256.0,
-                            ( ( pixel & 0xFF000000 ) >> 24 ) / 256.0
-                            );
+    color_background ( display, d );
     cairo_paint ( d );
+    color_border ( display, d );
+
+    if ( config.menu_bw > 0 ) {
+        cairo_save ( d );
+        cairo_set_line_width ( d, config.menu_bw );
+        cairo_rectangle ( d,
+                          config.menu_bw / 2.0,
+                          config.menu_bw / 2.0,
+                          state->w - config.menu_bw,
+                          state->h - config.menu_bw );
+        cairo_stroke ( d );
+        cairo_restore ( d );
+    }
+
     // Always paint as overlay over the background.
     cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
 
@@ -804,31 +807,25 @@ static void menu_update ( MenuState *state )
     if ( state->message_tb ) {
         textbox_draw ( state->message_tb, d );
     }
-    pixel = color_separator ( display );
+    color_separator ( display, d );
 
-    cairo_set_source_rgba ( d,
-                            ( ( pixel & 0x00FF0000 ) >> 16 ) / 256.0,
-                            ( ( pixel & 0x0000FF00 ) >> 8 ) / 256.0,
-                            ( ( pixel & 0x000000FF ) >> 0 ) / 256.0,
-                            ( ( pixel & 0xFF000000 ) >> 24 ) / 256.0
-                            );
     if ( strcmp ( config.separator_style, "none" ) ) {
         if ( strcmp ( config.separator_style, "dash" ) == 0 ) {
             const double dashes[1] = { 4 };
             cairo_set_dash ( d, dashes, 1, 0.0 );
         }
-        cairo_move_to ( d, 0, state->line_height + ( config.padding ) * 1 + config.line_margin + 1 );
-        cairo_line_to ( d, state->w, state->line_height + ( config.padding ) * 1 + config.line_margin + 1 );
+        cairo_move_to ( d, config.menu_bw, state->line_height + ( state->border ) * 1 + config.line_margin + 1 );
+        cairo_line_to ( d, state->w - config.menu_bw, state->line_height + ( state->border ) * 1 + config.line_margin + 1 );
         cairo_stroke ( d );
         if ( state->message_tb ) {
-            cairo_move_to ( d, 0, state->top_offset - ( config.line_margin ) - 1 );
-            cairo_line_to ( d, state->w, state->top_offset - ( config.line_margin ) - 1 );
+            cairo_move_to ( d, config.menu_bw, state->top_offset - ( config.line_margin ) - 1 );
+            cairo_line_to ( d, state->w - config.menu_bw, state->top_offset - ( config.line_margin ) - 1 );
             cairo_stroke ( d );
         }
 
         if ( config.sidebar_mode == TRUE ) {
-            cairo_move_to ( d, 0, state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin );
-            cairo_line_to ( d, state->w, state->h - state->line_height - ( config.padding ) * 1 - 1 - config.line_margin );
+            cairo_move_to ( d, config.menu_bw, state->h - state->line_height - ( state->border ) * 1 - 1 - config.line_margin );
+            cairo_line_to ( d, state->w - config.menu_bw, state->h - state->line_height - ( state->border ) * 1 - 1 - config.line_margin );
             cairo_stroke ( d );
         }
     }
@@ -881,12 +878,12 @@ static void menu_paste ( MenuState *state, XSelectionEvent *xse )
 static void menu_resize ( MenuState *state )
 {
     unsigned int sbw = config.line_margin + 8;
-    scrollbar_move ( state->scrollbar, state->w - config.padding - sbw, state->top_offset );
+    scrollbar_move ( state->scrollbar, state->w - state->border - sbw, state->top_offset );
     if ( config.sidebar_mode == TRUE ) {
-        int width = ( state->w - ( 2 * ( config.padding ) + ( num_switchers - 1 ) * config.line_margin ) ) / num_switchers;
+        int width = ( state->w - ( 2 * ( state->border ) + ( num_switchers - 1 ) * config.line_margin ) ) / num_switchers;
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
-            textbox_moveresize ( switchers[j].tb, config.padding + j * ( width + config.line_margin ),
-                                 state->h - state->line_height - config.padding, width, state->line_height );
+            textbox_moveresize ( switchers[j].tb, state->border + j * ( width + config.line_margin ),
+                                 state->h - state->line_height - state->border, width, state->line_height );
             textbox_draw ( switchers[j].tb, draw );
         }
     }
@@ -899,7 +896,7 @@ static void menu_resize ( MenuState *state )
         // Calculated new number of boxes.
         unsigned int h = ( state->h - state->top_offset );
         if ( config.sidebar_mode == TRUE ) {
-            h -= state->line_height + config.padding;
+            h -= state->line_height + state->border;
         }
         state->max_rows     = ( h / element_height );
         state->max_elements = state->max_rows * config.menu_columns;
@@ -911,7 +908,7 @@ static void menu_resize ( MenuState *state )
         state->boxes = g_realloc ( state->boxes, state->max_elements * sizeof ( textbox* ) );
 
         int y_offset = state->top_offset;
-        int x_offset = config.padding;
+        int x_offset = state->border;
         int rstate   = 0;
         if ( config.markup_rows ) {
             rstate = TB_MARKUP;
@@ -947,7 +944,8 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         .update     = FALSE,
         .rchanged   = TRUE,
         .cur_page   =            -1,
-        .top_offset = 0
+        .top_offset =             0,
+        .border     = config.padding + config.menu_bw
     };
     // Request the lines to show.
     state.lines = sw->get_data ( &( state.num_lines ), sw );
@@ -979,12 +977,12 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
 
     // we need this at this point so we can get height.
     state.line_height    = textbox_get_estimated_char_height ();
-    state.case_indicator = textbox_create ( TB_AUTOWIDTH, ( config.padding ), ( config.padding ),
+    state.case_indicator = textbox_create ( TB_AUTOWIDTH, ( state.border ), ( state.border ),
                                             0, state.line_height, NORMAL, "*" );
     // Height of a row.
     if ( config.menu_lines == 0 ) {
         // Autosize it.
-        int h = mon.h - config.padding * 2 - config.line_margin - config.menu_bw * 2;
+        int h = mon.h - state.border * 2 - config.line_margin;
         int r = ( h ) / ( state.line_height * config.element_height ) - 1 - config.sidebar_mode;
         state.menu_lines = r;
     }
@@ -995,20 +993,20 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     menu_calculate_window_and_element_width ( &state, &mon );
 
     // Prompt box.
-    state.prompt_tb = textbox_create ( TB_AUTOWIDTH, ( config.padding ), ( config.padding ),
+    state.prompt_tb = textbox_create ( TB_AUTOWIDTH, ( state.border ), ( state.border ),
                                        0, state.line_height, NORMAL, prompt );
     // Entry box
-    int entrybox_width = state.w - ( 2 * ( config.padding ) ) - textbox_get_width ( state.prompt_tb )
+    int entrybox_width = state.w - ( 2 * ( state.border ) ) - textbox_get_width ( state.prompt_tb )
                          - textbox_get_width ( state.case_indicator );
 
     state.text = textbox_create ( TB_EDITABLE,
-                                  ( config.padding ) + textbox_get_width ( state.prompt_tb ), ( config.padding ),
+                                  ( state.border ) + textbox_get_width ( state.prompt_tb ), ( state.border ),
                                   entrybox_width, state.line_height, NORMAL, *input );
 
-    state.top_offset = config.padding * 1 + state.line_height + 2 + config.line_margin * 2;
+    state.top_offset = state.border * 1 + state.line_height + 2 + config.line_margin * 2;
 
     // Move indicator to end.
-    textbox_move ( state.case_indicator, config.padding + textbox_get_width ( state.prompt_tb ) + entrybox_width, config.padding );
+    textbox_move ( state.case_indicator, state.border + textbox_get_width ( state.prompt_tb ) + entrybox_width, state.border );
 
     if ( config.case_sensitive ) {
         textbox_text ( state.case_indicator, "*" );
@@ -1019,7 +1017,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     state.message_tb = NULL;
     if ( message ) {
         state.message_tb = textbox_create ( TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP,
-                                            ( config.padding ), state.top_offset, state.w - ( 2 * ( config.padding ) ),
+                                            ( state.border ), state.top_offset, state.w - ( 2 * ( state.border ) ),
                                             -1, NORMAL, message );
         state.top_offset += textbox_get_height ( state.message_tb );
         state.top_offset += config.line_margin * 2 + 2;
@@ -1030,7 +1028,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     state.boxes = g_malloc0_n ( state.max_elements, sizeof ( textbox* ) );
 
     int y_offset = state.top_offset;
-    int x_offset = config.padding;
+    int x_offset = state.border;
 
     int rstate = 0;
     if ( config.markup_rows ) {
@@ -1042,7 +1040,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     }
     if ( !config.hide_scrollbar ) {
         unsigned int sbw = config.line_margin + 8;
-        state.scrollbar = scrollbar_create ( state.w - config.padding - sbw, state.top_offset,
+        state.scrollbar = scrollbar_create ( state.w - state.border - sbw, state.top_offset,
                                              sbw, ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + element_height );
     }
 
@@ -1053,7 +1051,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     // resize window vertically to suit
     // Subtract the margin of the last row.
     state.h  = state.top_offset + ( element_height + config.line_margin ) * ( state.max_rows ) - config.line_margin;
-    state.h += config.padding;
+    state.h += state.border;
     state.h += 0;
     // Add entry
     if ( config.sidebar_mode == TRUE ) {
@@ -1062,17 +1060,17 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
 
     // Sidebar mode.
     if ( config.menu_lines == 0 ) {
-        state.h = mon.h - config.menu_bw * 2;
+        state.h = mon.h;
     }
 
     // Move the window to the correct x,y position.
     calculate_window_position ( &state, &mon );
 
     if ( config.sidebar_mode == TRUE ) {
-        int width = ( state.w - ( 2 * ( config.padding ) + ( num_switchers - 1 ) * config.line_margin ) ) / num_switchers;
+        int width = ( state.w - ( 2 * ( state.border ) + ( num_switchers - 1 ) * config.line_margin ) ) / num_switchers;
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
-            switchers[j].tb = textbox_create ( TB_CENTER, config.padding + j * ( width + config.line_margin ),
-                                               state.h - state.line_height - config.padding, width, state.line_height,
+            switchers[j].tb = textbox_create ( TB_CENTER, state.border + j * ( width + config.line_margin ),
+                                               state.h - state.line_height - state.border, width, state.line_height,
                                                ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, switchers[j].sw->name );
         }
     }
@@ -1370,12 +1368,12 @@ void error_dialog ( const char *msg, int markup )
     state.max_elements = 0;
 
     state.text = textbox_create ( TB_AUTOHEIGHT | TB_WRAP + ( ( markup ) ? TB_MARKUP : 0 ),
-                                  ( config.padding ), ( config.padding ),
-                                  ( state.w - ( 2 * ( config.padding ) ) ), 1, NORMAL, ( msg != NULL ) ? msg : "" );
+                                  ( state.border ), ( state.border ),
+                                  ( state.w - ( 2 * ( state.border ) ) ), 1, NORMAL, ( msg != NULL ) ? msg : "" );
     state.line_height = textbox_get_height ( state.text );
 
     // resize window vertically to suit
-    state.h = state.line_height + ( config.padding ) * 2;
+    state.h = state.line_height + ( state.border ) * 2;
 
     // Move the window to the correct x,y position.
     calculate_window_position ( &state, &mon );

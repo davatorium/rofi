@@ -536,57 +536,62 @@ unsigned int color_get ( Display *display, const char *const name, const char * 
         return color.pixel;
     }
 }
-
-unsigned int color_background ( Display *display )
+void x11_helper_set_cairo_rgba ( cairo_t *d, unsigned int pixel )
 {
+    cairo_set_source_rgba ( d,
+                            ( ( pixel & 0x00FF0000 ) >> 16 ) / 256.0,
+                            ( ( pixel & 0x0000FF00 ) >> 8 ) / 256.0,
+                            ( ( pixel & 0x000000FF ) >> 0 ) / 256.0,
+                            ( ( pixel & 0xFF000000 ) >> 24 ) / 256.0
+                            );
+}
+void color_background ( Display *display, cairo_t *d )
+{
+    unsigned int pixel = 0;
     if ( !config.color_enabled ) {
-        return color_get ( display, config.menu_bg, "black" );
+        pixel = color_get ( display, config.menu_bg, "black" );
     }
     else {
-        unsigned int retv = 0;
-
-        gchar        **vals = g_strsplit ( config.color_window, ",", 3 );
+        gchar **vals = g_strsplit ( config.color_window, ",", 3 );
         if ( vals != NULL && vals[0] != NULL ) {
-            retv = color_get ( display, g_strstrip ( vals[0] ), "black" );
+            pixel = color_get ( display, g_strstrip ( vals[0] ), "black" );
         }
         g_strfreev ( vals );
-        return retv;
     }
+    x11_helper_set_cairo_rgba ( d, pixel );
 }
 
-unsigned int color_border ( Display *display )
+void color_border ( Display *display, cairo_t *d  )
 {
+    unsigned int pixel = 0;
     if ( !config.color_enabled ) {
-        return color_get ( display, config.menu_bc, "white" );
+        pixel = color_get ( display, config.menu_bc, "white" );
     }
     else {
-        unsigned int retv = 0;
-
-        gchar        **vals = g_strsplit ( config.color_window, ",", 3 );
+        gchar **vals = g_strsplit ( config.color_window, ",", 3 );
         if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
-            retv = color_get ( display, vals[1], "white" );
+            pixel = color_get ( display, vals[1], "white" );
         }
         g_strfreev ( vals );
-        return retv;
     }
+    x11_helper_set_cairo_rgba ( d, pixel );
 }
 
-unsigned int color_separator ( Display *display )
+void color_separator ( Display *display, cairo_t *d )
 {
+    unsigned int pixel = 0;
     if ( !config.color_enabled ) {
-        return color_get ( display, config.menu_bc, "white" );
+        pixel = color_get ( display, config.menu_bc, "white" );
     }
     else {
-        unsigned int retv = 0;
-
-        gchar        **vals = g_strsplit ( config.color_window, ",", 3 );
+        gchar **vals = g_strsplit ( config.color_window, ",", 3 );
         if ( vals != NULL && vals[0] != NULL && vals[1] != NULL && vals[2] != NULL  ) {
-            retv = color_get ( display, vals[2], "white" );
+            pixel = color_get ( display, vals[2], "white" );
         }
         else if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
-            retv = color_get ( display, vals[1], "white" );
+            pixel = color_get ( display, vals[1], "white" );
         }
         g_strfreev ( vals );
-        return retv;
     }
+    x11_helper_set_cairo_rgba ( d, pixel );
 }

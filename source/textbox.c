@@ -273,9 +273,10 @@ static void texbox_update ( textbox *tb )
             x = (  ( tb->w - tw - 2 * SIDE_MARGIN ) ) / 2;
         }
         short fh = textbox_get_font_height ( tb );
-        if(fh > tb->h) {
-            y=0;
-        }else {
+        if ( fh > tb->h ) {
+            y = 0;
+        }
+        else {
             y = (   ( tb->h - fh ) ) / 2;
         }
 

@@ -97,14 +97,8 @@ void scrollbar_draw ( scrollbar *sb, cairo_t *draw )
         // Cap length;
         height = MIN ( bh - y + 1, ( height ) );
         // Redraw base window
-        unsigned pixel = color_separator ( display );
+        color_separator ( display, draw );
 
-        cairo_set_source_rgba ( draw,
-                                ( ( pixel & 0x00FF0000 ) >> 16 ) / 256.0,
-                                ( ( pixel & 0x0000FF00 ) >> 8 ) / 256.0,
-                                ( ( pixel & 0x000000FF ) >> 0 ) / 256.0,
-                                ( ( pixel & 0xFF000000 ) >> 24 ) / 256.0
-                                );
         cairo_rectangle ( draw, sb->x + config.line_margin, sb->y + y, sb->w - config.line_margin, height );
         cairo_fill ( draw );
     }
