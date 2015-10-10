@@ -500,11 +500,13 @@ cairo_format_t get_format ( void )
 
 unsigned int color_get ( Display *display, const char *const name, const char * const defn )
 {
-    XColor color = { 0, 0, 0, 0, 0, 0 };
+    char   *copy  = g_strdup ( name );
+    char   *cname = g_strstrip ( copy );
+    XColor color  = { 0, 0, 0, 0, 0, 0 };
     XColor def;
     // Special format.
-    if ( strncmp ( name, "argb:", 5 ) == 0 ) {
-        color.pixel = strtoul ( &name[5], NULL, 16 );
+    if ( strncmp ( cname, "argb:", 5 ) == 0 ) {
+        color.pixel = strtoul ( &cname[5], NULL, 16 );
         color.red   = ( ( color.pixel & 0x00FF0000 ) >> 16 ) * 256;
         color.green = ( ( color.pixel & 0x0000FF00 ) >> 8  ) * 256;
         color.blue  = ( ( color.pixel & 0x000000FF )       ) * 256;
@@ -512,29 +514,28 @@ unsigned int color_get ( Display *display, const char *const name, const char * 
             // This will drop alpha part.
             Status st = XAllocColor ( display, map, &color );
             if ( st == None ) {
-                fprintf ( stderr, "Failed to parse color: '%s'\n", name );
+                fprintf ( stderr, "Failed to parse color: '%s'\n", cname );
                 st = XAllocNamedColor ( display, map, defn, &color, &def );
                 if ( st == None  ) {
                     fprintf ( stderr, "Failed to allocate fallback color\n" );
                     exit ( EXIT_FAILURE );
                 }
             }
-            return color.pixel;
         }
-        return color.pixel;
     }
     else {
-        Status st = XAllocNamedColor ( display, map, name, &color, &def );
+        Status st = XAllocNamedColor ( display, map, cname, &color, &def );
         if ( st == None ) {
-            fprintf ( stderr, "Failed to parse color: '%s'\n", name );
+            fprintf ( stderr, "Failed to parse color: '%s'\n", cname );
             st = XAllocNamedColor ( display, map, defn, &color, &def );
             if ( st == None  ) {
                 fprintf ( stderr, "Failed to allocate fallback color\n" );
                 exit ( EXIT_FAILURE );
             }
         }
-        return color.pixel;
     }
+    g_free ( copy );
+    return color.pixel;
 }
 void x11_helper_set_cairo_rgba ( cairo_t *d, unsigned int pixel )
 {
@@ -554,7 +555,7 @@ void color_background ( Display *display, cairo_t *d )
     else {
         gchar **vals = g_strsplit ( config.color_window, ",", 3 );
         if ( vals != NULL && vals[0] != NULL ) {
-            pixel = color_get ( display, g_strstrip ( vals[0] ), "black" );
+            pixel = color_get ( display, vals[0], "black" );
         }
         g_strfreev ( vals );
     }

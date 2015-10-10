@@ -574,38 +574,14 @@ int textbox_keypress ( textbox *tb, XIC xic, XEvent *ev )
 /***
  * Font setup.
  */
-extern Colormap map;
 static void parse_color ( Display *display, char *bg, Color *col )
 {
-    unsigned int val     = 0;
-    char         *endptr = NULL;
-    if ( bg == NULL ) {
-        return;
-    }
-    if ( strncmp ( bg, "argb:", 5 ) == 0 ) {
-        val        = strtoul ( &bg[5], &endptr, 16 );
-        col->alpha = ( ( val & 0xFF000000 ) >> 24 ) / 256.0;
-        col->red   = ( ( val & 0x00FF0000 ) >> 16 ) / 256.0;
-        col->green = ( ( val & 0x0000FF00 ) >> 8  ) / 256.0;
-        col->blue  = ( ( val & 0x000000FF )       ) / 256.0;
-    }
-    else if ( bg[0] == '#' ) {
-        val        = strtoul ( &bg[1], &endptr, 16 );
-        col->alpha = 1;
-        col->red   = ( ( val & 0x00FF0000 ) >> 16 ) / 256.0;
-        col->green = ( ( val & 0x0000FF00 ) >> 8  ) / 256.0;
-        col->blue  = ( ( val & 0x000000FF )       ) / 256.0;
-    }
-    else {
-        XColor def, color = { 0, 0, 0, 0, 0, 0 };
-        Status st = XAllocNamedColor ( display, map, bg, &color, &def );
-        if ( st != None ) {
-            col->alpha = 1;
-            col->red   = ( ( def.pixel & 0x00FF0000 ) >> 16 ) / 256.0;
-            col->green = ( ( def.pixel & 0x0000FF00 ) >> 8  ) / 256.0;
-            col->blue  = ( ( def.pixel & 0x000000FF )       ) / 256.0;
-        }
-    }
+    unsigned int val = 0;
+    val        = color_get ( display, bg, "white" );
+    col->alpha = ( ( val & 0xFF000000 ) >> 24 ) / 256.0;
+    col->red   = ( ( val & 0x00FF0000 ) >> 16 ) / 256.0;
+    col->green = ( ( val & 0x0000FF00 ) >> 8  ) / 256.0;
+    col->blue  = ( ( val & 0x000000FF )       ) / 256.0;
 }
 static void textbox_parse_string (  Display *display, const char *str, RowColor *color )
 {
