@@ -151,6 +151,7 @@ unsigned int color_get ( Display *display, const char *const name, const char * 
 void color_background ( Display *display, cairo_t *d );
 void color_border ( Display *display, cairo_t *d  );
 void color_separator ( Display *display, cairo_t *d );
+void color_cache_reset ( void );
 
 cairo_format_t get_format ( void );
 

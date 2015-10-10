@@ -546,53 +546,86 @@ void x11_helper_set_cairo_rgba ( cairo_t *d, unsigned int pixel )
                             ( ( pixel & 0xFF000000 ) >> 24 ) / 256.0
                             );
 }
+/**
+ * Color cache.
+ *
+ * This stores the current color until
+ */
+enum
+{
+    BACKGROUND,
+    BORDER,
+    SEPARATOR
+};
+struct
+{
+    unsigned int color;
+    unsigned int set;
+} color_cache[3] = {
+    { 0, FALSE },
+    { 0, FALSE },
+    { 0, FALSE }
+};
+void color_cache_reset ( void )
+{
+    color_cache[BACKGROUND].set = FALSE;
+    color_cache[BORDER].set     = FALSE;
+    color_cache[SEPARATOR].set  = FALSE;
+}
 void color_background ( Display *display, cairo_t *d )
 {
-    unsigned int pixel = 0;
-    if ( !config.color_enabled ) {
-        pixel = color_get ( display, config.menu_bg, "black" );
-    }
-    else {
-        gchar **vals = g_strsplit ( config.color_window, ",", 3 );
-        if ( vals != NULL && vals[0] != NULL ) {
-            pixel = color_get ( display, vals[0], "black" );
+    if ( !color_cache[BACKGROUND].set ) {
+        if ( !config.color_enabled ) {
+            color_cache[BACKGROUND].color = color_get ( display, config.menu_bg, "black" );
         }
-        g_strfreev ( vals );
+        else {
+            gchar **vals = g_strsplit ( config.color_window, ",", 3 );
+            if ( vals != NULL && vals[0] != NULL ) {
+                color_cache[BACKGROUND].color = color_get ( display, vals[0], "black" );
+            }
+            g_strfreev ( vals );
+        }
+        color_cache[BACKGROUND].set = TRUE;
     }
-    x11_helper_set_cairo_rgba ( d, pixel );
+
+    x11_helper_set_cairo_rgba ( d, color_cache[BACKGROUND].color );
 }
 
 void color_border ( Display *display, cairo_t *d  )
 {
-    unsigned int pixel = 0;
-    if ( !config.color_enabled ) {
-        pixel = color_get ( display, config.menu_bc, "white" );
-    }
-    else {
-        gchar **vals = g_strsplit ( config.color_window, ",", 3 );
-        if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
-            pixel = color_get ( display, vals[1], "white" );
+    if ( !color_cache[BORDER].set ) {
+        if ( !config.color_enabled ) {
+            color_cache[BORDER].color = color_get ( display, config.menu_bc, "white" );
         }
-        g_strfreev ( vals );
+        else {
+            gchar **vals = g_strsplit ( config.color_window, ",", 3 );
+            if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
+                color_cache[BORDER].color = color_get ( display, vals[1], "white" );
+            }
+            g_strfreev ( vals );
+        }
+        color_cache[BORDER].set = TRUE;
     }
-    x11_helper_set_cairo_rgba ( d, pixel );
+    x11_helper_set_cairo_rgba ( d, color_cache[BORDER].color );
 }
 
 void color_separator ( Display *display, cairo_t *d )
 {
-    unsigned int pixel = 0;
-    if ( !config.color_enabled ) {
-        pixel = color_get ( display, config.menu_bc, "white" );
-    }
-    else {
-        gchar **vals = g_strsplit ( config.color_window, ",", 3 );
-        if ( vals != NULL && vals[0] != NULL && vals[1] != NULL && vals[2] != NULL  ) {
-            pixel = color_get ( display, vals[2], "white" );
+    if ( !color_cache[SEPARATOR].set ) {
+        if ( !config.color_enabled ) {
+            color_cache[SEPARATOR].color = color_get ( display, config.menu_bc, "white" );
         }
-        else if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
-            pixel = color_get ( display, vals[1], "white" );
+        else {
+            gchar **vals = g_strsplit ( config.color_window, ",", 3 );
+            if ( vals != NULL && vals[0] != NULL && vals[1] != NULL && vals[2] != NULL  ) {
+                color_cache[SEPARATOR].color = color_get ( display, vals[2], "white" );
+            }
+            else if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
+                color_cache[SEPARATOR].color = color_get ( display, vals[1], "white" );
+            }
+            g_strfreev ( vals );
         }
-        g_strfreev ( vals );
+        color_cache[SEPARATOR].set = TRUE;
     }
-    x11_helper_set_cairo_rgba ( d, pixel );
+    x11_helper_set_cairo_rgba ( d, color_cache[SEPARATOR].color );
 }

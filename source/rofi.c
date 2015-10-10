@@ -1749,6 +1749,8 @@ static void print_global_keybindings ()
 static void reload_configuration ()
 {
     if ( find_arg ( "-no-config" ) < 0 ) {
+        // Reset the color cache
+        color_cache_reset ();
         // We need to open a new connection to X11, otherwise we get old
         // configuration
         Display *temp_display = XOpenDisplay ( display_str );
