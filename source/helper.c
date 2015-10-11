@@ -37,11 +37,16 @@
 #include <sys/types.h>
 #include <sys/file.h>
 #include <sys/stat.h>
+#include <ctype.h>
 #include "helper.h"
 #include "rofi.h"
 
 static int  stored_argc   = 0;
 static char **stored_argv = NULL;
+
+// TODO: is this safe?
+#define NON_ASCII_NON_NULL( x ) ( ((x) < 0) )
+#define ASCII_NON_NULL( x ) ( ((x) > 0) )
 
 void cmd_set_arguments ( int argc, char **argv )
 {
@@ -52,7 +57,7 @@ void cmd_set_arguments ( int argc, char **argv )
 /**
  *  `fgets` implementation with custom separator.
  */
-char* fgets_s ( char* s, int n, FILE *iop, char sep )
+char* fgets_s ( char* s, unsigned int n, FILE *iop, char sep )
 {
     // Map these to registers.
     register int c = EOF;
@@ -72,7 +77,7 @@ char* fgets_s ( char* s, int n, FILE *iop, char sep )
     *cs = '\0';
     // if last read was end of file and current index is start, we are done:
     // Return NULL.
-    return ( c == EOF && cs == s ) ? NULL : s;
+    return ( c == EOF && cs == s ) ? NULL : cs;
 }
 
 /**
@@ -326,49 +331,102 @@ int find_arg_char ( const char * const key, char *val )
     return FALSE;
 }
 
+/*
+ * auxiliary to `fuzzy-token-match' below;
+ */
+static void advance_unicode_glyph( char** token_in, char** input_in ) {
+  // determine the end of the glyph from token
+
+  char *token = *token_in;
+  char *input = *input_in;
+
+  while (NON_ASCII_NON_NULL(*token)) {
+    token++;
+  }
+
+  // now we know the glyph length, we can scan for that substring in input
+  // temporarily add a null-terminator in case:
+  char glyph_end = *token;
+  *token = 0;
+  char *match = strstr(input, *token_in);
+  *token = glyph_end;
+
+  if ( match ) {
+    *token_in = token;
+    *input_in = match;
+  } else {
+    // wind input along to the end so that we fail
+    while ( **input_in ) (*input_in)++;
+  }
+}
+
 /**
  * Shared 'token_match' function.
  * Matches tokenized.
  */
-static int fuzzy_token_match ( char **tokens, const char *input, int case_sensitive )
+static int fuzzy_token_match ( char **tokens, const char *input, __attribute__( (unused) ) int not_ascii,  int case_sensitive )
 {
     int  match  = 1;
-    char *compk = token_collate_key ( input, case_sensitive );
-    // Do a tokenized match.
-    if ( tokens ) {
-        for ( int j = 0; match && tokens[j]; j++ ) {
-            char *t        = compk;
-            int  token_len = strlen ( tokens[j] );
-            for ( int id = 0; match && t != NULL && id < token_len; id++ ) {
-                match = ( ( t = strchr ( t, tokens[j][id] ) ) != NULL );
-                // next should match the next character.
-                if ( t != NULL ) {
-                    t++;
-                }
-            }
-        }
-    }
-    g_free ( compk );
-    return match;
-}
-static int normal_token_match ( char **tokens, const char *input, int case_sensitive )
-{
-    int  match  = 1;
-    char *compk = token_collate_key ( input, case_sensitive );
 
     // Do a tokenized match.
+
+    // TODO: this doesn't work for unicode input, because it may split a codepoint which is over two bytes.
+    //       mind you, it didn't work before I fiddled with it.
+
+    // this could perhaps be a bit more efficient by iterating over all the tokens at once.
+
     if ( tokens ) {
+        char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : (char *) input;
         for ( int j = 0; match && tokens[j]; j++ ) {
-            match = ( strstr ( compk, tokens[j] ) != NULL );
+            char *t        = compk;
+            char *token    = tokens[j];
+
+            while (*t && *token) {
+              if ( *token > 0 ) // i.e. we are at an ascii codepoint
+                {
+                  if ( ( case_sensitive && (*t == *token)) ||
+                       (!case_sensitive && (tolower(*t) == tolower(*token))) )
+                    token++;
+                }
+              else
+                {
+                  // we are not at an ascii codepoint, and so we need to do something
+                  // complicated
+                  advance_unicode_glyph( &token, &t );
+                }
+              t++;
+            }
+
+            match = !(*token);
         }
+        if (not_ascii) g_free ( compk );
     }
-    g_free ( compk );
+
     return match;
 }
-static int glob_token_match ( char **tokens, const char *input, int case_sensitive )
+static int normal_token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive )
 {
     int  match  = 1;
-    char *compk = token_collate_key ( input, case_sensitive );
+
+    // Do a tokenized match.
+
+    if ( tokens ) {
+      char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : (char *) input;
+      char *(*comparison)(const char *, const char *);
+      comparison = (case_sensitive || not_ascii) ? strstr : strcasestr;
+      for ( int j = 0; match && tokens[j]; j++ ) {
+        match = (comparison( compk, tokens[j] ) != NULL );
+      }
+      if (not_ascii) g_free ( compk );
+    }
+
+    return match;
+}
+
+static int glob_token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive )
+{
+    int  match  = 1;
+    char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : (char *) input;
 
     // Do a tokenized match.
     if ( tokens ) {
@@ -376,20 +434,21 @@ static int glob_token_match ( char **tokens, const char *input, int case_sensiti
             match = g_pattern_match_simple (  tokens[j], compk );
         }
     }
-    g_free ( compk );
+    if (not_ascii) g_free ( compk );
     return match;
 }
-int token_match ( char **tokens, const char *input, int case_sensitive,
+
+int token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive,
                   __attribute__( ( unused ) ) unsigned int index,
                   __attribute__( ( unused ) ) Switcher *data )
 {
     if ( config.glob ) {
-        return glob_token_match ( tokens, input, case_sensitive );
+        return glob_token_match ( tokens, input, not_ascii, case_sensitive );
     }
     else if ( config.fuzzy ) {
-        return fuzzy_token_match ( tokens, input, case_sensitive );
+        return fuzzy_token_match ( tokens, input, not_ascii, case_sensitive );
     }
-    return normal_token_match ( tokens, input, case_sensitive );
+    return normal_token_match ( tokens, input, not_ascii, case_sensitive );
 }
 
 int execute_generator ( const char * cmd )
@@ -514,4 +573,13 @@ void config_sanity_check (  )
     if ( config.menu_bg_alt == NULL ) {
         config.menu_bg_alt = config.menu_bg;
     }
+}
+
+int is_not_ascii ( const char * str )
+{
+   while (ASCII_NON_NULL(*str)) {
+     str++;
+   }
+   if (*str) return 1;
+   return 0;
 }

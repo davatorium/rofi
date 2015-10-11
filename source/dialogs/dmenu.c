@@ -59,20 +59,32 @@ typedef struct _DmenuModePrivateData
 
 static char **get_dmenu ( unsigned int *length )
 {
-    char buffer[1024];
+    const unsigned int buf_size = 1024;
+    char buffer[buf_size];
     char **retv = NULL;
+    char *buffer_end = NULL;
+    unsigned int rvlength = 1;
 
     *length = 0;
 
-    while ( fgets_s ( buffer, 1024, stdin, (char) config.separator ) != NULL ) {
-        retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-        retv[( *length )]     = g_strdup ( buffer );
-        retv[( *length ) + 1] = NULL;
+    while ( ( buffer_end = fgets_s ( buffer, buf_size, stdin, (char) config.separator ) ) != NULL ) {
+        if (rvlength < (*length + 2)) {
+          rvlength *= 2;
+          retv      = g_realloc ( retv, ( rvlength ) * sizeof ( char* ) );
+        }
+
+        size_t blength = buffer_end - &(buffer[0]);
+
+        char *copy = g_malloc( blength + 1 );
+        memcpy(copy, buffer, blength);
 
         // Filter out line-end.
-        if ( retv[( *length )][strlen ( buffer ) - 1] == '\n' ) {
-            retv[( *length )][strlen ( buffer ) - 1] = '\0';
+        if ( copy[blength] == '\n' ) {
+            copy[blength] = '\0';
         }
+
+        retv[( *length )]     = copy;
+        retv[( *length ) + 1] = NULL;
 
         ( *length )++;
         // Stop when we hit 2³¹ entries.
@@ -80,6 +92,7 @@ static char **get_dmenu ( unsigned int *length )
             return retv;
         }
     }
+    retv      = g_realloc ( retv, ( *length + 1 ) * sizeof ( char* ) );
     return retv;
 }
 
@@ -303,7 +316,7 @@ int dmenu_switcher_dialog ( void )
         char         **tokens = tokenize ( select, config.case_sensitive );
         unsigned int i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
-            if ( token_match ( tokens, cmd_list[i], config.case_sensitive, 0, NULL ) ) {
+            if ( token_match ( tokens, cmd_list[i], is_not_ascii(cmd_list[i]), config.case_sensitive, 0, NULL ) ) {
                 pd->selected_line = i;
                 break;
             }

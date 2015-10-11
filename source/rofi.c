@@ -190,6 +190,7 @@ typedef struct MenuState
     unsigned int *selected_line;
     MenuReturn   retv;
     char         **lines;
+    int          *lines_not_ascii;
     int          line_height;
 }MenuState;
 
@@ -252,6 +253,7 @@ static void menu_free_state ( MenuState *state )
 
     g_free ( state->boxes );
     g_free ( state->line_map );
+    g_free ( state->lines_not_ascii );
 }
 
 /**
@@ -669,7 +671,7 @@ static void menu_refilter ( MenuState *state )
 
         // input changed
         for ( unsigned int i = 0; i < state->num_lines; i++ ) {
-            int match = state->sw->token_match ( tokens, state->lines[i], config.case_sensitive, i, state->sw );
+            int match = state->sw->token_match ( tokens, state->lines[i], state->lines_not_ascii[i], config.case_sensitive, i, state->sw );
 
             // If each token was matched, add it to list.
             if ( match ) {
@@ -688,6 +690,7 @@ static void menu_refilter ( MenuState *state )
         }
         state->filtered_lines = state->num_lines;
     }
+
     state->selected = MIN ( state->selected, state->filtered_lines - 1 );
 
     if ( config.auto_select == TRUE && state->filtered_lines == 1 && state->num_lines > 1 ) {
@@ -951,6 +954,14 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     };
     // Request the lines to show.
     state.lines = sw->get_data ( &( state.num_lines ), sw );
+    state.lines_not_ascii = g_malloc0_n( state.num_lines, sizeof( int ) );
+
+    // find out which lines contain non-ascii codepoints, so we can be faster in some cases.
+
+    for (unsigned int line = 0; state.lines[line]; line++) {
+      state.lines_not_ascii[line] = is_not_ascii(state.lines[line]);
+    }
+
     if ( next_pos ) {
         *next_pos = *selected_line;
     }

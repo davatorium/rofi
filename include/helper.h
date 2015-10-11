@@ -16,7 +16,7 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... );
 /**
  * Implementation of fgets with custom separator.
  */
-char* fgets_s ( char* s, int n, FILE *iop, char sep );
+char* fgets_s ( char* s, unsigned int n, FILE *iop, char sep );
 
 /**
  * @param token The string for which we want a collation key.
@@ -102,7 +102,7 @@ int find_arg ( const char * const key );
  *
  * @returns 1 when matches, 0 otherwise
  */
-int token_match ( char **tokens, const char *input, int case_sensitive,
+int token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive,
                   __attribute__( ( unused ) ) unsigned int index,
                   __attribute__( ( unused ) ) Switcher * data );
 
@@ -152,4 +152,11 @@ char helper_parse_char ( const char *arg );
  * Set the application arguments.
  */
 void cmd_set_arguments ( int argc, char **argv );
+
+/**
+ * @param str a UTF8 string
+ * @return 1 if the string contains any non-ascii codepoints
+ */
+int is_not_ascii ( const char *str );
+
 #endif // ROFI_HELPER_H

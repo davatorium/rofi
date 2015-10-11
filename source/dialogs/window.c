@@ -322,6 +322,7 @@ typedef struct _SwitcherModePrivateData
 } SwitcherModePrivateData;
 
 static int window_match ( char **tokens, __attribute__( ( unused ) ) const char *input,
+                          __attribute__( ( unused) ) int not_ascii,
                           int case_sensitive, unsigned int index, Switcher *sw )
 {
     SwitcherModePrivateData *rmpd = (SwitcherModePrivateData *) sw->private_data;
@@ -338,19 +339,19 @@ static int window_match ( char **tokens, __attribute__( ( unused ) ) const char 
             // e.g. when searching 'title element' and 'class element'
             char *ftokens[2] = { tokens[j], NULL };
             if ( !test && c->title[0] != '\0' ) {
-                test = token_match ( ftokens, c->title, case_sensitive, 0, NULL );
+                test = token_match ( ftokens, c->title, is_not_ascii(c->title), case_sensitive, 0, NULL );
             }
 
             if ( !test && c->class[0] != '\0' ) {
-                test = token_match ( ftokens, c->class, case_sensitive, 0, NULL );
+                test = token_match ( ftokens, c->class, is_not_ascii(c->class), case_sensitive, 0, NULL );
             }
 
             if ( !test && c->role[0] != '\0' ) {
-                test = token_match ( ftokens, c->role, case_sensitive, 0, NULL );
+                test = token_match ( ftokens, c->role, is_not_ascii(c->role), case_sensitive, 0, NULL );
             }
 
             if ( !test && c->name[0] != '\0' ) {
-                test = token_match ( ftokens, c->name, case_sensitive, 0, NULL );
+                test = token_match ( ftokens, c->name, is_not_ascii(c->name), case_sensitive, 0, NULL );
             }
 
             if ( test == 0 ) {
