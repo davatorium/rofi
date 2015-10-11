@@ -500,11 +500,13 @@ cairo_format_t get_format ( void )
 
 unsigned int color_get ( Display *display, const char *const name, const char * const defn )
 {
-    XColor color = { 0, 0, 0, 0, 0, 0 };
+    char   *copy  = g_strdup ( name );
+    char   *cname = g_strstrip ( copy );
+    XColor color  = { 0, 0, 0, 0, 0, 0 };
     XColor def;
     // Special format.
-    if ( strncmp ( name, "argb:", 5 ) == 0 ) {
-        color.pixel = strtoul ( &name[5], NULL, 16 );
+    if ( strncmp ( cname, "argb:", 5 ) == 0 ) {
+        color.pixel = strtoul ( &cname[5], NULL, 16 );
         color.red   = ( ( color.pixel & 0x00FF0000 ) >> 16 ) * 256;
         color.green = ( ( color.pixel & 0x0000FF00 ) >> 8  ) * 256;
         color.blue  = ( ( color.pixel & 0x000000FF )       ) * 256;
@@ -512,81 +514,118 @@ unsigned int color_get ( Display *display, const char *const name, const char * 
             // This will drop alpha part.
             Status st = XAllocColor ( display, map, &color );
             if ( st == None ) {
-                fprintf ( stderr, "Failed to parse color: '%s'\n", name );
+                fprintf ( stderr, "Failed to parse color: '%s'\n", cname );
                 st = XAllocNamedColor ( display, map, defn, &color, &def );
                 if ( st == None  ) {
                     fprintf ( stderr, "Failed to allocate fallback color\n" );
                     exit ( EXIT_FAILURE );
                 }
             }
-            return color.pixel;
         }
-        return color.pixel;
     }
     else {
-        Status st = XAllocNamedColor ( display, map, name, &color, &def );
+        Status st = XAllocNamedColor ( display, map, cname, &color, &def );
         if ( st == None ) {
-            fprintf ( stderr, "Failed to parse color: '%s'\n", name );
+            fprintf ( stderr, "Failed to parse color: '%s'\n", cname );
             st = XAllocNamedColor ( display, map, defn, &color, &def );
             if ( st == None  ) {
                 fprintf ( stderr, "Failed to allocate fallback color\n" );
                 exit ( EXIT_FAILURE );
             }
         }
-        return color.pixel;
     }
+    g_free ( copy );
+    return color.pixel;
+}
+void x11_helper_set_cairo_rgba ( cairo_t *d, unsigned int pixel )
+{
+    cairo_set_source_rgba ( d,
+                            ( ( pixel & 0x00FF0000 ) >> 16 ) / 256.0,
+                            ( ( pixel & 0x0000FF00 ) >> 8 ) / 256.0,
+                            ( ( pixel & 0x000000FF ) >> 0 ) / 256.0,
+                            ( ( pixel & 0xFF000000 ) >> 24 ) / 256.0
+                            );
+}
+/**
+ * Color cache.
+ *
+ * This stores the current color until
+ */
+enum
+{
+    BACKGROUND,
+    BORDER,
+    SEPARATOR
+};
+struct
+{
+    unsigned int color;
+    unsigned int set;
+} color_cache[3] = {
+    { 0, FALSE },
+    { 0, FALSE },
+    { 0, FALSE }
+};
+void color_cache_reset ( void )
+{
+    color_cache[BACKGROUND].set = FALSE;
+    color_cache[BORDER].set     = FALSE;
+    color_cache[SEPARATOR].set  = FALSE;
+}
+void color_background ( Display *display, cairo_t *d )
+{
+    if ( !color_cache[BACKGROUND].set ) {
+        if ( !config.color_enabled ) {
+            color_cache[BACKGROUND].color = color_get ( display, config.menu_bg, "black" );
+        }
+        else {
+            gchar **vals = g_strsplit ( config.color_window, ",", 3 );
+            if ( vals != NULL && vals[0] != NULL ) {
+                color_cache[BACKGROUND].color = color_get ( display, vals[0], "black" );
+            }
+            g_strfreev ( vals );
+        }
+        color_cache[BACKGROUND].set = TRUE;
+    }
+
+    x11_helper_set_cairo_rgba ( d, color_cache[BACKGROUND].color );
 }
 
-unsigned int color_background ( Display *display )
+void color_border ( Display *display, cairo_t *d  )
 {
-    if ( !config.color_enabled ) {
-        return color_get ( display, config.menu_bg, "black" );
-    }
-    else {
-        unsigned int retv = 0;
-
-        gchar        **vals = g_strsplit ( config.color_window, ",", 3 );
-        if ( vals != NULL && vals[0] != NULL ) {
-            retv = color_get ( display, g_strstrip ( vals[0] ), "black" );
+    if ( !color_cache[BORDER].set ) {
+        if ( !config.color_enabled ) {
+            color_cache[BORDER].color = color_get ( display, config.menu_bc, "white" );
         }
-        g_strfreev ( vals );
-        return retv;
+        else {
+            gchar **vals = g_strsplit ( config.color_window, ",", 3 );
+            if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
+                color_cache[BORDER].color = color_get ( display, vals[1], "white" );
+            }
+            g_strfreev ( vals );
+        }
+        color_cache[BORDER].set = TRUE;
     }
+    x11_helper_set_cairo_rgba ( d, color_cache[BORDER].color );
 }
 
-unsigned int color_border ( Display *display )
+void color_separator ( Display *display, cairo_t *d )
 {
-    if ( !config.color_enabled ) {
-        return color_get ( display, config.menu_bc, "white" );
-    }
-    else {
-        unsigned int retv = 0;
-
-        gchar        **vals = g_strsplit ( config.color_window, ",", 3 );
-        if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
-            retv = color_get ( display, vals[1], "white" );
+    if ( !color_cache[SEPARATOR].set ) {
+        if ( !config.color_enabled ) {
+            color_cache[SEPARATOR].color = color_get ( display, config.menu_bc, "white" );
         }
-        g_strfreev ( vals );
-        return retv;
-    }
-}
-
-unsigned int color_separator ( Display *display )
-{
-    if ( !config.color_enabled ) {
-        return color_get ( display, config.menu_bc, "white" );
-    }
-    else {
-        unsigned int retv = 0;
-
-        gchar        **vals = g_strsplit ( config.color_window, ",", 3 );
-        if ( vals != NULL && vals[0] != NULL && vals[1] != NULL && vals[2] != NULL  ) {
-            retv = color_get ( display, vals[2], "white" );
+        else {
+            gchar **vals = g_strsplit ( config.color_window, ",", 3 );
+            if ( vals != NULL && vals[0] != NULL && vals[1] != NULL && vals[2] != NULL  ) {
+                color_cache[SEPARATOR].color = color_get ( display, vals[2], "white" );
+            }
+            else if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
+                color_cache[SEPARATOR].color = color_get ( display, vals[1], "white" );
+            }
+            g_strfreev ( vals );
         }
-        else if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
-            retv = color_get ( display, vals[1], "white" );
-        }
-        g_strfreev ( vals );
-        return retv;
+        color_cache[SEPARATOR].set = TRUE;
     }
+    x11_helper_set_cairo_rgba ( d, color_cache[SEPARATOR].color );
 }

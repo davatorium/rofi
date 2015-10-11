@@ -148,9 +148,12 @@ void create_visual_and_colormap ( Display *display );
  */
 unsigned int color_get ( Display *display, const char *const name, const char * const defn );
 
-unsigned int color_background ( Display *display );
-unsigned int color_border ( Display *display );
-unsigned int color_separator ( Display *display );
+void color_background ( Display *display, cairo_t *d );
+void color_border ( Display *display, cairo_t *d  );
+void color_separator ( Display *display, cairo_t *d );
+void color_cache_reset ( void );
 
 cairo_format_t get_format ( void );
+
+void x11_helper_set_cairo_rgba ( cairo_t *d, unsigned int pixel );
 #endif
