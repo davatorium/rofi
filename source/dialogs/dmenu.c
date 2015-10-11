@@ -75,13 +75,8 @@ static char **get_dmenu ( unsigned int *length )
 
         size_t blength = buffer_end - &(buffer[0]);
 
-        char *copy = g_malloc( blength + 1 );
+        char *copy = g_malloc0( blength + 1 );
         memcpy(copy, buffer, blength);
-
-        // Filter out line-end.
-        if ( copy[blength] == '\n' ) {
-            copy[blength] = '\0';
-        }
 
         retv[( *length )]     = copy;
         retv[( *length ) + 1] = NULL;
