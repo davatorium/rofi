@@ -18,6 +18,8 @@ RETV=$?
 OUTPUT=$(cat output.txt | tr '\n' ' ')
 if [ "${OUTPUT}" != 'noot mies ' ]
 then
+    echo "Got: '${OUTPUT}' expected 'noot mies '"
     exit 1
 fi
+echo ${RETV}
 exit ${RETV}
