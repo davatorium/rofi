@@ -951,13 +951,13 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         .border     = config.padding + config.menu_bw
     };
     // Request the lines to show.
-    state.lines = sw->get_data ( &( state.num_lines ), sw );
-    state.lines_not_ascii = g_malloc0_n( state.num_lines, sizeof( int ) );
+    state.lines           = sw->get_data ( &( state.num_lines ), sw );
+    state.lines_not_ascii = g_malloc0_n ( state.num_lines, sizeof ( int ) );
 
     // find out which lines contain non-ascii codepoints, so we can be faster in some cases.
 
-    for (unsigned int line = 0; state.lines[line]; line++) {
-      state.lines_not_ascii[line] = is_not_ascii(state.lines[line]);
+    for ( unsigned int line = 0; state.lines[line]; line++ ) {
+        state.lines_not_ascii[line] = is_not_ascii ( state.lines[line] );
     }
 
     if ( next_pos ) {
@@ -1802,7 +1802,6 @@ static gpointer rofi_signal_handler_process ( gpointer arg )
     sigaddset ( &set, SIGHUP );
     sigaddset ( &set, SIGINT );
     sigaddset ( &set, SIGUSR1 );
-    sigaddset ( &set, SIGCHLD );
     // loop forever.
     while ( 1 ) {
         siginfo_t info;
@@ -1822,11 +1821,6 @@ static gpointer rofi_signal_handler_process ( gpointer arg )
                 write ( pfd, "q", 1 );
                 // Close my end and exit.
                 g_thread_exit ( NULL );
-            }
-            else if ( sig == SIGCHLD ) {
-                while ( 0 < waitpid ( -1, NULL, WNOHANG ) ) {
-                    ;
-                }
             }
         }
     }
@@ -1915,7 +1909,6 @@ static GThread *setup_signal_thread ( int *fd )
     sigaddset ( &set, SIGHUP );
     sigaddset ( &set, SIGINT );
     sigaddset ( &set, SIGUSR1 );
-    sigaddset ( &set, SIGCHLD );
     sigprocmask ( SIG_BLOCK, &set, NULL );
     // Create signal handler process.
     // This will use sigwaitinfo to read signals and forward them back to the main thread again.
