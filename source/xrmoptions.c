@@ -55,18 +55,18 @@ typedef struct
  */
 static XrmOption xrmOptions[] = {
     { xrm_String,  "switchers",            { .str  = &config.switchers               }, NULL , ""},
-    { xrm_String,  "modi",                 { .str  = &config.switchers               }, NULL , ""},
-    { xrm_Number,  "opacity",              { .num  = &config.window_opacity          }, NULL , ""},
-    { xrm_SNumber, "width",                { .snum = &config.menu_width              }, NULL , ""},
-    { xrm_Number,  "lines",                { .num  = &config.menu_lines              }, NULL , ""},
-    { xrm_Number,  "columns",              { .num  = &config.menu_columns            }, NULL , ""},
+    { xrm_String,  "modi",                 { .str  = &config.switchers               }, NULL , "Enabled modi"},
+    { xrm_Number,  "opacity",              { .num  = &config.window_opacity          }, NULL , "Window opacity"},
+    { xrm_SNumber, "width",                { .snum = &config.menu_width              }, NULL , "Window width"},
+    { xrm_Number,  "lines",                { .num  = &config.menu_lines              }, NULL , "Number of lines"},
+    { xrm_Number,  "columns",              { .num  = &config.menu_columns            }, NULL , "Number of columns"},
 
-    { xrm_String,  "font",                 { .str  = &config.menu_font               }, NULL , ""},
+    { xrm_String,  "font",                 { .str  = &config.menu_font               }, NULL , "Font to use"},
     /* Foreground color */
     { xrm_String,  "foreground",           { .str  = &config.menu_fg                 }, NULL , ""},
-    { xrm_String,  "fg",                   { .str  = &config.menu_fg                 }, NULL , ""},
+    { xrm_String,  "fg",                   { .str  = &config.menu_fg                 }, NULL , "Foreground color"},
     { xrm_String,  "background",           { .str  = &config.menu_bg                 }, NULL , ""},
-    { xrm_String,  "bg",                   { .str  = &config.menu_bg                 }, NULL , ""},
+    { xrm_String,  "bg",                   { .str  = &config.menu_bg                 }, NULL , "Background color"},
 
     { xrm_Boolean, "color-enabled",        { .num  = &config.color_enabled           }, NULL , ""},
     { xrm_String,  "color-normal",         { .str  = &config.color_normal            }, NULL , ""},
@@ -146,6 +146,7 @@ void config_parser_add_option ( XrmOptionType type, const char *key, void **valu
     extra_options[num_extra_options].type          = type;
     extra_options[num_extra_options].name          = key;
     extra_options[num_extra_options].value.pointer = value;
+    extra_options[num_extra_options].comment = "";
     if ( type == xrm_String ) {
         extra_options[num_extra_options].mem = ( (char *) ( *value ) );
     }
@@ -386,19 +387,23 @@ void xresource_dump ( void )
 
 static void print_option_string ( XrmOption *xo )
 {
-    printf ( "\t-%s [string]\n", xo->name );
+    int l = strlen(xo->name);
+    printf ( "\t-%s [string]%-*c%s\n", xo->name, 30-l, ' ',xo->comment );
 }
 static void print_option_number ( XrmOption *xo )
 {
-    printf ( "\t-%s [number]\n", xo->name );
+    int l = strlen(xo->name);
+    printf ( "\t-%s [number]%-*c%s\n", xo->name, 30-l, ' ',xo->comment );
 }
 static void print_option_char ( XrmOption *xo )
 {
-    printf ( "\t-%s [character]\n", xo->name );
+    int l = strlen(xo->name);
+    printf ( "\t-%s [character]%-*c%s\n", xo->name, 30-l, ' ',xo->comment );
 }
 static void print_option_boolean ( XrmOption *xo )
 {
-    printf ( "\t-[no-]%s [character]\n", xo->name );
+    int l = strlen(xo->name);
+    printf ( "\t-[no-]%s %-*c%s\n", xo->name, 33-l, ' ',xo->comment );
 }
 
 static void print_option ( XrmOption *xo )
