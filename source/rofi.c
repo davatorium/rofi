@@ -141,6 +141,37 @@ static inline MainLoopEvent wait_for_xevent_or_timeout ( Display *display, int x
  * Levenshtein Sorting.
  */
 
+static int lev_sort ( const void *p1, const void *p2, void *arg )
+{
+    const int *a         = p1;
+    const int *b         = p2;
+    int       *distances = arg;
+
+    return distances[*a] - distances[*b];
+}
+
+#define MIN3( a, b, c )    ( ( a ) < ( b ) ? ( ( a ) < ( c ) ? ( a ) : ( c ) ) : ( ( b ) < ( c ) ? ( b ) : ( c ) ) )
+
+static int levenshtein ( char *s1, char *s2 )
+{
+    unsigned int x, y, lastdiag, olddiag;
+    size_t       s1len = strlen ( s1 );
+    size_t       s2len = strlen ( s2 );
+    unsigned int column[s1len + 1];
+    for ( y = 1; y <= s1len; y++ ) {
+        column[y] = y;
+    }
+    for ( x = 1; x <= s2len; x++ ) {
+        column[0] = x;
+        for ( y = 1, lastdiag = x - 1; y <= s1len; y++ ) {
+            olddiag   = column[y];
+            column[y] = MIN3 ( column[y] + 1, column[y - 1] + 1, lastdiag + ( s1[y - 1] == s2[x - 1] ? 0 : 1 ) );
+            lastdiag  = olddiag;
+        }
+    }
+    return column[s1len];
+}
+
 // State of the menu.
 
 typedef struct MenuState
@@ -170,6 +201,7 @@ typedef struct MenuState
     textbox      *case_indicator;
     textbox      **boxes;
     scrollbar    *scrollbar;
+    int          *distance;
     unsigned int *line_map;
 
     unsigned int num_lines;
@@ -253,6 +285,7 @@ static void menu_free_state ( MenuState *state )
 
     g_free ( state->boxes );
     g_free ( state->line_map );
+    g_free ( state->distance );
     g_free ( state->lines_not_ascii );
 }
 
@@ -672,8 +705,14 @@ static void menu_refilter ( MenuState *state )
             // If each token was matched, add it to list.
             if ( match ) {
                 state->line_map[j] = i;
+                if ( config.levenshtein_sort ) {
+                    state->distance[i] = levenshtein ( state->text->text, state->lines[i] );
+                }
                 j++;
             }
+        }
+        if ( config.levenshtein_sort ) {
+            g_qsort_with_data ( state->line_map, j, sizeof ( int ), lev_sort, state->distance );
         }
 
         // Cleanup + bookkeeping.
@@ -938,6 +977,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         .prev_key          =             0,
         .last_button_press =             0,
         .last_offset       =             0,
+        .distance          = NULL,
         .quit              = FALSE,
         .skip_absorb       = FALSE,
         .filtered_lines    =             0,
@@ -1058,6 +1098,9 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     scrollbar_set_max_value ( state.scrollbar, state.num_lines );
     // filtered list
     state.line_map = g_malloc0_n ( state.num_lines, sizeof ( unsigned int ) );
+    if ( config.levenshtein_sort ) {
+        state.distance = (int *) g_malloc0_n ( state.num_lines, sizeof ( int ) );
+    }
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
@@ -1350,6 +1393,7 @@ void error_dialog ( const char *msg, int markup )
         .last_button_press =           0,
         .last_offset       =           0,
         .num_lines         =           0,
+        .distance          = NULL,
         .quit              = FALSE,
         .skip_absorb       = FALSE,
         .filtered_lines    =           0,
@@ -1572,13 +1616,15 @@ static void handle_keypress ( XEvent *ev )
 /**
  * Help function. This calls man.
  */
-static void help ()
+static void help ( G_GNUC_UNUSED int argc, char **argv )
 {
-    int code = execlp ( "man", "man", "-M", MANPAGE_PATH, "rofi", NULL );
-
-    if ( code == -1 ) {
-        fprintf ( stderr, "Failed to execute manpage viewer: %s\n", strerror ( errno ) );
-    }
+    printf ( "Rofi: "VERSION "\n\n" );
+    printf ( "%s usage:\n", argv[0] );
+    printf ( "\t%s [-options ...]\n\n", argv[0] );
+    printf ( "where options include:\n" );
+    print_options ();
+    printf ( "\n" );
+    printf ( "For more information see: man rofi\n" );
 }
 
 /**
@@ -1937,11 +1983,6 @@ int main ( int argc, char *argv[] )
     cmd_set_arguments ( argc, argv );
     // Quiet flag
     int quiet = ( find_arg ( "-quiet" ) >= 0 );
-    // catch help request
-    if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 || find_arg (  "--help" ) >= 0 ) {
-        help ();
-        exit ( EXIT_SUCCESS );
-    }
     // Version
     if ( find_arg (  "-v" ) >= 0 || find_arg (  "-version" ) >= 0 ) {
         fprintf ( stdout, "Version: "VERSION "\n" );
@@ -2024,6 +2065,11 @@ int main ( int argc, char *argv[] )
     // Sanity check
     config_sanity_check ( );
     // Dump.
+    // catch help request
+    if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 || find_arg (  "--help" ) >= 0 ) {
+        help ( argc, argv );
+        exit ( EXIT_SUCCESS );
+    }
     if ( find_arg (  "-dump-xresources" ) >= 0 ) {
         xresource_dump ();
         exit ( EXIT_SUCCESS );

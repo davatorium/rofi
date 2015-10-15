@@ -210,6 +210,8 @@ typedef struct _Settings
     unsigned int   fixed_num_lines;
     /** Do not use history */
     unsigned int   disable_history;
+    /** Use levenshtein sorting when matching */
+    unsigned int   levenshtein_sort;
     /** Search case sensitivity */
     unsigned int   case_sensitive;
     /** Separator to use for dmenu mode */

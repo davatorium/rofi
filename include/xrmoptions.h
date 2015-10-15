@@ -51,4 +51,5 @@ void xresource_dump ( void );
  * Add option to the dynamic option parser.
  */
 void config_parser_add_option ( XrmOptionType type, const char *key, void **value );
+void print_options ( void );
 #endif

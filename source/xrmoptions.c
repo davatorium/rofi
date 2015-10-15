@@ -47,90 +47,92 @@ typedef struct
         char         * charc;
     }    value;
     char *mem;
+    char *comment;
 } XrmOption;
 /**
  * Map X resource and commandline options to internal options
  * Currently supports string, boolean and number (signed and unsigned).
  */
 static XrmOption xrmOptions[] = {
-    { xrm_String,  "switchers",            { .str  = &config.switchers               }, NULL },
-    { xrm_String,  "modi",                 { .str  = &config.switchers               }, NULL },
-    { xrm_Number,  "opacity",              { .num  = &config.window_opacity          }, NULL },
-    { xrm_SNumber, "width",                { .snum = &config.menu_width              }, NULL },
-    { xrm_Number,  "lines",                { .num  = &config.menu_lines              }, NULL },
-    { xrm_Number,  "columns",              { .num  = &config.menu_columns            }, NULL },
+    { xrm_String,  "switchers",            { .str  = &config.switchers               }, NULL , ""},
+    { xrm_String,  "modi",                 { .str  = &config.switchers               }, NULL , ""},
+    { xrm_Number,  "opacity",              { .num  = &config.window_opacity          }, NULL , ""},
+    { xrm_SNumber, "width",                { .snum = &config.menu_width              }, NULL , ""},
+    { xrm_Number,  "lines",                { .num  = &config.menu_lines              }, NULL , ""},
+    { xrm_Number,  "columns",              { .num  = &config.menu_columns            }, NULL , ""},
 
-    { xrm_String,  "font",                 { .str  = &config.menu_font               }, NULL },
+    { xrm_String,  "font",                 { .str  = &config.menu_font               }, NULL , ""},
     /* Foreground color */
-    { xrm_String,  "foreground",           { .str  = &config.menu_fg                 }, NULL },
-    { xrm_String,  "fg",                   { .str  = &config.menu_fg                 }, NULL },
-    { xrm_String,  "background",           { .str  = &config.menu_bg                 }, NULL },
-    { xrm_String,  "bg",                   { .str  = &config.menu_bg                 }, NULL },
+    { xrm_String,  "foreground",           { .str  = &config.menu_fg                 }, NULL , ""},
+    { xrm_String,  "fg",                   { .str  = &config.menu_fg                 }, NULL , ""},
+    { xrm_String,  "background",           { .str  = &config.menu_bg                 }, NULL , ""},
+    { xrm_String,  "bg",                   { .str  = &config.menu_bg                 }, NULL , ""},
 
-    { xrm_Boolean, "color-enabled",        { .num  = &config.color_enabled           }, NULL },
-    { xrm_String,  "color-normal",         { .str  = &config.color_normal            }, NULL },
-    { xrm_String,  "color-urgent",         { .str  = &config.color_urgent            }, NULL },
-    { xrm_String,  "color-active",         { .str  = &config.color_active            }, NULL },
-    { xrm_String,  "color-window",         { .str  = &config.color_window            }, NULL },
+    { xrm_Boolean, "color-enabled",        { .num  = &config.color_enabled           }, NULL , ""},
+    { xrm_String,  "color-normal",         { .str  = &config.color_normal            }, NULL , ""},
+    { xrm_String,  "color-urgent",         { .str  = &config.color_urgent            }, NULL , ""},
+    { xrm_String,  "color-active",         { .str  = &config.color_active            }, NULL , ""},
+    { xrm_String,  "color-window",         { .str  = &config.color_window            }, NULL , ""},
 
-    { xrm_String,  "fg-active",            { .str  = &config.menu_fg_active          }, NULL },
-    { xrm_String,  "fg-urgent",            { .str  = &config.menu_fg_urgent          }, NULL },
-    { xrm_String,  "hlfg-active",          { .str  = &config.menu_hlfg_active        }, NULL },
-    { xrm_String,  "hlfg-urgent",          { .str  = &config.menu_hlfg_urgent        }, NULL },
+    { xrm_String,  "fg-active",            { .str  = &config.menu_fg_active          }, NULL , ""},
+    { xrm_String,  "fg-urgent",            { .str  = &config.menu_fg_urgent          }, NULL , ""},
+    { xrm_String,  "hlfg-active",          { .str  = &config.menu_hlfg_active        }, NULL , ""},
+    { xrm_String,  "hlfg-urgent",          { .str  = &config.menu_hlfg_urgent        }, NULL , ""},
 
-    { xrm_String,  "bg-active",            { .str  = &config.menu_bg_active          }, NULL },
-    { xrm_String,  "bg-urgent",            { .str  = &config.menu_bg_urgent          }, NULL },
-    { xrm_String,  "hlbg-active",          { .str  = &config.menu_hlbg_active        }, NULL },
-    { xrm_String,  "hlbg-urgent",          { .str  = &config.menu_hlbg_urgent        }, NULL },
+    { xrm_String,  "bg-active",            { .str  = &config.menu_bg_active          }, NULL , ""},
+    { xrm_String,  "bg-urgent",            { .str  = &config.menu_bg_urgent          }, NULL , ""},
+    { xrm_String,  "hlbg-active",          { .str  = &config.menu_hlbg_active        }, NULL , ""},
+    { xrm_String,  "hlbg-urgent",          { .str  = &config.menu_hlbg_urgent        }, NULL , ""},
 
-    { xrm_String,  "background-alternate", { .str  = &config.menu_bg_alt             }, NULL },
-    { xrm_String,  "bgalt",                { .str  = &config.menu_bg_alt             }, NULL },
+    { xrm_String,  "background-alternate", { .str  = &config.menu_bg_alt             }, NULL , ""},
+    { xrm_String,  "bgalt",                { .str  = &config.menu_bg_alt             }, NULL , ""},
 
-    { xrm_String,  "highlightfg",          { .str  = &config.menu_hlfg               }, NULL },
-    { xrm_String,  "hlfg",                 { .str  = &config.menu_hlfg               }, NULL },
+    { xrm_String,  "highlightfg",          { .str  = &config.menu_hlfg               }, NULL , ""},
+    { xrm_String,  "hlfg",                 { .str  = &config.menu_hlfg               }, NULL , ""},
 
-    { xrm_String,  "highlightbg",          { .str  = &config.menu_hlbg               }, NULL },
-    { xrm_String,  "hlbg",                 { .str  = &config.menu_hlbg               }, NULL },
+    { xrm_String,  "highlightbg",          { .str  = &config.menu_hlbg               }, NULL , ""},
+    { xrm_String,  "hlbg",                 { .str  = &config.menu_hlbg               }, NULL , ""},
 
-    { xrm_String,  "bordercolor",          { .str  = &config.menu_bc                 }, NULL },
-    { xrm_String,  "bc",                   { .str  = &config.menu_bc                 }, NULL },
+    { xrm_String,  "bordercolor",          { .str  = &config.menu_bc                 }, NULL , ""},
+    { xrm_String,  "bc",                   { .str  = &config.menu_bc                 }, NULL , ""},
 
-    { xrm_Number,  "borderwidth",          { .num  = &config.menu_bw                 }, NULL },
-    { xrm_Number,  "bw",                   { .num  = &config.menu_bw                 }, NULL },
+    { xrm_Number,  "borderwidth",          { .num  = &config.menu_bw                 }, NULL , ""},
+    { xrm_Number,  "bw",                   { .num  = &config.menu_bw                 }, NULL , ""},
 
-    { xrm_Number,  "location",             { .num  = &config.location                }, NULL },
+    { xrm_Number,  "location",             { .num  = &config.location                }, NULL , ""},
 
-    { xrm_Number,  "padding",              { .num  = &config.padding                 }, NULL },
-    { xrm_SNumber, "yoffset",              { .snum = &config.y_offset                }, NULL },
-    { xrm_SNumber, "xoffset",              { .snum = &config.x_offset                }, NULL },
-    { xrm_Boolean, "fixed-num-lines",      { .num  = &config.fixed_num_lines         }, NULL },
+    { xrm_Number,  "padding",              { .num  = &config.padding                 }, NULL , ""},
+    { xrm_SNumber, "yoffset",              { .snum = &config.y_offset                }, NULL , ""},
+    { xrm_SNumber, "xoffset",              { .snum = &config.x_offset                }, NULL , ""},
+    { xrm_Boolean, "fixed-num-lines",      { .num  = &config.fixed_num_lines         }, NULL , ""},
 
-    { xrm_String,  "terminal",             { .str  = &config.terminal_emulator       }, NULL },
-    { xrm_String,  "ssh-client",           { .str  = &config.ssh_client              }, NULL },
-    { xrm_String,  "ssh-command",          { .str  = &config.ssh_command             }, NULL },
-    { xrm_String,  "run-command",          { .str  = &config.run_command             }, NULL },
-    { xrm_String,  "run-list-command",     { .str  = &config.run_list_command        }, NULL },
-    { xrm_String,  "run-shell-command",    { .str  = &config.run_shell_command       }, NULL },
+    { xrm_String,  "terminal",             { .str  = &config.terminal_emulator       }, NULL , ""},
+    { xrm_String,  "ssh-client",           { .str  = &config.ssh_client              }, NULL , ""},
+    { xrm_String,  "ssh-command",          { .str  = &config.ssh_command             }, NULL , ""},
+    { xrm_String,  "run-command",          { .str  = &config.run_command             }, NULL , ""},
+    { xrm_String,  "run-list-command",     { .str  = &config.run_list_command        }, NULL , ""},
+    { xrm_String,  "run-shell-command",    { .str  = &config.run_shell_command       }, NULL , ""},
 
-    { xrm_Boolean, "disable-history",      { .num  = &config.disable_history         }, NULL },
-    { xrm_Boolean, "case-sensitive",       { .num  = &config.case_sensitive          }, NULL },
-    { xrm_Boolean, "sidebar-mode",         { .num  = &config.sidebar_mode            }, NULL },
-    { xrm_Number,  "lazy-filter-limit",    { .num  = &config.lazy_filter_limit       }, NULL },
-    { xrm_SNumber, "eh",                   { .snum = &config.element_height          }, NULL },
-    { xrm_Boolean, "auto-select",          { .num  = &config.auto_select             }, NULL },
-    { xrm_Boolean, "parse-hosts",          { .num  = &config.parse_hosts             }, NULL },
-    { xrm_String,  "combi-modi",           { .str  = &config.combi_modi              }, NULL },
-    { xrm_Boolean, "fuzzy",                { .num  = &config.fuzzy                   }, NULL },
-    { xrm_Boolean, "glob",                 { .num  = &config.glob                    }, NULL },
-    { xrm_Boolean, "tokenize",             { .num  = &config.tokenize                }, NULL },
-    { xrm_Number,  "monitor",              { .snum = &config.monitor                 }, NULL },
+    { xrm_Boolean, "disable-history",      { .num  = &config.disable_history         }, NULL , ""},
+    { xrm_Boolean, "levenshtein-sort",     { .num  = &config.levenshtein_sort        }, NULL , ""},
+    { xrm_Boolean, "case-sensitive",       { .num  = &config.case_sensitive          }, NULL , ""},
+    { xrm_Boolean, "sidebar-mode",         { .num  = &config.sidebar_mode            }, NULL , ""},
+    { xrm_Number,  "lazy-filter-limit",    { .num  = &config.lazy_filter_limit       }, NULL , ""},
+    { xrm_SNumber, "eh",                   { .snum = &config.element_height          }, NULL , ""},
+    { xrm_Boolean, "auto-select",          { .num  = &config.auto_select             }, NULL , ""},
+    { xrm_Boolean, "parse-hosts",          { .num  = &config.parse_hosts             }, NULL , ""},
+    { xrm_String,  "combi-modi",           { .str  = &config.combi_modi              }, NULL , ""},
+    { xrm_Boolean, "fuzzy",                { .num  = &config.fuzzy                   }, NULL , ""},
+    { xrm_Boolean, "glob",                 { .num  = &config.glob                    }, NULL , ""},
+    { xrm_Boolean, "tokenize",             { .num  = &config.tokenize                }, NULL , ""},
+    { xrm_Number,  "monitor",              { .snum = &config.monitor                 }, NULL , ""},
     /* Alias for dmenu compatibility. */
-    { xrm_SNumber, "m",                    { .snum = &config.monitor                 }, NULL },
-    { xrm_Number,  "line-margin",          { .num  = &config.line_margin             }, NULL },
-    { xrm_String,  "filter",               { .str  = &config.filter                  }, NULL },
-    { xrm_String,  "separator-style",      { .str  = &config.separator_style         }, NULL },
-    { xrm_Boolean, "hide-scrollbar",       { .num  = &config.hide_scrollbar          }, NULL },
-    { xrm_Boolean, "markup-rows",          { .num  = &config.markup_rows             }, NULL }
+    { xrm_SNumber, "m",                    { .snum = &config.monitor                 }, NULL , ""},
+    { xrm_Number,  "line-margin",          { .num  = &config.line_margin             }, NULL , ""},
+    { xrm_String,  "filter",               { .str  = &config.filter                  }, NULL , ""},
+    { xrm_String,  "separator-style",      { .str  = &config.separator_style         }, NULL , ""},
+    { xrm_Boolean, "hide-scrollbar",       { .num  = &config.hide_scrollbar          }, NULL , ""},
+    { xrm_Boolean, "markup-rows",          { .num  = &config.markup_rows             }, NULL , ""}
 };
 
 // Dynamic options.
@@ -379,5 +381,59 @@ void xresource_dump ( void )
     }
     for ( unsigned int i = 0; i < num_extra_options; i++ ) {
         xresource_dump_entry ( namePrefix, &( extra_options[i] ) );
+    }
+}
+
+static void print_option_string ( XrmOption *xo )
+{
+    printf ( "\t-%s [string]\n", xo->name );
+}
+static void print_option_number ( XrmOption *xo )
+{
+    printf ( "\t-%s [number]\n", xo->name );
+}
+static void print_option_char ( XrmOption *xo )
+{
+    printf ( "\t-%s [character]\n", xo->name );
+}
+static void print_option_boolean ( XrmOption *xo )
+{
+    printf ( "\t-[no-]%s [character]\n", xo->name );
+}
+
+static void print_option ( XrmOption *xo )
+{
+    switch ( xo->type )
+    {
+    case xrm_String:
+        print_option_string ( xo );
+        break;
+    case xrm_Number:
+    case xrm_SNumber:
+        print_option_number ( xo );
+        break;
+    case xrm_Boolean:
+        print_option_boolean ( xo );
+        break;
+    case xrm_Char:
+        print_option_char ( xo );
+        break;
+    default:
+        break;
+    }
+}
+void print_options ( void )
+{
+    unsigned int entries = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
+    for ( unsigned int i = 0; i < entries; ++i ) {
+        if ( ( i + 1 ) < entries ) {
+            if ( xrmOptions[i].value.str == xrmOptions[i + 1].value.str ) {
+                continue;
+            }
+        }
+        print_option ( &xrmOptions[i] );
+    }
+    for ( unsigned int i = 0; i < num_extra_options; i++ ) {
+        print_option ( &extra_options[i] );
     }
 }
