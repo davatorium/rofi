@@ -296,6 +296,7 @@ struct _Switcher
 
 #define  color_reset           "\033[0m"
 #define  color_bold            "\033[1m"
+#define  color_italic          "\033[2m"
 #define  color_underline       "\033[4m"
 #define  color_black           "\033[0;30m"
 #define  color_red             "\033[0;31m"

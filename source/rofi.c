@@ -1618,13 +1618,14 @@ static void handle_keypress ( XEvent *ev )
  */
 static void help ( G_GNUC_UNUSED int argc, char **argv )
 {
-    printf ( "Rofi: "VERSION "\n\n" );
     printf ( "%s usage:\n", argv[0] );
     printf ( "\t%s [-options ...]\n\n", argv[0] );
     printf ( "where options include:\n" );
     print_options ();
     printf ( "\n" );
     printf ( "For more information see: man rofi\n" );
+    printf ( "Version:    "VERSION "\n" );
+    printf ( "Bugreports: "PACKAGE_BUGREPORT "\n" );
 }
 
 /**
@@ -1741,7 +1742,7 @@ static void setup_switchers ( void )
     // and re-alloc moves that pointer.
     for ( unsigned int i = 0; i < num_switchers; i++ ) {
         switchers[i].sw->keycfg = g_strdup_printf ( "key-%s", switchers[i].sw->name );
-        config_parser_add_option ( xrm_String, switchers[i].sw->keycfg, (void * *) &( switchers[i].sw->keystr ) );
+        config_parser_add_option ( xrm_String, switchers[i].sw->keycfg, (void * *) &( switchers[i].sw->keystr ), "Keybinding" );
     }
 }
 
@@ -2013,7 +2014,7 @@ int main ( int argc, char *argv[] )
     if ( path ) {
         pidfile = g_build_filename ( path, "rofi.pid", NULL );
     }
-    config_parser_add_option ( xrm_String, "pid", (void * *) &pidfile );
+    config_parser_add_option ( xrm_String, "pid", (void * *) &pidfile, "Pidfile location" );
 
     // Register cleanup function.
     atexit ( cleanup );
@@ -2053,7 +2054,8 @@ int main ( int argc, char *argv[] )
     }
     else {
         // Add dmenu options.
-        config_parser_add_option ( xrm_Char, "sep", (void * *) &( config.separator ) );
+        config_parser_add_option ( xrm_Char, "sep", (void * *) &( config.separator ),
+                                   "Element separator" );
     }
     if ( find_arg ( "-no-config" ) < 0 ) {
         // Reload for dynamic part.

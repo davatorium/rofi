@@ -96,7 +96,7 @@ void setup_abe ( void )
         abe[id].num_bindings = 0;
         abe[id].kb           = NULL;
 
-        config_parser_add_option ( xrm_String, abe[id].name, (void * *) &( abe[id].keystr ) );
+        config_parser_add_option ( xrm_String, abe[id].name, (void * *) &( abe[id].keystr ), "Keybinding" );
     }
 }
 

@@ -1,4 +1,4 @@
-AC_INIT([rofi], [0.15.8-devel], [qball@gmpclient.org])
+AC_INIT([rofi], [0.15.8-devel], [https://github.com/DaveDavenport/rofi/])
 
 AC_CONFIG_SRCDIR([source/rofi.c])
 AC_CONFIG_HEADER([config.h])
