@@ -2,14 +2,15 @@
 	New feature:
 		- Support for Startup Notification
 		- Standalone mode in dmenu
-		- ssh: known_hosts parsing.
-		- Full screen support.
+		- ssh: known_hosts parsing
+		- Full screen support
 		- Glob style matching
 		- Cairo drawing
 		- Fast ascii filtering (thx to Tom Hinton)
 		- Combi bang support
 		- normal window mode for dmenu
 		- Startup notification support
+		- Current desktop window mode
 	Improvements:
 		- Keep same line selected
 		- Cleanup menu code by re-using Switcher
@@ -17,7 +18,12 @@
 		- Fix rofi -h output
 		- allow disabling of tokenizing
 		- Dragging scrollbar
+		- Allow none type on separator
+		- Dmenu support markup in fields
 	Bug fixes:
+		- dmenu use switcher system
+		- release keyboard on focus out event, regrab it on focus in event
+		- Support `\0` separator
 
 0.15.8:
 	New feature:
