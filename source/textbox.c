@@ -191,6 +191,7 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 
     // We always want to update this
     pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->w - 2 * SIDE_MARGIN ) );
+    tb->update = TRUE;
 }
 
 // will also unmap the window if still displayed

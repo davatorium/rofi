@@ -143,4 +143,5 @@ Settings config = {
     /** Hide scrollbar */
     .hide_scrollbar = FALSE,
     .markup_rows    = FALSE,
+    .fullscreen     = FALSE,
 };

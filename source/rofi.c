@@ -247,13 +247,20 @@ static Window create_window ( Display *display )
     cairo_set_operator ( draw, CAIRO_OPERATOR_SOURCE );
 
     // // make it an unmanaged window
-    if ( !normal_window_mode ) {
+    if ( !normal_window_mode && !config.fullscreen ) {
         window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
         XSetWindowAttributes sattr = { .override_redirect = True };
         XChangeWindowAttributes ( display, box, CWOverrideRedirect, &sattr );
     }
     else{
         window_set_atom_prop ( display, box, netatoms[_NET_WM_WINDOW_TYPE], &netatoms[_NET_WM_WINDOW_TYPE_NORMAL], 1 );
+    }
+    if ( config.fullscreen ) {
+        Atom atoms[] = {
+            netatoms[_NET_WM_STATE_FULLSCREEN],
+            netatoms[_NET_WM_STATE_ABOVE]
+        };
+        window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE], atoms, sizeof ( atoms ) / sizeof ( Atom ) );
     }
 
     xim = XOpenIM ( display, NULL, NULL, NULL );
@@ -856,18 +863,18 @@ static void menu_update ( MenuState *state )
             const double dashes[1] = { 4 };
             cairo_set_dash ( d, dashes, 1, 0.0 );
         }
-        cairo_move_to ( d, config.menu_bw, state->line_height + ( state->border ) * 1 + config.line_margin + 1 );
-        cairo_line_to ( d, state->w - config.menu_bw, state->line_height + ( state->border ) * 1 + config.line_margin + 1 );
+        cairo_move_to ( d, state->border, state->line_height + ( state->border ) * 1 + config.line_margin + 1 );
+        cairo_line_to ( d, state->w - state->border, state->line_height + ( state->border ) * 1 + config.line_margin + 1 );
         cairo_stroke ( d );
         if ( state->message_tb ) {
-            cairo_move_to ( d, config.menu_bw, state->top_offset - ( config.line_margin ) - 1 );
-            cairo_line_to ( d, state->w - config.menu_bw, state->top_offset - ( config.line_margin ) - 1 );
+            cairo_move_to ( d, state->border, state->top_offset - ( config.line_margin ) - 1 );
+            cairo_line_to ( d, state->w - state->border, state->top_offset - ( config.line_margin ) - 1 );
             cairo_stroke ( d );
         }
 
         if ( config.sidebar_mode == TRUE ) {
-            cairo_move_to ( d, config.menu_bw, state->h - state->line_height - ( state->border ) * 1 - 1 - config.line_margin );
-            cairo_line_to ( d, state->w - config.menu_bw, state->h - state->line_height - ( state->border ) * 1 - 1 - config.line_margin );
+            cairo_move_to ( d, state->border, state->h - state->line_height - ( state->border ) * 1 - 1 - config.line_margin );
+            cairo_line_to ( d, state->w - state->border, state->h - state->line_height - ( state->border ) * 1 - 1 - config.line_margin );
             cairo_stroke ( d );
         }
     }
@@ -924,11 +931,16 @@ static void menu_resize ( MenuState *state )
     if ( config.sidebar_mode == TRUE ) {
         int width = ( state->w - ( 2 * ( state->border ) + ( num_switchers - 1 ) * config.line_margin ) ) / num_switchers;
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
-            textbox_moveresize ( switchers[j].tb, state->border + j * ( width + config.line_margin ),
-                                 state->h - state->line_height - state->border, width, state->line_height );
+            textbox_moveresize ( switchers[j].tb,
+                                 state->border + j * ( width + config.line_margin ), state->h - state->line_height - state->border,
+                                 width, state->line_height );
             textbox_draw ( switchers[j].tb, draw );
         }
     }
+    int entrybox_width = state->w - ( 2 * ( state->border ) ) - textbox_get_width ( state->prompt_tb )
+                         - textbox_get_width ( state->case_indicator );
+    textbox_moveresize ( state->text, state->text->x, state->text->y, entrybox_width, state->line_height );
+    textbox_move ( state->case_indicator, state->w - state->border - textbox_get_width ( state->case_indicator ), state->border );
     /**
      * Resize in Height
      */
@@ -936,11 +948,11 @@ static void menu_resize ( MenuState *state )
         unsigned int last_length    = state->max_elements;
         int          element_height = state->line_height * config.element_height + config.line_margin;
         // Calculated new number of boxes.
-        unsigned int h = ( state->h - state->top_offset );
+        unsigned int h = ( state->h - state->top_offset - config.padding );
         if ( config.sidebar_mode == TRUE ) {
-            h -= state->line_height + state->border;
+            h -= state->line_height + config.line_margin;
         }
-        state->max_rows     = ( h / element_height );
+        state->max_rows     = MAX ( 1, ( h / element_height ) );
         state->max_elements = state->max_rows * config.menu_columns;
         // Free boxes no longer needed.
         for ( unsigned int i = state->max_elements; i < last_length; i++ ) {
@@ -1049,7 +1061,6 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     // Entry box
     int entrybox_width = state.w - ( 2 * ( state.border ) ) - textbox_get_width ( state.prompt_tb )
                          - textbox_get_width ( state.case_indicator );
-
     state.text = textbox_create ( TB_EDITABLE,
                                   ( state.border ) + textbox_get_width ( state.prompt_tb ), ( state.border ),
                                   entrybox_width, state.line_height, NORMAL, *input );
@@ -1063,7 +1074,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         textbox_text ( state.case_indicator, "*" );
     }
     else{
-        textbox_text ( state.case_indicator, "" );
+        textbox_text ( state.case_indicator, " " );
     }
     state.message_tb = NULL;
     if ( message ) {
@@ -1277,7 +1288,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
                         textbox_text ( state.case_indicator, "*" );
                     }
                     else {
-                        textbox_text ( state.case_indicator, "" );
+                        textbox_text ( state.case_indicator, " " );
                     }
                 }
                 // Special delete entry command.

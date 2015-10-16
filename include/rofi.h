@@ -244,6 +244,8 @@ typedef struct _Settings
     unsigned int   hide_scrollbar;
     /** show markup in elements. */
     unsigned int   markup_rows;
+    /** fullscreen */
+    unsigned int   fullscreen;
 } Settings;
 
 /** Global Settings structure. */
