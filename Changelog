@@ -3,9 +3,20 @@
 		- Support for Startup Notification
 		- Standalone mode in dmenu
 		- ssh: known_hosts parsing.
+		- Full screen support.
+		- Glob style matching
+		- Cairo drawing
+		- Fast ascii filtering (thx to Tom Hinton)
+		- Combi bang support
+		- normal window mode for dmenu
+		- Startup notification support
 	Improvements:
 		- Keep same line selected
 		- Cleanup menu code by re-using Switcher
+		- Fix drawing on resize
+		- Fix rofi -h output
+		- allow disabling of tokenizing
+		- Dragging scrollbar
 	Bug fixes:
 
 0.15.8:
