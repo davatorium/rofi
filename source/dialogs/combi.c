@@ -159,6 +159,25 @@ static SwitcherMode combi_mode_result ( int mretv, char **input, unsigned int se
                                         Switcher *sw )
 {
     CombiModePrivateData *pd = sw->private_data;
+    if ( *input[0] == '!' ) {
+        int switcher = -1;
+        for ( unsigned i = 0; switcher == -1 && i < pd->num_switchers; i++ ) {
+            if ( ( *input )[1] == pd->switchers[i]->name[0] ) {
+                switcher = i;
+            }
+        }
+        if ( switcher >= 0  ) {
+            char *n = strchr ( *input, ' ' );
+            // skip whitespace
+            if( n != NULL) {
+                n++;
+                return pd->switchers[switcher]->result ( mretv, &n,
+                        selected_line - pd->starts[switcher],
+                        pd->switchers[switcher] );
+            }
+            return MODE_EXIT;
+        }
+    }
 
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( selected_line >= pd->starts[i] &&

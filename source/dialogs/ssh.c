@@ -335,7 +335,9 @@ static char ** ssh_mode_get_data ( unsigned int *length, Switcher *sw )
         rmpd->cmd_list_length = 0;
         rmpd->cmd_list        = get_ssh ( &( rmpd->cmd_list_length ) );
     }
-    *length = rmpd->cmd_list_length;
+    if( length != NULL ) {
+        *length = rmpd->cmd_list_length;
+    }
     return rmpd->cmd_list;
 }
 static SwitcherMode ssh_mode_result ( int mretv, char **input, unsigned int selected_line,
@@ -381,8 +383,7 @@ static void ssh_mode_destroy ( Switcher *sw )
 
 static const char *mgrv ( unsigned int selected_line, void *sw, G_GNUC_UNUSED int *state )
 {
-    SSHModePrivateData *rmpd = ( (Switcher *) sw )->private_data;
-    return rmpd->cmd_list[selected_line];
+    return ssh_mode_get_data(NULL, sw)[selected_line];
 }
 
 Switcher ssh_mode =
