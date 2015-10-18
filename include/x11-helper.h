@@ -71,6 +71,7 @@ int window_send_message ( Display *display, Window target, Window subject,
 void monitor_dimensions ( Display *display, Screen *screen, int x, int y, workarea *mon );
 // Find the dimensions of the monitor specified by user.
 int monitor_get_dimension ( Display *display, Screen *screen, int monitor, workarea *mon );
+int monitor_get_smallest_size ( Display *display );
 
 /**
  * @param display The display.

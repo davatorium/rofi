@@ -948,9 +948,16 @@ static void menu_resize ( MenuState *state )
         unsigned int last_length    = state->max_elements;
         int          element_height = state->line_height * config.element_height + config.line_margin;
         // Calculated new number of boxes.
-        unsigned int h = ( state->h - state->top_offset - config.padding );
+        int          h = ( state->h - state->top_offset - config.padding );
         if ( config.sidebar_mode == TRUE ) {
             h -= state->line_height + config.line_margin;
+        }
+        if ( h < 0 ) {
+            fprintf ( stderr, "Current padding %d (on each side) does not fit within visible window %d.\n", config.padding, state->h );
+            h = ( state->h - state->top_offset - state->h / 3 );
+            if ( config.sidebar_mode == TRUE ) {
+                h -= state->line_height + config.line_margin;
+            }
         }
         state->max_rows     = MAX ( 1, ( h / element_height ) );
         state->max_elements = state->max_rows * config.menu_columns;
@@ -1828,7 +1835,7 @@ static void reload_configuration ()
             load_configuration_dynamic ( temp_display );
 
             // Sanity check
-            config_sanity_check ( );
+            config_sanity_check ( temp_display );
             parse_keys_abe ();
             XCloseDisplay ( temp_display );
         }
@@ -2076,7 +2083,7 @@ int main ( int argc, char *argv[] )
     x11_setup ( display );
 
     // Sanity check
-    config_sanity_check ( );
+    config_sanity_check ( display );
     // Dump.
     // catch help request
     if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 || find_arg (  "--help" ) >= 0 ) {

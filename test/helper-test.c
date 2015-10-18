@@ -21,6 +21,13 @@ int show_error_message ( const char *msg, int markup )
     error_dialog ( msg, markup );
     return 0;
 }
+#include <x11-helper.h>
+int monitor_get_smallest_size ( Display *d )
+{
+}
+int monitor_get_dimension ( Display *d, Screen *screen, int monitor, workarea *mon )
+{
+}
 
 int main ( int argc, char ** argv )
 {

@@ -143,7 +143,26 @@ int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned l
     Atom type; int items;
     return window_get_prop ( display, w, atom, &type, &items, list, count * sizeof ( unsigned long ) ) && type == XA_CARDINAL ? items : 0;
 }
+int monitor_get_smallest_size ( Display *display )
+{
+    int size = MIN ( WidthOfScreen ( DefaultScreenOfDisplay ( display ) ),
+                     HeightOfScreen ( DefaultScreenOfDisplay ( display ) ) );
+    // locate the current monitor
+    if ( XineramaIsActive ( display ) ) {
+        int                monitors;
+        XineramaScreenInfo *info = XineramaQueryScreens ( display, &monitors );
 
+        if ( info ) {
+            for ( int i = 0; i < monitors; i++ ) {
+                size = MIN ( info[i].width, size );
+                size = MIN ( info[i].height, size );
+            }
+        }
+        XFree ( info );
+    }
+
+    return size;
+}
 int monitor_get_dimension ( Display *display, Screen *screen, int monitor, workarea *mon )
 {
     memset ( mon, 0, sizeof ( workarea ) );

@@ -39,6 +39,7 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include "helper.h"
+#include "x11-helper.h"
 #include "rofi.h"
 
 static int  stored_argc   = 0;
@@ -536,7 +537,7 @@ void remove_pid_file ( int fd )
  *
  * This functions exits the program with 1 when it finds an invalid configuration.
  */
-void config_sanity_check (  )
+void config_sanity_check ( Display *display )
 {
     int     found_error = FALSE;
     GString *msg        = g_string_new (
@@ -554,7 +555,7 @@ void config_sanity_check (  )
         found_error         = TRUE;
     }
     if ( config.menu_width == 0 ) {
-        show_error_message ( "<b>config.menu_width</b>=0 is invalid. You cannot have a window with no width.", TRUE );
+        g_string_append_printf ( msg, "<b>config.menu_width</b>=0 is invalid. You cannot have a window with no width." );
         config.menu_columns = 50;
         found_error         = TRUE;
     }
@@ -572,9 +573,35 @@ void config_sanity_check (  )
             found_error        = 1;
         }
     }
+
+    // Check size
+    {
+        int ssize = monitor_get_smallest_size ( display );
+        if ( config.monitor >= 0 ) {
+            workarea mon;
+            if ( monitor_get_dimension ( display, DefaultScreenOfDisplay ( display ), config.monitor, &mon ) ) {
+                ssize = MIN ( mon.w, mon.h );
+            }
+            else{
+                g_string_append_printf ( msg, "\t<b>config.monitor</b>=%d Could not find monitor.\n", config.monitor );
+                ssize = 0;
+            }
+        }
+        // Have todo an estimate here.
+        if ( ( 2 * ( config.padding + config.menu_bw ) ) > ( 0.9 * ssize ) ) {
+            g_string_append_printf ( msg, "\t<b>config.padding+config.menu_bw</b>=%d is to big for the minimum size of the monitor: %d.\n",
+                                     ( config.padding + config.menu_bw ), ssize );
+
+            config.padding = 0;
+            config.menu_bw = 0;
+            found_error    = TRUE;
+        }
+    }
+
     if ( found_error ) {
         g_string_append ( msg, "Please update your configuration." );
         show_error_message ( msg->str, TRUE );
+        exit ( EXIT_FAILURE );
     }
 
     g_string_free ( msg, TRUE );

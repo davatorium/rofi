@@ -1,3 +1,5 @@
+#include <config.h>
+#include <string.h>
 #include "rofi.h"
 #include <X11/keysym.h>
 #include "x11-helper.h"
