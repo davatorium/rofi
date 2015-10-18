@@ -1440,7 +1440,7 @@ void error_dialog ( const char *msg, int markup )
     menu_calculate_window_and_element_width ( &state, &mon );
     state.max_elements = 0;
 
-    state.text = textbox_create ( TB_AUTOHEIGHT | TB_WRAP + ( ( markup ) ? TB_MARKUP : 0 ),
+    state.text = textbox_create ( ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
                                   ( state.border ), ( state.border ),
                                   ( state.w - ( 2 * ( state.border ) ) ), 1, NORMAL, ( msg != NULL ) ? msg : "" );
     state.line_height = textbox_get_height ( state.text );
@@ -1889,6 +1889,7 @@ static gpointer rofi_signal_handler_process ( gpointer arg )
             }
         }
     }
+    return NULL;
 }
 
 /**

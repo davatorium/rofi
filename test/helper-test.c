@@ -22,11 +22,13 @@ int show_error_message ( const char *msg, int markup )
     return 0;
 }
 #include <x11-helper.h>
-int monitor_get_smallest_size ( Display *d )
+int monitor_get_smallest_size ( G_GNUC_UNUSED Display *d )
 {
+    return 0;
 }
-int monitor_get_dimension ( Display *d, Screen *screen, int monitor, workarea *mon )
+int monitor_get_dimension ( G_GNUC_UNUSED Display *d, G_GNUC_UNUSED Screen *screen, G_GNUC_UNUSED int monitor, G_GNUC_UNUSED workarea *mon )
 {
+    return 0;
 }
 
 int main ( int argc, char ** argv )

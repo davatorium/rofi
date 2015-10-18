@@ -64,21 +64,21 @@ void scrollbar_free ( scrollbar *sb )
 void scrollbar_set_max_value ( scrollbar *sb, unsigned int max )
 {
     if ( sb != NULL ) {
-        sb->length = MAX ( 1, max );
+        sb->length = MAX ( 1u, max );
     }
 }
 
 void scrollbar_set_handle ( scrollbar *sb, unsigned int pos )
 {
     if ( sb != NULL ) {
-        sb->pos = MIN ( sb->length, MAX ( 0, pos ) );
+        sb->pos = MIN ( sb->length, pos );
     }
 }
 
 void scrollbar_set_handle_length ( scrollbar *sb, unsigned int pos_length )
 {
     if ( sb != NULL ) {
-        sb->pos_length = MIN ( sb->length, MAX ( 1, pos_length ) );
+        sb->pos_length = MIN ( sb->length, MAX ( 1u, pos_length ) );
     }
 }
 

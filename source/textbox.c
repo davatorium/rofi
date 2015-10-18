@@ -590,7 +590,7 @@ static void textbox_parse_string (  Display *display, const char *str, RowColor 
         return;
     }
     char *cstr = g_strdup ( str );
-    char *endp;
+    char *endp = NULL;
     char *token;
     int  index = 0;
     for ( token = strtok_r ( cstr, ",", &endp ); token != NULL; token = strtok_r ( NULL, ",", &endp ) ) {

@@ -574,10 +574,11 @@ void config_sanity_check ( Display *display )
         }
     }
     if ( config.fullscreen && config.monitor != -1 ) {
-        g_string_append_printf ( msg, "\t<b>config.monitor</b>=%d is invalid. Value should be unset (-1) when fullscreen mode is enabled.\n",
-            config.monitor);
+        g_string_append_printf ( msg,
+                                 "\t<b>config.monitor</b>=%d is invalid. Value should be unset (-1) when fullscreen mode is enabled.\n",
+                                 config.monitor );
         config.monitor = -1;
-        found_error        = 1;
+        found_error    = 1;
     }
 
     // Check size
