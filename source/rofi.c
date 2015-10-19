@@ -1877,13 +1877,22 @@ static gpointer rofi_signal_handler_process ( gpointer arg )
         else {
             // Send message to main thread.
             if ( sig == SIGHUP ) {
-                write ( pfd, "c", 1 );
+                ssize_t t = write ( pfd, "c", 1 );
+                if ( t < 0 ) {
+                    fprintf ( stderr, "Failed to send signal to main thread.\n" );
+                }
             }
             if ( sig == SIGUSR1 ) {
-                write ( pfd, "i", 1 );
+                ssize_t t = write ( pfd, "i", 1 );
+                if ( t < 0 ) {
+                    fprintf ( stderr, "Failed to send signal to main thread.\n" );
+                }
             }
             else if ( sig == SIGINT ) {
-                write ( pfd, "q", 1 );
+                ssize_t t = write ( pfd, "q", 1 );
+                if ( t < 0 ) {
+                    fprintf ( stderr, "Failed to send signal to main thread.\n" );
+                }
                 // Close my end and exit.
                 g_thread_exit ( NULL );
             }
@@ -2190,10 +2199,13 @@ int main ( int argc, char *argv[] )
                 // Signal Pipe
                 if ( FD_ISSET ( pfds[0], &in_fds ) ) {
                     // The signal thread send us a message. Process it.
-                    char c;
-                    read ( pfds[0], &c, 1 );
+                    char    c;
+                    ssize_t r = read ( pfds[0], &c, 1 );
+                    if ( r < 0 ) {
+                        fprintf ( stderr, "Failed to read data from signal thread: %s\n", strerror ( errno ) );
+                    }
                     // Process the signal in the main_loop.
-                    if ( main_loop_signal_handler ( c, quiet ) ) {
+                    else if ( main_loop_signal_handler ( c, quiet ) ) {
                         break;
                     }
                 }

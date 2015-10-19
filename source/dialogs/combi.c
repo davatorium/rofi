@@ -169,11 +169,11 @@ static SwitcherMode combi_mode_result ( int mretv, char **input, unsigned int se
         if ( switcher >= 0  ) {
             char *n = strchr ( *input, ' ' );
             // skip whitespace
-            if( n != NULL) {
+            if ( n != NULL ) {
                 n++;
                 return pd->switchers[switcher]->result ( mretv, &n,
-                        selected_line - pd->starts[switcher],
-                        pd->switchers[switcher] );
+                                                         selected_line - pd->starts[switcher],
+                                                         pd->switchers[switcher] );
             }
             return MODE_EXIT;
         }

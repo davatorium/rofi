@@ -124,6 +124,9 @@ static void parse_pair ( char  *input, struct range_pair  *item )
 static void parse_ranges ( char *input, struct range_pair **list, unsigned int *length )
 {
     char *endp;
+    if ( input == NULL ) {
+        return;
+    }
     for ( char *token = strtok_r ( input, ",", &endp ); token != NULL; token = strtok_r ( NULL, ",", &endp ) ) {
         // Make space.
         *list = g_realloc ( ( *list ), ( ( *length ) + 1 ) * sizeof ( struct range_pair ) );
