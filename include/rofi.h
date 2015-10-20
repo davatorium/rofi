@@ -246,6 +246,8 @@ typedef struct _Settings
     unsigned int   markup_rows;
     /** fullscreen */
     unsigned int   fullscreen;
+    /** bg image */
+    unsigned int   fake_transparency;
 } Settings;
 
 /** Global Settings structure. */

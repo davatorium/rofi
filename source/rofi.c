@@ -176,54 +176,55 @@ static int levenshtein ( char *s1, char *s2 )
 
 typedef struct MenuState
 {
-    Switcher     *sw;
-    unsigned int menu_lines;
-    unsigned int max_elements;
-    unsigned int max_rows;
-    unsigned int columns;
+    Switcher        *sw;
+    unsigned int    menu_lines;
+    unsigned int    max_elements;
+    unsigned int    max_rows;
+    unsigned int    columns;
 
     // window width,height
-    unsigned int w, h;
-    int          x, y;
-    unsigned int element_width;
-    int          top_offset;
+    unsigned int    w, h;
+    int             x, y;
+    unsigned int    element_width;
+    int             top_offset;
 
     // Update/Refilter list.
-    int          update;
-    int          refilter;
-    int          rchanged;
-    int          cur_page;
+    int             update;
+    int             refilter;
+    int             rchanged;
+    int             cur_page;
 
     // Entries
-    textbox      *text;
-    textbox      *prompt_tb;
-    textbox      *message_tb;
-    textbox      *case_indicator;
-    textbox      **boxes;
-    scrollbar    *scrollbar;
-    int          *distance;
-    unsigned int *line_map;
+    textbox         *text;
+    textbox         *prompt_tb;
+    textbox         *message_tb;
+    textbox         *case_indicator;
+    textbox         **boxes;
+    scrollbar       *scrollbar;
+    int             *distance;
+    unsigned int    *line_map;
 
-    unsigned int num_lines;
+    unsigned int    num_lines;
 
     // Selected element.
-    unsigned int selected;
-    unsigned int filtered_lines;
+    unsigned int    selected;
+    unsigned int    filtered_lines;
     // Last offset in paginating.
-    unsigned int last_offset;
+    unsigned int    last_offset;
 
-    KeySym       prev_key;
-    Time         last_button_press;
+    KeySym          prev_key;
+    Time            last_button_press;
 
-    int          quit;
-    int          skip_absorb;
+    int             quit;
+    int             skip_absorb;
     // Return state
-    unsigned int *selected_line;
-    MenuReturn   retv;
-    char         **lines;
-    int          *lines_not_ascii;
-    int          line_height;
-    unsigned int border;
+    unsigned int    *selected_line;
+    MenuReturn      retv;
+    char            **lines;
+    int             *lines_not_ascii;
+    int             line_height;
+    unsigned int    border;
+    cairo_surface_t *bg;
 }MenuState;
 
 static Window create_window ( Display *display )
@@ -285,6 +286,10 @@ static void menu_free_state ( MenuState *state )
     textbox_free ( state->prompt_tb );
     textbox_free ( state->case_indicator );
     scrollbar_free ( state->scrollbar );
+    if ( state->bg ) {
+        cairo_surface_destroy ( state->bg );
+        state->bg = NULL;
+    }
 
     for ( unsigned int i = 0; i < state->max_elements; i++ ) {
         textbox_free ( state->boxes[i] );
@@ -829,9 +834,20 @@ static void menu_update ( MenuState *state )
     cairo_surface_t *surf = cairo_image_surface_create ( get_format (), state->w, state->h );
     cairo_t         *d    = cairo_create ( surf );
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
-    // Paint the background.
-    color_background ( display, d );
-    cairo_paint ( d );
+    if ( config.fake_transparency ) {
+        if ( state->bg != NULL ) {
+            cairo_set_source_surface ( d, state->bg, -(double) ( state->x ), -(double) ( state->y ) );
+            cairo_paint ( d );
+            cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
+            color_background ( display, d );
+            cairo_paint ( d );
+        }
+    }
+    else {
+        // Paint the background.
+        color_background ( display, d );
+        cairo_paint ( d );
+    }
     color_border ( display, d );
 
     if ( config.menu_bw > 0 ) {
@@ -1042,6 +1058,24 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
             sn_launchee_context_setup_window ( sncontext, main_window );
         }
     }
+    Window root = DefaultRootWindow ( display );
+    if ( config.fake_transparency ) {
+        cairo_surface_t *s = cairo_xlib_surface_create ( display,
+                                                         root,
+                                                         DefaultVisual ( display, DefaultScreen ( display ) ),
+                                                         DisplayWidth ( display, DefaultScreen ( display ) ),
+                                                         DisplayHeight ( display, DefaultScreen ( display ) ) );
+
+        state.bg = cairo_image_surface_create ( get_format (),
+                                                DisplayWidth ( display, DefaultScreen ( display ) ),
+                                                DisplayHeight ( display, DefaultScreen ( display ) ) );
+        cairo_t *dr = cairo_create ( state.bg );
+        cairo_set_source_surface ( dr, s, 0, 0 );
+        cairo_paint ( dr );
+        cairo_destroy ( dr );
+        cairo_surface_destroy ( s );
+    }
+
     // Get active monitor size.
     monitor_active ( display, &mon );
 
@@ -1215,6 +1249,11 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         else if ( ev.type == ConfigureNotify ) {
             XConfigureEvent xce = ev.xconfigure;
             if ( xce.window == main_window ) {
+                if ( state.x != (int ) xce.x || state.y != (int) xce.y ) {
+                    state.x      = xce.x;
+                    state.y      = xce.y;
+                    state.update = TRUE;
+                }
                 if ( state.w != (unsigned int) xce.width || state.h != (unsigned int ) xce.height ) {
                     state.w = xce.width;
                     state.h = xce.height;
