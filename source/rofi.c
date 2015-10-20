@@ -1061,13 +1061,14 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     }
     // Get active monitor size.
     monitor_active ( display, &( state.mon ) );
-    Window root = DefaultRootWindow ( display );
     if ( config.fake_transparency ) {
-        cairo_surface_t *s = cairo_xlib_surface_create ( display,
-                                                         root,
-                                                         DefaultVisual ( display, DefaultScreen ( display ) ),
-                                                         DisplayWidth ( display, DefaultScreen ( display ) ),
-                                                         DisplayHeight ( display, DefaultScreen ( display ) ) );
+        Window          root   = DefaultRootWindow ( display );
+        int             screen = DefaultScreen ( display );
+        cairo_surface_t *s     = cairo_xlib_surface_create ( display,
+                                                             root,
+                                                             DefaultVisual ( display, screen ),
+                                                             DisplayWidth ( display, screen ),
+                                                             DisplayHeight ( display, screen ) );
 
         state.bg = cairo_image_surface_create ( get_format (), state.mon.w, state.mon.h );
         cairo_t *dr = cairo_create ( state.bg );
