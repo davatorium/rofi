@@ -54,6 +54,7 @@
 [ -parse-hosts ]
 [ -combi-modi *mode1,mode2* ]
 [ -normal-window ]
+[ -fake-transparency ]
 [ -quiet ]
 
 ## DESCRIPTION
@@ -576,6 +577,11 @@ For more information on supported markup see [here](https://developer.gnome.org/
 `-normal-window`
 
 Make **rofi** reacts like a normal application window. Useful for scripts like Clerk that are basically an application.
+
+`-fake-transparency`
+
+Enable fake transparency. This only works with transparent background color in the theme, not the opacity setting.
+
 
 ### Message dialog
 
