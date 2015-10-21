@@ -133,7 +133,8 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "separator-style",      { .str  = &config.separator_style         }, NULL, "Separator style (none, dash, solid)"           },
     { xrm_Boolean, "hide-scrollbar",       { .num  = &config.hide_scrollbar          }, NULL, "Hide scroll-bar"                               },
     { xrm_Boolean, "markup-rows",          { .num  = &config.markup_rows             }, NULL, "Show markup"                                   },
-    { xrm_Boolean, "fullscreen",           { .num  = &config.fullscreen              }, NULL, "Fullscreen"                                    }
+    { xrm_Boolean, "fullscreen",           { .num  = &config.fullscreen              }, NULL, "Fullscreen"                                    },
+    { xrm_Boolean, "fake-transparency",    { .num  = &config.fake_transparency       }, NULL, "Fake transparency"                             }
 };
 
 // Dynamic options.

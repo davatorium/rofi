@@ -176,54 +176,56 @@ static int levenshtein ( char *s1, char *s2 )
 
 typedef struct MenuState
 {
-    Switcher     *sw;
-    unsigned int menu_lines;
-    unsigned int max_elements;
-    unsigned int max_rows;
-    unsigned int columns;
+    Switcher        *sw;
+    unsigned int    menu_lines;
+    unsigned int    max_elements;
+    unsigned int    max_rows;
+    unsigned int    columns;
 
     // window width,height
-    unsigned int w, h;
-    int          x, y;
-    unsigned int element_width;
-    int          top_offset;
+    unsigned int    w, h;
+    int             x, y;
+    unsigned int    element_width;
+    int             top_offset;
 
     // Update/Refilter list.
-    int          update;
-    int          refilter;
-    int          rchanged;
-    int          cur_page;
+    int             update;
+    int             refilter;
+    int             rchanged;
+    int             cur_page;
 
     // Entries
-    textbox      *text;
-    textbox      *prompt_tb;
-    textbox      *message_tb;
-    textbox      *case_indicator;
-    textbox      **boxes;
-    scrollbar    *scrollbar;
-    int          *distance;
-    unsigned int *line_map;
+    textbox         *text;
+    textbox         *prompt_tb;
+    textbox         *message_tb;
+    textbox         *case_indicator;
+    textbox         **boxes;
+    scrollbar       *scrollbar;
+    int             *distance;
+    unsigned int    *line_map;
 
-    unsigned int num_lines;
+    unsigned int    num_lines;
 
     // Selected element.
-    unsigned int selected;
-    unsigned int filtered_lines;
+    unsigned int    selected;
+    unsigned int    filtered_lines;
     // Last offset in paginating.
-    unsigned int last_offset;
+    unsigned int    last_offset;
 
-    KeySym       prev_key;
-    Time         last_button_press;
+    KeySym          prev_key;
+    Time            last_button_press;
 
-    int          quit;
-    int          skip_absorb;
+    int             quit;
+    int             skip_absorb;
     // Return state
-    unsigned int *selected_line;
-    MenuReturn   retv;
-    char         **lines;
-    int          *lines_not_ascii;
-    int          line_height;
-    unsigned int border;
+    unsigned int    *selected_line;
+    MenuReturn      retv;
+    char            **lines;
+    int             *lines_not_ascii;
+    int             line_height;
+    unsigned int    border;
+    cairo_surface_t *bg;
+    workarea        mon;
 }MenuState;
 
 static Window create_window ( Display *display )
@@ -285,6 +287,10 @@ static void menu_free_state ( MenuState *state )
     textbox_free ( state->prompt_tb );
     textbox_free ( state->case_indicator );
     scrollbar_free ( state->scrollbar );
+    if ( state->bg ) {
+        cairo_surface_destroy ( state->bg );
+        state->bg = NULL;
+    }
 
     for ( unsigned int i = 0; i < state->max_elements; i++ ) {
         textbox_free ( state->boxes[i] );
@@ -302,33 +308,33 @@ static void menu_free_state ( MenuState *state )
  *
  * Calculates the window poslition
  */
-static void calculate_window_position ( MenuState *state, const workarea *mon )
+static void calculate_window_position ( MenuState *state )
 {
     // Default location is center.
-    state->y = mon->y + ( mon->h - state->h ) / 2;
-    state->x = mon->x + ( mon->w - state->w ) / 2;
+    state->y = state->mon.y + ( state->mon.h - state->h ) / 2;
+    state->x = state->mon.x + ( state->mon.w - state->w ) / 2;
     // Determine window location
     switch ( config.location )
     {
     case WL_NORTH_WEST:
-        state->x = mon->x;
+        state->x = state->mon.x;
     case WL_NORTH:
-        state->y = mon->y;
+        state->y = state->mon.y;
         break;
     case WL_NORTH_EAST:
-        state->y = mon->y;
+        state->y = state->mon.y;
     case WL_EAST:
-        state->x = mon->x + mon->w - state->w;
+        state->x = state->mon.x + state->mon.w - state->w;
         break;
     case WL_EAST_SOUTH:
-        state->x = mon->x + mon->w - state->w;
+        state->x = state->mon.x + state->mon.w - state->w;
     case WL_SOUTH:
-        state->y = mon->y + mon->h - state->h;
+        state->y = state->mon.y + state->mon.h - state->h;
         break;
     case WL_SOUTH_WEST:
-        state->y = mon->y + mon->h - state->h;
+        state->y = state->mon.y + state->mon.h - state->h;
     case WL_WEST:
-        state->x = mon->x;
+        state->x = state->mon.x;
         break;
     case WL_CENTER:
     default:
@@ -829,9 +835,22 @@ static void menu_update ( MenuState *state )
     cairo_surface_t *surf = cairo_image_surface_create ( get_format (), state->w, state->h );
     cairo_t         *d    = cairo_create ( surf );
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
-    // Paint the background.
-    color_background ( display, d );
-    cairo_paint ( d );
+    if ( config.fake_transparency ) {
+        if ( state->bg != NULL ) {
+            cairo_set_source_surface ( d, state->bg,
+                                       -(double) ( state->x - state->mon.x ),
+                                       -(double) ( state->y - state->mon.y ) );
+            cairo_paint ( d );
+            cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
+            color_background ( display, d );
+            cairo_paint ( d );
+        }
+    }
+    else {
+        // Paint the background.
+        color_background ( display, d );
+        cairo_paint ( d );
+    }
     color_border ( display, d );
 
     if ( config.menu_bw > 0 ) {
@@ -1022,8 +1041,6 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     if ( next_pos ) {
         *next_pos = *selected_line;
     }
-    workarea mon;
-
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
@@ -1043,7 +1060,23 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         }
     }
     // Get active monitor size.
-    monitor_active ( display, &mon );
+    monitor_active ( display, &( state.mon ) );
+    if ( config.fake_transparency ) {
+        Window          root   = DefaultRootWindow ( display );
+        int             screen = DefaultScreen ( display );
+        cairo_surface_t *s     = cairo_xlib_surface_create ( display,
+                                                             root,
+                                                             DefaultVisual ( display, screen ),
+                                                             DisplayWidth ( display, screen ),
+                                                             DisplayHeight ( display, screen ) );
+
+        state.bg = cairo_image_surface_create ( get_format (), state.mon.w, state.mon.h );
+        cairo_t *dr = cairo_create ( state.bg );
+        cairo_set_source_surface ( dr, s, -state.mon.x, -state.mon.y );
+        cairo_paint ( dr );
+        cairo_destroy ( dr );
+        cairo_surface_destroy ( s );
+    }
 
     // we need this at this point so we can get height.
     state.line_height    = textbox_get_estimated_char_height ();
@@ -1052,7 +1085,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     // Height of a row.
     if ( config.menu_lines == 0 ) {
         // Autosize it.
-        int h = mon.h - state.border * 2 - config.line_margin;
+        int h = state.mon.h - state.border * 2 - config.line_margin;
         int r = ( h ) / ( state.line_height * config.element_height ) - 1 - config.sidebar_mode;
         state.menu_lines = r;
     }
@@ -1060,7 +1093,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         state.menu_lines = config.menu_lines;
     }
     menu_calculate_rows_columns ( &state );
-    menu_calculate_window_and_element_width ( &state, &mon );
+    menu_calculate_window_and_element_width ( &state, &( state.mon ) );
 
     // Prompt box.
     state.prompt_tb = textbox_create ( TB_AUTOWIDTH, ( state.border ), ( state.border ),
@@ -1132,11 +1165,11 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
 
     // Sidebar mode.
     if ( config.menu_lines == 0 ) {
-        state.h = mon.h;
+        state.h = state.mon.h;
     }
 
     // Move the window to the correct x,y position.
-    calculate_window_position ( &state, &mon );
+    calculate_window_position ( &state );
 
     if ( config.sidebar_mode == TRUE ) {
         int width = ( state.w - ( 2 * ( state.border ) + ( num_switchers - 1 ) * config.line_margin ) ) / num_switchers;
@@ -1215,6 +1248,11 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         else if ( ev.type == ConfigureNotify ) {
             XConfigureEvent xce = ev.xconfigure;
             if ( xce.window == main_window ) {
+                if ( state.x != (int ) xce.x || state.y != (int) xce.y ) {
+                    state.x      = xce.x;
+                    state.y      = xce.y;
+                    state.update = TRUE;
+                }
                 if ( state.w != (unsigned int) xce.width || state.h != (unsigned int ) xce.height ) {
                     state.w = xce.width;
                     state.h = xce.height;
@@ -1418,7 +1456,6 @@ void error_dialog ( const char *msg, int markup )
         .columns           =           0,
         .update            = TRUE,
     };
-    workarea  mon;
 
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
@@ -1430,14 +1467,14 @@ void error_dialog ( const char *msg, int markup )
         return;
     }
     // Get active monitor size.
-    monitor_active ( display, &mon );
+    monitor_active ( display, &( state.mon ) );
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     XWindowAttributes attr;
     if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
         main_window = create_window ( display );
     }
 
-    menu_calculate_window_and_element_width ( &state, &mon );
+    menu_calculate_window_and_element_width ( &state, &( state.mon ) );
     state.max_elements = 0;
 
     state.text = textbox_create ( ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
@@ -1449,7 +1486,7 @@ void error_dialog ( const char *msg, int markup )
     state.h = state.line_height + ( state.border ) * 2;
 
     // Move the window to the correct x,y position.
-    calculate_window_position ( &state, &mon );
+    calculate_window_position ( &state );
     XMoveResizeWindow ( display, main_window, state.x, state.y, state.w, state.h );
     cairo_xlib_surface_set_size ( surface, state.w, state.h );
     // Display it.
