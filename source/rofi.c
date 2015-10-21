@@ -1677,8 +1677,11 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
 {
     printf ( "%s usage:\n", argv[0] );
     printf ( "\t%s [-options ...]\n\n", argv[0] );
-    printf ( "where options include:\n" );
+    printf ( "Command line only options:\n" );
     print_main_application_options ();
+    printf ( "DMENU command line options:\n" );
+    print_dmenu_options ();
+    printf ( "Global options:\n" );
     print_options ();
     printf ( "\n" );
     printf ( "For more information see: man rofi\n" );

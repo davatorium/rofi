@@ -391,3 +391,36 @@ int dmenu_switcher_dialog ( void )
     return retv;
 }
 
+void print_dmenu_options ( void )
+{
+    if ( isatty ( fileno ( stdout ) ) ) {
+        printf (
+            "\t"color_bold "-mesg"color_reset
+            " [string]                          Print a small user message under the prompt (uses pango markup)\n" );
+        printf ( "\t"color_bold "-p"color_reset " [string]                             Prompt to display left of entry field\n" );
+        printf ( "\t"color_bold "-selected-row"color_reset " [integer]                 Select row\n" );
+        printf ( "\t"color_bold "-format"color_reset " [string]                        Output format string\n" );
+        printf ( "\t\t"color_italic "s"color_reset "\n" );
+        printf ( "\t"color_bold "-u"color_reset " [list]                               List of row indexes to mark urgent\n" );
+        printf ( "\t"color_bold "-a"color_reset " [list]                               List of row indexes to mark active\n" );
+        printf ( "\t"color_bold "-l"color_reset " [integer]                            Number of rows to display\n" );
+        printf ( "\t"color_bold "-i"color_reset "                                      Set filter to be case insensitive\n" );
+        printf ( "\t"color_bold "-only-match"color_reset "                             Force selection or custom entry\n" );
+        printf ( "\t"color_bold "-no-custom"color_reset "                              Don't accept custom entry\n" );
+        printf ( "\t"color_bold "-select"color_reset " [string]                        Select the first row that matches\n" );
+    }
+    else {
+        printf ( "\t-mesg [string]                          Print a small user message under the prompt (uses pango markup)\n" );
+        printf ( "\t-p [string]                             Prompt to display left of entry field\n" );
+        printf ( "\t-selected-row [integer]                 Select row\n" );
+        printf ( "\t-format [string]                        Output format string\n" );
+        printf ( "\t\ts\n" );
+        printf ( "\t-u [list]                               List of row indexes to mark urgent\n" );
+        printf ( "\t-a [list]                               List of row indexes to mark active\n" );
+        printf ( "\t-l [integer]                            Number of rows to display\n" );
+        printf ( "\t-i                                      Set filter to be case insensitive\n" );
+        printf ( "\t-only-match                             Force selection or custom entry\n" );
+        printf ( "\t-no-custom                              Don't accept custom entry\n" );
+        printf ( "\t-select [string]                        Select the first row that matches\n" );
+    }
+}

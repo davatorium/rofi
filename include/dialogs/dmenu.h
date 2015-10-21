@@ -8,4 +8,5 @@
  */
 int dmenu_switcher_dialog ( void );
 
+void print_dmenu_options ( void );
 #endif
