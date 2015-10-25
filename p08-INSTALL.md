@@ -1,8 +1,4 @@
----
-layout: default
-github: DaveDavenport
-title: Installation guide
----
+# Installation guide
 
 ## DEPENDENCY
 
@@ -11,18 +7,31 @@ title: Installation guide
 * C compiler that supports the c99 standard. (gcc or clang)
 * make
 * autoconf
-* automake (1.14.0)
+* automake (1.11.3 or up)
+* pkg-config
+* Developer packages of the external libraries
 
 ### External libraries
 
 * libxinerama
-* libxft
+* libxft2
 * libpango
+* libpangocairo
+* libcairo
+* libcairo-xlib
+* libglib2.0
 * libx11
+* libstartup-notification-1.0
+
+On debian based systems, the developer packages are in the form of: `<package>-dev` on rpm based
+'<package>-devel'.
+
 
 ### Optional:
 
 * For i3 support, you need at least i3 version 4.5 or up.
+Make sure that 'i3/ipc.h' is included. If it fails please check 
+config.log.
 
 
 
@@ -58,8 +67,13 @@ autoreconf -i
 Create a build directory:
 
 ```
-mkdir build/
-cd build/
+mkdir build
+```
+
+Enter build directory:
+
+```
+cd build
 ```
 
 Check dependencies and configure build system:
@@ -115,12 +129,33 @@ CFLAGS="-I/weird/i3/path/include/" ../configure
 CFLAGS="-I/weird/i3/path/include/" make
 ```
 
-## Archlinux
+## Options for make
 
-This version of rofi has been made available on the
-[AUR](https://aur.archlinux.org/packages/rofi-git/).
+When you run make you can tweak the build process a little.
 
-## Debian
+### Verbose output
 
-rofi is also available in the [Debian archives](https://packages.debian.org/rofi). You can install it with: `apt install rofi`
+Show the commands called:
 
+```
+make V=1
+```
+
+### Debug build
+
+Compile with debug symbols and no optimization
+
+```
+make CFLAGS="-O0 -g3" clean rofi
+```
+
+### Get a backtrace
+
+Getting a backtrace using GDB is not very handy. Because if rofi get stuck, it grabs keyboard and
+mouse. So if it crashes in GDB you are stuck.
+The best way to go is to enable core file. (ulimit -c unlimited in bash) then make rofi crash. You
+can then load the core in GDB.
+
+```
+gdb rofi core
+```
