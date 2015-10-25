@@ -173,5 +173,5 @@ apt-get install rofi
 
 rofi from [russianfedora repository](http://ru.fedoracommunity.org/repository)
 and also
-Copr (Cool Other Package Repo) https://copr.fedoraproject.org/coprs/region51/rofi/*
+Copr (Cool Other Package Repo) https://copr.fedoraproject.org/coprs/region51/rofi/
 
