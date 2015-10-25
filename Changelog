@@ -1,4 +1,4 @@
-0.15.9: (unreleased)
+0.15.10:
 	New feature:
 		- Support for Startup Notification
 		- Standalone mode in dmenu
