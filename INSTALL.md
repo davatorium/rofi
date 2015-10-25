@@ -159,3 +159,19 @@ can then load the core in GDB.
 ```
 gdb rofi core
 ```
+
+## Install distribution
+
+### Debian or Ubuntu
+
+```
+apt-get install rofi
+
+```
+
+### Fedora
+
+rofi from [russianfedora repository](http://ru.fedoracommunity.org/repository)
+and also
+Copr (Cool Other Package Repo) https://copr.fedoraproject.org/coprs/region51/rofi/*
+
