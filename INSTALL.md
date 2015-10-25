@@ -16,7 +16,9 @@
 * libxinerama
 * libxft2
 * libpango
-* libpangoxft
+* libpangocairo
+* libcairo
+* libcairo-xlib
 * libglib2.0
 * libx11
 * libstartup-notification-1.0
