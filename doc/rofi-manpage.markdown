@@ -56,6 +56,8 @@
 [ -normal-window ]
 [ -fake-transparency ]
 [ -quiet ]
+[ -glob  ]
+[ -tokenize ]
 
 ## DESCRIPTION
 
@@ -331,6 +333,14 @@ Set separator style. Possible options are "none", "solid" or "dash".
 `-hide-scrollbar`
 
 Hide the scrollbar.
+
+`-glob`
+
+Use glob style matching
+
+`-tokenize`
+
+Tokenize the input.
 
 ### Layout
 
