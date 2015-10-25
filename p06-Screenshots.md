@@ -89,27 +89,19 @@ Xresources entries:
 
 Xresources entries:
 
-        rofi.opacity: 85
-        rofi.width: 1924
-        rofi.lines: 7
-        rofi.columns: 4
-        rofi.font: SourceCodePro 9
-        rofi.fg: #E5DBCF
-        rofi.bg: #0F3B5F
-        rofi.hlfg: #0F3B5F
-        rofi.hlbg: #CC9752
-        rofi.bc: #CC9752
-        rofi.bw: 2
-        rofi.location: 6
-        rofi.padding: 2
-        rofi.yoffset: -22
-        rofi.xoffset: 0
-        rofi.fixed-num-lines: true
-        rofi.hmode: false
-        rofi.terminal: x-terminal-emulator
-        rofi.ssh-set-title: true
-        rofi.disable-history: true
-        rofi.key: F12
-        rofi.rkey: mod1+F2
-        rofi.skey: mod1+F3
-
+        rofi.location:          6
+        rofi.color-enabled:     true
+        rofi.color-window:      argb:ee0F3B5F, #CC9752, #CC9752
+        rofi.color-normal:      argb:00111111, #E5DBCF, argb:00111111, #CC9752, #0F3B5F
+        rofi.color-urgent:      argb:00111111, #af652f, argb:00111111, #af652f, #0F3B5F
+        rofi.color-active:      argb:00111111, #70a16c, argb:00111111, #70a16c, #0F3B5F
+        rofi.key-combi:         Alt-F3
+        rofi.separator-style:   dash
+        rofi.fullscreen:        false
+        rofi.padding:           2
+        rofi.hide-scrollbar:    true
+        rofi.line-margin:       5
+        rofi.fake-transparency: true
+        rofi.yoffset:           -20
+        rofi.xoffset:           0
+        rofi.width:             1924
