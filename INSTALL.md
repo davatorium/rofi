@@ -14,7 +14,6 @@
 ### External libraries
 
 * libxinerama
-* libxft2
 * libpango
 * libpangocairo
 * libcairo
