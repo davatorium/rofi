@@ -867,11 +867,18 @@ static void menu_update ( MenuState *state )
 
     // Always paint as overlay over the background.
     cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
-
-    menu_draw ( state, d );
-    textbox_draw ( state->prompt_tb, d );
-    textbox_draw ( state->text, d );
-    textbox_draw ( state->case_indicator, d );
+    if ( state->max_elements > 0 ) {
+        menu_draw ( state, d );
+    }
+    if ( state->prompt_tb ) {
+        textbox_draw ( state->prompt_tb, d );
+    }
+    if ( state->text ) {
+        textbox_draw ( state->text, d );
+    }
+    if ( state->case_indicator ) {
+        textbox_draw ( state->case_indicator, d );
+    }
     if ( state->message_tb ) {
         textbox_draw ( state->message_tb, d );
     }
@@ -1455,6 +1462,8 @@ void error_dialog ( const char *msg, int markup )
         .filtered_lines    =           0,
         .columns           =           0,
         .update            = TRUE,
+        .top_offset        =           0,
+        .border            = config.padding + config.menu_bw
     };
 
     // Try to grab the keyboard as early as possible.
@@ -1468,6 +1477,22 @@ void error_dialog ( const char *msg, int markup )
     }
     // Get active monitor size.
     monitor_active ( display, &( state.mon ) );
+    if ( config.fake_transparency ) {
+        Window          root   = DefaultRootWindow ( display );
+        int             screen = DefaultScreen ( display );
+        cairo_surface_t *s     = cairo_xlib_surface_create ( display,
+                                                             root,
+                                                             DefaultVisual ( display, screen ),
+                                                             DisplayWidth ( display, screen ),
+                                                             DisplayHeight ( display, screen ) );
+
+        state.bg = cairo_image_surface_create ( get_format (), state.mon.w, state.mon.h );
+        cairo_t *dr = cairo_create ( state.bg );
+        cairo_set_source_surface ( dr, s, -state.mon.x, -state.mon.y );
+        cairo_paint ( dr );
+        cairo_destroy ( dr );
+        cairo_surface_destroy ( s );
+    }
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     XWindowAttributes attr;
     if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
@@ -1498,8 +1523,7 @@ void error_dialog ( const char *msg, int markup )
     while ( !state.quit ) {
         // Update if requested.
         if ( state.update ) {
-            textbox_draw ( state.text, draw );
-            state.update = FALSE;
+            menu_update ( &state );
         }
         // Wait for event.
         XEvent ev;

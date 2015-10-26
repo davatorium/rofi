@@ -55,14 +55,14 @@ typedef struct
  * Currently supports string, boolean and number (signed and unsigned).
  */
 static XrmOption xrmOptions[] = {
-    { xrm_String,  "switchers",            { .str  = &config.switchers               }, NULL, ""                                          },
-    { xrm_String,  "modi",                 { .str  = &config.switchers               }, NULL, "Enabled modi"                              },
-    { xrm_Number,  "opacity",              { .num  = &config.window_opacity          }, NULL, "Window opacity"                            },
-    { xrm_SNumber, "width",                { .snum = &config.menu_width              }, NULL, "Window width"                              },
-    { xrm_Number,  "lines",                { .num  = &config.menu_lines              }, NULL, "Number of lines"                           },
-    { xrm_Number,  "columns",              { .num  = &config.menu_columns            }, NULL, "Number of columns"                         },
+    { xrm_String,  "switchers",            { .str  = &config.switchers               }, NULL, ""                                              },
+    { xrm_String,  "modi",                 { .str  = &config.switchers               }, NULL, "Enabled modi"                                  },
+    { xrm_Number,  "opacity",              { .num  = &config.window_opacity          }, NULL, "Window opacity"                                },
+    { xrm_SNumber, "width",                { .snum = &config.menu_width              }, NULL, "Window width"                                  },
+    { xrm_Number,  "lines",                { .num  = &config.menu_lines              }, NULL, "Number of lines"                               },
+    { xrm_Number,  "columns",              { .num  = &config.menu_columns            }, NULL, "Number of columns"                             },
 
-    { xrm_String,  "font",                 { .str  = &config.menu_font               }, NULL, "Font to use"                               },
+    { xrm_String,  "font",                 { .str  = &config.menu_font               }, NULL, "Font to use"                                   },
     /* Foreground color */
     { xrm_String,  "foreground",           { .str  = &config.menu_fg                 }, NULL, ""                                              },
     { xrm_String,  "fg",                   { .str  = &config.menu_fg                 }, NULL, "Foreground color"                              },
