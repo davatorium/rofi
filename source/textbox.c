@@ -96,7 +96,12 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
 
 void textbox_font ( textbox *tb, TextBoxFontType tbft )
 {
-    RowColor *color = &( colors[tbft & STATE_MASK] );
+    TextBoxFontType t = tbft & STATE_MASK;
+    // ACTIVE has priority over URGENT if both set.
+    if ( t == ( URGENT | ACTIVE ) ) {
+        t = ACTIVE;
+    }
+    RowColor *color = &( colors[t] );
     switch ( ( tbft & FMOD_MASK ) )
     {
     case HIGHLIGHT:
