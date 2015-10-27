@@ -1,5 +1,0 @@
-{
-    "cmd"  : "make -C build/",
-    "name" : "all",
-    "sh"   : true
-}
