@@ -18,17 +18,6 @@ AM_PROG_CC_C_O
 
 AC_USE_SYSTEM_EXTENSIONS
 
-
-
-dnl ---------------------------------------------------------------------
-dnl Enable source code coverage reporting for GCC
-dnl ---------------------------------------------------------------------
-
-AC_ARG_ENABLE(gcov,
-        [  --enable-gcov           Enable source code coverage testing using gcov],
-        [CFLAGS="$CFLAGS -fprofile-arcs -ftest-coverage"])
-
-
 dnl ---------------------------------------------------------------------
 dnl Disable window mode
 dnl ---------------------------------------------------------------------
