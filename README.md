@@ -160,7 +160,7 @@ There are currently three methods of setting configuration options:
  * Compile time: edit config.c. This method is strongly discouraged.
  * Xresources: A method of storing key values in the Xserver. See
    [here](https://en.wikipedia.org/wiki/X_resources) for more information.
-   This is the recommended way of configuring **rofi**.
+   This is the recommended way of configuring **rofi**. Remember to load your changes with `xrdb -load ~/.Xresources`
  * Commandline options: Arguments passed to **rofi**.
 
 The Xresources options and the commandline options are aliased. So to set option X you would set:
