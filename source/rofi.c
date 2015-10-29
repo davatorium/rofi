@@ -1040,9 +1040,10 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     state.lines_not_ascii = g_malloc0_n ( state.num_lines, sizeof ( int ) );
 
     // find out which lines contain non-ascii codepoints, so we can be faster in some cases.
-
-    for ( unsigned int line = 0; state.lines[line]; line++ ) {
-        state.lines_not_ascii[line] = is_not_ascii ( state.lines[line] );
+    if ( state.lines != NULL ) {
+        for ( unsigned int line = 0; state.lines[line]; line++ ) {
+            state.lines_not_ascii[line] = is_not_ascii ( state.lines[line] );
+        }
     }
 
     if ( next_pos ) {
