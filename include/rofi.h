@@ -248,6 +248,8 @@ typedef struct _Settings
     unsigned int   fullscreen;
     /** bg image */
     unsigned int   fake_transparency;
+    /** dpi */
+    int dpi;
 } Settings;
 
 /** Global Settings structure. */

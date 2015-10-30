@@ -647,9 +647,11 @@ void textbox_setup ( Display *display )
         parse_color ( display, config.menu_hlfg_active, &( colors[ACTIVE].hlfg ) );
         parse_color ( display, config.menu_hlbg_active, &( colors[ACTIVE].hlbg ) );
     }
-    PangoFontMap *font_map = pango_cairo_font_map_new ();
+    PangoFontMap *font_map = pango_cairo_font_map_get_default ();
+    if(config.dpi > 0 ) {
+        pango_cairo_font_map_set_resolution((PangoCairoFontMap*)font_map, (double)config.dpi);
+    }
     p_context = pango_font_map_create_context ( font_map );
-    g_object_unref ( font_map );
 }
 
 void textbox_cleanup ( void )
