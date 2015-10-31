@@ -514,7 +514,7 @@ static SwitcherMode window_mode_result ( int mretv, G_GNUC_UNUSED char **input,
     else if ( ( mretv & MENU_QUICK_SWITCH ) == MENU_QUICK_SWITCH ) {
         retv = ( mretv & MENU_LOWER_MASK );
     }
-    else if ( ( mretv & ( MENU_OK | MENU_CUSTOM_INPUT ) ) && (selected_line < rmpd->cmd_list_length) && rmpd->cmd_list[selected_line] ) {
+    else if ( ( mretv & ( MENU_OK ) ) && rmpd->cmd_list[selected_line] ) {
         if ( rmpd->config_i3_mode ) {
             // Hack for i3.
             i3_support_focus_window ( rmpd->ids->array[selected_line] );
