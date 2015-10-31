@@ -226,6 +226,8 @@ typedef struct _Settings
     unsigned int   auto_select;
     /** Hosts file parsing */
     unsigned int   parse_hosts;
+    /** Knonw_hosts file parsing */
+    unsigned int   parse_known_hosts;
     /** Combi Switchers */
     char           *combi_modi;
     /** Fuzzy match */

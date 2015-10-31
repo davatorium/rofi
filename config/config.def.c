@@ -126,6 +126,8 @@ Settings config = {
     .auto_select       = FALSE,
     /** Parse /etc/hosts file in ssh view. */
     .parse_hosts       = FALSE,
+    /** Parse ~/.ssh/known_hosts file in ssh view. */
+    .parse_known_hosts = TRUE,
     /** Modi to combine into one view. */
     .combi_modi        = "window,run",
     /** Fuzzy matching. */

@@ -52,6 +52,7 @@
 [ -dump-xresources ]
 [ -auto-select ]
 [ -parse-hosts ]
+[ -no-parse-known-hosts ]
 [ -combi-modi *mode1,mode2* ]
 [ -normal-window ]
 [ -fake-transparency ]
@@ -457,6 +458,15 @@ Default: *{terminal} -e {ssh-client} {host}*
 `-parse-hosts`
 
 Parse the `/etc/hosts` file for entries.
+
+Default: *disabled*
+
+`-parse-known-hosts`
+`-no-parse-known-hosts`
+
+Parse the `~/.ssh/known_hosts` file for entries.
+
+Default: *enabled*
 
 ### Run settings
 
