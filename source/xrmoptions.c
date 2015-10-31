@@ -121,6 +121,7 @@ static XrmOption xrmOptions[] = {
     { xrm_SNumber, "eh",                   { .snum = &config.element_height          }, NULL, "Row height (in chars)"                         },
     { xrm_Boolean, "auto-select",          { .num  = &config.auto_select             }, NULL, "Enable auto select mode"                       },
     { xrm_Boolean, "parse-hosts",          { .num  = &config.parse_hosts             }, NULL, "Parse hosts file for ssh mode"                 },
+    { xrm_Boolean, "parse-known-hosts",    { .num  = &config.parse_known_hosts       }, NULL, "Parse known_hosts file for ssh mode"           },
     { xrm_String,  "combi-modi",           { .str  = &config.combi_modi              }, NULL, "Set the modi to combine in combi mode"         },
     { xrm_Boolean, "fuzzy",                { .num  = &config.fuzzy                   }, NULL, "Do a more fuzzy matching"                      },
     { xrm_Boolean, "glob",                 { .num  = &config.glob                    }, NULL, "Use glob matching"                             },

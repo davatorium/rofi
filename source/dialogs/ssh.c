@@ -234,7 +234,9 @@ static char ** get_ssh (  unsigned int *length )
     g_free ( path );
     num_favorites = ( *length );
 
-    retv = read_known_hosts_file ( retv, length );
+    if ( config.parse_known_hosts == TRUE ) {
+        retv = read_known_hosts_file ( retv, length );
+    }
     if ( config.parse_hosts == TRUE ) {
         retv = read_hosts_file ( retv, length );
     }
