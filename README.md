@@ -20,7 +20,7 @@ It main features are:
 * RTL language support.
 * Window Switcher.
     - I3 support.
-    - EWHM compatible WM.
+    - EWMH compatible WM.
 * Run dialog.
 * SSH launcher.
 * History based ordering last 25 choices are ordered on top based on use. (optional)
