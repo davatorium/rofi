@@ -979,7 +979,7 @@ static void menu_resize ( MenuState *state )
             h -= state->line_height + config.line_margin;
         }
         if ( h < 0 ) {
-            fprintf ( stderr, "Current padding %d (on each side) does not fit within visible window %d.\n", config.padding, state->h );
+            fprintf ( stderr, "Current padding %u (on each side) does not fit within visible window %u.\n", config.padding, state->h );
             h = ( state->h - state->top_offset - state->h / 3 );
             if ( config.sidebar_mode == TRUE ) {
                 h -= state->line_height + config.line_margin;
