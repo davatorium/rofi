@@ -549,7 +549,7 @@ static void window_mode_destroy ( Switcher *sw )
     }
 }
 
-static const char *mgrv ( unsigned int selected_line, void *sw, G_GNUC_UNUSED int *state )
+static const char *mgrv ( unsigned int selected_line, void *sw, int *state )
 {
     SwitcherModePrivateData *rmpd = ( (Switcher *) sw )->private_data;
     if ( window_client ( display, rmpd->ids->array[selected_line] )->demands ) {

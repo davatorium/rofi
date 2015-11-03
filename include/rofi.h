@@ -251,7 +251,7 @@ typedef struct _Settings
     /** bg image */
     unsigned int   fake_transparency;
     /** dpi */
-    int dpi;
+    int            dpi;
 } Settings;
 
 /** Global Settings structure. */

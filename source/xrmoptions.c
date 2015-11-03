@@ -136,7 +136,7 @@ static XrmOption xrmOptions[] = {
     { xrm_Boolean, "markup-rows",          { .num  = &config.markup_rows             }, NULL, "Show markup"                                   },
     { xrm_Boolean, "fullscreen",           { .num  = &config.fullscreen              }, NULL, "Fullscreen"                                    },
     { xrm_Boolean, "fake-transparency",    { .num  = &config.fake_transparency       }, NULL, "Fake transparency"                             },
-    { xrm_SNumber, "dpi",                  { .snum  = &config.dpi                    }, NULL, "DPI"                                           }
+    { xrm_SNumber, "dpi",                  { .snum = &config.dpi                     }, NULL, "DPI"                                           }
 };
 
 // Dynamic options.

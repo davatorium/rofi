@@ -143,7 +143,7 @@ void textbox_text ( textbox *tb, const char *text )
         }
     }
 
-    if ( tb->flags & TB_MARKUP ) {
+    if ( tb->flags & TB_MARKUP || tb->tbft & MARKUP ) {
         pango_layout_set_markup ( tb->layout, tb->text, strlen ( tb->text ) );
     }
     else {
@@ -648,8 +648,8 @@ void textbox_setup ( Display *display )
         parse_color ( display, config.menu_hlbg_active, &( colors[ACTIVE].hlbg ) );
     }
     PangoFontMap *font_map = pango_cairo_font_map_get_default ();
-    if(config.dpi > 0 ) {
-        pango_cairo_font_map_set_resolution((PangoCairoFontMap*)font_map, (double)config.dpi);
+    if ( config.dpi > 0 ) {
+        pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, (double) config.dpi );
     }
     p_context = pango_font_map_create_context ( font_map );
 }

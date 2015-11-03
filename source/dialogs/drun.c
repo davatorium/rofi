@@ -80,75 +80,132 @@ static void exec_cmd ( const char *cmd, int run_in_term )
 
     execsh ( cmd, run_in_term );
 }
-/**
- * Internal spider used to get list of executables.
- */
-static char** get_apps ( unsigned int *length )
+
+typedef struct _DRunModeEntry
 {
-    char **retv        = NULL;
-
-    const char * const * dr = g_get_system_data_dirs();
-    while(dr != NULL && *dr != NULL ) {
-        gchar *bp = g_build_filename(*dr, "applications", NULL);
-        DIR *dir = opendir ( bp );
-
-        if ( dir != NULL ) {
-            struct dirent *dent;
-
-            while ( ( dent = readdir ( dir ) ) != NULL ) {
-                if ( dent->d_type != DT_REG && dent->d_type != DT_LNK && dent->d_type != DT_UNKNOWN ) {
-                    continue;
-                }
-                // Skip dot files.
-                if ( dent->d_name[0] == '.' ) {
-                    continue;
-                }
-                gchar *path = g_build_filename(bp, dent->d_name, NULL);
-                GKeyFile *kf = g_key_file_new();
-                GError *error = NULL;
-                // TODO: check what flags to set;
-                g_key_file_load_from_file(kf, path, 0, NULL);
-                if ( error == NULL ) {
-                    retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( *retv ) );
-                    if( g_key_file_has_key(kf, "Desktop Entry", "Name", NULL) ) {
-                        gchar *n = NULL;
-                        gchar *gn = NULL;
-                        n = g_key_file_get_string(kf, "Desktop Entry", "Name", NULL); 
-                        gn = g_key_file_get_string(kf, "Desktop Entry", "GenericName", NULL); 
-                        retv[( *length )]     = g_strdup_printf("%-30s\t%s", n, gn?gn:""); 
-                        g_free(n); g_free(gn);
-                    } else { 
-                        retv[(*length)] = g_strdup(dent->d_name);
-                    }
-                    retv[( *length ) + 1] = NULL;
-                    ( *length )++;
-                } else {
-                    g_error_free(error);
-                }
-                g_key_file_free(kf);
-                g_free(path);
-            }
-
-            closedir ( dir );
-        }
-        dr++;
-        g_free(bp);
-    }
-
-    // No sorting needed.
-    if ( ( *length ) == 0 ) {
-        return retv;
-    }
-
-    return retv;
-}
+    char         *exec;
+    unsigned int terminal;
+} DRunModeEntry;
 
 typedef struct _DRunModePrivateData
 {
-    unsigned int id;
-    char **cmd_list;
-    unsigned int cmd_list_length;
+    unsigned int  id;
+    char          **cmd_list;
+    DRunModeEntry *entry_list;
+    unsigned int  cmd_list_length;
 } DRunModePrivateData;
+
+static void exec_cmd_entry ( DRunModeEntry *e )
+{
+    // strip % arguments
+    gchar *str = g_strdup ( e->exec );
+    for ( ssize_t i = 0; str && str[i]; i++ ) {
+        if ( str[i] == '%' ) {
+            while ( str[i] != ' ' && str[i] != '\0' ) {
+                str[i++] = ' ';
+            }
+        }
+    }
+    execsh ( str, e->terminal );
+    g_free ( str );
+}
+/**
+ * Internal spider used to get list of executables.
+ */
+static void get_apps_dir ( DRunModePrivateData *pd, const char *bp )
+{
+    DIR *dir = opendir ( bp );
+
+    if ( dir != NULL ) {
+        struct dirent *dent;
+
+        while ( ( dent = readdir ( dir ) ) != NULL ) {
+            if ( dent->d_type != DT_REG && dent->d_type != DT_LNK && dent->d_type != DT_UNKNOWN ) {
+                continue;
+            }
+            // Skip dot files.
+            if ( dent->d_name[0] == '.' ) {
+                continue;
+            }
+            gchar    *path  = g_build_filename ( bp, dent->d_name, NULL );
+            GKeyFile *kf    = g_key_file_new ();
+            GError   *error = NULL;
+            // TODO: check what flags to set;
+            g_key_file_load_from_file ( kf, path, 0, NULL );
+            if ( error == NULL ) {
+                if ( g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
+                    pd->cmd_list   = g_realloc ( pd->cmd_list, ( ( pd->cmd_list_length ) + 2 ) * sizeof ( *( pd->cmd_list ) ) );
+                    pd->entry_list = g_realloc ( pd->entry_list, ( pd->cmd_list_length + 2 ) * sizeof ( *( pd->entry_list ) ) );
+                    if ( g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
+                        gchar *n  = NULL;
+                        gchar *gn = NULL;
+                        n  = g_key_file_get_string ( kf, "Desktop Entry", "Name", NULL );
+                        gn = g_key_file_get_string ( kf, "Desktop Entry", "GenericName", NULL );
+                        if ( gn == NULL ) {
+                            pd->cmd_list[pd->cmd_list_length] = g_markup_escape_text ( n, -1 );
+                        }
+                        else {
+                            ( pd->cmd_list )[( pd->cmd_list_length )] = g_markup_printf_escaped (
+                                "%s <span weight='light' size='small'><i>(%s)</i></span>",
+                                n,
+                                gn ? gn : "" );
+                        }
+                        g_free ( n ); g_free ( gn );
+                    }
+                    else {
+                        ( pd->cmd_list )[( pd->cmd_list_length )] = g_strdup ( dent->d_name );
+                    }
+                    pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
+                    if ( g_key_file_has_key ( kf, "Desktop Entry", "Terminal", NULL ) ) {
+                        pd->entry_list[pd->cmd_list_length].terminal = g_key_file_get_boolean ( kf, "Desktop Entry", "Terminal", NULL );
+                    }
+                    ( pd->cmd_list )[( pd->cmd_list_length ) + 1] = NULL;
+                    ( pd->cmd_list_length )++;
+                }
+            }
+            else {
+                g_error_free ( error );
+            }
+            g_key_file_free ( kf );
+            g_free ( path );
+        }
+
+        closedir ( dir );
+    }
+}
+
+static void get_apps ( DRunModePrivateData *pd )
+{
+    const char * const * dr   = g_get_system_data_dirs ();
+    const char * const * iter = dr;
+    while ( iter != NULL && *iter != NULL && **iter != '\0' ) {
+        gboolean skip = FALSE;
+        for ( size_t i = 0; !skip && dr[i] != ( *iter ); i++ ) {
+            skip = ( g_strcmp0 ( *iter, dr[i] ) == 0 );
+        }
+        if ( skip ) {
+            iter++;
+            continue;
+        }
+        gchar *bp = g_build_filename ( *iter, "applications", NULL );
+        get_apps_dir ( pd, bp );
+        g_free ( bp );
+        iter++;
+    }
+
+    const char *d = g_get_user_data_dir ();
+    for ( size_t i = 0; dr[i] != NULL; i++ ) {
+        if ( g_strcmp0 ( d, dr[i] ) == 0 ) {
+            // Done this already, no need to repeat.
+            return;
+        }
+    }
+    if ( d ) {
+        gchar *bp = g_build_filename ( d, "applications", NULL );
+        get_apps_dir ( pd, bp );
+        g_free ( bp );
+    }
+}
 
 static void drun_mode_init ( Switcher *sw )
 {
@@ -163,7 +220,7 @@ static char ** drun_mode_get_data ( unsigned int *length, Switcher *sw )
     DRunModePrivateData *rmpd = (DRunModePrivateData *) sw->private_data;
     if ( rmpd->cmd_list == NULL ) {
         rmpd->cmd_list_length = 0;
-        rmpd->cmd_list        = get_apps ( &( rmpd->cmd_list_length ) );
+        get_apps ( rmpd );
     }
     if ( length != NULL ) {
         *length = rmpd->cmd_list_length;
@@ -172,12 +229,12 @@ static char ** drun_mode_get_data ( unsigned int *length, Switcher *sw )
 }
 
 static SwitcherMode drun_mode_result ( int mretv, char **input, unsigned int selected_line,
-                                      Switcher *sw )
+                                       Switcher *sw )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) sw->private_data;
-    SwitcherMode       retv  = MODE_EXIT;
+    SwitcherMode        retv  = MODE_EXIT;
 
-    int                shift = ( ( mretv & MENU_SHIFT ) == MENU_SHIFT );
+    int                 shift = ( ( mretv & MENU_SHIFT ) == MENU_SHIFT );
 
     if ( mretv & MENU_NEXT ) {
         retv = NEXT_DIALOG;
@@ -189,7 +246,7 @@ static SwitcherMode drun_mode_result ( int mretv, char **input, unsigned int sel
         retv = ( mretv & MENU_LOWER_MASK );
     }
     else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
-        exec_cmd ( rmpd->cmd_list[selected_line], shift );
+        exec_cmd_entry ( &( rmpd->entry_list[selected_line] ) );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
         exec_cmd ( *input, shift );
@@ -201,14 +258,19 @@ static void drun_mode_destroy ( Switcher *sw )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) sw->private_data;
     if ( rmpd != NULL ) {
-        g_strfreev(rmpd->cmd_list); 
+        g_strfreev ( rmpd->cmd_list );
+        for ( size_t i = 0; i < rmpd->cmd_list_length; i++ ) {
+            g_free ( rmpd->entry_list[i].exec );
+        }
+        g_free ( rmpd->entry_list );
         g_free ( rmpd );
         sw->private_data = NULL;
     }
 }
 
-static const char *mgrv ( unsigned int selected_line, void *sw, G_GNUC_UNUSED int *state )
+static const char *mgrv ( unsigned int selected_line, void *sw, int *state )
 {
+    *state |= MARKUP;
     return drun_mode_get_data ( NULL, sw )[selected_line];
 }
 

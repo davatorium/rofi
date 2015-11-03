@@ -147,5 +147,5 @@ Settings config = {
     .markup_rows       = FALSE,
     .fullscreen        = FALSE,
     .fake_transparency = FALSE,
-    .dpi               = -1,
+    .dpi               =                                        -1,
 };
