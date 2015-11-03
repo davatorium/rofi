@@ -7,6 +7,7 @@
 
 #include "dialogs/run.h"
 #include "dialogs/ssh.h"
+#include "dialogs/drun.h"
 #include "dialogs/dmenu.h"
 #include "dialogs/script.h"
 #include "dialogs/window.h"

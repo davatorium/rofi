@@ -1839,6 +1839,10 @@ static void setup_switchers ( void )
             switchers[num_switchers].sw = &run_mode;
             num_switchers++;
         }
+        else if ( strcasecmp ( token, "drun" ) == 0 ) {
+            switchers[num_switchers].sw = &drun_mode;
+            num_switchers++;
+        }
         // combi dialog
         else if ( strcasecmp ( token, "combi" ) == 0 ) {
             switchers[num_switchers].sw = &combi_mode;
