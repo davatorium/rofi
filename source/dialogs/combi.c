@@ -29,10 +29,7 @@
 #include <stdio.h>
 #include <rofi.h>
 
-#include <dialogs/run.h>
-#include <dialogs/ssh.h>
-#include <dialogs/window.h>
-#include <dialogs/script.h>
+#include <dialogs/dialogs.h>
 
 /**
  * Combi Switcher
@@ -81,6 +78,9 @@ static void combi_mode_parse_switchers ( Switcher *sw )
         // Run dialog
         else if ( strcasecmp ( token, "run" ) == 0 ) {
             pd->switchers[pd->num_switchers++] = &run_mode;
+        }
+        else if ( strcasecmp ( token, "drun" ) == 0 ) {
+            pd->switchers[pd->num_switchers++] = &drun_mode;
         }
         else {
             // If not build in, use custom switchers.

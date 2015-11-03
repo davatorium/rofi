@@ -139,8 +139,8 @@ static void get_apps_dir ( DRunModePrivateData *pd, const char *bp )
                     if ( g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
                         gchar *n  = NULL;
                         gchar *gn = NULL;
-                        n  = g_key_file_get_string ( kf, "Desktop Entry", "Name", NULL );
-                        gn = g_key_file_get_string ( kf, "Desktop Entry", "GenericName", NULL );
+                        n  = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
+                        gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
                         if ( gn == NULL ) {
                             pd->cmd_list[pd->cmd_list_length] = g_markup_escape_text ( n, -1 );
                         }
