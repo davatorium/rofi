@@ -1,4 +1,4 @@
-Update manpage using md2man
+Update manpage using ronn [https://github.com/rtomayko/ronn]
 
+    ronn --roff --pipe rofi-manpage.markdown > rofi.1
 
-  md2man-roff rofi-manpage.markdown > rofi.1
