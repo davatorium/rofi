@@ -906,7 +906,9 @@ static void menu_update ( MenuState *state )
     }
     if ( config.sidebar_mode == TRUE ) {
         for ( unsigned int j = 0; j < num_switchers; j++ ) {
-            textbox_draw ( switchers[j].tb, d );
+            if ( switchers[j].tb != NULL ) {
+                textbox_draw ( switchers[j].tb, d );
+            }
         }
     }
     state->update = FALSE;
@@ -1711,7 +1713,8 @@ static void print_main_application_options ( void )
             "\t"color_bold "-dump-xresources"color_reset
             "                        Dump the current configuration in Xresources format and exit.\n" );
         printf (
-            "\t"color_bold "-e [string]"color_reset "                             Show a dialog displaying the passed message and exit.\n" );
+            "\t"color_bold "-e [string]"color_reset
+            "                             Show a dialog displaying the passed message and exit.\n" );
         printf ( "\t"color_bold "-markup"color_reset "                                 Enable pango markup where possible.\n" );
         printf (
             "\t"color_bold "-normal-window"color_reset
