@@ -130,52 +130,53 @@ static void get_apps_dir ( DRunModePrivateData *pd, const char *bp )
             if ( dent->d_name[0] == '.' ) {
                 continue;
             }
-            gchar    *path  = g_build_filename ( bp, dent->d_name, NULL );
             GKeyFile *kf    = g_key_file_new ();
             GError   *error = NULL;
             // TODO: check what flags to set;
-            g_key_file_load_from_file ( kf, path, 0, NULL );
+            gchar    *path = g_build_filename ( bp, dent->d_name, NULL );
+            g_key_file_load_from_file ( kf, path, 0, &error );
             g_free ( path );
-            if ( error == NULL ) {
-                if ( g_key_file_has_key ( kf, "Desktop Entry", "Hidden", NULL ) ) {
-                    if ( g_key_file_get_boolean ( kf, "Desktop Entry", "Hidden", NULL ) ) {
-                        g_key_file_free ( kf );
-                        continue;
-                    }
+            // If error, skip to next entry
+            if ( error != NULL ) {
+                g_error_free ( error );
+                g_key_file_free ( kf );
+                continue;
+            }
+            // Skip hidden entries.
+            if ( g_key_file_has_key ( kf, "Desktop Entry", "Hidden", NULL ) ) {
+                if ( g_key_file_get_boolean ( kf, "Desktop Entry", "Hidden", NULL ) ) {
+                    g_key_file_free ( kf );
+                    continue;
                 }
-                if ( g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
-                    pd->cmd_list   = g_realloc ( pd->cmd_list, ( ( pd->cmd_list_length ) + 2 ) * sizeof ( *( pd->cmd_list ) ) );
-                    pd->entry_list = g_realloc ( pd->entry_list, ( pd->cmd_list_length + 2 ) * sizeof ( *( pd->entry_list ) ) );
-                    if ( g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
-                        gchar *n  = NULL;
-                        gchar *gn = NULL;
-                        n  = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
-                        gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
-                        if ( gn == NULL ) {
-                            pd->cmd_list[pd->cmd_list_length] = g_markup_escape_text ( n, -1 );
-                        }
-                        else {
-                            ( pd->cmd_list )[( pd->cmd_list_length )] = g_markup_printf_escaped (
-                                "%s <span weight='light' size='small'><i>(%s)</i></span>",
-                                n,
-                                gn ? gn : "" );
-                        }
-                        g_free ( n ); g_free ( gn );
+            }
+            if ( g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
+                size_t nl = ( ( pd->cmd_list_length ) + 2 );
+                pd->cmd_list   = g_realloc ( pd->cmd_list, nl * sizeof ( *( pd->cmd_list ) ) );
+                pd->entry_list = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
+                if ( g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
+                    gchar *n  = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
+                    gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
+                    if ( gn == NULL ) {
+                        pd->cmd_list[pd->cmd_list_length] = g_markup_escape_text ( n, -1 );
                     }
                     else {
-                        ( pd->cmd_list )[( pd->cmd_list_length )] = g_strdup ( dent->d_name );
+                        ( pd->cmd_list )[( pd->cmd_list_length )] = g_markup_printf_escaped (
+                                "%s <span weight='light' size='small'><i>(%s)</i></span>",
+                                n, gn ? gn : "" );
                     }
-                    pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
-                    if ( g_key_file_has_key ( kf, "Desktop Entry", "Terminal", NULL ) ) {
-                        pd->entry_list[pd->cmd_list_length].terminal = g_key_file_get_boolean ( kf, "Desktop Entry", "Terminal", NULL );
-                    }
-                    ( pd->cmd_list )[( pd->cmd_list_length ) + 1] = NULL;
-                    ( pd->cmd_list_length )++;
+                    g_free ( n ); g_free ( gn );
                 }
+                else {
+                    ( pd->cmd_list )[( pd->cmd_list_length )] = g_strdup ( dent->d_name );
+                }
+                pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
+                if ( g_key_file_has_key ( kf, "Desktop Entry", "Terminal", NULL ) ) {
+                    pd->entry_list[pd->cmd_list_length].terminal = g_key_file_get_boolean ( kf, "Desktop Entry", "Terminal", NULL );
+                }
+                ( pd->cmd_list )[( pd->cmd_list_length ) + 1] = NULL;
+                ( pd->cmd_list_length )++;
             }
-            else {
-                g_error_free ( error );
-            }
+
             g_key_file_free ( kf );
         }
 
