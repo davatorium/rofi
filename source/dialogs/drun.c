@@ -81,6 +81,10 @@ static void exec_cmd ( const char *cmd, int run_in_term )
     execsh ( cmd, run_in_term );
 }
 
+/**
+ * Store extra information about the entry.
+ * Currently the executable and if it should run in terminal.
+ */
 typedef struct _DRunModeEntry
 {
     char         *exec;
@@ -89,7 +93,6 @@ typedef struct _DRunModeEntry
 
 typedef struct _DRunModePrivateData
 {
-    unsigned int  id;
     char          **cmd_list;
     DRunModeEntry *entry_list;
     unsigned int  cmd_list_length;
@@ -106,7 +109,7 @@ static void exec_cmd_entry ( DRunModeEntry *e )
             }
         }
     }
-    execsh ( str, e->terminal );
+    execsh ( g_strstrip ( str ), e->terminal );
     g_free ( str );
 }
 /**
@@ -132,7 +135,14 @@ static void get_apps_dir ( DRunModePrivateData *pd, const char *bp )
             GError   *error = NULL;
             // TODO: check what flags to set;
             g_key_file_load_from_file ( kf, path, 0, NULL );
+            g_free ( path );
             if ( error == NULL ) {
+                if ( g_key_file_has_key ( kf, "Desktop Entry", "Hidden", NULL ) ) {
+                    if ( g_key_file_get_boolean ( kf, "Desktop Entry", "Hidden", NULL ) ) {
+                        g_key_file_free ( kf );
+                        continue;
+                    }
+                }
                 if ( g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
                     pd->cmd_list   = g_realloc ( pd->cmd_list, ( ( pd->cmd_list_length ) + 2 ) * sizeof ( *( pd->cmd_list ) ) );
                     pd->entry_list = g_realloc ( pd->entry_list, ( pd->cmd_list_length + 2 ) * sizeof ( *( pd->entry_list ) ) );
@@ -167,7 +177,6 @@ static void get_apps_dir ( DRunModePrivateData *pd, const char *bp )
                 g_error_free ( error );
             }
             g_key_file_free ( kf );
-            g_free ( path );
         }
 
         closedir ( dir );
