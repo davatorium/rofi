@@ -1,4 +1,4 @@
-AC_INIT([rofi], [0.15.10-devel], [https://github.com/DaveDavenport/rofi/])
+AC_INIT([rofi], [0.15.11], [https://github.com/DaveDavenport/rofi/])
 
 AC_CONFIG_SRCDIR([source/rofi.c])
 AC_CONFIG_HEADER([config.h])
