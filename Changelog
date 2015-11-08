@@ -1,3 +1,13 @@
+0.15.11:
+	New features:
+		- (Experimental) Desktop file support
+	Improvement:
+		- Add xdg-terminal to rofi-sensible-terminal
+	Bug fixes:
+		- manpage fixes (#261)
+		- Crash in error mesg on invalid config
+		- Fix urgent and active being activated at same time
+		- Fix crasher on empty list
 0.15.10:
 	New feature:
 		- Support for Startup Notification
