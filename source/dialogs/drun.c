@@ -161,8 +161,8 @@ static void get_apps_dir ( DRunModePrivateData *pd, const char *bp )
                     }
                     else {
                         ( pd->cmd_list )[( pd->cmd_list_length )] = g_markup_printf_escaped (
-                                "%s <span weight='light' size='small'><i>(%s)</i></span>",
-                                n, gn ? gn : "" );
+                            "%s <span weight='light' size='small'><i>(%s)</i></span>",
+                            n, gn ? gn : "" );
                     }
                     g_free ( n ); g_free ( gn );
                 }

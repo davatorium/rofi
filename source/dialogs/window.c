@@ -379,7 +379,7 @@ static char ** _window_mode_get_data ( unsigned int *length, Switcher *sw, unsig
         Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
         // find window list
         Atom   type;
-        int    nwins;
+        int    nwins = 0;
         Window wins[100];
         int    count       = 0;
         Window curr_win_id = 0;
@@ -401,8 +401,17 @@ static char ** _window_mode_get_data ( unsigned int *length, Switcher *sw, unsig
             current_desktop = 0;
         }
 
-        if ( window_get_prop ( display, root, netatoms[_NET_CLIENT_LIST_STACKING], &type, &nwins, wins, 100 * sizeof ( Window ) )
-             && type == XA_WINDOW ) {
+        unsigned int nw = 100 * sizeof ( Window );
+        // First try Stacking order.. If this fails.
+        if ( !( window_get_prop ( display, root, netatoms[_NET_CLIENT_LIST_STACKING], &type, &nwins, wins, nw )
+                && type == XA_WINDOW ) ) {
+            // Try to get order by age.
+            if ( !( window_get_prop ( display, root, netatoms[_NET_CLIENT_LIST], &type, &nwins, wins, nw )
+                    && type == XA_WINDOW )  ) {
+                nwins = 0;
+            }
+        }
+        if (  nwins > 0 ) {
             char          pattern[50];
             int           i;
             unsigned int  classfield = 0;

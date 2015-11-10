@@ -34,6 +34,7 @@ int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned l
     X ( _NET_NUMBER_OF_DESKTOPS ),         \
     X ( _NET_CURRENT_DESKTOP ),            \
     X ( _NET_ACTIVE_WINDOW ),              \
+    X ( _NET_CLIENT_LIST ),                \
     X ( _NET_WM_NAME ),                    \
     X ( _NET_WM_STATE ),                   \
     X ( _NET_WM_STATE_SKIP_TASKBAR ),      \
