@@ -705,24 +705,74 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
     }
 }
 
+typedef struct
+{
+    MenuState    *state;
+    char         **tokens;
+    unsigned int start;
+    unsigned int stop;
+    unsigned int count;
+}thread_state;
+
+static gpointer filter_elements ( gpointer data )
+{
+    thread_state *t = (thread_state *) data;
+    // input changed
+    for ( unsigned int i = t->start; i < t->stop; i++ ) {
+        int match = t->state->sw->token_match ( t->tokens,
+                                                t->state->lines[i],
+                                                t->state->lines_not_ascii[i],
+                                                config.case_sensitive,
+                                                i,
+                                                t->state->sw );
+
+        // If each token was matched, add it to list.
+        if ( match ) {
+            t->state->line_map[t->start + t->count] = i;
+            if ( config.levenshtein_sort ) {
+                t->state->distance[i] = levenshtein ( t->state->text->text, t->state->lines[i] );
+            }
+            t->count++;
+        }
+    }
+    return 0;
+}
+
 static void menu_refilter ( MenuState *state )
 {
     if ( strlen ( state->text->text ) > 0 ) {
         unsigned int j        = 0;
         char         **tokens = tokenize ( state->text->text, config.case_sensitive );
-
-        // input changed
-        for ( unsigned int i = 0; i < state->num_lines; i++ ) {
-            int match = state->sw->token_match ( tokens, state->lines[i], state->lines_not_ascii[i], config.case_sensitive, i, state->sw );
-
-            // If each token was matched, add it to list.
-            if ( match ) {
-                state->line_map[j] = i;
-                if ( config.levenshtein_sort ) {
-                    state->distance[i] = levenshtein ( state->text->text, state->lines[i] );
-                }
-                j++;
+        /**
+         * On long lists it can be beneficial to parallelize.
+         * If number of threads is 1, no thread is spawn.
+         * If number of threads > 1 and there are enough (> 20000) items, spawn threads.
+         * For large lists with 8 threads I see a factor three speedup of the whole function.
+         */
+        unsigned int nt = MIN ( state->num_lines / 1000, config.threads );
+        thread_state states[nt];
+        GThread      *threads[nt];
+        unsigned int steps = ( state->num_lines + nt ) / nt;
+        for ( unsigned int i = 0; i < nt; i++ ) {
+            states[i].state  = state;
+            states[i].tokens = tokens;
+            states[i].start  = i * steps;
+            states[i].stop   = MIN ( state->num_lines, ( i + 1 ) * steps );
+            states[i].count  = 0;
+            if ( i > 0 ) {
+                threads[i] = g_thread_new ( NULL, filter_elements, &( states[i] ) );
             }
+        }
+        // Run one in this thread.
+        filter_elements ( &states[0] );
+        for ( unsigned int i = 1; i < nt; i++ ) {
+            g_thread_join ( threads[i] );
+        }
+        for ( unsigned int i = 0; i < nt; i++ ) {
+            if ( j != states[i].start ) {
+                memcpy ( &( state->line_map[j] ), &( state->line_map[states[i].start] ), sizeof ( unsigned int ) * ( states[i].count ) );
+            }
+            j += states[i].count;
         }
         if ( config.levenshtein_sort ) {
             g_qsort_with_data ( state->line_map, j, sizeof ( int ), lev_sort, state->distance );

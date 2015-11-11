@@ -148,4 +148,5 @@ Settings config = {
     .fullscreen        = FALSE,
     .fake_transparency = FALSE,
     .dpi               =                                        -1,
+    .threads           =                                         1,
 };

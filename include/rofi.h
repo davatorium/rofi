@@ -252,6 +252,8 @@ typedef struct _Settings
     unsigned int   fake_transparency;
     /** dpi */
     int            dpi;
+    /** Number threads (1 to disable) */
+    unsigned int   threads;
 } Settings;
 
 /** Global Settings structure. */
