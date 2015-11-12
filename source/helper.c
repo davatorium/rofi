@@ -56,32 +56,6 @@ void cmd_set_arguments ( int argc, char **argv )
 }
 
 /**
- *  `fgets` implementation with custom separator.
- */
-char* fgets_s ( char* s, unsigned int n, FILE *iop, char sep )
-{
-    // Map these to registers.
-    register int c = EOF;
-    register char* cs;
-    cs = s;
-    // read until EOF or buffer is full.
-    while ( --n > 0 && ( c = getc ( iop ) ) != EOF ) {
-        // put the input char into the current pointer position, then increment it
-        // if a newline entered, break
-        if ( ( *cs++ = c ) == sep ) {
-            // Whipe separator
-            cs[-1] = '\0';
-            break;
-        }
-    }
-    // Always, 0 terminate the buffer.
-    *cs = '\0';
-    // if last read was end of file and current index is start, we are done:
-    // Return NULL.
-    return ( c == EOF && cs == s ) ? NULL : cs;
-}
-
-/**
  * @param info To Match information on.
  * @param res  The string being generated.
  * @param data User data

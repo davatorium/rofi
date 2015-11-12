@@ -749,7 +749,7 @@ static void menu_refilter ( MenuState *state )
          * If number of threads > 1 and there are enough (> 20000) items, spawn threads.
          * For large lists with 8 threads I see a factor three speedup of the whole function.
          */
-        unsigned int nt = MAX( 1, MIN ( state->num_lines / 1000, config.threads ));
+        unsigned int nt = MAX ( 1, MIN ( state->num_lines / 1000, config.threads ) );
         thread_state states[nt];
         GThread      *threads[nt];
         unsigned int steps = ( state->num_lines + nt ) / nt;

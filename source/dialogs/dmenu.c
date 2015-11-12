@@ -59,27 +59,22 @@ typedef struct _DmenuModePrivateData
 
 static char **get_dmenu ( unsigned int *length )
 {
-    const unsigned int buf_size = 1024;
-    char               buffer[buf_size];
-    char               **retv      = NULL;
-    char               *buffer_end = NULL;
-    unsigned int       rvlength    = 1;
+    char         **retv   = NULL;
+    unsigned int rvlength = 1;
 
     *length = 0;
-
-    while ( ( buffer_end = fgets_s ( buffer, buf_size, stdin, (char) config.separator ) ) != NULL ) {
+    gchar  *data  = NULL;
+    size_t data_l = 0;
+    while ( ( getdelim ( &data, &data_l, config.separator, stdin ) > 0 ) ) {
         if ( rvlength < ( *length + 2 ) ) {
             rvlength *= 2;
             retv      = g_realloc ( retv, ( rvlength ) * sizeof ( char* ) );
         }
 
-        size_t blength = buffer_end - &( buffer[0] );
-
-        char   *copy = g_malloc0 ( blength + 1 );
-        memcpy ( copy, buffer, blength );
-
-        retv[( *length )]     = copy;
+        retv[( *length )]     = data; //copy;
         retv[( *length ) + 1] = NULL;
+        data                  = NULL;
+        data_l                = 0;
 
         ( *length )++;
         // Stop when we hit 2³¹ entries.
