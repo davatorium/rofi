@@ -63,12 +63,16 @@ static char **get_dmenu ( unsigned int *length )
     unsigned int rvlength = 1;
 
     *length = 0;
-    gchar  *data  = NULL;
-    size_t data_l = 0;
-    while ( ( getdelim ( &data, &data_l, config.separator, stdin ) > 0 ) ) {
+    gchar   *data  = NULL;
+    size_t  data_l = 0;
+    ssize_t l      = 0;
+    while ( ( l = getdelim ( &data, &data_l, config.separator, stdin ) ) > 0 ) {
         if ( rvlength < ( *length + 2 ) ) {
             rvlength *= 2;
             retv      = g_realloc ( retv, ( rvlength ) * sizeof ( char* ) );
+        }
+        if ( data[l - 1] == config.separator ) {
+            data[l - 1] = '\0';
         }
 
         retv[( *length )]     = data; //copy;
