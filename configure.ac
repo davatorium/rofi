@@ -32,6 +32,12 @@ AS_IF([ test "x$enable_windowmode" != "xno"], [AC_DEFINE([WINDOW_MODE],[1],[Enab
 AC_ARG_ENABLE(i3support, [AS_HELP_STRING([--disable-i3support], [Disable check for i3 support])])
 AS_IF([test "x$enable_i3support" != xno && test "x$enable_windowmode" != "xno"],[AC_CHECK_HEADERS([i3/ipc.h], [i3_header=yes; break;])])
 
+
+##
+# Check for C functions.
+##
+
+AC_CHECK_FUNC([getdelim],, AC_MSG_ERROR("Could not find getdelim in c library"))
 ##
 # Check dependencies
 ##
