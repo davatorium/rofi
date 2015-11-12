@@ -42,6 +42,10 @@
 
 #define SIDE_MARGIN    1
 
+// Use this so we can ignore numlock mask.
+// TODO: maybe use something smarter here..
+extern unsigned int NumlockMask;
+
 /**
  * Font + font color cache.
  * Avoid re-loading font on every change on every textbox.
@@ -568,7 +572,9 @@ int textbox_keypress ( textbox *tb, XIC xic, XEvent *ev )
     else if ( abe_test_action ( ACCEPT_ENTRY, ev->xkey.state, key ) ) {
         return -1;
     }
-    else if ( !iscntrl ( *pad ) ) {
+    // Filter When alt/ctrl/etc is pressed do not accept the character.
+    // Ignore others (numlock, shift,..).
+    else if ( !iscntrl ( *pad ) && 0 == ( ev->xkey.state & ~( NumlockMask | ( 1 << 12 ) | ( 1 << 13 ) | ShiftMask | LockMask ) ) ) {
         textbox_insert ( tb, tb->cursor, pad );
         textbox_cursor_inc ( tb );
         return 1;

@@ -142,7 +142,7 @@ int abe_test_action ( KeyBindingAction action, unsigned int mask, KeySym key )
         if ( kb->keysym == key ) {
             // Bits 13 and 14 of the modifiers together are the group number, and
             // should be ignored when looking up key bindings
-            if ( ( mask & ~( NumlockMask | ( 1 << 13 ) | ( 1 << 14 ) ) ) == kb->modmask ) {
+            if ( ( mask & ~( LockMask | NumlockMask | ( 1 << 13 ) | ( 1 << 14 ) ) ) == kb->modmask ) {
                 return TRUE;
             }
         }
