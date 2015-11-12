@@ -513,6 +513,13 @@ void remove_pid_file ( int fd )
  */
 void config_sanity_check ( Display *display )
 {
+    if ( config.threads == 0 ) {
+        config.threads = 1;
+        long procs = sysconf ( _SC_NPROCESSORS_CONF );
+        if ( procs > 0 ) {
+            config.threads = MIN(procs,UINT_MAX);
+        }
+    }
     // If alternative row is not set, copy the normal background color.
     // Do this at the beginning as we might use it in the error dialog.
     if ( config.menu_bg_alt == NULL ) {

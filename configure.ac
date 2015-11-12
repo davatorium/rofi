@@ -38,6 +38,7 @@ AS_IF([test "x$enable_i3support" != xno && test "x$enable_windowmode" != "xno"],
 ##
 
 AC_CHECK_FUNC([getdelim],, AC_MSG_ERROR("Could not find getdelim in c library"))
+AC_CHECK_FUNC([sysconf],,  AC_MSG_ERROR("Could not find sysconf"))
 ##
 # Check dependencies
 ##
