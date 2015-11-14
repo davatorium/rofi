@@ -517,7 +517,7 @@ void config_sanity_check ( Display *display )
         config.threads = 1;
         long procs = sysconf ( _SC_NPROCESSORS_CONF );
         if ( procs > 0 ) {
-            config.threads = MIN(procs,UINT_MAX);
+            config.threads = MIN ( procs, UINT_MAX );
         }
     }
     // If alternative row is not set, copy the normal background color.

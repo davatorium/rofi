@@ -23,8 +23,8 @@
  * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
  */
+
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -93,6 +93,8 @@ cairo_surface_t   *surface = NULL;
 cairo_t           *draw    = NULL;
 XIM               xim;
 XIC               xic;
+
+GThreadPool       *tpool = NULL;
 
 /**
  * @param name Name of the switcher to lookup.
@@ -705,18 +707,21 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
     }
 }
 
-typedef struct
+typedef struct _thread_state
 {
     MenuState    *state;
     char         **tokens;
     unsigned int start;
     unsigned int stop;
     unsigned int count;
+    GCond        *cond;
+    GMutex       *mutex;
+    unsigned int *acount;
+    void ( *callback )( struct _thread_state *t, gpointer data );
 }thread_state;
 
-static gpointer filter_elements ( gpointer data )
+static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
 {
-    thread_state *t = (thread_state *) data;
     // input changed
     for ( unsigned int i = t->start; i < t->stop; i++ ) {
         int match = t->state->sw->token_match ( t->tokens,
@@ -735,39 +740,76 @@ static gpointer filter_elements ( gpointer data )
             t->count++;
         }
     }
-    return 0;
+    g_mutex_lock ( t->mutex );
+    ( *( t->acount ) )--;
+    g_cond_signal ( t->cond );
+    g_mutex_unlock ( t->mutex );
+}
+static void check_is_ascii ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
+{
+    for ( unsigned int i = t->start; i < t->stop; i++ ) {
+        t->state->lines_not_ascii[i] = is_not_ascii ( t->state->lines[i] );
+    }
+    g_mutex_lock ( t->mutex );
+    ( *( t->acount ) )--;
+    g_cond_signal ( t->cond );
+    g_mutex_unlock ( t->mutex );
+}
+/**
+ * Small wrapper function to create easy workers.
+ */
+static void call_thread ( gpointer data, gpointer user_data )
+{
+    thread_state *t = (thread_state *) data;
+    t->callback ( t, user_data );
 }
 
 static void menu_refilter ( MenuState *state )
 {
+    TICK_N ( "Filter start" )
     if ( strlen ( state->text->text ) > 0 ) {
         unsigned int j        = 0;
         char         **tokens = tokenize ( state->text->text, config.case_sensitive );
         /**
          * On long lists it can be beneficial to parallelize.
          * If number of threads is 1, no thread is spawn.
-         * If number of threads > 1 and there are enough (> 20000) items, spawn threads.
+         * If number of threads > 1 and there are enough (> 1000) items, spawn jobs for the thread pool.
          * For large lists with 8 threads I see a factor three speedup of the whole function.
          */
-        unsigned int nt = MAX ( 1, MIN ( state->num_lines / 1000, config.threads ) );
+        unsigned int nt = MAX ( 1, state->num_lines / 500 );
         thread_state states[nt];
-        GThread      *threads[nt];
+        GCond        cond;
+        GMutex       mutex;
+        g_mutex_init ( &mutex );
+        g_cond_init ( &cond );
+        unsigned int count = nt;
         unsigned int steps = ( state->num_lines + nt ) / nt;
         for ( unsigned int i = 0; i < nt; i++ ) {
-            states[i].state  = state;
-            states[i].tokens = tokens;
-            states[i].start  = i * steps;
-            states[i].stop   = MIN ( state->num_lines, ( i + 1 ) * steps );
-            states[i].count  = 0;
+            states[i].state    = state;
+            states[i].tokens   = tokens;
+            states[i].start    = i * steps;
+            states[i].stop     = MIN ( state->num_lines, ( i + 1 ) * steps );
+            states[i].count    = 0;
+            states[i].cond     = &cond;
+            states[i].mutex    = &mutex;
+            states[i].acount   = &count;
+            states[i].callback = filter_elements;
             if ( i > 0 ) {
-                threads[i] = g_thread_new ( NULL, filter_elements, &( states[i] ) );
+                g_thread_pool_push ( tpool, &states[i], NULL );
             }
         }
         // Run one in this thread.
-        filter_elements ( &states[0] );
-        for ( unsigned int i = 1; i < nt; i++ ) {
-            g_thread_join ( threads[i] );
+        filter_elements ( &states[0], NULL );
+        // No need to do this with only one thread.
+        if ( nt > 1 ) {
+            g_mutex_lock ( &mutex );
+            while ( count > 0 ) {
+                g_cond_wait ( &cond, &mutex );
+            }
+            g_mutex_unlock ( &mutex );
         }
+        g_cond_clear ( &cond );
+        g_mutex_clear ( &mutex );
         for ( unsigned int i = 0; i < nt; i++ ) {
             if ( j != states[i].start ) {
                 memcpy ( &( state->line_map[j] ), &( state->line_map[states[i].start] ), sizeof ( unsigned int ) * ( states[i].count ) );
@@ -800,6 +842,7 @@ static void menu_refilter ( MenuState *state )
     scrollbar_set_max_value ( state->scrollbar, state->filtered_lines );
     state->refilter = FALSE;
     state->rchanged = TRUE;
+    TICK_N ( "Filter done" )
 }
 
 static void menu_draw ( MenuState *state, cairo_t *d )
@@ -882,8 +925,9 @@ static void menu_draw ( MenuState *state, cairo_t *d )
 
 static void menu_update ( MenuState *state )
 {
-    cairo_surface_t *surf = cairo_image_surface_create ( get_format (), state->w, state->h );
-    cairo_t         *d    = cairo_create ( surf );
+    TICK ()
+    cairo_surface_t * surf = cairo_image_surface_create ( get_format (), state->w, state->h );
+    cairo_t *d = cairo_create ( surf );
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
     if ( config.fake_transparency ) {
         if ( state->bg != NULL ) {
@@ -901,6 +945,7 @@ static void menu_update ( MenuState *state )
         color_background ( display, d );
         cairo_paint ( d );
     }
+    TICK_N ( "Background" )
     color_border ( display, d );
 
     if ( config.menu_bw > 0 ) {
@@ -972,6 +1017,7 @@ static void menu_update ( MenuState *state )
 
     // Flush the surface.
     cairo_surface_flush ( surface );
+    TICK ()
 }
 
 /**
@@ -1066,7 +1112,8 @@ static void menu_resize ( MenuState *state )
 
 MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *selected_line, unsigned int *next_pos, const char *message )
 {
-    int       shift = FALSE;
+    TICK ()
+    int shift = FALSE;
     MenuState state = {
         .sw                = sw,
         .selected_line     = selected_line,
@@ -1093,9 +1140,40 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
 
     // find out which lines contain non-ascii codepoints, so we can be faster in some cases.
     if ( state.lines != NULL ) {
-        for ( unsigned int line = 0; state.lines[line]; line++ ) {
-            state.lines_not_ascii[line] = is_not_ascii ( state.lines[line] );
+        TICK_N ( "Is ASCII start" )
+        unsigned int nt = MAX ( 1, state.num_lines / 5000 );
+        thread_state states[nt];
+        unsigned int steps = ( state.num_lines + nt ) / nt;
+        unsigned int count = nt;
+        GCond        cond;
+        GMutex       mutex;
+        g_mutex_init ( &mutex );
+        g_cond_init ( &cond );
+        for ( unsigned int i = 0; i < nt; i++ ) {
+            states[i].state    = &state;
+            states[i].start    = i * steps;
+            states[i].stop     = MIN ( ( i + 1 ) * steps, state.num_lines );
+            states[i].acount   = &count;
+            states[i].mutex    = &mutex;
+            states[i].cond     = &cond;
+            states[i].callback = check_is_ascii;
+            if ( i > 0 ) {
+                g_thread_pool_push ( tpool, &( states[i] ), NULL );
+            }
         }
+        // Run one in this thread.
+        check_is_ascii ( &( states[0] ), NULL );
+        // No need to do this with only one thread.
+        if ( nt > 1 ) {
+            g_mutex_lock ( &mutex );
+            while ( count > 0 ) {
+                g_cond_wait ( &cond, &mutex );
+            }
+            g_mutex_unlock ( &mutex );
+        }
+        g_cond_clear ( &cond );
+        g_mutex_clear ( &mutex );
+        TICK_N ( "Is ASCII stop" )
     }
 
     if ( next_pos ) {
@@ -1111,6 +1189,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         // Break off.
         return MENU_CANCEL;
     }
+    TICK_N ( "Grab keyboard" )
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     XWindowAttributes attr;
     if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
@@ -1119,8 +1198,10 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
             sn_launchee_context_setup_window ( sncontext, main_window );
         }
     }
+    TICK_N ( "Startup notification" )
     // Get active monitor size.
     monitor_active ( display, &( state.mon ) );
+    TICK_N ( "Get active monitor" )
     if ( config.fake_transparency ) {
         Window          root   = DefaultRootWindow ( display );
         int             screen = DefaultScreen ( display );
@@ -1136,6 +1217,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         cairo_paint ( dr );
         cairo_destroy ( dr );
         cairo_surface_destroy ( s );
+        TICK_N ( "Fake transparency" )
     }
 
     // we need this at this point so we can get height.
@@ -1299,6 +1381,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         }
         // Get next event. (might block)
         XNextEvent ( display, &ev );
+        TICK_N ( "X Event" )
         if ( sndisplay != NULL ) {
             sn_display_process_event ( sndisplay, &ev );
         }
@@ -1759,19 +1842,15 @@ static void print_main_application_options ( void )
         printf ( "\t"color_bold "-display [string]"color_reset "                       X server to contact.\n" );
         printf ( "\t\t"color_italic "${DISPLAY}"color_reset "\n" );
         printf ( "\t"color_bold "-h,-help"color_reset "                                This help message.\n" );
-        printf (
-            "\t"color_bold "-dump-xresources"color_reset
-            "                        Dump the current configuration in Xresources format and exit.\n" );
-        printf (
-            "\t"color_bold "-e [string]"color_reset
-            "                             Show a dialog displaying the passed message and exit.\n" );
+        printf ( "\t"color_bold "-dump-xresources"color_reset
+                 "                        Dump the current configuration in Xresources format and exit.\n" );
+        printf ( "\t"color_bold "-e [string]"color_reset
+                 "                             Show a dialog displaying the passed message and exit.\n" );
         printf ( "\t"color_bold "-markup"color_reset "                                 Enable pango markup where possible.\n" );
-        printf (
-            "\t"color_bold "-normal-window"color_reset
-            "                          In dmenu mode, behave as a normal window. (experimental)\n" );
-        printf (
-            "\t"color_bold "-show [mode]"color_reset
-            "                            Show the mode 'mode' and exit. The mode has to be enabled.\n" );
+        printf ( "\t"color_bold "-normal-window"color_reset
+                 "                          In dmenu mode, behave as a normal window. (experimental)\n" );
+        printf ( "\t"color_bold "-show [mode]"color_reset
+                 "                            Show the mode 'mode' and exit. The mode has to be enabled.\n" );
     }
     else {
         printf ( "\t-no-config                              Do not load configuration, use default values.\n" );
@@ -1810,6 +1889,10 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
  */
 static void cleanup ()
 {
+    if ( tpool ) {
+        g_thread_pool_free ( tpool, TRUE, FALSE );
+        tpool = NULL;
+    }
     // Cleanup
     if ( display != NULL ) {
         if ( main_window != None ) {
@@ -1850,6 +1933,8 @@ static void cleanup ()
 
     // Cleanup the custom keybinding
     cleanup_abe ();
+
+    TIMINGS_STOP ()
 }
 
 /**
@@ -2171,6 +2256,8 @@ static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, Display   *xdispl
 
 int main ( int argc, char *argv[] )
 {
+    TIMINGS_START ()
+
     cmd_set_arguments ( argc, argv );
     // Quiet flag
     int quiet = ( find_arg ( "-quiet" ) >= 0 );
@@ -2195,7 +2282,7 @@ int main ( int argc, char *argv[] )
         // Free the basename for dmenu detection.
         g_free ( base_name );
     }
-
+    TICK ()
     // Get the path to the cache dir.
     cache_dir = g_get_user_cache_dir ();
 
@@ -2206,9 +2293,11 @@ int main ( int argc, char *argv[] )
     }
     config_parser_add_option ( xrm_String, "pid", (void * *) &pidfile, "Pidfile location" );
 
+    TICK ()
     // Register cleanup function.
     atexit ( cleanup );
 
+    TICK ()
     // Get DISPLAY, first env, then argument.
     display_str = getenv ( "DISPLAY" );
     find_arg_str (  "-display", &display_str );
@@ -2225,15 +2314,17 @@ int main ( int argc, char *argv[] )
         fprintf ( stderr, "cannot open display!\n" );
         return EXIT_FAILURE;
     }
+    TICK_N ( "Open Display" )
     // startup not.
     sndisplay = sn_display_new ( display, error_trap_push, error_trap_pop );
 
     if ( sndisplay != NULL ) {
         sncontext = sn_launchee_context_new_from_environment ( sndisplay, DefaultScreen ( display ) );
     }
-
+    TICK_N ( "Startup Notification" )
     // Setup keybinding
     setup_abe ();
+    TICK_N ( "Setup abe" )
 
     if ( find_arg ( "-no-config" ) < 0 ) {
         load_configuration ( display );
@@ -2254,8 +2345,10 @@ int main ( int argc, char *argv[] )
 
     x11_setup ( display );
 
+    TICK_N ( "X11 Setup " )
     // Sanity check
     config_sanity_check ( display );
+    TICK_N ( "Config sanity check" )
     // Dump.
     // catch help request
     if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 || find_arg (  "--help" ) >= 0 ) {
@@ -2268,7 +2361,7 @@ int main ( int argc, char *argv[] )
     }
     // Parse the keybindings.
     parse_keys_abe ();
-
+    TICK_N ( "Parse ABE" )
     char *msg = NULL;
     if ( find_arg_str (  "-e", &( msg ) ) ) {
         int markup = FALSE;
@@ -2278,6 +2371,12 @@ int main ( int argc, char *argv[] )
         return show_error_message ( msg, markup );
     }
 
+    // Create thread pool
+    tpool = g_thread_pool_new ( call_thread, NULL, config.threads, FALSE, NULL );
+    g_thread_pool_set_max_idle_time ( 60000 );
+    g_thread_pool_set_max_unused_threads ( config.threads );
+
+    TICK_N ( "Setup Threadpool" )
     // Dmenu mode.
     if ( dmenu_mode == TRUE ) {
         normal_window_mode = find_arg ( "-normal-window" ) >= 0;

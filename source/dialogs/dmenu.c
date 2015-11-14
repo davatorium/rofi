@@ -37,6 +37,9 @@
 #include "dialogs/dmenu.h"
 #include "helper.h"
 
+// We limit at 1000000 rows for now.
+#define DMENU_MAX_ROWS    1000000
+
 struct range_pair
 {
     unsigned int start;
@@ -59,7 +62,8 @@ typedef struct _DmenuModePrivateData
 
 static char **get_dmenu ( unsigned int *length )
 {
-    char         **retv   = NULL;
+    TICK_N ( "Read stdin START" )
+    char         **retv = NULL;
     unsigned int rvlength = 1;
 
     *length = 0;
@@ -75,18 +79,19 @@ static char **get_dmenu ( unsigned int *length )
             data[l - 1] = '\0';
         }
 
-        retv[( *length )]     = data; //copy;
-        retv[( *length ) + 1] = NULL;
-        data                  = NULL;
-        data_l                = 0;
+        retv[( *length )] = data;     //copy;
+        data              = NULL;
+        data_l            = 0;
 
         ( *length )++;
         // Stop when we hit 2³¹ entries.
-        if ( ( *length ) == INT_MAX ) {
-            return retv;
+        if ( ( *length ) >= DMENU_MAX_ROWS ) {
+            break;
         }
     }
-    retv = g_realloc ( retv, ( *length + 1 ) * sizeof ( char* ) );
+    retv[( *length ) + 1] = NULL;
+    retv                  = g_realloc ( retv, ( *length + 1 ) * sizeof ( char* ) );
+    TICK_N ( "Read stdin STOP" )
     return retv;
 }
 

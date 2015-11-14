@@ -34,6 +34,7 @@ rofi_SOURCES=\
     config/config.c\
 	source/helper.c\
     source/textbox.c\
+	source/timings.c\
     source/history.c\
     source/scrollbar.c\
 	source/i3-support.c\
@@ -49,6 +50,7 @@ rofi_SOURCES=\
     include/rofi.h\
 	include/keyb.h\
 	include/helper.h\
+	include/timings.h\
     include/history.h\
     include/textbox.h\
     include/scrollbar.h\

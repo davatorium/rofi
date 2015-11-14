@@ -7,6 +7,7 @@
 #include <textbox.h>
 #include <cairo.h>
 #include <cairo-xlib.h>
+#include "timings.h"
 #include "keyb.h"
 
 /**
