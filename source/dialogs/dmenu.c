@@ -36,6 +36,7 @@
 #include "rofi.h"
 #include "dialogs/dmenu.h"
 #include "helper.h"
+#include "xrmoptions.h"
 
 // We limit at 1000000 rows for now.
 #define DMENU_MAX_ROWS    1000000
@@ -79,7 +80,7 @@ static char **get_dmenu ( unsigned int *length )
             data[l - 1] = '\0';
         }
 
-        retv[( *length )] = data;     //copy;
+        retv[( *length )] = data;
         data              = NULL;
         data_l            = 0;
 
@@ -397,34 +398,16 @@ int dmenu_switcher_dialog ( void )
 
 void print_dmenu_options ( void )
 {
-    if ( isatty ( fileno ( stdout ) ) ) {
-        printf (
-            "\t"color_bold "-mesg"color_reset
-            " [string]                          Print a small user message under the prompt (uses pango markup)\n" );
-        printf ( "\t"color_bold "-p"color_reset " [string]                             Prompt to display left of entry field\n" );
-        printf ( "\t"color_bold "-selected-row"color_reset " [integer]                 Select row\n" );
-        printf ( "\t"color_bold "-format"color_reset " [string]                        Output format string\n" );
-        printf ( "\t\t"color_italic "s"color_reset "\n" );
-        printf ( "\t"color_bold "-u"color_reset " [list]                               List of row indexes to mark urgent\n" );
-        printf ( "\t"color_bold "-a"color_reset " [list]                               List of row indexes to mark active\n" );
-        printf ( "\t"color_bold "-l"color_reset " [integer]                            Number of rows to display\n" );
-        printf ( "\t"color_bold "-i"color_reset "                                      Set filter to be case insensitive\n" );
-        printf ( "\t"color_bold "-only-match"color_reset "                             Force selection or custom entry\n" );
-        printf ( "\t"color_bold "-no-custom"color_reset "                              Don't accept custom entry\n" );
-        printf ( "\t"color_bold "-select"color_reset " [string]                        Select the first row that matches\n" );
-    }
-    else {
-        printf ( "\t-mesg [string]                          Print a small user message under the prompt (uses pango markup)\n" );
-        printf ( "\t-p [string]                             Prompt to display left of entry field\n" );
-        printf ( "\t-selected-row [integer]                 Select row\n" );
-        printf ( "\t-format [string]                        Output format string\n" );
-        printf ( "\t\ts\n" );
-        printf ( "\t-u [list]                               List of row indexes to mark urgent\n" );
-        printf ( "\t-a [list]                               List of row indexes to mark active\n" );
-        printf ( "\t-l [integer]                            Number of rows to display\n" );
-        printf ( "\t-i                                      Set filter to be case insensitive\n" );
-        printf ( "\t-only-match                             Force selection or custom entry\n" );
-        printf ( "\t-no-custom                              Don't accept custom entry\n" );
-        printf ( "\t-select [string]                        Select the first row that matches\n" );
-    }
+    int is_term = isatty ( fileno ( stdout ) );
+    print_help_msg ( "-mesg  [string]", "Print a small user message under the prompt (uses pango markup)", NULL, is_term );
+    print_help_msg ( "-p [string]", "Prompt to display left of entry field", NULL, is_term );
+    print_help_msg ( "-selected-row [integer]", "Select row", NULL, is_term );
+    print_help_msg ( "-format [string]", "Output format string", "s", is_term );
+    print_help_msg ( "-u [list]", "List of row indexes to mark urgent", NULL, is_term );
+    print_help_msg ( "-a [list]", "List of row indexes to mark active", NULL, is_term );
+    print_help_msg ( "-l [integer] ", "Number of rows to display", NULL, is_term );
+    print_help_msg ( "-i", "Set filter to be case insensitive", NULL, is_term );
+    print_help_msg ( "-only-match", "Force selection or custom entry", NULL, is_term );
+    print_help_msg ( "-no-custom", "Don't accept custom entry", NULL, is_term );
+    print_help_msg ( "-select [string]", "Select the first row that matches", NULL, is_term );
 }

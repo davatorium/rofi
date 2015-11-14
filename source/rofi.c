@@ -1834,38 +1834,17 @@ static void handle_keypress ( XEvent *ev )
 static void print_main_application_options ( void )
 {
     int is_term = isatty ( fileno ( stdout ) );
-    if ( is_term ) {
-        printf ( "\t"color_bold "-no-config"color_reset "                              Do not load configuration, use default values.\n" );
-        printf ( "\t"color_bold "-quiet"color_reset "                                  Suppress information messages.\n" );
-        printf ( "\t"color_bold "-v,-version"color_reset "                             Print the version number and exit.\n" );
-        printf ( "\t"color_bold "-dmenu"color_reset "                                  Start in dmenu mode.\n" );
-        printf ( "\t"color_bold "-display [string]"color_reset "                       X server to contact.\n" );
-        printf ( "\t\t"color_italic "${DISPLAY}"color_reset "\n" );
-        printf ( "\t"color_bold "-h,-help"color_reset "                                This help message.\n" );
-        printf ( "\t"color_bold "-dump-xresources"color_reset
-                 "                        Dump the current configuration in Xresources format and exit.\n" );
-        printf ( "\t"color_bold "-e [string]"color_reset
-                 "                             Show a dialog displaying the passed message and exit.\n" );
-        printf ( "\t"color_bold "-markup"color_reset "                                 Enable pango markup where possible.\n" );
-        printf ( "\t"color_bold "-normal-window"color_reset
-                 "                          In dmenu mode, behave as a normal window. (experimental)\n" );
-        printf ( "\t"color_bold "-show [mode]"color_reset
-                 "                            Show the mode 'mode' and exit. The mode has to be enabled.\n" );
-    }
-    else {
-        printf ( "\t-no-config                              Do not load configuration, use default values.\n" );
-        printf ( "\t-quiet                                  Suppress information messages.\n" );
-        printf ( "\t-v,-version                             Print the version number and exit.\n" );
-        printf ( "\t-dmenu                                  Start in dmenu mode.\n" );
-        printf ( "\t-display [string]                       X server to contact.\n" );
-        printf ( "\t\t${DISPLAY}\n" );
-        printf ( "\t-h,-help                                This help message.\n" );
-        printf ( "\t-dump-xresources                        Dump the current configuration in Xresources format and exit.\n" );
-        printf ( "\t-e [string]                             Show a dialog displaying the passed message and exit.\n" );
-        printf ( "\t-markup                                 Enable pango markup where possible.\n" );
-        printf ( "\t-normal-window                          In dmenu mode, behave as a normal window. (experimental)\n" );
-        printf ( "\t-show [mode]                            Show the mode 'mode' and exit. The mode has to be enabled.\n" );
-    }
+    print_help_msg ( "-no-config", "Do not load configuration, use default values.", NULL, is_term );
+    print_help_msg ( "-quiet", "Suppress information messages.", NULL, is_term );
+    print_help_msg ( "-v,-version", "Print the version number and exit.", NULL, is_term  );
+    print_help_msg ( "-dmenu", "Start in dmenu mode.", NULL, is_term );
+    print_help_msg ( "-display [string]", "X server to contact.", "${DISPLAY}", is_term );
+    print_help_msg ( "-h,-help", "This help message.", NULL, is_term );
+    print_help_msg ( "-dump-xresources", "Dump the current configuration in Xresources format and exit.", NULL, is_term );
+    print_help_msg ( "-e [string]", "Show a dialog displaying the passed message and exit.", NULL, is_term );
+    print_help_msg ( "-markup", "Enable pango markup where possible.", NULL, is_term );
+    print_help_msg ( "-normal-window", "In dmenu mode, behave as a normal window. (experimental)", NULL, is_term );
+    print_help_msg ( "-show [mode]", "Show the mode 'mode' and exit. The mode has to be enabled.", NULL, is_term );
 }
 static void help ( G_GNUC_UNUSED int argc, char **argv )
 {

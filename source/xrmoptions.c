@@ -492,3 +492,20 @@ void print_options ( void )
         print_option ( &extra_options[i], is_term );
     }
 }
+
+void print_help_msg ( const char *option, const char*text, const char *def, int isatty )
+{
+    int l = 39 - strlen ( option );
+    if ( isatty ) {
+        printf ( "\t%s%s%s %-*c%s\n", color_bold, option, color_reset, l, ' ', text );
+        if ( def != NULL ) {
+            printf ( "\t\t%s%s%s\n", color_italic, def, color_reset );
+        }
+    }
+    else{
+        printf ( "\t%s %-*c%s\n", option, l, ' ', text );
+        if ( def != NULL ) {
+            printf ( "\t\t%s\n", def );
+        }
+    }
+}
