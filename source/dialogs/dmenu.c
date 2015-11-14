@@ -399,15 +399,15 @@ int dmenu_switcher_dialog ( void )
 void print_dmenu_options ( void )
 {
     int is_term = isatty ( fileno ( stdout ) );
-    print_help_msg ( "-mesg  [string]", "Print a small user message under the prompt (uses pango markup)", NULL, is_term );
-    print_help_msg ( "-p [string]", "Prompt to display left of entry field", NULL, is_term );
-    print_help_msg ( "-selected-row [integer]", "Select row", NULL, is_term );
-    print_help_msg ( "-format [string]", "Output format string", "s", is_term );
-    print_help_msg ( "-u [list]", "List of row indexes to mark urgent", NULL, is_term );
-    print_help_msg ( "-a [list]", "List of row indexes to mark active", NULL, is_term );
-    print_help_msg ( "-l [integer] ", "Number of rows to display", NULL, is_term );
-    print_help_msg ( "-i", "Set filter to be case insensitive", NULL, is_term );
-    print_help_msg ( "-only-match", "Force selection or custom entry", NULL, is_term );
-    print_help_msg ( "-no-custom", "Don't accept custom entry", NULL, is_term );
-    print_help_msg ( "-select [string]", "Select the first row that matches", NULL, is_term );
+    print_help_msg ( "-mesg","[string]", "Print a small user message under the prompt (uses pango markup)", NULL, is_term );
+    print_help_msg ( "-p","[string]", "Prompt to display left of entry field", NULL, is_term );
+    print_help_msg ( "-selected-row","[integer]", "Select row", NULL, is_term );
+    print_help_msg ( "-format","[string]", "Output format string", "s", is_term );
+    print_help_msg ( "-u","[list]", "List of row indexes to mark urgent", NULL, is_term );
+    print_help_msg ( "-a","[list]", "List of row indexes to mark active", NULL, is_term );
+    print_help_msg ( "-l","[integer] ", "Number of rows to display", NULL, is_term );
+    print_help_msg ( "-i","", "Set filter to be case insensitive", NULL, is_term );
+    print_help_msg ( "-only-match","", "Force selection or custom entry", NULL, is_term );
+    print_help_msg ( "-no-custom","", "Don't accept custom entry", NULL, is_term );
+    print_help_msg ( "-select","[string]", "Select the first row that matches", NULL, is_term );
 }

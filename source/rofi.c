@@ -1834,17 +1834,17 @@ static void handle_keypress ( XEvent *ev )
 static void print_main_application_options ( void )
 {
     int is_term = isatty ( fileno ( stdout ) );
-    print_help_msg ( "-no-config", "Do not load configuration, use default values.", NULL, is_term );
-    print_help_msg ( "-quiet", "Suppress information messages.", NULL, is_term );
-    print_help_msg ( "-v,-version", "Print the version number and exit.", NULL, is_term  );
-    print_help_msg ( "-dmenu", "Start in dmenu mode.", NULL, is_term );
-    print_help_msg ( "-display [string]", "X server to contact.", "${DISPLAY}", is_term );
-    print_help_msg ( "-h,-help", "This help message.", NULL, is_term );
-    print_help_msg ( "-dump-xresources", "Dump the current configuration in Xresources format and exit.", NULL, is_term );
-    print_help_msg ( "-e [string]", "Show a dialog displaying the passed message and exit.", NULL, is_term );
-    print_help_msg ( "-markup", "Enable pango markup where possible.", NULL, is_term );
-    print_help_msg ( "-normal-window", "In dmenu mode, behave as a normal window. (experimental)", NULL, is_term );
-    print_help_msg ( "-show [mode]", "Show the mode 'mode' and exit. The mode has to be enabled.", NULL, is_term );
+    print_help_msg ( "-no-config","", "Do not load configuration, use default values.", NULL, is_term );
+    print_help_msg ( "-quiet","", "Suppress information messages.", NULL, is_term );
+    print_help_msg ( "-v,-version","", "Print the version number and exit.", NULL, is_term  );
+    print_help_msg ( "-dmenu","", "Start in dmenu mode.", NULL, is_term );
+    print_help_msg ( "-display","[string]", "X server to contact.", "${DISPLAY}", is_term );
+    print_help_msg ( "-h,-help","", "This help message.", NULL, is_term );
+    print_help_msg ( "-dump-xresources","", "Dump the current configuration in Xresources format and exit.", NULL, is_term );
+    print_help_msg ( "-e","[string]", "Show a dialog displaying the passed message and exit.", NULL, is_term );
+    print_help_msg ( "-markup", "","Enable pango markup where possible.", NULL, is_term );
+    print_help_msg ( "-normal-window","", "In dmenu mode, behave as a normal window. (experimental)", NULL, is_term );
+    print_help_msg ( "-show", "[mode]", "Show the mode 'mode' and exit. The mode has to be enabled.", NULL, is_term );
 }
 static void help ( G_GNUC_UNUSED int argc, char **argv )
 {
