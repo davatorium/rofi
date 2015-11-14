@@ -2072,6 +2072,7 @@ static void print_global_keybindings ()
 static void reload_configuration ()
 {
     if ( find_arg ( "-no-config" ) < 0 ) {
+        TICK ()
         // Reset the color cache
         color_cache_reset ();
         // We need to open a new connection to X11, otherwise we get old
@@ -2090,6 +2091,7 @@ static void reload_configuration ()
             fprintf ( stderr, "Failed to get a new connection to the X11 server. No point in continuing.\n" );
             abort ();
         }
+        TICK_N ( "Load config" )
     }
 }
 
@@ -2372,9 +2374,22 @@ int main ( int argc, char *argv[] )
     }
 
     // Create thread pool
-    tpool = g_thread_pool_new ( call_thread, NULL, config.threads, FALSE, NULL );
-    g_thread_pool_set_max_idle_time ( 60000 );
-    g_thread_pool_set_max_unused_threads ( config.threads );
+    GError *error = NULL;
+    tpool = g_thread_pool_new ( call_thread, NULL, config.threads, FALSE, &error );
+    if ( error == NULL ) {
+        // Idle threads should stick around for a max of 60 seconds.
+        g_thread_pool_set_max_idle_time ( 60000 );
+        // We are allowed to have
+        g_thread_pool_set_max_threads ( tpool, config.threads, &error );
+    }
+    // If error occured during setup of pool, tell user and exit.
+    if ( error != NULL ) {
+        char *msg = g_strdup_printf ( "Failed to setup thread pool: '%s'", error->message );
+        show_error_message ( msg, FALSE );
+        g_free ( msg );
+        g_error_free ( error );
+        return EXIT_FAILURE;
+    }
 
     TICK_N ( "Setup Threadpool" )
     // Dmenu mode.
@@ -2408,8 +2423,7 @@ int main ( int argc, char *argv[] )
     else{
         // Daemon mode, Listen to key presses..
         if ( !grab_global_keybindings () ) {
-            fprintf ( stderr,
-                      "Rofi was launched in daemon mode, but no key-binding was specified.\n" );
+            fprintf ( stderr, "Rofi was launched in daemon mode, but no key-binding was specified.\n" );
             fprintf ( stderr, "Please check the manpage on how to specify a key-binding.\n" );
             fprintf ( stderr, "The following modi are enabled and keys can be specified:\n" );
             for ( unsigned int i = 0; i < num_switchers; i++ ) {
