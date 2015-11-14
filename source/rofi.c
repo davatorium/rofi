@@ -2116,7 +2116,7 @@ static gpointer rofi_signal_handler_process ( gpointer arg )
                     fprintf ( stderr, "Failed to send signal to main thread.\n" );
                 }
             }
-            else if ( sig == SIGINT ) {
+            if ( sig == SIGINT ) {
                 ssize_t t = write ( pfd, "q", 1 );
                 if ( t < 0 ) {
                     fprintf ( stderr, "Failed to send signal to main thread.\n" );
@@ -2194,7 +2194,6 @@ SwitcherMode switcher_run ( char **input, Switcher *sw )
     char         *prompt       = g_strdup_printf ( "%s:", sw->name );
     unsigned int selected_line = UINT32_MAX;
     int          mretv         = menu ( sw, input, prompt, &selected_line, NULL, NULL );
-
     g_free ( prompt );
     return sw->result ( mretv, input, selected_line, sw );
 }
@@ -2228,7 +2227,7 @@ static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, Display   *xdispl
 {
     if ( error_trap_depth == 0 ) {
         fprintf ( stderr, "Error trap underflow!\n" );
-        exit ( 1 );
+        exit ( EXIT_FAILURE );
     }
 
     XSync ( xdisplay, False ); /* get all errors out of the queue */
@@ -2316,8 +2315,7 @@ int main ( int argc, char *argv[] )
     }
     else {
         // Add dmenu options.
-        config_parser_add_option ( xrm_Char, "sep", (void * *) &( config.separator ),
-                                   "Element separator" );
+        config_parser_add_option ( xrm_Char, "sep", (void * *) &( config.separator ), "Element separator" );
     }
     if ( find_arg ( "-no-config" ) < 0 ) {
         // Reload for dynamic part.
