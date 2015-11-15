@@ -495,15 +495,15 @@ void print_options ( void )
 
 void print_help_msg ( const char *option, const char *type, const char*text, const char *def, int isatty )
 {
-    int l = 37 - strlen ( option )-strlen(type);
+    int l = 37 - strlen ( option ) - strlen ( type );
     if ( isatty ) {
-        printf ( "\t%s%s%s %s %-*c%s\n", color_bold, option, color_reset,type, l, ' ', text );
+        printf ( "\t%s%s%s %s %-*c%s\n", color_bold, option, color_reset, type, l, ' ', text );
         if ( def != NULL ) {
             printf ( "\t\t%s%s%s\n", color_italic, def, color_reset );
         }
     }
     else{
-        printf ( "\t%s %s %-*c%s\n", option, type,l, ' ', text );
+        printf ( "\t%s %s %-*c%s\n", option, type, l, ' ', text );
         if ( def != NULL ) {
             printf ( "\t\t%s\n", def );
         }

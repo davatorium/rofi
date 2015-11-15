@@ -217,13 +217,19 @@ static void dmenu_mode_free ( Switcher *sw )
         return;
     }
     DmenuModePrivateData *pd = (DmenuModePrivateData *) sw->private_data;
+    if ( pd != NULL ) {
+        for ( size_t i = 0; i < pd->cmd_list_length; i++ ) {
+            if ( pd->cmd_list[i] ) {
+                free ( pd->cmd_list[i] );
+            }
+        }
+        g_free ( pd->cmd_list );
+        g_free ( pd->urgent_list );
+        g_free ( pd->active_list );
 
-    g_strfreev ( pd->cmd_list );
-    g_free ( pd->urgent_list );
-    g_free ( pd->active_list );
-
-    g_free ( pd );
-    sw->private_data = NULL;
+        g_free ( pd );
+        sw->private_data = NULL;
+    }
 }
 
 static void dmenu_mode_init ( Switcher *sw )
@@ -399,15 +405,15 @@ int dmenu_switcher_dialog ( void )
 void print_dmenu_options ( void )
 {
     int is_term = isatty ( fileno ( stdout ) );
-    print_help_msg ( "-mesg","[string]", "Print a small user message under the prompt (uses pango markup)", NULL, is_term );
-    print_help_msg ( "-p","[string]", "Prompt to display left of entry field", NULL, is_term );
-    print_help_msg ( "-selected-row","[integer]", "Select row", NULL, is_term );
-    print_help_msg ( "-format","[string]", "Output format string", "s", is_term );
-    print_help_msg ( "-u","[list]", "List of row indexes to mark urgent", NULL, is_term );
-    print_help_msg ( "-a","[list]", "List of row indexes to mark active", NULL, is_term );
-    print_help_msg ( "-l","[integer] ", "Number of rows to display", NULL, is_term );
-    print_help_msg ( "-i","", "Set filter to be case insensitive", NULL, is_term );
-    print_help_msg ( "-only-match","", "Force selection or custom entry", NULL, is_term );
-    print_help_msg ( "-no-custom","", "Don't accept custom entry", NULL, is_term );
-    print_help_msg ( "-select","[string]", "Select the first row that matches", NULL, is_term );
+    print_help_msg ( "-mesg", "[string]", "Print a small user message under the prompt (uses pango markup)", NULL, is_term );
+    print_help_msg ( "-p", "[string]", "Prompt to display left of entry field", NULL, is_term );
+    print_help_msg ( "-selected-row", "[integer]", "Select row", NULL, is_term );
+    print_help_msg ( "-format", "[string]", "Output format string", "s", is_term );
+    print_help_msg ( "-u", "[list]", "List of row indexes to mark urgent", NULL, is_term );
+    print_help_msg ( "-a", "[list]", "List of row indexes to mark active", NULL, is_term );
+    print_help_msg ( "-l", "[integer] ", "Number of rows to display", NULL, is_term );
+    print_help_msg ( "-i", "", "Set filter to be case insensitive", NULL, is_term );
+    print_help_msg ( "-only-match", "", "Force selection or custom entry", NULL, is_term );
+    print_help_msg ( "-no-custom", "", "Don't accept custom entry", NULL, is_term );
+    print_help_msg ( "-select", "[string]", "Select the first row that matches", NULL, is_term );
 }
