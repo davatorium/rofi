@@ -559,10 +559,10 @@ unsigned int color_get ( Display *display, const char *const name, const char * 
 void x11_helper_set_cairo_rgba ( cairo_t *d, unsigned int pixel )
 {
     cairo_set_source_rgba ( d,
-                            ( ( pixel & 0x00FF0000 ) >> 16 ) / 256.0,
-                            ( ( pixel & 0x0000FF00 ) >> 8 ) / 256.0,
-                            ( ( pixel & 0x000000FF ) >> 0 ) / 256.0,
-                            ( ( pixel & 0xFF000000 ) >> 24 ) / 256.0
+                            ( ( pixel & 0x00FF0000 ) >> 16 ) / 255.0,
+                            ( ( pixel & 0x0000FF00 ) >> 8 ) / 255.0,
+                            ( ( pixel & 0x000000FF ) >> 0 ) / 255.0,
+                            ( ( pixel & 0xFF000000 ) >> 24 ) / 255.0
                             );
 }
 /**
