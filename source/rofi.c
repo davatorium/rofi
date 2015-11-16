@@ -1110,6 +1110,25 @@ static void menu_resize ( MenuState *state )
     state->update   = TRUE;
 }
 
+static void menu_setup_fake_transparency ( Display *display, MenuState *state )
+{
+    Window          root   = DefaultRootWindow ( display );
+    int             screen = DefaultScreen ( display );
+    cairo_surface_t *s     = cairo_xlib_surface_create ( display,
+                                                         root,
+                                                         DefaultVisual ( display, screen ),
+                                                         DisplayWidth ( display, screen ),
+                                                         DisplayHeight ( display, screen ) );
+
+    state->bg = cairo_image_surface_create ( get_format (), state->mon.w, state->mon.h );
+    cairo_t *dr = cairo_create ( state->bg );
+    cairo_set_source_surface ( dr, s, -state->mon.x, -state->mon.y );
+    cairo_paint ( dr );
+    cairo_destroy ( dr );
+    cairo_surface_destroy ( s );
+    TICK_N ( "Fake transparency" )
+}
+
 MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *selected_line, unsigned int *next_pos, const char *message )
 {
     TICK ()
@@ -1203,21 +1222,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
     monitor_active ( display, &( state.mon ) );
     TICK_N ( "Get active monitor" )
     if ( config.fake_transparency ) {
-        Window          root   = DefaultRootWindow ( display );
-        int             screen = DefaultScreen ( display );
-        cairo_surface_t *s     = cairo_xlib_surface_create ( display,
-                                                             root,
-                                                             DefaultVisual ( display, screen ),
-                                                             DisplayWidth ( display, screen ),
-                                                             DisplayHeight ( display, screen ) );
-
-        state.bg = cairo_image_surface_create ( get_format (), state.mon.w, state.mon.h );
-        cairo_t *dr = cairo_create ( state.bg );
-        cairo_set_source_surface ( dr, s, -state.mon.x, -state.mon.y );
-        cairo_paint ( dr );
-        cairo_destroy ( dr );
-        cairo_surface_destroy ( s );
-        TICK_N ( "Fake transparency" )
+        menu_setup_fake_transparency ( display, &state );
     }
 
     // we need this at this point so we can get height.
@@ -1614,20 +1619,7 @@ void error_dialog ( const char *msg, int markup )
     // Get active monitor size.
     monitor_active ( display, &( state.mon ) );
     if ( config.fake_transparency ) {
-        Window          root   = DefaultRootWindow ( display );
-        int             screen = DefaultScreen ( display );
-        cairo_surface_t *s     = cairo_xlib_surface_create ( display,
-                                                             root,
-                                                             DefaultVisual ( display, screen ),
-                                                             DisplayWidth ( display, screen ),
-                                                             DisplayHeight ( display, screen ) );
-
-        state.bg = cairo_image_surface_create ( get_format (), state.mon.w, state.mon.h );
-        cairo_t *dr = cairo_create ( state.bg );
-        cairo_set_source_surface ( dr, s, -state.mon.x, -state.mon.y );
-        cairo_paint ( dr );
-        cairo_destroy ( dr );
-        cairo_surface_destroy ( s );
+        menu_setup_fake_transparency ( display, &state );
     }
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     XWindowAttributes attr;
