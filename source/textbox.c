@@ -590,10 +590,10 @@ static void parse_color ( Display *display, char *bg, Color *col )
 {
     unsigned int val = 0;
     val        = color_get ( display, bg, "white" );
-    col->alpha = ( ( val & 0xFF000000 ) >> 24 ) / 256.0;
-    col->red   = ( ( val & 0x00FF0000 ) >> 16 ) / 256.0;
-    col->green = ( ( val & 0x0000FF00 ) >> 8  ) / 256.0;
-    col->blue  = ( ( val & 0x000000FF )       ) / 256.0;
+    col->alpha = ( ( val & 0xFF000000 ) >> 24 ) / 255.0;
+    col->red   = ( ( val & 0x00FF0000 ) >> 16 ) / 255.0;
+    col->green = ( ( val & 0x0000FF00 ) >> 8  ) / 255.0;
+    col->blue  = ( ( val & 0x000000FF )       ) / 255.0;
 }
 static void textbox_parse_string (  Display *display, const char *str, RowColor *color )
 {
