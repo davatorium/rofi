@@ -207,18 +207,18 @@ char **tokenize ( const char *input, int case_sensitive )
     for ( token = strtok_r ( str, " ", &saveptr ); token != NULL; token = strtok_r ( NULL, " ", &saveptr ) ) {
         retv = g_realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
         if ( config.glob ) {
-            char *t   = token_collate_key ( token, case_sensitive );
-            char *str = g_strdup_printf ( "*%s*", input );
-            retv[num_tokens] = (char *) g_pattern_spec_new ( str );
+            char *str = g_strdup_printf ( "*%s*", token);
+            char *t   = token_collate_key ( str, case_sensitive );
+            retv[num_tokens] = (char *) g_pattern_spec_new ( t );
             g_free ( t );
             g_free ( str );
         }
         else if ( config.regex ) {
             GError *error = NULL;
-            retv[num_tokens] = (char *) g_regex_new ( token, case_sensitive ? 0 : G_REGEX_CASELESS, 0, &error );
+            retv[num_tokens] = (char *) g_regex_new ( token, case_sensitive?0:G_REGEX_CASELESS, 0, &error);
             if ( retv[num_tokens] == NULL ) {
                 fprintf ( stderr, "Failed to parse: '%s'\n", error->message );
-                g_error_free ( error );
+                g_error_free(error);
                 num_tokens--;
             }
         }
@@ -459,7 +459,7 @@ static int regex_token_match ( char **tokens, const char *input, G_GNUC_UNUSED i
 static int glob_token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive )
 {
     int  match  = 1;
-    char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : (char *) input;
+    char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : g_ascii_strdown(input,-1);
 
     // Do a tokenized match.
     if ( tokens ) {
@@ -467,9 +467,7 @@ static int glob_token_match ( char **tokens, const char *input, int not_ascii, i
             match = g_pattern_match_string ( (GPatternSpec *) tokens[j], compk );
         }
     }
-    if ( not_ascii ) {
-        g_free ( compk );
-    }
+    g_free ( compk );
     return match;
 }
 
