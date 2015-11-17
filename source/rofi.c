@@ -822,7 +822,7 @@ static void menu_refilter ( MenuState *state )
 
         // Cleanup + bookkeeping.
         state->filtered_lines = j;
-        g_strfreev ( tokens );
+        tokenize_free ( tokens );
     }
     else{
         for ( unsigned int i = 0; i < state->num_lines; i++ ) {

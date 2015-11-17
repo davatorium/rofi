@@ -39,6 +39,7 @@ char *token_collate_key ( const char *token, int case_sensitive );
  * @returns a newly allocated 2 dimensional array of strings.
  */
 char **tokenize ( const char *input, int case_sensitive );
+void tokenize_free ( char ** tokens );
 
 /**
  * @param key The key to search for

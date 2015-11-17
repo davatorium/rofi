@@ -125,6 +125,7 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "combi-modi",           { .str  = &config.combi_modi         }, NULL, "Set the modi to combine in combi mode"       },
     { xrm_Boolean, "fuzzy",                { .num  = &config.fuzzy              }, NULL, "Do a more fuzzy matching"                    },
     { xrm_Boolean, "glob",                 { .num  = &config.glob               }, NULL, "Use glob matching"                           },
+    { xrm_Boolean, "regex",                { .num  = &config.regex              }, NULL, "Use regex matching"                          },
     { xrm_Boolean, "tokenize",             { .num  = &config.tokenize           }, NULL, "Tokenize input string"                       },
     { xrm_Number,  "monitor",              { .snum = &config.monitor            }, NULL, ""                                            },
     /* Alias for dmenu compatibility. */

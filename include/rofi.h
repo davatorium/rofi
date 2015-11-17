@@ -235,6 +235,7 @@ typedef struct _Settings
     unsigned int   fuzzy;
     unsigned int   glob;
     unsigned int   tokenize;
+    unsigned int   regex;
     /** Monitors */
     int            monitor;
     /** Line margin */

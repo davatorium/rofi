@@ -134,6 +134,7 @@ Settings config = {
     .fuzzy    = FALSE,
     .glob     = FALSE,
     .tokenize = TRUE,
+    .regex    = FALSE,
     /** Monitor */
     .monitor           =                                        -1,
     /** set line margin */
