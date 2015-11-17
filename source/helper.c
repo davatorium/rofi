@@ -185,8 +185,10 @@ char **tokenize ( const char *input, int case_sensitive )
         else if ( config.regex ) {
             GRegex *reg = g_regex_new ( input, ( case_sensitive ) ? 0 : G_REGEX_CASELESS, G_REGEX_MATCH_PARTIAL, NULL );
             if ( reg == NULL ) {
+                gchar *r = g_regex_escape_string ( input, -1 );
+                reg = g_regex_new ( r, ( case_sensitive ) ? 0 : G_REGEX_CASELESS, G_REGEX_MATCH_PARTIAL, NULL );
+                g_free ( r );
                 g_free ( retv );
-                return NULL;
             }
             retv[0] = (char *) reg;
         }
@@ -207,19 +209,18 @@ char **tokenize ( const char *input, int case_sensitive )
     for ( token = strtok_r ( str, " ", &saveptr ); token != NULL; token = strtok_r ( NULL, " ", &saveptr ) ) {
         retv = g_realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
         if ( config.glob ) {
-            char *str = g_strdup_printf ( "*%s*", token);
+            char *str = g_strdup_printf ( "*%s*", token );
             char *t   = token_collate_key ( str, case_sensitive );
             retv[num_tokens] = (char *) g_pattern_spec_new ( t );
             g_free ( t );
             g_free ( str );
         }
         else if ( config.regex ) {
-            GError *error = NULL;
-            retv[num_tokens] = (char *) g_regex_new ( token, case_sensitive?0:G_REGEX_CASELESS, 0, &error);
+            retv[num_tokens] = (char *) g_regex_new ( token, case_sensitive ? 0 : G_REGEX_CASELESS, 0, NULL );
             if ( retv[num_tokens] == NULL ) {
-                fprintf ( stderr, "Failed to parse: '%s'\n", error->message );
-                g_error_free(error);
-                num_tokens--;
+                gchar *r = g_regex_escape_string ( input, -1 );
+                retv[num_tokens] = (char *) g_regex_new ( r, ( case_sensitive ) ? 0 : G_REGEX_CASELESS, G_REGEX_MATCH_PARTIAL, NULL );
+                g_free ( r );
             }
         }
         else {
@@ -459,7 +460,7 @@ static int regex_token_match ( char **tokens, const char *input, G_GNUC_UNUSED i
 static int glob_token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive )
 {
     int  match  = 1;
-    char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : g_ascii_strdown(input,-1);
+    char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : g_ascii_strdown ( input, -1 );
 
     // Do a tokenized match.
     if ( tokens ) {
