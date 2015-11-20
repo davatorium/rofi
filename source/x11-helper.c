@@ -427,6 +427,7 @@ static void x11_figure_out_numlock_mask ( Display *display )
 // convert a Mod+key arg to mod mask and keysym
 void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key )
 {
+    GString      *str    = g_string_new ( "" );
     unsigned int modmask = 0;
 
     if ( strcasestr ( combo, "shift" ) ) {
@@ -438,49 +439,49 @@ void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key )
     if ( strcasestr ( combo, "alt" ) ) {
         modmask |= AltMask;
         if ( AltMask == 0 ) {
-            fprintf ( stderr, "X11 Did not report having an Alt key.\n" );
+            g_string_append_printf ( str, "X11 configured keyboard has no <b>Alt</b> key.\n" );
         }
     }
     if ( strcasestr ( combo, "altgr" ) ) {
         modmask |= AltRMask;
         if ( AltRMask == 0 ) {
-            fprintf ( stderr, "X11 Did not report having an AltGR key.\n" );
+            g_string_append_printf ( str, "X11 configured keyboard has no <b>AltGR</b> key.\n" );
         }
     }
     if ( strcasestr ( combo, "superr" ) ) {
         modmask |= SuperRMask;
         if ( SuperRMask == 0 ) {
-            fprintf ( stderr, "X11 Did not report having an SuperR key.\n" );
+            g_string_append_printf ( str, "X11 configured keyboard has no <b>SuperR</b> key.\n" );
         }
     }
     if ( strcasestr ( combo, "superl" ) ) {
         modmask |= SuperLMask;
         if ( SuperLMask == 0 ) {
-            fprintf ( stderr, "X11 Did not report having an SuperL key.\n" );
+            g_string_append_printf ( str, "X11 configured keyboard has no <b>SuperL</b> key.\n" );
         }
     }
     if ( strcasestr ( combo, "metal" ) ) {
         modmask |= MetaLMask;
         if ( MetaLMask == 0 ) {
-            fprintf ( stderr, "X11 Did not report having an MetaL key.\n" );
+            g_string_append_printf ( str, "X11 configured keyboard has no <b>MetaL</b> key.\n" );
         }
     }
     if ( strcasestr ( combo, "metar" ) ) {
         modmask |= MetaRMask;
         if ( MetaRMask == 0 ) {
-            fprintf ( stderr, "X11 Did not report having an MetaR key.\n" );
+            g_string_append_printf ( str, "X11 configured keyboard has no <b>MetaR</b> key.\n" );
         }
     }
     if ( strcasestr ( combo, "hyperl" ) ) {
         modmask |= HyperLMask;
         if ( HyperLMask == 0 ) {
-            fprintf ( stderr, "X11 Did not report having an HyperL key.\n" );
+            g_string_append_printf ( str, "X11 configured keyboard has no <b>HyperL</b> key.\n" );
         }
     }
     if ( strcasestr ( combo, "hyperr" ) ) {
         modmask |= HyperRMask;
         if ( HyperRMask == 0 ) {
-            fprintf ( stderr, "X11 Did not report having an HyperR key.\n" );
+            g_string_append_printf ( str, "X11 configured keyboard has no <b>HyperR</b> key.\n" );
         }
     }
     if ( strcasestr ( combo, "mod1" ) ) {
@@ -512,8 +513,14 @@ void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key )
 
     if ( sym == NoSymbol || ( !modmask && ( strchr ( combo, '-' ) || strchr ( combo, '+' ) ) ) ) {
         // TODO popup
-        fprintf ( stderr, "sorry, cannot understand key combination: %s\n", combo );
+        g_string_append_printf ( str, "Sorry, rofi cannot understand the key combination: <i>%s</i>\n", combo );
     }
+    if ( str->len > 0 ) {
+        show_error_message ( str->str, TRUE );
+        g_string_free ( str, TRUE );
+        exit ( EXIT_FAILURE );
+    }
+    g_string_free ( str, TRUE );
     *key = sym;
 }
 
