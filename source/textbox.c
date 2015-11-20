@@ -42,13 +42,6 @@
 
 #define SIDE_MARGIN    1
 
-// Use this so we can ignore numlock mask.
-// TODO: maybe use something smarter here..
-extern unsigned int NumlockMask;
-extern unsigned int AltMask;
-extern unsigned int SuperRMask;
-extern unsigned int SuperLMask;
-
 /**
  * Font + font color cache.
  * Avoid re-loading font on every change on every textbox.
@@ -571,7 +564,7 @@ int textbox_keypress ( textbox *tb, XEvent *ev, char *pad, KeySym key, Status st
     }
     if ( *pad != 0 && ( stat == XLookupBoth || stat == XLookupChars ) ) {
         // Filter When alt/ctrl is pressed do not accept the character.
-        if (  !g_ascii_iscntrl ( *pad ) && 0 == ( ev->xkey.state & ( ControlMask | AltMask | SuperRMask | SuperLMask ) ) ) {
+        if (  !g_ascii_iscntrl ( *pad ) ) {
             textbox_insert ( tb, tb->cursor, pad );
             textbox_cursor_inc ( tb );
             return 1;

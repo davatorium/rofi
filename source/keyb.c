@@ -26,13 +26,8 @@ typedef struct _DefaultBinding
     char             *keybinding;
 } DefaultBinding;
 
-ActionBindingEntry abe[NUM_ABE];
-// Use this so we can ignore numlock mask.
-// TODO: maybe use something smarter here..
-extern unsigned int NumlockMask;
-extern unsigned int AltMask;
-extern unsigned int SuperRMask;
-extern unsigned int SuperLMask;
+ActionBindingEntry  abe[NUM_ABE];
+extern unsigned int CombinedMask;
 
 /**
  * LIST OF DEFAULT SETTINGS
@@ -145,7 +140,7 @@ int abe_test_action ( KeyBindingAction action, unsigned int mask, KeySym key )
         if ( kb->keysym == key ) {
             // Bits 13 and 14 of the modifiers together are the group number, and
             // should be ignored when looking up key bindings
-            if ( ( mask & ( AltMask | ControlMask | SuperRMask | SuperLMask  ) ) == kb->modmask ) {
+            if ( ( mask & ( CombinedMask ) ) == kb->modmask ) {
                 return TRUE;
             }
         }

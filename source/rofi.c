@@ -578,24 +578,26 @@ static int locate_switcher ( KeySym key, unsigned int modstate )
  *
  * Keyboard navigation through the elements.
  */
-static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned int modstate )
+static int menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned int modstate )
 {
     // pressing one of the global key bindings closes the switcher. This allows fast closing of the
     // menu if an item is not selected
     if ( locate_switcher ( key, modstate ) != -1 || abe_test_action ( CANCEL, modstate, key ) ) {
         state->retv = MENU_CANCEL;
         state->quit = TRUE;
+        return 1;
     }
     // Up, Ctrl-p or Shift-Tab
     else if ( abe_test_action ( ROW_UP, modstate, key ) ) {
         menu_nav_up ( state );
+        return 1;
     }
     else if ( abe_test_action ( ROW_TAB, modstate, key ) ) {
         if ( state->filtered_lines == 1 ) {
             state->retv               = MENU_OK;
             *( state->selected_line ) = state->line_map[state->selected];
             state->quit               = 1;
-            return;
+            return 1;
         }
 
         // Double tab!
@@ -607,28 +609,36 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
         else{
             menu_nav_down ( state );
         }
+        return 1;
     }
     // Down, Ctrl-n
     else if ( abe_test_action ( ROW_DOWN, modstate, key ) ) {
         menu_nav_down ( state );
+        return 1;
     }
     else if ( abe_test_action ( ROW_LEFT, modstate, key ) ) {
         menu_nav_left ( state );
+        return 1;
     }
     else if ( abe_test_action ( ROW_RIGHT, modstate, key ) ) {
         menu_nav_right ( state );
+        return 1;
     }
     else if ( abe_test_action ( PAGE_PREV, modstate, key ) ) {
         menu_nav_page_prev ( state );
+        return 1;
     }
     else if ( abe_test_action ( PAGE_NEXT, modstate, key ) ) {
         menu_nav_page_next ( state );
+        return 1;
     }
     else if  ( abe_test_action ( ROW_FIRST, modstate, key ) ) {
         menu_nav_first ( state );
+        return 1;
     }
     else if ( abe_test_action ( ROW_LAST, modstate, key ) ) {
         menu_nav_last ( state );
+        return 1;
     }
     else if ( abe_test_action ( ROW_SELECT, modstate, key ) ) {
         // If a valid item is selected, return that..
@@ -638,8 +648,10 @@ static void menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned in
             state->update   = TRUE;
             state->refilter = TRUE;
         }
+        return 1;
     }
     state->prev_key = key;
+    return 0;
 }
 
 /**
@@ -1533,6 +1545,9 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
                             break;
                         }
                     }
+                    if ( menu_keyboard_navigation ( &state, key, ev.xkey.state ) ) {
+                        continue;
+                    }
                 }
                 {
                     // Skip if we detected key before.
@@ -1573,11 +1588,6 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
                     else if (  rc == 2 ) {
                         // redraw.
                         state.update = TRUE;
-                    }
-                    // Other keys.
-                    else{
-                        // unhandled key
-                        menu_keyboard_navigation ( &state, key, ev.xkey.state );
                     }
                 }
             } while ( XCheckTypedEvent ( display, KeyPress, &ev ) );

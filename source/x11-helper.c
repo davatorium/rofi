@@ -57,10 +57,16 @@
 Atom            netatoms[NUM_NETATOMS];
 const char      *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 // Mask indicating num-lock.
-unsigned int    NumlockMask = 0;
-unsigned int    AltMask     = 0;
-unsigned int    SuperRMask  = 0;
-unsigned int    SuperLMask  = 0;
+unsigned int    NumlockMask  = 0;
+unsigned int    AltMask      = 0;
+unsigned int    AltRMask     = 0;
+unsigned int    SuperRMask   = 0;
+unsigned int    SuperLMask   = 0;
+unsigned int    HyperRMask   = 0;
+unsigned int    HyperLMask   = 0;
+unsigned int    MetaRMask    = 0;
+unsigned int    MetaLMask    = 0;
+unsigned int    CombinedMask = 0;
 
 extern Colormap map;
 
@@ -373,24 +379,48 @@ static void x11_figure_out_numlock_mask ( Display *display )
     XModifierKeymap *modmap   = XGetModifierMapping ( display );
     KeyCode         kc        = XKeysymToKeycode ( display, XK_Num_Lock );
     KeyCode         kc_altl   = XKeysymToKeycode ( display, XK_Alt_L );
+    KeyCode         kc_altr   = XKeysymToKeycode ( display, XK_Alt_R );
     KeyCode         kc_superr = XKeysymToKeycode ( display, XK_Super_R );
     KeyCode         kc_superl = XKeysymToKeycode ( display, XK_Super_L );
+    KeyCode         kc_hyperl = XKeysymToKeycode ( display, XK_Hyper_L );
+    KeyCode         kc_hyperr = XKeysymToKeycode ( display, XK_Hyper_R );
+    KeyCode         kc_metal  = XKeysymToKeycode ( display, XK_Meta_L );
+    KeyCode         kc_metar  = XKeysymToKeycode ( display, XK_Meta_R );
     for ( int i = 0; i < 8; i++ ) {
         for ( int j = 0; j < ( int ) modmap->max_keypermod; j++ ) {
-            if ( modmap->modifiermap[i * modmap->max_keypermod + j] == kc ) {
+            if ( kc && modmap->modifiermap[i * modmap->max_keypermod + j] == kc ) {
                 NumlockMask = ( 1 << i );
             }
-            if ( modmap->modifiermap[i * modmap->max_keypermod + j] == kc_altl ) {
+            if ( kc_altl && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_altl ) {
                 AltMask |= ( 1 << i );
             }
-            if ( modmap->modifiermap[i * modmap->max_keypermod + j] == kc_superr ) {
+            if ( kc_altr && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_altr ) {
+                AltRMask |= ( 1 << i );
+            }
+            if ( kc_superr && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_superr ) {
                 SuperRMask |= ( 1 << i );
             }
-            if ( modmap->modifiermap[i * modmap->max_keypermod + j] == kc_superl ) {
+            if ( kc_superl && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_superl ) {
                 SuperLMask |= ( 1 << i );
+            }
+            if ( kc_hyperr && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_hyperr ) {
+                HyperRMask |= ( 1 << i );
+            }
+            if ( kc_hyperl && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_hyperl ) {
+                HyperLMask |= ( 1 << i );
+            }
+            if ( kc_metar && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_metar ) {
+                MetaRMask |= ( 1 << i );
+            }
+            if ( kc_metal && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_metal ) {
+                MetaLMask |= ( 1 << i );
             }
         }
     }
+    // Combined mask, without NumLock
+    CombinedMask = ShiftMask | MetaLMask | MetaRMask | AltMask | AltRMask | SuperRMask | SuperLMask | HyperLMask | HyperRMask |
+                   ControlMask;
+    CombinedMask |= Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask;
     XFreeModifiermap ( modmap );
 }
 
@@ -402,36 +432,69 @@ void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key )
     if ( strcasestr ( combo, "shift" ) ) {
         modmask |= ShiftMask;
     }
-
     if ( strcasestr ( combo, "control" ) ) {
         modmask |= ControlMask;
     }
-
-    if ( strcasestr ( combo, "mod1" ) ) {
-        modmask |= Mod1Mask;
-    }
-
     if ( strcasestr ( combo, "alt" ) ) {
         modmask |= AltMask;
+        if ( AltMask == 0 ) {
+            fprintf ( stderr, "X11 Did not report having an Alt key.\n" );
+        }
+    }
+    if ( strcasestr ( combo, "altgr" ) ) {
+        modmask |= AltRMask;
+        if ( AltRMask == 0 ) {
+            fprintf ( stderr, "X11 Did not report having an AltGR key.\n" );
+        }
     }
     if ( strcasestr ( combo, "superr" ) ) {
         modmask |= SuperRMask;
+        if ( SuperRMask == 0 ) {
+            fprintf ( stderr, "X11 Did not report having an SuperR key.\n" );
+        }
     }
     if ( strcasestr ( combo, "superl" ) ) {
         modmask |= SuperLMask;
+        if ( SuperLMask == 0 ) {
+            fprintf ( stderr, "X11 Did not report having an SuperL key.\n" );
+        }
+    }
+    if ( strcasestr ( combo, "metal" ) ) {
+        modmask |= MetaLMask;
+        if ( MetaLMask == 0 ) {
+            fprintf ( stderr, "X11 Did not report having an MetaL key.\n" );
+        }
+    }
+    if ( strcasestr ( combo, "metar" ) ) {
+        modmask |= MetaRMask;
+        if ( MetaRMask == 0 ) {
+            fprintf ( stderr, "X11 Did not report having an MetaR key.\n" );
+        }
+    }
+    if ( strcasestr ( combo, "hyperl" ) ) {
+        modmask |= HyperLMask;
+        if ( HyperLMask == 0 ) {
+            fprintf ( stderr, "X11 Did not report having an HyperL key.\n" );
+        }
+    }
+    if ( strcasestr ( combo, "hyperr" ) ) {
+        modmask |= HyperRMask;
+        if ( HyperRMask == 0 ) {
+            fprintf ( stderr, "X11 Did not report having an HyperR key.\n" );
+        }
+    }
+    if ( strcasestr ( combo, "mod1" ) ) {
+        modmask |= Mod1Mask;
     }
     if ( strcasestr ( combo, "mod2" ) ) {
         modmask |= Mod2Mask;
     }
-
     if ( strcasestr ( combo, "mod3" ) ) {
         modmask |= Mod3Mask;
     }
-
     if ( strcasestr ( combo, "mod4" ) ) {
         modmask |= Mod4Mask;
     }
-
     if ( strcasestr ( combo, "mod5" ) ) {
         modmask |= Mod5Mask;
     }
