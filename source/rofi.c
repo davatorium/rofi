@@ -1508,6 +1508,11 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
                     if ( state.quit ) {
                         continue;
                     }
+                    // This is needed for letting the Input Method handle combined keys.
+                    // E.g. `e into è
+                    if ( XFilterEvent ( &ev, main_window) ) {
+                        continue;
+                    }
 
                     int rc = textbox_keypress ( state.text, xic, &ev );
                     // Row is accepted.
