@@ -45,6 +45,7 @@
 // Use this so we can ignore numlock mask.
 // TODO: maybe use something smarter here..
 extern unsigned int NumlockMask;
+extern unsigned int ModeSwitchMask;
 
 /**
  * Font + font color cache.
@@ -574,7 +575,7 @@ int textbox_keypress ( textbox *tb, XIC xic, XEvent *ev )
     }
     // Filter When alt/ctrl/etc is pressed do not accept the character.
     // Ignore others (numlock, shift,..).
-    else if ( !iscntrl ( *pad ) && 0 == ( ev->xkey.state & ~( NumlockMask | ( 1 << 12 ) | ( 1 << 13 ) | ShiftMask | LockMask ) ) ) {
+    else if ( !iscntrl ( *pad ) && 0 == ( ev->xkey.state & ~( ModeSwitchMask | NumlockMask | ( 1 << 12 ) | ( 1 << 13 ) | ShiftMask | LockMask ) ) ) {
         textbox_insert ( tb, tb->cursor, pad );
         textbox_cursor_inc ( tb );
         return 1;
