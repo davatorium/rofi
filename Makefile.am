@@ -178,6 +178,8 @@ test-x: ${bin_PROGRAMS}
 	$(top_srcdir)/test/run_test.sh 205 $(top_srcdir)/test/run_script_test.sh $(top_builddir)
 	echo "Issue 256"
 	$(top_srcdir)/test/run_test.sh 206 $(top_srcdir)/test/run_issue_256.sh $(top_builddir) 
+	echo "Issue 275"
+	$(top_srcdir)/test/run_test.sh 207 $(top_srcdir)/test/run_issue_275.sh $(top_builddir)
 	echo "End tests"
 
 
