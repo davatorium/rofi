@@ -419,6 +419,10 @@ static void menu_calculate_window_and_element_width ( MenuState *state, workarea
  */
 inline static void menu_nav_page_next ( MenuState *state )
 {
+    // If no lines, do nothing.
+    if ( state->filtered_lines == 0 ) {
+        return;
+    }
     state->selected += ( state->max_elements );
     if ( state->selected >= state->filtered_lines ) {
         state->selected = state->filtered_lines - 1;
@@ -451,6 +455,10 @@ inline static void menu_nav_page_prev ( MenuState * state )
  */
 inline static void menu_nav_right ( MenuState *state )
 {
+    // If no lines, do nothing.
+    if ( state->filtered_lines == 0 ) {
+        return;
+    }
     if ( ( state->selected + state->max_rows ) < state->filtered_lines ) {
         state->selected += state->max_rows;
         state->update    = TRUE;
@@ -508,6 +516,10 @@ inline static void menu_nav_up ( MenuState *state )
  */
 inline static void menu_nav_down ( MenuState *state )
 {
+    // If no lines, do nothing.
+    if ( state->filtered_lines == 0 ) {
+        return;
+    }
     state->selected = state->selected < state->filtered_lines - 1 ? MIN ( state->filtered_lines - 1, state->selected + 1 ) : 0;
     state->update   = TRUE;
 }
@@ -528,6 +540,10 @@ inline static void menu_nav_first ( MenuState * state )
  */
 inline static void menu_nav_last ( MenuState * state )
 {
+    // If no lines, do nothing.
+    if ( state->filtered_lines == 0 ) {
+        return;
+    }
     state->selected = state->filtered_lines - 1;
     state->update   = TRUE;
 }
@@ -830,8 +846,12 @@ static void menu_refilter ( MenuState *state )
         }
         state->filtered_lines = state->num_lines;
     }
-
-    state->selected = MIN ( state->selected, state->filtered_lines - 1 );
+    if ( state->filtered_lines > 0 ) {
+        state->selected = MIN ( state->selected, state->filtered_lines - 1 );
+    }
+    else {
+        state->selected = 0;
+    }
 
     if ( config.auto_select == TRUE && state->filtered_lines == 1 && state->num_lines > 1 ) {
         *( state->selected_line ) = state->line_map[state->selected];
@@ -1510,7 +1530,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
                     }
                     // This is needed for letting the Input Method handle combined keys.
                     // E.g. `e into è
-                    if ( XFilterEvent ( &ev, main_window) ) {
+                    if ( XFilterEvent ( &ev, main_window ) ) {
                         continue;
                     }
 

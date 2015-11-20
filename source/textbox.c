@@ -575,7 +575,8 @@ int textbox_keypress ( textbox *tb, XIC xic, XEvent *ev )
     }
     // Filter When alt/ctrl/etc is pressed do not accept the character.
     // Ignore others (numlock, shift,..).
-    else if ( !iscntrl ( *pad ) && 0 == ( ev->xkey.state & ~( ModeSwitchMask | NumlockMask | ( 1 << 12 ) | ( 1 << 13 ) | ShiftMask | LockMask ) ) ) {
+    else if ( !iscntrl ( *pad ) && 0 ==
+              ( ev->xkey.state & ~( ModeSwitchMask | NumlockMask | ( 1 << 12 ) | ( 1 << 13 ) | ShiftMask | LockMask ) ) ) {
         textbox_insert ( tb, tb->cursor, pad );
         textbox_cursor_inc ( tb );
         return 1;

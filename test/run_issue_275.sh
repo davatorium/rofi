@@ -14,6 +14,8 @@ sleep 0.4
 xdotool key 'e'
 sleep 0.4
 xdotool key End 
+sleep 0.4
+xdotool key Return 
 
 #  Get result, kill xvfb
 wait ${RPID}

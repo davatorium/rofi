@@ -57,8 +57,8 @@
 Atom            netatoms[NUM_NETATOMS];
 const char      *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 // Mask indicating num-lock.
-unsigned int    NumlockMask = 0;
-unsigned int   ModeSwitchMask = 0;
+unsigned int    NumlockMask    = 0;
+unsigned int    ModeSwitchMask = 0;
 
 extern Colormap map;
 
@@ -370,7 +370,7 @@ static void x11_figure_out_numlock_mask ( Display *display )
 {
     XModifierKeymap *modmap = XGetModifierMapping ( display );
     KeyCode         kc      = XKeysymToKeycode ( display, XK_Num_Lock );
-    KeyCode         kc_ms   = XKeysymToKeycode ( display, XK_Mode_switch);
+    KeyCode         kc_ms   = XKeysymToKeycode ( display, XK_Mode_switch );
     for ( int i = 0; i < 8; i++ ) {
         for ( int j = 0; j < ( int ) modmap->max_keypermod; j++ ) {
             if ( modmap->modifiermap[i * modmap->max_keypermod + j] == kc ) {
