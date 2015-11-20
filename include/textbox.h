@@ -18,8 +18,6 @@ typedef struct
     short           cursor;
     Color           color_fg, color_bg;
     char            *text;
-    XIM             xim;
-    XIC             xic;
     PangoLayout     *layout;
     int             tbft;
     int             markup;
