@@ -57,8 +57,10 @@
 Atom            netatoms[NUM_NETATOMS];
 const char      *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 // Mask indicating num-lock.
-unsigned int    NumlockMask    = 0;
-unsigned int    ModeSwitchMask = 0;
+unsigned int    NumlockMask = 0;
+unsigned int    AltMask     = 0;
+unsigned int    SuperRMask  = 0;
+unsigned int    SuperLMask  = 0;
 
 extern Colormap map;
 
@@ -368,16 +370,24 @@ void x11_ungrab_key ( Display *display, unsigned int modmask, KeySym key )
  */
 static void x11_figure_out_numlock_mask ( Display *display )
 {
-    XModifierKeymap *modmap = XGetModifierMapping ( display );
-    KeyCode         kc      = XKeysymToKeycode ( display, XK_Num_Lock );
-    KeyCode         kc_ms   = XKeysymToKeycode ( display, XK_Mode_switch );
+    XModifierKeymap *modmap   = XGetModifierMapping ( display );
+    KeyCode         kc        = XKeysymToKeycode ( display, XK_Num_Lock );
+    KeyCode         kc_altl   = XKeysymToKeycode ( display, XK_Alt_L );
+    KeyCode         kc_superr = XKeysymToKeycode ( display, XK_Super_R );
+    KeyCode         kc_superl = XKeysymToKeycode ( display, XK_Super_L );
     for ( int i = 0; i < 8; i++ ) {
         for ( int j = 0; j < ( int ) modmap->max_keypermod; j++ ) {
             if ( modmap->modifiermap[i * modmap->max_keypermod + j] == kc ) {
                 NumlockMask = ( 1 << i );
             }
-            if ( modmap->modifiermap[i * modmap->max_keypermod + j] == kc_ms ) {
-                ModeSwitchMask = ( 1 << i );
+            if ( modmap->modifiermap[i * modmap->max_keypermod + j] == kc_altl ) {
+                AltMask |= ( 1 << i );
+            }
+            if ( modmap->modifiermap[i * modmap->max_keypermod + j] == kc_superr ) {
+                SuperRMask |= ( 1 << i );
+            }
+            if ( modmap->modifiermap[i * modmap->max_keypermod + j] == kc_superl ) {
+                SuperLMask |= ( 1 << i );
             }
         }
     }
@@ -402,9 +412,14 @@ void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key )
     }
 
     if ( strcasestr ( combo, "alt" ) ) {
-        modmask |= Mod1Mask;
+        modmask |= AltMask;
     }
-
+    if ( strcasestr ( combo, "superr" ) ) {
+        modmask |= SuperRMask;
+    }
+    if ( strcasestr ( combo, "superl" ) ) {
+        modmask |= SuperLMask;
+    }
     if ( strcasestr ( combo, "mod2" ) ) {
         modmask |= Mod2Mask;
     }
@@ -436,7 +451,6 @@ void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key )
         // TODO popup
         fprintf ( stderr, "sorry, cannot understand key combination: %s\n", combo );
     }
-
     *key = sym;
 }
 

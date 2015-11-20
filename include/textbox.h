@@ -100,7 +100,7 @@ void textbox_draw ( textbox *tb, cairo_t *draw );
  *
  * @returns if the key was handled (1), unhandled(0) or handled and return was pressed (-1)
  */
-int textbox_keypress ( textbox *tb, XIC xic, XEvent *ev );
+int textbox_keypress ( textbox *tb, XEvent *ev, char *pad, KeySym key, Status stat );
 
 /**
  * @param tb  Handle to the textbox

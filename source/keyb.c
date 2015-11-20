@@ -30,6 +30,9 @@ ActionBindingEntry abe[NUM_ABE];
 // Use this so we can ignore numlock mask.
 // TODO: maybe use something smarter here..
 extern unsigned int NumlockMask;
+extern unsigned int AltMask;
+extern unsigned int SuperRMask;
+extern unsigned int SuperLMask;
 
 /**
  * LIST OF DEFAULT SETTINGS
@@ -142,7 +145,7 @@ int abe_test_action ( KeyBindingAction action, unsigned int mask, KeySym key )
         if ( kb->keysym == key ) {
             // Bits 13 and 14 of the modifiers together are the group number, and
             // should be ignored when looking up key bindings
-            if ( ( mask & ~( LockMask | NumlockMask | ( 1 << 13 ) | ( 1 << 14 ) ) ) == kb->modmask ) {
+            if ( ( mask & ( AltMask | ControlMask | SuperRMask | SuperLMask  ) ) == kb->modmask ) {
                 return TRUE;
             }
         }

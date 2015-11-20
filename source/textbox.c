@@ -45,7 +45,9 @@
 // Use this so we can ignore numlock mask.
 // TODO: maybe use something smarter here..
 extern unsigned int NumlockMask;
-extern unsigned int ModeSwitchMask;
+extern unsigned int AltMask;
+extern unsigned int SuperRMask;
+extern unsigned int SuperLMask;
 
 /**
  * Font + font color cache.
@@ -496,90 +498,84 @@ static void textbox_cursor_del_word ( textbox *tb )
 // 0 = unhandled
 // 1 = handled
 // -1 = handled and return pressed (finished)
-int textbox_keypress ( textbox *tb, XIC xic, XEvent *ev )
+int textbox_keypress ( textbox *tb, XEvent *ev, char *pad, KeySym key, Status stat )
 {
-    KeySym key;
-    Status stat;
-    char   pad[32];
-    int    len;
-
     if ( !( tb->flags & TB_EDITABLE ) ) {
         return 0;
     }
+    if ( stat == XLookupKeySym || stat == XLookupBoth ) {
+        // Left or Ctrl-b
+        if ( abe_test_action ( MOVE_CHAR_BACK, ev->xkey.state, key ) ) {
+            textbox_cursor_dec ( tb );
+            return 2;
+        }
+        // Right or Ctrl-F
+        else if ( abe_test_action ( MOVE_CHAR_FORWARD, ev->xkey.state, key ) ) {
+            textbox_cursor_inc ( tb );
+            return 2;
+        }
 
-    len      = Xutf8LookupString ( xic, &ev->xkey, pad, sizeof ( pad ), &key, &stat );
-    pad[len] = 0;
-    // Left or Ctrl-b
-    if ( abe_test_action ( MOVE_CHAR_BACK, ev->xkey.state, key ) ) {
-        textbox_cursor_dec ( tb );
-        return 2;
+        // Ctrl-U: Kill from the beginning to the end of the line.
+        else if ( abe_test_action ( CLEAR_LINE, ev->xkey.state, key ) ) {
+            textbox_text ( tb, "" );
+            return 1;
+        }
+        // Ctrl-A
+        else if ( abe_test_action ( MOVE_FRONT, ev->xkey.state, key ) ) {
+            textbox_cursor ( tb, 0 );
+            return 2;
+        }
+        // Ctrl-E
+        else if ( abe_test_action ( MOVE_END, ev->xkey.state, key ) ) {
+            textbox_cursor_end ( tb );
+            return 2;
+        }
+        // Ctrl-Alt-h
+        else if ( abe_test_action ( REMOVE_WORD_BACK, ev->xkey.state, key ) ) {
+            textbox_cursor_bkspc_word ( tb );
+            return 1;
+        }
+        // Ctrl-Alt-d
+        else if ( abe_test_action ( REMOVE_WORD_FORWARD, ev->xkey.state, key ) ) {
+            textbox_cursor_del_word ( tb );
+            return 1;
+        }    // Delete or Ctrl-D
+        else if ( abe_test_action ( REMOVE_CHAR_FORWARD, ev->xkey.state, key ) ) {
+            textbox_cursor_del ( tb );
+            return 1;
+        }
+        // Alt-B
+        else if ( abe_test_action ( MOVE_WORD_BACK, ev->xkey.state, key ) ) {
+            textbox_cursor_dec_word ( tb );
+            return 2;
+        }
+        // Alt-F
+        else if ( abe_test_action ( MOVE_WORD_FORWARD, ev->xkey.state, key ) ) {
+            textbox_cursor_inc_word ( tb );
+            return 2;
+        }
+        // BackSpace, Ctrl-h
+        else if ( abe_test_action ( REMOVE_CHAR_BACK, ev->xkey.state, key ) ) {
+            textbox_cursor_bkspc ( tb );
+            return 1;
+        }
+        else if ( abe_test_action ( ACCEPT_CUSTOM, ev->xkey.state, key ) ) {
+            return -2;
+        }
+        else if  ( abe_test_action ( ACCEPT_ENTRY_CONTINUE, ev->xkey.state, key ) ) {
+            return -3;
+        }
+        else if ( abe_test_action ( ACCEPT_ENTRY, ev->xkey.state, key ) ) {
+            return -1;
+        }
     }
-    // Right or Ctrl-F
-    else if ( abe_test_action ( MOVE_CHAR_FORWARD, ev->xkey.state, key ) ) {
-        textbox_cursor_inc ( tb );
-        return 2;
-    }
-
-    // Ctrl-U: Kill from the beginning to the end of the line.
-    else if ( abe_test_action ( CLEAR_LINE, ev->xkey.state, key ) ) {
-        textbox_text ( tb, "" );
-        return 1;
-    }
-    // Ctrl-A
-    else if ( abe_test_action ( MOVE_FRONT, ev->xkey.state, key ) ) {
-        textbox_cursor ( tb, 0 );
-        return 2;
-    }
-    // Ctrl-E
-    else if ( abe_test_action ( MOVE_END, ev->xkey.state, key ) ) {
-        textbox_cursor_end ( tb );
-        return 2;
-    }
-    // Ctrl-Alt-h
-    else if ( abe_test_action ( REMOVE_WORD_BACK, ev->xkey.state, key ) ) {
-        textbox_cursor_bkspc_word ( tb );
-        return 1;
-    }
-    // Ctrl-Alt-d
-    else if ( abe_test_action ( REMOVE_WORD_FORWARD, ev->xkey.state, key ) ) {
-        textbox_cursor_del_word ( tb );
-        return 1;
-    }    // Delete or Ctrl-D
-    else if ( abe_test_action ( REMOVE_CHAR_FORWARD, ev->xkey.state, key ) ) {
-        textbox_cursor_del ( tb );
-        return 1;
-    }
-    // Alt-B
-    else if ( abe_test_action ( MOVE_WORD_BACK, ev->xkey.state, key ) ) {
-        textbox_cursor_dec_word ( tb );
-        return 2;
-    }
-    // Alt-F
-    else if ( abe_test_action ( MOVE_WORD_FORWARD, ev->xkey.state, key ) ) {
-        textbox_cursor_inc_word ( tb );
-        return 2;
-    }
-    // BackSpace, Ctrl-h
-    else if ( abe_test_action ( REMOVE_CHAR_BACK, ev->xkey.state, key ) ) {
-        textbox_cursor_bkspc ( tb );
-        return 1;
-    }
-    else if ( abe_test_action ( ACCEPT_CUSTOM, ev->xkey.state, key ) ) {
-        return -2;
-    }
-    else if  ( abe_test_action ( ACCEPT_ENTRY_CONTINUE, ev->xkey.state, key ) ) {
-        return -3;
-    }
-    else if ( abe_test_action ( ACCEPT_ENTRY, ev->xkey.state, key ) ) {
-        return -1;
-    }
-    // Filter When alt/ctrl/etc is pressed do not accept the character.
-    // Ignore others (numlock, shift,..).
-    else if ( !iscntrl ( *pad ) && 0 ==
-              ( ev->xkey.state & ~( ModeSwitchMask | NumlockMask | ( 1 << 12 ) | ( 1 << 13 ) | ShiftMask | LockMask ) ) ) {
-        textbox_insert ( tb, tb->cursor, pad );
-        textbox_cursor_inc ( tb );
-        return 1;
+    if ( *pad != 0 && ( stat == XLookupBoth || stat == XLookupChars ) ) {
+        // Filter When alt/ctrl is pressed do not accept the character.
+        if (  !g_ascii_iscntrl ( *pad ) && 0 == ( ev->xkey.state & ( ControlMask | AltMask | SuperRMask | SuperLMask ) ) ) {
+            textbox_insert ( tb, tb->cursor, pad );
+            textbox_cursor_inc ( tb );
+            return 1;
+        }
     }
 
     return 0;

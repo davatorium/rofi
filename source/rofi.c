@@ -1468,52 +1468,61 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         // Key press event.
         else if ( ev.type == KeyPress ) {
             do {
-                KeySym key = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
+                // This is needed for letting the Input Method handle combined keys.
+                // E.g. `e into è
+                if ( XFilterEvent ( &ev, main_window ) ) {
+                    continue;
+                }
+                Status stat;
+                char   pad[32];
+                KeySym key;// = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
+                int    len = Xutf8LookupString ( xic, &( ev.xkey ), pad, sizeof ( pad ), &key, &stat );
+                pad[len] = 0;
 
-                // Handling of paste
-                if ( abe_test_action ( PASTE_PRIMARY, ev.xkey.state, key ) ) {
-                    XConvertSelection ( display, XA_PRIMARY, netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
-                }
-                else if ( abe_test_action ( PASTE_SECONDARY, ev.xkey.state, key ) ) {
-                    XConvertSelection ( display, netatoms[CLIPBOARD], netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window,
-                                        CurrentTime );
-                }
-                else if ( abe_test_action ( MODE_PREVIOUS, ev.xkey.state, key ) ) {
-                    state.retv               = MENU_PREVIOUS;
-                    *( state.selected_line ) = 0;
-                    state.quit               = TRUE;
-                    break;
-                }
-                // Menu navigation.
-                else if ( abe_test_action ( MODE_NEXT, ev.xkey.state, key ) ) {
-                    state.retv               = MENU_NEXT;
-                    *( state.selected_line ) = 0;
-                    state.quit               = TRUE;
-                    break;
-                }
-                // Toggle case sensitivity.
-                else if ( abe_test_action ( TOGGLE_CASE_SENSITIVITY, ev.xkey.state, key ) ) {
-                    config.case_sensitive    = !config.case_sensitive;
-                    *( state.selected_line ) = 0;
-                    state.refilter           = TRUE;
-                    state.update             = TRUE;
-                    if ( config.case_sensitive ) {
-                        textbox_text ( state.case_indicator, "*" );
+                if ( stat == XLookupKeySym || stat == XLookupBoth ) {
+                    // Handling of paste
+                    if ( abe_test_action ( PASTE_PRIMARY, ev.xkey.state, key ) ) {
+                        XConvertSelection ( display, XA_PRIMARY, netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
                     }
-                    else {
-                        textbox_text ( state.case_indicator, " " );
+                    else if ( abe_test_action ( PASTE_SECONDARY, ev.xkey.state, key ) ) {
+                        XConvertSelection ( display, netatoms[CLIPBOARD], netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window,
+                                            CurrentTime );
                     }
-                }
-                // Special delete entry command.
-                else if ( abe_test_action ( DELETE_ENTRY, ev.xkey.state, key ) ) {
-                    if ( state.selected < state.filtered_lines ) {
-                        *( state.selected_line ) = state.line_map[state.selected];
-                        state.retv               = MENU_ENTRY_DELETE;
+                    else if ( abe_test_action ( MODE_PREVIOUS, ev.xkey.state, key ) ) {
+                        state.retv               = MENU_PREVIOUS;
+                        *( state.selected_line ) = 0;
                         state.quit               = TRUE;
                         break;
                     }
-                }
-                else{
+                    // Menu navigation.
+                    else if ( abe_test_action ( MODE_NEXT, ev.xkey.state, key ) ) {
+                        state.retv               = MENU_NEXT;
+                        *( state.selected_line ) = 0;
+                        state.quit               = TRUE;
+                        break;
+                    }
+                    // Toggle case sensitivity.
+                    else if ( abe_test_action ( TOGGLE_CASE_SENSITIVITY, ev.xkey.state, key ) ) {
+                        config.case_sensitive    = !config.case_sensitive;
+                        *( state.selected_line ) = 0;
+                        state.refilter           = TRUE;
+                        state.update             = TRUE;
+                        if ( config.case_sensitive ) {
+                            textbox_text ( state.case_indicator, "*" );
+                        }
+                        else {
+                            textbox_text ( state.case_indicator, " " );
+                        }
+                    }
+                    // Special delete entry command.
+                    else if ( abe_test_action ( DELETE_ENTRY, ev.xkey.state, key ) ) {
+                        if ( state.selected < state.filtered_lines ) {
+                            *( state.selected_line ) = state.line_map[state.selected];
+                            state.retv               = MENU_ENTRY_DELETE;
+                            state.quit               = TRUE;
+                            break;
+                        }
+                    }
                     for ( unsigned int a = CUSTOM_1; a <= CUSTOM_19; a++ ) {
                         if ( abe_test_action ( a, ev.xkey.state, key ) ) {
                             if ( state.selected < state.filtered_lines ) {
@@ -1524,17 +1533,14 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
                             break;
                         }
                     }
+                }
+                {
                     // Skip if we detected key before.
                     if ( state.quit ) {
                         continue;
                     }
-                    // This is needed for letting the Input Method handle combined keys.
-                    // E.g. `e into è
-                    if ( XFilterEvent ( &ev, main_window ) ) {
-                        continue;
-                    }
 
-                    int rc = textbox_keypress ( state.text, xic, &ev );
+                    int rc = textbox_keypress ( state.text, &ev, pad, key, stat );
                     // Row is accepted.
                     if ( rc < 0 ) {
                         shift = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
