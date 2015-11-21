@@ -157,19 +157,19 @@ static void script_mode_destroy ( Switcher *sw )
         sw->private_data = NULL;
     }
 }
-static char *mgrv ( unsigned int selected_line, Switcher *sw, G_GNUC_UNUSED int *state, int get_entry )
+static char *mgrv ( unsigned int selected_line, const Switcher *sw, G_GNUC_UNUSED int *state, int get_entry )
 {
     ScriptModePrivateData *rmpd = sw->private_data;
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
 
-static int script_token_match ( char **tokens, int not_ascii, int case_sensitive, unsigned int index, Switcher *sw )
+static int script_token_match ( char **tokens, int not_ascii, int case_sensitive, unsigned int index, const Switcher *sw )
 {
     ScriptModePrivateData *rmpd = sw->private_data;
     return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );
 }
 
-static int script_is_not_ascii ( Switcher *sw, unsigned int index )
+static int script_is_not_ascii ( const Switcher *sw, unsigned int index )
 {
     ScriptModePrivateData *rmpd = sw->private_data;
     return is_not_ascii ( rmpd->cmd_list[index] );

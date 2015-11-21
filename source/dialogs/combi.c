@@ -174,7 +174,7 @@ static SwitcherMode combi_mode_result ( int mretv, char **input, unsigned int se
     return MODE_EXIT;
 }
 static int combi_mode_match ( char **tokens, int not_ascii,
-                              int case_sensitive, unsigned int index, Switcher *sw )
+                              int case_sensitive, unsigned int index, const Switcher *sw )
 {
     CombiModePrivateData *pd = sw->private_data;
 
@@ -196,7 +196,7 @@ static int combi_mode_match ( char **tokens, int not_ascii,
     abort ();
     return 0;
 }
-static char * combi_mgrv ( unsigned int selected_line, Switcher *sw, int *state, int get_entry )
+static char * combi_mgrv ( unsigned int selected_line,const Switcher *sw, int *state, int get_entry )
 {
     CombiModePrivateData *pd = sw->private_data;
     if ( !get_entry ) {
@@ -219,7 +219,7 @@ static char * combi_mgrv ( unsigned int selected_line, Switcher *sw, int *state,
 
     return NULL;
 }
-static int combi_is_not_ascii ( Switcher *sw, unsigned int index )
+static int combi_is_not_ascii ( const Switcher *sw, unsigned int index )
 {
     CombiModePrivateData *pd = sw->private_data;
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {

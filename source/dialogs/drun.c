@@ -264,7 +264,7 @@ static void drun_mode_destroy ( Switcher *sw )
     }
 }
 
-static char *mgrv ( unsigned int selected_line, Switcher *sw, int *state, int get_entry )
+static char *mgrv ( unsigned int selected_line, const Switcher *sw, int *state, int get_entry )
 {
     DRunModePrivateData *pd = (DRunModePrivateData *) sw->private_data;
     *state |= MARKUP;
@@ -290,7 +290,7 @@ static int drun_token_match ( char **tokens,
                               int not_ascii,
                               int case_sensitive,
                               unsigned int index,
-                              Switcher *data )
+                              const Switcher *data )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) data->private_data;
     if ( rmpd->entry_list[index].name &&
@@ -310,7 +310,7 @@ static unsigned int drun_mode_get_num_entries ( Switcher *sw )
     DRunModePrivateData *pd = (DRunModePrivateData *) sw->private_data;
     return pd->cmd_list_length;
 }
-static int drun_is_not_ascii ( Switcher *sw, unsigned int index )
+static int drun_is_not_ascii ( const Switcher *sw, unsigned int index )
 {
     DRunModePrivateData *pd = (DRunModePrivateData *) sw->private_data;
     if ( pd->entry_list[index].generic_name ) {

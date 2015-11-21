@@ -377,18 +377,18 @@ static void ssh_mode_destroy ( Switcher *sw )
     }
 }
 
-static char *mgrv ( unsigned int selected_line, Switcher *sw, G_GNUC_UNUSED int *state, int get_entry )
+static char *mgrv ( unsigned int selected_line, const Switcher *sw, G_GNUC_UNUSED int *state, int get_entry )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
-static int ssh_token_match ( char **tokens, int not_ascii, int case_sensitive, unsigned int index, Switcher *sw )
+static int ssh_token_match ( char **tokens, int not_ascii, int case_sensitive, unsigned int index, const Switcher *sw )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
     return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );
 }
 
-static int ssh_is_not_ascii ( Switcher *sw, unsigned int index )
+static int ssh_is_not_ascii ( const Switcher *sw, unsigned int index )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
     return is_not_ascii ( rmpd->cmd_list[index] );

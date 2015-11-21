@@ -137,7 +137,7 @@ static void parse_ranges ( char *input, struct range_pair **list, unsigned int *
     }
 }
 
-static char *get_display_data ( unsigned int index, Switcher *data, int *state, int get_entry )
+static char *get_display_data ( unsigned int index, const Switcher *data, int *state, int get_entry )
 {
     Switcher             *sw    = (Switcher *) data;
     DmenuModePrivateData *pd    = (DmenuModePrivateData *) sw->private_data;
@@ -279,13 +279,13 @@ static void dmenu_mode_init ( Switcher *sw )
     pd->cmd_list = get_dmenu ( &( pd->cmd_list_length ) );
 }
 
-static int dmenu_token_match ( char **tokens, int not_ascii, int case_sensitive, unsigned int index, Switcher *sw )
+static int dmenu_token_match ( char **tokens, int not_ascii, int case_sensitive, unsigned int index, const Switcher *sw )
 {
     DmenuModePrivateData *rmpd = (DmenuModePrivateData *) sw->private_data;
     return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );
 }
 
-static int dmenu_is_not_ascii ( Switcher *sw, unsigned int index )
+static int dmenu_is_not_ascii ( const Switcher *sw, unsigned int index )
 {
     DmenuModePrivateData *rmpd = (DmenuModePrivateData *) sw->private_data;
     return is_not_ascii ( rmpd->cmd_list[index] );

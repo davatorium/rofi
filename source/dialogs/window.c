@@ -322,12 +322,15 @@ typedef struct _SwitcherModePrivateData
 
 static int window_match ( char **tokens,
                           __attribute__( ( unused ) ) int not_ascii,
-                          int case_sensitive, unsigned int index, Switcher *sw )
+                          int case_sensitive, unsigned int index, const Switcher *sw )
 {
     SwitcherModePrivateData *rmpd = (SwitcherModePrivateData *) sw->private_data;
     int                     match = 1;
-    winlist                 *ids  = ( winlist * ) rmpd->ids;
-    client                  *c    = window_client ( display, ids->array[index] );
+    const winlist          *ids  = ( winlist * ) rmpd->ids;
+    // Want to pull directly out of cache, X calls are not thread safe.
+    int idx = winlist_find ( cache_client, ids->array[index]);
+    g_assert ( idx >= 0 ) ;
+    client *c = cache_client->data[idx];
 
     if ( tokens ) {
         for ( int j = 0; match && tokens != NULL && tokens[j] != NULL; j++ ) {
@@ -557,7 +560,7 @@ static void window_mode_destroy ( Switcher *sw )
     }
 }
 
-static char *mgrv ( unsigned int selected_line, Switcher *sw, int *state, int get_entry )
+static char *mgrv ( unsigned int selected_line, const Switcher *sw, int *state, int get_entry )
 {
     SwitcherModePrivateData *rmpd = sw->private_data;
     if ( window_client ( display, rmpd->ids->array[selected_line] )->demands ) {
@@ -569,11 +572,14 @@ static char *mgrv ( unsigned int selected_line, Switcher *sw, int *state, int ge
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
 
-static int window_is_not_ascii ( Switcher *sw, unsigned int index )
+static int window_is_not_ascii ( const Switcher *sw, unsigned int index )
 {
-    SwitcherModePrivateData *rmpd = sw->private_data;
-    winlist                 *ids  = ( winlist * ) rmpd->ids;
-    client                  *c    = window_client ( display, ids->array[index] );
+    const SwitcherModePrivateData *rmpd = sw->private_data;
+    const winlist                 *ids  = ( winlist * ) rmpd->ids;
+    // Want to pull directly out of cache, X calls are not thread safe.
+    int idx = winlist_find ( cache_client, ids->array[index]);
+    g_assert ( idx >= 0 ) ;
+    client *c = cache_client->data[idx];
     return is_not_ascii ( c->role ) || is_not_ascii ( c->class ) || is_not_ascii ( c->title ) || is_not_ascii ( c->name );
 }
 
