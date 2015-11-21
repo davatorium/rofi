@@ -272,20 +272,14 @@ static void run_mode_init ( Switcher *sw )
     if ( sw->private_data == NULL ) {
         RunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         sw->private_data = (void *) pd;
+        pd->cmd_list     = get_apps ( &( pd->cmd_list_length ) );
     }
 }
 
-static char ** run_mode_get_data ( unsigned int *length, Switcher *sw )
+static unsigned int run_mode_get_num_entries ( Switcher *sw )
 {
     RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
-    if ( rmpd->cmd_list == NULL ) {
-        rmpd->cmd_list_length = 0;
-        rmpd->cmd_list        = get_apps ( &( rmpd->cmd_list_length ) );
-    }
-    if ( length != NULL ) {
-        *length = rmpd->cmd_list_length;
-    }
-    return rmpd->cmd_list;
+    return rmpd->cmd_list_length;
 }
 
 static SwitcherMode run_mode_result ( int mretv, char **input, unsigned int selected_line,
@@ -333,23 +327,35 @@ static void run_mode_destroy ( Switcher *sw )
     }
 }
 
-static const char *mgrv ( unsigned int selected_line, void *sw, G_GNUC_UNUSED int *state )
+static char *mgrv ( unsigned int selected_line, Switcher *sw, G_GNUC_UNUSED int *state, int get_entry )
 {
-    return run_mode_get_data ( NULL, sw )[selected_line];
+    RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
+    return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
+}
+static int run_token_match ( char **tokens, int not_ascii, int case_sensitive, unsigned int index, Switcher *sw )
+{
+    RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
+    return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );
 }
 
+static int run_is_not_ascii ( Switcher *sw, unsigned int index )
+{
+    RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
+    return is_not_ascii ( rmpd->cmd_list[index] );
+}
 Switcher run_mode =
 {
-    .name         = "run",
-    .keycfg       = NULL,
-    .keystr       = NULL,
-    .modmask      = AnyModifier,
-    .init         = run_mode_init,
-    .get_data     = run_mode_get_data,
-    .result       = run_mode_result,
-    .destroy      = run_mode_destroy,
-    .token_match  = token_match,
-    .mgrv         = mgrv,
-    .private_data = NULL,
-    .free         = NULL
+    .name            = "run",
+    .keycfg          = NULL,
+    .keystr          = NULL,
+    .modmask         = AnyModifier,
+    .init            = run_mode_init,
+    .get_num_entries = run_mode_get_num_entries,
+    .result          = run_mode_result,
+    .destroy         = run_mode_destroy,
+    .token_match     = run_token_match,
+    .mgrv            = mgrv,
+    .is_not_ascii    = run_is_not_ascii,
+    .private_data    = NULL,
+    .free            = NULL
 };

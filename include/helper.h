@@ -103,10 +103,7 @@ int find_arg ( const char * const key );
  *
  * @returns 1 when matches, 0 otherwise
  */
-int token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive,
-                  __attribute__( ( unused ) ) unsigned int index,
-                  __attribute__( ( unused ) ) Switcher * data );
-
+int token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive );
 /**
  * @param cmd The command to execute.
  *

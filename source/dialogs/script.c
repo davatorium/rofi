@@ -102,17 +102,13 @@ static void script_mode_init ( Switcher *sw )
     if ( sw->private_data == NULL ) {
         ScriptModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         sw->private_data = (void *) pd;
+        pd->cmd_list     = get_script_output ( (const char *) sw->ed, &( pd->cmd_list_length ) );
     }
 }
-static char ** script_mode_get_data ( unsigned int *length, Switcher *sw )
+static unsigned int script_mode_get_num_entries ( Switcher *sw )
 {
     ScriptModePrivateData *rmpd = (ScriptModePrivateData *) sw->private_data;
-    if ( rmpd->cmd_list == NULL ) {
-        rmpd->cmd_list_length = 0;
-        rmpd->cmd_list        = get_script_output ( (const char *) sw->ed, &( rmpd->cmd_list_length ) );
-    }
-    *length = rmpd->cmd_list_length;
-    return rmpd->cmd_list;
+    return rmpd->cmd_list_length;
 }
 
 static SwitcherMode script_mode_result ( int mretv, char **input, unsigned int selected_line,
@@ -161,10 +157,22 @@ static void script_mode_destroy ( Switcher *sw )
         sw->private_data = NULL;
     }
 }
-static const char *mgrv ( unsigned int selected_line, void *sw, G_GNUC_UNUSED int *state )
+static char *mgrv ( unsigned int selected_line, Switcher *sw, G_GNUC_UNUSED int *state, int get_entry )
 {
-    ScriptModePrivateData *rmpd = ( (Switcher *) sw )->private_data;
-    return rmpd->cmd_list[selected_line];
+    ScriptModePrivateData *rmpd = sw->private_data;
+    return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
+}
+
+static int script_token_match ( char **tokens, int not_ascii, int case_sensitive, unsigned int index, Switcher *sw )
+{
+    ScriptModePrivateData *rmpd = sw->private_data;
+    return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );
+}
+
+static int script_is_not_ascii ( Switcher *sw, unsigned int index )
+{
+    ScriptModePrivateData *rmpd = sw->private_data;
+    return is_not_ascii ( rmpd->cmd_list[index] );
 }
 
 Switcher *script_switcher_parse_setup ( const char *str )
@@ -184,15 +192,16 @@ Switcher *script_switcher_parse_setup ( const char *str )
     }
     g_free ( parse );
     if ( index == 2 ) {
-        sw->free        = script_switcher_free;
-        sw->keysym      = None;
-        sw->modmask     = AnyModifier;
-        sw->init        = script_mode_init;
-        sw->get_data    = script_mode_get_data;
-        sw->result      = script_mode_result;
-        sw->destroy     = script_mode_destroy;
-        sw->token_match = token_match;
-        sw->mgrv        = mgrv;
+        sw->free            = script_switcher_free;
+        sw->keysym          = None;
+        sw->modmask         = AnyModifier;
+        sw->init            = script_mode_init;
+        sw->get_num_entries = script_mode_get_num_entries;
+        sw->result          = script_mode_result;
+        sw->destroy         = script_mode_destroy;
+        sw->token_match     = script_token_match;
+        sw->mgrv            = mgrv;
+        sw->is_not_ascii    = script_is_not_ascii;
 
         return sw;
     }

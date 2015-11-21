@@ -472,9 +472,7 @@ static int glob_token_match ( char **tokens, const char *input, int not_ascii, i
     return match;
 }
 
-int token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive,
-                  __attribute__( ( unused ) ) unsigned int index,
-                  __attribute__( ( unused ) ) Switcher *data )
+int token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive )
 {
     if ( config.glob ) {
         return glob_token_match ( tokens, input, not_ascii, case_sensitive );

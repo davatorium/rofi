@@ -37,7 +37,6 @@
 typedef struct _CombiModePrivateData
 {
     // List of (combined) entries.
-    char         **cmd_list;
     unsigned int cmd_list_length;
     // List to validate where each switcher starts.
     unsigned int *starts;
@@ -45,7 +44,6 @@ typedef struct _CombiModePrivateData
     // List of switchers to combine.
     unsigned int num_switchers;
     Switcher     **switchers;
-    char         *cache;
 } CombiModePrivateData;
 
 static void combi_mode_parse_switchers ( Switcher *sw )
@@ -111,38 +109,26 @@ static void combi_mode_init ( Switcher *sw )
         for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
             pd->switchers[i]->init ( pd->switchers[i] );
         }
-    }
-}
-static char ** combi_mode_get_data ( unsigned int *length, Switcher *sw )
-{
-    CombiModePrivateData *pd = sw->private_data;
-    if ( pd->cmd_list == NULL ) {
-        pd->cmd_list_length = 0;
-        for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
-            unsigned int length = 0;
-            pd->switchers[i]->get_data ( &length, pd->switchers[i] );
-            pd->starts[i]        = pd->cmd_list_length;
-            pd->lengths[i]       = length;
-            pd->cmd_list_length += length;
-        }
-        // Fill the list.
-        pd->cmd_list = g_malloc0 ( ( pd->cmd_list_length + 1 ) * sizeof ( char* ) );
-        for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
-            unsigned int length = 0;
-            char         **retv = pd->switchers[i]->get_data ( &length, pd->switchers[i] );
-            for ( unsigned int j = 0; j < length; j++ ) {
-                pd->cmd_list[j + pd->starts[i]] = retv[j];
+        if ( pd->cmd_list_length == 0 ) {
+            pd->cmd_list_length = 0;
+            for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
+                unsigned int length = pd->switchers[i]->get_num_entries ( pd->switchers[i] );;
+                pd->starts[i]        = pd->cmd_list_length;
+                pd->lengths[i]       = length;
+                pd->cmd_list_length += length;
             }
         }
     }
-    *length = pd->cmd_list_length;
-    return pd->cmd_list;
+}
+static unsigned int combi_mode_get_num_entries ( Switcher *sw )
+{
+    CombiModePrivateData *pd = sw->private_data;
+    return pd->cmd_list_length;
 }
 static void combi_mode_destroy ( Switcher *sw )
 {
     CombiModePrivateData *pd = (CombiModePrivateData *) sw->private_data;
     if ( pd != NULL ) {
-        g_free ( pd->cmd_list );
         g_free ( pd->starts );
         g_free ( pd->lengths );
         // Cleanup switchers.
@@ -150,7 +136,6 @@ static void combi_mode_destroy ( Switcher *sw )
             pd->switchers[i]->destroy ( pd->switchers[i] );
         }
         g_free ( pd->switchers );
-        g_free ( pd->cache );
         g_free ( pd );
         sw->private_data = NULL;
     }
@@ -188,22 +173,22 @@ static SwitcherMode combi_mode_result ( int mretv, char **input, unsigned int se
     }
     return MODE_EXIT;
 }
-static int combi_mode_match ( char **tokens, const char *input, int not_ascii,
+static int combi_mode_match ( char **tokens, int not_ascii,
                               int case_sensitive, unsigned int index, Switcher *sw )
 {
     CombiModePrivateData *pd = sw->private_data;
 
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
-            if ( tokens && input[0] && tokens[0][0] == '!' ) {
+            if ( tokens && tokens[0][0] == '!' ) {
                 if ( tokens[0][1] == pd->switchers[i]->name[0] ) {
-                    return pd->switchers[i]->token_match ( &tokens[1], input, not_ascii, case_sensitive,
+                    return pd->switchers[i]->token_match ( &tokens[1], not_ascii, case_sensitive,
                                                            index - pd->starts[i], pd->switchers[i] );
                 }
                 return 0;
             }
             else {
-                return pd->switchers[i]->token_match ( tokens, input, not_ascii, case_sensitive,
+                return pd->switchers[i]->token_match ( tokens, not_ascii, case_sensitive,
                                                        index - pd->starts[i], pd->switchers[i] );
             }
         }
@@ -211,34 +196,53 @@ static int combi_mode_match ( char **tokens, const char *input, int not_ascii,
     abort ();
     return 0;
 }
-static const char * combi_mgrv ( unsigned int selected_line, void *sw, int *state )
+static char * combi_mgrv ( unsigned int selected_line, Switcher *sw, int *state, int get_entry )
 {
-    CombiModePrivateData *pd = ( (Switcher *) sw )->private_data;
+    CombiModePrivateData *pd = sw->private_data;
+    if ( !get_entry ) {
+        for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
+            if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
+                pd->switchers[i]->mgrv ( selected_line - pd->starts[i], (void *) pd->switchers[i], state, FALSE );
+                return NULL;
+            }
+        }
+        return NULL;
+    }
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
-            g_free ( pd->cache );
-            pd->cache = g_strdup_printf ( "(%s) %s", pd->switchers[i]->name,
-                                          pd->switchers[i]->mgrv ( selected_line - pd->starts[i],
-                                                                   (void *) pd->switchers[i], state ) );
-            return pd->cache;
+            char * str  = pd->switchers[i]->mgrv ( selected_line - pd->starts[i], (void *) pd->switchers[i], state, TRUE );
+            char * retv = g_strdup_printf ( "(%s) %s", pd->switchers[i]->name, str );
+            g_free ( str );
+            return retv;
         }
     }
 
     return NULL;
 }
+static int combi_is_not_ascii ( Switcher *sw, unsigned int index )
+{
+    CombiModePrivateData *pd = sw->private_data;
+    for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
+        if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
+            return pd->switchers[i]->is_not_ascii ( pd->switchers[i], index - pd->starts[i] );
+        }
+    }
+    return FALSE;
+}
 
 Switcher combi_mode =
 {
-    .name         = "combi",
-    .keycfg       = NULL,
-    .keystr       = NULL,
-    .modmask      = AnyModifier,
-    .init         = combi_mode_init,
-    .get_data     = combi_mode_get_data,
-    .result       = combi_mode_result,
-    .destroy      = combi_mode_destroy,
-    .token_match  = combi_mode_match,
-    .mgrv         = combi_mgrv,
-    .private_data = NULL,
-    .free         = NULL
+    .name            = "combi",
+    .keycfg          = NULL,
+    .keystr          = NULL,
+    .modmask         = AnyModifier,
+    .init            = combi_mode_init,
+    .get_num_entries = combi_mode_get_num_entries,
+    .result          = combi_mode_result,
+    .destroy         = combi_mode_destroy,
+    .token_match     = combi_mode_match,
+    .mgrv            = combi_mgrv,
+    .is_not_ascii    = combi_is_not_ascii,
+    .private_data    = NULL,
+    .free            = NULL
 };

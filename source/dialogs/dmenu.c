@@ -96,15 +96,10 @@ static char **get_dmenu ( unsigned int *length )
     return retv;
 }
 
-static char ** dmenu_mode_get_data ( unsigned int *length, Switcher *sw )
+static unsigned int dmenu_mode_get_num_entries ( Switcher *sw )
 {
     DmenuModePrivateData *rmpd = (DmenuModePrivateData *) sw->private_data;
-    if ( rmpd->cmd_list == NULL ) {
-        rmpd->cmd_list_length = 0;
-        rmpd->cmd_list        = get_dmenu ( &( rmpd->cmd_list_length ) );
-    }
-    *length = rmpd->cmd_list_length;
-    return rmpd->cmd_list;
+    return rmpd->cmd_list_length;
 }
 
 static void parse_pair ( char  *input, struct range_pair  *item )
@@ -142,7 +137,7 @@ static void parse_ranges ( char *input, struct range_pair **list, unsigned int *
     }
 }
 
-static const char *get_display_data ( unsigned int index, void *data, G_GNUC_UNUSED int *state )
+static char *get_display_data ( unsigned int index, Switcher *data, int *state, int get_entry )
 {
     Switcher             *sw    = (Switcher *) data;
     DmenuModePrivateData *pd    = (DmenuModePrivateData *) sw->private_data;
@@ -157,7 +152,7 @@ static const char *get_display_data ( unsigned int index, void *data, G_GNUC_UNU
             *state |= URGENT;
         }
     }
-    return retv[index];
+    return get_entry ? g_strdup ( retv[index] ) : NULL;
 }
 
 /**
@@ -281,22 +276,36 @@ static void dmenu_mode_init ( Switcher *sw )
     if ( find_arg ( "-i" ) >= 0 ) {
         config.case_sensitive = FALSE;
     }
+    pd->cmd_list = get_dmenu ( &( pd->cmd_list_length ) );
+}
+
+static int dmenu_token_match ( char **tokens, int not_ascii, int case_sensitive, unsigned int index, Switcher *sw )
+{
+    DmenuModePrivateData *rmpd = (DmenuModePrivateData *) sw->private_data;
+    return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );
+}
+
+static int dmenu_is_not_ascii ( Switcher *sw, unsigned int index )
+{
+    DmenuModePrivateData *rmpd = (DmenuModePrivateData *) sw->private_data;
+    return is_not_ascii ( rmpd->cmd_list[index] );
 }
 
 Switcher dmenu_mode =
 {
-    .name         = "dmenu",
-    .keycfg       = NULL,
-    .keystr       = NULL,
-    .modmask      = AnyModifier,
-    .init         = dmenu_mode_init,
-    .get_data     = dmenu_mode_get_data,
-    .result       = NULL,
-    .destroy      = dmenu_mode_free,
-    .token_match  = token_match,
-    .mgrv         = get_display_data,
-    .private_data = NULL,
-    .free         = NULL
+    .name            = "dmenu",
+    .keycfg          = NULL,
+    .keystr          = NULL,
+    .modmask         = AnyModifier,
+    .init            = dmenu_mode_init,
+    .get_num_entries = dmenu_mode_get_num_entries,
+    .result          = NULL,
+    .destroy         = dmenu_mode_free,
+    .token_match     = dmenu_token_match,
+    .mgrv            = get_display_data,
+    .is_not_ascii    = dmenu_is_not_ascii,
+    .private_data    = NULL,
+    .free            = NULL
 };
 
 int dmenu_switcher_dialog ( void )
@@ -306,8 +315,8 @@ int dmenu_switcher_dialog ( void )
     char                 *input          = NULL;
     int                  retv            = FALSE;
     int                  restart         = FALSE;
-    unsigned int         cmd_list_length = 0;
-    char                 **cmd_list      = dmenu_mode.get_data ( &( cmd_list_length ), &dmenu_mode );
+    unsigned int         cmd_list_length = pd->cmd_list_length;
+    char                 **cmd_list      = pd->cmd_list;
 
     int                  only_selected = FALSE;
     if ( find_arg ( "-only-match" ) >= 0 || find_arg ( "-no-custom" ) >= 0 ) {
@@ -325,7 +334,7 @@ int dmenu_switcher_dialog ( void )
         char         **tokens = tokenize ( select, config.case_sensitive );
         unsigned int i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
-            if ( token_match ( tokens, cmd_list[i], is_not_ascii ( cmd_list[i] ), config.case_sensitive, 0, NULL ) ) {
+            if ( token_match ( tokens, cmd_list[i], is_not_ascii ( cmd_list[i] ), config.case_sensitive ) ) {
                 pd->selected_line = i;
                 break;
             }

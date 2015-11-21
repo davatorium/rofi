@@ -154,7 +154,7 @@ static int lev_sort ( const void *p1, const void *p2, void *arg )
 
 #define MIN3( a, b, c )    ( ( a ) < ( b ) ? ( ( a ) < ( c ) ? ( a ) : ( c ) ) : ( ( b ) < ( c ) ? ( b ) : ( c ) ) )
 
-static int levenshtein ( char *s1, char *s2 )
+static int levenshtein ( const char *s1, const char *s2 )
 {
     unsigned int x, y, lastdiag, olddiag;
     size_t       s1len = strlen ( s1 );
@@ -222,7 +222,6 @@ typedef struct MenuState
     // Return state
     unsigned int    *selected_line;
     MenuReturn      retv;
-    char            **lines;
     int             *lines_not_ascii;
     int             line_height;
     unsigned int    border;
@@ -643,7 +642,10 @@ static int menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned int
     else if ( abe_test_action ( ROW_SELECT, modstate, key ) ) {
         // If a valid item is selected, return that..
         if ( state->selected < state->filtered_lines ) {
-            textbox_text ( state->text, state->lines[state->line_map[state->selected]] );
+            int  st;
+            char * str = state->sw->mgrv ( state->line_map[state->selected], state->sw, &st, TRUE );
+            textbox_text ( state->text, str );
+            g_free ( str );
             textbox_cursor_end ( state->text );
             state->update   = TRUE;
             state->refilter = TRUE;
@@ -752,18 +754,20 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
 {
     // input changed
     for ( unsigned int i = t->start; i < t->stop; i++ ) {
+        int st;
         int match = t->state->sw->token_match ( t->tokens,
-                                                t->state->lines[i],
                                                 t->state->lines_not_ascii[i],
                                                 config.case_sensitive,
                                                 i,
                                                 t->state->sw );
-
         // If each token was matched, add it to list.
         if ( match ) {
             t->state->line_map[t->start + t->count] = i;
             if ( config.levenshtein_sort ) {
-                t->state->distance[i] = levenshtein ( t->state->text->text, t->state->lines[i] );
+                // This is inefficient, need to fix it.
+                char * str = t->state->sw->mgrv ( i, t->state->sw, &st, TRUE );
+                t->state->distance[i] = levenshtein ( t->state->text->text, str );
+                g_free ( str );
             }
             t->count++;
         }
@@ -776,7 +780,7 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
 static void check_is_ascii ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
 {
     for ( unsigned int i = t->start; i < t->stop; i++ ) {
-        t->state->lines_not_ascii[i] = is_not_ascii ( t->state->lines[i] );
+        t->state->lines_not_ascii[i] = t->state->sw->is_not_ascii ( t->state->sw, i );
     }
     g_mutex_lock ( t->mutex );
     ( *( t->acount ) )--;
@@ -933,10 +937,11 @@ static void menu_draw ( MenuState *state, cairo_t *d )
             {
                 TextBoxFontType type   = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
                 int             fstate = 0;
-                const char      *text  = state->sw->mgrv ( state->line_map[i + offset], state->sw, &fstate );
+                char            *text  = state->sw->mgrv ( state->line_map[i + offset], state->sw, &fstate, TRUE );
                 TextBoxFontType tbft   = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
                 textbox_font ( state->boxes[i], tbft );
                 textbox_text ( state->boxes[i], text );
+                g_free ( text );
             }
             textbox_draw ( state->boxes[i], d );
         }
@@ -947,7 +952,7 @@ static void menu_draw ( MenuState *state, cairo_t *d )
         for ( i = 0; i < max_elements; i++ ) {
             TextBoxFontType type   = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
             int             fstate = 0;
-            state->sw->mgrv ( state->line_map[i + offset], state->sw, &fstate );
+            state->sw->mgrv ( state->line_map[i + offset], state->sw, &fstate, FALSE );
             TextBoxFontType tbft = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
             textbox_font ( state->boxes[i], tbft );
             textbox_draw ( state->boxes[i], d );
@@ -1186,11 +1191,11 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         .border     = config.padding + config.menu_bw
     };
     // Request the lines to show.
-    state.lines           = sw->get_data ( &( state.num_lines ), sw );
+    state.num_lines       = sw->get_num_entries ( sw );
     state.lines_not_ascii = g_malloc0_n ( state.num_lines, sizeof ( int ) );
 
     // find out which lines contain non-ascii codepoints, so we can be faster in some cases.
-    if ( state.lines != NULL ) {
+    if ( state.num_lines > 0 ) {
         TICK_N ( "Is ASCII start" )
         unsigned int nt = MAX ( 1, state.num_lines / 5000 );
         thread_state states[nt];
@@ -1487,7 +1492,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
                 }
                 Status stat;
                 char   pad[32];
-                KeySym key;// = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
+                KeySym key; // = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
                 int    len = Xutf8LookupString ( xic, &( ev.xkey ), pad, sizeof ( pad ), &key, &stat );
                 pad[len] = 0;
 
@@ -1525,6 +1530,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
                         else {
                             textbox_text ( state.case_indicator, " " );
                         }
+                        break;
                     }
                     // Special delete entry command.
                     else if ( abe_test_action ( DELETE_ENTRY, ev.xkey.state, key ) ) {

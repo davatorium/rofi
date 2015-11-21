@@ -42,7 +42,7 @@ typedef enum
 typedef SwitcherMode ( *switcher_callback )( char **input, void *data );
 typedef void ( *switcher_free )( Switcher *data );
 
-typedef const char * ( *get_display_value )( unsigned int selected_line, void *data, int *state );
+typedef char * ( *get_display_value )( unsigned int selected_line, struct _Switcher *data, int *state, int get_entry );
 /**
  * State returned by the rofi window.
  */
@@ -79,7 +79,7 @@ typedef enum
  *
  * @returns 1 when it matches, 0 if not.
  */
-typedef int ( *menu_match_cb )( char **tokens, const char *input, int not_ascii, int case_sensitive, unsigned int index, Switcher *data );
+typedef int ( *menu_match_cb )( char **tokens, int not_ascii, int case_sensitive, unsigned int index, Switcher *data );
 
 /**
  * @param sw the Switcher to show.
@@ -288,7 +288,7 @@ struct _Switcher
      * A switcher normally consists of the following parts:
      */
     void              ( *init )( struct _Switcher *sw );
-    char              ** ( *get_data )( unsigned int *length, struct _Switcher *pd );
+    unsigned int      ( *get_num_entries )( struct _Switcher *sw );
     int               ( *match )( char **tokens, const char *input, int case_sensitive, int index, struct _Switcher *data );
     SwitcherMode      ( *result )( int menu_retv, char **input, unsigned int selected_line, struct _Switcher *pd );
     void              ( *destroy )( struct _Switcher *pd );
@@ -296,6 +296,8 @@ struct _Switcher
     menu_match_cb     token_match;
 
     get_display_value mgrv;
+
+    int               (*is_not_ascii)( struct _Switcher *sw, unsigned int index );
 
     // Pointer to private data.
     void              *private_data;

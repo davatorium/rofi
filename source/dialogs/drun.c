@@ -87,13 +87,18 @@ static void exec_cmd ( const char *cmd, int run_in_term )
  */
 typedef struct _DRunModeEntry
 {
+    /* Executable */
     char         *exec;
+    /* Name of the Entry */
+    char         *name;
+    /* Generic Name */
+    char         *generic_name;
+    /* Application needs to be launched in terminal. */
     unsigned int terminal;
 } DRunModeEntry;
 
 typedef struct _DRunModePrivateData
 {
-    char          **cmd_list;
     DRunModeEntry *entry_list;
     unsigned int  cmd_list_length;
 } DRunModePrivateData;
@@ -151,29 +156,21 @@ static void get_apps_dir ( DRunModePrivateData *pd, const char *bp )
             }
             if ( g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
                 size_t nl = ( ( pd->cmd_list_length ) + 2 );
-                pd->cmd_list   = g_realloc ( pd->cmd_list, nl * sizeof ( *( pd->cmd_list ) ) );
                 pd->entry_list = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
                 if ( g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
                     gchar *n  = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
                     gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
-                    if ( gn == NULL ) {
-                        pd->cmd_list[pd->cmd_list_length] = g_markup_escape_text ( n, -1 );
-                    }
-                    else {
-                        ( pd->cmd_list )[( pd->cmd_list_length )] = g_markup_printf_escaped (
-                            "%s <span weight='light' size='small'><i>(%s)</i></span>",
-                            n, gn ? gn : "" );
-                    }
-                    g_free ( n ); g_free ( gn );
+                    pd->entry_list[pd->cmd_list_length].name         = n;
+                    pd->entry_list[pd->cmd_list_length].generic_name = gn;
                 }
                 else {
-                    ( pd->cmd_list )[( pd->cmd_list_length )] = g_strdup ( dent->d_name );
+                    pd->entry_list[pd->cmd_list_length].name         = g_strdup ( dent->d_name );
+                    pd->entry_list[pd->cmd_list_length].generic_name = NULL;
                 }
                 pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
                 if ( g_key_file_has_key ( kf, "Desktop Entry", "Terminal", NULL ) ) {
                     pd->entry_list[pd->cmd_list_length].terminal = g_key_file_get_boolean ( kf, "Desktop Entry", "Terminal", NULL );
                 }
-                ( pd->cmd_list )[( pd->cmd_list_length ) + 1] = NULL;
                 ( pd->cmd_list_length )++;
             }
 
@@ -222,20 +219,8 @@ static void drun_mode_init ( Switcher *sw )
     if ( sw->private_data == NULL ) {
         DRunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         sw->private_data = (void *) pd;
+        get_apps ( pd );
     }
-}
-
-static char ** drun_mode_get_data ( unsigned int *length, Switcher *sw )
-{
-    DRunModePrivateData *rmpd = (DRunModePrivateData *) sw->private_data;
-    if ( rmpd->cmd_list == NULL ) {
-        rmpd->cmd_list_length = 0;
-        get_apps ( rmpd );
-    }
-    if ( length != NULL ) {
-        *length = rmpd->cmd_list_length;
-    }
-    return rmpd->cmd_list;
 }
 
 static SwitcherMode drun_mode_result ( int mretv, char **input, unsigned int selected_line,
@@ -255,7 +240,7 @@ static SwitcherMode drun_mode_result ( int mretv, char **input, unsigned int sel
     else if ( mretv & MENU_QUICK_SWITCH ) {
         retv = ( mretv & MENU_LOWER_MASK );
     }
-    else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
+    else if ( ( mretv & MENU_OK )  ) {
         exec_cmd_entry ( &( rmpd->entry_list[selected_line] ) );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
@@ -268,9 +253,10 @@ static void drun_mode_destroy ( Switcher *sw )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) sw->private_data;
     if ( rmpd != NULL ) {
-        g_strfreev ( rmpd->cmd_list );
         for ( size_t i = 0; i < rmpd->cmd_list_length; i++ ) {
             g_free ( rmpd->entry_list[i].exec );
+            g_free ( rmpd->entry_list[i].name );
+            g_free ( rmpd->entry_list[i].generic_name );
         }
         g_free ( rmpd->entry_list );
         g_free ( rmpd );
@@ -278,24 +264,74 @@ static void drun_mode_destroy ( Switcher *sw )
     }
 }
 
-static const char *mgrv ( unsigned int selected_line, void *sw, int *state )
+static char *mgrv ( unsigned int selected_line, Switcher *sw, int *state, int get_entry )
 {
+    DRunModePrivateData *pd = (DRunModePrivateData *) sw->private_data;
     *state |= MARKUP;
-    return drun_mode_get_data ( NULL, sw )[selected_line];
+    if ( !get_entry ) {
+        return NULL;
+    }
+    if ( pd->entry_list == NULL ) {
+        // Should never get here.
+        return g_strdup ( "Failed" );
+    }
+    /* Free temp storage. */
+    DRunModeEntry *dr = &( pd->entry_list[selected_line] );
+    if ( dr->generic_name == NULL ) {
+        return g_markup_escape_text ( dr->name, -1 );
+    }
+    else {
+        return g_markup_printf_escaped ( "%s <span weight='light' size='small'><i>(%s)</i></span>", dr->name,
+                                         dr->generic_name );
+    }
+}
+
+static int drun_token_match ( char **tokens,
+                              int not_ascii,
+                              int case_sensitive,
+                              unsigned int index,
+                              Switcher *data )
+{
+    DRunModePrivateData *rmpd = (DRunModePrivateData *) data->private_data;
+    if ( rmpd->entry_list[index].name &&
+         token_match ( tokens, rmpd->entry_list[index].name, not_ascii, case_sensitive ) ) {
+        return 1;
+    }
+    if ( rmpd->entry_list[index].generic_name &&
+         token_match ( tokens, rmpd->entry_list[index].generic_name, not_ascii, case_sensitive ) ) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static unsigned int drun_mode_get_num_entries ( Switcher *sw )
+{
+    DRunModePrivateData *pd = (DRunModePrivateData *) sw->private_data;
+    return pd->cmd_list_length;
+}
+static int drun_is_not_ascii ( Switcher *sw, unsigned int index )
+{
+    DRunModePrivateData *pd = (DRunModePrivateData *) sw->private_data;
+    if ( pd->entry_list[index].generic_name ) {
+        return is_not_ascii ( pd->entry_list[index].name ) || is_not_ascii ( pd->entry_list[index].generic_name );
+    }
+    return is_not_ascii ( pd->entry_list[index].name );
 }
 
 Switcher drun_mode =
 {
-    .name         = "drun",
-    .keycfg       = NULL,
-    .keystr       = NULL,
-    .modmask      = AnyModifier,
-    .init         = drun_mode_init,
-    .get_data     = drun_mode_get_data,
-    .result       = drun_mode_result,
-    .destroy      = drun_mode_destroy,
-    .token_match  = token_match,
-    .mgrv         = mgrv,
-    .private_data = NULL,
-    .free         = NULL
+    .name            = "drun",
+    .keycfg          = NULL,
+    .keystr          = NULL,
+    .modmask         = AnyModifier,
+    .init            = drun_mode_init,
+    .get_num_entries = drun_mode_get_num_entries,
+    .result          = drun_mode_result,
+    .destroy         = drun_mode_destroy,
+    .token_match     = drun_token_match,
+    .mgrv            = mgrv,
+    .is_not_ascii    = drun_is_not_ascii,
+    .private_data    = NULL,
+    .free            = NULL
 };
