@@ -566,7 +566,9 @@ int textbox_keypress ( textbox *tb, XEvent *ev, char *pad, KeySym key, Status st
         // Filter When alt/ctrl is pressed do not accept the character.
         if (  !g_ascii_iscntrl ( *pad ) ) {
             textbox_insert ( tb, tb->cursor, pad );
-            textbox_cursor_inc ( tb );
+            int len = strlen ( pad );
+            int pos = tb->cursor + len;
+            textbox_cursor( tb, pos );
             return 1;
         }
     }
