@@ -2322,14 +2322,11 @@ int main ( int argc, char *argv[] )
     display_str = getenv ( "DISPLAY" );
     find_arg_str (  "-display", &display_str );
 
-    if ( setlocale ( LC_CTYPE , "" ) == NULL ) {
-        fprintf ( stderr, "Failed to set locale for character classification.\n" );
+    if ( setlocale ( LC_ALL, "" ) == NULL ) {
+        fprintf ( stderr, "Failed to set locale.\n" );
         return EXIT_FAILURE;
     }
-    if ( setlocale ( LC_COLLATE, "" ) == NULL ) {
-        fprintf ( stderr, "Failed to set locale for collating.\n" );
-        return EXIT_FAILURE;
-    }
+
     if ( !XSupportsLocale () ) {
         fprintf ( stderr, "X11 does not support locales\n" );
         return 11;
