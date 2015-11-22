@@ -196,7 +196,7 @@ static int combi_mode_match ( char **tokens, int not_ascii,
     abort ();
     return 0;
 }
-static char * combi_mgrv ( unsigned int selected_line,const Switcher *sw, int *state, int get_entry )
+static char * combi_mgrv ( unsigned int selected_line, const Switcher *sw, int *state, int get_entry )
 {
     CombiModePrivateData *pd = sw->private_data;
     if ( !get_entry ) {

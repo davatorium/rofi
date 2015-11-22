@@ -100,7 +100,7 @@ void textbox_draw ( textbox *tb, cairo_t *draw );
  *
  * @returns if the key was handled (1), unhandled(0) or handled and return was pressed (-1)
  */
-int textbox_keypress ( textbox *tb, XEvent *ev, char *pad, KeySym key, Status stat );
+int textbox_keypress ( textbox *tb, XEvent *ev, char *pad, int pad_len, KeySym key, Status stat );
 
 /**
  * @param tb  Handle to the textbox
@@ -127,13 +127,14 @@ void textbox_cursor ( textbox *tb, int pos );
 void textbox_move ( textbox *tb, int x, int y );
 
 /**
- * @param tb  Handle to the textbox
- * @param pos The position to insert the string at
- * @param str The string to insert.
+ * @param tb   Handle to the textbox
+ * @param pos  The position to insert the string at
+ * @param str  The string to insert.
+ * @param slen The length of the string.
  *
  * Insert the string str at position pos.
  */
-void textbox_insert ( textbox *tb, int pos, char *str );
+void textbox_insert ( textbox *tb, int pos, char *str, int slen );
 
 /**
  * Setup the cached fonts. This is required to do

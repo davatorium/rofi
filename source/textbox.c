@@ -410,9 +410,9 @@ void textbox_cursor_end ( textbox *tb )
 }
 
 // insert text
-void textbox_insert ( textbox *tb, int pos, char *str )
+void textbox_insert ( textbox *tb, int pos, char *str, int slen )
 {
-    int len = ( int ) strlen ( tb->text ), slen = ( int ) strlen ( str );
+    int len = ( int ) strlen ( tb->text );
     pos = MAX ( 0, MIN ( len, pos ) );
     // expand buffer
     tb->text = g_realloc ( tb->text, len + slen + 1 );
@@ -491,7 +491,7 @@ static void textbox_cursor_del_word ( textbox *tb )
 // 0 = unhandled
 // 1 = handled
 // -1 = handled and return pressed (finished)
-int textbox_keypress ( textbox *tb, XEvent *ev, char *pad, KeySym key, Status stat )
+int textbox_keypress ( textbox *tb, XEvent *ev, char *pad, int pad_len, KeySym key, Status stat )
 {
     if ( !( tb->flags & TB_EDITABLE ) ) {
         return 0;
@@ -562,11 +562,11 @@ int textbox_keypress ( textbox *tb, XEvent *ev, char *pad, KeySym key, Status st
             return -1;
         }
     }
-    if ( *pad != 0 && ( stat == XLookupBoth || stat == XLookupChars ) ) {
+    if ( pad_len > 0 && ( stat == XLookupBoth || stat == XLookupChars ) ) {
         // Filter When alt/ctrl is pressed do not accept the character.
         if (  !g_ascii_iscntrl ( *pad ) ) {
-            textbox_insert ( tb, tb->cursor, pad );
-            textbox_cursor_inc ( tb );
+            textbox_insert ( tb, tb->cursor, pad, pad_len );
+            textbox_cursor ( tb, tb->cursor + pad_len );
             return 1;
         }
     }

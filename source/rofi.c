@@ -1076,7 +1076,7 @@ static void menu_paste ( MenuState *state, XSelectionEvent *xse )
                 dl--;
             }
             // Insert string move cursor.
-            textbox_insert ( state->text, state->text->cursor, text );
+            textbox_insert ( state->text, state->text->cursor, text, dl );
             textbox_cursor ( state->text, state->text->cursor + dl  );
             // Force a redraw and refiltering of the text.
             state->update   = TRUE;
@@ -1562,7 +1562,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
                         continue;
                     }
 
-                    int rc = textbox_keypress ( state.text, &ev, pad, key, stat );
+                    int rc = textbox_keypress ( state.text, &ev, pad, len, key, stat );
                     // Row is accepted.
                     if ( rc < 0 ) {
                         shift = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );

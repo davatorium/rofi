@@ -105,7 +105,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERT ( box->cursor == 4 );
     textbox_cursor ( box, 2 );
     TASSERT ( box->cursor == 2 );
-    textbox_insert ( box, 3, "bo" );
+    textbox_insert ( box, 3, "bo", 2 );
     TASSERT ( strcmp ( box->text, "tesbot" ) == 0 );
     textbox_cursor_end ( box );
     TASSERT ( box->cursor == 6 );

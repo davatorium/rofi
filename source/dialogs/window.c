@@ -326,11 +326,11 @@ static int window_match ( char **tokens,
 {
     SwitcherModePrivateData *rmpd = (SwitcherModePrivateData *) sw->private_data;
     int                     match = 1;
-    const winlist          *ids  = ( winlist * ) rmpd->ids;
+    const winlist           *ids  = ( winlist * ) rmpd->ids;
     // Want to pull directly out of cache, X calls are not thread safe.
-    int idx = winlist_find ( cache_client, ids->array[index]);
-    g_assert ( idx >= 0 ) ;
-    client *c = cache_client->data[idx];
+    int                     idx = winlist_find ( cache_client, ids->array[index] );
+    g_assert ( idx >= 0 );
+    client                  *c = cache_client->data[idx];
 
     if ( tokens ) {
         for ( int j = 0; match && tokens != NULL && tokens[j] != NULL; j++ ) {
@@ -577,9 +577,9 @@ static int window_is_not_ascii ( const Switcher *sw, unsigned int index )
     const SwitcherModePrivateData *rmpd = sw->private_data;
     const winlist                 *ids  = ( winlist * ) rmpd->ids;
     // Want to pull directly out of cache, X calls are not thread safe.
-    int idx = winlist_find ( cache_client, ids->array[index]);
-    g_assert ( idx >= 0 ) ;
-    client *c = cache_client->data[idx];
+    int                           idx = winlist_find ( cache_client, ids->array[index] );
+    g_assert ( idx >= 0 );
+    client                        *c = cache_client->data[idx];
     return is_not_ascii ( c->role ) || is_not_ascii ( c->class ) || is_not_ascii ( c->title ) || is_not_ascii ( c->name );
 }
 
