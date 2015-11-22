@@ -142,7 +142,7 @@ char *token_collate_key ( const char *token, int case_sensitive )
         tmp = g_utf8_casefold ( token, -1 );
     }
 
-    compk = g_utf8_collate_key ( tmp, -1 );
+    compk = g_utf8_normalize ( tmp, -1, G_NORMALIZE_ALL );
     g_free ( tmp );
 
     return compk;
