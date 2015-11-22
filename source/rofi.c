@@ -34,6 +34,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <time.h>
+#include <locale.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -2321,6 +2322,10 @@ int main ( int argc, char *argv[] )
     display_str = getenv ( "DISPLAY" );
     find_arg_str (  "-display", &display_str );
 
+    if ( setlocale ( LC_ALL, "" ) == NULL ) {
+        fprintf ( stderr, "Failed to set locale.\n" );
+        return EXIT_FAILURE;
+    }
     if ( !XSupportsLocale () ) {
         fprintf ( stderr, "X11 does not support locales\n" );
         return 11;
