@@ -756,11 +756,10 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
     // input changed
     for ( unsigned int i = t->start; i < t->stop; i++ ) {
         int st;
-        int match = t->state->sw->token_match ( t->tokens,
+        int match = t->state->sw->token_match ( t->state->sw, t->tokens,
                                                 t->state->lines_not_ascii[i],
                                                 config.case_sensitive,
-                                                i,
-                                                t->state->sw );
+                                                i );
         // If each token was matched, add it to list.
         if ( match ) {
             t->state->line_map[t->start + t->count] = i;
@@ -2234,7 +2233,7 @@ SwitcherMode switcher_run ( char **input, Switcher *sw )
     unsigned int selected_line = UINT32_MAX;
     int          mretv         = menu ( sw, input, prompt, &selected_line, NULL, NULL );
     g_free ( prompt );
-    return sw->result ( mretv, input, selected_line, sw );
+    return sw->result ( sw, mretv, input, selected_line );
 }
 
 /**

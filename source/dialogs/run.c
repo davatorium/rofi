@@ -282,8 +282,7 @@ static unsigned int run_mode_get_num_entries ( const Switcher *sw )
     return rmpd->cmd_list_length;
 }
 
-static SwitcherMode run_mode_result ( int mretv, char **input, unsigned int selected_line,
-                                      Switcher *sw )
+static SwitcherMode run_mode_result ( Switcher *sw, int mretv, char **input, unsigned int selected_line )
 {
     RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
     SwitcherMode       retv  = MODE_EXIT;
@@ -332,7 +331,7 @@ static char *mgrv ( unsigned int selected_line, const Switcher *sw, G_GNUC_UNUSE
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
-static int run_token_match ( char **tokens, int not_ascii, int case_sensitive, unsigned int index, const Switcher *sw )
+static int run_token_match ( const Switcher *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );

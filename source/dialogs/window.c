@@ -320,9 +320,9 @@ typedef struct _SwitcherModePrivateData
     char         *cache;
 } SwitcherModePrivateData;
 
-static int window_match ( char **tokens,
+static int window_match ( const Switcher *sw, char **tokens,
                           __attribute__( ( unused ) ) int not_ascii,
-                          int case_sensitive, unsigned int index, const Switcher *sw )
+                          int case_sensitive, unsigned int index )
 {
     SwitcherModePrivateData *rmpd = (SwitcherModePrivateData *) sw->private_data;
     int                     match = 1;
@@ -510,9 +510,8 @@ static void window_mode_init_cd ( Switcher *sw )
         _window_mode_load_data ( sw, TRUE );
     }
 }
-static SwitcherMode window_mode_result ( int mretv, G_GNUC_UNUSED char **input,
-                                         unsigned int selected_line,
-                                         Switcher *sw )
+static SwitcherMode window_mode_result ( Switcher *sw, int mretv, G_GNUC_UNUSED char **input,
+                                         unsigned int selected_line )
 {
     SwitcherModePrivateData *rmpd = (SwitcherModePrivateData *) sw->private_data;
     SwitcherMode            retv  = MODE_EXIT;

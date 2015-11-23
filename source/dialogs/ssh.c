@@ -336,8 +336,7 @@ static unsigned int ssh_mode_get_num_entries ( const Switcher *sw )
     const SSHModePrivateData *rmpd = (const SSHModePrivateData *) sw->private_data;
     return rmpd->cmd_list_length;
 }
-static SwitcherMode ssh_mode_result ( int mretv, char **input, unsigned int selected_line,
-                                      Switcher *sw )
+static SwitcherMode ssh_mode_result ( Switcher *sw, int mretv, char **input, unsigned int selected_line )
 {
     SwitcherMode       retv  = MODE_EXIT;
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
@@ -382,7 +381,7 @@ static char *mgrv ( unsigned int selected_line, const Switcher *sw, G_GNUC_UNUSE
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
-static int ssh_token_match ( char **tokens, int not_ascii, int case_sensitive, unsigned int index, const Switcher *sw )
+static int ssh_token_match ( const Switcher *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
     return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );

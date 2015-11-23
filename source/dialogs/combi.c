@@ -122,7 +122,7 @@ static void combi_mode_init ( Switcher *sw )
 }
 static unsigned int combi_mode_get_num_entries ( const Switcher *sw )
 {
-    const CombiModePrivateData *pd = (const CombiModePrivateData *)sw->private_data;
+    const CombiModePrivateData *pd = (const CombiModePrivateData *) sw->private_data;
     return pd->cmd_list_length;
 }
 static void combi_mode_destroy ( Switcher *sw )
@@ -140,8 +140,7 @@ static void combi_mode_destroy ( Switcher *sw )
         sw->private_data = NULL;
     }
 }
-static SwitcherMode combi_mode_result ( int mretv, char **input, unsigned int selected_line,
-                                        Switcher *sw )
+static SwitcherMode combi_mode_result ( Switcher *sw, int mretv, char **input, unsigned int selected_line )
 {
     CombiModePrivateData *pd = sw->private_data;
     if ( *input[0] == '!' ) {
@@ -156,9 +155,8 @@ static SwitcherMode combi_mode_result ( int mretv, char **input, unsigned int se
             // skip whitespace
             if ( n != NULL ) {
                 n++;
-                return pd->switchers[switcher]->result ( mretv, &n,
-                                                         selected_line - pd->starts[switcher],
-                                                         pd->switchers[switcher] );
+                return pd->switchers[switcher]->result ( pd->switchers[switcher], mretv, &n,
+                                                         selected_line - pd->starts[switcher] );
             }
             return MODE_EXIT;
         }
@@ -167,14 +165,13 @@ static SwitcherMode combi_mode_result ( int mretv, char **input, unsigned int se
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( selected_line >= pd->starts[i] &&
              selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
-            return pd->switchers[i]->result ( mretv, input, selected_line - pd->starts[i],
-                                              pd->switchers[i] );
+            return pd->switchers[i]->result ( pd->switchers[i], mretv, input, selected_line - pd->starts[i] );
         }
     }
     return MODE_EXIT;
 }
-static int combi_mode_match ( char **tokens, int not_ascii,
-                              int case_sensitive, unsigned int index, const Switcher *sw )
+static int combi_mode_match ( const Switcher *sw, char **tokens, int not_ascii,
+                              int case_sensitive, unsigned int index )
 {
     CombiModePrivateData *pd = sw->private_data;
 
@@ -182,14 +179,14 @@ static int combi_mode_match ( char **tokens, int not_ascii,
         if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
             if ( tokens && tokens[0][0] == '!' ) {
                 if ( tokens[0][1] == pd->switchers[i]->name[0] ) {
-                    return pd->switchers[i]->token_match ( &tokens[1], not_ascii, case_sensitive,
-                                                           index - pd->starts[i], pd->switchers[i] );
+                    return pd->switchers[i]->token_match ( pd->switchers[i], &tokens[1], not_ascii, case_sensitive,
+                                                           index - pd->starts[i] );
                 }
                 return 0;
             }
             else {
-                return pd->switchers[i]->token_match ( tokens, not_ascii, case_sensitive,
-                                                       index - pd->starts[i], pd->switchers[i] );
+                return pd->switchers[i]->token_match ( pd->switchers[i], tokens, not_ascii, case_sensitive,
+                                                       index - pd->starts[i]  );
             }
         }
     }

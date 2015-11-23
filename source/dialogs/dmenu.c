@@ -279,7 +279,7 @@ static void dmenu_mode_init ( Switcher *sw )
     pd->cmd_list = get_dmenu ( &( pd->cmd_list_length ) );
 }
 
-static int dmenu_token_match ( char **tokens, int not_ascii, int case_sensitive, unsigned int index, const Switcher *sw )
+static int dmenu_token_match ( const Switcher *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
 {
     DmenuModePrivateData *rmpd = (DmenuModePrivateData *) sw->private_data;
     return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );

@@ -235,8 +235,7 @@ static void drun_mode_init ( Switcher *sw )
     }
 }
 
-static SwitcherMode drun_mode_result ( int mretv, char **input, unsigned int selected_line,
-                                       Switcher *sw )
+static SwitcherMode drun_mode_result ( Switcher *sw, int mretv, char **input, unsigned int selected_line )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) sw->private_data;
     SwitcherMode        retv  = MODE_EXIT;
@@ -298,11 +297,12 @@ static char *mgrv ( unsigned int selected_line, const Switcher *sw, int *state, 
     }
 }
 
-static int drun_token_match ( char **tokens,
+static int drun_token_match ( const Switcher *data,
+                              char **tokens,
                               int not_ascii,
                               int case_sensitive,
-                              unsigned int index,
-                              const Switcher *data )
+                              unsigned int index
+                              )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) data->private_data;
     if ( rmpd->entry_list[index].name &&

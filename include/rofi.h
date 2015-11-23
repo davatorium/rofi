@@ -79,7 +79,7 @@ typedef enum
  *
  * @returns 1 when it matches, 0 if not.
  */
-typedef int ( *menu_match_cb )( char **tokens, int not_ascii, int case_sensitive, unsigned int index, const Switcher *data );
+typedef int ( *menu_match_cb )( const Switcher *data, char **tokens, int not_ascii, int case_sensitive, unsigned int index );
 
 /**
  * @param sw the Switcher to show.
@@ -289,15 +289,14 @@ struct _Switcher
      */
     void              ( *init )( struct _Switcher *sw );
     unsigned int      ( *get_num_entries )( const struct _Switcher *sw );
-    int               ( *match )( char **tokens, const char *input, int case_sensitive, int index, struct _Switcher *data );
-    SwitcherMode      ( *result )( int menu_retv, char **input, unsigned int selected_line, struct _Switcher *pd );
+    SwitcherMode      ( *result )( struct _Switcher *sw, int menu_retv, char **input, unsigned int selected_line );
     void              ( *destroy )( struct _Switcher *pd );
     // Token match.
     menu_match_cb     token_match;
 
     get_display_value mgrv;
 
-    int               (*is_not_ascii)( const struct _Switcher *sw, unsigned int index );
+    int               ( *is_not_ascii )( const struct _Switcher *sw, unsigned int index );
 
     // Pointer to private data.
     void              *private_data;
