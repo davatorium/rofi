@@ -154,6 +154,13 @@ static void get_apps_dir ( DRunModePrivateData *pd, const char *bp )
                     continue;
                 }
             }
+            // Skip entries that have NoDisplay set.
+            if ( g_key_file_has_key ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
+                if ( g_key_file_get_boolean ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
+                    g_key_file_free ( kf );
+                    continue;
+                }
+            }
             if ( g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
                 size_t nl = ( ( pd->cmd_list_length ) + 2 );
                 pd->entry_list = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
