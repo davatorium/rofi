@@ -107,10 +107,14 @@ static void exec_cmd_entry ( DRunModeEntry *e )
 {
     // strip % arguments
     gchar *str = g_strdup ( e->exec );
-    for ( ssize_t i = 0; str && str[i]; i++ ) {
+    for ( ssize_t i = 0; str != NULL && str[i] != '\0'; i++ ) {
         if ( str[i] == '%' ) {
             while ( str[i] != ' ' && str[i] != '\0' ) {
                 str[i++] = ' ';
+            }
+            // We might have hit '\0' in prev. loop, break out of for then.
+            if ( str[i] == '\0') {
+                break;
             }
         }
     }
@@ -162,8 +166,9 @@ static void get_apps_dir ( DRunModePrivateData *pd, const char *bp )
                 }
             }
             if ( g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
-                size_t nl = ( ( pd->cmd_list_length ) + 2 );
+                size_t nl = ( ( pd->cmd_list_length ) + 1 );
                 pd->entry_list = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
+                pd->entry_list[pd->cmd_list_length].terminal = FALSE;
                 if ( g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
                     gchar *n  = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
                     gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
