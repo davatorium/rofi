@@ -1496,7 +1496,6 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
                 KeySym key; // = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
                 int    len = Xutf8LookupString ( xic, &( ev.xkey ), pad, sizeof ( pad ), &key, &stat );
                 pad[len] = 0;
-
                 if ( stat == XLookupKeySym || stat == XLookupBoth ) {
                     // Handling of paste
                     if ( abe_test_action ( PASTE_PRIMARY, ev.xkey.state, key ) ) {

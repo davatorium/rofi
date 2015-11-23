@@ -420,7 +420,21 @@ static void x11_figure_out_numlock_mask ( Display *display )
     // Combined mask, without NumLock
     CombinedMask = ShiftMask | MetaLMask | MetaRMask | AltMask | AltRMask | SuperRMask | SuperLMask | HyperLMask | HyperRMask |
                    ControlMask;
-    CombinedMask |= Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask;
+    if ( Mod1Mask != NumlockMask ) {
+        CombinedMask |= Mod1Mask;
+    }
+    if ( Mod2Mask != NumlockMask ) {
+        CombinedMask |= Mod2Mask;
+    }
+    if ( Mod3Mask != NumlockMask ) {
+        CombinedMask |= Mod3Mask;
+    }
+    if ( Mod4Mask != NumlockMask ) {
+        CombinedMask |= Mod4Mask;
+    }
+    if ( Mod5Mask != NumlockMask ) {
+        CombinedMask |= Mod5Mask;
+    }
     XFreeModifiermap ( modmap );
 }
 
