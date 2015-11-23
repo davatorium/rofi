@@ -331,9 +331,9 @@ static void ssh_mode_init ( Switcher *sw )
     }
 }
 
-static unsigned int ssh_mode_get_num_entries ( Switcher *sw )
+static unsigned int ssh_mode_get_num_entries ( const Switcher *sw )
 {
-    SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
+    const SSHModePrivateData *rmpd = (const SSHModePrivateData *) sw->private_data;
     return rmpd->cmd_list_length;
 }
 static SwitcherMode ssh_mode_result ( int mretv, char **input, unsigned int selected_line,

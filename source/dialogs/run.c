@@ -276,9 +276,9 @@ static void run_mode_init ( Switcher *sw )
     }
 }
 
-static unsigned int run_mode_get_num_entries ( Switcher *sw )
+static unsigned int run_mode_get_num_entries ( const Switcher *sw )
 {
-    RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
+    const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     return rmpd->cmd_list_length;
 }
 

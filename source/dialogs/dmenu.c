@@ -96,9 +96,9 @@ static char **get_dmenu ( unsigned int *length )
     return retv;
 }
 
-static unsigned int dmenu_mode_get_num_entries ( Switcher *sw )
+static unsigned int dmenu_mode_get_num_entries ( const Switcher *sw )
 {
-    DmenuModePrivateData *rmpd = (DmenuModePrivateData *) sw->private_data;
+    const DmenuModePrivateData *rmpd = (const DmenuModePrivateData *) sw->private_data;
     return rmpd->cmd_list_length;
 }
 

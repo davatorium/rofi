@@ -317,9 +317,9 @@ static int drun_token_match ( char **tokens,
     return 0;
 }
 
-static unsigned int drun_mode_get_num_entries ( Switcher *sw )
+static unsigned int drun_mode_get_num_entries ( const Switcher *sw )
 {
-    DRunModePrivateData *pd = (DRunModePrivateData *) sw->private_data;
+    const DRunModePrivateData *pd = (const DRunModePrivateData *) sw->private_data;
     return pd->cmd_list_length;
 }
 static int drun_is_not_ascii ( const Switcher *sw, unsigned int index )

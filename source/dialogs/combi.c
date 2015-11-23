@@ -120,9 +120,9 @@ static void combi_mode_init ( Switcher *sw )
         }
     }
 }
-static unsigned int combi_mode_get_num_entries ( Switcher *sw )
+static unsigned int combi_mode_get_num_entries ( const Switcher *sw )
 {
-    CombiModePrivateData *pd = sw->private_data;
+    const CombiModePrivateData *pd = (const CombiModePrivateData *)sw->private_data;
     return pd->cmd_list_length;
 }
 static void combi_mode_destroy ( Switcher *sw )

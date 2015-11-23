@@ -365,9 +365,9 @@ static int window_match ( char **tokens,
     return match;
 }
 
-static unsigned int window_mode_get_num_entries ( Switcher *sw )
+static unsigned int window_mode_get_num_entries ( const Switcher *sw )
 {
-    SwitcherModePrivateData *pd = (SwitcherModePrivateData *) sw->private_data;
+    const SwitcherModePrivateData *pd = (const SwitcherModePrivateData *) sw->private_data;
     return pd->cmd_list_length;
 }
 static void _window_mode_load_data ( Switcher *sw, unsigned int cd )

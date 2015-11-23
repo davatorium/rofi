@@ -105,9 +105,9 @@ static void script_mode_init ( Switcher *sw )
         pd->cmd_list     = get_script_output ( (const char *) sw->ed, &( pd->cmd_list_length ) );
     }
 }
-static unsigned int script_mode_get_num_entries ( Switcher *sw )
+static unsigned int script_mode_get_num_entries ( const Switcher *sw )
 {
-    ScriptModePrivateData *rmpd = (ScriptModePrivateData *) sw->private_data;
+    const ScriptModePrivateData *rmpd = (const ScriptModePrivateData *) sw->private_data;
     return rmpd->cmd_list_length;
 }
 
