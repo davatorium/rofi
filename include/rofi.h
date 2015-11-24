@@ -31,15 +31,6 @@ typedef enum
     PREVIOUS_DIALOG = 1003
 } SwitcherMode;
 
-/**
- * @param input Pointer to the user input.
- * @param data  Usr data.
- *
- * Callback typedef for a switcher
- *
- * @returns SwitcherMode
- */
-typedef SwitcherMode ( *switcher_callback )( char **input, void *data );
 typedef void ( *switcher_free )( Switcher *data );
 
 typedef char * ( *get_display_value )( unsigned int selected_line, const Switcher *data, int *state, int get_entry );
