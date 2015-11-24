@@ -804,7 +804,7 @@ static void call_thread ( gpointer data, gpointer user_data )
 
 static void menu_refilter ( MenuState *state )
 {
-    TICK_N ( "Filter start" )
+    TICK_N ( "Filter start" );
     if ( strlen ( state->text->text ) > 0 ) {
         unsigned int j        = 0;
         char         **tokens = tokenize ( state->text->text, config.case_sensitive );
@@ -884,7 +884,7 @@ static void menu_refilter ( MenuState *state )
     scrollbar_set_max_value ( state->scrollbar, state->filtered_lines );
     state->refilter = FALSE;
     state->rchanged = TRUE;
-    TICK_N ( "Filter done" )
+    TICK_N ( "Filter done" );
 }
 
 static void menu_draw ( MenuState *state, cairo_t *d )
@@ -968,7 +968,7 @@ static void menu_draw ( MenuState *state, cairo_t *d )
 
 static void menu_update ( MenuState *state )
 {
-    TICK ()
+    TICK ();
     cairo_surface_t * surf = cairo_image_surface_create ( get_format (), state->w, state->h );
     cairo_t *d = cairo_create ( surf );
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
@@ -988,7 +988,7 @@ static void menu_update ( MenuState *state )
         color_background ( display, d );
         cairo_paint ( d );
     }
-    TICK_N ( "Background" )
+    TICK_N ( "Background" );
     color_border ( display, d );
 
     if ( config.menu_bw > 0 ) {
@@ -1060,7 +1060,7 @@ static void menu_update ( MenuState *state )
 
     // Flush the surface.
     cairo_surface_flush ( surface );
-    TICK ()
+    TICK ();
 }
 
 /**
@@ -1169,12 +1169,12 @@ static void menu_setup_fake_transparency ( Display *display, MenuState *state )
     cairo_paint ( dr );
     cairo_destroy ( dr );
     cairo_surface_destroy ( s );
-    TICK_N ( "Fake transparency" )
+    TICK_N ( "Fake transparency" );
 }
 
 MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *selected_line, unsigned int *next_pos, const char *message )
 {
-    TICK ()
+    TICK ();
     int shift = FALSE;
     MenuState state = {
         .sw                = sw,
@@ -1202,7 +1202,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
 
     // find out which lines contain non-ascii codepoints, so we can be faster in some cases.
     if ( state.num_lines > 0 ) {
-        TICK_N ( "Is ASCII start" )
+        TICK_N ( "Is ASCII start" );
         unsigned int nt = MAX ( 1, state.num_lines / 5000 );
         thread_state states[nt];
         unsigned int steps = ( state.num_lines + nt ) / nt;
@@ -1235,7 +1235,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         }
         g_cond_clear ( &cond );
         g_mutex_clear ( &mutex );
-        TICK_N ( "Is ASCII stop" )
+        TICK_N ( "Is ASCII stop" );
     }
 
     if ( next_pos ) {
@@ -1251,7 +1251,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         // Break off.
         return MENU_CANCEL;
     }
-    TICK_N ( "Grab keyboard" )
+    TICK_N ( "Grab keyboard" );
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     XWindowAttributes attr;
     if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
@@ -1260,10 +1260,10 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
             sn_launchee_context_setup_window ( sncontext, main_window );
         }
     }
-    TICK_N ( "Startup notification" )
+    TICK_N ( "Startup notification" );
     // Get active monitor size.
     monitor_active ( display, &( state.mon ) );
-    TICK_N ( "Get active monitor" )
+    TICK_N ( "Get active monitor" );
     if ( config.fake_transparency ) {
         menu_setup_fake_transparency ( display, &state );
     }
@@ -1429,7 +1429,7 @@ MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *select
         }
         // Get next event. (might block)
         XNextEvent ( display, &ev );
-        TICK_N ( "X Event" )
+        TICK_N ( "X Event" );
         if ( sndisplay != NULL ) {
             sn_display_process_event ( sndisplay, &ev );
         }
@@ -1957,7 +1957,7 @@ static void cleanup ()
     // Cleanup the custom keybinding
     cleanup_abe ();
 
-    TIMINGS_STOP ()
+    TIMINGS_STOP ();
 }
 
 /**
@@ -2095,7 +2095,7 @@ static void print_global_keybindings ()
 static void reload_configuration ()
 {
     if ( find_arg ( "-no-config" ) < 0 ) {
-        TICK ()
+        TICK ();
         // Reset the color cache
         color_cache_reset ();
         // We need to open a new connection to X11, otherwise we get old
@@ -2114,7 +2114,7 @@ static void reload_configuration ()
             fprintf ( stderr, "Failed to get a new connection to the X11 server. No point in continuing.\n" );
             abort ();
         }
-        TICK_N ( "Load config" )
+        TICK_N ( "Load config" );
     }
 }
 
@@ -2280,7 +2280,7 @@ static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, Display   *xdispl
 
 int main ( int argc, char *argv[] )
 {
-    TIMINGS_START ()
+    TIMINGS_START ();
 
     cmd_set_arguments ( argc, argv );
     // Quiet flag
@@ -2306,7 +2306,7 @@ int main ( int argc, char *argv[] )
         // Free the basename for dmenu detection.
         g_free ( base_name );
     }
-    TICK ()
+    TICK ();
     // Get the path to the cache dir.
     cache_dir = g_get_user_cache_dir ();
 
@@ -2317,11 +2317,11 @@ int main ( int argc, char *argv[] )
     }
     config_parser_add_option ( xrm_String, "pid", (void * *) &pidfile, "Pidfile location" );
 
-    TICK ()
+    TICK ();
     // Register cleanup function.
     atexit ( cleanup );
 
-    TICK ()
+    TICK ();
     // Get DISPLAY, first env, then argument.
     display_str = getenv ( "DISPLAY" );
     find_arg_str (  "-display", &display_str );
@@ -2343,17 +2343,17 @@ int main ( int argc, char *argv[] )
         fprintf ( stderr, "cannot open display!\n" );
         return EXIT_FAILURE;
     }
-    TICK_N ( "Open Display" )
+    TICK_N ( "Open Display" );
     // startup not.
     sndisplay = sn_display_new ( display, error_trap_push, error_trap_pop );
 
     if ( sndisplay != NULL ) {
         sncontext = sn_launchee_context_new_from_environment ( sndisplay, DefaultScreen ( display ) );
     }
-    TICK_N ( "Startup Notification" )
+    TICK_N ( "Startup Notification" );
     // Setup keybinding
     setup_abe ();
-    TICK_N ( "Setup abe" )
+    TICK_N ( "Setup abe" );
 
     if ( find_arg ( "-no-config" ) < 0 ) {
         load_configuration ( display );
@@ -2373,10 +2373,10 @@ int main ( int argc, char *argv[] )
 
     x11_setup ( display );
 
-    TICK_N ( "X11 Setup " )
+    TICK_N ( "X11 Setup " );
     // Sanity check
     config_sanity_check ( display );
-    TICK_N ( "Config sanity check" )
+    TICK_N ( "Config sanity check" );
     // Dump.
     // catch help request
     if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 || find_arg (  "--help" ) >= 0 ) {
@@ -2389,7 +2389,7 @@ int main ( int argc, char *argv[] )
     }
     // Parse the keybindings.
     parse_keys_abe ();
-    TICK_N ( "Parse ABE" )
+    TICK_N ( "Parse ABE" );
     char *msg = NULL;
     if ( find_arg_str (  "-e", &( msg ) ) ) {
         int markup = FALSE;
@@ -2417,7 +2417,7 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
-    TICK_N ( "Setup Threadpool" )
+    TICK_N ( "Setup Threadpool" );
     // Dmenu mode.
     if ( dmenu_mode == TRUE ) {
         normal_window_mode = find_arg ( "-normal-window" ) >= 0;

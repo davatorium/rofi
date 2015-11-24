@@ -63,7 +63,7 @@ typedef struct _DmenuModePrivateData
 
 static char **get_dmenu ( unsigned int *length )
 {
-    TICK_N ( "Read stdin START" )
+    TICK_N ( "Read stdin START" );
     char         **retv = NULL;
     unsigned int rvlength = 1;
 
@@ -92,7 +92,7 @@ static char **get_dmenu ( unsigned int *length )
     }
     retv[( *length ) + 1] = NULL;
     retv                  = g_realloc ( retv, ( *length + 1 ) * sizeof ( char* ) );
-    TICK_N ( "Read stdin STOP" )
+    TICK_N ( "Read stdin STOP" );
     return retv;
 }
 
