@@ -137,7 +137,7 @@ static void parse_ranges ( char *input, struct range_pair **list, unsigned int *
     }
 }
 
-static char *get_display_data ( unsigned int index, const Switcher *data, int *state, int get_entry )
+static char *get_display_data ( const Switcher *data, unsigned int index, int *state, int get_entry )
 {
     Switcher             *sw    = (Switcher *) data;
     DmenuModePrivateData *pd    = (DmenuModePrivateData *) sw->private_data;

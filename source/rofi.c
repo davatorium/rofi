@@ -649,7 +649,7 @@ static int menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned int
                 str = state->sw->get_completion ( state->sw, state->line_map[state->selected] );
             }
             else {
-                str = state->sw->mgrv ( state->line_map[state->selected], state->sw, &st, TRUE );
+                str = state->sw->mgrv ( state->sw, state->line_map[state->selected], &st, TRUE );
             }
             textbox_text ( state->text, str );
             g_free ( str );
@@ -771,7 +771,7 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
             t->state->line_map[t->start + t->count] = i;
             if ( config.levenshtein_sort ) {
                 // This is inefficient, need to fix it.
-                char * str = t->state->sw->mgrv ( i, t->state->sw, &st, TRUE );
+                char * str = t->state->sw->mgrv ( t->state->sw,  i, &st, TRUE );
                 t->state->distance[i] = levenshtein ( t->state->text->text, str );
                 g_free ( str );
             }
@@ -943,7 +943,7 @@ static void menu_draw ( MenuState *state, cairo_t *d )
             {
                 TextBoxFontType type   = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
                 int             fstate = 0;
-                char            *text  = state->sw->mgrv ( state->line_map[i + offset], state->sw, &fstate, TRUE );
+                char            *text  = state->sw->mgrv ( state->sw, state->line_map[i + offset], &fstate, TRUE );
                 TextBoxFontType tbft   = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
                 textbox_font ( state->boxes[i], tbft );
                 textbox_text ( state->boxes[i], text );
@@ -958,7 +958,7 @@ static void menu_draw ( MenuState *state, cairo_t *d )
         for ( i = 0; i < max_elements; i++ ) {
             TextBoxFontType type   = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
             int             fstate = 0;
-            state->sw->mgrv ( state->line_map[i + offset], state->sw, &fstate, FALSE );
+            state->sw->mgrv ( state->sw, state->line_map[i + offset], &fstate, FALSE );
             TextBoxFontType tbft = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
             textbox_font ( state->boxes[i], tbft );
             textbox_draw ( state->boxes[i], d );

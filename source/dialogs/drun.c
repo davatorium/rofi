@@ -275,7 +275,7 @@ static void drun_mode_destroy ( Switcher *sw )
     }
 }
 
-static char *mgrv ( unsigned int selected_line, const Switcher *sw, int *state, int get_entry )
+static char *mgrv ( const Switcher *sw, unsigned int selected_line, int *state, int get_entry )
 {
     DRunModePrivateData *pd = (DRunModePrivateData *) sw->private_data;
     *state |= MARKUP;

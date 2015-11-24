@@ -33,7 +33,7 @@ typedef enum
 
 typedef void ( *switcher_free )( Switcher *data );
 
-typedef char * ( *get_display_value )( unsigned int selected_line, const Switcher *data, int *state, int get_entry );
+typedef char * ( *get_display_value )( const Switcher *sw, unsigned int selected_line, int *state, int get_entry );
 
 typedef char * ( *get_completion )( const Switcher *sw, unsigned int selected_line );
 /**

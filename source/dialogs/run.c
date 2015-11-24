@@ -326,7 +326,7 @@ static void run_mode_destroy ( Switcher *sw )
     }
 }
 
-static char *mgrv ( unsigned int selected_line, const Switcher *sw, G_GNUC_UNUSED int *state, int get_entry )
+static char *mgrv ( const Switcher *sw,  unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;

@@ -203,13 +203,13 @@ static int combi_mode_match ( const Switcher *sw, char **tokens, int not_ascii,
     abort ();
     return 0;
 }
-static char * combi_mgrv ( unsigned int selected_line, const Switcher *sw, int *state, int get_entry )
+static char * combi_mgrv ( const Switcher *sw, unsigned int selected_line, int *state, int get_entry )
 {
     CombiModePrivateData *pd = sw->private_data;
     if ( !get_entry ) {
         for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
             if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
-                pd->switchers[i]->mgrv ( selected_line - pd->starts[i], (void *) pd->switchers[i], state, FALSE );
+                pd->switchers[i]->mgrv ( pd->switchers[i], selected_line - pd->starts[i], state, FALSE );
                 return NULL;
             }
         }
@@ -217,7 +217,7 @@ static char * combi_mgrv ( unsigned int selected_line, const Switcher *sw, int *
     }
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
-            char * str  = pd->switchers[i]->mgrv ( selected_line - pd->starts[i], (void *) pd->switchers[i], state, TRUE );
+            char * str  = pd->switchers[i]->mgrv ( pd->switchers[i], selected_line - pd->starts[i], state, TRUE );
             char * retv = g_strdup_printf ( "(%s) %s", pd->switchers[i]->name, str );
             g_free ( str );
             return retv;
@@ -247,7 +247,7 @@ static char * combi_get_completion ( const Switcher *sw, unsigned int index )
             }
             else {
                 int state;
-                str = pd->switchers[i]->mgrv ( index - pd->starts[i], (void *) pd->switchers[i], &state, TRUE );
+                str = pd->switchers[i]->mgrv ( pd->switchers[i], index - pd->starts[i], &state, TRUE );
             }
             return str;
         }
