@@ -771,7 +771,7 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
             t->state->line_map[t->start + t->count] = i;
             if ( config.levenshtein_sort ) {
                 // This is inefficient, need to fix it.
-                char * str = t->state->sw->mgrv ( t->state->sw,  i, &st, TRUE );
+                char * str = t->state->sw->mgrv ( t->state->sw, i, &st, TRUE );
                 t->state->distance[i] = levenshtein ( t->state->text->text, str );
                 g_free ( str );
             }

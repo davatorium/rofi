@@ -31,11 +31,6 @@ typedef enum
     PREVIOUS_DIALOG = 1003
 } SwitcherMode;
 
-typedef void ( *switcher_free )( Switcher *data );
-
-typedef char * ( *get_display_value )( const Switcher *sw, unsigned int selected_line, int *state, int get_entry );
-
-typedef char * ( *get_completion )( const Switcher *sw, unsigned int selected_line );
 /**
  * State returned by the rofi window.
  */
@@ -60,38 +55,6 @@ typedef enum
     /** Mask */
     MENU_LOWER_MASK   = 0x0000FFFF
 } MenuReturn;
-
-/**
- * @param tokens  List of (input) tokens to match.
- * @param input   The entry to match against.
- * @param case_sensitive Whether case is significant.
- * @param index   The current selected index.
- * @param data    User data.
- *
- * Function prototype for the matching algorithm.
- *
- * @returns 1 when it matches, 0 if not.
- */
-typedef int ( *menu_match_cb )( const Switcher *data, char **tokens, int not_ascii, int case_sensitive, unsigned int index );
-
-/**
- * @param sw the Switcher to show.
- * @param lines An array of strings to display.
- * @param num_lines Length of the array with strings to display.
- * @param input A pointer to a string where the inputted data is placed.
- * @param prompt The prompt to show.
- * @param shift pointer to integer that is set to the state of the shift key.
- * @param mmc Menu menu match callback, used for matching user input.
- * @param mmc_data data to pass to mmc.
- * @param selected_line pointer to integer holding the selected line.
- * @param message Extra message to display.
- *
- * Main menu callback.
- *
- * @returns The command issued (see MenuReturn)
- */
-MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *selected_line, unsigned int *next_pos, const char *message )
-__attribute__ ( ( nonnull ( 1, 2, 3, 4 ) ) );
 
 /**
  * @param sig  The caught signal
@@ -132,6 +95,24 @@ typedef enum _WindowLocation
     WL_WEST       = 8
 } WindowLocation;
 
+/**
+ * @param sw the Switcher to show.
+ * @param lines An array of strings to display.
+ * @param num_lines Length of the array with strings to display.
+ * @param input A pointer to a string where the inputted data is placed.
+ * @param prompt The prompt to show.
+ * @param shift pointer to integer that is set to the state of the shift key.
+ * @param mmc Menu menu match callback, used for matching user input.
+ * @param mmc_data data to pass to mmc.
+ * @param selected_line pointer to integer holding the selected line.
+ * @param message Extra message to display.
+ *
+ * Main menu callback.
+ *
+ * @returns The command issued (see MenuReturn)
+ */
+MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *selected_line, unsigned int *next_pos, const char *message )
+__attribute__ ( ( nonnull ( 1, 2, 3, 4 ) ) );
 /**
  * Settings
  */
@@ -262,6 +243,34 @@ extern Settings config;
  */
 void error_dialog ( const char *msg, int markup  );
 
+typedef void ( *switcher_free )( Switcher *data );
+
+typedef char * ( *switcher_get_display_value )( const Switcher *sw, unsigned int selected_line, int *state, int get_entry );
+
+typedef char * ( *switcher_get_completion )( const Switcher *sw, unsigned int selected_line );
+/**
+ * @param tokens  List of (input) tokens to match.
+ * @param input   The entry to match against.
+ * @param case_sensitive Whether case is significant.
+ * @param index   The current selected index.
+ * @param data    User data.
+ *
+ * Function prototype for the matching algorithm.
+ *
+ * @returns 1 when it matches, 0 if not.
+ */
+typedef int ( *switcher_token_match )( const Switcher *data, char **tokens, int not_ascii, int case_sensitive, unsigned int index );
+
+typedef void ( *switcher_init )( Switcher *sw );
+
+typedef unsigned int ( *switcher_get_num_entries )( const Switcher *sw );
+
+typedef void ( *switcher_destroy )( Switcher *sw );
+
+typedef SwitcherMode ( *switcher_result )( Switcher *sw, int menu_retv, char **input, unsigned int selected_line );
+
+typedef int ( *switcher_is_not_ascii )( const Switcher *sw, unsigned int index );
+
 /**
  * Structure defining a switcher.
  * It consists of a name, callback and if enabled
@@ -280,26 +289,32 @@ struct _Switcher
     /**
      * A switcher normally consists of the following parts:
      */
-    void              ( *init )( struct _Switcher *sw );
-    unsigned int      ( *get_num_entries )( const struct _Switcher *sw );
-    SwitcherMode      ( *result )( struct _Switcher *sw, int menu_retv, char **input, unsigned int selected_line );
-    void              ( *destroy )( struct _Switcher *pd );
+    // Initialize the Switcher
+    switcher_init             init;
+    // Destroy the switcher, e.g. free all its memory.
+    switcher_destroy          destroy;
+    // Get number of entries to display. (unfiltered).
+    switcher_get_num_entries  get_num_entries;
+    // Check if the element is ascii.
+    switcher_is_not_ascii     is_not_ascii;
+    // Process the result of the user selection.
+    switcher_result           result;
     // Token match.
-    menu_match_cb     token_match;
-
-    get_display_value mgrv;
-
-    int               ( *is_not_ascii )( const struct _Switcher *sw, unsigned int index );
-
-    get_completion    get_completion;
+    switcher_token_match      token_match;
+    // Get the string to display for the entry.
+    switcher_get_display_value mgrv;
+    // Get the 'completed' entry.
+    switcher_get_completion   get_completion;
 
     // Pointer to private data.
-    void              *private_data;
+    void                      *private_data;
 
-    // Extra fields for script
-    void              *ed;
     // Free SWitcher
-    switcher_free     free;
+    // Only to be used when the switcher object itself is dynamic.
+    // And has data in `ed`
+    switcher_free             free;
+    // Extra fields for script
+    void                      *ed;
 };
 
 #define  color_reset           "\033[0m"
