@@ -174,19 +174,29 @@ static int combi_mode_match ( const Switcher *sw, char **tokens, int not_ascii,
                               int case_sensitive, unsigned int index )
 {
     CombiModePrivateData *pd = sw->private_data;
-
-    for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
-        if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
-            if ( tokens && tokens[0][0] == '!' ) {
-                if ( tokens[0][1] == pd->switchers[i]->name[0] ) {
-                    return pd->switchers[i]->token_match ( pd->switchers[i], &tokens[1], not_ascii, case_sensitive,
-                                                           index - pd->starts[i] );
-                }
-                return 0;
-            }
-            else {
+    if ( config.regex || config.glob ) {
+        // Bang support only works in text mode.
+        for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
+            if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
                 return pd->switchers[i]->token_match ( pd->switchers[i], tokens, not_ascii, case_sensitive,
                                                        index - pd->starts[i]  );
+            }
+        }
+    }
+    else{
+        for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
+            if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
+                if ( tokens && tokens[0][0] == '!' ) {
+                    if ( tokens[0][1] == pd->switchers[i]->name[0] ) {
+                        return pd->switchers[i]->token_match ( pd->switchers[i], &tokens[1], not_ascii, case_sensitive,
+                                                               index - pd->starts[i] );
+                    }
+                    return 0;
+                }
+                else {
+                    return pd->switchers[i]->token_match ( pd->switchers[i], tokens, not_ascii, case_sensitive,
+                                                           index - pd->starts[i]  );
+                }
             }
         }
     }
@@ -239,9 +249,7 @@ static char * combi_get_completion ( const Switcher *sw, unsigned int index )
                 int state;
                 str = pd->switchers[i]->mgrv ( index - pd->starts[i], (void *) pd->switchers[i], &state, TRUE );
             }
-            char *retv = g_strdup_printf ( "!%c %s", pd->switchers[i]->name[0], str );
-            g_free ( str );
-            return retv;
+            return str;
         }
     }
     // Should never get here.
