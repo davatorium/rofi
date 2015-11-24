@@ -303,6 +303,7 @@ Switcher dmenu_mode =
     .destroy         = dmenu_mode_free,
     .token_match     = dmenu_token_match,
     .mgrv            = get_display_data,
+    .get_completion  = NULL,
     .is_not_ascii    = dmenu_is_not_ascii,
     .private_data    = NULL,
     .free            = NULL

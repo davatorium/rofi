@@ -113,7 +113,7 @@ static void exec_cmd_entry ( DRunModeEntry *e )
                 str[i++] = ' ';
             }
             // We might have hit '\0' in prev. loop, break out of for then.
-            if ( str[i] == '\0') {
+            if ( str[i] == '\0' ) {
                 break;
             }
         }
@@ -167,7 +167,7 @@ static void get_apps_dir ( DRunModePrivateData *pd, const char *bp )
             }
             if ( g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
                 size_t nl = ( ( pd->cmd_list_length ) + 1 );
-                pd->entry_list = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
+                pd->entry_list                               = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
                 pd->entry_list[pd->cmd_list_length].terminal = FALSE;
                 if ( g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
                     gchar *n  = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
@@ -296,6 +296,18 @@ static char *mgrv ( unsigned int selected_line, const Switcher *sw, int *state, 
                                          dr->generic_name );
     }
 }
+static char *drun_get_completion ( const Switcher *sw, unsigned int index )
+{
+    DRunModePrivateData *pd = (DRunModePrivateData *) sw->private_data;
+    /* Free temp storage. */
+    DRunModeEntry       *dr = &( pd->entry_list[index] );
+    if ( dr->generic_name == NULL ) {
+        return g_strdup ( dr->name );
+    }
+    else {
+        return g_strdup_printf ( "%s", dr->name );
+    }
+}
 
 static int drun_token_match ( const Switcher *data,
                               char **tokens,
@@ -342,6 +354,7 @@ Switcher drun_mode =
     .result          = drun_mode_result,
     .destroy         = drun_mode_destroy,
     .token_match     = drun_token_match,
+    .get_completion  = drun_get_completion,
     .mgrv            = mgrv,
     .is_not_ascii    = drun_is_not_ascii,
     .private_data    = NULL,

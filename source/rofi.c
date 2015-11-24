@@ -644,7 +644,13 @@ static int menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned int
         // If a valid item is selected, return that..
         if ( state->selected < state->filtered_lines ) {
             int  st;
-            char * str = state->sw->mgrv ( state->line_map[state->selected], state->sw, &st, TRUE );
+            char *str = NULL;
+            if ( state->sw->get_completion ) {
+                str = state->sw->get_completion ( state->sw, state->line_map[state->selected] );
+            }
+            else {
+                str = state->sw->mgrv ( state->line_map[state->selected], state->sw, &st, TRUE );
+            }
             textbox_text ( state->text, str );
             g_free ( str );
             textbox_cursor_end ( state->text );

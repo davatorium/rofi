@@ -226,6 +226,28 @@ static int combi_is_not_ascii ( const Switcher *sw, unsigned int index )
     }
     return FALSE;
 }
+static char * combi_get_completion ( const Switcher *sw, unsigned int index )
+{
+    CombiModePrivateData *pd = sw->private_data;
+    for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
+        if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
+            char * str = NULL;
+            if ( pd->switchers[i]->get_completion != NULL ) {
+                str = pd->switchers[i]->get_completion ( pd->switchers[i], index - pd->starts[i] );
+            }
+            else {
+                int state;
+                str = pd->switchers[i]->mgrv ( index - pd->starts[i], (void *) pd->switchers[i], &state, TRUE );
+            }
+            char *retv = g_strdup_printf ( "!%c %s", pd->switchers[i]->name[0], str );
+            g_free ( str );
+            return retv;
+        }
+    }
+    // Should never get here.
+    g_error ( "Failure, could not resolve sub-switcher." );
+    return NULL;
+}
 
 Switcher combi_mode =
 {
@@ -238,6 +260,7 @@ Switcher combi_mode =
     .result          = combi_mode_result,
     .destroy         = combi_mode_destroy,
     .token_match     = combi_mode_match,
+    .get_completion  = combi_get_completion,
     .mgrv            = combi_mgrv,
     .is_not_ascii    = combi_is_not_ascii,
     .private_data    = NULL,

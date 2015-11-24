@@ -405,6 +405,7 @@ Switcher ssh_mode =
     .destroy         = ssh_mode_destroy,
     .token_match     = ssh_token_match,
     .mgrv            = mgrv,
+    .get_completion  = NULL,
     .is_not_ascii    = ssh_is_not_ascii,
     .private_data    = NULL,
     .free            = NULL

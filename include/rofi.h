@@ -34,6 +34,8 @@ typedef enum
 typedef void ( *switcher_free )( Switcher *data );
 
 typedef char * ( *get_display_value )( unsigned int selected_line, const Switcher *data, int *state, int get_entry );
+
+typedef char * ( *get_completion )( const Switcher *sw, unsigned int selected_line );
 /**
  * State returned by the rofi window.
  */
@@ -288,6 +290,8 @@ struct _Switcher
     get_display_value mgrv;
 
     int               ( *is_not_ascii )( const struct _Switcher *sw, unsigned int index );
+
+    get_completion    get_completion;
 
     // Pointer to private data.
     void              *private_data;

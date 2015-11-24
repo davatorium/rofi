@@ -199,6 +199,7 @@ Switcher *script_switcher_parse_setup ( const char *str )
         sw->result          = script_mode_result;
         sw->destroy         = script_mode_destroy;
         sw->token_match     = script_token_match;
+        sw->get_completion  = NULL,
         sw->mgrv            = mgrv;
         sw->is_not_ascii    = script_is_not_ascii;
 
