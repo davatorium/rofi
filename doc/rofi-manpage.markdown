@@ -60,6 +60,7 @@
 [ -glob  ]
 [ -regex ]
 [ -tokenize ]
+[ -threads *num* ]
 
 ## DESCRIPTION
 
@@ -153,6 +154,14 @@ This does not validate all passed values (e.g. colors).
     rofi -key-run F12
     rofi -key-ssh control+shift+s
     rofi -key-window mod1+Tab
+
+`-threads` *num*
+
+Specify the number of threads **rofi** should use:
+
+  * 0: Autodetect the number of supported hardware threads.
+  * 1: Disable threading
+  * 2..N: Specify the maximum number of threads to use in the thread pool.
 
 `-dmenu`
 
