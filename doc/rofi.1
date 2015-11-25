@@ -7,7 +7,7 @@
 \fBrofi\fR \- A window switcher, run launcher, ssh dialog and dmenu replacement
 .
 .SH "SYNOPSIS"
-\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-fg \fIcolor\fR ] [ \-fg\-urgent \fIcolor\fR ] [ \-fg\-active \fIcolor\fR ] [ \-bg\-urgent \fIcolor\fR ] [ \-bg\-active \fIcolor\fR ] [ \-bg \fIcolor\fR ] [ \-bgalt \fIcolor\fR ] [ \-hlfg \fIcolor\fR ] [ \-hlbg \fIcolor\fR ] [ \-key\-\fBmode\fR \fIcombo\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-opacity \fIopacity%\fR ] [ \-display \fIdisplay\fR ] [ \-bc \fIcolor\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-select ] ] [ \-filter \fIfilter\fR ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-lazy\-filter\-limit \fIlimit\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help] [ \-dump\-xresources ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-no\-parse\-known\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-normal\-window ] [ \-fake\-transparency ] [ \-quiet ] [ \-glob ] [ \-tokenize ]
+\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-fg \fIcolor\fR ] [ \-fg\-urgent \fIcolor\fR ] [ \-fg\-active \fIcolor\fR ] [ \-bg\-urgent \fIcolor\fR ] [ \-bg\-active \fIcolor\fR ] [ \-bg \fIcolor\fR ] [ \-bgalt \fIcolor\fR ] [ \-hlfg \fIcolor\fR ] [ \-hlbg \fIcolor\fR ] [ \-key\-\fBmode\fR \fIcombo\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-opacity \fIopacity%\fR ] [ \-display \fIdisplay\fR ] [ \-bc \fIcolor\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-select ] ] [ \-filter \fIfilter\fR ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-lazy\-filter\-limit \fIlimit\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help ] [ \-dump\-xresources ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-no\-parse\-known\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-normal\-window ] [ \-fake\-transparency ] [ \-quiet ] [ \-glob ] [ \-regex ] [ \-tokenize ]
 .
 .SH "DESCRIPTION"
 \fBrofi\fR is an X11 popup window switcher, run dialog, dmenu replacement and more\. It focuses on being fast to use and have minimal distraction\. It supports keyboard and mouse navigation, type to filter, tokenized search and more\.
@@ -150,6 +150,18 @@ to disable it:
 Below is a list of the most important options:
 .
 .SS "General"
+\fB\-help\fR
+.
+.P
+The help option shows the full list of commandline options and the current set value\.
+.
+.P
+\fB\-dump\-xresources\fR
+.
+.P
+Dump the current active configuration in Xresources format to the command\-line\. This does not validate all passed values (e\.g\. colors)\.
+.
+.P
 \fB\-key\-{mode}\fR \fBKEY\fR
 .
 .P
@@ -566,7 +578,13 @@ Hide the scrollbar\.
 \fB\-glob\fR
 .
 .P
-Use glob style matching
+Use glob style matching \fIWarning this option might be slow on large lists\fR
+.
+.P
+\fB\-regex\fR
+.
+.P
+Use regex matching
 .
 .P
 \fB\-tokenize\fR
@@ -1018,12 +1036,6 @@ Popup a message dialog (used internally for showing errors) with \fImessage\fR\.
 Make \fBrofi\fR create a pid file and check this on startup\. Avoiding multiple copies running simultaneously\. This is useful when running \fBrofi\fR from a keybinding daemon\.
 .
 .SS "Debug"
-\fB\-dump\-xresources\fR
-.
-.P
-Dump the current active configuration in Xresources format to the command\-line\. This does not validate all passed values (e\.g\. colors)\.
-.
-.P
 \fB\-no\-config\fR
 .
 .P
@@ -1193,7 +1205,7 @@ The first two fields specify the alpha level\. This determines the amount of tra
 \fBCtrl\-d, Delete\fR: Delete character
 .
 .IP "\(bu" 4
-`Ctrl\-Alt\-d\': Delete word
+\fBCtrl\-Alt\-d\fR: Delete word
 .
 .IP "\(bu" 4
 \fBCtrl\-h, Backspace\fR: Backspace (delete previous character)
@@ -1256,6 +1268,26 @@ The first two fields specify the alpha level\. This determines the amount of tra
 .
 .P
 To get a full list of keybindings, see \fBrofi \-dump\-xresources | grep kb\-\fR\. Keybindings can be modified using the configuration systems\.
+.
+.SH "Available Modi"
+.
+.SS "Window"
+Show a list of all the windows and allow switching between them\.
+.
+.SS "WindowCD"
+Shows a list of the windows on the current desktop and allows switching between them\.
+.
+.SS "Run"
+Shows a list of executables in \fB$PATH\fR and can launch them (optional in a terminal)\.
+.
+.SS "DRun"
+Same as the \fBrun\fR launches, but the list is created from the installed desktop files\. It automatically launches them in a terminal if specified in the Desktop File\.
+.
+.SS "SSH"
+Shows a list of SSH targets based on your ssh config file, and allows to quickly ssh into them\.
+.
+.SS "Script"
+Allows custom scripted Modi to be added\.
 .
 .SH "FAQ"
 \fBText in window switcher is not nicely lined out\fR

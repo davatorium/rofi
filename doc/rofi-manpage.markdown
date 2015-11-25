@@ -48,7 +48,7 @@
 [ -rnow ]
 [ -snow ]
 [ -version ]
-[ -help]
+[ -help ]
 [ -dump-xresources ]
 [ -auto-select ]
 [ -parse-hosts ]
@@ -58,6 +58,7 @@
 [ -fake-transparency ]
 [ -quiet ]
 [ -glob  ]
+[ -regex ]
 [ -tokenize ]
 
 ## DESCRIPTION
@@ -135,6 +136,15 @@ to disable it:
 Below is a list of the most important options:
 
 ### General
+
+`-help`
+
+The help option shows the full list of commandline options and the current set value.
+
+`-dump-xresources`
+
+Dump the current active configuration in Xresources format to the command-line.
+This does not validate all passed values (e.g. colors).
 
 `-key-{mode}` **KEY**
 
@@ -338,6 +348,11 @@ Hide the scrollbar.
 `-glob`
 
 Use glob style matching
+*Warning this option might be slow on large lists*
+
+`-regex`
+
+Use regex matching
 
 `-tokenize`
 
@@ -623,10 +638,6 @@ simultaneously. This is useful when running **rofi** from a keybinding daemon.
 
 ### Debug
 
-`-dump-xresources`
-
-Dump the current active configuration in Xresources format to the command-line.
-This does not validate all passed values (e.g. colors).
 
 `-no-config`
 
@@ -725,7 +736,7 @@ The first two fields specify the alpha level. This determines the amount of tran
   * `Ctrl-b, Left`: Back one character
   * `Alt-b`: Back one word
   * `Ctrl-d, Delete`: Delete character
-  * `Ctrl-Alt-d': Delete word
+  * `Ctrl-Alt-d`: Delete word
   * `Ctrl-h, Backspace`: Backspace (delete previous character)
   * `Ctrl-Alt-h`: Delete previous word
   * `Ctrl-j,Ctrl-m,Enter`: Accept entry
@@ -748,6 +759,33 @@ The first two fields specify the alpha level. This determines the amount of tran
 
 To get a full list of keybindings, see `rofi -dump-xresources | grep kb-`.
 Keybindings can be modified using the configuration systems.
+
+## Available Modi
+
+### Window
+
+Show a list of all the windows and allow switching between them.
+
+### WindowCD
+
+Shows a list of the windows on the current desktop and allows switching between them.
+
+### Run
+
+Shows a list of executables in **$PATH** and can launch them (optional in a terminal).
+
+### DRun
+
+Same as the **run** launches, but the list is created from the installed desktop files. It automatically launches them
+in a terminal if specified in the Desktop File.
+
+### SSH
+
+Shows a list of SSH targets based on your ssh config file, and allows to quickly ssh into them.
+
+### Script
+
+Allows custom scripted Modi to be added. 
 
 ## FAQ
 
