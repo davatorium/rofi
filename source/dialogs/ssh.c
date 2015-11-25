@@ -322,7 +322,7 @@ typedef struct _SSHModePrivateData
     unsigned int cmd_list_length;
 } SSHModePrivateData;
 
-static void ssh_mode_init ( Switcher *sw )
+static void ssh_mode_init ( Mode *sw )
 {
     if ( sw->private_data == NULL ) {
         SSHModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
@@ -331,14 +331,14 @@ static void ssh_mode_init ( Switcher *sw )
     }
 }
 
-static unsigned int ssh_mode_get_num_entries ( const Switcher *sw )
+static unsigned int ssh_mode_get_num_entries ( const Mode *sw )
 {
     const SSHModePrivateData *rmpd = (const SSHModePrivateData *) sw->private_data;
     return rmpd->cmd_list_length;
 }
-static SwitcherMode ssh_mode_result ( Switcher *sw, int mretv, char **input, unsigned int selected_line )
+static ModeMode ssh_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
 {
-    SwitcherMode       retv  = MODE_EXIT;
+    ModeMode           retv  = MODE_EXIT;
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
     if ( mretv & MENU_NEXT ) {
         retv = NEXT_DIALOG;
@@ -366,7 +366,7 @@ static SwitcherMode ssh_mode_result ( Switcher *sw, int mretv, char **input, uns
     return retv;
 }
 
-static void ssh_mode_destroy ( Switcher *sw )
+static void ssh_mode_destroy ( Mode *sw )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
     if ( rmpd != NULL ) {
@@ -376,24 +376,24 @@ static void ssh_mode_destroy ( Switcher *sw )
     }
 }
 
-static char *mgrv ( const Switcher *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
+static char *mgrv ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
-static int ssh_token_match ( const Switcher *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
+static int ssh_token_match ( const Mode *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
     return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );
 }
 
-static int ssh_is_not_ascii ( const Switcher *sw, unsigned int index )
+static int ssh_is_not_ascii ( const Mode *sw, unsigned int index )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
     return is_not_ascii ( rmpd->cmd_list[index] );
 }
 
-Switcher ssh_mode =
+Mode ssh_mode =
 {
     .name            = "ssh",
     .keycfg          = NULL,

@@ -9,5 +9,5 @@
  *
  * @returns NULL when it fails, a newly allocated ScriptOptions when successful.
  */
-Switcher *script_switcher_parse_setup ( const char *str );
+Mode *script_switcher_parse_setup ( const char *str );
 #endif

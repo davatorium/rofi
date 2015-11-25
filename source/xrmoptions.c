@@ -55,8 +55,8 @@ typedef struct
  * Currently supports string, boolean and number (signed and unsigned).
  */
 static XrmOption xrmOptions[] = {
-    { xrm_String,  "switchers",            { .str  = &config.switchers          }, NULL, ""                                            },
-    { xrm_String,  "modi",                 { .str  = &config.switchers          }, NULL, "Enabled modi"                                },
+    { xrm_String,  "switchers",            { .str  = &config.modi               }, NULL, ""                                            },
+    { xrm_String,  "modi",                 { .str  = &config.modi               }, NULL, "Enabled modi"                                },
     { xrm_Number,  "opacity",              { .num  = &config.window_opacity     }, NULL, "Window opacity"                              },
     { xrm_SNumber, "width",                { .snum = &config.menu_width         }, NULL, "Window width"                                },
     { xrm_Number,  "lines",                { .num  = &config.menu_lines         }, NULL, "Number of lines"                             },

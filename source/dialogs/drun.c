@@ -226,7 +226,7 @@ static void get_apps ( DRunModePrivateData *pd )
     }
 }
 
-static void drun_mode_init ( Switcher *sw )
+static void drun_mode_init ( Mode *sw )
 {
     if ( sw->private_data == NULL ) {
         DRunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
@@ -235,10 +235,10 @@ static void drun_mode_init ( Switcher *sw )
     }
 }
 
-static SwitcherMode drun_mode_result ( Switcher *sw, int mretv, char **input, unsigned int selected_line )
+static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) sw->private_data;
-    SwitcherMode        retv  = MODE_EXIT;
+    ModeMode            retv  = MODE_EXIT;
 
     int                 shift = ( ( mretv & MENU_SHIFT ) == MENU_SHIFT );
 
@@ -260,7 +260,7 @@ static SwitcherMode drun_mode_result ( Switcher *sw, int mretv, char **input, un
     return retv;
 }
 
-static void drun_mode_destroy ( Switcher *sw )
+static void drun_mode_destroy ( Mode *sw )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) sw->private_data;
     if ( rmpd != NULL ) {
@@ -275,7 +275,7 @@ static void drun_mode_destroy ( Switcher *sw )
     }
 }
 
-static char *mgrv ( const Switcher *sw, unsigned int selected_line, int *state, int get_entry )
+static char *mgrv ( const Mode *sw, unsigned int selected_line, int *state, int get_entry )
 {
     DRunModePrivateData *pd = (DRunModePrivateData *) sw->private_data;
     *state |= MARKUP;
@@ -296,7 +296,7 @@ static char *mgrv ( const Switcher *sw, unsigned int selected_line, int *state, 
                                          dr->generic_name );
     }
 }
-static char *drun_get_completion ( const Switcher *sw, unsigned int index )
+static char *drun_get_completion ( const Mode *sw, unsigned int index )
 {
     DRunModePrivateData *pd = (DRunModePrivateData *) sw->private_data;
     /* Free temp storage. */
@@ -309,7 +309,7 @@ static char *drun_get_completion ( const Switcher *sw, unsigned int index )
     }
 }
 
-static int drun_token_match ( const Switcher *data,
+static int drun_token_match ( const Mode *data,
                               char **tokens,
                               int not_ascii,
                               int case_sensitive,
@@ -329,12 +329,12 @@ static int drun_token_match ( const Switcher *data,
     return 0;
 }
 
-static unsigned int drun_mode_get_num_entries ( const Switcher *sw )
+static unsigned int drun_mode_get_num_entries ( const Mode *sw )
 {
     const DRunModePrivateData *pd = (const DRunModePrivateData *) sw->private_data;
     return pd->cmd_list_length;
 }
-static int drun_is_not_ascii ( const Switcher *sw, unsigned int index )
+static int drun_is_not_ascii ( const Mode *sw, unsigned int index )
 {
     DRunModePrivateData *pd = (DRunModePrivateData *) sw->private_data;
     if ( pd->entry_list[index].generic_name ) {
@@ -343,7 +343,7 @@ static int drun_is_not_ascii ( const Switcher *sw, unsigned int index )
     return is_not_ascii ( pd->entry_list[index].name );
 }
 
-Switcher drun_mode =
+Mode drun_mode =
 {
     .name            = "drun",
     .keycfg          = NULL,

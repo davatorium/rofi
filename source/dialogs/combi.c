@@ -32,7 +32,7 @@
 #include <dialogs/dialogs.h>
 
 /**
- * Combi Switcher
+ * Combi Mode
  */
 typedef struct _CombiModePrivateData
 {
@@ -43,10 +43,10 @@ typedef struct _CombiModePrivateData
     unsigned int *lengths;
     // List of switchers to combine.
     unsigned int num_switchers;
-    Switcher     **switchers;
+    Mode         **switchers;
 } CombiModePrivateData;
 
-static void combi_mode_parse_switchers ( Switcher *sw )
+static void combi_mode_parse_switchers ( Mode *sw )
 {
     CombiModePrivateData *pd     = sw->private_data;
     char                 *savept = NULL;
@@ -56,8 +56,8 @@ static void combi_mode_parse_switchers ( Switcher *sw )
     for ( char *token = strtok_r ( switcher_str, ",", &savept ); token != NULL;
           token = strtok_r ( NULL, ",", &savept ) ) {
         // Resize and add entry.
-        pd->switchers = (Switcher * *) g_realloc ( pd->switchers,
-                                                   sizeof ( Switcher* ) * ( pd->num_switchers + 1 ) );
+        pd->switchers = (Mode * *) g_realloc ( pd->switchers,
+                                               sizeof ( Mode* ) * ( pd->num_switchers + 1 ) );
 
         // Window switcher.
         #ifdef WINDOW_MODE
@@ -82,7 +82,7 @@ static void combi_mode_parse_switchers ( Switcher *sw )
         }
         else {
             // If not build in, use custom switchers.
-            Switcher *sw = script_switcher_parse_setup ( token );
+            Mode *sw = script_switcher_parse_setup ( token );
             if ( sw != NULL ) {
                 pd->switchers[pd->num_switchers++] = sw;
             }
@@ -98,7 +98,7 @@ static void combi_mode_parse_switchers ( Switcher *sw )
     g_free ( switcher_str );
 }
 
-static void combi_mode_init ( Switcher *sw )
+static void combi_mode_init ( Mode *sw )
 {
     if ( sw->private_data == NULL ) {
         CombiModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
@@ -120,12 +120,12 @@ static void combi_mode_init ( Switcher *sw )
         }
     }
 }
-static unsigned int combi_mode_get_num_entries ( const Switcher *sw )
+static unsigned int combi_mode_get_num_entries ( const Mode *sw )
 {
     const CombiModePrivateData *pd = (const CombiModePrivateData *) sw->private_data;
     return pd->cmd_list_length;
 }
-static void combi_mode_destroy ( Switcher *sw )
+static void combi_mode_destroy ( Mode *sw )
 {
     CombiModePrivateData *pd = (CombiModePrivateData *) sw->private_data;
     if ( pd != NULL ) {
@@ -140,7 +140,7 @@ static void combi_mode_destroy ( Switcher *sw )
         sw->private_data = NULL;
     }
 }
-static SwitcherMode combi_mode_result ( Switcher *sw, int mretv, char **input, unsigned int selected_line )
+static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
 {
     CombiModePrivateData *pd = sw->private_data;
     if ( *input[0] == '!' ) {
@@ -170,7 +170,7 @@ static SwitcherMode combi_mode_result ( Switcher *sw, int mretv, char **input, u
     }
     return MODE_EXIT;
 }
-static int combi_mode_match ( const Switcher *sw, char **tokens, int not_ascii,
+static int combi_mode_match ( const Mode *sw, char **tokens, int not_ascii,
                               int case_sensitive, unsigned int index )
 {
     CombiModePrivateData *pd = sw->private_data;
@@ -203,7 +203,7 @@ static int combi_mode_match ( const Switcher *sw, char **tokens, int not_ascii,
     abort ();
     return 0;
 }
-static char * combi_mgrv ( const Switcher *sw, unsigned int selected_line, int *state, int get_entry )
+static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *state, int get_entry )
 {
     CombiModePrivateData *pd = sw->private_data;
     if ( !get_entry ) {
@@ -226,7 +226,7 @@ static char * combi_mgrv ( const Switcher *sw, unsigned int selected_line, int *
 
     return NULL;
 }
-static int combi_is_not_ascii ( const Switcher *sw, unsigned int index )
+static int combi_is_not_ascii ( const Mode *sw, unsigned int index )
 {
     CombiModePrivateData *pd = sw->private_data;
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
@@ -236,7 +236,7 @@ static int combi_is_not_ascii ( const Switcher *sw, unsigned int index )
     }
     return FALSE;
 }
-static char * combi_get_completion ( const Switcher *sw, unsigned int index )
+static char * combi_get_completion ( const Mode *sw, unsigned int index )
 {
     CombiModePrivateData *pd = sw->private_data;
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
@@ -257,7 +257,7 @@ static char * combi_get_completion ( const Switcher *sw, unsigned int index )
     return NULL;
 }
 
-Switcher combi_mode =
+Mode combi_mode =
 {
     .name            = "combi",
     .keycfg          = NULL,

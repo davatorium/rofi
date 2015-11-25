@@ -15,7 +15,7 @@
  */
 extern const char *cache_dir;
 
-typedef struct _Switcher   Switcher;
+typedef struct _Mode   Mode;
 /**
  * Enum used to sum the possible states of ROFI.
  */
@@ -29,7 +29,7 @@ typedef enum
     RELOAD_DIALOG   = 1002,
     /** Previous dialog */
     PREVIOUS_DIALOG = 1003
-} SwitcherMode;
+} ModeMode;
 
 /**
  * State returned by the rofi window.
@@ -96,7 +96,7 @@ typedef enum _WindowLocation
 } WindowLocation;
 
 /**
- * @param sw the Switcher to show.
+ * @param sw the Mode to show.
  * @param lines An array of strings to display.
  * @param num_lines Length of the array with strings to display.
  * @param input A pointer to a string where the inputted data is placed.
@@ -111,7 +111,7 @@ typedef enum _WindowLocation
  *
  * @returns The command issued (see MenuReturn)
  */
-MenuReturn menu ( Switcher *sw, char **input, char *prompt, unsigned int *selected_line, unsigned int *next_pos, const char *message )
+MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_line, unsigned int *next_pos, const char *message )
 __attribute__ ( ( nonnull ( 1, 2, 3, 4 ) ) );
 /**
  * Settings
@@ -119,8 +119,8 @@ __attribute__ ( ( nonnull ( 1, 2, 3, 4 ) ) );
 
 typedef struct _Settings
 {
-    /** List of enabled switchers */
-    char           *switchers;
+    /** List of enabled modi */
+    char           *modi;
     /** Window settings */
     unsigned int   window_opacity;
     /** Border width */
@@ -193,7 +193,7 @@ typedef struct _Settings
     char           separator;
     /** Height of an element in #chars */
     int            element_height;
-    /** Sidebar mode, show the switchers */
+    /** Sidebar mode, show the modi */
     unsigned int   sidebar_mode;
     /** Lazy filter limit. */
     unsigned int   lazy_filter_limit;
@@ -203,7 +203,7 @@ typedef struct _Settings
     unsigned int   parse_hosts;
     /** Knonw_hosts file parsing */
     unsigned int   parse_known_hosts;
-    /** Combi Switchers */
+    /** Combi Modes */
     char           *combi_modi;
     /** Fuzzy match */
     unsigned int   fuzzy;
@@ -243,11 +243,11 @@ extern Settings config;
  */
 void error_dialog ( const char *msg, int markup  );
 
-typedef void ( *switcher_free )( Switcher *data );
+typedef void ( *switcher_free )( Mode *data );
 
-typedef char * ( *switcher_get_display_value )( const Switcher *sw, unsigned int selected_line, int *state, int get_entry );
+typedef char * ( *switcher_get_display_value )( const Mode *sw, unsigned int selected_line, int *state, int get_entry );
 
-typedef char * ( *switcher_get_completion )( const Switcher *sw, unsigned int selected_line );
+typedef char * ( *switcher_get_completion )( const Mode *sw, unsigned int selected_line );
 /**
  * @param tokens  List of (input) tokens to match.
  * @param input   The entry to match against.
@@ -259,24 +259,24 @@ typedef char * ( *switcher_get_completion )( const Switcher *sw, unsigned int se
  *
  * @returns 1 when it matches, 0 if not.
  */
-typedef int ( *switcher_token_match )( const Switcher *data, char **tokens, int not_ascii, int case_sensitive, unsigned int index );
+typedef int ( *switcher_token_match )( const Mode *data, char **tokens, int not_ascii, int case_sensitive, unsigned int index );
 
-typedef void ( *switcher_init )( Switcher *sw );
+typedef void ( *switcher_init )( Mode *sw );
 
-typedef unsigned int ( *switcher_get_num_entries )( const Switcher *sw );
+typedef unsigned int ( *switcher_get_num_entries )( const Mode *sw );
 
-typedef void ( *switcher_destroy )( Switcher *sw );
+typedef void ( *switcher_destroy )( Mode *sw );
 
-typedef SwitcherMode ( *switcher_result )( Switcher *sw, int menu_retv, char **input, unsigned int selected_line );
+typedef ModeMode ( *switcher_result )( Mode *sw, int menu_retv, char **input, unsigned int selected_line );
 
-typedef int ( *switcher_is_not_ascii )( const Switcher *sw, unsigned int index );
+typedef int ( *switcher_is_not_ascii )( const Mode *sw, unsigned int index );
 
 /**
  * Structure defining a switcher.
  * It consists of a name, callback and if enabled
  * a textbox for the sidebar-mode.
  */
-struct _Switcher
+struct _Mode
 {
     // Name (max 31 char long)
     char         name[32];
@@ -289,32 +289,32 @@ struct _Switcher
     /**
      * A switcher normally consists of the following parts:
      */
-    // Initialize the Switcher
-    switcher_init             init;
+    // Initialize the Mode
+    switcher_init              init;
     // Destroy the switcher, e.g. free all its memory.
-    switcher_destroy          destroy;
+    switcher_destroy           destroy;
     // Get number of entries to display. (unfiltered).
-    switcher_get_num_entries  get_num_entries;
+    switcher_get_num_entries   get_num_entries;
     // Check if the element is ascii.
-    switcher_is_not_ascii     is_not_ascii;
+    switcher_is_not_ascii      is_not_ascii;
     // Process the result of the user selection.
-    switcher_result           result;
+    switcher_result            result;
     // Token match.
-    switcher_token_match      token_match;
+    switcher_token_match       token_match;
     // Get the string to display for the entry.
     switcher_get_display_value mgrv;
     // Get the 'completed' entry.
-    switcher_get_completion   get_completion;
+    switcher_get_completion    get_completion;
 
     // Pointer to private data.
-    void                      *private_data;
+    void                       *private_data;
 
     // Free SWitcher
     // Only to be used when the switcher object itself is dynamic.
     // And has data in `ed`
-    switcher_free             free;
+    switcher_free free;
     // Extra fields for script
-    void                      *ed;
+    void          *ed;
 };
 
 #define  color_reset           "\033[0m"

@@ -308,7 +308,7 @@ static client* window_client ( Display *display, Window win )
     return c;
 }
 
-typedef struct _SwitcherModePrivateData
+typedef struct _ModeModePrivateData
 {
     unsigned int id;
     char         **cmd_list;
@@ -318,19 +318,19 @@ typedef struct _SwitcherModePrivateData
     // Current window.
     unsigned int index;
     char         *cache;
-} SwitcherModePrivateData;
+} ModeModePrivateData;
 
-static int window_match ( const Switcher *sw, char **tokens,
+static int window_match ( const Mode *sw, char **tokens,
                           __attribute__( ( unused ) ) int not_ascii,
                           int case_sensitive, unsigned int index )
 {
-    SwitcherModePrivateData *rmpd = (SwitcherModePrivateData *) sw->private_data;
-    int                     match = 1;
-    const winlist           *ids  = ( winlist * ) rmpd->ids;
+    ModeModePrivateData *rmpd = (ModeModePrivateData *) sw->private_data;
+    int                 match = 1;
+    const winlist       *ids  = ( winlist * ) rmpd->ids;
     // Want to pull directly out of cache, X calls are not thread safe.
-    int                     idx = winlist_find ( cache_client, ids->array[index] );
+    int                 idx = winlist_find ( cache_client, ids->array[index] );
     g_assert ( idx >= 0 );
-    client                  *c = cache_client->data[idx];
+    client              *c = cache_client->data[idx];
 
     if ( tokens ) {
         for ( int j = 0; match && tokens != NULL && tokens[j] != NULL; j++ ) {
@@ -365,22 +365,22 @@ static int window_match ( const Switcher *sw, char **tokens,
     return match;
 }
 
-static unsigned int window_mode_get_num_entries ( const Switcher *sw )
+static unsigned int window_mode_get_num_entries ( const Mode *sw )
 {
-    const SwitcherModePrivateData *pd = (const SwitcherModePrivateData *) sw->private_data;
+    const ModeModePrivateData *pd = (const ModeModePrivateData *) sw->private_data;
     return pd->cmd_list_length;
 }
-static void _window_mode_load_data ( Switcher *sw, unsigned int cd )
+static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 {
-    SwitcherModePrivateData *pd     = (SwitcherModePrivateData *) sw->private_data;
-    Screen                  *screen = DefaultScreenOfDisplay ( display );
-    Window                  root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
+    ModeModePrivateData *pd     = (ModeModePrivateData *) sw->private_data;
+    Screen              *screen = DefaultScreenOfDisplay ( display );
+    Window              root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
     // find window list
-    Atom                    type;
-    int                     nwins = 0;
-    Window                  wins[100];
-    int                     count       = 0;
-    Window                  curr_win_id = 0;
+    Atom                type;
+    int                 nwins = 0;
+    Window              wins[100];
+    int                 count       = 0;
+    Window              curr_win_id = 0;
     // Create cache
 
     x11_cache_create ();
@@ -494,27 +494,27 @@ static void _window_mode_load_data ( Switcher *sw, unsigned int cd )
         }
     }
 }
-static void window_mode_init ( Switcher *sw )
+static void window_mode_init ( Mode *sw )
 {
     if ( sw->private_data == NULL ) {
-        SwitcherModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
+        ModeModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         sw->private_data = (void *) pd;
         _window_mode_load_data ( sw, FALSE );
     }
 }
-static void window_mode_init_cd ( Switcher *sw )
+static void window_mode_init_cd ( Mode *sw )
 {
     if ( sw->private_data == NULL ) {
-        SwitcherModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
+        ModeModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         sw->private_data = (void *) pd;
         _window_mode_load_data ( sw, TRUE );
     }
 }
-static SwitcherMode window_mode_result ( Switcher *sw, int mretv, G_GNUC_UNUSED char **input,
-                                         unsigned int selected_line )
+static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **input,
+                                     unsigned int selected_line )
 {
-    SwitcherModePrivateData *rmpd = (SwitcherModePrivateData *) sw->private_data;
-    SwitcherMode            retv  = MODE_EXIT;
+    ModeModePrivateData *rmpd = (ModeModePrivateData *) sw->private_data;
+    ModeMode            retv  = MODE_EXIT;
     if ( mretv & MENU_NEXT ) {
         retv = NEXT_DIALOG;
     }
@@ -545,9 +545,9 @@ static SwitcherMode window_mode_result ( Switcher *sw, int mretv, G_GNUC_UNUSED 
     return retv;
 }
 
-static void window_mode_destroy ( Switcher *sw )
+static void window_mode_destroy ( Mode *sw )
 {
-    SwitcherModePrivateData *rmpd = (SwitcherModePrivateData *) sw->private_data;
+    ModeModePrivateData *rmpd = (ModeModePrivateData *) sw->private_data;
     if ( rmpd != NULL ) {
         g_strfreev ( rmpd->cmd_list );
         winlist_free ( rmpd->ids );
@@ -559,9 +559,9 @@ static void window_mode_destroy ( Switcher *sw )
     }
 }
 
-static char *mgrv ( const Switcher *sw, unsigned int selected_line, int *state, int get_entry )
+static char *mgrv ( const Mode *sw, unsigned int selected_line, int *state, int get_entry )
 {
-    SwitcherModePrivateData *rmpd = sw->private_data;
+    ModeModePrivateData *rmpd = sw->private_data;
     if ( window_client ( display, rmpd->ids->array[selected_line] )->demands ) {
         *state |= URGENT;
     }
@@ -571,18 +571,18 @@ static char *mgrv ( const Switcher *sw, unsigned int selected_line, int *state, 
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
 
-static int window_is_not_ascii ( const Switcher *sw, unsigned int index )
+static int window_is_not_ascii ( const Mode *sw, unsigned int index )
 {
-    const SwitcherModePrivateData *rmpd = sw->private_data;
-    const winlist                 *ids  = ( winlist * ) rmpd->ids;
+    const ModeModePrivateData *rmpd = sw->private_data;
+    const winlist             *ids  = ( winlist * ) rmpd->ids;
     // Want to pull directly out of cache, X calls are not thread safe.
-    int                           idx = winlist_find ( cache_client, ids->array[index] );
+    int                       idx = winlist_find ( cache_client, ids->array[index] );
     g_assert ( idx >= 0 );
-    client                        *c = cache_client->data[idx];
+    client                    *c = cache_client->data[idx];
     return is_not_ascii ( c->role ) || is_not_ascii ( c->class ) || is_not_ascii ( c->title ) || is_not_ascii ( c->name );
 }
 
-Switcher window_mode =
+Mode window_mode =
 {
     .name            = "window",
     .keycfg          = NULL,
@@ -599,7 +599,7 @@ Switcher window_mode =
     .private_data    = NULL,
     .free            = NULL
 };
-Switcher window_mode_cd =
+Mode window_mode_cd =
 {
     .name            = "windowcd",
     .keycfg          = NULL,

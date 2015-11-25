@@ -64,7 +64,7 @@ typedef struct _DmenuModePrivateData
 static char **get_dmenu ( unsigned int *length )
 {
     TICK_N ( "Read stdin START" );
-    char         **retv = NULL;
+    char         **retv   = NULL;
     unsigned int rvlength = 1;
 
     *length = 0;
@@ -96,7 +96,7 @@ static char **get_dmenu ( unsigned int *length )
     return retv;
 }
 
-static unsigned int dmenu_mode_get_num_entries ( const Switcher *sw )
+static unsigned int dmenu_mode_get_num_entries ( const Mode *sw )
 {
     const DmenuModePrivateData *rmpd = (const DmenuModePrivateData *) sw->private_data;
     return rmpd->cmd_list_length;
@@ -137,9 +137,9 @@ static void parse_ranges ( char *input, struct range_pair **list, unsigned int *
     }
 }
 
-static char *get_display_data ( const Switcher *data, unsigned int index, int *state, int get_entry )
+static char *get_display_data ( const Mode *data, unsigned int index, int *state, int get_entry )
 {
-    Switcher             *sw    = (Switcher *) data;
+    Mode                 *sw    = (Mode *) data;
     DmenuModePrivateData *pd    = (DmenuModePrivateData *) sw->private_data;
     char                 **retv = (char * *) pd->cmd_list;
     for ( unsigned int i = 0; i < pd->num_active_list; i++ ) {
@@ -206,7 +206,7 @@ static void dmenu_output_formatted_line ( const char *format, const char *string
     fputc ( '\n', stdout );
     fflush ( stdout );
 }
-static void dmenu_mode_free ( Switcher *sw )
+static void dmenu_mode_free ( Mode *sw )
 {
     if ( sw->private_data == NULL ) {
         return;
@@ -227,7 +227,7 @@ static void dmenu_mode_free ( Switcher *sw )
     }
 }
 
-static void dmenu_mode_init ( Switcher *sw )
+static void dmenu_mode_init ( Mode *sw )
 {
     if ( sw->private_data != NULL ) {
         return;
@@ -279,19 +279,19 @@ static void dmenu_mode_init ( Switcher *sw )
     pd->cmd_list = get_dmenu ( &( pd->cmd_list_length ) );
 }
 
-static int dmenu_token_match ( const Switcher *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
+static int dmenu_token_match ( const Mode *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
 {
     DmenuModePrivateData *rmpd = (DmenuModePrivateData *) sw->private_data;
     return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );
 }
 
-static int dmenu_is_not_ascii ( const Switcher *sw, unsigned int index )
+static int dmenu_is_not_ascii ( const Mode *sw, unsigned int index )
 {
     DmenuModePrivateData *rmpd = (DmenuModePrivateData *) sw->private_data;
     return is_not_ascii ( rmpd->cmd_list[index] );
 }
 
-Switcher dmenu_mode =
+Mode dmenu_mode =
 {
     .name            = "dmenu",
     .keycfg          = NULL,

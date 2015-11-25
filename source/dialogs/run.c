@@ -267,7 +267,7 @@ typedef struct _RunModePrivateData
     unsigned int cmd_list_length;
 } RunModePrivateData;
 
-static void run_mode_init ( Switcher *sw )
+static void run_mode_init ( Mode *sw )
 {
     if ( sw->private_data == NULL ) {
         RunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
@@ -276,16 +276,16 @@ static void run_mode_init ( Switcher *sw )
     }
 }
 
-static unsigned int run_mode_get_num_entries ( const Switcher *sw )
+static unsigned int run_mode_get_num_entries ( const Mode *sw )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     return rmpd->cmd_list_length;
 }
 
-static SwitcherMode run_mode_result ( Switcher *sw, int mretv, char **input, unsigned int selected_line )
+static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
 {
     RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
-    SwitcherMode       retv  = MODE_EXIT;
+    ModeMode           retv  = MODE_EXIT;
 
     int                shift = ( ( mretv & MENU_SHIFT ) == MENU_SHIFT );
 
@@ -316,7 +316,7 @@ static SwitcherMode run_mode_result ( Switcher *sw, int mretv, char **input, uns
     return retv;
 }
 
-static void run_mode_destroy ( Switcher *sw )
+static void run_mode_destroy ( Mode *sw )
 {
     RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
     if ( rmpd != NULL ) {
@@ -326,23 +326,23 @@ static void run_mode_destroy ( Switcher *sw )
     }
 }
 
-static char *mgrv ( const Switcher *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
+static char *mgrv ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
-static int run_token_match ( const Switcher *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
+static int run_token_match ( const Mode *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );
 }
 
-static int run_is_not_ascii ( const Switcher *sw, unsigned int index )
+static int run_is_not_ascii ( const Mode *sw, unsigned int index )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     return is_not_ascii ( rmpd->cmd_list[index] );
 }
-Switcher run_mode =
+Mode run_mode =
 {
     .name            = "run",
     .keycfg          = NULL,

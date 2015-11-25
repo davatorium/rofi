@@ -69,7 +69,7 @@ static char **get_script_output ( const char *command, unsigned int *length )
     return retv;
 }
 
-static char **execute_executor ( Switcher *sw, const char *result, unsigned int *length )
+static char **execute_executor ( Mode *sw, const char *result, unsigned int *length )
 {
     char **retv = NULL;
 
@@ -81,7 +81,7 @@ static char **execute_executor ( Switcher *sw, const char *result, unsigned int 
     return retv;
 }
 
-static void script_switcher_free ( Switcher *sw )
+static void script_switcher_free ( Mode *sw )
 {
     if ( sw == NULL ) {
         return;
@@ -97,7 +97,7 @@ typedef struct _ScriptModePrivateData
     unsigned int cmd_list_length;
 } ScriptModePrivateData;
 
-static void script_mode_init ( Switcher *sw )
+static void script_mode_init ( Mode *sw )
 {
     if ( sw->private_data == NULL ) {
         ScriptModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
@@ -105,16 +105,16 @@ static void script_mode_init ( Switcher *sw )
         pd->cmd_list     = get_script_output ( (const char *) sw->ed, &( pd->cmd_list_length ) );
     }
 }
-static unsigned int script_mode_get_num_entries ( const Switcher *sw )
+static unsigned int script_mode_get_num_entries ( const Mode *sw )
 {
     const ScriptModePrivateData *rmpd = (const ScriptModePrivateData *) sw->private_data;
     return rmpd->cmd_list_length;
 }
 
-static SwitcherMode script_mode_result ( Switcher *sw, int mretv, char **input, unsigned int selected_line )
+static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
 {
     ScriptModePrivateData *rmpd      = (ScriptModePrivateData *) sw->private_data;
-    SwitcherMode          retv       = MODE_EXIT;
+    ModeMode              retv       = MODE_EXIT;
     char                  **new_list = NULL;
     unsigned int          new_length = 0;
 
@@ -147,7 +147,7 @@ static SwitcherMode script_mode_result ( Switcher *sw, int mretv, char **input, 
     return retv;
 }
 
-static void script_mode_destroy ( Switcher *sw )
+static void script_mode_destroy ( Mode *sw )
 {
     ScriptModePrivateData *rmpd = (ScriptModePrivateData *) sw->private_data;
     if ( rmpd != NULL ) {
@@ -156,27 +156,27 @@ static void script_mode_destroy ( Switcher *sw )
         sw->private_data = NULL;
     }
 }
-static char *mgrv ( const Switcher *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
+static char *mgrv ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
 {
     ScriptModePrivateData *rmpd = sw->private_data;
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
 
-static int script_token_match ( const Switcher *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
+static int script_token_match ( const Mode *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
 {
     ScriptModePrivateData *rmpd = sw->private_data;
     return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );
 }
 
-static int script_is_not_ascii ( const Switcher *sw, unsigned int index )
+static int script_is_not_ascii ( const Mode *sw, unsigned int index )
 {
     ScriptModePrivateData *rmpd = sw->private_data;
     return is_not_ascii ( rmpd->cmd_list[index] );
 }
 
-Switcher *script_switcher_parse_setup ( const char *str )
+Mode *script_switcher_parse_setup ( const char *str )
 {
-    Switcher     *sw    = g_malloc0 ( sizeof ( *sw ) );
+    Mode         *sw    = g_malloc0 ( sizeof ( *sw ) );
     char         *endp  = NULL;
     char         *parse = g_strdup ( str );
     unsigned int index  = 0;

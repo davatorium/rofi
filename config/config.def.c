@@ -29,9 +29,9 @@
 #include "rofi.h"
 
 Settings config = {
-    /** List of enabled switchers. */
-    /** -switchers */
-    .switchers         = "window,run,ssh",
+    /** List of enabled modi. */
+    /** -modi */
+    .modi              = "window,run,ssh",
     /** Set the default window opacity. */
     /** This option only works when running a composite manager. */
     /** -o */
@@ -118,7 +118,7 @@ Settings config = {
     .separator         = '\n',
     /** Height of an element in #chars */
     .element_height    =                                         1,
-    /** Sidebar mode, show the switchers */
+    /** Sidebar mode, show the modi */
     .sidebar_mode      = FALSE,
     /** Lazy mode setting */
     .lazy_filter_limit =                                     15000,

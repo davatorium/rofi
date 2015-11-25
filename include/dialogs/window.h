@@ -4,7 +4,7 @@
 #include <config.h>
 #ifdef WINDOW_MODE
 
-extern Switcher window_mode;
-extern Switcher window_mode_cd;
+extern Mode window_mode;
+extern Mode window_mode_cd;
 #endif // WINDOW_MODE
 #endif // __WINDOW_DIALOG_H__
