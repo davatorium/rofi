@@ -420,21 +420,6 @@ static void x11_figure_out_numlock_mask ( Display *display )
     // Combined mask, without NumLock
     CombinedMask = ShiftMask | MetaLMask | MetaRMask | AltMask | AltRMask | SuperRMask | SuperLMask | HyperLMask | HyperRMask |
                    ControlMask;
-    if ( Mod1Mask != NumlockMask ) {
-        CombinedMask |= Mod1Mask;
-    }
-    if ( Mod2Mask != NumlockMask ) {
-        CombinedMask |= Mod2Mask;
-    }
-    if ( Mod3Mask != NumlockMask ) {
-        CombinedMask |= Mod3Mask;
-    }
-    if ( Mod4Mask != NumlockMask ) {
-        CombinedMask |= Mod4Mask;
-    }
-    if ( Mod5Mask != NumlockMask ) {
-        CombinedMask |= Mod5Mask;
-    }
     XFreeModifiermap ( modmap );
 }
 
@@ -497,21 +482,6 @@ void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key )
         if ( HyperRMask == 0 ) {
             g_string_append_printf ( str, "X11 configured keyboard has no <b>HyperR</b> key.\n" );
         }
-    }
-    if ( strcasestr ( combo, "mod1" ) ) {
-        modmask |= Mod1Mask;
-    }
-    if ( strcasestr ( combo, "mod2" ) ) {
-        modmask |= Mod2Mask;
-    }
-    if ( strcasestr ( combo, "mod3" ) ) {
-        modmask |= Mod3Mask;
-    }
-    if ( strcasestr ( combo, "mod4" ) ) {
-        modmask |= Mod4Mask;
-    }
-    if ( strcasestr ( combo, "mod5" ) ) {
-        modmask |= Mod5Mask;
     }
 
     *mod = modmask;
