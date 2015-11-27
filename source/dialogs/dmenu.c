@@ -342,6 +342,17 @@ int dmenu_switcher_dialog ( void )
         }
         g_strfreev ( tokens );
     }
+    if ( find_arg ( "-dump" ) >= 0 ) {
+        char         **tokens = tokenize ( config.filter ? config.filter : "", config.case_sensitive );
+        unsigned int i        = 0;
+        for ( i = 0; i < cmd_list_length; i++ ) {
+            if ( token_match ( tokens, cmd_list[i], is_not_ascii ( cmd_list[i] ), config.case_sensitive ) ) {
+                dmenu_output_formatted_line ( pd->format, cmd_list[i], i, config.filter );
+            }
+        }
+        g_strfreev ( tokens );
+        return MODE_EXIT;
+    }
 
     do {
         unsigned int next_pos = pd->selected_line;
