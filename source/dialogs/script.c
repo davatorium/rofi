@@ -185,7 +185,7 @@ Mode *script_switcher_parse_setup ( const char *str )
             g_strlcpy ( sw->name, token, 32 );
         }
         else if ( index == 1 ) {
-            sw->ed = (void *) g_strdup ( token );
+            sw->ed = (void *) rofi_expand_path ( token );
         }
         index++;
     }

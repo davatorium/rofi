@@ -37,6 +37,7 @@
 #include <sys/types.h>
 #include <sys/file.h>
 #include <sys/stat.h>
+#include <pwd.h>
 #include <ctype.h>
 #include "helper.h"
 #include "x11-helper.h"
@@ -660,4 +661,27 @@ int is_not_ascii ( const char * str )
         return 1;
     }
     return 0;
+}
+
+char *rofi_expand_path ( const char *input )
+{
+    char **str = g_strsplit ( input, G_DIR_SEPARATOR_S, -1 );
+    for ( unsigned int i = 0; str && str[i]; i++ ) {
+        // Replace ~ with current user homedir.
+        if ( str[i][0] == '~' && str[i][1] == '\0' ) {
+            g_free ( str[i] );
+            str[i] = g_strdup ( g_get_home_dir () );
+        }
+        // If other user, ask getpwnam.
+        else if ( str[i][0] == '~' ) {
+            struct passwd *p = getpwnam ( &( str[i][1] ) );
+            if ( p != NULL ) {
+                g_free ( str[i] );
+                str[i] = g_strdup ( p->pw_dir );
+            }
+        }
+    }
+    char *retv = g_build_filenamev ( str );
+    g_strfreev ( str );
+    return retv;
 }
