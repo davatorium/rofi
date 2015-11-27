@@ -38,6 +38,8 @@
 #include "dialogs/script.h"
 #include "helper.h"
 
+static char *expand_script_path ( const char * );
+
 static char **get_script_output ( const char *command, unsigned int *length )
 {
     char **retv = NULL;
@@ -185,7 +187,12 @@ Mode *script_switcher_parse_setup ( const char *str )
             g_strlcpy ( sw->name, token, 32 );
         }
         else if ( index == 1 ) {
-            sw->ed = (void *) g_strdup ( token );
+            char *script_path = expand_script_path ( token );
+            if ( script_path == NULL ) {
+              fprintf ( stderr, "Invalid script for command '%s'\n", str );
+            } else {
+              sw->ed = (void *) g_strdup ( script_path );
+            }
         }
         index++;
     }
@@ -210,3 +217,18 @@ Mode *script_switcher_parse_setup ( const char *str )
     return NULL;
 }
 
+static char *expand_script_path ( const char *path )
+{
+  char *home, buf[PATH_MAX];
+
+  if ( *path=='~' && ( home = getenv( "HOME" ) ) ) {
+    char s[PATH_MAX];
+
+    g_strlcpy ( s, home, sizeof ( s ) );
+    g_strlcat ( s, path + 1, sizeof ( s ) );
+
+    return realpath ( s, buf);
+  } else {
+    return realpath ( path, buf );
+  }
+}
