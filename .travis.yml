@@ -13,8 +13,8 @@ addons:
           - libcairo2-dev
           - libstartup-notification0-dev
           - xvfb
-          - xdotool
           - discount
+          - xdotool
 
 compiler:
   - gcc
