@@ -2,10 +2,10 @@
 
 SP=$(readlink -f "$0")
 DIR=$(dirname "$SP")
-echo $DIR
+echo "$DIR/test_script.sh"
 # wait till it is up, run rofi with error message
 sleep 1;
-rofi -switchers "custom:$DIR/test_script.sh" -show custom & 
+rofi -modi "custom:$DIR/test_script.sh" -show custom & 
 RPID=$!
 
 # send enter.
