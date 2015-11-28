@@ -626,10 +626,11 @@ For more information on supported markup see [here](https://developer.gnome.org/
 
 Make **rofi** reacts like a normal application window. Useful for scripts like Clerk that are basically an application.
 
-`-fake-transparency`
+`-dump`
 
-Enable fake transparency. This only works with transparent background color in the theme, not the opacity setting.
-
+Dump the filtered list to stdout and quit.
+This can be used to get the list as **rofi** would filter it.
+Use together with `-filter` command. 
 
 ### Message dialog
 
@@ -644,6 +645,10 @@ Message can be multi-line.
 
 Make **rofi** create a pid file and check this on startup. Avoiding multiple copies running
 simultaneously. This is useful when running **rofi** from a keybinding daemon.
+
+`-fake-transparency`
+
+Enable fake transparency. This only works with transparent background color in the theme, not the opacity setting.
 
 ### Debug
 
