@@ -351,7 +351,7 @@ int dmenu_switcher_dialog ( void )
             }
         }
         g_strfreev ( tokens );
-        return MODE_EXIT;
+        return TRUE;
     }
 
     do {
