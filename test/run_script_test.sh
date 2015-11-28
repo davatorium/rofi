@@ -18,6 +18,7 @@ xdotool key Return
 wait ${RPID}
 RETV=$?
 OUTPUT=$(cat output.txt | tr '\n' ' ')
+echo ${OUTPUT}
 if [ "${OUTPUT}" != 'noot ' ]
 then
     exit 1

@@ -680,6 +680,13 @@ char *rofi_expand_path ( const char *input )
                 str[i] = g_strdup ( p->pw_dir );
             }
         }
+        else if ( i == 0 ) {
+            char * s = str[i];
+            if ( input[0] == G_DIR_SEPARATOR ) {
+                str[i] = g_strdup_printf ( "%s%s", G_DIR_SEPARATOR_S, s );
+                g_free ( s );
+            }
+        }
     }
     char *retv = g_build_filenamev ( str );
     g_strfreev ( str );
