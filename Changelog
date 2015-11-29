@@ -1,174 +1,174 @@
 0.15.12 (unreleased):
-	New features:
-		- Initial `-dump` command for dmenu mode. (#216)
-	Improvements:
-		- Correctly handle modifier keys now. Should now support most weird keyboard layouts and switching between them.
-		  (#268, #265, #286)
-		- Correctly set locale, fixing issues with entering special characters. (#282)
-		- DRun mode support `NoDisplay` setting (#283)
-		- Pango markup is matched when filtering. (#273)		
-	Bug fixes:
-		- Fix segfault on empty list and moving through it. (#256,#275)
-		- Fix one off of colors (#269)
-		- Drun fix uninitialized memory (#285) 
+    New features:
+        - Initial `-dump` command for dmenu mode. (#216)
+    Improvements:
+        - Correctly handle modifier keys now. Should now support most weird keyboard layouts and switching between them.
+          (#268, #265, #286)
+        - Correctly set locale, fixing issues with entering special characters. (#282)
+        - DRun mode support `NoDisplay` setting (#283)
+        - Pango markup is matched when filtering. (#273)
+    Bug fixes:
+        - Fix segfault on empty list and moving through it. (#256,#275)
+        - Fix one off of colors (#269)
+        - Drun fix uninitialized memory (#285)
 
 0.15.11:
-	New features:
-		- (Experimental) Desktop file support
-	Improvement:
-		- Add xdg-terminal to rofi-sensible-terminal
-	Bug fixes:
-		- manpage fixes (#261)
-		- Crash in error mesg on invalid config
-		- Fix urgent and active being activated at same time
-		- Fix crasher on empty list
+    New features:
+        - (Experimental) Desktop file support
+    Improvement:
+        - Add xdg-terminal to rofi-sensible-terminal
+    Bug fixes:
+        - manpage fixes (#261)
+        - Crash in error mesg on invalid config
+        - Fix urgent and active being activated at same time
+        - Fix crasher on empty list
 0.15.10:
-	New feature:
-		- Support for Startup Notification
-		- Standalone mode in dmenu
-		- ssh: known_hosts parsing
-		- Full screen support
-		- Glob style matching
-		- Cairo drawing
-		- Fast ascii filtering (thx to Tom Hinton)
-		- Combi bang support
-		- normal window mode for dmenu
-		- Startup notification support
-		- Current desktop window mode
-	Improvements:
-		- Keep same line selected
-		- Cleanup menu code by re-using Switcher
-		- Fix drawing on resize
-		- Fix rofi -h output
-		- allow disabling of tokenizing
-		- Dragging scrollbar
-		- Allow none type on separator
-		- Dmenu support markup in fields
-	Bug fixes:
-		- dmenu use switcher system
-		- release keyboard on focus out event, regrab it on focus in event
-		- Support `\0` separator
+    New feature:
+        - Support for Startup Notification
+        - Standalone mode in dmenu
+        - ssh: known_hosts parsing
+        - Full screen support
+        - Glob style matching
+        - Cairo drawing
+        - Fast ascii filtering (thx to Tom Hinton)
+        - Combi bang support
+        - normal window mode for dmenu
+        - Startup notification support
+        - Current desktop window mode
+    Improvements:
+        - Keep same line selected
+        - Cleanup menu code by re-using Switcher
+        - Fix drawing on resize
+        - Fix rofi -h output
+        - allow disabling of tokenizing
+        - Dragging scrollbar
+        - Allow none type on separator
+        - Dmenu support markup in fields
+    Bug fixes:
+        - dmenu use switcher system
+        - release keyboard on focus out event, regrab it on focus in event
+        - Support `\0` separator
 
 0.15.8:
-	New feature:
-		- Scrollbar.
-		- More custom keybindings.
-	Improvements:
-		- dmenu compatibility.
-		- Don't refilter on all keypresses.
-		- Hide Docks and desktops from the window list. (remove i3bar hack)
-	Bug fixes:
-		- Fix Desktop numbering.
-		- Mis-alignment of arrow down box with message (#189)
-		- Fix issue with mouse interaction needing keyboard press to complete.
-		- Fix -no-custom still allows escape to quit.
-		- Fix compiler warnings.
-		- Fix dmenu mode. (#200)
-		- Break CMD AI to have dmenu compatibility.
-		- Fix processing of signals.
+    New feature:
+        - Scrollbar.
+        - More custom keybindings.
+    Improvements:
+        - dmenu compatibility.
+        - Don't refilter on all keypresses.
+        - Hide Docks and desktops from the window list. (remove i3bar hack)
+    Bug fixes:
+        - Fix Desktop numbering.
+        - Mis-alignment of arrow down box with message (#189)
+        - Fix issue with mouse interaction needing keyboard press to complete.
+        - Fix -no-custom still allows escape to quit.
+        - Fix compiler warnings.
+        - Fix dmenu mode. (#200)
+        - Break CMD AI to have dmenu compatibility.
+        - Fix processing of signals.
 
 0.15.7:
-	Bug fixes:
-		- Auto-wrap text in message dialog.
-		- Fix ellipsiziing in entry box.
-		- Fix crash on empty list with custom input (#175).
-		- SSH: Ignore comments in Host line (#178).
-		- Fix issues with BSD (#180)
-	New feature:
-		- Markup support error message.
-		- Implement -no-custom as alternative to -only-select (#176).
-		- Fuzzy match option. (#133)
-	Improvements:
-		- Make more keys user-configurable. (#66)
+    Bug fixes:
+        - Auto-wrap text in message dialog.
+        - Fix ellipsiziing in entry box.
+        - Fix crash on empty list with custom input (#175).
+        - SSH: Ignore comments in Host line (#178).
+        - Fix issues with BSD (#180)
+    New feature:
+        - Markup support error message.
+        - Implement -no-custom as alternative to -only-select (#176).
+        - Fuzzy match option. (#133)
+    Improvements:
+        - Make more keys user-configurable. (#66)
 
 0.15.5:
-	Bug fixes:
-		- Reduce time waiting for keyboard grab (#153)
-		- Also grab Key Release on exit. (#167)
-		- Fix failing font size estimation code.
-	New feature:
-		- [DMENU] Allow to select line matching pattern from cmdline.(#165)
-		- [DMENU] Allow to set filter from cmdline. (#164)
-		- [DMENU] Allow output to be formatted (string, filter, index, index 1 based)
-		- [DMENU] Only match input lines mode.
-		- [DMENU] Custom keybinding for return value.(#154,#156)
-		- [DMENU] Allow additional message line. (#166)
-	Improvements:
-		- (Start) adding keybinding support (#131)
-		- Cleanup warnings from clang checkers.
-		- Fix keybindings on Russian layout (#169)
-	Open bugs:
-		- Urgency hint not always working (#162)
+    Bug fixes:
+        - Reduce time waiting for keyboard grab (#153)
+        - Also grab Key Release on exit. (#167)
+        - Fix failing font size estimation code.
+    New feature:
+        - [DMENU] Allow to select line matching pattern from cmdline.(#165)
+        - [DMENU] Allow to set filter from cmdline. (#164)
+        - [DMENU] Allow output to be formatted (string, filter, index, index 1 based)
+        - [DMENU] Only match input lines mode.
+        - [DMENU] Custom keybinding for return value.(#154,#156)
+        - [DMENU] Allow additional message line. (#166)
+    Improvements:
+        - (Start) adding keybinding support (#131)
+        - Cleanup warnings from clang checkers.
+        - Fix keybindings on Russian layout (#169)
+    Open bugs:
+        - Urgency hint not always working (#162)
 
 0.15.4:
-	New feature:
-		- Number mode for dmenu. allows user to get index back instead of content.
-		- Combi mode. Combine multiple views into one.
-		- Highlight current window.
-		- Highlight urgent and active row in window view.
-		- DMenu allow rows to be highlighted. (single, multiple, ranges)
-		- New color specification based on I3. (Can be enabled by settings) (#147)
-		- /etc/hosts support for ssh mode. (#137)
-	Bug fixes:
-		- On a single item in list disable auto-select.
-		- Fix cursor position (#140)
-		- Resolving manpage. (#142)
-		- Fix pasting cursor one off. (#150)
-		- Fix grave key -> ctrl+grave (#151)
-	Improvements:
-		- Better handle input methods.. Now international keyboard layout works as expected: `e ->è
-		- Be more verbose about starting in daemon mode.
-		- Print a user-understandable error when launching in daemon mode without a key bound.
-		- Add Ctrl(Shift)Tab to switch modi's.
-		- Auto size number of columns based on available columns.
-		- Better way to determine font height.
-		- Fix font vertical centering.
-		- One-off when pasting text.
-		- Improve rendering of boxes (fixed height 	and margins)
-		- Fix modi switcher boxes size+layout.
-		- Reduce work on redraws (do not always calculate new size/position), set text, etc.
-		- OO-ify the switchers.
-		- Remove unneeded filtered array.
-	Cleanup:
-		- Do not lug argc,argv around everywhere.
+    New feature:
+        - Number mode for dmenu. allows user to get index back instead of content.
+        - Combi mode. Combine multiple views into one.
+        - Highlight current window.
+        - Highlight urgent and active row in window view.
+        - DMenu allow rows to be highlighted. (single, multiple, ranges)
+        - New color specification based on I3. (Can be enabled by settings) (#147)
+        - /etc/hosts support for ssh mode. (#137)
+    Bug fixes:
+        - On a single item in list disable auto-select.
+        - Fix cursor position (#140)
+        - Resolving manpage. (#142)
+        - Fix pasting cursor one off. (#150)
+        - Fix grave key -> ctrl+grave (#151)
+    Improvements:
+        - Better handle input methods.. Now international keyboard layout works as expected: `e ->è
+        - Be more verbose about starting in daemon mode.
+        - Print a user-understandable error when launching in daemon mode without a key bound.
+        - Add Ctrl(Shift)Tab to switch modi's.
+        - Auto size number of columns based on available columns.
+        - Better way to determine font height.
+        - Fix font vertical centering.
+        - One-off when pasting text.
+        - Improve rendering of boxes (fixed height     and margins)
+        - Fix modi switcher boxes size+layout.
+        - Reduce work on redraws (do not always calculate new size/position), set text, etc.
+        - OO-ify the switchers.
+        - Remove unneeded filtered array.
+    Cleanup:
+        - Do not lug argc,argv around everywhere.
 
 0.15.2:
-	Removed features:
-		- Remove (broken) hmode
-		- Old style key binding and mode launcher.
-		- Old TIMING code.
-	New features:
-		- Word movement in entry box. (#126)
-		- PID file to avoid duplicate Rofi.
-		- Generic keybinding and launching for modi. (#128)
-		- Auto select mode (previously called zeltak mode)
-	Bug fixes:
-		- Shift left/right movement between modi (#125)
-		- Document updates (#123,#116,#124,etc.)
-		- DMenu mode based on executable name with full path (#119)
-		- Fix missing keystrokes.
-		- On broken UTF-8 show everything up to the broken character. (#121)
-	Others:
-		- Significant code refactoring.
-		- Rewriting of config parser, Commandline Parser uses structure from Xresource parser.
-		  Avoiding duplication and making it easier to maintain.
-	Performance improvements:
-		- Fix blocking on grabbing keyboard.
+    Removed features:
+        - Remove (broken) hmode
+        - Old style key binding and mode launcher.
+        - Old TIMING code.
+    New features:
+        - Word movement in entry box. (#126)
+        - PID file to avoid duplicate Rofi.
+        - Generic keybinding and launching for modi. (#128)
+        - Auto select mode (previously called zeltak mode)
+    Bug fixes:
+        - Shift left/right movement between modi (#125)
+        - Document updates (#123,#116,#124,etc.)
+        - DMenu mode based on executable name with full path (#119)
+        - Fix missing keystrokes.
+        - On broken UTF-8 show everything up to the broken character. (#121)
+    Others:
+        - Significant code refactoring.
+        - Rewriting of config parser, Commandline Parser uses structure from Xresource parser.
+          Avoiding duplication and making it easier to maintain.
+    Performance improvements:
+        - Fix blocking on grabbing keyboard.
 
 0.15.1:
-	New features:
-		- Improved transparency
-		- Changelog
-		- Case sensitivity support, with indicator. (Edwin Pujols)
-		- Mouse scroll wheel support
-		- Alternate Row colors
-		- Run-list command for adding entries to run-dialog
-		- Dmenu: preselect line.
-	Bug fixes:
-		- Manpage fixes
-		- SSH viewer, support lists of hostnames (Tblue)
-		- SSH improve parsing of odly indented host files
-		- Do not loose keypresses when system under load
-		- Cleanups, small fixes. (Edwin Pujols, blueyed )
-	Performance improvements:
-		- Lazy refilter for large lists
+    New features:
+        - Improved transparency
+        - Changelog
+        - Case sensitivity support, with indicator. (Edwin Pujols)
+        - Mouse scroll wheel support
+        - Alternate Row colors
+        - Run-list command for adding entries to run-dialog
+        - Dmenu: preselect line.
+    Bug fixes:
+        - Manpage fixes
+        - SSH viewer, support lists of hostnames (Tblue)
+        - SSH improve parsing of odly indented host files
+        - Do not loose keypresses when system under load
+        - Cleanups, small fixes. (Edwin Pujols, blueyed )
+    Performance improvements:
+        - Lazy refilter for large lists
