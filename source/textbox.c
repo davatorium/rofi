@@ -293,7 +293,8 @@ static void texbox_update ( textbox *tb )
 
         // Set ARGB
         col = tb->color_fg;
-        cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
+        double scale = tb->tbft & SELECTED ? 0.5 : 1.0;
+        cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha * scale );
         cairo_move_to ( tb->main_draw, x, y );
         pango_cairo_show_layout ( tb->main_draw, tb->layout );
 

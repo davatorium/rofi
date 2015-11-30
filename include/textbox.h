@@ -47,15 +47,16 @@ typedef enum
     NORMAL     = 0,
     URGENT     = 1,
     ACTIVE     = 2,
-    MARKUP     = 4,
+    SELECTED   = 4,
+    MARKUP     = 8,
 
     // Alternating row.
-    ALT        = 8,
+    ALT        = 16,
     // Render font highlighted (inverted colors.)
-    HIGHLIGHT  = 16,
+    HIGHLIGHT  = 32,
 
     FMOD_MASK  = ( ALT | HIGHLIGHT ),
-    STATE_MASK = ~( MARKUP | ALT | HIGHLIGHT )
+    STATE_MASK = ~( SELECTED | MARKUP | ALT | HIGHLIGHT )
 } TextBoxFontType;
 
 textbox* textbox_create ( TextboxFlags flags,

@@ -56,6 +56,8 @@ typedef struct _DmenuModePrivateData
     unsigned int      num_urgent_list;
     struct range_pair * active_list;
     unsigned int      num_active_list;
+    struct range_pair * selected_list;
+    unsigned int      num_selected_list;
     // List with entries.
     char              **cmd_list;
     unsigned int      cmd_list_length;
@@ -152,6 +154,11 @@ static char *get_display_data ( const Mode *data, unsigned int index, int *state
             *state |= URGENT;
         }
     }
+    for ( unsigned int i = 0; i < pd->num_selected_list; i++ ) {
+        if ( index >= pd->selected_list[i].start && index <= pd->selected_list[i].stop ) {
+            *state |= SELECTED;
+        }
+    }
     return get_entry ? g_strdup ( retv[index] ) : NULL;
 }
 
@@ -221,6 +228,7 @@ static void dmenu_mode_free ( Mode *sw )
         g_free ( pd->cmd_list );
         g_free ( pd->urgent_list );
         g_free ( pd->active_list );
+        g_free ( pd->selected_list );
 
         g_free ( pd );
         sw->private_data = NULL;
@@ -386,6 +394,21 @@ int dmenu_switcher_dialog ( void )
             dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
             if ( ( mretv & MENU_SHIFT ) ) {
                 restart = TRUE;
+                int seen = FALSE;
+                if ( pd->selected_list != NULL ) {
+                    if ( pd->selected_list[pd->num_selected_list - 1].stop == ( pd->selected_line - 1 ) ) {
+                        pd->selected_list[pd->num_selected_list - 1].stop = pd->selected_line;
+                        seen                                              = TRUE;
+                    }
+                }
+                if ( !seen ) {
+                    pd->selected_list = g_realloc ( pd->selected_list,
+                                                    ( pd->num_selected_list + 1 ) * sizeof ( struct range_pair ) );
+                    pd->selected_list[pd->num_selected_list].start = pd->selected_line;
+                    pd->selected_list[pd->num_selected_list].stop  = pd->selected_line;
+                    ( pd->num_selected_list )++;
+                }
+
                 // Move to next line.
                 pd->selected_line = MIN ( next_pos, cmd_list_length - 1 );
             }
