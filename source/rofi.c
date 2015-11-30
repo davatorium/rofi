@@ -91,6 +91,7 @@ unsigned int      curr_switcher = 0;
 XVisualInfo       vinfo;
 
 cairo_surface_t   *surface = NULL;
+cairo_surface_t   *fake_bg = NULL;
 cairo_t           *draw    = NULL;
 XIM               xim;
 XIC               xic;
@@ -179,55 +180,54 @@ static int levenshtein ( const char *s1, const char *s2 )
 
 typedef struct MenuState
 {
-    Mode            *sw;
-    unsigned int    menu_lines;
-    unsigned int    max_elements;
-    unsigned int    max_rows;
-    unsigned int    columns;
+    Mode         *sw;
+    unsigned int menu_lines;
+    unsigned int max_elements;
+    unsigned int max_rows;
+    unsigned int columns;
 
     // window width,height
-    unsigned int    w, h;
-    int             x, y;
-    unsigned int    element_width;
-    int             top_offset;
+    unsigned int w, h;
+    int          x, y;
+    unsigned int element_width;
+    int          top_offset;
 
     // Update/Refilter list.
-    int             update;
-    int             refilter;
-    int             rchanged;
-    int             cur_page;
+    int          update;
+    int          refilter;
+    int          rchanged;
+    int          cur_page;
 
     // Entries
-    textbox         *text;
-    textbox         *prompt_tb;
-    textbox         *message_tb;
-    textbox         *case_indicator;
-    textbox         **boxes;
-    scrollbar       *scrollbar;
-    int             *distance;
-    unsigned int    *line_map;
+    textbox      *text;
+    textbox      *prompt_tb;
+    textbox      *message_tb;
+    textbox      *case_indicator;
+    textbox      **boxes;
+    scrollbar    *scrollbar;
+    int          *distance;
+    unsigned int *line_map;
 
-    unsigned int    num_lines;
+    unsigned int num_lines;
 
     // Selected element.
-    unsigned int    selected;
-    unsigned int    filtered_lines;
+    unsigned int selected;
+    unsigned int filtered_lines;
     // Last offset in paginating.
-    unsigned int    last_offset;
+    unsigned int last_offset;
 
-    KeySym          prev_key;
-    Time            last_button_press;
+    KeySym       prev_key;
+    Time         last_button_press;
 
-    int             quit;
-    int             skip_absorb;
+    int          quit;
+    int          skip_absorb;
     // Return state
-    unsigned int    *selected_line;
-    MenuReturn      retv;
-    int             *lines_not_ascii;
-    int             line_height;
-    unsigned int    border;
-    cairo_surface_t *bg;
-    workarea        mon;
+    unsigned int *selected_line;
+    MenuReturn   retv;
+    int          *lines_not_ascii;
+    int          line_height;
+    unsigned int border;
+    workarea     mon;
 }MenuState;
 
 static Window create_window ( Display *display )
@@ -289,10 +289,6 @@ static void menu_free_state ( MenuState *state )
     textbox_free ( state->prompt_tb );
     textbox_free ( state->case_indicator );
     scrollbar_free ( state->scrollbar );
-    if ( state->bg ) {
-        cairo_surface_destroy ( state->bg );
-        state->bg = NULL;
-    }
 
     for ( unsigned int i = 0; i < state->max_elements; i++ ) {
         textbox_free ( state->boxes[i] );
@@ -973,8 +969,8 @@ static void menu_update ( MenuState *state )
     cairo_t         *d     = cairo_create ( surf );
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
     if ( config.fake_transparency ) {
-        if ( state->bg != NULL ) {
-            cairo_set_source_surface ( d, state->bg,
+        if ( fake_bg != NULL ) {
+            cairo_set_source_surface ( d, fake_bg,
                                        -(double) ( state->x - state->mon.x ),
                                        -(double) ( state->y - state->mon.y ) );
             cairo_paint ( d );
@@ -1155,21 +1151,23 @@ static void menu_resize ( MenuState *state )
 
 static void menu_setup_fake_transparency ( Display *display, MenuState *state )
 {
-    Window          root   = DefaultRootWindow ( display );
-    int             screen = DefaultScreen ( display );
-    cairo_surface_t *s     = cairo_xlib_surface_create ( display,
-                                                         root,
-                                                         DefaultVisual ( display, screen ),
-                                                         DisplayWidth ( display, screen ),
-                                                         DisplayHeight ( display, screen ) );
+    if ( fake_bg == NULL ) {
+        Window          root   = DefaultRootWindow ( display );
+        int             screen = DefaultScreen ( display );
+        cairo_surface_t *s     = cairo_xlib_surface_create ( display,
+                                                             root,
+                                                             DefaultVisual ( display, screen ),
+                                                             DisplayWidth ( display, screen ),
+                                                             DisplayHeight ( display, screen ) );
 
-    state->bg = cairo_image_surface_create ( get_format (), state->mon.w, state->mon.h );
-    cairo_t *dr = cairo_create ( state->bg );
-    cairo_set_source_surface ( dr, s, -state->mon.x, -state->mon.y );
-    cairo_paint ( dr );
-    cairo_destroy ( dr );
-    cairo_surface_destroy ( s );
-    TICK_N ( "Fake transparency" );
+        fake_bg = cairo_image_surface_create ( get_format (), state->mon.w, state->mon.h );
+        cairo_t *dr = cairo_create ( fake_bg );
+        cairo_set_source_surface ( dr, s, -state->mon.x, -state->mon.y );
+        cairo_paint ( dr );
+        cairo_destroy ( dr );
+        cairo_surface_destroy ( s );
+        TICK_N ( "Fake transparency" );
+    }
 }
 
 MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_line, unsigned int *next_pos, const char *message )
@@ -1754,6 +1752,11 @@ static void teardown ( int pfd )
 
     // Release the window.
     release_keyboard ( display );
+
+    if ( fake_bg ) {
+        cairo_surface_destroy ( fake_bg );
+        fake_bg = NULL;
+    }
     if ( draw ) {
         cairo_destroy ( draw );
         draw = NULL;
