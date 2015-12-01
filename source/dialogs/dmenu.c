@@ -92,8 +92,10 @@ static char **get_dmenu ( unsigned int *length )
             break;
         }
     }
-    retv[( *length ) + 1] = NULL;
-    retv                  = g_realloc ( retv, ( *length + 1 ) * sizeof ( char* ) );
+    if(retv != NULL ) {
+        retv[( *length ) + 1] = NULL;
+        retv                  = g_realloc ( retv, ( *length + 1 ) * sizeof ( char* ) );
+    }
     TICK_N ( "Read stdin STOP" );
     return retv;
 }
