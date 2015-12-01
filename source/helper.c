@@ -46,10 +46,6 @@
 static int  stored_argc   = 0;
 static char **stored_argv = NULL;
 
-// TODO: is this safe?
-#define NON_ASCII_NON_NULL( x )    ( ( ( x ) < 0 ) )
-#define ASCII_NON_NULL( x )        ( ( ( x ) > 0 ) )
-
 void cmd_set_arguments ( int argc, char **argv )
 {
     stored_argc = argc;
@@ -280,7 +276,7 @@ int find_arg_uint ( const char * const key, unsigned int *val )
 
 char helper_parse_char ( const char *arg )
 {
-    char retv = -1;
+    char retv = 0x80;
     int  len  = strlen ( arg );
     // If the length is 1, it is not escaped.
     if ( len == 1 ) {
@@ -327,7 +323,7 @@ char helper_parse_char ( const char *arg )
     else if ( len > 2 && arg[0] == '\\' && arg[1] == 'x' ) {
         retv = (char) strtol ( &arg[2], NULL, 16 );
     }
-    if ( retv < 0 ) {
+    if ( (retv&0x80) != 0 ) {
         fprintf ( stderr, "Failed to parse character string: \"%s\"\n", arg );
         // for now default to newline.
         retv = '\n';
@@ -346,39 +342,6 @@ int find_arg_char ( const char * const key, char *val )
     return FALSE;
 }
 
-/*
- * auxiliary to `fuzzy-token-match' below;
- */
-static void advance_unicode_glyph ( char** token_in, char** input_in )
-{
-    // determine the end of the glyph from token
-
-    char *token = *token_in;
-    char *input = *input_in;
-
-    while ( NON_ASCII_NON_NULL ( *token ) ) {
-        token++;
-    }
-
-    // now we know the glyph length, we can scan for that substring in input
-    // temporarily add a null-terminator in case:
-    char glyph_end = *token;
-    *token = 0;
-    char *match = strstr ( input, *token_in );
-    *token = glyph_end;
-
-    if ( match ) {
-        *token_in = token;
-        *input_in = match;
-    }
-    else {
-        // wind input along to the end so that we fail
-        while ( **input_in ) {
-            ( *input_in )++;
-        }
-    }
-}
-
 /**
  * Shared 'token_match' function.
  * Matches tokenized.
@@ -389,37 +352,21 @@ static int fuzzy_token_match ( char **tokens, const char *input, __attribute__( 
 
     // Do a tokenized match.
 
-    // TODO: this doesn't work for unicode input, because it may split a codepoint which is over two bytes.
-    //       mind you, it didn't work before I fiddled with it.
-
-    // this could perhaps be a bit more efficient by iterating over all the tokens at once.
-
     if ( tokens ) {
-        char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : (char *) input;
+        char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : (char *) g_ascii_strdown(input,-1);
         for ( int j = 0; match && tokens[j]; j++ ) {
             char *t     = compk;
             char *token = tokens[j];
 
             while ( *t && *token ) {
-                if ( *token > 0 ) { // i.e. we are at an ascii codepoint
-                    if ( ( case_sensitive && ( *t == *token ) ) ||
-                         ( !case_sensitive && ( tolower ( *t ) == tolower ( *token ) ) ) ) {
-                        token++;
-                    }
+                if (  ( g_utf8_get_char(t) == g_utf8_get_char(token) ) ) {
+                    token = g_utf8_next_char(token);
                 }
-                else{
-                    // we are not at an ascii codepoint, and so we need to do something
-                    // complicated
-                    advance_unicode_glyph ( &token, &t );
-                }
-                t++;
+                t = g_utf8_next_char(t);
             }
-
             match = !( *token );
         }
-        if ( not_ascii ) {
-            g_free ( compk );
-        }
+        g_free ( compk );
     }
 
     return match;
@@ -569,7 +516,7 @@ void config_sanity_check ( Display *display )
         config.threads = 1;
         long procs = sysconf ( _SC_NPROCESSORS_CONF );
         if ( procs > 0 ) {
-            config.threads = MIN ( procs, UINT_MAX );
+            config.threads = MIN ( procs, 128l );
         }
     }
     // If alternative row is not set, copy the normal background color.
@@ -650,17 +597,6 @@ void config_sanity_check ( Display *display )
     }
 
     g_string_free ( msg, TRUE );
-}
-
-int is_not_ascii ( const char * str )
-{
-    while ( ASCII_NON_NULL ( *str ) ) {
-        str++;
-    }
-    if ( *str ) {
-        return 1;
-    }
-    return 0;
 }
 
 char *rofi_expand_path ( const char *input )

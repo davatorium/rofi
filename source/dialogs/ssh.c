@@ -390,7 +390,7 @@ static int ssh_token_match ( const Mode *sw, char **tokens, int not_ascii, int c
 static int ssh_is_not_ascii ( const Mode *sw, unsigned int index )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
-    return is_not_ascii ( rmpd->cmd_list[index] );
+    return !g_str_is_ascii ( rmpd->cmd_list[index] );
 }
 
 Mode ssh_mode =

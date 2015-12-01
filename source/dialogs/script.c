@@ -171,7 +171,7 @@ static int script_token_match ( const Mode *sw, char **tokens, int not_ascii, in
 static int script_is_not_ascii ( const Mode *sw, unsigned int index )
 {
     ScriptModePrivateData *rmpd = sw->private_data;
-    return is_not_ascii ( rmpd->cmd_list[index] );
+    return !g_str_is_ascii ( rmpd->cmd_list[index] );
 }
 
 Mode *script_switcher_parse_setup ( const char *str )

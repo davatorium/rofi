@@ -298,7 +298,7 @@ static int dmenu_token_match ( const Mode *sw, char **tokens, int not_ascii, int
 static int dmenu_is_not_ascii ( const Mode *sw, unsigned int index )
 {
     DmenuModePrivateData *rmpd = (DmenuModePrivateData *) sw->private_data;
-    return is_not_ascii ( rmpd->cmd_list[index] );
+    return !g_str_is_ascii ( rmpd->cmd_list[index] );
 }
 
 Mode dmenu_mode =
@@ -345,7 +345,7 @@ int dmenu_switcher_dialog ( void )
         char         **tokens = tokenize ( select, config.case_sensitive );
         unsigned int i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
-            if ( token_match ( tokens, cmd_list[i], is_not_ascii ( cmd_list[i] ), config.case_sensitive ) ) {
+            if ( token_match ( tokens, cmd_list[i], !g_str_is_ascii( cmd_list[i] ), config.case_sensitive ) ) {
                 pd->selected_line = i;
                 break;
             }
@@ -356,7 +356,7 @@ int dmenu_switcher_dialog ( void )
         char         **tokens = tokenize ( config.filter ? config.filter : "", config.case_sensitive );
         unsigned int i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
-            if ( token_match ( tokens, cmd_list[i], is_not_ascii ( cmd_list[i] ), config.case_sensitive ) ) {
+            if ( token_match ( tokens, cmd_list[i], !g_str_is_ascii( cmd_list[i] ), config.case_sensitive ) ) {
                 dmenu_output_formatted_line ( pd->format, cmd_list[i], i, config.filter );
             }
         }

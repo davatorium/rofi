@@ -579,7 +579,7 @@ static int window_is_not_ascii ( const Mode *sw, unsigned int index )
     int                       idx = winlist_find ( cache_client, ids->array[index] );
     g_assert ( idx >= 0 );
     client                    *c = cache_client->data[idx];
-    return is_not_ascii ( c->role ) || is_not_ascii ( c->class ) || is_not_ascii ( c->title ) || is_not_ascii ( c->name );
+    return !g_str_is_ascii ( c->role ) || !g_str_is_ascii ( c->class ) || !g_str_is_ascii ( c->title ) || !g_str_is_ascii ( c->name );
 }
 
 Mode window_mode =

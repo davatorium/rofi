@@ -151,10 +151,4 @@ char helper_parse_char ( const char *arg );
  */
 void cmd_set_arguments ( int argc, char **argv );
 
-/**
- * @param str a UTF8 string
- * @return 1 if the string contains any non-ascii codepoints
- */
-int is_not_ascii ( const char *str );
-
 #endif // ROFI_HELPER_H

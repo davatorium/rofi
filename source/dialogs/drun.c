@@ -338,9 +338,9 @@ static int drun_is_not_ascii ( const Mode *sw, unsigned int index )
 {
     DRunModePrivateData *pd = (DRunModePrivateData *) sw->private_data;
     if ( pd->entry_list[index].generic_name ) {
-        return is_not_ascii ( pd->entry_list[index].name ) || is_not_ascii ( pd->entry_list[index].generic_name );
+        return !g_str_is_ascii ( pd->entry_list[index].name ) || !g_str_is_ascii ( pd->entry_list[index].generic_name );
     }
-    return is_not_ascii ( pd->entry_list[index].name );
+    return !g_str_is_ascii ( pd->entry_list[index].name );
 }
 
 Mode drun_mode =
