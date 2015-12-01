@@ -9,6 +9,7 @@ bin_PROGRAMS=rofi
 dist_bin_SCRIPTS=script/rofi-sensible-terminal
 
 LIBS=\
+	@glib_LIBS@\
     @x11_LIBS@\
     @xinerama_LIBS@\
 	@libsn_LIBS@\
@@ -17,6 +18,7 @@ LIBS=\
 
 AM_CFLAGS=\
 	@EXTRA_CFLAGS@\
+	@glib_CFLAGS@\
     @x11_CFLAGS@\
     @xinerama_CFLAGS@\
     @pango_CFLAGS@\

@@ -18,7 +18,7 @@
 * libpangocairo
 * libcairo
 * libcairo-xlib
-* libglib2.0
+* libglib2.0 >= 2.40
 * libx11
 * libstartup-notification-1.0
 

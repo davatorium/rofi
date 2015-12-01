@@ -48,6 +48,7 @@ dnl Check dependencies
 dnl ---------------------------------------------------------------------
 PKG_PROG_PKG_CONFIG
 
+PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40])
 PKG_CHECK_MODULES([x11],      [x11])
 PKG_CHECK_MODULES([xinerama], [xinerama])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
