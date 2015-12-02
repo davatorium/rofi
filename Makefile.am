@@ -182,6 +182,8 @@ test-x: ${bin_PROGRAMS}
 	$(top_srcdir)/test/run_test.sh 206 $(top_srcdir)/test/run_issue_256.sh $(top_builddir) 
 	echo "Issue 275"
 	$(top_srcdir)/test/run_test.sh 207 $(top_srcdir)/test/run_issue_275.sh $(top_builddir)
+	echo "Crash empty list"
+	$(top_srcdir)/test/run_test.sh 208 $(top_srcdir)/test/run_dmenu_empty.sh $(top_builddir)
 	echo "End tests"
 
 
