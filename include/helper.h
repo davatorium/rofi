@@ -151,4 +151,12 @@ char helper_parse_char ( const char *arg );
  */
 void cmd_set_arguments ( int argc, char **argv );
 
+/**
+ * @param input The path to expand
+ *
+ * Expand path, both `~` and `~<user>`
+ *
+ * @returns path
+ */
+char *rofi_expand_path ( const char *input );
 #endif // ROFI_HELPER_H

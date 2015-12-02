@@ -339,13 +339,4 @@ struct _Mode
 #define  color_cyan_bold       "\033[1;36m"
 
 int show_error_message ( const char *msg, int markup );
-
-/**
- * @param input The path to expand
- *
- * Expand path, both `~` and `~<user>`
- *
- * @returns path
- */
-char *rofi_expand_path ( const char *input );
 #endif
