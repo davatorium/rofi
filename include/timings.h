@@ -8,8 +8,8 @@ void rofi_timings_tick ( char const *str, int line, char const *msg );
 void rofi_timings_quit ( void );
 
 #define TIMINGS_START()    rofi_timings_init ()
-#define TICK()             rofi_timings_tick ( __FUNCTION__, __LINE__, "" )
-#define TICK_N( a )        rofi_timings_tick ( __FUNCTION__, __LINE__, a )
+#define TICK()             rofi_timings_tick ( __func__, __LINE__, "" )
+#define TICK_N( a )        rofi_timings_tick ( __func__, __LINE__, a )
 #define TIMINGS_STOP()     rofi_timings_quit ()
 
 #else
