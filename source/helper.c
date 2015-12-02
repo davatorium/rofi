@@ -276,59 +276,55 @@ int find_arg_uint ( const char * const key, unsigned int *val )
 
 char helper_parse_char ( const char *arg )
 {
-    char retv = 0x80;
     int  len  = strlen ( arg );
     // If the length is 1, it is not escaped.
     if ( len == 1 ) {
-        retv = arg[0];
+        return arg[0];
     }
     // If the length is 2 and the first character is '\', we unescape it.
-    else if ( len == 2 && arg[0] == '\\' ) {
+    if ( len == 2 && arg[0] == '\\' ) {
         // New line
         if ( arg[1] == 'n' ) {
-            retv = '\n';
+            return '\n';
         }
         // Bell
         else if ( arg[1] == 'a' ) {
-            retv = '\a';
+            return '\a';
         }
         // Backspace
         else if ( arg[1] == 'b' ) {
-            retv = '\b';
+            return '\b';
         }
         // Tab
         else if ( arg[1] == 't' ) {
-            retv = '\t';
+            return '\t';
         }
         // Vertical tab
         else if ( arg[1] == 'v' ) {
-            retv = '\v';
+            return '\v';
         }
         // Form feed
         else if ( arg[1] == 'f' ) {
-            retv = '\f';
+            return '\f';
         }
         // Carriage return
         else if ( arg[1] == 'r' ) {
-            retv = '\r';
+            return '\r';
         }
         // Forward slash
         else if ( arg[1] == '\\' ) {
-            retv = '\\';
+            return '\\';
         }
         else if ( arg[1] == '0' ) {
-            retv = '\0';
+            return '\0';
         }
     }
-    else if ( len > 2 && arg[0] == '\\' && arg[1] == 'x' ) {
-        retv = (char) strtol ( &arg[2], NULL, 16 );
+    if ( len > 2 && arg[0] == '\\' && arg[1] == 'x' ) {
+        return (char) strtol ( &arg[2], NULL, 16 );
     }
-    if ( (retv&0x80) != 0 ) {
-        fprintf ( stderr, "Failed to parse character string: \"%s\"\n", arg );
-        // for now default to newline.
-        retv = '\n';
-    }
-    return retv;
+    fprintf ( stderr, "Failed to parse character string: \"%s\"\n", arg );
+    // for now default to newline.
+    return '\n';
 }
 
 int find_arg_char ( const char * const key, char *val )
