@@ -49,5 +49,22 @@ int main ( int argc, char ** argv )
     TASSERT ( strcmp ( list[4], "-c" ) == 0 );
     TASSERT ( strcmp ( list[5], "ssh chuck; echo 'x-terminal-emulator chuck'" ) == 0 );
 
+    char *str = rofi_expand_path("/");
+    TASSERT ( strcmp(str, "/") == 0 );
+    g_free(str);
+    str = rofi_expand_path("../AUTHORS");
+    TASSERT ( strcmp(str, "../AUTHORS") == 0 );
+    g_free(str);
+    str = rofi_expand_path("/bin/false");
+    TASSERT ( strcmp(str, "/bin/false") == 0 );
+    g_free(str);
+    str = rofi_expand_path("~/");
+    TASSERT ( str[0] == '/' );
+    g_free(str);
+    str = rofi_expand_path("~root/");
+    TASSERT ( str[0] == '/' );
+    g_free(str);
+
+
     g_strfreev ( list );
 }
