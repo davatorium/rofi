@@ -33,6 +33,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdint.h>
+#include <errno.h>
 #include "rofi.h"
 #include "dialogs/dmenu.h"
 #include "helper.h"
@@ -63,7 +64,7 @@ typedef struct _DmenuModePrivateData
     unsigned int      cmd_list_length;
 } DmenuModePrivateData;
 
-static char **get_dmenu ( unsigned int *length )
+static char **get_dmenu ( FILE *fd, unsigned int *length )
 {
     TICK_N ( "Read stdin START" );
     char         **retv   = NULL;
@@ -73,7 +74,7 @@ static char **get_dmenu ( unsigned int *length )
     gchar   *data  = NULL;
     size_t  data_l = 0;
     ssize_t l      = 0;
-    while ( ( l = getdelim ( &data, &data_l, config.separator, stdin ) ) > 0 ) {
+    while ( ( l = getdelim ( &data, &data_l, config.separator, fd ) ) > 0 ) {
         if ( rvlength < ( *length + 2 ) ) {
             rvlength *= 2;
             retv      = g_realloc ( retv, ( rvlength ) * sizeof ( char* ) );
@@ -286,7 +287,22 @@ static void dmenu_mode_init ( Mode *sw )
     if ( find_arg ( "-i" ) >= 0 ) {
         config.case_sensitive = FALSE;
     }
-    pd->cmd_list = get_dmenu ( &( pd->cmd_list_length ) );
+    FILE *fd = NULL;
+    str = NULL;
+    if ( find_arg_str ("-input", &str)) {
+        char *estr = rofi_expand_path(str);
+        fd = fopen(str, "r");
+        if(fd == NULL ){
+            char *msg = g_markup_printf_escaped("Failed to open file: <b>%s</b>:\n\t<i>%s</i>", estr, strerror(errno));
+            error_dialog (msg,TRUE);
+            g_free(msg);
+            g_free(estr);
+            return;
+        }
+        g_free(estr);
+    }
+    pd->cmd_list = get_dmenu ( fd == NULL?stdin:fd , &( pd->cmd_list_length ) );
+    if(fd != NULL ) fclose(fd);
 }
 
 static int dmenu_token_match ( const Mode *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )

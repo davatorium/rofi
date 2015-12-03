@@ -29,7 +29,7 @@
 [ -display *display* ]
 [ -bc *color* ]
 [ -bw *width* ]
-[ -dmenu [ -p *prompt* ] [ -sep *separator* ] [ -l *selected line* ] [ -mesg ] [ -select ] ]
+[ -dmenu [ -p *prompt* ] [ -sep *separator* ] [ -l *selected line* ] [ -mesg ] [ -select ] [ -input *input* ] ]
 [ -filter *filter* ]
 [ -ssh-client *client* ]
 [ -ssh-command *command* ]
@@ -631,6 +631,10 @@ Make **rofi** reacts like a normal application window. Useful for scripts like C
 Dump the filtered list to stdout and quit.
 This can be used to get the list as **rofi** would filter it.
 Use together with `-filter` command. 
+
+`-input` *file*
+
+Reads from *file* instead of stdin.
 
 ### Message dialog
 

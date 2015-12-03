@@ -7,6 +7,7 @@
             - Autodetect number of HW-threads.
             - Disabled by default.
         - Highlight multiple selected rows (#287)
+		- Dmenu can read from file instead of stdin.
     Improvements:
 		- Improve speed of reading stdin in dmenu mode.
         - Correctly handle modifier keys now. Should now support most weird keyboard layouts and switching between them.
