@@ -53,26 +53,25 @@ int main ( int argc, char ** argv )
      * Test some path functions. Not easy as not sure what is right output on travis.
      */
     // Test if root is preserved.
-    char *str = rofi_expand_path("/");
-    TASSERT ( strcmp(str, "/") == 0 );
-    g_free(str);
+    char *str = rofi_expand_path ( "/" );
+    TASSERT ( strcmp ( str, "/" ) == 0 );
+    g_free ( str );
     // Test is relative path is preserved.
-    str = rofi_expand_path("../AUTHORS");
-    TASSERT ( strcmp(str, "../AUTHORS") == 0 );
-    g_free(str);
+    str = rofi_expand_path ( "../AUTHORS" );
+    TASSERT ( strcmp ( str, "../AUTHORS" ) == 0 );
+    g_free ( str );
     // Test another one.
-    str = rofi_expand_path("/bin/false");
-    TASSERT ( strcmp(str, "/bin/false") == 0 );
-    g_free(str);
+    str = rofi_expand_path ( "/bin/false" );
+    TASSERT ( strcmp ( str, "/bin/false" ) == 0 );
+    g_free ( str );
     // See if user paths get expanded in full path.
-    str = rofi_expand_path("~/");
-    const char *hd = g_get_home_dir();
-    TASSERT ( strcmp(str, hd) == 0);
-    g_free(str);
-    str = rofi_expand_path("~root/");
+    str = rofi_expand_path ( "~/" );
+    const char *hd = g_get_home_dir ();
+    TASSERT ( strcmp ( str, hd ) == 0 );
+    g_free ( str );
+    str = rofi_expand_path ( "~root/" );
     TASSERT ( str[0] == '/' );
-    g_free(str);
-
+    g_free ( str );
 
     g_strfreev ( list );
 }

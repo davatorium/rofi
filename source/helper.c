@@ -276,7 +276,7 @@ int find_arg_uint ( const char * const key, unsigned int *val )
 
 char helper_parse_char ( const char *arg )
 {
-    int  len  = strlen ( arg );
+    int len = strlen ( arg );
     // If the length is 1, it is not escaped.
     if ( len == 1 ) {
         return arg[0];
@@ -349,16 +349,16 @@ static int fuzzy_token_match ( char **tokens, const char *input, __attribute__( 
     // Do a tokenized match.
 
     if ( tokens ) {
-        char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : (char *) g_ascii_strdown(input,-1);
+        char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : (char *) g_ascii_strdown ( input, -1 );
         for ( int j = 0; match && tokens[j]; j++ ) {
             char *t     = compk;
             char *token = tokens[j];
 
             while ( *t && *token ) {
-                if (  ( g_utf8_get_char(t) == g_utf8_get_char(token) ) ) {
-                    token = g_utf8_next_char(token);
+                if (  ( g_utf8_get_char ( t ) == g_utf8_get_char ( token ) ) ) {
+                    token = g_utf8_next_char ( token );
                 }
-                t = g_utf8_next_char(t);
+                t = g_utf8_next_char ( t );
             }
             match = !( *token );
         }

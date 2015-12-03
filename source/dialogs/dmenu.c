@@ -93,7 +93,7 @@ static char **get_dmenu ( FILE *fd, unsigned int *length )
             break;
         }
     }
-    if(retv != NULL ) {
+    if ( retv != NULL ) {
         retv[( *length ) + 1] = NULL;
         retv                  = g_realloc ( retv, ( *length + 1 ) * sizeof ( char* ) );
     }
@@ -289,20 +289,22 @@ static void dmenu_mode_init ( Mode *sw )
     }
     FILE *fd = NULL;
     str = NULL;
-    if ( find_arg_str ("-input", &str)) {
-        char *estr = rofi_expand_path(str);
-        fd = fopen(str, "r");
-        if(fd == NULL ){
-            char *msg = g_markup_printf_escaped("Failed to open file: <b>%s</b>:\n\t<i>%s</i>", estr, strerror(errno));
-            error_dialog (msg,TRUE);
-            g_free(msg);
-            g_free(estr);
+    if ( find_arg_str ( "-input", &str ) ) {
+        char *estr = rofi_expand_path ( str );
+        fd = fopen ( str, "r" );
+        if ( fd == NULL ) {
+            char *msg = g_markup_printf_escaped ( "Failed to open file: <b>%s</b>:\n\t<i>%s</i>", estr, strerror ( errno ) );
+            error_dialog ( msg, TRUE );
+            g_free ( msg );
+            g_free ( estr );
             return;
         }
-        g_free(estr);
+        g_free ( estr );
     }
-    pd->cmd_list = get_dmenu ( fd == NULL?stdin:fd , &( pd->cmd_list_length ) );
-    if(fd != NULL ) fclose(fd);
+    pd->cmd_list = get_dmenu ( fd == NULL ? stdin : fd, &( pd->cmd_list_length ) );
+    if ( fd != NULL ) {
+        fclose ( fd );
+    }
 }
 
 static int dmenu_token_match ( const Mode *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
@@ -361,7 +363,7 @@ int dmenu_switcher_dialog ( void )
         char         **tokens = tokenize ( select, config.case_sensitive );
         unsigned int i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
-            if ( token_match ( tokens, cmd_list[i], !g_str_is_ascii( cmd_list[i] ), config.case_sensitive ) ) {
+            if ( token_match ( tokens, cmd_list[i], !g_str_is_ascii ( cmd_list[i] ), config.case_sensitive ) ) {
                 pd->selected_line = i;
                 break;
             }
@@ -372,7 +374,7 @@ int dmenu_switcher_dialog ( void )
         char         **tokens = tokenize ( config.filter ? config.filter : "", config.case_sensitive );
         unsigned int i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
-            if ( token_match ( tokens, cmd_list[i], !g_str_is_ascii( cmd_list[i] ), config.case_sensitive ) ) {
+            if ( token_match ( tokens, cmd_list[i], !g_str_is_ascii ( cmd_list[i] ), config.case_sensitive ) ) {
                 dmenu_output_formatted_line ( pd->format, cmd_list[i], i, config.filter );
             }
         }
