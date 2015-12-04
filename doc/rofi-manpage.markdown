@@ -676,7 +676,7 @@ the following keys can be used that will be replaced at runtime:
 If `argv[0]` (calling command) is dmenu, **rofi** will start in dmenu mode.
 This way it can be used as a drop-in replacement for dmenu. just copy or symlink **rofi** to dmenu in `$PATH`.
 
-    ln -s /usr/bin/dmenu /usr/bin/rofi
+    ln -s /usr/bin/rofi /usr/bin/dmenu
 
 ## SIGNALS
 
@@ -773,7 +773,7 @@ The first two fields specify the alpha level. This determines the amount of tran
   * `Ctrl-Shift-Tab`: Switch to the previous modi. The list can be customized with the `-switchers` argument.
   * `Ctrl-space`: Set selected item as input text.
   * `Shift-Del`: Delete entry from history.
-  * `Ctrl-grave`: Toggle case sensitivity.
+  * `grave`: Toggle case sensitivity.
 
 To get a full list of keybindings, see `rofi -dump-xresources | grep kb-`.
 Keybindings can be modified using the configuration systems.
