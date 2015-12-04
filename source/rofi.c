@@ -1615,7 +1615,7 @@ MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_l
     *input = g_strdup ( state.text->text );
 
     if ( next_pos ) {
-        if((state.selected+1)< state.num_lines){
+        if ( ( state.selected + 1 ) < state.num_lines ) {
             *( next_pos ) = state.line_map[state.selected + 1];
         }
     }

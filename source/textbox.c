@@ -117,6 +117,10 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
         tb->color_fg = color->fg;
         break;
     }
+    if ( ( tbft & SELECTED ) == SELECTED ) {
+        tb->color_bg = color->hlbg;
+        tb->color_fg = color->hlfg;
+    }
     if ( tb->tbft != tbft ) {
         tb->update = TRUE;
     }
@@ -287,13 +291,16 @@ static void texbox_update ( textbox *tb )
         }
 
         // Set ARGB
-        Color col = tb->color_bg;
-        cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
+        Color  col   = tb->color_bg;
+        double scale = 1.0;
+        if ( ( tb->tbft & SELECTED ) == SELECTED && ( tb->tbft & FMOD_MASK ) != HIGHLIGHT ) {
+            scale = 0.4;
+        }
+        cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha * scale );
         cairo_paint ( tb->main_draw );
 
         // Set ARGB
         col = tb->color_fg;
-        double scale = tb->tbft & SELECTED ? 0.5 : 1.0;
         cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha * scale );
         cairo_move_to ( tb->main_draw, x, y );
         pango_cairo_show_layout ( tb->main_draw, tb->layout );
