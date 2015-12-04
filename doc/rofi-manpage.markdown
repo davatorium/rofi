@@ -153,7 +153,7 @@ This does not validate all passed values (e.g. colors).
 
     rofi -key-run F12
     rofi -key-ssh control+shift+s
-    rofi -key-window mod1+Tab
+    rofi -key-window SuperL+Tab
 
 `-threads` *num*
 
