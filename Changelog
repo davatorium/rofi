@@ -9,6 +9,7 @@
         - Highlight multiple selected rows (#287)
 		- Dmenu can read from file instead of stdin.
     Improvements:
+		- Update manpage (#289, #291)
 		- Improve speed of reading stdin in dmenu mode.
         - Correctly handle modifier keys now. Should now support most weird keyboard layouts and switching between them.
           (#268, #265, #286)

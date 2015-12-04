@@ -484,7 +484,7 @@ void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key )
         }
     }
     int seen_mod = FALSE;
-    if ( strcasestr ( combo, "Mod")) {
+    if ( strcasestr ( combo, "Mod" ) ) {
         seen_mod = TRUE;
     }
 
@@ -502,11 +502,11 @@ void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key )
     if ( sym == NoSymbol || ( !modmask && ( strchr ( combo, '-' ) || strchr ( combo, '+' ) ) ) ) {
         // TODO popup
         g_string_append_printf ( str, "Sorry, rofi cannot understand the key combination: <i>%s</i>\n", combo );
-        g_string_append(str, "\nRofi supports the following modifiers:\n\t");
-        g_string_append(str, "<i>Shift,Control,Alt,AltGR,SuperL,SuperR,");
-        g_string_append(str, "MetaL,MetaR,HyperL,HyperR</i>");
-        if(seen_mod) {
-            g_string_append(str, "\n\n<b>Mod1,Mod2,Mod3,Mod4,Mod5 are no longer supported, use one of the above.</b>" );
+        g_string_append ( str, "\nRofi supports the following modifiers:\n\t" );
+        g_string_append ( str, "<i>Shift,Control,Alt,AltGR,SuperL,SuperR," );
+        g_string_append ( str, "MetaL,MetaR,HyperL,HyperR</i>" );
+        if ( seen_mod ) {
+            g_string_append ( str, "\n\n<b>Mod1,Mod2,Mod3,Mod4,Mod5 are no longer supported, use one of the above.</b>" );
         }
     }
     if ( str->len > 0 ) {
