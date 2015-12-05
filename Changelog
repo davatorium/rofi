@@ -6,7 +6,7 @@
             - Parallel string matching.
             - Autodetect number of HW-threads.
             - Disabled by default.
-        - Highlight multiple selected rows (#287)
+        - Highlight multiple selected rows (#287,#293)
         - Dmenu can read from file instead of stdin.
     Improvements:
         - Update manpage (#289, #291)
