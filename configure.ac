@@ -5,6 +5,7 @@ AC_CONFIG_HEADER([config.h])
 
 dnl ---------------------------------------------------------------------
 dnl Setup automake to be silent and in foreign mode.
+dnl We want xz distribution
 dnl ---------------------------------------------------------------------
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects dist-xz])
 AM_SILENT_RULES([yes])
@@ -13,9 +14,20 @@ dnl ---------------------------------------------------------------------
 dnl  Check for compiler
 dnl ---------------------------------------------------------------------
 AC_PROG_CC([clang gcc cc])
+
+dnl ---------------------------------------------------------------------
+dnl  C99 standard
+dnl ---------------------------------------------------------------------
 AC_PROG_CC_C99
+
+dnl ---------------------------------------------------------------------
+dnl C to Object rules.
+dnl ---------------------------------------------------------------------
 AM_PROG_CC_C_O
 
+dnl ---------------------------------------------------------------------
+dnl System extensions
+dnl ---------------------------------------------------------------------
 AC_USE_SYSTEM_EXTENSIONS
 
 dnl ---------------------------------------------------------------------
@@ -48,6 +60,10 @@ dnl Check dependencies
 dnl ---------------------------------------------------------------------
 PKG_PROG_PKG_CONFIG
 
+
+dnl ---------------------------------------------------------------------
+dnl X11, Glib, Xinerama, Pango, Cairo, libstartup notification
+dnl ---------------------------------------------------------------------
 PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40])
 PKG_CHECK_MODULES([x11],      [x11])
 PKG_CHECK_MODULES([xinerama], [xinerama])
@@ -55,6 +71,10 @@ PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo cairo-xlib])
 PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0])
 
+
+dnl ---------------------------------------------------------------------
+dnl Add extra compiler flags
+dnl ---------------------------------------------------------------------
 AC_SUBST([EXTRA_CFLAGS], ["-Wall -Wextra -Wparentheses -Winline -pedantic"])
 
 AC_CONFIG_FILES([Makefile ])
