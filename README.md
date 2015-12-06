@@ -22,6 +22,7 @@ It main features are:
     - I3 support.
     - EWMH compatible WM.
 * Run dialog.
+* Desktop File Run dialog.
 * SSH launcher.
 * History based ordering last 25 choices are ordered on top based on use. (optional)
 * Levenshtein distance ordering of matches. (optional)
