@@ -8,6 +8,7 @@
             - Disabled by default.
         - Highlight multiple selected rows (#287,#293)
         - Dmenu can read from file instead of stdin.
+		- Regex matching (#113)
     Improvements:
         - Update manpage (#289, #291)
         - Improve speed of reading stdin in dmenu mode.
