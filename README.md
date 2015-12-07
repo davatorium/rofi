@@ -56,6 +56,9 @@ It offers the following features:
   - Shift-Return to run the selected program in a terminal.
   - Favorites list, frequently used programs are sorted on top.
 
+There is also the drun mode, this behaves similar to run modi except it builds the list of applications based on desktop
+files found in the system.
+
 ## SSH launcher
 
 ![SSH Launcher](https://davedavenport.github.io/rofi/images/rofi/ssh-dialog.png)
@@ -151,7 +154,7 @@ Type `Shift-Right` to switch from Window list mode to Run mode and back.
 |`Ctrl-Shift-Tab`             | Switch to the previous modi. The list can be customized with the -switchers argument. |
 |`Ctrl-space`                 | Set selected item as input text. |
 |`Shift-Del`                  | Delete entry from history. |
-|`Ctrl-grave`                 | Toggle case sensitivity. |
+|`grave`                      | Toggle case sensitivity. |
 
 
 # Configuration
