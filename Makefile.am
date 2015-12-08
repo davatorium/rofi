@@ -99,7 +99,7 @@ README.html: README.md
 ${top_builddir}/config/config.c: ${top_srcdir}/config/config.def.c
 	cp ${top_srcdir}/config/config.def.c $@
 
-## 
+##
 # Extra DIST
 ##
 EXTRA_DIST=\
@@ -158,13 +158,13 @@ helper_test_SOURCES=\
     test/helper-test.c
 
 .PHONY: test
-test: ${bin_PROGRAMS} 
+test: ${bin_PROGRAMS} ${noinst_PROGRAMS}
 	./rofi_test
 	./helper_test
 
 .PHONY: test-x
 test-x: ${bin_PROGRAMS}
-	echo "Test 1"	
+	echo "Test 1"
 	$(top_srcdir)/test/run_test.sh 123 $(top_builddir)/textbox_test $(top_builddir)
 	echo "Test 2"
 	$(top_srcdir)/test/run_test.sh 200 $(top_srcdir)/test/run_errormsg_test.sh $(top_builddir)
@@ -179,7 +179,7 @@ test-x: ${bin_PROGRAMS}
 	echo "Test 7"
 	$(top_srcdir)/test/run_test.sh 205 $(top_srcdir)/test/run_script_test.sh $(top_builddir)
 	echo "Issue 256"
-	$(top_srcdir)/test/run_test.sh 206 $(top_srcdir)/test/run_issue_256.sh $(top_builddir) 
+	$(top_srcdir)/test/run_test.sh 206 $(top_srcdir)/test/run_issue_256.sh $(top_builddir)
 	echo "Issue 275"
 	$(top_srcdir)/test/run_test.sh 207 $(top_srcdir)/test/run_issue_275.sh $(top_builddir)
 	echo "Crash empty list"
@@ -201,4 +201,4 @@ cppcheck: ${rofi_SOURCES}
 .PHONY: ohcount
 
 ohcount: ${rofi_SOURCES}
-	ohcount -i ${top_srcdir}/source/ 
+	ohcount -i ${top_srcdir}/source/

@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <locale.h>
 #include <glib.h>
 #include <stdio.h>
 #include <helper.h>
@@ -34,6 +35,11 @@ int monitor_get_dimension ( G_GNUC_UNUSED Display *d, G_GNUC_UNUSED Screen *scre
 int main ( int argc, char ** argv )
 {
     cmd_set_arguments ( argc, argv );
+
+    if ( setlocale ( LC_ALL, "" ) == NULL ) {
+        fprintf ( stderr, "Failed to set locale.\n" );
+        return EXIT_FAILURE;
+    }
     char **list     = NULL;
     int  llength    = 0;
     char * test_str =
@@ -48,6 +54,7 @@ int main ( int argc, char ** argv )
     TASSERT ( strcmp ( list[3], "bash" ) == 0 );
     TASSERT ( strcmp ( list[4], "-c" ) == 0 );
     TASSERT ( strcmp ( list[5], "ssh chuck; echo 'x-terminal-emulator chuck'" ) == 0 );
+    g_strfreev ( list );
 
     /**
      * Test some path functions. Not easy as not sure what is right output on travis.
@@ -73,5 +80,17 @@ int main ( int argc, char ** argv )
     TASSERT ( str[0] == '/' );
     g_free ( str );
 
-    g_strfreev ( list );
+    /**
+     * Collating.
+     */
+    char *res = token_collate_key ( "€ Sign",FALSE);
+    TASSERT ( strcmp(res, "€ sign") == 0);
+    g_free(res);
+
+    res = token_collate_key ( "éÉêèë Sign",FALSE);
+    TASSERT ( strcmp(res, "ééêèë sign") == 0);
+    g_free(res);
+    res = token_collate_key ( "éÉêèë Sign",TRUE);
+    TASSERT ( strcmp(res, "éÉêèë Sign") == 0);
+    g_free(res);
 }

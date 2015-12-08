@@ -14,11 +14,6 @@
 int helper_parse_setup ( char * string, char ***output, int *length, ... );
 
 /**
- * Implementation of fgets with custom separator.
- */
-char* fgets_s ( char* s, unsigned int n, FILE *iop, char sep );
-
-/**
  * @param token The string for which we want a collation key.
  * @param case_sensitive Whether case is significant.
  *
