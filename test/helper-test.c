@@ -90,7 +90,7 @@ int main ( int argc, char ** argv )
     res = token_collate_key ( "éÉêèë Sign",FALSE);
     TASSERT ( strcmp(res, "ééêèë sign") == 0);
     g_free(res);
-    res = token_collate_key ( "éÉêèë Sign",TRUE);
-    TASSERT ( strcmp(res, "éÉêèë Sign") == 0);
+    res = token_collate_key ( "éÉêèë³ Sign",TRUE);
+    TASSERT ( strcmp(res, "éÉêèë3 Sign") == 0);
     g_free(res);
 }
