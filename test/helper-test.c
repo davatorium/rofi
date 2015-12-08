@@ -83,14 +83,48 @@ int main ( int argc, char ** argv )
     /**
      * Collating.
      */
-    char *res = token_collate_key ( "€ Sign",FALSE);
-    TASSERT ( strcmp(res, "€ sign") == 0);
-    g_free(res);
+    char *res = token_collate_key ( "€ Sign", FALSE );
+    TASSERT ( strcmp ( res, "€ sign" ) == 0 );
+    g_free ( res );
 
-    res = token_collate_key ( "éÉêèë Sign",FALSE);
-    TASSERT ( strcmp(res, "ééêèë sign") == 0);
-    g_free(res);
-    res = token_collate_key ( "éÉêèë³ Sign",TRUE);
-    TASSERT ( strcmp(res, "éÉêèë3 Sign") == 0);
-    g_free(res);
+    res = token_collate_key ( "éÉêèë Sign", FALSE );
+    TASSERT ( strcmp ( res, "ééêèë sign" ) == 0 );
+    g_free ( res );
+    res = token_collate_key ( "éÉêèë³ Sign", TRUE );
+    TASSERT ( strcmp ( res, "éÉêèë3 Sign" ) == 0 );
+    g_free ( res );
+
+    /**
+     * Char function
+     */
+
+    TASSERT ( helper_parse_char ( "\\n" ) == '\n' );
+    TASSERT ( helper_parse_char ( "\\a" ) == '\a' );
+    TASSERT ( helper_parse_char ( "\\b" ) == '\b' );
+    TASSERT ( helper_parse_char ( "\\t" ) == '\t' );
+    TASSERT ( helper_parse_char ( "\\v" ) == '\v' );
+    TASSERT ( helper_parse_char ( "\\f" ) == '\f' );
+    TASSERT ( helper_parse_char ( "\\r" ) == '\r' );
+    TASSERT ( helper_parse_char ( "\\\\" ) == '\\' );
+    TASSERT ( helper_parse_char ( "\\0" ) == 0 );
+    TASSERT ( helper_parse_char ( "\\x77" ) == 'w' );
+    TASSERT ( helper_parse_char ( "\\x0A" ) == '\n' );
+
+    /**
+     * tokenize
+     */
+    config.regex = FALSE;
+    config.glob  = FALSE;
+    char ** retv = tokenize ( "aAp nOoT MieS 12", FALSE );
+    TASSERT ( retv[0] && strcmp ( retv[0], "aap" ) == 0 );
+    TASSERT ( retv[1] && strcmp ( retv[1], "noot" ) == 0 );
+    TASSERT ( retv[2] && strcmp ( retv[2], "mies" ) == 0 );
+    TASSERT ( retv[3] && strcmp ( retv[3], "12" ) == 0 );
+    tokenize_free ( retv );
+    retv = tokenize ( "blub³ bOb bEp bEE", TRUE );
+    TASSERT ( retv[0] && strcmp ( retv[0], "blub3" ) == 0 );
+    TASSERT ( retv[1] && strcmp ( retv[1], "bOb" ) == 0 );
+    TASSERT ( retv[2] && strcmp ( retv[2], "bEp" ) == 0 );
+    TASSERT ( retv[3] && strcmp ( retv[3], "bEE" ) == 0 );
+    tokenize_free ( retv );
 }
