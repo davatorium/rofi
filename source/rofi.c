@@ -576,41 +576,41 @@ static void menu_capture_screenshot ( void )
     int index = 0;
     if ( surface == NULL ) {
         // Nothing to store.
-        fprintf(stderr, "There is no rofi surface to store\n");
+        fprintf ( stderr, "There is no rofi surface to store\n" );
         return;
     }
-    const char *xdg_pict_dir = g_get_user_special_dir(G_USER_DIRECTORY_PICTURES);
+    const char *xdg_pict_dir = g_get_user_special_dir ( G_USER_DIRECTORY_PICTURES );
     if ( xdg_pict_dir == NULL ) {
-        fprintf(stderr, "XDG user picture directory is not set. Cannot store screenshot.\n");
+        fprintf ( stderr, "XDG user picture directory is not set. Cannot store screenshot.\n" );
         return;
     }
     // Get current time.
-    GDateTime *now = g_date_time_new_now_local();
+    GDateTime *now = g_date_time_new_now_local ();
     // Format filename.
-    char *timestmp = g_date_time_format(now, "rofi-%Y-%m-%d-%H:%M");
-    char *filename = g_strdup_printf("%s.png", timestmp);
+    char      *timestmp = g_date_time_format ( now, "rofi-%Y-%m-%d-%H:%M" );
+    char      *filename = g_strdup_printf ( "%s.png", timestmp );
     // Build full path
-    char *fpath = g_build_filename(xdg_pict_dir, filename, NULL);
-    while(g_file_test(fpath, G_FILE_TEST_EXISTS) && index < 99) {
-        g_free(fpath);
-        g_free(filename);
+    char      *fpath = g_build_filename ( xdg_pict_dir, filename, NULL );
+    while ( g_file_test ( fpath, G_FILE_TEST_EXISTS ) && index < 99 ) {
+        g_free ( fpath );
+        g_free ( filename );
         // Try the next index.
         index++;
         // Format filename.
-        filename = g_strdup_printf("%s-%d.png", timestmp,index);
+        filename = g_strdup_printf ( "%s-%d.png", timestmp, index );
         // Build full path
-        fpath = g_build_filename(xdg_pict_dir, filename, NULL);
+        fpath = g_build_filename ( xdg_pict_dir, filename, NULL );
     }
-    fprintf(stderr, color_green"Storing screenshot %s\n"color_reset,fpath);
-    cairo_status_t status = cairo_surface_write_to_png(surface, fpath);
+    fprintf ( stderr, color_green "Storing screenshot %s\n"color_reset, fpath );
+    cairo_status_t status = cairo_surface_write_to_png ( surface, fpath );
     if ( status != CAIRO_STATUS_SUCCESS ) {
-        fprintf(stderr, "Failed to produce screenshot '%s', got error: '%s'\n",filename,
-                cairo_status_to_string(status));
+        fprintf ( stderr, "Failed to produce screenshot '%s', got error: '%s'\n", filename,
+                  cairo_status_to_string ( status ) );
     }
-    g_free(fpath);
-    g_free(filename);
-    g_free(timestmp);
-    g_date_time_unref(now);
+    g_free ( fpath );
+    g_free ( filename );
+    g_free ( timestmp );
+    g_date_time_unref ( now );
 }
 
 /**
@@ -1688,7 +1688,6 @@ MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_l
 
     return retv;
 }
-
 
 void error_dialog ( const char *msg, int markup )
 {
