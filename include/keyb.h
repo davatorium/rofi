@@ -53,6 +53,7 @@ typedef enum _KeyBindingAction
     CUSTOM_17,
     CUSTOM_18,
     CUSTOM_19,
+    SCREENSHOT,
     NUM_ABE
 } KeyBindingAction;
 

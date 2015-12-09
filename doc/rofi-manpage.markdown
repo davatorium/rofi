@@ -774,6 +774,7 @@ The first two fields specify the alpha level. This determines the amount of tran
   * `Ctrl-space`: Set selected item as input text.
   * `Shift-Del`: Delete entry from history.
   * `grave`: Toggle case sensitivity.
+  * `Alt-Shift-S`: Take a screenshot and store this in the Pictures directory.
 
 To get a full list of keybindings, see `rofi -dump-xresources | grep kb-`.
 Keybindings can be modified using the configuration systems.

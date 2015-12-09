@@ -64,7 +64,7 @@ DefaultBinding bindings[NUM_ABE] =
     { .id = ROW_FIRST,               .name = "kb-row-first",               .keybinding = "Home,KP_Home"                         },
     { .id = ROW_LAST,                .name = "kb-row-last",                .keybinding = "End,KP_End"                           },
     { .id = ROW_SELECT,              .name = "kb-row-select",              .keybinding = "Control+space"                        },
-    { .id = CANCEL,                  .name = "kb-cancel",                  .keybinding = "Escape"                               },
+    { .id = CANCEL,                  .name = "kb-cancel",                  .keybinding = "Escape,Control+bracketleft"           },
     { .id = CUSTOM_1,                .name = "kb-custom-1",                .keybinding = "Alt+1"                                },
     { .id = CUSTOM_2,                .name = "kb-custom-2",                .keybinding = "Alt+2"                                },
     { .id = CUSTOM_3,                .name = "kb-custom-3",                .keybinding = "Alt+3"                                },
@@ -84,6 +84,7 @@ DefaultBinding bindings[NUM_ABE] =
     { .id = CUSTOM_18,               .name = "kb-custom-18",               .keybinding = "Alt+Shift+8"                          },
     { .id = CUSTOM_17,               .name = "kb-custom-17",               .keybinding = "Alt+Shift+7"                          },
     { .id = CUSTOM_19,               .name = "kb-custom-19",               .keybinding = "Alt+Shift+9"                          },
+    { .id = SCREENSHOT,              .name = "kb-screenshot",              .keybinding = "Alt+Shift+S"                                },
 };
 
 void setup_abe ( void )
