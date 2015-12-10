@@ -15,6 +15,9 @@ COLOR_BLUE="\e[0;34m"
 XRDB_FILE=$1
 shift
 
+OUTPUT_PNG=$1
+shift
+
 XVFB=$(which Xvfb 2> /dev/null)
 XDOTOOL=$(which xdotool 2> /dev/null)
 XRDB=$(which xrdb 2> /dev/null)
@@ -78,6 +81,11 @@ echo "Xvfb Display:    ${VDISPLAY}"
 ROFI_OPTIONS="-selected-row 6 -u 2,3 -a 4,5 -location 0 -width 100 -lines 7 -columns 1"
 
 export DISPLAY=${VDISPLAY}
+
+if [ -n "${OUTPUT_PNG}" ]
+then
+    export ROFI_PNG_OUTPUT="${OUTPUT_PNG}"
+fi
 
 # Create fake X11
 create_fake_x ${VDISPLAY}

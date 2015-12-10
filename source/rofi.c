@@ -585,21 +585,28 @@ static void menu_capture_screenshot ( void )
         return;
     }
     // Get current time.
-    GDateTime *now = g_date_time_new_now_local ();
+    GDateTime  *now = g_date_time_new_now_local ();
     // Format filename.
-    char      *timestmp = g_date_time_format ( now, "rofi-%Y-%m-%d-%H%M" );
-    char      *filename = g_strdup_printf ( "%s.png", timestmp );
+    char       *timestmp = g_date_time_format ( now, "rofi-%Y-%m-%d-%H%M" );
+    char       *filename = g_strdup_printf ( "%s.png", timestmp );
     // Build full path
-    char      *fpath = g_build_filename ( xdg_pict_dir, filename, NULL );
-    while ( g_file_test ( fpath, G_FILE_TEST_EXISTS ) && index < 99 ) {
-        g_free ( fpath );
-        g_free ( filename );
-        // Try the next index.
-        index++;
-        // Format filename.
-        filename = g_strdup_printf ( "%s-%d.png", timestmp, index );
-        // Build full path
+    char       *fpath = NULL;
+    const char *outp  = g_getenv ( "ROFI_PNG_OUTPUT" );
+    if ( outp == NULL ) {
         fpath = g_build_filename ( xdg_pict_dir, filename, NULL );
+        while ( g_file_test ( fpath, G_FILE_TEST_EXISTS ) && index < 99 ) {
+            g_free ( fpath );
+            g_free ( filename );
+            // Try the next index.
+            index++;
+            // Format filename.
+            filename = g_strdup_printf ( "%s-%d.png", timestmp, index );
+            // Build full path
+            fpath = g_build_filename ( xdg_pict_dir, filename, NULL );
+        }
+    }
+    else {
+        fpath = g_strdup ( outp );
     }
     fprintf ( stderr, color_green "Storing screenshot %s\n"color_reset, fpath );
     cairo_status_t status = cairo_surface_write_to_png ( surface, fpath );
@@ -2444,7 +2451,7 @@ int main ( int argc, char *argv[] )
         exit ( EXIT_SUCCESS );
     }
     if ( find_arg (  "-dump-xresources-theme" ) >= 0 ) {
-        print_xresources_theme();
+        print_xresources_theme ();
         exit ( EXIT_SUCCESS );
     }
     // Parse the keybindings.

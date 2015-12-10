@@ -513,18 +513,18 @@ void print_help_msg ( const char *option, const char *type, const char*text, con
 
 void print_xresources_theme ( void )
 {
-    if( config.color_enabled != TRUE ) {
-        printf("! Dumping theme only works for the extended color scheme.\n"); 
+    if ( config.color_enabled != TRUE ) {
+        printf ( "! Dumping theme only works for the extended color scheme.\n" );
         return;
     }
-    printf("! ------------------------------------------------------------------------------\n");
-    printf("! ROFI Color theme\n");
-    printf("! ------------------------------------------------------------------------------\n");
+    printf ( "! ------------------------------------------------------------------------------\n" );
+    printf ( "! ROFI Color theme\n" );
+    printf ( "! ------------------------------------------------------------------------------\n" );
     const char   * namePrefix = "rofi";
     unsigned int entries      = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
     for ( unsigned int i = 0; i < entries; ++i ) {
-        if ( strncmp(xrmOptions[i].name, "color-",6) == 0){
-            xresource_dump_entry(namePrefix, &xrmOptions[i]);
+        if ( strncmp ( xrmOptions[i].name, "color-", 6 ) == 0 ) {
+            xresource_dump_entry ( namePrefix, &xrmOptions[i] );
         }
     }
 }
