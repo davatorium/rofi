@@ -1940,6 +1940,7 @@ static void print_main_application_options ( void )
     print_help_msg ( "-display", "[string]", "X server to contact.", "${DISPLAY}", is_term );
     print_help_msg ( "-h,-help", "", "This help message.", NULL, is_term );
     print_help_msg ( "-dump-xresources", "", "Dump the current configuration in Xresources format and exit.", NULL, is_term );
+    print_help_msg ( "-dump-xresources-theme", "", "Dump the current color scheme in Xresources format and exit.", NULL, is_term );
     print_help_msg ( "-e", "[string]", "Show a dialog displaying the passed message and exit.", NULL, is_term );
     print_help_msg ( "-markup", "", "Enable pango markup where possible.", NULL, is_term );
     print_help_msg ( "-normal-window", "", "In dmenu mode, behave as a normal window. (experimental)", NULL, is_term );
@@ -2440,6 +2441,10 @@ int main ( int argc, char *argv[] )
     }
     if ( find_arg (  "-dump-xresources" ) >= 0 ) {
         xresource_dump ();
+        exit ( EXIT_SUCCESS );
+    }
+    if ( find_arg (  "-dump-xresources-theme" ) >= 0 ) {
+        print_xresources_theme();
         exit ( EXIT_SUCCESS );
     }
     // Parse the keybindings.

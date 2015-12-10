@@ -50,6 +50,7 @@
 [ -version ]
 [ -help ]
 [ -dump-xresources ]
+[ -dump-xresources-theme ]
 [ -auto-select ]
 [ -parse-hosts ]
 [ -no-parse-known-hosts ]
@@ -146,6 +147,10 @@ The help option shows the full list of commandline options and the current set v
 
 Dump the current active configuration in Xresources format to the command-line.
 This does not validate all passed values (e.g. colors).
+
+`-dump-xresources-theme`
+
+Dump the current color schme in Xresources format to the command-line.
 
 `-key-{mode}` **KEY**
 

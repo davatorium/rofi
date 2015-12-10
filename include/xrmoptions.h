@@ -53,4 +53,5 @@ void xresource_dump ( void );
 void config_parser_add_option ( XrmOptionType type, const char *key, void **value, const char *comment );
 void print_options ( void );
 void print_help_msg ( const char *option, const char *type, const char*text, const char *def, int isatty );
+void print_xresources_theme ( void );
 #endif
