@@ -587,7 +587,7 @@ static void menu_capture_screenshot ( void )
     // Get current time.
     GDateTime *now = g_date_time_new_now_local ();
     // Format filename.
-    char      *timestmp = g_date_time_format ( now, "rofi-%Y-%m-%d-%H:%M" );
+    char      *timestmp = g_date_time_format ( now, "rofi-%Y-%m-%d-%H%M" );
     char      *filename = g_strdup_printf ( "%s.png", timestmp );
     // Build full path
     char      *fpath = g_build_filename ( xdg_pict_dir, filename, NULL );
