@@ -37,7 +37,7 @@ function create_fake_x ( )
 {
     export DISPLAY=":$1"
     echo "Starting fake X: ${DISPLAY}"
-    ${XVFB} ${DISPLAY}  -screen 0 1024x768x24 &
+    ${XVFB} ${DISPLAY}  -screen 0 800x600x24 &
     XPID=$!
     sleep 1
 }
