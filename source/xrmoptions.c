@@ -526,5 +526,8 @@ void print_xresources_theme ( void )
         if ( strncmp ( xrmOptions[i].name, "color-", 6 ) == 0 ) {
             xresource_dump_entry ( namePrefix, &xrmOptions[i] );
         }
+        else if ( strcmp ( xrmOptions[i].name, "separator-style" ) == 0 ) {
+            xresource_dump_entry ( namePrefix, &xrmOptions[i] );
+        }
     }
 }
