@@ -75,7 +75,7 @@ echo "Xvfb:            ${XVFB}"
 echo "Xresources:      ${XRDB_FILE}"
 echo "Xvfb Display:    ${VDISPLAY}"
 
-ROFI_OPTIONS="-selected-row 6 -u 2,3 -a 4,5"
+ROFI_OPTIONS="-selected-row 6 -u 2,3 -a 4,5 -location 0 -width 100 -lines 7 -columns 1"
 
 export DISPLAY=${VDISPLAY}
 
