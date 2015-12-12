@@ -383,6 +383,7 @@ int dmenu_switcher_dialog ( void )
     }
 
     do {
+        retv = FALSE;
         unsigned int next_pos = pd->selected_line;
         int          mretv    = menu ( &dmenu_mode, &input, pd->prompt, &( pd->selected_line ), &next_pos, pd->message );
         // Special behavior.

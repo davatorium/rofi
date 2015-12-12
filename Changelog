@@ -11,6 +11,7 @@
         - Regex matching (#113)
         - Take Screenshot of rofi using keybinding.
     Improvements:
+		- Fix return code of multi-select.
         - Update manpage (#289, #291)
         - Improve speed of reading stdin in dmenu mode.
         - Correctly handle modifier keys now. Should now support most weird keyboard layouts and switching between them.
