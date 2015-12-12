@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+    Copyright © 2015 Quentin "Sardem FF7" Glidic
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+-->
+    <head>
+        <meta charset="utf-8">
+        <style media="screen" type="text/css">
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                position: relative;
+                margin: 30px 50px;
+                background: #444;
+                color: white;
+            }
+
+            h1 {
+                margin: 0 0 40px;
+            }
+
+            #reset {
+                position: absolute;
+                top: 0;
+                right: 0;
+            }
+
+            #preview {
+                display: inline-block;
+                margin: 0 1% 0 0;
+                width: 49%;
+                background-color: black;
+                vertical-align: top;
+            }
+
+            #preview * {
+                margin: 0;
+                padding: 0;
+            }
+
+            #preview .row {
+                padding: 4px 10px;
+                background-color: black;
+            }
+
+            #preview .row {
+                margin-bottom: 4px;
+            }
+
+            #preview-inside {
+                padding: 4px 4px 0;
+                border: 1px solid;
+            }
+
+            #preview-lines {
+                display: inline-block;
+                width: calc(100% - 19px);
+                vertical-align: top;
+            }
+
+            #preview-sep {
+                display: inline-block;
+                width: 15px;
+                height: 100px;
+                margin-left: 4px;
+                vertical-align: top;
+            }
+
+            #generator {
+                display: inline-block;
+                width: 49%;
+                margin: 0 0 0 1%;
+
+                font-family: monospace;
+                vertical-align: top;
+            }
+
+            #config, #command {
+                margin: 0;
+                padding: 5px;
+                border: 2px dashed white;
+                background: #bbb;
+                color: black;
+            }
+
+            #command {
+                margin-top: 10px;
+            }
+
+            #config > span {
+                margin: 0;
+                padding: 0;
+                line-height: 150%;
+            }
+
+            #buttons {
+                margin: 30px -1%;
+                padding: 0;
+                color: black;
+                vertical-align: top;
+            }
+
+            #buttons > div {
+                display: inline-block;
+                margin: 0 1%;
+                padding: 4px 10px;
+                width: 23%;
+                background: rgba(255, 255, 255, 0.7);
+                vertical-align: top;
+            }
+
+            #buttons > div > h2 {
+                margin: 4px 0;
+            }
+
+            #buttons > div > label {
+                display: block;
+                margin: 5px 10px;
+                overflow: hidden;
+            }
+
+            #buttons > div > label > * {
+                display: inline-block;
+                vertical-align: middle;
+            }
+
+            #buttons > div > label > span {
+                width: 50%;
+            }
+
+            #buttons > div > label > input {
+                width: 23%;
+                margin: 0 1%;
+                padding: 0;
+                border: 0;
+            }
+        </style>
+    </head>
+<body>
+    <h1>Rofi theme maker</h1>
+    <input id="reset" type="button" value="Reset stored values" />
+
+    <div id="preview">
+    <div id="preview-inside" class="rofi-normal-fg rofi-bg rofi-border">
+        <p class="row rofi-normal-bg">Prompt: input</p>
+        <div id="preview-lines">
+            <p class="row rofi-normal-bg">Normal row</p>
+            <p class="row rofi-normal-altbg">Normal Alt. row</p>
+            <p class="row rofi-normal-hlbg rofi-normal-hlfg">Normal Highlight row</p>
+            <div class="rofi-active-fg">
+                <p class="row rofi-active-bg">Active row</p>
+                <p class="row rofi-active-altbg">Active Alt. row</p>
+                <p class="row rofi-active-hlbg rofi-active-hlfg">Active Highlight row</p>
+            </div>
+            <div class="rofi-urgent-fg">
+                <p class="row rofi-urgent-bg">Urgent row</p>
+                <p class="row rofi-urgent-altbg">Urgent Alt. row</p>
+                <p class="row rofi-urgent-hlbg rofi-urgent-hlfg">Urgent Highlight row</p>
+            </div>
+        </div><div id="preview-sep" class="rofi-sep"></div>
+    </div>
+    </div><div id="generator"><pre id="config"><span>! ------------------------------------------------------------------------------
+! ROFI Color theme
+! ------------------------------------------------------------------------------
+rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
+    <div id="buttons"></div>
+
+
+
+    <script>
+    function attachEvent(el, ev, func) {
+        if (el.addEventListener) {
+            el.addEventListener(ev, func, false);
+        } else if (el.attachEvent) {
+            el.attachEvent('on' + ev, func);
+        }
+    }
+
+    var colors = {
+        "Window": [
+            {
+                name: "rofi-bg",
+                type: "backgroundColor",
+                def: "#fdf6e3",
+                display: "Background"
+            },
+            {
+                name: "rofi-border",
+                type: "borderColor",
+                def: "#002b36",
+                display: "Border"
+            },
+            {
+                name: "rofi-sep",
+                type: "backgroundColor",
+                def: "#000000",
+                display: "Seperator"
+            },
+        ],
+        "Normal": [
+            {
+                name: "rofi-normal-bg",
+                type: "backgroundColor",
+                def: "#fdf6e3",
+                display: "Background"
+            },
+            {
+                name: "rofi-normal-fg",
+                type: "color",
+                def: "#002b36",
+                display: "Foreground"
+            },
+            {
+                name: "rofi-normal-altbg",
+                type: "backgroundColor",
+                def: "#eee8d5",
+                display: "Alternative background"
+            },
+            {
+                name: "rofi-normal-hlbg",
+                type: "backgroundColor",
+                def: "#586e75",
+                display: "Highlight background"
+            },
+            {
+                name: "rofi-normal-hlfg",
+                type: "color",
+                def: "#eee8d5",
+                display: "Highlight foreground"
+            },
+        ],
+        "Active": [
+            {
+                name: "rofi-active-bg",
+                type: "backgroundColor",
+                def: "#fdf6e3",
+                display: "Background"
+            },
+            {
+                name: "rofi-active-fg",
+                type: "color",
+                def: "#dc322f",
+                display: "Foreground"
+            },
+            {
+                name: "rofi-active-altbg",
+                type: "backgroundColor",
+                def: "#eee8d5",
+                display: "Alternative background"
+            },
+            {
+                name: "rofi-active-hlbg",
+                type: "backgroundColor",
+                def: "#dc322f",
+                display: "Highlight background"
+            },
+            {
+                name: "rofi-active-hlfg",
+                type: "color",
+                def: "#fdf6e3",
+                display: "Highlight foreground"
+            },
+        ],
+        "Urgent": [
+            {
+                name: "rofi-urgent-bg",
+                type: "backgroundColor",
+                def: "#fdf6e3",
+                display: "Background"
+            },
+            {
+                name: "rofi-urgent-fg",
+                type: "color",
+                def: "#268bd2",
+                display: "Foreground"
+            },
+            {
+                name: "rofi-urgent-altbg",
+                type: "backgroundColor",
+                def: "#eee8d5",
+                display: "Alternative background"
+            },
+            {
+                name: "rofi-urgent-hlbg",
+                type: "backgroundColor",
+                def: "#268bd2",
+                display: "Highlight background"
+            },
+            {
+                name: "rofi-urgent-hlfg",
+                type: "color",
+                def: "#fdf6e3",
+                display: "Highlight foreground"
+            },
+        ],
+    };
+
+    var buttons = document.getElementById('buttons');
+    var preview = document.getElementById('preview');
+    var config = document.getElementById('config');
+    var command = document.getElementById('command');
+
+    function get_value(name) {
+        var label = document.getElementById(name);
+        var color = label.firstChild.nextSibling;
+        var alpha = color.nextSibling.value;
+        var value = color.value;
+        var css = color.value;
+        if ( alpha < 0xff )
+        {
+            var col = value.substring(1);
+            css = 'rgba(' + Number('0x' + col.substring(0, 2)) +','+ Number('0x' + col.substring(2, 4)) +','+ Number('0x' + col.substring(4, 6)) +','+ (alpha/0xff)+ ')';
+            value = 'argb:' + Number(alpha).toString(16) + col;
+        }
+        return [ label.getAttribute('class'), value, css ];
+    }
+
+    function set_color(name, do_save) {
+        var r = get_value(name);
+        var style = r[0];
+        var value = r[1];
+        var css = r[2];
+        var elements = preview.getElementsByClassName(name);
+        for(var i=0; i < elements.length; i++){
+            elements[i].style[style] = css;
+        }
+        var config_value = config.getElementsByClassName(name);
+        config_value[0].textContent = value;
+        var command_value = command.getElementsByClassName(name);
+        command_value[0].textContent = value;
+        if ( do_save )
+        {
+            save[name] = value;
+            localStorage.save = JSON.stringify(save);
+        }
+    }
+
+    function set_input_value(name, value) {
+        var label = document.getElementById(name);
+        var color = label.firstChild.nextSibling;
+        var alpha = color.nextSibling;
+        if ( value[0] === '#' )
+        {
+            color.value = value;
+            alpha.value = 0xff;
+        }
+        else if ( value.indexOf('argb:') === 0 )
+        {
+            color.value = '#' + value.substring(7);
+            alpha.value = Number('0x' + value.substring(5, 7));
+        }
+        set_color(name, false);
+    }
+
+    function loadDefaults(ev) {
+        save = {};
+        for ( var name in colors ) {
+            var group = colors[name];
+            for ( var i in group ) {
+                var color = group[i];
+                save[color.name] = color.def;
+                if ( ev !== null ) {
+                    set_input_value(color.name, color.def);
+                }
+            }
+        }
+        localStorage.save = JSON.stringify(save);
+    }
+
+    var save = localStorage.save;
+    if ( typeof(save) === 'undefined' )
+        loadDefaults(null);
+    else
+        save = JSON.parse(save);
+
+    attachEvent(document.getElementById('reset'), 'click', loadDefaults);
+
+
+    function set_color_input(ev) {
+        set_color(this.name, ev.type === 'change');
+    }
+
+    for ( var name in colors ) {
+        var ge = document.createElement('div');
+        var title = document.createElement('h2');
+        title.appendChild(new Text(name));
+        ge.appendChild(title);
+
+
+        config.appendChild(new Text("\nrofi.color-" + name.toLowerCase() + ": "));
+        command.appendChild(new Text(' -color-' + name.toLowerCase() + ' "'));
+        buttons.appendChild(ge);
+
+        var group = colors[name];
+        for ( var i in group ) {
+            var color = group[i];
+            var label = document.createElement('label');
+            label.setAttribute('id', color.name);
+            label.setAttribute('class', color.type);
+
+            var text = document.createElement('span');
+            text.appendChild(new Text(color.display));
+            label.appendChild(text);
+
+            var input = document.createElement('input');
+            input.setAttribute('type', 'color');
+            input.setAttribute('name', color.name);
+            label.appendChild(input);
+
+            attachEvent(input, 'input', set_color_input);
+            attachEvent(input, 'change', set_color_input);
+
+            input = document.createElement('input');
+            input.setAttribute('type', 'range');
+            input.setAttribute('min', '0');
+            input.setAttribute('step', '1');
+            input.setAttribute('max', '255');
+            input.setAttribute('name', color.name);
+            label.appendChild(input);
+
+            attachEvent(input, 'input', set_color_input);
+            attachEvent(input, 'change', set_color_input);
+
+
+            ge.appendChild(label);
+
+
+            var config_value = document.createElement('span');
+            config_value.setAttribute('class', color.name);
+            if ( i > 0 )
+                config.appendChild(new Text(', '));
+            config.appendChild(config_value);
+
+            var command_value = document.createElement('span');
+            command_value.setAttribute('class', color.name);
+            if ( i > 0 )
+                command.appendChild(new Text(', '));
+            command.appendChild(command_value);
+
+            set_input_value(color.name, save[color.name]);
+        }
+
+        command.appendChild(new Text('"'));
+    }
+
+    </script>
+</body>
+</html>
