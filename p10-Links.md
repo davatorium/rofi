@@ -11,6 +11,8 @@ title: Links
 
  * [Clerk](https://github.com/carnager/clerk)    The best MPD client *ever*.
 
+ * [MenuMaker](https://github.com/octotep/menumaker) Easy menu maker.
+
 ## Tools for use in/with Rofi
 
  * [i3-color-rofi](https://github.com/okraits/i3-color-rofi)    Use i3 colors within Rofi   
