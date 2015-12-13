@@ -54,6 +54,7 @@ typedef enum _KeyBindingAction
     CUSTOM_18,
     CUSTOM_19,
     SCREENSHOT,
+    TOGGLE_SORT,
     NUM_ABE
 } KeyBindingAction;
 

@@ -84,7 +84,8 @@ DefaultBinding bindings[NUM_ABE] =
     { .id = CUSTOM_18,               .name = "kb-custom-18",               .keybinding = "Alt+Shift+8"                          },
     { .id = CUSTOM_17,               .name = "kb-custom-17",               .keybinding = "Alt+Shift+7"                          },
     { .id = CUSTOM_19,               .name = "kb-custom-19",               .keybinding = "Alt+Shift+9"                          },
-    { .id = SCREENSHOT,              .name = "kb-screenshot",              .keybinding = "Alt+Shift+S"                                },
+    { .id = SCREENSHOT,              .name = "kb-screenshot",              .keybinding = "Alt+Shift+S"                          },
+    { .id = TOGGLE_SORT,             .name = "kb-toggle-sort",             .keybinding = "Alt+grave"                            },
 };
 
 void setup_abe ( void )

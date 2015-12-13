@@ -10,6 +10,7 @@
         - Dmenu can read from file instead of stdin.
         - Regex matching (#113)
         - Take Screenshot of rofi using keybinding.
+        - Hotkey for sorting: (#298)
     Improvements:
 		- Fix return code of multi-select.
         - Update manpage (#289, #291)

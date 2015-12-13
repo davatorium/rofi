@@ -1390,9 +1390,7 @@ MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_l
     scrollbar_set_max_value ( state.scrollbar, state.num_lines );
     // filtered list
     state.line_map = g_malloc0_n ( state.num_lines, sizeof ( unsigned int ) );
-    if ( config.levenshtein_sort ) {
-        state.distance = (int *) g_malloc0_n ( state.num_lines, sizeof ( int ) );
-    }
+    state.distance = (int *) g_malloc0_n ( state.num_lines, sizeof ( int ) );
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
@@ -1563,6 +1561,12 @@ MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_l
                     }
                     if ( abe_test_action ( SCREENSHOT, ev.xkey.state, key ) ) {
                         menu_capture_screenshot ( );
+                        break;
+                    }
+                    if ( abe_test_action ( TOGGLE_SORT, ev.xkey.state, key ) ) {
+                        config.levenshtein_sort = !config.levenshtein_sort;
+                        state.refilter = TRUE;
+                        state.update   = TRUE;
                         break;
                     }
                     else if ( abe_test_action ( MODE_PREVIOUS, ev.xkey.state, key ) ) {

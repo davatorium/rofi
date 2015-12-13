@@ -155,6 +155,7 @@ Type `Shift-Right` to switch from Window list mode to Run mode and back.
 |`Ctrl-space`                 | Set selected item as input text. |
 |`Shift-Del`                  | Delete entry from history. |
 |`grave`                      | Toggle case sensitivity. |
+|`Alt-grave`                  | Toggle levenshtein  sort. |
 |`Alt-Shift-S`                | Take a screenshot and store this in the Pictures directory. |
 
 
