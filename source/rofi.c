@@ -1382,7 +1382,7 @@ MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_l
                                           state.element_width, element_height, NORMAL, "" );
     }
     if ( !config.hide_scrollbar ) {
-        unsigned int sbw = config.line_margin+config.scrollbar_width;
+        unsigned int sbw = config.line_margin + config.scrollbar_width;
         state.scrollbar = scrollbar_create ( state.w - state.border - sbw, state.top_offset,
                                              sbw, ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + element_height );
     }
@@ -1565,8 +1565,8 @@ MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_l
                     }
                     if ( abe_test_action ( TOGGLE_SORT, ev.xkey.state, key ) ) {
                         config.levenshtein_sort = !config.levenshtein_sort;
-                        state.refilter = TRUE;
-                        state.update   = TRUE;
+                        state.refilter          = TRUE;
+                        state.update            = TRUE;
                         break;
                     }
                     else if ( abe_test_action ( MODE_PREVIOUS, ev.xkey.state, key ) ) {
