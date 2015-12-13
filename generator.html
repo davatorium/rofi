@@ -47,6 +47,7 @@
             #preview {
                 display: inline-block;
                 margin: 0 1% 0 0;
+                padding: 6px;
                 width: 49%;
                 font-family: monospace;
                 background-color: black;
@@ -70,7 +71,7 @@
 
             #preview-inside {
                 padding: 4px 4px 0;
-                border: 1px solid;
+                border: 2px solid;
             }
 
             #preview-lines {
@@ -546,8 +547,8 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
     input.setAttribute('value', 'Remove');
     label.appendChild(input);
 
-    attachEvent(text, 'dragover', function (ev) { ev.preventDefault(); });
-    attachEvent(text, 'drop', setImage);
+    attachEvent(label, 'dragover', function (ev) { ev.preventDefault(); });
+    attachEvent(label, 'drop', setImage);
 
     window_settings.appendChild(label);
 
