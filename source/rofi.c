@@ -1382,7 +1382,7 @@ MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_l
                                           state.element_width, element_height, NORMAL, "" );
     }
     if ( !config.hide_scrollbar ) {
-        unsigned int sbw = config.line_margin + 8;
+        unsigned int sbw = config.line_margin+config.scrollbar_width;
         state.scrollbar = scrollbar_create ( state.w - state.border - sbw, state.top_offset,
                                              sbw, ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + element_height );
     }

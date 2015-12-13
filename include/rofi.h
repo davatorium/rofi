@@ -230,6 +230,7 @@ typedef struct _Settings
     int            dpi;
     /** Number threads (1 to disable) */
     unsigned int   threads;
+    unsigned int   scrollbar_width;
 } Settings;
 
 /** Global Settings structure. */

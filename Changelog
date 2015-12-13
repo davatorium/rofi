@@ -11,6 +11,7 @@
         - Regex matching (#113)
         - Take Screenshot of rofi using keybinding.
         - Hotkey for sorting: (#298)
+		- Option to set scrollbar width.
     Improvements:
 		- Fix return code of multi-select.
         - Update manpage (#289, #291)

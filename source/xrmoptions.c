@@ -138,7 +138,8 @@ static XrmOption xrmOptions[] = {
     { xrm_Boolean, "fullscreen",           { .num  = &config.fullscreen         }, NULL, "Fullscreen"                                  },
     { xrm_Boolean, "fake-transparency",    { .num  = &config.fake_transparency  }, NULL, "Fake transparency"                           },
     { xrm_SNumber, "dpi",                  { .snum = &config.dpi                }, NULL, "DPI"                                         },
-    { xrm_Number,  "threads",              { .num  = &config.threads            }, NULL, "Threads to use for string matching"          }
+    { xrm_Number,  "threads",              { .num  = &config.threads            }, NULL, "Threads to use for string matching"          },
+    { xrm_Number,  "scrollbar-width",      { .num  = &config.scrollbar_width    }, NULL, "Scrollbar width"                             }
 };
 
 // Dynamic options.

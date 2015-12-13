@@ -150,4 +150,5 @@ Settings config = {
     .fake_transparency = FALSE,
     .dpi               =                                        -1,
     .threads           =                                         1,
+    .scrollbar_width   =                                         8,
 };

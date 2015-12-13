@@ -359,6 +359,10 @@ Set separator style. Possible options are "none", "solid" or "dash".
 
 Hide the scrollbar.
 
+`-scrollbar-width` *width*
+
+Set the scrollbar width.
+
 `-glob`
 
 Use glob style matching
