@@ -50,6 +50,7 @@
                 width: 49%;
                 font-family: monospace;
                 background-color: black;
+                border: 2px dashed white;
                 vertical-align: top;
             }
 
@@ -138,6 +139,10 @@
                 margin: 4px 0;
             }
 
+            #buttons > div > h2:not(:first-child) {
+                margin-top: 8px;
+            }
+
             #buttons > div > label {
                 display: block;
                 margin: 5px 10px;
@@ -149,15 +154,24 @@
                 vertical-align: middle;
             }
 
-            #buttons > div > label > span {
+            #buttons > div > label > *:first-child {
                 width: 50%;
             }
 
-            #buttons > div > label > input {
+            #buttons > div > label > *:not(:first-child) {
                 width: 23%;
                 margin: 0 1%;
                 padding: 0;
                 border: 0;
+            }
+
+            #buttons > div > label > input[type=button] {
+                padding: 3px 0;
+            }
+
+            #buttons > div > label > .drop-zone {
+                padding: 2px 4px;
+                border: 2px dashed black;
             }
         </style>
     </head>
@@ -468,6 +482,74 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
 
         command.appendChild(new Text('"'));
     }
+
+    function change_background() {
+        preview.style.backgroundColor = this.value;
+    }
+
+    function setImage(ev) {
+        switch ( ev.type ) {
+        case 'click':
+            preview.style.backgroundImage = null;
+        break;
+        case 'load':
+                preview.style.backgroundImage = "url('" + this.result + "')";
+        break;
+        case 'drop':
+            ev.preventDefault();
+            if ( ev.dataTransfer.files.length > 0 )
+            {
+                var file = ev.dataTransfer.files[0];
+                var reader = new FileReader();
+                attachEvent(reader, 'load', setImage);
+                reader.readAsDataURL(file);
+            }
+        break;
+        }
+    }
+
+
+    var window_settings = buttons.firstChild;
+    var title = document.createElement('h2');
+    title.appendChild(new Text('Overall background'));
+    window_settings.appendChild(title);
+
+    var label = document.createElement('label');
+
+    var text = document.createElement('span');
+    text.appendChild(new Text('Color'));
+    label.appendChild(text);
+
+    var input = document.createElement('input');
+    input.setAttribute('type', 'color');
+    input.setAttribute('name', color.name);
+    label.appendChild(input);
+
+    attachEvent(input, 'input', change_background);
+    attachEvent(input, 'change', change_background);
+
+    window_settings.appendChild(label);
+
+    label = document.createElement('label');
+
+    text = document.createElement('span');
+    text.appendChild(new Text('Image'));
+    label.appendChild(text);
+
+    input = document.createElement('span');
+    input.appendChild(new Text('Drop here'));
+    input.setAttribute('class', 'drop-zone');
+    label.appendChild(input);
+
+    input = document.createElement('input');
+    input.setAttribute('type', 'button');
+    input.setAttribute('value', 'Remove');
+    label.appendChild(input);
+
+    attachEvent(text, 'dragover', function (ev) { ev.preventDefault(); });
+    attachEvent(text, 'drop', setImage);
+
+    window_settings.appendChild(label);
 
     </script>
 </body>
