@@ -170,7 +170,7 @@
                 padding: 3px 0;
             }
 
-            #buttons > div > label > .drop-zone {
+            #buttons > div > .drop-zone {
                 padding: 2px 4px;
                 border: 2px dashed black;
             }
@@ -492,19 +492,29 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
         switch ( ev.type ) {
         case 'click':
             preview.style.backgroundImage = null;
+            this.parentElement.nextSibling.textContent = '';
         break;
         case 'load':
                 preview.style.backgroundImage = "url('" + this.result + "')";
         break;
         case 'drop':
             ev.preventDefault();
-            if ( ev.dataTransfer.files.length > 0 )
-            {
-                var file = ev.dataTransfer.files[0];
-                var reader = new FileReader();
-                attachEvent(reader, 'load', setImage);
-                reader.readAsDataURL(file);
-            }
+            if ( ev.dataTransfer.files.length == 0 )
+                break;
+            var file = ev.dataTransfer.files[0];
+            var reader = new FileReader();
+            attachEvent(reader, 'load', setImage);
+            reader.readAsDataURL(file);
+            this.nextSibling.textContent = file.name;
+        break;
+        case 'change':
+            if ( this.files.length == 0 )
+                break;
+            var file = this.files[0];
+            var reader = new FileReader();
+            attachEvent(reader, 'load', setImage);
+            reader.readAsDataURL(file);
+            this.parentElement.nextSibling.textContent = file.name;
         break;
         }
     }
@@ -532,25 +542,32 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
     window_settings.appendChild(label);
 
     label = document.createElement('label');
+    label.setAttribute('class', 'drop-zone');
 
     text = document.createElement('span');
     text.appendChild(new Text('Image'));
     label.appendChild(text);
 
-    input = document.createElement('span');
-    input.appendChild(new Text('Drop here'));
-    input.setAttribute('class', 'drop-zone');
+    input = document.createElement('input');
+    input.setAttribute('type', 'file');
     label.appendChild(input);
+
+    attachEvent(input, 'change', setImage);
 
     input = document.createElement('input');
     input.setAttribute('type', 'button');
     input.setAttribute('value', 'Remove');
     label.appendChild(input);
 
+    attachEvent(input, 'click', setImage);
+
     attachEvent(label, 'dragover', function (ev) { ev.preventDefault(); });
     attachEvent(label, 'drop', setImage);
 
     window_settings.appendChild(label);
+
+    text = document.createElement('p');
+    window_settings.appendChild(text);
 
     </script>
 </body>
