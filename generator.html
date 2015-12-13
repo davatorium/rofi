@@ -23,6 +23,7 @@
 -->
     <head>
         <meta charset="utf-8">
+        <title>Rofi themenator</title>
         <style media="screen" type="text/css">
             * {
                 box-sizing: border-box;
@@ -129,7 +130,7 @@
 
             #buttons > div {
                 display: inline-block;
-                margin: 0 1%;
+                margin: 0 1% 30px;
                 padding: 4px 10px;
                 width: 23%;
                 background: rgba(255, 255, 255, 0.7);
@@ -170,14 +171,36 @@
                 padding: 3px 0;
             }
 
+            #buttons > div > label > input[type=file] {
+                color: transparent;
+            }
+
             #buttons > div > .drop-zone {
                 padding: 2px 4px;
                 border: 2px dashed black;
             }
+
+            #buttons > div > .image-name {
+                text-align: center;
+            }
+
+            @media screen and (max-device-width: 640px) {
+                #preview {
+                    width: 100%;
+                }
+
+                #config, #command {
+                    display: none;
+                }
+
+                #buttons > div {
+                    width: 48%;
+                }
+            }
         </style>
     </head>
 <body>
-    <h1>Rofi theme maker</h1>
+    <h1>Rofi themenator</h1>
     <input id="reset" type="button" value="Reset stored values" />
 
     <div id="preview">
@@ -492,10 +515,10 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
         switch ( ev.type ) {
         case 'click':
             preview.style.backgroundImage = null;
-            this.parentElement.nextSibling.textContent = '';
+            image_name.textContent = '';
         break;
         case 'load':
-                preview.style.backgroundImage = "url('" + this.result + "')";
+            preview.style.backgroundImage = "url('" + this.result + "')";
         break;
         case 'drop':
             ev.preventDefault();
@@ -505,7 +528,7 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
             var reader = new FileReader();
             attachEvent(reader, 'load', setImage);
             reader.readAsDataURL(file);
-            this.nextSibling.textContent = file.name;
+            image_name.textContent = file.name;
         break;
         case 'change':
             if ( this.files.length == 0 )
@@ -514,7 +537,7 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
             var reader = new FileReader();
             attachEvent(reader, 'load', setImage);
             reader.readAsDataURL(file);
-            this.parentElement.nextSibling.textContent = file.name;
+            image_name.textContent = file.name;
         break;
         }
     }
@@ -566,8 +589,12 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
 
     window_settings.appendChild(label);
 
-    text = document.createElement('p');
-    window_settings.appendChild(text);
+    var image_name = document.createElement('p');
+    image_name.setAttribute('class', 'image-name')
+    window_settings.appendChild(image_name);
+
+    attachEvent(preview, 'dragover', function (ev) { ev.preventDefault(); });
+    attachEvent(preview, 'drop', setImage);
 
     </script>
 </body>
