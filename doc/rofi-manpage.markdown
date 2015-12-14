@@ -822,9 +822,15 @@ Allows custom scripted Modi to be added.
 
     Try using a mono-space font.
 
-`**rofi** is completely black.`
+**rofi** is completely black.
 
     Check quotes used on the commandline: e.g. used “ instead of ".
+
+**rofi** what does the icon in the top right show?
+
+    - Case sensitivity enabled
+    + Sorting enabled
+    ± Sorting and Case sensitivity enabled"
 
 ## LICENSE
 

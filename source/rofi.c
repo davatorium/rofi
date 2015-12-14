@@ -98,6 +98,24 @@ XIC               xic;
 
 GThreadPool       *tpool = NULL;
 
+static char * get_matching_state ( void )
+{
+    if ( config.case_sensitive ) {
+        if ( config.levenshtein_sort ) {
+            return "±";
+        }
+        else {
+            return "-";
+        }
+    }
+    else{
+        if ( config.levenshtein_sort ) {
+            return "+";
+        }
+    }
+    return " ";
+}
+
 /**
  * @param name Name of the switcher to lookup.
  *
@@ -1351,12 +1369,7 @@ MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_l
     // Move indicator to end.
     textbox_move ( state.case_indicator, state.border + textbox_get_width ( state.prompt_tb ) + entrybox_width, state.border );
 
-    if ( config.case_sensitive ) {
-        textbox_text ( state.case_indicator, "*" );
-    }
-    else{
-        textbox_text ( state.case_indicator, " " );
-    }
+    textbox_text ( state.case_indicator, get_matching_state () );
     state.message_tb = NULL;
     if ( message ) {
         state.message_tb = textbox_create ( TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP,
@@ -1567,6 +1580,7 @@ MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_l
                         config.levenshtein_sort = !config.levenshtein_sort;
                         state.refilter          = TRUE;
                         state.update            = TRUE;
+                        textbox_text ( state.case_indicator, get_matching_state () );
                         break;
                     }
                     else if ( abe_test_action ( MODE_PREVIOUS, ev.xkey.state, key ) ) {
@@ -1588,12 +1602,7 @@ MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_l
                         *( state.selected_line ) = 0;
                         state.refilter           = TRUE;
                         state.update             = TRUE;
-                        if ( config.case_sensitive ) {
-                            textbox_text ( state.case_indicator, "*" );
-                        }
-                        else {
-                            textbox_text ( state.case_indicator, " " );
-                        }
+                        textbox_text ( state.case_indicator, get_matching_state () );
                         break;
                     }
                     // Special delete entry command.
