@@ -151,6 +151,7 @@ void textbox_text ( textbox *tb, const char *text )
         pango_layout_set_markup ( tb->layout, tb->text, strlen ( tb->text ) );
     }
     else {
+        pango_layout_set_attributes ( tb->layout, NULL );
         pango_layout_set_text ( tb->layout, tb->text, strlen ( tb->text ) );
     }
     if ( tb->flags & TB_AUTOWIDTH ) {
