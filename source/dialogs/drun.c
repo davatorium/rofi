@@ -317,16 +317,29 @@ static int drun_token_match ( const Mode *data,
                               )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) data->private_data;
-    if ( rmpd->entry_list[index].name &&
-         token_match ( tokens, rmpd->entry_list[index].name, not_ascii, case_sensitive ) ) {
-        return 1;
-    }
-    if ( rmpd->entry_list[index].generic_name &&
-         token_match ( tokens, rmpd->entry_list[index].generic_name, not_ascii, case_sensitive ) ) {
-        return 1;
-    }
+    int match = 1;
+    if(tokens ) {
+        for ( int j = 0; match && tokens != NULL && tokens[j] != NULL; j++ ) {
+            int test = 0;
+            char *ftokens[2] = { tokens[j], NULL };
+            if ( !test && rmpd->entry_list[index].name &&
+                    token_match ( ftokens, rmpd->entry_list[index].name, not_ascii, case_sensitive ) ) {
+                test =1;
+            }
+            if ( !test && rmpd->entry_list[index].generic_name &&
+                    token_match ( ftokens, rmpd->entry_list[index].generic_name, not_ascii, case_sensitive ) ) {
+                test =1;
+            }
 
-    return 0;
+            if ( !test && token_match( ftokens, rmpd->entry_list[index].exec, not_ascii, case_sensitive)){
+                test = 1;
+            }
+            if ( test == 0 ) {
+                match = 0;
+            }
+        }
+    }
+    return match;
 }
 
 static unsigned int drun_mode_get_num_entries ( const Mode *sw )
