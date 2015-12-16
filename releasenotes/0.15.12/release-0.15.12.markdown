@@ -4,6 +4,10 @@ The 0.15.12 release of **rofi** focussed on improving overall user experience.  
 three things, first we tried to fix the problems with complex keyboard layouts, secondly we tried to make themeing of
 **rofi** easier and last we added several speedups.  Below I will highlight these bigger changes in more details
 
+From the next release on, now that **rofi** reached an acceptable maturity level, we will start using more common
+version numbering (instead of `0.year.month` that is currently used). Depending on the amount of new bugs discovered I
+might decide to make a `1.0.0` release.
+
 ## Keyboard Layouts
 
 **Rofi** used to have problems with keyboard layouts that used modifier keys to switch between different layouts (unsure
