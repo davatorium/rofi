@@ -46,8 +46,8 @@ to force it to use 4 threads. Setting the number to 1, disables it.
 ## Themes
 
 **Rofi** color theme can be specified in a lot of detail, using transparency to get the desired results. However this is
-not always the easiest to write down and testing it can be a hassle. To solve this we added a webgui for writing (and
-live previewing) themes and a theme repository.
+not always the easiest to write down and testing it can be a hassle. To solve this we added a web frontend for writing
+(and live previewing) themes and a theme repository.
 
 To help with this, you can now take screenshots of **rofi** from within **rofi** with a simple keybinding.
 
