@@ -1,7 +1,7 @@
 # Release 0.15.12
 
 The 0.15.12 release of **rofi** focussed on improving overall user experience.  These improvements mostly focussed on
-three things, first we tried to fix the problems with complex keyboard layouts, secondly we tried to make themeing of
+three things, first we (tried to) fix the problems with complex keyboard layouts, secondly we tried to make themeing of
 **rofi** easier and last we added several speedups.  Below I will highlight these bigger changes in more details
 
 From the next release on, now that **rofi** reached an acceptable maturity level, we will start using more common
@@ -19,7 +19,7 @@ alt (say *Mod3*) is configured to switch between layouts, it cannot work as modi
 **Rofi** will now check if the current layout has the *SuperR*,*SuperL*,*AltGr*,*HyperL*,*HyperR* keys available. If they
 are available they can be used for keybindings, if not, the user gets a warning.
 
-*screenshot warning*
+![Rofi Keyboard Warning](rofi-warning.png)
 
 ## Speedups
 
