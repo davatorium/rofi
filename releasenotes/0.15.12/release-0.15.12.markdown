@@ -62,7 +62,7 @@ of the repository and the update script will automatically generate screenshots 
 
 The repository can be found [here](https://github.com/DaveDavenport/rofi-themes/)
 
-*add screenshot*
+![Rofi Theme Site](rofi-theme-site.png)
 
 ### Themenator
 
@@ -73,6 +73,7 @@ something beautiful.
 Hopefully people will make beautiful themes and submit them to the [theme
 repository](https://github.com/DaveDavenport/rofi-themes/).
 
+![Rofi Themenator](rofi-themenator.png)
 
 ## Full ChangeLog
 
