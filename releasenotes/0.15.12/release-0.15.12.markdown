@@ -1,23 +1,28 @@
 # Release 0.15.12
 
-The 0.15.12 release of **rofi** focussed on improving overall user experience.  These improvements mostly focussed on
-three things, first we (tried to) fix the problems with complex keyboard layouts, secondly we tried to make themeing of
-**rofi** easier and last we added several speedups.  Below I will highlight these bigger changes in more details
+The 0.15.12 release of **rofi** focusses on improving overall user experience.  These improvements mostly focussed on
+three things, first we (tried to) fix the problems with complex keyboard layouts, second we tried to make theming of
+**rofi** easier. Also we added several speedups. Below I will highlight these bigger changes in more details
 
-From the next release on, now that **rofi** reached an acceptable maturity level, we will start using more common
-version numbering (instead of `0.year.month` that is currently used). Depending on the amount of new bugs discovered I
-might decide to make a `1.0.0` release.
+Now that **rofi** reached an acceptable maturity level, we will start using more common
+version numbering. Right now rofi uses `0.year.month` for version numbers.
+Starting with next version the widely used `major.minor.bugfix` scheme will be used.
+This means, that next rofi version will either be
+
+* 0.15.13 (bugfix release)
+* 0.16.0 (minor release) or (if no major bugs are discovered most likely)
+* 1.0.0 (major release) 
 
 ## Keyboard Layouts
 
-**Rofi** used to have problems with keyboard layouts that used modifier keys to switch between different layouts (unsure
-how this is called). These problems should now belong to the past.
+**Rofi** used to have problems with keyboard layouts that used modifier keys to switch between different layers.
+These problems should now be a thing of the past.
 
 **Note** the syntax for binding keys has slightly changed. The *Mod1*, *Mod2*, etc. keywords are no longer available.
-There was no good way to detect how these keys where mapped and if they could be used as modifiers. E.g. if the right
-alt (say *Mod3*) is configured to switch between layouts, it cannot work as modifier key to make a `Mod3-p` keybinding.
-**Rofi** will now check if the current layout has the *SuperR*,*SuperL*,*AltGr*,*HyperL*,*HyperR* keys available. If they
-are available they can be used for keybindings, if not, the user gets a warning.
+There was no good way to detect how these keys where mapped and if they could be used as modifiers.
+E.g. if the right alt (say *Mod3*) is configured to switch between layouts, it cannot work as modifier key to make a `Mod3-p` keybinding.
+**Rofi** will now check if the current layout has the *SuperR*,*SuperL*,*AltGr*,*HyperL*,*HyperR* keys available.
+If they are available they can be used for keybindings, if not, the user gets a warning.
 
 ![Rofi Keyboard Warning](rofi-warning.png)
 
@@ -25,38 +30,38 @@ are available they can be used for keybindings, if not, the user gets a warning.
 
 ### DMenu reading from stdin
 
-**Rofi** used to have a custom `fgets` implementation that supported custom separators. The first version in here was
-slow and was improved. After a hint of it existence it has now been replaced by the Posix 2008 `getdelim`, this one is
-almost as fast as the new custom implementation.
+**Rofi** used to have a custom `fgets` implementation that supported custom separators. The first version was
+slow but got improved. Learning about Posix 2000' `getdelim` this is now used and is almost as fast as the latest custom implementation.
 
 Overall this gave a speedup of 6x (from 648 ms for 202000 lines down to 108ms).
 
 ### Multi-Core power
 
 Still disabled by default, **rofi** can now spawn multiple threads for filtering rows. Depending on the underlying
-hardware we saw a 1.5 times speedup running on a dual core ARM  and up to a 3.5 speedup on a quadcore (8 thread) i7.
-It uses Glib's GThreadPool and will therefor spawn threads when needed, and clean them up again when unused.
+hardware we saw a 1.5x speedup running on a dual core ARM and up to a 3.5x speedup on a quadcore (8 threads) i7 CPU.
+It uses Glib's GThreadPool and will therefore spawn threads as needed and clean them up again afterwards.
 
-To enable this option pass `-threads 0` option, this will autodetect the number number of hw-threads. Pass `-threads 4`
+To enable this option pass the `-threads 0` option, this will autodetect the number number of hw-threads. Pass `-threads 4`
 to force it to use 4 threads. Setting the number to 1, disables it.
 
 
 ## Themes
 
-**Rofi** color theme can be specified in a lot of detail, using transparency to get the desired results. However this is
-not always the easiest to write down and testing it can be a hassle. To solve this we added a web frontend for writing
-(and live previewing) themes and a theme repository.
+**Rofi** color themes can be specified in a lot of detail, including the use of transparency to get desired results.
+However color syntax proved to be difficult and testing it can be a hassle. To solve this we added a web frontend for writing
+themes (with live preview) and a themes repository.
 
-To help with this, you can now take screenshots of **rofi** from within **rofi** with a simple keybinding.
+To make things even easier, you can now take screenshots of **rofi** from within **rofi** with a simple keybinding.
 
 ![Rofi Internal Screenshot](rofi-screenshot.png)
  
 ### Theme repository
 
-This has been requested several times and started somewhat on the website. This however got outdated quickly and neither
-the themes or the screenshots are correct anymore. To ease this the new repository allows themes to be easily added: you
-can export your current configuration directly using **rofi --dump-xresources-theme**, place it in the theme directory
-of the repository and the update script will automatically generate screenshots and update the page.
+This has been requested several times and rofi's website actually has a theming page.. This however got outdated quickly and neither
+the themes or the screenshots are correct anymore. The newly added rofi-themes git repository allows you to add themes easily:
+Fork the repository and export your current color theme with **rofi -dump-xresources-theme**. Place it in the theme directory
+of the repository and run the update script. This will automatically generate screenshots and update the page.
+Update your fork and send a pull request. This way your theme will appear on official themes page, once it's merged.
 
 The repository can be found [here](https://github.com/DaveDavenport/rofi-themes/)
 
@@ -64,12 +69,11 @@ The repository can be found [here](https://github.com/DaveDavenport/rofi-themes/
 
 ### Themenator
 
-The second tool is a website allowing you to easily create themes and preview all changes life, the [themenator]()
-Big thanks goes to `SardemFF7` who got tired of me complaining, took the very rough prototype and turned it into
+The second tool is a website allowing you to easily create themes and preview all changes life, the [themenator](https://davedavenport.github.io/rofi/generator.html)
+Big thanks to `SardemFF7` who got tired of me complaining, took the very rough prototype and turned it into
 something beautiful. 
 
-Hopefully people will make beautiful themes and submit them to the [theme
-repository](https://github.com/DaveDavenport/rofi-themes/).
+Hopefully people will make beautiful themes and submit them to the [theme repository](https://github.com/DaveDavenport/rofi-themes/).
 
 ![Rofi Themenator](rofi-themenator.png)
 
