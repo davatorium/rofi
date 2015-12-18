@@ -31,7 +31,7 @@ If they are available they can be used for keybindings, if not, the user gets a 
 ### DMenu reading from stdin
 
 **Rofi** used to have a custom `fgets` implementation that supported custom separators. The first version was
-slow but got improved. Learning about Posix 2000' `getdelim` this is now used and is almost as fast as the latest custom implementation.
+slow but got improved. Learning about Posix 2008' `getdelim` this is now used and is almost as fast as the latest custom implementation.
 
 Overall this gave a speedup of 6x (from 648 ms for 202000 lines down to 108ms).
 
@@ -57,7 +57,7 @@ To make things even easier, you can now take screenshots of **rofi** from within
  
 ### Theme repository
 
-This has been requested several times and rofi's website actually has a theming page.. This however got outdated quickly and neither
+This has been requested several times and rofi's website actually has a theming page. This however got outdated quickly and neither
 the themes or the screenshots are correct anymore. The newly added rofi-themes git repository allows you to add themes easily:
 Fork the repository and export your current color theme with **rofi -dump-xresources-theme**. Place it in the theme directory
 of the repository and run the update script. This will automatically generate screenshots and update the page.
