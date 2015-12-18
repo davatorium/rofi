@@ -31,7 +31,7 @@ If they are available they can be used for keybindings, if not, the user gets a 
 ### DMenu reading from stdin
 
 **Rofi** used to have a custom `fgets` implementation that supported custom separators. The first version was
-slow but got improved. Learning about Posix 2008' `getdelim` this is now used and is almost as fast as the latest custom implementation.
+slow but got improved. Learning about the `getdelim` feature of POSIX '08, this is now used and is almost as fast as the latest custom implementation.
 
 Overall this gave a speedup of 6x (from 648 ms for 202000 lines down to 108ms).
 
