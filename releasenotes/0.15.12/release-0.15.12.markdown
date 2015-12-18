@@ -51,7 +51,7 @@ not always the easiest to write down and testing it can be a hassle. To solve th
 
 To help with this, you can now take screenshots of **rofi** from within **rofi** with a simple keybinding.
 
-*Add screenshot*
+![Rofi Internal Screenshot](rofi-screenshot.png)
  
 ### Theme repository
 
