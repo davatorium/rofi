@@ -29,9 +29,7 @@ are available they can be used for keybindings, if not, the user gets a warning.
 slow and was improved. After a hint of it existence it has now been replaced by the Posix 2008 `getdelim`, this one is
 almost as fast as the new custom implementation.
 
-Overall this gave a speedup of 6x.
-
-*check speedup against previous release*
+Overall this gave a speedup of 6x (from 648 ms for 202000 lines down to 108ms).
 
 ### Multi-Core power
 
