@@ -174,13 +174,13 @@ static int lev_sort ( const void *p1, const void *p2, void *arg )
 
 #define MIN3( a, b, c )    ( ( a ) < ( b ) ? ( ( a ) < ( c ) ? ( a ) : ( c ) ) : ( ( b ) < ( c ) ? ( b ) : ( c ) ) )
 
-static int levenshtein ( const char *s1, const char *s2 )
+static unsigned int levenshtein ( const char *s1, const char *s2 )
 {
     unsigned int x, y, lastdiag, olddiag;
     size_t       s1len = strlen ( s1 );
     size_t       s2len = strlen ( s2 );
     unsigned int column[s1len + 1];
-    for ( y = 1; y <= s1len; y++ ) {
+    for ( y = 0; y <= s1len; y++ ) {
         column[y] = y;
     }
     for ( x = 1; x <= s2len; x++ ) {

@@ -213,7 +213,7 @@ static void get_apps ( DRunModePrivateData *pd )
     }
 
     const char *d = g_get_user_data_dir ();
-    for ( size_t i = 0; dr[i] != NULL; i++ ) {
+    for ( size_t i = 0; dr && dr[i] != NULL; i++ ) {
         if ( g_strcmp0 ( d, dr[i] ) == 0 ) {
             // Done this already, no need to repeat.
             return;
