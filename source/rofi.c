@@ -591,7 +591,6 @@ static int locate_switcher ( KeySym key, unsigned int modstate )
  */
 static void menu_capture_screenshot ( void )
 {
-    int index = 0;
     if ( surface == NULL ) {
         // Nothing to store.
         fprintf ( stderr, "There is no rofi surface to store\n" );
@@ -611,6 +610,7 @@ static void menu_capture_screenshot ( void )
     char       *fpath = NULL;
     const char *outp  = g_getenv ( "ROFI_PNG_OUTPUT" );
     if ( outp == NULL ) {
+        int index = 0;
         fpath = g_build_filename ( xdg_pict_dir, filename, NULL );
         while ( g_file_test ( fpath, G_FILE_TEST_EXISTS ) && index < 99 ) {
             g_free ( fpath );
