@@ -19,10 +19,10 @@ This means, that next rofi version will either be
 These problems should now be a thing of the past.
 
 **Note** the syntax for binding keys has slightly changed. The *Mod1*, *Mod2*, etc. keywords are no longer available.
-There was no good way to detect how these keys where mapped and if they could be used as modifiers.
-E.g. if the right alt (say *Mod3*) is configured to switch between layouts, it cannot work as modifier key to make a `Mod3-p` keybinding.
-**Rofi** will now check if the current layout has the *SuperR*,*SuperL*,*AltGr*,*HyperL*,*HyperR* keys available.
-If they are available they can be used for keybindings, if not, the user gets a warning.
+There was no good way to detect how these keys where mapped and if they could be used as modifiers.  E.g. if the right
+alt (say *Mod3*) is configured to switch between layouts, it cannot work as modifier key to make a `Mod3-p` keybinding.
+**Rofi** will now check if the current layout has the *SuperR*,*SuperL*,*AltGr*,*HyperL*,*HyperR* keys available.  If
+they are available they can be used for keybindings, if not, the user gets a warning.
 
 ![Rofi Keyboard Warning](rofi-warning.png)
 
@@ -30,10 +30,8 @@ If they are available they can be used for keybindings, if not, the user gets a 
 
 ### DMenu reading from stdin
 
-**Rofi** used to have a custom `fgets` implementation that supported custom separators. The first version was
-slow but got improved. Learning about the `getdelim` feature of POSIX '08, this is now used and is almost as fast as the latest custom implementation.
-
-Overall this gave a speedup of 6x (from 648 ms for 202000 lines down to 108ms).
+**Rofi** used to have a custom `fgets` implementation that supported custom separators. The has been repaced by the
+`getdelim` feature of POSIX '08, this gave a speedup of 6x (from 648 ms for 202000 lines down to 108ms).
 
 ### Multi-Core power
 
@@ -57,11 +55,12 @@ To make things even easier, you can now take screenshots of **rofi** from within
  
 ### Theme repository
 
-This has been requested several times and rofi's website actually has a theming page. This however got outdated quickly and neither
-the themes or the screenshots are correct anymore. The newly added rofi-themes git repository allows you to add themes easily:
-Fork the repository and export your current color theme with **rofi -dump-xresources-theme**. Place it in the theme directory
-of the repository and run the update script. This will automatically generate screenshots and update the page.
-Update your fork and send a pull request. This way your theme will appear on official themes page, once it's merged.
+This has been requested several times and rofi's website actually has a theming page. This however got outdated quickly
+and neither the themes or the screenshots are correct anymore. The newly added rofi-themes git repository allows you to
+add themes easily: Fork the repository and export your current color theme with **rofi -dump-xresources-theme**. Place
+it in the theme directory of the repository and run the update script. This will automatically generate screenshots and
+update the page.  Update your fork and send a pull request. This way your theme will appear on official themes page,
+once it's merged.
 
 The repository can be found [here](https://github.com/DaveDavenport/rofi-themes/)
 
@@ -69,9 +68,10 @@ The repository can be found [here](https://github.com/DaveDavenport/rofi-themes/
 
 ### Themenator
 
-The second tool is a website allowing you to easily create themes and preview all changes life, the [themenator](https://davedavenport.github.io/rofi/generator.html)
-Big thanks to [SardemFF7](https://github.com/sardemff7) who got tired of me complaining, took the very rough prototype and turned it into
-something beautiful. 
+The second tool is a website allowing you to easily create themes and preview all changes life, the
+[themenator](https://davedavenport.github.io/rofi/generator.html) Big thanks to
+[SardemFF7](https://github.com/sardemff7) who got tired of me complaining, took the very rough prototype and turned it
+into something beautiful. 
 
 Hopefully people will make beautiful themes and submit them to the [theme repository](https://github.com/DaveDavenport/rofi-themes/).
 
