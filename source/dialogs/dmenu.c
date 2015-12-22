@@ -94,8 +94,8 @@ static char **get_dmenu ( FILE *fd, unsigned int *length )
         }
     }
     if ( retv != NULL ) {
-        retv[( *length ) + 1] = NULL;
         retv                  = g_realloc ( retv, ( *length + 1 ) * sizeof ( char* ) );
+        retv[( *length ) ] = NULL;
     }
     TICK_N ( "Read stdin STOP" );
     return retv;
