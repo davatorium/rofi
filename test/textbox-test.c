@@ -91,10 +91,8 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     // Set alternate row to normal row.
     config.menu_bg_alt = config.menu_bg;
     textbox_setup ( display );
-    textbox *box =
-        textbox_create ( TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, 0, 0, -1, -1,
-                         NORMAL,
-                         "test" );
+    textbox *box = textbox_create ( TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, 0, 0, -1, -1,
+                         NORMAL, "test" );
     TASSERT ( box != NULL );
 
     textbox_cursor_end ( box );
