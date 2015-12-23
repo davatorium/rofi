@@ -414,6 +414,11 @@ static void textbox_cursor_dec_word ( textbox *tb )
 // end of line
 void textbox_cursor_end ( textbox *tb )
 {
+    if ( tb->text == NULL ) {
+        tb->cursor = 0;
+        tb->update = TRUE;
+        return;
+    }
     tb->cursor = ( int ) strlen ( tb->text );
     tb->update = TRUE;
 }
