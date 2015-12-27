@@ -1,7 +1,8 @@
 markdown: kramdown
 
-url: https://davedavenport.github.io/rofi/
+url: ./
 name: Rofi
+logo: images/rofi-large.png
 description: A window switcher, run dialog and dmenu replacement
 github-url: https://github.com/DaveDavenport/rofi
 github-user-url: https://github.com/DaveDavenport/
