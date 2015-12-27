@@ -1,4 +1,6 @@
-0.15.12 (unreleased):
+1.0.0 (unreleased):
+
+0.15.12:
     New features:
         - Initial `-dump` command for dmenu mode. (#216)
         - Threading support.
