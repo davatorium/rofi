@@ -31,6 +31,7 @@ rofi.color-window:                   #ffffff,#f5f5f5
 ! Separator style (none, dash, solid)
 rofi.separator-style:                solid
 ~~~
+
 # android_notification
 
 ## Screenshot
@@ -49,6 +50,7 @@ rofi.color-normal: #273238, #c1c1c1, #273238, #394249, #ffffff
 rofi.color-active: #273238, #80cbc4, #273238, #394249, #80cbc4
 rofi.color-urgent: #273238, #ff1844, #273238, #394249, #ff1844
 ~~~
+
 # blor
 
 ## Screenshot
@@ -74,6 +76,7 @@ rofi.color-window:                   argb:ee222222,  #FAC863 ,  #FAC863
 ! Separator style (none, dash, solid)
 rofi.separator-style:                solid
 ~~~
+
 # blue
 
 ## Screenshot
@@ -97,6 +100,7 @@ rofi.color-active:                   argb:00000000, #a0ffa0, argb:00000000, #a0f
 ! Color scheme window
 rofi.color-window:                   argb:ee0060a0, #00b0ef,#00b0ef
 ~~~
+
 # c64
 
 ## Screenshot
@@ -115,6 +119,7 @@ rofi.color-normal: #0039ff, #4f80ff, #0039ff, #4f80ff, #ffffff
 rofi.color-active: #0039ff, #68ba50, #0039ff, #4f80ff, #68ba50
 rofi.color-urgent: #0039ff, #ff7047, #0039ff, #4f80ff, #ff7047
 ~~~
+
 # glue_pro_blue
 
 ## Screenshot
@@ -133,6 +138,7 @@ rofi.color-normal: #393939, #ffffff, #393939, #268bd2, #ffffff
 rofi.color-active: #393939, #268bd2, #393939, #268bd2, #205171
 rofi.color-urgent: #393939, #f3843d, #393939, #268bd2, #ffc39c
 ~~~
+
 # lb
 
 ## Screenshot
@@ -159,6 +165,7 @@ rofi.color-window:                   argb:ee333333, #1aa,#1aa
 ! Separator style (none, dash, solid)
 rofi.separator-style:                dash
 ~~~
+
 # purple
 
 ## Screenshot
@@ -184,6 +191,7 @@ rofi.color-window:                   #2f1e2e, argb:36ef6155, argb:2fef6155
 ! Separator style (none, dash, solid)
 rofi.separator-style:                dash
 ~~~
+
 # solarized
 
 ## Screenshot
@@ -202,6 +210,7 @@ rofi.color-normal: #002b37, #819396, #002b37, #003642, #819396
 rofi.color-active: #002b37, #008ed4, #002b37, #003642, #008ed4
 rofi.color-urgent: #002b37, #da4281, #002b37, #003642, #da4281
 ~~~
+
 # solarized_alternate
 
 ## Screenshot
@@ -217,3 +226,4 @@ rofi.color-normal: #002b37, #819396, #003643, #008ed4, #ffffff
 rofi.color-active: #002b37, #008ed4, #003643, #008ed4, #66c6ff
 rofi.color-urgent: #002b37, #da4281, #003643, #008ed4, #890661
 ~~~
+
