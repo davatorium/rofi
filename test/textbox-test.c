@@ -91,6 +91,11 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     // Set alternate row to normal row.
     config.menu_bg_alt = config.menu_bg;
     textbox_setup ( display );
+    PangoContext *p = pango_cairo_create_context ( draw );
+    textbox_set_pango_context ( p );
+    // cleanup
+    g_object_unref ( p );
+
     textbox *box = textbox_create ( TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, 0, 0, -1, -1,
                                     NORMAL, "test" );
     TASSERT ( box != NULL );
