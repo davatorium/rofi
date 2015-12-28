@@ -5,6 +5,7 @@ title: Themes
 ---
 
 # Rofi Themes: 
+Below a list of user contributed **rofi** themes.
 
 # Arc
 
