@@ -1,5 +1,6 @@
 1.0.0 (unreleased):
-
+	Bug fixes:
+		- Fix subpixel rendering. (#303)
 0.15.12:
     New features:
         - Initial `-dump` command for dmenu mode. (#216)

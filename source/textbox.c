@@ -34,7 +34,6 @@
 #include <X11/XKBlib.h>
 #include <ctype.h>
 #include <glib.h>
-#include <pango/pangocairo.h>
 #include "rofi.h"
 #include "textbox.h"
 #include "keyb.h"
@@ -76,10 +75,7 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
 
     tb->main_surface = cairo_image_surface_create ( get_format (), tb->w, tb->h );
     tb->main_draw    = cairo_create ( tb->main_surface );
-    tb->layout       = pango_cairo_create_layout ( tb->main_draw );
-    PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
-    pango_layout_set_font_description ( tb->layout, pfd );
-    pango_font_description_free ( pfd );
+    tb->layout       = pango_layout_new ( p_context );
     textbox_font ( tb, tbft );
 
     if ( ( flags & TB_WRAP ) == TB_WRAP ) {
@@ -239,8 +235,6 @@ static void texbox_update ( textbox *tb )
         }
         tb->main_surface = cairo_image_surface_create ( get_format (), tb->w, tb->h );
         tb->main_draw    = cairo_create ( tb->main_surface );
-        PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
-        pango_font_description_free ( pfd );
         cairo_set_operator ( tb->main_draw, CAIRO_OPERATOR_SOURCE );
 
         pango_cairo_update_layout ( tb->main_draw, tb->layout );
@@ -300,18 +294,19 @@ static void texbox_update ( textbox *tb )
         cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha * scale );
         cairo_paint ( tb->main_draw );
 
-        // Set ARGB
         col = tb->color_fg;
         cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha * scale );
-        cairo_move_to ( tb->main_draw, x, y );
-        pango_cairo_show_layout ( tb->main_draw, tb->layout );
-
-        //cairo_fill(tb->draw);
         // draw the cursor
         if ( tb->flags & TB_EDITABLE ) {
             cairo_rectangle ( tb->main_draw, x + cursor_x, y, cursor_width, font_height );
             cairo_fill ( tb->main_draw );
         }
+
+        // Set ARGB
+        // We need to set over, otherwise subpixel hinting wont work.
+        cairo_set_operator ( tb->main_draw, CAIRO_OPERATOR_OVER );
+        cairo_move_to ( tb->main_draw, x, y );
+        pango_cairo_show_layout ( tb->main_draw, tb->layout );
 
         tb->update = FALSE;
     }
@@ -658,11 +653,12 @@ void textbox_setup ( Display *display )
         parse_color ( display, config.menu_hlfg_active, &( colors[ACTIVE].hlfg ) );
         parse_color ( display, config.menu_hlbg_active, &( colors[ACTIVE].hlbg ) );
     }
-    PangoFontMap *font_map = pango_cairo_font_map_get_default ();
-    if ( config.dpi > 0 ) {
-        pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, (double) config.dpi );
-    }
-    p_context = pango_font_map_create_context ( font_map );
+}
+
+void textbox_set_pango_context ( PangoContext *p )
+{
+    textbox_cleanup ();
+    p_context = g_object_ref ( p );
 }
 
 void textbox_cleanup ( void )
@@ -699,26 +695,18 @@ int textbox_get_font_width ( textbox *tb )
 
 double textbox_get_estimated_char_width ( void )
 {
-    PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
     // Get width
-    PangoFontMetrics     *metric = pango_context_get_metrics ( p_context, pfd, NULL );
-    int                  width   = pango_font_metrics_get_approximate_char_width ( metric );
+    PangoFontMetrics *metric = pango_context_get_metrics ( p_context, NULL, NULL );
+    int              width   = pango_font_metrics_get_approximate_char_width ( metric );
     pango_font_metrics_unref ( metric );
-
-    pango_font_description_free ( pfd );
     return ( width ) / (double) PANGO_SCALE;
 }
 
 int textbox_get_estimated_char_height ( void )
 {
-    // Set font.
-    PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
-
     // Get width
-    PangoFontMetrics *metric = pango_context_get_metrics ( p_context, pfd, NULL );
+    PangoFontMetrics *metric = pango_context_get_metrics ( p_context, NULL, NULL );
     int              height  = pango_font_metrics_get_ascent ( metric ) + pango_font_metrics_get_descent ( metric );
     pango_font_metrics_unref ( metric );
-
-    pango_font_description_free ( pfd );
     return ( height ) / PANGO_SCALE + 2 * SIDE_MARGIN;
 }

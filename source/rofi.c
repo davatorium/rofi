@@ -268,6 +268,28 @@ static Window create_window ( Display *display )
     draw = cairo_create ( surface );
     cairo_set_operator ( draw, CAIRO_OPERATOR_SOURCE );
 
+    // Set up pango context.
+    cairo_font_options_t *fo = cairo_font_options_create ();
+    // Take font description from xlib surface
+    cairo_surface_get_font_options ( surface, fo );
+    PangoContext *p = pango_cairo_create_context ( draw );
+    // Set the font options from the xlib surface
+    pango_cairo_context_set_font_options ( p, fo );
+    // Setup dpi
+    if ( config.dpi > 0 ) {
+        PangoFontMap *font_map = pango_cairo_font_map_get_default ();
+        pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, (double) config.dpi );
+    }
+    // Setup font.
+    PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
+    pango_context_set_font_description ( p, pfd );
+    pango_font_description_free ( pfd );
+    // Tell textbox to use this context.
+    textbox_set_pango_context ( p );
+    // cleanup
+    g_object_unref ( p );
+    cairo_font_options_destroy ( fo );
+
     // // make it an unmanaged window
     if ( !normal_window_mode && !config.fullscreen ) {
         window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );

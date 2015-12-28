@@ -4,6 +4,7 @@
 #include <X11/Xutil.h>
 #include <pango/pango.h>
 #include <pango/pango-fontmap.h>
+#include <pango/pangocairo.h>
 #include <cairo.h>
 
 typedef struct
@@ -231,4 +232,5 @@ void textbox_delete ( textbox *tb, int pos, int dlen );
 
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
 int textbox_get_estimated_char_height ( void );
+void textbox_set_pango_context ( PangoContext *p );
 #endif //ROFI_TEXTBOX_H
