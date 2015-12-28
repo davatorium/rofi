@@ -1,6 +1,6 @@
 markdown: kramdown
 
-url: ./
+url: .
 name: Rofi
 logo: images/rofi-large.png
 description: A window switcher, run dialog and dmenu replacement
