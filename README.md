@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/DaveDavenport/rofi.svg?branch=master)](https://travis-ci.org/DaveDavenport/rofi)
+[![codecov.io](https://codecov.io/github/DaveDavenport/rofi/coverage.svg?branch=master)](https://codecov.io/github/DaveDavenport/rofi?branch=master)
+
+
 # A window switcher, run dialog and dmenu replacement
 
 A popup window switcher roughly based on [superswitcher](http://code.google.com/p/superswitcher/),

@@ -14,7 +14,6 @@ addons:
           - libcairo2-dev
           - libstartup-notification0-dev
           - xvfb
-          - gcov
           - discount
           - xdotool
 
