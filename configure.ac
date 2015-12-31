@@ -31,6 +31,13 @@ dnl ---------------------------------------------------------------------
 AC_USE_SYSTEM_EXTENSIONS
 
 dnl ---------------------------------------------------------------------
+dnl Enable source code coverage reporting for GCC
+dnl ---------------------------------------------------------------------
+
+AC_ARG_ENABLE(gcov,
+              [  --enable-gcov           Enable source code coverage testing using gcov],
+              [CFLAGS="$CFLAGS -coverage"])
+dnl ---------------------------------------------------------------------
 dnl Disable window mode
 dnl ---------------------------------------------------------------------
 AC_ARG_ENABLE([windowmode], AC_HELP_STRING([--disable-windowmode],[Disable window mode]))
