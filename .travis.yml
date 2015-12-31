@@ -14,6 +14,7 @@ addons:
           - libcairo2-dev
           - libstartup-notification0-dev
           - xvfb
+          - gcov
           - discount
           - xdotool
 
@@ -29,4 +30,8 @@ script:
     - make test
 # to re-enable if xdotool is allowed.
     - make test-x
+    - gcov source/rofi.c
     - make distcheck
+
+after_success:
+      - bash <(curl -s https://codecov.io/bash)

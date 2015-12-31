@@ -520,7 +520,7 @@ void print_xresources_theme ( void )
     }
     printf ( "! ------------------------------------------------------------------------------\n" );
     printf ( "! ROFI Color theme\n" );
-    printf ( "! User: %s\n", g_get_user_name());
+    printf ( "! User: %s\n", g_get_user_name () );
     printf ( "! ------------------------------------------------------------------------------\n" );
     const char   * namePrefix = "rofi";
     unsigned int entries      = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
