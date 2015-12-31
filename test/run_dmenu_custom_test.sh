@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-xrdb -load ../doc/example.xresources 
 echo -e -n "aap\nnoot\nmies" | rofi -width -30 -dmenu > output.txt & 
 RPID=$!
 

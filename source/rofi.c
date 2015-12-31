@@ -613,14 +613,15 @@ static int locate_switcher ( KeySym key, unsigned int modstate )
  */
 static void menu_capture_screenshot ( void )
 {
+    const char *outp  = g_getenv ( "ROFI_PNG_OUTPUT" );
     if ( surface == NULL ) {
         // Nothing to store.
         fprintf ( stderr, "There is no rofi surface to store\n" );
         return;
     }
     const char *xdg_pict_dir = g_get_user_special_dir ( G_USER_DIRECTORY_PICTURES );
-    if ( xdg_pict_dir == NULL ) {
-        fprintf ( stderr, "XDG user picture directory is not set. Cannot store screenshot.\n" );
+    if ( outp == NULL && xdg_pict_dir == NULL ) {
+        fprintf ( stderr, "XDG user picture directory or ROFI_PNG_OUTPUT is not set. Cannot store screenshot.\n" );
         return;
     }
     // Get current time.
@@ -630,7 +631,6 @@ static void menu_capture_screenshot ( void )
     char       *filename = g_strdup_printf ( "%s.png", timestmp );
     // Build full path
     char       *fpath = NULL;
-    const char *outp  = g_getenv ( "ROFI_PNG_OUTPUT" );
     if ( outp == NULL ) {
         int index = 0;
         fpath = g_build_filename ( xdg_pict_dir, filename, NULL );
