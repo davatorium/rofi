@@ -3,7 +3,7 @@
  *
  * MIT/X11 License
  * Copyright (c) 2012 Sean Pringle <sean.pringle@gmail.com>
- * Modified 2013-2015 Qball Cow <qball@gmpclient.org>
+ * Modified 2013-2016 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -613,7 +613,7 @@ static int locate_switcher ( KeySym key, unsigned int modstate )
  */
 static void menu_capture_screenshot ( void )
 {
-    const char *outp  = g_getenv ( "ROFI_PNG_OUTPUT" );
+    const char *outp = g_getenv ( "ROFI_PNG_OUTPUT" );
     if ( surface == NULL ) {
         // Nothing to store.
         fprintf ( stderr, "There is no rofi surface to store\n" );
@@ -625,12 +625,12 @@ static void menu_capture_screenshot ( void )
         return;
     }
     // Get current time.
-    GDateTime  *now = g_date_time_new_now_local ();
+    GDateTime *now = g_date_time_new_now_local ();
     // Format filename.
-    char       *timestmp = g_date_time_format ( now, "rofi-%Y-%m-%d-%H%M" );
-    char       *filename = g_strdup_printf ( "%s.png", timestmp );
+    char      *timestmp = g_date_time_format ( now, "rofi-%Y-%m-%d-%H%M" );
+    char      *filename = g_strdup_printf ( "%s.png", timestmp );
     // Build full path
-    char       *fpath = NULL;
+    char      *fpath = NULL;
     if ( outp == NULL ) {
         int index = 0;
         fpath = g_build_filename ( xdg_pict_dir, filename, NULL );
