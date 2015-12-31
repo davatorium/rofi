@@ -192,6 +192,8 @@ test-x: ${bin_PROGRAMS}
 	$(top_srcdir)/test/run_test.sh 211 $(top_srcdir)/test/run_daemon_test.sh $(top_builddir)
 	echo "Test xr dump"
 	$(top_srcdir)/test/run_test.sh 212 $(top_srcdir)/test/xr_dump_test.sh $(top_builddir) $(top_srcdir) 
+	echo "Test drun"
+	$(top_srcdir)/test/run_test.sh 213 $(top_srcdir)/test/run_drun_test.sh $(top_builddir)
 	echo "End tests"
 
 
