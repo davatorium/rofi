@@ -196,6 +196,10 @@ test-x: ${bin_PROGRAMS}
 	$(top_srcdir)/test/run_test.sh 213 $(top_srcdir)/test/run_drun_test.sh $(top_builddir)
 	echo "Test combi"
 	$(top_srcdir)/test/run_test.sh 214 $(top_srcdir)/test/run_combi_test.sh $(top_builddir)
+	echo "Test dmenu regex"
+	$(top_srcdir)/test/run_test.sh 215 $(top_srcdir)/test/run_regex_test.sh $(top_builddir)
+	echo "Test dmenu glob"
+	$(top_srcdir)/test/run_test.sh 216 $(top_srcdir)/test/run_glob_test.sh $(top_builddir)
 	echo "End tests"
 
 
