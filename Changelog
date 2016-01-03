@@ -1,4 +1,6 @@
 1.0.0 (unreleased):
+	New features:
+		- Have separate config file.
 	Bug fixes:
 		- Fix subpixel rendering. (#303)
 0.15.12:
