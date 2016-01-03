@@ -40,14 +40,14 @@
         <h1>Pages</h1>
         {% assign sorted_pages = site.pages | sort:"path" %}
         {% for iter_page in sorted_pages %}
-        {% if iter_page.url != page.url %} 
-        <h2 id="menuentry"><a href="{{ site.url }}{{ iter_page.url }}">{{ iter_page.title }}</a></h2>
+        {% if iter_page.url != page.url %}
+        <h2 class="menuentry"><a href="{{ site.url }}{{ iter_page.url }}">{{ iter_page.title }}</a></h2>
         {% else %}
-        <h2 id="menuentry">{{ iter_page.title }}</h2>
+        <h2 class="menuentry">{{ iter_page.title }}</h2>
         {% endif %}
         {% endfor %} <!-- page -->
-        <h2 id="menuentry"><a href="generator.html">Theme Generator</a></h2>
-        <h2 id="menuentry"><a href="{{ site.url }}/manpage.html">Manpage</a></h2>
+        <h2 class="menuentry"><a href="generator.html">Theme Generator</a></h2>
+        <h2 class="menuentry"><a href="{{ site.url }}/manpage.html">Manpage</a></h2>
             <h1>Stable</h1>
           <a
 href="https://github.com/DaveDavenport/rofi/releases/download/{{site.github-version-stable}}/rofi-{{ site.github-version-stable }}.tar.gz" class="button">
