@@ -2244,11 +2244,18 @@ static gpointer rofi_signal_handler_process ( gpointer arg )
     sigaddset ( &set, SIGUSR1 );
     // loop forever.
     while ( 1 ) {
+#ifdef __OpenBSD__
+        int sig = 0;
+        if ( sigwait ( &set, &sig ) < 0 ) {
+            perror ( "sigwaitinfo failed, lets restart" );
+        }
+#else
         siginfo_t info;
         int       sig = sigwaitinfo ( &set, &info );
         if ( sig < 0 ) {
             perror ( "sigwaitinfo failed, lets restart" );
         }
+#endif
         else {
             // Send message to main thread.
             if ( sig == SIGHUP ) {
