@@ -1,5 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
+---
+layout: default
+generator: yes
+---
+
+{{ content }}
+
 <!--
     Copyright © 2015 Quentin "Sardem FF7" Glidic
 
@@ -21,186 +26,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
 -->
-    <head>
-        <meta charset="utf-8">
-        <title>Rofi themenator</title>
-        <style media="screen" type="text/css">
-            * {
-                box-sizing: border-box;
-            }
-            body {
-                position: relative;
-                margin: 30px 50px;
-                background: #444;
-                color: white;
-            }
-
-            h1 {
-                margin: 0 0 40px;
-            }
-
-            #reset {
-                position: absolute;
-                top: 0;
-                right: 0;
-            }
-
-            #preview {
-                display: inline-block;
-                margin: 0 1% 0 0;
-                padding: 6px;
-                width: 49%;
-                font-family: monospace;
-                background-color: black;
-                border: 2px dashed white;
-                vertical-align: top;
-            }
-
-            #preview * {
-                margin: 0;
-                padding: 0;
-            }
-
-            #preview .row {
-                padding: 4px 10px;
-                background-color: black;
-            }
-
-            #preview .row {
-                margin-bottom: 4px;
-            }
-
-            #preview-inside {
-                padding: 4px 4px 0;
-                border: 2px solid;
-            }
-
-            #preview-lines {
-                display: inline-block;
-                width: calc(100% - 19px);
-                vertical-align: top;
-            }
-
-            #preview-sep {
-                display: inline-block;
-                width: 15px;
-                height: 100px;
-                margin-left: 4px;
-                vertical-align: top;
-            }
-
-            #preview-sep-line {
-                height: 2px;
-                margin-bottom: 4px;
-            }
-
-            #generator {
-                display: inline-block;
-                width: 49%;
-                margin: 0 0 0 1%;
-
-                font-family: monospace;
-                vertical-align: top;
-            }
-
-            #config, #command {
-                margin: 0;
-                padding: 5px;
-                border: 2px dashed white;
-                background: #bbb;
-                color: black;
-            }
-
-            #command {
-                margin-top: 10px;
-            }
-
-            #config > span {
-                margin: 0;
-                padding: 0;
-                line-height: 150%;
-            }
-
-            #buttons {
-                margin: 30px -1%;
-                padding: 0;
-                color: black;
-                vertical-align: top;
-            }
-
-            #buttons > div {
-                display: inline-block;
-                margin: 0 1% 30px;
-                padding: 4px 10px;
-                width: 23%;
-                background: rgba(255, 255, 255, 0.7);
-                vertical-align: top;
-            }
-
-            #buttons > div > h2 {
-                margin: 4px 0;
-            }
-
-            #buttons > div > h2:not(:first-child) {
-                margin-top: 8px;
-            }
-
-            #buttons > div > label {
-                display: block;
-                margin: 5px 10px;
-                overflow: hidden;
-            }
-
-            #buttons > div > label > * {
-                display: inline-block;
-                vertical-align: middle;
-            }
-
-            #buttons > div > label > *:first-child {
-                width: 50%;
-            }
-
-            #buttons > div > label > *:not(:first-child) {
-                width: 23%;
-                margin: 0 1%;
-                padding: 0;
-                border: 0;
-            }
-
-            #buttons > div > label > input[type=button] {
-                padding: 3px 0;
-            }
-
-            #buttons > div > label > input[type=file] {
-                color: transparent;
-            }
-
-            #buttons > div > .drop-zone {
-                padding: 2px 4px;
-                border: 2px dashed black;
-            }
-
-            #buttons > div > .image-name {
-                text-align: center;
-            }
-
-            @media screen and (max-device-width: 640px) {
-                #preview {
-                    width: 100%;
-                }
-
-                #config, #command {
-                    display: none;
-                }
-
-                #buttons > div {
-                    width: 48%;
-                }
-            }
-        </style>
-    </head>
-<body>
-    <h1>Rofi themenator</h1>
     <input id="reset" type="button" value="Reset stored values" />
 
     <div id="preview">
@@ -446,7 +271,8 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
 
     for ( var name in colors ) {
         var ge = document.createElement('div');
-        var title = document.createElement('h2');
+        var title = document.createElement('p');
+        title.setAttribute('class', 'group-name');
         title.appendChild(new Text(name));
         ge.appendChild(title);
 
@@ -544,10 +370,13 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
 
 
     var window_settings = buttons.firstChild;
-    var title = document.createElement('h2');
+    var title = document.createElement('p');
+    title.setAttribute('class', 'group-name');
     title.appendChild(new Text('Overall background'));
+    var text = document.createElement('small');
+    text.appendChild(new Text("(Transparency testing only, not in the theme)"));
+    title.appendChild(text);
     window_settings.appendChild(title);
-    window_settings.appendChild(new Text("(This is not part of the theme, but to test the effect of transparency)"));
 
     var label = document.createElement('label');
 
@@ -598,5 +427,3 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
     attachEvent(preview, 'drop', setImage);
 
     </script>
-</body>
-</html>

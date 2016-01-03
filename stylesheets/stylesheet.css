@@ -126,11 +126,11 @@ aside#sidebar h1 {
   padding-bottom: 0.6em;
 }
 
-aside#sidebar h2#menuentry {
-  font-size:  1.5em; 
+aside#sidebar h2.menuentry {
+  font-size:  1.5em;
   font-weight: bold;
 }
-aside#sidebar h2#menuentry:before{
+aside#sidebar h2.menuentry:before{
   content: "/";
   color: #339a9a;
   padding-right: 0.3em;
