@@ -66,7 +66,7 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
     }
 
     var colors = {
-        "Window": [
+        "window": [
             {
                 name: "rofi-bg",
                 type: "backgroundColor",
@@ -86,7 +86,7 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
                 display: "Seperator"
             },
         ],
-        "Normal": [
+        "normal": [
             {
                 name: "rofi-normal-bg",
                 type: "backgroundColor",
@@ -118,7 +118,7 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
                 display: "Highlight foreground"
             },
         ],
-        "Active": [
+        "active": [
             {
                 name: "rofi-active-bg",
                 type: "backgroundColor",
@@ -150,7 +150,7 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
                 display: "Highlight foreground"
             },
         ],
-        "Urgent": [
+        "urgent": [
             {
                 name: "rofi-urgent-bg",
                 type: "backgroundColor",
@@ -273,12 +273,12 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
         var ge = document.createElement('div');
         var title = document.createElement('p');
         title.setAttribute('class', 'group-name');
-        title.appendChild(new Text(name));
+        title.appendChild(new Text(name.toUpperCase()[0] + name.substring(1)));
         ge.appendChild(title);
 
 
-        config.appendChild(new Text("\nrofi.color-" + name.toLowerCase() + ": "));
-        command.appendChild(new Text(' -color-' + name.toLowerCase() + ' "'));
+        config.appendChild(new Text("\nrofi.color-" + name + ": "));
+        command.appendChild(new Text(' -color-' + name + ' "'));
         buttons.appendChild(ge);
 
         var group = colors[name];
