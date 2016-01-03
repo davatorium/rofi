@@ -53,6 +53,13 @@ generator: yes
 ! ------------------------------------------------------------------------------
 rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
     <div id="buttons"></div>
+    <div>
+        <h2>Load an Xresources theme</h2>
+        <form id="xresources-loader">
+            <textarea name="xresources"></textarea>
+            <input type="submit" value="Load Xresources theme">
+        </form>
+    </div>
 
 
 
@@ -256,6 +263,36 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
         localStorage.save = JSON.stringify(save);
     }
 
+    function loadTheme(theme) {
+        for ( var name in colors ) {
+            if ( ! theme.hasOwnProperty(name) )
+                return;
+        }
+        for ( var name in colors ) {
+            var group = colors[name];
+            for ( var i in group ) {
+                var color = group[i];
+                set_input_value(color.name, theme[name][i]);
+            }
+        }
+    }
+
+    function loadThemeXresources(text) {
+        var theme = {};
+        var lines = text.split('\n');
+        for ( var i in lines ) {
+            var line = lines[i].replace(/\s+/g, '');
+            if ( line.indexOf('rofi.color-') != 0 )
+                continue;
+            var setting = line.substring(11);
+            var c = setting.indexOf(':');
+            if ( c === -1 )
+                continue;
+            theme[setting.substring(0, c)] = setting.substring(c+1).split(',');
+        }
+        loadTheme(theme);
+    }
+
     var save = localStorage.save;
     if ( typeof(save) === 'undefined' )
         loadDefaults(null);
@@ -425,5 +462,10 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
 
     attachEvent(preview, 'dragover', function (ev) { ev.preventDefault(); });
     attachEvent(preview, 'drop', setImage);
+
+    attachEvent(document.getElementById('xresources-loader'), 'submit', function (ev) {
+        ev.preventDefault();
+        loadThemeXresources(this['xresources'].value);
+    });
 
     </script>
