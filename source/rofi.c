@@ -940,7 +940,7 @@ static void menu_refilter ( MenuState *state )
         g_mutex_clear ( &mutex );
         for ( unsigned int i = 0; i < nt; i++ ) {
             if ( j != states[i].start ) {
-                memcpy ( &( state->line_map[j] ), &( state->line_map[states[i].start] ), sizeof ( unsigned int ) * ( states[i].count ) );
+                memmove ( &( state->line_map[j] ), &( state->line_map[states[i].start] ), sizeof ( unsigned int ) * ( states[i].count ) );
             }
             j += states[i].count;
         }
