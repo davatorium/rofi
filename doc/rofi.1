@@ -1,13 +1,13 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-MANPAGE" "" "December 2015" "" ""
+.TH "ROFI\-MANPAGE" "" "January 2016" "" ""
 .
 .SH "NAME"
 \fBrofi\fR \- A window switcher, run launcher, ssh dialog and dmenu replacement
 .
 .SH "SYNOPSIS"
-\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-fg \fIcolor\fR ] [ \-fg\-urgent \fIcolor\fR ] [ \-fg\-active \fIcolor\fR ] [ \-bg\-urgent \fIcolor\fR ] [ \-bg\-active \fIcolor\fR ] [ \-bg \fIcolor\fR ] [ \-bgalt \fIcolor\fR ] [ \-hlfg \fIcolor\fR ] [ \-hlbg \fIcolor\fR ] [ \-key\-\fBmode\fR \fIcombo\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-opacity \fIopacity%\fR ] [ \-display \fIdisplay\fR ] [ \-bc \fIcolor\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-select ] [ \-input \fIinput\fR ] ] [ \-filter \fIfilter\fR ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-lazy\-filter\-limit \fIlimit\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help ] [ \-dump\-xresources ] [ \-dump\-xresources\-theme ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-no\-parse\-known\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-normal\-window ] [ \-fake\-transparency ] [ \-quiet ] [ \-glob ] [ \-regex ] [ \-tokenize ] [ \-threads \fInum\fR ]
+\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-fg \fIcolor\fR ] [ \-fg\-urgent \fIcolor\fR ] [ \-fg\-active \fIcolor\fR ] [ \-bg\-urgent \fIcolor\fR ] [ \-bg\-active \fIcolor\fR ] [ \-bg \fIcolor\fR ] [ \-bgalt \fIcolor\fR ] [ \-hlfg \fIcolor\fR ] [ \-hlbg \fIcolor\fR ] [ \-key\-\fBmode\fR \fIcombo\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-opacity \fIopacity%\fR ] [ \-display \fIdisplay\fR ] [ \-bc \fIcolor\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-select ] [ \-input \fIinput\fR ] ] [ \-filter \fIfilter\fR ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-lazy\-filter\-limit \fIlimit\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help ] [ \-dump\-xresources ] [ \-dump\-xresources\-theme ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-no\-parse\-known\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-normal\-window ] [ \-fake\-transparency ] [ \-quiet ] [ \-glob ] [ \-regex ] [ \-tokenize ] [ \-threads \fInum\fR ] [ \-config \fIfilename\fR ]
 .
 .SH "DESCRIPTION"
 \fBrofi\fR is an X11 popup window switcher, run dialog, dmenu replacement and more\. It focuses on being fast to use and have minimal distraction\. It supports keyboard and mouse navigation, type to filter, tokenized search and more\.
@@ -51,13 +51,16 @@ Keybindings can also be specified in the \fBXresources\fR file\.
 The official website for \fBdmenu\fR can be found here \fIhttp://tools\.suckless\.org/dmenu/\fR\.
 .
 .SH "OPTIONS"
-There are currently three methods of setting configuration options:
+There are currently four methods of setting configuration options (evaluated in order below):
 .
 .IP "\(bu" 4
 Compile time: edit config\.c\. This method is strongly discouraged\.
 .
 .IP "\(bu" 4
 Xresources: A method of storing key values in the Xserver\. See here \fIhttps://en\.wikipedia\.org/wiki/X_resources\fR for more information\. This is the recommended way of configuring \fBrofi\fR\.
+.
+.IP "\(bu" 4
+Configuration File: This uses the same format as the Xresources file\. By default it looks in \fBXDG_USER_CONFIG_DIR\fR/rofi/config, but can be overriden on commandline\.
 .
 .IP "\(bu" 4
 Command\-line options: Arguments passed to \fBrofi\fR\.
@@ -315,6 +318,12 @@ Enable experimental fuzzy matching\.
 .
 .P
 Filter the list by setting text in input bar to \fIfilter\fR
+.
+.P
+\fB\-config\fR \fIfilename\fR
+.
+.P
+Load alternative configuration file\.
 .
 .SS "Theming"
 All colors are either hex #rrggbb values or X11 color names\. \fB\-bg\fR

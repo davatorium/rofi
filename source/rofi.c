@@ -80,6 +80,7 @@ SnDisplay         *sndisplay         = NULL;
 SnLauncheeContext *sncontext         = NULL;
 Display           *display           = NULL;
 char              *display_str       = NULL;
+char              *config_path       = NULL;
 Window            main_window        = None;
 Colormap          map                = None;
 unsigned int      normal_window_mode = FALSE;
@@ -2055,6 +2056,8 @@ static void cleanup ()
     // Cleanup the custom keybinding
     cleanup_abe ();
 
+    g_free ( config_path );
+
     TIMINGS_STOP ();
 }
 
@@ -2141,6 +2144,7 @@ static inline void load_configuration ( Display *display )
 {
     // Load in config from X resources.
     config_parse_xresource_options ( display );
+    config_parse_xresource_options_file ( config_path );
 
     // Parse command line for settings.
     config_parse_cmd_options ( );
@@ -2149,6 +2153,7 @@ static inline void load_configuration_dynamic ( Display *display )
 {
     // Load in config from X resources.
     config_parse_xresource_options_dynamic ( display );
+    config_parse_xresource_options_dynamic_file ( config_path );
     config_parse_cmd_options_dynamic (  );
 }
 
@@ -2414,6 +2419,18 @@ int main ( int argc, char *argv[] )
         pidfile = g_build_filename ( path, "rofi.pid", NULL );
     }
     config_parser_add_option ( xrm_String, "pid", (void * *) &pidfile, "Pidfile location" );
+
+    if ( find_arg ( "-config" ) < 0 ) {
+        const char *cpath = g_get_user_config_dir ();
+        if ( cpath ) {
+            config_path = g_build_filename ( cpath, "rofi", "config", NULL );
+        }
+    }
+    else {
+        char *c = NULL;
+        find_arg_str ( "-config", &c );
+        config_path = rofi_expand_path ( c );
+    }
 
     TICK ();
     // Register cleanup function.

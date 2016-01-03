@@ -196,22 +196,12 @@ static void config_parser_set ( XrmOption *option, XrmValue *xrmValue )
     }
 }
 
-void config_parse_xresource_options ( Display *display )
+static void __config_parse_xresource_options ( XrmDatabase xDB )
 {
-    char *xRMS;
-    // Map Xresource entries to rofi config options.
-    XrmInitialize ();
-    xRMS = XResourceManagerString ( display );
-
-    if ( xRMS == NULL ) {
-        return;
-    }
-    XrmDatabase xDB = XrmGetStringDatabase ( xRMS );
-
-    char        * xrmType;
-    XrmValue    xrmValue;
-    const char  * namePrefix  = "rofi";
-    const char  * classPrefix = "rofi";
+    char       * xrmType;
+    XrmValue   xrmValue;
+    const char * namePrefix  = "rofi";
+    const char * classPrefix = "rofi";
 
     for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( XrmOption ); ++i ) {
         char *name, *class;
@@ -226,6 +216,33 @@ void config_parse_xresource_options ( Display *display )
         g_free ( class );
         g_free ( name );
     }
+}
+void config_parse_xresource_options ( Display *display )
+{
+    char *xRMS;
+    // Map Xresource entries to rofi config options.
+    XrmInitialize ();
+    xRMS = XResourceManagerString ( display );
+
+    if ( xRMS == NULL ) {
+        return;
+    }
+    XrmDatabase xDB = XrmGetStringDatabase ( xRMS );
+    __config_parse_xresource_options ( xDB );
+    XrmDestroyDatabase ( xDB );
+}
+void config_parse_xresource_options_file ( const char *filename )
+{
+    if ( !filename ) {
+        return;
+    }
+    // Map Xresource entries to rofi config options.
+    XrmInitialize ();
+    XrmDatabase xDB = XrmGetFileDatabase ( filename );
+    if ( xDB == NULL ) {
+        return;
+    }
+    __config_parse_xresource_options ( xDB );
     XrmDestroyDatabase ( xDB );
 }
 
@@ -289,22 +306,12 @@ void config_parse_cmd_options_dynamic ( void )
     }
 }
 
-void config_parse_xresource_options_dynamic ( Display *display )
+static void __config_parse_xresource_options_dynamic ( XrmDatabase xDB )
 {
-    char *xRMS;
-    // Map Xresource entries to rofi config options.
-    XrmInitialize ();
-    xRMS = XResourceManagerString ( display );
-
-    if ( xRMS == NULL ) {
-        return;
-    }
-    XrmDatabase xDB = XrmGetStringDatabase ( xRMS );
-
-    char        * xrmType;
-    XrmValue    xrmValue;
-    const char  * namePrefix  = "rofi";
-    const char  * classPrefix = "rofi";
+    char       * xrmType;
+    XrmValue   xrmValue;
+    const char * namePrefix  = "rofi";
+    const char * classPrefix = "rofi";
 
     for ( unsigned int i = 0; i < num_extra_options; ++i ) {
         char *name, *class;
@@ -318,6 +325,34 @@ void config_parse_xresource_options_dynamic ( Display *display )
         g_free ( class );
         g_free ( name );
     }
+}
+
+void config_parse_xresource_options_dynamic ( Display *display )
+{
+    char *xRMS;
+    // Map Xresource entries to rofi config options.
+    XrmInitialize ();
+    xRMS = XResourceManagerString ( display );
+
+    if ( xRMS == NULL ) {
+        return;
+    }
+    XrmDatabase xDB = XrmGetStringDatabase ( xRMS );
+    __config_parse_xresource_options_dynamic ( xDB );
+    XrmDestroyDatabase ( xDB );
+}
+void config_parse_xresource_options_dynamic_file ( const char *filename )
+{
+    if ( !filename ) {
+        return;
+    }
+    // Map Xresource entries to rofi config options.
+    XrmInitialize ();
+    XrmDatabase xDB = XrmGetFileDatabase ( filename );
+    if ( xDB == NULL ) {
+        return;
+    }
+    __config_parse_xresource_options_dynamic ( xDB );
     XrmDestroyDatabase ( xDB );
 }
 

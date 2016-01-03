@@ -62,6 +62,7 @@
 [ -regex ]
 [ -tokenize ]
 [ -threads *num* ]
+[ -config *filename* ]
 
 ## DESCRIPTION
 
@@ -99,12 +100,14 @@ The official website for `dmenu` can be found [here](http://tools.suckless.org/d
 
 ## OPTIONS
 
-There are currently three methods of setting configuration options:
+There are currently four methods of setting configuration options (evaluated in order below):
 
  * Compile time: edit config.c. This method is strongly discouraged.
  * Xresources: A method of storing key values in the Xserver. See
    [here](https://en.wikipedia.org/wiki/X_resources) for more information.
    This is the recommended way of configuring **rofi**.
+ * Configuration File: This uses the same format as the Xresources file.
+   By default it looks in `XDG_USER_CONFIG_DIR`/rofi/config, but can be overriden on commandline.
  * Command-line options: Arguments passed to **rofi**.
 
 The Xresources file expects options starting with `rofi.` followed by it's name. An Example to set the number of lines:
@@ -221,6 +224,10 @@ Enable experimental fuzzy matching.
 `-filter` *filter*
 
 Filter the list by setting text in input bar to *filter*
+
+`-config` *filename*
+
+Load alternative configuration file.
 
 
 ### Theming

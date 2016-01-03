@@ -19,6 +19,7 @@ typedef enum
  * connected X server.
  */
 void config_parse_xresource_options ( Display *display );
+void config_parse_xresource_options_file ( const char *filename );
 
 /**
  * Parse commandline options.
@@ -35,6 +36,7 @@ void config_parse_cmd_options_dynamic ( void );
  * connected X server.
  */
 void config_parse_xresource_options_dynamic ( Display *display );
+void config_parse_xresource_options_dynamic_file ( const char *filename );
 
 /**
  * Free any allocated memory.
