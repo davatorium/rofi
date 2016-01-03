@@ -16,7 +16,7 @@ xdotool key 'u'
 sleep 0.4
 xdotool key Return
 sleep 1;
-kill -SIGINT ${RPID}
+kill -s INT ${RPID}
 #  Get result, kill xvfb
 wait ${RPID}
 RETV=$?
