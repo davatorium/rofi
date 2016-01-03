@@ -119,14 +119,15 @@ void history_set ( const char *filename, const char *entry )
     unsigned int length = 0;
     _element     **list = NULL;
     // Open file for reading and writing.
-    FILE         *fd = g_fopen ( filename, "a+" );
-    if ( fd == NULL ) {
-        fprintf ( stderr, "Failed to open file: %s\n", strerror ( errno ) );
-        return;
+    FILE         *fd = g_fopen ( filename, "r" );
+    if ( fd != NULL ) {
+        // Get list.
+        list = __history_get_element_list ( fd, &length );
+        // Close file, if fails let user know on stderr.
+        if ( fclose ( fd ) != 0 ) {
+            fprintf ( stderr, "Failed to close history file: %s\n", strerror ( errno ) );
+        }
     }
-    // Get list.
-    list = __history_get_element_list ( fd, &length );
-
     // Look if the entry exists.
     for ( unsigned int iter = 0; !found && iter < length; iter++ ) {
         if ( strcmp ( list[iter]->name, entry ) == 0 ) {
@@ -156,25 +157,23 @@ void history_set ( const char *filename, const char *entry )
         }
     }
 
-    // Rewind.
-    fseek ( fd, 0L, SEEK_SET );
-    // Clear file.
-    if ( ftruncate ( fileno ( fd ), 0 ) == 0 ) {
+    fd = fopen ( filename, "w" );
+    if ( fd == NULL ) {
+        fprintf ( stderr, "Failed to open file: %s\n", strerror ( errno ) );
+    }
+    else {
         // Write list.
         __history_write_element_list ( fd, list, length );
-    }
-    else{
-        fprintf ( stderr, "Failed to truncate file: %s\n", strerror ( errno ) );
+        // Close file, if fails let user know on stderr.
+        if ( fclose ( fd ) != 0 ) {
+            fprintf ( stderr, "Failed to close history file: %s\n", strerror ( errno ) );
+        }
     }
     // Free the list.
     for ( unsigned int iter = 0; iter < length; iter++ ) {
         g_free ( list[iter] );
     }
     g_free ( list );
-    // Close file, if fails let user know on stderr.
-    if ( fclose ( fd ) != 0 ) {
-        fprintf ( stderr, "Failed to close history file: %s\n", strerror ( errno ) );
-    }
 }
 
 void history_remove ( const char *filename, const char *entry )
@@ -187,7 +186,7 @@ void history_remove ( const char *filename, const char *entry )
     unsigned int curr    = 0;
     unsigned int length  = 0;
     // Open file for reading and writing.
-    FILE         *fd = g_fopen ( filename, "a+" );
+    FILE         *fd = g_fopen ( filename, "r" );
     if ( fd == NULL ) {
         fprintf ( stderr, "Failed to open file: %s\n", strerror ( errno ) );
         return;
@@ -195,6 +194,10 @@ void history_remove ( const char *filename, const char *entry )
     // Get list.
     list = __history_get_element_list ( fd, &length );
 
+    // Close file, if fails let user know on stderr.
+    if ( fclose ( fd ) != 0 ) {
+        fprintf ( stderr, "Failed to close history file: %s\n", strerror ( errno ) );
+    }
     // Find entry.
     for ( unsigned int iter = 0; !found && iter < length; iter++ ) {
         if ( strcmp ( list[iter]->name, entry ) == 0 ) {
@@ -213,12 +216,15 @@ void history_remove ( const char *filename, const char *entry )
         list[length - 1] = NULL;
         length--;
 
-        // Rewind.
-        fseek ( fd, 0L, SEEK_SET );
+        fd = g_fopen ( filename, "w" );
         // Clear list.
-        if ( ftruncate ( fileno ( fd ), 0 ) == 0 ) {
+        if ( fd != NULL ) {
             // Write list.
             __history_write_element_list ( fd, list, length );
+            // Close file, if fails let user know on stderr.
+            if ( fclose ( fd ) != 0 ) {
+                fprintf ( stderr, "Failed to close history file: %s\n", strerror ( errno ) );
+            }
         }
         else{
             fprintf ( stderr, "Failed to open file: %s\n", strerror ( errno ) );
@@ -231,11 +237,6 @@ void history_remove ( const char *filename, const char *entry )
     }
     if ( list != NULL ) {
         g_free ( list );
-    }
-
-    // Close file, if fails let user know on stderr.
-    if ( fclose ( fd ) != 0 ) {
-        fprintf ( stderr, "Failed to close history file: %s\n", strerror ( errno ) );
     }
 }
 
