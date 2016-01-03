@@ -8,6 +8,9 @@
     <link rel="stylesheet" type="text/css" href="{{ site.url }}/stylesheets/stylesheet.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="{{ site.url }}/stylesheets/pygment_trac.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="{{ site.url }}/stylesheets/print.css" media="print" />
+{% if page.generator %}
+    <link rel="stylesheet" type="text/css" href="{{ site.url }}/stylesheets/generator.css" media="screen" />
+{% endif %}
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -31,7 +34,7 @@
     <div id="content-wrapper">
       <div class="inner clearfix">
         <section id="main-content">
-          <h1>{{ page.title }}</h1> 
+          <h1>{{ page.title }}</h1>
           {{ content }}
 
         </section>
@@ -46,7 +49,6 @@
         <h2 class="menuentry">{{ iter_page.title }}</h2>
         {% endif %}
         {% endfor %} <!-- page -->
-        <h2 class="menuentry"><a href="generator.html">Theme Generator</a></h2>
         <h2 class="menuentry"><a href="{{ site.url }}/manpage.html">Manpage</a></h2>
             <h1>Stable</h1>
           <a

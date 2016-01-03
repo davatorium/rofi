@@ -1,0 +1,189 @@
+
+#main-content {
+    position: relative;
+}
+
+#main-content * {
+    box-sizing: border-box;
+}
+
+h1 {
+    margin: 0 0 40px;
+}
+
+#reset {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+#preview {
+    display: inline-block;
+    margin: 0 1% 0 0;
+    padding: 6px;
+    width: 49%;
+    font-family: monospace;
+    font-size: 0.9em;
+    background-color: black;
+    border: 2px dashed black;
+    vertical-align: top;
+}
+
+#preview * {
+    margin: 0;
+    padding: 0;
+}
+
+#preview .row {
+    margin-bottom: 4px;
+    padding: 4px 10px;
+    background-color: black;
+    line-height: 1em;
+}
+
+#preview-inside {
+    padding: 4px 4px 0;
+    border: 2px solid;
+}
+
+#preview-lines {
+    display: inline-block;
+    width: calc(100% - 19px);
+    vertical-align: top;
+}
+
+#preview-sep {
+    display: inline-block;
+    width: 15px;
+    height: 100px;
+    margin-left: 4px;
+    vertical-align: top;
+}
+
+#preview-sep-line {
+    height: 2px;
+    margin-bottom: 4px;
+}
+
+#generator {
+    display: inline-block;
+    width: 49%;
+    margin: 0 0 0 1%;
+
+    font-family: monospace;
+    vertical-align: top;
+}
+
+#config, #command {
+    margin: 0;
+    padding: 5px;
+    border: 2px dashed black;
+    background: #bbb;
+    color: black;
+    font-size: 13px;
+}
+
+#command {
+    margin-top: 10px;
+}
+
+#config > span {
+    margin: 0;
+    padding: 0;
+    line-height: 150%;
+}
+
+#buttons {
+    margin: 30px -1%;
+    padding: 0;
+    color: black;
+    vertical-align: top;
+}
+
+#buttons > div {
+    display: inline-block;
+    margin: 0 1% 30px;
+    padding: 4px 10px;
+    width: 48%;
+    background: rgba(255, 255, 255, 0.7);
+    vertical-align: top;
+}
+
+#buttons > div > .group-name {
+    margin: 4px 0;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+#buttons > div > .group-name:not(:first-child) {
+    margin-top: 8px;
+}
+
+#buttons > div > .group-name > small {
+    margin-left: 1em;
+    font-size: 0.5em;
+    font-weight: normal;
+}
+
+#buttons > div > label {
+    display: block;
+    margin: 5px 10px;
+    overflow: hidden;
+}
+
+#buttons > div > label > * {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#buttons > div > label > *:first-child {
+    width: 50%;
+}
+
+#buttons > div > label > *:not(:first-child) {
+    width: 23%;
+    margin: 0 1%;
+    padding: 0;
+    border: 0;
+}
+
+#buttons > div > label > input {
+    background: transparent;
+}
+
+#buttons > div > label > input[type=button] {
+    padding: 3px 0;
+    background: #444;
+    color: white;
+}
+
+#buttons > div > label > input[type=button]:hover, #buttons > div > label > input[type=button]:active {
+    background: #268bd2;
+}
+
+#buttons > div > label > input[type=file] {
+    color: transparent;
+}
+
+#buttons > div > .drop-zone {
+    padding: 2px 4px;
+    border: 2px dashed black;
+}
+
+#buttons > div > .image-name {
+    text-align: center;
+}
+
+@media screen and (max-device-width: 640px) {
+    #preview {
+        width: 100%;
+    }
+
+    #config, #command {
+        display: none;
+    }
+
+    #buttons > div {
+        width: 48%;
+    }
+}
