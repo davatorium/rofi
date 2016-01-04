@@ -4,7 +4,7 @@
 sleep 1;
 echo -e -n "aap\nnoot\nmies" | rofi -dmenu  -normal-window  > output.txt & 
 RPID=$!
-
+xdotool getactivewindow windowsize 100% 100%
 # send enter.
 sleep 5;
 xdotool key 'Down' 
