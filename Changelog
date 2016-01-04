@@ -3,6 +3,10 @@
 		- Have separate config file.
 	Bug fixes:
 		- Fix subpixel rendering. (#303)
+		- Fix basic tests on OpenBSD  (#272)
+		- Fix wong use of memcpy.
+		- Work around for sigwaitinfo on OpenBSD.
+
 0.15.12:
     New features:
         - Initial `-dump` command for dmenu mode. (#216)

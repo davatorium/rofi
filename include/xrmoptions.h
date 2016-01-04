@@ -39,6 +39,10 @@ void config_parse_xresource_options_dynamic ( Display *display );
 void config_parse_xresource_options_dynamic_file ( const char *filename );
 
 /**
+ * Initializes the Xresourced system.
+ */
+void config_parse_xresource_init ( void );
+/**
  * Free any allocated memory.
  */
 void config_xresource_free ( void );
