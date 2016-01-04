@@ -16,6 +16,7 @@ addons:
           - xvfb
           - discount
           - xdotool
+          - fluxbox
 
 compiler:
   - gcc

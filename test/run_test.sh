@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 
 XPID=
+FPID=
 function create_fake_x ( )
 {
     export DISPLAY=":$1"
     echo "Starting fake X: ${DISPLAY}"
     Xvfb ${DISPLAY} &
     XPID=$!
+    sleep 1
+    fluxbox &
+    FPID=$!
     sleep 1
 }
 
@@ -15,6 +19,8 @@ function destroy_fake_x ( )
     if [ -n "${XPID}" ]
     then
         echo "Stopping fake X: ${XPID}"
+        kill ${FPID}
+        wait ${FPID}
         kill ${XPID}
         wait ${XPID}
     fi
