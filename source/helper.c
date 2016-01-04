@@ -624,3 +624,36 @@ char *rofi_expand_path ( const char *input )
     g_strfreev ( str );
     return retv;
 }
+
+#define MIN3( a, b, c )    ( ( a ) < ( b ) ? ( ( a ) < ( c ) ? ( a ) : ( c ) ) : ( ( b ) < ( c ) ? ( b ) : ( c ) ) )
+
+unsigned int levenshtein ( const char *needle, const char *haystack )
+{
+    unsigned int x, y, lastdiag, olddiag;
+    size_t       needlelen   = g_utf8_strlen ( needle, -1 );
+    size_t       haystacklen = g_utf8_strlen ( haystack, -1 );
+    unsigned int column[needlelen + 1];
+    for ( y = 0; y <= needlelen; y++ ) {
+        column[y] = y;
+    }
+    for ( x = 1; x <= haystacklen; x++ ) {
+        const char *needles = needle;
+        column[0] = x;
+        gunichar   haystackc = g_utf8_get_char ( haystack );
+        if ( !config.case_sensitive ) {
+            haystackc = g_unichar_tolower ( haystackc );
+        }
+        for ( y = 1, lastdiag = x - 1; y <= needlelen; y++ ) {
+            gunichar needlec = g_utf8_get_char ( needles );
+            if ( !config.case_sensitive ) {
+                needlec = g_unichar_tolower ( needlec );
+            }
+            olddiag   = column[y];
+            column[y] = MIN3 ( column[y] + 1, column[y - 1] + 1, lastdiag + ( needlec == haystackc ? 0 : 1 ) );
+            lastdiag  = olddiag;
+            needles   = g_utf8_next_char ( needles );
+        }
+        haystack = g_utf8_next_char ( haystack );
+    }
+    return column[needlelen];
+}
