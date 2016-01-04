@@ -154,4 +154,5 @@ void cmd_set_arguments ( int argc, char **argv );
  * @returns path
  */
 char *rofi_expand_path ( const char *input );
+unsigned int levenshtein ( const char *needle, const char *haystack );
 #endif // ROFI_HELPER_H

@@ -7,9 +7,17 @@
 
 static int test = 0;
 
-#define TASSERT( a )    {                                \
+#define TASSERT( a )        {                            \
         assert ( a );                                    \
         printf ( "Test %i passed (%s)\n", ++test, # a ); \
+}
+#define TASSERTE( a, b )    {                                                            \
+        if ( ( a ) == ( b ) ) {                                                          \
+            printf ( "Test %i passed (%s == %s) (%u == %u)\n", ++test, # a, # b, a, b ); \
+        }else {                                                                          \
+            printf ( "Test %i failed (%s == %s) (%u != %u)\n", ++test, # a, # b, a, b ); \
+            abort ( );                                                                   \
+        }                                                                                \
 }
 
 void error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
@@ -127,4 +135,13 @@ int main ( int argc, char ** argv )
     TASSERT ( retv[2] && strcmp ( retv[2], "bEp" ) == 0 );
     TASSERT ( retv[3] && strcmp ( retv[3], "bEE" ) == 0 );
     tokenize_free ( retv );
+
+    TASSERT ( levenshtein ( "aap", "aap" ) == 0 );
+    TASSERT ( levenshtein ( "aap", "aap " ) == 1 );
+    TASSERT ( levenshtein ( "aap ", "aap" ) == 1 );
+    TASSERTE ( levenshtein ( "aap", "aap noot" ), 5 );
+    TASSERTE ( levenshtein ( "aap", "noot aap" ), 5 );
+    TASSERTE ( levenshtein ( "aap", "noot aap mies" ), 10 );
+    TASSERTE ( levenshtein ( "noot aap mies", "aap" ), 10 );
+    TASSERTE ( levenshtein ( "otp", "noot aap" ), 5 );
 }

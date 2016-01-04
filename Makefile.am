@@ -191,7 +191,7 @@ test-x: ${bin_PROGRAMS}
 	echo "Test daemon"
 	$(top_srcdir)/test/run_test.sh 211 $(top_srcdir)/test/run_daemon_test.sh $(top_builddir)
 	echo "Test xr dump"
-	$(top_srcdir)/test/run_test.sh 212 $(top_srcdir)/test/xr_dump_test.sh $(top_builddir) $(top_srcdir) 
+	$(top_srcdir)/test/run_test.sh 212 $(top_srcdir)/test/xr_dump_test.sh $(top_builddir) $(top_srcdir)
 	echo "Test drun"
 	$(top_srcdir)/test/run_test.sh 213 $(top_srcdir)/test/run_drun_test.sh $(top_builddir)
 	echo "Test combi"
@@ -200,10 +200,14 @@ test-x: ${bin_PROGRAMS}
 	$(top_srcdir)/test/run_test.sh 215 $(top_srcdir)/test/run_regex_test.sh $(top_builddir)
 	echo "Test dmenu glob"
 	$(top_srcdir)/test/run_test.sh 216 $(top_srcdir)/test/run_glob_test.sh $(top_builddir)
+	echo "Test dmenu fuzzy"
+	$(top_srcdir)/test/run_test.sh 217 $(top_srcdir)/test/run_fuzzy_test.sh $(top_builddir)
 	echo "Test config dump"
-	$(top_srcdir)/test/run_test.sh 217 $(top_srcdir)/test/xr_config_test.sh $(top_builddir) $(top_srcdir) 
+	$(top_srcdir)/test/run_test.sh 218 $(top_srcdir)/test/xr_config_test.sh $(top_builddir) $(top_srcdir)
+	echo "Test dmenu-normal-window"
+	$(top_srcdir)/test/run_test.sh 219 $(top_srcdir)/test/run_dmenu_normal_window_test.sh $(top_builddir)
 	echo "Test window"
-	$(top_srcdir)/test/run_test.sh 217 $(top_srcdir)/test/run_window_test.sh $(top_builddir) $(top_srcdir) 
+	$(top_srcdir)/test/run_test.sh 220 $(top_srcdir)/test/run_window_test.sh $(top_builddir) $(top_srcdir) 
 	echo "End tests"
 
 
