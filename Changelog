@@ -4,7 +4,7 @@
 	Bug fixes:
 		- Fix subpixel rendering. (#303)
 		- Fix basic tests on OpenBSD  (#272)
-		- Fix wong use of memcpy.
+		- Fix wrong use of memcpy (thx to Jasperia).
 		- Work around for sigwaitinfo on OpenBSD.
 
 0.15.12:
