@@ -1,4 +1,4 @@
-/**
+/*
  * rofi
  *
  * MIT/X11 License
@@ -25,10 +25,13 @@
  *
  */
 
+/**
+ * \ingroup SSHMode
+ * @{
+ */
 #include <config.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <X11/X.h>
 
 #include <unistd.h>
 #include <signal.h>
@@ -44,10 +47,15 @@
 #include "history.h"
 #include "dialogs/ssh.h"
 
+/**
+ * Name of the history file where previously choosen hosts are stored.
+ */
 #define SSH_CACHE_FILE    "rofi-2.sshcache"
 
-// Used in get_ssh() when splitting lines from the user's
-// SSH config file into tokens.
+/**
+ * Used in get_ssh() when splitting lines from the user's
+ * SSH config file into tokens.
+ */
 #define SSH_TOKEN_DELIM    "= \t\r\n"
 
 static inline int execshssh ( const char *host )
@@ -315,13 +323,23 @@ static char ** get_ssh (  unsigned int *length )
     return retv;
 }
 
+/**
+ * The internal data structure holding the private data of the SSH Mode.
+ */
 typedef struct _SSHModePrivateData
 {
-    unsigned int id;
+    /** List if available ssh hosts.*/
     char         **cmd_list;
+    /** Length of the #cmd_list.*/
     unsigned int cmd_list_length;
 } SSHModePrivateData;
 
+/**
+ * @param sw Object handle to the SSH Mode object.
+ *
+ * Initializes the SSH Mode private data object and 
+ * loads the relevant ssh information.
+ */
 static void ssh_mode_init ( Mode *sw )
 {
     if ( sw->private_data == NULL ) {
@@ -331,11 +349,19 @@ static void ssh_mode_init ( Mode *sw )
     }
 }
 
+/**
+ * @param sw Object handle to the SSH Mode object.
+ * 
+ * Get the number of SSH entries.
+ *
+ * @returns the number of ssh entries.
+ */
 static unsigned int ssh_mode_get_num_entries ( const Mode *sw )
 {
     const SSHModePrivateData *rmpd = (const SSHModePrivateData *) sw->private_data;
     return rmpd->cmd_list_length;
 }
+
 static ModeMode ssh_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
 {
     ModeMode           retv  = MODE_EXIT;
@@ -410,3 +436,4 @@ Mode ssh_mode =
     .private_data    = NULL,
     .free            = NULL
 };
+/*@}*/

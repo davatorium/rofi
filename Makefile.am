@@ -226,3 +226,6 @@ cppcheck: ${rofi_SOURCES}
 
 ohcount: ${rofi_SOURCES}
 	ohcount -i ${top_srcdir}/source/
+
+doxy: ${rofi_SOURCES}
+	doxygen ${top_srcdir}/doc/rofi.doxy
