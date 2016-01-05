@@ -2001,14 +2001,7 @@ static void cleanup ()
     }
     // Cleanup
     if ( display != NULL ) {
-        if ( main_window != None ) {
-            // We should never hit this code.
-            release_keyboard ( display );
-            XDestroyWindow ( display, main_window );
-            main_window = None;
-            XDestroyIC ( xic );
-            XCloseIM ( xim );
-        }
+        g_assert ( main_window == None );
 
         if ( sncontext != NULL ) {
             sn_launchee_context_unref ( sncontext );
