@@ -191,7 +191,7 @@ typedef struct _Settings
     unsigned int   case_sensitive;
     /** Separator to use for dmenu mode */
     char           separator;
-    /** Height of an element in #chars */
+    /** Height of an element in number of rows */
     int            element_height;
     /** Sidebar mode, show the modi */
     unsigned int   sidebar_mode;

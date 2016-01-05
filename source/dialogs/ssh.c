@@ -50,7 +50,7 @@
 /**
  * Name of the history file where previously choosen hosts are stored.
  */
-#define SSH_CACHE_FILE    "rofi-2.sshcache"
+#define SSH_CACHE_FILE     "rofi-2.sshcache"
 
 /**
  * Used in get_ssh() when splitting lines from the user's
@@ -58,6 +58,13 @@
  */
 #define SSH_TOKEN_DELIM    "= \t\r\n"
 
+/**
+ * @param host The host to connect too
+ *
+ * SSH into the selected host.
+ *
+ * @returns FALSE On failure, TRUE on success
+ */
 static inline int execshssh ( const char *host )
 {
     char **args = NULL;
@@ -73,55 +80,60 @@ static inline int execshssh ( const char *host )
         g_free ( msg );
         // print error.
         g_error_free ( error );
+
+        g_strfreev ( args );
+        return FALSE;
     }
     // Free the args list.
     g_strfreev ( args );
 
-    return 0;
+    return TRUE;
 }
-// execute sub-process
-static pid_t exec_ssh ( const char *cmd )
+
+/**
+ * @param host The host to connect too
+ *
+ * SSH into the selected host, if successful update history.
+ */
+static void exec_ssh ( const char *host )
 {
-    if ( !cmd || !cmd[0] ) {
-        return -1;
-    }
-
-    execshssh ( cmd );
-
-    /**
-     * This happens in non-critical time (After launching app)
-     * It is allowed to be a bit slower.
-     */
-    char *path = g_strdup_printf ( "%s/%s", cache_dir, SSH_CACHE_FILE );
-    history_set ( path, cmd );
-    g_free ( path );
-
-    return 0;
-}
-static void delete_ssh ( const char *cmd )
-{
-    if ( !cmd || !cmd[0] ) {
+    if ( !host || !host[0] ) {
         return;
     }
-    char *path = NULL;
-    path = g_strdup_printf ( "%s/%s", cache_dir, SSH_CACHE_FILE );
-    history_remove ( path, cmd );
+
+    if ( !execshssh ( host ) ) {
+        return;
+    }
+
+    //  This happens in non-critical time (After launching app)
+    //  It is allowed to be a bit slower.
+    char *path = g_build_filename ( cache_dir, SSH_CACHE_FILE, NULL );
+    history_set ( path, host );
     g_free ( path );
 }
-static int ssh_sort_func ( const void *a, const void *b, void *data __attribute__( ( unused ) ) )
+
+/**
+ * @param host The host to remove from history
+ *
+ * Remove host from history.
+ */
+static void delete_ssh ( const char *host )
 {
-    const char *astr = *( const char * const * ) a;
-    const char *bstr = *( const char * const * ) b;
-    return g_utf8_collate ( astr, bstr );
+    if ( !host || !host[0] ) {
+        return;
+    }
+    char *path = g_build_filename ( cache_dir, SSH_CACHE_FILE, NULL );
+    history_remove ( path, host );
+    g_free ( path );
 }
 
 /**
  * @param retv list of hosts
- * @pwaram length pointer to length of list
+ * @param length pointer to length of list [in][out]
  *
  * Read 'known_hosts' file when entries are not hashsed.
  *
- * @returns list of hosts.
+ * @returns updated list of hosts.
  */
 static char **read_known_hosts_file ( char ** retv, unsigned int *length )
 {
@@ -162,8 +174,14 @@ static char **read_known_hosts_file ( char ** retv, unsigned int *length )
     g_free ( path );
     return retv;
 }
+
 /**
- * Read /etc/hosts
+ * @param retv The list of hosts to update.
+ * @param length The length of the list retv [in][out]
+ *
+ * Read `/etc/hosts` and appends them to the list retv
+ *
+ * @returns an updated list with the added hosts.
  */
 static char **read_hosts_file ( char ** retv, unsigned int *length )
 {
@@ -227,6 +245,13 @@ static char **read_hosts_file ( char ** retv, unsigned int *length )
     return retv;
 }
 
+/**
+ * @param length The number of found ssh hosts [out]
+ *
+ * Gets the list available SSH hosts.
+ *
+ * @return an array of strings containing all the hosts.
+ */
 static char ** get_ssh (  unsigned int *length )
 {
     char         **retv        = NULL;
@@ -314,10 +339,6 @@ static char ** get_ssh (  unsigned int *length )
         }
     }
 
-    // TODO: check this is still fast enough. (takes 1ms on laptop.)
-    if ( ( *length ) > num_favorites ) {
-        g_qsort_with_data ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), ssh_sort_func, NULL );
-    }
     g_free ( path );
 
     return retv;
@@ -329,15 +350,15 @@ static char ** get_ssh (  unsigned int *length )
 typedef struct _SSHModePrivateData
 {
     /** List if available ssh hosts.*/
-    char         **cmd_list;
-    /** Length of the #cmd_list.*/
-    unsigned int cmd_list_length;
+    char         **hosts_list;
+    /** Length of the #hosts_list.*/
+    unsigned int hosts_list_length;
 } SSHModePrivateData;
 
 /**
- * @param sw Object handle to the SSH Mode object.
+ * @param sw Object handle to the SSH Mode object
  *
- * Initializes the SSH Mode private data object and 
+ * Initializes the SSH Mode private data object and
  * loads the relevant ssh information.
  */
 static void ssh_mode_init ( Mode *sw )
@@ -345,13 +366,13 @@ static void ssh_mode_init ( Mode *sw )
     if ( sw->private_data == NULL ) {
         SSHModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         sw->private_data = (void *) pd;
-        pd->cmd_list     = get_ssh ( &( pd->cmd_list_length ) );
+        pd->hosts_list   = get_ssh ( &( pd->hosts_list_length ) );
     }
 }
 
 /**
- * @param sw Object handle to the SSH Mode object.
- * 
+ * @param sw Object handle to the SSH Mode object
+ *
  * Get the number of SSH entries.
  *
  * @returns the number of ssh entries.
@@ -359,9 +380,19 @@ static void ssh_mode_init ( Mode *sw )
 static unsigned int ssh_mode_get_num_entries ( const Mode *sw )
 {
     const SSHModePrivateData *rmpd = (const SSHModePrivateData *) sw->private_data;
-    return rmpd->cmd_list_length;
+    return rmpd->hosts_list_length;
 }
 
+/**
+ * @param sw Object handle to the SSH Mode object
+ * @param mretv The menu return value.
+ * @param input Pointer to the user input string.
+ * @param selected_line the line selected by the user.
+ *
+ * Acts on the user interaction.
+ *
+ * @returns the next #ModeMode.
+ */
 static ModeMode ssh_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
 {
     ModeMode           retv  = MODE_EXIT;
@@ -375,48 +406,84 @@ static ModeMode ssh_mode_result ( Mode *sw, int mretv, char **input, unsigned in
     else if ( mretv & MENU_QUICK_SWITCH ) {
         retv = ( mretv & MENU_LOWER_MASK );
     }
-    else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
-        exec_ssh ( rmpd->cmd_list[selected_line] );
+    else if ( ( mretv & MENU_OK ) && rmpd->hosts_list[selected_line] != NULL ) {
+        exec_ssh ( rmpd->hosts_list[selected_line] );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
         exec_ssh ( *input );
     }
-    else if ( ( mretv & MENU_ENTRY_DELETE ) && rmpd->cmd_list[selected_line] ) {
-        delete_ssh ( rmpd->cmd_list[selected_line] );
-        g_strfreev ( rmpd->cmd_list );
-        rmpd->cmd_list_length = 0;
-        rmpd->cmd_list        = NULL;
+    else if ( ( mretv & MENU_ENTRY_DELETE ) && rmpd->hosts_list[selected_line] ) {
+        delete_ssh ( rmpd->hosts_list[selected_line] );
+        g_strfreev ( rmpd->hosts_list );
+        rmpd->hosts_list_length = 0;
+        rmpd->hosts_list        = NULL;
         // Stay
         retv = RELOAD_DIALOG;
     }
     return retv;
 }
 
+/**
+ * @param sw Object handle to the SSH Mode object
+ *
+ * Cleanup the SSH Mode. Free all allocated memory and NULL the private data pointer.
+ */
 static void ssh_mode_destroy ( Mode *sw )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
     if ( rmpd != NULL ) {
-        g_strfreev ( rmpd->cmd_list );
+        g_strfreev ( rmpd->hosts_list );
         g_free ( rmpd );
         sw->private_data = NULL;
     }
 }
 
+/**
+ * @param sw Object handle to the SSH Mode object
+ * @param selected_line The line to view
+ * @param state The state of the entry [out]
+ * @param get_entry
+ *
+ * Gets the string as it should be displayed and the display state.
+ * If get_entry is FALSE only the state is set.
+ *
+ * @return the string as it should be displayed and the display state.
+ */
 static char *mgrv ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
-    return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
+    return get_entry ? g_strdup ( rmpd->hosts_list[selected_line] ) : NULL;
 }
+
+/**
+ * @param sw Object handle to the SSH Mode object
+ * @param tokens The set of tokens to match against
+ * @param not_ascii If the entry is pure-ascii
+ * @param case_sensitive If the entry should be matched case sensitive
+ * @param index The index of the entry to match
+ *
+ * Match entry against the set of tokens.
+ *
+ * @returns TRUE if matches
+ */
 static int ssh_token_match ( const Mode *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
-    return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );
+    return token_match ( tokens, rmpd->hosts_list[index], not_ascii, case_sensitive );
 }
 
+/**
+ * @param sw Object handle to the SSH Mode object
+ * @param index The index of the entry to match
+ *
+ * Check if the selected entry contains non-ascii symbols.
+ *
+ * @returns TRUE if string contains non-ascii symbols
+ */
 static int ssh_is_not_ascii ( const Mode *sw, unsigned int index )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
-    return !g_str_is_ascii ( rmpd->cmd_list[index] );
+    return !g_str_is_ascii ( rmpd->hosts_list[index] );
 }
 
 Mode ssh_mode =
