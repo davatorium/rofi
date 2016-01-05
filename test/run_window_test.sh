@@ -18,8 +18,14 @@ sleep 0.4
 xdotool key Return
 sleep 1;
 xdotool key Ctrl+d
-wait ${XPID}
+sleep 1;
 kill ${TPID}
+if pgrep -u $USER xterm
+then
+    kill ${XPID}
+    kill ${RPID}
+    exit 1
+fi
 #  Get result, kill xvfb
 wait ${RPID}
 RETV=$?
