@@ -2,6 +2,17 @@
 #define ROFI_HISTORY_H
 
 /**
+ * @defgroup HISTORY History
+ *
+ * Implements a very simple history module that can be used by a #Mode.
+ *
+ * This uses the following options from the #config object:
+ * * #_Settings::disable_history
+ *
+ * @{
+ */
+
+/**
  * @param filename The filename of the history cache.
  * @param entry    The entry to add/increment
  *
@@ -27,4 +38,5 @@ void history_remove ( const char *filename, const char *entry ) __attribute__( (
  */
 char ** history_get_list ( const char *filename, unsigned int * length ) __attribute__( ( nonnull ) );
 
-#endif
+/*@}*/
+#endif // ROFI_HISTORY_H
