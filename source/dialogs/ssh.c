@@ -262,7 +262,7 @@ static char ** get_ssh (  unsigned int *length )
         return NULL;
     }
 
-    path = g_strdup_printf ( "%s/%s", cache_dir, SSH_CACHE_FILE );
+    path = g_build_filename ( cache_dir, SSH_CACHE_FILE, NULL );
     retv = history_get_list ( path, length );
     g_free ( path );
     num_favorites = ( *length );
@@ -276,7 +276,7 @@ static char ** get_ssh (  unsigned int *length )
 
     FILE       *fd = NULL;
     const char *hd = getenv ( "HOME" );
-    path = g_strdup_printf ( "%s/%s", hd, ".ssh/config" );
+    path = g_build_filename ( hd, ".ssh", "config", NULL );
     fd   = fopen ( path, "r" );
 
     if ( fd != NULL ) {
