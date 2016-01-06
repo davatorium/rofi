@@ -1,5 +1,5 @@
-#ifndef __SSH_DIALOG_H__
-#define __SSH_DIALOG_H__
+#ifndef ROFI_DIALOG_SSH_H
+#define ROFI_DIALOG_SSH_H
 
 /**
  * @defgroup SSHMode SSH
@@ -21,4 +21,4 @@
  */
 extern Mode ssh_mode;
 /*@}*/
-#endif
+#endif // ROFI_DIALOG_SSH_H

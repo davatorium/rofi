@@ -1,4 +1,4 @@
-/**
+/*
  * rofi
  *
  * MIT/X11 License
@@ -24,6 +24,11 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+
+/**
+ * \ingroup RUNMode
+ * @{
+ */
 #include <config.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -43,8 +48,30 @@
 #include "history.h"
 #include "dialogs/run.h"
 
+/**
+ * Name of the history file where previously choosen commands are stored.
+ */
 #define RUN_CACHE_FILE    "rofi-2.runcache"
 
+/**
+ * The internal data structure holding the private data of the Run Mode.
+ */
+typedef struct _RunModePrivateData
+{
+    /** list of available commands. */
+    char         **cmd_list;
+    /** Length of the #cmd_list. */
+    unsigned int cmd_list_length;
+} RunModePrivateData;
+
+/**
+ * @param cmd The cmd to execute
+ * @param run_in_term Indicate if command should be run in a terminal
+ *
+ * Execute command.
+ *
+ * @returns FALSE On failure, TRUE on success
+ */
 static inline int execsh ( const char *cmd, int run_in_term )
 {
     int  retv   = TRUE;
@@ -72,7 +99,12 @@ static inline int execsh ( const char *cmd, int run_in_term )
     return retv;
 }
 
-// execute sub-process
+/**
+ * @param cmd The cmd to execute
+ * @param run_in_term Indicate if command should be run in a terminal
+ *
+ * Execute command and add to history.
+ */
 static void exec_cmd ( const char *cmd, int run_in_term )
 {
     if ( !cmd || !cmd[0] ) {
@@ -84,26 +116,36 @@ static void exec_cmd ( const char *cmd, int run_in_term )
          * This happens in non-critical time (After launching app)
          * It is allowed to be a bit slower.
          */
-        char *path = g_strdup_printf ( "%s/%s", cache_dir, RUN_CACHE_FILE );
+        char *path = g_build_filename ( cache_dir, RUN_CACHE_FILE, NULL );
 
         history_set ( path, cmd );
 
         g_free ( path );
     }
 }
-// execute sub-process
+
+/**
+ * @param cmd The command to remove from history
+ *
+ * Remove command from history.
+ */
 static void delete_entry ( const char *cmd )
 {
-    /**
-     * This happens in non-critical time (After launching app)
-     * It is allowed to be a bit slower.
-     */
-    char *path = g_strdup_printf ( "%s/%s", cache_dir, RUN_CACHE_FILE );
+    char *path = g_build_filename ( cache_dir, RUN_CACHE_FILE, NULL );
 
     history_remove ( path, cmd );
 
     g_free ( path );
 }
+
+/**
+ * @param a The First key to compare
+ * @param b The second key to compare
+ *
+ * Function used for sorting.
+ *
+ * @returns returns less then, equal to and greater than zero is a is less than, is a match or greater than b.
+ */
 static int sort_func ( const void *a, const void *b, void *data __attribute__( ( unused ) ) )
 {
     const char *astr = *( const char * const * ) a;
@@ -118,7 +160,7 @@ static int sort_func ( const void *a, const void *b, void *data __attribute__( (
     else if ( bstr == NULL ) {
         return -1;
     }
-    return strcasecmp ( astr, bstr );
+    return g_ascii_strcasecmp ( astr, bstr );
 }
 
 /**
@@ -179,7 +221,7 @@ static char ** get_apps ( unsigned int *length )
         return NULL;
     }
 
-    path = g_strdup_printf ( "%s/%s", cache_dir, RUN_CACHE_FILE );
+    path = g_build_filename ( cache_dir, RUN_CACHE_FILE, NULL );
     retv = history_get_list ( path, length );
     g_free ( path );
     // Keep track of how many where loaded as favorite.
@@ -259,13 +301,6 @@ static char ** get_apps ( unsigned int *length )
 
     return retv;
 }
-
-typedef struct _RunModePrivateData
-{
-    unsigned int id;
-    char         **cmd_list;
-    unsigned int cmd_list_length;
-} RunModePrivateData;
 
 static void run_mode_init ( Mode *sw )
 {
@@ -359,3 +394,4 @@ Mode run_mode =
     .private_data    = NULL,
     .free            = NULL
 };
+/*@}*/
