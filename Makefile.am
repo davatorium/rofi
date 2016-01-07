@@ -110,6 +110,7 @@ EXTRA_DIST=\
     ${top_srcdir}/config/config.def.c\
     INSTALL.md\
 	AUTHORS\
+	doc/rofi.doxy.in\
 	Changelog
 
 ##
@@ -227,5 +228,6 @@ cppcheck: ${rofi_SOURCES}
 ohcount: ${rofi_SOURCES}
 	ohcount -i ${top_srcdir}/source/
 
-doxy: ${rofi_SOURCES}
-	doxygen ${top_srcdir}/doc/rofi.doxy
+doxy: doc/rofi.doxy ${rofi_SOURCES}
+	doxygen ${top_builddir}/doc/rofi.doxy
+

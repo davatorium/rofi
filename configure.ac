@@ -84,7 +84,7 @@ dnl Add extra compiler flags
 dnl ---------------------------------------------------------------------
 AC_SUBST([EXTRA_CFLAGS], ["-Wall -Wextra -Wparentheses -Winline -pedantic"])
 
-AC_CONFIG_FILES([Makefile ])
+AC_CONFIG_FILES([Makefile doc/rofi.doxy])
 AC_OUTPUT
 
 dnl -----------------------------------------------
