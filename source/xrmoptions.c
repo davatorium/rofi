@@ -406,7 +406,7 @@ static void xresource_dump_entry ( const char *namePrefix, XrmOption *option )
     printf ( "\n" );
 }
 
-void xresource_dump ( void )
+void config_parse_xresource_dump ( void )
 {
     const char   * namePrefix = "rofi";
     unsigned int entries      = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
@@ -543,7 +543,7 @@ void print_help_msg ( const char *option, const char *type, const char*text, con
     }
 }
 
-void print_xresources_theme ( void )
+void config_parse_xresources_theme_dump ( void )
 {
     if ( config.color_enabled != TRUE ) {
         printf ( "! Dumping theme only works for the extended color scheme.\n" );

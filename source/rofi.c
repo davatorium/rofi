@@ -2315,7 +2315,7 @@ static int main_loop_signal_handler ( char command, int quiet )
     }
     // Got message to print info
     else if ( command == 'i' ) {
-        xresource_dump ();
+        config_parse_xresource_dump ();
     }
     return FALSE;
 }
@@ -2487,11 +2487,11 @@ int main ( int argc, char *argv[] )
         exit ( EXIT_SUCCESS );
     }
     if ( find_arg (  "-dump-xresources" ) >= 0 ) {
-        xresource_dump ();
+        config_parse_xresource_dump ();
         exit ( EXIT_SUCCESS );
     }
     if ( find_arg (  "-dump-xresources-theme" ) >= 0 ) {
-        print_xresources_theme ();
+        config_parse_xresources_theme_dump ();
         exit ( EXIT_SUCCESS );
     }
     // Parse the keybindings.
