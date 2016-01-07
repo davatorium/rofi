@@ -44,6 +44,7 @@
 #include <errno.h>
 
 #include "rofi.h"
+#include "settings.h"
 #include "helper.h"
 #include "history.h"
 #include "dialogs/run.h"

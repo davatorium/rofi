@@ -51,6 +51,7 @@
 #define SN_API_NOT_YET_FROZEN
 #include <libsn/sn.h>
 
+#include "settings.h"
 #include "rofi.h"
 #include "helper.h"
 #include "textbox.h"

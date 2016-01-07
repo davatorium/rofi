@@ -11,6 +11,7 @@
 
 #include <textbox.h>
 #include <rofi.h>
+#include "settings.h"
 
 static int   test               = 0;
 unsigned int normal_window_mode = 0;

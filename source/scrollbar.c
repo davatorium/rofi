@@ -32,8 +32,8 @@
 #include <X11/Xft/Xft.h>
 #include <glib.h>
 #include "scrollbar.h"
-#include "rofi.h"
 #include "x11-helper.h"
+#include "settings.h"
 
 extern Display *display;
 

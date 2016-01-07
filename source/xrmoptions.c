@@ -33,6 +33,7 @@
 #include <X11/Xresource.h>
 #include "rofi.h"
 #include "xrmoptions.h"
+#include "settings.h"
 #include "helper.h"
 
 typedef struct

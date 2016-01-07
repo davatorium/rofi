@@ -9,19 +9,33 @@
 
 typedef enum _KeyBindingAction
 {
+    /** Paste from primary clipboard */
     PASTE_PRIMARY = 0,
+    /** Paste from secondary clipboard */
     PASTE_SECONDARY,
+    /** Clear the entry box. */
     CLEAR_LINE,
+    /** Move to front of text */
     MOVE_FRONT,
+    /** Move to end of text */
     MOVE_END,
+    /** Move on word back */
     MOVE_WORD_BACK,
+    /** Move on word forward */
     MOVE_WORD_FORWARD,
+    /** Move character back */
     MOVE_CHAR_BACK,
+    /** Move character forward */
     MOVE_CHAR_FORWARD,
+    /** Remove previous word */
     REMOVE_WORD_BACK,
+    /** Remove next work */
     REMOVE_WORD_FORWARD,
+    /** Remove next character */
     REMOVE_CHAR_FORWARD,
+    /** Remove previous character */
     REMOVE_CHAR_BACK,
+    /** Accept the current selected entry */
     ACCEPT_ENTRY,
     ACCEPT_CUSTOM,
     ACCEPT_ENTRY_CONTINUE,

@@ -15,6 +15,10 @@
  */
 
 /**
+ * @defgroup Main Main
+ * @{
+ */
+/**
  * Pointer to xdg cache directory.
  */
 extern const char *cache_dir;
@@ -68,38 +72,6 @@ typedef enum
 void catch_exit ( __attribute__( ( unused ) ) int sig );
 
 /**
- * Enumeration indicating location or gravity of window.
- *
- * WL_NORTH_WEST      WL_NORTH      WL_NORTH_EAST
- *
- * WL_EAST            WL_CENTER     WL_EAST
- *
- * WL_SOUTH_WEST      WL_SOUTH      WL_SOUTH_EAST
- *
- */
-typedef enum _WindowLocation
-{
-    /** Center */
-    WL_CENTER     = 0,
-    /** Left top corner. */
-    WL_NORTH_WEST = 1,
-    /** Top middle */
-    WL_NORTH      = 2,
-    /** Top right */
-    WL_NORTH_EAST = 3,
-    /** Middle right */
-    WL_EAST       = 4,
-    /** Bottom right */
-    WL_EAST_SOUTH = 5,
-    /** Bottom middle */
-    WL_SOUTH      = 6,
-    /** Bottom left */
-    WL_SOUTH_WEST = 7,
-    /** Middle left */
-    WL_WEST       = 8
-} WindowLocation;
-
-/**
  * @param sw the Mode to show.
  * @param lines An array of strings to display.
  * @param num_lines Length of the array with strings to display.
@@ -117,128 +89,6 @@ typedef enum _WindowLocation
  */
 MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_line, unsigned int *next_pos, const char *message )
 __attribute__ ( ( nonnull ( 1, 2, 3, 4 ) ) );
-/**
- * Settings
- */
-
-typedef struct _Settings
-{
-    /** List of enabled modi */
-    char           *modi;
-    /** Window settings */
-    unsigned int   window_opacity;
-    /** Border width */
-    unsigned int   menu_bw;
-    /** Width (0-100 in %, > 100 in pixels, < 0 in char width.) */
-    int            menu_width;
-    /** # lines */
-    unsigned int   menu_lines;
-    /** # Columns */
-    unsigned int   menu_columns;
-    /** Font string (pango format) */
-    char           * menu_font;
-
-    /** New row colors */
-    unsigned int   color_enabled;
-    char           * color_normal;
-    char           * color_active;
-    char           * color_urgent;
-    char           * color_window;
-    /** Foreground color */
-    char           * menu_fg;
-    char           * menu_fg_urgent;
-    char           * menu_fg_active;
-    /** Background color */
-    char           * menu_bg;
-    char           * menu_bg_urgent;
-    char           * menu_bg_active;
-    /** Background color alt */
-    char           * menu_bg_alt;
-    /** Highlight foreground color */
-    char           * menu_hlfg;
-    char           * menu_hlfg_urgent;
-    char           * menu_hlfg_active;
-    /** Highlight background color */
-    char           * menu_hlbg;
-    char           * menu_hlbg_urgent;
-    char           * menu_hlbg_active;
-    /** Border color */
-    char           * menu_bc;
-    /** Terminal to use  */
-    char           * terminal_emulator;
-    /** SSH client to use */
-    char           * ssh_client;
-    /** Command to execute when ssh session is selected */
-    char           * ssh_command;
-    /** Command for executing an application */
-    char           * run_command;
-    /** Command for executing an application in a terminal */
-    char           * run_shell_command;
-    /** Command for listing executables */
-    char           * run_list_command;
-
-    /** Windows location/gravity */
-    WindowLocation location;
-    /** Padding between elements */
-    unsigned int   padding;
-    /** Y offset */
-    int            y_offset;
-    /** X offset */
-    int            x_offset;
-    /** Always should config.menu_lines lines, even if less lines are available */
-    unsigned int   fixed_num_lines;
-    /** Do not use history */
-    unsigned int   disable_history;
-    /** Use levenshtein sorting when matching */
-    unsigned int   levenshtein_sort;
-    /** Search case sensitivity */
-    unsigned int   case_sensitive;
-    /** Separator to use for dmenu mode */
-    char           separator;
-    /** Height of an element in number of rows */
-    int            element_height;
-    /** Sidebar mode, show the modi */
-    unsigned int   sidebar_mode;
-    /** Lazy filter limit. */
-    unsigned int   lazy_filter_limit;
-    /** Auto select. */
-    unsigned int   auto_select;
-    /** Hosts file parsing */
-    unsigned int   parse_hosts;
-    /** Knonw_hosts file parsing */
-    unsigned int   parse_known_hosts;
-    /** Combi Modes */
-    char           *combi_modi;
-    /** Fuzzy match */
-    unsigned int   fuzzy;
-    unsigned int   glob;
-    unsigned int   tokenize;
-    unsigned int   regex;
-    /** Monitors */
-    int            monitor;
-    /** Line margin */
-    unsigned int   line_margin;
-    /** filter */
-    char           *filter;
-    /** style */
-    char           *separator_style;
-    /** hide scrollbar */
-    unsigned int   hide_scrollbar;
-    /** show markup in elements. */
-    unsigned int   markup_rows;
-    /** fullscreen */
-    unsigned int   fullscreen;
-    /** bg image */
-    unsigned int   fake_transparency;
-    /** dpi */
-    int            dpi;
-    /** Number threads (1 to disable) */
-    unsigned int   threads;
-    unsigned int   scrollbar_width;
-} Settings;
-
-/** Global Settings structure. */
-extern Settings config;
 
 /**
  * @param msg The error message to show.
@@ -283,9 +133,9 @@ typedef int ( *switcher_is_not_ascii )( const Mode *sw, unsigned int index );
  */
 struct _Mode
 {
-    // Name (max 31 char long)
+    /** Name (max 31 char long) */
     char         name[32];
-    // Keybindings (keysym and modmask)
+    /** Keybindings (keysym and modmask) */
     char         * keycfg;
     char         * keystr;
     KeySym       keysym;
@@ -294,54 +144,44 @@ struct _Mode
     /**
      * A switcher normally consists of the following parts:
      */
-    // Initialize the Mode
+    /** Initialize the Mode */
     switcher_init              init;
-    // Destroy the switcher, e.g. free all its memory.
+    /** Destroy the switcher, e.g. free all its memory. */
     switcher_destroy           destroy;
-    // Get number of entries to display. (unfiltered).
+    /** Get number of entries to display. (unfiltered). */
     switcher_get_num_entries   get_num_entries;
-    // Check if the element is ascii.
+    /** Check if the element is ascii. */
     switcher_is_not_ascii      is_not_ascii;
-    // Process the result of the user selection.
+    /** Process the result of the user selection. */
     switcher_result            result;
-    // Token match.
+    /** Token match. */
     switcher_token_match       token_match;
-    // Get the string to display for the entry.
+    /** Get the string to display for the entry. */
     switcher_get_display_value mgrv;
-    // Get the 'completed' entry.
+    /** Get the 'completed' entry. */
     switcher_get_completion    get_completion;
 
-    // Pointer to private data.
+    /** Pointer to private data. */
     void                       *private_data;
 
-    // Free SWitcher
-    // Only to be used when the switcher object itself is dynamic.
-    // And has data in `ed`
+    /**
+     * Free SWitcher
+     * Only to be used when the switcher object itself is dynamic.
+     * And has data in `ed`
+     */
     switcher_free free;
-    // Extra fields for script
+    /** Extra fields for script */
     void          *ed;
 };
 
-#define  color_reset           "\033[0m"
-#define  color_bold            "\033[1m"
-#define  color_italic          "\033[2m"
-#define  color_underline       "\033[4m"
-#define  color_black           "\033[0;30m"
-#define  color_red             "\033[0;31m"
-#define  color_green           "\033[0;32m"
-#define  color_yellow          "\033[0;33m"
-#define  color_blue            "\033[0;34m"
-#define  color_magenta         "\033[0;35m"
-#define  color_cyan            "\033[0;36m"
-#define  color_white           "\033[0;37m"
-#define  color_white_bold      "\033[1;37m"
-#define  color_black_bold      "\033[1;30m"
-#define  color_red_bold        "\033[1;31m"
-#define  color_green_bold      "\033[1;32m"
-#define  color_yellow_bold     "\033[1;33m"
-#define  color_blue_bold       "\033[1;34m"
-#define  color_magenta_bold    "\033[1;35m"
-#define  color_cyan_bold       "\033[1;36m"
-
+/** Reset terminal */
+#define  color_reset     "\033[0m"
+/** Set terminal text bold */
+#define  color_bold      "\033[1m"
+/** Set terminal text italic */
+#define  color_italic    "\033[2m"
+/** Set terminal foreground text green */
+#define color_green      "\033[0;32m"
 int show_error_message ( const char *msg, int markup );
+/*@}*/
 #endif

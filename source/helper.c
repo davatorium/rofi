@@ -40,6 +40,7 @@
 #include <pwd.h>
 #include <ctype.h>
 #include "helper.h"
+#include "settings.h"
 #include "x11-helper.h"
 #include "rofi.h"
 

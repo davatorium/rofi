@@ -26,7 +26,8 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include "rofi.h"
+#include <glib.h>
+#include "settings.h"
 
 Settings config = {
     /** List of enabled modi. */

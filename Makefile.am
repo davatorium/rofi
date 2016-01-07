@@ -50,6 +50,7 @@ rofi_SOURCES=\
     source/dialogs/window.c\
     source/dialogs/script.c\
     include/rofi.h\
+	include/settings.h\
 	include/keyb.h\
 	include/helper.h\
 	include/timings.h\
@@ -131,6 +132,7 @@ rofi_test_SOURCES=\
     source/history.c\
     config/config.c\
     include/rofi.h\
+	include/settings.h\
     include/history.h\
 	test/history-test.c
 
@@ -143,6 +145,7 @@ textbox_test_SOURCES=\
 	source/helper.c\
 	include/keyb.h\
     include/rofi.h\
+	include/settings.h\
     include/textbox.h\
 	include/x11-helper.h\
 	include/xrmoptions.h\
@@ -226,7 +229,7 @@ cppcheck: ${rofi_SOURCES}
 .PHONY: ohcount
 
 ohcount: ${rofi_SOURCES}
-	ohcount -i ${top_srcdir}/source/
+	ohcount -i ${top_srcdir}/source/ ${top_srcdir}/include/
 
 doxy: doc/rofi.doxy ${rofi_SOURCES}
 	doxygen ${top_builddir}/doc/rofi.doxy

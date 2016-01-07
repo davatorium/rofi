@@ -33,8 +33,9 @@
 #include <X11/keysym.h>
 #include <X11/XKBlib.h>
 #include <ctype.h>
+#include <string.h>
 #include <glib.h>
-#include "rofi.h"
+#include "settings.h"
 #include "textbox.h"
 #include "keyb.h"
 #include "x11-helper.h"

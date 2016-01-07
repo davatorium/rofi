@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <helper.h>
 #include <string.h>
+#include "settings.h"
 
 static int test = 0;
 

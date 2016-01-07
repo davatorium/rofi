@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <rofi.h>
+#include "settings.h"
 
 #include <dialogs/dialogs.h>
 

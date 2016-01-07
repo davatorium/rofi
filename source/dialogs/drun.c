@@ -39,6 +39,7 @@
 #include <errno.h>
 
 #include "rofi.h"
+#include "settings.h"
 #include "helper.h"
 #include "dialogs/drun.h"
 

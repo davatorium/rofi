@@ -44,6 +44,7 @@
 #include <helper.h>
 
 #include "rofi.h"
+#include "settings.h"
 #include "history.h"
 #include "dialogs/ssh.h"
 

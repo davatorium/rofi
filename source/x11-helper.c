@@ -43,6 +43,7 @@
 #include <X11/keysym.h>
 #include <X11/XKBlib.h>
 #include <X11/extensions/Xinerama.h>
+#include "settings.h"
 
 #include <rofi.h>
 #define OVERLAP( a, b, c,                          \

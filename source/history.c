@@ -35,6 +35,7 @@
 #include <glib/gstdio.h>
 #include "rofi.h"
 #include "history.h"
+#include "settings.h"
 
 #define HISTORY_NAME_LENGTH    256
 #define HISTORY_MAX_ENTRIES    25

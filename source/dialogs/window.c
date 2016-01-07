@@ -39,6 +39,7 @@
 #include <X11/Xutil.h>
 
 #include "rofi.h"
+#include "settings.h"
 #include "helper.h"
 #include "x11-helper.h"
 #include "i3-support.h"
