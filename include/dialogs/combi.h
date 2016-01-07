@@ -1,5 +1,14 @@
-#ifndef __COMBI_DIALOG_H__
-#define __COMBI_DIALOG_H__
+#ifndef ROFI_DIALOG_COMBI_H
+#define ROFI_DIALOG_COMBI_H
+
+/**
+ * @defgroup COBIMode Combi
+ * @ingroup MODES
+ *
+ * @{
+ */
 
 extern Mode combi_mode;
-#endif
+
+/*@}*/
+#endif // ROFI_DIALOG_COMBI_H

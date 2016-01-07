@@ -1,6 +1,13 @@
 #ifndef ROFI_SCROLLBAR_H
 #define ROFI_SCROLLBAR_H
 #include <cairo.h>
+
+/**
+ * @defgroup Scrollbar Scrollbar
+ * @ingroup Widgets
+ *
+ * @{
+ */
 /**
  * Internal structure for the scrollbar.
  */
@@ -90,4 +97,6 @@ void scrollbar_resize ( scrollbar *sb, int w, int h );
  * Move the scrollbar.
  */
 void scrollbar_move ( scrollbar *sb, int x, int y );
+
+/*@}*/
 #endif // ROFI_SCROLLBAR_H

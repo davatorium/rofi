@@ -2,7 +2,12 @@
 #define ROFI_I3_H
 
 /**
+ * @defgroup I3Support I3Support
+ * @ingroup HELPERS
+ *
  * These functions are dummies when i3 support is not compiled in.
+ *
+ * @{
  */
 
 /**
@@ -29,4 +34,5 @@ int i3_support_initialize ( Display *display );
  * Cleanup.
  */
 void i3_support_free_internals ( void );
+/*@}*/
 #endif // ROFI_I3_H

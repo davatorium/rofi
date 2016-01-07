@@ -1,6 +1,16 @@
 #ifndef ROFI_HELPER_H
 #define ROFI_HELPER_H
 #include "rofi.h"
+
+/**
+ * @defgroup HELPERS Helpers
+ */
+/**
+ * @defgroup HELPER Helper
+ * @ingroup HELPERS
+ *
+ * @{
+ */
 /**
  * @param string The input string.
  * @param output Pointer to 2 dimensional array with parsed string.
@@ -155,4 +165,6 @@ void cmd_set_arguments ( int argc, char **argv );
  */
 char *rofi_expand_path ( const char *input );
 unsigned int levenshtein ( const char *needle, const char *haystack );
+
+/*@}*/
 #endif // ROFI_HELPER_H

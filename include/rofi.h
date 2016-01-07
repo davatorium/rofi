@@ -11,6 +11,10 @@
 #include "keyb.h"
 
 /**
+ * @defgroup Widgets Widgets
+ */
+
+/**
  * Pointer to xdg cache directory.
  */
 extern const char *cache_dir;

@@ -1,5 +1,11 @@
-#ifndef __DRUN_DIALOG_H__
-#define __DRUN_DIALOG_H__
+#ifndef ROFI_DIALOG_DRUN_H
+#define ROFI_DIALOG_DRUN_H
 
+/**
+ * @defgroup DRUNMode DRun
+ * @ingroup MODES
+ * @{
+ */
 extern Mode drun_mode;
-#endif
+/*@}*/
+#endif // ROFI_DIALOG_DRUN_H

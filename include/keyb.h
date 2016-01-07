@@ -1,6 +1,12 @@
 #ifndef ROFI_KEYB_H
 #define ROFI_KEYB_H
 
+/**
+ * @defgroup KEYB KeyboardBindings
+ *
+ * @{
+ */
+
 typedef enum _KeyBindingAction
 {
     PASTE_PRIMARY = 0,
@@ -80,4 +86,6 @@ void cleanup_abe ( void );
  * @returns TRUE if key combo matches, FALSE otherwise.
  */
 int abe_test_action ( KeyBindingAction action, unsigned int mask, KeySym key );
+
+/*@}*/
 #endif // ROFI_KEYB_H

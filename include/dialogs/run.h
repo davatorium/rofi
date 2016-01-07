@@ -3,6 +3,7 @@
 
 /**
  * @defgroup RUNMode Run
+ * @ingroup MODES
  *
  * This mode uses the following options from the #config object:
  *  * #_Settings::run_command

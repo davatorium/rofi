@@ -7,6 +7,13 @@
 #include <pango/pangocairo.h>
 #include <cairo.h>
 
+/**
+ * @defgroup Textbox Textbox
+ * @ingroup Widgets
+ *
+ * @{
+ */
+
 typedef struct
 {
     double red, green, blue, alpha;
@@ -32,14 +39,14 @@ typedef struct
 
 typedef enum
 {
-    TB_AUTOHEIGHT    = 1 << 0,
-        TB_AUTOWIDTH = 1 << 1,
-        TB_LEFT      = 1 << 16,
-        TB_RIGHT     = 1 << 17,
-        TB_CENTER    = 1 << 18,
-        TB_EDITABLE  = 1 << 19,
-        TB_MARKUP    = 1 << 20,
-        TB_WRAP      = 1 << 21,
+    TB_AUTOHEIGHT = 1 << 0,
+    TB_AUTOWIDTH  = 1 << 1,
+    TB_LEFT       = 1 << 16,
+    TB_RIGHT      = 1 << 17,
+    TB_CENTER     = 1 << 18,
+    TB_EDITABLE   = 1 << 19,
+    TB_MARKUP     = 1 << 20,
+    TB_WRAP       = 1 << 21,
 } TextboxFlags;
 
 typedef enum
@@ -233,4 +240,6 @@ void textbox_delete ( textbox *tb, int pos, int dlen );
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
 int textbox_get_estimated_char_height ( void );
 void textbox_set_pango_context ( PangoContext *p );
+
+/*@}*/
 #endif //ROFI_TEXTBOX_H

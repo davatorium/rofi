@@ -2,6 +2,9 @@
 #define ROFI_DIALOGS_DIALOGS_H
 
 /**
+ * @defgroup MODES Modes
+ */
+/**
  * List of available dialogs.
  */
 

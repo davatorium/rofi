@@ -1,6 +1,18 @@
 #ifndef ROFI_XRMOPTIONS_H
 #define ROFI_XRMOPTIONS_H
 
+/**
+ * @defgroup CONFIGURATION Configuration
+ *
+ * This provides rofi configuration system, supports:
+ * * Compiled defaults.
+ * * XResource parsing
+ * * Config file parsing
+ * * Commandline options.
+ *
+ * @{
+ */
+
 // Big thanks to Sean Pringle for this code.
 // This maps xresource options to config structure.
 typedef enum
@@ -60,4 +72,6 @@ void config_parser_add_option ( XrmOptionType type, const char *key, void **valu
 void print_options ( void );
 void print_help_msg ( const char *option, const char *type, const char*text, const char *def, int isatty );
 void print_xresources_theme ( void );
+
+/* @}*/
 #endif

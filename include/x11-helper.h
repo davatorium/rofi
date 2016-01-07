@@ -1,6 +1,12 @@
 #ifndef X11_ROFI_HELPER_H
 #define X11_ROFI_HELPER_H
 
+/**
+ * @defgroup X11Helper X11Helper
+ * @ingroup HELPERS
+ * @{
+ */
+
 int window_get_prop ( Display *display, Window w, Atom prop,
                       Atom *type, int *items,
                       void *buffer, unsigned int bytes ) __attribute__ ( ( nonnull ( 4, 5 ) ) );
@@ -159,4 +165,5 @@ void color_cache_reset ( void );
 cairo_format_t get_format ( void );
 
 void x11_helper_set_cairo_rgba ( cairo_t *d, unsigned int pixel );
+/*@}*/
 #endif

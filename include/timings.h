@@ -1,6 +1,12 @@
 #ifndef ROFI_TIMINGS_H
 #define ROFI_TIMINGS_H
 #include <config.h>
+
+/**
+ * @defgroup TIMINGS Timings
+ * @ingroup HELPERS
+ * @{
+ */
 #if TIMINGS
 
 void rofi_timings_init ( void );
@@ -20,4 +26,5 @@ void rofi_timings_quit ( void );
 #define TICK_N( a )
 
 #endif // TIMINGS
+/*@}*/
 #endif // ROFI_TIMINGS_H

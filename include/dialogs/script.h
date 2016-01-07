@@ -1,6 +1,12 @@
-#ifndef __SCRIPT_DIALOG_H__
-#define __SCRIPT_DIALOG_H__
+#ifndef ROFI_DIALOG_SCRIPT_H
+#define ROFI_DIALOG_SCRIPT_H
 
+/**
+ * @defgroup SCRIPTMode Script
+ * @ingroup MODES
+ *
+ * @{
+ */
 /**
  * @param str   The input string to parse
  *
@@ -10,4 +16,5 @@
  * @returns NULL when it fails, a newly allocated ScriptOptions when successful.
  */
 Mode *script_switcher_parse_setup ( const char *str );
-#endif
+/*@}*/
+#endif // ROFI_DIALOG_SCRIPT_H

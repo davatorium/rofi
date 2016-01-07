@@ -1,6 +1,13 @@
-#ifndef __DMENU_DIALOG_H__
-#define __DMENU_DIALOG_H__
+#ifndef ROFI_DIALOG_DMENU_H
+#define ROFI_DIALOG_DMENU_H
 
+/**
+ * @defgroup DMENU DMenu
+ * @ingroup MODES
+ *
+ *
+ * @{
+ */
 /**
  * dmenu dialog.
  *
@@ -9,4 +16,6 @@
 int dmenu_switcher_dialog ( void );
 
 void print_dmenu_options ( void );
-#endif
+
+/*@}*/
+#endif // ROFI_DIALOG_DMENU_H
