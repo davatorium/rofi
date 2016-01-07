@@ -34,6 +34,7 @@ unsigned int mode_get_num_entries ( const Mode *mode )
 char * mode_get_display_value ( const Mode *mode, unsigned int selected_line, int *state, int get_entry )
 {
     g_assert ( mode != NULL );
+    g_assert ( state != NULL );
     g_assert ( mode->_get_display_value != NULL );
 
     return mode->_get_display_value ( mode, selected_line, state, get_entry );
@@ -62,6 +63,7 @@ ModeMode mode_result ( Mode *mode, int menu_retv, char **input, unsigned int sel
 {
     g_assert ( mode != NULL );
     g_assert ( mode->_result != NULL );
+    g_assert ( (*input) != NULL );
     return mode->_result ( mode, menu_retv, input, selected_line );
 }
 
@@ -99,6 +101,7 @@ int mode_check_keybinding ( const Mode *mode, KeySym key, unsigned int modstate 
 void mode_free ( Mode **mode )
 {
     g_assert ( mode != NULL );
+    g_assert ( (*mode) != NULL );
     if ( ( *mode )->keycfg != NULL ) {
         g_free ( ( *mode )->keycfg );
         ( *mode )->keycfg = NULL;
@@ -112,6 +115,7 @@ void mode_free ( Mode **mode )
 int mode_grab_key ( Mode *mode, Display *display )
 {
     g_assert ( mode != NULL );
+    g_assert ( display != NULL );
     if ( mode->keystr != NULL ) {
         x11_parse_key ( mode->keystr, &( mode->modmask ), &( mode->keysym ) );
         if ( mode->keysym != NoSymbol ) {
@@ -124,6 +128,7 @@ int mode_grab_key ( Mode *mode, Display *display )
 void mode_ungrab_key ( Mode *mode, Display *display )
 {
     g_assert ( mode != NULL );
+    g_assert ( display != NULL );
     if ( mode->keystr != NULL ) {
         if ( mode->keysym != NoSymbol ) {
             x11_ungrab_key ( display, mode->modmask, mode->keysym );
