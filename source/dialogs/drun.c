@@ -43,8 +43,6 @@
 #include "helper.h"
 #include "dialogs/drun.h"
 
-#include "mode-private.h"
-
 #define RUN_CACHE_FILE    "rofi-2.runcache"
 
 static inline int execsh ( const char *cmd, int run_in_term )
@@ -231,16 +229,16 @@ static void get_apps ( DRunModePrivateData *pd )
 
 static void drun_mode_init ( Mode *sw )
 {
-    if ( sw->private_data == NULL ) {
+    if ( mode_get_private_data ( sw ) == NULL ) {
         DRunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
-        sw->private_data = (void *) pd;
+        mode_set_private_data ( sw, (void *) pd );
         get_apps ( pd );
     }
 }
 
 static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
 {
-    DRunModePrivateData *rmpd = (DRunModePrivateData *) sw->private_data;
+    DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( sw );
     ModeMode            retv  = MODE_EXIT;
 
     int                 shift = ( ( mretv & MENU_SHIFT ) == MENU_SHIFT );
@@ -265,7 +263,7 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
 
 static void drun_mode_destroy ( Mode *sw )
 {
-    DRunModePrivateData *rmpd = (DRunModePrivateData *) sw->private_data;
+    DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( sw );
     if ( rmpd != NULL ) {
         for ( size_t i = 0; i < rmpd->cmd_list_length; i++ ) {
             g_free ( rmpd->entry_list[i].exec );
@@ -274,13 +272,13 @@ static void drun_mode_destroy ( Mode *sw )
         }
         g_free ( rmpd->entry_list );
         g_free ( rmpd );
-        sw->private_data = NULL;
+        mode_set_private_data ( sw, NULL );
     }
 }
 
-static char *mgrv ( const Mode *sw, unsigned int selected_line, int *state, int get_entry )
+static char *_get_display_value ( const Mode *sw, unsigned int selected_line, int *state, int get_entry )
 {
-    DRunModePrivateData *pd = (DRunModePrivateData *) sw->private_data;
+    DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
     *state |= MARKUP;
     if ( !get_entry ) {
         return NULL;
@@ -301,7 +299,7 @@ static char *mgrv ( const Mode *sw, unsigned int selected_line, int *state, int 
 }
 static char *drun_get_completion ( const Mode *sw, unsigned int index )
 {
-    DRunModePrivateData *pd = (DRunModePrivateData *) sw->private_data;
+    DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
     /* Free temp storage. */
     DRunModeEntry       *dr = &( pd->entry_list[index] );
     if ( dr->generic_name == NULL ) {
@@ -319,7 +317,7 @@ static int drun_token_match ( const Mode *data,
                               unsigned int index
                               )
 {
-    DRunModePrivateData *rmpd = (DRunModePrivateData *) data->private_data;
+    DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( data );
     int                 match = 1;
     if ( tokens ) {
         for ( int j = 0; match && tokens != NULL && tokens[j] != NULL; j++ ) {
@@ -347,32 +345,33 @@ static int drun_token_match ( const Mode *data,
 
 static unsigned int drun_mode_get_num_entries ( const Mode *sw )
 {
-    const DRunModePrivateData *pd = (const DRunModePrivateData *) sw->private_data;
+    const DRunModePrivateData *pd = (const DRunModePrivateData *) mode_get_private_data ( sw );
     return pd->cmd_list_length;
 }
 static int drun_is_not_ascii ( const Mode *sw, unsigned int index )
 {
-    DRunModePrivateData *pd = (DRunModePrivateData *) sw->private_data;
+    DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
     if ( pd->entry_list[index].generic_name ) {
         return !g_str_is_ascii ( pd->entry_list[index].name ) || !g_str_is_ascii ( pd->entry_list[index].generic_name );
     }
     return !g_str_is_ascii ( pd->entry_list[index].name );
 }
 
+#include "mode-private.h"
 Mode drun_mode =
 {
-    .name             = "drun",
-    .keycfg           = NULL,
-    .keystr           = NULL,
-    .modmask          = AnyModifier,
-    ._init            = drun_mode_init,
-    ._get_num_entries = drun_mode_get_num_entries,
-    .result           = drun_mode_result,
-    ._destroy         = drun_mode_destroy,
-    .token_match      = drun_token_match,
-    .get_completion   = drun_get_completion,
-    .mgrv             = mgrv,
-    .is_not_ascii     = drun_is_not_ascii,
-    .private_data     = NULL,
-    .free             = NULL
+    .name               = "drun",
+    .keycfg             = NULL,
+    .keystr             = NULL,
+    .modmask            = AnyModifier,
+    ._init              = drun_mode_init,
+    ._get_num_entries   = drun_mode_get_num_entries,
+    ._result            = drun_mode_result,
+    ._destroy           = drun_mode_destroy,
+    ._token_match       = drun_token_match,
+    ._get_completion    = drun_get_completion,
+    ._get_display_value = _get_display_value,
+    ._is_not_ascii      = drun_is_not_ascii,
+    .private_data       = NULL,
+    .free               = NULL
 };

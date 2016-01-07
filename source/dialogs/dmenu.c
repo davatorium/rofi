@@ -40,7 +40,6 @@
 #include "helper.h"
 #include "xrmoptions.h"
 
-#include "mode-private.h"
 // We limit at 1000000 rows for now.
 #define DMENU_MAX_ROWS    1000000
 
@@ -109,7 +108,7 @@ static char **get_dmenu ( FILE *fd, unsigned int *length )
 
 static unsigned int dmenu_mode_get_num_entries ( const Mode *sw )
 {
-    const DmenuModePrivateData *rmpd = (const DmenuModePrivateData *) sw->private_data;
+    const DmenuModePrivateData *rmpd = (const DmenuModePrivateData *) mode_get_private_data ( sw );
     return rmpd->cmd_list_length;
 }
 
@@ -151,7 +150,7 @@ static void parse_ranges ( char *input, struct range_pair **list, unsigned int *
 static char *get_display_data ( const Mode *data, unsigned int index, int *state, int get_entry )
 {
     Mode                 *sw    = (Mode *) data;
-    DmenuModePrivateData *pd    = (DmenuModePrivateData *) sw->private_data;
+    DmenuModePrivateData *pd    = (DmenuModePrivateData *) mode_get_private_data ( sw );
     char                 **retv = (char * *) pd->cmd_list;
     for ( unsigned int i = 0; i < pd->num_active_list; i++ ) {
         if ( index >= pd->active_list[i].start && index <= pd->active_list[i].stop ) {
@@ -224,10 +223,10 @@ static void dmenu_output_formatted_line ( const char *format, const char *string
 }
 static void dmenu_mode_free ( Mode *sw )
 {
-    if ( sw->private_data == NULL ) {
+    if ( mode_get_private_data ( sw ) == NULL ) {
         return;
     }
-    DmenuModePrivateData *pd = (DmenuModePrivateData *) sw->private_data;
+    DmenuModePrivateData *pd = (DmenuModePrivateData *) mode_get_private_data ( sw );
     if ( pd != NULL ) {
         for ( size_t i = 0; i < pd->cmd_list_length; i++ ) {
             if ( pd->cmd_list[i] ) {
@@ -240,17 +239,17 @@ static void dmenu_mode_free ( Mode *sw )
         g_free ( pd->selected_list );
 
         g_free ( pd );
-        sw->private_data = NULL;
+        mode_set_private_data ( sw, NULL );
     }
 }
 
 static void dmenu_mode_init ( Mode *sw )
 {
-    if ( sw->private_data != NULL ) {
+    if ( mode_get_private_data ( sw ) != NULL ) {
         return;
     }
-    sw->private_data = g_malloc0 ( sizeof ( DmenuModePrivateData ) );
-    DmenuModePrivateData *pd = (DmenuModePrivateData *) sw->private_data;
+    mode_set_private_data ( sw, g_malloc0 ( sizeof ( DmenuModePrivateData ) ) );
+    DmenuModePrivateData *pd = (DmenuModePrivateData *) mode_get_private_data ( sw );
 
     pd->prompt        = "dmenu ";
     pd->selected_line = UINT32_MAX;
@@ -315,32 +314,33 @@ static void dmenu_mode_init ( Mode *sw )
 
 static int dmenu_token_match ( const Mode *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
 {
-    DmenuModePrivateData *rmpd = (DmenuModePrivateData *) sw->private_data;
+    DmenuModePrivateData *rmpd = (DmenuModePrivateData *) mode_get_private_data ( sw );
     return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );
 }
 
 static int dmenu_is_not_ascii ( const Mode *sw, unsigned int index )
 {
-    DmenuModePrivateData *rmpd = (DmenuModePrivateData *) sw->private_data;
+    DmenuModePrivateData *rmpd = (DmenuModePrivateData *) mode_get_private_data ( sw );
     return !g_str_is_ascii ( rmpd->cmd_list[index] );
 }
 
+#include "mode-private.h"
 Mode dmenu_mode =
 {
-    .name             = "dmenu",
-    .keycfg           = NULL,
-    .keystr           = NULL,
-    .modmask          = AnyModifier,
-    ._init            = dmenu_mode_init,
-    ._get_num_entries = dmenu_mode_get_num_entries,
-    .result           = NULL,
-    ._destroy         = dmenu_mode_free,
-    .token_match      = dmenu_token_match,
-    .mgrv             = get_display_data,
-    .get_completion   = NULL,
-    .is_not_ascii     = dmenu_is_not_ascii,
-    .private_data     = NULL,
-    .free             = NULL
+    .name               = "dmenu",
+    .keycfg             = NULL,
+    .keystr             = NULL,
+    .modmask            = AnyModifier,
+    ._init              = dmenu_mode_init,
+    ._get_num_entries   = dmenu_mode_get_num_entries,
+    ._result            = NULL,
+    ._destroy           = dmenu_mode_free,
+    ._token_match       = dmenu_token_match,
+    ._get_display_value = get_display_data,
+    ._get_completion    = NULL,
+    ._is_not_ascii      = dmenu_is_not_ascii,
+    .private_data       = NULL,
+    .free               = NULL
 };
 
 int dmenu_switcher_dialog ( void )

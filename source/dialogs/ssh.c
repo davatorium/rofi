@@ -48,7 +48,6 @@
 #include "history.h"
 #include "dialogs/ssh.h"
 
-#include "mode-private.h"
 /**
  * Name of the history file where previously choosen hosts are stored.
  */
@@ -365,10 +364,10 @@ typedef struct _SSHModePrivateData
  */
 static void ssh_mode_init ( Mode *sw )
 {
-    if ( sw->private_data == NULL ) {
+    if ( mode_get_private_data ( sw ) == NULL ) {
         SSHModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
-        sw->private_data = (void *) pd;
-        pd->hosts_list   = get_ssh ( &( pd->hosts_list_length ) );
+        mode_set_private_data ( sw, (void *) pd );
+        pd->hosts_list = get_ssh ( &( pd->hosts_list_length ) );
     }
 }
 
@@ -381,7 +380,7 @@ static void ssh_mode_init ( Mode *sw )
  */
 static unsigned int ssh_mode_get_num_entries ( const Mode *sw )
 {
-    const SSHModePrivateData *rmpd = (const SSHModePrivateData *) sw->private_data;
+    const SSHModePrivateData *rmpd = (const SSHModePrivateData *) mode_get_private_data ( sw );
     return rmpd->hosts_list_length;
 }
 
@@ -398,7 +397,7 @@ static unsigned int ssh_mode_get_num_entries ( const Mode *sw )
 static ModeMode ssh_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
 {
     ModeMode           retv  = MODE_EXIT;
-    SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
+    SSHModePrivateData *rmpd = (SSHModePrivateData *) mode_get_private_data ( sw );
     if ( mretv & MENU_NEXT ) {
         retv = NEXT_DIALOG;
     }
@@ -432,11 +431,11 @@ static ModeMode ssh_mode_result ( Mode *sw, int mretv, char **input, unsigned in
  */
 static void ssh_mode_destroy ( Mode *sw )
 {
-    SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
+    SSHModePrivateData *rmpd = (SSHModePrivateData *) mode_get_private_data ( sw );
     if ( rmpd != NULL ) {
         g_strfreev ( rmpd->hosts_list );
         g_free ( rmpd );
-        sw->private_data = NULL;
+        mode_set_private_data ( sw, NULL );
     }
 }
 
@@ -451,9 +450,9 @@ static void ssh_mode_destroy ( Mode *sw )
  *
  * @return the string as it should be displayed and the display state.
  */
-static char *mgrv ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
+static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
 {
-    SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
+    SSHModePrivateData *rmpd = (SSHModePrivateData *) mode_get_private_data ( sw );
     return get_entry ? g_strdup ( rmpd->hosts_list[selected_line] ) : NULL;
 }
 
@@ -470,7 +469,7 @@ static char *mgrv ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED in
  */
 static int ssh_token_match ( const Mode *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
 {
-    SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
+    SSHModePrivateData *rmpd = (SSHModePrivateData *) mode_get_private_data ( sw );
     return token_match ( tokens, rmpd->hosts_list[index], not_ascii, case_sensitive );
 }
 
@@ -484,25 +483,26 @@ static int ssh_token_match ( const Mode *sw, char **tokens, int not_ascii, int c
  */
 static int ssh_is_not_ascii ( const Mode *sw, unsigned int index )
 {
-    SSHModePrivateData *rmpd = (SSHModePrivateData *) sw->private_data;
+    SSHModePrivateData *rmpd = (SSHModePrivateData *) mode_get_private_data ( sw );
     return !g_str_is_ascii ( rmpd->hosts_list[index] );
 }
 
+#include "mode-private.h"
 Mode ssh_mode =
 {
-    .name             = "ssh",
-    .keycfg           = NULL,
-    .keystr           = NULL,
-    .modmask          = AnyModifier,
-    ._init            = ssh_mode_init,
-    ._get_num_entries = ssh_mode_get_num_entries,
-    .result           = ssh_mode_result,
-    ._destroy         = ssh_mode_destroy,
-    .token_match      = ssh_token_match,
-    .mgrv             = mgrv,
-    .get_completion   = NULL,
-    .is_not_ascii     = ssh_is_not_ascii,
-    .private_data     = NULL,
-    .free             = NULL
+    .name               = "ssh",
+    .keycfg             = NULL,
+    .keystr             = NULL,
+    .modmask            = AnyModifier,
+    ._init              = ssh_mode_init,
+    ._get_num_entries   = ssh_mode_get_num_entries,
+    ._result            = ssh_mode_result,
+    ._destroy           = ssh_mode_destroy,
+    ._token_match       = ssh_token_match,
+    ._get_display_value = _get_display_value,
+    ._get_completion    = NULL,
+    ._is_not_ascii      = ssh_is_not_ascii,
+    .private_data       = NULL,
+    .free               = NULL
 };
 /*@}*/

@@ -157,7 +157,7 @@ static void script_mode_destroy ( Mode *sw )
         sw->private_data = NULL;
     }
 }
-static char *mgrv ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
+static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
 {
     ScriptModePrivateData *rmpd = sw->private_data;
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
@@ -175,6 +175,7 @@ static int script_is_not_ascii ( const Mode *sw, unsigned int index )
     return !g_str_is_ascii ( rmpd->cmd_list[index] );
 }
 
+#include "mode-private.h"
 Mode *script_switcher_parse_setup ( const char *str )
 {
     Mode         *sw    = g_malloc0 ( sizeof ( *sw ) );
@@ -192,17 +193,17 @@ Mode *script_switcher_parse_setup ( const char *str )
     }
     g_free ( parse );
     if ( index == 2 ) {
-        sw->free             = script_switcher_free;
-        sw->keysym           = None;
-        sw->modmask          = AnyModifier;
-        sw->_init            = script_mode_init;
-        sw->_get_num_entries = script_mode_get_num_entries;
-        sw->result           = script_mode_result;
-        sw->_destroy         = script_mode_destroy;
-        sw->token_match      = script_token_match;
-        sw->get_completion   = NULL,
-        sw->mgrv             = mgrv;
-        sw->is_not_ascii     = script_is_not_ascii;
+        sw->free               = script_switcher_free;
+        sw->keysym             = None;
+        sw->modmask            = AnyModifier;
+        sw->_init              = script_mode_init;
+        sw->_get_num_entries   = script_mode_get_num_entries;
+        sw->_result            = script_mode_result;
+        sw->_destroy           = script_mode_destroy;
+        sw->_token_match       = script_token_match;
+        sw->_get_completion    = NULL,
+        sw->_get_display_value = _get_display_value;
+        sw->_is_not_ascii      = script_is_not_ascii;
 
         return sw;
     }

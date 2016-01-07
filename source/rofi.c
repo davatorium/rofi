@@ -60,8 +60,6 @@
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
 
-// This one should only be in mode implementations.
-#include "mode-private.h"
 ModeMode switcher_run ( char **input, Mode *sw );
 
 typedef enum _MainLoopEvent
@@ -130,7 +128,7 @@ static char * get_matching_state ( void )
 static int switcher_get ( const char *name )
 {
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        if ( strcmp ( modi[i].sw->name, name ) == 0 ) {
+        if ( strcmp ( mode_get_name ( modi[i].sw ), name ) == 0 ) {
             return i;
         }
     }
@@ -580,11 +578,8 @@ static int locate_switcher ( KeySym key, unsigned int modstate )
     // ignore annoying modifiers
     unsigned int modstate_filtered = modstate & ~( LockMask | NumlockMask );
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        if ( modi[i].sw->keystr != NULL ) {
-            if ( ( modstate_filtered == modi[i].sw->modmask ) &&
-                 modi[i].sw->keysym == key ) {
-                return i;
-            }
+        if ( mode_check_keybinding ( modi[i].sw, key, modstate_filtered ) ) {
+            return i;
         }
     }
     return -1;
@@ -714,14 +709,7 @@ static int menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned int
     else if ( abe_test_action ( ROW_SELECT, modstate, key ) ) {
         // If a valid item is selected, return that..
         if ( state->selected < state->filtered_lines ) {
-            int  st;
-            char *str = NULL;
-            if ( state->sw->get_completion ) {
-                str = state->sw->get_completion ( state->sw, state->line_map[state->selected] );
-            }
-            else {
-                str = state->sw->mgrv ( state->sw, state->line_map[state->selected], &st, TRUE );
-            }
+            char *str = mode_get_completion ( state->sw, state->line_map[state->selected] );
             textbox_text ( state->text, str );
             g_free ( str );
             textbox_cursor_end ( state->text );
@@ -832,23 +820,16 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
 {
     // input changed
     for ( unsigned int i = t->start; i < t->stop; i++ ) {
-        int st;
-        int match = t->state->sw->token_match ( t->state->sw, t->tokens,
-                                                t->state->lines_not_ascii[i],
-                                                config.case_sensitive,
-                                                i );
+        int match = mode_token_match ( t->state->sw, t->tokens,
+                                       t->state->lines_not_ascii[i],
+                                       config.case_sensitive,
+                                       i );
         // If each token was matched, add it to list.
         if ( match ) {
             t->state->line_map[t->start + t->count] = i;
             if ( config.levenshtein_sort ) {
                 // This is inefficient, need to fix it.
-                char * str = NULL;
-                if ( t->state->sw->get_completion ) {
-                    str = t->state->sw->get_completion ( t->state->sw, i );
-                }
-                else{
-                    str = t->state->sw->mgrv ( t->state->sw, i, &st, TRUE );
-                }
+                char * str = mode_get_completion ( t->state->sw, i );
                 t->state->distance[i] = levenshtein ( t->state->text->text, str );
                 g_free ( str );
             }
@@ -863,7 +844,7 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
 static void check_is_ascii ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
 {
     for ( unsigned int i = t->start; i < t->stop; i++ ) {
-        t->state->lines_not_ascii[i] = t->state->sw->is_not_ascii ( t->state->sw, i );
+        t->state->lines_not_ascii[i] = mode_is_not_ascii ( t->state->sw, i );
     }
     g_mutex_lock ( t->mutex );
     ( *( t->acount ) )--;
@@ -1438,7 +1419,7 @@ MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_l
         for ( unsigned int j = 0; j < num_modi; j++ ) {
             modi[j].tb = textbox_create ( TB_CENTER, state.border + j * ( width + config.line_margin ),
                                           state.h - state.line_height - state.border, width, state.line_height,
-                                          ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, modi[j].sw->name );
+                                          ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, mode_get_name ( modi[j].sw ) );
         }
     }
 
@@ -2021,15 +2002,7 @@ static void cleanup ()
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        // Mode keystr is free'ed when needed by config system.
-        if ( modi[i].sw->keycfg != NULL ) {
-            g_free ( modi[i].sw->keycfg );
-            modi[i].sw->keycfg = NULL;
-        }
-        // only used for script dialog.
-        if ( modi[i].sw->free != NULL ) {
-            modi[i].sw->free ( modi[i].sw );
-        }
+        mode_free ( &( modi[i].sw ) );
     }
     g_free ( modi );
 
@@ -2110,8 +2083,7 @@ static void setup_modi ( void )
     // We cannot do this in main loop, as we create pointer to string,
     // and re-alloc moves that pointer.
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        modi[i].sw->keycfg = g_strdup_printf ( "key-%s", modi[i].sw->name );
-        config_parser_add_option ( xrm_String, modi[i].sw->keycfg, (void * *) &( modi[i].sw->keystr ), "Keybinding" );
+        mode_setup_keybinding ( modi[i].sw );
     }
 }
 
@@ -2140,24 +2112,15 @@ static inline void load_configuration_dynamic ( Display *display )
 static void release_global_keybindings ()
 {
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        if ( modi[i].sw->keystr != NULL ) {
-            // No need to parse key, this should be done when grabbing.
-            if ( modi[i].sw->keysym != NoSymbol ) {
-                x11_ungrab_key ( display, modi[i].sw->modmask, modi[i].sw->keysym );
-            }
-        }
+        mode_ungrab_key ( modi[i].sw, display );
     }
 }
 static int grab_global_keybindings ()
 {
     int key_bound = FALSE;
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        if ( modi[i].sw->keystr != NULL ) {
-            x11_parse_key ( modi[i].sw->keystr, &( modi[i].sw->modmask ), &( modi[i].sw->keysym ) );
-            if ( modi[i].sw->keysym != NoSymbol ) {
-                x11_grab_key ( display, modi[i].sw->modmask, modi[i].sw->keysym );
-                key_bound = TRUE;
-            }
+        if ( mode_grab_key ( modi[i].sw, display ) ) {
+            key_bound = TRUE;
         }
     }
     return key_bound;
@@ -2166,12 +2129,7 @@ static void print_global_keybindings ()
 {
     fprintf ( stdout, "listening to the following keys:\n" );
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        if ( modi[i].sw->keystr != NULL ) {
-            fprintf ( stdout, "\t* "color_bold "%s"color_reset " on %s\n", modi[i].sw->name, modi[i].sw->keystr );
-        }
-        else {
-            fprintf ( stdout, "\t* "color_bold "%s"color_reset " on <unspecified>\n", modi[i].sw->name );
-        }
+        mode_print_keybindings ( modi[i].sw );
     }
 }
 
@@ -2325,11 +2283,11 @@ static int main_loop_signal_handler ( char command, int quiet )
 
 ModeMode switcher_run ( char **input, Mode *sw )
 {
-    char         *prompt       = g_strdup_printf ( "%s:", sw->name );
+    char         *prompt       = g_strdup_printf ( "%s:", mode_get_name ( sw ) );
     unsigned int selected_line = UINT32_MAX;
     int          mretv         = menu ( sw, input, prompt, &selected_line, NULL, NULL );
     g_free ( prompt );
-    return sw->result ( sw, mretv, input, selected_line );
+    return mode_result ( sw, mretv, input, selected_line );
 }
 
 /**
@@ -2563,7 +2521,8 @@ int main ( int argc, char *argv[] )
             fprintf ( stderr, "Please check the manpage on how to specify a key-binding.\n" );
             fprintf ( stderr, "The following modi are enabled and keys can be specified:\n" );
             for ( unsigned int i = 0; i < num_modi; i++ ) {
-                fprintf ( stderr, "\t* "color_bold "%s"color_reset ": -key-%s <key>\n", modi[i].sw->name, modi[i].sw->name );
+                const char *name = mode_get_name ( modi[i].sw );
+                fprintf ( stderr, "\t* "color_bold "%s"color_reset ": -key-%s <key>\n", name, name );
             }
             return EXIT_FAILURE;
         }

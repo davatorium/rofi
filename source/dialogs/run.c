@@ -363,7 +363,7 @@ static void run_mode_destroy ( Mode *sw )
     }
 }
 
-static char *mgrv ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
+static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
@@ -379,21 +379,23 @@ static int run_is_not_ascii ( const Mode *sw, unsigned int index )
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     return !g_str_is_ascii ( rmpd->cmd_list[index] );
 }
+
+#include "mode-private.h"
 Mode run_mode =
 {
-    .name             = "run",
-    .keycfg           = NULL,
-    .keystr           = NULL,
-    .modmask          = AnyModifier,
-    ._init            = run_mode_init,
-    ._get_num_entries = run_mode_get_num_entries,
-    .result           = run_mode_result,
-    ._destroy         = run_mode_destroy,
-    .token_match      = run_token_match,
-    .mgrv             = mgrv,
-    .get_completion   = NULL,
-    .is_not_ascii     = run_is_not_ascii,
-    .private_data     = NULL,
-    .free             = NULL
+    .name               = "run",
+    .keycfg             = NULL,
+    .keystr             = NULL,
+    .modmask            = AnyModifier,
+    ._init              = run_mode_init,
+    ._get_num_entries   = run_mode_get_num_entries,
+    ._result            = run_mode_result,
+    ._destroy           = run_mode_destroy,
+    ._token_match       = run_token_match,
+    ._get_display_value = _get_display_value,
+    ._get_completion    = NULL,
+    ._is_not_ascii      = run_is_not_ascii,
+    .private_data       = NULL,
+    .free               = NULL
 };
 /*@}*/

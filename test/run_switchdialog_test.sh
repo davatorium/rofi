@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # wait till it is up, run rofi with error message
-sleep 1 && rofi -show run  -display :201 &
+sleep 1 && rofi -show run -modi run  &
 RPID=$!
 
 # send enter.

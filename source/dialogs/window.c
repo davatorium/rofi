@@ -44,7 +44,6 @@
 #include "x11-helper.h"
 #include "i3-support.h"
 #include "dialogs/window.h"
-#include "mode-private.h"
 
 #define WINLIST             32
 
@@ -326,7 +325,7 @@ static int window_match ( const Mode *sw, char **tokens,
                           __attribute__( ( unused ) ) int not_ascii,
                           int case_sensitive, unsigned int index )
 {
-    ModeModePrivateData *rmpd = (ModeModePrivateData *) sw->private_data;
+    ModeModePrivateData *rmpd = (ModeModePrivateData *) mode_get_private_data ( sw );
     int                 match = 1;
     const winlist       *ids  = ( winlist * ) rmpd->ids;
     // Want to pull directly out of cache, X calls are not thread safe.
@@ -369,12 +368,12 @@ static int window_match ( const Mode *sw, char **tokens,
 
 static unsigned int window_mode_get_num_entries ( const Mode *sw )
 {
-    const ModeModePrivateData *pd = (const ModeModePrivateData *) sw->private_data;
+    const ModeModePrivateData *pd = (const ModeModePrivateData *) mode_get_private_data ( sw );
     return pd->cmd_list_length;
 }
 static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 {
-    ModeModePrivateData *pd     = (ModeModePrivateData *) sw->private_data;
+    ModeModePrivateData *pd     = (ModeModePrivateData *) mode_get_private_data ( sw );
     Screen              *screen = DefaultScreenOfDisplay ( display );
     Window              root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
     // find window list
@@ -498,24 +497,24 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 }
 static void window_mode_init ( Mode *sw )
 {
-    if ( sw->private_data == NULL ) {
+    if ( mode_get_private_data ( sw ) == NULL ) {
         ModeModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
-        sw->private_data = (void *) pd;
+        mode_set_private_data ( sw, (void *) pd );
         _window_mode_load_data ( sw, FALSE );
     }
 }
 static void window_mode_init_cd ( Mode *sw )
 {
-    if ( sw->private_data == NULL ) {
+    if ( mode_get_private_data ( sw ) == NULL ) {
         ModeModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
-        sw->private_data = (void *) pd;
+        mode_set_private_data ( sw, (void *) pd );
         _window_mode_load_data ( sw, TRUE );
     }
 }
 static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **input,
                                      unsigned int selected_line )
 {
-    ModeModePrivateData *rmpd = (ModeModePrivateData *) sw->private_data;
+    ModeModePrivateData *rmpd = (ModeModePrivateData *) mode_get_private_data ( sw );
     ModeMode            retv  = MODE_EXIT;
     if ( mretv & MENU_NEXT ) {
         retv = NEXT_DIALOG;
@@ -549,7 +548,7 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
 
 static void window_mode_destroy ( Mode *sw )
 {
-    ModeModePrivateData *rmpd = (ModeModePrivateData *) sw->private_data;
+    ModeModePrivateData *rmpd = (ModeModePrivateData *) mode_get_private_data ( sw );
     if ( rmpd != NULL ) {
         g_strfreev ( rmpd->cmd_list );
         winlist_free ( rmpd->ids );
@@ -557,13 +556,13 @@ static void window_mode_destroy ( Mode *sw )
         x11_cache_free ();
         g_free ( rmpd->cache );
         g_free ( rmpd );
-        sw->private_data = NULL;
+        mode_set_private_data ( sw, NULL );
     }
 }
 
-static char *mgrv ( const Mode *sw, unsigned int selected_line, int *state, int get_entry )
+static char *_get_display_value ( const Mode *sw, unsigned int selected_line, int *state, int get_entry )
 {
-    ModeModePrivateData *rmpd = sw->private_data;
+    ModeModePrivateData *rmpd = mode_get_private_data ( sw );
     if ( window_client ( display, rmpd->ids->array[selected_line] )->demands ) {
         *state |= URGENT;
     }
@@ -575,7 +574,7 @@ static char *mgrv ( const Mode *sw, unsigned int selected_line, int *state, int 
 
 static int window_is_not_ascii ( const Mode *sw, unsigned int index )
 {
-    const ModeModePrivateData *rmpd = sw->private_data;
+    const ModeModePrivateData *rmpd = mode_get_private_data ( sw );
     const winlist             *ids  = ( winlist * ) rmpd->ids;
     // Want to pull directly out of cache, X calls are not thread safe.
     int                       idx = winlist_find ( cache_client, ids->array[index] );
@@ -584,39 +583,40 @@ static int window_is_not_ascii ( const Mode *sw, unsigned int index )
     return !g_str_is_ascii ( c->role ) || !g_str_is_ascii ( c->class ) || !g_str_is_ascii ( c->title ) || !g_str_is_ascii ( c->name );
 }
 
+#include "mode-private.h"
 Mode window_mode =
 {
-    .name             = "window",
-    .keycfg           = NULL,
-    .keystr           = NULL,
-    .modmask          = AnyModifier,
-    ._init            = window_mode_init,
-    ._get_num_entries = window_mode_get_num_entries,
-    .result           = window_mode_result,
-    ._destroy         = window_mode_destroy,
-    .token_match      = window_match,
-    .mgrv             = mgrv,
-    .get_completion   = NULL,
-    .is_not_ascii     = window_is_not_ascii,
-    .private_data     = NULL,
-    .free             = NULL
+    .name               = "window",
+    .keycfg             = NULL,
+    .keystr             = NULL,
+    .modmask            = AnyModifier,
+    ._init              = window_mode_init,
+    ._get_num_entries   = window_mode_get_num_entries,
+    ._result            = window_mode_result,
+    ._destroy           = window_mode_destroy,
+    ._token_match       = window_match,
+    ._get_display_value = _get_display_value,
+    ._get_completion    = NULL,
+    ._is_not_ascii      = window_is_not_ascii,
+    .private_data       = NULL,
+    .free               = NULL
 };
 Mode window_mode_cd =
 {
-    .name             = "windowcd",
-    .keycfg           = NULL,
-    .keystr           = NULL,
-    .modmask          = AnyModifier,
-    ._init            = window_mode_init_cd,
-    ._get_num_entries = window_mode_get_num_entries,
-    .result           = window_mode_result,
-    ._destroy         = window_mode_destroy,
-    .token_match      = window_match,
-    .mgrv             = mgrv,
-    .get_completion   = NULL,
-    .is_not_ascii     = window_is_not_ascii,
-    .private_data     = NULL,
-    .free             = NULL
+    .name               = "windowcd",
+    .keycfg             = NULL,
+    .keystr             = NULL,
+    .modmask            = AnyModifier,
+    ._init              = window_mode_init_cd,
+    ._get_num_entries   = window_mode_get_num_entries,
+    ._result            = window_mode_result,
+    ._destroy           = window_mode_destroy,
+    ._token_match       = window_match,
+    ._get_display_value = _get_display_value,
+    ._get_completion    = NULL,
+    ._is_not_ascii      = window_is_not_ascii,
+    .private_data       = NULL,
+    .free               = NULL
 };
 
 #endif // WINDOW_MODE

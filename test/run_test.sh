@@ -8,6 +8,7 @@ function create_fake_x ( )
     echo "Starting fake X: ${DISPLAY}"
     Xvfb ${DISPLAY} &
     XPID=$!
+    sleep 1;
     fluxbox &
     FPID=$!
     sleep 1

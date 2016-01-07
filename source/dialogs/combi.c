@@ -32,7 +32,6 @@
 
 #include <dialogs/dialogs.h>
 
-#include "mode-private.h"
 /**
  * Combi Mode
  */
@@ -50,7 +49,7 @@ typedef struct _CombiModePrivateData
 
 static void combi_mode_parse_switchers ( Mode *sw )
 {
-    CombiModePrivateData *pd     = sw->private_data;
+    CombiModePrivateData *pd     = mode_get_private_data ( sw );
     char                 *savept = NULL;
     // Make a copy, as strtok will modify it.
     char                 *switcher_str = g_strdup ( config.combi_modi );
@@ -102,9 +101,9 @@ static void combi_mode_parse_switchers ( Mode *sw )
 
 static void combi_mode_init ( Mode *sw )
 {
-    if ( sw->private_data == NULL ) {
+    if ( mode_get_private_data ( sw ) == NULL ) {
         CombiModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
-        sw->private_data = (void *) pd;
+        mode_set_private_data ( sw, (void *) pd );
         combi_mode_parse_switchers ( sw );
         pd->starts  = g_malloc0 ( sizeof ( int ) * pd->num_switchers );
         pd->lengths = g_malloc0 ( sizeof ( int ) * pd->num_switchers );
@@ -124,12 +123,12 @@ static void combi_mode_init ( Mode *sw )
 }
 static unsigned int combi_mode_get_num_entries ( const Mode *sw )
 {
-    const CombiModePrivateData *pd = (const CombiModePrivateData *) sw->private_data;
+    const CombiModePrivateData *pd = (const CombiModePrivateData *) mode_get_private_data ( sw );
     return pd->cmd_list_length;
 }
 static void combi_mode_destroy ( Mode *sw )
 {
-    CombiModePrivateData *pd = (CombiModePrivateData *) sw->private_data;
+    CombiModePrivateData *pd = (CombiModePrivateData *) mode_get_private_data ( sw );
     if ( pd != NULL ) {
         g_free ( pd->starts );
         g_free ( pd->lengths );
@@ -139,16 +138,16 @@ static void combi_mode_destroy ( Mode *sw )
         }
         g_free ( pd->switchers );
         g_free ( pd );
-        sw->private_data = NULL;
+        mode_set_private_data ( sw, NULL );
     }
 }
 static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
 {
-    CombiModePrivateData *pd = sw->private_data;
+    CombiModePrivateData *pd = mode_get_private_data ( sw );
     if ( *input[0] == '!' ) {
         int switcher = -1;
         for ( unsigned i = 0; switcher == -1 && i < pd->num_switchers; i++ ) {
-            if ( ( *input )[1] == pd->switchers[i]->name[0] ) {
+            if ( ( *input )[1] == mode_get_name ( pd->switchers[i] )[0] ) {
                 switcher = i;
             }
         }
@@ -157,8 +156,8 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
             // skip whitespace
             if ( n != NULL ) {
                 n++;
-                return pd->switchers[switcher]->result ( pd->switchers[switcher], mretv, &n,
-                                                         selected_line - pd->starts[switcher] );
+                return mode_result ( pd->switchers[switcher], mretv, &n,
+                                     selected_line - pd->starts[switcher] );
             }
             return MODE_EXIT;
         }
@@ -167,7 +166,7 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( selected_line >= pd->starts[i] &&
              selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
-            return pd->switchers[i]->result ( pd->switchers[i], mretv, input, selected_line - pd->starts[i] );
+            return mode_result ( pd->switchers[i], mretv, input, selected_line - pd->starts[i] );
         }
     }
     return MODE_EXIT;
@@ -175,13 +174,13 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
 static int combi_mode_match ( const Mode *sw, char **tokens, int not_ascii,
                               int case_sensitive, unsigned int index )
 {
-    CombiModePrivateData *pd = sw->private_data;
+    CombiModePrivateData *pd = mode_get_private_data ( sw );
     if ( config.regex || config.glob ) {
         // Bang support only works in text mode.
         for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
             if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
-                return pd->switchers[i]->token_match ( pd->switchers[i], tokens, not_ascii, case_sensitive,
-                                                       index - pd->starts[i]  );
+                return mode_token_match ( pd->switchers[i], tokens, not_ascii, case_sensitive,
+                                          index - pd->starts[i]  );
             }
         }
     }
@@ -189,15 +188,15 @@ static int combi_mode_match ( const Mode *sw, char **tokens, int not_ascii,
         for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
             if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
                 if ( tokens && tokens[0][0] == '!' ) {
-                    if ( tokens[0][1] == pd->switchers[i]->name[0] ) {
-                        return pd->switchers[i]->token_match ( pd->switchers[i], &tokens[1], not_ascii, case_sensitive,
-                                                               index - pd->starts[i] );
+                    if ( tokens[0][1] == mode_get_name ( pd->switchers[i] )[0] ) {
+                        return mode_token_match ( pd->switchers[i], &tokens[1], not_ascii, case_sensitive,
+                                                  index - pd->starts[i] );
                     }
                     return 0;
                 }
                 else {
-                    return pd->switchers[i]->token_match ( pd->switchers[i], tokens, not_ascii, case_sensitive,
-                                                           index - pd->starts[i]  );
+                    return mode_token_match ( pd->switchers[i], tokens, not_ascii, case_sensitive,
+                                              index - pd->starts[i]  );
                 }
             }
         }
@@ -207,11 +206,11 @@ static int combi_mode_match ( const Mode *sw, char **tokens, int not_ascii,
 }
 static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *state, int get_entry )
 {
-    CombiModePrivateData *pd = sw->private_data;
+    CombiModePrivateData *pd = mode_get_private_data ( sw );
     if ( !get_entry ) {
         for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
             if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
-                pd->switchers[i]->mgrv ( pd->switchers[i], selected_line - pd->starts[i], state, FALSE );
+                mode_get_display_value ( pd->switchers[i], selected_line - pd->starts[i], state, FALSE );
                 return NULL;
             }
         }
@@ -219,8 +218,8 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
     }
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
-            char * str  = pd->switchers[i]->mgrv ( pd->switchers[i], selected_line - pd->starts[i], state, TRUE );
-            char * retv = g_strdup_printf ( "(%s) %s", pd->switchers[i]->name, str );
+            char * str  = mode_get_display_value ( pd->switchers[i], selected_line - pd->starts[i], state, TRUE );
+            char * retv = g_strdup_printf ( "(%s) %s", mode_get_name ( pd->switchers[i] ), str );
             g_free ( str );
             return retv;
         }
@@ -230,28 +229,20 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
 }
 static int combi_is_not_ascii ( const Mode *sw, unsigned int index )
 {
-    CombiModePrivateData *pd = sw->private_data;
+    CombiModePrivateData *pd = mode_get_private_data ( sw );
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
-            return pd->switchers[i]->is_not_ascii ( pd->switchers[i], index - pd->starts[i] );
+            return mode_is_not_ascii ( pd->switchers[i], index - pd->starts[i] );
         }
     }
     return FALSE;
 }
 static char * combi_get_completion ( const Mode *sw, unsigned int index )
 {
-    CombiModePrivateData *pd = sw->private_data;
+    CombiModePrivateData *pd = mode_get_private_data ( sw );
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
-            char * str = NULL;
-            if ( pd->switchers[i]->get_completion != NULL ) {
-                str = pd->switchers[i]->get_completion ( pd->switchers[i], index - pd->starts[i] );
-            }
-            else {
-                int state;
-                str = pd->switchers[i]->mgrv ( pd->switchers[i], index - pd->starts[i], &state, TRUE );
-            }
-            return str;
+            return mode_get_completion ( pd->switchers[i], index - pd->starts[i] );
         }
     }
     // Should never get here.
@@ -259,20 +250,21 @@ static char * combi_get_completion ( const Mode *sw, unsigned int index )
     return NULL;
 }
 
+#include "mode-private.h"
 Mode combi_mode =
 {
-    .name             = "combi",
-    .keycfg           = NULL,
-    .keystr           = NULL,
-    .modmask          = AnyModifier,
-    ._init            = combi_mode_init,
-    ._get_num_entries = combi_mode_get_num_entries,
-    .result           = combi_mode_result,
-    ._destroy         = combi_mode_destroy,
-    .token_match      = combi_mode_match,
-    .get_completion   = combi_get_completion,
-    .mgrv             = combi_mgrv,
-    .is_not_ascii     = combi_is_not_ascii,
-    .private_data     = NULL,
-    .free             = NULL
+    .name               = "combi",
+    .keycfg             = NULL,
+    .keystr             = NULL,
+    .modmask            = AnyModifier,
+    ._init              = combi_mode_init,
+    ._get_num_entries   = combi_mode_get_num_entries,
+    ._result            = combi_mode_result,
+    ._destroy           = combi_mode_destroy,
+    ._token_match       = combi_mode_match,
+    ._get_completion    = combi_get_completion,
+    ._get_display_value = combi_mgrv,
+    ._is_not_ascii      = combi_is_not_ascii,
+    .private_data       = NULL,
+    .free               = NULL
 };
