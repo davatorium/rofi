@@ -49,6 +49,7 @@
 #include "history.h"
 #include "dialogs/run.h"
 
+#include "mode-private.h"
 /**
  * Name of the history file where previously choosen commands are stored.
  */
@@ -380,19 +381,19 @@ static int run_is_not_ascii ( const Mode *sw, unsigned int index )
 }
 Mode run_mode =
 {
-    .name            = "run",
-    .keycfg          = NULL,
-    .keystr          = NULL,
-    .modmask         = AnyModifier,
-    .init            = run_mode_init,
-    .get_num_entries = run_mode_get_num_entries,
-    .result          = run_mode_result,
-    .destroy         = run_mode_destroy,
-    .token_match     = run_token_match,
-    .mgrv            = mgrv,
-    .get_completion  = NULL,
-    .is_not_ascii    = run_is_not_ascii,
-    .private_data    = NULL,
-    .free            = NULL
+    .name             = "run",
+    .keycfg           = NULL,
+    .keystr           = NULL,
+    .modmask          = AnyModifier,
+    ._init            = run_mode_init,
+    ._get_num_entries = run_mode_get_num_entries,
+    .result           = run_mode_result,
+    ._destroy         = run_mode_destroy,
+    .token_match      = run_token_match,
+    .mgrv             = mgrv,
+    .get_completion   = NULL,
+    .is_not_ascii     = run_is_not_ascii,
+    .private_data     = NULL,
+    .free             = NULL
 };
 /*@}*/

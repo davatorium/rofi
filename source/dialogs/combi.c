@@ -32,6 +32,7 @@
 
 #include <dialogs/dialogs.h>
 
+#include "mode-private.h"
 /**
  * Combi Mode
  */
@@ -108,12 +109,12 @@ static void combi_mode_init ( Mode *sw )
         pd->starts  = g_malloc0 ( sizeof ( int ) * pd->num_switchers );
         pd->lengths = g_malloc0 ( sizeof ( int ) * pd->num_switchers );
         for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
-            pd->switchers[i]->init ( pd->switchers[i] );
+            mode_init ( pd->switchers[i] );
         }
         if ( pd->cmd_list_length == 0 ) {
             pd->cmd_list_length = 0;
             for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
-                unsigned int length = pd->switchers[i]->get_num_entries ( pd->switchers[i] );;
+                unsigned int length = mode_get_num_entries ( pd->switchers[i] );
                 pd->starts[i]        = pd->cmd_list_length;
                 pd->lengths[i]       = length;
                 pd->cmd_list_length += length;
@@ -134,7 +135,7 @@ static void combi_mode_destroy ( Mode *sw )
         g_free ( pd->lengths );
         // Cleanup switchers.
         for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
-            pd->switchers[i]->destroy ( pd->switchers[i] );
+            mode_destroy ( pd->switchers[i] );
         }
         g_free ( pd->switchers );
         g_free ( pd );
@@ -260,18 +261,18 @@ static char * combi_get_completion ( const Mode *sw, unsigned int index )
 
 Mode combi_mode =
 {
-    .name            = "combi",
-    .keycfg          = NULL,
-    .keystr          = NULL,
-    .modmask         = AnyModifier,
-    .init            = combi_mode_init,
-    .get_num_entries = combi_mode_get_num_entries,
-    .result          = combi_mode_result,
-    .destroy         = combi_mode_destroy,
-    .token_match     = combi_mode_match,
-    .get_completion  = combi_get_completion,
-    .mgrv            = combi_mgrv,
-    .is_not_ascii    = combi_is_not_ascii,
-    .private_data    = NULL,
-    .free            = NULL
+    .name             = "combi",
+    .keycfg           = NULL,
+    .keystr           = NULL,
+    .modmask          = AnyModifier,
+    ._init            = combi_mode_init,
+    ._get_num_entries = combi_mode_get_num_entries,
+    .result           = combi_mode_result,
+    ._destroy         = combi_mode_destroy,
+    .token_match      = combi_mode_match,
+    .get_completion   = combi_get_completion,
+    .mgrv             = combi_mgrv,
+    .is_not_ascii     = combi_is_not_ascii,
+    .private_data     = NULL,
+    .free             = NULL
 };

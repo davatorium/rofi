@@ -44,6 +44,7 @@
 #include "x11-helper.h"
 #include "i3-support.h"
 #include "dialogs/window.h"
+#include "mode-private.h"
 
 #define WINLIST             32
 
@@ -585,37 +586,37 @@ static int window_is_not_ascii ( const Mode *sw, unsigned int index )
 
 Mode window_mode =
 {
-    .name            = "window",
-    .keycfg          = NULL,
-    .keystr          = NULL,
-    .modmask         = AnyModifier,
-    .init            = window_mode_init,
-    .get_num_entries = window_mode_get_num_entries,
-    .result          = window_mode_result,
-    .destroy         = window_mode_destroy,
-    .token_match     = window_match,
-    .mgrv            = mgrv,
-    .get_completion  = NULL,
-    .is_not_ascii    = window_is_not_ascii,
-    .private_data    = NULL,
-    .free            = NULL
+    .name             = "window",
+    .keycfg           = NULL,
+    .keystr           = NULL,
+    .modmask          = AnyModifier,
+    ._init            = window_mode_init,
+    ._get_num_entries = window_mode_get_num_entries,
+    .result           = window_mode_result,
+    ._destroy         = window_mode_destroy,
+    .token_match      = window_match,
+    .mgrv             = mgrv,
+    .get_completion   = NULL,
+    .is_not_ascii     = window_is_not_ascii,
+    .private_data     = NULL,
+    .free             = NULL
 };
 Mode window_mode_cd =
 {
-    .name            = "windowcd",
-    .keycfg          = NULL,
-    .keystr          = NULL,
-    .modmask         = AnyModifier,
-    .init            = window_mode_init_cd,
-    .get_num_entries = window_mode_get_num_entries,
-    .result          = window_mode_result,
-    .destroy         = window_mode_destroy,
-    .token_match     = window_match,
-    .mgrv            = mgrv,
-    .get_completion  = NULL,
-    .is_not_ascii    = window_is_not_ascii,
-    .private_data    = NULL,
-    .free            = NULL
+    .name             = "windowcd",
+    .keycfg           = NULL,
+    .keystr           = NULL,
+    .modmask          = AnyModifier,
+    ._init            = window_mode_init_cd,
+    ._get_num_entries = window_mode_get_num_entries,
+    .result           = window_mode_result,
+    ._destroy         = window_mode_destroy,
+    .token_match      = window_match,
+    .mgrv             = mgrv,
+    .get_completion   = NULL,
+    .is_not_ascii     = window_is_not_ascii,
+    .private_data     = NULL,
+    .free             = NULL
 };
 
 #endif // WINDOW_MODE

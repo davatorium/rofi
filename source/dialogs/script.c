@@ -38,6 +38,7 @@
 #include "dialogs/script.h"
 #include "helper.h"
 
+#include "mode-private.h"
 static char **get_script_output ( const char *command, unsigned int *length )
 {
     char **retv = NULL;
@@ -191,17 +192,17 @@ Mode *script_switcher_parse_setup ( const char *str )
     }
     g_free ( parse );
     if ( index == 2 ) {
-        sw->free            = script_switcher_free;
-        sw->keysym          = None;
-        sw->modmask         = AnyModifier;
-        sw->init            = script_mode_init;
-        sw->get_num_entries = script_mode_get_num_entries;
-        sw->result          = script_mode_result;
-        sw->destroy         = script_mode_destroy;
-        sw->token_match     = script_token_match;
-        sw->get_completion  = NULL,
-        sw->mgrv            = mgrv;
-        sw->is_not_ascii    = script_is_not_ascii;
+        sw->free             = script_switcher_free;
+        sw->keysym           = None;
+        sw->modmask          = AnyModifier;
+        sw->_init            = script_mode_init;
+        sw->_get_num_entries = script_mode_get_num_entries;
+        sw->result           = script_mode_result;
+        sw->_destroy         = script_mode_destroy;
+        sw->token_match      = script_token_match;
+        sw->get_completion   = NULL,
+        sw->mgrv             = mgrv;
+        sw->is_not_ascii     = script_is_not_ascii;
 
         return sw;
     }

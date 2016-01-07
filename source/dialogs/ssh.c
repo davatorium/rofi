@@ -48,6 +48,7 @@
 #include "history.h"
 #include "dialogs/ssh.h"
 
+#include "mode-private.h"
 /**
  * Name of the history file where previously choosen hosts are stored.
  */
@@ -489,19 +490,19 @@ static int ssh_is_not_ascii ( const Mode *sw, unsigned int index )
 
 Mode ssh_mode =
 {
-    .name            = "ssh",
-    .keycfg          = NULL,
-    .keystr          = NULL,
-    .modmask         = AnyModifier,
-    .init            = ssh_mode_init,
-    .get_num_entries = ssh_mode_get_num_entries,
-    .result          = ssh_mode_result,
-    .destroy         = ssh_mode_destroy,
-    .token_match     = ssh_token_match,
-    .mgrv            = mgrv,
-    .get_completion  = NULL,
-    .is_not_ascii    = ssh_is_not_ascii,
-    .private_data    = NULL,
-    .free            = NULL
+    .name             = "ssh",
+    .keycfg           = NULL,
+    .keystr           = NULL,
+    .modmask          = AnyModifier,
+    ._init            = ssh_mode_init,
+    ._get_num_entries = ssh_mode_get_num_entries,
+    .result           = ssh_mode_result,
+    ._destroy         = ssh_mode_destroy,
+    .token_match      = ssh_token_match,
+    .mgrv             = mgrv,
+    .get_completion   = NULL,
+    .is_not_ascii     = ssh_is_not_ascii,
+    .private_data     = NULL,
+    .free             = NULL
 };
 /*@}*/

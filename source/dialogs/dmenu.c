@@ -40,6 +40,7 @@
 #include "helper.h"
 #include "xrmoptions.h"
 
+#include "mode-private.h"
 // We limit at 1000000 rows for now.
 #define DMENU_MAX_ROWS    1000000
 
@@ -326,25 +327,25 @@ static int dmenu_is_not_ascii ( const Mode *sw, unsigned int index )
 
 Mode dmenu_mode =
 {
-    .name            = "dmenu",
-    .keycfg          = NULL,
-    .keystr          = NULL,
-    .modmask         = AnyModifier,
-    .init            = dmenu_mode_init,
-    .get_num_entries = dmenu_mode_get_num_entries,
-    .result          = NULL,
-    .destroy         = dmenu_mode_free,
-    .token_match     = dmenu_token_match,
-    .mgrv            = get_display_data,
-    .get_completion  = NULL,
-    .is_not_ascii    = dmenu_is_not_ascii,
-    .private_data    = NULL,
-    .free            = NULL
+    .name             = "dmenu",
+    .keycfg           = NULL,
+    .keystr           = NULL,
+    .modmask          = AnyModifier,
+    ._init            = dmenu_mode_init,
+    ._get_num_entries = dmenu_mode_get_num_entries,
+    .result           = NULL,
+    ._destroy         = dmenu_mode_free,
+    .token_match      = dmenu_token_match,
+    .mgrv             = get_display_data,
+    .get_completion   = NULL,
+    .is_not_ascii     = dmenu_is_not_ascii,
+    .private_data     = NULL,
+    .free             = NULL
 };
 
 int dmenu_switcher_dialog ( void )
 {
-    dmenu_mode.init ( &dmenu_mode );
+    mode_init ( &dmenu_mode );
     DmenuModePrivateData *pd             = (DmenuModePrivateData *) dmenu_mode.private_data;
     char                 *input          = NULL;
     int                  retv            = FALSE;
@@ -468,7 +469,7 @@ int dmenu_switcher_dialog ( void )
     } while ( restart );
 
     g_free ( input );
-    dmenu_mode.destroy ( &dmenu_mode );
+    mode_destroy ( &dmenu_mode );
     return retv;
 }
 

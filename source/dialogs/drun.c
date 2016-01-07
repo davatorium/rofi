@@ -43,6 +43,8 @@
 #include "helper.h"
 #include "dialogs/drun.h"
 
+#include "mode-private.h"
+
 #define RUN_CACHE_FILE    "rofi-2.runcache"
 
 static inline int execsh ( const char *cmd, int run_in_term )
@@ -359,18 +361,18 @@ static int drun_is_not_ascii ( const Mode *sw, unsigned int index )
 
 Mode drun_mode =
 {
-    .name            = "drun",
-    .keycfg          = NULL,
-    .keystr          = NULL,
-    .modmask         = AnyModifier,
-    .init            = drun_mode_init,
-    .get_num_entries = drun_mode_get_num_entries,
-    .result          = drun_mode_result,
-    .destroy         = drun_mode_destroy,
-    .token_match     = drun_token_match,
-    .get_completion  = drun_get_completion,
-    .mgrv            = mgrv,
-    .is_not_ascii    = drun_is_not_ascii,
-    .private_data    = NULL,
-    .free            = NULL
+    .name             = "drun",
+    .keycfg           = NULL,
+    .keystr           = NULL,
+    .modmask          = AnyModifier,
+    ._init            = drun_mode_init,
+    ._get_num_entries = drun_mode_get_num_entries,
+    .result           = drun_mode_result,
+    ._destroy         = drun_mode_destroy,
+    .token_match      = drun_token_match,
+    .get_completion   = drun_get_completion,
+    .mgrv             = mgrv,
+    .is_not_ascii     = drun_is_not_ascii,
+    .private_data     = NULL,
+    .free             = NULL
 };

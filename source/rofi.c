@@ -60,6 +60,8 @@
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
 
+// This one should only be in mode implementations.
+#include "mode-private.h"
 ModeMode switcher_run ( char **input, Mode *sw );
 
 typedef enum _MainLoopEvent
@@ -1018,7 +1020,7 @@ static void menu_draw ( MenuState *state, cairo_t *d )
             {
                 TextBoxFontType type   = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
                 int             fstate = 0;
-                char            *text  = state->sw->mgrv ( state->sw, state->line_map[i + offset], &fstate, TRUE );
+                char            *text  = mode_get_display_value ( state->sw, state->line_map[i + offset], &fstate, TRUE );
                 TextBoxFontType tbft   = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
                 textbox_font ( state->boxes[i], tbft );
                 textbox_text ( state->boxes[i], text );
@@ -1033,7 +1035,7 @@ static void menu_draw ( MenuState *state, cairo_t *d )
         for ( i = 0; i < max_elements; i++ ) {
             TextBoxFontType type   = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
             int             fstate = 0;
-            state->sw->mgrv ( state->sw, state->line_map[i + offset], &fstate, FALSE );
+            mode_get_display_value ( state->sw, state->line_map[i + offset], &fstate, FALSE );
             TextBoxFontType tbft = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
             textbox_font ( state->boxes[i], tbft );
             textbox_draw ( state->boxes[i], d );
@@ -1274,7 +1276,7 @@ MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_l
         .border     = config.padding + config.menu_bw
     };
     // Request the lines to show.
-    state.num_lines       = sw->get_num_entries ( sw );
+    state.num_lines       = mode_get_num_entries ( sw );
     state.lines_not_ascii = g_malloc0_n ( state.num_lines, sizeof ( int ) );
 
     // find out which lines contain non-ascii codepoints, so we can be faster in some cases.
@@ -1887,7 +1889,7 @@ static void run_switcher ( ModeMode mode )
     // Otherwise check if requested mode is enabled.
     char *input = g_strdup ( config.filter );
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        modi[i].sw->init ( modi[i].sw );
+        mode_init ( modi[i].sw );
     }
     do {
         ModeMode retv;
@@ -1918,7 +1920,7 @@ static void run_switcher ( ModeMode mode )
     } while ( mode != MODE_EXIT );
     g_free ( input );
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        modi[i].sw->destroy ( modi[i].sw );
+        mode_destroy ( modi[i].sw );
     }
     // cleanup
     teardown ( pfd );

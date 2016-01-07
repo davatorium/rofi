@@ -32,6 +32,7 @@ AM_CFLAGS=\
 
 rofi_SOURCES=\
     source/rofi.c\
+	source/mode.c\
 	source/keyb.c\
     config/config.c\
 	source/helper.c\
@@ -50,6 +51,8 @@ rofi_SOURCES=\
     source/dialogs/window.c\
     source/dialogs/script.c\
     include/rofi.h\
+	include/mode.h\
+	include/mode-private.h\
 	include/settings.h\
 	include/keyb.h\
 	include/helper.h\
@@ -132,6 +135,8 @@ rofi_test_SOURCES=\
     source/history.c\
     config/config.c\
     include/rofi.h\
+	include/mode.h\
+	include/mode-private.h\
 	include/settings.h\
     include/history.h\
 	test/history-test.c
@@ -145,6 +150,8 @@ textbox_test_SOURCES=\
 	source/helper.c\
 	include/keyb.h\
     include/rofi.h\
+	include/mode.h\
+	include/mode-private.h\
 	include/settings.h\
     include/textbox.h\
 	include/x11-helper.h\
@@ -155,6 +162,8 @@ textbox_test_SOURCES=\
 helper_test_SOURCES=\
     config/config.c\
     include/rofi.h\
+	include/mode.h\
+	include/mode-private.h\
     source/helper.c\
     include/helper.h\
 	include/xrmoptions.h\
