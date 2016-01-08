@@ -20,8 +20,10 @@ function destroy_fake_x ( )
     then
         echo "Stopping fake X: ${XPID} - ${FPID}"
         kill ${FPID}
+        echo " wait flux"
         wait ${FPID}
         kill ${XPID}
+        echo "wait x"
         wait ${XPID}
     fi
 }
