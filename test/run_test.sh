@@ -9,7 +9,7 @@ function create_fake_x ( )
     Xvfb ${DISPLAY} &
     XPID=$!
     sleep 1;
-    fluxbox &
+    timeout -k 30s 30s fluxbox &
     FPID=$!
     sleep 1
 }
