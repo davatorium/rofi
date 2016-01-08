@@ -304,13 +304,15 @@ static char ** get_apps ( unsigned int *length )
     return retv;
 }
 
-static void run_mode_init ( Mode *sw )
+static int run_mode_init ( Mode *sw )
 {
     if ( sw->private_data == NULL ) {
         RunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         sw->private_data = (void *) pd;
         pd->cmd_list     = get_apps ( &( pd->cmd_list_length ) );
     }
+
+    return TRUE;
 }
 
 static unsigned int run_mode_get_num_entries ( const Mode *sw )

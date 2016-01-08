@@ -53,8 +53,10 @@ typedef enum
  * @param mode The mode to initialize
  *
  * Initialize mode
+ *
+ * @returns FALSE if there was a failure, TRUE if successful
  */
-void mode_init ( Mode *mode );
+int mode_init ( Mode *mode );
 
 /**
  * @param mode The mode to destroy

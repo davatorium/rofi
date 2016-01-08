@@ -243,10 +243,10 @@ static void dmenu_mode_free ( Mode *sw )
     }
 }
 
-static void dmenu_mode_init ( Mode *sw )
+static int dmenu_mode_init ( Mode *sw )
 {
     if ( mode_get_private_data ( sw ) != NULL ) {
-        return;
+        return TRUE;
     }
     mode_set_private_data ( sw, g_malloc0 ( sizeof ( DmenuModePrivateData ) ) );
     DmenuModePrivateData *pd = (DmenuModePrivateData *) mode_get_private_data ( sw );
@@ -302,7 +302,7 @@ static void dmenu_mode_init ( Mode *sw )
             error_dialog ( msg, TRUE );
             g_free ( msg );
             g_free ( estr );
-            return;
+            return TRUE;
         }
         g_free ( estr );
     }
@@ -310,6 +310,7 @@ static void dmenu_mode_init ( Mode *sw )
     if ( fd != NULL ) {
         fclose ( fd );
     }
+    return TRUE;
 }
 
 static int dmenu_token_match ( const Mode *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )

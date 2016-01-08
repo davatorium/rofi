@@ -227,13 +227,14 @@ static void get_apps ( DRunModePrivateData *pd )
     }
 }
 
-static void drun_mode_init ( Mode *sw )
+static int drun_mode_init ( Mode *sw )
 {
     if ( mode_get_private_data ( sw ) == NULL ) {
         DRunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         mode_set_private_data ( sw, (void *) pd );
         get_apps ( pd );
     }
+    return TRUE;
 }
 
 static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )

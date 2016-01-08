@@ -362,13 +362,14 @@ typedef struct _SSHModePrivateData
  * Initializes the SSH Mode private data object and
  * loads the relevant ssh information.
  */
-static void ssh_mode_init ( Mode *sw )
+static int ssh_mode_init ( Mode *sw )
 {
     if ( mode_get_private_data ( sw ) == NULL ) {
         SSHModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         mode_set_private_data ( sw, (void *) pd );
         pd->hosts_list = get_ssh ( &( pd->hosts_list_length ) );
     }
+    return TRUE;
 }
 
 /**

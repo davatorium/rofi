@@ -69,5 +69,15 @@ __attribute__ ( ( nonnull ( 1, 2, 3, 4 ) ) );
  * @returns EXIT_FAILURE if failed to create dialog, EXIT_SUCCESS if succesfull
  */
 int show_error_message ( const char *msg, int markup );
+
+#define ERROR_MSG( a )    a "\n"                                       \
+    "If you suspect this is caused by a bug in rofi,\n"                \
+    "please report the following information to rofi's github page:\n" \
+    " * The generated commandline output when the error occored.\n"    \
+    " * Output of -dump-xresource\n"                                   \
+    " * Steps to reproduce\n"                                          \
+    " * The version of rofi you are running\n\n"                       \
+    " <i>https://github.com/DaveDavenport/rofi/</i>"
+#define ERROR_MSG_MARKUP    TRUE
 /*@}*/
 #endif

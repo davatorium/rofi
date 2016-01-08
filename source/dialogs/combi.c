@@ -99,7 +99,7 @@ static void combi_mode_parse_switchers ( Mode *sw )
     g_free ( switcher_str );
 }
 
-static void combi_mode_init ( Mode *sw )
+static int combi_mode_init ( Mode *sw )
 {
     if ( mode_get_private_data ( sw ) == NULL ) {
         CombiModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
@@ -108,7 +108,9 @@ static void combi_mode_init ( Mode *sw )
         pd->starts  = g_malloc0 ( sizeof ( int ) * pd->num_switchers );
         pd->lengths = g_malloc0 ( sizeof ( int ) * pd->num_switchers );
         for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
-            mode_init ( pd->switchers[i] );
+            if ( !mode_init ( pd->switchers[i] ) ) {
+                return FALSE;
+            }
         }
         if ( pd->cmd_list_length == 0 ) {
             pd->cmd_list_length = 0;
@@ -120,6 +122,7 @@ static void combi_mode_init ( Mode *sw )
             }
         }
     }
+    return TRUE;
 }
 static unsigned int combi_mode_get_num_entries ( const Mode *sw )
 {

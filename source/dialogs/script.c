@@ -98,13 +98,14 @@ typedef struct _ScriptModePrivateData
     unsigned int cmd_list_length;
 } ScriptModePrivateData;
 
-static void script_mode_init ( Mode *sw )
+static int script_mode_init ( Mode *sw )
 {
     if ( sw->private_data == NULL ) {
         ScriptModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         sw->private_data = (void *) pd;
         pd->cmd_list     = get_script_output ( (const char *) sw->ed, &( pd->cmd_list_length ) );
     }
+    return TRUE;
 }
 static unsigned int script_mode_get_num_entries ( const Mode *sw )
 {

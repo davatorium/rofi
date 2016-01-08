@@ -19,7 +19,7 @@ typedef char * ( *_mode_get_completion )( const Mode *sw, unsigned int selected_
  */
 typedef int ( *_mode_token_match )( const Mode *data, char **tokens, int not_ascii, int case_sensitive, unsigned int index );
 
-typedef void ( *__mode_init )( Mode *sw );
+typedef int ( *__mode_init )( Mode *sw );
 
 typedef unsigned int ( *__mode_get_num_entries )( const Mode *sw );
 

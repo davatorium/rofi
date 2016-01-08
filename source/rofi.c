@@ -1870,7 +1870,11 @@ static void run_switcher ( ModeMode mode )
     // Otherwise check if requested mode is enabled.
     char *input = g_strdup ( config.filter );
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_init ( modi[i].sw );
+        if ( !mode_init ( modi[i].sw ) ) {
+            error_dialog ( ERROR_MSG ( "Failed to initialize all the modi." ), ERROR_MSG_MARKUP );
+            teardown ( pfd );
+            return;
+        }
     }
     do {
         ModeMode retv;

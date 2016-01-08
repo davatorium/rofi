@@ -10,11 +10,12 @@
  * @{
  */
 
-void mode_init ( Mode *mode )
+int mode_init ( Mode *mode )
 {
-    g_assert ( mode != NULL );
-    g_assert ( mode->_init != NULL );
+    g_return_val_if_fail ( mode != NULL, FALSE );
+    g_return_val_if_fail ( mode->_init != NULL, FALSE );
     mode->_init ( mode );
+    return TRUE;
 }
 
 void mode_destroy ( Mode *mode )
@@ -63,7 +64,7 @@ ModeMode mode_result ( Mode *mode, int menu_retv, char **input, unsigned int sel
 {
     g_assert ( mode != NULL );
     g_assert ( mode->_result != NULL );
-    g_assert ( (*input) != NULL );
+    g_assert ( ( *input ) != NULL );
     return mode->_result ( mode, menu_retv, input, selected_line );
 }
 
@@ -101,7 +102,7 @@ int mode_check_keybinding ( const Mode *mode, KeySym key, unsigned int modstate 
 void mode_free ( Mode **mode )
 {
     g_assert ( mode != NULL );
-    g_assert ( (*mode) != NULL );
+    g_assert ( ( *mode ) != NULL );
     if ( ( *mode )->keycfg != NULL ) {
         g_free ( ( *mode )->keycfg );
         ( *mode )->keycfg = NULL;

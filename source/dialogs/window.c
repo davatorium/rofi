@@ -495,21 +495,23 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
         }
     }
 }
-static void window_mode_init ( Mode *sw )
+static int window_mode_init ( Mode *sw )
 {
     if ( mode_get_private_data ( sw ) == NULL ) {
         ModeModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         mode_set_private_data ( sw, (void *) pd );
         _window_mode_load_data ( sw, FALSE );
     }
+    return TRUE;
 }
-static void window_mode_init_cd ( Mode *sw )
+static int window_mode_init_cd ( Mode *sw )
 {
     if ( mode_get_private_data ( sw ) == NULL ) {
         ModeModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         mode_set_private_data ( sw, (void *) pd );
         _window_mode_load_data ( sw, TRUE );
     }
+    return TRUE;
 }
 static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **input,
                                      unsigned int selected_line )
