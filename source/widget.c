@@ -1,10 +1,9 @@
 #include <glib.h>
 #include "widget.h"
 
-
-int widget_intersect ( const Widget *widget, int x, int y)
+int widget_intersect ( const Widget *widget, int x, int y )
 {
-    if(widget == NULL ){
+    if ( widget == NULL ) {
         return FALSE;
     }
 
@@ -14,14 +13,12 @@ int widget_intersect ( const Widget *widget, int x, int y)
         }
     }
     return FALSE;
-
 }
 
-void widget_move(Widget *widget, short x, short y)
+void widget_move ( Widget *widget, short x, short y )
 {
-    if ( widget != NULL ){
+    if ( widget != NULL ) {
         widget->x = x;
-        widget->y = y; 
+        widget->y = y;
     }
-
 }

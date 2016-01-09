@@ -170,7 +170,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     textbox_font ( box, HIGHLIGHT );
     textbox_draw ( box, draw );
 
-    widget_move ( WIDGET(box), 12, 13 );
+    widget_move ( WIDGET ( box ), 12, 13 );
     TASSERT ( box->widget.x == 12 );
     TASSERT ( box->widget.y == 13 );
 

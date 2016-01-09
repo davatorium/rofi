@@ -451,11 +451,11 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
             desktops = 1;
         }
         if ( pd->config_i3_mode ) {
-            sprintf ( pattern, "%%-%ds   %%s", MAX ( 5, classfield ) );
+            snprintf ( pattern, 50, "%%-%ds   %%s", MAX ( 5, classfield ) );
         }
         else{
-            sprintf ( pattern, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2,
-                      MAX ( 5, classfield ) );
+            snprintf ( pattern, 50, "%%-%ds  %%-%ds   %%s", desktops < 10 ? 1 : 2,
+                       MAX ( 5, classfield ) );
         }
         pd->cmd_list = g_malloc0_n ( ( pd->ids->len + 1 ), sizeof ( char* ) );
 
@@ -469,7 +469,8 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                 unsigned long wmdesktop;
                 char          desktop[5];
                 desktop[0] = 0;
-                char          *line = g_malloc ( strlen ( c->title ) + strlen ( c->class ) + classfield + 50 );
+                size_t        len   = strlen ( c->title ) + strlen ( c->class ) + classfield + 50;
+                char          *line = g_malloc ( len );
                 if ( !pd->config_i3_mode ) {
                     // find client's desktop.
                     if ( !window_get_cardinal_prop ( display, c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1 ) ) {
@@ -482,13 +483,13 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                     }
 
                     if ( wmdesktop < 0xFFFFFFFF ) {
-                        sprintf ( desktop, "%d", (int) wmdesktop );
+                        snprintf ( desktop, 5, "%d", (int) wmdesktop );
                     }
 
-                    sprintf ( line, pattern, desktop, c->class, c->title );
+                    snprintf ( line, len, pattern, desktop, c->class, c->title );
                 }
                 else{
-                    sprintf ( line, pattern, c->class, c->title );
+                    snprintf ( line, len, pattern, c->class, c->title );
                 }
 
                 pd->cmd_list[pd->cmd_list_length++] = line;

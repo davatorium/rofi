@@ -742,13 +742,13 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
         return;
     }
     else {
-        if ( state->scrollbar && widget_intersect ( &(state->scrollbar->widget), xbe->x, xbe->y ) ) {
+        if ( state->scrollbar && widget_intersect ( &( state->scrollbar->widget ), xbe->x, xbe->y ) ) {
             state->selected = scrollbar_clicked ( state->scrollbar, xbe->y );
             state->update   = TRUE;
             return;
         }
         for ( unsigned int i = 0; config.sidebar_mode == TRUE && i < num_modi; i++ ) {
-            if ( widget_intersect ( &(modi[i].tb->widget), xbe->x, xbe->y ) ) {
+            if ( widget_intersect ( &( modi[i].tb->widget ), xbe->x, xbe->y ) ) {
                 *( state->selected_line ) = 0;
                 state->retv               = MENU_QUICK_SWITCH | ( i & MENU_LOWER_MASK );
                 state->quit               = TRUE;
@@ -757,7 +757,7 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
             }
         }
         for ( unsigned int i = 0; i < state->max_elements; i++ ) {
-            if ( widget_intersect ( &(state->boxes[i]->widget), xbe->x, xbe->y ) ) {
+            if ( widget_intersect ( &( state->boxes[i]->widget ), xbe->x, xbe->y ) ) {
                 // Only allow items that are visible to be selected.
                 if ( ( state->last_offset + i ) >= state->filtered_lines ) {
                     break;
@@ -1128,7 +1128,7 @@ static void menu_paste ( MenuState *state, XSelectionEvent *xse )
 static void menu_resize ( MenuState *state )
 {
     unsigned int sbw = config.line_margin + 8;
-    widget_move ( WIDGET(state->scrollbar), state->w - state->border - sbw, state->top_offset );
+    widget_move ( WIDGET ( state->scrollbar ), state->w - state->border - sbw, state->top_offset );
     if ( config.sidebar_mode == TRUE ) {
         int width = ( state->w - ( 2 * ( state->border ) + ( num_modi - 1 ) * config.line_margin ) ) / num_modi;
         for ( unsigned int j = 0; j < num_modi; j++ ) {
@@ -1141,7 +1141,7 @@ static void menu_resize ( MenuState *state )
     int entrybox_width = state->w - ( 2 * ( state->border ) ) - textbox_get_width ( state->prompt_tb )
                          - textbox_get_width ( state->case_indicator );
     textbox_moveresize ( state->text, state->text->widget.x, state->text->widget.y, entrybox_width, state->line_height );
-    widget_move ( WIDGET(state->case_indicator), state->w - state->border - textbox_get_width ( state->case_indicator ), state->border );
+    widget_move ( WIDGET ( state->case_indicator ), state->w - state->border - textbox_get_width ( state->case_indicator ), state->border );
     /**
      * Resize in Height
      */
@@ -1334,7 +1334,7 @@ MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_l
     state.top_offset = state.border * 1 + state.line_height + 2 + config.line_margin * 2;
 
     // Move indicator to end.
-    widget_move ( WIDGET(state.case_indicator), state.border + textbox_get_width ( state.prompt_tb ) + entrybox_width, state.border );
+    widget_move ( WIDGET ( state.case_indicator ), state.border + textbox_get_width ( state.prompt_tb ) + entrybox_width, state.border );
 
     textbox_text ( state.case_indicator, get_matching_state () );
     state.message_tb = NULL;

@@ -21,7 +21,7 @@ typedef struct _Widget
 } Widget;
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
-#define WIDGET(a) (a != NULL?&(a->widget):NULL)
+#define WIDGET( a )    ( a != NULL ? &( a->widget ) : NULL )
 
 /**
  * @param widget The widget to check
@@ -32,7 +32,7 @@ typedef struct _Widget
  *
  * @return TRUE if x,y falls within the widget
  */
-int widget_intersect ( const Widget *widget, int x, int y);
+int widget_intersect ( const Widget *widget, int x, int y );
 
 /**
  * @param widget The widget to move
@@ -41,7 +41,7 @@ int widget_intersect ( const Widget *widget, int x, int y);
  *
  * Moves the widget.
  */
-void widget_move(Widget *widget, short x, short y);
+void widget_move ( Widget *widget, short x, short y );
 
 /*@}*/
 #endif // ROFI_WIDGET_H
