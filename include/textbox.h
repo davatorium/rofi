@@ -6,6 +6,7 @@
 #include <pango/pango-fontmap.h>
 #include <pango/pangocairo.h>
 #include <cairo.h>
+#include "widget.h"
 
 /**
  * @defgroup Textbox Textbox
@@ -21,8 +22,8 @@ typedef struct
 
 typedef struct
 {
+    Widget          widget;
     unsigned long   flags;
-    short           x, y, w, h;
     short           cursor;
     Color           color_fg, color_bg;
     char            *text;
@@ -125,15 +126,6 @@ void textbox_cursor_end ( textbox *tb );
  * Set the cursor position (string index)
  */
 void textbox_cursor ( textbox *tb, int pos );
-
-/**
- * @param tb  Handle to the textbox
- * @param x   The new x coordinate to move the window to
- * @param y   The new y coordinate to move the window to
- *
- * Move the window to x,y position.
- */
-void textbox_move ( textbox *tb, int x, int y );
 
 /**
  * @param tb   Handle to the textbox

@@ -67,14 +67,14 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
 
     tb->flags = flags;
 
-    tb->x = x;
-    tb->y = y;
-    tb->w = MAX ( 1, w );
-    tb->h = MAX ( 1, h );
+    tb->widget.x = x;
+    tb->widget.y = y;
+    tb->widget.w = MAX ( 1, w );
+    tb->widget.h = MAX ( 1, h );
 
     tb->changed = FALSE;
 
-    tb->main_surface = cairo_image_surface_create ( get_format (), tb->w, tb->h );
+    tb->main_surface = cairo_image_surface_create ( get_format (), tb->widget.w, tb->widget.h );
     tb->main_draw    = cairo_create ( tb->main_surface );
     tb->layout       = pango_layout_new ( p_context );
     textbox_font ( tb, tbft );
@@ -86,7 +86,7 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
     textbox_cursor_end ( tb );
 
     // auto height/width modes get handled here
-    textbox_moveresize ( tb, tb->x, tb->y, tb->w, tb->h );
+    textbox_moveresize ( tb, tb->widget.x, tb->widget.y, tb->widget.w, tb->widget.h );
 
     return tb;
 }
@@ -152,19 +152,12 @@ void textbox_text ( textbox *tb, const char *text )
         pango_layout_set_text ( tb->layout, tb->text, strlen ( tb->text ) );
     }
     if ( tb->flags & TB_AUTOWIDTH ) {
-        textbox_moveresize ( tb, tb->x, tb->y, tb->w, tb->h );
+        textbox_moveresize ( tb, tb->widget.x, tb->widget.y, tb->widget.w, tb->widget.h );
     }
 
     tb->cursor = MAX ( 0, MIN ( ( int ) strlen ( text ), tb->cursor ) );
 }
 
-void textbox_move ( textbox *tb, int x, int y )
-{
-    if ( x != tb->x || y != tb->y ) {
-        tb->x = x;
-        tb->y = y;
-    }
-}
 // within the parent handled auto width/height modes
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
@@ -189,15 +182,15 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
         h = textbox_get_height ( tb );
     }
 
-    if ( x != tb->x || y != tb->y || w != tb->w || h != tb->h ) {
-        tb->x = x;
-        tb->y = y;
-        tb->h = MAX ( 1, h );
-        tb->w = MAX ( 1, w );
+    if ( x != tb->widget.x || y != tb->widget.y || w != tb->widget.w || h != tb->widget.h ) {
+        tb->widget.x = x;
+        tb->widget.y = y;
+        tb->widget.h = MAX ( 1, h );
+        tb->widget.w = MAX ( 1, w );
     }
 
     // We always want to update this
-    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->w - 2 * SIDE_MARGIN ) );
+    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - 2 * SIDE_MARGIN ) );
     tb->update = TRUE;
 }
 
@@ -234,7 +227,7 @@ static void texbox_update ( textbox *tb )
             tb->main_draw    = NULL;
             tb->main_surface = NULL;
         }
-        tb->main_surface = cairo_image_surface_create ( get_format (), tb->w, tb->h );
+        tb->main_surface = cairo_image_surface_create ( get_format (), tb->widget.w, tb->widget.h );
         tb->main_draw    = cairo_create ( tb->main_surface );
         cairo_set_operator ( tb->main_draw, CAIRO_OPERATOR_SOURCE );
 
@@ -272,18 +265,18 @@ static void texbox_update ( textbox *tb )
             int line_width = 0;
             // Get actual width.
             pango_layout_get_pixel_size ( tb->layout, &line_width, NULL );
-            x = ( tb->w - line_width - SIDE_MARGIN );
+            x = ( tb->widget.w - line_width - SIDE_MARGIN );
         }
         else if ( tb->flags & TB_CENTER ) {
             int tw = textbox_get_font_width ( tb );
-            x = (  ( tb->w - tw - 2 * SIDE_MARGIN ) ) / 2;
+            x = (  ( tb->widget.w - tw - 2 * SIDE_MARGIN ) ) / 2;
         }
         short fh = textbox_get_font_height ( tb );
-        if ( fh > tb->h ) {
+        if ( fh > tb->widget.h ) {
             y = 0;
         }
         else {
-            y = (   ( tb->h - fh ) ) / 2;
+            y = (   ( tb->widget.h - fh ) ) / 2;
         }
 
         // Set ARGB
@@ -318,8 +311,8 @@ void textbox_draw ( textbox *tb, cairo_t *draw )
 
     /* Write buffer */
 
-    cairo_set_source_surface ( draw, tb->main_surface, tb->x, tb->y );
-    cairo_rectangle ( draw, tb->x, tb->y, tb->w, tb->h );
+    cairo_set_source_surface ( draw, tb->main_surface, tb->widget.x, tb->widget.y );
+    cairo_rectangle ( draw, tb->widget.x, tb->widget.y, tb->widget.w, tb->widget.h );
     cairo_fill ( draw );
 }
 

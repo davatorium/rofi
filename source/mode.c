@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <glib.h>
+#include <string.h>
 #include "rofi.h"
 #include "xrmoptions.h"
 #include "x11-helper.h"

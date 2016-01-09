@@ -36,6 +36,7 @@
 #include <errno.h>
 #include "rofi.h"
 #include "settings.h"
+#include "textbox.h"
 #include "dialogs/dmenu.h"
 #include "helper.h"
 #include "xrmoptions.h"

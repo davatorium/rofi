@@ -1,19 +1,13 @@
 #ifndef ROFI_MAIN_H
 #define ROFI_MAIN_H
 #include <X11/X.h>
+#include <X11/Xlib.h>
 #include <glib.h>
 #include <string.h>
 #include <stdlib.h>
-#include "textbox.h"
-#include <cairo.h>
-#include <cairo-xlib.h>
 #include "timings.h"
 #include "keyb.h"
 #include "mode.h"
-
-/**
- * @defgroup Widgets Widgets
- */
 
 /**
  * @defgroup Main Main

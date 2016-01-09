@@ -41,6 +41,7 @@
 #include "rofi.h"
 #include "settings.h"
 #include "helper.h"
+#include "textbox.h"
 #include "x11-helper.h"
 #include "i3-support.h"
 #include "dialogs/window.h"

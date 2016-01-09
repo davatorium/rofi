@@ -11,6 +11,7 @@
 
 #include <textbox.h>
 #include <rofi.h>
+#include <cairo-xlib.h>
 #include "settings.h"
 
 static int   test               = 0;
@@ -169,9 +170,9 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     textbox_font ( box, HIGHLIGHT );
     textbox_draw ( box, draw );
 
-    textbox_move ( box, 12, 13 );
-    TASSERT ( box->x == 12 );
-    TASSERT ( box->y == 13 );
+    widget_move ( WIDGET(box), 12, 13 );
+    TASSERT ( box->widget.x == 12 );
+    TASSERT ( box->widget.y == 13 );
 
     textbox_free ( box );
     textbox_cleanup ( );

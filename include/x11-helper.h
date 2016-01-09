@@ -1,5 +1,6 @@
 #ifndef X11_ROFI_HELPER_H
 #define X11_ROFI_HELPER_H
+#include <cairo.h>
 
 /**
  * @defgroup X11Helper X11Helper

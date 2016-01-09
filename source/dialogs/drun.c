@@ -41,6 +41,7 @@
 #include "rofi.h"
 #include "settings.h"
 #include "helper.h"
+#include "textbox.h"
 #include "dialogs/drun.h"
 
 #define RUN_CACHE_FILE    "rofi-2.runcache"

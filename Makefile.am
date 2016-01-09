@@ -36,6 +36,7 @@ rofi_SOURCES=\
 	source/keyb.c\
     config/config.c\
 	source/helper.c\
+	source/widget.c\
     source/textbox.c\
 	source/timings.c\
     source/history.c\
@@ -58,6 +59,7 @@ rofi_SOURCES=\
 	include/helper.h\
 	include/timings.h\
     include/history.h\
+	include/widget.h\
     include/textbox.h\
     include/scrollbar.h\
     include/xrmoptions.h\
@@ -142,6 +144,7 @@ rofi_test_SOURCES=\
 	test/history-test.c
 
 textbox_test_SOURCES=\
+	source/widget.c\
     source/textbox.c\
     config/config.c\
 	source/keyb.c\
@@ -153,7 +156,9 @@ textbox_test_SOURCES=\
 	include/mode.h\
 	include/mode-private.h\
 	include/settings.h\
+	include/widget.h\
     include/textbox.h\
+	include/widget.h\
 	include/x11-helper.h\
 	include/xrmoptions.h\
 	include/helper.h\
