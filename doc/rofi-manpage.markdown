@@ -652,6 +652,11 @@ Use together with `-filter` command.
 
 Reads from *file* instead of stdin.
 
+`-password`
+
+Hide the input text. This should not be considered secure!
+
+
 ### Message dialog
 
 `-e` *message*
