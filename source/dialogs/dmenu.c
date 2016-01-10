@@ -348,6 +348,7 @@ Mode dmenu_mode =
 int dmenu_switcher_dialog ( void )
 {
     mode_init ( &dmenu_mode );
+    MenuFlags            menu_flags      = MENU_NORMAL;
     DmenuModePrivateData *pd             = (DmenuModePrivateData *) dmenu_mode.private_data;
     char                 *input          = NULL;
     int                  retv            = FALSE;
@@ -361,6 +362,9 @@ int dmenu_switcher_dialog ( void )
         if ( cmd_list_length == 0 ) {
             return TRUE;
         }
+    }
+    if ( find_arg ( "-password" ) >= 0 ) {
+        menu_flags |= MENU_PASSWORD;
     }
     /* copy filter string */
     input = g_strdup ( config.filter );
@@ -393,7 +397,7 @@ int dmenu_switcher_dialog ( void )
     do {
         retv = FALSE;
         unsigned int next_pos = pd->selected_line;
-        int          mretv    = menu ( &dmenu_mode, &input, pd->prompt, &( pd->selected_line ), &next_pos, pd->message );
+        int          mretv    = menu ( &dmenu_mode, &input, pd->prompt, &( pd->selected_line ), &next_pos, pd->message, menu_flags );
         // Special behavior.
         // TODO clean this up!
         if ( only_selected ) {
@@ -489,4 +493,5 @@ void print_dmenu_options ( void )
     print_help_msg ( "-only-match", "", "Force selection or custom entry", NULL, is_term );
     print_help_msg ( "-no-custom", "", "Don't accept custom entry", NULL, is_term );
     print_help_msg ( "-select", "[string]", "Select the first row that matches", NULL, is_term );
+    print_help_msg ( "-password", "", "Do not show what the user inputs. Show '*' instead.", NULL, is_term );
 }

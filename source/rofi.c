@@ -1208,7 +1208,13 @@ static void menu_setup_fake_transparency ( Display *display, MenuState *state )
     }
 }
 
-MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_line, unsigned int *next_pos, const char *message )
+MenuReturn menu ( Mode *sw,
+                  char **input,
+                  char *prompt,
+                  unsigned int *selected_line,
+                  unsigned int *next_pos,
+                  const char *message,
+                  MenuFlags menu_flags )
 {
     TICK ();
     int       shift = FALSE;
@@ -1325,9 +1331,11 @@ MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_l
     state.prompt_tb = textbox_create ( TB_AUTOWIDTH, ( state.border ), ( state.border ),
                                        0, state.line_height, NORMAL, prompt );
     // Entry box
-    int entrybox_width = state.w - ( 2 * ( state.border ) ) - textbox_get_width ( state.prompt_tb )
-                         - textbox_get_width ( state.case_indicator );
-    state.text = textbox_create ( TB_EDITABLE,
+    int          entrybox_width = state.w - ( 2 * ( state.border ) ) - textbox_get_width ( state.prompt_tb )
+                                  - textbox_get_width ( state.case_indicator );
+    TextboxFlags tfl = TB_EDITABLE;
+    tfl       |= ( ( menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
+    state.text = textbox_create ( tfl,
                                   ( state.border ) + textbox_get_width ( state.prompt_tb ), ( state.border ),
                                   entrybox_width, state.line_height, NORMAL, *input );
 
@@ -2265,7 +2273,7 @@ ModeMode switcher_run ( char **input, Mode *sw )
 {
     char         *prompt       = g_strdup_printf ( "%s:", mode_get_name ( sw ) );
     unsigned int selected_line = UINT32_MAX;
-    int          mretv         = menu ( sw, input, prompt, &selected_line, NULL, NULL );
+    int          mretv         = menu ( sw, input, prompt, &selected_line, NULL, NULL, MENU_NORMAL );
     g_free ( prompt );
     return mode_result ( sw, mretv, input, selected_line );
 }

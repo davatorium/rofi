@@ -143,8 +143,15 @@ void textbox_text ( textbox *tb, const char *text )
             tb->text = g_strdup ( "Invalid UTF-8 string." );
         }
     }
-
-    if ( tb->flags & TB_MARKUP || tb->tbft & MARKUP ) {
+    if ( ( tb->flags & TB_PASSWORD ) == TB_PASSWORD ) {
+        size_t l = strlen ( tb->text );
+        char   string [l + 1];
+        memset ( string, '*', l );
+        string[l] = '\0';
+        pango_layout_set_attributes ( tb->layout, NULL );
+        pango_layout_set_text ( tb->layout, string, l );
+    }
+    else if ( tb->flags & TB_MARKUP || tb->tbft & MARKUP ) {
         pango_layout_set_markup ( tb->layout, tb->text, strlen ( tb->text ) );
     }
     else {
@@ -240,7 +247,15 @@ static void texbox_update ( textbox *tb )
         int  cursor_width = MAX ( 2, font_height / 10 );
 
         if ( tb->changed ) {
-            if ( tb->flags & TB_MARKUP ) {
+            if ( ( tb->flags & TB_PASSWORD ) == TB_PASSWORD ) {
+                size_t l = strlen ( tb->text );
+                char   string [l + 1];
+                memset ( string, '*', l );
+                string[l] = '\0';
+                pango_layout_set_attributes ( tb->layout, NULL );
+                pango_layout_set_text ( tb->layout, string, l );
+            }
+            else if ( tb->flags & TB_MARKUP ) {
                 pango_layout_set_markup ( tb->layout, text, text_len );
             }
             else{

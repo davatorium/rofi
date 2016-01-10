@@ -48,6 +48,7 @@ typedef enum
         TB_EDITABLE  = 1 << 19,
         TB_MARKUP    = 1 << 20,
         TB_WRAP      = 1 << 21,
+        TB_PASSWORD  = 1 << 22,
 } TextboxFlags;
 
 typedef enum

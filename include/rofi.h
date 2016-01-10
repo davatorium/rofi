@@ -26,6 +26,12 @@ extern const char *cache_dir;
  */
 void error_dialog ( const char *msg, int markup  );
 
+typedef enum
+{
+    MENU_NORMAL   = 0,
+    MENU_PASSWORD = 1
+} MenuFlags;
+
 /**
  * @param sw the Mode to show.
  * @param lines An array of strings to display.
@@ -37,12 +43,17 @@ void error_dialog ( const char *msg, int markup  );
  * @param mmc_data data to pass to mmc.
  * @param selected_line pointer to integer holding the selected line.
  * @param message Extra message to display.
+ * @param flags   Flags indicating state of the menu.
  *
  * Main menu callback.
  *
  * @returns The command issued (see MenuReturn)
  */
-MenuReturn menu ( Mode *sw, char **input, char *prompt, unsigned int *selected_line, unsigned int *next_pos, const char *message )
+MenuReturn menu ( Mode *sw,
+                  char **input, char *prompt,
+                  unsigned int *selected_line,
+                  unsigned int *next_pos,
+                  const char *message, MenuFlags flags )
 __attribute__ ( ( nonnull ( 1, 2, 3, 4 ) ) );
 
 /** Reset terminal */
