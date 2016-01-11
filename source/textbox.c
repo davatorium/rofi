@@ -124,6 +124,31 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
     tb->tbft = tbft;
 }
 
+/**
+ * @param tb The textbox object.
+ *
+ * Update the pango layout's text. It does this depending on the
+ * textbox flags.
+ */
+static void __textbox_update_pango_text ( textbox *tb )
+{
+    if ( ( tb->flags & TB_PASSWORD ) == TB_PASSWORD ) {
+        size_t l = g_utf8_strlen ( tb->text, -1 );
+        char   string [l + 1];
+        memset ( string, '*', l );
+        string[l] = '\0';
+        pango_layout_set_attributes ( tb->layout, NULL );
+        pango_layout_set_text ( tb->layout, string, l );
+    }
+    else if ( tb->flags & TB_MARKUP || tb->tbft & MARKUP ) {
+        pango_layout_set_markup ( tb->layout, tb->text, strlen ( tb->text ) );
+    }
+    else {
+        pango_layout_set_attributes ( tb->layout, NULL );
+        pango_layout_set_text ( tb->layout, tb->text, strlen ( tb->text ) );
+    }
+}
+
 // set the default text to display
 void textbox_text ( textbox *tb, const char *text )
 {
@@ -143,21 +168,7 @@ void textbox_text ( textbox *tb, const char *text )
             tb->text = g_strdup ( "Invalid UTF-8 string." );
         }
     }
-    if ( ( tb->flags & TB_PASSWORD ) == TB_PASSWORD ) {
-        size_t l = strlen ( tb->text );
-        char   string [l + 1];
-        memset ( string, '*', l );
-        string[l] = '\0';
-        pango_layout_set_attributes ( tb->layout, NULL );
-        pango_layout_set_text ( tb->layout, string, l );
-    }
-    else if ( tb->flags & TB_MARKUP || tb->tbft & MARKUP ) {
-        pango_layout_set_markup ( tb->layout, tb->text, strlen ( tb->text ) );
-    }
-    else {
-        pango_layout_set_attributes ( tb->layout, NULL );
-        pango_layout_set_text ( tb->layout, tb->text, strlen ( tb->text ) );
-    }
+    __textbox_update_pango_text ( tb );
     if ( tb->flags & TB_AUTOWIDTH ) {
         textbox_moveresize ( tb, tb->widget.x, tb->widget.y, tb->widget.w, tb->widget.h );
     }
@@ -247,20 +258,7 @@ static void texbox_update ( textbox *tb )
         int  cursor_width = MAX ( 2, font_height / 10 );
 
         if ( tb->changed ) {
-            if ( ( tb->flags & TB_PASSWORD ) == TB_PASSWORD ) {
-                size_t l = strlen ( tb->text );
-                char   string [l + 1];
-                memset ( string, '*', l );
-                string[l] = '\0';
-                pango_layout_set_attributes ( tb->layout, NULL );
-                pango_layout_set_text ( tb->layout, string, l );
-            }
-            else if ( tb->flags & TB_MARKUP ) {
-                pango_layout_set_markup ( tb->layout, text, text_len );
-            }
-            else{
-                pango_layout_set_text ( tb->layout, text, text_len );
-            }
+            __textbox_update_pango_text ( tb );
         }
 
         if ( tb->flags & TB_EDITABLE ) {
