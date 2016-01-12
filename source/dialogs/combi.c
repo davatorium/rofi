@@ -222,7 +222,7 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
             char * str  = mode_get_display_value ( pd->switchers[i], selected_line - pd->starts[i], state, TRUE );
-            char * retv = g_strdup_printf ( "(%s) %s", mode_get_name ( pd->switchers[i] ), str );
+            char * retv = g_strdup_printf ( "%s %s", mode_get_display_name ( pd->switchers[i] ), str );
             g_free ( str );
             return retv;
         }
@@ -257,6 +257,7 @@ static char * combi_get_completion ( const Mode *sw, unsigned int index )
 Mode combi_mode =
 {
     .name               = "combi",
+    .cfg_name_key       = "display-combi",
     .keycfg             = NULL,
     .keystr             = NULL,
     .modmask            = AnyModifier,

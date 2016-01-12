@@ -492,6 +492,7 @@ static int ssh_is_not_ascii ( const Mode *sw, unsigned int index )
 Mode ssh_mode =
 {
     .name               = "ssh",
+    .cfg_name_key       = "display-ssh",
     .keycfg             = NULL,
     .keystr             = NULL,
     .modmask            = AnyModifier,

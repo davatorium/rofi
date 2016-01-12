@@ -2056,6 +2056,7 @@ static void setup_modi ( void )
             Mode *sw = script_switcher_parse_setup ( token );
             if ( sw != NULL ) {
                 modi[num_modi].sw = sw;
+                mode_set_config ( sw );
                 num_modi++;
             }
             else{
@@ -2073,6 +2074,15 @@ static void setup_modi ( void )
     for ( unsigned int i = 0; i < num_modi; i++ ) {
         mode_setup_keybinding ( modi[i].sw );
     }
+    mode_set_config ( &ssh_mode );
+    mode_set_config ( &run_mode );
+    mode_set_config ( &drun_mode );
+
+#ifdef WINDOW_MODE
+    mode_set_config ( &window_mode );
+    mode_set_config ( &window_mode_cd );
+#endif // WINDOW_MODE
+    mode_set_config ( &combi_mode );
 }
 
 /**

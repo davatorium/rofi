@@ -206,5 +206,9 @@ void *mode_get_private_data ( const Mode *mode );
  * Set the private data object.
  */
 void mode_set_private_data ( Mode *mode, void *pd );
+
+const char *mode_get_display_name ( const Mode *mode );
+
+void mode_set_config ( Mode *mode );
 /*@}*/
 #endif

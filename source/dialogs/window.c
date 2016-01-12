@@ -591,6 +591,7 @@ static int window_is_not_ascii ( const Mode *sw, unsigned int index )
 Mode window_mode =
 {
     .name               = "window",
+    .cfg_name_key       = "display-window",
     .keycfg             = NULL,
     .keystr             = NULL,
     .modmask            = AnyModifier,
@@ -608,6 +609,7 @@ Mode window_mode =
 Mode window_mode_cd =
 {
     .name               = "windowcd",
+    .cfg_name_key       = "display-windowcd",
     .keycfg             = NULL,
     .keystr             = NULL,
     .modmask            = AnyModifier,

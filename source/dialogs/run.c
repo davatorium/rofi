@@ -386,6 +386,7 @@ static int run_is_not_ascii ( const Mode *sw, unsigned int index )
 Mode run_mode =
 {
     .name               = "run",
+    .cfg_name_key       = "display-run",
     .keycfg             = NULL,
     .keystr             = NULL,
     .modmask            = AnyModifier,

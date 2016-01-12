@@ -363,6 +363,7 @@ static int drun_is_not_ascii ( const Mode *sw, unsigned int index )
 Mode drun_mode =
 {
     .name               = "drun",
+    .cfg_name_key       = "display-drun",
     .keycfg             = NULL,
     .keystr             = NULL,
     .modmask            = AnyModifier,

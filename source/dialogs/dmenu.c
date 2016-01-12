@@ -330,6 +330,7 @@ static int dmenu_is_not_ascii ( const Mode *sw, unsigned int index )
 Mode dmenu_mode =
 {
     .name               = "dmenu",
+    .cfg_name_key       = "display-combi",
     .keycfg             = NULL,
     .keystr             = NULL,
     .modmask            = AnyModifier,

@@ -165,4 +165,19 @@ void mode_set_private_data ( Mode *mode, void *pd )
     }
     mode->private_data = pd;
 }
+
+const char *mode_get_display_name ( const Mode *mode )
+{
+    if ( mode->display_name != NULL ) {
+        return mode->display_name;
+    }
+    return mode->name;
+}
+
+void mode_set_config ( Mode *mode )
+{
+    snprintf ( mode->cfg_name_key, 128, "display-%s", mode->name );
+    mode->display_name = g_strdup_printf ( "(%s)", mode->name );
+    config_parser_add_option ( xrm_String, mode->cfg_name_key, (void * *) &( mode->display_name ), "The display name of this browser" );
+}
 /*@}*/

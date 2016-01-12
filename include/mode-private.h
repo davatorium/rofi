@@ -38,6 +38,8 @@ struct _Mode
 {
     /** Name (max 31 char long) */
     char         name[32];
+    char         cfg_name_key[128];
+    char         *display_name;
     /** Keybindings (keysym and modmask) */
     char         * keycfg;
     char         * keystr;
