@@ -239,14 +239,13 @@ static char ** get_apps ( unsigned int *length )
     // Keep track of how many where loaded as favorite.
     num_favorites = ( *length );
 
-    path = g_strdup ( getenv ( "PATH" ) );
+    path = g_strdup ( g_getenv ( "PATH" ) );
 
     gsize l        = 0;
     gchar *homedir = g_locale_to_utf8 (  g_get_home_dir (), -1, NULL, &l, &error );
     if ( error != NULL ) {
         fprintf ( stderr, "Failed to convert homedir to UTF-8: %s\n", error->message );
-        g_error_free ( error );
-        error = NULL;
+        g_clear_error ( &error );
         g_free ( homedir );
         return NULL;
     }
@@ -257,14 +256,13 @@ static char ** get_apps ( unsigned int *length )
         if ( dir != NULL ) {
             struct dirent *dent;
             gsize         dirn_len = 0;
-            gchar         *dirn    = g_filename_to_utf8 ( dirname, -1, NULL, &dirn_len, &error );
+            gchar         *dirn    = g_locale_to_utf8 ( dirname, -1, NULL, &dirn_len, &error );
             if ( error != NULL ) {
                 fprintf ( stderr, "Failed to convert directory name to UTF-8: %s\n", error->message );
-                g_error_free ( error );
-                error = NULL;
+                g_clear_error ( &error );
                 continue;
             }
-            int is_homedir = g_str_has_prefix ( dirn, homedir );
+            gboolean is_homedir = g_str_has_prefix ( dirn, homedir );
             g_free ( dirn );
 
             while ( ( dent = readdir ( dir ) ) != NULL ) {
@@ -288,8 +286,7 @@ static char ** get_apps ( unsigned int *length )
                 gchar *name = g_filename_to_utf8 ( dent->d_name, -1, NULL, &name_len, &error );
                 if ( error != NULL ) {
                     fprintf ( stderr, "Failed to convert filename to UTF-8: %s\n", error->message );
-                    g_error_free ( error );
-                    error = NULL;
+                    g_clear_error ( &error );
                     g_free ( name );
                     continue;
                 }
