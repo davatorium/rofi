@@ -120,8 +120,10 @@ static void exec_cmd_entry ( DRunModeEntry *e )
             }
         }
     }
-    execsh ( g_strstrip ( str ), e->terminal );
+    gchar *fp = rofi_expand_path ( g_strstrip ( str ) );
+    execsh ( fp, e->terminal );
     g_free ( str );
+    g_free ( fp );
 }
 /**
  * Internal spider used to get list of executables.

@@ -145,7 +145,7 @@ static void __textbox_update_pango_text ( textbox *tb )
     }
     else {
         pango_layout_set_attributes ( tb->layout, NULL );
-        pango_layout_set_text ( tb->layout, tb->text, -1);
+        pango_layout_set_text ( tb->layout, tb->text, -1 );
     }
 }
 
