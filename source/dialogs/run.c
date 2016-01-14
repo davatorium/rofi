@@ -53,7 +53,7 @@
 /**
  * Name of the history file where previously choosen commands are stored.
  */
-#define RUN_CACHE_FILE    "rofi-2.runcache"
+#define RUN_CACHE_FILE    "rofi-3.runcache"
 
 /**
  * The internal data structure holding the private data of the Run Mode.
@@ -109,11 +109,19 @@ static inline int execsh ( const char *cmd, int run_in_term )
  */
 static void exec_cmd ( const char *cmd, int run_in_term )
 {
+    GError *error = NULL;
     if ( !cmd || !cmd[0] ) {
         return;
     }
+    gsize lf_cmd_size = 0;
+    gchar *lf_cmd     = g_locale_from_utf8 ( cmd, -1, NULL, &lf_cmd_size, &error );
+    if ( error != NULL ) {
+        fprintf ( stderr, "Failed to convert command to locale encoding: %s\n", error->message );
+        g_error_free ( error );
+        return;
+    }
 
-    if (  execsh ( cmd, run_in_term ) ) {
+    if (  execsh ( lf_cmd, run_in_term ) ) {
         /**
          * This happens in non-critical time (After launching app)
          * It is allowed to be a bit slower.
@@ -124,6 +132,7 @@ static void exec_cmd ( const char *cmd, int run_in_term )
 
         g_free ( path );
     }
+    g_free ( lf_cmd );
 }
 
 /**
@@ -215,6 +224,7 @@ static char ** get_apps_external ( char **retv, unsigned int *length, unsigned i
  */
 static char ** get_apps ( unsigned int *length )
 {
+    GError       *error        = NULL;
     char         **retv        = NULL;
     unsigned int num_favorites = 0;
     char         *path;
@@ -222,7 +232,7 @@ static char ** get_apps ( unsigned int *length )
     if ( g_getenv ( "PATH" ) == NULL ) {
         return NULL;
     }
-
+    TICK_N ( "start" );
     path = g_build_filename ( cache_dir, RUN_CACHE_FILE, NULL );
     retv = history_get_list ( path, length );
     g_free ( path );
@@ -231,11 +241,31 @@ static char ** get_apps ( unsigned int *length )
 
     path = g_strdup ( getenv ( "PATH" ) );
 
+    gsize l        = 0;
+    gchar *homedir = g_locale_to_utf8 (  g_get_home_dir (), -1, NULL, &l, &error );
+    if ( error != NULL ) {
+        fprintf ( stderr, "Failed to convert homedir to UTF-8: %s\n", error->message );
+        g_error_free ( error );
+        error = NULL;
+        g_free ( homedir );
+        return NULL;
+    }
+
     for ( const char *dirname = strtok ( path, ":" ); dirname != NULL; dirname = strtok ( NULL, ":" ) ) {
         DIR *dir = opendir ( dirname );
 
         if ( dir != NULL ) {
             struct dirent *dent;
+            gsize         dirn_len = 0;
+            gchar         *dirn    = g_filename_to_utf8 ( dirname, -1, NULL, &dirn_len, &error );
+            if ( error != NULL ) {
+                fprintf ( stderr, "Failed to convert directory name to UTF-8: %s\n", error->message );
+                g_error_free ( error );
+                error = NULL;
+                continue;
+            }
+            int is_homedir = g_str_has_prefix ( dirn, homedir );
+            g_free ( dirn );
 
             while ( ( dent = readdir ( dir ) ) != NULL ) {
                 if ( dent->d_type != DT_REG && dent->d_type != DT_LNK && dent->d_type != DT_UNKNOWN ) {
@@ -245,13 +275,29 @@ static char ** get_apps ( unsigned int *length )
                 if ( dent->d_name[0] == '.' ) {
                     continue;
                 }
+                if ( is_homedir ) {
+                    gchar    *fpath = g_build_filename ( dirname, dent->d_name, NULL );
+                    gboolean b      = g_file_test ( fpath, G_FILE_TEST_IS_EXECUTABLE );
+                    g_free ( fpath );
+                    if ( !b ) {
+                        continue;
+                    }
+                }
 
-                int found = 0;
-
+                gsize name_len;
+                gchar *name = g_filename_to_utf8 ( dent->d_name, -1, NULL, &name_len, &error );
+                if ( error != NULL ) {
+                    fprintf ( stderr, "Failed to convert filename to UTF-8: %s\n", error->message );
+                    g_error_free ( error );
+                    error = NULL;
+                    g_free ( name );
+                    continue;
+                }
                 // This is a nice little penalty, but doable? time will tell.
                 // given num_favorites is max 25.
+                int found = 0;
                 for ( unsigned int j = 0; found == 0 && j < num_favorites; j++ ) {
-                    if ( strcasecmp ( dent->d_name, retv[j] ) == 0 ) {
+                    if ( g_strcmp0 ( name, retv[j] ) == 0 ) {
                         found = 1;
                     }
                 }
@@ -261,7 +307,7 @@ static char ** get_apps ( unsigned int *length )
                 }
 
                 retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-                retv[( *length )]     = g_strdup ( dent->d_name );
+                retv[( *length )]     = name;
                 retv[( *length ) + 1] = NULL;
                 ( *length )++;
             }
@@ -269,6 +315,7 @@ static char ** get_apps ( unsigned int *length )
             closedir ( dir );
         }
     }
+    g_free ( homedir );
 
     // Get external apps.
     if ( config.run_list_command != NULL && config.run_list_command[0] != '\0' ) {
@@ -301,6 +348,7 @@ static char ** get_apps ( unsigned int *length )
     // Reduce array length;
     ( *length ) -= removed;
 
+    TICK_N ( "stop" );
     return retv;
 }
 
