@@ -56,7 +56,7 @@ DefaultBinding bindings[NUM_ABE] =
     { .id = DELETE_ENTRY,            .name = "kb-delete-entry",            .keybinding = "Shift+Delete"                         },
     { .id = ROW_LEFT,                .name = "kb-row-left",                .keybinding = "Control+Page_Up"                      },
     { .id = ROW_RIGHT,               .name = "kb-row-right",               .keybinding = "Control+Page_Down"                    },
-    { .id = ROW_UP,                  .name = "kb-row-up",                  .keybinding = "Up,Control+p,Shift+Tab"               },
+    { .id = ROW_UP,                  .name = "kb-row-up",                  .keybinding = "Up,Control+p,Shift+Tab,Shift+ISO_Left_Tab"  },
     { .id = ROW_DOWN,                .name = "kb-row-down",                .keybinding = "Down,Control+n"                       },
     { .id = ROW_TAB,                 .name = "kb-row-tab",                 .keybinding = "Tab"                                  },
     { .id = PAGE_PREV,               .name = "kb-page-prev",               .keybinding = "Page_Up"                              },
