@@ -232,3 +232,15 @@ rofi.kb-toggle-sort:                 Alt+grave
 rofi.key-combi:                      Alt-F3
 ! Keybinding
 rofi.key-drun:                       
+! The display name of this browser
+rofi.display-ssh:                     
+! The display name of this browser
+rofi.display-run:                     
+! The display name of this browser
+rofi.display-drun:                    
+! The display name of this browser
+rofi.display-window:                  
+! The display name of this browser
+rofi.display-windowcd:               (windowcd)
+! The display name of this browser
+rofi.display-combi:                  (combi)

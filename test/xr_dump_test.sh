@@ -3,7 +3,7 @@
 TOP_DIR=$1
 
 xrdb -retain -load ${TOP_DIR}/doc/test_xr.txt
-rofi -dump-xresources > temp.txt
+rofi -config ${TOP_DIR}/doc/test_xr.txt -dump-xresources > temp.txt
 
 if ! diff temp.txt ${TOP_DIR}/doc/test_xr.txt > /dev/null
 then
