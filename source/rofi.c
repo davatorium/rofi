@@ -60,6 +60,7 @@
 #include "textbox.h"
 #include "scrollbar.h"
 #include "x11-helper.h"
+#include "x11-event-source.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
 
@@ -2232,50 +2233,6 @@ static void error_trap_push ( G_GNUC_UNUSED SnDisplay *display, G_GNUC_UNUSED Di
     ++error_trap_depth;
 }
 
-/**
- * Custom X11 Source implementation.
- */
-typedef struct _X11EventSource
-{
-    // Source
-    GSource source;
-    // Polling field
-    GPollFD fd_x11;
-} X11EventSource;
-
-static gboolean x11_event_source_prepare ( G_GNUC_UNUSED GSource * base, gint * timeout )
-{
-    *timeout = -1;
-    return XPending ( display );
-}
-
-static gboolean x11_event_source_check ( GSource * base )
-{
-    X11EventSource *xs = (X11EventSource *) base;
-    if ( xs->fd_x11.revents ) {
-        return TRUE;
-    }
-    return FALSE;
-}
-
-static gboolean x11_event_source_dispatch ( GSource * base, GSourceFunc callback, gpointer data )
-{
-    X11EventSource *xs = (X11EventSource *) base;
-    if ( callback ) {
-        if ( xs->fd_x11.revents ) {
-            callback ( data );
-        }
-    }
-    return G_SOURCE_CONTINUE;;
-}
-
-static GSourceFuncs x11_event_source_funcs = {
-    x11_event_source_prepare,
-    x11_event_source_check,
-    x11_event_source_dispatch,
-    NULL
-};
-
 static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, Display   *xdisplay )
 {
     if ( error_trap_depth == 0 ) {
@@ -2503,14 +2460,10 @@ int main ( int argc, char *argv[] )
         // It also listens from messages from the signal process.
         XSelectInput ( display, DefaultRootWindow ( display ), KeyPressMask );
         XFlush ( display );
-        int            x11_fd  = ConnectionNumber ( display );
-        X11EventSource *source = (X11EventSource *) g_source_new ( &x11_event_source_funcs, sizeof ( X11EventSource ) );
-        source->fd_x11.fd     = x11_fd;
-        source->fd_x11.events = G_IO_IN | G_IO_ERR;
-        g_source_add_poll ( (GSource *) source, &source->fd_x11 );
         main_loop = g_main_loop_new ( NULL, FALSE );
-        g_source_attach ( (GSource *) source, NULL );
-        g_source_set_callback ( (GSource *) source, main_loop_x11_event_handler, NULL, NULL );
+        GSource *source = x11_event_source_new ( display );
+        g_source_attach ( source, NULL );
+        g_source_set_callback ( source, main_loop_x11_event_handler, NULL, NULL );
 
         // Setup signal handling sources.
         // SIGHup signal.
