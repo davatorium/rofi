@@ -45,6 +45,8 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 
+#include <glib-unix.h>
+
 #include <cairo.h>
 #include <cairo-xlib.h>
 
@@ -100,6 +102,7 @@ XIM               xim;
 XIC               xic;
 
 GThreadPool       *tpool = NULL;
+GMainLoop         *main_loop;
 
 static char * get_matching_state ( void )
 {
@@ -2158,68 +2161,6 @@ static void reload_configuration ()
 }
 
 /**
- * Separate thread that handles signals being send to rofi.
- * Currently it listens for three signals:
- *  * HUP: reload the configuration.
- *  * INT: Quit the program.
- *  * USR1: Dump the current configuration to stdout.
- *
- *  These messages are relayed to the main thread via a pipe, the write side of the pipe is passed
- *  as argument to this thread.
- *  When receiving a sig-int the thread quits.
- */
-static gpointer rofi_signal_handler_process ( gpointer arg )
-{
-    int pfd = *( (int *) arg );
-
-    // Create same mask again.
-    sigset_t set;
-    sigemptyset ( &set );
-    sigaddset ( &set, SIGHUP );
-    sigaddset ( &set, SIGINT );
-    sigaddset ( &set, SIGUSR1 );
-    // loop forever.
-    while ( 1 ) {
-#ifdef __OpenBSD__
-        int sig = 0;
-        if ( sigwait ( &set, &sig ) < 0 ) {
-            perror ( "sigwaitinfo failed, lets restart" );
-        }
-#else
-        siginfo_t info;
-        int       sig = sigwaitinfo ( &set, &info );
-        if ( sig < 0 ) {
-            perror ( "sigwaitinfo failed, lets restart" );
-        }
-#endif
-        else {
-            // Send message to main thread.
-            if ( sig == SIGHUP ) {
-                ssize_t t = write ( pfd, "c", 1 );
-                if ( t < 0 ) {
-                    fprintf ( stderr, "Failed to send signal to main thread.\n" );
-                }
-            }
-            if ( sig == SIGUSR1 ) {
-                ssize_t t = write ( pfd, "i", 1 );
-                if ( t < 0 ) {
-                    fprintf ( stderr, "Failed to send signal to main thread.\n" );
-                }
-            }
-            if ( sig == SIGINT ) {
-                ssize_t t = write ( pfd, "q", 1 );
-                if ( t < 0 ) {
-                    fprintf ( stderr, "Failed to send signal to main thread.\n" );
-                }
-                // Close my end and exit.
-                g_thread_exit ( NULL );
-            }
-        }
-    }
-    return NULL;
-}
-
-/**
  * Process X11 events in the main-loop (gui-thread) of the application.
  */
 static void main_loop_x11_event_handler ( void )
@@ -2249,34 +2190,30 @@ static void main_loop_x11_event_handler ( void )
  *
  * returns TRUE when mainloop should be stopped.
  */
-static int main_loop_signal_handler ( char command, int quiet )
+static gboolean main_loop_signal_handler_hup ( G_GNUC_UNUSED gpointer data )
 {
-    if ( command == 'c' ) {
-        if ( !quiet ) {
-            fprintf ( stdout, "Reload configuration\n" );
-        }
-        // Release the keybindings.
-        release_global_keybindings ();
-        // Reload config
-        reload_configuration ();
-        // Grab the possibly new keybindings.
-        grab_global_keybindings ();
-        if ( !quiet ) {
-            print_global_keybindings ();
-        }
-        // We need to flush, otherwise the first key presses are not caught.
-        XFlush ( display );
-    }
-    // Got message to quit.
-    else if ( command == 'q' ) {
-        // Break out of loop.
-        return TRUE;
-    }
-    // Got message to print info
-    else if ( command == 'i' ) {
-        config_parse_xresource_dump ();
-    }
-    return FALSE;
+    fprintf ( stdout, "Reload configuration\n" );
+    // Release the keybindings.
+    release_global_keybindings ();
+    // Reload config
+    reload_configuration ();
+    // Grab the possibly new keybindings.
+    grab_global_keybindings ();
+    // We need to flush, otherwise the first key presses are not caught.
+    XFlush ( display );
+    return G_SOURCE_CONTINUE;
+}
+static gboolean main_loop_signal_handler_term ( G_GNUC_UNUSED gpointer data )
+{
+    // Break out of loop.
+    g_main_loop_quit ( main_loop );
+    return G_SOURCE_CONTINUE;
+}
+
+static gboolean main_loop_signal_handler_usr1 ( G_GNUC_UNUSED gpointer data )
+{
+    config_parse_xresource_dump ();
+    return G_SOURCE_CONTINUE;
 }
 
 ModeMode switcher_run ( char **input, Mode *sw )
@@ -2288,30 +2225,57 @@ ModeMode switcher_run ( char **input, Mode *sw )
     return mode_result ( sw, mretv, input, selected_line );
 }
 
-/**
- * Setup signal handling.
- * Block all the signals, start a signal processor thread to handle these events.
- */
-static GThread *setup_signal_thread ( int *fd )
-{
-    // Block all HUP,INT,USR1 signals.
-    // In this and other child (they inherit mask)
-    sigset_t set;
-    sigemptyset ( &set );
-    sigaddset ( &set, SIGHUP );
-    sigaddset ( &set, SIGINT );
-    sigaddset ( &set, SIGUSR1 );
-    sigprocmask ( SIG_BLOCK, &set, NULL );
-    // Create signal handler process.
-    // This will use sigwaitinfo to read signals and forward them back to the main thread again.
-    return g_thread_new ( "signal_process", rofi_signal_handler_process, (void *) fd );
-}
-
 static int error_trap_depth = 0;
 static void error_trap_push ( G_GNUC_UNUSED SnDisplay *display, G_GNUC_UNUSED Display   *xdisplay )
 {
     ++error_trap_depth;
 }
+
+/**
+ * Custom X11 Source implementation.
+ */
+typedef struct _X11EventSource
+{
+    // Source
+    GSource source;
+    // Polling field
+    GPollFD fd_x11;
+} X11EventSource;
+
+static gboolean x11_event_source_prepare ( G_GNUC_UNUSED GSource * base, gint * timeout )
+{
+    *timeout = -1;
+    return XPending ( display );
+}
+
+static gboolean x11_event_source_check ( GSource * base )
+{
+    X11EventSource *xs = (X11EventSource *) base;
+    if ( xs->fd_x11.revents ) {
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static gboolean x11_event_source_dispatch ( GSource * base, GSourceFunc callback, gpointer data )
+{
+    X11EventSource *xs = (X11EventSource *) base;
+    if ( xs->fd_x11.revents ) {
+        printf ( "x11\n" );
+        main_loop_x11_event_handler ();
+    }
+    if ( callback ) {
+        callback ( data );
+    }
+    return G_SOURCE_CONTINUE;;
+}
+
+static GSourceFuncs x11_event_source_funcs = {
+    x11_event_source_prepare,
+    x11_event_source_check,
+    x11_event_source_dispatch,
+    NULL
+};
 
 static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, Display   *xdisplay )
 {
@@ -2529,16 +2493,6 @@ int main ( int argc, char *argv[] )
             print_global_keybindings ();
         }
 
-        // Create a pipe to communicate between signal thread an main thread.
-        int pfds[2];
-        if ( pipe ( pfds ) != 0 ) {
-            char * msg = g_strdup_printf ( "Failed to start rofi: '<i>%s</i>'", strerror ( errno ) );
-            show_error_message ( msg, TRUE );
-            g_free ( msg );
-            exit ( EXIT_FAILURE );
-        }
-        GThread *pid_signal_proc = setup_signal_thread ( &( pfds[1] ) );
-
         // done starting deamon.
 
         if ( sncontext != NULL ) {
@@ -2550,43 +2504,41 @@ int main ( int argc, char *argv[] )
         // It also listens from messages from the signal process.
         XSelectInput ( display, DefaultRootWindow ( display ), KeyPressMask );
         XFlush ( display );
-        int x11_fd = ConnectionNumber ( display );
-        for (;; ) {
-            fd_set in_fds;
-            // Create a File Description Set containing x11_fd, and signal pipe
-            FD_ZERO ( &in_fds );
-            FD_SET ( x11_fd, &in_fds );
-            FD_SET ( pfds[0], &in_fds );
+        int            x11_fd = ConnectionNumber ( display );
 
-            // Wait for X Event or a message on signal pipe
-            if ( select ( MAX ( x11_fd, pfds[0] ) + 1, &in_fds, 0, 0, NULL ) >= 0 ) {
-                // X11
-                if ( FD_ISSET ( x11_fd, &in_fds ) ) {
-                    main_loop_x11_event_handler ();
-                }
-                // Signal Pipe
-                if ( FD_ISSET ( pfds[0], &in_fds ) ) {
-                    // The signal thread send us a message. Process it.
-                    char    c;
-                    ssize_t r = read ( pfds[0], &c, 1 );
-                    if ( r < 0 ) {
-                        fprintf ( stderr, "Failed to read data from signal thread: %s\n", strerror ( errno ) );
-                    }
-                    // Process the signal in the main_loop.
-                    else if ( main_loop_signal_handler ( c, quiet ) ) {
-                        break;
-                    }
-                }
-            }
-        }
+        X11EventSource *source = (X11EventSource *) g_source_new ( &x11_event_source_funcs, sizeof ( X11EventSource ) );
+        source->fd_x11.fd     = x11_fd;
+        source->fd_x11.events = G_IO_IN | G_IO_ERR;
+        g_source_add_poll ( (GSource *) source, &source->fd_x11 );
+        main_loop = g_main_loop_new ( NULL, FALSE );
+        g_source_attach ( (GSource *) source, NULL );
+
+        // Setup signal handling sources.
+        GSource *sigs_hup = NULL, *sigs_term = NULL, *sigs_usr1 = NULL;
+        // SIGHup signal.
+        sigs_hup = g_unix_signal_source_new ( SIGHUP );
+        g_source_set_callback ( sigs_hup, main_loop_signal_handler_hup, NULL, NULL );
+        g_source_attach ( sigs_hup, NULL );
+        // SIGTERM
+        sigs_term = g_unix_signal_source_new ( SIGTERM );
+        g_source_set_callback ( sigs_term, main_loop_signal_handler_term, NULL, NULL );
+        g_source_attach ( sigs_term, NULL );
+        // SIGUSR1
+        sigs_usr1 = g_unix_signal_source_new ( SIGUSR1 );
+        g_source_set_callback ( sigs_usr1, main_loop_signal_handler_usr1, NULL, NULL );
+        g_source_attach ( sigs_usr1, NULL );
+
+        // Start mainloop.
+        g_main_loop_run ( main_loop );
+
+        // Cleanup
+        g_source_unref ( (GSource *) source );
+        g_source_unref ( sigs_hup );
+        g_source_unref ( sigs_term );
+        g_source_unref ( sigs_usr1 );
+        g_main_loop_unref ( main_loop );
 
         release_global_keybindings ();
-        // Join the signal process thread. (at this point it should have exited).
-        // this also unrefs (de-allocs) the GThread object.
-        g_thread_join ( pid_signal_proc );
-        // Close pipe
-        close ( pfds[0] );
-        close ( pfds[1] );
         if ( !quiet ) {
             fprintf ( stdout, "Quit from daemon mode.\n" );
         }
