@@ -2163,7 +2163,7 @@ static void reload_configuration ()
 /**
  * Process X11 events in the main-loop (gui-thread) of the application.
  */
-static void main_loop_x11_event_handler ( void )
+static gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data )
 {
     // X11 produced an event. Consume them.
     while ( XPending ( display ) ) {
@@ -2183,6 +2183,7 @@ static void main_loop_x11_event_handler ( void )
             handle_keypress ( &ev );
         }
     }
+    return G_SOURCE_CONTINUE;
 }
 
 /**
@@ -2260,12 +2261,10 @@ static gboolean x11_event_source_check ( GSource * base )
 static gboolean x11_event_source_dispatch ( GSource * base, GSourceFunc callback, gpointer data )
 {
     X11EventSource *xs = (X11EventSource *) base;
-    if ( xs->fd_x11.revents ) {
-        printf ( "x11\n" );
-        main_loop_x11_event_handler ();
-    }
     if ( callback ) {
-        callback ( data );
+        if ( xs->fd_x11.revents ) {
+            callback ( data );
+        }
     }
     return G_SOURCE_CONTINUE;;
 }
@@ -2504,38 +2503,28 @@ int main ( int argc, char *argv[] )
         // It also listens from messages from the signal process.
         XSelectInput ( display, DefaultRootWindow ( display ), KeyPressMask );
         XFlush ( display );
-        int            x11_fd = ConnectionNumber ( display );
-
+        int            x11_fd  = ConnectionNumber ( display );
         X11EventSource *source = (X11EventSource *) g_source_new ( &x11_event_source_funcs, sizeof ( X11EventSource ) );
         source->fd_x11.fd     = x11_fd;
         source->fd_x11.events = G_IO_IN | G_IO_ERR;
         g_source_add_poll ( (GSource *) source, &source->fd_x11 );
         main_loop = g_main_loop_new ( NULL, FALSE );
         g_source_attach ( (GSource *) source, NULL );
+        g_source_set_callback ( (GSource *) source, main_loop_x11_event_handler, NULL, NULL );
 
         // Setup signal handling sources.
-        GSource *sigs_hup = NULL, *sigs_term = NULL, *sigs_usr1 = NULL;
         // SIGHup signal.
-        sigs_hup = g_unix_signal_source_new ( SIGHUP );
-        g_source_set_callback ( sigs_hup, main_loop_signal_handler_hup, NULL, NULL );
-        g_source_attach ( sigs_hup, NULL );
+        g_unix_signal_add ( SIGHUP, main_loop_signal_handler_hup, NULL );
         // SIGTERM
-        sigs_term = g_unix_signal_source_new ( SIGTERM );
-        g_source_set_callback ( sigs_term, main_loop_signal_handler_term, NULL, NULL );
-        g_source_attach ( sigs_term, NULL );
+        g_unix_signal_add ( SIGTERM, main_loop_signal_handler_term, NULL );
         // SIGUSR1
-        sigs_usr1 = g_unix_signal_source_new ( SIGUSR1 );
-        g_source_set_callback ( sigs_usr1, main_loop_signal_handler_usr1, NULL, NULL );
-        g_source_attach ( sigs_usr1, NULL );
+        g_unix_signal_add ( SIGUSR1, main_loop_signal_handler_usr1, NULL );
 
         // Start mainloop.
         g_main_loop_run ( main_loop );
 
         // Cleanup
         g_source_unref ( (GSource *) source );
-        g_source_unref ( sigs_hup );
-        g_source_unref ( sigs_term );
-        g_source_unref ( sigs_usr1 );
         g_main_loop_unref ( main_loop );
 
         release_global_keybindings ();
