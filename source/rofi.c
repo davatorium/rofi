@@ -2205,7 +2205,7 @@ static gboolean main_loop_signal_handler_hup ( G_GNUC_UNUSED gpointer data )
     XFlush ( display );
     return G_SOURCE_CONTINUE;
 }
-static gboolean main_loop_signal_handler_term ( G_GNUC_UNUSED gpointer data )
+static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
 {
     // Break out of loop.
     g_main_loop_quit ( main_loop );
@@ -2469,7 +2469,7 @@ int main ( int argc, char *argv[] )
         // SIGHup signal.
         g_unix_signal_add ( SIGHUP, main_loop_signal_handler_hup, NULL );
         // SIGTERM
-        g_unix_signal_add ( SIGTERM, main_loop_signal_handler_term, NULL );
+        g_unix_signal_add ( SIGINT, main_loop_signal_handler_int, NULL );
         // SIGUSR1
         g_unix_signal_add ( SIGUSR1, main_loop_signal_handler_usr1, NULL );
 
