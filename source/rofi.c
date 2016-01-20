@@ -1835,6 +1835,7 @@ static void run_switcher ( ModeMode mode )
     }
     char      *input  = g_strdup ( config.filter );
     char      *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode].sw ) );
+    curr_switcher = mode;
     MenuState * state = menu ( modi[mode].sw, input, prompt, NULL, MENU_NORMAL );
     current_active_menu = state;
     g_free ( prompt );
@@ -1873,6 +1874,7 @@ static void process_result ()
     }
     if ( mode != MODE_EXIT ) {
         char      *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode].sw ) );
+        curr_switcher = mode;
         MenuState * state = menu ( modi[mode].sw, input, prompt, NULL, MENU_NORMAL );
         g_free ( prompt );
         // TODO FIX
