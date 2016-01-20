@@ -8,10 +8,10 @@
 typedef struct _X11EventSource
 {
     // Source
-    GSource source;
+    GSource  source;
     // Polling field
     gpointer fd_x11;
-    Display *display;
+    Display  *display;
 } X11EventSource;
 
 static gboolean x11_event_source_prepare ( GSource * base, gint * timeout )
@@ -24,7 +24,7 @@ static gboolean x11_event_source_prepare ( GSource * base, gint * timeout )
 static gboolean x11_event_source_check ( GSource * base )
 {
     X11EventSource *xs = (X11EventSource *) base;
-    if ( g_source_query_unix_fd (base, xs->fd_x11) ) {
+    if ( g_source_query_unix_fd ( base, xs->fd_x11 ) ) {
         return TRUE;
     }
     return FALSE;
@@ -34,7 +34,7 @@ static gboolean x11_event_source_dispatch ( GSource * base, GSourceFunc callback
 {
     X11EventSource *xs = (X11EventSource *) base;
     if ( callback ) {
-        if ( g_source_query_unix_fd (base, xs->fd_x11) ) {
+        if ( g_source_query_unix_fd ( base, xs->fd_x11 ) ) {
             callback ( data );
         }
     }
@@ -52,7 +52,14 @@ GSource * x11_event_source_new ( Display  *display )
 {
     int            x11_fd  = ConnectionNumber ( display );
     X11EventSource *source = (X11EventSource *) g_source_new ( &x11_event_source_funcs, sizeof ( X11EventSource ) );
-    source->display       = display;
-    source->fd_x11        = g_source_add_unix_fd ( (GSource *)source, x11_fd, G_IO_IN | G_IO_ERR );
+    source->display = display;
+    source->fd_x11  = g_source_add_unix_fd ( (GSource *) source, x11_fd, G_IO_IN | G_IO_ERR );
+
+    // Attach it to main loop.
+    g_source_attach ( (GSource *) source, NULL );
     return (GSource *) source;
+}
+void x11_event_source_set_callback ( GSource *source, GSourceFunc callback )
+{
+    g_source_set_callback ( source, callback, NULL, NULL );
 }

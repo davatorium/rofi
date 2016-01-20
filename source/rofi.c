@@ -2436,8 +2436,7 @@ int main ( int argc, char *argv[] )
         XFlush ( display );
         main_loop = g_main_loop_new ( NULL, FALSE );
         GSource *source = x11_event_source_new ( display );
-        g_source_attach ( source, NULL );
-        g_source_set_callback ( source, main_loop_x11_event_handler, NULL, NULL );
+        x11_event_source_set_callback ( source, main_loop_x11_event_handler );
 
         // Setup signal handling sources.
         // SIGHup signal.
