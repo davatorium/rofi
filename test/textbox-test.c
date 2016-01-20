@@ -25,6 +25,9 @@ unsigned int normal_window_mode = 0;
 Display     *display = NULL;
 Colormap    map      = None;
 XVisualInfo vinfo;
+void menu_state_queue_redraw ()
+{
+}
 
 void error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
 {

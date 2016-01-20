@@ -59,6 +59,17 @@ typedef struct _RowColor
 RowColor     colors[num_states];
 
 PangoContext *p_context = NULL;
+static gboolean textbox_blink ( textbox *tb )
+{
+    if ( tb->blink < 2) {
+        tb->blink  = !tb->blink;
+        tb->update = TRUE;
+        menu_state_queue_redraw ( );
+    } else {
+        tb->blink--;
+    }
+    return TRUE;
+}
 
 textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h,
                           TextBoxFontType tbft, const char *text )
@@ -87,6 +98,12 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
 
     // auto height/width modes get handled here
     textbox_moveresize ( tb, tb->widget.x, tb->widget.y, tb->widget.w, tb->widget.h );
+
+    tb->blink_timeout = 0;
+    tb->blink = 1;
+    if ( ( flags & TB_EDITABLE ) == TB_EDITABLE ) {
+        tb->blink_timeout = g_timeout_add ( 1200, textbox_blink, tb );
+    }
 
     return tb;
 }
@@ -218,6 +235,10 @@ void textbox_free ( textbox *tb )
     if ( tb == NULL ) {
         return;
     }
+    if ( tb->blink_timeout > 0 ) {
+        g_source_remove ( tb->blink_timeout );
+        tb->blink_timeout = 0;
+    }
 
     g_free ( tb->text );
 
@@ -304,7 +325,7 @@ static void texbox_update ( textbox *tb )
         col = tb->color_fg;
         cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha * scale );
         // draw the cursor
-        if ( tb->flags & TB_EDITABLE ) {
+        if ( tb->flags & TB_EDITABLE && tb->blink ) {
             cairo_rectangle ( tb->main_draw, x + cursor_x, y, cursor_width, font_height );
             cairo_fill ( tb->main_draw );
         }
@@ -512,6 +533,8 @@ int textbox_keypress ( textbox *tb, XEvent *ev, char *pad, int pad_len, KeySym k
     if ( !( tb->flags & TB_EDITABLE ) ) {
         return 0;
     }
+    int old_blink = tb->blink;
+    tb->blink = 2;
     if ( stat == XLookupKeySym || stat == XLookupBoth ) {
         // Left or Ctrl-b
         if ( abe_test_action ( MOVE_CHAR_BACK, ev->xkey.state, key ) ) {
@@ -586,7 +609,7 @@ int textbox_keypress ( textbox *tb, XEvent *ev, char *pad, int pad_len, KeySym k
             return 1;
         }
     }
-
+    tb->blink = old_blink;
     return 0;
 }
 

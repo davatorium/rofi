@@ -36,6 +36,8 @@ typedef struct
     cairo_t         *main_draw;
 
     int             update;
+    int             blink;
+    guint           blink_timeout;
 } textbox;
 
 typedef enum

@@ -64,7 +64,7 @@
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
 
-ModeMode switcher_run ( char **input, Mode *sw );
+//ModeMode switcher_run ( char **input, Mode *sw );
 
 typedef enum _MainLoopEvent
 {
@@ -77,6 +77,7 @@ typedef struct _ModeHolder
     textbox *tb;
 } ModeHolder;
 
+gboolean          daemon_mode = FALSE;
 // Pidfile.
 extern Atom       netatoms[NUM_NETATOMS];
 char              *pidfile           = NULL;
@@ -104,6 +105,8 @@ XIC               xic;
 
 GThreadPool       *tpool = NULL;
 GMainLoop         *main_loop;
+
+MenuState         *current_active_menu = NULL;
 
 static char * get_matching_state ( void )
 {
@@ -209,6 +212,14 @@ typedef struct MenuState
     void ( *x11_event_loop )( struct MenuState *state, XEvent *ev );
 }MenuState;
 
+void menu_state_queue_redraw ( void )
+{
+    if ( current_active_menu ) {
+        current_active_menu->update = TRUE;
+        XClearArea ( display, main_window, 0, 0, 1, 1, True );
+        XFlush ( display );
+    }
+}
 static MenuState *menu_state_create ( void )
 {
     return g_malloc0 ( sizeof ( MenuState ) );
@@ -1643,6 +1654,7 @@ MenuState *menu ( Mode *sw,
     XMoveResizeWindow ( display, main_window, state->x, state->y, state->w, state->h );
     cairo_xlib_surface_set_size ( surface, state->w, state->h );
     XMapRaised ( display, main_window );
+    XFlush ( display );
 
     // if grabbing keyboard failed, fall through
     state->selected = 0;
@@ -1806,14 +1818,14 @@ static int run_dmenu ()
     return ret_state;
 }
 
+static int pfd = -1;
 static void run_switcher ( ModeMode mode )
 {
-    int pfd = setup ();
+    pfd = setup ();
     if ( pfd < 0 ) {
         return;
     }
     // Otherwise check if requested mode is enabled.
-    char *input = g_strdup ( config.filter );
     for ( unsigned int i = 0; i < num_modi; i++ ) {
         if ( !mode_init ( modi[i].sw ) ) {
             error_dialog ( ERROR_MSG ( "Failed to initialize all the modi." ), ERROR_MSG_MARKUP );
@@ -1821,39 +1833,64 @@ static void run_switcher ( ModeMode mode )
             return;
         }
     }
-    do {
-        ModeMode retv;
+    char      *input  = g_strdup ( config.filter );
+    char      *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode].sw ) );
+    MenuState * state = menu ( modi[mode].sw, input, prompt, NULL, MENU_NORMAL );
+    current_active_menu = state;
+    g_free ( prompt );
+}
+static void process_result ()
+{
+    MenuState    * state       = current_active_menu;
+    unsigned int selected_line = menu_state_get_selected_line ( state );;
+    MenuReturn   mretv         = menu_state_get_return_value ( state );
+    char         *input        = g_strdup ( menu_state_get_user_input ( state ) );
+    menu_state_free ( state );
+    current_active_menu = NULL;
+    ModeMode retv = mode_result ( modi[curr_switcher].sw, mretv, &input, selected_line );
 
-        curr_switcher = mode;
-        retv          = switcher_run ( &input, modi[mode].sw );
-        // Find next enabled
-        if ( retv == NEXT_DIALOG ) {
-            mode = ( mode + 1 ) % num_modi;
-        }
-        else if ( retv == PREVIOUS_DIALOG ) {
-            if ( mode == 0 ) {
-                mode = num_modi - 1;
-            }
-            else {
-                mode = ( mode - 1 ) % num_modi;
-            }
-        }
-        else if ( retv == RELOAD_DIALOG ) {
-            // do nothing.
-        }
-        else if ( retv < MODE_EXIT ) {
-            mode = ( retv ) % num_modi;
+    ModeMode mode = curr_switcher;
+    // Find next enabled
+    if ( retv == NEXT_DIALOG ) {
+        mode = ( mode + 1 ) % num_modi;
+    }
+    else if ( retv == PREVIOUS_DIALOG ) {
+        if ( mode == 0 ) {
+            mode = num_modi - 1;
         }
         else {
-            mode = retv;
+            mode = ( mode - 1 ) % num_modi;
         }
-    } while ( mode != MODE_EXIT );
+    }
+    else if ( retv == RELOAD_DIALOG ) {
+        // do nothing.
+    }
+    else if ( retv < MODE_EXIT ) {
+        mode = ( retv ) % num_modi;
+    }
+    else {
+        mode = retv;
+    }
+    if ( mode != MODE_EXIT ) {
+        char      *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode].sw ) );
+        MenuState * state = menu ( modi[mode].sw, input, prompt, NULL, MENU_NORMAL );
+        g_free ( prompt );
+        // TODO FIX
+        //g_return_val_if_fail ( state != NULL, MODE_EXIT );
+        current_active_menu = state;
+        g_free ( input );
+        return;
+    }
+    // Cleanup
     g_free ( input );
     for ( unsigned int i = 0; i < num_modi; i++ ) {
         mode_destroy ( modi[i].sw );
     }
     // cleanup
     teardown ( pfd );
+    if ( !daemon_mode ) {
+        g_main_loop_quit ( main_loop );
+    }
 }
 
 int show_error_message ( const char *msg, int markup )
@@ -2123,6 +2160,19 @@ static void reload_configuration ()
  */
 static gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data )
 {
+    if ( current_active_menu != NULL ) {
+        while ( XPending ( display ) ) {
+            XEvent ev;
+            // Read event, we know this won't block as we checked with XPending.
+            XNextEvent ( display, &ev );
+            menu_state_itterrate ( current_active_menu, &ev );
+        }
+        if ( menu_state_get_completed ( current_active_menu ) ) {
+            // This menu is done.
+            process_result ();
+        }
+        return G_SOURCE_CONTINUE;
+    }
     // X11 produced an event. Consume them.
     while ( XPending ( display ) ) {
         XEvent ev;
@@ -2175,32 +2225,6 @@ static gboolean main_loop_signal_handler_usr1 ( G_GNUC_UNUSED gpointer data )
     return G_SOURCE_CONTINUE;
 }
 
-ModeMode switcher_run ( char **input, Mode *sw )
-{
-    char      *prompt = g_strdup_printf ( "%s:", mode_get_name ( sw ) );
-    MenuState * state = menu ( sw, *input, prompt, NULL, MENU_NORMAL );
-    g_free ( prompt );
-    g_return_val_if_fail ( state != NULL, MODE_EXIT );
-
-    // Enter main loop.
-    while ( !menu_state_get_completed ( state ) ) {
-        // Wait for event.
-        XEvent ev;
-        // Get next event. (might block)
-        XNextEvent ( display, &ev );
-        TICK_N ( "X Event" );
-        menu_state_itterrate ( state, &ev );
-    }
-    // Update input string.
-    g_free ( *input );
-    *input = g_strdup ( menu_state_get_user_input ( state ) );
-
-    unsigned int selected_line = menu_state_get_selected_line ( state );;
-    MenuReturn   mretv         = menu_state_get_return_value ( state );
-    menu_state_free ( state );
-    return mode_result ( sw, mretv, input, selected_line );
-}
-
 static int error_trap_depth = 0;
 static void error_trap_push ( G_GNUC_UNUSED SnDisplay *display, G_GNUC_UNUSED Display   *xdisplay )
 {
@@ -2217,7 +2241,14 @@ static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, Display   *xdispl
     XSync ( xdisplay, False ); /* get all errors out of the queue */
     --error_trap_depth;
 }
-
+static gboolean delayed_start ( gpointer data )
+{
+    if ( XPending ( display ) ) {
+        main_loop_x11_event_handler ( NULL );
+    }
+    // menu_state_queue_redraw();
+    return FALSE;
+}
 int main ( int argc, char *argv[] )
 {
     TIMINGS_START ();
@@ -2400,7 +2431,27 @@ int main ( int argc, char *argv[] )
     if ( find_arg_str ( "-show", &sname ) == TRUE ) {
         int index = switcher_get ( sname );
         if ( index >= 0 ) {
+            main_loop = g_main_loop_new ( NULL, FALSE );
+            GSource *source = x11_event_source_new ( display );
+            x11_event_source_set_callback ( source, main_loop_x11_event_handler );
+
+            // Setup signal handling sources.
+            // SIGHup signal.
+            g_unix_signal_add ( SIGHUP, main_loop_signal_handler_hup, NULL );
+            // SIGTERM
+            g_unix_signal_add ( SIGINT, main_loop_signal_handler_int, NULL );
+            // SIGUSR1
+            g_unix_signal_add ( SIGUSR1, main_loop_signal_handler_usr1, NULL );
+
+            // TODO delay this till mainloop is running or we might miss X events.
             run_switcher ( index );
+            g_idle_add ( delayed_start, GINT_TO_POINTER ( index ) );
+            // Start mainloop.
+            g_main_loop_run ( main_loop );
+
+            // Cleanup
+            g_source_unref ( (GSource *) source );
+            g_main_loop_unref ( main_loop );
         }
         else {
             fprintf ( stderr, "The %s switcher has not been enabled\n", sname );
@@ -2428,6 +2479,7 @@ int main ( int argc, char *argv[] )
         if ( sncontext != NULL ) {
             sn_launchee_context_complete ( sncontext );
         }
+        daemon_mode = TRUE;
         // Application Main loop.
         // This listens in the background for any events on the Xserver
         // catching global key presses.

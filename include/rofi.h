@@ -93,5 +93,6 @@ const char * menu_state_get_user_input ( const MenuState *state );
 void menu_state_free ( MenuState *state );
 void menu_state_restart ( MenuState *state );
 void menu_state_set_selected_line ( MenuState *state, unsigned int selected_line );
+void menu_state_queue_redraw ( void );
 /*@}*/
 #endif
