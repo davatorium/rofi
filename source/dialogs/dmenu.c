@@ -44,6 +44,9 @@
 // We limit at 1000000 rows for now.
 #define DMENU_MAX_ROWS    1000000
 
+// TODO HACK TO BE REMOVED
+extern Display *display;
+
 struct range_pair
 {
     unsigned int start;
@@ -397,8 +400,24 @@ int dmenu_switcher_dialog ( void )
 
     do {
         retv = FALSE;
-        unsigned int next_pos = pd->selected_line;
-        int          mretv    = menu ( &dmenu_mode, &input, pd->prompt, &( pd->selected_line ), &next_pos, pd->message, menu_flags );
+        MenuState *state = menu ( &dmenu_mode, input, pd->prompt, ( pd->selected_line ), pd->message, menu_flags );
+
+        // Enter main loop.
+        while ( !menu_state_get_completed ( state )  ) {
+            // Wait for event.
+            XEvent ev;
+            // Get next event. (might block)
+            XNextEvent ( display, &ev );
+            TICK_N ( "X Event" );
+            menu_state_itterrate ( state, &ev );
+        }
+        g_free ( input );
+        input             = g_strdup ( menu_state_get_user_input ( state ) );
+        pd->selected_line = menu_state_get_selected_line ( state );;
+        MenuReturn   mretv    = menu_state_get_return_value ( state );
+        unsigned int next_pos = menu_state_get_next_position ( state );
+        menu_state_free ( state );
+
         // Special behavior.
         // TODO clean this up!
         if ( only_selected ) {

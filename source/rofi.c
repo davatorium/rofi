@@ -221,13 +221,88 @@ typedef struct MenuState
     int          quit;
     int          skip_absorb;
     // Return state
-    unsigned int *selected_line;
+    unsigned int selected_line;
     MenuReturn   retv;
     int          *lines_not_ascii;
     int          line_height;
     unsigned int border;
     workarea     mon;
+    // Handlers.
+    void ( *x11_event_loop )( struct MenuState *state, XEvent *ev );
 }MenuState;
+
+static MenuState *menu_state_create ( void )
+{
+    return g_malloc0 ( sizeof ( MenuState ) );
+}
+
+void menu_state_free ( MenuState *state )
+{
+    // Do this here?
+    // Wait for final release?
+    if ( !state->skip_absorb ) {
+        XEvent ev;
+        do {
+            XNextEvent ( display, &ev );
+        } while ( ev.type != KeyRelease );
+    }
+    textbox_free ( state->text );
+    textbox_free ( state->prompt_tb );
+    textbox_free ( state->case_indicator );
+    scrollbar_free ( state->scrollbar );
+
+    for ( unsigned int i = 0; i < state->max_elements; i++ ) {
+        textbox_free ( state->boxes[i] );
+    }
+
+    g_free ( state->boxes );
+    g_free ( state->line_map );
+    g_free ( state->distance );
+    g_free ( state->lines_not_ascii );
+    g_free ( state );
+    // Free the switcher boxes.
+    // When state is free'ed we should no longer need these.
+    if ( config.sidebar_mode == TRUE ) {
+        for ( unsigned int j = 0; j < num_modi; j++ ) {
+            textbox_free ( modi[j].tb );
+            modi[j].tb = NULL;
+        }
+    }
+}
+
+MenuReturn menu_state_get_return_value ( const MenuState *state )
+{
+    return state->retv;
+}
+unsigned int menu_state_get_selected_line ( const MenuState *state )
+{
+    return state->selected_line;
+}
+
+unsigned int menu_state_get_next_position ( const MenuState *state )
+{
+    unsigned int next_pos = state->selected_line;
+    if ( ( state->selected + 1 ) < state->num_lines ) {
+        ( next_pos ) = state->line_map[state->selected + 1];
+    }
+    return next_pos;
+}
+
+unsigned int menu_state_get_completed ( const MenuState *state )
+{
+    return state->quit;
+}
+void menu_state_itterrate ( MenuState *state, XEvent *event )
+{
+    state->x11_event_loop ( state, event );
+}
+const char * menu_state_get_user_input ( const MenuState *state )
+{
+    if ( state->text ) {
+        return state->text->text;
+    }
+    return NULL;
+}
 
 static Window create_window ( Display *display )
 {
@@ -297,28 +372,6 @@ static Window create_window ( Display *display )
 
     x11_set_window_opacity ( display, box, config.window_opacity );
     return box;
-}
-
-/**
- * @param state Internal state of the menu.
- *
- * Free the allocated fields in the state.
- */
-static void menu_free_state ( MenuState *state )
-{
-    textbox_free ( state->text );
-    textbox_free ( state->prompt_tb );
-    textbox_free ( state->case_indicator );
-    scrollbar_free ( state->scrollbar );
-
-    for ( unsigned int i = 0; i < state->max_elements; i++ ) {
-        textbox_free ( state->boxes[i] );
-    }
-
-    g_free ( state->boxes );
-    g_free ( state->line_map );
-    g_free ( state->distance );
-    g_free ( state->lines_not_ascii );
 }
 
 /**
@@ -661,17 +714,17 @@ static int menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned int
     }
     else if ( abe_test_action ( ROW_TAB, modstate, key ) ) {
         if ( state->filtered_lines == 1 ) {
-            state->retv               = MENU_OK;
-            *( state->selected_line ) = state->line_map[state->selected];
-            state->quit               = 1;
+            state->retv              = MENU_OK;
+            ( state->selected_line ) = state->line_map[state->selected];
+            state->quit              = 1;
             return 1;
         }
 
         // Double tab!
         if ( state->filtered_lines == 0 && key == state->prev_key ) {
-            state->retv               = MENU_NEXT;
-            *( state->selected_line ) = 0;
-            state->quit               = TRUE;
+            state->retv              = MENU_NEXT;
+            ( state->selected_line ) = 0;
+            state->quit              = TRUE;
         }
         else{
             menu_nav_down ( state );
@@ -749,10 +802,10 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
         }
         for ( unsigned int i = 0; config.sidebar_mode == TRUE && i < num_modi; i++ ) {
             if ( widget_intersect ( &( modi[i].tb->widget ), xbe->x, xbe->y ) ) {
-                *( state->selected_line ) = 0;
-                state->retv               = MENU_QUICK_SWITCH | ( i & MENU_LOWER_MASK );
-                state->quit               = TRUE;
-                state->skip_absorb        = TRUE;
+                ( state->selected_line ) = 0;
+                state->retv              = MENU_QUICK_SWITCH | ( i & MENU_LOWER_MASK );
+                state->quit              = TRUE;
+                state->skip_absorb       = TRUE;
                 return;
             }
         }
@@ -766,8 +819,8 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
                 state->selected = state->last_offset + i;
                 state->update   = TRUE;
                 if ( ( xbe->time - state->last_button_press ) < 200 ) {
-                    state->retv               = MENU_OK;
-                    *( state->selected_line ) = state->line_map[state->selected];
+                    state->retv              = MENU_OK;
+                    ( state->selected_line ) = state->line_map[state->selected];
                     // Quit
                     state->quit        = TRUE;
                     state->skip_absorb = TRUE;
@@ -910,14 +963,15 @@ static void menu_refilter ( MenuState *state )
     }
 
     if ( config.auto_select == TRUE && state->filtered_lines == 1 && state->num_lines > 1 ) {
-        *( state->selected_line ) = state->line_map[state->selected];
-        state->retv               = MENU_OK;
-        state->quit               = TRUE;
+        ( state->selected_line ) = state->line_map[state->selected];
+        state->retv              = MENU_OK;
+        state->quit              = TRUE;
     }
 
     scrollbar_set_max_value ( state->scrollbar, state->filtered_lines );
     state->refilter = FALSE;
     state->rchanged = TRUE;
+    state->update   = TRUE;
     TICK_N ( "Filter done" );
 }
 
@@ -1207,56 +1261,241 @@ static void menu_setup_fake_transparency ( Display *display, MenuState *state )
         TICK_N ( "Fake transparency" );
     }
 }
+static void menu_mainloop_iter ( MenuState *state, XEvent *ev )
+{
+    if ( sndisplay != NULL ) {
+        sn_display_process_event ( sndisplay, ev );
+    }
+    if ( ev->type == KeymapNotify ) {
+        XRefreshKeyboardMapping ( &( ev->xmapping ) );
+    }
+    else if ( ev->type == ConfigureNotify ) {
+        XConfigureEvent xce = ev->xconfigure;
+        if ( xce.window == main_window ) {
+            if ( state->x != (int ) xce.x || state->y != (int) xce.y ) {
+                state->x      = xce.x;
+                state->y      = xce.y;
+                state->update = TRUE;
+            }
+            if ( state->w != (unsigned int) xce.width || state->h != (unsigned int ) xce.height ) {
+                state->w = xce.width;
+                state->h = xce.height;
+                cairo_xlib_surface_set_size ( surface, state->w, state->h );
+                menu_resize ( state );
+            }
+        }
+    }
+    else if ( ev->type == FocusIn ) {
+        take_keyboard ( display, main_window );
+    }
+    else if ( ev->type == FocusOut ) {
+        release_keyboard ( display );
+    }
+    // Handle event.
+    else if ( ev->type == Expose ) {
+        while ( XCheckTypedEvent ( display, Expose, ev ) ) {
+            ;
+        }
+        state->update = TRUE;
+    }
+    else if ( ev->type == MotionNotify ) {
+        while ( XCheckTypedEvent ( display, MotionNotify, ev ) ) {
+            ;
+        }
+        XMotionEvent xme = ev->xmotion;
+        if ( xme.x >= state->scrollbar->widget.x && xme.x < ( state->scrollbar->widget.x + state->scrollbar->widget.w ) ) {
+            state->selected = scrollbar_clicked ( state->scrollbar, xme.y );
+            state->update   = TRUE;
+        }
+    }
+    // Button press event.
+    else if ( ev->type == ButtonPress ) {
+        while ( XCheckTypedEvent ( display, ButtonPress, ev ) ) {
+            ;
+        }
+        menu_mouse_navigation ( state, &( ev->xbutton ) );
+    }
+    // Paste event.
+    else if ( ev->type == SelectionNotify ) {
+        do {
+            menu_paste ( state, &( ev->xselection ) );
+        } while ( XCheckTypedEvent ( display, SelectionNotify, ev ) );
+    }
+    // Key press event.
+    else if ( ev->type == KeyPress ) {
+        do {
+            // This is needed for letting the Input Method handle combined keys.
+            // E.g. `e into è
+            if ( XFilterEvent ( ev, main_window ) ) {
+                continue;
+            }
+            Status stat;
+            char   pad[32];
+            KeySym key; // = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
+            int    len = Xutf8LookupString ( xic, &( ev->xkey ), pad, sizeof ( pad ), &key, &stat );
+            pad[len] = 0;
+            if ( stat == XLookupKeySym || stat == XLookupBoth ) {
+                // Handling of paste
+                if ( abe_test_action ( PASTE_PRIMARY, ev->xkey.state, key ) ) {
+                    XConvertSelection ( display, XA_PRIMARY, netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
+                }
+                else if ( abe_test_action ( PASTE_SECONDARY, ev->xkey.state, key ) ) {
+                    XConvertSelection ( display, netatoms[CLIPBOARD], netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window,
+                                        CurrentTime );
+                }
+                if ( abe_test_action ( SCREENSHOT, ev->xkey.state, key ) ) {
+                    menu_capture_screenshot ( );
+                    break;
+                }
+                if ( abe_test_action ( TOGGLE_SORT, ev->xkey.state, key ) ) {
+                    config.levenshtein_sort = !config.levenshtein_sort;
+                    state->refilter         = TRUE;
+                    state->update           = TRUE;
+                    textbox_text ( state->case_indicator, get_matching_state () );
+                    break;
+                }
+                else if ( abe_test_action ( MODE_PREVIOUS, ev->xkey.state, key ) ) {
+                    state->retv              = MENU_PREVIOUS;
+                    ( state->selected_line ) = 0;
+                    state->quit              = TRUE;
+                    break;
+                }
+                // Menu navigation.
+                else if ( abe_test_action ( MODE_NEXT, ev->xkey.state, key ) ) {
+                    state->retv              = MENU_NEXT;
+                    ( state->selected_line ) = 0;
+                    state->quit              = TRUE;
+                    break;
+                }
+                // Toggle case sensitivity.
+                else if ( abe_test_action ( TOGGLE_CASE_SENSITIVITY, ev->xkey.state, key ) ) {
+                    config.case_sensitive    = !config.case_sensitive;
+                    ( state->selected_line ) = 0;
+                    state->refilter          = TRUE;
+                    state->update            = TRUE;
+                    textbox_text ( state->case_indicator, get_matching_state () );
+                    break;
+                }
+                // Special delete entry command.
+                else if ( abe_test_action ( DELETE_ENTRY, ev->xkey.state, key ) ) {
+                    if ( state->selected < state->filtered_lines ) {
+                        ( state->selected_line ) = state->line_map[state->selected];
+                        state->retv              = MENU_ENTRY_DELETE;
+                        state->quit              = TRUE;
+                        break;
+                    }
+                }
+                for ( unsigned int a = CUSTOM_1; a <= CUSTOM_19; a++ ) {
+                    if ( abe_test_action ( a, ev->xkey.state, key ) ) {
+                        if ( state->selected < state->filtered_lines ) {
+                            ( state->selected_line ) = state->line_map[state->selected];
+                        }
+                        state->retv = MENU_QUICK_SWITCH | ( ( a - CUSTOM_1 ) & MENU_LOWER_MASK );
+                        state->quit = TRUE;
+                        break;
+                    }
+                }
+                if ( menu_keyboard_navigation ( state, key, ev->xkey.state ) ) {
+                    continue;
+                }
+            }
+            {
+                // Skip if we detected key before.
+                if ( state->quit ) {
+                    continue;
+                }
 
-MenuReturn menu ( Mode *sw,
-                  char **input,
+                int rc = textbox_keypress ( state->text, ev, pad, len, key, stat );
+                // Row is accepted.
+                if ( rc < 0 ) {
+                    int shift = ( ( ev->xkey.state & ShiftMask ) == ShiftMask );
+
+                    // If a valid item is selected, return that..
+                    if ( state->selected < state->filtered_lines ) {
+                        ( state->selected_line ) = state->line_map[state->selected];
+                        if ( strlen ( state->text->text ) > 0 && rc == -2 ) {
+                            state->retv = MENU_CUSTOM_INPUT;
+                        }
+                        else {
+                            state->retv = MENU_OK;
+                        }
+                    }
+                    else if ( strlen ( state->text->text ) > 0 ) {
+                        state->retv = MENU_CUSTOM_INPUT;
+                    }
+                    else{
+                        // Nothing entered and nothing selected.
+                        state->retv = MENU_CANCEL;
+                    }
+                    if ( shift ) {
+                        state->retv |= MENU_SHIFT;
+                    }
+
+                    state->quit = TRUE;
+                }
+                // Key press is handled by entry box.
+                else if ( rc == 1 ) {
+                    state->refilter = TRUE;
+                    state->update   = TRUE;
+                }
+                else if (  rc == 2 ) {
+                    // redraw.
+                    state->update = TRUE;
+                }
+            }
+        } while ( XCheckTypedEvent ( display, KeyPress, ev ) );
+    }
+    // Update if requested.
+    if ( state->refilter ) {
+        menu_refilter ( state );
+    }
+    if ( state->update ) {
+        menu_update ( state );
+    }
+}
+
+MenuState *menu ( Mode *sw,
+                  char *input,
                   char *prompt,
-                  unsigned int *selected_line,
-                  unsigned int *next_pos,
+                  unsigned int selected_line,
                   const char *message,
                   MenuFlags menu_flags )
 {
     TICK ();
-    int       shift = FALSE;
-    MenuState state = {
-        .sw                = sw,
-        .selected_line     = selected_line,
-        .retv              = MENU_CANCEL,
-        .prev_key          =             0,
-        .last_button_press =             0,
-        .last_offset       =             0,
-        .distance          = NULL,
-        .quit              = FALSE,
-        .skip_absorb       = FALSE,
-        .filtered_lines    =             0,
-        .max_elements      =             0,
-        // We want to filter on the first run.
-        .refilter   = TRUE,
-        .update     = FALSE,
-        .rchanged   = TRUE,
-        .cur_page   =            -1,
-        .top_offset =             0,
-        .border     = config.padding + config.menu_bw
-    };
+    MenuState *state = menu_state_create ();
+    state->sw            = sw;
+    state->selected_line = selected_line;
+    state->retv          = MENU_CANCEL;
+    state->distance      = NULL;
+    state->quit          = FALSE;
+    state->skip_absorb   = FALSE;
+    //We want to filter on the first run.
+    state->refilter       = TRUE;
+    state->update         = FALSE;
+    state->rchanged       = TRUE;
+    state->cur_page       = -1;
+    state->border         = config.padding + config.menu_bw;
+    state->x11_event_loop = menu_mainloop_iter;
+
     // Request the lines to show.
-    state.num_lines       = mode_get_num_entries ( sw );
-    state.lines_not_ascii = g_malloc0_n ( state.num_lines, sizeof ( int ) );
+    state->num_lines       = mode_get_num_entries ( sw );
+    state->lines_not_ascii = g_malloc0_n ( state->num_lines, sizeof ( int ) );
 
     // find out which lines contain non-ascii codepoints, so we can be faster in some cases.
-    if ( state.num_lines > 0 ) {
+    if ( state->num_lines > 0 ) {
         TICK_N ( "Is ASCII start" );
-        unsigned int nt = MAX ( 1, state.num_lines / 5000 );
+        unsigned int nt = MAX ( 1, state->num_lines / 5000 );
         thread_state states[nt];
-        unsigned int steps = ( state.num_lines + nt ) / nt;
+        unsigned int steps = ( state->num_lines + nt ) / nt;
         unsigned int count = nt;
         GCond        cond;
         GMutex       mutex;
         g_mutex_init ( &mutex );
         g_cond_init ( &cond );
         for ( unsigned int i = 0; i < nt; i++ ) {
-            states[i].state    = &state;
+            states[i].state    = state;
             states[i].start    = i * steps;
-            states[i].stop     = MIN ( ( i + 1 ) * steps, state.num_lines );
+            states[i].stop     = MIN ( ( i + 1 ) * steps, state->num_lines );
             states[i].acount   = &count;
             states[i].mutex    = &mutex;
             states[i].cond     = &cond;
@@ -1280,9 +1519,6 @@ MenuReturn menu ( Mode *sw,
         TICK_N ( "Is ASCII stop" );
     }
 
-    if ( next_pos ) {
-        *next_pos = *selected_line;
-    }
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
@@ -1291,7 +1527,8 @@ MenuReturn menu ( Mode *sw,
     if ( !has_keyboard ) {
         fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
         // Break off.
-        return MENU_CANCEL;
+        menu_state_free ( state );
+        return NULL;
     }
     TICK_N ( "Grab keyboard" );
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
@@ -1304,405 +1541,154 @@ MenuReturn menu ( Mode *sw,
     }
     TICK_N ( "Startup notification" );
     // Get active monitor size.
-    monitor_active ( display, &( state.mon ) );
+    monitor_active ( display, &( state->mon ) );
     TICK_N ( "Get active monitor" );
     if ( config.fake_transparency ) {
-        menu_setup_fake_transparency ( display, &state );
+        menu_setup_fake_transparency ( display, state );
     }
 
     // we need this at this point so we can get height.
-    state.line_height    = textbox_get_estimated_char_height ();
-    state.case_indicator = textbox_create ( TB_AUTOWIDTH, ( state.border ), ( state.border ),
-                                            0, state.line_height, NORMAL, "*" );
+    state->line_height    = textbox_get_estimated_char_height ();
+    state->case_indicator = textbox_create ( TB_AUTOWIDTH, ( state->border ), ( state->border ),
+                                             0, state->line_height, NORMAL, "*" );
     // Height of a row.
     if ( config.menu_lines == 0 ) {
         // Autosize it.
-        int h = state.mon.h - state.border * 2 - config.line_margin;
-        int r = ( h ) / ( state.line_height * config.element_height ) - 1 - config.sidebar_mode;
-        state.menu_lines = r;
+        int h = state->mon.h - state->border * 2 - config.line_margin;
+        int r = ( h ) / ( state->line_height * config.element_height ) - 1 - config.sidebar_mode;
+        state->menu_lines = r;
     }
     else {
-        state.menu_lines = config.menu_lines;
+        state->menu_lines = config.menu_lines;
     }
-    menu_calculate_rows_columns ( &state );
-    menu_calculate_window_and_element_width ( &state, &( state.mon ) );
+    menu_calculate_rows_columns ( state );
+    menu_calculate_window_and_element_width ( state, &( state->mon ) );
 
     // Prompt box.
-    state.prompt_tb = textbox_create ( TB_AUTOWIDTH, ( state.border ), ( state.border ),
-                                       0, state.line_height, NORMAL, prompt );
+    state->prompt_tb = textbox_create ( TB_AUTOWIDTH, ( state->border ), ( state->border ),
+                                        0, state->line_height, NORMAL, prompt );
     // Entry box
-    int          entrybox_width = state.w - ( 2 * ( state.border ) ) - textbox_get_width ( state.prompt_tb )
-                                  - textbox_get_width ( state.case_indicator );
+    int          entrybox_width = state->w - ( 2 * ( state->border ) ) - textbox_get_width ( state->prompt_tb )
+                                  - textbox_get_width ( state->case_indicator );
     TextboxFlags tfl = TB_EDITABLE;
-    tfl       |= ( ( menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
-    state.text = textbox_create ( tfl,
-                                  ( state.border ) + textbox_get_width ( state.prompt_tb ), ( state.border ),
-                                  entrybox_width, state.line_height, NORMAL, *input );
+    tfl        |= ( ( menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
+    state->text = textbox_create ( tfl,
+                                   ( state->border ) + textbox_get_width ( state->prompt_tb ), ( state->border ),
+                                   entrybox_width, state->line_height, NORMAL, input );
 
-    state.top_offset = state.border * 1 + state.line_height + 2 + config.line_margin * 2;
+    state->top_offset = state->border * 1 + state->line_height + 2 + config.line_margin * 2;
 
     // Move indicator to end.
-    widget_move ( WIDGET ( state.case_indicator ), state.border + textbox_get_width ( state.prompt_tb ) + entrybox_width, state.border );
+    widget_move ( WIDGET ( state->case_indicator ), state->border + textbox_get_width ( state->prompt_tb ) + entrybox_width, state->border );
 
-    textbox_text ( state.case_indicator, get_matching_state () );
-    state.message_tb = NULL;
+    textbox_text ( state->case_indicator, get_matching_state () );
+    state->message_tb = NULL;
     if ( message ) {
-        state.message_tb = textbox_create ( TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP,
-                                            ( state.border ), state.top_offset, state.w - ( 2 * ( state.border ) ),
-                                            -1, NORMAL, message );
-        state.top_offset += textbox_get_height ( state.message_tb );
-        state.top_offset += config.line_margin * 2 + 2;
+        state->message_tb = textbox_create ( TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP,
+                                             ( state->border ), state->top_offset, state->w - ( 2 * ( state->border ) ),
+                                             -1, NORMAL, message );
+        state->top_offset += textbox_get_height ( state->message_tb );
+        state->top_offset += config.line_margin * 2 + 2;
     }
 
-    int element_height = state.line_height * config.element_height;
+    int element_height = state->line_height * config.element_height;
     // filtered list display
-    state.boxes = g_malloc0_n ( state.max_elements, sizeof ( textbox* ) );
+    state->boxes = g_malloc0_n ( state->max_elements, sizeof ( textbox* ) );
 
-    int y_offset = state.top_offset;
-    int x_offset = state.border;
+    int y_offset = state->top_offset;
+    int x_offset = state->border;
 
     int rstate = 0;
     if ( config.markup_rows ) {
         rstate = TB_MARKUP;
     }
-    for ( unsigned int i = 0; i < state.max_elements; i++ ) {
-        state.boxes[i] = textbox_create ( rstate, x_offset, y_offset,
-                                          state.element_width, element_height, NORMAL, "" );
+    for ( unsigned int i = 0; i < state->max_elements; i++ ) {
+        state->boxes[i] = textbox_create ( rstate, x_offset, y_offset,
+                                           state->element_width, element_height, NORMAL, "" );
     }
     if ( !config.hide_scrollbar ) {
         unsigned int sbw = config.line_margin + config.scrollbar_width;
-        state.scrollbar = scrollbar_create ( state.w - state.border - sbw, state.top_offset,
-                                             sbw, ( state.max_rows - 1 ) * ( element_height + config.line_margin ) + element_height );
+        state->scrollbar = scrollbar_create ( state->w - state->border - sbw, state->top_offset,
+                                              sbw, ( state->max_rows - 1 ) * ( element_height + config.line_margin ) + element_height );
     }
 
-    scrollbar_set_max_value ( state.scrollbar, state.num_lines );
+    scrollbar_set_max_value ( state->scrollbar, state->num_lines );
     // filtered list
-    state.line_map = g_malloc0_n ( state.num_lines, sizeof ( unsigned int ) );
-    state.distance = (int *) g_malloc0_n ( state.num_lines, sizeof ( int ) );
+    state->line_map = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
+    state->distance = (int *) g_malloc0_n ( state->num_lines, sizeof ( int ) );
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
-    state.h  = state.top_offset + ( element_height + config.line_margin ) * ( state.max_rows ) - config.line_margin;
-    state.h += state.border;
-    state.h += 0;
+    state->h  = state->top_offset + ( element_height + config.line_margin ) * ( state->max_rows ) - config.line_margin;
+    state->h += state->border;
+    state->h += 0;
     // Add entry
     if ( config.sidebar_mode == TRUE ) {
-        state.h += state.line_height + 2 * config.line_margin + 2;
+        state->h += state->line_height + 2 * config.line_margin + 2;
     }
 
     // Sidebar mode.
     if ( config.menu_lines == 0 ) {
-        state.h = state.mon.h;
+        state->h = state->mon.h;
     }
 
     // Move the window to the correct x,y position.
-    calculate_window_position ( &state );
+    calculate_window_position ( state );
 
     if ( config.sidebar_mode == TRUE ) {
-        int width = ( state.w - ( 2 * ( state.border ) + ( num_modi - 1 ) * config.line_margin ) ) / num_modi;
+        int width = ( state->w - ( 2 * ( state->border ) + ( num_modi - 1 ) * config.line_margin ) ) / num_modi;
         for ( unsigned int j = 0; j < num_modi; j++ ) {
-            modi[j].tb = textbox_create ( TB_CENTER, state.border + j * ( width + config.line_margin ),
-                                          state.h - state.line_height - state.border, width, state.line_height,
+            modi[j].tb = textbox_create ( TB_CENTER, state->border + j * ( width + config.line_margin ),
+                                          state->h - state->line_height - state->border, width, state->line_height,
                                           ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, mode_get_name ( modi[j].sw ) );
         }
     }
 
     // Display it.
-    XMoveResizeWindow ( display, main_window, state.x, state.y, state.w, state.h );
-    cairo_xlib_surface_set_size ( surface, state.w, state.h );
+    XMoveResizeWindow ( display, main_window, state->x, state->y, state->w, state->h );
+    cairo_xlib_surface_set_size ( surface, state->w, state->h );
     XMapRaised ( display, main_window );
 
     // if grabbing keyboard failed, fall through
-    state.selected = 0;
+    state->selected = 0;
 
-    state.quit   = FALSE;
-    state.update = TRUE;
-    menu_refilter ( &state );
+    state->quit   = FALSE;
+    state->update = TRUE;
+    menu_refilter ( state );
 
-    for ( unsigned int i = 0; ( *( state.selected_line ) ) < UINT32_MAX && !state.selected && i < state.filtered_lines; i++ ) {
-        if ( state.line_map[i] == *( state.selected_line ) ) {
-            state.selected = i;
+    for ( unsigned int i = 0; ( ( state->selected_line ) ) < UINT32_MAX && !state->selected && i < state->filtered_lines; i++ ) {
+        if ( state->line_map[i] == ( state->selected_line ) ) {
+            state->selected = i;
             break;
         }
     }
 
+    menu_update ( state );
     if ( sncontext != NULL ) {
         sn_launchee_context_complete ( sncontext );
     }
-    int x11_fd = ConnectionNumber ( display );
-    while ( !state.quit ) {
-        // Update if requested.
-        if ( state.update ) {
-            menu_update ( &state );
-        }
-
-        // Wait for event.
-        XEvent ev;
-        // Only use lazy mode above 5000 lines.
-        // Or if we still need to get window.
-        MainLoopEvent mle = ML_XEVENT;
-        // If we are in lazy mode, or trying to grab keyboard, go into timeout.
-        // Otherwise continue like we had an XEvent (and we will block on fetching this event).
-        if ( ( state.refilter && state.num_lines > config.lazy_filter_limit ) ) {
-            mle = wait_for_xevent_or_timeout ( display, x11_fd );
-        }
-        // If not in lazy mode, refilter.
-        if ( state.num_lines <= config.lazy_filter_limit ) {
-            if ( state.refilter ) {
-                menu_refilter ( &state );
-                menu_update ( &state );
-            }
-        }
-        else if ( mle == ML_TIMEOUT ) {
-            // When timeout (and in lazy filter mode)
-            // We refilter then loop back and wait for Xevent.
-            if ( state.refilter ) {
-                menu_refilter ( &state );
-                menu_update ( &state );
-            }
-        }
-        if ( mle == ML_TIMEOUT ) {
-            continue;
-        }
-        // Get next event. (might block)
-        XNextEvent ( display, &ev );
-        TICK_N ( "X Event" );
-        if ( sndisplay != NULL ) {
-            sn_display_process_event ( sndisplay, &ev );
-        }
-        if ( ev.type == KeymapNotify ) {
-            XRefreshKeyboardMapping ( &ev.xmapping );
-        }
-        else if ( ev.type == ConfigureNotify ) {
-            XConfigureEvent xce = ev.xconfigure;
-            if ( xce.window == main_window ) {
-                if ( state.x != (int ) xce.x || state.y != (int) xce.y ) {
-                    state.x      = xce.x;
-                    state.y      = xce.y;
-                    state.update = TRUE;
-                }
-                if ( state.w != (unsigned int) xce.width || state.h != (unsigned int ) xce.height ) {
-                    state.w = xce.width;
-                    state.h = xce.height;
-                    cairo_xlib_surface_set_size ( surface, state.w, state.h );
-                    menu_resize ( &state );
-                }
-            }
-        }
-        else if ( ev.type == FocusIn ) {
-            take_keyboard ( display, main_window );
-        }
-        else if ( ev.type == FocusOut ) {
-            release_keyboard ( display );
-        }
-        // Handle event.
-        else if ( ev.type == Expose ) {
-            while ( XCheckTypedEvent ( display, Expose, &ev ) ) {
-                ;
-            }
-            state.update = TRUE;
-        }
-        else if ( ev.type == MotionNotify ) {
-            while ( XCheckTypedEvent ( display, MotionNotify, &ev ) ) {
-                ;
-            }
-            XMotionEvent xme = ev.xmotion;
-            if ( xme.x >= state.scrollbar->widget.x && xme.x < ( state.scrollbar->widget.x + state.scrollbar->widget.w ) ) {
-                state.selected = scrollbar_clicked ( state.scrollbar, xme.y );
-                state.update   = TRUE;
-            }
-        }
-        // Button press event.
-        else if ( ev.type == ButtonPress ) {
-            while ( XCheckTypedEvent ( display, ButtonPress, &ev ) ) {
-                ;
-            }
-            menu_mouse_navigation ( &state, &( ev.xbutton ) );
-        }
-        // Paste event.
-        else if ( ev.type == SelectionNotify ) {
-            do {
-                menu_paste ( &state, &( ev.xselection ) );
-            } while ( XCheckTypedEvent ( display, SelectionNotify, &ev ) );
-        }
-        // Key press event.
-        else if ( ev.type == KeyPress ) {
-            do {
-                // This is needed for letting the Input Method handle combined keys.
-                // E.g. `e into è
-                if ( XFilterEvent ( &ev, main_window ) ) {
-                    continue;
-                }
-                Status stat;
-                char   pad[32];
-                KeySym key; // = XkbKeycodeToKeysym ( display, ev.xkey.keycode, 0, 0 );
-                int    len = Xutf8LookupString ( xic, &( ev.xkey ), pad, sizeof ( pad ), &key, &stat );
-                pad[len] = 0;
-                if ( stat == XLookupKeySym || stat == XLookupBoth ) {
-                    // Handling of paste
-                    if ( abe_test_action ( PASTE_PRIMARY, ev.xkey.state, key ) ) {
-                        XConvertSelection ( display, XA_PRIMARY, netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
-                    }
-                    else if ( abe_test_action ( PASTE_SECONDARY, ev.xkey.state, key ) ) {
-                        XConvertSelection ( display, netatoms[CLIPBOARD], netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window,
-                                            CurrentTime );
-                    }
-                    if ( abe_test_action ( SCREENSHOT, ev.xkey.state, key ) ) {
-                        menu_capture_screenshot ( );
-                        break;
-                    }
-                    if ( abe_test_action ( TOGGLE_SORT, ev.xkey.state, key ) ) {
-                        config.levenshtein_sort = !config.levenshtein_sort;
-                        state.refilter          = TRUE;
-                        state.update            = TRUE;
-                        textbox_text ( state.case_indicator, get_matching_state () );
-                        break;
-                    }
-                    else if ( abe_test_action ( MODE_PREVIOUS, ev.xkey.state, key ) ) {
-                        state.retv               = MENU_PREVIOUS;
-                        *( state.selected_line ) = 0;
-                        state.quit               = TRUE;
-                        break;
-                    }
-                    // Menu navigation.
-                    else if ( abe_test_action ( MODE_NEXT, ev.xkey.state, key ) ) {
-                        state.retv               = MENU_NEXT;
-                        *( state.selected_line ) = 0;
-                        state.quit               = TRUE;
-                        break;
-                    }
-                    // Toggle case sensitivity.
-                    else if ( abe_test_action ( TOGGLE_CASE_SENSITIVITY, ev.xkey.state, key ) ) {
-                        config.case_sensitive    = !config.case_sensitive;
-                        *( state.selected_line ) = 0;
-                        state.refilter           = TRUE;
-                        state.update             = TRUE;
-                        textbox_text ( state.case_indicator, get_matching_state () );
-                        break;
-                    }
-                    // Special delete entry command.
-                    else if ( abe_test_action ( DELETE_ENTRY, ev.xkey.state, key ) ) {
-                        if ( state.selected < state.filtered_lines ) {
-                            *( state.selected_line ) = state.line_map[state.selected];
-                            state.retv               = MENU_ENTRY_DELETE;
-                            state.quit               = TRUE;
-                            break;
-                        }
-                    }
-                    for ( unsigned int a = CUSTOM_1; a <= CUSTOM_19; a++ ) {
-                        if ( abe_test_action ( a, ev.xkey.state, key ) ) {
-                            if ( state.selected < state.filtered_lines ) {
-                                *( state.selected_line ) = state.line_map[state.selected];
-                            }
-                            state.retv = MENU_QUICK_SWITCH | ( ( a - CUSTOM_1 ) & MENU_LOWER_MASK );
-                            state.quit = TRUE;
-                            break;
-                        }
-                    }
-                    if ( menu_keyboard_navigation ( &state, key, ev.xkey.state ) ) {
-                        continue;
-                    }
-                }
-                {
-                    // Skip if we detected key before.
-                    if ( state.quit ) {
-                        continue;
-                    }
-
-                    int rc = textbox_keypress ( state.text, &ev, pad, len, key, stat );
-                    // Row is accepted.
-                    if ( rc < 0 ) {
-                        shift = ( ( ev.xkey.state & ShiftMask ) == ShiftMask );
-
-                        // If a valid item is selected, return that..
-                        if ( state.selected < state.filtered_lines ) {
-                            *( state.selected_line ) = state.line_map[state.selected];
-                            if ( strlen ( state.text->text ) > 0 && rc == -2 ) {
-                                state.retv = MENU_CUSTOM_INPUT;
-                            }
-                            else {
-                                state.retv = MENU_OK;
-                            }
-                        }
-                        else if ( strlen ( state.text->text ) > 0 ) {
-                            state.retv = MENU_CUSTOM_INPUT;
-                        }
-                        else{
-                            // Nothing entered and nothing selected.
-                            state.retv = MENU_CANCEL;
-                        }
-
-                        state.quit = TRUE;
-                    }
-                    // Key press is handled by entry box.
-                    else if ( rc == 1 ) {
-                        state.refilter = TRUE;
-                        state.update   = TRUE;
-                    }
-                    else if (  rc == 2 ) {
-                        // redraw.
-                        state.update = TRUE;
-                    }
-                }
-            } while ( XCheckTypedEvent ( display, KeyPress, &ev ) );
-        }
-    }
-    // Wait for final release?
-    if ( !state.skip_absorb ) {
-        XEvent ev;
-        do {
-            XNextEvent ( display, &ev );
-        } while ( ev.type != KeyRelease );
-    }
-
-    // Update input string.
-    g_free ( *input );
-    *input = g_strdup ( state.text->text );
-
+    return state;
+/*
     if ( next_pos ) {
-        if ( ( state.selected + 1 ) < state.num_lines ) {
-            *( next_pos ) = state.line_map[state.selected + 1];
+        if ( ( state->selected + 1 ) < state->num_lines ) {
+   *( next_pos ) = state->line_map[state->selected + 1];
         }
     }
 
-    int retv = state.retv;
-    menu_free_state ( &state );
+    int retv = state->retv;
+    menu_state_free ( state );
 
-    if ( shift ) {
-        retv |= MENU_SHIFT;
-    }
-
-    // Free the switcher boxes.
-    // When state is free'ed we should no longer need these.
-    if ( config.sidebar_mode == TRUE ) {
-        for ( unsigned int j = 0; j < num_modi; j++ ) {
-            textbox_free ( modi[j].tb );
-            modi[j].tb = NULL;
-        }
-    }
 
     return retv;
+ */
 }
 
 void error_dialog ( const char *msg, int markup )
 {
-    MenuState state = {
-        .sw                = NULL,
-        .selected_line     = NULL,
-        .retv              = MENU_CANCEL,
-        .prev_key          =           0,
-        .last_button_press =           0,
-        .last_offset       =           0,
-        .num_lines         =           0,
-        .distance          = NULL,
-        .quit              = FALSE,
-        .skip_absorb       = FALSE,
-        .filtered_lines    =           0,
-        .columns           =           0,
-        .update            = TRUE,
-        .top_offset        =           0,
-        .border            = config.padding + config.menu_bw
-    };
+    MenuState *state = menu_state_create ();
+    state->retv   = MENU_CANCEL;
+    state->update = TRUE;
+    state->border = config.padding + config.menu_bw;
 
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
@@ -1714,9 +1700,9 @@ void error_dialog ( const char *msg, int markup )
         return;
     }
     // Get active monitor size.
-    monitor_active ( display, &( state.mon ) );
+    monitor_active ( display, &( state->mon ) );
     if ( config.fake_transparency ) {
-        menu_setup_fake_transparency ( display, &state );
+        menu_setup_fake_transparency ( display, state );
     }
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     XWindowAttributes attr;
@@ -1724,31 +1710,31 @@ void error_dialog ( const char *msg, int markup )
         main_window = create_window ( display );
     }
 
-    menu_calculate_window_and_element_width ( &state, &( state.mon ) );
-    state.max_elements = 0;
+    menu_calculate_window_and_element_width ( state, &( state->mon ) );
+    state->max_elements = 0;
 
-    state.text = textbox_create ( ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
-                                  ( state.border ), ( state.border ),
-                                  ( state.w - ( 2 * ( state.border ) ) ), 1, NORMAL, ( msg != NULL ) ? msg : "" );
-    state.line_height = textbox_get_height ( state.text );
+    state->text = textbox_create ( ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
+                                   ( state->border ), ( state->border ),
+                                   ( state->w - ( 2 * ( state->border ) ) ), 1, NORMAL, ( msg != NULL ) ? msg : "" );
+    state->line_height = textbox_get_height ( state->text );
 
     // resize window vertically to suit
-    state.h = state.line_height + ( state.border ) * 2;
+    state->h = state->line_height + ( state->border ) * 2;
 
     // Move the window to the correct x,y position.
-    calculate_window_position ( &state );
-    XMoveResizeWindow ( display, main_window, state.x, state.y, state.w, state.h );
-    cairo_xlib_surface_set_size ( surface, state.w, state.h );
+    calculate_window_position ( state );
+    XMoveResizeWindow ( display, main_window, state->x, state->y, state->w, state->h );
+    cairo_xlib_surface_set_size ( surface, state->w, state->h );
     // Display it.
     XMapRaised ( display, main_window );
 
     if ( sncontext != NULL ) {
         sn_launchee_context_complete ( sncontext );
     }
-    while ( !state.quit ) {
+    while ( !state->quit ) {
         // Update if requested.
-        if ( state.update ) {
-            menu_update ( &state );
+        if ( state->update ) {
+            menu_update ( state );
         }
         // Wait for event.
         XEvent ev;
@@ -1761,18 +1747,18 @@ void error_dialog ( const char *msg, int markup )
             while ( XCheckTypedEvent ( display, Expose, &ev ) ) {
                 ;
             }
-            state.update = TRUE;
+            state->update = TRUE;
         }
         // Key press event.
         else if ( ev.type == KeyPress ) {
             while ( XCheckTypedEvent ( display, KeyPress, &ev ) ) {
                 ;
             }
-            state.quit = TRUE;
+            state->quit = TRUE;
         }
     }
     release_keyboard ( display );
-    menu_free_state ( &state );
+    menu_state_free ( state );
 }
 
 /**
@@ -2281,10 +2267,27 @@ static int main_loop_signal_handler ( char command, int quiet )
 
 ModeMode switcher_run ( char **input, Mode *sw )
 {
-    char         *prompt       = g_strdup_printf ( "%s:", mode_get_name ( sw ) );
-    unsigned int selected_line = UINT32_MAX;
-    int          mretv         = menu ( sw, input, prompt, &selected_line, NULL, NULL, MENU_NORMAL );
+    char      *prompt = g_strdup_printf ( "%s:", mode_get_name ( sw ) );
+    MenuState * state = menu ( sw, *input, prompt, UINT32_MAX, NULL, MENU_NORMAL );
     g_free ( prompt );
+    g_return_val_if_fail ( state != NULL, MODE_EXIT );
+
+    // Enter main loop.
+    while ( !menu_state_get_completed ( state ) ) {
+        // Wait for event.
+        XEvent ev;
+        // Get next event. (might block)
+        XNextEvent ( display, &ev );
+        TICK_N ( "X Event" );
+        menu_state_itterrate ( state, &ev );
+    }
+    // Update input string.
+    g_free ( *input );
+    *input = g_strdup ( menu_state_get_user_input ( state ) );
+
+    unsigned int selected_line = menu_state_get_selected_line ( state );;
+    MenuReturn   mretv         = menu_state_get_return_value ( state );
+    menu_state_free ( state );
     return mode_result ( sw, mretv, input, selected_line );
 }
 

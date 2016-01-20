@@ -118,7 +118,6 @@ static XrmOption xrmOptions[] = {
     { xrm_Boolean, "levenshtein-sort",     { .num  = &config.levenshtein_sort   }, NULL, "Use levenshtein sorting"                     },
     { xrm_Boolean, "case-sensitive",       { .num  = &config.case_sensitive     }, NULL, "Set case-sensitivity"                        },
     { xrm_Boolean, "sidebar-mode",         { .num  = &config.sidebar_mode       }, NULL, "Enable sidebar-mode"                         },
-    { xrm_Number,  "lazy-filter-limit",    { .num  = &config.lazy_filter_limit  }, NULL, "Set lazy filter limit"                       },
     { xrm_SNumber, "eh",                   { .snum = &config.element_height     }, NULL, "Row height (in chars)"                       },
     { xrm_Boolean, "auto-select",          { .num  = &config.auto_select        }, NULL, "Enable auto select mode"                     },
     { xrm_Boolean, "parse-hosts",          { .num  = &config.parse_hosts        }, NULL, "Parse hosts file for ssh mode"               },
