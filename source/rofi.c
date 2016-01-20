@@ -235,7 +235,25 @@ static MenuState *menu_state_create ( void )
 {
     return g_malloc0 ( sizeof ( MenuState ) );
 }
+void menu_state_restart ( MenuState *state )
+{
+    state->quit = FALSE;
+    state->retv = MENU_CANCEL;
+}
+void menu_state_set_selected_line ( MenuState *state, unsigned int selected_line )
+{
+    state->selected_line = selected_line;
+    // Find the line.
+    state->selected = 0;
+    for ( unsigned int i = 0; ( ( state->selected_line ) ) < UINT32_MAX && !state->selected && i < state->filtered_lines; i++ ) {
+        if ( state->line_map[i] == ( state->selected_line ) ) {
+            state->selected = i;
+            break;
+        }
+    }
 
+    state->update = TRUE;
+}
 void menu_state_free ( MenuState *state )
 {
     // Do this here?
@@ -1457,14 +1475,13 @@ static void menu_mainloop_iter ( MenuState *state, XEvent *ev )
 MenuState *menu ( Mode *sw,
                   char *input,
                   char *prompt,
-                  unsigned int selected_line,
                   const char *message,
                   MenuFlags menu_flags )
 {
     TICK ();
     MenuState *state = menu_state_create ();
     state->sw            = sw;
-    state->selected_line = selected_line;
+    state->selected_line = UINT32_MAX;
     state->retv          = MENU_CANCEL;
     state->distance      = NULL;
     state->quit          = FALSE;
@@ -1656,31 +1673,11 @@ MenuState *menu ( Mode *sw,
     state->update = TRUE;
     menu_refilter ( state );
 
-    for ( unsigned int i = 0; ( ( state->selected_line ) ) < UINT32_MAX && !state->selected && i < state->filtered_lines; i++ ) {
-        if ( state->line_map[i] == ( state->selected_line ) ) {
-            state->selected = i;
-            break;
-        }
-    }
-
     menu_update ( state );
     if ( sncontext != NULL ) {
         sn_launchee_context_complete ( sncontext );
     }
     return state;
-/*
-    if ( next_pos ) {
-        if ( ( state->selected + 1 ) < state->num_lines ) {
-   *( next_pos ) = state->line_map[state->selected + 1];
-        }
-    }
-
-    int retv = state->retv;
-    menu_state_free ( state );
-
-
-    return retv;
- */
 }
 
 void error_dialog ( const char *msg, int markup )
@@ -2268,7 +2265,7 @@ static int main_loop_signal_handler ( char command, int quiet )
 ModeMode switcher_run ( char **input, Mode *sw )
 {
     char      *prompt = g_strdup_printf ( "%s:", mode_get_name ( sw ) );
-    MenuState * state = menu ( sw, *input, prompt, UINT32_MAX, NULL, MENU_NORMAL );
+    MenuState * state = menu ( sw, *input, prompt, NULL, MENU_NORMAL );
     g_free ( prompt );
     g_return_val_if_fail ( state != NULL, MODE_EXIT );
 

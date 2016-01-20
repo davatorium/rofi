@@ -398,9 +398,11 @@ int dmenu_switcher_dialog ( void )
         return TRUE;
     }
 
+    MenuState *state = menu ( &dmenu_mode, input, pd->prompt, pd->message, menu_flags );
     do {
+        menu_state_restart ( state );
+        menu_state_set_selected_line ( state, pd->selected_line );
         retv = FALSE;
-        MenuState *state = menu ( &dmenu_mode, input, pd->prompt, ( pd->selected_line ), pd->message, menu_flags );
 
         // Enter main loop.
         while ( !menu_state_get_completed ( state )  ) {
@@ -416,7 +418,6 @@ int dmenu_switcher_dialog ( void )
         pd->selected_line = menu_state_get_selected_line ( state );;
         MenuReturn   mretv    = menu_state_get_return_value ( state );
         unsigned int next_pos = menu_state_get_next_position ( state );
-        menu_state_free ( state );
 
         // Special behavior.
         // TODO clean this up!
@@ -494,6 +495,7 @@ int dmenu_switcher_dialog ( void )
         }
     } while ( restart );
 
+    menu_state_free ( state );
     g_free ( input );
     mode_destroy ( &dmenu_mode );
     return retv;

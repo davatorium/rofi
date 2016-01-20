@@ -52,7 +52,6 @@ typedef enum
  */
 MenuState *menu ( Mode *sw,
                   char *input, char *prompt,
-                  unsigned int selected_line,
                   const char *message, MenuFlags flags )
 __attribute__ ( ( nonnull ( 1, 2, 3  ) ) );
 
@@ -92,5 +91,7 @@ void menu_state_itterrate ( MenuState *state, XEvent *event );
 unsigned int menu_state_get_completed ( const MenuState *state );
 const char * menu_state_get_user_input ( const MenuState *state );
 void menu_state_free ( MenuState *state );
+void menu_state_restart ( MenuState *state );
+void menu_state_set_selected_line ( MenuState *state, unsigned int selected_line );
 /*@}*/
 #endif
