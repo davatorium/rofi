@@ -121,8 +121,6 @@ Settings config = {
     .element_height    =                                         1,
     /** Sidebar mode, show the modi */
     .sidebar_mode      = FALSE,
-    /** Lazy mode setting */
-    .lazy_filter_limit =                                     15000,
     /** auto select */
     .auto_select       = FALSE,
     /** Parse /etc/hosts file in ssh view. */

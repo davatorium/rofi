@@ -80,8 +80,6 @@ rofi.levenshtein-sort:               false
 rofi.case-sensitive:                 false
 ! Enable sidebar-mode
 rofi.sidebar-mode:                   false
-! Set lazy filter limit
-rofi.lazy-filter-limit:              800000
 ! Row height (in chars)
 rofi.eh:                             1
 ! Enable auto select mode

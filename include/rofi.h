@@ -17,6 +17,7 @@
  * Pointer to xdg cache directory.
  */
 extern const char *cache_dir;
+typedef struct MenuState   MenuState;
 
 /**
  * @param msg The error message to show.
@@ -49,12 +50,10 @@ typedef enum
  *
  * @returns The command issued (see MenuReturn)
  */
-MenuReturn menu ( Mode *sw,
-                  char **input, char *prompt,
-                  unsigned int *selected_line,
-                  unsigned int *next_pos,
+MenuState *menu ( Mode *sw,
+                  char *input, char *prompt,
                   const char *message, MenuFlags flags )
-__attribute__ ( ( nonnull ( 1, 2, 3, 4 ) ) );
+__attribute__ ( ( nonnull ( 1, 2, 3  ) ) );
 
 /** Reset terminal */
 #define  color_reset     "\033[0m"
@@ -84,5 +83,15 @@ int show_error_message ( const char *msg, int markup );
     " * The version of rofi you are running\n\n"                       \
     " <i>https://github.com/DaveDavenport/rofi/</i>"
 #define ERROR_MSG_MARKUP    TRUE
+
+MenuReturn menu_state_get_return_value ( const MenuState *state );
+unsigned int menu_state_get_selected_line ( const MenuState *state );
+unsigned int menu_state_get_next_position ( const MenuState *state );
+void menu_state_itterrate ( MenuState *state, XEvent *event );
+unsigned int menu_state_get_completed ( const MenuState *state );
+const char * menu_state_get_user_input ( const MenuState *state );
+void menu_state_free ( MenuState *state );
+void menu_state_restart ( MenuState *state );
+void menu_state_set_selected_line ( MenuState *state, unsigned int selected_line );
 /*@}*/
 #endif
