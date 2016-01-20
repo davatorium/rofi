@@ -2243,9 +2243,9 @@ static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, Display   *xdispl
 }
 static gboolean delayed_start ( gpointer data )
 {
-    if ( XPending ( display ) ) {
-        main_loop_x11_event_handler ( NULL );
-    }
+    // Force some X Events to be handled.. seems the only way to get a reliable startup.
+    menu_state_queue_redraw();
+    main_loop_x11_event_handler ( NULL );
     // menu_state_queue_redraw();
     return FALSE;
 }
