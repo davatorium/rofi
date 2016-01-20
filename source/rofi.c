@@ -137,32 +137,6 @@ static int switcher_get ( const char *name )
 }
 
 /**
- * @param display Connection to the X server.
- * @param x11_fd  File descriptor from the X server to listen on.
- *
- * Function waits for a new XEvent with a timeout.
- */
-static inline MainLoopEvent wait_for_xevent_or_timeout ( Display *display, int x11_fd )
-{
-    // Check if events are pending.
-    if ( XPending ( display ) ) {
-        return ML_XEVENT;
-    }
-    // If not, wait for timeout.
-    struct timeval tv = { .tv_usec = 200000, .tv_sec = 0 };
-    fd_set         in_fds;
-    // Create a File Description Set containing x11_fd
-    FD_ZERO ( &in_fds );
-    FD_SET ( x11_fd, &in_fds );
-
-    // Wait for X Event or a Timer
-    if ( select ( x11_fd + 1, &in_fds, 0, 0, &tv ) == 0 ) {
-        return ML_TIMEOUT;
-    }
-    return ML_XEVENT;
-}
-
-/**
  * Levenshtein Sorting.
  */
 
