@@ -61,11 +61,12 @@ RowColor     colors[num_states];
 PangoContext *p_context = NULL;
 static gboolean textbox_blink ( textbox *tb )
 {
-    if ( tb->blink < 2) {
+    if ( tb->blink < 2 ) {
         tb->blink  = !tb->blink;
         tb->update = TRUE;
         menu_state_queue_redraw ( );
-    } else {
+    }
+    else {
         tb->blink--;
     }
     return TRUE;
@@ -100,7 +101,7 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
     textbox_moveresize ( tb, tb->widget.x, tb->widget.y, tb->widget.w, tb->widget.h );
 
     tb->blink_timeout = 0;
-    tb->blink = 1;
+    tb->blink         = 1;
     if ( ( flags & TB_EDITABLE ) == TB_EDITABLE ) {
         tb->blink_timeout = g_timeout_add ( 1200, textbox_blink, tb );
     }

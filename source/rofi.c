@@ -103,11 +103,13 @@ cairo_t           *draw    = NULL;
 XIM               xim;
 XIC               xic;
 
-GThreadPool       *tpool = NULL;
-GMainLoop         *main_loop;
-
+GThreadPool       *tpool               = NULL;
+GMainLoop         *main_loop           = NULL;
+GSource           *main_loop_source    = NULL;
+gboolean          quiet                = FALSE;
 MenuState         *current_active_menu = NULL;
 
+static void process_result ( MenuState *state );
 static char * get_matching_state ( void )
 {
     if ( config.case_sensitive ) {
@@ -210,7 +212,15 @@ typedef struct MenuState
     workarea     mon;
     // Handlers.
     void ( *x11_event_loop )( struct MenuState *state, XEvent *ev );
+    void ( *finalize )( struct MenuState *state );
 }MenuState;
+
+static void menu_state_finalize ( MenuState *state )
+{
+    if ( state && state->finalize ) {
+        state->finalize ( state );
+    }
+}
 
 void menu_state_queue_redraw ( void )
 {
@@ -1482,6 +1492,7 @@ MenuState *menu ( Mode *sw,
     state->cur_page       = -1;
     state->border         = config.padding + config.menu_bw;
     state->x11_event_loop = menu_mainloop_iter;
+    state->finalize       = process_result;
 
     // Request the lines to show.
     state->num_lines       = mode_get_num_entries ( sw );
@@ -1670,12 +1681,38 @@ MenuState *menu ( Mode *sw,
     return state;
 }
 
+static void error_dialog_event_loop ( MenuState *state, XEvent *ev )
+{
+    // Wait for event.
+    if ( sndisplay != NULL ) {
+        sn_display_process_event ( sndisplay, ev );
+    }
+    // Handle event.
+    if ( ev->type == Expose ) {
+        while ( XCheckTypedEvent ( display, Expose, ev ) ) {
+            ;
+        }
+        state->update = TRUE;
+    }
+    // Key press event.
+    else if ( ev->type == KeyPress ) {
+        while ( XCheckTypedEvent ( display, KeyPress, ev ) ) {
+            ;
+        }
+        state->quit = TRUE;
+    }
+    if ( state->update ) {
+        menu_update ( state );
+    }
+}
 void error_dialog ( const char *msg, int markup )
 {
     MenuState *state = menu_state_create ();
-    state->retv   = MENU_CANCEL;
-    state->update = TRUE;
-    state->border = config.padding + config.menu_bw;
+    state->retv           = MENU_CANCEL;
+    state->update         = TRUE;
+    state->border         = config.padding + config.menu_bw;
+    state->x11_event_loop = error_dialog_event_loop;
+    state->finalize       = NULL;
 
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
@@ -1718,33 +1755,11 @@ void error_dialog ( const char *msg, int markup )
     if ( sncontext != NULL ) {
         sn_launchee_context_complete ( sncontext );
     }
+    current_active_menu = state;
     while ( !state->quit ) {
-        // Update if requested.
-        if ( state->update ) {
-            menu_update ( state );
-        }
-        // Wait for event.
-        XEvent ev;
-        XNextEvent ( display, &ev );
-        if ( sndisplay != NULL ) {
-            sn_display_process_event ( sndisplay, &ev );
-        }
-        // Handle event.
-        if ( ev.type == Expose ) {
-            while ( XCheckTypedEvent ( display, Expose, &ev ) ) {
-                ;
-            }
-            state->update = TRUE;
-        }
-        // Key press event.
-        else if ( ev.type == KeyPress ) {
-            while ( XCheckTypedEvent ( display, KeyPress, &ev ) ) {
-                ;
-            }
-            state->quit = TRUE;
-        }
+        g_main_context_iteration ( NULL, TRUE );
     }
-    release_keyboard ( display );
+    current_active_menu = NULL;
     menu_state_free ( state );
 }
 
@@ -1840,9 +1855,8 @@ static void run_switcher ( ModeMode mode )
     current_active_menu = state;
     g_free ( prompt );
 }
-static void process_result ()
+static void process_result ( MenuState *state )
 {
-    MenuState    * state       = current_active_menu;
     unsigned int selected_line = menu_state_get_selected_line ( state );;
     MenuReturn   mretv         = menu_state_get_return_value ( state );
     char         *input        = g_strdup ( menu_state_get_user_input ( state ) );
@@ -1903,6 +1917,7 @@ int show_error_message ( const char *msg, int markup )
     }
     error_dialog ( msg, markup );
     teardown ( pfd );
+    g_main_loop_quit ( main_loop );
     return EXIT_SUCCESS;
 }
 
@@ -1961,6 +1976,23 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "Bugreports: "PACKAGE_BUGREPORT "\n" );
 }
 
+static void release_global_keybindings ()
+{
+    for ( unsigned int i = 0; i < num_modi; i++ ) {
+        mode_ungrab_key ( modi[i].sw, display );
+    }
+}
+static int grab_global_keybindings ()
+{
+    int key_bound = FALSE;
+    for ( unsigned int i = 0; i < num_modi; i++ ) {
+        if ( mode_grab_key ( modi[i].sw, display ) ) {
+            key_bound = TRUE;
+        }
+    }
+    return key_bound;
+}
+
 /**
  * Function bound by 'atexit'.
  * Cleanup globally allocated memory.
@@ -1970,6 +2002,17 @@ static void cleanup ()
     if ( tpool ) {
         g_thread_pool_free ( tpool, TRUE, FALSE );
         tpool = NULL;
+    }
+    if ( main_loop != NULL  ) {
+        g_source_destroy ( main_loop_source );
+        g_main_loop_unref ( main_loop );
+        main_loop = NULL;
+    }
+    if ( daemon_mode ) {
+        release_global_keybindings ();
+        if ( !quiet ) {
+            fprintf ( stdout, "Quit from daemon mode.\n" );
+        }
     }
     // Cleanup
     if ( display != NULL ) {
@@ -2107,22 +2150,6 @@ static inline void load_configuration_dynamic ( Display *display )
     config_parse_cmd_options_dynamic (  );
 }
 
-static void release_global_keybindings ()
-{
-    for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_ungrab_key ( modi[i].sw, display );
-    }
-}
-static int grab_global_keybindings ()
-{
-    int key_bound = FALSE;
-    for ( unsigned int i = 0; i < num_modi; i++ ) {
-        if ( mode_grab_key ( modi[i].sw, display ) ) {
-            key_bound = TRUE;
-        }
-    }
-    return key_bound;
-}
 static void print_global_keybindings ()
 {
     fprintf ( stdout, "listening to the following keys:\n" );
@@ -2171,7 +2198,7 @@ static gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data )
         }
         if ( menu_state_get_completed ( current_active_menu ) ) {
             // This menu is done.
-            process_result ();
+            menu_state_finalize ( current_active_menu );
         }
         return G_SOURCE_CONTINUE;
     }
@@ -2243,10 +2270,10 @@ static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, Display   *xdispl
     XSync ( xdisplay, False ); /* get all errors out of the queue */
     --error_trap_depth;
 }
-static gboolean delayed_start ( gpointer data )
+static gboolean delayed_start ( G_GNUC_UNUSED gpointer data )
 {
     // Force some X Events to be handled.. seems the only way to get a reliable startup.
-    menu_state_queue_redraw();
+    menu_state_queue_redraw ();
     main_loop_x11_event_handler ( NULL );
     // menu_state_queue_redraw();
     return FALSE;
@@ -2257,7 +2284,7 @@ int main ( int argc, char *argv[] )
 
     cmd_set_arguments ( argc, argv );
     // Quiet flag
-    int quiet = ( find_arg ( "-quiet" ) >= 0 );
+    quiet = ( find_arg ( "-quiet" ) >= 0 );
     // Version
     if ( find_arg (  "-v" ) >= 0 || find_arg (  "-version" ) >= 0 ) {
         fprintf ( stdout, "Version: "VERSION "\n" );
@@ -2329,6 +2356,10 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
     TICK_N ( "Open Display" );
+
+    main_loop = g_main_loop_new ( NULL, FALSE );
+
+    TICK_N ( "Setup mainloop" );
     // startup not.
     sndisplay = sn_display_new ( display, error_trap_push, error_trap_pop );
 
@@ -2380,6 +2411,8 @@ int main ( int argc, char *argv[] )
         config_parse_xresources_theme_dump ();
         exit ( EXIT_SUCCESS );
     }
+    main_loop_source = x11_event_source_new ( display );
+    x11_event_source_set_callback ( main_loop_source, main_loop_x11_event_handler );
     // Parse the keybindings.
     parse_keys_abe ();
     TICK_N ( "Parse ABE" );
@@ -2428,35 +2461,25 @@ int main ( int argc, char *argv[] )
         return EXIT_SUCCESS;
     }
 
+    // Setup signal handling sources.
+    // SIGHup signal.
+    g_unix_signal_add ( SIGHUP, main_loop_signal_handler_hup, NULL );
+    // SIGTERM
+    g_unix_signal_add ( SIGINT, main_loop_signal_handler_int, NULL );
+    // SIGUSR1
+    g_unix_signal_add ( SIGUSR1, main_loop_signal_handler_usr1, NULL );
     // flags to run immediately and exit
     char *sname = NULL;
     if ( find_arg_str ( "-show", &sname ) == TRUE ) {
         int index = switcher_get ( sname );
         if ( index >= 0 ) {
-            main_loop = g_main_loop_new ( NULL, FALSE );
-            GSource *source = x11_event_source_new ( display );
-            x11_event_source_set_callback ( source, main_loop_x11_event_handler );
-
-            // Setup signal handling sources.
-            // SIGHup signal.
-            g_unix_signal_add ( SIGHUP, main_loop_signal_handler_hup, NULL );
-            // SIGTERM
-            g_unix_signal_add ( SIGINT, main_loop_signal_handler_int, NULL );
-            // SIGUSR1
-            g_unix_signal_add ( SIGUSR1, main_loop_signal_handler_usr1, NULL );
-
             // TODO delay this till mainloop is running or we might miss X events.
             run_switcher ( index );
             g_idle_add ( delayed_start, GINT_TO_POINTER ( index ) );
-            // Start mainloop.
-            g_main_loop_run ( main_loop );
-
-            // Cleanup
-            g_source_unref ( (GSource *) source );
-            g_main_loop_unref ( main_loop );
         }
         else {
             fprintf ( stderr, "The %s switcher has not been enabled\n", sname );
+            return EXIT_FAILURE;
         }
     }
     else{
@@ -2469,6 +2492,7 @@ int main ( int argc, char *argv[] )
                 const char *name = mode_get_name ( modi[i].sw );
                 fprintf ( stderr, "\t* "color_bold "%s"color_reset ": -key-%s <key>\n", name, name );
             }
+            // Cleanup
             return EXIT_FAILURE;
         }
         if ( !quiet ) {
@@ -2482,36 +2506,12 @@ int main ( int argc, char *argv[] )
             sn_launchee_context_complete ( sncontext );
         }
         daemon_mode = TRUE;
-        // Application Main loop.
-        // This listens in the background for any events on the Xserver
-        // catching global key presses.
-        // It also listens from messages from the signal process.
         XSelectInput ( display, DefaultRootWindow ( display ), KeyPressMask );
         XFlush ( display );
-        main_loop = g_main_loop_new ( NULL, FALSE );
-        GSource *source = x11_event_source_new ( display );
-        x11_event_source_set_callback ( source, main_loop_x11_event_handler );
-
-        // Setup signal handling sources.
-        // SIGHup signal.
-        g_unix_signal_add ( SIGHUP, main_loop_signal_handler_hup, NULL );
-        // SIGTERM
-        g_unix_signal_add ( SIGINT, main_loop_signal_handler_int, NULL );
-        // SIGUSR1
-        g_unix_signal_add ( SIGUSR1, main_loop_signal_handler_usr1, NULL );
-
-        // Start mainloop.
-        g_main_loop_run ( main_loop );
-
-        // Cleanup
-        g_source_unref ( (GSource *) source );
-        g_main_loop_unref ( main_loop );
-
-        release_global_keybindings ();
-        if ( !quiet ) {
-            fprintf ( stdout, "Quit from daemon mode.\n" );
-        }
     }
+
+    // Start mainloop.
+    g_main_loop_run ( main_loop );
 
     return EXIT_SUCCESS;
 }
