@@ -42,7 +42,7 @@ Xresources file:
         rofi.hlbg: #1aa
         rofi.bc: #1aa
         rofi.bw: 2
-        rofi.loc: 0
+        rofi.locaction: 0
         rofi.padding: 2
         rofi.yoffset: -2
         rofi.xoffset: 0
