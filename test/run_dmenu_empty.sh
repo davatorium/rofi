@@ -8,7 +8,7 @@ xdotool key Return
 wait ${RPID}
 RETV=$?
 
-if [ ${RETV} -eq 1 ]
+if [ ${RETV} -eq 0 ]
 then
     exit 0
 else
