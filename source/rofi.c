@@ -1417,7 +1417,7 @@ static void menu_mainloop_iter ( MenuState *state, XEvent *ev )
                     }
                     else{
                         // Nothing entered and nothing selected.
-                        state->retv = MENU_CANCEL;
+                        state->retv = MENU_CUSTOM_INPUT;
                     }
                     if ( shift ) {
                         state->retv |= MENU_SHIFT;
