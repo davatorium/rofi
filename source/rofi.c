@@ -239,6 +239,11 @@ void menu_state_restart ( MenuState *state )
     state->quit = FALSE;
     state->retv = MENU_CANCEL;
 }
+void menu_state_set_active ( MenuState *state )
+{
+    g_assert ( ( current_active_menu == NULL && state != NULL ) || ( current_active_menu != NULL && state == NULL ) );
+    current_active_menu = state;
+}
 void menu_state_set_selected_line ( MenuState *state, unsigned int selected_line )
 {
     state->selected_line = selected_line;
@@ -1492,7 +1497,6 @@ MenuState *menu ( Mode *sw,
     state->cur_page       = -1;
     state->border         = config.padding + config.menu_bw;
     state->x11_event_loop = menu_mainloop_iter;
-    state->finalize       = process_result;
 
     // Request the lines to show.
     state->num_lines       = mode_get_num_entries ( sw );
@@ -1755,11 +1759,11 @@ void error_dialog ( const char *msg, int markup )
     if ( sncontext != NULL ) {
         sn_launchee_context_complete ( sncontext );
     }
-    current_active_menu = state;
-    while ( !state->quit ) {
+    menu_state_set_active ( state );
+    while ( !menu_state_get_completed ( state )  ) {
         g_main_context_iteration ( NULL, TRUE );
     }
-    current_active_menu = NULL;
+    menu_state_set_active ( NULL );
     menu_state_free ( state );
 }
 
@@ -1852,7 +1856,8 @@ static void run_switcher ( ModeMode mode )
     char      *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode].sw ) );
     curr_switcher = mode;
     MenuState * state = menu ( modi[mode].sw, input, prompt, NULL, MENU_NORMAL );
-    current_active_menu = state;
+    state->finalize = process_result;
+    menu_state_set_active ( state );
     g_free ( prompt );
 }
 static void process_result ( MenuState *state )
@@ -1860,8 +1865,8 @@ static void process_result ( MenuState *state )
     unsigned int selected_line = menu_state_get_selected_line ( state );;
     MenuReturn   mretv         = menu_state_get_return_value ( state );
     char         *input        = g_strdup ( menu_state_get_user_input ( state ) );
+    menu_state_set_active ( NULL );
     menu_state_free ( state );
-    current_active_menu = NULL;
     ModeMode retv = mode_result ( modi[curr_switcher].sw, mretv, &input, selected_line );
 
     ModeMode mode = curr_switcher;
@@ -1890,10 +1895,11 @@ static void process_result ( MenuState *state )
         char      *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode].sw ) );
         curr_switcher = mode;
         MenuState * state = menu ( modi[mode].sw, input, prompt, NULL, MENU_NORMAL );
+        state->finalize = process_result;
         g_free ( prompt );
         // TODO FIX
         //g_return_val_if_fail ( state != NULL, MODE_EXIT );
-        current_active_menu = state;
+        menu_state_set_active ( state );
         g_free ( input );
         return;
     }

@@ -94,5 +94,6 @@ void menu_state_free ( MenuState *state );
 void menu_state_restart ( MenuState *state );
 void menu_state_set_selected_line ( MenuState *state, unsigned int selected_line );
 void menu_state_queue_redraw ( void );
+void menu_state_set_active ( MenuState *state );
 /*@}*/
 #endif

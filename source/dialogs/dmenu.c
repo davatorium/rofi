@@ -404,15 +404,12 @@ int dmenu_switcher_dialog ( void )
         menu_state_set_selected_line ( state, pd->selected_line );
         retv = FALSE;
 
+        menu_state_set_active ( state );
         // Enter main loop.
         while ( !menu_state_get_completed ( state )  ) {
-            // Wait for event.
-            XEvent ev;
-            // Get next event. (might block)
-            XNextEvent ( display, &ev );
-            TICK_N ( "X Event" );
-            menu_state_itterrate ( state, &ev );
+            g_main_context_iteration ( NULL, TRUE );
         }
+        menu_state_set_active ( NULL );
         g_free ( input );
         input             = g_strdup ( menu_state_get_user_input ( state ) );
         pd->selected_line = menu_state_get_selected_line ( state );;
