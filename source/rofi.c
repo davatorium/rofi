@@ -1917,6 +1917,7 @@ int show_error_message ( const char *msg, int markup )
     }
     error_dialog ( msg, markup );
     teardown ( pfd );
+    // TODO this looks incorrect.
     g_main_loop_quit ( main_loop );
     return EXIT_SUCCESS;
 }
@@ -2464,7 +2465,7 @@ int main ( int argc, char *argv[] )
     // Setup signal handling sources.
     // SIGHup signal.
     g_unix_signal_add ( SIGHUP, main_loop_signal_handler_hup, NULL );
-    // SIGTERM
+    // SIGINT
     g_unix_signal_add ( SIGINT, main_loop_signal_handler_int, NULL );
     // SIGUSR1
     g_unix_signal_add ( SIGUSR1, main_loop_signal_handler_usr1, NULL );
