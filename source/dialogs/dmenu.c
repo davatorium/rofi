@@ -399,6 +399,11 @@ int dmenu_switcher_dialog ( void )
     }
 
     MenuState *state = menu ( &dmenu_mode, input, pd->prompt, pd->message, menu_flags );
+    while ( XPending (display) ){
+        XEvent ev;
+        XNextEvent ( display, &ev );
+        menu_state_itterrate ( state, &ev );
+    }
     do {
         menu_state_restart ( state );
         menu_state_set_selected_line ( state, pd->selected_line );

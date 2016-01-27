@@ -18,7 +18,7 @@ static gboolean x11_event_source_prepare ( GSource * base, gint * timeout )
 {
     X11EventSource *xs = (X11EventSource *) base;
     *timeout = -1;
-    return XPending ( xs->display ) || g_source_query_unix_fd ( base, xs->fd_x11 );
+    return /*XPending ( xs->display ) || */g_source_query_unix_fd ( base, xs->fd_x11 );
 }
 
 static gboolean x11_event_source_check ( GSource * base )
