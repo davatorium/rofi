@@ -2012,7 +2012,9 @@ static void cleanup ()
         tpool = NULL;
     }
     if ( main_loop != NULL  ) {
-        g_source_destroy ( main_loop_source );
+        if( main_loop_source) {
+            g_source_destroy ( main_loop_source );
+        }
         g_main_loop_unref ( main_loop );
         main_loop = NULL;
     }
