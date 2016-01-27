@@ -1600,7 +1600,8 @@ MenuState *menu ( Mode *sw,
     state->top_offset = state->border * 1 + state->line_height + 2 + config.line_margin * 2;
 
     // Move indicator to end.
-    widget_move ( WIDGET ( state->case_indicator ), state->border + textbox_get_width ( state->prompt_tb ) + entrybox_width, state->border );
+    widget_move ( WIDGET ( state->case_indicator ), state->border + textbox_get_width ( state->prompt_tb ) + entrybox_width,
+                  state->border );
 
     textbox_text ( state->case_indicator, get_matching_state () );
     state->message_tb = NULL;

@@ -103,7 +103,7 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
     tb->blink_timeout = 0;
     tb->blink         = 1;
     if ( ( flags & TB_EDITABLE ) == TB_EDITABLE ) {
-        tb->blink_timeout = g_timeout_add ( 1200, textbox_blink, tb );
+        //       tb->blink_timeout = g_timeout_add ( 1200, textbox_blink, tb );
     }
 
     return tb;
