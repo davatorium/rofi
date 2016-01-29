@@ -215,6 +215,11 @@ typedef struct MenuState
     void ( *finalize )( struct MenuState *state );
 }MenuState;
 
+/**
+ * @param state The Menu Handle
+ *
+ * Check if a finalize function is set, and if sets executes it.
+ */
 static void menu_state_finalize ( MenuState *state )
 {
     if ( state && state->finalize ) {
@@ -230,6 +235,12 @@ void menu_state_queue_redraw ( void )
         XFlush ( display );
     }
 }
+
+/**
+ * Create a new, 0 initialized MenuState structure.
+ *
+ * @returns a new 0 initialized MenuState
+ */
 static MenuState *menu_state_create ( void )
 {
     return g_malloc0 ( sizeof ( MenuState ) );
@@ -244,6 +255,7 @@ void menu_state_set_active ( MenuState *state )
     g_assert ( ( current_active_menu == NULL && state != NULL ) || ( current_active_menu != NULL && state == NULL ) );
     current_active_menu = state;
 }
+
 void menu_state_set_selected_line ( MenuState *state, unsigned int selected_line )
 {
     state->selected_line = selected_line;
@@ -258,6 +270,7 @@ void menu_state_set_selected_line ( MenuState *state, unsigned int selected_line
 
     state->update = TRUE;
 }
+
 void menu_state_free ( MenuState *state )
 {
     // Do this here?
@@ -2355,11 +2368,11 @@ int main ( int argc, char *argv[] )
 
     if ( !XSupportsLocale () ) {
         fprintf ( stderr, "X11 does not support locales\n" );
-        return 11;
+        return EXIT_FAILURE;
     }
     if ( XSetLocaleModifiers ( "@im=none" ) == NULL ) {
         fprintf ( stderr, "Failed to set locale modifier.\n" );
-        return 10;
+        return EXIT_FAILURE;
     }
     if ( !( display = XOpenDisplay ( display_str ) ) ) {
         fprintf ( stderr, "cannot open display!\n" );
@@ -2483,7 +2496,6 @@ int main ( int argc, char *argv[] )
     if ( find_arg_str ( "-show", &sname ) == TRUE ) {
         int index = switcher_get ( sname );
         if ( index >= 0 ) {
-            // TODO delay this till mainloop is running or we might miss X events.
             run_switcher ( index );
             g_idle_add ( delayed_start, GINT_TO_POINTER ( index ) );
         }
