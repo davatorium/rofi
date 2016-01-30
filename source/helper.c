@@ -578,7 +578,7 @@ void config_sanity_check ( Display *display )
         }
         // Have todo an estimate here.
         if ( ( 2 * ( config.padding + config.menu_bw ) ) > ( 0.9 * ssize ) ) {
-            g_string_append_printf ( msg, "\t<b>config.padding+config.menu_bw</b>=%d is to big for the minimum size of the monitor: %d.\n",
+            g_string_append_printf ( msg, "\t<b>config.padding+config.menu_bw</b>=%d is too big for the minimum size of the monitor: %d.\n",
                                      ( config.padding + config.menu_bw ), ssize );
 
             config.padding = 0;
