@@ -1730,8 +1730,8 @@ void error_dialog ( const char *msg, int markup )
             state->quit = TRUE;
         }
     }
-    release_keyboard ( display );
     menu_state_free ( state );
+    release_keyboard ( display );
 }
 
 /**
