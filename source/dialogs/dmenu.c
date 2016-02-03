@@ -426,25 +426,29 @@ int dmenu_switcher_dialog ( void )
              * Select item mode.
              */
             restart = 1;
-            if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line] != NULL ) {
-                dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
-                retv = TRUE;
-                if ( ( mretv & MENU_QUICK_SWITCH ) ) {
-                    retv = 10 + ( mretv & MENU_LOWER_MASK );
-                }
-                return retv;
-            }
-            else if ( ( mretv & MENU_CANCEL ) == MENU_CANCEL ) {
+            // Skip if no valid item is selected.
+            if ( ( mretv & MENU_CANCEL ) == MENU_CANCEL ) {
                 // In no custom mode we allow canceling.
                 restart = ( find_arg ( "-only-match" ) >= 0 );
             }
-            pd->selected_line = next_pos - 1;
+            else if ( pd->selected_line != UINT32_MAX ){
+
+                if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line] != NULL ) {
+                    dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
+                    retv = TRUE;
+                    if ( ( mretv & MENU_QUICK_SWITCH ) ) {
+                        retv = 10 + ( mretv & MENU_LOWER_MASK );
+                    }
+                    return retv;
+                }
+                pd->selected_line = next_pos - 1;
+            }
             continue;
         }
         // We normally do not want to restart the loop.
         restart = FALSE;
         // Normal mode
-        if ( ( mretv & MENU_OK  ) && cmd_list[pd->selected_line] != NULL ) {
+        if ( ( mretv & MENU_OK  ) && pd->selected_line != UINT32_MAX && cmd_list[pd->selected_line] != NULL ) {
             dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
             if ( ( mretv & MENU_SHIFT ) ) {
                 restart = TRUE;

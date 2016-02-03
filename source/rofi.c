@@ -1379,6 +1379,7 @@ static void menu_mainloop_iter ( MenuState *state, XEvent *ev )
                 }
                 for ( unsigned int a = CUSTOM_1; a <= CUSTOM_19; a++ ) {
                     if ( abe_test_action ( a, ev->xkey.state, key ) ) {
+                        state->selected_line = UINT32_MAX;
                         if ( state->selected < state->filtered_lines ) {
                             ( state->selected_line ) = state->line_map[state->selected];
                         }
@@ -1403,6 +1404,7 @@ static void menu_mainloop_iter ( MenuState *state, XEvent *ev )
                     int shift = ( ( ev->xkey.state & ShiftMask ) == ShiftMask );
 
                     // If a valid item is selected, return that..
+                    state->selected_line = UINT32_MAX;
                     if ( state->selected < state->filtered_lines ) {
                         ( state->selected_line ) = state->line_map[state->selected];
                         if ( strlen ( state->text->text ) > 0 && rc == -2 ) {
