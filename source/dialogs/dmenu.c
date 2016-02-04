@@ -431,8 +431,7 @@ int dmenu_switcher_dialog ( void )
                 // In no custom mode we allow canceling.
                 restart = ( find_arg ( "-only-match" ) >= 0 );
             }
-            else if ( pd->selected_line != UINT32_MAX ){
-
+            else if ( pd->selected_line != UINT32_MAX ) {
                 if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line] != NULL ) {
                     dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
                     retv = TRUE;

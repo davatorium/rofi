@@ -1968,6 +1968,60 @@ static void cleanup ()
  * First the three build-in modi are checked: window, run, ssh
  * if that fails, a script-switcher is created.
  */
+static int add_mode ( const char * token )
+{
+    unsigned int index = num_modi;
+    // Resize and add entry.
+    modi              = (ModeHolder *) g_realloc ( modi, sizeof ( ModeHolder ) * ( num_modi + 1 ) );
+    modi[num_modi].tb = NULL;
+
+    // Window switcher.
+#ifdef WINDOW_MODE
+    if ( strcasecmp ( token, "window" ) == 0 ) {
+        modi[num_modi].sw = &window_mode;
+        num_modi++;
+    }
+    else if ( strcasecmp ( token, "windowcd" ) == 0 ) {
+        modi[num_modi].sw = &window_mode_cd;
+        num_modi++;
+    }
+    else
+#endif // WINDOW_MODE
+       // SSh dialog
+    if ( strcasecmp ( token, "ssh" ) == 0 ) {
+        modi[num_modi].sw = &ssh_mode;
+        num_modi++;
+    }
+    // Run dialog
+    else if ( strcasecmp ( token, "run" ) == 0 ) {
+        modi[num_modi].sw = &run_mode;
+        num_modi++;
+    }
+    else if ( strcasecmp ( token, "drun" ) == 0 ) {
+        modi[num_modi].sw = &drun_mode;
+        num_modi++;
+    }
+    // combi dialog
+    else if ( strcasecmp ( token, "combi" ) == 0 ) {
+        modi[num_modi].sw = &combi_mode;
+        num_modi++;
+    }
+    else {
+        // If not build in, use custom modi.
+        Mode *sw = script_switcher_parse_setup ( token );
+        if ( sw != NULL ) {
+            modi[num_modi].sw = sw;
+            mode_set_config ( sw );
+            num_modi++;
+        }
+        else{
+            // Report error, don't continue.
+            fprintf ( stderr, "Invalid script switcher: %s\n", token );
+            token = NULL;
+        }
+    }
+    return ( index == num_modi ) ? -1 : (int) index;
+}
 static void setup_modi ( void )
 {
     char *savept = NULL;
@@ -1975,56 +2029,7 @@ static void setup_modi ( void )
     char *switcher_str = g_strdup ( config.modi );
     // Split token on ','. This modifies switcher_str.
     for ( char *token = strtok_r ( switcher_str, ",", &savept ); token != NULL; token = strtok_r ( NULL, ",", &savept ) ) {
-        // Resize and add entry.
-        modi              = (ModeHolder *) g_realloc ( modi, sizeof ( ModeHolder ) * ( num_modi + 1 ) );
-        modi[num_modi].tb = NULL;
-
-        // Window switcher.
-        #ifdef WINDOW_MODE
-        if ( strcasecmp ( token, "window" ) == 0 ) {
-            modi[num_modi].sw = &window_mode;
-            num_modi++;
-        }
-        else if ( strcasecmp ( token, "windowcd" ) == 0 ) {
-            modi[num_modi].sw = &window_mode_cd;
-            num_modi++;
-        }
-        else
-        #endif // WINDOW_MODE
-        // SSh dialog
-        if ( strcasecmp ( token, "ssh" ) == 0 ) {
-            modi[num_modi].sw = &ssh_mode;
-            num_modi++;
-        }
-        // Run dialog
-        else if ( strcasecmp ( token, "run" ) == 0 ) {
-            modi[num_modi].sw = &run_mode;
-            num_modi++;
-        }
-        else if ( strcasecmp ( token, "drun" ) == 0 ) {
-            modi[num_modi].sw = &drun_mode;
-            num_modi++;
-        }
-        // combi dialog
-        else if ( strcasecmp ( token, "combi" ) == 0 ) {
-            modi[num_modi].sw = &combi_mode;
-            num_modi++;
-        }
-        else {
-            // If not build in, use custom modi.
-            Mode *sw = script_switcher_parse_setup ( token );
-            if ( sw != NULL ) {
-                modi[num_modi].sw = sw;
-                mode_set_config ( sw );
-                num_modi++;
-            }
-            else{
-                // Report error, don't continue.
-                fprintf ( stderr, "Invalid script switcher: %s\n", token );
-                token = NULL;
-            }
-        }
-        // Keybinding.
+        add_mode ( token );
     }
     // Free string that was modified by strtok_r
     g_free ( switcher_str );
@@ -2481,6 +2486,17 @@ int main ( int argc, char *argv[] )
     char *sname = NULL;
     if ( find_arg_str ( "-show", &sname ) == TRUE ) {
         int index = switcher_get ( sname );
+        if ( index < 0 ) {
+            // Add it to the list
+            index = add_mode ( sname );
+            // Complain
+            if ( index >= 0 ) {
+                fprintf ( stdout, "Mode %s not enabled. Please add it to the list of enabled modi: %s\n",
+                          sname, config.modi );
+                fprintf ( stdout, "Adding mode: %s\n", sname );
+            }
+            // Run it anyway if found.
+        }
         if ( index >= 0 ) {
             run_switcher ( index );
         }
