@@ -224,6 +224,8 @@ test-x: ${bin_PROGRAMS}
 	$(top_srcdir)/test/run_test.sh 217 $(top_srcdir)/test/run_fuzzy_test.sh $(top_builddir)
 	echo "Test config dump"
 	$(top_srcdir)/test/run_test.sh 218 $(top_srcdir)/test/xr_config_test.sh $(top_builddir) $(top_srcdir)
+	echo "Test issue 333"
+	$(top_srcdir)/test/run_test.sh 221 $(top_srcdir)/test/run_ssue_333.sh $(top_builddir)
 
 test-x1: ${bin_PROGRAMS}
 	echo "Test dmenu-normal-window"
