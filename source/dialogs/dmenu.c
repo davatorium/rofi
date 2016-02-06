@@ -439,10 +439,16 @@ int dmenu_switcher_dialog ( void )
                     if ( ( mretv & MENU_QUICK_SWITCH ) ) {
                         retv = 10 + ( mretv & MENU_LOWER_MASK );
                     }
+                    rofi_view_free ( state );
+                    g_free ( input );
+                    mode_destroy ( &dmenu_mode );
                     return retv;
                 }
                 pd->selected_line = next_pos - 1;
             }
+            // Restart
+            rofi_view_restart ( state );
+            rofi_view_set_selected_line ( state, pd->selected_line );
             continue;
         }
         // We normally do not want to restart the loop.
