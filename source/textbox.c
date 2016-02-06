@@ -59,12 +59,13 @@ typedef struct _RowColor
 RowColor     colors[num_states];
 
 PangoContext *p_context = NULL;
-static gboolean textbox_blink ( textbox *tb )
+static gboolean textbox_blink ( gpointer data )
 {
+    textbox *tb = (textbox *) data;
     if ( tb->blink < 2 ) {
         tb->blink  = !tb->blink;
         tb->update = TRUE;
-        menu_state_queue_redraw ( );
+        rofi_view_queue_redraw ( );
     }
     else {
         tb->blink--;
@@ -103,7 +104,7 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
     tb->blink_timeout = 0;
     tb->blink         = 1;
     if ( ( flags & TB_EDITABLE ) == TB_EDITABLE ) {
-               tb->blink_timeout = g_timeout_add ( 1200, textbox_blink, tb );
+        tb->blink_timeout = g_timeout_add ( 1200, textbox_blink, tb );
     }
 
     return tb;

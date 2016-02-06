@@ -32,6 +32,7 @@ AM_CFLAGS=\
 
 rofi_SOURCES=\
     source/rofi.c\
+	source/view.c\
 	source/mode.c\
 	source/keyb.c\
     config/config.c\
@@ -57,6 +58,7 @@ rofi_SOURCES=\
 	include/mode-private.h\
 	include/settings.h\
 	include/keyb.h\
+	include/view.h\
 	include/helper.h\
 	include/timings.h\
     include/history.h\

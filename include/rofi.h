@@ -17,7 +17,7 @@
  * Pointer to xdg cache directory.
  */
 extern const char *cache_dir;
-typedef struct MenuState   MenuState;
+typedef struct RofiViewState   RofiViewState;
 
 /**
  * @param msg The error message to show.
@@ -50,9 +50,9 @@ typedef enum
  *
  * @returns The command issued (see MenuReturn)
  */
-MenuState *menu ( Mode *sw,
-                  char *input, char *prompt,
-                  const char *message, MenuFlags flags )
+RofiViewState *rofi_view_create ( Mode *sw,
+                                  char *input, char *prompt,
+                                  const char *message, MenuFlags flags )
 __attribute__ ( ( nonnull ( 1, 2, 3  ) ) );
 
 /** Reset terminal */
@@ -84,16 +84,16 @@ int show_error_message ( const char *msg, int markup );
     " <i>https://github.com/DaveDavenport/rofi/</i>"
 #define ERROR_MSG_MARKUP    TRUE
 
-MenuReturn menu_state_get_return_value ( const MenuState *state );
-unsigned int menu_state_get_selected_line ( const MenuState *state );
-unsigned int menu_state_get_next_position ( const MenuState *state );
-void menu_state_itterrate ( MenuState *state, XEvent *event );
-unsigned int menu_state_get_completed ( const MenuState *state );
-const char * menu_state_get_user_input ( const MenuState *state );
-void menu_state_free ( MenuState *state );
-void menu_state_restart ( MenuState *state );
-void menu_state_set_selected_line ( MenuState *state, unsigned int selected_line );
-void menu_state_queue_redraw ( void );
-void menu_state_set_active ( MenuState *state );
+MenuReturn rofi_view_get_return_value ( const RofiViewState *state );
+unsigned int rofi_view_get_selected_line ( const RofiViewState *state );
+unsigned int rofi_view_get_next_position ( const RofiViewState *state );
+void rofi_view_itterrate ( RofiViewState *state, XEvent *event );
+unsigned int rofi_view_get_completed ( const RofiViewState *state );
+const char * rofi_view_get_user_input ( const RofiViewState *state );
+void rofi_view_free ( RofiViewState *state );
+void rofi_view_restart ( RofiViewState *state );
+void rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_line );
+void rofi_view_queue_redraw ( void );
+void rofi_view_set_active ( RofiViewState *state );
 /*@}*/
 #endif

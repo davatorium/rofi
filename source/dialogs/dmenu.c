@@ -398,27 +398,27 @@ int dmenu_switcher_dialog ( void )
         return TRUE;
     }
 
-    MenuState *state = menu ( &dmenu_mode, input, pd->prompt, pd->message, menu_flags );
-    menu_state_set_selected_line ( state, pd->selected_line );
+    RofiViewState *state = rofi_view_create ( &dmenu_mode, input, pd->prompt, pd->message, menu_flags );
+    rofi_view_set_selected_line ( state, pd->selected_line );
     while ( XPending ( display ) ) {
         XEvent ev;
         XNextEvent ( display, &ev );
-        menu_state_itterrate ( state, &ev );
+        rofi_view_itterrate ( state, &ev );
     }
     do {
         retv = FALSE;
 
-        menu_state_set_active ( state );
+        rofi_view_set_active ( state );
         // Enter main loop.
-        while ( !menu_state_get_completed ( state )  ) {
+        while ( !rofi_view_get_completed ( state )  ) {
             g_main_context_iteration ( NULL, TRUE );
         }
-        menu_state_set_active ( NULL );
+        rofi_view_set_active ( NULL );
         g_free ( input );
-        input             = g_strdup ( menu_state_get_user_input ( state ) );
-        pd->selected_line = menu_state_get_selected_line ( state );;
-        MenuReturn   mretv    = menu_state_get_return_value ( state );
-        unsigned int next_pos = menu_state_get_next_position ( state );
+        input             = g_strdup ( rofi_view_get_user_input ( state ) );
+        pd->selected_line = rofi_view_get_selected_line ( state );;
+        MenuReturn   mretv    = rofi_view_get_return_value ( state );
+        unsigned int next_pos = rofi_view_get_next_position ( state );
 
         // Special behavior.
         // TODO clean this up!
@@ -498,12 +498,12 @@ int dmenu_switcher_dialog ( void )
             retv    = 10 + ( mretv & MENU_LOWER_MASK );
         }
         if ( restart ) {
-            menu_state_restart ( state );
-            menu_state_set_selected_line ( state, pd->selected_line );
+            rofi_view_restart ( state );
+            rofi_view_set_selected_line ( state, pd->selected_line );
         }
     } while ( restart );
 
-    menu_state_free ( state );
+    rofi_view_free ( state );
     g_free ( input );
     mode_destroy ( &dmenu_mode );
     return retv;

@@ -107,9 +107,9 @@ GThreadPool       *tpool               = NULL;
 GMainLoop         *main_loop           = NULL;
 GSource           *main_loop_source    = NULL;
 gboolean          quiet                = FALSE;
-MenuState         *current_active_menu = NULL;
+RofiViewState     *current_active_menu = NULL;
 
-static void process_result ( MenuState *state );
+static void process_result ( RofiViewState *state );
 static char * get_matching_state ( void )
 {
     if ( config.case_sensitive ) {
@@ -158,186 +158,7 @@ static int lev_sort ( const void *p1, const void *p2, void *arg )
     return distances[*a] - distances[*b];
 }
 
-// State of the menu.
-
-typedef struct MenuState
-{
-    Mode         *sw;
-    unsigned int menu_lines;
-    unsigned int max_elements;
-    unsigned int max_rows;
-    unsigned int columns;
-
-    // window width,height
-    unsigned int w, h;
-    int          x, y;
-    unsigned int element_width;
-    int          top_offset;
-
-    // Update/Refilter list.
-    int          update;
-    int          refilter;
-    int          rchanged;
-    int          cur_page;
-
-    // Entries
-    textbox      *text;
-    textbox      *prompt_tb;
-    textbox      *message_tb;
-    textbox      *case_indicator;
-    textbox      **boxes;
-    scrollbar    *scrollbar;
-    int          *distance;
-    unsigned int *line_map;
-
-    unsigned int num_lines;
-
-    // Selected element.
-    unsigned int selected;
-    unsigned int filtered_lines;
-    // Last offset in paginating.
-    unsigned int last_offset;
-
-    KeySym       prev_key;
-    Time         last_button_press;
-
-    int          quit;
-    int          skip_absorb;
-    // Return state
-    unsigned int selected_line;
-    MenuReturn   retv;
-    int          *lines_not_ascii;
-    int          line_height;
-    unsigned int border;
-    workarea     mon;
-    // Handlers.
-    void ( *x11_event_loop )( struct MenuState *state, XEvent *ev );
-    void ( *finalize )( struct MenuState *state );
-}MenuState;
-
-/**
- * @param state The Menu Handle
- *
- * Check if a finalize function is set, and if sets executes it.
- */
-static void menu_state_finalize ( MenuState *state )
-{
-    if ( state && state->finalize ) {
-        state->finalize ( state );
-    }
-}
-
-void menu_state_queue_redraw ( void )
-{
-    if ( current_active_menu ) {
-        current_active_menu->update = TRUE;
-        XClearArea ( display, main_window, 0, 0, 1, 1, True );
-        XFlush ( display );
-    }
-}
-
-/**
- * Create a new, 0 initialized MenuState structure.
- *
- * @returns a new 0 initialized MenuState
- */
-static MenuState *menu_state_create ( void )
-{
-    return g_malloc0 ( sizeof ( MenuState ) );
-}
-void menu_state_restart ( MenuState *state )
-{
-    state->quit = FALSE;
-    state->retv = MENU_CANCEL;
-}
-void menu_state_set_active ( MenuState *state )
-{
-    g_assert ( ( current_active_menu == NULL && state != NULL ) || ( current_active_menu != NULL && state == NULL ) );
-    current_active_menu = state;
-}
-
-void menu_state_set_selected_line ( MenuState *state, unsigned int selected_line )
-{
-    state->selected_line = selected_line;
-    // Find the line.
-    state->selected = 0;
-    for ( unsigned int i = 0; ( ( state->selected_line ) ) < UINT32_MAX && !state->selected && i < state->filtered_lines; i++ ) {
-        if ( state->line_map[i] == ( state->selected_line ) ) {
-            state->selected = i;
-            break;
-        }
-    }
-
-    state->update = TRUE;
-}
-
-void menu_state_free ( MenuState *state )
-{
-    // Do this here?
-    // Wait for final release?
-    if ( !state->skip_absorb ) {
-        XEvent ev;
-        do {
-            XNextEvent ( display, &ev );
-        } while ( ev.type != KeyRelease );
-    }
-    textbox_free ( state->text );
-    textbox_free ( state->prompt_tb );
-    textbox_free ( state->case_indicator );
-    scrollbar_free ( state->scrollbar );
-
-    for ( unsigned int i = 0; i < state->max_elements; i++ ) {
-        textbox_free ( state->boxes[i] );
-    }
-
-    g_free ( state->boxes );
-    g_free ( state->line_map );
-    g_free ( state->distance );
-    g_free ( state->lines_not_ascii );
-    g_free ( state );
-    // Free the switcher boxes.
-    // When state is free'ed we should no longer need these.
-    if ( config.sidebar_mode == TRUE ) {
-        for ( unsigned int j = 0; j < num_modi; j++ ) {
-            textbox_free ( modi[j].tb );
-            modi[j].tb = NULL;
-        }
-    }
-}
-
-MenuReturn menu_state_get_return_value ( const MenuState *state )
-{
-    return state->retv;
-}
-unsigned int menu_state_get_selected_line ( const MenuState *state )
-{
-    return state->selected_line;
-}
-
-unsigned int menu_state_get_next_position ( const MenuState *state )
-{
-    unsigned int next_pos = state->selected_line;
-    if ( ( state->selected + 1 ) < state->num_lines ) {
-        ( next_pos ) = state->line_map[state->selected + 1];
-    }
-    return next_pos;
-}
-
-unsigned int menu_state_get_completed ( const MenuState *state )
-{
-    return state->quit;
-}
-void menu_state_itterrate ( MenuState *state, XEvent *event )
-{
-    state->x11_event_loop ( state, event );
-}
-const char * menu_state_get_user_input ( const MenuState *state )
-{
-    if ( state->text ) {
-        return state->text->text;
-    }
-    return NULL;
-}
+#include "view.h"
 
 static Window create_window ( Display *display )
 {
@@ -415,7 +236,7 @@ static Window create_window ( Display *display )
  *
  * Calculates the window poslition
  */
-static void calculate_window_position ( MenuState *state )
+static void calculate_window_position ( RofiViewState *state )
 {
     // Default location is center.
     state->y = state->mon.y + ( state->mon.h - state->h ) / 2;
@@ -458,7 +279,7 @@ static void calculate_window_position ( MenuState *state )
  * Calculate the number of rows, columns and elements to display based on the
  * configuration and available data.
  */
-static void menu_calculate_rows_columns ( MenuState *state )
+static void menu_calculate_rows_columns ( RofiViewState *state )
 {
     state->columns      = config.menu_columns;
     state->max_elements = MIN ( state->menu_lines * state->columns, state->num_lines );
@@ -493,7 +314,7 @@ static void menu_calculate_rows_columns ( MenuState *state )
  *
  * Calculate the width of the window and the width of an element.
  */
-static void menu_calculate_window_and_element_width ( MenuState *state, workarea *mon )
+static void menu_calculate_window_and_element_width ( RofiViewState *state, workarea *mon )
 {
     if ( config.menu_width < 0 ) {
         double fw = textbox_get_estimated_char_width ( );
@@ -516,13 +337,13 @@ static void menu_calculate_window_and_element_width ( MenuState *state, workarea
  * Nav helper functions, to avoid duplicate code.
  */
 /**
- * @param state The current MenuState
+ * @param state The current RofiViewState
  *
  * Move the selection one page down.
  * - No wrap around.
  * - Clip at top/bottom
  */
-inline static void menu_nav_page_next ( MenuState *state )
+inline static void menu_nav_page_next ( RofiViewState *state )
 {
     // If no lines, do nothing.
     if ( state->filtered_lines == 0 ) {
@@ -535,13 +356,13 @@ inline static void menu_nav_page_next ( MenuState *state )
     state->update = TRUE;
 }
 /**
- * @param state The current MenuState
+ * @param state The current RofiViewState
  *
  * Move the selection one page up.
  * - No wrap around.
  * - Clip at top/bottom
  */
-inline static void menu_nav_page_prev ( MenuState * state )
+inline static void menu_nav_page_prev ( RofiViewState * state )
 {
     if ( state->selected < state->max_elements ) {
         state->selected = 0;
@@ -552,13 +373,13 @@ inline static void menu_nav_page_prev ( MenuState * state )
     state->update = TRUE;
 }
 /**
- * @param state The current MenuState
+ * @param state The current RofiViewState
  *
  * Move the selection one column to the right.
  * - No wrap around.
  * - Do not move to top row when at start.
  */
-inline static void menu_nav_right ( MenuState *state )
+inline static void menu_nav_right ( RofiViewState *state )
 {
     // If no lines, do nothing.
     if ( state->filtered_lines == 0 ) {
@@ -583,12 +404,12 @@ inline static void menu_nav_right ( MenuState *state )
     }
 }
 /**
- * @param state The current MenuState
+ * @param state The current RofiViewState
  *
  * Move the selection one column to the left.
  * - No wrap around.
  */
-inline static void menu_nav_left ( MenuState *state )
+inline static void menu_nav_left ( RofiViewState *state )
 {
     if ( state->selected >= state->max_rows ) {
         state->selected -= state->max_rows;
@@ -596,12 +417,12 @@ inline static void menu_nav_left ( MenuState *state )
     }
 }
 /**
- * @param state The current MenuState
+ * @param state The current RofiViewState
  *
  * Move the selection one row up.
  * - Wrap around.
  */
-inline static void menu_nav_up ( MenuState *state )
+inline static void menu_nav_up ( RofiViewState *state )
 {
     // Wrap around.
     if ( state->selected == 0 ) {
@@ -614,12 +435,12 @@ inline static void menu_nav_up ( MenuState *state )
     state->update = TRUE;
 }
 /**
- * @param state The current MenuState
+ * @param state The current RofiViewState
  *
  * Move the selection one row down.
  * - Wrap around.
  */
-inline static void menu_nav_down ( MenuState *state )
+inline static void menu_nav_down ( RofiViewState *state )
 {
     // If no lines, do nothing.
     if ( state->filtered_lines == 0 ) {
@@ -629,21 +450,21 @@ inline static void menu_nav_down ( MenuState *state )
     state->update   = TRUE;
 }
 /**
- * @param state The current MenuState
+ * @param state The current RofiViewState
  *
  * Move the selection to first row.
  */
-inline static void menu_nav_first ( MenuState * state )
+inline static void menu_nav_first ( RofiViewState * state )
 {
     state->selected = 0;
     state->update   = TRUE;
 }
 /**
- * @param state The current MenuState
+ * @param state The current RofiViewState
  *
  * Move the selection to last row.
  */
-inline static void menu_nav_last ( MenuState * state )
+inline static void menu_nav_last ( RofiViewState * state )
 {
     // If no lines, do nothing.
     if ( state->filtered_lines == 0 ) {
@@ -733,7 +554,7 @@ static void menu_capture_screenshot ( void )
  *
  * Keyboard navigation through the elements.
  */
-static int menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned int modstate )
+static int menu_keyboard_navigation ( RofiViewState *state, KeySym key, unsigned int modstate )
 {
     // pressing one of the global key bindings closes the switcher. This allows fast closing of the
     // menu if an item is not selected
@@ -811,7 +632,7 @@ static int menu_keyboard_navigation ( MenuState *state, KeySym key, unsigned int
     return 0;
 }
 
-static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
+static void menu_mouse_navigation ( RofiViewState *state, XButtonEvent *xbe )
 {
     // Scroll event
     if ( xbe->button > 3 ) {
@@ -836,7 +657,7 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
             return;
         }
         for ( unsigned int i = 0; config.sidebar_mode == TRUE && i < num_modi; i++ ) {
-            if ( widget_intersect ( &( modi[i].tb->widget ), xbe->x, xbe->y ) ) {
+            if ( widget_intersect ( &( state->modi[i]->widget ), xbe->x, xbe->y ) ) {
                 ( state->selected_line ) = 0;
                 state->retv              = MENU_QUICK_SWITCH | ( i & MENU_LOWER_MASK );
                 state->quit              = TRUE;
@@ -869,14 +690,14 @@ static void menu_mouse_navigation ( MenuState *state, XButtonEvent *xbe )
 
 typedef struct _thread_state
 {
-    MenuState    *state;
-    char         **tokens;
-    unsigned int start;
-    unsigned int stop;
-    unsigned int count;
-    GCond        *cond;
-    GMutex       *mutex;
-    unsigned int *acount;
+    RofiViewState *state;
+    char          **tokens;
+    unsigned int  start;
+    unsigned int  stop;
+    unsigned int  count;
+    GCond         *cond;
+    GMutex        *mutex;
+    unsigned int  *acount;
     void ( *callback )( struct _thread_state *t, gpointer data );
 }thread_state;
 
@@ -924,7 +745,7 @@ static void call_thread ( gpointer data, gpointer user_data )
     t->callback ( t, user_data );
 }
 
-static void menu_refilter ( MenuState *state )
+static void menu_refilter ( RofiViewState *state )
 {
     TICK_N ( "Filter start" );
     if ( strlen ( state->text->text ) > 0 ) {
@@ -1010,7 +831,7 @@ static void menu_refilter ( MenuState *state )
     TICK_N ( "Filter done" );
 }
 
-static void menu_draw ( MenuState *state, cairo_t *d )
+static void menu_draw ( RofiViewState *state, cairo_t *d )
 {
     unsigned int i, offset = 0;
     // selected row is always visible.
@@ -1089,7 +910,7 @@ static void menu_draw ( MenuState *state, cairo_t *d )
     }
 }
 
-static void menu_update ( MenuState *state )
+static void menu_update ( RofiViewState *state )
 {
     TICK ();
     cairo_surface_t * surf = cairo_image_surface_create ( get_format (), state->w, state->h );
@@ -1167,8 +988,8 @@ static void menu_update ( MenuState *state )
     }
     if ( config.sidebar_mode == TRUE ) {
         for ( unsigned int j = 0; j < num_modi; j++ ) {
-            if ( modi[j].tb != NULL ) {
-                textbox_draw ( modi[j].tb, d );
+            if ( state->modi[j] != NULL ) {
+                textbox_draw ( state->modi[j], d );
             }
         }
     }
@@ -1192,7 +1013,7 @@ static void menu_update ( MenuState *state )
  *
  * Handle paste event.
  */
-static void menu_paste ( MenuState *state, XSelectionEvent *xse )
+static void menu_paste ( RofiViewState *state, XSelectionEvent *xse )
 {
     if ( xse->property == netatoms[UTF8_STRING] ) {
         gchar *text = window_get_text_prop ( display, main_window, netatoms[UTF8_STRING] );
@@ -1214,17 +1035,17 @@ static void menu_paste ( MenuState *state, XSelectionEvent *xse )
     }
 }
 
-static void menu_resize ( MenuState *state )
+static void menu_resize ( RofiViewState *state )
 {
     unsigned int sbw = config.line_margin + 8;
     widget_move ( WIDGET ( state->scrollbar ), state->w - state->border - sbw, state->top_offset );
     if ( config.sidebar_mode == TRUE ) {
         int width = ( state->w - ( 2 * ( state->border ) + ( num_modi - 1 ) * config.line_margin ) ) / num_modi;
         for ( unsigned int j = 0; j < num_modi; j++ ) {
-            textbox_moveresize ( modi[j].tb,
+            textbox_moveresize ( state->modi[j],
                                  state->border + j * ( width + config.line_margin ), state->h - state->line_height - state->border,
                                  width, state->line_height );
-            textbox_draw ( modi[j].tb, draw );
+            textbox_draw ( state->modi[j], draw );
         }
     }
     int entrybox_width = state->w - ( 2 * ( state->border ) ) - textbox_get_width ( state->prompt_tb )
@@ -1276,7 +1097,7 @@ static void menu_resize ( MenuState *state )
     state->update   = TRUE;
 }
 
-static void menu_setup_fake_transparency ( Display *display, MenuState *state )
+static void menu_setup_fake_transparency ( Display *display, RofiViewState *state )
 {
     if ( fake_bg == NULL ) {
         Window          root   = DefaultRootWindow ( display );
@@ -1296,7 +1117,7 @@ static void menu_setup_fake_transparency ( Display *display, MenuState *state )
         TICK_N ( "Fake transparency" );
     }
 }
-static void menu_mainloop_iter ( MenuState *state, XEvent *ev )
+static void menu_mainloop_iter ( RofiViewState *state, XEvent *ev )
 {
     if ( sndisplay != NULL ) {
         sn_display_process_event ( sndisplay, ev );
@@ -1491,14 +1312,14 @@ static void menu_mainloop_iter ( MenuState *state, XEvent *ev )
     }
 }
 
-MenuState *menu ( Mode *sw,
-                  char *input,
-                  char *prompt,
-                  const char *message,
-                  MenuFlags menu_flags )
+RofiViewState *rofi_view_create ( Mode *sw,
+                                  char *input,
+                                  char *prompt,
+                                  const char *message,
+                                  MenuFlags menu_flags )
 {
     TICK ();
-    MenuState *state = menu_state_create ();
+    RofiViewState *state = rofi_view_state_create ();
     state->sw            = sw;
     state->selected_line = UINT32_MAX;
     state->retv          = MENU_CANCEL;
@@ -1563,7 +1384,7 @@ MenuState *menu ( Mode *sw,
     if ( !has_keyboard ) {
         fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
         // Break off.
-        menu_state_free ( state );
+        rofi_view_free ( state );
         return NULL;
     }
     TICK_N ( "Grab keyboard" );
@@ -1673,10 +1494,11 @@ MenuState *menu ( Mode *sw,
 
     if ( config.sidebar_mode == TRUE ) {
         int width = ( state->w - ( 2 * ( state->border ) + ( num_modi - 1 ) * config.line_margin ) ) / num_modi;
+        state->modi = g_malloc0 ( num_modi * sizeof ( textbox * ) );
         for ( unsigned int j = 0; j < num_modi; j++ ) {
-            modi[j].tb = textbox_create ( TB_CENTER, state->border + j * ( width + config.line_margin ),
-                                          state->h - state->line_height - state->border, width, state->line_height,
-                                          ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, mode_get_name ( modi[j].sw ) );
+            state->modi[j] = textbox_create ( TB_CENTER, state->border + j * ( width + config.line_margin ),
+                                              state->h - state->line_height - state->border, width, state->line_height,
+                                              ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, mode_get_name ( modi[j].sw ) );
         }
     }
 
@@ -1700,7 +1522,7 @@ MenuState *menu ( Mode *sw,
     return state;
 }
 
-static void error_dialog_event_loop ( MenuState *state, XEvent *ev )
+static void error_dialog_event_loop ( RofiViewState *state, XEvent *ev )
 {
     // Wait for event.
     if ( sndisplay != NULL ) {
@@ -1726,7 +1548,7 @@ static void error_dialog_event_loop ( MenuState *state, XEvent *ev )
 }
 void error_dialog ( const char *msg, int markup )
 {
-    MenuState *state = menu_state_create ();
+    RofiViewState *state = rofi_view_state_create ();
     state->retv           = MENU_CANCEL;
     state->update         = TRUE;
     state->border         = config.padding + config.menu_bw;
@@ -1774,13 +1596,12 @@ void error_dialog ( const char *msg, int markup )
     if ( sncontext != NULL ) {
         sn_launchee_context_complete ( sncontext );
     }
-    menu_state_set_active ( state );
-    while ( !menu_state_get_completed ( state )  ) {
+    rofi_view_set_active ( state );
+    while ( !rofi_view_get_completed ( state )  ) {
         g_main_context_iteration ( NULL, TRUE );
     }
-    menu_state_set_active ( NULL );
-    menu_state_free ( state );
-    release_keyboard ( display );
+    rofi_view_set_active ( NULL );
+    rofi_view_free ( state );
 }
 
 /**
@@ -1868,21 +1689,21 @@ static void run_switcher ( ModeMode mode )
             return;
         }
     }
-    char      *input  = g_strdup ( config.filter );
-    char      *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode].sw ) );
+    char          *input  = g_strdup ( config.filter );
+    char          *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode].sw ) );
     curr_switcher = mode;
-    MenuState * state = menu ( modi[mode].sw, input, prompt, NULL, MENU_NORMAL );
+    RofiViewState * state = rofi_view_create ( modi[mode].sw, input, prompt, NULL, MENU_NORMAL );
     state->finalize = process_result;
-    menu_state_set_active ( state );
+    rofi_view_set_active ( state );
     g_free ( prompt );
 }
-static void process_result ( MenuState *state )
+static void process_result ( RofiViewState *state )
 {
-    unsigned int selected_line = menu_state_get_selected_line ( state );;
-    MenuReturn   mretv         = menu_state_get_return_value ( state );
-    char         *input        = g_strdup ( menu_state_get_user_input ( state ) );
-    menu_state_set_active ( NULL );
-    menu_state_free ( state );
+    unsigned int selected_line = rofi_view_get_selected_line ( state );;
+    MenuReturn   mretv         = rofi_view_get_return_value ( state );
+    char         *input        = g_strdup ( rofi_view_get_user_input ( state ) );
+    rofi_view_set_active ( NULL );
+    rofi_view_free ( state );
     ModeMode retv = mode_result ( modi[curr_switcher].sw, mretv, &input, selected_line );
 
     ModeMode mode = curr_switcher;
@@ -1908,14 +1729,14 @@ static void process_result ( MenuState *state )
         mode = retv;
     }
     if ( mode != MODE_EXIT ) {
-        char      *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode].sw ) );
+        char          *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode].sw ) );
         curr_switcher = mode;
-        MenuState * state = menu ( modi[mode].sw, input, prompt, NULL, MENU_NORMAL );
+        RofiViewState * state = rofi_view_create ( modi[mode].sw, input, prompt, NULL, MENU_NORMAL );
         state->finalize = process_result;
         g_free ( prompt );
         // TODO FIX
         //g_return_val_if_fail ( state != NULL, MODE_EXIT );
-        menu_state_set_active ( state );
+        rofi_view_set_active ( state );
         g_free ( input );
         return;
     }
@@ -2027,7 +1848,7 @@ static void cleanup ()
         tpool = NULL;
     }
     if ( main_loop != NULL  ) {
-        if( main_loop_source) {
+        if ( main_loop_source ) {
             g_source_destroy ( main_loop_source );
         }
         g_main_loop_unref ( main_loop );
@@ -2214,8 +2035,6 @@ static void reload_configuration ()
     }
 }
 
-
-
 /**
  * Process X11 events in the main-loop (gui-thread) of the application.
  */
@@ -2226,11 +2045,11 @@ static gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data )
             XEvent ev;
             // Read event, we know this won't block as we checked with XPending.
             XNextEvent ( display, &ev );
-            menu_state_itterrate ( current_active_menu, &ev );
+            rofi_view_itterrate ( current_active_menu, &ev );
         }
-        if ( menu_state_get_completed ( current_active_menu ) ) {
+        if ( rofi_view_get_completed ( current_active_menu ) ) {
             // This menu is done.
-            menu_state_finalize ( current_active_menu );
+            rofi_view_finalize ( current_active_menu );
         }
         return G_SOURCE_CONTINUE;
     }
@@ -2305,9 +2124,9 @@ static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, Display   *xdispl
 static gboolean delayed_start ( G_GNUC_UNUSED gpointer data )
 {
     // Force some X Events to be handled.. seems the only way to get a reliable startup.
-    menu_state_queue_redraw ();
+    rofi_view_queue_redraw ();
     main_loop_x11_event_handler ( NULL );
-    // menu_state_queue_redraw();
+    // rofi_view_queue_redraw();
     return FALSE;
 }
 int main ( int argc, char *argv[] )

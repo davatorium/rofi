@@ -25,7 +25,7 @@ unsigned int normal_window_mode = 0;
 Display     *display = NULL;
 Colormap    map      = None;
 XVisualInfo vinfo;
-void menu_state_queue_redraw ()
+void rofi_view_queue_redraw ()
 {
 }
 
