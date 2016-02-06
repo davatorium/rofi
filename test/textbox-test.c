@@ -25,6 +25,7 @@ unsigned int normal_window_mode = 0;
 Display     *display = NULL;
 Colormap    map      = None;
 XVisualInfo vinfo;
+#include "view.h"
 void rofi_view_queue_redraw ()
 {
 }

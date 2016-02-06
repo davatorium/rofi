@@ -83,17 +83,6 @@ int show_error_message ( const char *msg, int markup );
     " * The version of rofi you are running\n\n"                       \
     " <i>https://github.com/DaveDavenport/rofi/</i>"
 #define ERROR_MSG_MARKUP    TRUE
-
-MenuReturn rofi_view_get_return_value ( const RofiViewState *state );
-unsigned int rofi_view_get_selected_line ( const RofiViewState *state );
-unsigned int rofi_view_get_next_position ( const RofiViewState *state );
-void rofi_view_itterrate ( RofiViewState *state, XEvent *event );
-unsigned int rofi_view_get_completed ( const RofiViewState *state );
-const char * rofi_view_get_user_input ( const RofiViewState *state );
-void rofi_view_free ( RofiViewState *state );
-void rofi_view_restart ( RofiViewState *state );
-void rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_line );
-void rofi_view_queue_redraw ( void );
-void rofi_view_set_active ( RofiViewState *state );
+int locate_switcher ( KeySym key, unsigned int modstate );
 /*@}*/
 #endif

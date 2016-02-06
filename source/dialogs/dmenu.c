@@ -40,7 +40,7 @@
 #include "dialogs/dmenu.h"
 #include "helper.h"
 #include "xrmoptions.h"
-
+#include "view.h"
 // We limit at 1000000 rows for now.
 #define DMENU_MAX_ROWS    1000000
 
