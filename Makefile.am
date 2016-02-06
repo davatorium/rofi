@@ -59,6 +59,7 @@ rofi_SOURCES=\
 	include/settings.h\
 	include/keyb.h\
 	include/view.h\
+	include/view-internal.h\
 	include/helper.h\
 	include/timings.h\
     include/history.h\
