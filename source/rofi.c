@@ -71,35 +71,30 @@ typedef enum _MainLoopEvent
     ML_XEVENT,
     ML_TIMEOUT
 } MainLoopEvent;
-typedef struct _ModeHolder
-{
-    Mode    *sw;
-    textbox *tb;
-} ModeHolder;
 
-gboolean          daemon_mode = FALSE;
+gboolean          daemon_mode          = FALSE;
 // Pidfile.
 extern Atom       netatoms[NUM_NETATOMS];
-char              *pidfile           = NULL;
-const char        *cache_dir         = NULL;
-SnDisplay         *sndisplay         = NULL;
-SnLauncheeContext *sncontext         = NULL;
-Display           *display           = NULL;
-char              *display_str       = NULL;
-char              *config_path       = NULL;
-Window            main_window        = None;
-Colormap          map                = None;
-unsigned int      normal_window_mode = FALSE;
+char              *pidfile             = NULL;
+const char        *cache_dir           = NULL;
+SnDisplay         *sndisplay           = NULL;
+SnLauncheeContext *sncontext           = NULL;
+Display           *display             = NULL;
+char              *display_str         = NULL;
+char              *config_path         = NULL;
+Window            main_window          = None;
+Colormap          map                  = None;
+unsigned int      normal_window_mode   = FALSE;
 // Array of modi.
-ModeHolder        *modi    = NULL;
-unsigned int      num_modi = 0;
+Mode              **modi               = NULL;
+unsigned int      num_modi             = 0;
 // Current selected switcher.
-unsigned int      curr_switcher = 0;
+unsigned int      curr_switcher        = 0;
 XVisualInfo       vinfo;
 
-cairo_surface_t   *surface = NULL;
-cairo_surface_t   *fake_bg = NULL;
-cairo_t           *draw    = NULL;
+cairo_surface_t   *surface             = NULL;
+cairo_surface_t   *fake_bg             = NULL;
+cairo_t           *draw                = NULL;
 XIM               xim;
 XIC               xic;
 
@@ -110,6 +105,7 @@ gboolean          quiet                = FALSE;
 RofiViewState     *current_active_menu = NULL;
 
 static void process_result ( RofiViewState *state );
+gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data );
 static char * get_matching_state ( void )
 {
     if ( config.case_sensitive ) {
@@ -138,7 +134,7 @@ static char * get_matching_state ( void )
 static int switcher_get ( const char *name )
 {
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        if ( strcmp ( mode_get_name ( modi[i].sw ), name ) == 0 ) {
+        if ( strcmp ( mode_get_name ( modi[i] ), name ) == 0 ) {
             return i;
         }
     }
@@ -488,7 +484,7 @@ static int locate_switcher ( KeySym key, unsigned int modstate )
     // ignore annoying modifiers
     unsigned int modstate_filtered = modstate & ~( LockMask | NumlockMask );
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        if ( mode_check_keybinding ( modi[i].sw, key, modstate_filtered ) ) {
+        if ( mode_check_keybinding ( modi[i], key, modstate_filtered ) ) {
             return i;
         }
     }
@@ -1436,7 +1432,8 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->top_offset = state->border * 1 + state->line_height + 2 + config.line_margin * 2;
 
     // Move indicator to end.
-    widget_move ( WIDGET ( state->case_indicator ), state->border + textbox_get_width ( state->prompt_tb ) + entrybox_width, state->border );
+    widget_move ( WIDGET ( state->case_indicator ), state->border + textbox_get_width ( state->prompt_tb ) + entrybox_width,
+                  state->border );
 
     textbox_text ( state->case_indicator, get_matching_state () );
     state->message_tb = NULL;
@@ -1498,7 +1495,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
         for ( unsigned int j = 0; j < num_modi; j++ ) {
             state->modi[j] = textbox_create ( TB_CENTER, state->border + j * ( width + config.line_margin ),
                                               state->h - state->line_height - state->border, width, state->line_height,
-                                              ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, mode_get_name ( modi[j].sw ) );
+                                              ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, mode_get_name ( modi[j] ) );
         }
     }
 
@@ -1683,16 +1680,16 @@ static void run_switcher ( ModeMode mode )
     }
     // Otherwise check if requested mode is enabled.
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        if ( !mode_init ( modi[i].sw ) ) {
+        if ( !mode_init ( modi[i] ) ) {
             error_dialog ( ERROR_MSG ( "Failed to initialize all the modi." ), ERROR_MSG_MARKUP );
             teardown ( pfd );
             return;
         }
     }
     char          *input  = g_strdup ( config.filter );
-    char          *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode].sw ) );
+    char          *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode] ) );
     curr_switcher = mode;
-    RofiViewState * state = rofi_view_create ( modi[mode].sw, input, prompt, NULL, MENU_NORMAL );
+    RofiViewState * state = rofi_view_create ( modi[mode], input, prompt, NULL, MENU_NORMAL );
     state->finalize = process_result;
     rofi_view_set_active ( state );
     g_free ( prompt );
@@ -1704,7 +1701,7 @@ static void process_result ( RofiViewState *state )
     char         *input        = g_strdup ( rofi_view_get_user_input ( state ) );
     rofi_view_set_active ( NULL );
     rofi_view_free ( state );
-    ModeMode retv = mode_result ( modi[curr_switcher].sw, mretv, &input, selected_line );
+    ModeMode retv = mode_result ( modi[curr_switcher], mretv, &input, selected_line );
 
     ModeMode mode = curr_switcher;
     // Find next enabled
@@ -1729,21 +1726,22 @@ static void process_result ( RofiViewState *state )
         mode = retv;
     }
     if ( mode != MODE_EXIT ) {
-        char          *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode].sw ) );
+        char          *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode] ) );
         curr_switcher = mode;
-        RofiViewState * state = rofi_view_create ( modi[mode].sw, input, prompt, NULL, MENU_NORMAL );
+        RofiViewState * state = rofi_view_create ( modi[mode], input, prompt, NULL, MENU_NORMAL );
         state->finalize = process_result;
         g_free ( prompt );
         // TODO FIX
         //g_return_val_if_fail ( state != NULL, MODE_EXIT );
         rofi_view_set_active ( state );
         g_free ( input );
+        main_loop_x11_event_handler ( NULL );
         return;
     }
     // Cleanup
     g_free ( input );
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_destroy ( modi[i].sw );
+        mode_destroy ( modi[i] );
     }
     // cleanup
     teardown ( pfd );
@@ -1823,14 +1821,14 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
 static void release_global_keybindings ()
 {
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_ungrab_key ( modi[i].sw, display );
+        mode_ungrab_key ( modi[i], display );
     }
 }
 static int grab_global_keybindings ()
 {
     int key_bound = FALSE;
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        if ( mode_grab_key ( modi[i].sw, display ) ) {
+        if ( mode_grab_key ( modi[i], display ) ) {
             key_bound = TRUE;
         }
     }
@@ -1879,7 +1877,7 @@ static void cleanup ()
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_free ( &( modi[i].sw ) );
+        mode_free ( &( modi[i] ) );
     }
     g_free ( modi );
 
@@ -1902,45 +1900,44 @@ static int add_mode ( const char * token )
 {
     unsigned int index = num_modi;
     // Resize and add entry.
-    modi              = (ModeHolder *) g_realloc ( modi, sizeof ( ModeHolder ) * ( num_modi + 1 ) );
-    modi[num_modi].tb = NULL;
+    modi = (Mode * *) g_realloc ( modi, sizeof ( Mode* ) * ( num_modi + 1 ) );
 
     // Window switcher.
 #ifdef WINDOW_MODE
     if ( strcasecmp ( token, "window" ) == 0 ) {
-        modi[num_modi].sw = &window_mode;
+        modi[num_modi] = &window_mode;
         num_modi++;
     }
     else if ( strcasecmp ( token, "windowcd" ) == 0 ) {
-        modi[num_modi].sw = &window_mode_cd;
+        modi[num_modi] = &window_mode_cd;
         num_modi++;
     }
     else
 #endif // WINDOW_MODE
        // SSh dialog
     if ( strcasecmp ( token, "ssh" ) == 0 ) {
-        modi[num_modi].sw = &ssh_mode;
+        modi[num_modi] = &ssh_mode;
         num_modi++;
     }
     // Run dialog
     else if ( strcasecmp ( token, "run" ) == 0 ) {
-        modi[num_modi].sw = &run_mode;
+        modi[num_modi] = &run_mode;
         num_modi++;
     }
     else if ( strcasecmp ( token, "drun" ) == 0 ) {
-        modi[num_modi].sw = &drun_mode;
+        modi[num_modi] = &drun_mode;
         num_modi++;
     }
     // combi dialog
     else if ( strcasecmp ( token, "combi" ) == 0 ) {
-        modi[num_modi].sw = &combi_mode;
+        modi[num_modi] = &combi_mode;
         num_modi++;
     }
     else {
         // If not build in, use custom modi.
         Mode *sw = script_switcher_parse_setup ( token );
         if ( sw != NULL ) {
-            modi[num_modi].sw = sw;
+            modi[num_modi] = sw;
             mode_set_config ( sw );
             num_modi++;
         }
@@ -1966,7 +1963,7 @@ static void setup_modi ( void )
     // We cannot do this in main loop, as we create pointer to string,
     // and re-alloc moves that pointer.
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_setup_keybinding ( modi[i].sw );
+        mode_setup_keybinding ( modi[i] );
     }
     mode_set_config ( &ssh_mode );
     mode_set_config ( &run_mode );
@@ -2005,7 +2002,7 @@ static void print_global_keybindings ()
 {
     fprintf ( stdout, "listening to the following keys:\n" );
     for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_print_keybindings ( modi[i].sw );
+        mode_print_keybindings ( modi[i] );
     }
 }
 
@@ -2038,7 +2035,7 @@ static void reload_configuration ()
 /**
  * Process X11 events in the main-loop (gui-thread) of the application.
  */
-static gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data )
+gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data )
 {
     if ( current_active_menu != NULL ) {
         while ( XPending ( display ) ) {
@@ -2350,7 +2347,7 @@ int main ( int argc, char *argv[] )
             fprintf ( stderr, "Please check the manpage on how to specify a key-binding.\n" );
             fprintf ( stderr, "The following modi are enabled and keys can be specified:\n" );
             for ( unsigned int i = 0; i < num_modi; i++ ) {
-                const char *name = mode_get_name ( modi[i].sw );
+                const char *name = mode_get_name ( modi[i] );
                 fprintf ( stderr, "\t* "color_bold "%s"color_reset ": -key-%s <key>\n", name, name );
             }
             // Cleanup
