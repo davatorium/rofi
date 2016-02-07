@@ -629,9 +629,7 @@ static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, Display   *xdispl
 static gboolean delayed_start ( G_GNUC_UNUSED gpointer data )
 {
     // Force some X Events to be handled.. seems the only way to get a reliable startup.
-    rofi_view_queue_redraw ();
     main_loop_x11_event_handler ( NULL );
-    // rofi_view_queue_redraw();
     return FALSE;
 }
 int main ( int argc, char *argv[] )
