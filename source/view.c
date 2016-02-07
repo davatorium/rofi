@@ -64,6 +64,9 @@
 #include "dialogs/dialogs.h"
 #include "rofi.h"
 
+#include "view.h"
+#include "view-internal.h"
+
 extern RofiViewState     *current_active_menu;
 extern Display           *display;
 extern unsigned int      num_modi;
@@ -88,9 +91,6 @@ typedef enum _MainLoopEvent
     ML_XEVENT,
     ML_TIMEOUT
 } MainLoopEvent;
-
-#include "view.h"
-#include "view-internal.h"
 
 static char * get_matching_state ( void )
 {
@@ -1375,7 +1375,7 @@ static void menu_mainloop_iter ( RofiViewState *state, XEvent *ev )
     }
 }
 RofiViewState *rofi_view_create ( Mode *sw,
-                                  char *input,
+                                  const char *input,
                                   char *prompt,
                                   const char *message,
                                   MenuFlags menu_flags )

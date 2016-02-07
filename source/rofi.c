@@ -63,6 +63,9 @@
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
 
+#include "view.h"
+#include "view-internal.h"
+
 gboolean          daemon_mode = FALSE;
 // Pidfile.
 char              *pidfile           = NULL;
@@ -104,9 +107,6 @@ static int switcher_get ( const char *name )
     }
     return -1;
 }
-
-#include "view.h"
-#include "view-internal.h"
 
 /**
  * @param key the Key to match
@@ -180,6 +180,16 @@ static int run_dmenu ()
 }
 
 static int pfd = -1;
+
+static void __run_switcher_internal ( ModeMode mode, char *input )
+{
+    char          *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode] ) );
+    curr_switcher = mode;
+    RofiViewState * state = rofi_view_create ( modi[mode], input, prompt, NULL, MENU_NORMAL );
+    state->finalize = process_result;
+    rofi_view_set_active ( state );
+    g_free ( prompt );
+}
 static void run_switcher ( ModeMode mode )
 {
     pfd = setup ();
@@ -194,13 +204,9 @@ static void run_switcher ( ModeMode mode )
             return;
         }
     }
-    char          *input  = g_strdup ( config.filter );
-    char          *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode] ) );
-    curr_switcher = mode;
-    RofiViewState * state = rofi_view_create ( modi[mode], input, prompt, NULL, MENU_NORMAL );
-    state->finalize = process_result;
-    rofi_view_set_active ( state );
-    g_free ( prompt );
+    char *input = g_strdup ( config.filter );
+    __run_switcher_internal ( mode, input );
+    g_free ( input );
 }
 static void process_result ( RofiViewState *state )
 {
@@ -234,14 +240,10 @@ static void process_result ( RofiViewState *state )
         mode = retv;
     }
     if ( mode != MODE_EXIT ) {
-        char          *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode] ) );
-        curr_switcher = mode;
-        RofiViewState * state = rofi_view_create ( modi[mode], input, prompt, NULL, MENU_NORMAL );
-        state->finalize = process_result;
-        g_free ( prompt );
-        // TODO FIX
-        //g_return_val_if_fail ( state != NULL, MODE_EXIT );
-        rofi_view_set_active ( state );
+        /**
+         * Load in the new mode.
+         */
+        __run_switcher_internal ( mode, input );
         g_free ( input );
         main_loop_x11_event_handler ( NULL );
         return;
