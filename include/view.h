@@ -59,8 +59,8 @@ void rofi_view_set_active ( RofiViewState *state );
 
 void rofi_view_call_thread ( gpointer data, gpointer user_data );
 
-void menu_update ( RofiViewState *state );
-void menu_setup_fake_transparency ( Display *display, RofiViewState *state );
+void rofi_view_update ( RofiViewState *state );
+void rofi_view_setup_fake_transparency ( Display *display, RofiViewState *state );
 
 void rofi_view_cleanup ( void );
 /** @} */

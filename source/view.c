@@ -86,12 +86,6 @@ Colormap                 map = None;
 XVisualInfo              vinfo;
 extern unsigned int      normal_window_mode;
 
-typedef enum _MainLoopEvent
-{
-    ML_XEVENT,
-    ML_TIMEOUT
-} MainLoopEvent;
-
 static char * get_matching_state ( void )
 {
     if ( config.case_sensitive ) {
@@ -379,7 +373,7 @@ static void check_is_ascii ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
     g_mutex_unlock ( t->mutex );
 }
 
-static Window create_window ( Display *display )
+static Window __create_window ( Display *display )
 {
     XSetWindowAttributes attr;
     attr.colormap         = map;
@@ -463,7 +457,7 @@ void rofi_view_call_thread ( gpointer data, gpointer user_data )
  * Calculate the number of rows, columns and elements to display based on the
  * configuration and available data.
  */
-static void menu_calculate_rows_columns ( RofiViewState *state )
+static void rofi_view_calculate_rows_columns ( RofiViewState *state )
 {
     state->columns      = config.menu_columns;
     state->max_elements = MIN ( state->menu_lines * state->columns, state->num_lines );
@@ -498,7 +492,7 @@ static void menu_calculate_rows_columns ( RofiViewState *state )
  *
  * Calculate the width of the window and the width of an element.
  */
-static void menu_calculate_window_and_element_width ( RofiViewState *state, workarea *mon )
+static void rofi_view_calculate_window_and_element_width ( RofiViewState *state, workarea *mon )
 {
     if ( config.menu_width < 0 ) {
         double fw = textbox_get_estimated_char_width ( );
@@ -527,7 +521,7 @@ static void menu_calculate_window_and_element_width ( RofiViewState *state, work
  * - No wrap around.
  * - Clip at top/bottom
  */
-inline static void menu_nav_page_next ( RofiViewState *state )
+inline static void rofi_view_nav_page_next ( RofiViewState *state )
 {
     // If no lines, do nothing.
     if ( state->filtered_lines == 0 ) {
@@ -546,7 +540,7 @@ inline static void menu_nav_page_next ( RofiViewState *state )
  * - No wrap around.
  * - Clip at top/bottom
  */
-inline static void menu_nav_page_prev ( RofiViewState * state )
+inline static void rofi_view_nav_page_prev ( RofiViewState * state )
 {
     if ( state->selected < state->max_elements ) {
         state->selected = 0;
@@ -563,7 +557,7 @@ inline static void menu_nav_page_prev ( RofiViewState * state )
  * - No wrap around.
  * - Do not move to top row when at start.
  */
-inline static void menu_nav_right ( RofiViewState *state )
+inline static void rofi_view_nav_right ( RofiViewState *state )
 {
     // If no lines, do nothing.
     if ( state->filtered_lines == 0 ) {
@@ -593,7 +587,7 @@ inline static void menu_nav_right ( RofiViewState *state )
  * Move the selection one column to the left.
  * - No wrap around.
  */
-inline static void menu_nav_left ( RofiViewState *state )
+inline static void rofi_view_nav_left ( RofiViewState *state )
 {
     if ( state->selected >= state->max_rows ) {
         state->selected -= state->max_rows;
@@ -606,7 +600,7 @@ inline static void menu_nav_left ( RofiViewState *state )
  * Move the selection one row up.
  * - Wrap around.
  */
-inline static void menu_nav_up ( RofiViewState *state )
+inline static void rofi_view_nav_up ( RofiViewState *state )
 {
     // Wrap around.
     if ( state->selected == 0 ) {
@@ -624,7 +618,7 @@ inline static void menu_nav_up ( RofiViewState *state )
  * Move the selection one row down.
  * - Wrap around.
  */
-inline static void menu_nav_down ( RofiViewState *state )
+inline static void rofi_view_nav_down ( RofiViewState *state )
 {
     // If no lines, do nothing.
     if ( state->filtered_lines == 0 ) {
@@ -638,7 +632,7 @@ inline static void menu_nav_down ( RofiViewState *state )
  *
  * Move the selection to first row.
  */
-inline static void menu_nav_first ( RofiViewState * state )
+inline static void rofi_view_nav_first ( RofiViewState * state )
 {
     state->selected = 0;
     state->update   = TRUE;
@@ -648,7 +642,7 @@ inline static void menu_nav_first ( RofiViewState * state )
  *
  * Move the selection to last row.
  */
-inline static void menu_nav_last ( RofiViewState * state )
+inline static void rofi_view_nav_last ( RofiViewState * state )
 {
     // If no lines, do nothing.
     if ( state->filtered_lines == 0 ) {
@@ -657,7 +651,7 @@ inline static void menu_nav_last ( RofiViewState * state )
     state->selected = state->filtered_lines - 1;
     state->update   = TRUE;
 }
-static void menu_draw ( RofiViewState *state, cairo_t *d )
+static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
 {
     unsigned int i, offset = 0;
     // selected row is always visible.
@@ -736,7 +730,7 @@ static void menu_draw ( RofiViewState *state, cairo_t *d )
     }
 }
 
-void menu_update ( RofiViewState *state )
+void rofi_view_update ( RofiViewState *state )
 {
     TICK ();
     cairo_surface_t * surf = cairo_image_surface_create ( get_format (), state->w, state->h );
@@ -776,7 +770,7 @@ void menu_update ( RofiViewState *state )
     // Always paint as overlay over the background.
     cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
     if ( state->max_elements > 0 ) {
-        menu_draw ( state, d );
+        rofi_view_draw ( state, d );
     }
     if ( state->prompt_tb ) {
         textbox_draw ( state->prompt_tb, d );
@@ -839,7 +833,7 @@ void menu_update ( RofiViewState *state )
  *
  * Handle paste event.
  */
-static void menu_paste ( RofiViewState *state, XSelectionEvent *xse )
+static void rofi_view_paste ( RofiViewState *state, XSelectionEvent *xse )
 {
     if ( xse->property == netatoms[UTF8_STRING] ) {
         gchar *text = window_get_text_prop ( display, main_window, netatoms[UTF8_STRING] );
@@ -861,7 +855,7 @@ static void menu_paste ( RofiViewState *state, XSelectionEvent *xse )
     }
 }
 
-static void menu_resize ( RofiViewState *state )
+static void rofi_view_resize ( RofiViewState *state )
 {
     unsigned int sbw = config.line_margin + 8;
     widget_move ( WIDGET ( state->scrollbar ), state->w - state->border - sbw, state->top_offset );
@@ -930,7 +924,7 @@ static void menu_resize ( RofiViewState *state )
  *
  * Keyboard navigation through the elements.
  */
-static int menu_keyboard_navigation ( RofiViewState *state, KeySym key, unsigned int modstate )
+static int rofi_view_keyboard_navigation ( RofiViewState *state, KeySym key, unsigned int modstate )
 {
     // pressing one of the global key bindings closes the switcher. This allows fast closing of the
     // menu if an item is not selected
@@ -941,7 +935,7 @@ static int menu_keyboard_navigation ( RofiViewState *state, KeySym key, unsigned
     }
     // Up, Ctrl-p or Shift-Tab
     else if ( abe_test_action ( ROW_UP, modstate, key ) ) {
-        menu_nav_up ( state );
+        rofi_view_nav_up ( state );
         return 1;
     }
     else if ( abe_test_action ( ROW_TAB, modstate, key ) ) {
@@ -959,37 +953,37 @@ static int menu_keyboard_navigation ( RofiViewState *state, KeySym key, unsigned
             state->quit              = TRUE;
         }
         else{
-            menu_nav_down ( state );
+            rofi_view_nav_down ( state );
         }
         return 1;
     }
     // Down, Ctrl-n
     else if ( abe_test_action ( ROW_DOWN, modstate, key ) ) {
-        menu_nav_down ( state );
+        rofi_view_nav_down ( state );
         return 1;
     }
     else if ( abe_test_action ( ROW_LEFT, modstate, key ) ) {
-        menu_nav_left ( state );
+        rofi_view_nav_left ( state );
         return 1;
     }
     else if ( abe_test_action ( ROW_RIGHT, modstate, key ) ) {
-        menu_nav_right ( state );
+        rofi_view_nav_right ( state );
         return 1;
     }
     else if ( abe_test_action ( PAGE_PREV, modstate, key ) ) {
-        menu_nav_page_prev ( state );
+        rofi_view_nav_page_prev ( state );
         return 1;
     }
     else if ( abe_test_action ( PAGE_NEXT, modstate, key ) ) {
-        menu_nav_page_next ( state );
+        rofi_view_nav_page_next ( state );
         return 1;
     }
     else if  ( abe_test_action ( ROW_FIRST, modstate, key ) ) {
-        menu_nav_first ( state );
+        rofi_view_nav_first ( state );
         return 1;
     }
     else if ( abe_test_action ( ROW_LAST, modstate, key ) ) {
-        menu_nav_last ( state );
+        rofi_view_nav_last ( state );
         return 1;
     }
     else if ( abe_test_action ( ROW_SELECT, modstate, key ) ) {
@@ -1008,21 +1002,21 @@ static int menu_keyboard_navigation ( RofiViewState *state, KeySym key, unsigned
     return 0;
 }
 
-static void menu_mouse_navigation ( RofiViewState *state, XButtonEvent *xbe )
+static void rofi_view_mouse_navigation ( RofiViewState *state, XButtonEvent *xbe )
 {
     // Scroll event
     if ( xbe->button > 3 ) {
         if ( xbe->button == 4 ) {
-            menu_nav_up ( state );
+            rofi_view_nav_up ( state );
         }
         else if ( xbe->button == 5 ) {
-            menu_nav_down ( state );
+            rofi_view_nav_down ( state );
         }
         else if ( xbe->button == 6 ) {
-            menu_nav_left ( state );
+            rofi_view_nav_left ( state );
         }
         else if ( xbe->button == 7 ) {
-            menu_nav_right ( state );
+            rofi_view_nav_right ( state );
         }
         return;
     }
@@ -1063,7 +1057,7 @@ static void menu_mouse_navigation ( RofiViewState *state, XButtonEvent *xbe )
         }
     }
 }
-static void menu_refilter ( RofiViewState *state )
+static void rofi_view_refilter ( RofiViewState *state )
 {
     TICK_N ( "Filter start" );
     if ( strlen ( state->text->text ) > 0 ) {
@@ -1159,7 +1153,7 @@ void rofi_view_finalize ( RofiViewState *state )
         state->finalize ( state );
     }
 }
-void menu_setup_fake_transparency ( Display *display, RofiViewState *state )
+void rofi_view_setup_fake_transparency ( Display *display, RofiViewState *state )
 {
     if ( fake_bg == NULL ) {
         Window          root   = DefaultRootWindow ( display );
@@ -1180,7 +1174,7 @@ void menu_setup_fake_transparency ( Display *display, RofiViewState *state )
     }
 }
 
-static void menu_mainloop_iter ( RofiViewState *state, XEvent *ev )
+static void rofi_view_mainloop_iter ( RofiViewState *state, XEvent *ev )
 {
     if ( sndisplay != NULL ) {
         sn_display_process_event ( sndisplay, ev );
@@ -1200,7 +1194,7 @@ static void menu_mainloop_iter ( RofiViewState *state, XEvent *ev )
                 state->w = xce.width;
                 state->h = xce.height;
                 cairo_xlib_surface_set_size ( surface, state->w, state->h );
-                menu_resize ( state );
+                rofi_view_resize ( state );
             }
         }
     }
@@ -1232,12 +1226,12 @@ static void menu_mainloop_iter ( RofiViewState *state, XEvent *ev )
         while ( XCheckTypedEvent ( display, ButtonPress, ev ) ) {
             ;
         }
-        menu_mouse_navigation ( state, &( ev->xbutton ) );
+        rofi_view_mouse_navigation ( state, &( ev->xbutton ) );
     }
     // Paste event.
     else if ( ev->type == SelectionNotify ) {
         do {
-            menu_paste ( state, &( ev->xselection ) );
+            rofi_view_paste ( state, &( ev->xselection ) );
         } while ( XCheckTypedEvent ( display, SelectionNotify, ev ) );
     }
     // Key press event.
@@ -1315,7 +1309,7 @@ static void menu_mainloop_iter ( RofiViewState *state, XEvent *ev )
                         break;
                     }
                 }
-                if ( menu_keyboard_navigation ( state, key, ev->xkey.state ) ) {
+                if ( rofi_view_keyboard_navigation ( state, key, ev->xkey.state ) ) {
                     continue;
                 }
             }
@@ -1368,10 +1362,10 @@ static void menu_mainloop_iter ( RofiViewState *state, XEvent *ev )
     }
     // Update if requested.
     if ( state->refilter ) {
-        menu_refilter ( state );
+        rofi_view_refilter ( state );
     }
     if ( state->update ) {
-        menu_update ( state );
+        rofi_view_update ( state );
     }
 }
 RofiViewState *rofi_view_create ( Mode *sw,
@@ -1394,7 +1388,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->rchanged       = TRUE;
     state->cur_page       = -1;
     state->border         = config.padding + config.menu_bw;
-    state->x11_event_loop = menu_mainloop_iter;
+    state->x11_event_loop = rofi_view_mainloop_iter;
 
     // Request the lines to show.
     state->num_lines       = mode_get_num_entries ( sw );
@@ -1453,7 +1447,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     XWindowAttributes attr;
     if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
-        main_window = create_window ( display );
+        main_window = __create_window ( display );
         if ( sncontext != NULL ) {
             sn_launchee_context_setup_window ( sncontext, main_window );
         }
@@ -1463,7 +1457,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     monitor_active ( display, &( state->mon ) );
     TICK_N ( "Get active monitor" );
     if ( config.fake_transparency ) {
-        menu_setup_fake_transparency ( display, state );
+        rofi_view_setup_fake_transparency ( display, state );
     }
 
     // we need this at this point so we can get height.
@@ -1480,8 +1474,8 @@ RofiViewState *rofi_view_create ( Mode *sw,
     else {
         state->menu_lines = config.menu_lines;
     }
-    menu_calculate_rows_columns ( state );
-    menu_calculate_window_and_element_width ( state, &( state->mon ) );
+    rofi_view_calculate_rows_columns ( state );
+    rofi_view_calculate_window_and_element_width ( state, &( state->mon ) );
 
     // Prompt box.
     state->prompt_tb = textbox_create ( TB_AUTOWIDTH, ( state->border ), ( state->border ),
@@ -1576,9 +1570,9 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     state->quit   = FALSE;
     state->update = TRUE;
-    menu_refilter ( state );
+    rofi_view_refilter ( state );
 
-    menu_update ( state );
+    rofi_view_update ( state );
     if ( sncontext != NULL ) {
         sn_launchee_context_complete ( sncontext );
     }
@@ -1605,7 +1599,7 @@ static void error_dialog_event_loop ( RofiViewState *state, XEvent *ev )
         state->quit = TRUE;
     }
     if ( state->update ) {
-        menu_update ( state );
+        rofi_view_update ( state );
     }
 }
 void error_dialog ( const char *msg, int markup )
@@ -1629,15 +1623,15 @@ void error_dialog ( const char *msg, int markup )
     // Get active monitor size.
     monitor_active ( display, &( state->mon ) );
     if ( config.fake_transparency ) {
-        menu_setup_fake_transparency ( display, state );
+        rofi_view_setup_fake_transparency ( display, state );
     }
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     XWindowAttributes attr;
     if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
-        main_window = create_window ( display );
+        main_window = __create_window ( display );
     }
 
-    menu_calculate_window_and_element_width ( state, &( state->mon ) );
+    rofi_view_calculate_window_and_element_width ( state, &( state->mon ) );
     state->max_elements = 0;
 
     state->text = textbox_create ( ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
