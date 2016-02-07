@@ -47,9 +47,6 @@
 
 #include <glib-unix.h>
 
-#include <cairo.h>
-#include <cairo-xlib.h>
-
 #define SN_API_NOT_YET_FROZEN
 #include <libsn/sn.h>
 
@@ -508,7 +505,9 @@ static inline void load_configuration_dynamic ( Display *display )
 
 static void print_global_keybindings ()
 {
-    fprintf ( stdout, "listening to the following keys:\n" );
+    if ( quiet ) {
+        fprintf ( stdout, "listening to the following keys:\n" );
+    }
     for ( unsigned int i = 0; i < num_modi; i++ ) {
         mode_print_keybindings ( modi[i] );
     }
@@ -586,7 +585,9 @@ gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data )
  */
 static gboolean main_loop_signal_handler_hup ( G_GNUC_UNUSED gpointer data )
 {
-    fprintf ( stdout, "Reload configuration\n" );
+    if ( !quiet ) {
+        fprintf ( stdout, "Reload configuration\n" );
+    }
     // Release the keybindings.
     release_global_keybindings ();
     // Reload config
@@ -597,6 +598,7 @@ static gboolean main_loop_signal_handler_hup ( G_GNUC_UNUSED gpointer data )
     XFlush ( display );
     return G_SOURCE_CONTINUE;
 }
+
 static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
 {
     // Break out of loop.
@@ -626,12 +628,15 @@ static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, Display   *xdispl
     XSync ( xdisplay, False ); /* get all errors out of the queue */
     --error_trap_depth;
 }
+
 static gboolean delayed_start ( G_GNUC_UNUSED gpointer data )
 {
     // Force some X Events to be handled.. seems the only way to get a reliable startup.
+    rofi_view_queue_redraw ();
     main_loop_x11_event_handler ( NULL );
     return FALSE;
 }
+
 int main ( int argc, char *argv[] )
 {
     TIMINGS_START ();

@@ -44,8 +44,6 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 
-#include <glib-unix.h>
-
 #include <cairo.h>
 #include <cairo-xlib.h>
 
@@ -53,6 +51,8 @@
 #include <libsn/sn.h>
 
 #include "settings.h"
+
+#include "rofi.h"
 #include "mode.h"
 #include "rofi.h"
 #include "helper.h"
@@ -62,7 +62,6 @@
 #include "x11-event-source.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
-#include "rofi.h"
 
 #include "view.h"
 #include "view-internal.h"
@@ -103,10 +102,10 @@ static char * get_matching_state ( void )
     }
     return " ";
 }
+
 /**
  * Levenshtein Sorting.
  */
-
 static int lev_sort ( const void *p1, const void *p2, void *arg )
 {
     const int *a         = p1;
@@ -167,6 +166,7 @@ static void menu_capture_screenshot ( void )
     g_free ( timestmp );
     g_date_time_unref ( now );
 }
+
 /**
  * @param state   the state of the View.
  * @param mon     the work area.
@@ -209,6 +209,7 @@ static void calculate_window_position ( RofiViewState *state )
     state->x += config.x_offset;
     state->y += config.y_offset;
 }
+
 void rofi_view_queue_redraw ( void )
 {
     if ( current_active_menu ) {
@@ -223,6 +224,7 @@ void rofi_view_restart ( RofiViewState *state )
     state->quit = FALSE;
     state->retv = MENU_CANCEL;
 }
+
 void rofi_view_set_active ( RofiViewState *state )
 {
     g_assert ( ( current_active_menu == NULL && state != NULL ) || ( current_active_menu != NULL && state == NULL ) );
@@ -284,6 +286,7 @@ MenuReturn rofi_view_get_return_value ( const RofiViewState *state )
 {
     return state->retv;
 }
+
 unsigned int rofi_view_get_selected_line ( const RofiViewState *state )
 {
     return state->selected_line;
@@ -302,10 +305,12 @@ unsigned int rofi_view_get_completed ( const RofiViewState *state )
 {
     return state->quit;
 }
+
 void rofi_view_itterrate ( RofiViewState *state, XEvent *event )
 {
     state->x11_event_loop ( state, event );
 }
+
 const char * rofi_view_get_user_input ( const RofiViewState *state )
 {
     if ( state->text ) {
@@ -442,6 +447,7 @@ static Window __create_window ( Display *display )
     x11_set_window_opacity ( display, box, config.window_opacity );
     return box;
 }
+
 /**
  * Small wrapper function to create easy workers.
  */
@@ -533,6 +539,7 @@ inline static void rofi_view_nav_page_next ( RofiViewState *state )
     }
     state->update = TRUE;
 }
+
 /**
  * @param state The current RofiViewState
  *
@@ -581,6 +588,7 @@ inline static void rofi_view_nav_right ( RofiViewState *state )
         }
     }
 }
+
 /**
  * @param state The current RofiViewState
  *
@@ -594,6 +602,7 @@ inline static void rofi_view_nav_left ( RofiViewState *state )
         state->update    = TRUE;
     }
 }
+
 /**
  * @param state The current RofiViewState
  *
@@ -612,6 +621,7 @@ inline static void rofi_view_nav_up ( RofiViewState *state )
     }
     state->update = TRUE;
 }
+
 /**
  * @param state The current RofiViewState
  *
@@ -627,6 +637,7 @@ inline static void rofi_view_nav_down ( RofiViewState *state )
     state->selected = state->selected < state->filtered_lines - 1 ? MIN ( state->filtered_lines - 1, state->selected + 1 ) : 0;
     state->update   = TRUE;
 }
+
 /**
  * @param state The current RofiViewState
  *
@@ -637,6 +648,7 @@ inline static void rofi_view_nav_first ( RofiViewState * state )
     state->selected = 0;
     state->update   = TRUE;
 }
+
 /**
  * @param state The current RofiViewState
  *
@@ -651,6 +663,7 @@ inline static void rofi_view_nav_last ( RofiViewState * state )
     state->selected = state->filtered_lines - 1;
     state->update   = TRUE;
 }
+
 static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
 {
     unsigned int i, offset = 0;
@@ -732,6 +745,9 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
 
 void rofi_view_update ( RofiViewState *state )
 {
+    if ( !state->update ) {
+        return;
+    }
     TICK ();
     cairo_surface_t * surf = cairo_image_surface_create ( get_format (), state->w, state->h );
     cairo_t         *d     = cairo_create ( surf );
@@ -1364,9 +1380,7 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, XEvent *ev )
     if ( state->refilter ) {
         rofi_view_refilter ( state );
     }
-    if ( state->update ) {
-        rofi_view_update ( state );
-    }
+    rofi_view_update ( state );
 }
 RofiViewState *rofi_view_create ( Mode *sw,
                                   const char *input,
@@ -1598,9 +1612,7 @@ static void error_dialog_event_loop ( RofiViewState *state, XEvent *ev )
         }
         state->quit = TRUE;
     }
-    if ( state->update ) {
-        rofi_view_update ( state );
-    }
+    rofi_view_update ( state );
 }
 void error_dialog ( const char *msg, int markup )
 {
