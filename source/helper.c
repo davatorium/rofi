@@ -43,6 +43,7 @@
 #include "settings.h"
 #include "x11-helper.h"
 #include "rofi.h"
+#include "view.h"
 
 static int  stored_argc   = 0;
 static char **stored_argv = NULL;
@@ -121,7 +122,7 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
     // Throw error if shell parsing fails.
     if ( error ) {
         char *msg = g_strdup_printf ( "Failed to parse: '%s'\nError: '%s'", string, error->message );
-        error_dialog ( msg, FALSE );
+        rofi_view_error_dialog ( msg, FALSE );
         g_free ( msg );
         // print error.
         g_error_free ( error );
@@ -443,7 +444,7 @@ int execute_generator ( const char * cmd )
 
     if ( error != NULL ) {
         char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd, error->message );
-        error_dialog ( msg, FALSE );
+        rofi_view_error_dialog ( msg, FALSE );
         g_free ( msg );
         // print error.
         g_error_free ( error );

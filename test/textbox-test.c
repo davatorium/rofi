@@ -30,14 +30,14 @@ void rofi_view_queue_redraw ()
 {
 }
 
-void error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
+void rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
 {
     fputs ( msg, stderr );
 }
 
 int show_error_message ( const char *msg, int markup )
 {
-    error_dialog ( msg, markup );
+    rofi_view_error_dialog ( msg, markup );
     return 0;
 }
 

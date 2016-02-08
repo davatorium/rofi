@@ -105,15 +105,6 @@ static int switcher_get ( const char *name )
     return -1;
 }
 
-/**
- * @param key the Key to match
- * @param modstate the modifier state to match
- *
- * Match key and modifier state against modi.
- *
- * @return the index of the switcher that matches the key combination
- * specified by key and modstate. Returns -1 if none was found
- */
 extern unsigned int NumlockMask;
 int locate_switcher ( KeySym key, unsigned int modstate )
 {
@@ -196,7 +187,7 @@ static void run_switcher ( ModeMode mode )
     // Otherwise check if requested mode is enabled.
     for ( unsigned int i = 0; i < num_modi; i++ ) {
         if ( !mode_init ( modi[i] ) ) {
-            error_dialog ( ERROR_MSG ( "Failed to initialize all the modi." ), ERROR_MSG_MARKUP );
+            rofi_view_error_dialog ( ERROR_MSG ( "Failed to initialize all the modi." ), ERROR_MSG_MARKUP );
             teardown ( pfd );
             return;
         }
@@ -263,7 +254,7 @@ int show_error_message ( const char *msg, int markup )
     if ( pfd < 0 ) {
         return EXIT_FAILURE;
     }
-    error_dialog ( msg, markup );
+    rofi_view_error_dialog ( msg, markup );
     teardown ( pfd );
     // TODO this looks incorrect.
     g_main_loop_quit ( main_loop );

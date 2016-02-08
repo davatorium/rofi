@@ -61,7 +61,7 @@ static inline int execsh ( const char *cmd, int run_in_term )
     g_spawn_async ( NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error );
     if ( error != NULL ) {
         char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd, error->message );
-        error_dialog ( msg, FALSE  );
+        rofi_view_error_dialog ( msg, FALSE  );
         g_free ( msg );
         // print error.
         g_error_free ( error );

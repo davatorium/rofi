@@ -303,7 +303,7 @@ static int dmenu_mode_init ( Mode *sw )
         fd = fopen ( str, "r" );
         if ( fd == NULL ) {
             char *msg = g_markup_printf_escaped ( "Failed to open file: <b>%s</b>:\n\t<i>%s</i>", estr, strerror ( errno ) );
-            error_dialog ( msg, TRUE );
+            rofi_view_error_dialog ( msg, TRUE );
             g_free ( msg );
             g_free ( estr );
             return TRUE;

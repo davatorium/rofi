@@ -8,6 +8,7 @@
 #include "timings.h"
 #include "keyb.h"
 #include "mode.h"
+#include "view.h"
 
 /**
  * @defgroup Main Main
@@ -19,12 +20,15 @@
 extern const char *cache_dir;
 
 /**
- * @param msg The error message to show.
- * @param markup The error message uses pango markup.
+ * @param key the Key to match
+ * @param modstate the modifier state to match
  *
- * The error message to show.
+ * Match key and modifier state against modi.
+ *
+ * @return the index of the switcher that matches the key combination
+ * specified by key and modstate. Returns -1 if none was found
  */
-void error_dialog ( const char *msg, int markup  );
+int locate_switcher ( KeySym key, unsigned int modstate );
 
 /** Reset terminal */
 #define  color_reset     "\033[0m"
@@ -54,6 +58,5 @@ int show_error_message ( const char *msg, int markup );
     " * The version of rofi you are running\n\n"                       \
     " <i>https://github.com/DaveDavenport/rofi/</i>"
 #define ERROR_MSG_MARKUP    TRUE
-int locate_switcher ( KeySym key, unsigned int modstate );
 /*@}*/
 #endif

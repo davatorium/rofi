@@ -41,6 +41,7 @@
 #include "rofi.h"
 #include "x11-helper.h"
 #include "i3-support.h"
+#include "view.h"
 
 #ifdef HAVE_I3_IPC_H
 #include <i3/ipc.h>
@@ -85,7 +86,7 @@ void i3_support_focus_window ( Window id )
     t = send ( s, &head, sizeof ( i3_ipc_header_t ), 0 );
     if ( t == -1 ) {
         char *msg = g_strdup_printf ( "Failed to send message header to i3: %s\n", strerror ( errno ) );
-        error_dialog ( msg, FALSE );
+        rofi_view_error_dialog ( msg, FALSE );
         g_free ( msg );
         close ( s );
         return;
@@ -94,7 +95,7 @@ void i3_support_focus_window ( Window id )
     t = send ( s, command, strlen ( command ), 0 );
     if ( t == -1 ) {
         char *msg = g_strdup_printf ( "Failed to send message body to i3: %s\n", strerror ( errno ) );
-        error_dialog ( msg, FALSE  );
+        rofi_view_error_dialog ( msg, FALSE  );
         g_free ( msg );
         close ( s );
         return;

@@ -56,5 +56,13 @@ void rofi_view_update ( RofiViewState *state );
 void rofi_view_setup_fake_transparency ( Display *display, RofiViewState *state );
 
 void rofi_view_cleanup ( void );
+
+/**
+ * @param msg The error message to show.
+ * @param markup The error message uses pango markup.
+ *
+ * The error message to show.
+ */
+void rofi_view_error_dialog ( const char *msg, int markup  );
 /** @} */
 #endif

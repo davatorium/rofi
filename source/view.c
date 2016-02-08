@@ -1592,7 +1592,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     }
     return state;
 }
-static void error_dialog_event_loop ( RofiViewState *state, XEvent *ev )
+static void __error_dialog_event_loop ( RofiViewState *state, XEvent *ev )
 {
     // Wait for event.
     if ( sndisplay != NULL ) {
@@ -1614,13 +1614,13 @@ static void error_dialog_event_loop ( RofiViewState *state, XEvent *ev )
     }
     rofi_view_update ( state );
 }
-void error_dialog ( const char *msg, int markup )
+void rofi_view_error_dialog ( const char *msg, int markup )
 {
     RofiViewState *state = rofi_view_state_create ();
     state->retv           = MENU_CANCEL;
     state->update         = TRUE;
     state->border         = config.padding + config.menu_bw;
-    state->x11_event_loop = error_dialog_event_loop;
+    state->x11_event_loop = __error_dialog_event_loop;
     state->finalize       = NULL;
 
     // Try to grab the keyboard as early as possible.
