@@ -66,19 +66,18 @@
 #include "view.h"
 #include "view-internal.h"
 
-extern RofiViewState     *current_active_menu;
 extern Display           *display;
 extern unsigned int      num_modi;
-Window                   main_window = None;
+extern Mode              **modi;
 extern SnDisplay         *sndisplay;
 extern SnLauncheeContext *sncontext;
 extern GThreadPool       *tpool;
-extern unsigned int      curr_switcher;
-extern Mode              **modi;
-extern unsigned int      num_modi;
-cairo_surface_t          *surface = NULL;
-cairo_surface_t          *fake_bg = NULL;
-cairo_t                  *draw    = NULL;
+
+RofiViewState            *current_active_menu = NULL;
+Window                   main_window          = None;
+cairo_surface_t          *surface             = NULL;
+cairo_surface_t          *fake_bg             = NULL;
+cairo_t                  *draw                = NULL;
 XIM                      xim;
 XIC                      xic;
 Colormap                 map = None;
@@ -225,6 +224,11 @@ void rofi_view_restart ( RofiViewState *state )
     state->retv = MENU_CANCEL;
 }
 
+RofiViewState * rofi_view_get_active ( void )
+{
+    return current_active_menu;
+}
+
 void rofi_view_set_active ( RofiViewState *state )
 {
     g_assert ( ( current_active_menu == NULL && state != NULL ) || ( current_active_menu != NULL && state == NULL ) );
@@ -324,7 +328,7 @@ const char * rofi_view_get_user_input ( const RofiViewState *state )
  *
  * @returns a new 0 initialized RofiViewState
  */
-RofiViewState * rofi_view_state_create ( void )
+static RofiViewState * __rofi_view_state_create ( void )
 {
     return g_malloc0 ( sizeof ( RofiViewState ) );
 }
@@ -448,9 +452,6 @@ static Window __create_window ( Display *display )
     return box;
 }
 
-/**
- * Small wrapper function to create easy workers.
- */
 void rofi_view_call_thread ( gpointer data, gpointer user_data )
 {
     thread_state *t = (thread_state *) data;
@@ -1389,7 +1390,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
                                   MenuFlags menu_flags )
 {
     TICK ();
-    RofiViewState *state = rofi_view_state_create ();
+    RofiViewState *state = __rofi_view_state_create ();
     state->sw            = sw;
     state->selected_line = UINT32_MAX;
     state->retv          = MENU_CANCEL;
@@ -1569,7 +1570,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
         for ( unsigned int j = 0; j < num_modi; j++ ) {
             state->modi[j] = textbox_create ( TB_CENTER, state->border + j * ( width + config.line_margin ),
                                               state->h - state->line_height - state->border, width, state->line_height,
-                                              ( j == curr_switcher ) ? HIGHLIGHT : NORMAL, mode_get_name ( modi[j] ) );
+                                              ( modi[j] == state->sw ) ? HIGHLIGHT : NORMAL, mode_get_name ( modi[j] ) );
         }
     }
 
@@ -1616,7 +1617,7 @@ static void __error_dialog_event_loop ( RofiViewState *state, XEvent *ev )
 }
 void rofi_view_error_dialog ( const char *msg, int markup )
 {
-    RofiViewState *state = rofi_view_state_create ();
+    RofiViewState *state = __rofi_view_state_create ();
     state->retv           = MENU_CANCEL;
     state->update         = TRUE;
     state->border         = config.padding + config.menu_bw;

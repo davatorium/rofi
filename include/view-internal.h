@@ -5,7 +5,7 @@
 #include "scrollbar.h"
 
 /**
- * @ingroup View
+ * @ingroup ViewHandle
  *
  * @{
  */

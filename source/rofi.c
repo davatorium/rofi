@@ -31,7 +31,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdint.h>
-#include <signal.h>
 #include <errno.h>
 #include <time.h>
 #include <locale.h>
@@ -42,7 +41,6 @@
 #include <X11/Xproto.h>
 #include <X11/keysym.h>
 #include <X11/XKBlib.h>
-#include <sys/wait.h>
 #include <sys/types.h>
 
 #include <glib-unix.h>
@@ -79,11 +77,10 @@ unsigned int      num_modi = 0;
 // Current selected switcher.
 unsigned int      curr_switcher = 0;
 
-GThreadPool       *tpool               = NULL;
-GMainLoop         *main_loop           = NULL;
-GSource           *main_loop_source    = NULL;
-gboolean          quiet                = FALSE;
-RofiViewState     *current_active_menu = NULL;
+GThreadPool       *tpool            = NULL;
+GMainLoop         *main_loop        = NULL;
+GSource           *main_loop_source = NULL;
+gboolean          quiet             = FALSE;
 
 static void process_result ( RofiViewState *state );
 gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data );
@@ -198,12 +195,13 @@ static void run_switcher ( ModeMode mode )
 }
 static void process_result ( RofiViewState *state )
 {
+    Mode         *sw           = state->sw;
     unsigned int selected_line = rofi_view_get_selected_line ( state );;
     MenuReturn   mretv         = rofi_view_get_return_value ( state );
     char         *input        = g_strdup ( rofi_view_get_user_input ( state ) );
     rofi_view_set_active ( NULL );
     rofi_view_free ( state );
-    ModeMode retv = mode_result ( modi[curr_switcher], mretv, &input, selected_line );
+    ModeMode retv = mode_result ( sw, mretv, &input, selected_line );
 
     ModeMode mode = curr_switcher;
     // Find next enabled
@@ -535,16 +533,17 @@ static void reload_configuration ()
  */
 gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data )
 {
-    if ( current_active_menu != NULL ) {
+    RofiViewState *state = rofi_view_get_active ();
+    if ( state != NULL ) {
         while ( XPending ( display ) ) {
             XEvent ev;
             // Read event, we know this won't block as we checked with XPending.
             XNextEvent ( display, &ev );
-            rofi_view_itterrate ( current_active_menu, &ev );
+            rofi_view_itterrate ( state, &ev );
         }
-        if ( rofi_view_get_completed ( current_active_menu ) ) {
+        if ( rofi_view_get_completed ( state ) ) {
             // This menu is done.
-            rofi_view_finalize ( current_active_menu );
+            rofi_view_finalize ( state );
         }
         return G_SOURCE_CONTINUE;
     }
