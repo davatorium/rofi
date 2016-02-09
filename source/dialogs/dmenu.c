@@ -87,6 +87,11 @@ static char **get_dmenu ( FILE *fd, unsigned int *length )
         }
         if ( data[l - 1] == config.separator ) {
             data[l - 1] = '\0';
+            l--;
+        }
+        if (  ! g_utf8_validate ( data, l, NULL) ) {
+            fprintf(stderr, "String: '%s' is not valid utf-8\n", data);
+            continue;
         }
 
         retv[( *length )] = data;
