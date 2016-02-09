@@ -55,6 +55,7 @@ int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned l
     X ( _NET_WM_WINDOW_TYPE_NORMAL ),      \
     X ( _NET_WM_STATE_FULLSCREEN ),        \
     X ( _NET_WM_DESKTOP ),                 \
+    X ( _NET_DESKTOP_VIEWPORT ),           \
     X ( CLIPBOARD ),                       \
     X ( UTF8_STRING ),                     \
     X ( _NET_WM_WINDOW_OPACITY )

@@ -265,6 +265,20 @@ void monitor_active ( Display *display, workarea *mon )
         }
         fprintf ( stderr, "Failed to find selected monitor.\n" );
     }
+    // Get the current desktop.
+    unsigned long current_desktop = 0;
+    if ( window_get_cardinal_prop ( display, root, netatoms[_NET_CURRENT_DESKTOP], &current_desktop, 1 ) ) {
+        unsigned long desktops = 0;
+        if ( window_get_cardinal_prop ( display, root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1 ) ) {
+            unsigned long deskg[desktops * 2];
+            if ( window_get_cardinal_prop ( display, root, netatoms[_NET_DESKTOP_VIEWPORT], &deskg[0], desktops * 2 ) ) {
+                if ( current_desktop < desktops ) {
+                    monitor_dimensions ( display, screen, deskg[current_desktop * 2], deskg[current_desktop * 2 + 1], mon );
+                    return;
+                }
+            }
+        }
+    }
     if ( window_get_prop ( display, root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id, sizeof ( Window ) )
          && type == XA_WINDOW && count > 0 ) {
         XWindowAttributes attr;

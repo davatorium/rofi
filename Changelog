@@ -6,6 +6,7 @@
 		- Fix basic tests on OpenBSD  (#272)
 		- Fix wrong use of memcpy (thx to Jasperia).
 		- Work around for sigwaitinfo on OpenBSD.
+		- Ignore invalid (non-utf8) in dmenu mode.
 
 0.15.12:
     New features:
