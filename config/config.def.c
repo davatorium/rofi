@@ -144,7 +144,6 @@ Settings config = {
     .separator_style   = "dash",
     /** Hide scrollbar */
     .hide_scrollbar    = FALSE,
-    .markup_rows       = FALSE,
     .fullscreen        = FALSE,
     .fake_transparency = FALSE,
     .dpi               =                                        -1,
