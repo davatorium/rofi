@@ -108,8 +108,6 @@ rofi.filter:
 rofi.separator-style:                solid
 ! Hide scroll-bar
 rofi.hide-scrollbar:                 false
-! Show markup
-rofi.markup-rows:                    false
 ! Fullscreen
 rofi.fullscreen:                     false
 ! Fake transparency

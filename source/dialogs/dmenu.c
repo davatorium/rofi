@@ -64,6 +64,7 @@ typedef struct _DmenuModePrivateData
     unsigned int      num_active_list;
     struct range_pair * selected_list;
     unsigned int      num_selected_list;
+    unsigned int      do_markup;
     // List with entries.
     char              **cmd_list;
     unsigned int      cmd_list_length;
@@ -170,6 +171,9 @@ static char *get_display_data ( const Mode *data, unsigned int index, int *state
         if ( index >= pd->selected_list[i].start && index <= pd->selected_list[i].stop ) {
             *state |= SELECTED;
         }
+    }
+    if ( pd->do_markup ) {
+        *state |= MARKUP;
     }
     return get_entry ? g_strdup ( retv[index] ) : NULL;
 }
@@ -361,6 +365,9 @@ int dmenu_switcher_dialog ( void )
     char                 **cmd_list      = pd->cmd_list;
 
     int                  only_selected = FALSE;
+    if ( find_arg ( "-markup-rows" ) >= 0 ) {
+        pd->do_markup = TRUE;
+    }
     if ( find_arg ( "-only-match" ) >= 0 || find_arg ( "-no-custom" ) >= 0 ) {
         only_selected = TRUE;
         if ( cmd_list_length == 0 ) {
@@ -530,4 +537,5 @@ void print_dmenu_options ( void )
     print_help_msg ( "-no-custom", "", "Don't accept custom entry", NULL, is_term );
     print_help_msg ( "-select", "[string]", "Select the first row that matches", NULL, is_term );
     print_help_msg ( "-password", "", "Do not show what the user inputs. Show '*' instead.", NULL, is_term );
+    print_help_msg ( "-markup-rows", "", "Allow and render pango markup as input data.", NULL, is_term );
 }

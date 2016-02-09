@@ -159,7 +159,7 @@ static void __textbox_update_pango_text ( textbox *tb )
         pango_layout_set_attributes ( tb->layout, NULL );
         pango_layout_set_text ( tb->layout, string, l );
     }
-    else if ( tb->flags & TB_MARKUP || tb->tbft & MARKUP ) {
+    else if ( tb->tbft & MARKUP ) {
         pango_layout_set_markup ( tb->layout, tb->text, -1 );
     }
     else {

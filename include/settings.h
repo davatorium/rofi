@@ -140,8 +140,6 @@ typedef struct _Settings
     char           *separator_style;
     /** hide scrollbar */
     unsigned int   hide_scrollbar;
-    /** show markup in elements. */
-    unsigned int   markup_rows;
     /** fullscreen */
     unsigned int   fullscreen;
     /** bg image */
