@@ -382,6 +382,9 @@ int dmenu_switcher_dialog ( void )
     if ( find_arg ( "-password" ) >= 0 ) {
         menu_flags |= MENU_PASSWORD;
     }
+    if ( find_arg ( "-normal-window" ) >= 0 ) {
+        menu_flags |= MENU_NORMAL_WINDOW;
+    }
     /* copy filter string */
     input = g_strdup ( config.filter );
 

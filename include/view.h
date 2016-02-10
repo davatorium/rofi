@@ -15,9 +15,11 @@ typedef struct RofiViewState   RofiViewState;
 typedef enum
 {
     /** Create a menu for entering text */
-    MENU_NORMAL   = 0,
+    MENU_NORMAL        = 0,
     /** Create a menu for entering passwords */
-    MENU_PASSWORD = 1
+    MENU_PASSWORD      = 1,
+    /** Create amanaged window. */
+    MENU_NORMAL_WINDOW = 2,
 } MenuFlags;
 
 /**
@@ -146,4 +148,17 @@ void rofi_view_cleanup ( void );
 void rofi_view_call_thread ( gpointer data, gpointer user_data );
 
 /** @} */
+/***
+ * @defgroup ViewThreadPool ViewThreadPool
+ * @ingroup View
+ *
+ * The view can (optionally) keep a set of worker threads around to parallize work.
+ * This includes filtering and sorting.
+ *
+ * @{
+ */
+void rofi_view_workers_initialize ( void );
+void rofi_view_workers_finalize ( void );
+
+/**@}*/
 #endif

@@ -66,12 +66,16 @@
 #include "view.h"
 #include "view-internal.h"
 
+// TODO get rid of num_modi and modi, use an accessor.
+extern unsigned int num_modi;
+extern Mode         **modi;
+
+// What todo with these.
 extern Display           *display;
-extern unsigned int      num_modi;
-extern Mode              **modi;
 extern SnDisplay         *sndisplay;
 extern SnLauncheeContext *sncontext;
-extern GThreadPool       *tpool;
+
+GThreadPool              *tpool = NULL;
 
 RofiViewState            *current_active_menu = NULL;
 Window                   main_window          = None;
@@ -82,7 +86,6 @@ XIM                      xim;
 XIC                      xic;
 Colormap                 map = None;
 XVisualInfo              vinfo;
-extern unsigned int      normal_window_mode;
 
 static char * get_matching_state ( void )
 {
@@ -382,7 +385,7 @@ static void check_is_ascii ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
     g_mutex_unlock ( t->mutex );
 }
 
-static Window __create_window ( Display *display )
+static Window __create_window ( Display *display, MenuFlags menu_flags )
 {
     XSetWindowAttributes attr;
     attr.colormap         = map;
@@ -425,7 +428,7 @@ static Window __create_window ( Display *display )
     cairo_font_options_destroy ( fo );
 
     // // make it an unmanaged window
-    if ( !normal_window_mode && !config.fullscreen ) {
+    if ( ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) && !config.fullscreen ) {
         window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
         XSetWindowAttributes sattr = { .override_redirect = True };
         XChangeWindowAttributes ( display, box, CWOverrideRedirect, &sattr );
@@ -1212,10 +1215,14 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, XEvent *ev )
         }
     }
     else if ( ev->type == FocusIn ) {
-        take_keyboard ( display, main_window );
+        if ( ( state->menu_flags & MENU_NORMAL_WINDOW ) == 0 ) {
+            take_keyboard ( display, main_window );
+        }
     }
     else if ( ev->type == FocusOut ) {
-        release_keyboard ( display );
+        if ( ( state->menu_flags & MENU_NORMAL_WINDOW ) == 0 ) {
+            release_keyboard ( display );
+        }
     }
     // Handle event.
     else if ( ev->type == Expose ) {
@@ -1387,6 +1394,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
 {
     TICK ();
     RofiViewState *state = __rofi_view_state_create ();
+    state->menu_flags    = menu_flags;
     state->sw            = sw;
     state->selected_line = UINT32_MAX;
     state->retv          = MENU_CANCEL;
@@ -1446,19 +1454,21 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
-    int has_keyboard = take_keyboard ( display, DefaultRootWindow ( display ) );
+    if ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) {
+        int has_keyboard = take_keyboard ( display, DefaultRootWindow ( display ) );
 
-    if ( !has_keyboard ) {
-        fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
-        // Break off.
-        rofi_view_free ( state );
-        return NULL;
+        if ( !has_keyboard ) {
+            fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
+            // Break off.
+            rofi_view_free ( state );
+            return NULL;
+        }
     }
     TICK_N ( "Grab keyboard" );
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     XWindowAttributes attr;
     if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
-        main_window = __create_window ( display );
+        main_window = __create_window ( display, menu_flags );
         if ( sncontext != NULL ) {
             sn_launchee_context_setup_window ( sncontext, main_window );
         }
@@ -1633,7 +1643,7 @@ void rofi_view_error_dialog ( const char *msg, int markup )
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     XWindowAttributes attr;
     if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
-        main_window = __create_window ( display );
+        main_window = __create_window ( display, MENU_NORMAL );
     }
 
     rofi_view_calculate_window_and_element_width ( state, &( state->mon ) );
@@ -1692,3 +1702,33 @@ void rofi_view_cleanup ()
         map = None;
     }
 }
+void rofi_view_workers_initialize ( void )
+{
+    TICK_N ( "Setup Threadpool, start" );
+    // Create thread pool
+    GError *error = NULL;
+    tpool = g_thread_pool_new ( rofi_view_call_thread, NULL, config.threads, FALSE, &error );
+    if ( error == NULL ) {
+        // Idle threads should stick around for a max of 60 seconds.
+        g_thread_pool_set_max_idle_time ( 60000 );
+        // We are allowed to have
+        g_thread_pool_set_max_threads ( tpool, config.threads, &error );
+    }
+    // If error occured during setup of pool, tell user and exit.
+    if ( error != NULL ) {
+        char *msg = g_strdup_printf ( "Failed to setup thread pool: '%s'", error->message );
+        show_error_message ( msg, FALSE );
+        g_free ( msg );
+        g_error_free ( error );
+        exit ( EXIT_FAILURE );
+    }
+    TICK_N ( "Setup Threadpool, done" );
+}
+void rofi_view_workers_finalize ( void )
+{
+    if ( tpool ) {
+        g_thread_pool_free ( tpool, TRUE, FALSE );
+        tpool = NULL;
+    }
+}
+

@@ -65,6 +65,8 @@ typedef struct RofiViewState
     // Sidebar view
     ssize_t      num_modi;
     textbox      **modi;
+
+    MenuFlags    menu_flags;
     // Handlers.
     void ( *x11_event_loop )( struct RofiViewState *state, XEvent *ev );
     void ( *finalize )( struct RofiViewState *state );

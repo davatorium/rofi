@@ -63,21 +63,19 @@
 
 gboolean          daemon_mode = FALSE;
 // Pidfile.
-char              *pidfile           = NULL;
-const char        *cache_dir         = NULL;
-SnDisplay         *sndisplay         = NULL;
-SnLauncheeContext *sncontext         = NULL;
-Display           *display           = NULL;
-char              *display_str       = NULL;
-char              *config_path       = NULL;
-unsigned int      normal_window_mode = FALSE;
+char              *pidfile     = NULL;
+const char        *cache_dir   = NULL;
+SnDisplay         *sndisplay   = NULL;
+SnLauncheeContext *sncontext   = NULL;
+Display           *display     = NULL;
+char              *display_str = NULL;
+char              *config_path = NULL;
 // Array of modi.
 Mode              **modi   = NULL;
 unsigned int      num_modi = 0;
 // Current selected switcher.
 unsigned int      curr_switcher = 0;
 
-GThreadPool       *tpool            = NULL;
 GMainLoop         *main_loop        = NULL;
 GSource           *main_loop_source = NULL;
 gboolean          quiet             = FALSE;
@@ -337,10 +335,7 @@ static int grab_global_keybindings ()
  */
 static void cleanup ()
 {
-    if ( tpool ) {
-        g_thread_pool_free ( tpool, TRUE, FALSE );
-        tpool = NULL;
-    }
+    rofi_view_workers_finalize ();
     if ( main_loop != NULL  ) {
         if ( main_loop_source ) {
             g_source_destroy ( main_loop_source );
@@ -774,28 +769,9 @@ int main ( int argc, char *argv[] )
         return show_error_message ( msg, markup );
     }
 
-    // Create thread pool
-    GError *error = NULL;
-    tpool = g_thread_pool_new ( rofi_view_call_thread, NULL, config.threads, FALSE, &error );
-    if ( error == NULL ) {
-        // Idle threads should stick around for a max of 60 seconds.
-        g_thread_pool_set_max_idle_time ( 60000 );
-        // We are allowed to have
-        g_thread_pool_set_max_threads ( tpool, config.threads, &error );
-    }
-    // If error occured during setup of pool, tell user and exit.
-    if ( error != NULL ) {
-        char *msg = g_strdup_printf ( "Failed to setup thread pool: '%s'", error->message );
-        show_error_message ( msg, FALSE );
-        g_free ( msg );
-        g_error_free ( error );
-        return EXIT_FAILURE;
-    }
-
-    TICK_N ( "Setup Threadpool" );
+    rofi_view_workers_initialize ();
     // Dmenu mode.
     if ( dmenu_mode == TRUE ) {
-        normal_window_mode = find_arg ( "-normal-window" ) >= 0;
         // force off sidebar mode:
         config.sidebar_mode = FALSE;
         int retv = run_dmenu ();

@@ -1,12 +1,15 @@
 1.0.0 (unreleased):
 	New features:
 		- Have separate config file.
+		- Use GlibMainLoop.
+		- Blinking cursor.
 	Bug fixes:
 		- Fix subpixel rendering. (#303)
 		- Fix basic tests on OpenBSD  (#272)
 		- Fix wrong use of memcpy (thx to Jasperia).
 		- Work around for sigwaitinfo on OpenBSD.
 		- Ignore invalid (non-utf8) in dmenu mode.
+		- Glib signal handling.
 
 0.15.12:
     New features:
