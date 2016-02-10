@@ -39,6 +39,8 @@
 #include "textbox.h"
 #include "keyb.h"
 #include "x11-helper.h"
+#include "mode.h"
+#include "view.h"
 
 #define SIDE_MARGIN    1
 
