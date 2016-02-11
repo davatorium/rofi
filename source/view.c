@@ -72,7 +72,6 @@ extern Mode         **modi;
 
 // What todo with these.
 extern Display           *display;
-extern SnDisplay         *sndisplay;
 extern SnLauncheeContext *sncontext;
 
 GThreadPool              *tpool = NULL;
@@ -1192,9 +1191,6 @@ void rofi_view_setup_fake_transparency ( Display *display, RofiViewState *state 
 
 static void rofi_view_mainloop_iter ( RofiViewState *state, XEvent *ev )
 {
-    if ( sndisplay != NULL ) {
-        sn_display_process_event ( sndisplay, ev );
-    }
     if ( ev->type == KeymapNotify ) {
         XRefreshKeyboardMapping ( &( ev->xmapping ) );
     }
@@ -1597,10 +1593,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
 }
 static void __error_dialog_event_loop ( RofiViewState *state, XEvent *ev )
 {
-    // Wait for event.
-    if ( sndisplay != NULL ) {
-        sn_display_process_event ( sndisplay, ev );
-    }
     // Handle event.
     if ( ev->type == Expose ) {
         while ( XCheckTypedEvent ( display, Expose, ev ) ) {

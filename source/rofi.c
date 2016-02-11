@@ -534,6 +534,9 @@ gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data )
             XEvent ev;
             // Read event, we know this won't block as we checked with XPending.
             XNextEvent ( display, &ev );
+            if ( sndisplay != NULL ) {
+                sn_display_process_event ( sndisplay, &ev );
+            }
             rofi_view_itterrate ( state, &ev );
         }
         if ( rofi_view_get_completed ( state ) ) {
