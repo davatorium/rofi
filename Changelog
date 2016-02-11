@@ -3,6 +3,7 @@
 		- Have separate config file.
 		- Use GlibMainLoop.
 		- Blinking cursor.
+		- Config file.
 	Bug fixes:
 		- Fix subpixel rendering. (#303)
 		- Fix basic tests on OpenBSD  (#272)
