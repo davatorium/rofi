@@ -66,10 +66,6 @@
 #include "view.h"
 #include "view-internal.h"
 
-// TODO get rid of num_modi and modi, use an accessor.
-extern unsigned int num_modi;
-extern Mode         **modi;
-
 // What todo with these.
 extern Display           *display;
 extern SnLauncheeContext *sncontext;
@@ -826,7 +822,7 @@ void rofi_view_update ( RofiViewState *state )
         }
     }
     if ( config.sidebar_mode == TRUE ) {
-        for ( unsigned int j = 0; j < num_modi; j++ ) {
+        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
             if ( state->modi[j] != NULL ) {
                 textbox_draw ( state->modi[j], d );
             }
@@ -879,8 +875,8 @@ static void rofi_view_resize ( RofiViewState *state )
     unsigned int sbw = config.line_margin + 8;
     widget_move ( WIDGET ( state->scrollbar ), state->w - state->border - sbw, state->top_offset );
     if ( config.sidebar_mode == TRUE ) {
-        int width = ( state->w - ( 2 * ( state->border ) + ( num_modi - 1 ) * config.line_margin ) ) / num_modi;
-        for ( unsigned int j = 0; j < num_modi; j++ ) {
+        int width = ( state->w - ( 2 * ( state->border ) + ( state->num_modi - 1 ) * config.line_margin ) ) / state->num_modi;
+        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
             textbox_moveresize ( state->modi[j],
                                  state->border + j * ( width + config.line_margin ), state->h - state->line_height - state->border,
                                  width, state->line_height );
@@ -1041,7 +1037,7 @@ static void rofi_view_mouse_navigation ( RofiViewState *state, XButtonEvent *xbe
             state->update   = TRUE;
             return;
         }
-        for ( unsigned int i = 0; config.sidebar_mode == TRUE && i < num_modi; i++ ) {
+        for ( unsigned int i = 0; config.sidebar_mode == TRUE && i < state->num_modi; i++ ) {
             if ( widget_intersect ( &( state->modi[i]->widget ), xbe->x, xbe->y ) ) {
                 ( state->selected_line ) = 0;
                 state->retv              = MENU_QUICK_SWITCH | ( i & MENU_LOWER_MASK );
@@ -1563,12 +1559,14 @@ RofiViewState *rofi_view_create ( Mode *sw,
     calculate_window_position ( state );
 
     if ( config.sidebar_mode == TRUE ) {
-        int width = ( state->w - ( 2 * ( state->border ) + ( num_modi - 1 ) * config.line_margin ) ) / num_modi;
-        state->modi = g_malloc0 ( num_modi * sizeof ( textbox * ) );
-        for ( unsigned int j = 0; j < num_modi; j++ ) {
+        state->num_modi = rofi_get_num_enabled_modi ();
+        int width = ( state->w - ( 2 * ( state->border ) + ( state->num_modi - 1 ) * config.line_margin ) ) / state->num_modi;
+        state->modi = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
+        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
+            const Mode * mode = rofi_get_mode ( j );
             state->modi[j] = textbox_create ( TB_CENTER, state->border + j * ( width + config.line_margin ),
                                               state->h - state->line_height - state->border, width, state->line_height,
-                                              ( modi[j] == state->sw ) ? HIGHLIGHT : NORMAL, mode_get_name ( modi[j] ) );
+                                              ( mode == state->sw ) ? HIGHLIGHT : NORMAL, mode_get_name ( mode  ) );
         }
     }
 

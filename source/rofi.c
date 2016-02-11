@@ -83,6 +83,16 @@ gboolean          quiet             = FALSE;
 static void process_result ( RofiViewState *state );
 gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data );
 
+unsigned int rofi_get_num_enabled_modi ( void )
+{
+    return num_modi;
+}
+
+const Mode * rofi_get_mode ( unsigned int index )
+{
+    return modi[index];
+}
+
 /**
  * @param name Name of the switcher to lookup.
  *

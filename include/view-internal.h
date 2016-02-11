@@ -63,7 +63,7 @@ typedef struct RofiViewState
     workarea     mon;
 
     // Sidebar view
-    ssize_t      num_modi;
+    unsigned int num_modi;
     textbox      **modi;
 
     MenuFlags    menu_flags;

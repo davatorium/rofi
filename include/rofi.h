@@ -20,6 +20,22 @@
 extern const char *cache_dir;
 
 /**
+ * Get the number of enabled modi.
+ *
+ * @returns the number of enabled modi.
+ */
+unsigned int rofi_get_num_enabled_modi ( void );
+
+/**
+ * @param index The mode to return. (should be smaller then rofi_get_num_enabled_mode)
+ *
+ * Get an enabled mode handle.
+ *
+ * @returns a Mode handle.
+ */
+const Mode * rofi_get_mode ( unsigned int index );
+
+/**
  * @param key the Key to match
  * @param modstate the modifier state to match
  *
