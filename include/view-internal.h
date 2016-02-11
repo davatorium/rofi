@@ -11,7 +11,7 @@
  */
 // State of the menu.
 
-typedef struct RofiViewState
+struct RofiViewState
 {
     Mode         *sw;
     unsigned int menu_lines;
@@ -70,6 +70,6 @@ typedef struct RofiViewState
     // Handlers.
     void ( *x11_event_loop )( struct RofiViewState *state, XEvent *ev );
     void ( *finalize )( struct RofiViewState *state );
-}RofiViewState;
+};
 /** @} */
 #endif
