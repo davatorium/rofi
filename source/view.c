@@ -493,11 +493,10 @@ static void rofi_view_calculate_rows_columns ( RofiViewState *state )
 
 /**
  * @param state Internal state of the menu.
- * @param mon the dimensions of the monitor rofi is displayed on.
  *
  * Calculate the width of the window and the width of an element.
  */
-static void rofi_view_calculate_window_and_element_width ( RofiViewState *state, workarea *mon )
+static void rofi_view_calculate_window_and_element_width ( RofiViewState *state )
 {
     if ( config.menu_width < 0 ) {
         double fw = textbox_get_estimated_char_width ( );
@@ -506,7 +505,7 @@ static void rofi_view_calculate_window_and_element_width ( RofiViewState *state,
     }
     else{
         // Calculate as float to stop silly, big rounding down errors.
-        state->w = config.menu_width < 101 ? ( mon->w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
+        state->w = config.menu_width < 101 ? ( state->mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
     }
 
     if ( state->columns > 0 ) {
@@ -1488,7 +1487,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
         state->menu_lines = config.menu_lines;
     }
     rofi_view_calculate_rows_columns ( state );
-    rofi_view_calculate_window_and_element_width ( state, &( state->mon ) );
+    rofi_view_calculate_window_and_element_width ( state );
 
     // Prompt box.
     state->prompt_tb = textbox_create ( TB_AUTOWIDTH, ( state->border ), ( state->border ),
@@ -1636,7 +1635,7 @@ void rofi_view_error_dialog ( const char *msg, int markup )
         main_window = __create_window ( display, MENU_NORMAL );
     }
 
-    rofi_view_calculate_window_and_element_width ( state, &( state->mon ) );
+    rofi_view_calculate_window_and_element_width ( state );
     state->max_elements = 0;
 
     state->text = textbox_create ( ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
