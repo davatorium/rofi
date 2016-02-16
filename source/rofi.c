@@ -749,6 +749,8 @@ int main ( int argc, char *argv[] )
     }
 
     x11_setup ( display );
+    main_loop_source = x11_event_source_new ( display );
+    x11_event_source_set_callback ( main_loop_source, main_loop_x11_event_handler );
 
     TICK_N ( "X11 Setup " );
     // Sanity check
@@ -768,8 +770,6 @@ int main ( int argc, char *argv[] )
         config_parse_xresources_theme_dump ();
         exit ( EXIT_SUCCESS );
     }
-    main_loop_source = x11_event_source_new ( display );
-    x11_event_source_set_callback ( main_loop_source, main_loop_x11_event_handler );
     // Parse the keybindings.
     parse_keys_abe ();
     TICK_N ( "Parse ABE" );

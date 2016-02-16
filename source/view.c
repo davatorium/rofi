@@ -69,18 +69,20 @@
 // What todo with these.
 extern Display           *display;
 extern SnLauncheeContext *sncontext;
+// FIXME: remove
+gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data );
 
-GThreadPool              *tpool = NULL;
+GThreadPool     *tpool = NULL;
 
-RofiViewState            *current_active_menu = NULL;
-Window                   main_window          = None;
-cairo_surface_t          *surface             = NULL;
-cairo_surface_t          *fake_bg             = NULL;
-cairo_t                  *draw                = NULL;
-XIM                      xim;
-XIC                      xic;
-Colormap                 map = None;
-XVisualInfo              vinfo;
+RofiViewState   *current_active_menu = NULL;
+Window          main_window          = None;
+cairo_surface_t *surface             = NULL;
+cairo_surface_t *fake_bg             = NULL;
+cairo_t         *draw                = NULL;
+XIM             xim;
+XIC             xic;
+Colormap        map = None;
+XVisualInfo     vinfo;
 
 static char * get_matching_state ( void )
 {
@@ -1657,6 +1659,7 @@ void rofi_view_error_dialog ( const char *msg, int markup )
         sn_launchee_context_complete ( sncontext );
     }
     rofi_view_set_active ( state );
+    main_loop_x11_event_handler ( NULL );
     while ( !rofi_view_get_completed ( state )  ) {
         g_main_context_iteration ( NULL, TRUE );
     }
