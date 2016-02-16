@@ -4,6 +4,7 @@
 		- Use GlibMainLoop.
 		- Blinking cursor.
 		- Config file.
+		- Add history to DRun mode. (#343)
 	Bug fixes:
 		- Fix subpixel rendering. (#303)
 		- Fix basic tests on OpenBSD  (#272)
