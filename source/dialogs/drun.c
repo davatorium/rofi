@@ -42,9 +42,10 @@
 #include "settings.h"
 #include "helper.h"
 #include "textbox.h"
+#include "history.h"
 #include "dialogs/drun.h"
 
-#define RUN_CACHE_FILE    "rofi-2.runcache"
+#define DRUN_CACHE_FILE    "rofi.druncache"
 
 static inline int execsh ( const char *cmd, int run_in_term )
 {
@@ -89,6 +90,8 @@ static void exec_cmd ( const char *cmd, int run_in_term )
  */
 typedef struct _DRunModeEntry
 {
+    /* Path to desktop file */
+    char         *path;
     /* Executable */
     char         *exec;
     /* Name of the Entry */
@@ -103,6 +106,7 @@ typedef struct _DRunModePrivateData
 {
     DRunModeEntry *entry_list;
     unsigned int  cmd_list_length;
+    unsigned int  history_length;
 } DRunModePrivateData;
 
 static void exec_cmd_entry ( DRunModeEntry *e )
@@ -121,10 +125,76 @@ static void exec_cmd_entry ( DRunModeEntry *e )
         }
     }
     gchar *fp = rofi_expand_path ( g_strstrip ( str ) );
-    execsh ( fp, e->terminal );
+    if ( execsh ( fp, e->terminal ) ) {
+        char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
+        history_set ( path, e->path );
+        g_free ( path );
+    }
     g_free ( str );
     g_free ( fp );
 }
+/**
+ * This function absorbs/freeś path, so this is no longer available afterwards.
+ */
+static void read_desktop_file ( DRunModePrivateData *pd, char *path, const char *filename )
+{
+    for ( unsigned int index = 0; index < pd->history_length; index++ ) {
+        if ( g_strcmp0 ( path, pd->entry_list[index].path ) == 0 ) {
+            g_free ( path );
+            return;
+        }
+    }
+    GKeyFile *kf    = g_key_file_new ();
+    GError   *error = NULL;
+    g_key_file_load_from_file ( kf, path, 0, &error );
+    // If error, skip to next entry
+    if ( error != NULL ) {
+        g_error_free ( error );
+        g_key_file_free ( kf );
+        g_free ( path );
+        return;
+    }
+    // Skip hidden entries.
+    if ( g_key_file_has_key ( kf, "Desktop Entry", "Hidden", NULL ) ) {
+        if ( g_key_file_get_boolean ( kf, "Desktop Entry", "Hidden", NULL ) ) {
+            g_key_file_free ( kf );
+            g_free ( path );
+            return;
+        }
+    }
+    // Skip entries that have NoDisplay set.
+    if ( g_key_file_has_key ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
+        if ( g_key_file_get_boolean ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
+            g_key_file_free ( kf );
+            g_free ( path );
+            return;
+        }
+    }
+    if ( g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
+        size_t nl = ( ( pd->cmd_list_length ) + 1 );
+        pd->entry_list                               = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
+        pd->entry_list[pd->cmd_list_length].path     = path;
+        pd->entry_list[pd->cmd_list_length].terminal = FALSE;
+        if ( g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
+            gchar *n  = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
+            gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
+            pd->entry_list[pd->cmd_list_length].name         = n;
+            pd->entry_list[pd->cmd_list_length].generic_name = gn;
+        }
+        else {
+            pd->entry_list[pd->cmd_list_length].name         = g_filename_display_name ( filename );
+            pd->entry_list[pd->cmd_list_length].generic_name = NULL;
+        }
+        pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
+        if ( g_key_file_has_key ( kf, "Desktop Entry", "Terminal", NULL ) ) {
+            pd->entry_list[pd->cmd_list_length].terminal = g_key_file_get_boolean ( kf, "Desktop Entry", "Terminal", NULL );
+        }
+        ( pd->cmd_list_length )++;
+    }
+
+    g_key_file_free ( kf );
+}
+
 /**
  * Internal spider used to get list of executables.
  */
@@ -143,62 +213,43 @@ static void get_apps_dir ( DRunModePrivateData *pd, const char *bp )
             if ( dent->d_name[0] == '.' ) {
                 continue;
             }
-            GKeyFile *kf    = g_key_file_new ();
-            GError   *error = NULL;
-            // TODO: check what flags to set;
-            gchar    *path = g_build_filename ( bp, dent->d_name, NULL );
-            g_key_file_load_from_file ( kf, path, 0, &error );
-            g_free ( path );
-            // If error, skip to next entry
-            if ( error != NULL ) {
-                g_error_free ( error );
-                g_key_file_free ( kf );
-                continue;
-            }
-            // Skip hidden entries.
-            if ( g_key_file_has_key ( kf, "Desktop Entry", "Hidden", NULL ) ) {
-                if ( g_key_file_get_boolean ( kf, "Desktop Entry", "Hidden", NULL ) ) {
-                    g_key_file_free ( kf );
-                    continue;
-                }
-            }
-            // Skip entries that have NoDisplay set.
-            if ( g_key_file_has_key ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
-                if ( g_key_file_get_boolean ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
-                    g_key_file_free ( kf );
-                    continue;
-                }
-            }
-            if ( g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
-                size_t nl = ( ( pd->cmd_list_length ) + 1 );
-                pd->entry_list                               = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
-                pd->entry_list[pd->cmd_list_length].terminal = FALSE;
-                if ( g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
-                    gchar *n  = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
-                    gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
-                    pd->entry_list[pd->cmd_list_length].name         = n;
-                    pd->entry_list[pd->cmd_list_length].generic_name = gn;
-                }
-                else {
-                    pd->entry_list[pd->cmd_list_length].name         = g_strdup ( dent->d_name );
-                    pd->entry_list[pd->cmd_list_length].generic_name = NULL;
-                }
-                pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
-                if ( g_key_file_has_key ( kf, "Desktop Entry", "Terminal", NULL ) ) {
-                    pd->entry_list[pd->cmd_list_length].terminal = g_key_file_get_boolean ( kf, "Desktop Entry", "Terminal", NULL );
-                }
-                ( pd->cmd_list_length )++;
-            }
-
-            g_key_file_free ( kf );
+            gchar *path = g_build_filename ( bp, dent->d_name, NULL );
+            read_desktop_file ( pd, path, dent->d_name );
         }
 
         closedir ( dir );
     }
 }
+/**
+ * @param cmd The command to remove from history
+ *
+ * Remove command from history.
+ */
+static void delete_entry_history ( const DRunModeEntry *entry )
+{
+    char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
 
+    history_remove ( path, entry->path );
+
+    g_free ( path );
+}
+static void get_apps_history ( DRunModePrivateData *pd )
+{
+    unsigned int length = 0;
+    gchar        *path  = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
+    gchar        **retv = history_get_list ( path, &length );
+    g_free ( path );
+    for ( unsigned int index = 0; index < length; index++ ) {
+        gchar *name = g_path_get_basename ( retv[index] );
+        read_desktop_file ( pd, retv[index], name );
+        g_free ( name );
+    }
+    g_free ( retv );
+    pd->history_length = pd->cmd_list_length;
+}
 static void get_apps ( DRunModePrivateData *pd )
 {
+    get_apps_history ( pd );
     const char * const * dr   = g_get_system_data_dirs ();
     const char * const * iter = dr;
     while ( iter != NULL && *iter != NULL && **iter != '\0' ) {
@@ -239,6 +290,13 @@ static int drun_mode_init ( Mode *sw )
     }
     return TRUE;
 }
+static void drun_entry_clear ( DRunModeEntry *e )
+{
+    g_free ( e->path );
+    g_free ( e->exec );
+    g_free ( e->name );
+    g_free ( e->generic_name );
+}
 
 static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
 {
@@ -262,17 +320,24 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
         exec_cmd ( *input, shift );
     }
+    else if ( ( mretv & MENU_ENTRY_DELETE ) && selected_line < rmpd->cmd_list_length ) {
+        if ( selected_line < rmpd->history_length ) {
+            delete_entry_history ( &( rmpd->entry_list[selected_line] ) );
+            drun_entry_clear ( &( rmpd->entry_list[selected_line] ) );
+            memmove ( &( rmpd->entry_list[selected_line] ), &rmpd->entry_list[selected_line + 1],
+                      sizeof ( DRunModeEntry ) * ( rmpd->cmd_list_length - selected_line - 1 ) );
+            rmpd->cmd_list_length--;
+        }
+        retv = RELOAD_DIALOG;
+    }
     return retv;
 }
-
 static void drun_mode_destroy ( Mode *sw )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( sw );
     if ( rmpd != NULL ) {
         for ( size_t i = 0; i < rmpd->cmd_list_length; i++ ) {
-            g_free ( rmpd->entry_list[i].exec );
-            g_free ( rmpd->entry_list[i].name );
-            g_free ( rmpd->entry_list[i].generic_name );
+            drun_entry_clear ( &( rmpd->entry_list[i] ) );
         }
         g_free ( rmpd->entry_list );
         g_free ( rmpd );
