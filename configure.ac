@@ -31,12 +31,17 @@ dnl ---------------------------------------------------------------------
 AC_USE_SYSTEM_EXTENSIONS
 
 dnl ---------------------------------------------------------------------
+dnl Base CFLAGS
+dnl ---------------------------------------------------------------------
+AM_CFLAGS="-Wall -Wextra -Wparentheses -Winline -pedantic"
+
+dnl ---------------------------------------------------------------------
 dnl Enable source code coverage reporting for GCC
 dnl ---------------------------------------------------------------------
 
 AC_ARG_ENABLE(gcov,
               [  --enable-gcov           Enable source code coverage testing using gcov],
-              [CFLAGS="$CFLAGS -coverage"])
+              [AM_CFLAGS="${AM_CFLAGS} -coverage"])
 dnl ---------------------------------------------------------------------
 dnl Disable window mode
 dnl ---------------------------------------------------------------------
@@ -82,7 +87,7 @@ PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0])
 dnl ---------------------------------------------------------------------
 dnl Add extra compiler flags
 dnl ---------------------------------------------------------------------
-AC_SUBST([EXTRA_CFLAGS], ["-Wall -Wextra -Wparentheses -Winline -pedantic"])
+AC_SUBST([AM_CFLAGS])
 
 AC_CONFIG_FILES([Makefile doc/rofi.doxy])
 AC_OUTPUT
