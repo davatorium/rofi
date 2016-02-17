@@ -5,6 +5,8 @@
 		- Blinking cursor.
 		- Config file.
 		- Add history to DRun mode. (#343)
+	Improvements:
+		- auto-select and single item on dmenu (#281)
 	Bug fixes:
 		- Fix subpixel rendering. (#303)
 		- Fix basic tests on OpenBSD  (#272)

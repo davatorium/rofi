@@ -379,6 +379,10 @@ int dmenu_switcher_dialog ( void )
             return TRUE;
         }
     }
+    if ( config.auto_select && cmd_list_length == 1 ) {
+        dmenu_output_formatted_line ( pd->format, cmd_list[0], 0, config.filter );
+        return TRUE;
+    }
     if ( find_arg ( "-password" ) >= 0 ) {
         menu_flags |= MENU_PASSWORD;
     }
