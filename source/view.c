@@ -690,10 +690,10 @@ static unsigned int rofi_scroll_per_page ( RofiViewState * state )
 
 static unsigned int rofi_scroll_continious ( RofiViewState * state )
 {
-    unsigned int middle = state->menu_lines / 2;
+    unsigned int middle = (state->menu_lines - ((state->menu_lines&1) == 0))/ 2;
     unsigned int offset = 0;
     if ( state->selected > middle ) {
-        if ( state->selected < ( state->filtered_lines - middle ) ) {
+        if ( state->selected < ( state->filtered_lines - (state->menu_lines -middle) ) ) {
             offset = state->selected - middle;
         }
         else {
