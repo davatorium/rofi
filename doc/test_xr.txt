@@ -118,6 +118,8 @@ rofi.dpi:                            101
 rofi.threads:                        8
 ! Scrollbar width
 rofi.scrollbar-width:                8
+! Scrolling method. (0: Page, 1: Centered)
+rofi.scroll-method:                  0
 ! Pidfile location
 rofi.pid:                            /tmp/1000-runtime-dir/rofi.pid
 ! Keybinding

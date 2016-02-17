@@ -664,9 +664,10 @@ inline static void rofi_view_nav_last ( RofiViewState * state )
     state->update   = TRUE;
 }
 
-static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
+static unsigned int rofi_scroll_per_page ( RofiViewState * state )
 {
-    unsigned int i, offset = 0;
+    int offset = 0;
+
     // selected row is always visible.
     // If selected is visible do not scroll.
     if ( ( ( state->selected - ( state->last_offset ) ) < ( state->max_elements ) ) && ( state->selected >= ( state->last_offset ) ) ) {
@@ -683,6 +684,35 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
         }
         // Set the position
         scrollbar_set_handle ( state->scrollbar, page * state->max_elements );
+    }
+    return offset;
+}
+
+static unsigned int rofi_scroll_continious ( RofiViewState * state )
+{
+    unsigned int middle = state->menu_lines / 2;
+    unsigned int offset = 0;
+    if ( state->selected > middle ) {
+        if ( state->selected < ( state->filtered_lines - middle ) ) {
+            offset = state->selected - middle;
+        }
+        else {
+            offset = state->filtered_lines - state->menu_lines;
+        }
+    }
+    state->rchanged = TRUE;
+    scrollbar_set_handle ( state->scrollbar, offset );
+    return offset;
+}
+
+static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
+{
+    unsigned int i, offset = 0;
+    if ( config.scroll_method == 1 ) {
+        offset = rofi_scroll_continious ( state );
+    }
+    else {
+        offset = rofi_scroll_per_page ( state );
     }
     // Re calculate the boxes and sizes, see if we can move this in the menu_calc*rowscolumns
     // Get number of remaining lines to display.
@@ -907,6 +937,7 @@ static void rofi_view_resize ( RofiViewState *state )
             }
         }
         state->max_rows     = MAX ( 1, ( h / element_height ) );
+        state->menu_lines   = state->max_rows;
         state->max_elements = state->max_rows * config.menu_columns;
         // Free boxes no longer needed.
         for ( unsigned int i = state->max_elements; i < last_length; i++ ) {

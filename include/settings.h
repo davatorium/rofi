@@ -149,6 +149,7 @@ typedef struct _Settings
     /** Number threads (1 to disable) */
     unsigned int   threads;
     unsigned int   scrollbar_width;
+    unsigned int   scroll_method;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

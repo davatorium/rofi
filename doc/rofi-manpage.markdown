@@ -229,6 +229,9 @@ Filter the list by setting text in input bar to *filter*
 
 Load alternative configuration file.
 
+`-scroll-method` *method*
+
+Select the scrolling method. 0: Per page, 1: continuous.
 
 ### Theming
 
