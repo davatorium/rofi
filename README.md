@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/DaveDavenport/rofi.svg?branch=master)](https://travis-ci.org/DaveDavenport/rofi)
 [![codecov.io](https://codecov.io/github/DaveDavenport/rofi/coverage.svg?branch=master)](https://codecov.io/github/DaveDavenport/rofi?branch=master)
 
+Before reporting an issue, read this first: [README](https://github.com/DaveDavenport/rofi/wiki/ISSUECOC)
 
 # A window switcher, run dialog and dmenu replacement
 
