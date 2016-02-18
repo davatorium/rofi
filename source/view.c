@@ -696,7 +696,8 @@ static unsigned int rofi_scroll_continious ( RofiViewState * state )
         if ( state->selected < ( state->filtered_lines - (state->menu_lines -middle) ) ) {
             offset = state->selected - middle;
         }
-        else {
+        // Don't go below zero.
+        else if ( state->filtered_lines > state->menu_lines){
             offset = state->filtered_lines - state->menu_lines;
         }
     }
@@ -723,6 +724,9 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
     columns = MIN ( columns, state->columns );
 
     // Update the handle length.
+    // Calculate number of visible rows.
+    unsigned int max_elements = MIN ( a_lines, state->max_rows * columns );
+
     scrollbar_set_handle_length ( state->scrollbar, columns * state->max_rows );
     scrollbar_draw ( state->scrollbar, d );
     // Element width.
@@ -737,12 +741,10 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
     int          element_height = state->line_height * config.element_height;
     int          y_offset       = state->top_offset;
     int          x_offset       = state->border;
-    // Calculate number of visible rows.
-    unsigned int max_elements = MIN ( a_lines, state->max_rows * columns );
 
     if ( state->rchanged ) {
         // Move, resize visible boxes and show them.
-        for ( i = 0; i < max_elements; i++ ) {
+        for ( i = 0; i < max_elements && (i+offset) < state->filtered_lines; i++ ) {
             unsigned int ex = ( ( i ) / state->max_rows ) * ( element_width + config.line_margin );
             unsigned int ey = ( ( i ) % state->max_rows ) * ( element_height + config.line_margin );
             // Move it around.
@@ -762,7 +764,7 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
     }
     else{
         // Only do basic redrawing + highlight of row.
-        for ( i = 0; i < max_elements; i++ ) {
+        for ( i = 0; i < max_elements && (i+offset) < state->filtered_lines; i++ ) {
             TextBoxFontType type   = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
             int             fstate = 0;
             mode_get_display_value ( state->sw, state->line_map[i + offset], &fstate, FALSE );
