@@ -359,6 +359,22 @@ Mode dmenu_mode =
     .free               = NULL
 };
 
+static void dmenu_finish ( RofiViewState *state, int retv)
+{
+    if ( retv == FALSE ) {
+        rofi_set_return_code ( EXIT_FAILURE );
+    }
+    else if ( retv >= 10 ) {
+        rofi_set_return_code ( retv );
+    }
+    else{
+        rofi_set_return_code ( EXIT_SUCCESS );
+    }
+    rofi_view_set_active ( NULL );
+    rofi_view_free ( state );
+    mode_destroy ( &dmenu_mode );
+}
+
 static void dmenu_finalize ( RofiViewState *state )
 {
     int                  retv            = FALSE;
@@ -390,22 +406,9 @@ static void dmenu_finalize ( RofiViewState *state )
                 retv = TRUE;
                 if ( ( mretv & MENU_QUICK_SWITCH ) ) {
                     retv = 10 + ( mretv & MENU_LOWER_MASK );
-                }
-                rofi_view_free ( state );
+    }
                 g_free ( input );
-                mode_destroy ( &dmenu_mode );
-                if ( retv == FALSE ) {
-                    rofi_set_return_code ( EXIT_FAILURE );
-                }
-                else if ( retv >= 10 ) {
-                    rofi_set_return_code ( retv );
-                }
-                else{
-                    rofi_set_return_code ( EXIT_SUCCESS );
-                }
-                rofi_view_free ( state );
-                mode_destroy ( &dmenu_mode );
-                rofi_view_set_active ( NULL );
+                dmenu_finish(state, retv);
                 return;
             }
             pd->selected_line = next_pos - 1;
@@ -413,6 +416,9 @@ static void dmenu_finalize ( RofiViewState *state )
         // Restart
         rofi_view_restart ( state );
         rofi_view_set_selected_line ( state, pd->selected_line );
+        if ( !restart ) {
+            dmenu_finish(state, retv);
+        }
         return;
     }
     // We normally do not want to restart the loop.
@@ -473,18 +479,7 @@ static void dmenu_finalize ( RofiViewState *state )
         rofi_view_set_selected_line ( state, pd->selected_line );
     }
     else {
-        if ( retv == FALSE ) {
-            rofi_set_return_code ( EXIT_FAILURE );
-        }
-        else if ( retv >= 10 ) {
-            rofi_set_return_code ( retv );
-        }
-        else{
-            rofi_set_return_code ( EXIT_SUCCESS );
-        }
-        rofi_view_free ( state );
-        mode_destroy ( &dmenu_mode );
-        rofi_view_set_active ( NULL );
+        dmenu_finish(state,retv);
     }
 }
 

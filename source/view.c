@@ -70,17 +70,17 @@
 extern Display           *display;
 extern SnLauncheeContext *sncontext;
 
-GThreadPool     *tpool = NULL;
+GThreadPool              *tpool = NULL;
 
-RofiViewState   *current_active_menu = NULL;
-Window          main_window          = None;
-cairo_surface_t *surface             = NULL;
-cairo_surface_t *fake_bg             = NULL;
-cairo_t         *draw                = NULL;
-XIM             xim;
-XIC             xic;
-Colormap        map = None;
-XVisualInfo     vinfo;
+RofiViewState            *current_active_menu = NULL;
+Window                   main_window          = None;
+cairo_surface_t          *surface             = NULL;
+cairo_surface_t          *fake_bg             = NULL;
+cairo_t                  *draw                = NULL;
+XIM                      xim;
+XIC                      xic;
+Colormap                 map = None;
+XVisualInfo              vinfo;
 
 static char * get_matching_state ( void )
 {
