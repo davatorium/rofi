@@ -69,8 +69,6 @@
 // What todo with these.
 extern Display           *display;
 extern SnLauncheeContext *sncontext;
-// FIXME: remove
-gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data );
 
 GThreadPool     *tpool = NULL;
 
@@ -1712,7 +1710,6 @@ void rofi_view_error_dialog ( const char *msg, int markup )
         sn_launchee_context_complete ( sncontext );
     }
     rofi_view_set_active ( state );
-    main_loop_x11_event_handler ( NULL );
 }
 
 void rofi_view_cleanup ()
@@ -1745,6 +1742,13 @@ void rofi_view_cleanup ()
 void rofi_view_workers_initialize ( void )
 {
     TICK_N ( "Setup Threadpool, start" );
+    if ( config.threads == 0 ) {
+        config.threads = 1;
+        long procs = sysconf ( _SC_NPROCESSORS_CONF );
+        if ( procs > 0 ) {
+            config.threads = MIN ( procs, 128l );
+        }
+    }
     // Create thread pool
     GError *error = NULL;
     tpool = g_thread_pool_new ( rofi_view_call_thread, NULL, config.threads, FALSE, &error );

@@ -86,7 +86,6 @@ int               return_code = EXIT_SUCCESS;
 
 void process_result ( RofiViewState *state );
 void process_result_error ( RofiViewState *state );
-gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data );
 
 void rofi_set_return_code ( int code )
 {
@@ -207,7 +206,6 @@ static void run_switcher ( ModeMode mode )
     char *input = g_strdup ( config.filter );
     __run_switcher_internal ( mode, input );
     g_free ( input );
-    main_loop_x11_event_handler ( NULL );
 }
 void process_result ( RofiViewState *state )
 {
@@ -547,7 +545,7 @@ static void reload_configuration ()
 /**
  * Process X11 events in the main-loop (gui-thread) of the application.
  */
-gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data )
+static gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data )
 {
     RofiViewState *state = rofi_view_get_active ();
     if ( state != NULL ) {
@@ -645,14 +643,6 @@ static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, Display   *xdispl
     --error_trap_depth;
 }
 
-static gboolean delayed_start ( G_GNUC_UNUSED gpointer data )
-{
-    // Force some X Events to be handled.. seems the only way to get a reliable startup.
-    rofi_view_queue_redraw ();
-    main_loop_x11_event_handler ( NULL );
-    return FALSE;
-}
-
 static gboolean startup ( G_GNUC_UNUSED gpointer data )
 {
     TICK_N ( "Startup" );
@@ -705,7 +695,6 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         }
         if ( index >= 0 ) {
             run_switcher ( index );
-            g_idle_add ( delayed_start, GINT_TO_POINTER ( index ) );
         }
         else {
             fprintf ( stderr, "The %s switcher has not been enabled\n", sname );
