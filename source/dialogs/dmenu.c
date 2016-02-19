@@ -68,6 +68,7 @@ typedef struct _DmenuModePrivateData
     // List with entries.
     char              **cmd_list;
     unsigned int      cmd_list_length;
+    unsigned int      only_selected;
 } DmenuModePrivateData;
 
 static char **get_dmenu ( FILE *fd, unsigned int *length )
@@ -358,23 +359,151 @@ Mode dmenu_mode =
     .free               = NULL
 };
 
+static void dmenu_finalize ( RofiViewState *state )
+{
+    int                  retv            = FALSE;
+    DmenuModePrivateData *pd             = (DmenuModePrivateData *) (Mode *) ( rofi_view_get_mode ( state ) )->private_data;
+    unsigned int         cmd_list_length = pd->cmd_list_length;
+    char                 **cmd_list      = pd->cmd_list;
+
+    char                 *input = g_strdup ( rofi_view_get_user_input ( state ) );
+    pd->selected_line = rofi_view_get_selected_line ( state );;
+    MenuReturn           mretv    = rofi_view_get_return_value ( state );
+    unsigned int         next_pos = rofi_view_get_next_position ( state );
+
+    int                  restart = 0;
+    // Special behavior.
+    // TODO clean this up!
+    if ( pd->only_selected ) {
+        /**
+         * Select item mode.
+         */
+        restart = 1;
+        // Skip if no valid item is selected.
+        if ( ( mretv & MENU_CANCEL ) == MENU_CANCEL ) {
+            // In no custom mode we allow canceling.
+            restart = ( find_arg ( "-only-match" ) >= 0 );
+        }
+        else if ( pd->selected_line != UINT32_MAX ) {
+            if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line] != NULL ) {
+                dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
+                retv = TRUE;
+                if ( ( mretv & MENU_QUICK_SWITCH ) ) {
+                    retv = 10 + ( mretv & MENU_LOWER_MASK );
+                }
+                rofi_view_free ( state );
+                g_free ( input );
+                mode_destroy ( &dmenu_mode );
+                if ( retv == FALSE ) {
+                    rofi_set_return_code ( EXIT_FAILURE );
+                }
+                else if ( retv >= 10 ) {
+                    rofi_set_return_code ( retv );
+                }
+                else{
+                    rofi_set_return_code ( EXIT_SUCCESS );
+                }
+                rofi_view_free ( state );
+                mode_destroy ( &dmenu_mode );
+                rofi_view_set_active ( NULL );
+//                g_main_loop_quit(NULL);
+                return;
+            }
+            pd->selected_line = next_pos - 1;
+        }
+        // Restart
+        rofi_view_restart ( state );
+        rofi_view_set_selected_line ( state, pd->selected_line );
+        return;
+    }
+    // We normally do not want to restart the loop.
+    restart = FALSE;
+    // Normal mode
+    if ( ( mretv & MENU_OK  ) && pd->selected_line != UINT32_MAX && cmd_list[pd->selected_line] != NULL ) {
+        dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
+        if ( ( mretv & MENU_SHIFT ) ) {
+            restart = TRUE;
+            int seen = FALSE;
+            if ( pd->selected_list != NULL ) {
+                if ( pd->selected_list[pd->num_selected_list - 1].stop == ( pd->selected_line - 1 ) ) {
+                    pd->selected_list[pd->num_selected_list - 1].stop = pd->selected_line;
+                    seen                                              = TRUE;
+                }
+            }
+            if ( !seen ) {
+                pd->selected_list = g_realloc ( pd->selected_list,
+                                                ( pd->num_selected_list + 1 ) * sizeof ( struct range_pair ) );
+                pd->selected_list[pd->num_selected_list].start = pd->selected_line;
+                pd->selected_list[pd->num_selected_list].stop  = pd->selected_line;
+                ( pd->num_selected_list )++;
+            }
+
+            // Move to next line.
+            pd->selected_line = MIN ( next_pos, cmd_list_length - 1 );
+        }
+        retv = TRUE;
+    }
+    // Custom input
+    else if ( ( mretv & ( MENU_CUSTOM_INPUT ) ) ) {
+        dmenu_output_formatted_line ( pd->format, input, -1, input );
+        if ( ( mretv & MENU_SHIFT ) ) {
+            restart = TRUE;
+            // Move to next line.
+            pd->selected_line = MIN ( next_pos, cmd_list_length - 1 );
+        }
+
+        retv = TRUE;
+    }
+    // Quick switch with entry selected.
+    else if ( ( mretv & MENU_QUICK_SWITCH ) && pd->selected_line < UINT32_MAX ) {
+        dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
+
+        restart = FALSE;
+        retv    = 10 + ( mretv & MENU_LOWER_MASK );
+    }
+    // Quick switch without entry selected.
+    else if ( ( mretv & MENU_QUICK_SWITCH ) && pd->selected_line == UINT32_MAX ) {
+        dmenu_output_formatted_line ( pd->format, input, -1, input );
+
+        restart = FALSE;
+        retv    = 10 + ( mretv & MENU_LOWER_MASK );
+    }
+    g_free ( input );
+    if ( restart ) {
+        rofi_view_restart ( state );
+        rofi_view_set_selected_line ( state, pd->selected_line );
+    }
+    else {
+        if ( retv == FALSE ) {
+            rofi_set_return_code ( EXIT_FAILURE );
+        }
+        else if ( retv >= 10 ) {
+            rofi_set_return_code ( retv );
+        }
+        else{
+            rofi_set_return_code ( EXIT_SUCCESS );
+        }
+        rofi_view_free ( state );
+        mode_destroy ( &dmenu_mode );
+        rofi_view_set_active ( NULL );
+    }
+}
+
 int dmenu_switcher_dialog ( void )
 {
     mode_init ( &dmenu_mode );
     MenuFlags            menu_flags      = MENU_NORMAL;
     DmenuModePrivateData *pd             = (DmenuModePrivateData *) dmenu_mode.private_data;
     char                 *input          = NULL;
-    int                  retv            = FALSE;
-    int                  restart         = FALSE;
     unsigned int         cmd_list_length = pd->cmd_list_length;
     char                 **cmd_list      = pd->cmd_list;
 
-    int                  only_selected = FALSE;
+    pd->only_selected = FALSE;
     if ( find_arg ( "-markup-rows" ) >= 0 ) {
         pd->do_markup = TRUE;
     }
     if ( find_arg ( "-only-match" ) >= 0 || find_arg ( "-no-custom" ) >= 0 ) {
-        only_selected = TRUE;
+        pd->only_selected = TRUE;
         if ( cmd_list_length == 0 ) {
             return TRUE;
         }
@@ -416,122 +545,12 @@ int dmenu_switcher_dialog ( void )
         g_strfreev ( tokens );
         return TRUE;
     }
-
-    RofiViewState *state = rofi_view_create ( &dmenu_mode, input, pd->prompt, pd->message, menu_flags );
+    // TODO remove
+    RofiViewState *state = rofi_view_create ( &dmenu_mode, input, pd->prompt, pd->message, menu_flags, dmenu_finalize );
     rofi_view_set_selected_line ( state, pd->selected_line );
-    while ( XPending ( display ) ) {
-        XEvent ev;
-        XNextEvent ( display, &ev );
-        rofi_view_itterrate ( state, &ev );
-    }
-    do {
-        retv = FALSE;
+    rofi_view_set_active ( state );
 
-        rofi_view_set_active ( state );
-        // Enter main loop.
-        while ( !rofi_view_get_completed ( state )  ) {
-            g_main_context_iteration ( NULL, TRUE );
-        }
-        rofi_view_set_active ( NULL );
-        g_free ( input );
-        input             = g_strdup ( rofi_view_get_user_input ( state ) );
-        pd->selected_line = rofi_view_get_selected_line ( state );;
-        MenuReturn   mretv    = rofi_view_get_return_value ( state );
-        unsigned int next_pos = rofi_view_get_next_position ( state );
-
-        // Special behavior.
-        // TODO clean this up!
-        if ( only_selected ) {
-            /**
-             * Select item mode.
-             */
-            restart = 1;
-            // Skip if no valid item is selected.
-            if ( ( mretv & MENU_CANCEL ) == MENU_CANCEL ) {
-                // In no custom mode we allow canceling.
-                restart = ( find_arg ( "-only-match" ) >= 0 );
-            }
-            else if ( pd->selected_line != UINT32_MAX ) {
-                if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line] != NULL ) {
-                    dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
-                    retv = TRUE;
-                    if ( ( mretv & MENU_QUICK_SWITCH ) ) {
-                        retv = 10 + ( mretv & MENU_LOWER_MASK );
-                    }
-                    rofi_view_free ( state );
-                    g_free ( input );
-                    mode_destroy ( &dmenu_mode );
-                    return retv;
-                }
-                pd->selected_line = next_pos - 1;
-            }
-            // Restart
-            rofi_view_restart ( state );
-            rofi_view_set_selected_line ( state, pd->selected_line );
-            continue;
-        }
-        // We normally do not want to restart the loop.
-        restart = FALSE;
-        // Normal mode
-        if ( ( mretv & MENU_OK  ) && pd->selected_line != UINT32_MAX && cmd_list[pd->selected_line] != NULL ) {
-            dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
-            if ( ( mretv & MENU_SHIFT ) ) {
-                restart = TRUE;
-                int seen = FALSE;
-                if ( pd->selected_list != NULL ) {
-                    if ( pd->selected_list[pd->num_selected_list - 1].stop == ( pd->selected_line - 1 ) ) {
-                        pd->selected_list[pd->num_selected_list - 1].stop = pd->selected_line;
-                        seen                                              = TRUE;
-                    }
-                }
-                if ( !seen ) {
-                    pd->selected_list = g_realloc ( pd->selected_list,
-                                                    ( pd->num_selected_list + 1 ) * sizeof ( struct range_pair ) );
-                    pd->selected_list[pd->num_selected_list].start = pd->selected_line;
-                    pd->selected_list[pd->num_selected_list].stop  = pd->selected_line;
-                    ( pd->num_selected_list )++;
-                }
-
-                // Move to next line.
-                pd->selected_line = MIN ( next_pos, cmd_list_length - 1 );
-            }
-            retv = TRUE;
-        }
-        // Custom input
-        else if ( ( mretv & ( MENU_CUSTOM_INPUT ) ) ) {
-            dmenu_output_formatted_line ( pd->format, input, -1, input );
-            if ( ( mretv & MENU_SHIFT ) ) {
-                restart = TRUE;
-                // Move to next line.
-                pd->selected_line = MIN ( next_pos, cmd_list_length - 1 );
-            }
-
-            retv = TRUE;
-        }
-        // Quick switch with entry selected.
-        else if ( ( mretv & MENU_QUICK_SWITCH ) && pd->selected_line < UINT32_MAX ) {
-            dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
-
-            restart = FALSE;
-            retv    = 10 + ( mretv & MENU_LOWER_MASK );
-        }
-        // Quick switch without entry selected.
-        else if ( ( mretv & MENU_QUICK_SWITCH ) && pd->selected_line == UINT32_MAX ) {
-            dmenu_output_formatted_line ( pd->format, input, -1, input );
-
-            restart = FALSE;
-            retv    = 10 + ( mretv & MENU_LOWER_MASK );
-        }
-        if ( restart ) {
-            rofi_view_restart ( state );
-            rofi_view_set_selected_line ( state, pd->selected_line );
-        }
-    } while ( restart );
-
-    rofi_view_free ( state );
-    g_free ( input );
-    mode_destroy ( &dmenu_mode );
-    return retv;
+    return FALSE;
 }
 
 void print_dmenu_options ( void )

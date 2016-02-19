@@ -46,6 +46,7 @@ const Mode * rofi_get_mode ( unsigned int index );
  */
 int locate_switcher ( KeySym key, unsigned int modstate );
 
+void rofi_set_return_code ( int code );
 /** Reset terminal */
 #define  color_reset     "\033[0m"
 /** Set terminal text bold */

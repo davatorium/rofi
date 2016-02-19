@@ -3,6 +3,7 @@
 #include "widget.h"
 #include "textbox.h"
 #include "scrollbar.h"
+#include "x11-helper.h"
 
 /**
  * @ingroup ViewHandle

@@ -28,13 +28,15 @@ typedef enum
  * @param prompt The prompt to show.
  * @param message Extra message to display.
  * @param flags   Flags indicating state of the menu.
+ * @param finalize the finailze callback
  *
  * Main menu callback.
  *
  * @returns The command issued (see MenuReturn)
  */
-RofiViewState *rofi_view_create ( Mode *sw, const char *input, char *prompt, const char *message, MenuFlags flags )
-__attribute__ ( ( nonnull ( 1, 2, 3  ) ) );
+RofiViewState *rofi_view_create ( Mode *sw, const char *input, char *prompt, const char *message, MenuFlags flags, void ( *finalize )(
+                                      RofiViewState * ) )
+__attribute__ ( ( nonnull ( 1, 2, 3, 6 ) ) );
 
 /**
  * @param state The Menu Handle
@@ -147,6 +149,7 @@ void rofi_view_cleanup ( void );
  */
 void rofi_view_call_thread ( gpointer data, gpointer user_data );
 
+Mode * rofi_view_get_mode ( RofiViewState *state );
 /** @} */
 /***
  * @defgroup ViewThreadPool ViewThreadPool
