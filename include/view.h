@@ -47,7 +47,7 @@ void rofi_view_finalize ( RofiViewState *state );
 
 MenuReturn rofi_view_get_return_value ( const RofiViewState *state );
 unsigned int rofi_view_get_next_position ( const RofiViewState *state );
-void rofi_view_itterrate ( RofiViewState *state, XEvent *event );
+void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event );
 unsigned int rofi_view_get_completed ( const RofiViewState *state );
 const char * rofi_view_get_user_input ( const RofiViewState *state );
 

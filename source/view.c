@@ -308,9 +308,95 @@ unsigned int rofi_view_get_completed ( const RofiViewState *state )
     return state->quit;
 }
 
-void rofi_view_itterrate ( RofiViewState *state, XEvent *event )
+static void rofi_view_resize ( RofiViewState *state )
 {
-    state->x11_event_loop ( state, event );
+    unsigned int sbw = config.line_margin + 8;
+    widget_move ( WIDGET ( state->scrollbar ), state->w - state->border - sbw, state->top_offset );
+    if ( config.sidebar_mode == TRUE ) {
+        int width = ( state->w - ( 2 * ( state->border ) + ( state->num_modi - 1 ) * config.line_margin ) ) / state->num_modi;
+        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
+            textbox_moveresize ( state->modi[j],
+                                 state->border + j * ( width + config.line_margin ), state->h - state->line_height - state->border,
+                                 width, state->line_height );
+            textbox_draw ( state->modi[j], draw );
+        }
+    }
+    int entrybox_width = state->w - ( 2 * ( state->border ) ) - textbox_get_width ( state->prompt_tb )
+                         - textbox_get_width ( state->case_indicator );
+    textbox_moveresize ( state->text, state->text->widget.x, state->text->widget.y, entrybox_width, state->line_height );
+    widget_move ( WIDGET ( state->case_indicator ), state->w - state->border - textbox_get_width ( state->case_indicator ), state->border );
+    /**
+     * Resize in Height
+     */
+    {
+        unsigned int last_length    = state->max_elements;
+        int          element_height = state->line_height * config.element_height + config.line_margin;
+        // Calculated new number of boxes.
+        int          h = ( state->h - state->top_offset - config.padding );
+        if ( config.sidebar_mode == TRUE ) {
+            h -= state->line_height + config.line_margin;
+        }
+        if ( h < 0 ) {
+            fprintf ( stderr, "Current padding %u (on each side) does not fit within visible window %u.\n", config.padding, state->h );
+            h = ( state->h - state->top_offset - state->h / 3 );
+            if ( config.sidebar_mode == TRUE ) {
+                h -= state->line_height + config.line_margin;
+            }
+        }
+        state->max_rows     = MAX ( 1, ( h / element_height ) );
+        state->menu_lines   = state->max_rows;
+        state->max_elements = state->max_rows * config.menu_columns;
+        // Free boxes no longer needed.
+        for ( unsigned int i = state->max_elements; i < last_length; i++ ) {
+            textbox_free ( state->boxes[i] );
+        }
+        // resize array.
+        state->boxes = g_realloc ( state->boxes, state->max_elements * sizeof ( textbox* ) );
+
+        int y_offset = state->top_offset;
+        int x_offset = state->border;
+        // Add newly added boxes.
+        for ( unsigned int i = last_length; i < state->max_elements; i++ ) {
+            state->boxes[i] = textbox_create ( 0, x_offset, y_offset,
+                                               state->element_width, element_height, NORMAL, "" );
+        }
+        scrollbar_resize ( state->scrollbar, -1, ( state->max_rows ) * ( element_height ) - config.line_margin );
+    }
+
+    state->rchanged = TRUE;
+    state->update   = TRUE;
+}
+
+void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event )
+{
+    uint8_t type = event->response_type & ~0x80;
+    switch ( type )
+    {
+    case XCB_EXPOSE:
+        state->update = TRUE;
+        break;
+    case XCB_CONFIGURE_NOTIFY:
+    {
+        xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
+        if ( xce->window == main_window ) {
+            if ( state->x != xce->x || state->y != xce->y ) {
+                state->x      = xce->x;
+                state->y      = xce->y;
+                state->update = TRUE;
+            }
+            if ( state->w != xce->width || state->h != xce->height ) {
+                state->w = xce->width;
+                state->h = xce->height;
+                cairo_xlib_surface_set_size ( surface, state->w, state->h );
+                rofi_view_resize ( state );
+            }
+        }
+    }
+    break;
+    default:
+        state->x11_event_loop ( state, event, xkb );
+    }
+    rofi_view_update ( state );
 }
 
 const char * rofi_view_get_user_input ( const RofiViewState *state )
@@ -881,7 +967,7 @@ void rofi_view_update ( RofiViewState *state )
  *
  * Handle paste event.
  */
-static void rofi_view_paste ( RofiViewState *state, XSelectionEvent *xse )
+static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t *xse )
 {
     if ( xse->property == netatoms[UTF8_STRING] ) {
         gchar *text = window_get_text_prop ( display, main_window, netatoms[UTF8_STRING] );
@@ -901,65 +987,6 @@ static void rofi_view_paste ( RofiViewState *state, XSelectionEvent *xse )
         }
         g_free ( text );
     }
-}
-
-static void rofi_view_resize ( RofiViewState *state )
-{
-    unsigned int sbw = config.line_margin + 8;
-    widget_move ( WIDGET ( state->scrollbar ), state->w - state->border - sbw, state->top_offset );
-    if ( config.sidebar_mode == TRUE ) {
-        int width = ( state->w - ( 2 * ( state->border ) + ( state->num_modi - 1 ) * config.line_margin ) ) / state->num_modi;
-        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
-            textbox_moveresize ( state->modi[j],
-                                 state->border + j * ( width + config.line_margin ), state->h - state->line_height - state->border,
-                                 width, state->line_height );
-            textbox_draw ( state->modi[j], draw );
-        }
-    }
-    int entrybox_width = state->w - ( 2 * ( state->border ) ) - textbox_get_width ( state->prompt_tb )
-                         - textbox_get_width ( state->case_indicator );
-    textbox_moveresize ( state->text, state->text->widget.x, state->text->widget.y, entrybox_width, state->line_height );
-    widget_move ( WIDGET ( state->case_indicator ), state->w - state->border - textbox_get_width ( state->case_indicator ), state->border );
-    /**
-     * Resize in Height
-     */
-    {
-        unsigned int last_length    = state->max_elements;
-        int          element_height = state->line_height * config.element_height + config.line_margin;
-        // Calculated new number of boxes.
-        int          h = ( state->h - state->top_offset - config.padding );
-        if ( config.sidebar_mode == TRUE ) {
-            h -= state->line_height + config.line_margin;
-        }
-        if ( h < 0 ) {
-            fprintf ( stderr, "Current padding %u (on each side) does not fit within visible window %u.\n", config.padding, state->h );
-            h = ( state->h - state->top_offset - state->h / 3 );
-            if ( config.sidebar_mode == TRUE ) {
-                h -= state->line_height + config.line_margin;
-            }
-        }
-        state->max_rows     = MAX ( 1, ( h / element_height ) );
-        state->menu_lines   = state->max_rows;
-        state->max_elements = state->max_rows * config.menu_columns;
-        // Free boxes no longer needed.
-        for ( unsigned int i = state->max_elements; i < last_length; i++ ) {
-            textbox_free ( state->boxes[i] );
-        }
-        // resize array.
-        state->boxes = g_realloc ( state->boxes, state->max_elements * sizeof ( textbox* ) );
-
-        int y_offset = state->top_offset;
-        int x_offset = state->border;
-        // Add newly added boxes.
-        for ( unsigned int i = last_length; i < state->max_elements; i++ ) {
-            state->boxes[i] = textbox_create ( 0, x_offset, y_offset,
-                                               state->element_width, element_height, NORMAL, "" );
-        }
-        scrollbar_resize ( state->scrollbar, -1, ( state->max_rows ) * ( element_height ) - config.line_margin );
-    }
-
-    state->rchanged = TRUE;
-    state->update   = TRUE;
 }
 
 /**
@@ -1047,32 +1074,32 @@ static int rofi_view_keyboard_navigation ( RofiViewState *state, KeySym key, uns
     return 0;
 }
 
-static void rofi_view_mouse_navigation ( RofiViewState *state, XButtonEvent *xbe )
+static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_event_t *xbe )
 {
     // Scroll event
-    if ( xbe->button > 3 ) {
-        if ( xbe->button == 4 ) {
+    if ( xbe->detail > 3 ) {
+        if ( xbe->detail == 4 ) {
             rofi_view_nav_up ( state );
         }
-        else if ( xbe->button == 5 ) {
+        else if ( xbe->detail == 5 ) {
             rofi_view_nav_down ( state );
         }
-        else if ( xbe->button == 6 ) {
+        else if ( xbe->detail == 6 ) {
             rofi_view_nav_left ( state );
         }
-        else if ( xbe->button == 7 ) {
+        else if ( xbe->detail == 7 ) {
             rofi_view_nav_right ( state );
         }
         return;
     }
     else {
-        if ( state->scrollbar && widget_intersect ( &( state->scrollbar->widget ), xbe->x, xbe->y ) ) {
-            state->selected = scrollbar_clicked ( state->scrollbar, xbe->y );
+        if ( state->scrollbar && widget_intersect ( &( state->scrollbar->widget ), xbe->event_x, xbe->event_y ) ) {
+            state->selected = scrollbar_clicked ( state->scrollbar, xbe->event_y );
             state->update   = TRUE;
             return;
         }
         for ( unsigned int i = 0; config.sidebar_mode == TRUE && i < state->num_modi; i++ ) {
-            if ( widget_intersect ( &( state->modi[i]->widget ), xbe->x, xbe->y ) ) {
+            if ( widget_intersect ( &( state->modi[i]->widget ), xbe->event_x, xbe->event_y ) ) {
                 ( state->selected_line ) = 0;
                 state->retv              = MENU_QUICK_SWITCH | ( i & MENU_LOWER_MASK );
                 state->quit              = TRUE;
@@ -1081,7 +1108,7 @@ static void rofi_view_mouse_navigation ( RofiViewState *state, XButtonEvent *xbe
             }
         }
         for ( unsigned int i = 0; i < state->max_elements; i++ ) {
-            if ( widget_intersect ( &( state->boxes[i]->widget ), xbe->x, xbe->y ) ) {
+            if ( widget_intersect ( &( state->boxes[i]->widget ), xbe->event_x, xbe->event_y ) ) {
                 // Only allow items that are visible to be selected.
                 if ( ( state->last_offset + i ) >= state->filtered_lines ) {
                     break;
@@ -1219,192 +1246,165 @@ void rofi_view_setup_fake_transparency ( Display *display, RofiViewState *state 
     }
 }
 
-static void rofi_view_mainloop_iter ( RofiViewState *state, XEvent *ev )
+static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t *ev )
 {
-    if ( ev->type == KeymapNotify ) {
-        XRefreshKeyboardMapping ( &( ev->xmapping ) );
-    }
-    else if ( ev->type == ConfigureNotify ) {
-        XConfigureEvent xce = ev->xconfigure;
-        if ( xce.window == main_window ) {
-            if ( state->x != (int ) xce.x || state->y != (int) xce.y ) {
-                state->x      = xce.x;
-                state->y      = xce.y;
-                state->update = TRUE;
-            }
-            if ( state->w != (unsigned int) xce.width || state->h != (unsigned int ) xce.height ) {
-                state->w = xce.width;
-                state->h = xce.height;
-                cairo_xlib_surface_set_size ( surface, state->w, state->h );
-                rofi_view_resize ( state );
-            }
-        }
-    }
-    else if ( ev->type == FocusIn ) {
+    switch ( ev->response_type & ~0x80 )
+    {
+    case XCB_FOCUS_IN:
         if ( ( state->menu_flags & MENU_NORMAL_WINDOW ) == 0 ) {
             take_keyboard ( display, main_window );
         }
-    }
-    else if ( ev->type == FocusOut ) {
+        break;
+    case XCB_FOCUS_OUT:
         if ( ( state->menu_flags & MENU_NORMAL_WINDOW ) == 0 ) {
             release_keyboard ( display );
         }
-    }
-    // Handle event.
-    else if ( ev->type == Expose ) {
-        while ( XCheckTypedEvent ( display, Expose, ev ) ) {
-            ;
-        }
-        state->update = TRUE;
-    }
-    else if ( ev->type == MotionNotify ) {
-        while ( XCheckTypedEvent ( display, MotionNotify, ev ) ) {
-            ;
-        }
-        XMotionEvent xme = ev->xmotion;
-        if ( xme.x >= state->scrollbar->widget.x && xme.x < ( state->scrollbar->widget.x + state->scrollbar->widget.w ) ) {
-            state->selected = scrollbar_clicked ( state->scrollbar, xme.y );
+        break;
+    case XCB_MOTION_NOTIFY:
+    {
+        xcb_motion_notify_event_t *xme = (xcb_motion_notify_event_t *) ev;
+        if ( xme->event_x >= state->scrollbar->widget.x && xme->event_x < ( state->scrollbar->widget.x + state->scrollbar->widget.w ) ) {
+            state->selected = scrollbar_clicked ( state->scrollbar, xme->event_y );
             state->update   = TRUE;
         }
+        break;
     }
-    // Button press event.
-    else if ( ev->type == ButtonPress ) {
-        while ( XCheckTypedEvent ( display, ButtonPress, ev ) ) {
-            ;
-        }
-        rofi_view_mouse_navigation ( state, &( ev->xbutton ) );
-    }
+    case XCB_BUTTON_PRESS:
+        rofi_view_mouse_navigation ( state, (xcb_button_press_event_t *) ev );
+        break;
     // Paste event.
-    else if ( ev->type == SelectionNotify ) {
-        do {
-            rofi_view_paste ( state, &( ev->xselection ) );
-        } while ( XCheckTypedEvent ( display, SelectionNotify, ev ) );
-    }
-    // Key press event.
-    else if ( ev->type == KeyPress ) {
-        do {
-            // This is needed for letting the Input Method handle combined keys.
-            // E.g. `e into è
-            if ( XFilterEvent ( ev, main_window ) ) {
-                continue;
+    case XCB_SELECTION_NOTIFY:
+        rofi_view_paste ( state, (xcb_selection_notify_event_t *) ev );
+        break;
+    case XCB_KEY_PRESS:
+    {
+        xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *) ev;
+        XEvent                fake_event;
+        fake_event.type         = KeyPress;
+        fake_event.xany.display = display;
+        fake_event.xany.window  = xkpe->event;
+        fake_event.xkey.state   = xkpe->state;
+        fake_event.xkey.keycode = xkpe->detail;
+        // This is needed for letting the Input Method handle combined keys.
+        // E.g. `e into è
+        Status stat;
+        char   pad[32];
+        KeySym key; // = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
+        int    len = Xutf8LookupString ( xic, &( fake_event.xkey ), pad, sizeof ( pad ), &key, &stat );
+        pad[len] = 0;
+        if ( stat == XLookupKeySym || stat == XLookupBoth ) {
+            // Handling of paste
+            if ( abe_test_action ( PASTE_PRIMARY, xkpe->state, key ) ) {
+                XConvertSelection ( display, XA_PRIMARY, netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
             }
-            Status stat;
-            char   pad[32];
-            KeySym key; // = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
-            int    len = Xutf8LookupString ( xic, &( ev->xkey ), pad, sizeof ( pad ), &key, &stat );
-            pad[len] = 0;
-            if ( stat == XLookupKeySym || stat == XLookupBoth ) {
-                // Handling of paste
-                if ( abe_test_action ( PASTE_PRIMARY, ev->xkey.state, key ) ) {
-                    XConvertSelection ( display, XA_PRIMARY, netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
-                }
-                else if ( abe_test_action ( PASTE_SECONDARY, ev->xkey.state, key ) ) {
-                    XConvertSelection ( display, netatoms[CLIPBOARD], netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window,
-                                        CurrentTime );
-                }
-                if ( abe_test_action ( SCREENSHOT, ev->xkey.state, key ) ) {
-                    menu_capture_screenshot ( );
-                    break;
-                }
-                if ( abe_test_action ( TOGGLE_SORT, ev->xkey.state, key ) ) {
-                    config.levenshtein_sort = !config.levenshtein_sort;
-                    state->refilter         = TRUE;
-                    state->update           = TRUE;
-                    textbox_text ( state->case_indicator, get_matching_state () );
-                    break;
-                }
-                else if ( abe_test_action ( MODE_PREVIOUS, ev->xkey.state, key ) ) {
-                    state->retv              = MENU_PREVIOUS;
-                    ( state->selected_line ) = 0;
+            else if ( abe_test_action ( PASTE_SECONDARY, xkpe->state, key ) ) {
+                XConvertSelection ( display, netatoms[CLIPBOARD], netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window,
+                                    CurrentTime );
+            }
+            if ( abe_test_action ( SCREENSHOT, xkpe->state, key ) ) {
+                menu_capture_screenshot ( );
+                break;
+            }
+            if ( abe_test_action ( TOGGLE_SORT, xkpe->state, key ) ) {
+                config.levenshtein_sort = !config.levenshtein_sort;
+                state->refilter         = TRUE;
+                state->update           = TRUE;
+                textbox_text ( state->case_indicator, get_matching_state () );
+                break;
+            }
+            else if ( abe_test_action ( MODE_PREVIOUS, xkpe->state, key ) ) {
+                state->retv              = MENU_PREVIOUS;
+                ( state->selected_line ) = 0;
+                state->quit              = TRUE;
+                break;
+            }
+            // Menu navigation.
+            else if ( abe_test_action ( MODE_NEXT, xkpe->state, key ) ) {
+                state->retv              = MENU_NEXT;
+                ( state->selected_line ) = 0;
+                state->quit              = TRUE;
+                break;
+            }
+            // Toggle case sensitivity.
+            else if ( abe_test_action ( TOGGLE_CASE_SENSITIVITY, xkpe->state, key ) ) {
+                config.case_sensitive    = !config.case_sensitive;
+                ( state->selected_line ) = 0;
+                state->refilter          = TRUE;
+                state->update            = TRUE;
+                textbox_text ( state->case_indicator, get_matching_state () );
+                break;
+            }
+            // Special delete entry command.
+            else if ( abe_test_action ( DELETE_ENTRY, xkpe->state, key ) ) {
+                if ( state->selected < state->filtered_lines ) {
+                    ( state->selected_line ) = state->line_map[state->selected];
+                    state->retv              = MENU_ENTRY_DELETE;
                     state->quit              = TRUE;
                     break;
                 }
-                // Menu navigation.
-                else if ( abe_test_action ( MODE_NEXT, ev->xkey.state, key ) ) {
-                    state->retv              = MENU_NEXT;
-                    ( state->selected_line ) = 0;
-                    state->quit              = TRUE;
-                    break;
-                }
-                // Toggle case sensitivity.
-                else if ( abe_test_action ( TOGGLE_CASE_SENSITIVITY, ev->xkey.state, key ) ) {
-                    config.case_sensitive    = !config.case_sensitive;
-                    ( state->selected_line ) = 0;
-                    state->refilter          = TRUE;
-                    state->update            = TRUE;
-                    textbox_text ( state->case_indicator, get_matching_state () );
-                    break;
-                }
-                // Special delete entry command.
-                else if ( abe_test_action ( DELETE_ENTRY, ev->xkey.state, key ) ) {
-                    if ( state->selected < state->filtered_lines ) {
-                        ( state->selected_line ) = state->line_map[state->selected];
-                        state->retv              = MENU_ENTRY_DELETE;
-                        state->quit              = TRUE;
-                        break;
-                    }
-                }
-                for ( unsigned int a = CUSTOM_1; a <= CUSTOM_19; a++ ) {
-                    if ( abe_test_action ( a, ev->xkey.state, key ) ) {
-                        state->selected_line = UINT32_MAX;
-                        if ( state->selected < state->filtered_lines ) {
-                            ( state->selected_line ) = state->line_map[state->selected];
-                        }
-                        state->retv = MENU_QUICK_SWITCH | ( ( a - CUSTOM_1 ) & MENU_LOWER_MASK );
-                        state->quit = TRUE;
-                        break;
-                    }
-                }
-                if ( rofi_view_keyboard_navigation ( state, key, ev->xkey.state ) ) {
-                    continue;
-                }
             }
-            {
-                // Skip if we detected key before.
-                if ( state->quit ) {
-                    continue;
-                }
-
-                int rc = textbox_keypress ( state->text, ev, pad, len, key, stat );
-                // Row is accepted.
-                if ( rc < 0 ) {
-                    int shift = ( ( ev->xkey.state & ShiftMask ) == ShiftMask );
-
-                    // If a valid item is selected, return that..
+            for ( unsigned int a = CUSTOM_1; a <= CUSTOM_19; a++ ) {
+                if ( abe_test_action ( a, xkpe->state, key ) ) {
                     state->selected_line = UINT32_MAX;
                     if ( state->selected < state->filtered_lines ) {
                         ( state->selected_line ) = state->line_map[state->selected];
-                        if ( strlen ( state->text->text ) > 0 && rc == -2 ) {
-                            state->retv = MENU_CUSTOM_INPUT;
-                        }
-                        else {
-                            state->retv = MENU_OK;
-                        }
                     }
-                    else if ( strlen ( state->text->text ) > 0 ) {
-                        state->retv = MENU_CUSTOM_INPUT;
-                    }
-                    else{
-                        // Nothing entered and nothing selected.
-                        state->retv = MENU_CUSTOM_INPUT;
-                    }
-                    if ( shift ) {
-                        state->retv |= MENU_SHIFT;
-                    }
-
+                    state->retv = MENU_QUICK_SWITCH | ( ( a - CUSTOM_1 ) & MENU_LOWER_MASK );
                     state->quit = TRUE;
-                }
-                // Key press is handled by entry box.
-                else if ( rc == 1 ) {
-                    state->refilter = TRUE;
-                    state->update   = TRUE;
-                }
-                else if (  rc == 2 ) {
-                    // redraw.
-                    state->update = TRUE;
+                    break;
                 }
             }
-        } while ( XCheckTypedEvent ( display, KeyPress, ev ) );
+            if ( rofi_view_keyboard_navigation ( state, key, xkpe->state ) ) {
+                break;
+            }
+        }
+        {
+            // Skip if we detected key before.
+            if ( state->quit ) {
+                break;
+            }
+
+            int rc = textbox_keypress ( state->text, xkpe, pad, len, key, stat );
+            // Row is accepted.
+            if ( rc < 0 ) {
+                int shift = ( ( xkpe->state & ShiftMask ) == ShiftMask );
+
+                // If a valid item is selected, return that..
+                state->selected_line = UINT32_MAX;
+                if ( state->selected < state->filtered_lines ) {
+                    ( state->selected_line ) = state->line_map[state->selected];
+                    if ( strlen ( state->text->text ) > 0 && rc == -2 ) {
+                        state->retv = MENU_CUSTOM_INPUT;
+                    }
+                    else {
+                        state->retv = MENU_OK;
+                    }
+                }
+                else if ( strlen ( state->text->text ) > 0 ) {
+                    state->retv = MENU_CUSTOM_INPUT;
+                }
+                else{
+                    // Nothing entered and nothing selected.
+                    state->retv = MENU_CUSTOM_INPUT;
+                }
+                if ( shift ) {
+                    state->retv |= MENU_SHIFT;
+                }
+
+                state->quit = TRUE;
+            }
+            // Key press is handled by entry box.
+            else if ( rc == 1 ) {
+                state->refilter = TRUE;
+                state->update   = TRUE;
+            }
+            else if (  rc == 2 ) {
+                // redraw.
+                state->update = TRUE;
+            }
+        }
+        break;
+    }
     }
     // Update if requested.
     if ( state->refilter ) {
@@ -1625,38 +1625,15 @@ RofiViewState *rofi_view_create ( Mode *sw,
     }
     return state;
 }
-static void __error_dialog_event_loop ( RofiViewState *state, XEvent *ev )
+static void __error_dialog_event_loop ( RofiViewState *state, xcb_generic_event_t *ev )
 {
     // Handle event.
-    if ( ev->type == Expose ) {
-        while ( XCheckTypedEvent ( display, Expose, ev ) ) {
-            ;
-        }
-        state->update = TRUE;
-    }
-    else if ( ev->type == ConfigureNotify ) {
-        XConfigureEvent xce = ev->xconfigure;
-        if ( xce.window == main_window ) {
-            if ( state->x != (int ) xce.x || state->y != (int) xce.y ) {
-                state->x      = xce.x;
-                state->y      = xce.y;
-                state->update = TRUE;
-            }
-            if ( state->w != (unsigned int) xce.width || state->h != (unsigned int ) xce.height ) {
-                state->w = xce.width;
-                state->h = xce.height;
-                cairo_xlib_surface_set_size ( surface, state->w, state->h );
-            }
-        }
-    }
+    switch ( ev->response_type & ~0x80 )
+    {
     // Key press event.
-    else if ( ev->type == KeyPress ) {
-        while ( XCheckTypedEvent ( display, KeyPress, ev ) ) {
-            ;
-        }
+    case XCB_KEY_PRESS:
         state->quit = TRUE;
     }
-    rofi_view_update ( state );
 }
 void process_result_error ( RofiViewState *state );
 void rofi_view_error_dialog ( const char *msg, int markup )

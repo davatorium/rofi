@@ -34,9 +34,13 @@
 #include <errno.h>
 #include <time.h>
 #include <locale.h>
+#include <xcb/xcb.h>
+#include <xcb/xcb_aux.h>
+#include <xkbcommon/xkbcommon.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
+#include <X11/Xlib-xcb.h>
 #include <X11/Xutil.h>
 #include <X11/Xproto.h>
 #include <X11/keysym.h>
@@ -44,6 +48,8 @@
 #include <sys/types.h>
 
 #include <glib-unix.h>
+
+#include <libgwater-xcb.h>
 
 #define SN_API_NOT_YET_FROZEN
 #include <libsn/sn.h>
@@ -63,13 +69,15 @@
 
 gboolean          daemon_mode = FALSE;
 // Pidfile.
-char              *pidfile     = NULL;
-const char        *cache_dir   = NULL;
-SnDisplay         *sndisplay   = NULL;
-SnLauncheeContext *sncontext   = NULL;
-Display           *display     = NULL;
-char              *display_str = NULL;
-char              *config_path = NULL;
+char              *pidfile        = NULL;
+const char        *cache_dir      = NULL;
+SnDisplay         *sndisplay      = NULL;
+SnLauncheeContext *sncontext      = NULL;
+xcb_connection_t  *xcb_connection = NULL;
+xcb_screen_t      *xcb_screen     = NULL;
+Display           *display        = NULL;
+char              *display_str    = NULL;
+char              *config_path    = NULL;
 // Array of modi.
 Mode              **modi   = NULL;
 unsigned int      num_modi = 0;
@@ -77,7 +85,7 @@ unsigned int      num_modi = 0;
 unsigned int      curr_switcher = 0;
 
 GMainLoop         *main_loop        = NULL;
-GSource           *main_loop_source = NULL;
+GWaterXcbSource   *main_loop_source = NULL;
 gboolean          quiet             = FALSE;
 
 static int        dmenu_mode = FALSE;
@@ -277,19 +285,19 @@ int show_error_message ( const char *msg, int markup )
  * Function that listens for global key-presses.
  * This is only used when in daemon mode.
  */
-static void handle_keypress ( XEvent *ev )
+static void handle_keypress ( xcb_key_press_event_t *ev )
 {
     int    index;
-    KeySym key = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
-    index = locate_switcher ( key, ev->xkey.state );
+    KeySym key = XkbKeycodeToKeysym ( display, ev->detail, 0, 0 );
+    index = locate_switcher ( key, ev->state );
     if ( index >= 0 ) {
         run_switcher ( index );
     }
     else {
         fprintf ( stderr,
                   "Warning: Unhandled keypress in global keyhandler, keycode = %u mask = %u\n",
-                  ev->xkey.keycode,
-                  ev->xkey.state );
+                  ev->detail,
+                  ev->state );
     }
 }
 
@@ -354,7 +362,7 @@ static void cleanup ()
     rofi_view_workers_finalize ();
     if ( main_loop != NULL  ) {
         if ( main_loop_source ) {
-            g_source_destroy ( main_loop_source );
+            g_water_xcb_source_unref ( main_loop_source );
         }
         g_main_loop_unref ( main_loop );
         main_loop = NULL;
@@ -542,19 +550,14 @@ static void reload_configuration ()
 /**
  * Process X11 events in the main-loop (gui-thread) of the application.
  */
-static gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data )
+static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer data )
 {
     RofiViewState *state = rofi_view_get_active ();
+    if ( sndisplay != NULL ) {
+        sn_xcb_display_process_event ( sndisplay, ev );
+    }
     if ( state != NULL ) {
-        while ( XPending ( display ) ) {
-            XEvent ev;
-            // Read event, we know this won't block as we checked with XPending.
-            XNextEvent ( display, &ev );
-            if ( sndisplay != NULL ) {
-                sn_display_process_event ( sndisplay, &ev );
-            }
-            rofi_view_itterrate ( state, &ev );
-        }
+        rofi_view_itterrate ( state, ev );
         if ( rofi_view_get_completed ( state ) ) {
             // This menu is done.
             rofi_view_finalize ( state );
@@ -566,24 +569,14 @@ static gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data )
                 }
             }
         }
-        return G_SOURCE_CONTINUE;
     }
-    // X11 produced an event. Consume them.
-    while ( XPending ( display ) ) {
-        XEvent ev;
-        // Read event, we know this won't block as we checked with XPending.
-        XNextEvent ( display, &ev );
-        if ( sndisplay != NULL ) {
-            sn_display_process_event ( sndisplay, &ev );
-        }
+    else {
+        // X11 produced an event. Consume them.
         // If we get an event that does not belong to a window:
         // Ignore it.
-        if ( ev.xany.window == None ) {
-            continue;
-        }
         // If keypress, handle it.
-        if ( ev.type == KeyPress ) {
-            handle_keypress ( &ev );
+        if ( ( ev->response_type & ~0x80 ) == XCB_KEY_PRESS ) {
+            handle_keypress ( (xcb_key_press_event_t *) ev );
         }
     }
     return G_SOURCE_CONTINUE;
@@ -606,7 +599,7 @@ static gboolean main_loop_signal_handler_hup ( G_GNUC_UNUSED gpointer data )
     // Grab the possibly new keybindings.
     grab_global_keybindings ();
     // We need to flush, otherwise the first key presses are not caught.
-    XFlush ( display );
+    xcb_flush ( xcb_connection );
     return G_SOURCE_CONTINUE;
 }
 
@@ -722,8 +715,9 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
             sn_launchee_context_complete ( sncontext );
         }
         daemon_mode = TRUE;
-        XSelectInput ( display, DefaultRootWindow ( display ), KeyPressMask );
-        XFlush ( display );
+        uint32_t mask[] = { XCB_EVENT_MASK_KEY_PRESS };
+        xcb_change_window_attributes ( xcb_connection, xcb_screen->root, XCB_CW_EVENT_MASK, mask );
+        xcb_flush ( xcb_connection );
     }
 
     return G_SOURCE_REMOVE;
@@ -807,6 +801,9 @@ int main ( int argc, char *argv[] )
     }
     TICK_N ( "Open Display" );
 
+    xcb_connection = XGetXCBConnection ( display );
+    xcb_screen     = xcb_aux_get_screen ( xcb_connection, DefaultScreen ( display ) );
+
     main_loop = g_main_loop_new ( NULL, FALSE );
 
     TICK_N ( "Setup mainloop" );
@@ -856,8 +853,7 @@ int main ( int argc, char *argv[] )
     }
 
     x11_setup ( display );
-    main_loop_source = x11_event_source_new ( display );
-    x11_event_source_set_callback ( main_loop_source, main_loop_x11_event_handler );
+    main_loop_source = g_water_xcb_source_new_for_connection ( NULL, xcb_connection, main_loop_x11_event_handler, NULL, NULL );
 
     TICK_N ( "X11 Setup " );
 

@@ -31,6 +31,12 @@ dnl ---------------------------------------------------------------------
 AC_USE_SYSTEM_EXTENSIONS
 
 dnl ---------------------------------------------------------------------
+dnl Static libraries programs
+dnl ---------------------------------------------------------------------
+AC_PROG_RANLIB
+AM_PROG_AR
+
+dnl ---------------------------------------------------------------------
 dnl Base CFLAGS
 dnl ---------------------------------------------------------------------
 AM_CFLAGS="-Wall -Wextra -Wparentheses -Winline -pedantic"
@@ -77,7 +83,8 @@ dnl ---------------------------------------------------------------------
 dnl X11, Glib, Xinerama, Pango, Cairo, libstartup notification
 dnl ---------------------------------------------------------------------
 PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40])
-PKG_CHECK_MODULES([x11],      [x11])
+GW_CHECK_XCB([xcb-aux xkbcommon xkbcommon-x11])
+PKG_CHECK_MODULES([x11],      [x11 x11-xcb])
 PKG_CHECK_MODULES([xinerama], [xinerama])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo cairo-xlib])

@@ -1,6 +1,11 @@
 # Specify automake version.
 AUTOMAKE_OPTIONS  = 1.11.3
 
+ACLOCAL_AMFLAGS = -I libgwater ${ACLOCAL_FLAGS}
+
+noinst_LIBRARIES =
+include $(top_srcdir)/libgwater-xcb-nolibtool.mk
+
 ##
 # Rofi the program
 ##
@@ -60,6 +65,7 @@ rofi_SOURCES=\
 rofi_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
+	$(GW_XCB_CFLAGS)\
 	$(x11_CFLAGS)\
 	$(xinerama_CFLAGS)\
 	$(pango_CFLAGS)\
@@ -73,6 +79,7 @@ rofi_CFLAGS=\
 
 rofi_LDADD=\
 	$(glib_LIBS)\
+	$(GW_XCB_LIBS)\
 	$(x11_LIBS)\
 	$(xinerama_LIBS)\
 	$(libsn_LIBS)\

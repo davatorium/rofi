@@ -1,5 +1,6 @@
 #ifndef ROFI_MAIN_H
 #define ROFI_MAIN_H
+#include <xcb/xcb.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <glib.h>
