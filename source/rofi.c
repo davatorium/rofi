@@ -270,9 +270,6 @@ int show_error_message ( const char *msg, int markup )
         return EXIT_FAILURE;
     }
     rofi_view_error_dialog ( msg, markup );
-    //teardown ( pfd );
-    // TODO this looks incorrect.
-    // g_main_loop_quit ( main_loop );
     return EXIT_SUCCESS;
 }
 

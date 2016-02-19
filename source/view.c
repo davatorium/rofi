@@ -1665,8 +1665,7 @@ void rofi_view_error_dialog ( const char *msg, int markup )
     state->update         = TRUE;
     state->border         = config.padding + config.menu_bw;
     state->x11_event_loop = __error_dialog_event_loop;
-    // TODO fix
-    state->finalize = process_result_error;
+    state->finalize       = process_result_error;
 
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).

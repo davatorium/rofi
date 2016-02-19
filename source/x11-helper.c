@@ -509,7 +509,6 @@ void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key )
     KeySym sym = XStringToKeysym ( combo + i );
 
     if ( sym == NoSymbol || ( !modmask && ( strchr ( combo, '-' ) || strchr ( combo, '+' ) ) ) ) {
-        // TODO popup
         g_string_append_printf ( str, "Sorry, rofi cannot understand the key combination: <i>%s</i>\n", combo );
         g_string_append ( str, "\nRofi supports the following modifiers:\n\t" );
         g_string_append ( str, "<i>Shift,Control,Alt,AltGR,SuperL,SuperR," );

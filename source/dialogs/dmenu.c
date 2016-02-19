@@ -44,9 +44,6 @@
 // We limit at 1000000 rows for now.
 #define DMENU_MAX_ROWS    1000000
 
-// TODO HACK TO BE REMOVED
-extern Display *display;
-
 struct range_pair
 {
     unsigned int start;
@@ -359,7 +356,7 @@ Mode dmenu_mode =
     .free               = NULL
 };
 
-static void dmenu_finish ( RofiViewState *state, int retv)
+static void dmenu_finish ( RofiViewState *state, int retv )
 {
     if ( retv == FALSE ) {
         rofi_set_return_code ( EXIT_FAILURE );
@@ -378,7 +375,7 @@ static void dmenu_finish ( RofiViewState *state, int retv)
 static void dmenu_finalize ( RofiViewState *state )
 {
     int                  retv            = FALSE;
-    DmenuModePrivateData *pd             = (DmenuModePrivateData *) (Mode *) ( rofi_view_get_mode ( state ) )->private_data;
+    DmenuModePrivateData *pd             = (DmenuModePrivateData *) rofi_view_get_mode ( state )->private_data;
     unsigned int         cmd_list_length = pd->cmd_list_length;
     char                 **cmd_list      = pd->cmd_list;
 
@@ -389,7 +386,6 @@ static void dmenu_finalize ( RofiViewState *state )
 
     int                  restart = 0;
     // Special behavior.
-    // TODO clean this up!
     if ( pd->only_selected ) {
         /**
          * Select item mode.
@@ -406,9 +402,9 @@ static void dmenu_finalize ( RofiViewState *state )
                 retv = TRUE;
                 if ( ( mretv & MENU_QUICK_SWITCH ) ) {
                     retv = 10 + ( mretv & MENU_LOWER_MASK );
-    }
+                }
                 g_free ( input );
-                dmenu_finish(state, retv);
+                dmenu_finish ( state, retv );
                 return;
             }
             pd->selected_line = next_pos - 1;
@@ -417,7 +413,7 @@ static void dmenu_finalize ( RofiViewState *state )
         rofi_view_restart ( state );
         rofi_view_set_selected_line ( state, pd->selected_line );
         if ( !restart ) {
-            dmenu_finish(state, retv);
+            dmenu_finish ( state, retv );
         }
         return;
     }
@@ -479,7 +475,7 @@ static void dmenu_finalize ( RofiViewState *state )
         rofi_view_set_selected_line ( state, pd->selected_line );
     }
     else {
-        dmenu_finish(state,retv);
+        dmenu_finish ( state, retv );
     }
 }
 
@@ -539,8 +535,10 @@ int dmenu_switcher_dialog ( void )
         g_strfreev ( tokens );
         return TRUE;
     }
-    // TODO remove
-    RofiViewState *state = rofi_view_create ( &dmenu_mode, input, pd->prompt, pd->message, menu_flags, dmenu_finalize );
+    RofiViewState *state = rofi_view_create (
+        &dmenu_mode, input,
+        pd->prompt, pd->message,
+        menu_flags, dmenu_finalize );
     rofi_view_set_selected_line ( state, pd->selected_line );
     rofi_view_set_active ( state );
 
