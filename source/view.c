@@ -1628,7 +1628,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
 }
 static void __error_dialog_event_loop ( RofiViewState *state, XEvent *ev )
 {
-    printf ( "Event\n" );
     // Handle event.
     if ( ev->type == Expose ) {
         while ( XCheckTypedEvent ( display, Expose, ev ) ) {
@@ -1689,7 +1688,6 @@ void rofi_view_error_dialog ( const char *msg, int markup )
     XWindowAttributes attr;
     if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
         main_window = __create_window ( display, MENU_NORMAL );
-        printf ( "new window\n" );
     }
 
     rofi_view_calculate_window_and_element_width ( state );
@@ -1711,18 +1709,10 @@ void rofi_view_error_dialog ( const char *msg, int markup )
     XMapRaised ( display, main_window );
 
     if ( sncontext != NULL ) {
-//        sn_launchee_context_complete ( sncontext );
+        sn_launchee_context_complete ( sncontext );
     }
-    printf ( "start\n" );
     rofi_view_set_active ( state );
-    //rofi_view_queue_redraw();
     main_loop_x11_event_handler ( NULL );
-    //while ( !rofi_view_get_completed ( state )  ) {
-    //    printf("main loop: %d\n", g_main_context_is_owner(g_main_context_default()));
-    //    g_main_context_iteration ( NULL, TRUE );
-    //}
-    //rofi_view_set_active ( NULL );
-    //rofi_view_free ( state );
 }
 
 void rofi_view_cleanup ()

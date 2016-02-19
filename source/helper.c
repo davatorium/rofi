@@ -508,7 +508,7 @@ void remove_pid_file ( int fd )
  *
  * This functions exits the program with 1 when it finds an invalid configuration.
  */
-void config_sanity_check ( Display *display )
+int config_sanity_check ( Display *display )
 {
     if ( config.threads == 0 ) {
         config.threads = 1;
@@ -591,10 +591,11 @@ void config_sanity_check ( Display *display )
     if ( found_error ) {
         g_string_append ( msg, "Please update your configuration." );
         show_error_message ( msg->str, TRUE );
-        exit ( EXIT_FAILURE );
+        return TRUE;
     }
 
     g_string_free ( msg, TRUE );
+    return FALSE;
 }
 
 char *rofi_expand_path ( const char *input )

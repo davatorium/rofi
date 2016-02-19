@@ -406,7 +406,6 @@ static void dmenu_finalize ( RofiViewState *state )
                 rofi_view_free ( state );
                 mode_destroy ( &dmenu_mode );
                 rofi_view_set_active ( NULL );
-//                g_main_loop_quit(NULL);
                 return;
             }
             pd->selected_line = next_pos - 1;

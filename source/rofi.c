@@ -207,6 +207,7 @@ static void run_switcher ( ModeMode mode )
     char *input = g_strdup ( config.filter );
     __run_switcher_internal ( mode, input );
     g_free ( input );
+    main_loop_x11_event_handler ( NULL );
 }
 void process_result ( RofiViewState *state )
 {
@@ -247,7 +248,6 @@ void process_result ( RofiViewState *state )
              */
             __run_switcher_internal ( mode, input );
             g_free ( input );
-            main_loop_x11_event_handler ( NULL );
             return;
         }
         // Cleanup
@@ -655,18 +655,32 @@ static gboolean delayed_start ( G_GNUC_UNUSED gpointer data )
 
 static gboolean startup ( G_GNUC_UNUSED gpointer data )
 {
+    TICK_N ( "Startup" );
     // flags to run immediately and exit
     char *sname = NULL;
     char *msg   = NULL;
+    //
+    // Sanity check
+    if ( config_sanity_check ( display ) ) {
+        return G_SOURCE_REMOVE;
+    }
+    TICK_N ( "Config sanity check" );
+    // Parse the keybindings.
+    parse_keys_abe ();
+    // Check if there is error dialog.
+    if ( rofi_view_get_active ( ) != NULL ) {
+        return G_SOURCE_REMOVE;
+    }
+    TICK_N ( "Parse ABE" );
     // Dmenu mode.
     if ( dmenu_mode == TRUE ) {
         // force off sidebar mode:
         config.sidebar_mode = FALSE;
         int retv = run_dmenu ();
         if ( retv ) {
-            rofi_set_return_code ( EXIT_SUCCESS ); 
+            rofi_set_return_code ( EXIT_SUCCESS );
             // Directly exit.
-            g_main_loop_quit(main_loop);
+            g_main_loop_quit ( main_loop );
         }
     }
     else if ( find_arg_str (  "-e", &( msg ) ) ) {
@@ -840,15 +854,6 @@ int main ( int argc, char *argv[] )
         // Reload for dynamic part.
         load_configuration_dynamic ( display );
     }
-
-    x11_setup ( display );
-    main_loop_source = x11_event_source_new ( display );
-    x11_event_source_set_callback ( main_loop_source, main_loop_x11_event_handler );
-
-    TICK_N ( "X11 Setup " );
-    // Sanity check
-    config_sanity_check ( display );
-    TICK_N ( "Config sanity check" );
     // Dump.
     // catch help request
     if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 || find_arg (  "--help" ) >= 0 ) {
@@ -863,9 +868,12 @@ int main ( int argc, char *argv[] )
         config_parse_xresources_theme_dump ();
         exit ( EXIT_SUCCESS );
     }
-    // Parse the keybindings.
-    parse_keys_abe ();
-    TICK_N ( "Parse ABE" );
+
+    x11_setup ( display );
+    main_loop_source = x11_event_source_new ( display );
+    x11_event_source_set_callback ( main_loop_source, main_loop_x11_event_handler );
+
+    TICK_N ( "X11 Setup " );
 
     rofi_view_workers_initialize ();
 
