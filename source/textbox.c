@@ -78,7 +78,7 @@ static gboolean textbox_blink ( gpointer data )
 textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h,
                           TextBoxFontType tbft, const char *text )
 {
-    textbox *tb = g_malloc0 ( sizeof ( textbox ) );
+    textbox *tb = g_slice_new0 ( textbox );
 
     tb->flags = flags;
 
@@ -258,7 +258,7 @@ void textbox_free ( textbox *tb )
         tb->main_surface = NULL;
     }
 
-    g_free ( tb );
+    g_slice_free ( textbox, tb );
 }
 
 static void texbox_update ( textbox *tb )

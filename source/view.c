@@ -400,6 +400,7 @@ static Window __create_window ( Display *display, MenuFlags menu_flags )
     surface = cairo_xlib_surface_create ( display, box, vinfo.visual, 200, 100 );
     // Create a drawable.
     draw = cairo_create ( surface );
+    g_assert ( draw != NULL );
     cairo_set_operator ( draw, CAIRO_OPERATOR_SOURCE );
 
     // Set up pango context.
@@ -1416,7 +1417,8 @@ RofiViewState *rofi_view_create ( Mode *sw,
                                   const char *input,
                                   char *prompt,
                                   const char *message,
-                                  MenuFlags menu_flags )
+                                  MenuFlags menu_flags,
+                                  void ( *finalize )( RofiViewState *state ) )
 {
     TICK ();
     RofiViewState *state = __rofi_view_state_create ();
@@ -1434,6 +1436,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->cur_page       = -1;
     state->border         = config.padding + config.menu_bw;
     state->x11_event_loop = rofi_view_mainloop_iter;
+    state->finalize       = finalize;
 
     // Request the lines to show.
     state->num_lines       = mode_get_num_entries ( sw );
@@ -1625,12 +1628,28 @@ RofiViewState *rofi_view_create ( Mode *sw,
 }
 static void __error_dialog_event_loop ( RofiViewState *state, XEvent *ev )
 {
+    printf ( "Event\n" );
     // Handle event.
     if ( ev->type == Expose ) {
         while ( XCheckTypedEvent ( display, Expose, ev ) ) {
             ;
         }
         state->update = TRUE;
+    }
+    else if ( ev->type == ConfigureNotify ) {
+        XConfigureEvent xce = ev->xconfigure;
+        if ( xce.window == main_window ) {
+            if ( state->x != (int ) xce.x || state->y != (int) xce.y ) {
+                state->x      = xce.x;
+                state->y      = xce.y;
+                state->update = TRUE;
+            }
+            if ( state->w != (unsigned int) xce.width || state->h != (unsigned int ) xce.height ) {
+                state->w = xce.width;
+                state->h = xce.height;
+                cairo_xlib_surface_set_size ( surface, state->w, state->h );
+            }
+        }
     }
     // Key press event.
     else if ( ev->type == KeyPress ) {
@@ -1641,6 +1660,7 @@ static void __error_dialog_event_loop ( RofiViewState *state, XEvent *ev )
     }
     rofi_view_update ( state );
 }
+void process_result_error ( RofiViewState *state );
 void rofi_view_error_dialog ( const char *msg, int markup )
 {
     RofiViewState *state = __rofi_view_state_create ();
@@ -1648,7 +1668,8 @@ void rofi_view_error_dialog ( const char *msg, int markup )
     state->update         = TRUE;
     state->border         = config.padding + config.menu_bw;
     state->x11_event_loop = __error_dialog_event_loop;
-    state->finalize       = NULL;
+    // TODO fix
+    state->finalize = process_result_error;
 
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
@@ -1668,6 +1689,7 @@ void rofi_view_error_dialog ( const char *msg, int markup )
     XWindowAttributes attr;
     if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
         main_window = __create_window ( display, MENU_NORMAL );
+        printf ( "new window\n" );
     }
 
     rofi_view_calculate_window_and_element_width ( state );
@@ -1689,15 +1711,18 @@ void rofi_view_error_dialog ( const char *msg, int markup )
     XMapRaised ( display, main_window );
 
     if ( sncontext != NULL ) {
-        sn_launchee_context_complete ( sncontext );
+//        sn_launchee_context_complete ( sncontext );
     }
+    printf ( "start\n" );
     rofi_view_set_active ( state );
+    //rofi_view_queue_redraw();
     main_loop_x11_event_handler ( NULL );
-    while ( !rofi_view_get_completed ( state )  ) {
-        g_main_context_iteration ( NULL, TRUE );
-    }
-    rofi_view_set_active ( NULL );
-    rofi_view_free ( state );
+    //while ( !rofi_view_get_completed ( state )  ) {
+    //    printf("main loop: %d\n", g_main_context_is_owner(g_main_context_default()));
+    //    g_main_context_iteration ( NULL, TRUE );
+    //}
+    //rofi_view_set_active ( NULL );
+    //rofi_view_free ( state );
 }
 
 void rofi_view_cleanup ()
@@ -1755,5 +1780,9 @@ void rofi_view_workers_finalize ( void )
         g_thread_pool_free ( tpool, TRUE, FALSE );
         tpool = NULL;
     }
+}
+Mode * rofi_view_get_mode ( RofiViewState *state )
+{
+    return state->sw;
 }
 

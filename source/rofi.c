@@ -80,8 +80,18 @@ GMainLoop         *main_loop        = NULL;
 GSource           *main_loop_source = NULL;
 gboolean          quiet             = FALSE;
 
-static void process_result ( RofiViewState *state );
+static int        dmenu_mode = FALSE;
+
+int               return_code = EXIT_SUCCESS;
+
+void process_result ( RofiViewState *state );
+void process_result_error ( RofiViewState *state );
 gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data );
+
+void rofi_set_return_code ( int code )
+{
+    return_code = code;
+}
 
 unsigned int rofi_get_num_enabled_modi ( void )
 {
@@ -155,31 +165,28 @@ static void teardown ( int pfd )
     remove_pid_file ( pfd );
 }
 
+static int pfd = -1;
 /**
  * Start dmenu mode.
  */
 static int run_dmenu ()
 {
     int ret_state = EXIT_FAILURE;
-    int pfd       = setup ();
+    pfd = setup ();
     if ( pfd < 0 ) {
         return ret_state;
     }
 
     // Dmenu modi has a return state.
     ret_state = dmenu_switcher_dialog ();
-    teardown ( pfd );
     return ret_state;
 }
-
-static int pfd = -1;
 
 static void __run_switcher_internal ( ModeMode mode, char *input )
 {
     char          *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode] ) );
     curr_switcher = mode;
-    RofiViewState * state = rofi_view_create ( modi[mode], input, prompt, NULL, MENU_NORMAL );
-    state->finalize = process_result;
+    RofiViewState * state = rofi_view_create ( modi[mode], input, prompt, NULL, MENU_NORMAL, process_result );
     rofi_view_set_active ( state );
     g_free ( prompt );
 }
@@ -201,57 +208,61 @@ static void run_switcher ( ModeMode mode )
     __run_switcher_internal ( mode, input );
     g_free ( input );
 }
-static void process_result ( RofiViewState *state )
+void process_result ( RofiViewState *state )
 {
-    Mode         *sw           = state->sw;
-    unsigned int selected_line = rofi_view_get_selected_line ( state );;
-    MenuReturn   mretv         = rofi_view_get_return_value ( state );
-    char         *input        = g_strdup ( rofi_view_get_user_input ( state ) );
-    rofi_view_set_active ( NULL );
-    rofi_view_free ( state );
-    ModeMode retv = mode_result ( sw, mretv, &input, selected_line );
+    Mode *sw = state->sw;
+    if ( sw != NULL ) {
+        unsigned int selected_line = rofi_view_get_selected_line ( state );;
+        MenuReturn   mretv         = rofi_view_get_return_value ( state );
+        char         *input        = g_strdup ( rofi_view_get_user_input ( state ) );
+        rofi_view_set_active ( NULL );
+        rofi_view_free ( state );
+        ModeMode retv = mode_result ( sw, mretv, &input, selected_line );
 
-    ModeMode mode = curr_switcher;
-    // Find next enabled
-    if ( retv == NEXT_DIALOG ) {
-        mode = ( mode + 1 ) % num_modi;
-    }
-    else if ( retv == PREVIOUS_DIALOG ) {
-        if ( mode == 0 ) {
-            mode = num_modi - 1;
+        ModeMode mode = curr_switcher;
+        // Find next enabled
+        if ( retv == NEXT_DIALOG ) {
+            mode = ( mode + 1 ) % num_modi;
+        }
+        else if ( retv == PREVIOUS_DIALOG ) {
+            if ( mode == 0 ) {
+                mode = num_modi - 1;
+            }
+            else {
+                mode = ( mode - 1 ) % num_modi;
+            }
+        }
+        else if ( retv == RELOAD_DIALOG ) {
+            // do nothing.
+        }
+        else if ( retv < MODE_EXIT ) {
+            mode = ( retv ) % num_modi;
         }
         else {
-            mode = ( mode - 1 ) % num_modi;
+            mode = retv;
+        }
+        if ( mode != MODE_EXIT ) {
+            /**
+             * Load in the new mode.
+             */
+            __run_switcher_internal ( mode, input );
+            g_free ( input );
+            main_loop_x11_event_handler ( NULL );
+            return;
+        }
+        // Cleanup
+        g_free ( input );
+        for ( unsigned int i = 0; i < num_modi; i++ ) {
+            mode_destroy ( modi[i] );
         }
     }
-    else if ( retv == RELOAD_DIALOG ) {
-        // do nothing.
-    }
-    else if ( retv < MODE_EXIT ) {
-        mode = ( retv ) % num_modi;
-    }
-    else {
-        mode = retv;
-    }
-    if ( mode != MODE_EXIT ) {
-        /**
-         * Load in the new mode.
-         */
-        __run_switcher_internal ( mode, input );
-        g_free ( input );
-        main_loop_x11_event_handler ( NULL );
-        return;
-    }
-    // Cleanup
-    g_free ( input );
-    for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_destroy ( modi[i] );
-    }
-    // cleanup
+}
+void process_result_error  ( RofiViewState *state )
+{
+    rofi_view_set_active ( NULL );
+    rofi_view_free ( state );
     teardown ( pfd );
-    if ( !daemon_mode ) {
-        g_main_loop_quit ( main_loop );
-    }
+    g_main_loop_quit ( main_loop );
 }
 
 int show_error_message ( const char *msg, int markup )
@@ -261,9 +272,9 @@ int show_error_message ( const char *msg, int markup )
         return EXIT_FAILURE;
     }
     rofi_view_error_dialog ( msg, markup );
-    teardown ( pfd );
+    //teardown ( pfd );
     // TODO this looks incorrect.
-    g_main_loop_quit ( main_loop );
+    // g_main_loop_quit ( main_loop );
     return EXIT_SUCCESS;
 }
 
@@ -552,6 +563,13 @@ gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data )
         if ( rofi_view_get_completed ( state ) ) {
             // This menu is done.
             rofi_view_finalize ( state );
+            // cleanup
+            if ( rofi_view_get_active () == NULL ) {
+                teardown ( pfd );
+                if (  !daemon_mode ) {
+                    g_main_loop_quit ( main_loop );
+                }
+            }
         }
         return G_SOURCE_CONTINUE;
     }
@@ -635,6 +653,82 @@ static gboolean delayed_start ( G_GNUC_UNUSED gpointer data )
     return FALSE;
 }
 
+static gboolean startup ( G_GNUC_UNUSED gpointer data )
+{
+    // flags to run immediately and exit
+    char *sname = NULL;
+    char *msg   = NULL;
+    // Dmenu mode.
+    if ( dmenu_mode == TRUE ) {
+        // force off sidebar mode:
+        config.sidebar_mode = FALSE;
+        int retv = run_dmenu ();
+        if ( retv ) {
+            rofi_set_return_code ( EXIT_SUCCESS ); 
+            // Directly exit.
+            g_main_loop_quit(main_loop);
+        }
+    }
+    else if ( find_arg_str (  "-e", &( msg ) ) ) {
+        int markup = FALSE;
+        if ( find_arg ( "-markup" ) >= 0 ) {
+            markup = TRUE;
+        }
+        show_error_message ( msg, markup );
+    }
+    else if ( find_arg_str ( "-show", &sname ) == TRUE ) {
+        int index = switcher_get ( sname );
+        if ( index < 0 ) {
+            // Add it to the list
+            index = add_mode ( sname );
+            // Complain
+            if ( index >= 0 ) {
+                fprintf ( stdout, "Mode %s not enabled. Please add it to the list of enabled modi: %s\n",
+                          sname, config.modi );
+                fprintf ( stdout, "Adding mode: %s\n", sname );
+            }
+            // Run it anyway if found.
+        }
+        if ( index >= 0 ) {
+            run_switcher ( index );
+            g_idle_add ( delayed_start, GINT_TO_POINTER ( index ) );
+        }
+        else {
+            fprintf ( stderr, "The %s switcher has not been enabled\n", sname );
+            return G_SOURCE_REMOVE;
+        }
+    }
+    else{
+        // Daemon mode, Listen to key presses..
+        if ( !grab_global_keybindings () ) {
+            fprintf ( stderr, "Rofi was launched in daemon mode, but no key-binding was specified.\n" );
+            fprintf ( stderr, "Please check the manpage on how to specify a key-binding.\n" );
+            fprintf ( stderr, "The following modi are enabled and keys can be specified:\n" );
+            for ( unsigned int i = 0; i < num_modi; i++ ) {
+                const char *name = mode_get_name ( modi[i] );
+                fprintf ( stderr, "\t* "color_bold "%s"color_reset ": -key-%s <key>\n", name, name );
+            }
+            // Cleanup
+            return G_SOURCE_REMOVE;
+        }
+        if ( !quiet ) {
+            fprintf ( stdout, "Rofi is launched in daemon mode.\n" );
+            print_global_keybindings ();
+        }
+
+        // done starting deamon.
+
+        if ( sncontext != NULL ) {
+            sn_launchee_context_complete ( sncontext );
+        }
+        daemon_mode = TRUE;
+        XSelectInput ( display, DefaultRootWindow ( display ), KeyPressMask );
+        XFlush ( display );
+    }
+
+    return G_SOURCE_REMOVE;
+}
+
 int main ( int argc, char *argv[] )
 {
     TIMINGS_START ();
@@ -651,7 +745,6 @@ int main ( int argc, char *argv[] )
     // Detect if we are in dmenu mode.
     // This has two possible causes.
     // 1 the user specifies it on the command-line.
-    int dmenu_mode = FALSE;
     if ( find_arg (  "-dmenu" ) >= 0 ) {
         dmenu_mode = TRUE;
     }
@@ -773,31 +866,8 @@ int main ( int argc, char *argv[] )
     // Parse the keybindings.
     parse_keys_abe ();
     TICK_N ( "Parse ABE" );
-    char *msg = NULL;
-    if ( find_arg_str (  "-e", &( msg ) ) ) {
-        int markup = FALSE;
-        if ( find_arg ( "-markup" ) >= 0 ) {
-            markup = TRUE;
-        }
-        return show_error_message ( msg, markup );
-    }
 
     rofi_view_workers_initialize ();
-    // Dmenu mode.
-    if ( dmenu_mode == TRUE ) {
-        // force off sidebar mode:
-        config.sidebar_mode = FALSE;
-        int retv = run_dmenu ();
-
-        // User canceled the operation.
-        if ( retv == FALSE ) {
-            return EXIT_FAILURE;
-        }
-        else if ( retv >= 10 ) {
-            return retv;
-        }
-        return EXIT_SUCCESS;
-    }
 
     // Setup signal handling sources.
     // SIGHup signal.
@@ -806,60 +876,11 @@ int main ( int argc, char *argv[] )
     g_unix_signal_add ( SIGINT, main_loop_signal_handler_int, NULL );
     // SIGUSR1
     g_unix_signal_add ( SIGUSR1, main_loop_signal_handler_usr1, NULL );
-    // flags to run immediately and exit
-    char *sname = NULL;
-    if ( find_arg_str ( "-show", &sname ) == TRUE ) {
-        int index = switcher_get ( sname );
-        if ( index < 0 ) {
-            // Add it to the list
-            index = add_mode ( sname );
-            // Complain
-            if ( index >= 0 ) {
-                fprintf ( stdout, "Mode %s not enabled. Please add it to the list of enabled modi: %s\n",
-                          sname, config.modi );
-                fprintf ( stdout, "Adding mode: %s\n", sname );
-            }
-            // Run it anyway if found.
-        }
-        if ( index >= 0 ) {
-            run_switcher ( index );
-            g_idle_add ( delayed_start, GINT_TO_POINTER ( index ) );
-        }
-        else {
-            fprintf ( stderr, "The %s switcher has not been enabled\n", sname );
-            return EXIT_FAILURE;
-        }
-    }
-    else{
-        // Daemon mode, Listen to key presses..
-        if ( !grab_global_keybindings () ) {
-            fprintf ( stderr, "Rofi was launched in daemon mode, but no key-binding was specified.\n" );
-            fprintf ( stderr, "Please check the manpage on how to specify a key-binding.\n" );
-            fprintf ( stderr, "The following modi are enabled and keys can be specified:\n" );
-            for ( unsigned int i = 0; i < num_modi; i++ ) {
-                const char *name = mode_get_name ( modi[i] );
-                fprintf ( stderr, "\t* "color_bold "%s"color_reset ": -key-%s <key>\n", name, name );
-            }
-            // Cleanup
-            return EXIT_FAILURE;
-        }
-        if ( !quiet ) {
-            fprintf ( stdout, "Rofi is launched in daemon mode.\n" );
-            print_global_keybindings ();
-        }
 
-        // done starting deamon.
-
-        if ( sncontext != NULL ) {
-            sn_launchee_context_complete ( sncontext );
-        }
-        daemon_mode = TRUE;
-        XSelectInput ( display, DefaultRootWindow ( display ), KeyPressMask );
-        XFlush ( display );
-    }
+    g_idle_add ( startup, NULL );
 
     // Start mainloop.
     g_main_loop_run ( main_loop );
 
-    return EXIT_SUCCESS;
+    return return_code;
 }

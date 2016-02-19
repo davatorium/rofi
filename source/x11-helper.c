@@ -521,7 +521,7 @@ void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key )
     if ( str->len > 0 ) {
         show_error_message ( str->str, TRUE );
         g_string_free ( str, TRUE );
-        exit ( EXIT_FAILURE );
+        return;
     }
     g_string_free ( str, TRUE );
     *key = sym;
