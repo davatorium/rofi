@@ -14,4 +14,4 @@ If you need to ask a direct question or get support installing, please find us o
 
 ## Reporting Bugs
 
-Read this [first](https://github.com/DaveDavenport/rofi/wiki/ISSUECOC)
+Read this [first](https://github.com/DaveDavenport/rofi/blob/master/.github/CONTRIBUTING.md)
