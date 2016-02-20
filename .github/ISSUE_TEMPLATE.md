@@ -1,9 +1,9 @@
-## Rofi Version
+## Version
 
 Output of `rofi -v`
 
 
-## Rofi configuration
+## Configuration
 
 Output of `rofi -dump-xresources` (preferable in a [gist](https://gist.github.com/))
 
@@ -15,8 +15,8 @@ Output of `rofi -dump-xresources` (preferable in a [gist](https://gist.github.co
 
 ## What behaviour you see
 
---
+* -
 
 ## What behaviour you expect to see
 
---
+* -
