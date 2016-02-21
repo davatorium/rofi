@@ -164,8 +164,6 @@ void color_border ( Display *display, cairo_t *d  );
 void color_separator ( Display *display, cairo_t *d );
 void color_cache_reset ( void );
 
-cairo_format_t get_format ( void );
-
 void x11_helper_set_cairo_rgba ( cairo_t *d, unsigned int pixel );
 /*@}*/
 #endif

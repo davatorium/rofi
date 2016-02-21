@@ -90,7 +90,7 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
 
     tb->changed = FALSE;
 
-    tb->main_surface = cairo_image_surface_create ( get_format (), tb->widget.w, tb->widget.h );
+    tb->main_surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, tb->widget.w, tb->widget.h );
     tb->main_draw    = cairo_create ( tb->main_surface );
     tb->layout       = pango_layout_new ( p_context );
     textbox_font ( tb, tbft );
@@ -271,7 +271,7 @@ static void texbox_update ( textbox *tb )
             tb->main_draw    = NULL;
             tb->main_surface = NULL;
         }
-        tb->main_surface = cairo_image_surface_create ( get_format (), tb->widget.w, tb->widget.h );
+        tb->main_surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, tb->widget.w, tb->widget.h );
         tb->main_draw    = cairo_create ( tb->main_surface );
         cairo_set_operator ( tb->main_draw, CAIRO_OPERATOR_SOURCE );
 

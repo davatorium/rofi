@@ -884,7 +884,7 @@ void rofi_view_update ( RofiViewState *state )
         return;
     }
     TICK ();
-    cairo_surface_t * surf = cairo_image_surface_create ( get_format (), state->w, state->h );
+    cairo_surface_t * surf = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, state->w, state->h );
     cairo_t         *d     = cairo_create ( surf );
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
     if ( config.fake_transparency ) {
@@ -1254,7 +1254,7 @@ void rofi_view_setup_fake_transparency ( Display *display, RofiViewState *state 
                                                              DisplayWidth ( display, screen ),
                                                              DisplayHeight ( display, screen ) );
 
-        fake_bg = cairo_image_surface_create ( get_format (), state->mon.w, state->mon.h );
+        fake_bg = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, state->mon.w, state->mon.h );
         cairo_t *dr = cairo_create ( fake_bg );
         cairo_set_source_surface ( dr, s, -state->mon.x, -state->mon.y );
         cairo_paint ( dr );
