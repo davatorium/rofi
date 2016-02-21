@@ -151,19 +151,24 @@ void x11_setup ( Display *display );
  */
 void create_visual_and_colormap ( Display *display );
 
+typedef struct
+{
+    double red, green, blue, alpha;
+} Color;
+
 /**
  * @param display Connection to the X server.
  * @param name    String representing the color.
  *
  * Allocate a pixel value for an X named color
  */
-unsigned int color_get ( Display *display, const char *const name, const char * const defn );
+Color color_get ( Display *display, const char *const name, const char * const defn );
 
 void color_background ( Display *display, cairo_t *d );
 void color_border ( Display *display, cairo_t *d  );
 void color_separator ( Display *display, cairo_t *d );
 void color_cache_reset ( void );
 
-void x11_helper_set_cairo_rgba ( cairo_t *d, unsigned int pixel );
+void x11_helper_set_cairo_rgba ( cairo_t *d, Color col );
 /*@}*/
 #endif

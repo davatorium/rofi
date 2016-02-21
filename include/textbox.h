@@ -8,6 +8,7 @@
 #include <pango/pangocairo.h>
 #include <cairo.h>
 #include "widget.h"
+#include "x11-helper.h"
 
 /**
  * @defgroup Textbox Textbox
@@ -15,11 +16,6 @@
  *
  * @{
  */
-
-typedef struct
-{
-    double red, green, blue, alpha;
-} Color;
 
 typedef struct
 {

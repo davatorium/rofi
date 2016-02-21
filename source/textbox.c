@@ -623,12 +623,7 @@ int textbox_keypress ( textbox *tb, xcb_key_press_event_t *ev, char *pad, int pa
  */
 static void parse_color ( Display *display, char *bg, Color *col )
 {
-    unsigned int val = 0;
-    val        = color_get ( display, bg, "white" );
-    col->alpha = ( ( val & 0xFF000000 ) >> 24 ) / 255.0;
-    col->red   = ( ( val & 0x00FF0000 ) >> 16 ) / 255.0;
-    col->green = ( ( val & 0x0000FF00 ) >> 8  ) / 255.0;
-    col->blue  = ( ( val & 0x000000FF )       ) / 255.0;
+    *col = color_get ( display, bg, "white" );
 }
 static void textbox_parse_string (  Display *display, const char *str, RowColor *color )
 {

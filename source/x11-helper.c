@@ -600,7 +600,7 @@ void create_visual_and_colormap ( Display *display )
     }
 }
 
-unsigned int color_get ( Display *display, const char *const name, const char * const defn )
+Color color_get ( Display *display, const char *const name, const char * const defn )
 {
     char   *copy  = g_strdup ( name );
     char   *cname = g_strstrip ( copy );
@@ -637,16 +637,19 @@ unsigned int color_get ( Display *display, const char *const name, const char * 
         }
     }
     g_free ( copy );
-    return color.pixel;
+
+    Color ret = {
+        .red   = color.red / 65535.0,
+        .green = color.green / 65535.0,
+        .blue  = color.blue / 65535.0,
+        .alpha = ( ( color.pixel & 0xFF000000 ) >> 24 ) / 255.0,
+    };
+    return ret;
 }
-void x11_helper_set_cairo_rgba ( cairo_t *d, unsigned int pixel )
+
+void x11_helper_set_cairo_rgba ( cairo_t *d, Color col )
 {
-    cairo_set_source_rgba ( d,
-                            ( ( pixel & 0x00FF0000 ) >> 16 ) / 255.0,
-                            ( ( pixel & 0x0000FF00 ) >> 8 ) / 255.0,
-                            ( ( pixel & 0x000000FF ) >> 0 ) / 255.0,
-                            ( ( pixel & 0xFF000000 ) >> 24 ) / 255.0
-                            );
+    cairo_set_source_rgba ( d, col.red, col.green, col.blue, col.alpha );
 }
 /**
  * Color cache.
@@ -659,15 +662,12 @@ enum
     BORDER,
     SEPARATOR
 };
-struct
+static struct
 {
-    unsigned int color;
+    Color        color;
     unsigned int set;
-} color_cache[3] = {
-    { 0, FALSE },
-    { 0, FALSE },
-    { 0, FALSE }
-};
+} color_cache[3];
+
 void color_cache_reset ( void )
 {
     color_cache[BACKGROUND].set = FALSE;
