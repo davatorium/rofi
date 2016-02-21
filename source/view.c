@@ -1314,17 +1314,16 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
         if ( ( key != XKB_KEY_NoSymbol ) && ( xkb_compose_state_feed ( xkb->compose.state, key ) == XKB_COMPOSE_FEED_ACCEPTED ) ) {
             switch ( xkb_compose_state_get_status ( xkb->compose.state ) )
             {
+            case XKB_COMPOSE_CANCELLED:
+                /* Eat the keysym that cancelled the compose sequence.
+                 * This is default behaviour with Xlib */
             case XKB_COMPOSE_COMPOSING:
-                g_debug ( "[COMPOSE] composing" );
                 key = XKB_KEY_NoSymbol;
                 break;
             case XKB_COMPOSE_COMPOSED:
-                g_debug ( "[COMPOSE] composed" );
                 key = xkb_compose_state_get_one_sym ( xkb->compose.state );
                 len = xkb_compose_state_get_utf8 ( xkb->compose.state, pad, sizeof ( pad ) );
                 break;
-            case XKB_COMPOSE_CANCELLED:
-                g_debug ( "[COMPOSE] cancelled" );
             case XKB_COMPOSE_NOTHING:
                 break;
             }
