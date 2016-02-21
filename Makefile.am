@@ -228,7 +228,8 @@ helper_test_LDADD=\
 
 TESTS=\
 	rofi_test\
-	helper_test
+	helper_test\
+	textbox_test
 
 .PHONY: test-x
 test-x: $(bin_PROGRAMS)
