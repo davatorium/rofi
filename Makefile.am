@@ -228,11 +228,10 @@ helper_test_LDADD=\
 
 TESTS=\
 	rofi_test\
-	helper_test\
-	textbox_test
+	helper_test
 
 .PHONY: test-x
-test-x: $(bin_PROGRAMS)
+test-x: $(bin_PROGRAMS) textbox_test
 	echo "Test 1"
 	$(top_srcdir)/test/run_test.sh 123 $(top_builddir)/textbox_test $(top_builddir)
 	echo "Test 2"
