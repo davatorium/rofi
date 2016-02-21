@@ -38,6 +38,7 @@
 #include <xcb/xcb_aux.h>
 #include <xcb/xkb.h>
 #include <xkbcommon/xkbcommon.h>
+#include <xkbcommon/xkbcommon-compose.h>
 #include <xkbcommon/xkbcommon-x11.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
@@ -867,6 +868,9 @@ int main ( int argc, char *argv[] )
 
     xkb.keymap = xkb_x11_keymap_new_from_device ( xkb.context, xcb_connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
     xkb.state  = xkb_x11_state_new_from_device ( xkb.keymap, xcb_connection, xkb.device_id );
+
+    xkb.compose.table = xkb_compose_table_new_from_locale ( xkb.context, setlocale ( LC_CTYPE, NULL ), 0 );
+    xkb.compose.state = xkb_compose_state_new ( xkb.compose.table, 0 );
 
     main_loop = g_main_loop_new ( NULL, FALSE );
 
