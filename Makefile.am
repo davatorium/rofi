@@ -60,7 +60,9 @@ rofi_SOURCES=\
 	include/dialogs/combi.h\
 	include/dialogs/script.h\
 	include/dialogs/window.h\
-	include/dialogs/dialogs.h
+	include/dialogs/dialogs.h\
+	include/xkb.h\
+	include/xkb-internal.h
 
 rofi_CFLAGS=\
 	$(AM_CFLAGS)\
