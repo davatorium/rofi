@@ -28,7 +28,6 @@ rofi_SOURCES=\
 	source/i3-support.c\
 	source/xrmoptions.c\
 	source/x11-helper.c\
-	source/x11-event-source.c\
 	source/dialogs/run.c\
 	source/dialogs/ssh.c\
 	source/dialogs/drun.c\
@@ -52,7 +51,6 @@ rofi_SOURCES=\
 	include/xrmoptions.h\
 	include/i3-support.h\
 	include/x11-helper.h\
-	include/x11-event-source.h\
 	include/dialogs/ssh.h\
 	include/dialogs/run.h\
 	include/dialogs/drun.h\

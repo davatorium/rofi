@@ -60,7 +60,6 @@
 #include "textbox.h"
 #include "scrollbar.h"
 #include "x11-helper.h"
-#include "x11-event-source.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
 

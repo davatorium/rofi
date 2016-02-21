@@ -63,7 +63,6 @@
 #include "helper.h"
 #include "textbox.h"
 #include "x11-helper.h"
-#include "x11-event-source.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
 
