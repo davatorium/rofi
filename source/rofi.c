@@ -139,8 +139,8 @@ static int setup ()
     int pfd = create_pid_file ( pidfile );
     if ( pfd >= 0 ) {
         // Request truecolor visual.
-        create_visual_and_colormap ( display );
-        textbox_setup ( display );
+        x11_create_visual_and_colormap ( xcb_connection, xcb_screen );
+        textbox_setup ();
     }
     return pfd;
 }

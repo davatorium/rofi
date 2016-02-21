@@ -1,6 +1,7 @@
 #ifndef X11_ROFI_HELPER_H
 #define X11_ROFI_HELPER_H
 #include <cairo.h>
+#include <xcb/xcb.h>
 
 #include "xkb.h"
 
@@ -27,7 +28,7 @@ int window_get_prop ( Display *display, Window w, Atom prop,
 char* window_get_text_prop ( Display *display, Window w, Atom atom );
 
 int window_get_atom_prop ( Display *display, Window w, Atom atom, Atom *list, int count );
-void window_set_atom_prop ( Display *display, Window w, Atom prop, Atom *atoms, int count );
+void window_set_atom_prop ( Display *display, Window w, Atom atom, Atom *atoms, int count );
 int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned long *list,
                                int count );
 
@@ -65,7 +66,7 @@ int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned l
 enum { EWMH_ATOMS ( ATOM_ENUM ), NUM_NETATOMS };
 
 extern const char *netatom_names[];
-extern Atom       netatoms[NUM_NETATOMS];
+extern Atom netatoms[NUM_NETATOMS];
 typedef struct
 {
     int x, y, w, h;
@@ -134,13 +135,16 @@ void x11_set_window_opacity ( Display *display, Window box, unsigned int opacity
  */
 void x11_setup ( Display *display, xkb_stuff *xkb );
 
+extern xcb_depth_t      *depth;
+extern xcb_visualtype_t *visual;
+extern xcb_colormap_t   map;
+extern xcb_depth_t      *root_depth;
+extern xcb_visualtype_t *root_visual;
 /**
- * @param display Connection to the X server.
- *
  * This function tries to create a 32bit TrueColor colormap.
  * If this fails, it falls back to the default for the connected display.
  */
-void create_visual_and_colormap ( Display *display );
+void x11_create_visual_and_colormap ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen );
 
 typedef struct
 {
@@ -153,11 +157,11 @@ typedef struct
  *
  * Allocate a pixel value for an X named color
  */
-Color color_get ( Display *display, const char *const name, const char * const defn );
+Color color_get ( const char *const name );
 
-void color_background ( Display *display, cairo_t *d );
-void color_border ( Display *display, cairo_t *d  );
-void color_separator ( Display *display, cairo_t *d );
+void color_background ( cairo_t *d );
+void color_border ( cairo_t *d  );
+void color_separator ( cairo_t *d );
 void color_cache_reset ( void );
 
 void x11_helper_set_cairo_rgba ( cairo_t *d, Color col );

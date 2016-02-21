@@ -113,20 +113,21 @@ void i3_support_focus_window ( Window id )
     close ( s );
 }
 
-int i3_support_initialize ( Display *display )
+int i3_support_initialize ( Display *display, xcb_connection_t *xcb_connection )
 {
     // If we where initialized, clean this first.
     i3_support_free_internals ();
-    // Get atom for I3_SOCKET_PATH
-    Atom i3_sp_atom = XInternAtom ( display, "I3_SOCKET_PATH", False );
 
-    if ( i3_sp_atom != None ) {
+    // Get atom for I3_SOCKET_PATH
+    xcb_intern_atom_cookie_t cookie = xcb_intern_atom ( xcb_connection, FALSE, strlen ( "I3_SOCKET_PATH" ), "I3_SOCKET_PATH" );
+    xcb_intern_atom_reply_t  *reply = xcb_intern_atom_reply ( xcb_connection, cookie, NULL );
+    if ( reply != NULL ) {
         // Get the default screen.
         Screen *screen = DefaultScreenOfDisplay ( display );
         // Find the root window (each X has one.).
         Window root = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
         // Get the i3 path property.
-        i3_socket_path = window_get_text_prop ( display, root, i3_sp_atom );
+        i3_socket_path = window_get_text_prop ( display, root, reply->atom );
     }
     // If we find it, go into i3 mode.
     return ( i3_socket_path != NULL ) ? TRUE : FALSE;

@@ -621,11 +621,7 @@ int textbox_keypress ( textbox *tb, char *pad, int pad_len, unsigned int modstat
 /***
  * Font setup.
  */
-static void parse_color ( Display *display, char *bg, Color *col )
-{
-    *col = color_get ( display, bg, "white" );
-}
-static void textbox_parse_string (  Display *display, const char *str, RowColor *color )
+static void textbox_parse_string (  const char *str, RowColor *color )
 {
     if ( str == NULL ) {
         return;
@@ -638,50 +634,50 @@ static void textbox_parse_string (  Display *display, const char *str, RowColor 
         switch ( index )
         {
         case 0:
-            parse_color ( display, g_strstrip ( token ), &( color->bg ) );
+            color->bg = color_get ( g_strstrip ( token ) );
             break;
         case 1:
-            parse_color ( display, g_strstrip ( token ), &( color->fg ) );
+            color->fg = color_get ( g_strstrip ( token ) );
             break;
         case 2:
-            parse_color ( display, g_strstrip ( token ), &( color->bgalt ) );
+            color->bgalt = color_get ( g_strstrip ( token ) );
             break;
         case 3:
-            parse_color ( display, g_strstrip ( token ), &( color->hlbg ) );
+            color->hlbg = color_get ( g_strstrip ( token ) );
             break;
         case 4:
-            parse_color ( display, g_strstrip ( token ), &( color->hlfg ) );
+            color->hlfg = color_get ( g_strstrip ( token ) );
             break;
         }
         index++;
     }
     g_free ( cstr );
 }
-void textbox_setup ( Display *display )
+void textbox_setup ( void )
 {
     if ( config.color_enabled ) {
-        textbox_parse_string ( display, config.color_normal, &( colors[NORMAL] ) );
-        textbox_parse_string ( display, config.color_urgent, &( colors[URGENT] ) );
-        textbox_parse_string ( display, config.color_active, &( colors[ACTIVE] ) );
+        textbox_parse_string ( config.color_normal, &( colors[NORMAL] ) );
+        textbox_parse_string ( config.color_urgent, &( colors[URGENT] ) );
+        textbox_parse_string ( config.color_active, &( colors[ACTIVE] ) );
     }
     else {
-        parse_color ( display, config.menu_bg, &( colors[NORMAL].bg ) );
-        parse_color ( display, config.menu_fg, &( colors[NORMAL].fg ) );
-        parse_color ( display, config.menu_bg_alt, &( colors[NORMAL].bgalt ) );
-        parse_color ( display, config.menu_hlfg, &( colors[NORMAL].hlfg ) );
-        parse_color ( display, config.menu_hlbg, &( colors[NORMAL].hlbg ) );
+        colors[NORMAL].bg    = color_get ( config.menu_bg );
+        colors[NORMAL].fg    = color_get ( config.menu_fg );
+        colors[NORMAL].bgalt = color_get ( config.menu_bg_alt );
+        colors[NORMAL].hlfg  = color_get ( config.menu_hlfg );
+        colors[NORMAL].hlbg  = color_get ( config.menu_hlbg );
 
-        parse_color ( display, config.menu_bg_urgent, &( colors[URGENT].bg ) );
-        parse_color ( display, config.menu_fg_urgent, &( colors[URGENT].fg ) );
-        parse_color ( display, config.menu_bg_alt, &( colors[URGENT].bgalt ) );
-        parse_color ( display, config.menu_hlfg_urgent, &( colors[URGENT].hlfg ) );
-        parse_color ( display, config.menu_hlbg_urgent, &( colors[URGENT].hlbg ) );
+        colors[URGENT].bg    = color_get ( config.menu_bg_urgent );
+        colors[URGENT].fg    = color_get ( config.menu_fg_urgent );
+        colors[URGENT].bgalt = color_get ( config.menu_bg_alt );
+        colors[URGENT].hlfg  = color_get ( config.menu_hlfg_urgent );
+        colors[URGENT].hlbg  = color_get ( config.menu_hlbg_urgent );
 
-        parse_color ( display, config.menu_bg_active, &( colors[ACTIVE].bg ) );
-        parse_color ( display, config.menu_fg_active, &( colors[ACTIVE].fg ) );
-        parse_color ( display, config.menu_bg_alt, &( colors[ACTIVE].bgalt ) );
-        parse_color ( display, config.menu_hlfg_active, &( colors[ACTIVE].hlfg ) );
-        parse_color ( display, config.menu_hlbg_active, &( colors[ACTIVE].hlbg ) );
+        colors[ACTIVE].bg    = color_get ( config.menu_bg_active );
+        colors[ACTIVE].fg    = color_get ( config.menu_fg_active );
+        colors[ACTIVE].bgalt = color_get ( config.menu_bg_alt );
+        colors[ACTIVE].hlfg  = color_get ( config.menu_hlfg_active );
+        colors[ACTIVE].hlbg  = color_get ( config.menu_hlbg_active );
     }
 }
 

@@ -74,6 +74,7 @@ typedef struct
     long              hint_flags;
 } client;
 // TODO
+extern xcb_connection_t *xcb_connection;
 extern Display *display;
 // window lists
 typedef struct
@@ -387,7 +388,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 
     x11_cache_create ();
     // Check for i3
-    pd->config_i3_mode = i3_support_initialize ( display );
+    pd->config_i3_mode = i3_support_initialize ( display, xcb_connection );
 
     // Get the active window so we can highlight this.
     if ( !( window_get_prop ( display, root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &curr_win_id, sizeof ( Window ) )

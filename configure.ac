@@ -87,7 +87,7 @@ GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11])
 PKG_CHECK_MODULES([x11],      [x11 x11-xcb])
 PKG_CHECK_MODULES([xinerama], [xinerama])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
-PKG_CHECK_MODULES([cairo],	  [cairo cairo-xlib])
+PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])
 PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0])
 
 

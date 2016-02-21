@@ -34,6 +34,7 @@
 #include <glib.h>
 #include <cairo.h>
 
+#include <xcb/xcb.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -68,11 +69,14 @@ enum
     NUM_X11MOD
 };
 
+xcb_depth_t         *depth           = NULL;
+xcb_visualtype_t    *visual          = NULL;
+xcb_colormap_t      map              = XCB_COLORMAP_NONE;
+xcb_depth_t         *root_depth      = NULL;
+xcb_visualtype_t    *root_visual     = NULL;
 Atom                netatoms[NUM_NETATOMS];
 const char          *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 static unsigned int x11_mod_masks[NUM_X11MOD];
-
-extern Colormap     map;
 
 // retrieve a property of any type from a window
 int window_get_prop ( Display *display, Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes )
@@ -523,71 +527,81 @@ void x11_setup ( Display *display, xkb_stuff *xkb )
     x11_create_frequently_used_atoms ( display );
 }
 
-extern XVisualInfo vinfo;
-int                truecolor = FALSE;
-void create_visual_and_colormap ( Display *display )
+void x11_create_visual_and_colormap ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen )
 {
-    int screen = DefaultScreen ( display );
-    // Try to create TrueColor map
-    if ( XMatchVisualInfo ( display, screen, 32, TrueColor, &vinfo ) ) {
-        // Visual found, lets try to create map.
-        map       = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
-        truecolor = TRUE;
+    xcb_depth_iterator_t depth_iter;
+    for ( depth_iter = xcb_screen_allowed_depths_iterator ( xcb_screen ); depth_iter.rem; xcb_depth_next ( &depth_iter ) ) {
+        xcb_depth_t               *d = depth_iter.data;
+
+        xcb_visualtype_iterator_t visual_iter;
+        for ( visual_iter = xcb_depth_visuals_iterator ( d ); visual_iter.rem; xcb_visualtype_next ( &visual_iter ) ) {
+            xcb_visualtype_t *v = visual_iter.data;
+            if ( ( d->depth == 32 ) && ( v->_class == XCB_VISUAL_CLASS_TRUE_COLOR ) ) {
+                depth  = d;
+                visual = v;
+            }
+            if ( xcb_screen->root_visual == v->visual_id ) {
+                root_depth  = d;
+                root_visual = v;
+            }
+        }
     }
-    // Failed to create map.
-    // Use the defaults then.
-    if ( map == None ) {
-        truecolor = FALSE;
-        // Two fields we use.
-        vinfo.visual = DefaultVisual ( display, screen );
-        vinfo.depth  = DefaultDepth ( display, screen );
-        map          = DefaultColormap ( display, screen );
+    if ( visual != NULL ) {
+        xcb_void_cookie_t   c;
+        xcb_generic_error_t *e;
+        map = xcb_generate_id ( xcb_connection );
+        c   = xcb_create_colormap_checked ( xcb_connection, XCB_COLORMAP_ALLOC_NONE, map, xcb_screen->root, visual->visual_id );
+        e   = xcb_request_check ( xcb_connection, c );
+        if ( e ) {
+            depth  = NULL;
+            visual = NULL;
+            free ( e );
+        }
+    }
+
+    if ( visual == NULL ) {
+        depth  = root_depth;
+        visual = root_visual;
+        map    = xcb_screen->default_colormap;
     }
 }
 
-Color color_get ( Display *display, const char *const name, const char * const defn )
+Color color_get ( const char *const name )
 {
-    char   *copy  = g_strdup ( name );
-    char   *cname = g_strstrip ( copy );
-    XColor color  = { 0, 0, 0, 0, 0, 0 };
-    XColor def;
+    char *copy  = g_strdup ( name );
+    char *cname = g_strstrip ( copy );
+
+    union
+    {
+        struct
+        {
+            uint8_t b;
+            uint8_t g;
+            uint8_t r;
+            uint8_t a;
+        };
+        uint32_t pixel;
+    } color = {
+        .r = 0xff,
+        .g = 0xff,
+        .b = 0xff,
+        .a = 0xff,
+    };
     // Special format.
     if ( strncmp ( cname, "argb:", 5 ) == 0 ) {
         color.pixel = strtoul ( &cname[5], NULL, 16 );
-        color.red   = ( ( color.pixel & 0x00FF0000 ) >> 16 ) * 256;
-        color.green = ( ( color.pixel & 0x0000FF00 ) >> 8  ) * 256;
-        color.blue  = ( ( color.pixel & 0x000000FF )       ) * 256;
-        if ( !truecolor ) {
-            // This will drop alpha part.
-            Status st = XAllocColor ( display, map, &color );
-            if ( st == None ) {
-                fprintf ( stderr, "Failed to parse color: '%s'\n", cname );
-                st = XAllocNamedColor ( display, map, defn, &color, &def );
-                if ( st == None  ) {
-                    fprintf ( stderr, "Failed to allocate fallback color\n" );
-                    exit ( EXIT_FAILURE );
-                }
-            }
-        }
     }
-    else {
-        Status st = XAllocNamedColor ( display, map, cname, &color, &def );
-        if ( st == None ) {
-            fprintf ( stderr, "Failed to parse color: '%s'\n", cname );
-            st = XAllocNamedColor ( display, map, defn, &color, &def );
-            if ( st == None  ) {
-                fprintf ( stderr, "Failed to allocate fallback color\n" );
-                exit ( EXIT_FAILURE );
-            }
-        }
+    else if ( strncmp ( cname, "#", 1 ) == 0 ) {
+        color.pixel = strtoul ( &cname[1], NULL, 16 );
+        color.a     = 0xff;
     }
     g_free ( copy );
 
     Color ret = {
-        .red   = color.red / 65535.0,
-        .green = color.green / 65535.0,
-        .blue  = color.blue / 65535.0,
-        .alpha = ( ( color.pixel & 0xFF000000 ) >> 24 ) / 255.0,
+        .red   = color.r / 255.0,
+        .green = color.g / 255.0,
+        .blue  = color.b / 255.0,
+        .alpha = color.a / 255.0,
     };
     return ret;
 }
@@ -619,16 +633,16 @@ void color_cache_reset ( void )
     color_cache[BORDER].set     = FALSE;
     color_cache[SEPARATOR].set  = FALSE;
 }
-void color_background ( Display *display, cairo_t *d )
+void color_background ( cairo_t *d )
 {
     if ( !color_cache[BACKGROUND].set ) {
         if ( !config.color_enabled ) {
-            color_cache[BACKGROUND].color = color_get ( display, config.menu_bg, "black" );
+            color_cache[BACKGROUND].color = color_get ( config.menu_bg );
         }
         else {
             gchar **vals = g_strsplit ( config.color_window, ",", 3 );
             if ( vals != NULL && vals[0] != NULL ) {
-                color_cache[BACKGROUND].color = color_get ( display, vals[0], "black" );
+                color_cache[BACKGROUND].color = color_get ( vals[0] );
             }
             g_strfreev ( vals );
         }
@@ -638,16 +652,16 @@ void color_background ( Display *display, cairo_t *d )
     x11_helper_set_cairo_rgba ( d, color_cache[BACKGROUND].color );
 }
 
-void color_border ( Display *display, cairo_t *d  )
+void color_border ( cairo_t *d  )
 {
     if ( !color_cache[BORDER].set ) {
         if ( !config.color_enabled ) {
-            color_cache[BORDER].color = color_get ( display, config.menu_bc, "white" );
+            color_cache[BORDER].color = color_get ( config.menu_bc );
         }
         else {
             gchar **vals = g_strsplit ( config.color_window, ",", 3 );
             if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
-                color_cache[BORDER].color = color_get ( display, vals[1], "white" );
+                color_cache[BORDER].color = color_get ( vals[1] );
             }
             g_strfreev ( vals );
         }
@@ -656,19 +670,19 @@ void color_border ( Display *display, cairo_t *d  )
     x11_helper_set_cairo_rgba ( d, color_cache[BORDER].color );
 }
 
-void color_separator ( Display *display, cairo_t *d )
+void color_separator ( cairo_t *d )
 {
     if ( !color_cache[SEPARATOR].set ) {
         if ( !config.color_enabled ) {
-            color_cache[SEPARATOR].color = color_get ( display, config.menu_bc, "white" );
+            color_cache[SEPARATOR].color = color_get ( config.menu_bc );
         }
         else {
             gchar **vals = g_strsplit ( config.color_window, ",", 3 );
             if ( vals != NULL && vals[0] != NULL && vals[1] != NULL && vals[2] != NULL  ) {
-                color_cache[SEPARATOR].color = color_get ( display, vals[2], "white" );
+                color_cache[SEPARATOR].color = color_get ( vals[2] );
             }
             else if ( vals != NULL && vals[0] != NULL && vals[1] != NULL ) {
-                color_cache[SEPARATOR].color = color_get ( display, vals[1], "white" );
+                color_cache[SEPARATOR].color = color_get ( vals[1] );
             }
             g_strfreev ( vals );
         }

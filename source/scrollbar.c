@@ -98,7 +98,7 @@ void scrollbar_draw ( scrollbar *sb, cairo_t *draw )
         // Cap length;
         height = MIN ( bh - y + 1, ( height ) );
         // Redraw base window
-        color_separator ( display, draw );
+        color_separator ( draw );
 
         cairo_rectangle ( draw, sb->widget.x + config.line_margin, sb->widget.y + y, sb->widget.w - config.line_margin, height );
         cairo_fill ( draw );

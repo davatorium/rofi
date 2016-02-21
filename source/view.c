@@ -46,7 +46,7 @@
 #include <sys/types.h>
 
 #include <cairo.h>
-#include <cairo-xlib.h>
+#include <cairo-xcb.h>
 
 #define SN_API_NOT_YET_FROZEN
 #include <libsn/sn.h>
@@ -68,17 +68,17 @@
 
 // What todo with these.
 extern Display           *display;
+extern xcb_connection_t  *xcb_connection;
+extern xcb_screen_t      *xcb_screen;
 extern SnLauncheeContext *sncontext;
 
 GThreadPool              *tpool = NULL;
 
 RofiViewState            *current_active_menu = NULL;
-Window                   main_window          = None;
+xcb_window_t             main_window          = XCB_WINDOW_NONE;
 cairo_surface_t          *surface             = NULL;
 cairo_surface_t          *fake_bg             = NULL;
 cairo_t                  *draw                = NULL;
-Colormap                 map                  = None;
-XVisualInfo              vinfo;
 
 static char * get_matching_state ( void )
 {
@@ -408,7 +408,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb
                   if ( state->w != xce->width || state->h != xce->height ) {
                       state->w = xce->width;
                       state->h = xce->height;
-                      cairo_xlib_surface_set_size ( surface, state->w, state->h );
+                      cairo_xcb_surface_set_size ( surface, state->w, state->h );
                       rofi_view_resize ( state );
                   }
               }
@@ -488,22 +488,31 @@ static void check_is_ascii ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
     g_mutex_unlock ( t->mutex );
 }
 
-static Window __create_window ( Display *display, MenuFlags menu_flags )
+static Window __create_window ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen, MenuFlags menu_flags )
 {
-    XSetWindowAttributes attr;
-    attr.colormap         = map;
-    attr.border_pixel     = 0;
-    attr.background_pixel = 0;
+    uint32_t selmask  = XCB_CW_BACK_PIXEL | XCB_CW_BORDER_PIXEL | XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
+    uint32_t selval[] =
+    { 0,
+      0,
+      XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_KEY_PRESS |
+      XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION,map };
 
-    Window box = XCreateWindow ( display, DefaultRootWindow ( display ), 0, 0, 200, 100, 0, vinfo.depth, InputOutput,
-                                 vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
-    XSelectInput (
-        display,
-        box,
-        KeyReleaseMask | KeyPressMask | ExposureMask | ButtonPressMask | StructureNotifyMask | FocusChangeMask |
-        Button1MotionMask );
+    xcb_window_t box = xcb_generate_id ( xcb_connection );
+    xcb_create_window ( xcb_connection,
+                        depth->depth,
+                        box,
+                        xcb_screen->root,
+                        0,
+                        0,
+                        200,
+                        100,
+                        0,
+                        XCB_WINDOW_CLASS_INPUT_OUTPUT,
+                        visual->visual_id,
+                        selmask,
+                        selval );
 
-    surface = cairo_xlib_surface_create ( display, box, vinfo.visual, 200, 100 );
+    surface = cairo_xcb_surface_create ( xcb_connection, box, visual, 200, 100 );
     // Create a drawable.
     draw = cairo_create ( surface );
     g_assert ( draw != NULL );
@@ -894,17 +903,17 @@ void rofi_view_update ( RofiViewState *state )
                                        -(double) ( state->y - state->mon.y ) );
             cairo_paint ( d );
             cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
-            color_background ( display, d );
+            color_background ( d );
             cairo_paint ( d );
         }
     }
     else {
         // Paint the background.
-        color_background ( display, d );
+        color_background ( d );
         cairo_paint ( d );
     }
     TICK_N ( "Background" );
-    color_border ( display, d );
+    color_border ( d );
 
     if ( config.menu_bw > 0 ) {
         cairo_save ( d );
@@ -935,7 +944,7 @@ void rofi_view_update ( RofiViewState *state )
     if ( state->message_tb ) {
         textbox_draw ( state->message_tb, d );
     }
-    color_separator ( display, d );
+    color_separator ( d );
 
     if ( strcmp ( config.separator_style, "none" ) ) {
         if ( strcmp ( config.separator_style, "dash" ) == 0 ) {
@@ -1243,16 +1252,14 @@ void rofi_view_finalize ( RofiViewState *state )
         state->finalize ( state );
     }
 }
-void rofi_view_setup_fake_transparency ( Display *display, RofiViewState *state )
+void rofi_view_setup_fake_transparency ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen, RofiViewState *state )
 {
     if ( fake_bg == NULL ) {
-        Window          root   = DefaultRootWindow ( display );
-        int             screen = DefaultScreen ( display );
-        cairo_surface_t *s     = cairo_xlib_surface_create ( display,
-                                                             root,
-                                                             DefaultVisual ( display, screen ),
-                                                             DisplayWidth ( display, screen ),
-                                                             DisplayHeight ( display, screen ) );
+        cairo_surface_t *s = cairo_xcb_surface_create ( xcb_connection,
+                                                        xcb_screen->root,
+                                                        root_visual,
+                                                        xcb_screen->width_in_pixels,
+                                                        xcb_screen->height_in_pixels );
 
         fake_bg = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, state->mon.w, state->mon.h );
         cairo_t *dr = cairo_create ( fake_bg );
@@ -1532,9 +1539,8 @@ RofiViewState *rofi_view_create ( Mode *sw,
     }
     TICK_N ( "Grab keyboard" );
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
-    XWindowAttributes attr;
-    if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
-        main_window = __create_window ( display, menu_flags );
+    if ( main_window == 0 ) {
+        main_window = __create_window ( xcb_connection, xcb_screen, menu_flags );
         if ( sncontext != NULL ) {
             sn_launchee_context_setup_window ( sncontext, main_window );
         }
@@ -1544,7 +1550,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     monitor_active ( display, &( state->mon ) );
     TICK_N ( "Get active monitor" );
     if ( config.fake_transparency ) {
-        rofi_view_setup_fake_transparency ( display, state );
+        rofi_view_setup_fake_transparency ( xcb_connection, xcb_screen, state );
     }
 
     // we need this at this point so we can get height.
@@ -1643,12 +1649,14 @@ RofiViewState *rofi_view_create ( Mode *sw,
                                               ( mode == state->sw ) ? HIGHLIGHT : NORMAL, mode_get_name ( mode  ) );
         }
     }
+    uint16_t mask   = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
+    uint32_t vals[] = { state->x, state->y, state->w, state->h };
 
     // Display it.
-    XMoveResizeWindow ( display, main_window, state->x, state->y, state->w, state->h );
-    cairo_xlib_surface_set_size ( surface, state->w, state->h );
-    XMapRaised ( display, main_window );
-    XFlush ( display );
+    xcb_configure_window ( xcb_connection, main_window, mask, vals );
+    cairo_xcb_surface_set_size ( surface, state->w, state->h );
+    xcb_map_window ( xcb_connection, main_window );
+    xcb_flush ( xcb_connection );
 
     // if grabbing keyboard failed, fall through
     state->selected = 0;
@@ -1695,12 +1703,11 @@ void rofi_view_error_dialog ( const char *msg, int markup )
     // Get active monitor size.
     monitor_active ( display, &( state->mon ) );
     if ( config.fake_transparency ) {
-        rofi_view_setup_fake_transparency ( display, state );
+        rofi_view_setup_fake_transparency ( xcb_connection, xcb_screen, state );
     }
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
-    XWindowAttributes attr;
-    if ( main_window == None || XGetWindowAttributes ( display, main_window, &attr ) == 0 ) {
-        main_window = __create_window ( display, MENU_NORMAL );
+    if ( main_window == 0 ) {
+        main_window = __create_window ( xcb_connection, xcb_screen, MENU_NORMAL );
     }
 
     rofi_view_calculate_window_and_element_width ( state );
@@ -1715,11 +1722,14 @@ void rofi_view_error_dialog ( const char *msg, int markup )
     state->h = state->line_height + ( state->border ) * 2;
 
     // Move the window to the correct x,y position.
+    uint16_t mask   = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
+    uint32_t vals[] = { state->x, state->y, state->w, state->h };
+
+    xcb_configure_window ( xcb_connection, main_window, mask, vals );
     calculate_window_position ( state );
-    XMoveResizeWindow ( display, main_window, state->x, state->y, state->w, state->h );
-    cairo_xlib_surface_set_size ( surface, state->w, state->h );
+    cairo_xcb_surface_set_size ( surface, state->w, state->h );
     // Display it.
-    XMapRaised ( display, main_window );
+    xcb_map_window ( xcb_connection, main_window );
 
     if ( sncontext != NULL ) {
         sn_launchee_context_complete ( sncontext );
@@ -1741,15 +1751,14 @@ void rofi_view_cleanup ()
         cairo_surface_destroy ( surface );
         surface = NULL;
     }
-    if ( main_window != None ) {
-        XUnmapWindow ( display, main_window );
-        XDestroyWindow ( display, main_window );
-        main_window = None;
+    if ( main_window != XCB_WINDOW_NONE ) {
+        xcb_unmap_window ( xcb_connection, main_window );
+        xcb_destroy_window ( xcb_connection, main_window );
+        main_window = XCB_WINDOW_NONE;
     }
-
-    if ( map != None ) {
-        XFreeColormap ( display, map );
-        map = None;
+    if ( map != XCB_COLORMAP_NONE ) {
+        xcb_free_colormap ( xcb_connection, map );
+        map = XCB_COLORMAP_NONE;
     }
 }
 void rofi_view_workers_initialize ( void )
