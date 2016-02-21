@@ -42,7 +42,6 @@
 #include <X11/Xutil.h>
 #include <X11/Xproto.h>
 #include <X11/keysym.h>
-#include <X11/XKBlib.h>
 #include <sys/wait.h>
 #include <sys/types.h>
 
@@ -79,8 +78,6 @@ Window                   main_window          = None;
 cairo_surface_t          *surface             = NULL;
 cairo_surface_t          *fake_bg             = NULL;
 cairo_t                  *draw                = NULL;
-XIM                      xim;
-XIC                      xic;
 Colormap                 map = None;
 XVisualInfo              vinfo;
 
@@ -551,10 +548,6 @@ static Window __create_window ( Display *display, MenuFlags menu_flags )
         };
         window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE], atoms, sizeof ( atoms ) / sizeof ( Atom ) );
     }
-
-    xim = XOpenIM ( display, NULL, NULL, NULL );
-    xic = XCreateIC ( xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow,
-                      box, XNFocusWindow, box, NULL );
 
     // Set the WM_NAME
     XStoreName ( display, box, "rofi" );
@@ -1751,8 +1744,6 @@ void rofi_view_cleanup ()
         XUnmapWindow ( display, main_window );
         XDestroyWindow ( display, main_window );
         main_window = None;
-        XDestroyIC ( xic );
-        XCloseIM ( xim );
     }
 
     if ( map != None ) {
