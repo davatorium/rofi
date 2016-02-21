@@ -8,7 +8,7 @@
 #include <string.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
-
+#include <xcb/xcb.h>
 #include <textbox.h>
 #include <rofi.h>
 #include <cairo-xlib.h>

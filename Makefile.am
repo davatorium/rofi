@@ -171,6 +171,7 @@ textbox_test_CFLAGS=\
 	$(pango_CFLAGS)\
 	$(x11_CFLAGS)\
 	$(xinerama_CFLAGS)\
+	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
@@ -181,6 +182,7 @@ textbox_test_LDADD=\
 	$(pango_LIBS)\
 	$(x11_LIBS)\
 	$(xinerama_LIBS)\
+	$(GW_XCB_LIBS)\
 	$(cairo_LIBS)
 
 textbox_test_SOURCES=\
