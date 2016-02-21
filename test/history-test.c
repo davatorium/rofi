@@ -81,6 +81,8 @@ static void history_test ( void )
     TASSERT ( length == 25 );
 
     g_strfreev ( retv );
+
+    unlink ( file );
 }
 
 int main (  G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )

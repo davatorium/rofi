@@ -137,6 +137,16 @@ update-manpage: $(top_srcdir)/doc/rofi-manpage.markdown
 ##
 check_PROGRAMS=rofi_test textbox_test helper_test
 
+rofi_test_CFLAGS=\
+	$(AM_CFLAGS)\
+	$(glib_CFLAGS)\
+	-I$(top_srcdir)/include/\
+	-I$(top_srcdir)/config/\
+	-I$(top_builddir)/
+
+rofi_test_LDADD=\
+	$(glib_LIBS)
+
 
 rofi_test_SOURCES=\
 	source/history.c\
@@ -147,6 +157,24 @@ rofi_test_SOURCES=\
 	include/settings.h\
 	include/history.h\
 	test/history-test.c
+
+textbox_test_CFLAGS=\
+	$(AM_CFLAGS)\
+	$(glib_CFLAGS)\
+	$(pango_CFLAGS)\
+	$(x11_CFLAGS)\
+	$(xinerama_CFLAGS)\
+	$(cairo_CFLAGS)\
+	-I$(top_srcdir)/include/\
+	-I$(top_srcdir)/config/\
+	-I$(top_builddir)/
+
+textbox_test_LDADD=\
+	$(glib_LIBS)\
+	$(pango_LIBS)\
+	$(x11_LIBS)\
+	$(xinerama_LIBS)\
+	$(cairo_LIBS)
 
 textbox_test_SOURCES=\
 	source/widget.c\
@@ -179,6 +207,24 @@ helper_test_SOURCES=\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
 	test/helper-test.c
+
+helper_test_CFLAGS=\
+	$(AM_CFLAGS)\
+	$(glib_CFLAGS)\
+	$(pango_CFLAGS)\
+	$(x11_CFLAGS)\
+	$(xinerama_CFLAGS)\
+	$(cairo_CFLAGS)\
+	-I$(top_srcdir)/include/\
+	-I$(top_srcdir)/config/\
+	-I$(top_builddir)/
+
+helper_test_LDADD=\
+	$(glib_LIBS)\
+	$(pango_LIBS)\
+	$(x11_LIBS)\
+	$(xinerama_LIBS)\
+	$(cairo_LIBS)
 
 TESTS=\
 	rofi_test\
