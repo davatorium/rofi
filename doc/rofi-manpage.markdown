@@ -20,7 +20,6 @@
 [ -bgalt *color* ]
 [ -hlfg *color* ]
 [ -hlbg *color* ]
-[ -key-**mode** *combo* ]
 [ -terminal *terminal* ]
 [ -location *position* ]
 [ -fixed-num-lines ]
@@ -73,8 +72,7 @@ filter, tokenized search and more.
 
 ## USAGE
 
-**rofi** can be used in three ways, single-shot; executes once and directly exits when done, as a
-daemon listening to specific key-combination or emulating dmenu.
+**rofi** can be used in two ways, single-shot (runs a mode then exits) or emulating dmenu.
 
 ### Single-shot mode
 
@@ -82,15 +80,6 @@ To launch **rofi** directly in a certain mode, specify a mode with `rofi -show <
 To show the run dialog:
 
     rofi -show run
-
-### Daemon mode
-
-To launch **rofi** in daemon mode don't specify any mode, instead keys can be bound
-to launch a certain mode. To show run-mode by pressing `F2` start **rofi** like this:
-
-    rofi -key-run F2
-
-Keybindings can also be specified in the `Xresources` file.
 
 ### Emulating dmenu
 
@@ -155,14 +144,6 @@ This does not validate all passed values (e.g. colors).
 
 Dump the current color schme in Xresources format to the command-line.
 
-`-key-{mode}` **KEY**
-
-  Set the key combination to display a {mode} in daemon mode.
-
-    rofi -key-run F12
-    rofi -key-ssh control+shift+s
-    rofi -key-window SuperL+Tab
-
 `-threads` *num*
 
 Specify the number of threads **rofi** should use:
@@ -212,10 +193,6 @@ Example: Have a mode 'Workspaces' using the `i3_switch_workspace.sh` script:
 `-case-sensitive`
 
 Start in case sensitive mode.
-
-`-quiet`
-
-Do not print any message when starting in daemon mode.
 
 `-fuzzy`
 
@@ -649,7 +626,7 @@ Make **rofi** reacts like a normal application window. Useful for scripts like C
 
 Dump the filtered list to stdout and quit.
 This can be used to get the list as **rofi** would filter it.
-Use together with `-filter` command. 
+Use together with `-filter` command.
 
 `-input` *file*
 
@@ -701,21 +678,6 @@ If `argv[0]` (calling command) is dmenu, **rofi** will start in dmenu mode.
 This way it can be used as a drop-in replacement for dmenu. just copy or symlink **rofi** to dmenu in `$PATH`.
 
     ln -s /usr/bin/rofi /usr/bin/dmenu
-
-## SIGNALS
-
-`HUP`
-
-If in daemon mode, reload the configuration from Xresources. (commandline arguments still -override
-Xresources). This will also reload configured key-bindings.
-
-`INT`
-
-If in daemon mode, quits **rofi**.
-
-`USR1`
-
-If in daemon mode, dumps the current configuration to stdout. Similar to `-xresources-dump`
 
 ## THEMING
 
@@ -829,7 +791,7 @@ Shows a list of SSH targets based on your ssh config file, and allows to quickly
 
 ### Script
 
-Allows custom scripted Modi to be added. 
+Allows custom scripted Modi to be added.
 
 ## FAQ
 

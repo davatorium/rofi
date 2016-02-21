@@ -37,17 +37,6 @@ unsigned int rofi_get_num_enabled_modi ( void );
  */
 const Mode * rofi_get_mode ( unsigned int index );
 
-/**
- * @param key the Key to match
- * @param modstate the modifier state to match
- *
- * Match key and modifier state against modi.
- *
- * @return the index of the switcher that matches the key combination
- * specified by key and modstate. Returns -1 if none was found
- */
-int locate_switcher ( xkb_keysym_t key, unsigned int modstate );
-
 void rofi_set_return_code ( int code );
 /** Reset terminal */
 #define  color_reset     "\033[0m"

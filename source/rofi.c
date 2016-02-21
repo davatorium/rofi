@@ -70,7 +70,6 @@
 #include "view-internal.h"
 #include "xkb-internal.h"
 
-gboolean          daemon_mode = FALSE;
 // Pidfile.
 char              *pidfile        = NULL;
 const char        *cache_dir      = NULL;
@@ -125,19 +124,6 @@ static int switcher_get ( const char *name )
 {
     for ( unsigned int i = 0; i < num_modi; i++ ) {
         if ( strcmp ( mode_get_name ( modi[i] ), name ) == 0 ) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-extern unsigned int NumlockMask;
-int locate_switcher ( xkb_keysym_t key, unsigned int modstate )
-{
-    // ignore annoying modifiers
-    unsigned int modstate_filtered = modstate & ~( LockMask | NumlockMask );
-    for ( unsigned int i = 0; i < num_modi; i++ ) {
-        if ( mode_check_keybinding ( modi[i], key, modstate_filtered ) ) {
             return i;
         }
     }
@@ -286,26 +272,6 @@ int show_error_message ( const char *msg, int markup )
 }
 
 /**
- * Function that listens for global key-presses.
- * This is only used when in daemon mode.
- */
-static void handle_keypress ( xcb_key_press_event_t *ev, struct xkb_stuff *xkb )
-{
-    xkb_keysym_t key = xkb_state_key_get_one_sym ( xkb->state, ev->detail );
-    int          index;
-    index = locate_switcher ( key, ev->state );
-    if ( index >= 0 ) {
-        run_switcher ( index );
-    }
-    else {
-        fprintf ( stderr,
-                  "Warning: Unhandled keypress in global keyhandler, keycode = %u mask = %u\n",
-                  ev->detail,
-                  ev->state );
-    }
-}
-
-/**
  * Help function.
  */
 static void print_main_application_options ( void )
@@ -340,23 +306,6 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "Bugreports: "PACKAGE_BUGREPORT "\n" );
 }
 
-static void release_global_keybindings ()
-{
-    for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_ungrab_key ( modi[i], display );
-    }
-}
-static int grab_global_keybindings ()
-{
-    int key_bound = FALSE;
-    for ( unsigned int i = 0; i < num_modi; i++ ) {
-        if ( mode_grab_key ( modi[i], display ) ) {
-            key_bound = TRUE;
-        }
-    }
-    return key_bound;
-}
-
 /**
  * Function bound by 'atexit'.
  * Cleanup globally allocated memory.
@@ -370,12 +319,6 @@ static void cleanup ()
         }
         g_main_loop_unref ( main_loop );
         main_loop = NULL;
-    }
-    if ( daemon_mode ) {
-        release_global_keybindings ();
-        if ( !quiet ) {
-            fprintf ( stdout, "Quit from daemon mode.\n" );
-        }
     }
     // Cleanup
     if ( display != NULL ) {
@@ -479,9 +422,6 @@ static void setup_modi ( void )
     g_free ( switcher_str );
     // We cannot do this in main loop, as we create pointer to string,
     // and re-alloc moves that pointer.
-    for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_setup_keybinding ( modi[i] );
-    }
     mode_set_config ( &ssh_mode );
     mode_set_config ( &run_mode );
     mode_set_config ( &drun_mode );
@@ -515,42 +455,6 @@ static inline void load_configuration_dynamic ( Display *display )
     config_parse_cmd_options_dynamic (  );
 }
 
-static void print_global_keybindings ()
-{
-    if ( quiet ) {
-        fprintf ( stdout, "listening to the following keys:\n" );
-    }
-    for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_print_keybindings ( modi[i] );
-    }
-}
-
-static void reload_configuration ()
-{
-    if ( find_arg ( "-no-config" ) < 0 ) {
-        TICK ();
-        // Reset the color cache
-        color_cache_reset ();
-        // We need to open a new connection to X11, otherwise we get old
-        // configuration
-        Display *temp_display = XOpenDisplay ( display_str );
-        if ( temp_display ) {
-            load_configuration ( temp_display );
-            load_configuration_dynamic ( temp_display );
-
-            // Sanity check
-            config_sanity_check ( temp_display );
-            parse_keys_abe ();
-            XCloseDisplay ( temp_display );
-        }
-        else {
-            fprintf ( stderr, "Failed to get a new connection to the X11 server. No point in continuing.\n" );
-            abort ();
-        }
-        TICK_N ( "Load config" );
-    }
-}
-
 /**
  * Process X11 events in the main-loop (gui-thread) of the application.
  */
@@ -568,19 +472,8 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
             // cleanup
             if ( rofi_view_get_active () == NULL ) {
                 teardown ( pfd );
-                if (  !daemon_mode ) {
-                    g_main_loop_quit ( main_loop );
-                }
+                g_main_loop_quit ( main_loop );
             }
-        }
-    }
-    else {
-        // X11 produced an event. Consume them.
-        // If we get an event that does not belong to a window:
-        // Ignore it.
-        // If keypress, handle it.
-        if ( ( ev->response_type & ~0x80 ) == XCB_KEY_PRESS ) {
-            handle_keypress ( (xcb_key_press_event_t *) ev, &xkb );
         }
     }
     return G_SOURCE_CONTINUE;
@@ -591,33 +484,11 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
  *
  * returns TRUE when mainloop should be stopped.
  */
-static gboolean main_loop_signal_handler_hup ( G_GNUC_UNUSED gpointer data )
-{
-    if ( !quiet ) {
-        fprintf ( stdout, "Reload configuration\n" );
-    }
-    // Release the keybindings.
-    release_global_keybindings ();
-    // Reload config
-    reload_configuration ();
-    // Grab the possibly new keybindings.
-    grab_global_keybindings ();
-    // We need to flush, otherwise the first key presses are not caught.
-    xcb_flush ( xcb_connection );
-    XFlush ( display );
-    return G_SOURCE_CONTINUE;
-}
 
 static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
 {
     // Break out of loop.
     g_main_loop_quit ( main_loop );
-    return G_SOURCE_CONTINUE;
-}
-
-static gboolean main_loop_signal_handler_usr1 ( G_GNUC_UNUSED gpointer data )
-{
-    config_parse_xresource_dump ();
     return G_SOURCE_CONTINUE;
 }
 
@@ -697,32 +568,9 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         }
     }
     else{
-        // Daemon mode, Listen to key presses..
-        if ( !grab_global_keybindings () ) {
-            fprintf ( stderr, "Rofi was launched in daemon mode, but no key-binding was specified.\n" );
-            fprintf ( stderr, "Please check the manpage on how to specify a key-binding.\n" );
-            fprintf ( stderr, "The following modi are enabled and keys can be specified:\n" );
-            for ( unsigned int i = 0; i < num_modi; i++ ) {
-                const char *name = mode_get_name ( modi[i] );
-                fprintf ( stderr, "\t* "color_bold "%s"color_reset ": -key-%s <key>\n", name, name );
-            }
-            // Cleanup
-            return G_SOURCE_REMOVE;
-        }
-        if ( !quiet ) {
-            fprintf ( stdout, "Rofi is launched in daemon mode.\n" );
-            print_global_keybindings ();
-        }
-
-        // done starting deamon.
-
-        if ( sncontext != NULL ) {
-            sn_launchee_context_complete ( sncontext );
-        }
-        daemon_mode = TRUE;
-        uint32_t mask[] = { XCB_EVENT_MASK_KEY_PRESS };
-        xcb_change_window_attributes ( xcb_connection, xcb_screen->root, XCB_CW_EVENT_MASK, mask );
-        xcb_flush ( xcb_connection );
+        // Daemon mode
+        fprintf ( stderr, "Rofi daemon mode is now removed.\n" );
+        fprintf ( stderr, "Please use your window manager binding functionality or xbindkeys to replace it.\n" );
     }
 
     return G_SOURCE_REMOVE;
@@ -927,12 +775,8 @@ int main ( int argc, char *argv[] )
     rofi_view_workers_initialize ();
 
     // Setup signal handling sources.
-    // SIGHup signal.
-    g_unix_signal_add ( SIGHUP, main_loop_signal_handler_hup, NULL );
     // SIGINT
     g_unix_signal_add ( SIGINT, main_loop_signal_handler_int, NULL );
-    // SIGUSR1
-    g_unix_signal_add ( SIGUSR1, main_loop_signal_handler_usr1, NULL );
 
     g_idle_add ( startup, NULL );
 

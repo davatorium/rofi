@@ -37,14 +37,9 @@ typedef int ( *_mode_is_not_ascii )( const Mode *sw, unsigned int index );
 struct _Mode
 {
     /** Name (max 31 char long) */
-    char         name[32];
-    char         cfg_name_key[128];
-    char         *display_name;
-    /** Keybindings (keysym and modmask) */
-    char         * keycfg;
-    char         * keystr;
-    xkb_keysym_t keysym;
-    unsigned int modmask;
+    char name[32];
+    char cfg_name_key[128];
+    char *display_name;
 
     /**
      * A switcher normally consists of the following parts:

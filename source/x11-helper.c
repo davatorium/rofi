@@ -345,38 +345,7 @@ void release_keyboard ( Display *display )
 {
     XUngrabKeyboard ( display, CurrentTime );
 }
-// bind a key combination on a root window, compensating for Lock* states
-void x11_grab_key ( Display *display, unsigned int modmask, KeySym key )
-{
-    Screen  *screen = DefaultScreenOfDisplay ( display );
-    Window  root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
-    KeyCode keycode = XKeysymToKeycode ( display, key );
 
-    // bind to combinations of mod and lock masks, so caps and numlock don't confuse people
-    XGrabKey ( display, keycode, modmask, root, True, GrabModeAsync, GrabModeAsync );
-    XGrabKey ( display, keycode, modmask | LockMask, root, True, GrabModeAsync, GrabModeAsync );
-
-    if ( NumlockMask ) {
-        XGrabKey ( display, keycode, modmask | NumlockMask, root, True, GrabModeAsync, GrabModeAsync );
-        XGrabKey ( display, keycode, modmask | NumlockMask | LockMask, root, True, GrabModeAsync, GrabModeAsync );
-    }
-}
-
-void x11_ungrab_key ( Display *display, unsigned int modmask, KeySym key )
-{
-    Screen  *screen = DefaultScreenOfDisplay ( display );
-    Window  root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
-    KeyCode keycode = XKeysymToKeycode ( display, key );
-
-    // unbind to combinations of mod and lock masks, so caps and numlock don't confuse people
-    XUngrabKey ( display, keycode, modmask, root );
-    XUngrabKey ( display, keycode, modmask | LockMask, root );
-
-    if ( NumlockMask ) {
-        XUngrabKey ( display, keycode, modmask | NumlockMask, root );
-        XUngrabKey ( display, keycode, modmask | NumlockMask | LockMask, root );
-    }
-}
 /**
  * @param display The connection to the X server.
  *

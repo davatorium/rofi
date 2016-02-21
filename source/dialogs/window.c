@@ -592,9 +592,6 @@ Mode window_mode =
 {
     .name               = "window",
     .cfg_name_key       = "display-window",
-    .keycfg             = NULL,
-    .keystr             = NULL,
-    .modmask            = AnyModifier,
     ._init              = window_mode_init,
     ._get_num_entries   = window_mode_get_num_entries,
     ._result            = window_mode_result,
@@ -610,9 +607,6 @@ Mode window_mode_cd =
 {
     .name               = "windowcd",
     .cfg_name_key       = "display-windowcd",
-    .keycfg             = NULL,
-    .keystr             = NULL,
-    .modmask            = AnyModifier,
     ._init              = window_mode_init_cd,
     ._get_num_entries   = window_mode_get_num_entries,
     ._result            = window_mode_result,

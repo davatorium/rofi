@@ -142,54 +142,10 @@ const char * mode_get_name ( const Mode *mode );
 
 /**
  * @param mode The mode to query
- * @param key The KeySym to match
- * @param state The Modmask to match
- *
- * Match keybinding of mode.
- *
- * return TRUE when matching, FALSE otherwise
- */
-int mode_check_keybinding ( const Mode *mode, KeySym key, unsigned int modstate );
-
-/**
- * @param mode The mode to query
  *
  * Free the resources allocated for this mode.
  */
 void mode_free ( Mode **mode );
-
-/**
- * @param mode The mode to query
- *
- * Setup the keybinding for this mode.
- */
-void mode_setup_keybinding ( Mode *mode );
-
-/**
- * @param mode The mode to query
- * @param display The X Server display handle.
- *
- * Grab the key on the display.
- * This first parses the key string and if successful asks X11 for a grab.
- *
- * return FALSE when key could not be grabbed.
- */
-int mode_grab_key ( Mode *mode, Display *display );
-
-/**
- * @param mode The mode to query
- * @param display The X Server display handle.
- *
- * Releases previously grabbed key.
- */
-void mode_ungrab_key ( Mode *mode, Display *display );
-
-/**
- * @param mode The mode to query
- *
- * Print the current keybing for this mode to stdout.
- */
-void mode_print_keybindings ( const Mode *mode );
 
 /**
  * @param mode The mode to query

@@ -341,9 +341,6 @@ Mode dmenu_mode =
 {
     .name               = "dmenu",
     .cfg_name_key       = "display-combi",
-    .keycfg             = NULL,
-    .keystr             = NULL,
-    .modmask            = AnyModifier,
     ._init              = dmenu_mode_init,
     ._get_num_entries   = dmenu_mode_get_num_entries,
     ._result            = NULL,

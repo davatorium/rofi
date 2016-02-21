@@ -1018,7 +1018,7 @@ static int rofi_view_keyboard_navigation ( RofiViewState *state, xkb_keysym_t ke
 {
     // pressing one of the global key bindings closes the switcher. This allows fast closing of the
     // menu if an item is not selected
-    if ( locate_switcher ( key, modstate ) != -1 || abe_test_action ( CANCEL, modstate, key ) ) {
+    if ( abe_test_action ( CANCEL, modstate, key ) ) {
         state->retv = MENU_CANCEL;
         state->quit = TRUE;
         return 1;

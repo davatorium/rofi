@@ -431,9 +431,6 @@ Mode drun_mode =
 {
     .name               = "drun",
     .cfg_name_key       = "display-drun",
-    .keycfg             = NULL,
-    .keystr             = NULL,
-    .modmask            = AnyModifier,
     ._init              = drun_mode_init,
     ._get_num_entries   = drun_mode_get_num_entries,
     ._result            = drun_mode_result,

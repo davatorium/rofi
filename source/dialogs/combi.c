@@ -258,9 +258,6 @@ Mode combi_mode =
 {
     .name               = "combi",
     .cfg_name_key       = "display-combi",
-    .keycfg             = NULL,
-    .keystr             = NULL,
-    .modmask            = AnyModifier,
     ._init              = combi_mode_init,
     ._get_num_entries   = combi_mode_get_num_entries,
     ._result            = combi_mode_result,

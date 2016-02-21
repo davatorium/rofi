@@ -195,8 +195,6 @@ Mode *script_switcher_parse_setup ( const char *str )
     g_free ( parse );
     if ( index == 2 ) {
         sw->free               = script_switcher_free;
-        sw->keysym             = None;
-        sw->modmask            = AnyModifier;
         sw->_init              = script_mode_init;
         sw->_get_num_entries   = script_mode_get_num_entries;
         sw->_result            = script_mode_result;
