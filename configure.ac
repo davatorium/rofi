@@ -83,7 +83,7 @@ dnl ---------------------------------------------------------------------
 dnl X11, Glib, Xinerama, Pango, Cairo, libstartup notification
 dnl ---------------------------------------------------------------------
 PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40])
-GW_CHECK_XCB([xcb-aux xkbcommon xkbcommon-x11])
+GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11])
 PKG_CHECK_MODULES([x11],      [x11 x11-xcb])
 PKG_CHECK_MODULES([xinerama], [xinerama])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])

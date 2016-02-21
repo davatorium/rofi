@@ -1,6 +1,7 @@
 #ifndef ROFI_MAIN_H
 #define ROFI_MAIN_H
 #include <xcb/xcb.h>
+#include <xkbcommon/xkbcommon.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <glib.h>
@@ -45,7 +46,7 @@ const Mode * rofi_get_mode ( unsigned int index );
  * @return the index of the switcher that matches the key combination
  * specified by key and modstate. Returns -1 if none was found
  */
-int locate_switcher ( KeySym key, unsigned int modstate );
+int locate_switcher ( xkb_keysym_t key, unsigned int modstate );
 
 void rofi_set_return_code ( int code );
 /** Reset terminal */

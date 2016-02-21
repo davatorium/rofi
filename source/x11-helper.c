@@ -433,7 +433,7 @@ static void x11_figure_out_numlock_mask ( Display *display )
 }
 
 // convert a Mod+key arg to mod mask and keysym
-void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key )
+void x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key )
 {
     GString      *str    = g_string_new ( "" );
     unsigned int modmask = 0;
@@ -506,9 +506,9 @@ void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key )
         i--;
     }
 
-    KeySym sym = XStringToKeysym ( combo + i );
+    xkb_keysym_t sym = xkb_keysym_from_name ( combo + i, XKB_KEYSYM_CASE_INSENSITIVE );
 
-    if ( sym == NoSymbol || ( !modmask && ( strchr ( combo, '-' ) || strchr ( combo, '+' ) ) ) ) {
+    if ( sym == XKB_KEY_NoSymbol || ( !modmask && ( strchr ( combo, '-' ) || strchr ( combo, '+' ) ) ) ) {
         g_string_append_printf ( str, "Sorry, rofi cannot understand the key combination: <i>%s</i>\n", combo );
         g_string_append ( str, "\nRofi supports the following modifiers:\n\t" );
         g_string_append ( str, "<i>Shift,Control,Alt,AltGR,SuperL,SuperR," );

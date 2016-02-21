@@ -99,7 +99,7 @@ void cleanup_abe ( void );
  * Check if this key has been triggered.
  * @returns TRUE if key combo matches, FALSE otherwise.
  */
-int abe_test_action ( KeyBindingAction action, unsigned int mask, KeySym key );
+int abe_test_action ( KeyBindingAction action, unsigned int mask, xkb_keysym_t key );
 
 /*@}*/
 #endif // ROFI_KEYB_H

@@ -34,6 +34,8 @@
 #include <errno.h>
 #include <time.h>
 #include <locale.h>
+#include <xkbcommon/xkbcommon-x11.h>
+#include <xcb/xkb.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -54,7 +56,7 @@
 
 #include "rofi.h"
 #include "mode.h"
-#include "rofi.h"
+#include "xkb-internal.h"
 #include "helper.h"
 #include "textbox.h"
 #include "scrollbar.h"
@@ -367,34 +369,58 @@ static void rofi_view_resize ( RofiViewState *state )
     state->update   = TRUE;
 }
 
-void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event )
+void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb_stuff *xkb )
 {
     uint8_t type = event->response_type & ~0x80;
-    switch ( type )
-    {
-    case XCB_EXPOSE:
-        state->update = TRUE;
-        break;
-    case XCB_CONFIGURE_NOTIFY:
-    {
-        xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
-        if ( xce->window == main_window ) {
-            if ( state->x != xce->x || state->y != xce->y ) {
-                state->x      = xce->x;
-                state->y      = xce->y;
-                state->update = TRUE;
-            }
-            if ( state->w != xce->width || state->h != xce->height ) {
-                state->w = xce->width;
-                state->h = xce->height;
-                cairo_xlib_surface_set_size ( surface, state->w, state->h );
-                rofi_view_resize ( state );
-            }
+    if ( type == xkb->first_event ) {
+        switch ( event->pad0 )
+        {
+        case XCB_XKB_MAP_NOTIFY:
+            xkb_state_unref ( xkb->state );
+            xkb_keymap_unref ( xkb->keymap );
+            xkb->keymap = xkb_x11_keymap_new_from_device ( xkb->context, xkb->xcb_connection, xkb->device_id, 0 );
+            xkb->state  = xkb_x11_state_new_from_device ( xkb->keymap, xkb->xcb_connection, xkb->device_id );
+            break;
+        case XCB_XKB_STATE_NOTIFY:
+        {
+            xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) event;
+            xkb_state_update_mask ( xkb->state,
+                                    ksne->baseMods,
+                                    ksne->latchedMods,
+                                    ksne->lockedMods,
+                                    ksne->baseGroup,
+                                    ksne->latchedGroup,
+                                    ksne->lockedGroup );
+            break;
+        }
         }
     }
-    break;
-    default:
-        state->x11_event_loop ( state, event, xkb );
+    else{ switch ( type )
+          {
+          case XCB_EXPOSE:
+              state->update = TRUE;
+              break;
+          case XCB_CONFIGURE_NOTIFY:
+          {
+              xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
+              if ( xce->window == main_window ) {
+                  if ( state->x != xce->x || state->y != xce->y ) {
+                      state->x      = xce->x;
+                      state->y      = xce->y;
+                      state->update = TRUE;
+                  }
+                  if ( state->w != xce->width || state->h != xce->height ) {
+                      state->w = xce->width;
+                      state->h = xce->height;
+                      cairo_xlib_surface_set_size ( surface, state->w, state->h );
+                      rofi_view_resize ( state );
+                  }
+              }
+              break;
+          }
+          default:
+              state->x11_event_loop ( state, event, xkb );
+          }
     }
     rofi_view_update ( state );
 }
@@ -996,7 +1022,7 @@ static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t
  *
  * Keyboard navigation through the elements.
  */
-static int rofi_view_keyboard_navigation ( RofiViewState *state, KeySym key, unsigned int modstate )
+static int rofi_view_keyboard_navigation ( RofiViewState *state, xkb_keysym_t key, unsigned int modstate )
 {
     // pressing one of the global key bindings closes the switcher. This allows fast closing of the
     // menu if an item is not selected
@@ -1246,7 +1272,7 @@ void rofi_view_setup_fake_transparency ( Display *display, RofiViewState *state 
     }
 }
 
-static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t *ev )
+static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t *ev, xkb_stuff *xkb )
 {
     switch ( ev->response_type & ~0x80 )
     {
@@ -1279,20 +1305,14 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
     case XCB_KEY_PRESS:
     {
         xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *) ev;
-        XEvent                fake_event;
-        fake_event.type         = KeyPress;
-        fake_event.xany.display = display;
-        fake_event.xany.window  = xkpe->event;
-        fake_event.xkey.state   = xkpe->state;
-        fake_event.xkey.keycode = xkpe->detail;
-        // This is needed for letting the Input Method handle combined keys.
-        // E.g. `e into è
-        Status stat;
-        char   pad[32];
-        KeySym key; // = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
-        int    len = Xutf8LookupString ( xic, &( fake_event.xkey ), pad, sizeof ( pad ), &key, &stat );
-        pad[len] = 0;
-        if ( stat == XLookupKeySym || stat == XLookupBoth ) {
+        xcb_keysym_t          key;
+        char                  pad[32];
+        int                   len = 0;
+
+        key = xkb_state_key_get_one_sym ( xkb->state, xkpe->detail );
+        len = xkb_state_key_get_utf8 ( xkb->state, xkpe->detail, pad, sizeof ( pad ) );
+
+        if ( key != XKB_KEY_NoSymbol ) {
             // Handling of paste
             if ( abe_test_action ( PASTE_PRIMARY, xkpe->state, key ) ) {
                 XConvertSelection ( display, XA_PRIMARY, netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
@@ -1364,7 +1384,7 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
                 break;
             }
 
-            int rc = textbox_keypress ( state->text, xkpe, pad, len, key, stat );
+            int rc = textbox_keypress ( state->text, xkpe, pad, len, key );
             // Row is accepted.
             if ( rc < 0 ) {
                 int shift = ( ( xkpe->state & ShiftMask ) == ShiftMask );
@@ -1625,7 +1645,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     }
     return state;
 }
-static void __error_dialog_event_loop ( RofiViewState *state, xcb_generic_event_t *ev )
+static void __error_dialog_event_loop ( RofiViewState *state, xcb_generic_event_t *ev, G_GNUC_UNUSED xkb_stuff *xkb )
 {
     // Handle event.
     switch ( ev->response_type & ~0x80 )

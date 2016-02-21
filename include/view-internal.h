@@ -69,7 +69,7 @@ struct RofiViewState
 
     MenuFlags    menu_flags;
     // Handlers.
-    void         ( *x11_event_loop )( struct RofiViewState *state, xcb_generic_event_t *ev );
+    void         ( *x11_event_loop )( struct RofiViewState *state, xcb_generic_event_t *ev, xkb_stuff *xkb );
     void         ( *finalize )( struct RofiViewState *state );
 };
 /** @} */

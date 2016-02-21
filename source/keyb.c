@@ -8,7 +8,7 @@
 typedef struct _KeyBinding
 {
     unsigned int modmask;
-    KeySym       keysym;
+    xkb_keysym_t keysym;
 } KeyBinding;
 
 typedef struct _ActionBindingEntry
@@ -133,7 +133,7 @@ void cleanup_abe ( void )
     }
 }
 
-int abe_test_action ( KeyBindingAction action, unsigned int mask, KeySym key )
+int abe_test_action ( KeyBindingAction action, unsigned int mask, xkb_keysym_t key )
 {
     ActionBindingEntry *akb = &( abe[action] );
 

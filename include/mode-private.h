@@ -43,7 +43,7 @@ struct _Mode
     /** Keybindings (keysym and modmask) */
     char         * keycfg;
     char         * keystr;
-    KeySym       keysym;
+    xkb_keysym_t keysym;
     unsigned int modmask;
 
     /**

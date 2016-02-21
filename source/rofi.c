@@ -36,7 +36,9 @@
 #include <locale.h>
 #include <xcb/xcb.h>
 #include <xcb/xcb_aux.h>
+#include <xcb/xkb.h>
 #include <xkbcommon/xkbcommon.h>
+#include <xkbcommon/xkbcommon-x11.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -66,6 +68,7 @@
 
 #include "view.h"
 #include "view-internal.h"
+#include "xkb-internal.h"
 
 gboolean          daemon_mode = FALSE;
 // Pidfile.
@@ -75,9 +78,10 @@ SnDisplay         *sndisplay      = NULL;
 SnLauncheeContext *sncontext      = NULL;
 xcb_connection_t  *xcb_connection = NULL;
 xcb_screen_t      *xcb_screen     = NULL;
-Display           *display        = NULL;
-char              *display_str    = NULL;
-char              *config_path    = NULL;
+struct xkb_stuff  xkb             = { NULL };
+Display           *display     = NULL;
+char              *display_str = NULL;
+char              *config_path = NULL;
 // Array of modi.
 Mode              **modi   = NULL;
 unsigned int      num_modi = 0;
@@ -128,7 +132,7 @@ static int switcher_get ( const char *name )
 }
 
 extern unsigned int NumlockMask;
-int locate_switcher ( KeySym key, unsigned int modstate )
+int locate_switcher ( xkb_keysym_t key, unsigned int modstate )
 {
     // ignore annoying modifiers
     unsigned int modstate_filtered = modstate & ~( LockMask | NumlockMask );
@@ -285,10 +289,10 @@ int show_error_message ( const char *msg, int markup )
  * Function that listens for global key-presses.
  * This is only used when in daemon mode.
  */
-static void handle_keypress ( xcb_key_press_event_t *ev )
+static void handle_keypress ( xcb_key_press_event_t *ev, struct xkb_stuff *xkb )
 {
-    int    index;
-    KeySym key = XkbKeycodeToKeysym ( display, ev->detail, 0, 0 );
+    xkb_keysym_t key = xkb_state_key_get_one_sym ( xkb->state, ev->detail );
+    int          index;
     index = locate_switcher ( key, ev->state );
     if ( index >= 0 ) {
         run_switcher ( index );
@@ -557,7 +561,7 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
         sn_xcb_display_process_event ( sndisplay, ev );
     }
     if ( state != NULL ) {
-        rofi_view_itterrate ( state, ev );
+        rofi_view_itterrate ( state, ev, &xkb );
         if ( rofi_view_get_completed ( state ) ) {
             // This menu is done.
             rofi_view_finalize ( state );
@@ -576,7 +580,7 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
         // Ignore it.
         // If keypress, handle it.
         if ( ( ev->response_type & ~0x80 ) == XCB_KEY_PRESS ) {
-            handle_keypress ( (xcb_key_press_event_t *) ev );
+            handle_keypress ( (xcb_key_press_event_t *) ev, &xkb );
         }
     }
     return G_SOURCE_CONTINUE;
@@ -600,6 +604,7 @@ static gboolean main_loop_signal_handler_hup ( G_GNUC_UNUSED gpointer data )
     grab_global_keybindings ();
     // We need to flush, otherwise the first key presses are not caught.
     xcb_flush ( xcb_connection );
+    XFlush ( display );
     return G_SOURCE_CONTINUE;
 }
 
@@ -803,6 +808,65 @@ int main ( int argc, char *argv[] )
 
     xcb_connection = XGetXCBConnection ( display );
     xcb_screen     = xcb_aux_get_screen ( xcb_connection, DefaultScreen ( display ) );
+
+    if ( xkb_x11_setup_xkb_extension ( xcb_connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
+                                       XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS, NULL, NULL, &xkb.first_event, NULL ) < 0 ) {
+        fprintf ( stderr, "cannot setup XKB extension!\n" );
+        return EXIT_FAILURE;
+    }
+
+    xkb.context = xkb_context_new ( XKB_CONTEXT_NO_FLAGS );
+    if ( xkb.context == NULL ) {
+        fprintf ( stderr, "cannot create XKB context!\n" );
+        return EXIT_FAILURE;
+    }
+    xkb.xcb_connection = xcb_connection;
+
+    xkb.device_id = xkb_x11_get_core_keyboard_device_id ( xcb_connection );
+
+    enum
+    {
+        required_events =
+            ( XCB_XKB_EVENT_TYPE_NEW_KEYBOARD_NOTIFY |
+              XCB_XKB_EVENT_TYPE_MAP_NOTIFY |
+              XCB_XKB_EVENT_TYPE_STATE_NOTIFY ),
+
+        required_nkn_details =
+            ( XCB_XKB_NKN_DETAIL_KEYCODES ),
+
+        required_map_parts   =
+            ( XCB_XKB_MAP_PART_KEY_TYPES |
+              XCB_XKB_MAP_PART_KEY_SYMS |
+              XCB_XKB_MAP_PART_MODIFIER_MAP |
+              XCB_XKB_MAP_PART_EXPLICIT_COMPONENTS |
+              XCB_XKB_MAP_PART_KEY_ACTIONS |
+              XCB_XKB_MAP_PART_VIRTUAL_MODS |
+              XCB_XKB_MAP_PART_VIRTUAL_MOD_MAP ),
+
+        required_state_details =
+            ( XCB_XKB_STATE_PART_MODIFIER_BASE |
+              XCB_XKB_STATE_PART_MODIFIER_LATCH |
+              XCB_XKB_STATE_PART_MODIFIER_LOCK |
+              XCB_XKB_STATE_PART_GROUP_BASE |
+              XCB_XKB_STATE_PART_GROUP_LATCH |
+              XCB_XKB_STATE_PART_GROUP_LOCK ),
+    };
+
+    static const xcb_xkb_select_events_details_t details = {
+        .affectNewKeyboard  = required_nkn_details,
+        .newKeyboardDetails = required_nkn_details,
+        .affectState        = required_state_details,
+        .stateDetails       = required_state_details,
+    };
+    xcb_xkb_select_events ( xcb_connection, xkb.device_id, required_events, /* affectWhich */
+                            0,                                              /* clear */
+                            0,                                              /* selectAll */
+                            required_map_parts,                             /* affectMap */
+                            required_map_parts,                             /* map */
+                            &details );
+
+    xkb.keymap = xkb_x11_keymap_new_from_device ( xkb.context, xcb_connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
+    xkb.state  = xkb_x11_state_new_from_device ( xkb.keymap, xcb_connection, xkb.device_id );
 
     main_loop = g_main_loop_new ( NULL, FALSE );
 

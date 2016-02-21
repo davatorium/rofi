@@ -124,7 +124,7 @@ void x11_ungrab_key ( Display *display, unsigned int modmask, KeySym key );
  *
  * Parse key from user input string.
  */
-void x11_parse_key ( char *combo, unsigned int *mod, KeySym *key );
+void x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key );
 
 /**
  * @param display The connection to the X server.

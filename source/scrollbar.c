@@ -23,6 +23,7 @@
  */
 
 #include <config.h>
+#include <xkbcommon/xkbcommon.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
