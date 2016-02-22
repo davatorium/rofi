@@ -2,6 +2,8 @@
 #define X11_ROFI_HELPER_H
 #include <cairo.h>
 
+#include "xkb.h"
+
 /**
  * @defgroup X11Helper X11Helper
  * @ingroup HELPERS
@@ -130,7 +132,7 @@ void x11_set_window_opacity ( Display *display, Window box, unsigned int opacity
  * * Numlock detection
  * * Cache
  */
-void x11_setup ( Display *display );
+void x11_setup ( Display *display, xkb_stuff *xkb );
 
 /**
  * @param display Connection to the X server.

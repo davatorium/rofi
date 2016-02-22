@@ -767,7 +767,7 @@ int main ( int argc, char *argv[] )
         exit ( EXIT_SUCCESS );
     }
 
-    x11_setup ( display );
+    x11_setup ( display, &xkb );
     main_loop_source = g_water_xcb_source_new_for_connection ( NULL, xcb_connection, main_loop_x11_event_handler, NULL, NULL );
 
     TICK_N ( "X11 Setup " );

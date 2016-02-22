@@ -349,53 +349,34 @@ void release_keyboard ( Display *display )
     XUngrabKeyboard ( display, CurrentTime );
 }
 
-static void x11_figure_out_masks ( Display *display )
+static unsigned int x11_find_mod_mask ( xkb_stuff *xkb, ... )
 {
-    XModifierKeymap *modmap   = XGetModifierMapping ( display );
-    KeyCode         kc_altl   = XKeysymToKeycode ( display, XK_Alt_L );
-    KeyCode         kc_altr   = XKeysymToKeycode ( display, XK_Alt_R );
-    KeyCode         kc_superr = XKeysymToKeycode ( display, XK_Super_R );
-    KeyCode         kc_superl = XKeysymToKeycode ( display, XK_Super_L );
-    KeyCode         kc_hyperl = XKeysymToKeycode ( display, XK_Hyper_L );
-    KeyCode         kc_hyperr = XKeysymToKeycode ( display, XK_Hyper_R );
-    KeyCode         kc_metal  = XKeysymToKeycode ( display, XK_Meta_L );
-    KeyCode         kc_metar  = XKeysymToKeycode ( display, XK_Meta_R );
-
-    x11_mod_masks[X11MOD_SHIFT]   |= ShiftMask;
-    x11_mod_masks[X11MOD_CONTROL] |= ControlMask;
-    for ( int i = 0; i < 8; i++ ) {
-        for ( int j = 0; j < ( int ) modmap->max_keypermod; j++ ) {
-            if ( kc_altl && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_altl ) {
-                x11_mod_masks[X11MOD_ALT] |= ( 1 << i );
-            }
-            if ( kc_altr && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_altr ) {
-                x11_mod_masks[X11MOD_ALT] |= ( 1 << i );
-            }
-            if ( kc_superr && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_superr ) {
-                x11_mod_masks[X11MOD_SUPER] |= ( 1 << i );
-            }
-            if ( kc_superl && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_superl ) {
-                x11_mod_masks[X11MOD_SUPER] |= ( 1 << i );
-            }
-            if ( kc_hyperr && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_hyperr ) {
-                x11_mod_masks[X11MOD_HYPER] |= ( 1 << i );
-            }
-            if ( kc_hyperl && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_hyperl ) {
-                x11_mod_masks[X11MOD_HYPER] |= ( 1 << i );
-            }
-            if ( kc_metar && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_metar ) {
-                x11_mod_masks[X11MOD_META] |= ( 1 << i );
-            }
-            if ( kc_metal && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_metal ) {
-                x11_mod_masks[X11MOD_META] |= ( 1 << i );
-            }
+    va_list         names;
+    const char      *name;
+    xkb_mod_index_t i;
+    unsigned int    mask = 0;
+    va_start ( names, xkb );
+    while ( ( name = va_arg ( names, const char * ) ) != NULL ) {
+        i = xkb_keymap_mod_get_index ( xkb->keymap, name );
+        if ( i != XKB_MOD_INVALID ) {
+            mask |= 1 << i;
         }
     }
-    XFreeModifiermap ( modmap );
+    return mask;
+}
+
+static void x11_figure_out_masks ( xkb_stuff *xkb )
+{
+    x11_mod_masks[X11MOD_SHIFT]   = x11_find_mod_mask ( xkb, XKB_MOD_NAME_SHIFT, NULL );
+    x11_mod_masks[X11MOD_CONTROL] = x11_find_mod_mask ( xkb, XKB_MOD_NAME_CTRL, "RControl", "LControl", NULL );
+    x11_mod_masks[X11MOD_ALT]     = x11_find_mod_mask ( xkb, XKB_MOD_NAME_ALT, "Alt", "LAlt", "RAlt", "AltGr", "Mod5", "LevelThree", NULL );
+    x11_mod_masks[X11MOD_META]    = x11_find_mod_mask ( xkb, "Meta", NULL );
+    x11_mod_masks[X11MOD_SUPER]   = x11_find_mod_mask ( xkb, XKB_MOD_NAME_LOGO, "Super", NULL );
+    x11_mod_masks[X11MOD_HYPER]   = x11_find_mod_mask ( xkb, "Hyper", NULL );
 
     gsize i;
     for ( i = 0; i < X11MOD_ANY; ++i ) {
-        x11_mod_masks[X11MOD_ANY] |= x11_mod_mask[i];
+        x11_mod_masks[X11MOD_ANY] |= x11_mod_masks[i];
     }
 }
 
@@ -403,12 +384,12 @@ unsigned int x11_canonalize_mask ( unsigned int mask )
 {
     // Bits 13 and 14 of the modifiers together are the group number, and
     // should be ignored when looking up key bindings
-    mask &= x11_mod_mask[X11MOD_ANY];
+    mask &= x11_mod_masks[X11MOD_ANY];
 
     gsize i;
     for ( i = 0; i < X11MOD_ANY; ++i ) {
-        if ( mask & x11_mod_mask[i] ) {
-            mask |= x11_mod_mask[i];
+        if ( mask & x11_mod_masks[i] ) {
+            mask |= x11_mod_masks[i];
         }
     }
     return mask;
@@ -422,9 +403,15 @@ void x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key )
 
     if ( strcasestr ( combo, "shift" ) ) {
         modmask |= x11_mod_masks[X11MOD_SHIFT];
+        if ( x11_mod_masks[X11MOD_SHIFT] == 0 ) {
+            g_string_append_printf ( str, "X11 configured keyboard has no <b>Shift</b> key.\n" );
+        }
     }
     if ( strcasestr ( combo, "control" ) ) {
         modmask |= x11_mod_masks[X11MOD_CONTROL];
+        if ( x11_mod_masks[X11MOD_CONTROL] == 0 ) {
+            g_string_append_printf ( str, "X11 configured keyboard has no <b>Control</b> key.\n" );
+        }
     }
     if ( strcasestr ( combo, "alt" ) ) {
         modmask |= x11_mod_masks[X11MOD_ALT];
@@ -524,7 +511,7 @@ static int display_oops ( Display *d, XErrorEvent *ee )
     return xerror ( d, ee );
 }
 
-void x11_setup ( Display *display )
+void x11_setup ( Display *display, xkb_stuff *xkb )
 {
     // Set error handle
     XSync ( display, False );
@@ -532,7 +519,7 @@ void x11_setup ( Display *display )
     XSync ( display, False );
 
     // determine numlock mask so we can bind on keys with and without it
-    x11_figure_out_masks ( display );
+    x11_figure_out_masks ( xkb );
     x11_create_frequently_used_atoms ( display );
 }
 
