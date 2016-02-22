@@ -77,7 +77,7 @@ Window                   main_window          = None;
 cairo_surface_t          *surface             = NULL;
 cairo_surface_t          *fake_bg             = NULL;
 cairo_t                  *draw                = NULL;
-Colormap                 map = None;
+Colormap                 map                  = None;
 XVisualInfo              vinfo;
 
 static char * get_matching_state ( void )
@@ -1307,8 +1307,8 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
             switch ( xkb_compose_state_get_status ( xkb->compose.state ) )
             {
             case XKB_COMPOSE_CANCELLED:
-                /* Eat the keysym that cancelled the compose sequence.
-                 * This is default behaviour with Xlib */
+            /* Eat the keysym that cancelled the compose sequence.
+             * This is default behaviour with Xlib */
             case XKB_COMPOSE_COMPOSING:
                 key = XKB_KEY_NoSymbol;
                 break;
