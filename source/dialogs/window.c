@@ -48,22 +48,18 @@
 
 #define WINLIST             32
 
-#define CLIENTTITLE         100
-#define CLIENTCLASS         50
-#define CLIENTNAME          50
 #define CLIENTSTATE         10
 #define CLIENTWINDOWTYPE    10
-#define CLIENTROLE          50
 
 // a manageable window
 typedef struct
 {
     Window            window, trans;
     XWindowAttributes xattr;
-    char              title[CLIENTTITLE];
-    char              class[CLIENTCLASS];
-    char              name[CLIENTNAME];
-    char              role[CLIENTROLE];
+    char              *title;
+    char              *class;
+    char              *name;
+    char              *role;
     int               states;
     Atom              state[CLIENTSTATE];
     int               window_types;
@@ -275,26 +271,25 @@ static client* window_client ( Display *display, Window win )
     char *name;
 
     if ( ( name = window_get_text_prop ( display, c->window, netatoms[_NET_WM_NAME] ) ) && name ) {
-        snprintf ( c->title, CLIENTTITLE, "%s", name );
-        g_free ( name );
+        c->title = name;
     }
     else if ( XFetchName ( display, c->window, &name ) ) {
-        snprintf ( c->title, CLIENTTITLE, "%s", name );
+        c->title = g_strdup(name);
         XFree ( name );
     }
 
     name = window_get_text_prop ( display, c->window, XInternAtom ( display, "WM_WINDOW_ROLE", False ) );
 
     if ( name != NULL ) {
-        snprintf ( c->role, CLIENTROLE, "%s", name );
+        c->role = g_strdup(name);
         XFree ( name );
     }
 
     XClassHint chint;
 
     if ( XGetClassHint ( display, c->window, &chint ) ) {
-        snprintf ( c->class, CLIENTCLASS, "%s", chint.res_class );
-        snprintf ( c->name, CLIENTNAME, "%s", chint.res_name );
+        c->class = g_strdup(chint.res_class);
+        c->name = g_strdup(chint.res_name);
         XFree ( chint.res_class );
         XFree ( chint.res_name );
     }
@@ -342,19 +337,19 @@ static int window_match ( const Mode *sw, char **tokens,
             // If hack not in place it would not match queries spanning multiple fields.
             // e.g. when searching 'title element' and 'class element'
             char *ftokens[2] = { tokens[j], NULL };
-            if ( !test && c->title[0] != '\0' ) {
+            if ( !test && c->title != NULL && c->title[0] != '\0' ) {
                 test = token_match ( ftokens, c->title, not_ascii, case_sensitive );
             }
 
-            if ( !test && c->class[0] != '\0' ) {
+            if ( !test && c->class != NULL && c->class[0] != '\0' ) {
                 test = token_match ( ftokens, c->class, not_ascii, case_sensitive );
             }
 
-            if ( !test && c->role[0] != '\0' ) {
+            if ( !test && c->role != NULL && c->role[0] != '\0' ) {
                 test = token_match ( ftokens, c->role, not_ascii, case_sensitive );
             }
 
-            if ( !test && c->name[0] != '\0' ) {
+            if ( !test && c->name != NULL && c->name[0] != '\0' ) {
                 test = token_match ( ftokens, c->name, not_ascii, case_sensitive );
             }
 
@@ -430,7 +425,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                  && !client_has_window_type ( c, netatoms[_NET_WM_WINDOW_TYPE_DESKTOP] )
                  && !client_has_state ( c, netatoms[_NET_WM_STATE_SKIP_PAGER] )
                  && !client_has_state ( c, netatoms[_NET_WM_STATE_SKIP_TASKBAR] ) ) {
-                classfield = MAX ( classfield, strlen ( c->class ) );
+                classfield = MAX ( classfield, (c->class != NULL)?strlen ( c->class ):0 );
 
                 if ( client_has_state ( c, netatoms[_NET_WM_STATE_DEMANDS_ATTENTION] ) ) {
                     c->demands = TRUE;
@@ -469,7 +464,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                 unsigned long wmdesktop;
                 char          desktop[5];
                 desktop[0] = 0;
-                size_t        len   = strlen ( c->title ) + strlen ( c->class ) + classfield + 50;
+                size_t        len   = c->title?strlen ( c->title ):0 + c->class?strlen ( c->class ):0 + classfield + 50;
                 char          *line = g_malloc ( len );
                 if ( !pd->config_i3_mode ) {
                     // find client's desktop.
@@ -486,10 +481,10 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                         snprintf ( desktop, 5, "%d", (int) wmdesktop );
                     }
 
-                    snprintf ( line, len, pattern, desktop, c->class, c->title );
+                    snprintf ( line, len, pattern, desktop, c->class?c->class:"", c->title?c->title:"" );
                 }
                 else{
-                    snprintf ( line, len, pattern, c->class, c->title );
+                    snprintf ( line, len, pattern, c->class?c->class:"", c->title?c->title:"" );
                 }
 
                 pd->cmd_list[pd->cmd_list_length++] = line;
@@ -584,7 +579,11 @@ static int window_is_not_ascii ( const Mode *sw, unsigned int index )
     int                       idx = winlist_find ( cache_client, ids->array[index] );
     g_assert ( idx >= 0 );
     client                    *c = cache_client->data[idx];
-    return !g_str_is_ascii ( c->role ) || !g_str_is_ascii ( c->class ) || !g_str_is_ascii ( c->title ) || !g_str_is_ascii ( c->name );
+    if ( c->role && !g_str_is_ascii(c->role)) return TRUE;
+    if ( c->class && !g_str_is_ascii(c->class)) return TRUE;
+    if ( c->title && !g_str_is_ascii(c->title)) return TRUE;
+    if ( c->name && !g_str_is_ascii(c->name)) return TRUE;
+    return FALSE;
 }
 
 #include "mode-private.h"
