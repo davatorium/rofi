@@ -252,6 +252,9 @@ void process_result ( RofiViewState *state )
         }
         // Cleanup
         g_free ( input );
+        for ( unsigned int i = 0; i < num_modi; i++ ) {
+            mode_destroy ( modi[i] );
+        }
     }
 }
 void process_result_error  ( RofiViewState *state )
@@ -353,9 +356,6 @@ static int grab_global_keybindings ()
  */
 static void cleanup ()
 {
-    for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_destroy ( modi[i] );
-    }
     rofi_view_workers_finalize ();
     if ( main_loop != NULL  ) {
         if ( main_loop_source ) {

@@ -124,7 +124,7 @@ static int winlist_append ( winlist *l, Window w, client *d )
 static void winlist_empty ( winlist *l )
 {
     while ( l->len > 0 ) {
-        client *c = l->data[l->len];
+        client *c = l->data[--l->len];
         if ( c != NULL ) {
             g_free ( c->title );
             g_free ( c->class );
@@ -132,8 +132,6 @@ static void winlist_empty ( winlist *l )
             g_free ( c->role );
             g_free ( c );
         }
-
-        l->len--;
     }
 }
 
