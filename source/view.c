@@ -1328,41 +1328,43 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
             len = xkb_state_key_get_utf8 ( xkb->state, xkpe->detail, pad, sizeof ( pad ) );
         }
 
+        unsigned int modstate = xkpe->state;
+
         if ( key != XKB_KEY_NoSymbol ) {
             // Handling of paste
-            if ( abe_test_action ( PASTE_PRIMARY, xkpe->state, key ) ) {
+            if ( abe_test_action ( PASTE_PRIMARY, modstate, key ) ) {
                 XConvertSelection ( display, XA_PRIMARY, netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
             }
-            else if ( abe_test_action ( PASTE_SECONDARY, xkpe->state, key ) ) {
+            else if ( abe_test_action ( PASTE_SECONDARY, modstate, key ) ) {
                 XConvertSelection ( display, netatoms[CLIPBOARD], netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window,
                                     CurrentTime );
             }
-            if ( abe_test_action ( SCREENSHOT, xkpe->state, key ) ) {
+            if ( abe_test_action ( SCREENSHOT, modstate, key ) ) {
                 menu_capture_screenshot ( );
                 break;
             }
-            if ( abe_test_action ( TOGGLE_SORT, xkpe->state, key ) ) {
+            if ( abe_test_action ( TOGGLE_SORT, modstate, key ) ) {
                 config.levenshtein_sort = !config.levenshtein_sort;
                 state->refilter         = TRUE;
                 state->update           = TRUE;
                 textbox_text ( state->case_indicator, get_matching_state () );
                 break;
             }
-            else if ( abe_test_action ( MODE_PREVIOUS, xkpe->state, key ) ) {
+            else if ( abe_test_action ( MODE_PREVIOUS, modstate, key ) ) {
                 state->retv              = MENU_PREVIOUS;
                 ( state->selected_line ) = 0;
                 state->quit              = TRUE;
                 break;
             }
             // Menu navigation.
-            else if ( abe_test_action ( MODE_NEXT, xkpe->state, key ) ) {
+            else if ( abe_test_action ( MODE_NEXT, modstate, key ) ) {
                 state->retv              = MENU_NEXT;
                 ( state->selected_line ) = 0;
                 state->quit              = TRUE;
                 break;
             }
             // Toggle case sensitivity.
-            else if ( abe_test_action ( TOGGLE_CASE_SENSITIVITY, xkpe->state, key ) ) {
+            else if ( abe_test_action ( TOGGLE_CASE_SENSITIVITY, modstate, key ) ) {
                 config.case_sensitive    = !config.case_sensitive;
                 ( state->selected_line ) = 0;
                 state->refilter          = TRUE;
@@ -1371,7 +1373,7 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
                 break;
             }
             // Special delete entry command.
-            else if ( abe_test_action ( DELETE_ENTRY, xkpe->state, key ) ) {
+            else if ( abe_test_action ( DELETE_ENTRY, modstate, key ) ) {
                 if ( state->selected < state->filtered_lines ) {
                     ( state->selected_line ) = state->line_map[state->selected];
                     state->retv              = MENU_ENTRY_DELETE;
@@ -1380,7 +1382,7 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
                 }
             }
             for ( unsigned int a = CUSTOM_1; a <= CUSTOM_19; a++ ) {
-                if ( abe_test_action ( a, xkpe->state, key ) ) {
+                if ( abe_test_action ( a, modstate, key ) ) {
                     state->selected_line = UINT32_MAX;
                     if ( state->selected < state->filtered_lines ) {
                         ( state->selected_line ) = state->line_map[state->selected];
@@ -1390,7 +1392,7 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
                     break;
                 }
             }
-            if ( rofi_view_keyboard_navigation ( state, key, xkpe->state ) ) {
+            if ( rofi_view_keyboard_navigation ( state, key, modstate ) ) {
                 break;
             }
         }
@@ -1400,7 +1402,7 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
                 break;
             }
 
-            int rc = textbox_keypress ( state->text, xkpe, pad, len, key );
+            int rc = textbox_keypress ( state->text, pad, len, modstate, key );
             // Row is accepted.
             if ( rc < 0 ) {
                 int shift = ( ( xkpe->state & ShiftMask ) == ShiftMask );
