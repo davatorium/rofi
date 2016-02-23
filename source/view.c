@@ -690,14 +690,14 @@ static unsigned int rofi_scroll_per_page ( RofiViewState * state )
 
 static unsigned int rofi_scroll_continious ( RofiViewState * state )
 {
-    unsigned int middle = (state->menu_lines - ((state->menu_lines&1) == 0))/ 2;
+    unsigned int middle = ( state->menu_lines - ( ( state->menu_lines & 1 ) == 0 ) ) / 2;
     unsigned int offset = 0;
     if ( state->selected > middle ) {
-        if ( state->selected < ( state->filtered_lines - (state->menu_lines -middle) ) ) {
+        if ( state->selected < ( state->filtered_lines - ( state->menu_lines - middle ) ) ) {
             offset = state->selected - middle;
         }
         // Don't go below zero.
-        else if ( state->filtered_lines > state->menu_lines){
+        else if ( state->filtered_lines > state->menu_lines ) {
             offset = state->filtered_lines - state->menu_lines;
         }
     }
@@ -738,13 +738,13 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
         element_width = ( element_width - ( columns - 1 ) * config.line_margin ) / columns;
     }
 
-    int          element_height = state->line_height * config.element_height;
-    int          y_offset       = state->top_offset;
-    int          x_offset       = state->border;
+    int element_height = state->line_height * config.element_height;
+    int y_offset       = state->top_offset;
+    int x_offset       = state->border;
 
     if ( state->rchanged ) {
         // Move, resize visible boxes and show them.
-        for ( i = 0; i < max_elements && (i+offset) < state->filtered_lines; i++ ) {
+        for ( i = 0; i < max_elements && ( i + offset ) < state->filtered_lines; i++ ) {
             unsigned int ex = ( ( i ) / state->max_rows ) * ( element_width + config.line_margin );
             unsigned int ey = ( ( i ) % state->max_rows ) * ( element_height + config.line_margin );
             // Move it around.
@@ -764,7 +764,7 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
     }
     else{
         // Only do basic redrawing + highlight of row.
-        for ( i = 0; i < max_elements && (i+offset) < state->filtered_lines; i++ ) {
+        for ( i = 0; i < max_elements && ( i + offset ) < state->filtered_lines; i++ ) {
             TextBoxFontType type   = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
             int             fstate = 0;
             mode_get_display_value ( state->sw, state->line_map[i + offset], &fstate, FALSE );
