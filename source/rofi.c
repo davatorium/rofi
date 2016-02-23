@@ -252,9 +252,6 @@ void process_result ( RofiViewState *state )
         }
         // Cleanup
         g_free ( input );
-        for ( unsigned int i = 0; i < num_modi; i++ ) {
-            mode_destroy ( modi[i] );
-        }
     }
 }
 void process_result_error  ( RofiViewState *state )
@@ -356,6 +353,9 @@ static int grab_global_keybindings ()
  */
 static void cleanup ()
 {
+    for ( unsigned int i = 0; i < num_modi; i++ ) {
+        mode_destroy ( modi[i] );
+    }
     rofi_view_workers_finalize ();
     if ( main_loop != NULL  ) {
         if ( main_loop_source ) {
@@ -664,9 +664,9 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         config.sidebar_mode = FALSE;
         int retv = run_dmenu ();
         if ( retv ) {
-            rofi_set_return_code ( EXIT_SUCCESS ); 
+            rofi_set_return_code ( EXIT_SUCCESS );
             // Directly exit.
-            g_main_loop_quit(main_loop);
+            g_main_loop_quit ( main_loop );
         }
     }
     else if ( find_arg_str (  "-e", &( msg ) ) ) {

@@ -537,6 +537,7 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
 
             window_send_message ( display, root, rmpd->ids->array[selected_line], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
                                   SubstructureNotifyMask | SubstructureRedirectMask, 0 );
+            XFlush ( display );
         }
     }
     return retv;
