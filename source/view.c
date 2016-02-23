@@ -1620,7 +1620,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->update = TRUE;
     rofi_view_refilter ( state );
 
-    rofi_view_update ( state );
+//    rofi_view_update ( state );
     if ( sncontext != NULL ) {
         sn_launchee_context_complete ( sncontext );
     }
@@ -1745,6 +1745,7 @@ void rofi_view_cleanup ()
         main_window = None;
         XDestroyIC ( xic );
         XCloseIM ( xim );
+        XFlush ( display );
     }
 
     if ( map != None ) {
