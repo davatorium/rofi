@@ -1328,7 +1328,7 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
             len = xkb_state_key_get_utf8 ( xkb->state, xkpe->detail, pad, sizeof ( pad ) );
         }
 
-        unsigned int modstate = xkpe->state;
+        unsigned int modstate = x11_canonalize_mask ( xkpe->state );
 
         if ( key != XKB_KEY_NoSymbol ) {
             // Handling of paste

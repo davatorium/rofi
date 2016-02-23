@@ -54,22 +54,29 @@
                    h1 )    ( OVERLAP ( ( x ), ( w ), ( x1 ), \
                                        ( w1 ) ) && OVERLAP ( ( y ), ( h ), ( y1 ), ( h1 ) ) )
 #include "x11-helper.h"
+#include "xkb-internal.h"
 
-Atom            netatoms[NUM_NETATOMS];
-const char      *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
-// Mask indicating num-lock.
-unsigned int    NumlockMask  = 0;
-unsigned int    AltMask      = 0;
-unsigned int    AltRMask     = 0;
-unsigned int    SuperRMask   = 0;
-unsigned int    SuperLMask   = 0;
-unsigned int    HyperRMask   = 0;
-unsigned int    HyperLMask   = 0;
-unsigned int    MetaRMask    = 0;
-unsigned int    MetaLMask    = 0;
-unsigned int    CombinedMask = 0;
+enum
+{
+    X11MOD_SHIFT,
+    X11MOD_CONTROL,
+    X11MOD_ALT,
+    X11MOD_ALTR,
+    X11MOD_METAR,
+    X11MOD_METAL,
+    X11MOD_SUPERR,
+    X11MOD_SUPERL,
+    X11MOD_HYPERR,
+    X11MOD_HYPERL,
+    X11MOD_ANY,
+    NUM_X11MOD
+};
 
-extern Colormap map;
+Atom                netatoms[NUM_NETATOMS];
+const char          *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
+static unsigned int x11_mod_masks[NUM_X11MOD];
+
+extern Colormap     map;
 
 // retrieve a property of any type from a window
 int window_get_prop ( Display *display, Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes )
@@ -346,16 +353,9 @@ void release_keyboard ( Display *display )
     XUngrabKeyboard ( display, CurrentTime );
 }
 
-/**
- * @param display The connection to the X server.
- *
- * Figure out what entry in the modifiermap is NumLock.
- * This sets global variable: NumlockMask
- */
-static void x11_figure_out_numlock_mask ( Display *display )
+static void x11_figure_out_masks ( Display *display )
 {
     XModifierKeymap *modmap   = XGetModifierMapping ( display );
-    KeyCode         kc        = XKeysymToKeycode ( display, XK_Num_Lock );
     KeyCode         kc_altl   = XKeysymToKeycode ( display, XK_Alt_L );
     KeyCode         kc_altr   = XKeysymToKeycode ( display, XK_Alt_R );
     KeyCode         kc_superr = XKeysymToKeycode ( display, XK_Super_R );
@@ -364,41 +364,58 @@ static void x11_figure_out_numlock_mask ( Display *display )
     KeyCode         kc_hyperr = XKeysymToKeycode ( display, XK_Hyper_R );
     KeyCode         kc_metal  = XKeysymToKeycode ( display, XK_Meta_L );
     KeyCode         kc_metar  = XKeysymToKeycode ( display, XK_Meta_R );
+
+    x11_mod_masks[X11MOD_SHIFT]   |= ShiftMask;
+    x11_mod_masks[X11MOD_CONTROL] |= ControlMask;
     for ( int i = 0; i < 8; i++ ) {
         for ( int j = 0; j < ( int ) modmap->max_keypermod; j++ ) {
-            if ( kc && modmap->modifiermap[i * modmap->max_keypermod + j] == kc ) {
-                NumlockMask = ( 1 << i );
-            }
             if ( kc_altl && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_altl ) {
-                AltMask |= ( 1 << i );
+                x11_mod_masks[X11MOD_ALT] |= ( 1 << i );
             }
             if ( kc_altr && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_altr ) {
-                AltRMask |= ( 1 << i );
+                x11_mod_masks[X11MOD_ALTR] |= ( 1 << i );
             }
             if ( kc_superr && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_superr ) {
-                SuperRMask |= ( 1 << i );
+                x11_mod_masks[X11MOD_SUPERR] |= ( 1 << i );
             }
             if ( kc_superl && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_superl ) {
-                SuperLMask |= ( 1 << i );
+                x11_mod_masks[X11MOD_SUPERL] |= ( 1 << i );
             }
             if ( kc_hyperr && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_hyperr ) {
-                HyperRMask |= ( 1 << i );
+                x11_mod_masks[X11MOD_HYPERR] |= ( 1 << i );
             }
             if ( kc_hyperl && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_hyperl ) {
-                HyperLMask |= ( 1 << i );
+                x11_mod_masks[X11MOD_HYPERL] |= ( 1 << i );
             }
             if ( kc_metar && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_metar ) {
-                MetaRMask |= ( 1 << i );
+                x11_mod_masks[X11MOD_METAR] |= ( 1 << i );
             }
             if ( kc_metal && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_metal ) {
-                MetaLMask |= ( 1 << i );
+                x11_mod_masks[X11MOD_METAL] |= ( 1 << i );
             }
         }
     }
-    // Combined mask, without NumLock
-    CombinedMask = ShiftMask | MetaLMask | MetaRMask | AltMask | AltRMask | SuperRMask | SuperLMask | HyperLMask | HyperRMask |
-                   ControlMask;
     XFreeModifiermap ( modmap );
+
+    gsize i;
+    for ( i = 0; i < X11MOD_ANY; ++i ) {
+        x11_mod_masks[X11MOD_ANY] |= x11_mod_mask[i];
+    }
+}
+
+unsigned int x11_canonalize_mask ( unsigned int mask )
+{
+    // Bits 13 and 14 of the modifiers together are the group number, and
+    // should be ignored when looking up key bindings
+    mask &= x11_mod_mask[X11MOD_ANY];
+
+    gsize i;
+    for ( i = 0; i < X11MOD_ANY; ++i ) {
+        if ( mask & x11_mod_mask[i] ) {
+            mask |= x11_mod_mask[i];
+        }
+    }
+    return mask;
 }
 
 // convert a Mod+key arg to mod mask and keysym
@@ -408,56 +425,56 @@ void x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key )
     unsigned int modmask = 0;
 
     if ( strcasestr ( combo, "shift" ) ) {
-        modmask |= ShiftMask;
+        modmask |= x11_mod_masks[X11MOD_SHIFT];
     }
     if ( strcasestr ( combo, "control" ) ) {
-        modmask |= ControlMask;
+        modmask |= x11_mod_masks[X11MOD_CONTROL];
     }
     if ( strcasestr ( combo, "alt" ) ) {
-        modmask |= AltMask;
-        if ( AltMask == 0 ) {
+        modmask |= x11_mod_masks[X11MOD_ALT];
+        if ( x11_mod_masks[X11MOD_ALT] == 0 ) {
             g_string_append_printf ( str, "X11 configured keyboard has no <b>Alt</b> key.\n" );
         }
     }
     if ( strcasestr ( combo, "altgr" ) ) {
-        modmask |= AltRMask;
-        if ( AltRMask == 0 ) {
+        modmask |= x11_mod_masks[X11MOD_ALTR];
+        if ( x11_mod_masks[X11MOD_ALTR] == 0 ) {
             g_string_append_printf ( str, "X11 configured keyboard has no <b>AltGR</b> key.\n" );
         }
     }
     if ( strcasestr ( combo, "superr" ) ) {
-        modmask |= SuperRMask;
-        if ( SuperRMask == 0 ) {
+        modmask |= x11_mod_masks[X11MOD_SUPERR];
+        if ( x11_mod_masks[X11MOD_SUPERR] == 0 ) {
             g_string_append_printf ( str, "X11 configured keyboard has no <b>SuperR</b> key.\n" );
         }
     }
     if ( strcasestr ( combo, "superl" ) ) {
-        modmask |= SuperLMask;
-        if ( SuperLMask == 0 ) {
+        modmask |= x11_mod_masks[X11MOD_SUPERL];
+        if ( x11_mod_masks[X11MOD_SUPERL] == 0 ) {
             g_string_append_printf ( str, "X11 configured keyboard has no <b>SuperL</b> key.\n" );
         }
     }
     if ( strcasestr ( combo, "metal" ) ) {
-        modmask |= MetaLMask;
-        if ( MetaLMask == 0 ) {
+        modmask |= x11_mod_masks[X11MOD_METAL];
+        if ( x11_mod_masks[X11MOD_METAL] == 0 ) {
             g_string_append_printf ( str, "X11 configured keyboard has no <b>MetaL</b> key.\n" );
         }
     }
     if ( strcasestr ( combo, "metar" ) ) {
-        modmask |= MetaRMask;
-        if ( MetaRMask == 0 ) {
+        modmask |= x11_mod_masks[X11MOD_METAR];
+        if ( x11_mod_masks[X11MOD_METAR] == 0 ) {
             g_string_append_printf ( str, "X11 configured keyboard has no <b>MetaR</b> key.\n" );
         }
     }
     if ( strcasestr ( combo, "hyperl" ) ) {
-        modmask |= HyperLMask;
-        if ( HyperLMask == 0 ) {
+        modmask |= x11_mod_masks[X11MOD_HYPERL];
+        if ( x11_mod_masks[X11MOD_HYPERL] == 0 ) {
             g_string_append_printf ( str, "X11 configured keyboard has no <b>HyperL</b> key.\n" );
         }
     }
     if ( strcasestr ( combo, "hyperr" ) ) {
-        modmask |= HyperRMask;
-        if ( HyperRMask == 0 ) {
+        modmask |= x11_mod_masks[X11MOD_HYPERR];
+        if ( x11_mod_masks[X11MOD_HYPERR] == 0 ) {
             g_string_append_printf ( str, "X11 configured keyboard has no <b>HyperR</b> key.\n" );
         }
     }
@@ -543,7 +560,7 @@ void x11_setup ( Display *display )
     XSync ( display, False );
 
     // determine numlock mask so we can bind on keys with and without it
-    x11_figure_out_numlock_mask ( display );
+    x11_figure_out_masks ( display );
     x11_create_frequently_used_atoms ( display );
 }
 

@@ -26,8 +26,7 @@ typedef struct _DefaultBinding
     char             *keybinding;
 } DefaultBinding;
 
-ActionBindingEntry  abe[NUM_ABE];
-extern unsigned int CombinedMask;
+ActionBindingEntry abe[NUM_ABE];
 
 /**
  * LIST OF DEFAULT SETTINGS
@@ -139,12 +138,8 @@ int abe_test_action ( KeyBindingAction action, unsigned int mask, xkb_keysym_t k
 
     for ( int iter = 0; iter < akb->num_bindings; iter++ ) {
         const KeyBinding * const kb = &( akb->kb[iter] );
-        if ( kb->keysym == key ) {
-            // Bits 13 and 14 of the modifiers together are the group number, and
-            // should be ignored when looking up key bindings
-            if ( ( mask & ( CombinedMask ) ) == kb->modmask ) {
-                return TRUE;
-            }
+        if ( ( kb->keysym == key ) && ( kb->modmask == mask ) ) {
+            return TRUE;
         }
     }
 

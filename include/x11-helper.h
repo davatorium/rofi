@@ -100,6 +100,13 @@ void release_keyboard ( Display *display );
 int take_keyboard ( Display *display, Window w );
 
 /**
+ * @param mask The mask to canonilize
+ *
+ * @return The canonilized mask
+ */
+unsigned int x11_canonalize_mask ( unsigned int mask );
+
+/**
  * @param combo String representing the key combo
  * @param mod [out]  The modifier specified (or AnyModifier if not specified)
  * @param key [out]  The key specified
