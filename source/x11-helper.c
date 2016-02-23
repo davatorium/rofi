@@ -61,13 +61,9 @@ enum
     X11MOD_SHIFT,
     X11MOD_CONTROL,
     X11MOD_ALT,
-    X11MOD_ALTR,
-    X11MOD_METAR,
-    X11MOD_METAL,
-    X11MOD_SUPERR,
-    X11MOD_SUPERL,
-    X11MOD_HYPERR,
-    X11MOD_HYPERL,
+    X11MOD_META,
+    X11MOD_SUPER,
+    X11MOD_HYPER,
     X11MOD_ANY,
     NUM_X11MOD
 };
@@ -373,25 +369,25 @@ static void x11_figure_out_masks ( Display *display )
                 x11_mod_masks[X11MOD_ALT] |= ( 1 << i );
             }
             if ( kc_altr && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_altr ) {
-                x11_mod_masks[X11MOD_ALTR] |= ( 1 << i );
+                x11_mod_masks[X11MOD_ALT] |= ( 1 << i );
             }
             if ( kc_superr && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_superr ) {
-                x11_mod_masks[X11MOD_SUPERR] |= ( 1 << i );
+                x11_mod_masks[X11MOD_SUPER] |= ( 1 << i );
             }
             if ( kc_superl && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_superl ) {
-                x11_mod_masks[X11MOD_SUPERL] |= ( 1 << i );
+                x11_mod_masks[X11MOD_SUPER] |= ( 1 << i );
             }
             if ( kc_hyperr && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_hyperr ) {
-                x11_mod_masks[X11MOD_HYPERR] |= ( 1 << i );
+                x11_mod_masks[X11MOD_HYPER] |= ( 1 << i );
             }
             if ( kc_hyperl && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_hyperl ) {
-                x11_mod_masks[X11MOD_HYPERL] |= ( 1 << i );
+                x11_mod_masks[X11MOD_HYPER] |= ( 1 << i );
             }
             if ( kc_metar && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_metar ) {
-                x11_mod_masks[X11MOD_METAR] |= ( 1 << i );
+                x11_mod_masks[X11MOD_META] |= ( 1 << i );
             }
             if ( kc_metal && modmap->modifiermap[i * modmap->max_keypermod + j] == kc_metal ) {
-                x11_mod_masks[X11MOD_METAL] |= ( 1 << i );
+                x11_mod_masks[X11MOD_META] |= ( 1 << i );
             }
         }
     }
@@ -436,46 +432,22 @@ void x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key )
             g_string_append_printf ( str, "X11 configured keyboard has no <b>Alt</b> key.\n" );
         }
     }
-    if ( strcasestr ( combo, "altgr" ) ) {
-        modmask |= x11_mod_masks[X11MOD_ALTR];
-        if ( x11_mod_masks[X11MOD_ALTR] == 0 ) {
-            g_string_append_printf ( str, "X11 configured keyboard has no <b>AltGR</b> key.\n" );
+    if ( strcasestr ( combo, "super" ) ) {
+        modmask |= x11_mod_masks[X11MOD_SUPER];
+        if ( x11_mod_masks[X11MOD_SUPER] == 0 ) {
+            g_string_append_printf ( str, "X11 configured keyboard has no <b>Super</b> key.\n" );
         }
     }
-    if ( strcasestr ( combo, "superr" ) ) {
-        modmask |= x11_mod_masks[X11MOD_SUPERR];
-        if ( x11_mod_masks[X11MOD_SUPERR] == 0 ) {
-            g_string_append_printf ( str, "X11 configured keyboard has no <b>SuperR</b> key.\n" );
+    if ( strcasestr ( combo, "meta" ) ) {
+        modmask |= x11_mod_masks[X11MOD_META];
+        if ( x11_mod_masks[X11MOD_META] == 0 ) {
+            g_string_append_printf ( str, "X11 configured keyboard has no <b>Meta</b> key.\n" );
         }
     }
-    if ( strcasestr ( combo, "superl" ) ) {
-        modmask |= x11_mod_masks[X11MOD_SUPERL];
-        if ( x11_mod_masks[X11MOD_SUPERL] == 0 ) {
-            g_string_append_printf ( str, "X11 configured keyboard has no <b>SuperL</b> key.\n" );
-        }
-    }
-    if ( strcasestr ( combo, "metal" ) ) {
-        modmask |= x11_mod_masks[X11MOD_METAL];
-        if ( x11_mod_masks[X11MOD_METAL] == 0 ) {
-            g_string_append_printf ( str, "X11 configured keyboard has no <b>MetaL</b> key.\n" );
-        }
-    }
-    if ( strcasestr ( combo, "metar" ) ) {
-        modmask |= x11_mod_masks[X11MOD_METAR];
-        if ( x11_mod_masks[X11MOD_METAR] == 0 ) {
-            g_string_append_printf ( str, "X11 configured keyboard has no <b>MetaR</b> key.\n" );
-        }
-    }
-    if ( strcasestr ( combo, "hyperl" ) ) {
-        modmask |= x11_mod_masks[X11MOD_HYPERL];
-        if ( x11_mod_masks[X11MOD_HYPERL] == 0 ) {
-            g_string_append_printf ( str, "X11 configured keyboard has no <b>HyperL</b> key.\n" );
-        }
-    }
-    if ( strcasestr ( combo, "hyperr" ) ) {
-        modmask |= x11_mod_masks[X11MOD_HYPERR];
-        if ( x11_mod_masks[X11MOD_HYPERR] == 0 ) {
-            g_string_append_printf ( str, "X11 configured keyboard has no <b>HyperR</b> key.\n" );
+    if ( strcasestr ( combo, "hyper" ) ) {
+        modmask |= x11_mod_masks[X11MOD_HYPER];
+        if ( x11_mod_masks[X11MOD_HYPER] == 0 ) {
+            g_string_append_printf ( str, "X11 configured keyboard has no <b>Hyper</b> key.\n" );
         }
     }
     int seen_mod = FALSE;
