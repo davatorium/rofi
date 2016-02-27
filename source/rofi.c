@@ -496,19 +496,19 @@ static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
 }
 
 static int error_trap_depth = 0;
-static void error_trap_push ( G_GNUC_UNUSED SnDisplay *display, G_GNUC_UNUSED Display   *xdisplay )
+static void error_trap_push ( G_GNUC_UNUSED SnDisplay *display, G_GNUC_UNUSED xcb_connection_t *xdisplay )
 {
     ++error_trap_depth;
 }
 
-static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, Display   *xdisplay )
+static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, xcb_connection_t *xdisplay )
 {
     if ( error_trap_depth == 0 ) {
         fprintf ( stderr, "Error trap underflow!\n" );
         exit ( EXIT_FAILURE );
     }
 
-    XSync ( xdisplay, False ); /* get all errors out of the queue */
+    xcb_flush(xdisplay);
     --error_trap_depth;
 }
 
@@ -734,10 +734,10 @@ int main ( int argc, char *argv[] )
 
     TICK_N ( "Setup mainloop" );
     // startup not.
-    sndisplay = sn_display_new ( display, error_trap_push, error_trap_pop );
+    sndisplay = sn_xcb_display_new ( xcb_connection, error_trap_push, error_trap_pop );
 
     if ( sndisplay != NULL ) {
-        sncontext = sn_launchee_context_new_from_environment ( sndisplay, DefaultScreen ( display ) );
+        sncontext = sn_launchee_context_new_from_environment ( sndisplay, xcb_screen_nbr);
     }
     TICK_N ( "Startup Notification" );
 
