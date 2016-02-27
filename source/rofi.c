@@ -36,6 +36,7 @@
 #include <locale.h>
 #include <xcb/xcb.h>
 #include <xcb/xcb_aux.h>
+#include <xcb/xcb_ewmh.h>
 #include <xcb/xkb.h>
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-compose.h>
@@ -76,6 +77,7 @@ const char        *cache_dir      = NULL;
 SnDisplay         *sndisplay      = NULL;
 SnLauncheeContext *sncontext      = NULL;
 xcb_connection_t  *xcb_connection = NULL;
+xcb_ewmh_connection_t xcb_ewmh;
 xcb_screen_t      *xcb_screen     = NULL;
 struct xkb_stuff  xkb             = { NULL };
 Display           *display     = NULL;
@@ -656,6 +658,13 @@ int main ( int argc, char *argv[] )
 
     xcb_connection = XGetXCBConnection ( display );
     xcb_screen     = xcb_aux_get_screen ( xcb_connection, DefaultScreen ( display ) );
+
+    xcb_intern_atom_cookie_t *ac = xcb_ewmh_init_atoms(xcb_connection, &xcb_ewmh);
+    xcb_generic_error_t **errors = NULL;
+    xcb_ewmh_init_atoms_replies(&xcb_ewmh, ac, errors);
+    if (errors){
+        fprintf(stderr, "Failed to create EWMH atoms\n");
+    }
 
     if ( xkb_x11_setup_xkb_extension ( xcb_connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
                                        XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS, NULL, NULL, &xkb.first_event, NULL ) < 0 ) {

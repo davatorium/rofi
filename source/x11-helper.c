@@ -150,9 +150,9 @@ int window_get_atom_prop ( Display *display, Window w, Atom atom, Atom *list, in
     return window_get_prop ( display, w, atom, &type, &items, list, count * sizeof ( Atom ) ) && type == XA_ATOM ? items : 0;
 }
 
-void window_set_atom_prop ( Display *display, Window w, Atom prop, Atom *atoms, int count )
+void window_set_atom_prop ( xcb_connection_t *xcb_connection, Window w, xcb_atom_t prop, xcb_atom_t *atoms, int count )
 {
-    XChangeProperty ( display, w, prop, XA_ATOM, 32, PropModeReplace, ( unsigned char * ) atoms, count );
+    xcb_change_property ( xcb_connection, XCB_PROP_MODE_REPLACE, w, prop, XCB_ATOM_ATOM, 32, count, atoms);
 }
 
 int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned long *list, int count )

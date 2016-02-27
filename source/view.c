@@ -36,6 +36,7 @@
 #include <locale.h>
 #include <xkbcommon/xkbcommon-x11.h>
 #include <xcb/xkb.h>
+#include <xcb/xcb_ewmh.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -71,6 +72,7 @@ extern Display           *display;
 extern xcb_connection_t  *xcb_connection;
 extern xcb_screen_t      *xcb_screen;
 extern SnLauncheeContext *sncontext;
+extern xcb_ewmh_connection_t xcb_ewmh;
 
 GThreadPool              *tpool = NULL;
 
@@ -209,8 +211,8 @@ void rofi_view_queue_redraw ( void )
 {
     if ( current_active_menu ) {
         current_active_menu->update = TRUE;
-        XClearArea ( display, main_window, 0, 0, 1, 1, True );
-        XFlush ( display );
+        xcb_clear_area ( xcb_connection, main_window, 1, 0, 0, 1, 1 );
+        xcb_flush ( xcb_connection );
     }
 }
 
@@ -250,12 +252,14 @@ void rofi_view_free ( RofiViewState *state )
 {
     // Do this here?
     // Wait for final release?
+#if 0
     if ( !state->skip_absorb ) {
         XEvent ev;
         do {
             XNextEvent ( display, &ev );
         } while ( ev.type != KeyRelease );
     }
+#endif
     textbox_free ( state->text );
     textbox_free ( state->prompt_tb );
     textbox_free ( state->case_indicator );
@@ -542,23 +546,24 @@ static Window __create_window ( xcb_connection_t *xcb_connection, xcb_screen_t *
 
     // // make it an unmanaged window
     if ( ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) && !config.fullscreen ) {
-        window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE], &netatoms[_NET_WM_STATE_ABOVE], 1 );
-        XSetWindowAttributes sattr = { .override_redirect = True };
-        XChangeWindowAttributes ( display, box, CWOverrideRedirect, &sattr );
+        window_set_atom_prop ( xcb_connection, box, xcb_ewmh._NET_WM_STATE, &xcb_ewmh._NET_WM_STATE_ABOVE, 1 );
+        uint32_t values[] = {1};
+        xcb_change_window_attributes ( xcb_connection, box, XCB_CW_OVERRIDE_REDIRECT, values);
     }
     else{
-        window_set_atom_prop ( display, box, netatoms[_NET_WM_WINDOW_TYPE], &netatoms[_NET_WM_WINDOW_TYPE_NORMAL], 1 );
+        window_set_atom_prop ( xcb_connection, box, xcb_ewmh._NET_WM_WINDOW_TYPE, &xcb_ewmh._NET_WM_WINDOW_TYPE_NORMAL, 1 );
     }
     if ( config.fullscreen ) {
-        Atom atoms[] = {
-            netatoms[_NET_WM_STATE_FULLSCREEN],
-            netatoms[_NET_WM_STATE_ABOVE]
+        xcb_atom_t atoms[] = {
+            xcb_ewmh._NET_WM_STATE_FULLSCREEN,
+            xcb_ewmh._NET_WM_STATE_ABOVE
         };
-        window_set_atom_prop ( display, box, netatoms[_NET_WM_STATE], atoms, sizeof ( atoms ) / sizeof ( Atom ) );
+        window_set_atom_prop ( xcb_connection, box, xcb_ewmh._NET_WM_STATE, atoms, sizeof ( atoms ) / sizeof ( Atom ) );
     }
 
     // Set the WM_NAME
-    XStoreName ( display, box, "rofi" );
+    xcb_change_property ( xcb_connection, XCB_PROP_MODE_REPLACE, box, xcb_ewmh._NET_WM_NAME, xcb_ewmh.UTF8_STRING, 8, 4,"rofi");
+    xcb_change_property ( xcb_connection, XCB_PROP_MODE_REPLACE, box, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, 4,"rofi");
 
     x11_set_window_opacity ( display, box, config.window_opacity );
     return box;

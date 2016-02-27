@@ -28,7 +28,7 @@ int window_get_prop ( Display *display, Window w, Atom prop,
 char* window_get_text_prop ( Display *display, Window w, Atom atom );
 
 int window_get_atom_prop ( Display *display, Window w, Atom atom, Atom *list, int count );
-void window_set_atom_prop ( Display *display, Window w, Atom atom, Atom *atoms, int count );
+void window_set_atom_prop ( xcb_connection_t *xcb_connection, Window w, xcb_atom_t prop, xcb_atom_t *atoms, int count );
 int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned long *list,
                                int count );
 
