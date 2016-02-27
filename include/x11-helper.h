@@ -73,17 +73,17 @@ typedef struct
     int l, r, t, b;
 } workarea;
 
-void monitor_active ( Display *display, workarea *mon );
+void monitor_active ( xcb_connection_t *xcb_connection, workarea *mon );
 
 int window_send_message ( Display *display, Window target, Window subject,
                           Atom atom, unsigned long protocol,
                           unsigned long mask, Time time );
 
 // find the dimensions of the monitor displaying point x,y
-void monitor_dimensions ( Display *display, Screen *screen, int x, int y, workarea *mon );
+void monitor_dimensions ( xcb_connection_t *xcb_connection, xcb_screen_t *screen, int x, int y, workarea *mon );
 // Find the dimensions of the monitor specified by user.
-int monitor_get_dimension ( Display *display, Screen *screen, int monitor, workarea *mon );
-int monitor_get_smallest_size ( Display *display );
+int monitor_get_dimension ( xcb_connection_t *xcb_connection, xcb_screen_t *screen, int monitor, workarea *mon );
+int monitor_get_smallest_size ( xcb_connection_t *xcb_connection );
 
 /**
  * @param display The display.

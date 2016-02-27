@@ -79,6 +79,7 @@ SnLauncheeContext *sncontext      = NULL;
 xcb_connection_t  *xcb_connection = NULL;
 xcb_ewmh_connection_t xcb_ewmh;
 xcb_screen_t      *xcb_screen     = NULL;
+int xcb_screen_nbr = -1;
 struct xkb_stuff  xkb             = { NULL };
 Display           *display     = NULL;
 char              *display_str = NULL;
@@ -658,6 +659,7 @@ int main ( int argc, char *argv[] )
 
     xcb_connection = XGetXCBConnection ( display );
     xcb_screen     = xcb_aux_get_screen ( xcb_connection, DefaultScreen ( display ) );
+    xcb_screen_nbr = DefaultScreen (display);
 
     xcb_intern_atom_cookie_t *ac = xcb_ewmh_init_atoms(xcb_connection, &xcb_ewmh);
     xcb_generic_error_t **errors = NULL;

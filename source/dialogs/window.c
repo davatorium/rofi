@@ -34,6 +34,7 @@
 #include <strings.h>
 #include <string.h>
 #include <errno.h>
+#include <xcb/xcb.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
@@ -55,6 +56,7 @@
 #define CLIENTWINDOWTYPE    10
 #define CLIENTROLE          50
 
+extern xcb_screen_t *xcb_screen;
 // a manageable window
 typedef struct
 {
@@ -306,7 +308,7 @@ static client* window_client ( Display *display, Window win )
         XFree ( wh );
     }
 
-    monitor_dimensions ( display, c->xattr.screen, c->xattr.x, c->xattr.y, &c->monitor );
+    monitor_dimensions ( xcb_connection, xcb_screen, c->xattr.x, c->xattr.y, &c->monitor );
     winlist_append ( cache_client, c->window, c );
     return c;
 }

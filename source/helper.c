@@ -39,12 +39,15 @@
 #include <sys/stat.h>
 #include <pwd.h>
 #include <ctype.h>
+#include <xcb/xcb.h>
 #include "helper.h"
 #include "settings.h"
 #include "x11-helper.h"
 #include "rofi.h"
 #include "view.h"
 
+extern xcb_connection_t *xcb_connection;
+extern xcb_screen_t *xcb_screen;
 static int  stored_argc   = 0;
 static char **stored_argv = NULL;
 
@@ -559,10 +562,10 @@ int config_sanity_check ( Display *display )
 
     // Check size
     {
-        int ssize = monitor_get_smallest_size ( display );
+        int ssize = monitor_get_smallest_size ( xcb_connection );
         if ( config.monitor >= 0 ) {
             workarea mon;
-            if ( monitor_get_dimension ( display, DefaultScreenOfDisplay ( display ), config.monitor, &mon ) ) {
+            if ( monitor_get_dimension ( xcb_connection, xcb_screen, config.monitor, &mon ) ) {
                 ssize = MIN ( mon.w, mon.h );
             }
             else{

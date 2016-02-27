@@ -35,6 +35,7 @@
 #include <cairo.h>
 
 #include <xcb/xcb.h>
+#include <xcb/xinerama.h>
 #include <xcb/xcb_ewmh.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
@@ -44,7 +45,6 @@
 #include <X11/Xproto.h>
 #include <X11/keysym.h>
 #include <X11/XKBlib.h>
-#include <X11/extensions/Xinerama.h>
 #include "settings.h"
 
 #include <rofi.h>
@@ -164,75 +164,126 @@ int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned l
     Atom type; int items;
     return window_get_prop ( display, w, atom, &type, &items, list, count * sizeof ( unsigned long ) ) && type == XA_CARDINAL ? items : 0;
 }
-int monitor_get_smallest_size ( Display *display )
+extern xcb_screen_t *xcb_screen;
+extern int xcb_screen_nbr;
+int monitor_get_smallest_size ( xcb_connection_t *xcb_connection )
 {
-    int size = MIN ( WidthOfScreen ( DefaultScreenOfDisplay ( display ) ),
-                     HeightOfScreen ( DefaultScreenOfDisplay ( display ) ) );
-    // locate the current monitor
-    if ( XineramaIsActive ( display ) ) {
-        int                monitors;
-        XineramaScreenInfo *info = XineramaQueryScreens ( display, &monitors );
-
-        if ( info ) {
-            for ( int i = 0; i < monitors; i++ ) {
-                size = MIN ( info[i].width, size );
-                size = MIN ( info[i].height, size );
-            }
-        }
-        XFree ( info );
+    xcb_generic_error_t *error;
+    int size = MIN (xcb_screen->width_in_pixels, xcb_screen->height_in_pixels);
+    xcb_xinerama_is_active_cookie_t is_active_req = xcb_xinerama_is_active(xcb_connection);
+    xcb_xinerama_is_active_reply_t *is_active = xcb_xinerama_is_active_reply(xcb_connection, is_active_req, &error);
+    if (error) {
+        fprintf(stderr, "Couldn't query Xinerama\n");
+        return size;
     }
+    if (!is_active->state) {
+        free ( is_active );
+        return size;
+    }
+    free ( is_active );
+
+    xcb_xinerama_query_screens_cookie_t cookie_screen;
+    cookie_screen = xcb_xinerama_query_screens(xcb_connection);
+    xcb_xinerama_query_screens_reply_t *query_screens;
+    query_screens = xcb_xinerama_query_screens_reply(xcb_connection, cookie_screen, &error);
+    if (error) {
+        fprintf(stderr, "Error getting screen info\n");
+        return size;
+    }
+    xcb_xinerama_screen_info_t *screens = xcb_xinerama_query_screens_screen_info(query_screens);
+    int len = xcb_xinerama_query_screens_screen_info_length(query_screens);
+    for (int i = 0; i < len; i++) {
+        xcb_xinerama_screen_info_t *info = &screens[i];
+        size =  MIN ( info->width, size );
+        size =  MIN ( info->height, size );
+    }
+    free(query_screens);
 
     return size;
 }
-int monitor_get_dimension ( Display *display, Screen *screen, int monitor, workarea *mon )
+int monitor_get_dimension ( xcb_connection_t *xcb_connection, xcb_screen_t *screen, int monitor, workarea *mon )
 {
+    xcb_generic_error_t *error = NULL;
     memset ( mon, 0, sizeof ( workarea ) );
-    mon->w = WidthOfScreen ( screen );
-    mon->h = HeightOfScreen ( screen );
-    // locate the current monitor
-    if ( XineramaIsActive ( display ) ) {
-        int                monitors;
-        XineramaScreenInfo *info = XineramaQueryScreens ( display, &monitors );
+    mon->w = screen->width_in_pixels;
+    mon->h =  screen->height_in_pixels;
 
-        if ( info ) {
-            if ( monitor >= 0 && monitor < monitors ) {
-                mon->x = info[monitor].x_org;
-                mon->y = info[monitor].y_org;
-                mon->w = info[monitor].width;
-                mon->h = info[monitor].height;
-                return TRUE;
-            }
-            XFree ( info );
-        }
+    xcb_xinerama_is_active_cookie_t is_active_req = xcb_xinerama_is_active(xcb_connection);
+    xcb_xinerama_is_active_reply_t *is_active = xcb_xinerama_is_active_reply(xcb_connection, is_active_req, &error);
+    if (error) {
+        fprintf(stderr, "Error getting screen info\n");
+        return FALSE;
     }
+    if (!is_active->state) {
+        free ( is_active );
+        return FALSE;
+    }
+    free ( is_active );
+
+    xcb_xinerama_query_screens_cookie_t cookie_screen;
+    cookie_screen = xcb_xinerama_query_screens(xcb_connection);
+    xcb_xinerama_query_screens_reply_t *query_screens;
+    query_screens = xcb_xinerama_query_screens_reply(xcb_connection, cookie_screen, &error);
+    if (error) {
+        fprintf(stderr, "Error getting screen info\n");
+        return FALSE;
+    }
+    xcb_xinerama_screen_info_t *screens = xcb_xinerama_query_screens_screen_info(query_screens);
+    int len = xcb_xinerama_query_screens_screen_info_length(query_screens);
+    if ( monitor < len ) {
+        xcb_xinerama_screen_info_t *info = &screens[monitor];
+        mon->w = info->width;
+        mon->h = info->height;
+        mon->x = info->x_org;
+        mon->y = info->y_org;
+        free(query_screens);
+        return TRUE;
+    }
+    free(query_screens);
+
     return FALSE;
 }
 // find the dimensions of the monitor displaying point x,y
-void monitor_dimensions ( Display *display, Screen *screen, int x, int y, workarea *mon )
+void monitor_dimensions ( xcb_connection_t *xcb_connection, xcb_screen_t *screen, int x, int y, workarea *mon )
 {
+    xcb_generic_error_t *error = NULL;
     memset ( mon, 0, sizeof ( workarea ) );
-    mon->w = WidthOfScreen ( screen );
-    mon->h = HeightOfScreen ( screen );
+    mon->w = screen->width_in_pixels;
+    mon->h = screen->height_in_pixels;
 
-    // locate the current monitor
-    if ( XineramaIsActive ( display ) ) {
-        int                monitors;
-        XineramaScreenInfo *info = XineramaQueryScreens ( display, &monitors );
-
-        if ( info ) {
-            for ( int i = 0; i < monitors; i++ ) {
-                if ( INTERSECT ( x, y, 1, 1, info[i].x_org, info[i].y_org, info[i].width, info[i].height ) ) {
-                    mon->x = info[i].x_org;
-                    mon->y = info[i].y_org;
-                    mon->w = info[i].width;
-                    mon->h = info[i].height;
-                    break;
-                }
-            }
-        }
-
-        XFree ( info );
+    xcb_xinerama_is_active_cookie_t is_active_req = xcb_xinerama_is_active(xcb_connection);
+    xcb_xinerama_is_active_reply_t *is_active = xcb_xinerama_is_active_reply(xcb_connection, is_active_req, &error);
+    if (error) {
+        fprintf(stderr, "Couldn't query Xinerama\n");
+        return ;
     }
+    if (!is_active->state) {
+        free ( is_active );
+        return ;
+    }
+    free ( is_active );
+
+    xcb_xinerama_query_screens_cookie_t cookie_screen;
+    cookie_screen = xcb_xinerama_query_screens(xcb_connection);
+    xcb_xinerama_query_screens_reply_t *query_screens;
+    query_screens = xcb_xinerama_query_screens_reply(xcb_connection, cookie_screen, &error);
+    if (error) {
+        fprintf(stderr, "Error getting screen info\n");
+        return ;
+    }
+    xcb_xinerama_screen_info_t *screens = xcb_xinerama_query_screens_screen_info(query_screens);
+    int len = xcb_xinerama_query_screens_screen_info_length(query_screens);
+    for ( int i = 0; i < len; i++){
+        xcb_xinerama_screen_info_t *info = &screens[i];
+        if ( INTERSECT ( x, y, 1, 1, info->x_org, info->y_org, info->width, info->height ) ) {
+            mon->w = info->width;
+            mon->h = info->height;
+            mon->x = info->x_org;
+            mon->y = info->y_org;
+            break;
+        }
+    }
+    free(query_screens);
 }
 
 /**
@@ -243,7 +294,7 @@ void monitor_dimensions ( Display *display, Screen *screen, int x, int y, workar
  *
  * @returns 1 when found
  */
-static int pointer_get ( Display *display, Window root, int *x, int *y )
+static int pointer_get ( xcb_connection_t *xcb_connection, Window root, int *x, int *y )
 {
     *x = 0;
     *y = 0;
@@ -260,14 +311,13 @@ static int pointer_get ( Display *display, Window root, int *x, int *y )
 }
 
 // determine which monitor holds the active window, or failing that the mouse pointer
-void monitor_active ( Display *display, workarea *mon )
+void monitor_active ( xcb_connection_t *xcb_connection, workarea *mon )
 {
-    Screen *screen = DefaultScreenOfDisplay ( display );
-    Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
+    xcb_window_t root = xcb_screen->root;
     int    x, y;
 
     if ( config.monitor >= 0 ) {
-        if ( monitor_get_dimension ( display, screen, config.monitor, mon ) ) {
+        if ( monitor_get_dimension ( xcb_connection, xcb_screen, config.monitor, mon ) ) {
             return;
         }
         fprintf ( stderr, "Failed to find selected monitor.\n" );
@@ -275,13 +325,13 @@ void monitor_active ( Display *display, workarea *mon )
     // Get the current desktop.
     unsigned int current_desktop = 0;
     if ( config.monitor != -2 && xcb_ewmh_get_current_desktop_reply ( &xcb_ewmh,
-                xcb_ewmh_get_current_desktop( &xcb_ewmh, XScreenNumberOfScreen ( screen )), &current_desktop, NULL )) {
+                xcb_ewmh_get_current_desktop( &xcb_ewmh, xcb_screen_nbr), &current_desktop, NULL )) {
             xcb_ewmh_get_desktop_viewport_reply_t vp;
             if ( xcb_ewmh_get_desktop_viewport_reply ( &xcb_ewmh,
-                        xcb_ewmh_get_desktop_viewport(&xcb_ewmh, XScreenNumberOfScreen ( screen ) ),
+                        xcb_ewmh_get_desktop_viewport(&xcb_ewmh, xcb_screen_nbr),
                         &vp, NULL)){
                 if ( current_desktop < vp.desktop_viewport_len) {
-                    monitor_dimensions ( display, screen, vp.desktop_viewport[current_desktop].x,
+                    monitor_dimensions ( xcb_connection, xcb_screen, vp.desktop_viewport[current_desktop].x,
                             vp.desktop_viewport[current_desktop].y, mon );
                     return;
                 }
@@ -290,7 +340,7 @@ void monitor_active ( Display *display, workarea *mon )
 
     xcb_window_t active_window;
     if ( xcb_ewmh_get_active_window_reply ( &xcb_ewmh,
-                xcb_ewmh_get_active_window( &xcb_ewmh, XScreenNumberOfScreen ( screen )), &active_window, NULL )) {
+                xcb_ewmh_get_active_window( &xcb_ewmh, xcb_screen_nbr), &active_window, NULL )) {
         // get geometry.
         xcb_get_geometry_cookie_t c = xcb_get_geometry ( xcb_connection, active_window);
         xcb_get_geometry_reply_t *r = xcb_get_geometry_reply ( xcb_connection, c, NULL);
@@ -315,17 +365,17 @@ void monitor_active ( Display *display, workarea *mon )
                     return;
                 }
             }
-            monitor_dimensions ( display, screen, r->x, r->y, mon );
+            monitor_dimensions ( xcb_connection, xcb_screen, r->x, r->y, mon );
             free(r);
             return;
         }
     }
-    if ( pointer_get ( display, root, &x, &y ) ) {
-        monitor_dimensions ( display, screen, x, y, mon );
+    if ( pointer_get ( xcb_connection, root, &x, &y ) ) {
+        monitor_dimensions ( xcb_connection, xcb_screen, x, y, mon );
         return;
     }
 
-    monitor_dimensions ( display, screen, 0, 0, mon );
+    monitor_dimensions ( xcb_connection, xcb_screen, 0, 0, mon );
 }
 
 int window_send_message ( Display *display, Window trg, Window subject, Atom atom, unsigned long protocol, unsigned long mask, Time time )

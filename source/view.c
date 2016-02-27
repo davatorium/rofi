@@ -1553,7 +1553,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     }
     TICK_N ( "Startup notification" );
     // Get active monitor size.
-    monitor_active ( display, &( state->mon ) );
+    monitor_active ( xcb_connection, &( state->mon ) );
     TICK_N ( "Get active monitor" );
     if ( config.fake_transparency ) {
         rofi_view_setup_fake_transparency ( xcb_connection, xcb_screen, state );
@@ -1707,7 +1707,7 @@ void rofi_view_error_dialog ( const char *msg, int markup )
         return;
     }
     // Get active monitor size.
-    monitor_active ( display, &( state->mon ) );
+    monitor_active ( xcb_connection, &( state->mon ) );
     if ( config.fake_transparency ) {
         rofi_view_setup_fake_transparency ( xcb_connection, xcb_screen, state );
     }
