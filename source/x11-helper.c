@@ -147,23 +147,12 @@ char* window_get_text_prop ( Display *display, Window w, Atom atom )
 
     return res;
 }
-int window_get_atom_prop ( Display *display, Window w, Atom atom, Atom *list, int count )
-{
-    Atom type;
-    int  items;
-    return window_get_prop ( display, w, atom, &type, &items, list, count * sizeof ( Atom ) ) && type == XA_ATOM ? items : 0;
-}
 
 void window_set_atom_prop ( xcb_connection_t *xcb_connection, Window w, xcb_atom_t prop, xcb_atom_t *atoms, int count )
 {
     xcb_change_property ( xcb_connection, XCB_PROP_MODE_REPLACE, w, prop, XCB_ATOM_ATOM, 32, count, atoms);
 }
 
-int window_get_cardinal_prop ( Display *display, Window w, Atom atom, unsigned long *list, int count )
-{
-    Atom type; int items;
-    return window_get_prop ( display, w, atom, &type, &items, list, count * sizeof ( unsigned long ) ) && type == XA_CARDINAL ? items : 0;
-}
 extern xcb_screen_t *xcb_screen;
 extern int xcb_screen_nbr;
 int monitor_get_smallest_size ( xcb_connection_t *xcb_connection )
@@ -534,13 +523,13 @@ void x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key )
     *key = sym;
 }
 
-void x11_set_window_opacity ( Display *display, Window box, unsigned int opacity )
+void x11_set_window_opacity ( xcb_connection_t *xcb_connection, Window box, unsigned int opacity )
 {
     // Scale 0-100 to 0 - UINT32_MAX.
     unsigned int opacity_set = ( unsigned int ) ( ( opacity / 100.0 ) * UINT32_MAX );
-    // Set opacity.
-    XChangeProperty ( display, box, netatoms[_NET_WM_WINDOW_OPACITY], XA_CARDINAL, 32, PropModeReplace,
-                      ( unsigned char * ) &opacity_set, 1L );
+
+    xcb_change_property( xcb_connection, XCB_PROP_MODE_REPLACE, box,
+            netatoms[_NET_WM_WINDOW_OPACITY], XCB_ATOM_CARDINAL, 32, 1L, &opacity_set);
 }
 
 /**

@@ -559,7 +559,7 @@ static Window __create_window ( xcb_connection_t *xcb_connection, xcb_screen_t *
     xcb_change_property ( xcb_connection, XCB_PROP_MODE_REPLACE, box, xcb_ewmh._NET_WM_NAME, xcb_ewmh.UTF8_STRING, 8, 4,"rofi");
     xcb_change_property ( xcb_connection, XCB_PROP_MODE_REPLACE, box, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, 4,"rofi");
 
-    x11_set_window_opacity ( display, box, config.window_opacity );
+    x11_set_window_opacity ( xcb_connection, box, config.window_opacity );
     return box;
 }
 

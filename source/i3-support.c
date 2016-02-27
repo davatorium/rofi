@@ -150,7 +150,7 @@ void i3_support_free_internals ( void )
 {
 }
 
-int i3_support_initialize ( Display *display )
+int i3_support_initialize ( Display *display, xcb_connection_t *xcb_connection )
 {
     return FALSE;
 }
