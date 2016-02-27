@@ -141,7 +141,7 @@ void i3_support_free_internals ( void )
 
 #else
 
-void i3_support_focus_window ( Window id )
+void i3_support_focus_window ( G_GNUC_UNUSED Window id )
 {
     fprintf ( stderr, "Trying to control i3, when i3 support is not enabled.\n" );
     abort ();

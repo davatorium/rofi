@@ -72,10 +72,6 @@ typedef struct
 
 void monitor_active ( xcb_connection_t *xcb_connection, workarea *mon );
 
-int window_send_message ( Display *display, Window target, Window subject,
-                          Atom atom, unsigned long protocol,
-                          unsigned long mask, Time time );
-
 // find the dimensions of the monitor displaying point x,y
 void monitor_dimensions ( xcb_connection_t *xcb_connection, xcb_screen_t *screen, int x, int y, workarea *mon );
 // Find the dimensions of the monitor specified by user.

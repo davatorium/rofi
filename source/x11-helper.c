@@ -367,22 +367,6 @@ void monitor_active ( xcb_connection_t *xcb_connection, workarea *mon )
     monitor_dimensions ( xcb_connection, xcb_screen, 0, 0, mon );
 }
 
-int window_send_message ( Display *display, Window trg, Window subject, Atom atom, unsigned long protocol, unsigned long mask, Time time )
-{
-    XEvent e;
-    memset ( &e, 0, sizeof ( XEvent ) );
-    e.xclient.type         = ClientMessage;
-    e.xclient.message_type = atom;
-    e.xclient.window       = subject;
-    e.xclient.data.l[0]    = protocol;
-    e.xclient.data.l[1]    = time;
-    e.xclient.send_event   = True;
-    e.xclient.format       = 32;
-    int r = XSendEvent ( display, trg, False, mask, &e ) ? 1 : 0;
-    XFlush ( display );
-    return r;
-}
-
 int take_keyboard ( Display *display, Window w )
 {
     for ( int i = 0; i < 500; i++ ) {

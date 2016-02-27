@@ -520,7 +520,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     char *msg   = NULL;
     //
     // Sanity check
-    if ( config_sanity_check ( display ) ) {
+    if ( config_sanity_check ( xcb_connection) ) {
         return G_SOURCE_REMOVE;
     }
     TICK_N ( "Config sanity check" );
