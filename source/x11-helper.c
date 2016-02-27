@@ -80,6 +80,8 @@ const char          *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 static unsigned int x11_mod_masks[NUM_X11MOD];
 extern xcb_ewmh_connection_t xcb_ewmh;
 
+extern xcb_connection_t *xcb_connection;
+
 // retrieve a property of any type from a window
 int window_get_prop ( Display *display, Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes )
 {
@@ -245,13 +247,12 @@ static int pointer_get ( Display *display, Window root, int *x, int *y )
 {
     *x = 0;
     *y = 0;
-    Window       rr, cr;
-    int          rxr, ryr, wxr, wyr;
-    unsigned int mr;
-
-    if ( XQueryPointer ( display, root, &rr, &cr, &rxr, &ryr, &wxr, &wyr, &mr ) ) {
-        *x = rxr;
-        *y = ryr;
+    xcb_query_pointer_cookie_t c = xcb_query_pointer ( xcb_connection, root );
+    xcb_query_pointer_reply_t *r = xcb_query_pointer_reply ( xcb_connection, c, NULL );
+    if ( r ) {
+        *x = r->root_x;
+        *y = r->root_y;
+        free(r);
         return 1;
     }
 
@@ -259,7 +260,6 @@ static int pointer_get ( Display *display, Window root, int *x, int *y )
 }
 
 // determine which monitor holds the active window, or failing that the mouse pointer
-extern xcb_connection_t *xcb_connection;
 void monitor_active ( Display *display, workarea *mon )
 {
     Screen *screen = DefaultScreenOfDisplay ( display );
