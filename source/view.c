@@ -37,12 +37,6 @@
 #include <xkbcommon/xkbcommon-x11.h>
 #include <xcb/xkb.h>
 #include <xcb/xcb_ewmh.h>
-#include <X11/X.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xproto.h>
-#include <X11/keysym.h>
 #include <sys/wait.h>
 #include <sys/types.h>
 
@@ -1001,8 +995,10 @@ void rofi_view_update ( RofiViewState *state )
  */
 static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t *xse )
 {
-    if ( xse->property == netatoms[UTF8_STRING] ) {
-        gchar *text = window_get_text_prop ( display, main_window, netatoms[UTF8_STRING] );
+    if ( xse->property == XCB_ATOM_NONE ){
+        fprintf ( stderr, "Failed to convert selection\n" );
+    } else if ( xse->property == xcb_ewmh.UTF8_STRING ) {
+        gchar *text = window_get_text_prop ( display, main_window, xcb_ewmh.UTF8_STRING );
         if ( text != NULL && text[0] != '\0' ) {
             unsigned int dl = strlen ( text );
             // Strip new line
@@ -1018,6 +1014,8 @@ static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t
             state->refilter = TRUE;
         }
         g_free ( text );
+    } else {
+        fprintf ( stderr, "Failed\n" );
     }
 }
 
@@ -1345,11 +1343,14 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
         if ( key != XKB_KEY_NoSymbol ) {
             // Handling of paste
             if ( abe_test_action ( PASTE_PRIMARY, modstate, key ) ) {
-                XConvertSelection ( display, XA_PRIMARY, netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window, CurrentTime );
+                xcb_convert_selection ( xcb_connection, main_window, XCB_ATOM_PRIMARY,
+                        xcb_ewmh.UTF8_STRING,xcb_ewmh.UTF8_STRING, XCB_CURRENT_TIME );
+                xcb_flush ( xcb_connection );
             }
             else if ( abe_test_action ( PASTE_SECONDARY, modstate, key ) ) {
-                XConvertSelection ( display, netatoms[CLIPBOARD], netatoms[UTF8_STRING], netatoms[UTF8_STRING], main_window,
-                                    CurrentTime );
+                xcb_convert_selection ( xcb_connection, main_window, XCB_ATOM_SECONDARY,
+                        xcb_ewmh.UTF8_STRING,xcb_ewmh.UTF8_STRING, XCB_CURRENT_TIME );
+                xcb_flush ( xcb_connection );
             }
             if ( abe_test_action ( SCREENSHOT, modstate, key ) ) {
                 menu_capture_screenshot ( );
