@@ -984,7 +984,7 @@ void rofi_view_update ( RofiViewState *state )
 
     // Flush the surface.
     cairo_surface_flush ( surface );
-    XFlush ( display );
+    xcb_flush ( xcb_connection );
     TICK ();
 }
 
