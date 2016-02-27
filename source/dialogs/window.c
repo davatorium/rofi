@@ -36,9 +36,7 @@
 #include <errno.h>
 #include <xcb/xcb.h>
 #include <xcb/xcb_ewmh.h>
-#include <X11/X.h>
-#include <X11/Xatom.h>
-#include <X11/Xutil.h>
+#include <xcb/xcb_icccm.h>
 
 #include "rofi.h"
 #include "settings.h"
@@ -52,7 +50,6 @@
 
 #define CLIENTTITLE         100
 #define CLIENTCLASS         50
-#define CLIENTNAME          50
 #define CLIENTSTATE         10
 #define CLIENTWINDOWTYPE    10
 #define CLIENTROLE          50
@@ -68,13 +65,11 @@ typedef struct
     xcb_get_window_attributes_reply_t xattr;
     char              title[CLIENTTITLE];
     char              class[CLIENTCLASS];
-    char              name[CLIENTNAME];
     char              role[CLIENTROLE];
     int               states;
     xcb_atom_t        state[CLIENTSTATE];
     int               window_types;
     xcb_atom_t        window_type[CLIENTWINDOWTYPE];
-    workarea          monitor;
     int               active;
     int               demands;
     long              hint_flags;
@@ -286,38 +281,34 @@ static client* window_client ( Display *display, xcb_window_t win )
     }
     char *name;
 
-    if ( ( name = window_get_text_prop ( display, c->window, xcb_ewmh._NET_WM_NAME ) ) && name ) {
+    if ( ( name = window_get_text_prop ( xcb_connection, c->window, xcb_ewmh._NET_WM_NAME ) ) && name ) {
         snprintf ( c->title, CLIENTTITLE, "%s", name );
         g_free ( name );
     }
-    else if ( XFetchName ( display, c->window, &name ) ) {
+    else if ( (name = window_get_text_prop ( xcb_connection, c->window, XCB_ATOM_WM_NAME)) && name) { 
         snprintf ( c->title, CLIENTTITLE, "%s", name );
-        XFree ( name );
+        g_free ( name );
     }
 
-    name = window_get_text_prop ( display, c->window, XInternAtom ( display, "WM_WINDOW_ROLE", False ) );
+    name = window_get_text_prop ( xcb_connection, c->window, XInternAtom ( display, "WM_WINDOW_ROLE", False ) );
 
     if ( name != NULL ) {
         snprintf ( c->role, CLIENTROLE, "%s", name );
-        XFree ( name );
+        g_free ( name );
     }
 
-    XClassHint chint;
-
-    if ( XGetClassHint ( display, c->window, &chint ) ) {
-        snprintf ( c->class, CLIENTCLASS, "%s", chint.res_class );
-        snprintf ( c->name, CLIENTNAME, "%s", chint.res_name );
-        XFree ( chint.res_class );
-        XFree ( chint.res_name );
+    name = window_get_text_prop ( xcb_connection, c->window, XCB_ATOM_WM_CLASS );
+    if ( name != NULL ){
+        snprintf ( c->class, CLIENTCLASS, "%s", name);
+        g_free(name);
     }
 
-    XWMHints *wh;
-    if ( ( wh = XGetWMHints ( display, c->window ) ) != NULL ) {
-        c->hint_flags = wh->flags;
-        XFree ( wh );
+    xcb_get_property_cookie_t cc = xcb_icccm_get_wm_hints ( xcb_connection, c->window);
+    xcb_icccm_wm_hints_t r;
+    if (xcb_icccm_get_wm_hints_reply ( xcb_connection, cc, &r, NULL)){
+        c->hint_flags = r.flags;
     }
 
-//    monitor_dimensions ( xcb_connection, xcb_screen, c->xattr.x, c->xattr.y, &c->monitor );
     winlist_append ( cache_client, c->window, c );
     return c;
 }
@@ -366,10 +357,6 @@ static int window_match ( const Mode *sw, char **tokens,
                 test = token_match ( ftokens, c->role, not_ascii, case_sensitive );
             }
 
-            if ( !test && c->name[0] != '\0' ) {
-                test = token_match ( ftokens, c->name, not_ascii, case_sensitive );
-            }
-
             if ( test == 0 ) {
                 match = 0;
             }
@@ -395,7 +382,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 
     x11_cache_create ();
     // Check for i3
-    pd->config_i3_mode = i3_support_initialize ( display, xcb_connection );
+    pd->config_i3_mode = i3_support_initialize ( xcb_connection );
 
     if ( !xcb_ewmh_get_active_window_reply ( &xcb_ewmh,
                 xcb_ewmh_get_active_window( &xcb_ewmh, xcb_screen_nbr), &curr_win_id, NULL )) {
@@ -445,7 +432,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                 if ( client_has_state ( c, xcb_ewmh._NET_WM_STATE_DEMANDS_ATTENTION ) ) {
                     c->demands = TRUE;
                 }
-                if ( ( c->hint_flags & XUrgencyHint ) == XUrgencyHint ) {
+                if ( ( c->hint_flags & XCB_ICCCM_WM_HINT_X_URGENCY ) != 0) {
                     c->demands = TRUE;
                 }
 
@@ -600,7 +587,7 @@ static int window_is_not_ascii ( const Mode *sw, unsigned int index )
     int                       idx = winlist_find ( cache_client, ids->array[index] );
     g_assert ( idx >= 0 );
     client                    *c = cache_client->data[idx];
-    return !g_str_is_ascii ( c->role ) || !g_str_is_ascii ( c->class ) || !g_str_is_ascii ( c->title ) || !g_str_is_ascii ( c->name );
+    return !g_str_is_ascii ( c->role ) || !g_str_is_ascii ( c->class ) || !g_str_is_ascii ( c->title );
 }
 
 #include "mode-private.h"

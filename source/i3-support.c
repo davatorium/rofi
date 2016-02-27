@@ -33,8 +33,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <time.h>
-#include <X11/X.h>
-#include <X11/Xlib.h>
+#include <xcb/xcb.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 
@@ -47,6 +46,7 @@
 #include <i3/ipc.h>
 // Path to HAVE_I3_IPC_H socket.
 char *i3_socket_path = NULL;
+extern xcb_screen_t *xcb_screen;
 
 void i3_support_focus_window ( Window id )
 {
@@ -113,7 +113,7 @@ void i3_support_focus_window ( Window id )
     close ( s );
 }
 
-int i3_support_initialize ( Display *display, xcb_connection_t *xcb_connection )
+int i3_support_initialize ( xcb_connection_t *xcb_connection )
 {
     // If we where initialized, clean this first.
     i3_support_free_internals ();
@@ -122,12 +122,8 @@ int i3_support_initialize ( Display *display, xcb_connection_t *xcb_connection )
     xcb_intern_atom_cookie_t cookie = xcb_intern_atom ( xcb_connection, FALSE, strlen ( "I3_SOCKET_PATH" ), "I3_SOCKET_PATH" );
     xcb_intern_atom_reply_t  *reply = xcb_intern_atom_reply ( xcb_connection, cookie, NULL );
     if ( reply != NULL ) {
-        // Get the default screen.
-        Screen *screen = DefaultScreenOfDisplay ( display );
-        // Find the root window (each X has one.).
-        Window root = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
         // Get the i3 path property.
-        i3_socket_path = window_get_text_prop ( display, root, reply->atom );
+        i3_socket_path = window_get_text_prop ( xcb_connection, xcb_screen->root, reply->atom );
     }
     // If we find it, go into i3 mode.
     return ( i3_socket_path != NULL ) ? TRUE : FALSE;
@@ -150,7 +146,7 @@ void i3_support_free_internals ( void )
 {
 }
 
-int i3_support_initialize ( Display *display, xcb_connection_t *xcb_connection )
+int i3_support_initialize ( xcb_connection_t *xcb_connection )
 {
     return FALSE;
 }

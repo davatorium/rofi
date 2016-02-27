@@ -62,7 +62,6 @@
 #include "view-internal.h"
 
 // What todo with these.
-extern Display           *display;
 extern xcb_connection_t  *xcb_connection;
 extern xcb_screen_t      *xcb_screen;
 extern SnLauncheeContext *sncontext;
@@ -998,7 +997,7 @@ static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t
     if ( xse->property == XCB_ATOM_NONE ){
         fprintf ( stderr, "Failed to convert selection\n" );
     } else if ( xse->property == xcb_ewmh.UTF8_STRING ) {
-        gchar *text = window_get_text_prop ( display, main_window, xcb_ewmh.UTF8_STRING );
+        gchar *text = window_get_text_prop ( xcb_connection, main_window, xcb_ewmh.UTF8_STRING );
         if ( text != NULL && text[0] != '\0' ) {
             unsigned int dl = strlen ( text );
             // Strip new line
@@ -1280,12 +1279,12 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
     {
     case XCB_FOCUS_IN:
         if ( ( state->menu_flags & MENU_NORMAL_WINDOW ) == 0 ) {
-            take_keyboard ( display, main_window );
+            take_keyboard ( xcb_connection, main_window );
         }
         break;
     case XCB_FOCUS_OUT:
         if ( ( state->menu_flags & MENU_NORMAL_WINDOW ) == 0 ) {
-            release_keyboard ( display );
+            release_keyboard ( xcb_connection );
         }
         break;
     case XCB_MOTION_NOTIFY:
@@ -1492,6 +1491,13 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->num_lines       = mode_get_num_entries ( sw );
     state->lines_not_ascii = g_malloc0_n ( state->num_lines, sizeof ( int ) );
 
+    // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
+    if ( main_window == 0 ) {
+        main_window = __create_window ( xcb_connection, xcb_screen, menu_flags );
+        if ( sncontext != NULL ) {
+            sn_launchee_context_setup_window ( sncontext, main_window );
+        }
+    }
     // find out which lines contain non-ascii codepoints, so we can be faster in some cases.
     if ( state->num_lines > 0 ) {
         TICK_N ( "Is ASCII start" );
@@ -1529,12 +1535,13 @@ RofiViewState *rofi_view_create ( Mode *sw,
         g_mutex_clear ( &mutex );
         TICK_N ( "Is ASCII stop" );
     }
+    TICK_N ( "Startup notification" );
 
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
     if ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) {
-        int has_keyboard = take_keyboard ( display, DefaultRootWindow ( display ) );
+        int has_keyboard = take_keyboard ( xcb_connection, xcb_screen->root );
 
         if ( !has_keyboard ) {
             fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
@@ -1544,14 +1551,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
         }
     }
     TICK_N ( "Grab keyboard" );
-    // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
-    if ( main_window == 0 ) {
-        main_window = __create_window ( xcb_connection, xcb_screen, menu_flags );
-        if ( sncontext != NULL ) {
-            sn_launchee_context_setup_window ( sncontext, main_window );
-        }
-    }
-    TICK_N ( "Startup notification" );
     // Get active monitor size.
     monitor_active ( xcb_connection, &( state->mon ) );
     TICK_N ( "Get active monitor" );
@@ -1697,15 +1696,6 @@ void rofi_view_error_dialog ( const char *msg, int markup )
     state->x11_event_loop = __error_dialog_event_loop;
     state->finalize       = process_result_error;
 
-    // Try to grab the keyboard as early as possible.
-    // We grab this using the rootwindow (as dmenu does it).
-    // this seems to result in the smallest delay for most people.
-    int has_keyboard = take_keyboard ( display, DefaultRootWindow ( display ) );
-
-    if ( !has_keyboard ) {
-        fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
-        return;
-    }
     // Get active monitor size.
     monitor_active ( xcb_connection, &( state->mon ) );
     if ( config.fake_transparency ) {
@@ -1714,6 +1704,15 @@ void rofi_view_error_dialog ( const char *msg, int markup )
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     if ( main_window == 0 ) {
         main_window = __create_window ( xcb_connection, xcb_screen, MENU_NORMAL );
+    }
+
+    // Try to grab the keyboard as early as possible.
+    // We grab this using the rootwindow (as dmenu does it).
+    // this seems to result in the smallest delay for most people.
+    int has_keyboard = take_keyboard ( xcb_connection, xcb_screen->root );
+    if ( !has_keyboard ) {
+        fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
+        return;
     }
 
     rofi_view_calculate_window_and_element_width ( state );

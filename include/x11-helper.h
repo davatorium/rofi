@@ -11,13 +11,9 @@
  * @{
  */
 
-int window_get_prop ( Display *display, Window w, Atom prop,
-                      Atom *type, int *items,
-                      void *buffer, unsigned int bytes ) __attribute__ ( ( nonnull ( 4, 5 ) ) );
-
 /**
  * @param display Connection to the X server.
- * @param w The Window to read property from.
+ * @param w The xcb_window_t to read property from.
  * @param atom The property identifier
  *
  * Get text property defined by atom from window.
@@ -25,45 +21,25 @@ int window_get_prop ( Display *display, Window w, Atom prop,
  *
  * @returns a newly allocated string with the result or NULL
  */
-char* window_get_text_prop ( Display *display, Window w, Atom atom );
+char* window_get_text_prop ( xcb_connection_t *xcb_connection, xcb_window_t w, Atom atom );
 
-void window_set_atom_prop ( xcb_connection_t *xcb_connection, Window w, xcb_atom_t prop, xcb_atom_t *atoms, int count );
+void window_set_atom_prop ( xcb_connection_t *xcb_connection, xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms, int count );
 
 /**
- * Window info.
+ * xcb_window_t info.
  */
 #define ATOM_ENUM( x )    x
 #define ATOM_CHAR( x )    # x
 
 // usable space on a monitor
 #define EWMH_ATOMS( X )                    \
-    X ( _NET_CLIENT_LIST_STACKING ),       \
-    X ( _NET_NUMBER_OF_DESKTOPS ),         \
-    X ( _NET_CURRENT_DESKTOP ),            \
-    X ( _NET_ACTIVE_WINDOW ),              \
-    X ( _NET_CLIENT_LIST ),                \
-    X ( _NET_WM_NAME ),                    \
-    X ( _NET_WM_STATE ),                   \
-    X ( _NET_WM_STATE_SKIP_TASKBAR ),      \
-    X ( _NET_WM_STATE_SKIP_PAGER ),        \
-    X ( _NET_WM_STATE_ABOVE ),             \
-    X ( _NET_WM_STATE_DEMANDS_ATTENTION ), \
-    X ( _NET_WM_STATE_WITHDRAWN ),         \
-    X ( _NET_WM_WINDOW_TYPE ),             \
-    X ( _NET_WM_WINDOW_TYPE_DOCK ),        \
-    X ( _NET_WM_WINDOW_TYPE_DESKTOP ),     \
-    X ( _NET_WM_WINDOW_TYPE_NORMAL ),      \
-    X ( _NET_WM_STATE_FULLSCREEN ),        \
-    X ( _NET_WM_DESKTOP ),                 \
-    X ( _NET_DESKTOP_VIEWPORT ),           \
-    X ( CLIPBOARD ),                       \
-    X ( UTF8_STRING ),                     \
-    X ( _NET_WM_WINDOW_OPACITY )
+    X ( _NET_WM_WINDOW_OPACITY ),          \
+    X ( WM_WINDOW_ROLE)
 
 enum { EWMH_ATOMS ( ATOM_ENUM ), NUM_NETATOMS };
 
 extern const char *netatom_names[];
-extern Atom netatoms[NUM_NETATOMS];
+extern xcb_atom_t netatoms[NUM_NETATOMS];
 typedef struct
 {
     int x, y, w, h;
@@ -83,17 +59,17 @@ int monitor_get_smallest_size ( xcb_connection_t *xcb_connection );
  *
  * Release keyboard.
  */
-void release_keyboard ( Display *display );
+void release_keyboard ( xcb_connection_t *xcb_connection );
 
 /**
  * @param display The display.
- * @param w       Window we want to grab keyboard on.
+ * @param w       xcb_window_t we want to grab keyboard on.
  *
  * Grab keyboard and mouse.
  *
  * @return 1 when keyboard is grabbed, 0 not.
  */
-int take_keyboard ( Display *display, Window w );
+int take_keyboard ( xcb_connection_t *xcb_connection, xcb_window_t w );
 
 /**
  * @param mask The mask to canonilize
@@ -118,7 +94,7 @@ void x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key );
  *
  * Set the opacity of the window and sub-windows.
  */
-void x11_set_window_opacity ( xcb_connection_t *xcb_connection, Window box, unsigned int opacity );
+void x11_set_window_opacity ( xcb_connection_t *xcb_connection, xcb_window_t box, unsigned int opacity );
 
 /**
  * Setup several items required.
@@ -126,7 +102,7 @@ void x11_set_window_opacity ( xcb_connection_t *xcb_connection, Window box, unsi
  * * Numlock detection
  * * Cache
  */
-void x11_setup ( Display *display, xkb_stuff *xkb );
+void x11_setup ( xcb_connection_t *xcb_connection, xkb_stuff *xkb );
 
 extern xcb_depth_t      *depth;
 extern xcb_visualtype_t *visual;

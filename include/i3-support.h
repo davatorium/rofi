@@ -28,7 +28,7 @@ void i3_support_focus_window ( Window id );
  * @returns TRUE when i3 is running, FALSE when not.
  */
 
-int i3_support_initialize ( Display *display, xcb_connection_t *xcb_connection );
+int i3_support_initialize ( xcb_connection_t *xcb_connection );
 
 /**
  * Cleanup.

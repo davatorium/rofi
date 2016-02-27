@@ -37,14 +37,6 @@
 #include <xcb/xcb.h>
 #include <xcb/xinerama.h>
 #include <xcb/xcb_ewmh.h>
-#include <X11/X.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/Xmd.h>
-#include <X11/Xutil.h>
-#include <X11/Xproto.h>
-#include <X11/keysym.h>
-#include <X11/XKBlib.h>
 #include "settings.h"
 
 #include <rofi.h>
@@ -75,80 +67,30 @@ xcb_visualtype_t    *visual          = NULL;
 xcb_colormap_t      map              = XCB_COLORMAP_NONE;
 xcb_depth_t         *root_depth      = NULL;
 xcb_visualtype_t    *root_visual     = NULL;
-Atom                netatoms[NUM_NETATOMS];
+xcb_atom_t          netatoms[NUM_NETATOMS];
 const char          *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 static unsigned int x11_mod_masks[NUM_X11MOD];
 extern xcb_ewmh_connection_t xcb_ewmh;
 
 extern xcb_connection_t *xcb_connection;
 
-// retrieve a property of any type from a window
-int window_get_prop ( Display *display, Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes )
-{
-    int           format;
-    unsigned long nitems, nbytes;
-    unsigned char *ret = NULL;
-    memset ( buffer, 0, bytes );
-
-    if ( XGetWindowProperty ( display, w, prop, 0, bytes / 4, False, AnyPropertyType, type, &format, &nitems, &nbytes, &ret ) == Success &&
-         ret && *type != None && format ) {
-        if ( format == 8 ) {
-            memmove ( buffer, ret, MIN ( bytes, nitems ) );
-        }
-
-        if ( format == 16 ) {
-            memmove ( buffer, ret, MIN ( bytes, nitems * sizeof ( short ) ) );
-        }
-
-        if ( format == 32 ) {
-            memmove ( buffer, ret, MIN ( bytes, nitems * sizeof ( long ) ) );
-        }
-
-        *items = ( int ) nitems;
-        XFree ( ret );
-        return 1;
-    }
-
-    return 0;
-}
-
 // retrieve a text property from a window
 // technically we could use window_get_prop(), but this is better for character set support
-char* window_get_text_prop ( Display *display, Window w, Atom atom )
+char* window_get_text_prop ( xcb_connection_t *xcb_connection, xcb_window_t w, Atom atom )
 {
-    XTextProperty prop;
-    char          *res   = NULL;
-    char          **list = NULL;
-    int           count;
-
-    if ( XGetTextProperty ( display, w, &prop, atom ) && prop.value && prop.nitems ) {
-        if ( prop.encoding == XA_STRING ) {
-            size_t l = strlen ( ( char *) prop.value ) + 1;
-            res = g_malloc ( l );
-            // make clang-check happy.
-            if ( res ) {
-                g_strlcpy ( res, ( char * ) prop.value, l );
-            }
-        }
-        else if ( Xutf8TextPropertyToTextList ( display, &prop, &list, &count ) >= Success && count > 0 && *list ) {
-            size_t l = strlen ( *list ) + 1;
-            res = g_malloc ( l );
-            // make clang-check happy.
-            if ( res ) {
-                g_strlcpy ( res, *list, l );
-            }
-            XFreeStringList ( list );
-        }
+    xcb_get_property_cookie_t c = xcb_get_property( xcb_connection, 0, w, atom, XCB_GET_PROPERTY_TYPE_ANY, 0, UINT_MAX);
+    xcb_get_property_reply_t *r = xcb_get_property_reply( xcb_connection, c, NULL);
+    if ( r ){
+        char *str = g_malloc ( xcb_get_property_value_length(r)+1);
+        memcpy(str, xcb_get_property_value(r), xcb_get_property_value_length(r));
+        str[xcb_get_property_value_length(r)] = '\0';
+        free(r);
+        return str;
     }
-
-    if ( prop.value ) {
-        XFree ( prop.value );
-    }
-
-    return res;
+    return NULL;
 }
 
-void window_set_atom_prop ( xcb_connection_t *xcb_connection, Window w, xcb_atom_t prop, xcb_atom_t *atoms, int count )
+void window_set_atom_prop ( xcb_connection_t *xcb_connection, xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms, int count )
 {
     xcb_change_property ( xcb_connection, XCB_PROP_MODE_REPLACE, w, prop, XCB_ATOM_ATOM, 32, count, atoms);
 }
@@ -283,7 +225,7 @@ void monitor_dimensions ( xcb_connection_t *xcb_connection, xcb_screen_t *screen
  *
  * @returns 1 when found
  */
-static int pointer_get ( xcb_connection_t *xcb_connection, Window root, int *x, int *y )
+static int pointer_get ( xcb_connection_t *xcb_connection, xcb_window_t root, int *x, int *y )
 {
     *x = 0;
     *y = 0;
@@ -367,11 +309,15 @@ void monitor_active ( xcb_connection_t *xcb_connection, workarea *mon )
     monitor_dimensions ( xcb_connection, xcb_screen, 0, 0, mon );
 }
 
-int take_keyboard ( Display *display, Window w )
+int take_keyboard ( xcb_connection_t *xcb_connection, xcb_window_t w )
 {
+
     for ( int i = 0; i < 500; i++ ) {
-        if ( XGrabKeyboard ( display, w, True, GrabModeAsync, GrabModeAsync,
-                             CurrentTime ) == GrabSuccess ) {
+        xcb_grab_keyboard_cookie_t cc = xcb_grab_keyboard ( xcb_connection, 1, w, XCB_CURRENT_TIME, XCB_GRAB_MODE_ASYNC,
+                XCB_GRAB_MODE_ASYNC);
+        xcb_grab_keyboard_reply_t *r = xcb_grab_keyboard_reply ( xcb_connection, cc, NULL);
+        if ( r ) {
+            free ( r );
             return 1;
         }
         usleep ( 1000 );
@@ -380,9 +326,9 @@ int take_keyboard ( Display *display, Window w )
     return 0;
 }
 
-void release_keyboard ( Display *display )
+void release_keyboard ( xcb_connection_t *xcb_connection )
 {
-    XUngrabKeyboard ( display, CurrentTime );
+    xcb_ungrab_keyboard ( xcb_connection, XCB_CURRENT_TIME);
 }
 
 static unsigned int x11_find_mod_mask ( xkb_stuff *xkb, ... )
@@ -507,7 +453,7 @@ void x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key )
     *key = sym;
 }
 
-void x11_set_window_opacity ( xcb_connection_t *xcb_connection, Window box, unsigned int opacity )
+void x11_set_window_opacity ( xcb_connection_t *xcb_connection, xcb_window_t box, unsigned int opacity )
 {
     // Scale 0-100 to 0 - UINT32_MAX.
     unsigned int opacity_set = ( unsigned int ) ( ( opacity / 100.0 ) * UINT32_MAX );
@@ -521,42 +467,25 @@ void x11_set_window_opacity ( xcb_connection_t *xcb_connection, Window box, unsi
  *
  * Fill in the list of Atoms.
  */
-static void x11_create_frequently_used_atoms ( Display *display )
+static void x11_create_frequently_used_atoms ( xcb_connection_t *xcb_connection )
 {
-    // X atom values
+        // X atom values
     for ( int i = 0; i < NUM_NETATOMS; i++ ) {
-        netatoms[i] = XInternAtom ( display, netatom_names[i], False );
+        xcb_intern_atom_cookie_t cc = xcb_intern_atom ( xcb_connection, 0, strlen(netatom_names[i]), netatom_names[i]);
+        xcb_intern_atom_reply_t *r = xcb_intern_atom_reply ( xcb_connection, cc, NULL);
+        if ( r ) {
+            netatoms[i] = r->atom; 
+            free(r);
+        }
     }
 }
 
-static int ( *xerror )( Display *, XErrorEvent * );
-/**
- * @param d  The connection to the X server.
- * @param ee The XErrorEvent
- *
- * X11 Error handler.
- */
-static int display_oops ( Display *d, XErrorEvent *ee )
+
+void x11_setup ( xcb_connection_t *xcb_connection, xkb_stuff *xkb )
 {
-    if ( ee->error_code == BadWindow || ( ee->request_code == X_GrabButton && ee->error_code == BadAccess )
-         || ( ee->request_code == X_GrabKey && ee->error_code == BadAccess ) ) {
-        return 0;
-    }
-
-    fprintf ( stderr, "error: request code=%d, error code=%d\n", ee->request_code, ee->error_code );
-    return xerror ( d, ee );
-}
-
-void x11_setup ( Display *display, xkb_stuff *xkb )
-{
-    // Set error handle
-    XSync ( display, False );
-    xerror = XSetErrorHandler ( display_oops );
-    XSync ( display, False );
-
     // determine numlock mask so we can bind on keys with and without it
     x11_figure_out_masks ( xkb );
-    x11_create_frequently_used_atoms ( display );
+    x11_create_frequently_used_atoms ( xcb_connection );
 }
 
 void x11_create_visual_and_colormap ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen )
