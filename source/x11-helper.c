@@ -35,6 +35,7 @@
 #include <cairo.h>
 
 #include <xcb/xcb.h>
+#include <xcb/xcb_ewmh.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -77,6 +78,7 @@ xcb_visualtype_t    *root_visual     = NULL;
 Atom                netatoms[NUM_NETATOMS];
 const char          *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 static unsigned int x11_mod_masks[NUM_X11MOD];
+extern xcb_ewmh_connection_t xcb_ewmh;
 
 // retrieve a property of any type from a window
 int window_get_prop ( Display *display, Window w, Atom prop, Atom *type, int *items, void *buffer, unsigned int bytes )
@@ -257,15 +259,13 @@ static int pointer_get ( Display *display, Window root, int *x, int *y )
 }
 
 // determine which monitor holds the active window, or failing that the mouse pointer
+extern xcb_connection_t *xcb_connection;
 void monitor_active ( Display *display, workarea *mon )
 {
     Screen *screen = DefaultScreenOfDisplay ( display );
     Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
     int    x, y;
 
-    Window id;
-    Atom   type;
-    int    count;
     if ( config.monitor >= 0 ) {
         if ( monitor_get_dimension ( display, screen, config.monitor, mon ) ) {
             return;
@@ -273,42 +273,51 @@ void monitor_active ( Display *display, workarea *mon )
         fprintf ( stderr, "Failed to find selected monitor.\n" );
     }
     // Get the current desktop.
-    unsigned long current_desktop = 0;
-    if ( window_get_cardinal_prop ( display, root, netatoms[_NET_CURRENT_DESKTOP], &current_desktop, 1 ) ) {
-        unsigned long desktops = 0;
-        if ( window_get_cardinal_prop ( display, root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1 ) ) {
-            unsigned long deskg[desktops * 2];
-            if ( window_get_cardinal_prop ( display, root, netatoms[_NET_DESKTOP_VIEWPORT], &deskg[0], desktops * 2 ) ) {
-                if ( current_desktop < desktops ) {
-                    monitor_dimensions ( display, screen, deskg[current_desktop * 2], deskg[current_desktop * 2 + 1], mon );
+    unsigned int current_desktop = 0;
+    if ( config.monitor != -2 && xcb_ewmh_get_current_desktop_reply ( &xcb_ewmh,
+                xcb_ewmh_get_current_desktop( &xcb_ewmh, XScreenNumberOfScreen ( screen )), &current_desktop, NULL )) {
+            xcb_ewmh_get_desktop_viewport_reply_t vp;
+            if ( xcb_ewmh_get_desktop_viewport_reply ( &xcb_ewmh,
+                        xcb_ewmh_get_desktop_viewport(&xcb_ewmh, XScreenNumberOfScreen ( screen ) ),
+                        &vp, NULL)){
+                if ( current_desktop < vp.desktop_viewport_len) {
+                    monitor_dimensions ( display, screen, vp.desktop_viewport[current_desktop].x,
+                            vp.desktop_viewport[current_desktop].y, mon );
                     return;
                 }
             }
-        }
     }
-    if ( window_get_prop ( display, root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &id, sizeof ( Window ) )
-         && type == XA_WINDOW && count > 0 ) {
-        XWindowAttributes attr;
-        if ( XGetWindowAttributes ( display, id, &attr ) ) {
-            Window junkwin;
-            if ( XTranslateCoordinates ( display, id, attr.root, -attr.border_width, -attr.border_width, &x, &y, &junkwin ) == True ) {
-                if ( config.monitor == -2 ) {
+
+    xcb_window_t active_window;
+    if ( xcb_ewmh_get_active_window_reply ( &xcb_ewmh,
+                xcb_ewmh_get_active_window( &xcb_ewmh, XScreenNumberOfScreen ( screen )), &active_window, NULL )) {
+        // get geometry.
+        xcb_get_geometry_cookie_t c = xcb_get_geometry ( xcb_connection, active_window);
+        xcb_get_geometry_reply_t *r = xcb_get_geometry_reply ( xcb_connection, c, NULL);
+        if ( r ) {
+            if ( config.monitor == -2 ) {
+                xcb_translate_coordinates_cookie_t ct = xcb_translate_coordinates(xcb_connection, active_window, root, r->x, r->y);
+                xcb_translate_coordinates_reply_t *t = xcb_translate_coordinates_reply (xcb_connection, ct, NULL);
+                if ( t ){
                     // place the menu above the window
                     // if some window is focused, place menu above window, else fall
                     // back to selected monitor.
-                    mon->x = x;
-                    mon->y = y;
-                    mon->w = attr.width;
-                    mon->h = attr.height;
-                    mon->t = attr.border_width;
-                    mon->b = attr.border_width;
-                    mon->l = attr.border_width;
-                    mon->r = attr.border_width;
+                    mon->x = t->dst_x;
+                    mon->y = t->dst_y;
+                    mon->w = r->width;
+                    mon->h = r->height;
+                    mon->t = r->border_width;
+                    mon->b = r->border_width;
+                    mon->l = r->border_width;
+                    mon->r = r->border_width;
+                    free(r);
+                    free(t);
                     return;
                 }
-                monitor_dimensions ( display, screen, x, y, mon );
-                return;
             }
+            monitor_dimensions ( display, screen, r->x, r->y, mon );
+            free(r);
+            return;
         }
     }
     if ( pointer_get ( display, root, &x, &y ) ) {
