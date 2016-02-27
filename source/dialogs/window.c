@@ -76,7 +76,6 @@ typedef struct
 } client;
 // TODO
 extern xcb_connection_t *xcb_connection;
-extern Display *display;
 // window lists
 typedef struct
 {
@@ -243,7 +242,7 @@ static int client_has_window_type ( client *c, Atom type )
     return 0;
 }
 
-static client* window_client ( Display *display, xcb_window_t win )
+static client* window_client ( xcb_connection_t *xcb_connection, xcb_window_t win )
 {
     if ( win == None ) {
         return NULL;
@@ -290,7 +289,7 @@ static client* window_client ( Display *display, xcb_window_t win )
         g_free ( name );
     }
 
-    name = window_get_text_prop ( xcb_connection, c->window, XInternAtom ( display, "WM_WINDOW_ROLE", False ) );
+    name = window_get_text_prop ( xcb_connection, c->window, netatoms[WM_WINDOW_ROLE] );
 
     if ( name != NULL ) {
         snprintf ( c->role, CLIENTROLE, "%s", name );
@@ -420,7 +419,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 
         // calc widths of fields
         for ( i = nwins - 1; i > -1; i-- ) {
-            client *c = window_client ( display, wins[i] );
+            client *c = window_client ( xcb_connection, wins[i] );
             if ( ( c != NULL )
                  && !c->xattr.override_redirect
                  && !client_has_window_type ( c, xcb_ewmh._NET_WM_WINDOW_TYPE_DOCK )
@@ -463,7 +462,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
             Window w = pd->ids->array[i];
             client *c;
 
-            if ( ( c = window_client ( display, w ) ) ) {
+            if ( ( c = window_client ( xcb_connection, w ) ) ) {
                 // final line format
                 unsigned int wmdesktop;
                 char          desktop[5];
@@ -570,10 +569,10 @@ static void window_mode_destroy ( Mode *sw )
 static char *_get_display_value ( const Mode *sw, unsigned int selected_line, int *state, int get_entry )
 {
     ModeModePrivateData *rmpd = mode_get_private_data ( sw );
-    if ( window_client ( display, rmpd->ids->array[selected_line] )->demands ) {
+    if ( window_client ( xcb_connection, rmpd->ids->array[selected_line] )->demands ) {
         *state |= URGENT;
     }
-    if ( window_client ( display, rmpd->ids->array[selected_line] )->active ) {
+    if ( window_client ( xcb_connection, rmpd->ids->array[selected_line] )->active ) {
         *state |= ACTIVE;
     }
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;

@@ -36,8 +36,6 @@
 #include "x11-helper.h"
 #include "settings.h"
 
-extern Display *display;
-
 scrollbar *scrollbar_create ( short x, short y, short w, short h )
 {
     scrollbar *sb = g_malloc0 ( sizeof ( scrollbar ) );
