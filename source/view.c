@@ -239,6 +239,8 @@ void rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_l
     }
 
     state->update = TRUE;
+    xcb_clear_area ( xcb_connection, main_window, 1, 0, 0, 1, 1 );
+    xcb_flush ( xcb_connection );
 }
 
 void rofi_view_free ( RofiViewState *state )
