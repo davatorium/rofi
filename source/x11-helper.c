@@ -438,7 +438,7 @@ void x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key )
         i--;
     }
 
-    xkb_keysym_t sym = xkb_keysym_from_name ( combo + i, XKB_KEYSYM_CASE_INSENSITIVE );
+    xkb_keysym_t sym = xkb_keysym_from_name ( combo + i, XKB_KEYSYM_NO_FLAGS);
 
     if ( sym == XKB_KEY_NoSymbol || ( !modmask && ( strchr ( combo, '-' ) || strchr ( combo, '+' ) ) ) ) {
         g_string_append_printf ( str, "Sorry, rofi cannot understand the key combination: <i>%s</i>\n", combo );
