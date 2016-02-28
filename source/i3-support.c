@@ -77,7 +77,7 @@ void i3_support_focus_window ( xcb_window_t id )
     }
 
     // Formulate command
-    snprintf ( command, upm, "[id=\"%lu\"] focus", id );
+    snprintf ( command, upm, "[id=\"%u\"] focus", id );
     // Prepare header.
     memcpy ( head.magic, I3_IPC_MAGIC, 6 );
     head.size = strlen ( command );
