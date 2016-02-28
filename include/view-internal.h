@@ -68,6 +68,8 @@ struct RofiViewState
     textbox         **modi;
 
     MenuFlags       menu_flags;
+
+    xcb_window_t    window;
     // Handlers.
     void            ( *x11_event_loop )( struct RofiViewState *state, xcb_generic_event_t *ev, xkb_stuff *xkb );
     void            ( *finalize )( struct RofiViewState *state );
