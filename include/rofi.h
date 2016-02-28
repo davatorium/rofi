@@ -2,8 +2,6 @@
 #define ROFI_MAIN_H
 #include <xcb/xcb.h>
 #include <xkbcommon/xkbcommon.h>
-#include <X11/X.h>
-#include <X11/Xlib.h>
 #include <glib.h>
 #include <string.h>
 #include <stdlib.h>

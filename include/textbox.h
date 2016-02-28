@@ -2,7 +2,6 @@
 #define ROFI_TEXTBOX_H
 
 #include <xkbcommon/xkbcommon.h>
-#include <X11/Xutil.h>
 #include <pango/pango.h>
 #include <pango/pango-fontmap.h>
 #include <pango/pangocairo.h>
