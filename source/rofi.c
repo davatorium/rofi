@@ -41,14 +41,6 @@
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-compose.h>
 #include <xkbcommon/xkbcommon-x11.h>
-#include <X11/X.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/Xlib-xcb.h>
-#include <X11/Xutil.h>
-#include <X11/Xproto.h>
-#include <X11/keysym.h>
-#include <X11/XKBlib.h>
 #include <sys/types.h>
 
 #include <glib-unix.h>
@@ -81,7 +73,6 @@ xcb_ewmh_connection_t xcb_ewmh;
 xcb_screen_t      *xcb_screen     = NULL;
 int xcb_screen_nbr = -1;
 struct xkb_stuff  xkb             = { NULL };
-Display           *display     = NULL;
 char              *display_str = NULL;
 char              *config_path = NULL;
 // Array of modi.
@@ -324,7 +315,7 @@ static void cleanup ()
         main_loop = NULL;
     }
     // Cleanup
-    if ( display != NULL ) {
+    if ( xcb_connection != NULL ) {
         if ( sncontext != NULL ) {
             sn_launchee_context_unref ( sncontext );
             sncontext = NULL;
@@ -333,8 +324,8 @@ static void cleanup ()
             sn_display_unref ( sndisplay );
             sndisplay = NULL;
         }
-        XCloseDisplay ( display );
-        display = NULL;
+        xcb_disconnect( xcb_connection );
+        xcb_connection = NULL;
     }
 
     // Cleaning up memory allocated by the Xresources file.
@@ -441,19 +432,19 @@ static void setup_modi ( void )
  * Load configuration.
  * Following priority: (current), X, commandline arguments
  */
-static inline void load_configuration ( Display *display )
+static inline void load_configuration ( )
 {
     // Load in config from X resources.
-    config_parse_xresource_options ( display );
+    config_parse_xresource_options ( xcb_connection, xcb_screen );
     config_parse_xresource_options_file ( config_path );
 
     // Parse command line for settings.
     config_parse_cmd_options ( );
 }
-static inline void load_configuration_dynamic ( Display *display )
+static inline void load_configuration_dynamic ( )
 {
     // Load in config from X resources.
-    config_parse_xresource_options_dynamic ( display );
+    config_parse_xresource_options_dynamic ( xcb_connection, xcb_screen );
     config_parse_xresource_options_dynamic_file ( config_path );
     config_parse_cmd_options_dynamic (  );
 }
@@ -651,15 +642,10 @@ int main ( int argc, char *argv[] )
         fprintf ( stderr, "Failed to set locale modifier.\n" );
         return EXIT_FAILURE;
     }
-    if ( !( display = XOpenDisplay ( display_str ) ) ) {
-        fprintf ( stderr, "cannot open display!\n" );
-        return EXIT_FAILURE;
-    }
+    xcb_connection = xcb_connect ( display_str, &xcb_screen_nbr );
     TICK_N ( "Open Display" );
 
-    xcb_connection = XGetXCBConnection ( display );
-    xcb_screen     = xcb_aux_get_screen ( xcb_connection, DefaultScreen ( display ) );
-    xcb_screen_nbr = DefaultScreen (display);
+    xcb_screen     = xcb_aux_get_screen ( xcb_connection, xcb_screen_nbr );
 
     xcb_intern_atom_cookie_t *ac = xcb_ewmh_init_atoms(xcb_connection, &xcb_ewmh);
     xcb_generic_error_t **errors = NULL;
@@ -667,6 +653,7 @@ int main ( int argc, char *argv[] )
     if (errors){
         fprintf(stderr, "Failed to create EWMH atoms\n");
     }
+
 
     if ( xkb_x11_setup_xkb_extension ( xcb_connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
                                        XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS, NULL, NULL, &xkb.first_event, NULL ) < 0 ) {
@@ -730,6 +717,7 @@ int main ( int argc, char *argv[] )
     xkb.compose.table = xkb_compose_table_new_from_locale ( xkb.context, setlocale ( LC_CTYPE, NULL ), 0 );
     xkb.compose.state = xkb_compose_state_new ( xkb.compose.table, 0 );
 
+    x11_setup ( xcb_connection, &xkb );
     main_loop = g_main_loop_new ( NULL, FALSE );
 
     TICK_N ( "Setup mainloop" );
@@ -749,7 +737,7 @@ int main ( int argc, char *argv[] )
     TICK_N ( "Setup abe" );
 
     if ( find_arg ( "-no-config" ) < 0 ) {
-        load_configuration ( display );
+        load_configuration ( );
     }
     if ( !dmenu_mode ) {
         // setup_modi
@@ -761,7 +749,7 @@ int main ( int argc, char *argv[] )
     }
     if ( find_arg ( "-no-config" ) < 0 ) {
         // Reload for dynamic part.
-        load_configuration_dynamic ( display );
+        load_configuration_dynamic ( );
     }
     // Dump.
     // catch help request
@@ -778,7 +766,6 @@ int main ( int argc, char *argv[] )
         exit ( EXIT_SUCCESS );
     }
 
-    x11_setup ( xcb_connection, &xkb );
     main_loop_source = g_water_xcb_source_new_for_connection ( NULL, xcb_connection, main_loop_x11_event_handler, NULL, NULL );
 
     TICK_N ( "X11 Setup " );

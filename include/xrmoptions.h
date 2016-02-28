@@ -52,7 +52,7 @@ typedef enum
  *
  * @ingroup CONFXServer
  */
-void config_parse_xresource_options ( Display *display );
+void config_parse_xresource_options ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen );
 
 /**
  * @ingroup CONFFile
@@ -79,7 +79,7 @@ void config_parse_cmd_options_dynamic ( void );
  *
  * @ingroup CONFXServer
  */
-void config_parse_xresource_options_dynamic ( Display *display );
+void config_parse_xresource_options_dynamic ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen );
 
 /**
  * @ingroup CONFFile

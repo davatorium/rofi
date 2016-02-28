@@ -30,7 +30,13 @@
 #include <string.h>
 #include <unistd.h>
 #include <X11/X.h>
+#include <xcb/xcb.h>
+#include <xcb/xkb.h>
+#include <xkbcommon/xkbcommon.h>
+#include <xkbcommon/xkbcommon-compose.h>
+#include <xkbcommon/xkbcommon-x11.h>
 #include <X11/Xresource.h>
+#include "x11-helper.h"
 #include "rofi.h"
 #include "xrmoptions.h"
 #include "settings.h"
@@ -217,18 +223,16 @@ static void __config_parse_xresource_options ( XrmDatabase xDB )
         g_free ( name );
     }
 }
-void config_parse_xresource_options ( Display *display )
+void config_parse_xresource_options ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen )
 {
-    char *xRMS;
-    // Map Xresource entries to rofi config options.
-    xRMS = XResourceManagerString ( display );
-
-    if ( xRMS == NULL ) {
-        return;
+    char *name = window_get_text_prop ( xcb_connection, xcb_screen->root, netatoms[RESOURCE_MANAGER]);
+    if ( name ) {
+        // Map Xresource entries to rofi config options.
+        XrmDatabase xDB = XrmGetStringDatabase ( name );
+        __config_parse_xresource_options ( xDB );
+        XrmDestroyDatabase ( xDB );
+        g_free ( name );
     }
-    XrmDatabase xDB = XrmGetStringDatabase ( xRMS );
-    __config_parse_xresource_options ( xDB );
-    XrmDestroyDatabase ( xDB );
 }
 void config_parse_xresource_options_file ( const char *filename )
 {
@@ -325,18 +329,13 @@ static void __config_parse_xresource_options_dynamic ( XrmDatabase xDB )
     }
 }
 
-void config_parse_xresource_options_dynamic ( Display *display )
+void config_parse_xresource_options_dynamic ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen )
 {
-    char *xRMS;
-    // Map Xresource entries to rofi config options.
-    xRMS = XResourceManagerString ( display );
-
-    if ( xRMS == NULL ) {
-        return;
-    }
-    XrmDatabase xDB = XrmGetStringDatabase ( xRMS );
+    char *name = window_get_text_prop ( xcb_connection, xcb_screen->root, netatoms[RESOURCE_MANAGER]);
+    XrmDatabase xDB = XrmGetStringDatabase ( name );
     __config_parse_xresource_options_dynamic ( xDB );
     XrmDestroyDatabase ( xDB );
+    g_free ( name );
 }
 void config_parse_xresource_options_dynamic_file ( const char *filename )
 {

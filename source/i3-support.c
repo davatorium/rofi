@@ -119,12 +119,7 @@ int i3_support_initialize ( xcb_connection_t *xcb_connection )
     i3_support_free_internals ();
 
     // Get atom for I3_SOCKET_PATH
-    xcb_intern_atom_cookie_t cookie = xcb_intern_atom ( xcb_connection, FALSE, strlen ( "I3_SOCKET_PATH" ), "I3_SOCKET_PATH" );
-    xcb_intern_atom_reply_t  *reply = xcb_intern_atom_reply ( xcb_connection, cookie, NULL );
-    if ( reply != NULL ) {
-        // Get the i3 path property.
-        i3_socket_path = window_get_text_prop ( xcb_connection, xcb_screen->root, reply->atom );
-    }
+    i3_socket_path = window_get_text_prop ( xcb_connection, xcb_screen->root, netatoms[I3_SOCKET_PATH]);
     // If we find it, go into i3 mode.
     return ( i3_socket_path != NULL ) ? TRUE : FALSE;
 }
