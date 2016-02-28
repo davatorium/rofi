@@ -532,10 +532,8 @@ int dmenu_switcher_dialog ( void )
         g_strfreev ( tokens );
         return TRUE;
     }
-    RofiViewState *state = rofi_view_create (
-        &dmenu_mode, input,
-        pd->prompt, pd->message,
-        menu_flags, dmenu_finalize );
+    // TODO remove
+    RofiViewState *state = rofi_view_create ( &dmenu_mode, input, pd->prompt, pd->message, menu_flags, dmenu_finalize );
     rofi_view_set_selected_line ( state, pd->selected_line );
     rofi_view_set_active ( state );
 

@@ -473,11 +473,6 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
     return G_SOURCE_CONTINUE;
 }
 
-/**
- * Process signals in the main-loop (gui-thread) of the application.
- *
- * returns TRUE when mainloop should be stopped.
- */
 
 static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
 {

@@ -1685,6 +1685,7 @@ static void __error_dialog_event_loop ( RofiViewState *state, xcb_generic_event_
     case XCB_KEY_PRESS:
         state->quit = TRUE;
     }
+    rofi_view_update ( state );
 }
 void process_result_error ( RofiViewState *state );
 void rofi_view_error_dialog ( const char *msg, int markup )

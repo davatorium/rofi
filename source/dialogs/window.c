@@ -63,9 +63,10 @@ typedef struct
 {
     xcb_window_t      window;
     xcb_get_window_attributes_reply_t xattr;
-    char              title[CLIENTTITLE];
-    char              class[CLIENTCLASS];
-    char              role[CLIENTROLE];
+    char              *title;
+    char              *class;
+    char              *name;
+    char              *role;
     int               states;
     xcb_atom_t        state[CLIENTSTATE];
     int               window_types;
@@ -74,18 +75,16 @@ typedef struct
     int               demands;
     long              hint_flags;
 } client;
-// TODO
-extern xcb_connection_t *xcb_connection;
+
 // window lists
 typedef struct
 {
     Window *array;
-    void   **data;
+    client **data;
     int    len;
 } winlist;
 
 winlist *cache_client = NULL;
-winlist *cache_xattr  = NULL;
 
 /**
  * Create a window list, pre-seeded with WINLIST entries.
@@ -97,7 +96,7 @@ static winlist* winlist_new ()
     winlist *l = g_malloc ( sizeof ( winlist ) );
     l->len   = 0;
     l->array = g_malloc_n ( WINLIST + 1, sizeof ( Window ) );
-    l->data  = g_malloc_n ( WINLIST + 1, sizeof ( void* ) );
+    l->data  = g_malloc_n ( WINLIST + 1, sizeof ( client* ) );
     return l;
 }
 
@@ -110,11 +109,11 @@ static winlist* winlist_new ()
  *
  * @returns 0 if failed, 1 is successful.
  */
-static int winlist_append ( winlist *l, Window w, void *d )
+static int winlist_append ( winlist *l, Window w, client *d )
 {
     if ( l->len > 0 && !( l->len % WINLIST ) ) {
         l->array = g_realloc ( l->array, sizeof ( Window ) * ( l->len + WINLIST + 1 ) );
-        l->data  = g_realloc ( l->data, sizeof ( void* ) * ( l->len + WINLIST + 1 ) );
+        l->data  = g_realloc ( l->data, sizeof ( client* ) * ( l->len + WINLIST + 1 ) );
     }
     // Make clang-check happy.
     // TODO: make clang-check clear this should never be 0.
@@ -130,7 +129,14 @@ static int winlist_append ( winlist *l, Window w, void *d )
 static void winlist_empty ( winlist *l )
 {
     while ( l->len > 0 ) {
-        g_free ( l->data[--( l->len )] );
+        client *c = l->data[--l->len];
+        if ( c != NULL ) {
+            g_free ( c->title );
+            g_free ( c->class );
+            g_free ( c->name );
+            g_free ( c->role );
+            g_free ( c );
+        }
     }
 }
 
@@ -179,9 +185,6 @@ static void x11_cache_create ( void )
     if ( cache_client == NULL ) {
         cache_client = winlist_new ();
     }
-    if ( cache_xattr == NULL ) {
-        cache_xattr = winlist_new ();
-    }
 }
 
 /**
@@ -189,8 +192,6 @@ static void x11_cache_create ( void )
  */
 static void x11_cache_free ( void )
 {
-    winlist_free ( cache_xattr );
-    cache_xattr = NULL;
     winlist_free ( cache_client );
     cache_client = NULL;
 }
@@ -206,19 +207,13 @@ static void x11_cache_free ( void )
  */
 static xcb_get_window_attributes_reply_t * window_get_attributes ( xcb_connection_t *xcb_connection, xcb_window_t w )
 {
-    int idx = winlist_find ( cache_xattr, w );
 
-    if ( idx < 0 ) {
-        xcb_get_window_attributes_cookie_t c = xcb_get_window_attributes(xcb_connection, w);
-        xcb_get_window_attributes_reply_t *r = xcb_get_window_attributes_reply ( xcb_connection, c, NULL);
-        if ( r ) {
-            winlist_append ( cache_xattr, w, r);
-            return r;
-        }
-        return NULL;
+    xcb_get_window_attributes_cookie_t c = xcb_get_window_attributes(xcb_connection, w);
+    xcb_get_window_attributes_reply_t *r = xcb_get_window_attributes_reply ( xcb_connection, c, NULL);
+    if ( r ) {
+        return r;
     }
-
-    return cache_xattr->data[idx];
+    return NULL;
 }
 // _NET_WM_STATE_*
 static int client_has_state ( client *c, Atom state )
@@ -281,25 +276,25 @@ static client* window_client ( xcb_connection_t *xcb_connection, xcb_window_t wi
     char *name;
 
     if ( ( name = window_get_text_prop ( xcb_connection, c->window, xcb_ewmh._NET_WM_NAME ) ) && name ) {
-        snprintf ( c->title, CLIENTTITLE, "%s", name );
-        g_free ( name );
+	c->title = name;
+	name = NULL;
     }
     else if ( (name = window_get_text_prop ( xcb_connection, c->window, XCB_ATOM_WM_NAME)) && name) { 
-        snprintf ( c->title, CLIENTTITLE, "%s", name );
-        g_free ( name );
+	c->title = name;
+	name = NULL;
     }
 
     name = window_get_text_prop ( xcb_connection, c->window, netatoms[WM_WINDOW_ROLE] );
 
     if ( name != NULL ) {
-        snprintf ( c->role, CLIENTROLE, "%s", name );
-        g_free ( name );
+	c->role = name;
+	name = NULL;
     }
 
     name = window_get_text_prop ( xcb_connection, c->window, XCB_ATOM_WM_CLASS );
     if ( name != NULL ){
-        snprintf ( c->class, CLIENTCLASS, "%s", name);
-        g_free(name);
+	c->class = name;
+	name = NULL;
     }
 
     xcb_get_property_cookie_t cc = xcb_icccm_get_wm_hints ( xcb_connection, c->window);
@@ -309,6 +304,7 @@ static client* window_client ( xcb_connection_t *xcb_connection, xcb_window_t wi
     }
 
     winlist_append ( cache_client, c->window, c );
+    g_free ( attr );
     return c;
 }
 
@@ -344,16 +340,20 @@ static int window_match ( const Mode *sw, char **tokens,
             // If hack not in place it would not match queries spanning multiple fields.
             // e.g. when searching 'title element' and 'class element'
             char *ftokens[2] = { tokens[j], NULL };
-            if ( !test && c->title[0] != '\0' ) {
+            if ( !test && c->title != NULL && c->title[0] != '\0' ) {
                 test = token_match ( ftokens, c->title, not_ascii, case_sensitive );
             }
 
-            if ( !test && c->class[0] != '\0' ) {
+            if ( !test && c->class != NULL && c->class[0] != '\0' ) {
                 test = token_match ( ftokens, c->class, not_ascii, case_sensitive );
             }
 
-            if ( !test && c->role[0] != '\0' ) {
+            if ( !test && c->role != NULL && c->role[0] != '\0' ) {
                 test = token_match ( ftokens, c->role, not_ascii, case_sensitive );
+            }
+
+            if ( !test && c->name != NULL && c->name[0] != '\0' ) {
+                test = token_match ( ftokens, c->name, not_ascii, case_sensitive );
             }
 
             if ( test == 0 ) {
@@ -467,7 +467,8 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                 unsigned int wmdesktop;
                 char          desktop[5];
                 desktop[0] = 0;
-                size_t        len   = strlen ( c->title ) + strlen ( c->class ) + classfield + 50;
+                size_t        len =
+                    ( ( c->title != NULL ) ? strlen ( c->title ) : 0 ) + ( c->class ? strlen ( c->class ) : 0 ) + classfield + 50;
                 char          *line = g_malloc ( len );
                 if ( !pd->config_i3_mode ) {
                     // find client's desktop.
@@ -494,10 +495,10 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                         snprintf ( desktop, 5, "%d", (int) wmdesktop );
                     }
 
-                    snprintf ( line, len, pattern, desktop, c->class, c->title );
+                    snprintf ( line, len, pattern, desktop, c->class ? c->class : "", c->title ? c->title : "" );
                 }
                 else{
-                    snprintf ( line, len, pattern, c->class, c->title );
+                    snprintf ( line, len, pattern, c->class ? c->class : "", c->title ? c->title : "" );
                 }
 
                 pd->cmd_list[pd->cmd_list_length++] = line;
@@ -586,7 +587,16 @@ static int window_is_not_ascii ( const Mode *sw, unsigned int index )
     int                       idx = winlist_find ( cache_client, ids->array[index] );
     g_assert ( idx >= 0 );
     client                    *c = cache_client->data[idx];
-    return !g_str_is_ascii ( c->role ) || !g_str_is_ascii ( c->class ) || !g_str_is_ascii ( c->title );
+    if ( c->role && !g_str_is_ascii ( c->role ) ) {
+        return TRUE;
+    }
+    if ( c->class && !g_str_is_ascii ( c->class ) ) {
+        return TRUE;
+    }
+    if ( c->title && !g_str_is_ascii ( c->title ) ) {
+        return TRUE;
+    }
+    return FALSE;
 }
 
 #include "mode-private.h"
