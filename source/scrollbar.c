@@ -24,13 +24,6 @@
 
 #include <config.h>
 #include <xkbcommon/xkbcommon.h>
-#include <X11/X.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/Xmd.h>
-#include <X11/Xutil.h>
-#include <X11/Xproto.h>
-#include <X11/Xft/Xft.h>
 #include <glib.h>
 #include "scrollbar.h"
 #include "x11-helper.h"

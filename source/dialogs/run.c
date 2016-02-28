@@ -32,7 +32,6 @@
 #include <config.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <X11/X.h>
 
 #include <unistd.h>
 #include <limits.h>
