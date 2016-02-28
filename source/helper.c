@@ -544,14 +544,6 @@ int config_sanity_check ( xcb_connection_t* xcb_connection )
         config.location = WL_CENTER;
         found_error     = 1;
     }
-    if ( 0 ) {
-        if ( !( config.line_margin <= 50 ) ) {
-            g_string_append_printf ( msg, "\t<b>config.line_margin</b>=%d is invalid. Value should be between %d and %d.\n",
-                                     config.line_margin, 0, 50 );
-            config.line_margin = 2;
-            found_error        = 1;
-        }
-    }
     if ( config.fullscreen && config.monitor != -1 ) {
         g_string_append_printf ( msg,
                                  "\t<b>config.monitor</b>=%d is invalid. Value should be unset (-1) when fullscreen mode is enabled.\n",
