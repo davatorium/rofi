@@ -15,7 +15,10 @@ addons:
           - libstartup-notification0-dev
           - libxkbcommon-dev
           - libxkbcommon-x11-dev
+          - libxcb-ewmh-dev
+          - libxcb-icccm4-dev
           - libxcb-util0-dev
+          - libxcb-xinerama0-dev
           - libxcb-xkb-dev
           - libxcb1-dev
           - xvfb
