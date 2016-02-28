@@ -48,7 +48,7 @@
 char *i3_socket_path = NULL;
 extern xcb_screen_t *xcb_screen;
 
-void i3_support_focus_window ( Window id )
+void i3_support_focus_window ( xcb_window_t id )
 {
     i3_ipc_header_t    head;
     int                s;
@@ -132,7 +132,7 @@ void i3_support_free_internals ( void )
 
 #else
 
-void i3_support_focus_window ( G_GNUC_UNUSED Window id )
+void i3_support_focus_window ( G_GNUC_UNUSED xcb_window_t id )
 {
     fprintf ( stderr, "Trying to control i3, when i3 support is not enabled.\n" );
     abort ();

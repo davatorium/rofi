@@ -485,7 +485,7 @@ static void check_is_ascii ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
     g_mutex_unlock ( t->mutex );
 }
 
-static Window __create_window ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen, MenuFlags menu_flags )
+static xcb_window_t __create_window ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen, MenuFlags menu_flags )
 {
     uint32_t selmask  = XCB_CW_BACK_PIXEL | XCB_CW_BORDER_PIXEL | XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
     uint32_t selval[] =

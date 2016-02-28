@@ -79,7 +79,7 @@ typedef struct
 // window lists
 typedef struct
 {
-    Window *array;
+    xcb_window_t *array;
     client **data;
     int    len;
 } winlist;
@@ -95,7 +95,7 @@ static winlist* winlist_new ()
 {
     winlist *l = g_malloc ( sizeof ( winlist ) );
     l->len   = 0;
-    l->array = g_malloc_n ( WINLIST + 1, sizeof ( Window ) );
+    l->array = g_malloc_n ( WINLIST + 1, sizeof ( xcb_window_t ) );
     l->data  = g_malloc_n ( WINLIST + 1, sizeof ( client* ) );
     return l;
 }
@@ -109,10 +109,10 @@ static winlist* winlist_new ()
  *
  * @returns 0 if failed, 1 is successful.
  */
-static int winlist_append ( winlist *l, Window w, client *d )
+static int winlist_append ( winlist *l, xcb_window_t w, client *d )
 {
     if ( l->len > 0 && !( l->len % WINLIST ) ) {
-        l->array = g_realloc ( l->array, sizeof ( Window ) * ( l->len + WINLIST + 1 ) );
+        l->array = g_realloc ( l->array, sizeof ( xcb_window_t ) * ( l->len + WINLIST + 1 ) );
         l->data  = g_realloc ( l->data, sizeof ( client* ) * ( l->len + WINLIST + 1 ) );
     }
     // Make clang-check happy.
@@ -163,7 +163,7 @@ static void winlist_free ( winlist *l )
  *
  * @returns -1 if failed, index is successful.
  */
-static int winlist_find ( winlist *l, Window w )
+static int winlist_find ( winlist *l, xcb_window_t w )
 {
 // iterate backwards. Theory is: windows most often accessed will be
 // nearer the end. Testing with kcachegrind seems to support this...
@@ -239,7 +239,7 @@ static int client_has_window_type ( client *c, xcb_atom_t type )
 
 static client* window_client ( xcb_connection_t *xcb_connection, xcb_window_t win )
 {
-    if ( win == None ) {
+    if ( win == XCB_WINDOW_NONE ) {
         return NULL;
     }
 
@@ -453,7 +453,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 
         // build the actual list
         for ( i = 0; i < ( pd->ids->len ); i++ ) {
-            Window w = pd->ids->array[i];
+            xcb_window_t w = pd->ids->array[i];
             client *c;
 
             if ( ( c = window_client ( xcb_connection, w ) ) ) {
@@ -540,7 +540,7 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
         else{
             xcb_ewmh_request_change_active_window ( &xcb_ewmh, xcb_screen_nbr, rmpd->ids->array[selected_line],
                     XCB_EWMH_CLIENT_SOURCE_TYPE_OTHER ,
-                    XCB_CURRENT_TIME, None);
+                    XCB_CURRENT_TIME, XCB_WINDOW_NONE);
             xcb_flush(xcb_connection);
         }
     }
