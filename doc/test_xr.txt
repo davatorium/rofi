@@ -226,10 +226,6 @@ rofi.kb-custom-19:                   Alt+Shift+9
 rofi.kb-screenshot:                  Alt+Shift+S
 ! Keybinding
 rofi.kb-toggle-sort:                 Alt+grave
-! Keybinding
-rofi.key-combi:                      Alt-F3
-! Keybinding
-rofi.key-drun:                       
 ! The display name of this browser
 rofi.display-ssh:                     
 ! The display name of this browser
