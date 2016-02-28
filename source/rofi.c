@@ -629,14 +629,6 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
-    if ( !XSupportsLocale () ) {
-        fprintf ( stderr, "X11 does not support locales\n" );
-        return EXIT_FAILURE;
-    }
-    if ( XSetLocaleModifiers ( "@im=none" ) == NULL ) {
-        fprintf ( stderr, "Failed to set locale modifier.\n" );
-        return EXIT_FAILURE;
-    }
     xcb_connection = xcb_connect ( display_str, &xcb_screen_nbr );
     TICK_N ( "Open Display" );
 

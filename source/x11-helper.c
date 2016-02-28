@@ -257,15 +257,16 @@ void monitor_active ( xcb_connection_t *xcb_connection, workarea *mon )
     unsigned int current_desktop = 0;
     if ( config.monitor != -2 && xcb_ewmh_get_current_desktop_reply ( &xcb_ewmh,
                 xcb_ewmh_get_current_desktop( &xcb_ewmh, xcb_screen_nbr), &current_desktop, NULL )) {
+            xcb_get_property_cookie_t c = xcb_ewmh_get_desktop_viewport(&xcb_ewmh, xcb_screen_nbr);
             xcb_ewmh_get_desktop_viewport_reply_t vp;
-            if ( xcb_ewmh_get_desktop_viewport_reply ( &xcb_ewmh,
-                        xcb_ewmh_get_desktop_viewport(&xcb_ewmh, xcb_screen_nbr),
-                        &vp, NULL)){
+            if ( xcb_ewmh_get_desktop_viewport_reply ( &xcb_ewmh, c, &vp, NULL)){
                 if ( current_desktop < vp.desktop_viewport_len) {
                     monitor_dimensions ( xcb_connection, xcb_screen, vp.desktop_viewport[current_desktop].x,
                             vp.desktop_viewport[current_desktop].y, mon );
+                    xcb_ewmh_get_desktop_viewport_reply_wipe(&vp);
                     return;
                 }
+                xcb_ewmh_get_desktop_viewport_reply_wipe(&vp);
             }
     }
 
