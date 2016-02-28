@@ -62,18 +62,18 @@
 #include "view-internal.h"
 
 // What todo with these.
-extern xcb_connection_t  *xcb_connection;
-extern xcb_screen_t      *xcb_screen;
-extern SnLauncheeContext *sncontext;
+extern xcb_connection_t      *xcb_connection;
+extern xcb_screen_t          *xcb_screen;
+extern SnLauncheeContext     *sncontext;
 extern xcb_ewmh_connection_t xcb_ewmh;
 
-GThreadPool              *tpool = NULL;
+GThreadPool                  *tpool = NULL;
 
-RofiViewState            *current_active_menu = NULL;
-xcb_window_t             main_window          = XCB_WINDOW_NONE;
-cairo_surface_t          *surface             = NULL;
-cairo_surface_t          *fake_bg             = NULL;
-cairo_t                  *draw                = NULL;
+RofiViewState                *current_active_menu = NULL;
+xcb_window_t                 main_window          = XCB_WINDOW_NONE;
+cairo_surface_t              *surface             = NULL;
+cairo_surface_t              *fake_bg             = NULL;
+cairo_t                      *draw                = NULL;
 
 static char * get_matching_state ( void )
 {
@@ -388,32 +388,33 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb
         }
         }
     }
-    else{ switch ( type )
-          {
-          case XCB_EXPOSE:
-              state->update = TRUE;
-              break;
-          case XCB_CONFIGURE_NOTIFY:
-          {
-              xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
-              if ( xce->window == main_window ) {
-                  if ( state->x != xce->x || state->y != xce->y ) {
-                      state->x      = xce->x;
-                      state->y      = xce->y;
-                      state->update = TRUE;
-                  }
-                  if ( state->w != xce->width || state->h != xce->height ) {
-                      state->w = xce->width;
-                      state->h = xce->height;
-                      cairo_xcb_surface_set_size ( surface, state->w, state->h );
-                      rofi_view_resize ( state );
-                  }
-              }
-              break;
-          }
-          default:
-              state->x11_event_loop ( state, event, xkb );
-          }
+    else{
+        switch ( type )
+        {
+        case XCB_EXPOSE:
+            state->update = TRUE;
+            break;
+        case XCB_CONFIGURE_NOTIFY:
+        {
+            xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
+            if ( xce->window == main_window ) {
+                if ( state->x != xce->x || state->y != xce->y ) {
+                    state->x      = xce->x;
+                    state->y      = xce->y;
+                    state->update = TRUE;
+                }
+                if ( state->w != xce->width || state->h != xce->height ) {
+                    state->w = xce->width;
+                    state->h = xce->height;
+                    cairo_xcb_surface_set_size ( surface, state->w, state->h );
+                    rofi_view_resize ( state );
+                }
+            }
+            break;
+        }
+        default:
+            state->x11_event_loop ( state, event, xkb );
+        }
     }
     rofi_view_update ( state );
 }
@@ -492,7 +493,7 @@ static xcb_window_t __create_window ( xcb_connection_t *xcb_connection, xcb_scre
     { 0,
       0,
       XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_KEY_PRESS |
-      XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION,map };
+      XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION, map };
 
     xcb_window_t box = xcb_generate_id ( xcb_connection );
     xcb_create_window ( xcb_connection,
@@ -540,8 +541,8 @@ static xcb_window_t __create_window ( xcb_connection_t *xcb_connection, xcb_scre
     // // make it an unmanaged window
     if ( ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) && !config.fullscreen ) {
         window_set_atom_prop ( xcb_connection, box, xcb_ewmh._NET_WM_STATE, &xcb_ewmh._NET_WM_STATE_ABOVE, 1 );
-        uint32_t values[] = {1};
-        xcb_change_window_attributes ( xcb_connection, box, XCB_CW_OVERRIDE_REDIRECT, values);
+        uint32_t values[] = { 1 };
+        xcb_change_window_attributes ( xcb_connection, box, XCB_CW_OVERRIDE_REDIRECT, values );
     }
     else{
         window_set_atom_prop ( xcb_connection, box, xcb_ewmh._NET_WM_WINDOW_TYPE, &xcb_ewmh._NET_WM_WINDOW_TYPE_NORMAL, 1 );
@@ -555,8 +556,8 @@ static xcb_window_t __create_window ( xcb_connection_t *xcb_connection, xcb_scre
     }
 
     // Set the WM_NAME
-    xcb_change_property ( xcb_connection, XCB_PROP_MODE_REPLACE, box, xcb_ewmh._NET_WM_NAME, xcb_ewmh.UTF8_STRING, 8, 4,"rofi");
-    xcb_change_property ( xcb_connection, XCB_PROP_MODE_REPLACE, box, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, 4,"rofi");
+    xcb_change_property ( xcb_connection, XCB_PROP_MODE_REPLACE, box, xcb_ewmh._NET_WM_NAME, xcb_ewmh.UTF8_STRING, 8, 4, "rofi" );
+    xcb_change_property ( xcb_connection, XCB_PROP_MODE_REPLACE, box, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, 4, "rofi" );
 
     x11_set_window_opacity ( xcb_connection, box, config.window_opacity );
     return box;
@@ -994,9 +995,10 @@ void rofi_view_update ( RofiViewState *state )
  */
 static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t *xse )
 {
-    if ( xse->property == XCB_ATOM_NONE ){
+    if ( xse->property == XCB_ATOM_NONE ) {
         fprintf ( stderr, "Failed to convert selection\n" );
-    } else if ( xse->property == xcb_ewmh.UTF8_STRING ) {
+    }
+    else if ( xse->property == xcb_ewmh.UTF8_STRING ) {
         gchar *text = window_get_text_prop ( xcb_connection, main_window, xcb_ewmh.UTF8_STRING );
         if ( text != NULL && text[0] != '\0' ) {
             unsigned int dl = strlen ( text );
@@ -1013,7 +1015,8 @@ static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t
             state->refilter = TRUE;
         }
         g_free ( text );
-    } else {
+    }
+    else {
         fprintf ( stderr, "Failed\n" );
     }
 }
@@ -1343,12 +1346,12 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
             // Handling of paste
             if ( abe_test_action ( PASTE_PRIMARY, modstate, key ) ) {
                 xcb_convert_selection ( xcb_connection, main_window, XCB_ATOM_PRIMARY,
-                        xcb_ewmh.UTF8_STRING,xcb_ewmh.UTF8_STRING, XCB_CURRENT_TIME );
+                                        xcb_ewmh.UTF8_STRING, xcb_ewmh.UTF8_STRING, XCB_CURRENT_TIME );
                 xcb_flush ( xcb_connection );
             }
             else if ( abe_test_action ( PASTE_SECONDARY, modstate, key ) ) {
                 xcb_convert_selection ( xcb_connection, main_window, XCB_ATOM_SECONDARY,
-                        xcb_ewmh.UTF8_STRING,xcb_ewmh.UTF8_STRING, XCB_CURRENT_TIME );
+                                        xcb_ewmh.UTF8_STRING, xcb_ewmh.UTF8_STRING, XCB_CURRENT_TIME );
                 xcb_flush ( xcb_connection );
             }
             if ( abe_test_action ( SCREENSHOT, modstate, key ) ) {

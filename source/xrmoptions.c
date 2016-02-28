@@ -225,7 +225,7 @@ static void __config_parse_xresource_options ( XrmDatabase xDB )
 }
 void config_parse_xresource_options ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen )
 {
-    char *name = window_get_text_prop ( xcb_connection, xcb_screen->root, XCB_ATOM_RESOURCE_MANAGER);
+    char *name = window_get_text_prop ( xcb_connection, xcb_screen->root, XCB_ATOM_RESOURCE_MANAGER );
     if ( name ) {
         // Map Xresource entries to rofi config options.
         XrmDatabase xDB = XrmGetStringDatabase ( name );
@@ -331,8 +331,8 @@ static void __config_parse_xresource_options_dynamic ( XrmDatabase xDB )
 
 void config_parse_xresource_options_dynamic ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen )
 {
-    char *name = window_get_text_prop ( xcb_connection, xcb_screen->root, XCB_ATOM_RESOURCE_MANAGER);
-    XrmDatabase xDB = XrmGetStringDatabase ( name );
+    char        *name = window_get_text_prop ( xcb_connection, xcb_screen->root, XCB_ATOM_RESOURCE_MANAGER );
+    XrmDatabase xDB   = XrmGetStringDatabase ( name );
     __config_parse_xresource_options_dynamic ( xDB );
     XrmDestroyDatabase ( xDB );
     g_free ( name );

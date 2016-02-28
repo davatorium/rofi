@@ -64,30 +64,30 @@
 #include "xkb-internal.h"
 
 // Pidfile.
-char              *pidfile        = NULL;
-const char        *cache_dir      = NULL;
-SnDisplay         *sndisplay      = NULL;
-SnLauncheeContext *sncontext      = NULL;
-xcb_connection_t  *xcb_connection = NULL;
+char                  *pidfile        = NULL;
+const char            *cache_dir      = NULL;
+SnDisplay             *sndisplay      = NULL;
+SnLauncheeContext     *sncontext      = NULL;
+xcb_connection_t      *xcb_connection = NULL;
 xcb_ewmh_connection_t xcb_ewmh;
-xcb_screen_t      *xcb_screen     = NULL;
-int xcb_screen_nbr = -1;
-struct xkb_stuff  xkb             = { NULL };
-char              *display_str = NULL;
-char              *config_path = NULL;
+xcb_screen_t          *xcb_screen    = NULL;
+int                   xcb_screen_nbr = -1;
+struct xkb_stuff      xkb            = { NULL };
+char                  *display_str = NULL;
+char                  *config_path = NULL;
 // Array of modi.
-Mode              **modi   = NULL;
-unsigned int      num_modi = 0;
+Mode                  **modi   = NULL;
+unsigned int          num_modi = 0;
 // Current selected switcher.
-unsigned int      curr_switcher = 0;
+unsigned int          curr_switcher = 0;
 
-GMainLoop         *main_loop        = NULL;
-GWaterXcbSource   *main_loop_source = NULL;
-gboolean          quiet             = FALSE;
+GMainLoop             *main_loop        = NULL;
+GWaterXcbSource       *main_loop_source = NULL;
+gboolean              quiet             = FALSE;
 
-static int        dmenu_mode = FALSE;
+static int            dmenu_mode = FALSE;
 
-int               return_code = EXIT_SUCCESS;
+int                   return_code = EXIT_SUCCESS;
 
 void process_result ( RofiViewState *state );
 void process_result_error ( RofiViewState *state );
@@ -324,7 +324,7 @@ static void cleanup ()
             sn_display_unref ( sndisplay );
             sndisplay = NULL;
         }
-        xcb_disconnect( xcb_connection );
+        xcb_disconnect ( xcb_connection );
         xcb_connection = NULL;
     }
 
@@ -473,7 +473,6 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
     return G_SOURCE_CONTINUE;
 }
 
-
 static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
 {
     // Break out of loop.
@@ -494,7 +493,7 @@ static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, xcb_connection_t 
         exit ( EXIT_FAILURE );
     }
 
-    xcb_flush(xdisplay);
+    xcb_flush ( xdisplay );
     --error_trap_depth;
 }
 
@@ -506,7 +505,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     char *msg   = NULL;
     //
     // Sanity check
-    if ( config_sanity_check ( xcb_connection) ) {
+    if ( config_sanity_check ( xcb_connection ) ) {
         return G_SOURCE_REMOVE;
     }
     TICK_N ( "Config sanity check" );
@@ -632,15 +631,14 @@ int main ( int argc, char *argv[] )
     xcb_connection = xcb_connect ( display_str, &xcb_screen_nbr );
     TICK_N ( "Open Display" );
 
-    xcb_screen     = xcb_aux_get_screen ( xcb_connection, xcb_screen_nbr );
+    xcb_screen = xcb_aux_get_screen ( xcb_connection, xcb_screen_nbr );
 
-    xcb_intern_atom_cookie_t *ac = xcb_ewmh_init_atoms(xcb_connection, &xcb_ewmh);
-    xcb_generic_error_t **errors = NULL;
-    xcb_ewmh_init_atoms_replies(&xcb_ewmh, ac, errors);
-    if (errors){
-        fprintf(stderr, "Failed to create EWMH atoms\n");
+    xcb_intern_atom_cookie_t *ac      = xcb_ewmh_init_atoms ( xcb_connection, &xcb_ewmh );
+    xcb_generic_error_t      **errors = NULL;
+    xcb_ewmh_init_atoms_replies ( &xcb_ewmh, ac, errors );
+    if ( errors ) {
+        fprintf ( stderr, "Failed to create EWMH atoms\n" );
     }
-
 
     if ( xkb_x11_setup_xkb_extension ( xcb_connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
                                        XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS, NULL, NULL, &xkb.first_event, NULL ) < 0 ) {
@@ -712,7 +710,7 @@ int main ( int argc, char *argv[] )
     sndisplay = sn_xcb_display_new ( xcb_connection, error_trap_push, error_trap_pop );
 
     if ( sndisplay != NULL ) {
-        sncontext = sn_launchee_context_new_from_environment ( sndisplay, xcb_screen_nbr);
+        sncontext = sn_launchee_context_new_from_environment ( sndisplay, xcb_screen_nbr );
     }
     TICK_N ( "Startup Notification" );
 

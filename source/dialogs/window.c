@@ -54,34 +54,34 @@
 #define CLIENTWINDOWTYPE    10
 #define CLIENTROLE          50
 
-extern xcb_connection_t *xcb_connection;
+extern xcb_connection_t      *xcb_connection;
 extern xcb_ewmh_connection_t xcb_ewmh;
-extern xcb_screen_t *xcb_screen;
-extern int xcb_screen_nbr;
+extern xcb_screen_t          *xcb_screen;
+extern int                   xcb_screen_nbr;
 // a manageable window
 typedef struct
 {
-    xcb_window_t      window;
+    xcb_window_t                      window;
     xcb_get_window_attributes_reply_t xattr;
-    char              *title;
-    char              *class;
-    char              *name;
-    char              *role;
-    int               states;
-    xcb_atom_t        state[CLIENTSTATE];
-    int               window_types;
-    xcb_atom_t        window_type[CLIENTWINDOWTYPE];
-    int               active;
-    int               demands;
-    long              hint_flags;
+    char                              *title;
+    char                              *class;
+    char                              *name;
+    char                              *role;
+    int                               states;
+    xcb_atom_t                        state[CLIENTSTATE];
+    int                               window_types;
+    xcb_atom_t                        window_type[CLIENTWINDOWTYPE];
+    int                               active;
+    int                               demands;
+    long                              hint_flags;
 } client;
 
 // window lists
 typedef struct
 {
     xcb_window_t *array;
-    client **data;
-    int    len;
+    client       **data;
+    int          len;
 } winlist;
 
 winlist *cache_client = NULL;
@@ -207,9 +207,8 @@ static void x11_cache_free ( void )
  */
 static xcb_get_window_attributes_reply_t * window_get_attributes ( xcb_connection_t *xcb_connection, xcb_window_t w )
 {
-
-    xcb_get_window_attributes_cookie_t c = xcb_get_window_attributes(xcb_connection, w);
-    xcb_get_window_attributes_reply_t *r = xcb_get_window_attributes_reply ( xcb_connection, c, NULL);
+    xcb_get_window_attributes_cookie_t c  = xcb_get_window_attributes ( xcb_connection, w );
+    xcb_get_window_attributes_reply_t  *r = xcb_get_window_attributes_reply ( xcb_connection, c, NULL );
     if ( r ) {
         return r;
     }
@@ -261,38 +260,37 @@ static client* window_client ( xcb_connection_t *xcb_connection, xcb_window_t wi
     // copy xattr so we don't have to care when stuff is freed
     memmove ( &c->xattr, attr, sizeof ( xcb_get_window_attributes_reply_t ) );
 
-
-    xcb_get_property_cookie_t cky = xcb_ewmh_get_wm_state(&xcb_ewmh, win);
+    xcb_get_property_cookie_t  cky = xcb_ewmh_get_wm_state ( &xcb_ewmh, win );
     xcb_ewmh_get_atoms_reply_t states;
-    if(xcb_ewmh_get_wm_state_reply( &xcb_ewmh, cky, &states, NULL)){
-        c->states = MIN(CLIENTSTATE,states.atoms_len);
-        memcpy(c->state, states.atoms, MIN(CLIENTSTATE, states.atoms_len));
-        xcb_ewmh_get_atoms_reply_wipe(&states);
+    if ( xcb_ewmh_get_wm_state_reply ( &xcb_ewmh, cky, &states, NULL ) ) {
+        c->states = MIN ( CLIENTSTATE, states.atoms_len );
+        memcpy ( c->state, states.atoms, MIN ( CLIENTSTATE, states.atoms_len ) );
+        xcb_ewmh_get_atoms_reply_wipe ( &states );
     }
-    cky = xcb_ewmh_get_wm_window_type(&xcb_ewmh, win);
-    if(xcb_ewmh_get_wm_window_type_reply( &xcb_ewmh, cky, &states, NULL)){
-        c->window_types= MIN(CLIENTWINDOWTYPE,states.atoms_len);
-        memcpy(c->window_type, states.atoms, MIN(CLIENTWINDOWTYPE, states.atoms_len));
-        xcb_ewmh_get_atoms_reply_wipe(&states);
+    cky = xcb_ewmh_get_wm_window_type ( &xcb_ewmh, win );
+    if ( xcb_ewmh_get_wm_window_type_reply ( &xcb_ewmh, cky, &states, NULL ) ) {
+        c->window_types = MIN ( CLIENTWINDOWTYPE, states.atoms_len );
+        memcpy ( c->window_type, states.atoms, MIN ( CLIENTWINDOWTYPE, states.atoms_len ) );
+        xcb_ewmh_get_atoms_reply_wipe ( &states );
     }
 
     c->title = window_get_text_prop ( xcb_connection, c->window, xcb_ewmh._NET_WM_NAME );
     if ( c->title == NULL ) {
-        c->title = window_get_text_prop ( xcb_connection, c->window, XCB_ATOM_WM_NAME);
+        c->title = window_get_text_prop ( xcb_connection, c->window, XCB_ATOM_WM_NAME );
     }
 
     c->role = window_get_text_prop ( xcb_connection, c->window, netatoms[WM_WINDOW_ROLE] );
 
     cky = xcb_icccm_get_wm_class ( xcb_connection, c->window );
     xcb_icccm_get_wm_class_reply_t wcr;
-    if ( xcb_icccm_get_wm_class_reply (xcb_connection, cky, &wcr, NULL)) {
-        c->class = g_strdup(wcr.class_name);
-        xcb_icccm_get_wm_class_reply_wipe (&wcr);
+    if ( xcb_icccm_get_wm_class_reply ( xcb_connection, cky, &wcr, NULL ) ) {
+        c->class = g_strdup ( wcr.class_name );
+        xcb_icccm_get_wm_class_reply_wipe ( &wcr );
     }
 
-    xcb_get_property_cookie_t cc = xcb_icccm_get_wm_hints ( xcb_connection, c->window);
-    xcb_icccm_wm_hints_t r;
-    if (xcb_icccm_get_wm_hints_reply ( xcb_connection, cc, &r, NULL)){
+    xcb_get_property_cookie_t cc = xcb_icccm_get_wm_hints ( xcb_connection, c->window );
+    xcb_icccm_wm_hints_t      r;
+    if ( xcb_icccm_get_wm_hints_reply ( xcb_connection, cc, &r, NULL ) ) {
         c->hint_flags = r.flags;
     }
 
@@ -365,48 +363,48 @@ static unsigned int window_mode_get_num_entries ( const Mode *sw )
 }
 static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 {
-    ModeModePrivateData *pd     = (ModeModePrivateData *) mode_get_private_data ( sw );
+    ModeModePrivateData *pd = (ModeModePrivateData *) mode_get_private_data ( sw );
     // find window list
     int                 nwins = 0;
-    xcb_window_t wins[100];
-    xcb_window_t curr_win_id;
+    xcb_window_t        wins[100];
+    xcb_window_t        curr_win_id;
     // Create cache
 
     x11_cache_create ();
     // Check for i3
     pd->config_i3_mode = i3_support_initialize ( xcb_connection );
-    xcb_get_property_cookie_t c =xcb_ewmh_get_active_window( &xcb_ewmh, xcb_screen_nbr);
-    if ( !xcb_ewmh_get_active_window_reply ( &xcb_ewmh, c, &curr_win_id, NULL )) {
+    xcb_get_property_cookie_t c = xcb_ewmh_get_active_window ( &xcb_ewmh, xcb_screen_nbr );
+    if ( !xcb_ewmh_get_active_window_reply ( &xcb_ewmh, c, &curr_win_id, NULL ) ) {
         curr_win_id = 0;
     }
 
     // Get the current desktop.
     unsigned int current_desktop = 0;
-    c = xcb_ewmh_get_current_desktop( &xcb_ewmh, xcb_screen_nbr);
-    if ( !xcb_ewmh_get_current_desktop_reply ( &xcb_ewmh, c, &current_desktop, NULL )){
+    c = xcb_ewmh_get_current_desktop ( &xcb_ewmh, xcb_screen_nbr );
+    if ( !xcb_ewmh_get_current_desktop_reply ( &xcb_ewmh, c, &current_desktop, NULL ) ) {
         current_desktop = 0;
     }
 
-    c = xcb_ewmh_get_client_list_stacking ( &xcb_ewmh, 0);
+    c = xcb_ewmh_get_client_list_stacking ( &xcb_ewmh, 0 );
     xcb_ewmh_get_windows_reply_t clients;
-    if ( xcb_ewmh_get_client_list_stacking_reply ( &xcb_ewmh, c, &clients, NULL)){
-        nwins = MIN ( 100, clients.windows_len);
-        memcpy(wins, clients.windows, nwins*sizeof(xcb_window_t) );
-        xcb_ewmh_get_windows_reply_wipe(&clients);
+    if ( xcb_ewmh_get_client_list_stacking_reply ( &xcb_ewmh, c, &clients, NULL ) ) {
+        nwins = MIN ( 100, clients.windows_len );
+        memcpy ( wins, clients.windows, nwins * sizeof ( xcb_window_t ) );
+        xcb_ewmh_get_windows_reply_wipe ( &clients );
     }
     else {
-        c = xcb_ewmh_get_client_list ( &xcb_ewmh, xcb_screen_nbr);
-        if  ( xcb_ewmh_get_client_list_reply ( &xcb_ewmh, c, &clients, NULL)) {
-            nwins = MIN ( 100, clients.windows_len);
-            memcpy(wins, clients.windows, nwins*sizeof(xcb_window_t) );
-            xcb_ewmh_get_windows_reply_wipe(&clients);
+        c = xcb_ewmh_get_client_list ( &xcb_ewmh, xcb_screen_nbr );
+        if  ( xcb_ewmh_get_client_list_reply ( &xcb_ewmh, c, &clients, NULL ) ) {
+            nwins = MIN ( 100, clients.windows_len );
+            memcpy ( wins, clients.windows, nwins * sizeof ( xcb_window_t ) );
+            xcb_ewmh_get_windows_reply_wipe ( &clients );
         }
     }
     if (  nwins > 0 ) {
-        char          pattern[50];
-        int           i;
-        unsigned int  classfield = 0;
-        unsigned int  desktops   = 0;
+        char         pattern[50];
+        int          i;
+        unsigned int classfield = 0;
+        unsigned int desktops   = 0;
         // windows we actually display. May be slightly different to _NET_CLIENT_LIST_STACKING
         // if we happen to have a window destroyed while we're working...
         pd->ids = winlist_new ();
@@ -425,7 +423,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                 if ( client_has_state ( c, xcb_ewmh._NET_WM_STATE_DEMANDS_ATTENTION ) ) {
                     c->demands = TRUE;
                 }
-                if ( ( c->hint_flags & XCB_ICCCM_WM_HINT_X_URGENCY ) != 0) {
+                if ( ( c->hint_flags & XCB_ICCCM_WM_HINT_X_URGENCY ) != 0 ) {
                     c->demands = TRUE;
                 }
 
@@ -437,9 +435,9 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
         }
 
         // Create pattern for printing the line.
-        xcb_get_property_cookie_t c = xcb_ewmh_get_number_of_desktops( &xcb_ewmh, xcb_screen_nbr);
-        if ( !xcb_ewmh_get_number_of_desktops_reply ( &xcb_ewmh, c, &desktops, NULL )){
-            desktops= 1;
+        xcb_get_property_cookie_t c = xcb_ewmh_get_number_of_desktops ( &xcb_ewmh, xcb_screen_nbr );
+        if ( !xcb_ewmh_get_number_of_desktops_reply ( &xcb_ewmh, c, &desktops, NULL ) ) {
+            desktops = 1;
         }
 
         if ( pd->config_i3_mode ) {
@@ -454,36 +452,38 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
         // build the actual list
         for ( i = 0; i < ( pd->ids->len ); i++ ) {
             xcb_window_t w = pd->ids->array[i];
-            client *c;
+            client       *c;
 
             if ( ( c = window_client ( xcb_connection, w ) ) ) {
                 // final line format
                 unsigned int wmdesktop;
-                char          desktop[5];
+                char         desktop[5];
                 desktop[0] = 0;
-                size_t        len =
+                size_t       len =
                     ( ( c->title != NULL ) ? strlen ( c->title ) : 0 ) + ( c->class ? strlen ( c->class ) : 0 ) + classfield + 50;
-                char          *line = g_malloc ( len );
+                char         *line = g_malloc ( len );
                 if ( !pd->config_i3_mode ) {
                     // find client's desktop.
                     xcb_get_property_cookie_t cookie;
-                    xcb_get_property_reply_t *r;
+                    xcb_get_property_reply_t  *r;
 
-                    cookie = xcb_get_property(xcb_connection, 0, c->window, xcb_ewmh._NET_WM_DESKTOP, XCB_GET_PROPERTY, 0, sizeof(unsigned int));
-                    r = xcb_get_property_reply(xcb_connection, cookie, NULL);
-                    if ( r&& r->type == XCB_ATOM_INTEGER){
-                        wmdesktop = *((int *)xcb_get_property_value(r));
+                    cookie =
+                        xcb_get_property ( xcb_connection, 0, c->window, xcb_ewmh._NET_WM_DESKTOP, XCB_GET_PROPERTY, 0,
+                                           sizeof ( unsigned int ) );
+                    r = xcb_get_property_reply ( xcb_connection, cookie, NULL );
+                    if ( r && r->type == XCB_ATOM_INTEGER ) {
+                        wmdesktop = *( (int *) xcb_get_property_value ( r ) );
                     }
-                    if ( r&&r->type != XCB_ATOM_INTEGER) {
+                    if ( r && r->type != XCB_ATOM_INTEGER ) {
                         // Assume the client is on all desktops.
                         wmdesktop = 0xFFFFFFFF;
                     }
                     else if ( cd && wmdesktop != current_desktop ) {
                         g_free ( line );
-                        free(r);
+                        free ( r );
                         continue;
                     }
-                    free(r);
+                    free ( r );
 
                     if ( wmdesktop < 0xFFFFFFFF ) {
                         snprintf ( desktop, 5, "%d", (int) wmdesktop );
@@ -539,9 +539,9 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
         }
         else{
             xcb_ewmh_request_change_active_window ( &xcb_ewmh, xcb_screen_nbr, rmpd->ids->array[selected_line],
-                    XCB_EWMH_CLIENT_SOURCE_TYPE_OTHER ,
-                    XCB_CURRENT_TIME, XCB_WINDOW_NONE);
-            xcb_flush(xcb_connection);
+                                                    XCB_EWMH_CLIENT_SOURCE_TYPE_OTHER,
+                                                    XCB_CURRENT_TIME, XCB_WINDOW_NONE );
+            xcb_flush ( xcb_connection );
         }
     }
     return retv;

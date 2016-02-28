@@ -24,9 +24,8 @@ unsigned int normal_window_mode = 0;
 void rofi_view_queue_redraw ()
 {
 }
-Color color_get (const char *name)
+Color color_get ( const char *name )
 {
-
 }
 
 void rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
@@ -46,9 +45,9 @@ int show_error_message ( const char *msg, int markup )
 
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
-    cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 100, 100);
-    cairo_t *draw = cairo_create(surf);
-    PangoContext *p = pango_cairo_create_context ( draw );
+    cairo_surface_t *surf = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, 100, 100 );
+    cairo_t         *draw = cairo_create ( surf );
+    PangoContext    *p    = pango_cairo_create_context ( draw );
     textbox_set_pango_context ( p );
 
     textbox *box = textbox_create ( TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, 0, 0, -1, -1,
@@ -129,5 +128,4 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 
     textbox_free ( box );
     textbox_cleanup ( );
-
 }

@@ -32,9 +32,9 @@ void window_set_atom_prop ( xcb_connection_t *xcb_connection, xcb_window_t w, xc
 #define ATOM_CHAR( x )    # x
 
 // usable space on a monitor
-#define EWMH_ATOMS( X )                    \
-    X ( _NET_WM_WINDOW_OPACITY ),          \
-    X ( I3_SOCKET_PATH ),                  \
+#define EWMH_ATOMS( X )           \
+    X ( _NET_WM_WINDOW_OPACITY ), \
+    X ( I3_SOCKET_PATH ),         \
     X ( WM_WINDOW_ROLE )
 
 enum { EWMH_ATOMS ( ATOM_ENUM ), NUM_NETATOMS };

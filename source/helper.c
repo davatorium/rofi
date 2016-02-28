@@ -47,9 +47,9 @@
 #include "view.h"
 
 extern xcb_connection_t *xcb_connection;
-extern xcb_screen_t *xcb_screen;
-static int  stored_argc   = 0;
-static char **stored_argv = NULL;
+extern xcb_screen_t     *xcb_screen;
+static int              stored_argc   = 0;
+static char             **stored_argv = NULL;
 
 void cmd_set_arguments ( int argc, char **argv )
 {
@@ -511,7 +511,7 @@ void remove_pid_file ( int fd )
  *
  * This functions exits the program with 1 when it finds an invalid configuration.
  */
-int config_sanity_check ( xcb_connection_t* xcb_connection)
+int config_sanity_check ( xcb_connection_t* xcb_connection )
 {
     // If alternative row is not set, copy the normal background color.
     // Do this at the beginning as we might use it in the error dialog.

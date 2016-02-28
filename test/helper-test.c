@@ -32,9 +32,9 @@ int show_error_message ( const char *msg, int markup )
     rofi_view_error_dialog ( msg, markup );
     return 0;
 }
-xcb_screen_t *xcb_screen;
+xcb_screen_t          *xcb_screen;
 xcb_ewmh_connection_t xcb_ewmh;
-int xcb_screen_nbr;
+int                   xcb_screen_nbr;
 #include <x11-helper.h>
 
 int main ( int argc, char ** argv )
