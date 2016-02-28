@@ -453,7 +453,7 @@ void x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key )
         }
     }
     if ( sym == XKB_KEY_NoSymbol ) {
-        sym = xkb_keysym_from_name ( combo + i, XKB_KEYSYM_NO_FLAGS );
+        sym = xkb_keysym_from_name ( combo + i, XKB_KEYSYM_CASE_INSENSITIVE );
     }
 
     if ( sym == XKB_KEY_NoSymbol || ( !modmask && ( strchr ( combo, '-' ) || strchr ( combo, '+' ) ) ) ) {
