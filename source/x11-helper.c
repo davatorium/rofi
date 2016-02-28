@@ -76,7 +76,7 @@ extern xcb_connection_t *xcb_connection;
 
 // retrieve a text property from a window
 // technically we could use window_get_prop(), but this is better for character set support
-char* window_get_text_prop ( xcb_connection_t *xcb_connection, xcb_window_t w, Atom atom )
+char* window_get_text_prop ( xcb_connection_t *xcb_connection, xcb_window_t w, xcb_atom_t atom )
 {
     xcb_get_property_cookie_t c = xcb_get_property( xcb_connection, 0, w, atom, XCB_GET_PROPERTY_TYPE_ANY, 0, UINT_MAX);
     xcb_get_property_reply_t *r = xcb_get_property_reply( xcb_connection, c, NULL);

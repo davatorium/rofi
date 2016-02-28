@@ -21,7 +21,7 @@
  *
  * @returns a newly allocated string with the result or NULL
  */
-char* window_get_text_prop ( xcb_connection_t *xcb_connection, xcb_window_t w, Atom atom );
+char* window_get_text_prop ( xcb_connection_t *xcb_connection, xcb_window_t w, xcb_atom_t atom );
 
 void window_set_atom_prop ( xcb_connection_t *xcb_connection, xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms, int count );
 

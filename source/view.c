@@ -551,7 +551,7 @@ static Window __create_window ( xcb_connection_t *xcb_connection, xcb_screen_t *
             xcb_ewmh._NET_WM_STATE_FULLSCREEN,
             xcb_ewmh._NET_WM_STATE_ABOVE
         };
-        window_set_atom_prop ( xcb_connection, box, xcb_ewmh._NET_WM_STATE, atoms, sizeof ( atoms ) / sizeof ( Atom ) );
+        window_set_atom_prop ( xcb_connection, box, xcb_ewmh._NET_WM_STATE, atoms, sizeof ( atoms ) / sizeof ( xcb_atom_t ) );
     }
 
     // Set the WM_NAME

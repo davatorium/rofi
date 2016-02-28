@@ -216,7 +216,7 @@ static xcb_get_window_attributes_reply_t * window_get_attributes ( xcb_connectio
     return NULL;
 }
 // _NET_WM_STATE_*
-static int client_has_state ( client *c, Atom state )
+static int client_has_state ( client *c, xcb_atom_t state )
 {
     for ( int i = 0; i < c->states; i++ ) {
         if ( c->state[i] == state ) {
@@ -226,7 +226,7 @@ static int client_has_state ( client *c, Atom state )
 
     return 0;
 }
-static int client_has_window_type ( client *c, Atom type )
+static int client_has_window_type ( client *c, xcb_atom_t type )
 {
     for ( int i = 0; i < c->window_types; i++ ) {
         if ( c->window_type[i] == type ) {
