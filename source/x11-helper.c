@@ -313,12 +313,16 @@ int take_keyboard ( xcb_connection_t *xcb_connection, xcb_window_t w )
 {
 
     for ( int i = 0; i < 500; i++ ) {
-        xcb_grab_keyboard_cookie_t cc = xcb_grab_keyboard ( xcb_connection, 1, w, XCB_CURRENT_TIME, XCB_GRAB_MODE_ASYNC,
+        xcb_grab_keyboard_cookie_t cc = xcb_grab_keyboard ( xcb_connection,
+                1, w, XCB_CURRENT_TIME, XCB_GRAB_MODE_ASYNC,
                 XCB_GRAB_MODE_ASYNC);
         xcb_grab_keyboard_reply_t *r = xcb_grab_keyboard_reply ( xcb_connection, cc, NULL);
         if ( r ) {
+            if ( r->status == XCB_GRAB_STATUS_SUCCESS) {
+                free(r);
+                return 1;
+            }
             free ( r );
-            return 1;
         }
         usleep ( 1000 );
     }
