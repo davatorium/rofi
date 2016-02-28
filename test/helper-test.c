@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <helper.h>
 #include <string.h>
+#include <xcb/xcb_ewmh.h>
 #include "settings.h"
 
 static int test = 0;
@@ -31,15 +32,10 @@ int show_error_message ( const char *msg, int markup )
     rofi_view_error_dialog ( msg, markup );
     return 0;
 }
+xcb_screen_t *xcb_screen;
+xcb_ewmh_connection_t xcb_ewmh;
+int xcb_screen_nbr;
 #include <x11-helper.h>
-int monitor_get_smallest_size ( G_GNUC_UNUSED Display *d )
-{
-    return 0;
-}
-int monitor_get_dimension ( G_GNUC_UNUSED Display *d, G_GNUC_UNUSED Screen *screen, G_GNUC_UNUSED int monitor, G_GNUC_UNUSED workarea *mon )
-{
-    return 0;
-}
 
 int main ( int argc, char ** argv )
 {
