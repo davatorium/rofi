@@ -198,6 +198,10 @@ static void calculate_window_position ( RofiViewState *state )
     // Apply offset.
     state->x += config.x_offset;
     state->y += config.y_offset;
+    if ( config.fullscreen ) {
+        state->x = state->mon.x;
+        state->y = state->mon.y;
+    }
 }
 
 void rofi_view_queue_redraw ( void )
@@ -495,7 +499,7 @@ static xcb_window_t __create_window ( xcb_connection_t *xcb_connection, xcb_scre
     { 0,
       0,
       XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_KEY_PRESS |
-      XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION, map };
+      XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION,map };
 
     xcb_window_t box = xcb_generate_id ( xcb_connection );
     xcb_create_window ( xcb_connection,
@@ -621,6 +625,10 @@ static void rofi_view_calculate_window_and_element_width ( RofiViewState *state 
     else{
         // Calculate as float to stop silly, big rounding down errors.
         state->w = config.menu_width < 101 ? ( state->mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
+    }
+    if ( config.fullscreen ) {
+        state->w = state->mon.w;
+        state->h = state->mon.h;
     }
 
     if ( state->columns > 0 ) {
@@ -1565,14 +1573,19 @@ RofiViewState *rofi_view_create ( Mode *sw,
     }
 
     // we need this at this point so we can get height.
-    state->line_height    = textbox_get_estimated_char_height ();
+    state->line_height = textbox_get_estimated_char_height ();
+    int element_height = state->line_height * config.element_height;
     state->case_indicator = textbox_create ( TB_AUTOWIDTH, ( state->border ), ( state->border ),
                                              0, state->line_height, NORMAL, "*" );
+    state->top_offset = state->border * 1 + state->line_height + 2 + config.line_margin * 2;
     // Height of a row.
-    if ( config.menu_lines == 0 ) {
+    if ( config.menu_lines == 0 || config.fullscreen  ) {
         // Autosize it.
-        int h = state->mon.h - state->border * 2 - config.line_margin;
-        int r = ( h ) / ( state->line_height * config.element_height ) - 1 - config.sidebar_mode;
+        int h = state->mon.h - state->top_offset - config.padding;
+        if ( config.sidebar_mode == TRUE ) {
+            h -= state->line_height + config.line_margin;
+        }
+        int r = MAX ( 1, ( h ) / ( element_height + config.line_margin ) );
         state->menu_lines = r;
     }
     else {
@@ -1593,8 +1606,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
                                    ( state->border ) + textbox_get_width ( state->prompt_tb ), ( state->border ),
                                    entrybox_width, state->line_height, NORMAL, input );
 
-    state->top_offset = state->border * 1 + state->line_height + 2 + config.line_margin * 2;
-
     // Move indicator to end.
     widget_move ( WIDGET ( state->case_indicator ), state->border + textbox_get_width ( state->prompt_tb ) + entrybox_width,
                   state->border );
@@ -1609,7 +1620,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
         state->top_offset += config.line_margin * 2 + 2;
     }
 
-    int element_height = state->line_height * config.element_height;
     // filtered list display
     state->boxes = g_malloc0_n ( state->max_elements, sizeof ( textbox* ) );
 
@@ -1666,8 +1676,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Display it.
     xcb_configure_window ( xcb_connection, state->window, mask, vals );
     cairo_xcb_surface_set_size ( surface, state->w, state->h );
-    xcb_map_window ( xcb_connection, state->window );
-    xcb_flush ( xcb_connection );
 
     // if grabbing keyboard failed, fall through
     state->selected = 0;
@@ -1677,6 +1685,8 @@ RofiViewState *rofi_view_create ( Mode *sw,
     rofi_view_refilter ( state );
 
     rofi_view_update ( state );
+    xcb_map_window ( xcb_connection, state->window );
+    xcb_flush ( xcb_connection );
     if ( sncontext != NULL ) {
         sn_launchee_context_complete ( sncontext );
     }
