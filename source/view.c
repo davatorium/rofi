@@ -50,6 +50,7 @@
 
 #include "rofi.h"
 #include "mode.h"
+#include "xcb-internal.h"
 #include "xkb-internal.h"
 #include "helper.h"
 #include "textbox.h"
@@ -61,19 +62,15 @@
 #include "view.h"
 #include "view-internal.h"
 
-// What todo with these.
-extern xcb_connection_t      *xcb_connection;
-extern xcb_screen_t          *xcb_screen;
-extern SnLauncheeContext     *sncontext;
-extern xcb_ewmh_connection_t xcb_ewmh;
+#include "xcb.h"
 
-GThreadPool                  *tpool = NULL;
+GThreadPool             *tpool = NULL;
 
-RofiViewState                *current_active_menu = NULL;
-xcb_window_t                 main_window          = XCB_WINDOW_NONE;
-cairo_surface_t              *surface             = NULL;
-cairo_surface_t              *fake_bg             = NULL;
-cairo_t                      *draw                = NULL;
+RofiViewState           *current_active_menu = NULL;
+xcb_window_t            main_window          = XCB_WINDOW_NONE;
+cairo_surface_t         *surface             = NULL;
+cairo_surface_t         *fake_bg             = NULL;
+cairo_t                 *draw                = NULL;
 
 static char * get_matching_state ( void )
 {
@@ -204,12 +201,12 @@ static void calculate_window_position ( RofiViewState *state )
     }
 }
 
-void rofi_view_queue_redraw ( void )
+void rofi_view_queue_redraw ( void  )
 {
     if ( current_active_menu ) {
         current_active_menu->update = TRUE;
-        xcb_clear_area ( xcb_connection, current_active_menu->window, 1, 0, 0, 1, 1 );
-        xcb_flush ( xcb_connection );
+        xcb_clear_area ( xcb->connection, current_active_menu->window, 1, 0, 0, 1, 1 );
+        xcb_flush ( xcb->connection );
     }
 }
 
@@ -243,8 +240,8 @@ void rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_l
     }
 
     state->update = TRUE;
-    xcb_clear_area ( xcb_connection, state->window, 1, 0, 0, 1, 1 );
-    xcb_flush ( xcb_connection );
+    xcb_clear_area ( xcb->connection, state->window, 1, 0, 0, 1, 1 );
+    xcb_flush ( xcb->connection );
 }
 
 void rofi_view_free ( RofiViewState *state )
@@ -377,8 +374,8 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb
         case XCB_XKB_MAP_NOTIFY:
             xkb_state_unref ( xkb->state );
             xkb_keymap_unref ( xkb->keymap );
-            xkb->keymap = xkb_x11_keymap_new_from_device ( xkb->context, xkb->xcb_connection, xkb->device_id, 0 );
-            xkb->state  = xkb_x11_state_new_from_device ( xkb->keymap, xkb->xcb_connection, xkb->device_id );
+            xkb->keymap = xkb_x11_keymap_new_from_device ( xkb->context, xcb->connection, xkb->device_id, 0 );
+            xkb->state  = xkb_x11_state_new_from_device ( xkb->keymap, xcb->connection, xkb->device_id );
             break;
         case XCB_XKB_STATE_NOTIFY:
         {
@@ -492,7 +489,7 @@ static void check_is_ascii ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
     g_mutex_unlock ( t->mutex );
 }
 
-static xcb_window_t __create_window ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen, MenuFlags menu_flags )
+static xcb_window_t __create_window ( MenuFlags menu_flags )
 {
     uint32_t selmask  = XCB_CW_BACK_PIXEL | XCB_CW_BORDER_PIXEL | XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
     uint32_t selval[] =
@@ -501,11 +498,11 @@ static xcb_window_t __create_window ( xcb_connection_t *xcb_connection, xcb_scre
       XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_KEY_PRESS |
       XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION,map };
 
-    xcb_window_t box = xcb_generate_id ( xcb_connection );
-    xcb_create_window ( xcb_connection,
+    xcb_window_t box = xcb_generate_id ( xcb->connection );
+    xcb_create_window ( xcb->connection,
                         depth->depth,
                         box,
-                        xcb_screen->root,
+                        xcb_stuff_get_root_window(xcb),
                         0,
                         0,
                         200,
@@ -516,7 +513,7 @@ static xcb_window_t __create_window ( xcb_connection_t *xcb_connection, xcb_scre
                         selmask,
                         selval );
 
-    surface = cairo_xcb_surface_create ( xcb_connection, box, visual, 200, 100 );
+    surface = cairo_xcb_surface_create ( xcb->connection, box, visual, 200, 100 );
     // Create a drawable.
     draw = cairo_create ( surface );
     g_assert ( draw != NULL );
@@ -546,26 +543,26 @@ static xcb_window_t __create_window ( xcb_connection_t *xcb_connection, xcb_scre
 
     // // make it an unmanaged window
     if ( ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) && !config.fullscreen ) {
-        window_set_atom_prop ( xcb_connection, box, xcb_ewmh._NET_WM_STATE, &xcb_ewmh._NET_WM_STATE_ABOVE, 1 );
+        window_set_atom_prop ( box, xcb->ewmh._NET_WM_STATE, &(xcb->ewmh._NET_WM_STATE_ABOVE), 1 );
         uint32_t values[] = { 1 };
-        xcb_change_window_attributes ( xcb_connection, box, XCB_CW_OVERRIDE_REDIRECT, values );
+        xcb_change_window_attributes ( xcb->connection, box, XCB_CW_OVERRIDE_REDIRECT, values );
     }
     else{
-        window_set_atom_prop ( xcb_connection, box, xcb_ewmh._NET_WM_WINDOW_TYPE, &xcb_ewmh._NET_WM_WINDOW_TYPE_NORMAL, 1 );
+        window_set_atom_prop ( box, xcb->ewmh._NET_WM_WINDOW_TYPE, &(xcb->ewmh._NET_WM_WINDOW_TYPE_NORMAL), 1 );
     }
     if ( config.fullscreen ) {
         xcb_atom_t atoms[] = {
-            xcb_ewmh._NET_WM_STATE_FULLSCREEN,
-            xcb_ewmh._NET_WM_STATE_ABOVE
+            xcb->ewmh._NET_WM_STATE_FULLSCREEN,
+            xcb->ewmh._NET_WM_STATE_ABOVE
         };
-        window_set_atom_prop ( xcb_connection, box, xcb_ewmh._NET_WM_STATE, atoms, sizeof ( atoms ) / sizeof ( xcb_atom_t ) );
+        window_set_atom_prop (  box, xcb->ewmh._NET_WM_STATE, atoms, sizeof ( atoms ) / sizeof ( xcb_atom_t ) );
     }
 
     // Set the WM_NAME
-    xcb_change_property ( xcb_connection, XCB_PROP_MODE_REPLACE, box, xcb_ewmh._NET_WM_NAME, xcb_ewmh.UTF8_STRING, 8, 4, "rofi" );
-    xcb_change_property ( xcb_connection, XCB_PROP_MODE_REPLACE, box, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, 4, "rofi" );
+    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box, xcb->ewmh._NET_WM_NAME, xcb->ewmh.UTF8_STRING, 8, 4, "rofi" );
+    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, 4, "rofi" );
 
-    x11_set_window_opacity ( xcb_connection, box, config.window_opacity );
+    x11_set_window_opacity ( box, config.window_opacity );
     return box;
 }
 
@@ -993,7 +990,7 @@ void rofi_view_update ( RofiViewState *state )
 
     // Flush the surface.
     cairo_surface_flush ( surface );
-    xcb_flush ( xcb_connection );
+    xcb_flush ( xcb->connection );
     TICK ();
 }
 
@@ -1008,8 +1005,8 @@ static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t
     if ( xse->property == XCB_ATOM_NONE ) {
         fprintf ( stderr, "Failed to convert selection\n" );
     }
-    else if ( xse->property == xcb_ewmh.UTF8_STRING ) {
-        gchar *text = window_get_text_prop ( xcb_connection, state->window, xcb_ewmh.UTF8_STRING );
+    else if ( xse->property == xcb->ewmh.UTF8_STRING ) {
+        gchar *text = window_get_text_prop ( state->window, xcb->ewmh.UTF8_STRING );
         if ( text != NULL && text[0] != '\0' ) {
             unsigned int dl = strlen ( text );
             // Strip new line
@@ -1267,14 +1264,14 @@ void rofi_view_finalize ( RofiViewState *state )
         state->finalize ( state );
     }
 }
-void rofi_view_setup_fake_transparency ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen, RofiViewState *state )
+void rofi_view_setup_fake_transparency ( RofiViewState *state )
 {
     if ( fake_bg == NULL ) {
-        cairo_surface_t *s = cairo_xcb_surface_create ( xcb_connection,
-                                                        xcb_screen->root,
+        cairo_surface_t *s = cairo_xcb_surface_create ( xcb->connection,
+                                                        xcb_stuff_get_root_window(xcb),
                                                         root_visual,
-                                                        xcb_screen->width_in_pixels,
-                                                        xcb_screen->height_in_pixels );
+                                                        xcb->screen->width_in_pixels,
+                                                        xcb->screen->height_in_pixels );
 
         fake_bg = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, state->mon.w, state->mon.h );
         cairo_t *dr = cairo_create ( fake_bg );
@@ -1292,12 +1289,12 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
     {
     case XCB_FOCUS_IN:
         if ( ( state->menu_flags & MENU_NORMAL_WINDOW ) == 0 ) {
-            take_keyboard ( xcb_connection, state->window );
+            take_keyboard ( state->window );
         }
         break;
     case XCB_FOCUS_OUT:
         if ( ( state->menu_flags & MENU_NORMAL_WINDOW ) == 0 ) {
-            release_keyboard ( xcb_connection );
+            release_keyboard ( );
         }
         break;
     case XCB_MOTION_NOTIFY:
@@ -1355,14 +1352,14 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
         if ( key != XKB_KEY_NoSymbol ) {
             // Handling of paste
             if ( abe_test_action ( PASTE_PRIMARY, modstate, key ) ) {
-                xcb_convert_selection ( xcb_connection, state->window, XCB_ATOM_PRIMARY,
-                                        xcb_ewmh.UTF8_STRING, xcb_ewmh.UTF8_STRING, XCB_CURRENT_TIME );
-                xcb_flush ( xcb_connection );
+                xcb_convert_selection ( xcb->connection, state->window, XCB_ATOM_PRIMARY,
+                                        xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
+                xcb_flush ( xcb->connection );
             }
             else if ( abe_test_action ( PASTE_SECONDARY, modstate, key ) ) {
-                xcb_convert_selection ( xcb_connection, state->window, XCB_ATOM_SECONDARY,
-                                        xcb_ewmh.UTF8_STRING, xcb_ewmh.UTF8_STRING, XCB_CURRENT_TIME );
-                xcb_flush ( xcb_connection );
+                xcb_convert_selection ( xcb->connection, state->window, XCB_ATOM_SECONDARY,
+                                        xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
+                xcb_flush ( xcb->connection );
             }
             if ( abe_test_action ( SCREENSHOT, modstate, key ) ) {
                 menu_capture_screenshot ( );
@@ -1506,9 +1503,9 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     if ( main_window == XCB_WINDOW_NONE ) {
-        main_window = __create_window ( xcb_connection, xcb_screen, menu_flags );
-        if ( sncontext != NULL ) {
-            sn_launchee_context_setup_window ( sncontext, state->window );
+        main_window = __create_window ( menu_flags );
+        if ( xcb->sncontext != NULL ) {
+            sn_launchee_context_setup_window ( xcb->sncontext, state->window );
         }
     }
     state->window = main_window;
@@ -1555,7 +1552,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
     if ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) {
-        int has_keyboard = take_keyboard ( xcb_connection, xcb_screen->root );
+        int has_keyboard = take_keyboard ( xcb_stuff_get_root_window(xcb) );
 
         if ( !has_keyboard ) {
             fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
@@ -1566,10 +1563,10 @@ RofiViewState *rofi_view_create ( Mode *sw,
     }
     TICK_N ( "Grab keyboard" );
     // Get active monitor size.
-    monitor_active ( xcb_connection, &( state->mon ) );
+    monitor_active ( &( state->mon ) );
     TICK_N ( "Get active monitor" );
     if ( config.fake_transparency ) {
-        rofi_view_setup_fake_transparency ( xcb_connection, xcb_screen, state );
+        rofi_view_setup_fake_transparency ( state );
     }
 
     // we need this at this point so we can get height.
@@ -1674,7 +1671,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     uint32_t vals[] = { state->x, state->y, state->w, state->h };
 
     // Display it.
-    xcb_configure_window ( xcb_connection, state->window, mask, vals );
+    xcb_configure_window ( xcb->connection, state->window, mask, vals );
     cairo_xcb_surface_set_size ( surface, state->w, state->h );
 
     // if grabbing keyboard failed, fall through
@@ -1685,10 +1682,10 @@ RofiViewState *rofi_view_create ( Mode *sw,
     rofi_view_refilter ( state );
 
     rofi_view_update ( state );
-    xcb_map_window ( xcb_connection, state->window );
-    xcb_flush ( xcb_connection );
-    if ( sncontext != NULL ) {
-        sn_launchee_context_complete ( sncontext );
+    xcb_map_window ( xcb->connection, state->window );
+    xcb_flush ( xcb->connection );
+    if ( xcb->sncontext != NULL ) {
+        sn_launchee_context_complete ( xcb->sncontext );
     }
     return state;
 }
@@ -1714,20 +1711,20 @@ void rofi_view_error_dialog ( const char *msg, int markup )
     state->finalize       = process_result_error;
 
     // Get active monitor size.
-    monitor_active ( xcb_connection, &( state->mon ) );
+    monitor_active ( &( state->mon ) );
     if ( config.fake_transparency ) {
-        rofi_view_setup_fake_transparency ( xcb_connection, xcb_screen, state );
+        rofi_view_setup_fake_transparency ( state );
     }
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
     if ( main_window == XCB_WINDOW_NONE ) {
-        main_window = __create_window ( xcb_connection, xcb_screen, MENU_NORMAL );
+        main_window = __create_window ( MENU_NORMAL );
     }
     state->window = main_window;
 
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
-    int has_keyboard = take_keyboard ( xcb_connection, xcb_screen->root );
+    int has_keyboard = take_keyboard ( xcb_stuff_get_root_window(xcb));
     if ( !has_keyboard ) {
         fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
         return;
@@ -1748,14 +1745,14 @@ void rofi_view_error_dialog ( const char *msg, int markup )
     uint16_t mask   = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
     uint32_t vals[] = { state->x, state->y, state->w, state->h };
 
-    xcb_configure_window ( xcb_connection, state->window, mask, vals );
+    xcb_configure_window ( xcb->connection, state->window, mask, vals );
     calculate_window_position ( state );
     cairo_xcb_surface_set_size ( surface, state->w, state->h );
     // Display it.
-    xcb_map_window ( xcb_connection, state->window );
+    xcb_map_window ( xcb->connection, state->window );
 
-    if ( sncontext != NULL ) {
-        sn_launchee_context_complete ( sncontext );
+    if ( xcb->sncontext != NULL ) {
+        sn_launchee_context_complete ( xcb->sncontext );
     }
     rofi_view_set_active ( state );
 }
@@ -1775,12 +1772,12 @@ void rofi_view_cleanup ()
         surface = NULL;
     }
     if ( main_window != XCB_WINDOW_NONE ) {
-        xcb_unmap_window ( xcb_connection, main_window );
-        xcb_destroy_window ( xcb_connection, main_window );
+        xcb_unmap_window ( xcb->connection, main_window );
+        xcb_destroy_window ( xcb->connection, main_window );
         main_window = XCB_WINDOW_NONE;
     }
     if ( map != XCB_COLORMAP_NONE ) {
-        xcb_free_colormap ( xcb_connection, map );
+        xcb_free_colormap ( xcb->connection, map );
         map = XCB_COLORMAP_NONE;
     }
 }
@@ -1824,4 +1821,5 @@ Mode * rofi_view_get_mode ( RofiViewState *state )
 {
     return state->sw;
 }
+
 

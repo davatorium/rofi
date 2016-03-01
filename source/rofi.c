@@ -47,8 +47,8 @@
 
 #include <libgwater-xcb.h>
 
-#define SN_API_NOT_YET_FROZEN
-#include <libsn/sn.h>
+#include "xcb-internal.h"
+#include "xkb-internal.h"
 
 #include "settings.h"
 #include "mode.h"
@@ -61,33 +61,33 @@
 
 #include "view.h"
 #include "view-internal.h"
-#include "xkb-internal.h"
 
 // Pidfile.
-char                  *pidfile        = NULL;
-const char            *cache_dir      = NULL;
-SnDisplay             *sndisplay      = NULL;
-SnLauncheeContext     *sncontext      = NULL;
-xcb_connection_t      *xcb_connection = NULL;
-xcb_ewmh_connection_t xcb_ewmh;
-xcb_screen_t          *xcb_screen    = NULL;
-int                   xcb_screen_nbr = -1;
-struct xkb_stuff      xkb            = { NULL };
-char                  *display_str = NULL;
-char                  *config_path = NULL;
+char             *pidfile   = NULL;
+const char       *cache_dir = NULL;
+struct _xcb_stuff xcb_int = {
+    .connection = NULL,
+    .screen     = NULL,
+    .screen_nbr =   -1,
+    .sndisplay  = NULL,
+    .sncontext  = NULL,
+};
+xcb_stuff *xcb = &xcb_int;
+struct xkb_stuff xkb = { NULL };
+char             *config_path = NULL;
 // Array of modi.
-Mode                  **modi   = NULL;
-unsigned int          num_modi = 0;
+Mode             **modi   = NULL;
+unsigned int     num_modi = 0;
 // Current selected switcher.
-unsigned int          curr_switcher = 0;
+unsigned int     curr_switcher = 0;
 
-GMainLoop             *main_loop        = NULL;
-GWaterXcbSource       *main_loop_source = NULL;
-gboolean              quiet             = FALSE;
+GMainLoop        *main_loop        = NULL;
+GWaterXcbSource  *main_loop_source = NULL;
+gboolean         quiet             = FALSE;
 
-static int            dmenu_mode = FALSE;
+static int       dmenu_mode = FALSE;
 
-int                   return_code = EXIT_SUCCESS;
+int              return_code = EXIT_SUCCESS;
 
 void process_result ( RofiViewState *state );
 void process_result_error ( RofiViewState *state );
@@ -133,7 +133,7 @@ static int setup ()
     int pfd = create_pid_file ( pidfile );
     if ( pfd >= 0 ) {
         // Request truecolor visual.
-        x11_create_visual_and_colormap ( xcb_connection, xcb_screen );
+        x11_create_visual_and_colormap ( );
         textbox_setup ();
     }
     return pfd;
@@ -148,7 +148,7 @@ static void teardown ( int pfd )
     textbox_cleanup ( );
 
     // Release the window.
-    release_keyboard ( xcb_connection );
+    release_keyboard ( );
 
     // Cleanup view
     rofi_view_cleanup ();
@@ -315,17 +315,17 @@ static void cleanup ()
         main_loop = NULL;
     }
     // Cleanup
-    if ( xcb_connection != NULL ) {
-        if ( sncontext != NULL ) {
-            sn_launchee_context_unref ( sncontext );
-            sncontext = NULL;
+    if ( xcb->connection != NULL ) {
+        if ( xcb->sncontext != NULL ) {
+            sn_launchee_context_unref ( xcb->sncontext );
+            xcb->sncontext = NULL;
         }
-        if ( sndisplay != NULL ) {
-            sn_display_unref ( sndisplay );
-            sndisplay = NULL;
+        if ( xcb->sndisplay != NULL ) {
+            sn_display_unref ( xcb->sndisplay );
+            xcb->sndisplay = NULL;
         }
-        xcb_disconnect ( xcb_connection );
-        xcb_connection = NULL;
+        xcb_disconnect ( xcb->connection );
+        xcb->connection = NULL;
     }
 
     // Cleaning up memory allocated by the Xresources file.
@@ -435,7 +435,7 @@ static void setup_modi ( void )
 static inline void load_configuration ( )
 {
     // Load in config from X resources.
-    config_parse_xresource_options ( xcb_connection, xcb_screen );
+    config_parse_xresource_options ( xcb );
     config_parse_xresource_options_file ( config_path );
 
     // Parse command line for settings.
@@ -444,7 +444,7 @@ static inline void load_configuration ( )
 static inline void load_configuration_dynamic ( )
 {
     // Load in config from X resources.
-    config_parse_xresource_options_dynamic ( xcb_connection, xcb_screen );
+    config_parse_xresource_options_dynamic ( xcb );
     config_parse_xresource_options_dynamic_file ( config_path );
     config_parse_cmd_options_dynamic (  );
 }
@@ -455,8 +455,8 @@ static inline void load_configuration_dynamic ( )
 static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer data )
 {
     RofiViewState *state = rofi_view_get_active ();
-    if ( sndisplay != NULL ) {
-        sn_xcb_display_process_event ( sndisplay, ev );
+    if ( xcb->sndisplay != NULL ) {
+        sn_xcb_display_process_event ( xcb->sndisplay, ev );
     }
     if ( state != NULL ) {
         rofi_view_itterrate ( state, ev, &xkb );
@@ -505,7 +505,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     char *msg   = NULL;
     //
     // Sanity check
-    if ( config_sanity_check ( xcb_connection ) ) {
+    if ( config_sanity_check ( ) ) {
         return G_SOURCE_REMOVE;
     }
     TICK_N ( "Config sanity check" );
@@ -620,7 +620,7 @@ int main ( int argc, char *argv[] )
 
     TICK ();
     // Get DISPLAY, first env, then argument.
-    display_str = getenv ( "DISPLAY" );
+    char *display_str = getenv ( "DISPLAY" );
     find_arg_str (  "-display", &display_str );
 
     if ( setlocale ( LC_ALL, "" ) == NULL ) {
@@ -628,19 +628,19 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
-    xcb_connection = xcb_connect ( display_str, &xcb_screen_nbr );
+    xcb->connection = xcb_connect ( display_str, &xcb->screen_nbr );
     TICK_N ( "Open Display" );
 
-    xcb_screen = xcb_aux_get_screen ( xcb_connection, xcb_screen_nbr );
+    xcb->screen = xcb_aux_get_screen ( xcb->connection, xcb->screen_nbr );
 
-    xcb_intern_atom_cookie_t *ac      = xcb_ewmh_init_atoms ( xcb_connection, &xcb_ewmh );
+    xcb_intern_atom_cookie_t *ac      = xcb_ewmh_init_atoms ( xcb->connection, &xcb->ewmh );
     xcb_generic_error_t      **errors = NULL;
-    xcb_ewmh_init_atoms_replies ( &xcb_ewmh, ac, errors );
+    xcb_ewmh_init_atoms_replies ( &xcb->ewmh, ac, errors );
     if ( errors ) {
         fprintf ( stderr, "Failed to create EWMH atoms\n" );
     }
 
-    if ( xkb_x11_setup_xkb_extension ( xcb_connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
+    if ( xkb_x11_setup_xkb_extension ( xcb->connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
                                        XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS, NULL, NULL, &xkb.first_event, NULL ) < 0 ) {
         fprintf ( stderr, "cannot setup XKB extension!\n" );
         return EXIT_FAILURE;
@@ -651,9 +651,9 @@ int main ( int argc, char *argv[] )
         fprintf ( stderr, "cannot create XKB context!\n" );
         return EXIT_FAILURE;
     }
-    xkb.xcb_connection = xcb_connection;
+    xkb.xcb_connection = xcb->connection;
 
-    xkb.device_id = xkb_x11_get_core_keyboard_device_id ( xcb_connection );
+    xkb.device_id = xkb_x11_get_core_keyboard_device_id ( xcb->connection );
 
     enum
     {
@@ -689,28 +689,28 @@ int main ( int argc, char *argv[] )
         .affectState        = required_state_details,
         .stateDetails       = required_state_details,
     };
-    xcb_xkb_select_events ( xcb_connection, xkb.device_id, required_events, /* affectWhich */
+    xcb_xkb_select_events ( xcb->connection, xkb.device_id, required_events, /* affectWhich */
                             0,                                              /* clear */
                             0,                                              /* selectAll */
                             required_map_parts,                             /* affectMap */
                             required_map_parts,                             /* map */
                             &details );
 
-    xkb.keymap = xkb_x11_keymap_new_from_device ( xkb.context, xcb_connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
-    xkb.state  = xkb_x11_state_new_from_device ( xkb.keymap, xcb_connection, xkb.device_id );
+    xkb.keymap = xkb_x11_keymap_new_from_device ( xkb.context, xcb->connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
+    xkb.state  = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
 
     xkb.compose.table = xkb_compose_table_new_from_locale ( xkb.context, setlocale ( LC_CTYPE, NULL ), 0 );
     xkb.compose.state = xkb_compose_state_new ( xkb.compose.table, 0 );
 
-    x11_setup ( xcb_connection, &xkb );
+    x11_setup ( &xkb );
     main_loop = g_main_loop_new ( NULL, FALSE );
 
     TICK_N ( "Setup mainloop" );
     // startup not.
-    sndisplay = sn_xcb_display_new ( xcb_connection, error_trap_push, error_trap_pop );
+    xcb->sndisplay = sn_xcb_display_new ( xcb->connection, error_trap_push, error_trap_pop );
 
-    if ( sndisplay != NULL ) {
-        sncontext = sn_launchee_context_new_from_environment ( sndisplay, xcb_screen_nbr );
+    if ( xcb->sndisplay != NULL ) {
+        xcb->sncontext = sn_launchee_context_new_from_environment ( xcb->sndisplay, xcb->screen_nbr );
     }
     TICK_N ( "Startup Notification" );
 
@@ -751,7 +751,7 @@ int main ( int argc, char *argv[] )
         exit ( EXIT_SUCCESS );
     }
 
-    main_loop_source = g_water_xcb_source_new_for_connection ( NULL, xcb_connection, main_loop_x11_event_handler, NULL, NULL );
+    main_loop_source = g_water_xcb_source_new_for_connection ( NULL, xcb->connection, main_loop_x11_event_handler, NULL, NULL );
 
     TICK_N ( "X11 Setup " );
 

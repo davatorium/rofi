@@ -90,7 +90,7 @@ void rofi_view_update ( RofiViewState *state );
  *
  * Enables fake transparancy on this view.
  */
-void rofi_view_setup_fake_transparency ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen, RofiViewState *state );
+void rofi_view_setup_fake_transparency ( RofiViewState *state );
 
 /**
  * @param state The handle to the view

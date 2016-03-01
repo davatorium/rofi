@@ -5,9 +5,12 @@
 #include <helper.h>
 #include <string.h>
 #include <xcb/xcb_ewmh.h>
+#include "xcb-internal.h"
+#include "rofi.h"
 #include "settings.h"
 
-static int test = 0;
+static int       test = 0;
+struct xcb_stuff *xcb;
 
 #define TASSERT( a )        {                            \
         assert ( a );                                    \

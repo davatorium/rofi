@@ -21,9 +21,9 @@
  *
  * @returns a newly allocated string with the result or NULL
  */
-char* window_get_text_prop ( xcb_connection_t *xcb_connection, xcb_window_t w, xcb_atom_t atom );
+char* window_get_text_prop ( xcb_window_t w, xcb_atom_t atom );
 
-void window_set_atom_prop ( xcb_connection_t *xcb_connection, xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms, int count );
+void window_set_atom_prop ( xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms, int count );
 
 /**
  * xcb_window_t info.
@@ -47,30 +47,27 @@ typedef struct
     int l, r, t, b;
 } workarea;
 
-void monitor_active ( xcb_connection_t *xcb_connection, workarea *mon );
+void monitor_active ( workarea *mon );
 
 // find the dimensions of the monitor displaying point x,y
-void monitor_dimensions ( xcb_connection_t *xcb_connection, xcb_screen_t *screen, int x, int y, workarea *mon );
+void monitor_dimensions ( int x, int y, workarea *mon );
 // Find the dimensions of the monitor specified by user.
-int monitor_get_dimension ( xcb_connection_t *xcb_connection, xcb_screen_t *screen, int monitor, workarea *mon );
-int monitor_get_smallest_size ( xcb_connection_t *xcb_connection );
+int monitor_get_dimension ( int monitor, workarea *mon );
+int monitor_get_smallest_size ( void );
 
 /**
- * @param display The display.
- *
  * Release keyboard.
  */
-void release_keyboard ( xcb_connection_t *xcb_connection );
+void release_keyboard ( void );
 
 /**
- * @param display The display.
  * @param w       xcb_window_t we want to grab keyboard on.
  *
  * Grab keyboard and mouse.
  *
  * @return 1 when keyboard is grabbed, 0 not.
  */
-int take_keyboard ( xcb_connection_t *xcb_connection, xcb_window_t w );
+int take_keyboard ( xcb_window_t w );
 
 /**
  * @param mask The mask to canonilize
@@ -95,7 +92,7 @@ void x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key );
  *
  * Set the opacity of the window and sub-windows.
  */
-void x11_set_window_opacity ( xcb_connection_t *xcb_connection, xcb_window_t box, unsigned int opacity );
+void x11_set_window_opacity ( xcb_window_t box, unsigned int opacity );
 
 /**
  * Setup several items required.
@@ -103,7 +100,7 @@ void x11_set_window_opacity ( xcb_connection_t *xcb_connection, xcb_window_t box
  * * Numlock detection
  * * Cache
  */
-void x11_setup ( xcb_connection_t *xcb_connection, xkb_stuff *xkb );
+void x11_setup ( xkb_stuff *xkb );
 
 extern xcb_depth_t      *depth;
 extern xcb_visualtype_t *visual;
@@ -114,7 +111,7 @@ extern xcb_visualtype_t *root_visual;
  * This function tries to create a 32bit TrueColor colormap.
  * If this fails, it falls back to the default for the connected display.
  */
-void x11_create_visual_and_colormap ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen );
+void x11_create_visual_and_colormap ( void );
 
 typedef struct
 {

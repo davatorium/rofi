@@ -36,7 +36,8 @@
 
 #include <xcb/xcb.h>
 #include <xcb/xinerama.h>
-#include <xcb/xcb_ewmh.h>
+#include "xcb-internal.h"
+#include "xcb.h"
 #include "settings.h"
 
 #include <rofi.h>
@@ -62,24 +63,21 @@ enum
     NUM_X11MOD
 };
 
-xcb_depth_t                  *depth           = NULL;
-xcb_visualtype_t             *visual          = NULL;
-xcb_colormap_t               map              = XCB_COLORMAP_NONE;
-xcb_depth_t                  *root_depth      = NULL;
-xcb_visualtype_t             *root_visual     = NULL;
-xcb_atom_t                   netatoms[NUM_NETATOMS];
-const char                   *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
-static unsigned int          x11_mod_masks[NUM_X11MOD];
-extern xcb_ewmh_connection_t xcb_ewmh;
-
-extern xcb_connection_t      *xcb_connection;
+xcb_depth_t             *depth           = NULL;
+xcb_visualtype_t        *visual          = NULL;
+xcb_colormap_t          map              = XCB_COLORMAP_NONE;
+xcb_depth_t             *root_depth      = NULL;
+xcb_visualtype_t        *root_visual     = NULL;
+xcb_atom_t              netatoms[NUM_NETATOMS];
+const char              *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
+static unsigned int     x11_mod_masks[NUM_X11MOD];
 
 // retrieve a text property from a window
 // technically we could use window_get_prop(), but this is better for character set support
-char* window_get_text_prop ( xcb_connection_t *xcb_connection, xcb_window_t w, xcb_atom_t atom )
+char* window_get_text_prop ( xcb_window_t w, xcb_atom_t atom )
 {
-    xcb_get_property_cookie_t c  = xcb_get_property ( xcb_connection, 0, w, atom, XCB_GET_PROPERTY_TYPE_ANY, 0, UINT_MAX );
-    xcb_get_property_reply_t  *r = xcb_get_property_reply ( xcb_connection, c, NULL );
+    xcb_get_property_cookie_t c  = xcb_get_property ( xcb->connection, 0, w, atom, XCB_GET_PROPERTY_TYPE_ANY, 0, UINT_MAX );
+    xcb_get_property_reply_t  *r = xcb_get_property_reply ( xcb->connection, c, NULL );
     if ( r ) {
         char *str = g_malloc ( xcb_get_property_value_length ( r ) + 1 );
         memcpy ( str, xcb_get_property_value ( r ), xcb_get_property_value_length ( r ) );
@@ -90,19 +88,17 @@ char* window_get_text_prop ( xcb_connection_t *xcb_connection, xcb_window_t w, x
     return NULL;
 }
 
-void window_set_atom_prop ( xcb_connection_t *xcb_connection, xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms, int count )
+void window_set_atom_prop ( xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms, int count )
 {
-    xcb_change_property ( xcb_connection, XCB_PROP_MODE_REPLACE, w, prop, XCB_ATOM_ATOM, 32, count, atoms );
+    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, w, prop, XCB_ATOM_ATOM, 32, count, atoms );
 }
 
-extern xcb_screen_t *xcb_screen;
-extern int          xcb_screen_nbr;
-int monitor_get_smallest_size ( xcb_connection_t *xcb_connection )
+int monitor_get_smallest_size ( void )
 {
     xcb_generic_error_t             *error;
-    int                             size          = MIN ( xcb_screen->width_in_pixels, xcb_screen->height_in_pixels );
-    xcb_xinerama_is_active_cookie_t is_active_req = xcb_xinerama_is_active ( xcb_connection );
-    xcb_xinerama_is_active_reply_t  *is_active    = xcb_xinerama_is_active_reply ( xcb_connection, is_active_req, &error );
+    int                             size          = MIN ( xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
+    xcb_xinerama_is_active_cookie_t is_active_req = xcb_xinerama_is_active ( xcb->connection );
+    xcb_xinerama_is_active_reply_t  *is_active    = xcb_xinerama_is_active_reply ( xcb->connection, is_active_req, &error );
     if ( error ) {
         fprintf ( stderr, "Couldn't query Xinerama\n" );
         return size;
@@ -114,9 +110,9 @@ int monitor_get_smallest_size ( xcb_connection_t *xcb_connection )
     free ( is_active );
 
     xcb_xinerama_query_screens_cookie_t cookie_screen;
-    cookie_screen = xcb_xinerama_query_screens ( xcb_connection );
+    cookie_screen = xcb_xinerama_query_screens ( xcb->connection );
     xcb_xinerama_query_screens_reply_t  *query_screens;
-    query_screens = xcb_xinerama_query_screens_reply ( xcb_connection, cookie_screen, &error );
+    query_screens = xcb_xinerama_query_screens_reply ( xcb->connection, cookie_screen, &error );
     if ( error ) {
         fprintf ( stderr, "Error getting screen info\n" );
         return size;
@@ -132,15 +128,15 @@ int monitor_get_smallest_size ( xcb_connection_t *xcb_connection )
 
     return size;
 }
-int monitor_get_dimension ( xcb_connection_t *xcb_connection, xcb_screen_t *screen, int monitor, workarea *mon )
+int monitor_get_dimension ( int monitor, workarea *mon )
 {
     xcb_generic_error_t *error = NULL;
     memset ( mon, 0, sizeof ( workarea ) );
-    mon->w = screen->width_in_pixels;
-    mon->h = screen->height_in_pixels;
+    mon->w = xcb->screen->width_in_pixels;
+    mon->h = xcb->screen->height_in_pixels;
 
-    xcb_xinerama_is_active_cookie_t is_active_req = xcb_xinerama_is_active ( xcb_connection );
-    xcb_xinerama_is_active_reply_t  *is_active    = xcb_xinerama_is_active_reply ( xcb_connection, is_active_req, &error );
+    xcb_xinerama_is_active_cookie_t is_active_req = xcb_xinerama_is_active ( xcb->connection );
+    xcb_xinerama_is_active_reply_t  *is_active    = xcb_xinerama_is_active_reply ( xcb->connection, is_active_req, &error );
     if ( error ) {
         fprintf ( stderr, "Error getting screen info\n" );
         return FALSE;
@@ -152,9 +148,9 @@ int monitor_get_dimension ( xcb_connection_t *xcb_connection, xcb_screen_t *scre
     free ( is_active );
 
     xcb_xinerama_query_screens_cookie_t cookie_screen;
-    cookie_screen = xcb_xinerama_query_screens ( xcb_connection );
+    cookie_screen = xcb_xinerama_query_screens ( xcb->connection );
     xcb_xinerama_query_screens_reply_t  *query_screens;
-    query_screens = xcb_xinerama_query_screens_reply ( xcb_connection, cookie_screen, &error );
+    query_screens = xcb_xinerama_query_screens_reply ( xcb->connection, cookie_screen, &error );
     if ( error ) {
         fprintf ( stderr, "Error getting screen info\n" );
         return FALSE;
@@ -175,15 +171,15 @@ int monitor_get_dimension ( xcb_connection_t *xcb_connection, xcb_screen_t *scre
     return FALSE;
 }
 // find the dimensions of the monitor displaying point x,y
-void monitor_dimensions ( xcb_connection_t *xcb_connection, xcb_screen_t *screen, int x, int y, workarea *mon )
+void monitor_dimensions ( int x, int y, workarea *mon )
 {
     xcb_generic_error_t *error = NULL;
     memset ( mon, 0, sizeof ( workarea ) );
-    mon->w = screen->width_in_pixels;
-    mon->h = screen->height_in_pixels;
+    mon->w = xcb->screen->width_in_pixels;
+    mon->h = xcb->screen->height_in_pixels;
 
-    xcb_xinerama_is_active_cookie_t is_active_req = xcb_xinerama_is_active ( xcb_connection );
-    xcb_xinerama_is_active_reply_t  *is_active    = xcb_xinerama_is_active_reply ( xcb_connection, is_active_req, &error );
+    xcb_xinerama_is_active_cookie_t is_active_req = xcb_xinerama_is_active ( xcb->connection );
+    xcb_xinerama_is_active_reply_t  *is_active    = xcb_xinerama_is_active_reply ( xcb->connection, is_active_req, &error );
     if ( error ) {
         fprintf ( stderr, "Couldn't query Xinerama\n" );
         return;
@@ -195,9 +191,9 @@ void monitor_dimensions ( xcb_connection_t *xcb_connection, xcb_screen_t *screen
     free ( is_active );
 
     xcb_xinerama_query_screens_cookie_t cookie_screen;
-    cookie_screen = xcb_xinerama_query_screens ( xcb_connection );
+    cookie_screen = xcb_xinerama_query_screens ( xcb->connection );
     xcb_xinerama_query_screens_reply_t  *query_screens;
-    query_screens = xcb_xinerama_query_screens_reply ( xcb_connection, cookie_screen, &error );
+    query_screens = xcb_xinerama_query_screens_reply ( xcb->connection, cookie_screen, &error );
     if ( error ) {
         fprintf ( stderr, "Error getting screen info\n" );
         return;
@@ -225,12 +221,12 @@ void monitor_dimensions ( xcb_connection_t *xcb_connection, xcb_screen_t *screen
  *
  * @returns 1 when found
  */
-static int pointer_get ( xcb_connection_t *xcb_connection, xcb_window_t root, int *x, int *y )
+static int pointer_get ( xcb_window_t root, int *x, int *y )
 {
     *x = 0;
     *y = 0;
-    xcb_query_pointer_cookie_t c  = xcb_query_pointer ( xcb_connection, root );
-    xcb_query_pointer_reply_t  *r = xcb_query_pointer_reply ( xcb_connection, c, NULL );
+    xcb_query_pointer_cookie_t c  = xcb_query_pointer ( xcb->connection, root );
+    xcb_query_pointer_reply_t  *r = xcb_query_pointer_reply ( xcb->connection, c, NULL );
     if ( r ) {
         *x = r->root_x;
         *y = r->root_y;
@@ -242,27 +238,27 @@ static int pointer_get ( xcb_connection_t *xcb_connection, xcb_window_t root, in
 }
 
 // determine which monitor holds the active window, or failing that the mouse pointer
-void monitor_active ( xcb_connection_t *xcb_connection, workarea *mon )
+void monitor_active ( workarea *mon )
 {
-    xcb_window_t root = xcb_screen->root;
+    xcb_window_t root = xcb->screen->root;
     int          x, y;
 
     if ( config.monitor >= 0 ) {
-        if ( monitor_get_dimension ( xcb_connection, xcb_screen, config.monitor, mon ) ) {
+        if ( monitor_get_dimension ( config.monitor, mon ) ) {
             return;
         }
         fprintf ( stderr, "Failed to find selected monitor.\n" );
     }
     // Get the current desktop.
     unsigned int current_desktop = 0;
-    if ( config.monitor != -2 && xcb_ewmh_get_current_desktop_reply ( &xcb_ewmh,
-                                                                      xcb_ewmh_get_current_desktop ( &xcb_ewmh, xcb_screen_nbr ),
+    if ( config.monitor != -2 && xcb_ewmh_get_current_desktop_reply ( &xcb->ewmh,
+                                                                      xcb_ewmh_get_current_desktop ( &xcb->ewmh, xcb->screen_nbr ),
                                                                       &current_desktop, NULL ) ) {
-        xcb_get_property_cookie_t             c = xcb_ewmh_get_desktop_viewport ( &xcb_ewmh, xcb_screen_nbr );
+        xcb_get_property_cookie_t             c = xcb_ewmh_get_desktop_viewport ( &xcb->ewmh, xcb->screen_nbr );
         xcb_ewmh_get_desktop_viewport_reply_t vp;
-        if ( xcb_ewmh_get_desktop_viewport_reply ( &xcb_ewmh, c, &vp, NULL ) ) {
+        if ( xcb_ewmh_get_desktop_viewport_reply ( &xcb->ewmh, c, &vp, NULL ) ) {
             if ( current_desktop < vp.desktop_viewport_len ) {
-                monitor_dimensions ( xcb_connection, xcb_screen, vp.desktop_viewport[current_desktop].x,
+                monitor_dimensions ( vp.desktop_viewport[current_desktop].x,
                                      vp.desktop_viewport[current_desktop].y, mon );
                 xcb_ewmh_get_desktop_viewport_reply_wipe ( &vp );
                 return;
@@ -272,15 +268,15 @@ void monitor_active ( xcb_connection_t *xcb_connection, workarea *mon )
     }
 
     xcb_window_t active_window;
-    if ( xcb_ewmh_get_active_window_reply ( &xcb_ewmh,
-                                            xcb_ewmh_get_active_window ( &xcb_ewmh, xcb_screen_nbr ), &active_window, NULL ) ) {
+    if ( xcb_ewmh_get_active_window_reply ( &xcb->ewmh,
+                                            xcb_ewmh_get_active_window ( &xcb->ewmh, xcb->screen_nbr ), &active_window, NULL ) ) {
         // get geometry.
-        xcb_get_geometry_cookie_t c  = xcb_get_geometry ( xcb_connection, active_window );
-        xcb_get_geometry_reply_t  *r = xcb_get_geometry_reply ( xcb_connection, c, NULL );
+        xcb_get_geometry_cookie_t c  = xcb_get_geometry ( xcb->connection, active_window );
+        xcb_get_geometry_reply_t  *r = xcb_get_geometry_reply ( xcb->connection, c, NULL );
         if ( r ) {
             if ( config.monitor == -2 ) {
-                xcb_translate_coordinates_cookie_t ct = xcb_translate_coordinates ( xcb_connection, active_window, root, r->x, r->y );
-                xcb_translate_coordinates_reply_t  *t = xcb_translate_coordinates_reply ( xcb_connection, ct, NULL );
+                xcb_translate_coordinates_cookie_t ct = xcb_translate_coordinates ( xcb->connection, active_window, root, r->x, r->y );
+                xcb_translate_coordinates_reply_t  *t = xcb_translate_coordinates_reply ( xcb->connection, ct, NULL );
                 if ( t ) {
                     // place the menu above the window
                     // if some window is focused, place menu above window, else fall
@@ -298,26 +294,26 @@ void monitor_active ( xcb_connection_t *xcb_connection, workarea *mon )
                     return;
                 }
             }
-            monitor_dimensions ( xcb_connection, xcb_screen, r->x, r->y, mon );
+            monitor_dimensions ( r->x, r->y, mon );
             free ( r );
             return;
         }
     }
-    if ( pointer_get ( xcb_connection, root, &x, &y ) ) {
-        monitor_dimensions ( xcb_connection, xcb_screen, x, y, mon );
+    if ( pointer_get ( xcb->screen->root, &x, &y ) ) {
+        monitor_dimensions ( x, y, mon );
         return;
     }
 
-    monitor_dimensions ( xcb_connection, xcb_screen, 0, 0, mon );
+    monitor_dimensions ( 0, 0, mon );
 }
 
-int take_keyboard ( xcb_connection_t *xcb_connection, xcb_window_t w )
+int take_keyboard ( xcb_window_t w )
 {
     for ( int i = 0; i < 500; i++ ) {
-        xcb_grab_keyboard_cookie_t cc = xcb_grab_keyboard ( xcb_connection,
+        xcb_grab_keyboard_cookie_t cc = xcb_grab_keyboard ( xcb->connection,
                                                             1, w, XCB_CURRENT_TIME, XCB_GRAB_MODE_ASYNC,
                                                             XCB_GRAB_MODE_ASYNC );
-        xcb_grab_keyboard_reply_t *r = xcb_grab_keyboard_reply ( xcb_connection, cc, NULL );
+        xcb_grab_keyboard_reply_t *r = xcb_grab_keyboard_reply ( xcb->connection, cc, NULL );
         if ( r ) {
             if ( r->status == XCB_GRAB_STATUS_SUCCESS ) {
                 free ( r );
@@ -331,9 +327,9 @@ int take_keyboard ( xcb_connection_t *xcb_connection, xcb_window_t w )
     return 0;
 }
 
-void release_keyboard ( xcb_connection_t *xcb_connection )
+void release_keyboard ( void )
 {
-    xcb_ungrab_keyboard ( xcb_connection, XCB_CURRENT_TIME );
+    xcb_ungrab_keyboard ( xcb->connection, XCB_CURRENT_TIME );
 }
 
 static unsigned int x11_find_mod_mask ( xkb_stuff *xkb, ... )
@@ -474,12 +470,12 @@ void x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key )
     *key = sym;
 }
 
-void x11_set_window_opacity ( xcb_connection_t *xcb_connection, xcb_window_t box, unsigned int opacity )
+void x11_set_window_opacity ( xcb_window_t box, unsigned int opacity )
 {
     // Scale 0-100 to 0 - UINT32_MAX.
     unsigned int opacity_set = ( unsigned int ) ( ( opacity / 100.0 ) * UINT32_MAX );
 
-    xcb_change_property ( xcb_connection, XCB_PROP_MODE_REPLACE, box,
+    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box,
                           netatoms[_NET_WM_WINDOW_OPACITY], XCB_ATOM_CARDINAL, 32, 1L, &opacity_set );
 }
 
@@ -488,12 +484,12 @@ void x11_set_window_opacity ( xcb_connection_t *xcb_connection, xcb_window_t box
  *
  * Fill in the list of Atoms.
  */
-static void x11_create_frequently_used_atoms ( xcb_connection_t *xcb_connection )
+static void x11_create_frequently_used_atoms ( void )
 {
     // X atom values
     for ( int i = 0; i < NUM_NETATOMS; i++ ) {
-        xcb_intern_atom_cookie_t cc = xcb_intern_atom ( xcb_connection, 0, strlen ( netatom_names[i] ), netatom_names[i] );
-        xcb_intern_atom_reply_t  *r = xcb_intern_atom_reply ( xcb_connection, cc, NULL );
+        xcb_intern_atom_cookie_t cc = xcb_intern_atom ( xcb->connection, 0, strlen ( netatom_names[i] ), netatom_names[i] );
+        xcb_intern_atom_reply_t  *r = xcb_intern_atom_reply ( xcb->connection, cc, NULL );
         if ( r ) {
             netatoms[i] = r->atom;
             free ( r );
@@ -501,17 +497,17 @@ static void x11_create_frequently_used_atoms ( xcb_connection_t *xcb_connection 
     }
 }
 
-void x11_setup ( xcb_connection_t *xcb_connection, xkb_stuff *xkb )
+void x11_setup ( xkb_stuff *xkb )
 {
     // determine numlock mask so we can bind on keys with and without it
     x11_figure_out_masks ( xkb );
-    x11_create_frequently_used_atoms ( xcb_connection );
+    x11_create_frequently_used_atoms (  );
 }
 
-void x11_create_visual_and_colormap ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen )
+void x11_create_visual_and_colormap ( void )
 {
     xcb_depth_iterator_t depth_iter;
-    for ( depth_iter = xcb_screen_allowed_depths_iterator ( xcb_screen ); depth_iter.rem; xcb_depth_next ( &depth_iter ) ) {
+    for ( depth_iter = xcb_screen_allowed_depths_iterator ( xcb->screen ); depth_iter.rem; xcb_depth_next ( &depth_iter ) ) {
         xcb_depth_t               *d = depth_iter.data;
 
         xcb_visualtype_iterator_t visual_iter;
@@ -521,7 +517,7 @@ void x11_create_visual_and_colormap ( xcb_connection_t *xcb_connection, xcb_scre
                 depth  = d;
                 visual = v;
             }
-            if ( xcb_screen->root_visual == v->visual_id ) {
+            if ( xcb->screen->root_visual == v->visual_id ) {
                 root_depth  = d;
                 root_visual = v;
             }
@@ -530,9 +526,9 @@ void x11_create_visual_and_colormap ( xcb_connection_t *xcb_connection, xcb_scre
     if ( visual != NULL ) {
         xcb_void_cookie_t   c;
         xcb_generic_error_t *e;
-        map = xcb_generate_id ( xcb_connection );
-        c   = xcb_create_colormap_checked ( xcb_connection, XCB_COLORMAP_ALLOC_NONE, map, xcb_screen->root, visual->visual_id );
-        e   = xcb_request_check ( xcb_connection, c );
+        map = xcb_generate_id ( xcb->connection );
+        c   = xcb_create_colormap_checked ( xcb->connection, XCB_COLORMAP_ALLOC_NONE, map, xcb->screen->root, visual->visual_id );
+        e   = xcb_request_check ( xcb->connection, c );
         if ( e ) {
             depth  = NULL;
             visual = NULL;
@@ -543,7 +539,7 @@ void x11_create_visual_and_colormap ( xcb_connection_t *xcb_connection, xcb_scre
     if ( visual == NULL ) {
         depth  = root_depth;
         visual = root_visual;
-        map    = xcb_screen->default_colormap;
+        map    = xcb->screen->default_colormap;
     }
 }
 
@@ -670,4 +666,9 @@ void color_separator ( cairo_t *d )
         color_cache[SEPARATOR].set = TRUE;
     }
     x11_helper_set_cairo_rgba ( d, color_cache[SEPARATOR].color );
+}
+
+xcb_window_t xcb_stuff_get_root_window ( xcb_stuff *xcb )
+{
+    return xcb->screen->root;
 }

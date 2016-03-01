@@ -36,6 +36,7 @@
 #include <xkbcommon/xkbcommon-compose.h>
 #include <xkbcommon/xkbcommon-x11.h>
 #include <X11/Xresource.h>
+#include "xcb.h"
 #include "x11-helper.h"
 #include "rofi.h"
 #include "xrmoptions.h"
@@ -223,9 +224,9 @@ static void __config_parse_xresource_options ( XrmDatabase xDB )
         g_free ( name );
     }
 }
-void config_parse_xresource_options ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen )
+void config_parse_xresource_options ( xcb_stuff *xcb )
 {
-    char *name = window_get_text_prop ( xcb_connection, xcb_screen->root, XCB_ATOM_RESOURCE_MANAGER );
+    char *name = window_get_text_prop ( xcb_stuff_get_root_window ( xcb ), XCB_ATOM_RESOURCE_MANAGER );
     if ( name ) {
         // Map Xresource entries to rofi config options.
         XrmDatabase xDB = XrmGetStringDatabase ( name );
@@ -329,9 +330,9 @@ static void __config_parse_xresource_options_dynamic ( XrmDatabase xDB )
     }
 }
 
-void config_parse_xresource_options_dynamic ( xcb_connection_t *xcb_connection, xcb_screen_t *xcb_screen )
+void config_parse_xresource_options_dynamic ( xcb_stuff *xcb )
 {
-    char        *name = window_get_text_prop ( xcb_connection, xcb_screen->root, XCB_ATOM_RESOURCE_MANAGER );
+    char        *name = window_get_text_prop ( xcb_stuff_get_root_window ( xcb ), XCB_ATOM_RESOURCE_MANAGER );
     XrmDatabase xDB   = XrmGetStringDatabase ( name );
     __config_parse_xresource_options_dynamic ( xDB );
     XrmDestroyDatabase ( xDB );

@@ -14,6 +14,7 @@
  * @defgroup Main Main
  * @{
  */
+
 /**
  * Pointer to xdg cache directory.
  */

@@ -36,7 +36,7 @@
 #include <xcb/xcb.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-
+#include "xcb.h"
 #include "rofi.h"
 #include "x11-helper.h"
 #include "i3-support.h"
@@ -45,9 +45,7 @@
 #ifdef HAVE_I3_IPC_H
 #include <i3/ipc.h>
 // Path to HAVE_I3_IPC_H socket.
-char                *i3_socket_path = NULL;
-extern xcb_screen_t *xcb_screen;
-
+char                    *i3_socket_path = NULL;
 void i3_support_focus_window ( xcb_window_t id )
 {
     i3_ipc_header_t    head;
@@ -113,13 +111,13 @@ void i3_support_focus_window ( xcb_window_t id )
     close ( s );
 }
 
-int i3_support_initialize ( xcb_connection_t *xcb_connection )
+int i3_support_initialize ( xcb_stuff *xcb )
 {
     // If we where initialized, clean this first.
     i3_support_free_internals ();
 
     // Get atom for I3_SOCKET_PATH
-    i3_socket_path = window_get_text_prop ( xcb_connection, xcb_screen->root, netatoms[I3_SOCKET_PATH] );
+    i3_socket_path = window_get_text_prop ( xcb_stuff_get_root_window(xcb), netatoms[I3_SOCKET_PATH] );
     // If we find it, go into i3 mode.
     return ( i3_socket_path != NULL ) ? TRUE : FALSE;
 }
@@ -141,7 +139,7 @@ void i3_support_free_internals ( void )
 {
 }
 
-int i3_support_initialize ( xcb_connection_t *xcb_connection )
+int i3_support_initialize ( void )
 {
     return FALSE;
 }

@@ -511,7 +511,7 @@ void remove_pid_file ( int fd )
  *
  * This functions exits the program with 1 when it finds an invalid configuration.
  */
-int config_sanity_check ( xcb_connection_t* xcb_connection )
+int config_sanity_check ( void )
 {
     // If alternative row is not set, copy the normal background color.
     // Do this at the beginning as we might use it in the error dialog.
@@ -554,10 +554,10 @@ int config_sanity_check ( xcb_connection_t* xcb_connection )
 
     // Check size
     {
-        int ssize = monitor_get_smallest_size ( xcb_connection );
+        int ssize = monitor_get_smallest_size ( );
         if ( config.monitor >= 0 ) {
             workarea mon;
-            if ( monitor_get_dimension ( xcb_connection, xcb_screen, config.monitor, &mon ) ) {
+            if ( monitor_get_dimension ( config.monitor, &mon ) ) {
                 ssize = MIN ( mon.w, mon.h );
             }
             else{

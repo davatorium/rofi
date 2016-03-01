@@ -137,7 +137,7 @@ void remove_pid_file ( int fd );
  *
  * This functions exits the program with 1 when it finds an invalid configuration.
  */
-int config_sanity_check ( xcb_connection_t *xcb_connection );
+int config_sanity_check ( void );
 
 /**
  * @param arg string to parse.

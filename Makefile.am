@@ -35,6 +35,8 @@ rofi_SOURCES=\
 	source/dialogs/combi.c\
 	source/dialogs/window.c\
 	source/dialogs/script.c\
+	include/xcb.h\
+	include/xcb-internal.h\
 	include/rofi.h\
 	include/mode.h\
 	include/mode-private.h\
@@ -147,6 +149,7 @@ check_PROGRAMS=rofi_test textbox_test helper_test
 rofi_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
+	$(libsn_CFLAGS)\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
@@ -173,6 +176,7 @@ textbox_test_CFLAGS=\
 	$(xinerama_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
+	$(libsn_CFLAGS)\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
@@ -183,7 +187,8 @@ textbox_test_LDADD=\
 	$(x11_LIBS)\
 	$(xinerama_LIBS)\
 	$(GW_XCB_LIBS)\
-	$(cairo_LIBS)
+	$(cairo_LIBS)\
+	$(libsn_LIBS)
 
 textbox_test_SOURCES=\
 	source/widget.c\
@@ -221,6 +226,7 @@ helper_test_CFLAGS=\
 	$(xinerama_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
+	$(libsn_CFLAGS)\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
