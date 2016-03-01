@@ -51,6 +51,16 @@
 #include "x11-helper.h"
 #include "xkb-internal.h"
 
+
+struct _xcb_stuff xcb_int = {
+    .connection = NULL,
+    .screen     = NULL,
+    .screen_nbr =   -1,
+    .sndisplay  = NULL,
+    .sncontext  = NULL,
+};
+xcb_stuff *xcb = &xcb_int;
+
 enum
 {
     X11MOD_SHIFT,
@@ -671,4 +681,22 @@ void color_separator ( cairo_t *d )
 xcb_window_t xcb_stuff_get_root_window ( xcb_stuff *xcb )
 {
     return xcb->screen->root;
+}
+
+void xcb_stuff_wipe ( xcb_stuff *xcb )
+{
+    if ( xcb->connection != NULL ) {
+        if ( xcb->sncontext != NULL ) {
+            sn_launchee_context_unref ( xcb->sncontext );
+            xcb->sncontext = NULL;
+        }
+        if ( xcb->sndisplay != NULL ) {
+            sn_display_unref ( xcb->sndisplay );
+            xcb->sndisplay = NULL;
+        }
+        xcb_disconnect ( xcb->connection );
+        xcb->connection = NULL;
+        xcb->screen = NULL;
+        xcb->screen_nbr = 0;
+    }
 }

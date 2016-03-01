@@ -1822,4 +1822,3 @@ Mode * rofi_view_get_mode ( RofiViewState *state )
     return state->sw;
 }
 
-

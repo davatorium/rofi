@@ -65,14 +65,6 @@
 // Pidfile.
 char             *pidfile   = NULL;
 const char       *cache_dir = NULL;
-struct _xcb_stuff xcb_int = {
-    .connection = NULL,
-    .screen     = NULL,
-    .screen_nbr =   -1,
-    .sndisplay  = NULL,
-    .sncontext  = NULL,
-};
-xcb_stuff *xcb = &xcb_int;
 struct xkb_stuff xkb = { NULL };
 char             *config_path = NULL;
 // Array of modi.
@@ -315,19 +307,7 @@ static void cleanup ()
         main_loop = NULL;
     }
     // Cleanup
-    if ( xcb->connection != NULL ) {
-        if ( xcb->sncontext != NULL ) {
-            sn_launchee_context_unref ( xcb->sncontext );
-            xcb->sncontext = NULL;
-        }
-        if ( xcb->sndisplay != NULL ) {
-            sn_display_unref ( xcb->sndisplay );
-            xcb->sndisplay = NULL;
-        }
-        xcb_disconnect ( xcb->connection );
-        xcb->connection = NULL;
-    }
-
+    xcb_stuff_wipe ( xcb );
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
     for ( unsigned int i = 0; i < num_modi; i++ ) {
