@@ -40,6 +40,9 @@
 #include <pwd.h>
 #include <ctype.h>
 #include <xcb/xcb.h>
+#include <pango/pango.h>
+#include <pango/pango-fontmap.h>
+#include <pango/pangocairo.h>
 #include "helper.h"
 #include "settings.h"
 #include "x11-helper.h"
@@ -574,6 +577,20 @@ int config_sanity_check ( void )
             config.menu_bw = 0;
             found_error    = TRUE;
         }
+    }
+
+    PangoFontDescription * pfd = NULL;
+    if ( config.menu_font ) {
+        PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
+        const char           *fam = pango_font_description_get_family ( pfd );
+        int                  size = pango_font_description_get_size ( pfd );
+        if ( fam == NULL || size == 0 ) {
+            g_string_append_printf ( msg, "Pango failed to parse font: '%s'\n", config.menu_font );
+            g_string_append_printf ( msg, "Got font family: <b>%s</b> at size <b>%d</b>\n", fam ? fam : "{unknown}", size );
+            config.menu_font = NULL;
+            found_error      = TRUE;
+        }
+        pango_font_description_free ( pfd );
     }
 
     if ( found_error ) {

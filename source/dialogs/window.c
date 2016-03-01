@@ -372,7 +372,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
     x11_cache_create ();
     // Check for i3
     pd->config_i3_mode = i3_support_initialize ( xcb );
-    xcb_get_property_cookie_t c = xcb_ewmh_get_active_window ( &(xcb->ewmh), xcb->screen_nbr );
+    xcb_get_property_cookie_t c = xcb_ewmh_get_active_window ( &( xcb->ewmh ), xcb->screen_nbr );
     if ( !xcb_ewmh_get_active_window_reply ( &xcb->ewmh, c, &curr_win_id, NULL ) ) {
         curr_win_id = 0;
     }

@@ -1,7 +1,7 @@
 #ifndef ROFI_XCB_H
 #define ROFI_XCB_H
 
-typedef struct _xcb_stuff xcb_stuff;
+typedef struct _xcb_stuff   xcb_stuff;
 
 extern xcb_stuff *xcb;
 

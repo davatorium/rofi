@@ -65,7 +65,7 @@
 // Pidfile.
 char             *pidfile   = NULL;
 const char       *cache_dir = NULL;
-struct xkb_stuff xkb = { NULL };
+struct xkb_stuff xkb        = { NULL };
 char             *config_path = NULL;
 // Array of modi.
 Mode             **modi   = NULL;
@@ -670,10 +670,10 @@ int main ( int argc, char *argv[] )
         .stateDetails       = required_state_details,
     };
     xcb_xkb_select_events ( xcb->connection, xkb.device_id, required_events, /* affectWhich */
-                            0,                                              /* clear */
-                            0,                                              /* selectAll */
-                            required_map_parts,                             /* affectMap */
-                            required_map_parts,                             /* map */
+                            0,                                               /* clear */
+                            0,                                               /* selectAll */
+                            required_map_parts,                              /* affectMap */
+                            required_map_parts,                              /* map */
                             &details );
 
     xkb.keymap = xkb_x11_keymap_new_from_device ( xkb.context, xcb->connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );

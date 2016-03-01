@@ -51,7 +51,6 @@
 #include "x11-helper.h"
 #include "xkb-internal.h"
 
-
 struct _xcb_stuff xcb_int = {
     .connection = NULL,
     .screen     = NULL,
@@ -59,7 +58,7 @@ struct _xcb_stuff xcb_int = {
     .sndisplay  = NULL,
     .sncontext  = NULL,
 };
-xcb_stuff *xcb = &xcb_int;
+xcb_stuff         *xcb = &xcb_int;
 
 enum
 {
@@ -73,14 +72,14 @@ enum
     NUM_X11MOD
 };
 
-xcb_depth_t             *depth           = NULL;
-xcb_visualtype_t        *visual          = NULL;
-xcb_colormap_t          map              = XCB_COLORMAP_NONE;
-xcb_depth_t             *root_depth      = NULL;
-xcb_visualtype_t        *root_visual     = NULL;
-xcb_atom_t              netatoms[NUM_NETATOMS];
-const char              *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
-static unsigned int     x11_mod_masks[NUM_X11MOD];
+xcb_depth_t         *depth           = NULL;
+xcb_visualtype_t    *visual          = NULL;
+xcb_colormap_t      map              = XCB_COLORMAP_NONE;
+xcb_depth_t         *root_depth      = NULL;
+xcb_visualtype_t    *root_visual     = NULL;
+xcb_atom_t          netatoms[NUM_NETATOMS];
+const char          *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
+static unsigned int x11_mod_masks[NUM_X11MOD];
 
 // retrieve a text property from a window
 // technically we could use window_get_prop(), but this is better for character set support
@@ -696,7 +695,7 @@ void xcb_stuff_wipe ( xcb_stuff *xcb )
         }
         xcb_disconnect ( xcb->connection );
         xcb->connection = NULL;
-        xcb->screen = NULL;
+        xcb->screen     = NULL;
         xcb->screen_nbr = 0;
     }
 }

@@ -45,7 +45,7 @@
 #ifdef HAVE_I3_IPC_H
 #include <i3/ipc.h>
 // Path to HAVE_I3_IPC_H socket.
-char                    *i3_socket_path = NULL;
+char *i3_socket_path = NULL;
 void i3_support_focus_window ( xcb_window_t id )
 {
     i3_ipc_header_t    head;
@@ -117,7 +117,7 @@ int i3_support_initialize ( xcb_stuff *xcb )
     i3_support_free_internals ();
 
     // Get atom for I3_SOCKET_PATH
-    i3_socket_path = window_get_text_prop ( xcb_stuff_get_root_window(xcb), netatoms[I3_SOCKET_PATH] );
+    i3_socket_path = window_get_text_prop ( xcb_stuff_get_root_window ( xcb ), netatoms[I3_SOCKET_PATH] );
     // If we find it, go into i3 mode.
     return ( i3_socket_path != NULL ) ? TRUE : FALSE;
 }

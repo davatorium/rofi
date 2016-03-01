@@ -64,13 +64,13 @@
 
 #include "xcb.h"
 
-GThreadPool             *tpool = NULL;
+GThreadPool     *tpool = NULL;
 
-RofiViewState           *current_active_menu = NULL;
-xcb_window_t            main_window          = XCB_WINDOW_NONE;
-cairo_surface_t         *surface             = NULL;
-cairo_surface_t         *fake_bg             = NULL;
-cairo_t                 *draw                = NULL;
+RofiViewState   *current_active_menu = NULL;
+xcb_window_t    main_window          = XCB_WINDOW_NONE;
+cairo_surface_t *surface             = NULL;
+cairo_surface_t *fake_bg             = NULL;
+cairo_t         *draw                = NULL;
 
 static char * get_matching_state ( void )
 {
@@ -496,13 +496,13 @@ static xcb_window_t __create_window ( MenuFlags menu_flags )
     { 0,
       0,
       XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_KEY_PRESS |
-      XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION,map };
+      XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION, map };
 
     xcb_window_t box = xcb_generate_id ( xcb->connection );
     xcb_create_window ( xcb->connection,
                         depth->depth,
                         box,
-                        xcb_stuff_get_root_window(xcb),
+                        xcb_stuff_get_root_window ( xcb ),
                         0,
                         0,
                         200,
@@ -532,9 +532,11 @@ static xcb_window_t __create_window ( MenuFlags menu_flags )
         pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, (double) config.dpi );
     }
     // Setup font.
-    PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
-    pango_context_set_font_description ( p, pfd );
-    pango_font_description_free ( pfd );
+    if ( config.menu_font ) {
+        PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
+        pango_context_set_font_description ( p, pfd );
+        pango_font_description_free ( pfd );
+    }
     // Tell textbox to use this context.
     textbox_set_pango_context ( p );
     // cleanup
@@ -543,12 +545,12 @@ static xcb_window_t __create_window ( MenuFlags menu_flags )
 
     // // make it an unmanaged window
     if ( ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) && !config.fullscreen ) {
-        window_set_atom_prop ( box, xcb->ewmh._NET_WM_STATE, &(xcb->ewmh._NET_WM_STATE_ABOVE), 1 );
+        window_set_atom_prop ( box, xcb->ewmh._NET_WM_STATE, &( xcb->ewmh._NET_WM_STATE_ABOVE ), 1 );
         uint32_t values[] = { 1 };
         xcb_change_window_attributes ( xcb->connection, box, XCB_CW_OVERRIDE_REDIRECT, values );
     }
     else{
-        window_set_atom_prop ( box, xcb->ewmh._NET_WM_WINDOW_TYPE, &(xcb->ewmh._NET_WM_WINDOW_TYPE_NORMAL), 1 );
+        window_set_atom_prop ( box, xcb->ewmh._NET_WM_WINDOW_TYPE, &( xcb->ewmh._NET_WM_WINDOW_TYPE_NORMAL ), 1 );
     }
     if ( config.fullscreen ) {
         xcb_atom_t atoms[] = {
@@ -1268,7 +1270,7 @@ void rofi_view_setup_fake_transparency ( RofiViewState *state )
 {
     if ( fake_bg == NULL ) {
         cairo_surface_t *s = cairo_xcb_surface_create ( xcb->connection,
-                                                        xcb_stuff_get_root_window(xcb),
+                                                        xcb_stuff_get_root_window ( xcb ),
                                                         root_visual,
                                                         xcb->screen->width_in_pixels,
                                                         xcb->screen->height_in_pixels );
@@ -1552,7 +1554,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
     if ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) {
-        int has_keyboard = take_keyboard ( xcb_stuff_get_root_window(xcb) );
+        int has_keyboard = take_keyboard ( xcb_stuff_get_root_window ( xcb ) );
 
         if ( !has_keyboard ) {
             fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
@@ -1724,7 +1726,7 @@ void rofi_view_error_dialog ( const char *msg, int markup )
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
-    int has_keyboard = take_keyboard ( xcb_stuff_get_root_window(xcb));
+    int has_keyboard = take_keyboard ( xcb_stuff_get_root_window ( xcb ) );
     if ( !has_keyboard ) {
         fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
         return;
