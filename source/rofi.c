@@ -65,7 +65,16 @@
 // Pidfile.
 char             *pidfile   = NULL;
 const char       *cache_dir = NULL;
-struct xkb_stuff xkb        = { NULL };
+struct xkb_stuff xkb        = {
+    .xcb_connection = NULL,
+    .context        = NULL,
+    .keymap         = NULL,
+    .state          = NULL,
+    .compose        = {
+        .table = NULL,
+        .state = NULL
+    }
+};
 char             *config_path = NULL;
 // Array of modi.
 Mode             **modi   = NULL;
@@ -378,7 +387,6 @@ static int add_mode ( const char * token )
         else{
             // Report error, don't continue.
             fprintf ( stderr, "Invalid script switcher: %s\n", token );
-            token = NULL;
         }
     }
     return ( index == num_modi ) ? -1 : (int) index;

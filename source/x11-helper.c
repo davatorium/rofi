@@ -354,6 +354,7 @@ static unsigned int x11_find_mod_mask ( xkb_stuff *xkb, ... )
             mask |= 1 << i;
         }
     }
+    va_end ( names );
     return mask;
 }
 
@@ -613,12 +614,6 @@ static struct
     unsigned int set;
 } color_cache[3];
 
-void color_cache_reset ( void )
-{
-    color_cache[BACKGROUND].set = FALSE;
-    color_cache[BORDER].set     = FALSE;
-    color_cache[SEPARATOR].set  = FALSE;
-}
 void color_background ( cairo_t *d )
 {
     if ( !color_cache[BACKGROUND].set ) {

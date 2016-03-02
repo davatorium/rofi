@@ -455,13 +455,13 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 
             if ( ( c = window_client ( w ) ) ) {
                 // final line format
-                unsigned int wmdesktop;
-                char         desktop[5];
+                char   desktop[5];
                 desktop[0] = 0;
-                size_t       len =
+                size_t len =
                     ( ( c->title != NULL ) ? strlen ( c->title ) : 0 ) + ( c->class ? strlen ( c->class ) : 0 ) + classfield + 50;
-                char         *line = g_malloc ( len );
+                char   *line = g_malloc ( len );
                 if ( !pd->config_i3_mode ) {
+                    unsigned int              wmdesktop = 0;
                     // find client's desktop.
                     xcb_get_property_cookie_t cookie;
                     xcb_get_property_reply_t  *r;

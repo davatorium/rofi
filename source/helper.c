@@ -579,7 +579,6 @@ int config_sanity_check ( void )
         }
     }
 
-    PangoFontDescription * pfd = NULL;
     if ( config.menu_font ) {
         PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
         const char           *fam = pango_font_description_get_family ( pfd );

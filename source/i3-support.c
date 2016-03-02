@@ -139,7 +139,7 @@ void i3_support_free_internals ( void )
 {
 }
 
-int i3_support_initialize ( void )
+int i3_support_initialize ( G_GNUC_UNUSED xcb_stuff *xcb )
 {
     return FALSE;
 }

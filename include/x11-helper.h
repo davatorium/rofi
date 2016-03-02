@@ -129,7 +129,6 @@ Color color_get ( const char *const name );
 void color_background ( cairo_t *d );
 void color_border ( cairo_t *d  );
 void color_separator ( cairo_t *d );
-void color_cache_reset ( void );
 
 void x11_helper_set_cairo_rgba ( cairo_t *d, Color col );
 /*@}*/
