@@ -48,6 +48,10 @@ dnl ---------------------------------------------------------------------
 AC_ARG_ENABLE(gcov,
               [  --enable-gcov           Enable source code coverage testing using gcov],
               [AM_CFLAGS="${AM_CFLAGS} -coverage"])
+
+AC_ARG_ENABLE(asan,
+              [  --enable-asan           asan],
+              [AM_CFLAGS="${AM_CFLAGS} -fsanitize=address -fno-omit-frame-pointer -g3"])
 dnl ---------------------------------------------------------------------
 dnl Disable window mode
 dnl ---------------------------------------------------------------------
