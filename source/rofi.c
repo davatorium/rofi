@@ -699,6 +699,10 @@ int main ( int argc, char *argv[] )
     xkb.state  = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
 
     xkb.compose.table = xkb_compose_table_new_from_locale ( xkb.context, setlocale ( LC_CTYPE, NULL ), 0 );
+    if ( xkb.compose.table == NULL ) {
+        fprintf(stderr, "Failed to load compose table.\n");
+        return EXIT_FAILURE;
+    }
     xkb.compose.state = xkb_compose_state_new ( xkb.compose.table, 0 );
 
     x11_setup ( &xkb );
