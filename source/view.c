@@ -269,7 +269,6 @@ void rofi_view_free ( RofiViewState *state )
     g_free ( state->line_map );
     g_free ( state->distance );
     g_free ( state->lines_not_ascii );
-    g_free ( state );
     // Free the switcher boxes.
     // When state is free'ed we should no longer need these.
     if ( config.sidebar_mode == TRUE ) {
@@ -280,6 +279,7 @@ void rofi_view_free ( RofiViewState *state )
         g_free ( state->modi );
         state->num_modi = 0;
     }
+    g_free ( state );
 }
 
 MenuReturn rofi_view_get_return_value ( const RofiViewState *state )
