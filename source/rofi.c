@@ -632,10 +632,11 @@ int main ( int argc, char *argv[] )
     xcb->screen = xcb_aux_get_screen ( xcb->connection, xcb->screen_nbr );
 
     xcb_intern_atom_cookie_t *ac      = xcb_ewmh_init_atoms ( xcb->connection, &xcb->ewmh );
-    xcb_generic_error_t      **errors = NULL;
-    xcb_ewmh_init_atoms_replies ( &xcb->ewmh, ac, errors );
+    xcb_generic_error_t      *errors = NULL;
+    xcb_ewmh_init_atoms_replies ( &xcb->ewmh, ac, &errors );
     if ( errors ) {
         fprintf ( stderr, "Failed to create EWMH atoms\n" );
+        free(errors);
     }
 
     if ( xkb_x11_setup_xkb_extension ( xcb->connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
