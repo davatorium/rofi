@@ -112,6 +112,9 @@ int monitor_get_smallest_size ( void )
         fprintf ( stderr, "Couldn't query Xinerama\n" );
         return size;
     }
+    if ( is_active == NULL ) {
+        return size;
+    }
     if ( !is_active->state ) {
         free ( is_active );
         return size;
@@ -148,6 +151,9 @@ int monitor_get_dimension ( int monitor, workarea *mon )
     xcb_xinerama_is_active_reply_t  *is_active    = xcb_xinerama_is_active_reply ( xcb->connection, is_active_req, &error );
     if ( error ) {
         fprintf ( stderr, "Error getting screen info\n" );
+        return FALSE;
+    }
+    if ( is_active == NULL ) {
         return FALSE;
     }
     if ( !is_active->state ) {
