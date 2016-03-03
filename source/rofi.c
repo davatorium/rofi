@@ -179,7 +179,11 @@ static void __run_switcher_internal ( ModeMode mode, char *input )
     char          *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode] ) );
     curr_switcher = mode;
     RofiViewState * state = rofi_view_create ( modi[mode], input, prompt, NULL, MENU_NORMAL, process_result );
-    rofi_view_set_active ( state );
+    if ( state ) {
+        rofi_view_set_active ( state );
+    } else {
+        g_main_loop_quit( main_loop  );
+    }
     g_free ( prompt );
 }
 static void run_switcher ( ModeMode mode )
