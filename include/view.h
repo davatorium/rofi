@@ -130,7 +130,7 @@ void rofi_view_set_active ( RofiViewState *state );
  *
  * The error message to show.
  */
-void rofi_view_error_dialog ( const char *msg, int markup  );
+int rofi_view_error_dialog ( const char *msg, int markup  );
 
 /**
  * Queue a redraw.

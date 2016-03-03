@@ -264,10 +264,9 @@ int show_error_message ( const char *msg, int markup )
 {
     int pfd = setup ();
     if ( pfd < 0 ) {
-        return EXIT_FAILURE;
+        return FALSE;
     }
-    rofi_view_error_dialog ( msg, markup );
-    return EXIT_SUCCESS;
+    return rofi_view_error_dialog ( msg, markup );
 }
 
 /**
@@ -524,7 +523,9 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         if ( find_arg ( "-markup" ) >= 0 ) {
             markup = TRUE;
         }
-        show_error_message ( msg, markup );
+        if (  !show_error_message ( msg, markup ) ) {
+            g_main_loop_quit ( main_loop );
+        }
     }
     else if ( find_arg_str ( "-show", &sname ) == TRUE ) {
         int index = switcher_get ( sname );

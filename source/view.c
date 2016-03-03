@@ -1703,7 +1703,7 @@ static void __error_dialog_event_loop ( RofiViewState *state, xcb_generic_event_
     rofi_view_update ( state );
 }
 void process_result_error ( RofiViewState *state );
-void rofi_view_error_dialog ( const char *msg, int markup )
+int rofi_view_error_dialog ( const char *msg, int markup )
 {
     RofiViewState *state = __rofi_view_state_create ();
     state->retv           = MENU_CANCEL;
@@ -1729,7 +1729,7 @@ void rofi_view_error_dialog ( const char *msg, int markup )
     int has_keyboard = take_keyboard ( xcb_stuff_get_root_window ( xcb ) );
     if ( !has_keyboard ) {
         fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
-        return;
+        return FALSE;
     }
 
     rofi_view_calculate_window_and_element_width ( state );
@@ -1757,6 +1757,7 @@ void rofi_view_error_dialog ( const char *msg, int markup )
         sn_launchee_context_complete ( xcb->sncontext );
     }
     rofi_view_set_active ( state );
+    return TRUE;
 }
 
 void rofi_view_cleanup ()

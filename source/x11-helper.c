@@ -199,6 +199,9 @@ void monitor_dimensions ( int x, int y, workarea *mon )
         fprintf ( stderr, "Couldn't query Xinerama\n" );
         return;
     }
+    if ( is_active == NULL ) {
+        return;
+    }
     if ( !is_active->state ) {
         free ( is_active );
         return;
