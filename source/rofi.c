@@ -181,8 +181,9 @@ static void __run_switcher_internal ( ModeMode mode, char *input )
     RofiViewState * state = rofi_view_create ( modi[mode], input, prompt, NULL, MENU_NORMAL, process_result );
     if ( state ) {
         rofi_view_set_active ( state );
-    } else {
-        g_main_loop_quit( main_loop  );
+    }
+    else {
+        g_main_loop_quit ( main_loop  );
     }
     g_free ( prompt );
 }
@@ -622,6 +623,10 @@ int main ( int argc, char *argv[] )
     }
 
     xcb->connection = xcb_connect ( display_str, &xcb->screen_nbr );
+    if ( xcb_connection_has_error ( xcb->connection ) ) {
+        fprintf ( stderr, "Failed to open display: %s", display_str );
+        return EXIT_FAILURE;
+    }
     TICK_N ( "Open Display" );
 
     xcb->screen = xcb_aux_get_screen ( xcb->connection, xcb->screen_nbr );
