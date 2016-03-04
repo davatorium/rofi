@@ -89,11 +89,14 @@ char* window_get_text_prop ( xcb_window_t w, xcb_atom_t atom )
     xcb_get_property_cookie_t c  = xcb_get_property ( xcb->connection, 0, w, atom, XCB_GET_PROPERTY_TYPE_ANY, 0, UINT_MAX );
     xcb_get_property_reply_t  *r = xcb_get_property_reply ( xcb->connection, c, NULL );
     if ( r ) {
-        char *str = g_malloc ( xcb_get_property_value_length ( r ) + 1 );
-        memcpy ( str, xcb_get_property_value ( r ), xcb_get_property_value_length ( r ) );
-        str[xcb_get_property_value_length ( r )] = '\0';
+        if ( xcb_get_property_value_length ( r ) > 0 ) {
+            char *str = g_malloc ( xcb_get_property_value_length ( r ) + 1 );
+            memcpy ( str, xcb_get_property_value ( r ), xcb_get_property_value_length ( r ) );
+            str[xcb_get_property_value_length ( r )] = '\0';
+            free ( r );
+            return str;
+        }
         free ( r );
-        return str;
     }
     return NULL;
 }

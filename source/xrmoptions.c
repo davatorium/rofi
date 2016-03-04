@@ -333,10 +333,12 @@ static void __config_parse_xresource_options_dynamic ( XrmDatabase xDB )
 void config_parse_xresource_options_dynamic ( xcb_stuff *xcb )
 {
     char        *name = window_get_text_prop ( xcb_stuff_get_root_window ( xcb ), XCB_ATOM_RESOURCE_MANAGER );
-    XrmDatabase xDB   = XrmGetStringDatabase ( name );
-    __config_parse_xresource_options_dynamic ( xDB );
-    XrmDestroyDatabase ( xDB );
-    g_free ( name );
+    if ( name ) {
+        XrmDatabase xDB   = XrmGetStringDatabase ( name );
+        __config_parse_xresource_options_dynamic ( xDB );
+        XrmDestroyDatabase ( xDB );
+        g_free ( name );
+    }
 }
 void config_parse_xresource_options_dynamic_file ( const char *filename )
 {
