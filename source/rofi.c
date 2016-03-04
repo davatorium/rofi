@@ -631,12 +631,12 @@ int main ( int argc, char *argv[] )
 
     xcb->screen = xcb_aux_get_screen ( xcb->connection, xcb->screen_nbr );
 
-    xcb_intern_atom_cookie_t *ac      = xcb_ewmh_init_atoms ( xcb->connection, &xcb->ewmh );
+    xcb_intern_atom_cookie_t *ac     = xcb_ewmh_init_atoms ( xcb->connection, &xcb->ewmh );
     xcb_generic_error_t      *errors = NULL;
     xcb_ewmh_init_atoms_replies ( &xcb->ewmh, ac, &errors );
     if ( errors ) {
         fprintf ( stderr, "Failed to create EWMH atoms\n" );
-        free(errors);
+        free ( errors );
     }
 
     if ( xkb_x11_setup_xkb_extension ( xcb->connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
@@ -690,7 +690,7 @@ int main ( int argc, char *argv[] )
     };
     xcb_xkb_select_events ( xcb->connection, xkb.device_id, required_events, /* affectWhich */
                             0,                                               /* clear */
-                            0,                                               /* selectAll */
+                            required_events,                                 /* selectAll */
                             required_map_parts,                              /* affectMap */
                             required_map_parts,                              /* map */
                             &details );
@@ -699,11 +699,12 @@ int main ( int argc, char *argv[] )
     xkb.state  = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
 
     xkb.compose.table = xkb_compose_table_new_from_locale ( xkb.context, setlocale ( LC_CTYPE, NULL ), 0 );
-    if ( xkb.compose.table == NULL ) {
-        fprintf(stderr, "Failed to load compose table.\n");
-        return EXIT_FAILURE;
+    if ( xkb.compose.table != NULL ) {
+        xkb.compose.state = xkb_compose_state_new ( xkb.compose.table, 0 );
     }
-    xkb.compose.state = xkb_compose_state_new ( xkb.compose.table, 0 );
+    else {
+        fprintf ( stderr, "Failed to get keyboard compose table. Trying to limp on.\n" );
+    }
 
     x11_setup ( &xkb );
     main_loop = g_main_loop_new ( NULL, FALSE );
