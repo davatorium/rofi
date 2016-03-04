@@ -446,6 +446,31 @@ static inline void load_configuration_dynamic ( )
  */
 static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer data )
 {
+    uint8_t type = ev->response_type & ~0x80;
+    if ( type == xkb.first_event ) {
+        switch ( ev->pad0 )
+        {
+        case XCB_XKB_MAP_NOTIFY:
+            xkb_state_unref ( xkb.state );
+            xkb_keymap_unref ( xkb.keymap );
+            xkb.keymap = xkb_x11_keymap_new_from_device ( xkb.context, xcb->connection, xkb.device_id, 0 );
+            xkb.state  = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
+            break;
+        case XCB_XKB_STATE_NOTIFY:
+        {
+            xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
+            xkb_state_update_mask ( xkb.state,
+                                    ksne->baseMods,
+                                    ksne->latchedMods,
+                                    ksne->lockedMods,
+                                    ksne->baseGroup,
+                                    ksne->latchedGroup,
+                                    ksne->lockedGroup );
+            break;
+        }
+        }
+        return G_SOURCE_CONTINUE;
+    }
     RofiViewState *state = rofi_view_get_active ();
     if ( xcb->sndisplay != NULL ) {
         sn_xcb_display_process_event ( xcb->sndisplay, ev );
@@ -696,7 +721,15 @@ int main ( int argc, char *argv[] )
                             &details );
 
     xkb.keymap = xkb_x11_keymap_new_from_device ( xkb.context, xcb->connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
-    xkb.state  = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
+    if ( xkb.keymap == NULL ) {
+        fprintf ( stderr, "Failed to get Keymap for current keyboard device.\n" );
+        return EXIT_FAILURE;
+    }
+    xkb.state = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
+    if ( xkb.state == NULL ) {
+        fprintf ( stderr, "Failed to get state object for current keyboard device.\n" );
+        return EXIT_FAILURE;
+    }
 
     xkb.compose.table = xkb_compose_table_new_from_locale ( xkb.context, setlocale ( LC_CTYPE, NULL ), 0 );
     if ( xkb.compose.table != NULL ) {

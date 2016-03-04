@@ -368,56 +368,31 @@ static void rofi_view_resize ( RofiViewState *state )
 void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb_stuff *xkb )
 {
     uint8_t type = event->response_type & ~0x80;
-    if ( type == xkb->first_event ) {
-        switch ( event->pad0 )
-        {
-        case XCB_XKB_MAP_NOTIFY:
-            xkb_state_unref ( xkb->state );
-            xkb_keymap_unref ( xkb->keymap );
-            xkb->keymap = xkb_x11_keymap_new_from_device ( xkb->context, xcb->connection, xkb->device_id, 0 );
-            xkb->state  = xkb_x11_state_new_from_device ( xkb->keymap, xcb->connection, xkb->device_id );
-            break;
-        case XCB_XKB_STATE_NOTIFY:
-        {
-            xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) event;
-            xkb_state_update_mask ( xkb->state,
-                                    ksne->baseMods,
-                                    ksne->latchedMods,
-                                    ksne->lockedMods,
-                                    ksne->baseGroup,
-                                    ksne->latchedGroup,
-                                    ksne->lockedGroup );
-            break;
-        }
-        }
-    }
-    else{
-        switch ( type )
-        {
-        case XCB_EXPOSE:
-            state->update = TRUE;
-            break;
-        case XCB_CONFIGURE_NOTIFY:
-        {
-            xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
-            if ( xce->window == state->window ) {
-                if ( state->x != xce->x || state->y != xce->y ) {
-                    state->x      = xce->x;
-                    state->y      = xce->y;
-                    state->update = TRUE;
-                }
-                if ( state->w != xce->width || state->h != xce->height ) {
-                    state->w = xce->width;
-                    state->h = xce->height;
-                    cairo_xcb_surface_set_size ( surface, state->w, state->h );
-                    rofi_view_resize ( state );
-                }
+    switch ( type )
+    {
+    case XCB_EXPOSE:
+        state->update = TRUE;
+        break;
+    case XCB_CONFIGURE_NOTIFY:
+    {
+        xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
+        if ( xce->window == state->window ) {
+            if ( state->x != xce->x || state->y != xce->y ) {
+                state->x      = xce->x;
+                state->y      = xce->y;
+                state->update = TRUE;
             }
-            break;
+            if ( state->w != xce->width || state->h != xce->height ) {
+                state->w = xce->width;
+                state->h = xce->height;
+                cairo_xcb_surface_set_size ( surface, state->w, state->h );
+                rofi_view_resize ( state );
+            }
         }
-        default:
-            state->x11_event_loop ( state, event, xkb );
-        }
+        break;
+    }
+    default:
+        state->x11_event_loop ( state, event, xkb );
     }
     rofi_view_update ( state );
 }
