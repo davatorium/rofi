@@ -18,6 +18,7 @@ struct _xcb_stuff
     int                   screen_nbr;
     SnDisplay             *sndisplay;
     SnLauncheeContext     *sncontext;
+    gboolean              has_xinerama;
 };
 
 #endif

@@ -237,6 +237,7 @@ helper_test_LDADD=\
 	$(x11_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(xinerama_LIBS)\
+	$(libsn_LIBS)\
 	$(cairo_LIBS)
 
 TESTS=\

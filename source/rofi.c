@@ -37,6 +37,7 @@
 #include <xcb/xcb.h>
 #include <xcb/xcb_aux.h>
 #include <xcb/xcb_ewmh.h>
+#include <xcb/xinerama.h>
 #include <xcb/xkb.h>
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-compose.h>
@@ -446,6 +447,12 @@ static inline void load_configuration_dynamic ( )
  */
 static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer data )
 {
+    if ( ev == NULL ) {
+        int status = xcb_connection_has_error ( xcb->connection );
+        fprintf ( stderr, "The XCB connection to X server had a fatal error: %d\n", status );
+        g_main_loop_quit ( main_loop );
+        return G_SOURCE_REMOVE;
+    }
     uint8_t type = ev->response_type & ~0x80;
     if ( type == xkb.first_event ) {
         switch ( ev->pad0 )
@@ -739,15 +746,41 @@ int main ( int argc, char *argv[] )
         fprintf ( stderr, "Failed to get keyboard compose table. Trying to limp on.\n" );
     }
 
+    if ( xcb_connection_has_error ( xcb->connection ) ) {
+        fprintf ( stderr, "Connection has error\n" );
+        exit ( EXIT_FAILURE );
+    }
     x11_setup ( &xkb );
+    if ( xcb_connection_has_error ( xcb->connection ) ) {
+        fprintf ( stderr, "Connection has error\n" );
+        exit ( EXIT_FAILURE );
+    }
+
+    const xcb_query_extension_reply_t *er = xcb_get_extension_data ( xcb->connection, &xcb_xinerama_id );
+    if ( er ) {
+        if ( er->present ) {
+            xcb_xinerama_is_active_cookie_t is_active_req = xcb_xinerama_is_active ( xcb->connection );
+            xcb_xinerama_is_active_reply_t  *is_active    = xcb_xinerama_is_active_reply ( xcb->connection, is_active_req, NULL );
+            xcb->has_xinerama = is_active->state;
+            free ( is_active );
+        }
+    }
     main_loop = g_main_loop_new ( NULL, FALSE );
 
     TICK_N ( "Setup mainloop" );
     // startup not.
     xcb->sndisplay = sn_xcb_display_new ( xcb->connection, error_trap_push, error_trap_pop );
+    if ( xcb_connection_has_error ( xcb->connection ) ) {
+        fprintf ( stderr, "Connection has error\n" );
+        exit ( EXIT_FAILURE );
+    }
 
     if ( xcb->sndisplay != NULL ) {
         xcb->sncontext = sn_launchee_context_new_from_environment ( xcb->sndisplay, xcb->screen_nbr );
+    }
+    if ( xcb_connection_has_error ( xcb->connection ) ) {
+        fprintf ( stderr, "Connection has error\n" );
+        exit ( EXIT_FAILURE );
     }
     TICK_N ( "Startup Notification" );
 

@@ -52,11 +52,12 @@
 #include "xkb-internal.h"
 
 struct _xcb_stuff xcb_int = {
-    .connection = NULL,
-    .screen     = NULL,
-    .screen_nbr =   -1,
-    .sndisplay  = NULL,
-    .sncontext  = NULL,
+    .connection   = NULL,
+    .screen       = NULL,
+    .screen_nbr   =    -1,
+    .sndisplay    = NULL,
+    .sncontext    = NULL,
+    .has_xinerama = FALSE,
 };
 xcb_stuff         *xcb = &xcb_int;
 
@@ -104,26 +105,21 @@ void window_set_atom_prop ( xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms, 
 
 int monitor_get_smallest_size ( void )
 {
-    xcb_generic_error_t             *error;
-    int                             size          = MIN ( xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
-    xcb_xinerama_is_active_cookie_t is_active_req = xcb_xinerama_is_active ( xcb->connection );
-    xcb_xinerama_is_active_reply_t  *is_active    = xcb_xinerama_is_active_reply ( xcb->connection, is_active_req, &error );
-    if ( error ) {
-        fprintf ( stderr, "Couldn't query Xinerama\n" );
-        return size;
-    }
-    if ( is_active == NULL ) {
-        return size;
-    }
-    if ( !is_active->state ) {
-        free ( is_active );
-        return size;
-    }
-    free ( is_active );
+    xcb_generic_error_t *error;
+    int                 size = MIN ( xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
 
+    if ( !xcb->has_xinerama ) {
+        return size;
+    }
+
+    if ( xcb_connection_has_error ( xcb->connection ) ) {
+        fprintf ( stderr, "1.Connection has error\n" );
+        exit ( EXIT_FAILURE );
+    }
     xcb_xinerama_query_screens_cookie_t cookie_screen;
+
     cookie_screen = xcb_xinerama_query_screens ( xcb->connection );
-    xcb_xinerama_query_screens_reply_t  *query_screens;
+    xcb_xinerama_query_screens_reply_t *query_screens;
     query_screens = xcb_xinerama_query_screens_reply ( xcb->connection, cookie_screen, &error );
     if ( error ) {
         fprintf ( stderr, "Error getting screen info\n" );
@@ -147,20 +143,9 @@ int monitor_get_dimension ( int monitor, workarea *mon )
     mon->w = xcb->screen->width_in_pixels;
     mon->h = xcb->screen->height_in_pixels;
 
-    xcb_xinerama_is_active_cookie_t is_active_req = xcb_xinerama_is_active ( xcb->connection );
-    xcb_xinerama_is_active_reply_t  *is_active    = xcb_xinerama_is_active_reply ( xcb->connection, is_active_req, &error );
-    if ( error ) {
-        fprintf ( stderr, "Error getting screen info\n" );
+    if ( !xcb->has_xinerama ) {
         return FALSE;
     }
-    if ( is_active == NULL ) {
-        return FALSE;
-    }
-    if ( !is_active->state ) {
-        free ( is_active );
-        return FALSE;
-    }
-    free ( is_active );
 
     xcb_xinerama_query_screens_cookie_t cookie_screen;
     cookie_screen = xcb_xinerama_query_screens ( xcb->connection );
@@ -193,20 +178,9 @@ void monitor_dimensions ( int x, int y, workarea *mon )
     mon->w = xcb->screen->width_in_pixels;
     mon->h = xcb->screen->height_in_pixels;
 
-    xcb_xinerama_is_active_cookie_t is_active_req = xcb_xinerama_is_active ( xcb->connection );
-    xcb_xinerama_is_active_reply_t  *is_active    = xcb_xinerama_is_active_reply ( xcb->connection, is_active_req, &error );
-    if ( error ) {
-        fprintf ( stderr, "Couldn't query Xinerama\n" );
+    if ( !xcb->has_xinerama ) {
         return;
     }
-    if ( is_active == NULL ) {
-        return;
-    }
-    if ( !is_active->state ) {
-        free ( is_active );
-        return;
-    }
-    free ( is_active );
 
     xcb_xinerama_query_screens_cookie_t cookie_screen;
     cookie_screen = xcb_xinerama_query_screens ( xcb->connection );
@@ -328,6 +302,10 @@ void monitor_active ( workarea *mon )
 int take_keyboard ( xcb_window_t w )
 {
     for ( int i = 0; i < 500; i++ ) {
+        if ( xcb_connection_has_error ( xcb->connection ) ) {
+            fprintf ( stderr, "Connection has error\n" );
+            exit ( EXIT_FAILURE );
+        }
         xcb_grab_keyboard_cookie_t cc = xcb_grab_keyboard ( xcb->connection,
                                                             1, w, XCB_CURRENT_TIME, XCB_GRAB_MODE_ASYNC,
                                                             XCB_GRAB_MODE_ASYNC );

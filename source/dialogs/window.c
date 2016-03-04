@@ -38,6 +38,8 @@
 #include <xcb/xcb_ewmh.h>
 #include <xcb/xcb_icccm.h>
 
+#include <glib.h>
+
 #include "xcb-internal.h"
 #include "xcb.h"
 
