@@ -493,9 +493,6 @@ Mode ssh_mode =
 {
     .name               = "ssh",
     .cfg_name_key       = "display-ssh",
-    .keycfg             = NULL,
-    .keystr             = NULL,
-    .modmask            = AnyModifier,
     ._init              = ssh_mode_init,
     ._get_num_entries   = ssh_mode_get_num_entries,
     ._result            = ssh_mode_result,

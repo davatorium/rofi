@@ -34,19 +34,22 @@
 #include <errno.h>
 #include <time.h>
 #include <locale.h>
-#include <X11/X.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xproto.h>
-#include <X11/keysym.h>
-#include <X11/XKBlib.h>
+#include <xcb/xcb.h>
+#include <xcb/xcb_aux.h>
+#include <xcb/xcb_ewmh.h>
+#include <xcb/xinerama.h>
+#include <xcb/xkb.h>
+#include <xkbcommon/xkbcommon.h>
+#include <xkbcommon/xkbcommon-compose.h>
+#include <xkbcommon/xkbcommon-x11.h>
 #include <sys/types.h>
 
 #include <glib-unix.h>
 
-#define SN_API_NOT_YET_FROZEN
-#include <libsn/sn.h>
+#include <libgwater-xcb.h>
+
+#include "xcb-internal.h"
+#include "xkb-internal.h"
 
 #include "settings.h"
 #include "mode.h"
@@ -54,39 +57,42 @@
 #include "helper.h"
 #include "textbox.h"
 #include "x11-helper.h"
-#include "x11-event-source.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
 
 #include "view.h"
 #include "view-internal.h"
 
-gboolean          daemon_mode = FALSE;
 // Pidfile.
-char              *pidfile     = NULL;
-const char        *cache_dir   = NULL;
-SnDisplay         *sndisplay   = NULL;
-SnLauncheeContext *sncontext   = NULL;
-Display           *display     = NULL;
-char              *display_str = NULL;
-char              *config_path = NULL;
+char             *pidfile   = NULL;
+const char       *cache_dir = NULL;
+struct xkb_stuff xkb        = {
+    .xcb_connection = NULL,
+    .context        = NULL,
+    .keymap         = NULL,
+    .state          = NULL,
+    .compose        = {
+        .table = NULL,
+        .state = NULL
+    }
+};
+char             *config_path = NULL;
 // Array of modi.
-Mode              **modi   = NULL;
-unsigned int      num_modi = 0;
+Mode             **modi   = NULL;
+unsigned int     num_modi = 0;
 // Current selected switcher.
-unsigned int      curr_switcher = 0;
+unsigned int     curr_switcher = 0;
 
-GMainLoop         *main_loop        = NULL;
-GSource           *main_loop_source = NULL;
-gboolean          quiet             = FALSE;
+GMainLoop        *main_loop        = NULL;
+GWaterXcbSource  *main_loop_source = NULL;
+gboolean         quiet             = FALSE;
 
-static int        dmenu_mode = FALSE;
+static int       dmenu_mode = FALSE;
 
-int               return_code = EXIT_SUCCESS;
+int              return_code = EXIT_SUCCESS;
 
 void process_result ( RofiViewState *state );
 void process_result_error ( RofiViewState *state );
-gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data );
 
 void rofi_set_return_code ( int code )
 {
@@ -120,19 +126,6 @@ static int switcher_get ( const char *name )
     return -1;
 }
 
-extern unsigned int NumlockMask;
-int locate_switcher ( KeySym key, unsigned int modstate )
-{
-    // ignore annoying modifiers
-    unsigned int modstate_filtered = modstate & ~( LockMask | NumlockMask );
-    for ( unsigned int i = 0; i < num_modi; i++ ) {
-        if ( mode_check_keybinding ( modi[i], key, modstate_filtered ) ) {
-            return i;
-        }
-    }
-    return -1;
-}
-
 /**
  * Do needed steps to start showing the gui
  */
@@ -142,8 +135,8 @@ static int setup ()
     int pfd = create_pid_file ( pidfile );
     if ( pfd >= 0 ) {
         // Request truecolor visual.
-        create_visual_and_colormap ( display );
-        textbox_setup ( display );
+        x11_create_visual_and_colormap ( );
+        textbox_setup ();
     }
     return pfd;
 }
@@ -157,7 +150,7 @@ static void teardown ( int pfd )
     textbox_cleanup ( );
 
     // Release the window.
-    release_keyboard ( display );
+    release_keyboard ( );
 
     // Cleanup view
     rofi_view_cleanup ();
@@ -187,7 +180,12 @@ static void __run_switcher_internal ( ModeMode mode, char *input )
     char          *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode] ) );
     curr_switcher = mode;
     RofiViewState * state = rofi_view_create ( modi[mode], input, prompt, NULL, MENU_NORMAL, process_result );
-    rofi_view_set_active ( state );
+    if ( state ) {
+        rofi_view_set_active ( state );
+    }
+    else {
+        g_main_loop_quit ( main_loop  );
+    }
     g_free ( prompt );
 }
 static void run_switcher ( ModeMode mode )
@@ -247,7 +245,6 @@ void process_result ( RofiViewState *state )
              */
             __run_switcher_internal ( mode, input );
             g_free ( input );
-            main_loop_x11_event_handler ( NULL );
             return;
         }
         // Cleanup
@@ -269,33 +266,9 @@ int show_error_message ( const char *msg, int markup )
 {
     int pfd = setup ();
     if ( pfd < 0 ) {
-        return EXIT_FAILURE;
+        return FALSE;
     }
-    rofi_view_error_dialog ( msg, markup );
-    //teardown ( pfd );
-    // TODO this looks incorrect.
-    // g_main_loop_quit ( main_loop );
-    return EXIT_SUCCESS;
-}
-
-/**
- * Function that listens for global key-presses.
- * This is only used when in daemon mode.
- */
-static void handle_keypress ( XEvent *ev )
-{
-    int    index;
-    KeySym key = XkbKeycodeToKeysym ( display, ev->xkey.keycode, 0, 0 );
-    index = locate_switcher ( key, ev->xkey.state );
-    if ( index >= 0 ) {
-        run_switcher ( index );
-    }
-    else {
-        fprintf ( stderr,
-                  "Warning: Unhandled keypress in global keyhandler, keycode = %u mask = %u\n",
-                  ev->xkey.keycode,
-                  ev->xkey.state );
-    }
+    return rofi_view_error_dialog ( msg, markup );
 }
 
 /**
@@ -333,23 +306,6 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "Bugreports: "PACKAGE_BUGREPORT "\n" );
 }
 
-static void release_global_keybindings ()
-{
-    for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_ungrab_key ( modi[i], display );
-    }
-}
-static int grab_global_keybindings ()
-{
-    int key_bound = FALSE;
-    for ( unsigned int i = 0; i < num_modi; i++ ) {
-        if ( mode_grab_key ( modi[i], display ) ) {
-            key_bound = TRUE;
-        }
-    }
-    return key_bound;
-}
-
 /**
  * Function bound by 'atexit'.
  * Cleanup globally allocated memory.
@@ -359,31 +315,13 @@ static void cleanup ()
     rofi_view_workers_finalize ();
     if ( main_loop != NULL  ) {
         if ( main_loop_source ) {
-            g_source_destroy ( main_loop_source );
+            g_water_xcb_source_unref ( main_loop_source );
         }
         g_main_loop_unref ( main_loop );
         main_loop = NULL;
     }
-    if ( daemon_mode ) {
-        release_global_keybindings ();
-        if ( !quiet ) {
-            fprintf ( stdout, "Quit from daemon mode.\n" );
-        }
-    }
     // Cleanup
-    if ( display != NULL ) {
-        if ( sncontext != NULL ) {
-            sn_launchee_context_unref ( sncontext );
-            sncontext = NULL;
-        }
-        if ( sndisplay != NULL ) {
-            sn_display_unref ( sndisplay );
-            sndisplay = NULL;
-        }
-        XCloseDisplay ( display );
-        display = NULL;
-    }
-
+    xcb_stuff_wipe ( xcb );
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
     for ( unsigned int i = 0; i < num_modi; i++ ) {
@@ -454,7 +392,6 @@ static int add_mode ( const char * token )
         else{
             // Report error, don't continue.
             fprintf ( stderr, "Invalid script switcher: %s\n", token );
-            token = NULL;
         }
     }
     return ( index == num_modi ) ? -1 : (int) index;
@@ -472,9 +409,6 @@ static void setup_modi ( void )
     g_free ( switcher_str );
     // We cannot do this in main loop, as we create pointer to string,
     // and re-alloc moves that pointer.
-    for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_setup_keybinding ( modi[i] );
-    }
     mode_set_config ( &ssh_mode );
     mode_set_config ( &run_mode );
     mode_set_config ( &drun_mode );
@@ -491,127 +425,75 @@ static void setup_modi ( void )
  * Load configuration.
  * Following priority: (current), X, commandline arguments
  */
-static inline void load_configuration ( Display *display )
+static inline void load_configuration ( )
 {
     // Load in config from X resources.
-    config_parse_xresource_options ( display );
+    config_parse_xresource_options ( xcb );
     config_parse_xresource_options_file ( config_path );
 
     // Parse command line for settings.
     config_parse_cmd_options ( );
 }
-static inline void load_configuration_dynamic ( Display *display )
+static inline void load_configuration_dynamic ( )
 {
     // Load in config from X resources.
-    config_parse_xresource_options_dynamic ( display );
+    config_parse_xresource_options_dynamic ( xcb );
     config_parse_xresource_options_dynamic_file ( config_path );
     config_parse_cmd_options_dynamic (  );
-}
-
-static void print_global_keybindings ()
-{
-    if ( quiet ) {
-        fprintf ( stdout, "listening to the following keys:\n" );
-    }
-    for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_print_keybindings ( modi[i] );
-    }
-}
-
-static void reload_configuration ()
-{
-    if ( find_arg ( "-no-config" ) < 0 ) {
-        TICK ();
-        // Reset the color cache
-        color_cache_reset ();
-        // We need to open a new connection to X11, otherwise we get old
-        // configuration
-        Display *temp_display = XOpenDisplay ( display_str );
-        if ( temp_display ) {
-            load_configuration ( temp_display );
-            load_configuration_dynamic ( temp_display );
-
-            // Sanity check
-            config_sanity_check ( temp_display );
-            parse_keys_abe ();
-            XCloseDisplay ( temp_display );
-        }
-        else {
-            fprintf ( stderr, "Failed to get a new connection to the X11 server. No point in continuing.\n" );
-            abort ();
-        }
-        TICK_N ( "Load config" );
-    }
 }
 
 /**
  * Process X11 events in the main-loop (gui-thread) of the application.
  */
-gboolean main_loop_x11_event_handler ( G_GNUC_UNUSED gpointer data )
+static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer data )
 {
-    RofiViewState *state = rofi_view_get_active ();
-    if ( state != NULL ) {
-        while ( XPending ( display ) ) {
-            XEvent ev;
-            // Read event, we know this won't block as we checked with XPending.
-            XNextEvent ( display, &ev );
-            if ( sndisplay != NULL ) {
-                sn_display_process_event ( sndisplay, &ev );
-            }
-            rofi_view_itterrate ( state, &ev );
+    if ( ev == NULL ) {
+        int status = xcb_connection_has_error ( xcb->connection );
+        fprintf ( stderr, "The XCB connection to X server had a fatal error: %d\n", status );
+        g_main_loop_quit ( main_loop );
+        return G_SOURCE_REMOVE;
+    }
+    uint8_t type = ev->response_type & ~0x80;
+    if ( type == xkb.first_event ) {
+        switch ( ev->pad0 )
+        {
+        case XCB_XKB_MAP_NOTIFY:
+            xkb_state_unref ( xkb.state );
+            xkb_keymap_unref ( xkb.keymap );
+            xkb.keymap = xkb_x11_keymap_new_from_device ( xkb.context, xcb->connection, xkb.device_id, 0 );
+            xkb.state  = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
+            break;
+        case XCB_XKB_STATE_NOTIFY:
+        {
+            xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
+            xkb_state_update_mask ( xkb.state,
+                                    ksne->baseMods,
+                                    ksne->latchedMods,
+                                    ksne->lockedMods,
+                                    ksne->baseGroup,
+                                    ksne->latchedGroup,
+                                    ksne->lockedGroup );
+            break;
         }
+        }
+        return G_SOURCE_CONTINUE;
+    }
+    RofiViewState *state = rofi_view_get_active ();
+    if ( xcb->sndisplay != NULL ) {
+        sn_xcb_display_process_event ( xcb->sndisplay, ev );
+    }
+    if ( state != NULL ) {
+        rofi_view_itterrate ( state, ev, &xkb );
         if ( rofi_view_get_completed ( state ) ) {
             // This menu is done.
             rofi_view_finalize ( state );
             // cleanup
             if ( rofi_view_get_active () == NULL ) {
                 teardown ( pfd );
-                if (  !daemon_mode ) {
-                    g_main_loop_quit ( main_loop );
-                }
+                g_main_loop_quit ( main_loop );
             }
         }
-        return G_SOURCE_CONTINUE;
     }
-    // X11 produced an event. Consume them.
-    while ( XPending ( display ) ) {
-        XEvent ev;
-        // Read event, we know this won't block as we checked with XPending.
-        XNextEvent ( display, &ev );
-        if ( sndisplay != NULL ) {
-            sn_display_process_event ( sndisplay, &ev );
-        }
-        // If we get an event that does not belong to a window:
-        // Ignore it.
-        if ( ev.xany.window == None ) {
-            continue;
-        }
-        // If keypress, handle it.
-        if ( ev.type == KeyPress ) {
-            handle_keypress ( &ev );
-        }
-    }
-    return G_SOURCE_CONTINUE;
-}
-
-/**
- * Process signals in the main-loop (gui-thread) of the application.
- *
- * returns TRUE when mainloop should be stopped.
- */
-static gboolean main_loop_signal_handler_hup ( G_GNUC_UNUSED gpointer data )
-{
-    if ( !quiet ) {
-        fprintf ( stdout, "Reload configuration\n" );
-    }
-    // Release the keybindings.
-    release_global_keybindings ();
-    // Reload config
-    reload_configuration ();
-    // Grab the possibly new keybindings.
-    grab_global_keybindings ();
-    // We need to flush, otherwise the first key presses are not caught.
-    XFlush ( display );
     return G_SOURCE_CONTINUE;
 }
 
@@ -622,42 +504,41 @@ static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
     return G_SOURCE_CONTINUE;
 }
 
-static gboolean main_loop_signal_handler_usr1 ( G_GNUC_UNUSED gpointer data )
-{
-    config_parse_xresource_dump ();
-    return G_SOURCE_CONTINUE;
-}
-
 static int error_trap_depth = 0;
-static void error_trap_push ( G_GNUC_UNUSED SnDisplay *display, G_GNUC_UNUSED Display   *xdisplay )
+static void error_trap_push ( G_GNUC_UNUSED SnDisplay *display, G_GNUC_UNUSED xcb_connection_t *xdisplay )
 {
     ++error_trap_depth;
 }
 
-static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, Display   *xdisplay )
+static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, xcb_connection_t *xdisplay )
 {
     if ( error_trap_depth == 0 ) {
         fprintf ( stderr, "Error trap underflow!\n" );
         exit ( EXIT_FAILURE );
     }
 
-    XSync ( xdisplay, False ); /* get all errors out of the queue */
+    xcb_flush ( xdisplay );
     --error_trap_depth;
-}
-
-static gboolean delayed_start ( G_GNUC_UNUSED gpointer data )
-{
-    // Force some X Events to be handled.. seems the only way to get a reliable startup.
-    rofi_view_queue_redraw ();
-    main_loop_x11_event_handler ( NULL );
-    return FALSE;
 }
 
 static gboolean startup ( G_GNUC_UNUSED gpointer data )
 {
+    TICK_N ( "Startup" );
     // flags to run immediately and exit
     char *sname = NULL;
     char *msg   = NULL;
+    //
+    // Sanity check
+    if ( config_sanity_check ( ) ) {
+        return G_SOURCE_REMOVE;
+    }
+    TICK_N ( "Config sanity check" );
+    // Parse the keybindings.
+    if ( !parse_keys_abe () ) {
+        // Error dialog
+        return G_SOURCE_REMOVE;
+    }
+    TICK_N ( "Parse ABE" );
     // Dmenu mode.
     if ( dmenu_mode == TRUE ) {
         // force off sidebar mode:
@@ -674,7 +555,9 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         if ( find_arg ( "-markup" ) >= 0 ) {
             markup = TRUE;
         }
-        show_error_message ( msg, markup );
+        if (  !show_error_message ( msg, markup ) ) {
+            g_main_loop_quit ( main_loop );
+        }
     }
     else if ( find_arg_str ( "-show", &sname ) == TRUE ) {
         int index = switcher_get ( sname );
@@ -691,7 +574,6 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         }
         if ( index >= 0 ) {
             run_switcher ( index );
-            g_idle_add ( delayed_start, GINT_TO_POINTER ( index ) );
         }
         else {
             fprintf ( stderr, "The %s switcher has not been enabled\n", sname );
@@ -699,31 +581,9 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         }
     }
     else{
-        // Daemon mode, Listen to key presses..
-        if ( !grab_global_keybindings () ) {
-            fprintf ( stderr, "Rofi was launched in daemon mode, but no key-binding was specified.\n" );
-            fprintf ( stderr, "Please check the manpage on how to specify a key-binding.\n" );
-            fprintf ( stderr, "The following modi are enabled and keys can be specified:\n" );
-            for ( unsigned int i = 0; i < num_modi; i++ ) {
-                const char *name = mode_get_name ( modi[i] );
-                fprintf ( stderr, "\t* "color_bold "%s"color_reset ": -key-%s <key>\n", name, name );
-            }
-            // Cleanup
-            return G_SOURCE_REMOVE;
-        }
-        if ( !quiet ) {
-            fprintf ( stdout, "Rofi is launched in daemon mode.\n" );
-            print_global_keybindings ();
-        }
-
-        // done starting deamon.
-
-        if ( sncontext != NULL ) {
-            sn_launchee_context_complete ( sncontext );
-        }
-        daemon_mode = TRUE;
-        XSelectInput ( display, DefaultRootWindow ( display ), KeyPressMask );
-        XFlush ( display );
+        // Daemon mode
+        fprintf ( stderr, "Rofi daemon mode is now removed.\n" );
+        fprintf ( stderr, "Please use your window manager binding functionality or xbindkeys to replace it.\n" );
     }
 
     return G_SOURCE_REMOVE;
@@ -785,7 +645,7 @@ int main ( int argc, char *argv[] )
 
     TICK ();
     // Get DISPLAY, first env, then argument.
-    display_str = getenv ( "DISPLAY" );
+    char *display_str = getenv ( "DISPLAY" );
     find_arg_str (  "-display", &display_str );
 
     if ( setlocale ( LC_ALL, "" ) == NULL ) {
@@ -793,28 +653,133 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
-    if ( !XSupportsLocale () ) {
-        fprintf ( stderr, "X11 does not support locales\n" );
-        return EXIT_FAILURE;
-    }
-    if ( XSetLocaleModifiers ( "@im=none" ) == NULL ) {
-        fprintf ( stderr, "Failed to set locale modifier.\n" );
-        return EXIT_FAILURE;
-    }
-    if ( !( display = XOpenDisplay ( display_str ) ) ) {
-        fprintf ( stderr, "cannot open display!\n" );
+    xcb->connection = xcb_connect ( display_str, &xcb->screen_nbr );
+    if ( xcb_connection_has_error ( xcb->connection ) ) {
+        fprintf ( stderr, "Failed to open display: %s", display_str );
         return EXIT_FAILURE;
     }
     TICK_N ( "Open Display" );
 
+    xcb->screen = xcb_aux_get_screen ( xcb->connection, xcb->screen_nbr );
+
+    xcb_intern_atom_cookie_t *ac     = xcb_ewmh_init_atoms ( xcb->connection, &xcb->ewmh );
+    xcb_generic_error_t      *errors = NULL;
+    xcb_ewmh_init_atoms_replies ( &xcb->ewmh, ac, &errors );
+    if ( errors ) {
+        fprintf ( stderr, "Failed to create EWMH atoms\n" );
+        free ( errors );
+    }
+
+    if ( xkb_x11_setup_xkb_extension ( xcb->connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
+                                       XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS, NULL, NULL, &xkb.first_event, NULL ) < 0 ) {
+        fprintf ( stderr, "cannot setup XKB extension!\n" );
+        return EXIT_FAILURE;
+    }
+
+    xkb.context = xkb_context_new ( XKB_CONTEXT_NO_FLAGS );
+    if ( xkb.context == NULL ) {
+        fprintf ( stderr, "cannot create XKB context!\n" );
+        return EXIT_FAILURE;
+    }
+    xkb.xcb_connection = xcb->connection;
+
+    xkb.device_id = xkb_x11_get_core_keyboard_device_id ( xcb->connection );
+
+    enum
+    {
+        required_events =
+            ( XCB_XKB_EVENT_TYPE_NEW_KEYBOARD_NOTIFY |
+              XCB_XKB_EVENT_TYPE_MAP_NOTIFY |
+              XCB_XKB_EVENT_TYPE_STATE_NOTIFY ),
+
+        required_nkn_details =
+            ( XCB_XKB_NKN_DETAIL_KEYCODES ),
+
+        required_map_parts   =
+            ( XCB_XKB_MAP_PART_KEY_TYPES |
+              XCB_XKB_MAP_PART_KEY_SYMS |
+              XCB_XKB_MAP_PART_MODIFIER_MAP |
+              XCB_XKB_MAP_PART_EXPLICIT_COMPONENTS |
+              XCB_XKB_MAP_PART_KEY_ACTIONS |
+              XCB_XKB_MAP_PART_VIRTUAL_MODS |
+              XCB_XKB_MAP_PART_VIRTUAL_MOD_MAP ),
+
+        required_state_details =
+            ( XCB_XKB_STATE_PART_MODIFIER_BASE |
+              XCB_XKB_STATE_PART_MODIFIER_LATCH |
+              XCB_XKB_STATE_PART_MODIFIER_LOCK |
+              XCB_XKB_STATE_PART_GROUP_BASE |
+              XCB_XKB_STATE_PART_GROUP_LATCH |
+              XCB_XKB_STATE_PART_GROUP_LOCK ),
+    };
+
+    static const xcb_xkb_select_events_details_t details = {
+        .affectNewKeyboard  = required_nkn_details,
+        .newKeyboardDetails = required_nkn_details,
+        .affectState        = required_state_details,
+        .stateDetails       = required_state_details,
+    };
+    xcb_xkb_select_events ( xcb->connection, xkb.device_id, required_events, /* affectWhich */
+                            0,                                               /* clear */
+                            required_events,                                 /* selectAll */
+                            required_map_parts,                              /* affectMap */
+                            required_map_parts,                              /* map */
+                            &details );
+
+    xkb.keymap = xkb_x11_keymap_new_from_device ( xkb.context, xcb->connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
+    if ( xkb.keymap == NULL ) {
+        fprintf ( stderr, "Failed to get Keymap for current keyboard device.\n" );
+        return EXIT_FAILURE;
+    }
+    xkb.state = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
+    if ( xkb.state == NULL ) {
+        fprintf ( stderr, "Failed to get state object for current keyboard device.\n" );
+        return EXIT_FAILURE;
+    }
+
+    xkb.compose.table = xkb_compose_table_new_from_locale ( xkb.context, setlocale ( LC_CTYPE, NULL ), 0 );
+    if ( xkb.compose.table != NULL ) {
+        xkb.compose.state = xkb_compose_state_new ( xkb.compose.table, 0 );
+    }
+    else {
+        fprintf ( stderr, "Failed to get keyboard compose table. Trying to limp on.\n" );
+    }
+
+    if ( xcb_connection_has_error ( xcb->connection ) ) {
+        fprintf ( stderr, "Connection has error\n" );
+        exit ( EXIT_FAILURE );
+    }
+    x11_setup ( &xkb );
+    if ( xcb_connection_has_error ( xcb->connection ) ) {
+        fprintf ( stderr, "Connection has error\n" );
+        exit ( EXIT_FAILURE );
+    }
+
+    const xcb_query_extension_reply_t *er = xcb_get_extension_data ( xcb->connection, &xcb_xinerama_id );
+    if ( er ) {
+        if ( er->present ) {
+            xcb_xinerama_is_active_cookie_t is_active_req = xcb_xinerama_is_active ( xcb->connection );
+            xcb_xinerama_is_active_reply_t  *is_active    = xcb_xinerama_is_active_reply ( xcb->connection, is_active_req, NULL );
+            xcb->has_xinerama = is_active->state;
+            free ( is_active );
+        }
+    }
     main_loop = g_main_loop_new ( NULL, FALSE );
 
     TICK_N ( "Setup mainloop" );
     // startup not.
-    sndisplay = sn_display_new ( display, error_trap_push, error_trap_pop );
+    xcb->sndisplay = sn_xcb_display_new ( xcb->connection, error_trap_push, error_trap_pop );
+    if ( xcb_connection_has_error ( xcb->connection ) ) {
+        fprintf ( stderr, "Connection has error\n" );
+        exit ( EXIT_FAILURE );
+    }
 
-    if ( sndisplay != NULL ) {
-        sncontext = sn_launchee_context_new_from_environment ( sndisplay, DefaultScreen ( display ) );
+    if ( xcb->sndisplay != NULL ) {
+        xcb->sncontext = sn_launchee_context_new_from_environment ( xcb->sndisplay, xcb->screen_nbr );
+    }
+    if ( xcb_connection_has_error ( xcb->connection ) ) {
+        fprintf ( stderr, "Connection has error\n" );
+        exit ( EXIT_FAILURE );
     }
     TICK_N ( "Startup Notification" );
 
@@ -826,7 +791,7 @@ int main ( int argc, char *argv[] )
     TICK_N ( "Setup abe" );
 
     if ( find_arg ( "-no-config" ) < 0 ) {
-        load_configuration ( display );
+        load_configuration ( );
     }
     if ( !dmenu_mode ) {
         // setup_modi
@@ -838,17 +803,8 @@ int main ( int argc, char *argv[] )
     }
     if ( find_arg ( "-no-config" ) < 0 ) {
         // Reload for dynamic part.
-        load_configuration_dynamic ( display );
+        load_configuration_dynamic ( );
     }
-
-    x11_setup ( display );
-    main_loop_source = x11_event_source_new ( display );
-    x11_event_source_set_callback ( main_loop_source, main_loop_x11_event_handler );
-
-    TICK_N ( "X11 Setup " );
-    // Sanity check
-    config_sanity_check ( display );
-    TICK_N ( "Config sanity check" );
     // Dump.
     // catch help request
     if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 || find_arg (  "--help" ) >= 0 ) {
@@ -863,19 +819,16 @@ int main ( int argc, char *argv[] )
         config_parse_xresources_theme_dump ();
         exit ( EXIT_SUCCESS );
     }
-    // Parse the keybindings.
-    parse_keys_abe ();
-    TICK_N ( "Parse ABE" );
+
+    main_loop_source = g_water_xcb_source_new_for_connection ( NULL, xcb->connection, main_loop_x11_event_handler, NULL, NULL );
+
+    TICK_N ( "X11 Setup " );
 
     rofi_view_workers_initialize ();
 
     // Setup signal handling sources.
-    // SIGHup signal.
-    g_unix_signal_add ( SIGHUP, main_loop_signal_handler_hup, NULL );
     // SIGINT
     g_unix_signal_add ( SIGINT, main_loop_signal_handler_int, NULL );
-    // SIGUSR1
-    g_unix_signal_add ( SIGUSR1, main_loop_signal_handler_usr1, NULL );
 
     g_idle_add ( startup, NULL );
 

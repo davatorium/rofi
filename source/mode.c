@@ -84,71 +84,14 @@ const char *mode_get_name ( const Mode *mode )
     return mode->name;
 }
 
-void mode_setup_keybinding ( Mode *mode )
-{
-    g_assert ( mode != NULL );
-    mode->keycfg = g_strdup_printf ( "key-%s", mode->name );
-    config_parser_add_option ( xrm_String, mode->keycfg, (void * *) &( mode->keystr ), "Keybinding" );
-}
-
-int mode_check_keybinding ( const Mode *mode, KeySym key, unsigned int modstate )
-{
-    g_assert ( mode != NULL );
-    if ( mode->keystr != NULL ) {
-        if ( mode->modmask == modstate && mode->keysym == key ) {
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
-
 void mode_free ( Mode **mode )
 {
     g_assert ( mode != NULL );
     g_assert ( ( *mode ) != NULL );
-    if ( ( *mode )->keycfg != NULL ) {
-        g_free ( ( *mode )->keycfg );
-        ( *mode )->keycfg = NULL;
-    }
     if ( ( *mode )->free != NULL ) {
         ( *mode )->free ( *mode );
     }
     ( *mode ) = NULL;
-}
-
-int mode_grab_key ( Mode *mode, Display *display )
-{
-    g_assert ( mode != NULL );
-    g_assert ( display != NULL );
-    if ( mode->keystr != NULL ) {
-        x11_parse_key ( mode->keystr, &( mode->modmask ), &( mode->keysym ) );
-        if ( mode->keysym != NoSymbol ) {
-            x11_grab_key ( display, mode->modmask, mode->keysym );
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
-void mode_ungrab_key ( Mode *mode, Display *display )
-{
-    g_assert ( mode != NULL );
-    g_assert ( display != NULL );
-    if ( mode->keystr != NULL ) {
-        if ( mode->keysym != NoSymbol ) {
-            x11_ungrab_key ( display, mode->modmask, mode->keysym );
-        }
-    }
-}
-
-void mode_print_keybindings ( const Mode *mode )
-{
-    g_assert ( mode != NULL );
-    if ( mode->keystr != NULL ) {
-        fprintf ( stdout, "\t* "color_bold "%s"color_reset " on %s\n", mode->name, mode->keystr );
-    }
-    else {
-        fprintf ( stdout, "\t* "color_bold "%s"color_reset " on <unspecified>\n", mode->name );
-    }
 }
 
 void *mode_get_private_data ( const Mode *mode )

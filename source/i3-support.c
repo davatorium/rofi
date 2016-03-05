@@ -33,11 +33,10 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <time.h>
-#include <X11/X.h>
-#include <X11/Xlib.h>
+#include <xcb/xcb.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-
+#include "xcb.h"
 #include "rofi.h"
 #include "x11-helper.h"
 #include "i3-support.h"
@@ -47,8 +46,7 @@
 #include <i3/ipc.h>
 // Path to HAVE_I3_IPC_H socket.
 char *i3_socket_path = NULL;
-
-void i3_support_focus_window ( Window id )
+void i3_support_focus_window ( xcb_window_t id )
 {
     i3_ipc_header_t    head;
     int                s;
@@ -77,7 +75,7 @@ void i3_support_focus_window ( Window id )
     }
 
     // Formulate command
-    snprintf ( command, upm, "[id=\"%lu\"] focus", id );
+    snprintf ( command, upm, "[id=\"%u\"] focus", id );
     // Prepare header.
     memcpy ( head.magic, I3_IPC_MAGIC, 6 );
     head.size = strlen ( command );
@@ -113,21 +111,13 @@ void i3_support_focus_window ( Window id )
     close ( s );
 }
 
-int i3_support_initialize ( Display *display )
+int i3_support_initialize ( xcb_stuff *xcb )
 {
     // If we where initialized, clean this first.
     i3_support_free_internals ();
-    // Get atom for I3_SOCKET_PATH
-    Atom i3_sp_atom = XInternAtom ( display, "I3_SOCKET_PATH", False );
 
-    if ( i3_sp_atom != None ) {
-        // Get the default screen.
-        Screen *screen = DefaultScreenOfDisplay ( display );
-        // Find the root window (each X has one.).
-        Window root = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
-        // Get the i3 path property.
-        i3_socket_path = window_get_text_prop ( display, root, i3_sp_atom );
-    }
+    // Get atom for I3_SOCKET_PATH
+    i3_socket_path = window_get_text_prop ( xcb_stuff_get_root_window ( xcb ), netatoms[I3_SOCKET_PATH] );
     // If we find it, go into i3 mode.
     return ( i3_socket_path != NULL ) ? TRUE : FALSE;
 }
@@ -140,7 +130,7 @@ void i3_support_free_internals ( void )
 
 #else
 
-void i3_support_focus_window ( Window id )
+void i3_support_focus_window ( G_GNUC_UNUSED xcb_window_t id )
 {
     fprintf ( stderr, "Trying to control i3, when i3 support is not enabled.\n" );
     abort ();
@@ -149,7 +139,7 @@ void i3_support_free_internals ( void )
 {
 }
 
-int i3_support_initialize ( Display *display )
+int i3_support_initialize ( G_GNUC_UNUSED xcb_stuff *xcb )
 {
     return FALSE;
 }

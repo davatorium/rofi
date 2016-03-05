@@ -1,12 +1,13 @@
 #ifndef ROFI_TEXTBOX_H
 #define ROFI_TEXTBOX_H
 
-#include <X11/Xutil.h>
+#include <xkbcommon/xkbcommon.h>
 #include <pango/pango.h>
 #include <pango/pango-fontmap.h>
 #include <pango/pangocairo.h>
 #include <cairo.h>
 #include "widget.h"
+#include "x11-helper.h"
 
 /**
  * @defgroup Textbox Textbox
@@ -14,11 +15,6 @@
  *
  * @{
  */
-
-typedef struct
-{
-    double red, green, blue, alpha;
-} Color;
 
 typedef struct
 {
@@ -113,7 +109,7 @@ void textbox_draw ( textbox *tb, cairo_t *draw );
  *
  * @returns if the key was handled (1), unhandled(0) or handled and return was pressed (-1)
  */
-int textbox_keypress ( textbox *tb, XEvent *ev, char *pad, int pad_len, KeySym key, Status stat );
+int textbox_keypress ( textbox *tb, char *pad, int pad_len, unsigned int modstate, xkb_keysym_t key );
 
 /**
  * @param tb  Handle to the textbox
@@ -145,7 +141,7 @@ void textbox_insert ( textbox *tb, int pos, char *str, int slen );
  * before any of the textbox_ functions is called.
  * Clean with textbox_cleanup()
  */
-void textbox_setup ( Display *display );
+void textbox_setup ( void );
 
 /**
  * Cleanup the allocated colors and fonts by textbox_setup().

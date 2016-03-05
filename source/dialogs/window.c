@@ -34,9 +34,14 @@
 #include <strings.h>
 #include <string.h>
 #include <errno.h>
-#include <X11/X.h>
-#include <X11/Xatom.h>
-#include <X11/Xutil.h>
+#include <xcb/xcb.h>
+#include <xcb/xcb_ewmh.h>
+#include <xcb/xcb_icccm.h>
+
+#include <glib.h>
+
+#include "xcb-internal.h"
+#include "xcb.h"
 
 #include "rofi.h"
 #include "settings.h"
@@ -48,35 +53,36 @@
 
 #define WINLIST             32
 
+#define CLIENTTITLE         100
+#define CLIENTCLASS         50
 #define CLIENTSTATE         10
 #define CLIENTWINDOWTYPE    10
+#define CLIENTROLE          50
 
 // a manageable window
 typedef struct
 {
-    Window            window, trans;
-    XWindowAttributes xattr;
-    char              *title;
-    char              *class;
-    char              *name;
-    char              *role;
-    int               states;
-    Atom              state[CLIENTSTATE];
-    int               window_types;
-    Atom              window_type[CLIENTWINDOWTYPE];
-    workarea          monitor;
-    int               active;
-    int               demands;
-    long              hint_flags;
+    xcb_window_t                      window;
+    xcb_get_window_attributes_reply_t xattr;
+    char                              *title;
+    char                              *class;
+    char                              *name;
+    char                              *role;
+    int                               states;
+    xcb_atom_t                        state[CLIENTSTATE];
+    int                               window_types;
+    xcb_atom_t                        window_type[CLIENTWINDOWTYPE];
+    int                               active;
+    int                               demands;
+    long                              hint_flags;
 } client;
-// TODO
-extern Display *display;
+
 // window lists
 typedef struct
 {
-    Window *array;
-    client **data;
-    int    len;
+    xcb_window_t *array;
+    client       **data;
+    int          len;
 } winlist;
 
 winlist *cache_client = NULL;
@@ -90,7 +96,7 @@ static winlist* winlist_new ()
 {
     winlist *l = g_malloc ( sizeof ( winlist ) );
     l->len   = 0;
-    l->array = g_malloc_n ( WINLIST + 1, sizeof ( Window ) );
+    l->array = g_malloc_n ( WINLIST + 1, sizeof ( xcb_window_t ) );
     l->data  = g_malloc_n ( WINLIST + 1, sizeof ( client* ) );
     return l;
 }
@@ -104,10 +110,10 @@ static winlist* winlist_new ()
  *
  * @returns 0 if failed, 1 is successful.
  */
-static int winlist_append ( winlist *l, Window w, client *d )
+static int winlist_append ( winlist *l, xcb_window_t w, client *d )
 {
     if ( l->len > 0 && !( l->len % WINLIST ) ) {
-        l->array = g_realloc ( l->array, sizeof ( Window ) * ( l->len + WINLIST + 1 ) );
+        l->array = g_realloc ( l->array, sizeof ( xcb_window_t ) * ( l->len + WINLIST + 1 ) );
         l->data  = g_realloc ( l->data, sizeof ( client* ) * ( l->len + WINLIST + 1 ) );
     }
     // Make clang-check happy.
@@ -158,7 +164,7 @@ static void winlist_free ( winlist *l )
  *
  * @returns -1 if failed, index is successful.
  */
-static int winlist_find ( winlist *l, Window w )
+static int winlist_find ( winlist *l, xcb_window_t w )
 {
 // iterate backwards. Theory is: windows most often accessed will be
 // nearer the end. Testing with kcachegrind seems to support this...
@@ -200,17 +206,17 @@ static void x11_cache_free ( void )
  *
  * @returns a XWindowAttributes
  */
-static XWindowAttributes* window_get_attributes ( Display *display, Window w )
+static xcb_get_window_attributes_reply_t * window_get_attributes ( xcb_window_t w )
 {
-    XWindowAttributes *cattr = g_malloc ( sizeof ( XWindowAttributes ) );
-
-    if ( XGetWindowAttributes ( display, w, cattr ) ) {
-        return cattr;
+    xcb_get_window_attributes_cookie_t c  = xcb_get_window_attributes ( xcb->connection, w );
+    xcb_get_window_attributes_reply_t  *r = xcb_get_window_attributes_reply ( xcb->connection, c, NULL );
+    if ( r ) {
+        return r;
     }
     return NULL;
 }
 // _NET_WM_STATE_*
-static int client_has_state ( client *c, Atom state )
+static int client_has_state ( client *c, xcb_atom_t state )
 {
     for ( int i = 0; i < c->states; i++ ) {
         if ( c->state[i] == state ) {
@@ -220,7 +226,7 @@ static int client_has_state ( client *c, Atom state )
 
     return 0;
 }
-static int client_has_window_type ( client *c, Atom type )
+static int client_has_window_type ( client *c, xcb_atom_t type )
 {
     for ( int i = 0; i < c->window_types; i++ ) {
         if ( c->window_type[i] == type ) {
@@ -231,9 +237,9 @@ static int client_has_window_type ( client *c, Atom type )
     return 0;
 }
 
-static client* window_client ( Display *display, Window win )
+static client* window_client ( xcb_window_t win )
 {
-    if ( win == None ) {
+    if ( win == XCB_WINDOW_NONE ) {
         return NULL;
     }
 
@@ -244,56 +250,51 @@ static client* window_client ( Display *display, Window win )
     }
 
     // if this fails, we're up that creek
-    XWindowAttributes *attr = window_get_attributes ( display, win );
+    xcb_get_window_attributes_reply_t *attr = window_get_attributes ( win );
 
     if ( !attr ) {
         return NULL;
     }
-
     client *c = g_malloc0 ( sizeof ( client ) );
     c->window = win;
 
     // copy xattr so we don't have to care when stuff is freed
-    memmove ( &c->xattr, attr, sizeof ( XWindowAttributes ) );
-    XGetTransientForHint ( display, win, &c->trans );
+    memmove ( &c->xattr, attr, sizeof ( xcb_get_window_attributes_reply_t ) );
 
-    c->states = window_get_atom_prop ( display, win, netatoms[_NET_WM_STATE], c->state, CLIENTSTATE );
-
-    c->window_types = window_get_atom_prop ( display, win, netatoms[_NET_WM_WINDOW_TYPE], c->window_type, CLIENTWINDOWTYPE );
-    char *name;
-
-    if ( ( name = window_get_text_prop ( display, c->window, netatoms[_NET_WM_NAME] ) ) && name ) {
-        c->title = name;
-        name     = NULL;
+    xcb_get_property_cookie_t  cky = xcb_ewmh_get_wm_state ( &xcb->ewmh, win );
+    xcb_ewmh_get_atoms_reply_t states;
+    if ( xcb_ewmh_get_wm_state_reply ( &xcb->ewmh, cky, &states, NULL ) ) {
+        c->states = MIN ( CLIENTSTATE, states.atoms_len );
+        memcpy ( c->state, states.atoms, MIN ( CLIENTSTATE, states.atoms_len ) );
+        xcb_ewmh_get_atoms_reply_wipe ( &states );
     }
-    else if ( XFetchName ( display, c->window, &name ) ) {
-        c->title = g_strdup ( name );
-        XFree ( name );
-    }
-
-    name = window_get_text_prop ( display, c->window, XInternAtom ( display, "WM_WINDOW_ROLE", False ) );
-
-    if ( name != NULL ) {
-        c->role = g_strdup ( name );
-        XFree ( name );
+    cky = xcb_ewmh_get_wm_window_type ( &xcb->ewmh, win );
+    if ( xcb_ewmh_get_wm_window_type_reply ( &xcb->ewmh, cky, &states, NULL ) ) {
+        c->window_types = MIN ( CLIENTWINDOWTYPE, states.atoms_len );
+        memcpy ( c->window_type, states.atoms, MIN ( CLIENTWINDOWTYPE, states.atoms_len ) );
+        xcb_ewmh_get_atoms_reply_wipe ( &states );
     }
 
-    XClassHint chint;
-
-    if ( XGetClassHint ( display, c->window, &chint ) ) {
-        c->class = g_strdup ( chint.res_class );
-        c->name  = g_strdup ( chint.res_name );
-        XFree ( chint.res_class );
-        XFree ( chint.res_name );
+    c->title = window_get_text_prop ( c->window, xcb->ewmh._NET_WM_NAME );
+    if ( c->title == NULL ) {
+        c->title = window_get_text_prop ( c->window, XCB_ATOM_WM_NAME );
     }
 
-    XWMHints *wh;
-    if ( ( wh = XGetWMHints ( display, c->window ) ) != NULL ) {
-        c->hint_flags = wh->flags;
-        XFree ( wh );
+    c->role = window_get_text_prop ( c->window, netatoms[WM_WINDOW_ROLE] );
+
+    cky = xcb_icccm_get_wm_class ( xcb->connection, c->window );
+    xcb_icccm_get_wm_class_reply_t wcr;
+    if ( xcb_icccm_get_wm_class_reply ( xcb->connection, cky, &wcr, NULL ) ) {
+        c->class = g_strdup ( wcr.class_name );
+        xcb_icccm_get_wm_class_reply_wipe ( &wcr );
     }
 
-    monitor_dimensions ( display, c->xattr.screen, c->xattr.x, c->xattr.y, &c->monitor );
+    xcb_get_property_cookie_t cc = xcb_icccm_get_wm_hints ( xcb->connection, c->window );
+    xcb_icccm_wm_hints_t      r;
+    if ( xcb_icccm_get_wm_hints_reply ( xcb->connection, cc, &r, NULL ) ) {
+        c->hint_flags = r.flags;
+    }
+
     winlist_append ( cache_client, c->window, c );
     g_free ( attr );
     return c;
@@ -363,68 +364,67 @@ static unsigned int window_mode_get_num_entries ( const Mode *sw )
 }
 static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 {
-    ModeModePrivateData *pd     = (ModeModePrivateData *) mode_get_private_data ( sw );
-    Screen              *screen = DefaultScreenOfDisplay ( display );
-    Window              root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
+    ModeModePrivateData *pd = (ModeModePrivateData *) mode_get_private_data ( sw );
     // find window list
-    Atom                type;
     int                 nwins = 0;
-    Window              wins[100];
-    int                 count       = 0;
-    Window              curr_win_id = 0;
+    xcb_window_t        wins[100];
+    xcb_window_t        curr_win_id;
     // Create cache
 
     x11_cache_create ();
     // Check for i3
-    pd->config_i3_mode = i3_support_initialize ( display );
-
-    // Get the active window so we can highlight this.
-    if ( !( window_get_prop ( display, root, netatoms[_NET_ACTIVE_WINDOW], &type, &count, &curr_win_id, sizeof ( Window ) )
-            && type == XA_WINDOW && count > 0 ) ) {
+    pd->config_i3_mode = i3_support_initialize ( xcb );
+    xcb_get_property_cookie_t c = xcb_ewmh_get_active_window ( &( xcb->ewmh ), xcb->screen_nbr );
+    if ( !xcb_ewmh_get_active_window_reply ( &xcb->ewmh, c, &curr_win_id, NULL ) ) {
         curr_win_id = 0;
     }
 
     // Get the current desktop.
-    unsigned long current_desktop = 0;
-    if ( !window_get_cardinal_prop ( display, root, netatoms[_NET_CURRENT_DESKTOP], &current_desktop, 1 ) ) {
+    unsigned int current_desktop = 0;
+    c = xcb_ewmh_get_current_desktop ( &xcb->ewmh, xcb->screen_nbr );
+    if ( !xcb_ewmh_get_current_desktop_reply ( &xcb->ewmh, c, &current_desktop, NULL ) ) {
         current_desktop = 0;
     }
 
-    unsigned int nw = 100 * sizeof ( Window );
-    // First try Stacking order.. If this fails.
-    if ( !( window_get_prop ( display, root, netatoms[_NET_CLIENT_LIST_STACKING], &type, &nwins, wins, nw )
-            && type == XA_WINDOW ) ) {
-        // Try to get order by age.
-        if ( !( window_get_prop ( display, root, netatoms[_NET_CLIENT_LIST], &type, &nwins, wins, nw )
-                && type == XA_WINDOW )  ) {
-            nwins = 0;
+    c = xcb_ewmh_get_client_list_stacking ( &xcb->ewmh, 0 );
+    xcb_ewmh_get_windows_reply_t clients;
+    if ( xcb_ewmh_get_client_list_stacking_reply ( &xcb->ewmh, c, &clients, NULL ) ) {
+        nwins = MIN ( 100, clients.windows_len );
+        memcpy ( wins, clients.windows, nwins * sizeof ( xcb_window_t ) );
+        xcb_ewmh_get_windows_reply_wipe ( &clients );
+    }
+    else {
+        c = xcb_ewmh_get_client_list ( &xcb->ewmh, xcb->screen_nbr );
+        if  ( xcb_ewmh_get_client_list_reply ( &xcb->ewmh, c, &clients, NULL ) ) {
+            nwins = MIN ( 100, clients.windows_len );
+            memcpy ( wins, clients.windows, nwins * sizeof ( xcb_window_t ) );
+            xcb_ewmh_get_windows_reply_wipe ( &clients );
         }
     }
     if (  nwins > 0 ) {
-        char          pattern[50];
-        int           i;
-        unsigned int  classfield = 0;
-        unsigned long desktops   = 0;
+        char         pattern[50];
+        int          i;
+        unsigned int classfield = 0;
+        unsigned int desktops   = 0;
         // windows we actually display. May be slightly different to _NET_CLIENT_LIST_STACKING
         // if we happen to have a window destroyed while we're working...
         pd->ids = winlist_new ();
 
         // calc widths of fields
         for ( i = nwins - 1; i > -1; i-- ) {
-            client *c;
-
-            if ( ( c = window_client ( display, wins[i] ) )
+            client *c = window_client ( wins[i] );
+            if ( ( c != NULL )
                  && !c->xattr.override_redirect
-                 && !client_has_window_type ( c, netatoms[_NET_WM_WINDOW_TYPE_DOCK] )
-                 && !client_has_window_type ( c, netatoms[_NET_WM_WINDOW_TYPE_DESKTOP] )
-                 && !client_has_state ( c, netatoms[_NET_WM_STATE_SKIP_PAGER] )
-                 && !client_has_state ( c, netatoms[_NET_WM_STATE_SKIP_TASKBAR] ) ) {
-                classfield = MAX ( classfield, ( c->class != NULL ) ? strlen ( c->class ) : 0 );
+                 && !client_has_window_type ( c, xcb->ewmh._NET_WM_WINDOW_TYPE_DOCK )
+                 && !client_has_window_type ( c, xcb->ewmh._NET_WM_WINDOW_TYPE_DESKTOP )
+                 && !client_has_state ( c, xcb->ewmh._NET_WM_STATE_SKIP_PAGER )
+                 && !client_has_state ( c, xcb->ewmh._NET_WM_STATE_SKIP_TASKBAR ) ) {
+                classfield = MAX ( classfield, strlen ( c->class ) );
 
-                if ( client_has_state ( c, netatoms[_NET_WM_STATE_DEMANDS_ATTENTION] ) ) {
+                if ( client_has_state ( c, xcb->ewmh._NET_WM_STATE_DEMANDS_ATTENTION ) ) {
                     c->demands = TRUE;
                 }
-                if ( ( c->hint_flags & XUrgencyHint ) == XUrgencyHint ) {
+                if ( ( c->hint_flags & XCB_ICCCM_WM_HINT_X_URGENCY ) != 0 ) {
                     c->demands = TRUE;
                 }
 
@@ -436,9 +436,11 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
         }
 
         // Create pattern for printing the line.
-        if ( !window_get_cardinal_prop ( display, root, netatoms[_NET_NUMBER_OF_DESKTOPS], &desktops, 1 ) ) {
+        xcb_get_property_cookie_t c = xcb_ewmh_get_number_of_desktops ( &xcb->ewmh, xcb->screen_nbr );
+        if ( !xcb_ewmh_get_number_of_desktops_reply ( &xcb->ewmh, c, &desktops, NULL ) ) {
             desktops = 1;
         }
+
         if ( pd->config_i3_mode ) {
             snprintf ( pattern, 50, "%%-%ds   %%s", MAX ( 5, classfield ) );
         }
@@ -450,27 +452,39 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 
         // build the actual list
         for ( i = 0; i < ( pd->ids->len ); i++ ) {
-            Window w = pd->ids->array[i];
-            client *c;
+            xcb_window_t w = pd->ids->array[i];
+            client       *c;
 
-            if ( ( c = window_client ( display, w ) ) ) {
+            if ( ( c = window_client ( w ) ) ) {
                 // final line format
-                unsigned long wmdesktop;
-                char          desktop[5];
+                char   desktop[5];
                 desktop[0] = 0;
-                size_t        len =
+                size_t len =
                     ( ( c->title != NULL ) ? strlen ( c->title ) : 0 ) + ( c->class ? strlen ( c->class ) : 0 ) + classfield + 50;
-                char          *line = g_malloc ( len );
+                char   *line = g_malloc ( len );
                 if ( !pd->config_i3_mode ) {
+                    unsigned int              wmdesktop = 0;
                     // find client's desktop.
-                    if ( !window_get_cardinal_prop ( display, c->window, netatoms[_NET_WM_DESKTOP], &wmdesktop, 1 ) ) {
+                    xcb_get_property_cookie_t cookie;
+                    xcb_get_property_reply_t  *r;
+
+                    cookie =
+                        xcb_get_property ( xcb->connection, 0, c->window, xcb->ewmh._NET_WM_DESKTOP, XCB_GET_PROPERTY, 0,
+                                           sizeof ( unsigned int ) );
+                    r = xcb_get_property_reply ( xcb->connection, cookie, NULL );
+                    if ( r && r->type == XCB_ATOM_INTEGER ) {
+                        wmdesktop = *( (int *) xcb_get_property_value ( r ) );
+                    }
+                    if ( r && r->type != XCB_ATOM_INTEGER ) {
                         // Assume the client is on all desktops.
                         wmdesktop = 0xFFFFFFFF;
                     }
                     else if ( cd && wmdesktop != current_desktop ) {
                         g_free ( line );
+                        free ( r );
                         continue;
                     }
+                    free ( r );
 
                     if ( wmdesktop < 0xFFFFFFFF ) {
                         snprintf ( desktop, 5, "%d", (int) wmdesktop );
@@ -525,17 +539,10 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
             i3_support_focus_window ( rmpd->ids->array[selected_line] );
         }
         else{
-            Screen *screen = DefaultScreenOfDisplay ( display );
-            Window root    = RootWindow ( display, XScreenNumberOfScreen ( screen ) );
-            // Change to the desktop of the selected window/client.
-            // TODO: get rid of strtol
-            window_send_message ( display, root, root, netatoms[_NET_CURRENT_DESKTOP], strtol ( rmpd->cmd_list[selected_line], NULL, 10 ),
-                                  SubstructureNotifyMask | SubstructureRedirectMask, 0 );
-            XSync ( display, False );
-
-            window_send_message ( display, root, rmpd->ids->array[selected_line], netatoms[_NET_ACTIVE_WINDOW], 2, // 2 = pager
-                                  SubstructureNotifyMask | SubstructureRedirectMask, 0 );
-            XFlush ( display );
+            xcb_ewmh_request_change_active_window ( &xcb->ewmh, xcb->screen_nbr, rmpd->ids->array[selected_line],
+                                                    XCB_EWMH_CLIENT_SOURCE_TYPE_OTHER,
+                                                    XCB_CURRENT_TIME, XCB_WINDOW_NONE );
+            xcb_flush ( xcb->connection );
         }
     }
     return retv;
@@ -558,10 +565,10 @@ static void window_mode_destroy ( Mode *sw )
 static char *_get_display_value ( const Mode *sw, unsigned int selected_line, int *state, int get_entry )
 {
     ModeModePrivateData *rmpd = mode_get_private_data ( sw );
-    if ( window_client ( display, rmpd->ids->array[selected_line] )->demands ) {
+    if ( window_client ( rmpd->ids->array[selected_line] )->demands ) {
         *state |= URGENT;
     }
-    if ( window_client ( display, rmpd->ids->array[selected_line] )->active ) {
+    if ( window_client ( rmpd->ids->array[selected_line] )->active ) {
         *state |= ACTIVE;
     }
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
@@ -584,9 +591,6 @@ static int window_is_not_ascii ( const Mode *sw, unsigned int index )
     if ( c->title && !g_str_is_ascii ( c->title ) ) {
         return TRUE;
     }
-    if ( c->name && !g_str_is_ascii ( c->name ) ) {
-        return TRUE;
-    }
     return FALSE;
 }
 
@@ -595,9 +599,6 @@ Mode window_mode =
 {
     .name               = "window",
     .cfg_name_key       = "display-window",
-    .keycfg             = NULL,
-    .keystr             = NULL,
-    .modmask            = AnyModifier,
     ._init              = window_mode_init,
     ._get_num_entries   = window_mode_get_num_entries,
     ._result            = window_mode_result,
@@ -613,9 +614,6 @@ Mode window_mode_cd =
 {
     .name               = "windowcd",
     .cfg_name_key       = "display-windowcd",
-    .keycfg             = NULL,
-    .keystr             = NULL,
-    .modmask            = AnyModifier,
     ._init              = window_mode_init_cd,
     ._get_num_entries   = window_mode_get_num_entries,
     ._result            = window_mode_result,

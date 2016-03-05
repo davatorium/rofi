@@ -137,7 +137,7 @@ void remove_pid_file ( int fd );
  *
  * This functions exits the program with 1 when it finds an invalid configuration.
  */
-void config_sanity_check ( Display *display );
+int config_sanity_check ( void );
 
 /**
  * @param arg string to parse.

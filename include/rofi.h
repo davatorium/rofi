@@ -1,7 +1,7 @@
 #ifndef ROFI_MAIN_H
 #define ROFI_MAIN_H
-#include <X11/X.h>
-#include <X11/Xlib.h>
+#include <xcb/xcb.h>
+#include <xkbcommon/xkbcommon.h>
 #include <glib.h>
 #include <string.h>
 #include <stdlib.h>
@@ -14,6 +14,7 @@
  * @defgroup Main Main
  * @{
  */
+
 /**
  * Pointer to xdg cache directory.
  */
@@ -34,17 +35,6 @@ unsigned int rofi_get_num_enabled_modi ( void );
  * @returns a Mode handle.
  */
 const Mode * rofi_get_mode ( unsigned int index );
-
-/**
- * @param key the Key to match
- * @param modstate the modifier state to match
- *
- * Match key and modifier state against modi.
- *
- * @return the index of the switcher that matches the key combination
- * specified by key and modstate. Returns -1 if none was found
- */
-int locate_switcher ( KeySym key, unsigned int modstate );
 
 void rofi_set_return_code ( int code );
 /** Reset terminal */

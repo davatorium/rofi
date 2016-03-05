@@ -4,15 +4,21 @@ language: c
 addons:
     apt:
       packages:
-          - libxinerama-dev
           - autoconf
           - automake
           - make 
-          - libxft-dev
           - libx11-dev
           - libpango1.0-dev
           - libcairo2-dev
           - libstartup-notification0-dev
+          - libxkbcommon-dev
+          - libxkbcommon-x11-dev
+          - libxcb-ewmh-dev
+          - libxcb-icccm4-dev
+          - libxcb-util0-dev
+          - libxcb-xinerama0-dev
+          - libxcb-xkb-dev
+          - libxcb1-dev
           - xvfb
           - discount
           - xdotool
@@ -22,6 +28,7 @@ compiler:
   - gcc
 
 before_install:
+    - git submodule update --init
     - autoreconf -i 
 
 script:

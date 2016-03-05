@@ -1,0 +1,3 @@
+[submodule "libgwater"]
+	path = libgwater
+	url = git://github.com/sardemff7/libgwater

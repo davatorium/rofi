@@ -1,6 +1,8 @@
 #ifndef ROFI_VIEW_H
 #define ROFI_VIEW_H
 
+#include "xkb.h"
+
 /**
  * @defgroup View View
  *
@@ -47,7 +49,7 @@ void rofi_view_finalize ( RofiViewState *state );
 
 MenuReturn rofi_view_get_return_value ( const RofiViewState *state );
 unsigned int rofi_view_get_next_position ( const RofiViewState *state );
-void rofi_view_itterrate ( RofiViewState *state, XEvent *event );
+void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb_stuff *xkb );
 unsigned int rofi_view_get_completed ( const RofiViewState *state );
 const char * rofi_view_get_user_input ( const RofiViewState *state );
 
@@ -88,7 +90,7 @@ void rofi_view_update ( RofiViewState *state );
  *
  * Enables fake transparancy on this view.
  */
-void rofi_view_setup_fake_transparency ( Display *display, RofiViewState *state );
+void rofi_view_setup_fake_transparency ( RofiViewState *state );
 
 /**
  * @param state The handle to the view
@@ -128,7 +130,7 @@ void rofi_view_set_active ( RofiViewState *state );
  *
  * The error message to show.
  */
-void rofi_view_error_dialog ( const char *msg, int markup  );
+int rofi_view_error_dialog ( const char *msg, int markup  );
 
 /**
  * Queue a redraw.

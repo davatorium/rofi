@@ -19,7 +19,7 @@
  * Hopefully at some point, I3 gets fixed and this is not needed.
  * This function takes the path to the i3 IPC socket, and the XID of the window.
  */
-void i3_support_focus_window ( Window id );
+void i3_support_focus_window ( xcb_window_t id );
 
 /**
  * @param display The display to read the i3 property from.
@@ -28,7 +28,7 @@ void i3_support_focus_window ( Window id );
  * @returns TRUE when i3 is running, FALSE when not.
  */
 
-int i3_support_initialize ( Display *display );
+int i3_support_initialize ( xcb_stuff *xcb );
 
 /**
  * Cleanup.

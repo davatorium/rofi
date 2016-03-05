@@ -24,14 +24,7 @@
  */
 
 #include <config.h>
-#include <X11/X.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/Xmd.h>
-#include <X11/Xutil.h>
-#include <X11/Xproto.h>
-#include <X11/keysym.h>
-#include <X11/XKBlib.h>
+#include <xcb/xcb.h>
 #include <ctype.h>
 #include <string.h>
 #include <glib.h>
@@ -89,7 +82,7 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
 
     tb->changed = FALSE;
 
-    tb->main_surface = cairo_image_surface_create ( get_format (), tb->widget.w, tb->widget.h );
+    tb->main_surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, tb->widget.w, tb->widget.h );
     tb->main_draw    = cairo_create ( tb->main_surface );
     tb->layout       = pango_layout_new ( p_context );
     textbox_font ( tb, tbft );
@@ -270,7 +263,7 @@ static void texbox_update ( textbox *tb )
             tb->main_draw    = NULL;
             tb->main_surface = NULL;
         }
-        tb->main_surface = cairo_image_surface_create ( get_format (), tb->widget.w, tb->widget.h );
+        tb->main_surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, tb->widget.w, tb->widget.h );
         tb->main_draw    = cairo_create ( tb->main_surface );
         cairo_set_operator ( tb->main_draw, CAIRO_OPERATOR_SOURCE );
 
@@ -532,80 +525,80 @@ static void textbox_cursor_del_word ( textbox *tb )
 // 0 = unhandled
 // 1 = handled
 // -1 = handled and return pressed (finished)
-int textbox_keypress ( textbox *tb, XEvent *ev, char *pad, int pad_len, KeySym key, Status stat )
+int textbox_keypress ( textbox *tb, char *pad, int pad_len, unsigned int modstate, xkb_keysym_t key )
 {
     if ( !( tb->flags & TB_EDITABLE ) ) {
         return 0;
     }
     int old_blink = tb->blink;
     tb->blink = 2;
-    if ( stat == XLookupKeySym || stat == XLookupBoth ) {
+    if ( key != XKB_KEY_NoSymbol ) {
         // Left or Ctrl-b
-        if ( abe_test_action ( MOVE_CHAR_BACK, ev->xkey.state, key ) ) {
+        if ( abe_test_action ( MOVE_CHAR_BACK, modstate, key ) ) {
             textbox_cursor_dec ( tb );
             return 2;
         }
         // Right or Ctrl-F
-        else if ( abe_test_action ( MOVE_CHAR_FORWARD, ev->xkey.state, key ) ) {
+        else if ( abe_test_action ( MOVE_CHAR_FORWARD, modstate, key ) ) {
             textbox_cursor_inc ( tb );
             return 2;
         }
 
         // Ctrl-U: Kill from the beginning to the end of the line.
-        else if ( abe_test_action ( CLEAR_LINE, ev->xkey.state, key ) ) {
+        else if ( abe_test_action ( CLEAR_LINE, modstate, key ) ) {
             textbox_text ( tb, "" );
             return 1;
         }
         // Ctrl-A
-        else if ( abe_test_action ( MOVE_FRONT, ev->xkey.state, key ) ) {
+        else if ( abe_test_action ( MOVE_FRONT, modstate, key ) ) {
             textbox_cursor ( tb, 0 );
             return 2;
         }
         // Ctrl-E
-        else if ( abe_test_action ( MOVE_END, ev->xkey.state, key ) ) {
+        else if ( abe_test_action ( MOVE_END, modstate, key ) ) {
             textbox_cursor_end ( tb );
             return 2;
         }
         // Ctrl-Alt-h
-        else if ( abe_test_action ( REMOVE_WORD_BACK, ev->xkey.state, key ) ) {
+        else if ( abe_test_action ( REMOVE_WORD_BACK, modstate, key ) ) {
             textbox_cursor_bkspc_word ( tb );
             return 1;
         }
         // Ctrl-Alt-d
-        else if ( abe_test_action ( REMOVE_WORD_FORWARD, ev->xkey.state, key ) ) {
+        else if ( abe_test_action ( REMOVE_WORD_FORWARD, modstate, key ) ) {
             textbox_cursor_del_word ( tb );
             return 1;
         }    // Delete or Ctrl-D
-        else if ( abe_test_action ( REMOVE_CHAR_FORWARD, ev->xkey.state, key ) ) {
+        else if ( abe_test_action ( REMOVE_CHAR_FORWARD, modstate, key ) ) {
             textbox_cursor_del ( tb );
             return 1;
         }
         // Alt-B
-        else if ( abe_test_action ( MOVE_WORD_BACK, ev->xkey.state, key ) ) {
+        else if ( abe_test_action ( MOVE_WORD_BACK, modstate, key ) ) {
             textbox_cursor_dec_word ( tb );
             return 2;
         }
         // Alt-F
-        else if ( abe_test_action ( MOVE_WORD_FORWARD, ev->xkey.state, key ) ) {
+        else if ( abe_test_action ( MOVE_WORD_FORWARD, modstate, key ) ) {
             textbox_cursor_inc_word ( tb );
             return 2;
         }
         // BackSpace, Ctrl-h
-        else if ( abe_test_action ( REMOVE_CHAR_BACK, ev->xkey.state, key ) ) {
+        else if ( abe_test_action ( REMOVE_CHAR_BACK, modstate, key ) ) {
             textbox_cursor_bkspc ( tb );
             return 1;
         }
-        else if ( abe_test_action ( ACCEPT_CUSTOM, ev->xkey.state, key ) ) {
+        else if ( abe_test_action ( ACCEPT_CUSTOM, modstate, key ) ) {
             return -2;
         }
-        else if  ( abe_test_action ( ACCEPT_ENTRY_CONTINUE, ev->xkey.state, key ) ) {
+        else if  ( abe_test_action ( ACCEPT_ENTRY_CONTINUE, modstate, key ) ) {
             return -3;
         }
-        else if ( abe_test_action ( ACCEPT_ENTRY, ev->xkey.state, key ) ) {
+        else if ( abe_test_action ( ACCEPT_ENTRY, modstate, key ) ) {
             return -1;
         }
     }
-    if ( pad_len > 0 && ( stat == XLookupBoth || stat == XLookupChars ) ) {
+    if ( pad_len > 0 ) {
         // Filter When alt/ctrl is pressed do not accept the character.
         if (  !g_ascii_iscntrl ( *pad ) ) {
             textbox_insert ( tb, tb->cursor, pad, pad_len );
@@ -620,16 +613,7 @@ int textbox_keypress ( textbox *tb, XEvent *ev, char *pad, int pad_len, KeySym k
 /***
  * Font setup.
  */
-static void parse_color ( Display *display, char *bg, Color *col )
-{
-    unsigned int val = 0;
-    val        = color_get ( display, bg, "white" );
-    col->alpha = ( ( val & 0xFF000000 ) >> 24 ) / 255.0;
-    col->red   = ( ( val & 0x00FF0000 ) >> 16 ) / 255.0;
-    col->green = ( ( val & 0x0000FF00 ) >> 8  ) / 255.0;
-    col->blue  = ( ( val & 0x000000FF )       ) / 255.0;
-}
-static void textbox_parse_string (  Display *display, const char *str, RowColor *color )
+static void textbox_parse_string (  const char *str, RowColor *color )
 {
     if ( str == NULL ) {
         return;
@@ -642,50 +626,50 @@ static void textbox_parse_string (  Display *display, const char *str, RowColor 
         switch ( index )
         {
         case 0:
-            parse_color ( display, g_strstrip ( token ), &( color->bg ) );
+            color->bg = color_get ( g_strstrip ( token ) );
             break;
         case 1:
-            parse_color ( display, g_strstrip ( token ), &( color->fg ) );
+            color->fg = color_get ( g_strstrip ( token ) );
             break;
         case 2:
-            parse_color ( display, g_strstrip ( token ), &( color->bgalt ) );
+            color->bgalt = color_get ( g_strstrip ( token ) );
             break;
         case 3:
-            parse_color ( display, g_strstrip ( token ), &( color->hlbg ) );
+            color->hlbg = color_get ( g_strstrip ( token ) );
             break;
         case 4:
-            parse_color ( display, g_strstrip ( token ), &( color->hlfg ) );
+            color->hlfg = color_get ( g_strstrip ( token ) );
             break;
         }
         index++;
     }
     g_free ( cstr );
 }
-void textbox_setup ( Display *display )
+void textbox_setup ( void )
 {
     if ( config.color_enabled ) {
-        textbox_parse_string ( display, config.color_normal, &( colors[NORMAL] ) );
-        textbox_parse_string ( display, config.color_urgent, &( colors[URGENT] ) );
-        textbox_parse_string ( display, config.color_active, &( colors[ACTIVE] ) );
+        textbox_parse_string ( config.color_normal, &( colors[NORMAL] ) );
+        textbox_parse_string ( config.color_urgent, &( colors[URGENT] ) );
+        textbox_parse_string ( config.color_active, &( colors[ACTIVE] ) );
     }
     else {
-        parse_color ( display, config.menu_bg, &( colors[NORMAL].bg ) );
-        parse_color ( display, config.menu_fg, &( colors[NORMAL].fg ) );
-        parse_color ( display, config.menu_bg_alt, &( colors[NORMAL].bgalt ) );
-        parse_color ( display, config.menu_hlfg, &( colors[NORMAL].hlfg ) );
-        parse_color ( display, config.menu_hlbg, &( colors[NORMAL].hlbg ) );
+        colors[NORMAL].bg    = color_get ( config.menu_bg );
+        colors[NORMAL].fg    = color_get ( config.menu_fg );
+        colors[NORMAL].bgalt = color_get ( config.menu_bg_alt );
+        colors[NORMAL].hlfg  = color_get ( config.menu_hlfg );
+        colors[NORMAL].hlbg  = color_get ( config.menu_hlbg );
 
-        parse_color ( display, config.menu_bg_urgent, &( colors[URGENT].bg ) );
-        parse_color ( display, config.menu_fg_urgent, &( colors[URGENT].fg ) );
-        parse_color ( display, config.menu_bg_alt, &( colors[URGENT].bgalt ) );
-        parse_color ( display, config.menu_hlfg_urgent, &( colors[URGENT].hlfg ) );
-        parse_color ( display, config.menu_hlbg_urgent, &( colors[URGENT].hlbg ) );
+        colors[URGENT].bg    = color_get ( config.menu_bg_urgent );
+        colors[URGENT].fg    = color_get ( config.menu_fg_urgent );
+        colors[URGENT].bgalt = color_get ( config.menu_bg_alt );
+        colors[URGENT].hlfg  = color_get ( config.menu_hlfg_urgent );
+        colors[URGENT].hlbg  = color_get ( config.menu_hlbg_urgent );
 
-        parse_color ( display, config.menu_bg_active, &( colors[ACTIVE].bg ) );
-        parse_color ( display, config.menu_fg_active, &( colors[ACTIVE].fg ) );
-        parse_color ( display, config.menu_bg_alt, &( colors[ACTIVE].bgalt ) );
-        parse_color ( display, config.menu_hlfg_active, &( colors[ACTIVE].hlfg ) );
-        parse_color ( display, config.menu_hlbg_active, &( colors[ACTIVE].hlbg ) );
+        colors[ACTIVE].bg    = color_get ( config.menu_bg_active );
+        colors[ACTIVE].fg    = color_get ( config.menu_fg_active );
+        colors[ACTIVE].bgalt = color_get ( config.menu_bg_alt );
+        colors[ACTIVE].hlfg  = color_get ( config.menu_hlfg_active );
+        colors[ACTIVE].hlbg  = color_get ( config.menu_hlbg_active );
     }
 }
 

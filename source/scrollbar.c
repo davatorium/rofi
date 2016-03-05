@@ -23,19 +23,11 @@
  */
 
 #include <config.h>
-#include <X11/X.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/Xmd.h>
-#include <X11/Xutil.h>
-#include <X11/Xproto.h>
-#include <X11/Xft/Xft.h>
+#include <xkbcommon/xkbcommon.h>
 #include <glib.h>
 #include "scrollbar.h"
 #include "x11-helper.h"
 #include "settings.h"
-
-extern Display *display;
 
 scrollbar *scrollbar_create ( short x, short y, short w, short h )
 {
@@ -97,7 +89,7 @@ void scrollbar_draw ( scrollbar *sb, cairo_t *draw )
         // Cap length;
         height = MIN ( bh - y + 1, ( height ) );
         // Redraw base window
-        color_separator ( display, draw );
+        color_separator ( draw );
 
         cairo_rectangle ( draw, sb->widget.x + config.line_margin, sb->widget.y + y, sb->widget.w - config.line_margin, height );
         cairo_fill ( draw );

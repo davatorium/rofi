@@ -31,12 +31,27 @@ dnl ---------------------------------------------------------------------
 AC_USE_SYSTEM_EXTENSIONS
 
 dnl ---------------------------------------------------------------------
+dnl Static libraries programs
+dnl ---------------------------------------------------------------------
+AC_PROG_RANLIB
+AM_PROG_AR
+
+dnl ---------------------------------------------------------------------
+dnl Base CFLAGS
+dnl ---------------------------------------------------------------------
+AM_CFLAGS="-Wall -Wextra -Wparentheses -Winline -pedantic  -Wunreachable-code"
+
+dnl ---------------------------------------------------------------------
 dnl Enable source code coverage reporting for GCC
 dnl ---------------------------------------------------------------------
 
 AC_ARG_ENABLE(gcov,
               [  --enable-gcov           Enable source code coverage testing using gcov],
-              [CFLAGS="$CFLAGS -coverage"])
+              [AM_CFLAGS="${AM_CFLAGS} -coverage"])
+
+AC_ARG_ENABLE(asan,
+              [  --enable-asan           asan],
+              [AM_CFLAGS="${AM_CFLAGS} -fsanitize=address -fno-omit-frame-pointer -g3"])
 dnl ---------------------------------------------------------------------
 dnl Disable window mode
 dnl ---------------------------------------------------------------------
@@ -72,17 +87,17 @@ dnl ---------------------------------------------------------------------
 dnl X11, Glib, Xinerama, Pango, Cairo, libstartup notification
 dnl ---------------------------------------------------------------------
 PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40])
-PKG_CHECK_MODULES([x11],      [x11])
-PKG_CHECK_MODULES([xinerama], [xinerama])
+GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11 xcb-ewmh xcb-xinerama xcb-icccm])
+PKG_CHECK_MODULES([x11],      [x11 x11-xcb])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
-PKG_CHECK_MODULES([cairo],	  [cairo cairo-xlib])
+PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])
 PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0])
 
 
 dnl ---------------------------------------------------------------------
 dnl Add extra compiler flags
 dnl ---------------------------------------------------------------------
-AC_SUBST([EXTRA_CFLAGS], ["-Wall -Wextra -Wparentheses -Winline -pedantic"])
+AC_SUBST([AM_CFLAGS])
 
 AC_CONFIG_FILES([Makefile doc/rofi.doxy])
 AC_OUTPUT

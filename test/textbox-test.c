@@ -6,9 +6,7 @@
 #include <glib.h>
 #include <history.h>
 #include <string.h>
-#include <X11/X.h>
-#include <X11/Xlib.h>
-
+#include <xcb/xcb.h>
 #include <textbox.h>
 #include <rofi.h>
 #include <cairo-xlib.h>
@@ -22,85 +20,36 @@ unsigned int normal_window_mode = 0;
         printf ( "Test %3i passed (%s)\n", ++test, # a ); \
 }
 
-Display     *display = NULL;
-Colormap    map      = None;
-XVisualInfo vinfo;
 #include "view.h"
 void rofi_view_queue_redraw ()
 {
 }
-
-void rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
+Color color_get ( const char *name )
 {
-    fputs ( msg, stderr );
 }
 
+int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
+{
+    fputs ( msg, stderr );
+    return FALSE;
+}
+
+int abe_test_action ( KeyBindingAction action, unsigned int mask, xkb_keysym_t key )
+{
+    return FALSE;
+}
 int show_error_message ( const char *msg, int markup )
 {
     rofi_view_error_dialog ( msg, markup );
     return 0;
 }
 
-static unsigned int color_get ( Display *display, const char *const name )
-{
-    XColor color;
-    // Special format.
-    if ( strncmp ( name, "argb:", 5 ) == 0 ) {
-        return strtoul ( &name[5], NULL, 16 );
-    }
-    else {
-        return XAllocNamedColor ( display, map, name, &color, &color ) ? color.pixel : None;
-    }
-}
-
-static void create_visual_and_colormap ()
-{
-    map = None;
-    // Try to create TrueColor map
-    if ( XMatchVisualInfo ( display, DefaultScreen ( display ), 32, TrueColor, &vinfo ) ) {
-        // Visual found, lets try to create map.
-        map = XCreateColormap ( display, DefaultRootWindow ( display ), vinfo.visual, AllocNone );
-    }
-    // Failed to create map.
-    if ( map == None ) {
-        // Two fields we use.
-        vinfo.visual = DefaultVisual ( display, DefaultScreen ( display ) );
-        vinfo.depth  = DefaultDepth ( display, DefaultScreen ( display ) );
-        map          = DefaultColormap ( display, DefaultScreen ( display ) );
-    }
-}
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
-    // Get DISPLAY
-    const char *display_str = getenv ( "DISPLAY" );
-    if ( !( display = XOpenDisplay ( display_str ) ) ) {
-        fprintf ( stderr, "cannot open display!\n" );
-        return EXIT_FAILURE;
-    }
-    create_visual_and_colormap ();
-
-    setup_abe ();
-    TASSERT ( display != NULL );
-    XSetWindowAttributes attr;
-    attr.colormap         = map;
-    attr.border_pixel     = color_get ( display, "white" );
-    attr.background_pixel = color_get ( display, "black" );
-    Window mw = XCreateWindow ( display, DefaultRootWindow ( display ),
-                                0, 0, 200, 100, config.menu_bw, vinfo.depth, InputOutput,
-                                vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr );
-    TASSERT ( mw != None );
-
-    cairo_surface_t *surface = cairo_xlib_surface_create ( display, mw, vinfo.visual, 200, 100 );
-    // Create a drawable.
-    cairo_t         *draw = cairo_create ( surface );
-    cairo_set_operator ( draw, CAIRO_OPERATOR_SOURCE );
-    // Set alternate row to normal row.
-    config.menu_bg_alt = config.menu_bg;
-    textbox_setup ( display );
-    PangoContext *p = pango_cairo_create_context ( draw );
+    cairo_surface_t *surf = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, 100, 100 );
+    cairo_t         *draw = cairo_create ( surf );
+    PangoContext    *p    = pango_cairo_create_context ( draw );
     textbox_set_pango_context ( p );
-    // cleanup
-    g_object_unref ( p );
 
     textbox *box = textbox_create ( TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, 0, 0, -1, -1,
                                     NORMAL, "test" );
@@ -172,7 +121,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERT ( box->cursor == 5 );
 
     textbox_font ( box, HIGHLIGHT );
-    textbox_draw ( box, draw );
+    //textbox_draw ( box, draw );
 
     widget_move ( WIDGET ( box ), 12, 13 );
     TASSERT ( box->widget.x == 12 );
@@ -180,11 +129,4 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 
     textbox_free ( box );
     textbox_cleanup ( );
-
-    cleanup_abe ();
-
-    cairo_destroy ( draw );
-    cairo_surface_destroy ( surface );
-    XDestroyWindow ( display, mw );
-    XCloseDisplay ( display );
 }

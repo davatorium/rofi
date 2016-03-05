@@ -32,7 +32,6 @@
 #include <config.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <X11/X.h>
 
 #include <unistd.h>
 #include <limits.h>
@@ -432,9 +431,6 @@ Mode run_mode =
 {
     .name               = "run",
     .cfg_name_key       = "display-run",
-    .keycfg             = NULL,
-    .keystr             = NULL,
-    .modmask            = AnyModifier,
     ._init              = run_mode_init,
     ._get_num_entries   = run_mode_get_num_entries,
     ._result            = run_mode_result,

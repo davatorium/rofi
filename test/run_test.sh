@@ -6,7 +6,7 @@ function create_fake_x ( )
 {
     export DISPLAY=":$1"
     echo "Starting fake X: ${DISPLAY}"
-    Xvfb ${DISPLAY} &
+    Xvfb -screen 0 1280x1024x24  ${DISPLAY} &
     XPID=$!
     sleep 1;
     timeout -k 30s 30s fluxbox &

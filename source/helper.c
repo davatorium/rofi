@@ -39,14 +39,20 @@
 #include <sys/stat.h>
 #include <pwd.h>
 #include <ctype.h>
+#include <xcb/xcb.h>
+#include <pango/pango.h>
+#include <pango/pango-fontmap.h>
+#include <pango/pangocairo.h>
 #include "helper.h"
 #include "settings.h"
 #include "x11-helper.h"
 #include "rofi.h"
 #include "view.h"
 
-static int  stored_argc   = 0;
-static char **stored_argv = NULL;
+extern xcb_connection_t *xcb_connection;
+extern xcb_screen_t     *xcb_screen;
+static int              stored_argc   = 0;
+static char             **stored_argv = NULL;
 
 void cmd_set_arguments ( int argc, char **argv )
 {
@@ -508,15 +514,8 @@ void remove_pid_file ( int fd )
  *
  * This functions exits the program with 1 when it finds an invalid configuration.
  */
-void config_sanity_check ( Display *display )
+int config_sanity_check ( void )
 {
-    if ( config.threads == 0 ) {
-        config.threads = 1;
-        long procs = sysconf ( _SC_NPROCESSORS_CONF );
-        if ( procs > 0 ) {
-            config.threads = MIN ( procs, 128l );
-        }
-    }
     // If alternative row is not set, copy the normal background color.
     // Do this at the beginning as we might use it in the error dialog.
     if ( config.menu_bg_alt == NULL ) {
@@ -548,14 +547,6 @@ void config_sanity_check ( Display *display )
         config.location = WL_CENTER;
         found_error     = 1;
     }
-    if ( 0 ) {
-        if ( !( config.line_margin <= 50 ) ) {
-            g_string_append_printf ( msg, "\t<b>config.line_margin</b>=%d is invalid. Value should be between %d and %d.\n",
-                                     config.line_margin, 0, 50 );
-            config.line_margin = 2;
-            found_error        = 1;
-        }
-    }
     if ( config.fullscreen && config.monitor != -1 ) {
         g_string_append_printf ( msg,
                                  "\t<b>config.monitor</b>=%d is invalid. Value should be unset (-1) when fullscreen mode is enabled.\n",
@@ -566,10 +557,10 @@ void config_sanity_check ( Display *display )
 
     // Check size
     {
-        int ssize = monitor_get_smallest_size ( display );
+        int ssize = monitor_get_smallest_size ( );
         if ( config.monitor >= 0 ) {
             workarea mon;
-            if ( monitor_get_dimension ( display, DefaultScreenOfDisplay ( display ), config.monitor, &mon ) ) {
+            if ( monitor_get_dimension ( config.monitor, &mon ) ) {
                 ssize = MIN ( mon.w, mon.h );
             }
             else{
@@ -588,13 +579,27 @@ void config_sanity_check ( Display *display )
         }
     }
 
+    if ( config.menu_font ) {
+        PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
+        const char           *fam = pango_font_description_get_family ( pfd );
+        int                  size = pango_font_description_get_size ( pfd );
+        if ( fam == NULL || size == 0 ) {
+            g_string_append_printf ( msg, "Pango failed to parse font: '%s'\n", config.menu_font );
+            g_string_append_printf ( msg, "Got font family: <b>%s</b> at size <b>%d</b>\n", fam ? fam : "{unknown}", size );
+            config.menu_font = NULL;
+            found_error      = TRUE;
+        }
+        pango_font_description_free ( pfd );
+    }
+
     if ( found_error ) {
         g_string_append ( msg, "Please update your configuration." );
         show_error_message ( msg->str, TRUE );
-        exit ( EXIT_FAILURE );
+        return TRUE;
     }
 
     g_string_free ( msg, TRUE );
+    return FALSE;
 }
 
 char *rofi_expand_path ( const char *input )

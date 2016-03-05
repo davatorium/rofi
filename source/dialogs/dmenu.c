@@ -44,9 +44,6 @@
 // We limit at 1000000 rows for now.
 #define DMENU_MAX_ROWS    1000000
 
-// TODO HACK TO BE REMOVED
-extern Display *display;
-
 struct range_pair
 {
     unsigned int start;
@@ -344,9 +341,6 @@ Mode dmenu_mode =
 {
     .name               = "dmenu",
     .cfg_name_key       = "display-combi",
-    .keycfg             = NULL,
-    .keystr             = NULL,
-    .modmask            = AnyModifier,
     ._init              = dmenu_mode_init,
     ._get_num_entries   = dmenu_mode_get_num_entries,
     ._result            = NULL,
@@ -359,10 +353,26 @@ Mode dmenu_mode =
     .free               = NULL
 };
 
+static void dmenu_finish ( RofiViewState *state, int retv )
+{
+    if ( retv == FALSE ) {
+        rofi_set_return_code ( EXIT_FAILURE );
+    }
+    else if ( retv >= 10 ) {
+        rofi_set_return_code ( retv );
+    }
+    else{
+        rofi_set_return_code ( EXIT_SUCCESS );
+    }
+    rofi_view_set_active ( NULL );
+    rofi_view_free ( state );
+    mode_destroy ( &dmenu_mode );
+}
+
 static void dmenu_finalize ( RofiViewState *state )
 {
     int                  retv            = FALSE;
-    DmenuModePrivateData *pd             = (DmenuModePrivateData *) (Mode *) ( rofi_view_get_mode ( state ) )->private_data;
+    DmenuModePrivateData *pd             = (DmenuModePrivateData *) rofi_view_get_mode ( state )->private_data;
     unsigned int         cmd_list_length = pd->cmd_list_length;
     char                 **cmd_list      = pd->cmd_list;
 
@@ -373,7 +383,6 @@ static void dmenu_finalize ( RofiViewState *state )
 
     int                  restart = 0;
     // Special behavior.
-    // TODO clean this up!
     if ( pd->only_selected ) {
         /**
          * Select item mode.
@@ -391,22 +400,8 @@ static void dmenu_finalize ( RofiViewState *state )
                 if ( ( mretv & MENU_QUICK_SWITCH ) ) {
                     retv = 10 + ( mretv & MENU_LOWER_MASK );
                 }
-                rofi_view_free ( state );
                 g_free ( input );
-                mode_destroy ( &dmenu_mode );
-                if ( retv == FALSE ) {
-                    rofi_set_return_code ( EXIT_FAILURE );
-                }
-                else if ( retv >= 10 ) {
-                    rofi_set_return_code ( retv );
-                }
-                else{
-                    rofi_set_return_code ( EXIT_SUCCESS );
-                }
-                rofi_view_free ( state );
-                mode_destroy ( &dmenu_mode );
-                rofi_view_set_active ( NULL );
-//                g_main_loop_quit(NULL);
+                dmenu_finish ( state, retv );
                 return;
             }
             pd->selected_line = next_pos - 1;
@@ -414,6 +409,9 @@ static void dmenu_finalize ( RofiViewState *state )
         // Restart
         rofi_view_restart ( state );
         rofi_view_set_selected_line ( state, pd->selected_line );
+        if ( !restart ) {
+            dmenu_finish ( state, retv );
+        }
         return;
     }
     // We normally do not want to restart the loop.
@@ -474,18 +472,7 @@ static void dmenu_finalize ( RofiViewState *state )
         rofi_view_set_selected_line ( state, pd->selected_line );
     }
     else {
-        if ( retv == FALSE ) {
-            rofi_set_return_code ( EXIT_FAILURE );
-        }
-        else if ( retv >= 10 ) {
-            rofi_set_return_code ( retv );
-        }
-        else{
-            rofi_set_return_code ( EXIT_SUCCESS );
-        }
-        rofi_view_free ( state );
-        mode_destroy ( &dmenu_mode );
-        rofi_view_set_active ( NULL );
+        dmenu_finish ( state, retv );
     }
 }
 
