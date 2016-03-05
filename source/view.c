@@ -62,13 +62,22 @@
 
 #include "xcb.h"
 
-GThreadPool     *tpool = NULL;
+GThreadPool   *tpool = NULL;
 
-RofiViewState   *current_active_menu = NULL;
-xcb_window_t    main_window          = XCB_WINDOW_NONE;
-cairo_surface_t *surface             = NULL;
-cairo_surface_t *fake_bg             = NULL;
-cairo_t         *draw                = NULL;
+RofiViewState *current_active_menu = NULL;
+
+struct
+{
+    xcb_window_t    main_window;
+    cairo_surface_t *surface;
+    cairo_surface_t *fake_bg;
+    cairo_t         *draw;
+} CacheState = {
+    .main_window = XCB_WINDOW_NONE,
+    .surface     = NULL,
+    .fake_bg     = NULL,
+    .draw        = NULL,
+};
 
 static char * get_matching_state ( void )
 {
@@ -106,7 +115,7 @@ static int lev_sort ( const void *p1, const void *p2, void *arg )
 static void menu_capture_screenshot ( void )
 {
     const char *outp = g_getenv ( "ROFI_PNG_OUTPUT" );
-    if ( surface == NULL ) {
+    if ( CacheState.surface == NULL ) {
         // Nothing to store.
         fprintf ( stderr, "There is no rofi surface to store\n" );
         return;
@@ -141,7 +150,7 @@ static void menu_capture_screenshot ( void )
         fpath = g_strdup ( outp );
     }
     fprintf ( stderr, color_green "Storing screenshot %s\n"color_reset, fpath );
-    cairo_status_t status = cairo_surface_write_to_png ( surface, fpath );
+    cairo_status_t status = cairo_surface_write_to_png ( CacheState.surface, fpath );
     if ( status != CAIRO_STATUS_SUCCESS ) {
         fprintf ( stderr, "Failed to produce screenshot '%s', got error: '%s'\n", filename,
                   cairo_status_to_string ( status ) );
@@ -314,7 +323,7 @@ static void rofi_view_resize ( RofiViewState *state )
             textbox_moveresize ( state->modi[j],
                                  state->border + j * ( width + config.line_margin ), state->h - state->line_height - state->border,
                                  width, state->line_height );
-            textbox_draw ( state->modi[j], draw );
+            textbox_draw ( state->modi[j], CacheState.draw );
         }
     }
     int entrybox_width = state->w - ( 2 * ( state->border ) ) - textbox_get_width ( state->prompt_tb )
@@ -383,7 +392,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb
             if ( state->w != xce->width || state->h != xce->height ) {
                 state->w = xce->width;
                 state->h = xce->height;
-                cairo_xcb_surface_set_size ( surface, state->w, state->h );
+                cairo_xcb_surface_set_size ( CacheState.surface, state->w, state->h );
                 rofi_view_resize ( state );
             }
         }
@@ -486,17 +495,17 @@ static xcb_window_t __create_window ( MenuFlags menu_flags )
                         selmask,
                         selval );
 
-    surface = cairo_xcb_surface_create ( xcb->connection, box, visual, 200, 100 );
+    CacheState.surface = cairo_xcb_surface_create ( xcb->connection, box, visual, 200, 100 );
     // Create a drawable.
-    draw = cairo_create ( surface );
-    g_assert ( draw != NULL );
-    cairo_set_operator ( draw, CAIRO_OPERATOR_SOURCE );
+    CacheState.draw = cairo_create ( CacheState.surface );
+    g_assert ( CacheState.draw != NULL );
+    cairo_set_operator ( CacheState.draw, CAIRO_OPERATOR_SOURCE );
 
     // Set up pango context.
     cairo_font_options_t *fo = cairo_font_options_create ();
     // Take font description from xlib surface
-    cairo_surface_get_font_options ( surface, fo );
-    PangoContext *p = pango_cairo_create_context ( draw );
+    cairo_surface_get_font_options ( CacheState.surface, fo );
+    PangoContext *p = pango_cairo_create_context ( CacheState.draw );
     // Set the font options from the xlib surface
     pango_cairo_context_set_font_options ( p, fo );
     // Setup dpi
@@ -878,8 +887,8 @@ void rofi_view_update ( RofiViewState *state )
     cairo_t         *d     = cairo_create ( surf );
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
     if ( config.fake_transparency ) {
-        if ( fake_bg != NULL ) {
-            cairo_set_source_surface ( d, fake_bg,
+        if ( CacheState.fake_bg != NULL ) {
+            cairo_set_source_surface ( d, CacheState.fake_bg,
                                        -(double) ( state->x - state->mon.x ),
                                        -(double) ( state->y - state->mon.y ) );
             cairo_paint ( d );
@@ -957,14 +966,14 @@ void rofi_view_update ( RofiViewState *state )
     state->update = FALSE;
 
     // Draw to actual window.
-    cairo_set_source_surface ( draw, surf, 0, 0 );
-    cairo_paint ( draw );
+    cairo_set_source_surface ( CacheState.draw, surf, 0, 0 );
+    cairo_paint ( CacheState.draw );
     // Cleanup
     cairo_destroy ( d );
     cairo_surface_destroy ( surf );
 
     // Flush the surface.
-    cairo_surface_flush ( surface );
+    cairo_surface_flush ( CacheState.surface );
     xcb_flush ( xcb->connection );
     TICK ();
 }
@@ -1241,15 +1250,15 @@ void rofi_view_finalize ( RofiViewState *state )
 }
 void rofi_view_setup_fake_transparency ( RofiViewState *state )
 {
-    if ( fake_bg == NULL ) {
+    if ( CacheState.fake_bg == NULL ) {
         cairo_surface_t *s = cairo_xcb_surface_create ( xcb->connection,
                                                         xcb_stuff_get_root_window ( xcb ),
                                                         root_visual,
                                                         xcb->screen->width_in_pixels,
                                                         xcb->screen->height_in_pixels );
 
-        fake_bg = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, state->mon.w, state->mon.h );
-        cairo_t *dr = cairo_create ( fake_bg );
+        CacheState.fake_bg = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, state->mon.w, state->mon.h );
+        cairo_t *dr = cairo_create ( CacheState.fake_bg );
         cairo_set_source_surface ( dr, s, -state->mon.x, -state->mon.y );
         cairo_paint ( dr );
         cairo_destroy ( dr );
@@ -1479,13 +1488,13 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->lines_not_ascii = g_malloc0_n ( state->num_lines, sizeof ( int ) );
 
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
-    if ( main_window == XCB_WINDOW_NONE ) {
-        main_window = __create_window ( menu_flags );
+    if ( CacheState.main_window == XCB_WINDOW_NONE ) {
+        CacheState.main_window = __create_window ( menu_flags );
         if ( xcb->sncontext != NULL ) {
             sn_launchee_context_setup_window ( xcb->sncontext, state->window );
         }
     }
-    state->window = main_window;
+    state->window = CacheState.main_window;
     // find out which lines contain non-ascii codepoints, so we can be faster in some cases.
     if ( state->num_lines > 0 ) {
         TICK_N ( "Is ASCII start" );
@@ -1649,7 +1658,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     // Display it.
     xcb_configure_window ( xcb->connection, state->window, mask, vals );
-    cairo_xcb_surface_set_size ( surface, state->w, state->h );
+    cairo_xcb_surface_set_size ( CacheState.surface, state->w, state->h );
 
     // if grabbing keyboard failed, fall through
     state->selected = 0;
@@ -1693,10 +1702,10 @@ int rofi_view_error_dialog ( const char *msg, int markup )
         rofi_view_setup_fake_transparency ( state );
     }
     // main window isn't explicitly destroyed in case we switch modes. Reusing it prevents flicker
-    if ( main_window == XCB_WINDOW_NONE ) {
-        main_window = __create_window ( MENU_NORMAL );
+    if ( CacheState.main_window == XCB_WINDOW_NONE ) {
+        CacheState.main_window = __create_window ( MENU_NORMAL );
     }
-    state->window = main_window;
+    state->window = CacheState.main_window;
 
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
@@ -1727,7 +1736,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 
     xcb_configure_window ( xcb->connection, state->window, mask, vals );
     calculate_window_position ( state );
-    cairo_xcb_surface_set_size ( surface, state->w, state->h );
+    cairo_xcb_surface_set_size ( CacheState.surface, state->w, state->h );
     // Display it.
     xcb_map_window ( xcb->connection, state->window );
 
@@ -1742,22 +1751,22 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 
 void rofi_view_cleanup ()
 {
-    if ( fake_bg ) {
-        cairo_surface_destroy ( fake_bg );
-        fake_bg = NULL;
+    if ( CacheState.fake_bg ) {
+        cairo_surface_destroy ( CacheState.fake_bg );
+        CacheState.fake_bg = NULL;
     }
-    if ( draw ) {
-        cairo_destroy ( draw );
-        draw = NULL;
+    if ( CacheState.draw ) {
+        cairo_destroy ( CacheState.draw );
+        CacheState.draw = NULL;
     }
-    if ( surface ) {
-        cairo_surface_destroy ( surface );
-        surface = NULL;
+    if ( CacheState.surface ) {
+        cairo_surface_destroy ( CacheState.surface );
+        CacheState.surface = NULL;
     }
-    if ( main_window != XCB_WINDOW_NONE ) {
-        xcb_unmap_window ( xcb->connection, main_window );
-        xcb_destroy_window ( xcb->connection, main_window );
-        main_window = XCB_WINDOW_NONE;
+    if ( CacheState.main_window != XCB_WINDOW_NONE ) {
+        xcb_unmap_window ( xcb->connection, CacheState.main_window );
+        xcb_destroy_window ( xcb->connection, CacheState.main_window );
+        CacheState.main_window = XCB_WINDOW_NONE;
     }
     if ( map != XCB_COLORMAP_NONE ) {
         xcb_free_colormap ( xcb->connection, map );
