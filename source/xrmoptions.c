@@ -71,34 +71,6 @@ static XrmOption xrmOptions[] = {
     { xrm_Number,  "columns",              { .num  = &config.menu_columns       }, NULL, "Number of columns"                           },
 
     { xrm_String,  "font",                 { .str  = &config.menu_font          }, NULL, "Font to use"                                 },
-    /* Foreground color */
-    { xrm_String,  "foreground",           { .str  = &config.menu_fg            }, NULL, ""                                            },
-    { xrm_String,  "fg",                   { .str  = &config.menu_fg            }, NULL, "Foreground color"                            },
-    { xrm_String,  "background",           { .str  = &config.menu_bg            }, NULL, ""                                            },
-    { xrm_String,  "bg",                   { .str  = &config.menu_bg            }, NULL, "Background color"                            },
-
-    { xrm_String,  "fg-active",            { .str  = &config.menu_fg_active     }, NULL, "Foreground color for active row"             },
-    { xrm_String,  "fg-urgent",            { .str  = &config.menu_fg_urgent     }, NULL, "Foreground color for urgent row"             },
-    { xrm_String,  "hlfg-active",          { .str  = &config.menu_hlfg_active   }, NULL, "Foreground color for highlighted active row" },
-    { xrm_String,  "hlfg-urgent",          { .str  = &config.menu_hlfg_urgent   }, NULL, "Foreground color for highlighted urgent row" },
-
-    { xrm_String,  "bg-active",            { .str  = &config.menu_bg_active     }, NULL, "Background color for active row"             },
-    { xrm_String,  "bg-urgent",            { .str  = &config.menu_bg_urgent     }, NULL, "Background color for urgent row"             },
-    { xrm_String,  "hlbg-active",          { .str  = &config.menu_hlbg_active   }, NULL, "Background color for highlighted active row" },
-    { xrm_String,  "hlbg-urgent",          { .str  = &config.menu_hlbg_urgent   }, NULL, "Background color for highlighted urgent row" },
-
-    { xrm_String,  "background-alternate", { .str  = &config.menu_bg_alt        }, NULL, ""                                            },
-    { xrm_String,  "bgalt",                { .str  = &config.menu_bg_alt        }, NULL, "Background color for alternating row"        },
-
-    { xrm_String,  "highlightfg",          { .str  = &config.menu_hlfg          }, NULL, ""                                            },
-    { xrm_String,  "hlfg",                 { .str  = &config.menu_hlfg          }, NULL, "Foreground color for highlighted row"        },
-
-    { xrm_String,  "highlightbg",          { .str  = &config.menu_hlbg          }, NULL, ""                                            },
-    { xrm_String,  "hlbg",                 { .str  = &config.menu_hlbg          }, NULL, "Background color for highlighted row"        },
-
-    { xrm_String,  "bordercolor",          { .str  = &config.menu_bc            }, NULL, ""                                            },
-    { xrm_String,  "bc",                   { .str  = &config.menu_bc            }, NULL, "Border color"                                },
-    { xrm_Boolean, "color-enabled",        { .num  = &config.color_enabled      }, NULL, "Use extended color scheme"                   },
     { xrm_String,  "color-normal",         { .str  = &config.color_normal       }, NULL, "Color scheme for normal row"                 },
     { xrm_String,  "color-urgent",         { .str  = &config.color_urgent       }, NULL, "Color scheme for urgent row"                 },
     { xrm_String,  "color-active",         { .str  = &config.color_active       }, NULL, "Color scheme for active row"                 },
@@ -547,10 +519,6 @@ void print_help_msg ( const char *option, const char *type, const char*text, con
 
 void config_parse_xresources_theme_dump ( void )
 {
-    if ( config.color_enabled != TRUE ) {
-        printf ( "! Dumping theme only works for the extended color scheme.\n" );
-        return;
-    }
     printf ( "! ------------------------------------------------------------------------------\n" );
     printf ( "! ROFI Color theme\n" );
     printf ( "! User: %s\n", g_get_user_name () );

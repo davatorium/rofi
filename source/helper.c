@@ -516,11 +516,6 @@ void remove_pid_file ( int fd )
  */
 int config_sanity_check ( void )
 {
-    // If alternative row is not set, copy the normal background color.
-    // Do this at the beginning as we might use it in the error dialog.
-    if ( config.menu_bg_alt == NULL ) {
-        config.menu_bg_alt = config.menu_bg;
-    }
     int     found_error = FALSE;
     GString *msg        = g_string_new (
         "<big><b>The configuration failed to validate:</b></big>\n" );

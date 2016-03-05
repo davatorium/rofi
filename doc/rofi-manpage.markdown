@@ -11,22 +11,12 @@
 [ -lines *lines* ]
 [ -columns *columns* ]
 [ -font *pangofont* ]
-[ -fg *color* ]
-[ -fg-urgent *color* ]
-[ -fg-active *color* ]
-[ -bg-urgent *color* ]
-[ -bg-active *color* ]
-[ -bg *color* ]
-[ -bgalt *color* ]
-[ -hlfg *color* ]
-[ -hlbg *color* ]
 [ -terminal *terminal* ]
 [ -location *position* ]
 [ -fixed-num-lines ]
 [ -padding *padding* ]
 [ -opacity *opacity%* ]
 [ -display *display* ]
-[ -bc *color* ]
 [ -bw *width* ]
 [ -dmenu [ -p *prompt* ] [ -sep *separator* ] [ -l *selected line* ] [ -mesg ] [ -select ] [ -input *input* ] ]
 [ -filter *filter* ]
@@ -213,33 +203,6 @@ Select the scrolling method. 0: Per page, 1: continuous.
 ### Theming
 
 All colors are either hex #rrggbb values or X11 color names.
-`-bg`
-
-`-bg-active`
-
-`-bg-urgent`
-
-Set background color in menu.
-
-    rofi -bg "#222222"
-
-Default: *#f2f1f0*
-
-`-bgalt`
-
-Set background color for alternating rows in menu.
-
-    rofi -bgalt "#222222"
-
-Default: *#f2f1f0*
-
-`-bc`
-
-Set border color for menu.
-
-    rofi -bc black
-
-Default: *black*
 
 `-bw`
 
@@ -248,43 +211,6 @@ Set border width in pixels.
     rofi -bw 1
 
 Default: *1*
-
-`-fg`
-
-`-fg-urgent`
-
-`-fg-active`
-
-Set foreground text color for the menu.
-
-    rofi -fg "#cccccc"
-
-Default: *#222222*
-
-
-`-hlbg`
-
-`-hlbg-active`
-
-`-hlbg-urgent`
-
-Set background color for the highlighted item in the menu.
-
-    rofi -hlbg "#005577"
-
-Default: *#005577*
-
-`-hlfg`
-
-`-hlfg-active`
-
-`-hlfg-urgent`
-
-Set foreground text color for the highlighted item in the menu.
-
-    rofi -hlfg "#ffffff"
-
-Default: *#FFFFFF*
 
 `-font`
 

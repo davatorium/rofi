@@ -1,19 +1,19 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-MANPAGE" "" "February 2016" "" ""
+.TH "ROFI\-MANPAGE" "" "March 2016" "" ""
 .
 .SH "NAME"
 \fBrofi\fR \- A window switcher, run launcher, ssh dialog and dmenu replacement
 .
 .SH "SYNOPSIS"
-\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-fg \fIcolor\fR ] [ \-fg\-urgent \fIcolor\fR ] [ \-fg\-active \fIcolor\fR ] [ \-bg\-urgent \fIcolor\fR ] [ \-bg\-active \fIcolor\fR ] [ \-bg \fIcolor\fR ] [ \-bgalt \fIcolor\fR ] [ \-hlfg \fIcolor\fR ] [ \-hlbg \fIcolor\fR ] [ \-key\-\fBmode\fR \fIcombo\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-opacity \fIopacity%\fR ] [ \-display \fIdisplay\fR ] [ \-bc \fIcolor\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-select ] [ \-input \fIinput\fR ] ] [ \-filter \fIfilter\fR ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-lazy\-filter\-limit \fIlimit\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help ] [ \-dump\-xresources ] [ \-dump\-xresources\-theme ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-no\-parse\-known\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-normal\-window ] [ \-fake\-transparency ] [ \-quiet ] [ \-glob ] [ \-regex ] [ \-tokenize ] [ \-threads \fInum\fR ] [ \-config \fIfilename\fR ]
+\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-opacity \fIopacity%\fR ] [ \-display \fIdisplay\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-select ] [ \-input \fIinput\fR ] ] [ \-filter \fIfilter\fR ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-lazy\-filter\-limit \fIlimit\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help ] [ \-dump\-xresources ] [ \-dump\-xresources\-theme ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-no\-parse\-known\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-normal\-window ] [ \-fake\-transparency ] [ \-quiet ] [ \-glob ] [ \-regex ] [ \-tokenize ] [ \-threads \fInum\fR ] [ \-config \fIfilename\fR ]
 .
 .SH "DESCRIPTION"
 \fBrofi\fR is an X11 popup window switcher, run dialog, dmenu replacement and more\. It focuses on being fast to use and have minimal distraction\. It supports keyboard and mouse navigation, type to filter, tokenized search and more\.
 .
 .SH "USAGE"
-\fBrofi\fR can be used in three ways, single\-shot; executes once and directly exits when done, as a daemon listening to specific key\-combination or emulating dmenu\.
+\fBrofi\fR can be used in two ways, single\-shot (runs a mode then exits) or emulating dmenu\.
 .
 .SS "Single\-shot mode"
 To launch \fBrofi\fR directly in a certain mode, specify a mode with \fBrofi \-show <mode>\fR\. To show the run dialog:
@@ -27,22 +27,6 @@ rofi \-show run
 .fi
 .
 .IP "" 0
-.
-.SS "Daemon mode"
-To launch \fBrofi\fR in daemon mode don\'t specify any mode, instead keys can be bound to launch a certain mode\. To show run\-mode by pressing \fBF2\fR start \fBrofi\fR like this:
-.
-.IP "" 4
-.
-.nf
-
-rofi \-key\-run F2
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Keybindings can also be specified in the \fBXresources\fR file\.
 .
 .SS "Emulating dmenu"
 \fBrofi\fR can emulate \fBdmenu\fR (a dynamic menu for X) when launched with the \fB\-dmenu\fR flag\.
@@ -171,24 +155,6 @@ Dump the current active configuration in Xresources format to the command\-line\
 Dump the current color schme in Xresources format to the command\-line\.
 .
 .P
-\fB\-key\-{mode}\fR \fBKEY\fR
-.
-.P
-Set the key combination to display a {mode} in daemon mode\.
-.
-.IP "" 4
-.
-.nf
-
-rofi \-key\-run F12
-rofi \-key\-ssh control+shift+s
-rofi \-key\-window SuperL+Tab
-.
-.fi
-.
-.IP "" 0
-.
-.P
 \fB\-threads\fR \fInum\fR
 .
 .P
@@ -302,12 +268,6 @@ rofi \-modi "window,run,ssh,Workspaces:i3_switch_workspaces\.sh" \-show Workspac
 Start in case sensitive mode\.
 .
 .P
-\fB\-quiet\fR
-.
-.P
-Do not print any message when starting in daemon mode\.
-.
-.P
 \fB\-fuzzy\fR
 .
 .P
@@ -332,67 +292,7 @@ Load alternative configuration file\.
 Select the scrolling method\. 0: Per page, 1: continuous\.
 .
 .SS "Theming"
-All colors are either hex #rrggbb values or X11 color names\. \fB\-bg\fR
-.
-.P
-\fB\-bg\-active\fR
-.
-.P
-\fB\-bg\-urgent\fR
-.
-.P
-Set background color in menu\.
-.
-.IP "" 4
-.
-.nf
-
-rofi \-bg "#222222"
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Default: \fI#f2f1f0\fR
-.
-.P
-\fB\-bgalt\fR
-.
-.P
-Set background color for alternating rows in menu\.
-.
-.IP "" 4
-.
-.nf
-
-rofi \-bgalt "#222222"
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Default: \fI#f2f1f0\fR
-.
-.P
-\fB\-bc\fR
-.
-.P
-Set border color for menu\.
-.
-.IP "" 4
-.
-.nf
-
-rofi \-bc black
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Default: \fIblack\fR
+All colors are either hex #rrggbb values or X11 color names\.
 .
 .P
 \fB\-bw\fR
@@ -412,81 +312,6 @@ rofi \-bw 1
 .
 .P
 Default: \fI1\fR
-.
-.P
-\fB\-fg\fR
-.
-.P
-\fB\-fg\-urgent\fR
-.
-.P
-\fB\-fg\-active\fR
-.
-.P
-Set foreground text color for the menu\.
-.
-.IP "" 4
-.
-.nf
-
-rofi \-fg "#cccccc"
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Default: \fI#222222\fR
-.
-.P
-\fB\-hlbg\fR
-.
-.P
-\fB\-hlbg\-active\fR
-.
-.P
-\fB\-hlbg\-urgent\fR
-.
-.P
-Set background color for the highlighted item in the menu\.
-.
-.IP "" 4
-.
-.nf
-
-rofi \-hlbg "#005577"
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Default: \fI#005577\fR
-.
-.P
-\fB\-hlfg\fR
-.
-.P
-\fB\-hlfg\-active\fR
-.
-.P
-\fB\-hlfg\-urgent\fR
-.
-.P
-Set foreground text color for the highlighted item in the menu\.
-.
-.IP "" 4
-.
-.nf
-
-rofi \-hlfg "#ffffff"
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Default: \fI#FFFFFF\fR
 .
 .P
 \fB\-font\fR
@@ -1132,24 +957,6 @@ ln \-s /usr/bin/rofi /usr/bin/dmenu
 .fi
 .
 .IP "" 0
-.
-.SH "SIGNALS"
-\fBHUP\fR
-.
-.P
-If in daemon mode, reload the configuration from Xresources\. (commandline arguments still \-override Xresources)\. This will also reload configured key\-bindings\.
-.
-.P
-\fBINT\fR
-.
-.P
-If in daemon mode, quits \fBrofi\fR\.
-.
-.P
-\fBUSR1\fR
-.
-.P
-If in daemon mode, dumps the current configuration to stdout\. Similar to \fB\-xresources\-dump\fR
 .
 .SH "THEMING"
 With \fBrofi\fR 0\.15\.4 we have a new way of specifying colors, the old settings still apply (for now)\. To enable the new setup, set \fBrofi\.color\-enabled\fR to true\. The new setup allows you to specify colors per state, similar to \fBi3\fR Currently 3 states exists:

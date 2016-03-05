@@ -647,30 +647,9 @@ static void textbox_parse_string (  const char *str, RowColor *color )
 }
 void textbox_setup ( void )
 {
-    if ( config.color_enabled ) {
-        textbox_parse_string ( config.color_normal, &( colors[NORMAL] ) );
-        textbox_parse_string ( config.color_urgent, &( colors[URGENT] ) );
-        textbox_parse_string ( config.color_active, &( colors[ACTIVE] ) );
-    }
-    else {
-        colors[NORMAL].bg    = color_get ( config.menu_bg );
-        colors[NORMAL].fg    = color_get ( config.menu_fg );
-        colors[NORMAL].bgalt = color_get ( config.menu_bg_alt );
-        colors[NORMAL].hlfg  = color_get ( config.menu_hlfg );
-        colors[NORMAL].hlbg  = color_get ( config.menu_hlbg );
-
-        colors[URGENT].bg    = color_get ( config.menu_bg_urgent );
-        colors[URGENT].fg    = color_get ( config.menu_fg_urgent );
-        colors[URGENT].bgalt = color_get ( config.menu_bg_alt );
-        colors[URGENT].hlfg  = color_get ( config.menu_hlfg_urgent );
-        colors[URGENT].hlbg  = color_get ( config.menu_hlbg_urgent );
-
-        colors[ACTIVE].bg    = color_get ( config.menu_bg_active );
-        colors[ACTIVE].fg    = color_get ( config.menu_fg_active );
-        colors[ACTIVE].bgalt = color_get ( config.menu_bg_alt );
-        colors[ACTIVE].hlfg  = color_get ( config.menu_hlfg_active );
-        colors[ACTIVE].hlbg  = color_get ( config.menu_hlbg_active );
-    }
+    textbox_parse_string ( config.color_normal, &( colors[NORMAL] ) );
+    textbox_parse_string ( config.color_urgent, &( colors[URGENT] ) );
+    textbox_parse_string ( config.color_active, &( colors[ACTIVE] ) );
 }
 
 void textbox_set_pango_context ( PangoContext *p )

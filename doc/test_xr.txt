@@ -10,36 +10,6 @@ rofi.lines:                          8
 rofi.columns:                        1
 ! Font to use
 rofi.font:                           Source Code Pro Medium 10
-! Foreground color
-rofi.fg:                             #839496
-! Background color
-rofi.bg:                             #002b36
-! Foreground color for active row
-rofi.fg-active:                      #268BD2
-! Foreground color for urgent row
-rofi.fg-urgent:                      #DC322F
-! Foreground color for highlighted active row
-rofi.hlfg-active:                    #FDF6E3
-! Foreground color for highlighted urgent row
-rofi.hlfg-urgent:                    #FDF6E3
-! Background color for active row
-rofi.bg-active:                      #FDF6E3
-! Background color for urgent row
-rofi.bg-urgent:                      #FDF6E3
-! Background color for highlighted active row
-rofi.hlbg-active:                    #268BD2
-! Background color for highlighted urgent row
-rofi.hlbg-urgent:                    #DC322F
-! Background color for alternating row
-rofi.bgalt:                          #002b36
-! Foreground color for highlighted row
-rofi.hlfg:                           #EEE8D5
-! Background color for highlighted row
-rofi.hlbg:                           #586E75
-! Border color
-rofi.bc:                             #002B36
-! Use extended color scheme
-rofi.color-enabled:                  true
 ! Color scheme for normal row
 rofi.color-normal:                   argb:0000000, #a2b5df, argb:3affffff, #a2b5df, #02143f
 ! Color scheme for urgent row
