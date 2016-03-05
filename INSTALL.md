@@ -20,17 +20,14 @@
 * libglib2.0 >= 2.40
 * libx11
 * libstartup-notification-1.0
-* libxkbcommon-dev
-* libxkbcommon-x11-dev
-* libxcb-ewmh-dev
-* libxcb-icccm4-dev
-* libxcb-util0-dev
-* libxcb-xinerama0-dev
-* libxcb-xkb-dev
-* libxcb1-dev
+* libxkbcommon
+* libxkbcommon-x11
+* libxcb (sometimes split, you need libxcb, libxcb-xkb and libxcb-xinerama)
+* xcb-util
+* xcb-util-wm (sometimes split as libxcb-ewmh and libxcb-icccm)
 
 On debian based systems, the developer packages are in the form of: `<package>-dev` on rpm based
-'<package>-devel'.
+`<package>-devel`.
 
 
 ### Optional:
