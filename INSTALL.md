@@ -13,14 +13,21 @@
 
 ### External libraries
 
-* libxinerama
 * libpango
 * libpangocairo
 * libcairo
-* libcairo-xlib
+* libcairo-xcb
 * libglib2.0 >= 2.40
 * libx11
 * libstartup-notification-1.0
+* libxkbcommon-dev
+* libxkbcommon-x11-dev
+* libxcb-ewmh-dev
+* libxcb-icccm4-dev
+* libxcb-util0-dev
+* libxcb-xinerama0-dev
+* libxcb-xkb-dev
+* libxcb1-dev
 
 On debian based systems, the developer packages are in the form of: `<package>-dev` on rpm based
 '<package>-devel'.

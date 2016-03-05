@@ -4,11 +4,9 @@ language: c
 addons:
     apt:
       packages:
-          - libxinerama-dev
           - autoconf
           - automake
           - make 
-          - libxft-dev
           - libx11-dev
           - libpango1.0-dev
           - libcairo2-dev
