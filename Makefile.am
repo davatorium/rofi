@@ -304,7 +304,7 @@ indent: $(rofi_SOURCES) $(top_srcdir)/config/config.def.c $(helper_test_SOURCES)
 .PHONY: cppcheck
 
 cppcheck: $(rofi_SOURCES)
-	cppcheck --std=c99 --platform=unix64 --enable=all -Uerror_dialog -I $(top_srcdir)/include/  $^
+	cppcheck --std=c99 --platform=unix64 --enable=all -Uerror_dialog --inconclusive -I $(top_srcdir)/include/  $^
 
 .PHONY: ohcount
 

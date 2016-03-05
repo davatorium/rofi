@@ -1,5 +1,6 @@
 #ifndef X11_ROFI_HELPER_H
 #define X11_ROFI_HELPER_H
+#include <glib.h>
 #include <cairo.h>
 #include <xcb/xcb.h>
 
@@ -83,7 +84,7 @@ unsigned int x11_canonalize_mask ( unsigned int mask );
  *
  * Parse key from user input string.
  */
-void x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key );
+gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key );
 
 /**
  * @param display The connection to the X server.

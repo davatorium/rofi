@@ -37,8 +37,6 @@
 #include <xkbcommon/xkbcommon-x11.h>
 #include <xcb/xkb.h>
 #include <xcb/xcb_ewmh.h>
-#include <sys/wait.h>
-#include <sys/types.h>
 
 #include <cairo.h>
 #include <cairo-xcb.h>
@@ -471,7 +469,7 @@ static xcb_window_t __create_window ( MenuFlags menu_flags )
     { 0,
       0,
       XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_KEY_PRESS |
-      XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION,map };
+      XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION, map };
 
     xcb_window_t box = xcb_generate_id ( xcb->connection );
     xcb_create_window ( xcb->connection,
@@ -1720,6 +1718,9 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     // resize window vertically to suit
     state->h = state->line_height + ( state->border ) * 2;
 
+    // Calculte window position.
+    calculate_window_position ( state );
+
     // Move the window to the correct x,y position.
     uint16_t mask   = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
     uint32_t vals[] = { state->x, state->y, state->w, state->h };
@@ -1733,6 +1734,8 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_complete ( xcb->sncontext );
     }
+
+    // Set it has current window.
     rofi_view_set_active ( state );
     return TRUE;
 }

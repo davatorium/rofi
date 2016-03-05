@@ -534,9 +534,8 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     }
     TICK_N ( "Config sanity check" );
     // Parse the keybindings.
-    parse_keys_abe ();
-    // Check if there is error dialog.
-    if ( rofi_view_get_active ( ) != NULL ) {
+    if ( !parse_keys_abe () ) {
+        // Error dialog
         return G_SOURCE_REMOVE;
     }
     TICK_N ( "Parse ABE" );

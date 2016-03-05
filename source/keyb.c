@@ -100,7 +100,7 @@ void setup_abe ( void )
     }
 }
 
-void parse_keys_abe ( void )
+gboolean parse_keys_abe ( void )
 {
     for ( int iter = 0; iter < NUM_ABE; iter++ ) {
         char *keystr = g_strdup ( abe[iter].keystr );
@@ -114,12 +114,16 @@ void parse_keys_abe ( void )
         for ( char *entry = strtok_r ( keystr, ",", &sp ); entry != NULL; entry = strtok_r ( NULL, ",", &sp ) ) {
             abe[iter].kb = g_realloc ( abe[iter].kb, ( abe[iter].num_bindings + 1 ) * sizeof ( KeyBinding ) );
             KeyBinding *kb = &( abe[iter].kb[abe[iter].num_bindings] );
-            x11_parse_key ( entry, &( kb->modmask ), &( kb->keysym ) );
+            if ( !x11_parse_key ( entry, &( kb->modmask ), &( kb->keysym ) ) ) {
+                g_free ( keystr );
+                return FALSE;
+            }
             abe[iter].num_bindings++;
         }
 
         g_free ( keystr );
     }
+    return TRUE;
 }
 
 void cleanup_abe ( void )

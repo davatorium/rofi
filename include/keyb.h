@@ -82,7 +82,7 @@ typedef enum _KeyBindingAction
  * Parse the keybindings.
  * This should be called after the setting system is initialized.
  */
-void parse_keys_abe ( void );
+gboolean parse_keys_abe ( void );
 
 /**
  * Setup the keybindings

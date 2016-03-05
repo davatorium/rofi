@@ -379,7 +379,7 @@ unsigned int x11_canonalize_mask ( unsigned int mask )
 }
 
 // convert a Mod+key arg to mod mask and keysym
-void x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key )
+gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key )
 {
     GString      *str    = g_string_new ( "" );
     unsigned int modmask = 0;
@@ -464,10 +464,11 @@ void x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key )
     if ( str->len > 0 ) {
         show_error_message ( str->str, TRUE );
         g_string_free ( str, TRUE );
-        return;
+        return FALSE;
     }
     g_string_free ( str, TRUE );
     *key = sym;
+    return TRUE;
 }
 
 void x11_set_window_opacity ( xcb_window_t box, unsigned int opacity )
