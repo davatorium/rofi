@@ -566,8 +566,25 @@ Color color_get ( const char *const name )
         color.pixel = strtoul ( &cname[5], NULL, 16 );
     }
     else if ( strncmp ( cname, "#", 1 ) == 0 ) {
-        color.pixel = strtoul ( &cname[1], NULL, 16 );
-        color.a     = 0xff;
+        unsigned long val = strtoul ( &cname[1], NULL, 16 );
+        ssize_t length = strlen(&cname[1]);
+        switch ( length ) {
+            case 3:
+                color.a = 0xff;
+                color.r = 16*((val&0xF00)>>8);
+                color.g = 16*((val&0x0F0)>>4);
+                color.b = 16*(val&0x00F);
+                break;
+            case 6:
+                color.pixel = val;
+                color.a     = 0xff;
+                break;
+            case 8:
+                color.pixel = val;
+                break;
+            default:
+                break;
+        }
     }
     g_free ( copy );
 
