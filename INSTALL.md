@@ -23,6 +23,7 @@
 * libxkbcommon
 * libxkbcommon-x11
 * libxcb (sometimes split, you need libxcb, libxcb-xkb and libxcb-xinerama)
+* libx11-xcb
 * xcb-util
 * xcb-util-wm (sometimes split as libxcb-ewmh and libxcb-icccm)
 
