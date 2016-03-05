@@ -79,9 +79,8 @@ The official website for `dmenu` can be found [here](http://tools.suckless.org/d
 
 ## OPTIONS
 
-There are currently four methods of setting configuration options (evaluated in order below):
+There are currently three methods of setting configuration options (evaluated in order below):
 
- * Compile time: edit config.c. This method is strongly discouraged.
  * Xresources: A method of storing key values in the Xserver. See
    [here](https://en.wikipedia.org/wiki/X_resources) for more information.
    This is the recommended way of configuring **rofi**.
