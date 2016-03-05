@@ -115,10 +115,6 @@ int monitor_get_smallest_size ( void )
         return size;
     }
 
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
-        fprintf ( stderr, "1.Connection has error\n" );
-        exit ( EXIT_FAILURE );
-    }
     xcb_xinerama_query_screens_cookie_t cookie_screen;
 
     cookie_screen = xcb_xinerama_query_screens ( xcb->connection );
