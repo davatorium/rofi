@@ -1409,7 +1409,7 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
                         state->retv = MENU_OK;
                     }
                 }
-                else if ( strlen ( state->text->text ) > 0 ) {
+                else if ( state->text->text != NULL && strlen ( state->text->text ) > 0 ) {
                     state->retv = MENU_CUSTOM_INPUT;
                 }
                 else{

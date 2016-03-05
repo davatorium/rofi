@@ -553,13 +553,10 @@ Color color_get ( const char *const name )
             uint8_t g;
             uint8_t r;
             uint8_t a;
-        };
+        }        sep;
         uint32_t pixel;
     } color = {
-        .r = 0xff,
-        .g = 0xff,
-        .b = 0xff,
-        .a = 0xff,
+        .pixel = 0xffffffff,
     };
     // Special format.
     if ( strncmp ( cname, "argb:", 5 ) == 0 ) {
@@ -571,14 +568,14 @@ Color color_get ( const char *const name )
         switch ( length )
         {
         case 3:
-            color.a = 0xff;
-            color.r = 16 * ( ( val & 0xF00 ) >> 8 );
-            color.g = 16 * ( ( val & 0x0F0 ) >> 4 );
-            color.b = 16 * ( val & 0x00F );
+            color.sep.a = 0xff;
+            color.sep.r = 16 * ( ( val & 0xF00 ) >> 8 );
+            color.sep.g = 16 * ( ( val & 0x0F0 ) >> 4 );
+            color.sep.b = 16 * ( val & 0x00F );
             break;
         case 6:
             color.pixel = val;
-            color.a     = 0xff;
+            color.sep.a = 0xff;
             break;
         case 8:
             color.pixel = val;
@@ -592,20 +589,20 @@ Color color_get ( const char *const name )
                                                                     map, strlen ( cname ), cname );
         xcb_alloc_named_color_reply_t  *r = xcb_alloc_named_color_reply ( xcb->connection, cc, NULL );
         if ( r ) {
-            color.a = 0xFF;
-            color.r = r->visual_red;
-            color.g = r->visual_green;
-            color.b = r->visual_blue;
+            color.sep.a = 0xFF;
+            color.sep.r = r->visual_red;
+            color.sep.g = r->visual_green;
+            color.sep.b = r->visual_blue;
             free ( r );
         }
     }
     g_free ( copy );
 
     Color ret = {
-        .red   = color.r / 255.0,
-        .green = color.g / 255.0,
-        .blue  = color.b / 255.0,
-        .alpha = color.a / 255.0,
+        .red   = color.sep.r / 255.0,
+        .green = color.sep.g / 255.0,
+        .blue  = color.sep.b / 255.0,
+        .alpha = color.sep.a / 255.0,
     };
     return ret;
 }
