@@ -50,34 +50,11 @@ Settings config = {
 
     /** Row colors */
     // Enable new color
-    .color_enabled = FALSE,
     .color_normal  = "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5",
     .color_urgent  = "#fdf6e3,#dc322f,#eee8d5,#dc322f,#fdf6e3",
     .color_active  = "#fdf6e3,#268bd2,#eee8d5,#268bd2,#fdf6e3",
     .color_window  = "#fdf6e3,#002b36",
 
-    /** Background color */
-    .menu_bg           = "#FDF6E3",
-    /** Border color. */
-    .menu_bc           = "#002B36",
-    /** Foreground color */
-    .menu_fg           = "#002B36",
-    /** Text color used for urgent windows */
-    .menu_fg_urgent    = "#DC322F",
-    /** Text color used for active window */
-    .menu_fg_active = "#268BD2",
-    .menu_bg_urgent = "#FDF6E3",
-    .menu_bg_active = "#FDF6E3",
-    /** Background color alternate row */
-    .menu_bg_alt       = NULL,                                     //"#EEE8D5",
-    /** Foreground color (selected) */
-    .menu_hlfg        = "#EEE8D5",
-    .menu_hlfg_urgent = "#FDF6E3",
-    .menu_hlfg_active = "#FDF6E3",
-    /** Background color (selected) */
-    .menu_hlbg        = "#586E75",
-    .menu_hlbg_urgent = "#DC322F",
-    .menu_hlbg_active = "#268BD2",
     /** Terminal to use. (for ssh and open in terminal) */
     .terminal_emulator = "rofi-sensible-terminal",
     .ssh_client        = "ssh",
