@@ -24,8 +24,10 @@ unsigned int normal_window_mode = 0;
 void rofi_view_queue_redraw ()
 {
 }
-Color color_get ( const char *name )
+Color color_get ( G_GNUC_UNUSED const char *name )
 {
+    Color retv = { 1.0, 1.0, 1.0, 1.0 };
+    return retv;
 }
 
 int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
@@ -34,7 +36,7 @@ int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
     return FALSE;
 }
 
-int abe_test_action ( KeyBindingAction action, unsigned int mask, xkb_keysym_t key )
+int abe_test_action ( G_GNUC_UNUSED KeyBindingAction action, G_GNUC_UNUSED unsigned int mask, G_GNUC_UNUSED xkb_keysym_t key )
 {
     return FALSE;
 }

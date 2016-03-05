@@ -112,14 +112,6 @@ markdown_FILES=\
 
 README.html: README.md
 	$(md_verbose) markdown $< > $@
-
-
-##
-# config directory
-##
-$(top_builddir)/config/config.c: $(top_srcdir)/config/config.def.c
-	cp $(top_srcdir)/config/config.def.c $@
-
 ##
 # Extra DIST
 ##
@@ -127,7 +119,6 @@ EXTRA_DIST=\
 	$(markdown_FILES)\
 	$(markdown_SC_FILES)\
 	Examples/i3_switch_workspaces.sh\
-	$(top_srcdir)/config/config.def.c\
 	INSTALL.md\
 	AUTHORS\
 	doc/rofi.doxy.in\
@@ -298,7 +289,7 @@ test-x1: $(bin_PROGRAMS)
 
 
 .PHONY: indent
-indent: $(rofi_SOURCES) $(top_srcdir)/config/config.def.c $(helper_test_SOURCES) $(textbox_test_SOURCES) $(rofi_test_SOURCES)
+indent: $(rofi_SOURCES) $(helper_test_SOURCES) $(textbox_test_SOURCES) $(rofi_test_SOURCES)
 	uncrustify -c $(top_srcdir)/data/uncrustify.cfg --replace $^
 
 .PHONY: cppcheck
