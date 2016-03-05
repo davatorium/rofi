@@ -64,6 +64,12 @@ make install
 
 ## Install a checkout from git
 
+Pull in dependencies
+
+```
+git submodule update --init
+```
+
 Generate build system:
 
 ```
