@@ -87,7 +87,7 @@ dnl ---------------------------------------------------------------------
 dnl PKG_CONFIG based dependencies  
 dnl ---------------------------------------------------------------------
 PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40])
-GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11 xcb-ewmh xcb-xinerama xcb-icccm])
+GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon >= 0.5.0 xkbcommon-x11 xcb-ewmh xcb-xinerama xcb-icccm])
 PKG_CHECK_MODULES([x11],      [x11 x11-xcb])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])

@@ -240,6 +240,13 @@ void monitor_active ( workarea *mon )
         }
         fprintf ( stderr, "Failed to find selected monitor.\n" );
     }
+    if ( config.monitor == -3) {
+        if ( pointer_get ( root, &x, &y ) ) {
+            mon->x = x;
+            mon->y = y;
+            return;
+        }
+    }
     // Get the current desktop.
     unsigned int current_desktop = 0;
     if ( config.monitor != -2 && xcb_ewmh_get_current_desktop_reply ( &xcb->ewmh,
@@ -290,7 +297,7 @@ void monitor_active ( workarea *mon )
             return;
         }
     }
-    if ( pointer_get ( xcb->screen->root, &x, &y ) ) {
+    if ( pointer_get ( root, &x, &y ) ) {
         monitor_dimensions ( x, y, mon );
         return;
     }
