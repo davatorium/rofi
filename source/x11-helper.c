@@ -566,24 +566,37 @@ Color color_get ( const char *const name )
         color.pixel = strtoul ( &cname[5], NULL, 16 );
     }
     else if ( strncmp ( cname, "#", 1 ) == 0 ) {
-        unsigned long val = strtoul ( &cname[1], NULL, 16 );
-        ssize_t length = strlen(&cname[1]);
-        switch ( length ) {
-            case 3:
-                color.a = 0xff;
-                color.r = 16*((val&0xF00)>>8);
-                color.g = 16*((val&0x0F0)>>4);
-                color.b = 16*(val&0x00F);
-                break;
-            case 6:
-                color.pixel = val;
-                color.a     = 0xff;
-                break;
-            case 8:
-                color.pixel = val;
-                break;
-            default:
-                break;
+        unsigned long val    = strtoul ( &cname[1], NULL, 16 );
+        ssize_t       length = strlen ( &cname[1] );
+        switch ( length )
+        {
+        case 3:
+            color.a = 0xff;
+            color.r = 16 * ( ( val & 0xF00 ) >> 8 );
+            color.g = 16 * ( ( val & 0x0F0 ) >> 4 );
+            color.b = 16 * ( val & 0x00F );
+            break;
+        case 6:
+            color.pixel = val;
+            color.a     = 0xff;
+            break;
+        case 8:
+            color.pixel = val;
+            break;
+        default:
+            break;
+        }
+    }
+    else {
+        xcb_alloc_named_color_cookie_t cc = xcb_alloc_named_color ( xcb->connection,
+                                                                    map, strlen ( cname ), cname );
+        xcb_alloc_named_color_reply_t  *r = xcb_alloc_named_color_reply ( xcb->connection, cc, NULL );
+        if ( r ) {
+            color.a = 0xFF;
+            color.r = r->visual_red;
+            color.g = r->visual_green;
+            color.b = r->visual_blue;
+            free ( r );
         }
     }
     g_free ( copy );
