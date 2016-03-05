@@ -84,7 +84,7 @@ PKG_PROG_PKG_CONFIG
 
 
 dnl ---------------------------------------------------------------------
-dnl X11, Glib, Xinerama, Pango, Cairo, libstartup notification
+dnl PKG_CONFIG based dependencies  
 dnl ---------------------------------------------------------------------
 PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40])
 GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11 xcb-ewmh xcb-xinerama xcb-icccm])
