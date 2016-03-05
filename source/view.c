@@ -318,14 +318,22 @@ static void rofi_view_resize ( RofiViewState *state )
             textbox_draw ( state->modi[j], CacheState.draw );
         }
     }
-    int entrybox_width = state->w - ( 2 * ( state->border ) ) - textbox_get_width ( state->prompt_tb )
-                         - textbox_get_width ( state->case_indicator );
+    int entrybox_width = state->w - ( 2 * ( state->border ) );
+    int offset         = 0;
+    if ( state->prompt_tb ) {
+        entrybox_width -= textbox_get_width ( state->prompt_tb );
+    }
+    if ( state->case_indicator ) {
+        int width = textbox_get_width ( state->case_indicator );
+        entrybox_width -= width;
+        offset          = width;
+    }
     textbox_moveresize ( state->text, state->text->widget.x, state->text->widget.y, entrybox_width, state->line_height );
-    widget_move ( WIDGET ( state->case_indicator ), state->w - state->border - textbox_get_width ( state->case_indicator ), state->border );
+    widget_move ( WIDGET ( state->case_indicator ), state->w - state->border - offset, state->border );
     /**
      * Resize in Height
      */
-    {
+    if ( state->num_lines > 0 ) {
         unsigned int last_length    = state->max_elements;
         int          element_height = state->line_height * config.element_height + config.line_margin;
         // Calculated new number of boxes.

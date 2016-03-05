@@ -240,7 +240,7 @@ void monitor_active ( workarea *mon )
         }
         fprintf ( stderr, "Failed to find selected monitor.\n" );
     }
-    if ( config.monitor == -3) {
+    if ( config.monitor == -3 ) {
         if ( pointer_get ( root, &x, &y ) ) {
             mon->x = x;
             mon->y = y;

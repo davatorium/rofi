@@ -50,10 +50,10 @@ Settings config = {
 
     /** Row colors */
     // Enable new color
-    .color_normal  = "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5",
-    .color_urgent  = "#fdf6e3,#dc322f,#eee8d5,#dc322f,#fdf6e3",
-    .color_active  = "#fdf6e3,#268bd2,#eee8d5,#268bd2,#fdf6e3",
-    .color_window  = "#fdf6e3,#002b36",
+    .color_normal = "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5",
+    .color_urgent = "#fdf6e3,#dc322f,#eee8d5,#dc322f,#fdf6e3",
+    .color_active = "#fdf6e3,#268bd2,#eee8d5,#268bd2,#fdf6e3",
+    .color_window = "#fdf6e3,#002b36",
 
     /** Terminal to use. (for ssh and open in terminal) */
     .terminal_emulator = "rofi-sensible-terminal",
