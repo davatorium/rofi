@@ -22,6 +22,8 @@ typedef enum
     MENU_PASSWORD      = 1,
     /** Create amanaged window. */
     MENU_NORMAL_WINDOW = 2,
+    /** ERROR dialog */
+    MENU_ERROR_DIALOG   = 4,
 } MenuFlags;
 
 /**

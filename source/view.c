@@ -307,6 +307,14 @@ unsigned int rofi_view_get_completed ( const RofiViewState *state )
 
 static void rofi_view_resize ( RofiViewState *state )
 {
+    if ( (state->menu_flags&MENU_ERROR_DIALOG) == MENU_ERROR_DIALOG ){
+        // Resize of error dialog.
+        int entrybox_width = state->w - ( 2 * ( state->border ) );
+        textbox_moveresize ( state->text, state->text->widget.x, state->text->widget.y, entrybox_width, state->line_height );
+        state->rchanged = TRUE;
+        state->update   = TRUE;
+        return;
+    }
     unsigned int sbw = config.line_margin + 8;
     widget_move ( WIDGET ( state->scrollbar ), state->w - state->border - sbw, state->top_offset );
     if ( config.sidebar_mode == TRUE ) {
@@ -320,14 +328,9 @@ static void rofi_view_resize ( RofiViewState *state )
     }
     int entrybox_width = state->w - ( 2 * ( state->border ) );
     int offset         = 0;
-    if ( state->prompt_tb ) {
-        entrybox_width -= textbox_get_width ( state->prompt_tb );
-    }
-    if ( state->case_indicator ) {
-        int width = textbox_get_width ( state->case_indicator );
-        entrybox_width -= width;
-        offset          = width;
-    }
+    int width = textbox_get_width ( state->case_indicator );
+    entrybox_width -= width + textbox_get_width ( state->prompt_tb );
+    offset          = width;
     textbox_moveresize ( state->text, state->text->widget.x, state->text->widget.y, entrybox_width, state->line_height );
     widget_move ( WIDGET ( state->case_indicator ), state->w - state->border - offset, state->border );
     /**
@@ -1686,6 +1689,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->border         = config.padding + config.menu_bw;
     state->x11_event_loop = __error_dialog_event_loop;
     state->finalize       = process_result_error;
+    state->menu_flags     = MENU_ERROR_DIALOG;
 
     // Get active monitor size.
     monitor_active ( &( state->mon ) );
