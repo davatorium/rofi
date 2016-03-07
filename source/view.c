@@ -307,7 +307,7 @@ unsigned int rofi_view_get_completed ( const RofiViewState *state )
 
 static void rofi_view_resize ( RofiViewState *state )
 {
-    if ( (state->menu_flags&MENU_ERROR_DIALOG) == MENU_ERROR_DIALOG ){
+    if ( ( state->menu_flags & MENU_ERROR_DIALOG ) == MENU_ERROR_DIALOG ) {
         // Resize of error dialog.
         int entrybox_width = state->w - ( 2 * ( state->border ) );
         textbox_moveresize ( state->text, state->text->widget.x, state->text->widget.y, entrybox_width, state->line_height );
@@ -328,7 +328,7 @@ static void rofi_view_resize ( RofiViewState *state )
     }
     int entrybox_width = state->w - ( 2 * ( state->border ) );
     int offset         = 0;
-    int width = textbox_get_width ( state->case_indicator );
+    int width          = textbox_get_width ( state->case_indicator );
     entrybox_width -= width + textbox_get_width ( state->prompt_tb );
     offset          = width;
     textbox_moveresize ( state->text, state->text->widget.x, state->text->widget.y, entrybox_width, state->line_height );
@@ -1317,7 +1317,7 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
                 case XKB_COMPOSE_NOTHING:
                     break;
                 }
-                if ( key == XKB_KEY_NoSymbol ) {
+                if ( ( key == XKB_KEY_NoSymbol ) && ( len == 0 ) ) {
                     break;
                 }
             }
