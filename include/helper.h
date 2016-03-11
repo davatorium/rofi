@@ -39,6 +39,7 @@
  *
  * @{
  */
+
 /**
  * @param string The input string.
  * @param output Pointer to 2 dimensional array with parsed string.
@@ -259,6 +260,17 @@ int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *st
 int utf8_strncmp ( const char *a, const char* b, size_t n ) __attribute__( ( nonnull ( 1, 2 ) ) );
 
 /**
+ * @param args The arguments of the command to exec.
+ * @param error_precmd Prefix to error message command.
+ * @param error_cmd Error message command
+ *
+ * Executes the command
+ *
+ * @returns TRUE when successful, FALSE when failed.
+ */
+gboolean helper_execute ( const char *wd, char **args, const char *error_precmd, const char *error_cmd );
+
+/**
  * @param wd The work directory (optional)
  * @param cmd The cmd to execute
  * @param run_in_term Indicate if command should be run in a terminal
@@ -267,7 +279,7 @@ int utf8_strncmp ( const char *a, const char* b, size_t n ) __attribute__( ( non
  *
  * @returns FALSE On failure, TRUE on success
  */
-int helper_execute_command ( const char *wd, const char *cmd, int run_in_term );
+gboolean helper_execute_command ( const char *wd, const char *cmd, int run_in_term );
 
 /**
  * @param file The file path
