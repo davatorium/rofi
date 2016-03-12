@@ -63,6 +63,8 @@
 #include "view.h"
 #include "view-internal.h"
 
+#include "gitconfig.h"
+
 // Pidfile.
 char             *pidfile   = NULL;
 const char       *cache_dir = NULL;
@@ -303,6 +305,9 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "\n" );
     printf ( "For more information see: man rofi\n" );
     printf ( "Version:    "VERSION "\n" );
+#ifdef GIT_VERSION
+    printf ( "Git:        "GIT_VERSION "\n");
+#endif
     printf ( "Bugreports: "PACKAGE_BUGREPORT "\n" );
 }
 
@@ -605,6 +610,9 @@ int main ( int argc, char *argv[] )
     // Version
     if ( find_arg (  "-v" ) >= 0 || find_arg (  "-version" ) >= 0 ) {
         fprintf ( stdout, "Version: "VERSION "\n" );
+#ifdef GIT_VERSION
+        fprintf ( stdout, "Git:     "GIT_VERSION "\n");
+#endif
         exit ( EXIT_SUCCESS );
     }
 

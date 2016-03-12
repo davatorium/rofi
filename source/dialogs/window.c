@@ -419,7 +419,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                  && !client_has_window_type ( c, xcb->ewmh._NET_WM_WINDOW_TYPE_DESKTOP )
                  && !client_has_state ( c, xcb->ewmh._NET_WM_STATE_SKIP_PAGER )
                  && !client_has_state ( c, xcb->ewmh._NET_WM_STATE_SKIP_TASKBAR ) ) {
-                classfield = MAX ( classfield, strlen ( c->class ) );
+                classfield = MAX ( classfield, (c->class != NULL)?(strlen ( c->class )):0 );
 
                 if ( client_has_state ( c, xcb->ewmh._NET_WM_STATE_DEMANDS_ATTENTION ) ) {
                     c->demands = TRUE;

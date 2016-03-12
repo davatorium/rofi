@@ -13,6 +13,9 @@ bin_PROGRAMS=rofi
 
 dist_bin_SCRIPTS=script/rofi-sensible-terminal
 
+nodist_rofi_SOURCES=\
+	$(top_builddir)/gitconfig.h
+
 rofi_SOURCES=\
 	source/rofi.c\
 	source/view.c\
@@ -122,6 +125,7 @@ EXTRA_DIST=\
 	INSTALL.md\
 	AUTHORS\
 	doc/rofi.doxy.in\
+	script/get_git_rev.sh\
 	Changelog
 
 ##
@@ -305,3 +309,13 @@ ohcount: $(rofi_SOURCES)
 doxy: doc/rofi.doxy $(rofi_SOURCES)
 	doxygen $(top_builddir)/doc/rofi.doxy
 
+clean-local:
+	-rm $(top_builddir)/gitconfig.h
+
+$(top_builddir)/gitconfig.h: .FORCE
+	$(top_srcdir)/script/get_git_rev.sh $(top_srcdir) $(top_builddir)/gitconfig.h
+
+$(rofi_SOURCES): $(top_builddir)/gitconfig.h
+
+.PHONY: .FORCE
+.FORCE:
