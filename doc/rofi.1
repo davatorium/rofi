@@ -621,15 +621,19 @@ When one entry is left, automatically select it\.
 \fB\-m\fR \fInum\fR \fB\-monitor\fR \fInum\fR
 .
 .P
-Select (Xinerama) monitor to display \fBrofi\fR on\. The special number \-1 denotes the currently focused monitor, the number \-2 denotes the currently focused window (i\.e\. rofi will be displayed on top of the focused window)\.
+Select (Xinerama) monitor to display \fBrofi\fR on\. Negative numbers are handled differently:
 .
-.IP "" 4
+.IP "\(bu" 4
+\fB\-1\fR: the currently focused monitor\.
 .
-.nf
-
-Default: *\-1*
+.IP "\(bu" 4
+\fB\-2\fR: the currently focused window (i\.e\. rofi will be displayed on top of the focused window)\.
 .
-.fi
+.IP "\(bu" 4
+\fB\-3\fR: Position at mouse (still follows the location setting, use \fB\-location 1\fR to get normal context menu behaviour\.)
+.
+.IP
+Default: \fI\-1\fR
 .
 .IP "" 0
 .

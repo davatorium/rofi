@@ -372,7 +372,13 @@ When one entry is left, automatically select it.
 `-m` *num*
 `-monitor` *num*
 
-Select (Xinerama) monitor to display **rofi** on. The special number -1 denotes the currently focused monitor, the number -2 denotes the currently focused window (i.e. rofi will be displayed on top of the focused window).
+Select (Xinerama) monitor to display **rofi** on. 
+Negative numbers are handled differently:
+
+ *  **-1**: the currently focused monitor.
+ *  **-2**: the currently focused window (i.e. rofi will be displayed on top of the focused window).
+ *  **-3**: Position at mouse (still follows the location setting, use `-location 1` to get normal context menu
+    behaviour.)
 
     Default: *-1*
 
