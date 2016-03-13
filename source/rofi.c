@@ -595,6 +595,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         // Daemon mode
         fprintf ( stderr, "Rofi daemon mode is now removed.\n" );
         fprintf ( stderr, "Please use your window manager binding functionality or xbindkeys to replace it.\n" );
+        g_main_loop_quit ( main_loop );
     }
 
     return G_SOURCE_REMOVE;
