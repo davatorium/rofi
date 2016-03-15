@@ -242,6 +242,7 @@ void monitor_active ( workarea *mon )
     }
     if ( config.monitor == -3 ) {
         if ( pointer_get ( root, &x, &y ) ) {
+            monitor_dimensions ( x, y, mon );
             mon->x = x;
             mon->y = y;
             return;
