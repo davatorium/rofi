@@ -169,6 +169,12 @@ static void menu_capture_screenshot ( void )
  */
 static void calculate_window_position ( RofiViewState *state )
 {
+    if ( config.fullscreen ) {
+        state->x = state->mon.x;
+        state->y = state->mon.y;
+        return;
+    }
+
     // Default location is center.
     state->y = state->mon.y + ( state->mon.h - state->h ) / 2;
     state->x = state->mon.x + ( state->mon.w - state->w ) / 2;
@@ -202,10 +208,6 @@ static void calculate_window_position ( RofiViewState *state )
     // Apply offset.
     state->x += config.x_offset;
     state->y += config.y_offset;
-    if ( config.fullscreen ) {
-        state->x = state->mon.x;
-        state->y = state->mon.y;
-    }
 }
 
 void rofi_view_queue_redraw ( void  )
@@ -520,7 +522,7 @@ static xcb_window_t __create_window ( MenuFlags menu_flags )
     cairo_font_options_destroy ( fo );
 
     // // make it an unmanaged window
-    if ( ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) && !config.fullscreen ) {
+    if ( ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) ) {
         window_set_atom_prop ( box, xcb->ewmh._NET_WM_STATE, &( xcb->ewmh._NET_WM_STATE_ABOVE ), 1 );
         uint32_t values[] = { 1 };
         xcb_change_window_attributes ( xcb->connection, box, XCB_CW_OVERRIDE_REDIRECT, values );
@@ -592,7 +594,10 @@ static void rofi_view_calculate_rows_columns ( RofiViewState *state )
  */
 static void rofi_view_calculate_window_and_element_width ( RofiViewState *state )
 {
-    if ( config.menu_width < 0 ) {
+    if ( config.fullscreen ) {
+        state->w = state->mon.w;
+    }
+    else if ( config.menu_width < 0 ) {
         double fw = textbox_get_estimated_char_width ( );
         state->w  = -( fw * config.menu_width );
         state->w += 2 * state->border + 4; // 4 = 2*SIDE_MARGIN
@@ -600,10 +605,6 @@ static void rofi_view_calculate_window_and_element_width ( RofiViewState *state 
     else{
         // Calculate as float to stop silly, big rounding down errors.
         state->w = config.menu_width < 101 ? ( state->mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
-    }
-    if ( config.fullscreen ) {
-        state->w = state->mon.w;
-        state->h = state->mon.h;
     }
 
     if ( state->columns > 0 ) {
@@ -1628,8 +1629,8 @@ RofiViewState *rofi_view_create ( Mode *sw,
         state->h += state->line_height + 2 * config.line_margin + 2;
     }
 
-    // Sidebar mode.
-    if ( config.menu_lines == 0 ) {
+    // Sidebar or fullscreen mode.
+    if ( config.menu_lines == 0 || config.fullscreen ) {
         state->h = state->mon.h;
     }
 
