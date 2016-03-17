@@ -198,7 +198,7 @@ Or get the options from a script:
 .IP "" 0
 .
 .P
-Pressing \fBshift\-enter\fR sends the selected entry to STDOUT and moves to the next entry\.
+Pressing the \fBaccept\-custom\fR binding (\fBcontrol\-enter\fR or \fBshift\-enter\fR) sends the selected entry to STDOUT and moves to the next entry\.
 .
 .P
 \fB\-show\fR \fImode\fR
@@ -1154,10 +1154,10 @@ Show a list of all the windows and allow switching between them\.
 Shows a list of the windows on the current desktop and allows switching between them\.
 .
 .SS "Run"
-Shows a list of executables in \fB$PATH\fR and can launch them (optional in a terminal)\.
+Shows a list of executables in \fB$PATH\fR and can launch them (optional in a terminal)\. Pressing the \fBaccept\-custom\fR binding (\fBcontrol\-enter\fR or \fBshift\-enter\fR) will run the command in a terminal\.
 .
 .SS "DRun"
-Same as the \fBrun\fR launches, but the list is created from the installed desktop files\. It automatically launches them in a terminal if specified in the Desktop File\.
+Same as the \fBrun\fR launches, but the list is created from the installed desktop files\. It automatically launches them in a terminal if specified in the Desktop File\. Pressing the \fBaccept\-custom\fR binding (\fBcontrol\-enter\fR or \fBshift\-enter\fR) with custom input (no entry matching) will run the command in a terminal\.
 .
 .SS "SSH"
 Shows a list of SSH targets based on your ssh config file, and allows to quickly ssh into them\.
