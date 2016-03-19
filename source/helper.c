@@ -211,7 +211,8 @@ char **tokenize ( const char *input, int case_sensitive )
 
     // Iterate over tokens.
     // strtok should still be valid for utf8.
-    for ( token = strtok_r ( str, " ", &saveptr ); token != NULL; token = strtok_r ( NULL, " ", &saveptr ) ) {
+    const char * const sep = " ";
+    for ( token = strtok_r ( str, sep, &saveptr ); token != NULL; token = strtok_r ( NULL, sep, &saveptr ) ) {
         retv = g_realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
         if ( config.glob ) {
             char *str = g_strdup_printf ( "*%s*", token );

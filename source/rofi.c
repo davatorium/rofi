@@ -403,11 +403,12 @@ static int add_mode ( const char * token )
 }
 static void setup_modi ( void )
 {
+    const char *const sep =",";
     char *savept = NULL;
     // Make a copy, as strtok will modify it.
     char *switcher_str = g_strdup ( config.modi );
     // Split token on ','. This modifies switcher_str.
-    for ( char *token = strtok_r ( switcher_str, ",", &savept ); token != NULL; token = strtok_r ( NULL, ",", &savept ) ) {
+    for ( char *token = strtok_r ( switcher_str, sep, &savept ); token != NULL; token = strtok_r ( NULL, sep, &savept ) ) {
         add_mode ( token );
     }
     // Free string that was modified by strtok_r

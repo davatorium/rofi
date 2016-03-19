@@ -303,7 +303,8 @@ static char ** get_ssh (  unsigned int *length )
             // (how many host names contain spaces?).
             while ( ( token = strtok ( NULL, SSH_TOKEN_DELIM ) ) ) {
                 // We do not want to show wildcard entries, as you cannot ssh to them.
-                if ( *token == '!' || strpbrk ( token, "*?" ) ) {
+                const char *const sep = "*?";
+                if ( *token == '!' || strpbrk ( token, sep ) ) {
                     continue;
                 }
 

@@ -62,6 +62,9 @@
 
 #include "xcb.h"
 
+const char *const separator_style_none = "none";
+const char *const separator_style_dash = "dash";
+
 GThreadPool   *tpool = NULL;
 
 RofiViewState *current_active_menu = NULL;
@@ -931,8 +934,8 @@ void rofi_view_update ( RofiViewState *state )
     }
     color_separator ( d );
 
-    if ( strcmp ( config.separator_style, "none" ) ) {
-        if ( strcmp ( config.separator_style, "dash" ) == 0 ) {
+    if ( strcmp ( config.separator_style, separator_style_none ) ) {
+        if ( strcmp ( config.separator_style, separator_style_dash ) == 0 ) {
             const double dashes[1] = { 4 };
             cairo_set_dash ( d, dashes, 1, 0.0 );
         }

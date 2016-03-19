@@ -249,7 +249,8 @@ static char ** get_apps ( unsigned int *length )
         return NULL;
     }
 
-    for ( const char *dirname = strtok ( path, ":" ); dirname != NULL; dirname = strtok ( NULL, ":" ) ) {
+    const char *const sep = ":";
+    for ( const char *dirname = strtok ( path, sep ); dirname != NULL; dirname = strtok ( NULL, sep ) ) {
         DIR *dir = opendir ( dirname );
 
         if ( dir != NULL ) {

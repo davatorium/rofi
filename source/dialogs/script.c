@@ -183,7 +183,8 @@ Mode *script_switcher_parse_setup ( const char *str )
     char         *endp  = NULL;
     char         *parse = g_strdup ( str );
     unsigned int index  = 0;
-    for ( char *token = strtok_r ( parse, ":", &endp ); token != NULL; token = strtok_r ( NULL, ":", &endp ) ) {
+    const char *const sep = ":";
+    for ( char *token = strtok_r ( parse, sep, &endp ); token != NULL; token = strtok_r ( NULL, sep, &endp ) ) {
         if ( index == 0 ) {
             g_strlcpy ( sw->name, token, 32 );
         }

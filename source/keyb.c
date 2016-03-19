@@ -111,7 +111,8 @@ gboolean parse_keys_abe ( void )
         abe[iter].num_bindings = 0;
 
         // Iter over bindings.
-        for ( char *entry = strtok_r ( keystr, ",", &sp ); entry != NULL; entry = strtok_r ( NULL, ",", &sp ) ) {
+        const char *const sep = ",";
+        for ( char *entry = strtok_r ( keystr, sep, &sp ); entry != NULL; entry = strtok_r ( NULL, sep, &sp ) ) {
             abe[iter].kb = g_realloc ( abe[iter].kb, ( abe[iter].num_bindings + 1 ) * sizeof ( KeyBinding ) );
             KeyBinding *kb = &( abe[iter].kb[abe[iter].num_bindings] );
             if ( !x11_parse_key ( entry, &( kb->modmask ), &( kb->keysym ) ) ) {

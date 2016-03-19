@@ -622,7 +622,8 @@ static void textbox_parse_string (  const char *str, RowColor *color )
     char *endp = NULL;
     char *token;
     int  index = 0;
-    for ( token = strtok_r ( cstr, ",", &endp ); token != NULL; token = strtok_r ( NULL, ",", &endp ) ) {
+    const char *const sep = ",";
+    for ( token = strtok_r ( cstr, sep, &endp ); token != NULL; token = strtok_r ( NULL, sep, &endp ) ) {
         switch ( index )
         {
         case 0:
