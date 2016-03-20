@@ -89,8 +89,6 @@ If used with `-show [mode]`, rofi will immediately open in the specified [mode]
 
 If used with `-dmenu`, rofi will use data from STDIN to let the user select an option.
 
-If use with neither of those options, rofi will launch in daemon-mode, waiting for a key (configured beforehand) to launch.
-
 ## Single-shot
 
 Show a run dialog with some font / color options:
@@ -112,12 +110,6 @@ echo -e "Option #1\nOption #2\nOption #3" | rofi -dmenu
 ```
 
 In both cases, rofi will output the user's selection to STDOUT.
-
-## Daemon mode
-
-Let rofi sit in the background, waiting for the user to press `F12` to open the window run dialog:
-
-`rofi -key-run F12`
 
 ## Switching Between Modi
 
