@@ -359,6 +359,15 @@ static int run_mode_init ( Mode *sw )
 
     return TRUE;
 }
+static void run_mode_destroy ( Mode *sw )
+{
+    RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
+    if ( rmpd != NULL ) {
+        g_strfreev ( rmpd->cmd_list );
+        g_free ( rmpd );
+        sw->private_data = NULL;
+    }
+}
 
 static unsigned int run_mode_get_num_entries ( const Mode *sw )
 {
@@ -391,24 +400,14 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
     else if ( ( mretv & MENU_ENTRY_DELETE ) && rmpd->cmd_list[selected_line] ) {
         delete_entry ( rmpd->cmd_list[selected_line] );
 
-        g_free ( rmpd->cmd_list );
         // Clear the list.
-        rmpd->cmd_list        = NULL;
-        rmpd->cmd_list_length = 0;
         retv                  = RELOAD_DIALOG;
+        run_mode_destroy ( sw );
+        run_mode_init ( sw );
     }
     return retv;
 }
 
-static void run_mode_destroy ( Mode *sw )
-{
-    RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
-    if ( rmpd != NULL ) {
-        g_strfreev ( rmpd->cmd_list );
-        g_free ( rmpd );
-        sw->private_data = NULL;
-    }
-}
 
 static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
 {
