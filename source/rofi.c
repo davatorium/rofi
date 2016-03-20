@@ -306,7 +306,7 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "For more information see: man rofi\n" );
     printf ( "Version:    "VERSION "\n" );
 #ifdef GIT_VERSION
-    printf ( "Git:        "GIT_VERSION "\n");
+    printf ( "Git:        "GIT_VERSION "\n" );
 #endif
     printf ( "Bugreports: "PACKAGE_BUGREPORT "\n" );
 }
@@ -403,10 +403,10 @@ static int add_mode ( const char * token )
 }
 static void setup_modi ( void )
 {
-    const char *const sep =",";
-    char *savept = NULL;
+    const char *const sep     = ",";
+    char              *savept = NULL;
     // Make a copy, as strtok will modify it.
-    char *switcher_str = g_strdup ( config.modi );
+    char              *switcher_str = g_strdup ( config.modi );
     // Split token on ','. This modifies switcher_str.
     for ( char *token = strtok_r ( switcher_str, sep, &savept ); token != NULL; token = strtok_r ( NULL, sep, &savept ) ) {
         add_mode ( token );
@@ -613,7 +613,7 @@ int main ( int argc, char *argv[] )
     if ( find_arg (  "-v" ) >= 0 || find_arg (  "-version" ) >= 0 ) {
         fprintf ( stdout, "Version: "VERSION "\n" );
 #ifdef GIT_VERSION
-        fprintf ( stdout, "Git:     "GIT_VERSION "\n");
+        fprintf ( stdout, "Git:     "GIT_VERSION "\n" );
 #endif
         exit ( EXIT_SUCCESS );
     }

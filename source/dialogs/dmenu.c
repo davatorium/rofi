@@ -122,8 +122,8 @@ static unsigned int dmenu_mode_get_num_entries ( const Mode *sw )
 
 static void parse_pair ( char  *input, struct range_pair  *item )
 {
-    int index = 0;
-    const char * const sep = "-";
+    int                index = 0;
+    const char * const sep   = "-";
     for ( char *token = strsep ( &input, sep ); token != NULL; token = strsep ( &input, sep ) ) {
         if ( index == 0 ) {
             item->start = item->stop = (unsigned int) strtoul ( token, NULL, 10 );
@@ -146,7 +146,7 @@ static void parse_ranges ( char *input, struct range_pair **list, unsigned int *
     if ( input == NULL ) {
         return;
     }
-    const char *const sep =",";
+    const char *const sep = ",";
     for ( char *token = strtok_r ( input, sep, &endp ); token != NULL; token = strtok_r ( NULL, sep, &endp ) ) {
         // Make space.
         *list = g_realloc ( ( *list ), ( ( *length ) + 1 ) * sizeof ( struct range_pair ) );

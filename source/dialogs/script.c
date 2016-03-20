@@ -179,11 +179,11 @@ static int script_is_not_ascii ( const Mode *sw, unsigned int index )
 #include "mode-private.h"
 Mode *script_switcher_parse_setup ( const char *str )
 {
-    Mode         *sw    = g_malloc0 ( sizeof ( *sw ) );
-    char         *endp  = NULL;
-    char         *parse = g_strdup ( str );
-    unsigned int index  = 0;
-    const char *const sep = ":";
+    Mode              *sw    = g_malloc0 ( sizeof ( *sw ) );
+    char              *endp  = NULL;
+    char              *parse = g_strdup ( str );
+    unsigned int      index  = 0;
+    const char *const sep    = ":";
     for ( char *token = strtok_r ( parse, sep, &endp ); token != NULL; token = strtok_r ( NULL, sep, &endp ) ) {
         if ( index == 0 ) {
             g_strlcpy ( sw->name, token, 32 );

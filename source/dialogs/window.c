@@ -265,13 +265,13 @@ static client* window_client ( xcb_window_t win )
     xcb_ewmh_get_atoms_reply_t states;
     if ( xcb_ewmh_get_wm_state_reply ( &xcb->ewmh, cky, &states, NULL ) ) {
         c->states = MIN ( CLIENTSTATE, states.atoms_len );
-        memcpy ( c->state, states.atoms, MIN ( CLIENTSTATE, states.atoms_len )*sizeof(xcb_atom_t) );
+        memcpy ( c->state, states.atoms, MIN ( CLIENTSTATE, states.atoms_len ) * sizeof ( xcb_atom_t ) );
         xcb_ewmh_get_atoms_reply_wipe ( &states );
     }
     cky = xcb_ewmh_get_wm_window_type ( &xcb->ewmh, win );
     if ( xcb_ewmh_get_wm_window_type_reply ( &xcb->ewmh, cky, &states, NULL ) ) {
         c->window_types = MIN ( CLIENTWINDOWTYPE, states.atoms_len );
-        memcpy ( c->window_type, states.atoms, MIN ( CLIENTWINDOWTYPE, states.atoms_len )*sizeof(xcb_atom_t) );
+        memcpy ( c->window_type, states.atoms, MIN ( CLIENTWINDOWTYPE, states.atoms_len ) * sizeof ( xcb_atom_t ) );
         xcb_ewmh_get_atoms_reply_wipe ( &states );
     }
 
@@ -419,7 +419,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                  && !client_has_window_type ( c, xcb->ewmh._NET_WM_WINDOW_TYPE_DESKTOP )
                  && !client_has_state ( c, xcb->ewmh._NET_WM_STATE_SKIP_PAGER )
                  && !client_has_state ( c, xcb->ewmh._NET_WM_STATE_SKIP_TASKBAR ) ) {
-                classfield = MAX ( classfield, (c->class != NULL)?(strlen ( c->class )):0 );
+                classfield = MAX ( classfield, ( c->class != NULL ) ? ( strlen ( c->class ) ) : 0 );
 
                 if ( client_has_state ( c, xcb->ewmh._NET_WM_STATE_DEMANDS_ATTENTION ) ) {
                     c->demands = TRUE;

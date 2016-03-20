@@ -581,6 +581,12 @@ int config_sanity_check ( void )
         pango_font_description_free ( pfd );
     }
 
+    if ( config.monitor == -3 ) {
+        // On -3, set to location 1.
+        config.location   = 1;
+        config.fullscreen = 0;
+    }
+
     if ( found_error ) {
         g_string_append ( msg, "Please update your configuration." );
         show_error_message ( msg->str, TRUE );

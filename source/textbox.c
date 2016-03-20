@@ -618,11 +618,11 @@ static void textbox_parse_string (  const char *str, RowColor *color )
     if ( str == NULL ) {
         return;
     }
-    char *cstr = g_strdup ( str );
-    char *endp = NULL;
-    char *token;
-    int  index = 0;
-    const char *const sep = ",";
+    char              *cstr = g_strdup ( str );
+    char              *endp = NULL;
+    char              *token;
+    int               index = 0;
+    const char *const sep   = ",";
     for ( token = strtok_r ( cstr, sep, &endp ); token != NULL; token = strtok_r ( NULL, sep, &endp ) ) {
         switch ( index )
         {

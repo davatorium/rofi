@@ -65,9 +65,9 @@
 const char *const separator_style_none = "none";
 const char *const separator_style_dash = "dash";
 
-GThreadPool   *tpool = NULL;
+GThreadPool       *tpool = NULL;
 
-RofiViewState *current_active_menu = NULL;
+RofiViewState     *current_active_menu = NULL;
 
 struct
 {
