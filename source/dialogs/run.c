@@ -380,7 +380,7 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
     RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
     ModeMode           retv  = MODE_EXIT;
 
-    int                shift = ( ( mretv & MENU_SHIFT ) == MENU_SHIFT );
+    gboolean           run_in_term = ( ( mretv & MENU_CUSTOM_ACTION ) == MENU_CUSTOM_ACTION );
 
     if ( mretv & MENU_NEXT ) {
         retv = NEXT_DIALOG;
@@ -392,10 +392,10 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
         retv = ( mretv & MENU_LOWER_MASK );
     }
     else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
-        exec_cmd ( rmpd->cmd_list[selected_line], shift );
+        exec_cmd ( rmpd->cmd_list[selected_line], run_in_term );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
-        exec_cmd ( *input, shift );
+        exec_cmd ( *input, run_in_term );
     }
     else if ( ( mretv & MENU_ENTRY_DELETE ) && rmpd->cmd_list[selected_line] ) {
         delete_entry ( rmpd->cmd_list[selected_line] );

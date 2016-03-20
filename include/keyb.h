@@ -38,7 +38,6 @@ typedef enum _KeyBindingAction
     /** Accept the current selected entry */
     ACCEPT_ENTRY,
     ACCEPT_CUSTOM,
-    ACCEPT_ENTRY_CONTINUE,
     MODE_NEXT,
     MODE_PREVIOUS,
     TOGGLE_CASE_SENSITIVITY,

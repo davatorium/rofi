@@ -421,7 +421,7 @@ static void dmenu_finalize ( RofiViewState *state )
     // Normal mode
     if ( ( mretv & MENU_OK  ) && pd->selected_line != UINT32_MAX && cmd_list[pd->selected_line] != NULL ) {
         dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
-        if ( ( mretv & MENU_SHIFT ) ) {
+        if ( ( mretv & MENU_CUSTOM_ACTION ) ) {
             restart = TRUE;
             int seen = FALSE;
             if ( pd->selected_list != NULL ) {
@@ -446,7 +446,7 @@ static void dmenu_finalize ( RofiViewState *state )
     // Custom input
     else if ( ( mretv & ( MENU_CUSTOM_INPUT ) ) ) {
         dmenu_output_formatted_line ( pd->format, input, -1, input );
-        if ( ( mretv & MENU_SHIFT ) ) {
+        if ( ( mretv & MENU_CUSTOM_ACTION ) ) {
             restart = TRUE;
             // Move to next line.
             pd->selected_line = MIN ( next_pos, cmd_list_length - 1 );

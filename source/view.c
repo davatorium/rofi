@@ -1411,25 +1411,18 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
             int rc = textbox_keypress ( state->text, pad, len, modstate, key );
             // Row is accepted.
             if ( rc < 0 ) {
-                int shift = ( ( xkpe->state & ShiftMask ) == ShiftMask );
-
                 // If a valid item is selected, return that..
                 state->selected_line = UINT32_MAX;
                 if ( state->selected < state->filtered_lines ) {
                     ( state->selected_line ) = state->line_map[state->selected];
-                    if ( strlen ( state->text->text ) > 0 && rc == -2 ) {
-                        state->retv = MENU_CUSTOM_INPUT;
-                    }
-                    else {
-                        state->retv = MENU_OK;
-                    }
+                    state->retv = MENU_OK;
                 }
                 else{
                     // Nothing entered and nothing selected.
                     state->retv = MENU_CUSTOM_INPUT;
                 }
-                if ( shift ) {
-                    state->retv |= MENU_SHIFT;
+                if ( rc == -2 ) {
+                    state->retv |= MENU_CUSTOM_ACTION;
                 }
 
                 state->quit = TRUE;

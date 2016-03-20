@@ -591,9 +591,6 @@ int textbox_keypress ( textbox *tb, char *pad, int pad_len, unsigned int modstat
         else if ( abe_test_action ( ACCEPT_CUSTOM, modstate, key ) ) {
             return -2;
         }
-        else if  ( abe_test_action ( ACCEPT_ENTRY_CONTINUE, modstate, key ) ) {
-            return -3;
-        }
         else if ( abe_test_action ( ACCEPT_ENTRY, modstate, key ) ) {
             return -1;
         }

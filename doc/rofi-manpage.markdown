@@ -153,7 +153,7 @@ Or get the options from a script:
 
     ~/my_script.sh | rofi -dmenu
 
-Pressing `shift-enter` sends the selected entry to STDOUT and moves to the next entry.
+Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) sends the selected entry to STDOUT and moves to the next entry.
 
 `-show` *mode*
 
@@ -710,11 +710,13 @@ Shows a list of the windows on the current desktop and allows switching between 
 ### Run
 
 Shows a list of executables in **$PATH** and can launch them (optional in a terminal).
+Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run the command in a terminal.
 
 ### DRun
 
 Same as the **run** launches, but the list is created from the installed desktop files. It automatically launches them
 in a terminal if specified in the Desktop File.
+Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) with custom input (no entry matching) will run the command in a terminal.
 
 ### SSH
 
