@@ -121,9 +121,7 @@ rofi.kb-remove-char-back:            BackSpace,Control+h
 ! Keybinding
 rofi.kb-accept-entry:                Control+j,Control+m,Return,KP_Enter
 ! Keybinding
-rofi.kb-accept-custom:               Control+Return
-! Keybinding
-rofi.kb-accept-entry-continue:       Shift+Return
+rofi.kb-accept-custom:               Control+Return,Shift+Return
 ! Keybinding
 rofi.kb-mode-next:                   Shift+Right,Control+Tab
 ! Keybinding
