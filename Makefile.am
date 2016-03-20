@@ -265,8 +265,6 @@ test-x: $(bin_PROGRAMS) textbox_test
 	$(top_srcdir)/test/run_test.sh 209 $(top_srcdir)/test/run_dmenu_issue_292.sh $(top_builddir)
 	echo "Test screenshot"
 	$(top_srcdir)/test/run_test.sh 210 $(top_srcdir)/test/run_screenshot_test.sh $(top_builddir)
-	echo "Test daemon"
-	$(top_srcdir)/test/run_test.sh 211 $(top_srcdir)/test/run_daemon_test.sh $(top_builddir)
 	echo "Test xr dump"
 	$(top_srcdir)/test/run_test.sh 212 $(top_srcdir)/test/xr_dump_test.sh $(top_builddir) $(top_srcdir)
 	echo "Test drun"
