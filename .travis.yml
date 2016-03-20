@@ -11,8 +11,6 @@ addons:
           - libpango1.0-dev
           - libcairo2-dev
           - libstartup-notification0-dev
-          - libxkbcommon-dev
-          - libxkbcommon-x11-dev
           - libxcb-ewmh-dev
           - libxcb-icccm4-dev
           - libxcb-util0-dev
@@ -27,8 +25,11 @@ addons:
 compiler:
   - gcc
 
-before_install:
-    - git submodule update --init
+# TODO: We install xkbcommon here, until it is whitelisted in Travis
+install:
+    - sudo apt-get install -y libxkbcommon-dev libxkbcommon-x11-dev
+
+before_script:
     - autoreconf -i 
 
 script:
