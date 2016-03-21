@@ -139,7 +139,7 @@ update-manpage: $(top_srcdir)/doc/rofi-manpage.markdown
 ##
 # Rofi test program
 ##
-check_PROGRAMS=rofi_test textbox_test helper_test
+check_PROGRAMS=rofi_test textbox_test helper_test helper_expand
 
 rofi_test_CFLAGS=\
 	$(AM_CFLAGS)\
@@ -235,9 +235,26 @@ helper_test_LDADD=\
 	$(libsn_LIBS)\
 	$(cairo_LIBS)
 
+helper_expand_SOURCES=\
+	config/config.c\
+	include/rofi.h\
+	include/mode.h\
+	include/mode-private.h\
+	source/helper.c\
+	include/helper.h\
+	include/xrmoptions.h\
+	source/xrmoptions.c\
+	source/x11-helper.c\
+	test/helper-expand.c
+
+helper_expand_CFLAGS=${helper_test_CFLAGS}
+
+helper_expand_LDADD=${helper_test_LDADD}
+
 TESTS=\
 	rofi_test\
-	helper_test
+	helper_test\
+	helper_expand
 
 .PHONY: test-x
 test-x: $(bin_PROGRAMS) textbox_test
