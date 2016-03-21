@@ -401,13 +401,12 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
         delete_entry ( rmpd->cmd_list[selected_line] );
 
         // Clear the list.
-        retv                  = RELOAD_DIALOG;
+        retv = RELOAD_DIALOG;
         run_mode_destroy ( sw );
         run_mode_init ( sw );
     }
     return retv;
 }
-
 
 static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
 {

@@ -73,5 +73,4 @@ int main ( int argc, char ** argv )
     str = rofi_expand_path ( "~root/" );
     TASSERT ( str[0] == '/' );
     g_free ( str );
-
 }

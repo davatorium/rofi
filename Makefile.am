@@ -139,9 +139,9 @@ update-manpage: $(top_srcdir)/doc/rofi-manpage.markdown
 ##
 # Rofi test program
 ##
-check_PROGRAMS=rofi_test textbox_test helper_test helper_expand
+check_PROGRAMS=history_test textbox_test helper_test helper_expand
 
-rofi_test_CFLAGS=\
+history_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(libsn_CFLAGS)\
@@ -149,11 +149,11 @@ rofi_test_CFLAGS=\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
 
-rofi_test_LDADD=\
+history_test_LDADD=\
 	$(glib_LIBS)
 
 
-rofi_test_SOURCES=\
+history_test_SOURCES=\
 	source/history.c\
 	config/config.c\
 	include/rofi.h\
@@ -252,7 +252,7 @@ helper_expand_CFLAGS=${helper_test_CFLAGS}
 helper_expand_LDADD=${helper_test_LDADD}
 
 TESTS=\
-	rofi_test\
+	history_test\
 	helper_test\
 	helper_expand
 
@@ -308,7 +308,7 @@ test-x1: $(bin_PROGRAMS)
 
 
 .PHONY: indent
-indent: $(rofi_SOURCES) $(helper_test_SOURCES) $(textbox_test_SOURCES) $(rofi_test_SOURCES)
+indent: $(rofi_SOURCES) $(helper_test_SOURCES) $(textbox_test_SOURCES) $(history_test_SOURCES) $(helper_expand_SOURCES)
 	uncrustify -c $(top_srcdir)/data/uncrustify.cfg --replace $^
 
 .PHONY: cppcheck

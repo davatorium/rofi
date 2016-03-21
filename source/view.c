@@ -1415,7 +1415,7 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
                 state->selected_line = UINT32_MAX;
                 if ( state->selected < state->filtered_lines ) {
                     ( state->selected_line ) = state->line_map[state->selected];
-                    state->retv = MENU_OK;
+                    state->retv              = MENU_OK;
                 }
                 else{
                     // Nothing entered and nothing selected.

@@ -280,8 +280,8 @@ void monitor_active ( workarea *mon )
                     // place the menu above the window
                     // if some window is focused, place menu above window, else fall
                     // back to selected monitor.
-                    mon->x = t->dst_x-r->x;
-                    mon->y = t->dst_y-r->y;
+                    mon->x = t->dst_x - r->x;
+                    mon->y = t->dst_y - r->y;
                     mon->w = r->width;
                     mon->h = r->height;
                     mon->t = r->border_width;
