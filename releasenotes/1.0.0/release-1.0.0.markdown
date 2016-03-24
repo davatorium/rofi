@@ -3,7 +3,7 @@
 The current release, after a long development cycle, is finally out. This version features two major rewrites in the
 hope to improve maintainability and code quality.
 
-## XLib to GLib
+## XLib to xcb
 
 With the help of SardemFF7 **rofi** we broke free from the massif xlib and moved to xcb. This resulted in cleaner and
 faster code. 
@@ -64,5 +64,6 @@ Also the old method of specifying themes has been removed.
 
 ## Regressions
 
-### Daemon mode
+* Removal of old themeing method. Given it was incomplete.
+* Removal of daemon mode, given this duplicates Window Manager functionality.
 
