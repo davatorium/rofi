@@ -349,7 +349,7 @@ static char ** get_ssh (  unsigned int *length )
 /**
  * The internal data structure holding the private data of the SSH Mode.
  */
-typedef struct _SSHModePrivateData
+typedef struct
 {
     /** List if available ssh hosts.*/
     char         **hosts_list;

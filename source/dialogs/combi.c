@@ -35,7 +35,7 @@
 /**
  * Combi Mode
  */
-typedef struct _CombiModePrivateData
+typedef struct
 {
     // List of (combined) entries.
     unsigned int cmd_list_length;

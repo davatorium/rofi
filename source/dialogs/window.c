@@ -300,7 +300,7 @@ static client* window_client ( xcb_window_t win )
     return c;
 }
 
-typedef struct _ModeModePrivateData
+typedef struct
 {
     unsigned int id;
     char         **cmd_list;

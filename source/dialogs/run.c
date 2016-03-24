@@ -57,7 +57,7 @@
 /**
  * The internal data structure holding the private data of the Run Mode.
  */
-typedef struct _RunModePrivateData
+typedef struct
 {
     /** list of available commands. */
     char         **cmd_list;

@@ -49,7 +49,7 @@ struct range_pair
     unsigned int start;
     unsigned int stop;
 };
-typedef struct _DmenuModePrivateData
+typedef struct
 {
     char              *prompt;
     unsigned int      selected_line;

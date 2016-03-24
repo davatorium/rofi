@@ -87,7 +87,7 @@ static void exec_cmd ( const char *cmd, int run_in_term )
  * Store extra information about the entry.
  * Currently the executable and if it should run in terminal.
  */
-typedef struct _DRunModeEntry
+typedef struct
 {
     /* Path to desktop file */
     char         *path;
@@ -101,7 +101,7 @@ typedef struct _DRunModeEntry
     unsigned int terminal;
 } DRunModeEntry;
 
-typedef struct _DRunModePrivateData
+typedef struct
 {
     DRunModeEntry *entry_list;
     unsigned int  cmd_list_length;

@@ -91,7 +91,7 @@ static void script_switcher_free ( Mode *sw )
     g_free ( sw );
 }
 
-typedef struct _ScriptModePrivateData
+typedef struct
 {
     unsigned int id;
     char         **cmd_list;
