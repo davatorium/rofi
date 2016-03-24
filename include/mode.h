@@ -7,7 +7,7 @@
  * The 'object' that makes a mode in rofi.
  * @{
  */
-typedef struct _Mode   Mode;
+typedef struct rofi_mode Mode;
 
 /**
  * Enum used to sum the possible states of ROFI.

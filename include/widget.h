@@ -8,7 +8,7 @@
  *
  * @{
  */
-typedef struct _Widget
+typedef struct
 {
     /** X position relative to parent */
     short x;

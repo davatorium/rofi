@@ -11,7 +11,7 @@
  *
  * @ingroup CONFIGURATION
  */
-typedef enum _WindowLocation
+typedef enum
 {
     /** Center */
     WL_CENTER     = 0,
@@ -37,7 +37,7 @@ typedef enum _WindowLocation
  * Settings structure holding all (static) configurable options.
  * @ingroup CONFIGURATION
  */
-typedef struct _Settings
+typedef struct
 {
     /** List of enabled modi */
     char           *modi;

@@ -4,13 +4,13 @@
 #include "x11-helper.h"
 #include "xrmoptions.h"
 
-typedef struct _KeyBinding
+typedef struct
 {
     unsigned int modmask;
     xkb_keysym_t keysym;
 } KeyBinding;
 
-typedef struct _ActionBindingEntry
+typedef struct
 {
     const char *name;
     char       *keystr;
@@ -18,7 +18,7 @@ typedef struct _ActionBindingEntry
     KeyBinding *kb;
 } ActionBindingEntry;
 
-typedef struct _DefaultBinding
+typedef struct
 {
     KeyBindingAction id;
     char             *name;

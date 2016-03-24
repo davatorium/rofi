@@ -34,7 +34,7 @@ typedef int ( *_mode_is_not_ascii )( const Mode *sw, unsigned int index );
  * It consists of a name, callback and if enabled
  * a textbox for the sidebar-mode.
  */
-struct _Mode
+struct rofi_mode
 {
     /** Name (max 31 char long) */
     char name[32];

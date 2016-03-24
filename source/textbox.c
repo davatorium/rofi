@@ -41,7 +41,7 @@
  * Font + font color cache.
  * Avoid re-loading font on every change on every textbox.
  */
-typedef struct _RowColor
+typedef struct
 {
     Color fg;
     Color bg;

@@ -7,7 +7,7 @@
  * @{
  */
 
-typedef enum _KeyBindingAction
+typedef enum
 {
     /** Paste from primary clipboard */
     PASTE_PRIMARY = 0,
