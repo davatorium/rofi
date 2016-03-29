@@ -63,6 +63,11 @@ make install
 
 ## Install a checkout from git
 
+The GitHub Pages version of these directions may be out of date.  Please use
+[INSTALL.md from the online repo][master-install] or your local repository.
+
+[master-install]: https://github.com/DaveDavenport/rofi/blob/master/INSTALL.md#install-a-checkout-from-git
+
 Generate build system:
 
 ```
