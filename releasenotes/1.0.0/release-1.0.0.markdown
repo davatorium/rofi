@@ -1,7 +1,8 @@
 # V1.0.0 - Welcome in 2016
 
-The current release, after a long development cycle, is finally out. This version features two major rewrites in the
-hope to improve maintainability and code quality.
+The new release, after a long development cycle, is finally out. It has a lot of changes that are hopefully invisible to
+the user. On top of that we decided it is time to deprecate some old stuff left from the simpleswitcher era. 
+The biggest changes in this version are two major rewrites in the hope to improve maintainability and code quality.
 
 ## XLib to xcb
 
@@ -17,7 +18,8 @@ blinks.
 ## Config file
 
 Not everybody seems to like configuration via Xresources, so for those people we now support a configuration file in
-`XDG_CONFIG_HOME/rofi/config`, or passed from the commandline via the `-config` option.
+`XDG_CONFIG_HOME/rofi/config`, or passed from the commandline via the `-config` option. Settings in the config file will
+override Xresources and is read on each startup.
 
 ## "Regression"
 
@@ -26,9 +28,14 @@ namely daemon mode. In our opinion this is duplicate functionality, if you are u
 either running a window manager (like i3) that implements global hotkey functionality, or running a keyboard daemon like
 sxhkd. 
 
-Also the old method of specifying themes has been removed.
+A second victim, that had been marked deprecated for more then a year, is the old method of specifying themes where
+every color option had one commandline flag. This method was very verbose and incomplete. With the [theme
+repository](https://github.com/DaveDavenport/rofi-themes/) and the online [theme
+generator](https://davedavenport.github.io/rofi/p11-Generator.html) using and creating new themes should be easy enough.
 
 # Changelog
+
+Below is a more complete changelog between the 0.15.12 and the 1.0.0 release.
 
 ## New Features
 
@@ -54,12 +61,12 @@ Also the old method of specifying themes has been removed.
 * Fix basic tests on OpenBSD  (#272)
 * Fix wrong use of memcpy (thx to Jasperia).
 * Work around for sigwaitinfo on OpenBSD.
-* Ignore invalid (non-utf8) in dmenu mode.
+* Ignore invalid entries (non-utf8) in dmenu mode.
 * Glib signal handling.
 * Fix connecting to i3 on bsd.
-* Be able to distinguish between empty and cancel. (#323)
+* Be able to distinguish between empty and cancel in dmenu mode. (#323)
 * Fix memcpy on single memory region. (#312)
-* Fix that opening file with mode a+ does not allow fseek on bsd.
+* Fix opening file with mode a+ and using fseek to overwrite on bsd.
 
 
 ## Regressions
