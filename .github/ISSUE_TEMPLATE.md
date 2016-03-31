@@ -7,6 +7,10 @@ Output of `rofi -v`
 
 Output of `rofi -dump-xresources` (preferable in a [gist](https://gist.github.com/))
 
+## Launch Command
+
+The commandline used to launch **rofi**
+
 ## Steps to reproduce
 
 * Step 1
