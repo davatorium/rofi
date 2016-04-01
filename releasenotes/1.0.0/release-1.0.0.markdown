@@ -67,6 +67,7 @@ Below is a more complete changelog between the 0.15.12 and the 1.0.0 release.
 * Be able to distinguish between empty and cancel in dmenu mode. (#323)
 * Fix memcpy on single memory region. (#312)
 * Fix opening file with mode a+ and using fseek to overwrite on bsd.
+* Run dialog: Try to convert between locale, fs encoding and utf8. Fixing problems with non-utf8 filesystem encodings.
 
 
 ## Regressions
