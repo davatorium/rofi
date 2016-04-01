@@ -434,7 +434,7 @@ static void setup_modi ( void )
 static inline void load_configuration ( )
 {
     // Load distro default settings
-    gchar *etc = g_build_filename ( G_DIR_SEPARATOR_S, "etc", "rofi.conf", NULL );
+    gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
     if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
         config_parse_xresource_options_file ( etc );
     }

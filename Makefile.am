@@ -80,7 +80,8 @@ rofi_CFLAGS=\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/\
-	-Werror=missing-prototypes
+	-Werror=missing-prototypes\
+	-DSYSCONFDIR=\"$(sysconfdir)\"
 
 rofi_LDADD=\
 	$(glib_LIBS)\
