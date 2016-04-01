@@ -434,7 +434,7 @@ static inline void load_configuration ( )
     char       *config_path = NULL;
     // Load distro default settings
     gchar      *etc = g_build_filename ( G_DIR_SEPARATOR_S, "etc", "rofi.conf", NULL );
-    if ( g_file_test ( etc, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR ) ) {
+    if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
         config_parse_xresource_options_file ( etc );
         config_parse_xresource_options_dynamic_file ( etc );
     }
@@ -455,7 +455,7 @@ static inline void load_configuration ( )
         config_path = rofi_expand_path ( c );
     }
     if ( config_path != NULL ) {
-        if ( g_file_test ( config_path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR ) ) {
+        if ( g_file_test ( config_path, G_FILE_TEST_IS_REGULAR ) ) {
             // Load config from config file.
             config_parse_xresource_options_file ( config_path );
             config_parse_xresource_options_dynamic_file ( config_path );
@@ -466,7 +466,7 @@ static inline void load_configuration ( )
     // Load theme file
     if ( cpath ) {
         char *theme_path = g_build_filename ( cpath, "rofi", "theme", NULL );
-        if ( g_file_test ( theme_path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR ) ) {
+        if ( g_file_test ( theme_path, G_FILE_TEST_IS_REGULAR ) ) {
             config_parse_xresource_options_file ( theme_path );
             config_parse_xresource_options_dynamic_file ( theme_path );
         }
