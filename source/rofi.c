@@ -78,6 +78,7 @@ struct xkb_stuff xkb        = {
         .state = NULL
     }
 };
+char             *config_path = NULL;
 // Array of modi.
 Mode             **modi   = NULL;
 unsigned int     num_modi = 0;
@@ -336,6 +337,8 @@ static void cleanup ()
     // Cleanup the custom keybinding
     cleanup_abe ();
 
+    g_free ( config_path );
+
     TIMINGS_STOP ();
 }
 
@@ -430,51 +433,24 @@ static void setup_modi ( void )
  */
 static inline void load_configuration ( )
 {
-    const char *cpath       = g_get_user_config_dir ();
-    char       *config_path = NULL;
     // Load distro default settings
-    gchar      *etc = g_build_filename ( G_DIR_SEPARATOR_S, "etc", "rofi.conf", NULL );
+    gchar *etc = g_build_filename ( G_DIR_SEPARATOR_S, "etc", "rofi.conf", NULL );
     if ( g_file_test ( etc, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR ) ) {
         config_parse_xresource_options_file ( etc );
-        config_parse_xresource_options_dynamic_file ( etc );
     }
     g_free ( etc );
-
     // Load in config from X resources.
     config_parse_xresource_options ( xcb );
-    config_parse_xresource_options_dynamic ( xcb );
-
-    if ( find_arg ( "-config" ) < 0 ) {
-        if ( cpath ) {
-            config_path = g_build_filename ( cpath, "rofi", "config", NULL );
-        }
-    }
-    else {
-        char *c = NULL;
-        find_arg_str ( "-config", &c );
-        config_path = rofi_expand_path ( c );
-    }
-    if ( config_path != NULL ) {
-        if ( g_file_test ( config_path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR ) ) {
-            // Load config from config file.
-            config_parse_xresource_options_file ( config_path );
-            config_parse_xresource_options_dynamic_file ( config_path );
-        }
-        g_free ( config_path );
-    }
-
-    // Load theme file
-    if ( cpath ) {
-        char *theme_path = g_build_filename ( cpath, "rofi", "theme", NULL );
-        if ( g_file_test ( theme_path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR ) ) {
-            config_parse_xresource_options_file ( theme_path );
-            config_parse_xresource_options_dynamic_file ( theme_path );
-        }
-        g_free ( theme_path );
-    }
+    config_parse_xresource_options_file ( config_path );
 
     // Parse command line for settings.
     config_parse_cmd_options ( );
+}
+static inline void load_configuration_dynamic ( )
+{
+    // Load in config from X resources.
+    config_parse_xresource_options_dynamic ( xcb );
+    config_parse_xresource_options_dynamic_file ( config_path );
     config_parse_cmd_options_dynamic (  );
 }
 
@@ -667,6 +643,18 @@ int main ( int argc, char *argv[] )
     }
     config_parser_add_option ( xrm_String, "pid", (void * *) &pidfile, "Pidfile location" );
 
+    if ( find_arg ( "-config" ) < 0 ) {
+        const char *cpath = g_get_user_config_dir ();
+        if ( cpath ) {
+            config_path = g_build_filename ( cpath, "rofi", "config", NULL );
+        }
+    }
+    else {
+        char *c = NULL;
+        find_arg_str ( "-config", &c );
+        config_path = rofi_expand_path ( c );
+    }
+
     TICK ();
     // Register cleanup function.
     atexit ( cleanup );
@@ -818,6 +806,9 @@ int main ( int argc, char *argv[] )
     setup_abe ();
     TICK_N ( "Setup abe" );
 
+    if ( find_arg ( "-no-config" ) < 0 ) {
+        load_configuration ( );
+    }
     if ( !dmenu_mode ) {
         // setup_modi
         setup_modi ();
@@ -827,7 +818,8 @@ int main ( int argc, char *argv[] )
         config_parser_add_option ( xrm_Char, "sep", (void * *) &( config.separator ), "Element separator" );
     }
     if ( find_arg ( "-no-config" ) < 0 ) {
-        load_configuration ( );
+        // Reload for dynamic part.
+        load_configuration_dynamic ( );
     }
     // Dump.
     // catch help request
