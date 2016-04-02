@@ -35,9 +35,9 @@ install:
 
 before_script:
     - autoreconf -i
+    - ./configure --enable-gcov
 
 script:
-    - ./configure --enable-gcov
     - make
     - make check
 # to re-enable if xdotool is allowed.
