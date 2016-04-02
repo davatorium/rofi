@@ -87,7 +87,6 @@ unsigned int     curr_switcher = 0;
 
 GMainLoop        *main_loop        = NULL;
 GWaterXcbSource  *main_loop_source = NULL;
-gboolean         quiet             = FALSE;
 
 static int       dmenu_mode = FALSE;
 
@@ -280,7 +279,6 @@ static void print_main_application_options ( void )
 {
     int is_term = isatty ( fileno ( stdout ) );
     print_help_msg ( "-no-config", "", "Do not load configuration, use default values.", NULL, is_term );
-    print_help_msg ( "-quiet", "", "Suppress information messages.", NULL, is_term );
     print_help_msg ( "-v,-version", "", "Print the version number and exit.", NULL, is_term  );
     print_help_msg ( "-dmenu", "", "Start in dmenu mode.", NULL, is_term );
     print_help_msg ( "-display", "[string]", "X server to contact.", "${DISPLAY}", is_term );
@@ -607,8 +605,7 @@ int main ( int argc, char *argv[] )
     TIMINGS_START ();
 
     cmd_set_arguments ( argc, argv );
-    // Quiet flag
-    quiet = ( find_arg ( "-quiet" ) >= 0 );
+
     // Version
     if ( find_arg (  "-v" ) >= 0 || find_arg (  "-version" ) >= 0 ) {
         fprintf ( stdout, "Version: "VERSION "\n" );

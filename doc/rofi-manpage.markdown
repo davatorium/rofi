@@ -46,7 +46,6 @@
 [ -combi-modi *mode1,mode2* ]
 [ -normal-window ]
 [ -fake-transparency ]
-[ -quiet ]
 [ -glob  ]
 [ -regex ]
 [ -tokenize ]
