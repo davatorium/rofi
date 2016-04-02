@@ -92,8 +92,6 @@ Settings config = {
     .levenshtein_sort  = FALSE,
     /** Case sensitivity of the search */
     .case_sensitive    = FALSE,
-    /** Separator to use for dmenu mode */
-    .separator         = '\n',
     /** Height of an element in #chars */
     .element_height    =                                         1,
     /** Sidebar mode, show the modi */

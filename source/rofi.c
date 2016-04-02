@@ -813,10 +813,7 @@ int main ( int argc, char *argv[] )
         // setup_modi
         setup_modi ();
     }
-    else {
-        // Add dmenu options.
-        config_parser_add_option ( xrm_Char, "sep", (void * *) &( config.separator ), "Element separator" );
-    }
+
     if ( find_arg ( "-no-config" ) < 0 ) {
         // Reload for dynamic part.
         load_configuration_dynamic ( );

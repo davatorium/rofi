@@ -51,7 +51,12 @@ struct range_pair
 };
 typedef struct
 {
+    /** Settings */
+    // Prompt
     char              *prompt;
+    // Separator.
+    char              separator;
+
     unsigned int      selected_line;
     char              *message;
     char              *format;
@@ -68,7 +73,7 @@ typedef struct
     unsigned int      only_selected;
 } DmenuModePrivateData;
 
-static char **get_dmenu ( FILE *fd, unsigned int *length )
+static char **get_dmenu ( DmenuModePrivateData *pd, FILE *fd, unsigned int *length )
 {
     TICK_N ( "Read stdin START" );
     char         **retv   = NULL;
@@ -78,12 +83,12 @@ static char **get_dmenu ( FILE *fd, unsigned int *length )
     gchar   *data  = NULL;
     size_t  data_l = 0;
     ssize_t l      = 0;
-    while ( ( l = getdelim ( &data, &data_l, config.separator, fd ) ) > 0 ) {
+    while ( ( l = getdelim ( &data, &data_l, pd->separator, fd ) ) > 0 ) {
         if ( rvlength < ( *length + 2 ) ) {
             rvlength *= 2;
             retv      = g_realloc ( retv, ( rvlength ) * sizeof ( char* ) );
         }
-        if ( data[l - 1] == config.separator ) {
+        if ( data[l - 1] == pd->separator ) {
             data[l - 1] = '\0';
             l--;
         }
@@ -265,9 +270,13 @@ static int dmenu_mode_init ( Mode *sw )
     DmenuModePrivateData *pd = (DmenuModePrivateData *) mode_get_private_data ( sw );
 
     pd->prompt        = "dmenu ";
+    pd->separator     = '\n';
     pd->selected_line = UINT32_MAX;
 
     find_arg_str ( "-mesg", &( pd->message ) );
+
+    // Input data separator.
+    find_arg_char ( "-sep", &( pd->separator ) );
 
     // Check prompt
     find_arg_str (  "-p", &( pd->prompt ) );
@@ -319,7 +328,7 @@ static int dmenu_mode_init ( Mode *sw )
         }
         g_free ( estr );
     }
-    pd->cmd_list = get_dmenu ( fd == NULL ? stdin : fd, &( pd->cmd_list_length ) );
+    pd->cmd_list = get_dmenu ( pd, fd == NULL ? stdin : fd, &( pd->cmd_list_length ) );
     if ( fd != NULL ) {
         fclose ( fd );
     }
@@ -558,4 +567,5 @@ void print_dmenu_options ( void )
     print_help_msg ( "-select", "[string]", "Select the first row that matches", NULL, is_term );
     print_help_msg ( "-password", "", "Do not show what the user inputs. Show '*' instead.", NULL, is_term );
     print_help_msg ( "-markup-rows", "", "Allow and render pango markup as input data.", NULL, is_term );
+    print_help_msg ( "-sep", "[char]", "Element separator.", "'\\n'", is_term );
 }
