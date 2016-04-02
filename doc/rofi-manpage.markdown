@@ -87,6 +87,7 @@ There are currently three methods of setting configuration options (evaluated in
  * Configuration File: This uses the same format as the Xresources file.
    By default it looks in `XDG_USER_CONFIG_DIR`/rofi/config, but can be overriden on commandline.
  * Command-line options: Arguments passed to **rofi**.
+ * System configuration file (f.e. /etc/rofi.conf).
 
 The Xresources file expects options starting with `rofi.` followed by it's name. An Example to set the number of lines:
 
@@ -123,6 +124,7 @@ Below is a list of the most important options:
 `-help`
 
 The help option shows the full list of commandline options and the current set value.
+These include dynamic options.
 
 `-dump-xresources`
 
@@ -776,6 +778,8 @@ Allows custom scripted Modi to be added.
 Qball Cow <qball@gmpclient.org>
 
 Rasmus Steinke <rasi@xssn.at>
+
+Quentin Glidic
 
 Original code based on work by: Sean Pringle <sean.pringle@gmail.com>
 
