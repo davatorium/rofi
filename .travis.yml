@@ -11,7 +11,6 @@ addons:
             - libpango1.0-dev
             - libcairo2-dev
             - libstartup-notification0-dev
-            - libxcb-ewmh-dev
             - libxcb-icccm4-dev
             - libxcb-util0-dev
             - libxcb-xinerama0-dev
@@ -29,9 +28,10 @@ before_install:
     - sudo add-apt-repository -y 'deb http://debian.jpleau.ca/ jessie-backports main contrib non-free'
     - sudo apt-get update -qq
 
-# TODO: We install xkbcommon here, until it is whitelisted in Travis
+# TODO: We install xkbcommon here, until Travis use an up-to-date enough Ubuntu
+# TODO: We install libxcb-ewmh-dev here, until it is whitelisted again in Travis
 install:
-    - sudo apt-get install -y --force-yes libxkbcommon-dev libxkbcommon-x11-dev
+    - sudo apt-get install -y --force-yes libxkbcommon-dev libxkbcommon-x11-dev libxcb-ewmh-dev
 
 before_script:
     - autoreconf -i
