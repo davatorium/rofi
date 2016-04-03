@@ -729,19 +729,22 @@ Allows custom scripted Modi to be added.
 
 ## FAQ
 
-`Text in window switcher is not nicely lined out`
+### Text in window switcher is not nicely lined out
 
-    Try using a mono-space font.
+Try using a mono-space font.
 
-**rofi** is completely black.
+### **rofi** is completely black.
 
-    Check quotes used on the commandline: e.g. used “ instead of ".
+Check quotes used on the commandline: e.g. used “ instead of ".
 
-**rofi** what does the icon in the top right show?
+### **rofi** what does the icon in the top right show?
 
-    - Case sensitivity enabled
-    + Sorting enabled
-    ± Sorting and Case sensitivity enabled"
+The indicator shows:
+
+    ` ` Case insensitive and no sorting.
+    `-` Case sensitivity enabled, no sorting.
+    `+` Case insensitive and Sorting enabled
+    `±` Sorting and Case sensitivity enabled"
 
 ## LICENSE
 
