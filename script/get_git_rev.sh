@@ -6,7 +6,7 @@ FILE=$2
 if [ -d "${DIR}/.git/" ]
 then
     echo -n "#define GIT_VERSION \""  > ${FILE}.tmp
-    REV=$(git log -1 --pretty=tformat:%h)
+    REV="$(git describe --tags --always --dirty) ($(git describe --tags --always --all | sed -e 's:heads/::'))"
     echo -n "${REV}" >> ${FILE}.tmp
     echo "\"" >> ${FILE}.tmp
 else
