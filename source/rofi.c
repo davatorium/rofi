@@ -627,7 +627,8 @@ int main ( int argc, char *argv[] )
     else{
         // Get the base name of the executable called.
         char *base_name = g_path_get_basename ( argv[0] );
-        dmenu_mode = ( strcmp ( base_name, "dmenu" ) == 0 );
+        const char * const dmenu_str = "dmenu";
+        dmenu_mode = ( strcmp ( base_name, dmenu_str ) == 0 );
         // Free the basename for dmenu detection.
         g_free ( base_name );
     }
