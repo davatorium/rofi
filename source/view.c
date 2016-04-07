@@ -1320,141 +1320,141 @@ void rofi_view_finalize ( RofiViewState *state )
 
 static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xcb_key_press_event_t *xkpe )
 {
-        xcb_keysym_t          key;
-        char                  pad[32];
-        int                   len = 0;
+    xcb_keysym_t          key;
+    char                  pad[32];
+    int                   len = 0;
 
-        key = xkb_state_key_get_one_sym ( xkb->state, xkpe->detail );
+    key = xkb_state_key_get_one_sym ( xkb->state, xkpe->detail );
 
-        if ( xkb->compose.state != NULL ) {
-            if ( ( key != XKB_KEY_NoSymbol ) && ( xkb_compose_state_feed ( xkb->compose.state, key ) == XKB_COMPOSE_FEED_ACCEPTED ) ) {
-                switch ( xkb_compose_state_get_status ( xkb->compose.state ) )
-                {
-                case XKB_COMPOSE_CANCELLED:
-                /* Eat the keysym that cancelled the compose sequence.
-                 * This is default behaviour with Xlib */
-                case XKB_COMPOSE_COMPOSING:
-                    key = XKB_KEY_NoSymbol;
-                    break;
-                case XKB_COMPOSE_COMPOSED:
-                    key = xkb_compose_state_get_one_sym ( xkb->compose.state );
-                    len = xkb_compose_state_get_utf8 ( xkb->compose.state, pad, sizeof ( pad ) );
-                    break;
-                case XKB_COMPOSE_NOTHING:
-                    break;
-                }
-                if ( ( key == XKB_KEY_NoSymbol ) && ( len == 0 ) ) {
-                    return;
-                }
+    if ( xkb->compose.state != NULL ) {
+        if ( ( key != XKB_KEY_NoSymbol ) && ( xkb_compose_state_feed ( xkb->compose.state, key ) == XKB_COMPOSE_FEED_ACCEPTED ) ) {
+            switch ( xkb_compose_state_get_status ( xkb->compose.state ) )
+            {
+            case XKB_COMPOSE_CANCELLED:
+            /* Eat the keysym that cancelled the compose sequence.
+             * This is default behaviour with Xlib */
+            case XKB_COMPOSE_COMPOSING:
+                key = XKB_KEY_NoSymbol;
+                break;
+            case XKB_COMPOSE_COMPOSED:
+                key = xkb_compose_state_get_one_sym ( xkb->compose.state );
+                len = xkb_compose_state_get_utf8 ( xkb->compose.state, pad, sizeof ( pad ) );
+                break;
+            case XKB_COMPOSE_NOTHING:
+                break;
+            }
+            if ( ( key == XKB_KEY_NoSymbol ) && ( len == 0 ) ) {
+                return;
             }
         }
+    }
 
-        if ( len == 0 ) {
-            len = xkb_state_key_get_utf8 ( xkb->state, xkpe->detail, pad, sizeof ( pad ) );
+    if ( len == 0 ) {
+        len = xkb_state_key_get_utf8 ( xkb->state, xkpe->detail, pad, sizeof ( pad ) );
+    }
+
+    unsigned int modstate = x11_canonalize_mask ( xkpe->state );
+
+    if ( key != XKB_KEY_NoSymbol ) {
+        // Handling of paste
+        if ( abe_test_action ( PASTE_PRIMARY, modstate, key ) ) {
+            xcb_convert_selection ( xcb->connection, CacheState.main_window, XCB_ATOM_PRIMARY,
+                                    xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
+            xcb_flush ( xcb->connection );
+            return;
         }
-
-        unsigned int modstate = x11_canonalize_mask ( xkpe->state );
-
-        if ( key != XKB_KEY_NoSymbol ) {
-            // Handling of paste
-            if ( abe_test_action ( PASTE_PRIMARY, modstate, key ) ) {
-                xcb_convert_selection ( xcb->connection, CacheState.main_window, XCB_ATOM_PRIMARY,
-                                        xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
-                xcb_flush ( xcb->connection );
-                return;
-            }
-            if ( abe_test_action ( PASTE_SECONDARY, modstate, key ) ) {
-                xcb_convert_selection ( xcb->connection, CacheState.main_window, XCB_ATOM_SECONDARY,
-                                        xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
-                xcb_flush ( xcb->connection );
-                return;
-            }
-            if ( abe_test_action ( SCREENSHOT, modstate, key ) ) {
-                menu_capture_screenshot ( );
-                return;
-            }
-            if ( abe_test_action ( TOGGLE_SORT, modstate, key ) ) {
-                config.levenshtein_sort = !config.levenshtein_sort;
-                state->refilter         = TRUE;
-                state->update           = TRUE;
-                textbox_text ( state->case_indicator, get_matching_state () );
-                return;
-            }
-            if ( abe_test_action ( MODE_PREVIOUS, modstate, key ) ) {
-                state->retv              = MENU_PREVIOUS;
-                ( state->selected_line ) = 0;
+        if ( abe_test_action ( PASTE_SECONDARY, modstate, key ) ) {
+            xcb_convert_selection ( xcb->connection, CacheState.main_window, XCB_ATOM_SECONDARY,
+                                    xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
+            xcb_flush ( xcb->connection );
+            return;
+        }
+        if ( abe_test_action ( SCREENSHOT, modstate, key ) ) {
+            menu_capture_screenshot ( );
+            return;
+        }
+        if ( abe_test_action ( TOGGLE_SORT, modstate, key ) ) {
+            config.levenshtein_sort = !config.levenshtein_sort;
+            state->refilter         = TRUE;
+            state->update           = TRUE;
+            textbox_text ( state->case_indicator, get_matching_state () );
+            return;
+        }
+        if ( abe_test_action ( MODE_PREVIOUS, modstate, key ) ) {
+            state->retv              = MENU_PREVIOUS;
+            ( state->selected_line ) = 0;
+            state->quit              = TRUE;
+            return;
+        }
+        // Menu navigation.
+        if ( abe_test_action ( MODE_NEXT, modstate, key ) ) {
+            state->retv              = MENU_NEXT;
+            ( state->selected_line ) = 0;
+            state->quit              = TRUE;
+            return;
+        }
+        // Toggle case sensitivity.
+        if ( abe_test_action ( TOGGLE_CASE_SENSITIVITY, modstate, key ) ) {
+            config.case_sensitive    = !config.case_sensitive;
+            ( state->selected_line ) = 0;
+            state->refilter          = TRUE;
+            state->update            = TRUE;
+            textbox_text ( state->case_indicator, get_matching_state () );
+            return;
+        }
+        // Special delete entry command.
+        if ( abe_test_action ( DELETE_ENTRY, modstate, key ) ) {
+            if ( state->selected < state->filtered_lines ) {
+                ( state->selected_line ) = state->line_map[state->selected];
+                state->retv              = MENU_ENTRY_DELETE;
                 state->quit              = TRUE;
                 return;
             }
-            // Menu navigation.
-            if ( abe_test_action ( MODE_NEXT, modstate, key ) ) {
-                state->retv              = MENU_NEXT;
-                ( state->selected_line ) = 0;
-                state->quit              = TRUE;
-                return;
-            }
-            // Toggle case sensitivity.
-            if ( abe_test_action ( TOGGLE_CASE_SENSITIVITY, modstate, key ) ) {
-                config.case_sensitive    = !config.case_sensitive;
-                ( state->selected_line ) = 0;
-                state->refilter          = TRUE;
-                state->update            = TRUE;
-                textbox_text ( state->case_indicator, get_matching_state () );
-                return;
-            }
-            // Special delete entry command.
-            if ( abe_test_action ( DELETE_ENTRY, modstate, key ) ) {
-                if ( state->selected < state->filtered_lines ) {
-                    ( state->selected_line ) = state->line_map[state->selected];
-                    state->retv              = MENU_ENTRY_DELETE;
-                    state->quit              = TRUE;
-                    return;
-                }
-            }
-            for ( unsigned int a = CUSTOM_1; a <= CUSTOM_19; a++ ) {
-                if ( abe_test_action ( a, modstate, key ) ) {
-                    state->selected_line = UINT32_MAX;
-                    if ( state->selected < state->filtered_lines ) {
-                        ( state->selected_line ) = state->line_map[state->selected];
-                    }
-                    state->retv = MENU_QUICK_SWITCH | ( ( a - CUSTOM_1 ) & MENU_LOWER_MASK );
-                    state->quit = TRUE;
-                    return;
-                }
-            }
-            if ( rofi_view_keyboard_navigation ( state, key, modstate ) ) {
-                return;
-            }
         }
-
-            int rc = textbox_keypress ( state->text, pad, len, modstate, key );
-            // Row is accepted.
-            if ( rc < 0 ) {
-                // If a valid item is selected, return that..
+        for ( unsigned int a = CUSTOM_1; a <= CUSTOM_19; a++ ) {
+            if ( abe_test_action ( a, modstate, key ) ) {
                 state->selected_line = UINT32_MAX;
                 if ( state->selected < state->filtered_lines ) {
                     ( state->selected_line ) = state->line_map[state->selected];
-                    state->retv              = MENU_OK;
                 }
-                else{
-                    // Nothing entered and nothing selected.
-                    state->retv = MENU_CUSTOM_INPUT;
-                }
-                if ( rc == -2 ) {
-                    state->retv |= MENU_CUSTOM_ACTION;
-                }
-
+                state->retv = MENU_QUICK_SWITCH | ( ( a - CUSTOM_1 ) & MENU_LOWER_MASK );
                 state->quit = TRUE;
+                return;
             }
-            // Key press is handled by entry box.
-            else if ( rc == 1 ) {
-                state->refilter = TRUE;
-                state->update   = TRUE;
-            }
-            else if (  rc == 2 ) {
-                // redraw.
-                state->update = TRUE;
-            }
+        }
+        if ( rofi_view_keyboard_navigation ( state, key, modstate ) ) {
+            return;
+        }
+    }
+
+    int rc = textbox_keypress ( state->text, pad, len, modstate, key );
+    // Row is accepted.
+    if ( rc < 0 ) {
+        // If a valid item is selected, return that..
+        state->selected_line = UINT32_MAX;
+        if ( state->selected < state->filtered_lines ) {
+            ( state->selected_line ) = state->line_map[state->selected];
+            state->retv              = MENU_OK;
+        }
+        else{
+            // Nothing entered and nothing selected.
+            state->retv = MENU_CUSTOM_INPUT;
+        }
+        if ( rc == -2 ) {
+            state->retv |= MENU_CUSTOM_ACTION;
+        }
+
+        state->quit = TRUE;
+    }
+    // Key press is handled by entry box.
+    else if ( rc == 1 ) {
+        state->refilter = TRUE;
+        state->update   = TRUE;
+    }
+    else if (  rc == 2 ) {
+        // redraw.
+        state->update = TRUE;
+    }
 }
 
 static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t *ev, xkb_stuff *xkb )
