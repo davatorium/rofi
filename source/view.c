@@ -1087,30 +1087,30 @@ static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t
  *
  * Keyboard navigation through the elements.
  */
-static int rofi_view_keyboard_navigation ( RofiViewState *state, xkb_keysym_t key, unsigned int modstate )
+static void rofi_view_keyboard_navigation ( RofiViewState *state, KeyBindingAction action )
 {
+    switch ( action )
+    {
     // pressing one of the global key bindings closes the switcher. This allows fast closing of the
     // menu if an item is not selected
-    if ( abe_test_action ( CANCEL, modstate, key ) ) {
+    case CANCEL:
         state->retv = MENU_CANCEL;
         state->quit = TRUE;
-        return 1;
-    }
+        break;
     // Up, Ctrl-p or Shift-Tab
-    if ( abe_test_action ( ROW_UP, modstate, key ) ) {
+    case ROW_UP:
         rofi_view_nav_up ( state );
-        return 1;
-    }
-    if ( abe_test_action ( ROW_TAB, modstate, key ) ) {
+        break;
+    case ROW_TAB:
         if ( state->filtered_lines == 1 ) {
             state->retv              = MENU_OK;
             ( state->selected_line ) = state->line_map[state->selected];
             state->quit              = 1;
-            return 1;
+            break;
         }
 
         // Double tab!
-        if ( state->filtered_lines == 0 && key == state->prev_key ) {
+        if ( state->filtered_lines == 0 && action == state->prev_action ) {
             state->retv              = MENU_NEXT;
             ( state->selected_line ) = 0;
             state->quit              = TRUE;
@@ -1118,39 +1118,31 @@ static int rofi_view_keyboard_navigation ( RofiViewState *state, xkb_keysym_t ke
         else {
             rofi_view_nav_down ( state );
         }
-        state->prev_key = key;
-        return 1;
-    }
+        state->prev_action = action;
+        break;
     // Down, Ctrl-n
-    if ( abe_test_action ( ROW_DOWN, modstate, key ) ) {
+    case ROW_DOWN:
         rofi_view_nav_down ( state );
-        return 1;
-    }
-    if ( abe_test_action ( ROW_LEFT, modstate, key ) ) {
+        break;
+    case ROW_LEFT:
         rofi_view_nav_left ( state );
-        return 1;
-    }
-    if ( abe_test_action ( ROW_RIGHT, modstate, key ) ) {
+        break;
+    case ROW_RIGHT:
         rofi_view_nav_right ( state );
-        return 1;
-    }
-    if ( abe_test_action ( PAGE_PREV, modstate, key ) ) {
+        break;
+    case PAGE_PREV:
         rofi_view_nav_page_prev ( state );
-        return 1;
-    }
-    if ( abe_test_action ( PAGE_NEXT, modstate, key ) ) {
+        break;
+    case PAGE_NEXT:
         rofi_view_nav_page_next ( state );
-        return 1;
-    }
-    if  ( abe_test_action ( ROW_FIRST, modstate, key ) ) {
+        break;
+    case ROW_FIRST:
         rofi_view_nav_first ( state );
-        return 1;
-    }
-    if ( abe_test_action ( ROW_LAST, modstate, key ) ) {
+        break;
+    case ROW_LAST:
         rofi_view_nav_last ( state );
-        return 1;
-    }
-    if ( abe_test_action ( ROW_SELECT, modstate, key ) ) {
+        break;
+    case ROW_SELECT:
         // If a valid item is selected, return that..
         if ( state->selected < state->filtered_lines ) {
             char *str = mode_get_completion ( state->sw, state->line_map[state->selected] );
@@ -1160,9 +1152,10 @@ static int rofi_view_keyboard_navigation ( RofiViewState *state, xkb_keysym_t ke
             state->update   = TRUE;
             state->refilter = TRUE;
         }
-        return 1;
+        break;
+    default:
+        g_return_if_reached();
     }
-    return 0;
 }
 
 static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_event_t *xbe )
@@ -1356,106 +1349,149 @@ static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xc
     unsigned int modstate = x11_canonalize_mask ( xkpe->state );
 
     if ( key != XKB_KEY_NoSymbol ) {
+        KeyBindingAction action;
+
+        action = abe_find_action ( modstate, key );
+        switch ( action )
+        {
         // Handling of paste
-        if ( abe_test_action ( PASTE_PRIMARY, modstate, key ) ) {
+        case PASTE_PRIMARY:
             xcb_convert_selection ( xcb->connection, CacheState.main_window, XCB_ATOM_PRIMARY,
                                     xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
             xcb_flush ( xcb->connection );
             return;
-        }
-        if ( abe_test_action ( PASTE_SECONDARY, modstate, key ) ) {
+        case PASTE_SECONDARY:
             xcb_convert_selection ( xcb->connection, CacheState.main_window, XCB_ATOM_SECONDARY,
                                     xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
             xcb_flush ( xcb->connection );
             return;
-        }
-        if ( abe_test_action ( SCREENSHOT, modstate, key ) ) {
+        case SCREENSHOT:
             menu_capture_screenshot ( );
             return;
-        }
-        if ( abe_test_action ( TOGGLE_SORT, modstate, key ) ) {
+        case TOGGLE_SORT:
             config.levenshtein_sort = !config.levenshtein_sort;
             state->refilter         = TRUE;
             state->update           = TRUE;
             textbox_text ( state->case_indicator, get_matching_state () );
             return;
-        }
-        if ( abe_test_action ( MODE_PREVIOUS, modstate, key ) ) {
+        case MODE_PREVIOUS:
             state->retv              = MENU_PREVIOUS;
             ( state->selected_line ) = 0;
             state->quit              = TRUE;
             return;
-        }
         // Menu navigation.
-        if ( abe_test_action ( MODE_NEXT, modstate, key ) ) {
+        case MODE_NEXT:
             state->retv              = MENU_NEXT;
             ( state->selected_line ) = 0;
             state->quit              = TRUE;
             return;
-        }
         // Toggle case sensitivity.
-        if ( abe_test_action ( TOGGLE_CASE_SENSITIVITY, modstate, key ) ) {
+        case TOGGLE_CASE_SENSITIVITY:
             config.case_sensitive    = !config.case_sensitive;
             ( state->selected_line ) = 0;
             state->refilter          = TRUE;
             state->update            = TRUE;
             textbox_text ( state->case_indicator, get_matching_state () );
             return;
-        }
         // Special delete entry command.
-        if ( abe_test_action ( DELETE_ENTRY, modstate, key ) ) {
+        case DELETE_ENTRY:
             if ( state->selected < state->filtered_lines ) {
                 ( state->selected_line ) = state->line_map[state->selected];
                 state->retv              = MENU_ENTRY_DELETE;
                 state->quit              = TRUE;
                 return;
             }
-        }
-        for ( unsigned int a = CUSTOM_1; a <= CUSTOM_19; a++ ) {
-            if ( abe_test_action ( a, modstate, key ) ) {
-                state->selected_line = UINT32_MAX;
-                if ( state->selected < state->filtered_lines ) {
-                    ( state->selected_line ) = state->line_map[state->selected];
-                }
-                state->retv = MENU_QUICK_SWITCH | ( ( a - CUSTOM_1 ) & MENU_LOWER_MASK );
-                state->quit = TRUE;
-                return;
-            }
-        }
-        if ( rofi_view_keyboard_navigation ( state, key, modstate ) ) {
-            return;
-        }
-
-        int rc = textbox_keybinding ( state->text, modstate, key );
-        // Row is accepted.
-        if ( rc < 0 ) {
-            // If a valid item is selected, return that..
+            break;
+        case CUSTOM_1:
+        case CUSTOM_2:
+        case CUSTOM_3:
+        case CUSTOM_4:
+        case CUSTOM_5:
+        case CUSTOM_6:
+        case CUSTOM_7:
+        case CUSTOM_8:
+        case CUSTOM_9:
+        case CUSTOM_10:
+        case CUSTOM_11:
+        case CUSTOM_12:
+        case CUSTOM_13:
+        case CUSTOM_14:
+        case CUSTOM_15:
+        case CUSTOM_16:
+        case CUSTOM_17:
+        case CUSTOM_18:
+        case CUSTOM_19:
             state->selected_line = UINT32_MAX;
             if ( state->selected < state->filtered_lines ) {
                 ( state->selected_line ) = state->line_map[state->selected];
-                state->retv              = MENU_OK;
             }
-            else {
-                // Nothing entered and nothing selected.
-                state->retv = MENU_CUSTOM_INPUT;
-            }
-            if ( rc == -2 ) {
-                state->retv |= MENU_CUSTOM_ACTION;
-            }
-
+            state->retv = MENU_QUICK_SWITCH | ( ( action - CUSTOM_1 ) & MENU_LOWER_MASK );
             state->quit = TRUE;
             return;
-        }
-        // Key press is handled by entry box.
-        else if ( rc == 1 ) {
-            state->refilter = TRUE;
-            state->update   = TRUE;
+        // If you add a binding here, make sure to add it to rofi_view_keyboard_navigation too
+        case CANCEL:
+        case ROW_UP:
+        case ROW_TAB:
+        case ROW_DOWN:
+        case ROW_LEFT:
+        case ROW_RIGHT:
+        case PAGE_PREV:
+        case PAGE_NEXT:
+        case ROW_FIRST:
+        case ROW_LAST:
+        case ROW_SELECT:
+            rofi_view_keyboard_navigation ( state, action );
             return;
+        // If you add a binding here, make sure to add it to textbox_keybinding too
+        case MOVE_CHAR_BACK:
+        case MOVE_CHAR_FORWARD:
+        case CLEAR_LINE:
+        case MOVE_FRONT:
+        case MOVE_END:
+        case REMOVE_WORD_BACK:
+        case REMOVE_WORD_FORWARD:
+        case REMOVE_CHAR_FORWARD:
+        case MOVE_WORD_BACK:
+        case MOVE_WORD_FORWARD:
+        case REMOVE_CHAR_BACK:
+        case ACCEPT_CUSTOM:
+        case ACCEPT_ENTRY:
+        {
+            int rc = textbox_keybinding ( state->text, action );
+            // Row is accepted.
+            if ( rc < 0 ) {
+                // If a valid item is selected, return that..
+                state->selected_line = UINT32_MAX;
+                if ( state->selected < state->filtered_lines ) {
+                    ( state->selected_line ) = state->line_map[state->selected];
+                    state->retv              = MENU_OK;
+                }
+                else {
+                    // Nothing entered and nothing selected.
+                    state->retv = MENU_CUSTOM_INPUT;
+                }
+                if ( rc == -2 ) {
+                    state->retv |= MENU_CUSTOM_ACTION;
+                }
+
+                state->quit = TRUE;
+                return;
+            }
+            // Key press is handled by entry box.
+            else if ( rc == 1 ) {
+                state->refilter = TRUE;
+                state->update   = TRUE;
+                return;
+            }
+            else if (  rc == 2 ) {
+                // redraw.
+                state->update = TRUE;
+                return;
+            }
+            break;
         }
-        else if (  rc == 2 ) {
-            // redraw.
-            state->update = TRUE;
-            return;
+        case NUM_ABE:
+            break;
         }
     }
 

@@ -525,78 +525,67 @@ static void textbox_cursor_del_word ( textbox *tb )
 // 0 = unhandled
 // 1 = handled
 // -1 = handled and return pressed (finished)
-int textbox_keybinding ( textbox *tb, unsigned int modstate, xkb_keysym_t key )
+int textbox_keybinding ( textbox *tb, KeyBindingAction action )
 {
     if ( !( tb->flags & TB_EDITABLE ) ) {
         g_return_val_if_reached(0);
     }
-    int old_blink = tb->blink;
-    tb->blink = 2;
 
+    switch ( action )
+    {
     // Left or Ctrl-b
-    if ( abe_test_action ( MOVE_CHAR_BACK, modstate, key ) ) {
+    case MOVE_CHAR_BACK:
         textbox_cursor_dec ( tb );
         return 2;
-    }
     // Right or Ctrl-F
-    if ( abe_test_action ( MOVE_CHAR_FORWARD, modstate, key ) ) {
+    case MOVE_CHAR_FORWARD:
         textbox_cursor_inc ( tb );
         return 2;
-    }
-
     // Ctrl-U: Kill from the beginning to the end of the line.
-    if ( abe_test_action ( CLEAR_LINE, modstate, key ) ) {
+    case CLEAR_LINE:
         textbox_text ( tb, "" );
         return 1;
-    }
     // Ctrl-A
-    if ( abe_test_action ( MOVE_FRONT, modstate, key ) ) {
+    case MOVE_FRONT:
         textbox_cursor ( tb, 0 );
         return 2;
-    }
     // Ctrl-E
-    if ( abe_test_action ( MOVE_END, modstate, key ) ) {
+    case MOVE_END:
         textbox_cursor_end ( tb );
         return 2;
-    }
     // Ctrl-Alt-h
-    if ( abe_test_action ( REMOVE_WORD_BACK, modstate, key ) ) {
+    case REMOVE_WORD_BACK:
         textbox_cursor_bkspc_word ( tb );
         return 1;
-    }
     // Ctrl-Alt-d
-    if ( abe_test_action ( REMOVE_WORD_FORWARD, modstate, key ) ) {
+    case REMOVE_WORD_FORWARD:
         textbox_cursor_del_word ( tb );
         return 1;
-    }    // Delete or Ctrl-D
-    if ( abe_test_action ( REMOVE_CHAR_FORWARD, modstate, key ) ) {
+    // Delete or Ctrl-D
+    case REMOVE_CHAR_FORWARD:
         textbox_cursor_del ( tb );
         return 1;
-    }
     // Alt-B
-    if ( abe_test_action ( MOVE_WORD_BACK, modstate, key ) ) {
+    case MOVE_WORD_BACK:
         textbox_cursor_dec_word ( tb );
         return 2;
-    }
     // Alt-F
-    if ( abe_test_action ( MOVE_WORD_FORWARD, modstate, key ) ) {
+    case MOVE_WORD_FORWARD:
         textbox_cursor_inc_word ( tb );
         return 2;
-    }
     // BackSpace, Ctrl-h
-    if ( abe_test_action ( REMOVE_CHAR_BACK, modstate, key ) ) {
+    case REMOVE_CHAR_BACK:
         textbox_cursor_bkspc ( tb );
         return 1;
-    }
-    if ( abe_test_action ( ACCEPT_CUSTOM, modstate, key ) ) {
+    case ACCEPT_CUSTOM:
         return -2;
-    }
-    if ( abe_test_action ( ACCEPT_ENTRY, modstate, key ) ) {
+    case ACCEPT_ENTRY:
         return -1;
+    default:
+        g_return_val_if_reached(0);
     }
 
-    tb->blink = old_blink;
-    return 0;
+    g_return_val_if_reached(0);
 }
 
 gboolean textbox_append ( textbox *tb, char *pad, int pad_len )

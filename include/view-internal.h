@@ -3,6 +3,7 @@
 #include "widget.h"
 #include "textbox.h"
 #include "scrollbar.h"
+#include "keyb.h"
 #include "x11-helper.h"
 
 /**
@@ -47,7 +48,7 @@ struct RofiViewState
     // Last offset in paginating.
     unsigned int    last_offset;
 
-    xkb_keysym_t    prev_key;
+    KeyBindingAction prev_action;
     xcb_timestamp_t last_button_press;
 
     int             quit;

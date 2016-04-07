@@ -95,10 +95,10 @@ void setup_abe ( void );
 void cleanup_abe ( void );
 
 /**
- * Check if this key has been triggered.
- * @returns TRUE if key combo matches, FALSE otherwise.
+ * Find if a binding has been triggered.
+ * @returns NUM_ABE if no key combo matches, a valid action otherwise.
  */
-int abe_test_action ( KeyBindingAction action, unsigned int mask, xkb_keysym_t key );
+KeyBindingAction abe_find_action ( unsigned int mask, xkb_keysym_t key );
 
 /*@}*/
 #endif // ROFI_KEYB_H

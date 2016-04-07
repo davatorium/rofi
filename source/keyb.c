@@ -135,7 +135,7 @@ void cleanup_abe ( void )
     }
 }
 
-int abe_test_action ( KeyBindingAction action, unsigned int mask, xkb_keysym_t key )
+static gboolean abe_test_action ( KeyBindingAction action, unsigned int mask, xkb_keysym_t key )
 {
     ActionBindingEntry *akb = &( abe[action] );
 
@@ -147,4 +147,17 @@ int abe_test_action ( KeyBindingAction action, unsigned int mask, xkb_keysym_t k
     }
 
     return FALSE;
+}
+
+KeyBindingAction abe_find_action ( unsigned int mask, xkb_keysym_t key )
+{
+    KeyBindingAction action;
+
+    for ( action = 0 ; action < NUM_ABE ; ++action ) {
+        if ( abe_test_action ( action, mask, key ) ) {
+            break;
+        }
+    }
+
+    return action;
 }

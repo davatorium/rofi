@@ -8,6 +8,7 @@
 #include <cairo.h>
 #include "widget.h"
 #include "x11-helper.h"
+#include "keyb.h"
 
 /**
  * @defgroup Textbox Textbox
@@ -101,15 +102,7 @@ void textbox_text ( textbox *tb, const char *text );
  */
 void textbox_draw ( textbox *tb, cairo_t *draw );
 
-/**
- * @param tb  Handle to the textbox
- * @param ev  XEvent key inputs to textbox
- *
- * Let the textbox handle the input event.
- *
- * @returns if the key was handled (1), unhandled(0) or handled and return was pressed (-1)
- */
-int textbox_keybinding ( textbox *tb, unsigned int modstate, xkb_keysym_t key );
+int textbox_keybinding ( textbox *tb, KeyBindingAction action );
 gboolean textbox_append ( textbox *tb, char *pad, int pad_len );
 
 /**
