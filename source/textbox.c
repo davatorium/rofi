@@ -539,59 +539,59 @@ int textbox_keybinding ( textbox *tb, unsigned int modstate, xkb_keysym_t key )
         return 2;
     }
     // Right or Ctrl-F
-    else if ( abe_test_action ( MOVE_CHAR_FORWARD, modstate, key ) ) {
+    if ( abe_test_action ( MOVE_CHAR_FORWARD, modstate, key ) ) {
         textbox_cursor_inc ( tb );
         return 2;
     }
 
     // Ctrl-U: Kill from the beginning to the end of the line.
-    else if ( abe_test_action ( CLEAR_LINE, modstate, key ) ) {
+    if ( abe_test_action ( CLEAR_LINE, modstate, key ) ) {
         textbox_text ( tb, "" );
         return 1;
     }
     // Ctrl-A
-    else if ( abe_test_action ( MOVE_FRONT, modstate, key ) ) {
+    if ( abe_test_action ( MOVE_FRONT, modstate, key ) ) {
         textbox_cursor ( tb, 0 );
         return 2;
     }
     // Ctrl-E
-    else if ( abe_test_action ( MOVE_END, modstate, key ) ) {
+    if ( abe_test_action ( MOVE_END, modstate, key ) ) {
         textbox_cursor_end ( tb );
         return 2;
     }
     // Ctrl-Alt-h
-    else if ( abe_test_action ( REMOVE_WORD_BACK, modstate, key ) ) {
+    if ( abe_test_action ( REMOVE_WORD_BACK, modstate, key ) ) {
         textbox_cursor_bkspc_word ( tb );
         return 1;
     }
     // Ctrl-Alt-d
-    else if ( abe_test_action ( REMOVE_WORD_FORWARD, modstate, key ) ) {
+    if ( abe_test_action ( REMOVE_WORD_FORWARD, modstate, key ) ) {
         textbox_cursor_del_word ( tb );
         return 1;
     }    // Delete or Ctrl-D
-    else if ( abe_test_action ( REMOVE_CHAR_FORWARD, modstate, key ) ) {
+    if ( abe_test_action ( REMOVE_CHAR_FORWARD, modstate, key ) ) {
         textbox_cursor_del ( tb );
         return 1;
     }
     // Alt-B
-    else if ( abe_test_action ( MOVE_WORD_BACK, modstate, key ) ) {
+    if ( abe_test_action ( MOVE_WORD_BACK, modstate, key ) ) {
         textbox_cursor_dec_word ( tb );
         return 2;
     }
     // Alt-F
-    else if ( abe_test_action ( MOVE_WORD_FORWARD, modstate, key ) ) {
+    if ( abe_test_action ( MOVE_WORD_FORWARD, modstate, key ) ) {
         textbox_cursor_inc_word ( tb );
         return 2;
     }
     // BackSpace, Ctrl-h
-    else if ( abe_test_action ( REMOVE_CHAR_BACK, modstate, key ) ) {
+    if ( abe_test_action ( REMOVE_CHAR_BACK, modstate, key ) ) {
         textbox_cursor_bkspc ( tb );
         return 1;
     }
-    else if ( abe_test_action ( ACCEPT_CUSTOM, modstate, key ) ) {
+    if ( abe_test_action ( ACCEPT_CUSTOM, modstate, key ) ) {
         return -2;
     }
-    else if ( abe_test_action ( ACCEPT_ENTRY, modstate, key ) ) {
+    if ( abe_test_action ( ACCEPT_ENTRY, modstate, key ) ) {
         return -1;
     }
 
@@ -599,23 +599,23 @@ int textbox_keybinding ( textbox *tb, unsigned int modstate, xkb_keysym_t key )
     return 0;
 }
 
-int textbox_keypress ( textbox *tb, char *pad, int pad_len )
+gboolean textbox_append ( textbox *tb, char *pad, int pad_len )
 {
     if ( !( tb->flags & TB_EDITABLE ) ) {
-        return 0;
+        return FALSE;
     }
     int old_blink = tb->blink;
     tb->blink = 2;
-    if ( pad_len > 0 ) {
-        // Filter When alt/ctrl is pressed do not accept the character.
-        if (  !g_ascii_iscntrl ( *pad ) ) {
-            textbox_insert ( tb, tb->cursor, pad, pad_len );
-            textbox_cursor ( tb, tb->cursor + pad_len );
-            return 1;
-        }
+
+    // Filter When alt/ctrl is pressed do not accept the character.
+    if (  !g_ascii_iscntrl ( *pad ) ) {
+        textbox_insert ( tb, tb->cursor, pad, pad_len );
+        textbox_cursor ( tb, tb->cursor + pad_len );
+        return TRUE;
     }
+
     tb->blink = old_blink;
-    return 0;
+    return FALSE;
 }
 
 /***
