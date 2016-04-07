@@ -525,14 +525,14 @@ static void textbox_cursor_del_word ( textbox *tb )
 // 0 = unhandled
 // 1 = handled
 // -1 = handled and return pressed (finished)
-int textbox_keypress ( textbox *tb, char *pad, int pad_len, unsigned int modstate, xkb_keysym_t key )
+int textbox_keybinding ( textbox *tb, unsigned int modstate, xkb_keysym_t key )
 {
     if ( !( tb->flags & TB_EDITABLE ) ) {
-        return 0;
+        g_return_val_if_reached(0);
     }
     int old_blink = tb->blink;
     tb->blink = 2;
-    if ( key != XKB_KEY_NoSymbol ) {
+
         // Left or Ctrl-b
         if ( abe_test_action ( MOVE_CHAR_BACK, modstate, key ) ) {
             textbox_cursor_dec ( tb );
@@ -594,7 +594,18 @@ int textbox_keypress ( textbox *tb, char *pad, int pad_len, unsigned int modstat
         else if ( abe_test_action ( ACCEPT_ENTRY, modstate, key ) ) {
             return -1;
         }
+
+    tb->blink = old_blink;
+    return 0;
+}
+
+int textbox_keypress ( textbox *tb, char *pad, int pad_len )
+{
+    if ( !( tb->flags & TB_EDITABLE ) ) {
+        return 0;
     }
+    int old_blink = tb->blink;
+    tb->blink = 2;
     if ( pad_len > 0 ) {
         // Filter When alt/ctrl is pressed do not accept the character.
         if (  !g_ascii_iscntrl ( *pad ) ) {

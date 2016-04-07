@@ -1425,35 +1425,44 @@ static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xc
         if ( rofi_view_keyboard_navigation ( state, key, modstate ) ) {
             return;
         }
+
+        int rc = textbox_keybinding ( state->text, modstate, key );
+        // Row is accepted.
+        if ( rc < 0 ) {
+            // If a valid item is selected, return that..
+            state->selected_line = UINT32_MAX;
+            if ( state->selected < state->filtered_lines ) {
+                ( state->selected_line ) = state->line_map[state->selected];
+                state->retv              = MENU_OK;
+            }
+            else {
+                // Nothing entered and nothing selected.
+                state->retv = MENU_CUSTOM_INPUT;
+            }
+            if ( rc == -2 ) {
+                state->retv |= MENU_CUSTOM_ACTION;
+            }
+
+            state->quit = TRUE;
+            return;
+        }
+        // Key press is handled by entry box.
+        else if ( rc == 1 ) {
+            state->refilter = TRUE;
+            state->update   = TRUE;
+            return;
+        }
+        else if (  rc == 2 ) {
+            // redraw.
+            state->update = TRUE;
+            return;
+        }
     }
 
-    int rc = textbox_keypress ( state->text, pad, len, modstate, key );
-    // Row is accepted.
-    if ( rc < 0 ) {
-        // If a valid item is selected, return that..
-        state->selected_line = UINT32_MAX;
-        if ( state->selected < state->filtered_lines ) {
-            ( state->selected_line ) = state->line_map[state->selected];
-            state->retv              = MENU_OK;
-        }
-        else{
-            // Nothing entered and nothing selected.
-            state->retv = MENU_CUSTOM_INPUT;
-        }
-        if ( rc == -2 ) {
-            state->retv |= MENU_CUSTOM_ACTION;
-        }
-
-        state->quit = TRUE;
-    }
-    // Key press is handled by entry box.
-    else if ( rc == 1 ) {
+    if ( ( len > 0 ) && ( textbox_keypress ( state->text, pad, len ) ) ) {
         state->refilter = TRUE;
         state->update   = TRUE;
-    }
-    else if (  rc == 2 ) {
-        // redraw.
-        state->update = TRUE;
+        return;
     }
 }
 
