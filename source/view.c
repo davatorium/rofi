@@ -1361,11 +1361,13 @@ static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xc
                 xcb_convert_selection ( xcb->connection, CacheState.main_window, XCB_ATOM_PRIMARY,
                                         xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
                 xcb_flush ( xcb->connection );
+                return;
             }
-            else if ( abe_test_action ( PASTE_SECONDARY, modstate, key ) ) {
+            if ( abe_test_action ( PASTE_SECONDARY, modstate, key ) ) {
                 xcb_convert_selection ( xcb->connection, CacheState.main_window, XCB_ATOM_SECONDARY,
                                         xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
                 xcb_flush ( xcb->connection );
+                return;
             }
             if ( abe_test_action ( SCREENSHOT, modstate, key ) ) {
                 menu_capture_screenshot ( );
@@ -1378,21 +1380,21 @@ static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xc
                 textbox_text ( state->case_indicator, get_matching_state () );
                 return;
             }
-            else if ( abe_test_action ( MODE_PREVIOUS, modstate, key ) ) {
+            if ( abe_test_action ( MODE_PREVIOUS, modstate, key ) ) {
                 state->retv              = MENU_PREVIOUS;
                 ( state->selected_line ) = 0;
                 state->quit              = TRUE;
                 return;
             }
             // Menu navigation.
-            else if ( abe_test_action ( MODE_NEXT, modstate, key ) ) {
+            if ( abe_test_action ( MODE_NEXT, modstate, key ) ) {
                 state->retv              = MENU_NEXT;
                 ( state->selected_line ) = 0;
                 state->quit              = TRUE;
                 return;
             }
             // Toggle case sensitivity.
-            else if ( abe_test_action ( TOGGLE_CASE_SENSITIVITY, modstate, key ) ) {
+            if ( abe_test_action ( TOGGLE_CASE_SENSITIVITY, modstate, key ) ) {
                 config.case_sensitive    = !config.case_sensitive;
                 ( state->selected_line ) = 0;
                 state->refilter          = TRUE;
@@ -1401,7 +1403,7 @@ static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xc
                 return;
             }
             // Special delete entry command.
-            else if ( abe_test_action ( DELETE_ENTRY, modstate, key ) ) {
+            if ( abe_test_action ( DELETE_ENTRY, modstate, key ) ) {
                 if ( state->selected < state->filtered_lines ) {
                     ( state->selected_line ) = state->line_map[state->selected];
                     state->retv              = MENU_ENTRY_DELETE;
@@ -1424,11 +1426,6 @@ static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xc
                 return;
             }
         }
-        {
-            // Skip if we detected key before.
-            if ( state->quit ) {
-                return;
-            }
 
             int rc = textbox_keypress ( state->text, pad, len, modstate, key );
             // Row is accepted.
@@ -1458,7 +1455,6 @@ static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xc
                 // redraw.
                 state->update = TRUE;
             }
-        }
 }
 
 static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t *ev, xkb_stuff *xkb )
