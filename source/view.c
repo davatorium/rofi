@@ -1097,11 +1097,11 @@ static int rofi_view_keyboard_navigation ( RofiViewState *state, xkb_keysym_t ke
         return 1;
     }
     // Up, Ctrl-p or Shift-Tab
-    else if ( abe_test_action ( ROW_UP, modstate, key ) ) {
+    if ( abe_test_action ( ROW_UP, modstate, key ) ) {
         rofi_view_nav_up ( state );
         return 1;
     }
-    else if ( abe_test_action ( ROW_TAB, modstate, key ) ) {
+    if ( abe_test_action ( ROW_TAB, modstate, key ) ) {
         if ( state->filtered_lines == 1 ) {
             state->retv              = MENU_OK;
             ( state->selected_line ) = state->line_map[state->selected];
@@ -1115,41 +1115,42 @@ static int rofi_view_keyboard_navigation ( RofiViewState *state, xkb_keysym_t ke
             ( state->selected_line ) = 0;
             state->quit              = TRUE;
         }
-        else{
+        else {
             rofi_view_nav_down ( state );
         }
+        state->prev_key = key;
         return 1;
     }
     // Down, Ctrl-n
-    else if ( abe_test_action ( ROW_DOWN, modstate, key ) ) {
+    if ( abe_test_action ( ROW_DOWN, modstate, key ) ) {
         rofi_view_nav_down ( state );
         return 1;
     }
-    else if ( abe_test_action ( ROW_LEFT, modstate, key ) ) {
+    if ( abe_test_action ( ROW_LEFT, modstate, key ) ) {
         rofi_view_nav_left ( state );
         return 1;
     }
-    else if ( abe_test_action ( ROW_RIGHT, modstate, key ) ) {
+    if ( abe_test_action ( ROW_RIGHT, modstate, key ) ) {
         rofi_view_nav_right ( state );
         return 1;
     }
-    else if ( abe_test_action ( PAGE_PREV, modstate, key ) ) {
+    if ( abe_test_action ( PAGE_PREV, modstate, key ) ) {
         rofi_view_nav_page_prev ( state );
         return 1;
     }
-    else if ( abe_test_action ( PAGE_NEXT, modstate, key ) ) {
+    if ( abe_test_action ( PAGE_NEXT, modstate, key ) ) {
         rofi_view_nav_page_next ( state );
         return 1;
     }
-    else if  ( abe_test_action ( ROW_FIRST, modstate, key ) ) {
+    if  ( abe_test_action ( ROW_FIRST, modstate, key ) ) {
         rofi_view_nav_first ( state );
         return 1;
     }
-    else if ( abe_test_action ( ROW_LAST, modstate, key ) ) {
+    if ( abe_test_action ( ROW_LAST, modstate, key ) ) {
         rofi_view_nav_last ( state );
         return 1;
     }
-    else if ( abe_test_action ( ROW_SELECT, modstate, key ) ) {
+    if ( abe_test_action ( ROW_SELECT, modstate, key ) ) {
         // If a valid item is selected, return that..
         if ( state->selected < state->filtered_lines ) {
             char *str = mode_get_completion ( state->sw, state->line_map[state->selected] );
@@ -1161,7 +1162,6 @@ static int rofi_view_keyboard_navigation ( RofiViewState *state, xkb_keysym_t ke
         }
         return 1;
     }
-    state->prev_key = key;
     return 0;
 }
 
