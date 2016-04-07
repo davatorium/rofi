@@ -550,8 +550,8 @@ void __create_window ( MenuFlags menu_flags )
         0,
         0,
         XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE |
-        XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
-        XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION,
+        XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_KEYMAP_STATE |
+        XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION,
         map
     };
 
@@ -1542,9 +1542,33 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
     case XCB_SELECTION_NOTIFY:
         rofi_view_paste ( state, (xcb_selection_notify_event_t *) ev );
         break;
+    case XCB_KEYMAP_NOTIFY:
+    {
+        xcb_keymap_notify_event_t *kne = (xcb_keymap_notify_event_t *) ev;
+        guint modstate = x11_get_current_mask ( xkb );
+        for ( gint32 by = 0 ; by < 32 ; ++by ) {
+            for ( gint8 bi = 0 ; bi < 7 ; ++bi ) {
+                if ( kne->keys[by] & (1 << bi) ) {
+                    // X11 keycodes starts at 8
+                    xkb_keysym_t key = xkb_state_key_get_one_sym ( xkb->state, ( 8 * by + bi ) + 8 );
+                    abe_find_action ( modstate, key );
+                }
+            }
+        }
+        break;
+    }
     case XCB_KEY_PRESS:
         rofi_view_handle_keypress ( state, xkb, (xcb_key_press_event_t *) ev );
         break;
+    case XCB_KEY_RELEASE:
+    {
+        xcb_key_release_event_t *xkre = (xcb_key_release_event_t *) ev;
+        unsigned int modstate = x11_canonalize_mask ( xkre->state );
+        if ( modstate == 0 ) {
+            abe_trigger_release ( );
+        }
+        break;
+    }
     }
     // Update if requested.
     if ( state->refilter ) {

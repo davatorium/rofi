@@ -439,6 +439,7 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
         case XCB_XKB_STATE_NOTIFY:
         {
             xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
+            guint modmask;
             xkb_state_update_mask ( xkb.state,
                                     ksne->baseMods,
                                     ksne->latchedMods,
@@ -446,6 +447,10 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
                                     ksne->baseGroup,
                                     ksne->latchedGroup,
                                     ksne->lockedGroup );
+            modmask = x11_get_current_mask ( &xkb );
+            if ( modmask == 0 ) {
+                abe_trigger_release ( );
+            }
             break;
         }
         }

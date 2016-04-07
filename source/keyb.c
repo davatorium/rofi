@@ -8,6 +8,7 @@ typedef struct
 {
     unsigned int modmask;
     xkb_keysym_t keysym;
+    gboolean     release;
 } KeyBinding;
 
 typedef struct
@@ -114,7 +115,8 @@ gboolean parse_keys_abe ( void )
         for ( char *entry = strtok_r ( keystr, sep, &sp ); entry != NULL; entry = strtok_r ( NULL, sep, &sp ) ) {
             abe[iter].kb = g_realloc ( abe[iter].kb, ( abe[iter].num_bindings + 1 ) * sizeof ( KeyBinding ) );
             KeyBinding *kb = &( abe[iter].kb[abe[iter].num_bindings] );
-            if ( !x11_parse_key ( entry, &( kb->modmask ), &( kb->keysym ) ) ) {
+            memset(kb, 0, sizeof(KeyBinding));
+            if ( !x11_parse_key ( entry, &( kb->modmask ), &( kb->keysym ), &( kb->release ) ) ) {
                 g_free ( keystr );
                 return FALSE;
             }
@@ -135,6 +137,8 @@ void cleanup_abe ( void )
     }
 }
 
+static gboolean _abe_trigger_on_release[NUM_ABE] = { 0 };
+
 static gboolean abe_test_action ( KeyBindingAction action, unsigned int mask, xkb_keysym_t key )
 {
     ActionBindingEntry *akb = &( abe[action] );
@@ -142,12 +146,18 @@ static gboolean abe_test_action ( KeyBindingAction action, unsigned int mask, xk
     for ( int iter = 0; iter < akb->num_bindings; iter++ ) {
         const KeyBinding * const kb = &( akb->kb[iter] );
         if ( ( kb->keysym == key ) && ( kb->modmask == mask ) ) {
-            return TRUE;
+            if ( kb->release ) {
+                _abe_trigger_on_release[action] = TRUE;
+            }
+            else {
+                return TRUE;
+            }
         }
     }
 
     return FALSE;
 }
+
 
 KeyBindingAction abe_find_action ( unsigned int mask, xkb_keysym_t key )
 {
@@ -160,4 +170,20 @@ KeyBindingAction abe_find_action ( unsigned int mask, xkb_keysym_t key )
     }
 
     return action;
+}
+
+void abe_trigger_release ( void )
+{
+    RofiViewState *state;
+    KeyBindingAction action;
+
+    state = rofi_view_get_active ( );
+    for ( action = 0 ; action < NUM_ABE ; ++action ) {
+        if ( _abe_trigger_on_release[action] ) {
+            rofi_view_trigger_action ( state, action );
+            _abe_trigger_on_release[action] = FALSE;
+        }
+    }
+
+    rofi_view_update ( state );
 }

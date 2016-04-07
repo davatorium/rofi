@@ -100,5 +100,7 @@ void cleanup_abe ( void );
  */
 KeyBindingAction abe_find_action ( unsigned int mask, xkb_keysym_t key );
 
+void abe_trigger_release ( void );
+
 /*@}*/
 #endif // ROFI_KEYB_H

@@ -81,6 +81,8 @@ int take_keyboard ( xcb_window_t w );
  */
 unsigned int x11_canonalize_mask ( unsigned int mask );
 
+unsigned int x11_get_current_mask ( xkb_stuff *xkb );
+
 /**
  * @param combo String representing the key combo
  * @param mod [out]  The modifier specified (or AnyModifier if not specified)
@@ -88,7 +90,7 @@ unsigned int x11_canonalize_mask ( unsigned int mask );
  *
  * Parse key from user input string.
  */
-gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key );
+gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key, gboolean *release );
 
 /**
  * @param display The connection to the X server.

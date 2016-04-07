@@ -437,11 +437,27 @@ unsigned int x11_canonalize_mask ( unsigned int mask )
     return mask;
 }
 
+unsigned int x11_get_current_mask ( xkb_stuff *xkb )
+{
+    unsigned int mask = 0;
+    for ( gsize i = 0 ; i < xkb_keymap_num_mods(xkb->keymap) ; ++i ) {
+        if ( xkb_state_mod_index_is_active ( xkb->state, i, XKB_STATE_MODS_EFFECTIVE ) ) {
+            mask |= ( 1 << i );
+        }
+    }
+    return x11_canonalize_mask ( mask );
+}
+
 // convert a Mod+key arg to mod mask and keysym
-gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key )
+gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key, gboolean *release )
 {
     GString      *str    = g_string_new ( "" );
     unsigned int modmask = 0;
+
+    if ( g_str_has_prefix(combo, "!") ) {
+        ++combo;
+        *release = TRUE;
+    }
 
     if ( strcasestr ( combo, "shift" ) ) {
         modmask |= x11_mod_masks[X11MOD_SHIFT];

@@ -704,6 +704,8 @@ The first two fields specify the alpha level. This determines the amount of tran
 To get a full list of keybindings, see `rofi -dump-xresources | grep kb-`.
 Keybindings can be modified using the configuration systems.
 
+A keybinding starting with `!` will act when all keys have been released.
+
 ## Available Modi
 
 ### Window
