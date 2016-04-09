@@ -1,0 +1,20 @@
+before_script:
+    - apt-get update
+    - apt-get install --force-yes -y software-properties-common apt-transport-https
+    - add-apt-repository -y 'deb http://debian.jpleau.ca/ jessie-backports main contrib non-free'
+    - apt-get update -qq
+    - apt-get install --force-yes -y autoconf automake make
+    - apt-get install --force-yes -y libx11-dev libpango1.0-dev libcairo2-dev libstartup-notification0-dev
+    - apt-get install --force-yes -y libxcb-icccm4-dev libxcb-util0-dev libxcb-xinerama0-dev libxcb-xkb-dev libx11-xcb-dev
+    - apt-get install --force-yes -y libxcb1-dev xvfb discount xdotool fluxbox
+    - apt-get install --force-yes -y libxkbcommon-dev libxkbcommon-x11-dev libxcb-ewmh-dev
+
+
+build-rofi:
+    script:
+        - git submodule update --init
+        - autoreconf -i
+        - ./configure --enable-gcov
+        - make
+        - make check
+        - make distcheck
