@@ -79,8 +79,8 @@ static void history_test ( void )
     TASSERT ( retv != NULL );
     TASSERT ( length == 25 );
     for ( unsigned int in = 0; in < 24; in++ ) {
-        char *p = g_strdup_printf ( "aap%i", in+2);
-        TASSERT ( g_strcmp0(retv[in], p) == 0);
+        char *p = g_strdup_printf ( "aap%i", in + 2 );
+        TASSERT ( g_strcmp0 ( retv[in], p ) == 0 );
 
         g_free ( p );
     }

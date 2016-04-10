@@ -687,7 +687,7 @@ char * rofi_force_utf8 ( gchar *start )
         /* Replacement character */
         g_string_append ( string, "\uFFFD" );
         length -= ( end - data ) + 1;
-        data = end + 1;
+        data    = end + 1;
     } while ( !g_utf8_validate ( data, length, &end ) );
 
     if ( length ) {

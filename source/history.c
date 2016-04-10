@@ -84,10 +84,10 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
     if ( fd == NULL ) {
         return NULL;
     }
-    char *buffer = NULL;
-    size_t buffer_length = 0;
-    ssize_t l = 0;
-    while ( (l = getline ( &buffer, &buffer_length, fd )) > 0 ) {
+    char    *buffer       = NULL;
+    size_t  buffer_length = 0;
+    ssize_t l             = 0;
+    while ( ( l = getline ( &buffer, &buffer_length, fd ) ) > 0 ) {
         char * start = NULL;
         // Skip empty lines.
         if ( strlen ( buffer ) == 0 ) {
@@ -101,9 +101,9 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
         buffer[strlen ( buffer ) - 1] = '\0';
         // Parse the number of times.
         retv[( *length )]->index = strtol ( buffer, &start, 10 );
-        retv[( *length )]->name  = g_strndup(start+1, l-1-(start+1-buffer));
+        retv[( *length )]->name  = g_strndup ( start + 1, l - 1 - ( start + 1 - buffer ) );
         // Force trailing '\0'
-        retv[( *length ) + 1]                            = NULL;
+        retv[( *length ) + 1] = NULL;
 
         ( *length )++;
     }
@@ -152,7 +152,7 @@ void history_set ( const char *filename, const char *entry )
         list[length] = g_malloc ( sizeof ( _element ) );
         // Copy name
         if ( list[length] != NULL ) {
-            list[length]->name = g_strdup(entry);
+            list[length]->name = g_strdup ( entry );
             // set # hits
             list[length]->index = 1;
 

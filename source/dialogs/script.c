@@ -48,8 +48,9 @@ static char **get_script_output ( const char *command, unsigned int *length )
     if ( fd >= 0 ) {
         FILE *inp = fdopen ( fd, "r" );
         if ( inp ) {
-            char buffer[1024];
-            while ( fgets ( buffer, 1024, inp ) != NULL ) {
+            char   *buffer       = NULL;
+            size_t buffer_length = 0;
+            while ( getline ( &buffer, &buffer_length, inp ) > 0 ) {
                 retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
                 retv[( *length )]     = g_strdup ( buffer );
                 retv[( *length ) + 1] = NULL;
@@ -60,6 +61,9 @@ static char **get_script_output ( const char *command, unsigned int *length )
                 }
 
                 ( *length )++;
+            }
+            if ( buffer ) {
+                free ( buffer );
             }
             if ( fclose ( inp ) != 0 ) {
                 fprintf ( stderr, "Failed to close stdout off executor script: '%s'\n",

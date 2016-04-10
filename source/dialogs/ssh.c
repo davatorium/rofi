@@ -141,9 +141,10 @@ static char **read_known_hosts_file ( char ** retv, unsigned int *length )
     char *path = g_build_filename ( g_getenv ( "HOME" ), ".ssh", "known_hosts", NULL );
     FILE *fd   = fopen ( path, "r" );
     if ( fd != NULL ) {
-        char buffer[1024];
+        char   *buffer       = NULL;
+        size_t buffer_length = 0;
         // Reading one line per time.
-        while ( fgets ( buffer, sizeof ( buffer ), fd ) ) {
+        while ( getline ( &buffer, &buffer_length, fd ) > 0 ) {
             char *sep = strstr ( buffer, "," );
 
             if ( sep != NULL ) {
@@ -167,6 +168,9 @@ static char **read_known_hosts_file ( char ** retv, unsigned int *length )
                 }
             }
         }
+        if ( buffer != NULL ) {
+            free ( buffer );
+        }
         if ( fclose ( fd ) != 0 ) {
             fprintf ( stderr, "Failed to close hosts file: '%s'\n", strerror ( errno ) );
         }
@@ -189,9 +193,10 @@ static char **read_hosts_file ( char ** retv, unsigned int *length )
     // Read the hosts file.
     FILE *fd = fopen ( "/etc/hosts", "r" );
     if ( fd != NULL ) {
-        char buffer[1024];
+        char   *buffer       = NULL;
+        size_t buffer_length = 0;
         // Reading one line per time.
-        while ( fgets ( buffer, sizeof ( buffer ), fd ) ) {
+        while ( getline ( &buffer, &buffer_length, fd ) > 0 ) {
             // Evaluate one line.
             unsigned int index  = 0, ti = 0;
             char         *token = buffer;
@@ -238,6 +243,9 @@ static char **read_hosts_file ( char ** retv, unsigned int *length )
                 index++;
             } while ( buffer[index] != '\0' && buffer[index] != '#' );
         }
+        if ( buffer != NULL ) {
+            free ( buffer );
+        }
         if ( fclose ( fd ) != 0 ) {
             fprintf ( stderr, "Failed to close hosts file: '%s'\n", strerror ( errno ) );
         }
@@ -281,8 +289,9 @@ static char ** get_ssh (  unsigned int *length )
     fd   = fopen ( path, "r" );
 
     if ( fd != NULL ) {
-        char buffer[1024];
-        while ( fgets ( buffer, sizeof ( buffer ), fd ) ) {
+        char   *buffer       = NULL;
+        size_t buffer_length = 0;
+        while ( getline ( &buffer, &buffer_length, fd ) > 0 ) {
             // Each line is either empty, a comment line starting with a '#'
             // character or of the form "keyword [=] arguments", where there may
             // be multiple (possibly quoted) arguments separated by whitespace.
@@ -334,6 +343,9 @@ static char ** get_ssh (  unsigned int *length )
                 retv[( *length ) + 1] = NULL;
                 ( *length )++;
             }
+        }
+        if ( buffer != NULL ) {
+            free ( buffer );
         }
 
         if ( fclose ( fd ) != 0 ) {

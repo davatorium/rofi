@@ -182,8 +182,10 @@ static char ** get_apps_external ( char **retv, unsigned int *length, unsigned i
     if ( fd >= 0 ) {
         FILE *inp = fdopen ( fd, "r" );
         if ( inp ) {
-            char buffer[1024];
-            while ( fgets ( buffer, 1024, inp ) != NULL ) {
+            char   *buffer       = NULL;
+            size_t buffer_length = 0;
+
+            while ( getline ( &buffer, &buffer_length, inp ) > 0 ) {
                 int found = 0;
                 // Filter out line-end.
                 if ( buffer[strlen ( buffer ) - 1] == '\n' ) {
@@ -207,6 +209,9 @@ static char ** get_apps_external ( char **retv, unsigned int *length, unsigned i
                 retv[( *length )] = g_strdup ( buffer );
 
                 ( *length )++;
+            }
+            if ( buffer != NULL ) {
+                free ( buffer );
             }
             if ( fclose ( inp ) != 0 ) {
                 fprintf ( stderr, "Failed to close stdout off executor script: '%s'\n",
