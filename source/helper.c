@@ -451,7 +451,9 @@ int execute_generator ( const char * cmd )
 
     if ( error != NULL ) {
         char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd, error->message );
-        rofi_view_error_dialog ( msg, FALSE );
+        fputs(msg,stderr);
+        fputs("\n", stderr);
+    //    rofi_view_error_dialog ( msg, FALSE );
         g_free ( msg );
         // print error.
         g_error_free ( error );
