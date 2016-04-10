@@ -93,7 +93,6 @@ static char **get_dmenu ( DmenuModePrivateData *pd, FILE *fd, unsigned int *leng
             l--;
         }
         data = rofi_force_utf8 ( data );
-        printf ( "data: %s\n", data );
 
         retv[( *length )] = data;
         data              = NULL;
