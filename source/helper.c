@@ -157,8 +157,6 @@ char *token_collate_key ( const char *token, int case_sensitive )
         g_free ( tmp );
     }
 
-    g_free ( tmp );
-
     return compk;
 }
 void tokenize_free ( char ** tokens )
