@@ -92,10 +92,8 @@ static char **get_dmenu ( DmenuModePrivateData *pd, FILE *fd, unsigned int *leng
             data[l - 1] = '\0';
             l--;
         }
-        if (  !g_utf8_validate ( data, l, NULL ) ) {
-            fprintf ( stderr, "String: '%s' is not valid utf-8\n", data );
-            continue;
-        }
+        data = rofi_force_utf8 ( data );
+        printf ( "data: %s\n", data );
 
         retv[( *length )] = data;
         data              = NULL;

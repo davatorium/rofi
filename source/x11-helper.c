@@ -39,6 +39,7 @@
 #include "xcb-internal.h"
 #include "xcb.h"
 #include "settings.h"
+#include "helper.h"
 
 #include <rofi.h>
 #define OVERLAP( a, b, c,                          \
@@ -90,9 +91,17 @@ char* window_get_text_prop ( xcb_window_t w, xcb_atom_t atom )
     xcb_get_property_reply_t  *r = xcb_get_property_reply ( xcb->connection, c, NULL );
     if ( r ) {
         if ( xcb_get_property_value_length ( r ) > 0 ) {
-            char *str = g_malloc ( xcb_get_property_value_length ( r ) + 1 );
-            memcpy ( str, xcb_get_property_value ( r ), xcb_get_property_value_length ( r ) );
-            str[xcb_get_property_value_length ( r )] = '\0';
+            char *str = NULL;
+            if ( r->type == netatoms[UTF8_STRING] ) {
+                str = g_strndup ( xcb_get_property_value ( r ), xcb_get_property_value_length ( r ) );
+            }
+            else if ( r->type == netatoms[STRING] ) {
+                str = rofi_latin_to_utf8_strdup ( xcb_get_property_value ( r ), xcb_get_property_value_length ( r ) );
+            }
+            else {
+                str = g_strdup ( "Invalid encoding." );
+            }
+
             free ( r );
             return str;
         }

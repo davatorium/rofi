@@ -53,8 +53,6 @@
 
 #define WINLIST             32
 
-#define CLIENTTITLE         100
-#define CLIENTCLASS         50
 #define CLIENTSTATE         10
 #define CLIENTWINDOWTYPE    10
 #define CLIENTROLE          50
@@ -285,7 +283,8 @@ static client* window_client ( xcb_window_t win )
     cky = xcb_icccm_get_wm_class ( xcb->connection, c->window );
     xcb_icccm_get_wm_class_reply_t wcr;
     if ( xcb_icccm_get_wm_class_reply ( xcb->connection, cky, &wcr, NULL ) ) {
-        c->class = g_strdup ( wcr.class_name );
+        c->class = rofi_latin_to_utf8_strdup ( wcr.class_name, -1 );
+        c->name  = rofi_latin_to_utf8_strdup ( wcr.instance_name, -1 );
         xcb_icccm_get_wm_class_reply_wipe ( &wcr );
     }
 
@@ -293,6 +292,14 @@ static client* window_client ( xcb_window_t win )
     xcb_icccm_wm_hints_t      r;
     if ( xcb_icccm_get_wm_hints_reply ( xcb->connection, cc, &r, NULL ) ) {
         c->hint_flags = r.flags;
+    }
+
+    /** Do UTF-8 Check, should not be needed, does not hurt here to be paranoid. */
+    {
+        c->title = rofi_force_utf8 ( c->title );
+        c->class = rofi_force_utf8 ( c->class );
+        c->name  = rofi_force_utf8 ( c->name );
+        c->role  = rofi_force_utf8 ( c->role );
     }
 
     winlist_append ( cache_client, c->window, c );

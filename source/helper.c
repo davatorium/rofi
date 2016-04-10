@@ -659,3 +659,42 @@ unsigned int levenshtein ( const char *needle, const char *haystack )
     }
     return column[needlelen];
 }
+
+char * rofi_latin_to_utf8_strdup ( const char *input, gssize length )
+{
+    gsize slength = 0;
+    return g_convert_with_fallback ( input, length, "UTF-8", "latin1", "\uFFFD", NULL, &slength, NULL );
+}
+
+char * rofi_force_utf8 ( gchar *start )
+{
+    if ( start == NULL ) {
+        return NULL;
+    }
+    const char *data = start;
+    const char *end;
+    gsize      length = strlen ( data );
+    GString    *string;
+
+    if ( g_utf8_validate ( data, length, &end ) ) {
+        return start;
+    }
+    string = g_string_sized_new ( length + 16 );
+
+    do {
+        /* Valid part of the string */
+        g_string_append_len ( string, data, end - data );
+        /* Replacement character */
+        g_string_append ( string, "\uFFFD" );
+        length -= ( end - data ) + 1;
+        data = end + 1;
+    } while ( !g_utf8_validate ( data, length, &end ) );
+
+    if ( length ) {
+        g_string_append_len ( string, data, length );
+    }
+
+    // Free input string.
+    g_free ( start );
+    return g_string_free ( string, FALSE );
+}

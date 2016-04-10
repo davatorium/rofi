@@ -166,5 +166,10 @@ void cmd_set_arguments ( int argc, char **argv );
 char *rofi_expand_path ( const char *input );
 unsigned int levenshtein ( const char *needle, const char *haystack );
 
+/**
+ * Convert string to valid utf-8, replacing invalid parts with replacement character.
+ */
+char * rofi_force_utf8 ( gchar *data );
+char * rofi_latin_to_utf8_strdup ( const char *input, gssize length );
 /*@}*/
 #endif // ROFI_HELPER_H
