@@ -17,5 +17,4 @@ build-rofi:
         - ./configure --enable-gcov
         - make
         - make check
-        - make test-x
         - make distcheck
