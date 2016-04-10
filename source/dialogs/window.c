@@ -55,7 +55,6 @@
 
 #define CLIENTSTATE         10
 #define CLIENTWINDOWTYPE    10
-#define CLIENTROLE          50
 
 // a manageable window
 typedef struct

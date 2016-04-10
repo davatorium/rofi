@@ -37,13 +37,12 @@
 #include "history.h"
 #include "settings.h"
 
-#define HISTORY_NAME_LENGTH    256
 #define HISTORY_MAX_ENTRIES    25
 
 typedef struct __element
 {
     long int index;
-    char     name[HISTORY_NAME_LENGTH];
+    char     *name;
 }_element;
 
 static int __element_sort_func ( const void *ea, const void *eb, void *data __attribute__( ( unused ) ) )
@@ -75,7 +74,6 @@ static void __history_write_element_list ( FILE *fd, _element **list, unsigned i
 
 static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
 {
-    char     buffer[HISTORY_NAME_LENGTH + 16];
     _element **retv = NULL;
 
     if  ( length == NULL ) {
@@ -86,7 +84,10 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
     if ( fd == NULL ) {
         return NULL;
     }
-    while ( fgets ( buffer, HISTORY_NAME_LENGTH + 16, fd ) != NULL ) {
+    char *buffer = NULL;
+    size_t buffer_length = 0;
+    ssize_t l = 0;
+    while ( (l = getline ( &buffer, &buffer_length, fd )) > 0 ) {
         char * start = NULL;
         // Skip empty lines.
         if ( strlen ( buffer ) == 0 ) {
@@ -100,12 +101,15 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
         buffer[strlen ( buffer ) - 1] = '\0';
         // Parse the number of times.
         retv[( *length )]->index = strtol ( buffer, &start, 10 );
-        strncpy ( retv[( *length )]->name, ( start + 1 ), HISTORY_NAME_LENGTH );
+        retv[( *length )]->name  = g_strndup(start+1, l-1-(start+1-buffer));
         // Force trailing '\0'
-        retv[( *length )]->name[HISTORY_NAME_LENGTH - 1] = '\0';
         retv[( *length ) + 1]                            = NULL;
 
         ( *length )++;
+    }
+    if ( buffer != NULL  ) {
+        free ( buffer );
+        buffer = NULL;
     }
     return retv;
 }
@@ -148,8 +152,7 @@ void history_set ( const char *filename, const char *entry )
         list[length] = g_malloc ( sizeof ( _element ) );
         // Copy name
         if ( list[length] != NULL ) {
-            g_strlcpy ( list[length]->name, entry, HISTORY_NAME_LENGTH );
-            list[length]->name[HISTORY_NAME_LENGTH - 1] = '\0';
+            list[length]->name = g_strdup(entry);
             // set # hits
             list[length]->index = 1;
 
@@ -172,6 +175,7 @@ void history_set ( const char *filename, const char *entry )
     }
     // Free the list.
     for ( unsigned int iter = 0; iter < length; iter++ ) {
+        g_free ( list[iter]->name );
         g_free ( list[iter] );
     }
     g_free ( list );
@@ -210,6 +214,7 @@ void history_remove ( const char *filename, const char *entry )
     // If found, remove it and write out new file.
     if ( found ) {
         // Remove the entry.
+        g_free ( list[curr]->name );
         g_free ( list[curr] );
         // Swap last to here (if list is size 1, we just swap empty sets).
         list[curr] = list[length - 1];
@@ -234,6 +239,7 @@ void history_remove ( const char *filename, const char *entry )
 
     // Free the list.
     for ( unsigned int iter = 0; iter < length; iter++ ) {
+        g_free ( list[iter]->name );
         g_free ( list[iter] );
     }
     if ( list != NULL ) {
@@ -268,7 +274,7 @@ char ** history_get_list ( const char *filename, unsigned int *length )
     if ( ( *length ) > 0 ) {
         retv = g_malloc ( ( ( *length ) + 1 ) * sizeof ( char * ) );
         for ( unsigned int iter = 0; iter < ( *length ); iter++ ) {
-            retv[iter] = g_strdup ( list[iter]->name );
+            retv[iter] = ( list[iter]->name );
             g_free ( list[iter] );
         }
         retv[( *length )] = NULL;
