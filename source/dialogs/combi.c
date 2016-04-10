@@ -246,7 +246,10 @@ static char * combi_get_completion ( const Mode *sw, unsigned int index )
     CombiModePrivateData *pd = mode_get_private_data ( sw );
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
-            return mode_get_completion ( pd->switchers[i], index - pd->starts[i] );
+            char *comp = mode_get_completion ( pd->switchers[i], index - pd->starts[i] );
+            char *mcomp = g_strdup_printf ( "!%c %s", mode_get_name ( pd->switchers[i] )[0], comp );
+            g_free(comp);
+            return mcomp;
         }
     }
     // Should never get here.
