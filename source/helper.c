@@ -148,6 +148,15 @@ char *token_collate_key ( const char *token, int case_sensitive )
     }
 
     compk = g_utf8_normalize ( tmp, -1, G_NORMALIZE_ALL );
+
+    // g_utf8_normalize may have failed; in that case, return the unnormalized string
+    if ( compk == NULL ) {
+        compk = tmp;
+    }
+    else {
+        g_free ( tmp );
+    }
+
     g_free ( tmp );
 
     return compk;
