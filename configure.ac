@@ -74,8 +74,14 @@ AS_IF([test "x$enable_i3support" != xno && test "x$enable_windowmode" != "xno"],
 dnl ---------------------------------------------------------------------
 dnl Check for C functions.
 dnl ---------------------------------------------------------------------
+AC_CHECK_FUNC([getline],,  AC_MSG_ERROR("Could not find getline in c library"))
 AC_CHECK_FUNC([getdelim],, AC_MSG_ERROR("Could not find getdelim in c library"))
 AC_CHECK_FUNC([sysconf],,  AC_MSG_ERROR("Could not find sysconf"))
+AC_CHECK_FUNC([getenv],,   AC_MSG_ERROR("Could not find getenv"))
+AC_CHECK_FUNC([strtok_r],, AC_MSG_ERROR("Could not find strtok_r"))
+AC_CHECK_FUNC([flock],,    AC_MSG_ERROR("Could not find flock"))
+AC_CHECK_FUNC([ftruncate],,AC_MSG_ERROR("Could not find ftruncate"))
+AC_CHECK_FUNC([fcntl],,    AC_MSG_ERROR("Could not find fcntl"))
 
 dnl ---------------------------------------------------------------------
 dnl Check dependencies
