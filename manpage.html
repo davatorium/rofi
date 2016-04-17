@@ -60,10 +60,10 @@
     <a href="#OPTIONS">OPTIONS</a>
     <a href="#PATTERN">PATTERN</a>
     <a href="#DMENU-REPLACEMENT">DMENU REPLACEMENT</a>
-    <a href="#SIGNALS">SIGNALS</a>
     <a href="#THEMING">THEMING</a>
     <a href="#COLORS">COLORS</a>
     <a href="#KEYBINDINGS">KEYBINDINGS</a>
+    <a href="#Available-Modi">Available Modi</a>
     <a href="#FAQ">FAQ</a>
     <a href="#LICENSE">LICENSE</a>
     <a href="#WEBSITE">WEBSITE</a>
@@ -88,25 +88,14 @@
 [ -lines <em>lines</em> ]
 [ -columns <em>columns</em> ]
 [ -font <em>pangofont</em> ]
-[ -fg <em>color</em> ]
-[ -fg-urgent <em>color</em> ]
-[ -fg-active <em>color</em> ]
-[ -bg-urgent <em>color</em> ]
-[ -bg-active <em>color</em> ]
-[ -bg <em>color</em> ]
-[ -bgalt <em>color</em> ]
-[ -hlfg <em>color</em> ]
-[ -hlbg <em>color</em> ]
-[ -key-<strong>mode</strong> <em>combo</em> ]
 [ -terminal <em>terminal</em> ]
 [ -location <em>position</em> ]
 [ -fixed-num-lines ]
 [ -padding <em>padding</em> ]
 [ -opacity <em>opacity%</em> ]
 [ -display <em>display</em> ]
-[ -bc <em>color</em> ]
 [ -bw <em>width</em> ]
-[ -dmenu [ -p <em>prompt</em> ] [ -sep <em>separator</em> ] [ -l <em>selected line</em> ] [ -mesg ] [ -select ] ]
+[ -dmenu [ -p <em>prompt</em> ] [ -sep <em>separator</em> ] [ -l <em>selected line</em> ] [ -mesg ] [ -select ] [ -input <em>input</em> ] ]
 [ -filter <em>filter</em> ]
 [ -ssh-client <em>client</em> ]
 [ -ssh-command <em>command</em> ]
@@ -125,16 +114,20 @@
 [ -rnow ]
 [ -snow ]
 [ -version ]
-[ -help]
+[ -help ]
 [ -dump-xresources ]
+[ -dump-xresources-theme ]
 [ -auto-select ]
 [ -parse-hosts ]
+[ -no-parse-known-hosts ]
 [ -combi-modi <em>mode1,mode2</em> ]
 [ -normal-window ]
 [ -fake-transparency ]
-[ -quiet ]
 [ -glob  ]
-[ -tokenize ]</p>
+[ -regex ]
+[ -tokenize ]
+[ -threads <em>num</em> ]
+[ -config <em>filename</em> ]</p>
 
 <h2 id="DESCRIPTION">DESCRIPTION</h2>
 
@@ -144,8 +137,7 @@ filter, tokenized search and more.</p>
 
 <h2 id="USAGE">USAGE</h2>
 
-<p><strong>rofi</strong> can be used in three ways, single-shot; executes once and directly exits when done, as a
-daemon listening to specific key-combination or emulating dmenu.</p>
+<p><strong>rofi</strong> can be used in two ways, single-shot (runs a mode then exits) or emulating dmenu.</p>
 
 <h3 id="Single-shot-mode">Single-shot mode</h3>
 
@@ -155,16 +147,6 @@ To show the run dialog:</p>
 <pre><code>rofi -show run
 </code></pre>
 
-<h3 id="Daemon-mode">Daemon mode</h3>
-
-<p>To launch <strong>rofi</strong> in daemon mode don't specify any mode, instead keys can be bound
-to launch a certain mode. To show run-mode by pressing <code>F2</code> start <strong>rofi</strong> like this:</p>
-
-<pre><code>rofi -key-run F2
-</code></pre>
-
-<p>Keybindings can also be specified in the <code>Xresources</code> file.</p>
-
 <h3 id="Emulating-dmenu">Emulating dmenu</h3>
 
 <p><strong>rofi</strong> can emulate <code>dmenu</code> (a dynamic menu for X) when launched with the <code>-dmenu</code> flag.</p>
@@ -173,14 +155,16 @@ to launch a certain mode. To show run-mode by pressing <code>F2</code> start <st
 
 <h2 id="OPTIONS">OPTIONS</h2>
 
-<p>There are currently three methods of setting configuration options:</p>
+<p>There are currently three methods of setting configuration options (evaluated in order below):</p>
 
 <ul>
-<li>Compile time: edit config.c. This method is strongly discouraged.</li>
 <li>Xresources: A method of storing key values in the Xserver. See
 <a href="https://en.wikipedia.org/wiki/X_resources">here</a> for more information.
 This is the recommended way of configuring <strong>rofi</strong>.</li>
+<li>Configuration File: This uses the same format as the Xresources file.
+By default it looks in <code>XDG_USER_CONFIG_DIR</code>/rofi/config, but can be overriden on commandline.</li>
 <li>Command-line options: Arguments passed to <strong>rofi</strong>.</li>
+<li>System configuration file (f.e. /etc/rofi.conf).</li>
 </ul>
 
 
@@ -224,14 +208,30 @@ prefixed with a '-':</p>
 
 <h3 id="General">General</h3>
 
-<p><code>-key-{mode}</code> <strong>KEY</strong></p>
+<p><code>-help</code></p>
 
-<p>  Set the key combination to display a {mode} in daemon mode.</p>
+<p>The help option shows the full list of commandline options and the current set value.
+These include dynamic options.</p>
 
-<pre><code>rofi -key-run F12
-rofi -key-ssh control+shift+s
-rofi -key-window mod1+Tab
-</code></pre>
+<p><code>-dump-xresources</code></p>
+
+<p>Dump the current active configuration in Xresources format to the command-line.
+This does not validate all passed values (e.g. colors).</p>
+
+<p><code>-dump-xresources-theme</code></p>
+
+<p>Dump the current color schme in Xresources format to the command-line.</p>
+
+<p><code>-threads</code> <em>num</em></p>
+
+<p>Specify the number of threads <strong>rofi</strong> should use:</p>
+
+<ul>
+<li>0: Autodetect the number of supported hardware threads.</li>
+<li>1: Disable threading</li>
+<li>2..N: Specify the maximum number of threads to use in the thread pool.</li>
+</ul>
+
 
 <p><code>-dmenu</code></p>
 
@@ -247,7 +247,7 @@ A simple example, displaying 3 pre-defined options:</p>
 <pre><code>~/my_script.sh | rofi -dmenu
 </code></pre>
 
-<p>Pressing <code>shift-enter</code> sends the selected entry to STDOUT and moves to the next entry.</p>
+<p>Pressing the <code>accept-custom</code> binding (<code>control-enter</code> or <code>shift-enter</code>) sends the selected entry to STDOUT and moves to the next entry.</p>
 
 <p><code>-show</code> <em>mode</em></p>
 
@@ -281,10 +281,6 @@ To only show the run and ssh launcher:</p>
 
 <p>Start in case sensitive mode.</p>
 
-<p><code>-quiet</code></p>
-
-<p>Do not print any message when starting in daemon mode.</p>
-
 <p><code>-fuzzy</code></p>
 
 <p>Enable experimental fuzzy matching.</p>
@@ -293,39 +289,17 @@ To only show the run and ssh launcher:</p>
 
 <p>Filter the list by setting text in input bar to <em>filter</em></p>
 
+<p><code>-config</code> <em>filename</em></p>
+
+<p>Load alternative configuration file.</p>
+
+<p><code>-scroll-method</code> <em>method</em></p>
+
+<p>Select the scrolling method. 0: Per page, 1: continuous.</p>
+
 <h3 id="Theming">Theming</h3>
 
-<p>All colors are either hex #rrggbb values or X11 color names.
-<code>-bg</code></p>
-
-<p><code>-bg-active</code></p>
-
-<p><code>-bg-urgent</code></p>
-
-<p>Set background color in menu.</p>
-
-<pre><code>rofi -bg "#222222"
-</code></pre>
-
-<p>Default: <em>#f2f1f0</em></p>
-
-<p><code>-bgalt</code></p>
-
-<p>Set background color for alternating rows in menu.</p>
-
-<pre><code>rofi -bgalt "#222222"
-</code></pre>
-
-<p>Default: <em>#f2f1f0</em></p>
-
-<p><code>-bc</code></p>
-
-<p>Set border color for menu.</p>
-
-<pre><code>rofi -bc black
-</code></pre>
-
-<p>Default: <em>black</em></p>
+<p>All colors are either hex #rrggbb values or X11 color names.</p>
 
 <p><code>-bw</code></p>
 
@@ -335,45 +309,6 @@ To only show the run and ssh launcher:</p>
 </code></pre>
 
 <p>Default: <em>1</em></p>
-
-<p><code>-fg</code></p>
-
-<p><code>-fg-urgent</code></p>
-
-<p><code>-fg-active</code></p>
-
-<p>Set foreground text color for the menu.</p>
-
-<pre><code>rofi -fg "#cccccc"
-</code></pre>
-
-<p>Default: <em>#222222</em></p>
-
-<p><code>-hlbg</code></p>
-
-<p><code>-hlbg-active</code></p>
-
-<p><code>-hlbg-urgent</code></p>
-
-<p>Set background color for the highlighted item in the menu.</p>
-
-<pre><code>rofi -hlbg "#005577"
-</code></pre>
-
-<p>Default: <em>#005577</em></p>
-
-<p><code>-hlfg</code></p>
-
-<p><code>-hlfg-active</code></p>
-
-<p><code>-hlfg-urgent</code></p>
-
-<p>Set foreground text color for the highlighted item in the menu.</p>
-
-<pre><code>rofi -hlfg "#ffffff"
-</code></pre>
-
-<p>Default: <em>#FFFFFF</em></p>
 
 <p><code>-font</code></p>
 
@@ -440,9 +375,18 @@ Max:     *50*
 
 <p>Hide the scrollbar.</p>
 
+<p><code>-scrollbar-width</code> <em>width</em></p>
+
+<p>Set the scrollbar width.</p>
+
 <p><code>-glob</code></p>
 
-<p>Use glob style matching</p>
+<p>Use glob style matching
+<em>Warning this option might be slow on large lists</em></p>
+
+<p><code>-regex</code></p>
+
+<p>Use regex matching</p>
 
 <p><code>-tokenize</code></p>
 
@@ -510,6 +454,10 @@ Max:     *50*
 
 <p>Default: <em>5</em></p>
 
+<p><code>-fullscreen</code></p>
+
+<p>Use the full screen height and width.</p>
+
 <p><code>-sidebar-mode</code></p>
 
 <p>Open in sidebar-mode. In this mode a list of all enabled modes is shown at the bottom.
@@ -535,10 +483,18 @@ enable.</p>
 <p><code>-m</code> <em>num</em>
 <code>-monitor</code> <em>num</em></p>
 
-<p>Select (Xinerama) monitor to display <strong>rofi</strong> on. The special number -1 denotes the currently focused monitor, the number -2 denotes the currently focused window (i.e. rofi will be displayed on top of the focused window).</p>
+<p>Select (Xinerama) monitor to display <strong>rofi</strong> on.
+Negative numbers are handled differently:</p>
 
-<pre><code>Default: *-1*
-</code></pre>
+<ul>
+<li><strong>-1</strong>: the currently focused monitor.</li>
+<li><strong>-2</strong>: the currently focused window (i.e. rofi will be displayed on top of the focused window).</li>
+<li><p><strong>-3</strong>: Position at mouse (still follows the location setting, use <code>-location 1</code> to get normal context menu
+behaviour.)</p>
+
+<p>Default: <em>-1</em></p></li>
+</ul>
+
 
 <h3 id="PATTERN-setting">PATTERN setting</h3>
 
@@ -571,6 +527,15 @@ The pattern <em>{host}</em> is replaced by the selected ssh entry.</p>
 <p><code>-parse-hosts</code></p>
 
 <p>Parse the <code>/etc/hosts</code> file for entries.</p>
+
+<p>Default: <em>disabled</em></p>
+
+<p><code>-parse-known-hosts</code>
+<code>-no-parse-known-hosts</code></p>
+
+<p>Parse the <code>~/.ssh/known_hosts</code> file for entries.</p>
+
+<p>Default: <em>enabled</em></p>
 
 <h3 id="Run-settings">Run settings</h3>
 
@@ -709,9 +674,19 @@ For more information on supported markup see <a href="https://developer.gnome.or
 
 <p>Make <strong>rofi</strong> reacts like a normal application window. Useful for scripts like Clerk that are basically an application.</p>
 
-<p><code>-fake-transparency</code></p>
+<p><code>-dump</code></p>
 
-<p>Enable fake transparency. This only works with transparent background color in the theme, not the opacity setting.</p>
+<p>Dump the filtered list to stdout and quit.
+This can be used to get the list as <strong>rofi</strong> would filter it.
+Use together with <code>-filter</code> command.</p>
+
+<p><code>-input</code> <em>file</em></p>
+
+<p>Reads from <em>file</em> instead of stdin.</p>
+
+<p><code>-password</code></p>
+
+<p>Hide the input text. This should not be considered secure!</p>
 
 <h3 id="Message-dialog">Message dialog</h3>
 
@@ -727,12 +702,11 @@ Message can be multi-line.</p>
 <p>Make <strong>rofi</strong> create a pid file and check this on startup. Avoiding multiple copies running
 simultaneously. This is useful when running <strong>rofi</strong> from a keybinding daemon.</p>
 
+<p><code>-fake-transparency</code></p>
+
+<p>Enable fake transparency. This only works with transparent background color in the theme, not the opacity setting.</p>
+
 <h3 id="Debug">Debug</h3>
-
-<p><code>-dump-xresources</code></p>
-
-<p>Dump the current active configuration in Xresources format to the command-line.
-This does not validate all passed values (e.g. colors).</p>
 
 <p><code>-no-config</code></p>
 
@@ -756,23 +730,8 @@ the following keys can be used that will be replaced at runtime:</p>
 <p>If <code>argv[0]</code> (calling command) is dmenu, <strong>rofi</strong> will start in dmenu mode.
 This way it can be used as a drop-in replacement for dmenu. just copy or symlink <strong>rofi</strong> to dmenu in <code>$PATH</code>.</p>
 
-<pre><code>ln -s /usr/bin/dmenu /usr/bin/rofi
+<pre><code>ln -s /usr/bin/rofi /usr/bin/dmenu
 </code></pre>
-
-<h2 id="SIGNALS">SIGNALS</h2>
-
-<p><code>HUP</code></p>
-
-<p>If in daemon mode, reload the configuration from Xresources. (commandline arguments still -override
-Xresources). This will also reload configured key-bindings.</p>
-
-<p><code>INT</code></p>
-
-<p>If in daemon mode, quits <strong>rofi</strong>.</p>
-
-<p><code>USR1</code></p>
-
-<p>If in daemon mode, dumps the current configuration to stdout. Similar to <code>-xresources-dump</code></p>
 
 <h2 id="THEMING">THEMING</h2>
 
@@ -845,7 +804,7 @@ composite manager. If this is satisfied you can use the following format for col
 <li><code>Ctrl-b, Left</code>: Back one character</li>
 <li><code>Alt-b</code>: Back one word</li>
 <li><code>Ctrl-d, Delete</code>: Delete character</li>
-<li>`Ctrl-Alt-d': Delete word</li>
+<li><code>Ctrl-Alt-d</code>: Delete word</li>
 <li><code>Ctrl-h, Backspace</code>: Backspace (delete previous character)</li>
 <li><code>Ctrl-Alt-h</code>: Delete previous word</li>
 <li><code>Ctrl-j,Ctrl-m,Enter</code>: Accept entry</li>
@@ -864,23 +823,62 @@ composite manager. If this is satisfied you can use the following format for col
 <li><code>Ctrl-Shift-Tab</code>: Switch to the previous modi. The list can be customized with the <code>-switchers</code> argument.</li>
 <li><code>Ctrl-space</code>: Set selected item as input text.</li>
 <li><code>Shift-Del</code>: Delete entry from history.</li>
-<li><code>Ctrl-grave</code>: Toggle case sensitivity.</li>
+<li><code>grave</code>: Toggle case sensitivity.</li>
+<li><code>Alt-grave</code>: Toggle levenshtein sorting.</li>
+<li><code>Alt-Shift-S</code>: Take a screenshot and store this in the Pictures directory.</li>
 </ul>
 
 
 <p>To get a full list of keybindings, see <code>rofi -dump-xresources | grep kb-</code>.
 Keybindings can be modified using the configuration systems.</p>
 
+<h2 id="Available-Modi">Available Modi</h2>
+
+<h3 id="Window">Window</h3>
+
+<p>Show a list of all the windows and allow switching between them.</p>
+
+<h3 id="WindowCD">WindowCD</h3>
+
+<p>Shows a list of the windows on the current desktop and allows switching between them.</p>
+
+<h3 id="Run">Run</h3>
+
+<p>Shows a list of executables in <strong>$PATH</strong> and can launch them (optional in a terminal).
+Pressing the <code>accept-custom</code> binding (<code>control-enter</code> or <code>shift-enter</code>) will run the command in a terminal.</p>
+
+<h3 id="DRun">DRun</h3>
+
+<p>Same as the <strong>run</strong> launches, but the list is created from the installed desktop files. It automatically launches them
+in a terminal if specified in the Desktop File.
+Pressing the <code>accept-custom</code> binding (<code>control-enter</code> or <code>shift-enter</code>) with custom input (no entry matching) will run the command in a terminal.</p>
+
+<h3 id="SSH">SSH</h3>
+
+<p>Shows a list of SSH targets based on your ssh config file, and allows to quickly ssh into them.</p>
+
+<h3 id="Script">Script</h3>
+
+<p>Allows custom scripted Modi to be added.</p>
+
 <h2 id="FAQ">FAQ</h2>
 
-<p><code>Text in window switcher is not nicely lined out</code></p>
+<h3 id="Text-in-window-switcher-is-not-nicely-lined-out">Text in window switcher is not nicely lined out</h3>
 
-<pre><code>Try using a mono-space font.
-</code></pre>
+<p>Try using a mono-space font.</p>
 
-<p><code>**rofi** is completely black.</code></p>
+<h3 id="rofi-is-completely-black-"><strong>rofi</strong> is completely black.</h3>
 
-<pre><code>Check quotes used on the commandline: e.g. used “ instead of ".
+<p>Check quotes used on the commandline: e.g. used “ instead of ".</p>
+
+<h3 id="rofi-what-does-the-icon-in-the-top-right-show-"><strong>rofi</strong> what does the icon in the top right show?</h3>
+
+<p>The indicator shows:</p>
+
+<pre><code>` ` Case insensitive and no sorting.
+`-` Case sensitivity enabled, no sorting.
+`+` Case insensitive and Sorting enabled
+`±` Sorting and Case sensitivity enabled"
 </code></pre>
 
 <h2 id="LICENSE">LICENSE</h2>
@@ -915,18 +913,20 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 <h2 id="AUTHOR">AUTHOR</h2>
 
-<p>Qball Cow <a href="&#x6d;&#x61;&#105;&#x6c;&#x74;&#111;&#x3a;&#x71;&#98;&#97;&#x6c;&#108;&#64;&#103;&#109;&#x70;&#99;&#x6c;&#x69;&#101;&#110;&#x74;&#x2e;&#x6f;&#114;&#x67;" data-bare-link="true">&#x71;&#x62;&#x61;&#x6c;&#108;&#x40;&#103;&#109;&#112;&#99;&#108;&#x69;&#x65;&#110;&#x74;&#x2e;&#111;&#x72;&#x67;</a></p>
+<p>Qball Cow <a href="&#x6d;&#x61;&#x69;&#x6c;&#x74;&#x6f;&#x3a;&#113;&#98;&#97;&#108;&#x6c;&#x40;&#x67;&#109;&#x70;&#x63;&#108;&#105;&#x65;&#110;&#x74;&#46;&#x6f;&#x72;&#x67;" data-bare-link="true">&#113;&#x62;&#97;&#x6c;&#108;&#x40;&#103;&#x6d;&#112;&#x63;&#x6c;&#105;&#x65;&#x6e;&#116;&#x2e;&#111;&#x72;&#103;</a></p>
 
-<p>Rasmus Steinke <a href="&#109;&#x61;&#105;&#108;&#116;&#111;&#58;&#x72;&#x61;&#x73;&#105;&#x40;&#120;&#x73;&#115;&#x6e;&#x2e;&#x61;&#116;" data-bare-link="true">&#x72;&#97;&#115;&#x69;&#x40;&#x78;&#x73;&#x73;&#110;&#x2e;&#97;&#116;</a></p>
+<p>Rasmus Steinke <a href="&#109;&#97;&#105;&#x6c;&#116;&#x6f;&#x3a;&#x72;&#97;&#115;&#105;&#x40;&#120;&#x73;&#x73;&#x6e;&#x2e;&#97;&#x74;" data-bare-link="true">&#x72;&#97;&#x73;&#105;&#64;&#120;&#x73;&#115;&#110;&#x2e;&#x61;&#116;</a></p>
 
-<p>Original code based on work by: Sean Pringle <a href="&#109;&#x61;&#105;&#108;&#x74;&#111;&#58;&#x73;&#101;&#x61;&#x6e;&#x2e;&#x70;&#114;&#x69;&#110;&#x67;&#x6c;&#101;&#64;&#x67;&#109;&#x61;&#105;&#108;&#46;&#x63;&#111;&#x6d;" data-bare-link="true">&#115;&#101;&#x61;&#x6e;&#46;&#x70;&#x72;&#x69;&#x6e;&#103;&#x6c;&#101;&#x40;&#103;&#x6d;&#x61;&#x69;&#108;&#46;&#99;&#111;&#109;</a></p>
+<p>Quentin Glidic <a href="&#109;&#x61;&#105;&#x6c;&#x74;&#111;&#58;&#115;&#97;&#114;&#100;&#x65;&#x6d;&#102;&#102;&#55;&#x2b;&#114;&#111;&#102;&#105;&#x40;&#115;&#x61;&#x72;&#x64;&#x65;&#x6d;&#x66;&#x66;&#55;&#x2e;&#110;&#101;&#116;" data-bare-link="true">&#115;&#97;&#114;&#100;&#101;&#109;&#x66;&#x66;&#x37;&#x2b;&#x72;&#111;&#102;&#x69;&#64;&#x73;&#97;&#x72;&#x64;&#x65;&#109;&#x66;&#102;&#55;&#46;&#x6e;&#101;&#x74;</a></p>
+
+<p>Original code based on work by: Sean Pringle <a href="&#109;&#97;&#x69;&#108;&#x74;&#x6f;&#58;&#x73;&#x65;&#x61;&#x6e;&#x2e;&#112;&#114;&#x69;&#x6e;&#103;&#x6c;&#101;&#64;&#103;&#x6d;&#x61;&#105;&#108;&#x2e;&#99;&#111;&#x6d;" data-bare-link="true">&#115;&#x65;&#x61;&#x6e;&#46;&#x70;&#114;&#x69;&#x6e;&#x67;&#x6c;&#x65;&#64;&#103;&#x6d;&#x61;&#x69;&#108;&#x2e;&#99;&#111;&#x6d;</a></p>
 
 <p>For a full list of authors, check the AUTHORS file.</p>
 
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
-    <li class='tc'>October 2015</li>
+    <li class='tc'>April 2016</li>
     <li class='tr'>rofi-manpage</li>
   </ol>
 

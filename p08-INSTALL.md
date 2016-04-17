@@ -23,13 +23,19 @@ title: Installation guide
 * libpango
 * libpangocairo
 * libcairo
-* libcairo-xlib
-* libglib2.0
+* libcairo-xcb
+* libglib2.0 >= 2.40
 * libx11
 * libstartup-notification-1.0
+* libxkbcommon
+* libxkbcommon-x11
+* libxcb (sometimes split, you need libxcb, libxcb-xkb and libxcb-xinerama)
+* libx11-xcb
+* xcb-util
+* xcb-util-wm (sometimes split as libxcb-ewmh and libxcb-icccm)
 
 On debian based systems, the developer packages are in the form of: `<package>-dev` on rpm based
-'<package>-devel'.
+`<package>-devel`.
 
 
 ### Optional:
@@ -67,6 +73,12 @@ The GitHub Pages version of these directions may be out of date.  Please use
 [INSTALL.md from the online repo][master-install] or your local repository.
 
 [master-install]: https://github.com/DaveDavenport/rofi/blob/master/INSTALL.md#install-a-checkout-from-git
+
+Pull in dependencies
+
+```
+git submodule update --init
+```
 
 Generate build system:
 
@@ -169,3 +181,19 @@ can then load the core in GDB.
 ```
 gdb rofi core
 ```
+
+## Install distribution
+
+### Debian or Ubuntu
+
+```
+apt-get install rofi
+
+```
+
+### Fedora
+
+rofi from [russianfedora repository](http://ru.fedoracommunity.org/repository)
+and also
+Copr (Cool Other Package Repo) https://copr.fedoraproject.org/coprs/region51/rofi/
+
