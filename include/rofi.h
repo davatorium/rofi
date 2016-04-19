@@ -38,23 +38,13 @@ const Mode * rofi_get_mode ( unsigned int index );
 
 void rofi_set_return_code ( int code );
 /** Reset terminal */
-#define  color_reset     "\033[0m"
+#define  color_reset        "\033[0m"
 /** Set terminal text bold */
-#define  color_bold      "\033[1m"
+#define  color_bold         "\033[1m"
 /** Set terminal text italic */
-#define  color_italic    "\033[2m"
+#define  color_italic       "\033[2m"
 /** Set terminal foreground text green */
-#define color_green      "\033[0;32m"
-
-/**
- * @param msg The error message to show.
- * @param markup If the message contains pango markup.
- *
- * Create a dialog showing the msg.
- *
- * @returns EXIT_FAILURE if failed to create dialog, EXIT_SUCCESS if succesfull
- */
-int show_error_message ( const char *msg, int markup );
+#define color_green         "\033[0;32m"
 
 #define ERROR_MSG( a )    a "\n"                                       \
     "If you suspect this is caused by a bug in rofi,\n"                \

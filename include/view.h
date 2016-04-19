@@ -87,14 +87,6 @@ void rofi_view_restart ( RofiViewState *state );
 void rofi_view_update ( RofiViewState *state );
 
 /**
- * @param display Connection to the X server.
- * @param state The handle to the view
- *
- * Enables fake transparancy on this view.
- */
-void rofi_view_setup_fake_transparency ( RofiViewState *state );
-
-/**
  * @param state The handle to the view
  *
  * Free's the memory allocated for this handle.
@@ -167,5 +159,6 @@ Mode * rofi_view_get_mode ( RofiViewState *state );
 void rofi_view_workers_initialize ( void );
 void rofi_view_workers_finalize ( void );
 
+void __create_window ( MenuFlags menu_flags );
 /**@}*/
 #endif

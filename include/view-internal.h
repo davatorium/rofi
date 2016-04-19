@@ -20,9 +20,6 @@ struct RofiViewState
     unsigned int    max_rows;
     unsigned int    columns;
 
-    // window width,height
-    unsigned int    w, h;
-    int             x, y;
     unsigned int    element_width;
     int             top_offset;
 
@@ -68,8 +65,6 @@ struct RofiViewState
     textbox         **modi;
 
     MenuFlags       menu_flags;
-
-    xcb_window_t    window;
     // Handlers.
     void            ( *x11_event_loop )( struct RofiViewState *state, xcb_generic_event_t *ev, xkb_stuff *xkb );
     void            ( *finalize )( struct RofiViewState *state );

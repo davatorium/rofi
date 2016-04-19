@@ -474,7 +474,7 @@ gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key )
         }
     }
     if ( str->len > 0 ) {
-        show_error_message ( str->str, TRUE );
+        rofi_view_error_dialog ( str->str, TRUE );
         g_string_free ( str, TRUE );
         return FALSE;
     }

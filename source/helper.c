@@ -451,9 +451,9 @@ int execute_generator ( const char * cmd )
 
     if ( error != NULL ) {
         char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd, error->message );
-        fputs(msg,stderr);
-        fputs("\n", stderr);
-    //    rofi_view_error_dialog ( msg, FALSE );
+        fputs ( msg, stderr );
+        fputs ( "\n", stderr );
+        rofi_view_error_dialog ( msg, FALSE );
         g_free ( msg );
         // print error.
         g_error_free ( error );
@@ -591,7 +591,7 @@ int config_sanity_check ( void )
 
     if ( found_error ) {
         g_string_append ( msg, "Please update your configuration." );
-        show_error_message ( msg->str, TRUE );
+        rofi_view_error_dialog ( msg->str, TRUE );
         return TRUE;
     }
 

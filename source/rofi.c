@@ -93,7 +93,6 @@ static int       dmenu_mode = FALSE;
 int              return_code = EXIT_SUCCESS;
 
 void process_result ( RofiViewState *state );
-void process_result_error ( RofiViewState *state );
 
 void rofi_set_return_code ( int code )
 {
@@ -159,17 +158,12 @@ static void teardown ( int pfd )
     remove_pid_file ( pfd );
 }
 
-static int pfd = -1;
 /**
  * Start dmenu mode.
  */
 static int run_dmenu ()
 {
     int ret_state = EXIT_FAILURE;
-    pfd = setup ();
-    if ( pfd < 0 ) {
-        return ret_state;
-    }
 
     // Dmenu modi has a return state.
     ret_state = dmenu_switcher_dialog ();
@@ -181,25 +175,24 @@ static void __run_switcher_internal ( ModeMode mode, char *input )
     char          *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode] ) );
     curr_switcher = mode;
     RofiViewState * state = rofi_view_create ( modi[mode], input, prompt, NULL, MENU_NORMAL, process_result );
+    g_free ( prompt );
     if ( state ) {
         rofi_view_set_active ( state );
     }
     else {
-        g_main_loop_quit ( main_loop  );
+        rofi_view_set_active ( NULL );
+
+        if ( rofi_view_get_active () == NULL ) {
+            g_main_loop_quit ( main_loop  );
+        }
     }
-    g_free ( prompt );
 }
 static void run_switcher ( ModeMode mode )
 {
-    pfd = setup ();
-    if ( pfd < 0 ) {
-        return;
-    }
     // Otherwise check if requested mode is enabled.
     for ( unsigned int i = 0; i < num_modi; i++ ) {
         if ( !mode_init ( modi[i] ) ) {
             rofi_view_error_dialog ( ERROR_MSG ( "Failed to initialize all the modi." ), ERROR_MSG_MARKUP );
-            teardown ( pfd );
             return;
         }
     }
@@ -210,15 +203,14 @@ static void run_switcher ( ModeMode mode )
 void process_result ( RofiViewState *state )
 {
     Mode *sw = state->sw;
+    rofi_view_set_active ( NULL );
     if ( sw != NULL ) {
         unsigned int selected_line = rofi_view_get_selected_line ( state );;
         MenuReturn   mretv         = rofi_view_get_return_value ( state );
         char         *input        = g_strdup ( rofi_view_get_user_input ( state ) );
-        rofi_view_set_active ( NULL );
-        rofi_view_free ( state );
-        ModeMode retv = mode_result ( sw, mretv, &input, selected_line );
+        ModeMode     retv          = mode_result ( sw, mretv, &input, selected_line );
 
-        ModeMode mode = curr_switcher;
+        ModeMode     mode = curr_switcher;
         // Find next enabled
         if ( retv == NEXT_DIALOG ) {
             mode = ( mode + 1 ) % num_modi;
@@ -245,31 +237,10 @@ void process_result ( RofiViewState *state )
              * Load in the new mode.
              */
             __run_switcher_internal ( mode, input );
-            g_free ( input );
-            return;
         }
-        // Cleanup
         g_free ( input );
-        for ( unsigned int i = 0; i < num_modi; i++ ) {
-            mode_destroy ( modi[i] );
-        }
     }
-}
-void process_result_error  ( RofiViewState *state )
-{
-    rofi_view_set_active ( NULL );
     rofi_view_free ( state );
-    teardown ( pfd );
-    g_main_loop_quit ( main_loop );
-}
-
-int show_error_message ( const char *msg, int markup )
-{
-    int pfd = setup ();
-    if ( pfd < 0 ) {
-        return FALSE;
-    }
-    return rofi_view_error_dialog ( msg, markup );
 }
 
 /**
@@ -316,6 +287,9 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
  */
 static void cleanup ()
 {
+    for ( unsigned int i = 0; i < num_modi; i++ ) {
+        mode_destroy ( modi[i] );
+    }
     rofi_view_workers_finalize ();
     if ( main_loop != NULL  ) {
         if ( main_loop_source ) {
@@ -500,7 +474,6 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
             rofi_view_finalize ( state );
             // cleanup
             if ( rofi_view_get_active () == NULL ) {
-                teardown ( pfd );
                 g_main_loop_quit ( main_loop );
             }
         }
@@ -536,8 +509,19 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
 {
     TICK_N ( "Startup" );
     // flags to run immediately and exit
-    char *sname = NULL;
-    char *msg   = NULL;
+    char      *sname       = NULL;
+    char      *msg         = NULL;
+    MenuFlags window_flags = MENU_NORMAL;
+
+    if ( find_arg ( "-normal-window" ) >= 0 ) {
+        window_flags |= MENU_NORMAL_WINDOW;
+    }
+
+    /**
+     * Create window (without showing)
+     */
+    __create_window ( window_flags );
+
     //
     // Sanity check
     if ( config_sanity_check ( ) ) {
@@ -566,7 +550,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         if ( find_arg ( "-markup" ) >= 0 ) {
             markup = TRUE;
         }
-        if (  !show_error_message ( msg, markup ) ) {
+        if (  !rofi_view_error_dialog ( msg, markup ) ) {
             g_main_loop_quit ( main_loop );
         }
     }
@@ -845,8 +829,13 @@ int main ( int argc, char *argv[] )
 
     g_idle_add ( startup, NULL );
 
+    // Pidfile + visuals
+    int pfd = setup ();
+    if ( pfd < 0 ) {
+        return EXIT_FAILURE;
+    }
     // Start mainloop.
     g_main_loop_run ( main_loop );
-
+    teardown ( pfd );
     return return_code;
 }
