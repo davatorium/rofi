@@ -137,14 +137,6 @@ void rofi_view_queue_redraw ( void );
  */
 void rofi_view_cleanup ( void );
 
-/**
- * @param data A thread_state object.
- * @param user_data User data to pass to thread_state callback
- *
- * Small wrapper function that is internally used to pass a job to a worker.
- */
-void rofi_view_call_thread ( gpointer data, gpointer user_data );
-
 Mode * rofi_view_get_mode ( RofiViewState *state );
 /** @} */
 /***

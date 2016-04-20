@@ -472,6 +472,21 @@ typedef struct _thread_state
     unsigned int  *acount;
     void ( *callback )( struct _thread_state *t, gpointer data );
 }thread_state;
+/**
+ * @param data A thread_state object.
+ * @param user_data User data to pass to thread_state callback
+ *
+ * Small wrapper function that is internally used to pass a job to a worker.
+ */
+static void rofi_view_call_thread ( gpointer data, gpointer user_data )
+{
+    thread_state *t = (thread_state *) data;
+    t->callback ( t, user_data );
+    g_mutex_lock ( t->mutex );
+    ( *( t->acount ) )--;
+    g_cond_signal ( t->cond );
+    g_mutex_unlock ( t->mutex );
+}
 
 static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
 {
@@ -491,20 +506,12 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
             t->count++;
         }
     }
-    g_mutex_lock ( t->mutex );
-    ( *( t->acount ) )--;
-    g_cond_signal ( t->cond );
-    g_mutex_unlock ( t->mutex );
 }
 static void check_is_ascii ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
 {
     for ( unsigned int i = t->start; i < t->stop; i++ ) {
         t->state->lines_not_ascii[i] = mode_is_not_ascii ( t->state->sw, i );
     }
-    g_mutex_lock ( t->mutex );
-    ( *( t->acount ) )--;
-    g_cond_signal ( t->cond );
-    g_mutex_unlock ( t->mutex );
 }
 
 static void rofi_view_setup_fake_transparency ( void )
@@ -605,11 +612,6 @@ void __create_window ( MenuFlags menu_flags )
     }
 }
 
-void rofi_view_call_thread ( gpointer data, gpointer user_data )
-{
-    thread_state *t = (thread_state *) data;
-    t->callback ( t, user_data );
-}
 
 /**
  * @param state Internal state of the menu.
@@ -1243,7 +1245,7 @@ static void rofi_view_refilter ( RofiViewState *state )
             }
         }
         // Run one in this thread.
-        filter_elements ( &states[0], NULL );
+        rofi_view_call_thread ( &states[0], NULL );
         // No need to do this with only one thread.
         if ( nt > 1 ) {
             g_mutex_lock ( &mutex );
@@ -1540,7 +1542,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
             }
         }
         // Run one in this thread.
-        check_is_ascii ( &( states[0] ), NULL );
+        rofi_view_call_thread ( &( states[0] ), NULL );
         // No need to do this with only one thread.
         if ( nt > 1 ) {
             g_mutex_lock ( &mutex );
