@@ -158,18 +158,6 @@ static void teardown ( int pfd )
     remove_pid_file ( pfd );
 }
 
-/**
- * Start dmenu mode.
- */
-static int run_dmenu ()
-{
-    int ret_state = EXIT_FAILURE;
-
-    // Dmenu modi has a return state.
-    ret_state = dmenu_switcher_dialog ();
-    return ret_state;
-}
-
 static void __run_switcher_internal ( ModeMode mode, char *input )
 {
     char          *prompt = g_strdup_printf ( "%s:", mode_get_name ( modi[mode] ) );
@@ -538,7 +526,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     if ( dmenu_mode == TRUE ) {
         // force off sidebar mode:
         config.sidebar_mode = FALSE;
-        int retv = run_dmenu ();
+        int retv = dmenu_switcher_dialog ();
         if ( retv ) {
             rofi_set_return_code ( EXIT_SUCCESS );
             // Directly exit.

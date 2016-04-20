@@ -1804,8 +1804,7 @@ void rofi_view_workers_initialize ( void )
     }
     // If error occured during setup of pool, tell user and exit.
     if ( error != NULL ) {
-        char *msg = g_strdup_printf ( "Failed to setup thread pool: '%s'", error->message );
-        g_free ( msg );
+        fprintf ( stderr,  "Failed to setup thread pool: '%s'", error->message );
         g_error_free ( error );
         exit ( EXIT_FAILURE );
     }
