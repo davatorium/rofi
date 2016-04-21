@@ -47,24 +47,33 @@
 #include "settings.h"
 #include "history.h"
 #include "dialogs/fileb.h"
-
-/**
- * @param host The host to connect too
- *
- * SSH into the selected host, if successful update history.
- */
-static void exec_ssh ( const char *host )
+static void exec_fileb ( const char *cmd )
 {
-    if ( !host || !host[0] ) {
+    if ( !cmd || !cmd[0] ) {
         return;
     }
+    int    retv   = TRUE;
+    char   **args = NULL;
+    int    argc   = 0;
+    helper_parse_setup ( "xdg-open \"{cmd}\"", &args, &argc, "{cmd}", cmd, NULL );
+    GError *error = NULL;
+    g_spawn_async ( NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error );
+    if ( error != NULL ) {
+        char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd, error->message );
+        rofi_view_error_dialog ( msg, FALSE  );
+        g_free ( msg );
+        // print error.
+        g_error_free ( error );
+        retv = FALSE;
+    }
 
-    printf ( "exec %s\n", host );
+    // Free the args list.
+    g_strfreev ( args );
 }
 
-static char ** get_ssh (  unsigned int *length, char *ipath )
+static char ** get_fileb (  unsigned int *length, char *ipath )
 {
-    char         **retv        = NULL;
+    char **retv = NULL;
 
     if ( getenv ( "HOME" ) == NULL ) {
         return NULL;
@@ -126,7 +135,7 @@ static char ** get_ssh (  unsigned int *length, char *ipath )
  */
 typedef struct
 {
-    /** List if available ssh file.*/
+    /** List if available fileb file.*/
     char         **file_list;
     /** Length of the #file_list.*/
     unsigned int file_list_length;
@@ -148,7 +157,7 @@ static int _update_result ( Mode *sw, const char *input, unsigned int selected )
         char *p = g_strdup ( input );
         g_free ( pd->fpath );
         pd->fpath     = p;
-        pd->file_list = get_ssh ( &( pd->file_list_length ), pd->fpath );
+        pd->file_list = get_fileb ( &( pd->file_list_length ), pd->fpath );
         return TRUE;
     }
     else if ( ( strlen ( input ) + 1 ) < strlen ( pd->fpath ) ) {
@@ -165,7 +174,7 @@ static int _update_result ( Mode *sw, const char *input, unsigned int selected )
         }
         g_free ( pd->fpath );
         pd->fpath     = p;
-        pd->file_list = get_ssh ( &( pd->file_list_length ), pd->fpath );
+        pd->file_list = get_fileb ( &( pd->file_list_length ), pd->fpath );
         return TRUE;
     }
     return FALSE;
@@ -174,7 +183,7 @@ static int _update_result ( Mode *sw, const char *input, unsigned int selected )
  * @param sw Object handle to the SSH Mode object
  *
  * Initializes the SSH Mode private data object and
- * loads the relevant ssh information.
+ * loads the relevant fileb information.
  */
 static int fileb_mode_init ( Mode *sw )
 {
@@ -182,7 +191,7 @@ static int fileb_mode_init ( Mode *sw )
         FILEBModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         mode_set_private_data ( sw, (void *) pd );
         pd->fpath     = g_strdup ( "/" );
-        pd->file_list = get_ssh ( &( pd->file_list_length ), pd->fpath );
+        pd->file_list = get_fileb ( &( pd->file_list_length ), pd->fpath );
     }
     return TRUE;
 }
@@ -192,7 +201,7 @@ static int fileb_mode_init ( Mode *sw )
  *
  * Get the number of SSH entries.
  *
- * @returns the number of ssh entries.
+ * @returns the number of fileb entries.
  */
 static unsigned int fileb_mode_get_num_entries ( const Mode *sw )
 {
@@ -224,10 +233,10 @@ static ModeMode fileb_mode_result ( Mode *sw, int mretv, char **input, unsigned 
         retv = ( mretv & MENU_LOWER_MASK );
     }
     else if ( ( mretv & MENU_OK ) && rmpd->file_list[selected_line] != NULL ) {
-        exec_ssh ( rmpd->file_list[selected_line] );
+        exec_fileb ( rmpd->file_list[selected_line] );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
-        exec_ssh ( *input );
+        exec_fileb ( *input );
     }
     return retv;
 }
@@ -248,21 +257,10 @@ static void fileb_mode_destroy ( Mode *sw )
     }
 }
 
-/**
- * @param sw Object handle to the SSH Mode object
- * @param selected_line The line to view
- * @param state The state of the entry [out]
- * @param get_entry
- *
- * Gets the string as it should be displayed and the display state.
- * If get_entry is FALSE only the state is set.
- *
- * @return the string as it should be displayed and the display state.
- */
 static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
 {
     FILEBModePrivateData *rmpd = (FILEBModePrivateData *) mode_get_private_data ( sw );
-    return get_entry ? g_strdup ( rmpd->file_list[selected_line] ) : NULL;
+    return get_entry ? g_path_get_basename ( rmpd->file_list[selected_line] ) : NULL;
 }
 
 /**
@@ -295,12 +293,17 @@ static int fileb_is_not_ascii ( const Mode *sw, unsigned int index )
     FILEBModePrivateData *rmpd = (FILEBModePrivateData *) mode_get_private_data ( sw );
     return !g_str_is_ascii ( rmpd->file_list[index] );
 }
+static char *fileb_get_completion ( const Mode *sw, unsigned int index )
+{
+    FILEBModePrivateData *rmpd = (FILEBModePrivateData *) mode_get_private_data ( sw );
+    return g_strdup ( rmpd->file_list[index] );
+}
 
 #include "mode-private.h"
 Mode fileb_mode =
 {
-    .name               = "ssh",
-    .cfg_name_key       = "display-ssh",
+    .name               = "fileb",
+    .cfg_name_key       = "display-fileb",
     ._init              = fileb_mode_init,
     ._get_num_entries   = fileb_mode_get_num_entries,
     ._result            = fileb_mode_result,
@@ -308,7 +311,7 @@ Mode fileb_mode =
     ._token_match       = fileb_token_match,
     ._get_display_value = _get_display_value,
     ._update_result     = _update_result,
-    ._get_completion    = NULL,
+    ._get_completion    = fileb_get_completion,
     ._is_not_ascii      = fileb_is_not_ascii,
     .private_data       = NULL,
     .free               = NULL
