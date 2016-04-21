@@ -333,6 +333,10 @@ static int add_mode ( const char * token )
         modi[num_modi] = &ssh_mode;
         num_modi++;
     }
+    if ( strcasecmp ( token, "fileb" ) == 0 ) {
+        modi[num_modi] = &fileb_mode;
+        num_modi++;
+    }
     // Run dialog
     else if ( strcasecmp ( token, "run" ) == 0 ) {
         modi[num_modi] = &run_mode;

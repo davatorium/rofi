@@ -61,6 +61,7 @@ struct rofi_mode
     /** Get the 'completed' entry. */
     _mode_get_completion    _get_completion;
 
+    int                     ( *_update_result )( Mode *sw, const char *input, unsigned int selected );
     /** Pointer to private data. */
     void                    *private_data;
 

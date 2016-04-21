@@ -33,6 +33,7 @@ rofi_SOURCES=\
 	source/x11-helper.c\
 	source/dialogs/run.c\
 	source/dialogs/ssh.c\
+	source/dialogs/fileb.c\
 	source/dialogs/drun.c\
 	source/dialogs/dmenu.c\
 	source/dialogs/combi.c\
@@ -57,6 +58,7 @@ rofi_SOURCES=\
 	include/i3-support.h\
 	include/x11-helper.h\
 	include/dialogs/ssh.h\
+	include/dialogs/fileb.h\
 	include/dialogs/run.h\
 	include/dialogs/drun.h\
 	include/dialogs/dmenu.h\

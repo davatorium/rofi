@@ -612,7 +612,6 @@ void __create_window ( MenuFlags menu_flags )
     }
 }
 
-
 /**
  * @param state Internal state of the menu.
  *
@@ -1212,6 +1211,22 @@ static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_
 }
 static void rofi_view_refilter ( RofiViewState *state )
 {
+    unsigned row = UINT32_MAX;
+    if ( state->selected < state->filtered_lines ) {
+        row = state->line_map[state->selected];
+    }
+    if ( state->sw && mode_update_result ( state->sw, state->text->text, row ) ) {
+        printf ( "update now\n" );
+        g_free ( state->line_map );
+        g_free ( state->distance );
+        g_free ( state->lines_not_ascii );
+        state->num_lines = mode_get_num_entries ( state->sw );
+        printf ( "num lines: %d\n ", state->num_lines );
+        state->lines_not_ascii = g_malloc0_n ( state->num_lines, sizeof ( int ) );
+        state->line_map        = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
+        state->distance        = (int *) g_malloc0_n ( state->num_lines, sizeof ( int ) );
+    }
+
     TICK_N ( "Filter start" );
     if ( strlen ( state->text->text ) > 0 ) {
         unsigned int j        = 0;
@@ -1806,7 +1821,7 @@ void rofi_view_workers_initialize ( void )
     }
     // If error occured during setup of pool, tell user and exit.
     if ( error != NULL ) {
-        fprintf ( stderr,  "Failed to setup thread pool: '%s'", error->message );
+        fprintf ( stderr, "Failed to setup thread pool: '%s'", error->message );
         g_error_free ( error );
         exit ( EXIT_FAILURE );
     }

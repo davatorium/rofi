@@ -123,4 +123,13 @@ void mode_set_config ( Mode *mode )
     mode->display_name = g_strdup_printf ( "(%s)", mode->name );
     config_parser_add_option ( xrm_String, mode->cfg_name_key, (void * *) &( mode->display_name ), "The display name of this browser" );
 }
+
+int mode_update_result ( Mode *mode, const char *input, unsigned int selected )
+{
+    if ( mode && mode->_update_result ) {
+        return mode->_update_result ( mode, input, selected );
+    }
+
+    return FALSE;
+}
 /*@}*/
