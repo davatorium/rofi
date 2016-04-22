@@ -52,10 +52,12 @@ static void exec_fileb ( const char *cmd )
     if ( !cmd || !cmd[0] ) {
         return;
     }
-    int    retv   = TRUE;
-    char   **args = NULL;
-    int    argc   = 0;
-    helper_parse_setup ( "xdg-open \"{cmd}\"", &args, &argc, "{cmd}", cmd, NULL );
+    int  retv   = TRUE;
+    char **args = NULL;
+    int  argc   = 0;
+    char *cmdf  = rofi_expand_path ( cmd );
+    helper_parse_setup ( "xdg-open \"{cmd}\"", &args, &argc, "{cmd}", cmdf, NULL );
+    g_free ( cmdf );
     GError *error = NULL;
     g_spawn_async ( NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error );
     if ( error != NULL ) {
@@ -80,15 +82,17 @@ static char ** get_fileb (  unsigned int *length, char *ipath )
     }
     GError *error = NULL;
     printf ( "look in: %s\n", ipath );
-    DIR    *dir = opendir ( ipath );
+    gchar  *fpath = rofi_expand_path ( ipath );
+    DIR    *dir   = opendir ( fpath );
 
     if ( dir != NULL ) {
         struct dirent *dent;
         gsize         dirn_len = 0;
-        gchar         *dirn    = g_locale_to_utf8 ( ipath, -1, NULL, &dirn_len, &error );
+        gchar         *dirn    = g_locale_to_utf8 ( fpath, -1, NULL, &dirn_len, &error );
         if ( error != NULL ) {
             fprintf ( stderr, "Failed to convert directory name to UTF-8: %s\n", error->message );
             g_clear_error ( &error );
+            g_free ( fpath );
             return retv;
         }
         g_free ( dirn );
@@ -127,6 +131,7 @@ static char ** get_fileb (  unsigned int *length, char *ipath )
         closedir ( dir );
     }
 
+    g_free ( fpath );
     return retv;
 }
 
@@ -146,7 +151,25 @@ static int _update_result ( Mode *sw, const char *input, unsigned int selected )
 {
     FILEBModePrivateData *pd = (FILEBModePrivateData *) mode_get_private_data ( sw );
     printf ( "update result\n" );
+
+    if ( input == NULL || strlen ( input ) == 0 ) {
+        printf ( "clear\n" );
+        if ( pd->file_list_length > 0 ) {
+            g_strfreev ( pd->file_list );
+            pd->file_list        = NULL;
+            pd->file_list_length = 0;
+            return TRUE;
+        }
+    }
     if ( selected == UINT32_MAX ) {
+        g_strfreev ( pd->file_list );
+        pd->file_list        = NULL;
+        pd->file_list_length = 0;
+        char *p = g_strdup ( input );
+        g_free ( pd->fpath );
+        pd->fpath     = p;
+        pd->file_list = get_fileb ( &( pd->file_list_length ), pd->fpath );
+        return TRUE;
         return FALSE;
     }
     if ( g_strcmp0 ( input, pd->file_list[selected] ) == 0 ) {
@@ -167,7 +190,7 @@ static int _update_result ( Mode *sw, const char *input, unsigned int selected )
         pd->file_list_length = 0;
         char *p;
         if ( strlen ( input ) == 0 ) {
-            p = g_strdup ( "/" );
+            p = g_strdup ( "~" );
         }
         else{
             p = g_path_get_dirname ( input );

@@ -1209,6 +1209,48 @@ static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_
         }
     }
 }
+
+static void _rofi_view_calc_lines_not_ascii ( RofiViewState *state )
+{
+    if ( state->num_lines == 0 ) {
+        return;
+    }
+    TICK_N ( "Is ASCII start" );
+    unsigned int nt = MAX ( 1, state->num_lines / 5000 );
+    thread_state states[nt];
+    unsigned int steps = ( state->num_lines + nt ) / nt;
+    unsigned int count = nt;
+    GCond        cond;
+    GMutex       mutex;
+    g_mutex_init ( &mutex );
+    g_cond_init ( &cond );
+    for ( unsigned int i = 0; i < nt; i++ ) {
+        states[i].state    = state;
+        states[i].start    = i * steps;
+        states[i].stop     = MIN ( ( i + 1 ) * steps, state->num_lines );
+        states[i].acount   = &count;
+        states[i].mutex    = &mutex;
+        states[i].cond     = &cond;
+        states[i].callback = check_is_ascii;
+        if ( i > 0 ) {
+            g_thread_pool_push ( tpool, &( states[i] ), NULL );
+        }
+    }
+    // Run one in this thread.
+    rofi_view_call_thread ( &( states[0] ), NULL );
+    // No need to do this with only one thread.
+    if ( nt > 1 ) {
+        g_mutex_lock ( &mutex );
+        while ( count > 0 ) {
+            g_cond_wait ( &cond, &mutex );
+        }
+        g_mutex_unlock ( &mutex );
+    }
+    g_cond_clear ( &cond );
+    g_mutex_clear ( &mutex );
+    TICK_N ( "Is ASCII stop" );
+}
+
 static void rofi_view_refilter ( RofiViewState *state )
 {
     unsigned row = UINT32_MAX;
@@ -1216,15 +1258,16 @@ static void rofi_view_refilter ( RofiViewState *state )
         row = state->line_map[state->selected];
     }
     if ( state->sw && mode_update_result ( state->sw, state->text->text, row ) ) {
-        printf ( "update now\n" );
         g_free ( state->line_map );
         g_free ( state->distance );
         g_free ( state->lines_not_ascii );
-        state->num_lines = mode_get_num_entries ( state->sw );
-        printf ( "num lines: %d\n ", state->num_lines );
+        state->num_lines       = mode_get_num_entries ( state->sw );
         state->lines_not_ascii = g_malloc0_n ( state->num_lines, sizeof ( int ) );
         state->line_map        = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
         state->distance        = (int *) g_malloc0_n ( state->num_lines, sizeof ( int ) );
+
+        // Updates lines not ascii.
+        _rofi_view_calc_lines_not_ascii ( state );
     }
 
     TICK_N ( "Filter start" );
@@ -1534,42 +1577,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->lines_not_ascii = g_malloc0_n ( state->num_lines, sizeof ( int ) );
 
     // find out which lines contain non-ascii codepoints, so we can be faster in some cases.
-    if ( state->num_lines > 0 ) {
-        TICK_N ( "Is ASCII start" );
-        unsigned int nt = MAX ( 1, state->num_lines / 5000 );
-        thread_state states[nt];
-        unsigned int steps = ( state->num_lines + nt ) / nt;
-        unsigned int count = nt;
-        GCond        cond;
-        GMutex       mutex;
-        g_mutex_init ( &mutex );
-        g_cond_init ( &cond );
-        for ( unsigned int i = 0; i < nt; i++ ) {
-            states[i].state    = state;
-            states[i].start    = i * steps;
-            states[i].stop     = MIN ( ( i + 1 ) * steps, state->num_lines );
-            states[i].acount   = &count;
-            states[i].mutex    = &mutex;
-            states[i].cond     = &cond;
-            states[i].callback = check_is_ascii;
-            if ( i > 0 ) {
-                g_thread_pool_push ( tpool, &( states[i] ), NULL );
-            }
-        }
-        // Run one in this thread.
-        rofi_view_call_thread ( &( states[0] ), NULL );
-        // No need to do this with only one thread.
-        if ( nt > 1 ) {
-            g_mutex_lock ( &mutex );
-            while ( count > 0 ) {
-                g_cond_wait ( &cond, &mutex );
-            }
-            g_mutex_unlock ( &mutex );
-        }
-        g_cond_clear ( &cond );
-        g_mutex_clear ( &mutex );
-        TICK_N ( "Is ASCII stop" );
-    }
+    _rofi_view_calc_lines_not_ascii ( state );
     TICK_N ( "Startup notification" );
 
     // Try to grab the keyboard as early as possible.
