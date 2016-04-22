@@ -170,7 +170,6 @@ static int _update_result ( Mode *sw, const char *input, unsigned int selected )
         pd->fpath     = p;
         pd->file_list = get_fileb ( &( pd->file_list_length ), pd->fpath );
         return TRUE;
-        return FALSE;
     }
     if ( g_strcmp0 ( input, pd->file_list[selected] ) == 0 ) {
         printf ( "Match\n" );
@@ -183,18 +182,13 @@ static int _update_result ( Mode *sw, const char *input, unsigned int selected )
         pd->file_list = get_fileb ( &( pd->file_list_length ), pd->fpath );
         return TRUE;
     }
-    else if ( ( strlen ( input ) + 1 ) < strlen ( pd->fpath ) ) {
-        printf ( "Match\n" );
+    else if ( ! g_str_has_prefix ( input, pd->fpath)) { //( strlen ( input ) + 1 ) < strlen ( pd->fpath ) ) {
+        printf ( "Up\n" );
         g_strfreev ( pd->file_list );
         pd->file_list        = NULL;
         pd->file_list_length = 0;
         char *p;
-        if ( strlen ( input ) == 0 ) {
-            p = g_strdup ( "~" );
-        }
-        else{
-            p = g_path_get_dirname ( input );
-        }
+        p = g_path_get_dirname ( input );
         g_free ( pd->fpath );
         pd->fpath     = p;
         pd->file_list = get_fileb ( &( pd->file_list_length ), pd->fpath );
