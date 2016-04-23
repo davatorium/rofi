@@ -500,14 +500,22 @@ gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key, gboo
         seen_mod = TRUE;
     }
 
-    *mod = modmask;
-
-    // Skip modifier (if exist) and parse key.
+    // Find location of modifier (if it exists)
     char i = strlen ( combo );
 
     while ( i > 0 && !strchr ( "-+", combo[i - 1] ) ) {
         i--;
     }
+
+    // if there's no "-" or "+", we might be binding directly to a modifier key - no modmask
+    if( i == 0 ) {
+        *mod = 0;
+    }
+    else {
+        *mod = modmask;
+    }
+
+    // Parse key
     xkb_keysym_t sym = XKB_KEY_NoSymbol;
     if ( ( modmask & x11_mod_masks[X11MOD_SHIFT] ) != 0 ) {
         gchar * str = g_utf8_next_char ( combo + i );
