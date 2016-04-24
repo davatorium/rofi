@@ -637,7 +637,7 @@ static void rofi_view_calculate_rows_columns ( RofiViewState *state )
         // If it would fit in one column, only use one column.
         if ( state->num_lines < state->max_elements ) {
             state->columns =
-                ( state->num_lines + ( state->max_rows - state->num_lines % state->max_rows ) % state->max_rows ) / state->max_rows;
+                MAX(1, ( state->num_lines + ( state->max_rows - state->num_lines % state->max_rows ) % state->max_rows ) / state->max_rows);
             state->max_elements = state->menu_lines * state->columns;
         }
         // Sanitize.
@@ -1652,7 +1652,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     int y_offset = state->top_offset;
     int x_offset = state->border;
-
     for ( unsigned int i = 0; i < state->max_elements; i++ ) {
         state->boxes[i] = textbox_create ( 0, x_offset, y_offset,
                                            state->element_width, element_height, NORMAL, "" );
