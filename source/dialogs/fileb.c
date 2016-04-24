@@ -182,7 +182,7 @@ static int _update_result ( Mode *sw, const char *input, unsigned int selected )
         pd->file_list = get_fileb ( &( pd->file_list_length ), pd->fpath );
         return TRUE;
     }
-    else if ( ! g_str_has_prefix ( input, pd->fpath)) { //( strlen ( input ) + 1 ) < strlen ( pd->fpath ) ) {
+    else if ( !g_str_has_prefix ( input, pd->fpath ) ) { //( strlen ( input ) + 1 ) < strlen ( pd->fpath ) ) {
         printf ( "Up\n" );
         g_strfreev ( pd->file_list );
         pd->file_list        = NULL;
@@ -207,8 +207,8 @@ static int fileb_mode_init ( Mode *sw )
     if ( mode_get_private_data ( sw ) == NULL ) {
         FILEBModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         mode_set_private_data ( sw, (void *) pd );
-        pd->fpath     = g_strdup ( "/" );
-        pd->file_list = get_fileb ( &( pd->file_list_length ), pd->fpath );
+//        pd->fpath     = g_strdup ( "/" );
+//      pd->file_list = get_fileb ( &( pd->file_list_length ), pd->fpath );
     }
     return TRUE;
 }

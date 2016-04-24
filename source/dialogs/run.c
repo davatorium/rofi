@@ -54,15 +54,29 @@
  */
 #define RUN_CACHE_FILE    "rofi-3.runcache"
 
+#include <dialogs/fileb.h>
 /**
  * The internal data structure holding the private data of the Run Mode.
  */
+typedef enum
+{
+    SELECT_BINARY,
+    SELECT_FILE
+}RunModeMode;
 typedef struct
 {
+    /* Mode */
+    RunModeMode  mode;
+    unsigned int row_selected;
     /** list of available commands. */
     char         **cmd_list;
     /** Length of the #cmd_list. */
     unsigned int cmd_list_length;
+
+    Mode         filec;
+    /** Mode 2 */
+    char         **file_list;
+    unsigned int file_list_length;
 } RunModePrivateData;
 
 /**
@@ -359,7 +373,12 @@ static int run_mode_init ( Mode *sw )
     if ( sw->private_data == NULL ) {
         RunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         sw->private_data = (void *) pd;
+        pd->mode         = SELECT_BINARY;
+        pd->row_selected = UINT32_MAX;
         pd->cmd_list     = get_apps ( &( pd->cmd_list_length ) );
+        pd->filec        = fileb_mode;
+
+        mode_init ( &pd->filec );
     }
 
     return TRUE;
@@ -368,8 +387,11 @@ static void run_mode_destroy ( Mode *sw )
 {
     RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
     if ( rmpd != NULL ) {
+        g_strfreev ( rmpd->file_list );
         g_strfreev ( rmpd->cmd_list );
         g_free ( rmpd );
+
+        mode_destroy ( &rmpd->filec );
         sw->private_data = NULL;
     }
 }
@@ -377,6 +399,9 @@ static void run_mode_destroy ( Mode *sw )
 static unsigned int run_mode_get_num_entries ( const Mode *sw )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
+    if ( rmpd->mode == SELECT_FILE ) {
+        return mode_get_num_entries ( &( rmpd->filec ) );
+    }
     return rmpd->cmd_list_length;
 }
 
@@ -416,18 +441,70 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
 static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
+    if ( rmpd->mode == SELECT_FILE ) {
+        if ( !get_entry ) {
+            return NULL;
+        }
+        char *rv = mode_get_display_value ( &( rmpd->filec ), selected_line, state, get_entry );
+        return rv;
+    }
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
 static int run_token_match ( const Mode *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
+    if ( rmpd->mode == SELECT_FILE ) {
+        return mode_token_match ( &( rmpd->filec ), &( tokens[1] ), not_ascii, case_sensitive, index );
+    }
     return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );
 }
 
 static int run_is_not_ascii ( const Mode *sw, unsigned int index )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
+    if ( rmpd->mode == SELECT_FILE ) {
+        return mode_is_not_ascii ( &( rmpd->filec ), index );
+    }
     return !g_str_is_ascii ( rmpd->cmd_list[index] );
+}
+
+static int _update_result ( Mode *sw, const char *input, unsigned int selected )
+{
+    RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
+    if ( rmpd->mode == SELECT_BINARY ) {
+        rmpd->row_selected = selected;
+        if ( selected == UINT32_MAX ) {
+            return FALSE;
+        }
+        if ( g_strcmp0 ( input, rmpd->cmd_list[selected] ) == 0 ) {
+            printf ( "Switch to 'select file'\n" );
+            rmpd->mode = SELECT_FILE;
+            return TRUE;
+        }
+    }
+    else if ( rmpd->mode == SELECT_FILE ) {
+        if ( !g_str_has_prefix ( input, rmpd->cmd_list[rmpd->row_selected] ) ) {
+            printf ( "Switch to 'select binary'\n" );
+            rmpd->mode = SELECT_BINARY;
+            return TRUE;
+        }
+        ssize_t l = strlen ( rmpd->cmd_list[rmpd->row_selected] );
+        if ( l < strlen ( input ) ) {
+            return mode_update_result ( &( rmpd->filec ), &input[strlen ( rmpd->cmd_list[rmpd->row_selected] ) + 1], selected );
+        }
+    }
+    return FALSE;
+}
+static char *_get_completion ( const Mode *sw, unsigned int index )
+{
+    RunModePrivateData *rmpd = (RunModePrivateData *) mode_get_private_data ( sw );
+    if ( rmpd->mode == SELECT_FILE ) {
+        char *r    = mode_get_completion ( &( rmpd->filec ), index );
+        char *retv = g_strdup_printf ( "%s %s", rmpd->cmd_list[rmpd->row_selected], r );
+        g_free ( r );
+        return retv;
+    }
+    return g_strdup ( rmpd->cmd_list[index] );
 }
 
 #include "mode-private.h"
@@ -441,8 +518,9 @@ Mode run_mode =
     ._destroy           = run_mode_destroy,
     ._token_match       = run_token_match,
     ._get_display_value = _get_display_value,
-    ._get_completion    = NULL,
+    ._get_completion    = _get_completion,
     ._is_not_ascii      = run_is_not_ascii,
+    ._update_result     = _update_result,
     .private_data       = NULL,
     .free               = NULL
 };

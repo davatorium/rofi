@@ -1251,6 +1251,17 @@ static void _rofi_view_calc_lines_not_ascii ( RofiViewState *state )
     TICK_N ( "Is ASCII stop" );
 }
 
+static void _rofi_view_reload_row ( RofiViewState *state )
+{
+    g_free ( state->line_map );
+    g_free ( state->distance );
+    g_free ( state->lines_not_ascii );
+    state->num_lines       = mode_get_num_entries ( state->sw );
+    state->lines_not_ascii = g_malloc0_n ( state->num_lines, sizeof ( int ) );
+    state->line_map        = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
+    state->distance        = g_malloc0_n ( state->num_lines, sizeof ( int ) );
+}
+
 static void rofi_view_refilter ( RofiViewState *state )
 {
     unsigned row = UINT32_MAX;
@@ -1258,14 +1269,7 @@ static void rofi_view_refilter ( RofiViewState *state )
         row = state->line_map[state->selected];
     }
     if ( state->sw && mode_update_result ( state->sw, state->text->text, row ) ) {
-        g_free ( state->line_map );
-        g_free ( state->distance );
-        g_free ( state->lines_not_ascii );
-        state->num_lines       = mode_get_num_entries ( state->sw );
-        state->lines_not_ascii = g_malloc0_n ( state->num_lines, sizeof ( int ) );
-        state->line_map        = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
-        state->distance        = (int *) g_malloc0_n ( state->num_lines, sizeof ( int ) );
-
+        _rofi_view_reload_row ( state );
         // Updates lines not ascii.
         _rofi_view_calc_lines_not_ascii ( state );
     }
@@ -1572,9 +1576,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->x11_event_loop = rofi_view_mainloop_iter;
     state->finalize       = finalize;
 
-    // Request the lines to show.
-    state->num_lines       = mode_get_num_entries ( sw );
-    state->lines_not_ascii = g_malloc0_n ( state->num_lines, sizeof ( int ) );
+    _rofi_view_reload_row ( state );
 
     // find out which lines contain non-ascii codepoints, so we can be faster in some cases.
     _rofi_view_calc_lines_not_ascii ( state );
@@ -1662,9 +1664,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
     }
 
     scrollbar_set_max_value ( state->scrollbar, state->num_lines );
-    // filtered list
-    state->line_map = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
-    state->distance = (int *) g_malloc0_n ( state->num_lines, sizeof ( int ) );
 
     // resize window vertically to suit
     // Subtract the margin of the last row.
