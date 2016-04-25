@@ -637,7 +637,8 @@ static void rofi_view_calculate_rows_columns ( RofiViewState *state )
         // If it would fit in one column, only use one column.
         if ( state->num_lines < state->max_elements ) {
             state->columns =
-                MAX(1, ( state->num_lines + ( state->max_rows - state->num_lines % state->max_rows ) % state->max_rows ) / state->max_rows);
+                MAX ( 1,
+                      ( state->num_lines + ( state->max_rows - state->num_lines % state->max_rows ) % state->max_rows ) / state->max_rows );
             state->max_elements = state->menu_lines * state->columns;
         }
         // Sanitize.

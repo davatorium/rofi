@@ -616,6 +616,13 @@ char *rofi_expand_path ( const char *input )
                 str[i] = g_strdup ( p->pw_dir );
             }
         }
+        else if ( str[i][0] == '$' ) {
+            const char *v = g_getenv ( &( str[i][1] ) );
+            if ( v != NULL ) {
+                g_free ( str[i] );
+                str[i] = g_strdup ( v );
+            }
+        }
         else if ( i == 0 ) {
             char * s = str[i];
             if ( input[0] == G_DIR_SEPARATOR ) {
