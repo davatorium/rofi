@@ -469,19 +469,19 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                     ( ( c->title != NULL ) ? strlen ( c->title ) : 0 ) + ( c->class ? strlen ( c->class ) : 0 ) + classfield + 50;
                 char   *line = g_malloc ( len );
                 if ( !pd->config_i3_mode ) {
-                    unsigned int              wmdesktop = 0;
+                    uint32_t wmdesktop = 0;
                     // find client's desktop.
                     xcb_get_property_cookie_t cookie;
                     xcb_get_property_reply_t  *r;
 
                     cookie =
-                        xcb_get_property ( xcb->connection, 0, c->window, xcb->ewmh._NET_WM_DESKTOP, XCB_GET_PROPERTY, 0,
-                                           sizeof ( unsigned int ) );
+                        xcb_get_property ( xcb->connection, 0, c->window, xcb->ewmh._NET_WM_DESKTOP, XCB_ATOM_CARDINAL, 0,
+                                           1 );
                     r = xcb_get_property_reply ( xcb->connection, cookie, NULL );
-                    if ( r && r->type == XCB_ATOM_INTEGER ) {
-                        wmdesktop = *( (int *) xcb_get_property_value ( r ) );
+                    if ( r && r->type == XCB_ATOM_CARDINAL ) {
+                        wmdesktop = *( (uint32_t *) xcb_get_property_value ( r ) );
                     }
-                    if ( r && r->type != XCB_ATOM_INTEGER ) {
+                    if ( r && r->type != XCB_ATOM_CARDINAL) {
                         // Assume the client is on all desktops.
                         wmdesktop = 0xFFFFFFFF;
                     }
@@ -493,7 +493,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                     free ( r );
 
                     if ( wmdesktop < 0xFFFFFFFF ) {
-                        snprintf ( desktop, 5, "%d", (int) wmdesktop );
+                        snprintf ( desktop, 5, "%u", (uint32_t) wmdesktop );
                     }
 
                     snprintf ( line, len, pattern, desktop, c->class ? c->class : "", c->title ? c->title : "" );
