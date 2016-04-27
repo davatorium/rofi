@@ -90,18 +90,28 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
     while ( ( l = getline ( &buffer, &buffer_length, fd ) ) > 0 ) {
         char * start = NULL;
         // Skip empty lines.
-        if ( strlen ( buffer ) == 0 ) {
+        if ( l <= 1 ) {
+            continue;
+        }
+
+        long int index = strtol ( buffer, &start, 10 );
+        if ( start == buffer || *start == '\0' ) {
+            continue;
+        }
+        start++;
+        if ( (l - (start-buffer)) < 3) {
             continue;
         }
         // Resize and check.
         retv = g_realloc ( retv, ( *length + 2 ) * sizeof ( _element* ) );
 
         retv[( *length )] = g_malloc ( sizeof ( _element ) );
+
         // remove trailing \n
-        buffer[strlen ( buffer ) - 1] = '\0';
+        buffer[l - 1] = '\0';
         // Parse the number of times.
-        retv[( *length )]->index = strtol ( buffer, &start, 10 );
-        retv[( *length )]->name  = g_strndup ( start + 1, l - 1 - ( start + 1 - buffer ) );
+        retv[( *length )]->index = index;
+        retv[( *length )]->name  = g_strndup ( start, l - 1 - ( start - buffer ) );
         // Force trailing '\0'
         retv[( *length ) + 1] = NULL;
 
