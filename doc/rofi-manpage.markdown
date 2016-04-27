@@ -132,7 +132,7 @@ This does not validate all passed values (e.g. colors).
 
 `-dump-xresources-theme`
 
-Dump the current color schme in Xresources format to the command-line.
+Dump the current color scheme in Xresources format to the command-line.
 
 `-threads` *num*
 
@@ -373,7 +373,7 @@ When one entry is left, automatically select it.
 `-m` *num*
 `-monitor` *num*
 
-Select (Xinerama) monitor to display **rofi** on. 
+Select (Xinerama) monitor to display **rofi** on.
 Negative numbers are handled differently:
 
  *  **-1**: the currently focused monitor.
