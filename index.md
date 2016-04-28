@@ -5,6 +5,8 @@ title: Rofi
 subtitle: A window switcher, run dialog and dmenu replacement
 ---
 
+> This site is currently looking for a maintainer.
+
 A popup window switcher roughly based on [superswitcher](http://code.google.com/p/superswitcher/),
 requiring only xlib and pango.
 This version started off as a clone of simpleswitcher, the version from [Sean
