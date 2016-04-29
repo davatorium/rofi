@@ -259,7 +259,7 @@ void monitor_active ( workarea *mon )
     }
     // Get the current desktop.
     unsigned int current_desktop = 0;
-    if ( config.monitor != -2 && xcb_ewmh_get_current_desktop_reply ( &xcb->ewmh,
+    if ( config.monitor == -1 && xcb_ewmh_get_current_desktop_reply ( &xcb->ewmh,
                                                                       xcb_ewmh_get_current_desktop ( &xcb->ewmh, xcb->screen_nbr ),
                                                                       &current_desktop, NULL ) ) {
         xcb_get_property_cookie_t             c = xcb_ewmh_get_desktop_viewport ( &xcb->ewmh, xcb->screen_nbr );
@@ -282,10 +282,10 @@ void monitor_active ( workarea *mon )
         xcb_get_geometry_cookie_t c  = xcb_get_geometry ( xcb->connection, active_window );
         xcb_get_geometry_reply_t  *r = xcb_get_geometry_reply ( xcb->connection, c, NULL );
         if ( r ) {
-            if ( config.monitor == -2 ) {
-                xcb_translate_coordinates_cookie_t ct = xcb_translate_coordinates ( xcb->connection, active_window, root, r->x, r->y );
-                xcb_translate_coordinates_reply_t  *t = xcb_translate_coordinates_reply ( xcb->connection, ct, NULL );
-                if ( t ) {
+            xcb_translate_coordinates_cookie_t ct = xcb_translate_coordinates ( xcb->connection, active_window, root, r->x, r->y );
+            xcb_translate_coordinates_reply_t  *t = xcb_translate_coordinates_reply ( xcb->connection, ct, NULL );
+            if ( t ) {
+                if ( config.monitor == -2 ) {
                     // place the menu above the window
                     // if some window is focused, place menu above window, else fall
                     // back to selected monitor.
@@ -300,11 +300,15 @@ void monitor_active ( workarea *mon )
                     free ( r );
                     free ( t );
                     return;
+                } else if ( config.monitor == -4 ){
+                    monitor_dimensions ( t->dst_x, t->dst_y, mon );
+                    free(r);
+                    free(t);
+                    return;
+
                 }
             }
-            monitor_dimensions ( r->x, r->y, mon );
             free ( r );
-            return;
         }
     }
     if ( pointer_get ( root, &x, &y ) ) {
