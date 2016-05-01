@@ -240,7 +240,7 @@ The following options are further explained in the theming section:
 
 `-color-enabled`
 
-Enable the exteneded coloring options.
+Enable the extended coloring options.
 
 `-color-window` *background* *border color* *separator color */
 
