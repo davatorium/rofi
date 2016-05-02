@@ -220,7 +220,7 @@ This does not validate all passed values (e.g. colors).</p>
 
 <p><code>-dump-xresources-theme</code></p>
 
-<p>Dump the current color schme in Xresources format to the command-line.</p>
+<p>Dump the current color scheme in Xresources format to the command-line.</p>
 
 <p><code>-threads</code> <em>num</em></p>
 
@@ -341,7 +341,7 @@ To only show the run and ssh launcher:</p>
 
 <p><code>-color-enabled</code></p>
 
-<p>Enable the exteneded coloring options.</p>
+<p>Enable the extended coloring options.</p>
 
 <p><code>-color-window</code> <em>background</em> <em>border color</em> <em>separator color </em>/</p>
 
@@ -489,8 +489,10 @@ Negative numbers are handled differently:</p>
 <ul>
 <li><strong>-1</strong>: the currently focused monitor.</li>
 <li><strong>-2</strong>: the currently focused window (i.e. rofi will be displayed on top of the focused window).</li>
-<li><p><strong>-3</strong>: Position at mouse (still follows the location setting, use <code>-location 1</code> to get normal context menu
-behaviour.)</p>
+<li><strong>-3</strong>: Position at mouse (still follows the location setting, use <code>-location 1</code> to get normal context menu
+behaviour.)</li>
+<li><strong>-4</strong>: the monitor with the focused window.</li>
+<li><p><strong>-5</strong>: the monitor that shows the mouse pointer.</p>
 
 <p>Default: <em>-1</em></p></li>
 </ul>
@@ -913,20 +915,20 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 <h2 id="AUTHOR">AUTHOR</h2>
 
-<p>Qball Cow <a href="&#x6d;&#x61;&#x69;&#x6c;&#x74;&#x6f;&#x3a;&#113;&#98;&#97;&#108;&#x6c;&#x40;&#x67;&#109;&#x70;&#x63;&#108;&#105;&#x65;&#110;&#x74;&#46;&#x6f;&#x72;&#x67;" data-bare-link="true">&#113;&#x62;&#97;&#x6c;&#108;&#x40;&#103;&#x6d;&#112;&#x63;&#x6c;&#105;&#x65;&#x6e;&#116;&#x2e;&#111;&#x72;&#103;</a></p>
+<p>Qball Cow <a href="&#109;&#x61;&#x69;&#x6c;&#116;&#111;&#x3a;&#x71;&#98;&#97;&#x6c;&#108;&#64;&#x67;&#x6d;&#x70;&#99;&#x6c;&#105;&#101;&#110;&#116;&#46;&#111;&#114;&#103;" data-bare-link="true">&#113;&#98;&#x61;&#x6c;&#x6c;&#x40;&#x67;&#109;&#x70;&#x63;&#108;&#105;&#x65;&#x6e;&#116;&#46;&#x6f;&#114;&#x67;</a></p>
 
-<p>Rasmus Steinke <a href="&#109;&#97;&#105;&#x6c;&#116;&#x6f;&#x3a;&#x72;&#97;&#115;&#105;&#x40;&#120;&#x73;&#x73;&#x6e;&#x2e;&#97;&#x74;" data-bare-link="true">&#x72;&#97;&#x73;&#105;&#64;&#120;&#x73;&#115;&#110;&#x2e;&#x61;&#116;</a></p>
+<p>Rasmus Steinke <a href="&#x6d;&#x61;&#x69;&#108;&#116;&#x6f;&#58;&#114;&#97;&#115;&#105;&#64;&#120;&#115;&#x73;&#110;&#x2e;&#97;&#x74;" data-bare-link="true">&#x72;&#x61;&#115;&#x69;&#x40;&#x78;&#115;&#x73;&#x6e;&#46;&#97;&#116;</a></p>
 
-<p>Quentin Glidic <a href="&#109;&#x61;&#105;&#x6c;&#x74;&#111;&#58;&#115;&#97;&#114;&#100;&#x65;&#x6d;&#102;&#102;&#55;&#x2b;&#114;&#111;&#102;&#105;&#x40;&#115;&#x61;&#x72;&#x64;&#x65;&#x6d;&#x66;&#x66;&#55;&#x2e;&#110;&#101;&#116;" data-bare-link="true">&#115;&#97;&#114;&#100;&#101;&#109;&#x66;&#x66;&#x37;&#x2b;&#x72;&#111;&#102;&#x69;&#64;&#x73;&#97;&#x72;&#x64;&#x65;&#109;&#x66;&#102;&#55;&#46;&#x6e;&#101;&#x74;</a></p>
+<p>Quentin Glidic <a href="&#x6d;&#x61;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#x73;&#x61;&#114;&#x64;&#x65;&#109;&#x66;&#102;&#55;&#43;&#x72;&#x6f;&#x66;&#105;&#64;&#x73;&#97;&#x72;&#x64;&#x65;&#x6d;&#x66;&#x66;&#x37;&#46;&#x6e;&#x65;&#x74;" data-bare-link="true">&#115;&#x61;&#x72;&#100;&#101;&#x6d;&#x66;&#102;&#x37;&#x2b;&#114;&#111;&#x66;&#x69;&#x40;&#x73;&#97;&#x72;&#100;&#101;&#x6d;&#x66;&#x66;&#55;&#x2e;&#x6e;&#x65;&#x74;</a></p>
 
-<p>Original code based on work by: Sean Pringle <a href="&#109;&#97;&#x69;&#108;&#x74;&#x6f;&#58;&#x73;&#x65;&#x61;&#x6e;&#x2e;&#112;&#114;&#x69;&#x6e;&#103;&#x6c;&#101;&#64;&#103;&#x6d;&#x61;&#105;&#108;&#x2e;&#99;&#111;&#x6d;" data-bare-link="true">&#115;&#x65;&#x61;&#x6e;&#46;&#x70;&#114;&#x69;&#x6e;&#x67;&#x6c;&#x65;&#64;&#103;&#x6d;&#x61;&#x69;&#108;&#x2e;&#99;&#111;&#x6d;</a></p>
+<p>Original code based on work by: Sean Pringle <a href="&#109;&#x61;&#x69;&#108;&#116;&#111;&#58;&#115;&#x65;&#97;&#110;&#46;&#x70;&#x72;&#105;&#110;&#103;&#108;&#x65;&#64;&#x67;&#x6d;&#97;&#105;&#x6c;&#46;&#99;&#111;&#x6d;" data-bare-link="true">&#115;&#x65;&#x61;&#x6e;&#46;&#x70;&#x72;&#105;&#110;&#x67;&#x6c;&#101;&#64;&#103;&#x6d;&#x61;&#105;&#x6c;&#x2e;&#99;&#x6f;&#109;</a></p>
 
 <p>For a full list of authors, check the AUTHORS file.</p>
 
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
-    <li class='tc'>April 2016</li>
+    <li class='tc'>2016-05-02</li>
     <li class='tr'>rofi-manpage</li>
   </ol>
 
