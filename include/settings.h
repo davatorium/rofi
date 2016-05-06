@@ -127,6 +127,8 @@ typedef struct
     unsigned int   threads;
     unsigned int   scrollbar_width;
     unsigned int   scroll_method;
+    /** Background type */
+    char           *fake_background;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

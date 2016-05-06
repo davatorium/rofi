@@ -33,6 +33,7 @@
 #include <stdint.h>
 #include <glib.h>
 #include <cairo.h>
+#include <cairo-xcb.h>
 
 #include <xcb/xcb.h>
 #include <xcb/xinerama.h>
@@ -82,6 +83,47 @@ xcb_visualtype_t    *root_visual     = NULL;
 xcb_atom_t          netatoms[NUM_NETATOMS];
 const char          *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 static unsigned int x11_mod_masks[NUM_X11MOD];
+
+static xcb_pixmap_t get_root_pixmap ( xcb_connection_t *c,
+                                      xcb_screen_t *screen,
+                                      xcb_atom_t atom )
+{
+    xcb_get_property_cookie_t cookie;
+    xcb_get_property_reply_t  *reply;
+    xcb_pixmap_t              *rootpixmap = NULL;
+
+    cookie = xcb_get_property ( c,
+                                0,
+                                screen->root,
+                                atom,
+                                XCB_ATOM_PIXMAP,
+                                0,
+                                1 );
+
+    reply = xcb_get_property_reply ( c, cookie, NULL );
+
+    if ( reply &&
+         ( xcb_get_property_value_length ( reply ) == sizeof ( xcb_pixmap_t ) ) ) {
+        rootpixmap = (xcb_pixmap_t *) xcb_get_property_value ( reply );
+    }
+    else {
+        *rootpixmap = XCB_NONE;
+    }
+
+    free ( reply );
+
+    return *rootpixmap;
+}
+
+cairo_surface_t * x11_helper_get_bg_surface ( void )
+{
+    xcb_pixmap_t pm = get_root_pixmap ( xcb->connection, xcb->screen, netatoms[ESETROOT_PMAP_ID] );
+    if ( pm == XCB_NONE ) {
+        return NULL;
+    }
+    return cairo_xcb_surface_create ( xcb->connection, pm, root_visual,
+                                      xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
+}
 
 // retrieve a text property from a window
 // technically we could use window_get_prop(), but this is better for character set support
@@ -300,12 +342,12 @@ void monitor_active ( workarea *mon )
                     free ( r );
                     free ( t );
                     return;
-                } else if ( config.monitor == -4 ){
+                }
+                else if ( config.monitor == -4 ) {
                     monitor_dimensions ( t->dst_x, t->dst_y, mon );
-                    free(r);
-                    free(t);
+                    free ( r );
+                    free ( t );
                     return;
-
                 }
             }
             free ( r );

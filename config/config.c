@@ -125,4 +125,5 @@ Settings config = {
     .threads           =                                         1,
     .scrollbar_width   =                                         8,
     .scroll_method     =                                         0,
+    .fake_background   = "screenshot",
 };

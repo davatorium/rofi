@@ -99,7 +99,7 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
             continue;
         }
         start++;
-        if ( (l - (start-buffer)) < 3) {
+        if ( ( l - ( start - buffer ) ) < 3 ) {
             continue;
         }
         // Resize and check.

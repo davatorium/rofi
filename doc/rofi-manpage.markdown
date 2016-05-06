@@ -589,6 +589,10 @@ simultaneously. This is useful when running **rofi** from a keybinding daemon.
 
 Enable fake transparency. This only works with transparent background color in the theme, not the opacity setting.
 
+`-fake-background`
+
+Select what to use as background for fake transparency. This can be 'background' or 'screenshot'
+
 ### Debug
 
 

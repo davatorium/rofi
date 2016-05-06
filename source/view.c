@@ -517,18 +517,29 @@ static void check_is_ascii ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
 static void rofi_view_setup_fake_transparency ( void )
 {
     if ( CacheState.fake_bg == NULL ) {
-        cairo_surface_t *s = cairo_xcb_surface_create ( xcb->connection,
-                                                        xcb_stuff_get_root_window ( xcb ),
-                                                        root_visual,
-                                                        xcb->screen->width_in_pixels,
-                                                        xcb->screen->height_in_pixels );
-
-        CacheState.fake_bg = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, CacheState.mon.w, CacheState.mon.h );
-        cairo_t *dr = cairo_create ( CacheState.fake_bg );
-        cairo_set_source_surface ( dr, s, -CacheState.mon.x, -CacheState.mon.y );
-        cairo_paint ( dr );
-        cairo_destroy ( dr );
-        cairo_surface_destroy ( s );
+        cairo_surface_t *s = NULL;
+        /**
+         * Select Background to use for fake transparency.
+         * Current options: 'screenshot','background'
+         */
+        if ( g_strcmp0 ( config.fake_background, "screenshot" ) == 0 ) {
+            s = cairo_xcb_surface_create ( xcb->connection,
+                                           xcb_stuff_get_root_window ( xcb ),
+                                           root_visual,
+                                           xcb->screen->width_in_pixels,
+                                           xcb->screen->height_in_pixels );
+        }
+        else if ( g_strcmp0 ( config.fake_background, "background" ) == 0 ) {
+            s = x11_helper_get_bg_surface ();
+        }
+        if ( s != NULL ) {
+            CacheState.fake_bg = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, CacheState.mon.w, CacheState.mon.h );
+            cairo_t *dr = cairo_create ( CacheState.fake_bg );
+            cairo_set_source_surface ( dr, s, -CacheState.mon.x, -CacheState.mon.y );
+            cairo_paint ( dr );
+            cairo_destroy ( dr );
+            cairo_surface_destroy ( s );
+        }
         TICK_N ( "Fake transparency" );
     }
 }
@@ -611,7 +622,6 @@ void __create_window ( MenuFlags menu_flags )
         sn_launchee_context_setup_window ( xcb->sncontext, CacheState.main_window );
     }
 }
-
 
 /**
  * @param state Internal state of the menu.
@@ -1806,7 +1816,7 @@ void rofi_view_workers_initialize ( void )
     }
     // If error occured during setup of pool, tell user and exit.
     if ( error != NULL ) {
-        fprintf ( stderr,  "Failed to setup thread pool: '%s'", error->message );
+        fprintf ( stderr, "Failed to setup thread pool: '%s'", error->message );
         g_error_free ( error );
         exit ( EXIT_FAILURE );
     }

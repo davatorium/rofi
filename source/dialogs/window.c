@@ -470,7 +470,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                     ( ( c->title != NULL ) ? strlen ( c->title ) : 0 ) + ( c->class ? strlen ( c->class ) : 0 ) + classfield + 50;
                 char   *line = g_malloc ( len );
                 if ( !pd->config_i3_mode ) {
-                    uint32_t wmdesktop = 0;
+                    uint32_t                  wmdesktop = 0;
                     // find client's desktop.
                     xcb_get_property_cookie_t cookie;
                     xcb_get_property_reply_t  *r;
@@ -482,7 +482,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                     if ( r && r->type == XCB_ATOM_CARDINAL ) {
                         wmdesktop = *( (uint32_t *) xcb_get_property_value ( r ) );
                     }
-                    if ( r && r->type != XCB_ATOM_CARDINAL) {
+                    if ( r && r->type != XCB_ATOM_CARDINAL ) {
                         // Assume the client is on all desktops.
                         wmdesktop = 0xFFFFFFFF;
                     }
@@ -544,31 +544,32 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
         if ( rmpd->config_i3_mode ) {
             // Hack for i3.
             i3_support_focus_window ( rmpd->ids->array[selected_line] );
-        } else {
+        }
+        else {
             // Get the current desktop.
-            unsigned int current_desktop = 0;
-            xcb_get_property_cookie_t c = xcb_ewmh_get_current_desktop ( &xcb->ewmh, xcb->screen_nbr );
+            unsigned int              current_desktop = 0;
+            xcb_get_property_cookie_t c               = xcb_ewmh_get_current_desktop ( &xcb->ewmh, xcb->screen_nbr );
             if ( !xcb_ewmh_get_current_desktop_reply ( &xcb->ewmh, c, &current_desktop, NULL ) ) {
                 current_desktop = 0;
             }
 
             // Get the desktop of the client to switch to
-            uint32_t wmdesktop = 0;
+            uint32_t                  wmdesktop = 0;
             xcb_get_property_cookie_t cookie;
             xcb_get_property_reply_t  *r;
 
-            cookie = xcb_get_property (xcb->connection,
-                                       0,
-                                       rmpd->ids->array[selected_line],
-                                       xcb->ewmh._NET_WM_DESKTOP,
-                                       XCB_ATOM_CARDINAL,
-                                       0,
-                                       1);
+            cookie = xcb_get_property ( xcb->connection,
+                                        0,
+                                        rmpd->ids->array[selected_line],
+                                        xcb->ewmh._NET_WM_DESKTOP,
+                                        XCB_ATOM_CARDINAL,
+                                        0,
+                                        1 );
             r = xcb_get_property_reply ( xcb->connection, cookie, NULL );
             if ( r && r->type == XCB_ATOM_CARDINAL ) {
                 wmdesktop = *( (uint32_t *) xcb_get_property_value ( r ) );
             }
-            if ( r && r->type != XCB_ATOM_CARDINAL) {
+            if ( r && r->type != XCB_ATOM_CARDINAL ) {
                 // Assume the client is on all desktops.
                 wmdesktop = current_desktop;
             }
@@ -576,10 +577,10 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
 
             // If we have to switch the desktop, do
             if ( wmdesktop != current_desktop ) {
-                xcb_ewmh_request_change_current_desktop(&xcb->ewmh,
-                                                        xcb->screen_nbr,
-                                                        wmdesktop,
-                                                        XCB_CURRENT_TIME);
+                xcb_ewmh_request_change_current_desktop ( &xcb->ewmh,
+                                                          xcb->screen_nbr,
+                                                          wmdesktop,
+                                                          XCB_CURRENT_TIME );
             }
 
             // Activate the window

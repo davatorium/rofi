@@ -38,7 +38,9 @@ void window_set_atom_prop ( xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms, 
     X ( I3_SOCKET_PATH ),         \
     X ( UTF8_STRING ),            \
     X ( STRING ),                 \
-    X ( WM_WINDOW_ROLE )
+    X ( WM_WINDOW_ROLE ),         \
+    X ( _XROOTPMAP_ID ),          \
+    X ( ESETROOT_PMAP_ID )
 
 enum { EWMH_ATOMS ( ATOM_ENUM ), NUM_NETATOMS };
 
@@ -134,5 +136,12 @@ void color_border ( cairo_t *d  );
 void color_separator ( cairo_t *d );
 
 void x11_helper_set_cairo_rgba ( cairo_t *d, Color col );
+
+/**
+ * Gets a surface containing the background image of the desktop.
+ *
+ * @param a cairo surface with the background image of the desktop.
+ */
+cairo_surface_t * x11_helper_get_bg_surface ( void );
 /*@}*/
 #endif
