@@ -90,6 +90,8 @@ rofi.threads:                        8
 rofi.scrollbar-width:                8
 ! Scrolling method. (0: Page, 1: Centered)
 rofi.scroll-method:                  0
+! Background to use for fake transparency. (background or screenshot)
+rofi.fake-background:                screenshot
 ! Pidfile location
 rofi.pid:                            /tmp/1000-runtime-dir/rofi.pid
 ! Keybinding
