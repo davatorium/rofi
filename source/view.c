@@ -1311,6 +1311,154 @@ void rofi_view_finalize ( RofiViewState *state )
     }
 }
 
+gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction action )
+{
+    gboolean ret = TRUE;
+    switch ( action )
+    {
+    // Handling of paste
+    case PASTE_PRIMARY:
+        xcb_convert_selection ( xcb->connection, CacheState.main_window, XCB_ATOM_PRIMARY,
+                                xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
+        xcb_flush ( xcb->connection );
+        break;
+    case PASTE_SECONDARY:
+        xcb_convert_selection ( xcb->connection, CacheState.main_window, XCB_ATOM_SECONDARY,
+                                xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
+        xcb_flush ( xcb->connection );
+        break;
+    case SCREENSHOT:
+        menu_capture_screenshot ( );
+        break;
+    case TOGGLE_SORT:
+        config.levenshtein_sort = !config.levenshtein_sort;
+        state->refilter         = TRUE;
+        state->update           = TRUE;
+        textbox_text ( state->case_indicator, get_matching_state () );
+        break;
+    case MODE_PREVIOUS:
+        state->retv              = MENU_PREVIOUS;
+        ( state->selected_line ) = 0;
+        state->quit              = TRUE;
+        break;
+    // Menu navigation.
+    case MODE_NEXT:
+        state->retv              = MENU_NEXT;
+        ( state->selected_line ) = 0;
+        state->quit              = TRUE;
+        break;
+    // Toggle case sensitivity.
+    case TOGGLE_CASE_SENSITIVITY:
+        config.case_sensitive    = !config.case_sensitive;
+        ( state->selected_line ) = 0;
+        state->refilter          = TRUE;
+        state->update            = TRUE;
+        textbox_text ( state->case_indicator, get_matching_state () );
+        break;
+    // Special delete entry command.
+    case DELETE_ENTRY:
+        if ( state->selected < state->filtered_lines ) {
+            ( state->selected_line ) = state->line_map[state->selected];
+            state->retv              = MENU_ENTRY_DELETE;
+            state->quit              = TRUE;
+        }
+        else {
+            ret = FALSE;
+        }
+        break;
+    case CUSTOM_1:
+    case CUSTOM_2:
+    case CUSTOM_3:
+    case CUSTOM_4:
+    case CUSTOM_5:
+    case CUSTOM_6:
+    case CUSTOM_7:
+    case CUSTOM_8:
+    case CUSTOM_9:
+    case CUSTOM_10:
+    case CUSTOM_11:
+    case CUSTOM_12:
+    case CUSTOM_13:
+    case CUSTOM_14:
+    case CUSTOM_15:
+    case CUSTOM_16:
+    case CUSTOM_17:
+    case CUSTOM_18:
+    case CUSTOM_19:
+        state->selected_line = UINT32_MAX;
+        if ( state->selected < state->filtered_lines ) {
+            ( state->selected_line ) = state->line_map[state->selected];
+        }
+        state->retv = MENU_QUICK_SWITCH | ( ( action - CUSTOM_1 ) & MENU_LOWER_MASK );
+        state->quit = TRUE;
+        break;
+    // If you add a binding here, make sure to add it to rofi_view_keyboard_navigation too
+    case CANCEL:
+    case ROW_UP:
+    case ROW_TAB:
+    case ROW_DOWN:
+    case ROW_LEFT:
+    case ROW_RIGHT:
+    case PAGE_PREV:
+    case PAGE_NEXT:
+    case ROW_FIRST:
+    case ROW_LAST:
+    case ROW_SELECT:
+        rofi_view_keyboard_navigation ( state, action );
+        break;
+    // If you add a binding here, make sure to add it to textbox_keybinding too
+    case MOVE_CHAR_BACK:
+    case MOVE_CHAR_FORWARD:
+    case CLEAR_LINE:
+    case MOVE_FRONT:
+    case MOVE_END:
+    case REMOVE_WORD_BACK:
+    case REMOVE_WORD_FORWARD:
+    case REMOVE_CHAR_FORWARD:
+    case MOVE_WORD_BACK:
+    case MOVE_WORD_FORWARD:
+    case REMOVE_CHAR_BACK:
+    case ACCEPT_CUSTOM:
+    case ACCEPT_ENTRY:
+    {
+        int rc = textbox_keybinding ( state->text, action );
+        // Row is accepted.
+        if ( rc < 0 ) {
+            // If a valid item is selected, return that..
+            state->selected_line = UINT32_MAX;
+            if ( state->selected < state->filtered_lines ) {
+                ( state->selected_line ) = state->line_map[state->selected];
+                state->retv              = MENU_OK;
+            }
+            else {
+                // Nothing entered and nothing selected.
+                state->retv = MENU_CUSTOM_INPUT;
+            }
+            if ( rc == -2 ) {
+                state->retv |= MENU_CUSTOM_ACTION;
+            }
+
+            state->quit = TRUE;
+        }
+        // Key press is handled by entry box.
+        else if ( rc == 1 ) {
+            state->refilter = TRUE;
+            state->update   = TRUE;
+        }
+        else if (  rc == 2 ) {
+            // redraw.
+            state->update = TRUE;
+        }
+        break;
+    }
+    case NUM_ABE:
+        ret = FALSE;
+        break;
+    }
+
+    return ret;
+}
+
 static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xcb_key_press_event_t *xkpe )
 {
     xcb_keysym_t          key;
@@ -1352,146 +1500,8 @@ static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xc
         KeyBindingAction action;
 
         action = abe_find_action ( modstate, key );
-        switch ( action )
-        {
-        // Handling of paste
-        case PASTE_PRIMARY:
-            xcb_convert_selection ( xcb->connection, CacheState.main_window, XCB_ATOM_PRIMARY,
-                                    xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
-            xcb_flush ( xcb->connection );
+        if ( rofi_view_trigger_action ( state, action ) ) {
             return;
-        case PASTE_SECONDARY:
-            xcb_convert_selection ( xcb->connection, CacheState.main_window, XCB_ATOM_SECONDARY,
-                                    xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
-            xcb_flush ( xcb->connection );
-            return;
-        case SCREENSHOT:
-            menu_capture_screenshot ( );
-            return;
-        case TOGGLE_SORT:
-            config.levenshtein_sort = !config.levenshtein_sort;
-            state->refilter         = TRUE;
-            state->update           = TRUE;
-            textbox_text ( state->case_indicator, get_matching_state () );
-            return;
-        case MODE_PREVIOUS:
-            state->retv              = MENU_PREVIOUS;
-            ( state->selected_line ) = 0;
-            state->quit              = TRUE;
-            return;
-        // Menu navigation.
-        case MODE_NEXT:
-            state->retv              = MENU_NEXT;
-            ( state->selected_line ) = 0;
-            state->quit              = TRUE;
-            return;
-        // Toggle case sensitivity.
-        case TOGGLE_CASE_SENSITIVITY:
-            config.case_sensitive    = !config.case_sensitive;
-            ( state->selected_line ) = 0;
-            state->refilter          = TRUE;
-            state->update            = TRUE;
-            textbox_text ( state->case_indicator, get_matching_state () );
-            return;
-        // Special delete entry command.
-        case DELETE_ENTRY:
-            if ( state->selected < state->filtered_lines ) {
-                ( state->selected_line ) = state->line_map[state->selected];
-                state->retv              = MENU_ENTRY_DELETE;
-                state->quit              = TRUE;
-                return;
-            }
-            break;
-        case CUSTOM_1:
-        case CUSTOM_2:
-        case CUSTOM_3:
-        case CUSTOM_4:
-        case CUSTOM_5:
-        case CUSTOM_6:
-        case CUSTOM_7:
-        case CUSTOM_8:
-        case CUSTOM_9:
-        case CUSTOM_10:
-        case CUSTOM_11:
-        case CUSTOM_12:
-        case CUSTOM_13:
-        case CUSTOM_14:
-        case CUSTOM_15:
-        case CUSTOM_16:
-        case CUSTOM_17:
-        case CUSTOM_18:
-        case CUSTOM_19:
-            state->selected_line = UINT32_MAX;
-            if ( state->selected < state->filtered_lines ) {
-                ( state->selected_line ) = state->line_map[state->selected];
-            }
-            state->retv = MENU_QUICK_SWITCH | ( ( action - CUSTOM_1 ) & MENU_LOWER_MASK );
-            state->quit = TRUE;
-            return;
-        // If you add a binding here, make sure to add it to rofi_view_keyboard_navigation too
-        case CANCEL:
-        case ROW_UP:
-        case ROW_TAB:
-        case ROW_DOWN:
-        case ROW_LEFT:
-        case ROW_RIGHT:
-        case PAGE_PREV:
-        case PAGE_NEXT:
-        case ROW_FIRST:
-        case ROW_LAST:
-        case ROW_SELECT:
-            rofi_view_keyboard_navigation ( state, action );
-            return;
-        // If you add a binding here, make sure to add it to textbox_keybinding too
-        case MOVE_CHAR_BACK:
-        case MOVE_CHAR_FORWARD:
-        case CLEAR_LINE:
-        case MOVE_FRONT:
-        case MOVE_END:
-        case REMOVE_WORD_BACK:
-        case REMOVE_WORD_FORWARD:
-        case REMOVE_CHAR_FORWARD:
-        case MOVE_WORD_BACK:
-        case MOVE_WORD_FORWARD:
-        case REMOVE_CHAR_BACK:
-        case ACCEPT_CUSTOM:
-        case ACCEPT_ENTRY:
-        {
-            int rc = textbox_keybinding ( state->text, action );
-            // Row is accepted.
-            if ( rc < 0 ) {
-                // If a valid item is selected, return that..
-                state->selected_line = UINT32_MAX;
-                if ( state->selected < state->filtered_lines ) {
-                    ( state->selected_line ) = state->line_map[state->selected];
-                    state->retv              = MENU_OK;
-                }
-                else {
-                    // Nothing entered and nothing selected.
-                    state->retv = MENU_CUSTOM_INPUT;
-                }
-                if ( rc == -2 ) {
-                    state->retv |= MENU_CUSTOM_ACTION;
-                }
-
-                state->quit = TRUE;
-                return;
-            }
-            // Key press is handled by entry box.
-            else if ( rc == 1 ) {
-                state->refilter = TRUE;
-                state->update   = TRUE;
-                return;
-            }
-            else if (  rc == 2 ) {
-                // redraw.
-                state->update = TRUE;
-                return;
-            }
-            break;
-        }
-        case NUM_ABE:
-            break;
         }
     }
 
