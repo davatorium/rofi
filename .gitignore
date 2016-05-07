@@ -1,19 +1,19 @@
-build/
+/build/
 
 # autotools generated files
-missing
-install-sh
-configure
-config.status
-config.h.in
-config.h
-Makefile.in
-Makefile
-aclocal.m4
-autom4te.cache/
-compile
-depcomp
-stamp-h1
+/missing
+/install-sh
+/configure
+/config.status
+/config.h.in
+/config.h
+/Makefile.in
+/Makefile
+/aclocal.m4
+/autom4te.cache/
+/compile
+/depcomp
+/stamp-h1
 .dirstamp
 .deps/
 *.o
@@ -22,13 +22,17 @@ stamp-h1
 *.gcno
 
 # generated files
-helper_test
-rofi_test
-textbox_test
-rofi
-doc/*.html
-doc/*.1
-doc/*.doxy
+/helper_test
+/helper_config_cmdline_parser
+/helper_expand
+/history_test
+/rofi_test
+/textbox_test
+/rofi
+/doc/*.html
+/doc/*.1
+/doc/*.doxy
+/gitconfig.h
 
 # I want to ignore log files
 *.log
