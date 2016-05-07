@@ -1,19 +1,34 @@
-*.swp
-*.*~
 build/
+
+# autotools generated files
 missing
 install-sh
 configure
+config.status
 config.h.in
+config.h
 Makefile.in
+Makefile
 aclocal.m4
 autom4te.cache/
 compile
 depcomp
+stamp-h1
+.dirstamp
+.deps/
 *.o
 *.gcov
 *.gcda
 *.gcno
+
+# generated files
+helper_test
+rofi_test
+textbox_test
+rofi
+doc/*.html
+doc/*.1
+doc/*.doxy
 
 # I want to ignore log files
 *.log
@@ -24,22 +39,8 @@ core
 # ignore patches too, the code is either checked in or branch.
 *.patch*
 
-doc/*.html
-doc/*.1
-doc/*.doxy
+# backup files
+*.swp
+*.*~
 *.unc-backup~
 *.unc-backup.md5~
-
-# autotools generated files
-*.dirstamp
-*.deps
-Makefile
-config.h
-config.status
-stamp-h1
-
-# generated executables
-helper_test
-rofi
-rofi_test
-textbox_test
