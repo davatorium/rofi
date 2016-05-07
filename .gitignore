@@ -36,7 +36,6 @@ doc/*.doxy
 Makefile
 config.h
 config.status
-config/config.c
 stamp-h1
 
 # generated executables
