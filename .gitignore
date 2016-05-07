@@ -26,5 +26,21 @@ core
 
 doc/*.html
 doc/*.1
+doc/*.doxy
 *.unc-backup~
 *.unc-backup.md5~
+
+# autotools generated files
+*.dirstamp
+*.deps
+Makefile
+config.h
+config.status
+config/config.c
+stamp-h1
+
+# generated executables
+helper_test
+rofi
+rofi_test
+textbox_test
