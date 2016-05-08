@@ -1154,7 +1154,7 @@ static void rofi_view_keyboard_navigation ( RofiViewState *state, KeyBindingActi
         }
         break;
     default:
-        g_return_if_reached();
+        g_return_if_reached ();
     }
 }
 
@@ -1461,9 +1461,9 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
 
 static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xcb_key_press_event_t *xkpe )
 {
-    xcb_keysym_t          key;
-    char                  pad[32];
-    int                   len = 0;
+    xcb_keysym_t key;
+    char         pad[32];
+    int          len = 0;
 
     key = xkb_state_key_get_one_sym ( xkb->state, xkpe->detail );
 
@@ -1544,11 +1544,11 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
         break;
     case XCB_KEYMAP_NOTIFY:
     {
-        xcb_keymap_notify_event_t *kne = (xcb_keymap_notify_event_t *) ev;
-        guint modstate = x11_get_current_mask ( xkb );
-        for ( gint32 by = 0 ; by < 32 ; ++by ) {
-            for ( gint8 bi = 0 ; bi < 7 ; ++bi ) {
-                if ( kne->keys[by] & (1 << bi) ) {
+        xcb_keymap_notify_event_t *kne     = (xcb_keymap_notify_event_t *) ev;
+        guint                     modstate = x11_get_current_mask ( xkb );
+        for ( gint32 by = 0; by < 32; ++by ) {
+            for ( gint8 bi = 0; bi < 7; ++bi ) {
+                if ( kne->keys[by] & ( 1 << bi ) ) {
                     // X11 keycodes starts at 8
                     xkb_keysym_t key = xkb_state_key_get_one_sym ( xkb->state, ( 8 * by + bi ) + 8 );
                     abe_find_action ( modstate, key );
@@ -1562,8 +1562,8 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
         break;
     case XCB_KEY_RELEASE:
     {
-        xcb_key_release_event_t *xkre = (xcb_key_release_event_t *) ev;
-        unsigned int modstate = x11_canonalize_mask ( xkre->state );
+        xcb_key_release_event_t *xkre    = (xcb_key_release_event_t *) ev;
+        unsigned int            modstate = x11_canonalize_mask ( xkre->state );
         if ( modstate == 0 ) {
             abe_trigger_release ( );
         }

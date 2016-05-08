@@ -439,7 +439,7 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
         case XCB_XKB_STATE_NOTIFY:
         {
             xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
-            guint modmask;
+            guint                        modmask;
             xkb_state_update_mask ( xkb.state,
                                     ksne->baseMods,
                                     ksne->latchedMods,

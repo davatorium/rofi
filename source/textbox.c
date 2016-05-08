@@ -528,7 +528,7 @@ static void textbox_cursor_del_word ( textbox *tb )
 int textbox_keybinding ( textbox *tb, KeyBindingAction action )
 {
     if ( !( tb->flags & TB_EDITABLE ) ) {
-        g_return_val_if_reached(0);
+        g_return_val_if_reached ( 0 );
     }
 
     switch ( action )
@@ -582,10 +582,10 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action )
     case ACCEPT_ENTRY:
         return -1;
     default:
-        g_return_val_if_reached(0);
+        g_return_val_if_reached ( 0 );
     }
 
-    g_return_val_if_reached(0);
+    g_return_val_if_reached ( 0 );
 }
 
 gboolean textbox_append ( textbox *tb, char *pad, int pad_len )

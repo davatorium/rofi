@@ -440,7 +440,7 @@ unsigned int x11_canonalize_mask ( unsigned int mask )
 unsigned int x11_get_current_mask ( xkb_stuff *xkb )
 {
     unsigned int mask = 0;
-    for ( gsize i = 0 ; i < xkb_keymap_num_mods(xkb->keymap) ; ++i ) {
+    for ( gsize i = 0; i < xkb_keymap_num_mods ( xkb->keymap ); ++i ) {
         if ( xkb_state_mod_index_is_active ( xkb->state, i, XKB_STATE_MODS_EFFECTIVE ) ) {
             mask |= ( 1 << i );
         }
@@ -454,7 +454,7 @@ gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key, gboo
     GString      *str    = g_string_new ( "" );
     unsigned int modmask = 0;
 
-    if ( g_str_has_prefix(combo, "!") ) {
+    if ( g_str_has_prefix ( combo, "!" ) ) {
         ++combo;
         *release = TRUE;
     }
@@ -508,7 +508,7 @@ gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key, gboo
     }
 
     // if there's no "-" or "+", we might be binding directly to a modifier key - no modmask
-    if( i == 0 ) {
+    if ( i == 0 ) {
         *mod = 0;
     }
     else {
