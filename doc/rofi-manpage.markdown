@@ -591,7 +591,8 @@ Enable fake transparency. This only works with transparent background color in t
 
 `-fake-background`
 
-Select what to use as background for fake transparency. This can be 'background' or 'screenshot'
+Select what to use as background for fake transparency. This can be 'background', 'screenshot' or a path to an image
+file (currently only supports png).
 
 ### Debug
 

@@ -76,6 +76,7 @@ struct
     xcb_window_t    main_window;
     cairo_surface_t *surface;
     cairo_surface_t *fake_bg;
+    int             fake_bgrel;
     cairo_t         *draw;
     MenuFlags       flags;
     GQueue          views;
@@ -86,6 +87,7 @@ struct
     .main_window = XCB_WINDOW_NONE,
     .surface     = NULL,
     .fake_bg     = NULL,
+    .fake_bgrel  = FALSE,
     .draw        = NULL,
     .flags       = MENU_NORMAL,
     .views       = G_QUEUE_INIT,
@@ -532,13 +534,30 @@ static void rofi_view_setup_fake_transparency ( void )
         else if ( g_strcmp0 ( config.fake_background, "background" ) == 0 ) {
             s = x11_helper_get_bg_surface ();
         }
+        else {
+            char *fpath = rofi_expand_path ( config.fake_background );
+            s                     = cairo_image_surface_create_from_png ( fpath );
+            CacheState.fake_bgrel = TRUE;
+            g_free ( fpath );
+        }
         if ( s != NULL ) {
-            CacheState.fake_bg = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, CacheState.mon.w, CacheState.mon.h );
-            cairo_t *dr = cairo_create ( CacheState.fake_bg );
-            cairo_set_source_surface ( dr, s, -CacheState.mon.x, -CacheState.mon.y );
-            cairo_paint ( dr );
-            cairo_destroy ( dr );
-            cairo_surface_destroy ( s );
+            if ( cairo_surface_status ( s ) != CAIRO_STATUS_SUCCESS ) {
+                cairo_surface_destroy ( s );
+                s = NULL;
+            }
+            else {
+                CacheState.fake_bg = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, CacheState.mon.w, CacheState.mon.h );
+                cairo_t *dr = cairo_create ( CacheState.fake_bg );
+                if ( CacheState.fake_bgrel ) {
+                    cairo_set_source_surface ( dr, s, 0, 0 );
+                }
+                else {
+                    cairo_set_source_surface ( dr, s, -CacheState.mon.x, -CacheState.mon.y );
+                }
+                cairo_paint ( dr );
+                cairo_destroy ( dr );
+                cairo_surface_destroy ( s );
+            }
         }
         TICK_N ( "Fake transparency" );
     }
@@ -954,9 +973,14 @@ void rofi_view_update ( RofiViewState *state )
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
     if ( config.fake_transparency ) {
         if ( CacheState.fake_bg != NULL ) {
-            cairo_set_source_surface ( d, CacheState.fake_bg,
-                                       -(double) ( CacheState.x - CacheState.mon.x ),
-                                       -(double) ( CacheState.y - CacheState.mon.y ) );
+            if ( CacheState.fake_bgrel ) {
+                cairo_set_source_surface ( d, CacheState.fake_bg, 0.0, 0.0 );
+            }
+            else {
+                cairo_set_source_surface ( d, CacheState.fake_bg,
+                                           -(double) ( CacheState.x - CacheState.mon.x ),
+                                           -(double) ( CacheState.y - CacheState.mon.y ) );
+            }
             cairo_paint ( d );
             cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
             color_background ( d );
