@@ -1,3 +1,11 @@
+unreleased
+    New Features
+    Improvements
+        - Allow user to use X11 background for fake transparency (#390)
+        - Allow user to specify background image.
+        - Improved keybinding handling, allowing on-release and modifier only (#384).
+    Bug fixes
+
 1.0.1
     Bug fixes
          - Fix typo in manpage.
