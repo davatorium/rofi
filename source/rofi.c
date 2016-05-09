@@ -151,6 +151,7 @@ static void teardown ( int pfd )
 
     // Release the window.
     release_keyboard ( );
+    release_pointer ( );
 
     // Cleanup view
     rofi_view_cleanup ();

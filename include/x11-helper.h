@@ -64,6 +64,7 @@ int monitor_get_smallest_size ( void );
  * Release keyboard.
  */
 void release_keyboard ( void );
+void release_pointer ( void );
 
 /**
  * @param w       xcb_window_t we want to grab keyboard on.
@@ -73,6 +74,7 @@ void release_keyboard ( void );
  * @return 1 when keyboard is grabbed, 0 not.
  */
 int take_keyboard ( xcb_window_t w );
+int take_pointer ( xcb_window_t w );
 
 /**
  * @param mask The mask to canonilize

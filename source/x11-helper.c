@@ -360,7 +360,28 @@ void monitor_active ( workarea *mon )
 
     monitor_dimensions ( 0, 0, mon );
 }
-
+int take_pointer ( xcb_window_t w )
+{
+    for ( int i = 0; i < 500; i++ ) {
+        if ( xcb_connection_has_error ( xcb->connection ) ) {
+            fprintf ( stderr, "Connection has error\n" );
+            exit ( EXIT_FAILURE );
+        }
+        xcb_grab_pointer_cookie_t cc = xcb_grab_pointer ( xcb->connection, 1, w, XCB_EVENT_MASK_BUTTON_RELEASE,
+                                                          XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, w, XCB_NONE, XCB_CURRENT_TIME );
+        xcb_grab_pointer_reply_t  *r = xcb_grab_pointer_reply ( xcb->connection, cc, NULL );
+        if ( r ) {
+            if ( r->status == XCB_GRAB_STATUS_SUCCESS ) {
+                free ( r );
+                return 1;
+            }
+            free ( r );
+        }
+        usleep ( 1000 );
+    }
+    fprintf ( stderr, "Failed to grab pointer.\n" );
+    return 0;
+}
 int take_keyboard ( xcb_window_t w )
 {
     for ( int i = 0; i < 500; i++ ) {
@@ -388,6 +409,10 @@ int take_keyboard ( xcb_window_t w )
 void release_keyboard ( void )
 {
     xcb_ungrab_keyboard ( xcb->connection, XCB_CURRENT_TIME );
+}
+void release_pointer ( void )
+{
+    xcb_ungrab_pointer ( xcb->connection, XCB_CURRENT_TIME );
 }
 
 static unsigned int x11_find_mod_mask ( xkb_stuff *xkb, ... )

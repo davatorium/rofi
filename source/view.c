@@ -1680,6 +1680,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
             rofi_view_free ( state );
             return NULL;
         }
+        take_pointer ( xcb_stuff_get_root_window ( xcb ) );
     }
     TICK_N ( "Grab keyboard" );
     // Get active monitor size.
@@ -1836,6 +1837,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
             fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
             return FALSE;
         }
+        take_pointer ( xcb_stuff_get_root_window ( xcb ) );
     }
 
     rofi_view_calculate_window_and_element_width ( state );

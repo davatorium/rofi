@@ -5,6 +5,7 @@ unreleased
         - Allow user to specify background image.
         - Improved keybinding handling, allowing on-release and modifier only (#384).
     Bug fixes
+        - Grab mouse pointer with keyboard
 
 1.0.1
     Bug fixes
