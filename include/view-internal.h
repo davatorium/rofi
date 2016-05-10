@@ -28,7 +28,7 @@ struct RofiViewState
     int              update;
     int              refilter;
     int              rchanged;
-    int              cur_page;
+    unsigned int     cur_page;
 
     // Entries
     textbox          *text;

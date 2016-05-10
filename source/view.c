@@ -862,7 +862,7 @@ static unsigned int rofi_scroll_per_page ( RofiViewState * state )
     }
     else{
         // Do paginating
-        int page = ( state->max_elements > 0 ) ? ( state->selected / state->max_elements ) : 0;
+        unsigned int page = ( state->max_elements > 0 ) ? ( state->selected / state->max_elements ) : 0;
         offset             = page * state->max_elements;
         state->last_offset = offset;
         if ( page != state->cur_page ) {
