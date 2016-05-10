@@ -2,6 +2,7 @@
 #define ROFI_HELPER_H
 #include "rofi.h"
 
+#include <pango/pango.h>
 /**
  * @defgroup HELPERS Helpers
  */
@@ -171,5 +172,6 @@ unsigned int levenshtein ( const char *needle, const char *haystack );
  */
 char * rofi_force_utf8 ( gchar *data );
 char * rofi_latin_to_utf8_strdup ( const char *input, gssize length );
+PangoAttrList *regex_token_match_get_pango_attr ( char **tokens, const char *input, PangoAttrList *retv );
 /*@}*/
 #endif // ROFI_HELPER_H

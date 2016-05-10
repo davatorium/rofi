@@ -933,6 +933,7 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
     int x_offset       = state->border;
 
     if ( state->rchanged ) {
+        char **tokens = tokenize ( state->text->text, config.case_sensitive );
         // Move, resize visible boxes and show them.
         for ( i = 0; i < max_elements && ( i + offset ) < state->filtered_lines; i++ ) {
             unsigned int ex = ( ( i ) / state->max_rows ) * ( element_width + config.line_margin );
@@ -946,10 +947,19 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
                 TextBoxFontType tbft   = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
                 textbox_font ( state->boxes[i], tbft );
                 textbox_text ( state->boxes[i], text );
+
+                PangoAttrList *list = textbox_get_pango_attributes ( state->boxes[i] );
+                if ( list != NULL )
+                    pango_attr_list_ref ( list );
+                else list = pango_attr_list_new ();
+                regex_token_match_get_pango_attr ( tokens, textbox_get_visible_text ( state->boxes[i] ), list );
+                textbox_set_pango_attributes ( state->boxes[i], list );
+                pango_attr_list_unref ( list );
                 g_free ( text );
             }
             textbox_draw ( state->boxes[i], d );
         }
+        tokenize_free ( tokens );
         state->rchanged = FALSE;
     }
     else{

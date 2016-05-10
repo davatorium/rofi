@@ -410,6 +410,29 @@ static int regex_token_match ( char **tokens, const char *input, G_GNUC_UNUSED i
     return match;
 }
 
+PangoAttrList *regex_token_match_get_pango_attr ( char **tokens, const char *input, PangoAttrList *retv )
+{
+    if ( config.regex == FALSE ) return retv;
+    // Do a tokenized match.
+    if ( tokens ) {
+        for ( int j = 0; tokens[j]; j++ ) {
+            GMatchInfo *gmi = NULL;
+            g_regex_match ( (GRegex *) tokens[j], input, G_REGEX_MATCH_PARTIAL, &gmi );
+            while ( g_match_info_matches ( gmi ) ) {
+                int            start, end;
+                g_match_info_fetch_pos ( gmi, 0, &start, &end );
+                PangoAttribute *pa = pango_attr_underline_new ( PANGO_UNDERLINE_SINGLE );
+                pa->start_index = start;
+                pa->end_index   = end;
+                pango_attr_list_insert ( retv, pa );
+                g_match_info_next ( gmi, NULL );
+            }
+            g_match_info_free ( gmi );
+        }
+    }
+    return retv;
+}
+
 static int glob_token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive )
 {
     int  match  = 1;

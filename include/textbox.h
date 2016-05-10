@@ -225,6 +225,10 @@ void textbox_delete ( textbox *tb, int pos, int dlen );
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
 int textbox_get_estimated_char_height ( void );
 void textbox_set_pango_context ( PangoContext *p );
+void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list );
 
+PangoAttrList *textbox_get_pango_attributes ( textbox *tb );
+
+const char *textbox_get_visible_text ( textbox *tb );
 /*@}*/
 #endif //ROFI_TEXTBOX_H
