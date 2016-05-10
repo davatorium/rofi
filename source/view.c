@@ -888,8 +888,11 @@ static unsigned int rofi_scroll_continious ( RofiViewState * state )
             offset = state->filtered_lines - state->menu_lines;
         }
     }
-    state->rchanged = TRUE;
-    scrollbar_set_handle ( state->scrollbar, offset );
+    if ( offset != state->cur_page ) {
+        state->rchanged = TRUE;
+        scrollbar_set_handle ( state->scrollbar, offset );
+        state->cur_page = offset;
+    }
     return offset;
 }
 
