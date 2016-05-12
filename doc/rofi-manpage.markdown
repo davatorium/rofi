@@ -22,6 +22,7 @@
 [ -filter *filter* ]
 [ -ssh-client *client* ]
 [ -ssh-command *command* ]
+[ -window-command *command* ]
 [ -disable-history ]
 [ -levenshtein-sort ]
 [ -case-sensitive ]
@@ -448,6 +449,13 @@ If set, use an external tool to generate list of executable commands. Uses 'run-
 
 Default: *""*
 
+`-window-command` *cmd*
+
+Set command to execute on selected window for custom action.
+See *PATTERN*.
+
+Default: *"xkill -id {window}"*
+
 ### Combi settings
 
 `-combi-modi` *mode1,mode2*
@@ -713,11 +721,13 @@ A keybinding starting with `!` will act when all keys have been released.
 
 Show a list of all the windows and allow switching between them.
 Pressing the `delete-entry` binding (`shift-delete`) will kill the window.
+Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run a command on the window.
 
 ### WindowCD
 
 Shows a list of the windows on the current desktop and allows switching between them.
 Pressing the `delete-entry` binding (`shift-delete`) will kill the window.
+Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run a command on the window.
 
 ### Run
 

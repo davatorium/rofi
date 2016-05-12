@@ -526,6 +526,34 @@ static int window_mode_init_cd ( Mode *sw )
     }
     return TRUE;
 }
+
+static inline int act_on_window ( xcb_window_t window )
+{
+    int  retv   = TRUE;
+    char **args = NULL;
+    int  argc   = 0;
+    char window_str[100]; /* We are probably safe here */
+
+    g_snprintf(window_str, sizeof window_str, "%d", window);
+
+    helper_parse_setup ( config.window_command, &args, &argc, "{window}", window_str, NULL );
+
+    GError *error = NULL;
+    g_spawn_async ( NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error );
+    if ( error != NULL ) {
+        char *msg = g_strdup_printf ( "Failed to execute action for window: '%s'\nError: '%s'", window_str, error->message );
+        rofi_view_error_dialog ( msg, FALSE  );
+        g_free ( msg );
+        // print error.
+        g_error_free ( error );
+        retv = FALSE;
+    }
+
+    // Free the args list.
+    g_strfreev ( args );
+    return retv;
+}
+
 static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **input,
                                      unsigned int selected_line )
 {
@@ -541,7 +569,10 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
         retv = ( mretv & MENU_LOWER_MASK );
     }
     else if ( ( mretv & ( MENU_OK ) ) && rmpd->cmd_list[selected_line] ) {
-        if ( rmpd->config_i3_mode ) {
+        if ( mretv & MENU_CUSTOM_ACTION ) {
+            act_on_window ( rmpd->ids->array[selected_line] );
+        }
+        else if ( rmpd->config_i3_mode ) {
             // Hack for i3.
             i3_support_focus_window ( rmpd->ids->array[selected_line] );
         }
