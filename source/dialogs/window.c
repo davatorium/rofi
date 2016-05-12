@@ -590,6 +590,11 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
             xcb_flush ( xcb->connection );
         }
     }
+    else if ( ( mretv & ( MENU_ENTRY_DELETE ) ) == MENU_ENTRY_DELETE ) {
+        /* TODO: WM_DELETE_WINDOW support, see i3 */
+        xcb_destroy_window ( xcb->connection, rmpd->ids->array[selected_line] );
+        xcb_flush ( xcb->connection );
+    }
     return retv;
 }
 

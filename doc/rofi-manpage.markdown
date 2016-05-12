@@ -712,10 +712,12 @@ A keybinding starting with `!` will act when all keys have been released.
 ### Window
 
 Show a list of all the windows and allow switching between them.
+Pressing the `delete-entry` binding (`shift-delete`) will kill the window.
 
 ### WindowCD
 
 Shows a list of the windows on the current desktop and allows switching between them.
+Pressing the `delete-entry` binding (`shift-delete`) will kill the window.
 
 ### Run
 
