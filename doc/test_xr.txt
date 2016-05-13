@@ -42,6 +42,8 @@ rofi.run-command:                    bash -c "{cmd}"
 rofi.run-list-command:               
 ! Run command to execute that runs in shell
 rofi.run-shell-command:              {terminal} -e {cmd}
+! Command executed on accep-entry-custom for window modus
+rofi.window-command:                 xkill -id {window}
 ! Disable history in run/ssh
 rofi.disable-history:                false
 ! Use levenshtein sorting
