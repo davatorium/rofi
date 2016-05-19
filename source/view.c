@@ -799,9 +799,9 @@ inline static void rofi_view_nav_left ( RofiViewState *state )
 inline static void rofi_view_nav_up ( RofiViewState *state )
 {
     // If no lines or don't cycle, do nothing.
-	if ( state->filtered_lines == 0 || ( state->selected == 0 && !config.cycle ) ) {
-		return;
-	}
+    if ( state->filtered_lines == 0 || ( state->selected == 0 && !config.cycle ) ) {
+        return;
+    }
 
     // Wrap around.
     if ( state->selected == 0 ) {

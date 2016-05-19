@@ -90,8 +90,8 @@ typedef struct
     unsigned int   levenshtein_sort;
     /** Search case sensitivity */
     unsigned int   case_sensitive;
-	/** Cycle through in the element list */
-	unsigned int   cycle;
+    /** Cycle through in the element list */
+    unsigned int   cycle;
     /** Height of an element in number of rows */
     int            element_height;
     /** Sidebar mode, show the modi */
