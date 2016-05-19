@@ -125,6 +125,8 @@ static XrmOption xrmOptions[] = {
       "Use levenshtein sorting"                                             },
     { xrm_Boolean, "case-sensitive",    { .num  = &config.case_sensitive     }, NULL,
       "Set case-sensitivity"                                                },
+	{ xrm_Boolean, "cycle",		        { .num  = &config.cycle              },  NULL,
+	  "Cycle through the results list"                                      },
     { xrm_Boolean, "sidebar-mode",      { .num  = &config.sidebar_mode       }, NULL,
       "Enable sidebar-mode"                                                 },
     { xrm_SNumber, "eh",                { .snum = &config.element_height     }, NULL,
