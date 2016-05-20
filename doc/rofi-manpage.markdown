@@ -26,6 +26,7 @@
 [ -disable-history ]
 [ -levenshtein-sort ]
 [ -case-sensitive ]
+[ -cycle ]
 [ -show *mode* ]
 [ -modi *mode1,mode2* ]
 [ -eh *element height* ]
@@ -184,6 +185,10 @@ Example: Have a mode 'Workspaces' using the `i3_switch_workspace.sh` script:
 `-case-sensitive`
 
 Start in case sensitive mode.
+
+`-cycle`
+
+Cycle through the results list. Default is 'true'.
 
 `-fuzzy`
 
