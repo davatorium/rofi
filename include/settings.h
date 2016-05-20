@@ -71,6 +71,8 @@ typedef struct
     char           * run_shell_command;
     /** Command for listing executables */
     char           * run_list_command;
+    /** Command for window */
+    char           * window_command;
 
     /** Windows location/gravity */
     WindowLocation location;

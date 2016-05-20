@@ -66,6 +66,8 @@ Settings config = {
     .run_list_command  = "",
     /** Command executed when running application in terminal */
     .run_shell_command = "{terminal} -e {cmd}",
+    /** Command executed on accep-entry-custom for window modus */
+    .window_command = "xkill -id {window}",
     /**
      * Location of the window.
      * Enumeration indicating location or gravity of window.

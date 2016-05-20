@@ -116,6 +116,8 @@ static XrmOption xrmOptions[] = {
       "Command to get extra run targets"                                    },
     { xrm_String,  "run-shell-command", { .str  = &config.run_shell_command  }, NULL,
       "Run command to execute that runs in shell"                           },
+    { xrm_String,  "window-command",    { .str  = &config.window_command     }, NULL,
+      "Command executed on accep-entry-custom for window modus"             },
 
     { xrm_Boolean, "disable-history",   { .num  = &config.disable_history    }, NULL,
       "Disable history in run/ssh"                                          },
