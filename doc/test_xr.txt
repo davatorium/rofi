@@ -50,6 +50,8 @@ rofi.disable-history:                false
 rofi.levenshtein-sort:               false
 ! Set case-sensitivity
 rofi.case-sensitive:                 false
+! Cycle through the results list
+rofi.cycle:                          true
 ! Enable sidebar-mode
 rofi.sidebar-mode:                   false
 ! Row height (in chars)
