@@ -949,10 +949,11 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
                 textbox_text ( state->boxes[i], text );
 
                 PangoAttrList *list = textbox_get_pango_attributes ( state->boxes[i] );
-                if ( list != NULL )
+                if ( list != NULL ) {
                     pango_attr_list_ref ( list );
-                else list = pango_attr_list_new ();
-                regex_token_match_get_pango_attr ( tokens, textbox_get_visible_text ( state->boxes[i] ), list );
+                }
+                else{ list = pango_attr_list_new (); }
+                token_match_get_pango_attr ( tokens, textbox_get_visible_text ( state->boxes[i] ), list );
                 textbox_set_pango_attributes ( state->boxes[i], list );
                 pango_attr_list_unref ( list );
                 g_free ( text );

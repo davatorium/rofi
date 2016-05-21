@@ -25,18 +25,6 @@
 int helper_parse_setup ( char * string, char ***output, int *length, ... );
 
 /**
- * @param token The string for which we want a collation key.
- * @param case_sensitive Whether case is significant.
- *
- * Get a collation key for @p token. @p token must be a null-terminated string.
- * This collation key can be used for matching the user input against the list
- * of commands, windows, or ssh commands.
- *
- * @returns A newly allocated string containing the collation key.
- */
-char *token_collate_key ( const char *token, int case_sensitive );
-
-/**
  * @param input The input string.
  * @param case_sensitive Whether case is significant.
  *
@@ -172,6 +160,6 @@ unsigned int levenshtein ( const char *needle, const char *haystack );
  */
 char * rofi_force_utf8 ( gchar *data );
 char * rofi_latin_to_utf8_strdup ( const char *input, gssize length );
-PangoAttrList *regex_token_match_get_pango_attr ( char **tokens, const char *input, PangoAttrList *retv );
+PangoAttrList *token_match_get_pango_attr ( char **tokens, const char *input, PangoAttrList *retv );
 /*@}*/
 #endif // ROFI_HELPER_H
