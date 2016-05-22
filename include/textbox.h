@@ -103,7 +103,15 @@ void textbox_text ( textbox *tb, const char *text );
 void textbox_draw ( textbox *tb, cairo_t *draw );
 
 int textbox_keybinding ( textbox *tb, KeyBindingAction action );
-gboolean textbox_append ( textbox *tb, char *pad, int pad_len );
+/**
+ * @param tb Handle to the textbox
+ * @param pad The text to insert
+ * @param pad_len the length of the text
+ *
+ * The text should be one insert from a keypress..  the first gunichar is validated to be (or not) control
+ * return TRUE if inserted
+ */
+gboolean textbox_append_char ( textbox *tb, char *pad, int pad_len );
 
 /**
  * @param tb  Handle to the textbox

@@ -1535,7 +1535,7 @@ static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xc
         }
     }
 
-    if ( ( len > 0 ) && ( textbox_append ( state->text, pad, len ) ) ) {
+    if ( ( len > 0 ) && ( textbox_append_char ( state->text, pad, len ) ) ) {
         state->refilter = TRUE;
         state->update   = TRUE;
         return;
