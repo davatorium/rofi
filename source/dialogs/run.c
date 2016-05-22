@@ -418,16 +418,10 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
-static int run_token_match ( const Mode *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
+static int run_token_match ( const Mode *sw, GRegex **tokens, unsigned int index )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
-    return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );
-}
-
-static int run_is_not_ascii ( const Mode *sw, unsigned int index )
-{
-    const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
-    return !g_str_is_ascii ( rmpd->cmd_list[index] );
+    return token_match ( tokens, rmpd->cmd_list[index]);
 }
 
 #include "mode-private.h"
@@ -442,7 +436,6 @@ Mode run_mode =
     ._token_match       = run_token_match,
     ._get_display_value = _get_display_value,
     ._get_completion    = NULL,
-    ._is_not_ascii      = run_is_not_ascii,
     .private_data       = NULL,
     .free               = NULL
 };

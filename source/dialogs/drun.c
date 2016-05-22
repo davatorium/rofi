@@ -378,29 +378,24 @@ static char *drun_get_completion ( const Mode *sw, unsigned int index )
     }
 }
 
-static int drun_token_match ( const Mode *data,
-                              char **tokens,
-                              int not_ascii,
-                              int case_sensitive,
-                              unsigned int index
-                              )
+static int drun_token_match ( const Mode *data, GRegex **tokens, unsigned int index)
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( data );
     int                 match = 1;
     if ( tokens ) {
         for ( int j = 0; match && tokens != NULL && tokens[j] != NULL; j++ ) {
             int  test        = 0;
-            char *ftokens[2] = { tokens[j], NULL };
+            GRegex *ftokens[2] = { tokens[j], NULL };
             if ( !test && rmpd->entry_list[index].name &&
-                 token_match ( ftokens, rmpd->entry_list[index].name, not_ascii, case_sensitive ) ) {
+                 token_match ( ftokens, rmpd->entry_list[index].name ) ) {
                 test = 1;
             }
             if ( !test && rmpd->entry_list[index].generic_name &&
-                 token_match ( ftokens, rmpd->entry_list[index].generic_name, not_ascii, case_sensitive ) ) {
+                 token_match ( ftokens, rmpd->entry_list[index].generic_name) ) {
                 test = 1;
             }
 
-            if ( !test && token_match ( ftokens, rmpd->entry_list[index].exec, not_ascii, case_sensitive ) ) {
+            if ( !test && token_match ( ftokens, rmpd->entry_list[index].exec) ) {
                 test = 1;
             }
             if ( test == 0 ) {
@@ -416,15 +411,6 @@ static unsigned int drun_mode_get_num_entries ( const Mode *sw )
     const DRunModePrivateData *pd = (const DRunModePrivateData *) mode_get_private_data ( sw );
     return pd->cmd_list_length;
 }
-static int drun_is_not_ascii ( const Mode *sw, unsigned int index )
-{
-    DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
-    if ( pd->entry_list[index].generic_name ) {
-        return !g_str_is_ascii ( pd->entry_list[index].name ) || !g_str_is_ascii ( pd->entry_list[index].generic_name );
-    }
-    return !g_str_is_ascii ( pd->entry_list[index].name );
-}
-
 #include "mode-private.h"
 Mode drun_mode =
 {
@@ -437,7 +423,6 @@ Mode drun_mode =
     ._token_match       = drun_token_match,
     ._get_completion    = drun_get_completion,
     ._get_display_value = _get_display_value,
-    ._is_not_ascii      = drun_is_not_ascii,
     .private_data       = NULL,
     .free               = NULL
 };

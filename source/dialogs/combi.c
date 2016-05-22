@@ -175,18 +175,17 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
     }
     return MODE_EXIT;
 }
-static int combi_mode_match ( const Mode *sw, char **tokens, int not_ascii,
-                              int case_sensitive, unsigned int index )
+static int combi_mode_match ( const Mode *sw, GRegex **tokens, unsigned int index )
 {
     CombiModePrivateData *pd = mode_get_private_data ( sw );
-    if ( config.regex || config.glob ) {
+//    if ( config.regex || config.glob ) {
         // Bang support only works in text mode.
         for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
             if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
-                return mode_token_match ( pd->switchers[i], tokens, not_ascii, case_sensitive,
-                                          index - pd->starts[i]  );
+                return mode_token_match ( pd->switchers[i], tokens, index - pd->starts[i] );
             }
         }
+        /* @TODO fix this
     }
     else{
         for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
@@ -205,6 +204,7 @@ static int combi_mode_match ( const Mode *sw, char **tokens, int not_ascii,
             }
         }
     }
+    */
     abort ();
     return 0;
 }
@@ -230,16 +230,6 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
     }
 
     return NULL;
-}
-static int combi_is_not_ascii ( const Mode *sw, unsigned int index )
-{
-    CombiModePrivateData *pd = mode_get_private_data ( sw );
-    for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
-        if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
-            return mode_is_not_ascii ( pd->switchers[i], index - pd->starts[i] );
-        }
-    }
-    return FALSE;
 }
 static char * combi_get_completion ( const Mode *sw, unsigned int index )
 {
@@ -269,7 +259,6 @@ Mode combi_mode =
     ._token_match       = combi_mode_match,
     ._get_completion    = combi_get_completion,
     ._get_display_value = combi_mgrv,
-    ._is_not_ascii      = combi_is_not_ascii,
     .private_data       = NULL,
     .free               = NULL
 };

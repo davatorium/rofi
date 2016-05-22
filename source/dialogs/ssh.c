@@ -481,26 +481,11 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
  *
  * @returns TRUE if matches
  */
-static int ssh_token_match ( const Mode *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
+static int ssh_token_match ( const Mode *sw, GRegex **tokens, unsigned int index )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) mode_get_private_data ( sw );
-    return token_match ( tokens, rmpd->hosts_list[index], not_ascii, case_sensitive );
+    return token_match ( tokens, rmpd->hosts_list[index] );
 }
-
-/**
- * @param sw Object handle to the SSH Mode object
- * @param index The index of the entry to match
- *
- * Check if the selected entry contains non-ascii symbols.
- *
- * @returns TRUE if string contains non-ascii symbols
- */
-static int ssh_is_not_ascii ( const Mode *sw, unsigned int index )
-{
-    SSHModePrivateData *rmpd = (SSHModePrivateData *) mode_get_private_data ( sw );
-    return !g_str_is_ascii ( rmpd->hosts_list[index] );
-}
-
 #include "mode-private.h"
 Mode ssh_mode =
 {
@@ -513,7 +498,6 @@ Mode ssh_mode =
     ._token_match       = ssh_token_match,
     ._get_display_value = _get_display_value,
     ._get_completion    = NULL,
-    ._is_not_ascii      = ssh_is_not_ascii,
     .private_data       = NULL,
     .free               = NULL
 };

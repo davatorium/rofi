@@ -168,16 +168,10 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
 
-static int script_token_match ( const Mode *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
+static int script_token_match ( const Mode *sw, GRegex **tokens, unsigned int index )
 {
     ScriptModePrivateData *rmpd = sw->private_data;
-    return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );
-}
-
-static int script_is_not_ascii ( const Mode *sw, unsigned int index )
-{
-    ScriptModePrivateData *rmpd = sw->private_data;
-    return !g_str_is_ascii ( rmpd->cmd_list[index] );
+    return token_match ( tokens, rmpd->cmd_list[index] );
 }
 
 #include "mode-private.h"
@@ -207,7 +201,6 @@ Mode *script_switcher_parse_setup ( const char *str )
         sw->_token_match       = script_token_match;
         sw->_get_completion    = NULL,
         sw->_get_display_value = _get_display_value;
-        sw->_is_not_ascii      = script_is_not_ascii;
 
         return sw;
     }

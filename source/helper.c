@@ -136,7 +136,7 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
     return FALSE;
 }
 
-void tokenize_free ( char ** tokens )
+void tokenize_free ( GRegex ** tokens )
 {
     for ( size_t i = 0; tokens && tokens[i]; i++ ) {
         g_regex_unref ( (GRegex *) tokens[i] );
@@ -194,17 +194,17 @@ static GRegex * create_regex ( const char *input, int case_sensitive )
     }
     return retv;
 }
-char **tokenize ( const char *input, int case_sensitive )
+GRegex **tokenize ( const char *input, int case_sensitive )
 {
     if ( input == NULL || strlen(input) == 0 ) {
         return NULL;
     }
 
     char *saveptr = NULL, *token;
-    char **retv   = NULL;
+    GRegex **retv   = NULL;
     if ( !config.tokenize ) {
-        retv    = g_malloc0 ( sizeof ( char* ) * 2 );
-        retv[0] = (char *) create_regex ( input, case_sensitive );
+        retv    = g_malloc0 ( sizeof ( GRegex* ) * 2 );
+        retv[0] = (GRegex *) create_regex ( input, case_sensitive );
         return retv;
     }
 
@@ -218,8 +218,8 @@ char **tokenize ( const char *input, int case_sensitive )
     // strtok should still be valid for utf8.
     const char * const sep = " ";
     for ( token = strtok_r ( str, sep, &saveptr ); token != NULL; token = strtok_r ( NULL, sep, &saveptr ) ) {
-        retv                 = g_realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
-        retv[num_tokens]     = (char *) create_regex ( token, case_sensitive );
+        retv                 = g_realloc ( retv, sizeof ( GRegex* ) * ( num_tokens + 2 ) );
+        retv[num_tokens]     = (GRegex*) create_regex ( token, case_sensitive );
         retv[num_tokens + 1] = NULL;
         num_tokens++;
     }
@@ -335,20 +335,8 @@ int find_arg_char ( const char * const key, char *val )
     return FALSE;
 }
 
-static int regex_token_match ( char **tokens, const char *input, G_GNUC_UNUSED int not_ascii, G_GNUC_UNUSED int case_sensitive )
-{
-    int match = 1;
 
-    // Do a tokenized match.
-    if ( tokens ) {
-        for ( int j = 0; match && tokens[j]; j++ ) {
-            match = g_regex_match ( (GRegex *) tokens[j], input, G_REGEX_MATCH_PARTIAL, NULL );
-        }
-    }
-    return match;
-}
-
-static PangoAttrList *regex_token_match_get_pango_attr ( char **tokens, const char *input, PangoAttrList *retv )
+PangoAttrList *token_match_get_pango_attr ( GRegex **tokens, const char *input, PangoAttrList *retv )
 {
     // Do a tokenized match.
     if ( tokens ) {
@@ -369,14 +357,17 @@ static PangoAttrList *regex_token_match_get_pango_attr ( char **tokens, const ch
     }
     return retv;
 }
-PangoAttrList *token_match_get_pango_attr ( char **tokens, const char *input, PangoAttrList *retv )
-{
-    return regex_token_match_get_pango_attr ( tokens, input, retv );
-}
 
-int token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive )
+int token_match ( GRegex **tokens, const char *input)
 {
-    return regex_token_match ( tokens, input, not_ascii, case_sensitive );
+    int match = 1;
+    // Do a tokenized match.
+    if ( tokens ) {
+        for ( int j = 0; match && tokens[j]; j++ ) {
+            match = g_regex_match ( (GRegex *) tokens[j], input, G_REGEX_MATCH_PARTIAL, NULL );
+        }
+    }
+    return match;
 }
 
 int execute_generator ( const char * cmd )

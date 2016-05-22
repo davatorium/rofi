@@ -98,16 +98,6 @@ char * mode_get_completion ( const Mode *mode, unsigned int selected_line );
 
 /**
  * @param mode The mode to query
- * @param selected_line The entry to query
- *
- * Check if the entry has non-ascii characters.
- *
- * @returns TRUE when selected line has non-ascii characters.
- */
-int mode_is_not_ascii ( const Mode *mode, unsigned int selected_line );
-
-/**
- * @param mode The mode to query
  * @param mretv The menu return value.
  * @param input Pointer to the user input string.
  * @param selected_line the line selected by the user.
@@ -121,15 +111,13 @@ ModeMode mode_result ( Mode *mode, int menu_retv, char **input, unsigned int sel
 /**
  * @param mode The mode to query
  * @param tokens The set of tokens to match against
- * @param not_ascii If the entry is pure-ascii
- * @param case_sensitive If the entry should be matched case sensitive
  * @param selected_line The index of the entry to match
  *
  * Match entry against the set of tokens.
  *
  * @returns TRUE if matches
  */
-int mode_token_match ( const Mode *mode, char **tokens, int not_ascii, int case_sensitive, unsigned int selected_line );
+int mode_token_match ( const Mode *mode, GRegex **tokens, unsigned int selected_line );
 
 /**
  * @param mode The mode to query

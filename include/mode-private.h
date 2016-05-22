@@ -17,7 +17,7 @@ typedef char * ( *_mode_get_completion )( const Mode *sw, unsigned int selected_
  *
  * @returns 1 when it matches, 0 if not.
  */
-typedef int ( *_mode_token_match )( const Mode *data, char **tokens, int not_ascii, int case_sensitive, unsigned int index );
+typedef int ( *_mode_token_match )( const Mode *data, GRegex **tokens, unsigned int index );
 
 typedef int ( *__mode_init )( Mode *sw );
 
@@ -26,8 +26,6 @@ typedef unsigned int ( *__mode_get_num_entries )( const Mode *sw );
 typedef void ( *__mode_destroy )( Mode *sw );
 
 typedef ModeMode ( *_mode_result )( Mode *sw, int menu_retv, char **input, unsigned int selected_line );
-
-typedef int ( *_mode_is_not_ascii )( const Mode *sw, unsigned int index );
 
 /**
  * Structure defining a switcher.
@@ -50,8 +48,6 @@ struct rofi_mode
     __mode_destroy          _destroy;
     /** Get number of entries to display. (unfiltered). */
     __mode_get_num_entries  _get_num_entries;
-    /** Check if the element is ascii. */
-    _mode_is_not_ascii      _is_not_ascii;
     /** Process the result of the user selection. */
     _mode_result            _result;
     /** Token match. */

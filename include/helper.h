@@ -32,8 +32,8 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... );
  *
  * @returns a newly allocated 2 dimensional array of strings.
  */
-char **tokenize ( const char *input, int case_sensitive );
-void tokenize_free ( char ** tokens );
+GRegex **tokenize ( const char *input, int case_sensitive );
+void tokenize_free ( GRegex ** tokens );
 
 /**
  * @param key The key to search for
@@ -97,7 +97,7 @@ int find_arg ( const char * const key );
  *
  * @returns 1 when matches, 0 otherwise
  */
-int token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive );
+int token_match ( GRegex **tokens, const char *input);
 /**
  * @param cmd The command to execute.
  *
@@ -160,6 +160,6 @@ unsigned int levenshtein ( const char *needle, const char *haystack );
  */
 char * rofi_force_utf8 ( gchar *data );
 char * rofi_latin_to_utf8_strdup ( const char *input, gssize length );
-PangoAttrList *token_match_get_pango_attr ( char **tokens, const char *input, PangoAttrList *retv );
+PangoAttrList *token_match_get_pango_attr ( GRegex **tokens, const char *input, PangoAttrList *retv );
 /*@}*/
 #endif // ROFI_HELPER_H

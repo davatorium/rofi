@@ -57,12 +57,6 @@ char * mode_get_completion ( const Mode *mode, unsigned int selected_line )
     }
 }
 
-int mode_is_not_ascii ( const Mode *mode, unsigned int selected_line )
-{
-    g_assert ( mode != NULL );
-    g_assert ( mode->_is_not_ascii != NULL );
-    return mode->_is_not_ascii ( mode, selected_line );
-}
 ModeMode mode_result ( Mode *mode, int menu_retv, char **input, unsigned int selected_line )
 {
     g_assert ( mode != NULL );
@@ -71,11 +65,11 @@ ModeMode mode_result ( Mode *mode, int menu_retv, char **input, unsigned int sel
     return mode->_result ( mode, menu_retv, input, selected_line );
 }
 
-int mode_token_match ( const Mode *mode, char **tokens, int not_ascii, int case_sensitive, unsigned int selected_line )
+int mode_token_match ( const Mode *mode, GRegex **tokens, unsigned int selected_line )
 {
     g_assert ( mode != NULL );
     g_assert ( mode->_token_match != NULL );
-    return mode->_token_match ( mode, tokens, not_ascii, case_sensitive, selected_line );
+    return mode->_token_match ( mode, tokens, selected_line );
 }
 
 const char *mode_get_name ( const Mode *mode )
