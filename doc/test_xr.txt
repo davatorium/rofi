@@ -207,6 +207,6 @@ rofi.display-drun:                   
 ! The display name of this browser
 rofi.display-window:                  
 ! The display name of this browser
-rofi.display-windowcd:               (windowcd)
+rofi.display-windowcd:               windowcd
 ! The display name of this browser
-rofi.display-combi:                  (combi)
+rofi.display-combi:                  combi

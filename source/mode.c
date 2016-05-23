@@ -114,7 +114,6 @@ const char *mode_get_display_name ( const Mode *mode )
 void mode_set_config ( Mode *mode )
 {
     snprintf ( mode->cfg_name_key, 128, "display-%s", mode->name );
-    mode->display_name = g_strdup_printf ( "(%s)", mode->name );
     config_parser_add_option ( xrm_String, mode->cfg_name_key, (void * *) &( mode->display_name ), "The display name of this browser" );
 }
 /*@}*/
