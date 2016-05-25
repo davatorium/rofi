@@ -94,6 +94,8 @@ Settings config = {
     .levenshtein_sort  = FALSE,
     /** Case sensitivity of the search */
     .case_sensitive    = FALSE,
+    /** Cycle through in the element list */
+    .cycle             = TRUE,
     /** Height of an element in #chars */
     .element_height    =                                         1,
     /** Sidebar mode, show the modi */
