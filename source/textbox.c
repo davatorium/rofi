@@ -607,7 +607,7 @@ gboolean textbox_append_char ( textbox *tb, char *pad, int pad_len )
     }
 
     // Filter When alt/ctrl is pressed do not accept the character.
-    if ( !g_unichar_iscntrl(g_utf8_get_char(pad))){
+    if ( !g_unichar_iscntrl ( g_utf8_get_char ( pad ) ) ) {
         tb->blink = 2;
         textbox_insert ( tb, tb->cursor, pad, pad_len );
         textbox_cursor ( tb, tb->cursor + pad_len );

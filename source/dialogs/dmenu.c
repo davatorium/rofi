@@ -350,6 +350,7 @@ Mode dmenu_mode =
     ._token_match       = dmenu_token_match,
     ._get_display_value = get_display_data,
     ._get_completion    = NULL,
+    ._preprocess_input  = NULL,
     .private_data       = NULL,
     .free               = NULL
 };
@@ -509,7 +510,7 @@ int dmenu_switcher_dialog ( void )
     char *select = NULL;
     find_arg_str ( "-select", &select );
     if ( select != NULL ) {
-        GRegex **tokens = tokenize ( select, config.case_sensitive );
+        GRegex       **tokens = tokenize ( select, config.case_sensitive );
         unsigned int i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
             if ( token_match ( tokens, cmd_list[i] ) ) {
@@ -520,7 +521,7 @@ int dmenu_switcher_dialog ( void )
         tokenize_free ( tokens );
     }
     if ( find_arg ( "-dump" ) >= 0 ) {
-        GRegex **tokens = tokenize ( config.filter ? config.filter : "", config.case_sensitive );
+        GRegex       **tokens = tokenize ( config.filter ? config.filter : "", config.case_sensitive );
         unsigned int i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
             if ( token_match ( tokens, cmd_list[i] ) ) {

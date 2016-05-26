@@ -116,4 +116,12 @@ void mode_set_config ( Mode *mode )
     snprintf ( mode->cfg_name_key, 128, "display-%s", mode->name );
     config_parser_add_option ( xrm_String, mode->cfg_name_key, (void * *) &( mode->display_name ), "The display name of this browser" );
 }
+
+char * mode_preprocess_input ( Mode *mode, const char *input )
+{
+    if ( mode->_preprocess_input ) {
+        return mode->_preprocess_input ( mode, input );
+    }
+    return g_strdup ( input );
+}
 /*@}*/

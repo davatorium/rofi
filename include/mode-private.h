@@ -27,6 +27,8 @@ typedef void ( *__mode_destroy )( Mode *sw );
 
 typedef ModeMode ( *_mode_result )( Mode *sw, int menu_retv, char **input, unsigned int selected_line );
 
+typedef char* ( *_mode_preprocess_input )( Mode *sw, const char *input );
+
 /**
  * Structure defining a switcher.
  * It consists of a name, callback and if enabled
@@ -56,6 +58,8 @@ struct rofi_mode
     _mode_get_display_value _get_display_value;
     /** Get the 'completed' entry. */
     _mode_get_completion    _get_completion;
+
+    _mode_preprocess_input  _preprocess_input;
 
     /** Pointer to private data. */
     void                    *private_data;

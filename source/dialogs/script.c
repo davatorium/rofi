@@ -200,6 +200,7 @@ Mode *script_switcher_parse_setup ( const char *str )
         sw->_destroy           = script_mode_destroy;
         sw->_token_match       = script_token_match;
         sw->_get_completion    = NULL,
+        sw->_preprocess_input  = NULL,
         sw->_get_display_value = _get_display_value;
 
         return sw;

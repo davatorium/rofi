@@ -338,19 +338,19 @@ static int window_match ( const Mode *sw, GRegex **tokens, unsigned int index )
             // e.g. when searching 'title element' and 'class element'
             GRegex *ftokens[2] = { tokens[j], NULL };
             if ( !test && c->title != NULL && c->title[0] != '\0' ) {
-                test = token_match ( ftokens, c->title);
+                test = token_match ( ftokens, c->title );
             }
 
             if ( !test && c->class != NULL && c->class[0] != '\0' ) {
-                test = token_match ( ftokens, c->class);
+                test = token_match ( ftokens, c->class );
             }
 
             if ( !test && c->role != NULL && c->role[0] != '\0' ) {
-                test = token_match ( ftokens, c->role);
+                test = token_match ( ftokens, c->role );
             }
 
             if ( !test && c->name != NULL && c->name[0] != '\0' ) {
-                test = token_match ( ftokens, c->name);
+                test = token_match ( ftokens, c->name );
             }
 
             if ( test == 0 ) {
@@ -653,7 +653,6 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
 
-
 #include "mode-private.h"
 Mode window_mode =
 {
@@ -666,6 +665,7 @@ Mode window_mode =
     ._token_match       = window_match,
     ._get_display_value = _get_display_value,
     ._get_completion    = NULL,
+    ._preprocess_input  = NULL,
     .private_data       = NULL,
     .free               = NULL
 };
@@ -680,6 +680,7 @@ Mode window_mode_cd =
     ._token_match       = window_match,
     ._get_display_value = _get_display_value,
     ._get_completion    = NULL,
+    ._preprocess_input  = NULL,
     .private_data       = NULL,
     .free               = NULL
 };

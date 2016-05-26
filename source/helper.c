@@ -196,11 +196,11 @@ static GRegex * create_regex ( const char *input, int case_sensitive )
 }
 GRegex **tokenize ( const char *input, int case_sensitive )
 {
-    if ( input == NULL || strlen(input) == 0 ) {
+    if ( input == NULL || strlen ( input ) == 0 ) {
         return NULL;
     }
 
-    char *saveptr = NULL, *token;
+    char   *saveptr = NULL, *token;
     GRegex **retv   = NULL;
     if ( !config.tokenize ) {
         retv    = g_malloc0 ( sizeof ( GRegex* ) * 2 );
@@ -219,7 +219,7 @@ GRegex **tokenize ( const char *input, int case_sensitive )
     const char * const sep = " ";
     for ( token = strtok_r ( str, sep, &saveptr ); token != NULL; token = strtok_r ( NULL, sep, &saveptr ) ) {
         retv                 = g_realloc ( retv, sizeof ( GRegex* ) * ( num_tokens + 2 ) );
-        retv[num_tokens]     = (GRegex*) create_regex ( token, case_sensitive );
+        retv[num_tokens]     = (GRegex *) create_regex ( token, case_sensitive );
         retv[num_tokens + 1] = NULL;
         num_tokens++;
     }
@@ -335,7 +335,6 @@ int find_arg_char ( const char * const key, char *val )
     return FALSE;
 }
 
-
 PangoAttrList *token_match_get_pango_attr ( GRegex **tokens, const char *input, PangoAttrList *retv )
 {
     // Do a tokenized match.
@@ -346,10 +345,12 @@ PangoAttrList *token_match_get_pango_attr ( GRegex **tokens, const char *input, 
             while ( g_match_info_matches ( gmi ) ) {
                 int            start, end;
                 g_match_info_fetch_pos ( gmi, 0, &start, &end );
-                PangoAttribute *pa = pango_attr_underline_new ( PANGO_UNDERLINE_SINGLE );
-                pa->start_index = start;
-                pa->end_index   = end;
+                PangoAttribute *pa  = pango_attr_underline_new ( PANGO_UNDERLINE_SINGLE );
+                PangoAttribute *pa2 = pango_attr_weight_new ( PANGO_WEIGHT_BOLD );
+                pa2->start_index = pa->start_index = start;
+                pa2->end_index   = pa->end_index = end;
                 pango_attr_list_insert ( retv, pa );
+                pango_attr_list_insert ( retv, pa2 );
                 g_match_info_next ( gmi, NULL );
             }
             g_match_info_free ( gmi );
@@ -358,7 +359,7 @@ PangoAttrList *token_match_get_pango_attr ( GRegex **tokens, const char *input, 
     return retv;
 }
 
-int token_match ( GRegex **tokens, const char *input)
+int token_match ( GRegex **tokens, const char *input )
 {
     int match = 1;
     // Do a tokenized match.

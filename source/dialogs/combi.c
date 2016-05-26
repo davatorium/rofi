@@ -45,6 +45,7 @@ typedef struct
     // List of switchers to combine.
     unsigned int num_switchers;
     Mode         **switchers;
+    Mode         *current;
 } CombiModePrivateData;
 
 static void combi_mode_parse_switchers ( Mode *sw )
@@ -178,34 +179,14 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
 static int combi_mode_match ( const Mode *sw, GRegex **tokens, unsigned int index )
 {
     CombiModePrivateData *pd = mode_get_private_data ( sw );
-//    if ( config.regex || config.glob ) {
-        // Bang support only works in text mode.
-        for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
-            if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
-                return mode_token_match ( pd->switchers[i], tokens, index - pd->starts[i] );
-            }
+    for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
+        if ( pd->current != NULL && pd->switchers[i] != pd->current ) {
+            continue;
         }
-        /* @TODO fix this
-    }
-    else{
-        for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
-            if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
-                if ( tokens && tokens[0][0] == '!' ) {
-                    if ( tokens[0][1] == mode_get_name ( pd->switchers[i] )[0] ) {
-                        return mode_token_match ( pd->switchers[i], &tokens[1], not_ascii, case_sensitive,
-                                                  index - pd->starts[i] );
-                    }
-                    return 0;
-                }
-                else {
-                    return mode_token_match ( pd->switchers[i], tokens, not_ascii, case_sensitive,
-                                              index - pd->starts[i]  );
-                }
-            }
+        if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
+            return mode_token_match ( pd->switchers[i], tokens, index - pd->starts[i] );
         }
     }
-    */
-    abort ();
     return 0;
 }
 static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *state, int get_entry )
@@ -247,6 +228,24 @@ static char * combi_get_completion ( const Mode *sw, unsigned int index )
     return NULL;
 }
 
+static char * combi_preprocess_input ( Mode *sw, const char *input )
+{
+    CombiModePrivateData *pd = mode_get_private_data ( sw );
+    pd->current = NULL;
+    if ( input != NULL && input[0] == '!' && strlen ( input ) > 1 ) {
+        for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
+            if ( input[1] == mode_get_name ( pd->switchers[i] )[0] ) {
+                pd->current = pd->switchers[i];
+                if ( input[2] == '\0' ) {
+                    return NULL;
+                }
+                return g_strdup ( &input[2] );
+            }
+        }
+    }
+    return g_strdup ( input );
+}
+
 #include "mode-private.h"
 Mode combi_mode =
 {
@@ -259,6 +258,7 @@ Mode combi_mode =
     ._token_match       = combi_mode_match,
     ._get_completion    = combi_get_completion,
     ._get_display_value = combi_mgrv,
+    ._preprocess_input  = combi_preprocess_input,
     .private_data       = NULL,
     .free               = NULL
 };

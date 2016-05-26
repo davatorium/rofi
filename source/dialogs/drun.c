@@ -378,24 +378,24 @@ static char *drun_get_completion ( const Mode *sw, unsigned int index )
     }
 }
 
-static int drun_token_match ( const Mode *data, GRegex **tokens, unsigned int index)
+static int drun_token_match ( const Mode *data, GRegex **tokens, unsigned int index )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( data );
     int                 match = 1;
     if ( tokens ) {
         for ( int j = 0; match && tokens != NULL && tokens[j] != NULL; j++ ) {
-            int  test        = 0;
+            int    test        = 0;
             GRegex *ftokens[2] = { tokens[j], NULL };
             if ( !test && rmpd->entry_list[index].name &&
                  token_match ( ftokens, rmpd->entry_list[index].name ) ) {
                 test = 1;
             }
             if ( !test && rmpd->entry_list[index].generic_name &&
-                 token_match ( ftokens, rmpd->entry_list[index].generic_name) ) {
+                 token_match ( ftokens, rmpd->entry_list[index].generic_name ) ) {
                 test = 1;
             }
 
-            if ( !test && token_match ( ftokens, rmpd->entry_list[index].exec) ) {
+            if ( !test && token_match ( ftokens, rmpd->entry_list[index].exec ) ) {
                 test = 1;
             }
             if ( test == 0 ) {
@@ -423,6 +423,7 @@ Mode drun_mode =
     ._token_match       = drun_token_match,
     ._get_completion    = drun_get_completion,
     ._get_display_value = _get_display_value,
+    ._preprocess_input  = NULL,
     .private_data       = NULL,
     .free               = NULL
 };

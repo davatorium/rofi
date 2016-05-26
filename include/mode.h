@@ -154,5 +154,6 @@ void mode_set_private_data ( Mode *mode, void *pd );
 const char *mode_get_display_name ( const Mode *mode );
 
 void mode_set_config ( Mode *mode );
+char * mode_preprocess_input ( Mode *mode, const char *input );
 /*@}*/
 #endif

@@ -421,7 +421,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
 static int run_token_match ( const Mode *sw, GRegex **tokens, unsigned int index )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
-    return token_match ( tokens, rmpd->cmd_list[index]);
+    return token_match ( tokens, rmpd->cmd_list[index] );
 }
 
 #include "mode-private.h"
@@ -436,6 +436,7 @@ Mode run_mode =
     ._token_match       = run_token_match,
     ._get_display_value = _get_display_value,
     ._get_completion    = NULL,
+    ._preprocess_input  = NULL,
     .private_data       = NULL,
     .free               = NULL
 };

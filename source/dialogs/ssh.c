@@ -498,6 +498,7 @@ Mode ssh_mode =
     ._token_match       = ssh_token_match,
     ._get_display_value = _get_display_value,
     ._get_completion    = NULL,
+    ._preprocess_input  = NULL,
     .private_data       = NULL,
     .free               = NULL
 };
