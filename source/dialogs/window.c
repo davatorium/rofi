@@ -534,7 +534,7 @@ static inline int act_on_window ( xcb_window_t window )
     int  argc   = 0;
     char window_str[100]; /* We are probably safe here */
 
-    g_snprintf(window_str, sizeof window_str, "%d", window);
+    g_snprintf ( window_str, sizeof window_str, "%d", window );
 
     helper_parse_setup ( config.window_command, &args, &argc, "{window}", window_str, NULL );
 

@@ -596,3 +596,71 @@ void config_parse_xresource_init ( void )
 {
     XrmInitialize ();
 }
+
+static char * config_parser_return_display_help_entry ( XrmOption *option )
+{
+    switch ( option->type )
+    {
+    case xrm_Number:
+        return g_markup_printf_escaped ( "<b%s</b> (%u) <span style='italic' size='small'>%s</span>",
+                                         option->name, *( option->value.num ), option->comment );
+    case xrm_SNumber:
+        return g_markup_printf_escaped ( "<b%s</b> (%d) <span style='italic' size='small'>%s</span>",
+                                         option->name, *( option->value.snum ), option->comment );
+    case xrm_String:
+        return g_markup_printf_escaped ( "<b>%s</b> (%s) <span style='italic' size='small'>%s</span>",
+                                         option->name,
+                                         ( *( option->value.str ) != NULL ) ? *( option->value.str ) : "null",
+                                         option->comment
+                                         );
+    case xrm_Boolean:
+        return g_markup_printf_escaped ( "<b>%s</b> (%s) <span style='italic' size='small'>%s</span>",
+                                         option->name, ( *( option->value.num ) == TRUE ) ? "true" : "false", option->comment );
+    case xrm_Char:
+        if ( *( option->value.charc ) > 32 && *( option->value.charc ) < 127 ) {
+            return g_markup_printf_escaped ( "<b>%s</b> (%c) <span style='italic' size='small'>%s</span>",
+                                             option->name, *( option->value.charc ), option->comment );
+        }
+        else {
+            return g_markup_printf_escaped ( "<b%s</b> (\\x%02X) <span style='italic' size='small'>%s</span>",
+                                             option->name, *( option->value.charc ), option->comment );
+        }
+    default:
+        break;
+    }
+
+    return g_strdup ( "failed" );
+}
+
+char ** config_parser_return_display_help ( unsigned int *length )
+{
+    unsigned int entries = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
+    char         **retv  = NULL;
+    for ( unsigned int i = 0; i < entries; ++i ) {
+        if ( ( i + 1 ) < entries ) {
+            if ( xrmOptions[i].value.str == xrmOptions[i + 1].value.str ) {
+                continue;
+            }
+        }
+        if ( strncmp ( xrmOptions[i].name, "kb", 2 ) != 0 ) {
+            continue;
+        }
+
+        retv = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
+
+        retv[( *length )] = config_parser_return_display_help_entry ( &xrmOptions[i] );
+        ( *length )++;
+    }
+    for ( unsigned int i = 0; i < num_extra_options; i++ ) {
+        if ( strncmp ( extra_options[i].name, "kb", 2 ) != 0 ) {
+            continue;
+        }
+        retv              = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
+        retv[( *length )] = config_parser_return_display_help_entry ( &extra_options[i] );
+        ( *length )++;
+    }
+    if ( ( *length ) > 0 ) {
+        retv[( *length )] = NULL;
+    }
+    return retv;
+}

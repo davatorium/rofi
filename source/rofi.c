@@ -334,6 +334,10 @@ static int add_mode ( const char * token )
         modi[num_modi] = &ssh_mode;
         num_modi++;
     }
+    else if ( strcasecmp ( token, mode_get_name ( &help_keys_mode ) ) ) {
+        modi[num_modi] = &help_keys_mode;
+        num_modi++;
+    }
     // Run dialog
     else if ( strcasecmp ( token, "run" ) == 0 ) {
         modi[num_modi] = &run_mode;

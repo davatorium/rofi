@@ -142,5 +142,7 @@ void print_options ( void );
  */
 void print_help_msg ( const char *option, const char *type, const char*text, const char *def, int isatty );
 
+char ** config_parser_return_display_help ( unsigned int *length );
+
 /* @}*/
 #endif

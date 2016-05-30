@@ -38,6 +38,7 @@ rofi_SOURCES=\
 	source/dialogs/combi.c\
 	source/dialogs/window.c\
 	source/dialogs/script.c\
+	source/dialogs/help-keys.c\
 	include/xcb.h\
 	include/xcb-internal.h\
 	include/rofi.h\
@@ -64,6 +65,7 @@ rofi_SOURCES=\
 	include/dialogs/script.h\
 	include/dialogs/window.h\
 	include/dialogs/dialogs.h\
+	include/dialogs/help-keys.h\
 	include/xkb.h\
 	include/xkb-internal.h
 
