@@ -474,7 +474,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
         pd->cmd_list = g_malloc0_n ( ( pd->ids->len + 1 ), sizeof ( char* ) );
 
         c = xcb_ewmh_get_desktop_names ( &xcb->ewmh, xcb->screen_nbr );
-        xcb_ewmh_get_utf8_strings_reply_t names     = { 0, };
+        xcb_ewmh_get_utf8_strings_reply_t names;
         int                               has_names = FALSE;
         if ( xcb_ewmh_get_desktop_names_reply ( &xcb->ewmh, c, &names, NULL ) ) {
             has_names = TRUE;
