@@ -98,17 +98,17 @@ rofi.scroll-method:                  0
 rofi.fake-background:                screenshot
 ! Pidfile location
 rofi.pid:                            /tmp/1000-runtime-dir/rofi.pid
-! Keybinding
+! Keybinding paste primary clipboard
 rofi.kb-primary-paste:               Control+Shift+v,Shift+Insert
-! Keybinding
+! Keybinding paste secondary clipboard
 rofi.kb-secondary-paste:             Control+v,Insert
-! Keybinding
+! Keybinding clear input line
 rofi.kb-clear-line:                  Control+u
-! Keybinding
+! Keybinding move cursor to front
 rofi.kb-move-front:                  Control+a
-! Keybinding
+! Keybinding move cursor to end
 rofi.kb-move-end:                    Control+e
-! Keybinding
+! Keybinding move word back
 rofi.kb-move-word-back:              Alt+b
 ! Keybinding
 rofi.kb-move-word-forward:           Alt+f
