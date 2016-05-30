@@ -1,5 +1,8 @@
 [![Build Status](https://travis-ci.org/DaveDavenport/rofi.svg?branch=master)](https://travis-ci.org/DaveDavenport/rofi)
 [![codecov.io](https://codecov.io/github/DaveDavenport/rofi/coverage.svg?branch=master)](https://codecov.io/github/DaveDavenport/rofi?branch=master)
+[![Issues](https://img.shields.io/github/issues/DaveDavenport/rofi.svg)](https://github.com/DaveDavenport/rofi/issues)
+[![Forks](https://img.shields.io/github/forks/DaveDavenport/rofi.svg)](https://github.com/DaveDavenport/rofi/network)
+[![Stars](https://img.shields.io/github/stars/DaveDavenport/rofi.svg)](https://github.com/DaveDavenport/rofi/stargazers)
 
 # A window switcher, run dialog and dmenu replacement
 
