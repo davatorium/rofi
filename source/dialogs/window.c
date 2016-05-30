@@ -369,6 +369,22 @@ static unsigned int window_mode_get_num_entries ( const Mode *sw )
     const ModeModePrivateData *pd = (const ModeModePrivateData *) mode_get_private_data ( sw );
     return pd->cmd_list_length;
 }
+/**
+ * Small helper function to find the right entry in the ewmh reply.
+ * Is there a call for this?
+ */
+static const char * _window_name_list_entry  ( const char *str, uint32_t length, int entry )
+{
+    uint32_t offset = 0;
+    int      index  = 0;
+    while ( index < entry && offset < length ) {
+        if ( str[offset] == 0 ) {
+            index++;
+        }
+        offset++;
+    }
+    return &str[offset];
+}
 static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 {
     ModeModePrivateData *pd = (ModeModePrivateData *) mode_get_private_data ( sw );
@@ -457,6 +473,12 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
         }
         pd->cmd_list = g_malloc0_n ( ( pd->ids->len + 1 ), sizeof ( char* ) );
 
+        c = xcb_ewmh_get_desktop_names ( &xcb->ewmh, xcb->screen_nbr );
+        xcb_ewmh_get_utf8_strings_reply_t names     = { 0, };
+        int                               has_names = FALSE;
+        if ( xcb_ewmh_get_desktop_names_reply ( &xcb->ewmh, c, &names, NULL ) ) {
+            has_names = TRUE;
+        }
         // build the actual list
         for ( i = 0; i < ( pd->ids->len ); i++ ) {
             xcb_window_t w = pd->ids->array[i];
@@ -464,11 +486,8 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 
             if ( ( c = window_client ( w ) ) ) {
                 // final line format
-                char   desktop[5];
-                desktop[0] = 0;
-                size_t len =
-                    ( ( c->title != NULL ) ? strlen ( c->title ) : 0 ) + ( c->class ? strlen ( c->class ) : 0 ) + classfield + 50;
-                char   *line = g_malloc ( len );
+                char *desktop = NULL;
+                char *line    = NULL;
                 if ( !pd->config_i3_mode ) {
                     uint32_t                  wmdesktop = 0;
                     // find client's desktop.
@@ -494,17 +513,28 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                     free ( r );
 
                     if ( wmdesktop < 0xFFFFFFFF ) {
-                        snprintf ( desktop, 5, "%u", (uint32_t) wmdesktop );
+                        if ( has_names ) {
+                            desktop = g_strdup_printf ( "%s", _window_name_list_entry ( names.strings, names.strings_len, wmdesktop ) );
+                        }
+                        else {
+                            desktop = g_strdup_printf ( "%u", (uint32_t) wmdesktop );
+                        }
+                    }
+                    else {
+                        desktop = g_strdup ( "" );
                     }
 
-                    snprintf ( line, len, pattern, desktop, c->class ? c->class : "", c->title ? c->title : "" );
+                    line = g_strdup_printf ( pattern, desktop, c->class ? c->class : "", c->title ? c->title : "" );
                 }
                 else{
-                    snprintf ( line, len, pattern, c->class ? c->class : "", c->title ? c->title : "" );
+                    line = g_strdup_printf ( pattern, c->class ? c->class : "", c->title ? c->title : "" );
                 }
-
+                g_free ( desktop );
                 pd->cmd_list[pd->cmd_list_length++] = line;
             }
+        }
+        if ( has_names ) {
+            xcb_ewmh_get_utf8_strings_reply_wipe ( &names );
         }
     }
 }
