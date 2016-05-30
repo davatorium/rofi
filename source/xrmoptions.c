@@ -608,8 +608,8 @@ static char * config_parser_return_display_help_entry ( XrmOption *option )
         return g_markup_printf_escaped ( "<b%s</b> (%d) <span style='italic' size='small'>%s</span>",
                                          option->name, *( option->value.snum ), option->comment );
     case xrm_String:
-        return g_markup_printf_escaped ( "<b>%s</b> (%s) <span style='italic' size='small'>%s</span>",
-                                         option->name,
+        return g_markup_printf_escaped ( "<b>%s</b> <span style='italic' size='small'>%s</span>",
+                                         //option->name,
                                          ( *( option->value.str ) != NULL ) ? *( option->value.str ) : "null",
                                          option->comment
                                          );
