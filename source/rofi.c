@@ -282,7 +282,7 @@ static void cleanup ()
     rofi_view_workers_finalize ();
     if ( main_loop != NULL  ) {
         if ( main_loop_source ) {
-            g_water_xcb_source_unref ( main_loop_source );
+            g_water_xcb_source_free ( main_loop_source );
         }
         g_main_loop_unref ( main_loop );
         main_loop = NULL;
