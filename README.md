@@ -3,6 +3,7 @@
 [![Issues](https://img.shields.io/github/issues/DaveDavenport/rofi.svg)](https://github.com/DaveDavenport/rofi/issues)
 [![Forks](https://img.shields.io/github/forks/DaveDavenport/rofi.svg)](https://github.com/DaveDavenport/rofi/network)
 [![Stars](https://img.shields.io/github/stars/DaveDavenport/rofi.svg)](https://github.com/DaveDavenport/rofi/stargazers)
+[![Downloads](https://img.shields.io/github/downloads/DaveDavenport/rofi/total.svg)](https://github.com/DaveDavenport/rofi/releases)
 
 # A window switcher, run dialog and dmenu replacement
 
