@@ -142,7 +142,7 @@ rofi.kb-row-right:                   Control+Page_Down
 rofi.kb-row-up:                      Up,Control+p,Shift+Tab
 ! Select next entry
 rofi.kb-row-down:                    Down,Control+n
-! Tab
+! Go to next row, if one left, accept it, if no left next mode.
 rofi.kb-row-tab:                     Tab
 ! Go to the previous page
 rofi.kb-page-prev:                   Page_Up
