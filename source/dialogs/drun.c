@@ -220,7 +220,7 @@ static void get_apps_dir ( DRunModePrivateData *pd, const char *bp )
     }
 }
 /**
- * @param cmd The command to remove from history
+ * @param entry The command entry to remove from history
  *
  * Remove command from history.
  */

@@ -180,10 +180,7 @@ static void menu_capture_screenshot ( void )
 }
 
 /**
- * @param state   the state of the View.
- * @param mon     the work area.
- *
- * Calculates the window poslition
+ * Calculates the window position
  */
 static void calculate_window_position ( void )
 {
@@ -1111,10 +1108,9 @@ static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t
 
 /**
  * @param state Internal state of the menu.
- * @param key the Key being pressed.
- * @param modstate the modifier state.
+ * @param action The action to perform.
  *
- * Keyboard navigation through the elements.
+ * Perform keyboard navigation action.
  */
 static void rofi_view_keyboard_navigation ( RofiViewState *state, KeyBindingAction action )
 {

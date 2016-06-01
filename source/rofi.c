@@ -393,7 +393,6 @@ static void setup_modi ( void )
 }
 
 /**
- * @param display Pointer to the X connection to use.
  * Load configuration.
  * Following priority: (current), X, commandline arguments
  */
