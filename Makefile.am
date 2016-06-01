@@ -38,6 +38,7 @@ rofi_SOURCES=\
 	source/dialogs/combi.c\
 	source/dialogs/window.c\
 	source/dialogs/script.c\
+	source/dialogs/help-keys.c\
 	include/xcb.h\
 	include/xcb-internal.h\
 	include/rofi.h\
@@ -64,6 +65,7 @@ rofi_SOURCES=\
 	include/dialogs/script.h\
 	include/dialogs/window.h\
 	include/dialogs/dialogs.h\
+	include/dialogs/help-keys.h\
 	include/xkb.h\
 	include/xkb-internal.h
 
@@ -140,7 +142,7 @@ update-manpage: $(top_srcdir)/doc/rofi-manpage.markdown
 ##
 # Rofi test program
 ##
-check_PROGRAMS=history_test textbox_test helper_test helper_expand helper_config_cmdline_parser
+check_PROGRAMS=history_test textbox_test helper_test helper_expand helper_config_cmdline_parser widget_test
 
 history_test_CFLAGS=\
 	$(AM_CFLAGS)\
@@ -186,6 +188,11 @@ textbox_test_LDADD=\
 	$(cairo_LIBS)\
 	$(libsn_LIBS)
 
+widget_test_LDADD=$(textbox_test_LDADD)
+widget_test_CFLAGS=$(textbox_test_CFLAGS)
+widget_test_SOURCES=\
+			source/widget.c\
+			test/widget-test.c
 textbox_test_SOURCES=\
 	source/widget.c\
 	source/textbox.c\
@@ -271,7 +278,8 @@ TESTS=\
 	history_test\
 	helper_test\
 	helper_expand\
-	helper_config_cmdline_parser
+	helper_config_cmdline_parser\
+	widget_test
 
 .PHONY: test-x
 test-x: $(bin_PROGRAMS) textbox_test

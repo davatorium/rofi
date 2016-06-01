@@ -66,7 +66,7 @@ int mode_init ( Mode *mode );
 void mode_destroy ( Mode *mode );
 
 /**
- * @param mode The mode to query
+ * @param sw The mode to query
  *
  * Get the number of entries in the mode.
  *

@@ -50,6 +50,8 @@ rofi.disable-history:                false
 rofi.levenshtein-sort:               false
 ! Set case-sensitivity
 rofi.case-sensitive:                 false
+! Cycle through the results list
+rofi.cycle:                          true
 ! Enable sidebar-mode
 rofi.sidebar-mode:                   false
 ! Row height (in chars)
@@ -96,108 +98,108 @@ rofi.scroll-method:                  0
 rofi.fake-background:                screenshot
 ! Pidfile location
 rofi.pid:                            /tmp/1000-runtime-dir/rofi.pid
-! Keybinding
+! Paste primary selection
 rofi.kb-primary-paste:               Control+Shift+v,Shift+Insert
-! Keybinding
+! Paste clipboard
 rofi.kb-secondary-paste:             Control+v,Insert
-! Keybinding
+! Clear input line
 rofi.kb-clear-line:                  Control+u
-! Keybinding
+! Beginning of line
 rofi.kb-move-front:                  Control+a
-! Keybinding
+! End of line
 rofi.kb-move-end:                    Control+e
-! Keybinding
+! Move back one word
 rofi.kb-move-word-back:              Alt+b
-! Keybinding
+! Move forward one word
 rofi.kb-move-word-forward:           Alt+f
-! Keybinding
+! Move back one char
 rofi.kb-move-char-back:              Left,Control+b
-! Keybinding
+! Move forward one char
 rofi.kb-move-char-forward:           Right,Control+f
-! Keybinding
+! Delete previous word
 rofi.kb-remove-word-back:            Control+Alt+h
-! Keybinding
+! Delete next word
 rofi.kb-remove-word-forward:         Control+Alt+d
-! Keybinding
+! Delete next char
 rofi.kb-remove-char-forward:         Delete,Control+d
-! Keybinding
+! Delete previous char
 rofi.kb-remove-char-back:            BackSpace,Control+h
-! Keybinding
+! Accept entry
 rofi.kb-accept-entry:                Control+j,Control+m,Return,KP_Enter
-! Keybinding
+! Use entered text as command (in ssh/run modi)
 rofi.kb-accept-custom:               Control+Return,Shift+Return
-! Keybinding
-rofi.kb-mode-next:                   Shift+Right,Control+Tab
-! Keybinding
-rofi.kb-mode-previous:               Shift+Left,Control+Shift+Tab
-! Keybinding
-rofi.kb-toggle-case-sensitivity:     grave,dead_grave
-! Keybinding
+! Delete entry from history
 rofi.kb-delete-entry:                Shift+Delete
-! Keybinding
+! Switch to the next mode.
+rofi.kb-mode-next:                   Shift+Right,Control+Tab
+! Switch to the previous mode.
+rofi.kb-mode-previous:               Shift+Left,Control+Shift+Tab
+! Go to the previous column
 rofi.kb-row-left:                    Control+Page_Up
-! Keybinding
+! Go to the next column
 rofi.kb-row-right:                   Control+Page_Down
-! Keybinding
+! Select previous entry
 rofi.kb-row-up:                      Up,Control+p,Shift+Tab
-! Keybinding
+! Select next entry
 rofi.kb-row-down:                    Down,Control+n
-! Keybinding
+! Go to next row, if one left, accept it, if no left next mode.
 rofi.kb-row-tab:                     Tab
-! Keybinding
+! Go to the previous page
 rofi.kb-page-prev:                   Page_Up
-! Keybinding
+! Go to the next page
 rofi.kb-page-next:                   Page_Down
-! Keybinding
+! Go to the first entry
 rofi.kb-row-first:                   Home,KP_Home
-! Keybinding
+! Go to the last entry
 rofi.kb-row-last:                    End,KP_End
-! Keybinding
+! Set selected item as input text
 rofi.kb-row-select:                  Control+space
-! Keybinding
-rofi.kb-cancel:                      Escape,Control+bracketleft
-! Keybinding
-rofi.kb-custom-1:                    Alt+1
-! Keybinding
-rofi.kb-custom-2:                    Alt+2
-! Keybinding
-rofi.kb-custom-3:                    Alt+3
-! Keybinding
-rofi.kb-custom-4:                    Alt+4
-! Keybinding
-rofi.kb-custom-5:                    Alt+5
-! Keybinding
-rofi.kb-custom-6:                    Alt+6
-! Keybinding
-rofi.kb-custom-7:                    Alt+7
-! Keybinding
-rofi.kb-custom-8:                    Alt+8
-! Keybinding
-rofi.kb-custom-9:                    Alt+9
-! Keybinding
-rofi.kb-custom-10:                   Alt+0
-! Keybinding
-rofi.kb-custom-11:                   Alt+Shift+1
-! Keybinding
-rofi.kb-custom-12:                   Alt+Shift+2
-! Keybinding
-rofi.kb-custom-13:                   Alt+Shift+3
-! Keybinding
-rofi.kb-custom-14:                   Alt+Shift+4
-! Keybinding
-rofi.kb-custom-15:                   Alt+Shift+5
-! Keybinding
-rofi.kb-custom-16:                   Alt+Shift+6
-! Keybinding
-rofi.kb-custom-18:                   Alt+Shift+8
-! Keybinding
-rofi.kb-custom-17:                   Alt+Shift+7
-! Keybinding
-rofi.kb-custom-19:                   Alt+Shift+9
-! Keybinding
+! Take a screenshot of the rofi window
 rofi.kb-screenshot:                  Alt+Shift+S
-! Keybinding
+! Toggle case sensitivity
+rofi.kb-toggle-case-sensitivity:     grave,dead_grave
+! Toggle sort
 rofi.kb-toggle-sort:                 Alt+grave
+! Quit rofi
+rofi.kb-cancel:                      Escape,Control+bracketleft
+! Custom keybinding 1
+rofi.kb-custom-1:                    Alt+1
+! Custom keybinding 2
+rofi.kb-custom-2:                    Alt+2
+! Custom keybinding 3
+rofi.kb-custom-3:                    Alt+3
+! Custom keybinding 4
+rofi.kb-custom-4:                    Alt+4
+! Custom Keybinding 5
+rofi.kb-custom-5:                    Alt+5
+! Custom keybinding 6
+rofi.kb-custom-6:                    Alt+6
+! Custom Keybinding 7
+rofi.kb-custom-7:                    Alt+7
+! Custom keybinding 8
+rofi.kb-custom-8:                    Alt+8
+! Custom keybinding 9
+rofi.kb-custom-9:                    Alt+9
+! Custom keybinding 10
+rofi.kb-custom-10:                   Alt+0
+! Custom keybinding 11
+rofi.kb-custom-11:                   Alt+Shift+1
+! Custom keybinding 12
+rofi.kb-custom-12:                   Alt+Shift+2
+! Csutom keybinding 13
+rofi.kb-custom-13:                   Alt+Shift+3
+! Custom keybinding 14
+rofi.kb-custom-14:                   Alt+Shift+4
+! Custom keybinding 15
+rofi.kb-custom-15:                   Alt+Shift+5
+! Custom keybinding 16
+rofi.kb-custom-16:                   Alt+Shift+6
+! Custom keybinding 17
+rofi.kb-custom-17:                   Alt+Shift+7
+! Custom keybinding 18
+rofi.kb-custom-18:                   Alt+Shift+8
+! Custom Keybinding 19
+rofi.kb-custom-19:                   Alt+Shift+9
 ! The display name of this browser
 rofi.display-ssh:                     
 ! The display name of this browser

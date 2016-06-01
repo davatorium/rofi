@@ -11,7 +11,6 @@
  */
 
 /**
- * @param socket_path The I3 IPC socket.
  * @param id          The window to focus on.
  *
  * If we want to switch windows in I3, we use I3 IPC mode.
@@ -22,7 +21,7 @@
 void i3_support_focus_window ( xcb_window_t id );
 
 /**
- * @param display The display to read the i3 property from.
+ * @param xcb The xcb to read the i3 property from.
  *
  * Get the i3 socket from the X root window.
  * @returns TRUE when i3 is running, FALSE when not.

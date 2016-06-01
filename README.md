@@ -1,5 +1,9 @@
 [![Build Status](https://travis-ci.org/DaveDavenport/rofi.svg?branch=master)](https://travis-ci.org/DaveDavenport/rofi)
 [![codecov.io](https://codecov.io/github/DaveDavenport/rofi/coverage.svg?branch=master)](https://codecov.io/github/DaveDavenport/rofi?branch=master)
+[![Issues](https://img.shields.io/github/issues/DaveDavenport/rofi.svg)](https://github.com/DaveDavenport/rofi/issues)
+[![Forks](https://img.shields.io/github/forks/DaveDavenport/rofi.svg)](https://github.com/DaveDavenport/rofi/network)
+[![Stars](https://img.shields.io/github/stars/DaveDavenport/rofi.svg)](https://github.com/DaveDavenport/rofi/stargazers)
+[![Downloads](https://img.shields.io/github/downloads/DaveDavenport/rofi/total.svg)](https://github.com/DaveDavenport/rofi/releases)
 
 # A window switcher, run dialog and dmenu replacement
 
@@ -143,10 +147,10 @@ Type `Shift-Right` to switch from Window list mode to Run mode and back.
 |`Ctrl-Enter`                 | Use entered text as command (in ssh/run modi) |
 |`Shift-Enter`                | Launch the application in a terminal (in run mode) |
 |`Shift-Enter`                | Return the selected entry and move to the next item while keeping Rofi open. (in dmenu) |
-|`Shift-Right`                | Switch to the next modi. The list can be customized with the -switchers argument. |
-|`Shift-Left`                 | Switch to the previous modi. The list can be customized with the -switchers argument. |
-|`Ctrl-Tab`                   | Switch to the next modi. The list can be customized with the -switchers argument. |
-|`Ctrl-Shift-Tab`             | Switch to the previous modi. The list can be customized with the -switchers argument. |
+|`Shift-Right`                | Switch to the next modi. The list can be customized with the -modi option. |
+|`Shift-Left`                 | Switch to the previous modi. The list can be customized with the -modi option. |
+|`Ctrl-Tab`                   | Switch to the next modi. The list can be customized with the -modi option. |
+|`Ctrl-Shift-Tab`             | Switch to the previous modi. The list can be customized with the -modi option. |
 |`Ctrl-space`                 | Set selected item as input text. |
 |`Shift-Del`                  | Delete entry from history. |
 |`grave`                      | Toggle case sensitivity. |

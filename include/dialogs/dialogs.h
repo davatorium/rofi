@@ -15,4 +15,5 @@
 #include "dialogs/script.h"
 #include "dialogs/window.h"
 #include "dialogs/combi.h"
+#include "dialogs/help-keys.h"
 #endif // ROFI_DIALOGS_DIALOGS_H

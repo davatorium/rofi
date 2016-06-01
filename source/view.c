@@ -180,10 +180,7 @@ static void menu_capture_screenshot ( void )
 }
 
 /**
- * @param state   the state of the View.
- * @param mon     the work area.
- *
- * Calculates the window poslition
+ * Calculates the window position
  */
 static void calculate_window_position ( void )
 {
@@ -792,14 +789,16 @@ inline static void rofi_view_nav_left ( RofiViewState *state )
  */
 inline static void rofi_view_nav_up ( RofiViewState *state )
 {
+    // If no lines or don't cycle, do nothing.
+    if ( state->filtered_lines == 0 || ( state->selected == 0 && !config.cycle ) ) {
+        return;
+    }
+
     // Wrap around.
     if ( state->selected == 0 ) {
         state->selected = state->filtered_lines;
     }
-
-    if ( state->selected > 0 ) {
-        state->selected--;
-    }
+    state->selected--;
     state->update = TRUE;
 }
 
@@ -811,8 +810,8 @@ inline static void rofi_view_nav_up ( RofiViewState *state )
  */
 inline static void rofi_view_nav_down ( RofiViewState *state )
 {
-    // If no lines, do nothing.
-    if ( state->filtered_lines == 0 ) {
+    // If no lines or don't cycle, do nothing.
+    if ( state->filtered_lines == 0 || ( state->selected == state->filtered_lines - 1 && !config.cycle ) ) {
         return;
     }
     state->selected = state->selected < state->filtered_lines - 1 ? MIN ( state->filtered_lines - 1, state->selected + 1 ) : 0;
@@ -1116,10 +1115,9 @@ static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t
 
 /**
  * @param state Internal state of the menu.
- * @param key the Key being pressed.
- * @param modstate the modifier state.
+ * @param action The action to perform.
  *
- * Keyboard navigation through the elements.
+ * Perform keyboard navigation action.
  */
 static void rofi_view_keyboard_navigation ( RofiViewState *state, KeyBindingAction action )
 {

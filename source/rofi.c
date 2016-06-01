@@ -282,7 +282,7 @@ static void cleanup ()
     rofi_view_workers_finalize ();
     if ( main_loop != NULL  ) {
         if ( main_loop_source ) {
-            g_water_xcb_source_unref ( main_loop_source );
+            g_water_xcb_source_free ( main_loop_source );
         }
         g_main_loop_unref ( main_loop );
         main_loop = NULL;
@@ -332,6 +332,10 @@ static int add_mode ( const char * token )
        // SSh dialog
     if ( strcasecmp ( token, "ssh" ) == 0 ) {
         modi[num_modi] = &ssh_mode;
+        num_modi++;
+    }
+    else if ( strcasecmp ( token, mode_get_name ( &help_keys_mode ) ) == 0 ) {
+        modi[num_modi] = &help_keys_mode;
         num_modi++;
     }
     // Run dialog
@@ -389,7 +393,6 @@ static void setup_modi ( void )
 }
 
 /**
- * @param display Pointer to the X connection to use.
  * Load configuration.
  * Following priority: (current), X, commandline arguments
  */
