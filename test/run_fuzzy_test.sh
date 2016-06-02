@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo -en "nooty\naap\nnoot\nmies" | rofi -fuzzy -dmenu   > output.txt  &
+echo -en "nooty\naap\nnoot\nmies" | rofi -fuzzy -no-regex -dmenu   > output.txt  &
 RPID=$!
 
 # send enter.
