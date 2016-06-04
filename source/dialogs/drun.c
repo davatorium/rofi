@@ -32,6 +32,7 @@
 #include <limits.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #include <strings.h>
 #include <string.h>
@@ -197,27 +198,64 @@ static void read_desktop_file ( DRunModePrivateData *pd, char *path, const char 
 /**
  * Internal spider used to get list of executables.
  */
-static void get_apps_dir ( DRunModePrivateData *pd, const char *bp )
+static void walk_dir ( DRunModePrivateData *pd, const char *dirname )
 {
-    DIR *dir = opendir ( bp );
+    DIR *dir;
 
-    if ( dir != NULL ) {
-        struct dirent *dent;
+    dir = opendir ( dirname );
+    if ( dir == NULL ) {
+        return;
+    }
 
-        while ( ( dent = readdir ( dir ) ) != NULL ) {
-            if ( dent->d_type != DT_REG && dent->d_type != DT_LNK && dent->d_type != DT_UNKNOWN ) {
-                continue;
-            }
-            // Skip dot files.
-            if ( dent->d_name[0] == '.' ) {
-                continue;
-            }
-            gchar *path = g_build_filename ( bp, dent->d_name, NULL );
-            read_desktop_file ( pd, path, dent->d_name );
+    struct dirent *file;
+    gchar       *filename = NULL;
+    struct stat st;
+    while ( ( file = readdir ( dir ) ) != NULL ) {
+        if ( file->d_name[0] == '.' ) {
+            continue;
+        }
+        switch ( file->d_type )
+        {
+        case DT_LNK:
+        case DT_REG:
+        case DT_DIR:
+            filename = g_build_filename ( dirname, file->d_name, NULL );
+        break;
+        default:
+            continue;
         }
 
-        closedir ( dir );
+        if ( file->d_type == DT_LNK )
+        {
+            if ( stat(filename, &st) < 0 ) {
+                goto next;
+            }
+            if ( S_ISDIR(st.st_mode) ) {
+                file->d_type = DT_DIR;
+            }
+            else if ( S_ISREG(st.st_mode) ) {
+                file->d_type = DT_REG;
+            }
+            else {
+                goto next;
+            }
+        }
+
+        switch ( file->d_type )
+        {
+        case DT_REG:
+            read_desktop_file ( pd, filename, file->d_name );
+            filename = NULL;
+        break;
+        case DT_DIR:
+            walk_dir ( pd, filename );
+        break;
+        }
+
+    next:
+        g_free ( filename );
     }
+    closedir ( dir );
 }
 /**
  * @param entry The command entry to remove from history
@@ -232,6 +270,7 @@ static void delete_entry_history ( const DRunModeEntry *entry )
 
     g_free ( path );
 }
+
 static void get_apps_history ( DRunModePrivateData *pd )
 {
     unsigned int length = 0;
@@ -246,38 +285,21 @@ static void get_apps_history ( DRunModePrivateData *pd )
     g_free ( retv );
     pd->history_length = pd->cmd_list_length;
 }
+
 static void get_apps ( DRunModePrivateData *pd )
 {
     get_apps_history ( pd );
-    const char * const * dr   = g_get_system_data_dirs ();
-    const char * const * iter = dr;
-    while ( iter != NULL && *iter != NULL && **iter != '\0' ) {
-        gboolean skip = FALSE;
-        for ( size_t i = 0; !skip && dr[i] != ( *iter ); i++ ) {
-            skip = ( g_strcmp0 ( *iter, dr[i] ) == 0 );
-        }
-        if ( skip ) {
-            iter++;
-            continue;
-        }
-        gchar *bp = g_build_filename ( *iter, "applications", NULL );
-        get_apps_dir ( pd, bp );
-        g_free ( bp );
-        iter++;
-    }
 
-    const char *d = g_get_user_data_dir ();
-    for ( size_t i = 0; dr && dr[i] != NULL; i++ ) {
-        if ( g_strcmp0 ( d, dr[i] ) == 0 ) {
-            // Done this already, no need to repeat.
-            return;
-        }
+    gchar               *dir;
+    const gchar * const * sys = g_get_system_data_dirs ();
+    for (; *sys != NULL; ++sys ) {
+        dir = g_build_filename ( *sys, "applications", NULL );
+        walk_dir ( pd, dir );
+        g_free ( dir );
     }
-    if ( d ) {
-        gchar *bp = g_build_filename ( d, "applications", NULL );
-        get_apps_dir ( pd, bp );
-        g_free ( bp );
-    }
+    dir = g_build_filename ( g_get_user_data_dir (), "applications", NULL );
+    walk_dir ( pd, dir );
+    g_free ( dir );
 }
 
 static int drun_mode_init ( Mode *sw )
