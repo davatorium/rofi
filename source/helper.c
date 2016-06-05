@@ -177,7 +177,7 @@ char **tokenize ( const char *input, int case_sensitive )
     }
 
     char *saveptr = NULL, *token;
-    char **retv   = NULL;
+    char **retv = NULL;
     if ( !config.tokenize ) {
         retv = g_malloc0 ( sizeof ( char* ) * 2 );
         if ( config.glob ) {
