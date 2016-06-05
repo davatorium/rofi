@@ -215,6 +215,18 @@ static void walk_dir ( DRunModePrivateData *pd, const char *dirname )
             continue;
         }
 
+        switch ( file->d_type )
+        {
+        case DT_LNK:
+        case DT_REG:
+        case DT_DIR:
+        case DT_UKNOWN:
+            filename = g_build_filename ( dirname, file->d_name, NULL );
+        break;
+        default:
+            continue;
+        }
+
         // On a link, or if FS does not support providing this information
         // Fallback to stat method.
         if ( file->d_type == DT_LNK || file->d_type == DT_UNKNOWN )
@@ -232,17 +244,6 @@ static void walk_dir ( DRunModePrivateData *pd, const char *dirname )
 
         switch ( file->d_type )
         {
-        case DT_LNK:
-        case DT_REG:
-        case DT_DIR:
-            filename = g_build_filename ( dirname, file->d_name, NULL );
-        break;
-        default:
-            continue;
-        }
-
-        switch ( file->d_type )
-        {
         case DT_REG:
             read_desktop_file ( pd, filename, file->d_name );
             filename = NULL;
@@ -250,6 +251,8 @@ static void walk_dir ( DRunModePrivateData *pd, const char *dirname )
         case DT_DIR:
             walk_dir ( pd, filename );
         break;
+        default:
+            break;
         }
         g_free ( filename );
     }
