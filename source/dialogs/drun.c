@@ -214,6 +214,22 @@ static void walk_dir ( DRunModePrivateData *pd, const char *dirname )
         if ( file->d_name[0] == '.' ) {
             continue;
         }
+
+        // On a link, or if FS does not support providing this information
+        // Fallback to stat method.
+        if ( file->d_type == DT_LNK || file->d_type == DT_UNKNOWN )
+        {
+            file->d_type = DT_UNKNOWN;
+            if ( stat(filename, &st) == 0 ) {
+                if ( S_ISDIR(st.st_mode) ) {
+                    file->d_type = DT_DIR;
+                }
+                else if ( S_ISREG(st.st_mode) ) {
+                    file->d_type = DT_REG;
+                }
+            }
+        }
+
         switch ( file->d_type )
         {
         case DT_LNK:
@@ -223,22 +239,6 @@ static void walk_dir ( DRunModePrivateData *pd, const char *dirname )
         break;
         default:
             continue;
-        }
-
-        if ( file->d_type == DT_LNK )
-        {
-            if ( stat(filename, &st) < 0 ) {
-                goto next;
-            }
-            if ( S_ISDIR(st.st_mode) ) {
-                file->d_type = DT_DIR;
-            }
-            else if ( S_ISREG(st.st_mode) ) {
-                file->d_type = DT_REG;
-            }
-            else {
-                goto next;
-            }
         }
 
         switch ( file->d_type )
@@ -251,8 +251,6 @@ static void walk_dir ( DRunModePrivateData *pd, const char *dirname )
             walk_dir ( pd, filename );
         break;
         }
-
-    next:
         g_free ( filename );
     }
     closedir ( dir );
