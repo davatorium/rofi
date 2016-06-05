@@ -583,6 +583,11 @@ Reads from *file* instead of stdin.
 
 Hide the input text. This should not be considered secure!
 
+`-markup-rows`
+
+Tell **rofi** that DMenu input is pango markup encoded and should be rendered.
+See [here](https://developer.gnome.org/pango/stable/PangoMarkupFormat.html) for details about pango markup.
+
 
 ### Message dialog
 
