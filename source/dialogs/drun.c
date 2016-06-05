@@ -208,8 +208,8 @@ static void walk_dir ( DRunModePrivateData *pd, const char *dirname )
     }
 
     struct dirent *file;
-    gchar       *filename = NULL;
-    struct stat st;
+    gchar         *filename = NULL;
+    struct stat   st;
     while ( ( file = readdir ( dir ) ) != NULL ) {
         if ( file->d_name[0] == '.' ) {
             continue;
@@ -222,21 +222,20 @@ static void walk_dir ( DRunModePrivateData *pd, const char *dirname )
         case DT_DIR:
         case DT_UKNOWN:
             filename = g_build_filename ( dirname, file->d_name, NULL );
-        break;
+            break;
         default:
             continue;
         }
 
         // On a link, or if FS does not support providing this information
         // Fallback to stat method.
-        if ( file->d_type == DT_LNK || file->d_type == DT_UNKNOWN )
-        {
+        if ( file->d_type == DT_LNK || file->d_type == DT_UNKNOWN ) {
             file->d_type = DT_UNKNOWN;
-            if ( stat(filename, &st) == 0 ) {
-                if ( S_ISDIR(st.st_mode) ) {
+            if ( stat ( filename, &st ) == 0 ) {
+                if ( S_ISDIR ( st.st_mode ) ) {
                     file->d_type = DT_DIR;
                 }
-                else if ( S_ISREG(st.st_mode) ) {
+                else if ( S_ISREG ( st.st_mode ) ) {
                     file->d_type = DT_REG;
                 }
             }
@@ -247,10 +246,10 @@ static void walk_dir ( DRunModePrivateData *pd, const char *dirname )
         case DT_REG:
             read_desktop_file ( pd, filename, file->d_name );
             filename = NULL;
-        break;
+            break;
         case DT_DIR:
             walk_dir ( pd, filename );
-        break;
+            break;
         default:
             break;
         }
