@@ -220,7 +220,7 @@ static void walk_dir ( DRunModePrivateData *pd, const char *dirname )
         case DT_LNK:
         case DT_REG:
         case DT_DIR:
-        case DT_UKNOWN:
+        case DT_UNKNOWN:
             filename = g_build_filename ( dirname, file->d_name, NULL );
             break;
         default:
