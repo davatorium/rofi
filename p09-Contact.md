@@ -9,7 +9,7 @@ tracker](https://github.com/DaveDavenport/rofi/issues). Please read the *reporti
 below.
 
 If you need to ask a direct question or get support installing, please find us on IRC: #rofi on
-[freenode.net](https://webchat.freenode.net/?channels=#gmpc).
+[freenode.net](https://webchat.freenode.net/?channels=#rofi).
 
 
 ## Reporting Bugs
