@@ -117,7 +117,7 @@ rofi.kb-move-char-back:              Left,Control+b
 ! Move forward one char
 rofi.kb-move-char-forward:           Right,Control+f
 ! Delete previous word
-rofi.kb-remove-word-back:            Control+Alt+h
+rofi.kb-remove-word-back:            Control+Alt+h,Control+Backspace
 ! Delete next word
 rofi.kb-remove-word-forward:         Control+Alt+d
 ! Delete next char
