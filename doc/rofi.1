@@ -1,13 +1,13 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-MANPAGE" "" "May 2016" "" ""
+.TH "ROFI\-MANPAGE" "" "June 2016" "" ""
 .
 .SH "NAME"
 \fBrofi\fR \- A window switcher, run launcher, ssh dialog and dmenu replacement
 .
 .SH "SYNOPSIS"
-\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-opacity \fIopacity%\fR ] [ \-display \fIdisplay\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-select ] [ \-input \fIinput\fR ] ] [ \-filter \fIfilter\fR ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-window\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-cycle ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-lazy\-filter\-limit \fIlimit\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-now ] [ \-rnow ] [ \-snow ] [ \-version ] [ \-help ] [ \-dump\-xresources ] [ \-dump\-xresources\-theme ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-no\-parse\-known\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-normal\-window ] [ \-fake\-transparency ] [ \-glob ] [ \-regex ] [ \-tokenize ] [ \-threads \fInum\fR ] [ \-config \fIfilename\fR ]
+\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-opacity \fIopacity%\fR ] [ \-display \fIdisplay\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-select ] [ \-input \fIinput\fR ] ] [ \-filter \fIfilter\fR ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-window\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-cycle ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-lazy\-filter\-limit \fIlimit\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-version ] [ \-help ] [ \-dump\-xresources ] [ \-dump\-xresources\-theme ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-no\-parse\-known\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-normal\-window ] [ \-fake\-transparency ] [ \-glob ] [ \-regex ] [ \-tokenize ] [ \-threads \fInum\fR ] [ \-config \fIfilename\fR ]
 .
 .SH "DESCRIPTION"
 \fBrofi\fR is an X11 popup window switcher, run dialog, dmenu replacement and more\. It focuses on being fast to use and have minimal distraction\. It supports keyboard and mouse navigation, type to filter, tokenized search and more\.
@@ -271,7 +271,7 @@ Start in case sensitive mode\.
 \fB\-cycle\fR
 .
 .P
-Cycle through the results list\. Default is 'true'\.
+Cycle through the results list\. Default is \'true\'\.
 .
 .P
 \fB\-fuzzy\fR
@@ -928,6 +928,12 @@ Reads from \fIfile\fR instead of stdin\.
 .
 .P
 Hide the input text\. This should not be considered secure!
+.
+.P
+\fB\-markup\-rows\fR
+.
+.P
+Tell \fBrofi\fR that DMenu input is pango markup encoded and should be rendered\. See here \fIhttps://developer\.gnome\.org/pango/stable/PangoMarkupFormat\.html\fR for details about pango markup\.
 .
 .SS "Message dialog"
 \fB\-e\fR \fImessage\fR

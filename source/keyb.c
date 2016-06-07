@@ -43,7 +43,7 @@ DefaultBinding bindings[NUM_ABE] =
     { .id = MOVE_WORD_FORWARD,       .name = "kb-move-word-forward",       .keybinding = "Alt+f",                                     .comment = "Move forward one word"                                         },
     { .id = MOVE_CHAR_BACK,          .name = "kb-move-char-back",          .keybinding = "Left,Control+b",                            .comment = "Move back one char"                                            },
     { .id = MOVE_CHAR_FORWARD,       .name = "kb-move-char-forward",       .keybinding = "Right,Control+f",                           .comment = "Move forward one char"                                         },
-    { .id = REMOVE_WORD_BACK,        .name = "kb-remove-word-back",        .keybinding = "Control+Alt+h",                             .comment = "Delete previous word"                                          },
+    { .id = REMOVE_WORD_BACK,        .name = "kb-remove-word-back",        .keybinding = "Control+Alt+h,Control+Backspace",           .comment = "Delete previous word"                                          },
     { .id = REMOVE_WORD_FORWARD,     .name = "kb-remove-word-forward",     .keybinding = "Control+Alt+d",                             .comment = "Delete next word"                                              },
     { .id = REMOVE_CHAR_FORWARD,     .name = "kb-remove-char-forward",     .keybinding = "Delete,Control+d",                          .comment = "Delete next char"                                              },
     { .id = REMOVE_CHAR_BACK,        .name = "kb-remove-char-back",        .keybinding = "BackSpace,Control+h",                       .comment = "Delete previous char"                                          },

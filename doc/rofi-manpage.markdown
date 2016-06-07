@@ -35,9 +35,6 @@
 [ -a *row* ]
 [ -u *row* ]
 [ -pid *path* ]
-[ -now ]
-[ -rnow ]
-[ -snow ]
 [ -version ]
 [ -help ]
 [ -dump-xresources ]
@@ -583,6 +580,11 @@ Reads from *file* instead of stdin.
 
 Hide the input text. This should not be considered secure!
 
+`-markup-rows`
+
+Tell **rofi** that DMenu input is pango markup encoded and should be rendered.
+See [here](https://developer.gnome.org/pango/stable/PangoMarkupFormat.html) for details about pango markup.
+
 
 ### Message dialog
 
@@ -801,6 +803,8 @@ The indicator shows:
 
 **rofi** bugtracker can be found [here](https://github.com/DaveDavenport/rofi/issues)
 
+**rofi** support can be obtained [here](irc://irc.freenode.net/#rofi) (#rofi on irc.freenode.net)
+
 ## AUTHOR
 
 Qball Cow <qball@gmpclient.org>
@@ -808,6 +812,7 @@ Qball Cow <qball@gmpclient.org>
 Rasmus Steinke <rasi@xssn.at>
 
 Quentin Glidic <sardemff7+rofi@sardemff7.net>
+
 
 Original code based on work by: Sean Pringle <sean.pringle@gmail.com>
 
