@@ -569,6 +569,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         }
         else {
             fprintf ( stderr, "The %s switcher has not been enabled\n", sname );
+            g_main_loop_quit ( main_loop );
             return G_SOURCE_REMOVE;
         }
     }
