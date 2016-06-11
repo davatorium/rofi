@@ -162,7 +162,9 @@ void tokenize_free ( char ** tokens )
     }
     else if ( config.regex ) {
         for ( size_t i = 0; tokens && tokens[i]; i++ ) {
-            g_regex_unref ( (GRegex *) tokens[i] );
+            if ( tokens[i] != NULL ) {
+                g_regex_unref ( (GRegex *) tokens[i] );
+            }
         }
         g_free ( tokens );
     }
@@ -193,7 +195,6 @@ char **tokenize ( const char *input, int case_sensitive )
                 gchar *r = g_regex_escape_string ( input, -1 );
                 reg = g_regex_new ( r, ( case_sensitive ) ? 0 : G_REGEX_CASELESS, G_REGEX_MATCH_PARTIAL, NULL );
                 g_free ( r );
-                g_free ( retv );
             }
             retv[0] = (char *) reg;
         }
