@@ -163,7 +163,7 @@ static gchar *glob_to_regex ( const char *input )
 }
 static GRegex * create_regex ( const char *input, int case_sensitive )
 {
-#define R( s )    g_regex_new ( s, G_REGEX_OPTIMIZE | ( ( case_sensitive ) ? 0 : G_REGEX_CASELESS ), G_REGEX_MATCH_PARTIAL, NULL )
+#define R( s )    g_regex_new ( s, G_REGEX_OPTIMIZE | ( ( case_sensitive ) ? 0 : G_REGEX_CASELESS ), 0, NULL )
     GRegex *retv = NULL;
     if ( config.glob ) {
         gchar *r = glob_to_regex ( input );
@@ -196,7 +196,11 @@ static GRegex * create_regex ( const char *input, int case_sensitive )
 }
 GRegex **tokenize ( const char *input, int case_sensitive )
 {
-    if ( input == NULL || strlen ( input ) == 0 ) {
+    if ( input == NULL ) {
+        return NULL;
+    }
+    size_t len = strlen ( input );
+    if ( len == 0 ) {
         return NULL;
     }
 
@@ -365,7 +369,7 @@ int token_match ( GRegex **tokens, const char *input )
     // Do a tokenized match.
     if ( tokens ) {
         for ( int j = 0; match && tokens[j]; j++ ) {
-            match = g_regex_match ( (GRegex *) tokens[j], input, G_REGEX_MATCH_PARTIAL, NULL );
+            match = g_regex_match ( (GRegex *) tokens[j], input, 0, NULL );
         }
     }
     return match;

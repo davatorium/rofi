@@ -496,10 +496,10 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
             t->state->line_map[t->start + t->count] = i;
             if ( config.levenshtein_sort ) {
                 // This is inefficient, need to fix it.
-                char * str = mode_get_completion ( t->state->sw, i );
+                char * str   = mode_get_completion ( t->state->sw, i );
                 char * input = mode_preprocess_input ( t->state->sw, t->state->text->text );
                 t->state->distance[i] = levenshtein ( input, str );
-                g_free(input);
+                g_free ( input );
                 g_free ( str );
             }
             t->count++;
@@ -926,9 +926,9 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
     int x_offset       = state->border;
 
     if ( state->rchanged ) {
-        char *input = mode_preprocess_input ( state->sw, state->text->text );
+        char   *input   = mode_preprocess_input ( state->sw, state->text->text );
         GRegex **tokens = tokenize ( input, config.case_sensitive );
-        g_free(input);
+        g_free ( input );
         // Move, resize visible boxes and show them.
         for ( i = 0; i < max_elements && ( i + offset ) < state->filtered_lines; i++ ) {
             unsigned int ex = ( ( i ) / state->max_rows ) * ( element_width + config.line_margin );
