@@ -187,10 +187,6 @@ Start in case sensitive mode.
 
 Cycle through the results list. Default is 'true'.
 
-`-fuzzy`
-
-Enable experimental fuzzy matching.
-
 `-filter` *filter*
 
 Filter the list by setting text in input bar to *filter*

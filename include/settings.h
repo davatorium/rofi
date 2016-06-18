@@ -106,8 +106,6 @@ typedef struct
     unsigned int   parse_known_hosts;
     /** Combi Modes */
     char           *combi_modi;
-    /** Fuzzy match */
-    unsigned int   fuzzy;
     unsigned int   glob;
     unsigned int   tokenize;
     unsigned int   regex;

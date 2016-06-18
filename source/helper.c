@@ -178,14 +178,6 @@ static GRegex * create_regex ( const char *input, int case_sensitive )
             g_free ( r );
         }
     }
-    else if ( config.fuzzy ) {
-        gchar *r = g_regex_escape_string ( input, -1 );
-        // TODO either strip fuzzy, or fix this pattern.
-        gchar *str = g_strdup_printf ( "[%s]+", r );
-        retv = R ( str );
-        g_free ( r );
-        g_free ( str );
-    }
     else{
         // TODO; regex should be default?
         gchar *r = g_regex_escape_string ( input, -1 );

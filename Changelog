@@ -1,3 +1,6 @@
+v1.unrelease
+	- Remove fuzzy option
+
 v1.1.0
     New Features
         - Keys mode, showing keybindings.
