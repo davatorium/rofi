@@ -55,7 +55,7 @@ DefaultBinding bindings[NUM_ABE] =
     { .id = ROW_LEFT,                .name = "kb-row-left",                .keybinding = "Control+Page_Up",                           .comment = "Go to the previous column"                                     },
     { .id = ROW_RIGHT,               .name = "kb-row-right",               .keybinding = "Control+Page_Down",                         .comment = "Go to the next column"                                         },
     { .id = ROW_UP,                  .name = "kb-row-up",                  .keybinding = "Up,Control+p,Shift+Tab,Shift+ISO_Left_Tab", .comment = "Select previous entry"                                         },
-    { .id = ROW_DOWN,                .name = "kb-row-down",                .keybinding = "Down,Control+n,Tab",                        .comment = "Select next entry"                                             },
+    { .id = ROW_DOWN,                .name = "kb-row-down",                .keybinding = "Down,Control+n",                        .comment = "Select next entry"                                             },
     { .id = ROW_TAB,                 .name = "kb-row-tab",                 .keybinding = "Tab",                                       .comment = "Go to next row, if one left, accept it, if no left next mode." },
     { .id = PAGE_PREV,               .name = "kb-page-prev",               .keybinding = "Page_Up",                                   .comment = "Go to the previous page"                                       },
     { .id = PAGE_NEXT,               .name = "kb-page-next",               .keybinding = "Page_Down",                                 .comment = "Go to the next page"                                           },
