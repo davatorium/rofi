@@ -319,9 +319,7 @@ typedef struct
     char         *cache;
 } ModeModePrivateData;
 
-static int window_match ( const Mode *sw, char **tokens,
-                          __attribute__( ( unused ) ) int not_ascii,
-                          int case_sensitive, unsigned int index )
+static int window_match ( const Mode *sw, GRegex **tokens, unsigned int index )
 {
     ModeModePrivateData *rmpd = (ModeModePrivateData *) mode_get_private_data ( sw );
     int                 match = 1;
@@ -338,21 +336,21 @@ static int window_match ( const Mode *sw, char **tokens,
             // Now we want it to match only one item at the time.
             // If hack not in place it would not match queries spanning multiple fields.
             // e.g. when searching 'title element' and 'class element'
-            char *ftokens[2] = { tokens[j], NULL };
+            GRegex *ftokens[2] = { tokens[j], NULL };
             if ( !test && c->title != NULL && c->title[0] != '\0' ) {
-                test = token_match ( ftokens, c->title, not_ascii, case_sensitive );
+                test = token_match ( ftokens, c->title );
             }
 
             if ( !test && c->class != NULL && c->class[0] != '\0' ) {
-                test = token_match ( ftokens, c->class, not_ascii, case_sensitive );
+                test = token_match ( ftokens, c->class );
             }
 
             if ( !test && c->role != NULL && c->role[0] != '\0' ) {
-                test = token_match ( ftokens, c->role, not_ascii, case_sensitive );
+                test = token_match ( ftokens, c->role );
             }
 
             if ( !test && c->name != NULL && c->name[0] != '\0' ) {
-                test = token_match ( ftokens, c->name, not_ascii, case_sensitive );
+                test = token_match ( ftokens, c->name );
             }
 
             if ( test == 0 ) {
@@ -685,26 +683,6 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
 
-static int window_is_not_ascii ( const Mode *sw, unsigned int index )
-{
-    const ModeModePrivateData *rmpd = mode_get_private_data ( sw );
-    const winlist             *ids  = ( winlist * ) rmpd->ids;
-    // Want to pull directly out of cache, X calls are not thread safe.
-    int                       idx = winlist_find ( cache_client, ids->array[index] );
-    g_assert ( idx >= 0 );
-    client                    *c = cache_client->data[idx];
-    if ( c->role && !g_str_is_ascii ( c->role ) ) {
-        return TRUE;
-    }
-    if ( c->class && !g_str_is_ascii ( c->class ) ) {
-        return TRUE;
-    }
-    if ( c->title && !g_str_is_ascii ( c->title ) ) {
-        return TRUE;
-    }
-    return FALSE;
-}
-
 #include "mode-private.h"
 Mode window_mode =
 {
@@ -717,7 +695,7 @@ Mode window_mode =
     ._token_match       = window_match,
     ._get_display_value = _get_display_value,
     ._get_completion    = NULL,
-    ._is_not_ascii      = window_is_not_ascii,
+    ._preprocess_input  = NULL,
     .private_data       = NULL,
     .free               = NULL
 };
@@ -732,7 +710,7 @@ Mode window_mode_cd =
     ._token_match       = window_match,
     ._get_display_value = _get_display_value,
     ._get_completion    = NULL,
-    ._is_not_ascii      = window_is_not_ascii,
+    ._preprocess_input  = NULL,
     .private_data       = NULL,
     .free               = NULL
 };

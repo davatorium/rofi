@@ -108,8 +108,6 @@ Settings config = {
     .parse_known_hosts = TRUE,
     /** Modi to combine into one view. */
     .combi_modi        = "window,run",
-    /** Fuzzy matching. */
-    .fuzzy    = FALSE,
     .glob     = FALSE,
     .tokenize = TRUE,
     .regex    = FALSE,

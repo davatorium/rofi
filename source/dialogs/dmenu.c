@@ -332,16 +332,10 @@ static int dmenu_mode_init ( Mode *sw )
     return TRUE;
 }
 
-static int dmenu_token_match ( const Mode *sw, char **tokens, int not_ascii, int case_sensitive, unsigned int index )
+static int dmenu_token_match ( const Mode *sw, GRegex **tokens, unsigned int index )
 {
     DmenuModePrivateData *rmpd = (DmenuModePrivateData *) mode_get_private_data ( sw );
-    return token_match ( tokens, rmpd->cmd_list[index], not_ascii, case_sensitive );
-}
-
-static int dmenu_is_not_ascii ( const Mode *sw, unsigned int index )
-{
-    DmenuModePrivateData *rmpd = (DmenuModePrivateData *) mode_get_private_data ( sw );
-    return !g_str_is_ascii ( rmpd->cmd_list[index] );
+    return token_match ( tokens, rmpd->cmd_list[index] );
 }
 
 #include "mode-private.h"
@@ -356,7 +350,7 @@ Mode dmenu_mode =
     ._token_match       = dmenu_token_match,
     ._get_display_value = get_display_data,
     ._get_completion    = NULL,
-    ._is_not_ascii      = dmenu_is_not_ascii,
+    ._preprocess_input  = NULL,
     .private_data       = NULL,
     .free               = NULL
 };
@@ -516,25 +510,25 @@ int dmenu_switcher_dialog ( void )
     char *select = NULL;
     find_arg_str ( "-select", &select );
     if ( select != NULL ) {
-        char         **tokens = tokenize ( select, config.case_sensitive );
+        GRegex       **tokens = tokenize ( select, config.case_sensitive );
         unsigned int i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
-            if ( token_match ( tokens, cmd_list[i], !g_str_is_ascii ( cmd_list[i] ), config.case_sensitive ) ) {
+            if ( token_match ( tokens, cmd_list[i] ) ) {
                 pd->selected_line = i;
                 break;
             }
         }
-        g_strfreev ( tokens );
+        tokenize_free ( tokens );
     }
     if ( find_arg ( "-dump" ) >= 0 ) {
-        char         **tokens = tokenize ( config.filter ? config.filter : "", config.case_sensitive );
+        GRegex       **tokens = tokenize ( config.filter ? config.filter : "", config.case_sensitive );
         unsigned int i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
-            if ( token_match ( tokens, cmd_list[i], !g_str_is_ascii ( cmd_list[i] ), config.case_sensitive ) ) {
+            if ( token_match ( tokens, cmd_list[i] ) ) {
                 dmenu_output_formatted_line ( pd->format, cmd_list[i], i, config.filter );
             }
         }
-        g_strfreev ( tokens );
+        tokenize_free ( tokens );
         return TRUE;
     }
     // TODO remove

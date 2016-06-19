@@ -103,25 +103,18 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     return g_strdup ( pd->messages[selected_line] );
 }
 static int help_keys_token_match ( const Mode *data,
-                                   char **tokens,
-                                   int not_ascii,
-                                   int case_sensitive,
+                                   GRegex **tokens,
                                    unsigned int index
                                    )
 {
     KeysHelpModePrivateData *rmpd = (KeysHelpModePrivateData *) mode_get_private_data ( data );
-    return token_match ( tokens, rmpd->messages[index], not_ascii, case_sensitive );
+    return token_match ( tokens, rmpd->messages[index] );
 }
 
 static unsigned int help_keys_mode_get_num_entries ( const Mode *sw )
 {
     const KeysHelpModePrivateData *pd = (const KeysHelpModePrivateData *) mode_get_private_data ( sw );
     return pd->messages_length;
-}
-static int help_keys_is_not_ascii ( const Mode *sw, unsigned int index )
-{
-    const KeysHelpModePrivateData *pd = (const KeysHelpModePrivateData *) mode_get_private_data ( sw );
-    return !g_str_is_ascii ( pd->messages[index] );
 }
 
 #include "mode-private.h"
@@ -136,7 +129,6 @@ Mode help_keys_mode =
     ._token_match       = help_keys_token_match,
     ._get_completion    = NULL,
     ._get_display_value = _get_display_value,
-    ._is_not_ascii      = help_keys_is_not_ascii,
     .private_data       = NULL,
     .free               = NULL
 };

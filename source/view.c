@@ -298,7 +298,6 @@ void rofi_view_free ( RofiViewState *state )
     g_free ( state->boxes );
     g_free ( state->line_map );
     g_free ( state->distance );
-    g_free ( state->lines_not_ascii );
     // Free the switcher boxes.
     // When state is free'ed we should no longer need these.
     if ( config.sidebar_mode == TRUE ) {
@@ -462,7 +461,7 @@ static RofiViewState * __rofi_view_state_create ( void )
 typedef struct _thread_state
 {
     RofiViewState *state;
-    char          **tokens;
+    GRegex        **tokens;
     unsigned int  start;
     unsigned int  stop;
     unsigned int  count;
@@ -491,25 +490,20 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
 {
     // input changed
     for ( unsigned int i = t->start; i < t->stop; i++ ) {
-        int match = mode_token_match ( t->state->sw, t->tokens, t->state->lines_not_ascii[i],
-                                       config.case_sensitive, i );
+        int match = mode_token_match ( t->state->sw, t->tokens, i );
         // If each token was matched, add it to list.
         if ( match ) {
             t->state->line_map[t->start + t->count] = i;
             if ( config.levenshtein_sort ) {
                 // This is inefficient, need to fix it.
-                char * str = mode_get_completion ( t->state->sw, i );
-                t->state->distance[i] = levenshtein ( t->state->text->text, str );
+                char * str   = mode_get_completion ( t->state->sw, i );
+                char * input = mode_preprocess_input ( t->state->sw, t->state->text->text );
+                t->state->distance[i] = levenshtein ( input, str );
+                g_free ( input );
                 g_free ( str );
             }
             t->count++;
         }
-    }
-}
-static void check_is_ascii ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
-{
-    for ( unsigned int i = t->start; i < t->stop; i++ ) {
-        t->state->lines_not_ascii[i] = mode_is_not_ascii ( t->state->sw, i );
     }
 }
 
@@ -932,6 +926,9 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
     int x_offset       = state->border;
 
     if ( state->rchanged ) {
+        char   *input   = mode_preprocess_input ( state->sw, state->text->text );
+        GRegex **tokens = tokenize ( input, config.case_sensitive );
+        g_free ( input );
         // Move, resize visible boxes and show them.
         for ( i = 0; i < max_elements && ( i + offset ) < state->filtered_lines; i++ ) {
             unsigned int ex = ( ( i ) / state->max_rows ) * ( element_width + config.line_margin );
@@ -945,10 +942,20 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
                 TextBoxFontType tbft   = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
                 textbox_font ( state->boxes[i], tbft );
                 textbox_text ( state->boxes[i], text );
+
+                PangoAttrList *list = textbox_get_pango_attributes ( state->boxes[i] );
+                if ( list != NULL ) {
+                    pango_attr_list_ref ( list );
+                }
+                else{ list = pango_attr_list_new (); }
+                token_match_get_pango_attr ( tokens, textbox_get_visible_text ( state->boxes[i] ), list );
+                textbox_set_pango_attributes ( state->boxes[i], list );
+                pango_attr_list_unref ( list );
                 g_free ( text );
             }
             textbox_draw ( state->boxes[i], d );
         }
+        tokenize_free ( tokens );
         state->rchanged = FALSE;
     }
     else{
@@ -1243,7 +1250,9 @@ static void rofi_view_refilter ( RofiViewState *state )
     TICK_N ( "Filter start" );
     if ( strlen ( state->text->text ) > 0 ) {
         unsigned int j        = 0;
-        char         **tokens = tokenize ( state->text->text, config.case_sensitive );
+        gchar        *input   = mode_preprocess_input ( state->sw, state->text->text );
+        GRegex       **tokens = tokenize ( input, config.case_sensitive );
+        g_free ( input );
         /**
          * On long lists it can be beneficial to parallelize.
          * If number of threads is 1, no thread is spawn.
@@ -1530,7 +1539,7 @@ static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xc
         }
     }
 
-    if ( ( len > 0 ) && ( textbox_append ( state->text, pad, len ) ) ) {
+    if ( ( len > 0 ) && ( textbox_append_char ( state->text, pad, len ) ) ) {
         state->refilter = TRUE;
         state->update   = TRUE;
         return;
@@ -1627,46 +1636,8 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->finalize       = finalize;
 
     // Request the lines to show.
-    state->num_lines       = mode_get_num_entries ( sw );
-    state->lines_not_ascii = g_malloc0_n ( state->num_lines, sizeof ( int ) );
+    state->num_lines = mode_get_num_entries ( sw );
 
-    // find out which lines contain non-ascii codepoints, so we can be faster in some cases.
-    if ( state->num_lines > 0 ) {
-        TICK_N ( "Is ASCII start" );
-        unsigned int nt = MAX ( 1, state->num_lines / 5000 );
-        thread_state states[nt];
-        unsigned int steps = ( state->num_lines + nt ) / nt;
-        unsigned int count = nt;
-        GCond        cond;
-        GMutex       mutex;
-        g_mutex_init ( &mutex );
-        g_cond_init ( &cond );
-        for ( unsigned int i = 0; i < nt; i++ ) {
-            states[i].state    = state;
-            states[i].start    = i * steps;
-            states[i].stop     = MIN ( ( i + 1 ) * steps, state->num_lines );
-            states[i].acount   = &count;
-            states[i].mutex    = &mutex;
-            states[i].cond     = &cond;
-            states[i].callback = check_is_ascii;
-            if ( i > 0 ) {
-                g_thread_pool_push ( tpool, &( states[i] ), NULL );
-            }
-        }
-        // Run one in this thread.
-        rofi_view_call_thread ( &( states[0] ), NULL );
-        // No need to do this with only one thread.
-        if ( nt > 1 ) {
-            g_mutex_lock ( &mutex );
-            while ( count > 0 ) {
-                g_cond_wait ( &cond, &mutex );
-            }
-            g_mutex_unlock ( &mutex );
-        }
-        g_cond_clear ( &cond );
-        g_mutex_clear ( &mutex );
-        TICK_N ( "Is ASCII stop" );
-    }
     TICK_N ( "Startup notification" );
 
     // Try to grab the keyboard as early as possible.

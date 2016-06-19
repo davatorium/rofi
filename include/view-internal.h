@@ -56,7 +56,6 @@ struct RofiViewState
     // Return state
     unsigned int     selected_line;
     MenuReturn       retv;
-    int              *lines_not_ascii;
     int              line_height;
     unsigned int     border;
     workarea         mon;

@@ -136,71 +136,71 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
     return FALSE;
 }
 
-char *token_collate_key ( const char *token, int case_sensitive )
+void tokenize_free ( GRegex ** tokens )
 {
-    char *tmp, *compk;
-
-    if ( case_sensitive ) {
-        tmp = g_strdup ( token );
+    for ( size_t i = 0; tokens && tokens[i]; i++ ) {
+        g_regex_unref ( (GRegex *) tokens[i] );
     }
-    else {
-        tmp = g_utf8_casefold ( token, -1 );
-    }
-
-    compk = g_utf8_normalize ( tmp, -1, G_NORMALIZE_ALL );
-    g_free ( tmp );
-
-    return compk;
+    g_free ( tokens );
 }
-void tokenize_free ( char ** tokens )
+
+static gchar *glob_to_regex ( const char *input )
 {
-    if ( config.glob ) {
-        for ( size_t i = 0; tokens && tokens[i]; i++ ) {
-            g_pattern_spec_free ( (GPatternSpec *) tokens[i] );
+    gchar  *r    = g_regex_escape_string ( input, -1 );
+    size_t str_l = strlen ( r );
+    for ( size_t i = 0; i < str_l; i++ ) {
+        if ( r[i] == '\\' ) {
+            if ( r[i + 1] == '*' ) {
+                r[i] = '.';
+            }
+            else if ( r[i + 1] == '?' ) {
+                r[i + 1] = 'S';
+            }
+            i++;
         }
-        g_free ( tokens );
+    }
+    return r;
+}
+static GRegex * create_regex ( const char *input, int case_sensitive )
+{
+#define R( s )    g_regex_new ( s, G_REGEX_OPTIMIZE | ( ( case_sensitive ) ? 0 : G_REGEX_CASELESS ), 0, NULL )
+    GRegex *retv = NULL;
+    if ( config.glob ) {
+        gchar *r = glob_to_regex ( input );
+        retv = R ( r );
+        g_free ( r );
     }
     else if ( config.regex ) {
-        for ( size_t i = 0; tokens && tokens[i]; i++ ) {
-            if ( tokens[i] != NULL ) {
-                g_regex_unref ( (GRegex *) tokens[i] );
-            }
+        retv = R ( input );
+        if ( retv == NULL ) {
+            gchar *r = g_regex_escape_string ( input, -1 );
+            retv = R ( r );
+            g_free ( r );
         }
-        g_free ( tokens );
     }
-    else {
-        g_strfreev ( tokens );
+    else{
+        // TODO; regex should be default?
+        gchar *r = g_regex_escape_string ( input, -1 );
+        retv = R ( r );
+        g_free ( r );
     }
+    return retv;
 }
-char **tokenize ( const char *input, int case_sensitive )
+GRegex **tokenize ( const char *input, int case_sensitive )
 {
     if ( input == NULL ) {
         return NULL;
     }
+    size_t len = strlen ( input );
+    if ( len == 0 ) {
+        return NULL;
+    }
 
-    char *saveptr = NULL, *token;
-    char **retv = NULL;
+    char   *saveptr = NULL, *token;
+    GRegex **retv   = NULL;
     if ( !config.tokenize ) {
-        retv = g_malloc0 ( sizeof ( char* ) * 2 );
-        if ( config.glob ) {
-            token = g_strdup_printf ( "*%s*", input );
-            char *str = token_collate_key ( token, case_sensitive );
-            retv[0]                 = (char *) g_pattern_spec_new ( str );
-            g_free ( token ); token = NULL;
-            g_free ( str );
-        }
-        else if ( config.regex ) {
-            GRegex *reg = g_regex_new ( input, ( case_sensitive ) ? 0 : G_REGEX_CASELESS, G_REGEX_MATCH_PARTIAL, NULL );
-            if ( reg == NULL ) {
-                gchar *r = g_regex_escape_string ( input, -1 );
-                reg = g_regex_new ( r, ( case_sensitive ) ? 0 : G_REGEX_CASELESS, G_REGEX_MATCH_PARTIAL, NULL );
-                g_free ( r );
-            }
-            retv[0] = (char *) reg;
-        }
-        else{
-            retv[0] = token_collate_key ( input, case_sensitive );
-        }
+        retv    = g_malloc0 ( sizeof ( GRegex* ) * 2 );
+        retv[0] = (GRegex *) create_regex ( input, case_sensitive );
         return retv;
     }
 
@@ -214,25 +214,8 @@ char **tokenize ( const char *input, int case_sensitive )
     // strtok should still be valid for utf8.
     const char * const sep = " ";
     for ( token = strtok_r ( str, sep, &saveptr ); token != NULL; token = strtok_r ( NULL, sep, &saveptr ) ) {
-        retv = g_realloc ( retv, sizeof ( char* ) * ( num_tokens + 2 ) );
-        if ( config.glob ) {
-            char *str = g_strdup_printf ( "*%s*", token );
-            char *t   = token_collate_key ( str, case_sensitive );
-            retv[num_tokens] = (char *) g_pattern_spec_new ( t );
-            g_free ( t );
-            g_free ( str );
-        }
-        else if ( config.regex ) {
-            retv[num_tokens] = (char *) g_regex_new ( token, case_sensitive ? 0 : G_REGEX_CASELESS, 0, NULL );
-            if ( retv[num_tokens] == NULL ) {
-                gchar *r = g_regex_escape_string ( input, -1 );
-                retv[num_tokens] = (char *) g_regex_new ( r, ( case_sensitive ) ? 0 : G_REGEX_CASELESS, G_REGEX_MATCH_PARTIAL, NULL );
-                g_free ( r );
-            }
-        }
-        else {
-            retv[num_tokens] = token_collate_key ( token, case_sensitive );
-        }
+        retv                 = g_realloc ( retv, sizeof ( GRegex* ) * ( num_tokens + 2 ) );
+        retv[num_tokens]     = (GRegex *) create_regex ( token, case_sensitive );
         retv[num_tokens + 1] = NULL;
         num_tokens++;
     }
@@ -348,96 +331,40 @@ int find_arg_char ( const char * const key, char *val )
     return FALSE;
 }
 
-/**
- * Shared 'token_match' function.
- * Matches tokenized.
- */
-static int fuzzy_token_match ( char **tokens, const char *input, __attribute__( ( unused ) ) int not_ascii, int case_sensitive )
+PangoAttrList *token_match_get_pango_attr ( GRegex **tokens, const char *input, PangoAttrList *retv )
 {
-    int match = 1;
-
     // Do a tokenized match.
-
     if ( tokens ) {
-        char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : (char *) g_ascii_strdown ( input, -1 );
-        for ( int j = 0; match && tokens[j]; j++ ) {
-            char *t     = compk;
-            char *token = tokens[j];
-
-            while ( *t && *token ) {
-                if (  ( g_utf8_get_char ( t ) == g_utf8_get_char ( token ) ) ) {
-                    token = g_utf8_next_char ( token );
-                }
-                t = g_utf8_next_char ( t );
+        for ( int j = 0; tokens[j]; j++ ) {
+            GMatchInfo *gmi = NULL;
+            g_regex_match ( (GRegex *) tokens[j], input, G_REGEX_MATCH_PARTIAL, &gmi );
+            while ( g_match_info_matches ( gmi ) ) {
+                int            start, end;
+                g_match_info_fetch_pos ( gmi, 0, &start, &end );
+                PangoAttribute *pa  = pango_attr_underline_new ( PANGO_UNDERLINE_SINGLE );
+                PangoAttribute *pa2 = pango_attr_weight_new ( PANGO_WEIGHT_BOLD );
+                pa2->start_index = pa->start_index = start;
+                pa2->end_index   = pa->end_index = end;
+                pango_attr_list_insert ( retv, pa );
+                pango_attr_list_insert ( retv, pa2 );
+                g_match_info_next ( gmi, NULL );
             }
-            match = !( *token );
+            g_match_info_free ( gmi );
         }
-        g_free ( compk );
     }
-
-    return match;
+    return retv;
 }
-static int normal_token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive )
+
+int token_match ( GRegex **tokens, const char *input )
 {
     int match = 1;
-
-    // Do a tokenized match.
-
-    if ( tokens ) {
-        char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : (char *) input;
-        char *( *comparison )( const char *, const char * );
-        comparison = ( case_sensitive || not_ascii ) ? strstr : strcasestr;
-        for ( int j = 0; match && tokens[j]; j++ ) {
-            match = ( comparison ( compk, tokens[j] ) != NULL );
-        }
-        if ( not_ascii ) {
-            g_free ( compk );
-        }
-    }
-
-    return match;
-}
-
-static int regex_token_match ( char **tokens, const char *input, G_GNUC_UNUSED int not_ascii, G_GNUC_UNUSED int case_sensitive )
-{
-    int match = 1;
-
     // Do a tokenized match.
     if ( tokens ) {
         for ( int j = 0; match && tokens[j]; j++ ) {
-            match = g_regex_match ( (GRegex *) tokens[j], input, G_REGEX_MATCH_PARTIAL, NULL );
+            match = g_regex_match ( (GRegex *) tokens[j], input, 0, NULL );
         }
     }
     return match;
-}
-
-static int glob_token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive )
-{
-    int  match  = 1;
-    char *compk = not_ascii ? token_collate_key ( input, case_sensitive ) : g_ascii_strdown ( input, -1 );
-
-    // Do a tokenized match.
-    if ( tokens ) {
-        for ( int j = 0; match && tokens[j]; j++ ) {
-            match = g_pattern_match_string ( (GPatternSpec *) tokens[j], compk );
-        }
-    }
-    g_free ( compk );
-    return match;
-}
-
-int token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive )
-{
-    if ( config.glob ) {
-        return glob_token_match ( tokens, input, not_ascii, case_sensitive );
-    }
-    else if ( config.regex ) {
-        return regex_token_match ( tokens, input, not_ascii, case_sensitive );
-    }
-    else if ( config.fuzzy ) {
-        return fuzzy_token_match ( tokens, input, not_ascii, case_sensitive );
-    }
-    return normal_token_match ( tokens, input, not_ascii, case_sensitive );
 }
 
 int execute_generator ( const char * cmd )

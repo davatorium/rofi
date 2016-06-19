@@ -17,7 +17,7 @@ typedef char * ( *_mode_get_completion )( const Mode *sw, unsigned int selected_
  *
  * @returns 1 when it matches, 0 if not.
  */
-typedef int ( *_mode_token_match )( const Mode *data, char **tokens, int not_ascii, int case_sensitive, unsigned int index );
+typedef int ( *_mode_token_match )( const Mode *data, GRegex **tokens, unsigned int index );
 
 typedef int ( *__mode_init )( Mode *sw );
 
@@ -27,7 +27,7 @@ typedef void ( *__mode_destroy )( Mode *sw );
 
 typedef ModeMode ( *_mode_result )( Mode *sw, int menu_retv, char **input, unsigned int selected_line );
 
-typedef int ( *_mode_is_not_ascii )( const Mode *sw, unsigned int index );
+typedef char* ( *_mode_preprocess_input )( Mode *sw, const char *input );
 
 /**
  * Structure defining a switcher.
@@ -50,8 +50,6 @@ struct rofi_mode
     __mode_destroy          _destroy;
     /** Get number of entries to display. (unfiltered). */
     __mode_get_num_entries  _get_num_entries;
-    /** Check if the element is ascii. */
-    _mode_is_not_ascii      _is_not_ascii;
     /** Process the result of the user selection. */
     _mode_result            _result;
     /** Token match. */
@@ -60,6 +58,8 @@ struct rofi_mode
     _mode_get_display_value _get_display_value;
     /** Get the 'completed' entry. */
     _mode_get_completion    _get_completion;
+
+    _mode_preprocess_input  _preprocess_input;
 
     /** Pointer to private data. */
     void                    *private_data;

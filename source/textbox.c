@@ -162,6 +162,18 @@ static void __textbox_update_pango_text ( textbox *tb )
         pango_layout_set_text ( tb->layout, tb->text, -1 );
     }
 }
+const char *textbox_get_visible_text ( textbox *tb )
+{
+    return pango_layout_get_text ( tb->layout );
+}
+PangoAttrList *textbox_get_pango_attributes ( textbox *tb )
+{
+    return pango_layout_get_attributes ( tb->layout );
+}
+void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list )
+{
+    pango_layout_set_attributes ( tb->layout, list );
+}
 
 // set the default text to display
 void textbox_text ( textbox *tb, const char *text )
@@ -588,22 +600,19 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action )
     g_return_val_if_reached ( 0 );
 }
 
-gboolean textbox_append ( textbox *tb, char *pad, int pad_len )
+gboolean textbox_append_char ( textbox *tb, char *pad, int pad_len )
 {
     if ( !( tb->flags & TB_EDITABLE ) ) {
         return FALSE;
     }
-    int old_blink = tb->blink;
-    tb->blink = 2;
 
     // Filter When alt/ctrl is pressed do not accept the character.
-    if (  !g_ascii_iscntrl ( *pad ) ) {
+    if ( !g_unichar_iscntrl ( g_utf8_get_char ( pad ) ) ) {
+        tb->blink = 2;
         textbox_insert ( tb, tb->cursor, pad, pad_len );
         textbox_cursor ( tb, tb->cursor + pad_len );
         return TRUE;
     }
-
-    tb->blink = old_blink;
     return FALSE;
 }
 

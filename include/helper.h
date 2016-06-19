@@ -2,6 +2,7 @@
 #define ROFI_HELPER_H
 #include "rofi.h"
 
+#include <pango/pango.h>
 /**
  * @defgroup HELPERS Helpers
  */
@@ -24,18 +25,6 @@
 int helper_parse_setup ( char * string, char ***output, int *length, ... );
 
 /**
- * @param token The string for which we want a collation key.
- * @param case_sensitive Whether case is significant.
- *
- * Get a collation key for @p token. @p token must be a null-terminated string.
- * This collation key can be used for matching the user input against the list
- * of commands, windows, or ssh commands.
- *
- * @returns A newly allocated string containing the collation key.
- */
-char *token_collate_key ( const char *token, int case_sensitive );
-
-/**
  * @param input The input string.
  * @param case_sensitive Whether case is significant.
  *
@@ -43,8 +32,8 @@ char *token_collate_key ( const char *token, int case_sensitive );
  *
  * @returns a newly allocated 2 dimensional array of strings.
  */
-char **tokenize ( const char *input, int case_sensitive );
-void tokenize_free ( char ** tokens );
+GRegex **tokenize ( const char *input, int case_sensitive );
+void tokenize_free ( GRegex ** tokens );
 
 /**
  * @param key The key to search for
@@ -108,7 +97,7 @@ int find_arg ( const char * const key );
  *
  * @returns 1 when matches, 0 otherwise
  */
-int token_match ( char **tokens, const char *input, int not_ascii, int case_sensitive );
+int token_match ( GRegex **tokens, const char *input );
 /**
  * @param cmd The command to execute.
  *
@@ -171,5 +160,6 @@ unsigned int levenshtein ( const char *needle, const char *haystack );
  */
 char * rofi_force_utf8 ( gchar *data );
 char * rofi_latin_to_utf8_strdup ( const char *input, gssize length );
+PangoAttrList *token_match_get_pango_attr ( GRegex **tokens, const char *input, PangoAttrList *retv );
 /*@}*/
 #endif // ROFI_HELPER_H

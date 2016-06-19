@@ -39,15 +39,15 @@ typedef struct
 
 typedef enum
 {
-    TB_AUTOHEIGHT    = 1 << 0,
-        TB_AUTOWIDTH = 1 << 1,
-        TB_LEFT      = 1 << 16,
-        TB_RIGHT     = 1 << 17,
-        TB_CENTER    = 1 << 18,
-        TB_EDITABLE  = 1 << 19,
-        TB_MARKUP    = 1 << 20,
-        TB_WRAP      = 1 << 21,
-        TB_PASSWORD  = 1 << 22,
+    TB_AUTOHEIGHT = 1 << 0,
+    TB_AUTOWIDTH  = 1 << 1,
+    TB_LEFT       = 1 << 16,
+    TB_RIGHT      = 1 << 17,
+    TB_CENTER     = 1 << 18,
+    TB_EDITABLE   = 1 << 19,
+    TB_MARKUP     = 1 << 20,
+    TB_WRAP       = 1 << 21,
+    TB_PASSWORD   = 1 << 22,
 } TextboxFlags;
 
 typedef enum
@@ -103,7 +103,15 @@ void textbox_text ( textbox *tb, const char *text );
 void textbox_draw ( textbox *tb, cairo_t *draw );
 
 int textbox_keybinding ( textbox *tb, KeyBindingAction action );
-gboolean textbox_append ( textbox *tb, char *pad, int pad_len );
+/**
+ * @param tb Handle to the textbox
+ * @param pad The text to insert
+ * @param pad_len the length of the text
+ *
+ * The text should be one insert from a keypress..  the first gunichar is validated to be (or not) control
+ * return TRUE if inserted
+ */
+gboolean textbox_append_char ( textbox *tb, char *pad, int pad_len );
 
 /**
  * @param tb  Handle to the textbox
@@ -225,6 +233,10 @@ void textbox_delete ( textbox *tb, int pos, int dlen );
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
 int textbox_get_estimated_char_height ( void );
 void textbox_set_pango_context ( PangoContext *p );
+void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list );
 
+PangoAttrList *textbox_get_pango_attributes ( textbox *tb );
+
+const char *textbox_get_visible_text ( textbox *tb );
 /*@}*/
 #endif //ROFI_TEXTBOX_H

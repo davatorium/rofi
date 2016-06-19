@@ -64,8 +64,6 @@ rofi.parse-hosts:                    false
 rofi.parse-known-hosts:              true
 ! Set the modi to combine in combi mode
 rofi.combi-modi:                     window,drun,run,ssh
-! Do a more fuzzy matching
-rofi.fuzzy:                          false
 ! Use glob matching
 rofi.glob:                           false
 ! Use regex matching
