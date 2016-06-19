@@ -37,6 +37,7 @@ typedef enum
     REMOVE_CHAR_BACK,
     /** Accept the current selected entry */
     ACCEPT_ENTRY,
+    ACCEPT_ALT,
     ACCEPT_CUSTOM,
     MODE_NEXT,
     MODE_PREVIOUS,

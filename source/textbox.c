@@ -589,15 +589,9 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action )
     case REMOVE_CHAR_BACK:
         textbox_cursor_bkspc ( tb );
         return 1;
-    case ACCEPT_CUSTOM:
-        return -2;
-    case ACCEPT_ENTRY:
-        return -1;
     default:
         g_return_val_if_reached ( 0 );
     }
-
-    g_return_val_if_reached ( 0 );
 }
 
 gboolean textbox_append_char ( textbox *tb, char *pad, int pad_len )

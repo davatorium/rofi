@@ -947,7 +947,9 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
                 if ( list != NULL ) {
                     pango_attr_list_ref ( list );
                 }
-                else{ list = pango_attr_list_new (); }
+                else{
+                    list = pango_attr_list_new ();
+                }
                 token_match_get_pango_attr ( tokens, textbox_get_visible_text ( state->boxes[i] ), list );
                 textbox_set_pango_attributes ( state->boxes[i], list );
                 pango_attr_list_unref ( list );
@@ -1452,37 +1454,55 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
     case MOVE_WORD_BACK:
     case MOVE_WORD_FORWARD:
     case REMOVE_CHAR_BACK:
-    case ACCEPT_CUSTOM:
-    case ACCEPT_ENTRY:
     {
         int rc = textbox_keybinding ( state->text, action );
-        // Row is accepted.
-        if ( rc < 0 ) {
-            // If a valid item is selected, return that..
-            state->selected_line = UINT32_MAX;
-            if ( state->selected < state->filtered_lines ) {
-                ( state->selected_line ) = state->line_map[state->selected];
-                state->retv              = MENU_OK;
-            }
-            else {
-                // Nothing entered and nothing selected.
-                state->retv = MENU_CUSTOM_INPUT;
-            }
-            if ( rc == -2 ) {
-                state->retv |= MENU_CUSTOM_ACTION;
-            }
-
-            state->quit = TRUE;
-        }
-        // Key press is handled by entry box.
-        else if ( rc == 1 ) {
+        if ( rc == 1 ) {
+            // Entry changed.
             state->refilter = TRUE;
             state->update   = TRUE;
         }
-        else if (  rc == 2 ) {
-            // redraw.
+        else if ( rc == 2 ) {
+            // Movement.
             state->update = TRUE;
         }
+        break;
+    }
+    case ACCEPT_ALT:
+    {
+        state->selected_line = UINT32_MAX;
+        if ( state->selected < state->filtered_lines ) {
+            ( state->selected_line ) = state->line_map[state->selected];
+            state->retv              = MENU_OK;
+        }
+        else {
+            // Nothing entered and nothing selected.
+            state->retv = MENU_CUSTOM_INPUT;
+        }
+        state->retv |= MENU_CUSTOM_ACTION;
+        state->quit  = TRUE;
+        break;
+    }
+    case ACCEPT_CUSTOM:
+    {
+        state->selected_line = UINT32_MAX;
+        state->retv          = MENU_CUSTOM_INPUT;
+        state->quit          = TRUE;
+        break;
+    }
+    case ACCEPT_ENTRY:
+    {
+        // If a valid item is selected, return that..
+        state->selected_line = UINT32_MAX;
+        if ( state->selected < state->filtered_lines ) {
+            ( state->selected_line ) = state->line_map[state->selected];
+            state->retv              = MENU_OK;
+        }
+        else {
+            // Nothing entered and nothing selected.
+            state->retv = MENU_CUSTOM_INPUT;
+        }
+
+        state->quit = TRUE;
         break;
     }
     case NUM_ABE:
