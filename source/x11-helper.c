@@ -107,7 +107,7 @@ static xcb_pixmap_t get_root_pixmap ( xcb_connection_t *c,
         rootpixmap = (xcb_pixmap_t *) xcb_get_property_value ( reply );
     }
     else {
-        *rootpixmap = XCB_NONE;
+        rootpixmap = XCB_NONE;
     }
 
     free ( reply );
