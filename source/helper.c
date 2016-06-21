@@ -596,18 +596,17 @@ char * rofi_latin_to_utf8_strdup ( const char *input, gssize length )
     return g_convert_with_fallback ( input, length, "UTF-8", "latin1", "\uFFFD", NULL, &slength, NULL );
 }
 
-char * rofi_force_utf8 ( gchar *start )
+char * rofi_force_utf8 ( gchar *start, ssize_t length )
 {
     if ( start == NULL ) {
         return NULL;
     }
     const char *data = start;
     const char *end;
-    gsize      length = strlen ( data );
     GString    *string;
 
     if ( g_utf8_validate ( data, length, &end ) ) {
-        return start;
+        return g_memdup ( start, length + 1 );
     }
     string = g_string_sized_new ( length + 16 );
 
@@ -624,7 +623,5 @@ char * rofi_force_utf8 ( gchar *start )
         g_string_append_len ( string, data, length );
     }
 
-    // Free input string.
-    g_free ( start );
     return g_string_free ( string, FALSE );
 }

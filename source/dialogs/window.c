@@ -294,14 +294,6 @@ static client* window_client ( xcb_window_t win )
         c->hint_flags = r.flags;
     }
 
-    /** Do UTF-8 Check, should not be needed, does not hurt here to be paranoid. */
-    {
-        c->title = rofi_force_utf8 ( c->title );
-        c->class = rofi_force_utf8 ( c->class );
-        c->name  = rofi_force_utf8 ( c->name );
-        c->role  = rofi_force_utf8 ( c->role );
-    }
-
     winlist_append ( cache_client, c->window, c );
     g_free ( attr );
     return c;

@@ -92,11 +92,9 @@ static char **get_dmenu ( DmenuModePrivateData *pd, FILE *fd, unsigned int *leng
             data[l - 1] = '\0';
             l--;
         }
-        data = rofi_force_utf8 ( data );
+        char *utfstr = rofi_force_utf8 ( data, l );
 
-        retv[( *length )] = data;
-        data              = NULL;
-        data_l            = 0;
+        retv[( *length )] = utfstr;
 
         ( *length )++;
         // Stop when we hit 2³¹ entries.
@@ -529,6 +527,8 @@ int dmenu_switcher_dialog ( void )
             }
         }
         tokenize_free ( tokens );
+        dmenu_mode_free ( &dmenu_mode );
+        g_free ( input );
         return TRUE;
     }
     // TODO remove

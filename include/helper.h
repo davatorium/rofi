@@ -158,7 +158,7 @@ unsigned int levenshtein ( const char *needle, const char *haystack );
 /**
  * Convert string to valid utf-8, replacing invalid parts with replacement character.
  */
-char * rofi_force_utf8 ( gchar *data );
+char * rofi_force_utf8 ( gchar *data, ssize_t length );
 char * rofi_latin_to_utf8_strdup ( const char *input, gssize length );
 PangoAttrList *token_match_get_pango_attr ( GRegex **tokens, const char *input, PangoAttrList *retv );
 /*@}*/
