@@ -780,10 +780,6 @@ int main ( int argc, char *argv[] )
         exit ( EXIT_FAILURE );
     }
     TICK_N ( "Startup Notification" );
-
-    // Initialize Xresources subsystem.
-    config_parse_xresource_init ();
-    TICK_N ( "Initialize Xresources system" );
     // Setup keybinding
     setup_abe ();
     TICK_N ( "Setup abe" );

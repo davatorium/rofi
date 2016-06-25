@@ -1,5 +1,6 @@
 v1.unrelease
 	- Remove fuzzy option
+	- Remove xlib dependency (xcb-xrm)
 
 v1.1.0
     New Features

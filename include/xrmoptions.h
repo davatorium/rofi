@@ -88,12 +88,6 @@ void config_parse_xresource_options_dynamic ( xcb_stuff *xcb );
 void config_parse_xresource_options_dynamic_file ( const char *filename );
 
 /**
- * Initializes the Xresourced system.
- *
- * @ingroup CONFXResources
- */
-void config_parse_xresource_init ( void );
-/**
  * Free any allocated memory.
  *
  * @ingroup CONFXResources

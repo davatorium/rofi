@@ -29,14 +29,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <X11/X.h>
 #include <xcb/xcb.h>
 #include <xcb/xkb.h>
+#include <xcb/xcb_xrm.h>
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-compose.h>
 #include <xkbcommon/xkbcommon-x11.h>
-#include <X11/Xresource.h>
+#include <glib.h>
 #include "xcb.h"
+#include "xcb-internal.h"
 #include "x11-helper.h"
 #include "rofi.h"
 #include "xrmoptions.h"
@@ -196,27 +197,27 @@ void config_parser_add_option ( XrmOptionType type, const char *key, void **valu
     num_extra_options++;
 }
 
-static void config_parser_set ( XrmOption *option, XrmValue *xrmValue )
+static void config_parser_set ( XrmOption *option, char *xrmValue )
 {
     if ( option->type == xrm_String ) {
         if ( ( option )->mem != NULL ) {
             g_free ( option->mem );
             option->mem = NULL;
         }
-        *( option->value.str ) = g_strndup ( xrmValue->addr, xrmValue->size );
+        *( option->value.str ) = g_strdup ( xrmValue );
 
         // Memory
         ( option )->mem = *( option->value.str );
     }
     else if ( option->type == xrm_Number ) {
-        *( option->value.num ) = (unsigned int) strtoul ( xrmValue->addr, NULL, 10 );
+        *( option->value.num ) = (unsigned int) g_ascii_strtoull ( xrmValue, NULL, 10 );
     }
     else if ( option->type == xrm_SNumber ) {
-        *( option->value.snum ) = (int) strtol ( xrmValue->addr, NULL, 10 );
+        *( option->value.snum ) = (int) g_ascii_strtoll ( xrmValue, NULL, 10 );
     }
     else if ( option->type == xrm_Boolean ) {
-        if ( xrmValue->size > 0 &&
-             g_ascii_strncasecmp ( xrmValue->addr, "true", xrmValue->size ) == 0 ) {
+        if ( strlen ( xrmValue ) > 0 &&
+             g_ascii_strcasecmp ( xrmValue, "true" ) == 0 ) {
             *( option->value.num ) = TRUE;
         }
         else{
@@ -224,14 +225,12 @@ static void config_parser_set ( XrmOption *option, XrmValue *xrmValue )
         }
     }
     else if ( option->type == xrm_Char ) {
-        *( option->value.charc ) = helper_parse_char ( xrmValue->addr );
+        *( option->value.charc ) = helper_parse_char ( xrmValue );
     }
 }
 
-static void __config_parse_xresource_options ( XrmDatabase xDB )
+static void __config_parse_xresource_options ( xcb_xrm_database_t *xDB )
 {
-    char       * xrmType;
-    XrmValue   xrmValue;
     const char * namePrefix  = "rofi";
     const char * classPrefix = "rofi";
 
@@ -241,8 +240,12 @@ static void __config_parse_xresource_options ( XrmDatabase xDB )
         name  = g_strdup_printf ( "%s.%s", namePrefix, xrmOptions[i].name );
         class = g_strdup_printf ( "%s.%s", classPrefix, xrmOptions[i].name );
 
-        if ( XrmGetResource ( xDB, name, class, &xrmType, &xrmValue ) ) {
-            config_parser_set ( &( xrmOptions[i] ), &xrmValue );
+        char *xrmValue = NULL;
+        if ( xcb_xrm_resource_get_string ( xDB, name, class, &xrmValue ) == 0 ) {
+            config_parser_set ( &( xrmOptions[i] ), xrmValue );
+        }
+        if ( xrmValue ) {
+            free ( xrmValue );
         }
 
         g_free ( class );
@@ -251,13 +254,10 @@ static void __config_parse_xresource_options ( XrmDatabase xDB )
 }
 void config_parse_xresource_options ( xcb_stuff *xcb )
 {
-    char *name = window_get_text_prop ( xcb_stuff_get_root_window ( xcb ), XCB_ATOM_RESOURCE_MANAGER );
-    if ( name ) {
-        // Map Xresource entries to rofi config options.
-        XrmDatabase xDB = XrmGetStringDatabase ( name );
+    xcb_xrm_database_t *xDB = xcb_xrm_database_from_default ( xcb->connection );
+    if ( xDB ) {
         __config_parse_xresource_options ( xDB );
-        XrmDestroyDatabase ( xDB );
-        g_free ( name );
+        xcb_xrm_database_free ( xDB );
     }
 }
 void config_parse_xresource_options_file ( const char *filename )
@@ -266,12 +266,12 @@ void config_parse_xresource_options_file ( const char *filename )
         return;
     }
     // Map Xresource entries to rofi config options.
-    XrmDatabase xDB = XrmGetFileDatabase ( filename );
+    xcb_xrm_database_t *xDB = xcb_xrm_database_from_file ( filename );
     if ( xDB == NULL ) {
         return;
     }
     __config_parse_xresource_options ( xDB );
-    XrmDestroyDatabase ( xDB );
+    xcb_xrm_database_free ( xDB );
 }
 
 /**
@@ -334,10 +334,8 @@ void config_parse_cmd_options_dynamic ( void )
     }
 }
 
-static void __config_parse_xresource_options_dynamic ( XrmDatabase xDB )
+static void __config_parse_xresource_options_dynamic ( xcb_xrm_database_t *xDB )
 {
-    char       * xrmType;
-    XrmValue   xrmValue;
     const char * namePrefix  = "rofi";
     const char * classPrefix = "rofi";
 
@@ -346,8 +344,12 @@ static void __config_parse_xresource_options_dynamic ( XrmDatabase xDB )
 
         name  = g_strdup_printf ( "%s.%s", namePrefix, extra_options[i].name );
         class = g_strdup_printf ( "%s.%s", classPrefix, extra_options[i].name );
-        if ( XrmGetResource ( xDB, name, class, &xrmType, &xrmValue ) ) {
-            config_parser_set ( &( extra_options[i] ), &xrmValue );
+        char *xrmValue = NULL;
+        if ( xcb_xrm_resource_get_string ( xDB, name, class, &xrmValue ) == 0 ) {
+            config_parser_set ( &( extra_options[i] ), xrmValue );
+        }
+        if ( xrmValue ) {
+            free ( xrmValue );
         }
 
         g_free ( class );
@@ -359,9 +361,9 @@ void config_parse_xresource_options_dynamic ( xcb_stuff *xcb )
 {
     char *name = window_get_text_prop ( xcb_stuff_get_root_window ( xcb ), XCB_ATOM_RESOURCE_MANAGER );
     if ( name ) {
-        XrmDatabase xDB = XrmGetStringDatabase ( name );
+        xcb_xrm_database_t *xDB = xcb_xrm_database_from_string ( name );
         __config_parse_xresource_options_dynamic ( xDB );
-        XrmDestroyDatabase ( xDB );
+        xcb_xrm_database_free ( xDB );
         g_free ( name );
     }
 }
@@ -371,12 +373,12 @@ void config_parse_xresource_options_dynamic_file ( const char *filename )
         return;
     }
     // Map Xresource entries to rofi config options.
-    XrmDatabase xDB = XrmGetFileDatabase ( filename );
+    xcb_xrm_database_t *xDB = xcb_xrm_database_from_file ( filename );
     if ( xDB == NULL ) {
         return;
     }
     __config_parse_xresource_options_dynamic ( xDB );
-    XrmDestroyDatabase ( xDB );
+    xcb_xrm_database_free ( xDB );
 }
 
 void config_xresource_free ( void )
@@ -588,11 +590,6 @@ void config_parse_xresources_theme_dump ( void )
             xresource_dump_entry ( namePrefix, &xrmOptions[i] );
         }
     }
-}
-
-void config_parse_xresource_init ( void )
-{
-    XrmInitialize ();
 }
 
 static char * config_parser_return_display_help_entry ( XrmOption *option )
