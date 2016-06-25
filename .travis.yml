@@ -8,7 +8,6 @@ addons:
             - automake
             - make
             - xutils-dev
-            - libx11-dev
             - libpango1.0-dev
             - libcairo2-dev
             - libstartup-notification0-dev
