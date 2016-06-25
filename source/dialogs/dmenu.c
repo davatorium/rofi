@@ -49,6 +49,21 @@ struct range_pair
     unsigned int start;
     unsigned int stop;
 };
+
+inline unsigned int bitget ( uint32_t *array, unsigned int index )
+{
+    uint32_t bit = index % 32;
+    uint32_t val = array[index / 32];
+    return ( val >> bit ) & 1;
+}
+
+inline void bittoggle ( uint32_t *array, unsigned int index )
+{
+    uint32_t bit = index % 32;
+    uint32_t *v  = &array[index / 32];
+    *v ^= 1 << bit;
+}
+
 typedef struct
 {
     /** Settings */
@@ -64,7 +79,7 @@ typedef struct
     unsigned int      num_urgent_list;
     struct range_pair * active_list;
     unsigned int      num_active_list;
-    struct range_pair * selected_list;
+    uint32_t          *selected_list;
     unsigned int      num_selected_list;
     unsigned int      do_markup;
     // List with entries.
@@ -172,10 +187,8 @@ static char *get_display_data ( const Mode *data, unsigned int index, int *state
             *state |= URGENT;
         }
     }
-    for ( unsigned int i = 0; i < pd->num_selected_list; i++ ) {
-        if ( index >= pd->selected_list[i].start && index <= pd->selected_list[i].stop ) {
-            *state |= SELECTED;
-        }
+    if ( pd->selected_list && bitget ( pd->selected_list, index ) == TRUE ) {
+        *state |= SELECTED;
     }
     if ( pd->do_markup ) {
         *state |= MARKUP;
@@ -418,26 +431,30 @@ static void dmenu_finalize ( RofiViewState *state )
     restart = FALSE;
     // Normal mode
     if ( ( mretv & MENU_OK  ) && pd->selected_line != UINT32_MAX && cmd_list[pd->selected_line] != NULL ) {
-        dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
         if ( ( mretv & MENU_CUSTOM_ACTION ) ) {
             restart = TRUE;
+            if ( pd->selected_list == NULL ) {
+                pd->selected_list = g_malloc0 ( sizeof ( uint32_t ) * ( pd->cmd_list_length / 32 + 1 ) );
+            }
+            bittoggle ( pd->selected_list, pd->selected_line );
+            // Move to next line.
+            pd->selected_line = MIN ( next_pos, cmd_list_length - 1 );
+        }
+        else {
             int seen = FALSE;
             if ( pd->selected_list != NULL ) {
-                if ( pd->selected_list[pd->num_selected_list - 1].stop == ( pd->selected_line - 1 ) ) {
-                    pd->selected_list[pd->num_selected_list - 1].stop = pd->selected_line;
-                    seen                                              = TRUE;
+                for ( unsigned int st = 0; st < pd->cmd_list_length; st++ ) {
+                    if ( bitget ( pd->selected_list, st ) ) {
+                        if ( pd->selected_line == st ) {
+                            seen = TRUE;
+                        }
+                        dmenu_output_formatted_line ( pd->format, cmd_list[st], st, input );
+                    }
                 }
             }
             if ( !seen ) {
-                pd->selected_list = g_realloc ( pd->selected_list,
-                                                ( pd->num_selected_list + 1 ) * sizeof ( struct range_pair ) );
-                pd->selected_list[pd->num_selected_list].start = pd->selected_line;
-                pd->selected_list[pd->num_selected_list].stop  = pd->selected_line;
-                ( pd->num_selected_list )++;
+                dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
             }
-
-            // Move to next line.
-            pd->selected_line = MIN ( next_pos, cmd_list_length - 1 );
         }
         retv = TRUE;
     }
