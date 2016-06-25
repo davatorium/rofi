@@ -50,14 +50,14 @@ struct range_pair
     unsigned int stop;
 };
 
-inline unsigned int bitget ( uint32_t *array, unsigned int index )
+static inline unsigned int bitget ( uint32_t *array, unsigned int index )
 {
     uint32_t bit = index % 32;
     uint32_t val = array[index / 32];
     return ( val >> bit ) & 1;
 }
 
-inline void bittoggle ( uint32_t *array, unsigned int index )
+static inline void bittoggle ( uint32_t *array, unsigned int index )
 {
     uint32_t bit = index % 32;
     uint32_t *v  = &array[index / 32];
