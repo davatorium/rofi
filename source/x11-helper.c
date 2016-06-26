@@ -90,7 +90,7 @@ static xcb_pixmap_t get_root_pixmap ( xcb_connection_t *c,
 {
     xcb_get_property_cookie_t cookie;
     xcb_get_property_reply_t  *reply;
-    xcb_pixmap_t              *rootpixmap = NULL;
+    xcb_pixmap_t              rootpixmap = XCB_NONE;
 
     cookie = xcb_get_property ( c,
                                 0,
@@ -102,17 +102,14 @@ static xcb_pixmap_t get_root_pixmap ( xcb_connection_t *c,
 
     reply = xcb_get_property_reply ( c, cookie, NULL );
 
-    if ( reply &&
-         ( xcb_get_property_value_length ( reply ) == sizeof ( xcb_pixmap_t ) ) ) {
-        rootpixmap = (xcb_pixmap_t *) xcb_get_property_value ( reply );
-    }
-    else {
-        rootpixmap = XCB_NONE;
+    if ( reply ) {
+        if ( xcb_get_property_value_length ( reply ) == sizeof ( xcb_pixmap_t ) ) {
+            memcpy ( &rootpixmap, xcb_get_property_value ( reply ), sizeof ( xcb_pixmap_t ) );
+        }
+        free ( reply );
     }
 
-    free ( reply );
-
-    return *rootpixmap;
+    return rootpixmap;
 }
 
 cairo_surface_t * x11_helper_get_bg_surface ( void )
