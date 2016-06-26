@@ -42,7 +42,8 @@ scrollbar *scrollbar_create ( short x, short y, short w, short h )
     sb->pos        = 0;
     sb->pos_length = 4;
 
-    // Create GC.
+    // Enabled by default
+    sb->widget.enabled = TRUE;
     return sb;
 }
 
@@ -76,7 +77,7 @@ void scrollbar_set_handle_length ( scrollbar *sb, unsigned int pos_length )
 
 void scrollbar_draw ( scrollbar *sb, cairo_t *draw )
 {
-    if ( sb != NULL ) {
+    if ( sb != NULL && sb->widget.enabled ) {
         // Calculate position and size.
         const short bh     = sb->widget.h - 0;
         float       sec    = ( ( bh ) / (float) sb->length );

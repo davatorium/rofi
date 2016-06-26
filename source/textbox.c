@@ -102,6 +102,8 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
         tb->blink_timeout = g_timeout_add ( 1200, textbox_blink, tb );
     }
 
+    // Enabled by default
+    tb->widget.enabled = TRUE;
     return tb;
 }
 
@@ -350,6 +352,9 @@ static void texbox_update ( textbox *tb )
 }
 void textbox_draw ( textbox *tb, cairo_t *draw )
 {
+    if ( tb->widget.enabled == FALSE ) {
+        return;
+    }
     texbox_update ( tb );
 
     /* Write buffer */

@@ -1066,6 +1066,9 @@ void rofi_view_update ( RofiViewState *state )
             }
         }
     }
+    if ( state->overlay ) {
+        textbox_draw ( state->overlay, d );
+    }
     state->update = FALSE;
 
     // Draw to actual window.
@@ -1726,6 +1729,8 @@ RofiViewState *rofi_view_create ( Mode *sw,
         state->top_offset += config.line_margin * 2 + 2;
     }
 
+    state->overlay = textbox_create ( TB_AUTOWIDTH, 0, 0, 20, state->line_height, URGENT, "blaat"  );
+    widget_disable ( WIDGET ( state->overlay ) );
     // filtered list display
     state->boxes = g_malloc0_n ( state->max_elements, sizeof ( textbox* ) );
 
@@ -1929,3 +1934,20 @@ Mode * rofi_view_get_mode ( RofiViewState *state )
     return state->sw;
 }
 
+void rofi_view_set_overlay ( RofiViewState *state, const char *text )
+{
+    if ( state->overlay == NULL ) {
+        return;
+    }
+    if ( text == NULL ) {
+        widget_disable ( WIDGET ( state->overlay ) );
+        state->update = TRUE;
+        return;
+    }
+    widget_enable ( WIDGET ( state->overlay ) );
+    textbox_text ( state->overlay, text );
+    unsigned int x_offset = CacheState.width - ( 2 * state->border ) - textbox_get_width ( state->case_indicator );
+    x_offset -= textbox_get_width ( state->overlay );
+    widget_move ( WIDGET ( state->overlay ), x_offset, state->border );
+    state->update = TRUE;
+}

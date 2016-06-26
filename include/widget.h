@@ -11,13 +11,15 @@
 typedef struct
 {
     /** X position relative to parent */
-    short x;
+    short    x;
     /** Y position relative to parent */
-    short y;
+    short    y;
     /** Width of the widget */
-    short w;
+    short    w;
     /** Height of the widget */
-    short h;
+    short    h;
+    /** enabled or not */
+    gboolean enabled;
 } Widget;
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
@@ -42,6 +44,10 @@ int widget_intersect ( const Widget *widget, int x, int y );
  * Moves the widget.
  */
 void widget_move ( Widget *widget, short x, short y );
+
+gboolean widget_enabled ( Widget *widget );
+void widget_disable ( Widget *widget );
+void widget_enable ( Widget *widget );
 
 /*@}*/
 #endif // ROFI_WIDGET_H

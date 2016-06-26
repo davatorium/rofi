@@ -86,6 +86,7 @@ typedef struct
     char              **cmd_list;
     unsigned int      cmd_list_length;
     unsigned int      only_selected;
+    unsigned int      selected_count;
 } DmenuModePrivateData;
 
 static char **get_dmenu ( DmenuModePrivateData *pd, FILE *fd, unsigned int *length )
@@ -393,8 +394,7 @@ static void dmenu_finalize ( RofiViewState *state )
     pd->selected_line = rofi_view_get_selected_line ( state );;
     MenuReturn           mretv    = rofi_view_get_return_value ( state );
     unsigned int         next_pos = rofi_view_get_next_position ( state );
-
-    int                  restart = 0;
+    int                  restart  = 0;
     // Special behavior.
     if ( pd->only_selected ) {
         /**
@@ -436,9 +436,18 @@ static void dmenu_finalize ( RofiViewState *state )
             if ( pd->selected_list == NULL ) {
                 pd->selected_list = g_malloc0 ( sizeof ( uint32_t ) * ( pd->cmd_list_length / 32 + 1 ) );
             }
+            pd->selected_count += ( bitget ( pd->selected_list, pd->selected_line ) ? ( -1 ) : ( 1 ) );
             bittoggle ( pd->selected_list, pd->selected_line );
             // Move to next line.
             pd->selected_line = MIN ( next_pos, cmd_list_length - 1 );
+            if ( pd->selected_count > 0 ) {
+                char *str = g_strdup_printf ( "%u/%u", pd->selected_count, pd->cmd_list_length );
+                rofi_view_set_overlay ( state, str );
+                g_free ( str );
+            }
+            else {
+                rofi_view_set_overlay ( state, NULL );
+            }
         }
         else {
             int seen = FALSE;

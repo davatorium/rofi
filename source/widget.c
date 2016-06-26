@@ -22,3 +22,24 @@ void widget_move ( Widget *widget, short x, short y )
         widget->y = y;
     }
 }
+
+gboolean widget_enabled ( Widget *widget )
+{
+    if ( widget != NULL ) {
+        return widget->enabled;
+    }
+    return FALSE;
+}
+
+void widget_enable ( Widget *widget )
+{
+    if ( widget ) {
+        widget->enabled = TRUE;
+    }
+}
+void widget_disable ( Widget *widget )
+{
+    if ( widget ) {
+        widget->enabled = FALSE;
+    }
+}

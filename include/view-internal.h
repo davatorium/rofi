@@ -37,6 +37,8 @@ struct RofiViewState
     textbox          *case_indicator;
     textbox          **boxes;
     scrollbar        *scrollbar;
+    // Small overlay.
+    textbox          *overlay;
     int              *distance;
     unsigned int     *line_map;
 
