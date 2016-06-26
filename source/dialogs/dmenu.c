@@ -445,9 +445,7 @@ static void dmenu_finalize ( RofiViewState *state )
             if ( pd->selected_list != NULL ) {
                 for ( unsigned int st = 0; st < pd->cmd_list_length; st++ ) {
                     if ( bitget ( pd->selected_list, st ) ) {
-                        if ( pd->selected_line == st ) {
-                            seen = TRUE;
-                        }
+                        seen = TRUE;
                         dmenu_output_formatted_line ( pd->format, cmd_list[st], st, input );
                     }
                 }

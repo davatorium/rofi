@@ -10,6 +10,7 @@ sleep 5;
 xdotool key 'Down' 
 sleep 0.4
 xdotool key Shift+Return
+xdotool key Shift+Return
 xdotool key Return
 
 #  Get result, kill xvfb

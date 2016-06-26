@@ -39,9 +39,9 @@ xdotool key Return
 wait ${RPID}
 RETV=$?
 OUTPUT=$(cat output.txt | tr '\n' ' ')
-if [ "${OUTPUT}" != '2 12 20 21 22 23 24 25 26 27 28 29 32 ' ]
+if [ "${OUTPUT}" != '2 12 20 21 22 23 24 25 26 27 28 29 ' ]
 then
-    echo "Got: '${OUTPUT}' expected '2 12 20 21 22 23 24 25 26 27 28 29 32 '"
+    echo "Got: '${OUTPUT}' expected '2 12 20 21 22 23 24 25 26 27 28 29 '"
     exit 1
 fi
 echo ${RETV}
