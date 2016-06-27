@@ -231,11 +231,10 @@ static void config_parser_set ( XrmOption *option, char *xrmValue )
 
 static void __config_parse_xresource_options ( xcb_xrm_database_t *xDB )
 {
-    const char * namePrefix  = "rofi";
+    const char * namePrefix = "rofi";
 
     for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( XrmOption ); ++i ) {
-
-        char *name  = g_strdup_printf ( "%s.%s", namePrefix, xrmOptions[i].name );
+        char *name = g_strdup_printf ( "%s.%s", namePrefix, xrmOptions[i].name );
 
         char *xrmValue = NULL;
         if ( xcb_xrm_resource_get_string ( xDB, name, NULL, &xrmValue ) == 0 ) {
@@ -332,12 +331,12 @@ void config_parse_cmd_options_dynamic ( void )
 
 static void __config_parse_xresource_options_dynamic ( xcb_xrm_database_t *xDB )
 {
-    const char * namePrefix  = "rofi";
+    const char * namePrefix = "rofi";
 
     for ( unsigned int i = 0; i < num_extra_options; ++i ) {
         char *name;
 
-        name  = g_strdup_printf ( "%s.%s", namePrefix, extra_options[i].name );
+        name = g_strdup_printf ( "%s.%s", namePrefix, extra_options[i].name );
         char *xrmValue = NULL;
         if ( xcb_xrm_resource_get_string ( xDB, name, NULL, &xrmValue ) == 0 ) {
             config_parser_set ( &( extra_options[i] ), xrmValue );
