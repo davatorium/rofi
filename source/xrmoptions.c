@@ -173,6 +173,8 @@ static XrmOption xrmOptions[] = {
       "Scrolling method. (0: Page, 1: Centered)"                            },
     { xrm_String,  "fake-background",   { .str  = &config.fake_background    }, NULL,
       "Background to use for fake transparency. (background or screenshot)" },
+    { xrm_String,  "window-format",     { .str  = &config.window_format      }, NULL,
+      "Window Format. w (desktop name), t (title), n (name), r (role), c (class)" },
 };
 
 // Dynamic options.

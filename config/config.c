@@ -128,4 +128,5 @@ Settings config = {
     .scrollbar_width   =                                         8,
     .scroll_method     =                                         0,
     .fake_background   = "screenshot",
+    .window_format     = "w   c   t",
 };

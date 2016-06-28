@@ -131,6 +131,8 @@ typedef struct
     unsigned int   scroll_method;
     /** Background type */
     char           *fake_background;
+
+    char           *window_format;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;
