@@ -87,6 +87,9 @@ typedef struct
     unsigned int      cmd_list_length;
     unsigned int      only_selected;
     unsigned int      selected_count;
+
+    gchar             **columns;
+    gchar             *column_separator;
 } DmenuModePrivateData;
 
 static char **get_dmenu ( DmenuModePrivateData *pd, FILE *fd, unsigned int *length )
@@ -173,6 +176,34 @@ static void parse_ranges ( char *input, struct range_pair **list, unsigned int *
     }
 }
 
+static gchar * dmenu_format_output_string ( const DmenuModePrivateData *pd, const char *input )
+{
+    if ( pd->columns == NULL ) {
+        return g_strdup ( input );
+    }
+    char     *retv       = NULL;
+    char     ** splitted = g_regex_split_simple ( pd->column_separator, input, G_REGEX_CASELESS, 00 );
+    uint32_t ns          = 0;
+    for (; splitted && splitted[ns]; ns++ ) {
+        ;
+    }
+    for ( uint32_t i = 0; pd->columns && pd->columns[i]; i++ ) {
+        unsigned int index = (unsigned int ) g_ascii_strtoull ( pd->columns[i], NULL, 10 );
+        if ( index < ns && index > 0 ) {
+            if ( retv == NULL ) {
+                retv = g_strdup ( splitted[index - 1] );
+            }
+            else {
+                gchar *t = g_strjoin ( "\t", retv, splitted[index - 1], NULL );
+                g_free ( retv );
+                retv = t;
+            }
+        }
+    }
+    g_strfreev ( splitted );
+    return retv ? retv : g_strdup ( "" );
+}
+
 static char *get_display_data ( const Mode *data, unsigned int index, int *state, int get_entry )
 {
     Mode                 *sw    = (Mode *) data;
@@ -194,7 +225,7 @@ static char *get_display_data ( const Mode *data, unsigned int index, int *state
     if ( pd->do_markup ) {
         *state |= MARKUP;
     }
-    return get_entry ? g_strdup ( retv[index] ) : NULL;
+    return get_entry ? dmenu_format_output_string ( pd, retv[index] ) : NULL;
 }
 
 /**
@@ -340,6 +371,13 @@ static int dmenu_mode_init ( Mode *sw )
     pd->cmd_list = get_dmenu ( pd, fd == NULL ? stdin : fd, &( pd->cmd_list_length ) );
     if ( fd != NULL ) {
         fclose ( fd );
+    }
+
+    gchar *columns = NULL;
+    if ( find_arg_str ( "-display-columns", &columns ) ) {
+        pd->columns          = g_strsplit ( columns, ",", 0 );
+        pd->column_separator = "\t";
+        find_arg_str ( "-display-column-separator", &pd->column_separator );
     }
     return TRUE;
 }

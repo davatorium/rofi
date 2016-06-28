@@ -365,7 +365,8 @@ static int window_match ( const Mode *sw, GRegex **tokens, unsigned int index )
 static unsigned int window_mode_get_num_entries ( const Mode *sw )
 {
     const ModeModePrivateData *pd = (const ModeModePrivateData *) mode_get_private_data ( sw );
-    return pd->ids->len;
+
+    return pd->ids?pd->ids->len:0;
 }
 /**
  * Small helper function to find the right entry in the ewmh reply.

@@ -94,6 +94,8 @@ rofi.scrollbar-width:                8
 rofi.scroll-method:                  0
 ! Background to use for fake transparency. (background or screenshot)
 rofi.fake-background:                screenshot
+! Window Format. w (desktop name), t (title), n (name), r (role), c (class)
+rofi.window-format:                  w   c   t
 ! Pidfile location
 rofi.pid:                            /tmp/1000-runtime-dir/rofi.pid
 ! Paste primary selection
