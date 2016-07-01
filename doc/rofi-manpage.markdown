@@ -581,6 +581,21 @@ Hide the input text. This should not be considered secure!
 Tell **rofi** that DMenu input is pango markup encoded and should be rendered.
 See [here](https://developer.gnome.org/pango/stable/PangoMarkupFormat.html) for details about pango markup.
 
+### Window Mode
+
+`-window-format` *format*
+
+Format what is being displayed for windows.
+
+*format*:
+
+ * **w**: Desktop name
+ * **t**: Title of window
+ * **n**: Name
+ * **r**: Role
+ * **c**: Class
+
+default: w  c   t
 
 ### Message dialog
 
