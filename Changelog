@@ -1,6 +1,11 @@
 v1.unrelease
 	- Remove fuzzy option
 	- Remove xlib dependency (xcb-xrm)
+	  - Supports include in config.
+	- Make window switcher string customizable.
+	- Fix Current Desktop window switcher.
+	- Selection mode in dmenu with selection counter. 
+	- Fix  launching in terminal.
 
 v1.1.0
     New Features

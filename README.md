@@ -63,8 +63,14 @@ It offers the following features:
   - Shift-Return to run the selected program in a terminal.
   - Favorites list, frequently used programs are sorted on top.
 
-There is also the drun mode, this behaves similar to run modi except it builds the list of applications based on desktop
-files found in the system.
+
+## DRun dialog
+
+The desktop run dialog allows the user to quickly search and launch an application from the *freedesktop.org* Desktop
+Entries. E.g. what is used by Desktop Environment to fill their launcher. It offers the following features:
+
+  - Favorites list, frequently used programs are sorted on top.
+  - Auto starting terminal applications in a terminal. 
 
 ## SSH launcher
 
