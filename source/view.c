@@ -848,7 +848,7 @@ static void rofi_view_nav_row_tab ( RofiViewState *state )
  *
  * complete current row.
  */
-inline void rofi_view_nav_row_select ( RofiViewState *state )
+inline static void rofi_view_nav_row_select ( RofiViewState *state )
 {
     // If a valid item is selected, return that..
     if ( state->selected < state->filtered_lines ) {
