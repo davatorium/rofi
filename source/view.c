@@ -821,6 +821,49 @@ inline static void rofi_view_nav_down ( RofiViewState *state )
 /**
  * @param state The current RofiViewState
  *
+ * Tab handling.
+ */
+static void rofi_view_nav_row_tab ( RofiViewState *state )
+{
+    if ( state->filtered_lines == 1 ) {
+        state->retv              = MENU_OK;
+        ( state->selected_line ) = state->line_map[state->selected];
+        state->quit              = 1;
+        return;
+    }
+
+    // Double tab!
+    if ( state->filtered_lines == 0 && ROW_TAB == state->prev_action ) {
+        state->retv              = MENU_NEXT;
+        ( state->selected_line ) = 0;
+        state->quit              = TRUE;
+    }
+    else {
+        rofi_view_nav_down ( state );
+    }
+    state->prev_action = ROW_TAB;
+}
+/**
+ * @param state The current RofiViewState
+ *
+ * complete current row.
+ */
+inline void rofi_view_nav_row_select ( RofiViewState *state )
+{
+    // If a valid item is selected, return that..
+    if ( state->selected < state->filtered_lines ) {
+        char *str = mode_get_completion ( state->sw, state->line_map[state->selected] );
+        textbox_text ( state->text, str );
+        g_free ( str );
+        textbox_cursor_end ( state->text );
+        state->update   = TRUE;
+        state->refilter = TRUE;
+    }
+}
+
+/**
+ * @param state The current RofiViewState
+ *
  * Move the selection to first row.
  */
 inline static void rofi_view_nav_first ( RofiViewState * state )
@@ -1118,83 +1161,6 @@ static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t
     }
 }
 
-/**
- * @param state Internal state of the menu.
- * @param action The action to perform.
- *
- * Perform keyboard navigation action.
- */
-static void rofi_view_keyboard_navigation ( RofiViewState *state, KeyBindingAction action )
-{
-    switch ( action )
-    {
-    // pressing one of the global key bindings closes the switcher. This allows fast closing of the
-    // menu if an item is not selected
-    case CANCEL:
-        state->retv = MENU_CANCEL;
-        state->quit = TRUE;
-        break;
-    // Up, Ctrl-p or Shift-Tab
-    case ROW_UP:
-        rofi_view_nav_up ( state );
-        break;
-    case ROW_TAB:
-        if ( state->filtered_lines == 1 ) {
-            state->retv              = MENU_OK;
-            ( state->selected_line ) = state->line_map[state->selected];
-            state->quit              = 1;
-            break;
-        }
-
-        // Double tab!
-        if ( state->filtered_lines == 0 && action == state->prev_action ) {
-            state->retv              = MENU_NEXT;
-            ( state->selected_line ) = 0;
-            state->quit              = TRUE;
-        }
-        else {
-            rofi_view_nav_down ( state );
-        }
-        state->prev_action = action;
-        break;
-    // Down, Ctrl-n
-    case ROW_DOWN:
-        rofi_view_nav_down ( state );
-        break;
-    case ROW_LEFT:
-        rofi_view_nav_left ( state );
-        break;
-    case ROW_RIGHT:
-        rofi_view_nav_right ( state );
-        break;
-    case PAGE_PREV:
-        rofi_view_nav_page_prev ( state );
-        break;
-    case PAGE_NEXT:
-        rofi_view_nav_page_next ( state );
-        break;
-    case ROW_FIRST:
-        rofi_view_nav_first ( state );
-        break;
-    case ROW_LAST:
-        rofi_view_nav_last ( state );
-        break;
-    case ROW_SELECT:
-        // If a valid item is selected, return that..
-        if ( state->selected < state->filtered_lines ) {
-            char *str = mode_get_completion ( state->sw, state->line_map[state->selected] );
-            textbox_text ( state->text, str );
-            g_free ( str );
-            textbox_cursor_end ( state->text );
-            state->update   = TRUE;
-            state->refilter = TRUE;
-        }
-        break;
-    default:
-        g_return_if_reached ();
-    }
-}
-
 static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_event_t *xbe )
 {
     // Scroll event
@@ -1433,17 +1399,38 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
         break;
     // If you add a binding here, make sure to add it to rofi_view_keyboard_navigation too
     case CANCEL:
+        state->retv = MENU_CANCEL;
+        state->quit = TRUE;
+        break;
     case ROW_UP:
+        rofi_view_nav_up ( state );
+        break;
     case ROW_TAB:
+        rofi_view_nav_row_tab ( state );
+        break;
     case ROW_DOWN:
+        rofi_view_nav_down ( state );
+        break;
     case ROW_LEFT:
+        rofi_view_nav_left ( state );
+        break;
     case ROW_RIGHT:
+        rofi_view_nav_right ( state );
+        break;
     case PAGE_PREV:
+        rofi_view_nav_page_prev ( state );
+        break;
     case PAGE_NEXT:
+        rofi_view_nav_page_next ( state );
+        break;
     case ROW_FIRST:
+        rofi_view_nav_first ( state );
+        break;
     case ROW_LAST:
+        rofi_view_nav_last ( state );
+        break;
     case ROW_SELECT:
-        rofi_view_keyboard_navigation ( state, action );
+        rofi_view_nav_row_select ( state );
         break;
     // If you add a binding here, make sure to add it to textbox_keybinding too
     case MOVE_CHAR_BACK:
