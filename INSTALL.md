@@ -29,15 +29,6 @@
 On debian based systems, the developer packages are in the form of: `<package>-dev` on rpm based
 `<package>-devel`.
 
-
-### Optional:
-
-* For i3 support, you need at least i3 version 4.5 or up.
-Make sure that 'i3/ipc.h' is included. If it fails please check 
-config.log.
-
-
-
 ## Install from a release
 
 Check dependencies and configure build system:
@@ -134,14 +125,6 @@ or to install locally:
 ./configure --prefix=${HOME}/.local/
 ```
 
-###  I3 workaround
-
- If i3 is installed in a non-standard prefix, point it to the right location using:
-
-```
-CFLAGS="-I/weird/i3/path/include/" ../configure
-CFLAGS="-I/weird/i3/path/include/" make
-```
 
 ## Options for make
 

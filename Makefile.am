@@ -28,7 +28,6 @@ rofi_SOURCES=\
 	source/timings.c\
 	source/history.c\
 	source/scrollbar.c\
-	source/i3-support.c\
 	source/xrmoptions.c\
 	source/x11-helper.c\
 	source/dialogs/run.c\
@@ -55,7 +54,6 @@ rofi_SOURCES=\
 	include/textbox.h\
 	include/scrollbar.h\
 	include/xrmoptions.h\
-	include/i3-support.h\
 	include/x11-helper.h\
 	include/dialogs/ssh.h\
 	include/dialogs/run.h\

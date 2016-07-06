@@ -31,7 +31,6 @@ It main features are:
 * Build in modes:
     - Window switcher mode.
         - EWMH compatible WM.
-        - Workaround for older I3 installations.
     - Run mode.
     - Desktop File Run mode.
     - SSH launcher mode.
@@ -57,13 +56,6 @@ The window switcher shows the following informations in columns (can be customiz
 1. Desktop number
 2. Window class.
 3. Window title.
-
-If compiled with I3 support, it should autodetect if I3 window manager is running and switch into
-I3 compatibility mode. This will disable Desktop numbers and hide the i3-bar, also it sends an IPC
-message to I3 to change focus.
-
-> Note: With the latest I3 this is no longer needed as I3 obeys EWHM hints.
-> The 'dedicated' support of I3 will be removed from future releases.
 
 ## Run mode
 

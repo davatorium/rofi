@@ -49,7 +49,6 @@
 #include "helper.h"
 #include "textbox.h"
 #include "x11-helper.h"
-#include "i3-support.h"
 #include "dialogs/window.h"
 
 #define WINLIST             32
@@ -89,7 +88,6 @@ typedef struct
 {
     unsigned int id;
     winlist      *ids;
-    int          config_i3_mode;
     // Current window.
     unsigned int index;
     char         *cache;
@@ -366,7 +364,7 @@ static unsigned int window_mode_get_num_entries ( const Mode *sw )
 {
     const ModeModePrivateData *pd = (const ModeModePrivateData *) mode_get_private_data ( sw );
 
-    return pd->ids?pd->ids->len:0;
+    return pd->ids ? pd->ids->len : 0;
 }
 /**
  * Small helper function to find the right entry in the ewmh reply.
@@ -394,8 +392,6 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
     // Create cache
 
     x11_cache_create ();
-    // Check for i3
-    pd->config_i3_mode = i3_support_initialize ( xcb );
     xcb_get_property_cookie_t c = xcb_ewmh_get_active_window ( &( xcb->ewmh ), xcb->screen_nbr );
     if ( !xcb_ewmh_get_active_window_reply ( &xcb->ewmh, c, &curr_win_id, NULL ) ) {
         curr_win_id = 0;
@@ -559,10 +555,6 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
         if ( mretv & MENU_CUSTOM_ACTION ) {
             act_on_window ( rmpd->ids->array[selected_line] );
         }
-        else if ( rmpd->config_i3_mode ) {
-            // Hack for i3.
-            i3_support_focus_window ( rmpd->ids->array[selected_line] );
-        }
         else {
             // Get the current desktop.
             unsigned int              current_desktop = 0;
@@ -609,7 +601,6 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
         }
     }
     else if ( ( mretv & ( MENU_ENTRY_DELETE ) ) == MENU_ENTRY_DELETE ) {
-        /* TODO: WM_DELETE_WINDOW support, see i3 */
         xcb_destroy_window ( xcb->connection, rmpd->ids->array[selected_line] );
         xcb_flush ( xcb->connection );
     }
@@ -621,7 +612,6 @@ static void window_mode_destroy ( Mode *sw )
     ModeModePrivateData *rmpd = (ModeModePrivateData *) mode_get_private_data ( sw );
     if ( rmpd != NULL ) {
         winlist_free ( rmpd->ids );
-        i3_support_free_internals ();
         x11_cache_free ();
         g_free ( rmpd->cache );
         g_free ( rmpd );

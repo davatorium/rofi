@@ -6,6 +6,7 @@ v1.unrelease
 	- Fix Current Desktop window switcher.
 	- Selection mode in dmenu with selection counter. 
 	- Fix  launching in terminal.
+	- Remove i3 workaround as it no longer needed since I3 v4.9. (Feb. 2015)
 
 v1.1.0
     New Features
