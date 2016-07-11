@@ -377,7 +377,7 @@ Negative numbers are handled differently:
 
  *  **-1**: the currently focused monitor.
  *  **-2**: the currently focused window (i.e. rofi will be displayed on top of the focused window).
- *  **-3**: Position at mouse (still follows the location setting, use `-location 1` to get normal context menu
+ *  **-3**: Position at mouse (overrides the location setting to get normal context menu
     behaviour.)
  *  **-4**: the monitor with the focused window.
  *  **-5**: the monitor that shows the mouse pointer.
