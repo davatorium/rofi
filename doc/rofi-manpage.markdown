@@ -587,7 +587,9 @@ See [here](https://developer.gnome.org/pango/stable/PangoMarkupFormat.html) for 
 
 Format what is being displayed for windows.
 
-*format*:
+*format*: {field[:len]}
+
+*field*:
 
  * **w**: Desktop name
  * **t**: Title of window
@@ -595,7 +597,10 @@ Format what is being displayed for windows.
  * **r**: Role
  * **c**: Class
 
-default: w  c   t
+*len*: maximum field length (0 for auto-size). If length negative and window *width* is negative field length is *width - len*.
+
+
+default: {w}  {c}   {t}
 
 ### Message dialog
 

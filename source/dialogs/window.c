@@ -96,6 +96,7 @@ typedef struct
     unsigned int name_len;
     unsigned int title_len;
     unsigned int role_len;
+    GRegex       *window_regex;
 } ModeModePrivateData;
 
 winlist *cache_client = NULL;
@@ -495,6 +496,7 @@ static int window_mode_init ( Mode *sw )
 {
     if ( mode_get_private_data ( sw ) == NULL ) {
         ModeModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
+        pd->window_regex = g_regex_new ( "{[-\\w]+(:-?[0-9]+)?}", 0, 0, NULL );
         mode_set_private_data ( sw, (void *) pd );
         _window_mode_load_data ( sw, FALSE );
     }
@@ -504,6 +506,7 @@ static int window_mode_init_cd ( Mode *sw )
 {
     if ( mode_get_private_data ( sw ) == NULL ) {
         ModeModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
+        pd->window_regex = g_regex_new ( "{[-\\w]+(:-?[0-9]+)?}", 0, 0, NULL );
         mode_set_private_data ( sw, (void *) pd );
         _window_mode_load_data ( sw, TRUE );
     }
@@ -515,16 +518,16 @@ static inline int act_on_window ( xcb_window_t window )
     int  retv   = TRUE;
     char **args = NULL;
     int  argc   = 0;
-    char window_str[100]; /* We are probably safe here */
+    char window_regex[100]; /* We are probably safe here */
 
-    g_snprintf ( window_str, sizeof window_str, "%d", window );
+    g_snprintf ( window_regex, sizeof window_regex, "%d", window );
 
-    helper_parse_setup ( config.window_command, &args, &argc, "{window}", window_str, NULL );
+    helper_parse_setup ( config.window_command, &args, &argc, "{window}", window_regex, NULL );
 
     GError *error = NULL;
     g_spawn_async ( NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error );
     if ( error != NULL ) {
-        char *msg = g_strdup_printf ( "Failed to execute action for window: '%s'\nError: '%s'", window_str, error->message );
+        char *msg = g_strdup_printf ( "Failed to execute action for window: '%s'\nError: '%s'", window_regex, error->message );
         rofi_view_error_dialog ( msg, FALSE  );
         g_free ( msg );
         // print error.
@@ -615,39 +618,69 @@ static void window_mode_destroy ( Mode *sw )
         x11_cache_free ();
         g_free ( rmpd->cache );
         g_free ( rmpd );
+        g_regex_unref ( rmpd->window_regex );
         mode_set_private_data ( sw, NULL );
     }
 }
-static char * _generate_display_string ( const ModeModePrivateData *pd, client *c )
+struct arg
 {
-    GString    * str = g_string_new ( "" );
-    const char *v    = config.window_format;
-    ssize_t    l     = strlen ( v );
+    const ModeModePrivateData *pd;
+    client                    *c;
+};
 
-    for ( ssize_t j = 0; j < l; j++ ) {
-        if ( v[j] == 'w' ) {
-            g_string_append_printf ( str, "%-*s", pd->wmdn_len, c->wmdesktopstr );
+static void helper_eval_add_str ( GString *str, const char *input, int l, int max_len )
+{
+    int nc = g_utf8_strlen ( input, -1 );
+    if ( l != 0 && nc > l ) {
+        nc = l;
+        int bl = g_utf8_offset_to_pointer ( input, nc ) - input;
+        g_string_append_len ( str, input, bl );
+    }
+    else{
+        g_string_append_printf ( str, "%-*s", l ? l : max_len, input ? input : "" );
+    }
+}
+static gboolean helper_eval_cb ( const GMatchInfo *info, GString *str, gpointer data )
+{
+    struct arg *d = (struct arg *) data;
+    gchar      *match;
+    // Get the match
+    match = g_match_info_fetch ( info, 0 );
+    if ( match != NULL ) {
+        int l = 0;
+        if ( match[2] == ':' ) {
+            l = (int) g_ascii_strtoll ( &match[3], NULL, 10 );
+            if ( l < 0 && config.menu_width < 0 ) {
+                l = -config.menu_width + l;
+            }
+            if ( l < 0 ) {
+                l = 0;
+            }
         }
-        else if ( v[j] == 'c' ) {
-            g_string_append_printf ( str, "%-*s", pd->clf_len, c->class ? c->class : "" );
+        if ( match[1] == 'w' ) {
+            helper_eval_add_str ( str, d->c->wmdesktopstr, l, d->pd->wmdn_len );
         }
-        else if ( v[j] == 't' ) {
-            g_string_append_printf ( str, "%-*s", pd->title_len, c->title ? c->title : "" );
+        else if ( match[1] == 'c' ) {
+            helper_eval_add_str ( str, d->c->class, l, d->pd->clf_len );
         }
-        else if ( v[j] == 'n' ) {
-            g_string_append_printf ( str, "%-*s", pd->name_len, c->name ? c->name : "" );
+        else if ( match[1] == 't' ) {
+            helper_eval_add_str ( str, d->c->title, l, d->pd->title_len );
         }
-        else if ( v[j] == 'r' ) {
-            g_string_append_printf ( str, "%-*s", pd->role_len, c->role ? c->role : "" );
+        else if ( match[1] == 'n' ) {
+            helper_eval_add_str ( str, d->c->name, l, d->pd->name_len );
         }
-        else {
-            g_string_append_c ( str, v[j] );
+        else if ( match[1] == 'r' ) {
+            helper_eval_add_str ( str, d->c->role, l, d->pd->role_len );
         }
     }
-
-    char *r = str->str;
-    g_string_free ( str, FALSE );
-    return r;
+    return FALSE;
+}
+static char * _generate_display_string ( const ModeModePrivateData *pd, client *c )
+{
+    struct arg d    = { pd, c };
+    char       *res = g_regex_replace_eval ( pd->window_regex, config.window_format, -1, 0, 0,
+                                             helper_eval_cb, &d, NULL );
+    return res;
 }
 
 static char *_get_display_value ( const Mode *sw, unsigned int selected_line, int *state, int get_entry )

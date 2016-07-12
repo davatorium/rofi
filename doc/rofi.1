@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-MANPAGE" "" "2016-07-11" "" ""
+.TH "ROFI\-MANPAGE" "" "July 2016" "" ""
 .
 .SH "NAME"
 \fBrofi\fR \- A window switcher, run launcher, ssh dialog and dmenu replacement
@@ -936,7 +936,10 @@ Tell \fBrofi\fR that DMenu input is pango markup encoded and should be rendered\
 Format what is being displayed for windows\.
 .
 .P
-\fIformat\fR:
+\fIformat\fR: {field[:len]}
+.
+.P
+\fIfield\fR:
 .
 .IP "\(bu" 4
 \fBw\fR: Desktop name
@@ -956,7 +959,10 @@ Format what is being displayed for windows\.
 .IP "" 0
 .
 .P
-default: w c t
+\fIlen\fR: maximum field length (0 for auto\-size)\. If length negative and window \fIwidth\fR is negative field length is \fIwidth \- len\fR\.
+.
+.P
+default: {w} {c} {t}
 .
 .SS "Message dialog"
 \fB\-e\fR \fImessage\fR
