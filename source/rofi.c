@@ -573,6 +573,9 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
             return G_SOURCE_REMOVE;
         }
     }
+    else if ( find_arg ( "-show" ) >= 0 && num_modi > 0 ) {
+        run_switcher ( 0 );
+    }
     else{
         // Daemon mode
         fprintf ( stderr, "Rofi daemon mode is now removed.\n" );
