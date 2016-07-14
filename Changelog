@@ -1,12 +1,16 @@
 v1.unrelease
-	- Remove fuzzy option
-	- Remove xlib dependency (xcb-xrm)
-	  - Supports include in config.
-	- Make window switcher string customizable.
-	- Fix Current Desktop window switcher.
-	- Selection mode in dmenu with selection counter. 
-	- Fix  launching in terminal.
-	- Remove i3 workaround as it no longer needed since I3 v4.9. (Feb. 2015)
+	New Features
+		- Highlight matched part of the string.
+		- Make window switcher string customizable.
+	Improvements
+		- Improved selection mode in dmenu with selection counter. 
+		- Fix Current Desktop window switcher.
+		- Fix  launching in terminal.
+		- Supports include in config.
+	Removals:
+		- Remove xlib dependency (xcb-xrm)
+		- Remove fuzzy option
+		- Remove i3 workaround as it no longer needed since I3 v4.9. (Feb. 2015)
 
 v1.1.0
     New Features
