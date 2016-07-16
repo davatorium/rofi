@@ -680,7 +680,7 @@ static char * _generate_display_string ( const ModeModePrivateData *pd, client *
     struct arg d    = { pd, c };
     char       *res = g_regex_replace_eval ( pd->window_regex, config.window_format, -1, 0, 0,
                                              helper_eval_cb, &d, NULL );
-    return res;
+    return g_strchomp(res);
 }
 
 static char *_get_display_value ( const Mode *sw, unsigned int selected_line, int *state, int get_entry )
