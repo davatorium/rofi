@@ -617,8 +617,8 @@ static void window_mode_destroy ( Mode *sw )
         winlist_free ( rmpd->ids );
         x11_cache_free ();
         g_free ( rmpd->cache );
-        g_free ( rmpd );
         g_regex_unref ( rmpd->window_regex );
+        g_free ( rmpd );
         mode_set_private_data ( sw, NULL );
     }
 }
