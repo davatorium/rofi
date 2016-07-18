@@ -61,8 +61,8 @@ The window switcher shows the following informations in columns (can be customiz
 
 ![run mode](https://davedavenport.github.io/rofi/images/rofi/run-dialog.png)
 
-The run mode allows the user to quickly search and launch a program.
-It offers the following features:
+The run mode allows users to quickly search and launch a program.
+Run mode features:
 
   - Shift-Return to run the selected program in a terminal.
   - Favorites list, frequently used programs are sorted on top.
@@ -70,8 +70,9 @@ It offers the following features:
 
 ## DRun mode
 
-The desktop run mode allows the user to quickly search and launch an application from the *freedesktop.org* Desktop
-Entries. E.g. what is used by Desktop Environment to fill their launcher. It offers the following features:
+The desktop run mode allows users to quickly search and launch an application from the *freedesktop.org* Desktop
+Entries. These are used by most common Desktop Environments to populate launchers and menus.
+Drun mode features:
 
   - Favorites list, frequently used programs are sorted on top.
   - Auto starting terminal applications in a terminal. 
@@ -103,7 +104,8 @@ Drop in dmenu replacement. (Screenshot shows rofi used by
 **Rofi** features several improvements over dmenu to improve usability. There is the option to add
 an extra message bar (`-mesg`), pre-entering of text (`-filter`) or selecting entries based on a
 pattern (`-select`). Also highlighting (`-u` and `-a`) options and modi to force user to select one
-provided option (`-only-match`).
+provided option (`-only-match`). In addition to this rofi's dmenu mode can select multiple lines and
+write them to stdout. 
 
 # Usage
 
@@ -133,7 +135,7 @@ In both cases, rofi will output the user's selection to STDOUT.
 
 ## Switching Between Modi
 
-Type `Shift-Right` to switch from Window list mode to Run mode and back.
+Type `Shift-/Left/Right` to switch between active modi.
 
 
 ## Keybindings
@@ -182,15 +184,14 @@ There are currently three methods of setting configuration options:
  * Local configuration. Normally, depending on XDG, in `~/.local/rofi/config`. This uses the Xresources format.
  * Xresources: A method of storing key values in the Xserver. See
    [here](https://en.wikipedia.org/wiki/X_resources) for more information.
-   This is the recommended way of configuring **Rofi**. Remember to load your changes with `xrdb -load ~/.Xresources`
  * Commandline options: Arguments passed to **Rofi**.
 
-The Xresources options and the commandline options are aliased. So to set option X you would set:
+The Xresources options and the commandline options are aliased. To define option X set:
 
     rofi.X: value
 
-In the Xresources file, and to (override) this via the commandline you would pass the same key
-prefixed with a '-':
+In the Xresources file. To set/override this from commandline pass the same key
+prefixed with '-':
 
     rofi -X value
 
