@@ -541,13 +541,17 @@ static void dmenu_finalize ( RofiViewState *state )
 int dmenu_switcher_dialog ( void )
 {
     mode_init ( &dmenu_mode );
-    MenuFlags            menu_flags      = MENU_NORMAL;
+    MenuFlags            menu_flags      = MENU_INDICATOR;
     DmenuModePrivateData *pd             = (DmenuModePrivateData *) dmenu_mode.private_data;
     char                 *input          = NULL;
     unsigned int         cmd_list_length = pd->cmd_list_length;
     char                 **cmd_list      = pd->cmd_list;
 
     pd->only_selected = FALSE;
+
+    if ( find_arg ( "-no-selection-indicator") >= 0 ){
+        menu_flags = MENU_NORMAL;
+    }
     if ( find_arg ( "-markup-rows" ) >= 0 ) {
         pd->do_markup = TRUE;
     }

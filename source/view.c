@@ -398,7 +398,7 @@ static void rofi_view_resize ( RofiViewState *state )
         int x_offset = state->border;
         // Add newly added boxes.
         for ( unsigned int i = last_length; i < state->max_elements; i++ ) {
-            state->boxes[i] = textbox_create ( 0, x_offset, y_offset,
+            state->boxes[i] = textbox_create ( ( state->menu_flags & MENU_INDICATOR ) ? TB_INDICATOR : 0, x_offset, y_offset,
                                                state->element_width, element_height, NORMAL, "" );
         }
         scrollbar_resize ( state->scrollbar, -1, ( state->max_rows ) * ( element_height ) - config.line_margin );
@@ -1725,7 +1725,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     int x_offset = state->border;
 
     for ( unsigned int i = 0; i < state->max_elements; i++ ) {
-        state->boxes[i] = textbox_create ( 0, x_offset, y_offset,
+        state->boxes[i] = textbox_create ( ( state->menu_flags & MENU_INDICATOR ) ? TB_INDICATOR : 0, x_offset, y_offset,
                                            state->element_width, element_height, NORMAL, "" );
     }
     if ( !config.hide_scrollbar ) {

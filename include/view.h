@@ -24,6 +24,8 @@ typedef enum
     MENU_NORMAL_WINDOW = 2,
     /** ERROR dialog */
     MENU_ERROR_DIALOG  = 4,
+    /** INDICATOR */
+    MENU_INDICATOR     = 8,
 } MenuFlags;
 
 /**

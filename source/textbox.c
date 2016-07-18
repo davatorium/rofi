@@ -28,6 +28,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <glib.h>
+#include <math.h>
 #include "settings.h"
 #include "textbox.h"
 #include "keyb.h"
@@ -36,6 +37,8 @@
 #include "view.h"
 
 #define SIDE_MARGIN    1
+
+#define DOT_OFFSET     15
 
 /**
  * Font + font color cache.
@@ -130,10 +133,6 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
         tb->color_fg = color->fg;
         break;
     }
-    if ( ( tbft & SELECTED ) == SELECTED ) {
-        tb->color_bg = color->hlbg;
-        tb->color_fg = color->hlfg;
-    }
     if ( tb->tbft != tbft ) {
         tb->update = TRUE;
     }
@@ -207,6 +206,7 @@ void textbox_text ( textbox *tb, const char *text )
 // within the parent handled auto width/height modes
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
+    unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
     if ( tb->flags & TB_AUTOWIDTH ) {
         pango_layout_set_width ( tb->layout, -1 );
         w = textbox_get_width ( tb );
@@ -224,7 +224,7 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     if ( tb->flags & TB_AUTOHEIGHT ) {
         // Width determines height!
         int tw = MAX ( 1, w );
-        pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tw - 2 * SIDE_MARGIN ) );
+        pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tw - 2 * SIDE_MARGIN - offset ) );
         h = textbox_get_height ( tb );
     }
 
@@ -236,7 +236,7 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     }
 
     // We always want to update this
-    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - 2 * SIDE_MARGIN ) );
+    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - 2 * SIDE_MARGIN - offset ) );
     tb->update = TRUE;
 }
 
@@ -270,6 +270,7 @@ void textbox_free ( textbox *tb )
 
 static void texbox_update ( textbox *tb )
 {
+    unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
     if ( tb->update ) {
         if ( tb->main_surface ) {
             cairo_destroy ( tb->main_draw );
@@ -303,18 +304,18 @@ static void texbox_update ( textbox *tb )
         }
 
         // Skip the side MARGIN on the X axis.
-        int x = SIDE_MARGIN;
+        int x = SIDE_MARGIN + offset;
         int y = 0;
 
         if ( tb->flags & TB_RIGHT ) {
             int line_width = 0;
             // Get actual width.
             pango_layout_get_pixel_size ( tb->layout, &line_width, NULL );
-            x = ( tb->widget.w - line_width - SIDE_MARGIN );
+            x = ( tb->widget.w - line_width - SIDE_MARGIN - offset );
         }
         else if ( tb->flags & TB_CENTER ) {
             int tw = textbox_get_font_width ( tb );
-            x = (  ( tb->widget.w - tw - 2 * SIDE_MARGIN ) ) / 2;
+            x = (  ( tb->widget.w - tw - 2 * SIDE_MARGIN - offset ) ) / 2;
         }
         short fh = textbox_get_font_height ( tb );
         if ( fh > tb->widget.h ) {
@@ -325,16 +326,12 @@ static void texbox_update ( textbox *tb )
         }
 
         // Set ARGB
-        Color  col   = tb->color_bg;
-        double scale = 1.0;
-        if ( ( tb->tbft & SELECTED ) == SELECTED && ( tb->tbft & FMOD_MASK ) != HIGHLIGHT ) {
-            scale = 0.4;
-        }
-        cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha * scale );
+        Color col = tb->color_bg;
+        cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
         cairo_paint ( tb->main_draw );
 
         col = tb->color_fg;
-        cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha * scale );
+        cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
         // draw the cursor
         if ( tb->flags & TB_EDITABLE && tb->blink ) {
             cairo_rectangle ( tb->main_draw, x + cursor_x, y, cursor_width, font_height );
@@ -346,6 +343,18 @@ static void texbox_update ( textbox *tb )
         cairo_set_operator ( tb->main_draw, CAIRO_OPERATOR_OVER );
         cairo_move_to ( tb->main_draw, x, y );
         pango_cairo_show_layout ( tb->main_draw, tb->layout );
+
+        if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED | HIGHLIGHT ) ) ) {
+            if ( ( tb->tbft & SELECTED ) == SELECTED ) {
+                cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
+            }
+            else if ( ( tb->tbft & HIGHLIGHT ) == HIGHLIGHT ) {
+                cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha * 0.2 );
+            }
+
+            cairo_arc ( tb->main_draw, DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
+            cairo_fill ( tb->main_draw );
+        }
 
         tb->update = FALSE;
     }
@@ -674,7 +683,8 @@ void textbox_cleanup ( void )
 
 int textbox_get_width ( textbox *tb )
 {
-    return textbox_get_font_width ( tb ) + 2 * SIDE_MARGIN;
+    unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+    return textbox_get_font_width ( tb ) + 2 * SIDE_MARGIN + offset;
 }
 
 int textbox_get_height ( textbox *tb )
