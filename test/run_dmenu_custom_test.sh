@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo -e -n "aap\nnoot\nmies" | rofi -width -30 -dmenu > output.txt & 
+echo -e -n "aap\nnoot\nmies" | rofi -width -30 -dmenu -multi-select > output.txt & 
 RPID=$!
 
 # send enter.

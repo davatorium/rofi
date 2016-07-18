@@ -2,7 +2,7 @@
 
 # wait till it is up, run rofi with error message
 sleep 1;
-echo -e -n "aap\nnoot\nmies" | rofi -dmenu  -normal-window  > output.txt & 
+echo -e -n "aap\nnoot\nmies" | rofi -dmenu  -normal-window  -multi-select > output.txt & 
 RPID=$!
 sleep 4
 xdotool getactivewindow windowsize 100% 100%

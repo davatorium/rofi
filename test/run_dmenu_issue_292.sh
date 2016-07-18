@@ -2,7 +2,7 @@
 
 # wait till it is up, run rofi with error message
 sleep 1;
-echo {0..100} | tr " " "\n" | rofi -dmenu  > output.txt &
+echo {0..100} | tr " " "\n" | rofi -dmenu  -multi-select > output.txt &
 RPID=$!
 
 # send enter.
