@@ -582,9 +582,9 @@ Tell **rofi** that DMenu input is pango markup encoded and should be rendered.
 See [here](https://developer.gnome.org/pango/stable/PangoMarkupFormat.html) for details about pango markup.
 
 
-`-no-selection-indicator`
+`-multi-select`
 
-Hides the selection indicator. This will make multi-select be invisible.
+Allow multiple lines to be selected. Adds a small selection indicator to the left of each entry.
 
 ### Window Mode
 

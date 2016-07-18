@@ -90,6 +90,7 @@ typedef struct
 
     gchar             **columns;
     gchar             *column_separator;
+    gboolean          multi_select;
 } DmenuModePrivateData;
 
 static char **get_dmenu ( DmenuModePrivateData *pd, FILE *fd, unsigned int *length )
@@ -469,7 +470,7 @@ static void dmenu_finalize ( RofiViewState *state )
     restart = FALSE;
     // Normal mode
     if ( ( mretv & MENU_OK  ) && pd->selected_line != UINT32_MAX && cmd_list[pd->selected_line] != NULL ) {
-        if ( ( mretv & MENU_CUSTOM_ACTION ) ) {
+        if ( ( mretv & MENU_CUSTOM_ACTION ) && pd->multi_select ) {
             restart = TRUE;
             if ( pd->selected_list == NULL ) {
                 pd->selected_list = g_malloc0 ( sizeof ( uint32_t ) * ( pd->cmd_list_length / 32 + 1 ) );
@@ -541,16 +542,17 @@ static void dmenu_finalize ( RofiViewState *state )
 int dmenu_switcher_dialog ( void )
 {
     mode_init ( &dmenu_mode );
-    MenuFlags            menu_flags      = MENU_INDICATOR;
+    MenuFlags            menu_flags      = MENU_NORMAL;
     DmenuModePrivateData *pd             = (DmenuModePrivateData *) dmenu_mode.private_data;
     char                 *input          = NULL;
     unsigned int         cmd_list_length = pd->cmd_list_length;
     char                 **cmd_list      = pd->cmd_list;
 
     pd->only_selected = FALSE;
-
-    if ( find_arg ( "-no-selection-indicator") >= 0 ){
-        menu_flags = MENU_NORMAL;
+    pd->multi_select  = FALSE;
+    if ( find_arg ( "-multi-select" ) >= 0 ) {
+        menu_flags = MENU_INDICATOR;
+        pd->multi_select  = TRUE;
     }
     if ( find_arg ( "-markup-rows" ) >= 0 ) {
         pd->do_markup = TRUE;
