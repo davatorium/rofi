@@ -4,6 +4,7 @@ v1.unrelease
 		- Make window switcher string customizable.
 	Improvements
 		- Improved selection mode in dmenu with selection counter. 
+		- Improved selection mode with 'dot' indicator.
 		- Fix Current Desktop window switcher.
 		- Fix  launching in terminal.
 		- Supports include in config.
