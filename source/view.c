@@ -1573,7 +1573,8 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
     case XCB_MOTION_NOTIFY:
     {
         xcb_motion_notify_event_t *xme = (xcb_motion_notify_event_t *) ev;
-        if ( xme->event_x >= state->scrollbar->widget.x && xme->event_x < ( state->scrollbar->widget.x + state->scrollbar->widget.w ) ) {
+        if ( state->scrollbar != NULL &&
+             xme->event_x >= state->scrollbar->widget.x && xme->event_x < ( state->scrollbar->widget.x + state->scrollbar->widget.w ) ) {
             state->selected = scrollbar_clicked ( state->scrollbar, xme->event_y );
             state->update   = TRUE;
         }
