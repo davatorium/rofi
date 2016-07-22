@@ -422,6 +422,27 @@ static void dmenu_finish ( RofiViewState *state, int retv )
     mode_destroy ( &dmenu_mode );
 }
 
+static void dmenu_print_results ( DmenuModePrivateData *pd, const char *input )
+{
+    char **cmd_list = pd->cmd_list;
+    int  seen       = FALSE;
+    if ( pd->selected_list != NULL ) {
+        for ( unsigned int st = 0; st < pd->cmd_list_length; st++ ) {
+            if ( bitget ( pd->selected_list, st ) ) {
+                seen = TRUE;
+                dmenu_output_formatted_line ( pd->format, cmd_list[st], st, input );
+            }
+        }
+    }
+    if ( !seen ) {
+        const char *cmd = input;
+        if ( pd->selected_line != UINT32_MAX ) {
+            cmd = cmd_list[pd->selected_line];
+        }
+        dmenu_output_formatted_line ( pd->format, cmd, pd->selected_line, input );
+    }
+}
+
 static void dmenu_finalize ( RofiViewState *state )
 {
     int                  retv            = FALSE;
@@ -447,7 +468,7 @@ static void dmenu_finalize ( RofiViewState *state )
         }
         else if ( pd->selected_line != UINT32_MAX ) {
             if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line] != NULL ) {
-                dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
+                dmenu_print_results ( pd, input );
                 retv = TRUE;
                 if ( ( mretv & MENU_QUICK_SWITCH ) ) {
                     retv = 10 + ( mretv & MENU_LOWER_MASK );
@@ -489,42 +510,19 @@ static void dmenu_finalize ( RofiViewState *state )
             }
         }
         else {
-            int seen = FALSE;
-            if ( pd->selected_list != NULL ) {
-                for ( unsigned int st = 0; st < pd->cmd_list_length; st++ ) {
-                    if ( bitget ( pd->selected_list, st ) ) {
-                        seen = TRUE;
-                        dmenu_output_formatted_line ( pd->format, cmd_list[st], st, input );
-                    }
-                }
-            }
-            if ( !seen ) {
-                dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
-            }
+            dmenu_print_results ( pd, input );
         }
         retv = TRUE;
     }
     // Custom input
     else if ( ( mretv & ( MENU_CUSTOM_INPUT ) ) ) {
-        dmenu_output_formatted_line ( pd->format, input, -1, input );
-        if ( ( mretv & MENU_CUSTOM_ACTION ) ) {
-            restart = TRUE;
-            // Move to next line.
-            pd->selected_line = MIN ( next_pos, cmd_list_length - 1 );
-        }
+        dmenu_print_results ( pd, input );
 
         retv = TRUE;
     }
     // Quick switch with entry selected.
-    else if ( ( mretv & MENU_QUICK_SWITCH ) && pd->selected_line < UINT32_MAX ) {
-        dmenu_output_formatted_line ( pd->format, cmd_list[pd->selected_line], pd->selected_line, input );
-
-        restart = FALSE;
-        retv    = 10 + ( mretv & MENU_LOWER_MASK );
-    }
-    // Quick switch without entry selected.
-    else if ( ( mretv & MENU_QUICK_SWITCH ) && pd->selected_line == UINT32_MAX ) {
-        dmenu_output_formatted_line ( pd->format, input, -1, input );
+    else if ( ( mretv & MENU_QUICK_SWITCH ) ) {
+        dmenu_print_results ( pd, input );
 
         restart = FALSE;
         retv    = 10 + ( mretv & MENU_LOWER_MASK );
@@ -551,8 +549,8 @@ int dmenu_switcher_dialog ( void )
     pd->only_selected = FALSE;
     pd->multi_select  = FALSE;
     if ( find_arg ( "-multi-select" ) >= 0 ) {
-        menu_flags = MENU_INDICATOR;
-        pd->multi_select  = TRUE;
+        menu_flags       = MENU_INDICATOR;
+        pd->multi_select = TRUE;
     }
     if ( find_arg ( "-markup-rows" ) >= 0 ) {
         pd->do_markup = TRUE;
