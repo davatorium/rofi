@@ -17,7 +17,6 @@ xdotool key 'e'
 sleep 0.2
 xdotool key 'e'
 sleep 0.2
-xdotool key Shift+Return
 xdotool key Return
 
 
@@ -25,7 +24,7 @@ xdotool key Return
 wait ${RPID}
 RETV=$?
 OUTPUT=$(cat output.txt | tr '\n' ' ')
-if [ "${OUTPUT}" != 'coffee coffee ' ]
+if [ "${OUTPUT}" != 'coffee ' ]
 then
     exit 1
 fi
