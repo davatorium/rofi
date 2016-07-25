@@ -47,6 +47,7 @@ DefaultBinding bindings[NUM_ABE] =
     { .id = REMOVE_WORD_FORWARD,     .name = "kb-remove-word-forward",     .keybinding = "Control+Alt+d",                             .comment = "Delete next word"                                              },
     { .id = REMOVE_CHAR_FORWARD,     .name = "kb-remove-char-forward",     .keybinding = "Delete,Control+d",                          .comment = "Delete next char"                                              },
     { .id = REMOVE_CHAR_BACK,        .name = "kb-remove-char-back",        .keybinding = "BackSpace,Control+h",                       .comment = "Delete previous char"                                          },
+    { .id = REMOVE_TO_EOL,           .name = "kb-remove-to-eol",           .keybinding = "Control+k",                                 .comment = "Delete till the end of line"                                   },
     { .id = ACCEPT_ENTRY,            .name = "kb-accept-entry",            .keybinding = "Control+j,Control+m,Return,KP_Enter",       .comment = "Accept entry"                                                  },
     { .id = ACCEPT_CUSTOM,           .name = "kb-accept-custom",           .keybinding = "Control+Return",                            .comment = "Use entered text as command (in ssh/run modi)"                 },
     { .id = ACCEPT_ALT,              .name = "kb-accept-alt",              .keybinding = "Shift+Return",                              .comment = "Use alternate accept command."                                 },

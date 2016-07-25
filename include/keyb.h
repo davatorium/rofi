@@ -35,6 +35,8 @@ typedef enum
     REMOVE_CHAR_FORWARD,
     /** Remove previous character */
     REMOVE_CHAR_BACK,
+    /** Remove till EOL */
+    REMOVE_TO_EOL,
     /** Accept the current selected entry */
     ACCEPT_ENTRY,
     ACCEPT_ALT,

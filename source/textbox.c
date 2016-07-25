@@ -535,6 +535,15 @@ static void textbox_cursor_bkspc_word ( textbox *tb )
         }
     }
 }
+static void textbox_cursor_del_eol ( textbox *tb )
+{
+    if ( tb->cursor >= 0 ) {
+        int length = strlen ( tb->text ) - tb->cursor;
+        if ( length >= 0 ) {
+            textbox_delete ( tb, tb->cursor, length );
+        }
+    }
+}
 static void textbox_cursor_del_word ( textbox *tb )
 {
     if ( tb->cursor >= 0 ) {
@@ -586,6 +595,9 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action )
     // Ctrl-Alt-d
     case REMOVE_WORD_FORWARD:
         textbox_cursor_del_word ( tb );
+        return 1;
+    case REMOVE_TO_EOL:
+        textbox_cursor_del_eol ( tb );
         return 1;
     // Delete or Ctrl-D
     case REMOVE_CHAR_FORWARD:
