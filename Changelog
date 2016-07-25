@@ -8,6 +8,7 @@ v1.unrelease
 		- Fix Current Desktop window switcher.
 		- Fix  launching in terminal.
 		- Supports include in config.
+		- Add Control+k remove till eol keybinding.
 	Removals:
 		- Remove xlib dependency (xcb-xrm)
 		- Remove fuzzy option
