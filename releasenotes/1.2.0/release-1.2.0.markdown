@@ -35,9 +35,10 @@ rofi.window-format: {t:-16} ({c:10})
 * Fix current desktop window selector
 * Fix launching application in terminal
 * Support ```#include``` in config file.
-* **XLib** dependency. The last hard dependency on **Xlib** has been removed by the use of **xcb-util-xrm**.
+* **XLib** dependency. The last hard dependency on **Xlib** has been removed by the use of
+  **[xcb-util-xrm](https://github.com/Airblader/xcb-util-xrm)**.
 
 ## Remove features
 
 * Removed fuzzy finder
-* Remove **[I3](http://www.i3wm.org)** workarounds. As **I3** has, for more then a year now, native support for EWHM.
+* Remove **[i3](http://www.i3wm.org)** workarounds. As **i3** has, for more than a year now, native support for EWMH.
