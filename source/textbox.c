@@ -544,6 +544,15 @@ static void textbox_cursor_del_eol ( textbox *tb )
         }
     }
 }
+static void textbox_cursor_del_sol ( textbox *tb )
+{
+    if ( tb->cursor >= 0 ) {
+        int length = tb->cursor;
+        if ( length >= 0 ) {
+            textbox_delete ( tb, 0, length );
+        }
+    }
+}
 static void textbox_cursor_del_word ( textbox *tb )
 {
     if ( tb->cursor >= 0 ) {
@@ -598,6 +607,9 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action )
         return 1;
     case REMOVE_TO_EOL:
         textbox_cursor_del_eol ( tb );
+        return 1;
+    case REMOVE_TO_SOL:
+        textbox_cursor_del_sol ( tb );
         return 1;
     // Delete or Ctrl-D
     case REMOVE_CHAR_FORWARD:

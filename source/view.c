@@ -1439,6 +1439,7 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
     case MOVE_FRONT:
     case MOVE_END:
     case REMOVE_TO_EOL:
+    case REMOVE_TO_SOL:
     case REMOVE_WORD_BACK:
     case REMOVE_WORD_FORWARD:
     case REMOVE_CHAR_FORWARD:

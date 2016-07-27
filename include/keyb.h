@@ -37,6 +37,8 @@ typedef enum
     REMOVE_CHAR_BACK,
     /** Remove till EOL */
     REMOVE_TO_EOL,
+    /** Remove till SOL */
+    REMOVE_TO_SOL,
     /** Accept the current selected entry */
     ACCEPT_ENTRY,
     ACCEPT_ALT,

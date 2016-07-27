@@ -126,6 +126,8 @@ rofi.kb-remove-char-forward:         Delete,Control+d
 rofi.kb-remove-char-back:            BackSpace,Control+h
 ! Delete till the end of line
 rofi.kb-remove-to-eol:               Control+k
+! Delete till the start of line
+rofi.kb-remove-to-sol:               Control+u
 ! Accept entry
 rofi.kb-accept-entry:                Control+j,Control+m,Return,KP_Enter
 ! Use entered text as command (in ssh/run modi)
