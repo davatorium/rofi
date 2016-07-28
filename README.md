@@ -89,10 +89,20 @@ Quickly ssh into remote machines
 
 Loads external scripts to add modes to **Rofi**, for example a file-browser.
 
+```
+rofi  -show fb -modi fb:../Examples/rofi-file-browser.sh
+```
+
 ## COMBI mode
 
 Combine multiple modes in one view. This is especially usefull when merging the window and run mode into one view.
 Allowing to quickly switch to an application, either by switching to it when it is already running or starting it.
+
+Example to combine Desktop run and the window switcher:
+
+```
+rofi -combi-modi window,drun -show combi
+```
 
 ## dmenu replacement
 

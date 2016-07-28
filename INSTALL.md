@@ -19,12 +19,12 @@
 * libcairo-xcb
 * libglib2.0 >= 2.40
 * libstartup-notification-1.0
-* libxkbcommon
+* libxkbcommon >= 0.5.0
 * libxkbcommon-x11
 * libxcb (sometimes split, you need libxcb, libxcb-xkb and libxcb-xinerama)
 * xcb-util
 * xcb-util-wm (sometimes split as libxcb-ewmh and libxcb-icccm)
-* xcb-util-xrm
+* xcb-util-xrm [new module, can be found here](https://github.com/Airblader/xcb-util-xrm/)
 
 On debian based systems, the developer packages are in the form of: `<package>-dev` on rpm based
 `<package>-devel`.
