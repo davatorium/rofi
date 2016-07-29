@@ -86,18 +86,15 @@ int find_arg_str ( const char * const key, char** val );
 int find_arg ( const char * const key );
 
 /**
- * @params tokens
  * @param tokens  List of (input) tokens to match.
  * @param input   The entry to match against.
- * @param case_sensitive Whether case is significant.
- * @param index   The current selected index.
- * @param data    User data.
  *
  * Tokenized match, match tokens to line input.
  *
- * @returns 1 when matches, 0 otherwise
+ * @returns TRUE when matches, FALSE otherwise
  */
 int token_match ( GRegex **tokens, const char *input );
+
 /**
  * @param cmd The command to execute.
  *

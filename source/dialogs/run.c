@@ -151,12 +151,13 @@ static void delete_entry ( const char *cmd )
 /**
  * @param a The First key to compare
  * @param b The second key to compare
+ * @param data Unused.
  *
  * Function used for sorting.
  *
  * @returns returns less then, equal to and greater than zero is a is less than, is a match or greater than b.
  */
-static int sort_func ( const void *a, const void *b, void *data __attribute__( ( unused ) ) )
+static int sort_func ( const void *a, const void *b, G_GNUC_UNUSED void *data )
 {
     const char *astr = *( const char * const * ) a;
     const char *bstr = *( const char * const * ) b;

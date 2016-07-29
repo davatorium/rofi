@@ -98,6 +98,7 @@ void textbox_text ( textbox *tb, const char *text );
 
 /**
  * @param tb  Handle to the textbox
+ * @param draw The cairo object used to draw itself.
  *
  * Render the textbox.
  */

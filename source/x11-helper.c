@@ -253,12 +253,13 @@ void monitor_dimensions ( int x, int y, workarea *mon )
 }
 
 /**
- * @param x  The x position of the mouse [out]
- * @param y  The y position of the mouse [out]
+ * @param root The X11 window used to find the pointer position. Usually the root window.
+ * @param x    The x position of the mouse [out]
+ * @param y    The y position of the mouse [out]
  *
  * find mouse pointer location
  *
- * @returns 1 when found
+ * @returns TRUE when found, FALSE otherwise
  */
 static int pointer_get ( xcb_window_t root, int *x, int *y )
 {
@@ -270,10 +271,10 @@ static int pointer_get ( xcb_window_t root, int *x, int *y )
         *x = r->root_x;
         *y = r->root_y;
         free ( r );
-        return 1;
+        return TRUE;
     }
 
-    return 0;
+    return FALSE;
 }
 
 // determine which monitor holds the active window, or failing that the mouse pointer
@@ -585,9 +586,7 @@ void x11_set_window_opacity ( xcb_window_t box, unsigned int opacity )
 }
 
 /**
- * @param display The connection to the X server.
- *
- * Fill in the list of Atoms.
+ * Fill in the list of frequently used X11 Atoms.
  */
 static void x11_create_frequently_used_atoms ( void )
 {

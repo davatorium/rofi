@@ -13,7 +13,6 @@
  */
 
 /**
- * @param display Connection to the X server.
  * @param w The xcb_window_t to read property from.
  * @param atom The property identifier
  *
@@ -89,13 +88,13 @@ unsigned int x11_get_current_mask ( xkb_stuff *xkb );
  * @param combo String representing the key combo
  * @param mod [out]  The modifier specified (or AnyModifier if not specified)
  * @param key [out]  The key specified
+ * @param release [out] If it should react on key-release, not key-press
  *
  * Parse key from user input string.
  */
 gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key, gboolean *release );
 
 /**
- * @param display The connection to the X server.
  * @param box     The window to set the opacity on.
  * @param opacity The opacity value. (0-100)
  *
@@ -128,7 +127,6 @@ typedef struct
 } Color;
 
 /**
- * @param display Connection to the X server.
  * @param name    String representing the color.
  *
  * Allocate a pixel value for an X named color
@@ -144,7 +142,7 @@ void x11_helper_set_cairo_rgba ( cairo_t *d, Color col );
 /**
  * Gets a surface containing the background image of the desktop.
  *
- * @param a cairo surface with the background image of the desktop.
+ * @returns a cairo surface with the background image of the desktop.
  */
 cairo_surface_t * x11_helper_get_bg_surface ( void );
 /*@}*/

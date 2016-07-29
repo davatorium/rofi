@@ -473,8 +473,6 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
 /**
  * @param sw Object handle to the SSH Mode object
  * @param tokens The set of tokens to match against
- * @param not_ascii If the entry is pure-ascii
- * @param case_sensitive If the entry should be matched case sensitive
  * @param index The index of the entry to match
  *
  * Match entry against the set of tokens.

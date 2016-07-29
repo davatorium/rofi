@@ -46,7 +46,7 @@ typedef enum
 } XrmOptionType;
 
 /**
- * @param display Handler of the display to fetch the settings from.
+ * @param xcb  Handler object holding connection used to fetch the settings from.
  *
  * Parse the rofi related X resource options of the
  * connected X server.
@@ -73,7 +73,7 @@ void config_parse_cmd_options ( void );
 void config_parse_cmd_options_dynamic ( void );
 
 /**
- * @param display Handler of the display to fetch the settings from.
+ * @param xcb Handler object that holds connection to X11 server to fetch the settings from.
  *
  * Parse the rofi related X resource options of the
  * connected X server.
@@ -114,7 +114,7 @@ void config_parse_xresources_theme_dump ( void );
  * @param type The type of the value
  * @param key  The key refering to this configuration option
  * @param value The value to update based [out][in]
- * @param command Description of this configuration option
+ * @param comment Description of this configuration option
  *
  * Add option (at runtime) to the dynamic option parser.
  */

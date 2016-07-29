@@ -21,9 +21,6 @@ typedef struct _scrollbar
 } scrollbar;
 
 /**
- * @param parent the parent window
- * @param vinfo The XVisualInfo to use when creating new window
- * @param map   The colormap to use for new window
  * @param x     The x coordinate (relative to parent) to position the new scrollbar
  * @param y     The y coordinate (relative to parent) to position the new scrollbar
  * @param w     The width of the scrollbar
@@ -68,6 +65,7 @@ void scrollbar_set_max_value ( scrollbar *sb, unsigned int max );
 
 /**
  * @param sb scrollbar object
+ * @param draw the cairo object used to draw itself
  *
  * Draw the scrollbar, used after expose event or update
  */

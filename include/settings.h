@@ -7,7 +7,6 @@
  * \verbatim WL_NORTH_WEST      WL_NORTH      WL_NORTH_EAST \endverbatim
  * \verbatim WL_EAST            WL_CENTER     WL_EAST \endverbatim
  * \verbatim WL_SOUTH_WEST      WL_SOUTH      WL_SOUTH_EAST\endverbatim
- * \endverbatim
  *
  * @ingroup CONFIGURATION
  */

@@ -8,7 +8,7 @@
  * Implements a very simple history module that can be used by a #Mode.
  *
  * This uses the following options from the #config object:
- * * #_Settings::disable_history
+ * * #Settings::disable_history
  *
  * @{
  */

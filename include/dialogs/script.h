@@ -11,7 +11,7 @@
  * @param str   The input string to parse
  *
  * Parse an argument string into the right ScriptOptions data object.
- * This is off format: <Name>:<Script>
+ * This is off format: \<Name\>:\<Script\>
  *
  * @returns NULL when it fails, a newly allocated ScriptOptions when successful.
  */

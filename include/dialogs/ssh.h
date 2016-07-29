@@ -10,9 +10,9 @@
  * It also keeps history of the last choosen hosts.
  *
  * This mode uses the following options from the #config object:
- *  * #_Settings::ssh_command
- *  * #_Settings::parse_known_hosts
- *  * #_Settings::parse_hosts
+ *  * #Settings::ssh_command
+ *  * #Settings::parse_known_hosts
+ *  * #Settings::parse_hosts
  *
  * @{
  */

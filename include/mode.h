@@ -98,8 +98,8 @@ char * mode_get_completion ( const Mode *mode, unsigned int selected_line );
 
 /**
  * @param mode The mode to query
- * @param mretv The menu return value.
- * @param input Pointer to the user input string.
+ * @param menu_retv The menu return value.
+ * @param input Pointer to the user input string. [in][out]
  * @param selected_line the line selected by the user.
  *
  * Acts on the user interaction.
@@ -145,6 +145,7 @@ void *mode_get_private_data ( const Mode *mode );
 
 /**
  * @param mode The mode to query
+ * @param pd   Pointer to private data to attach to the mode.
  *
  * Helper functions for mode.
  * Set the private data object.
