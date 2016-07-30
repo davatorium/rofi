@@ -56,7 +56,8 @@ typedef struct
 #define num_states    3
 RowColor     colors[num_states];
 
-PangoContext *p_context = NULL;
+static PangoContext *p_context = NULL;
+static PangoFontMetrics *p_metrics = NULL;
 static gboolean textbox_blink ( gpointer data )
 {
     textbox *tb = (textbox *) data;
@@ -317,13 +318,7 @@ static void texbox_update ( textbox *tb )
             int tw = textbox_get_font_width ( tb );
             x = (  ( tb->widget.w - tw - 2 * SIDE_MARGIN - offset ) ) / 2;
         }
-        short fh = textbox_get_font_height ( tb );
-        if ( fh > tb->widget.h ) {
-            y = 0;
-        }
-        else {
-            y = (   ( tb->widget.h - fh ) ) / 2;
-        }
+        y = SIDE_MARGIN + ( pango_font_metrics_get_ascent ( p_metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
         // Set ARGB
         Color col = tb->color_bg;
@@ -695,10 +690,15 @@ void textbox_set_pango_context ( PangoContext *p )
 {
     textbox_cleanup ();
     p_context = g_object_ref ( p );
+    p_metrics = pango_context_get_metrics ( p_context, NULL, NULL );
 }
 
 void textbox_cleanup ( void )
 {
+    if ( p_metrics ) {
+        pango_font_metrics_unref ( p_metrics );
+        p_metrics = NULL;
+    }
     if ( p_context ) {
         g_object_unref ( p_context );
         p_context = NULL;
@@ -732,18 +732,12 @@ int textbox_get_font_width ( textbox *tb )
 
 double textbox_get_estimated_char_width ( void )
 {
-    // Get width
-    PangoFontMetrics *metric = pango_context_get_metrics ( p_context, NULL, NULL );
-    int              width   = pango_font_metrics_get_approximate_char_width ( metric );
-    pango_font_metrics_unref ( metric );
+    int              width   = pango_font_metrics_get_approximate_char_width ( p_metrics );
     return ( width ) / (double) PANGO_SCALE;
 }
 
 int textbox_get_estimated_char_height ( void )
 {
-    // Get width
-    PangoFontMetrics *metric = pango_context_get_metrics ( p_context, NULL, NULL );
-    int              height  = pango_font_metrics_get_ascent ( metric ) + pango_font_metrics_get_descent ( metric );
-    pango_font_metrics_unref ( metric );
+    int              height  = pango_font_metrics_get_ascent ( p_metrics ) + pango_font_metrics_get_descent ( p_metrics );
     return ( height ) / PANGO_SCALE + 2 * SIDE_MARGIN;
 }
