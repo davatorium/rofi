@@ -160,7 +160,7 @@ static void teardown ( int pfd )
 
 static void __run_switcher_internal ( ModeMode mode, char *input )
 {
-    char          *prompt = g_strdup_printf ( "%s:", mode_get_display_name ( modi[mode] ) );
+    char          *prompt = g_strdup_printf ( "%s:%s", mode_get_display_name ( modi[mode] ), mode_get_display_close ( modi[mode] ) );
     curr_switcher = mode;
     RofiViewState * state = rofi_view_create ( modi[mode], input, prompt, NULL, MENU_NORMAL, process_result );
     g_free ( prompt );

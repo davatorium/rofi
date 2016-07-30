@@ -111,10 +111,20 @@ const char *mode_get_display_name ( const Mode *mode )
     return mode->name;
 }
 
+const char *mode_get_display_close ( const Mode *mode )
+{
+    if ( mode->display_close != NULL ) {
+        return mode->display_close;
+    }
+    return "";
+}
+
 void mode_set_config ( Mode *mode )
 {
     snprintf ( mode->cfg_name_key, 128, "display-%s", mode->name );
     config_parser_add_option ( xrm_String, mode->cfg_name_key, (void * *) &( mode->display_name ), "The display name of this browser" );
+    snprintf ( mode->cfg_close_key, 128, "display-close-%s", mode->name );
+    config_parser_add_option ( xrm_String, mode->cfg_close_key, (void * *) &( mode->display_close ), "The display close of this browser" );
 }
 
 char * mode_preprocess_input ( Mode *mode, const char *input )

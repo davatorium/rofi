@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <rofi.h>
 #include "settings.h"
+#include "textbox.h"
 
 #include <dialogs/dialogs.h>
 
@@ -203,8 +204,15 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
     }
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
-            char * str  = mode_get_display_value ( pd->switchers[i], selected_line - pd->starts[i], state, TRUE );
-            char * retv = g_strdup_printf ( "%s %s", mode_get_display_name ( pd->switchers[i] ), str );
+            char * str = mode_get_display_value ( pd->switchers[i], selected_line - pd->starts[i], state, TRUE );
+            if ( !( *state & MARKUP ) ) {
+                g_debug ( "ESCAPE" );
+                char *tmp = str;
+                str = g_markup_escape_text ( tmp, -1 );
+                g_free ( tmp );
+                *state |= MARKUP;
+            }
+            char * retv = g_strdup_printf ( "%s %s%s", mode_get_display_name ( pd->switchers[i] ), str, mode_get_display_close ( pd->switchers[i] ) );
             g_free ( str );
             return retv;
         }

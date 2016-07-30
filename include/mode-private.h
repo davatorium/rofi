@@ -39,7 +39,9 @@ struct rofi_mode
     /** Name (max 31 char long) */
     char name[32];
     char cfg_name_key[128];
+    char cfg_close_key[128];
     char *display_name;
+    char *display_close;
 
     /**
      * A switcher normally consists of the following parts:
