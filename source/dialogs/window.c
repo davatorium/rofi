@@ -672,6 +672,7 @@ static gboolean helper_eval_cb ( const GMatchInfo *info, GString *str, gpointer 
         else if ( match[1] == 'r' ) {
             helper_eval_add_str ( str, d->c->role, l, d->pd->role_len );
         }
+        g_free ( match );
     }
     return FALSE;
 }

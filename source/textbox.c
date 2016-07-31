@@ -54,9 +54,9 @@ typedef struct
 } RowColor;
 
 #define num_states    3
-RowColor     colors[num_states];
+RowColor                colors[num_states];
 
-static PangoContext *p_context = NULL;
+static PangoContext     *p_context = NULL;
 static PangoFontMetrics *p_metrics = NULL;
 static gboolean textbox_blink ( gpointer data )
 {
@@ -732,12 +732,12 @@ int textbox_get_font_width ( textbox *tb )
 
 double textbox_get_estimated_char_width ( void )
 {
-    int              width   = pango_font_metrics_get_approximate_char_width ( p_metrics );
+    int width = pango_font_metrics_get_approximate_char_width ( p_metrics );
     return ( width ) / (double) PANGO_SCALE;
 }
 
 int textbox_get_estimated_char_height ( void )
 {
-    int              height  = pango_font_metrics_get_ascent ( p_metrics ) + pango_font_metrics_get_descent ( p_metrics );
+    int height = pango_font_metrics_get_ascent ( p_metrics ) + pango_font_metrics_get_descent ( p_metrics );
     return ( height ) / PANGO_SCALE + 2 * SIDE_MARGIN;
 }
