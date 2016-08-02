@@ -306,6 +306,7 @@ static char ** get_apps ( unsigned int *length )
                 }
 
                 if ( found == 1 ) {
+                    g_free ( name );
                     continue;
                 }
 
