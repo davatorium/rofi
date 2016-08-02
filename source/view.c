@@ -290,6 +290,9 @@ void rofi_view_free ( RofiViewState *state )
     textbox_free ( state->prompt_tb );
     textbox_free ( state->case_indicator );
     scrollbar_free ( state->scrollbar );
+    if ( state->overlay ) {
+        textbox_free ( state->overlay );
+    }
 
     for ( unsigned int i = 0; i < state->max_elements; i++ ) {
         textbox_free ( state->boxes[i] );
