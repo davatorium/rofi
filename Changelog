@@ -10,6 +10,8 @@ v1.unrelease
 		- Supports include in config.
 		- Add Control+k remove till eol keybinding.
 		- Change clear line to Control+w and make Control+u remove till sol (matching readline)
+		- Track origin of option value e.g. who set the option.
+		- Comment default values in dump-xresources.
 	Removals:
 		- Remove xlib dependency (xcb-xrm)
 		- Remove fuzzy option
