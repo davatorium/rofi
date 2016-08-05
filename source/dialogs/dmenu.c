@@ -622,4 +622,5 @@ void print_dmenu_options ( void )
     print_help_msg ( "-password", "", "Do not show what the user inputs. Show '*' instead.", NULL, is_term );
     print_help_msg ( "-markup-rows", "", "Allow and render pango markup as input data.", NULL, is_term );
     print_help_msg ( "-sep", "[char]", "Element separator.", "'\\n'", is_term );
+    print_help_msg ( "-input", "[filename]", "Read input from file instead from standard input.", NULL, is_term );
 }
