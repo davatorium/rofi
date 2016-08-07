@@ -521,7 +521,7 @@ static void rofi_view_setup_fake_transparency ( void )
         if ( g_strcmp0 ( config.fake_background, "screenshot" ) == 0 ) {
             s = cairo_xcb_surface_create ( xcb->connection,
                                            xcb_stuff_get_root_window ( xcb ),
-                                           root_visual,
+                                           visual,
                                            xcb->screen->width_in_pixels,
                                            xcb->screen->height_in_pixels );
         }
@@ -558,18 +558,17 @@ static void rofi_view_setup_fake_transparency ( void )
 }
 void __create_window ( MenuFlags menu_flags )
 {
-    uint32_t     selmask  = XCB_CW_BACK_PIXEL | XCB_CW_BORDER_PIXEL | XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
+    uint32_t     selmask  = XCB_CW_BACK_PIXEL | XCB_CW_BORDER_PIXEL | XCB_CW_EVENT_MASK;
     uint32_t     selval[] = {
         0,
         0,
         XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE |
         XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_KEYMAP_STATE |
-        XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION,
-        map
+        XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION
     };
 
     xcb_window_t box = xcb_generate_id ( xcb->connection );
-    xcb_create_window ( xcb->connection, depth->depth, box, xcb_stuff_get_root_window ( xcb ),
+    xcb_create_window ( xcb->connection, XCB_COPY_FROM_PARENT, box, xcb_stuff_get_root_window ( xcb ),
                         0, 0, 200, 100, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
                         visual->visual_id, selmask, selval );
 
@@ -1881,10 +1880,6 @@ void rofi_view_cleanup ()
         xcb_unmap_window ( xcb->connection, CacheState.main_window );
         xcb_destroy_window ( xcb->connection, CacheState.main_window );
         CacheState.main_window = XCB_WINDOW_NONE;
-    }
-    if ( map != XCB_COLORMAP_NONE ) {
-        xcb_free_colormap ( xcb->connection, map );
-        map = XCB_COLORMAP_NONE;
     }
     g_assert ( g_queue_is_empty ( &( CacheState.views ) ) );
 }

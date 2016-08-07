@@ -36,6 +36,7 @@
 #include <cairo-xcb.h>
 
 #include <xcb/xcb.h>
+#include <xcb/xcb_aux.h>
 #include <xcb/xinerama.h>
 #include "xcb-internal.h"
 #include "xcb.h"
@@ -75,11 +76,7 @@ enum
     NUM_X11MOD
 };
 
-xcb_depth_t         *depth           = NULL;
 xcb_visualtype_t    *visual          = NULL;
-xcb_colormap_t      map              = XCB_COLORMAP_NONE;
-xcb_depth_t         *root_depth      = NULL;
-xcb_visualtype_t    *root_visual     = NULL;
 xcb_atom_t          netatoms[NUM_NETATOMS];
 const char          *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 static unsigned int x11_mod_masks[NUM_X11MOD];
@@ -118,7 +115,7 @@ cairo_surface_t * x11_helper_get_bg_surface ( void )
     if ( pm == XCB_NONE ) {
         return NULL;
     }
-    return cairo_xcb_surface_create ( xcb->connection, pm, root_visual,
+    return cairo_xcb_surface_create ( xcb->connection, pm, visual,
                                       xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
 }
 
@@ -610,40 +607,12 @@ void x11_setup ( xkb_stuff *xkb )
 
 void x11_create_visual_and_colormap ( void )
 {
-    xcb_depth_iterator_t depth_iter;
-    for ( depth_iter = xcb_screen_allowed_depths_iterator ( xcb->screen ); depth_iter.rem; xcb_depth_next ( &depth_iter ) ) {
-        xcb_depth_t               *d = depth_iter.data;
-
-        xcb_visualtype_iterator_t visual_iter;
-        for ( visual_iter = xcb_depth_visuals_iterator ( d ); visual_iter.rem; xcb_visualtype_next ( &visual_iter ) ) {
-            xcb_visualtype_t *v = visual_iter.data;
-            if ( ( d->depth == 32 ) && ( v->_class == XCB_VISUAL_CLASS_TRUE_COLOR ) ) {
-                depth  = d;
-                visual = v;
-            }
-            if ( xcb->screen->root_visual == v->visual_id ) {
-                root_depth  = d;
-                root_visual = v;
-            }
-        }
-    }
     if ( visual != NULL ) {
-        xcb_void_cookie_t   c;
-        xcb_generic_error_t *e;
-        map = xcb_generate_id ( xcb->connection );
-        c   = xcb_create_colormap_checked ( xcb->connection, XCB_COLORMAP_ALLOC_NONE, map, xcb->screen->root, visual->visual_id );
-        e   = xcb_request_check ( xcb->connection, c );
-        if ( e ) {
-            depth  = NULL;
-            visual = NULL;
-            free ( e );
-        }
+        return;
     }
-
-    if ( visual == NULL ) {
-        depth  = root_depth;
-        visual = root_visual;
-        map    = xcb->screen->default_colormap;
+    visual = xcb_aux_get_visualtype ( xcb->connection, xcb->screen_nbr, xcb->screen->root_visual );
+    if ( !visual ) {
+        g_error ( "Failed to find visual, giving up.\n" );
     }
 }
 
@@ -692,8 +661,8 @@ Color color_get ( const char *const name )
         }
     }
     else {
-        xcb_alloc_named_color_cookie_t cc = xcb_alloc_named_color ( xcb->connection,
-                                                                    map, strlen ( cname ), cname );
+        xcb_alloc_named_color_cookie_t cc = xcb_alloc_named_color ( xcb->connection, xcb->screen->default_colormap,
+                                                                    strlen ( cname ), cname );
         xcb_alloc_named_color_reply_t  *r = xcb_alloc_named_color_reply ( xcb->connection, cc, NULL );
         if ( r ) {
             color.sep.a = 0xFF;
