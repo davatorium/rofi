@@ -12,6 +12,7 @@ v1.unrelease
 		- Change clear line to Control+w and make Control+u remove till sol (matching readline)
 		- Track origin of option value e.g. who set the option.
 		- Comment default values in dump-xresources.
+		- Fix displaying on 30bit 10bpc X setup.
 	Removals:
 		- Remove xlib dependency (xcb-xrm)
 		- Remove fuzzy option
