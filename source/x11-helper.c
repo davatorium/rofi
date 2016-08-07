@@ -617,7 +617,7 @@ void x11_create_visual_and_colormap ( void )
         xcb_visualtype_iterator_t visual_iter;
         for ( visual_iter = xcb_depth_visuals_iterator ( d ); visual_iter.rem; xcb_visualtype_next ( &visual_iter ) ) {
             xcb_visualtype_t *v = visual_iter.data;
-            if ( ( d->depth == 32 ) && ( v->_class == XCB_VISUAL_CLASS_TRUE_COLOR ) ) {
+            if ( (v->bits_per_rgb_value == 8) && ( d->depth == 32 ) && ( v->_class == XCB_VISUAL_CLASS_TRUE_COLOR ) ) {
                 depth  = d;
                 visual = v;
             }
