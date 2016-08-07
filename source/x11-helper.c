@@ -605,12 +605,28 @@ void x11_setup ( xkb_stuff *xkb )
     x11_create_frequently_used_atoms (  );
 }
 
+static xcb_visualtype_t * x11_search_for_visual ( void )
+{
+    xcb_depth_iterator_t depth_iter = xcb_screen_allowed_depths_iterator ( xcb->screen );
+    if ( depth_iter.data ) {
+        for (; depth_iter.rem; xcb_depth_next ( &depth_iter ) ) {
+            for ( xcb_visualtype_iterator_t visual_iter = xcb_depth_visuals_iterator ( depth_iter.data );
+                  visual_iter.rem; xcb_visualtype_next ( &visual_iter ) ) {
+                if ( xcb->screen->root_visual == visual_iter.data->visual_id ) {
+                    return visual_iter.data;
+                }
+            }
+        }
+    }
+    return NULL;
+}
+
 void x11_create_visual_and_colormap ( void )
 {
     if ( visual != NULL ) {
         return;
     }
-    visual = xcb_aux_get_visualtype ( xcb->connection, xcb->screen_nbr, xcb->screen->root_visual );
+    visual = x11_search_for_visual ();
     if ( !visual ) {
         g_error ( "Failed to find visual, giving up.\n" );
     }

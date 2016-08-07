@@ -558,8 +558,8 @@ static void rofi_view_setup_fake_transparency ( void )
 }
 void __create_window ( MenuFlags menu_flags )
 {
-    uint32_t     selmask  = XCB_CW_BACK_PIXEL | XCB_CW_BORDER_PIXEL | XCB_CW_EVENT_MASK;
-    uint32_t     selval[] = {
+    uint32_t          selmask  = XCB_CW_BACK_PIXEL | XCB_CW_BORDER_PIXEL | XCB_CW_EVENT_MASK;
+    uint32_t          selval[] = {
         0,
         0,
         XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE |
@@ -567,12 +567,25 @@ void __create_window ( MenuFlags menu_flags )
         XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION
     };
 
-    xcb_window_t box = xcb_generate_id ( xcb->connection );
-    xcb_create_window ( xcb->connection, XCB_COPY_FROM_PARENT, box, xcb_stuff_get_root_window ( xcb ),
-                        0, 0, 200, 100, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
-                        visual->visual_id, selmask, selval );
+    xcb_window_t      box = xcb_generate_id ( xcb->connection );
+    xcb_void_cookie_t c   = xcb_create_window_checked ( xcb->connection, XCB_COPY_FROM_PARENT, box, xcb_stuff_get_root_window ( xcb ),
+                                                        0, 0, 200, 100, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
+                                                        visual->visual_id, selmask, selval );
+
+    xcb_generic_error_t *e = xcb_request_check ( xcb->connection, c );
+    if ( e ) {
+        fprintf ( stderr, "Failed to create X window: Error Code: %u\n", e->error_code );
+        free ( e );
+        g_error ( "Giving up.\n" );
+    }
 
     CacheState.surface = cairo_xcb_surface_create ( xcb->connection, box, visual, 200, 100 );
+
+    cairo_status_t st = cairo_surface_status ( CacheState.surface );
+    if ( st != CAIRO_STATUS_SUCCESS ) {
+        g_error ( "Failed to create cairo drawing surface: '%s'\n", cairo_status_to_string ( st ) );
+    }
+
     // Create a drawable.
     CacheState.draw = cairo_create ( CacheState.surface );
     g_assert ( CacheState.draw != NULL );
