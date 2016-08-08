@@ -29,6 +29,13 @@ rofi.window-format: {t:-16} ({c:10})
 
 ![Rofi Window title align](./rofi-window-align.png)
 
+## Track configuration option origin
+
+**Rofi** now keeps track of how configuration options are set. It will now display if it is the default value, set in
+Xresources, configuration file or commnadline.
+
+![Rofi configuration tracking](./rofi-options.png)
+
 ## Bug Fixes
 
 
@@ -37,6 +44,12 @@ rofi.window-format: {t:-16} ({c:10})
 * Support ```#include``` in config file.
 * **XLib** dependency. The last hard dependency on **Xlib** has been removed by the use of
   **[xcb-util-xrm](https://github.com/Airblader/xcb-util-xrm)**.
+* Fix rofi on 30bit 10 bit per channel display.
+* Indicate what set an option in rofi help and dump resources.
+* Comment unset options in dump. Allowing configurations to be shared more easily.
+* Correct `Control-u` behaviour to remove till begin of line. `Control-w` now whipes the line.
+* Add missing `Control-k` keybinding, delete till end of line.
+
 
 ## Remove features
 
