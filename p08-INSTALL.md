@@ -18,33 +18,21 @@ title: Installation guide
 
 ### External libraries
 
-* libxinerama
-* libxft2
 * libpango
 * libpangocairo
 * libcairo
 * libcairo-xcb
 * libglib2.0 >= 2.40
-* libx11
 * libstartup-notification-1.0
-* libxkbcommon
+* libxkbcommon >= 0.5.0
 * libxkbcommon-x11
 * libxcb (sometimes split, you need libxcb, libxcb-xkb and libxcb-xinerama)
-* libx11-xcb
 * xcb-util
 * xcb-util-wm (sometimes split as libxcb-ewmh and libxcb-icccm)
+* xcb-util-xrm [new module, can be found here](https://github.com/Airblader/xcb-util-xrm/)
 
 On debian based systems, the developer packages are in the form of: `<package>-dev` on rpm based
 `<package>-devel`.
-
-
-### Optional:
-
-* For i3 support, you need at least i3 version 4.5 or up.
-Make sure that 'i3/ipc.h' is included. If it fails please check 
-config.log.
-
-
 
 ## Install from a release
 
@@ -142,14 +130,6 @@ or to install locally:
 ./configure --prefix=${HOME}/.local/
 ```
 
-###  I3 workaround
-
- If i3 is installed in a non-standard prefix, point it to the right location using:
-
-```
-CFLAGS="-I/weird/i3/path/include/" ../configure
-CFLAGS="-I/weird/i3/path/include/" make
-```
 
 ## Options for make
 
@@ -195,5 +175,5 @@ apt-get install rofi
 
 rofi from [russianfedora repository](http://ru.fedoracommunity.org/repository)
 and also
-Copr (Cool Other Package Repo) https://copr.fedoraproject.org/coprs/region51/rofi/
+[Yaroslav's COPR (Cool Other Package Repo)](https://copr.fedorainfracloud.org/coprs/yaroslav/i3desktop/)
 
