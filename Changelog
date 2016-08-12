@@ -1,4 +1,4 @@
-v1.unrelease
+v1.1.2
 	New Features
 		- Highlight matched part of the string.
 		- Make window switcher string customizable.
