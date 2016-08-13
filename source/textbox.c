@@ -299,6 +299,9 @@ static void texbox_update ( textbox *tb )
             PangoRectangle pos;
             int            cursor_offset = 0;
             cursor_offset = MIN ( tb->cursor, text_len );
+            if ( (tb->flags&TB_PASSWORD) == TB_PASSWORD ){
+                cursor_offset = g_utf8_pointer_to_offset ( tb->text, tb->text+cursor_offset );
+            }
             pango_layout_get_cursor_pos ( tb->layout, cursor_offset, &pos, NULL );
             // Add a small 4px offset between cursor and last glyph.
             cursor_x = pos.x / PANGO_SCALE;
