@@ -201,7 +201,7 @@ void textbox_text ( textbox *tb, const char *text )
         textbox_moveresize ( tb, tb->widget.x, tb->widget.y, tb->widget.w, tb->widget.h );
     }
 
-    tb->cursor = MAX ( 0, MIN ( ( int ) strlen ( text ), tb->cursor ) );
+    tb->cursor = MAX ( 0, MIN ( ( int ) g_utf8_strlen ( tb->text, -1 ), tb->cursor ) );
 }
 
 // within the parent handled auto width/height modes
@@ -284,26 +284,24 @@ static void texbox_update ( textbox *tb )
         cairo_set_operator ( tb->main_draw, CAIRO_OPERATOR_SOURCE );
 
         pango_cairo_update_layout ( tb->main_draw, tb->layout );
-        char *text       = tb->text ? tb->text : "";
-        int  text_len    = strlen ( text );
-        int  font_height = textbox_get_font_height ( tb );
+        int font_height = textbox_get_font_height ( tb );
 
-        int  cursor_x     = 0;
-        int  cursor_width = MAX ( 2, font_height / 10 );
+        int cursor_x     = 0;
+        int cursor_width = MAX ( 2, font_height / 10 );
 
         if ( tb->changed ) {
             __textbox_update_pango_text ( tb );
         }
 
         if ( tb->flags & TB_EDITABLE ) {
+            // We want to place the cursor based on the text shown.
+            const char     *text = pango_layout_get_text ( tb->layout );
+            // Clamp the position, should not be needed, but we are paranoid.
+            int            cursor_offset = MIN ( tb->cursor, g_utf8_strlen ( text, -1 ) );
             PangoRectangle pos;
-            int            cursor_offset = 0;
-            cursor_offset = MIN ( tb->cursor, text_len );
-            if ( (tb->flags&TB_PASSWORD) == TB_PASSWORD ){
-                cursor_offset = g_utf8_pointer_to_offset ( tb->text, tb->text+cursor_offset );
-            }
-            pango_layout_get_cursor_pos ( tb->layout, cursor_offset, &pos, NULL );
-            // Add a small 4px offset between cursor and last glyph.
+            // convert to byte location.
+            char           *offset = g_utf8_offset_to_pointer ( text, cursor_offset );
+            pango_layout_get_cursor_pos ( tb->layout, offset - text, &pos, NULL );
             cursor_x = pos.x / PANGO_SCALE;
         }
 
@@ -374,7 +372,7 @@ void textbox_draw ( textbox *tb, cairo_t *draw )
 // cursor handling for edit mode
 void textbox_cursor ( textbox *tb, int pos )
 {
-    int length = ( tb->text == NULL ) ? 0 : strlen ( tb->text );
+    int length = ( tb->text == NULL ) ? 0 : g_utf8_strlen ( tb->text, -1 );
     tb->cursor = MAX ( 0, MIN ( length, pos ) );
     tb->update = TRUE;
 }
@@ -382,15 +380,13 @@ void textbox_cursor ( textbox *tb, int pos )
 // move right
 void textbox_cursor_inc ( textbox *tb )
 {
-    int index = g_utf8_next_char ( &( tb->text[tb->cursor] ) ) - tb->text;
-    textbox_cursor ( tb, index );
+    textbox_cursor ( tb, tb->cursor + 1 );
 }
 
 // move left
 void textbox_cursor_dec ( textbox *tb )
 {
-    int index = g_utf8_prev_char ( &( tb->text[tb->cursor] ) ) - tb->text;
-    textbox_cursor ( tb, index );
+    textbox_cursor ( tb, tb->cursor - 1 );
 }
 
 // Move word right
@@ -400,7 +396,7 @@ static void textbox_cursor_inc_word ( textbox *tb )
         return;
     }
     // Find word boundaries, with pango_Break?
-    gchar *c = &( tb->text[tb->cursor] );
+    gchar *c = g_utf8_offset_to_pointer ( tb->text, tb->cursor );
     while ( ( c = g_utf8_next_char ( c ) ) ) {
         gunichar          uc = g_utf8_get_char ( c );
         GUnicodeBreakType bt = g_unichar_break_type ( uc );
@@ -420,7 +416,7 @@ static void textbox_cursor_inc_word ( textbox *tb )
             break;
         }
     }
-    int index = c - tb->text;
+    int index = g_utf8_pointer_to_offset ( tb->text, c );
     textbox_cursor ( tb, index );
 }
 // move word left
@@ -428,7 +424,7 @@ static void textbox_cursor_dec_word ( textbox *tb )
 {
     // Find word boundaries, with pango_Break?
     gchar *n;
-    gchar *c = &( tb->text[tb->cursor] );
+    gchar *c = g_utf8_offset_to_pointer ( tb->text, tb->cursor );
     while ( ( c = g_utf8_prev_char ( c ) ) && c != tb->text ) {
         gunichar          uc = g_utf8_get_char ( c );
         GUnicodeBreakType bt = g_unichar_break_type ( uc );
@@ -451,7 +447,7 @@ static void textbox_cursor_dec_word ( textbox *tb )
             }
         }
     }
-    int index = c - tb->text;
+    int index = g_utf8_pointer_to_offset ( tb->text, c );
     textbox_cursor ( tb, index );
 }
 
@@ -463,14 +459,16 @@ void textbox_cursor_end ( textbox *tb )
         tb->update = TRUE;
         return;
     }
-    tb->cursor = ( int ) strlen ( tb->text );
+    tb->cursor = ( int ) g_utf8_strlen ( tb->text, -1 );
     tb->update = TRUE;
 }
 
 // insert text
-void textbox_insert ( textbox *tb, int pos, char *str, int slen )
+void textbox_insert ( textbox *tb, int char_pos, char *str, int slen )
 {
-    int len = ( int ) strlen ( tb->text );
+    char *c  = g_utf8_offset_to_pointer ( tb->text, char_pos );
+    int  pos = c - tb->text;
+    int  len = ( int ) strlen ( tb->text );
     pos = MAX ( 0, MIN ( len, pos ) );
     // expand buffer
     tb->text = g_realloc ( tb->text, len + slen + 1 );
@@ -488,12 +486,19 @@ void textbox_insert ( textbox *tb, int pos, char *str, int slen )
 // remove text
 void textbox_delete ( textbox *tb, int pos, int dlen )
 {
-    int len = strlen ( tb->text );
+    int len = g_utf8_strlen ( tb->text, -1 );
+    if ( len == pos ) {
+        return;
+    }
     pos = MAX ( 0, MIN ( len, pos ) );
+    if ( ( pos + dlen ) > len ) {
+        dlen = len - dlen;
+    }
     // move everything after pos+dlen down
-    char *at = tb->text + pos;
+    char *start = g_utf8_offset_to_pointer ( tb->text, pos );
+    char *end   = g_utf8_offset_to_pointer  ( tb->text, pos + dlen );
     // Move remainder + closing \0
-    memmove ( at, at + dlen, len - pos - dlen + 1 );
+    memmove ( start, end, ( tb->text + strlen ( tb->text ) ) - end + 1 );
     if ( tb->cursor >= pos && tb->cursor < ( pos + dlen ) ) {
         tb->cursor = pos;
     }
@@ -511,8 +516,7 @@ void textbox_cursor_del ( textbox *tb )
     if ( tb->text == NULL ) {
         return;
     }
-    int index = g_utf8_next_char ( &( tb->text[tb->cursor] ) ) - tb->text;
-    textbox_delete ( tb, tb->cursor, index - tb->cursor );
+    textbox_delete ( tb, tb->cursor, 1 );
 }
 
 // back up and delete one character
@@ -536,7 +540,7 @@ static void textbox_cursor_bkspc_word ( textbox *tb )
 static void textbox_cursor_del_eol ( textbox *tb )
 {
     if ( tb->cursor >= 0 ) {
-        int length = strlen ( tb->text ) - tb->cursor;
+        int length = g_utf8_strlen ( tb->text, -1 ) - tb->cursor;
         if ( length >= 0 ) {
             textbox_delete ( tb, tb->cursor, length );
         }
@@ -640,7 +644,7 @@ gboolean textbox_append_char ( textbox *tb, char *pad, int pad_len )
     if ( !g_unichar_iscntrl ( g_utf8_get_char ( pad ) ) ) {
         tb->blink = 2;
         textbox_insert ( tb, tb->cursor, pad, pad_len );
-        textbox_cursor ( tb, tb->cursor + pad_len );
+        textbox_cursor ( tb, tb->cursor + 1 );
         return TRUE;
     }
     return FALSE;

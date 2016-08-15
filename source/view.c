@@ -1152,7 +1152,7 @@ static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t
             }
             // Insert string move cursor.
             textbox_insert ( state->text, state->text->cursor, text, dl );
-            textbox_cursor ( state->text, state->text->cursor + dl  );
+            textbox_cursor ( state->text, state->text->cursor + g_utf8_strlen(text, -1) );
             // Force a redraw and refiltering of the text.
             state->update   = TRUE;
             state->refilter = TRUE;
