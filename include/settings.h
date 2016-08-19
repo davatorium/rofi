@@ -109,7 +109,7 @@ typedef struct
     unsigned int   tokenize;
     unsigned int   regex;
     /** Monitors */
-    int            monitor;
+    char           *monitor;
     /** Line margin */
     unsigned int   line_margin;
     /** filter */

@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-MANPAGE" "" "July 2016" "" ""
+.TH "ROFI\-MANPAGE" "" "2016-08-18" "" ""
 .
 .SH "NAME"
 \fBrofi\fR \- A window switcher, run launcher, ssh dialog and dmenu replacement
@@ -621,10 +621,19 @@ Default: \fI5000\fR
 When one entry is left, automatically select it\.
 .
 .P
-\fB\-m\fR \fInum\fR \fB\-monitor\fR \fInum\fR
+\fB\-m\fR \fInum\fR
 .
 .P
-Select (Xinerama) monitor to display \fBrofi\fR on\. Negative numbers are handled differently:
+\fB\-m\fR \fIname\fR
+.
+.P
+\fB\-monitor\fR \fInum\fR
+.
+.P
+\fB\-monitor\fR \fIname\fR
+.
+.P
+Select (Xinerama) monitor to display \fBrofi\fR on\. As input it accepts: \fIprimary\fR (if primary output is set), the \fIxrandr\fR output name or integer number (in order of detection)\. Negative numbers are handled differently:
 .
 .IP "\(bu" 4
 \fB\-1\fR: the currently focused monitor\.
@@ -645,6 +654,9 @@ Select (Xinerama) monitor to display \fBrofi\fR on\. Negative numbers are handle
 Default: \fI\-1\fR
 .
 .IP "" 0
+.
+.P
+See \fBrofi \-h\fR output for the detected monitors, their position and size\.
 .
 .SS "PATTERN setting"
 \fB\-terminal\fR

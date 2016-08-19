@@ -37,7 +37,6 @@
 #include <xcb/xcb.h>
 #include <xcb/xcb_aux.h>
 #include <xcb/xcb_ewmh.h>
-#include <xcb/xinerama.h>
 #include <xcb/xkb.h>
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-compose.h>
@@ -261,6 +260,7 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "Global options:\n" );
     print_options ();
     printf ( "\n" );
+    x11_dump_monitor_layout ();
     printf ( "For more information see: man rofi\n" );
 #ifdef GIT_VERSION
     printf ( "Version:    "GIT_VERSION "\n" );
@@ -268,6 +268,7 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "Version:    "VERSION "\n" );
 #endif
     printf ( "Bugreports: "PACKAGE_BUGREPORT "\n" );
+    printf ( "Support:    #rofi @ freenode.net\n" );
 }
 
 /**
@@ -663,6 +664,8 @@ int main ( int argc, char *argv[] )
 
     xcb->screen = xcb_aux_get_screen ( xcb->connection, xcb->screen_nbr );
 
+    x11_build_monitor_layout ();
+
     xcb_intern_atom_cookie_t *ac     = xcb_ewmh_init_atoms ( xcb->connection, &xcb->ewmh );
     xcb_generic_error_t      *errors = NULL;
     xcb_ewmh_init_atoms_replies ( &xcb->ewmh, ac, &errors );
@@ -754,16 +757,6 @@ int main ( int argc, char *argv[] )
     if ( xcb_connection_has_error ( xcb->connection ) ) {
         fprintf ( stderr, "Connection has error\n" );
         exit ( EXIT_FAILURE );
-    }
-
-    const xcb_query_extension_reply_t *er = xcb_get_extension_data ( xcb->connection, &xcb_xinerama_id );
-    if ( er ) {
-        if ( er->present ) {
-            xcb_xinerama_is_active_cookie_t is_active_req = xcb_xinerama_is_active ( xcb->connection );
-            xcb_xinerama_is_active_reply_t  *is_active    = xcb_xinerama_is_active_reply ( xcb->connection, is_active_req, NULL );
-            xcb->has_xinerama = is_active->state;
-            free ( is_active );
-        }
     }
     main_loop = g_main_loop_new ( NULL, FALSE );
 

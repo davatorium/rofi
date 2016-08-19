@@ -36,7 +36,7 @@
 #include <cairo-xcb.h>
 
 #include <xcb/xcb.h>
-#include <xcb/xinerama.h>
+#include <xcb/randr.h>
 #include "xcb-internal.h"
 #include "xcb.h"
 #include "settings.h"
@@ -54,12 +54,12 @@
 #include "xkb-internal.h"
 
 struct _xcb_stuff xcb_int = {
-    .connection   = NULL,
-    .screen       = NULL,
-    .screen_nbr   =    -1,
-    .sndisplay    = NULL,
-    .sncontext    = NULL,
-    .has_xinerama = FALSE,
+    .connection = NULL,
+    .screen     = NULL,
+    .screen_nbr =   -1,
+    .sndisplay  = NULL,
+    .sncontext  = NULL,
+    .monitors   = NULL
 };
 xcb_stuff         *xcb = &xcb_int;
 
@@ -154,102 +154,160 @@ void window_set_atom_prop ( xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms, 
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, w, prop, XCB_ATOM_ATOM, 32, count, atoms );
 }
 
+/****
+ * Code used to get monitor layout.
+ */
+
+/**
+ * Free monitor structure.
+ */
+static void x11_monitor_free ( workarea *m )
+{
+    g_free ( m->name );
+    g_free ( m );
+}
+
+static void x11_monitors_free ( void )
+{
+    while ( xcb->monitors != NULL ) {
+        workarea *m = xcb->monitors;
+        xcb->monitors = m->next;
+        x11_monitor_free ( m );
+    }
+}
+
+/**
+ * Create monitor based on output id
+ */
+static workarea * x11_get_monitor_from_output ( xcb_randr_output_t out )
+{
+    xcb_randr_get_output_info_reply_t  *op_reply;
+    xcb_randr_get_crtc_info_reply_t    *crtc_reply;
+    xcb_randr_get_output_info_cookie_t it = xcb_randr_get_output_info ( xcb->connection, out, XCB_CURRENT_TIME );
+    op_reply = xcb_randr_get_output_info_reply ( xcb->connection, it, NULL );
+    if ( op_reply->crtc == XCB_NONE ) {
+        free ( op_reply );
+        return NULL;
+    }
+    xcb_randr_get_crtc_info_cookie_t ct = xcb_randr_get_crtc_info ( xcb->connection, op_reply->crtc, XCB_CURRENT_TIME );
+    crtc_reply = xcb_randr_get_crtc_info_reply ( xcb->connection, ct, NULL );
+    if ( !crtc_reply ) {
+        free ( op_reply );
+        return NULL;
+    }
+    workarea *retv = g_malloc0 ( sizeof ( workarea ) );
+    retv->x = crtc_reply->x;
+    retv->y = crtc_reply->y;
+    retv->w = crtc_reply->width;
+    retv->h = crtc_reply->height;
+
+    char *tname    = (char *) xcb_randr_get_output_info_name ( op_reply );
+    int  tname_len = xcb_randr_get_output_info_name_length ( op_reply );
+
+    retv->name = g_malloc0 ( ( tname_len + 1 ) * sizeof ( char ) );
+    memcpy ( retv->name, tname, tname_len );
+
+    free ( crtc_reply );
+    free ( op_reply );
+    return retv;
+}
+
+void x11_build_monitor_layout ()
+{
+    if ( xcb->monitors ) {
+        return;
+    }
+    xcb_randr_get_screen_resources_current_reply_t  *res_reply;
+    xcb_randr_get_screen_resources_current_cookie_t src;
+    src       = xcb_randr_get_screen_resources_current ( xcb->connection, xcb->screen->root );
+    res_reply = xcb_randr_get_screen_resources_current_reply ( xcb->connection, src, NULL );
+    if ( !res_reply ) {
+        return;  //just report error
+    }
+    int                mon_num = xcb_randr_get_screen_resources_current_outputs_length ( res_reply );
+    xcb_randr_output_t *ops    = xcb_randr_get_screen_resources_current_outputs ( res_reply );
+
+    // Get primary.
+    xcb_randr_get_output_primary_cookie_t pc      = xcb_randr_get_output_primary ( xcb->connection, xcb->screen->root );
+    xcb_randr_get_output_primary_reply_t  *pc_rep = xcb_randr_get_output_primary_reply ( xcb->connection, pc, NULL );
+
+    for ( int i = mon_num - 1; i >= 0; i-- ) {
+        workarea *w = x11_get_monitor_from_output ( ops[i] );
+        if ( w ) {
+            w->next       = xcb->monitors;
+            xcb->monitors = w;
+            if ( pc_rep && pc_rep->output == ops[i] ) {
+                w->primary = TRUE;
+            }
+        }
+    }
+    // Number monitor
+    int index = 0;
+    for ( workarea *iter = xcb->monitors; iter; iter = iter->next ) {
+        iter->monitor_id = index++;
+    }
+    // If exists, free primary output reply.
+    if ( pc_rep ) {
+        free ( pc_rep );
+    }
+    free ( res_reply );
+}
+
+void x11_dump_monitor_layout ( void )
+{
+    int is_term = isatty ( fileno ( stdout ) );
+    printf ( "Monitor layout:\n" );
+    for ( workarea *iter = xcb->monitors; iter; iter = iter->next ) {
+        printf ( "%s              ID%s: %d", ( is_term ) ? color_bold : "", is_term ? color_reset : "", iter->monitor_id );
+        if ( iter->primary ) {
+            printf ( " (primary)" );
+        }
+        printf ( "\n" );
+        printf ( "%s            name%s: %s\n", ( is_term ) ? color_bold : "", is_term ? color_reset : "", iter->name );
+        printf ( "%s        position%s: %d,%d\n", ( is_term ) ? color_bold : "", is_term ? color_reset : "", iter->x, iter->y );
+        printf ( "%s            size%s: %d,%d\n", ( is_term ) ? color_bold : "", is_term ? color_reset : "", iter->w, iter->h );
+        printf ( "\n" );
+    }
+}
+
 int monitor_get_smallest_size ( void )
 {
-    xcb_generic_error_t *error;
-    int                 size = MIN ( xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
-
-    if ( !xcb->has_xinerama ) {
-        return size;
+    int size = MIN ( xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
+    for ( workarea *iter = xcb->monitors; iter; iter = iter->next ) {
+        size = MIN ( iter->w, size );
+        size = MIN ( iter->h, size );
     }
-
-    xcb_xinerama_query_screens_cookie_t cookie_screen;
-
-    cookie_screen = xcb_xinerama_query_screens ( xcb->connection );
-    xcb_xinerama_query_screens_reply_t *query_screens;
-    query_screens = xcb_xinerama_query_screens_reply ( xcb->connection, cookie_screen, &error );
-    if ( error ) {
-        fprintf ( stderr, "Error getting screen info\n" );
-        return size;
-    }
-    xcb_xinerama_screen_info_t *screens = xcb_xinerama_query_screens_screen_info ( query_screens );
-    int                        len      = xcb_xinerama_query_screens_screen_info_length ( query_screens );
-    for ( int i = 0; i < len; i++ ) {
-        xcb_xinerama_screen_info_t *info = &screens[i];
-        size = MIN ( info->width, size );
-        size = MIN ( info->height, size );
-    }
-    free ( query_screens );
 
     return size;
 }
-int monitor_get_dimension ( int monitor, workarea *mon )
+int monitor_get_dimension ( int monitor_id, workarea *mon )
 {
-    xcb_generic_error_t *error = NULL;
     memset ( mon, 0, sizeof ( workarea ) );
     mon->w = xcb->screen->width_in_pixels;
     mon->h = xcb->screen->height_in_pixels;
 
-    if ( !xcb->has_xinerama ) {
-        return FALSE;
+    workarea *iter = NULL;
+    for ( iter = xcb->monitors; iter; iter = iter->next ) {
+        if ( iter->monitor_id == monitor_id ) {
+            *mon = *iter;
+            return TRUE;
+        }
     }
-
-    xcb_xinerama_query_screens_cookie_t cookie_screen;
-    cookie_screen = xcb_xinerama_query_screens ( xcb->connection );
-    xcb_xinerama_query_screens_reply_t  *query_screens;
-    query_screens = xcb_xinerama_query_screens_reply ( xcb->connection, cookie_screen, &error );
-    if ( error ) {
-        fprintf ( stderr, "Error getting screen info\n" );
-        return FALSE;
-    }
-    xcb_xinerama_screen_info_t *screens = xcb_xinerama_query_screens_screen_info ( query_screens );
-    int                        len      = xcb_xinerama_query_screens_screen_info_length ( query_screens );
-    if ( monitor < len ) {
-        xcb_xinerama_screen_info_t *info = &screens[monitor];
-        mon->w = info->width;
-        mon->h = info->height;
-        mon->x = info->x_org;
-        mon->y = info->y_org;
-        free ( query_screens );
-        return TRUE;
-    }
-    free ( query_screens );
-
     return FALSE;
 }
 // find the dimensions of the monitor displaying point x,y
 void monitor_dimensions ( int x, int y, workarea *mon )
 {
-    xcb_generic_error_t *error = NULL;
     memset ( mon, 0, sizeof ( workarea ) );
     mon->w = xcb->screen->width_in_pixels;
     mon->h = xcb->screen->height_in_pixels;
 
-    if ( !xcb->has_xinerama ) {
-        return;
-    }
-
-    xcb_xinerama_query_screens_cookie_t cookie_screen;
-    cookie_screen = xcb_xinerama_query_screens ( xcb->connection );
-    xcb_xinerama_query_screens_reply_t  *query_screens;
-    query_screens = xcb_xinerama_query_screens_reply ( xcb->connection, cookie_screen, &error );
-    if ( error ) {
-        fprintf ( stderr, "Error getting screen info\n" );
-        return;
-    }
-    xcb_xinerama_screen_info_t *screens = xcb_xinerama_query_screens_screen_info ( query_screens );
-    int                        len      = xcb_xinerama_query_screens_screen_info_length ( query_screens );
-    for ( int i = 0; i < len; i++ ) {
-        xcb_xinerama_screen_info_t *info = &screens[i];
-        if ( INTERSECT ( x, y, 1, 1, info->x_org, info->y_org, info->width, info->height ) ) {
-            mon->w = info->width;
-            mon->h = info->height;
-            mon->x = info->x_org;
-            mon->y = info->y_org;
+    for ( workarea *iter = xcb->monitors; iter; iter = iter->next ) {
+        if ( INTERSECT ( x, y, 1, 1, iter->x, iter->y, iter->w, iter->h ) ) {
+            *mon = *iter;
             break;
         }
     }
-    free ( query_screens );
 }
 
 /**
@@ -278,85 +336,113 @@ static int pointer_get ( xcb_window_t root, int *x, int *y )
 }
 
 // determine which monitor holds the active window, or failing that the mouse pointer
-void monitor_active ( workarea *mon )
+int monitor_active ( workarea *mon )
 {
     xcb_window_t root = xcb->screen->root;
     int          x, y;
 
-    if ( config.monitor >= 0 ) {
-        if ( monitor_get_dimension ( config.monitor, mon ) ) {
-            return;
-        }
-        fprintf ( stderr, "Failed to find selected monitor.\n" );
-    }
-    if ( config.monitor == -3 ) {
-        if ( pointer_get ( root, &x, &y ) ) {
-            monitor_dimensions ( x, y, mon );
-            mon->x = x;
-            mon->y = y;
-            return;
-        }
-    }
-    // Get the current desktop.
-    unsigned int current_desktop = 0;
-    if ( config.monitor == -1 && xcb_ewmh_get_current_desktop_reply ( &xcb->ewmh,
-                                                                      xcb_ewmh_get_current_desktop ( &xcb->ewmh, xcb->screen_nbr ),
-                                                                      &current_desktop, NULL ) ) {
-        xcb_get_property_cookie_t             c = xcb_ewmh_get_desktop_viewport ( &xcb->ewmh, xcb->screen_nbr );
-        xcb_ewmh_get_desktop_viewport_reply_t vp;
-        if ( xcb_ewmh_get_desktop_viewport_reply ( &xcb->ewmh, c, &vp, NULL ) ) {
-            if ( current_desktop < vp.desktop_viewport_len ) {
-                monitor_dimensions ( vp.desktop_viewport[current_desktop].x,
-                                     vp.desktop_viewport[current_desktop].y, mon );
-                xcb_ewmh_get_desktop_viewport_reply_wipe ( &vp );
-                return;
+    if ( config.monitor != NULL ) {
+        for ( workarea *iter = xcb->monitors; iter; iter = iter->next ) {
+            if ( g_strcmp0 ( config.monitor, iter->name ) == 0 ) {
+                *mon = *iter;
+                return TRUE;
             }
-            xcb_ewmh_get_desktop_viewport_reply_wipe ( &vp );
         }
     }
-
-    xcb_window_t active_window;
-    if ( xcb_ewmh_get_active_window_reply ( &xcb->ewmh,
-                                            xcb_ewmh_get_active_window ( &xcb->ewmh, xcb->screen_nbr ), &active_window, NULL ) ) {
-        // get geometry.
-        xcb_get_geometry_cookie_t c  = xcb_get_geometry ( xcb->connection, active_window );
-        xcb_get_geometry_reply_t  *r = xcb_get_geometry_reply ( xcb->connection, c, NULL );
-        if ( r ) {
-            xcb_translate_coordinates_cookie_t ct = xcb_translate_coordinates ( xcb->connection, active_window, root, r->x, r->y );
-            xcb_translate_coordinates_reply_t  *t = xcb_translate_coordinates_reply ( xcb->connection, ct, NULL );
-            if ( t ) {
-                if ( config.monitor == -2 ) {
-                    // place the menu above the window
-                    // if some window is focused, place menu above window, else fall
-                    // back to selected monitor.
-                    mon->x = t->dst_x - r->x;
-                    mon->y = t->dst_y - r->y;
-                    mon->w = r->width;
-                    mon->h = r->height;
-                    mon->t = r->border_width;
-                    mon->b = r->border_width;
-                    mon->l = r->border_width;
-                    mon->r = r->border_width;
-                    free ( r );
-                    free ( t );
-                    return;
-                }
-                else if ( config.monitor == -4 ) {
-                    monitor_dimensions ( t->dst_x, t->dst_y, mon );
-                    free ( r );
-                    free ( t );
-                    return;
+    // Grab primary.
+    if ( g_strcmp0 ( config.monitor, "primary" ) == 0 ) {
+        for ( workarea *iter = xcb->monitors; iter; iter = iter->next ) {
+            if ( iter->primary ) {
+                *mon = *iter;
+                return TRUE;
+            }
+        }
+    }
+    // IF fail, fall back to classic mode.
+    char   *end   = NULL;
+    gint64 mon_id = g_ascii_strtoll ( config.monitor, &end, 0 );
+    if ( end != config.monitor ) {
+        if ( mon_id >= 0 ) {
+            if ( monitor_get_dimension ( mon_id, mon ) ) {
+                return TRUE;
+            }
+            fprintf ( stderr, "Failed to find selected monitor.\n" );
+        }
+        // At mouse position.
+        else if ( mon_id == -3 ) {
+            if ( pointer_get ( root, &x, &y ) ) {
+                monitor_dimensions ( x, y, mon );
+                mon->x = x;
+                mon->y = y;
+                return TRUE;
+            }
+        }
+        // Focused monitor
+        else if ( mon_id == -1 ) {
+            // Get the current desktop.
+            unsigned int              current_desktop = 0;
+            xcb_get_property_cookie_t gcdc;
+            gcdc = xcb_ewmh_get_current_desktop ( &xcb->ewmh, xcb->screen_nbr );
+            if  ( xcb_ewmh_get_current_desktop_reply ( &xcb->ewmh, gcdc, &current_desktop, NULL ) ) {
+                xcb_get_property_cookie_t             c = xcb_ewmh_get_desktop_viewport ( &xcb->ewmh, xcb->screen_nbr );
+                xcb_ewmh_get_desktop_viewport_reply_t vp;
+                if ( xcb_ewmh_get_desktop_viewport_reply ( &xcb->ewmh, c, &vp, NULL ) ) {
+                    if ( current_desktop < vp.desktop_viewport_len ) {
+                        monitor_dimensions ( vp.desktop_viewport[current_desktop].x,
+                                             vp.desktop_viewport[current_desktop].y, mon );
+                        xcb_ewmh_get_desktop_viewport_reply_wipe ( &vp );
+                        return TRUE;
+                    }
+                    xcb_ewmh_get_desktop_viewport_reply_wipe ( &vp );
                 }
             }
-            free ( r );
+        }
+        else if ( mon_id == -2 || mon_id == -4 ) {
+            xcb_window_t              active_window;
+            xcb_get_property_cookie_t awc;
+            awc = xcb_ewmh_get_active_window ( &xcb->ewmh, xcb->screen_nbr );
+            if ( xcb_ewmh_get_active_window_reply ( &xcb->ewmh, awc, &active_window, NULL ) ) {
+                // get geometry.
+                xcb_get_geometry_cookie_t c  = xcb_get_geometry ( xcb->connection, active_window );
+                xcb_get_geometry_reply_t  *r = xcb_get_geometry_reply ( xcb->connection, c, NULL );
+                if ( r ) {
+                    xcb_translate_coordinates_cookie_t ct = xcb_translate_coordinates ( xcb->connection, active_window, root, r->x, r->y );
+                    xcb_translate_coordinates_reply_t  *t = xcb_translate_coordinates_reply ( xcb->connection, ct, NULL );
+                    if ( t ) {
+                        if ( mon_id == -2 ) {
+                            // place the menu above the window
+                            // if some window is focused, place menu above window, else fall
+                            // back to selected monitor.
+                            mon->x = t->dst_x - r->x;
+                            mon->y = t->dst_y - r->y;
+                            mon->w = r->width;
+                            mon->h = r->height;
+                            free ( r );
+                            free ( t );
+                            return TRUE;
+                        }
+                        else if ( mon_id == -4 ) {
+                            monitor_dimensions ( t->dst_x, t->dst_y, mon );
+                            free ( r );
+                            free ( t );
+                            return TRUE;
+                        }
+                    }
+                    free ( r );
+                }
+            }
+        }
+        // Monitor that has mouse pointer.
+        else if ( mon_id == -5 ) {
+            if ( pointer_get ( root, &x, &y ) ) {
+                monitor_dimensions ( x, y, mon );
+                return TRUE;
+            }
         }
     }
-    if ( pointer_get ( root, &x, &y ) ) {
-        monitor_dimensions ( x, y, mon );
-        return;
-    }
-
+    // Fallback.
     monitor_dimensions ( 0, 0, mon );
+    return FALSE;
 }
 int take_pointer ( xcb_window_t w )
 {
@@ -794,6 +880,7 @@ void xcb_stuff_wipe ( xcb_stuff *xcb )
             sn_display_unref ( xcb->sndisplay );
             xcb->sndisplay = NULL;
         }
+        x11_monitors_free ();
         xcb_disconnect ( xcb->connection );
         xcb->connection = NULL;
         xcb->screen     = NULL;

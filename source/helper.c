@@ -476,16 +476,14 @@ int config_sanity_check ( void )
 
     // Check size
     {
-        int ssize = monitor_get_smallest_size ( );
-        if ( config.monitor >= 0 ) {
-            workarea mon;
-            if ( monitor_get_dimension ( config.monitor, &mon ) ) {
-                ssize = MIN ( mon.w, mon.h );
-            }
-            else{
-                g_string_append_printf ( msg, "\t<b>config.monitor</b>=%d Could not find monitor.\n", config.monitor );
-                ssize = 0;
-            }
+        int      ssize = monitor_get_smallest_size ( );
+        workarea mon;
+        if ( monitor_active ( &mon ) ) {
+            ssize = MIN ( mon.w, mon.h );
+        }
+        else{
+            g_string_append_printf ( msg, "\t<b>config.monitor</b>=%s Could not find monitor.\n", config.monitor );
+            ssize = 0;
         }
         // Have todo an estimate here.
         if ( ( 2 * ( config.padding + config.menu_bw ) ) > ( 0.9 * ssize ) ) {
@@ -511,7 +509,7 @@ int config_sanity_check ( void )
         pango_font_description_free ( pfd );
     }
 
-    if ( config.monitor == -3 ) {
+    if ( g_strcmp0 ( config.monitor, "-3" ) == 0 ) {
         // On -3, set to location 1.
         config.location   = 1;
         config.fullscreen = 0;

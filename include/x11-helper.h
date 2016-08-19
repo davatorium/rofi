@@ -45,18 +45,21 @@ enum { EWMH_ATOMS ( ATOM_ENUM ), NUM_NETATOMS };
 
 extern const char *netatom_names[];
 extern xcb_atom_t netatoms[NUM_NETATOMS];
-typedef struct
-{
-    int x, y, w, h;
-    int l, r, t, b;
-} workarea;
 
-void monitor_active ( workarea *mon );
+typedef struct _workarea
+{
+    int              monitor_id;
+    int              primary;
+    int              x, y, w, h;
+    char             *name;
+    struct _workarea *next;
+} workarea;
+int monitor_active ( workarea *mon );
 
 // find the dimensions of the monitor displaying point x,y
 void monitor_dimensions ( int x, int y, workarea *mon );
 // Find the dimensions of the monitor specified by user.
-int monitor_get_dimension ( int monitor, workarea *mon );
+int monitor_get_dimension ( int monitor_id, workarea *mon );
 int monitor_get_smallest_size ( void );
 
 /**
@@ -145,5 +148,12 @@ void x11_helper_set_cairo_rgba ( cairo_t *d, Color col );
  * @returns a cairo surface with the background image of the desktop.
  */
 cairo_surface_t * x11_helper_get_bg_surface ( void );
+
+/**
+ * Creates an internal represenation of the available monitors.
+ * Used for positioning rofi.
+ */
+void x11_build_monitor_layout ( void );
+void x11_dump_monitor_layout ( void );
 /*@}*/
 #endif

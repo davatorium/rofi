@@ -112,7 +112,7 @@ Settings config = {
     .tokenize   = TRUE,
     .regex      = FALSE,
     /** Monitor */
-    .monitor           =                                        -1,
+    .monitor           = "-1",
     /** set line margin */
     .line_margin       =                                         2,
     /** Set filter */

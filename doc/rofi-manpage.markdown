@@ -370,10 +370,16 @@ Default: *5000*
 When one entry is left, automatically select it.
 
 `-m` *num*
+
+`-m` *name*
+
 `-monitor` *num*
 
+`-monitor` *name*
+
 Select (Xinerama) monitor to display **rofi** on.
-Negative numbers are handled differently:
+As input it accepts: *primary* (if primary output is set), the *xrandr* output name or integer number (in order of
+detection).  Negative numbers are handled differently:
 
  *  **-1**: the currently focused monitor.
  *  **-2**: the currently focused window (i.e. rofi will be displayed on top of the focused window).
@@ -383,6 +389,8 @@ Negative numbers are handled differently:
  *  **-5**: the monitor that shows the mouse pointer.
 
     Default: *-1*
+
+See `rofi -h` output for the detected monitors, their position and size.
 
 ### PATTERN setting
 

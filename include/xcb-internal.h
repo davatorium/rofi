@@ -6,6 +6,7 @@
 
 #include <xcb/xcb.h>
 #include <xcb/xcb_ewmh.h>
+
 /**
  * Structure to keep xcb stuff around.
  */
@@ -18,7 +19,7 @@ struct _xcb_stuff
     int                   screen_nbr;
     SnDisplay             *sndisplay;
     SnLauncheeContext     *sncontext;
-    gboolean              has_xinerama;
+    struct _workarea      *monitors;
 };
 
 #endif
