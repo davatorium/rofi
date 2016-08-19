@@ -20,6 +20,7 @@ addons:
             - discount
             - xdotool
             - fluxbox
+            - gdb
 
 compiler:
     - gcc
