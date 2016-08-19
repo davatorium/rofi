@@ -71,8 +71,6 @@ rofi_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
-	$(x11_CFLAGS)\
-	$(xinerama_CFLAGS)\
 	$(pango_CFLAGS)\
 	$(libsn_CFLAGS)\
 	$(cairo_CFLAGS)\
@@ -86,8 +84,6 @@ rofi_CFLAGS=\
 rofi_LDADD=\
 	$(glib_LIBS)\
 	$(GW_XCB_LIBS)\
-	$(x11_LIBS)\
-	$(xinerama_LIBS)\
 	$(libsn_LIBS)\
 	$(pango_LIBS)\
 	$(cairo_LIBS)\
@@ -168,8 +164,6 @@ textbox_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(pango_CFLAGS)\
-	$(x11_CFLAGS)\
-	$(xinerama_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
@@ -180,8 +174,6 @@ textbox_test_CFLAGS=\
 textbox_test_LDADD=\
 	$(glib_LIBS)\
 	$(pango_LIBS)\
-	$(x11_LIBS)\
-	$(xinerama_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(cairo_LIBS)\
 	$(libsn_LIBS)
@@ -223,8 +215,6 @@ helper_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(pango_CFLAGS)\
-	$(x11_CFLAGS)\
-	$(xinerama_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
@@ -235,9 +225,7 @@ helper_test_CFLAGS=\
 helper_test_LDADD=\
 	$(glib_LIBS)\
 	$(pango_LIBS)\
-	$(x11_LIBS)\
 	$(GW_XCB_LIBS)\
-	$(xinerama_LIBS)\
 	$(libsn_LIBS)\
 	$(cairo_LIBS)
 
