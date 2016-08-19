@@ -2,6 +2,7 @@
 
 # wait till it is up, run rofi with error message
 sleep 1;
+ulimit -c unlimited
 echo -e -n "aap\nnoot\nmies" | rofi -dmenu  -normal-window  -multi-select > output.txt & 
 RPID=$!
 sleep 4
@@ -18,6 +19,11 @@ xdotool key Return
 #  Get result, kill xvfb
 wait ${RPID}
 RETV=$?
+if [ "${RETV}" == "139" ]
+then
+    echo "thread apply all bt" | gdb rofi core.*
+fi
+
 OUTPUT=$(cat output.txt | tr '\n' ' ')
 if [ "${OUTPUT}" != 'noot mies ' ]
 then
