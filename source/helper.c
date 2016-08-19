@@ -49,6 +49,13 @@
 #include "rofi.h"
 #include "view.h"
 
+const char *const       monitor_position_entries[] = {
+    "on focused monitor",
+    "on focused window",
+    "at mouse pointer",
+    "on monitor with focused window",
+    "on monitor that has mouse pointer"
+};
 extern xcb_connection_t *xcb_connection;
 extern xcb_screen_t     *xcb_screen;
 static int              stored_argc   = 0;
@@ -482,7 +489,14 @@ int config_sanity_check ( void )
             ssize = MIN ( mon.w, mon.h );
         }
         else{
-            g_string_append_printf ( msg, "\t<b>config.monitor</b>=%s Could not find monitor.\n", config.monitor );
+            const char *name = config.monitor;
+            if ( name && name[0] == '-' ) {
+                int index = name[1] - '0';
+                if ( index < 5 && index > 0 ) {
+                    name = monitor_position_entries[index - 1];
+                }
+            }
+            g_string_append_printf ( msg, "\t<b>config.monitor</b>=%s Could not find monitor.\n", name );
             ssize = 0;
         }
         // Have todo an estimate here.

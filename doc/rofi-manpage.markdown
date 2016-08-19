@@ -388,7 +388,7 @@ detection).  Negative numbers are handled differently:
  *  **-4**: the monitor with the focused window.
  *  **-5**: the monitor that shows the mouse pointer.
 
-    Default: *-1*
+    Default: *-5*
 
 See `rofi -h` output for the detected monitors, their position and size.
 
