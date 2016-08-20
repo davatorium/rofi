@@ -377,7 +377,7 @@ When one entry is left, automatically select it.
 
 `-monitor` *name*
 
-Select (Xinerama) monitor to display **rofi** on.
+Select monitor to display **rofi** on.
 As input it accepts: *primary* (if primary output is set), the *xrandr* output name or integer number (in order of
 detection).  Negative numbers are handled differently:
 
