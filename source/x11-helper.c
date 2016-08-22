@@ -37,6 +37,7 @@
 
 #include <xcb/xcb.h>
 #include <xcb/randr.h>
+#include <xcb/xcb_ewmh.h>
 #include "xcb-internal.h"
 #include "xcb.h"
 #include "settings.h"
@@ -882,6 +883,7 @@ void xcb_stuff_wipe ( xcb_stuff *xcb )
         }
         x11_monitors_free ();
         xcb_disconnect ( xcb->connection );
+        xcb_ewmh_connection_wipe ( &( xcb->ewmh ) );
         xcb->connection = NULL;
         xcb->screen     = NULL;
         xcb->screen_nbr = 0;

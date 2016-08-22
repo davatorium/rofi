@@ -288,8 +288,32 @@ static void cleanup ()
         g_main_loop_unref ( main_loop );
         main_loop = NULL;
     }
+    // XKB Cleanup
+    //
+    if ( xkb.compose.state != NULL ) {
+        xkb_compose_state_unref ( xkb.compose.state );
+        xkb.compose.state = NULL;
+    }
+    if ( xkb.compose.table != NULL ) {
+        xkb_compose_table_unref ( xkb.compose.table );
+        xkb.compose.table = NULL;
+    }
+    if ( xkb.state != NULL ) {
+        xkb_state_unref ( xkb.state );
+        xkb.state = NULL;
+    }
+    if ( xkb.keymap != NULL ) {
+        xkb_keymap_unref ( xkb.keymap );
+        xkb.keymap = NULL;
+    }
+    if ( xkb.context != NULL ) {
+        xkb_context_unref ( xkb.context );
+        xkb.context = NULL;
+    }
+
     // Cleanup
     xcb_stuff_wipe ( xcb );
+
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
     for ( unsigned int i = 0; i < num_modi; i++ ) {
