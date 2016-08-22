@@ -638,6 +638,10 @@ Enable fake transparency. This only works with transparent background color in t
 Select what to use as background for fake transparency. This can be 'background', 'screenshot' or a path to an image
 file (currently only supports png).
 
+`-display-{mode}` *string*
+
+Set the name to use for mode. This is used as prompt and in combi-browser.
+
 ### Debug
 
 

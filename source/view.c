@@ -1771,7 +1771,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
             const Mode * mode = rofi_get_mode ( j );
             state->modi[j] = textbox_create ( TB_CENTER, state->border + j * ( width + config.line_margin ),
                                               CacheState.height - state->line_height - state->border, width, state->line_height,
-                                              ( mode == state->sw ) ? HIGHLIGHT : NORMAL, mode_get_name ( mode  ) );
+                                              ( mode == state->sw ) ? HIGHLIGHT : NORMAL, mode_get_display_name ( mode  ) );
         }
     }
     uint16_t mask   = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
