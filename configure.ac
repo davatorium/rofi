@@ -75,6 +75,7 @@ AC_CHECK_FUNC([strtok_r],, AC_MSG_ERROR("Could not find strtok_r"))
 AC_CHECK_FUNC([flock],,    AC_MSG_ERROR("Could not find flock"))
 AC_CHECK_FUNC([ftruncate],,AC_MSG_ERROR("Could not find ftruncate"))
 AC_CHECK_FUNC([fcntl],,    AC_MSG_ERROR("Could not find fcntl"))
+AC_CHECK_FUNC([setlocale],,AC_MSG_ERROR("Could not find setlocale"))
 
 dnl ---------------------------------------------------------------------
 dnl Check dependencies

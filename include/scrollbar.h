@@ -77,7 +77,7 @@ void scrollbar_draw ( scrollbar *sb, cairo_t *draw );
  *
  * Calculate the position of the click relative to the max value of bar
  */
-unsigned int scrollbar_clicked ( scrollbar *sb, int y );
+unsigned int scrollbar_clicked ( const scrollbar *sb, int y );
 
 /**
  * @param sb scrollbar object

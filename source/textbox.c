@@ -164,7 +164,7 @@ static void __textbox_update_pango_text ( textbox *tb )
         pango_layout_set_text ( tb->layout, tb->text, -1 );
     }
 }
-const char *textbox_get_visible_text ( textbox *tb )
+const char *textbox_get_visible_text ( const textbox *tb )
 {
     return pango_layout_get_text ( tb->layout );
 }
@@ -464,7 +464,7 @@ void textbox_cursor_end ( textbox *tb )
 }
 
 // insert text
-void textbox_insert ( textbox *tb, int char_pos, char *str, int slen )
+void textbox_insert ( textbox *tb, const int char_pos, const char *str, const int slen )
 {
     char *c  = g_utf8_offset_to_pointer ( tb->text, char_pos );
     int  pos = c - tb->text;
@@ -634,7 +634,7 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action )
     }
 }
 
-gboolean textbox_append_char ( textbox *tb, char *pad, int pad_len )
+gboolean textbox_append_char ( textbox *tb, const char *pad, const int pad_len )
 {
     if ( !( tb->flags & TB_EDITABLE ) ) {
         return FALSE;
@@ -712,25 +712,25 @@ void textbox_cleanup ( void )
     }
 }
 
-int textbox_get_width ( textbox *tb )
+int textbox_get_width ( const textbox *tb )
 {
     unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
     return textbox_get_font_width ( tb ) + 2 * SIDE_MARGIN + offset;
 }
 
-int textbox_get_height ( textbox *tb )
+int textbox_get_height ( const textbox *tb )
 {
     return textbox_get_font_height ( tb ) + 2 * SIDE_MARGIN;
 }
 
-int textbox_get_font_height ( textbox *tb )
+int textbox_get_font_height ( const textbox *tb )
 {
     int height;
     pango_layout_get_pixel_size ( tb->layout, NULL, &height );
     return height;
 }
 
-int textbox_get_font_width ( textbox *tb )
+int textbox_get_font_width ( const textbox *tb )
 {
     int width;
     pango_layout_get_pixel_size ( tb->layout, &width, NULL );

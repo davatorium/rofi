@@ -107,7 +107,7 @@ void scrollbar_resize ( scrollbar *sb, int w, int h )
         }
     }
 }
-unsigned int scrollbar_clicked ( scrollbar *sb, int y )
+unsigned int scrollbar_clicked ( const scrollbar *sb, int y )
 {
     if ( sb != NULL ) {
         if ( y >= sb->widget.y && y < ( sb->widget.y + sb->widget.h ) ) {

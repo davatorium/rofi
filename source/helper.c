@@ -204,7 +204,7 @@ GRegex **tokenize ( const char *input, int case_sensitive )
     }
 
     char   *saveptr = NULL, *token;
-    GRegex **retv   = NULL;
+    GRegex **retv = NULL;
     if ( !config.tokenize ) {
         retv    = g_malloc0 ( sizeof ( GRegex* ) * 2 );
         retv[0] = (GRegex *) create_regex ( input, case_sensitive );
@@ -362,13 +362,14 @@ PangoAttrList *token_match_get_pango_attr ( GRegex **tokens, const char *input, 
     return retv;
 }
 
-int token_match ( GRegex **tokens, const char *input )
+
+int token_match ( GRegex * const *tokens, const char *input )
 {
     int match = 1;
     // Do a tokenized match.
     if ( tokens ) {
         for ( int j = 0; match && tokens[j]; j++ ) {
-            match = g_regex_match ( (GRegex *) tokens[j], input, 0, NULL );
+            match = g_regex_match ( (const GRegex *) tokens[j], input, 0, NULL );
         }
     }
     return match;

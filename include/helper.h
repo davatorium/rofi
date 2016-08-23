@@ -85,6 +85,7 @@ int find_arg_str ( const char * const key, char** val );
  */
 int find_arg ( const char * const key );
 
+
 /**
  * @param tokens  List of (input) tokens to match.
  * @param input   The entry to match against.
@@ -93,8 +94,7 @@ int find_arg ( const char * const key );
  *
  * @returns TRUE when matches, FALSE otherwise
  */
-int token_match ( GRegex **tokens, const char *input );
-
+int token_match ( GRegex * const *tokens, const char *input );
 /**
  * @param cmd The command to execute.
  *

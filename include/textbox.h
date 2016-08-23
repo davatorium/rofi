@@ -39,16 +39,16 @@ typedef struct
 
 typedef enum
 {
-    TB_AUTOHEIGHT = 1 << 0,
-    TB_AUTOWIDTH  = 1 << 1,
-    TB_LEFT       = 1 << 16,
-    TB_RIGHT      = 1 << 17,
-    TB_CENTER     = 1 << 18,
-    TB_EDITABLE   = 1 << 19,
-    TB_MARKUP     = 1 << 20,
-    TB_WRAP       = 1 << 21,
-    TB_PASSWORD   = 1 << 22,
-    TB_INDICATOR  = 1 << 23,
+    TB_AUTOHEIGHT    = 1 << 0,
+        TB_AUTOWIDTH = 1 << 1,
+        TB_LEFT      = 1 << 16,
+        TB_RIGHT     = 1 << 17,
+        TB_CENTER    = 1 << 18,
+        TB_EDITABLE  = 1 << 19,
+        TB_MARKUP    = 1 << 20,
+        TB_WRAP      = 1 << 21,
+        TB_PASSWORD  = 1 << 22,
+        TB_INDICATOR = 1 << 23,
 } TextboxFlags;
 
 typedef enum
@@ -113,7 +113,7 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action );
  * The text should be one insert from a keypress..  the first gunichar is validated to be (or not) control
  * return TRUE if inserted
  */
-gboolean textbox_append_char ( textbox *tb, char *pad, int pad_len );
+gboolean textbox_append_char ( textbox *tb, const char *pad, const int pad_len );
 
 /**
  * @param tb  Handle to the textbox
@@ -138,7 +138,7 @@ void textbox_cursor ( textbox *tb, int pos );
  *
  * Insert the string str at position pos.
  */
-void textbox_insert ( textbox *tb, int pos, char *str, int slen );
+void textbox_insert ( textbox *tb, const int pos, const char *str, const int slen );
 
 /**
  * Setup the cached fonts. This is required to do
@@ -159,7 +159,7 @@ void textbox_cleanup ( void );
  *
  * @returns the height of the textbox in pixels.
  */
-int textbox_get_height ( textbox *tb );
+int textbox_get_height ( const textbox *tb );
 
 /**
  * @param tb Handle to the textbox
@@ -168,7 +168,7 @@ int textbox_get_height ( textbox *tb );
  *
  * @returns the width of the textbox in pixels.
  */
-int textbox_get_width ( textbox *tb );
+int textbox_get_width ( const textbox *tb );
 
 /**
  * @param tb Handle to the textbox
@@ -177,7 +177,7 @@ int textbox_get_width ( textbox *tb );
  *
  * @returns the height of the string in pixels.
  */
-int textbox_get_font_height ( textbox *tb );
+int textbox_get_font_height ( const textbox *tb );
 
 /**
  * @param tb Handle to the textbox
@@ -186,7 +186,7 @@ int textbox_get_font_height ( textbox *tb );
  *
  * @returns the width of the string in pixels.
  */
-int textbox_get_font_width ( textbox *tb );
+int textbox_get_font_width ( const textbox *tb );
 
 /**
  * Estimate the width of a character.
@@ -239,6 +239,11 @@ void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list );
 
 PangoAttrList *textbox_get_pango_attributes ( textbox *tb );
 
-const char *textbox_get_visible_text ( textbox *tb );
+/**
+ * @param tb Handle to the textbox
+ *
+ * @returns the visible text.
+ */
+const char *textbox_get_visible_text ( const textbox *tb );
 /*@}*/
 #endif //ROFI_TEXTBOX_H
