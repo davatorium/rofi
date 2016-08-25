@@ -68,7 +68,7 @@ DefaultBinding bindings[NUM_ABE] =
     { .id = SCREENSHOT,              .name = "kb-screenshot",              .keybinding = "Alt+Shift+S",                               .comment = "Take a screenshot of the rofi window"                            },
     { .id = TOGGLE_CASE_SENSITIVITY, .name = "kb-toggle-case-sensitivity", .keybinding = "grave,dead_grave",                          .comment = "Toggle case sensitivity"                                         },
     { .id = TOGGLE_SORT,             .name = "kb-toggle-sort",             .keybinding = "Alt+grave",                                 .comment = "Toggle sort"                                                     },
-    { .id = CANCEL,                  .name = "kb-cancel",                  .keybinding = "Escape,Control+bracketleft",                .comment = "Quit rofi"                                                       },
+    { .id = CANCEL,                  .name = "kb-cancel",                  .keybinding = "Escape,Control+g,Control+bracketleft",      .comment = "Quit rofi"                                                       },
     { .id = CUSTOM_1,                .name = "kb-custom-1",                .keybinding = "Alt+1",                                     .comment = "Custom keybinding 1"                                             },
     { .id = CUSTOM_2,                .name = "kb-custom-2",                .keybinding = "Alt+2",                                     .comment = "Custom keybinding 2"                                             },
     { .id = CUSTOM_3,                .name = "kb-custom-3",                .keybinding = "Alt+3",                                     .comment = "Custom keybinding 3"                                             },
