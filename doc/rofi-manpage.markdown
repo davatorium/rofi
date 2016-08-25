@@ -45,8 +45,7 @@
 [ -combi-modi *mode1,mode2* ]
 [ -normal-window ]
 [ -fake-transparency ]
-[ -glob  ]
-[ -regex ]
+[ -matching *method* ]
 [ -tokenize ]
 [ -threads *num* ]
 [ -config *filename* ]
@@ -275,14 +274,19 @@ Hide the scrollbar.
 
 Set the scrollbar width.
 
-`-glob`
+`-matching` *method*
 
-Use glob style matching
-*Warning this option might be slow on large lists*
+Specify the matching algorithm used.
+Current the following methods are supported.
 
-`-regex`
+* **normal**: Match the int string.
+* **regex**: Match a regex input.
+* **glob**: Match a glob pattern.
+* **fuzzy**: Do a fuzzy match.
 
-Use regex matching
+   Default: normal
+
+   Note:, glob matching might be slow for larger lists.
 
 `-tokenize`
 

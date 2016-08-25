@@ -2,6 +2,19 @@
 #define ROFI_SETTINGS_H
 
 /**
+ * Enumeration indicating the matching method to use.
+ *
+ * @ingroup CONFIGURATION
+ */
+typedef enum
+{
+    MM_NORMAL = 0,
+    MM_REGEX  = 1,
+    MM_GLOB   = 2,
+    MM_FUZZY  = 3
+} MatchingMethod;
+
+/**
  * Enumeration indicating location or gravity of window.
  *
  * \verbatim WL_NORTH_WEST      WL_NORTH      WL_NORTH_EAST \endverbatim
@@ -105,9 +118,9 @@ typedef struct
     unsigned int   parse_known_hosts;
     /** Combi Modes */
     char           *combi_modi;
-    unsigned int   glob;
+    char           *matching;
+    MatchingMethod matching_method;
     unsigned int   tokenize;
-    unsigned int   regex;
     /** Monitors */
     char           *monitor;
     /** Line margin */

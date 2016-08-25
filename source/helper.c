@@ -168,28 +168,58 @@ static gchar *glob_to_regex ( const char *input )
     }
     return r;
 }
+static gchar *fuzzy_to_regex ( const char * input )
+{
+    GString *str = g_string_new ( "" );
+    gchar   *r   = g_regex_escape_string ( input, -1 );
+    gchar   *iter;
+    int     first = 1;
+    for ( iter = r; iter && *iter != '\0'; iter = g_utf8_next_char ( iter ) ) {
+        if ( first ) {
+            g_string_append ( str, "(" );
+        }
+        else {
+            g_string_append ( str, ".*(" );
+        }
+        g_string_append_unichar ( str, g_utf8_get_char ( iter ) );
+        g_string_append ( str, ")" );
+        first = 0;
+    }
+    g_free ( r );
+    char *retv = str->str;
+    g_string_free ( str, FALSE );
+    return retv;
+}
 static GRegex * create_regex ( const char *input, int case_sensitive )
 {
 #define R( s )    g_regex_new ( s, G_REGEX_OPTIMIZE | ( ( case_sensitive ) ? 0 : G_REGEX_CASELESS ), 0, NULL )
     GRegex * retv = NULL;
-    if ( config.glob ) {
-        gchar *r = glob_to_regex ( input );
+    gchar  *r;
+    switch ( config.matching_method )
+    {
+    case MM_GLOB:
+        r    = glob_to_regex ( input );
         retv = R ( r );
         g_free ( r );
-    }
-    else if ( config.regex ) {
+        break;
+    case MM_REGEX:
         retv = R ( input );
         if ( retv == NULL ) {
-            gchar *r = g_regex_escape_string ( input, -1 );
+            r    = g_regex_escape_string ( input, -1 );
             retv = R ( r );
             g_free ( r );
         }
-    }
-    else{
-        // TODO; regex should be default?
-        gchar *r = g_regex_escape_string ( input, -1 );
+        break;
+    case MM_FUZZY:
+        r    = fuzzy_to_regex ( input );
         retv = R ( r );
         g_free ( r );
+        break;
+    default:
+        r    = g_regex_escape_string ( input, -1 );
+        retv = R ( r );
+        g_free ( r );
+        break;
     }
     return retv;
 }
@@ -204,7 +234,7 @@ GRegex **tokenize ( const char *input, int case_sensitive )
     }
 
     char   *saveptr = NULL, *token;
-    GRegex **retv = NULL;
+    GRegex **retv   = NULL;
     if ( !config.tokenize ) {
         retv    = g_malloc0 ( sizeof ( GRegex* ) * 2 );
         retv[0] = (GRegex *) create_regex ( input, case_sensitive );
@@ -346,14 +376,17 @@ PangoAttrList *token_match_get_pango_attr ( GRegex **tokens, const char *input, 
             GMatchInfo *gmi = NULL;
             g_regex_match ( (GRegex *) tokens[j], input, G_REGEX_MATCH_PARTIAL, &gmi );
             while ( g_match_info_matches ( gmi ) ) {
-                int            start, end;
-                g_match_info_fetch_pos ( gmi, 0, &start, &end );
-                PangoAttribute *pa  = pango_attr_underline_new ( PANGO_UNDERLINE_SINGLE );
-                PangoAttribute *pa2 = pango_attr_weight_new ( PANGO_WEIGHT_BOLD );
-                pa2->start_index = pa->start_index = start;
-                pa2->end_index   = pa->end_index = end;
-                pango_attr_list_insert ( retv, pa );
-                pango_attr_list_insert ( retv, pa2 );
+                int count = g_match_info_get_match_count ( gmi );
+                for ( int index = ( count > 1 ) ? 1 : 0; index < count; index++ ) {
+                    int            start, end;
+                    g_match_info_fetch_pos ( gmi, index, &start, &end );
+                    PangoAttribute *pa  = pango_attr_underline_new ( PANGO_UNDERLINE_SINGLE );
+                    PangoAttribute *pa2 = pango_attr_weight_new ( PANGO_WEIGHT_BOLD );
+                    pa2->start_index = pa->start_index = start;
+                    pa2->end_index   = pa->end_index = end;
+                    pango_attr_list_insert ( retv, pa );
+                    pango_attr_list_insert ( retv, pa2 );
+                }
                 g_match_info_next ( gmi, NULL );
             }
             g_match_info_free ( gmi );
@@ -361,7 +394,6 @@ PangoAttrList *token_match_get_pango_attr ( GRegex **tokens, const char *input, 
     }
     return retv;
 }
-
 
 int token_match ( GRegex * const *tokens, const char *input )
 {
@@ -458,6 +490,27 @@ int config_sanity_check ( void )
     int     found_error = FALSE;
     GString *msg        = g_string_new (
         "<big><b>The configuration failed to validate:</b></big>\n" );
+
+    if ( config.matching ) {
+        if ( g_strcmp0 ( config.matching, "regex" ) == 0 ) {
+            config.matching_method = MM_REGEX;
+        }
+        else if ( g_strcmp0 ( config.matching, "glob" ) == 0 ) {
+            config.matching_method = MM_GLOB;
+        }
+        else if ( g_strcmp0 ( config.matching, "fuzzy" ) == 0 ) {
+            config.matching_method = MM_FUZZY;
+        }
+        else if ( g_strcmp0 ( config.matching, "normal" ) == 0 ) {
+            config.matching_method = MM_NORMAL;;
+        }
+        else {
+            g_string_append_printf ( msg, "\t<b>config.matching</b>=%s is not a valid matching strategy.\nValid options are: glob, regex, fuzzy or normal.\n",
+                                     config.matching );
+            found_error = 1;
+        }
+    }
+
     if ( config.element_height < 1 ) {
         g_string_append_printf ( msg, "\t<b>config.element_height</b>=%d is invalid. An element needs to be atleast 1 line high.\n",
                                  config.element_height );

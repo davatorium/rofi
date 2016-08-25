@@ -85,7 +85,6 @@ int find_arg_str ( const char * const key, char** val );
  */
 int find_arg ( const char * const key );
 
-
 /**
  * @param tokens  List of (input) tokens to match.
  * @param input   The entry to match against.

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo -en "nooty\naap\nnoot\nmies" | rofi -glob -dmenu   > output.txt  &
+echo -en "nooty\naap\nnoot\nmies" | rofi -matching glob -dmenu   > output.txt  &
 RPID=$!
 
 # send enter.

@@ -107,10 +107,10 @@ Settings config = {
     /** Parse ~/.ssh/known_hosts file in ssh view. */
     .parse_known_hosts = TRUE,
     /** Modi to combine into one view. */
-    .combi_modi = "window,run",
-    .glob       = FALSE,
-    .tokenize   = TRUE,
-    .regex      = FALSE,
+    .combi_modi      = "window,run",
+    .tokenize        = TRUE,
+    .matching        = "normal",
+    .matching_method = MM_NORMAL,
     /** Monitor */
     .monitor           = "-5",
     /** set line margin */

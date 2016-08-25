@@ -64,10 +64,8 @@ rofi.parse-hosts:                    false
 rofi.parse-known-hosts:              true
 ! "Set the modi to combine in combi mode" Set from: File
 rofi.combi-modi:                     window,drun,run,ssh
-! "Use glob matching" Set from: File
-rofi.glob:                           false
-! "Use regex matching" Set from: File
-rofi.regex:                          false
+! "Set the matching algorithm. (normal, regex, glob, fuzzy)" Set from: Default
+! rofi.matching:                       normal
 ! "Tokenize input string" Set from: File
 rofi.tokenize:                       true
 ! "Monitor id to show on" Set from: File
