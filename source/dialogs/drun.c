@@ -45,7 +45,7 @@
 #include "history.h"
 #include "dialogs/drun.h"
 
-#define DRUN_CACHE_FILE    "rofi.druncache"
+#define DRUN_CACHE_FILE    "rofi2.druncache"
 
 static inline int execsh ( const char *cmd, int run_in_term )
 {
@@ -90,6 +90,10 @@ static void exec_cmd ( const char *cmd, int run_in_term )
  */
 typedef struct
 {
+    /* ID */
+    char         *id;
+    /* Root */
+    char         *root;
     /* Path to desktop file */
     char         *path;
     /* Executable */
@@ -127,7 +131,9 @@ static void exec_cmd_entry ( DRunModeEntry *e )
     gchar *fp = rofi_expand_path ( g_strstrip ( str ) );
     if ( execsh ( fp, e->terminal ) ) {
         char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
-        history_set ( path, e->path );
+        char *key  = g_strdup_printf ( "%s:::%s", e->root, e->path );
+        history_set ( path, key );
+        g_free ( key );
         g_free ( path );
     }
     g_free ( str );
@@ -136,11 +142,21 @@ static void exec_cmd_entry ( DRunModeEntry *e )
 /**
  * This function absorbs/freeś path, so this is no longer available afterwards.
  */
-static void read_desktop_file ( DRunModePrivateData *pd, char *path, const char *filename )
+static void read_desktop_file ( DRunModePrivateData *pd, const char *root, char *path, const char *filename )
 {
-    for ( unsigned int index = 0; index < pd->history_length; index++ ) {
-        if ( g_strcmp0 ( path, pd->entry_list[index].path ) == 0 ) {
+    // Create ID.
+    char    *id    = g_strdup ( &( path[strlen ( root ) + 1] ) );
+    ssize_t id_len = strlen ( id );
+    for ( int index = 0; index < id_len; index++ ) {
+        if ( id[index] == '/' ) {
+            id[index] = '-';
+        }
+    }
+
+    for ( unsigned int index = 0; index < pd->cmd_list_length; index++ ) {
+        if ( g_strcmp0 ( id, pd->entry_list[index].id ) == 0 ) {
             g_free ( path );
+            g_free ( id );
             return;
         }
     }
@@ -152,6 +168,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, char *path, const char 
         g_error_free ( error );
         g_key_file_free ( kf );
         g_free ( path );
+        g_free ( id );
         return;
     }
     // Skip hidden entries.
@@ -159,6 +176,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, char *path, const char 
         if ( g_key_file_get_boolean ( kf, "Desktop Entry", "Hidden", NULL ) ) {
             g_key_file_free ( kf );
             g_free ( path );
+            g_free ( id );
             return;
         }
     }
@@ -167,12 +185,15 @@ static void read_desktop_file ( DRunModePrivateData *pd, char *path, const char 
         if ( g_key_file_get_boolean ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
             g_key_file_free ( kf );
             g_free ( path );
+            g_free ( id );
             return;
         }
     }
     if ( g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
         size_t nl = ( ( pd->cmd_list_length ) + 1 );
         pd->entry_list                               = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
+        pd->entry_list[pd->cmd_list_length].id       = id;
+        pd->entry_list[pd->cmd_list_length].root     = g_strdup ( root );
         pd->entry_list[pd->cmd_list_length].path     = path;
         pd->entry_list[pd->cmd_list_length].terminal = FALSE;
         if ( g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
@@ -191,6 +212,10 @@ static void read_desktop_file ( DRunModePrivateData *pd, char *path, const char 
         }
         ( pd->cmd_list_length )++;
     }
+    else {
+        g_free ( path );
+        g_free ( id );
+    }
 
     g_key_file_free ( kf );
 }
@@ -198,7 +223,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, char *path, const char 
 /**
  * Internal spider used to get list of executables.
  */
-static void walk_dir ( DRunModePrivateData *pd, const char *dirname )
+static void walk_dir ( DRunModePrivateData *pd, const char *root, const char *dirname )
 {
     DIR *dir;
 
@@ -244,11 +269,11 @@ static void walk_dir ( DRunModePrivateData *pd, const char *dirname )
         switch ( file->d_type )
         {
         case DT_REG:
-            read_desktop_file ( pd, filename, file->d_name );
+            read_desktop_file ( pd, root, filename, file->d_name );
             filename = NULL;
             break;
         case DT_DIR:
-            walk_dir ( pd, filename );
+            walk_dir ( pd, root, filename );
             break;
         default:
             break;
@@ -278,9 +303,14 @@ static void get_apps_history ( DRunModePrivateData *pd )
     gchar        **retv = history_get_list ( path, &length );
     g_free ( path );
     for ( unsigned int index = 0; index < length; index++ ) {
-        gchar *name = g_path_get_basename ( retv[index] );
-        read_desktop_file ( pd, retv[index], name );
-        g_free ( name );
+        char **st = g_strsplit ( retv[index], ":::", 2 );
+        if ( st && st[0] && st[1] ) {
+            gchar *name = g_path_get_basename ( st[1] );
+            printf ( ": %s\n", st[0] );
+            read_desktop_file ( pd, st[0], g_strdup ( st[1] ), name );
+            g_free ( name );
+        }
+        g_strfreev ( st );
     }
     g_free ( retv );
     pd->history_length = pd->cmd_list_length;
@@ -290,16 +320,18 @@ static void get_apps ( DRunModePrivateData *pd )
 {
     get_apps_history ( pd );
 
-    gchar               *dir;
+    gchar *dir;
+    // First read the user directory.
+    dir = g_build_filename ( g_get_user_data_dir (), "applications", NULL );
+    walk_dir ( pd, dir, dir );
+    g_free ( dir );
+    // Then read thee system data dirs.
     const gchar * const * sys = g_get_system_data_dirs ();
     for (; *sys != NULL; ++sys ) {
         dir = g_build_filename ( *sys, "applications", NULL );
-        walk_dir ( pd, dir );
+        walk_dir ( pd, dir, dir );
         g_free ( dir );
     }
-    dir = g_build_filename ( g_get_user_data_dir (), "applications", NULL );
-    walk_dir ( pd, dir );
-    g_free ( dir );
 }
 
 static int drun_mode_init ( Mode *sw )
@@ -313,6 +345,7 @@ static int drun_mode_init ( Mode *sw )
 }
 static void drun_entry_clear ( DRunModeEntry *e )
 {
+    g_free ( e->root );
     g_free ( e->path );
     g_free ( e->exec );
     g_free ( e->name );
