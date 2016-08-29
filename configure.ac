@@ -52,6 +52,11 @@ AC_ARG_ENABLE(gcov,
 AC_ARG_ENABLE(asan,
               [  --enable-asan           asan],
               [AM_CFLAGS="${AM_CFLAGS} -fsanitize=address -fno-omit-frame-pointer -g3"])
+
+
+AC_ARG_ENABLE(broken-drun,
+              [  --enable-broken-drun           drun],
+              [AM_CFLAGS="${AM_CFLAGS} -DBROKEN_DRUN"])
 dnl ---------------------------------------------------------------------
 dnl Disable window mode
 dnl ---------------------------------------------------------------------
