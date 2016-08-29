@@ -25,6 +25,7 @@
  *
  */
 #include <config.h>
+#ifdef ENABLE_DRUN
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -576,3 +577,5 @@ Mode drun_mode =
     .private_data       = NULL,
     .free               = NULL
 };
+
+#endif // ENABLE_DRUN

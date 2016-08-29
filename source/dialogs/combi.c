@@ -80,9 +80,11 @@ static void combi_mode_parse_switchers ( Mode *sw )
         else if ( strcasecmp ( token, "run" ) == 0 ) {
             pd->switchers[pd->num_switchers++] = &run_mode;
         }
+        #ifdef ENABLE_DRUN
         else if ( strcasecmp ( token, "drun" ) == 0 ) {
             pd->switchers[pd->num_switchers++] = &drun_mode;
         }
+#endif  // ENABLE_DRUN
         else {
             // If not build in, use custom switchers.
             Mode *sw = script_switcher_parse_setup ( token );

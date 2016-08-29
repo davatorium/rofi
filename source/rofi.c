@@ -368,7 +368,7 @@ static int add_mode ( const char * token )
         modi[num_modi] = &run_mode;
         num_modi++;
     }
-#ifdef BROKEN_DRUN
+#ifdef ENABLE_DRUN
     else if ( strcasecmp ( token, "drun" ) == 0 ) {
         modi[num_modi] = &drun_mode;
         num_modi++;
@@ -410,7 +410,9 @@ static void setup_modi ( void )
     // and re-alloc moves that pointer.
     mode_set_config ( &ssh_mode );
     mode_set_config ( &run_mode );
+#ifdef ENABLE_DRUN
     mode_set_config ( &drun_mode );
+#endif
 
 #ifdef WINDOW_MODE
     mode_set_config ( &window_mode );

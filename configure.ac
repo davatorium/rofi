@@ -54,9 +54,11 @@ AC_ARG_ENABLE(asan,
               [AM_CFLAGS="${AM_CFLAGS} -fsanitize=address -fno-omit-frame-pointer -g3"])
 
 
-AC_ARG_ENABLE(broken-drun,
-              [  --enable-broken-drun           drun],
-              [AM_CFLAGS="${AM_CFLAGS} -DBROKEN_DRUN"])
+dnl --------------------------------------------------------------------
+dnl DRun dialog
+dnl --------------------------------------------------------------------
+AC_ARG_ENABLE([drun], AC_HELP_STRING([--enable-drun],[Enable desktop file run dialog]))
+AS_IF([test "x${enable_drun}" == "xyes"], [AC_DEFINE([ENABLE_DRUN], [1], [Enable desktop file run dialog])])
 dnl ---------------------------------------------------------------------
 dnl Disable window mode
 dnl ---------------------------------------------------------------------
@@ -116,6 +118,16 @@ if test x$enable_timings = xyes; then
 echo "Timing output:               Enabled"
 else
 echo "Timing output:               Disabled"
+fi
+if test x$enable_drun = xyes; then
+echo "Desktop File run dialog      Enabled"
+else
+echo "Desktop File run dialog      Disabled"
+fi
+if test x$enable_windowmode != xno; then
+echo "Window Switcher dialog       Enabled"
+else
+echo "Window Switcher dialog       Disabled"
 fi
 echo "-------------------------------------"
 echo "Now type 'make' to build"
