@@ -368,10 +368,12 @@ static int add_mode ( const char * token )
         modi[num_modi] = &run_mode;
         num_modi++;
     }
+    /*
     else if ( strcasecmp ( token, "drun" ) == 0 ) {
         modi[num_modi] = &drun_mode;
         num_modi++;
     }
+    */
     // combi dialog
     else if ( strcasecmp ( token, "combi" ) == 0 ) {
         modi[num_modi] = &combi_mode;
