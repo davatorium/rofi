@@ -171,6 +171,17 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, char 
         g_free ( id );
         return;
     }
+    // Skip non Application entries.
+    if ( g_key_file_has_key ( kf, "Desktop Entry", "Type", NULL )){
+        gchar *key = g_key_file_get_string ( kf, "Desktop Entry", "Type", NULL );
+        if ( g_strcmp0(key, "Application")){
+            g_free(key);
+            g_key_file_free ( kf );
+            g_free ( path );
+            g_free ( id );
+            return;
+        }
+    }
     // Skip hidden entries.
     if ( g_key_file_has_key ( kf, "Desktop Entry", "Hidden", NULL ) ) {
         if ( g_key_file_get_boolean ( kf, "Desktop Entry", "Hidden", NULL ) ) {
@@ -192,6 +203,14 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, char 
     // Name key is required.
     if ( !g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
         fprintf(stderr, "Invalid DesktopFile: '%s', no 'Name' key present.\n", path);
+        g_key_file_free ( kf );
+        g_free ( path );
+        g_free ( id );
+        return;
+    }
+    // We need Exec, don't support DBusActivatable
+    if ( !g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
+        fprintf(stderr, "DesktopFile has no Exec option, DBusActivatable is not supported: '%s'\n", path);
         g_key_file_free ( kf );
         g_free ( path );
         g_free ( id );
@@ -310,7 +329,6 @@ static void get_apps_history ( DRunModePrivateData *pd )
         char **st = g_strsplit ( retv[index], ":::", 2 );
         if ( st && st[0] && st[1] ) {
             gchar *name = g_path_get_basename ( st[1] );
-            printf ( ": %s\n", st[0] );
             read_desktop_file ( pd, st[0], g_strdup ( st[1] ), name );
             g_free ( name );
         }
