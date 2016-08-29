@@ -189,6 +189,14 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, char 
             return;
         }
     }
+    // Name key is required.
+    if ( !g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
+        fprintf(stderr, "Invalid DesktopFile: '%s', no 'Name' key present.\n", path);
+        g_key_file_free ( kf );
+        g_free ( path );
+        g_free ( id );
+        return;
+    }
     if ( g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
         size_t nl = ( ( pd->cmd_list_length ) + 1 );
         pd->entry_list                               = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
@@ -196,15 +204,11 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, char 
         pd->entry_list[pd->cmd_list_length].root     = g_strdup ( root );
         pd->entry_list[pd->cmd_list_length].path     = path;
         pd->entry_list[pd->cmd_list_length].terminal = FALSE;
-        if ( g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
+        {
             gchar *n  = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
-            gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
             pd->entry_list[pd->cmd_list_length].name         = n;
+            gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
             pd->entry_list[pd->cmd_list_length].generic_name = gn;
-        }
-        else {
-            pd->entry_list[pd->cmd_list_length].name         = g_filename_display_name ( filename );
-            pd->entry_list[pd->cmd_list_length].generic_name = NULL;
         }
         pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
         if ( g_key_file_has_key ( kf, "Desktop Entry", "Terminal", NULL ) ) {
