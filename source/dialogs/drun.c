@@ -113,20 +113,85 @@ typedef struct
     unsigned int  history_length;
 } DRunModePrivateData;
 
+struct RegexEvalArg
+{
+    DRunModeEntry *e;
+    gboolean      success;
+};
+static gboolean drun_helper_eval_cb ( const GMatchInfo *info, GString *res, gpointer data )
+{
+    // TODO quoting is not right? Find description not very clear, need to check.
+    struct RegexEvalArg *e = (struct RegexEvalArg *) data;
+
+    gchar               *match;
+    // Get the match
+    match = g_match_info_fetch ( info, 0 );
+    if ( match != NULL ) {
+        switch ( match[1] )
+        {
+        // Unsupported
+        case 'f':
+        case 'F':
+        case 'u':
+        case 'U':
+        case 'i':
+        // Deprecated
+        case 'd':
+        case 'D':
+        case 'n':
+        case 'N':
+        case 'v':
+        case 'm':
+            break;
+        case 'k':
+            if ( e->e->path ) {
+                char *esc = g_shell_quote ( e->e->path );
+                g_string_append ( res, esc );
+                g_free ( esc );
+            }
+            break;
+        case 'c':
+            if ( e->e->name ) {
+                char *esc = g_shell_quote ( e->e->name );
+                g_string_append ( res, esc );
+                g_free ( esc );
+            }
+            break;
+        // Invalid, this entry should not be processed -> throw error.
+        default:
+            e->success = FALSE;
+            g_free ( match );
+            return TRUE;
+        }
+        g_free ( match );
+    }
+    // Continue replacement.
+    return FALSE;
+}
 static void exec_cmd_entry ( DRunModeEntry *e )
 {
-    // strip % arguments
-    gchar *str = g_strdup ( e->exec );
-    for ( ssize_t i = 0; str != NULL && str[i] != '\0'; i++ ) {
-        if ( str[i] == '%' ) {
-            while ( str[i] != ' ' && str[i] != '\0' ) {
-                str[i++] = ' ';
-            }
-            // We might have hit '\0' in prev. loop, break out of for then.
-            if ( str[i] == '\0' ) {
-                break;
-            }
-        }
+    GError *error = NULL;
+    GRegex *reg   = g_regex_new ( "%[a-zA-Z]", 0, 0, &error );
+    if ( error != NULL ) {
+        fprintf ( stderr, "Internal error, failed to create regex: %s.\n", error->message );
+        g_error_free ( error );
+        return;
+    }
+    struct RegexEvalArg earg = { .e = e, .success = TRUE };
+    char                *str = g_regex_replace_eval ( reg, e->exec, -1, 0, 0, drun_helper_eval_cb, &earg, &error );
+    if ( error != NULL ) {
+        fprintf ( stderr, "Internal error, failed replace field codes: %s.\n", error->message );
+        g_error_free ( error );
+        return;
+    }
+    g_regex_unref ( reg );
+    if ( earg.success == FALSE ) {
+        fprintf ( stderr, "Invalid field code in Exec line: %s.\n", e->exec );;
+        return;
+    }
+    if ( str == NULL ) {
+        fprintf ( stderr, "Nothing to execute after processing: %s.\n", e->exec );;
+        return;
     }
     gchar *fp = rofi_expand_path ( g_strstrip ( str ) );
     if ( execsh ( fp, e->terminal ) ) {
@@ -172,15 +237,22 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, char 
         return;
     }
     // Skip non Application entries.
-    if ( g_key_file_has_key ( kf, "Desktop Entry", "Type", NULL )){
+    if ( g_key_file_has_key ( kf, "Desktop Entry", "Type", NULL ) ) {
         gchar *key = g_key_file_get_string ( kf, "Desktop Entry", "Type", NULL );
-        if ( g_strcmp0(key, "Application")){
-            g_free(key);
+        if ( g_strcmp0 ( key, "Application" ) ) {
+            g_free ( key );
             g_key_file_free ( kf );
             g_free ( path );
             g_free ( id );
             return;
         }
+    }
+    else {
+        // No type? ignore.
+        g_key_file_free ( kf );
+        g_free ( path );
+        g_free ( id );
+        return;
     }
     // Skip hidden entries.
     if ( g_key_file_has_key ( kf, "Desktop Entry", "Hidden", NULL ) ) {
@@ -202,7 +274,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, char 
     }
     // Name key is required.
     if ( !g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
-        fprintf(stderr, "Invalid DesktopFile: '%s', no 'Name' key present.\n", path);
+        fprintf ( stderr, "Invalid DesktopFile: '%s', no 'Name' key present.\n", path );
         g_key_file_free ( kf );
         g_free ( path );
         g_free ( id );
@@ -210,7 +282,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, char 
     }
     // We need Exec, don't support DBusActivatable
     if ( !g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
-        fprintf(stderr, "DesktopFile has no Exec option, DBusActivatable is not supported: '%s'\n", path);
+        fprintf ( stderr, "DesktopFile has no Exec option, DBusActivatable is not supported: '%s'\n", path );
         g_key_file_free ( kf );
         g_free ( path );
         g_free ( id );
@@ -224,8 +296,8 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, char 
         pd->entry_list[pd->cmd_list_length].path     = path;
         pd->entry_list[pd->cmd_list_length].terminal = FALSE;
         {
-            gchar *n  = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
-            pd->entry_list[pd->cmd_list_length].name         = n;
+            gchar *n = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
+            pd->entry_list[pd->cmd_list_length].name = n;
             gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
             pd->entry_list[pd->cmd_list_length].generic_name = gn;
         }
