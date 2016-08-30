@@ -113,6 +113,9 @@ typedef struct
     DRunModeEntry *entry_list;
     unsigned int  cmd_list_length;
     unsigned int  history_length;
+    // List of disabled entries.
+    char          **disabled_entries;
+    unsigned int  disabled_entries_length;
 } DRunModePrivateData;
 
 struct RegexEvalArg
@@ -222,6 +225,14 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         }
     }
 
+    // Check if item is on disabled list.
+    for ( unsigned int ind = 0; ind < pd->disabled_entries_length; ind++ ) {
+        if ( g_strcmp0 ( pd->disabled_entries[ind], id ) == 0 ) {
+            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping: %s, was previously disabled.", id );
+            return;
+        }
+    }
+
     for ( unsigned int index = 0; index < pd->cmd_list_length; index++ ) {
         if ( g_strcmp0 ( id, pd->entry_list[index].id ) == 0 ) {
             return;
@@ -254,14 +265,22 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     g_free ( key );
     // Skip hidden entries.
     if ( g_key_file_get_boolean ( kf, "Desktop Entry", "Hidden", NULL ) ) {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping desktop file: %s because: Hidden", path );
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Adding desktop file: %s to disabled list because: Hdden", path );
         g_key_file_free ( kf );
+        pd->disabled_entries                                  = g_realloc ( pd->disabled_entries, ( pd->disabled_entries_length + 2 ) * sizeof ( char* ) );
+        pd->disabled_entries[pd->disabled_entries_length]     = g_strdup ( id );
+        pd->disabled_entries[pd->disabled_entries_length + 1] = NULL;
+        pd->disabled_entries_length++;
         return;
     }
     // Skip entries that have NoDisplay set.
     if ( g_key_file_get_boolean ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping desktop file: %s because: NoDisplay", path );
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Adding desktop file: %s to disabled list because: NoDisplay", path );
         g_key_file_free ( kf );
+        pd->disabled_entries                                  = g_realloc ( pd->disabled_entries, ( pd->disabled_entries_length + 2 ) * sizeof ( char* ) );
+        pd->disabled_entries[pd->disabled_entries_length]     = g_strdup ( id );
+        pd->disabled_entries[pd->disabled_entries_length + 1] = NULL;
+        pd->disabled_entries_length++;
         return;
     }
     // Name key is required.
@@ -469,6 +488,7 @@ static void drun_mode_destroy ( Mode *sw )
         for ( size_t i = 0; i < rmpd->cmd_list_length; i++ ) {
             drun_entry_clear ( &( rmpd->entry_list[i] ) );
         }
+        g_strfreev ( rmpd->disabled_entries );
         g_free ( rmpd->entry_list );
         g_free ( rmpd );
         mode_set_private_data ( sw, NULL );
