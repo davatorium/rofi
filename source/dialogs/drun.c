@@ -216,7 +216,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
 {
     // Create ID on stack.
     // We know strlen (path ) > strlen(root)+1
-    const ssize_t id_len = strlen ( path ) - strlen ( root ) - 1;
+    const ssize_t id_len = strlen ( path ) - strlen ( root ) ;
     char          id[id_len];
     g_strlcpy ( id, &( path[strlen ( root ) + 1] ), id_len );
     for ( int index = 0; index < id_len; index++ ) {
@@ -235,6 +235,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
 
     for ( unsigned int index = 0; index < pd->cmd_list_length; index++ ) {
         if ( g_strcmp0 ( id, pd->entry_list[index].id ) == 0 ) {
+            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping: %s, previously parsed.", id );
             return;
         }
     }
@@ -323,6 +324,7 @@ static void walk_dir ( DRunModePrivateData *pd, const char *root, const char *di
 {
     DIR *dir;
 
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Checking directory %s for desktop files.", root );
     dir = opendir ( dirname );
     if ( dir == NULL ) {
         return;
