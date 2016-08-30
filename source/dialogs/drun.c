@@ -212,9 +212,9 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
 {
     // Create ID on stack.
     // We know strlen (path ) > strlen(root)+1
-    const ssize_t id_len  = strlen(path)-strlen(root) -1;
-    char id[id_len];
-    g_strlcpy (id,  &( path[strlen ( root ) + 1] ), id_len );
+    const ssize_t id_len = strlen ( path ) - strlen ( root ) - 1;
+    char          id[id_len];
+    g_strlcpy ( id, &( path[strlen ( root ) + 1] ), id_len );
     for ( int index = 0; index < id_len; index++ ) {
         if ( id[index] == '/' ) {
             id[index] = '-';
@@ -231,47 +231,47 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     g_key_file_load_from_file ( kf, path, 0, &error );
     // If error, skip to next entry
     if ( error != NULL ) {
-        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG,  "Failed to parse desktop file: %s because: %s", path, error->message);
+        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG, "Failed to parse desktop file: %s because: %s", path, error->message );
         g_error_free ( error );
         g_key_file_free ( kf );
         return;
     }
     // Skip non Application entries.
     gchar *key = g_key_file_get_string ( kf, "Desktop Entry", "Type", NULL );
-    if (key == NULL ) {
+    if ( key == NULL ) {
         // No type? ignore.
-        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG,  "Skipping desktop file: %s because: No type indicated", path);
+        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG, "Skipping desktop file: %s because: No type indicated", path );
         g_key_file_free ( kf );
         return;
     }
     if ( g_strcmp0 ( key, "Application" ) ) {
-        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG,  "Skipping desktop file: %s because: Not of type application (%s)", path, key);
+        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG, "Skipping desktop file: %s because: Not of type application (%s)", path, key );
         g_free ( key );
         g_key_file_free ( kf );
         return;
-    } 
-    g_free(key);
+    }
+    g_free ( key );
     // Skip hidden entries.
     if ( g_key_file_get_boolean ( kf, "Desktop Entry", "Hidden", NULL ) ) {
-        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG,  "Skipping desktop file: %s because: Hidden", path);
+        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG, "Skipping desktop file: %s because: Hidden", path );
         g_key_file_free ( kf );
         return;
     }
     // Skip entries that have NoDisplay set.
     if ( g_key_file_get_boolean ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
-        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG,  "Skipping desktop file: %s because: NoDisplay", path);
+        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG, "Skipping desktop file: %s because: NoDisplay", path );
         g_key_file_free ( kf );
         return;
     }
     // Name key is required.
     if ( !g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
-        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG,  "Invalid DesktopFile: '%s', no 'Name' key present.\n", path );
+        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG, "Invalid DesktopFile: '%s', no 'Name' key present.\n", path );
         g_key_file_free ( kf );
         return;
     }
     // We need Exec, don't support DBusActivatable
     if ( !g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
-        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG,  "Unsupported DesktopFile: '%s', no 'Exec' key present.\n", path );
+        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG, "Unsupported DesktopFile: '%s', no 'Exec' key present.\n", path );
         g_key_file_free ( kf );
         return;
     }
@@ -286,7 +286,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         pd->entry_list[pd->cmd_list_length].name = n;
         gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
         pd->entry_list[pd->cmd_list_length].generic_name = gn;
-        pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
+        pd->entry_list[pd->cmd_list_length].exec         = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
         if ( g_key_file_has_key ( kf, "Desktop Entry", "Terminal", NULL ) ) {
             pd->entry_list[pd->cmd_list_length].terminal = g_key_file_get_boolean ( kf, "Desktop Entry", "Terminal", NULL );
         }
@@ -315,7 +315,10 @@ static void walk_dir ( DRunModePrivateData *pd, const char *root, const char *di
         if ( file->d_name[0] == '.' ) {
             continue;
         }
-
+        // Skip files not ending on .desktop.
+        if ( !g_str_has_suffix ( file->d_name, ".desktop" ) ) {
+            continue;
+        }
         switch ( file->d_type )
         {
         case DT_LNK:
