@@ -208,11 +208,13 @@ static void exec_cmd_entry ( DRunModeEntry *e )
 /**
  * This function absorbs/freeś path, so this is no longer available afterwards.
  */
-static void read_desktop_file ( DRunModePrivateData *pd, const char *root, char *path, const char *filename )
+static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const char *path )
 {
-    // Create ID.
-    char    *id    = g_strdup ( &( path[strlen ( root ) + 1] ) );
-    ssize_t id_len = strlen ( id );
+    // Create ID on stack.
+    // We know strlen (path ) > strlen(root)+1
+    const ssize_t id_len  = strlen(path)-strlen(root) -1;
+    char id[id_len];
+    g_strlcpy (id,  &( path[strlen ( root ) + 1] ), id_len );
     for ( int index = 0; index < id_len; index++ ) {
         if ( id[index] == '/' ) {
             id[index] = '-';
@@ -221,8 +223,6 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, char 
 
     for ( unsigned int index = 0; index < pd->cmd_list_length; index++ ) {
         if ( g_strcmp0 ( id, pd->entry_list[index].id ) == 0 ) {
-            g_free ( path );
-            g_free ( id );
             return;
         }
     }
@@ -231,86 +231,66 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, char 
     g_key_file_load_from_file ( kf, path, 0, &error );
     // If error, skip to next entry
     if ( error != NULL ) {
+        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG,  "Failed to parse desktop file: %s because: %s", path, error->message);
         g_error_free ( error );
         g_key_file_free ( kf );
-        g_free ( path );
-        g_free ( id );
         return;
     }
     // Skip non Application entries.
-    if ( g_key_file_has_key ( kf, "Desktop Entry", "Type", NULL ) ) {
-        gchar *key = g_key_file_get_string ( kf, "Desktop Entry", "Type", NULL );
-        if ( g_strcmp0 ( key, "Application" ) ) {
-            g_free ( key );
-            g_key_file_free ( kf );
-            g_free ( path );
-            g_free ( id );
-            return;
-        }
-    }
-    else {
+    gchar *key = g_key_file_get_string ( kf, "Desktop Entry", "Type", NULL );
+    if (key == NULL ) {
         // No type? ignore.
+        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG,  "Skipping desktop file: %s because: No type indicated", path);
         g_key_file_free ( kf );
-        g_free ( path );
-        g_free ( id );
         return;
     }
+    if ( g_strcmp0 ( key, "Application" ) ) {
+        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG,  "Skipping desktop file: %s because: Not of type application (%s)", path, key);
+        g_free ( key );
+        g_key_file_free ( kf );
+        return;
+    } 
+    g_free(key);
     // Skip hidden entries.
-    if ( g_key_file_has_key ( kf, "Desktop Entry", "Hidden", NULL ) ) {
-        if ( g_key_file_get_boolean ( kf, "Desktop Entry", "Hidden", NULL ) ) {
-            g_key_file_free ( kf );
-            g_free ( path );
-            g_free ( id );
-            return;
-        }
+    if ( g_key_file_get_boolean ( kf, "Desktop Entry", "Hidden", NULL ) ) {
+        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG,  "Skipping desktop file: %s because: Hidden", path);
+        g_key_file_free ( kf );
+        return;
     }
     // Skip entries that have NoDisplay set.
-    if ( g_key_file_has_key ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
-        if ( g_key_file_get_boolean ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
-            g_key_file_free ( kf );
-            g_free ( path );
-            g_free ( id );
-            return;
-        }
+    if ( g_key_file_get_boolean ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
+        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG,  "Skipping desktop file: %s because: NoDisplay", path);
+        g_key_file_free ( kf );
+        return;
     }
     // Name key is required.
     if ( !g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
-        fprintf ( stderr, "Invalid DesktopFile: '%s', no 'Name' key present.\n", path );
+        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG,  "Invalid DesktopFile: '%s', no 'Name' key present.\n", path );
         g_key_file_free ( kf );
-        g_free ( path );
-        g_free ( id );
         return;
     }
     // We need Exec, don't support DBusActivatable
     if ( !g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
-        fprintf ( stderr, "DesktopFile has no Exec option, DBusActivatable is not supported: '%s'\n", path );
+        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG,  "Unsupported DesktopFile: '%s', no 'Exec' key present.\n", path );
         g_key_file_free ( kf );
-        g_free ( path );
-        g_free ( id );
         return;
     }
-    if ( g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
+    {
         size_t nl = ( ( pd->cmd_list_length ) + 1 );
         pd->entry_list                               = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
-        pd->entry_list[pd->cmd_list_length].id       = id;
+        pd->entry_list[pd->cmd_list_length].id       = g_strdup ( id );
         pd->entry_list[pd->cmd_list_length].root     = g_strdup ( root );
-        pd->entry_list[pd->cmd_list_length].path     = path;
+        pd->entry_list[pd->cmd_list_length].path     = g_strdup ( path );
         pd->entry_list[pd->cmd_list_length].terminal = FALSE;
-        {
-            gchar *n = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
-            pd->entry_list[pd->cmd_list_length].name = n;
-            gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
-            pd->entry_list[pd->cmd_list_length].generic_name = gn;
-        }
+        gchar *n = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
+        pd->entry_list[pd->cmd_list_length].name = n;
+        gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
+        pd->entry_list[pd->cmd_list_length].generic_name = gn;
         pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
         if ( g_key_file_has_key ( kf, "Desktop Entry", "Terminal", NULL ) ) {
             pd->entry_list[pd->cmd_list_length].terminal = g_key_file_get_boolean ( kf, "Desktop Entry", "Terminal", NULL );
         }
         ( pd->cmd_list_length )++;
-    }
-    else {
-        g_free ( path );
-        g_free ( id );
     }
 
     g_key_file_free ( kf );
@@ -365,8 +345,7 @@ static void walk_dir ( DRunModePrivateData *pd, const char *root, const char *di
         switch ( file->d_type )
         {
         case DT_REG:
-            read_desktop_file ( pd, root, filename, file->d_name );
-            filename = NULL;
+            read_desktop_file ( pd, root, filename );
             break;
         case DT_DIR:
             walk_dir ( pd, root, filename );
@@ -401,9 +380,7 @@ static void get_apps_history ( DRunModePrivateData *pd )
     for ( unsigned int index = 0; index < length; index++ ) {
         char **st = g_strsplit ( retv[index], ":::", 2 );
         if ( st && st[0] && st[1] ) {
-            gchar *name = g_path_get_basename ( st[1] );
-            read_desktop_file ( pd, st[0], g_strdup ( st[1] ), name );
-            g_free ( name );
+            read_desktop_file ( pd, st[0], st[1] );
         }
         g_strfreev ( st );
     }
