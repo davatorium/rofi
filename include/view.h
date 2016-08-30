@@ -157,5 +157,9 @@ void rofi_view_workers_finalize ( void );
 
 void __create_window ( MenuFlags menu_flags );
 void rofi_view_set_overlay ( RofiViewState *state, const char *text );
+/**
+ * Unmap the window.
+ */
+void rofi_view_hide ( void );
 /**@}*/
 #endif

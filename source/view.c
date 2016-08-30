@@ -1863,6 +1863,13 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     return TRUE;
 }
 
+void rofi_view_hide ( void )
+{
+    if ( CacheState.main_window != XCB_WINDOW_NONE ) {
+        xcb_unmap_window ( xcb->connection, CacheState.main_window );
+    }
+}
+
 void rofi_view_cleanup ()
 {
     if ( CacheState.fake_bg ) {

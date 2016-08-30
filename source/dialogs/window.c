@@ -559,6 +559,7 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
             act_on_window ( rmpd->ids->array[selected_line] );
         }
         else {
+            rofi_view_hide ();
             // Get the current desktop.
             unsigned int              current_desktop = 0;
             xcb_get_property_cookie_t c               = xcb_ewmh_get_current_desktop ( &xcb->ewmh, xcb->screen_nbr );
