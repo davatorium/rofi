@@ -47,6 +47,7 @@
 #include "dialogs/drun.h"
 
 #define DRUN_CACHE_FILE    "rofi2.druncache"
+#define LOG_DOMAIN         "Dialogs.DRun"
 
 static inline int execsh ( const char *cmd, int run_in_term )
 {
@@ -231,7 +232,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     g_key_file_load_from_file ( kf, path, 0, &error );
     // If error, skip to next entry
     if ( error != NULL ) {
-        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG, "Failed to parse desktop file: %s because: %s", path, error->message );
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to parse desktop file: %s because: %s", path, error->message );
         g_error_free ( error );
         g_key_file_free ( kf );
         return;
@@ -240,12 +241,12 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     gchar *key = g_key_file_get_string ( kf, "Desktop Entry", "Type", NULL );
     if ( key == NULL ) {
         // No type? ignore.
-        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG, "Skipping desktop file: %s because: No type indicated", path );
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping desktop file: %s because: No type indicated", path );
         g_key_file_free ( kf );
         return;
     }
     if ( g_strcmp0 ( key, "Application" ) ) {
-        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG, "Skipping desktop file: %s because: Not of type application (%s)", path, key );
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping desktop file: %s because: Not of type application (%s)", path, key );
         g_free ( key );
         g_key_file_free ( kf );
         return;
@@ -253,25 +254,25 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     g_free ( key );
     // Skip hidden entries.
     if ( g_key_file_get_boolean ( kf, "Desktop Entry", "Hidden", NULL ) ) {
-        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG, "Skipping desktop file: %s because: Hidden", path );
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping desktop file: %s because: Hidden", path );
         g_key_file_free ( kf );
         return;
     }
     // Skip entries that have NoDisplay set.
     if ( g_key_file_get_boolean ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
-        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG, "Skipping desktop file: %s because: NoDisplay", path );
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping desktop file: %s because: NoDisplay", path );
         g_key_file_free ( kf );
         return;
     }
     // Name key is required.
     if ( !g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
-        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG, "Invalid DesktopFile: '%s', no 'Name' key present.\n", path );
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Invalid DesktopFile: '%s', no 'Name' key present.\n", path );
         g_key_file_free ( kf );
         return;
     }
     // We need Exec, don't support DBusActivatable
     if ( !g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
-        g_log ( "Dialogs.DRun", G_LOG_LEVEL_DEBUG, "Unsupported DesktopFile: '%s', no 'Exec' key present.\n", path );
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Unsupported DesktopFile: '%s', no 'Exec' key present.\n", path );
         g_key_file_free ( kf );
         return;
     }
