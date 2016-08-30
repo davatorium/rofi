@@ -72,6 +72,8 @@ rofi.tokenize:                       true
 rofi.m:                              -1
 ! "Margin between rows" Set from: File
 rofi.line-margin:                    3
+! "Padding within rows" Set from: Default
+! rofi.line-padding:                   1
 ! "Pre-set filter" Set from: Default
 ! rofi.filter:                         
 ! "Separator style (none, dash, solid)" Set from: File

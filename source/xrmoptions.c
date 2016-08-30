@@ -166,6 +166,8 @@ static XrmOption xrmOptions[] = {
       "Monitor id to show on", CONFIG_DEFAULT },
     { xrm_Number,  "line-margin",       { .num  = &config.line_margin          }, NULL,
       "Margin between rows", CONFIG_DEFAULT },
+    { xrm_Number,  "line-padding",      { .num  = &config.line_padding         }, NULL,
+      "Padding within rows", CONFIG_DEFAULT },
     { xrm_String,  "filter",            { .str  = &config.filter               }, NULL,
       "Pre-set filter", CONFIG_DEFAULT },
     { xrm_String,  "separator-style",   { .str  = &config.separator_style      }, NULL,

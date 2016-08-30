@@ -114,7 +114,8 @@ Settings config = {
     /** Monitor */
     .monitor           = "-5",
     /** set line margin */
-    .line_margin       =                                         2,
+    .line_margin  =                                         2,
+    .line_padding =                                         1,
     /** Set filter */
     .filter            = NULL,
     /** Separator style: dash/solid */

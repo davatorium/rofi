@@ -125,6 +125,7 @@ typedef struct
     char           *monitor;
     /** Line margin */
     unsigned int   line_margin;
+    unsigned int   line_padding;
     /** filter */
     char           *filter;
     /** style */

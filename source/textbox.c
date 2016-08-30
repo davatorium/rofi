@@ -36,9 +36,7 @@
 #include "mode.h"
 #include "view.h"
 
-#define SIDE_MARGIN    1
-
-#define DOT_OFFSET     15
+#define DOT_OFFSET    15
 
 /**
  * Font + font color cache.
@@ -225,7 +223,7 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     if ( tb->flags & TB_AUTOHEIGHT ) {
         // Width determines height!
         int tw = MAX ( 1, w );
-        pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tw - 2 * SIDE_MARGIN - offset ) );
+        pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tw - 2 * config.line_padding - offset ) );
         h = textbox_get_height ( tb );
     }
 
@@ -237,7 +235,7 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     }
 
     // We always want to update this
-    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - 2 * SIDE_MARGIN - offset ) );
+    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - 2 * config.line_padding - offset ) );
     tb->update = TRUE;
 }
 
@@ -306,20 +304,20 @@ static void texbox_update ( textbox *tb )
         }
 
         // Skip the side MARGIN on the X axis.
-        int x = SIDE_MARGIN + offset;
+        int x = config.line_padding + offset;
         int y = 0;
 
         if ( tb->flags & TB_RIGHT ) {
             int line_width = 0;
             // Get actual width.
             pango_layout_get_pixel_size ( tb->layout, &line_width, NULL );
-            x = ( tb->widget.w - line_width - SIDE_MARGIN - offset );
+            x = ( tb->widget.w - line_width - config.line_padding - offset );
         }
         else if ( tb->flags & TB_CENTER ) {
             int tw = textbox_get_font_width ( tb );
-            x = (  ( tb->widget.w - tw - 2 * SIDE_MARGIN - offset ) ) / 2;
+            x = (  ( tb->widget.w - tw - 2 * config.line_padding - offset ) ) / 2;
         }
-        y = SIDE_MARGIN + ( pango_font_metrics_get_ascent ( p_metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
+        y = config.line_padding + ( pango_font_metrics_get_ascent ( p_metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
         // Set ARGB
         Color col = tb->color_bg;
@@ -715,12 +713,12 @@ void textbox_cleanup ( void )
 int textbox_get_width ( const textbox *tb )
 {
     unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
-    return textbox_get_font_width ( tb ) + 2 * SIDE_MARGIN + offset;
+    return textbox_get_font_width ( tb ) + 2 * config.line_padding + offset;
 }
 
 int textbox_get_height ( const textbox *tb )
 {
-    return textbox_get_font_height ( tb ) + 2 * SIDE_MARGIN;
+    return textbox_get_font_height ( tb ) + 2 * config.line_padding;
 }
 
 int textbox_get_font_height ( const textbox *tb )
@@ -746,5 +744,5 @@ double textbox_get_estimated_char_width ( void )
 int textbox_get_estimated_char_height ( void )
 {
     int height = pango_font_metrics_get_ascent ( p_metrics ) + pango_font_metrics_get_descent ( p_metrics );
-    return ( height ) / PANGO_SCALE + 2 * SIDE_MARGIN;
+    return ( height ) / PANGO_SCALE + 2 * config.line_padding;
 }
