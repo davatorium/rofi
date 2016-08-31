@@ -56,6 +56,9 @@
 #include "x11-helper.h"
 #include "xkb-internal.h"
 
+int x11_is_randr_present ( void );
+void x11_build_monitor_layout_xinerama ( void );
+
 struct _xcb_stuff xcb_int = {
     .connection = NULL,
     .screen     = NULL,
@@ -215,7 +218,7 @@ static workarea * x11_get_monitor_from_output ( xcb_randr_output_t out )
     return retv;
 }
 
-uint8_t x11_is_randr_present () {
+int x11_is_randr_present () {
     xcb_query_extension_cookie_t randr_cookie = xcb_query_extension (
         xcb->connection,
         sizeof("RANDR")-1,
@@ -228,7 +231,15 @@ uint8_t x11_is_randr_present () {
         NULL
     );
 
-    return randr_reply->present;
+    uint8_t present = randr_reply->present;
+
+    free ( randr_reply );
+
+    if ( present ) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
 }
 
 void x11_build_monitor_layout_xinerama () {
