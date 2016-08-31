@@ -264,6 +264,14 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         return;
     }
     g_free ( key );
+
+    // Name key is required.
+    if ( !g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Invalid DesktopFile: '%s', no 'Name' key present.\n", path );
+        g_key_file_free ( kf );
+        return;
+    }
+
     // Skip hidden entries.
     if ( g_key_file_get_boolean ( kf, "Desktop Entry", "Hidden", NULL ) ) {
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Adding desktop file: %s to disabled list because: Hdden", path );
@@ -282,12 +290,6 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         pd->disabled_entries[pd->disabled_entries_length]     = g_strdup ( id );
         pd->disabled_entries[pd->disabled_entries_length + 1] = NULL;
         pd->disabled_entries_length++;
-        return;
-    }
-    // Name key is required.
-    if ( !g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Invalid DesktopFile: '%s', no 'Name' key present.\n", path );
-        g_key_file_free ( kf );
         return;
     }
     // We need Exec, don't support DBusActivatable
