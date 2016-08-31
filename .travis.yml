@@ -42,7 +42,7 @@ before_script:
     - sudo make install
     - cd -
     - autoreconf -i
-    - ./configure --enable-gcov
+    - ./configure --enable-gcov --enable-drun
 
 script:
     - make
