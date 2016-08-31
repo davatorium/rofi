@@ -21,7 +21,7 @@
 * libstartup-notification-1.0
 * libxkbcommon >= 0.5.0
 * libxkbcommon-x11
-* libxcb (sometimes split, you need libxcb, libxcb-xkb and libxcb-randr)
+* libxcb (sometimes split, you need libxcb, libxcb-xkb and libxcb-randr libxcb-xinerama)
 * xcb-util
 * xcb-util-wm (sometimes split as libxcb-ewmh and libxcb-icccm)
 * xcb-util-xrm [new module, can be found here](https://github.com/Airblader/xcb-util-xrm/)
