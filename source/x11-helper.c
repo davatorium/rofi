@@ -37,7 +37,9 @@
 
 #include <xcb/xcb.h>
 #include <xcb/randr.h>
+#include <xcb/xinerama.h>
 #include <xcb/xcb_ewmh.h>
+#include <xcb/xproto.h>
 #include "xcb-internal.h"
 #include "xcb.h"
 #include "settings.h"
@@ -213,8 +215,66 @@ static workarea * x11_get_monitor_from_output ( xcb_randr_output_t out )
     return retv;
 }
 
+uint8_t x11_is_randr_present () {
+    xcb_query_extension_cookie_t randr_cookie = xcb_query_extension (
+        xcb->connection,
+        sizeof("RANDR")-1,
+        "RANDR"
+    );
+
+    xcb_query_extension_reply_t *randr_reply = xcb_query_extension_reply (
+        xcb->connection,
+        randr_cookie,
+        NULL
+    );
+
+    return randr_reply->present;
+}
+
+void x11_build_monitor_layout_xinerama () {
+    xcb_xinerama_query_screens_cookie_t screens_cookie = xcb_xinerama_query_screens_unchecked (
+        xcb->connection
+    );
+
+    xcb_xinerama_query_screens_reply_t *screens_reply = xcb_xinerama_query_screens_reply (
+        xcb->connection,
+        screens_cookie,
+        NULL
+    );
+
+    xcb_xinerama_screen_info_iterator_t screens_iterator = xcb_xinerama_query_screens_screen_info_iterator (
+        screens_reply
+    );
+
+    for ( ; screens_iterator.rem > 0; xcb_xinerama_screen_info_next (&screens_iterator) ) {
+        workarea *w = g_malloc0 ( sizeof ( workarea ) );
+
+        w->x = screens_iterator.data->x_org;
+        w->y = screens_iterator.data->y_org;
+        w->w = screens_iterator.data->width;
+        w->h = screens_iterator.data->height;
+
+        if ( w ) {
+            w->next       = xcb->monitors;
+            xcb->monitors = w;
+        }
+    }
+
+    int index = 0;
+    for ( workarea *iter = xcb->monitors; iter; iter = iter->next ) {
+        iter->monitor_id = index++;
+    }
+
+    free ( screens_reply );
+}
+
 void x11_build_monitor_layout ()
 {
+    if ( !x11_is_randr_present () ) {
+        fprintf ( stderr, "Using XINERAMA instead of XRANDR\n" );
+        x11_build_monitor_layout_xinerama ();
+    }
+
     if ( xcb->monitors ) {
         return;
     }

@@ -153,6 +153,8 @@ cairo_surface_t * x11_helper_get_bg_surface ( void );
  * Creates an internal represenation of the available monitors.
  * Used for positioning rofi.
  */
+uint8_t x11_is_randr_present ( void );
+void x11_build_monitor_layout_xinerama ( void );
 void x11_build_monitor_layout ( void );
 void x11_dump_monitor_layout ( void );
 /*@}*/
