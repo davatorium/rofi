@@ -56,7 +56,7 @@
 #include "x11-helper.h"
 #include "xkb-internal.h"
 
-#define LOG_DOMAIN "X11Helper"
+#define LOG_DOMAIN    "X11Helper"
 
 struct _xcb_stuff xcb_int = {
     .connection = NULL,
@@ -217,34 +217,36 @@ static workarea * x11_get_monitor_from_output ( xcb_randr_output_t out )
     return retv;
 }
 
-static int x11_is_extension_present (const char *extension) {
-    xcb_query_extension_cookie_t randr_cookie = xcb_query_extension ( xcb->connection, strlen(extension), extension);
+static int x11_is_extension_present ( const char *extension )
+{
+    xcb_query_extension_cookie_t randr_cookie = xcb_query_extension ( xcb->connection, strlen ( extension ), extension );
 
-    xcb_query_extension_reply_t *randr_reply = xcb_query_extension_reply ( xcb->connection, randr_cookie, NULL);
+    xcb_query_extension_reply_t  *randr_reply = xcb_query_extension_reply ( xcb->connection, randr_cookie, NULL );
 
-    int present = randr_reply->present;
+    int                          present = randr_reply->present;
 
     free ( randr_reply );
 
     return present;
 }
 
-static void x11_build_monitor_layout_xinerama () {
+static void x11_build_monitor_layout_xinerama ()
+{
     xcb_xinerama_query_screens_cookie_t screens_cookie = xcb_xinerama_query_screens_unchecked (
         xcb->connection
-    );
+        );
 
     xcb_xinerama_query_screens_reply_t *screens_reply = xcb_xinerama_query_screens_reply (
         xcb->connection,
         screens_cookie,
         NULL
-    );
+        );
 
     xcb_xinerama_screen_info_iterator_t screens_iterator = xcb_xinerama_query_screens_screen_info_iterator (
         screens_reply
-    );
+        );
 
-    for ( ; screens_iterator.rem > 0; xcb_xinerama_screen_info_next (&screens_iterator) ) {
+    for (; screens_iterator.rem > 0; xcb_xinerama_screen_info_next ( &screens_iterator ) ) {
         workarea *w = g_malloc0 ( sizeof ( workarea ) );
 
         w->x = screens_iterator.data->x_org;
@@ -275,11 +277,14 @@ void x11_build_monitor_layout ()
     if ( !x11_is_extension_present ( "RANDR" ) ) {
         // Check if xinerama is available.
         if ( x11_is_extension_present ( "XINERAMA" ) ) {
-            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Using XINERAMA instead of XRANDR\n" );
+            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Query XINERAMA for monitor layout." );
             x11_build_monitor_layout_xinerama ();
+            return;
         }
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "No RANDR or Xinerama available for getting monitor layout." );
         return;
     }
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Query RANDR for monitor layout." );
 
     xcb_randr_get_screen_resources_current_reply_t  *res_reply;
     xcb_randr_get_screen_resources_current_cookie_t src;

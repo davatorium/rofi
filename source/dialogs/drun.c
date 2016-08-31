@@ -216,7 +216,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
 {
     // Create ID on stack.
     // We know strlen (path ) > strlen(root)+1
-    const ssize_t id_len = strlen ( path ) - strlen ( root ) ;
+    const ssize_t id_len = strlen ( path ) - strlen ( root );
     char          id[id_len];
     g_strlcpy ( id, &( path[strlen ( root ) + 1] ), id_len );
     for ( int index = 0; index < id_len; index++ ) {
