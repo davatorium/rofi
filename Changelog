@@ -1,3 +1,13 @@
+v1.3.0 (unreleased)
+	New Features
+		- Use randr for getting monitor layout. Fallback to xinerama if not available.
+		- Re-add fuzzy parser.
+	Improvements
+		- DRun mode more compatible with specification.
+		- Debug output via g_log.
+		- Fix password entry cursor position.
+	Removals
+	
 v1.2.0
 	New Features
 		- Highlight matched part of the string.
