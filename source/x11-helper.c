@@ -68,17 +68,6 @@ struct _xcb_stuff xcb_int = {
 };
 xcb_stuff         *xcb = &xcb_int;
 
-enum
-{
-    X11MOD_SHIFT,
-    X11MOD_CONTROL,
-    X11MOD_ALT,
-    X11MOD_META,
-    X11MOD_SUPER,
-    X11MOD_HYPER,
-    X11MOD_ANY,
-    NUM_X11MOD
-};
 
 xcb_depth_t         *depth           = NULL;
 xcb_visualtype_t    *visual          = NULL;
@@ -596,6 +585,11 @@ static void x11_figure_out_masks ( xkb_stuff *xkb )
     for ( i = 0; i < X11MOD_ANY; ++i ) {
         x11_mod_masks[X11MOD_ANY] |= x11_mod_masks[i];
     }
+}
+
+int x11_modifier_active ( unsigned int mask, int  key )
+{
+    return (x11_mod_masks[key]&mask) != 0;
 }
 
 unsigned int x11_canonalize_mask ( unsigned int mask )

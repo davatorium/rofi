@@ -1199,6 +1199,7 @@ static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_
         }
         for ( unsigned int i = 0; i < state->max_elements; i++ ) {
             if ( widget_intersect ( &( state->boxes[i]->widget ), xbe->event_x, xbe->event_y ) ) {
+                int control = x11_modifier_active ( xbe->state, X11MOD_CONTROL);
                 // Only allow items that are visible to be selected.
                 if ( ( state->last_offset + i ) >= state->filtered_lines ) {
                     break;
@@ -1206,8 +1207,11 @@ static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_
                 //
                 state->selected = state->last_offset + i;
                 state->update   = TRUE;
-                if ( ( xbe->time - state->last_button_press ) < 200 ) {
-                    state->retv              = MENU_OK;
+                if ( ( xbe->time - state->last_button_press ) < 200 || control ) {
+                    state->retv = MENU_OK;
+                    if ( control ) {
+                        state->retv |= MENU_CUSTOM_ACTION;
+                    }
                     ( state->selected_line ) = state->line_map[state->selected];
                     // Quit
                     state->quit        = TRUE;

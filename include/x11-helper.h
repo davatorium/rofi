@@ -46,6 +46,18 @@ enum { EWMH_ATOMS ( ATOM_ENUM ), NUM_NETATOMS };
 extern const char *netatom_names[];
 extern xcb_atom_t netatoms[NUM_NETATOMS];
 
+enum
+{
+    X11MOD_SHIFT,
+    X11MOD_CONTROL,
+    X11MOD_ALT,
+    X11MOD_META,
+    X11MOD_SUPER,
+    X11MOD_HYPER,
+    X11MOD_ANY,
+    NUM_X11MOD
+};
+
 typedef struct _workarea
 {
     int              monitor_id;
@@ -155,5 +167,6 @@ cairo_surface_t * x11_helper_get_bg_surface ( void );
  */
 void x11_build_monitor_layout ( void );
 void x11_dump_monitor_layout ( void );
+int x11_modifier_active ( unsigned int mask, int  key );
 /*@}*/
 #endif
