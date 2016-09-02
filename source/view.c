@@ -1867,6 +1867,8 @@ void rofi_view_hide ( void )
 {
     if ( CacheState.main_window != XCB_WINDOW_NONE ) {
         xcb_unmap_window ( xcb->connection, CacheState.main_window );
+        release_keyboard ( );
+        xcb_flush ( xcb->connection );
     }
 }
 
