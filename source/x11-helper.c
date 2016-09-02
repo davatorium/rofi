@@ -254,10 +254,8 @@ static void x11_build_monitor_layout_xinerama ()
         w->w = screens_iterator.data->width;
         w->h = screens_iterator.data->height;
 
-        if ( w ) {
-            w->next       = xcb->monitors;
-            xcb->monitors = w;
-        }
+        w->next       = xcb->monitors;
+        xcb->monitors = w;
     }
 
     int index = 0;
