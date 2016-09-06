@@ -1570,12 +1570,12 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
     switch ( ev->response_type & ~0x80 )
     {
     case XCB_FOCUS_IN:
-        if ( ( state->menu_flags & MENU_NORMAL_WINDOW ) == 0 ) {
+        if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
             take_keyboard ( CacheState.main_window );
         }
         break;
     case XCB_FOCUS_OUT:
-        if ( ( state->menu_flags & MENU_NORMAL_WINDOW ) == 0 ) {
+        if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
             release_keyboard ( );
         }
         break;
