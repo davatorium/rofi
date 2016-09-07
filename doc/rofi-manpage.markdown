@@ -176,7 +176,7 @@ Custom modes can be added using the internal 'script' mode. Each mode has two pa
 
 Example: Have a mode 'Workspaces' using the `i3_switch_workspace.sh` script:
 
-    rofi -modi "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
+    rofi -modi "window,run,ssh,Workspaces:i3_switch_workspace.sh" -show Workspaces
 
 `-case-sensitive`
 
