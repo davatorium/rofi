@@ -58,7 +58,7 @@
 
 #define LOG_DOMAIN    "X11Helper"
 
-struct _xcb_stuff xcb_int = {
+struct _xcb_stuff   xcb_int = {
     .connection = NULL,
     .screen     = NULL,
     .screen_nbr =   -1,
@@ -66,14 +66,13 @@ struct _xcb_stuff xcb_int = {
     .sncontext  = NULL,
     .monitors   = NULL
 };
-xcb_stuff         *xcb = &xcb_int;
+xcb_stuff           *xcb = &xcb_int;
 
-
-xcb_depth_t         *depth           = NULL;
-xcb_visualtype_t    *visual          = NULL;
-xcb_colormap_t      map              = XCB_COLORMAP_NONE;
-xcb_depth_t         *root_depth      = NULL;
-xcb_visualtype_t    *root_visual     = NULL;
+xcb_depth_t         *depth       = NULL;
+xcb_visualtype_t    *visual      = NULL;
+xcb_colormap_t      map          = XCB_COLORMAP_NONE;
+xcb_depth_t         *root_depth  = NULL;
+xcb_visualtype_t    *root_visual = NULL;
 xcb_atom_t          netatoms[NUM_NETATOMS];
 const char          *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 static unsigned int x11_mod_masks[NUM_X11MOD];
@@ -587,9 +586,9 @@ static void x11_figure_out_masks ( xkb_stuff *xkb )
     }
 }
 
-int x11_modifier_active ( unsigned int mask, int  key )
+int x11_modifier_active ( unsigned int mask, int key )
 {
-    return (x11_mod_masks[key]&mask) != 0;
+    return ( x11_mod_masks[key] & mask ) != 0;
 }
 
 unsigned int x11_canonalize_mask ( unsigned int mask )
@@ -948,4 +947,30 @@ void xcb_stuff_wipe ( xcb_stuff *xcb )
         xcb->screen     = NULL;
         xcb->screen_nbr = 0;
     }
+}
+
+void x11_disable_decoration ( xcb_window_t window )
+{
+#define  MWM_HINTS_FUNCTIONS      ( 1 << 0 )
+#define  MWM_HINTS_DECORATIONS    ( 1 << 1 )
+    struct MotifWMHints
+    {
+        uint32_t flags;
+        uint32_t functions;
+        uint32_t decorations;
+        int32_t  inputMode;
+        uint32_t state;
+    };
+
+    struct MotifWMHints hints;
+    hints.flags       = /*MWM_HINTS_FUNCTIONS |*/ MWM_HINTS_DECORATIONS;
+    hints.decorations = 0;
+    hints.functions   = 0;
+    hints.inputMode   = 0;
+    hints.state       = 0;
+
+    xcb_atom_t ha = netatoms[_MOTIF_WM_HINTS];
+    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, window, ha, ha, 32, 5, &hints );
+#undef MWM_HINTS_DECORATIONS
+#undef MWM_HINTS_FUNCTIONS
 }

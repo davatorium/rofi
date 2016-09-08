@@ -611,6 +611,7 @@ void __create_window ( MenuFlags menu_flags )
     }
     else{
         window_set_atom_prop ( box, xcb->ewmh._NET_WM_WINDOW_TYPE, &( xcb->ewmh._NET_WM_WINDOW_TYPE_NORMAL ), 1 );
+        x11_disable_decoration ( box );
     }
     if ( config.fullscreen ) {
         xcb_atom_t atoms[] = {
@@ -1199,7 +1200,7 @@ static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_
         }
         for ( unsigned int i = 0; i < state->max_elements; i++ ) {
             if ( widget_intersect ( &( state->boxes[i]->widget ), xbe->event_x, xbe->event_y ) ) {
-                int control = x11_modifier_active ( xbe->state, X11MOD_CONTROL);
+                int control = x11_modifier_active ( xbe->state, X11MOD_CONTROL );
                 // Only allow items that are visible to be selected.
                 if ( ( state->last_offset + i ) >= state->filtered_lines ) {
                     break;

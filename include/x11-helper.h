@@ -39,6 +39,7 @@ void window_set_atom_prop ( xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms, 
     X ( STRING ),                 \
     X ( WM_WINDOW_ROLE ),         \
     X ( _XROOTPMAP_ID ),          \
+    X ( _MOTIF_WM_HINTS ),        \
     X ( ESETROOT_PMAP_ID )
 
 enum { EWMH_ATOMS ( ATOM_ENUM ), NUM_NETATOMS };
@@ -167,6 +168,14 @@ cairo_surface_t * x11_helper_get_bg_surface ( void );
  */
 void x11_build_monitor_layout ( void );
 void x11_dump_monitor_layout ( void );
-int x11_modifier_active ( unsigned int mask, int  key );
+int x11_modifier_active ( unsigned int mask, int key );
+
+/**
+ * @param window The X11 window to modify
+ *
+ * Set the right hints to disable the window decoration.
+ * (Set MOTIF_WM_HINTS, decoration field)
+ */
+void x11_disable_decoration ( xcb_window_t window );
 /*@}*/
 #endif
