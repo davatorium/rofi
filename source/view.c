@@ -1582,6 +1582,9 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
         break;
     case XCB_MOTION_NOTIFY:
     {
+        if ( config.click_to_exit == TRUE ) {
+            state->mouse_seen = TRUE;
+        }
         xcb_motion_notify_event_t *xme = (xcb_motion_notify_event_t *) ev;
         if ( state->scrollbar != NULL &&
              xme->event_x >= state->scrollbar->widget.x && xme->event_x < ( state->scrollbar->widget.x + state->scrollbar->widget.w ) ) {
@@ -1592,6 +1595,18 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
     }
     case XCB_BUTTON_PRESS:
         rofi_view_mouse_navigation ( state, (xcb_button_press_event_t *) ev );
+        break;
+    case XCB_BUTTON_RELEASE:
+        if ( config.click_to_exit == TRUE ) {
+            if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
+                xcb_button_release_event_t *bre = (xcb_button_release_event_t *) ev;
+                if ( ( state->mouse_seen == FALSE ) && ( bre->event != CacheState.main_window ) ) {
+                    state->quit = TRUE;
+                    state->retv = MENU_CANCEL;
+                }
+            }
+            state->mouse_seen = FALSE;
+        }
         break;
     // Paste event.
     case XCB_SELECTION_NOTIFY:

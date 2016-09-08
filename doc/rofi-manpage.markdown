@@ -47,6 +47,7 @@
 [ -fake-transparency ]
 [ -matching *method* ]
 [ -tokenize ]
+[ -no-click-to-exit ]
 [ -threads *num* ]
 [ -config *filename* ]
 
@@ -174,9 +175,9 @@ Custom modes can be added using the internal 'script' mode. Each mode has two pa
 
     <name>:<script>
 
-Example: Have a mode 'Workspaces' using the `i3_switch_workspace.sh` script:
+Example: Have a mode 'Workspaces' using the `i3_switch_workspaces.sh` script:
 
-    rofi -modi "window,run,ssh,Workspaces:i3_switch_workspace.sh" -show Workspaces
+    rofi -modi "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
 
 `-case-sensitive`
 
@@ -645,6 +646,13 @@ file (currently only supports png).
 `-display-{mode}` *string*
 
 Set the name to use for mode. This is used as prompt and in combi-browser.
+
+`-click-to-exit`
+`-no-click-to-exit`
+
+Click the mouse outside of the **rofi** window to exit.
+
+Default: *enabled*
 
 ### Debug
 

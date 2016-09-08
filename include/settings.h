@@ -146,6 +146,8 @@ typedef struct
     char           *fake_background;
 
     char           *window_format;
+    /** Click outside the window to exit */
+    int            click_to_exit;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;
