@@ -190,7 +190,7 @@ static XrmOption xrmOptions[] = {
       "Background to use for fake transparency. (background or screenshot)", CONFIG_DEFAULT },
     { xrm_String,  "window-format",     { .str  = &config.window_format        }, NULL,
       "Window Format. w (desktop name), t (title), n (name), r (role), c (class)", CONFIG_DEFAULT },
-    { xrm_Boolean, "click-to-exit",     { .num  = &config.click_to_exit        }, NULL,
+    { xrm_Boolean, "click-to-exit",     { .snum  = &config.click_to_exit        }, NULL,
       "Click outside the window to exit", CONFIG_DEFAULT },
 };
 

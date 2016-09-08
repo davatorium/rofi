@@ -96,6 +96,8 @@ rofi.scroll-method:                  0
 rofi.fake-background:                screenshot
 ! "Window Format. w (desktop name), t (title), n (name), r (role), c (class)" Set from: File
 rofi.window-format:                  w   c   t
+! "Click outside the window to exit" Set from: Default
+! rofi.click-to-exit:                  true
 ! "Pidfile location" Set from: File
 rofi.pid:                            /tmp/1000-runtime-dir/rofi.pid
 ! "Paste primary selection" Set from: File
