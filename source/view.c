@@ -1670,6 +1670,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->border         = config.padding + config.menu_bw;
     state->x11_event_loop = rofi_view_mainloop_iter;
     state->finalize       = finalize;
+    state->mouse_seen     = FALSE;
 
     // Request the lines to show.
     state->num_lines = mode_get_num_entries ( sw );
