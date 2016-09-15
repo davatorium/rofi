@@ -654,7 +654,7 @@ static void rofi_view_calculate_rows_columns ( RofiViewState *state )
                                                                                        state->columns ) %
                                                                   state->columns ) / ( state->columns ) ) );
     // Always have at least one row.
-    state->max_rows = MAX ( 1, state->max_rows );
+    state->max_rows = MAX ( 0, state->max_rows );
 
     if ( config.fixed_num_lines == TRUE ) {
         state->max_elements = state->menu_lines * state->columns;

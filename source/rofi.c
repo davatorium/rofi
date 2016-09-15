@@ -87,7 +87,8 @@ unsigned int     curr_switcher = 0;
 GMainLoop        *main_loop        = NULL;
 GWaterXcbSource  *main_loop_source = NULL;
 
-static int       dmenu_mode = FALSE;
+static int       dmenu_mode  = FALSE;
+static int       dialog_mode = FALSE;
 
 int              return_code = EXIT_SUCCESS;
 
@@ -240,6 +241,7 @@ static void print_main_application_options ( void )
     print_help_msg ( "-no-config", "", "Do not load configuration, use default values.", NULL, is_term );
     print_help_msg ( "-v,-version", "", "Print the version number and exit.", NULL, is_term  );
     print_help_msg ( "-dmenu", "", "Start in dmenu mode.", NULL, is_term );
+    print_help_msg ( "-dialog", "", "Start in dialog mode.", NULL, is_term );
     print_help_msg ( "-display", "[string]", "X server to contact.", "${DISPLAY}", is_term );
     print_help_msg ( "-h,-help", "", "This help message.", NULL, is_term );
     print_help_msg ( "-dump-xresources", "", "Dump the current configuration in Xresources format and exit.", NULL, is_term );
@@ -571,7 +573,16 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
             g_main_loop_quit ( main_loop );
         }
     }
-    else if ( find_arg_str (  "-e", &( msg ) ) ) {
+    else if ( dialog_mode == TRUE ) {
+        // force off sidebar mode:
+        config.sidebar_mode = FALSE;
+        int retv = dmenu_switcher_dialog ();
+        if ( retv ) {
+            rofi_set_return_code ( EXIT_SUCCESS );
+            // Directly exit.
+            g_main_loop_quit ( main_loop );
+        }
+    } else if ( find_arg_str (  "-e", &( msg ) ) ) {
         int markup = FALSE;
         if ( find_arg ( "-markup" ) >= 0 ) {
             markup = TRUE;
@@ -645,6 +656,9 @@ int main ( int argc, char *argv[] )
         dmenu_mode = ( strcmp ( base_name, dmenu_str ) == 0 );
         // Free the basename for dmenu detection.
         g_free ( base_name );
+    }
+    if ( find_arg (  "-dialog" ) >= 0 ) {
+        dialog_mode = TRUE;
     }
     TICK ();
     // Get the path to the cache dir.
@@ -811,7 +825,7 @@ int main ( int argc, char *argv[] )
     if ( find_arg ( "-no-config" ) < 0 ) {
         load_configuration ( );
     }
-    if ( !dmenu_mode ) {
+    if ( !dmenu_mode && !dialog_mode ) {
         // setup_modi
         setup_modi ();
     }
