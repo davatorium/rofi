@@ -369,9 +369,12 @@ static int dmenu_mode_init ( Mode *sw )
         }
         g_free ( estr );
     }
-    pd->cmd_list = get_dmenu ( pd, fd == NULL ? stdin : fd, &( pd->cmd_list_length ) );
-    if ( fd != NULL ) {
-        fclose ( fd );
+
+    if ( find_arg ( "-dialog" ) < 0 ) {
+        pd->cmd_list = get_dmenu ( pd, fd == NULL ? stdin : fd, &( pd->cmd_list_length ) );
+        if ( fd != NULL ) {
+            fclose ( fd );
+        }
     }
 
     gchar *columns = NULL;
