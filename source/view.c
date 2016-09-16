@@ -182,7 +182,7 @@ static void menu_capture_screenshot ( void )
 /**
  * Calculates the window position
  */
-static void calculate_window_position ( void )
+static void rofi_view_calculate_window_position ( void )
 {
     if ( config.fullscreen ) {
         CacheState.x = CacheState.mon.x;
@@ -223,6 +223,17 @@ static void calculate_window_position ( void )
     // Apply offset.
     CacheState.x += config.x_offset;
     CacheState.y += config.y_offset;
+}
+
+static void rofi_view_window_update_size ( void )
+{
+    uint16_t mask   = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
+    uint32_t vals[] = { CacheState.x, CacheState.y, CacheState.width, CacheState.height };
+
+    // Display it.
+    xcb_configure_window ( xcb->connection, CacheState.main_window, mask, vals );
+    cairo_xcb_surface_set_size ( CacheState.surface, CacheState.width, CacheState.height );
+
 }
 
 void rofi_view_queue_redraw ( void  )
@@ -1782,7 +1793,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     }
 
     // Move the window to the correct x,y position.
-    calculate_window_position ( );
+    rofi_view_calculate_window_position ( );
 
     if ( config.sidebar_mode == TRUE ) {
         state->num_modi = rofi_get_num_enabled_modi ();
@@ -1795,14 +1806,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
                                               ( mode == state->sw ) ? HIGHLIGHT : NORMAL, mode_get_display_name ( mode  ) );
         }
     }
-    uint16_t mask   = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
-    uint32_t vals[] = { CacheState.x, CacheState.y, CacheState.width, CacheState.height };
-
-    // Display it.
-    xcb_configure_window ( xcb->connection, CacheState.main_window, mask, vals );
-    cairo_xcb_surface_set_size ( CacheState.surface, CacheState.width, CacheState.height );
-
-    // if grabbing keyboard failed, fall through
+    rofi_view_window_update_size ();
     state->selected = 0;
 
     state->quit   = FALSE;
@@ -1818,24 +1822,14 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // TODO move resize window into the 'active window' part.
     return state;
 }
-static void __error_dialog_event_loop ( RofiViewState *state, xcb_generic_event_t *ev, G_GNUC_UNUSED xkb_stuff *xkb )
-{
-    // Handle event.
-    switch ( ev->response_type & ~0x80 )
-    {
-    // Key press event.
-    case XCB_KEY_PRESS:
-        state->quit = TRUE;
-    }
-    rofi_view_update ( state );
-}
+
 int rofi_view_error_dialog ( const char *msg, int markup )
 {
     RofiViewState *state = __rofi_view_state_create ();
     state->retv           = MENU_CANCEL;
     state->update         = TRUE;
     state->border         = config.padding + config.menu_bw;
-    state->x11_event_loop = __error_dialog_event_loop;
+    state->x11_event_loop = rofi_view_mainloop_iter;
     state->menu_flags     = MENU_ERROR_DIALOG;
     state->finalize       = process_result;
 
@@ -1863,14 +1857,11 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     CacheState.height = state->line_height + ( state->border ) * 2;
 
     // Calculte window position.
-    calculate_window_position ( );
+    rofi_view_calculate_window_position ( );
 
     // Move the window to the correct x,y position.
-    uint16_t mask   = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
-    uint32_t vals[] = { CacheState.x, CacheState.y, CacheState.width, CacheState.height };
+    rofi_view_window_update_size ();
 
-    xcb_configure_window ( xcb->connection, CacheState.main_window, mask, vals );
-    cairo_xcb_surface_set_size ( CacheState.surface, CacheState.width, CacheState.height );
     // Display it.
     xcb_map_window ( xcb->connection, CacheState.main_window );
 
