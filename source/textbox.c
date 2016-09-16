@@ -373,6 +373,8 @@ void textbox_cursor ( textbox *tb, int pos )
     int length = ( tb->text == NULL ) ? 0 : g_utf8_strlen ( tb->text, -1 );
     tb->cursor = MAX ( 0, MIN ( length, pos ) );
     tb->update = TRUE;
+    // Stop blink!
+    tb->blink = 2;
 }
 
 // move right
@@ -459,6 +461,8 @@ void textbox_cursor_end ( textbox *tb )
     }
     tb->cursor = ( int ) g_utf8_strlen ( tb->text, -1 );
     tb->update = TRUE;
+    // Stop blink!
+    tb->blink = 2;
 }
 
 // insert text
@@ -477,6 +481,8 @@ void textbox_insert ( textbox *tb, const int char_pos, const char *str, const in
     memmove ( at, str, slen );
 
     // Set modified, lay out need te be redrawn
+    // Stop blink!
+    tb->blink = 2;
     tb->changed = TRUE;
     tb->update  = TRUE;
 }
@@ -504,6 +510,8 @@ void textbox_delete ( textbox *tb, int pos, int dlen )
         tb->cursor -= dlen;
     }
     // Set modified, lay out need te be redrawn
+    // Stop blink!
+    tb->blink = 2;
     tb->changed = TRUE;
     tb->update  = TRUE;
 }
@@ -640,7 +648,6 @@ gboolean textbox_append_char ( textbox *tb, const char *pad, const int pad_len )
 
     // Filter When alt/ctrl is pressed do not accept the character.
     if ( !g_unichar_iscntrl ( g_utf8_get_char ( pad ) ) ) {
-        tb->blink = 2;
         textbox_insert ( tb, tb->cursor, pad, pad_len );
         textbox_cursor ( tb, tb->cursor + 1 );
         return TRUE;
