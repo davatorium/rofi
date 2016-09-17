@@ -60,7 +60,7 @@
 #include "view.h"
 #include "view-internal.h"
 
-#define LOG_DOMAIN "View"
+#define LOG_DOMAIN    "View"
 
 #include "xcb.h"
 
@@ -93,7 +93,7 @@ struct
     .draw         = NULL,
     .flags        = MENU_NORMAL,
     .views        = G_QUEUE_INIT,
-    .idle_timeout = 0,
+    .idle_timeout =               0,
 };
 
 static char * get_matching_state ( void )
@@ -1358,13 +1358,13 @@ static void rofi_view_refilter ( RofiViewState *state )
         // Calculate the number or rows. We do this by getting the num_lines rounded up to X columns
         // (num elements is better name) then dividing by columns.
         unsigned int max_rows = MIN ( config.menu_lines, (unsigned int) ( ( state->filtered_lines + ( columns -
-                            state->filtered_lines % columns ) % columns ) / ( columns ) ) );
+                                                                                                      state->filtered_lines % columns ) % columns ) / ( columns ) ) );
         if ( max_rows != state->max_rows ) {
             rofi_view_calculate_height ( state, max_rows );
             rofi_view_resize ( state );
             rofi_view_calculate_window_position ( state );
             rofi_view_window_update_size ( state );
-            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Resize based on re-filter");
+            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Resize based on re-filter" );
         }
     }
     state->refilter = FALSE;
@@ -1943,7 +1943,7 @@ void rofi_view_hide ( void )
 
 void rofi_view_cleanup ()
 {
-    if ( CacheState.idle_timeout > 0 ){
+    if ( CacheState.idle_timeout > 0 ) {
         g_source_remove ( CacheState.idle_timeout );
         CacheState.idle_timeout = 0;
     }
