@@ -161,5 +161,6 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text );
  * Unmap the window.
  */
 void rofi_view_hide ( void );
+void rofi_view_reload ( void  );
 /**@}*/
 #endif
