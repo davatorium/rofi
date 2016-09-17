@@ -110,6 +110,19 @@ static void async_close_callback ( GObject *source_object, GAsyncResult *res, G_
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Closing data stream." );
 }
 
+static void read_add ( DmenuModePrivateData * pd, char *data, gsize len )
+{
+    if ( ( pd->cmd_list_length + 2 ) > pd->cmd_list_real_length ) {
+        pd->cmd_list_real_length = MAX ( pd->cmd_list_real_length * 2, 512 );
+        pd->cmd_list             = g_realloc ( pd->cmd_list, ( pd->cmd_list_real_length ) * sizeof ( char* ) );
+    }
+    char *utfstr = rofi_force_utf8 ( data, len );
+
+    pd->cmd_list[pd->cmd_list_length]     = utfstr;
+    pd->cmd_list[pd->cmd_list_length + 1] = NULL;
+
+    pd->cmd_list_length++;
+}
 static void async_read_callback ( GObject *source_object, GAsyncResult *res, gpointer user_data )
 {
     GDataInputStream     *stream = (GDataInputStream *) source_object;
@@ -120,17 +133,8 @@ static void async_read_callback ( GObject *source_object, GAsyncResult *res, gpo
         // Absorb separator, already in buffer so should not block.
         g_data_input_stream_read_byte ( stream, NULL, NULL );
 
-        if ( ( pd->cmd_list_length + 2 ) > pd->cmd_list_real_length ) {
-            pd->cmd_list_real_length = MAX ( pd->cmd_list_real_length * 2, 512 );
-            pd->cmd_list             = g_realloc ( pd->cmd_list, ( pd->cmd_list_real_length ) * sizeof ( char* ) );
-        }
-        char *utfstr = rofi_force_utf8 ( data, len );
-
-        pd->cmd_list[pd->cmd_list_length]     = utfstr;
-        pd->cmd_list[pd->cmd_list_length + 1] = NULL;
-
+        read_add ( pd, data, len );
         g_free ( data );
-        pd->cmd_list_length++;
         rofi_view_reload ();
 
         g_data_input_stream_read_upto_async ( pd->data_input_stream, &( pd->separator ), 1, G_PRIORITY_DEFAULT, pd->cancel,
@@ -149,10 +153,24 @@ static void async_read_cancel ( G_GNUC_UNUSED GCancellable *cancel, G_GNUC_UNUSE
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Cancelled the async read." );
 }
 
-static void get_dmenu ( DmenuModePrivateData *pd )
+static void get_dmenu_async ( DmenuModePrivateData *pd )
 {
     g_data_input_stream_read_upto_async ( pd->data_input_stream, &( pd->separator ), 1, G_PRIORITY_DEFAULT, pd->cancel,
                                           async_read_callback, pd );
+}
+static void get_dmenu_sync ( DmenuModePrivateData *pd )
+{
+    while  ( TRUE ) {
+        gsize len   = 0;
+        char  *data = g_data_input_stream_read_upto ( pd->data_input_stream, &( pd->separator ), 1, &len, NULL, NULL );
+        if ( data == NULL ) {
+            break;
+        }
+        g_data_input_stream_read_byte ( pd->data_input_stream, NULL, NULL );
+        read_add ( pd, data, len );
+        g_free ( data );
+    }
+    g_input_stream_close_async ( G_INPUT_STREAM ( pd->input_stream ), G_PRIORITY_DEFAULT, pd->cancel, async_close_callback, pd );
 }
 
 static unsigned int dmenu_mode_get_num_entries ( const Mode *sw )
@@ -410,8 +428,6 @@ static int dmenu_mode_init ( Mode *sw )
     pd->input_stream      = g_unix_input_stream_new ( fd, fd != STDIN_FILENO );
     pd->data_input_stream = g_data_input_stream_new ( pd->input_stream );
 
-    get_dmenu ( pd );
-
     gchar *columns = NULL;
     if ( find_arg_str ( "-display-columns", &columns ) ) {
         pd->columns          = g_strsplit ( columns, ",", 0 );
@@ -578,11 +594,23 @@ static void dmenu_finalize ( RofiViewState *state )
 int dmenu_switcher_dialog ( void )
 {
     mode_init ( &dmenu_mode );
-    MenuFlags            menu_flags      = MENU_NORMAL;
-    DmenuModePrivateData *pd             = (DmenuModePrivateData *) dmenu_mode.private_data;
-    char                 *input          = NULL;
-    unsigned int         cmd_list_length = pd->cmd_list_length;
-    char                 **cmd_list      = pd->cmd_list;
+    MenuFlags            menu_flags = MENU_NORMAL;
+    DmenuModePrivateData *pd        = (DmenuModePrivateData *) dmenu_mode.private_data;
+    int                  async      = TRUE;
+    // For now these only work in sync mode.
+    if ( find_arg ( "-sync" ) >= 0 || find_arg ( "-dump" ) >= 0 || find_arg ( "-select" ) >= 0
+         || find_arg ( "-no-custom" ) >= 0 || find_arg ( "-only-match" ) >= 0 || config.auto_select ) {
+        async = FALSE;
+    }
+    if ( async ) {
+        get_dmenu_async ( pd );
+    }
+    else {
+        get_dmenu_sync ( pd );
+    }
+    char         *input          = NULL;
+    unsigned int cmd_list_length = pd->cmd_list_length;
+    char         **cmd_list      = pd->cmd_list;
 
     pd->only_selected = FALSE;
     pd->multi_select  = FALSE;
@@ -637,7 +665,9 @@ int dmenu_switcher_dialog ( void )
     }
     RofiViewState *state = rofi_view_create ( &dmenu_mode, input, pd->prompt, pd->message, menu_flags, dmenu_finalize );
     // @TODO we should do this better.
-    rofi_view_set_overlay ( state, "Loading.. " );
+    if ( async ) {
+        rofi_view_set_overlay ( state, "Loading.. " );
+    }
     rofi_view_set_selected_line ( state, pd->selected_line );
     rofi_view_set_active ( state );
 
@@ -662,4 +692,5 @@ void print_dmenu_options ( void )
     print_help_msg ( "-markup-rows", "", "Allow and render pango markup as input data.", NULL, is_term );
     print_help_msg ( "-sep", "[char]", "Element separator.", "'\\n'", is_term );
     print_help_msg ( "-input", "[filename]", "Read input from file instead from standard input.", NULL, is_term );
+    print_help_msg ( "-sync", "", "Force dmenu to first read all input data, then show dialog.", NULL, is_term );
 }
