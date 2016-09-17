@@ -482,7 +482,7 @@ void textbox_insert ( textbox *tb, const int char_pos, const char *str, const in
 
     // Set modified, lay out need te be redrawn
     // Stop blink!
-    tb->blink = 2;
+    tb->blink   = 2;
     tb->changed = TRUE;
     tb->update  = TRUE;
 }
@@ -511,7 +511,7 @@ void textbox_delete ( textbox *tb, int pos, int dlen )
     }
     // Set modified, lay out need te be redrawn
     // Stop blink!
-    tb->blink = 2;
+    tb->blink   = 2;
     tb->changed = TRUE;
     tb->update  = TRUE;
 }
@@ -580,7 +580,7 @@ static void textbox_cursor_del_word ( textbox *tb )
 int textbox_keybinding ( textbox *tb, KeyBindingAction action )
 {
     if ( !( tb->flags & TB_EDITABLE ) ) {
-        g_return_val_if_reached ( 0 );
+        return 0;
     }
 
     switch ( action )
