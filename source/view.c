@@ -250,6 +250,7 @@ static gboolean rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
 
 void rofi_view_reload ( void  )
 {
+    // @TODO add check if current view is equal to the callee
     if ( CacheState.idle_timeout == 0 ) {
         CacheState.idle_timeout = g_timeout_add ( 1000 / 10, rofi_view_reload_idle, NULL );
     }

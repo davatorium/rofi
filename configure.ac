@@ -75,7 +75,7 @@ dnl ---------------------------------------------------------------------
 dnl Check for C functions.
 dnl ---------------------------------------------------------------------
 AC_CHECK_FUNC([getline],,  AC_MSG_ERROR("Could not find getline in c library"))
-AC_CHECK_FUNC([getdelim],, AC_MSG_ERROR("Could not find getdelim in c library"))
+AC_CHECK_FUNC([open],,     AC_MSG_ERROR("Could not find open in c library"))
 AC_CHECK_FUNC([sysconf],,  AC_MSG_ERROR("Could not find sysconf"))
 AC_CHECK_FUNC([getenv],,   AC_MSG_ERROR("Could not find getenv"))
 AC_CHECK_FUNC([strtok_r],, AC_MSG_ERROR("Could not find strtok_r"))
@@ -93,7 +93,7 @@ PKG_PROG_PKG_CONFIG
 dnl ---------------------------------------------------------------------
 dnl PKG_CONFIG based dependencies  
 dnl ---------------------------------------------------------------------
-PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40])
+PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40 gio-unix-2.0])
 GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon >= 0.5.0 xkbcommon-x11 xcb-ewmh xcb-icccm xcb-xrm xcb-randr xcb-xinerama])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])

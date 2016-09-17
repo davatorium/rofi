@@ -34,6 +34,11 @@
 #include <ctype.h>
 #include <stdint.h>
 #include <errno.h>
+#include <gio/gio.h>
+#include <gio/gunixinputstream.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include "rofi.h"
 #include "settings.h"
 #include "textbox.h"
@@ -41,8 +46,8 @@
 #include "helper.h"
 #include "xrmoptions.h"
 #include "view.h"
-// We limit at 1000000 rows for now.
-#define DMENU_MAX_ROWS    1000000
+
+#define LOG_DOMAIN    "Dialogs.DMenu"
 
 struct range_pair
 {
@@ -84,6 +89,7 @@ typedef struct
     unsigned int      do_markup;
     // List with entries.
     char              **cmd_list;
+    unsigned int      cmd_list_real_length;
     unsigned int      cmd_list_length;
     unsigned int      only_selected;
     unsigned int      selected_count;
@@ -91,47 +97,62 @@ typedef struct
     gchar             **columns;
     gchar             *column_separator;
     gboolean          multi_select;
+
+    GCancellable      *cancel;
+    gulong            cancel_source;
+    GInputStream      *input_stream;
+    GDataInputStream  *data_input_stream;
 } DmenuModePrivateData;
 
-static char **get_dmenu ( DmenuModePrivateData *pd, FILE *fd, unsigned int *length )
+static void async_close_callback ( GObject *source_object, GAsyncResult *res, G_GNUC_UNUSED gpointer user_data )
 {
-    TICK_N ( "Read stdin START" );
-    char         **retv   = NULL;
-    unsigned int rvlength = 1;
+    g_input_stream_close_finish ( G_INPUT_STREAM ( source_object ), res, NULL );
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Closing data stream." );
+}
 
-    *length = 0;
-    gchar   *data  = NULL;
-    size_t  data_l = 0;
-    ssize_t l      = 0;
-    while ( ( l = getdelim ( &data, &data_l, pd->separator, fd ) ) > 0 ) {
-        if ( rvlength < ( *length + 2 ) ) {
-            rvlength *= 2;
-            retv      = g_realloc ( retv, ( rvlength ) * sizeof ( char* ) );
-        }
-        if ( data[l - 1] == pd->separator ) {
-            data[l - 1] = '\0';
-            l--;
-        }
-        char *utfstr = rofi_force_utf8 ( data, l );
-
-        retv[( *length )] = utfstr;
-
-        ( *length )++;
-        // Stop when we hit 2³¹ entries.
-        if ( ( *length ) >= DMENU_MAX_ROWS ) {
-            break;
-        }
-    }
+static void async_read_callback ( GObject *source_object, GAsyncResult *res, gpointer user_data )
+{
+    GDataInputStream     *stream = (GDataInputStream *) source_object;
+    DmenuModePrivateData *pd     = (DmenuModePrivateData *) user_data;
+    gsize                len;
+    char                 *data = g_data_input_stream_read_upto_finish ( stream, res, &len, NULL );
     if ( data != NULL ) {
-        free ( data );
-        data = NULL;
+        // Absorb separator, already in buffer so should not block.
+        g_data_input_stream_read_byte ( stream, NULL, NULL );
+
+        if ( ( pd->cmd_list_length + 2 ) > pd->cmd_list_real_length ) {
+            pd->cmd_list_real_length = MAX ( pd->cmd_list_real_length * 2, 512 );
+            pd->cmd_list             = g_realloc ( pd->cmd_list, ( pd->cmd_list_real_length ) * sizeof ( char* ) );
+        }
+        char *utfstr = rofi_force_utf8 ( data, len );
+
+        pd->cmd_list[pd->cmd_list_length]     = utfstr;
+        pd->cmd_list[pd->cmd_list_length + 1] = NULL;
+
+        g_free ( data );
+        pd->cmd_list_length++;
+        rofi_view_reload ();
+
+        g_data_input_stream_read_upto_async ( pd->data_input_stream, &( pd->separator ), 1, G_PRIORITY_DEFAULT, pd->cancel,
+                                              async_read_callback, pd );
+        return;
     }
-    if ( retv != NULL ) {
-        retv               = g_realloc ( retv, ( *length + 1 ) * sizeof ( char* ) );
-        retv[( *length ) ] = NULL;
+    if ( !g_cancellable_is_cancelled ( pd->cancel ) ) {
+        // Hack, don't use get active.
+        rofi_view_set_overlay ( rofi_view_get_active (), NULL );
+        g_input_stream_close_async ( G_INPUT_STREAM ( stream ), G_PRIORITY_DEFAULT, pd->cancel, async_close_callback, pd );
     }
-    TICK_N ( "Read stdin STOP" );
-    return retv;
+}
+
+static void async_read_cancel ( G_GNUC_UNUSED GCancellable *cancel, G_GNUC_UNUSED gpointer data )
+{
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Cancelled the async read." );
+}
+
+static void get_dmenu ( DmenuModePrivateData *pd )
+{
+    g_data_input_stream_read_upto_async ( pd->data_input_stream, &( pd->separator ), 1, G_PRIORITY_DEFAULT, pd->cancel,
+                                          async_read_callback, pd );
 }
 
 static unsigned int dmenu_mode_get_num_entries ( const Mode *sw )
@@ -287,6 +308,21 @@ static void dmenu_mode_free ( Mode *sw )
     }
     DmenuModePrivateData *pd = (DmenuModePrivateData *) mode_get_private_data ( sw );
     if ( pd != NULL ) {
+        if ( pd->cancel  ) {
+            // If open, cancel reads.
+            if ( pd->input_stream && !g_input_stream_is_closed ( pd->input_stream ) ) {
+                g_cancellable_cancel ( pd->cancel );
+            }
+            // This blocks until cancel is done.
+            g_cancellable_disconnect ( pd->cancel, pd->cancel_source );
+            if ( pd->input_stream ) {
+                // Should close the stream if not yet done.
+                g_object_unref ( pd->data_input_stream );
+                g_object_unref ( pd->input_stream );
+            }
+            g_object_unref ( pd->cancel );
+        }
+
         for ( size_t i = 0; i < pd->cmd_list_length; i++ ) {
             if ( pd->cmd_list[i] ) {
                 free ( pd->cmd_list[i] );
@@ -355,12 +391,12 @@ static int dmenu_mode_init ( Mode *sw )
     if ( find_arg ( "-i" ) >= 0 ) {
         config.case_sensitive = FALSE;
     }
-    FILE *fd = NULL;
+    int fd = STDIN_FILENO;
     str = NULL;
     if ( find_arg_str ( "-input", &str ) ) {
         char *estr = rofi_expand_path ( str );
-        fd = fopen ( str, "r" );
-        if ( fd == NULL ) {
+        fd = open ( str, O_RDONLY );
+        if ( fd < 0 ) {
             char *msg = g_markup_printf_escaped ( "Failed to open file: <b>%s</b>:\n\t<i>%s</i>", estr, strerror ( errno ) );
             rofi_view_error_dialog ( msg, TRUE );
             g_free ( msg );
@@ -369,10 +405,12 @@ static int dmenu_mode_init ( Mode *sw )
         }
         g_free ( estr );
     }
-    pd->cmd_list = get_dmenu ( pd, fd == NULL ? stdin : fd, &( pd->cmd_list_length ) );
-    if ( fd != NULL ) {
-        fclose ( fd );
-    }
+    pd->cancel            = g_cancellable_new ();
+    pd->cancel_source     = g_cancellable_connect ( pd->cancel, G_CALLBACK ( async_read_cancel ), pd, NULL );
+    pd->input_stream      = g_unix_input_stream_new ( fd, fd != STDIN_FILENO );
+    pd->data_input_stream = g_data_input_stream_new ( pd->input_stream );
+
+    get_dmenu ( pd );
 
     gchar *columns = NULL;
     if ( find_arg_str ( "-display-columns", &columns ) ) {
@@ -597,8 +635,9 @@ int dmenu_switcher_dialog ( void )
         g_free ( input );
         return TRUE;
     }
-    // TODO remove
     RofiViewState *state = rofi_view_create ( &dmenu_mode, input, pd->prompt, pd->message, menu_flags, dmenu_finalize );
+    // @TODO we should do this better.
+    rofi_view_set_overlay ( state, "Loading.. " );
     rofi_view_set_selected_line ( state, pd->selected_line );
     rofi_view_set_active ( state );
 
