@@ -121,17 +121,19 @@ static void exec_cmd ( const char *cmd, int run_in_term )
         return;
     }
 
+    char *path = g_build_filename ( cache_dir, RUN_CACHE_FILE, NULL );
     if (  execsh ( lf_cmd, run_in_term ) ) {
         /**
          * This happens in non-critical time (After launching app)
          * It is allowed to be a bit slower.
          */
-        char *path = g_build_filename ( cache_dir, RUN_CACHE_FILE, NULL );
 
         history_set ( path, cmd );
-
-        g_free ( path );
     }
+    else {
+        history_remove ( path, cmd );
+    }
+    g_free ( path );
     g_free ( lf_cmd );
 }
 
