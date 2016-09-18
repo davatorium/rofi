@@ -405,7 +405,9 @@ static void rofi_view_resize ( RofiViewState *state )
         unsigned int last_length    = state->max_elements;
         int          element_height = state->line_height * config.element_height + config.line_margin;
         // Calculated new number of boxes.
-        int          h = ( state->height - state->top_offset - config.padding );
+        int          h = ( state->height - state->top_offset - state->border );
+        // We always have one line margin extra space, as the last one is removed in the final tally.
+        h += config.line_margin;
         if ( config.sidebar_mode == TRUE ) {
             h -= state->line_height + config.line_margin;
         }
@@ -419,7 +421,7 @@ static void rofi_view_resize ( RofiViewState *state )
                 h -= state->line_height + config.line_margin;
             }
         }
-        state->max_rows     = MAX ( 0, ( h / element_height ) );
+        state->max_rows = MAX ( 0, ( h / element_height ) );
         state->menu_lines   = state->max_rows;
         state->max_elements = state->max_rows * config.menu_columns;
         // Free boxes no longer needed.
@@ -1711,8 +1713,12 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
 
 static void rofi_view_calculate_height ( RofiViewState *state, int rows )
 {
-    int element_height = state->line_height * config.element_height;
-    state->height  = state->top_offset + ( element_height + config.line_margin ) * ( rows ) - config.line_margin;
+    int element_height = state->line_height * config.element_height + config.line_margin;
+    state->height = state->top_offset + ( element_height ) * ( rows );
+    // If multiple rows, subtrackt last line margin.
+    if ( rows > 0 ) {
+        state->height -= config.line_margin;
+    }
     state->height += state->border;
     // Add entry
     if ( config.sidebar_mode == TRUE ) {
