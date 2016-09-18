@@ -411,7 +411,7 @@ static void rofi_view_resize ( RofiViewState *state )
         }
         if ( h < 0 ) {
             fprintf ( stderr,
-                      "Current padding %u (on each side) does not fit within visible window %u.\n",
+                      "Current padding %u (on each side) does not fit within visible window %d.\n",
                       config.padding,
                       state->height );
             h = ( state->height - state->top_offset - state->height / 3 );
