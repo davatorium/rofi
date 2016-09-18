@@ -436,16 +436,12 @@ static inline void load_configuration ( )
     // Load in config from X resources.
     config_parse_xresource_options ( xcb );
     config_parse_xresource_options_file ( config_path );
-
-    // Parse command line for settings.
-    config_parse_cmd_options ( );
 }
 static inline void load_configuration_dynamic ( )
 {
     // Load in config from X resources.
     config_parse_xresource_options_dynamic ( xcb );
     config_parse_xresource_options_dynamic_file ( config_path );
-    config_parse_cmd_options_dynamic (  );
 }
 
 /**
@@ -811,6 +807,9 @@ int main ( int argc, char *argv[] )
     if ( find_arg ( "-no-config" ) < 0 ) {
         load_configuration ( );
     }
+    // Parse command line for settings, independent of other -no-config.
+    config_parse_cmd_options ( );
+
     if ( !dmenu_mode ) {
         // setup_modi
         setup_modi ();
@@ -820,6 +819,9 @@ int main ( int argc, char *argv[] )
         // Reload for dynamic part.
         load_configuration_dynamic ( );
     }
+    // Parse command line for settings, independent of other -no-config.
+    config_parse_cmd_options_dynamic (  );
+
     // Dump.
     // catch help request
     if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 || find_arg (  "--help" ) >= 0 ) {
