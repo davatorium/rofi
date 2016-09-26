@@ -189,8 +189,13 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
         return;
     }
 
-    // Default location is center.
-    state->y = CacheState.mon.y + ( CacheState.mon.h - state->height ) / 2;
+
+    if ( !config.fixed_num_lines && ( config.location == WL_CENTER || config.location == WL_EAST || config.location == WL_WEST )){
+        state->y = CacheState.mon.y + CacheState.mon.h /2 - state->top_offset;
+    }else {
+        // Default location is center.
+        state->y = CacheState.mon.y + ( CacheState.mon.h - state->height ) / 2;
+    }
     state->x = CacheState.mon.x + ( CacheState.mon.w - state->width ) / 2;
     // Determine window location
     switch ( config.location )
@@ -1356,7 +1361,7 @@ static void rofi_view_refilter ( RofiViewState *state )
         state->quit              = TRUE;
     }
     scrollbar_set_max_value ( state->scrollbar, state->filtered_lines );
-    if ( current_active_menu && config.fixed_num_lines == FALSE ) {
+    if ( current_active_menu && config.fixed_num_lines == FALSE  && ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
         int columns = config.menu_columns;
         // Calculate the number or rows. We do this by getting the num_lines rounded up to X columns
         // (num elements is better name) then dividing by columns.
