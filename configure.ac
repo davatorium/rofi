@@ -57,8 +57,8 @@ AC_ARG_ENABLE(asan,
 dnl --------------------------------------------------------------------
 dnl DRun dialog
 dnl --------------------------------------------------------------------
-AC_ARG_ENABLE([drun], AC_HELP_STRING([--enable-drun],[Enable desktop file run dialog]))
-AS_IF([test "x${enable_drun}" == "xyes"], [AC_DEFINE([ENABLE_DRUN], [1], [Enable desktop file run dialog])])
+AC_ARG_ENABLE([drun], AC_HELP_STRING([--disable-drun],[Disable desktop file run dialog]))
+AS_IF([test "x${enable_drun}" != "xno"], [AC_DEFINE([ENABLE_DRUN], [1], [Enable desktop file run dialog])])
 dnl ---------------------------------------------------------------------
 dnl Disable window mode
 dnl ---------------------------------------------------------------------
@@ -119,10 +119,10 @@ echo "Timing output:               Enabled"
 else
 echo "Timing output:               Disabled"
 fi
-if test x$enable_drun = xyes; then
-echo "Desktop File run dialog      Enabled"
+if test x$enable_drun != xno; then
+echo "Desktop File drun dialog     Enabled"
 else
-echo "Desktop File run dialog      Disabled"
+echo "Desktop File drun dialog     Disabled"
 fi
 if test x$enable_windowmode != xno; then
 echo "Window Switcher dialog       Enabled"
