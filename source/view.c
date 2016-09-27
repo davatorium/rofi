@@ -189,10 +189,10 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
         return;
     }
 
-
-    if ( !config.fixed_num_lines && ( config.location == WL_CENTER || config.location == WL_EAST || config.location == WL_WEST )){
-        state->y = CacheState.mon.y + CacheState.mon.h /2 - state->top_offset;
-    }else {
+    if ( !config.fixed_num_lines && ( config.location == WL_CENTER || config.location == WL_EAST || config.location == WL_WEST ) ) {
+        state->y = CacheState.mon.y + CacheState.mon.h / 2 - state->top_offset;
+    }
+    else {
         // Default location is center.
         state->y = CacheState.mon.y + ( CacheState.mon.h - state->height ) / 2;
     }
@@ -393,7 +393,7 @@ static void rofi_view_resize ( RofiViewState *state )
             textbox_moveresize ( state->modi[j],
                                  state->border + j * ( width + config.line_margin ), state->height - state->line_height - state->border,
                                  width, state->line_height );
-            textbox_draw ( state->modi[j], CacheState.draw );
+            widget_draw ( WIDGET ( state->modi[j] ), CacheState.draw );
         }
     }
     int entrybox_width = state->width - ( 2 * ( state->border ) );
@@ -426,7 +426,7 @@ static void rofi_view_resize ( RofiViewState *state )
                 h -= state->line_height + config.line_margin;
             }
         }
-        state->max_rows = MAX ( 0, ( h / element_height ) );
+        state->max_rows     = MAX ( 0, ( h / element_height ) );
         state->menu_lines   = state->max_rows;
         state->max_elements = state->max_rows * config.menu_columns;
         // Free boxes no longer needed.
@@ -998,7 +998,7 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
     unsigned int max_elements = MIN ( a_lines, state->max_rows * columns );
 
     scrollbar_set_handle_length ( state->scrollbar, columns * state->max_rows );
-    scrollbar_draw ( state->scrollbar, d );
+    widget_draw ( WIDGET ( state->scrollbar ), d );
     // Element width.
     unsigned int element_width = state->width - ( 2 * ( state->border ) );
     if ( state->scrollbar != NULL ) {
@@ -1042,7 +1042,7 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
                 pango_attr_list_unref ( list );
                 g_free ( text );
             }
-            textbox_draw ( state->boxes[i], d );
+            widget_draw ( WIDGET ( state->boxes[i] ), d );
         }
         tokenize_free ( tokens );
         state->rchanged = FALSE;
@@ -1055,7 +1055,7 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
             mode_get_display_value ( state->sw, state->line_map[i + offset], &fstate, FALSE );
             TextBoxFontType tbft = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
             textbox_font ( state->boxes[i], tbft );
-            textbox_draw ( state->boxes[i], d );
+            widget_draw ( WIDGET ( state->boxes[i] ), d );
         }
     }
 }
@@ -1111,16 +1111,16 @@ void rofi_view_update ( RofiViewState *state )
         rofi_view_draw ( state, d );
     }
     if ( state->prompt_tb ) {
-        textbox_draw ( state->prompt_tb, d );
+        widget_draw ( WIDGET ( state->prompt_tb ), d );
     }
     if ( state->text ) {
-        textbox_draw ( state->text, d );
+        widget_draw ( WIDGET ( state->text ), d );
     }
     if ( state->case_indicator ) {
-        textbox_draw ( state->case_indicator, d );
+        widget_draw ( WIDGET ( state->case_indicator ), d );
     }
     if ( state->message_tb ) {
-        textbox_draw ( state->message_tb, d );
+        widget_draw ( WIDGET ( state->message_tb ), d );
     }
     color_separator ( d );
 
@@ -1152,12 +1152,12 @@ void rofi_view_update ( RofiViewState *state )
     if ( config.sidebar_mode == TRUE ) {
         for ( unsigned int j = 0; j < state->num_modi; j++ ) {
             if ( state->modi[j] != NULL ) {
-                textbox_draw ( state->modi[j], d );
+                widget_draw ( WIDGET ( state->modi[j] ), d );
             }
         }
     }
     if ( state->overlay ) {
-        textbox_draw ( state->overlay, d );
+        widget_draw ( WIDGET ( state->overlay ), d );
     }
     state->update = FALSE;
 
@@ -1361,7 +1361,7 @@ static void rofi_view_refilter ( RofiViewState *state )
         state->quit              = TRUE;
     }
     scrollbar_set_max_value ( state->scrollbar, state->filtered_lines );
-    if ( current_active_menu && config.fixed_num_lines == FALSE  && ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
+    if ( current_active_menu && config.fixed_num_lines == FALSE && ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
         int columns = config.menu_columns;
         // Calculate the number or rows. We do this by getting the num_lines rounded up to X columns
         // (num elements is better name) then dividing by columns.

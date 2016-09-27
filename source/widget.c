@@ -43,3 +43,10 @@ void widget_disable ( Widget *widget )
         widget->enabled = FALSE;
     }
 }
+void widget_draw ( Widget *widget, cairo_t *d )
+{
+    // Check if enabled and if draw is implemented.
+    if ( widget && widget->enabled && widget->draw ) {
+        widget->draw ( widget, d );
+    }
+}

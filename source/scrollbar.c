@@ -29,14 +29,17 @@
 #include "x11-helper.h"
 #include "settings.h"
 
+static void scrollbar_draw ( Widget *widget, cairo_t *draw );
+
 scrollbar *scrollbar_create ( short x, short y, short w, short h )
 {
     scrollbar *sb = g_malloc0 ( sizeof ( scrollbar ) );
 
-    sb->widget.x = x;
-    sb->widget.y = y;
-    sb->widget.w = MAX ( 1, w );
-    sb->widget.h = MAX ( 1, h );
+    sb->widget.x    = x;
+    sb->widget.y    = y;
+    sb->widget.w    = MAX ( 1, w );
+    sb->widget.h    = MAX ( 1, h );
+    sb->widget.draw = scrollbar_draw;
 
     sb->length     = 10;
     sb->pos        = 0;
@@ -75,26 +78,25 @@ void scrollbar_set_handle_length ( scrollbar *sb, unsigned int pos_length )
     }
 }
 
-void scrollbar_draw ( scrollbar *sb, cairo_t *draw )
+static void scrollbar_draw ( Widget *widget, cairo_t *draw )
 {
-    if ( sb != NULL && sb->widget.enabled ) {
-        // Calculate position and size.
-        const short bh     = sb->widget.h - 0;
-        float       sec    = ( ( bh ) / (float) sb->length );
-        short       height = sb->pos_length * sec;
-        short       y      = sb->pos * sec;
-        // Set max pos.
-        y = MIN ( y, bh - 2 );
-        // Never go out of bar.
-        height = MAX ( 2, height );
-        // Cap length;
-        height = MIN ( bh - y + 1, ( height ) );
-        // Redraw base window
-        color_separator ( draw );
+    scrollbar   *sb = (scrollbar *) widget;
+    // Calculate position and size.
+    const short bh     = sb->widget.h - 0;
+    float       sec    = ( ( bh ) / (float) sb->length );
+    short       height = sb->pos_length * sec;
+    short       y      = sb->pos * sec;
+    // Set max pos.
+    y = MIN ( y, bh - 2 );
+    // Never go out of bar.
+    height = MAX ( 2, height );
+    // Cap length;
+    height = MIN ( bh - y + 1, ( height ) );
+    // Redraw base window
+    color_separator ( draw );
 
-        cairo_rectangle ( draw, sb->widget.x + config.line_margin, sb->widget.y + y, sb->widget.w - config.line_margin, height );
-        cairo_fill ( draw );
-    }
+    cairo_rectangle ( draw, sb->widget.x + config.line_margin, sb->widget.y + y, sb->widget.w - config.line_margin, height );
+    cairo_fill ( draw );
 }
 void scrollbar_resize ( scrollbar *sb, int w, int h )
 {

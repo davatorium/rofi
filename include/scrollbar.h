@@ -65,14 +65,6 @@ void scrollbar_set_max_value ( scrollbar *sb, unsigned int max );
 
 /**
  * @param sb scrollbar object
- * @param draw the cairo object used to draw itself
- *
- * Draw the scrollbar, used after expose event or update
- */
-void scrollbar_draw ( scrollbar *sb, cairo_t *draw );
-
-/**
- * @param sb scrollbar object
  * @param y  clicked position
  *
  * Calculate the position of the click relative to the max value of bar

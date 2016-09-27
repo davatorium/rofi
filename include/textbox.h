@@ -96,14 +96,6 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft );
  */
 void textbox_text ( textbox *tb, const char *text );
 
-/**
- * @param tb  Handle to the textbox
- * @param draw The cairo object used to draw itself.
- *
- * Render the textbox.
- */
-void textbox_draw ( textbox *tb, cairo_t *draw );
-
 int textbox_keybinding ( textbox *tb, KeyBindingAction action );
 /**
  * @param tb Handle to the textbox

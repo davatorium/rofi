@@ -38,6 +38,8 @@
 
 #define DOT_OFFSET    15
 
+static void textbox_draw ( Widget *tb, cairo_t *draw );
+
 /**
  * Font + font color cache.
  * Avoid re-loading font on every change on every textbox.
@@ -75,7 +77,8 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
 {
     textbox *tb = g_slice_new0 ( textbox );
 
-    tb->flags = flags;
+    tb->widget.draw = textbox_draw;
+    tb->flags       = flags;
 
     tb->widget.x = x;
     tb->widget.y = y;
@@ -269,8 +272,8 @@ void textbox_free ( textbox *tb )
 
 static void texbox_update ( textbox *tb )
 {
-    unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
     if ( tb->update ) {
+        unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
         if ( tb->main_surface ) {
             cairo_destroy ( tb->main_draw );
             cairo_surface_destroy ( tb->main_surface );
@@ -353,11 +356,9 @@ static void texbox_update ( textbox *tb )
         tb->update = FALSE;
     }
 }
-void textbox_draw ( textbox *tb, cairo_t *draw )
+static void textbox_draw ( Widget *widget, cairo_t *draw )
 {
-    if ( tb->widget.enabled == FALSE ) {
-        return;
-    }
+    textbox *tb = (textbox *) widget;
     texbox_update ( tb );
 
     /* Write buffer */

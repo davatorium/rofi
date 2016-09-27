@@ -1,6 +1,7 @@
 #ifndef ROFI_WIDGET_H
 #define ROFI_WIDGET_H
 
+#include <cairo.h>
 /**
  * @defgroup Widgets Widgets
  *
@@ -8,7 +9,7 @@
  *
  * @{
  */
-typedef struct
+typedef struct _Widget
 {
     /** X position relative to parent */
     short    x;
@@ -20,10 +21,13 @@ typedef struct
     short    h;
     /** enabled or not */
     gboolean enabled;
+    /** Function prototypes */
+
+    void ( *draw )( struct _Widget *tb, cairo_t *draw );
 } Widget;
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
-#define WIDGET( a )    ( a != NULL ? &( a->widget ) : NULL )
+#define WIDGET( a )    ( a != NULL ? (Widget *) ( a ) : NULL )
 
 /**
  * @param widget The widget to check
@@ -48,6 +52,14 @@ void widget_move ( Widget *widget, short x, short y );
 gboolean widget_enabled ( Widget *widget );
 void widget_disable ( Widget *widget );
 void widget_enable ( Widget *widget );
+
+/**
+ * @param tb  Handle to the widget
+ * @param draw The cairo object used to draw itself.
+ *
+ * Render the textbox.
+ */
+void widget_draw ( Widget *widget, cairo_t *d );
 
 /*@}*/
 #endif // ROFI_WIDGET_H
