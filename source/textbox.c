@@ -38,7 +38,8 @@
 
 #define DOT_OFFSET    15
 
-static void textbox_draw ( Widget *tb, cairo_t *draw );
+static void textbox_draw ( Widget *, cairo_t * );
+static void textbox_free ( Widget * );
 
 /**
  * Font + font color cache.
@@ -78,6 +79,7 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
     textbox *tb = g_slice_new0 ( textbox );
 
     tb->widget.draw = textbox_draw;
+    tb->widget.free = textbox_free;
     tb->flags       = flags;
 
     tb->widget.x = x;
@@ -243,11 +245,9 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 }
 
 // will also unmap the window if still displayed
-void textbox_free ( textbox *tb )
+static void textbox_free ( Widget *widget  )
 {
-    if ( tb == NULL ) {
-        return;
-    }
+    textbox *tb = (textbox *) widget;
     if ( tb->blink_timeout > 0 ) {
         g_source_remove ( tb->blink_timeout );
         tb->blink_timeout = 0;

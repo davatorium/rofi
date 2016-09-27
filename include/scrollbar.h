@@ -34,13 +34,6 @@ scrollbar *scrollbar_create ( short x, short y, short w, short h );
 
 /**
  * @param sb scrollbar object
- *
- * Free the resources used by the scrollbar.
- */
-void scrollbar_free ( scrollbar *sb );
-
-/**
- * @param sb scrollbar object
  * @param pos_length new length
  *
  * set the length of the handle relative to the max value of bar.

@@ -50,3 +50,9 @@ void widget_draw ( Widget *widget, cairo_t *d )
         widget->draw ( widget, d );
     }
 }
+void widget_free ( Widget *widget )
+{
+    if ( widget ) {
+        widget->free ( widget );
+    }
+}

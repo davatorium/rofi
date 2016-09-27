@@ -75,13 +75,6 @@ textbox* textbox_create ( TextboxFlags flags,
                           const char *text );
 /**
  * @param tb  Handle to the textbox
- *
- * Free the textbox and all allocated memory.
- */
-void textbox_free ( textbox *tb );
-
-/**
- * @param tb  Handle to the textbox
  * @param tbft The style of font to render.
  *
  * Set the font render style.

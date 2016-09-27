@@ -129,6 +129,6 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERT ( box->widget.x == 12 );
     TASSERT ( box->widget.y == 13 );
 
-    textbox_free ( box );
+    widget_free ( WIDGET ( box ) );
     textbox_cleanup ( );
 }

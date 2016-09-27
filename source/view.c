@@ -323,16 +323,14 @@ void rofi_view_free ( RofiViewState *state )
 {
     // Do this here?
     // Wait for final release?
-    textbox_free ( state->text );
-    textbox_free ( state->prompt_tb );
-    textbox_free ( state->case_indicator );
-    scrollbar_free ( state->scrollbar );
-    if ( state->overlay ) {
-        textbox_free ( state->overlay );
-    }
+    widget_free ( WIDGET ( state->text ) );
+    widget_free ( WIDGET ( state->prompt_tb ) );
+    widget_free ( WIDGET ( state->case_indicator ) );
+    widget_free ( WIDGET ( state->scrollbar ) );
+    widget_free ( WIDGET ( state->overlay ) );
 
     for ( unsigned int i = 0; i < state->max_elements; i++ ) {
-        textbox_free ( state->boxes[i] );
+        widget_free ( WIDGET ( state->boxes[i] ) );
     }
 
     g_free ( state->boxes );
@@ -342,7 +340,7 @@ void rofi_view_free ( RofiViewState *state )
     // When state is free'ed we should no longer need these.
     if ( config.sidebar_mode == TRUE ) {
         for ( unsigned int j = 0; j < state->num_modi; j++ ) {
-            textbox_free ( state->modi[j] );
+            widget_free ( WIDGET ( state->modi[j] ) );
             state->modi[j] = NULL;
         }
         g_free ( state->modi );
@@ -431,7 +429,7 @@ static void rofi_view_resize ( RofiViewState *state )
         state->max_elements = state->max_rows * config.menu_columns;
         // Free boxes no longer needed.
         for ( unsigned int i = state->max_elements; i < last_length; i++ ) {
-            textbox_free ( state->boxes[i] );
+            widget_free ( WIDGET ( state->boxes[i] ) );
         }
         // resize array.
         state->boxes = g_realloc ( state->boxes, state->max_elements * sizeof ( textbox* ) );

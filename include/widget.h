@@ -23,7 +23,8 @@ typedef struct _Widget
     gboolean enabled;
     /** Function prototypes */
 
-    void ( *draw )( struct _Widget *tb, cairo_t *draw );
+    void ( *draw )( struct _Widget *widget, cairo_t *draw );
+    void ( *free )( struct _Widget *widget );
 } Widget;
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
@@ -60,6 +61,13 @@ void widget_enable ( Widget *widget );
  * Render the textbox.
  */
 void widget_draw ( Widget *widget, cairo_t *d );
+
+/**
+ * @param tb  Handle to the widget
+ *
+ * Free the widget and all allocated memory.
+ */
+void widget_free ( Widget *widget );
 
 /*@}*/
 #endif // ROFI_WIDGET_H

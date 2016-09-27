@@ -30,16 +30,19 @@
 #include "settings.h"
 
 static void scrollbar_draw ( Widget *widget, cairo_t *draw );
+static void scrollbar_free ( Widget * );
 
 scrollbar *scrollbar_create ( short x, short y, short w, short h )
 {
     scrollbar *sb = g_malloc0 ( sizeof ( scrollbar ) );
 
-    sb->widget.x    = x;
-    sb->widget.y    = y;
-    sb->widget.w    = MAX ( 1, w );
-    sb->widget.h    = MAX ( 1, h );
+    sb->widget.x = x;
+    sb->widget.y = y;
+    sb->widget.w = MAX ( 1, w );
+    sb->widget.h = MAX ( 1, h );
+
     sb->widget.draw = scrollbar_draw;
+    sb->widget.free = scrollbar_free;
 
     sb->length     = 10;
     sb->pos        = 0;
@@ -50,11 +53,10 @@ scrollbar *scrollbar_create ( short x, short y, short w, short h )
     return sb;
 }
 
-void scrollbar_free ( scrollbar *sb )
+static void scrollbar_free ( Widget *widget )
 {
-    if ( sb != NULL ) {
-        g_free ( sb );
-    }
+    scrollbar *sb = (scrollbar *) widget;
+    g_free ( sb );
 }
 
 void scrollbar_set_max_value ( scrollbar *sb, unsigned int max )
