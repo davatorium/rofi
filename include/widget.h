@@ -1,6 +1,6 @@
 #ifndef ROFI_WIDGET_H
 #define ROFI_WIDGET_H
-
+#include <glib.h>
 #include <cairo.h>
 /**
  * @defgroup Widgets Widgets
@@ -21,10 +21,16 @@ typedef struct _Widget
     short    h;
     /** enabled or not */
     gboolean enabled;
+    /** Information about packing. */
+    gboolean expand;
+    gboolean end;
     /** Function prototypes */
 
     void ( *draw )( struct _Widget *widget, cairo_t *draw );
     void ( *free )( struct _Widget *widget );
+    void ( *resize) ( struct _Widget *, short, short );
+    int  ( *get_width) ( struct _Widget *);
+    int  ( *get_height) ( struct _Widget *);
 } Widget;
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
@@ -69,5 +75,18 @@ void widget_draw ( Widget *widget, cairo_t *d );
  */
 void widget_free ( Widget *widget );
 
+/**
+ * @param widget The widget toresize  
+ * @param w The new width 
+ * @param h The new height 
+ *
+ * Resizes the widget.
+ */
+void widget_resize ( Widget *widget, short w, short h );
+
+
+int widget_get_height ( Widget *widget );
+int widget_get_width ( Widget *widget );
+Widget *widget_create (void );
 /*@}*/
 #endif // ROFI_WIDGET_H

@@ -23,11 +23,13 @@ rofi_SOURCES=\
 	source/keyb.c\
 	config/config.c\
 	source/helper.c\
+	source/box.c\
 	source/widget.c\
 	source/textbox.c\
 	source/timings.c\
 	source/history.c\
 	source/scrollbar.c\
+	source/separator.c\
 	source/xrmoptions.c\
 	source/x11-helper.c\
 	source/dialogs/run.c\
@@ -50,9 +52,11 @@ rofi_SOURCES=\
 	include/helper.h\
 	include/timings.h\
 	include/history.h\
+	include/box.h\
 	include/widget.h\
 	include/textbox.h\
 	include/scrollbar.h\
+	include/separator.h\
 	include/xrmoptions.h\
 	include/x11-helper.h\
 	include/dialogs/ssh.h\

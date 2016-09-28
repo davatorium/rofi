@@ -16,7 +16,6 @@
  *
  * @{
  */
-
 typedef struct
 {
     Widget          widget;
@@ -145,15 +144,6 @@ void textbox_cleanup ( void );
  * @returns the height of the textbox in pixels.
  */
 int textbox_get_height ( const textbox *tb );
-
-/**
- * @param tb Handle to the textbox
- *
- * Get the width of the textbox
- *
- * @returns the width of the textbox in pixels.
- */
-int textbox_get_width ( const textbox *tb );
 
 /**
  * @param tb Handle to the textbox

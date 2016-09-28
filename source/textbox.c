@@ -40,6 +40,8 @@
 
 static void textbox_draw ( Widget *, cairo_t * );
 static void textbox_free ( Widget * );
+static int textbox_get_width ( Widget * );
+static int _textbox_get_height ( Widget * );
 
 /**
  * Font + font color cache.
@@ -73,6 +75,12 @@ static gboolean textbox_blink ( gpointer data )
     return TRUE;
 }
 
+static void textbox_resize ( Widget *widget, short w, short h )
+{
+    textbox *tb = (textbox *)widget;
+    textbox_moveresize( tb, tb->widget.x, tb->widget.y, w, h );
+}
+
 textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h,
                           TextBoxFontType tbft, const char *text )
 {
@@ -80,6 +88,9 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
 
     tb->widget.draw = textbox_draw;
     tb->widget.free = textbox_free;
+    tb->widget.resize = textbox_resize;
+    tb->widget.get_width = textbox_get_width;
+    tb->widget.get_height = _textbox_get_height;
     tb->flags       = flags;
 
     tb->widget.x = x;
@@ -213,7 +224,8 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
     if ( tb->flags & TB_AUTOWIDTH ) {
         pango_layout_set_width ( tb->layout, -1 );
-        w = textbox_get_width ( tb );
+        unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+        w = textbox_get_font_width ( tb ) + 2 * config.line_padding + offset;
     }
     else {
         // set ellipsize
@@ -718,12 +730,31 @@ void textbox_cleanup ( void )
     }
 }
 
-int textbox_get_width ( const textbox *tb )
+int textbox_get_width ( Widget *widget )
 {
-    unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
-    return textbox_get_font_width ( tb ) + 2 * config.line_padding + offset;
+    textbox *tb = (textbox *)widget;
+    if ( !widget->expand ) {
+        if ( tb->flags & TB_AUTOWIDTH ) {
+            unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+            return textbox_get_font_width ( tb ) + 2 * config.line_padding + offset;
+        }
+        return tb->widget.w;
+    }
+    return tb->widget.w;
 }
 
+int _textbox_get_height ( Widget *widget )
+{
+    textbox *tb = (textbox *) widget;
+    if ( !widget->expand ) {
+        if ( tb->flags & TB_AUTOHEIGHT ) {
+            return textbox_get_height ( tb ); 
+        }
+        return tb->widget.h;
+    }
+    return tb->widget.h;
+
+}
 int textbox_get_height ( const textbox *tb )
 {
     return textbox_get_font_height ( tb ) + 2 * config.line_padding;

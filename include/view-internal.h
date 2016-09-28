@@ -3,6 +3,8 @@
 #include "widget.h"
 #include "textbox.h"
 #include "scrollbar.h"
+#include "separator.h"
+#include "box.h"
 #include "keyb.h"
 #include "x11-helper.h"
 
@@ -22,7 +24,6 @@ struct RofiViewState
     unsigned int     columns;
 
     unsigned int     element_width;
-    int              top_offset;
 
     // Update/Refilter list.
     int              update;
@@ -30,11 +31,17 @@ struct RofiViewState
     int              rchanged;
     unsigned int     cur_page;
 
+
+    Box              *main_box;
     // Entries
+    Box              *input_bar;
+    separator        *input_bar_separator;
+
     textbox          *text;
-    textbox          *prompt_tb;
-    textbox          *message_tb;
     textbox          *case_indicator;
+
+    Box              *list_bar;
+    Widget           *list_place_holder;
     textbox          **boxes;
     scrollbar        *scrollbar;
     // Small overlay.
@@ -63,6 +70,7 @@ struct RofiViewState
     workarea         mon;
 
     // Sidebar view
+    Box              *sidebar_bar;
     unsigned int     num_modi;
     textbox          **modi;
 

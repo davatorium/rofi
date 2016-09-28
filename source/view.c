@@ -53,6 +53,7 @@
 #include "helper.h"
 #include "textbox.h"
 #include "scrollbar.h"
+#include "separator.h"
 #include "x11-helper.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
@@ -190,7 +191,7 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
     }
 
     if ( !config.fixed_num_lines && ( config.location == WL_CENTER || config.location == WL_EAST || config.location == WL_WEST ) ) {
-        state->y = CacheState.mon.y + CacheState.mon.h / 2 - state->top_offset;
+        state->y = CacheState.mon.y + CacheState.mon.h / 2 - WIDGET( state->input_bar)->h;
     }
     else {
         // Default location is center.
@@ -323,10 +324,7 @@ void rofi_view_free ( RofiViewState *state )
 {
     // Do this here?
     // Wait for final release?
-    widget_free ( WIDGET ( state->text ) );
-    widget_free ( WIDGET ( state->prompt_tb ) );
-    widget_free ( WIDGET ( state->case_indicator ) );
-    widget_free ( WIDGET ( state->scrollbar ) );
+    widget_free ( WIDGET ( state->main_box ) );
     widget_free ( WIDGET ( state->overlay ) );
 
     for ( unsigned int i = 0; i < state->max_elements; i++ ) {
@@ -339,10 +337,6 @@ void rofi_view_free ( RofiViewState *state )
     // Free the switcher boxes.
     // When state is free'ed we should no longer need these.
     if ( config.sidebar_mode == TRUE ) {
-        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
-            widget_free ( WIDGET ( state->modi[j] ) );
-            state->modi[j] = NULL;
-        }
         g_free ( state->modi );
         state->num_modi = 0;
     }
@@ -375,55 +369,21 @@ unsigned int rofi_view_get_completed ( const RofiViewState *state )
 
 static void rofi_view_resize ( RofiViewState *state )
 {
+    widget_resize ( WIDGET ( state->main_box ), state->width-2*state->border, state->height-2*state->border );
+
     if ( ( state->menu_flags & MENU_ERROR_DIALOG ) == MENU_ERROR_DIALOG ) {
-        // Resize of error dialog.
-        int entrybox_width = state->width - ( 2 * ( state->border ) );
-        textbox_moveresize ( state->text, state->text->widget.x, state->text->widget.y, entrybox_width, state->line_height );
         state->rchanged = TRUE;
         state->update   = TRUE;
         return;
     }
-    unsigned int sbw = config.line_margin + 8;
-    widget_move ( WIDGET ( state->scrollbar ), state->width - state->border - sbw, state->top_offset );
-    if ( config.sidebar_mode == TRUE ) {
-        int width = ( state->width - ( 2 * ( state->border ) + ( state->num_modi - 1 ) * config.line_margin ) ) / state->num_modi;
-        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
-            textbox_moveresize ( state->modi[j],
-                                 state->border + j * ( width + config.line_margin ), state->height - state->line_height - state->border,
-                                 width, state->line_height );
-            widget_draw ( WIDGET ( state->modi[j] ), CacheState.draw );
-        }
-    }
-    int entrybox_width = state->width - ( 2 * ( state->border ) );
-    int offset         = 0;
-    int width          = textbox_get_width ( state->case_indicator );
-    entrybox_width -= width + textbox_get_width ( state->prompt_tb );
-    offset          = width;
-    textbox_moveresize ( state->text, state->text->widget.x, state->text->widget.y, entrybox_width, state->line_height );
-    widget_move ( WIDGET ( state->case_indicator ), state->width - state->border - offset, state->border );
+
     /**
      * Resize in Height
      */
-/*    if ( state->num_lines > 0 ) */ {
+    /*    if ( state->num_lines > 0 ) */ {
         unsigned int last_length    = state->max_elements;
         int          element_height = state->line_height * config.element_height + config.line_margin;
-        // Calculated new number of boxes.
-        int          h = ( state->height - state->top_offset - state->border );
-        // We always have one line margin extra space, as the last one is removed in the final tally.
-        h += config.line_margin;
-        if ( config.sidebar_mode == TRUE ) {
-            h -= state->line_height + config.line_margin;
-        }
-        if ( h < 0 ) {
-            fprintf ( stderr,
-                      "Current padding %u (on each side) does not fit within visible window %d.\n",
-                      config.padding,
-                      state->height );
-            h = ( state->height - state->top_offset - state->height / 3 );
-            if ( config.sidebar_mode == TRUE ) {
-                h -= state->line_height + config.line_margin;
-            }
-        }
+        int h = WIDGET (state->list_place_holder)->h;
         state->max_rows     = MAX ( 0, ( h / element_height ) );
         state->menu_lines   = state->max_rows;
         state->max_elements = state->max_rows * config.menu_columns;
@@ -434,14 +394,11 @@ static void rofi_view_resize ( RofiViewState *state )
         // resize array.
         state->boxes = g_realloc ( state->boxes, state->max_elements * sizeof ( textbox* ) );
 
-        int y_offset = state->top_offset;
-        int x_offset = state->border;
         // Add newly added boxes.
         for ( unsigned int i = last_length; i < state->max_elements; i++ ) {
-            state->boxes[i] = textbox_create ( ( state->menu_flags & MENU_INDICATOR ) ? TB_INDICATOR : 0, x_offset, y_offset,
-                                               state->element_width, element_height, NORMAL, "" );
+            state->boxes[i] = textbox_create ( ( state->menu_flags & MENU_INDICATOR ) ? TB_INDICATOR : 0, 0, 0, 
+                    state->element_width, element_height, NORMAL, "" );
         }
-        scrollbar_resize ( state->scrollbar, -1, ( state->max_rows ) * ( element_height ) - config.line_margin );
     }
 
     state->rchanged = TRUE;
@@ -983,6 +940,9 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
     else {
         offset = rofi_scroll_per_page ( state );
     }
+
+    widget_draw ( WIDGET ( state->main_box ), d ); 
+
     // Re calculate the boxes and sizes, see if we can move this in the menu_calc*rowscolumns
     // Get number of remaining lines to display.
     unsigned int a_lines = MIN ( ( state->filtered_lines - offset ), state->max_elements );
@@ -996,7 +956,6 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
     unsigned int max_elements = MIN ( a_lines, state->max_rows * columns );
 
     scrollbar_set_handle_length ( state->scrollbar, columns * state->max_rows );
-    widget_draw ( WIDGET ( state->scrollbar ), d );
     // Element width.
     unsigned int element_width = state->width - ( 2 * ( state->border ) );
     if ( state->scrollbar != NULL ) {
@@ -1007,8 +966,9 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
     }
 
     int element_height = state->line_height * config.element_height;
-    int y_offset       = state->top_offset;
-    int x_offset       = state->border;
+    // TODO turn into propper widget.
+    int y_offset       = WIDGET (state->main_box)->y + WIDGET ( state->list_bar )->y + WIDGET ( state->list_place_holder)->y; 
+    int x_offset       = WIDGET (state->main_box)->x + WIDGET ( state->list_bar )->x + WIDGET ( state->list_place_holder)->x; 
 
     if ( state->rchanged ) {
         char   *input   = mode_preprocess_input ( state->sw, state->text->text );
@@ -1108,52 +1068,8 @@ void rofi_view_update ( RofiViewState *state )
     if ( state->max_elements > 0 ) {
         rofi_view_draw ( state, d );
     }
-    if ( state->prompt_tb ) {
-        widget_draw ( WIDGET ( state->prompt_tb ), d );
-    }
-    if ( state->text ) {
-        widget_draw ( WIDGET ( state->text ), d );
-    }
-    if ( state->case_indicator ) {
-        widget_draw ( WIDGET ( state->case_indicator ), d );
-    }
-    if ( state->message_tb ) {
-        widget_draw ( WIDGET ( state->message_tb ), d );
-    }
-    color_separator ( d );
+    widget_draw ( WIDGET ( state->main_box ), d ) ;
 
-    if ( strcmp ( config.separator_style, separator_style_none ) ) {
-        if ( strcmp ( config.separator_style, separator_style_dash ) == 0 ) {
-            const double dashes[1] = { 4 };
-            cairo_set_dash ( d, dashes, 1, 0.0 );
-        }
-        // Don't show line, if there are no rows below it.
-        if ( state->max_rows > 0 ) {
-            cairo_move_to ( d, state->border, state->line_height + ( state->border ) * 1 + config.line_margin + 1 );
-            cairo_line_to ( d, state->width - state->border, state->line_height + ( state->border ) * 1 + config.line_margin + 1 );
-            cairo_stroke ( d );
-        }
-        if ( state->message_tb ) {
-            cairo_move_to ( d, state->border, state->top_offset - ( config.line_margin ) - 1 );
-            cairo_line_to ( d, state->width - state->border, state->top_offset - ( config.line_margin ) - 1 );
-            cairo_stroke ( d );
-        }
-
-        if ( config.sidebar_mode == TRUE ) {
-            cairo_move_to ( d, state->border, state->height - state->line_height - ( state->border ) * 1 - 1 - config.line_margin );
-            cairo_line_to ( d,
-                            state->width - state->border,
-                            state->height - state->line_height - ( state->border ) * 1 - 1 - config.line_margin );
-            cairo_stroke ( d );
-        }
-    }
-    if ( config.sidebar_mode == TRUE ) {
-        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
-            if ( state->modi[j] != NULL ) {
-                widget_draw ( WIDGET ( state->modi[j] ), d );
-            }
-        }
-    }
     if ( state->overlay ) {
         widget_draw ( WIDGET ( state->overlay ), d );
     }
@@ -1717,21 +1633,15 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
 static void rofi_view_calculate_height ( RofiViewState *state, int rows )
 {
     int element_height = state->line_height * config.element_height + config.line_margin;
-    state->height = state->top_offset + ( element_height ) * ( rows );
-    // If multiple rows, subtrackt last line margin.
-    if ( rows > 0 ) {
-        state->height -= config.line_margin;
+    if ( rows  == 0 ){
+        widget_disable ( WIDGET (state->input_bar_separator) );
+    } else {
+        widget_enable ( WIDGET (state->input_bar_separator) );
     }
-    state->height += state->border;
-    // Add entry
-    if ( config.sidebar_mode == TRUE ) {
-        state->height += state->line_height + 2 * config.line_margin + 2;
-    }
-
-    // Sidebar or fullscreen mode.
-    if ( config.menu_lines == 0 || config.fullscreen ) {
-        state->height = CacheState.mon.h;
-    }
+    box_update ( state->main_box );
+    state->height = ( element_height ) * ( rows );
+    state->height += box_get_fixed_pixels ( state->main_box );
+    state->height += 2*state->border;
 }
 
 RofiViewState *rofi_view_create ( Mode *sw,
@@ -1783,72 +1693,96 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Get active monitor size.
     TICK_N ( "Get active monitor" );
 
+    state->main_box = box_create( BOX_VERTICAL ,
+            state->border, state->border,
+            state->width-2*state->border, state->height-2*state->border ); 
+
     // we need this at this point so we can get height.
     state->line_height = textbox_get_estimated_char_height ();
     int element_height = state->line_height * config.element_height;
-    state->case_indicator = textbox_create ( TB_AUTOWIDTH, ( state->border ), ( state->border ),
-                                             0, state->line_height, NORMAL, "*" );
-    state->top_offset = state->border * 1 + state->line_height + 2 + config.line_margin * 2;
+    rofi_view_calculate_window_and_element_width ( state );
+
+    state->input_bar = box_create ( BOX_HORIZONTAL,  0, 0, state->width-state->border, state->line_height ); 
+    state->input_bar_separator = separator_create ( 4 );
+
+    if ( ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH|| config.location == WL_SOUTH_WEST ) ) {
+        box_add ( state->main_box, WIDGET ( state->input_bar_separator ), FALSE , TRUE ) ;
+        box_add ( state->main_box, WIDGET ( state->input_bar), FALSE, TRUE );
+    }else {
+        box_add ( state->main_box, WIDGET ( state->input_bar), FALSE, FALSE );
+        box_add ( state->main_box, WIDGET ( state->input_bar_separator ), FALSE , FALSE ) ;
+    }
+
+    state->case_indicator = textbox_create ( TB_AUTOWIDTH, 0, 0, 0, state->line_height, NORMAL, "*" );
+    box_add ( state->input_bar, WIDGET(state->case_indicator), FALSE, TRUE );
+
+    // Prompt box.
+    textbox *pb  = textbox_create ( TB_AUTOWIDTH, 0, 0, 0, state->line_height, NORMAL, prompt );
+    box_add ( state->input_bar, WIDGET(pb), FALSE, FALSE );
+
+    // Entry box
+    TextboxFlags tfl = TB_EDITABLE;
+    tfl        |= ( ( menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
+    state->text = textbox_create ( tfl, 0, 0, 0, state->line_height , NORMAL, input );
+
+    box_add ( state->input_bar, WIDGET(state->text), TRUE, FALSE );
+
+    textbox_text ( state->case_indicator, get_matching_state () );
+    if ( message ) {
+        textbox *message_tb = textbox_create ( TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, 0, 0,
+                state->width - ( 2 * ( state->border ) ), -1, NORMAL, message );
+        box_add ( state->main_box, WIDGET ( message_tb ), FALSE, FALSE );
+        box_add ( state->main_box, WIDGET ( separator_create ( 4 ) ), FALSE, FALSE );
+    }
+
+    state->overlay = textbox_create ( TB_AUTOWIDTH, 0, 0, 20, state->line_height, URGENT, "blaat"  );
+    widget_disable ( WIDGET ( state->overlay ) );
+
+
+    state->list_bar = box_create ( BOX_HORIZONTAL, 0, 0, 0, 0 );
+    box_add ( state->main_box, WIDGET ( state->list_bar ), TRUE, FALSE );
+    state->list_place_holder = widget_create ();
+    box_add ( state->list_bar, WIDGET ( state->list_place_holder ), TRUE, FALSE );
+
+    // Only enable widget when sidebar is enabled.
+    if ( config.sidebar_mode ) {
+        state->sidebar_bar = box_create ( BOX_HORIZONTAL, 0, 0, state->width - 2*state->border, state->line_height );
+        box_add ( state->main_box, WIDGET ( separator_create ( 4 ) ), FALSE, TRUE );
+        box_add ( state->main_box, WIDGET ( state->sidebar_bar), FALSE, TRUE);
+        state->num_modi = rofi_get_num_enabled_modi ();
+        state->modi = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
+        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
+            const Mode * mode = rofi_get_mode ( j );
+            state->modi[j] = textbox_create ( TB_CENTER, 0,0,0,0, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
+                    mode_get_display_name ( mode  ) );
+            box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, FALSE );
+        }
+    }
+
     // Height of a row.
     if ( config.menu_lines == 0 || config.fullscreen  ) {
         // Autosize it.
-        int h = CacheState.mon.h - state->top_offset - config.padding;
-        if ( config.sidebar_mode == TRUE ) {
-            h -= state->line_height + config.line_margin;
-        }
-        int r = MAX ( 1, ( h ) / ( element_height + config.line_margin ) );
-        state->menu_lines = r;
+        state->height = CacheState.mon.h;
         // If in this mode, the number of lines are fixed!
         config.fixed_num_lines = TRUE;
+        rofi_view_resize ( state );
     }
     else {
         state->menu_lines = config.menu_lines;
     }
     rofi_view_calculate_rows_columns ( state );
-    rofi_view_calculate_window_and_element_width ( state );
 
-    // Prompt box.
-    state->prompt_tb = textbox_create ( TB_AUTOWIDTH, ( state->border ), ( state->border ),
-                                        0, state->line_height, NORMAL, prompt );
-    // Entry box
-    int          entrybox_width = state->width - ( 2 * ( state->border ) ) - textbox_get_width ( state->prompt_tb )
-                                  - textbox_get_width ( state->case_indicator );
-    TextboxFlags tfl = TB_EDITABLE;
-    tfl        |= ( ( menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
-    state->text = textbox_create ( tfl,
-                                   ( state->border ) + textbox_get_width ( state->prompt_tb ), ( state->border ),
-                                   entrybox_width, state->line_height, NORMAL, input );
-
-    // Move indicator to end.
-    widget_move ( WIDGET ( state->case_indicator ), state->border + textbox_get_width ( state->prompt_tb ) + entrybox_width,
-                  state->border );
-
-    textbox_text ( state->case_indicator, get_matching_state () );
-    state->message_tb = NULL;
-    if ( message ) {
-        state->message_tb = textbox_create ( TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP,
-                                             ( state->border ), state->top_offset, state->width - ( 2 * ( state->border ) ),
-                                             -1, NORMAL, message );
-        state->top_offset += textbox_get_height ( state->message_tb );
-        state->top_offset += config.line_margin * 2 + 2;
-    }
-
-    state->overlay = textbox_create ( TB_AUTOWIDTH, 0, 0, 20, state->line_height, URGENT, "blaat"  );
-    widget_disable ( WIDGET ( state->overlay ) );
     // filtered list display
     state->boxes = g_malloc0_n ( state->max_elements, sizeof ( textbox* ) );
 
-    int y_offset = state->top_offset;
-    int x_offset = state->border;
-
     for ( unsigned int i = 0; i < state->max_elements; i++ ) {
-        state->boxes[i] = textbox_create ( ( state->menu_flags & MENU_INDICATOR ) ? TB_INDICATOR : 0, x_offset, y_offset,
+        state->boxes[i] = textbox_create ( ( state->menu_flags & MENU_INDICATOR ) ? TB_INDICATOR : 0, 0, 0,
                                            state->element_width, element_height, NORMAL, "" );
     }
     if ( !config.hide_scrollbar ) {
         unsigned int sbw = config.line_margin + config.scrollbar_width;
-        state->scrollbar = scrollbar_create ( state->width - state->border - sbw, state->top_offset,
-                                              sbw, ( state->max_rows - 1 ) * ( element_height + config.line_margin ) + element_height );
+        state->scrollbar = scrollbar_create ( 0, 0, sbw, 0); 
+        box_add ( state->list_bar, WIDGET ( state->scrollbar ), FALSE, TRUE );
     }
 
     scrollbar_set_max_value ( state->scrollbar, state->num_lines );
@@ -1861,23 +1795,15 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Move the window to the correct x,y position.
     rofi_view_calculate_window_position ( state );
 
-    if ( config.sidebar_mode == TRUE ) {
-        state->num_modi = rofi_get_num_enabled_modi ();
-        int width = ( state->width - ( 2 * ( state->border ) + ( state->num_modi - 1 ) * config.line_margin ) ) / state->num_modi;
-        state->modi = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
-        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
-            const Mode * mode = rofi_get_mode ( j );
-            state->modi[j] = textbox_create ( TB_CENTER, state->border + j * ( width + config.line_margin ),
-                                              state->height - state->line_height - state->border, width, state->line_height,
-                                              ( mode == state->sw ) ? HIGHLIGHT : NORMAL, mode_get_display_name ( mode  ) );
-        }
-    }
+
     rofi_view_window_update_size ( state );
+    // Update.
     state->selected = 0;
 
     state->quit   = FALSE;
     state->update = TRUE;
     rofi_view_refilter ( state );
+    widget_resize ( WIDGET ( state->main_box ), state->width-2*state->border, state->height-2*state->border );
 
     rofi_view_update ( state );
     xcb_map_window ( xcb->connection, CacheState.main_window );
@@ -1913,10 +1839,14 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 
     rofi_view_calculate_window_and_element_width ( state );
     state->max_elements = 0;
-
+    // TODO this is now not free'ed.
+    state->main_box = box_create( BOX_VERTICAL ,
+            state->border, state->border,
+            state->width-2*state->border, state->height-2*state->border ); 
     state->text = textbox_create ( ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
                                    ( state->border ), ( state->border ),
                                    ( state->width - ( 2 * ( state->border ) ) ), 1, NORMAL, ( msg != NULL ) ? msg : "" );
+    box_add ( state->main_box, WIDGET ( state->text ), TRUE, FALSE );
     state->line_height = textbox_get_height ( state->text );
 
     // resize window vertically to suit
@@ -1927,6 +1857,8 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 
     // Move the window to the correct x,y position.
     rofi_view_window_update_size ( state );
+
+    widget_resize ( WIDGET ( state->main_box ), state->width-2*state->border, state->height-2*state->border );
 
     // Display it.
     xcb_map_window ( xcb->connection, CacheState.main_window );
@@ -2031,8 +1963,8 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text )
     }
     widget_enable ( WIDGET ( state->overlay ) );
     textbox_text ( state->overlay, text );
-    unsigned int x_offset = state->width - ( 2 * state->border ) - textbox_get_width ( state->case_indicator );
-    x_offset -= textbox_get_width ( state->overlay );
+    unsigned int x_offset = state->width - ( 2 * state->border ) - widget_get_width ( WIDGET (state->case_indicator) );
+    x_offset -= widget_get_width ( WIDGET (state->overlay) );
     widget_move ( WIDGET ( state->overlay ), x_offset, state->border );
     state->update = TRUE;
 }
