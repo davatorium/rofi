@@ -7,7 +7,7 @@
 #include <history.h>
 #include <string.h>
 #include <xcb/xcb.h>
-#include <textbox.h>
+#include <widgets/textbox.h>
 #include <rofi.h>
 #include <cairo-xlib.h>
 #include "settings.h"

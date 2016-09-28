@@ -42,7 +42,7 @@
 #include "helper.h"
 #include "xrmoptions.h"
 #include "dialogs/help-keys.h"
-#include "textbox.h"
+#include "widgets/textbox.h"
 
 typedef struct
 {

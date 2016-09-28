@@ -1,10 +1,10 @@
 #ifndef ROFI_VIEW_INTERNAL_H
 #define ROFI_VIEW_INTERNAL_H
-#include "widget.h"
-#include "textbox.h"
-#include "scrollbar.h"
-#include "separator.h"
-#include "box.h"
+#include "widgets/widget.h"
+#include "widgets/textbox.h"
+#include "widgets/scrollbar.h"
+#include "widgets/separator.h"
+#include "widgets/box.h"
 #include "keyb.h"
 #include "x11-helper.h"
 

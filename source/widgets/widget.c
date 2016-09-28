@@ -1,5 +1,5 @@
 #include <glib.h>
-#include "widget.h"
+#include "widgets/widget.h"
 
 static void _widget_free ( widget *widget )
 {

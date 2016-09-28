@@ -25,7 +25,7 @@
 #include <config.h>
 #include <xkbcommon/xkbcommon.h>
 #include <glib.h>
-#include "scrollbar.h"
+#include "widgets/scrollbar.h"
 #include "x11-helper.h"
 #include "settings.h"
 

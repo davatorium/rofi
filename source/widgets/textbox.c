@@ -30,7 +30,7 @@
 #include <glib.h>
 #include <math.h>
 #include "settings.h"
-#include "textbox.h"
+#include "widgets/textbox.h"
 #include "keyb.h"
 #include "x11-helper.h"
 #include "mode.h"

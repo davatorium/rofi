@@ -26,7 +26,7 @@
 
 #include <config.h>
 #include <stdio.h>
-#include "box.h"
+#include "widgets/box.h"
 
 struct _box
 {

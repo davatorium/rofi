@@ -26,7 +26,7 @@
 #include <xkbcommon/xkbcommon.h>
 #include <glib.h>
 #include <string.h>
-#include "separator.h"
+#include "widgets/separator.h"
 #include "x11-helper.h"
 #include "settings.h"
 
