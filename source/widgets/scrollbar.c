@@ -100,17 +100,7 @@ static void scrollbar_draw ( widget *wid, cairo_t *draw )
     cairo_rectangle ( draw, sb->widget.x + config.line_margin, sb->widget.y + y, sb->widget.w - config.line_margin, height );
     cairo_fill ( draw );
 }
-void scrollbar_resize ( scrollbar *sb, int w, int h )
-{
-    if ( sb != NULL ) {
-        if ( h > 0 ) {
-            sb->widget.h = h;
-        }
-        if ( w > 0 ) {
-            sb->widget.w = w;
-        }
-    }
-}
+
 unsigned int scrollbar_clicked ( const scrollbar *sb, int y )
 {
     if ( sb != NULL ) {
