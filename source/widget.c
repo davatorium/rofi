@@ -1,19 +1,19 @@
 #include <glib.h>
 #include "widget.h"
 
-static void _widget_free ( Widget *widget )
+static void _widget_free ( widget *widget )
 {
-    g_free (widget);
+    g_free ( widget );
 }
 
-Widget *widget_create (void )
+widget *widget_create ( void )
 {
-    Widget *g = g_malloc0 ( sizeof ( Widget ));
+    widget *g = g_malloc0 ( sizeof ( widget ) );
     g->enabled = TRUE;
-    g->free = _widget_free;
+    g->free    = _widget_free;
     return g;
 }
-int widget_intersect ( const Widget *widget, int x, int y )
+int widget_intersect ( const widget *widget, int x, int y )
 {
     if ( widget == NULL ) {
         return FALSE;
@@ -27,19 +27,19 @@ int widget_intersect ( const Widget *widget, int x, int y )
     return FALSE;
 }
 
-void widget_resize ( Widget *widget, short w, short h )
+void widget_resize ( widget *widget, short w, short h )
 {
-    if ( widget != NULL  )
-    {
-        if ( widget->resize != NULL) {
-            widget->resize ( widget,  w, h ); 
-        } else {
-            widget->w = w; 
+    if ( widget != NULL  ) {
+        if ( widget->resize != NULL ) {
+            widget->resize ( widget, w, h );
+        }
+        else {
+            widget->w = w;
             widget->h = h;
         }
     }
 }
-void widget_move ( Widget *widget, short x, short y )
+void widget_move ( widget *widget, short x, short y )
 {
     if ( widget != NULL ) {
         widget->x = x;
@@ -47,7 +47,7 @@ void widget_move ( Widget *widget, short x, short y )
     }
 }
 
-gboolean widget_enabled ( Widget *widget )
+gboolean widget_enabled ( widget *widget )
 {
     if ( widget != NULL ) {
         return widget->enabled;
@@ -55,35 +55,35 @@ gboolean widget_enabled ( Widget *widget )
     return FALSE;
 }
 
-void widget_enable ( Widget *widget )
+void widget_enable ( widget *widget )
 {
     if ( widget ) {
         widget->enabled = TRUE;
     }
 }
-void widget_disable ( Widget *widget )
+void widget_disable ( widget *widget )
 {
     if ( widget ) {
         widget->enabled = FALSE;
     }
 }
-void widget_draw ( Widget *widget, cairo_t *d )
+void widget_draw ( widget *widget, cairo_t *d )
 {
     // Check if enabled and if draw is implemented.
     if ( widget && widget->enabled && widget->draw ) {
         widget->draw ( widget, d );
     }
 }
-void widget_free ( Widget *widget )
+void widget_free ( widget *widget )
 {
     if ( widget ) {
         widget->free ( widget );
     }
 }
 
-int widget_get_height ( Widget *widget )
+int widget_get_height ( widget *widget )
 {
-    if ( widget ){
+    if ( widget ) {
         if ( widget->get_height ) {
             return widget->get_height ( widget );
         }
@@ -91,9 +91,9 @@ int widget_get_height ( Widget *widget )
     }
     return -1;
 }
-int widget_get_width ( Widget *widget )
+int widget_get_width ( widget *widget )
 {
-    if ( widget ){
+    if ( widget ) {
         if ( widget->get_width ) {
             return widget->get_width ( widget );
         }

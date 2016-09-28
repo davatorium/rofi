@@ -14,7 +14,7 @@
  */
 typedef struct _scrollbar
 {
-    Widget       widget;
+    widget       widget;
     unsigned int length;
     unsigned int pos;
     unsigned int pos_length;

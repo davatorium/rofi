@@ -29,8 +29,8 @@
 #include "x11-helper.h"
 #include "settings.h"
 
-static void scrollbar_draw ( Widget *widget, cairo_t *draw );
-static void scrollbar_free ( Widget * );
+static void scrollbar_draw ( widget *, cairo_t * );
+static void scrollbar_free ( widget * );
 
 scrollbar *scrollbar_create ( short x, short y, short w, short h )
 {
@@ -53,9 +53,9 @@ scrollbar *scrollbar_create ( short x, short y, short w, short h )
     return sb;
 }
 
-static void scrollbar_free ( Widget *widget )
+static void scrollbar_free ( widget *wid )
 {
-    scrollbar *sb = (scrollbar *) widget;
+    scrollbar *sb = (scrollbar *) wid;
     g_free ( sb );
 }
 
@@ -80,9 +80,9 @@ void scrollbar_set_handle_length ( scrollbar *sb, unsigned int pos_length )
     }
 }
 
-static void scrollbar_draw ( Widget *widget, cairo_t *draw )
+static void scrollbar_draw ( widget *wid, cairo_t *draw )
 {
-    scrollbar   *sb = (scrollbar *) widget;
+    scrollbar   *sb = (scrollbar *) wid;
     // Calculate position and size.
     const short bh     = sb->widget.h - 0;
     float       sec    = ( ( bh ) / (float) sb->length );

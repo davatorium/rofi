@@ -12,9 +12,9 @@
 /**
  * Internal structure for the separator.
  */
-typedef struct _separator 
+typedef struct _separator
 {
-    Widget       widget;
+    widget widget;
 } separator;
 
 separator *separator_create ( short h );

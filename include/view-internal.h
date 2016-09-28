@@ -31,17 +31,16 @@ struct RofiViewState
     int              rchanged;
     unsigned int     cur_page;
 
-
-    Box              *main_box;
+    box              *main_box;
     // Entries
-    Box              *input_bar;
+    box              *input_bar;
     separator        *input_bar_separator;
 
     textbox          *text;
     textbox          *case_indicator;
 
-    Box              *list_bar;
-    Widget           *list_place_holder;
+    box              *list_bar;
+    widget           *list_place_holder;
     textbox          **boxes;
     scrollbar        *scrollbar;
     // Small overlay.
@@ -70,7 +69,7 @@ struct RofiViewState
     workarea         mon;
 
     // Sidebar view
-    Box              *sidebar_bar;
+    box              *sidebar_bar;
     unsigned int     num_modi;
     textbox          **modi;
 

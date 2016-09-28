@@ -32,8 +32,8 @@
 
 const char *const _separator_style_none = "none";
 const char *const _separator_style_dash = "dash";
-static void separator_draw ( Widget *widget, cairo_t *draw );
-static void separator_free ( Widget * );
+static void separator_draw ( widget *, cairo_t * );
+static void separator_free ( widget * );
 
 separator *separator_create ( short h )
 {
@@ -41,7 +41,7 @@ separator *separator_create ( short h )
 
     sb->widget.x = 0;
     sb->widget.y = 0;
-    sb->widget.w = 1; 
+    sb->widget.w = 1;
     sb->widget.h = MAX ( 1, h );
 
     sb->widget.draw = separator_draw;
@@ -52,13 +52,13 @@ separator *separator_create ( short h )
     return sb;
 }
 
-static void separator_free ( Widget *widget )
+static void separator_free ( widget *wid )
 {
-    separator *sb = (separator *) widget;
+    separator *sb = (separator *) wid;
     g_free ( sb );
 }
 
-static void separator_draw ( Widget *widget, cairo_t *draw )
+static void separator_draw ( widget *wid, cairo_t *draw )
 {
     if ( strcmp ( config.separator_style, _separator_style_none ) ) {
         color_separator ( draw );
@@ -66,9 +66,9 @@ static void separator_draw ( Widget *widget, cairo_t *draw )
             const double dashes[1] = { 4 };
             cairo_set_dash ( draw, dashes, 1, 0.0 );
         }
-        double half = widget->h/2.0;
-        cairo_move_to ( draw, widget->x, widget->y + half );
-        cairo_line_to ( draw, widget->x+ widget->w, widget->y + half ); 
+        double half = wid->h / 2.0;
+        cairo_move_to ( draw, wid->x, wid->y + half );
+        cairo_line_to ( draw, wid->x + wid->w, wid->y + half );
         cairo_stroke ( draw );
     }
 }

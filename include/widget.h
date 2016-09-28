@@ -3,13 +3,13 @@
 #include <glib.h>
 #include <cairo.h>
 /**
- * @defgroup Widgets Widgets
+ * @defgroup widgets widgets
  *
- * Generic Widget class
+ * Generic widget class
  *
  * @{
  */
-typedef struct _Widget
+typedef struct _widget
 {
     /** X position relative to parent */
     short    x;
@@ -26,15 +26,15 @@ typedef struct _Widget
     gboolean end;
     /** Function prototypes */
 
-    void ( *draw )( struct _Widget *widget, cairo_t *draw );
-    void ( *free )( struct _Widget *widget );
-    void ( *resize) ( struct _Widget *, short, short );
-    int  ( *get_width) ( struct _Widget *);
-    int  ( *get_height) ( struct _Widget *);
-} Widget;
+    void ( *draw )( struct _widget *widget, cairo_t *draw );
+    void ( *free )( struct _widget *widget );
+    void ( *resize )( struct _widget *, short, short );
+    int ( *get_width )( struct _widget * );
+    int ( *get_height )( struct _widget * );
+} widget;
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
-#define WIDGET( a )    ( a != NULL ? (Widget *) ( a ) : NULL )
+#define WIDGET( a )    ( a != NULL ? (widget *) ( a ) : NULL )
 
 /**
  * @param widget The widget to check
@@ -45,7 +45,7 @@ typedef struct _Widget
  *
  * @return TRUE if x,y falls within the widget
  */
-int widget_intersect ( const Widget *widget, int x, int y );
+int widget_intersect ( const widget *widget, int x, int y );
 
 /**
  * @param widget The widget to move
@@ -54,11 +54,11 @@ int widget_intersect ( const Widget *widget, int x, int y );
  *
  * Moves the widget.
  */
-void widget_move ( Widget *widget, short x, short y );
+void widget_move ( widget *widget, short x, short y );
 
-gboolean widget_enabled ( Widget *widget );
-void widget_disable ( Widget *widget );
-void widget_enable ( Widget *widget );
+gboolean widget_enabled ( widget *widget );
+void widget_disable ( widget *widget );
+void widget_enable ( widget *widget );
 
 /**
  * @param tb  Handle to the widget
@@ -66,27 +66,26 @@ void widget_enable ( Widget *widget );
  *
  * Render the textbox.
  */
-void widget_draw ( Widget *widget, cairo_t *d );
+void widget_draw ( widget *widget, cairo_t *d );
 
 /**
  * @param tb  Handle to the widget
  *
  * Free the widget and all allocated memory.
  */
-void widget_free ( Widget *widget );
+void widget_free ( widget *widget );
 
 /**
- * @param widget The widget toresize  
- * @param w The new width 
- * @param h The new height 
+ * @param widget The widget toresize
+ * @param w The new width
+ * @param h The new height
  *
  * Resizes the widget.
  */
-void widget_resize ( Widget *widget, short w, short h );
+void widget_resize ( widget *widget, short w, short h );
 
-
-int widget_get_height ( Widget *widget );
-int widget_get_width ( Widget *widget );
-Widget *widget_create (void );
+int widget_get_height ( widget *widget );
+int widget_get_width ( widget *widget );
+widget *widget_create ( void );
 /*@}*/
 #endif // ROFI_WIDGET_H
