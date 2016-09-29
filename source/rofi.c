@@ -197,6 +197,7 @@ void process_result ( RofiViewState *state )
         MenuReturn   mretv         = rofi_view_get_return_value ( state );
         char         *input        = g_strdup ( rofi_view_get_user_input ( state ) );
         ModeMode     retv          = mode_result ( sw, mretv, &input, selected_line );
+        g_free ( input );
 
         ModeMode     mode = curr_switcher;
         // Find next enabled
@@ -224,9 +225,11 @@ void process_result ( RofiViewState *state )
             /**
              * Load in the new mode.
              */
-            __run_switcher_internal ( mode, input );
+            rofi_view_switch_mode ( state, modi[mode] );
+            rofi_view_set_active ( state );
+            curr_switcher = mode;
+            return;
         }
-        g_free ( input );
     }
     rofi_view_free ( state );
 }

@@ -162,5 +162,6 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text );
  */
 void rofi_view_hide ( void );
 void rofi_view_reload ( void  );
+void rofi_view_switch_mode ( RofiViewState *state, Mode *mode );
 /**@}*/
 #endif

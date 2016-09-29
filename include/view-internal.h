@@ -36,6 +36,7 @@ struct RofiViewState
     box              *input_bar;
     separator        *input_bar_separator;
 
+    textbox          *prompt;
     textbox          *text;
     textbox          *case_indicator;
 

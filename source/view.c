@@ -1272,9 +1272,9 @@ static void rofi_view_refilter ( RofiViewState *state )
                                                                                                       state->filtered_lines % columns ) % columns ) / ( columns ) ) );
         if ( max_rows != state->max_rows ) {
             rofi_view_calculate_height ( state, max_rows );
-            rofi_view_resize ( state );
             rofi_view_calculate_window_position ( state );
             rofi_view_window_update_size ( state );
+            rofi_view_resize ( state );
             g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Resize based on re-filter" );
         }
     }
@@ -1708,8 +1708,8 @@ RofiViewState *rofi_view_create ( Mode *sw,
     box_add ( state->input_bar, WIDGET ( state->case_indicator ), FALSE, TRUE );
 
     // Prompt box.
-    textbox *pb = textbox_create ( TB_AUTOWIDTH, 0, 0, 0, state->line_height, NORMAL, prompt );
-    box_add ( state->input_bar, WIDGET ( pb ), FALSE, FALSE );
+    state->prompt = textbox_create ( TB_AUTOWIDTH, 0, 0, 0, state->line_height, NORMAL, prompt );
+    box_add ( state->input_bar, WIDGET ( state->prompt ), FALSE, FALSE );
 
     // Entry box
     TextboxFlags tfl = TB_EDITABLE;
@@ -1955,4 +1955,28 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text )
     x_offset -= widget_get_width ( WIDGET ( state->overlay ) );
     widget_move ( WIDGET ( state->overlay ), x_offset, state->border );
     state->update = TRUE;
+}
+
+void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
+{
+   state->sw = mode;
+   // Update prompt;
+   if ( state->prompt ) {
+       // TODO Think where is the right place.
+       char          *prompt = g_strdup_printf ( "%s:", mode_get_display_name ( mode ) );
+       textbox_text ( state->prompt, prompt );
+       // Re-distribute space. Make this go automagic.
+       box_update ( state->input_bar );
+       g_free(prompt);
+       if ( config.sidebar_mode ){
+           for ( unsigned int j = 0; j < state->num_modi; j++ ) {
+               const Mode * mode = rofi_get_mode ( j );
+               textbox_font ( state->modi[j], ( mode == state->sw ) ? HIGHLIGHT : NORMAL);
+           }
+       }
+   }
+   rofi_view_restart ( state );
+   state->reload = TRUE;
+   state->refilter = TRUE;
+   rofi_view_update ( state );
 }
