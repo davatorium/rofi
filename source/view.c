@@ -174,6 +174,15 @@ static void menu_capture_screenshot ( void )
     g_date_time_unref ( now );
 }
 
+static void rofi_view_update_prompt ( RofiViewState *state )
+{
+   if ( state->prompt ) {
+       char          *prompt = g_strdup_printf ( "%s:", mode_get_display_name ( state->sw ) );
+       textbox_text ( state->prompt, prompt );
+       g_free (prompt);
+    }
+}
+
 /**
  * Calculates the window position
  */
@@ -1636,7 +1645,6 @@ static void rofi_view_calculate_height ( RofiViewState *state, int rows )
 
 RofiViewState *rofi_view_create ( Mode *sw,
                                   const char *input,
-                                  char *prompt,
                                   const char *message,
                                   MenuFlags menu_flags,
                                   void ( *finalize )( RofiViewState * ) )
@@ -1708,7 +1716,8 @@ RofiViewState *rofi_view_create ( Mode *sw,
     box_add ( state->input_bar, WIDGET ( state->case_indicator ), FALSE, TRUE );
 
     // Prompt box.
-    state->prompt = textbox_create ( TB_AUTOWIDTH, 0, 0, 0, state->line_height, NORMAL, prompt );
+    state->prompt = textbox_create ( TB_AUTOWIDTH, 0, 0, 0, state->line_height, NORMAL, "");
+    rofi_view_update_prompt ( state );
     box_add ( state->input_bar, WIDGET ( state->prompt ), FALSE, FALSE );
 
     // Entry box
@@ -1962,12 +1971,9 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
    state->sw = mode;
    // Update prompt;
    if ( state->prompt ) {
-       // TODO Think where is the right place.
-       char          *prompt = g_strdup_printf ( "%s:", mode_get_display_name ( mode ) );
-       textbox_text ( state->prompt, prompt );
+       rofi_view_update_prompt ( state );
        // Re-distribute space. Make this go automagic.
        box_update ( state->input_bar );
-       g_free(prompt);
        if ( config.sidebar_mode ){
            for ( unsigned int j = 0; j < state->num_modi; j++ ) {
                const Mode * mode = rofi_get_mode ( j );
