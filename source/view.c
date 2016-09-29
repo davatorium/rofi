@@ -233,6 +233,7 @@ static void rofi_view_window_update_size ( RofiViewState * state )
     // Display it.
     xcb_configure_window ( xcb->connection, CacheState.main_window, mask, vals );
     cairo_xcb_surface_set_size ( CacheState.surface, state->width, state->height );
+    widget_resize ( WIDGET ( state->main_box ), state->width - 2 * state->border, state->height - 2 * state->border );
 }
 
 static gboolean rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
@@ -280,6 +281,8 @@ void rofi_view_set_active ( RofiViewState *state )
 {
     if ( current_active_menu != NULL && state != NULL ) {
         g_queue_push_head ( &( CacheState.views ), state );
+        // TODO check.
+        current_active_menu = state;
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "stack view." );
         rofi_view_window_update_size ( current_active_menu );
         rofi_view_resize ( current_active_menu );
@@ -364,18 +367,11 @@ unsigned int rofi_view_get_completed ( const RofiViewState *state )
 
 static void rofi_view_resize ( RofiViewState *state )
 {
-    widget_resize ( WIDGET ( state->main_box ), state->width - 2 * state->border, state->height - 2 * state->border );
-
-    if ( ( state->menu_flags & MENU_ERROR_DIALOG ) == MENU_ERROR_DIALOG ) {
-        state->rchanged = TRUE;
-        state->update   = TRUE;
-        return;
-    }
-
     /**
      * Resize in Height
+     * TODO should be mostly gone when we have list widget.
      */
-    /*    if ( state->num_lines > 0 ) */ {
+    if ( state->list_place_holder ) {
         unsigned int last_length    = state->max_elements;
         int          element_height = state->line_height * config.element_height + config.line_margin;
         int          h              = WIDGET ( state->list_place_holder )->h;
@@ -935,9 +931,6 @@ static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
     else {
         offset = rofi_scroll_per_page ( state );
     }
-
-    widget_draw ( WIDGET ( state->main_box ), d );
-
     // Re calculate the boxes and sizes, see if we can move this in the menu_calc*rowscolumns
     // Get number of remaining lines to display.
     unsigned int a_lines = MIN ( ( state->filtered_lines - offset ), state->max_elements );
@@ -1060,10 +1053,11 @@ void rofi_view_update ( RofiViewState *state )
 
     // Always paint as overlay over the background.
     cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
+    widget_draw ( WIDGET ( state->main_box ), d );
+    // TODO will be obselete with list widget.
     if ( state->max_elements > 0 ) {
         rofi_view_draw ( state, d );
     }
-    widget_draw ( WIDGET ( state->main_box ), d );
 
     if ( state->overlay ) {
         widget_draw ( WIDGET ( state->overlay ), d );
@@ -1270,7 +1264,7 @@ static void rofi_view_refilter ( RofiViewState *state )
         state->quit              = TRUE;
     }
     scrollbar_set_max_value ( state->scrollbar, state->filtered_lines );
-    if ( current_active_menu && config.fixed_num_lines == FALSE && ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
+    if (config.fixed_num_lines == FALSE && ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
         int columns = config.menu_columns;
         // Calculate the number or rows. We do this by getting the num_lines rounded up to X columns
         // (num elements is better name) then dividing by columns.
@@ -1798,7 +1792,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->quit   = FALSE;
     state->update = TRUE;
     rofi_view_refilter ( state );
-    widget_resize ( WIDGET ( state->main_box ), state->width - 2 * state->border, state->height - 2 * state->border );
 
     rofi_view_update ( state );
     xcb_map_window ( xcb->connection, CacheState.main_window );
@@ -1853,7 +1846,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     // Move the window to the correct x,y position.
     rofi_view_window_update_size ( state );
 
-    widget_resize ( WIDGET ( state->main_box ), state->width - 2 * state->border, state->height - 2 * state->border );
+    //widget_resize ( WIDGET ( state->main_box ), state->width - 2 * state->border, state->height - 2 * state->border );
 
     // Display it.
     xcb_map_window ( xcb->connection, CacheState.main_window );
