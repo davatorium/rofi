@@ -157,22 +157,6 @@ static void teardown ( int pfd )
     // Cleanup pid file.
     remove_pid_file ( pfd );
 }
-
-static void __run_switcher_internal ( ModeMode mode, char *input )
-{
-    curr_switcher = mode;
-    RofiViewState * state = rofi_view_create ( modi[mode], input, NULL, MENU_NORMAL, process_result );
-    if ( state ) {
-        rofi_view_set_active ( state );
-    }
-    else {
-        rofi_view_set_active ( NULL );
-
-        if ( rofi_view_get_active () == NULL ) {
-            g_main_loop_quit ( main_loop  );
-        }
-    }
-}
 static void run_switcher ( ModeMode mode )
 {
     // Otherwise check if requested mode is enabled.
@@ -182,9 +166,14 @@ static void run_switcher ( ModeMode mode )
             return;
         }
     }
-    char *input = g_strdup ( config.filter );
-    __run_switcher_internal ( mode, input );
-    g_free ( input );
+    curr_switcher = mode;
+    RofiViewState * state = rofi_view_create ( modi[mode], config.filter, NULL, MENU_NORMAL, process_result );
+    if ( state ) {
+        rofi_view_set_active ( state );
+    }
+    if ( rofi_view_get_active () == NULL ) {
+        g_main_loop_quit ( main_loop  );
+    }
 }
 void process_result ( RofiViewState *state )
 {
