@@ -186,7 +186,7 @@ void process_result ( RofiViewState *state )
         ModeMode     retv          = mode_result ( sw, mretv, &input, selected_line );
         g_free ( input );
 
-        ModeMode     mode = curr_switcher;
+        ModeMode mode = curr_switcher;
         // Find next enabled
         if ( retv == NEXT_DIALOG ) {
             mode = ( mode + 1 ) % num_modi;

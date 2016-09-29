@@ -12,18 +12,18 @@
 typedef struct _widget
 {
     /** X position relative to parent */
-    short    x;
+    short          x;
     /** Y position relative to parent */
-    short    y;
+    short          y;
     /** Width of the widget */
-    short    w;
+    short          w;
     /** Height of the widget */
-    short    h;
+    short          h;
     /** enabled or not */
-    gboolean enabled;
+    gboolean       enabled;
     /** Information about packing. */
-    gboolean expand;
-    gboolean end;
+    gboolean       expand;
+    gboolean       end;
 
     struct _widget *parent;
     /** Function prototypes */
@@ -33,7 +33,7 @@ typedef struct _widget
     void ( *resize )( struct _widget *, short, short );
     int ( *get_width )( struct _widget * );
     int ( *get_height )( struct _widget * );
-    void ( *update ) ( struct _widget * );
+    void ( *update )( struct _widget * );
 } widget;
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */

@@ -176,10 +176,10 @@ static void menu_capture_screenshot ( void )
 
 static void rofi_view_update_prompt ( RofiViewState *state )
 {
-   if ( state->prompt ) {
-       char          *prompt = g_strdup_printf ( "%s:", mode_get_display_name ( state->sw ) );
-       textbox_text ( state->prompt, prompt );
-       g_free (prompt);
+    if ( state->prompt ) {
+        char *prompt = g_strdup_printf ( "%s:", mode_get_display_name ( state->sw ) );
+        textbox_text ( state->prompt, prompt );
+        g_free ( prompt );
     }
 }
 
@@ -195,7 +195,7 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
     }
 
     if ( !config.fixed_num_lines && ( config.location == WL_CENTER || config.location == WL_EAST || config.location == WL_WEST ) ) {
-        state->y = CacheState.mon.y + CacheState.mon.h / 2 - WIDGET ( state->input_bar )->h;
+        state->y = CacheState.mon.y + CacheState.mon.h / 2 - widget_get_height ( WIDGET ( state->input_bar ) );
     }
     else {
         // Default location is center.
@@ -1273,7 +1273,7 @@ static void rofi_view_refilter ( RofiViewState *state )
         state->quit              = TRUE;
     }
     scrollbar_set_max_value ( state->scrollbar, state->filtered_lines );
-    if (config.fixed_num_lines == FALSE && ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
+    if ( config.fixed_num_lines == FALSE && ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
         int columns = config.menu_columns;
         // Calculate the number or rows. We do this by getting the num_lines rounded up to X columns
         // (num elements is better name) then dividing by columns.
@@ -1715,7 +1715,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     box_add ( state->input_bar, WIDGET ( state->case_indicator ), FALSE, TRUE );
 
     // Prompt box.
-    state->prompt = textbox_create ( TB_AUTOWIDTH, 0, 0, 0, state->line_height, NORMAL, "");
+    state->prompt = textbox_create ( TB_AUTOWIDTH, 0, 0, 0, state->line_height, NORMAL, "" );
     rofi_view_update_prompt ( state );
     box_add ( state->input_bar, WIDGET ( state->prompt ), FALSE, FALSE );
 
@@ -1967,19 +1967,19 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text )
 
 void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
 {
-   state->sw = mode;
-   // Update prompt;
-   if ( state->prompt ) {
-       rofi_view_update_prompt ( state );
-       if ( config.sidebar_mode ){
-           for ( unsigned int j = 0; j < state->num_modi; j++ ) {
-               const Mode * mode = rofi_get_mode ( j );
-               textbox_font ( state->modi[j], ( mode == state->sw ) ? HIGHLIGHT : NORMAL);
-           }
-       }
-   }
-   rofi_view_restart ( state );
-   state->reload = TRUE;
-   state->refilter = TRUE;
-   rofi_view_update ( state );
+    state->sw = mode;
+    // Update prompt;
+    if ( state->prompt ) {
+        rofi_view_update_prompt ( state );
+        if ( config.sidebar_mode ) {
+            for ( unsigned int j = 0; j < state->num_modi; j++ ) {
+                const Mode * mode = rofi_get_mode ( j );
+                textbox_font ( state->modi[j], ( mode == state->sw ) ? HIGHLIGHT : NORMAL );
+            }
+        }
+    }
+    rofi_view_restart ( state );
+    state->reload   = TRUE;
+    state->refilter = TRUE;
+    rofi_view_update ( state );
 }

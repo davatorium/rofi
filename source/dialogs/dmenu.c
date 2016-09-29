@@ -658,7 +658,7 @@ int dmenu_switcher_dialog ( void )
         g_free ( input );
         return TRUE;
     }
-    find_arg_str (  "-p", &(dmenu_mode.display_name) );
+    find_arg_str (  "-p", &( dmenu_mode.display_name ) );
     RofiViewState *state = rofi_view_create ( &dmenu_mode, input, pd->message, menu_flags, dmenu_finalize );
     // @TODO we should do this better.
     if ( async ) {

@@ -91,7 +91,7 @@ int widget_get_height ( widget *widget )
         }
         return widget->h;
     }
-    return -1;
+    return 0;
 }
 int widget_get_width ( widget *widget )
 {
@@ -101,7 +101,7 @@ int widget_get_width ( widget *widget )
         }
         return widget->w;
     }
-    return -1;
+    return 0;
 }
 
 void widget_update ( widget *widget )
@@ -109,10 +109,10 @@ void widget_update ( widget *widget )
     // When (desired )size of widget changes.
     if ( widget ) {
         if ( widget->update ) {
-            widget->update( widget );
+            widget->update ( widget );
         }
         // Recurse back.
-        if ( widget->parent  && widget->parent->update ){
+        if ( widget->parent && widget->parent->update ) {
             widget->parent->update ( widget->parent );
         }
     }

@@ -181,7 +181,7 @@ void box_add ( box *box, widget *child, gboolean expand, gboolean end )
     else {
         box->children = g_list_append ( box->children, (void *) child );
     }
-    widget_update( WIDGET ( box ) );
+    widget_update ( WIDGET ( box ) );
 }
 
 static void box_resize ( widget *widget, short w, short h )
@@ -213,7 +213,7 @@ box * box_create ( boxType type, short x, short y, short w, short h )
 
 static void box_update ( widget *wid  )
 {
-    box *b= (box *) wid;
+    box *b = (box *) wid;
     switch ( b->type )
     {
     case BOX_VERTICAL:
