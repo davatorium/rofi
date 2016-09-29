@@ -37,6 +37,8 @@ struct _box
     GList   *children;
 };
 
+static void box_update ( widget *wid  );
+
 static void vert_calculate_size ( box *b )
 {
     int bottom            = b->widget.h;
@@ -172,13 +174,14 @@ void box_add ( box *box, widget *child, gboolean expand, gboolean end )
 {
     child->expand = expand;
     child->end    = end;
+    child->parent = WIDGET ( box );
     if ( end ) {
         box->children = g_list_prepend ( box->children, (void *) child );
     }
     else {
         box->children = g_list_append ( box->children, (void *) child );
     }
-    box_update ( box );
+    widget_update( WIDGET ( box ) );
 }
 
 static void box_resize ( widget *widget, short w, short h )
@@ -187,7 +190,7 @@ static void box_resize ( widget *widget, short w, short h )
     if ( b->widget.w != w || b->widget.h != h ) {
         b->widget.w = w;
         b->widget.h = h;
-        box_update ( b );
+        widget_update ( widget );
     }
 }
 
@@ -202,21 +205,23 @@ box * box_create ( boxType type, short x, short y, short w, short h )
     b->widget.draw    = box_draw;
     b->widget.free    = box_free;
     b->widget.resize  = box_resize;
+    b->widget.update  = box_update;
     b->widget.enabled = TRUE;
 
     return b;
 }
 
-void box_update ( box *box )
+static void box_update ( widget *wid  )
 {
-    switch ( box->type )
+    box *b= (box *) wid;
+    switch ( b->type )
     {
     case BOX_VERTICAL:
-        vert_calculate_size ( box );
+        vert_calculate_size ( b );
         break;
     case BOX_HORIZONTAL:
     default:
-        hori_calculate_size ( box );
+        hori_calculate_size ( b );
     }
 }
 int box_get_fixed_pixels ( box *box )

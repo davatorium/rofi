@@ -24,6 +24,8 @@ typedef struct _widget
     /** Information about packing. */
     gboolean expand;
     gboolean end;
+
+    struct _widget *parent;
     /** Function prototypes */
 
     void ( *draw )( struct _widget *widget, cairo_t *draw );
@@ -31,6 +33,7 @@ typedef struct _widget
     void ( *resize )( struct _widget *, short, short );
     int ( *get_width )( struct _widget * );
     int ( *get_height )( struct _widget * );
+    void ( *update ) ( struct _widget * );
 } widget;
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
@@ -87,5 +90,7 @@ void widget_resize ( widget *widget, short w, short h );
 int widget_get_height ( widget *widget );
 int widget_get_width ( widget *widget );
 widget *widget_create ( void );
+
+void widget_update ( widget *widget );
 /*@}*/
 #endif // ROFI_WIDGET_H

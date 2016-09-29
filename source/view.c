@@ -1637,7 +1637,6 @@ static void rofi_view_calculate_height ( RofiViewState *state, int rows )
     else {
         widget_enable ( WIDGET ( state->input_bar_separator ) );
     }
-    box_update ( state->main_box );
     state->height  = ( element_height ) * ( rows );
     state->height += box_get_fixed_pixels ( state->main_box );
     state->height += 2 * state->border;
@@ -1972,8 +1971,6 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
    // Update prompt;
    if ( state->prompt ) {
        rofi_view_update_prompt ( state );
-       // Re-distribute space. Make this go automagic.
-       box_update ( state->input_bar );
        if ( config.sidebar_mode ){
            for ( unsigned int j = 0; j < state->num_modi; j++ ) {
                const Mode * mode = rofi_get_mode ( j );

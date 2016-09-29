@@ -57,14 +57,16 @@ gboolean widget_enabled ( widget *widget )
 
 void widget_enable ( widget *widget )
 {
-    if ( widget ) {
+    if ( widget && !widget->enabled ) {
         widget->enabled = TRUE;
+        widget_update ( widget );
     }
 }
 void widget_disable ( widget *widget )
 {
-    if ( widget ) {
+    if ( widget && widget->enabled ) {
         widget->enabled = FALSE;
+        widget_update ( widget );
     }
 }
 void widget_draw ( widget *widget, cairo_t *d )
@@ -100,4 +102,18 @@ int widget_get_width ( widget *widget )
         return widget->w;
     }
     return -1;
+}
+
+void widget_update ( widget *widget )
+{
+    // When (desired )size of widget changes.
+    if ( widget ) {
+        if ( widget->update ) {
+            widget->update( widget );
+        }
+        // Recurse back.
+        if ( widget->parent  && widget->parent->update ){
+            widget->parent->update ( widget->parent );
+        }
+    }
 }

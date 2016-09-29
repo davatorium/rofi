@@ -213,6 +213,7 @@ void textbox_text ( textbox *tb, const char *text )
     __textbox_update_pango_text ( tb );
     if ( tb->flags & TB_AUTOWIDTH ) {
         textbox_moveresize ( tb, tb->widget.x, tb->widget.y, tb->widget.w, tb->widget.h );
+        widget_update ( WIDGET (tb ) );
     }
 
     tb->cursor = MAX ( 0, MIN ( ( int ) g_utf8_strlen ( tb->text, -1 ), tb->cursor ) );
