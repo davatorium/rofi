@@ -426,6 +426,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb
                 state->width  = xce->width;
                 state->height = xce->height;
                 cairo_xcb_surface_set_size ( CacheState.surface, state->width, state->height );
+                widget_resize ( WIDGET ( state->main_box ), state->width - 2 * state->border, state->height - 2 * state->border );
                 rofi_view_resize ( state );
             }
         }
@@ -680,7 +681,7 @@ static void rofi_view_calculate_window_and_element_width ( RofiViewState *state 
     else if ( config.menu_width < 0 ) {
         double fw = textbox_get_estimated_char_width ( );
         state->width  = -( fw * config.menu_width );
-        state->width += 2 * state->border + 4; // 4 = 2*SIDE_MARGIN
+        state->width += 2 * state->border;
     }
     else{
         // Calculate as float to stop silly, big rounding down errors.
@@ -1630,6 +1631,10 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
 
 static void rofi_view_calculate_height ( RofiViewState *state, int rows )
 {
+    if ( config.menu_lines == 0 || config.fullscreen == TRUE ) {
+        state->height = CacheState.mon.h;
+        return;
+    }
     int element_height = state->line_height * config.element_height + config.line_margin;
     if ( rows == 0 ) {
         widget_disable ( WIDGET ( state->input_bar_separator ) );
@@ -1700,7 +1705,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     rofi_view_calculate_window_and_element_width ( state );
 
     state->input_bar           = box_create ( BOX_HORIZONTAL, 0, 0, state->width - state->border, state->line_height );
-    state->input_bar_separator = separator_create ( 4 );
+    state->input_bar_separator = separator_create ( 2 );
 
     if ( ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST ) ) {
         box_add ( state->main_box, WIDGET ( state->input_bar_separator ), FALSE, TRUE );
@@ -1731,7 +1736,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
         textbox *message_tb = textbox_create ( TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, 0, 0,
                                                state->width - ( 2 * ( state->border ) ), -1, NORMAL, message );
         box_add ( state->main_box, WIDGET ( message_tb ), FALSE, FALSE );
-        box_add ( state->main_box, WIDGET ( separator_create ( 4 ) ), FALSE, FALSE );
+        box_add ( state->main_box, WIDGET ( separator_create ( 2 ) ), FALSE, FALSE );
     }
 
     state->overlay = textbox_create ( TB_AUTOWIDTH, 0, 0, 20, state->line_height, URGENT, "blaat"  );
@@ -1745,7 +1750,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Only enable widget when sidebar is enabled.
     if ( config.sidebar_mode ) {
         state->sidebar_bar = box_create ( BOX_HORIZONTAL, 0, 0, state->width - 2 * state->border, state->line_height );
-        box_add ( state->main_box, WIDGET ( separator_create ( 4 ) ), FALSE, TRUE );
+        box_add ( state->main_box, WIDGET ( separator_create ( 2 ) ), FALSE, TRUE );
         box_add ( state->main_box, WIDGET ( state->sidebar_bar ), FALSE, TRUE );
         state->num_modi = rofi_get_num_enabled_modi ();
         state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
@@ -1759,11 +1764,10 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     // Height of a row.
     if ( config.menu_lines == 0 || config.fullscreen  ) {
-        // Autosize it.
         state->height = CacheState.mon.h;
-        // If in this mode, the number of lines are fixed!
+        // Autosize it.
         config.fixed_num_lines = TRUE;
-        rofi_view_resize ( state );
+        //    rofi_view_resize ( state );
     }
     else {
         state->menu_lines = config.menu_lines;
@@ -1807,7 +1811,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_complete ( xcb->sncontext );
     }
-    // TODO move resize window into the 'active window' part.
     return state;
 }
 
@@ -1835,10 +1838,9 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 
     rofi_view_calculate_window_and_element_width ( state );
     state->max_elements = 0;
-    // TODO this is now not free'ed.
-    state->main_box = box_create ( BOX_VERTICAL,
-                                   state->border, state->border,
-                                   state->width - 2 * state->border, state->height - 2 * state->border );
+    state->main_box     = box_create ( BOX_VERTICAL,
+                                       state->border, state->border,
+                                       state->width - 2 * state->border, state->height - 2 * state->border );
     state->text = textbox_create ( ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
                                    ( state->border ), ( state->border ),
                                    ( state->width - ( 2 * ( state->border ) ) ), 1, NORMAL, ( msg != NULL ) ? msg : "" );
@@ -1865,7 +1867,6 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 
     // Set it has current window.
     rofi_view_set_active ( state );
-    // TODO move resize window into the 'active window' part.
     return TRUE;
 }
 

@@ -61,6 +61,7 @@ static void separator_free ( widget *wid )
 static void separator_draw ( widget *wid, cairo_t *draw )
 {
     if ( strcmp ( config.separator_style, _separator_style_none ) ) {
+        cairo_set_line_width ( draw, wid->h );
         color_separator ( draw );
         if ( strcmp ( config.separator_style, _separator_style_dash ) == 0 ) {
             const double dashes[1] = { 4 };
