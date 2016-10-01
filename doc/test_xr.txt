@@ -39,7 +39,7 @@ rofi.ssh-command:                    {terminal} -e {ssh-client} {host}
 ! "Run command to execute" Set from: File
 rofi.run-command:                    bash -c "{cmd}"
 ! "Command to get extra run targets" Set from: Default
-! rofi.run-list-command:               
+! rofi.run-list-command:
 ! "Run command to execute that runs in shell" Set from: File
 rofi.run-shell-command:              {terminal} -e {cmd}
 ! "Command executed on accep-entry-custom for window modus" Set from: File
@@ -75,7 +75,7 @@ rofi.line-margin:                    3
 ! "Padding within rows" Set from: Default
 ! rofi.line-padding:                   1
 ! "Pre-set filter" Set from: Default
-! rofi.filter:                         
+! rofi.filter:
 ! "Separator style (none, dash, solid)" Set from: File
 rofi.separator-style:                solid
 ! "Hide scroll-bar" Set from: File
@@ -209,14 +209,26 @@ rofi.kb-custom-18:                   Alt+Shift+8
 ! "Custom Keybinding 19" Set from: File
 rofi.kb-custom-19:                   Alt+Shift+9
 ! "The display name of this browser" Set from: File
-rofi.display-ssh:                     
+rofi.display-ssh:                    
+! "The display close of this browser" Set from: File
+rofi.display-close-ssh:
 ! "The display name of this browser" Set from: File
-rofi.display-run:                     
+rofi.display-run:                    
+! "The display close of this browser" Set from: File
+rofi.display-close-run:
 ! "The display name of this browser" Set from: File
-rofi.display-drun:                    
+rofi.display-drun:                   
+! "The display close of this browser" Set from: File
+rofi.display-close-drun:
 ! "The display name of this browser" Set from: File
-rofi.display-window:                  
+rofi.display-window:                 
+! "The display close of this browser" Set from: File
+rofi.display-close-window:
 ! "The display name of this browser" Set from: File
 rofi.display-windowcd:               windowcd
+! "The display close of this browser" Set from: File
+rofi.display-close-windowcd:
 ! "The display name of this browser" Set from: File
 rofi.display-combi:                  combi
+! The display close of this browser
+rofi.display-close-combi:

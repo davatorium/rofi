@@ -1808,7 +1808,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     rofi_view_calculate_window_and_element_width ( state );
 
     // Prompt box.
-    state->prompt_tb = textbox_create ( TB_AUTOWIDTH, ( state->border ), ( state->border ),
+    state->prompt_tb = textbox_create ( TB_AUTOWIDTH | TB_MARKUP, ( state->border ), ( state->border ),
                                         0, state->line_height, NORMAL, prompt );
     // Entry box
     int          entrybox_width = state->width - ( 2 * ( state->border ) ) - textbox_get_width ( state->prompt_tb )
