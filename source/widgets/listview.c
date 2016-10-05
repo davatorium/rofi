@@ -28,6 +28,7 @@
 #include <widgets/widget.h>
 #include <widgets/textbox.h>
 #include <widgets/listview.h>
+#include <widgets/scrollbar.h>
 
 struct _listview
 {
@@ -39,6 +40,7 @@ struct _listview
     unsigned int             selected;
 
     unsigned int             element_height;
+    unsigned int             element_width;
     unsigned int             max_rows;
     unsigned int             max_elements;
 
@@ -48,6 +50,7 @@ struct _listview
     unsigned int             cur_elements;
 
     textbox                  **boxes;
+    scrollbar                *scrollbar;
 
     listview_update_callback callback;
     void                     *udata;
@@ -74,10 +77,9 @@ static unsigned int scroll_per_page ( listview * lv )
         lv->last_offset = offset;
         if ( page != lv->cur_page ) {
             lv->cur_page = page;
-//            lv->rchanged = TRUE;
         }
         // Set the position
-//        scrollbar_set_handle ( lv->scrollbar, page * lv->max_elements );
+        scrollbar_set_handle ( lv->scrollbar, page * lv->max_elements );
     }
     return offset;
 }
@@ -97,7 +99,7 @@ static unsigned int scroll_continious ( listview *lv )
     }
     if ( offset != lv->cur_page ) {
         //       lv->rchanged = TRUE;
-//        scrollbar_set_handle ( lv->scrollbar, offset );
+        scrollbar_set_handle ( lv->scrollbar, offset );
         lv->cur_page = offset;
     }
     return offset;
@@ -108,10 +110,9 @@ static void update_element ( listview *lv, unsigned int tb, unsigned int index )
     // Select drawing mode
     TextBoxFontType type = ( index & 1 ) == 0 ? NORMAL : ALT;
     type = ( index ) == lv->selected ? HIGHLIGHT : type;
-    textbox_font ( lv->boxes[tb], type );
 
     if ( lv->callback ) {
-        lv->callback ( lv->boxes[tb], index, lv->udata );
+        lv->callback ( lv->boxes[tb], index, lv->udata, type );
     }
 }
 
@@ -125,12 +126,18 @@ static void listview_draw ( widget *wid, cairo_t *draw )
     else {
         offset = scroll_per_page ( lv );
     }
-    if ( lv->cur_elements > 0 ) {
+    if ( lv->cur_elements > 0 && lv->max_rows > 0 ) {
         cairo_save ( draw );
         // Set new x/y possition.
         cairo_translate ( draw, wid->x, wid->y );
-        unsigned int element_width = ( lv->widget.w + config.line_margin * ( lv->cur_columns - 1 ) ) / lv->cur_columns;
-        unsigned int max           = MIN ( lv->cur_elements, lv->req_elements - offset );
+        unsigned int max   = MIN ( lv->cur_elements, lv->req_elements - offset );
+        unsigned int width = lv->widget.w - config.line_margin * ( lv->cur_columns - 1 );
+        if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) ) {
+            width -= config.line_margin;
+            width -= lv->scrollbar->widget.w;
+        }
+
+        unsigned int element_width = ( width ) / lv->cur_columns;
         for ( unsigned int i = 0; i < max; i++ ) {
             unsigned int ex = ( ( i ) / lv->max_rows ) * ( element_width + config.line_margin );
             unsigned int ey = ( ( i ) % lv->max_rows ) * ( lv->element_height + config.line_margin );
@@ -139,6 +146,7 @@ static void listview_draw ( widget *wid, cairo_t *draw )
             update_element ( lv, i, i + offset );
             widget_draw ( WIDGET ( lv->boxes[i] ), draw );
         }
+        widget_draw ( WIDGET ( lv->scrollbar ), draw );
         cairo_restore ( draw );
     }
 }
@@ -162,13 +170,13 @@ static void listview_recompute_elements ( listview *lv )
     }
     lv->boxes = g_realloc ( lv->boxes, newne * sizeof ( textbox* ) );
     if ( newne > 0   ) {
-        unsigned int element_width = ( lv->widget.h + config.line_margin * ( lv->cur_columns - 1 ) ) / lv->cur_columns;
         for ( unsigned int i = lv->cur_elements; i < newne; i++ ) {
-            lv->boxes[i] = textbox_create ( 0, 0, 0, element_width, lv->element_height, NORMAL, "blaat" );
+            lv->boxes[i] = textbox_create ( 0, 0, 0, 0, lv->element_height, NORMAL, "" );
 
             update_element ( lv, i, i );
         }
     }
+    scrollbar_set_handle_length ( lv->scrollbar, lv->cur_columns * lv->max_rows );
     lv->cur_elements = newne;
 }
 
@@ -177,6 +185,7 @@ void listview_set_num_elements ( listview *lv, unsigned int rows )
     lv->req_elements = rows;
     listview_set_selected ( lv, lv->selected );
     listview_recompute_elements ( lv );
+    scrollbar_set_max_value ( lv->scrollbar, lv->req_elements );
     widget_queue_redraw ( WIDGET ( lv ) );
 }
 
@@ -191,17 +200,19 @@ void listview_set_selected ( listview *lv, unsigned int selected )
     widget_queue_redraw ( WIDGET ( lv ) );
 }
 
-static void listview_resize ( widget *widget, short w, short h )
+static void listview_resize ( widget *wid, short w, short h )
 {
-    listview *lv = (listview *) widget;
+    listview *lv = (listview *) wid;
     lv->widget.w     = MAX ( 0, w );
     lv->widget.h     = MAX ( 0, h );
     lv->max_rows     = MAX ( 0, ( config.line_margin + lv->widget.h ) / ( lv->element_height + config.line_margin ) );
     lv->max_elements = lv->max_rows * config.menu_columns;
 
-    // TODO
-    // make callback for updating text box.
-    // make num_elements function.
+    widget_move ( WIDGET ( lv->scrollbar ), lv->widget.w - 4, 0 );
+    widget_resize (  WIDGET ( lv->scrollbar ), 4, h );
+
+    listview_recompute_elements ( lv );
+    widget_queue_redraw ( wid );
 }
 
 listview *listview_create ( listview_update_callback cb, void *udata )
@@ -211,6 +222,12 @@ listview *listview_create ( listview_update_callback cb, void *udata )
     lv->widget.resize  = listview_resize;
     lv->widget.draw    = listview_draw;
     lv->widget.enabled = TRUE;
+
+    lv->scrollbar                = scrollbar_create ( 0, 0, 8, 0 );
+    lv->scrollbar->widget.parent = WIDGET ( lv );
+    if ( config.hide_scrollbar ) {
+        widget_disable ( WIDGET ( lv->scrollbar ) );
+    }
 
     // Calculate height of an element.
     lv->element_height = textbox_get_estimated_char_height () * config.element_height;
@@ -311,4 +328,13 @@ void listview_nav_page_next ( listview *lv )
         lv->selected = lv->req_elements - 1;
     }
     widget_queue_redraw ( WIDGET ( lv ) );
+}
+
+unsigned int listview_get_desired_height ( listview *lv )
+{
+    if ( lv == NULL || lv->req_elements == 0 ) {
+        return 0;
+    }
+    unsigned int h = MIN ( config.menu_lines, lv->req_elements );
+    return h * lv->element_height + ( h - 1 ) * config.line_margin;
 }

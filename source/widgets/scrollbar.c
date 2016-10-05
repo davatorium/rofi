@@ -97,7 +97,7 @@ static void scrollbar_draw ( widget *wid, cairo_t *draw )
     // Redraw base window
     color_separator ( draw );
 
-    cairo_rectangle ( draw, sb->widget.x + config.line_margin, sb->widget.y + y, sb->widget.w - config.line_margin, height );
+    cairo_rectangle ( draw, sb->widget.x, sb->widget.y + y, sb->widget.w, height );
     cairo_fill ( draw );
 }
 

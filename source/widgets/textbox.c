@@ -67,7 +67,7 @@ static gboolean textbox_blink ( gpointer data )
     if ( tb->blink < 2 ) {
         tb->blink  = !tb->blink;
         tb->update = TRUE;
-        widget_need_redraw ( WIDGET ( tb ) );
+        widget_queue_redraw ( WIDGET ( tb ) );
         rofi_view_queue_redraw ( );
     }
     else {
@@ -129,7 +129,9 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
 void textbox_font ( textbox *tb, TextBoxFontType tbft )
 {
     TextBoxFontType t = tbft & STATE_MASK;
-    if ( tb == NULL ) return;
+    if ( tb == NULL ) {
+        return;
+    }
     // ACTIVE has priority over URGENT if both set.
     if ( t == ( URGENT | ACTIVE ) ) {
         t = ACTIVE;

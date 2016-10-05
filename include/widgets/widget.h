@@ -39,7 +39,7 @@ typedef struct _widget
 } widget;
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
-#define WIDGET( a )    ( a != NULL ? (widget *) ( a ) : NULL )
+#define WIDGET( a )    ( ( a ) != NULL ? (widget *) ( a ) : NULL )
 
 /**
  * @param widget The widget to check

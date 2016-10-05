@@ -2,7 +2,6 @@
 #define ROFI_VIEW_INTERNAL_H
 #include "widgets/widget.h"
 #include "widgets/textbox.h"
-#include "widgets/scrollbar.h"
 #include "widgets/separator.h"
 #include "widgets/listview.h"
 #include "widgets/box.h"
@@ -21,7 +20,6 @@ struct RofiViewState
     Mode         *sw;
     unsigned int menu_lines;
     unsigned int max_elements;
-    unsigned int max_rows;
     unsigned int columns;
 
     unsigned int element_width;
@@ -41,11 +39,7 @@ struct RofiViewState
     textbox      *text;
     textbox      *case_indicator;
 
-    box          *list_bar;
-    widget       *list_place_holder;
     listview     *list_view;
-    textbox      **boxes;
-    scrollbar    *scrollbar;
     // Small overlay.
     textbox      *overlay;
     int          *distance;
@@ -67,7 +61,6 @@ struct RofiViewState
     // Return state
     unsigned int     selected_line;
     MenuReturn       retv;
-    int              line_height;
     unsigned int     border;
     workarea         mon;
 

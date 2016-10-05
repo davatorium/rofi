@@ -10,13 +10,14 @@
 
 typedef struct _listview   listview;
 
-typedef void ( *listview_update_callback )( textbox *tb, unsigned int entry, void *udata );
+typedef void ( *listview_update_callback )( textbox *tb, unsigned int entry, void *udata, TextBoxFontType type );
 
 listview *listview_create ( listview_update_callback cb, void *udata );
 
 void listview_set_num_elements ( listview *lv, unsigned int rows );
 void listview_set_selected ( listview *lv, unsigned int selected );
 unsigned int listview_get_selected ( listview *lv );
+unsigned int listview_get_desired_height ( listview *lv );
 
 /**
  * @param state The listview handle
