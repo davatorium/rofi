@@ -26,6 +26,8 @@ typedef struct _widget
     gboolean       end;
 
     struct _widget *parent;
+    /** Internal */
+    gboolean       need_redraw;
     /** Function prototypes */
 
     void ( *draw )( struct _widget *widget, cairo_t *draw );
@@ -92,5 +94,7 @@ int widget_get_width ( widget *widget );
 widget *widget_create ( void );
 
 void widget_update ( widget *widget );
+void widget_queue_redraw ( widget *widget );
+gboolean widget_need_redraw ( widget *wid );
 /*@}*/
 #endif // ROFI_WIDGET_H

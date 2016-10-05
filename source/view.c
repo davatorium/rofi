@@ -314,14 +314,14 @@ void rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_l
 {
     state->selected_line = selected_line;
     // Find the line.
-    state->selected = 0;
-    for ( unsigned int i = 0; ( ( state->selected_line ) ) < UINT32_MAX && !state->selected && i < state->filtered_lines; i++ ) {
+    unsigned int selected = 0;
+    for ( unsigned int i = 0; ( ( state->selected_line ) ) < UINT32_MAX && !selected && i < state->filtered_lines; i++ ) {
         if ( state->line_map[i] == ( state->selected_line ) ) {
-            state->selected = i;
+            selected = i;
             break;
         }
     }
-
+    listview_set_selected ( state->list_view, selected );
     state->update = TRUE;
     xcb_clear_area ( xcb->connection, CacheState.main_window, 1, 0, 0, 1, 1 );
     xcb_flush ( xcb->connection );
@@ -363,8 +363,9 @@ unsigned int rofi_view_get_selected_line ( const RofiViewState *state )
 unsigned int rofi_view_get_next_position ( const RofiViewState *state )
 {
     unsigned int next_pos = state->selected_line;
-    if ( ( state->selected + 1 ) < state->num_lines ) {
-        ( next_pos ) = state->line_map[state->selected + 1];
+    unsigned int selected = listview_get_selected ( state->list_view );
+    if ( ( selected + 1 ) < state->num_lines ) {
+        ( next_pos ) = state->line_map[selected + 1];
     }
     return next_pos;
 }
@@ -384,6 +385,7 @@ static void rofi_view_resize ( RofiViewState *state )
         unsigned int last_length    = state->max_elements;
         int          element_height = state->line_height * config.element_height + config.line_margin;
         int          h              = WIDGET ( state->list_place_holder )->h;
+        printf ( "h %d %d\n", h, WIDGET ( state->list_view )->h );
         state->max_rows     = MAX ( 0, ( h / element_height ) );
         state->menu_lines   = state->max_rows;
         state->max_elements = state->max_rows * config.menu_columns;
@@ -402,7 +404,6 @@ static void rofi_view_resize ( RofiViewState *state )
     }
 
     state->rchanged = TRUE;
-    state->update   = TRUE;
 }
 
 void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb_stuff *xkb )
@@ -411,16 +412,15 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb
     switch ( type )
     {
     case XCB_EXPOSE:
-        state->update = TRUE;
+        widget_queue_redraw ( WIDGET ( state->main_box ) );
         break;
     case XCB_CONFIGURE_NOTIFY:
     {
         xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
         if ( xce->window == CacheState.main_window ) {
             if ( state->x != xce->x || state->y != xce->y ) {
-                state->x      = xce->x;
-                state->y      = xce->y;
-                state->update = TRUE;
+                state->x = xce->x;
+                state->y = xce->y;
             }
             if ( state->width != xce->width || state->height != xce->height ) {
                 state->width  = xce->width;
@@ -698,125 +698,6 @@ static void rofi_view_calculate_window_and_element_width ( RofiViewState *state 
 /**
  * Nav helper functions, to avoid duplicate code.
  */
-/**
- * @param state The current RofiViewState
- *
- * Move the selection one page down.
- * - No wrap around.
- * - Clip at top/bottom
- */
-inline static void rofi_view_nav_page_next ( RofiViewState *state )
-{
-    // If no lines, do nothing.
-    if ( state->filtered_lines == 0 ) {
-        return;
-    }
-    state->selected += ( state->max_elements );
-    if ( state->selected >= state->filtered_lines ) {
-        state->selected = state->filtered_lines - 1;
-    }
-    state->update = TRUE;
-}
-
-/**
- * @param state The current RofiViewState
- *
- * Move the selection one page up.
- * - No wrap around.
- * - Clip at top/bottom
- */
-inline static void rofi_view_nav_page_prev ( RofiViewState * state )
-{
-    if ( state->selected < state->max_elements ) {
-        state->selected = 0;
-    }
-    else{
-        state->selected -= ( state->max_elements );
-    }
-    state->update = TRUE;
-}
-/**
- * @param state The current RofiViewState
- *
- * Move the selection one column to the right.
- * - No wrap around.
- * - Do not move to top row when at start.
- */
-inline static void rofi_view_nav_right ( RofiViewState *state )
-{
-    // If no lines, do nothing.
-    if ( state->filtered_lines == 0 ) {
-        return;
-    }
-    if ( ( state->selected + state->max_rows ) < state->filtered_lines ) {
-        state->selected += state->max_rows;
-        state->update    = TRUE;
-    }
-    else if ( state->selected < ( state->filtered_lines - 1 ) ) {
-        // We do not want to move to last item, UNLESS the last column is only
-        // partially filled, then we still want to move column and select last entry.
-        // First check the column we are currently in.
-        int col = state->selected / state->max_rows;
-        // Check total number of columns.
-        int ncol = state->filtered_lines / state->max_rows;
-        // If there is an extra column, move.
-        if ( col != ncol ) {
-            state->selected = state->filtered_lines - 1;
-            state->update   = TRUE;
-        }
-    }
-}
-
-/**
- * @param state The current RofiViewState
- *
- * Move the selection one column to the left.
- * - No wrap around.
- */
-inline static void rofi_view_nav_left ( RofiViewState *state )
-{
-    if ( state->selected >= state->max_rows ) {
-        state->selected -= state->max_rows;
-        state->update    = TRUE;
-    }
-}
-
-/**
- * @param state The current RofiViewState
- *
- * Move the selection one row up.
- * - Wrap around.
- */
-inline static void rofi_view_nav_up ( RofiViewState *state )
-{
-    // If no lines or don't cycle, do nothing.
-    if ( state->filtered_lines == 0 || ( state->selected == 0 && !config.cycle ) ) {
-        return;
-    }
-
-    // Wrap around.
-    if ( state->selected == 0 ) {
-        state->selected = state->filtered_lines;
-    }
-    state->selected--;
-    state->update = TRUE;
-}
-
-/**
- * @param state The current RofiViewState
- *
- * Move the selection one row down.
- * - Wrap around.
- */
-inline static void rofi_view_nav_down ( RofiViewState *state )
-{
-    // If no lines or don't cycle, do nothing.
-    if ( state->filtered_lines == 0 || ( state->selected == state->filtered_lines - 1 && !config.cycle ) ) {
-        return;
-    }
-    state->selected = state->selected < state->filtered_lines - 1 ? MIN ( state->filtered_lines - 1, state->selected + 1 ) : 0;
-    state->update   = TRUE;
-}
 
 /**
  * @param state The current RofiViewState
@@ -827,7 +708,7 @@ static void rofi_view_nav_row_tab ( RofiViewState *state )
 {
     if ( state->filtered_lines == 1 ) {
         state->retv              = MENU_OK;
-        ( state->selected_line ) = state->line_map[state->selected];
+        ( state->selected_line ) = state->line_map[listview_get_selected ( state->list_view )];
         state->quit              = 1;
         return;
     }
@@ -839,7 +720,7 @@ static void rofi_view_nav_row_tab ( RofiViewState *state )
         state->quit              = TRUE;
     }
     else {
-        rofi_view_nav_down ( state );
+        listview_nav_down ( state->list_view );
     }
     state->prev_action = ROW_TAB;
 }
@@ -850,9 +731,13 @@ static void rofi_view_nav_row_tab ( RofiViewState *state )
  */
 inline static void rofi_view_nav_row_select ( RofiViewState *state )
 {
+    if ( state->list_view ) {
+        return;
+    }
+    unsigned int selected = listview_get_selected ( state->list_view );
     // If a valid item is selected, return that..
-    if ( state->selected < state->filtered_lines ) {
-        char *str = mode_get_completion ( state->sw, state->line_map[state->selected] );
+    if ( selected < state->filtered_lines ) {
+        char *str = mode_get_completion ( state->sw, state->line_map[selected] );
         textbox_text ( state->text, str );
         g_free ( str );
         textbox_cursor_end ( state->text );
@@ -868,8 +753,9 @@ inline static void rofi_view_nav_row_select ( RofiViewState *state )
  */
 inline static void rofi_view_nav_first ( RofiViewState * state )
 {
-    state->selected = 0;
-    state->update   = TRUE;
+//    state->selected = 0;
+    listview_set_selected ( state->list_view, 0 );
+    state->update = TRUE;
 }
 
 /**
@@ -883,142 +769,39 @@ inline static void rofi_view_nav_last ( RofiViewState * state )
     if ( state->filtered_lines == 0 ) {
         return;
     }
-    state->selected = state->filtered_lines - 1;
-    state->update   = TRUE;
+    //state->selected = state->filtered_lines - 1;
+    listview_set_selected ( state->list_view, -1 );
+    state->update = TRUE;
 }
 
-static unsigned int rofi_scroll_per_page ( RofiViewState * state )
+static void update_callback ( textbox *t, unsigned int index, void *udata )
 {
-    int offset = 0;
+    RofiViewState *state   = (RofiViewState *) udata;
+    char          *input   = mode_preprocess_input ( state->sw, state->text->text );
+    GRegex        **tokens = tokenize ( input, config.case_sensitive );
+    g_free ( input );
+    int           fstate = 0;
+    char          *text  = mode_get_display_value ( state->sw, state->line_map[index], &fstate, TRUE );
+    // Move into list view.
+    textbox_text ( t, text );
 
-    // selected row is always visible.
-    // If selected is visible do not scroll.
-    if ( ( ( state->selected - ( state->last_offset ) ) < ( state->max_elements ) ) && ( state->selected >= ( state->last_offset ) ) ) {
-        offset = state->last_offset;
+    PangoAttrList *list = textbox_get_pango_attributes ( t );
+    if ( list != NULL ) {
+        pango_attr_list_ref ( list );
     }
     else{
-        // Do paginating
-        unsigned int page = ( state->max_elements > 0 ) ? ( state->selected / state->max_elements ) : 0;
-        offset             = page * state->max_elements;
-        state->last_offset = offset;
-        if ( page != state->cur_page ) {
-            state->cur_page = page;
-            state->rchanged = TRUE;
-        }
-        // Set the position
-        scrollbar_set_handle ( state->scrollbar, page * state->max_elements );
+        list = pango_attr_list_new ();
     }
-    return offset;
-}
-
-static unsigned int rofi_scroll_continious ( RofiViewState * state )
-{
-    unsigned int middle = ( state->menu_lines - ( ( state->menu_lines & 1 ) == 0 ) ) / 2;
-    unsigned int offset = 0;
-    if ( state->selected > middle ) {
-        if ( state->selected < ( state->filtered_lines - ( state->menu_lines - middle ) ) ) {
-            offset = state->selected - middle;
-        }
-        // Don't go below zero.
-        else if ( state->filtered_lines > state->menu_lines ) {
-            offset = state->filtered_lines - state->menu_lines;
-        }
-    }
-    if ( offset != state->cur_page ) {
-        state->rchanged = TRUE;
-        scrollbar_set_handle ( state->scrollbar, offset );
-        state->cur_page = offset;
-    }
-    return offset;
-}
-
-static void rofi_view_draw ( RofiViewState *state, cairo_t *d )
-{
-    unsigned int i, offset = 0;
-    if ( config.scroll_method == 1 ) {
-        offset = rofi_scroll_continious ( state );
-    }
-    else {
-        offset = rofi_scroll_per_page ( state );
-    }
-    // Re calculate the boxes and sizes, see if we can move this in the menu_calc*rowscolumns
-    // Get number of remaining lines to display.
-    unsigned int a_lines = MIN ( ( state->filtered_lines - offset ), state->max_elements );
-
-    // Calculate number of columns
-    unsigned int columns = ( a_lines + ( state->max_rows - a_lines % state->max_rows ) % state->max_rows ) / state->max_rows;
-    columns = MIN ( columns, state->columns );
-
-    // Update the handle length.
-    // Calculate number of visible rows.
-    unsigned int max_elements = MIN ( a_lines, state->max_rows * columns );
-
-    scrollbar_set_handle_length ( state->scrollbar, columns * state->max_rows );
-    // Element width.
-    unsigned int element_width = state->width - ( 2 * ( state->border ) );
-    if ( state->scrollbar != NULL ) {
-        element_width -= state->scrollbar->widget.w;
-    }
-    if ( columns > 0 ) {
-        element_width = ( element_width - ( columns - 1 ) * config.line_margin ) / columns;
-    }
-
-    int element_height = state->line_height * config.element_height;
-    // TODO turn into propper widget.
-    int y_offset = WIDGET ( state->main_box )->y + WIDGET ( state->list_bar )->y + WIDGET ( state->list_place_holder )->y;
-    int x_offset = WIDGET ( state->main_box )->x + WIDGET ( state->list_bar )->x + WIDGET ( state->list_place_holder )->x;
-
-    if ( state->rchanged ) {
-        char   *input   = mode_preprocess_input ( state->sw, state->text->text );
-        GRegex **tokens = tokenize ( input, config.case_sensitive );
-        g_free ( input );
-        // Move, resize visible boxes and show them.
-        for ( i = 0; i < max_elements && ( i + offset ) < state->filtered_lines; i++ ) {
-            unsigned int ex = ( ( i ) / state->max_rows ) * ( element_width + config.line_margin );
-            unsigned int ey = ( ( i ) % state->max_rows ) * ( element_height + config.line_margin );
-            // Move it around.
-            textbox_moveresize ( state->boxes[i], ex + x_offset, ey + y_offset, element_width, element_height );
-            {
-                TextBoxFontType type   = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
-                int             fstate = 0;
-                char            *text  = mode_get_display_value ( state->sw, state->line_map[i + offset], &fstate, TRUE );
-                TextBoxFontType tbft   = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
-                textbox_font ( state->boxes[i], tbft );
-                textbox_text ( state->boxes[i], text );
-
-                PangoAttrList *list = textbox_get_pango_attributes ( state->boxes[i] );
-                if ( list != NULL ) {
-                    pango_attr_list_ref ( list );
-                }
-                else{
-                    list = pango_attr_list_new ();
-                }
-                token_match_get_pango_attr ( tokens, textbox_get_visible_text ( state->boxes[i] ), list );
-                textbox_set_pango_attributes ( state->boxes[i], list );
-                pango_attr_list_unref ( list );
-                g_free ( text );
-            }
-            widget_draw ( WIDGET ( state->boxes[i] ), d );
-        }
-        tokenize_free ( tokens );
-        state->rchanged = FALSE;
-    }
-    else{
-        // Only do basic redrawing + highlight of row.
-        for ( i = 0; i < max_elements && ( i + offset ) < state->filtered_lines; i++ ) {
-            TextBoxFontType type   = ( ( ( i % state->max_rows ) & 1 ) == 0 ) ? NORMAL : ALT;
-            int             fstate = 0;
-            mode_get_display_value ( state->sw, state->line_map[i + offset], &fstate, FALSE );
-            TextBoxFontType tbft = fstate | ( ( i + offset ) == state->selected ? HIGHLIGHT : type );
-            textbox_font ( state->boxes[i], tbft );
-            widget_draw ( WIDGET ( state->boxes[i] ), d );
-        }
-    }
+    token_match_get_pango_attr ( tokens, textbox_get_visible_text ( t ), list );
+    textbox_set_pango_attributes ( t, list );
+    pango_attr_list_unref ( list );
+    g_free ( text );
+    tokenize_free ( tokens );
 }
 
 void rofi_view_update ( RofiViewState *state )
 {
-    if ( !state->update ) {
+    if ( !widget_need_redraw ( WIDGET ( state->main_box ) ) && !widget_need_redraw ( WIDGET ( state->overlay ) )  ) {
         return;
     }
     TICK ();
@@ -1064,10 +847,6 @@ void rofi_view_update ( RofiViewState *state )
     // Always paint as overlay over the background.
     cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
     widget_draw ( WIDGET ( state->main_box ), d );
-    // TODO will be obselete with list widget.
-    if ( state->max_elements > 0 ) {
-        rofi_view_draw ( state, d );
-    }
 
     if ( state->overlay ) {
         widget_draw ( WIDGET ( state->overlay ), d );
@@ -1126,31 +905,34 @@ static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_
     // Scroll event
     if ( xbe->detail > 3 ) {
         if ( xbe->detail == 4 ) {
-            rofi_view_nav_up ( state );
+            listview_nav_up ( state->list_view );
         }
         else if ( xbe->detail == 5 ) {
-            rofi_view_nav_down ( state );
+            listview_nav_down ( state->list_view );
         }
         else if ( xbe->detail == 6 ) {
-            rofi_view_nav_left ( state );
+            listview_nav_left ( state->list_view );
         }
         else if ( xbe->detail == 7 ) {
-            rofi_view_nav_right ( state );
+            listview_nav_right ( state->list_view );
         }
         return;
     }
     else {
+#if 0
         if ( state->scrollbar && widget_intersect ( &( state->scrollbar->widget ), xbe->event_x, xbe->event_y ) ) {
-            state->selected = scrollbar_clicked ( state->scrollbar, xbe->event_y );
-            state->update   = TRUE;
+            // TODO
+            //state->selected = scrollbar_clicked ( state->scrollbar, xbe->event_y );
+            state->update = TRUE;
             return;
         }
         for ( unsigned int i = 0; config.sidebar_mode == TRUE && i < state->num_modi; i++ ) {
             if ( widget_intersect ( &( state->modi[i]->widget ), xbe->event_x, xbe->event_y ) ) {
-                ( state->selected_line ) = 0;
-                state->retv              = MENU_QUICK_SWITCH | ( i & MENU_LOWER_MASK );
-                state->quit              = TRUE;
-                state->skip_absorb       = TRUE;
+                list_view_set_selected ( state->list_view, 0 );
+//                ( state->selected_line ) = 0;
+                state->retv        = MENU_QUICK_SWITCH | ( i & MENU_LOWER_MASK );
+                state->quit        = TRUE;
+                state->skip_absorb = TRUE;
                 return;
             }
         }
@@ -1178,6 +960,7 @@ static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_
                 break;
             }
         }
+#endif
     }
 }
 static void _rofi_view_reload_row ( RofiViewState *state )
@@ -1261,15 +1044,16 @@ static void rofi_view_refilter ( RofiViewState *state )
         }
         state->filtered_lines = state->num_lines;
     }
-    if ( state->filtered_lines > 0 ) {
-        state->selected = MIN ( state->selected, state->filtered_lines - 1 );
-    }
-    else {
-        state->selected = 0;
-    }
+//    if ( state->filtered_lines > 0 ) {
+//        state->selected = MIN ( state->selected, state->filtered_lines - 1 );
+//    }
+//    else {
+//        state->selected = 0;
+//    }
+    listview_set_num_elements ( state->list_view, state->filtered_lines );
 
     if ( config.auto_select == TRUE && state->filtered_lines == 1 && state->num_lines > 1 ) {
-        ( state->selected_line ) = state->line_map[state->selected];
+        ( state->selected_line ) = state->line_map[listview_get_selected ( state->list_view  )];
         state->retv              = MENU_OK;
         state->quit              = TRUE;
     }
@@ -1352,8 +1136,10 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
         break;
     // Special delete entry command.
     case DELETE_ENTRY:
-        if ( state->selected < state->filtered_lines ) {
-            ( state->selected_line ) = state->line_map[state->selected];
+    {
+        unsigned int selected = listview_get_selected ( state->list_view );
+        if ( selected < state->filtered_lines ) {
+            ( state->selected_line ) = state->line_map[selected];
             state->retv              = MENU_ENTRY_DELETE;
             state->quit              = TRUE;
         }
@@ -1361,6 +1147,7 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
             ret = FALSE;
         }
         break;
+    }
     case CUSTOM_1:
     case CUSTOM_2:
     case CUSTOM_3:
@@ -1380,38 +1167,41 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
     case CUSTOM_17:
     case CUSTOM_18:
     case CUSTOM_19:
+    {
         state->selected_line = UINT32_MAX;
-        if ( state->selected < state->filtered_lines ) {
-            ( state->selected_line ) = state->line_map[state->selected];
+        unsigned int selected = listview_get_selected ( state->list_view );
+        if ( selected < state->filtered_lines ) {
+            ( state->selected_line ) = state->line_map[selected];
         }
         state->retv = MENU_QUICK_SWITCH | ( ( action - CUSTOM_1 ) & MENU_LOWER_MASK );
         state->quit = TRUE;
         break;
+    }
     // If you add a binding here, make sure to add it to rofi_view_keyboard_navigation too
     case CANCEL:
         state->retv = MENU_CANCEL;
         state->quit = TRUE;
         break;
     case ROW_UP:
-        rofi_view_nav_up ( state );
+        listview_nav_up ( state->list_view );
         break;
     case ROW_TAB:
         rofi_view_nav_row_tab ( state );
         break;
     case ROW_DOWN:
-        rofi_view_nav_down ( state );
+        listview_nav_down ( state->list_view );
         break;
     case ROW_LEFT:
-        rofi_view_nav_left ( state );
+        listview_nav_left ( state->list_view );
         break;
     case ROW_RIGHT:
-        rofi_view_nav_right ( state );
+        listview_nav_right ( state->list_view );
         break;
     case PAGE_PREV:
-        rofi_view_nav_page_prev ( state );
+        listview_nav_page_prev ( state->list_view );
         break;
     case PAGE_NEXT:
-        rofi_view_nav_page_next ( state );
+        listview_nav_page_next ( state->list_view );
         break;
     case ROW_FIRST:
         rofi_view_nav_first ( state );
@@ -1451,9 +1241,10 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
     }
     case ACCEPT_ALT:
     {
+        unsigned int selected = listview_get_selected ( state->list_view );
         state->selected_line = UINT32_MAX;
-        if ( state->selected < state->filtered_lines ) {
-            ( state->selected_line ) = state->line_map[state->selected];
+        if ( selected < state->filtered_lines ) {
+            ( state->selected_line ) = state->line_map[selected];
             state->retv              = MENU_OK;
         }
         else {
@@ -1474,9 +1265,10 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
     case ACCEPT_ENTRY:
     {
         // If a valid item is selected, return that..
+        unsigned int selected = listview_get_selected ( state->list_view );
         state->selected_line = UINT32_MAX;
-        if ( state->selected < state->filtered_lines ) {
-            ( state->selected_line ) = state->line_map[state->selected];
+        if ( selected < state->filtered_lines ) {
+            ( state->selected_line ) = state->line_map[selected];
             state->retv              = MENU_OK;
         }
         else {
@@ -1570,8 +1362,8 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
         xcb_motion_notify_event_t *xme = (xcb_motion_notify_event_t *) ev;
         if ( state->scrollbar != NULL &&
              xme->event_x >= state->scrollbar->widget.x && xme->event_x < ( state->scrollbar->widget.x + state->scrollbar->widget.w ) ) {
-            state->selected = scrollbar_clicked ( state->scrollbar, xme->event_y );
-            state->update   = TRUE;
+            //state->selected = scrollbar_clicked ( state->scrollbar, xme->event_y );
+            state->update = TRUE;
         }
         break;
     }
@@ -1743,9 +1535,11 @@ RofiViewState *rofi_view_create ( Mode *sw,
     widget_disable ( WIDGET ( state->overlay ) );
 
     state->list_bar = box_create ( BOX_HORIZONTAL, 0, 0, 0, 0 );
-    box_add ( state->main_box, WIDGET ( state->list_bar ), TRUE, FALSE );
-    state->list_place_holder = widget_create ();
-    box_add ( state->list_bar, WIDGET ( state->list_place_holder ), TRUE, FALSE );
+//    box_add ( state->main_box, WIDGET ( state->list_bar ), TRUE, FALSE );
+//    state->list_place_holder = widget_create ();
+    state->list_view = listview_create ( update_callback, state );
+    //   box_add ( state->list_bar, WIDGET ( state->list_place_holder ), TRUE, FALSE );
+    box_add ( state->main_box, WIDGET ( state->list_view ), TRUE, FALSE );
 
     // Only enable widget when sidebar is enabled.
     if ( config.sidebar_mode ) {
@@ -1799,7 +1593,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     rofi_view_window_update_size ( state );
     // Update.
-    state->selected = 0;
+    //state->selected = 0;
 
     state->quit   = FALSE;
     state->update = TRUE;

@@ -12,7 +12,7 @@
 
 /**
  * @defgroup Textbox Textbox
- * @ingroup Widgets
+ * @ingroup widgets
  *
  * @{
  */

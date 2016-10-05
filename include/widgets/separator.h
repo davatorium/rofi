@@ -4,19 +4,20 @@
 #include "widget.h"
 
 /**
- * @defgroup Scrollbar Scrollbar
- * @ingroup Widgets
+ * @defgroup separator separator
+ * @ingroup widgets
  *
  * @{
  */
-/**
- * Internal structure for the separator.
- */
-typedef struct _separator
-{
-    widget widget;
-} separator;
+typedef struct _separator   separator;
 
+/**
+ * @param h The height of the separator.
+ *
+ * Create a horizontal separator with height h.
+ *
+ * @returns a new separator, free with ::widget_free
+ */
 separator *separator_create ( short h );
 
 /*@}*/

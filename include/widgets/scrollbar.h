@@ -5,7 +5,7 @@
 
 /**
  * @defgroup Scrollbar Scrollbar
- * @ingroup Widgets
+ * @ingroup widgets
  *
  * @{
  */

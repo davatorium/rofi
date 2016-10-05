@@ -4,6 +4,7 @@
 #include "widgets/textbox.h"
 #include "widgets/scrollbar.h"
 #include "widgets/separator.h"
+#include "widgets/listview.h"
 #include "widgets/box.h"
 #include "keyb.h"
 #include "x11-helper.h"
@@ -17,42 +18,43 @@
 
 struct RofiViewState
 {
-    Mode             *sw;
-    unsigned int     menu_lines;
-    unsigned int     max_elements;
-    unsigned int     max_rows;
-    unsigned int     columns;
+    Mode         *sw;
+    unsigned int menu_lines;
+    unsigned int max_elements;
+    unsigned int max_rows;
+    unsigned int columns;
 
-    unsigned int     element_width;
+    unsigned int element_width;
 
     // Update/Refilter list.
-    int              update;
-    int              refilter;
-    int              rchanged;
-    unsigned int     cur_page;
+    int          update;
+    int          refilter;
+    int          rchanged;
+    unsigned int cur_page;
 
-    box              *main_box;
+    box          *main_box;
     // Entries
-    box              *input_bar;
-    separator        *input_bar_separator;
+    box          *input_bar;
+    separator    *input_bar_separator;
 
-    textbox          *prompt;
-    textbox          *text;
-    textbox          *case_indicator;
+    textbox      *prompt;
+    textbox      *text;
+    textbox      *case_indicator;
 
-    box              *list_bar;
-    widget           *list_place_holder;
-    textbox          **boxes;
-    scrollbar        *scrollbar;
+    box          *list_bar;
+    widget       *list_place_holder;
+    listview     *list_view;
+    textbox      **boxes;
+    scrollbar    *scrollbar;
     // Small overlay.
-    textbox          *overlay;
-    int              *distance;
-    unsigned int     *line_map;
+    textbox      *overlay;
+    int          *distance;
+    unsigned int *line_map;
 
-    unsigned int     num_lines;
+    unsigned int num_lines;
 
     // Selected element.
-    unsigned int     selected;
+//    unsigned int     selected;
     unsigned int     filtered_lines;
     // Last offset in paginating.
     unsigned int     last_offset;

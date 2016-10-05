@@ -67,6 +67,7 @@ static gboolean textbox_blink ( gpointer data )
     if ( tb->blink < 2 ) {
         tb->blink  = !tb->blink;
         tb->update = TRUE;
+        widget_need_redraw ( WIDGET ( tb ) );
         rofi_view_queue_redraw ( );
     }
     else {
@@ -128,6 +129,7 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
 void textbox_font ( textbox *tb, TextBoxFontType tbft )
 {
     TextBoxFontType t = tbft & STATE_MASK;
+    if ( tb == NULL ) return;
     // ACTIVE has priority over URGENT if both set.
     if ( t == ( URGENT | ACTIVE ) ) {
         t = ACTIVE;
@@ -150,6 +152,7 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
     }
     if ( tb->tbft != tbft ) {
         tb->update = TRUE;
+        widget_need_redraw ( WIDGET ( tb ) );
     }
     tb->tbft = tbft;
 }
@@ -217,6 +220,7 @@ void textbox_text ( textbox *tb, const char *text )
     }
 
     tb->cursor = MAX ( 0, MIN ( ( int ) g_utf8_strlen ( tb->text, -1 ), tb->cursor ) );
+    widget_need_redraw ( WIDGET ( tb ) );
 }
 
 // within the parent handled auto width/height modes
@@ -255,6 +259,7 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     // We always want to update this
     pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - 2 * config.line_padding - offset ) );
     tb->update = TRUE;
+    widget_need_redraw ( WIDGET ( tb ) );
 }
 
 // will also unmap the window if still displayed
@@ -387,6 +392,7 @@ void textbox_cursor ( textbox *tb, int pos )
     int length = ( tb->text == NULL ) ? 0 : g_utf8_strlen ( tb->text, -1 );
     tb->cursor = MAX ( 0, MIN ( length, pos ) );
     tb->update = TRUE;
+    widget_need_redraw ( WIDGET ( tb ) );
     // Stop blink!
     tb->blink = 2;
 }
@@ -471,10 +477,12 @@ void textbox_cursor_end ( textbox *tb )
     if ( tb->text == NULL ) {
         tb->cursor = 0;
         tb->update = TRUE;
+        widget_need_redraw ( WIDGET ( tb ) );
         return;
     }
     tb->cursor = ( int ) g_utf8_strlen ( tb->text, -1 );
     tb->update = TRUE;
+    widget_need_redraw ( WIDGET ( tb ) );
     // Stop blink!
     tb->blink = 2;
 }

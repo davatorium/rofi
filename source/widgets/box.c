@@ -74,6 +74,7 @@ static void vert_calculate_size ( box *b )
             if ( child->enabled && child->expand == TRUE ) {
                 // Re-calculate to avoid round issues leaving one pixel left.
                 int expanding_widgets_size = ( rem ) / ( expanding_widgets - index );
+                printf ( "%d %d %d %f\n", index, expanding_widgets_size, b->widget.w, rem );
                 if ( child->end ) {
                     bottom -= expanding_widgets_size;
                     widget_move ( child, child->x, bottom );

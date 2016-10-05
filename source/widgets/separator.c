@@ -30,6 +30,14 @@
 #include "x11-helper.h"
 #include "settings.h"
 
+/**
+ * Internal structure for the separator.
+ */
+struct _separator
+{
+    widget widget;
+};
+
 const char *const _separator_style_none = "none";
 const char *const _separator_style_dash = "dash";
 static void separator_draw ( widget *, cairo_t * );

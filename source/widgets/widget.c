@@ -74,6 +74,7 @@ void widget_draw ( widget *widget, cairo_t *d )
     // Check if enabled and if draw is implemented.
     if ( widget && widget->enabled && widget->draw ) {
         widget->draw ( widget, d );
+        widget->need_redraw = FALSE;
     }
 }
 void widget_free ( widget *widget )
@@ -116,4 +117,24 @@ void widget_update ( widget *widget )
             widget->parent->update ( widget->parent );
         }
     }
+}
+
+void widget_queue_redraw ( widget *wid )
+{
+    if ( wid ) {
+        widget *iter = wid;
+        // Find toplevel widget.
+        while ( iter->parent != NULL ) {
+            iter = iter->parent;
+        }
+        iter->need_redraw = TRUE;
+    }
+}
+
+gboolean widget_need_redraw ( widget *wid )
+{
+    if ( wid ) {
+        return wid->need_redraw;
+    }
+    return FALSE;
 }
