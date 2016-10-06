@@ -52,6 +52,10 @@ struct _listview
     unsigned int             req_elements;
     unsigned int             cur_elements;
 
+    unsigned int             padding;
+    unsigned int             menu_lines;
+    unsigned int             menu_columns;
+
     textbox                  **boxes;
     scrollbar                *scrollbar;
 
@@ -136,15 +140,15 @@ static void listview_draw ( widget *wid, cairo_t *draw )
         cairo_translate ( draw, wid->x, wid->y );
         unsigned int max = MIN ( lv->cur_elements, lv->req_elements - offset );
         if ( lv->rchanged ) {
-            unsigned int width = lv->widget.w - config.line_margin * ( lv->cur_columns - 1 );
+            unsigned int width = lv->widget.w - lv->padding * ( lv->cur_columns - 1 );
             if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) ) {
-                width -= config.line_margin;
+                width -= lv->padding;
                 width -= lv->scrollbar->widget.w;
             }
             unsigned int element_width = ( width ) / lv->cur_columns;
             for ( unsigned int i = 0; i < max; i++ ) {
-                unsigned int ex = ( ( i ) / lv->max_rows ) * ( element_width + config.line_margin );
-                unsigned int ey = ( ( i ) % lv->max_rows ) * ( lv->element_height + config.line_margin );
+                unsigned int ex = ( ( i ) / lv->max_rows ) * ( element_width + lv->padding );
+                unsigned int ey = ( ( i ) % lv->max_rows ) * ( lv->element_height + lv->padding );
                 textbox_moveresize ( lv->boxes[i], ex, ey, element_width, lv->element_height );
 
                 update_element ( lv, i, i + offset, TRUE );
@@ -175,7 +179,7 @@ static void listview_recompute_elements ( listview *lv )
     }
     else {
         newne           = lv->max_elements;
-        lv->cur_columns = config.menu_columns;
+        lv->cur_columns = lv->menu_columns;
     }
     for ( unsigned int i = newne; i < lv->cur_elements; i++ ) {
         widget_free ( WIDGET ( lv->boxes[i] ) );
@@ -221,8 +225,8 @@ static void listview_resize ( widget *wid, short w, short h )
     listview *lv = (listview *) wid;
     lv->widget.w     = MAX ( 0, w );
     lv->widget.h     = MAX ( 0, h );
-    lv->max_rows     = MAX ( 0, ( config.line_margin + lv->widget.h ) / ( lv->element_height + config.line_margin ) );
-    lv->max_elements = lv->max_rows * config.menu_columns;
+    lv->max_rows     = MAX ( 0, ( lv->padding + lv->widget.h ) / ( lv->element_height + lv->padding ) );
+    lv->max_elements = lv->max_rows * lv->menu_columns;
 
     widget_move ( WIDGET ( lv->scrollbar ), lv->widget.w - lv->scrollbar->widget.w, 0 );
     widget_resize (  WIDGET ( lv->scrollbar ), lv->scrollbar->widget.w, h );
@@ -351,19 +355,41 @@ unsigned int listview_get_desired_height ( listview *lv )
     if ( lv == NULL ) {
         return 0;
     }
-    int h = config.menu_lines;
+    int h = lv->menu_lines;
     if ( !config.fixed_num_lines ) {
-        h = MIN ( config.menu_lines, lv->req_elements );
+        h = MIN ( lv->menu_lines, lv->req_elements );
     }
     if ( h == 0 ) {
         return 0;
     }
-    return h * lv->element_height + ( h - 1 ) * config.line_margin;
+    return h * lv->element_height + ( h - 1 ) * lv->padding;
 }
 
 void listview_display_changed ( listview *lv )
 {
     if ( lv ) {
         lv->rchanged = TRUE;
+    }
+}
+
+/**
+ * Configure the widget!
+ */
+void listview_set_padding (  listview *lv, unsigned int padding )
+{
+    if ( lv ) {
+        lv->padding = padding;
+    }
+}
+void listview_set_max_lines ( listview *lv, unsigned int lines )
+{
+    if ( lv ) {
+        lv->menu_lines = lines;
+    }
+}
+void listview_set_max_columns ( listview *lv, unsigned int columns )
+{
+    if ( lv ) {
+        lv->menu_columns = columns;
     }
 }

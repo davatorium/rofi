@@ -66,6 +66,9 @@ void listview_nav_page_next ( listview *lv );
  */
 void listview_nav_page_prev ( listview *lv );
 void listview_display_changed ( listview *lv );
+void listview_set_padding (  listview *lv, unsigned int padding );
+void listview_set_max_lines ( listview *lv, unsigned int lines );
+void listview_set_max_columns ( listview *lv, unsigned int columns );
 /* @} */
 
 #endif // ROFI_LISTVIEW_H

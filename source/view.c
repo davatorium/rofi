@@ -1435,6 +1435,9 @@ RofiViewState *rofi_view_create ( Mode *sw,
     widget_disable ( WIDGET ( state->overlay ) );
 
     state->list_view = listview_create ( update_callback, state );
+    listview_set_padding ( state->list_view, config.line_margin );
+    listview_set_max_lines ( state->list_view, config.menu_lines );
+    listview_set_max_columns ( state->list_view, config.menu_columns );
     box_add ( state->main_box, WIDGET ( state->list_view ), TRUE, FALSE );
 
     // Only enable widget when sidebar is enabled.
