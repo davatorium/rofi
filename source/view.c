@@ -1178,7 +1178,6 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
             state->retv = MENU_CUSTOM_INPUT;
         }
 
-        printf ( "trigger\n" );
         state->quit = TRUE;
         break;
     }
