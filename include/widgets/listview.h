@@ -10,7 +10,7 @@
 
 typedef struct _listview   listview;
 
-typedef void ( *listview_update_callback )( textbox *tb, unsigned int entry, void *udata, TextBoxFontType type );
+typedef void ( *listview_update_callback )( textbox *tb, unsigned int entry, void *udata, TextBoxFontType type, gboolean full );
 
 listview *listview_create ( listview_update_callback cb, void *udata );
 
@@ -65,6 +65,7 @@ void listview_nav_page_next ( listview *lv );
  * - Clip at top/bottom
  */
 void listview_nav_page_prev ( listview *lv );
+void listview_display_changed ( listview *lv );
 /* @} */
 
 #endif // ROFI_LISTVIEW_H

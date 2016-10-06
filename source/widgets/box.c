@@ -28,13 +28,17 @@
 #include <stdio.h>
 #include "widgets/box.h"
 
+#define LOG_DOMAIN    "Widgets.Box"
+
 struct _box
 {
-    widget  widget;
-    boxType type;
-    int     max_size;
+    widget       widget;
+    boxType      type;
+    int          max_size;
+    // Padding between elements
+    unsigned int padding;
 
-    GList   *children;
+    GList        *children;
 };
 
 static void box_update ( widget *wid  );
@@ -44,49 +48,62 @@ static void vert_calculate_size ( box *b )
     int bottom            = b->widget.h;
     int top               = 0;
     int expanding_widgets = 0;
+    int active_widgets    = 0;
     b->max_size = 0;
     for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
         widget * child = (widget *) iter->data;
         if ( !child->enabled ) {
             continue;
         }
+        active_widgets++;
         if ( child->expand == TRUE ) {
             expanding_widgets++;
             continue;
         }
-        if ( child->end ) {
-            // @TODO hack. figure out better way.
-            bottom -= widget_get_height (  child );
-            widget_move ( child, child->x, bottom );
-        }
-        else {
-            widget_move ( child, child->x, top );
-            top += widget_get_height (  child );
-        }
-        widget_resize ( child, b->widget.w, child->h );
         b->max_size += child->h;
     }
-    if ( expanding_widgets > 0 ) {
-        double rem   = ( bottom - top );
+    b->max_size += MAX ( 0, ( ( active_widgets - 1 ) * b->padding ) );
+    if ( b->max_size > b->widget.h ) {
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Widgets to large (height) for box: %d %d", b->max_size, b->widget.h );
+        return;
+    }
+    if ( active_widgets > 0 ) {
+        double rem   = b->widget.h - b->max_size;
         int    index = 0;
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
             widget * child = (widget *) iter->data;
-            if ( child->enabled && child->expand == TRUE ) {
+            if ( child->enabled == FALSE ) {
+                continue;
+            }
+            if ( child->expand == TRUE ) {
                 // Re-calculate to avoid round issues leaving one pixel left.
                 int expanding_widgets_size = ( rem ) / ( expanding_widgets - index );
-                printf ( "%d %d %d %f\n", index, expanding_widgets_size, b->widget.w, rem );
                 if ( child->end ) {
                     bottom -= expanding_widgets_size;
                     widget_move ( child, child->x, bottom );
                     widget_resize ( child, b->widget.w, expanding_widgets_size );
+                    bottom -= b->padding;
                 }
                 else {
                     widget_move ( child, child->x, top );
                     top += expanding_widgets_size;
                     widget_resize ( child, b->widget.w, expanding_widgets_size );
+                    top += b->padding;
                 }
                 rem -= expanding_widgets_size;
                 index++;
+            }
+            else if ( child->end ) {
+                bottom -= widget_get_height (  child );
+                widget_move ( child, child->x, bottom );
+                widget_resize ( child, b->widget.w, child->h );
+                bottom -= b->padding;
+            }
+            else {
+                widget_move ( child, child->x, top );
+                top += widget_get_height (  child );
+                widget_resize ( child, b->widget.w, child->h );
+                top += b->padding;
             }
         }
     }
@@ -96,47 +113,63 @@ static void hori_calculate_size ( box *b )
     int right             = b->widget.w;
     int left              = 0;
     int expanding_widgets = 0;
+    int active_widgets    = 0;
     b->max_size = 0;
     for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
         widget * child = (widget *) iter->data;
         if ( !child->enabled ) {
             continue;
         }
+        active_widgets++;
         if ( child->expand == TRUE ) {
             expanding_widgets++;
             continue;
         }
-        if ( child->end ) {
-            right -= widget_get_width (  child );
-            widget_move ( child, right, child->y );
-        }
-        else {
-            widget_move ( child, left, child->y );
-            left += widget_get_width (  child );
-        }
-        widget_resize ( child, child->w, b->widget.h );
+        // Size used by fixed width widgets.
         b->max_size += child->w;
     }
-    if ( expanding_widgets > 0 ) {
-        double rem   = ( right - left );
+    b->max_size += MAX ( 0, ( ( active_widgets - 1 ) * b->padding ) );
+    if ( b->max_size > b->widget.w ) {
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Widgets to large (width) for box: %d %d", b->max_size, b->widget.w );
+        return;
+    }
+    if ( active_widgets > 0 ) {
+        double rem   = b->widget.w - b->max_size;
         int    index = 0;
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
             widget * child = (widget *) iter->data;
-            if ( child->enabled && child->expand == TRUE ) {
+            if ( child->enabled == FALSE  ) {
+                continue;
+            }
+            if ( child->expand == TRUE ) {
                 // Re-calculate to avoid round issues leaving one pixel left.
                 int expanding_widgets_size = ( rem ) / ( expanding_widgets - index );
                 if ( child->end ) {
                     right -= expanding_widgets_size;
                     widget_move ( child, right, child->y );
                     widget_resize ( child, expanding_widgets_size, b->widget.h );
+                    right -= b->padding;
                 }
                 else {
                     widget_move ( child, left, child->y );
                     left += expanding_widgets_size;
                     widget_resize ( child, expanding_widgets_size, b->widget.h );
+                    left += b->padding;
                 }
                 rem -= expanding_widgets_size;
                 index++;
+            }
+            else if ( child->end ) {
+                right -= widget_get_width (  child );
+                widget_move ( child, right, child->y );
+                widget_resize ( child, child->w, b->widget.h );
+                right -= b->padding;
+            }
+            else {
+                widget_move ( child, left, child->y );
+                left += widget_get_width (  child );
+                widget_resize ( child, child->w, b->widget.h );
+                left += b->padding;
             }
         }
     }
@@ -228,4 +261,12 @@ static void box_update ( widget *wid  )
 int box_get_fixed_pixels ( box *box )
 {
     return box->max_size;
+}
+
+void box_set_padding ( box * box, unsigned int padding )
+{
+    if ( box ) {
+        box->padding = padding;
+        widget_queue_redraw ( WIDGET ( box ) );
+    }
 }

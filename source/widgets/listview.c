@@ -33,6 +33,9 @@
 struct _listview
 {
     widget                   widget;
+    // RChanged
+    // Text needs to be repainted.
+    unsigned int             rchanged;
     // Administration
 
     unsigned int             cur_page;
@@ -77,6 +80,7 @@ static unsigned int scroll_per_page ( listview * lv )
         lv->last_offset = offset;
         if ( page != lv->cur_page ) {
             lv->cur_page = page;
+            lv->rchanged = TRUE;
         }
         // Set the position
         scrollbar_set_handle ( lv->scrollbar, page * lv->max_elements );
@@ -98,21 +102,21 @@ static unsigned int scroll_continious ( listview *lv )
         }
     }
     if ( offset != lv->cur_page ) {
-        //       lv->rchanged = TRUE;
         scrollbar_set_handle ( lv->scrollbar, offset );
         lv->cur_page = offset;
+        lv->rchanged = TRUE;
     }
     return offset;
 }
 
-static void update_element ( listview *lv, unsigned int tb, unsigned int index )
+static void update_element ( listview *lv, unsigned int tb, unsigned int index, gboolean full )
 {
     // Select drawing mode
     TextBoxFontType type = ( index & 1 ) == 0 ? NORMAL : ALT;
     type = ( index ) == lv->selected ? HIGHLIGHT : type;
 
     if ( lv->callback ) {
-        lv->callback ( lv->boxes[tb], index, lv->udata, type );
+        lv->callback ( lv->boxes[tb], index, lv->udata, type, full );
     }
 }
 
@@ -130,21 +134,29 @@ static void listview_draw ( widget *wid, cairo_t *draw )
         cairo_save ( draw );
         // Set new x/y possition.
         cairo_translate ( draw, wid->x, wid->y );
-        unsigned int max   = MIN ( lv->cur_elements, lv->req_elements - offset );
-        unsigned int width = lv->widget.w - config.line_margin * ( lv->cur_columns - 1 );
-        if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) ) {
-            width -= config.line_margin;
-            width -= lv->scrollbar->widget.w;
+        unsigned int max = MIN ( lv->cur_elements, lv->req_elements - offset );
+        if ( lv->rchanged ) {
+            unsigned int width = lv->widget.w - config.line_margin * ( lv->cur_columns - 1 );
+            if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) ) {
+                width -= config.line_margin;
+                width -= lv->scrollbar->widget.w;
+            }
+            unsigned int element_width = ( width ) / lv->cur_columns;
+            for ( unsigned int i = 0; i < max; i++ ) {
+                unsigned int ex = ( ( i ) / lv->max_rows ) * ( element_width + config.line_margin );
+                unsigned int ey = ( ( i ) % lv->max_rows ) * ( lv->element_height + config.line_margin );
+                textbox_moveresize ( lv->boxes[i], ex, ey, element_width, lv->element_height );
+
+                update_element ( lv, i, i + offset, TRUE );
+                widget_draw ( WIDGET ( lv->boxes[i] ), draw );
+            }
+            lv->rchanged = FALSE;
         }
-
-        unsigned int element_width = ( width ) / lv->cur_columns;
-        for ( unsigned int i = 0; i < max; i++ ) {
-            unsigned int ex = ( ( i ) / lv->max_rows ) * ( element_width + config.line_margin );
-            unsigned int ey = ( ( i ) % lv->max_rows ) * ( lv->element_height + config.line_margin );
-            textbox_moveresize ( lv->boxes[i], ex, ey, element_width, lv->element_height );
-
-            update_element ( lv, i, i + offset );
-            widget_draw ( WIDGET ( lv->boxes[i] ), draw );
+        else {
+            for ( unsigned int i = 0; i < max; i++ ) {
+                update_element ( lv, i, i + offset, FALSE );
+                widget_draw ( WIDGET ( lv->boxes[i] ), draw );
+            }
         }
         widget_draw ( WIDGET ( lv->scrollbar ), draw );
         cairo_restore ( draw );
@@ -173,9 +185,10 @@ static void listview_recompute_elements ( listview *lv )
         for ( unsigned int i = lv->cur_elements; i < newne; i++ ) {
             lv->boxes[i] = textbox_create ( 0, 0, 0, 0, lv->element_height, NORMAL, "" );
 
-            update_element ( lv, i, i );
+//            update_element ( lv, i, i, TRUE );
         }
     }
+    lv->rchanged = TRUE;
     scrollbar_set_handle_length ( lv->scrollbar, lv->cur_columns * lv->max_rows );
     lv->cur_elements = newne;
 }
@@ -191,7 +204,10 @@ void listview_set_num_elements ( listview *lv, unsigned int rows )
 
 unsigned int listview_get_selected ( listview *lv )
 {
-    return lv->selected;
+    if ( lv != NULL ) {
+        return lv->selected;
+    }
+    return 0;
 }
 
 void listview_set_selected ( listview *lv, unsigned int selected )
@@ -208,8 +224,8 @@ static void listview_resize ( widget *wid, short w, short h )
     lv->max_rows     = MAX ( 0, ( config.line_margin + lv->widget.h ) / ( lv->element_height + config.line_margin ) );
     lv->max_elements = lv->max_rows * config.menu_columns;
 
-    widget_move ( WIDGET ( lv->scrollbar ), lv->widget.w - 4, 0 );
-    widget_resize (  WIDGET ( lv->scrollbar ), 4, h );
+    widget_move ( WIDGET ( lv->scrollbar ), lv->widget.w - lv->scrollbar->widget.w, 0 );
+    widget_resize (  WIDGET ( lv->scrollbar ), lv->scrollbar->widget.w, h );
 
     listview_recompute_elements ( lv );
     widget_queue_redraw ( wid );
@@ -332,9 +348,22 @@ void listview_nav_page_next ( listview *lv )
 
 unsigned int listview_get_desired_height ( listview *lv )
 {
-    if ( lv == NULL || lv->req_elements == 0 ) {
+    if ( lv == NULL ) {
         return 0;
     }
-    unsigned int h = MIN ( config.menu_lines, lv->req_elements );
+    int h = config.menu_lines;
+    if ( !config.fixed_num_lines ) {
+        h = MIN ( config.menu_lines, lv->req_elements );
+    }
+    if ( h == 0 ) {
+        return 0;
+    }
     return h * lv->element_height + ( h - 1 ) * config.line_margin;
+}
+
+void listview_display_changed ( listview *lv )
+{
+    if ( lv ) {
+        lv->rchanged = TRUE;
+    }
 }

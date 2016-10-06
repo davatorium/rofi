@@ -73,9 +73,9 @@ struct xkb_stuff xkb        = {
     .keymap         = NULL,
     .state          = NULL,
     .compose        = {
-                       .table = NULL,
-                       .state = NULL
-}
+        .table = NULL,
+        .state = NULL
+    }
 };
 char             *config_path = NULL;
 // Array of modi.
@@ -456,22 +456,22 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
             xkb.state  = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
             break;
         case XCB_XKB_STATE_NOTIFY:
-            {
-                xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
-                guint                        modmask;
-                xkb_state_update_mask ( xkb.state,
-                                        ksne->baseMods,
-                                        ksne->latchedMods,
-                                        ksne->lockedMods,
-                                        ksne->baseGroup,
-                                        ksne->latchedGroup,
-                                        ksne->lockedGroup );
-                modmask = x11_get_current_mask ( &xkb );
-                if ( modmask == 0 ) {
-                    abe_trigger_release ( );
-                }
-                break;
+        {
+            xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
+            guint                        modmask;
+            xkb_state_update_mask ( xkb.state,
+                                    ksne->baseMods,
+                                    ksne->latchedMods,
+                                    ksne->lockedMods,
+                                    ksne->baseGroup,
+                                    ksne->latchedGroup,
+                                    ksne->lockedGroup );
+            modmask = x11_get_current_mask ( &xkb );
+            if ( modmask == 0 ) {
+                abe_trigger_release ( );
             }
+            break;
+        }
         }
         return G_SOURCE_CONTINUE;
     }
@@ -533,19 +533,18 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
      * Create window (without showing)
      */
     __create_window ( window_flags );
-
-    //
-    // Sanity check
-    if ( config_sanity_check ( ) ) {
-        return G_SOURCE_REMOVE;
-    }
-    TICK_N ( "Config sanity check" );
+    TICK_N ( "Create Window" );
     // Parse the keybindings.
     if ( !parse_keys_abe () ) {
         // Error dialog
         return G_SOURCE_REMOVE;
     }
     TICK_N ( "Parse ABE" );
+    // Sanity check
+    if ( config_sanity_check ( ) ) {
+        return G_SOURCE_REMOVE;
+    }
+    TICK_N ( "Config sanity check" );
     // Dmenu mode.
     if ( dmenu_mode == TRUE ) {
         // force off sidebar mode:

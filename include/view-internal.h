@@ -17,38 +17,30 @@
 
 struct RofiViewState
 {
-    Mode         *sw;
-    unsigned int menu_lines;
-    unsigned int max_elements;
-    unsigned int columns;
-
-    unsigned int element_width;
+    Mode             *sw;
 
     // Update/Refilter list.
-    int          update;
-    int          refilter;
-    int          rchanged;
-    unsigned int cur_page;
+    int              refilter;
+    int              rchanged;
 
-    box          *main_box;
+    box              *main_box;
     // Entries
-    box          *input_bar;
-    separator    *input_bar_separator;
+    box              *input_bar;
+    separator        *input_bar_separator;
 
-    textbox      *prompt;
-    textbox      *text;
-    textbox      *case_indicator;
+    textbox          *prompt;
+    textbox          *text;
+    textbox          *case_indicator;
 
-    listview     *list_view;
+    listview         *list_view;
     // Small overlay.
-    textbox      *overlay;
-    int          *distance;
-    unsigned int *line_map;
+    textbox          *overlay;
+    int              *distance;
+    unsigned int     *line_map;
 
-    unsigned int num_lines;
+    unsigned int     num_lines;
 
     // Selected element.
-//    unsigned int     selected;
     unsigned int     filtered_lines;
     // Last offset in paginating.
     unsigned int     last_offset;
