@@ -23,7 +23,6 @@
  */
 
 #include <config.h>
-#include <settings.h>
 #include <glib.h>
 #include <widgets/widget.h>
 #include <widgets/textbox.h>
@@ -55,6 +54,10 @@ struct _listview
     unsigned int             padding;
     unsigned int             menu_lines;
     unsigned int             menu_columns;
+    unsigned int             fixed_num_lines;
+    gboolean                 cycle;
+
+    ScrollType               scroll_type;
 
     textbox                  **boxes;
     scrollbar                *scrollbar;
@@ -128,7 +131,7 @@ static void listview_draw ( widget *wid, cairo_t *draw )
 {
     unsigned int offset = 0;
     listview     *lv    = (listview *) wid;
-    if ( config.scroll_method == 1 ) {
+    if ( lv->scroll_type == LISTVIEW_SCROLL_CONTINIOUS ) {
         offset = scroll_continious ( lv );
     }
     else {
@@ -235,7 +238,7 @@ static void listview_resize ( widget *wid, short w, short h )
     widget_queue_redraw ( wid );
 }
 
-listview *listview_create ( listview_update_callback cb, void *udata )
+listview *listview_create ( listview_update_callback cb, void *udata, unsigned int eh )
 {
     listview *lv = g_malloc0 ( sizeof ( listview ) );
     lv->widget.free    = listview_free;
@@ -243,14 +246,10 @@ listview *listview_create ( listview_update_callback cb, void *udata )
     lv->widget.draw    = listview_draw;
     lv->widget.enabled = TRUE;
 
-    lv->scrollbar                = scrollbar_create ( 0, 0, 8, 0 );
+    lv->scrollbar                = scrollbar_create ( 0, 0, 4, 0 );
     lv->scrollbar->widget.parent = WIDGET ( lv );
-    if ( config.hide_scrollbar ) {
-        widget_disable ( WIDGET ( lv->scrollbar ) );
-    }
-
     // Calculate height of an element.
-    lv->element_height = textbox_get_estimated_char_height () * config.element_height;
+    lv->element_height = textbox_get_estimated_char_height () * eh;
 
     lv->callback = cb;
     lv->udata    = udata;
@@ -266,7 +265,7 @@ void listview_nav_up ( listview *lv )
     if ( lv == NULL ) {
         return;
     }
-    if ( lv->req_elements == 0 || ( lv->selected == 0 && !config.cycle ) ) {
+    if ( lv->req_elements == 0 || ( lv->selected == 0 && !lv->cycle ) ) {
         return;
     }
     if ( lv->selected == 0 ) {
@@ -280,7 +279,7 @@ void listview_nav_down ( listview *lv )
     if ( lv == NULL ) {
         return;
     }
-    if ( lv->req_elements == 0 || ( lv->selected == ( lv->req_elements - 1 ) && !config.cycle ) ) {
+    if ( lv->req_elements == 0 || ( lv->selected == ( lv->req_elements - 1 ) && !lv->cycle ) ) {
         return;
     }
     lv->selected = lv->selected < lv->req_elements - 1 ? MIN ( lv->req_elements - 1, lv->selected + 1 ) : 0;
@@ -356,7 +355,7 @@ unsigned int listview_get_desired_height ( listview *lv )
         return 0;
     }
     int h = lv->menu_lines;
-    if ( !config.fixed_num_lines ) {
+    if ( !( lv->fixed_num_lines ) ) {
         h = MIN ( lv->menu_lines, lv->req_elements );
     }
     if ( h == 0 ) {
@@ -391,5 +390,43 @@ void listview_set_max_columns ( listview *lv, unsigned int columns )
 {
     if ( lv ) {
         lv->menu_columns = columns;
+    }
+}
+
+void listview_set_fixed_num_lines ( listview *lv, gboolean enabled )
+{
+    if ( lv ) {
+        lv->fixed_num_lines = enabled;
+    }
+}
+void listview_set_hide_scrollbar ( listview *lv, gboolean enabled )
+{
+    if ( lv ) {
+        if ( enabled ) {
+            widget_enable ( WIDGET ( lv->scrollbar ) );
+        }
+        else {
+            widget_disable ( WIDGET ( lv->scrollbar ) );
+        }
+        listview_recompute_elements ( lv );
+    }
+}
+void listview_set_scrollbar_width ( listview *lv, unsigned int width )
+{
+    if ( lv ) {
+        widget_resize ( WIDGET ( lv->scrollbar ), width, widget_get_height ( WIDGET ( lv->scrollbar ) ) );
+    }
+}
+
+void listview_set_cycle ( listview *lv, gboolean cycle )
+{
+    if ( lv ) {
+        lv->cycle = cycle;
+    }
+}
+void listview_set_scroll_type ( listview *lv, ScrollType type )
+{
+    if ( lv ) {
+        lv->scroll_type = type;
     }
 }

@@ -1433,10 +1433,17 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->overlay = textbox_create ( TB_AUTOWIDTH, 0, 0, 20, line_height, URGENT, "blaat"  );
     widget_disable ( WIDGET ( state->overlay ) );
 
-    state->list_view = listview_create ( update_callback, state );
+    state->list_view = listview_create ( update_callback, state, config.element_height );
+    // Set configuration
     listview_set_padding ( state->list_view, config.line_margin );
     listview_set_max_lines ( state->list_view, config.menu_lines );
     listview_set_max_columns ( state->list_view, config.menu_columns );
+    listview_set_fixed_num_lines ( state->list_view, config.fixed_num_lines );
+    listview_set_hide_scrollbar ( state->list_view, !config.hide_scrollbar );
+    listview_set_scrollbar_width ( state->list_view, config.scrollbar_width );
+    listview_set_cycle ( state->list_view, config.cycle );
+    listview_set_scroll_type ( state->list_view, config.scroll_method );
+
     box_add ( state->main_box, WIDGET ( state->list_view ), TRUE, FALSE );
 
     // Only enable widget when sidebar is enabled.
