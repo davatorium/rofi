@@ -838,22 +838,18 @@ static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_
         return;
     }
     else {
+        xcb_button_press_event_t rel = *xbe;
+        rel.event_x -= config.padding;
+        rel.event_y -= config.padding;
+        if ( widget_clicked ( WIDGET ( state->main_box ), &rel ) ) {
+            return;
+        }
 #if 0
         if ( state->scrollbar && widget_intersect ( &( state->scrollbar->widget ), xbe->event_x, xbe->event_y ) ) {
             // TODO
             //state->selected = scrollbar_clicked ( state->scrollbar, xbe->event_y );
             state->update = TRUE;
             return;
-        }
-        for ( unsigned int i = 0; config.sidebar_mode == TRUE && i < state->num_modi; i++ ) {
-            if ( widget_intersect ( &( state->modi[i]->widget ), xbe->event_x, xbe->event_y ) ) {
-                list_view_set_selected ( state->list_view, 0 );
-//                ( state->selected_line ) = 0;
-                state->retv        = MENU_QUICK_SWITCH | ( i & MENU_LOWER_MASK );
-                state->quit        = TRUE;
-                state->skip_absorb = TRUE;
-                return;
-            }
         }
         for ( unsigned int i = 0; i < state->max_elements; i++ ) {
             if ( widget_intersect ( &( state->boxes[i]->widget ), xbe->event_x, xbe->event_y ) ) {
@@ -1339,6 +1335,20 @@ static int rofi_view_calculate_height ( RofiViewState *state )
     return height;
 }
 
+static gboolean rofi_view_modi_clicked_cb ( widget *textbox, xcb_button_press_event_t *xbe, void *udata )
+{
+    RofiViewState *state = ( RofiViewState *) udata;
+    for ( unsigned int i = 0; i < state->num_modi; i++ ) {
+        if ( WIDGET ( state->modi[i] ) == textbox ) {
+            state->retv        = MENU_QUICK_SWITCH | ( i & MENU_LOWER_MASK );
+            state->quit        = TRUE;
+            state->skip_absorb = TRUE;
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 RofiViewState *rofi_view_create ( Mode *sw,
                                   const char *input,
                                   const char *message,
@@ -1459,6 +1469,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
             state->modi[j] = textbox_create ( TB_CENTER, 0, 0, 0, 0, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
                                               mode_get_display_name ( mode  ) );
             box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, FALSE );
+            widget_set_clicked_handler ( WIDGET ( state->modi[j] ), rofi_view_modi_clicked_cb, state );
         }
     }
 

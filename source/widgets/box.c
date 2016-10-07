@@ -228,6 +228,24 @@ static void box_resize ( widget *widget, short w, short h )
     }
 }
 
+static gboolean box_clicked ( widget *wid, xcb_button_press_event_t *xbe, G_GNUC_UNUSED void *udata )
+{
+    box *b = (box *) wid;
+    for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
+        widget * child = (widget *) iter->data;
+        if ( !child->enabled ) {
+            continue;
+        }
+        if ( widget_intersect ( child, xbe->event_x, xbe->event_y ) ) {
+            xcb_button_press_event_t rel = *xbe;
+            rel.event_x -= child->x;
+            rel.event_y -= child->y;
+            return widget_clicked ( child, &rel );
+        }
+    }
+    return FALSE;
+}
+
 box * box_create ( boxType type, short x, short y, short w, short h )
 {
     box *b = g_malloc0 ( sizeof ( box ) );
@@ -240,6 +258,7 @@ box * box_create ( boxType type, short x, short y, short w, short h )
     b->widget.free    = box_free;
     b->widget.resize  = box_resize;
     b->widget.update  = box_update;
+    b->widget.clicked = box_clicked;
     b->widget.enabled = TRUE;
 
     return b;

@@ -2,6 +2,7 @@
 #define ROFI_WIDGET_H
 #include <glib.h>
 #include <cairo.h>
+#include <xcb/xproto.h>
 /**
  * @defgroup widgets widgets
  *
@@ -9,34 +10,42 @@
  *
  * @{
  */
-typedef struct _widget
+typedef struct _widget   widget;
+typedef gboolean ( *widget_clicked_cb )( widget *, xcb_button_press_event_t *, void * );
+struct _widget
 {
     /** X position relative to parent */
-    short          x;
+    short             x;
     /** Y position relative to parent */
-    short          y;
+    short             y;
     /** Width of the widget */
-    short          w;
+    short             w;
     /** Height of the widget */
-    short          h;
+    short             h;
     /** enabled or not */
-    gboolean       enabled;
+    gboolean          enabled;
     /** Information about packing. */
-    gboolean       expand;
-    gboolean       end;
+    gboolean          expand;
+    gboolean          end;
 
-    struct _widget *parent;
+    struct _widget    *parent;
     /** Internal */
-    gboolean       need_redraw;
+    gboolean          need_redraw;
     /** Function prototypes */
+    int               ( *get_width )( struct _widget * );
+    int               ( *get_height )( struct _widget * );
 
-    void ( *draw )( struct _widget *widget, cairo_t *draw );
-    void ( *free )( struct _widget *widget );
-    void ( *resize )( struct _widget *, short, short );
-    int ( *get_width )( struct _widget * );
-    int ( *get_height )( struct _widget * );
-    void ( *update )( struct _widget * );
-} widget;
+    void              ( *draw )( struct _widget *widget, cairo_t *draw );
+    void              ( *resize )( struct _widget *, short, short );
+    void              ( *update )( struct _widget * );
+
+    // Signals.
+    widget_clicked_cb clicked;
+    void              *clicked_cb_data;
+
+    // Free
+    void              ( *free )( struct _widget *widget );
+};
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
 #define WIDGET( a )    ( ( a ) != NULL ? (widget *) ( a ) : NULL )
@@ -96,5 +105,11 @@ widget *widget_create ( void );
 void widget_update ( widget *widget );
 void widget_queue_redraw ( widget *widget );
 gboolean widget_need_redraw ( widget *wid );
+
+gboolean widget_clicked ( widget *wid, xcb_button_press_event_t *xbe );
+
+// Signal!
+void widget_set_clicked_handler ( widget *wid, widget_clicked_cb cb, void *udata );
+
 /*@}*/
 #endif // ROFI_WIDGET_H

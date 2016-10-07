@@ -138,3 +138,17 @@ gboolean widget_need_redraw ( widget *wid )
     }
     return FALSE;
 }
+gboolean widget_clicked ( widget *wid, xcb_button_press_event_t *xbe )
+{
+    if ( wid && wid->clicked ) {
+        return wid->clicked ( wid, xbe, wid->clicked_cb_data );
+    }
+    return FALSE;
+}
+void widget_set_clicked_handler ( widget *wid, widget_clicked_cb cb, void *udata )
+{
+    if ( wid ) {
+        wid->clicked         = cb;
+        wid->clicked_cb_data = udata;
+    }
+}
