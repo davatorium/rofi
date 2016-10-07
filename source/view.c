@@ -844,38 +844,6 @@ static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_
         if ( widget_clicked ( WIDGET ( state->main_box ), &rel ) ) {
             return;
         }
-#if 0
-        if ( state->scrollbar && widget_intersect ( &( state->scrollbar->widget ), xbe->event_x, xbe->event_y ) ) {
-            // TODO
-            //state->selected = scrollbar_clicked ( state->scrollbar, xbe->event_y );
-            state->update = TRUE;
-            return;
-        }
-        for ( unsigned int i = 0; i < state->max_elements; i++ ) {
-            if ( widget_intersect ( &( state->boxes[i]->widget ), xbe->event_x, xbe->event_y ) ) {
-                int control = x11_modifier_active ( xbe->state, X11MOD_CONTROL );
-                // Only allow items that are visible to be selected.
-                if ( ( state->last_offset + i ) >= state->filtered_lines ) {
-                    break;
-                }
-                //
-                state->selected = state->last_offset + i;
-                state->update   = TRUE;
-                if ( ( xbe->time - state->last_button_press ) < 200 || control ) {
-                    state->retv = MENU_OK;
-                    if ( control ) {
-                        state->retv |= MENU_CUSTOM_ACTION;
-                    }
-                    ( state->selected_line ) = state->line_map[state->selected];
-                    // Quit
-                    state->quit        = TRUE;
-                    state->skip_absorb = TRUE;
-                }
-                state->last_button_press = xbe->time;
-                break;
-            }
-        }
-#endif
     }
 }
 static void _rofi_view_reload_row ( RofiViewState *state )
@@ -1335,7 +1303,7 @@ static int rofi_view_calculate_height ( RofiViewState *state )
     return height;
 }
 
-static gboolean rofi_view_modi_clicked_cb ( widget *textbox, xcb_button_press_event_t *xbe, void *udata )
+static gboolean rofi_view_modi_clicked_cb ( widget *textbox, G_GNUC_UNUSED xcb_button_press_event_t *xbe, void *udata )
 {
     RofiViewState *state = ( RofiViewState *) udata;
     for ( unsigned int i = 0; i < state->num_modi; i++ ) {
@@ -1347,6 +1315,20 @@ static gboolean rofi_view_modi_clicked_cb ( widget *textbox, xcb_button_press_ev
         }
     }
     return FALSE;
+}
+// @TODO don't like this construction.
+static void rofi_view_listview_mouse_activated_cb ( listview *lv, xcb_button_press_event_t *xce, void *udata )
+{
+    RofiViewState *state  = (RofiViewState *) udata;
+    int           control = x11_modifier_active ( xce->state, X11MOD_CONTROL );
+    state->retv = MENU_OK;
+    if ( control ) {
+        state->retv |= MENU_CUSTOM_ACTION;
+    }
+    ( state->selected_line ) = state->line_map[listview_get_selected ( lv )];
+    // Quit
+    state->quit        = TRUE;
+    state->skip_absorb = TRUE;
 }
 
 RofiViewState *rofi_view_create ( Mode *sw,
@@ -1453,6 +1435,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     listview_set_scrollbar_width ( state->list_view, config.scrollbar_width );
     listview_set_cycle ( state->list_view, config.cycle );
     listview_set_scroll_type ( state->list_view, config.scroll_method );
+    listview_set_mouse_activated_cb ( state->list_view, rofi_view_listview_mouse_activated_cb, state );
 
     box_add ( state->main_box, WIDGET ( state->list_view ), TRUE, FALSE );
 

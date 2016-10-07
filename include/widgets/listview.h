@@ -17,6 +17,7 @@ typedef enum
 } ScrollType;
 
 typedef void ( *listview_update_callback )( textbox *tb, unsigned int entry, void *udata, TextBoxFontType type, gboolean full );
+typedef void ( *listview_mouse_activated_cb )( listview *, xcb_button_press_event_t *, void * );
 
 listview *listview_create ( listview_update_callback cb, void *udata, unsigned int eh );
 
@@ -71,7 +72,6 @@ void listview_nav_page_next ( listview *lv );
  * - Clip at top/bottom
  */
 void listview_nav_page_prev ( listview *lv );
-void listview_display_changed ( listview *lv );
 /**
  * Configuration.
  */
@@ -83,6 +83,7 @@ void listview_set_hide_scrollbar ( listview *lv, gboolean enabled );
 void listview_set_scrollbar_width ( listview *lv, unsigned int width );
 void listview_set_cycle ( listview *lv, gboolean cycle );
 void listview_set_scroll_type ( listview *lv, ScrollType type );
+void listview_set_mouse_activated_cb ( listview *lv, listview_mouse_activated_cb cb, void *udata );
 /* @} */
 
 #endif // ROFI_LISTVIEW_H

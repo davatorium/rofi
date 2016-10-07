@@ -31,39 +31,43 @@
 
 struct _listview
 {
-    widget                   widget;
+    widget                      widget;
     // RChanged
     // Text needs to be repainted.
-    unsigned int             rchanged;
+    unsigned int                rchanged;
     // Administration
 
-    unsigned int             cur_page;
-    unsigned int             last_offset;
-    unsigned int             selected;
+    unsigned int                cur_page;
+    unsigned int                last_offset;
+    unsigned int                selected;
 
-    unsigned int             element_height;
-    unsigned int             element_width;
-    unsigned int             max_rows;
-    unsigned int             max_elements;
+    unsigned int                element_height;
+    unsigned int                element_width;
+    unsigned int                max_rows;
+    unsigned int                max_elements;
 
     //
-    unsigned int             cur_columns;
-    unsigned int             req_elements;
-    unsigned int             cur_elements;
+    unsigned int                cur_columns;
+    unsigned int                req_elements;
+    unsigned int                cur_elements;
 
-    unsigned int             padding;
-    unsigned int             menu_lines;
-    unsigned int             menu_columns;
-    unsigned int             fixed_num_lines;
-    gboolean                 cycle;
+    unsigned int                padding;
+    unsigned int                menu_lines;
+    unsigned int                menu_columns;
+    unsigned int                fixed_num_lines;
+    gboolean                    cycle;
 
-    ScrollType               scroll_type;
+    ScrollType                  scroll_type;
 
-    textbox                  **boxes;
-    scrollbar                *scrollbar;
+    textbox                     **boxes;
+    scrollbar                   *scrollbar;
 
-    listview_update_callback callback;
-    void                     *udata;
+    listview_update_callback    callback;
+    void                        *udata;
+
+    xcb_timestamp_t             last_click;
+    listview_mouse_activated_cb mouse_activated;
+    void                        *mouse_activated_data;
 };
 
 static void listview_free ( widget *widget )
@@ -83,8 +87,7 @@ static unsigned int scroll_per_page ( listview * lv )
     else{
         // Do paginating
         unsigned int page = ( lv->max_elements > 0 ) ? ( lv->selected / lv->max_elements ) : 0;
-        offset          = page * lv->max_elements;
-        lv->last_offset = offset;
+        offset = page * lv->max_elements;
         if ( page != lv->cur_page ) {
             lv->cur_page = page;
             lv->rchanged = TRUE;
@@ -137,6 +140,7 @@ static void listview_draw ( widget *wid, cairo_t *draw )
     else {
         offset = scroll_per_page ( lv );
     }
+    lv->last_offset = offset;
     if ( lv->cur_elements > 0 && lv->max_rows > 0 ) {
         cairo_save ( draw );
         // Set new x/y possition.
@@ -238,15 +242,58 @@ static void listview_resize ( widget *wid, short w, short h )
     widget_queue_redraw ( wid );
 }
 
+static gboolean listview_scrollbar_clicked ( widget *sb, xcb_button_press_event_t * xce, void *udata )
+{
+    listview     *lv = (listview *) udata;
+
+    unsigned int sel = scrollbar_clicked ( (scrollbar *) sb, xce->event_y );
+    listview_set_selected ( lv, sel );
+
+    return TRUE;
+}
+
+static gboolean listview_clicked ( widget *wid, xcb_button_press_event_t *xce, G_GNUC_UNUSED void *udata )
+{
+    listview *lv = (listview *) wid;
+    if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) && widget_intersect ( WIDGET ( lv->scrollbar ), xce->event_x, xce->event_y ) ) {
+        // Forward to handler of scrollbar.
+        xcb_button_press_event_t xce2 = *xce;
+        xce->event_x -= lv->scrollbar->widget.x;
+        xce->event_y -= lv->scrollbar->widget.y;
+        return widget_clicked ( WIDGET ( lv->scrollbar ), &xce2 );
+    }
+    // Handle the boxes.
+    unsigned int max = MIN ( lv->cur_elements, lv->req_elements - lv->last_offset );
+    for ( unsigned int i = 0; i < max; i++ ) {
+        widget *w = WIDGET ( lv->boxes[i] );
+        if ( widget_intersect ( w, xce->event_x, xce->event_y ) ) {
+            if ( ( lv->last_offset + i ) == lv->selected ) {
+                if ( ( xce->time - lv->last_click ) < 200 ) {
+                    // Somehow signal we accepted item.
+                    lv->mouse_activated ( lv, xce, lv->mouse_activated_data );
+                }
+            }
+            else {
+                listview_set_selected ( lv, lv->last_offset + i );
+            }
+            lv->last_click = xce->time;
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 listview *listview_create ( listview_update_callback cb, void *udata, unsigned int eh )
 {
     listview *lv = g_malloc0 ( sizeof ( listview ) );
     lv->widget.free    = listview_free;
     lv->widget.resize  = listview_resize;
     lv->widget.draw    = listview_draw;
+    lv->widget.clicked = listview_clicked;
     lv->widget.enabled = TRUE;
 
-    lv->scrollbar                = scrollbar_create ( 0, 0, 4, 0 );
+    lv->scrollbar = scrollbar_create ( 0, 0, 4, 0 );
+    widget_set_clicked_handler ( WIDGET ( lv->scrollbar ), listview_scrollbar_clicked, lv );
     lv->scrollbar->widget.parent = WIDGET ( lv );
     // Calculate height of an element.
     lv->element_height = textbox_get_estimated_char_height () * eh;
@@ -364,13 +411,6 @@ unsigned int listview_get_desired_height ( listview *lv )
     return h * lv->element_height + ( h - 1 ) * lv->padding;
 }
 
-void listview_display_changed ( listview *lv )
-{
-    if ( lv ) {
-        lv->rchanged = TRUE;
-    }
-}
-
 /**
  * Configure the widget!
  */
@@ -428,5 +468,13 @@ void listview_set_scroll_type ( listview *lv, ScrollType type )
 {
     if ( lv ) {
         lv->scroll_type = type;
+    }
+}
+
+void listview_set_mouse_activated_cb ( listview *lv, listview_mouse_activated_cb cb, void *udata )
+{
+    if ( lv ) {
+        lv->mouse_activated      = cb;
+        lv->mouse_activated_data = udata;
     }
 }

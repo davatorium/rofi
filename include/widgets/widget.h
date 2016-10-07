@@ -100,7 +100,6 @@ void widget_resize ( widget *widget, short w, short h );
 
 int widget_get_height ( widget *widget );
 int widget_get_width ( widget *widget );
-widget *widget_create ( void );
 
 void widget_update ( widget *widget );
 void widget_queue_redraw ( widget *widget );

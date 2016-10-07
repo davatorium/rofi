@@ -45,8 +45,6 @@ static void box_update ( widget *wid  );
 
 static void vert_calculate_size ( box *b )
 {
-    int bottom            = b->widget.h;
-    int top               = 0;
     int expanding_widgets = 0;
     int active_widgets    = 0;
     b->max_size = 0;
@@ -68,8 +66,10 @@ static void vert_calculate_size ( box *b )
         return;
     }
     if ( active_widgets > 0 ) {
-        double rem   = b->widget.h - b->max_size;
-        int    index = 0;
+        int    bottom = b->widget.h;
+        int    top    = 0;
+        double rem    = b->widget.h - b->max_size;
+        int    index  = 0;
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
             widget * child = (widget *) iter->data;
             if ( child->enabled == FALSE ) {
@@ -110,8 +110,6 @@ static void vert_calculate_size ( box *b )
 }
 static void hori_calculate_size ( box *b )
 {
-    int right             = b->widget.w;
-    int left              = 0;
     int expanding_widgets = 0;
     int active_widgets    = 0;
     b->max_size = 0;
@@ -134,6 +132,8 @@ static void hori_calculate_size ( box *b )
         return;
     }
     if ( active_widgets > 0 ) {
+        int    right = b->widget.w;
+        int    left  = 0;
         double rem   = b->widget.w - b->max_size;
         int    index = 0;
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {

@@ -1,18 +1,6 @@
 #include <glib.h>
 #include "widgets/widget.h"
 
-static void _widget_free ( widget *widget )
-{
-    g_free ( widget );
-}
-
-widget *widget_create ( void )
-{
-    widget *g = g_malloc0 ( sizeof ( widget ) );
-    g->enabled = TRUE;
-    g->free    = _widget_free;
-    return g;
-}
 int widget_intersect ( const widget *widget, int x, int y )
 {
     if ( widget == NULL ) {
