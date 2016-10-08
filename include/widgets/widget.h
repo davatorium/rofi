@@ -2,6 +2,7 @@
 #define ROFI_WIDGET_H
 #include <glib.h>
 #include <cairo.h>
+#include <xcb/xcb.h>
 #include <xcb/xproto.h>
 /**
  * @defgroup widgets widgets
