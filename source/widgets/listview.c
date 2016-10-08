@@ -223,8 +223,10 @@ unsigned int listview_get_selected ( listview *lv )
 
 void listview_set_selected ( listview *lv, unsigned int selected )
 {
-    lv->selected = MAX ( 0, MIN ( selected, lv->req_elements - 1 ) );
-    widget_queue_redraw ( WIDGET ( lv ) );
+    if ( lv && lv->req_elements > 0 ) {
+        lv->selected = MIN ( selected, lv->req_elements - 1 );
+        widget_queue_redraw ( WIDGET ( lv ) );
+    }
 }
 
 static void listview_resize ( widget *wid, short w, short h )
@@ -232,7 +234,7 @@ static void listview_resize ( widget *wid, short w, short h )
     listview *lv = (listview *) wid;
     lv->widget.w     = MAX ( 0, w );
     lv->widget.h     = MAX ( 0, h );
-    lv->max_rows     = MAX ( 0, ( lv->padding + lv->widget.h ) / ( lv->element_height + lv->padding ) );
+    lv->max_rows     = ( lv->padding + lv->widget.h ) / ( lv->element_height + lv->padding );
     lv->max_elements = lv->max_rows * lv->menu_columns;
 
     widget_move ( WIDGET ( lv->scrollbar ), lv->widget.w - lv->scrollbar->widget.w, 0 );

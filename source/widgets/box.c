@@ -32,13 +32,13 @@
 
 struct _box
 {
-    widget       widget;
-    boxType      type;
-    int          max_size;
+    widget  widget;
+    boxType type;
+    int     max_size;
     // Padding between elements
-    unsigned int padding;
+    int     padding;
 
-    GList        *children;
+    GList   *children;
 };
 
 static void box_update ( widget *wid  );
