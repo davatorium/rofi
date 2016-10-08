@@ -23,11 +23,14 @@ rofi_SOURCES=\
 	source/keyb.c\
 	config/config.c\
 	source/helper.c\
-	source/widget.c\
-	source/textbox.c\
 	source/timings.c\
 	source/history.c\
-	source/scrollbar.c\
+	source/widgets/box.c\
+	source/widgets/widget.c\
+	source/widgets/textbox.c\
+	source/widgets/listview.c\
+	source/widgets/scrollbar.c\
+	source/widgets/separator.c\
 	source/xrmoptions.c\
 	source/x11-helper.c\
 	source/dialogs/run.c\
@@ -50,9 +53,12 @@ rofi_SOURCES=\
 	include/helper.h\
 	include/timings.h\
 	include/history.h\
-	include/widget.h\
-	include/textbox.h\
-	include/scrollbar.h\
+	include/widgets/box.h\
+	include/widgets/widget.h\
+	include/widgets/textbox.h\
+	include/widgets/listview.h\
+	include/widgets/scrollbar.h\
+	include/widgets/separator.h\
 	include/xrmoptions.h\
 	include/x11-helper.h\
 	include/dialogs/ssh.h\
@@ -181,20 +187,19 @@ textbox_test_LDADD=\
 widget_test_LDADD=$(textbox_test_LDADD)
 widget_test_CFLAGS=$(textbox_test_CFLAGS)
 widget_test_SOURCES=\
-			source/widget.c\
+			source/widgets/widget.c\
 			test/widget-test.c
 textbox_test_SOURCES=\
-	source/widget.c\
-	source/textbox.c\
+	source/widgets/widget.c\
+	source/widgets/textbox.c\
 	config/config.c\
 	include/keyb.h\
 	include/rofi.h\
 	include/mode.h\
 	include/mode-private.h\
 	include/settings.h\
-	include/widget.h\
-	include/textbox.h\
-	include/widget.h\
+	include/widgets/widget.h\
+	include/widgets/textbox.h\
 	include/xrmoptions.h\
 	include/helper.h\
 	test/textbox-test.c

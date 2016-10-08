@@ -30,7 +30,7 @@
 #include <glib.h>
 #include <math.h>
 #include "settings.h"
-#include "textbox.h"
+#include "widgets/textbox.h"
 #include "keyb.h"
 #include "x11-helper.h"
 #include "mode.h"
@@ -38,8 +38,10 @@
 
 #define DOT_OFFSET    15
 
-static void textbox_draw ( Widget *, cairo_t * );
-static void textbox_free ( Widget * );
+static void textbox_draw ( widget *, cairo_t * );
+static void textbox_free ( widget * );
+static int textbox_get_width ( widget * );
+static int _textbox_get_height ( widget * );
 
 /**
  * Font + font color cache.
@@ -65,6 +67,7 @@ static gboolean textbox_blink ( gpointer data )
     if ( tb->blink < 2 ) {
         tb->blink  = !tb->blink;
         tb->update = TRUE;
+        widget_queue_redraw ( WIDGET ( tb ) );
         rofi_view_queue_redraw ( );
     }
     else {
@@ -73,14 +76,23 @@ static gboolean textbox_blink ( gpointer data )
     return TRUE;
 }
 
+static void textbox_resize ( widget *wid, short w, short h )
+{
+    textbox *tb = (textbox *) wid;
+    textbox_moveresize ( tb, tb->widget.x, tb->widget.y, w, h );
+}
+
 textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h,
                           TextBoxFontType tbft, const char *text )
 {
     textbox *tb = g_slice_new0 ( textbox );
 
-    tb->widget.draw = textbox_draw;
-    tb->widget.free = textbox_free;
-    tb->flags       = flags;
+    tb->widget.draw       = textbox_draw;
+    tb->widget.free       = textbox_free;
+    tb->widget.resize     = textbox_resize;
+    tb->widget.get_width  = textbox_get_width;
+    tb->widget.get_height = _textbox_get_height;
+    tb->flags             = flags;
 
     tb->widget.x = x;
     tb->widget.y = y;
@@ -117,6 +129,9 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
 void textbox_font ( textbox *tb, TextBoxFontType tbft )
 {
     TextBoxFontType t = tbft & STATE_MASK;
+    if ( tb == NULL ) {
+        return;
+    }
     // ACTIVE has priority over URGENT if both set.
     if ( t == ( URGENT | ACTIVE ) ) {
         t = ACTIVE;
@@ -139,6 +154,7 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
     }
     if ( tb->tbft != tbft ) {
         tb->update = TRUE;
+        widget_need_redraw ( WIDGET ( tb ) );
     }
     tb->tbft = tbft;
 }
@@ -202,9 +218,11 @@ void textbox_text ( textbox *tb, const char *text )
     __textbox_update_pango_text ( tb );
     if ( tb->flags & TB_AUTOWIDTH ) {
         textbox_moveresize ( tb, tb->widget.x, tb->widget.y, tb->widget.w, tb->widget.h );
+        widget_update ( WIDGET ( tb ) );
     }
 
     tb->cursor = MAX ( 0, MIN ( ( int ) g_utf8_strlen ( tb->text, -1 ), tb->cursor ) );
+    widget_need_redraw ( WIDGET ( tb ) );
 }
 
 // within the parent handled auto width/height modes
@@ -213,7 +231,8 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
     if ( tb->flags & TB_AUTOWIDTH ) {
         pango_layout_set_width ( tb->layout, -1 );
-        w = textbox_get_width ( tb );
+        unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+        w = textbox_get_font_width ( tb ) + 2 * config.line_padding + offset;
     }
     else {
         // set ellipsize
@@ -242,12 +261,13 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     // We always want to update this
     pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - 2 * config.line_padding - offset ) );
     tb->update = TRUE;
+    widget_need_redraw ( WIDGET ( tb ) );
 }
 
 // will also unmap the window if still displayed
-static void textbox_free ( Widget *widget  )
+static void textbox_free ( widget *wid )
 {
-    textbox *tb = (textbox *) widget;
+    textbox *tb = (textbox *) wid;
     if ( tb->blink_timeout > 0 ) {
         g_source_remove ( tb->blink_timeout );
         tb->blink_timeout = 0;
@@ -356,9 +376,9 @@ static void texbox_update ( textbox *tb )
         tb->update = FALSE;
     }
 }
-static void textbox_draw ( Widget *widget, cairo_t *draw )
+static void textbox_draw ( widget *wid, cairo_t *draw )
 {
-    textbox *tb = (textbox *) widget;
+    textbox *tb = (textbox *) wid;
     texbox_update ( tb );
 
     /* Write buffer */
@@ -374,6 +394,7 @@ void textbox_cursor ( textbox *tb, int pos )
     int length = ( tb->text == NULL ) ? 0 : g_utf8_strlen ( tb->text, -1 );
     tb->cursor = MAX ( 0, MIN ( length, pos ) );
     tb->update = TRUE;
+    widget_need_redraw ( WIDGET ( tb ) );
     // Stop blink!
     tb->blink = 2;
 }
@@ -458,10 +479,12 @@ void textbox_cursor_end ( textbox *tb )
     if ( tb->text == NULL ) {
         tb->cursor = 0;
         tb->update = TRUE;
+        widget_need_redraw ( WIDGET ( tb ) );
         return;
     }
     tb->cursor = ( int ) g_utf8_strlen ( tb->text, -1 );
     tb->update = TRUE;
+    widget_need_redraw ( WIDGET ( tb ) );
     // Stop blink!
     tb->blink = 2;
 }
@@ -718,12 +741,30 @@ void textbox_cleanup ( void )
     }
 }
 
-int textbox_get_width ( const textbox *tb )
+int textbox_get_width ( widget *wid )
 {
-    unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
-    return textbox_get_font_width ( tb ) + 2 * config.line_padding + offset;
+    textbox *tb = (textbox *) wid;
+    if ( !wid->expand ) {
+        if ( tb->flags & TB_AUTOWIDTH ) {
+            unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+            return textbox_get_font_width ( tb ) + 2 * config.line_padding + offset;
+        }
+        return tb->widget.w;
+    }
+    return tb->widget.w;
 }
 
+int _textbox_get_height ( widget *wid )
+{
+    textbox *tb = (textbox *) wid;
+    if ( !wid->expand ) {
+        if ( tb->flags & TB_AUTOHEIGHT ) {
+            return textbox_get_height ( tb );
+        }
+        return tb->widget.h;
+    }
+    return tb->widget.h;
+}
 int textbox_get_height ( const textbox *tb )
 {
     return textbox_get_font_height ( tb ) + 2 * config.line_padding;

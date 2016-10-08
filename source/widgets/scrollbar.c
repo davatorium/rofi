@@ -25,12 +25,12 @@
 #include <config.h>
 #include <xkbcommon/xkbcommon.h>
 #include <glib.h>
-#include "scrollbar.h"
+#include "widgets/scrollbar.h"
 #include "x11-helper.h"
 #include "settings.h"
 
-static void scrollbar_draw ( Widget *widget, cairo_t *draw );
-static void scrollbar_free ( Widget * );
+static void scrollbar_draw ( widget *, cairo_t * );
+static void scrollbar_free ( widget * );
 
 scrollbar *scrollbar_create ( short x, short y, short w, short h )
 {
@@ -53,9 +53,9 @@ scrollbar *scrollbar_create ( short x, short y, short w, short h )
     return sb;
 }
 
-static void scrollbar_free ( Widget *widget )
+static void scrollbar_free ( widget *wid )
 {
-    scrollbar *sb = (scrollbar *) widget;
+    scrollbar *sb = (scrollbar *) wid;
     g_free ( sb );
 }
 
@@ -80,9 +80,9 @@ void scrollbar_set_handle_length ( scrollbar *sb, unsigned int pos_length )
     }
 }
 
-static void scrollbar_draw ( Widget *widget, cairo_t *draw )
+static void scrollbar_draw ( widget *wid, cairo_t *draw )
 {
-    scrollbar   *sb = (scrollbar *) widget;
+    scrollbar   *sb = (scrollbar *) wid;
     // Calculate position and size.
     const short bh     = sb->widget.h - 0;
     float       sec    = ( ( bh ) / (float) sb->length );
@@ -97,20 +97,10 @@ static void scrollbar_draw ( Widget *widget, cairo_t *draw )
     // Redraw base window
     color_separator ( draw );
 
-    cairo_rectangle ( draw, sb->widget.x + config.line_margin, sb->widget.y + y, sb->widget.w - config.line_margin, height );
+    cairo_rectangle ( draw, sb->widget.x, sb->widget.y + y, sb->widget.w, height );
     cairo_fill ( draw );
 }
-void scrollbar_resize ( scrollbar *sb, int w, int h )
-{
-    if ( sb != NULL ) {
-        if ( h > 0 ) {
-            sb->widget.h = h;
-        }
-        if ( w > 0 ) {
-            sb->widget.w = w;
-        }
-    }
-}
+
 unsigned int scrollbar_clicked ( const scrollbar *sb, int y )
 {
     if ( sb != NULL ) {

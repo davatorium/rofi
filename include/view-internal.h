@@ -1,8 +1,10 @@
 #ifndef ROFI_VIEW_INTERNAL_H
 #define ROFI_VIEW_INTERNAL_H
-#include "widget.h"
-#include "textbox.h"
-#include "scrollbar.h"
+#include "widgets/widget.h"
+#include "widgets/textbox.h"
+#include "widgets/separator.h"
+#include "widgets/listview.h"
+#include "widgets/box.h"
 #include "keyb.h"
 #include "x11-helper.h"
 
@@ -16,27 +18,21 @@
 struct RofiViewState
 {
     Mode             *sw;
-    unsigned int     menu_lines;
-    unsigned int     max_elements;
-    unsigned int     max_rows;
-    unsigned int     columns;
-
-    unsigned int     element_width;
-    int              top_offset;
 
     // Update/Refilter list.
-    int              update;
     int              refilter;
     int              rchanged;
-    unsigned int     cur_page;
 
+    box              *main_box;
     // Entries
+    box              *input_bar;
+    separator        *input_bar_separator;
+
+    textbox          *prompt;
     textbox          *text;
-    textbox          *prompt_tb;
-    textbox          *message_tb;
     textbox          *case_indicator;
-    textbox          **boxes;
-    scrollbar        *scrollbar;
+
+    listview         *list_view;
     // Small overlay.
     textbox          *overlay;
     int              *distance;
@@ -45,7 +41,6 @@ struct RofiViewState
     unsigned int     num_lines;
 
     // Selected element.
-    unsigned int     selected;
     unsigned int     filtered_lines;
     // Last offset in paginating.
     unsigned int     last_offset;
@@ -58,11 +53,11 @@ struct RofiViewState
     // Return state
     unsigned int     selected_line;
     MenuReturn       retv;
-    int              line_height;
     unsigned int     border;
     workarea         mon;
 
     // Sidebar view
+    box              *sidebar_bar;
     unsigned int     num_modi;
     textbox          **modi;
 

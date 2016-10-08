@@ -47,7 +47,7 @@
 #include "rofi.h"
 #include "settings.h"
 #include "helper.h"
-#include "textbox.h"
+#include "widgets/textbox.h"
 #include "x11-helper.h"
 #include "dialogs/window.h"
 

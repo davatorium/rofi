@@ -54,7 +54,7 @@
 #include "mode.h"
 #include "rofi.h"
 #include "helper.h"
-#include "textbox.h"
+#include "widgets/textbox.h"
 #include "x11-helper.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
@@ -73,9 +73,9 @@ struct xkb_stuff xkb        = {
     .keymap         = NULL,
     .state          = NULL,
     .compose        = {
-        .table = NULL,
-        .state = NULL
-    }
+                       .table = NULL,
+                       .state = NULL
+}
 };
 char             *config_path = NULL;
 // Array of modi.
@@ -157,24 +157,6 @@ static void teardown ( int pfd )
     // Cleanup pid file.
     remove_pid_file ( pfd );
 }
-
-static void __run_switcher_internal ( ModeMode mode, char *input )
-{
-    char          *prompt = g_strdup_printf ( "%s:", mode_get_display_name ( modi[mode] ) );
-    curr_switcher = mode;
-    RofiViewState * state = rofi_view_create ( modi[mode], input, prompt, NULL, MENU_NORMAL, process_result );
-    g_free ( prompt );
-    if ( state ) {
-        rofi_view_set_active ( state );
-    }
-    else {
-        rofi_view_set_active ( NULL );
-
-        if ( rofi_view_get_active () == NULL ) {
-            g_main_loop_quit ( main_loop  );
-        }
-    }
-}
 static void run_switcher ( ModeMode mode )
 {
     // Otherwise check if requested mode is enabled.
@@ -184,9 +166,14 @@ static void run_switcher ( ModeMode mode )
             return;
         }
     }
-    char *input = g_strdup ( config.filter );
-    __run_switcher_internal ( mode, input );
-    g_free ( input );
+    curr_switcher = mode;
+    RofiViewState * state = rofi_view_create ( modi[mode], config.filter, NULL, MENU_NORMAL, process_result );
+    if ( state ) {
+        rofi_view_set_active ( state );
+    }
+    if ( rofi_view_get_active () == NULL ) {
+        g_main_loop_quit ( main_loop  );
+    }
 }
 void process_result ( RofiViewState *state )
 {
@@ -197,8 +184,9 @@ void process_result ( RofiViewState *state )
         MenuReturn   mretv         = rofi_view_get_return_value ( state );
         char         *input        = g_strdup ( rofi_view_get_user_input ( state ) );
         ModeMode     retv          = mode_result ( sw, mretv, &input, selected_line );
+        g_free ( input );
 
-        ModeMode     mode = curr_switcher;
+        ModeMode mode = curr_switcher;
         // Find next enabled
         if ( retv == NEXT_DIALOG ) {
             mode = ( mode + 1 ) % num_modi;
@@ -224,9 +212,11 @@ void process_result ( RofiViewState *state )
             /**
              * Load in the new mode.
              */
-            __run_switcher_internal ( mode, input );
+            rofi_view_switch_mode ( state, modi[mode] );
+            rofi_view_set_active ( state );
+            curr_switcher = mode;
+            return;
         }
-        g_free ( input );
     }
     rofi_view_free ( state );
 }
@@ -466,22 +456,22 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
             xkb.state  = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
             break;
         case XCB_XKB_STATE_NOTIFY:
-        {
-            xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
-            guint                        modmask;
-            xkb_state_update_mask ( xkb.state,
-                                    ksne->baseMods,
-                                    ksne->latchedMods,
-                                    ksne->lockedMods,
-                                    ksne->baseGroup,
-                                    ksne->latchedGroup,
-                                    ksne->lockedGroup );
-            modmask = x11_get_current_mask ( &xkb );
-            if ( modmask == 0 ) {
-                abe_trigger_release ( );
+            {
+                xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
+                guint                        modmask;
+                xkb_state_update_mask ( xkb.state,
+                                        ksne->baseMods,
+                                        ksne->latchedMods,
+                                        ksne->lockedMods,
+                                        ksne->baseGroup,
+                                        ksne->latchedGroup,
+                                        ksne->lockedGroup );
+                modmask = x11_get_current_mask ( &xkb );
+                if ( modmask == 0 ) {
+                    abe_trigger_release ( );
+                }
+                break;
             }
-            break;
-        }
         }
         return G_SOURCE_CONTINUE;
     }
@@ -543,19 +533,18 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
      * Create window (without showing)
      */
     __create_window ( window_flags );
-
-    //
-    // Sanity check
-    if ( config_sanity_check ( ) ) {
-        return G_SOURCE_REMOVE;
-    }
-    TICK_N ( "Config sanity check" );
+    TICK_N ( "Create Window" );
     // Parse the keybindings.
     if ( !parse_keys_abe () ) {
         // Error dialog
         return G_SOURCE_REMOVE;
     }
     TICK_N ( "Parse ABE" );
+    // Sanity check
+    if ( config_sanity_check ( ) ) {
+        return G_SOURCE_REMOVE;
+    }
+    TICK_N ( "Config sanity check" );
     // Dmenu mode.
     if ( dmenu_mode == TRUE ) {
         // force off sidebar mode:

@@ -7,7 +7,7 @@
 #include <history.h>
 #include <string.h>
 #include <xcb/xcb.h>
-#include <textbox.h>
+#include <widgets/textbox.h>
 #include <rofi.h>
 #include <cairo-xlib.h>
 #include "settings.h"
@@ -70,10 +70,10 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     textbox_cursor_end ( box );
     TASSERT ( box->cursor == 6 );
 
-    TASSERT ( textbox_get_width ( box ) > 0 );
+    TASSERT ( widget_get_width ( WIDGET ( box ) ) > 0 );
     TASSERT ( textbox_get_height ( box ) > 0 );
 
-    TASSERT ( textbox_get_width ( box ) >= textbox_get_font_width ( box )  );
+    TASSERT ( widget_get_width ( WIDGET ( box ) ) >= textbox_get_font_width ( box )  );
     TASSERT ( textbox_get_height ( box ) >= textbox_get_font_height ( box )  );
 
     TASSERT ( textbox_get_estimated_char_width ( ) > 0 );

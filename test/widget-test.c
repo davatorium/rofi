@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <glib.h>
 #include <string.h>
-#include <widget.h>
+#include <widgets/widget.h>
 unsigned int test =0;
 #define TASSERT( a )    {                                 \
         assert ( a );                                     \
@@ -16,7 +16,7 @@ unsigned int test =0;
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
 //    box 20 by 40
-    Widget widget  = { 10,10,20,40 };
+    widget widget  = { 10,10,20,40 };
 
     // Left of box
     TASSERT ( widget_intersect ( &widget, 0, 0) == 0 );

@@ -5,7 +5,7 @@
 
 /**
  * @defgroup Scrollbar Scrollbar
- * @ingroup Widgets
+ * @ingroup widgets
  *
  * @{
  */
@@ -14,7 +14,7 @@
  */
 typedef struct _scrollbar
 {
-    Widget       widget;
+    widget       widget;
     unsigned int length;
     unsigned int pos;
     unsigned int pos_length;
@@ -63,15 +63,6 @@ void scrollbar_set_max_value ( scrollbar *sb, unsigned int max );
  * Calculate the position of the click relative to the max value of bar
  */
 unsigned int scrollbar_clicked ( const scrollbar *sb, int y );
-
-/**
- * @param sb scrollbar object
- * @param w  new width in pixels
- * @param h  new height in pixels
- *
- * Resize the scrollbar.
- */
-void scrollbar_resize ( scrollbar *sb, int w, int h );
 
 /*@}*/
 #endif // ROFI_SCROLLBAR_H

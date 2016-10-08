@@ -40,9 +40,9 @@ typedef enum
  *
  * @returns The command issued (see MenuReturn)
  */
-RofiViewState *rofi_view_create ( Mode *sw, const char *input, char *prompt, const char *message, MenuFlags flags, void ( *finalize )(
+RofiViewState *rofi_view_create ( Mode *sw, const char *input, const char *message, MenuFlags flags, void ( *finalize )(
                                       RofiViewState * ) )
-__attribute__ ( ( nonnull ( 1, 2, 3, 6 ) ) );
+__attribute__ ( ( nonnull ( 1, 2, 5 ) ) );
 
 /**
  * @param state The Menu Handle
@@ -162,5 +162,6 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text );
  */
 void rofi_view_hide ( void );
 void rofi_view_reload ( void  );
+void rofi_view_switch_mode ( RofiViewState *state, Mode *mode );
 /**@}*/
 #endif

@@ -41,7 +41,7 @@
 #include <fcntl.h>
 #include "rofi.h"
 #include "settings.h"
-#include "textbox.h"
+#include "widgets/textbox.h"
 #include "dialogs/dmenu.h"
 #include "helper.h"
 #include "xrmoptions.h"
@@ -72,8 +72,6 @@ static inline void bittoggle ( uint32_t *array, unsigned int index )
 typedef struct
 {
     /** Settings */
-    // Prompt
-    char              *prompt;
     // Separator.
     char              separator;
 
@@ -364,7 +362,6 @@ static int dmenu_mode_init ( Mode *sw )
     mode_set_private_data ( sw, g_malloc0 ( sizeof ( DmenuModePrivateData ) ) );
     DmenuModePrivateData *pd = (DmenuModePrivateData *) mode_get_private_data ( sw );
 
-    pd->prompt        = "dmenu ";
     pd->separator     = '\n';
     pd->selected_line = UINT32_MAX;
 
@@ -373,8 +370,6 @@ static int dmenu_mode_init ( Mode *sw )
     // Input data separator.
     find_arg_char ( "-sep", &( pd->separator ) );
 
-    // Check prompt
-    find_arg_str (  "-p", &( pd->prompt ) );
     find_arg_uint (  "-selected-row", &( pd->selected_line ) );
     // By default we print the unescaped line back.
     pd->format = "s";
@@ -663,7 +658,8 @@ int dmenu_switcher_dialog ( void )
         g_free ( input );
         return TRUE;
     }
-    RofiViewState *state = rofi_view_create ( &dmenu_mode, input, pd->prompt, pd->message, menu_flags, dmenu_finalize );
+    find_arg_str (  "-p", &( dmenu_mode.display_name ) );
+    RofiViewState *state = rofi_view_create ( &dmenu_mode, input, pd->message, menu_flags, dmenu_finalize );
     // @TODO we should do this better.
     if ( async ) {
         rofi_view_set_overlay ( state, "Loading.. " );

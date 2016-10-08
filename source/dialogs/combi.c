@@ -169,6 +169,9 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
             return MODE_EXIT;
         }
     }
+    if ( mretv & MENU_QUICK_SWITCH ) {
+        return mretv & MENU_LOWER_MASK;
+    }
 
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( selected_line >= pd->starts[i] &&

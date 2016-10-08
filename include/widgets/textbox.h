@@ -12,14 +12,13 @@
 
 /**
  * @defgroup Textbox Textbox
- * @ingroup Widgets
+ * @ingroup widgets
  *
  * @{
  */
-
 typedef struct
 {
-    Widget          widget;
+    widget          widget;
     unsigned long   flags;
     short           cursor;
     Color           color_fg, color_bg;
@@ -39,16 +38,16 @@ typedef struct
 
 typedef enum
 {
-    TB_AUTOHEIGHT = 1 << 0,
-    TB_AUTOWIDTH  = 1 << 1,
-    TB_LEFT       = 1 << 16,
-    TB_RIGHT      = 1 << 17,
-    TB_CENTER     = 1 << 18,
-    TB_EDITABLE   = 1 << 19,
-    TB_MARKUP     = 1 << 20,
-    TB_WRAP       = 1 << 21,
-    TB_PASSWORD   = 1 << 22,
-    TB_INDICATOR  = 1 << 23,
+    TB_AUTOHEIGHT    = 1 << 0,
+        TB_AUTOWIDTH = 1 << 1,
+        TB_LEFT      = 1 << 16,
+        TB_RIGHT     = 1 << 17,
+        TB_CENTER    = 1 << 18,
+        TB_EDITABLE  = 1 << 19,
+        TB_MARKUP    = 1 << 20,
+        TB_WRAP      = 1 << 21,
+        TB_PASSWORD  = 1 << 22,
+        TB_INDICATOR = 1 << 23,
 } TextboxFlags;
 
 typedef enum
@@ -145,15 +144,6 @@ void textbox_cleanup ( void );
  * @returns the height of the textbox in pixels.
  */
 int textbox_get_height ( const textbox *tb );
-
-/**
- * @param tb Handle to the textbox
- *
- * Get the width of the textbox
- *
- * @returns the width of the textbox in pixels.
- */
-int textbox_get_width ( const textbox *tb );
 
 /**
  * @param tb Handle to the textbox
