@@ -1427,6 +1427,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     state->list_view = listview_create ( update_callback, state, config.element_height );
     // Set configuration
+    listview_set_multi_select ( state->list_view, ( state->menu_flags & MENU_INDICATOR ) == MENU_INDICATOR );
     listview_set_padding ( state->list_view, config.line_margin );
     listview_set_max_lines ( state->list_view, config.menu_lines );
     listview_set_max_columns ( state->list_view, config.menu_columns );

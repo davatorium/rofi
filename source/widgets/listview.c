@@ -56,6 +56,7 @@ struct _listview
     unsigned int                menu_columns;
     unsigned int                fixed_num_lines;
     gboolean                    cycle;
+    gboolean                    multi_select;
 
     ScrollType                  scroll_type;
 
@@ -194,9 +195,8 @@ static void listview_recompute_elements ( listview *lv )
     lv->boxes = g_realloc ( lv->boxes, newne * sizeof ( textbox* ) );
     if ( newne > 0   ) {
         for ( unsigned int i = lv->cur_elements; i < newne; i++ ) {
-            lv->boxes[i] = textbox_create ( 0, 0, 0, 0, lv->element_height, NORMAL, "" );
-
-//            update_element ( lv, i, i, TRUE );
+            TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
+            lv->boxes[i] = textbox_create ( flags, 0, 0, 0, lv->element_height, NORMAL, "" );
         }
     }
     lv->rchanged = TRUE;
@@ -476,5 +476,11 @@ void listview_set_mouse_activated_cb ( listview *lv, listview_mouse_activated_cb
     if ( lv ) {
         lv->mouse_activated      = cb;
         lv->mouse_activated_data = udata;
+    }
+}
+void listview_set_multi_select ( listview *lv, gboolean enable )
+{
+    if ( lv ) {
+        lv->multi_select = enable;
     }
 }

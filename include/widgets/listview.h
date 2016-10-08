@@ -84,6 +84,7 @@ void listview_set_scrollbar_width ( listview *lv, unsigned int width );
 void listview_set_cycle ( listview *lv, gboolean cycle );
 void listview_set_scroll_type ( listview *lv, ScrollType type );
 void listview_set_mouse_activated_cb ( listview *lv, listview_mouse_activated_cb cb, void *udata );
+void listview_set_multi_select ( listview *lv, gboolean enable );
 /* @} */
 
 #endif // ROFI_LISTVIEW_H
