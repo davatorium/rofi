@@ -7,6 +7,8 @@
  * @defgroup separator separator
  * @ingroup widgets
  *
+ * Displays a horizontal separator line. The height of the widget determines the line width.
+ *
  * @{
  */
 typedef struct _separator   separator;

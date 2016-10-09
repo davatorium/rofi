@@ -7,7 +7,11 @@
 /**
  * @defgroup widgets widgets
  *
- * Generic widget class
+ * Generic abstract widget class. Widgets should 'inherit' from this class (first structure in there structure should be
+ * widget).
+ * The generic widget implements generic functions like get_width, get_height, draw, resize, update, free and
+ * clicked.
+ * It also holds information about how the widget should be packed.
  *
  * @{
  */
