@@ -45,7 +45,7 @@ box * box_create ( boxType type, short x, short y, short w, short h );
  * @param end    If the child widget should be packed at the end.
  *
  * Add a widget to the box.
- */ 
+ */
 void box_add ( box *box, widget *child, gboolean expand, gboolean end );
 
 /**
@@ -53,7 +53,7 @@ void box_add ( box *box, widget *child, gboolean expand, gboolean end );
  *
  * Obtains the minimal size required to display all widgets. (expanding widgets are not counted, except for their
  * padding)
- * 
+ *
  * @returns the minimum size in pixels.
  */
 int box_get_fixed_pixels ( box *box );

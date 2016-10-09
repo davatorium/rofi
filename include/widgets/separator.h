@@ -14,13 +14,24 @@
 typedef struct _separator   separator;
 
 /**
- * @param h The height of the separator.
+ * Direction of the separator.
+ */
+
+typedef enum
+{
+    S_HORIZONTAL = 0,
+    S_VERTICAL   = 1
+} separator_type;
+
+/**
+ * @param type The type of separator.
+ * @param sw The thickness of the separator.
  *
  * Create a horizontal separator with height h.
  *
  * @returns a new separator, free with ::widget_free
  */
-separator *separator_create ( short h );
+separator *separator_create ( separator_type type, short sw );
 
 /*@}*/
 #endif // ROFI_SEPARATOR_H
