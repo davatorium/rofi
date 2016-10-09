@@ -55,6 +55,7 @@ rofi_SOURCES=\
 	include/history.h\
 	include/widgets/box.h\
 	include/widgets/widget.h\
+	include/widgets/widget-internal.h\
 	include/widgets/textbox.h\
 	include/widgets/listview.h\
 	include/widgets/scrollbar.h\
@@ -199,6 +200,7 @@ textbox_test_SOURCES=\
 	include/mode-private.h\
 	include/settings.h\
 	include/widgets/widget.h\
+	include/widgets/widget-internal.h\
 	include/widgets/textbox.h\
 	include/xrmoptions.h\
 	include/helper.h\

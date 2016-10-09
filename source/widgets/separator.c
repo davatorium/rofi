@@ -26,6 +26,8 @@
 #include <xkbcommon/xkbcommon.h>
 #include <glib.h>
 #include <string.h>
+#include "widgets/widget.h"
+#include "widgets/widget-internal.h"
 #include "widgets/separator.h"
 #include "x11-helper.h"
 #include "settings.h"

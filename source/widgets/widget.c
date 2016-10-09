@@ -1,5 +1,6 @@
 #include <glib.h>
 #include "widgets/widget.h"
+#include "widgets/widget-internal.h"
 
 int widget_intersect ( const widget *widget, int x, int y )
 {

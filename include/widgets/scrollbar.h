@@ -1,7 +1,8 @@
 #ifndef ROFI_SCROLLBAR_H
 #define ROFI_SCROLLBAR_H
 #include <cairo.h>
-#include "widget.h"
+#include "widgets/widget.h"
+#include "widgets/widget-internal.h"
 
 /**
  * @defgroup Scrollbar Scrollbar

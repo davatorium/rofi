@@ -6,7 +6,8 @@
 #include <pango/pango-fontmap.h>
 #include <pango/pangocairo.h>
 #include <cairo.h>
-#include "widget.h"
+#include "widgets/widget.h"
+#include "widgets/widget-internal.h"
 #include "x11-helper.h"
 #include "keyb.h"
 

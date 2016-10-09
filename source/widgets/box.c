@@ -26,6 +26,8 @@
 
 #include <config.h>
 #include <stdio.h>
+#include "widgets/widget.h"
+#include "widgets/widget-internal.h"
 #include "widgets/box.h"
 
 #define LOG_DOMAIN    "Widgets.Box"

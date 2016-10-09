@@ -6,6 +6,7 @@
 #include <glib.h>
 #include <string.h>
 #include <widgets/widget.h>
+#include <widgets/widget-internal.h>
 unsigned int test =0;
 #define TASSERT( a )    {                                 \
         assert ( a );                                     \
