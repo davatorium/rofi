@@ -102,9 +102,7 @@ void widget_update ( widget *widget )
             widget->update ( widget );
         }
         // Recurse back.
-        if ( widget->parent && widget->parent->update ) {
-            widget->parent->update ( widget->parent );
-        }
+        widget_update ( widget->parent );
     }
 }
 

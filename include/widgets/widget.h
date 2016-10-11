@@ -16,6 +16,10 @@
  * @{
  */
 typedef struct _widget   widget;
+
+/**
+ * Callback for when widget is clicked.
+ */
 typedef gboolean ( *widget_clicked_cb )( widget *, xcb_button_press_event_t *, void * );
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
@@ -41,8 +45,24 @@ int widget_intersect ( const widget *widget, int x, int y );
  */
 void widget_move ( widget *widget, short x, short y );
 
+/**
+ * @param widget Handle to widget
+ *
+ * Check if widget is enabled.
+ * @returns TRUE when widget is enabled.
+ */
 gboolean widget_enabled ( widget *widget );
+/**
+ * @param widget Handle to widget
+ *
+ * Disable the widget.
+ */
 void widget_disable ( widget *widget );
+/**
+ * @param widget Handle to widget
+ *
+ * Enable the widget.
+ */
 void widget_enable ( widget *widget );
 
 /**
