@@ -321,6 +321,10 @@ void rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_l
 
 void rofi_view_free ( RofiViewState *state )
 {
+    if ( state->tokens ) {
+        tokenize_free ( state->tokens );
+        state->tokens = NULL;
+    }
     // Do this here?
     // Wait for final release?
     widget_free ( WIDGET ( state->main_box ) );
@@ -414,7 +418,6 @@ static RofiViewState * __rofi_view_state_create ( void )
 typedef struct _thread_state
 {
     RofiViewState *state;
-    GRegex        **tokens;
     unsigned int  start;
     unsigned int  stop;
     unsigned int  count;
@@ -443,7 +446,7 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
 {
     // input changed
     for ( unsigned int i = t->start; i < t->stop; i++ ) {
-        int match = mode_token_match ( t->state->sw, t->tokens, i );
+        int match = mode_token_match ( t->state->sw, t->state->tokens, i );
         // If each token was matched, add it to list.
         if ( match ) {
             t->state->line_map[t->start + t->count] = i;
@@ -688,29 +691,26 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
 {
     RofiViewState *state = (RofiViewState *) udata;
     if ( full ) {
-        char   *input = mode_preprocess_input ( state->sw, state->text->text );
-        // TODO: MOVE THIS, expensive.
-        GRegex **tokens = tokenize ( input, config.case_sensitive );
-        g_free ( input );
-        int    fstate = 0;
-        char   *text  = mode_get_display_value ( state->sw, state->line_map[index], &fstate, TRUE );
+        int  fstate = 0;
+        char *text  = mode_get_display_value ( state->sw, state->line_map[index], &fstate, TRUE );
         type |= fstate;
         textbox_font ( t, type );
         // Move into list view.
         textbox_text ( t, text );
 
-        PangoAttrList *list = textbox_get_pango_attributes ( t );
-        if ( list != NULL ) {
-            pango_attr_list_ref ( list );
+        if ( state->tokens ) {
+            PangoAttrList *list = textbox_get_pango_attributes ( t );
+            if ( list != NULL ) {
+                pango_attr_list_ref ( list );
+            }
+            else{
+                list = pango_attr_list_new ();
+            }
+            token_match_get_pango_attr ( state->tokens, textbox_get_visible_text ( t ), list );
+            textbox_set_pango_attributes ( t, list );
+            pango_attr_list_unref ( list );
         }
-        else{
-            list = pango_attr_list_new ();
-        }
-        token_match_get_pango_attr ( tokens, textbox_get_visible_text ( t ), list );
-        textbox_set_pango_attributes ( t, list );
-        pango_attr_list_unref ( list );
         g_free ( text );
-        tokenize_free ( tokens );
     }
     else {
         int fstate = 0;
@@ -862,10 +862,14 @@ static void rofi_view_refilter ( RofiViewState *state )
         _rofi_view_reload_row ( state );
         state->reload = FALSE;
     }
+    if ( state->tokens ) {
+        tokenize_free ( state->tokens );
+        state->tokens = NULL;
+    }
     if ( strlen ( state->text->text ) > 0 ) {
-        unsigned int j        = 0;
-        gchar        *input   = mode_preprocess_input ( state->sw, state->text->text );
-        GRegex       **tokens = tokenize ( input, config.case_sensitive );
+        unsigned int j      = 0;
+        gchar        *input = mode_preprocess_input ( state->sw, state->text->text );
+        state->tokens = tokenize ( input, config.case_sensitive );
         g_free ( input );
         /**
          * On long lists it can be beneficial to parallelize.
@@ -883,7 +887,6 @@ static void rofi_view_refilter ( RofiViewState *state )
         unsigned int steps = ( state->num_lines + nt ) / nt;
         for ( unsigned int i = 0; i < nt; i++ ) {
             states[i].state    = state;
-            states[i].tokens   = tokens;
             states[i].start    = i * steps;
             states[i].stop     = MIN ( state->num_lines, ( i + 1 ) * steps );
             states[i].count    = 0;
@@ -919,7 +922,6 @@ static void rofi_view_refilter ( RofiViewState *state )
 
         // Cleanup + bookkeeping.
         state->filtered_lines = j;
-        tokenize_free ( tokens );
     }
     else{
         for ( unsigned int i = 0; i < state->num_lines; i++ ) {

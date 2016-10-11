@@ -73,6 +73,8 @@ struct RofiViewState
     int              height;
     int              x;
     int              y;
+
+    GRegex           **tokens;
 };
 /** @} */
 #endif
