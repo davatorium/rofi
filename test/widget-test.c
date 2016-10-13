@@ -17,100 +17,115 @@ unsigned int test =0;
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
 //    box 20 by 40
-    widget widget  = { 10,10,20,40 };
+    widget *wid= (widget*)g_malloc0(sizeof(widget)); 
+    widget_resize ( wid, 20, 40);
+    widget_move ( wid, 10, 10);
 
     // Left of box
-    TASSERT ( widget_intersect ( &widget, 0, 0) == 0 );
-    TASSERT ( widget_intersect ( &widget, 0, 10) == 0 );
-    TASSERT ( widget_intersect ( &widget, 0, 25) == 0 );
-    TASSERT ( widget_intersect ( &widget, 0, 40) == 0 );
-    TASSERT ( widget_intersect ( &widget, 0, 50) == 0 );
-    TASSERT ( widget_intersect ( &widget, 9, 0) == 0 );
-    TASSERT ( widget_intersect ( &widget, 9, 10) == 0 );
-    TASSERT ( widget_intersect ( &widget, 9, 25) == 0 );
-    TASSERT ( widget_intersect ( &widget, 9, 40) == 0 );
-    TASSERT ( widget_intersect ( &widget, 9, 50) == 0 );
-    TASSERT ( widget_intersect ( &widget, 10, 0) == 0 );
-    TASSERT ( widget_intersect ( &widget, 10, 10) == 1 );
-    TASSERT ( widget_intersect ( &widget, 10, 25) == 1 );
-    TASSERT ( widget_intersect ( &widget, 10, 40) == 1 );
-    TASSERT ( widget_intersect ( &widget, 10, 50) == 0 );
+    TASSERT ( widget_intersect ( wid, 0, 0) == 0 );
+    TASSERT ( widget_intersect ( wid, 0, 10) == 0 );
+    TASSERT ( widget_intersect ( wid, 0, 25) == 0 );
+    TASSERT ( widget_intersect ( wid, 0, 40) == 0 );
+    TASSERT ( widget_intersect ( wid, 0, 50) == 0 );
+    TASSERT ( widget_intersect ( wid, 9, 0) == 0 );
+    TASSERT ( widget_intersect ( wid, 9, 10) == 0 );
+    TASSERT ( widget_intersect ( wid, 9, 25) == 0 );
+    TASSERT ( widget_intersect ( wid, 9, 40) == 0 );
+    TASSERT ( widget_intersect ( wid, 9, 50) == 0 );
+    TASSERT ( widget_intersect ( wid, 10, 0) == 0 );
+    TASSERT ( widget_intersect ( wid, 10, 10) == 1 );
+    TASSERT ( widget_intersect ( wid, 10, 25) == 1 );
+    TASSERT ( widget_intersect ( wid, 10, 40) == 1 );
+    TASSERT ( widget_intersect ( wid, 10, 50) == 0 );
 
     // Middle
 
-    TASSERT ( widget_intersect ( &widget, 25, 0) == 0 );
-    TASSERT ( widget_intersect ( &widget, 25, 10) == 1 );
-    TASSERT ( widget_intersect ( &widget, 25, 25) == 1 );
-    TASSERT ( widget_intersect ( &widget, 25, 40) == 1 );
-    TASSERT ( widget_intersect ( &widget, 25, 50) == 0 );
+    TASSERT ( widget_intersect ( wid, 25, 0) == 0 );
+    TASSERT ( widget_intersect ( wid, 25, 10) == 1 );
+    TASSERT ( widget_intersect ( wid, 25, 25) == 1 );
+    TASSERT ( widget_intersect ( wid, 25, 40) == 1 );
+    TASSERT ( widget_intersect ( wid, 25, 50) == 0 );
 
     // Right
-    TASSERT ( widget_intersect ( &widget, 29, 0) == 0 );
-    TASSERT ( widget_intersect ( &widget, 29, 10) == 1 );
-    TASSERT ( widget_intersect ( &widget, 29, 25) == 1 );
-    TASSERT ( widget_intersect ( &widget, 29, 40) == 1 );
-    TASSERT ( widget_intersect ( &widget, 29, 50) == 0 );
+    TASSERT ( widget_intersect ( wid, 29, 0) == 0 );
+    TASSERT ( widget_intersect ( wid, 29, 10) == 1 );
+    TASSERT ( widget_intersect ( wid, 29, 25) == 1 );
+    TASSERT ( widget_intersect ( wid, 29, 40) == 1 );
+    TASSERT ( widget_intersect ( wid, 29, 50) == 0 );
 
-    TASSERT ( widget_intersect ( &widget, 30, 0) == 0 );
-    TASSERT ( widget_intersect ( &widget, 30, 10) == 0 );
-    TASSERT ( widget_intersect ( &widget, 30, 25) == 0 );
-    TASSERT ( widget_intersect ( &widget, 30, 40) == 0 );
-    TASSERT ( widget_intersect ( &widget, 30, 50) == 0 );
+    TASSERT ( widget_intersect ( wid, 30, 0) == 0 );
+    TASSERT ( widget_intersect ( wid, 30, 10) == 0 );
+    TASSERT ( widget_intersect ( wid, 30, 25) == 0 );
+    TASSERT ( widget_intersect ( wid, 30, 40) == 0 );
+    TASSERT ( widget_intersect ( wid, 30, 50) == 0 );
 
-    widget_move ( &widget, 30, 30);
+    widget_move ( wid, 30, 30);
     // Left of box
-    TASSERT ( widget_intersect ( &widget, 10, 20) == 0 );
-    TASSERT ( widget_intersect ( &widget, 10, 30) == 0 );
-    TASSERT ( widget_intersect ( &widget, 10, 45) == 0 );
-    TASSERT ( widget_intersect ( &widget, 10, 60) == 0 );
-    TASSERT ( widget_intersect ( &widget, 10, 70) == 0 );
-    TASSERT ( widget_intersect ( &widget, 19, 20) == 0 );
-    TASSERT ( widget_intersect ( &widget, 19, 30) == 0 );
-    TASSERT ( widget_intersect ( &widget, 19, 45) == 0 );
-    TASSERT ( widget_intersect ( &widget, 19, 60) == 0 );
-    TASSERT ( widget_intersect ( &widget, 19, 70) == 0 );
-    TASSERT ( widget_intersect ( &widget, 30, 20) == 0 );
-    TASSERT ( widget_intersect ( &widget, 30, 30) == 1 );
-    TASSERT ( widget_intersect ( &widget, 30, 45) == 1 );
-    TASSERT ( widget_intersect ( &widget, 30, 60) == 1 );
-    TASSERT ( widget_intersect ( &widget, 30, 70) == 0 );
+    TASSERT ( widget_intersect ( wid, 10, 20) == 0 );
+    TASSERT ( widget_intersect ( wid, 10, 30) == 0 );
+    TASSERT ( widget_intersect ( wid, 10, 45) == 0 );
+    TASSERT ( widget_intersect ( wid, 10, 60) == 0 );
+    TASSERT ( widget_intersect ( wid, 10, 70) == 0 );
+    TASSERT ( widget_intersect ( wid, 19, 20) == 0 );
+    TASSERT ( widget_intersect ( wid, 19, 30) == 0 );
+    TASSERT ( widget_intersect ( wid, 19, 45) == 0 );
+    TASSERT ( widget_intersect ( wid, 19, 60) == 0 );
+    TASSERT ( widget_intersect ( wid, 19, 70) == 0 );
+    TASSERT ( widget_intersect ( wid, 30, 20) == 0 );
+    TASSERT ( widget_intersect ( wid, 30, 30) == 1 );
+    TASSERT ( widget_intersect ( wid, 30, 45) == 1 );
+    TASSERT ( widget_intersect ( wid, 30, 60) == 1 );
+    TASSERT ( widget_intersect ( wid, 30, 70) == 0 );
 
     // Middle
 
-    TASSERT ( widget_intersect ( &widget, 20+25,20+ 0) == 0 );
-    TASSERT ( widget_intersect ( &widget, 20+25,20+ 10) == 1 );
-    TASSERT ( widget_intersect ( &widget, 20+25,20+ 25) == 1 );
-    TASSERT ( widget_intersect ( &widget, 20+25,20+ 40) == 1 );
-    TASSERT ( widget_intersect ( &widget, 20+25,20+ 50) == 0 );
+    TASSERT ( widget_intersect ( wid, 20+25,20+ 0) == 0 );
+    TASSERT ( widget_intersect ( wid, 20+25,20+ 10) == 1 );
+    TASSERT ( widget_intersect ( wid, 20+25,20+ 25) == 1 );
+    TASSERT ( widget_intersect ( wid, 20+25,20+ 40) == 1 );
+    TASSERT ( widget_intersect ( wid, 20+25,20+ 50) == 0 );
 
-    TASSERT ( widget_intersect ( &widget, 20+29, 20+0) == 0 );
-    TASSERT ( widget_intersect ( &widget, 20+29, 20+10) == 1 );
-    TASSERT ( widget_intersect ( &widget, 20+29, 20+25) == 1 );
-    TASSERT ( widget_intersect ( &widget, 20+29, 20+40) == 1 );
-    TASSERT ( widget_intersect ( &widget, 20+29, 20+50) == 0 );
+    TASSERT ( widget_intersect ( wid, 20+29, 20+0) == 0 );
+    TASSERT ( widget_intersect ( wid, 20+29, 20+10) == 1 );
+    TASSERT ( widget_intersect ( wid, 20+29, 20+25) == 1 );
+    TASSERT ( widget_intersect ( wid, 20+29, 20+40) == 1 );
+    TASSERT ( widget_intersect ( wid, 20+29, 20+50) == 0 );
 
-    TASSERT ( widget_intersect ( &widget, 20+30, 20+0) == 0 );
-    TASSERT ( widget_intersect ( &widget, 20+30, 20+10) == 0 );
-    TASSERT ( widget_intersect ( &widget, 20+30, 20+25) == 0 );
-    TASSERT ( widget_intersect ( &widget, 20+30, 20+40) == 0 );
-    TASSERT ( widget_intersect ( &widget, 20+30, 20+50) == 0 );
+    TASSERT ( widget_intersect ( wid, 20+30, 20+0) == 0 );
+    TASSERT ( widget_intersect ( wid, 20+30, 20+10) == 0 );
+    TASSERT ( widget_intersect ( wid, 20+30, 20+25) == 0 );
+    TASSERT ( widget_intersect ( wid, 20+30, 20+40) == 0 );
+    TASSERT ( widget_intersect ( wid, 20+30, 20+50) == 0 );
 
     // Right
-    TASSERT ( widget_intersect ( &widget, 20+29, 20+0) == 0 );
-    TASSERT ( widget_intersect ( &widget, 20+29, 20+10) == 1 );
-    TASSERT ( widget_intersect ( &widget, 20+29, 20+25) == 1 );
-    TASSERT ( widget_intersect ( &widget, 20+29, 20+40) == 1 );
-    TASSERT ( widget_intersect ( &widget, 20+29, 20+50) == 0 );
+    TASSERT ( widget_intersect ( wid, 20+29, 20+0) == 0 );
+    TASSERT ( widget_intersect ( wid, 20+29, 20+10) == 1 );
+    TASSERT ( widget_intersect ( wid, 20+29, 20+25) == 1 );
+    TASSERT ( widget_intersect ( wid, 20+29, 20+40) == 1 );
+    TASSERT ( widget_intersect ( wid, 20+29, 20+50) == 0 );
 
-    TASSERT ( widget_intersect ( &widget, 20+30, 20+0) == 0 );
-    TASSERT ( widget_intersect ( &widget, 20+30, 20+10) == 0 );
-    TASSERT ( widget_intersect ( &widget, 20+30, 20+25) == 0 );
-    TASSERT ( widget_intersect ( &widget, 20+30, 20+40) == 0 );
-    TASSERT ( widget_intersect ( &widget, 20+30, 20+50) == 0 );
+    TASSERT ( widget_intersect ( wid, 20+30, 20+0) == 0 );
+    TASSERT ( widget_intersect ( wid, 20+30, 20+10) == 0 );
+    TASSERT ( widget_intersect ( wid, 20+30, 20+25) == 0 );
+    TASSERT ( widget_intersect ( wid, 20+30, 20+40) == 0 );
+    TASSERT ( widget_intersect ( wid, 20+30, 20+50) == 0 );
 
     TASSERT ( widget_intersect ( NULL, 0, 0) == 0 );
 
-    TASSERT ( widget_intersect ( &widget, -100, -100) == 0);
-    TASSERT ( widget_intersect ( &widget, INT_MIN, INT_MIN) == 0);
-    TASSERT ( widget_intersect ( &widget, INT_MAX, INT_MAX) == 0);
+    TASSERT ( widget_intersect ( wid, -100, -100) == 0);
+    TASSERT ( widget_intersect ( wid, INT_MIN, INT_MIN) == 0);
+    TASSERT ( widget_intersect ( wid, INT_MAX, INT_MAX) == 0);
+
+    // Other wrappers.
+    TASSERT ( widget_get_height ( wid ) ==  wid->h);
+    TASSERT ( widget_get_width ( wid ) ==  wid->w);
+    TASSERT ( widget_get_height ( NULL ) ==  0);
+    TASSERT ( widget_get_width ( NULL ) ==  0);
+
+    TASSERT ( widget_enabled ( wid ) == FALSE );
+    widget_enable ( wid );
+    TASSERT ( widget_enabled ( wid ) == TRUE );
+    widget_disable ( wid );
+    TASSERT ( widget_enabled ( wid ) == FALSE );
+    g_free(wid);
 }

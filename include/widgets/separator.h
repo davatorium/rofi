@@ -5,7 +5,7 @@
 
 /**
  * @defgroup separator separator
- * @ingroup widgets
+ * @ingroup widget
  *
  * Displays a horizontal separator line. The height of the widget determines the line width.
  *

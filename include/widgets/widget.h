@@ -5,7 +5,7 @@
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
 /**
- * @defgroup widgets widgets
+ * @defgroup widget widget
  *
  * Generic abstract widget class. Widgets should 'inherit' from this class (first structure in there structure should be
  * widget).
@@ -89,16 +89,61 @@ void widget_free ( widget *widget );
  */
 void widget_resize ( widget *widget, short w, short h );
 
+/**
+ * @param widget The widget handle
+ *
+ * @returns the height of the widget.
+ */
 int widget_get_height ( widget *widget );
+
+/**
+ * @param widget The widget handle
+ *
+ * @returns the width of the widget.
+ */
 int widget_get_width ( widget *widget );
 
+/**
+ * @param widget The widget handle
+ *
+ * Update the widget, and its parent recursively.
+ * This should be called when size of widget changes.
+ */
 void widget_update ( widget *widget );
+/**
+ * @param widget The widget handle
+ *
+ * Indicate that the widget needs to be redrawn.
+ * This is done by setting the redraw flag on the toplevel widget.
+ */
 void widget_queue_redraw ( widget *widget );
+/**
+ * @param widget The widget handle
+ *
+ * Check the flag indicating the widget needs to be redrawn.
+ */
 gboolean widget_need_redraw ( widget *wid );
 
+/**
+ * @param wid The widget handle
+ * @param xbe The button press event
+ *
+ * Signal the widget that it has been clicked,
+ * The click should have happened within the region of the widget, check with
+ * ::widget_intersect.
+ *
+ * @returns returns TRUE if click is handled.
+ */
 gboolean widget_clicked ( widget *wid, xcb_button_press_event_t *xbe );
 
-// Signal!
+
+/**
+ * @param wid The widget handle
+ * @param cb The widget click callback
+ * @param udata the user data to pass to callback
+ *
+ * Override the widget clicked handler on widget.
+ */
 void widget_set_clicked_handler ( widget *wid, widget_clicked_cb cb, void *udata );
 
 /*@}*/

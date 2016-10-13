@@ -112,6 +112,7 @@ void widget_queue_redraw ( widget *wid )
         widget *iter = wid;
         // Find toplevel widget.
         while ( iter->parent != NULL ) {
+            iter->need_redraw = TRUE;
             iter = iter->parent;
         }
         iter->need_redraw = TRUE;

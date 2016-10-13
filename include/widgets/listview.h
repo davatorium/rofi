@@ -3,7 +3,7 @@
 
 /**
  * @defgroup listview listview
- * @ingroup widgets
+ * @ingroup widget
  *
  * @{
  */

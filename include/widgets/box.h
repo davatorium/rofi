@@ -5,7 +5,7 @@
 
 /**
  * @defgroup box box
- * @ingroup widgets
+ * @ingroup widget
  *
  * Widget used to pack multiple widgets either horizontally or vertically.
  * It supports packing widgets horizontally or vertically. Child widgets are always
