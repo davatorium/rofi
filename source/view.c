@@ -1389,7 +1389,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     rofi_view_calculate_window_and_element_width ( state );
 
     state->input_bar = box_create ( BOX_HORIZONTAL, 0, 0, state->width - state->border, line_height );
-    box_set_padding ( state->input_bar, config.line_margin );
+    //box_set_padding ( state->input_bar, config.line_margin );
     state->input_bar_separator = separator_create ( S_HORIZONTAL, 2 );
 
     if ( ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST ) ) {
