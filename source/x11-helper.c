@@ -390,12 +390,90 @@ static int pointer_get ( xcb_window_t root, int *x, int *y )
     return FALSE;
 }
 
-// determine which monitor holds the active window, or failing that the mouse pointer
-int monitor_active ( workarea *mon )
+static int monitor_active_from_id ( int mon_id, workarea *mon )
 {
     xcb_window_t root = xcb->screen->root;
     int          x, y;
+    // At mouse position.
+    if ( mon_id == -3 ) {
+        if ( pointer_get ( root, &x, &y ) ) {
+            monitor_dimensions ( x, y, mon );
+            mon->x = x;
+            mon->y = y;
+            return TRUE;
+        }
+    }
+    // Focused monitor
+    else if ( mon_id == -1 ) {
+        // Get the current desktop.
+        unsigned int              current_desktop = 0;
+        xcb_get_property_cookie_t gcdc;
+        gcdc = xcb_ewmh_get_current_desktop ( &xcb->ewmh, xcb->screen_nbr );
+        if  ( xcb_ewmh_get_current_desktop_reply ( &xcb->ewmh, gcdc, &current_desktop, NULL ) ) {
+            xcb_get_property_cookie_t             c = xcb_ewmh_get_desktop_viewport ( &xcb->ewmh, xcb->screen_nbr );
+            xcb_ewmh_get_desktop_viewport_reply_t vp;
+            if ( xcb_ewmh_get_desktop_viewport_reply ( &xcb->ewmh, c, &vp, NULL ) ) {
+                if ( current_desktop < vp.desktop_viewport_len ) {
+                    monitor_dimensions ( vp.desktop_viewport[current_desktop].x,
+                            vp.desktop_viewport[current_desktop].y, mon );
+                    xcb_ewmh_get_desktop_viewport_reply_wipe ( &vp );
+                    return TRUE;
+                }
+                xcb_ewmh_get_desktop_viewport_reply_wipe ( &vp );
+            }
+        }
+    }
+    else if ( mon_id == -2 || mon_id == -4 ) {
+        xcb_window_t              active_window;
+        xcb_get_property_cookie_t awc;
+        awc = xcb_ewmh_get_active_window ( &xcb->ewmh, xcb->screen_nbr );
+        if ( xcb_ewmh_get_active_window_reply ( &xcb->ewmh, awc, &active_window, NULL ) ) {
+            // get geometry.
+            xcb_get_geometry_cookie_t c  = xcb_get_geometry ( xcb->connection, active_window );
+            xcb_get_geometry_reply_t  *r = xcb_get_geometry_reply ( xcb->connection, c, NULL );
+            if ( r ) {
+                xcb_translate_coordinates_cookie_t ct = xcb_translate_coordinates ( xcb->connection, active_window, root, r->x, r->y );
+                xcb_translate_coordinates_reply_t  *t = xcb_translate_coordinates_reply ( xcb->connection, ct, NULL );
+                if ( t ) {
+                    if ( mon_id == -2 ) {
+                        // place the menu above the window
+                        // if some window is focused, place menu above window, else fall
+                        // back to selected monitor.
+                        mon->x = t->dst_x - r->x;
+                        mon->y = t->dst_y - r->y;
+                        mon->w = r->width;
+                        mon->h = r->height;
+                        free ( r );
+                        free ( t );
+                        return TRUE;
+                    }
+                    else if ( mon_id == -4 ) {
+                        monitor_dimensions ( t->dst_x, t->dst_y, mon );
+                        free ( r );
+                        free ( t );
+                        return TRUE;
+                    }
+                }
+                free ( r );
+            }
+        }
+    }
+    // Monitor that has mouse pointer.
+    else if ( mon_id == -5 ) {
+        if ( pointer_get ( root, &x, &y ) ) {
+            monitor_dimensions ( x, y, mon );
+            return TRUE;
+        }
+        // This is our give up point.
+        return FALSE;
+    }
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to find monitor, fall back to monitor showing mouse.");
+    return monitor_active_from_id ( -5, mon );
+}
 
+// determine which monitor holds the active window, or failing that the mouse pointer
+int monitor_active ( workarea *mon )
+{
     if ( config.monitor != NULL ) {
         for ( workarea *iter = xcb->monitors; iter; iter = iter->next ) {
             if ( g_strcmp0 ( config.monitor, iter->name ) == 0 ) {
@@ -423,76 +501,8 @@ int monitor_active ( workarea *mon )
             }
             fprintf ( stderr, "Failed to find selected monitor.\n" );
         }
-        // At mouse position.
-        else if ( mon_id == -3 ) {
-            if ( pointer_get ( root, &x, &y ) ) {
-                monitor_dimensions ( x, y, mon );
-                mon->x = x;
-                mon->y = y;
-                return TRUE;
-            }
-        }
-        // Focused monitor
-        else if ( mon_id == -1 ) {
-            // Get the current desktop.
-            unsigned int              current_desktop = 0;
-            xcb_get_property_cookie_t gcdc;
-            gcdc = xcb_ewmh_get_current_desktop ( &xcb->ewmh, xcb->screen_nbr );
-            if  ( xcb_ewmh_get_current_desktop_reply ( &xcb->ewmh, gcdc, &current_desktop, NULL ) ) {
-                xcb_get_property_cookie_t             c = xcb_ewmh_get_desktop_viewport ( &xcb->ewmh, xcb->screen_nbr );
-                xcb_ewmh_get_desktop_viewport_reply_t vp;
-                if ( xcb_ewmh_get_desktop_viewport_reply ( &xcb->ewmh, c, &vp, NULL ) ) {
-                    if ( current_desktop < vp.desktop_viewport_len ) {
-                        monitor_dimensions ( vp.desktop_viewport[current_desktop].x,
-                                             vp.desktop_viewport[current_desktop].y, mon );
-                        xcb_ewmh_get_desktop_viewport_reply_wipe ( &vp );
-                        return TRUE;
-                    }
-                    xcb_ewmh_get_desktop_viewport_reply_wipe ( &vp );
-                }
-            }
-        }
-        else if ( mon_id == -2 || mon_id == -4 ) {
-            xcb_window_t              active_window;
-            xcb_get_property_cookie_t awc;
-            awc = xcb_ewmh_get_active_window ( &xcb->ewmh, xcb->screen_nbr );
-            if ( xcb_ewmh_get_active_window_reply ( &xcb->ewmh, awc, &active_window, NULL ) ) {
-                // get geometry.
-                xcb_get_geometry_cookie_t c  = xcb_get_geometry ( xcb->connection, active_window );
-                xcb_get_geometry_reply_t  *r = xcb_get_geometry_reply ( xcb->connection, c, NULL );
-                if ( r ) {
-                    xcb_translate_coordinates_cookie_t ct = xcb_translate_coordinates ( xcb->connection, active_window, root, r->x, r->y );
-                    xcb_translate_coordinates_reply_t  *t = xcb_translate_coordinates_reply ( xcb->connection, ct, NULL );
-                    if ( t ) {
-                        if ( mon_id == -2 ) {
-                            // place the menu above the window
-                            // if some window is focused, place menu above window, else fall
-                            // back to selected monitor.
-                            mon->x = t->dst_x - r->x;
-                            mon->y = t->dst_y - r->y;
-                            mon->w = r->width;
-                            mon->h = r->height;
-                            free ( r );
-                            free ( t );
-                            return TRUE;
-                        }
-                        else if ( mon_id == -4 ) {
-                            monitor_dimensions ( t->dst_x, t->dst_y, mon );
-                            free ( r );
-                            free ( t );
-                            return TRUE;
-                        }
-                    }
-                    free ( r );
-                }
-            }
-        }
-        // Monitor that has mouse pointer.
-        else if ( mon_id == -5 ) {
-            if ( pointer_get ( root, &x, &y ) ) {
-                monitor_dimensions ( x, y, mon );
-                return TRUE;
-            }
+        else {
+            return monitor_active_from_id ( mon_id, mon );
         }
     }
     // Fallback.
