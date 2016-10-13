@@ -129,7 +129,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     widget_move ( NULL, 0, 0 );
     TASSERT ( widget_get_height ( NULL ) ==  0);
     TASSERT ( widget_get_width ( NULL ) ==  0);
-    widget_enabled ( NULL );
+    TASSERT ( widget_enabled ( NULL ) == 0);
     widget_disable ( NULL );
     widget_enable ( NULL );
     widget_draw ( NULL, NULL );
@@ -137,7 +137,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     widget_resize ( NULL, 0, 0);
     widget_update ( NULL );
     widget_queue_redraw ( NULL );
-    widget_need_redraw ( NULL );
+    TASSERT (widget_need_redraw ( NULL ) == FALSE);
     widget_clicked ( NULL, NULL );
     widget_set_clicked_handler ( NULL, NULL, NULL );
 
