@@ -110,7 +110,6 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERT ( widget_intersect ( wid, 20+30, 20+40) == 0 );
     TASSERT ( widget_intersect ( wid, 20+30, 20+50) == 0 );
 
-    TASSERT ( widget_intersect ( NULL, 0, 0) == 0 );
 
     TASSERT ( widget_intersect ( wid, -100, -100) == 0);
     TASSERT ( widget_intersect ( wid, INT_MIN, INT_MIN) == 0);
@@ -119,13 +118,29 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     // Other wrappers.
     TASSERT ( widget_get_height ( wid ) ==  wid->h);
     TASSERT ( widget_get_width ( wid ) ==  wid->w);
-    TASSERT ( widget_get_height ( NULL ) ==  0);
-    TASSERT ( widget_get_width ( NULL ) ==  0);
 
     TASSERT ( widget_enabled ( wid ) == FALSE );
     widget_enable ( wid );
     TASSERT ( widget_enabled ( wid ) == TRUE );
     widget_disable ( wid );
     TASSERT ( widget_enabled ( wid ) == FALSE );
+    // Null pointer tests.
+    TASSERT ( widget_intersect ( NULL, 0, 0) == 0 );
+    widget_move ( NULL, 0, 0 );
+    TASSERT ( widget_get_height ( NULL ) ==  0);
+    TASSERT ( widget_get_width ( NULL ) ==  0);
+    widget_enabled ( NULL );
+    widget_disable ( NULL );
+    widget_enable ( NULL );
+    widget_draw ( NULL, NULL );
+    widget_free ( NULL );
+    widget_resize ( NULL, 0, 0);
+    widget_update ( NULL );
+    widget_queue_redraw ( NULL );
+    widget_need_redraw ( NULL );
+    widget_clicked ( NULL, NULL );
+    widget_set_clicked_handler ( NULL, NULL, NULL );
+
+
     g_free(wid);
 }

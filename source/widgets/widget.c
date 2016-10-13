@@ -68,7 +68,7 @@ void widget_draw ( widget *widget, cairo_t *d )
 }
 void widget_free ( widget *widget )
 {
-    if ( widget ) {
+    if ( widget && widget->free ) {
         widget->free ( widget );
     }
 }
