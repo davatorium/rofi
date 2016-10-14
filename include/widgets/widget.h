@@ -141,7 +141,6 @@ gboolean widget_need_redraw ( widget *wid );
  */
 gboolean widget_clicked ( widget *wid, xcb_button_press_event_t *xbe );
 
-
 /**
  * @param wid The widget handle
  * @param cb The widget click callback

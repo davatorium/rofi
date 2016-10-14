@@ -537,12 +537,8 @@ int config_sanity_check ( void )
 
     // Check size
     {
-        int      ssize = monitor_get_smallest_size ( );
         workarea mon;
-        if ( monitor_active ( &mon ) ) {
-            ssize = MIN ( mon.w, mon.h );
-        }
-        else{
+        if ( !monitor_active ( &mon ) ) {
             const char *name = config.monitor;
             if ( name && name[0] == '-' ) {
                 int index = name[1] - '0';

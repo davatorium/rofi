@@ -15,6 +15,9 @@
  */
 int dmenu_switcher_dialog ( void );
 
+/**
+ * Print dmenu mode commandline options to stdout, for use in help menu.
+ */
 void print_dmenu_options ( void );
 
 /*@}*/

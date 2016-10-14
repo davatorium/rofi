@@ -17,9 +17,7 @@
  * @{
  */
 
-/**
- * SSH Mode object.
- */
+/** #Mode object representing the ssh dialog. */
 extern Mode ssh_mode;
 /*@}*/
 #endif // ROFI_DIALOG_SSH_H

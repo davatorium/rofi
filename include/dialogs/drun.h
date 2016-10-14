@@ -8,6 +8,7 @@
  */
 #include <config.h>
 #ifdef ENABLE_DRUN
+/** #Mode object representing the desktop menu run dialog. */
 extern Mode drun_mode;
 #endif // ENABLE_DRUN
 /*@}*/

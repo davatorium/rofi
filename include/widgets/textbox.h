@@ -17,6 +17,10 @@
  *
  * @{
  */
+/**
+ * Internal structure of a textbox widget.
+ * @TODO make this internal to textbox
+ */
 typedef struct
 {
     widget          widget;
@@ -37,6 +41,9 @@ typedef struct
     guint           blink_timeout;
 } textbox;
 
+/**
+ * Flags for configuring textbox behaviour and looks during creation.
+ */
 typedef enum
 {
     TB_AUTOHEIGHT = 1 << 0,
@@ -50,25 +57,46 @@ typedef enum
     TB_PASSWORD   = 1 << 22,
     TB_INDICATOR  = 1 << 23,
 } TextboxFlags;
-
+/**
+ * Flags indicating current state of the textbox.
+ */
 typedef enum
 {
-    // Render font normally
+    /** Normal */
     NORMAL     = 0,
+    /** Text in box is urgent. */
     URGENT     = 1,
+    /** Text in box is active. */
     ACTIVE     = 2,
+    /** Text in box is selected. */
     SELECTED   = 4,
+    /** Text in box has pango markup. */
     MARKUP     = 8,
 
-    // Alternating row.
+    /** Text is on an alternate row */
     ALT        = 16,
-    // Render font highlighted (inverted colors.)
+    /** Render font highlighted (inverted colors.) */
     HIGHLIGHT  = 32,
-
+    /** Mask for alternate and highlighted */
     FMOD_MASK  = ( ALT | HIGHLIGHT ),
+    /** Mask of bits indicating state */
     STATE_MASK = ~( SELECTED | MARKUP | ALT | HIGHLIGHT )
 } TextBoxFontType;
 
+/**
+ * @param flags #TextboxFlags indicating the type of textbox.
+ * @param x horizontal positon of textbox
+ * @param y vertical position of textbox
+ * @param w width of textbox
+ * @param h height of textbox
+ * @param tbft #TextBoxFontType current state of textbox.
+ * @param text intial text to display.
+ *
+ * Create a new textbox widget.
+ *
+ * free with #widget_free
+ * @returns a new #textbox
+ */
 textbox* textbox_create ( TextboxFlags flags,
                           short x, short y, short w, short h,
                           TextBoxFontType tbft,
@@ -89,6 +117,14 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft );
  */
 void textbox_text ( textbox *tb, const char *text );
 
+/**
+ * @param tb Handle to the textbox
+ * @param action the #KeyBindingAction to execute on textbox
+ *
+ * Execute an action on the textbox.
+ *
+ * @return TRUE if action was taken.
+ */
 int textbox_keybinding ( textbox *tb, KeyBindingAction action );
 /**
  * @param tb Handle to the textbox
@@ -208,11 +244,44 @@ void textbox_cursor_inc ( textbox *tb );
  */
 void textbox_delete ( textbox *tb, int pos, int dlen );
 
+/**
+ * @param tb Handle to the textbox
+ * @param x The new horizontal position to place with textbox
+ * @param y The new vertical position to place with textbox
+ * @param w The new width of the textbox
+ * @param h The new height of the textbox
+ *
+ * Move and resize the textbox.
+ * @TODO remove for #widget_resize and #widget_move
+ */
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
+/**
+ * Get the (estimated) with of a character, can be used to calculate window width.
+ *
+ * @returns the estimated width of a character.
+ */
 int textbox_get_estimated_char_height ( void );
+/**
+ * @param p The new default PangoContext
+ *
+ * Set the default pango context (with font description) for all textboxes.
+ */
 void textbox_set_pango_context ( PangoContext *p );
+/**
+ * @param tb Handle to the textbox
+ * @param list New pango attributes
+ *
+ * Sets #list as active pango attributes.
+ */
 void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list );
 
+/**
+ * @param tb Handle to the textbox
+ *
+ * Get the list of currently active pango attributes.
+ *
+ * @returns the pango attributes
+ */
 PangoAttrList *textbox_get_pango_attributes ( textbox *tb );
 
 /**

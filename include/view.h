@@ -158,7 +158,7 @@ void rofi_view_hide ( void );
 /**
  * Indicate the current view needs to reload its data.
  * This can only be done when *more* information is available.
- * 
+ *
  * The reloading happens 'lazy', multiple calls might be handled at once.
  */
 void rofi_view_reload ( void  );
@@ -166,7 +166,7 @@ void rofi_view_reload ( void  );
 /**
  * @param state The handle to the view
  * @param mode The new mode to display
- * 
+ *
  * Change the current view to show a different mode.
  */
 void rofi_view_switch_mode ( RofiViewState *state, Mode *mode );
@@ -174,7 +174,7 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode );
 /**
  * @param state The handle to the view
  * @param text An UTF-8 encoded character array with the text to overlay.
- * 
+ *
  * Overlays text over the current view. Passing NULL for text hides the overlay.
  */
 void rofi_view_set_overlay ( RofiViewState *state, const char *text );

@@ -35,7 +35,7 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... );
 GRegex **tokenize ( const char *input, int case_sensitive );
 
 /**
- * @param tokens Array of regex objects 
+ * @param tokens Array of regex objects
  *
  * Frees the array of regex expressions.
  */
@@ -177,7 +177,7 @@ unsigned int levenshtein ( const char *needle, const char *haystack );
 char * rofi_force_utf8 ( gchar *data, ssize_t length );
 
 /**
- * @param data the array holding latin text 
+ * @param data the array holding latin text
  * @param length the length of the data array
  *
  * Converts latin to UTF-8.

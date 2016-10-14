@@ -71,7 +71,6 @@ xcb_stuff           *xcb = &xcb_int;
 xcb_depth_t         *depth       = NULL;
 xcb_visualtype_t    *visual      = NULL;
 xcb_colormap_t      map          = XCB_COLORMAP_NONE;
-xcb_depth_t         *root_depth  = NULL;
 xcb_visualtype_t    *root_visual = NULL;
 xcb_atom_t          netatoms[NUM_NETATOMS];
 const char          *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
@@ -325,17 +324,7 @@ void x11_dump_monitor_layout ( void )
     }
 }
 
-int monitor_get_smallest_size ( void )
-{
-    int size = MIN ( xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
-    for ( workarea *iter = xcb->monitors; iter; iter = iter->next ) {
-        size = MIN ( iter->w, size );
-        size = MIN ( iter->h, size );
-    }
-
-    return size;
-}
-int monitor_get_dimension ( int monitor_id, workarea *mon )
+static int monitor_get_dimension ( int monitor_id, workarea *mon )
 {
     memset ( mon, 0, sizeof ( workarea ) );
     mon->w = xcb->screen->width_in_pixels;
@@ -351,7 +340,7 @@ int monitor_get_dimension ( int monitor_id, workarea *mon )
     return FALSE;
 }
 // find the dimensions of the monitor displaying point x,y
-void monitor_dimensions ( int x, int y, workarea *mon )
+static void monitor_dimensions ( int x, int y, workarea *mon )
 {
     memset ( mon, 0, sizeof ( workarea ) );
     mon->w = xcb->screen->width_in_pixels;
@@ -415,7 +404,7 @@ static int monitor_active_from_id ( int mon_id, workarea *mon )
             if ( xcb_ewmh_get_desktop_viewport_reply ( &xcb->ewmh, c, &vp, NULL ) ) {
                 if ( current_desktop < vp.desktop_viewport_len ) {
                     monitor_dimensions ( vp.desktop_viewport[current_desktop].x,
-                            vp.desktop_viewport[current_desktop].y, mon );
+                                         vp.desktop_viewport[current_desktop].y, mon );
                     xcb_ewmh_get_desktop_viewport_reply_wipe ( &vp );
                     return TRUE;
                 }
@@ -467,7 +456,7 @@ static int monitor_active_from_id ( int mon_id, workarea *mon )
         // This is our give up point.
         return FALSE;
     }
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to find monitor, fall back to monitor showing mouse.");
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to find monitor, fall back to monitor showing mouse." );
     return monitor_active_from_id ( -5, mon );
 }
 
@@ -766,6 +755,7 @@ void x11_setup ( xkb_stuff *xkb )
 
 void x11_create_visual_and_colormap ( void )
 {
+    xcb_depth_t          *root_depth = NULL;
     xcb_depth_iterator_t depth_iter;
     for ( depth_iter = xcb_screen_allowed_depths_iterator ( xcb->screen ); depth_iter.rem; xcb_depth_next ( &depth_iter ) ) {
         xcb_depth_t               *d = depth_iter.data;

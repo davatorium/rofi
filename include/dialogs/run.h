@@ -12,6 +12,7 @@
  *
  * @{
  */
+/** #Mode object representing the run dialog. */
 extern Mode run_mode;
 
 /*@}*/

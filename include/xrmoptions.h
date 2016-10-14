@@ -36,7 +36,7 @@
  */
 
 /**
- *  Type of the config options. 
+ *  Type of the config options.
  */
 typedef enum
 {
