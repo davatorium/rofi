@@ -39,9 +39,14 @@
 
 #define HISTORY_MAX_ENTRIES    25
 
+/**
+ * History element
+ */
 typedef struct __element
 {
+    /** Index in history */
     long int index;
+    /** Entry */
     char     *name;
 }_element;
 

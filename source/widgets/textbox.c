@@ -56,11 +56,18 @@ typedef struct
     Color hlbg;
 } RowColor;
 
+/** Number of states */
 #define num_states    3
+/**
+ * Different colors for the different states
+ */
 RowColor                colors[num_states];
 
+/** Default pango context */
 static PangoContext     *p_context = NULL;
+/** The pango font metrics */
 static PangoFontMetrics *p_metrics = NULL;
+
 static gboolean textbox_blink ( gpointer data )
 {
     textbox *tb = (textbox *) data;

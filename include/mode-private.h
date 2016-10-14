@@ -1,11 +1,35 @@
 #ifndef ROFI_MODE_PRIVATE_H
 #define ROFI_MODE_PRIVATE_H
 
+/**
+ * @param data The #self pointer.
+ *
+ * Mode free function.
+ */
 typedef void ( *_mode_free )( Mode *data );
 
+/**
+ * @param sw The #Mode pointer
+ * @param selected_line The selected line
+ * @param state The state to display [out]
+ * @param get_entry if it should only return the state
+ *
+ * Get the value for displaying.
+ *
+ * @return the string and state for displaying.
+ */
 typedef char * ( *_mode_get_display_value )( const Mode *sw, unsigned int selected_line, int *state, int get_entry );
 
+/**
+ * @param sw The #Mode pointer
+ * @param selected_line The selected line
+ *
+ * Obtains the string to complete.
+ *
+ * @return Get the completion string
+ */
 typedef char * ( *_mode_get_completion )( const Mode *sw, unsigned int selected_line );
+
 /**
  * @param tokens  List of (input) tokens to match.
  * @param input   The entry to match against.
@@ -19,14 +43,52 @@ typedef char * ( *_mode_get_completion )( const Mode *sw, unsigned int selected_
  */
 typedef int ( *_mode_token_match )( const Mode *data, GRegex **tokens, unsigned int index );
 
+/**
+ * @param sw The #Mode pointer
+ *
+ * Initialize the mode.
+ *
+ * @returns TRUE is successfull
+ */
 typedef int ( *__mode_init )( Mode *sw );
 
+/**
+ * @param sw The #Mode pointer
+ *
+ * Get the number of entries.
+ *
+ * @returns the number of entries
+ */
 typedef unsigned int ( *__mode_get_num_entries )( const Mode *sw );
 
+/**
+ * @param sw The #Mode pointer
+ *
+ * Destroy the current mode. Still ready to restart.
+ *
+ */
 typedef void ( *__mode_destroy )( Mode *sw );
 
+/**
+ * @param sw The #Mode pointer
+ * @param menu_retv The return value
+ * @param input The input string
+ * @param selected_line The selected line
+ *
+ * Handle the user accepting an entry.
+ *
+ * @returns the next action to take
+ */
 typedef ModeMode ( *_mode_result )( Mode *sw, int menu_retv, char **input, unsigned int selected_line );
 
+/**
+ * @param sw The #Mode pointer
+ * @param input The input string
+ *
+ * Preprocess the input for sorting.
+ *
+ * @returns Entry stripped from markup for sorting 
+ */
 typedef char* ( *_mode_preprocess_input )( Mode *sw, const char *input );
 
 /**
