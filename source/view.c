@@ -946,7 +946,6 @@ static void rofi_view_refilter ( RofiViewState *state )
         }
     }
     state->refilter = FALSE;
-    state->rchanged = TRUE;
     TICK_N ( "Filter done" );
 }
 /**
@@ -1350,7 +1349,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->skip_absorb   = FALSE;
     //We want to filter on the first run.
     state->refilter       = TRUE;
-    state->rchanged       = TRUE;
     state->border         = config.padding + config.menu_bw;
     state->x11_event_loop = rofi_view_mainloop_iter;
     state->finalize       = finalize;

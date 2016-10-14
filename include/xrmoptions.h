@@ -35,13 +35,20 @@
  * @{
  */
 
-// This maps xresource options to config structure.
+/**
+ *  Type of the config options. 
+ */
 typedef enum
 {
+    /** Config option is string */
     xrm_String  = 0,
+    /** Config option is an unsigned number */
     xrm_Number  = 1,
+    /** Config option is a signed number */
     xrm_SNumber = 2,
+    /** Config option is a boolean (true/false) value*/
     xrm_Boolean = 3,
+    /** Config option is a character */
     xrm_Char    = 4
 } XrmOptionType;
 
@@ -136,6 +143,13 @@ void print_options ( void );
  */
 void print_help_msg ( const char *option, const char *type, const char*text, const char *def, int isatty );
 
+/**
+ * @param length the length of the returned array
+ *
+ * Creates an array with a strings describing each keybinding.
+ *
+ * @returns an array of string with length elements
+ */
 char ** config_parser_return_display_help ( unsigned int *length );
 
 /* @}*/

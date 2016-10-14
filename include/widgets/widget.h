@@ -15,6 +15,11 @@
  *
  * @{
  */
+
+/**
+ * Abstract structure holding internal state of a widget.
+ * Structure is elaborated in widget-internal.h
+ */
 typedef struct _widget   widget;
 
 /**

@@ -141,8 +141,53 @@ void rofi_view_queue_redraw ( void );
  */
 void rofi_view_cleanup ( void );
 
+/**
+ * @param state The handle to the view
+ *
+ * Get the mode currently displayed by the view.
+ *
+ * @returns the mode currently displayed by the view
+ */
 Mode * rofi_view_get_mode ( RofiViewState *state );
+
+/**
+ * Unmap the current view.
+ */
+void rofi_view_hide ( void );
+
+/**
+ * Indicate the current view needs to reload its data.
+ * This can only be done when *more* information is available.
+ * 
+ * The reloading happens 'lazy', multiple calls might be handled at once.
+ */
+void rofi_view_reload ( void  );
+
+/**
+ * @param state The handle to the view
+ * @param mode The new mode to display
+ * 
+ * Change the current view to show a different mode.
+ */
+void rofi_view_switch_mode ( RofiViewState *state, Mode *mode );
+
+/**
+ * @param state The handle to the view
+ * @param text An UTF-8 encoded character array with the text to overlay.
+ * 
+ * Overlays text over the current view. Passing NULL for text hides the overlay.
+ */
+void rofi_view_set_overlay ( RofiViewState *state, const char *text );
+
+/**
+ * @param menu_flags The state of the new window.
+ *
+ * Creates the internal 'Cached' window that gets reused between views.
+ * @TODO: Internal call to view exposed.
+ */
+void __create_window ( MenuFlags menu_flags );
 /** @} */
+
 /***
  * @defgroup ViewThreadPool ViewThreadPool
  * @ingroup View
@@ -152,16 +197,14 @@ Mode * rofi_view_get_mode ( RofiViewState *state );
  *
  * @{
  */
+/**
+ * Initialize the threadpool
+ */
 void rofi_view_workers_initialize ( void );
+/**
+ * Stop all threads and free the resources used by the threadpool
+ */
 void rofi_view_workers_finalize ( void );
 
-void __create_window ( MenuFlags menu_flags );
-void rofi_view_set_overlay ( RofiViewState *state, const char *text );
-/**
- * Unmap the window.
- */
-void rofi_view_hide ( void );
-void rofi_view_reload ( void  );
-void rofi_view_switch_mode ( RofiViewState *state, Mode *mode );
 /**@}*/
 #endif

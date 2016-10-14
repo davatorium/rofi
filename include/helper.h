@@ -30,9 +30,15 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... );
  *
  * Tokenize the string on spaces.
  *
- * @returns a newly allocated 2 dimensional array of strings.
+ * @returns a newly allocated array of regex objest
  */
 GRegex **tokenize ( const char *input, int case_sensitive );
+
+/**
+ * @param tokens Array of regex objects 
+ *
+ * Frees the array of regex expressions.
+ */
 void tokenize_free ( GRegex ** tokens );
 
 /**
@@ -149,13 +155,46 @@ void cmd_set_arguments ( int argc, char **argv );
  * @returns path
  */
 char *rofi_expand_path ( const char *input );
+
+/**
+ * @param needle The string to find match weight off
+ * @param haystack The string to match against
+ *
+ * UTF-8 aware levenshtein distance calculation
+ *
+ * @returns the levenshtein distance between needle and haystack
+ */
 unsigned int levenshtein ( const char *needle, const char *haystack );
 
 /**
+ * @param data the unvalidated character array holding possible UTF-8 data
+ * @param length the length of the data array
+ *
  * Convert string to valid utf-8, replacing invalid parts with replacement character.
+ *
+ * @returns the converted UTF-8 string
  */
 char * rofi_force_utf8 ( gchar *data, ssize_t length );
+
+/**
+ * @param data the array holding latin text 
+ * @param length the length of the data array
+ *
+ * Converts latin to UTF-8.
+ *
+ * @return the UTF-8 representation of data
+ */
 char * rofi_latin_to_utf8_strdup ( const char *input, gssize length );
+
+/**
+ * @param tokens Array of regexes used for matching
+ * @param input The input string to find the matches on
+ * @param retv The Attribute list to update with matches
+ *
+ * Creates a set of pango attributes highlighting the matches found in the input string.
+ *
+ * @returns the updated retv list.
+ */
 PangoAttrList *token_match_get_pango_attr ( GRegex **tokens, const char *input, PangoAttrList *retv );
 /*@}*/
 #endif // ROFI_HELPER_H

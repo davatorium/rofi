@@ -11,6 +11,10 @@
  *
  * @{
  */
+
+/**
+ * Abstract handle to the separator widget internal state.
+ */
 typedef struct _separator   separator;
 
 /**

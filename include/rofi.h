@@ -36,6 +36,12 @@ unsigned int rofi_get_num_enabled_modi ( void );
  */
 const Mode * rofi_get_mode ( unsigned int index );
 
+/**
+ * @param code the code to return
+ *
+ * Return value are used for integrating dmenu rofi in scripts.
+ * This function sets the code that rofi will return on exit.
+ */
 void rofi_set_return_code ( int code );
 /** Reset terminal */
 #define  color_reset        "\033[0m"
@@ -46,6 +52,7 @@ void rofi_set_return_code ( int code );
 /** Set terminal foreground text green */
 #define color_green         "\033[0;32m"
 
+/** Appends instructions on how to report an error. */
 #define ERROR_MSG( a )    a "\n"                                       \
     "If you suspect this is caused by a bug in rofi,\n"                \
     "please report the following information to rofi's github page:\n" \
@@ -54,6 +61,7 @@ void rofi_set_return_code ( int code );
     " * Steps to reproduce\n"                                          \
     " * The version of rofi you are running\n\n"                       \
     " <i>https://github.com/DaveDavenport/rofi/</i>"
+/** Indicates if ERROR_MSG uses pango markup */
 #define ERROR_MSG_MARKUP    TRUE
 /*@}*/
 #endif
