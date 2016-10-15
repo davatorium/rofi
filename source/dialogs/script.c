@@ -209,4 +209,3 @@ Mode *script_switcher_parse_setup ( const char *str )
     script_switcher_free ( sw );
     return NULL;
 }
-

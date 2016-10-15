@@ -734,4 +734,3 @@ Mode window_mode_cd =
 };
 
 #endif // WINDOW_MODE
-

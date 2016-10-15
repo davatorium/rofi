@@ -102,4 +102,3 @@ static void separator_draw ( widget *wid, cairo_t *draw )
         cairo_stroke ( draw );
     }
 }
-
