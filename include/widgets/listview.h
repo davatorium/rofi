@@ -83,7 +83,7 @@ void listview_set_padding (  listview *lv, unsigned int padding );
 
 /**
  * @param lv Handler to the listview object
- * @param lines The maximum number of lines 
+ * @param lines The maximum number of lines
  *
  * Set the maximum number of lines to show.
  */
@@ -91,7 +91,7 @@ void listview_set_max_lines ( listview *lv, unsigned int lines );
 
 /**
  * @param lv Handler to the listview object
- * @param columns The maximum number of columns 
+ * @param columns The maximum number of columns
  *
  * Set the maximum number of columns to show.
  */
@@ -123,7 +123,7 @@ void listview_set_scrollbar_width ( listview *lv, unsigned int width );
  * @param lv Handler to the listview object
  * @param cycle True for cycle mode
  *
- * Set cycle mode. On last entry go to first. 
+ * Set cycle mode. On last entry go to first.
  */
 void listview_set_cycle ( listview *lv, gboolean cycle );
 /**

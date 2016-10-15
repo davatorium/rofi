@@ -63,6 +63,9 @@ typedef enum
 void config_parse_xresource_options ( xcb_stuff *xcb );
 
 /**
+ * @param filename The xresources file to parse
+ *
+ * Parses filename and updates the config
  * @ingroup CONFFile
  */
 void config_parse_xresource_options_file ( const char *filename );
@@ -90,6 +93,9 @@ void config_parse_cmd_options_dynamic ( void );
 void config_parse_xresource_options_dynamic ( xcb_stuff *xcb );
 
 /**
+ * @param filename The xresources file to parse
+ *
+ * Parses filename and updates the config. For dynamic options.
  * @ingroup CONFFile
  */
 void config_parse_xresource_options_dynamic_file ( const char *filename );

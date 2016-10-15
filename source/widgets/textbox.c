@@ -61,7 +61,7 @@ typedef struct
 /**
  * Different colors for the different states
  */
-RowColor                colors[num_states];
+RowColor colors[num_states];
 
 /** Default pango context */
 static PangoContext     *p_context = NULL;

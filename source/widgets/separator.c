@@ -41,7 +41,9 @@ struct _separator
     separator_type type;
 };
 
+/** Configuration value for separator style indicating no line */
 const char *const _separator_style_none = "none";
+/** Configuration value for separator style indicating dashed line. */
 const char *const _separator_style_dash = "dash";
 static void separator_draw ( widget *, cairo_t * );
 static void separator_free ( widget * );

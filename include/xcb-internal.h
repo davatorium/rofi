@@ -1,6 +1,6 @@
 #ifndef ROFI_XCB_INTERNAL_H
 #define ROFI_XCB_INTERNAL_H
-
+/** Indication we accept that startup notification api is not yet frozen */
 #define SN_API_NOT_YET_FROZEN
 #include <libsn/sn.h>
 
@@ -10,7 +10,6 @@
 /**
  * Structure to keep xcb stuff around.
  */
-
 struct _xcb_stuff
 {
     xcb_connection_t      *connection;

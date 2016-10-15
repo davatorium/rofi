@@ -87,7 +87,7 @@ typedef ModeMode ( *_mode_result )( Mode *sw, int menu_retv, char **input, unsig
  *
  * Preprocess the input for sorting.
  *
- * @returns Entry stripped from markup for sorting 
+ * @returns Entry stripped from markup for sorting
  */
 typedef char* ( *_mode_preprocess_input )( Mode *sw, const char *input );
 

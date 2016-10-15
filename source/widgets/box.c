@@ -281,12 +281,15 @@ static void box_update ( widget *wid  )
 }
 int box_get_fixed_pixels ( box *box )
 {
-    return box->max_size;
+    if ( box != NULL ) {
+        return box->max_size;
+    }
+    return 0;
 }
 
 void box_set_padding ( box * box, unsigned int padding )
 {
-    if ( box ) {
+    if ( box != NULL ) {
         box->padding = padding;
         widget_queue_redraw ( WIDGET ( box ) );
     }
