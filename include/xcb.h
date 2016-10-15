@@ -17,8 +17,9 @@ extern xcb_stuff *xcb;
  * Get the root window.
  *
  * @returns the root window.
-   xcb_window_t xcb_stuff_get_root_window ( xcb_stuff *xcb );
-   /**
+ */
+xcb_window_t xcb_stuff_get_root_window ( xcb_stuff *xcb );
+/**
  * @param xcb The xcb data structure.
  *
  * Disconnect and free all xcb connections and references.
