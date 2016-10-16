@@ -44,12 +44,14 @@
 #include "settings.h"
 #include "helper.h"
 
+/** Different sources of configuration. */
 const char * const ConfigSourceStr[] = {
     "Default",
     "XResources",
     "File",
     "Commandline",
 };
+/** Enumerator of different sources of configuration. */
 enum ConfigSource
 {
     CONFIG_DEFAULT    = 0,
@@ -194,8 +196,9 @@ static XrmOption xrmOptions[] = {
       "Click outside the window to exit", CONFIG_DEFAULT },
 };
 
-// Dynamic options.
+/** Dynamic array of extra options */
 XrmOption    *extra_options    = NULL;
+/** Number of entries in extra options array */
 unsigned int num_extra_options = 0;
 
 void config_parser_add_option ( XrmOptionType type, const char *key, void **value, const char *comment )
