@@ -208,6 +208,7 @@ static void box_free ( widget *wid )
 
 void box_add ( box *box, widget *child, gboolean expand, gboolean end )
 {
+    if ( box == NULL ) return;
     child->expand = expand;
     child->end    = end;
     child->parent = WIDGET ( box );

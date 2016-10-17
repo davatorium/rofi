@@ -151,7 +151,7 @@ static void listview_draw ( widget *wid, cairo_t *draw )
             unsigned int width = lv->widget.w - lv->padding * ( lv->cur_columns - 1 );
             if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) ) {
                 width -= lv->padding;
-                width -= lv->scrollbar->widget.w;
+                width -= widget_get_width ( WIDGET ( lv->scrollbar ) );
             }
             unsigned int element_width = ( width ) / lv->cur_columns;
             for ( unsigned int i = 0; i < max; i++ ) {
@@ -237,8 +237,8 @@ static void listview_resize ( widget *wid, short w, short h )
     lv->max_rows     = ( lv->padding + lv->widget.h ) / ( lv->element_height + lv->padding );
     lv->max_elements = lv->max_rows * lv->menu_columns;
 
-    widget_move ( WIDGET ( lv->scrollbar ), lv->widget.w - lv->scrollbar->widget.w, 0 );
-    widget_resize (  WIDGET ( lv->scrollbar ), lv->scrollbar->widget.w, h );
+    widget_move ( WIDGET ( lv->scrollbar ), lv->widget.w - widget_get_width ( WIDGET (lv->scrollbar ) ), 0 );
+    widget_resize (  WIDGET ( lv->scrollbar ), widget_get_width ( WIDGET ( lv->scrollbar ) ), h );
 
     listview_recompute_elements ( lv );
     widget_queue_redraw ( wid );
@@ -260,8 +260,8 @@ static gboolean listview_clicked ( widget *wid, xcb_button_press_event_t *xce, G
     if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) && widget_intersect ( WIDGET ( lv->scrollbar ), xce->event_x, xce->event_y ) ) {
         // Forward to handler of scrollbar.
         xcb_button_press_event_t xce2 = *xce;
-        xce->event_x -= lv->scrollbar->widget.x;
-        xce->event_y -= lv->scrollbar->widget.y;
+        xce->event_x -= widget_get_x_pos ( WIDGET ( lv->scrollbar ) );
+        xce->event_y -= widget_get_y_pos ( WIDGET ( lv->scrollbar ) );
         return widget_clicked ( WIDGET ( lv->scrollbar ), &xce2 );
     }
     // Handle the boxes.

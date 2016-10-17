@@ -93,6 +93,20 @@ int widget_get_width ( widget *widget )
     }
     return 0;
 }
+int widget_get_x_pos ( widget *widget )
+{
+    if ( widget ) {
+        return widget->x;
+    }
+    return 0;
+}
+int widget_get_y_pos ( widget *widget )
+{
+    if ( widget ) {
+        return widget->y;
+    }
+    return 0;
+}
 
 void widget_update ( widget *widget )
 {
