@@ -270,6 +270,7 @@ static char ** get_apps ( unsigned int *length )
             if ( error != NULL ) {
                 g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to convert directory name to UTF-8: %s", error->message );
                 g_clear_error ( &error );
+                closedir ( dir );
                 continue;
             }
             gboolean is_homedir = g_str_has_prefix ( dirn, homedir );

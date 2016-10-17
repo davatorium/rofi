@@ -303,12 +303,16 @@ static void dmenu_output_formatted_line ( const char *format, const char *string
             g_free ( quote );
         }
         else if ( format[i] == 'f' ) {
-            fputs ( filter, stdout );
+            if ( filter ) {
+                fputs ( filter, stdout );
+            }
         }
         else if ( format[i] == 'F' ) {
-            char *quote = g_shell_quote ( filter );
-            fputs ( quote, stdout );
-            g_free ( quote );
+            if ( filter ) {
+                char *quote = g_shell_quote ( filter );
+                fputs ( quote, stdout );
+                g_free ( quote );
+            }
         }
         else {
             fputc ( format[i], stdout );

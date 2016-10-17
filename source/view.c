@@ -1254,7 +1254,7 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
     {
         xcb_keymap_notify_event_t *kne     = (xcb_keymap_notify_event_t *) ev;
         guint                     modstate = x11_get_current_mask ( xkb );
-        for ( gint32 by = 0; by < 32; ++by ) {
+        for ( gint32 by = 0; by < 31; ++by ) {
             for ( gint8 bi = 0; bi < 7; ++bi ) {
                 if ( kne->keys[by] & ( 1 << bi ) ) {
                     // X11 keycodes starts at 8
