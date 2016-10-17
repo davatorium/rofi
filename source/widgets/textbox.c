@@ -161,7 +161,7 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
     }
     if ( tb->tbft != tbft ) {
         tb->update = TRUE;
-        widget_need_redraw ( WIDGET ( tb ) );
+        widget_queue_redraw ( WIDGET ( tb ) );
     }
     tb->tbft = tbft;
 }
@@ -229,7 +229,7 @@ void textbox_text ( textbox *tb, const char *text )
     }
 
     tb->cursor = MAX ( 0, MIN ( ( int ) g_utf8_strlen ( tb->text, -1 ), tb->cursor ) );
-    widget_need_redraw ( WIDGET ( tb ) );
+    widget_queue_redraw ( WIDGET ( tb ) );
 }
 
 // within the parent handled auto width/height modes
@@ -268,7 +268,7 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     // We always want to update this
     pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - 2 * config.line_padding - offset ) );
     tb->update = TRUE;
-    widget_need_redraw ( WIDGET ( tb ) );
+    widget_queue_redraw ( WIDGET ( tb ) );
 }
 
 // will also unmap the window if still displayed
@@ -401,9 +401,9 @@ void textbox_cursor ( textbox *tb, int pos )
     int length = ( tb->text == NULL ) ? 0 : g_utf8_strlen ( tb->text, -1 );
     tb->cursor = MAX ( 0, MIN ( length, pos ) );
     tb->update = TRUE;
-    widget_need_redraw ( WIDGET ( tb ) );
     // Stop blink!
-    tb->blink = 2;
+    tb->blink = 3;
+    widget_queue_redraw ( WIDGET ( tb ) );
 }
 
 // move right
@@ -434,7 +434,7 @@ static void textbox_cursor_inc_word ( textbox *tb )
             break;
         }
     }
-    if ( c == NULL ) {
+    if ( *c == '\0' ) {
         return;
     }
     while ( ( c = g_utf8_next_char ( c ) ) ) {
@@ -486,12 +486,12 @@ void textbox_cursor_end ( textbox *tb )
     if ( tb->text == NULL ) {
         tb->cursor = 0;
         tb->update = TRUE;
-        widget_need_redraw ( WIDGET ( tb ) );
+        widget_queue_redraw ( WIDGET ( tb ) );
         return;
     }
     tb->cursor = ( int ) g_utf8_strlen ( tb->text, -1 );
     tb->update = TRUE;
-    widget_need_redraw ( WIDGET ( tb ) );
+    widget_queue_redraw ( WIDGET ( tb ) );
     // Stop blink!
     tb->blink = 2;
 }
