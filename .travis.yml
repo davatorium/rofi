@@ -14,8 +14,8 @@ addons:
         name: "DaveDavenport/rofi"
         description: "Build submitted via Travis CI"
       notification_email: qball@gmpclient.org
-      build_command_prepend: "./configure; make clean"
-      build_command:   "make -j 4"
+      build_command_prepend: "autoreconf -i;./configure; make clean"
+      build_command:   "make"
       branch_pattern: coverity_scan
     apt:
         packages:
