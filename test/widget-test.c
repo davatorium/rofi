@@ -20,6 +20,10 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     widget *wid= (widget*)g_malloc0(sizeof(widget)); 
     widget_resize ( wid, 20, 40);
     widget_move ( wid, 10, 10);
+    // Getter, setter x pos
+    //
+    TASSERT( widget_get_x_pos ( wid )  == 10 );
+    TASSERT( widget_get_y_pos ( wid )  == 10 );
 
     // Left of box
     TASSERT ( widget_intersect ( wid, 0, 0) == 0 );

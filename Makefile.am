@@ -348,5 +348,14 @@ $(top_builddir)/gitconfig.h: .FORCE
 
 $(rofi_SOURCES): $(top_builddir)/gitconfig.h
 
+.PHONY: coverage
+coverage: coverage/index.html
+
+coverage.info: $(top_builddir)/test/*.gcda $(top_builddir)/source/*.gcda  $(top_builddir)/source/**/*.gcda
+	lcov --capture  --directory ./ --output-file coverage.info
+
+coverage/index.html: coverage.info
+	genhtml $^ --output-directory coverage/
+
 .PHONY: .FORCE
 .FORCE:

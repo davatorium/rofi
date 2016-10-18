@@ -71,9 +71,15 @@ struct _listview
     void                        *mouse_activated_data;
 };
 
-static void listview_free ( widget *widget )
+static void listview_free ( widget *wid )
 {
-    listview *lv = (listview *) widget;
+    listview *lv = (listview *) wid;
+    for ( unsigned int i = 0; i < lv->cur_elements; i++ ) {
+        widget_free ( WIDGET ( lv->boxes [i] ) );
+    }
+    g_free ( lv->boxes );
+
+    widget_free ( WIDGET ( lv->scrollbar ) );
     g_free ( lv );
 }
 static unsigned int scroll_per_page ( listview * lv )
@@ -237,7 +243,7 @@ static void listview_resize ( widget *wid, short w, short h )
     lv->max_rows     = ( lv->padding + lv->widget.h ) / ( lv->element_height + lv->padding );
     lv->max_elements = lv->max_rows * lv->menu_columns;
 
-    widget_move ( WIDGET ( lv->scrollbar ), lv->widget.w - widget_get_width ( WIDGET (lv->scrollbar ) ), 0 );
+    widget_move ( WIDGET ( lv->scrollbar ), lv->widget.w - widget_get_width ( WIDGET ( lv->scrollbar ) ), 0 );
     widget_resize (  WIDGET ( lv->scrollbar ), widget_get_width ( WIDGET ( lv->scrollbar ) ), h );
 
     listview_recompute_elements ( lv );

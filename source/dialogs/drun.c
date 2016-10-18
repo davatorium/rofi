@@ -366,7 +366,7 @@ static void walk_dir ( DRunModePrivateData *pd, const char *root, const char *di
         }
         // Skip files not ending on .desktop.
         if ( file->d_type != DT_DIR && !g_str_has_suffix ( file->d_name, ".desktop" ) ) {
-            g_free(filename);
+            g_free ( filename );
             continue;
         }
 

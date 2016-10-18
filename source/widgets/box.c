@@ -202,13 +202,15 @@ static void box_free ( widget *wid )
         widget * child = (widget *) iter->data;
         widget_free ( child );
     }
-
+    g_list_free ( b->children );
     g_free ( b );
 }
 
 void box_add ( box *box, widget *child, gboolean expand, gboolean end )
 {
-    if ( box == NULL ) return;
+    if ( box == NULL ) {
+        return;
+    }
     child->expand = expand;
     child->end    = end;
     child->parent = WIDGET ( box );

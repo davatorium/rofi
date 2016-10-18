@@ -197,7 +197,7 @@ static XrmOption xrmOptions[] = {
 };
 
 /** Dynamic array of extra options */
-XrmOption    *extra_options    = NULL;
+XrmOption    *extra_options = NULL;
 /** Number of entries in extra options array */
 unsigned int num_extra_options = 0;
 

@@ -66,10 +66,10 @@ void widget_draw ( widget *widget, cairo_t *d )
         widget->need_redraw = FALSE;
     }
 }
-void widget_free ( widget *widget )
+void widget_free ( widget *wid )
 {
-    if ( widget && widget->free ) {
-        widget->free ( widget );
+    if ( wid && wid->free ) {
+        wid->free ( wid );
     }
 }
 

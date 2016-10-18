@@ -28,7 +28,7 @@ typedef struct _widget   widget;
 typedef gboolean ( *widget_clicked_cb )( widget *, xcb_button_press_event_t *, void * );
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
-#define WIDGET( a )    ( ( a ) != NULL ? (widget *) ( a ) : NULL )
+#define WIDGET( a )    ( (widget *) ( a ) )
 
 /**
  * @param widget The widget to check
