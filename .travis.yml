@@ -36,7 +36,6 @@ addons:
             - xdotool
             - fluxbox
             - gdb
-            - gcov
             - lcov
 
 compiler:
@@ -69,8 +68,8 @@ script:
 # to re-enable if xdotool is allowed.
     - make test-x
     - make test-x1
-      #    - make coverage-cli
-    - gcov source/rofi.c
+    - make coverage-cli
+      #    - gcov source/rofi.c
     - make distcheck
 
 after_success:
