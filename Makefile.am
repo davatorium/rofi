@@ -351,11 +351,19 @@ $(rofi_SOURCES): $(top_builddir)/gitconfig.h
 .PHONY: coverage
 coverage: coverage/index.html
 
+.PHONY: coverage-cli
+coverage-cli: coverage.info
+	lcov -l $^
 coverage.info: $(top_builddir)/test/*.gcda $(top_builddir)/source/*.gcda  $(top_builddir)/source/**/*.gcda
-	lcov --capture  --directory ./ --output-file coverage.info
+	lcov --capture  --directory $(top_builddir) --output-file coverage.info
+	lcov -r $@ /usr/include/\* -o $@
 
 coverage/index.html: coverage.info
 	genhtml $^ --output-directory coverage/
+
+.PHONY: coverage-clean
+coverage-clean:
+	-rm -r coverage.info coverage/
 
 .PHONY: .FORCE
 .FORCE:
