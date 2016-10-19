@@ -257,12 +257,3 @@ Global options:
 	-display-combi [string]                 The display name of this browser
 		combi (File)
 
-Monitor layout:
-              ID: 0
-            name: screen
-        position: 0,0
-            size: 1280,1024
-
-For more information see: man rofi
-Bugreports: https://github.com/DaveDavenport/rofi/
-Support:    #rofi @ freenode.net
