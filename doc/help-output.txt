@@ -1,0 +1,268 @@
+rofi usage:
+	rofi [-options ...]
+
+Command line only options:
+	-no-config                             Do not load configuration, use default values.
+	-v,-version                            Print the version number and exit.
+	-dmenu                                 Start in dmenu mode.
+	-display [string]                      X server to contact.
+		${DISPLAY}
+	-h,-help                               This help message.
+	-dump-xresources                       Dump the current configuration in Xresources format and exit.
+	-dump-xresources-theme                 Dump the current color scheme in Xresources format and exit.
+	-e [string]                            Show a dialog displaying the passed message and exit.
+	-markup                                Enable pango markup where possible.
+	-normal-window                         In dmenu mode, behave as a normal window. (experimental)
+	-show [mode]                           Show the mode 'mode' and exit. The mode has to be enabled.
+DMENU command line options:
+	-mesg [string]                         Print a small user message under the prompt (uses pango markup)
+	-p [string]                            Prompt to display left of entry field
+	-selected-row [integer]                Select row
+	-format [string]                       Output format string
+		s
+	-u [list]                              List of row indexes to mark urgent
+	-a [list]                              List of row indexes to mark active
+	-l [integer]                           Number of rows to display
+	-i                                     Set filter to be case insensitive
+	-only-match                            Force selection or custom entry
+	-no-custom                             Don't accept custom entry
+	-select [string]                       Select the first row that matches
+	-password                              Do not show what the user inputs. Show '*' instead.
+	-markup-rows                           Allow and render pango markup as input data.
+	-sep [char]                            Element separator.
+		'\n'
+	-input [filename]                      Read input from file instead from standard input.
+	-sync                                  Force dmenu to first read all input data, then show dialog.
+Global options:
+	-modi [string]                          Enabled modi
+		combi,drun (File)
+	-opacity [number]                       Window opacity
+		100 (File)
+	-width [number]                         Window width
+		50 (File)
+	-lines [number]                         Number of lines
+		8 (File)
+	-columns [number]                       Number of columns
+		1 (File)
+	-font [string]                          Font to use
+		Source Code Pro Medium 10 (File)
+	-color-normal [string]                  Color scheme for normal row
+		argb:0000000, #a2b5df, argb:3affffff, #a2b5df, #02143f (File)
+	-color-urgent [string]                  Color scheme for urgent row
+		argb:0000000, #ff817f, argb:3affffff, #ff817f, #02143f (File)
+	-color-active [string]                  Color scheme for active row
+		argb:0000000, #6aa4ff, argb:3affffff, #6aa4ff, #02143f (File)
+	-color-window [string]                  Color scheme window
+		argb:ee02143f, #a2b5df, #a2b5df (File)
+	-bw [number]                            Border width
+		2 (File)
+	-location [number]                      Location on screen
+		2 (File)
+	-padding [number]                       Padding
+		2 (File)
+	-yoffset [number]                       Y-offset relative to location
+		-2 (File)
+	-xoffset [number]                       X-offset relative to location
+		0 (File)
+	-[no-]fixed-num-lines                   Always show number of lines
+		True (File)
+	-terminal [string]                      Terminal to use
+		sakura (File)
+	-ssh-client [string]                    Ssh client to use
+		ssh (File)
+	-ssh-command [string]                   Ssh command to execute
+		{terminal} -e {ssh-client} {host} (File)
+	-run-command [string]                   Run command to execute
+		bash -c "{cmd}" (File)
+	-run-list-command [string]              Command to get extra run targets
+		 (Default)
+	-run-shell-command [string]             Run command to execute that runs in shell
+		{terminal} -e {cmd} (File)
+	-window-command [string]                Command executed on accep-entry-custom for window modus
+		xkill -id {window} (File)
+	-[no-]disable-history                   Disable history in run/ssh
+		False (File)
+	-[no-]levenshtein-sort                  Use levenshtein sorting
+		False (File)
+	-[no-]case-sensitive                    Set case-sensitivity
+		False (File)
+	-[no-]cycle                             Cycle through the results list
+		True (File)
+	-[no-]sidebar-mode                      Enable sidebar-mode
+		False (File)
+	-eh [number]                            Row height (in chars)
+		1 (File)
+	-[no-]auto-select                       Enable auto select mode
+		False (File)
+	-[no-]parse-hosts                       Parse hosts file for ssh mode
+		False (File)
+	-[no-]parse-known-hosts                 Parse known_hosts file for ssh mode
+		True (File)
+	-combi-modi [string]                    Set the modi to combine in combi mode
+		window,drun,run,ssh (File)
+	-matching [string]                      Set the matching algorithm. (normal, regex, glob, fuzzy)
+		normal (Default)
+	-[no-]tokenize                          Tokenize input string
+		True (File)
+	-m [string]                             Monitor id to show on
+		-1 (File)
+	-line-margin [number]                   Margin between rows
+		3 (File)
+	-line-padding [number]                  Padding within rows
+		1 (Default)
+	-filter [string]                        Pre-set filter
+		(unset) (Default)
+	-separator-style [string]               Separator style (none, dash, solid)
+		solid (File)
+	-[no-]hide-scrollbar                    Hide scroll-bar
+		False (File)
+	-[no-]fullscreen                        Fullscreen
+		False (File)
+	-[no-]fake-transparency                 Fake transparency
+		False (File)
+	-dpi [number]                           DPI
+		101 (File)
+	-threads [number]                       Threads to use for string matching
+		8 (File)
+	-scrollbar-width [number]               Scrollbar width
+		8 (File)
+	-scroll-method [number]                 Scrolling method. (0: Page, 1: Centered)
+		0 (File)
+	-fake-background [string]               Background to use for fake transparency. (background or screenshot)
+		screenshot (File)
+	-window-format [string]                 Window Format. w (desktop name), t (title), n (name), r (role), c (class)
+		w   c   t (File)
+	-[no-]click-to-exit                     Click outside the window to exit
+		True (Default)
+	-pid [string]                           Pidfile location
+		/tmp/1000-runtime-dir/rofi.pid (File)
+	-kb-primary-paste [string]              Paste primary selection
+		Control+Shift+v,Shift+Insert (File)
+	-kb-secondary-paste [string]            Paste clipboard
+		Control+v,Insert (File)
+	-kb-clear-line [string]                 Clear input line
+		Control+u (File)
+	-kb-move-front [string]                 Beginning of line
+		Control+a (File)
+	-kb-move-end [string]                   End of line
+		Control+e (File)
+	-kb-move-word-back [string]             Move back one word
+		Alt+b (File)
+	-kb-move-word-forward [string]          Move forward one word
+		Alt+f (File)
+	-kb-move-char-back [string]             Move back one char
+		Left,Control+b (File)
+	-kb-move-char-forward [string]          Move forward one char
+		Right,Control+f (File)
+	-kb-remove-word-back [string]           Delete previous word
+		Control+Alt+h,Control+Backspace (File)
+	-kb-remove-word-forward [string]        Delete next word
+		Control+Alt+d (File)
+	-kb-remove-char-forward [string]        Delete next char
+		Delete,Control+d (File)
+	-kb-remove-char-back [string]           Delete previous char
+		BackSpace,Control+h (File)
+	-kb-remove-to-eol [string]              Delete till the end of line
+		Control+k (File)
+	-kb-remove-to-sol [string]              Delete till the start of line
+		Control+u (File)
+	-kb-accept-entry [string]               Accept entry
+		Control+j,Control+m,Return,KP_Enter (File)
+	-kb-accept-custom [string]              Use entered text as command (in ssh/run modi)
+		Control+Return (File)
+	-kb-accept-alt [string]                 Use alternate accept command.
+		Shift+Return (File)
+	-kb-delete-entry [string]               Delete entry from history
+		Shift+Delete (File)
+	-kb-mode-next [string]                  Switch to the next mode.
+		Shift+Right,Control+Tab (File)
+	-kb-mode-previous [string]              Switch to the previous mode.
+		Shift+Left,Control+Shift+Tab (File)
+	-kb-row-left [string]                   Go to the previous column
+		Control+Page_Up (File)
+	-kb-row-right [string]                  Go to the next column
+		Control+Page_Down (File)
+	-kb-row-up [string]                     Select previous entry
+		Up,Control+p,Shift+Tab (File)
+	-kb-row-down [string]                   Select next entry
+		Down,Control+n (File)
+	-kb-row-tab [string]                    Go to next row, if one left, accept it, if no left next mode.
+		Tab (File)
+	-kb-page-prev [string]                  Go to the previous page
+		Page_Up (File)
+	-kb-page-next [string]                  Go to the next page
+		Page_Down (File)
+	-kb-row-first [string]                  Go to the first entry
+		Home,KP_Home (File)
+	-kb-row-last [string]                   Go to the last entry
+		End,KP_End (File)
+	-kb-row-select [string]                 Set selected item as input text
+		Control+space (File)
+	-kb-screenshot [string]                 Take a screenshot of the rofi window
+		Alt+Shift+S (File)
+	-kb-toggle-case-sensitivity [string]    Toggle case sensitivity
+		grave,dead_grave (File)
+	-kb-toggle-sort [string]                Toggle sort
+		Alt+grave (File)
+	-kb-cancel [string]                     Quit rofi
+		Escape,Control+bracketleft (File)
+	-kb-custom-1 [string]                   Custom keybinding 1
+		Alt+1 (File)
+	-kb-custom-2 [string]                   Custom keybinding 2
+		Alt+2 (File)
+	-kb-custom-3 [string]                   Custom keybinding 3
+		Alt+3 (File)
+	-kb-custom-4 [string]                   Custom keybinding 4
+		Alt+4 (File)
+	-kb-custom-5 [string]                   Custom Keybinding 5
+		Alt+5 (File)
+	-kb-custom-6 [string]                   Custom keybinding 6
+		Alt+6 (File)
+	-kb-custom-7 [string]                   Custom Keybinding 7
+		Alt+7 (File)
+	-kb-custom-8 [string]                   Custom keybinding 8
+		Alt+8 (File)
+	-kb-custom-9 [string]                   Custom keybinding 9
+		Alt+9 (File)
+	-kb-custom-10 [string]                  Custom keybinding 10
+		Alt+0 (File)
+	-kb-custom-11 [string]                  Custom keybinding 11
+		Alt+Shift+1 (File)
+	-kb-custom-12 [string]                  Custom keybinding 12
+		Alt+Shift+2 (File)
+	-kb-custom-13 [string]                  Csutom keybinding 13
+		Alt+Shift+3 (File)
+	-kb-custom-14 [string]                  Custom keybinding 14
+		Alt+Shift+4 (File)
+	-kb-custom-15 [string]                  Custom keybinding 15
+		Alt+Shift+5 (File)
+	-kb-custom-16 [string]                  Custom keybinding 16
+		Alt+Shift+6 (File)
+	-kb-custom-17 [string]                  Custom keybinding 17
+		Alt+Shift+7 (File)
+	-kb-custom-18 [string]                  Custom keybinding 18
+		Alt+Shift+8 (File)
+	-kb-custom-19 [string]                  Custom Keybinding 19
+		Alt+Shift+9 (File)
+	-display-ssh [string]                   The display name of this browser
+		  (File)
+	-display-run [string]                   The display name of this browser
+		  (File)
+	-display-drun [string]                  The display name of this browser
+		  (File)
+	-display-window [string]                The display name of this browser
+		  (File)
+	-display-windowcd [string]              The display name of this browser
+		windowcd (File)
+	-display-combi [string]                 The display name of this browser
+		combi (File)
+
+Monitor layout:
+              ID: 0
+            name: screen
+        position: 0,0
+            size: 1280,1024
+
+For more information see: man rofi
+Bugreports: https://github.com/DaveDavenport/rofi/
+Support:    #rofi @ freenode.net
