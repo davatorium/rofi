@@ -44,6 +44,13 @@ static int textbox_get_width ( widget * );
 static int _textbox_get_height ( widget * );
 
 /**
+ * @param tb  Handle to the textbox
+ *
+ * Move the cursor to the end of the string.
+ */
+static void textbox_cursor_end ( textbox *tb );
+
+/**
  * Font + font color cache.
  * Avoid re-loading font on every change on every textbox.
  */
@@ -406,14 +413,22 @@ void textbox_cursor ( textbox *tb, int pos )
     widget_queue_redraw ( WIDGET ( tb ) );
 }
 
-// move right
-void textbox_cursor_inc ( textbox *tb )
+/**
+ * @param tb Handle to the textbox
+ *
+ * Move cursor one position forward.
+ */
+static void textbox_cursor_inc ( textbox *tb )
 {
     textbox_cursor ( tb, tb->cursor + 1 );
 }
 
-// move left
-void textbox_cursor_dec ( textbox *tb )
+/**
+ * @param tb Handle to the textbox
+ *
+ * Move cursor one position backward.
+ */
+static void textbox_cursor_dec ( textbox *tb )
 {
     textbox_cursor ( tb, tb->cursor - 1 );
 }
@@ -481,7 +496,7 @@ static void textbox_cursor_dec_word ( textbox *tb )
 }
 
 // end of line
-void textbox_cursor_end ( textbox *tb )
+static void textbox_cursor_end ( textbox *tb )
 {
     if ( tb->text == NULL ) {
         tb->cursor = 0;
@@ -547,8 +562,12 @@ void textbox_delete ( textbox *tb, int pos, int dlen )
     tb->update  = TRUE;
 }
 
-// delete on character
-void textbox_cursor_del ( textbox *tb )
+/**
+ * @param tb Handle to the textbox
+ *
+ * Delete character after cursor.
+ */
+static void textbox_cursor_del ( textbox *tb )
 {
     if ( tb->text == NULL ) {
         return;
@@ -556,8 +575,12 @@ void textbox_cursor_del ( textbox *tb )
     textbox_delete ( tb, tb->cursor, 1 );
 }
 
-// back up and delete one character
-void textbox_cursor_bkspc ( textbox *tb )
+/**
+ * @param tb Handle to the textbox
+ *
+ * Delete character before cursor.
+ */
+static void textbox_cursor_bkspc ( textbox *tb )
 {
     if ( tb->cursor > 0 ) {
         textbox_cursor_dec ( tb );

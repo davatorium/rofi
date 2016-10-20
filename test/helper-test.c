@@ -78,4 +78,40 @@ int main ( int argc, char ** argv )
     TASSERTE ( levenshtein ( "aap", "noot aap mies" ), 10 );
     TASSERTE ( levenshtein ( "noot aap mies", "aap" ), 10 );
     TASSERTE ( levenshtein ( "otp", "noot aap" ), 5 );
+    /**
+     * Quick converision check.
+     */
+    {
+    char *str = rofi_latin_to_utf8_strdup ( "\xA1\xB5", 2);
+    TASSERT ( g_utf8_collate ( str, "¡µ") == 0 );
+    g_free(str);
+    }
+   
+    {
+        char *str = rofi_force_utf8("Valid utf8", 10);
+        TASSERT ( g_utf8_collate ( str, "Valid utf8") == 0 );
+        g_free(str);
+        char in[] = "Valid utf8 until \xc3\x28 we continue here";
+        TASSERT ( g_utf8_validate ( in, -1, NULL ) == FALSE );
+        str = rofi_force_utf8(in, strlen(in));
+        TASSERT ( g_utf8_validate ( str, -1, NULL ) == TRUE );
+        TASSERT ( g_utf8_collate ( str, "Valid utf8 until �( we continue here") == 0 );
+        g_free(str);
+    } 
+    // Pid test.
+    // Tests basic functionality of writing it, locking, seeing if I can write same again
+    // And close/reopen it again.
+    {
+        const char *path = "/tmp/rofi-test.pid"; 
+        TASSERT( create_pid_file ( NULL ) == -1 );
+        int fd = create_pid_file ( path );
+        TASSERT( fd >= 0 );
+        int fd2 = create_pid_file ( path );
+        TASSERT ( fd2 <  0 );
+
+        remove_pid_file ( fd );
+        fd = create_pid_file ( path );
+        TASSERT( fd >= 0 );
+        remove_pid_file ( fd );
+    }
 }

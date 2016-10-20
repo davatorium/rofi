@@ -138,13 +138,6 @@ gboolean textbox_append_char ( textbox *tb, const char *pad, const int pad_len )
 
 /**
  * @param tb  Handle to the textbox
- *
- * Move the cursor to the end of the string.
- */
-void textbox_cursor_end ( textbox *tb );
-
-/**
- * @param tb  Handle to the textbox
  * @param pos New cursor position
  *
  * Set the cursor position (string index)
@@ -206,34 +199,6 @@ int textbox_get_font_width ( const textbox *tb );
  * @returns the width of a character in pixels.
  */
 double textbox_get_estimated_char_width ( void );
-
-/**
- * @param tb Handle to the textbox
- *
- * Delete character before cursor.
- */
-void textbox_cursor_bkspc ( textbox *tb );
-
-/**
- * @param tb Handle to the textbox
- *
- * Delete character after cursor.
- */
-void textbox_cursor_del ( textbox *tb );
-
-/**
- * @param tb Handle to the textbox
- *
- * Move cursor one position backward.
- */
-void textbox_cursor_dec ( textbox *tb );
-
-/**
- * @param tb Handle to the textbox
- *
- * Move cursor one position forward.
- */
-void textbox_cursor_inc ( textbox *tb );
 
 /**
  * @param tb Handle to the textbox
