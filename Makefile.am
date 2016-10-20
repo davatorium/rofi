@@ -143,7 +143,16 @@ update-manpage: $(top_srcdir)/doc/rofi-manpage.markdown
 ##
 # Rofi test program
 ##
-check_PROGRAMS=history_test textbox_test helper_test helper_expand helper_config_cmdline_parser widget_test
+check_PROGRAMS=\
+			   history_test\
+			   textbox_test\
+			   helper_test\
+			   helper_expand\
+			   helper_pidfile\
+			   helper_tokenize\
+			   helper_config_cmdline_parser\
+			   widget_test
+
 
 history_test_CFLAGS=\
 	$(AM_CFLAGS)\
@@ -184,6 +193,36 @@ textbox_test_LDADD=\
 	$(GW_XCB_LIBS)\
 	$(cairo_LIBS)\
 	$(libsn_LIBS)
+
+helper_pidfile_CFLAGS=$(textbox_test_CFLAGS)
+helper_pidfile_LDADD=$(textbox_test_LDADD)
+helper_pidfile_SOURCES=\
+					   config/config.c\
+					   include/rofi.h\
+					   include/mode.h\
+					   include/mode-private.h\
+					   source/helper.c\
+					   include/helper.h\
+					   include/xrmoptions.h\
+					   source/xrmoptions.c\
+					   source/x11-helper.c\
+					   inlucde/x11-helper.h\
+					   test/helper-pidfile.c
+					   
+helper_tokenize_CFLAGS=$(textbox_test_CFLAGS)
+helper_tokenize_LDADD=$(textbox_test_LDADD)
+helper_tokenize_SOURCES=\
+					   config/config.c\
+					   include/rofi.h\
+					   include/mode.h\
+					   include/mode-private.h\
+					   source/helper.c\
+					   include/helper.h\
+					   include/xrmoptions.h\
+					   source/xrmoptions.c\
+					   source/x11-helper.c\
+					   inlucde/x11-helper.h\
+					   test/helper-tokenize.c
 
 widget_test_LDADD=$(textbox_test_LDADD)
 widget_test_CFLAGS=$(textbox_test_CFLAGS)
@@ -271,13 +310,14 @@ TESTS=\
 	history_test\
 	helper_test\
 	helper_expand\
+	helper_pidfile\
+	helper_tokenize\
 	helper_config_cmdline_parser\
+	textbox_test\
 	widget_test
 
 .PHONY: test-x
-test-x: $(bin_PROGRAMS) textbox_test
-	echo "Test 1"
-	$(top_srcdir)/test/run_test.sh 123 $(top_builddir)/textbox_test $(top_builddir)
+test-x: $(bin_PROGRAMS) 
 	echo "Test 2"
 	$(top_srcdir)/test/run_test.sh 200 $(top_srcdir)/test/run_errormsg_test.sh $(top_builddir)
 	echo "Test 3"

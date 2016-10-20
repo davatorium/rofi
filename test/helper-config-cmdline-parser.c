@@ -47,17 +47,45 @@ int main ( int argc, char ** argv )
     char **list     = NULL;
     int  llength    = 0;
     char * test_str =
-        "{host} {terminal} -e bash -c \"{ssh-client} {host}; echo '{terminal} {host}'\"";
+        "{host} {terminal} -e bash -c \"{ssh-client} {host}; echo '{terminal} {host}'\" -i -3 -u 4";
     helper_parse_setup ( test_str, &list, &llength, "{host}", "chuck",
                          "{terminal}", "x-terminal-emulator", NULL );
 
-    TASSERT ( llength == 6 );
+    TASSERT ( llength == 10);
     TASSERT ( strcmp ( list[0], "chuck" ) == 0 );
     TASSERT ( strcmp ( list[1], "x-terminal-emulator" ) == 0 );
     TASSERT ( strcmp ( list[2], "-e" ) == 0 );
     TASSERT ( strcmp ( list[3], "bash" ) == 0 );
     TASSERT ( strcmp ( list[4], "-c" ) == 0 );
     TASSERT ( strcmp ( list[5], "ssh chuck; echo 'x-terminal-emulator chuck'" ) == 0 );
+    TASSERT ( strcmp ( list[6], "-i" ) == 0 );
+    TASSERT ( strcmp ( list[7], "-3" ) == 0 );
+    TASSERT ( strcmp ( list[8], "-u" ) == 0 );
+    TASSERT ( strcmp ( list[9], "4" ) == 0 );
+
+    cmd_set_arguments ( llength, list);
+    TASSERT( find_arg ( "-e")  == 2 );
+    TASSERT( find_arg ( "-x")  == -1 );
+    char *str;
+    TASSERT( find_arg_str ( "-e", &str)  == TRUE );
+    TASSERT ( str == list[3] );
+    TASSERT( find_arg_str ( "-x", &str)  == FALSE );
+    // Should be unmodified.
+    TASSERT ( str == list[3] );
+
+    unsigned int u = 1234;
+    unsigned int i = -1234;
+    TASSERT ( find_arg_uint ( "-x", &u ) == FALSE );
+    TASSERT ( u == 1234 );
+    TASSERT ( find_arg_int ( "-x", &i ) == FALSE );
+    TASSERT ( i == -1234 );
+    TASSERT ( find_arg_uint ( "-u", &u ) == TRUE );
+    TASSERT ( u == 4 );
+    TASSERT ( find_arg_uint ( "-i", &u ) == TRUE );
+    TASSERT ( u == 4294967293 );
+    TASSERT ( find_arg_int ( "-i", &i ) == TRUE );
+    TASSERT ( i == -3 );
+
     g_strfreev ( list );
 
 }

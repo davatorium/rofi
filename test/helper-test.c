@@ -98,4 +98,20 @@ int main ( int argc, char ** argv )
         TASSERT ( g_utf8_collate ( str, "Valid utf8 until �( we continue here") == 0 );
         g_free(str);
     } 
+    // Pid test.
+    // Tests basic functionality of writing it, locking, seeing if I can write same again
+    // And close/reopen it again.
+    {
+        const char *path = "/tmp/rofi-test.pid"; 
+        TASSERT( create_pid_file ( NULL ) == -1 );
+        int fd = create_pid_file ( path );
+        TASSERT( fd >= 0 );
+        int fd2 = create_pid_file ( path );
+        TASSERT ( fd2 <  0 );
+
+        remove_pid_file ( fd );
+        fd = create_pid_file ( path );
+        TASSERT( fd >= 0 );
+        remove_pid_file ( fd );
+    }
 }
