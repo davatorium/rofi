@@ -796,6 +796,10 @@ Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) with cus
 
 Shows a list of SSH targets based on your ssh config file, and allows to quickly ssh into them.
 
+### Keys
+
+Shows a searchable list of key bindings.
+
 ### Script
 
 Allows custom scripted Modi to be added.
