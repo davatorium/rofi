@@ -206,7 +206,7 @@ helper_pidfile_SOURCES=\
 					   include/xrmoptions.h\
 					   source/xrmoptions.c\
 					   source/x11-helper.c\
-					   inlucde/x11-helper.h\
+					   include/x11-helper.h\
 					   test/helper-pidfile.c
 					   
 helper_tokenize_CFLAGS=$(textbox_test_CFLAGS)
@@ -221,7 +221,7 @@ helper_tokenize_SOURCES=\
 					   include/xrmoptions.h\
 					   source/xrmoptions.c\
 					   source/x11-helper.c\
-					   inlucde/x11-helper.h\
+					   include/x11-helper.h\
 					   test/helper-tokenize.c
 
 widget_test_LDADD=$(textbox_test_LDADD)
