@@ -656,7 +656,7 @@ inline static void rofi_view_nav_row_select ( RofiViewState *state )
         char *str = mode_get_completion ( state->sw, state->line_map[selected] );
         textbox_text ( state->text, str );
         g_free ( str );
-        textbox_cursor_end ( state->text );
+        textbox_keybinding ( state->text, MOVE_END );
         state->refilter = TRUE;
     }
 }

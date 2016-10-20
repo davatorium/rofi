@@ -366,6 +366,7 @@ coverage/index.html: coverage.info
 .PHONY: coverage-clean
 coverage-clean:
 	-rm -r coverage.info coverage/
+	-find $(top_builddir) -name '*.gcda' | xargs rm
 
 .PHONY: .FORCE
 .FORCE:
