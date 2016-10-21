@@ -151,7 +151,8 @@ check_PROGRAMS=\
 			   helper_pidfile\
 			   helper_tokenize\
 			   helper_config_cmdline_parser\
-			   widget_test
+			   widget_test\
+			   box_test
 
 
 history_test_CFLAGS=\
@@ -229,6 +230,13 @@ widget_test_CFLAGS=$(textbox_test_CFLAGS)
 widget_test_SOURCES=\
 			source/widgets/widget.c\
 			test/widget-test.c
+
+box_test_LDADD=$(textbox_test_LDADD)
+box_test_CFLAGS=$(textbox_test_CFLAGS)
+box_test_SOURCES=\
+			source/widgets/widget.c\
+			source/widgets/box.c\
+			test/box-test.c
 textbox_test_SOURCES=\
 	source/widgets/widget.c\
 	source/widgets/textbox.c\
@@ -314,7 +322,8 @@ TESTS=\
 	helper_tokenize\
 	helper_config_cmdline_parser\
 	textbox_test\
-	widget_test
+	widget_test\
+	box_test
 
 .PHONY: test-x
 test-x: $(bin_PROGRAMS) 
