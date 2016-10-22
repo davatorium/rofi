@@ -87,7 +87,7 @@ Settings config = {
     /** X offset */
     .x_offset          =                                         0,
     /** Always should config.menu_lines lines, even if less lines are available */
-    .fixed_num_lines   = FALSE,
+    .fixed_num_lines   = TRUE,
     /** Do not use history */
     .disable_history   = FALSE,
     /** Use levenshtein sorting when matching */
