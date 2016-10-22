@@ -449,7 +449,7 @@ static void textbox_cursor_inc_word ( textbox *tb )
             break;
         }
     }
-    if ( *c == '\0' ) {
+    if ( c == NULL || *c == '\0' ) {
         return;
     }
     while ( ( c = g_utf8_next_char ( c ) ) ) {
