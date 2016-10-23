@@ -86,7 +86,7 @@ Settings config = {
     .y_offset          =                                         0,
     /** X offset */
     .x_offset          =                                         0,
-    /** Always should config.menu_lines lines, even if less lines are available */
+    /** Always show config.menu_lines lines, even if less lines are available */
     .fixed_num_lines   = TRUE,
     /** Do not use history */
     .disable_history   = FALSE,
