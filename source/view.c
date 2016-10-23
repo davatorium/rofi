@@ -1189,8 +1189,10 @@ static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xc
         len = xkb_state_key_get_utf8 ( xkb->state, xkpe->detail, pad, sizeof ( pad ) );
     }
 
-    unsigned int modstate = x11_canonalize_mask ( xkpe->state );
+    xkb_mod_mask_t mod = xkb_state_serialize_mods ( xkb->state, XKB_STATE_MODS_EFFECTIVE );
+    xkb_mod_mask_t rrstate = xkb_state_mod_mask_remove_consumed ( xkb->state, key,mod );
 
+    unsigned int modstate = x11_canonalize_mask ( rrstate );
     if ( key != XKB_KEY_NoSymbol ) {
         KeyBindingAction action;
         action = abe_find_action ( modstate, key );
