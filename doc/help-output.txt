@@ -134,6 +134,8 @@ Global options:
 		w   c   t (File)
 	-[no-]click-to-exit                     Click outside the window to exit
 		True (Default)
+	-[no-]show-match                        Indicate how it match by underlining it.
+		True (Default)
 	-pid [string]                           Pidfile location
 		/tmp/1000-runtime-dir/rofi.pid (File)
 	-kb-primary-paste [string]              Paste primary selection

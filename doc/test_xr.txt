@@ -98,6 +98,8 @@ rofi.fake-background:                screenshot
 rofi.window-format:                  w   c   t
 ! "Click outside the window to exit" Set from: Default
 ! rofi.click-to-exit:                  true
+! "Indicate how it match by underlining it." Set from: Default
+! rofi.show-match:                     true
 ! "Pidfile location" Set from: File
 rofi.pid:                            /tmp/1000-runtime-dir/rofi.pid
 ! "Paste primary selection" Set from: File
