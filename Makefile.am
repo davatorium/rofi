@@ -152,7 +152,8 @@ check_PROGRAMS=\
 			   helper_tokenize\
 			   helper_config_cmdline_parser\
 			   widget_test\
-			   box_test
+			   box_test\
+			   scrollbar_test
 
 
 history_test_CFLAGS=\
@@ -237,6 +238,14 @@ box_test_SOURCES=\
 			source/widgets/widget.c\
 			source/widgets/box.c\
 			test/box-test.c
+
+scrollbar_test_LDADD=$(textbox_test_LDADD)
+scrollbar_test_CFLAGS=$(textbox_test_CFLAGS)
+scrollbar_test_SOURCES=\
+			source/widgets/widget.c\
+			source/widgets/scrollbar.c\
+			test/scrollbar-test.c
+
 textbox_test_SOURCES=\
 	source/widgets/widget.c\
 	source/widgets/textbox.c\
@@ -323,7 +332,8 @@ TESTS=\
 	helper_config_cmdline_parser\
 	textbox_test\
 	widget_test\
-	box_test
+	box_test\
+	scrollbar_test
 
 .PHONY: test-x
 test-x: $(bin_PROGRAMS) 

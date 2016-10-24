@@ -101,13 +101,15 @@ static void scrollbar_draw ( widget *wid, cairo_t *draw )
     cairo_fill ( draw );
 }
 
+// TODO
+// This should behave more like a real scrollbar.
 unsigned int scrollbar_clicked ( const scrollbar *sb, int y )
 {
     if ( sb != NULL ) {
-        if ( y >= sb->widget.y && y < ( sb->widget.y + sb->widget.h ) ) {
+        if ( y >= sb->widget.y && y <= ( sb->widget.y + sb->widget.h ) ) {
             y -= sb->widget.y;
-            y  = MIN ( MAX ( 1, y ), sb->widget.h - 1 ) - 1;
-            const short  bh  = sb->widget.h - 2;
+            y  = MIN ( MAX ( 0, y ), sb->widget.h );
+            const short  bh  = sb->widget.h;
             float        sec = ( ( bh ) / (float) sb->length );
             unsigned int sel = y / sec;
             return MIN ( sel, sb->length - 1 );

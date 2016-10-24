@@ -20,6 +20,8 @@
 *.gcov
 *.gcda
 *.gcno
+/test-driver
+/ar-lib
 
 # generated files
 /helper_test
@@ -48,3 +50,4 @@ core
 *.*~
 *.unc-backup~
 *.unc-backup.md5~
+
