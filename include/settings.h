@@ -1,6 +1,8 @@
 #ifndef ROFI_SETTINGS_H
 #define ROFI_SETTINGS_H
 
+#include <glib.h>
+
 /**
  * Enumeration indicating the matching method to use.
  *
@@ -148,6 +150,7 @@ typedef struct
     char           *window_format;
     /** Click outside the window to exit */
     int            click_to_exit;
+    gboolean       show_match;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

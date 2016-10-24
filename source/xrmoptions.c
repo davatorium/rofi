@@ -194,6 +194,8 @@ static XrmOption xrmOptions[] = {
       "Window Format. w (desktop name), t (title), n (name), r (role), c (class)", CONFIG_DEFAULT },
     { xrm_Boolean, "click-to-exit",     { .snum = &config.click_to_exit        }, NULL,
       "Click outside the window to exit", CONFIG_DEFAULT },
+    { xrm_Boolean, "show-match",        { .snum = &config.show_match           }, NULL,
+      "Indicate how it match by underlining it.", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */

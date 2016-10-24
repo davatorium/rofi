@@ -698,7 +698,7 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
         // Move into list view.
         textbox_text ( t, text );
 
-        if ( state->tokens ) {
+        if ( state->tokens  && config.show_match ) {
             PangoAttrList *list = textbox_get_pango_attributes ( t );
             if ( list != NULL ) {
                 pango_attr_list_ref ( list );
