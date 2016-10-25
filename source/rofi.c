@@ -67,6 +67,8 @@
 // Pidfile.
 char             *pidfile   = NULL;
 const char       *cache_dir = NULL;
+
+/** global structure holding the keyboard status */
 struct xkb_stuff xkb        = {
     .xcb_connection = NULL,
     .context        = NULL,
@@ -77,18 +79,24 @@ struct xkb_stuff xkb        = {
         .state = NULL
     }
 };
+
+/** Path to the configuration file */
 char             *config_path = NULL;
-// Array of modi.
+/** Array holding all activated modi. */
 Mode             **modi   = NULL;
+/** Number of activated modi in #modi array */
 unsigned int     num_modi = 0;
-// Current selected switcher.
+/** Current selected mode */
 unsigned int     curr_switcher = 0;
 
+/** Glib main loop. */
 GMainLoop        *main_loop        = NULL;
+/** GWater xcb source, signalling events from the X server */
 GWaterXcbSource  *main_loop_source = NULL;
 
+/** Flag indicating we are in dmenu mode. */
 static int       dmenu_mode = FALSE;
-
+/** Rofi's return code */
 int              return_code = EXIT_SUCCESS;
 
 void process_result ( RofiViewState *state );
@@ -500,6 +508,7 @@ static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
     return G_SOURCE_CONTINUE;
 }
 
+/** X server error depth. to handle nested errors. */
 static int error_trap_depth = 0;
 static void error_trap_push ( G_GNUC_UNUSED SnDisplay *display, G_GNUC_UNUSED xcb_connection_t *xdisplay )
 {
@@ -600,6 +609,14 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     return G_SOURCE_REMOVE;
 }
 
+/**
+ * @param argc number of input arguments.
+ * @param argv array of the input arguments.
+ *
+ * Main application entry point.
+ *
+ * @returns return code of rofi.
+ */
 int main ( int argc, char *argv[] )
 {
     TIMINGS_START ();

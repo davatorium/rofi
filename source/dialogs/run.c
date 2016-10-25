@@ -53,6 +53,8 @@
  * Name of the history file where previously choosen commands are stored.
  */
 #define RUN_CACHE_FILE    "rofi-3.runcache"
+
+/** The log domain of this dialog. */
 #define LOG_DOMAIN        "Dialogs.Run"
 
 /**

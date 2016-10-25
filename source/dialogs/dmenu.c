@@ -443,6 +443,7 @@ static int dmenu_token_match ( const Mode *sw, GRegex **tokens, unsigned int ind
 }
 
 #include "mode-private.h"
+/** dmenu Mode object. */
 Mode dmenu_mode =
 {
     .name               = "dmenu",

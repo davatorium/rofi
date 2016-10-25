@@ -27,6 +27,9 @@ typedef struct
     char             *comment;
 } DefaultBinding;
 
+/**
+ * Data structure holding all the action keybinding.
+ */
 ActionBindingEntry abe[NUM_ABE];
 
 /**
@@ -141,6 +144,9 @@ void cleanup_abe ( void )
     }
 }
 
+/**
+ * Array holding actions that should be trigger on release.
+ */
 static gboolean _abe_trigger_on_release[NUM_ABE] = { 0 };
 
 static gboolean abe_test_action ( KeyBindingAction action, unsigned int mask, xkb_keysym_t key )

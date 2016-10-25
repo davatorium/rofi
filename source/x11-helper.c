@@ -46,13 +46,8 @@
 #include "helper.h"
 
 #include <rofi.h>
-#define OVERLAP( a, b, c,                          \
-                 d )       ( ( ( a ) == ( c ) &&   \
-                               ( b ) == ( d ) ) || \
-                             MIN ( ( a ) + ( b ), ( c ) + ( d ) ) - MAX ( ( a ), ( c ) ) > 0 )
-#define INTERSECT( x, y, w, h, x1, y1, w1,                   \
-                   h1 )    ( OVERLAP ( ( x ), ( w ), ( x1 ), \
-                                       ( w1 ) ) && OVERLAP ( ( y ), ( h ), ( y1 ), ( h1 ) ) )
+/** Checks if the if x and y is inside rectangle. */
+#define INTERSECT( x,y, x1, y1, w1, h1 )  ( ( ((x) >= (x1)) && ((x) < (x1+w1)) ) && ( ((y) >= (y1)) && ((y) < (y1+h1)) ) )
 #include "x11-helper.h"
 #include "xkb-internal.h"
 
@@ -347,7 +342,7 @@ static void monitor_dimensions ( int x, int y, workarea *mon )
     mon->h = xcb->screen->height_in_pixels;
 
     for ( workarea *iter = xcb->monitors; iter; iter = iter->next ) {
-        if ( INTERSECT ( x, y, 1, 1, iter->x, iter->y, iter->w, iter->h ) ) {
+        if ( INTERSECT ( x, y, iter->x, iter->y, iter->w, iter->h ) ) {
             *mon = *iter;
             break;
         }

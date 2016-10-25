@@ -58,6 +58,7 @@
 #include "view.h"
 #include "view-internal.h"
 
+/** The Rofi View log domain */
 #define LOG_DOMAIN    "View"
 
 #include "xcb.h"
