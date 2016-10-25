@@ -37,6 +37,7 @@ addons:
             - fluxbox
             - gdb
             - lcov
+            - doxygen
 
 compiler:
     - gcc
@@ -71,6 +72,9 @@ script:
     - make coverage-cli
       #    - gcov source/rofi.c
     - make distcheck
+    - git clone https://github.com/alobbs/doxy-coverage
+    - make doxy
+    - ./doxy-coverage/doxy-coverage.py html/xml/
 
 after_success:
       - bash <(curl -s https://codecov.io/bash)
