@@ -698,7 +698,7 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
         // Move into list view.
         textbox_text ( t, text );
 
-        if ( state->tokens  && config.show_match ) {
+        if ( state->tokens && config.show_match ) {
             PangoAttrList *list = textbox_get_pango_attributes ( t );
             if ( list != NULL ) {
                 pango_attr_list_ref ( list );
@@ -1229,6 +1229,12 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
         //         xme->event_x >= state->scrollbar->widget.x && xme->event_x < ( state->scrollbar->widget.x + state->scrollbar->widget.w ) ) {
         //        state->selected = scrollbar_clicked ( state->scrollbar, xme->event_y );
         //    }
+        xcb_motion_notify_event_t xme = *( (xcb_motion_notify_event_t *) ev );
+        xme.event_x -= config.padding;
+        xme.event_y -= config.padding;
+        if ( widget_motion_notify ( WIDGET ( state->main_box ), &xme ) ) {
+            return;
+        }
         break;
     }
     case XCB_BUTTON_PRESS:

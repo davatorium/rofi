@@ -164,5 +164,14 @@ gboolean widget_clicked ( widget *wid, xcb_button_press_event_t *xbe );
  */
 void widget_set_clicked_handler ( widget *wid, widget_clicked_cb cb, void *udata );
 
+/**
+ * @param wid The widget handle
+ * @param xmd The motion notify object.
+ *
+ * Motion notify.
+ * @TODO make this like clicked with callback.
+ * returns TRUE when handled.
+ */
+gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
 /*@}*/
 #endif // ROFI_WIDGET_H

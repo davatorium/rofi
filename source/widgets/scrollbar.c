@@ -31,6 +31,7 @@
 
 static void scrollbar_draw ( widget *, cairo_t * );
 static void scrollbar_free ( widget * );
+static gboolean scrollbar_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
 
 scrollbar *scrollbar_create ( short x, short y, short w, short h )
 {
@@ -41,8 +42,9 @@ scrollbar *scrollbar_create ( short x, short y, short w, short h )
     sb->widget.w = MAX ( 1, w );
     sb->widget.h = MAX ( 1, h );
 
-    sb->widget.draw = scrollbar_draw;
-    sb->widget.free = scrollbar_free;
+    sb->widget.draw          = scrollbar_draw;
+    sb->widget.free          = scrollbar_free;
+    sb->widget.motion_notify = scrollbar_motion_notify;
 
     sb->length     = 10;
     sb->pos        = 0;
@@ -84,21 +86,26 @@ static void scrollbar_draw ( widget *wid, cairo_t *draw )
 {
     scrollbar   *sb = (scrollbar *) wid;
     // Calculate position and size.
-    const short bh     = sb->widget.h - 0;
-    float       sec    = ( ( bh ) / (float) sb->length );
+    const short bh     = sb->widget.h;
+    float       sec    = ( ( bh ) / (float) ( sb->length + sb->pos_length - 2 ) );
     short       height = sb->pos_length * sec;
     short       y      = sb->pos * sec;
     // Set max pos.
-    y = MIN ( y, bh - 2 );
+    y = MIN ( y, bh );
     // Never go out of bar.
     height = MAX ( 2, height );
     // Cap length;
-    height = MIN ( bh - y + 1, ( height ) );
-    // Redraw base window
     color_separator ( draw );
 
     cairo_rectangle ( draw, sb->widget.x, sb->widget.y + y, sb->widget.w, height );
     cairo_fill ( draw );
+}
+static gboolean scrollbar_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
+{
+    xcb_button_press_event_t xle;
+    xle.event_x = xme->event_x;
+    xle.event_y = xme->event_y;
+    return widget_clicked ( WIDGET ( wid ), &xle );
 }
 
 // TODO
@@ -107,10 +114,12 @@ unsigned int scrollbar_clicked ( const scrollbar *sb, int y )
 {
     if ( sb != NULL ) {
         if ( y >= sb->widget.y && y <= ( sb->widget.y + sb->widget.h ) ) {
-            y -= sb->widget.y;
-            y  = MIN ( MAX ( 0, y ), sb->widget.h );
-            const short  bh  = sb->widget.h;
-            float        sec = ( ( bh ) / (float) sb->length );
+            const short  bh          = sb->widget.h;
+            float        sec         = ( ( bh ) / (float) ( sb->length + sb->pos_length ) );
+            unsigned int half_handle = MAX ( 1, sec * ( sb->pos_length / 2.0 ) );
+            y -= sb->widget.y + half_handle;
+            y  = MIN ( MAX ( 0, y ), sb->widget.h - 2 * half_handle );
+
             unsigned int sel = y / sec;
             return MIN ( sel, sb->length - 1 );
         }

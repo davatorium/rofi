@@ -52,24 +52,24 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERTE ( sb->pos_length, 1 );
 
     unsigned int cl = scrollbar_clicked ( sb, 10 );
-    TASSERTE ( cl, 1000);
+    TASSERTE ( cl, 900);
     cl = scrollbar_clicked ( sb, 20 );
-    TASSERTE ( cl, 2000);
+    TASSERTE ( cl, 1900);
     cl = scrollbar_clicked ( sb, 0 );
     TASSERTE ( cl, 0);
     cl = scrollbar_clicked ( sb, 99 );
-    TASSERTE ( cl, 9900);
+    TASSERTE ( cl, 9800);
 
     scrollbar_set_max_value ( sb, 100 );
-    for ( unsigned int i = 0; i < 100; i++ ){
+    for ( unsigned int i = 1; i < 99; i++ ){
         cl = scrollbar_clicked ( sb, i );
-        TASSERTE ( cl, i);
+        TASSERTE ( cl, i-1);
     }
 
     scrollbar_set_max_value ( sb, 200 );
-    for ( unsigned int i = 0; i < 100; i++ ){
+    for ( unsigned int i = 1; i < 100; i++ ){
         cl = scrollbar_clicked ( sb, i );
-        TASSERTE ( cl, i*2);
+        TASSERTE ( cl, i*2-2);
     }
     widget_free( WIDGET (sb ) );
 }

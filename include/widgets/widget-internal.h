@@ -35,6 +35,8 @@ struct _widget
     /** update widget implementation function */
     void              ( *update )( struct _widget * );
 
+    gboolean          (*motion_notify)( struct _widget *, xcb_motion_notify_event_t * );
+
     /** widget clicked callback */
     widget_clicked_cb clicked;
     /** user data for ::clicked callback */

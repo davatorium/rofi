@@ -250,21 +250,39 @@ static gboolean box_clicked ( widget *wid, xcb_button_press_event_t *xbe, G_GNUC
     }
     return FALSE;
 }
+static gboolean box_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
+{
+    box *b = (box *) wid;
+    for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
+        widget * child = (widget *) iter->data;
+        if ( !child->enabled ) {
+            continue;
+        }
+        if ( widget_intersect ( child, xme->event_x, xme->event_y ) ) {
+            xcb_motion_notify_event_t rel = *xme;
+            rel.event_x -= child->x;
+            rel.event_y -= child->y;
+            return widget_motion_notify ( child, &rel );
+        }
+    }
+    return FALSE;
+}
 
 box * box_create ( boxType type, short x, short y, short w, short h )
 {
     box *b = g_malloc0 ( sizeof ( box ) );
-    b->type           = type;
-    b->widget.x       = x;
-    b->widget.y       = y;
-    b->widget.w       = w;
-    b->widget.h       = h;
-    b->widget.draw    = box_draw;
-    b->widget.free    = box_free;
-    b->widget.resize  = box_resize;
-    b->widget.update  = box_update;
-    b->widget.clicked = box_clicked;
-    b->widget.enabled = TRUE;
+    b->type                 = type;
+    b->widget.x             = x;
+    b->widget.y             = y;
+    b->widget.w             = w;
+    b->widget.h             = h;
+    b->widget.draw          = box_draw;
+    b->widget.free          = box_free;
+    b->widget.resize        = box_resize;
+    b->widget.update        = box_update;
+    b->widget.clicked       = box_clicked;
+    b->widget.motion_notify = box_motion_notify;
+    b->widget.enabled       = TRUE;
 
     return b;
 }

@@ -88,9 +88,9 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERT ( strcmp ( box->text, "tesb" ) == 0 );
     textbox_keybinding ( box, MOVE_CHAR_BACK );
     TASSERT ( box->cursor == 3 );
-    textbox_keybinding ( box, MOVE_CHAR_FORWARD);
+    textbox_keybinding ( box, MOVE_CHAR_FORWARD );
     TASSERT ( box->cursor == 4 );
-    textbox_keybinding ( box, MOVE_CHAR_FORWARD);
+    textbox_keybinding ( box, MOVE_CHAR_FORWARD );
     TASSERT ( box->cursor == 4 );
     // Cursor after delete section.
     textbox_delete ( box, 0, 1 );
@@ -122,32 +122,31 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERT ( strcmp ( box->text, "aapmies" ) == 0 );
     TASSERT ( box->cursor == 5 );
 
-
-    textbox_text ( box, "aap noot mies");
+    textbox_text ( box, "aap noot mies" );
     textbox_cursor ( box, 8 );
     textbox_keybinding ( box, REMOVE_WORD_BACK );
-    TASSERT ( box->cursor == 4);
-    TASSERT (  strcmp ( box->text, "aap  mies") == 0 );
+    TASSERT ( box->cursor == 4 );
+    TASSERT (  strcmp ( box->text, "aap  mies" ) == 0 );
     textbox_keybinding ( box, REMOVE_TO_EOL );
-    TASSERT ( box->cursor == 4);
-    TASSERT (  strcmp ( box->text, "aap ") == 0 );
-    textbox_text ( box, "aap noot mies");
+    TASSERT ( box->cursor == 4 );
+    TASSERT (  strcmp ( box->text, "aap " ) == 0 );
+    textbox_text ( box, "aap noot mies" );
     textbox_cursor ( box, 8 );
     textbox_keybinding ( box, REMOVE_WORD_FORWARD );
-    TASSERT (  strcmp ( box->text, "aap noot") == 0 );
+    TASSERT (  strcmp ( box->text, "aap noot" ) == 0 );
     textbox_keybinding ( box, MOVE_FRONT );
-    TASSERT ( box->cursor == 0);
+    TASSERT ( box->cursor == 0 );
     textbox_keybinding ( box, CLEAR_LINE );
-    TASSERT (  strcmp ( box->text, "") == 0 );
-    textbox_text ( box, "aap noot mies");
-    textbox_keybinding ( box, MOVE_END);
+    TASSERT (  strcmp ( box->text, "" ) == 0 );
+    textbox_text ( box, "aap noot mies" );
+    textbox_keybinding ( box, MOVE_END );
     textbox_keybinding ( box, MOVE_WORD_BACK );
-    TASSERT ( box->cursor == 9);
+    TASSERT ( box->cursor == 9 );
     textbox_keybinding ( box, MOVE_WORD_BACK );
-    TASSERT ( box->cursor == 4);
+    TASSERT ( box->cursor == 4 );
     textbox_keybinding ( box, REMOVE_TO_SOL );
-    TASSERT (  strcmp ( box->text, "noot mies") == 0 );
-    TASSERT ( box->cursor == 0);
+    TASSERT (  strcmp ( box->text, "noot mies" ) == 0 );
+    TASSERT ( box->cursor == 0 );
 
     textbox_font ( box, HIGHLIGHT );
     //textbox_draw ( box, draw );

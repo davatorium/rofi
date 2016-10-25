@@ -154,3 +154,12 @@ void widget_set_clicked_handler ( widget *wid, widget_clicked_cb cb, void *udata
         wid->clicked_cb_data = udata;
     }
 }
+
+gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
+{
+    if ( wid && wid->motion_notify ) {
+        wid->motion_notify ( wid, xme );
+    }
+
+    return FALSE;
+}
