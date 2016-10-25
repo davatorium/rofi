@@ -38,6 +38,7 @@ addons:
             - gdb
             - lcov
             - doxygen
+            - graphviz
 
 compiler:
     - gcc
