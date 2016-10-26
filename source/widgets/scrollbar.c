@@ -82,16 +82,29 @@ void scrollbar_set_handle_length ( scrollbar *sb, unsigned int pos_length )
     }
 }
 
+/**
+ * The range is the height - handle length.
+ * r = h - handle;
+ * handle is the element length of the handle* length of one element.
+ * handle =  r / ( num ) * hl
+ *
+ * r = h - r / ( num) *hl
+ * r*num = num*h - r*hl
+ * r*num+r*hl = num*h;
+ * r ( num+hl ) = num*h
+ * r = (num*h)/(num+hl)
+ */
 static void scrollbar_draw ( widget *wid, cairo_t *draw )
 {
-    scrollbar   *sb = (scrollbar *) wid;
+    scrollbar    *sb = (scrollbar *) wid;
     // Calculate position and size.
-    const short bh     = sb->widget.h;
-    float       sec    = ( ( bh ) / (float) ( sb->length + sb->pos_length - 2 ) );
-    short       height = sb->pos_length * sec;
-    short       y      = sb->pos * sec;
+    unsigned int r      = ( sb->length * wid->h ) / ( (double) ( sb->length + sb->pos_length ) );
+    unsigned int handle = wid->h - r;
+    double       sec    = ( ( r ) / (double) ( sb->length - 1 ) );
+    unsigned int height = handle;
+    unsigned int y      = sb->pos * sec;
     // Set max pos.
-    y = MIN ( y, bh );
+    y = MIN ( y, wid->h - handle );
     // Never go out of bar.
     height = MAX ( 2, height );
     // Cap length;
@@ -114,13 +127,14 @@ unsigned int scrollbar_clicked ( const scrollbar *sb, int y )
 {
     if ( sb != NULL ) {
         if ( y >= sb->widget.y && y <= ( sb->widget.y + sb->widget.h ) ) {
-            const short  bh          = sb->widget.h;
-            float        sec         = ( ( bh ) / (float) ( sb->length + sb->pos_length ) );
-            unsigned int half_handle = MAX ( 1, sec * ( sb->pos_length / 2.0 ) );
+            unsigned int r           = ( sb->length * sb->widget.h ) / ( (double) ( sb->length + sb->pos_length ) );
+            unsigned int handle      = sb->widget.h - r;
+            double       sec         = ( ( r ) / (double) ( sb->length - 1 ) );
+            unsigned int half_handle = handle / 2;
             y -= sb->widget.y + half_handle;
             y  = MIN ( MAX ( 0, y ), sb->widget.h - 2 * half_handle );
 
-            unsigned int sel = y / sec;
+            unsigned int sel = ( ( y ) / sec );
             return MIN ( sel, sb->length - 1 );
         }
     }

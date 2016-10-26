@@ -65,11 +65,11 @@
 #include "gitconfig.h"
 
 // Pidfile.
-char             *pidfile   = NULL;
-const char       *cache_dir = NULL;
+char       *pidfile   = NULL;
+const char *cache_dir = NULL;
 
 /** global structure holding the keyboard status */
-struct xkb_stuff xkb        = {
+struct xkb_stuff xkb = {
     .xcb_connection = NULL,
     .context        = NULL,
     .keymap         = NULL,
@@ -81,23 +81,23 @@ struct xkb_stuff xkb        = {
 };
 
 /** Path to the configuration file */
-char             *config_path = NULL;
+char         *config_path = NULL;
 /** Array holding all activated modi. */
-Mode             **modi   = NULL;
+Mode         **modi = NULL;
 /** Number of activated modi in #modi array */
-unsigned int     num_modi = 0;
+unsigned int num_modi = 0;
 /** Current selected mode */
-unsigned int     curr_switcher = 0;
+unsigned int curr_switcher = 0;
 
 /** Glib main loop. */
-GMainLoop        *main_loop        = NULL;
+GMainLoop       *main_loop = NULL;
 /** GWater xcb source, signalling events from the X server */
-GWaterXcbSource  *main_loop_source = NULL;
+GWaterXcbSource *main_loop_source = NULL;
 
 /** Flag indicating we are in dmenu mode. */
-static int       dmenu_mode = FALSE;
+static int dmenu_mode = FALSE;
 /** Rofi's return code */
-int              return_code = EXIT_SUCCESS;
+int        return_code = EXIT_SUCCESS;
 
 void process_result ( RofiViewState *state );
 
@@ -352,7 +352,7 @@ static int add_mode ( const char * token )
     }
     else
 #endif // WINDOW_MODE
-    // SSh dialog
+       // SSh dialog
     if ( strcasecmp ( token, "ssh" ) == 0 ) {
         modi[num_modi] = &ssh_mode;
         num_modi++;

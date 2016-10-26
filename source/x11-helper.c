@@ -47,7 +47,7 @@
 
 #include <rofi.h>
 /** Checks if the if x and y is inside rectangle. */
-#define INTERSECT( x,y, x1, y1, w1, h1 )  ( ( ((x) >= (x1)) && ((x) < (x1+w1)) ) && ( ((y) >= (y1)) && ((y) < (y1+h1)) ) )
+#define INTERSECT( x, y, x1, y1, w1, h1 )    ( ( ( ( x ) >= ( x1 ) ) && ( ( x ) < ( x1 + w1 ) ) ) && ( ( ( y ) >= ( y1 ) ) && ( ( y ) < ( y1 + h1 ) ) ) )
 #include "x11-helper.h"
 #include "xkb-internal.h"
 

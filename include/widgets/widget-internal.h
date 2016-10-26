@@ -36,7 +36,7 @@ struct _widget
     void              ( *update )( struct _widget * );
 
     /** Handle mouse motion, used for dragging */
-    gboolean          (*motion_notify)( struct _widget *, xcb_motion_notify_event_t * );
+    gboolean          ( *motion_notify )( struct _widget *, xcb_motion_notify_event_t * );
 
     /** widget clicked callback */
     widget_clicked_cb clicked;
