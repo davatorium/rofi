@@ -1,0 +1,14 @@
+! ------------------------------------------------------------------------------
+! ROFI Color theme
+! User: qball
+! ------------------------------------------------------------------------------
+! "Color scheme for normal row" Set from: File
+rofi.color-normal:                   argb:0000000, #dbdfbc, argb:00000000, #dbdfbc, #02143f
+! "Color scheme for urgent row" Set from: File
+rofi.color-urgent:                   argb:0000000, #ff81ff, argb:00000000, #ff817f, #02143f
+! "Color scheme for active row" Set from: File
+rofi.color-active:                   argb:0000000, #8ac4ff, argb:00000000, #8ac4ff, #02143f
+! "Color scheme window" Set from: File
+rofi.color-window:                   argb:dd000021, #dbdfbc, #dbdfbc
+! "Separator style (none, dash, solid)" Set from: XResources
+rofi.separator-style:                solid

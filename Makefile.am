@@ -127,8 +127,9 @@ README.html: README.md
 ###
 themedir=$(pkgdatadir)/themes/
 theme_DATA=\
-		   themes/android_notification.theme\
 		   themes/Arc.theme\
+		   themes/DarkBlue.theme\
+		   themes/android_notification.theme\
 		   themes/blor.theme\
 		   themes/blue.theme\
 		   themes/c64.theme\
