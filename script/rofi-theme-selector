@@ -104,7 +104,7 @@ declare -i SELECTED
 
 function select_theme () 
 {
-    local MORE_FLAGS=(-dmenu -format i -no-custom -p Theme -markup -config ${TMP_CONFIG_FILE})
+    local MORE_FLAGS=(-dmenu -format i -no-custom -p Theme -markup -config ${TMP_CONFIG_FILE} -i)
     MORE_FLAGS+=(-kb-custom-1 "Alt-a")
     local CUR="default"
     while true
