@@ -11,7 +11,9 @@ include $(top_srcdir)/libgwater-xcb-nolibtool.mk
 ##
 bin_PROGRAMS=rofi
 
-dist_bin_SCRIPTS=script/rofi-sensible-terminal
+dist_bin_SCRIPTS=\
+	script/rofi-sensible-terminal\
+	script/rofi-theme-selector
 
 nodist_rofi_SOURCES=\
 	$(top_builddir)/gitconfig.h
@@ -119,6 +121,21 @@ markdown_FILES=\
 
 README.html: README.md
 	$(md_verbose) markdown $< > $@
+
+###
+# Themes
+###
+themedir=$(pkgdatadir)/themes/
+theme_DATA=\
+		   themes/android_notification.theme\
+		   themes/Arc.theme\
+		   themes/blor.theme\
+		   themes/blue.theme\
+		   themes/c64.theme\
+		   themes/glue_pro_blue.theme\
+		   themes/solarized.theme\
+		   themes/solarized_alternate.theme
+
 ##
 # Extra DIST
 ##
@@ -130,8 +147,8 @@ EXTRA_DIST=\
 	AUTHORS\
 	doc/rofi.doxy.in\
 	script/get_git_rev.sh\
+	$(theme_DATA)\
 	Changelog
-
 ##
 # Indent
 ##
