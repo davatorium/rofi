@@ -3,19 +3,47 @@
 # This code is released in public domain by Dave Davenport <qball@gmpclient.org> 
 #
 
-ROFI=rofi
-ROFI_FLAGS=
-TMP_CONFIG_FILE=$(mktemp)
 
+ROFI=$(which rofi)
+SED=$(which sed)
+MKTEMP=$(which mktemp)
+
+if [ -z "${SED}" ]
+then
+    echo "Did not find 'sed', script cannot continue."
+    exit 1
+fi
+if [ -z "${MKTEMP}" ]
+then
+    echo "Did not find 'mktemp', script cannot continue."
+    exit 1
+fi
+if [ -z "${ROFI}" ]
+then
+    echo "Did not find rofi, there is no point to continue."
+    exit 1
+fi
+
+TMP_CONFIG_FILE=$(${MKTEMP})
+
+##
+# Array with parts to the found themes.
+# And array with the printable name.
+##
 declare -a themes
 declare -a theme_names
 
+##
+# Function that tries to find all installed rofi themes.
+# This fills in #themes array and formats a displayable string #theme_names
+##
 function find_themes()
 {
     DIRS=${XDG_DATA_DIRS}
     if [ -z "${XDG_DATA_DIRS}" ]
     then
         echo "XDG_DATA_DIRS needs to be set for this script to function."
+        exit 1;
     fi
     # Add user dir.
     DIRS+="${HOME}/.local/share/"
@@ -27,49 +55,63 @@ function find_themes()
         then
             for file in ${TD}/*.theme
             do
-                themes+=(${file})
-                FN=$(basename ${file})
-                NAME=${FN%.*}
-                USER=$(sed -n 's/^! User: \(.*\)/\1/p' ${file} )
-                if [ -z "${USER}" ]
+                if [ -f "${file}" ]
                 then
-                    theme_names+=(${NAME})
-                else
-                    theme_names+=("${NAME} by ${USER}")
+                    themes+=(${file})
+                    FN=$(basename ${file})
+                    NAME=${FN%.*}
+                    USER=$(${SED} -n 's/^! User: \(.*\)/\1/p' ${file} )
+                    if [ -z "${USER}" ]
+                    then
+                        theme_names+=(${NAME})
+                    else
+                        theme_names+=("${NAME} by ${USER}")
+                    fi
                 fi
-                    done
-                fi
+           done
+        fi
     done
     IFS=${OLDIFS}
 
 }
 
+##
+# Create a copy of rofi
+##
 function create_config_copy()
 {
     ${ROFI} -dump-xresources > ${TMP_CONFIG_FILE}
 }
 
+###
+# Print the list out so it can be displayed by rofi.
+##
 function create_theme_list()
 {
     OLDIFS=${IFS}
-    IFS="""
-"""
+    IFS='|'
     for themen in  ${theme_names[@]}
     do
         echo ${themen}
     done
     IFS=${OLDIFS}
 }
+
+##
+# Thee indicate what entry is selected.
+##
 declare -i SELECTED
-CUR="default"
 
 function select_theme () 
 {
-    MORE_FLAGS=(-dmenu -format i -no-custom -p \"Theme\" -markup -config ${TMP_CONFIG_FILE})
+    local MORE_FLAGS=(-dmenu -format i -no-custom -p Theme -markup -config ${TMP_CONFIG_FILE})
     MORE_FLAGS+=(-kb-custom-1 "Alt-a")
+    local CUR="default"
     while true
     do
-        MESG="""You can preview themes by hitting <b>Enter</b>.
+        declare -i RTR
+        declare -i RES
+        local MESG="""You can preview themes by hitting <b>Enter</b>.
 <b>Alt-a</b> to accept the new theme.
 <b>Escape</b> to cancel
 Current theme: <b>${CUR}</b>"""
@@ -82,13 +124,17 @@ Current theme: <b>${CUR}</b>"""
         then
             return 1;
         fi
-        sed -i '/#include .*/d' ${TMP_CONFIG_FILE}
+        ${SED} -i '/#include .*/d' ${TMP_CONFIG_FILE}
         echo "#include \"${themes[${RES}]}\"" >> ${TMP_CONFIG_FILE}
         CUR=${theme_names[${RES}]}
         SELECTED=${RES}
     done
 }
 
+###
+# Create if not exists, then removes #include of .theme file (if present) and add the selected theme to the end.
+# Repeated calls should leave the config clean-ish
+###
 function set_theme()
 {
     CDIR="${HOME}/.config/rofi/"
@@ -98,11 +144,15 @@ function set_theme()
     fi
     if [ -f "${CDIR}/config" ]
     then
-        sed -i "/#include \".*\.theme\"$/d" "${CDIR}/config"
+        ${SED} -i "/#include \".*\.theme\"$/d" "${CDIR}/config"
     fi
     echo "#include \"${1}\"" >> "${CDIR}/config"
 
 }
+
+############################################################################################################
+# Actual program execution
+###########################################################################################################
 ##
 # Find all themes
 ##
@@ -111,16 +161,27 @@ find_themes
 ##
 # Do check if there are themes.
 ##
+if [ ${#themes[@]} = 0 ]
+then
+    ${ROFI} -e "No themes found."
+    exit 0
+fi
+
+##
+# Create copy of config to play with in preview
+##
 create_config_copy
 
 ##
-# Show them to user.
+# Show the themes to user.
 ##
 if select_theme && [ -n "${SELECTED}" ]
 then
-    echo "Selected: ${themes[${SELECTED}]}"
+    # Set theme
     set_theme "${themes[${SELECTED}]}"
 fi
 
-
+##
+# Remove temp. config.
+##
 rm ${TMP_CONFIG_FILE}
