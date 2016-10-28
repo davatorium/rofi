@@ -176,9 +176,8 @@ static void menu_capture_screenshot ( void )
 static void rofi_view_update_prompt ( RofiViewState *state )
 {
     if ( state->prompt ) {
-        char *prompt = g_strdup_printf ( "%s:", mode_get_display_name ( state->sw ) );
-        textbox_text ( state->prompt, prompt );
-        g_free ( prompt );
+        const char *str = mode_get_display_name ( state->sw );
+        textbox_text ( state->prompt, str );
     }
 }
 
