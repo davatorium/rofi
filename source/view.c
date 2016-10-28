@@ -1269,7 +1269,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
         break;
     }
     default:
-    break;
+        break;
     }
     // Update if requested.
     if ( state->refilter ) {
@@ -1341,10 +1341,10 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->quit          = FALSE;
     state->skip_absorb   = FALSE;
     //We want to filter on the first run.
-    state->refilter       = TRUE;
-    state->border         = config.padding + config.menu_bw;
-    state->finalize       = finalize;
-    state->mouse_seen     = FALSE;
+    state->refilter   = TRUE;
+    state->border     = config.padding + config.menu_bw;
+    state->finalize   = finalize;
+    state->mouse_seen = FALSE;
 
     // Request the lines to show.
     state->num_lines = mode_get_num_entries ( sw );
@@ -1486,10 +1486,10 @@ RofiViewState *rofi_view_create ( Mode *sw,
 int rofi_view_error_dialog ( const char *msg, int markup )
 {
     RofiViewState *state = __rofi_view_state_create ();
-    state->retv           = MENU_CANCEL;
-    state->border         = config.padding + config.menu_bw;
-    state->menu_flags     = MENU_ERROR_DIALOG;
-    state->finalize       = process_result;
+    state->retv       = MENU_CANCEL;
+    state->border     = config.padding + config.menu_bw;
+    state->menu_flags = MENU_ERROR_DIALOG;
+    state->finalize   = process_result;
 
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
