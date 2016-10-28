@@ -80,8 +80,6 @@ struct RofiViewState
     int              mouse_seen;
     /** Flag indicating if view needs to be reloaded. */
     int              reload;
-    /** X11 event loop to be called for this view. */
-    void             ( *x11_event_loop )( struct RofiViewState *state, xcb_generic_event_t *ev, xkb_stuff *xkb );
     /** The funciton to be called when finalizing this view */
     void             ( *finalize )( struct RofiViewState *state );
 

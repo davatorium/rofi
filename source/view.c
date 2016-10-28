@@ -367,37 +367,6 @@ unsigned int rofi_view_get_completed ( const RofiViewState *state )
     return state->quit;
 }
 
-void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb_stuff *xkb )
-{
-    uint8_t type = event->response_type & ~0x80;
-    switch ( type )
-    {
-    case XCB_EXPOSE:
-        widget_queue_redraw ( WIDGET ( state->main_box ) );
-        break;
-    case XCB_CONFIGURE_NOTIFY:
-    {
-        xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
-        if ( xce->window == CacheState.main_window ) {
-            if ( state->x != xce->x || state->y != xce->y ) {
-                state->x = xce->x;
-                state->y = xce->y;
-            }
-            if ( state->width != xce->width || state->height != xce->height ) {
-                state->width  = xce->width;
-                state->height = xce->height;
-                cairo_xcb_surface_set_size ( CacheState.surface, state->width, state->height );
-                widget_resize ( WIDGET ( state->main_box ), state->width - 2 * state->border, state->height - 2 * state->border );
-            }
-        }
-        break;
-    }
-    default:
-        state->x11_event_loop ( state, event, xkb );
-    }
-    rofi_view_update ( state );
-}
-
 const char * rofi_view_get_user_input ( const RofiViewState *state )
 {
     if ( state->text ) {
@@ -1206,10 +1175,30 @@ static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xc
     }
 }
 
-static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t *ev, xkb_stuff *xkb )
+void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_stuff *xkb )
 {
     switch ( ev->response_type & ~0x80 )
     {
+    case XCB_EXPOSE:
+        widget_queue_redraw ( WIDGET ( state->main_box ) );
+        break;
+    case XCB_CONFIGURE_NOTIFY:
+    {
+        xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) ev;
+        if ( xce->window == CacheState.main_window ) {
+            if ( state->x != xce->x || state->y != xce->y ) {
+                state->x = xce->x;
+                state->y = xce->y;
+            }
+            if ( state->width != xce->width || state->height != xce->height ) {
+                state->width  = xce->width;
+                state->height = xce->height;
+                cairo_xcb_surface_set_size ( CacheState.surface, state->width, state->height );
+                widget_resize ( WIDGET ( state->main_box ), state->width - 2 * state->border, state->height - 2 * state->border );
+            }
+        }
+        break;
+    }
     case XCB_FOCUS_IN:
         if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
             take_keyboard ( CacheState.main_window );
@@ -1284,6 +1273,8 @@ static void rofi_view_mainloop_iter ( RofiViewState *state, xcb_generic_event_t 
         }
         break;
     }
+    default:
+    break;
     }
     // Update if requested.
     if ( state->refilter ) {
@@ -1357,7 +1348,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
     //We want to filter on the first run.
     state->refilter       = TRUE;
     state->border         = config.padding + config.menu_bw;
-    state->x11_event_loop = rofi_view_mainloop_iter;
     state->finalize       = finalize;
     state->mouse_seen     = FALSE;
 
@@ -1503,7 +1493,6 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     RofiViewState *state = __rofi_view_state_create ();
     state->retv           = MENU_CANCEL;
     state->border         = config.padding + config.menu_bw;
-    state->x11_event_loop = rofi_view_mainloop_iter;
     state->menu_flags     = MENU_ERROR_DIALOG;
     state->finalize       = process_result;
 

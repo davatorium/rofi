@@ -193,6 +193,5 @@ void abe_trigger_release ( void )
             _abe_trigger_on_release[action] = FALSE;
         }
     }
-
     rofi_view_update ( state );
 }
