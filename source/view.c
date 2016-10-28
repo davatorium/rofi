@@ -1214,11 +1214,6 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
         if ( config.click_to_exit == TRUE ) {
             state->mouse_seen = TRUE;
         }
-//        xcb_motion_notify_event_t *xme = (xcb_motion_notify_event_t *) ev;
-        //    if ( state->scrollbar != NULL &&
-        //         xme->event_x >= state->scrollbar->widget.x && xme->event_x < ( state->scrollbar->widget.x + state->scrollbar->widget.w ) ) {
-        //        state->selected = scrollbar_clicked ( state->scrollbar, xme->event_y );
-        //    }
         xcb_motion_notify_event_t xme = *( (xcb_motion_notify_event_t *) ev );
         xme.event_x -= config.padding;
         xme.event_y -= config.padding;
