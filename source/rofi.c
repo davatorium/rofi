@@ -352,7 +352,7 @@ static int add_mode ( const char * token )
     }
     else
 #endif // WINDOW_MODE
-       // SSh dialog
+    // SSh dialog
     if ( strcasecmp ( token, "ssh" ) == 0 ) {
         modi[num_modi] = &ssh_mode;
         num_modi++;

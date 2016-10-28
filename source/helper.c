@@ -194,7 +194,7 @@ static GRegex * create_regex ( const char *input, int case_sensitive )
 {
 #define R( s )    g_regex_new ( s, G_REGEX_OPTIMIZE | ( ( case_sensitive ) ? 0 : G_REGEX_CASELESS ), 0, NULL )
     GRegex * retv = NULL;
-    gchar  *r;
+    gchar *r;
     switch ( config.matching_method )
     {
     case MM_GLOB:
@@ -234,7 +234,7 @@ GRegex **tokenize ( const char *input, int case_sensitive )
     }
 
     char   *saveptr = NULL, *token;
-    GRegex **retv   = NULL;
+    GRegex **retv = NULL;
     if ( !config.tokenize ) {
         retv    = g_malloc0 ( sizeof ( GRegex* ) * 2 );
         retv[0] = (GRegex *) create_regex ( input, case_sensitive );
@@ -306,47 +306,35 @@ int find_arg_uint ( const char * const key, unsigned int *val )
 
 char helper_parse_char ( const char *arg )
 {
-    int len = strlen ( arg );
+    const size_t len = strlen ( arg );
     // If the length is 1, it is not escaped.
     if ( len == 1 ) {
         return arg[0];
     }
     // If the length is 2 and the first character is '\', we unescape it.
     if ( len == 2 && arg[0] == '\\' ) {
+        switch ( arg[1] )
+        {
         // New line
-        if ( arg[1] == 'n' ) {
-            return '\n';
-        }
+        case 'n': return '\n';
         // Bell
-        else if ( arg[1] == 'a' ) {
-            return '\a';
-        }
+        case  'a': return '\a';
         // Backspace
-        else if ( arg[1] == 'b' ) {
-            return '\b';
-        }
+        case 'b': return '\b';
         // Tab
-        else if ( arg[1] == 't' ) {
-            return '\t';
-        }
+        case  't': return '\t';
         // Vertical tab
-        else if ( arg[1] == 'v' ) {
-            return '\v';
-        }
+        case  'v': return '\v';
         // Form feed
-        else if ( arg[1] == 'f' ) {
-            return '\f';
-        }
+        case  'f': return '\f';
         // Carriage return
-        else if ( arg[1] == 'r' ) {
-            return '\r';
-        }
+        case  'r': return '\r';
         // Forward slash
-        else if ( arg[1] == '\\' ) {
-            return '\\';
-        }
-        else if ( arg[1] == '0' ) {
-            return '\0';
+        case  '\\': return '\\';
+        // 0 line.
+        case  '0': return '\0';
+        default:
+            break;
         }
     }
     if ( len > 2 && arg[0] == '\\' && arg[1] == 'x' ) {
@@ -397,12 +385,10 @@ PangoAttrList *token_match_get_pango_attr ( GRegex **tokens, const char *input, 
 
 int token_match ( GRegex * const *tokens, const char *input )
 {
-    int match = 1;
+    int match = ( tokens != NULL );
     // Do a tokenized match.
-    if ( tokens ) {
-        for ( int j = 0; match && tokens[j]; j++ ) {
-            match = g_regex_match ( (const GRegex *) tokens[j], input, 0, NULL );
-        }
+    for ( int j = 0; match && tokens[j]; j++ ) {
+        match = g_regex_match ( (const GRegex *) tokens[j], input, 0, NULL );
     }
     return match;
 }
@@ -614,26 +600,25 @@ char *rofi_expand_path ( const char *input )
 
 unsigned int levenshtein ( const char *needle, const char *haystack )
 {
-    unsigned int x, y, lastdiag, olddiag;
-    size_t       needlelen   = g_utf8_strlen ( needle, -1 );
-    size_t       haystacklen = g_utf8_strlen ( haystack, -1 );
+    const size_t needlelen   = g_utf8_strlen ( needle, -1 );
+    const size_t haystacklen = g_utf8_strlen ( haystack, -1 );
     unsigned int column[needlelen + 1];
-    for ( y = 0; y <= needlelen; y++ ) {
+    for ( unsigned int y = 0; y <= needlelen; y++ ) {
         column[y] = y;
     }
-    for ( x = 1; x <= haystacklen; x++ ) {
+    for ( unsigned int x = 1; x <= haystacklen; x++ ) {
         const char *needles = needle;
         column[0] = x;
         gunichar   haystackc = g_utf8_get_char ( haystack );
         if ( !config.case_sensitive ) {
             haystackc = g_unichar_tolower ( haystackc );
         }
-        for ( y = 1, lastdiag = x - 1; y <= needlelen; y++ ) {
+        for ( unsigned int y = 1, lastdiag = x - 1; y <= needlelen; y++ ) {
             gunichar needlec = g_utf8_get_char ( needles );
             if ( !config.case_sensitive ) {
                 needlec = g_unichar_tolower ( needlec );
             }
-            olddiag   = column[y];
+            unsigned int olddiag = column[y];
             column[y] = MIN3 ( column[y] + 1, column[y - 1] + 1, lastdiag + ( needlec == haystackc ? 0 : 1 ) );
             lastdiag  = olddiag;
             needles   = g_utf8_next_char ( needles );
