@@ -133,6 +133,8 @@ theme_DATA=\
 		   themes/blor.theme\
 		   themes/blue.theme\
 		   themes/c64.theme\
+		   themes/purple.theme\
+		   themes/lb.theme\
 		   themes/glue_pro_blue.theme\
 		   themes/solarized.theme\
 		   themes/solarized_alternate.theme
