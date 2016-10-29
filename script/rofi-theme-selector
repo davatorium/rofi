@@ -46,12 +46,12 @@ function find_themes()
         exit 1;
     fi
     # Add user dir.
-    DIRS+="${HOME}/.local/share/"
+    DIRS+=":${HOME}/.local/share/"
     OLDIFS=${IFS}
     IFS=:
     for p in ${DIRS}; do 
         TD=${p}rofi/themes/
-        if [ -d "${TD}" ]
+        if [ -n "${p}" ] && [ -d "${TD}" ]
         then
             for file in ${TD}/*.theme
             do
