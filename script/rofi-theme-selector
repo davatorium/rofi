@@ -115,7 +115,7 @@ function select_theme ()
 <b>Alt-a</b> to accept the new theme.
 <b>Escape</b> to cancel
 Current theme: <b>${CUR}</b>"""
-        RES=$( create_theme_list | ${ROFI} ${MORE_FLAGS[@]} -mesg "${MESG}") 
+        RES=$( create_theme_list | ${ROFI} ${MORE_FLAGS[@]} -select "${CUR}" -mesg "${MESG}") 
         RTR=$?
         if [ ${RTR} = 10 ]
         then
