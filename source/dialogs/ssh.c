@@ -291,13 +291,14 @@ static char ** get_ssh (  unsigned int *length )
     if ( fd != NULL ) {
         char   *buffer       = NULL;
         size_t buffer_length = 0;
+        char *strtok_pointer = NULL;
         while ( getline ( &buffer, &buffer_length, fd ) > 0 ) {
             // Each line is either empty, a comment line starting with a '#'
             // character or of the form "keyword [=] arguments", where there may
             // be multiple (possibly quoted) arguments separated by whitespace.
             // The keyword is separated from its arguments by whitespace OR by
             // optional whitespace and a '=' character.
-            char *token = strtok ( buffer, SSH_TOKEN_DELIM );
+            char *token = strtok_r ( buffer, SSH_TOKEN_DELIM, &strtok_pointer);
 
             // Skip empty lines and comment lines. Also skip lines where the
             // keyword is not "Host".
@@ -310,7 +311,7 @@ static char ** get_ssh (  unsigned int *length )
             // by whitespace; while host names may be quoted with double quotes
             // to represent host names containing spaces, we don't support this
             // (how many host names contain spaces?).
-            while ( ( token = strtok ( NULL, SSH_TOKEN_DELIM ) ) ) {
+            while ( ( token = strtok_r ( NULL, SSH_TOKEN_DELIM, &strtok_pointer ) ) ) {
                 // We do not want to show wildcard entries, as you cannot ssh to them.
                 const char *const sep = "*?";
                 if ( *token == '!' || strpbrk ( token, sep ) ) {
