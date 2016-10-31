@@ -42,6 +42,7 @@
 #include "rofi.h"
 #include "settings.h"
 #include "helper.h"
+#include "timings.h"
 #include "widgets/textbox.h"
 #include "history.h"
 #include "dialogs/drun.h"
@@ -418,6 +419,7 @@ static void get_apps_history ( DRunModePrivateData *pd )
 
 static void get_apps ( DRunModePrivateData *pd )
 {
+    TICK_N("Get Desktop apps (start)");
     get_apps_history ( pd );
 
     gchar *dir;
@@ -425,6 +427,7 @@ static void get_apps ( DRunModePrivateData *pd )
     dir = g_build_filename ( g_get_user_data_dir (), "applications", NULL );
     walk_dir ( pd, dir, dir );
     g_free ( dir );
+    TICK_N("Get Desktop apps (user dir)");
     // Then read thee system data dirs.
     const gchar * const * sys = g_get_system_data_dirs ();
     for (; *sys != NULL; ++sys ) {
@@ -432,6 +435,7 @@ static void get_apps ( DRunModePrivateData *pd )
         walk_dir ( pd, dir, dir );
         g_free ( dir );
     }
+    TICK_N("Get Desktop apps (system dirs)");
 }
 
 static int drun_mode_init ( Mode *sw )

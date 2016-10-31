@@ -20,7 +20,7 @@ void rofi_timings_init ( void );
  *
  * Report a tick.
  */
-void rofi_timings_tick ( char const *str, int line, char const *msg );
+void rofi_timings_tick ( const char *file, char const *str, int line, char const *msg );
 /**
  * Stop the timestamping mechanism
  */
@@ -34,12 +34,12 @@ void rofi_timings_quit ( void );
 /**
  * Report current time since TIMINGS_START
  */
-#define TICK()             rofi_timings_tick ( __func__, __LINE__, "" )
+#define TICK()             rofi_timings_tick ( __FILE__, __func__, __LINE__, "" )
 /**
  * @param a an string
  * Report current time since TIMINGS_START
  */
-#define TICK_N( a )        rofi_timings_tick ( __func__, __LINE__, a )
+#define TICK_N( a )        rofi_timings_tick ( __FILE__, __func__, __LINE__, a )
 /**
  * Stop timestamping mechanism.
  */
