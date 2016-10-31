@@ -22,7 +22,7 @@ build-rofi:
         - make distcheck
         - make coverage
     artifacts:
-        expire: 7d
+        expire_in: 2 weeks
         paths:
             - coverage 
             - doc
