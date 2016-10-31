@@ -21,8 +21,9 @@ build-rofi:
         - make check
         - make distcheck
         - make coverage
+        - make doxy
     artifacts:
         expire_in: 2 weeks
         paths:
             - coverage 
-            - doc
+            - doc/html
