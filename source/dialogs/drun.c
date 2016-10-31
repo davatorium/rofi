@@ -277,29 +277,23 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         g_key_file_free ( kf );
         return;
     }
-    {
-        size_t nl = ( ( pd->cmd_list_length ) + 1 );
-        pd->entry_list                               = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
-        pd->entry_list[pd->cmd_list_length].root     = g_strdup ( root );
-        pd->entry_list[pd->cmd_list_length].path     = g_strdup ( path );
-        pd->entry_list[pd->cmd_list_length].terminal = FALSE;
-        gchar *n = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
-        pd->entry_list[pd->cmd_list_length].name = n;
-        gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
-        pd->entry_list[pd->cmd_list_length].generic_name = gn;
-        pd->entry_list[pd->cmd_list_length].exec         = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
-        if ( g_key_file_has_key ( kf, "Desktop Entry", "Terminal", NULL ) ) {
-            pd->entry_list[pd->cmd_list_length].terminal = g_key_file_get_boolean ( kf, "Desktop Entry", "Terminal", NULL );
-        }
+    size_t nl = ( ( pd->cmd_list_length ) + 1 );
+    pd->entry_list                               = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
+    pd->entry_list[pd->cmd_list_length].root     = g_strdup ( root );
+    pd->entry_list[pd->cmd_list_length].path     = g_strdup ( path );
+    gchar *n = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
+    pd->entry_list[pd->cmd_list_length].name = n;
+    gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
+    pd->entry_list[pd->cmd_list_length].generic_name = gn;
+    pd->entry_list[pd->cmd_list_length].exec         = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
+    // Returns false if not found, if key not found, we don't want run in terminal.
+    pd->entry_list[pd->cmd_list_length].terminal = g_key_file_get_boolean ( kf, "Desktop Entry", "Terminal", NULL );
 
-        pd->entry_list[pd->cmd_list_length].exec_path = NULL;
-        if ( g_key_file_has_key ( kf, "Desktop Entry", "Path", NULL ) ) {
-            pd->entry_list[pd->cmd_list_length].exec_path = g_key_file_get_string ( kf, "Desktop Entry", "Path", NULL );
-        }
-        // We don't want to parse items with this id anymore.
-        g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
-        ( pd->cmd_list_length )++;
-    }
+    // Returns NULL if not found.
+    pd->entry_list[pd->cmd_list_length].exec_path = g_key_file_get_string ( kf, "Desktop Entry", "Path", NULL );
+    // We don't want to parse items with this id anymore.
+    g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
+    ( pd->cmd_list_length )++;
 
     g_key_file_free ( kf );
 }
