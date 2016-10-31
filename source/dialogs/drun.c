@@ -86,8 +86,6 @@ static inline int execsh ( const char *wd, const char *cmd, int run_in_term )
  */
 typedef struct
 {
-    /* ID */
-    char         *id;
     /* Root */
     char         *root;
     /* Path to desktop file */
@@ -110,7 +108,7 @@ typedef struct
     unsigned int  cmd_list_length;
     unsigned int  history_length;
     // List of disabled entries.
-    char          **disabled_entries;
+    GHashTable    *disabled_entries;
     unsigned int  disabled_entries_length;
 } DRunModePrivateData;
 
@@ -222,18 +220,9 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     }
 
     // Check if item is on disabled list.
-    for ( unsigned int ind = 0; ind < pd->disabled_entries_length; ind++ ) {
-        if ( g_strcmp0 ( pd->disabled_entries[ind], id ) == 0 ) {
-            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping: %s, was previously disabled.", id );
-            return;
-        }
-    }
-
-    for ( unsigned int index = 0; index < pd->cmd_list_length; index++ ) {
-        if ( g_strcmp0 ( id, pd->entry_list[index].id ) == 0 ) {
-            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping: %s, previously parsed.", id );
-            return;
-        }
+    if ( g_hash_table_contains ( pd->disabled_entries, id ) ) {
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping: %s, was previously seen.", id );
+        return;
     }
     GKeyFile *kf    = g_key_file_new ();
     GError   *error = NULL;
@@ -272,20 +261,14 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     if ( g_key_file_get_boolean ( kf, "Desktop Entry", "Hidden", NULL ) ) {
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Adding desktop file: %s to disabled list because: Hdden", path );
         g_key_file_free ( kf );
-        pd->disabled_entries                                  = g_realloc ( pd->disabled_entries, ( pd->disabled_entries_length + 2 ) * sizeof ( char* ) );
-        pd->disabled_entries[pd->disabled_entries_length]     = g_strdup ( id );
-        pd->disabled_entries[pd->disabled_entries_length + 1] = NULL;
-        pd->disabled_entries_length++;
+        g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
         return;
     }
     // Skip entries that have NoDisplay set.
     if ( g_key_file_get_boolean ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Adding desktop file: %s to disabled list because: NoDisplay", path );
         g_key_file_free ( kf );
-        pd->disabled_entries                                  = g_realloc ( pd->disabled_entries, ( pd->disabled_entries_length + 2 ) * sizeof ( char* ) );
-        pd->disabled_entries[pd->disabled_entries_length]     = g_strdup ( id );
-        pd->disabled_entries[pd->disabled_entries_length + 1] = NULL;
-        pd->disabled_entries_length++;
+        g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
         return;
     }
     // We need Exec, don't support DBusActivatable
@@ -297,7 +280,6 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     {
         size_t nl = ( ( pd->cmd_list_length ) + 1 );
         pd->entry_list                               = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
-        pd->entry_list[pd->cmd_list_length].id       = g_strdup ( id );
         pd->entry_list[pd->cmd_list_length].root     = g_strdup ( root );
         pd->entry_list[pd->cmd_list_length].path     = g_strdup ( path );
         pd->entry_list[pd->cmd_list_length].terminal = FALSE;
@@ -314,6 +296,8 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         if ( g_key_file_has_key ( kf, "Desktop Entry", "Path", NULL ) ) {
             pd->entry_list[pd->cmd_list_length].exec_path = g_key_file_get_string ( kf, "Desktop Entry", "Path", NULL );
         }
+        // We don't want to parse items with this id anymore.
+        g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
         ( pd->cmd_list_length )++;
     }
 
@@ -365,16 +349,14 @@ static void walk_dir ( DRunModePrivateData *pd, const char *root, const char *di
                 }
             }
         }
-        // Skip files not ending on .desktop.
-        if ( file->d_type != DT_DIR && !g_str_has_suffix ( file->d_name, ".desktop" ) ) {
-            g_free ( filename );
-            continue;
-        }
 
         switch ( file->d_type )
         {
         case DT_REG:
-            read_desktop_file ( pd, root, filename );
+            // Skip files not ending on .desktop.
+            if ( g_str_has_suffix ( file->d_name, ".desktop" ) ) {
+                read_desktop_file ( pd, root, filename );
+            }
             break;
         case DT_DIR:
             walk_dir ( pd, root, filename );
@@ -419,7 +401,7 @@ static void get_apps_history ( DRunModePrivateData *pd )
 
 static void get_apps ( DRunModePrivateData *pd )
 {
-    TICK_N("Get Desktop apps (start)");
+    TICK_N ( "Get Desktop apps (start)" );
     get_apps_history ( pd );
 
     gchar *dir;
@@ -427,7 +409,7 @@ static void get_apps ( DRunModePrivateData *pd )
     dir = g_build_filename ( g_get_user_data_dir (), "applications", NULL );
     walk_dir ( pd, dir, dir );
     g_free ( dir );
-    TICK_N("Get Desktop apps (user dir)");
+    TICK_N ( "Get Desktop apps (user dir)" );
     // Then read thee system data dirs.
     const gchar * const * sys = g_get_system_data_dirs ();
     for (; *sys != NULL; ++sys ) {
@@ -435,13 +417,14 @@ static void get_apps ( DRunModePrivateData *pd )
         walk_dir ( pd, dir, dir );
         g_free ( dir );
     }
-    TICK_N("Get Desktop apps (system dirs)");
+    TICK_N ( "Get Desktop apps (system dirs)" );
 }
 
 static int drun_mode_init ( Mode *sw )
 {
     if ( mode_get_private_data ( sw ) == NULL ) {
         DRunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
+        pd->disabled_entries = g_hash_table_new_full ( g_str_hash, g_str_equal, g_free, NULL );
         mode_set_private_data ( sw, (void *) pd );
         get_apps ( pd );
     }
@@ -498,7 +481,7 @@ static void drun_mode_destroy ( Mode *sw )
         for ( size_t i = 0; i < rmpd->cmd_list_length; i++ ) {
             drun_entry_clear ( &( rmpd->entry_list[i] ) );
         }
-        g_strfreev ( rmpd->disabled_entries );
+        g_hash_table_destroy ( rmpd->disabled_entries );
         g_free ( rmpd->entry_list );
         g_free ( rmpd );
         mode_set_private_data ( sw, NULL );
