@@ -9,9 +9,6 @@ before_script:
     - apt-get install --force-yes -y libxcb1-dev xvfb discount xdotool fluxbox
     - apt-get install --force-yes -y libxkbcommon-dev libxkbcommon-x11-dev libxcb-ewmh-dev
     - apt-get install --force-yes -y xutils-dev
-
-
-before_script:
     - git clone --recursive https://github.com/Airblader/xcb-util-xrm.git
     - cd xcb-util-xrm 
     - ./autogen.sh --prefix=/usr
