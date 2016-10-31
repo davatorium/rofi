@@ -8,6 +8,7 @@ before_script:
     - apt-get install --force-yes -y libxcb-icccm4-dev libxcb-util0-dev libxcb-xinerama0-dev libxcb-xkb-dev libx11-xcb-dev
     - apt-get install --force-yes -y libxcb1-dev xvfb discount xdotool fluxbox
     - apt-get install --force-yes -y libxkbcommon-dev libxkbcommon-x11-dev libxcb-ewmh-dev
+    - apt-get install --force-yes -y xutils-dev
 
 
 before_script:
