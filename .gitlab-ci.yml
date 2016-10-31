@@ -14,9 +14,6 @@ before_script:
     - ./autogen.sh --prefix=/usr
     - make
     - sudo make install
-    - cd -
-    - autoreconf -i
-    - ./configure --enable-gcov --enable-drun
 
 build-rofi:
     script:
