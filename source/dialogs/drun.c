@@ -389,7 +389,7 @@ static void get_apps_history ( DRunModePrivateData *pd )
         }
         g_strfreev ( st );
     }
-    g_free ( retv );
+    g_strfreev ( retv );
     pd->history_length = pd->cmd_list_length;
 }
 
