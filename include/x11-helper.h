@@ -165,14 +165,6 @@ unsigned int x11_get_current_mask ( xkb_stuff *xkb );
 gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key, gboolean *release );
 
 /**
- * @param box     The window to set the opacity on.
- * @param opacity The opacity value. (0-100)
- *
- * Set the opacity of the window and sub-windows.
- */
-void x11_set_window_opacity ( xcb_window_t box, unsigned int opacity );
-
-/**
  * Setup several items required.
  * * Error handling,
  * * Numlock detection

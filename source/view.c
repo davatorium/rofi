@@ -547,7 +547,6 @@ void __create_window ( MenuFlags menu_flags )
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box, xcb->ewmh._NET_WM_NAME, xcb->ewmh.UTF8_STRING, 8, 4, "rofi" );
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, 4, "rofi" );
 
-    x11_set_window_opacity ( box, config.window_opacity );
     CacheState.main_window = box;
     CacheState.flags       = menu_flags;
     monitor_active ( &( CacheState.mon ) );

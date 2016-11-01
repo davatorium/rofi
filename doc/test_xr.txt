@@ -1,7 +1,5 @@
 ! "Enabled modi" Set from: File
 rofi.modi:                           combi,drun
-! "Window opacity" Set from: File
-rofi.opacity:                        100
 ! "Window width" Set from: File
 rofi.width:                          50
 ! "Number of lines" Set from: File

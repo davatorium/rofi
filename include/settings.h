@@ -55,8 +55,6 @@ typedef struct
 {
     /** List of enabled modi */
     char           *modi;
-    /** Window settings */
-    unsigned int   window_opacity;
     /** Border width */
     unsigned int   menu_bw;
     /** Width (0-100 in %, > 100 in pixels, < 0 in char width.) */

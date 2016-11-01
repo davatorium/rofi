@@ -15,7 +15,6 @@
 [ -location *position* ]
 [ -fixed-num-lines ]
 [ -padding *padding* ]
-[ -opacity *opacity%* ]
 [ -display *display* ]
 [ -bw *width* ]
 [ -dmenu [ -p *prompt* ] [ -sep *separator* ] [ -l *selected line* ] [ -mesg ] [ -select ] [ -input *input* ] ]
@@ -218,14 +217,6 @@ Specify a font. Pango syntax is used.
     rofi -font "Dejavu Sans Mono 14"
 
 Default: *mono 12*
-
-`-opacity`
-
-Set window opacity (0-100).
-
-    rofi -opacity "75"
-
-Default: *100*
 
 `-eh` *element height*
 
@@ -636,7 +627,7 @@ simultaneously. This is useful when running **rofi** from a keybinding daemon.
 
 `-fake-transparency`
 
-Enable fake transparency. This only works with transparent background color in the theme, not the opacity setting.
+Enable fake transparency. This only works with transparent background color in the theme.
 
 `-fake-background`
 

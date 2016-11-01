@@ -36,8 +36,6 @@ DMENU command line options:
 Global options:
 	-modi [string]                          Enabled modi
 		combi,drun (File)
-	-opacity [number]                       Window opacity
-		100 (File)
 	-width [number]                         Window width
 		50 (File)
 	-lines [number]                         Number of lines

@@ -33,10 +33,6 @@ Settings config = {
     /** List of enabled modi. */
     /** -modi */
     .modi              = "window,run,ssh",
-    /** Set the default window opacity. */
-    /** This option only works when running a composite manager. */
-    /** -o */
-    .window_opacity    =                                       100,
     /** Border width around the window. */
     .menu_bw           =                                         1,
     /** The width of the switcher. (0100 in % > 100 in pixels) */

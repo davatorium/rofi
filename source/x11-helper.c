@@ -716,15 +716,6 @@ gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key, gboo
     return TRUE;
 }
 
-void x11_set_window_opacity ( xcb_window_t box, unsigned int opacity )
-{
-    // Scale 0-100 to 0 - UINT32_MAX.
-    unsigned int opacity_set = ( unsigned int ) ( ( opacity / 100.0 ) * UINT32_MAX );
-
-    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box,
-                          netatoms[_NET_WM_WINDOW_OPACITY], XCB_ATOM_CARDINAL, 32, 1L, &opacity_set );
-}
-
 /**
  * Fill in the list of frequently used X11 Atoms.
  */

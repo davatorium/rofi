@@ -85,8 +85,6 @@ static XrmOption xrmOptions[] = {
       "", CONFIG_DEFAULT },
     { xrm_String,  "modi",              { .str  = &config.modi                 }, NULL,
       "Enabled modi", CONFIG_DEFAULT },
-    { xrm_Number,  "opacity",           { .num  = &config.window_opacity       }, NULL,
-      "Window opacity", CONFIG_DEFAULT },
     { xrm_SNumber, "width",             { .snum = &config.menu_width           }, NULL,
       "Window width", CONFIG_DEFAULT },
     { xrm_Number,  "lines",             { .num  = &config.menu_lines           }, NULL,
