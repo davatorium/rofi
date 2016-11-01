@@ -20,13 +20,15 @@ typedef struct _separator   separator;
 /**
  * Direction of the separator.
  */
-
 typedef enum
 {
     S_HORIZONTAL = 0,
     S_VERTICAL   = 1
 } separator_type;
 
+/**
+ * The style of the separator line.
+ */
 typedef enum
 {
     S_LINE_NONE,
