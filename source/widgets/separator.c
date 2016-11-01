@@ -37,8 +37,9 @@
  */
 struct _separator
 {
-    widget         widget;
-    separator_type type;
+    widget               widget;
+    separator_type       type;
+    separator_line_style line_style;
 };
 
 /** Configuration value for separator style indicating no line */
@@ -78,27 +79,51 @@ static void separator_free ( widget *wid )
     g_free ( sb );
 }
 
+void separator_set_line_style ( separator *sp, separator_line_style style )
+{
+    if ( sp ) {
+        sp->line_style = style;
+        widget_need_redraw ( WIDGET ( sp ) );
+    }
+}
+void separator_set_line_style_from_string ( separator *sp, const char *style_str )
+{
+    if ( !sp  ) {
+        return;
+    }
+    separator_line_style style = S_LINE_SOLID;
+    if ( g_strcmp0 ( style_str, _separator_style_none ) == 0 ) {
+        style = S_LINE_NONE;
+    }
+    else if ( g_strcmp0 ( style_str, _separator_style_dash ) == 0 ) {
+        style = S_LINE_DASH;
+    }
+    separator_set_line_style ( sp, style );
+}
+
 static void separator_draw ( widget *wid, cairo_t *draw )
 {
     separator *sep = (separator *) wid;
-    if ( strcmp ( config.separator_style, _separator_style_none ) ) {
-        color_separator ( draw );
-        if ( strcmp ( config.separator_style, _separator_style_dash ) == 0 ) {
-            const double dashes[1] = { 4 };
-            cairo_set_dash ( draw, dashes, 1, 0.0 );
-        }
-        if ( sep->type == S_HORIZONTAL ) {
-            cairo_set_line_width ( draw, wid->h );
-            double half = wid->h / 2.0;
-            cairo_move_to ( draw, wid->x, wid->y + half );
-            cairo_line_to ( draw, wid->x + wid->w, wid->y + half );
-        }
-        else {
-            cairo_set_line_width ( draw, wid->w );
-            double half = wid->w / 2.0;
-            cairo_move_to ( draw, wid->x + half, wid->y );
-            cairo_line_to ( draw, wid->x + half, wid->y + wid->h );
-        }
-        cairo_stroke ( draw );
+    if ( sep->line_style == S_LINE_NONE ) {
+        // Nothing to draw.
+        return;
     }
+    color_separator ( draw );
+    if ( sep->line_style == S_LINE_DASH ) {
+        const double dashes[1] = { 4 };
+        cairo_set_dash ( draw, dashes, 1, 0.0 );
+    }
+    if ( sep->type == S_HORIZONTAL ) {
+        cairo_set_line_width ( draw, wid->h );
+        double half = wid->h / 2.0;
+        cairo_move_to ( draw, wid->x, wid->y + half );
+        cairo_line_to ( draw, wid->x + wid->w, wid->y + half );
+    }
+    else {
+        cairo_set_line_width ( draw, wid->w );
+        double half = wid->w / 2.0;
+        cairo_move_to ( draw, wid->x + half, wid->y );
+        cairo_line_to ( draw, wid->x + half, wid->y + wid->h );
+    }
+    cairo_stroke ( draw );
 }

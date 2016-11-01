@@ -278,9 +278,9 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         return;
     }
     size_t nl = ( ( pd->cmd_list_length ) + 1 );
-    pd->entry_list                               = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
-    pd->entry_list[pd->cmd_list_length].root     = g_strdup ( root );
-    pd->entry_list[pd->cmd_list_length].path     = g_strdup ( path );
+    pd->entry_list                           = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
+    pd->entry_list[pd->cmd_list_length].root = g_strdup ( root );
+    pd->entry_list[pd->cmd_list_length].path = g_strdup ( path );
     gchar *n = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].name = n;
     gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );

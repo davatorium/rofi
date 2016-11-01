@@ -198,7 +198,7 @@ static char **read_hosts_file ( char ** retv, unsigned int *length )
         // Reading one line per time.
         while ( getline ( &buffer, &buffer_length, fd ) > 0 ) {
             // Evaluate one line.
-            unsigned int index = 0, ti = 0;
+            unsigned int index  = 0, ti = 0;
             char         *token = buffer;
 
             // Tokenize it.
@@ -289,16 +289,16 @@ static char ** get_ssh (  unsigned int *length )
     fd   = fopen ( path, "r" );
 
     if ( fd != NULL ) {
-        char   *buffer       = NULL;
-        size_t buffer_length = 0;
-        char *strtok_pointer = NULL;
+        char   *buffer         = NULL;
+        size_t buffer_length   = 0;
+        char   *strtok_pointer = NULL;
         while ( getline ( &buffer, &buffer_length, fd ) > 0 ) {
             // Each line is either empty, a comment line starting with a '#'
             // character or of the form "keyword [=] arguments", where there may
             // be multiple (possibly quoted) arguments separated by whitespace.
             // The keyword is separated from its arguments by whitespace OR by
             // optional whitespace and a '=' character.
-            char *token = strtok_r ( buffer, SSH_TOKEN_DELIM, &strtok_pointer);
+            char *token = strtok_r ( buffer, SSH_TOKEN_DELIM, &strtok_pointer );
 
             // Skip empty lines and comment lines. Also skip lines where the
             // keyword is not "Host".

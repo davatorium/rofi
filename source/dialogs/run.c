@@ -260,9 +260,9 @@ static char ** get_apps ( unsigned int *length )
         return NULL;
     }
 
-    const char *const sep = ":";
-    char *strtok_savepointer = NULL;
-    for ( const char *dirname = strtok_r ( path, sep, &strtok_savepointer); dirname != NULL; dirname = strtok_r ( NULL, sep, &strtok_savepointer ) ) {
+    const char *const sep                 = ":";
+    char              *strtok_savepointer = NULL;
+    for ( const char *dirname = strtok_r ( path, sep, &strtok_savepointer ); dirname != NULL; dirname = strtok_r ( NULL, sep, &strtok_savepointer ) ) {
         DIR *dir = opendir ( dirname );
 
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Checking path %s for executable.", dirname );

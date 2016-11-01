@@ -1380,6 +1380,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->input_bar = box_create ( BOX_HORIZONTAL, 0, 0, state->width - state->border, line_height );
     //box_set_padding ( state->input_bar, config.line_margin );
     state->input_bar_separator = separator_create ( S_HORIZONTAL, 2 );
+    separator_set_line_style_from_string ( state->input_bar_separator, config.separator_style );
 
     if ( ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST ) ) {
         box_add ( state->main_box, WIDGET ( state->input_bar_separator ), FALSE, TRUE );
@@ -1412,7 +1413,9 @@ RofiViewState *rofi_view_create ( Mode *sw,
         textbox *message_tb = textbox_create ( TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, 0, 0,
                                                state->width - ( 2 * ( state->border ) ), -1, NORMAL, message );
         box_add ( state->main_box, WIDGET ( message_tb ), FALSE, FALSE );
-        box_add ( state->main_box, WIDGET ( separator_create (  S_HORIZONTAL, 2 ) ), FALSE, FALSE );
+        separator *sep = separator_create ( S_HORIZONTAL, 2 );
+        box_add ( state->main_box, WIDGET ( sep ), FALSE, FALSE );
+        separator_set_line_style_from_string ( sep, config.separator_style );
     }
 
     state->overlay = textbox_create ( TB_AUTOWIDTH, 0, 0, 20, line_height, URGENT, "blaat"  );
@@ -1437,7 +1440,9 @@ RofiViewState *rofi_view_create ( Mode *sw,
     if ( config.sidebar_mode ) {
         state->sidebar_bar = box_create ( BOX_HORIZONTAL, 0, 0, state->width - 2 * state->border, line_height );
         box_set_padding ( state->sidebar_bar, config.line_margin );
-        box_add ( state->main_box, WIDGET ( separator_create ( S_HORIZONTAL, 2 ) ), FALSE, TRUE );
+        separator *sep = separator_create ( S_HORIZONTAL, 2 );
+        box_add ( state->main_box, WIDGET ( sep ), FALSE, TRUE );
+        separator_set_line_style_from_string ( sep, config.separator_style );
         box_add ( state->main_box, WIDGET ( state->sidebar_bar ), FALSE, TRUE );
         state->num_modi = rofi_get_num_enabled_modi ();
         state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
