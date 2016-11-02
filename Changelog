@@ -1,4 +1,4 @@
-v1.3.0 (unreleased)
+v1.3.0: Dan vs. Greg: The never ending story. (unreleased)
 	New Features
 		- Use randr for getting monitor layout. Fallback to xinerama if not available.
 		- Re-add fuzzy parser.
@@ -23,8 +23,9 @@ v1.3.0 (unreleased)
 		- Improved documentation of functions in code.
 		- DRun: Set work directory when executing file. (#482)
 		- Memory leak fixes.
+		- Improve scrollbar behaviour.
 	Removals
-		- opacity option. The transparancy support in the theme can do the same and more.
+		- opacity option. The transparency support in the theme can do the same and more.
 	
 v1.2.0
 	New Features
