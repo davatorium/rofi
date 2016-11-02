@@ -174,6 +174,10 @@ static void run_switcher ( ModeMode mode )
             return;
         }
     }
+    // Error dialog must have been created.
+    if ( rofi_view_get_active () != NULL ) {
+        return;
+    }
     curr_switcher = mode;
     RofiViewState * state = rofi_view_create ( modi[mode], config.filter, NULL, MENU_NORMAL, process_result );
     if ( state ) {
@@ -352,7 +356,7 @@ static int add_mode ( const char * token )
     }
     else
 #endif // WINDOW_MODE
-       // SSh dialog
+    // SSh dialog
     if ( strcasecmp ( token, "ssh" ) == 0 ) {
         modi[num_modi] = &ssh_mode;
         num_modi++;

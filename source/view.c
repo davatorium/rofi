@@ -284,7 +284,7 @@ RofiViewState * rofi_view_get_active ( void )
 void rofi_view_set_active ( RofiViewState *state )
 {
     if ( current_active_menu != NULL && state != NULL ) {
-        g_queue_push_head ( &( CacheState.views ), state );
+        g_queue_push_head ( &( CacheState.views ), current_active_menu );
         // TODO check.
         current_active_menu = state;
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "stack view." );
