@@ -797,15 +797,15 @@ Allows custom scripted Modi to be added.
 
 ## FAQ
 
-### Text in window switcher is not nicely lined out
+### The text in the window switcher is not nicely lined out.
 
 Try using a mono-space font.
 
-### **rofi** is completely black.
+### The window is completely black.
 
 Check quotes used on the commandline: e.g. used “ instead of ".
 
-### **rofi** what does the icon in the top right show?
+### What does the icon in the top right show?
 
 The indicator shows:
 
