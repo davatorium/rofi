@@ -83,6 +83,7 @@ AC_CHECK_FUNC([flock],,    AC_MSG_ERROR("Could not find flock"))
 AC_CHECK_FUNC([ftruncate],,AC_MSG_ERROR("Could not find ftruncate"))
 AC_CHECK_FUNC([fcntl],,    AC_MSG_ERROR("Could not find fcntl"))
 AC_CHECK_FUNC([setlocale],,AC_MSG_ERROR("Could not find setlocale"))
+AC_CHECK_FUNC([atexit],,  AC_MSG_ERROR("Could not find atexit in c library"))
 
 dnl ---------------------------------------------------------------------
 dnl Check dependencies
