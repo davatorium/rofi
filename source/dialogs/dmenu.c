@@ -599,7 +599,8 @@ int dmenu_switcher_dialog ( void )
     int                  async      = TRUE;
     // For now these only work in sync mode.
     if ( find_arg ( "-sync" ) >= 0 || find_arg ( "-dump" ) >= 0 || find_arg ( "-select" ) >= 0
-         || find_arg ( "-no-custom" ) >= 0 || find_arg ( "-only-match" ) >= 0 || config.auto_select ) {
+         || find_arg ( "-no-custom" ) >= 0 || find_arg ( "-only-match" ) >= 0 || config.auto_select ||
+         find_arg ( "-selected-row") >= 0 ) {
         async = FALSE;
     }
     if ( async ) {
