@@ -556,7 +556,6 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         }
         take_pointer ( xcb_stuff_get_root_window ( xcb ) );
     }
-    sleep(1);
     TICK_N ( "Grab keyboard" );
     __create_window ( window_flags );
     TICK_N ( "Create Window" );
