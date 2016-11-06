@@ -545,6 +545,19 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     /**
      * Create window (without showing)
      */
+    // Try to grab the keyboard as early as possible.
+    // We grab this using the rootwindow (as dmenu does it).
+    // this seems to result in the smallest delay for most people.
+    if ( ( window_flags & MENU_NORMAL_WINDOW ) == 0 ) {
+        int has_keyboard = take_keyboard ( xcb_stuff_get_root_window ( xcb ) );
+        if ( !has_keyboard ) {
+            fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
+            return FALSE;
+        }
+        take_pointer ( xcb_stuff_get_root_window ( xcb ) );
+    }
+    sleep(1);
+    TICK_N ( "Grab keyboard" );
     __create_window ( window_flags );
     TICK_N ( "Create Window" );
     // Parse the keybindings.

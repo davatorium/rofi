@@ -1349,21 +1349,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     TICK_N ( "Startup notification" );
 
-    // Try to grab the keyboard as early as possible.
-    // We grab this using the rootwindow (as dmenu does it).
-    // this seems to result in the smallest delay for most people.
-    if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
-        int has_keyboard = take_keyboard ( xcb_stuff_get_root_window ( xcb ) );
-
-        if ( !has_keyboard ) {
-            fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
-            // Break off.
-            rofi_view_free ( state );
-            return NULL;
-        }
-        take_pointer ( xcb_stuff_get_root_window ( xcb ) );
-    }
-    TICK_N ( "Grab keyboard" );
     // Get active monitor size.
     TICK_N ( "Get active monitor" );
 
@@ -1494,17 +1479,6 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->menu_flags = MENU_ERROR_DIALOG;
     state->finalize   = process_result;
 
-    // Try to grab the keyboard as early as possible.
-    // We grab this using the rootwindow (as dmenu does it).
-    // this seems to result in the smallest delay for most people.
-    if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
-        int has_keyboard = take_keyboard ( xcb_stuff_get_root_window ( xcb ) );
-        if ( !has_keyboard ) {
-            fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
-            return FALSE;
-        }
-        take_pointer ( xcb_stuff_get_root_window ( xcb ) );
-    }
 
     rofi_view_calculate_window_and_element_width ( state );
     state->main_box = box_create ( BOX_VERTICAL,
