@@ -1631,3 +1631,8 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
     rofi_view_refilter ( state );
     rofi_view_update ( state );
 }
+
+xcb_window_t rofi_view_get_window ( void )
+{
+    return CacheState.main_window;
+}

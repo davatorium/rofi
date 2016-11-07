@@ -207,6 +207,12 @@ void rofi_view_workers_initialize ( void );
  * Stop all threads and free the resources used by the threadpool
  */
 void rofi_view_workers_finalize ( void );
+/**
+ * Get the handle of the main window.
+ *
+ * @returns the xcb_window_t for rofi's view or XCB_WINDOW_NONE.
+ */
+xcb_window_t rofi_view_get_window ( void );
 
 /**@}*/
 #endif
