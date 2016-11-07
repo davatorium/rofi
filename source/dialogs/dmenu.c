@@ -457,7 +457,8 @@ Mode dmenu_mode =
     ._get_completion    = NULL,
     ._preprocess_input  = NULL,
     .private_data       = NULL,
-    .free               = NULL
+    .free               = NULL,
+    .display_name       = "dmenu:"
 };
 
 static void dmenu_finish ( RofiViewState *state, int retv )
