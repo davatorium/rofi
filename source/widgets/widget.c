@@ -135,7 +135,7 @@ void widget_queue_redraw ( widget *wid )
 
 gboolean widget_need_redraw ( widget *wid )
 {
-    if ( wid ) {
+    if ( wid && wid->enabled ) {
         return wid->need_redraw;
     }
     return FALSE;
