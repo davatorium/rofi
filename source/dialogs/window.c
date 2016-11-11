@@ -479,7 +479,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                 else {
                     c->wmdesktopstr = g_strdup ( "" );
                 }
-                pd->wmdn_len = MAX ( pd->wmdn_len, strlen ( c->wmdesktopstr ) );
+                pd->wmdn_len = MAX ( pd->wmdn_len, g_utf8_strlen ( c->wmdesktopstr, -1) );
                 if ( cd && c->wmdesktop != current_desktop ) {
                     continue;
                 }
@@ -631,14 +631,21 @@ struct arg
 
 static void helper_eval_add_str ( GString *str, const char *input, int l, int max_len )
 {
-    int nc = g_utf8_strlen ( input, -1 );
-    if ( l != 0 && nc > l ) {
-        nc = l;
-        int bl = g_utf8_offset_to_pointer ( input, nc ) - input;
+    GString* g_input = g_string_new( input );
+    int input_len = g_utf8_strlen( g_input->str, -1 );
+    if ( l != 0 && input_len > l ) {
+        input_len = l;
+        int bl = g_utf8_offset_to_pointer ( input, input_len ) - input;
         g_string_append_len ( str, input, bl );
     }
-    else{
+    else {
+        int d = str->len - g_utf8_strlen( str->str, -1 );
         g_string_append_printf ( str, "%-*s", l ? l : max_len, input ? input : "" );
+        d = g_input->len - input_len;
+        l = l ? l : max_len;
+        if ( d > 0 ) {
+            g_string_append_printf( str, "%*s", input_len + d <= l ? d : l - input_len, "" );
+        }
     }
 }
 static gboolean helper_eval_cb ( const GMatchInfo *info, GString *str, gpointer data )
@@ -690,7 +697,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     ModeModePrivateData *rmpd = mode_get_private_data ( sw );
     client              *c    = window_client ( rmpd, rmpd->ids->array[selected_line] );
     if ( c == NULL ) {
-        return get_entry ? g_strdup ( "Window has fanished" ) : NULL;
+        return get_entry ? g_strdup ( "Window has vanished" ) : NULL;
     }
     if ( c->demands ) {
         *state |= URGENT;
