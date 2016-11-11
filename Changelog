@@ -8,6 +8,8 @@ v1.3.0: Dan vs. Greg: The never ending story. (unreleased)
 		- Dynamically sizing window with content.
 		- When placed at bottom of screen re-order screen to have entry at bottom.
 	Improvements
+		- Speedup drawing of screen. Works well now for 4k and 8k screens. (factor 1000+ speedup for the flipping of
+		buffer) (#496)
 		- DRun mode more compatible with specification.
 		- Debug output via g_log.
 		- Fix password entry cursor position.

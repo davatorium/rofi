@@ -72,23 +72,29 @@ RofiViewState *current_active_menu = NULL;
 struct
 {
     xcb_window_t    main_window;
-    cairo_surface_t *surface;
     cairo_surface_t *fake_bg;
+    xcb_gcontext_t  gc;
+    xcb_pixmap_t    edit_pixmap;
+    cairo_surface_t *edit_surf;
+    cairo_t         *edit_draw;
     int             fake_bgrel;
-    cairo_t         *draw;
     MenuFlags       flags;
     GQueue          views;
     workarea        mon;
     guint           idle_timeout;
+    uint64_t        count;
+    guint           repaint_timeout;
 } CacheState = {
-    .main_window  = XCB_WINDOW_NONE,
-    .surface      = NULL,
-    .fake_bg      = NULL,
-    .fake_bgrel   = FALSE,
-    .draw         = NULL,
-    .flags        = MENU_NORMAL,
-    .views        = G_QUEUE_INIT,
-    .idle_timeout =               0,
+    .main_window     = XCB_WINDOW_NONE,
+    .fake_bg         = NULL,
+    .edit_surf       = NULL,
+    .edit_draw       = NULL,
+    .fake_bgrel      = FALSE,
+    .flags           = MENU_NORMAL,
+    .views           = G_QUEUE_INIT,
+    .idle_timeout    =               0,
+    .count           =              0L,
+    .repaint_timeout =               0,
 };
 
 static char * get_matching_state ( void )
@@ -127,7 +133,7 @@ static int lev_sort ( const void *p1, const void *p2, void *arg )
 static void menu_capture_screenshot ( void )
 {
     const char *outp = g_getenv ( "ROFI_PNG_OUTPUT" );
-    if ( CacheState.surface == NULL ) {
+    if ( CacheState.edit_surf == NULL ) {
         // Nothing to store.
         fprintf ( stderr, "There is no rofi surface to store\n" );
         return;
@@ -162,7 +168,7 @@ static void menu_capture_screenshot ( void )
         fpath = g_strdup ( outp );
     }
     fprintf ( stderr, color_green "Storing screenshot %s\n"color_reset, fpath );
-    cairo_status_t status = cairo_surface_write_to_png ( CacheState.surface, fpath );
+    cairo_status_t status = cairo_surface_write_to_png ( CacheState.edit_surf, fpath );
     if ( status != CAIRO_STATUS_SUCCESS ) {
         fprintf ( stderr, "Failed to produce screenshot '%s', got error: '%s'\n", filename,
                   cairo_status_to_string ( status ) );
@@ -173,14 +179,28 @@ static void menu_capture_screenshot ( void )
     g_date_time_unref ( now );
 }
 
+static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
+{
+    if ( current_active_menu  ) {
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "expose event\n" );
+        TICK_N ( "Expose" );
+        xcb_copy_area ( xcb->connection, CacheState.edit_pixmap, CacheState.main_window, CacheState.gc,
+                        0, 0, 0, 0, current_active_menu->width, current_active_menu->height );
+        xcb_flush ( xcb->connection );
+        TICK_N ( "flush" );
+        CacheState.repaint_timeout = 0;
+    }
+    return G_SOURCE_REMOVE;
+}
+
 static void rofi_view_update_prompt ( RofiViewState *state )
 {
     if ( state->prompt ) {
         const char *str = mode_get_display_name ( state->sw );
-        if ( (state->menu_flags&MENU_PROMPT_COLON) != 0){
-            char *pr = g_strconcat ( str, ":", NULL);
+        if ( ( state->menu_flags & MENU_PROMPT_COLON ) != 0 ) {
+            char *pr = g_strconcat ( str, ":", NULL );
             textbox_text ( state->prompt, pr );
-            g_free(pr);
+            g_free ( pr );
         }
         else {
             textbox_text ( state->prompt, str );
@@ -246,7 +266,16 @@ static void rofi_view_window_update_size ( RofiViewState * state )
 
     // Display it.
     xcb_configure_window ( xcb->connection, CacheState.main_window, mask, vals );
-    cairo_xcb_surface_set_size ( CacheState.surface, state->width, state->height );
+    cairo_destroy ( CacheState.edit_draw );
+    cairo_surface_destroy ( CacheState.edit_surf );
+
+    xcb_free_pixmap ( xcb->connection, CacheState.edit_pixmap );
+    CacheState.edit_pixmap = xcb_generate_id ( xcb->connection );
+    xcb_create_pixmap ( xcb->connection, depth->depth,
+                        CacheState.edit_pixmap, CacheState.main_window, state->width, state->height );
+
+    CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
+    CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
     widget_resize ( WIDGET ( state->main_box ), state->width - 2 * state->border, state->height - 2 * state->border );
 }
 
@@ -255,8 +284,7 @@ static gboolean rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
     if ( current_active_menu ) {
         current_active_menu->reload   = TRUE;
         current_active_menu->refilter = TRUE;
-        xcb_clear_area ( xcb->connection, CacheState.main_window, 1, 0, 0, 1, 1 );
-        xcb_flush ( xcb->connection );
+        rofi_view_queue_redraw ();
     }
     CacheState.idle_timeout = 0;
     return G_SOURCE_REMOVE;
@@ -271,9 +299,10 @@ void rofi_view_reload ( void  )
 }
 void rofi_view_queue_redraw ( void  )
 {
-    if ( current_active_menu ) {
-        xcb_clear_area ( xcb->connection, CacheState.main_window, 1, 0, 0, 1, 1 );
-        xcb_flush ( xcb->connection );
+    if ( current_active_menu && CacheState.repaint_timeout == 0 ) {
+        CacheState.count++;
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "redraw %lu\n", CacheState.count );
+        CacheState.repaint_timeout = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
     }
 }
 
@@ -502,17 +531,23 @@ void __create_window ( MenuFlags menu_flags )
                         0, 0, 200, 100, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
                         visual->visual_id, selmask, selval );
 
-    CacheState.surface = cairo_xcb_surface_create ( xcb->connection, box, visual, 200, 100 );
+    CacheState.gc = xcb_generate_id ( xcb->connection );
+    xcb_create_gc ( xcb->connection, CacheState.gc, box, 0, 0 );
+
     // Create a drawable.
-    CacheState.draw = cairo_create ( CacheState.surface );
-    g_assert ( CacheState.draw != NULL );
-    cairo_set_operator ( CacheState.draw, CAIRO_OPERATOR_SOURCE );
+    CacheState.edit_pixmap = xcb_generate_id ( xcb->connection );
+    xcb_create_pixmap ( xcb->connection, depth->depth,
+                        CacheState.edit_pixmap, CacheState.main_window, 200, 100 );
+
+    CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, 200, 100 );
+    CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
 
     // Set up pango context.
     cairo_font_options_t *fo = cairo_font_options_create ();
     // Take font description from xlib surface
-    cairo_surface_get_font_options ( CacheState.surface, fo );
-    PangoContext *p = pango_cairo_create_context ( CacheState.draw );
+    cairo_surface_get_font_options ( CacheState.edit_surf, fo );
+    // TODO should we update the drawable each time?
+    PangoContext *p = pango_cairo_create_context ( CacheState.edit_draw );
     // Set the font options from the xlib surface
     pango_cairo_context_set_font_options ( p, fo );
     // Setup dpi
@@ -701,8 +736,7 @@ void rofi_view_update ( RofiViewState *state )
         return;
     }
     TICK ();
-    cairo_surface_t * surf = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, state->width, state->height );
-    cairo_t         *d     = cairo_create ( surf );
+    cairo_t *d = CacheState.edit_draw;
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
     if ( config.fake_transparency ) {
         if ( CacheState.fake_bg != NULL ) {
@@ -747,18 +781,9 @@ void rofi_view_update ( RofiViewState *state )
     if ( state->overlay ) {
         widget_draw ( WIDGET ( state->overlay ), d );
     }
-
-    // Draw to actual window.
-    cairo_set_source_surface ( CacheState.draw, surf, 0, 0 );
-    cairo_paint ( CacheState.draw );
-    // Cleanup
-    cairo_destroy ( d );
-    cairo_surface_destroy ( surf );
-
-    // Flush the surface.
-    cairo_surface_flush ( CacheState.surface );
-    xcb_flush ( xcb->connection );
-    TICK ();
+    TICK_N ( "widgets" );
+    cairo_surface_flush ( CacheState.edit_surf );
+    rofi_view_queue_redraw ();
 }
 
 /**
@@ -1184,9 +1209,6 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
 {
     switch ( ev->response_type & ~0x80 )
     {
-    case XCB_EXPOSE:
-        widget_queue_redraw ( WIDGET ( state->main_box ) );
-        break;
     case XCB_CONFIGURE_NOTIFY:
     {
         xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) ev;
@@ -1198,7 +1220,17 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
             if ( state->width != xce->width || state->height != xce->height ) {
                 state->width  = xce->width;
                 state->height = xce->height;
-                cairo_xcb_surface_set_size ( CacheState.surface, state->width, state->height );
+
+                cairo_destroy ( CacheState.edit_draw );
+                cairo_surface_destroy ( CacheState.edit_surf );
+
+                xcb_free_pixmap ( xcb->connection, CacheState.edit_pixmap );
+                CacheState.edit_pixmap = xcb_generate_id ( xcb->connection );
+                xcb_create_pixmap ( xcb->connection, depth->depth, CacheState.edit_pixmap, CacheState.main_window,
+                                    state->width, state->height );
+
+                CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
+                CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
                 widget_resize ( WIDGET ( state->main_box ), state->width - 2 * state->border, state->height - 2 * state->border );
             }
         }
@@ -1281,6 +1313,10 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
         rofi_view_refilter ( state );
     }
     rofi_view_update ( state );
+
+    if ( ( ev->response_type & ~0x80 ) == XCB_EXPOSE && CacheState.repaint_timeout == 0 ) {
+        CacheState.repaint_timeout = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
+    }
 }
 
 static int rofi_view_calculate_height ( RofiViewState *state )
@@ -1471,6 +1507,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     rofi_view_update ( state );
     xcb_map_window ( xcb->connection, CacheState.main_window );
+    widget_queue_redraw ( WIDGET ( state->main_box ) );
     xcb_flush ( xcb->connection );
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_complete ( xcb->sncontext );
@@ -1485,7 +1522,6 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->border     = config.padding + config.menu_bw;
     state->menu_flags = MENU_ERROR_DIALOG;
     state->finalize   = process_result;
-
 
     rofi_view_calculate_window_and_element_width ( state );
     state->main_box = box_create ( BOX_VERTICAL,
@@ -1508,6 +1544,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 
     // Display it.
     xcb_map_window ( xcb->connection, CacheState.main_window );
+    widget_queue_redraw ( WIDGET ( state->main_box ) );
 
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_complete ( xcb->sncontext );
@@ -1534,20 +1571,26 @@ void rofi_view_cleanup ()
         g_source_remove ( CacheState.idle_timeout );
         CacheState.idle_timeout = 0;
     }
+    if ( CacheState.repaint_timeout > 0 ) {
+        g_source_remove ( CacheState.repaint_timeout );
+        CacheState.idle_timeout = 0;
+    }
     if ( CacheState.fake_bg ) {
         cairo_surface_destroy ( CacheState.fake_bg );
         CacheState.fake_bg = NULL;
     }
-    if ( CacheState.draw ) {
-        cairo_destroy ( CacheState.draw );
-        CacheState.draw = NULL;
+    if ( CacheState.edit_draw ) {
+        cairo_destroy ( CacheState.edit_draw );
+        CacheState.edit_draw = NULL;
     }
-    if ( CacheState.surface ) {
-        cairo_surface_destroy ( CacheState.surface );
-        CacheState.surface = NULL;
+    if ( CacheState.edit_surf ) {
+        cairo_surface_destroy ( CacheState.edit_surf );
+        CacheState.edit_surf = NULL;
     }
     if ( CacheState.main_window != XCB_WINDOW_NONE ) {
         xcb_unmap_window ( xcb->connection, CacheState.main_window );
+        xcb_free_gc ( xcb->connection, CacheState.gc );
+        xcb_free_pixmap ( xcb->connection, CacheState.edit_pixmap );
         xcb_destroy_window ( xcb->connection, CacheState.main_window );
         CacheState.main_window = XCB_WINDOW_NONE;
     }
