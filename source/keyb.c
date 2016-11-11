@@ -187,11 +187,13 @@ void abe_trigger_release ( void )
     KeyBindingAction action;
 
     state = rofi_view_get_active ( );
-    for ( action = 0; action < NUM_ABE; ++action ) {
-        if ( _abe_trigger_on_release[action] ) {
-            rofi_view_trigger_action ( state, action );
-            _abe_trigger_on_release[action] = FALSE;
+    if ( state ) {
+        for ( action = 0; action < NUM_ABE; ++action ) {
+            if ( _abe_trigger_on_release[action] ) {
+                rofi_view_trigger_action ( state, action );
+                _abe_trigger_on_release[action] = FALSE;
+            }
         }
+        rofi_view_update ( state );
     }
-    rofi_view_update ( state );
 }
