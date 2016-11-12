@@ -5,6 +5,7 @@
 [![Stars](https://img.shields.io/github/stars/DaveDavenport/rofi.svg)](https://github.com/DaveDavenport/rofi/stargazers)
 [![Downloads](https://img.shields.io/github/downloads/DaveDavenport/rofi/total.svg)](https://github.com/DaveDavenport/rofi/releases)
 [![Coverity](https://scan.coverity.com/projects/3850/badge.svg)](https://scan.coverity.com/projects/davedavenport-rofi)
+[![Forum](https://img.shields.io/badge/forum-online-green.svg)](https://forum.qtools.org)
 
 # A window switcher, run dialog and dmenu replacement
 
