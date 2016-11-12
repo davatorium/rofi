@@ -97,7 +97,7 @@ then
     ${XRDB} -retain -load ${XRDB_FILE}
 fi
 
-(generate | ${ROFI} -dmenu ${ROFI_OPTIONS} > /dev/null )&
+(generate | ${ROFI} -config "${XRDB_FILE}" -dmenu ${ROFI_OPTIONS} > /dev/null )&
 sleep 1
 ${XDOTOOL} key Alt+S
 ${XDOTOOL} key Return
