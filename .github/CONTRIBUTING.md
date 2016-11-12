@@ -26,7 +26,7 @@ The issue tracker is not for:
 * Questions. 
 * Writing complaints.
 
-These topics belong on [IRC](https://webchat.freenode.net/?channels=#rofi), frequently asked questions will be added to the [F.A.Q](https://github.com/DaveDavenport/rofi/wiki#faq) on the [wiki](https://github.com/DaveDavenport/rofi/wiki).
+These topics belong on [FORUM](https://forum.qtools.org/), [IRC](https://webchat.freenode.net/?channels=#rofi), frequently asked questions will be added to the [F.A.Q](https://github.com/DaveDavenport/rofi/wiki#faq) on the [wiki](https://github.com/DaveDavenport/rofi/wiki).
 
 Questions filled in on the bug tracker will be marked `question`, locked and closed. If the question is clear, I normally try to provide an answer.
 
