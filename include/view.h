@@ -27,7 +27,7 @@ typedef enum
     /** INDICATOR */
     MENU_INDICATOR     = 8,
     /** Show column */
-    MENU_PROMPT_COLON = 16,
+    MENU_PROMPT_COLON  = 16,
 } MenuFlags;
 
 /**

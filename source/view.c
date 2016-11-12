@@ -476,7 +476,7 @@ static void rofi_view_setup_fake_transparency ( void )
          * Select Background to use for fake transparency.
          * Current options: 'screenshot','background'
          */
-        TICK_N("Fake start");
+        TICK_N ( "Fake start" );
         if ( g_strcmp0 ( config.fake_background, "screenshot" ) == 0 ) {
             s = cairo_xcb_surface_create ( xcb->connection,
                                            xcb_stuff_get_root_window ( xcb ),
@@ -489,16 +489,16 @@ static void rofi_view_setup_fake_transparency ( void )
         }
         else {
             char *fpath = rofi_expand_path ( config.fake_background );
-            g_log(LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Opening %s to use as background.", fpath);
+            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Opening %s to use as background.", fpath );
             s                     = cairo_image_surface_create_from_png ( fpath );
             CacheState.fake_bgrel = TRUE;
             g_free ( fpath );
         }
-        TICK_N("Get surface.");
+        TICK_N ( "Get surface." );
         if ( s != NULL ) {
             if ( cairo_surface_status ( s ) != CAIRO_STATUS_SUCCESS ) {
-                g_log( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to open surface fake background: %s",
-                            cairo_status_to_string ( cairo_surface_status ( s ) ));
+                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to open surface fake background: %s",
+                        cairo_status_to_string ( cairo_surface_status ( s ) ) );
                 cairo_surface_destroy ( s );
                 s = NULL;
             }
@@ -749,8 +749,8 @@ void rofi_view_update ( RofiViewState *state )
         }
         else {
             cairo_set_source_surface ( d, CacheState.fake_bg,
-                    -(double) ( state->x - CacheState.mon.x ),
-                    -(double) ( state->y - CacheState.mon.y ) );
+                                       -(double) ( state->x - CacheState.mon.x ),
+                                       -(double) ( state->y - CacheState.mon.y ) );
         }
         cairo_paint ( d );
         cairo_set_operator ( d, CAIRO_OPERATOR_OVER );

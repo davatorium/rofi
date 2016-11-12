@@ -668,6 +668,11 @@ int main ( int argc, char *argv[] )
     // Get the path to the cache dir.
     cache_dir = g_get_user_cache_dir ();
 
+    if ( g_mkdir_with_parents ( cache_dir, 0700 ) < 0 ) {
+        fprintf ( stderr, "Failed to create cache directory: %s\n", strerror ( errno ) );
+        return EXIT_FAILURE;
+    }
+
     // Create pid file path.
     const char *path = g_get_user_runtime_dir ();
     if ( path ) {

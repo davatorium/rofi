@@ -425,14 +425,14 @@ int create_pid_file ( const char *pidfile )
 
     int fd = g_open ( pidfile, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
     if ( fd < 0 ) {
-        fprintf ( stderr, "Failed to create pid file." );
+        fprintf ( stderr, "Failed to create pid file.\n" );
         return -1;
     }
     // Set it to close the File Descriptor on exit.
     int flags = fcntl ( fd, F_GETFD, NULL );
     flags = flags | FD_CLOEXEC;
     if ( fcntl ( fd, F_SETFD, flags, NULL ) < 0 ) {
-        fprintf ( stderr, "Failed to set CLOEXEC on pidfile." );
+        fprintf ( stderr, "Failed to set CLOEXEC on pidfile.\n" );
         remove_pid_file ( fd );
         return -1;
     }
