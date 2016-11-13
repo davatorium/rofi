@@ -843,7 +843,12 @@ The indicator shows:
 
 **rofi** bugtracker can be found [here](https://github.com/DaveDavenport/rofi/issues)
 
-**rofi** support can be obtained [here](irc://irc.freenode.net/#rofi) (#rofi on irc.freenode.net)
+**rofi** support can be obtained [here](irc://irc.freenode.net/#rofi) (#rofi on irc.freenode.net), or via the
+[forum](https://forum.qtools.org/)
+
+## SEE ALSO
+
+rofi-sensible-terminal(1)
 
 ## AUTHOR
 
