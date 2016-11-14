@@ -678,10 +678,11 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
     g_free ( input_key );
 
     if ( error_msg ) {
-        g_string_append_printf ( str, "Sorry, rofi cannot understand the key combination: <i>%s</i>\n", combo );
+        char *name = g_markup_escape_text ( combo, -1 );
+        g_string_append_printf ( str, "Cannot understand the key combination: <i>%s</i>\n", name );
         g_string_append ( str, error_msg );
+        g_free ( name );
         g_free ( error_msg );
-        g_string_append_c ( str, '\n' );
         return FALSE;
     }
     *key = sym;

@@ -127,6 +127,11 @@ gboolean parse_keys_abe ( void )
             if ( x11_parse_key ( entry, &( kb->modmask ), &( kb->keysym ), &( kb->release ), error_msg ) ) {
                 abe[iter].num_bindings++;
             }
+            else {
+                char *name = g_markup_escape_text ( abe[iter].name, -1 );
+                g_string_append_printf ( error_msg, "Failed to set binding for: <b>%s</b>\n\n", name );
+                g_free ( name );
+            }
         }
 
         g_free ( keystr );
