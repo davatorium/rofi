@@ -612,16 +612,15 @@ unsigned int x11_get_current_mask ( xkb_stuff *xkb )
 }
 
 // convert a Mod+key arg to mod mask and keysym
-gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key, gboolean *release )
+gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key, gboolean *release, GString *str )
 {
-    GString      *str    = g_string_new ( "" );
     unsigned int modmask = 0;
 
     if ( g_str_has_prefix ( combo, "!" ) ) {
         ++combo;
         *release = TRUE;
     }
-
+    // TODO split this into tokonized parsing, so propper error can be generated.
     if ( strcasestr ( combo, "shift" ) ) {
         modmask |= x11_mod_masks[X11MOD_SHIFT];
         if ( x11_mod_masks[X11MOD_SHIFT] == 0 ) {
@@ -658,10 +657,6 @@ gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key, gboo
             g_string_append_printf ( str, "X11 configured keyboard has no <b>Hyper</b> key.\n" );
         }
     }
-    int seen_mod = FALSE;
-    if ( strcasestr ( combo, "Mod" ) ) {
-        seen_mod = TRUE;
-    }
 
     // Find location of modifier (if it exists)
     char i = strlen ( combo );
@@ -678,26 +673,21 @@ gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key, gboo
         *mod = modmask;
     }
 
-
-
     // Parse key
     xkb_keysym_t sym = XKB_KEY_NoSymbol;
     sym = xkb_keysym_from_name ( combo + i, XKB_KEYSYM_NO_FLAGS );
 
     if ( sym == XKB_KEY_NoSymbol || ( !modmask && ( strchr ( combo, '-' ) || strchr ( combo, '+' ) ) ) ) {
         g_string_append_printf ( str, "Sorry, rofi cannot understand the key combination: <i>%s</i>\n", combo );
-        g_string_append ( str, "\nRofi supports the following modifiers:\n\t" );
-        g_string_append ( str, "<i>Shift,Control,Alt,Super,Meta,Hyper</i>" );
-        if ( seen_mod ) {
-            g_string_append ( str, "\n\n<b>Mod1,Mod2,Mod3,Mod4,Mod5 are no longer supported, use one of the above.</b>" );
+        if ( sym == XKB_KEY_NoSymbol ) {
+            g_string_append_printf ( str, "∙ Key <i>%s</i> is not understood\n", combo + i );
         }
-    }
-    if ( str->len > 0 ) {
-        rofi_view_error_dialog ( str->str, TRUE );
-        g_string_free ( str, TRUE );
+        if ( ( !modmask && ( strchr ( combo, '-' ) || strchr ( combo, '+' ) ) ) ) {
+            g_string_append ( str, "∙ Rofi supports the following modifiers: <i>Shift,Control,Alt,Super,Meta,Hyper</i>\n" );
+        }
+        g_string_append_c ( str, '\n' );
         return FALSE;
     }
-    g_string_free ( str, TRUE );
     *key = sym;
     return TRUE;
 }

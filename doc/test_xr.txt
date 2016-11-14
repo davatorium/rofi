@@ -125,7 +125,7 @@ rofi.kb-remove-word-forward:         Control+Alt+d
 ! "Delete next char" Set from: File
 rofi.kb-remove-char-forward:         Delete,Control+d
 ! "Delete previous char" Set from: File
-rofi.kb-remove-char-back:            BackSpace,Control+h
+rofi.kb-remove-char-back:            Backspace,Control+h
 ! "Delete till the end of line" Set from: File
 rofi.kb-remove-to-eol:               Control+k
 ! "Delete till the start of line" Set from: File
@@ -163,7 +163,7 @@ rofi.kb-row-last:                    End,KP_End
 ! "Set selected item as input text" Set from: File
 rofi.kb-row-select:                  Control+space
 ! "Take a screenshot of the rofi window" Set from: File
-rofi.kb-screenshot:                  Alt+Shift+S
+rofi.kb-screenshot:                  Alt+S
 ! "Toggle case sensitivity" Set from: File
 rofi.kb-toggle-case-sensitivity:     grave,dead_grave
 ! "Toggle sort" Set from: File
@@ -193,21 +193,21 @@ rofi.kb-custom-10:                   Alt+0
 ! "Custom keybinding 11" Set from: File
 rofi.kb-custom-11:                   Alt+Shift+1
 ! "Custom keybinding 12" Set from: File
-rofi.kb-custom-12:                   Alt+Shift+2
+rofi.kb-custom-12:                   Alt+at
 ! "Csutom keybinding 13" Set from: File
-rofi.kb-custom-13:                   Alt+Shift+3
+rofi.kb-custom-13:                   Alt+numbersign
 ! "Custom keybinding 14" Set from: File
-rofi.kb-custom-14:                   Alt+Shift+4
+rofi.kb-custom-14:                   Alt+dollar
 ! "Custom keybinding 15" Set from: File
-rofi.kb-custom-15:                   Alt+Shift+5
+rofi.kb-custom-15:                   Alt+percent
 ! "Custom keybinding 16" Set from: File
-rofi.kb-custom-16:                   Alt+Shift+6
+rofi.kb-custom-16:                   Alt+dead_circumflex
 ! "Custom keybinding 17" Set from: File
-rofi.kb-custom-17:                   Alt+Shift+7
+rofi.kb-custom-17:                   Alt+ampersand
 ! "Custom keybinding 18" Set from: File
-rofi.kb-custom-18:                   Alt+Shift+8
+rofi.kb-custom-18:                   Alt+asterisk
 ! "Custom Keybinding 19" Set from: File
-rofi.kb-custom-19:                   Alt+Shift+9
+rofi.kb-custom-19:                   Alt+parenleft
 ! "The display name of this browser" Set from: File
 rofi.display-ssh:                     
 ! "The display name of this browser" Set from: File

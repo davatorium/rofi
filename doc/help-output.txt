@@ -161,7 +161,7 @@ Global options:
 	-kb-remove-char-forward [string]        Delete next char
 		Delete,Control+d (File)
 	-kb-remove-char-back [string]           Delete previous char
-		BackSpace,Control+h (File)
+		Backspace,Control+h (File)
 	-kb-remove-to-eol [string]              Delete till the end of line
 		Control+k (File)
 	-kb-remove-to-sol [string]              Delete till the start of line
@@ -199,7 +199,7 @@ Global options:
 	-kb-row-select [string]                 Set selected item as input text
 		Control+space (File)
 	-kb-screenshot [string]                 Take a screenshot of the rofi window
-		Alt+Shift+S (File)
+		Alt+S (File)
 	-kb-toggle-case-sensitivity [string]    Toggle case sensitivity
 		grave,dead_grave (File)
 	-kb-toggle-sort [string]                Toggle sort
@@ -229,21 +229,21 @@ Global options:
 	-kb-custom-11 [string]                  Custom keybinding 11
 		Alt+Shift+1 (File)
 	-kb-custom-12 [string]                  Custom keybinding 12
-		Alt+Shift+2 (File)
+		Alt+at (File)
 	-kb-custom-13 [string]                  Csutom keybinding 13
-		Alt+Shift+3 (File)
+		Alt+numbersign (File)
 	-kb-custom-14 [string]                  Custom keybinding 14
-		Alt+Shift+4 (File)
+		Alt+dollar (File)
 	-kb-custom-15 [string]                  Custom keybinding 15
-		Alt+Shift+5 (File)
+		Alt+percent (File)
 	-kb-custom-16 [string]                  Custom keybinding 16
-		Alt+Shift+6 (File)
+		Alt+dead_circumflex (File)
 	-kb-custom-17 [string]                  Custom keybinding 17
-		Alt+Shift+7 (File)
+		Alt+ampersand (File)
 	-kb-custom-18 [string]                  Custom keybinding 18
-		Alt+Shift+8 (File)
+		Alt+asterisk (File)
 	-kb-custom-19 [string]                  Custom Keybinding 19
-		Alt+Shift+9 (File)
+		Alt+parenleft (File)
 	-display-ssh [string]                   The display name of this browser
 		  (File)
 	-display-run [string]                   The display name of this browser

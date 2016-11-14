@@ -109,6 +109,7 @@ void setup_abe ( void )
 
 gboolean parse_keys_abe ( void )
 {
+    GString *error_msg = g_string_new ( "" );
     for ( int iter = 0; iter < NUM_ABE; iter++ ) {
         char *keystr = g_strdup ( abe[iter].keystr );
         char *sp     = NULL;
@@ -123,15 +124,19 @@ gboolean parse_keys_abe ( void )
             abe[iter].kb = g_realloc ( abe[iter].kb, ( abe[iter].num_bindings + 1 ) * sizeof ( KeyBinding ) );
             KeyBinding *kb = &( abe[iter].kb[abe[iter].num_bindings] );
             memset ( kb, 0, sizeof ( KeyBinding ) );
-            if ( !x11_parse_key ( entry, &( kb->modmask ), &( kb->keysym ), &( kb->release ) ) ) {
-                g_free ( keystr );
-                return FALSE;
+            if ( x11_parse_key ( entry, &( kb->modmask ), &( kb->keysym ), &( kb->release ), error_msg ) ) {
+                abe[iter].num_bindings++;
             }
-            abe[iter].num_bindings++;
         }
 
         g_free ( keystr );
     }
+    if ( error_msg->len > 0 ) {
+        rofi_view_error_dialog ( error_msg->str, TRUE );
+        g_string_free ( error_msg, TRUE );
+        return FALSE;
+    }
+    g_string_free ( error_msg, TRUE );
     return TRUE;
 }
 
