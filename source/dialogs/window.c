@@ -294,17 +294,17 @@ static client* window_client ( ModeModePrivateData *pd, xcb_window_t win )
     if ( c->title == NULL ) {
         c->title = window_get_text_prop ( c->window, XCB_ATOM_WM_NAME );
     }
-    pd->title_len = MAX ( c->title ? strlen ( c->title ) : 0, pd->title_len );
+    pd->title_len = MAX ( c->title ? g_utf8_strlen ( c->title, -1 ) : 0, pd->title_len );
 
     c->role      = window_get_text_prop ( c->window, netatoms[WM_WINDOW_ROLE] );
-    pd->role_len = MAX ( c->role ? strlen ( c->role ) : 0, pd->role_len );
+    pd->role_len = MAX ( c->role ? g_utf8_strlen ( c->role, -1 ) : 0, pd->role_len );
 
     cky = xcb_icccm_get_wm_class ( xcb->connection, c->window );
     xcb_icccm_get_wm_class_reply_t wcr;
     if ( xcb_icccm_get_wm_class_reply ( xcb->connection, cky, &wcr, NULL ) ) {
         c->class     = rofi_latin_to_utf8_strdup ( wcr.class_name, -1 );
         c->name      = rofi_latin_to_utf8_strdup ( wcr.instance_name, -1 );
-        pd->name_len = MAX ( c->name ? strlen ( c->name ) : 0, pd->name_len );
+        pd->name_len = MAX ( c->name ? g_utf8_strlen ( c->name, -1 ) : 0, pd->name_len );
         xcb_icccm_get_wm_class_reply_wipe ( &wcr );
     }
 
@@ -441,7 +441,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                  && !client_has_window_type ( c, xcb->ewmh._NET_WM_WINDOW_TYPE_DESKTOP )
                  && !client_has_state ( c, xcb->ewmh._NET_WM_STATE_SKIP_PAGER )
                  && !client_has_state ( c, xcb->ewmh._NET_WM_STATE_SKIP_TASKBAR ) ) {
-                pd->clf_len = MAX ( pd->clf_len, ( c->class != NULL ) ? ( strlen ( c->class ) ) : 0 );
+                pd->clf_len = MAX ( pd->clf_len, ( c->class != NULL ) ? ( g_utf8_strlen ( c->class, -1 ) ) : 0 );
 
                 if ( client_has_state ( c, xcb->ewmh._NET_WM_STATE_DEMANDS_ATTENTION ) ) {
                     c->demands = TRUE;
@@ -479,7 +479,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                 else {
                     c->wmdesktopstr = g_strdup ( "" );
                 }
-                pd->wmdn_len = MAX ( pd->wmdn_len, strlen ( c->wmdesktopstr ) );
+                pd->wmdn_len = MAX ( pd->wmdn_len, g_utf8_strlen ( c->wmdesktopstr, -1 ) );
                 if ( cd && c->wmdesktop != current_desktop ) {
                     continue;
                 }
@@ -631,14 +631,27 @@ struct arg
 
 static void helper_eval_add_str ( GString *str, const char *input, int l, int max_len )
 {
-    int nc = g_utf8_strlen ( input, -1 );
-    if ( l != 0 && nc > l ) {
-        nc = l;
-        int bl = g_utf8_offset_to_pointer ( input, nc ) - input;
-        g_string_append_len ( str, input, bl );
+    // g_utf8 does not work with NULL string.
+    const char *input_nn = input ? input : "";
+    // Both l and max_len are in characters, not bytes.
+    int        nc = g_utf8_strlen ( input_nn, -1 );
+    int spaces = 0;
+    if ( l == 0 ) {
+        spaces = MAX ( 0, max_len - nc );
+        g_string_append ( str, input_nn );
     }
-    else{
-        g_string_append_printf ( str, "%-*s", l ? l : max_len, input ? input : "" );
+    else {
+        if ( nc > l ) {
+            int bl = g_utf8_offset_to_pointer ( input_nn, l ) - input_nn;
+            g_string_append_len ( str, input_nn, bl );
+        }
+        else {
+            spaces = l - nc;
+            g_string_append ( str, input_nn );
+        }
+    }
+    while ( spaces-- ) {
+        g_string_append_c ( str, ' ' );
     }
 }
 static gboolean helper_eval_cb ( const GMatchInfo *info, GString *str, gpointer data )
