@@ -194,7 +194,7 @@ static GRegex * create_regex ( const char *input, int case_sensitive )
 {
 #define R( s )    g_regex_new ( s, G_REGEX_OPTIMIZE | ( ( case_sensitive ) ? 0 : G_REGEX_CASELESS ), 0, NULL )
     GRegex * retv = NULL;
-    gchar *r;
+    gchar  *r;
     switch ( config.matching_method )
     {
     case MM_GLOB:
@@ -234,7 +234,7 @@ GRegex **tokenize ( const char *input, int case_sensitive )
     }
 
     char   *saveptr = NULL, *token;
-    GRegex **retv = NULL;
+    GRegex **retv   = NULL;
     if ( !config.tokenize ) {
         retv    = g_malloc0 ( sizeof ( GRegex* ) * 2 );
         retv[0] = (GRegex *) create_regex ( input, case_sensitive );

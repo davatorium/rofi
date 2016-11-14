@@ -37,7 +37,7 @@ ActionBindingEntry abe[NUM_ABE];
  */
 DefaultBinding bindings[NUM_ABE] =
 {
-    { .id = PASTE_PRIMARY,           .name = "kb-primary-paste",           .keybinding = "Control+Shift+v,Shift+Insert",              .comment = "Paste primary selection"                                         },
+    { .id = PASTE_PRIMARY,           .name = "kb-primary-paste",           .keybinding = "Control+V,Shift+Insert",                    .comment = "Paste primary selection"                                         },
     { .id = PASTE_SECONDARY,         .name = "kb-secondary-paste",         .keybinding = "Control+v,Insert",                          .comment = "Paste clipboard"                                                 },
     { .id = CLEAR_LINE,              .name = "kb-clear-line",              .keybinding = "Control+w",                                 .comment = "Clear input line"                                                },
     { .id = MOVE_FRONT,              .name = "kb-move-front",              .keybinding = "Control+a",                                 .comment = "Beginning of line"                                               },
@@ -46,7 +46,7 @@ DefaultBinding bindings[NUM_ABE] =
     { .id = MOVE_WORD_FORWARD,       .name = "kb-move-word-forward",       .keybinding = "Alt+f",                                     .comment = "Move forward one word"                                           },
     { .id = MOVE_CHAR_BACK,          .name = "kb-move-char-back",          .keybinding = "Left,Control+b",                            .comment = "Move back one char"                                              },
     { .id = MOVE_CHAR_FORWARD,       .name = "kb-move-char-forward",       .keybinding = "Right,Control+f",                           .comment = "Move forward one char"                                           },
-    { .id = REMOVE_WORD_BACK,        .name = "kb-remove-word-back",        .keybinding = "Control+Alt+h,Control+Backspace",           .comment = "Delete previous word"                                            },
+    { .id = REMOVE_WORD_BACK,        .name = "kb-remove-word-back",        .keybinding = "Control+Alt+h,Control+BackSpace",           .comment = "Delete previous word"                                            },
     { .id = REMOVE_WORD_FORWARD,     .name = "kb-remove-word-forward",     .keybinding = "Control+Alt+d",                             .comment = "Delete next word"                                                },
     { .id = REMOVE_CHAR_FORWARD,     .name = "kb-remove-char-forward",     .keybinding = "Delete,Control+d",                          .comment = "Delete next char"                                                },
     { .id = REMOVE_CHAR_BACK,        .name = "kb-remove-char-back",        .keybinding = "BackSpace,Control+h",                       .comment = "Delete previous char"                                            },
@@ -68,7 +68,7 @@ DefaultBinding bindings[NUM_ABE] =
     { .id = ROW_FIRST,               .name = "kb-row-first",               .keybinding = "Home,KP_Home",                              .comment = "Go to the first entry"                                           },
     { .id = ROW_LAST,                .name = "kb-row-last",                .keybinding = "End,KP_End",                                .comment = "Go to the last entry"                                            },
     { .id = ROW_SELECT,              .name = "kb-row-select",              .keybinding = "Control+space",                             .comment = "Set selected item as input text"                                 },
-    { .id = SCREENSHOT,              .name = "kb-screenshot",              .keybinding = "Alt+Shift+S",                               .comment = "Take a screenshot of the rofi window"                            },
+    { .id = SCREENSHOT,              .name = "kb-screenshot",              .keybinding = "Alt+S",                                     .comment = "Take a screenshot of the rofi window"                            },
     { .id = TOGGLE_CASE_SENSITIVITY, .name = "kb-toggle-case-sensitivity", .keybinding = "grave,dead_grave",                          .comment = "Toggle case sensitivity"                                         },
     { .id = TOGGLE_SORT,             .name = "kb-toggle-sort",             .keybinding = "Alt+grave",                                 .comment = "Toggle sort"                                                     },
     { .id = CANCEL,                  .name = "kb-cancel",                  .keybinding = "Escape,Control+g,Control+bracketleft",      .comment = "Quit rofi"                                                       },
@@ -82,15 +82,15 @@ DefaultBinding bindings[NUM_ABE] =
     { .id = CUSTOM_8,                .name = "kb-custom-8",                .keybinding = "Alt+8",                                     .comment = "Custom keybinding 8"                                             },
     { .id = CUSTOM_9,                .name = "kb-custom-9",                .keybinding = "Alt+9",                                     .comment = "Custom keybinding 9"                                             },
     { .id = CUSTOM_10,               .name = "kb-custom-10",               .keybinding = "Alt+0",                                     .comment = "Custom keybinding 10"                                            },
-    { .id = CUSTOM_11,               .name = "kb-custom-11",               .keybinding = "Alt+Shift+1",                               .comment = "Custom keybinding 11"                                            },
-    { .id = CUSTOM_12,               .name = "kb-custom-12",               .keybinding = "Alt+Shift+2",                               .comment = "Custom keybinding 12"                                            },
-    { .id = CUSTOM_13,               .name = "kb-custom-13",               .keybinding = "Alt+Shift+3",                               .comment = "Csutom keybinding 13"                                            },
-    { .id = CUSTOM_14,               .name = "kb-custom-14",               .keybinding = "Alt+Shift+4",                               .comment = "Custom keybinding 14"                                            },
-    { .id = CUSTOM_15,               .name = "kb-custom-15",               .keybinding = "Alt+Shift+5",                               .comment = "Custom keybinding 15"                                            },
-    { .id = CUSTOM_16,               .name = "kb-custom-16",               .keybinding = "Alt+Shift+6",                               .comment = "Custom keybinding 16"                                            },
-    { .id = CUSTOM_17,               .name = "kb-custom-17",               .keybinding = "Alt+Shift+7",                               .comment = "Custom keybinding 17"                                            },
-    { .id = CUSTOM_18,               .name = "kb-custom-18",               .keybinding = "Alt+Shift+8",                               .comment = "Custom keybinding 18"                                            },
-    { .id = CUSTOM_19,               .name = "kb-custom-19",               .keybinding = "Alt+Shift+9",                               .comment = "Custom Keybinding 19"                                            },
+    { .id = CUSTOM_11,               .name = "kb-custom-11",               .keybinding = "Alt+exclam",                                .comment = "Custom keybinding 11"                                            },
+    { .id = CUSTOM_12,               .name = "kb-custom-12",               .keybinding = "Alt+at",                                    .comment = "Custom keybinding 12"                                            },
+    { .id = CUSTOM_13,               .name = "kb-custom-13",               .keybinding = "Alt+numbersign",                            .comment = "Csutom keybinding 13"                                            },
+    { .id = CUSTOM_14,               .name = "kb-custom-14",               .keybinding = "Alt+dollar",                                .comment = "Custom keybinding 14"                                            },
+    { .id = CUSTOM_15,               .name = "kb-custom-15",               .keybinding = "Alt+percent",                               .comment = "Custom keybinding 15"                                            },
+    { .id = CUSTOM_16,               .name = "kb-custom-16",               .keybinding = "Alt+dead_circumflex",                       .comment = "Custom keybinding 16"                                            },
+    { .id = CUSTOM_17,               .name = "kb-custom-17",               .keybinding = "Alt+ampersand",                             .comment = "Custom keybinding 17"                                            },
+    { .id = CUSTOM_18,               .name = "kb-custom-18",               .keybinding = "Alt+asterisk",                              .comment = "Custom keybinding 18"                                            },
+    { .id = CUSTOM_19,               .name = "kb-custom-19",               .keybinding = "Alt+parenleft",                             .comment = "Custom Keybinding 19"                                            },
 };
 
 void setup_abe ( void )

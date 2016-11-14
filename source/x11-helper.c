@@ -678,25 +678,11 @@ gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key, gboo
         *mod = modmask;
     }
 
+
+
     // Parse key
     xkb_keysym_t sym = XKB_KEY_NoSymbol;
-    if ( ( modmask & x11_mod_masks[X11MOD_SHIFT] ) != 0 ) {
-        gchar * str = g_utf8_next_char ( combo + i );
-        // If it is a single char, we make a capital out of it.
-        if ( str != NULL && *str == '\0' ) {
-            int      l = 0;
-            char     buff[8];
-            gunichar v = g_utf8_get_char ( combo + i );
-            gunichar u = g_unichar_toupper ( v );
-            if ( ( l = g_unichar_to_utf8 ( u, buff ) ) ) {
-                buff[l] = '\0';
-                sym     = xkb_keysym_from_name ( buff, XKB_KEYSYM_NO_FLAGS );
-            }
-        }
-    }
-    if ( sym == XKB_KEY_NoSymbol ) {
-        sym = xkb_keysym_from_name ( combo + i, XKB_KEYSYM_CASE_INSENSITIVE );
-    }
+    sym = xkb_keysym_from_name ( combo + i, XKB_KEYSYM_NO_FLAGS );
 
     if ( sym == XKB_KEY_NoSymbol || ( !modmask && ( strchr ( combo, '-' ) || strchr ( combo, '+' ) ) ) ) {
         g_string_append_printf ( str, "Sorry, rofi cannot understand the key combination: <i>%s</i>\n", combo );

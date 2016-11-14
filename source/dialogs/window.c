@@ -634,8 +634,8 @@ static void helper_eval_add_str ( GString *str, const char *input, int l, int ma
     // g_utf8 does not work with NULL string.
     const char *input_nn = input ? input : "";
     // Both l and max_len are in characters, not bytes.
-    int        nc = g_utf8_strlen ( input_nn, -1 );
-    int spaces = 0;
+    int        nc     = g_utf8_strlen ( input_nn, -1 );
+    int        spaces = 0;
     if ( l == 0 ) {
         spaces = MAX ( 0, max_len - nc );
         g_string_append ( str, input_nn );
