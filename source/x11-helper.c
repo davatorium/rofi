@@ -612,83 +612,80 @@ unsigned int x11_get_current_mask ( xkb_stuff *xkb )
 }
 
 // convert a Mod+key arg to mod mask and keysym
-gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key, gboolean *release, GString *str )
+gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key, gboolean *release, GString *str )
 {
-    unsigned int modmask = 0;
-
-    if ( g_str_has_prefix ( combo, "!" ) ) {
-        ++combo;
+    char         *input_key = g_strdup ( combo );
+    char         *mod_key   = input_key;
+    char         *error_msg = NULL;
+    unsigned int modmask    = 0;
+    // Test if this works on release.
+    if ( g_str_has_prefix ( mod_key, "!" ) ) {
+        ++mod_key;
         *release = TRUE;
     }
-    // TODO split this into tokonized parsing, so propper error can be generated.
-    if ( strcasestr ( combo, "shift" ) ) {
-        modmask |= x11_mod_masks[X11MOD_SHIFT];
-        if ( x11_mod_masks[X11MOD_SHIFT] == 0 ) {
-            g_string_append_printf ( str, "X11 configured keyboard has no <b>Shift</b> key.\n" );
+
+    char         *saveptr = NULL;
+    xkb_keysym_t sym      = XKB_KEY_NoSymbol;
+    for ( char *entry = strtok_r ( mod_key, "+-", &saveptr ); error_msg == NULL && entry != NULL;
+          entry = strtok_r ( NULL, "+-", &saveptr ) ) {
+        // Compare against lowered version.
+        char *entry_lowered = g_utf8_strdown ( entry, -1 );
+        if ( g_utf8_collate ( entry_lowered, "shift" ) == 0  ) {
+            modmask |= x11_mod_masks[X11MOD_SHIFT];
+            if ( x11_mod_masks[X11MOD_SHIFT] == 0 ) {
+                error_msg = g_strdup ( "X11 configured keyboard has no <b>Shift</b> key.\n" );
+            }
         }
-    }
-    if ( strcasestr ( combo, "control" ) ) {
-        modmask |= x11_mod_masks[X11MOD_CONTROL];
-        if ( x11_mod_masks[X11MOD_CONTROL] == 0 ) {
-            g_string_append_printf ( str, "X11 configured keyboard has no <b>Control</b> key.\n" );
+        else if  ( g_utf8_collate ( entry_lowered, "control" ) == 0 ) {
+            modmask |= x11_mod_masks[X11MOD_CONTROL];
+            if  ( x11_mod_masks[X11MOD_CONTROL] == 0 ) {
+                error_msg = g_strdup ( "X11 configured keyboard has no <b>Control</b> key.\n" );
+            }
         }
-    }
-    if ( strcasestr ( combo, "alt" ) ) {
-        modmask |= x11_mod_masks[X11MOD_ALT];
-        if ( x11_mod_masks[X11MOD_ALT] == 0 ) {
-            g_string_append_printf ( str, "X11 configured keyboard has no <b>Alt</b> key.\n" );
+        else if  ( g_utf8_collate ( entry_lowered, "alt" ) == 0 ) {
+            modmask |= x11_mod_masks[X11MOD_ALT];
+            if  ( x11_mod_masks[X11MOD_ALT] == 0 ) {
+                error_msg = g_strdup ( "X11 configured keyboard has no <b>Alt</b> key.\n" );
+            }
         }
-    }
-    if ( strcasestr ( combo, "super" ) ) {
-        modmask |= x11_mod_masks[X11MOD_SUPER];
-        if ( x11_mod_masks[X11MOD_SUPER] == 0 ) {
-            g_string_append_printf ( str, "X11 configured keyboard has no <b>Super</b> key.\n" );
+        else if  ( g_utf8_collate ( entry_lowered, "super" ) == 0 ) {
+            modmask |= x11_mod_masks[X11MOD_SUPER];
+            if  ( x11_mod_masks[X11MOD_SUPER] == 0 ) {
+                error_msg = g_strdup ( "X11 configured keyboard has no <b>Super</b> key.\n" );
+            }
         }
-    }
-    if ( strcasestr ( combo, "meta" ) ) {
-        modmask |= x11_mod_masks[X11MOD_META];
-        if ( x11_mod_masks[X11MOD_META] == 0 ) {
-            g_string_append_printf ( str, "X11 configured keyboard has no <b>Meta</b> key.\n" );
+        else if  ( g_utf8_collate ( entry_lowered, "meta" ) == 0 ) {
+            modmask |= x11_mod_masks[X11MOD_META];
+            if  ( x11_mod_masks[X11MOD_META] == 0 ) {
+                error_msg = g_strdup ( "X11 configured keyboard has no <b>Meta</b> key.\n" );
+            }
         }
-    }
-    if ( strcasestr ( combo, "hyper" ) ) {
-        modmask |= x11_mod_masks[X11MOD_HYPER];
-        if ( x11_mod_masks[X11MOD_HYPER] == 0 ) {
-            g_string_append_printf ( str, "X11 configured keyboard has no <b>Hyper</b> key.\n" );
+        else if  ( g_utf8_collate ( entry_lowered, "hyper" ) == 0 ) {
+            modmask |= x11_mod_masks[X11MOD_HYPER];
+            if  ( x11_mod_masks[X11MOD_HYPER] == 0 ) {
+                error_msg = g_strdup ( "X11 configured keyboard has no <b>Hyper</b> key.\n" );
+            }
         }
+        else {
+            sym = xkb_keysym_from_name ( entry, XKB_KEYSYM_NO_FLAGS );
+            if ( sym == XKB_KEY_NoSymbol ) {
+                error_msg = g_markup_printf_escaped ( "∙ Key <i>%s</i> is not understood\n", entry );
+            }
+        }
+        g_free ( entry_lowered );
     }
 
-    // Find location of modifier (if it exists)
-    char i = strlen ( combo );
+    g_free ( input_key );
 
-    while ( i > 0 && !strchr ( "-+", combo[i - 1] ) ) {
-        i--;
-    }
-
-    // if there's no "-" or "+", we might be binding directly to a modifier key - no modmask
-    if ( i == 0 ) {
-        *mod = 0;
-    }
-    else {
-        *mod = modmask;
-    }
-
-    // Parse key
-    xkb_keysym_t sym = XKB_KEY_NoSymbol;
-    sym = xkb_keysym_from_name ( combo + i, XKB_KEYSYM_NO_FLAGS );
-
-    if ( sym == XKB_KEY_NoSymbol || ( !modmask && ( strchr ( combo, '-' ) || strchr ( combo, '+' ) ) ) ) {
+    if ( error_msg ) {
         g_string_append_printf ( str, "Sorry, rofi cannot understand the key combination: <i>%s</i>\n", combo );
-        if ( sym == XKB_KEY_NoSymbol ) {
-            g_string_append_printf ( str, "∙ Key <i>%s</i> is not understood\n", combo + i );
-        }
-        if ( ( !modmask && ( strchr ( combo, '-' ) || strchr ( combo, '+' ) ) ) ) {
-            g_string_append ( str, "∙ Rofi supports the following modifiers: <i>Shift,Control,Alt,Super,Meta,Hyper</i>\n" );
-        }
+        g_string_append ( str, error_msg );
+        g_free ( error_msg );
         g_string_append_c ( str, '\n' );
         return FALSE;
     }
     *key = sym;
+    *mod = modmask;
     return TRUE;
 }
 

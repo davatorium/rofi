@@ -162,7 +162,7 @@ unsigned int x11_get_current_mask ( xkb_stuff *xkb );
  *
  * Parse key from user input string.
  */
-gboolean x11_parse_key ( char *combo, unsigned int *mod, xkb_keysym_t *key, gboolean *release, GString * );
+gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key, gboolean *release, GString * );
 
 /**
  * Setup several items required.
