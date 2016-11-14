@@ -337,6 +337,7 @@ void rofi_view_set_active ( RofiViewState *state )
     }
     g_assert ( ( current_active_menu == NULL && state != NULL ) || ( current_active_menu != NULL && state == NULL ) );
     current_active_menu = state;
+    rofi_view_queue_redraw ();
 }
 
 void rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_line )
@@ -1555,7 +1556,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
         sn_launchee_context_complete ( xcb->sncontext );
     }
 
-    // Set it has current window.
+    // Set it as current window.
     rofi_view_set_active ( state );
     return TRUE;
 }
