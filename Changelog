@@ -8,6 +8,11 @@ v1.3.0: Dan vs. Greg: The never ending story. (unreleased)
 		- Dynamically sizing window with content.
 		- When placed at bottom of screen re-order screen to have entry at bottom.
 	Improvements
+		- Create cache and run directory on startup. (#497)
+		- Fix uneeded redraws on cursor blinking. (#491)
+		- Improve time till grabbing keyboard. (#494)
+		- Better error message when failing to parse keybindings, also continue parsing on error.
+		- Fix problem with custom layouts (#485)
 		- Speedup drawing of screen. Works well now for 4k and 8k screens. (factor 1000+ speedup for the flipping of
 		buffer) (#496)
 		- DRun mode more compatible with specification.
@@ -17,7 +22,7 @@ v1.3.0: Dan vs. Greg: The never ending story. (unreleased)
 		- Add Control+G for cancel (#452)
 		- Add padding option to textbox (#449)
 		- Ctrl-click does alternate accept entry. (#429)
-		- Hide window decoration in normal window mode. (#485)
+		- Hide window decoration in normal window mode. 
 		- Click to exit option. (#460)
 		- Fix cursor blinking on moving. (#462)
 		- Remove entry from history if fails to execute (#466)
