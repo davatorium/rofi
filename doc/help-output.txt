@@ -135,7 +135,7 @@ Global options:
 	-[no-]show-match                        Indicate how it match by underlining it.
 		True (Default)
 	-pid [string]                           Pidfile location
-		/tmp/1000-runtime-dir/rofi.pid (File)
+		/tmp/rofi.pid (File)
 	-kb-primary-paste [string]              Paste primary selection
 		Control+Shift+v,Shift+Insert (File)
 	-kb-secondary-paste [string]            Paste clipboard
