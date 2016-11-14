@@ -425,7 +425,7 @@ int create_pid_file ( const char *pidfile )
 
     int fd = g_open ( pidfile, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
     if ( fd < 0 ) {
-        fprintf ( stderr, "Failed to create pid file.\n" );
+        fprintf ( stderr, "Failed to create pid file: '%s'.\n", pidfile );
         return -1;
     }
     // Set it to close the File Descriptor on exit.

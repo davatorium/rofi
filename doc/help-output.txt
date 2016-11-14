@@ -155,13 +155,13 @@ Global options:
 	-kb-move-char-forward [string]          Move forward one char
 		Right,Control+f (File)
 	-kb-remove-word-back [string]           Delete previous word
-		Control+Alt+h,Control+Backspace (File)
+		Control+Alt+h,Control+BackSpace (File)
 	-kb-remove-word-forward [string]        Delete next word
 		Control+Alt+d (File)
 	-kb-remove-char-forward [string]        Delete next char
 		Delete,Control+d (File)
 	-kb-remove-char-back [string]           Delete previous char
-		Backspace,Control+h (File)
+		BackSpace,Control+h (File)
 	-kb-remove-to-eol [string]              Delete till the end of line
 		Control+k (File)
 	-kb-remove-to-sol [string]              Delete till the start of line
