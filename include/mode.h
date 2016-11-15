@@ -7,6 +7,11 @@
  * The 'object' that makes a mode in rofi.
  * @{
  */
+
+/**
+ * Type of a mode.
+ * Access should be done via mode_* functions. 
+ */
 typedef struct rofi_mode   Mode;
 
 /**
@@ -152,9 +157,31 @@ void *mode_get_private_data ( const Mode *mode );
  */
 void mode_set_private_data ( Mode *mode, void *pd );
 
+/**
+ * @param mode The mode to query
+ *
+ * Get the name of the mode as it should be presented to the user.
+ *
+ * @return the user visible name of the mode
+ */
 const char *mode_get_display_name ( const Mode *mode );
 
+/**
+ * @param mode The mode to query
+ *
+ * Should be called once for each mode. This adds the display-name configuration option for the mode.
+ */
 void mode_set_config ( Mode *mode );
+
+/**
+ * @param mode The mode to query
+ * @param intput The input to process
+ *
+ * This processes the input so it can be used for matching and sorting.
+ * This includes removing pango markup.
+ *
+ * @returns a newly allocated string
+ */
 char * mode_preprocess_input ( Mode *mode, const char *input );
 /*@}*/
 #endif

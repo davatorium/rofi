@@ -56,8 +56,6 @@ const char *const       monitor_position_entries[] = {
     "on monitor with focused window",
     "on monitor that has mouse pointer"
 };
-extern xcb_connection_t *xcb_connection;
-extern xcb_screen_t     *xcb_screen;
 static int              stored_argc   = 0;
 static char             **stored_argv = NULL;
 
@@ -192,6 +190,7 @@ static gchar *fuzzy_to_regex ( const char * input )
 }
 static GRegex * create_regex ( const char *input, int case_sensitive )
 {
+// Macro for quickly generating regex for matching.
 #define R( s )    g_regex_new ( s, G_REGEX_OPTIMIZE | ( ( case_sensitive ) ? 0 : G_REGEX_CASELESS ), 0, NULL )
     GRegex * retv = NULL;
     gchar  *r;

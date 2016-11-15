@@ -65,25 +65,43 @@
 
 static int rofi_view_calculate_height ( RofiViewState *state );
 
+/** Thread pool used for filtering */
 GThreadPool   *tpool = NULL;
 
+/** Global pointer to the currently active RofiViewState */
 RofiViewState *current_active_menu = NULL;
 
+/**
+ * Structure holding cached state.
+ */
 struct
 {
+    /** main x11 windows */
     xcb_window_t    main_window;
+    /** surface containing the fake background. */
     cairo_surface_t *fake_bg;
+    /** Draw context  for main window */
     xcb_gcontext_t  gc;
+    /** Main X11 side pixmap to draw on. */
     xcb_pixmap_t    edit_pixmap;
+    /** Cairo Surface for edit_pixmap */
     cairo_surface_t *edit_surf;
+    /** Drawable context for edit_surf */
     cairo_t         *edit_draw;
+    /** Indicate that fake background should be drawn relative to the window */
     int             fake_bgrel;
+    /** Main flags */
     MenuFlags       flags;
+    /** List of stacked views */
     GQueue          views;
+    /** Current work area */
     workarea        mon;
+    /** timeout for reloading */
     guint           idle_timeout;
+    /** debug counter for redraws */
     uint64_t        count;
-    guint           repaint_timeout;
+    /** redraw idle time. */
+    guint           repaint_source;
 } CacheState = {
     .main_window     = XCB_WINDOW_NONE,
     .fake_bg         = NULL,
@@ -94,7 +112,7 @@ struct
     .views           = G_QUEUE_INIT,
     .idle_timeout    =               0,
     .count           =              0L,
-    .repaint_timeout =               0,
+    .repaint_source =               0,
 };
 
 static char * get_matching_state ( void )
@@ -188,7 +206,7 @@ static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
                         0, 0, 0, 0, current_active_menu->width, current_active_menu->height );
         xcb_flush ( xcb->connection );
         TICK_N ( "flush" );
-        CacheState.repaint_timeout = 0;
+        CacheState.repaint_source = 0;
     }
     return G_SOURCE_REMOVE;
 }
@@ -299,10 +317,10 @@ void rofi_view_reload ( void  )
 }
 void rofi_view_queue_redraw ( void  )
 {
-    if ( current_active_menu && CacheState.repaint_timeout == 0 ) {
+    if ( current_active_menu && CacheState.repaint_source == 0 ) {
         CacheState.count++;
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "redraw %lu\n", CacheState.count );
-        CacheState.repaint_timeout = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
+        CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
     }
 }
 
@@ -479,11 +497,7 @@ static void rofi_view_setup_fake_transparency ( void )
          */
         TICK_N ( "Fake start" );
         if ( g_strcmp0 ( config.fake_background, "screenshot" ) == 0 ) {
-            s = cairo_xcb_surface_create ( xcb->connection,
-                                           xcb_stuff_get_root_window ( xcb ),
-                                           root_visual,
-                                           xcb->screen->width_in_pixels,
-                                           xcb->screen->height_in_pixels );
+            s = x11_helper_get_screenshot_surface ();
         }
         else if ( g_strcmp0 ( config.fake_background, "background" ) == 0 ) {
             s = x11_helper_get_bg_surface ();
@@ -1320,8 +1334,8 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
     }
     rofi_view_update ( state );
 
-    if ( ( ev->response_type & ~0x80 ) == XCB_EXPOSE && CacheState.repaint_timeout == 0 ) {
-        CacheState.repaint_timeout = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
+    if ( ( ev->response_type & ~0x80 ) == XCB_EXPOSE && CacheState.repaint_source == 0 ) {
+        CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
     }
 }
 
@@ -1577,8 +1591,8 @@ void rofi_view_cleanup ()
         g_source_remove ( CacheState.idle_timeout );
         CacheState.idle_timeout = 0;
     }
-    if ( CacheState.repaint_timeout > 0 ) {
-        g_source_remove ( CacheState.repaint_timeout );
+    if ( CacheState.repaint_source > 0 ) {
+        g_source_remove ( CacheState.repaint_source );
         CacheState.idle_timeout = 0;
     }
     if ( CacheState.fake_bg ) {

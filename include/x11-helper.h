@@ -184,10 +184,7 @@ extern xcb_visualtype_t *visual;
  * Color map to use for creating window
  */
 extern xcb_colormap_t map;
-/**
- * Depth of root window.
- */
-extern xcb_visualtype_t *root_visual;
+
 /**
  * This function tries to create a 32bit TrueColor colormap.
  * If this fails, it falls back to the default for the connected display.
@@ -250,6 +247,14 @@ void x11_helper_set_cairo_rgba ( cairo_t *d, Color col );
  * @returns a cairo surface with the background image of the desktop.
  */
 cairo_surface_t * x11_helper_get_bg_surface ( void );
+/**
+ * Gets a surface for the root window of the desktop.
+ *
+ * Can be used to take screenshot.
+ *
+ * @returns a cairo surface for the root window of the desktop.
+ */
+cairo_surface_t *x11_helper_get_screenshot_surface ( void );
 
 /**
  * Creates an internal represenation of the available monitors.

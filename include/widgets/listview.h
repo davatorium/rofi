@@ -8,26 +8,84 @@
  * @{
  */
 
+/**
+ * Handle to the listview.
+ * No internal fields should be accessed directly.
+ */
 typedef struct _listview   listview;
 
+/**
+ * The scrolling type used in the list view
+ */
 typedef enum
 {
+    /** Flip through the pages. */
     LISTVIEW_SCROLL_PER_PAGE,
+    /** keep selected item centered */
     LISTVIEW_SCROLL_CONTINIOUS
 } ScrollType;
 
+/**
+ * @param tb The textbox to set
+ * @param entry The position of the textbox
+ * @param udata User data
+ * @param type The textbox font style to apply to this entry (normal, selected, alternative row)
+ * @param full If true Set both text and style.
+ *
+ * Update callback, this is called to set the value of each (visible) element.
+ */
 typedef void ( *listview_update_callback )( textbox *tb, unsigned int entry, void *udata, TextBoxFontType type, gboolean full );
+
+/**
+ * Callback when a element is activated.
+ */
 typedef void ( *listview_mouse_activated_cb )( listview *, xcb_button_press_event_t *, void * );
 
+/**
+ * @param cb The update callback.
+ * @param udata The user data to pass to the callback
+ * @param eh The height of one element
+ *
+ * @returns a new listview
+ */
 listview *listview_create ( listview_update_callback cb, void *udata, unsigned int eh );
 
+/**
+ * @param lv The listview handle
+ * @param rows Number of elements
+ *
+ * Set the maximum number of elements to display.
+ */
 void listview_set_num_elements ( listview *lv, unsigned int rows );
+
+/**
+ * @param lv The listview handle
+ * @param selected The row index to select
+ *
+ * Select the row, if selected > the number of rows, it selects the last one.
+ */
 void listview_set_selected ( listview *lv, unsigned int selected );
+
+/**
+ * @param lv The listview handle
+ *
+ * Returns the selected row.
+ *
+ * @returns the selected row.
+ */
 unsigned int listview_get_selected ( listview *lv );
+
+/**
+ * @param lv The listview handle
+ *
+ * Get the desired height of the listview widget.
+ *
+ * @returns the desired height.
+ */
 unsigned int listview_get_desired_height ( listview *lv );
 
 /**
- * @param state The listview handle
+ * @param lv The listview handle
  *
  * Move the selection one row up.
  * - Wrap around.

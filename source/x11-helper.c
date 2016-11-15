@@ -51,8 +51,12 @@
 #include "x11-helper.h"
 #include "xkb-internal.h"
 
+/** Log domain for this module */
 #define LOG_DOMAIN    "X11Helper"
 
+/**
+ * Structure holding xcb objects needed to function.
+ */
 struct _xcb_stuff   xcb_int = {
     .connection = NULL,
     .screen     = NULL,
@@ -63,13 +67,31 @@ struct _xcb_stuff   xcb_int = {
 };
 xcb_stuff           *xcb = &xcb_int;
 
+/**
+ * Depth of root window.
+ */
 xcb_depth_t         *depth       = NULL;
 xcb_visualtype_t    *visual      = NULL;
 xcb_colormap_t      map          = XCB_COLORMAP_NONE;
-xcb_visualtype_t    *root_visual = NULL;
+/**
+ * Visual of the root window.
+ */
+static xcb_visualtype_t    *root_visual = NULL;
 xcb_atom_t          netatoms[NUM_NETATOMS];
 const char          *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
+
+/**
+ * Holds for each supported modifier the possible modifier mask.
+ * Check x11_mod_masks[MODIFIER]&mask != 0 to see if MODIFIER is activated.
+ */
 static unsigned int x11_mod_masks[NUM_X11MOD];
+
+cairo_surface_t *x11_helper_get_screenshot_surface ( void )
+{
+    return cairo_xcb_surface_create ( xcb->connection,
+            xcb_stuff_get_root_window ( xcb ), root_visual,
+            xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
+}
 
 static xcb_pixmap_t get_root_pixmap ( xcb_connection_t *c,
                                       xcb_screen_t *screen,
@@ -824,10 +846,9 @@ void x11_helper_set_cairo_rgba ( cairo_t *d, Color col )
 {
     cairo_set_source_rgba ( d, col.red, col.green, col.blue, col.alpha );
 }
+
 /**
- * Color cache.
- *
- * This stores the current color until
+ * Type of colors stored
  */
 enum
 {
@@ -835,9 +856,16 @@ enum
     BORDER,
     SEPARATOR
 };
+/**
+ * Color cache.
+ *
+ * This stores the current color until
+ */
 static struct
 {
+    /** The color */
     Color        color;
+    /** Flag indicating it is set. */
     unsigned int set;
 } color_cache[3];
 
@@ -911,8 +939,9 @@ void xcb_stuff_wipe ( xcb_stuff *xcb )
 
 void x11_disable_decoration ( xcb_window_t window )
 {
-#define  MWM_HINTS_FUNCTIONS      ( 1 << 0 )
-#define  MWM_HINTS_DECORATIONS    ( 1 << 1 )
+    // Flag used to indicate we are setting the decoration type.
+    const uint32_t MWM_HINTS_DECORATIONS = ( 1 << 1 );
+        // Motif property data structure 
     struct MotifWMHints
     {
         uint32_t flags;
@@ -923,7 +952,7 @@ void x11_disable_decoration ( xcb_window_t window )
     };
 
     struct MotifWMHints hints;
-    hints.flags       = /*MWM_HINTS_FUNCTIONS |*/ MWM_HINTS_DECORATIONS;
+    hints.flags       = MWM_HINTS_DECORATIONS;
     hints.decorations = 0;
     hints.functions   = 0;
     hints.inputMode   = 0;
@@ -931,6 +960,4 @@ void x11_disable_decoration ( xcb_window_t window )
 
     xcb_atom_t ha = netatoms[_MOTIF_WM_HINTS];
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, window, ha, ha, 32, 5, &hints );
-#undef MWM_HINTS_DECORATIONS
-#undef MWM_HINTS_FUNCTIONS
 }
