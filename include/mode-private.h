@@ -2,7 +2,7 @@
 #define ROFI_MODE_PRIVATE_H
 
 /**
- * @param data The #self pointer.
+ * @param data Pointer to #Mode object.
  *
  * Mode free function.
  */

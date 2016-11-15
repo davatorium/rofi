@@ -56,7 +56,9 @@ const char *const monitor_position_entries[] = {
     "on monitor with focused window",
     "on monitor that has mouse pointer"
 };
-static int        stored_argc   = 0;
+/** copy of the argc for use in commandline argument parser. */
+static int        stored_argc = 0;
+/** copy of the argv pointer for use in the commandline argument parser */
 static char       **stored_argv = NULL;
 
 void cmd_set_arguments ( int argc, char **argv )
@@ -188,35 +190,40 @@ static gchar *fuzzy_to_regex ( const char * input )
     g_string_free ( str, FALSE );
     return retv;
 }
+
+// Macro for quickly generating regex for matching.
+static inline GRegex * R ( const char *s, int case_sensitive  )
+{
+    return g_regex_new ( s, G_REGEX_OPTIMIZE | ( ( case_sensitive ) ? 0 : G_REGEX_CASELESS ), 0, NULL );
+}
+
 static GRegex * create_regex ( const char *input, int case_sensitive )
 {
-// Macro for quickly generating regex for matching.
-#define R( s )    g_regex_new ( s, G_REGEX_OPTIMIZE | ( ( case_sensitive ) ? 0 : G_REGEX_CASELESS ), 0, NULL )
     GRegex * retv = NULL;
     gchar  *r;
     switch ( config.matching_method )
     {
     case MM_GLOB:
         r    = glob_to_regex ( input );
-        retv = R ( r );
+        retv = R ( r, case_sensitive );
         g_free ( r );
         break;
     case MM_REGEX:
-        retv = R ( input );
+        retv = R ( input, case_sensitive );
         if ( retv == NULL ) {
             r    = g_regex_escape_string ( input, -1 );
-            retv = R ( r );
+            retv = R ( r, case_sensitive );
             g_free ( r );
         }
         break;
     case MM_FUZZY:
         r    = fuzzy_to_regex ( input );
-        retv = R ( r );
+        retv = R ( r, case_sensitive );
         g_free ( r );
         break;
     default:
         r    = g_regex_escape_string ( input, -1 );
-        retv = R ( r );
+        retv = R ( r, case_sensitive );
         g_free ( r );
         break;
     }
@@ -595,6 +602,7 @@ char *rofi_expand_path ( const char *input )
     return retv;
 }
 
+/** Return the minimum value of a,b,c */
 #define MIN3( a, b, c )    ( ( a ) < ( b ) ? ( ( a ) < ( c ) ? ( a ) : ( c ) ) : ( ( b ) < ( c ) ? ( b ) : ( c ) ) )
 
 unsigned int levenshtein ( const char *needle, const char *haystack )

@@ -177,7 +177,7 @@ unsigned int levenshtein ( const char *needle, const char *haystack );
 char * rofi_force_utf8 ( gchar *data, ssize_t length );
 
 /**
- * @param data the array holding latin text
+ * @param input the char array holding latin text
  * @param length the length of the data array
  *
  * Converts latin to UTF-8.

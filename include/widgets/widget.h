@@ -71,15 +71,15 @@ void widget_disable ( widget *widget );
 void widget_enable ( widget *widget );
 
 /**
- * @param tb  Handle to the widget
- * @param draw The cairo object used to draw itself.
+ * @param widget tb  Handle to the widget
+ * @param d The cairo object used to draw itself.
  *
  * Render the textbox.
  */
 void widget_draw ( widget *widget, cairo_t *d );
 
 /**
- * @param tb  Handle to the widget
+ * @param widget Handle to the widget
  *
  * Free the widget and all allocated memory.
  */
@@ -137,7 +137,7 @@ void widget_update ( widget *widget );
  */
 void widget_queue_redraw ( widget *widget );
 /**
- * @param widget The widget handle
+ * @param wid The widget handle
  *
  * Check the flag indicating the widget needs to be redrawn.
  */
@@ -166,10 +166,10 @@ void widget_set_clicked_handler ( widget *wid, widget_clicked_cb cb, void *udata
 
 /**
  * @param wid The widget handle
- * @param xmd The motion notify object.
+ * @param xme The motion notify object.
  *
  * Motion notify.
- * @TODO make this like clicked with callback.
+ * TODO make this like clicked with callback.
  * returns TRUE when handled.
  */
 gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );

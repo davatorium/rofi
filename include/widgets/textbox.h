@@ -19,7 +19,7 @@
  */
 /**
  * Internal structure of a textbox widget.
- * @TODO make this internal to textbox
+ * TODO make this internal to textbox
  */
 typedef struct
 {
@@ -217,7 +217,7 @@ void textbox_delete ( textbox *tb, int pos, int dlen );
  * @param h The new height of the textbox
  *
  * Move and resize the textbox.
- * @TODO remove for #widget_resize and #widget_move
+ * TODO remove for #widget_resize and #widget_move
  */
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
 /**
@@ -236,7 +236,7 @@ void textbox_set_pango_context ( PangoContext *p );
  * @param tb Handle to the textbox
  * @param list New pango attributes
  *
- * Sets #list as active pango attributes.
+ * Sets list as active pango attributes.
  */
 void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list );
 

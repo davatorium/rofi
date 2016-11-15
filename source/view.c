@@ -438,7 +438,9 @@ static RofiViewState * __rofi_view_state_create ( void )
 {
     return g_malloc0 ( sizeof ( RofiViewState ) );
 }
-
+/**
+ * Structure with data to process by each worker thread.
+ */
 typedef struct _thread_state
 {
     RofiViewState *state;

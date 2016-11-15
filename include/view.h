@@ -33,7 +33,6 @@ typedef enum
 /**
  * @param sw the Mode to show.
  * @param input A pointer to a string where the inputted data is placed.
- * @param prompt The prompt to show.
  * @param message Extra message to display.
  * @param flags   Flags indicating state of the menu.
  * @param finalize the finailze callback
@@ -42,9 +41,7 @@ typedef enum
  *
  * @returns The command issued (see MenuReturn)
  */
-RofiViewState *rofi_view_create ( Mode *sw, const char *input, const char *message, MenuFlags flags, void ( *finalize )(
-                                      RofiViewState * ) )
-__attribute__ ( ( nonnull ( 1, 2, 5 ) ) );
+RofiViewState *rofi_view_create ( Mode *sw, const char *input, const char *message, MenuFlags flags, void ( *finalize )( RofiViewState * ) ) __attribute__ ( ( nonnull ( 1, 2, 5 ) ) );
 
 /**
  * @param state The Menu Handle
@@ -53,10 +50,41 @@ __attribute__ ( ( nonnull ( 1, 2, 5 ) ) );
  */
 void rofi_view_finalize ( RofiViewState *state );
 
+/**
+ * @param state the Menu handle
+ *
+ * Get the return value associated to the users action.
+ *
+ * @returns the return value
+ */
 MenuReturn rofi_view_get_return_value ( const RofiViewState *state );
+/**
+ * @param state the Menu handle
+ *
+ * Returns the index of the next visible position.
+ *
+ * @return the next position.
+ */
 unsigned int rofi_view_get_next_position ( const RofiViewState *state );
+/**
+ * @param state the Menu handle
+ * @param event the event to handle
+ * @param xkb  the keyboard handle
+ *
+ * Process an Xevent.
+ */
 void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb_stuff *xkb );
+/**
+ * @param state the Menu handle
+ *
+ * @returns returns if this state is completed.
+ */
 unsigned int rofi_view_get_completed ( const RofiViewState *state );
+/**
+ * @param state the Menu handle
+ *
+ * @returns the raw user input.
+ */
 const char * rofi_view_get_user_input ( const RofiViewState *state );
 
 /**
@@ -90,6 +118,12 @@ void rofi_view_restart ( RofiViewState *state );
  */
 void rofi_view_update ( RofiViewState *state );
 
+/**
+ * @param state The handle to the view
+ * @param action The keyboard action
+ *
+ * @returns TRUE if action was handled.
+ */
 gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction action );
 
 /**
@@ -185,7 +219,7 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text );
  * @param menu_flags The state of the new window.
  *
  * Creates the internal 'Cached' window that gets reused between views.
- * @TODO: Internal call to view exposed.
+ * TODO: Internal call to view exposed.
  */
 void __create_window ( MenuFlags menu_flags );
 /** @} */

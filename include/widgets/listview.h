@@ -99,7 +99,7 @@ void listview_nav_up ( listview *lv );
  */
 void listview_nav_down ( listview *lv );
 /**
- * @param state The listview handle
+ * @param lv The listview handle
  *
  * Move the selection one column to the right.
  * - No wrap around.
@@ -107,14 +107,14 @@ void listview_nav_down ( listview *lv );
  */
 void listview_nav_right ( listview *lv );
 /**
- * @param state The listview handle
+ * @param lv The listview handle 
  *
  * Move the selection one column to the left.
  * - No wrap around.
  */
 void listview_nav_left ( listview *lv );
 /**
- * @param state The listview handle
+ * @param lv The listview handle 
  *
  * Move the selection one page down.
  * - No wrap around.
@@ -123,7 +123,7 @@ void listview_nav_left ( listview *lv );
 void listview_nav_page_next ( listview *lv );
 
 /**
- * @param state The current RofiViewState
+ * @param lv The listview handle 
  *
  * Move the selection one page up.
  * - No wrap around.
@@ -202,7 +202,7 @@ void listview_set_scroll_type ( listview *lv, ScrollType type );
 void listview_set_mouse_activated_cb ( listview *lv, listview_mouse_activated_cb cb, void *udata );
 /**
  * @param lv Handler to the listview object
- * @param enabled
+ * @param enable boolean to enable/disable multi-select
  *
  * Enable,disable multi-select.
  */

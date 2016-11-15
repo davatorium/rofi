@@ -175,7 +175,7 @@ void mode_set_config ( Mode *mode );
 
 /**
  * @param mode The mode to query
- * @param intput The input to process
+ * @param input The input to process
  *
  * This processes the input so it can be used for matching and sorting.
  * This includes removing pango markup.

@@ -27,7 +27,7 @@ char* window_get_text_prop ( xcb_window_t w, xcb_atom_t atom );
  * @param w The xcb_window_t to set property on
  * @param prop Atom of the property to change
  * @param atoms List of atoms to change the property too
- * @param count The length of the #atoms list.
+ * @param count The length of the atoms list.
  *
  * Set property on window.
  */

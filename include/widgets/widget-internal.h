@@ -40,7 +40,7 @@ struct _widget
 
     /** widget clicked callback */
     widget_clicked_cb clicked;
-    /** user data for ::clicked callback */
+    /** user data for clicked callback */
     void              *clicked_cb_data;
 
     /** Free widget callback */
