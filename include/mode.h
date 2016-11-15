@@ -10,7 +10,7 @@
 
 /**
  * Type of a mode.
- * Access should be done via mode_* functions. 
+ * Access should be done via mode_* functions.
  */
 typedef struct rofi_mode   Mode;
 

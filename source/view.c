@@ -66,7 +66,7 @@
 static int rofi_view_calculate_height ( RofiViewState *state );
 
 /** Thread pool used for filtering */
-GThreadPool   *tpool = NULL;
+GThreadPool *tpool = NULL;
 
 /** Global pointer to the currently active RofiViewState */
 RofiViewState *current_active_menu = NULL;
@@ -103,15 +103,15 @@ struct
     /** redraw idle time. */
     guint           repaint_source;
 } CacheState = {
-    .main_window     = XCB_WINDOW_NONE,
-    .fake_bg         = NULL,
-    .edit_surf       = NULL,
-    .edit_draw       = NULL,
-    .fake_bgrel      = FALSE,
-    .flags           = MENU_NORMAL,
-    .views           = G_QUEUE_INIT,
-    .idle_timeout    =               0,
-    .count           =              0L,
+    .main_window    = XCB_WINDOW_NONE,
+    .fake_bg        = NULL,
+    .edit_surf      = NULL,
+    .edit_draw      = NULL,
+    .fake_bgrel     = FALSE,
+    .flags          = MENU_NORMAL,
+    .views          = G_QUEUE_INIT,
+    .idle_timeout   =               0,
+    .count          =              0L,
     .repaint_source =               0,
 };
 

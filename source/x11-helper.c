@@ -57,7 +57,7 @@
 /**
  * Structure holding xcb objects needed to function.
  */
-struct _xcb_stuff   xcb_int = {
+struct _xcb_stuff xcb_int = {
     .connection = NULL,
     .screen     = NULL,
     .screen_nbr =   -1,
@@ -65,20 +65,20 @@ struct _xcb_stuff   xcb_int = {
     .sncontext  = NULL,
     .monitors   = NULL
 };
-xcb_stuff           *xcb = &xcb_int;
+xcb_stuff         *xcb = &xcb_int;
 
 /**
  * Depth of root window.
  */
-xcb_depth_t         *depth       = NULL;
-xcb_visualtype_t    *visual      = NULL;
-xcb_colormap_t      map          = XCB_COLORMAP_NONE;
+xcb_depth_t      *depth  = NULL;
+xcb_visualtype_t *visual = NULL;
+xcb_colormap_t   map     = XCB_COLORMAP_NONE;
 /**
  * Visual of the root window.
  */
-static xcb_visualtype_t    *root_visual = NULL;
-xcb_atom_t          netatoms[NUM_NETATOMS];
-const char          *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
+static xcb_visualtype_t *root_visual = NULL;
+xcb_atom_t              netatoms[NUM_NETATOMS];
+const char              *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 
 /**
  * Holds for each supported modifier the possible modifier mask.
@@ -89,8 +89,8 @@ static unsigned int x11_mod_masks[NUM_X11MOD];
 cairo_surface_t *x11_helper_get_screenshot_surface ( void )
 {
     return cairo_xcb_surface_create ( xcb->connection,
-            xcb_stuff_get_root_window ( xcb ), root_visual,
-            xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
+                                      xcb_stuff_get_root_window ( xcb ), root_visual,
+                                      xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
 }
 
 static xcb_pixmap_t get_root_pixmap ( xcb_connection_t *c,
@@ -941,7 +941,7 @@ void x11_disable_decoration ( xcb_window_t window )
 {
     // Flag used to indicate we are setting the decoration type.
     const uint32_t MWM_HINTS_DECORATIONS = ( 1 << 1 );
-        // Motif property data structure 
+    // Motif property data structure
     struct MotifWMHints
     {
         uint32_t flags;

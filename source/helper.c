@@ -49,15 +49,15 @@
 #include "rofi.h"
 #include "view.h"
 
-const char *const       monitor_position_entries[] = {
+const char *const monitor_position_entries[] = {
     "on focused monitor",
     "on focused window",
     "at mouse pointer",
     "on monitor with focused window",
     "on monitor that has mouse pointer"
 };
-static int              stored_argc   = 0;
-static char             **stored_argv = NULL;
+static int        stored_argc   = 0;
+static char       **stored_argv = NULL;
 
 void cmd_set_arguments ( int argc, char **argv )
 {
