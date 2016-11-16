@@ -127,15 +127,22 @@ README.html: README.md
 ###
 themedir=$(pkgdatadir)/themes/
 theme_DATA=\
-		   themes/Arc.theme\
-		   themes/DarkBlue.theme\
 		   themes/android_notification.theme\
+		   themes/Arc.theme\
 		   themes/blor.theme\
 		   themes/blue.theme\
 		   themes/c64.theme\
-		   themes/purple.theme\
-		   themes/lb.theme\
+		   themes/DarkBlue.theme\
 		   themes/glue_pro_blue.theme\
+		   themes/gruvbox-dark-hard.theme\
+		   themes/gruvbox-dark-soft.theme\
+		   themes/gruvbox-dark.theme\
+		   themes/gruvbox-light-hard.theme\
+		   themes/gruvbox-light-soft.theme\
+		   themes/gruvbox-light.theme\
+		   themes/lb.theme\
+		   themes/Paper.theme\
+		   themes/purple.theme\
 		   themes/solarized.theme\
 		   themes/solarized_alternate.theme
 
