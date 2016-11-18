@@ -1,0 +1,9 @@
+! ------------------------------------------------------------------------------
+! ROFI Color theme
+! Based on Adapta-Nokto GTK theme (https://github.com/adapta-project/adapta-gtk-theme)  
+! ------------------------------------------------------------------------------
+rofi.color-enabled: true
+rofi.color-window: #3a4c54, #2a373e, #c3c6c8
+rofi.color-normal: #455a64, #fafbfc, #455a64, #00bcd4, #fafbfc
+rofi.color-active: #455a64, #00bcd4, #455a64, #009688, #fdf6e3
+rofi.color-urgent: #455a64, #ff5252, #455a64, #ff5252, #fdf6e3
