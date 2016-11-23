@@ -5,6 +5,7 @@ v1.3.0: Dan vs. Greg: The never ending story. (unreleased)
 		- Restructure internal code to use dynamic sizing widgets. (hbox, vbox and lists)
 		- Async mode for dmenu.
 		- Add theme selector script.
+		- Include 21 themes.
 		- Dynamically sizing window with content.
 		- When placed at bottom of screen re-order screen to have entry at bottom.
 	Improvements
