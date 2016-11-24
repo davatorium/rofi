@@ -1,10 +1,11 @@
 # V1.3.0: Dan vs. Greg: The never ending story.
 
-This release mostly focussed on cleaning up, refactoring and more. the gui is now constructed more dynamically. We
-introduced a widget system with boxes, scrollbars, separators, listview and textboxes. The boxes (vertical and
-horizontal) allows us to nice structure the layout and have them resize according to rules when the window changes size.
+This release mostly focussed on cleaning up, refactoring and more. On of the big changes is that the gui is no longer
+based on hard-coded positions. We introduced a widget system with boxes, scrollbars, separators, listview and textboxes.
+The boxes (vertical and horizontal) allows us to nice structure the layout and have them resize according to rules when
+the window changes size.
 
-insert small picture.
+![structure](structure.svg)
 
 This allowed us to make changes at run-time. In the future I hope we can use this to improve the theming.  The cleanup
 and refactoring is not finished and will continue for the next release.
@@ -24,8 +25,7 @@ insert small gif here.
 To make it easier to get a good looking rofi, we included a theme-selector script and ship rofi with a set of themes.
 The script allows you to preview themes, and make them the default theme.
 
-insert gif/picture.
-
+![Theme Selector](theme-selector.png)
 
 ## Fuzzy parser
 
