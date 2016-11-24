@@ -14,7 +14,7 @@ Beside this we still managed to get some new features in:
 
 ## Dynamic window size
 
-Rofi can how resize the window to fit the number of visible entries, so as you type and the list of options becomes
+Rofi can now resize the window to fit the number of visible entries, so as you type and the list of options becomes
 small, so does the windows (this is disabled by default). Rofi will try to keep the text box at the same place so you
 don't have to move focus, this means that at the bottom of the screen the window layout is reversed so the textbox is at
 the bottom.
