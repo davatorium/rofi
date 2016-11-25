@@ -1,4 +1,4 @@
-AC_INIT([rofi], [1.2.0], [https://github.com/DaveDavenport/rofi/])
+AC_INIT([rofi], [1.2.0], [https://github.com/DaveDavenport/rofi/],[],[https://forums.qtools.org/])
 
 AC_CONFIG_SRCDIR([source/rofi.c])
 AC_CONFIG_HEADER([config.h])
@@ -48,11 +48,11 @@ dnl ---------------------------------------------------------------------
 AC_ARG_ENABLE(gcov,
               [  --enable-gcov           Enable source code coverage testing using gcov],
               [AM_CFLAGS="${AM_CFLAGS} -coverage"])
-AS_IF([test "X${enable_gcov}" == "xyes" ], [AC_DEFINE([ENABLE_GCOV], [1], [Enable gcov profiling])])
+AS_IF([test "x${enable_gcov}" = "xyes" ], [AC_DEFINE([ENABLE_GCOV], [1], [Enable gcov profiling])])
 AC_ARG_ENABLE(asan,
               [  --enable-asan           asan],
               [AM_CFLAGS="${AM_CFLAGS} -fsanitize=address -fno-omit-frame-pointer -g3"])
-AS_IF([test "X${enable_asan}" == "xyes" ], [AC_DEFINE([ENABLE_ASAN], [1], [Enable libasan])])
+AS_IF([test "x${enable_asan}" = "xyes" ], [AC_DEFINE([ENABLE_ASAN], [1], [Enable libasan])])
 
 
 dnl --------------------------------------------------------------------

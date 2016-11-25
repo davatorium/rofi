@@ -291,14 +291,15 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "\t* asan    %sdisabled%s\n", is_term?color_red:"", is_term?color_reset:"");
 #endif
     printf ( "\n" );
-    printf ( "For more information see: man rofi\n" );
+    printf ( "For more information see: %sman rofi%s\n", is_term?color_bold:"",is_term?color_reset:"" );
 #ifdef GIT_VERSION
-    printf ( "Version:    "GIT_VERSION "\n" );
+    printf ( "Version:    %s"GIT_VERSION "%s\n", is_term?color_bold:"",is_term?color_reset:"" );
 #else
-    printf ( "Version:    "VERSION "\n" );
+    printf ( "Version:    %s"VERSION "%s\n", is_term?color_bold:"",is_term?color_reset:"" );
 #endif
-    printf ( "Bugreports: "PACKAGE_BUGREPORT "\n" );
-    printf ( "Support:    #rofi @ freenode.net\n" );
+    printf ( "Bugreports: %s"PACKAGE_BUGREPORT "%s\n", is_term?color_bold:"",is_term?color_reset:"" );
+    printf ( "Support:    %s"PACKAGE_URL "%s\n", is_term?color_bold:"",is_term?color_reset:"" );
+    printf ( "            %s#rofi @ freenode.net%s\n", is_term?color_bold:"",is_term?color_reset:"" );
 }
 
 /**
