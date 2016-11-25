@@ -5,7 +5,7 @@ Output of `rofi -v`
 
 ## Configuration
 
-Output of `rofi -dump-xresources` (preferable in a [gist](https://gist.github.com/))
+Output of `rofi -dump-xresources` (in a [gist](https://gist.github.com/))
 
 ## Launch Command
 
