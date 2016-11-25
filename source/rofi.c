@@ -236,9 +236,8 @@ void process_result ( RofiViewState *state )
 /**
  * Help function.
  */
-static void print_main_application_options ( void )
+static void print_main_application_options ( int is_term )
 {
-    int is_term = isatty ( fileno ( stdout ) );
     print_help_msg ( "-no-config", "", "Do not load configuration, use default values.", NULL, is_term );
     print_help_msg ( "-v,-version", "", "Print the version number and exit.", NULL, is_term  );
     print_help_msg ( "-dmenu", "", "Start in dmenu mode.", NULL, is_term );
@@ -253,16 +252,45 @@ static void print_main_application_options ( void )
 }
 static void help ( G_GNUC_UNUSED int argc, char **argv )
 {
+    int is_term = isatty ( fileno ( stdout ) );
     printf ( "%s usage:\n", argv[0] );
     printf ( "\t%s [-options ...]\n\n", argv[0] );
     printf ( "Command line only options:\n" );
-    print_main_application_options ();
+    print_main_application_options ( is_term );
     printf ( "DMENU command line options:\n" );
     print_dmenu_options ();
     printf ( "Global options:\n" );
     print_options ();
     printf ( "\n" );
     x11_dump_monitor_layout ();
+    printf ( "\n" );
+    printf ( "Compile time options:\n");
+#ifdef WINDOW_MODE
+    printf ( "\t* window  %senabled%s\n", is_term?color_green:"", is_term?color_reset:"");
+#else
+    printf ( "\t* window  %sdisabled%s\n", is_term?color_red:"", is_term?color_reset:"");
+#endif
+#ifdef ENABLE_DRUN
+    printf ( "\t* drun    %senabled%s\n", is_term?color_green:"", is_term?color_reset:"");
+#else
+    printf ( "\t* drun    %sdisabled%s\n", is_term?color_red:"", is_term?color_reset:"");
+#endif
+#ifdef TIMINGS
+    printf ( "\t* timings %senabled%s\n", is_term?color_green:"", is_term?color_reset:"");
+#else
+    printf ( "\t* timings %sdisabled%s\n", is_term?color_red:"", is_term?color_reset:"");
+#endif
+#ifdef ENABLE_GCOV
+    printf ( "\t* gcov    %senabled%s\n", is_term?color_green:"", is_term?color_reset:"");
+#else
+    printf ( "\t* gcov    %sdisabled%s\n", is_term?color_red:"", is_term?color_reset:"");
+#endif
+#ifdef ENABLE_ASAN
+    printf ( "\t* asan    %senabled%s\n", is_term?color_green:"", is_term?color_reset:"");
+#else
+    printf ( "\t* asan    %sdisabled%s\n", is_term?color_red:"", is_term?color_reset:"");
+#endif
+    printf ( "\n" );
     printf ( "For more information see: man rofi\n" );
 #ifdef GIT_VERSION
     printf ( "Version:    "GIT_VERSION "\n" );

@@ -51,6 +51,8 @@ void rofi_set_return_code ( int code );
 #define  color_italic    "\033[2m"
 /** Set terminal foreground text green */
 #define color_green      "\033[0;32m"
+/** Set terminal foreground text red */
+#define color_red        "\033[0;31m"
 
 /** Appends instructions on how to report an error. */
 #define ERROR_MSG( a )    a "\n"                                       \

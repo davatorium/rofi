@@ -14,7 +14,7 @@ Before creating an issue:
 When reporting bugs include the following information:
 
 * Rofi version. rofi -v
-* Rofi configuration. rofi -dump-xresources (in a [gist](https://gist.github.com/))
+* Rofi configuration. rofi -help (in a [gist](https://gist.github.com/))
 * Steps to reproduce.
 * What behaviour you see.
 * What behaviour you expect to see.
