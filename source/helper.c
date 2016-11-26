@@ -181,6 +181,11 @@ static gchar *fuzzy_to_regex ( const char * input )
         else {
             g_string_append ( str, ".*(" );
         }
+        if ( *iter == '\\' ){
+            g_string_append_c ( str, '\\');
+            iter = g_utf8_next_char ( iter );
+            if ( iter == NULL ) break;
+        }
         g_string_append_unichar ( str, g_utf8_get_char ( iter ) );
         g_string_append ( str, ")" );
         first = 0;
