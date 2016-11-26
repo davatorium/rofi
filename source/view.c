@@ -679,7 +679,7 @@ static void rofi_view_nav_row_tab ( RofiViewState *state )
  */
 inline static void rofi_view_nav_row_select ( RofiViewState *state )
 {
-    if ( state->list_view ) {
+    if ( state->list_view == NULL ) {
         return;
     }
     unsigned int selected = listview_get_selected ( state->list_view );
