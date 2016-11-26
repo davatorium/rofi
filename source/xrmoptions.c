@@ -227,7 +227,7 @@ static void config_parser_set ( XrmOption *option, char *xrmValue, enum ConfigSo
             g_free ( option->mem );
             option->mem = NULL;
         }
-        *( option->value.str ) = g_strdup ( xrmValue );
+        *( option->value.str ) = g_strchomp ( g_strdup ( xrmValue ) );
 
         // Memory
         ( option )->mem = *( option->value.str );
