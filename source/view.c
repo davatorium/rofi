@@ -1431,18 +1431,11 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->input_bar_separator = separator_create ( S_HORIZONTAL, 2 );
     separator_set_line_style_from_string ( state->input_bar_separator, config.separator_style );
 
-    if ( ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST ) ) {
-        box_add ( state->main_box, WIDGET ( state->input_bar_separator ), FALSE, TRUE );
-        box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, TRUE );
-    }
-    else {
-        box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, FALSE );
-        box_add ( state->main_box, WIDGET ( state->input_bar_separator ), FALSE, FALSE );
-    }
+    int end = ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST );
+    box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, end );
 
     state->case_indicator = textbox_create ( TB_AUTOWIDTH, 0, 0, 0, line_height, NORMAL, "*" );
     // Add small separator between case indicator and text box.
-    /* box_add ( state->input_bar, WIDGET( separator_create ( S_VERTICAL, 2 ) ), FALSE, TRUE );*/
     box_add ( state->input_bar, WIDGET ( state->case_indicator ), FALSE, TRUE );
 
     // Prompt box.
@@ -1461,11 +1454,12 @@ RofiViewState *rofi_view_create ( Mode *sw,
     if ( message ) {
         textbox *message_tb = textbox_create ( TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, 0, 0,
                                                state->width - ( 2 * ( state->border ) ), -1, NORMAL, message );
-        box_add ( state->main_box, WIDGET ( message_tb ), FALSE, FALSE );
         separator *sep = separator_create ( S_HORIZONTAL, 2 );
-        box_add ( state->main_box, WIDGET ( sep ), FALSE, FALSE );
+        box_add ( state->main_box, WIDGET ( sep ), FALSE, end);
+        box_add ( state->main_box, WIDGET ( message_tb ), FALSE, end);
         separator_set_line_style_from_string ( sep, config.separator_style );
     }
+    box_add ( state->main_box, WIDGET ( state->input_bar_separator ), FALSE, end );
 
     state->overlay = textbox_create ( TB_AUTOWIDTH, 0, 0, 20, line_height, URGENT, "blaat"  );
     widget_disable ( WIDGET ( state->overlay ) );

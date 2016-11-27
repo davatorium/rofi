@@ -214,12 +214,7 @@ void box_add ( box *box, widget *child, gboolean expand, gboolean end )
     child->expand = expand;
     child->end    = end;
     child->parent = WIDGET ( box );
-    if ( end ) {
-        box->children = g_list_prepend ( box->children, (void *) child );
-    }
-    else {
-        box->children = g_list_append ( box->children, (void *) child );
-    }
+    box->children = g_list_append ( box->children, (void *) child );
     widget_update ( WIDGET ( box ) );
 }
 
