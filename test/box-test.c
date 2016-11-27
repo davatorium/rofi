@@ -88,7 +88,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         widget_enable ( WIDGET ( wid5 ) );
         widget_resize ( WIDGET ( wid5 ), 20, 20 );
         box_add ( b , WIDGET( wid5 ), TRUE, TRUE );
-        TASSERTE ( wid5->x, 200-20-20-6);
+        TASSERTE ( wid5->x, 128);
         widget_free ( WIDGET ( b ) );
     }
     {
@@ -148,7 +148,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         widget_enable ( WIDGET ( wid5 ) );
         widget_resize ( WIDGET ( wid5 ), 20, 20 );
         box_add ( b , WIDGET( wid5 ), TRUE, TRUE );
-        TASSERTE ( wid5->y, 200-20-20-6);
+        TASSERTE ( wid5->y, 128);
         widget_free ( WIDGET ( b ) );
     }
     {
