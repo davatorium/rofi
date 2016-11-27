@@ -245,13 +245,13 @@ Global options:
 	-kb-custom-19 [string]                  Custom Keybinding 19
 		Alt+parenleft (File)
 	-display-ssh [string]                   The display name of this browser
-		  (File)
+		 (File)
 	-display-run [string]                   The display name of this browser
-		  (File)
+		 (File)
 	-display-drun [string]                  The display name of this browser
-		  (File)
+		 (File)
 	-display-window [string]                The display name of this browser
-		  (File)
+		 (File)
 	-display-windowcd [string]              The display name of this browser
 		windowcd (File)
 	-display-combi [string]                 The display name of this browser
