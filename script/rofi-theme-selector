@@ -70,9 +70,10 @@ function find_themes()
     # Add user dir.
     DIRS+=":${HOME}/.local/share/"
     for p in ${DIRS}; do 
-        TD=${p}rofi/themes/
+        TD=${p}/rofi/themes/
         if [ -n "${p}" ] && [ -d "${TD}" ]
         then
+            echo "Checking themes in: ${TD}"
             for file in ${TD}/*.theme
             do
                 if [ -f "${file}" ]
