@@ -1,32 +1,34 @@
 # V1.3.0: Dan vs. Greg: The never ending story.
 
-This release mostly focussed on cleaning up, refactoring and more. On of the big changes is that the gui is no longer
-based on hard-coded positions. We introduced a widget system with boxes, scrollbars, separators, listview and textboxes.
-The boxes (vertical and horizontal) allows us to nice structure the layout and have them resize according to rules when
-the window changes size.
+This release mostly focussed on cleaning up and refactoring the internals. One of the big changes is that the gui is no
+longer based on hard-coded positions. We introduced a widget system with boxes, scrollbars, separators, listview and
+textboxes.  The boxes (vertical and horizontal) allows us to nice structure the layout and have them resize according to
+rules when the window changes size.
 
 ![structure](structure.png)
 
-This allowed us to make changes at run-time. In the future I hope we can use this to improve the theming.  The cleanup
-and refactoring is not finished and will continue for the next release.
+This allowed us to make changes at run-time. In the future I hope we can use this to improve the theming (think css like
+themes).  The cleanup and refactoring is not finished and will continue for the next release.
 
 Beside this we still managed to get some new features in:
 
 ## Dynamic window size
 
-Rofi can now resize the window to fit the number of visible entries, so as you type and the list of options becomes
-small, so does the windows (this is disabled by default). Rofi will try to keep the text box at the same place so you
-don't have to move focus, this means that at the bottom of the screen the window layout is reversed so the textbox is at
-the bottom.
+Enabled by the refactoring, rofi can now resize the window to fit the number of visible entries, so as you type and the
+list of options becomes small, so does the windows (this is disabled by default). Rofi will try to keep the text box at
+the same place so you don't have to move focus, this means that at the bottom of the screen the window layout is
+reversed so the textbox is at the bottom.
 
-insert small gif here.
+![Resize action](resize.gif)
 
 ### Theme selector
 
 To make it easier to get a good looking rofi, we included a theme-selector script and ship rofi with a set of themes.
 The script allows you to preview themes, and make them the default theme.
 
-![Theme Selector](theme-selector.png)
+![Theme Selector](theme-selector.gif)
+
+It seems byzanz (to record the gif) changes the colors a bit. It looks better in real-life.
 
 ### Fuzzy parser
 
@@ -37,7 +39,7 @@ On many request, the fuzzy matcher has been re-added:
 ### ASync DMENU
 
 Rofi can read input data for dmenu asynchronous from displaying. So if you have something that takes a time to produce,
-you can see the progress, already start filtering and selecting entries before it finishes.
+you can see the progress, start filtering and selecting entries before it finishes.
 This can be very useful when searching through large data sets.
 In the below screenshot it keeps feeding rofi the content of the directory. Rofi indicates it is still receiving data by
 the `loading...` text.
