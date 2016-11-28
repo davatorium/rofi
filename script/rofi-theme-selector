@@ -40,15 +40,35 @@ declare -a theme_names
 function find_themes()
 {
     DIRS=${XDG_DATA_DIRS}
+    OLDIFS=${IFS}
+    IFS=:
     if [ -z "${XDG_DATA_DIRS}" ]
     then
-        echo "XDG_DATA_DIRS needs to be set for this script to function."
-        exit 1;
+        echo "XDG_DATA_DIRS needs to be set for this script to function correctly."
+        echo -n "Using dirs from \$PATH: "
+        DIRS=
+        # Iterate over items in $PATH
+        for p in ${PATH}; do
+            # Remove trailing / if exists.
+            x=${p%/}
+            # remove both /bin and /sbin and /games from end
+            x=${x%/bin}
+            x=${x%/sbin}
+            x=${x%/games}
+            # Add /share
+            x=${x}/share
+            # Check if entry exists Prepend : so :${x}: matches nicely
+            case ":${DIRS}" in
+                *$x:*);;
+                *) DIRS+="$x:";;
+            esac
+        done
+        # Remove trailing :
+        DIRS=${DIRS%:}
+        echo "${DIRS}"
     fi
     # Add user dir.
     DIRS+=":${HOME}/.local/share/"
-    OLDIFS=${IFS}
-    IFS=:
     for p in ${DIRS}; do 
         TD=${p}rofi/themes/
         if [ -n "${p}" ] && [ -d "${TD}" ]
