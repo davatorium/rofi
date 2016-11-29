@@ -538,10 +538,11 @@ static void rofi_view_setup_fake_transparency ( void )
 }
 void __create_window ( MenuFlags menu_flags )
 {
-    uint32_t     selmask  = XCB_CW_BACK_PIXEL | XCB_CW_BORDER_PIXEL | XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
+    uint32_t     selmask  = XCB_CW_BACK_PIXMAP| XCB_CW_BORDER_PIXEL |XCB_CW_BIT_GRAVITY| XCB_CW_BACKING_STORE | XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
     uint32_t     selval[] = {
-        0,
-        0,
+        XCB_BACK_PIXMAP_NONE,0,
+        XCB_GRAVITY_STATIC,
+        XCB_BACKING_STORE_NOT_USEFUL,
         XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE |
         XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_KEYMAP_STATE |
         XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION,
@@ -549,10 +550,15 @@ void __create_window ( MenuFlags menu_flags )
     };
 
     xcb_window_t box = xcb_generate_id ( xcb->connection );
-    xcb_create_window ( xcb->connection, depth->depth, box, xcb_stuff_get_root_window ( xcb ),
+    xcb_void_cookie_t cc = xcb_create_window_checked ( xcb->connection, depth->depth, box, xcb_stuff_get_root_window ( xcb ),
                         0, 0, 200, 100, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
                         visual->visual_id, selmask, selval );
-
+    xcb_generic_error_t *error;
+    error = xcb_request_check(xcb->connection, cc);
+    if (error) {
+        printf( "xcb_create_window() failed error=0x%x\n", error->error_code);
+        exit ( EXIT_FAILURE );
+    }
     CacheState.gc = xcb_generate_id ( xcb->connection );
     xcb_create_gc ( xcb->connection, CacheState.gc, box, 0, 0 );
 
