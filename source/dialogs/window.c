@@ -593,6 +593,7 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
             if ( wmdesktop != current_desktop ) {
                 xcb_ewmh_request_change_current_desktop ( &xcb->ewmh,
                                                           xcb->screen_nbr,
+
                                                           wmdesktop,
                                                           XCB_CURRENT_TIME );
             }
@@ -605,7 +606,7 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
         }
     }
     else if ( ( mretv & ( MENU_ENTRY_DELETE ) ) == MENU_ENTRY_DELETE ) {
-        xcb_destroy_window ( xcb->connection, rmpd->ids->array[selected_line] );
+        xcb_ewmh_request_close_window ( &(xcb->ewmh), xcb->screen_nbr, rmpd->ids->array[selected_line], XCB_CURRENT_TIME, XCB_EWMH_CLIENT_SOURCE_TYPE_OTHER);
         xcb_flush ( xcb->connection );
     }
     return retv;
