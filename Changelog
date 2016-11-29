@@ -9,6 +9,8 @@ v1.3.0: Dan vs. Greg: The never ending story. (unreleased)
 		- Dynamically sizing window with content.
 		- When placed at bottom of screen re-order screen to have entry at bottom.
 	Improvements
+		- Improve resizing of window, don't make X whipe background.
+		- Improve close window (shift-delete) action, by sending NET_WM_CLOSE instead of destroying window.
 		- Create cache and run directory on startup. (#497)
 		- Fix uneeded redraws on cursor blinking. (#491)
 		- Improve time till grabbing keyboard. (#494)

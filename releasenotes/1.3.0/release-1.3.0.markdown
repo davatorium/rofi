@@ -48,6 +48,15 @@ the `loading...` text.
 
 Async mode is not always possible, and will be disabled if not possible.
 
+### Drawing improvements
+
+In this release rofi is more efficient in drawing its content to the X11 window. The basic redraw on expose has been
+speedup by a factor 1000. This was obtained by using a server side copy of the internal surface, instead of painting it
+with cairo each time. Especially for large (4k and higher) screens, in fullscreen mode, this reduces redrawing from +-
+180ms to 0.1 ms. A second improvement was made by configuring X11  not repaint the window background when resized, this
+caused some flickering (it was painted black before being drawn). It now keeps the old content and tells rofi to
+repaint. This causes trailing, but overall looks nicer.
+
 ## Removals
 
 We also removed a deprecated option, `-opacity`. Did option did full window opacity, basically it makes the whole window
@@ -71,8 +80,10 @@ by making all colors transparent).
 
 ### Improvements
 
+- Improve resizing of window, don't make X whipe background.
+- Improve close window (shift-delete) action, by sending NET_WM_CLOSE instead of destroying window.
 - Create cache and run directory on startup. (#497)
-- Fix uneeded redraws on cursor blinking. (#491)
+- Fix unneeded redraws on cursor blinking. (#491)
 - Improve time till grabbing keyboard. (#494)
 - Better error message when failing to parse keybindings, also continue parsing on error.
 - Fix problem with custom layouts (#485)
