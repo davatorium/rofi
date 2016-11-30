@@ -564,7 +564,7 @@ For more information on supported markup see [here](https://developer.gnome.org/
 
 `-normal-window`
 
-Make **rofi** reacts like a normal application window. Useful for scripts like Clerk that are basically an application.
+Make **rofi** react like a normal application window. Useful for scripts like Clerk that are basically an application.
 
 `-dump`
 
