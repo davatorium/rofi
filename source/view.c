@@ -1595,7 +1595,7 @@ void rofi_view_cleanup ()
     }
     if ( CacheState.repaint_source > 0 ) {
         g_source_remove ( CacheState.repaint_source );
-        CacheState.idle_timeout = 0;
+        CacheState.repaint_source = 0;
     }
     if ( CacheState.fake_bg ) {
         cairo_surface_destroy ( CacheState.fake_bg );
