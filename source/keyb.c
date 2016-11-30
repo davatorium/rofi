@@ -194,16 +194,14 @@ KeyBindingAction abe_find_action ( unsigned int mask, xkb_keysym_t key )
 void abe_trigger_release ( void )
 {
     RofiViewState    *state;
-    KeyBindingAction action;
 
     state = rofi_view_get_active ( );
     if ( state ) {
-        for ( action = 0; action < NUM_ABE; ++action ) {
+        for ( KeyBindingAction action = 0; action < NUM_ABE; ++action ) {
             if ( _abe_trigger_on_release[action] ) {
                 rofi_view_trigger_action ( state, action );
                 _abe_trigger_on_release[action] = FALSE;
             }
         }
-        rofi_view_update ( state );
     }
 }

@@ -510,6 +510,18 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
             modmask = x11_get_current_mask ( &xkb );
             if ( modmask == 0 ) {
                 abe_trigger_release ( );
+                // Because of abe_trigger, state of rofi can be changed. handle this!
+                RofiViewState *state = rofi_view_get_active ();
+                if ( state != NULL ) {
+                    if ( rofi_view_get_completed ( state ) ) {
+                        // This menu is done.
+                        rofi_view_finalize ( state );
+                        // cleanup
+                        if ( rofi_view_get_active () == NULL ) {
+                            g_main_loop_quit ( main_loop );
+                        }
+                    }
+                }
             }
             break;
         }
