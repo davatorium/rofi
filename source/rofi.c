@@ -478,6 +478,20 @@ static inline void load_configuration_dynamic ( )
 /**
  * Process X11 events in the main-loop (gui-thread) of the application.
  */
+static void main_loop_x11_event_handler_view ( xcb_generic_event_t *ev){
+    RofiViewState *state = rofi_view_get_active ();
+    if ( state != NULL ) {
+        rofi_view_itterrate ( state, ev, &xkb );
+        if ( rofi_view_get_completed ( state ) ) {
+            // This menu is done.
+            rofi_view_finalize ( state );
+            // cleanup
+            if ( rofi_view_get_active () == NULL ) {
+                g_main_loop_quit ( main_loop );
+            }
+        }
+    }
+}
 static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer data )
 {
     if ( ev == NULL ) {
@@ -510,39 +524,22 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
             modmask = x11_get_current_mask ( &xkb );
             if ( modmask == 0 ) {
                 abe_trigger_release ( );
+
                 // Because of abe_trigger, state of rofi can be changed. handle this!
-                RofiViewState *state = rofi_view_get_active ();
-                if ( state != NULL ) {
-                    if ( rofi_view_get_completed ( state ) ) {
-                        // This menu is done.
-                        rofi_view_finalize ( state );
-                        // cleanup
-                        if ( rofi_view_get_active () == NULL ) {
-                            g_main_loop_quit ( main_loop );
-                        }
-                    }
-                }
+                // Run mainloop on dummy event.
+                xcb_generic_event_t dev = {0,};
+                dev.response_type = 0;
+                main_loop_x11_event_handler_view ( &dev );
             }
             break;
         }
         }
         return G_SOURCE_CONTINUE;
     }
-    RofiViewState *state = rofi_view_get_active ();
     if ( xcb->sndisplay != NULL ) {
         sn_xcb_display_process_event ( xcb->sndisplay, ev );
     }
-    if ( state != NULL ) {
-        rofi_view_itterrate ( state, ev, &xkb );
-        if ( rofi_view_get_completed ( state ) ) {
-            // This menu is done.
-            rofi_view_finalize ( state );
-            // cleanup
-            if ( rofi_view_get_active () == NULL ) {
-                g_main_loop_quit ( main_loop );
-            }
-        }
-    }
+    main_loop_x11_event_handler_view ( ev );
     return G_SOURCE_CONTINUE;
 }
 
