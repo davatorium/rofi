@@ -83,6 +83,7 @@ There are currently three methods of setting configuration options (evaluated in
    This is the recommended way of configuring **rofi**.
  * Configuration File: This uses the same format as the Xresources file.
    By default it looks in `XDG_USER_CONFIG_DIR`/rofi/config, but can be overriden on commandline.
+   By default XDG_USER_CONFIG_DIR defaults to `$HOME/.config`.
  * Command-line options: Arguments passed to **rofi**.
  * System configuration file (f.e. /etc/rofi.conf).
 
