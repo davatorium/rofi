@@ -650,6 +650,8 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
     xkb_keysym_t sym      = XKB_KEY_NoSymbol;
     for ( char *entry = strtok_r ( mod_key, "+-", &saveptr ); error_msg == NULL && entry != NULL;
           entry = strtok_r ( NULL, "+-", &saveptr ) ) {
+        // Remove trailing and leading spaces.
+        entry = g_strstrip ( entry );
         // Compare against lowered version.
         char *entry_lowered = g_utf8_strdown ( entry, -1 );
         if ( g_utf8_collate ( entry_lowered, "shift" ) == 0  ) {
