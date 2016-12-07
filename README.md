@@ -10,7 +10,7 @@
 # A window switcher, run dialog and dmenu replacement
 
 **Rofi** started as clone of simpleswitcher, written by [Sean Pringle](http://github.com/seanpringle/simpleswitcher) a
-popup window switcher roughly based on [superswitcher](http://code.google.com/p/superswitcher/). 
+popup window switcher roughly based on [superswitcher](http://code.google.com/p/superswitcher/).
 Simpleswitcher laid the foundations and therefor Sean Pringle deserves most of the credit for this tool. **Rofi**,
 renamed as it lost the *simple* property, has been extended with extra features, like a run-dialog, ssh-launcher and
 can act as a drop-in dmenu replacement, making it a very versatile tool.
@@ -20,11 +20,11 @@ This can either be, running an application, selecting a window or options provid
 
 It main features are:
 
-* Full (configurable) keyboard navigation.
+* Fully configurable keyboard navigation.
 * Type to filter
     - Tokenized: Type any word in any order to filter.
     - (toggable) Case insensitive.
-    - Supports regex and glob matching.
+    - Supports fuzzy, regex and glob matching.
 * UTF-8 enabled.
     - UTF-8 aware string collating.
     - intl. keyboard support (`e -> è)
@@ -45,7 +45,7 @@ It main features are:
 * Themeing.
 
 **Rofi** has several buildin modes implementing common use-cases and can be exteneded by scripts (either called from
-**Rofi** or calling **Rofi**). 
+**Rofi** or calling **Rofi**).
 
 Below the different modes are listed:
 
@@ -55,19 +55,27 @@ Below the different modes are listed:
 
 The window switcher shows the following informations in columns (can be customized):
 
-1. Desktop number
+1. Desktop name
 2. Window class.
 3. Window title.
+
+Window mode features:
+
+  - Closing applications by hitting `Shift-Delete`.
+  - Custom command by `Shift-Return`
+
 
 ## Run mode
 
 ![run mode](https://davedavenport.github.io/rofi/images/rofi/run-dialog.png)
 
 The run mode allows users to quickly search and launch a program.
+
 Run mode features:
 
   - Shift-Return to run the selected program in a terminal.
   - Favorites list, frequently used programs are sorted on top.
+  - Execute command to add custom entries, like aliases.
 
 
 ## DRun mode
@@ -77,7 +85,7 @@ Entries. These are used by most common Desktop Environments to populate launcher
 Drun mode features:
 
   - Favorites list, frequently used programs are sorted on top.
-  - Auto starting terminal applications in a terminal. 
+  - Auto starting terminal applications in a terminal.
 
 ## SSH launcher
 
@@ -103,7 +111,7 @@ Allowing to quickly switch to an application, either by switching to it when it 
 Example to combine Desktop run and the window switcher:
 
 ```
-rofi -combi-modi window,drun -show combi
+rofi -combi-modi window,drun -show combi -modi combi
 ```
 
 ## dmenu replacement
@@ -117,7 +125,7 @@ Drop in dmenu replacement. (Screenshot shows rofi used by
 an extra message bar (`-mesg`), pre-entering of text (`-filter`) or selecting entries based on a
 pattern (`-select`). Also highlighting (`-u` and `-a`) options and modi to force user to select one
 provided option (`-only-match`). In addition to this rofi's dmenu mode can select multiple lines and
-write them to stdout. 
+write them to stdout.
 
 # Usage
 
@@ -127,7 +135,7 @@ If used with `-dmenu`, rofi will use data from STDIN to let the user select an o
 
 For example to show a run dialog:
 
-  `rofi -show run` 
+  `rofi -show run`
 
 Show a ssh dialog:
 
@@ -156,13 +164,14 @@ Type `Shift-/Left/Right` to switch between active modi.
 |:----------------------------|:-------------------------------------------------------------------|
 |`Ctrl-v, Insert`             | Paste clipboard |
 |`Ctrl-Shift-v, Shift-Insert` | Paste primary selection |
-|`Ctrl-u`                     | Clear the line |
-|`Ctrl-a`                     | Beginning of line |
-|`Ctrl-e`                     | End of line |
-|`Ctrl-f, Right`              | Forward one character |
-|`Alt-f`                      | Forward one word |
-|`Ctrl-b, Left`               | Back one character |
-|`Alt-b`                      | Back one word |
+|`Ctrl-w`                     | Clear the line |
+|`Ctrl-u`                     | Delete till the start of line |
+|`Ctrl-a`                     | Move to beginning of line |
+|`Ctrl-e`                     | Move to end of line |
+|`Ctrl-f, Right`              | Move forward one character |
+|`Alt-f`                      | Move forward one word |
+|`Ctrl-b, Left`               | Move back one character |
+|`Alt-b`                      | Move back one word |
 |`Ctrl-d, Delete`             | Delete character |
 |`Ctrl-Alt-d`                 | Delete word |
 |`Ctrl-h, Backspace`          | Backspace (delete previous character) |
@@ -197,6 +206,8 @@ There are currently three methods of setting configuration options:
  * Xresources: A method of storing key values in the Xserver. See
    [here](https://en.wikipedia.org/wiki/X_resources) for more information.
  * Commandline options: Arguments passed to **Rofi**.
+
+A distribution can ship defaults in `/etc/rofi.conf`.
 
 The Xresources options and the commandline options are aliased. To define option X set:
 
