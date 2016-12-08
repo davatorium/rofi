@@ -648,8 +648,10 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
 
     char         *saveptr = NULL;
     xkb_keysym_t sym      = XKB_KEY_NoSymbol;
-    for ( char *entry = strtok_r ( mod_key, "+-", &saveptr ); error_msg == NULL && entry != NULL;
-          entry = strtok_r ( NULL, "+-", &saveptr ) ) {
+
+    char **entries = g_strsplit_set ( mod_key, "+-", -1);
+    for ( int i = 0; entries && entries[i]; i++ ) {
+        char *entry = entries[i];
         // Remove trailing and leading spaces.
         entry = g_strstrip ( entry );
         // Compare against lowered version.
@@ -698,6 +700,7 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
         }
         g_free ( entry_lowered );
     }
+    g_strfreev(entries);
 
     g_free ( input_key );
 
