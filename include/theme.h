@@ -3,7 +3,7 @@
 #include <glib.h>
 typedef enum {
     P_INTEGER,
-    P_FLOAT,
+    P_DOUBLE,
     P_STRING,
     P_BOOLEAN,
     P_COLOR
@@ -43,4 +43,13 @@ Property *rofi_theme_property_create ( PropertyType type );
 void rofi_theme_property_free ( Property *p );
 void rofi_theme_free ( Widget * );
 void rofi_theme_parse_file ( const char *file );
+
+/**
+ * Public API
+ */
+
+int rofi_theme_get_integer ( const char  *name, const char *property, int def );
+int rofi_theme_get_boolean ( const char  *name, const char *property, int def );
+char *rofi_theme_get_string ( const char  *name, const char *property, char *def );
+double rofi_theme_get_double ( const char *name, const char *property, double def );
 #endif

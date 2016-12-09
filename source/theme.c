@@ -72,7 +72,7 @@ static void rofi_theme_print_property_index ( int depth, Property *p )
         case P_INTEGER:
            printf("%d", p->value.i); 
            break;
-        case P_FLOAT:
+        case P_DOUBLE:
            printf("%.2f", p->value.f);
            break;
         case P_BOOLEAN:
@@ -112,6 +112,14 @@ extern int yyparse();
 extern FILE* yyin;
 extern Widget *rofi_theme;
 
+void yyerror(const char* s) {
+	fprintf(stderr, "Parse error: %s\n", s);
+	exit(EXIT_FAILURE);
+}
+/**
+ * Public API
+ */
+
 void rofi_theme_parse_file ( const char *file )
 {
     yyin = fopen ( file, "rb");
@@ -122,7 +130,86 @@ void rofi_theme_parse_file ( const char *file )
     while ( yyparse() );
 }
 
-void yyerror(const char* s) {
-	fprintf(stderr, "Parse error: %s\n", s);
-	exit(EXIT_FAILURE);
+static Widget *rofi_theme_find ( const char *name )
+{
+    Widget *widget = rofi_theme;
+    char **names = g_strsplit ( name, "." , 0 );
+    int found = TRUE;
+    for ( unsigned int i = 0; found && names && names[i]; i++ ){
+        found = FALSE;
+        for ( unsigned int j = 0; j < widget ->num_widgets;j++){
+            if ( g_strcmp0(widget->widgets[j]->name, names[i]) == 0 ){
+                widget = widget->widgets[j];
+                found = TRUE;
+                break;
+            }
+        }
+    } 
+    g_strfreev(names);
+    return widget;
+}
+
+static Property *rofi_theme_find_property ( Widget *widget, PropertyType type, const char *property )
+{
+    while ( widget ) {
+        if ( widget->properties && g_hash_table_contains ( widget->properties, property) ) {
+            Property *p = g_hash_table_lookup ( widget->properties, property);
+            if ( p->type == type ){
+                return p;
+            }
+        } 
+        widget = widget->parent;
+    }
+    return NULL;
+}
+
+int rofi_theme_get_integer ( const char  *name, const char *property, int def )
+{
+    if ( rofi_theme == NULL ) {
+        return def;
+    }
+    Widget *widget = rofi_theme_find ( name );
+    Property *p = rofi_theme_find_property ( widget, P_INTEGER, property );
+    if ( p ){
+        return p->value.i;
+    }
+    return def;
+}
+
+int rofi_theme_get_boolean ( const char  *name, const char *property, int def )
+{
+    if ( rofi_theme == NULL ) {
+        return def;
+    }
+    Widget *widget = rofi_theme_find ( name );
+    Property *p = rofi_theme_find_property ( widget, P_BOOLEAN, property );
+    if ( p ){
+        return p->value.b;
+    }
+    return def;
+}
+
+char *rofi_theme_get_string ( const char  *name, const char *property, char *def )
+{
+    if ( rofi_theme == NULL ) {
+        return def;
+    }
+    Widget *widget = rofi_theme_find ( name );
+    Property *p = rofi_theme_find_property ( widget, P_STRING, property );
+    if ( p ){
+        return p->value.s;
+    }
+    return def;
+}
+double rofi_theme_get_double ( const char  *name, const char *property, double def )
+{
+    if ( rofi_theme == NULL ) {
+        return def;
+    }
+    Widget *widget = rofi_theme_find ( name );
+    Property *p = rofi_theme_find_property ( widget, P_DOUBLE, property );
+    if ( p ){
+        return p->value.b;
+    }
+    return def;
 }

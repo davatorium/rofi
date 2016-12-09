@@ -466,7 +466,7 @@ void listview_set_fixed_num_lines ( listview *lv, gboolean enabled )
         lv->fixed_num_lines = enabled;
     }
 }
-void listview_set_hide_scrollbar ( listview *lv, gboolean enabled )
+void listview_set_show_scrollbar ( listview *lv, gboolean enabled )
 {
     if ( lv ) {
         if ( enabled ) {

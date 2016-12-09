@@ -29,7 +29,7 @@ Widget *rofi_theme = NULL;
 }
 
 %token <ival>     T_INT
-%token <fval>     T_FLOAT
+%token <fval>     T_DOUBLE
 %token <sval>     T_STRING
 %token <sval>     N_STRING
 %token <bval>     T_BOOLEAN
@@ -43,22 +43,22 @@ Widget *rofi_theme = NULL;
 %token NSEP   "Name separator";
 
 %type <sval> class
-%type <sval> entry 
+%type <sval> entry
 %type <sval> pvalue
-%type <theme> entries 
-%type <theme> start 
+%type <theme> entries
+%type <theme> start
 %type <name_path> name_path
 %type <property> property
 %type <property_list> property_list
 %type <property_list> properties
 %type <property_list> optional_properties
-%start start 
+%start start
 
 %%
 
 start:
      optional_properties
-     entries { 
+     entries {
         $$ = $2;
         if ( $1 != NULL ) {
             $$->properties = $1;
@@ -66,7 +66,7 @@ start:
      }
 ;
 entries:
-  %empty { 
+  %empty {
         // There is always a base widget.
         $$ =  rofi_theme = (Widget*)g_malloc0 (sizeof(Widget));
         rofi_theme->name = g_strdup ( "Window" );
@@ -77,12 +77,12 @@ entries:
 entry:
      class
      name_path
-     properties 
+     properties
 {
         Widget *widget = rofi_theme_find_or_create_class ( rofi_theme , $1 );
         g_free($1);
         for ( GList *iter = g_list_first ( $2 ); iter ; iter = g_list_next ( iter ) ) {
-            widget = rofi_theme_find_or_create_class ( widget, iter->data ); 
+            widget = rofi_theme_find_or_create_class ( widget, iter->data );
         }
         g_list_foreach ( $2, (GFunc)g_free , NULL );
         g_list_free ( $2 );
@@ -100,15 +100,15 @@ entry:
 optional_properties
           : %empty { $$ = NULL; }
           | property_list { $$ = $1; }
-; 
+;
 properties: BOPEN property_list BCLOSE  { $$ = $2;}
           | BOPEN BCLOSE                { $$ = NULL; }
           | %empty { $$ = NULL; }
           ;
 
-property_list: 
+property_list:
   property {
-    $$ = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify)rofi_theme_property_free ); 
+    $$ = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify)rofi_theme_property_free );
     g_hash_table_replace ( $$, $1->name, $1 );
   }
 | property_list property {
@@ -121,27 +121,27 @@ property
 :   pvalue PSEP T_INT PCLOSE  {
         $$ = rofi_theme_property_create ( P_INTEGER );
         $$->name = $1;
-        $$->value.i = $3; 
+        $$->value.i = $3;
     }
-|   pvalue PSEP T_FLOAT PCLOSE { 
-        $$ = rofi_theme_property_create ( P_FLOAT );
+|   pvalue PSEP T_DOUBLE PCLOSE {
+        $$ = rofi_theme_property_create ( P_DOUBLE );
         $$->name = $1;
-        $$->value.f = $3; 
+        $$->value.f = $3;
     }
-|   pvalue PSEP T_COLOR PCLOSE { 
+|   pvalue PSEP T_COLOR PCLOSE {
         $$ = rofi_theme_property_create ( P_COLOR );
         $$->name = $1;
-        $$->value.color = $3; 
+        $$->value.color = $3;
     }
-|   pvalue PSEP T_STRING PCLOSE { 
+|   pvalue PSEP T_STRING PCLOSE {
         $$ = rofi_theme_property_create ( P_STRING );
         $$->name = $1;
-        $$->value.s = $3; 
+        $$->value.s = $3;
     }
 |   pvalue PSEP T_BOOLEAN PCLOSE {
         $$ = rofi_theme_property_create ( P_BOOLEAN );
         $$->name = $1;
-        $$->value.b = $3; 
+        $$->value.b = $3;
     }
 ;
 
@@ -155,7 +155,7 @@ class:
 name_path:
   %empty                   { $$ = NULL; }
 | N_STRING                 { $$ = g_list_append ( NULL, $1 );}
-| name_path NSEP N_STRING  { $$ = g_list_append ( $1, $3);} 
+| name_path NSEP N_STRING  { $$ = g_list_append ( $1, $3);}
 ;
 
 

@@ -168,7 +168,7 @@ void listview_set_fixed_num_lines ( listview *lv, gboolean enabled );
  *
  * Hide the scrollbar.
  */
-void listview_set_hide_scrollbar ( listview *lv, gboolean enabled );
+void listview_set_show_scrollbar ( listview *lv, gboolean enabled );
 /**
  * @param lv Handler to the listview object
  * @param width Width in pixels

@@ -58,6 +58,8 @@
 #include "view.h"
 #include "view-internal.h"
 
+#include "theme.h"
+
 /** The Rofi View log domain */
 #define LOG_DOMAIN    "View"
 
@@ -1426,16 +1428,15 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->main_box = box_create ( BOX_VERTICAL,
                                    state->border, state->border,
                                    state->width - 2 * state->border, state->height - 2 * state->border );
-    box_set_padding ( state->main_box, config.line_margin );
+    box_set_padding ( state->main_box, rofi_theme_get_integer ( "box.main_box", "padding",config.line_margin ));
 
     // we need this at this point so we can get height.
     unsigned int line_height = textbox_get_estimated_char_height ();
     rofi_view_calculate_window_and_element_width ( state );
 
     state->input_bar = box_create ( BOX_HORIZONTAL, 0, 0, state->width - state->border, line_height );
-    //box_set_padding ( state->input_bar, config.line_margin );
     state->input_bar_separator = separator_create ( S_HORIZONTAL, 2 );
-    separator_set_line_style_from_string ( state->input_bar_separator, config.separator_style );
+    separator_set_line_style_from_string ( state->input_bar_separator, rofi_theme_get_string ( "separator.input_bar", "style", config.separator_style ));
 
     int end = ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST );
     box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, end );
@@ -1473,13 +1474,13 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->list_view = listview_create ( update_callback, state, config.element_height );
     // Set configuration
     listview_set_multi_select ( state->list_view, ( state->menu_flags & MENU_INDICATOR ) == MENU_INDICATOR );
-    listview_set_padding ( state->list_view, config.line_margin );
-    listview_set_max_lines ( state->list_view, config.menu_lines );
-    listview_set_max_columns ( state->list_view, config.menu_columns );
-    listview_set_fixed_num_lines ( state->list_view, config.fixed_num_lines );
-    listview_set_hide_scrollbar ( state->list_view, !config.hide_scrollbar );
-    listview_set_scrollbar_width ( state->list_view, config.scrollbar_width );
-    listview_set_cycle ( state->list_view, config.cycle );
+    listview_set_padding      ( state->list_view,    rofi_theme_get_integer ( "listview", "padding", config.line_margin ));
+    listview_set_max_lines    ( state->list_view,    rofi_theme_get_integer ( "listview", "lines",   config.menu_lines ));
+    listview_set_max_columns  ( state->list_view,    rofi_theme_get_integer ( "listview", "columns", config.menu_columns));
+    listview_set_fixed_num_lines ( state->list_view, rofi_theme_get_boolean ( "listview", "fixed-height", config.fixed_num_lines ));
+    listview_set_show_scrollbar ( state->list_view,  rofi_theme_get_boolean ( "listview", "scrollbar", !config.hide_scrollbar ));
+    listview_set_scrollbar_width ( state->list_view, rofi_theme_get_integer ( "listview", "scrollbar-width", config.scrollbar_width ));
+    listview_set_cycle ( state->list_view,           rofi_theme_get_boolean ( "listview" , "cycle", config.cycle ));
     listview_set_scroll_type ( state->list_view, config.scroll_method );
     listview_set_mouse_activated_cb ( state->list_view, rofi_view_listview_mouse_activated_cb, state );
 
@@ -1488,7 +1489,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Only enable widget when sidebar is enabled.
     if ( config.sidebar_mode ) {
         state->sidebar_bar = box_create ( BOX_HORIZONTAL, 0, 0, state->width - 2 * state->border, line_height );
-        box_set_padding ( state->sidebar_bar, config.line_margin );
+        box_set_padding ( state->sidebar_bar, rofi_theme_get_integer ( "box.sidebar", "padding",config.line_margin ) );
         separator *sep = separator_create ( S_HORIZONTAL, 2 );
         box_add ( state->main_box, WIDGET ( sep ), FALSE, TRUE );
         separator_set_line_style_from_string ( sep, config.separator_style );
