@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 
-#include "lexer/theme-parser.tab.h"
+#include "lexer/theme-parser.h"
 int yylex(void);
 #define YY_DECL int yylex()
 
