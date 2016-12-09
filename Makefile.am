@@ -3,6 +3,8 @@ AUTOMAKE_OPTIONS  = 1.11.3
 
 ACLOCAL_AMFLAGS = -I libgwater ${ACLOCAL_FLAGS}
 
+AM_YFLAGS = -d
+
 noinst_LIBRARIES =
 include $(top_srcdir)/libgwater-xcb-nolibtool.mk
 
@@ -27,6 +29,7 @@ rofi_SOURCES=\
 	source/helper.c\
 	source/timings.c\
 	source/history.c\
+	source/theme.c\
 	source/widgets/box.c\
 	source/widgets/widget.c\
 	source/widgets/textbox.c\
@@ -43,6 +46,8 @@ rofi_SOURCES=\
 	source/dialogs/window.c\
 	source/dialogs/script.c\
 	source/dialogs/help-keys.c\
+	lexer/theme-parser.y\
+	lexer/theme-lexer.l\
 	include/xcb.h\
 	include/xcb-internal.h\
 	include/rofi.h\
@@ -55,6 +60,7 @@ rofi_SOURCES=\
 	include/helper.h\
 	include/timings.h\
 	include/history.h\
+	include/theme.h\
 	include/widgets/box.h\
 	include/widgets/widget.h\
 	include/widgets/widget-internal.h\
