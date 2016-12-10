@@ -1413,9 +1413,12 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->skip_absorb   = FALSE;
     //We want to filter on the first run.
     state->refilter   = TRUE;
-    state->border     = config.padding + config.menu_bw;
+    state->border     = 0;
     state->finalize   = finalize;
     state->mouse_seen = FALSE;
+
+    state->border = rofi_theme_get_integer ( "window", "padding" , config.padding );
+    state->border += rofi_theme_get_integer ( "window", "border-width" , config.menu_bw);
 
     // Request the lines to show.
     state->num_lines = mode_get_num_entries ( sw );
@@ -1435,7 +1438,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
     rofi_view_calculate_window_and_element_width ( state );
 
     state->input_bar = box_create ( BOX_HORIZONTAL, 0, 0, state->width - state->border, line_height );
-    //box_set_padding ( state->input_bar, config.line_margin );
     state->input_bar_separator = separator_create ( S_HORIZONTAL, 2 );
     separator_set_line_style_from_string ( state->input_bar_separator, config.separator_style );
 

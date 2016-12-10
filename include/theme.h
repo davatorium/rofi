@@ -9,6 +9,18 @@ typedef enum {
     P_COLOR
 } PropertyType;
 
+typedef struct
+{
+    /** red channel */
+    double red;
+    /** green channel */
+    double green;
+    /** blue channel */
+    double blue;
+    /**  alpha channel */
+    double alpha;
+} ThemeColor;
+
 typedef struct {
     char *name;
     PropertyType type;
@@ -17,7 +29,7 @@ typedef struct {
         double        f;
         char          *s;
         int           b;
-        unsigned int  color;
+        ThemeColor color;
     } value;
 } Property;
 
@@ -31,6 +43,7 @@ typedef struct _Widget {
 
     struct _Widget *parent;
 } Widget;
+
 
 extern Widget *rofi_theme;
 

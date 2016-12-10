@@ -79,7 +79,11 @@ static void rofi_theme_print_property_index ( int depth, Property *p )
            printf("%s", p->value.b?"true":"false");
            break;
         case P_COLOR:
-           printf("#%08X", p->value.color);
+           printf("#%02X%02X%02X%02X",
+                   (unsigned char)(p->value.color.alpha*255.0),
+                   (unsigned char)(p->value.color.red*255.0),
+                   (unsigned char)(p->value.color.green*255.0),
+                   (unsigned char)(p->value.color.blue*255.0));
            break;
     }
     putchar ( '\n' );

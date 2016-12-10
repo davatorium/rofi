@@ -21,7 +21,7 @@ Widget *rofi_theme = NULL;
 	double        fval;
     char          *sval;
     int           bval;
-    unsigned int  colorval;
+    ThemeColor    colorval;
     Widget        *theme;
     GList         *name_path;
     Property      *property;
