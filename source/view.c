@@ -1437,6 +1437,26 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->input_bar_separator = separator_create ( S_HORIZONTAL, 2 );
     separator_set_line_style_from_string ( state->input_bar_separator, config.separator_style );
 
+
+    // Only enable widget when sidebar is enabled.
+    if ( config.sidebar_mode ) {
+        state->sidebar_bar = box_create ( BOX_HORIZONTAL, 0, 0, state->width - 2 * state->border, line_height );
+        box_set_padding ( state->sidebar_bar, config.line_margin );
+        separator *sep = separator_create ( S_HORIZONTAL, 2 );
+        separator_set_line_style_from_string ( sep, config.separator_style );
+        box_add ( state->main_box, WIDGET ( state->sidebar_bar ), FALSE, TRUE );
+        box_add ( state->main_box, WIDGET ( sep ), FALSE, TRUE );
+        state->num_modi = rofi_get_num_enabled_modi ();
+        state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
+        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
+            const Mode * mode = rofi_get_mode ( j );
+            state->modi[j] = textbox_create ( TB_CENTER, 0, 0, 0, 0, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
+                                              mode_get_display_name ( mode  ) );
+            box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, FALSE );
+            widget_set_clicked_handler ( WIDGET ( state->modi[j] ), rofi_view_modi_clicked_cb, state );
+        }
+    }
+
     int end = ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST );
     box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, end );
 
@@ -1485,24 +1505,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     box_add ( state->main_box, WIDGET ( state->list_view ), TRUE, FALSE );
 
-    // Only enable widget when sidebar is enabled.
-    if ( config.sidebar_mode ) {
-        state->sidebar_bar = box_create ( BOX_HORIZONTAL, 0, 0, state->width - 2 * state->border, line_height );
-        box_set_padding ( state->sidebar_bar, config.line_margin );
-        separator *sep = separator_create ( S_HORIZONTAL, 2 );
-        box_add ( state->main_box, WIDGET ( sep ), FALSE, TRUE );
-        separator_set_line_style_from_string ( sep, config.separator_style );
-        box_add ( state->main_box, WIDGET ( state->sidebar_bar ), FALSE, TRUE );
-        state->num_modi = rofi_get_num_enabled_modi ();
-        state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
-        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
-            const Mode * mode = rofi_get_mode ( j );
-            state->modi[j] = textbox_create ( TB_CENTER, 0, 0, 0, 0, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
-                                              mode_get_display_name ( mode  ) );
-            box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, FALSE );
-            widget_set_clicked_handler ( WIDGET ( state->modi[j] ), rofi_view_modi_clicked_cb, state );
-        }
-    }
 
     // Height of a row.
     if ( config.menu_lines == 0 || config.fullscreen  ) {
