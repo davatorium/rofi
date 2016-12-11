@@ -1482,7 +1482,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     if ( message ) {
         textbox *message_tb = textbox_create ( TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, 0, 0,
                                                state->width - ( 2 * ( state->border ) ), -1, NORMAL, message );
-        separator *sep = separator_create ( "separator", S_HORIZONTAL, 2 );
+        separator *sep = separator_create ( "separator.message", S_HORIZONTAL, 2 );
         box_add ( state->main_box, WIDGET ( sep ), FALSE, end);
         box_add ( state->main_box, WIDGET ( message_tb ), FALSE, end);
     }
