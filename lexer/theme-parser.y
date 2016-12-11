@@ -1,6 +1,5 @@
 %glr-parser       
 %skeleton "glr.c"
-
 %locations
 %debug
 %error-verbose

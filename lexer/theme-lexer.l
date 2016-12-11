@@ -1,4 +1,4 @@
-%option noyywrap nounput batch debug
+%option noyywrap nounput batch
 
 %{
 #include <stdio.h>

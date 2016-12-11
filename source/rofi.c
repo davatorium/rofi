@@ -900,7 +900,7 @@ int main ( int argc, char *argv[] )
 
     if ( config.theme ) {
         rofi_theme_parse_file ( config.theme );
-        rofi_theme_print ( rofi_theme );
+//        rofi_theme_print ( rofi_theme );
     }
 
     // Dump.
