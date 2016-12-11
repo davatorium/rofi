@@ -104,7 +104,6 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, short x, short y
     textbox *tb = g_slice_new0 ( textbox );
 
     tb->widget.name       = g_strdup ( name );
-    tb->theme_name = g_strdup(name);
     tb->widget.draw       = textbox_draw;
     tb->widget.free       = textbox_free;
     tb->widget.resize     = textbox_resize;
@@ -180,10 +179,10 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
         tb->color_fg = color->fg;
         break;
     }
-    if ( tb->tbft != tbft ) {
-        tb->update = TRUE;
+    if ( tb->tbft != tbft || tb->theme_name == NULL ) {
         g_free ( tb->theme_name);
         tb->theme_name = g_strjoin ("." , tb->widget.name, mode, state, NULL );
+        tb->update = TRUE;
         widget_queue_redraw ( WIDGET ( tb ) );
     }
     tb->tbft = tbft;
