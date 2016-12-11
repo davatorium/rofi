@@ -1,4 +1,4 @@
-%option noyywrap 
+%option noyywrap nounput batch debug
 
 %{
 #include <stdio.h>
@@ -11,7 +11,28 @@ int yylex(void);
 %}
 
 %%
-
+"//"            {
+    int c;
+    while ((c = input()) != EOF)
+        if (c == '\n') {
+            break;
+        }
+}
+"/*"            {
+    int c = 0, p;
+    int nesting_depth = 1;
+    while (nesting_depth) {
+        p = c;
+        c = input();
+        switch (c) {
+        case '*':  if (p == '/') { c = 0; nesting_depth++; } break;
+        case '/':  if (p == '*') { c = 0; nesting_depth--; } break;
+        case '\n':  break;
+        case EOF: nesting_depth = 0; break;
+        default: ;
+        }
+    }
+}
 "\{"                { return BOPEN;}
 "\}"                { return BCLOSE;}
 ":"                 { return PSEP; }
@@ -36,7 +57,7 @@ int yylex(void);
 #[0-9A-Fa-f]{6}       {
     union {  unsigned int val; struct { unsigned char b,g,r,a;};} val;
     val.val = (unsigned int)g_ascii_strtoull ( &yytext[1], NULL, 16);
-    yylval.colorval.alpha = 1.0; 
+    yylval.colorval.alpha = 1.0;
     yylval.colorval.red   = val.r/255.0;
     yylval.colorval.green = val.g/255.0;
     yylval.colorval.blue  = val.b/255.0;
