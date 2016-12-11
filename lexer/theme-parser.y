@@ -1,3 +1,6 @@
+%glr-parser       
+%skeleton "glr.c"
+
 %locations
 %debug
 %error-verbose
@@ -35,14 +38,12 @@ Widget *rofi_theme = NULL;
 %token <bval>     T_BOOLEAN
 %token <colorval> T_COLOR
 
-%token CLASS  "class";
 %token BOPEN  "bracket open";
 %token BCLOSE "bracket close";
 %token PSEP   "property separator";
 %token PCLOSE "property close";
 %token NSEP   "Name separator";
 
-%type <sval> class
 %type <sval> entry
 %type <sval> pvalue
 %type <theme> entries
@@ -75,17 +76,14 @@ entries:
 ;
 
 entry:
-     class
-     name_path
-     properties
+     name_path BOPEN optional_properties BCLOSE
 {
-        Widget *widget = rofi_theme_find_or_create_class ( rofi_theme , $1 );
-        g_free($1);
-        for ( GList *iter = g_list_first ( $2 ); iter ; iter = g_list_next ( iter ) ) {
+        Widget *widget = rofi_theme;//rofi_theme_find_or_create_class ( rofi_theme , $1 );
+        for ( GList *iter = g_list_first ( $1 ); iter ; iter = g_list_next ( iter ) ) {
             widget = rofi_theme_find_or_create_class ( widget, iter->data );
         }
-        g_list_foreach ( $2, (GFunc)g_free , NULL );
-        g_list_free ( $2 );
+        g_list_foreach ( $1, (GFunc)g_free , NULL );
+        g_list_free ( $1 );
         if ( widget->properties != NULL ) {
             fprintf(stderr, "Properties already set on this widget.\n");
             exit ( EXIT_FAILURE );
@@ -101,10 +99,12 @@ optional_properties
           : %empty { $$ = NULL; }
           | property_list { $$ = $1; }
 ;
+/*
 properties: BOPEN property_list BCLOSE  { $$ = $2;}
           | BOPEN BCLOSE                { $$ = NULL; }
           | %empty { $$ = NULL; }
           ;
+*/
 
 property_list:
   property {
@@ -146,10 +146,6 @@ property
 ;
 
 pvalue: N_STRING { $$ = $1; }
-
-class:
-     CLASS N_STRING { $$ = $2; }
-;
 
 
 name_path:

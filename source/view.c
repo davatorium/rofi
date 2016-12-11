@@ -1431,7 +1431,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Get active monitor size.
     TICK_N ( "Get active monitor" );
 
-    state->main_box = box_create ( "box.mainbox", BOX_VERTICAL,
+    state->main_box = box_create ( "mainbox.box", BOX_VERTICAL,
                                    state->border, state->border,
                                    state->width - 2 * state->border, state->height - 2 * state->border );
 
@@ -1439,13 +1439,13 @@ RofiViewState *rofi_view_create ( Mode *sw,
     unsigned int line_height = textbox_get_estimated_char_height ();
     rofi_view_calculate_window_and_element_width ( state );
 
-    state->input_bar = box_create ( "box.inputbar", BOX_HORIZONTAL, 0, 0, state->width - state->border, line_height );
-    state->input_bar_separator = separator_create ( "separator.inputbar", S_HORIZONTAL, 2 );
+    state->input_bar = box_create ( "inputbar.box", BOX_HORIZONTAL, 0, 0, state->width - state->border, line_height );
+    state->input_bar_separator = separator_create ( "inputbar.separator", S_HORIZONTAL, 2 );
 
     // Only enable widget when sidebar is enabled.
     if ( config.sidebar_mode ) {
-        state->sidebar_bar = box_create ( "box.sidebar", BOX_HORIZONTAL, 0, 0, state->width - 2 * state->border, line_height );
-        separator *sep = separator_create ( "separator.sidebar", S_HORIZONTAL, 2 );
+        state->sidebar_bar = box_create ( "sidebar.box", BOX_HORIZONTAL, 0, 0, state->width - 2 * state->border, line_height );
+        separator *sep = separator_create ( "sidebar.separator", S_HORIZONTAL, 2 );
         box_add ( state->main_box, WIDGET ( state->sidebar_bar ), FALSE, TRUE );
         box_add ( state->main_box, WIDGET ( sep ), FALSE, TRUE );
         state->num_modi = rofi_get_num_enabled_modi ();
@@ -1482,7 +1482,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     if ( message ) {
         textbox *message_tb = textbox_create ( TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, 0, 0,
                                                state->width - ( 2 * ( state->border ) ), -1, NORMAL, message );
-        separator *sep = separator_create ( "separator.message", S_HORIZONTAL, 2 );
+        separator *sep = separator_create ( "message.separator", S_HORIZONTAL, 2 );
         box_add ( state->main_box, WIDGET ( sep ), FALSE, end);
         box_add ( state->main_box, WIDGET ( message_tb ), FALSE, end);
     }
@@ -1550,7 +1550,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->finalize   = process_result;
 
     rofi_view_calculate_window_and_element_width ( state );
-    state->main_box = box_create ( "box.mainbox", BOX_VERTICAL,
+    state->main_box = box_create ( "mainbox.box", BOX_VERTICAL,
                                    state->border, state->border,
                                    state->width - 2 * state->border, state->height - 2 * state->border );
     state->text = textbox_create ( ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),

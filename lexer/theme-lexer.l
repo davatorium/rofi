@@ -12,7 +12,6 @@ int yylex(void);
 
 %%
 
-"@"                 { return CLASS;}
 "\{"                { return BOPEN;}
 "\}"                { return BCLOSE;}
 ":"                 { return PSEP; }
