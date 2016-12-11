@@ -51,7 +51,6 @@ Widget *rofi_theme = NULL;
 %type <name_path> name_path
 %type <property> property
 %type <property_list> property_list
-%type <property_list> properties
 %type <property_list> optional_properties
 %start start
 
@@ -99,12 +98,6 @@ optional_properties
           : %empty { $$ = NULL; }
           | property_list { $$ = $1; }
 ;
-/*
-properties: BOPEN property_list BCLOSE  { $$ = $2;}
-          | BOPEN BCLOSE                { $$ = NULL; }
-          | %empty { $$ = NULL; }
-          ;
-*/
 
 property_list:
   property {
