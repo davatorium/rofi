@@ -36,6 +36,8 @@
 #include "mode.h"
 #include "view.h"
 
+#include "theme.h"
+
 #define DOT_OFFSET    15
 
 static void textbox_draw ( widget *, cairo_t * );
@@ -96,11 +98,13 @@ static void textbox_resize ( widget *wid, short w, short h )
     textbox_moveresize ( tb, tb->widget.x, tb->widget.y, w, h );
 }
 
-textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h,
+textbox* textbox_create ( const char *name, TextboxFlags flags, short x, short y, short w, short h,
                           TextBoxFontType tbft, const char *text )
 {
     textbox *tb = g_slice_new0 ( textbox );
 
+    tb->widget.name       = g_strdup ( name );
+    tb->theme_name = g_strdup(name);
     tb->widget.draw       = textbox_draw;
     tb->widget.free       = textbox_free;
     tb->widget.resize     = textbox_resize;
@@ -146,20 +150,30 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
     if ( tb == NULL ) {
         return;
     }
+    char *state = "normal";
+
     // ACTIVE has priority over URGENT if both set.
     if ( t == ( URGENT | ACTIVE ) ) {
         t = ACTIVE;
     }
+    if ( t == URGENT ) {
+        state = "urgent";
+    } else if ( t == ACTIVE ){
+        state = "active";
+    }
+    char *mode = "normal";
     RowColor *color = &( colors[t] );
     switch ( ( tbft & FMOD_MASK ) )
     {
     case HIGHLIGHT:
         tb->color_bg = color->hlbg;
         tb->color_fg = color->hlfg;
+        mode = "selected";
         break;
     case ALT:
         tb->color_bg = color->bgalt;
         tb->color_fg = color->fg;
+        mode = "alternate";
         break;
     default:
         tb->color_bg = color->bg;
@@ -168,6 +182,8 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
     }
     if ( tb->tbft != tbft ) {
         tb->update = TRUE;
+        g_free ( tb->theme_name);
+        tb->theme_name = g_strjoin ("." , tb->widget.name, mode, state, NULL );
         widget_queue_redraw ( WIDGET ( tb ) );
     }
     tb->tbft = tbft;
@@ -286,7 +302,7 @@ static void textbox_free ( widget *wid )
         g_source_remove ( tb->blink_timeout );
         tb->blink_timeout = 0;
     }
-
+    g_free(tb->theme_name );
     g_free ( tb->text );
 
     if ( tb->layout != NULL ) {
@@ -359,10 +375,12 @@ static void texbox_update ( textbox *tb )
         // Set ARGB
         Color col = tb->color_bg;
         cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
+        rofi_theme_get_color ( tb->theme_name, "background", tb->main_draw);
         cairo_paint ( tb->main_draw );
 
         col = tb->color_fg;
         cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
+        rofi_theme_get_color ( tb->theme_name, "foreground", tb->main_draw);
         // draw the cursor
         if ( tb->flags & TB_EDITABLE && tb->blink ) {
             cairo_rectangle ( tb->main_draw, x + cursor_x, y, cursor_width, font_height );
@@ -375,13 +393,15 @@ static void texbox_update ( textbox *tb )
         cairo_move_to ( tb->main_draw, x, y );
         pango_cairo_show_layout ( tb->main_draw, tb->layout );
 
-        if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED | HIGHLIGHT ) ) ) {
+        if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED ) ) ) {
+            /*
             if ( ( tb->tbft & SELECTED ) == SELECTED ) {
                 cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
             }
             else if ( ( tb->tbft & HIGHLIGHT ) == HIGHLIGHT ) {
                 cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha * 0.2 );
             }
+            */
 
             cairo_arc ( tb->main_draw, DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
             cairo_fill ( tb->main_draw );

@@ -48,7 +48,7 @@ typedef void ( *listview_mouse_activated_cb )( listview *, xcb_button_press_even
  *
  * @returns a new listview
  */
-listview *listview_create ( listview_update_callback cb, void *udata, unsigned int eh );
+listview *listview_create ( const char *name, listview_update_callback cb, void *udata, unsigned int eh );
 
 /**
  * @param lv The listview handle
@@ -131,37 +131,6 @@ void listview_nav_page_next ( listview *lv );
  */
 void listview_nav_page_prev ( listview *lv );
 
-/**
- * @param lv Handler to the listview object
- * @param padding The padding
- *
- * Padding on between the widgets.
- */
-void listview_set_padding (  listview *lv, unsigned int padding );
-
-/**
- * @param lv Handler to the listview object
- * @param lines The maximum number of lines
- *
- * Set the maximum number of lines to show.
- */
-void listview_set_max_lines ( listview *lv, unsigned int lines );
-
-/**
- * @param lv Handler to the listview object
- * @param columns The maximum number of columns
- *
- * Set the maximum number of columns to show.
- */
-void listview_set_max_columns ( listview *lv, unsigned int columns );
-
-/**
- * @param lv Handler to the listview object
- * @param enabled enable
- *
- * Set fixed num lines mode.
- */
-void listview_set_fixed_num_lines ( listview *lv, gboolean enabled );
 /**
  * @param lv Handler to the listview object
  * @param enabled enable

@@ -22,6 +22,7 @@ typedef struct _scrollbar
 } scrollbar;
 
 /**
+ * @param name  The name of the widget.
  * @param x     The x coordinate (relative to parent) to position the new scrollbar
  * @param y     The y coordinate (relative to parent) to position the new scrollbar
  * @param w     The width of the scrollbar
@@ -31,7 +32,7 @@ typedef struct _scrollbar
  *
  * @returns the scrollbar object.
  */
-scrollbar *scrollbar_create ( short x, short y, short w, short h );
+scrollbar *scrollbar_create ( const char *name, short x, short y, short w, short h );
 
 /**
  * @param sb scrollbar object

@@ -29,6 +29,9 @@
 #include <widgets/listview.h>
 #include <widgets/scrollbar.h>
 
+#include "settings.h"
+#include "theme.h"
+
 struct _listview
 {
     widget                      widget;
@@ -205,7 +208,9 @@ static void listview_recompute_elements ( listview *lv )
     if ( newne > 0   ) {
         for ( unsigned int i = lv->cur_elements; i < newne; i++ ) {
             TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
-            lv->boxes[i] = textbox_create ( flags, 0, 0, 0, lv->element_height, NORMAL, "" );
+            char *name = g_strjoin (".", lv->widget.name,"element", NULL);
+            lv->boxes[i] = textbox_create ( name, flags, 0, 0, 0, lv->element_height, NORMAL, "" );
+            g_free ( name );
         }
     }
     lv->rchanged = TRUE;
@@ -309,9 +314,10 @@ static gboolean listview_motion_notify ( widget *wid, xcb_motion_notify_event_t 
 
     return FALSE;
 }
-listview *listview_create ( listview_update_callback cb, void *udata, unsigned int eh )
+listview *listview_create ( const char *name, listview_update_callback cb, void *udata, unsigned int eh )
 {
     listview *lv = g_malloc0 ( sizeof ( listview ) );
+    lv->widget.name          = g_strdup(name);
     lv->widget.free          = listview_free;
     lv->widget.resize        = listview_resize;
     lv->widget.draw          = listview_draw;
@@ -319,7 +325,9 @@ listview *listview_create ( listview_update_callback cb, void *udata, unsigned i
     lv->widget.motion_notify = listview_motion_notify;
     lv->widget.enabled       = TRUE;
 
-    lv->scrollbar = scrollbar_create ( 0, 0, 4, 0 );
+    char *n = g_strjoin(".", lv->widget.name,"scrollbar", NULL);
+    lv->scrollbar = scrollbar_create ( n,0, 0, 4, 0 );
+    g_free(n);
     widget_set_clicked_handler ( WIDGET ( lv->scrollbar ), listview_scrollbar_clicked, lv );
     lv->scrollbar->widget.parent = WIDGET ( lv );
     // Calculate height of an element.
@@ -327,6 +335,17 @@ listview *listview_create ( listview_update_callback cb, void *udata, unsigned i
 
     lv->callback = cb;
     lv->udata    = udata;
+
+    // Some settings.
+    lv->padding      = rofi_theme_get_integer ( lv->widget.name, "padding", config.line_margin );
+    lv->menu_lines   = rofi_theme_get_integer ( lv->widget.name, "lines",   config.menu_lines );
+    lv->menu_columns = rofi_theme_get_integer ( lv->widget.name, "columns", config.menu_columns);
+    lv->fixed_num_lines = rofi_theme_get_boolean ( lv->widget.name, "fixed-height", config.fixed_num_lines );
+    listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( lv->widget.name, "scrollbar", !config.hide_scrollbar ));
+    listview_set_scrollbar_width ( lv, rofi_theme_get_integer ( lv->widget.name, "scrollbar-width", config.scrollbar_width ));
+    lv->cycle = rofi_theme_get_boolean ( lv->widget.name, "cycle", config.cycle );
+
+
     return lv;
 }
 
@@ -438,34 +457,6 @@ unsigned int listview_get_desired_height ( listview *lv )
     return h * lv->element_height + ( h - 1 ) * lv->padding;
 }
 
-/**
- * Configure the widget!
- */
-void listview_set_padding (  listview *lv, unsigned int padding )
-{
-    if ( lv ) {
-        lv->padding = padding;
-    }
-}
-void listview_set_max_lines ( listview *lv, unsigned int lines )
-{
-    if ( lv ) {
-        lv->menu_lines = lines;
-    }
-}
-void listview_set_max_columns ( listview *lv, unsigned int columns )
-{
-    if ( lv ) {
-        lv->menu_columns = columns;
-    }
-}
-
-void listview_set_fixed_num_lines ( listview *lv, gboolean enabled )
-{
-    if ( lv ) {
-        lv->fixed_num_lines = enabled;
-    }
-}
 void listview_set_show_scrollbar ( listview *lv, gboolean enabled )
 {
     if ( lv ) {
@@ -485,12 +476,6 @@ void listview_set_scrollbar_width ( listview *lv, unsigned int width )
     }
 }
 
-void listview_set_cycle ( listview *lv, gboolean cycle )
-{
-    if ( lv ) {
-        lv->cycle = cycle;
-    }
-}
 void listview_set_scroll_type ( listview *lv, ScrollType type )
 {
     if ( lv ) {

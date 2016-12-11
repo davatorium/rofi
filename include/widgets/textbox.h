@@ -39,6 +39,8 @@ typedef struct
     int             update;
     int             blink;
     guint           blink_timeout;
+    //
+    char *theme_name ;
 } textbox;
 
 /**
@@ -97,7 +99,7 @@ typedef enum
  * free with #widget_free
  * @returns a new #textbox
  */
-textbox* textbox_create ( TextboxFlags flags,
+textbox* textbox_create ( const char *name, TextboxFlags flags,
                           short x, short y, short w, short h,
                           TextBoxFontType tbft,
                           const char *text );

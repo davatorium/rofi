@@ -586,8 +586,9 @@ void __create_window ( MenuFlags menu_flags )
         pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, (double) config.dpi );
     }
     // Setup font.
-    if ( config.menu_font ) {
-        PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
+    char *font = rofi_theme_get_string ("window", "font" , config.menu_font );
+    if ( font ) {
+        PangoFontDescription *pfd = pango_font_description_from_string ( font );
         pango_context_set_font_description ( p, pfd );
         pango_font_description_free ( pfd );
     }
@@ -1452,7 +1453,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
         state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
         for ( unsigned int j = 0; j < state->num_modi; j++ ) {
             const Mode * mode = rofi_get_mode ( j );
-            state->modi[j] = textbox_create ( TB_CENTER, 0, 0, 0, 0, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
+            state->modi[j] = textbox_create ( "sidebar.button", TB_CENTER, 0, 0, 0, 0, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
                                               mode_get_display_name ( mode  ) );
             box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, FALSE );
             widget_set_clicked_handler ( WIDGET ( state->modi[j] ), rofi_view_modi_clicked_cb, state );
@@ -1462,25 +1463,25 @@ RofiViewState *rofi_view_create ( Mode *sw,
     int end = ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST );
     box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, end );
 
-    state->case_indicator = textbox_create ( TB_AUTOWIDTH, 0, 0, 0, line_height, NORMAL, "*" );
+    state->case_indicator = textbox_create ( "inputbar.case-indicator", TB_AUTOWIDTH, 0, 0, 0, line_height, NORMAL, "*" );
     // Add small separator between case indicator and text box.
     box_add ( state->input_bar, WIDGET ( state->case_indicator ), FALSE, TRUE );
 
     // Prompt box.
-    state->prompt = textbox_create ( TB_AUTOWIDTH, 0, 0, 0, line_height, NORMAL, "" );
+    state->prompt = textbox_create ( "inputbar.prompt",TB_AUTOWIDTH, 0, 0, 0, line_height, NORMAL, "" );
     rofi_view_update_prompt ( state );
     box_add ( state->input_bar, WIDGET ( state->prompt ), FALSE, FALSE );
 
     // Entry box
     TextboxFlags tfl = TB_EDITABLE;
     tfl        |= ( ( menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
-    state->text = textbox_create ( tfl, 0, 0, 0, line_height, NORMAL, input );
+    state->text = textbox_create ( "inputbar.entry", tfl, 0, 0, 0, line_height, NORMAL, input );
 
     box_add ( state->input_bar, WIDGET ( state->text ), TRUE, FALSE );
 
     textbox_text ( state->case_indicator, get_matching_state () );
     if ( message ) {
-        textbox *message_tb = textbox_create ( TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, 0, 0,
+        textbox *message_tb = textbox_create ( "message.textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, 0, 0,
                                                state->width - ( 2 * ( state->border ) ), -1, NORMAL, message );
         separator *sep = separator_create ( "message.separator", S_HORIZONTAL, 2 );
         box_add ( state->main_box, WIDGET ( sep ), FALSE, end);
@@ -1488,19 +1489,12 @@ RofiViewState *rofi_view_create ( Mode *sw,
     }
     box_add ( state->main_box, WIDGET ( state->input_bar_separator ), FALSE, end );
 
-    state->overlay = textbox_create ( TB_AUTOWIDTH, 0, 0, 20, line_height, URGENT, "blaat"  );
+    state->overlay = textbox_create ( "overlay.textbox", TB_AUTOWIDTH, 0, 0, 20, line_height, URGENT, "blaat"  );
     widget_disable ( WIDGET ( state->overlay ) );
 
-    state->list_view = listview_create ( update_callback, state, config.element_height );
+    state->list_view = listview_create ( "listview", update_callback, state, config.element_height );
     // Set configuration
     listview_set_multi_select ( state->list_view, ( state->menu_flags & MENU_INDICATOR ) == MENU_INDICATOR );
-    listview_set_padding      ( state->list_view,    rofi_theme_get_integer ( "listview", "padding", config.line_margin ));
-    listview_set_max_lines    ( state->list_view,    rofi_theme_get_integer ( "listview", "lines",   config.menu_lines ));
-    listview_set_max_columns  ( state->list_view,    rofi_theme_get_integer ( "listview", "columns", config.menu_columns));
-    listview_set_fixed_num_lines ( state->list_view, rofi_theme_get_boolean ( "listview", "fixed-height", config.fixed_num_lines ));
-    listview_set_show_scrollbar ( state->list_view,  rofi_theme_get_boolean ( "listview", "scrollbar", !config.hide_scrollbar ));
-    listview_set_scrollbar_width ( state->list_view, rofi_theme_get_integer ( "listview", "scrollbar-width", config.scrollbar_width ));
-    listview_set_cycle ( state->list_view,           rofi_theme_get_boolean ( "listview" , "cycle", config.cycle ));
     listview_set_scroll_type ( state->list_view, config.scroll_method );
     listview_set_mouse_activated_cb ( state->list_view, rofi_view_listview_mouse_activated_cb, state );
 
@@ -1553,7 +1547,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->main_box = box_create ( "mainbox.box", BOX_VERTICAL,
                                    state->border, state->border,
                                    state->width - 2 * state->border, state->height - 2 * state->border );
-    state->text = textbox_create ( ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
+    state->text = textbox_create ( "message", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
                                    ( state->border ), ( state->border ),
                                    ( state->width - ( 2 * ( state->border ) ) ), 1, NORMAL, ( msg != NULL ) ? msg : "" );
     box_add ( state->main_box, WIDGET ( state->text ), TRUE, FALSE );

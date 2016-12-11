@@ -33,10 +33,10 @@ static void scrollbar_draw ( widget *, cairo_t * );
 static void scrollbar_free ( widget * );
 static gboolean scrollbar_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
 
-scrollbar *scrollbar_create ( short x, short y, short w, short h )
+scrollbar *scrollbar_create ( const char *name, short x, short y, short w, short h )
 {
     scrollbar *sb = g_malloc0 ( sizeof ( scrollbar ) );
-
+    sb->widget.name = g_strdup(name);
     sb->widget.x = x;
     sb->widget.y = y;
     sb->widget.w = MAX ( 1, w );
@@ -109,6 +109,7 @@ static void scrollbar_draw ( widget *wid, cairo_t *draw )
     height = MAX ( 2, height );
     // Cap length;
     color_separator ( draw );
+    rofi_theme_get_color ( sb->widget.name, "foreground", draw );
 
     cairo_rectangle ( draw, sb->widget.x, sb->widget.y + y, sb->widget.w, height );
     cairo_fill ( draw );
