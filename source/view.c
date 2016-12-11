@@ -794,14 +794,15 @@ void rofi_view_update ( RofiViewState *state )
     color_border ( d );
     rofi_theme_get_color ( "window" , "foreground", d );
 
-    if ( config.menu_bw > 0 ) {
+    int bw = rofi_theme_get_integer ( "window", "border-width" , config.menu_bw);
+    if ( bw > 0 ) {
         cairo_save ( d );
-        cairo_set_line_width ( d, config.menu_bw );
+        cairo_set_line_width ( d, bw );
         cairo_rectangle ( d,
-                          config.menu_bw / 2.0,
-                          config.menu_bw / 2.0,
-                          state->width - config.menu_bw,
-                          state->height - config.menu_bw );
+                          bw / 2.0,
+                          bw / 2.0,
+                          state->width - bw,
+                          state->height - bw );
         cairo_stroke ( d );
         cairo_restore ( d );
     }
@@ -1539,9 +1540,10 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 {
     RofiViewState *state = __rofi_view_state_create ();
     state->retv       = MENU_CANCEL;
-    state->border     = config.padding + config.menu_bw;
     state->menu_flags = MENU_ERROR_DIALOG;
     state->finalize   = process_result;
+    state->border = rofi_theme_get_integer ( "window", "padding" , config.padding );
+    state->border += rofi_theme_get_integer ( "window", "border-width" , config.menu_bw);
 
     rofi_view_calculate_window_and_element_width ( state );
     state->main_box = box_create ( "mainbox.box", BOX_VERTICAL,
