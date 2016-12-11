@@ -68,8 +68,13 @@ void widget_draw ( widget *widget, cairo_t *d )
 }
 void widget_free ( widget *wid )
 {
-    if ( wid && wid->free ) {
-        wid->free ( wid );
+    if ( wid ) {
+        if ( wid->name ) {
+            g_free ( wid->name );
+        }
+        if ( wid->free ) {
+            wid->free ( wid );
+        }
     }
 }
 
@@ -162,4 +167,12 @@ gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
     }
 
     return FALSE;
+}
+
+void widget_set_name ( widget *wid, const char *name )
+{
+    if ( wid->name ) {
+        g_free(wid);
+    }
+    wid->name = g_strdup ( name );
 }

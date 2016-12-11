@@ -780,15 +780,18 @@ void rofi_view_update ( RofiViewState *state )
         cairo_paint ( d );
         cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
         color_background ( d );
+        rofi_theme_get_color ( "window" , "background", d );
         cairo_paint ( d );
     }
     else {
         // Paint the background.
         color_background ( d );
+        rofi_theme_get_color ( "window" , "background", d );
         cairo_paint ( d );
     }
     TICK_N ( "Background" );
     color_border ( d );
+    rofi_theme_get_color ( "window" , "foreground", d );
 
     if ( config.menu_bw > 0 ) {
         cairo_save ( d );
@@ -1428,26 +1431,21 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Get active monitor size.
     TICK_N ( "Get active monitor" );
 
-    state->main_box = box_create ( BOX_VERTICAL,
+    state->main_box = box_create ( "box.mainbox", BOX_VERTICAL,
                                    state->border, state->border,
                                    state->width - 2 * state->border, state->height - 2 * state->border );
-    box_set_padding ( state->main_box, rofi_theme_get_integer ( "box.main_box", "padding",config.line_margin ));
 
     // we need this at this point so we can get height.
     unsigned int line_height = textbox_get_estimated_char_height ();
     rofi_view_calculate_window_and_element_width ( state );
 
-    state->input_bar = box_create ( BOX_HORIZONTAL, 0, 0, state->width - state->border, line_height );
-    state->input_bar_separator = separator_create ( S_HORIZONTAL, 2 );
-    separator_set_line_style_from_string ( state->input_bar_separator, config.separator_style );
-
+    state->input_bar = box_create ( "box.inputbar", BOX_HORIZONTAL, 0, 0, state->width - state->border, line_height );
+    state->input_bar_separator = separator_create ( "separator.inputbar", S_HORIZONTAL, 2 );
 
     // Only enable widget when sidebar is enabled.
     if ( config.sidebar_mode ) {
-        state->sidebar_bar = box_create ( BOX_HORIZONTAL, 0, 0, state->width - 2 * state->border, line_height );
-        box_set_padding ( state->sidebar_bar, rofi_theme_get_integer ( "box.sidebar", "padding",config.line_margin ) );
-        separator *sep = separator_create ( S_HORIZONTAL, 2 );
-        separator_set_line_style_from_string ( sep, config.separator_style );
+        state->sidebar_bar = box_create ( "box.sidebar", BOX_HORIZONTAL, 0, 0, state->width - 2 * state->border, line_height );
+        separator *sep = separator_create ( "separator.sidebar", S_HORIZONTAL, 2 );
         box_add ( state->main_box, WIDGET ( state->sidebar_bar ), FALSE, TRUE );
         box_add ( state->main_box, WIDGET ( sep ), FALSE, TRUE );
         state->num_modi = rofi_get_num_enabled_modi ();
@@ -1484,10 +1482,9 @@ RofiViewState *rofi_view_create ( Mode *sw,
     if ( message ) {
         textbox *message_tb = textbox_create ( TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, 0, 0,
                                                state->width - ( 2 * ( state->border ) ), -1, NORMAL, message );
-        separator *sep = separator_create ( S_HORIZONTAL, 2 );
+        separator *sep = separator_create ( "separator", S_HORIZONTAL, 2 );
         box_add ( state->main_box, WIDGET ( sep ), FALSE, end);
         box_add ( state->main_box, WIDGET ( message_tb ), FALSE, end);
-        separator_set_line_style_from_string ( sep, config.separator_style );
     }
     box_add ( state->main_box, WIDGET ( state->input_bar_separator ), FALSE, end );
 
@@ -1553,7 +1550,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->finalize   = process_result;
 
     rofi_view_calculate_window_and_element_width ( state );
-    state->main_box = box_create ( BOX_VERTICAL,
+    state->main_box = box_create ( "box.mainbox", BOX_VERTICAL,
                                    state->border, state->border,
                                    state->width - 2 * state->border, state->height - 2 * state->border );
     state->text = textbox_create ( ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),

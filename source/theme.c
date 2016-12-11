@@ -217,3 +217,20 @@ double rofi_theme_get_double ( const char  *name, const char *property, double d
     }
     return def;
 }
+void rofi_theme_get_color ( const char  *name, const char *property, cairo_t *d) 
+{
+    if ( rofi_theme == NULL ) {
+        return ;
+    }
+    Widget *widget = rofi_theme_find ( name );
+    Property *p = rofi_theme_find_property ( widget, P_COLOR, property );
+    if ( p ){
+        cairo_set_source_rgba ( d,
+                p->value.color.red,
+                p->value.color.green,
+                p->value.color.blue,
+                p->value.color.alpha
+                );
+
+    }
+}

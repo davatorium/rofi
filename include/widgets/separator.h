@@ -37,6 +37,7 @@ typedef enum
 } separator_line_style;
 
 /**
+ * @param name The name of the widget.
  * @param type The type of separator.
  * @param sw The thickness of the separator.
  *
@@ -44,22 +45,7 @@ typedef enum
  *
  * @returns a new separator, free with ::widget_free
  */
-separator *separator_create ( separator_type type, short sw );
+separator *separator_create ( const char *name, separator_type type, short sw );
 
-/**
- * @param sp The separator widget handle.
- * @param style_str String representation of the style.
- *
- * Sets the line style based on the string style_str
- */
-void separator_set_line_style_from_string ( separator *sp, const char *style_str );
-
-/**
- * @param sp The separator widget handle.
- * @param style The new style.
- *
- * Sets the line style.
- */
-void separator_set_line_style ( separator *sp, separator_line_style style );
 /*@}*/
 #endif // ROFI_SEPARATOR_H

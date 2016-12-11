@@ -1,6 +1,7 @@
 #ifndef THEME_H
 #define THEME_H
 #include <glib.h>
+#include <cairo.h>
 typedef enum {
     P_INTEGER,
     P_DOUBLE,
@@ -65,4 +66,5 @@ int rofi_theme_get_integer ( const char  *name, const char *property, int def );
 int rofi_theme_get_boolean ( const char  *name, const char *property, int def );
 char *rofi_theme_get_string ( const char  *name, const char *property, char *def );
 double rofi_theme_get_double ( const char *name, const char *property, double def );
+void rofi_theme_get_color ( const char  *name, const char *property, cairo_t *d);
 #endif

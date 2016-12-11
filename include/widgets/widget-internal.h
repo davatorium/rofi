@@ -45,5 +45,8 @@ struct _widget
 
     /** Free widget callback */
     void              ( *free )( struct _widget *widget );
+
+    /** Name of widget (used for theming) */
+    char *name;
 };
 #endif // WIDGET_INTERNAL_H

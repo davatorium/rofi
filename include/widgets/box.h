@@ -32,6 +32,7 @@ typedef enum
 } boxType;
 
 /**
+ * @param name The name of the widget.
  * @param type The packing direction of the newly created box.
  * @param x    The x position of the box relative to its parent.
  * @param y    The y position of the box relative to its parent.
@@ -40,7 +41,7 @@ typedef enum
  *
  * @returns a newly created box, free with #widget_free
  */
-box * box_create ( boxType type, short x, short y, short w, short h );
+box * box_create ( const char *name, boxType type, short x, short y, short w, short h );
 
 /**
  * @param box   Handle to the box widget.
@@ -61,13 +62,5 @@ void box_add ( box *box, widget *child, gboolean expand, gboolean end );
  * @returns the minimum size in pixels.
  */
 int box_get_fixed_pixels ( box *box );
-
-/**
- * @param box Handle to the box widget.
- * @param padding The padding to apply.
- *
- * Set the padding to apply between the children in pixels.
- */
-void box_set_padding ( box * box, unsigned int padding );
 /*@}*/
 #endif // ROFI_HBOX_H

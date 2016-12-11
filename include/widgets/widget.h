@@ -173,5 +173,8 @@ void widget_set_clicked_handler ( widget *wid, widget_clicked_cb cb, void *udata
  * returns TRUE when handled.
  */
 gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
+
+
+void widget_set_name ( widget *wid, const char *name );
 /*@}*/
 #endif // ROFI_WIDGET_H

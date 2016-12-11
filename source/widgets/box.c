@@ -29,8 +29,18 @@
 #include "widgets/widget.h"
 #include "widgets/widget-internal.h"
 #include "widgets/box.h"
+#include "theme.h"
+#include "settings.h"
 
 #define LOG_DOMAIN    "Widgets.Box"
+
+/**
+ * @param box Handle to the box widget.
+ * @param padding The padding to apply.
+ *
+ * Set the padding to apply between the children in pixels.
+ */
+void box_set_padding ( box * box, unsigned int padding );
 
 struct _box
 {
@@ -263,10 +273,11 @@ static gboolean box_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme 
     return FALSE;
 }
 
-box * box_create ( boxType type, short x, short y, short w, short h )
+box * box_create ( const char *name, boxType type, short x, short y, short w, short h )
 {
     box *b = g_malloc0 ( sizeof ( box ) );
     b->type                 = type;
+    b->widget.name          = g_strdup (name);
     b->widget.x             = x;
     b->widget.y             = y;
     b->widget.w             = w;
@@ -279,6 +290,7 @@ box * box_create ( boxType type, short x, short y, short w, short h )
     b->widget.motion_notify = box_motion_notify;
     b->widget.enabled       = TRUE;
 
+    box_set_padding ( b, rofi_theme_get_integer ( b->widget.name, "padding",config.line_margin ));
     return b;
 }
 

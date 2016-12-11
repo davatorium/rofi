@@ -31,6 +31,23 @@
 #include "widgets/separator.h"
 #include "x11-helper.h"
 #include "settings.h"
+#include "theme.h"
+
+/**
+ * @param sp The separator widget handle.
+ * @param style_str String representation of the style.
+ *
+ * Sets the line style based on the string style_str
+ */
+void separator_set_line_style_from_string ( separator *sp, const char *style_str );
+
+/**
+ * @param sp The separator widget handle.
+ * @param style The new style.
+ *
+ * Sets the line style.
+ */
+void separator_set_line_style ( separator *sp, separator_line_style style );
 
 /**
  * Internal structure for the separator.
@@ -49,11 +66,11 @@ const char *const _separator_style_dash = "dash";
 static void separator_draw ( widget *, cairo_t * );
 static void separator_free ( widget * );
 
-separator *separator_create ( separator_type type, short sw )
+separator *separator_create ( const char *name, separator_type type, short sw )
 {
     separator *sb = g_malloc0 ( sizeof ( separator ) );
     sb->type = type;
-
+    sb->widget.name = g_strdup ( name );
     sb->widget.x = 0;
     sb->widget.y = 0;
     if ( sb->type == S_HORIZONTAL ) {
@@ -70,6 +87,9 @@ separator *separator_create ( separator_type type, short sw )
 
     // Enabled by default
     sb->widget.enabled = TRUE;
+
+    const char *line_style = rofi_theme_get_string ( sb->widget.name, "line-style", "solid");
+    separator_set_line_style_from_string ( sb, line_style );
     return sb;
 }
 
@@ -109,6 +129,7 @@ static void separator_draw ( widget *wid, cairo_t *draw )
         return;
     }
     color_separator ( draw );
+    rofi_theme_get_color ( wid->name, "foreground", draw );
     if ( sep->line_style == S_LINE_DASH ) {
         const double dashes[1] = { 4 };
         cairo_set_dash ( draw, dashes, 1, 0.0 );
