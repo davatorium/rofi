@@ -149,6 +149,8 @@ typedef struct
     /** Click outside the window to exit */
     int            click_to_exit;
     gboolean       show_match;
+
+    char           *theme;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

@@ -898,9 +898,8 @@ int main ( int argc, char *argv[] )
     // Parse command line for settings, independent of other -no-config.
     config_parse_cmd_options_dynamic (  );
 
-    char *theme = NULL;
-    if ( find_arg_str ( "-theme", &theme ) > 0 ){
-        rofi_theme_parse_file ( theme );
+    if ( config.theme ) {
+        rofi_theme_parse_file ( config.theme );
         rofi_theme_print ( rofi_theme );
     }
 
