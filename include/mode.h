@@ -26,7 +26,9 @@ typedef enum
     /** Reload current DIALOG */
     RELOAD_DIALOG   = 1002,
     /** Previous dialog */
-    PREVIOUS_DIALOG = 1003
+    PREVIOUS_DIALOG = 1003,
+    /** Reloads the dialog and unset user input */
+    RESET_DIALOG    = 1004,
 } ModeMode;
 
 /**

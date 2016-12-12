@@ -1679,6 +1679,14 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text )
     widget_move ( WIDGET ( state->overlay ), x_offset, state->border );
 }
 
+void rofi_view_clear_input ( RofiViewState *state )
+{
+    if ( state->text ){
+        textbox_text ( state->text, "");
+        rofi_view_set_selected_line ( state, 0 );
+    }
+}
+
 void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
 {
     state->sw = mode;
