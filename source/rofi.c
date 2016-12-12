@@ -216,6 +216,9 @@ void process_result ( RofiViewState *state )
         else if ( retv == RELOAD_DIALOG ) {
             // do nothing.
         }
+        else if ( retv == RESET_DIALOG ) {
+            rofi_view_clear_input ( state );
+        }
         else if ( retv < MODE_EXIT ) {
             mode = ( retv ) % num_modi;
         }
