@@ -3,14 +3,15 @@
 #include <errno.h>
 #include <string.h>
 #include "theme.h"
+#include "lexer/theme-parser.h"
+void yyerror ( YYLTYPE *ylloc, const char *);
 
-void yyerror ( const char *);
 Widget *rofi_theme_find_or_create_class ( Widget *base, const char *class )
 {
     for ( unsigned int i = 0; i < base->num_widgets;i++){
         if ( g_strcmp0(base->widgets[i]->name, class) == 0 ){
             return base->widgets[i];
-        } 
+        }
     }
 
     base->widgets = g_realloc ( base->widgets, sizeof(Widget*)*(base->num_widgets+1));
@@ -116,8 +117,9 @@ extern int yyparse();
 extern FILE* yyin;
 extern Widget *rofi_theme;
 
-void yyerror(const char* s) {
+void yyerror(YYLTYPE *yylloc, const char* s) {
 	fprintf(stderr, "Parse error: %s\n", s);
+    fprintf(stderr, "From line %d column %d to line %d column %d\n", yylloc->first_line, yylloc->first_column, yylloc->last_line, yylloc->last_column);
 	exit(EXIT_FAILURE);
 }
 /**

@@ -1,3 +1,4 @@
+%define api.pure
 %glr-parser       
 %skeleton "glr.c"
 %locations
@@ -11,11 +12,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void yyerror(const char* s);
-int yylex (void );
 
 #include "theme.h"
+#include "lexer/theme-parser.h"
 Widget *rofi_theme = NULL;
+void yyerror(YYLTYPE *yylloc, const char* s);
+int yylex (YYSTYPE *, YYLTYPE *);
 %}
 
 %union {
