@@ -290,7 +290,7 @@ box * box_create ( const char *name, boxType type, short x, short y, short w, sh
     b->widget.motion_notify = box_motion_notify;
     b->widget.enabled       = TRUE;
 
-    box_set_padding ( b, rofi_theme_get_integer ( b->widget.name, "padding",config.line_margin ));
+    box_set_padding ( b, rofi_theme_get_integer ( "@box", b->widget.name, NULL, "padding",config.line_margin ));
     return b;
 }
 

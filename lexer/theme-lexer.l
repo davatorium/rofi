@@ -22,6 +22,9 @@ WORD       [_\-a-zA-Z0-9]+
 STRING     [ \t_\-a-zA-Z0-9]+
 HEX        [0-9a-fA-F]
 NUMBER     [0-9]
+
+%x PROPERTIES
+%x NAMESTR
 %%
 
 %{
@@ -64,20 +67,24 @@ YY_LLOC_START
 }
 
 "\{"                { return BOPEN;}
-"\}"                { return BCLOSE;}
-":"                 { return PSEP; }
-";"                 { return PCLOSE;}
-"."                 { return NSEP; }
-"#"                 { return NAME_PREFIX;}
-(true|false)        { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
-{NUMBER}+           { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
-{NUMBER}+\.{NUMBER}+   { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
-@{WORD}             { yylval->sval = g_strdup(yytext); return CLASS_NAME; }
+"@"                 { BEGIN(NAMESTR);return CLASS_PREFIX;}
+"#"                 { BEGIN(NAMESTR);return NAME_PREFIX;}
+"\}"                             { return BCLOSE;}
+<INITIAL,NAMESTR>"."                 { return NSEP; }
 {WORD}              { yylval->sval = g_strdup(yytext); return N_STRING;}
-{WHITESPACE}	; // ignore all whitespace
-\"{STRING}\"        { yytext[yyleng-1] = '\0'; yylval->sval = g_strdup(&yytext[1]); return T_STRING;}
+<NAMESTR>{WORD}              { yylval->sval = g_strdup(yytext); return NAME_ELEMENT;}
 
-#{HEX}{8}       {
+<NAMESTR>{WHITESPACE}  { BEGIN(INITIAL);}
+<INITIAL>{WHITESPACE}+	; // ignore all whitespace
+<PROPERTIES>{WHITESPACE}+	; // ignore all whitespace
+
+":"                              { BEGIN(PROPERTIES); return PSEP; }
+<PROPERTIES>";"                  { BEGIN(0); return PCLOSE;}
+<PROPERTIES>(true|false)         { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
+<PROPERTIES>{NUMBER}+            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
+<PROPERTIES>{NUMBER}+\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
+<PROPERTIES>\"{STRING}\"         { yytext[yyleng-1] = '\0'; yylval->sval = g_strdup(&yytext[1]); return T_STRING;}
+<PROPERTIES>#{HEX}{8}       {
     union {  unsigned int val; struct { unsigned char b,g,r,a;};} val;
     val.val = (unsigned int)strtoull ( &yytext[1], NULL, 16);
     yylval->colorval.alpha = val.a/255.0;
@@ -86,7 +93,7 @@ YY_LLOC_START
     yylval->colorval.blue  = val.b/255.0;
     return T_COLOR;
 }
-#{HEX}{6}       {
+<PROPERTIES>#{HEX}{6}       {
     union {  unsigned int val; struct { unsigned char b,g,r,a;};} val;
     val.val = (unsigned int)g_ascii_strtoull ( &yytext[1], NULL, 16);
     yylval->colorval.alpha = 1.0;
@@ -95,7 +102,7 @@ YY_LLOC_START
     yylval->colorval.blue  = val.b/255.0;
     return T_COLOR;
 }
-rgba\({NUMBER}{1,3},{NUMBER}{1,3},{NUMBER}{1,3},[01](\.{NUMBER}+)?\) {
+<PROPERTIES>rgba\({NUMBER}{1,3},{NUMBER}{1,3},{NUMBER}{1,3},[01](\.{NUMBER}+)?\) {
     char *endptr = &yytext[5];
     yylval->colorval.red = g_ascii_strtoull ( endptr, &endptr, 10);
     yylval->colorval.green= g_ascii_strtoull ( endptr+1, &endptr, 10);
@@ -103,7 +110,7 @@ rgba\({NUMBER}{1,3},{NUMBER}{1,3},{NUMBER}{1,3},[01](\.{NUMBER}+)?\) {
     yylval->colorval.alpha= g_ascii_strtod ( endptr+1, NULL);
     return T_COLOR;
 }
-rgb\({NUMBER}{1,3},{NUMBER}{1,3},{NUMBER}{1,3}\) {
+<PROPERTIES>rgb\({NUMBER}{1,3},{NUMBER}{1,3},{NUMBER}{1,3}\) {
     char *endptr = &yytext[4];
     yylval->colorval.red   = g_ascii_strtoull ( endptr, &endptr, 10);
     yylval->colorval.green = g_ascii_strtoull ( endptr+1, &endptr, 10);
@@ -111,7 +118,8 @@ rgb\({NUMBER}{1,3},{NUMBER}{1,3},{NUMBER}{1,3}\) {
     yylval->colorval.alpha = 1.0;
     return T_COLOR;
 }
-(\r\n|\n) {
+
+<*>(\r\n|\n) {
         yylloc->last_column = 1;
         yylloc->last_line ++;
 };

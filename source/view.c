@@ -586,7 +586,7 @@ void __create_window ( MenuFlags menu_flags )
         pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, (double) config.dpi );
     }
     // Setup font.
-    char *font = rofi_theme_get_string ("window", "font" , config.menu_font );
+    char *font = rofi_theme_get_string ("@widnow" , "window", NULL, "font" , config.menu_font );
     if ( font ) {
         PangoFontDescription *pfd = pango_font_description_from_string ( font );
         pango_context_set_font_description ( p, pfd );
@@ -794,7 +794,7 @@ void rofi_view_update ( RofiViewState *state )
     color_border ( d );
     rofi_theme_get_color ( "@window", "window" , NULL, "foreground", d );
 
-    int bw = rofi_theme_get_integer ( "window", "border-width" , config.menu_bw);
+    int bw = rofi_theme_get_integer ( "@window", "window", NULL, "border-width" , config.menu_bw);
     if ( bw > 0 ) {
         cairo_save ( d );
         cairo_set_line_width ( d, bw );
@@ -1422,8 +1422,8 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->finalize   = finalize;
     state->mouse_seen = FALSE;
 
-    state->border = rofi_theme_get_integer ( "window", "padding" , config.padding );
-    state->border += rofi_theme_get_integer ( "window", "border-width" , config.menu_bw);
+    state->border = rofi_theme_get_integer  ("@window",  "window", NULL,  "padding" , config.padding );
+    state->border += rofi_theme_get_integer ("@window",  "window", NULL,  "border-width" , config.menu_bw);
 
     // Request the lines to show.
     state->num_lines = mode_get_num_entries ( sw );
@@ -1542,8 +1542,8 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->retv       = MENU_CANCEL;
     state->menu_flags = MENU_ERROR_DIALOG;
     state->finalize   = process_result;
-    state->border = rofi_theme_get_integer ( "window", "padding" , config.padding );
-    state->border += rofi_theme_get_integer ( "window", "border-width" , config.menu_bw);
+    state->border = rofi_theme_get_integer  ( "@window", "window", NULL, "padding" , config.padding );
+    state->border += rofi_theme_get_integer ( "@window", "window", NULL, "border-width" , config.menu_bw);
 
     rofi_view_calculate_window_and_element_width ( state );
     state->main_box = box_create ( "mainbox.box", BOX_VERTICAL,

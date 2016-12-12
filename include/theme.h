@@ -35,6 +35,7 @@ typedef struct {
 } Property;
 
 typedef struct _Widget {
+    int set;
     char *name;
 
     unsigned int num_widgets;
@@ -62,9 +63,9 @@ void rofi_theme_parse_file ( const char *file );
  * Public API
  */
 
-int rofi_theme_get_integer ( const char  *name, const char *property, int def );
-int rofi_theme_get_boolean ( const char  *name, const char *property, int def );
-char *rofi_theme_get_string ( const char  *name, const char *property, char *def );
-double rofi_theme_get_double ( const char *name, const char *property, double def );
+int rofi_theme_get_integer   ( const char *wclass,  const char *name, const char *state,  const char *property, int def );
+int rofi_theme_get_boolean   ( const char *wclass,  const char *name, const char *state,  const char *property, int def );
+char *rofi_theme_get_string  ( const char *wclass,  const char *name, const char *state,  const char *property, char *def );
+double rofi_theme_get_double ( const char *wclass,  const char *name, const char *state,  const char *property, double def );
 void rofi_theme_get_color ( const char *wclass, const char  *name, const char *state, const char *property, cairo_t *d);
 #endif

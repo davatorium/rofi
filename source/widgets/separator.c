@@ -88,7 +88,7 @@ separator *separator_create ( const char *name, separator_type type, short sw )
     // Enabled by default
     sb->widget.enabled = TRUE;
 
-    const char *line_style = rofi_theme_get_string ( sb->widget.name, "line-style", "solid");
+    const char *line_style = rofi_theme_get_string ( "@scrollbar", sb->widget.name, NULL, "line-style", "solid");
     separator_set_line_style_from_string ( sb, line_style );
     return sb;
 }

@@ -337,13 +337,13 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->udata    = udata;
 
     // Some settings.
-    lv->padding      = rofi_theme_get_integer ( lv->widget.name, "padding", config.line_margin );
-    lv->menu_lines   = rofi_theme_get_integer ( lv->widget.name, "lines",   config.menu_lines );
-    lv->menu_columns = rofi_theme_get_integer ( lv->widget.name, "columns", config.menu_columns);
-    lv->fixed_num_lines = rofi_theme_get_boolean ( lv->widget.name, "fixed-height", config.fixed_num_lines );
-    listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( lv->widget.name, "scrollbar", !config.hide_scrollbar ));
-    listview_set_scrollbar_width ( lv, rofi_theme_get_integer ( lv->widget.name, "scrollbar-width", config.scrollbar_width ));
-    lv->cycle = rofi_theme_get_boolean ( lv->widget.name, "cycle", config.cycle );
+    lv->padding      =    rofi_theme_get_integer ("@listview", lv->widget.name, NULL,  "padding", config.line_margin );
+    lv->menu_lines   =    rofi_theme_get_integer ("@listview", lv->widget.name, NULL,  "lines",   config.menu_lines );
+    lv->menu_columns =    rofi_theme_get_integer ("@listview", lv->widget.name, NULL,  "columns", config.menu_columns);
+    lv->fixed_num_lines = rofi_theme_get_boolean ("@listview", lv->widget.name, NULL,  "fixed-height", config.fixed_num_lines );
+    listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( "@listview", lv->widget.name, NULL, "scrollbar", !config.hide_scrollbar ));
+    listview_set_scrollbar_width ( lv, rofi_theme_get_integer ( "@listview", lv->widget.name, NULL, "scrollbar-width", config.scrollbar_width ));
+    lv->cycle = rofi_theme_get_boolean ( "@listview", lv->widget.name, NULL,  "cycle", config.cycle );
 
 
     return lv;
