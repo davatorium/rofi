@@ -66,5 +66,5 @@ int rofi_theme_get_integer ( const char  *name, const char *property, int def );
 int rofi_theme_get_boolean ( const char  *name, const char *property, int def );
 char *rofi_theme_get_string ( const char  *name, const char *property, char *def );
 double rofi_theme_get_double ( const char *name, const char *property, double def );
-void rofi_theme_get_color ( const char  *name, const char *property, cairo_t *d);
+void rofi_theme_get_color ( const char *wclass, const char  *name, const char *state, const char *property, cairo_t *d);
 #endif

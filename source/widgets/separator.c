@@ -129,7 +129,7 @@ static void separator_draw ( widget *wid, cairo_t *draw )
         return;
     }
     color_separator ( draw );
-    rofi_theme_get_color ( wid->name, "foreground", draw );
+    rofi_theme_get_color ( "@separator", wid->name, NULL, "foreground", draw );
     if ( sep->line_style == S_LINE_DASH ) {
         const double dashes[1] = { 4 };
         cairo_set_dash ( draw, dashes, 1, 0.0 );

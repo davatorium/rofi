@@ -29,6 +29,8 @@
 #include "x11-helper.h"
 #include "settings.h"
 
+#include "theme.h"
+
 static void scrollbar_draw ( widget *, cairo_t * );
 static void scrollbar_free ( widget * );
 static gboolean scrollbar_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
@@ -109,7 +111,7 @@ static void scrollbar_draw ( widget *wid, cairo_t *draw )
     height = MAX ( 2, height );
     // Cap length;
     color_separator ( draw );
-    rofi_theme_get_color ( sb->widget.name, "foreground", draw );
+    rofi_theme_get_color ( "@scrollbar", sb->widget.name, NULL, "foreground", draw );
 
     cairo_rectangle ( draw, sb->widget.x, sb->widget.y + y, sb->widget.w, height );
     cairo_fill ( draw );

@@ -221,12 +221,17 @@ double rofi_theme_get_double ( const char  *name, const char *property, double d
     }
     return def;
 }
-void rofi_theme_get_color ( const char  *name, const char *property, cairo_t *d) 
+void rofi_theme_get_color ( const char *wclass, const char  *name, const char *state, const char *property, cairo_t *d) 
 {
     if ( rofi_theme == NULL ) {
         return ;
     }
     Widget *widget = rofi_theme_find ( rofi_theme, name );
+    if ( widget == rofi_theme ){
+        // Fall back to class
+        widget = rofi_theme_find ( widget, wclass);
+    }
+    widget = rofi_theme_find ( widget, state );
     Property *p = rofi_theme_find_property ( widget, P_COLOR, property );
     if ( p ){
         cairo_set_source_rgba ( d,

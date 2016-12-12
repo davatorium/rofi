@@ -143,45 +143,42 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, short x, short y
     return tb;
 }
 
+const char const *const theme_prop_names[][3] = {
+    {"normal.normal", "selected.normal", "alternate.normal"},
+    {"urgent.normal", "selected.urgent", "alternate.urgent"},
+    {"active.normal", "selected.active", "alternate.active"},
+};
+
 void textbox_font ( textbox *tb, TextBoxFontType tbft )
 {
     TextBoxFontType t = tbft & STATE_MASK;
     if ( tb == NULL ) {
         return;
     }
-    char *state = "normal";
-
     // ACTIVE has priority over URGENT if both set.
     if ( t == ( URGENT | ACTIVE ) ) {
         t = ACTIVE;
     }
-    if ( t == URGENT ) {
-        state = "urgent";
-    } else if ( t == ACTIVE ){
-        state = "active";
-    }
-    char *mode = "normal";
     RowColor *color = &( colors[t] );
     switch ( ( tbft & FMOD_MASK ) )
     {
     case HIGHLIGHT:
         tb->color_bg = color->hlbg;
         tb->color_fg = color->hlfg;
-        mode = "selected";
+        tb->theme_name = theme_prop_names[t][1]; 
         break;
     case ALT:
         tb->color_bg = color->bgalt;
         tb->color_fg = color->fg;
-        mode = "alternate";
+        tb->theme_name = theme_prop_names[t][2]; 
         break;
     default:
         tb->color_bg = color->bg;
         tb->color_fg = color->fg;
+        tb->theme_name = theme_prop_names[t][0]; 
         break;
     }
     if ( tb->tbft != tbft || tb->theme_name == NULL ) {
-        g_free ( tb->theme_name);
-        tb->theme_name = g_strjoin ("." , tb->widget.name, mode, state, NULL );
         tb->update = TRUE;
         widget_queue_redraw ( WIDGET ( tb ) );
     }
@@ -301,7 +298,6 @@ static void textbox_free ( widget *wid )
         g_source_remove ( tb->blink_timeout );
         tb->blink_timeout = 0;
     }
-    g_free(tb->theme_name );
     g_free ( tb->text );
 
     if ( tb->layout != NULL ) {
@@ -374,12 +370,12 @@ static void texbox_update ( textbox *tb )
         // Set ARGB
         Color col = tb->color_bg;
         cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
-        rofi_theme_get_color ( tb->theme_name, "background", tb->main_draw);
+        rofi_theme_get_color ( "@textbox", tb->widget.name, tb->theme_name, "background", tb->main_draw);
         cairo_paint ( tb->main_draw );
 
         col = tb->color_fg;
         cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
-        rofi_theme_get_color ( tb->theme_name, "foreground", tb->main_draw);
+        rofi_theme_get_color ( "@textbox",tb->widget.name, tb->theme_name, "foreground", tb->main_draw);
         // draw the cursor
         if ( tb->flags & TB_EDITABLE && tb->blink ) {
             cairo_rectangle ( tb->main_draw, x + cursor_x, y, cursor_width, font_height );

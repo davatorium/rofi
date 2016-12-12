@@ -17,7 +17,11 @@
     yylloc->first_line = yylloc->last_line; yylloc->first_column = yylloc->last_column;\
 }
 %}
-
+WHITESPACE [ \t]
+WORD       [_\-a-zA-Z0-9]+
+STRING     [ \t_\-a-zA-Z0-9]+
+HEX        [0-9a-fA-F]
+NUMBER     [0-9]
 %%
 
 %{
@@ -58,19 +62,22 @@ YY_LLOC_START
     }
     YY_LLOC_START
 }
+
 "\{"                { return BOPEN;}
 "\}"                { return BCLOSE;}
 ":"                 { return PSEP; }
 ";"                 { return PCLOSE;}
 "."                 { return NSEP; }
-[ \t]	; // ignore all whitespace
-[0-9]+\.[0-9]+      { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
-[0-9]+              { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
+"#"                 { return NAME_PREFIX;}
 (true|false)        { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
-[_\-a-zA-Z0-9]+        { yylval->sval = g_strdup(yytext); return N_STRING;}
-\"[_\-a-zA-Z0-9 \t]+\"    { yytext[yyleng-1] = '\0'; yylval->sval = g_strdup(&yytext[1]); return T_STRING;}
+{NUMBER}+           { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
+{NUMBER}+\.{NUMBER}+   { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
+@{WORD}             { yylval->sval = g_strdup(yytext); return CLASS_NAME; }
+{WORD}              { yylval->sval = g_strdup(yytext); return N_STRING;}
+{WHITESPACE}	; // ignore all whitespace
+\"{STRING}\"        { yytext[yyleng-1] = '\0'; yylval->sval = g_strdup(&yytext[1]); return T_STRING;}
 
-#[0-9A-Fa-f]{8}       {
+#{HEX}{8}       {
     union {  unsigned int val; struct { unsigned char b,g,r,a;};} val;
     val.val = (unsigned int)strtoull ( &yytext[1], NULL, 16);
     yylval->colorval.alpha = val.a/255.0;
@@ -79,7 +86,7 @@ YY_LLOC_START
     yylval->colorval.blue  = val.b/255.0;
     return T_COLOR;
 }
-#[0-9A-Fa-f]{6}       {
+#{HEX}{6}       {
     union {  unsigned int val; struct { unsigned char b,g,r,a;};} val;
     val.val = (unsigned int)g_ascii_strtoull ( &yytext[1], NULL, 16);
     yylval->colorval.alpha = 1.0;
@@ -88,7 +95,7 @@ YY_LLOC_START
     yylval->colorval.blue  = val.b/255.0;
     return T_COLOR;
 }
-rgba\([0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[01](\.[0-9]+)?\) {
+rgba\({NUMBER}{1,3},{NUMBER}{1,3},{NUMBER}{1,3},[01](\.{NUMBER}+)?\) {
     char *endptr = &yytext[5];
     yylval->colorval.red = g_ascii_strtoull ( endptr, &endptr, 10);
     yylval->colorval.green= g_ascii_strtoull ( endptr+1, &endptr, 10);
@@ -96,7 +103,7 @@ rgba\([0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[01](\.[0-9]+)?\) {
     yylval->colorval.alpha= g_ascii_strtod ( endptr+1, NULL);
     return T_COLOR;
 }
-rgb\([0-9]{1,3},[0-9]{1,3},[0-9]{1,3}\) {
+rgb\({NUMBER}{1,3},{NUMBER}{1,3},{NUMBER}{1,3}\) {
     char *endptr = &yytext[4];
     yylval->colorval.red   = g_ascii_strtoull ( endptr, &endptr, 10);
     yylval->colorval.green = g_ascii_strtoull ( endptr+1, &endptr, 10);

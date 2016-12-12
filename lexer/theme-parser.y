@@ -38,18 +38,22 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token <sval>     N_STRING
 %token <bval>     T_BOOLEAN
 %token <colorval> T_COLOR
+%token <sval>     CLASS_NAME
 
 %token BOPEN  "bracket open";
 %token BCLOSE "bracket close";
 %token PSEP   "property separator";
 %token PCLOSE "property close";
 %token NSEP   "Name separator";
+%token CLASS_PREFIX  "Class prefix";
+%token NAME_PREFIX   "Name prefix";
 
 %type <sval> entry
 %type <sval> pvalue
 %type <theme> entries
 %type <theme> start
 %type <name_path> name_path
+%type <name_path> state_path
 %type <property> property
 %type <property_list> property_list
 %type <property_list> optional_properties
@@ -76,20 +80,38 @@ entries:
 ;
 
 entry:
-     name_path BOPEN optional_properties BCLOSE
+CLASS_NAME state_path BOPEN optional_properties BCLOSE
 {
-        Widget *widget = rofi_theme;//rofi_theme_find_or_create_class ( rofi_theme , $1 );
-        for ( GList *iter = g_list_first ( $1 ); iter ; iter = g_list_next ( iter ) ) {
+        Widget *widget = rofi_theme_find_or_create_class ( rofi_theme , $1 );
+        for ( GList *iter = g_list_first ( $2 ); iter ; iter = g_list_next ( iter ) ) {
             widget = rofi_theme_find_or_create_class ( widget, iter->data );
         }
-        g_list_foreach ( $1, (GFunc)g_free , NULL );
-        g_list_free ( $1 );
+        g_list_foreach ( $2, (GFunc)g_free , NULL );
+        g_list_free ( $2 );
         if ( widget->properties != NULL ) {
             fprintf(stderr, "Properties already set on this widget.\n");
             exit ( EXIT_FAILURE );
         }
-        widget->properties = $3;
-
+        widget->properties = $4;
+}
+| NAME_PREFIX name_path state_path BOPEN optional_properties BCLOSE
+{
+        Widget *widget = rofi_theme; 
+        for ( GList *iter = g_list_first ( $2 ); iter ; iter = g_list_next ( iter ) ) {
+            widget = rofi_theme_find_or_create_class ( widget, iter->data );
+        }
+        g_list_foreach ( $2, (GFunc)g_free , NULL );
+        g_list_free ( $2 );
+        for ( GList *iter = g_list_first ( $3 ); iter ; iter = g_list_next ( iter ) ) {
+            widget = rofi_theme_find_or_create_class ( widget, iter->data );
+        }
+        g_list_foreach ( $3, (GFunc)g_free , NULL );
+        g_list_free ( $3 );
+        if ( widget->properties != NULL ) {
+            fprintf(stderr, "Properties already set on this widget.\n");
+            exit ( EXIT_FAILURE );
+        }
+        widget->properties = $5;
 };
 
 /**
@@ -141,11 +163,16 @@ property
 
 pvalue: N_STRING { $$ = $1; }
 
-
 name_path:
   %empty                   { $$ = NULL; }
 | N_STRING                 { $$ = g_list_append ( NULL, $1 );}
 | name_path NSEP N_STRING  { $$ = g_list_append ( $1, $3);}
+;
+
+state_path:
+  %empty                   { $$ = NULL; }
+| N_STRING                 { $$ = g_list_append ( NULL, $1 );}
+| state_path NSEP N_STRING  { $$ = g_list_append ( $1, $3);}
 ;
 
 

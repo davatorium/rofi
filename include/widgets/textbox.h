@@ -40,7 +40,7 @@ typedef struct
     int             blink;
     guint           blink_timeout;
     //
-    char *theme_name ;
+    const char *theme_name ;
 } textbox;
 
 /**

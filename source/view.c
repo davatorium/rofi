@@ -781,18 +781,18 @@ void rofi_view_update ( RofiViewState *state )
         cairo_paint ( d );
         cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
         color_background ( d );
-        rofi_theme_get_color ( "window" , "background", d );
+        rofi_theme_get_color ( "@window" , "window" , NULL, "background", d );
         cairo_paint ( d );
     }
     else {
         // Paint the background.
         color_background ( d );
-        rofi_theme_get_color ( "window" , "background", d );
+        rofi_theme_get_color ( "@window", "window" , NULL, "background", d );
         cairo_paint ( d );
     }
     TICK_N ( "Background" );
     color_border ( d );
-    rofi_theme_get_color ( "window" , "foreground", d );
+    rofi_theme_get_color ( "@window", "window" , NULL, "foreground", d );
 
     int bw = rofi_theme_get_integer ( "window", "border-width" , config.menu_bw);
     if ( bw > 0 ) {
