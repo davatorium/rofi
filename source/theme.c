@@ -177,6 +177,9 @@ int rofi_theme_get_integer ( const char *wclass, const char  *name, const char *
         return def;
     }
     Widget *widget = rofi_theme_find ( rofi_theme, name );
+    if ( widget != rofi_theme ){
+        widget = rofi_theme_find ( widget, state );
+    }
     if ( widget == rofi_theme || widget->set == FALSE ){
         // Fall back to class
         widget = rofi_theme_find ( rofi_theme, wclass);
@@ -195,6 +198,9 @@ int rofi_theme_get_boolean ( const char *wclass, const char  *name, const char *
         return def;
     }
     Widget *widget = rofi_theme_find ( rofi_theme, name );
+    if ( widget != rofi_theme ){
+        widget = rofi_theme_find ( widget, state );
+    }
     if ( widget == rofi_theme || widget->set == FALSE ){
         // Fall back to class
         widget = rofi_theme_find ( rofi_theme, wclass);
@@ -213,6 +219,9 @@ char *rofi_theme_get_string ( const char *wclass, const char  *name, const char 
         return def;
     }
     Widget *widget = rofi_theme_find ( rofi_theme, name );
+    if ( widget != rofi_theme ){
+        widget = rofi_theme_find ( widget, state );
+    }
     if ( widget == rofi_theme || widget->set == FALSE ){
         // Fall back to class
         widget = rofi_theme_find ( rofi_theme, wclass);
@@ -230,6 +239,9 @@ double rofi_theme_get_double ( const char *wclass, const char  *name, const char
         return def;
     }
     Widget *widget = rofi_theme_find ( rofi_theme, name );
+    if ( widget != rofi_theme ){
+        widget = rofi_theme_find ( widget, state );
+    }
     if ( widget == rofi_theme || widget->set == FALSE ){
         // Fall back to class
         widget = rofi_theme_find ( rofi_theme, wclass);
@@ -247,6 +259,9 @@ void rofi_theme_get_color ( const char *wclass, const char  *name, const char *s
         return ;
     }
     Widget *widget = rofi_theme_find ( rofi_theme, name );
+    if ( widget != rofi_theme ){
+        widget = rofi_theme_find ( widget, state );
+    }
     if ( widget == rofi_theme || widget->set == FALSE ){
         // Fall back to class
         widget = rofi_theme_find ( rofi_theme, wclass);

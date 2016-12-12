@@ -89,6 +89,7 @@ CLASS_PREFIX class_name state_path BOPEN optional_properties BCLOSE
         gchar *classn = g_strconcat ( "@", $2, NULL);
         Widget *widget = rofi_theme_find_or_create_class ( rofi_theme , classn );
         g_free(classn);
+        widget->set = TRUE;
         for ( GList *iter = g_list_first ( $3 ); iter ; iter = g_list_next ( iter ) ) {
             widget = rofi_theme_find_or_create_class ( widget, iter->data );
         }
@@ -109,6 +110,7 @@ CLASS_PREFIX class_name state_path BOPEN optional_properties BCLOSE
         }
         g_list_foreach ( $2, (GFunc)g_free , NULL );
         g_list_free ( $2 );
+        widget->set = TRUE;
         for ( GList *iter = g_list_first ( $3 ); iter ; iter = g_list_next ( iter ) ) {
             widget = rofi_theme_find_or_create_class ( widget, iter->data );
         }
