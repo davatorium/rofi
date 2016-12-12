@@ -134,9 +134,11 @@ void rofi_theme_parse_file ( const char *file )
     while ( yyparse() );
 }
 
-static Widget *rofi_theme_find ( const char *name )
+static Widget *rofi_theme_find ( Widget *widget , const char *name )
 {
-    Widget *widget = rofi_theme;
+    if ( name == NULL ) {
+        return widget;
+    }
     char **names = g_strsplit ( name, "." , 0 );
     int found = TRUE;
     for ( unsigned int i = 0; found && names && names[i]; i++ ){
@@ -172,7 +174,7 @@ int rofi_theme_get_integer ( const char  *name, const char *property, int def )
     if ( rofi_theme == NULL ) {
         return def;
     }
-    Widget *widget = rofi_theme_find ( name );
+    Widget *widget = rofi_theme_find ( rofi_theme, name );
     Property *p = rofi_theme_find_property ( widget, P_INTEGER, property );
     if ( p ){
         return p->value.i;
@@ -185,7 +187,7 @@ int rofi_theme_get_boolean ( const char  *name, const char *property, int def )
     if ( rofi_theme == NULL ) {
         return def;
     }
-    Widget *widget = rofi_theme_find ( name );
+    Widget *widget = rofi_theme_find ( rofi_theme, name );
     Property *p = rofi_theme_find_property ( widget, P_BOOLEAN, property );
     if ( p ){
         return p->value.b;
@@ -198,7 +200,7 @@ char *rofi_theme_get_string ( const char  *name, const char *property, char *def
     if ( rofi_theme == NULL ) {
         return def;
     }
-    Widget *widget = rofi_theme_find ( name );
+    Widget *widget = rofi_theme_find ( rofi_theme, name );
     Property *p = rofi_theme_find_property ( widget, P_STRING, property );
     if ( p ){
         return p->value.s;
@@ -210,7 +212,7 @@ double rofi_theme_get_double ( const char  *name, const char *property, double d
     if ( rofi_theme == NULL ) {
         return def;
     }
-    Widget *widget = rofi_theme_find ( name );
+    Widget *widget = rofi_theme_find ( rofi_theme, name );
     Property *p = rofi_theme_find_property ( widget, P_DOUBLE, property );
     if ( p ){
         return p->value.b;
@@ -222,7 +224,7 @@ void rofi_theme_get_color ( const char  *name, const char *property, cairo_t *d)
     if ( rofi_theme == NULL ) {
         return ;
     }
-    Widget *widget = rofi_theme_find ( name );
+    Widget *widget = rofi_theme_find ( rofi_theme, name );
     Property *p = rofi_theme_find_property ( widget, P_COLOR, property );
     if ( p ){
         cairo_set_source_rgba ( d,

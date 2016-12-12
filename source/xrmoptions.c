@@ -195,7 +195,7 @@ static XrmOption xrmOptions[] = {
     { xrm_Boolean, "show-match",        { .snum = &config.show_match           }, NULL,
       "Indicate how it match by underlining it.", CONFIG_DEFAULT },
     { xrm_String,  "theme",             { .str = &config.theme                 }, NULL,
-      "New style theme file" },
+      "New style theme file", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */
