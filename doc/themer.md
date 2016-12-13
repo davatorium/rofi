@@ -126,4 +126,5 @@ Value supports the following formats:
     * `argb:[0-0a-fA-F]{8}`: Old **rofi** argb color style. 
     * `rgba\([0-9]{1,3},[0-9]{1,3}, [0-9]{1,3}, {double}\)`: css style rgba color.
     * `rgb\([0-9]{1,3},[0-9]{1,3}, [0-9]{1,3}\)`: css style rgb color.
-Each property is closed by a semi-colon ';';
+
+Each property is closed by a semi-colon `;`;
