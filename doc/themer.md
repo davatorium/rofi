@@ -107,3 +107,23 @@ The file is structured as follows
 ```
 
 The global properties has to be at the top of the file, the rest can freeĺy be mixed.
+
+Each property is constructed like:
+```
+{key} : {value} ;
+```
+Key is a simple ascii string.
+Separated from value by a colon ':';
+Value supports the following formats:
+
+ * string:  `"{string}"`
+ * integer: `[0-9]+`
+ * double:  `[0-9]+\.[0-9]`
+ * boolean: `true|false`
+ * color:    
+    * `#[0-9a-fA-F]{6}`: hexidecimal rgb color.
+    * `#[0-9a-fA-F]{8}`:  hexidecimal argb color.
+    * `argb:[0-0a-fA-F]{8}`: Old **rofi** argb color style. 
+    * `rgba\([0-9]{1,3},[0-9]{1,3}, [0-9]{1,3}, {double}\)`: css style rgba color.
+    * `rgb\([0-9]{1,3},[0-9]{1,3}, [0-9]{1,3}\)`: css style rgb color.
+Each property is closed by a semi-colon ';';
