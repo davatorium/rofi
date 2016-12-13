@@ -60,8 +60,9 @@ Optional flag(s) indicating state.
 
 These are appended after the name or class of the widget.
 
-`@textbox selected.normal` 
-`#listview.element selected.urgent` 
+`@textbox selected.normal { }` 
+
+`#listview.element selected.urgent { }` 
 
 Currently only the @entrybox has states:
 
@@ -73,26 +74,27 @@ Where `visible modifier` can be:
  * alternate: The entry is at an alternating row. (uneven row) 
 
 Where `state` is:
-    * normal: No modification.
-    * urgent: This entry is marked urgent.
-    * activE: This entry is marked active.
+ * normal: No modification.
+ * urgent: This entry is marked urgent.
+ * activE: This entry is marked active.
 
 These can be mixed.
 
 Example:
-`
+```
 @textbox selected.active { 
     background: #003642;
     foreground: #008ed4;
 }
-`
+```
 
 Sets all selected textboxes marked active to the given foreground and background color.
 
 # File structure
 
-The file is structured as follow
-`
+The file is structured as follows
+
+```
 /* Global properties, that apply as default to all widgets. */
 {list of properties}
 
@@ -102,6 +104,6 @@ The file is structured as follow
 @{name}.{name} {optional state} {
     {list of properties}
 }
-`
+```
 
 The global properties has to be at the top of the file, the rest can freeĺy be mixed.
