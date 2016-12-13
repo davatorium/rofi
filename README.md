@@ -240,6 +240,10 @@ The boolean option has a non-default commandline syntax, to enable option X  you
 to disable it:
 
 	rofi -no-X
+	
+# Manpage
+
+For more detailed information, please see the [manpage](doc/rofi-manpage.markdown), the [wiki](https://github.com/DaveDavenport/rofi/wiki) or the [forum](https://forum.qtools.org).
 
 # Installation
 
