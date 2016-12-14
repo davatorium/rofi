@@ -29,7 +29,6 @@
 [ -show *mode* ]
 [ -modi *mode1,mode2* ]
 [ -eh *element height* ]
-[ -lazy-filter-limit *limit* ]
 [ -e *message*]
 [ -a *row* ]
 [ -u *row* ]
@@ -59,33 +58,38 @@ filter, tokenized search and more.
 
 ## USAGE
 
-**rofi** can be used in two ways, single-shot (runs a mode then exits) or emulating dmenu.
+**rofi** main functionality is to assist in your workflow, allowing you to quickly (with a few keystrokes) switch
+between windows, start applications or log into a remote machine via ssh. There are different modi for different type of
+actions.
 
-### Single-shot mode
+**rofi** can also function as (drop in) replacement for **dmenu(1)**.
+
+### Running rofi
 
 To launch **rofi** directly in a certain mode, specify a mode with `rofi -show <mode>`.
 To show the run dialog:
 
     rofi -show run
 
+
 ### Emulating dmenu
 
-**rofi** can emulate `dmenu` (a dynamic menu for X) when launched with the `-dmenu` flag.
+**rofi** can emulate **dmenu(1)** (a dynamic menu for X) when launched with the `-dmenu` flag.
 
-The official website for `dmenu` can be found [here](http://tools.suckless.org/dmenu/).
+The "official" website for `dmenu` can be found [here](http://tools.suckless.org/dmenu/).
 
-## OPTIONS
+## CONFIGURATION
 
 There are currently three methods of setting configuration options (evaluated in order below):
 
+ * System configuration file (f.e. /etc/rofi.conf).
  * Xresources: A method of storing key values in the Xserver. See
    [here](https://en.wikipedia.org/wiki/X_resources) for more information.
    This is the recommended way of configuring **rofi**.
  * Configuration File: This uses the same format as the Xresources file.
    By default it looks in `XDG_USER_CONFIG_DIR`/rofi/config, but can be overriden on commandline.
-   By default XDG_USER_CONFIG_DIR defaults to `$HOME/.config`.
+   By default XDG_USER_CONFIG_DIR defaults to `$HOME/.config`. (See `rofi -h` for current location).
  * Command-line options: Arguments passed to **rofi**.
- * System configuration file (f.e. /etc/rofi.conf).
 
 The Xresources file expects options starting with `rofi.` followed by it's name. An Example to set the number of lines:
 
@@ -111,7 +115,7 @@ Boolean options have a non-default command-line syntax. Example to enable option
 
     -X
 
-to disable it:
+To disable option X:
 
     -no-X
 
@@ -122,7 +126,7 @@ Below is a list of the most important options:
 `-help`
 
 The help option shows the full list of commandline options and the current set value.
-These include dynamic options.
+These include dynamic (run-time generated) options.
 
 `-dump-xresources`
 
@@ -153,11 +157,9 @@ Or get the options from a script:
 
     ~/my_script.sh | rofi -dmenu
 
-Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) sends the selected entry to STDOUT and moves to the next entry.
-
 `-show` *mode*
 
-Open **rofi** in a certain mode. Available modes are `window`, `run`, `ssh`
+Open **rofi** in a certain mode. Available modes are `window`, `run`,`drun`, `ssh`, `combi`
 To show the run-dialog:
 
     rofi -show run
@@ -182,6 +184,7 @@ Example: Have a mode 'Workspaces' using the `i3_switch_workspaces.sh` script:
 `-case-sensitive`
 
 Start in case sensitive mode.
+This option can be changed at run-time using the `-kb-toggle-case-sensitivity` key binding.
 
 `-cycle`
 
@@ -201,7 +204,7 @@ Select the scrolling method. 0: Per page, 1: continuous.
 
 ### Theming
 
-All colors are either hex #rrggbb values or X11 color names.
+All colors are either hex #rrggbb, #aarrggbb or argb:aarrggbbvalues or X11 color names.
 
 `-bw`
 
@@ -353,15 +356,6 @@ To show sidebar use:
 
     rofi -show run -sidebar-mode -lines 0
 
-`-lazy-filter-limit` *limit*
-
-The number of entries required for **rofi** to go into lazy filter mode.
-In lazy filter mode, it won't re-filter the list on each keypress, but only after **rofi** been
-idle for 250ms. Experiments shows that the default (5000 lines) works well, set to 0 to always
-enable.
-
-Default: *5000*
-
 `-auto-select`
 
 When one entry is left, automatically select it.
@@ -415,6 +409,7 @@ Default: *ssh*
 Set the command to execute when starting a ssh session.
 The pattern *{host}* is replaced by the selected ssh entry.
 
+Pattern: *{ssh-client}*
 Default: *{terminal} -e {ssh-client} {host}*
 
 `-parse-hosts`
@@ -467,7 +462,7 @@ The modi to combine in combi mode.
 For syntax to see `-modi`.
 To get one merge view, of window,run,ssh:
 
-    rofi -show combi -combi-modi "window,run,ssh"
+    rofi -show combi -combi-modi "window,run,ssh" -modi combi
 
 ### History and Sorting
 
@@ -480,6 +475,7 @@ Disable history
 `-no-levenshtein-sort` to disable
 
 When searching sort the result based on levenshtein distance.
+This setting can be changed at runtime, see `-kb-toggle-sort`.
 
 ### Dmenu specific
 
@@ -591,6 +587,10 @@ See [here](https://developer.gnome.org/pango/stable/PangoMarkupFormat.html) for 
 
 Allow multiple lines to be selected. Adds a small selection indicator to the left of each entry.
 
+`-sync`
+
+Force rofi mode to first read all data from stdin before showing selection window. This is how original dmenu behaviour.
+
 ### Window Mode
 
 `-window-format` *format*
@@ -608,6 +608,7 @@ Format what is being displayed for windows.
  * **c**: Class
 
 *len*: maximum field length (0 for auto-size). If length negative and window *width* is negative field length is *width - len*.
+if length is positive, the entry will be truncated or padded to fill that length.
 
 
 default: {w}  {c}   {t}
@@ -653,6 +654,8 @@ Default: *enabled*
 
 Disable parsing of configuration. This runs rofi in *stock* mode.
 
+For more information on debugging see the [wiki](https://github.com/DaveDavenport/rofi/wiki/Debugging%20Rofi)
+
 ## PATTERN
 
 To launch commands (e.g. when using the ssh launcher) the user can enter the used command-line,
@@ -662,6 +665,7 @@ the following keys can be used that will be replaced at runtime:
   * `{terminal}`: The configured terminal (See -terminal-emulator)
   * `{ssh-client}`: The configured ssh client (See -ssh-client)
   * `{cmd}`: The command to execute.
+  * `{window}`: The window id of the selected window. (In `window-command`)
 
 ## DMENU REPLACEMENT
 
@@ -672,9 +676,8 @@ This way it can be used as a drop-in replacement for dmenu. just copy or symlink
 
 ## THEMING
 
-With **rofi** 0.15.4 we have a new way of specifying colors, the old settings still apply (for now).
-To enable the new setup, set `rofi.color-enabled` to true. The new setup allows you to specify
-colors per state, similar to **i3**
+With **rofi** 0.15.4 we have a new way of specifying theme colors.
+The new setup allows you to specify colors per state, similar to **i3**
 Currently 3 states exists:
 
   * **normal** Normal row.
@@ -690,7 +693,7 @@ For each state the following 5 colors must be set:
   * **hlbg** Background color selected row
 
 The window background and border color should be specified separate. The key `color-window` contains
-a pair `background,border`.
+a pair `background,border,separator`.
 An example for `Xresources` file:
 
     ! State:           'bg',     'fg',     'bgalt',  'hlbg',   'hlfg'
@@ -698,8 +701,8 @@ An example for `Xresources` file:
     rofi.color-urgent: #fdf6e3,  #dc322f,  #eee8d5,  #dc322f,  #fdf6e3
     rofi.color-active: #fdf6e3,  #268bd2,  #eee8d5,  #268bd2,  #fdf6e3
 
-    !                  'background', 'border'
-    rofi.color-window: #fdf6e3,      #002b36
+    !                  'background', 'border', 'separator'
+    rofi.color-window: #fdf6e3,      #002b36,  #002b36
 
 Same settings can also be specified on command-line:
 
@@ -707,15 +710,29 @@ Same settings can also be specified on command-line:
 
 ## COLORS
 
-Rofi has an experimental mode for a 'nicer' transparency. The idea is to make the
-background of the window transparent, leaving the text opaque.
-There are 2 requirements for this feature: 1. Your Xserver supports TrueColor, 2. You are running a
-composite manager. If this is satisfied you can use the following format for colors:
+RGB colors can be specified by either its X11 name, or hexadecimal notation.
+For example:
+
+    white
+
+Or
+
+    #FFFFFF
+
+ARGB colors are also support, these can be used to create a transparent window if: 1. Your Xserver supports TrueColor, 2.
+You are running a composite manager.
 
     argb:FF444444
 
+Or
+
+    #FF444444
+
 The first two fields specify the alpha level. This determines the amount of transparency.
 (00 everything, FF nothing). The other fields represent the actual color, in hex.
+
+Within **rofi** transparency can be used, e.g. if the selected background color is 50% transparent, the background color
+of the window will be visible through it.
 
 ## KEYBINDINGS
 
@@ -754,8 +771,9 @@ The first two fields specify the alpha level. This determines the amount of tran
   * `Alt-grave`: Toggle levenshtein sorting.
   * `Alt-Shift-S`: Take a screenshot and store this in the Pictures directory.
 
-To get a full list of keybindings, see `rofi -dump-xresources | grep kb-`.
+To get a full list of keybindings on the commandline, see `rofi -dump-xresources | grep kb-`.
 Keybindings can be modified using the configuration systems.
+To get searchable list of keybindings, run `rofi -show keys`.
 
 A keybinding starting with `!` will act when all keys have been released.
 
@@ -764,24 +782,28 @@ A keybinding starting with `!` will act when all keys have been released.
 ### Window
 
 Show a list of all the windows and allow switching between them.
-Pressing the `delete-entry` binding (`shift-delete`) will kill the window.
+Pressing the `delete-entry` binding (`shift-delete`) will close the window.
 Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run a command on the window.
+(See option `window-command` );
 
 ### WindowCD
 
 Shows a list of the windows on the current desktop and allows switching between them.
 Pressing the `delete-entry` binding (`shift-delete`) will kill the window.
 Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run a command on the window.
+(See option `window-command` );
 
 ### Run
 
 Shows a list of executables in **$PATH** and can launch them (optional in a terminal).
+Pressing the `delete-entry` binding (`shift-delete`) will remove this entry from the run history.
 Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run the command in a terminal.
 
 ### DRun
 
 Same as the **run** launches, but the list is created from the installed desktop files. It automatically launches them
 in a terminal if specified in the Desktop File.
+Pressing the `delete-entry` binding (`shift-delete`) will remove this entry from the run history.
 Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) with custom input (no entry matching) will run the command in a terminal.
 
 ### SSH
