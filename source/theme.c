@@ -135,6 +135,15 @@ void rofi_theme_parse_file ( const char *file )
     }
     while ( yyparse() );
 }
+static Widget *rofi_theme_find_single ( Widget *widget, const char *name)
+{
+    for ( unsigned int j = 0; j < widget->num_widgets;j++){
+        if ( g_strcmp0(widget->widgets[j]->name, name ) == 0 ){
+            return widget->widgets[j];
+        }
+    }
+    return widget;
+}
 
 static Widget *rofi_theme_find ( Widget *widget , const char *name )
 {
@@ -145,12 +154,10 @@ static Widget *rofi_theme_find ( Widget *widget , const char *name )
     int found = TRUE;
     for ( unsigned int i = 0; found && names && names[i]; i++ ){
         found = FALSE;
-        for ( unsigned int j = 0; j < widget ->num_widgets;j++){
-            if ( g_strcmp0(widget->widgets[j]->name, names[i]) == 0 ){
-                widget = widget->widgets[j];
-                found = TRUE;
-                break;
-            }
+        Widget *f = rofi_theme_find_single ( widget, names[i]);
+        if ( f != widget ){
+            widget = f;
+            found = TRUE;
         }
     } 
     g_strfreev(names);

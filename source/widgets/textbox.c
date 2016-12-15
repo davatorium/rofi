@@ -145,8 +145,8 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, short x, short y
 
 const char const *const theme_prop_names[][3] = {
     {"normal.normal", "selected.normal", "alternate.normal"},
-    {"urgent.normal", "selected.urgent", "alternate.urgent"},
-    {"active.normal", "selected.active", "alternate.active"},
+    {"normal.urgent", "selected.urgent", "alternate.urgent"},
+    {"normal.active", "selected.active", "alternate.active"},
 };
 
 void textbox_font ( textbox *tb, TextBoxFontType tbft )
