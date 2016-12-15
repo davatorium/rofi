@@ -640,14 +640,12 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
     char         *mod_key   = input_key;
     char         *error_msg = NULL;
     unsigned int modmask    = 0;
+    xkb_keysym_t sym      = XKB_KEY_NoSymbol;
     // Test if this works on release.
     if ( g_str_has_prefix ( mod_key, "!" ) ) {
         ++mod_key;
         *release = TRUE;
     }
-
-    char         *saveptr = NULL;
-    xkb_keysym_t sym      = XKB_KEY_NoSymbol;
 
     char **entries = g_strsplit_set ( mod_key, "+-", -1);
     for ( int i = 0; entries && entries[i]; i++ ) {

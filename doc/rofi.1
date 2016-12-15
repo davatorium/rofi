@@ -1,21 +1,24 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-MANPAGE" "" "2016-11-30" "" ""
+.TH "ROFI\-MANPAGE" "" "2016-12-14" "" ""
 .
 .SH "NAME"
 \fBrofi\fR \- A window switcher, run launcher, ssh dialog and dmenu replacement
 .
 .SH "SYNOPSIS"
-\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-display \fIdisplay\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-select ] [ \-input \fIinput\fR ] ] [ \-filter \fIfilter\fR ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-window\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-cycle ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-lazy\-filter\-limit \fIlimit\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-version ] [ \-help ] [ \-dump\-xresources ] [ \-dump\-xresources\-theme ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-no\-parse\-known\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-normal\-window ] [ \-fake\-transparency ] [ \-matching \fImethod\fR ] [ \-tokenize ] [ \-no\-click\-to\-exit ] [ \-threads \fInum\fR ] [ \-config \fIfilename\fR ]
+\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-display \fIdisplay\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-select ] [ \-input \fIinput\fR ] ] [ \-filter \fIfilter\fR ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-window\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-cycle ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-version ] [ \-help ] [ \-dump\-xresources ] [ \-dump\-xresources\-theme ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-no\-parse\-known\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-normal\-window ] [ \-fake\-transparency ] [ \-matching \fImethod\fR ] [ \-tokenize ] [ \-no\-click\-to\-exit ] [ \-threads \fInum\fR ] [ \-config \fIfilename\fR ]
 .
 .SH "DESCRIPTION"
 \fBrofi\fR is an X11 popup window switcher, run dialog, dmenu replacement and more\. It focuses on being fast to use and have minimal distraction\. It supports keyboard and mouse navigation, type to filter, tokenized search and more\.
 .
 .SH "USAGE"
-\fBrofi\fR can be used in two ways, single\-shot (runs a mode then exits) or emulating dmenu\.
+\fBrofi\fR main functionality is to assist in your workflow, allowing you to quickly (with a few keystrokes) switch between windows, start applications or log into a remote machine via ssh\. There are different modi for different type of actions\.
 .
-.SS "Single\-shot mode"
+.P
+\fBrofi\fR can also function as (drop in) replacement for \fBdmenu(1)\fR\.
+.
+.SS "Running rofi"
 To launch \fBrofi\fR directly in a certain mode, specify a mode with \fBrofi \-show <mode>\fR\. To show the run dialog:
 .
 .IP "" 4
@@ -29,25 +32,25 @@ rofi \-show run
 .IP "" 0
 .
 .SS "Emulating dmenu"
-\fBrofi\fR can emulate \fBdmenu\fR (a dynamic menu for X) when launched with the \fB\-dmenu\fR flag\.
+\fBrofi\fR can emulate \fBdmenu(1)\fR (a dynamic menu for X) when launched with the \fB\-dmenu\fR flag\.
 .
 .P
-The official website for \fBdmenu\fR can be found here \fIhttp://tools\.suckless\.org/dmenu/\fR\.
+The "official" website for \fBdmenu\fR can be found here \fIhttp://tools\.suckless\.org/dmenu/\fR\.
 .
-.SH "OPTIONS"
+.SH "CONFIGURATION"
 There are currently three methods of setting configuration options (evaluated in order below):
+.
+.IP "\(bu" 4
+System configuration file (f\.e\. /etc/rofi\.conf)\.
 .
 .IP "\(bu" 4
 Xresources: A method of storing key values in the Xserver\. See here \fIhttps://en\.wikipedia\.org/wiki/X_resources\fR for more information\. This is the recommended way of configuring \fBrofi\fR\.
 .
 .IP "\(bu" 4
-Configuration File: This uses the same format as the Xresources file\. By default it looks in \fBXDG_USER_CONFIG_DIR\fR/rofi/config, but can be overriden on commandline\.
+Configuration File: This uses the same format as the Xresources file\. By default it looks in \fBXDG_USER_CONFIG_DIR\fR/rofi/config, but can be overriden on commandline\. By default XDG_USER_CONFIG_DIR defaults to \fB$HOME/\.config\fR\. (See \fBrofi \-h\fR for current location)\.
 .
 .IP "\(bu" 4
 Command\-line options: Arguments passed to \fBrofi\fR\.
-.
-.IP "\(bu" 4
-System configuration file (f\.e\. /etc/rofi\.conf)\.
 .
 .IP "" 0
 .
@@ -121,7 +124,7 @@ Boolean options have a non\-default command\-line syntax\. Example to enable opt
 .IP "" 0
 .
 .P
-to disable it:
+To disable option X:
 .
 .IP "" 4
 .
@@ -140,7 +143,7 @@ Below is a list of the most important options:
 \fB\-help\fR
 .
 .P
-The help option shows the full list of commandline options and the current set value\. These include dynamic options\.
+The help option shows the full list of commandline options and the current set value\. These include dynamic (run\-time generated) options\.
 .
 .P
 \fB\-dump\-xresources\fR
@@ -201,13 +204,10 @@ Or get the options from a script:
 .IP "" 0
 .
 .P
-Pressing the \fBaccept\-custom\fR binding (\fBcontrol\-enter\fR or \fBshift\-enter\fR) sends the selected entry to STDOUT and moves to the next entry\.
-.
-.P
 \fB\-show\fR \fImode\fR
 .
 .P
-Open \fBrofi\fR in a certain mode\. Available modes are \fBwindow\fR, \fBrun\fR, \fBssh\fR To show the run\-dialog:
+Open \fBrofi\fR in a certain mode\. Available modes are \fBwindow\fR, \fBrun\fR,\fBdrun\fR, \fBssh\fR, \fBcombi\fR To show the run\-dialog:
 .
 .IP "" 4
 .
@@ -265,7 +265,7 @@ rofi \-modi "window,run,ssh,Workspaces:i3_switch_workspaces\.sh" \-show Workspac
 \fB\-case\-sensitive\fR
 .
 .P
-Start in case sensitive mode\.
+Start in case sensitive mode\. This option can be changed at run\-time using the \fB\-kb\-toggle\-case\-sensitivity\fR key binding\.
 .
 .P
 \fB\-cycle\fR
@@ -292,7 +292,7 @@ Load alternative configuration file\.
 Select the scrolling method\. 0: Per page, 1: continuous\.
 .
 .SS "Theming"
-All colors are either hex #rrggbb values or X11 color names\.
+All colors are either hex #rrggbb, #aarrggbb or argb:aarrggbbvalues or X11 color names\.
 .
 .P
 \fB\-bw\fR
@@ -601,15 +601,6 @@ rofi \-show run \-sidebar\-mode \-lines 0
 .IP "" 0
 .
 .P
-\fB\-lazy\-filter\-limit\fR \fIlimit\fR
-.
-.P
-The number of entries required for \fBrofi\fR to go into lazy filter mode\. In lazy filter mode, it won\'t re\-filter the list on each keypress, but only after \fBrofi\fR been idle for 250ms\. Experiments shows that the default (5000 lines) works well, set to 0 to always enable\.
-.
-.P
-Default: \fI5000\fR
-.
-.P
 \fB\-auto\-select\fR
 .
 .P
@@ -688,7 +679,7 @@ Pattern: \fI{ssh\-client}\fR Default: \fIssh\fR
 Set the command to execute when starting a ssh session\. The pattern \fI{host}\fR is replaced by the selected ssh entry\.
 .
 .P
-Default: \fI{terminal} \-e {ssh\-client} {host}\fR
+Pattern: \fI{ssh\-client}\fR Default: \fI{terminal} \-e {ssh\-client} {host}\fR
 .
 .P
 \fB\-parse\-hosts\fR
@@ -754,7 +745,7 @@ The modi to combine in combi mode\. For syntax to see \fB\-modi\fR\. To get one 
 .
 .nf
 
-rofi \-show combi \-combi\-modi "window,run,ssh"
+rofi \-show combi \-combi\-modi "window,run,ssh" \-modi combi
 .
 .fi
 .
@@ -770,7 +761,7 @@ Disable history
 \fB\-levenshtein\-sort\fR to enable \fB\-no\-levenshtein\-sort\fR to disable
 .
 .P
-When searching sort the result based on levenshtein distance\.
+When searching sort the result based on levenshtein distance\. This setting can be changed at runtime, see \fB\-kb\-toggle\-sort\fR\.
 .
 .SS "Dmenu specific"
 \fB\-sep\fR \fIseparator\fR
@@ -942,6 +933,12 @@ Tell \fBrofi\fR that DMenu input is pango markup encoded and should be rendered\
 .P
 Allow multiple lines to be selected\. Adds a small selection indicator to the left of each entry\.
 .
+.P
+\fB\-sync\fR
+.
+.P
+Force rofi mode to first read all data from stdin before showing selection window\. This is how original dmenu behaviour\.
+.
 .SS "Window Mode"
 \fB\-window\-format\fR \fIformat\fR
 .
@@ -972,7 +969,7 @@ Format what is being displayed for windows\.
 .IP "" 0
 .
 .P
-\fIlen\fR: maximum field length (0 for auto\-size)\. If length negative and window \fIwidth\fR is negative field length is \fIwidth \- len\fR\.
+\fIlen\fR: maximum field length (0 for auto\-size)\. If length negative and window \fIwidth\fR is negative field length is \fIwidth \- len\fR\. if length is positive, the entry will be truncated or padded to fill that length\.
 .
 .P
 default: {w} {c} {t}
@@ -1022,6 +1019,9 @@ Default: \fIenabled\fR
 .P
 Disable parsing of configuration\. This runs rofi in \fIstock\fR mode\.
 .
+.P
+For more information on debugging see the wiki \fIhttps://github\.com/DaveDavenport/rofi/wiki/Debugging%20Rofi\fR
+.
 .SH "PATTERN"
 To launch commands (e\.g\. when using the ssh launcher) the user can enter the used command\-line, the following keys can be used that will be replaced at runtime:
 .
@@ -1036,6 +1036,9 @@ To launch commands (e\.g\. when using the ssh launcher) the user can enter the u
 .
 .IP "\(bu" 4
 \fB{cmd}\fR: The command to execute\.
+.
+.IP "\(bu" 4
+\fB{window}\fR: The window id of the selected window\. (In \fBwindow\-command\fR)
 .
 .IP "" 0
 .
@@ -1053,7 +1056,7 @@ ln \-s /usr/bin/rofi /usr/bin/dmenu
 .IP "" 0
 .
 .SH "THEMING"
-With \fBrofi\fR 0\.15\.4 we have a new way of specifying colors, the old settings still apply (for now)\. To enable the new setup, set \fBrofi\.color\-enabled\fR to true\. The new setup allows you to specify colors per state, similar to \fBi3\fR Currently 3 states exists:
+With \fBrofi\fR 0\.15\.4 we have a new way of specifying theme colors\. The new setup allows you to specify colors per state, similar to \fBi3\fR Currently 3 states exists:
 .
 .IP "\(bu" 4
 \fBnormal\fR Normal row\.
@@ -1087,7 +1090,7 @@ For each state the following 5 colors must be set:
 .IP "" 0
 .
 .P
-The window background and border color should be specified separate\. The key \fBcolor\-window\fR contains a pair \fBbackground,border\fR\. An example for \fBXresources\fR file:
+The window background and border color should be specified separate\. The key \fBcolor\-window\fR contains a pair \fBbackground,border,separator\fR\. An example for \fBXresources\fR file:
 .
 .IP "" 4
 .
@@ -1098,8 +1101,8 @@ rofi\.color\-normal: #fdf6e3,  #002b36,  #eee8d5,  #586e75,  #eee8d5
 rofi\.color\-urgent: #fdf6e3,  #dc322f,  #eee8d5,  #dc322f,  #fdf6e3
 rofi\.color\-active: #fdf6e3,  #268bd2,  #eee8d5,  #268bd2,  #fdf6e3
 
-!                  \'background\', \'border\'
-rofi\.color\-window: #fdf6e3,      #002b36
+!                  \'background\', \'border\', \'separator\'
+rofi\.color\-window: #fdf6e3,      #002b36,  #002b36
 .
 .fi
 .
@@ -1119,7 +1122,33 @@ rofi \-color\-normal "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5"
 .IP "" 0
 .
 .SH "COLORS"
-Rofi has an experimental mode for a \'nicer\' transparency\. The idea is to make the background of the window transparent, leaving the text opaque\. There are 2 requirements for this feature: 1\. Your Xserver supports TrueColor, 2\. You are running a composite manager\. If this is satisfied you can use the following format for colors:
+RGB colors can be specified by either its X11 name, or hexadecimal notation\. For example:
+.
+.IP "" 4
+.
+.nf
+
+white
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Or
+.
+.IP "" 4
+.
+.nf
+
+#FFFFFF
+.
+.fi
+.
+.IP "" 0
+.
+.P
+ARGB colors are also support, these can be used to create a transparent window if: 1\. Your Xserver supports TrueColor, 2\. You are running a composite manager\.
 .
 .IP "" 4
 .
@@ -1132,7 +1161,23 @@ argb:FF444444
 .IP "" 0
 .
 .P
+Or
+.
+.IP "" 4
+.
+.nf
+
+#FF444444
+.
+.fi
+.
+.IP "" 0
+.
+.P
 The first two fields specify the alpha level\. This determines the amount of transparency\. (00 everything, FF nothing)\. The other fields represent the actual color, in hex\.
+.
+.P
+Within \fBrofi\fR transparency can be used, e\.g\. if the selected background color is 50% transparent, the background color of the window will be visible through it\.
 .
 .SH "KEYBINDINGS"
 \fBrofi\fR has the following key\-bindings:
@@ -1236,7 +1281,7 @@ The first two fields specify the alpha level\. This determines the amount of tra
 .IP "" 0
 .
 .P
-To get a full list of keybindings, see \fBrofi \-dump\-xresources | grep kb\-\fR\. Keybindings can be modified using the configuration systems\.
+To get a full list of keybindings on the commandline, see \fBrofi \-dump\-xresources | grep kb\-\fR\. Keybindings can be modified using the configuration systems\. To get searchable list of keybindings, run \fBrofi \-show keys\fR\.
 .
 .P
 A keybinding starting with \fB!\fR will act when all keys have been released\.
@@ -1244,16 +1289,16 @@ A keybinding starting with \fB!\fR will act when all keys have been released\.
 .SH "Available Modi"
 .
 .SS "Window"
-Show a list of all the windows and allow switching between them\. Pressing the \fBdelete\-entry\fR binding (\fBshift\-delete\fR) will kill the window\. Pressing the \fBaccept\-custom\fR binding (\fBcontrol\-enter\fR or \fBshift\-enter\fR) will run a command on the window\.
+Show a list of all the windows and allow switching between them\. Pressing the \fBdelete\-entry\fR binding (\fBshift\-delete\fR) will close the window\. Pressing the \fBaccept\-custom\fR binding (\fBcontrol\-enter\fR or \fBshift\-enter\fR) will run a command on the window\. (See option \fBwindow\-command\fR );
 .
 .SS "WindowCD"
-Shows a list of the windows on the current desktop and allows switching between them\. Pressing the \fBdelete\-entry\fR binding (\fBshift\-delete\fR) will kill the window\. Pressing the \fBaccept\-custom\fR binding (\fBcontrol\-enter\fR or \fBshift\-enter\fR) will run a command on the window\.
+Shows a list of the windows on the current desktop and allows switching between them\. Pressing the \fBdelete\-entry\fR binding (\fBshift\-delete\fR) will kill the window\. Pressing the \fBaccept\-custom\fR binding (\fBcontrol\-enter\fR or \fBshift\-enter\fR) will run a command on the window\. (See option \fBwindow\-command\fR );
 .
 .SS "Run"
-Shows a list of executables in \fB$PATH\fR and can launch them (optional in a terminal)\. Pressing the \fBaccept\-custom\fR binding (\fBcontrol\-enter\fR or \fBshift\-enter\fR) will run the command in a terminal\.
+Shows a list of executables in \fB$PATH\fR and can launch them (optional in a terminal)\. Pressing the \fBdelete\-entry\fR binding (\fBshift\-delete\fR) will remove this entry from the run history\. Pressing the \fBaccept\-custom\fR binding (\fBcontrol\-enter\fR or \fBshift\-enter\fR) will run the command in a terminal\.
 .
 .SS "DRun"
-Same as the \fBrun\fR launches, but the list is created from the installed desktop files\. It automatically launches them in a terminal if specified in the Desktop File\. Pressing the \fBaccept\-custom\fR binding (\fBcontrol\-enter\fR or \fBshift\-enter\fR) with custom input (no entry matching) will run the command in a terminal\.
+Same as the \fBrun\fR launches, but the list is created from the installed desktop files\. It automatically launches them in a terminal if specified in the Desktop File\. Pressing the \fBdelete\-entry\fR binding (\fBshift\-delete\fR) will remove this entry from the run history\. Pressing the \fBaccept\-custom\fR binding (\fBcontrol\-enter\fR or \fBshift\-enter\fR) with custom input (no entry matching) will run the command in a terminal\.
 .
 .SS "SSH"
 Shows a list of SSH targets based on your ssh config file, and allows to quickly ssh into them\.
