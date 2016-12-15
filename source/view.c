@@ -200,7 +200,7 @@ static void menu_capture_screenshot ( void )
 static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
 {
     if ( current_active_menu  ) {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "expose event\n" );
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "expose event" );
         TICK_N ( "Expose" );
         xcb_copy_area ( xcb->connection, CacheState.edit_pixmap, CacheState.main_window, CacheState.gc,
                         0, 0, 0, 0, current_active_menu->width, current_active_menu->height );
@@ -319,7 +319,7 @@ void rofi_view_queue_redraw ( void  )
 {
     if ( current_active_menu && CacheState.repaint_source == 0 ) {
         CacheState.count++;
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "redraw %lu\n", CacheState.count );
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "redraw %lu", CacheState.count );
         CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
     }
 }
@@ -1591,6 +1591,7 @@ void rofi_view_hide ( void )
 
 void rofi_view_cleanup ()
 {
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Cleanup." );
     if ( CacheState.idle_timeout > 0 ) {
         g_source_remove ( CacheState.idle_timeout );
         CacheState.idle_timeout = 0;
