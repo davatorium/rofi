@@ -31,8 +31,8 @@ static gboolean test_widget_clicked ( G_GNUC_UNUSED widget *wid, G_GNUC_UNUSED x
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
     {
-        box *b = box_create ( BOX_HORIZONTAL, 0, 0, 100, 20 );
-        box_set_padding ( b, 5 );
+        box *b = box_create ( "box", BOX_HORIZONTAL, 0, 0, 100, 20 );
+        //box_set_padding ( b, 5 );
 
         widget *wid1 = g_malloc0(sizeof(widget));
         box_add ( b , WIDGET( wid1 ), TRUE, FALSE );
@@ -92,8 +92,8 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         widget_free ( WIDGET ( b ) );
     }
     {
-        box *b = box_create ( BOX_VERTICAL, 0, 0, 20, 100 );
-        box_set_padding ( b, 5 );
+        box *b = box_create ( "box", BOX_VERTICAL, 0, 0, 20, 100 );
+        //box_set_padding ( b, 5 );
 
         widget *wid1 = g_malloc0(sizeof(widget));
         box_add ( b , WIDGET( wid1 ), TRUE, FALSE );
@@ -152,8 +152,8 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         widget_free ( WIDGET ( b ) );
     }
     {
-        box *b = box_create ( BOX_VERTICAL, 0, 0, 20, 100 );
-        box_set_padding ( b, 5 );
+        box *b = box_create ( "box", BOX_VERTICAL, 0, 0, 20, 100 );
+        //box_set_padding ( b, 5 );
         widget *wid1 = g_malloc0(sizeof(widget));
         widget_enable(wid1);
         wid1->clicked = test_widget_clicked;

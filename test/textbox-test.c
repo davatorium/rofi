@@ -53,7 +53,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     PangoContext    *p    = pango_cairo_create_context ( draw );
     textbox_set_pango_context ( p );
 
-    textbox *box = textbox_create ( TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, 0, 0, -1, -1,
+    textbox *box = textbox_create ( "textbox", TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, 0, 0, -1, -1,
                                     NORMAL, "test" );
     TASSERT ( box != NULL );
 

@@ -58,6 +58,7 @@ Property *rofi_theme_property_create ( PropertyType type );
 void rofi_theme_property_free ( Property *p );
 void rofi_theme_free ( Widget * );
 void rofi_theme_parse_file ( const char *file );
+void rofi_theme_widget_add_properties ( Widget *widget, GHashTable *table );
 
 /**
  * Public API

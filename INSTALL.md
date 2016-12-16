@@ -9,6 +9,8 @@
 * autoconf
 * automake (1.11.3 or up)
 * pkg-config
+* flex
+* bison
 * Developer packages of the external libraries
 
 ### External libraries

@@ -273,6 +273,10 @@ box_test_CFLAGS=$(textbox_test_CFLAGS)
 box_test_SOURCES=\
 			source/widgets/widget.c\
 			source/widgets/box.c\
+			lexer/theme-parser.y\
+			lexer/theme-lexer.l\
+			source/theme.c\
+			inlucde/theme.h\
 			test/box-test.c
 
 scrollbar_test_LDADD=$(textbox_test_LDADD)
@@ -280,11 +284,18 @@ scrollbar_test_CFLAGS=$(textbox_test_CFLAGS)
 scrollbar_test_SOURCES=\
 			source/widgets/widget.c\
 			source/widgets/scrollbar.c\
+			lexer/theme-parser.y\
+			lexer/theme-lexer.l\
+			source/theme.c\
+			inlucde/theme.h\
 			test/scrollbar-test.c
 
 textbox_test_SOURCES=\
 	source/widgets/widget.c\
 	source/widgets/textbox.c\
+	lexer/theme-parser.y\
+	lexer/theme-lexer.l\
+	source/theme.c\
 	config/config.c\
 	include/keyb.h\
 	include/rofi.h\

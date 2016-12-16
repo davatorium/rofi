@@ -52,7 +52,7 @@ void rofi_theme_free ( Widget *widget )
         g_hash_table_destroy ( widget->properties );
     }
     for ( unsigned int i = 0; i < widget->num_widgets; i++ ){
-        rofi_theme_free ( widget->widgets[i] ); 
+        rofi_theme_free ( widget->widgets[i] );
     }
     g_free ( widget->widgets );
     g_free ( widget->name );
@@ -68,10 +68,10 @@ static void rofi_theme_print_property_index ( int depth, Property *p )
     switch ( p->type )
     {
         case P_STRING:
-           printf("\"%s\"", p->value.s); 
+           printf("\"%s\"", p->value.s);
            break;
         case P_INTEGER:
-           printf("%d", p->value.i); 
+           printf("%d", p->value.i);
            break;
         case P_DOUBLE:
            printf("%.2f", p->value.f);
@@ -122,6 +122,27 @@ void yyerror(YYLTYPE *yylloc, const char* s) {
     fprintf(stderr, "From line %d column %d to line %d column %d\n", yylloc->first_line, yylloc->first_column, yylloc->last_line, yylloc->last_column);
 	exit(EXIT_FAILURE);
 }
+
+static gboolean rofi_theme_steal_property_int ( gpointer key, gpointer value, gpointer user_data)
+{
+    GHashTable *table = (GHashTable*)user_data;
+    g_hash_table_replace ( table, key, value);
+    return TRUE;
+}
+void rofi_theme_widget_add_properties ( Widget *widget, GHashTable *table )
+{
+    if ( table == NULL ) {
+        return;
+    }
+    if ( widget->properties == NULL ){
+        widget->properties = table;
+        return;
+    }
+    g_hash_table_foreach_steal ( table, rofi_theme_steal_property_int, widget->properties );
+    g_hash_table_destroy ( table );
+}
+
+
 /**
  * Public API
  */
@@ -159,7 +180,7 @@ static Widget *rofi_theme_find ( Widget *widget , const char *name )
             widget = f;
             found = TRUE;
         }
-    } 
+    }
     g_strfreev(names);
     return widget;
 }
@@ -172,7 +193,7 @@ static Property *rofi_theme_find_property ( Widget *widget, PropertyType type, c
             if ( p->type == type ){
                 return p;
             }
-        } 
+        }
         widget = widget->parent;
     }
     return NULL;
@@ -260,7 +281,7 @@ double rofi_theme_get_double ( const char *wclass, const char  *name, const char
     }
     return def;
 }
-void rofi_theme_get_color ( const char *wclass, const char  *name, const char *state, const char *property, cairo_t *d) 
+void rofi_theme_get_color ( const char *wclass, const char  *name, const char *state, const char *property, cairo_t *d)
 {
     if ( rofi_theme == NULL ) {
         return ;

@@ -66,12 +66,11 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %%
 
 start:
+     entries
      optional_properties
-     entries {
-        $$ = $2;
-        if ( $1 != NULL ) {
-            $$->properties = $1;
-        }
+     {
+        $$ = $1;
+        rofi_theme_widget_add_properties ( $$, $2 );
      }
 ;
 entries:
@@ -80,7 +79,12 @@ entries:
         $$ =  rofi_theme = (Widget*)g_malloc0 (sizeof(Widget));
         rofi_theme->name = g_strdup ( "Window" );
   }
-| entries entry { $$ = $1; }
+|  entries
+   optional_properties
+   entry {
+        $$ = $1;
+        rofi_theme_widget_add_properties ( $$, $2);
+    }
 ;
 
 entry:
@@ -96,11 +100,7 @@ CLASS_PREFIX class_name state_path BOPEN optional_properties BCLOSE
         g_list_foreach ( $3, (GFunc)g_free , NULL );
         g_list_free ( $3 );
         widget->set = TRUE;
-        if ( widget->properties != NULL ) {
-            fprintf(stderr, "Properties already set on this widget.\n");
-            exit ( EXIT_FAILURE );
-        }
-        widget->properties = $5;
+        rofi_theme_widget_add_properties ( widget, $5);
 }
 | NAME_PREFIX name_path state_path BOPEN optional_properties BCLOSE
 {
@@ -117,11 +117,7 @@ CLASS_PREFIX class_name state_path BOPEN optional_properties BCLOSE
         g_list_foreach ( $3, (GFunc)g_free , NULL );
         g_list_free ( $3 );
         widget->set = TRUE;
-        if ( widget->properties != NULL ) {
-            fprintf(stderr, "Properties already set on this widget.\n");
-            exit ( EXIT_FAILURE );
-        }
-        widget->properties = $5;
+        rofi_theme_widget_add_properties ( widget, $5);
 };
 
 /**

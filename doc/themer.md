@@ -106,7 +106,7 @@ The file is structured as follows
 }
 ```
 
-The global properties has to be at the top of the file, the rest can freeĺy be mixed.
+The global properties an freeĺy be mixed between entries.
 
 Each property is constructed like:
 ```
