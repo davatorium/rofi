@@ -6,6 +6,8 @@
 
 
 #include "lexer/theme-parser.h"
+int last_state = 0;
+GQueue *queue = NULL;
 
 %}
 %{
@@ -25,13 +27,19 @@ NUMBER     [0-9]
 
 %x PROPERTIES
 %x NAMESTR
+%x ENTRY
 %%
 
 %{
 YY_LLOC_START
 %}
-
-"//"            {
+%{
+if ( queue == NULL ){
+printf("queue create\n");
+    queue = g_queue_new ( );
+}
+%}
+<*>"//"            {
     int c;
     while ((c = input()) != EOF){
         if (c == '\n') {
@@ -43,7 +51,7 @@ YY_LLOC_START
     }
     YY_LLOC_START
 }
-"/*"            {
+<*>"/*"            {
     int c = 0, p;
     int nesting_depth = 1;
     while (nesting_depth) {
@@ -66,20 +74,31 @@ YY_LLOC_START
     YY_LLOC_START
 }
 
-"\{"                { return BOPEN;}
-"@"                 { BEGIN(NAMESTR);return CLASS_PREFIX;}
-"#"                 { BEGIN(NAMESTR);return NAME_PREFIX;}
-"\}"                             { return BCLOSE;}
-<INITIAL,NAMESTR>"."                 { return NSEP; }
-{WORD}              { yylval->sval = g_strdup(yytext); return N_STRING;}
-<NAMESTR>{WORD}              { yylval->sval = g_strdup(yytext); return NAME_ELEMENT;}
+  /* Go into parsing an entry */
+<INITIAL>"\{"                    {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(ENTRY);
+    return BOPEN;
+}
+  /* Pop out of parsing an entry. */
+<ENTRY>"\}"             {
+    BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
+    return BCLOSE;
+}
 
-<NAMESTR>{WHITESPACE}  { BEGIN(INITIAL);}
-<INITIAL>{WHITESPACE}+	; // ignore all whitespace
+<INITIAL>"@"            { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(NAMESTR);return CLASS_PREFIX;}
+<INITIAL>"#"            { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(NAMESTR);return NAME_PREFIX;}
+<INITIAL,NAMESTR>"."    { return NSEP; }
+<INITIAL,ENTRY>{WORD}   { yylval->sval = g_strdup(yytext); return N_STRING;}
+<NAMESTR>{WORD}         { yylval->sval = g_strdup(yytext); return NAME_ELEMENT;}
+
+    /* After Namestr/Classstr we want to go to state str, then to  { */
+<NAMESTR>{WHITESPACE}   { BEGIN(GPOINTER_TO_INT (g_queue_pop_head ( queue )));}
+<INITIAL,ENTRY>{WHITESPACE}+	; // ignore all whitespace
 <PROPERTIES>{WHITESPACE}+	; // ignore all whitespace
 
-":"                              { BEGIN(PROPERTIES); return PSEP; }
-<PROPERTIES>";"                  { BEGIN(0); return PCLOSE;}
+<INITIAL,ENTRY>":"               { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return PSEP; }
+<PROPERTIES>";"                  { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return PCLOSE;}
 <PROPERTIES>(true|false)         { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
 <PROPERTIES>{NUMBER}+            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
 <PROPERTIES>{NUMBER}+\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
@@ -133,7 +152,14 @@ YY_LLOC_START
         yylloc->last_line ++;
 };
 
-<*><<EOF>>  {
+<INITIAL><<EOF>>  {
+    yyterminate();
+    printf("Queue free: %d\n", g_queue_get_length(queue));;
+    g_queue_free ( queue );
+}
+<*>. {
+    fprintf(stderr, "Invalid character: '%c'\n", *yytext);
     yyterminate();
 }
+
 %%
