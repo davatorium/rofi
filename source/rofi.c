@@ -214,6 +214,9 @@ void process_result ( RofiViewState *state )
         else if ( retv == RELOAD_DIALOG ) {
             // do nothing.
         }
+        else if ( retv == RESET_DIALOG ) {
+            rofi_view_clear_input ( state );
+        }
         else if ( retv < MODE_EXIT ) {
             mode = ( retv ) % num_modi;
         }
@@ -532,7 +535,7 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
 
                 // Because of abe_trigger, state of rofi can be changed. handle this!
                 // Run mainloop on dummy event.
-                xcb_generic_event_t dev = {0,};
+                xcb_generic_event_t dev;
                 dev.response_type = 0;
                 main_loop_x11_event_handler_view ( &dev );
             }

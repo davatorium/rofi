@@ -216,6 +216,13 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode );
 void rofi_view_set_overlay ( RofiViewState *state, const char *text );
 
 /**
+ * @param state The handle to the view.
+ *
+ * Clears the user entry box, set selected to 0.
+ */
+void rofi_view_clear_input ( RofiViewState *state );
+
+/**
  * @param menu_flags The state of the new window.
  *
  * Creates the internal 'Cached' window that gets reused between views.
@@ -247,6 +254,5 @@ void rofi_view_workers_finalize ( void );
  * @returns the xcb_window_t for rofi's view or XCB_WINDOW_NONE.
  */
 xcb_window_t rofi_view_get_window ( void );
-
 /**@}*/
 #endif

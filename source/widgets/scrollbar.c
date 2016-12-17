@@ -127,10 +127,10 @@ unsigned int scrollbar_clicked ( const scrollbar *sb, int y )
 {
     if ( sb != NULL ) {
         if ( y >= sb->widget.y && y <= ( sb->widget.y + sb->widget.h ) ) {
-            unsigned int r           = ( sb->length * sb->widget.h ) / ( (double) ( sb->length + sb->pos_length ) );
-            unsigned int handle      = sb->widget.h - r;
+            short r           = ( sb->length * sb->widget.h ) / ( (double) ( sb->length + sb->pos_length ) );
+            short handle      = sb->widget.h - r;
             double       sec         = ( ( r ) / (double) ( sb->length - 1 ) );
-            unsigned int half_handle = handle / 2;
+            short half_handle = handle / 2;
             y -= sb->widget.y + half_handle;
             y  = MIN ( MAX ( 0, y ), sb->widget.h - 2 * half_handle );
 
