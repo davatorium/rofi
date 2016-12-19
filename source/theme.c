@@ -113,7 +113,8 @@ void rofi_theme_print ( Widget *widget )
     rofi_theme_print_index ( 0, widget);
 }
 
-extern int yyparse();
+int yyparse();
+void yylex_destroy( void );
 extern FILE* yyin;
 extern Widget *rofi_theme;
 
@@ -155,6 +156,7 @@ void rofi_theme_parse_file ( const char *file )
         return;
     }
     while ( yyparse() );
+    yylex_destroy();
 }
 static Widget *rofi_theme_find_single ( Widget *widget, const char *name)
 {
