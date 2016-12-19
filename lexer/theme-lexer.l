@@ -19,11 +19,11 @@ GQueue *queue = NULL;
     yylloc->first_line = yylloc->last_line; yylloc->first_column = yylloc->last_column;\
 }
 %}
-WHITESPACE [ \t]
-WORD       [_\-a-zA-Z0-9]+
-STRING     [ \t_\-a-zA-Z0-9]+
-HEX        [0-9a-fA-F]
-NUMBER     [0-9]
+WHITESPACE [[:space:]]
+WORD       [[:alnum:]-]+
+STRING     [[:print:]]+
+HEX        [[:xdigit:]]
+NUMBER     [[:digit:]]
 
 %x PROPERTIES
 %x NAMESTR
