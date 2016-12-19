@@ -91,6 +91,8 @@ There are currently three methods of setting configuration options (evaluated in
    By default XDG_USER_CONFIG_DIR defaults to `$HOME/.config`. (See `rofi -h` for current location).
  * Command-line options: Arguments passed to **rofi**.
 
+**TIP**: To get a template config file run: `rofi -dump-xresources > rofi-example.config`.
+
 The Xresources file expects options starting with `rofi.` followed by it's name. An Example to set the number of lines:
 
     rofi.lines: 10
