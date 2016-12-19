@@ -80,6 +80,8 @@ by making all colors transparent).
 
 ### Improvements
 
+- By default use all cores to filter entries.
+- Make sure drawing priority is higher then reading input data.
 - Improve resizing of window, don't make X whipe background.
 - Improve close window (shift-delete) action, by sending NET_WM_CLOSE instead of destroying window.
 - Create cache and run directory on startup. (#497)

@@ -135,14 +135,14 @@ static void async_read_callback ( GObject *source_object, GAsyncResult *res, gpo
         g_free ( data );
         rofi_view_reload ();
 
-        g_data_input_stream_read_upto_async ( pd->data_input_stream, &( pd->separator ), 1, G_PRIORITY_DEFAULT, pd->cancel,
+        g_data_input_stream_read_upto_async ( pd->data_input_stream, &( pd->separator ), 1, G_PRIORITY_LOW, pd->cancel,
                                               async_read_callback, pd );
         return;
     }
     if ( !g_cancellable_is_cancelled ( pd->cancel ) ) {
         // Hack, don't use get active.
         rofi_view_set_overlay ( rofi_view_get_active (), NULL );
-        g_input_stream_close_async ( G_INPUT_STREAM ( stream ), G_PRIORITY_DEFAULT, pd->cancel, async_close_callback, pd );
+        g_input_stream_close_async ( G_INPUT_STREAM ( stream ), G_PRIORITY_LOW, pd->cancel, async_close_callback, pd );
     }
 }
 
@@ -153,7 +153,7 @@ static void async_read_cancel ( G_GNUC_UNUSED GCancellable *cancel, G_GNUC_UNUSE
 
 static void get_dmenu_async ( DmenuModePrivateData *pd )
 {
-    g_data_input_stream_read_upto_async ( pd->data_input_stream, &( pd->separator ), 1, G_PRIORITY_DEFAULT, pd->cancel,
+    g_data_input_stream_read_upto_async ( pd->data_input_stream, &( pd->separator ), 1, G_PRIORITY_LOW, pd->cancel,
                                           async_read_callback, pd );
 }
 static void get_dmenu_sync ( DmenuModePrivateData *pd )
@@ -168,7 +168,7 @@ static void get_dmenu_sync ( DmenuModePrivateData *pd )
         read_add ( pd, data, len );
         g_free ( data );
     }
-    g_input_stream_close_async ( G_INPUT_STREAM ( pd->input_stream ), G_PRIORITY_DEFAULT, pd->cancel, async_close_callback, pd );
+    g_input_stream_close_async ( G_INPUT_STREAM ( pd->input_stream ), G_PRIORITY_LOW, pd->cancel, async_close_callback, pd );
 }
 
 static unsigned int dmenu_mode_get_num_entries ( const Mode *sw )
