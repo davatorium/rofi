@@ -137,9 +137,11 @@ The following properties are currently supports:
     * foreground:      color
     * border-width:    integer
     * padding:         integer
-    * border-width:    integer
-    * padding:         integer
-    * border-width:    integer
+    * transparency:    string
+        - real
+        - background
+        - screenshot
+        - Path to png file
 
  * separator:
     * line-style:      string

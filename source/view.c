@@ -491,23 +491,26 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
     }
 }
 
-static void rofi_view_setup_fake_transparency ( void )
+static void rofi_view_setup_fake_transparency ( const char const *fake_background )
 {
     if ( CacheState.fake_bg == NULL ) {
         cairo_surface_t *s = NULL;
         /**
          * Select Background to use for fake transparency.
-         * Current options: 'screenshot','background'
+         * Current options: 'real', 'screenshot','background'
          */
         TICK_N ( "Fake start" );
-        if ( g_strcmp0 ( config.fake_background, "screenshot" ) == 0 ) {
+        if ( g_strcmp0 ( fake_background, "real" ) == 0 ){
+            return;
+        }
+        else if ( g_strcmp0 ( fake_background, "screenshot" ) == 0 ) {
             s = x11_helper_get_screenshot_surface ();
         }
-        else if ( g_strcmp0 ( config.fake_background, "background" ) == 0 ) {
+        else if ( g_strcmp0 ( fake_background, "background" ) == 0 ) {
             s = x11_helper_get_bg_surface ();
         }
         else {
-            char *fpath = rofi_expand_path ( config.fake_background );
+            char *fpath = rofi_expand_path ( fake_background );
             g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Opening %s to use as background.", fpath );
             s                     = cairo_image_surface_create_from_png ( fpath );
             CacheState.fake_bgrel = TRUE;
@@ -623,8 +626,14 @@ void __create_window ( MenuFlags menu_flags )
     CacheState.main_window = box;
     CacheState.flags       = menu_flags;
     monitor_active ( &( CacheState.mon ) );
-    if ( config.fake_transparency ) {
-        rofi_view_setup_fake_transparency ();
+
+    char *transparency = rofi_theme_get_string ( "@window", "window", NULL, "transparency", NULL);
+    if ( transparency == NULL && config.fake_transparency ){
+        transparency = config.fake_background;
+    }
+        printf("Setup transparency: %s\n", transparency);
+    if ( transparency ) {
+        rofi_view_setup_fake_transparency ( transparency  );
     }
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_setup_window ( xcb->sncontext, CacheState.main_window );
@@ -769,7 +778,7 @@ void rofi_view_update ( RofiViewState *state )
     TICK ();
     cairo_t *d = CacheState.edit_draw;
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
-    if ( config.fake_transparency && CacheState.fake_bg != NULL ) {
+    if ( CacheState.fake_bg != NULL ) {
         if ( CacheState.fake_bgrel ) {
             cairo_set_source_surface ( d, CacheState.fake_bg, 0.0, 0.0 );
         }
