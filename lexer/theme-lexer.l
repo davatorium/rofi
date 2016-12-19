@@ -35,7 +35,6 @@ YY_LLOC_START
 %}
 %{
 if ( queue == NULL ){
-printf("queue create\n");
     queue = g_queue_new ( );
 }
 %}
@@ -153,9 +152,8 @@ printf("queue create\n");
 };
 
 <INITIAL><<EOF>>  {
-    yyterminate();
-    printf("Queue free: %d\n", g_queue_get_length(queue));;
     g_queue_free ( queue );
+    yyterminate();
 }
 <*>. {
     fprintf(stderr, "Invalid character: '%c'\n", *yytext);

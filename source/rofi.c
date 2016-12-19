@@ -902,8 +902,9 @@ int main ( int argc, char *argv[] )
     config_parse_cmd_options_dynamic (  );
 
     if ( config.theme ) {
+        TICK_N ( "Parse theme" );
         rofi_theme_parse_file ( config.theme );
-//        rofi_theme_print ( rofi_theme );
+        TICK_N ( "Parsed theme" );
     }
 
     // Dump.

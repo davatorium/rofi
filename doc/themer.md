@@ -1,10 +1,10 @@
-# Basic Organization 
+# Basic Organization
 
 Each widget has:
 
 ## Class
 
-Class: Type of widget. 
+Class: Type of widget.
 
 Example: textbox, scrollbar, separator
 
@@ -56,13 +56,13 @@ List of names in **rofi**:
 
 State: State of widget
 
-Optional flag(s) indicating state. 
+Optional flag(s) indicating state.
 
 These are appended after the name or class of the widget.
 
-`@textbox selected.normal { }` 
+`@textbox selected.normal { }`
 
-`#listview.element selected.urgent { }` 
+`#listview.element selected.urgent { }`
 
 Currently only the @entrybox has states:
 
@@ -71,7 +71,7 @@ Currently only the @entrybox has states:
 Where `visible modifier` can be:
  * normal: No modification.
  * selected: The entry is selected/highlighted by user.
- * alternate: The entry is at an alternating row. (uneven row) 
+ * alternate: The entry is at an alternating row. (uneven row)
 
 Where `state` is:
  * normal: No modification.
@@ -82,7 +82,7 @@ These can be mixed.
 
 Example:
 ```
-@textbox selected.active { 
+@textbox selected.active {
     background: #003642;
     foreground: #008ed4;
 }
@@ -120,11 +120,46 @@ Value supports the following formats:
  * integer: `[0-9]+`
  * double:  `[0-9]+\.[0-9]`
  * boolean: `true|false`
- * color:    
+ * color:
     * `#[0-9a-fA-F]{6}`: hexidecimal rgb color.
     * `#[0-9a-fA-F]{8}`:  hexidecimal argb color.
-    * `argb:[0-0a-fA-F]{8}`: Old **rofi** argb color style. 
+    * `argb:[0-0a-fA-F]{8}`: Old **rofi** argb color style.
     * `rgba\([0-9]{1,3},[0-9]{1,3}, [0-9]{1,3}, {double}\)`: css style rgba color.
     * `rgb\([0-9]{1,3},[0-9]{1,3}, [0-9]{1,3}\)`: css style rgb color.
 
 Each property is closed by a semi-colon `;`;
+
+The following properties are currently supports:
+
+ * window:
+    * font:            string
+    * background:      color
+    * foreground:      color
+    * border-width:    integer
+    * padding:         integer
+    * border-width:    integer
+    * padding:         integer
+    * border-width:    integer
+
+ * separator:
+    * line-style:      string
+    * foreground:      color
+
+  * scrollbar
+    * foreground:      color
+
+  * box
+    * padding:         integer
+
+ * textbox:
+   *  background:      color
+   *  foreground:      color
+
+  * listview:
+    * padding:         integer
+    * lines:           integer
+    * columns:         integer
+    * fixed-height:    boolean
+    * scrollbar:       boolean
+    * scrollbar-width: integer
+    * cycle:           boolean
