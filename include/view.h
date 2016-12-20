@@ -41,7 +41,7 @@ typedef enum
  *
  * @returns The command issued (see MenuReturn)
  */
-RofiViewState *rofi_view_create ( Mode *sw, const char *input, const char *message, MenuFlags flags, void ( *finalize )( RofiViewState * ) ) __attribute__ ( ( nonnull ( 1, 2, 5 ) ) );
+RofiViewState *rofi_view_create ( Mode *sw, const char *input, const char *message, MenuFlags flags, void ( *finalize )( RofiViewState * ) );
 
 /**
  * @param state The Menu Handle
@@ -229,6 +229,12 @@ void rofi_view_clear_input ( RofiViewState *state );
  * TODO: Internal call to view exposed.
  */
 void __create_window ( MenuFlags menu_flags );
+/**
+ * Get the handle of the main window.
+ *
+ * @returns the xcb_window_t for rofi's view or XCB_WINDOW_NONE.
+ */
+xcb_window_t rofi_view_get_window ( void );
 /** @} */
 
 /***
@@ -248,11 +254,5 @@ void rofi_view_workers_initialize ( void );
  * Stop all threads and free the resources used by the threadpool
  */
 void rofi_view_workers_finalize ( void );
-/**
- * Get the handle of the main window.
- *
- * @returns the xcb_window_t for rofi's view or XCB_WINDOW_NONE.
- */
-xcb_window_t rofi_view_get_window ( void );
 /**@}*/
 #endif
