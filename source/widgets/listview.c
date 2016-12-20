@@ -149,6 +149,9 @@ static void listview_draw ( widget *wid, cairo_t *draw )
     else {
         offset = scroll_per_page ( lv );
     }
+    // Set these all together to make sure they update consistently.
+    scrollbar_set_max_value ( lv->scrollbar, lv->req_elements );
+    scrollbar_set_handle_length ( lv->scrollbar, lv->cur_columns * lv->max_rows );
     scrollbar_set_handle ( lv->scrollbar, lv->selected  );
     lv->last_offset = offset;
     if ( lv->cur_elements > 0 && lv->max_rows > 0 ) {
@@ -209,7 +212,6 @@ static void listview_recompute_elements ( listview *lv )
         }
     }
     lv->rchanged = TRUE;
-    scrollbar_set_handle_length ( lv->scrollbar, lv->cur_columns * lv->max_rows );
     lv->cur_elements = newne;
 }
 
@@ -218,7 +220,6 @@ void listview_set_num_elements ( listview *lv, unsigned int rows )
     lv->req_elements = rows;
     listview_set_selected ( lv, lv->selected );
     listview_recompute_elements ( lv );
-    scrollbar_set_max_value ( lv->scrollbar, lv->req_elements );
     widget_queue_redraw ( WIDGET ( lv ) );
 }
 
