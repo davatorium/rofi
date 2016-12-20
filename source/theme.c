@@ -217,7 +217,7 @@ static Widget *rofi_theme_find_widget ( const char *wclass, const char *name, co
     }
     if ( widget == NULL ){
         // Fuzzy finder
-        Widget *widget = rofi_theme_find ( rofi_theme, name, FALSE );
+        widget = rofi_theme_find ( rofi_theme, name, FALSE );
         if ( widget == rofi_theme ){
             widget = rofi_theme_find ( widget, wclass, FALSE );
         }
