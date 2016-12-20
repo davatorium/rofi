@@ -168,9 +168,9 @@ static Widget *rofi_theme_find_single ( Widget *widget, const char *name)
     return widget;
 }
 
-static Widget *rofi_theme_find ( Widget *widget , const char *name )
+static Widget *rofi_theme_find ( Widget *widget , const char *name, const gboolean exact )
 {
-    if ( name == NULL ) {
+    if ( widget  == NULL  || name == NULL ) {
         return widget;
     }
     char **names = g_strsplit ( name, "." , 0 );
@@ -184,7 +184,11 @@ static Widget *rofi_theme_find ( Widget *widget , const char *name )
         }
     }
     g_strfreev(names);
-    return widget;
+    if ( !exact || found ){
+        return widget;
+    } else {
+        return NULL;
+    }
 }
 
 static Property *rofi_theme_find_property ( Widget *widget, PropertyType type, const char *property )
@@ -200,21 +204,31 @@ static Property *rofi_theme_find_property ( Widget *widget, PropertyType type, c
     }
     return NULL;
 }
+static Widget *rofi_theme_find_widget ( const char *wclass, const char *name, const char *state )
+{
+    // First find exact match based on name.
+    Widget *widget = rofi_theme_find ( rofi_theme, name, TRUE );
+    widget = rofi_theme_find ( widget, state, TRUE );
+
+    if ( widget == NULL ){
+        // Fall back to class
+        widget = rofi_theme_find ( rofi_theme, wclass, TRUE);
+        widget = rofi_theme_find ( widget, state, TRUE );
+    }
+    if ( widget == NULL ){
+        // Fuzzy finder
+        Widget *widget = rofi_theme_find ( rofi_theme, name, FALSE );
+        if ( widget == rofi_theme ){
+            widget = rofi_theme_find ( widget, wclass, FALSE );
+        }
+        widget = rofi_theme_find ( widget, state, FALSE );
+    }
+    return widget;
+}
 
 int rofi_theme_get_integer ( const char *wclass, const char  *name, const char *state, const char *property, int def )
 {
-    if ( rofi_theme == NULL ) {
-        return def;
-    }
-    Widget *widget = rofi_theme_find ( rofi_theme, name );
-    if ( widget != rofi_theme ){
-        widget = rofi_theme_find ( widget, state );
-    }
-    if ( widget == rofi_theme || widget->set == FALSE ){
-        // Fall back to class
-        widget = rofi_theme_find ( rofi_theme, wclass);
-    }
-    widget = rofi_theme_find ( widget, state );
+    Widget *widget = rofi_theme_find_widget ( wclass, name, state );
     Property *p = rofi_theme_find_property ( widget, P_INTEGER, property );
     if ( p ){
         return p->value.i;
@@ -224,18 +238,7 @@ int rofi_theme_get_integer ( const char *wclass, const char  *name, const char *
 
 int rofi_theme_get_boolean ( const char *wclass, const char  *name, const char *state, const char *property, int def )
 {
-    if ( rofi_theme == NULL ) {
-        return def;
-    }
-    Widget *widget = rofi_theme_find ( rofi_theme, name );
-    if ( widget != rofi_theme ){
-        widget = rofi_theme_find ( widget, state );
-    }
-    if ( widget == rofi_theme || widget->set == FALSE ){
-        // Fall back to class
-        widget = rofi_theme_find ( rofi_theme, wclass);
-    }
-    widget = rofi_theme_find ( widget, state );
+    Widget *widget = rofi_theme_find_widget ( wclass, name, state );
     Property *p = rofi_theme_find_property ( widget, P_BOOLEAN, property );
     if ( p ){
         return p->value.b;
@@ -245,18 +248,7 @@ int rofi_theme_get_boolean ( const char *wclass, const char  *name, const char *
 
 char *rofi_theme_get_string ( const char *wclass, const char  *name, const char *state, const char *property, char *def )
 {
-    if ( rofi_theme == NULL ) {
-        return def;
-    }
-    Widget *widget = rofi_theme_find ( rofi_theme, name );
-    if ( widget != rofi_theme ){
-        widget = rofi_theme_find ( widget, state );
-    }
-    if ( widget == rofi_theme || widget->set == FALSE ){
-        // Fall back to class
-        widget = rofi_theme_find ( rofi_theme, wclass);
-    }
-    widget = rofi_theme_find ( widget, state );
+    Widget *widget = rofi_theme_find_widget ( wclass, name, state );
     Property *p = rofi_theme_find_property ( widget, P_STRING, property );
     if ( p ){
         return p->value.s;
@@ -265,18 +257,7 @@ char *rofi_theme_get_string ( const char *wclass, const char  *name, const char 
 }
 double rofi_theme_get_double ( const char *wclass, const char  *name, const char *state, const char *property, double def )
 {
-    if ( rofi_theme == NULL ) {
-        return def;
-    }
-    Widget *widget = rofi_theme_find ( rofi_theme, name );
-    if ( widget != rofi_theme ){
-        widget = rofi_theme_find ( widget, state );
-    }
-    if ( widget == rofi_theme || widget->set == FALSE ){
-        // Fall back to class
-        widget = rofi_theme_find ( rofi_theme, wclass);
-    }
-    widget = rofi_theme_find ( widget, state );
+    Widget *widget = rofi_theme_find_widget ( wclass, name, state );
     Property *p = rofi_theme_find_property ( widget, P_DOUBLE, property );
     if ( p ){
         return p->value.b;
@@ -285,18 +266,7 @@ double rofi_theme_get_double ( const char *wclass, const char  *name, const char
 }
 void rofi_theme_get_color ( const char *wclass, const char  *name, const char *state, const char *property, cairo_t *d)
 {
-    if ( rofi_theme == NULL ) {
-        return ;
-    }
-    Widget *widget = rofi_theme_find ( rofi_theme, name );
-    if ( widget != rofi_theme ){
-        widget = rofi_theme_find ( widget, state );
-    }
-    if ( widget == rofi_theme || widget->set == FALSE ){
-        // Fall back to class
-        widget = rofi_theme_find ( rofi_theme, wclass);
-    }
-    widget = rofi_theme_find ( widget, state );
+    Widget *widget = rofi_theme_find_widget ( wclass, name, state );
     Property *p = rofi_theme_find_property ( widget, P_COLOR, property );
     if ( p ){
         cairo_set_source_rgba ( d,

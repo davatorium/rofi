@@ -32,25 +32,25 @@ Names are prefixed with a `#`
 
 List of names in **rofi**:
 
- * #window
- * #mainbox
-   * #mainbox.box: The main vertical @box
- * #inputbar
-   * #inputbar.box: The horizontal @box packing the widgets.
-   * #inputbar.separator: The separator under/above the inputbar.
-   * #inputbar.case-indicator: The case/sort indicator @textbox
-   * #inputbar.prompt: The prompt @textbox
-   * #inputbar.entry: The main entry @textbox
- * #listview
-    * #listview.scrollbar: The listview scrollbar
-    * #listview.element: The entries in the listview
- * #sidebar
-   * #sidebar.box: The main horizontal @box packing the buttons.
-   * #sidebar.button: The buttons @textbox for each mode.
-   * #sidebar.separator: The separator under/above the sidebar.
- * #message
-   * #message.textbox: The message textbox.
-   * #message.separator: The separator under/above the sidebar.
+ * `#window`
+ * `#mainbox`
+   * `#mainbox.box`: The main vertical @box
+ * `#inputbar`
+   * `#inputbar.box`: The horizontal @box packing the widgets.
+   * `#inputbar.separator`: The separator under/above the inputbar.
+   * `#inputbar.case-indicator`: The case/sort indicator @textbox
+   * `#inputbar.prompt`: The prompt @textbox
+   * `#inputbar.entry`: The main entry @textbox
+ * `#listview`
+    * `#listview.scrollbar`: The listview scrollbar
+    * `#listview.element`: The entries in the listview
+ * `#sidebar`
+   * `#sidebar.box`: The main horizontal @box packing the buttons.
+   * `#sidebar.button`: The buttons @textbox for each mode.
+   * `#sidebar.separator`: The separator under/above the sidebar.
+ * `#message`
+   * `#message.textbox`: The message textbox.
+   * `#message.separator`: The separator under/above the sidebar.
 
 ## State
 
@@ -165,3 +165,26 @@ The following properties are currently supports:
     * scrollbar:       boolean
     * scrollbar-width: integer
     * cycle:           boolean
+
+
+## Resolving properties
+
+
+Current matching does:
+
+ 1. Find exact name match, with exact state match.
+
+    If found return
+
+ 1. Find exact class match, with exact state match.
+
+    If found return
+
+ 1. Find fuzzy name match, with fuzzy state.
+
+    If found is not root node, return
+
+ 1. Find fuzzy class match, with fuzzy state.
+
+    return
+

@@ -631,7 +631,6 @@ void __create_window ( MenuFlags menu_flags )
     if ( transparency == NULL && config.fake_transparency ){
         transparency = config.fake_background;
     }
-        printf("Setup transparency: %s\n", transparency);
     if ( transparency ) {
         rofi_view_setup_fake_transparency ( transparency  );
     }
