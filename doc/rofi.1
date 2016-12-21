@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-MANPAGE" "" "2016-12-19" "" ""
+.TH "ROFI\-MANPAGE" "" "2016-12-21" "" ""
 .
 .SH "NAME"
 \fBrofi\fR \- A window switcher, run launcher, ssh dialog and dmenu replacement
@@ -1331,6 +1331,139 @@ The indicator shows:
 `\-` Case sensitivity enabled, no sorting\.
 `+` Case insensitive and Sorting enabled
 `±` Sorting and Case sensitivity enabled"
+.
+.fi
+.
+.IP "" 0
+.
+.SH "EXAMPLES"
+Some basic usage examples of \fBrofi\fR:
+.
+.P
+Show the run dialog:
+.
+.IP "" 4
+.
+.nf
+
+rofi \-modi run \-show run
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Show the the run dialog and allow switching to Desktop File run dialog (drun):
+.
+.IP "" 4
+.
+.nf
+
+rofi \-modi run,drun \-show run
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Combine the run and Desktop File run dialog (drun):
+.
+.IP "" 4
+.
+.nf
+
+rofi \-modi combi \-show combi \-combi\-modi run,drun
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Combine the run and Desktop File run dialog (drun) and allow switching to window switcher:
+.
+.IP "" 4
+.
+.nf
+
+rofi \-modi combi,window \-show combi \-combi\-modi run,drun
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Run \fBrofi\fR full monitor width at the top of the monitor like a dropdown menu:
+.
+.IP "" 4
+.
+.nf
+
+rofi \-show run \-width 100 \-location 1 \-lines 5 \-bw 2 \-yoffset \-2
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Get a colored list of available wifi networks:
+.
+.IP "" 4
+.
+.nf
+
+tty\-pipe nmcli device wifi | out2html \-p | rofi \-dmenu \-markup\-rows
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Popup a text message claiming that this is the end:
+.
+.IP "" 4
+.
+.nf
+
+rofi \-e "This is the end"
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Popup a text message in red, bold font claiming that this is still the end:
+.
+.IP "" 4
+.
+.nf
+
+rofi \-e "<span color=\'red\'><b>This is still the end</b></span>>" \-markup
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Show all keybindings:
+.
+.IP "" 4
+.
+.nf
+
+rofi \-show keys
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Use \fBqalc\fR to get a simple calculator in \fBrofi\fR:
+.
+.IP "" 4
+.
+.nf
+
+ rofi \-show calc \-modi "calc:qalc +u8 \-nocurrencies"
 .
 .fi
 .

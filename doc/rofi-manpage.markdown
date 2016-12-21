@@ -839,6 +839,52 @@ The indicator shows:
     `+` Case insensitive and Sorting enabled
     `±` Sorting and Case sensitivity enabled"
 
+## EXAMPLES
+
+Some basic usage examples of **rofi**:
+
+Show the run dialog:
+
+    rofi -modi run -show run
+
+
+Show the the run dialog and allow switching to Desktop File run dialog (drun):
+
+    rofi -modi run,drun -show run
+
+Combine the run and Desktop File run dialog (drun):
+
+    rofi -modi combi -show combi -combi-modi run,drun
+
+
+Combine the run and Desktop File run dialog (drun) and allow switching to window switcher:
+
+    rofi -modi combi,window -show combi -combi-modi run,drun
+
+Run **rofi** full monitor width at the top of the monitor like a dropdown menu:
+
+    rofi -show run -width 100 -location 1 -lines 5 -bw 2 -yoffset -2
+
+Get a colored list of available wifi networks:
+
+    tty-pipe nmcli device wifi | out2html -p | rofi -dmenu -markup-rows
+
+Popup a text message claiming that this is the end:
+
+    rofi -e "This is the end"
+
+Popup a text message in red, bold font claiming that this is still the end:
+
+    rofi -e "<span color='red'><b>This is still the end</b></span>>" -markup
+
+Show all keybindings:
+
+    rofi -show keys
+
+Use `qalc` to get a simple calculator in **rofi**:
+
+     rofi -show calc -modi "calc:qalc +u8 -nocurrencies"
+
 ## LICENSE
 
     MIT/X11
