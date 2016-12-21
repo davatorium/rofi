@@ -624,7 +624,7 @@ Message can be multi-line.
 
 ### Other
 
-'-pid' *path*
+`-pid` *path*
 
 Make **rofi** create a pid file and check this on startup. Avoiding multiple copies running
 simultaneously. This is useful when running **rofi** from a keybinding daemon.
