@@ -249,3 +249,15 @@ For more detailed information, please see the [manpage](doc/rofi-manpage.markdow
 
 Please see the [installation guide](https://davedavenport.github.io/rofi/p08-INSTALL.html) for instruction on how to
 install **Rofi**.
+
+# What is rofi not?
+
+Rofi is not:
+
+ * A preview application.  In other words, it will not show a (small) preview of image, movie or other files.
+ * A UI toolkit.
+ * A library to be used in other applications.
+ * An application that can support every possible use-case. It tries to generic enough to be usable by everybody.
+   Specific functionality can be added using scripts.
+ * Just a dmenu replacement. The dmenu functionality is a nice 'extra' to **rofi** not it main purpose.
+
