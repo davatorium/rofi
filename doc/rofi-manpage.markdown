@@ -234,11 +234,7 @@ Default: *1*
 
 The following options are further explained in the theming section:
 
-`-color-enabled`
-
-Enable the extended coloring options.
-
-`-color-window` *background* *border color* *separator color */
+`-color-window` *background* *border color* *separator color* 
 
 Set window background, border and separator color.
 
@@ -912,14 +908,25 @@ Use `qalc` to get a simple calculator in **rofi**:
 
 **rofi** website can be found at [here](https://davedavenport.github.io/rofi/)
 
-**rofi** bugtracker can be found [here](https://github.com/DaveDavenport/rofi/issues)
+## SUPPORT
 
 **rofi** support can be obtained [here](irc://irc.freenode.net/#rofi) (#rofi on irc.freenode.net), or via the
 [forum](https://forum.qtools.org/)
 
+## DEBUGGING
+
+Please see [this](https://github.com/DaveDavenport/rofi/wiki/Debugging Rofi) wiki entry.
+
+## ISSUE TRACKER
+
+**rofi** issue tracker can be found [here](https://github.com/DaveDavenport/rofi/issues)
+
+When creating an issue, please read [this](https://github.com/DaveDavenport/rofi/blob/master/.github/CONTRIBUTING.md)
+first.
+
 ## SEE ALSO
 
-rofi-sensible-terminal(1)
+rofi-sensible-terminal(1), dmenu(1)
 
 ## AUTHOR
 
