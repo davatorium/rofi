@@ -80,6 +80,7 @@ by making all colors transparent).
 
 ### Improvements
 
+- Fix pasting secondary clipboard. (#516)
 - By default use all cores to filter entries.
 - Make sure drawing priority is higher then reading input data.
 - Improve resizing of window, don't make X whipe background.
