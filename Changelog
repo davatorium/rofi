@@ -1,4 +1,4 @@
-v1.3.0: Dan vs. Greg: The never ending story. (unreleased)
+v1.3.0: Dan vs. Greg: The never ending story.
 	New Features
 		- Use randr for getting monitor layout. Fallback to xinerama if not available.
 		- Re-add fuzzy matcher.
