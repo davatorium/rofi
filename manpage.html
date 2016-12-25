@@ -57,7 +57,7 @@
     <a href="#SYNOPSIS">SYNOPSIS</a>
     <a href="#DESCRIPTION">DESCRIPTION</a>
     <a href="#USAGE">USAGE</a>
-    <a href="#OPTIONS">OPTIONS</a>
+    <a href="#CONFIGURATION">CONFIGURATION</a>
     <a href="#PATTERN">PATTERN</a>
     <a href="#DMENU-REPLACEMENT">DMENU REPLACEMENT</a>
     <a href="#THEMING">THEMING</a>
@@ -65,8 +65,13 @@
     <a href="#KEYBINDINGS">KEYBINDINGS</a>
     <a href="#Available-Modi">Available Modi</a>
     <a href="#FAQ">FAQ</a>
+    <a href="#EXAMPLES">EXAMPLES</a>
     <a href="#LICENSE">LICENSE</a>
     <a href="#WEBSITE">WEBSITE</a>
+    <a href="#SUPPORT">SUPPORT</a>
+    <a href="#DEBUGGING">DEBUGGING</a>
+    <a href="#ISSUE-TRACKER">ISSUE TRACKER</a>
+    <a href="#SEE-ALSO">SEE ALSO</a>
     <a href="#AUTHOR">AUTHOR</a>
   </div>
 
@@ -92,27 +97,24 @@
 [ -location <em>position</em> ]
 [ -fixed-num-lines ]
 [ -padding <em>padding</em> ]
-[ -opacity <em>opacity%</em> ]
 [ -display <em>display</em> ]
 [ -bw <em>width</em> ]
 [ -dmenu [ -p <em>prompt</em> ] [ -sep <em>separator</em> ] [ -l <em>selected line</em> ] [ -mesg ] [ -select ] [ -input <em>input</em> ] ]
 [ -filter <em>filter</em> ]
 [ -ssh-client <em>client</em> ]
 [ -ssh-command <em>command</em> ]
+[ -window-command <em>command</em> ]
 [ -disable-history ]
 [ -levenshtein-sort ]
 [ -case-sensitive ]
+[ -cycle ]
 [ -show <em>mode</em> ]
 [ -modi <em>mode1,mode2</em> ]
 [ -eh <em>element height</em> ]
-[ -lazy-filter-limit <em>limit</em> ]
 [ -e <em>message</em>]
 [ -a <em>row</em> ]
 [ -u <em>row</em> ]
 [ -pid <em>path</em> ]
-[ -now ]
-[ -rnow ]
-[ -snow ]
 [ -version ]
 [ -help ]
 [ -dump-xresources ]
@@ -123,9 +125,9 @@
 [ -combi-modi <em>mode1,mode2</em> ]
 [ -normal-window ]
 [ -fake-transparency ]
-[ -glob  ]
-[ -regex ]
+[ -matching <em>method</em> ]
 [ -tokenize ]
+[ -no-click-to-exit ]
 [ -threads <em>num</em> ]
 [ -config <em>filename</em> ]</p>
 
@@ -137,9 +139,13 @@ filter, tokenized search and more.</p>
 
 <h2 id="USAGE">USAGE</h2>
 
-<p><strong>rofi</strong> can be used in two ways, single-shot (runs a mode then exits) or emulating dmenu.</p>
+<p><strong>rofi</strong> main functionality is to assist in your workflow, allowing you to quickly (with a few keystrokes) switch
+between windows, start applications or log into a remote machine via ssh. There are different modi for different type of
+actions.</p>
 
-<h3 id="Single-shot-mode">Single-shot mode</h3>
+<p><strong>rofi</strong> can also function as (drop in) replacement for <strong><span class="man-ref">dmenu<span class="s">(1)</span></span></strong>.</p>
+
+<h3 id="Running-rofi">Running rofi</h3>
 
 <p>To launch <strong>rofi</strong> directly in a certain mode, specify a mode with <code>rofi -show &lt;mode></code>.
 To show the run dialog:</p>
@@ -149,24 +155,27 @@ To show the run dialog:</p>
 
 <h3 id="Emulating-dmenu">Emulating dmenu</h3>
 
-<p><strong>rofi</strong> can emulate <code>dmenu</code> (a dynamic menu for X) when launched with the <code>-dmenu</code> flag.</p>
+<p><strong>rofi</strong> can emulate <strong><span class="man-ref">dmenu<span class="s">(1)</span></span></strong> (a dynamic menu for X) when launched with the <code>-dmenu</code> flag.</p>
 
-<p>The official website for <code>dmenu</code> can be found <a href="http://tools.suckless.org/dmenu/">here</a>.</p>
+<p>The "official" website for <code>dmenu</code> can be found <a href="http://tools.suckless.org/dmenu/">here</a>.</p>
 
-<h2 id="OPTIONS">OPTIONS</h2>
+<h2 id="CONFIGURATION">CONFIGURATION</h2>
 
 <p>There are currently three methods of setting configuration options (evaluated in order below):</p>
 
 <ul>
+<li>System configuration file (f.e. /etc/rofi.conf).</li>
 <li>Xresources: A method of storing key values in the Xserver. See
 <a href="https://en.wikipedia.org/wiki/X_resources">here</a> for more information.
 This is the recommended way of configuring <strong>rofi</strong>.</li>
 <li>Configuration File: This uses the same format as the Xresources file.
-By default it looks in <code>XDG_USER_CONFIG_DIR</code>/rofi/config, but can be overriden on commandline.</li>
+By default it looks in <code>XDG_USER_CONFIG_DIR</code>/rofi/config, but can be overriden on commandline.
+By default XDG_USER_CONFIG_DIR defaults to <code>$HOME/.config</code>. (See <code>rofi -h</code> for current location).</li>
 <li>Command-line options: Arguments passed to <strong>rofi</strong>.</li>
-<li>System configuration file (f.e. /etc/rofi.conf).</li>
 </ul>
 
+
+<p><strong>TIP</strong>: To get a template config file run: <code>rofi -dump-xresources &gt; rofi-example.config</code>.</p>
 
 <p>The Xresources file expects options starting with <code>rofi.</code> followed by it's name. An Example to set the number of lines:</p>
 
@@ -199,7 +208,7 @@ prefixed with a '-':</p>
 <pre><code>-X
 </code></pre>
 
-<p>to disable it:</p>
+<p>To disable option X:</p>
 
 <pre><code>-no-X
 </code></pre>
@@ -211,7 +220,7 @@ prefixed with a '-':</p>
 <p><code>-help</code></p>
 
 <p>The help option shows the full list of commandline options and the current set value.
-These include dynamic options.</p>
+These include dynamic (run-time generated) options.</p>
 
 <p><code>-dump-xresources</code></p>
 
@@ -247,11 +256,9 @@ A simple example, displaying 3 pre-defined options:</p>
 <pre><code>~/my_script.sh | rofi -dmenu
 </code></pre>
 
-<p>Pressing the <code>accept-custom</code> binding (<code>control-enter</code> or <code>shift-enter</code>) sends the selected entry to STDOUT and moves to the next entry.</p>
-
 <p><code>-show</code> <em>mode</em></p>
 
-<p>Open <strong>rofi</strong> in a certain mode. Available modes are <code>window</code>, <code>run</code>, <code>ssh</code>
+<p>Open <strong>rofi</strong> in a certain mode. Available modes are <code>window</code>, <code>run</code>,<code>drun</code>, <code>ssh</code>, <code>combi</code>
 To show the run-dialog:</p>
 
 <pre><code>rofi -show run
@@ -272,18 +279,19 @@ To only show the run and ssh launcher:</p>
 <pre><code>&lt;name>:&lt;script&gt;
 </code></pre>
 
-<p>Example: Have a mode 'Workspaces' using the <code>i3_switch_workspace.sh</code> script:</p>
+<p>Example: Have a mode 'Workspaces' using the <code>i3_switch_workspaces.sh</code> script:</p>
 
 <pre><code>rofi -modi "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
 </code></pre>
 
 <p><code>-case-sensitive</code></p>
 
-<p>Start in case sensitive mode.</p>
+<p>Start in case sensitive mode.
+This option can be changed at run-time using the <code>-kb-toggle-case-sensitivity</code> key binding.</p>
 
-<p><code>-fuzzy</code></p>
+<p><code>-cycle</code></p>
 
-<p>Enable experimental fuzzy matching.</p>
+<p>Cycle through the results list. Default is 'true'.</p>
 
 <p><code>-filter</code> <em>filter</em></p>
 
@@ -299,7 +307,7 @@ To only show the run and ssh launcher:</p>
 
 <h3 id="Theming">Theming</h3>
 
-<p>All colors are either hex #rrggbb values or X11 color names.</p>
+<p>All colors are either hex #rrggbb, #aarrggbb or argb:aarrggbbvalues or X11 color names.</p>
 
 <p><code>-bw</code></p>
 
@@ -319,15 +327,6 @@ To only show the run and ssh launcher:</p>
 
 <p>Default: <em>mono 12</em></p>
 
-<p><code>-opacity</code></p>
-
-<p>Set window opacity (0-100).</p>
-
-<pre><code>rofi -opacity "75"
-</code></pre>
-
-<p>Default: <em>100</em></p>
-
 <p><code>-eh</code> <em>element height</em></p>
 
 <p>The height of a field in lines. e.g.</p>
@@ -339,11 +338,7 @@ To only show the run and ssh launcher:</p>
 
 <p>The following options are further explained in the theming section:</p>
 
-<p><code>-color-enabled</code></p>
-
-<p>Enable the extended coloring options.</p>
-
-<p><code>-color-window</code> <em>background</em> <em>border color</em> <em>separator color </em>/</p>
+<p><code>-color-window</code> <em>background</em> <em>border color</em> <em>separator color</em></p>
 
 <p>Set window background, border and separator color.</p>
 
@@ -379,14 +374,22 @@ Max:     *50*
 
 <p>Set the scrollbar width.</p>
 
-<p><code>-glob</code></p>
+<p><code>-matching</code> <em>method</em></p>
 
-<p>Use glob style matching
-<em>Warning this option might be slow on large lists</em></p>
+<p>Specify the matching algorithm used.
+Current the following methods are supported.</p>
 
-<p><code>-regex</code></p>
+<ul>
+<li><strong>normal</strong>: Match the int string.</li>
+<li><strong>regex</strong>: Match a regex input.</li>
+<li><strong>glob</strong>: Match a glob pattern.</li>
+<li><p><strong>fuzzy</strong>: Do a fuzzy match.</p>
 
-<p>Use regex matching</p>
+<p> Default: normal</p>
+
+<p> Note:, glob matching might be slow for larger lists.</p></li>
+</ul>
+
 
 <p><code>-tokenize</code></p>
 
@@ -467,36 +470,35 @@ To show sidebar use:</p>
 <pre><code>rofi -show run -sidebar-mode -lines 0
 </code></pre>
 
-<p><code>-lazy-filter-limit</code> <em>limit</em></p>
-
-<p>The number of entries required for <strong>rofi</strong> to go into lazy filter mode.
-In lazy filter mode, it won't re-filter the list on each keypress, but only after <strong>rofi</strong> been
-idle for 250ms. Experiments shows that the default (5000 lines) works well, set to 0 to always
-enable.</p>
-
-<p>Default: <em>5000</em></p>
-
 <p><code>-auto-select</code></p>
 
 <p>When one entry is left, automatically select it.</p>
 
-<p><code>-m</code> <em>num</em>
-<code>-monitor</code> <em>num</em></p>
+<p><code>-m</code> <em>num</em></p>
 
-<p>Select (Xinerama) monitor to display <strong>rofi</strong> on.
-Negative numbers are handled differently:</p>
+<p><code>-m</code> <em>name</em></p>
+
+<p><code>-monitor</code> <em>num</em></p>
+
+<p><code>-monitor</code> <em>name</em></p>
+
+<p>Select monitor to display <strong>rofi</strong> on.
+As input it accepts: <em>primary</em> (if primary output is set), the <em>xrandr</em> output name or integer number (in order of
+detection).  Negative numbers are handled differently:</p>
 
 <ul>
 <li><strong>-1</strong>: the currently focused monitor.</li>
 <li><strong>-2</strong>: the currently focused window (i.e. rofi will be displayed on top of the focused window).</li>
-<li><strong>-3</strong>: Position at mouse (still follows the location setting, use <code>-location 1</code> to get normal context menu
+<li><strong>-3</strong>: Position at mouse (overrides the location setting to get normal context menu
 behaviour.)</li>
 <li><strong>-4</strong>: the monitor with the focused window.</li>
 <li><p><strong>-5</strong>: the monitor that shows the mouse pointer.</p>
 
-<p>Default: <em>-1</em></p></li>
+<p>Default: <em>-5</em></p></li>
 </ul>
 
+
+<p>See <code>rofi -h</code> output for the detected monitors, their position and size.</p>
 
 <h3 id="PATTERN-setting">PATTERN setting</h3>
 
@@ -524,7 +526,8 @@ Default: <em>ssh</em></p>
 <p>Set the command to execute when starting a ssh session.
 The pattern <em>{host}</em> is replaced by the selected ssh entry.</p>
 
-<p>Default: <em>{terminal} -e {ssh-client} {host}</em></p>
+<p>Pattern: <em>{ssh-client}</em>
+Default: <em>{terminal} -e {ssh-client} {host}</em></p>
 
 <p><code>-parse-hosts</code></p>
 
@@ -561,6 +564,13 @@ See <em>PATTERN</em>.</p>
 
 <p>Default: <em>""</em></p>
 
+<p><code>-window-command</code> <em>cmd</em></p>
+
+<p>Set command to execute on selected window for custom action.
+See <em>PATTERN</em>.</p>
+
+<p>Default: <em>"xkill -id {window}"</em></p>
+
 <h3 id="Combi-settings">Combi settings</h3>
 
 <p><code>-combi-modi</code> <em>mode1,mode2</em></p>
@@ -569,7 +579,7 @@ See <em>PATTERN</em>.</p>
 For syntax to see <code>-modi</code>.
 To get one merge view, of window,run,ssh:</p>
 
-<pre><code>rofi -show combi -combi-modi "window,run,ssh"
+<pre><code>rofi -show combi -combi-modi "window,run,ssh" -modi combi
 </code></pre>
 
 <h3 id="History-and-Sorting">History and Sorting</h3>
@@ -582,7 +592,8 @@ To get one merge view, of window,run,ssh:</p>
 <p><code>-levenshtein-sort</code> to enable
 <code>-no-levenshtein-sort</code> to disable</p>
 
-<p>When searching sort the result based on levenshtein distance.</p>
+<p>When searching sort the result based on levenshtein distance.
+This setting can be changed at runtime, see <code>-kb-toggle-sort</code>.</p>
 
 <h3 id="Dmenu-specific">Dmenu specific</h3>
 
@@ -674,7 +685,7 @@ For more information on supported markup see <a href="https://developer.gnome.or
 
 <p><code>-normal-window</code></p>
 
-<p>Make <strong>rofi</strong> reacts like a normal application window. Useful for scripts like Clerk that are basically an application.</p>
+<p>Make <strong>rofi</strong> react like a normal application window. Useful for scripts like Clerk that are basically an application.</p>
 
 <p><code>-dump</code></p>
 
@@ -690,6 +701,43 @@ Use together with <code>-filter</code> command.</p>
 
 <p>Hide the input text. This should not be considered secure!</p>
 
+<p><code>-markup-rows</code></p>
+
+<p>Tell <strong>rofi</strong> that DMenu input is pango markup encoded and should be rendered.
+See <a href="https://developer.gnome.org/pango/stable/PangoMarkupFormat.html">here</a> for details about pango markup.</p>
+
+<p><code>-multi-select</code></p>
+
+<p>Allow multiple lines to be selected. Adds a small selection indicator to the left of each entry.</p>
+
+<p><code>-sync</code></p>
+
+<p>Force rofi mode to first read all data from stdin before showing selection window. This is how original dmenu behaviour.</p>
+
+<h3 id="Window-Mode">Window Mode</h3>
+
+<p><code>-window-format</code> <em>format</em></p>
+
+<p>Format what is being displayed for windows.</p>
+
+<p><em>format</em>: {field[:len]}</p>
+
+<p><em>field</em>:</p>
+
+<ul>
+<li><strong>w</strong>: Desktop name</li>
+<li><strong>t</strong>: Title of window</li>
+<li><strong>n</strong>: Name</li>
+<li><strong>r</strong>: Role</li>
+<li><strong>c</strong>: Class</li>
+</ul>
+
+
+<p><em>len</em>: maximum field length (0 for auto-size). If length negative and window <em>width</em> is negative field length is <em>width - len</em>.
+if length is positive, the entry will be truncated or padded to fill that length.</p>
+
+<p>default: {w}  {c}   {t}</p>
+
 <h3 id="Message-dialog">Message dialog</h3>
 
 <p><code>-e</code> <em>message</em></p>
@@ -699,20 +747,38 @@ Message can be multi-line.</p>
 
 <h3 id="Other">Other</h3>
 
-<p>'-pid' <em>path</em></p>
+<p><code>-pid</code> <em>path</em></p>
 
 <p>Make <strong>rofi</strong> create a pid file and check this on startup. Avoiding multiple copies running
 simultaneously. This is useful when running <strong>rofi</strong> from a keybinding daemon.</p>
 
 <p><code>-fake-transparency</code></p>
 
-<p>Enable fake transparency. This only works with transparent background color in the theme, not the opacity setting.</p>
+<p>Enable fake transparency. This only works with transparent background color in the theme.</p>
+
+<p><code>-fake-background</code></p>
+
+<p>Select what to use as background for fake transparency. This can be 'background', 'screenshot' or a path to an image
+file (currently only supports png).</p>
+
+<p><code>-display-{mode}</code> <em>string</em></p>
+
+<p>Set the name to use for mode. This is used as prompt and in combi-browser.</p>
+
+<p><code>-click-to-exit</code>
+<code>-no-click-to-exit</code></p>
+
+<p>Click the mouse outside of the <strong>rofi</strong> window to exit.</p>
+
+<p>Default: <em>enabled</em></p>
 
 <h3 id="Debug">Debug</h3>
 
 <p><code>-no-config</code></p>
 
 <p>Disable parsing of configuration. This runs rofi in <em>stock</em> mode.</p>
+
+<p>For more information on debugging see the <a href="https://github.com/DaveDavenport/rofi/wiki/Debugging%20Rofi">wiki</a></p>
 
 <h2 id="PATTERN">PATTERN</h2>
 
@@ -724,6 +790,7 @@ the following keys can be used that will be replaced at runtime:</p>
 <li><code>{terminal}</code>: The configured terminal (See -terminal-emulator)</li>
 <li><code>{ssh-client}</code>: The configured ssh client (See -ssh-client)</li>
 <li><code>{cmd}</code>: The command to execute.</li>
+<li><code>{window}</code>: The window id of the selected window. (In <code>window-command</code>)</li>
 </ul>
 
 
@@ -737,9 +804,8 @@ This way it can be used as a drop-in replacement for dmenu. just copy or symlink
 
 <h2 id="THEMING">THEMING</h2>
 
-<p>With <strong>rofi</strong> 0.15.4 we have a new way of specifying colors, the old settings still apply (for now).
-To enable the new setup, set <code>rofi.color-enabled</code> to true. The new setup allows you to specify
-colors per state, similar to <strong>i3</strong>
+<p>With <strong>rofi</strong> 0.15.4 we have a new way of specifying theme colors.
+The new setup allows you to specify colors per state, similar to <strong>i3</strong>
 Currently 3 states exists:</p>
 
 <ul>
@@ -761,7 +827,7 @@ Currently 3 states exists:</p>
 
 
 <p>The window background and border color should be specified separate. The key <code>color-window</code> contains
-a pair <code>background,border</code>.
+a pair <code>background,border,separator</code>.
 An example for <code>Xresources</code> file:</p>
 
 <pre><code>! State:           'bg',     'fg',     'bgalt',  'hlbg',   'hlfg'
@@ -769,8 +835,8 @@ rofi.color-normal: #fdf6e3,  #002b36,  #eee8d5,  #586e75,  #eee8d5
 rofi.color-urgent: #fdf6e3,  #dc322f,  #eee8d5,  #dc322f,  #fdf6e3
 rofi.color-active: #fdf6e3,  #268bd2,  #eee8d5,  #268bd2,  #fdf6e3
 
-!                  'background', 'border'
-rofi.color-window: #fdf6e3,      #002b36
+!                  'background', 'border', 'separator'
+rofi.color-window: #fdf6e3,      #002b36,  #002b36
 </code></pre>
 
 <p>Same settings can also be specified on command-line:</p>
@@ -780,16 +846,33 @@ rofi.color-window: #fdf6e3,      #002b36
 
 <h2 id="COLORS">COLORS</h2>
 
-<p>Rofi has an experimental mode for a 'nicer' transparency. The idea is to make the
-background of the window transparent, leaving the text opaque.
-There are 2 requirements for this feature: 1. Your Xserver supports TrueColor, 2. You are running a
-composite manager. If this is satisfied you can use the following format for colors:</p>
+<p>RGB colors can be specified by either its X11 name, or hexadecimal notation.
+For example:</p>
+
+<pre><code>white
+</code></pre>
+
+<p>Or</p>
+
+<pre><code>#FFFFFF
+</code></pre>
+
+<p>ARGB colors are also support, these can be used to create a transparent window if: 1. Your Xserver supports TrueColor, 2.
+You are running a composite manager.</p>
 
 <pre><code>argb:FF444444
 </code></pre>
 
+<p>Or</p>
+
+<pre><code>#FF444444
+</code></pre>
+
 <p>The first two fields specify the alpha level. This determines the amount of transparency.
 (00 everything, FF nothing). The other fields represent the actual color, in hex.</p>
+
+<p>Within <strong>rofi</strong> transparency can be used, e.g. if the selected background color is 50% transparent, the background color
+of the window will be visible through it.</p>
 
 <h2 id="KEYBINDINGS">KEYBINDINGS</h2>
 
@@ -831,33 +914,48 @@ composite manager. If this is satisfied you can use the following format for col
 </ul>
 
 
-<p>To get a full list of keybindings, see <code>rofi -dump-xresources | grep kb-</code>.
-Keybindings can be modified using the configuration systems.</p>
+<p>To get a full list of keybindings on the commandline, see <code>rofi -dump-xresources | grep kb-</code>.
+Keybindings can be modified using the configuration systems.
+To get searchable list of keybindings, run <code>rofi -show keys</code>.</p>
+
+<p>A keybinding starting with <code>!</code> will act when all keys have been released.</p>
 
 <h2 id="Available-Modi">Available Modi</h2>
 
 <h3 id="Window">Window</h3>
 
-<p>Show a list of all the windows and allow switching between them.</p>
+<p>Show a list of all the windows and allow switching between them.
+Pressing the <code>delete-entry</code> binding (<code>shift-delete</code>) will close the window.
+Pressing the <code>accept-custom</code> binding (<code>control-enter</code> or <code>shift-enter</code>) will run a command on the window.
+(See option <code>window-command</code> );</p>
 
 <h3 id="WindowCD">WindowCD</h3>
 
-<p>Shows a list of the windows on the current desktop and allows switching between them.</p>
+<p>Shows a list of the windows on the current desktop and allows switching between them.
+Pressing the <code>delete-entry</code> binding (<code>shift-delete</code>) will kill the window.
+Pressing the <code>accept-custom</code> binding (<code>control-enter</code> or <code>shift-enter</code>) will run a command on the window.
+(See option <code>window-command</code> );</p>
 
 <h3 id="Run">Run</h3>
 
 <p>Shows a list of executables in <strong>$PATH</strong> and can launch them (optional in a terminal).
+Pressing the <code>delete-entry</code> binding (<code>shift-delete</code>) will remove this entry from the run history.
 Pressing the <code>accept-custom</code> binding (<code>control-enter</code> or <code>shift-enter</code>) will run the command in a terminal.</p>
 
 <h3 id="DRun">DRun</h3>
 
 <p>Same as the <strong>run</strong> launches, but the list is created from the installed desktop files. It automatically launches them
 in a terminal if specified in the Desktop File.
+Pressing the <code>delete-entry</code> binding (<code>shift-delete</code>) will remove this entry from the run history.
 Pressing the <code>accept-custom</code> binding (<code>control-enter</code> or <code>shift-enter</code>) with custom input (no entry matching) will run the command in a terminal.</p>
 
 <h3 id="SSH">SSH</h3>
 
 <p>Shows a list of SSH targets based on your ssh config file, and allows to quickly ssh into them.</p>
+
+<h3 id="Keys">Keys</h3>
+
+<p>Shows a searchable list of key bindings.</p>
 
 <h3 id="Script">Script</h3>
 
@@ -865,15 +963,15 @@ Pressing the <code>accept-custom</code> binding (<code>control-enter</code> or <
 
 <h2 id="FAQ">FAQ</h2>
 
-<h3 id="Text-in-window-switcher-is-not-nicely-lined-out">Text in window switcher is not nicely lined out</h3>
+<h3 id="The-text-in-the-window-switcher-is-not-nicely-lined-out-">The text in the window switcher is not nicely lined out.</h3>
 
 <p>Try using a mono-space font.</p>
 
-<h3 id="rofi-is-completely-black-"><strong>rofi</strong> is completely black.</h3>
+<h3 id="The-window-is-completely-black-">The window is completely black.</h3>
 
 <p>Check quotes used on the commandline: e.g. used “ instead of ".</p>
 
-<h3 id="rofi-what-does-the-icon-in-the-top-right-show-"><strong>rofi</strong> what does the icon in the top right show?</h3>
+<h3 id="What-does-the-icon-in-the-top-right-show-">What does the icon in the top right show?</h3>
 
 <p>The indicator shows:</p>
 
@@ -881,6 +979,60 @@ Pressing the <code>accept-custom</code> binding (<code>control-enter</code> or <
 `-` Case sensitivity enabled, no sorting.
 `+` Case insensitive and Sorting enabled
 `±` Sorting and Case sensitivity enabled"
+</code></pre>
+
+<h2 id="EXAMPLES">EXAMPLES</h2>
+
+<p>Some basic usage examples of <strong>rofi</strong>:</p>
+
+<p>Show the run dialog:</p>
+
+<pre><code>rofi -modi run -show run
+</code></pre>
+
+<p>Show the the run dialog and allow switching to Desktop File run dialog (drun):</p>
+
+<pre><code>rofi -modi run,drun -show run
+</code></pre>
+
+<p>Combine the run and Desktop File run dialog (drun):</p>
+
+<pre><code>rofi -modi combi -show combi -combi-modi run,drun
+</code></pre>
+
+<p>Combine the run and Desktop File run dialog (drun) and allow switching to window switcher:</p>
+
+<pre><code>rofi -modi combi,window -show combi -combi-modi run,drun
+</code></pre>
+
+<p>Run <strong>rofi</strong> full monitor width at the top of the monitor like a dropdown menu:</p>
+
+<pre><code>rofi -show run -width 100 -location 1 -lines 5 -bw 2 -yoffset -2
+</code></pre>
+
+<p>Get a colored list of available wifi networks:</p>
+
+<pre><code>tty-pipe nmcli device wifi | out2html -p | rofi -dmenu -markup-rows
+</code></pre>
+
+<p>Popup a text message claiming that this is the end:</p>
+
+<pre><code>rofi -e "This is the end"
+</code></pre>
+
+<p>Popup a text message in red, bold font claiming that this is still the end:</p>
+
+<pre><code>rofi -e "&lt;span color='red'&gt;&lt;b&gt;This is still the end&lt;/b&gt;&lt;/span&gt;&gt;" -markup
+</code></pre>
+
+<p>Show all keybindings:</p>
+
+<pre><code>rofi -show keys
+</code></pre>
+
+<p>Use <code>qalc</code> to get a simple calculator in <strong>rofi</strong>:</p>
+
+<pre><code> rofi -show calc -modi "calc:qalc +u8 -nocurrencies"
 </code></pre>
 
 <h2 id="LICENSE">LICENSE</h2>
@@ -911,24 +1063,42 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 <p><strong>rofi</strong> website can be found at <a href="https://davedavenport.github.io/rofi/">here</a></p>
 
-<p><strong>rofi</strong> bugtracker can be found <a href="https://github.com/DaveDavenport/rofi/issues">here</a></p>
+<h2 id="SUPPORT">SUPPORT</h2>
+
+<p><strong>rofi</strong> support can be obtained <a href="irc://irc.freenode.net/#rofi">here</a> (#rofi on irc.freenode.net), or via the
+<a href="https://forum.qtools.org/">forum</a></p>
+
+<h2 id="DEBUGGING">DEBUGGING</h2>
+
+<p>Please see <a href="https://github.com/DaveDavenport/rofi/wiki/Debugging%20Rofi">this</a> wiki entry.</p>
+
+<h2 id="ISSUE-TRACKER">ISSUE TRACKER</h2>
+
+<p><strong>rofi</strong> issue tracker can be found <a href="https://github.com/DaveDavenport/rofi/issues">here</a></p>
+
+<p>When creating an issue, please read <a href="https://github.com/DaveDavenport/rofi/blob/master/.github/CONTRIBUTING.md">this</a>
+first.</p>
+
+<h2 id="SEE-ALSO">SEE ALSO</h2>
+
+<p><span class="man-ref">rofi-sensible-terminal<span class="s">(1)</span></span>, <span class="man-ref">dmenu<span class="s">(1)</span></span></p>
 
 <h2 id="AUTHOR">AUTHOR</h2>
 
-<p>Qball Cow <a href="&#109;&#x61;&#x69;&#x6c;&#116;&#111;&#x3a;&#x71;&#98;&#97;&#x6c;&#108;&#64;&#x67;&#x6d;&#x70;&#99;&#x6c;&#105;&#101;&#110;&#116;&#46;&#111;&#114;&#103;" data-bare-link="true">&#113;&#98;&#x61;&#x6c;&#x6c;&#x40;&#x67;&#109;&#x70;&#x63;&#108;&#105;&#x65;&#x6e;&#116;&#46;&#x6f;&#114;&#x67;</a></p>
+<p>Qball Cow <a href="&#x6d;&#97;&#x69;&#108;&#116;&#x6f;&#58;&#113;&#x62;&#x61;&#108;&#108;&#x40;&#x67;&#109;&#x70;&#99;&#x6c;&#x69;&#101;&#x6e;&#116;&#46;&#x6f;&#114;&#103;" data-bare-link="true">&#x71;&#98;&#97;&#108;&#108;&#64;&#103;&#x6d;&#112;&#99;&#x6c;&#105;&#101;&#110;&#x74;&#x2e;&#111;&#114;&#103;</a></p>
 
-<p>Rasmus Steinke <a href="&#x6d;&#x61;&#x69;&#108;&#116;&#x6f;&#58;&#114;&#97;&#115;&#105;&#64;&#120;&#115;&#x73;&#110;&#x2e;&#97;&#x74;" data-bare-link="true">&#x72;&#x61;&#115;&#x69;&#x40;&#x78;&#115;&#x73;&#x6e;&#46;&#97;&#116;</a></p>
+<p>Rasmus Steinke <a href="&#109;&#x61;&#x69;&#108;&#x74;&#x6f;&#x3a;&#x72;&#97;&#115;&#x69;&#64;&#120;&#x73;&#115;&#110;&#46;&#97;&#x74;" data-bare-link="true">&#x72;&#97;&#x73;&#105;&#64;&#120;&#115;&#115;&#x6e;&#46;&#97;&#x74;</a></p>
 
-<p>Quentin Glidic <a href="&#x6d;&#x61;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#x73;&#x61;&#114;&#x64;&#x65;&#109;&#x66;&#102;&#55;&#43;&#x72;&#x6f;&#x66;&#105;&#64;&#x73;&#97;&#x72;&#x64;&#x65;&#x6d;&#x66;&#x66;&#x37;&#46;&#x6e;&#x65;&#x74;" data-bare-link="true">&#115;&#x61;&#x72;&#100;&#101;&#x6d;&#x66;&#102;&#x37;&#x2b;&#114;&#111;&#x66;&#x69;&#x40;&#x73;&#97;&#x72;&#100;&#101;&#x6d;&#x66;&#x66;&#55;&#x2e;&#x6e;&#x65;&#x74;</a></p>
+<p>Quentin Glidic <a href="&#x6d;&#97;&#105;&#x6c;&#x74;&#111;&#58;&#115;&#97;&#114;&#x64;&#101;&#109;&#x66;&#102;&#x37;&#x2b;&#x72;&#111;&#102;&#x69;&#x40;&#x73;&#97;&#x72;&#x64;&#101;&#109;&#102;&#102;&#55;&#x2e;&#110;&#101;&#116;" data-bare-link="true">&#x73;&#97;&#114;&#x64;&#101;&#109;&#x66;&#102;&#x37;&#43;&#x72;&#111;&#x66;&#105;&#64;&#x73;&#x61;&#x72;&#100;&#x65;&#x6d;&#102;&#x66;&#x37;&#46;&#110;&#x65;&#x74;</a></p>
 
-<p>Original code based on work by: Sean Pringle <a href="&#109;&#x61;&#x69;&#108;&#116;&#111;&#58;&#115;&#x65;&#97;&#110;&#46;&#x70;&#x72;&#105;&#110;&#103;&#108;&#x65;&#64;&#x67;&#x6d;&#97;&#105;&#x6c;&#46;&#99;&#111;&#x6d;" data-bare-link="true">&#115;&#x65;&#x61;&#x6e;&#46;&#x70;&#x72;&#105;&#110;&#x67;&#x6c;&#101;&#64;&#103;&#x6d;&#x61;&#105;&#x6c;&#x2e;&#99;&#x6f;&#109;</a></p>
+<p>Original code based on work by: Sean Pringle <a href="&#109;&#97;&#x69;&#108;&#116;&#x6f;&#x3a;&#x73;&#x65;&#97;&#x6e;&#46;&#112;&#114;&#105;&#x6e;&#103;&#108;&#x65;&#64;&#103;&#x6d;&#x61;&#x69;&#x6c;&#x2e;&#99;&#x6f;&#x6d;" data-bare-link="true">&#115;&#101;&#x61;&#110;&#x2e;&#x70;&#114;&#105;&#x6e;&#x67;&#108;&#x65;&#x40;&#103;&#109;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#109;</a></p>
 
 <p>For a full list of authors, check the AUTHORS file.</p>
 
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
-    <li class='tc'>2016-05-02</li>
+    <li class='tc'>December 2016</li>
     <li class='tr'>rofi-manpage</li>
   </ol>
 
