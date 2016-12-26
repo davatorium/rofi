@@ -56,6 +56,8 @@
 #define CLIENTSTATE         10
 #define CLIENTWINDOWTYPE    10
 
+#define LOG_DOMAIN          "Dialogs.Window"
+
 // a manageable window
 typedef struct
 {
@@ -97,6 +99,7 @@ typedef struct
     unsigned int title_len;
     unsigned int role_len;
     GRegex       *window_regex;
+    gboolean     i3_mode;
 } ModeModePrivateData;
 
 winlist *cache_client = NULL;
@@ -390,6 +393,16 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
     int                 nwins = 0;
     xcb_window_t        wins[100];
     xcb_window_t        curr_win_id;
+
+    // Check if we are in I3 mode. I3 has to be special and allow markup in it window name......
+    char *i3_socket_path = window_get_text_prop ( xcb_stuff_get_root_window ( xcb ), netatoms[I3_SOCKET_PATH] );
+    if ( i3_socket_path != NULL ){
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Detected I3 Window manager running.");
+        pd->i3_mode = TRUE;
+        g_free ( i3_socket_path );
+    }
+
+
     // Create cache
 
     x11_cache_create ();
@@ -470,7 +483,19 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                 }
                 if ( c->wmdesktop != 0xFFFFFFFF ) {
                     if ( has_names ) {
-                        c->wmdesktopstr = g_strdup ( _window_name_list_entry ( names.strings, names.strings_len, c->wmdesktop ) );
+                        if ( pd->i3_mode ) {
+                            char *output = NULL;
+                            if (pango_parse_markup ( _window_name_list_entry ( names.strings, names.strings_len,
+                                            c->wmdesktop ),-1, 0, NULL, &output, NULL, NULL)){
+                                c->wmdesktopstr = output;
+                            }
+                            else {
+                                c->wmdesktopstr = g_strdup ( "Invalid name");
+                            }
+
+                        } else {
+                            c->wmdesktopstr = g_strdup ( _window_name_list_entry ( names.strings, names.strings_len, c->wmdesktop ) );
+                        }
                     }
                     else {
                         c->wmdesktopstr = g_strdup_printf ( "%u", (uint32_t) c->wmdesktop );

@@ -92,12 +92,12 @@ typedef struct
     char         *path;
     /* Executable */
     char         *exec;
-    /* Path */
-    char         *exec_path;
     /* Name of the Entry */
     char         *name;
     /* Generic Name */
     char         *generic_name;
+
+    GKeyFile     *key_file;
     /* Application needs to be launched in terminal. */
     unsigned int terminal;
 } DRunModeEntry;
@@ -193,13 +193,15 @@ static void exec_cmd_entry ( DRunModeEntry *e )
         return;
     }
     gchar *fp = rofi_expand_path ( g_strstrip ( str ) );
-    if ( execsh ( e->exec_path, fp, e->terminal ) ) {
+    gchar *exec_path = g_key_file_get_string ( e->key_file, "Desktop Entry", "Path", NULL );
+    if ( execsh ( exec_path, fp, e->terminal ) ) {
         char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
         char *key  = g_strdup_printf ( "%s:::%s", e->root, e->path );
         history_set ( path, key );
         g_free ( key );
         g_free ( path );
     }
+    g_free ( exec_path );
     g_free ( str );
     g_free ( fp );
 }
@@ -289,13 +291,11 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     // Returns false if not found, if key not found, we don't want run in terminal.
     pd->entry_list[pd->cmd_list_length].terminal = g_key_file_get_boolean ( kf, "Desktop Entry", "Terminal", NULL );
 
-    // Returns NULL if not found.
-    pd->entry_list[pd->cmd_list_length].exec_path = g_key_file_get_string ( kf, "Desktop Entry", "Path", NULL );
+    // Keep keyfile around.
+    pd->entry_list[pd->cmd_list_length].key_file = kf;
     // We don't want to parse items with this id anymore.
     g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
     ( pd->cmd_list_length )++;
-
-    g_key_file_free ( kf );
 }
 
 /**
@@ -429,9 +429,9 @@ static void drun_entry_clear ( DRunModeEntry *e )
     g_free ( e->root );
     g_free ( e->path );
     g_free ( e->exec );
-    g_free ( e->exec_path );
     g_free ( e->name );
     g_free ( e->generic_name );
+    g_key_file_free ( e->key_file );
 }
 
 static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
@@ -524,17 +524,27 @@ static int drun_token_match ( const Mode *data, GRegex **tokens, unsigned int in
         for ( int j = 0; match && tokens != NULL && tokens[j] != NULL; j++ ) {
             int    test        = 0;
             GRegex *ftokens[2] = { tokens[j], NULL };
+            // Match name
             if ( !test && rmpd->entry_list[index].name &&
                  token_match ( ftokens, rmpd->entry_list[index].name ) ) {
                 test = 1;
             }
+            // Match generic name
             if ( !test && rmpd->entry_list[index].generic_name &&
                  token_match ( ftokens, rmpd->entry_list[index].generic_name ) ) {
                 test = 1;
             }
-
+            // Match executable name.
             if ( !test && token_match ( ftokens, rmpd->entry_list[index].exec ) ) {
                 test = 1;
+            }
+            // Match against category.
+            if ( !test ){
+                gchar **list = g_key_file_get_locale_string_list ( rmpd->entry_list[index].key_file, "Desktop Entry", "Categories" , NULL, NULL,NULL );
+                for ( int iter = 0; !test && list && list[iter]; iter++){
+                    test = token_match ( ftokens, list[iter]);
+                }
+                g_strfreev(list);
             }
             if ( test == 0 ) {
                 match = 0;
