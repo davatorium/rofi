@@ -354,6 +354,9 @@ static int window_match ( const Mode *sw, GRegex **tokens, unsigned int index )
             if ( !test && c->name != NULL && c->name[0] != '\0' ) {
                 test = token_match ( ftokens, c->name );
             }
+            if ( !test && c->wmdesktopstr != NULL && c->wmdesktopstr[0] != '\0' ) {
+                test = token_match ( ftokens, c->wmdesktopstr );
+            }
 
             if ( test == 0 ) {
                 match = 0;
