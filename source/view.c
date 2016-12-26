@@ -1014,7 +1014,7 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
         xcb_flush ( xcb->connection );
         break;
     case PASTE_SECONDARY:
-        xcb_convert_selection ( xcb->connection, CacheState.main_window, XCB_ATOM_SECONDARY,
+        xcb_convert_selection ( xcb->connection, CacheState.main_window, netatoms[CLIPBOARD],
                                 xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
         xcb_flush ( xcb->connection );
         break;

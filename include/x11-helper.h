@@ -44,6 +44,7 @@ void window_set_atom_prop ( xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms, 
     X ( I3_SOCKET_PATH ),         \
     X ( UTF8_STRING ),            \
     X ( STRING ),                 \
+    X ( CLIPBOARD ),              \
     X ( WM_WINDOW_ROLE ),         \
     X ( _XROOTPMAP_ID ),          \
     X ( _MOTIF_WM_HINTS ),        \

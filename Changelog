@@ -1,4 +1,4 @@
-v1.3.0: Dan vs. Greg: The never ending story. (unreleased)
+v1.3.0: Dan vs. Greg: The never ending story.
 	New Features
 		- Use randr for getting monitor layout. Fallback to xinerama if not available.
 		- Re-add fuzzy matcher.
@@ -9,6 +9,7 @@ v1.3.0: Dan vs. Greg: The never ending story. (unreleased)
 		- Dynamically sizing window with content.
 		- When placed at bottom of screen re-order screen to have entry at bottom.
 	Improvements
+		- Fix pasting secondary clipboard. (#516)
 		- By default use all cores to filter entries.
 		- Make sure drawing priority is higher then reading input data.
 		- Improve resizing of window, don't make X whipe background.
