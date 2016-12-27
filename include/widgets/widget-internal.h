@@ -1,6 +1,7 @@
 #ifndef WIDGET_INTERNAL_H
 #define WIDGET_INTERNAL_H
 
+#include "theme.h"
 /**
  * Data structure holding the internal state of the Widget
  */
@@ -14,6 +15,8 @@ struct _widget
     short             w;
     /** Height of the widget */
     short             h;
+    /** Padding */
+    Padding           pad;
     /** enabled or not */
     gboolean          enabled;
     /** Expand the widget when packed */
@@ -48,5 +51,8 @@ struct _widget
 
     /** Name of widget (used for theming) */
     char *name;
+    char *class_name;
 };
+
+void widget_init ( widget *widget , const char *name, const char *class_name );
 #endif // WIDGET_INTERNAL_H

@@ -57,7 +57,7 @@ void box_add ( box *box, widget *child, gboolean expand, gboolean end );
  * @param box Handle to the box widget.
  *
  * Obtains the minimal size required to display all widgets. (expanding widgets are not counted, except for their
- * padding)
+ * spacing)
  *
  * @returns the minimum size in pixels.
  */

@@ -296,7 +296,11 @@ static void rofi_view_window_update_size ( RofiViewState * state )
 
     CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
     CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
-    widget_resize ( WIDGET ( state->main_box ), state->width - 2 * state->border, state->height - 2 * state->border );
+
+    // Should wrap main window in a widget.
+    int width = state->width - 2*state->border - state->pad.left - state->pad.right;
+    int height = state->height - 2*state->border - state->pad.top- state->pad.bottom;
+    widget_resize ( WIDGET ( state->main_box ), width, height ); 
 }
 
 static gboolean rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
@@ -1274,7 +1278,9 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
 
                 CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
                 CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
-                widget_resize ( WIDGET ( state->main_box ), state->width - 2 * state->border, state->height - 2 * state->border );
+                int width = state->width - 2*state->border - state->pad.left - state->pad.right;
+                int height = state->height - 2*state->border - state->pad.top- state->pad.bottom;
+                widget_resize ( WIDGET ( state->main_box ), width, height ); 
             }
         }
         break;
@@ -1377,7 +1383,7 @@ static int rofi_view_calculate_height ( RofiViewState *state )
     }
     height  = listview_get_desired_height ( state->list_view );
     height += box_get_fixed_pixels ( state->main_box );
-    height += 2 * state->border;
+    height += 2 * state->border +state->pad.top+state->pad.bottom;
     return height;
 }
 
@@ -1430,7 +1436,9 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->finalize   = finalize;
     state->mouse_seen = FALSE;
 
-    state->border = rofi_theme_get_integer  ("@window",  "window", NULL,  "padding" , config.padding );
+    state->pad =  (Padding){config.padding,config.padding, config.padding, config.padding, FALSE};
+    state->pad = rofi_theme_get_padding ( "@window", "window", NULL, "padding", state->pad);
+    //state->border = rofi_theme_get_integer  ("@window",  "window", NULL,  "padding" , config.padding );
     state->border += rofi_theme_get_integer ("@window",  "window", NULL,  "border-width" , config.menu_bw);
 
     // Request the lines to show.
@@ -1441,20 +1449,22 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Get active monitor size.
     TICK_N ( "Get active monitor" );
 
+    int total_width = state->width - 2*state->border - state->pad.left - state->pad.right;
+    int total_height = state->height - 2*state->border - state->pad.top- state->pad.bottom;
     state->main_box = box_create ( "mainbox.box", BOX_VERTICAL,
-                                   state->border, state->border,
-                                   state->width - 2 * state->border, state->height - 2 * state->border );
+                                   state->border+state->pad.left, state->border+state->pad.top,
+                                   total_width, total_height);
 
     // we need this at this point so we can get height.
     unsigned int line_height = textbox_get_estimated_char_height ();
     rofi_view_calculate_window_and_element_width ( state );
 
-    state->input_bar = box_create ( "inputbar.box", BOX_HORIZONTAL, 0, 0, state->width - state->border, line_height );
+    state->input_bar = box_create ( "inputbar.box", BOX_HORIZONTAL, 0, 0, total_width, line_height );
     state->input_bar_separator = separator_create ( "inputbar.separator", S_HORIZONTAL, 2 );
 
     // Only enable widget when sidebar is enabled.
     if ( config.sidebar_mode ) {
-        state->sidebar_bar = box_create ( "sidebar.box", BOX_HORIZONTAL, 0, 0, state->width - 2 * state->border, line_height );
+        state->sidebar_bar = box_create ( "sidebar.box", BOX_HORIZONTAL, 0, 0, total_width, line_height );
         separator *sep = separator_create ( "sidebar.separator", S_HORIZONTAL, 2 );
         box_add ( state->main_box, WIDGET ( state->sidebar_bar ), FALSE, TRUE );
         box_add ( state->main_box, WIDGET ( sep ), FALSE, TRUE );
@@ -1491,7 +1501,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     textbox_text ( state->case_indicator, get_matching_state () );
     if ( message ) {
         textbox *message_tb = textbox_create ( "message.textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, 0, 0,
-                                               state->width - ( 2 * ( state->border ) ), -1, NORMAL, message );
+                                               total_width, -1, NORMAL, message );
         separator *sep = separator_create ( "message.separator", S_HORIZONTAL, 2 );
         box_add ( state->main_box, WIDGET ( sep ), FALSE, end);
         box_add ( state->main_box, WIDGET ( message_tb ), FALSE, end);
@@ -1550,21 +1560,26 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->retv       = MENU_CANCEL;
     state->menu_flags = MENU_ERROR_DIALOG;
     state->finalize   = process_result;
-    state->border = rofi_theme_get_integer  ( "@window", "window", NULL, "padding" , config.padding );
+    state->pad =  (Padding){config.padding,config.padding, config.padding, config.padding, FALSE};
+    state->pad = rofi_theme_get_padding ( "@window", "window", NULL, "padding", state->pad);
+  //  state->border = rofi_theme_get_integer  ( "@window", "window", NULL, "padding" , config.padding );
     state->border += rofi_theme_get_integer ( "@window", "window", NULL, "border-width" , config.menu_bw);
+
+    int total_width = state->width - 2*state->border - state->pad.left - state->pad.right;
+    int total_height = state->height - 2*state->border - state->pad.top- state->pad.bottom;
 
     rofi_view_calculate_window_and_element_width ( state );
     state->main_box = box_create ( "mainbox.box", BOX_VERTICAL,
                                    state->border, state->border,
-                                   state->width - 2 * state->border, state->height - 2 * state->border );
+                                   total_width, total_height ); 
     state->text = textbox_create ( "message", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
-                                   ( state->border ), ( state->border ),
-                                   ( state->width - ( 2 * ( state->border ) ) ), 1, NORMAL, ( msg != NULL ) ? msg : "" );
+                                   ( state->border+state->pad.left ), ( state->border+state->pad.top ),
+                                   total_width, 1, NORMAL, ( msg != NULL ) ? msg : "" );
     box_add ( state->main_box, WIDGET ( state->text ), TRUE, FALSE );
     unsigned int line_height = textbox_get_height ( state->text );
 
     // resize window vertically to suit
-    state->height = line_height + ( state->border ) * 2;
+    state->height = line_height + ( state->border ) * 2+state->pad.top+state->pad.bottom;
 
     // Calculte window position.
     rofi_view_calculate_window_position ( state );

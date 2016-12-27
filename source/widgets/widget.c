@@ -1,6 +1,16 @@
 #include <glib.h>
 #include "widgets/widget.h"
 #include "widgets/widget-internal.h"
+#include "theme.h"
+
+
+void widget_init ( widget *widget , const char *name, const char *class_name )
+{
+    widget->name       = g_strdup(name);
+    widget->class_name = g_strdup(class_name);
+    widget->pad = rofi_theme_get_padding (widget->class_name, widget->name, NULL, "padding", (Padding){0,0,0,0,FALSE});
+
+}
 
 int widget_intersect ( const widget *widget, int x, int y )
 {
@@ -71,6 +81,9 @@ void widget_free ( widget *wid )
     if ( wid ) {
         if ( wid->name ) {
             g_free ( wid->name );
+        }
+        if ( wid->class_name ) {
+            g_free( wid->class_name );
         }
         if ( wid->free ) {
             wid->free ( wid );

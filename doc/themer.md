@@ -136,7 +136,12 @@ The following properties are currently supports:
     * background:      color
     * foreground:      color
     * border-width:    integer
+    * spacing:         integer
     * padding:         integer
+    * padding-left:    integer
+    * padding-right:   integer
+    * padding-top:     integer
+    * padding-bottom:  integer
     * transparency:    string
         - real
         - background
@@ -151,14 +156,19 @@ The following properties are currently supports:
     * foreground:      color
 
   * box
+    * spacing:         integer
     * padding:         integer
+    * padding-left:    integer
+    * padding-right:   integer
+    * padding-top:     integer
+    * padding-bottom:  integer
 
  * textbox:
    *  background:      color
    *  foreground:      color
 
   * listview:
-    * padding:         integer
+    * spacing:         integer
     * lines:           integer
     * columns:         integer
     * fixed-height:    boolean

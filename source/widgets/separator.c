@@ -33,6 +33,7 @@
 #include "settings.h"
 #include "theme.h"
 
+const char *SEPARATOR_CLASS_NAME = "@separator";
 /**
  * @param sp The separator widget handle.
  * @param style_str String representation of the style.
@@ -69,17 +70,17 @@ static void separator_free ( widget * );
 separator *separator_create ( const char *name, separator_type type, short sw )
 {
     separator *sb = g_malloc0 ( sizeof ( separator ) );
+    widget_init ( WIDGET (sb), name, SEPARATOR_CLASS_NAME );
     sb->type = type;
-    sb->widget.name = g_strdup ( name );
     sb->widget.x = 0;
     sb->widget.y = 0;
     if ( sb->type == S_HORIZONTAL ) {
         sb->widget.w = 1;
-        sb->widget.h = MAX ( 1, sw );
+        sb->widget.h = MAX ( 1, sw )+sb->widget.pad.top+sb->widget.pad.bottom;
     }
     else {
         sb->widget.h = 1;
-        sb->widget.w = MAX ( 1, sw );
+        sb->widget.w = MAX ( 1, sw )+sb->widget.pad.left+sb->widget.pad.right;
     }
 
     sb->widget.draw = separator_draw;
@@ -88,7 +89,7 @@ separator *separator_create ( const char *name, separator_type type, short sw )
     // Enabled by default
     sb->widget.enabled = TRUE;
 
-    const char *line_style = rofi_theme_get_string ( "@separator", sb->widget.name, NULL, "line-style", "solid");
+    const char *line_style = rofi_theme_get_string ( sb->widget.class_name, sb->widget.name, NULL, "line-style", "solid");
     separator_set_line_style_from_string ( sb, line_style );
     return sb;
 }
@@ -129,22 +130,23 @@ static void separator_draw ( widget *wid, cairo_t *draw )
         return;
     }
     color_separator ( draw );
-    rofi_theme_get_color ( "@separator", wid->name, NULL, "foreground", draw );
+    rofi_theme_get_color ( wid->class_name, wid->name, NULL, "foreground", draw );
     if ( sep->line_style == S_LINE_DASH ) {
         const double dashes[1] = { 4 };
         cairo_set_dash ( draw, dashes, 1, 0.0 );
     }
     if ( sep->type == S_HORIZONTAL ) {
         cairo_set_line_width ( draw, wid->h );
-        double half = wid->h / 2.0;
-        cairo_move_to ( draw, wid->x, wid->y + half );
-        cairo_line_to ( draw, wid->x + wid->w, wid->y + half );
+        int height= wid->h-wid->pad.top-wid->pad.bottom;
+        double half = height / 2.0;
+        cairo_move_to ( draw, wid->x+wid->pad.left, wid->y + wid->pad.top +half );
+        cairo_line_to ( draw, wid->x+wid->w-wid->pad.right, wid->y +wid->pad.top + half );
     }
     else {
         cairo_set_line_width ( draw, wid->w );
         double half = wid->w / 2.0;
-        cairo_move_to ( draw, wid->x + half, wid->y );
-        cairo_line_to ( draw, wid->x + half, wid->y + wid->h );
+        cairo_move_to ( draw, wid->x + wid->pad.left + half, wid->y +wid->pad.top);
+        cairo_line_to ( draw, wid->x + wid->pad.left + half, wid->y + wid->h-wid->pad.bottom );
     }
     cairo_stroke ( draw );
 }

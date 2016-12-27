@@ -7,6 +7,7 @@
 #include "widgets/box.h"
 #include "keyb.h"
 #include "x11-helper.h"
+#include "theme.h"
 
 /**
  * @ingroup ViewHandle
@@ -65,6 +66,7 @@ struct RofiViewState
     MenuReturn       retv;
     /** Calculated border width */
     unsigned int     border;
+    Padding          pad;
     /** Monitor #workarea the view is displayed on */
     workarea         mon;
 

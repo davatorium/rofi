@@ -54,7 +54,7 @@ struct _listview
     unsigned int                req_elements;
     unsigned int                cur_elements;
 
-    unsigned int                padding;
+    unsigned int                spacing;
     unsigned int                menu_lines;
     unsigned int                menu_columns;
     unsigned int                fixed_num_lines;
@@ -163,15 +163,15 @@ static void listview_draw ( widget *wid, cairo_t *draw )
         cairo_translate ( draw, wid->x, wid->y );
         unsigned int max = MIN ( lv->cur_elements, lv->req_elements - offset );
         if ( lv->rchanged ) {
-            unsigned int width = lv->widget.w - lv->padding * ( lv->cur_columns - 1 );
+            unsigned int width = lv->widget.w - lv->spacing * ( lv->cur_columns - 1 );
             if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) ) {
-                width -= lv->padding;
+                width -= lv->spacing;
                 width -= widget_get_width ( WIDGET ( lv->scrollbar ) );
             }
             unsigned int element_width = ( width ) / lv->cur_columns;
             for ( unsigned int i = 0; i < max; i++ ) {
-                unsigned int ex = ( ( i ) / lv->max_rows ) * ( element_width + lv->padding );
-                unsigned int ey = ( ( i ) % lv->max_rows ) * ( lv->element_height + lv->padding );
+                unsigned int ex = ( ( i ) / lv->max_rows ) * ( element_width + lv->spacing );
+                unsigned int ey = ( ( i ) % lv->max_rows ) * ( lv->element_height + lv->spacing );
                 textbox_moveresize ( lv->boxes[i], ex, ey, element_width, lv->element_height );
 
                 update_element ( lv, i, i + offset, TRUE );
@@ -249,7 +249,7 @@ static void listview_resize ( widget *wid, short w, short h )
     listview *lv = (listview *) wid;
     lv->widget.w     = MAX ( 0, w );
     lv->widget.h     = MAX ( 0, h );
-    lv->max_rows     = ( lv->padding + lv->widget.h ) / ( lv->element_height + lv->padding );
+    lv->max_rows     = ( lv->spacing + lv->widget.h ) / ( lv->element_height + lv->spacing );
     lv->max_elements = lv->max_rows * lv->menu_columns;
 
     widget_move ( WIDGET ( lv->scrollbar ), lv->widget.w - widget_get_width ( WIDGET ( lv->scrollbar ) ), 0 );
@@ -338,7 +338,7 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->udata    = udata;
 
     // Some settings.
-    lv->padding      =    rofi_theme_get_integer ("@listview", lv->widget.name, NULL,  "padding", config.line_margin );
+    lv->spacing      =    rofi_theme_get_integer ("@listview", lv->widget.name, NULL,  "spacing", config.line_margin );
     lv->menu_lines   =    rofi_theme_get_integer ("@listview", lv->widget.name, NULL,  "lines",   config.menu_lines );
     lv->menu_columns =    rofi_theme_get_integer ("@listview", lv->widget.name, NULL,  "columns", config.menu_columns);
     lv->fixed_num_lines = rofi_theme_get_boolean ("@listview", lv->widget.name, NULL,  "fixed-height", config.fixed_num_lines );
@@ -455,7 +455,7 @@ unsigned int listview_get_desired_height ( listview *lv )
     if ( h == 0 ) {
         return 0;
     }
-    return h * lv->element_height + ( h - 1 ) * lv->padding;
+    return h * lv->element_height + ( h - 1 ) * lv->spacing;
 }
 
 void listview_set_show_scrollbar ( listview *lv, gboolean enabled )

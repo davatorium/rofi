@@ -22,6 +22,15 @@ typedef struct
     double alpha;
 } ThemeColor;
 
+typedef struct
+{
+    int left;
+    int right;
+    int top;
+    int bottom;
+    gboolean percentual;
+} Padding;
+
 typedef struct {
     char *name;
     PropertyType type;
@@ -69,4 +78,5 @@ int rofi_theme_get_boolean   ( const char *wclass,  const char *name, const char
 char *rofi_theme_get_string  ( const char *wclass,  const char *name, const char *state,  const char *property, char *def );
 double rofi_theme_get_double ( const char *wclass,  const char *name, const char *state,  const char *property, double def );
 void rofi_theme_get_color ( const char *wclass, const char  *name, const char *state, const char *property, cairo_t *d);
+Padding rofi_theme_get_padding ( const char *wclass, const char  *name, const char *state, const char *property, Padding pad );
 #endif
