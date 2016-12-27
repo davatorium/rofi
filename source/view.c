@@ -1684,6 +1684,8 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text )
     unsigned int x_offset = state->width - ( 2 * state->border ) - widget_get_width ( WIDGET ( state->case_indicator ) );
     x_offset -= widget_get_width ( WIDGET ( state->overlay ) );
     widget_move ( WIDGET ( state->overlay ), x_offset, state->border );
+    // We want to queue a repaint.
+    rofi_view_queue_redraw ( );
 }
 
 void rofi_view_clear_input ( RofiViewState *state )
