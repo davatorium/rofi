@@ -87,10 +87,6 @@ typedef enum
 
 /**
  * @param flags #TextboxFlags indicating the type of textbox.
- * @param x horizontal positon of textbox
- * @param y vertical position of textbox
- * @param w width of textbox
- * @param h height of textbox
  * @param tbft #TextBoxFontType current state of textbox.
  * @param text intial text to display.
  *
@@ -100,7 +96,6 @@ typedef enum
  * @returns a new #textbox
  */
 textbox* textbox_create ( const char *name, TextboxFlags flags,
-                          short x, short y, short w, short h,
                           TextBoxFontType tbft,
                           const char *text );
 /**

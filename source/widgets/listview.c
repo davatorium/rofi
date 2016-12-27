@@ -212,7 +212,7 @@ static void listview_recompute_elements ( listview *lv )
         for ( unsigned int i = lv->cur_elements; i < newne; i++ ) {
             TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
             char *name = g_strjoin (".", lv->widget.name,"element", NULL);
-            lv->boxes[i] = textbox_create ( name, flags, 0, 0, 0, lv->element_height, NORMAL, "" );
+            lv->boxes[i] = textbox_create ( name, flags, NORMAL, "" );
             g_free ( name );
         }
     }

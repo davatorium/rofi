@@ -34,14 +34,10 @@ typedef enum
 /**
  * @param name The name of the widget.
  * @param type The packing direction of the newly created box.
- * @param x    The x position of the box relative to its parent.
- * @param y    The y position of the box relative to its parent.
- * @param w    The width of the box.
- * @param h    The height of the box.
  *
  * @returns a newly created box, free with #widget_free
  */
-box * box_create ( const char *name, boxType type, short x, short y, short w, short h );
+box * box_create ( const char *name, boxType type );
 
 /**
  * @param box   Handle to the box widget.

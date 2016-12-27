@@ -1449,22 +1449,18 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Get active monitor size.
     TICK_N ( "Get active monitor" );
 
-    int total_width = state->width - 2*state->border - state->pad.left - state->pad.right;
-    int total_height = state->height - 2*state->border - state->pad.top- state->pad.bottom;
-    state->main_box = box_create ( "mainbox.box", BOX_VERTICAL,
-                                   state->border+state->pad.left, state->border+state->pad.top,
-                                   total_width, total_height);
+    state->main_box = box_create ( "mainbox.box", BOX_VERTICAL );
+    widget_move ( WIDGET ( state->main_box ), state->border+state->pad.left, state->border+state->pad.top );
 
     // we need this at this point so we can get height.
-    unsigned int line_height = textbox_get_estimated_char_height ();
     rofi_view_calculate_window_and_element_width ( state );
 
-    state->input_bar = box_create ( "inputbar.box", BOX_HORIZONTAL, 0, 0, total_width, line_height );
+    state->input_bar = box_create ( "inputbar.box", BOX_HORIZONTAL );
     state->input_bar_separator = separator_create ( "inputbar.separator", S_HORIZONTAL, 2 );
 
     // Only enable widget when sidebar is enabled.
     if ( config.sidebar_mode ) {
-        state->sidebar_bar = box_create ( "sidebar.box", BOX_HORIZONTAL, 0, 0, total_width, line_height );
+        state->sidebar_bar = box_create ( "sidebar.box", BOX_HORIZONTAL );
         separator *sep = separator_create ( "sidebar.separator", S_HORIZONTAL, 2 );
         box_add ( state->main_box, WIDGET ( state->sidebar_bar ), FALSE, TRUE );
         box_add ( state->main_box, WIDGET ( sep ), FALSE, TRUE );
@@ -1472,7 +1468,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
         state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
         for ( unsigned int j = 0; j < state->num_modi; j++ ) {
             const Mode * mode = rofi_get_mode ( j );
-            state->modi[j] = textbox_create ( "sidebar.button", TB_CENTER, 0, 0, 0, 0, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
+            state->modi[j] = textbox_create ( "sidebar.button", TB_CENTER|TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
                                               mode_get_display_name ( mode  ) );
             box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, FALSE );
             widget_set_clicked_handler ( WIDGET ( state->modi[j] ), rofi_view_modi_clicked_cb, state );
@@ -1482,33 +1478,32 @@ RofiViewState *rofi_view_create ( Mode *sw,
     int end = ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST );
     box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, end );
 
-    state->case_indicator = textbox_create ( "inputbar.case-indicator", TB_AUTOWIDTH, 0, 0, 0, line_height, NORMAL, "*" );
+    state->case_indicator = textbox_create ( "inputbar.case-indicator", TB_AUTOWIDTH|TB_AUTOHEIGHT, NORMAL, "*" );
     // Add small separator between case indicator and text box.
     box_add ( state->input_bar, WIDGET ( state->case_indicator ), FALSE, TRUE );
 
     // Prompt box.
-    state->prompt = textbox_create ( "inputbar.prompt",TB_AUTOWIDTH, 0, 0, 0, line_height, NORMAL, "" );
+    state->prompt = textbox_create ( "inputbar.prompt",TB_AUTOWIDTH|TB_AUTOHEIGHT, NORMAL, "" );
     rofi_view_update_prompt ( state );
     box_add ( state->input_bar, WIDGET ( state->prompt ), FALSE, FALSE );
 
     // Entry box
     TextboxFlags tfl = TB_EDITABLE;
     tfl        |= ( ( menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
-    state->text = textbox_create ( "inputbar.entry", tfl, 0, 0, 0, line_height, NORMAL, input );
+    state->text = textbox_create ( "inputbar.entry", tfl|TB_AUTOHEIGHT, NORMAL, input );
 
     box_add ( state->input_bar, WIDGET ( state->text ), TRUE, FALSE );
 
     textbox_text ( state->case_indicator, get_matching_state () );
     if ( message ) {
-        textbox *message_tb = textbox_create ( "message.textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, 0, 0,
-                                               total_width, -1, NORMAL, message );
+        textbox *message_tb = textbox_create ( "message.textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, message );
         separator *sep = separator_create ( "message.separator", S_HORIZONTAL, 2 );
         box_add ( state->main_box, WIDGET ( sep ), FALSE, end);
         box_add ( state->main_box, WIDGET ( message_tb ), FALSE, end);
     }
     box_add ( state->main_box, WIDGET ( state->input_bar_separator ), FALSE, end );
 
-    state->overlay = textbox_create ( "overlay.textbox", TB_AUTOWIDTH, 0, 0, 20, line_height, URGENT, "blaat"  );
+    state->overlay = textbox_create ( "overlay.textbox", TB_AUTOWIDTH|TB_AUTOHEIGHT, URGENT, "blaat"  );
     widget_disable ( WIDGET ( state->overlay ) );
 
     state->list_view = listview_create ( "listview", update_callback, state, config.element_height );
@@ -1565,16 +1560,11 @@ int rofi_view_error_dialog ( const char *msg, int markup )
   //  state->border = rofi_theme_get_integer  ( "@window", "window", NULL, "padding" , config.padding );
     state->border += rofi_theme_get_integer ( "@window", "window", NULL, "border-width" , config.menu_bw);
 
-    int total_width = state->width - 2*state->border - state->pad.left - state->pad.right;
-    int total_height = state->height - 2*state->border - state->pad.top- state->pad.bottom;
-
     rofi_view_calculate_window_and_element_width ( state );
-    state->main_box = box_create ( "mainbox.box", BOX_VERTICAL,
-                                   state->border, state->border,
-                                   total_width, total_height ); 
+    state->main_box = box_create ( "mainbox.box", BOX_VERTICAL);
+    widget_move ( WIDGET ( state->main_box ), state->border+state->pad.left, state->border+state->pad.top );
     state->text = textbox_create ( "message", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
-                                   ( state->border+state->pad.left ), ( state->border+state->pad.top ),
-                                   total_width, 1, NORMAL, ( msg != NULL ) ? msg : "" );
+            NORMAL, ( msg != NULL ) ? msg : "" );
     box_add ( state->main_box, WIDGET ( state->text ), TRUE, FALSE );
     unsigned int line_height = textbox_get_height ( state->text );
 

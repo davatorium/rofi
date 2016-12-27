@@ -98,8 +98,7 @@ static void textbox_resize ( widget *wid, short w, short h )
     textbox_moveresize ( tb, tb->widget.x, tb->widget.y, w, h );
 }
 
-textbox* textbox_create ( const char *name, TextboxFlags flags, short x, short y, short w, short h,
-                          TextBoxFontType tbft, const char *text )
+textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType tbft, const char *text )
 {
     textbox *tb = g_slice_new0 ( textbox );
 
@@ -110,11 +109,6 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, short x, short y
     tb->widget.get_width  = textbox_get_width;
     tb->widget.get_height = _textbox_get_height;
     tb->flags             = flags;
-
-    tb->widget.x = x;
-    tb->widget.y = y;
-    tb->widget.w = MAX ( 1, w );
-    tb->widget.h = MAX ( 1, h );
 
     tb->changed = FALSE;
 
@@ -789,12 +783,9 @@ void textbox_cleanup ( void )
 int textbox_get_width ( widget *wid )
 {
     textbox *tb = (textbox *) wid;
-    if ( !wid->expand ) {
-        if ( tb->flags & TB_AUTOWIDTH ) {
-            unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
-            return textbox_get_font_width ( tb ) + 2 * config.line_padding + offset;
-        }
-        return tb->widget.w;
+    if ( tb->flags & TB_AUTOWIDTH ) {
+        unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+        return textbox_get_font_width ( tb ) + 2 * config.line_padding + offset;
     }
     return tb->widget.w;
 }
@@ -802,11 +793,8 @@ int textbox_get_width ( widget *wid )
 int _textbox_get_height ( widget *wid )
 {
     textbox *tb = (textbox *) wid;
-    if ( !wid->expand ) {
-        if ( tb->flags & TB_AUTOHEIGHT ) {
-            return textbox_get_height ( tb );
-        }
-        return tb->widget.h;
+    if ( tb->flags & TB_AUTOHEIGHT ) {
+        return textbox_get_height ( tb );
     }
     return tb->widget.h;
 }

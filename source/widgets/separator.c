@@ -136,15 +136,16 @@ static void separator_draw ( widget *wid, cairo_t *draw )
         cairo_set_dash ( draw, dashes, 1, 0.0 );
     }
     if ( sep->type == S_HORIZONTAL ) {
-        cairo_set_line_width ( draw, wid->h );
         int height= wid->h-wid->pad.top-wid->pad.bottom;
+        cairo_set_line_width ( draw, height );
         double half = height / 2.0;
         cairo_move_to ( draw, wid->x+wid->pad.left, wid->y + wid->pad.top +half );
         cairo_line_to ( draw, wid->x+wid->w-wid->pad.right, wid->y +wid->pad.top + half );
     }
     else {
-        cairo_set_line_width ( draw, wid->w );
-        double half = wid->w / 2.0;
+        int width = wid->w-wid->pad.left-wid->pad.right;
+        cairo_set_line_width ( draw, width);
+        double half = width / 2.0;
         cairo_move_to ( draw, wid->x + wid->pad.left + half, wid->y +wid->pad.top);
         cairo_line_to ( draw, wid->x + wid->pad.left + half, wid->y + wid->h-wid->pad.bottom );
     }

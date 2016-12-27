@@ -226,6 +226,16 @@ void box_add ( box *box, widget *child, gboolean expand, gboolean end )
     if ( box == NULL ) {
         return;
     }
+    // Make sure box is width/heigh enough.
+    if ( box->type == BOX_VERTICAL){
+        int width=box->widget.w;
+        width = MAX ( child->w, width+box->widget.pad.left+box->widget.pad.right );
+        box->widget.w = width;
+    } else {
+        int height = box->widget.h;
+        height = MAX (height, child->h+box->widget.pad.top+box->widget.pad.bottom);
+        box->widget.h = height;
+    }
     child->expand = expand;
     child->end    = end;
     child->parent = WIDGET ( box );
@@ -278,14 +288,12 @@ static gboolean box_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme 
     return FALSE;
 }
 
-box * box_create ( const char *name, boxType type, short x, short y, short w, short h )
+box * box_create ( const char *name, boxType type )
 {
     box *b = g_malloc0 ( sizeof ( box ) );
     // Initialize widget.
     widget_init ( WIDGET(b), name, BOX_CLASS_NAME);
     b->type                 = type;
-    b->widget.y             = y;
-    b->widget.w             = w;
     b->widget.draw          = box_draw;
     b->widget.free          = box_free;
     b->widget.resize        = box_resize;
@@ -295,9 +303,6 @@ box * box_create ( const char *name, boxType type, short x, short y, short w, sh
     b->widget.enabled       = TRUE;
 
     box_set_spacing ( b, rofi_theme_get_integer ( b->widget.class_name, b->widget.name, NULL, "spacing",config.line_margin ));
-    // Do this dynamically
-    b->widget.h             = h+b->widget.pad.top+b->widget.pad.bottom;
-    b->widget.x             = x+b->widget.pad.left+b->widget.pad.right;
     return b;
 }
 
