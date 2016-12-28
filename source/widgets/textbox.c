@@ -295,7 +295,7 @@ static void texbox_update ( textbox *tb )
         }
         tb->main_surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, tb->widget.w, tb->widget.h );
         tb->main_draw    = cairo_create ( tb->main_surface );
-        cairo_set_operator ( tb->main_draw, CAIRO_OPERATOR_SOURCE );
+        cairo_set_operator ( tb->main_draw, CAIRO_OPERATOR_OVER );
 
         pango_cairo_update_layout ( tb->main_draw, tb->layout );
         int font_height = textbox_get_font_height ( tb );
@@ -336,8 +336,8 @@ static void texbox_update ( textbox *tb )
         y = tb->widget.pad.top + ( pango_font_metrics_get_ascent ( p_metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
         // Set background transparency
-        cairo_set_source_rgba ( tb->main_draw, 0,0,0,0.0);
-        cairo_paint ( tb->main_draw );
+        //cairo_set_source_rgba ( tb->main_draw, 0,0,0,0.0);
+        //cairo_paint ( tb->main_draw );
 
         rofi_theme_get_color ( tb->widget.class_name, tb->widget.name, tb->widget.state, "foreground", tb->main_draw);
         // draw the cursor
@@ -348,7 +348,7 @@ static void texbox_update ( textbox *tb )
 
         // Set ARGB
         // We need to set over, otherwise subpixel hinting wont work.
-        cairo_set_operator ( tb->main_draw, CAIRO_OPERATOR_OVER );
+        //cairo_set_operator ( tb->main_draw, CAIRO_OPERATOR_OVER );
         cairo_move_to ( tb->main_draw, x, y );
         pango_cairo_show_layout ( tb->main_draw, tb->layout );
 
