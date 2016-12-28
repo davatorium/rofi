@@ -52,26 +52,6 @@ static int _textbox_get_height ( widget * );
  */
 static void textbox_cursor_end ( textbox *tb );
 
-/**
- * Font + font color cache.
- * Avoid re-loading font on every change on every textbox.
- */
-typedef struct
-{
-    Color fg;
-    Color bg;
-    Color bgalt;
-    Color hlfg;
-    Color hlbg;
-} RowColor;
-
-/** Number of states */
-#define num_states    3
-/**
- * Different colors for the different states
- */
-RowColor colors[num_states];
-
 /** Default pango context */
 static PangoContext     *p_context = NULL;
 /** The pango font metrics */
@@ -102,7 +82,8 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
 {
     textbox *tb = g_slice_new0 ( textbox );
 
-    tb->widget.name       = g_strdup ( name );
+    widget_init ( WIDGET (tb), name, "@textbox" );
+
     tb->widget.draw       = textbox_draw;
     tb->widget.free       = textbox_free;
     tb->widget.resize     = textbox_resize;
@@ -153,26 +134,19 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
     if ( t == ( URGENT | ACTIVE ) ) {
         t = ACTIVE;
     }
-    RowColor *color = &( colors[t] );
     switch ( ( tbft & FMOD_MASK ) )
     {
     case HIGHLIGHT:
-        tb->color_bg = color->hlbg;
-        tb->color_fg = color->hlfg;
-        tb->theme_name = theme_prop_names[t][1]; 
+        widget_set_state ( WIDGET (tb), theme_prop_names[t][1]);
         break;
     case ALT:
-        tb->color_bg = color->bgalt;
-        tb->color_fg = color->fg;
-        tb->theme_name = theme_prop_names[t][2]; 
+        widget_set_state ( WIDGET (tb), theme_prop_names[t][2]);
         break;
     default:
-        tb->color_bg = color->bg;
-        tb->color_fg = color->fg;
-        tb->theme_name = theme_prop_names[t][0]; 
+        widget_set_state ( WIDGET (tb), theme_prop_names[t][0]);
         break;
     }
-    if ( tb->tbft != tbft || tb->theme_name == NULL ) {
+    if ( tb->tbft != tbft || tb->widget.state == NULL ) {
         tb->update = TRUE;
         widget_queue_redraw ( WIDGET ( tb ) );
     }
@@ -361,15 +335,11 @@ static void texbox_update ( textbox *tb )
         }
         y = config.line_padding + ( pango_font_metrics_get_ascent ( p_metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
-        // Set ARGB
-        Color col = tb->color_bg;
-        cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
-        rofi_theme_get_color ( "@textbox", tb->widget.name, tb->theme_name, "background", tb->main_draw);
+        // Set background transparency
+        cairo_set_source_rgba ( tb->main_draw, 0,0,0,0.0);
         cairo_paint ( tb->main_draw );
 
-        col = tb->color_fg;
-        cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
-        rofi_theme_get_color ( "@textbox",tb->widget.name, tb->theme_name, "foreground", tb->main_draw);
+        rofi_theme_get_color ( tb->widget.class_name, tb->widget.name, tb->widget.state, "foreground", tb->main_draw);
         // draw the cursor
         if ( tb->flags & TB_EDITABLE && tb->blink ) {
             cairo_rectangle ( tb->main_draw, x + cursor_x, y, cursor_width, font_height );
@@ -405,9 +375,8 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     texbox_update ( tb );
 
     /* Write buffer */
-
-    cairo_set_source_surface ( draw, tb->main_surface, tb->widget.x, tb->widget.y );
-    cairo_rectangle ( draw, tb->widget.x, tb->widget.y, tb->widget.w, tb->widget.h );
+    cairo_set_source_surface ( draw, tb->main_surface, 0,0 );
+    cairo_rectangle ( draw, 0,0, tb->widget.w, tb->widget.h );
     cairo_fill ( draw );
 }
 
@@ -718,47 +687,8 @@ gboolean textbox_append_char ( textbox *tb, const char *pad, const int pad_len )
     return FALSE;
 }
 
-/***
- * Font setup.
- */
-static void textbox_parse_string (  const char *str, RowColor *color )
-{
-    if ( str == NULL ) {
-        return;
-    }
-    char              *cstr = g_strdup ( str );
-    char              *endp = NULL;
-    char              *token;
-    int               index = 0;
-    const char *const sep   = ",";
-    for ( token = strtok_r ( cstr, sep, &endp ); token != NULL; token = strtok_r ( NULL, sep, &endp ) ) {
-        switch ( index )
-        {
-        case 0:
-            color->bg = color_get ( g_strstrip ( token ) );
-            break;
-        case 1:
-            color->fg = color_get ( g_strstrip ( token ) );
-            break;
-        case 2:
-            color->bgalt = color_get ( g_strstrip ( token ) );
-            break;
-        case 3:
-            color->hlbg = color_get ( g_strstrip ( token ) );
-            break;
-        case 4:
-            color->hlfg = color_get ( g_strstrip ( token ) );
-            break;
-        }
-        index++;
-    }
-    g_free ( cstr );
-}
 void textbox_setup ( void )
 {
-    textbox_parse_string ( config.color_normal, &( colors[NORMAL] ) );
-    textbox_parse_string ( config.color_urgent, &( colors[URGENT] ) );
-    textbox_parse_string ( config.color_active, &( colors[ACTIVE] ) );
 }
 
 void textbox_set_pango_context ( PangoContext *p )

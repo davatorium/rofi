@@ -160,7 +160,6 @@ static void listview_draw ( widget *wid, cairo_t *draw )
     if ( lv->cur_elements > 0 && lv->max_rows > 0 ) {
         cairo_save ( draw );
         // Set new x/y possition.
-        cairo_translate ( draw, wid->x, wid->y );
         unsigned int max = MIN ( lv->cur_elements, lv->req_elements - offset );
         if ( lv->rchanged ) {
             unsigned int width = lv->widget.w - lv->spacing * ( lv->cur_columns - 1 );

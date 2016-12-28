@@ -12,6 +12,11 @@ void widget_init ( widget *widget , const char *name, const char *class_name )
 
 }
 
+void widget_set_state ( widget *widget, const char *state )
+{
+    widget->state = state;
+}
+
 int widget_intersect ( const widget *widget, int x, int y )
 {
     if ( widget == NULL ) {
@@ -72,8 +77,22 @@ void widget_draw ( widget *widget, cairo_t *d )
 {
     // Check if enabled and if draw is implemented.
     if ( widget && widget->enabled && widget->draw ) {
+        // Store current state.
+        cairo_save ( d );
+        // Define a clipmask so we won't draw outside out widget.
+        cairo_rectangle ( d, widget->x, widget->y, widget->w, widget->h );
+        cairo_clip ( d );
+        rofi_theme_get_color ( widget->class_name, widget->name, widget->state, "background", d );
+
+        cairo_paint( d ) ;
+
+        // Set new x/y possition.
+        cairo_translate ( d, widget->x, widget->y );
+
         widget->draw ( widget, d );
         widget->need_redraw = FALSE;
+
+        cairo_restore ( d );
     }
 }
 void widget_free ( widget *wid )

@@ -113,7 +113,7 @@ static void scrollbar_draw ( widget *wid, cairo_t *draw )
     color_separator ( draw );
     rofi_theme_get_color ( "@scrollbar", sb->widget.name, NULL, "foreground", draw );
 
-    cairo_rectangle ( draw, sb->widget.x, sb->widget.y + y, sb->widget.w, height );
+    cairo_rectangle ( draw, 0, 0 + y, sb->widget.w, height );
     cairo_fill ( draw );
 }
 static gboolean scrollbar_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )

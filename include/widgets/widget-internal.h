@@ -52,7 +52,9 @@ struct _widget
     /** Name of widget (used for theming) */
     char *name;
     char *class_name;
+    const char *state;
 };
 
 void widget_init ( widget *widget , const char *name, const char *class_name );
+void widget_set_state ( widget *widget, const char *state );
 #endif // WIDGET_INTERNAL_H

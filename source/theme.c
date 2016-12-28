@@ -4,6 +4,7 @@
 #include <string.h>
 #include "theme.h"
 #include "lexer/theme-parser.h"
+#include "helper.h"
 void yyerror ( YYLTYPE *ylloc, const char *);
 
 Widget *rofi_theme_find_or_create_class ( Widget *base, const char *class )
@@ -150,13 +151,16 @@ void rofi_theme_widget_add_properties ( Widget *widget, GHashTable *table )
 
 void rofi_theme_parse_file ( const char *file )
 {
-    yyin = fopen ( file, "rb");
+    char *filename = rofi_expand_path ( file );
+    yyin = fopen ( filename, "rb");
     if ( yyin == NULL ){
-        fprintf(stderr, "Failed to open file: '%s'\n", strerror ( errno ) );
+        fprintf(stderr, "Failed to open file: %s: '%s'\n", filename, strerror ( errno ) );
+        g_free(filename);
         return;
     }
     while ( yyparse() );
     yylex_destroy();
+    g_free(filename);
 }
 static Widget *rofi_theme_find_single ( Widget *widget, const char *name)
 {

@@ -195,18 +195,10 @@ static void hori_calculate_size ( box *b )
 static void box_draw ( widget *wid, cairo_t *draw )
 {
     box *b = (box *) wid;
-    // Store current state.
-    cairo_save ( draw );
-    // Define a clipmask so we won't draw outside out widget.
-    cairo_rectangle ( draw, wid->x, wid->y, wid->w, wid->h );
-    cairo_clip ( draw );
-    // Set new x/y possition.
-    cairo_translate ( draw, wid->x, wid->y );
     for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
         widget * child = (widget *) iter->data;
         widget_draw ( child, draw );
     }
-    cairo_restore ( draw );
 }
 
 static void box_free ( widget *wid )
