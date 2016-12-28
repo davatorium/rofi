@@ -226,7 +226,7 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     if ( tb->flags & TB_AUTOWIDTH ) {
         pango_layout_set_width ( tb->layout, -1 );
         unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
-        w = textbox_get_font_width ( tb ) + 2 * config.line_padding + offset;
+        w = textbox_get_font_width ( tb ) + tb->widget.pad.left+tb->widget.pad.right + offset;
     }
     else {
         // set ellipsize
@@ -241,7 +241,7 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     if ( tb->flags & TB_AUTOHEIGHT ) {
         // Width determines height!
         int tw = MAX ( 1, w );
-        pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tw - 2 * config.line_padding - offset ) );
+        pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tw - tb->widget.pad.left-tb->widget.pad.right - offset ) );
         h = textbox_get_height ( tb );
     }
 
@@ -253,7 +253,7 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     }
 
     // We always want to update this
-    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - 2 * config.line_padding - offset ) );
+    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - tb->widget.pad.left-tb->widget.pad.right - offset ) );
     tb->update = TRUE;
     widget_queue_redraw ( WIDGET ( tb ) );
 }
@@ -320,20 +320,20 @@ static void texbox_update ( textbox *tb )
         }
 
         // Skip the side MARGIN on the X axis.
-        int x = config.line_padding + offset;
+        int x = tb->widget.pad.left + offset;
         int y = 0;
 
         if ( tb->flags & TB_RIGHT ) {
             int line_width = 0;
             // Get actual width.
             pango_layout_get_pixel_size ( tb->layout, &line_width, NULL );
-            x = ( tb->widget.w - line_width - config.line_padding - offset );
+            x = ( tb->widget.w - line_width - tb->widget.pad.right- offset );
         }
         else if ( tb->flags & TB_CENTER ) {
             int tw = textbox_get_font_width ( tb );
-            x = (  ( tb->widget.w - tw - 2 * config.line_padding - offset ) ) / 2;
+            x = (  ( tb->widget.w - tw - tb->widget.pad.left-tb->widget.pad.right - offset ) ) / 2;
         }
-        y = config.line_padding + ( pango_font_metrics_get_ascent ( p_metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
+        y = tb->widget.pad.top + ( pango_font_metrics_get_ascent ( p_metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
         // Set background transparency
         cairo_set_source_rgba ( tb->main_draw, 0,0,0,0.0);
@@ -715,7 +715,7 @@ int textbox_get_width ( widget *wid )
     textbox *tb = (textbox *) wid;
     if ( tb->flags & TB_AUTOWIDTH ) {
         unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
-        return textbox_get_font_width ( tb ) + 2 * config.line_padding + offset;
+        return textbox_get_font_width ( tb ) + wid->pad.left+wid->pad.right+ offset;
     }
     return tb->widget.w;
 }
@@ -730,7 +730,7 @@ int _textbox_get_height ( widget *wid )
 }
 int textbox_get_height ( const textbox *tb )
 {
-    return textbox_get_font_height ( tb ) + 2 * config.line_padding;
+    return textbox_get_font_height ( tb ) + tb->widget.pad.top+tb->widget.pad.bottom;
 }
 
 int textbox_get_font_height ( const textbox *tb )
@@ -753,8 +753,8 @@ double textbox_get_estimated_char_width ( void )
     return ( width ) / (double) PANGO_SCALE;
 }
 
-int textbox_get_estimated_char_height ( void )
+int textbox_get_estimated_char_height ( const textbox *tb, int eh )
 {
     int height = pango_font_metrics_get_ascent ( p_metrics ) + pango_font_metrics_get_descent ( p_metrics );
-    return ( height ) / PANGO_SCALE + 2 * config.line_padding;
+    return ( eh*height ) / PANGO_SCALE + tb->widget.pad.top+tb->widget.pad.bottom;
 }

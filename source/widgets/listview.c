@@ -58,6 +58,7 @@ struct _listview
     unsigned int                menu_lines;
     unsigned int                menu_columns;
     unsigned int                fixed_num_lines;
+    unsigned int                eh;
     gboolean                    cycle;
     gboolean                    multi_select;
 
@@ -325,6 +326,7 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->widget.clicked       = listview_clicked;
     lv->widget.motion_notify = listview_motion_notify;
     lv->widget.enabled       = TRUE;
+    lv->eh = eh;
 
     char *n = g_strjoin(".", lv->widget.name,"scrollbar", NULL);
     lv->scrollbar = scrollbar_create ( n, 4);
@@ -332,7 +334,11 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     widget_set_clicked_handler ( WIDGET ( lv->scrollbar ), listview_scrollbar_clicked, lv );
     lv->scrollbar->widget.parent = WIDGET ( lv );
     // Calculate height of an element.
-    lv->element_height = textbox_get_estimated_char_height () * eh;
+    //
+    char *tb_name = g_strjoin (".", lv->widget.name,"element", NULL);
+    textbox *tb = textbox_create ( tb_name, 0, NORMAL, "" );
+    lv->element_height = textbox_get_estimated_char_height (tb, lv->eh);
+    g_free(tb_name);
 
     lv->callback = cb;
     lv->udata    = udata;
