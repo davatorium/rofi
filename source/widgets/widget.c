@@ -83,7 +83,6 @@ void widget_draw ( widget *widget, cairo_t *d )
         cairo_rectangle ( d, widget->x, widget->y, widget->w, widget->h );
         cairo_clip ( d );
         rofi_theme_get_color ( widget->class_name, widget->name, widget->state, "background", d );
-
         cairo_paint( d ) ;
 
         // Set new x/y possition.
