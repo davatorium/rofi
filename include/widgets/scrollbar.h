@@ -23,16 +23,13 @@ typedef struct _scrollbar
 
 /**
  * @param name  The name of the widget.
- * @param x     The x coordinate (relative to parent) to position the new scrollbar
- * @param y     The y coordinate (relative to parent) to position the new scrollbar
- * @param w     The width of the scrollbar
- * @param h     The height of the scrollbar
+ * @param width The width of the scrollbar
  *
  * Create a new scrollbar
  *
  * @returns the scrollbar object.
  */
-scrollbar *scrollbar_create ( const char *name, short x, short y, short w, short h );
+scrollbar *scrollbar_create ( const char *name, int width );
 
 /**
  * @param sb scrollbar object
@@ -66,5 +63,6 @@ void scrollbar_set_max_value ( scrollbar *sb, unsigned int max );
  */
 unsigned int scrollbar_clicked ( const scrollbar *sb, int y );
 
+void scrollbar_set_width ( scrollbar *sb, int width );
 /*@}*/
 #endif // ROFI_SCROLLBAR_H

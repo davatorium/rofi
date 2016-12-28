@@ -35,14 +35,14 @@ static void scrollbar_draw ( widget *, cairo_t * );
 static void scrollbar_free ( widget * );
 static gboolean scrollbar_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
 
-scrollbar *scrollbar_create ( const char *name, short x, short y, short w, short h )
+scrollbar *scrollbar_create ( const char *name, int width )
 {
     scrollbar *sb = g_malloc0 ( sizeof ( scrollbar ) );
-    sb->widget.name = g_strdup(name);
-    sb->widget.x = x;
-    sb->widget.y = y;
-    sb->widget.w = MAX ( 1, w );
-    sb->widget.h = MAX ( 1, h );
+    widget_init ( WIDGET (sb), name, "@scrollbar" );
+    sb->widget.x = 0;
+    sb->widget.y = 0;
+    sb->widget.w = sb->widget.pad.left+sb->widget.pad.right+width;
+    sb->widget.h = sb->widget.pad.top+sb->widget.pad.top;
 
     sb->widget.draw          = scrollbar_draw;
     sb->widget.free          = scrollbar_free;
@@ -99,21 +99,26 @@ void scrollbar_set_handle_length ( scrollbar *sb, unsigned int pos_length )
 static void scrollbar_draw ( widget *wid, cairo_t *draw )
 {
     scrollbar    *sb = (scrollbar *) wid;
+    unsigned int wh     = wid->h -wid->pad.top-wid->pad.bottom;
     // Calculate position and size.
-    unsigned int r      = ( sb->length * wid->h ) / ( (double) ( sb->length + sb->pos_length ) );
+    unsigned int r      = ( sb->length * wh ) / ( (double) ( sb->length + sb->pos_length ) );
     unsigned int handle = wid->h - r;
     double       sec    = ( ( r ) / (double) ( sb->length - 1 ) );
     unsigned int height = handle;
     unsigned int y      = sb->pos * sec;
     // Set max pos.
-    y = MIN ( y, wid->h - handle );
+    y = MIN ( y, wh - handle );
     // Never go out of bar.
     height = MAX ( 2, height );
     // Cap length;
     color_separator ( draw );
-    rofi_theme_get_color ( "@scrollbar", sb->widget.name, NULL, "foreground", draw );
+    rofi_theme_get_color ( sb->widget.class_name, sb->widget.name, NULL, "foreground", draw );
 
-    cairo_rectangle ( draw, 0, 0 + y, sb->widget.w, height );
+    cairo_rectangle ( draw,
+            wid->pad.left,
+            wid->pad.top + y,
+            wid->w-wid->pad.right-wid->pad.left,
+            height );
     cairo_fill ( draw );
 }
 static gboolean scrollbar_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
@@ -142,4 +147,11 @@ unsigned int scrollbar_clicked ( const scrollbar *sb, int y )
         }
     }
     return 0;
+}
+
+void scrollbar_set_width ( scrollbar *sb, int width )
+{
+    width += sb->widget.pad.left;
+    width += sb->widget.pad.right;
+    sb->widget.w = width;
 }

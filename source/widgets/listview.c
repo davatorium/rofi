@@ -326,7 +326,7 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->widget.enabled       = TRUE;
 
     char *n = g_strjoin(".", lv->widget.name,"scrollbar", NULL);
-    lv->scrollbar = scrollbar_create ( n,0, 0, 4, 0 );
+    lv->scrollbar = scrollbar_create ( n, 4);
     g_free(n);
     widget_set_clicked_handler ( WIDGET ( lv->scrollbar ), listview_scrollbar_clicked, lv );
     lv->scrollbar->widget.parent = WIDGET ( lv );
@@ -472,7 +472,7 @@ void listview_set_show_scrollbar ( listview *lv, gboolean enabled )
 void listview_set_scrollbar_width ( listview *lv, unsigned int width )
 {
     if ( lv ) {
-        widget_resize ( WIDGET ( lv->scrollbar ), width, widget_get_height ( WIDGET ( lv->scrollbar ) ) );
+        scrollbar_set_width ( lv->scrollbar, width );
     }
 }
 
