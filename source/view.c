@@ -884,8 +884,8 @@ static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_
     }
     else {
         xcb_button_press_event_t rel = *xbe;
-        rel.event_x -= config.padding;
-        rel.event_y -= config.padding;
+        rel.event_x -= state->pad.left;
+        rel.event_y -= state->pad.top;
         if ( widget_clicked ( WIDGET ( state->main_box ), &rel ) ) {
             return;
         }
@@ -1301,8 +1301,8 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
             state->mouse_seen = TRUE;
         }
         xcb_motion_notify_event_t xme = *( (xcb_motion_notify_event_t *) ev );
-        xme.event_x -= config.padding;
-        xme.event_y -= config.padding;
+        xme.event_x -= state->pad.left;
+        xme.event_y -= state->pad.top;
         if ( widget_motion_notify ( WIDGET ( state->main_box ), &xme ) ) {
             return;
         }
