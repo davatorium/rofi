@@ -75,7 +75,10 @@ static void vert_calculate_size ( box *b )
     }
     int rem_width = b->widget.w - b->widget.pad.left-b->widget.pad.right;
     int rem_height = b->widget.h - b->widget.pad.top-b->widget.pad.bottom;
-    b->max_size += MAX ( 0, ( ( active_widgets - 1 ) * b->spacing ) );
+    if ( active_widgets > 0 ){
+        b->max_size += ( active_widgets - 1 ) * b->spacing;
+    }
+    printf("%d %d\n", rem_height, b->max_size);
     if ( b->max_size > rem_height ) {
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Widgets to large (height) for box: %d %d", b->max_size, b->widget.h );
         return;
@@ -107,6 +110,7 @@ static void vert_calculate_size ( box *b )
                 }
                 rem -= expanding_widgets_size;
                 index++;
+                b->max_size += widget_padding_get_padding_height ( child);
             }
             else if ( child->end ) {
                 bottom -= widget_get_height (  child );
@@ -122,6 +126,7 @@ static void vert_calculate_size ( box *b )
             }
         }
     }
+    b->max_size += b->widget.pad.top+b->widget.pad.bottom;
 }
 static void hori_calculate_size ( box *b )
 {
@@ -175,6 +180,7 @@ static void hori_calculate_size ( box *b )
                 }
                 rem -= expanding_widgets_size;
                 index++;
+                b->max_size += widget_padding_get_padding_width ( child);
             }
             else if ( child->end ) {
                 right -= widget_get_width (  child );
@@ -190,6 +196,7 @@ static void hori_calculate_size ( box *b )
             }
         }
     }
+    b->max_size += b->widget.pad.left+b->widget.pad.right;
 }
 
 static void box_draw ( widget *wid, cairo_t *draw )

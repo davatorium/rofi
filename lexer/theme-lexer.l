@@ -23,7 +23,7 @@ WHITESPACE [[:space:]]
 WORD       [[:alnum:]-]+
 STRING     [[:print:]]+
 HEX        [[:xdigit:]]
-NUMBER     [[:digit:]]
+NUMBER     [[:digit:]-]
 
 %x PROPERTIES
 %x NAMESTR

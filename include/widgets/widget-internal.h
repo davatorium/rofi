@@ -57,4 +57,13 @@ struct _widget
 
 void widget_init ( widget *widget , const char *name, const char *class_name );
 void widget_set_state ( widget *widget, const char *state );
+
+int widget_padding_get_left ( const widget *wid );
+int widget_padding_get_right ( const widget *wid );
+int widget_padding_get_top ( const widget *wid );
+int widget_padding_get_bottom ( const widget *wid );
+int widget_padding_get_remaining_width ( const widget *wid );
+int widget_padding_get_remaining_height ( const widget *wid );
+int widget_padding_get_padding_height ( const widget *wid );
+int widget_padding_get_padding_width ( const widget *wid );
 #endif // WIDGET_INTERNAL_H

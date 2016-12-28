@@ -298,9 +298,7 @@ static void rofi_view_window_update_size ( RofiViewState * state )
     CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
 
     // Should wrap main window in a widget.
-    int width = state->width - 2*state->border - state->pad.left - state->pad.right;
-    int height = state->height - 2*state->border - state->pad.top- state->pad.bottom;
-    widget_resize ( WIDGET ( state->main_box ), width, height ); 
+    widget_resize ( WIDGET ( state->main_window ), state->width, state->height ); 
 }
 
 static gboolean rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
@@ -388,7 +386,7 @@ void rofi_view_free ( RofiViewState *state )
     }
     // Do this here?
     // Wait for final release?
-    widget_free ( WIDGET ( state->main_box ) );
+    widget_free ( WIDGET ( state->main_window ) );
     widget_free ( WIDGET ( state->overlay ) );
 
     g_free ( state->line_map );
@@ -775,7 +773,7 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
 
 void rofi_view_update ( RofiViewState *state )
 {
-    if ( !widget_need_redraw ( WIDGET ( state->main_box ) ) && !widget_need_redraw ( WIDGET ( state->overlay ) )  ) {
+    if ( !widget_need_redraw ( WIDGET ( state->main_window ) ) && !widget_need_redraw ( WIDGET ( state->overlay ) )  ) {
         return;
     }
     TICK ();
@@ -792,36 +790,17 @@ void rofi_view_update ( RofiViewState *state )
         }
         cairo_paint ( d );
         cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
-        color_background ( d );
-        rofi_theme_get_color ( "@window" , "window" , NULL, "background", d );
-        cairo_paint ( d );
     }
     else {
-        // Paint the background.
-        color_background ( d );
-        rofi_theme_get_color ( "@window", "window" , NULL, "background", d );
+        // Paint the background transparent.
+        cairo_set_source_rgba ( d, 0,0,0,0.0);
         cairo_paint ( d );
     }
     TICK_N ( "Background" );
-    color_border ( d );
-    rofi_theme_get_color ( "@window", "window" , NULL, "foreground", d );
-
-    int bw = rofi_theme_get_integer ( "@window", "window", NULL, "border-width" , config.menu_bw);
-    if ( bw > 0 ) {
-        cairo_save ( d );
-        cairo_set_line_width ( d, bw );
-        cairo_rectangle ( d,
-                          bw / 2.0,
-                          bw / 2.0,
-                          state->width - bw,
-                          state->height - bw );
-        cairo_stroke ( d );
-        cairo_restore ( d );
-    }
 
     // Always paint as overlay over the background.
     cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
-    widget_draw ( WIDGET ( state->main_box ), d );
+    widget_draw ( WIDGET ( state->main_window ), d );
 
     if ( state->overlay ) {
         widget_draw ( WIDGET ( state->overlay ), d );
@@ -886,7 +865,7 @@ static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_
         xcb_button_press_event_t rel = *xbe;
         rel.event_x -= state->pad.left;
         rel.event_y -= state->pad.top;
-        if ( widget_clicked ( WIDGET ( state->main_box ), &rel ) ) {
+        if ( widget_clicked ( WIDGET ( state->main_window ), &rel ) ) {
             return;
         }
     }
@@ -1278,9 +1257,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
 
                 CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
                 CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
-                int width = state->width - 2*state->border - state->pad.left - state->pad.right;
-                int height = state->height - 2*state->border - state->pad.top- state->pad.bottom;
-                widget_resize ( WIDGET ( state->main_box ), width, height ); 
+                widget_resize ( WIDGET ( state->main_window ), state->width, state->height ); 
             }
         }
         break;
@@ -1303,7 +1280,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
         xcb_motion_notify_event_t xme = *( (xcb_motion_notify_event_t *) ev );
         xme.event_x -= state->pad.left;
         xme.event_y -= state->pad.top;
-        if ( widget_motion_notify ( WIDGET ( state->main_box ), &xme ) ) {
+        if ( widget_motion_notify ( WIDGET ( state->main_window ), &xme ) ) {
             return;
         }
         break;
@@ -1377,13 +1354,33 @@ static int rofi_view_calculate_height ( RofiViewState *state )
     }
     if ( state->filtered_lines == 0 && !config.fixed_num_lines ) {
         widget_disable ( WIDGET ( state->input_bar_separator ) );
+        widget_disable ( WIDGET ( state->list_view) );
     }
     else {
         widget_enable ( WIDGET ( state->input_bar_separator ) );
+        widget_enable ( WIDGET ( state->list_view) );
     }
     height  = listview_get_desired_height ( state->list_view );
+    // Why not a factor 2 here?
+    height  += window_get_border_width ( state->main_window );
     height += box_get_fixed_pixels ( state->main_box );
-    height += 2 * state->border +state->pad.top+state->pad.bottom;
+    // How to merge this....
+    int perc =0;
+    widget *main_window = WIDGET ( state->main_window );
+    if ( main_window->pad.top >= 0 ){
+        height += main_window->pad.top;
+    } else {
+        perc -=  main_window->pad.top;
+    }
+    if ( main_window->pad.bottom >= 0 ){
+        height += main_window->pad.bottom;
+    } else {
+        perc -=  main_window->pad.bottom;
+    }
+    if ( perc >  0){
+        height = (100*height)/(100-perc);
+    }
+    printf("listview: %d\n", listview_get_desired_height ( state->list_view ));
     return height;
 }
 
@@ -1438,8 +1435,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     state->pad =  (Padding){config.padding,config.padding, config.padding, config.padding, FALSE};
     state->pad = rofi_theme_get_padding ( "@window", "window", NULL, "padding", state->pad);
-    //state->border = rofi_theme_get_integer  ("@window",  "window", NULL,  "padding" , config.padding );
-    state->border += rofi_theme_get_integer ("@window",  "window", NULL,  "border-width" , config.menu_bw);
 
     // Request the lines to show.
     state->num_lines = mode_get_num_entries ( sw );
@@ -1449,8 +1444,9 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Get active monitor size.
     TICK_N ( "Get active monitor" );
 
+    state->main_window = window_create ( "window" );
     state->main_box = box_create ( "mainbox.box", BOX_VERTICAL );
-    widget_move ( WIDGET ( state->main_box ), state->border+state->pad.left, state->border+state->pad.top );
+    window_add ( state->main_window, WIDGET ( state->main_box ) );
 
     // we need this at this point so we can get height.
     rofi_view_calculate_window_and_element_width ( state );
@@ -1541,7 +1537,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     rofi_view_update ( state );
     xcb_map_window ( xcb->connection, CacheState.main_window );
-    widget_queue_redraw ( WIDGET ( state->main_box ) );
+    widget_queue_redraw ( WIDGET ( state->main_window ) );
     xcb_flush ( xcb->connection );
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_complete ( xcb->sncontext );
@@ -1557,11 +1553,12 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->finalize   = process_result;
     state->pad =  (Padding){config.padding,config.padding, config.padding, config.padding, FALSE};
     state->pad = rofi_theme_get_padding ( "@window", "window", NULL, "padding", state->pad);
-  //  state->border = rofi_theme_get_integer  ( "@window", "window", NULL, "padding" , config.padding );
     state->border += rofi_theme_get_integer ( "@window", "window", NULL, "border-width" , config.menu_bw);
 
     rofi_view_calculate_window_and_element_width ( state );
+    state->main_window = window_create ( "window" );
     state->main_box = box_create ( "mainbox.box", BOX_VERTICAL);
+    window_add ( state->main_window, WIDGET ( state->main_box ) );
     widget_move ( WIDGET ( state->main_box ), state->border+state->pad.left, state->border+state->pad.top );
     state->text = textbox_create ( "message", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
             NORMAL, ( msg != NULL ) ? msg : "" );
@@ -1579,7 +1576,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 
     // Display it.
     xcb_map_window ( xcb->connection, CacheState.main_window );
-    widget_queue_redraw ( WIDGET ( state->main_box ) );
+    widget_queue_redraw ( WIDGET ( state->main_window ) );
 
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_complete ( xcb->sncontext );

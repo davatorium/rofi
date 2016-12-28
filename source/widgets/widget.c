@@ -207,3 +207,61 @@ void widget_set_name ( widget *wid, const char *name )
     }
     wid->name = g_strdup ( name );
 }
+
+int widget_padding_get_left ( const widget *wid )
+{
+    if ( wid->pad.left < 0 ){
+        return (wid->w*-wid->pad.left)/100;
+    }
+    return wid->pad.left;
+}
+int widget_padding_get_right ( const widget *wid )
+{
+    if ( wid->pad.right < 0 ){
+        return (wid->w*-wid->pad.right)/100;
+    }
+    return wid->pad.right;
+}
+int widget_padding_get_top ( const widget *wid )
+{
+    if ( wid->pad.top < 0 ){
+        return (wid->h*-wid->pad.top)/100;
+    }
+    return wid->pad.top;
+}
+int widget_padding_get_bottom ( const widget *wid )
+{
+    if ( wid->pad.bottom < 0 ){
+        return (wid->h*-wid->pad.bottom)/100;
+    }
+    return wid->pad.bottom;
+}
+
+int widget_padding_get_remaining_width ( const widget *wid )
+{
+    int width = wid->w;
+    width -= widget_padding_get_left ( wid );
+    width -= widget_padding_get_right ( wid );
+    return width;
+}
+int widget_padding_get_remaining_height ( const widget *wid )
+{
+    int height = wid->h;
+    height -= widget_padding_get_top ( wid );
+    height -= widget_padding_get_bottom ( wid );
+    return height;
+}
+int widget_padding_get_padding_height ( const widget *wid )
+{
+    int height = 0; 
+    height += widget_padding_get_top ( wid );
+    height += widget_padding_get_bottom ( wid );
+    return height;
+}
+int widget_padding_get_padding_width ( const widget *wid )
+{
+    int width = 0; 
+    width += widget_padding_get_left ( wid );
+    width += widget_padding_get_right ( wid );
+    return width;
+}

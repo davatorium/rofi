@@ -31,6 +31,7 @@ rofi_SOURCES=\
 	source/history.c\
 	source/theme.c\
 	source/widgets/box.c\
+	source/widgets/window.c\
 	source/widgets/widget.c\
 	source/widgets/textbox.c\
 	source/widgets/listview.c\
@@ -62,6 +63,7 @@ rofi_SOURCES=\
 	include/history.h\
 	include/theme.h\
 	include/widgets/box.h\
+	include/widgets/window.h\
 	include/widgets/widget.h\
 	include/widgets/widget-internal.h\
 	include/widgets/textbox.h\

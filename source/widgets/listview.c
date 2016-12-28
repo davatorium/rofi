@@ -248,7 +248,7 @@ static void listview_resize ( widget *wid, short w, short h )
     listview *lv = (listview *) wid;
     lv->widget.w     = MAX ( 0, w );
     lv->widget.h     = MAX ( 0, h );
-    int height  = lv->widget.h - lv->widget.pad.top-lv->widget.pad.bottom;
+    int height       = lv->widget.h - lv->widget.pad.top-lv->widget.pad.bottom;
     lv->max_rows     = ( lv->spacing + height ) / ( lv->element_height + lv->spacing );
     lv->max_elements = lv->max_rows * lv->menu_columns;
 
@@ -451,7 +451,7 @@ void listview_nav_page_next ( listview *lv )
 
 unsigned int listview_get_desired_height ( listview *lv )
 {
-    if ( lv == NULL ) {
+    if ( lv == NULL  || lv->widget.enabled == FALSE ) {
         return 0;
     }
     int h = lv->menu_lines;
@@ -459,7 +459,7 @@ unsigned int listview_get_desired_height ( listview *lv )
         h = MIN ( lv->menu_lines, lv->req_elements );
     }
     if ( h == 0 ) {
-        return 0;
+        return lv->widget.pad.top+lv->widget.pad.bottom;
     }
     return h * lv->element_height + ( h - 1 ) * lv->spacing+lv->widget.pad.top+lv->widget.pad.bottom;
 }
