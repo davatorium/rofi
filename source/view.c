@@ -1242,6 +1242,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
             if ( state->x != xce->x || state->y != xce->y ) {
                 state->x = xce->x;
                 state->y = xce->y;
+                widget_queue_redraw ( WIDGET ( state->main_window ) );
             }
             if ( state->width != xce->width || state->height != xce->height ) {
                 state->width  = xce->width;
