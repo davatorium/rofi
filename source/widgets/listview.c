@@ -163,15 +163,15 @@ static void listview_draw ( widget *wid, cairo_t *draw )
         unsigned int max = MIN ( lv->cur_elements, lv->req_elements - offset );
         if ( lv->rchanged ) {
             unsigned int width = lv->widget.w - lv->spacing * ( lv->cur_columns - 1 );
-            width -= wid->pad.left+wid->pad.right;
+            width -= widget_padding_get_padding_width ( wid );
             if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) ) {
                 width -= lv->spacing;
                 width -= widget_get_width ( WIDGET ( lv->scrollbar ) );
             }
             unsigned int element_width = ( width ) / lv->cur_columns;
             for ( unsigned int i = 0; i < max; i++ ) {
-                unsigned int ex = wid->pad.left + ( ( i ) / lv->max_rows ) * ( element_width + lv->spacing );
-                unsigned int ey = wid->pad.top + ( ( i ) % lv->max_rows ) * ( lv->element_height + lv->spacing );
+                unsigned int ex = widget_padding_get_left ( wid ) + ( ( i ) / lv->max_rows ) * ( element_width + lv->spacing );
+                unsigned int ey = widget_padding_get_top ( wid ) + ( ( i ) % lv->max_rows ) * ( lv->element_height + lv->spacing );
                 textbox_moveresize ( lv->boxes[i], ex, ey, element_width, lv->element_height );
 
                 update_element ( lv, i, i + offset, TRUE );
@@ -248,11 +248,13 @@ static void listview_resize ( widget *wid, short w, short h )
     listview *lv = (listview *) wid;
     lv->widget.w     = MAX ( 0, w );
     lv->widget.h     = MAX ( 0, h );
-    int height       = lv->widget.h - lv->widget.pad.top-lv->widget.pad.bottom;
+    int height       = lv->widget.h - widget_padding_get_padding_height ( WIDGET (lv) );
     lv->max_rows     = ( lv->spacing + height ) / ( lv->element_height + lv->spacing );
     lv->max_elements = lv->max_rows * lv->menu_columns;
 
-    widget_move ( WIDGET ( lv->scrollbar ), lv->widget.w - lv->widget.pad.right-widget_get_width ( WIDGET ( lv->scrollbar ) ), lv->widget.pad.top );
+    widget_move ( WIDGET ( lv->scrollbar ),
+            lv->widget.w - widget_padding_get_right ( WIDGET ( lv ) ) - widget_get_width ( WIDGET ( lv->scrollbar ) ),
+            widget_padding_get_top ( WIDGET (lv ) ));
     widget_resize (  WIDGET ( lv->scrollbar ), widget_get_width ( WIDGET ( lv->scrollbar ) ), height );
 
     listview_recompute_elements ( lv );
@@ -459,9 +461,9 @@ unsigned int listview_get_desired_height ( listview *lv )
         h = MIN ( lv->menu_lines, lv->req_elements );
     }
     if ( h == 0 ) {
-        return lv->widget.pad.top+lv->widget.pad.bottom;
+        return widget_padding_get_padding_height ( WIDGET (lv) );
     }
-    return h * lv->element_height + ( h - 1 ) * lv->spacing+lv->widget.pad.top+lv->widget.pad.bottom;
+    return h * lv->element_height + ( h - 1 ) * lv->spacing+widget_padding_get_padding_height ( WIDGET (lv) );
 }
 
 void listview_set_show_scrollbar ( listview *lv, gboolean enabled )
