@@ -298,7 +298,7 @@ static void rofi_view_window_update_size ( RofiViewState * state )
     CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
 
     // Should wrap main window in a widget.
-    widget_resize ( WIDGET ( state->main_window ), state->width, state->height ); 
+    widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
 }
 
 static gboolean rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
@@ -1257,7 +1257,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
 
                 CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
                 CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
-                widget_resize ( WIDGET ( state->main_window ), state->width, state->height ); 
+                widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
             }
         }
         break;
@@ -1523,6 +1523,10 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->line_map = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
     state->distance = (int *) g_malloc0_n ( state->num_lines, sizeof ( int ) );
 
+    // Make sure we enable fixed num lines when in normal window mode.
+    if ( (CacheState.flags&MENU_NORMAL_WINDOW) == MENU_NORMAL_WINDOW){
+        config.fixed_num_lines = TRUE;
+    }
     state->height = rofi_view_calculate_height ( state );
 
     // Move the window to the correct x,y position.
@@ -1565,8 +1569,12 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     box_add ( state->main_box, WIDGET ( state->text ), TRUE, FALSE );
     unsigned int line_height = textbox_get_height ( state->text );
 
+    // Make sure we enable fixed num lines when in normal window mode.
+    if ( (CacheState.flags&MENU_NORMAL_WINDOW) == MENU_NORMAL_WINDOW){
+        config.fixed_num_lines = TRUE;
+    }
     // resize window vertically to suit
-    state->height = line_height + ( state->border ) * 2+state->pad.top+state->pad.bottom;
+    state->height = line_height + window_get_border_width ( state->main_window)+widget_padding_get_padding_height ( WIDGET(state->main_window) );
 
     // Calculte window position.
     rofi_view_calculate_window_position ( state );
