@@ -41,8 +41,8 @@ scrollbar *scrollbar_create ( const char *name, int width )
     widget_init ( WIDGET (sb), name, "@scrollbar" );
     sb->widget.x = 0;
     sb->widget.y = 0;
-    sb->widget.w = sb->widget.pad.left+sb->widget.pad.right+width;
-    sb->widget.h = sb->widget.pad.top+sb->widget.pad.top;
+    sb->widget.w = widget_padding_get_padding_width ( WIDGET (sb) ) +width;
+    sb->widget.h = widget_padding_get_padding_height ( WIDGET ( sb ) );
 
     sb->widget.draw          = scrollbar_draw;
     sb->widget.free          = scrollbar_free;
@@ -99,7 +99,7 @@ void scrollbar_set_handle_length ( scrollbar *sb, unsigned int pos_length )
 static void scrollbar_draw ( widget *wid, cairo_t *draw )
 {
     scrollbar    *sb = (scrollbar *) wid;
-    unsigned int wh     = wid->h -wid->pad.top-wid->pad.bottom;
+    unsigned int wh     = widget_padding_get_remaining_height ( wid );
     // Calculate position and size.
     unsigned int r      = ( sb->length * wh ) / ( (double) ( sb->length + sb->pos_length ) );
     unsigned int handle = wid->h - r;
@@ -115,9 +115,9 @@ static void scrollbar_draw ( widget *wid, cairo_t *draw )
     rofi_theme_get_color ( sb->widget.class_name, sb->widget.name, NULL, "foreground", draw );
 
     cairo_rectangle ( draw,
-            wid->pad.left,
-            wid->pad.top + y,
-            wid->w-wid->pad.right-wid->pad.left,
+            widget_padding_get_left ( wid ),
+            widget_padding_get_top ( wid ) + y,
+            widget_padding_get_remaining_width ( wid ),
             height );
     cairo_fill ( draw );
 }
@@ -151,7 +151,6 @@ unsigned int scrollbar_clicked ( const scrollbar *sb, int y )
 
 void scrollbar_set_width ( scrollbar *sb, int width )
 {
-    width += sb->widget.pad.left;
-    width += sb->widget.pad.right;
+    width += widget_padding_get_padding_width ( WIDGET ( sb ) );
     sb->widget.w = width;
 }
