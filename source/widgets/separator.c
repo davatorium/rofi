@@ -76,11 +76,11 @@ separator *separator_create ( const char *name, separator_type type, short sw )
     sb->widget.y = 0;
     if ( sb->type == S_HORIZONTAL ) {
         sb->widget.w = 1;
-        sb->widget.h = MAX ( 1, sw )+sb->widget.pad.top+sb->widget.pad.bottom;
+        sb->widget.h = MAX ( 1, sw )+widget_padding_get_padding_height ( WIDGET (sb) );
     }
     else {
         sb->widget.h = 1;
-        sb->widget.w = MAX ( 1, sw )+sb->widget.pad.left+sb->widget.pad.right;
+        sb->widget.w = MAX ( 1, sw )+widget_padding_get_padding_width ( WIDGET ( sb ) );
     }
 
     sb->widget.draw = separator_draw;
@@ -136,18 +136,18 @@ static void separator_draw ( widget *wid, cairo_t *draw )
         cairo_set_dash ( draw, dashes, 1, 0.0 );
     }
     if ( sep->type == S_HORIZONTAL ) {
-        int height= wid->h-wid->pad.top-wid->pad.bottom;
+        int height= widget_padding_get_remaining_height ( wid  );
         cairo_set_line_width ( draw, height );
         double half = height / 2.0;
-        cairo_move_to ( draw, wid->pad.left,         wid->pad.top + half );
-        cairo_line_to ( draw, wid->w-wid->pad.right, wid->pad.top + half );
+        cairo_move_to ( draw, widget_padding_get_left ( wid ),         widget_padding_get_top ( wid ) + half );
+        cairo_line_to ( draw, wid->w-widget_padding_get_right ( wid ), widget_padding_get_top ( wid ) + half );
     }
     else {
-        int width = wid->w-wid->pad.left-wid->pad.right;
+        int width = widget_padding_get_remaining_width ( wid );
         cairo_set_line_width ( draw, width);
         double half = width / 2.0;
-        cairo_move_to ( draw, wid->pad.left + half, wid->pad.top);
-        cairo_line_to ( draw, wid->pad.left + half, wid->h-wid->pad.bottom );
+        cairo_move_to ( draw, widget_padding_get_left ( wid ) + half, widget_padding_get_top ( wid ));
+        cairo_line_to ( draw, widget_padding_get_left ( wid ) + half, wid->h-widget_padding_get_bottom ( wid ) );
     }
     cairo_stroke ( draw );
 }
