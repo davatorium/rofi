@@ -73,8 +73,8 @@ static void vert_calculate_size ( box *b )
         }
         b->max_size += child->h;
     }
-    int rem_width = b->widget.w - b->widget.pad.left-b->widget.pad.right;
-    int rem_height = b->widget.h - b->widget.pad.top-b->widget.pad.bottom;
+    int rem_width = widget_padding_get_remaining_width ( WIDGET (b) );
+    int rem_height = widget_padding_get_remaining_height ( WIDGET (b) );
     if ( active_widgets > 0 ){
         b->max_size += ( active_widgets - 1 ) * b->spacing;
     }
@@ -84,8 +84,8 @@ static void vert_calculate_size ( box *b )
         return;
     }
     if ( active_widgets > 0 ) {
-        int    bottom = b->widget.h - b->widget.pad.bottom;
-        int    top    = b->widget.pad.top;
+        int    bottom = b->widget.h - widget_padding_get_bottom ( WIDGET( b ) );
+        int    top    = widget_padding_get_top ( WIDGET ( b ) );
         double rem    = rem_height - b->max_size;
         int    index  = 0;
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
@@ -98,12 +98,12 @@ static void vert_calculate_size ( box *b )
                 int expanding_widgets_size = ( rem ) / ( expanding_widgets - index );
                 if ( child->end ) {
                     bottom -= expanding_widgets_size;
-                    widget_move ( child, b->widget.pad.left, bottom );
+                    widget_move ( child, widget_padding_get_left ( WIDGET ( b ) ), bottom );
                     widget_resize ( child, rem_width, expanding_widgets_size );
                     bottom -= b->spacing;
                 }
                 else {
-                    widget_move ( child, b->widget.pad.left, top );
+                    widget_move ( child, widget_padding_get_left ( WIDGET ( b ) ), top );
                     top += expanding_widgets_size;
                     widget_resize ( child, rem_width, expanding_widgets_size );
                     top += b->spacing;
@@ -114,19 +114,19 @@ static void vert_calculate_size ( box *b )
             }
             else if ( child->end ) {
                 bottom -= widget_get_height (  child );
-                widget_move ( child, b->widget.pad.left, bottom );
+                widget_move ( child, widget_padding_get_left ( WIDGET ( b ) ), bottom );
                 widget_resize ( child, rem_width, child->h );
                 bottom -= b->spacing;
             }
             else {
-                widget_move ( child, b->widget.pad.left, top );
+                widget_move ( child, widget_padding_get_left ( WIDGET ( b ) ), top );
                 top += widget_get_height (  child );
                 widget_resize ( child, rem_width, child->h );
                 top += b->spacing;
             }
         }
     }
-    b->max_size += b->widget.pad.top+b->widget.pad.bottom;
+    b->max_size += widget_padding_get_padding_height ( WIDGET (b) );
 }
 static void hori_calculate_size ( box *b )
 {
@@ -146,16 +146,16 @@ static void hori_calculate_size ( box *b )
         // Size used by fixed width widgets.
         b->max_size += child->w;
     }
-    int rem_height = b->widget.h - b->widget.pad.top-b->widget.pad.bottom;
-    int rem_width = b->widget.w - b->widget.pad.left-b->widget.pad.right;
+    int rem_width = widget_padding_get_remaining_width ( WIDGET (b) );
+    int rem_height = widget_padding_get_remaining_height ( WIDGET (b) );
     b->max_size += MAX ( 0, ( ( active_widgets - 1 ) * b->spacing ) );
     if ( b->max_size > (rem_width)) {
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Widgets to large (width) for box: %d %d", b->max_size, b->widget.w );
         return;
     }
     if ( active_widgets > 0 ) {
-        int    right = b->widget.w-b->widget.pad.right;
-        int    left  = b->widget.pad.left;
+        int    right = b->widget.w-widget_padding_get_right ( WIDGET (b) );
+        int    left  = widget_padding_get_left ( WIDGET (b) );
         double rem   = rem_width - b->max_size;
         int    index = 0;
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
@@ -168,12 +168,12 @@ static void hori_calculate_size ( box *b )
                 int expanding_widgets_size = ( rem ) / ( expanding_widgets - index );
                 if ( child->end ) {
                     right -= expanding_widgets_size;
-                    widget_move ( child, right, b->widget.pad.top);
+                    widget_move ( child, right, widget_padding_get_top ( WIDGET ( b ) ));
                     widget_resize ( child, expanding_widgets_size, rem_height );
                     right -= b->spacing;
                 }
                 else {
-                    widget_move ( child, left, b->widget.pad.top );
+                    widget_move ( child, left, widget_padding_get_top ( WIDGET ( b ) ) );
                     left += expanding_widgets_size;
                     widget_resize ( child, expanding_widgets_size, rem_height );
                     left += b->spacing;
@@ -184,19 +184,19 @@ static void hori_calculate_size ( box *b )
             }
             else if ( child->end ) {
                 right -= widget_get_width (  child );
-                widget_move ( child, right, b->widget.pad.top );
+                widget_move ( child, right, widget_padding_get_top ( WIDGET ( b ) ) );
                 widget_resize ( child, child->w, rem_height );
                 right -= b->spacing;
             }
             else {
-                widget_move ( child, left, b->widget.pad.top );
+                widget_move ( child, left, widget_padding_get_top ( WIDGET ( b ) ) );
                 left += widget_get_width (  child );
                 widget_resize ( child, child->w, rem_height );
                 left += b->spacing;
             }
         }
     }
-    b->max_size += b->widget.pad.left+b->widget.pad.right;
+    b->max_size += widget_padding_get_padding_width ( WIDGET ( b ) );
 }
 
 static void box_draw ( widget *wid, cairo_t *draw )
@@ -228,11 +228,11 @@ void box_add ( box *box, widget *child, gboolean expand, gboolean end )
     // Make sure box is width/heigh enough.
     if ( box->type == BOX_VERTICAL){
         int width=box->widget.w;
-        width = MAX ( child->w, width+box->widget.pad.left+box->widget.pad.right );
+        width = MAX ( width, child->w+widget_padding_get_padding_width ( WIDGET ( box ) ));
         box->widget.w = width;
     } else {
         int height = box->widget.h;
-        height = MAX (height, child->h+box->widget.pad.top+box->widget.pad.bottom);
+        height = MAX (height, child->h+widget_padding_get_padding_height ( WIDGET ( box )));
         box->widget.h = height;
     }
     child->expand = expand;
