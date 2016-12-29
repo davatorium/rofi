@@ -1381,7 +1381,6 @@ static int rofi_view_calculate_height ( RofiViewState *state )
     if ( perc >  0){
         height = (100*height)/(100-perc);
     }
-    printf("listview: %d\n", listview_get_desired_height ( state->list_view ));
     return height;
 }
 

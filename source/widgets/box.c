@@ -78,7 +78,6 @@ static void vert_calculate_size ( box *b )
     if ( active_widgets > 0 ){
         b->max_size += ( active_widgets - 1 ) * b->spacing;
     }
-    printf("%d %d\n", rem_height, b->max_size);
     if ( b->max_size > rem_height ) {
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Widgets to large (height) for box: %d %d", b->max_size, b->widget.h );
         return;
