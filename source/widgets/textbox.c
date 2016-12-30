@@ -77,6 +77,15 @@ static void textbox_resize ( widget *wid, short w, short h )
     textbox *tb = (textbox *) wid;
     textbox_moveresize ( tb, tb->widget.x, tb->widget.y, w, h );
 }
+static int textbox_get_desired_height ( widget *wid )
+{
+    textbox *tb = (textbox *)wid;
+    if ( tb->flags & TB_AUTOHEIGHT )
+    {
+        return tb->widget.h;
+    }
+    return textbox_get_height (tb);
+}
 
 textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType tbft, const char *text )
 {
@@ -89,6 +98,7 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
     tb->widget.resize     = textbox_resize;
     tb->widget.get_width  = textbox_get_width;
     tb->widget.get_height = _textbox_get_height;
+    tb->widget.get_desired_height = textbox_get_desired_height;
     tb->flags             = flags;
 
     tb->changed = FALSE;

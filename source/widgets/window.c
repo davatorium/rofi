@@ -60,6 +60,7 @@ static int window_get_desired_height ( widget *widget )
     if ( b->child ) {
         height += widget_get_desired_height ( b->child );
     }
+    height += widget_padding_get_padding_height ( widget );
     return height;
 }
 

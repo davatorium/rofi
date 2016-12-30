@@ -66,6 +66,7 @@ void widget_enable ( widget *widget )
     if ( widget && !widget->enabled ) {
         widget->enabled = TRUE;
         widget_update ( widget );
+        widget_update ( widget->parent );
     }
 }
 void widget_disable ( widget *widget )
@@ -73,6 +74,7 @@ void widget_disable ( widget *widget )
     if ( widget && widget->enabled ) {
         widget->enabled = FALSE;
         widget_update ( widget );
+        widget_update ( widget->parent );
     }
 }
 void widget_draw ( widget *widget, cairo_t *d )
@@ -269,7 +271,7 @@ int widget_padding_get_padding_width ( const widget *wid )
 
 int widget_get_desired_height ( widget *wid )
 {
-    if ( wid->get_desired_height )
+    if ( wid && wid->get_desired_height )
     {
         return wid->get_desired_height ( wid );
     }

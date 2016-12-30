@@ -58,6 +58,7 @@ struct _separator
     widget               widget;
     separator_type       type;
     separator_line_style line_style;
+    int                  separator_width;
 };
 
 /** Configuration value for separator style indicating no line */
@@ -67,11 +68,20 @@ const char *const _separator_style_dash = "dash";
 static void separator_draw ( widget *, cairo_t * );
 static void separator_free ( widget * );
 
+static int separator_get_desired_height ( widget *wid )
+{
+    separator *sb = (separator *)wid;
+    int height = sb->separator_width;
+    height += widget_padding_get_padding_height ( WIDGET (sb) );
+    return height;
+}
+
 separator *separator_create ( const char *name, separator_type type, short sw )
 {
     separator *sb = g_malloc0 ( sizeof ( separator ) );
     widget_init ( WIDGET (sb), name, SEPARATOR_CLASS_NAME );
     sb->type = type;
+    sb->separator_width = sw;
     sb->widget.x = 0;
     sb->widget.y = 0;
     if ( sb->type == S_HORIZONTAL ) {
@@ -85,6 +95,7 @@ separator *separator_create ( const char *name, separator_type type, short sw )
 
     sb->widget.draw = separator_draw;
     sb->widget.free = separator_free;
+    sb->widget.get_desired_height = separator_get_desired_height;
 
     // Enabled by default
     sb->widget.enabled = TRUE;

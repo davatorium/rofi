@@ -60,22 +60,33 @@ static int box_get_desired_height ( widget *wid )
 {
     box *b = (box *)wid;
     int active_widgets = 0;
-    int height = widget_padding_get_padding_height ( wid );
-    for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
-        widget * child = (widget *) iter->data;
-        if ( !child->enabled ) {
-            continue;
-        }
-        active_widgets++;
-        if ( child->expand == TRUE ) {
+    int height = 0;
+    if ( b->type == BOX_VERTICAL ){
+        for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
+            widget * child = (widget *) iter->data;
+            if ( !child->enabled ) {
+                continue;
+            }
+            active_widgets++;
+            if ( child->expand == TRUE ) {
+                height += widget_get_desired_height ( child );
+                continue;
+            }
             height += widget_get_desired_height ( child );
-            continue;
         }
-        height += child->h;
+        if ( active_widgets > 0 ){
+            height += (active_widgets - 1)*b->spacing;
+        }
+    } else {
+        for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
+            widget * child = (widget *) iter->data;
+            if ( !child->enabled ) {
+                continue;
+            }
+            height = MAX ( widget_get_desired_height ( child ), height );
+        }
     }
-    if ( active_widgets > 0 ){
-        height += (active_widgets - 1)*b->spacing;
-    }
+    height += widget_padding_get_padding_height ( wid );
 
     return height;
 }

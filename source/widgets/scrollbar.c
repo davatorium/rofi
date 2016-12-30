@@ -35,6 +35,13 @@ static void scrollbar_draw ( widget *, cairo_t * );
 static void scrollbar_free ( widget * );
 static gboolean scrollbar_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
 
+
+static int scrollbar_get_desired_height ( widget *wid )
+{
+    // Want height we are.
+    return wid->h;
+}
+
 scrollbar *scrollbar_create ( const char *name, int width )
 {
     scrollbar *sb = g_malloc0 ( sizeof ( scrollbar ) );
@@ -47,6 +54,7 @@ scrollbar *scrollbar_create ( const char *name, int width )
     sb->widget.draw          = scrollbar_draw;
     sb->widget.free          = scrollbar_free;
     sb->widget.motion_notify = scrollbar_motion_notify;
+    sb->widget.get_desired_height = scrollbar_get_desired_height;
 
     sb->length     = 10;
     sb->pos        = 0;
