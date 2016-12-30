@@ -35,7 +35,9 @@ void widget_resize ( widget *widget, short w, short h )
 {
     if ( widget != NULL  ) {
         if ( widget->resize != NULL ) {
-            widget->resize ( widget, w, h );
+            if ( widget->w != w || widget->h != h ) {
+                widget->resize ( widget, w, h );
+            }
         }
         else {
             widget->w = w;
@@ -151,8 +153,6 @@ void widget_update ( widget *widget )
         if ( widget->update ) {
             widget->update ( widget );
         }
-        // Recurse back.
-        widget_update ( widget->parent );
     }
 }
 
@@ -253,15 +253,25 @@ int widget_padding_get_remaining_height ( const widget *wid )
 }
 int widget_padding_get_padding_height ( const widget *wid )
 {
-    int height = 0; 
+    int height = 0;
     height += widget_padding_get_top ( wid );
     height += widget_padding_get_bottom ( wid );
     return height;
 }
 int widget_padding_get_padding_width ( const widget *wid )
 {
-    int width = 0; 
+    int width = 0;
     width += widget_padding_get_left ( wid );
     width += widget_padding_get_right ( wid );
     return width;
+}
+
+
+int widget_get_desired_height ( widget *wid )
+{
+    if ( wid->get_desired_height )
+    {
+        return wid->get_desired_height ( wid );
+    }
+    return 0;
 }

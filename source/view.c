@@ -1361,26 +1361,10 @@ static int rofi_view_calculate_height ( RofiViewState *state )
         widget_enable ( WIDGET ( state->input_bar_separator ) );
         widget_enable ( WIDGET ( state->list_view) );
     }
-    height  = listview_get_desired_height ( state->list_view );
-    // Why not a factor 2 here?
-    height  += window_get_border_width ( state->main_window );
-    height += box_get_fixed_pixels ( state->main_box );
-    // How to merge this....
-    int perc =0;
+
+
     widget *main_window = WIDGET ( state->main_window );
-    if ( main_window->pad.top >= 0 ){
-        height += main_window->pad.top;
-    } else {
-        perc -=  main_window->pad.top;
-    }
-    if ( main_window->pad.bottom >= 0 ){
-        height += main_window->pad.bottom;
-    } else {
-        perc -=  main_window->pad.bottom;
-    }
-    if ( perc >  0){
-        height = (100*height)/(100-perc);
-    }
+    height = widget_get_desired_height ( main_window );
     return height;
 }
 

@@ -322,12 +322,13 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     listview *lv = g_malloc0 ( sizeof ( listview ) );
 
     widget_init ( WIDGET ( lv ), name, "@listview" );
-    lv->widget.free          = listview_free;
-    lv->widget.resize        = listview_resize;
-    lv->widget.draw          = listview_draw;
-    lv->widget.clicked       = listview_clicked;
-    lv->widget.motion_notify = listview_motion_notify;
-    lv->widget.enabled       = TRUE;
+    lv->widget.free               = listview_free;
+    lv->widget.resize             = listview_resize;
+    lv->widget.draw               = listview_draw;
+    lv->widget.clicked            = listview_clicked;
+    lv->widget.motion_notify      = listview_motion_notify;
+    lv->widget.get_desired_height = listview_get_desired_height;
+    lv->widget.enabled            = TRUE;
     lv->eh = eh;
 
     char *n = g_strjoin(".", lv->widget.name,"scrollbar", NULL);

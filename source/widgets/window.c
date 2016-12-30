@@ -53,6 +53,17 @@ struct _window
 static void window_update ( widget *wid  );
 
 
+static int window_get_desired_height ( widget *widget )
+{
+    window *b = (window *) widget;
+    int height = b->border_width*2;
+    if ( b->child ) {
+        height += widget_get_desired_height ( b->child );
+    }
+    return height;
+}
+
+
 static void window_draw ( widget *wid, cairo_t *draw )
 {
     window *b = (window *) wid;
@@ -126,13 +137,14 @@ window * window_create ( const char *name )
     window *b = g_malloc0 ( sizeof ( window ) );
     // Initialize widget.
     widget_init ( WIDGET(b), name, WINDOW_CLASS_NAME);
-    b->widget.draw          = window_draw;
-    b->widget.free          = window_free;
-    b->widget.resize        = window_resize;
-    b->widget.update        = window_update;
-    b->widget.clicked       = window_clicked;
-    b->widget.motion_notify = window_motion_notify;
-    b->widget.enabled       = TRUE;
+    b->widget.draw               = window_draw;
+    b->widget.free               = window_free;
+    b->widget.resize             = window_resize;
+    b->widget.update             = window_update;
+    b->widget.clicked            = window_clicked;
+    b->widget.motion_notify      = window_motion_notify;
+    b->widget.get_desired_height = window_get_desired_height;
+    b->widget.enabled            = TRUE;
     b->border_width = rofi_theme_get_integer (
             b->widget.class_name, b->widget.name, NULL,  "border-width" , config.menu_bw);
 

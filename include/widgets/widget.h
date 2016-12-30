@@ -176,5 +176,6 @@ gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
 
 
 void widget_set_name ( widget *wid, const char *name );
+int widget_get_desired_height ( widget *wid );
 /*@}*/
 #endif // ROFI_WIDGET_H
