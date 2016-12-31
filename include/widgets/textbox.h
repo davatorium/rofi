@@ -255,5 +255,6 @@ PangoAttrList *textbox_get_pango_attributes ( textbox *tb );
  * @returns the visible text.
  */
 const char *textbox_get_visible_text ( const textbox *tb );
+int distance_get_pixel ( Distance d );
 /*@}*/
 #endif //ROFI_TEXTBOX_H

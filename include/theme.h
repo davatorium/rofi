@@ -9,7 +9,7 @@ typedef enum {
 } PixelWidth;
 
 typedef struct {
-    int        distance;
+    double     distance;
     PixelWidth type;
 } Distance;
 
@@ -86,10 +86,13 @@ void rofi_theme_widget_add_properties ( Widget *widget, GHashTable *table );
  * Public API
  */
 
+Distance rofi_theme_get_distance ( const char *wclass, const char  *name, const char *state, const char *property, int def );
 int rofi_theme_get_integer   ( const char *wclass,  const char *name, const char *state,  const char *property, int def );
 int rofi_theme_get_boolean   ( const char *wclass,  const char *name, const char *state,  const char *property, int def );
 char *rofi_theme_get_string  ( const char *wclass,  const char *name, const char *state,  const char *property, char *def );
 double rofi_theme_get_double ( const char *wclass,  const char *name, const char *state,  const char *property, double def );
 void rofi_theme_get_color ( const char *wclass, const char  *name, const char *state, const char *property, cairo_t *d);
 Padding rofi_theme_get_padding ( const char *wclass, const char  *name, const char *state, const char *property, Padding pad );
+
+int distance_get_pixel ( Distance d );
 #endif

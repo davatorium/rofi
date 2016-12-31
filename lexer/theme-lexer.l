@@ -24,6 +24,7 @@ WORD       [[:alnum:]-]+
 STRING     [[:print:]]+
 HEX        [[:xdigit:]]
 NUMBER     [[:digit:]]
+REAL       [[:digit:]]+(\.[[:digit:]]+)?
 PX         (px)
 EM         (em)
 NEWLINES   (\r|\n)+
@@ -106,14 +107,14 @@ if ( queue == NULL ){
 <PROPERTIES>{NUMBER}+\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
 <PROPERTIES>\"{STRING}\"         { yytext[yyleng-1] = '\0'; yylval->sval = g_strdup(&yytext[1]); return T_STRING;}
 
-<PROPERTIES>{NUMBER}+{PX}        {
-    yylval->distance.distance = (int)g_ascii_strtoll(yytext, NULL, 10);
-    yylval->distance.type     = PW_PX;
+<PROPERTIES>{REAL}{EM}        {
+    yylval->distance.distance = (double)g_ascii_strtod(yytext, NULL);
+    yylval->distance.type     = PW_EM;
     return T_PIXEL;
 }
-<PROPERTIES>{NUMBER}+{EM}        {
-    yylval->distance.distance = (int)g_ascii_strtoll(yytext, NULL, 10);
-    yylval->distance.type     = PW_EM;
+<PROPERTIES>{NUMBER}+{PX}        {
+    yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
+    yylval->distance.type     = PW_PX;
     return T_PIXEL;
 }
 <PROPERTIES>#{HEX}{8}       {

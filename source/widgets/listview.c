@@ -349,7 +349,7 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->udata    = udata;
 
     // Some settings.
-    lv->spacing      =    rofi_theme_get_integer (lv->widget.class_name, lv->widget.name, NULL,  "spacing", config.line_margin );
+    lv->spacing      =    distance_get_pixel (rofi_theme_get_distance (lv->widget.class_name, lv->widget.name, NULL,  "spacing", config.line_margin ));
     lv->menu_lines   =    rofi_theme_get_integer (lv->widget.class_name, lv->widget.name, NULL,  "lines",   config.menu_lines );
     lv->menu_columns =    rofi_theme_get_integer (lv->widget.class_name, lv->widget.name, NULL,  "columns", config.menu_columns);
     lv->fixed_num_lines = rofi_theme_get_boolean (lv->widget.class_name, lv->widget.name, NULL,  "fixed-height", config.fixed_num_lines );

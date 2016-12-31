@@ -351,7 +351,7 @@ box * box_create ( const char *name, boxType type )
     b->widget.get_desired_height = box_get_desired_height;
     b->widget.enabled             = TRUE;
 
-    box_set_spacing ( b, rofi_theme_get_integer ( b->widget.class_name, b->widget.name, NULL, "spacing",config.line_margin ));
+    box_set_spacing ( b, distance_get_pixel (rofi_theme_get_distance ( b->widget.class_name, b->widget.name, NULL, "spacing",config.line_margin )));
     return b;
 }
 

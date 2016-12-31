@@ -5,6 +5,8 @@
 #include "theme.h"
 #include "lexer/theme-parser.h"
 #include "helper.h"
+#include "widgets/textbox.h"
+
 void yyerror ( YYLTYPE *ylloc, const char *);
 
 Widget *rofi_theme_find_or_create_class ( Widget *base, const char *class )
@@ -88,7 +90,7 @@ static void rofi_theme_print_property_index ( int depth, Property *p )
                    (unsigned char)(p->value.color.blue*255.0));
            break;
         case P_PADDING:
-           printf("%d%s %d%s %d%s %d%s",
+           printf("%f%s %f%s %f%s %f%s",
                     p->value.padding.left.distance,
                     p->value.padding.left.type == PW_PX? "px":"em",
                     p->value.padding.right.distance,
@@ -250,6 +252,15 @@ int rofi_theme_get_integer ( const char *wclass, const char  *name, const char *
     }
     return def;
 }
+Distance rofi_theme_get_distance ( const char *wclass, const char  *name, const char *state, const char *property, int def )
+{
+    Widget *widget = rofi_theme_find_widget ( wclass, name, state );
+    Property *p = rofi_theme_find_property ( widget, P_PADDING, property );
+    if ( p ){
+        return p->value.padding.left;
+    }
+    return (Distance){def, PW_PX};
+}
 
 int rofi_theme_get_boolean ( const char *wclass, const char  *name, const char *state, const char *property, int def )
 {
@@ -301,4 +312,12 @@ Padding rofi_theme_get_padding ( const char *wclass, const char  *name, const ch
         pad = p->value.padding;
     }
     return pad;
+}
+
+int distance_get_pixel ( Distance d )
+{
+    if ( d.type == PW_EM ){
+        return d.distance*textbox_get_estimated_char_height();
+    }
+    return d.distance;
 }
