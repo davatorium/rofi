@@ -77,6 +77,8 @@ struct _listview
     void                        *mouse_activated_data;
 };
 
+static int listview_get_desired_height ( widget *wid );
+
 static void listview_free ( widget *wid )
 {
     listview *lv = (listview *) wid;
@@ -340,7 +342,7 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     //
     char *tb_name = g_strjoin (".", lv->widget.name,"element", NULL);
     textbox *tb = textbox_create ( tb_name, 0, NORMAL, "" );
-    lv->element_height = textbox_get_estimated_char_height (tb, lv->eh);
+    lv->element_height = textbox_get_estimated_height (tb, lv->eh);
     g_free(tb_name);
 
     lv->callback = cb;
@@ -452,8 +454,9 @@ void listview_nav_page_next ( listview *lv )
     widget_queue_redraw ( WIDGET ( lv ) );
 }
 
-unsigned int listview_get_desired_height ( listview *lv )
+static int listview_get_desired_height ( widget *wid )
 {
+    listview *lv = (listview *)wid;
     if ( lv == NULL  || lv->widget.enabled == FALSE ) {
         return 0;
     }

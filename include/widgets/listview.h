@@ -78,15 +78,6 @@ unsigned int listview_get_selected ( listview *lv );
 /**
  * @param lv The listview handle
  *
- * Get the desired height of the listview widget.
- *
- * @returns the desired height.
- */
-unsigned int listview_get_desired_height ( listview *lv );
-
-/**
- * @param lv The listview handle
- *
  * Move the selection one row up.
  * - Wrap around.
  */

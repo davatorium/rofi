@@ -196,6 +196,7 @@ int textbox_get_font_width ( const textbox *tb );
  * @returns the width of a character in pixels.
  */
 double textbox_get_estimated_char_width ( void );
+double textbox_get_estimated_char_height ( void  );
 
 /**
  * @param tb Handle to the textbox
@@ -217,13 +218,14 @@ void textbox_delete ( textbox *tb, int pos, int dlen );
  * TODO remove for #widget_resize and #widget_move
  */
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
+
 /**
  * @param tb Handle to the textbox
  * Get the (estimated) with of a character, can be used to calculate window width.
  *
  * @returns the estimated width of a character.
  */
-int textbox_get_estimated_char_height ( const textbox *tb, int eh );
+int textbox_get_estimated_height ( const textbox *tb, int eh );
 /**
  * @param p The new default PangoContext
  *

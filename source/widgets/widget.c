@@ -212,32 +212,32 @@ void widget_set_name ( widget *wid, const char *name )
 }
 
 // External
-double textbox_get_estimated_char_width ( void );
+double textbox_get_estimated_char_height ( void );
 int widget_padding_get_left ( const widget *wid )
 {
     if ( wid->pad.left.type == PW_EM ){
-        return wid->pad.left.distance*textbox_get_estimated_char_width();
+        return wid->pad.left.distance*textbox_get_estimated_char_height();
     }
     return wid->pad.left.distance;
 }
 int widget_padding_get_right ( const widget *wid )
 {
     if ( wid->pad.right.type == PW_EM ){
-        return wid->pad.right.distance*textbox_get_estimated_char_width();
+        return wid->pad.right.distance*textbox_get_estimated_char_height();
     }
     return wid->pad.right.distance;
 }
 int widget_padding_get_top ( const widget *wid )
 {
     if ( wid->pad.top.type == PW_EM ){
-        return wid->pad.top.distance*textbox_get_estimated_char_width();
+        return wid->pad.top.distance*textbox_get_estimated_char_height();
     }
     return wid->pad.top.distance;
 }
 int widget_padding_get_bottom ( const widget *wid )
 {
     if ( wid->pad.bottom.type == PW_EM ){
-        return wid->pad.bottom.distance*textbox_get_estimated_char_width();
+        return wid->pad.bottom.distance*textbox_get_estimated_char_height();
     }
     return wid->pad.bottom.distance;
 }

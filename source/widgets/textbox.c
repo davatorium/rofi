@@ -757,13 +757,27 @@ int textbox_get_font_width ( const textbox *tb )
     return width;
 }
 
-double textbox_get_estimated_char_width ( void )
+static double char_height = -1;
+double textbox_get_estimated_char_height ( void )
 {
-    int width = pango_font_metrics_get_approximate_char_width ( p_metrics );
-    return ( width ) / (double) PANGO_SCALE;
+    if ( char_height < 0 ){
+        int height = pango_font_metrics_get_ascent ( p_metrics ) + pango_font_metrics_get_descent ( p_metrics );
+        char_height = ( height ) / (double) PANGO_SCALE;
+    }
+    return char_height;
 }
 
-int textbox_get_estimated_char_height ( const textbox *tb, int eh )
+static double char_width = -1;
+double textbox_get_estimated_char_width ( void )
+{
+    if ( char_width < 0 ){
+        int width = pango_font_metrics_get_approximate_char_width ( p_metrics );
+        char_width = ( width ) / (double) PANGO_SCALE;
+    }
+    return char_width;
+}
+
+int textbox_get_estimated_height ( const textbox *tb, int eh )
 {
     int height = pango_font_metrics_get_ascent ( p_metrics ) + pango_font_metrics_get_descent ( p_metrics );
     return ( eh*height ) / PANGO_SCALE + widget_padding_get_padding_height ( WIDGET ( tb ) );
