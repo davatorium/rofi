@@ -87,6 +87,17 @@ static void rofi_theme_print_property_index ( int depth, Property *p )
                    (unsigned char)(p->value.color.green*255.0),
                    (unsigned char)(p->value.color.blue*255.0));
            break;
+        case P_PADDING:
+           printf("%d%s %d%s %d%s %d%s",
+                    p->value.padding.left.distance,
+                    p->value.padding.left.type == PW_PX? "px":"em",
+                    p->value.padding.right.distance,
+                    p->value.padding.right.type == PW_PX? "px":"em",
+                    p->value.padding.top.distance,
+                    p->value.padding.top.type == PW_PX? "px":"em",
+                    p->value.padding.bottom.distance,
+                    p->value.padding.bottom.type == PW_PX? "px":"em"
+                 );
     }
     putchar ( '\n' );
 }

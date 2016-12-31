@@ -3,6 +3,17 @@
 #include <glib.h>
 #include <cairo.h>
 typedef enum {
+    PW_PX,
+    PW_EM,
+
+} PixelWidth;
+
+typedef struct {
+    int        distance;
+    PixelWidth type;
+} Distance;
+
+typedef enum {
     P_INTEGER,
     P_DOUBLE,
     P_STRING,
@@ -26,11 +37,10 @@ typedef struct
 
 typedef struct
 {
-    int left;
-    int right;
-    int top;
-    int bottom;
-    gboolean percentual;
+    Distance left;
+    Distance right;
+    Distance top;
+    Distance bottom;
 } Padding;
 
 typedef struct {

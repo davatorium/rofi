@@ -863,8 +863,6 @@ static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_
     }
     else {
         xcb_button_press_event_t rel = *xbe;
-        rel.event_x -= state->pad.left;
-        rel.event_y -= state->pad.top;
         if ( widget_clicked ( WIDGET ( state->main_window ), &rel ) ) {
             return;
         }
@@ -1279,8 +1277,6 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
             state->mouse_seen = TRUE;
         }
         xcb_motion_notify_event_t xme = *( (xcb_motion_notify_event_t *) ev );
-        xme.event_x -= state->pad.left;
-        xme.event_y -= state->pad.top;
         if ( widget_motion_notify ( WIDGET ( state->main_window ), &xme ) ) {
             return;
         }
@@ -1417,9 +1413,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->finalize   = finalize;
     state->mouse_seen = FALSE;
 
-    state->pad =  (Padding){config.padding,config.padding, config.padding, config.padding, FALSE};
-    state->pad = rofi_theme_get_padding ( "@window", "window", NULL, "padding", state->pad);
-
     // Request the lines to show.
     state->num_lines = mode_get_num_entries ( sw );
 
@@ -1539,15 +1532,12 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->retv       = MENU_CANCEL;
     state->menu_flags = MENU_ERROR_DIALOG;
     state->finalize   = process_result;
-    state->pad =  (Padding){config.padding,config.padding, config.padding, config.padding, FALSE};
-    state->pad = rofi_theme_get_padding ( "@window", "window", NULL, "padding", state->pad);
     state->border += rofi_theme_get_integer ( "@window", "window", NULL, "border-width" , config.menu_bw);
 
     rofi_view_calculate_window_and_element_width ( state );
     state->main_window = window_create ( "window" );
     state->main_box = box_create ( "mainbox.box", BOX_VERTICAL);
     window_add ( state->main_window, WIDGET ( state->main_box ) );
-    widget_move ( WIDGET ( state->main_box ), state->border+state->pad.left, state->border+state->pad.top );
     state->text = textbox_create ( "message", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
             NORMAL, ( msg != NULL ) ? msg : "" );
     box_add ( state->main_box, WIDGET ( state->text ), TRUE, FALSE );

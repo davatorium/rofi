@@ -31,6 +31,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
     GList         *name_path;
     Property      *property;
     GHashTable    *property_list;
+    Distance      distance;
 }
 
 %token <ival>     T_INT
@@ -40,7 +41,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token <sval>     NAME_ELEMENT
 %token <bval>     T_BOOLEAN
 %token <colorval> T_COLOR
-%token <ival>     T_PIXEL
+%token <distance> T_PIXEL
 %token <sval>     CLASS_NAME
 %token <sval>     FIRST_NAME
 
@@ -170,12 +171,12 @@ property
 |  pvalue PSEP T_PIXEL PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
-        $$->value.padding = (Padding){ $3, $3, $3, $3, FALSE };
+        $$->value.padding = (Padding){ $3, $3, $3, $3 };
 }
 |  pvalue PSEP T_PIXEL T_PIXEL T_PIXEL T_PIXEL PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
-        $$->value.padding = (Padding){ $3, $4, $5, $6, FALSE };
+        $$->value.padding = (Padding){ $3, $4, $5, $6 };
 }
 ;
 
