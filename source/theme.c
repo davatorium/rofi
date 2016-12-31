@@ -259,6 +259,11 @@ Distance rofi_theme_get_distance ( const char *wclass, const char  *name, const 
     if ( p ){
         return p->value.padding.left;
     }
+    // Fall back to px if no metric is given.
+    p = rofi_theme_find_property ( widget, P_INTEGER, property );
+    if ( p ){
+        return (Distance){(double)p->value.i, PW_PX};
+    }
     return (Distance){def, PW_PX};
 }
 
