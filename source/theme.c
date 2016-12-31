@@ -315,6 +315,12 @@ Padding rofi_theme_get_padding ( const char *wclass, const char  *name, const ch
     Property *p = rofi_theme_find_property ( widget, P_PADDING, property );
     if ( p ){
         pad = p->value.padding;
+    }else {
+        p = rofi_theme_find_property ( widget, P_INTEGER, property );
+        if ( p ){
+            Distance d = (Distance){p->value.i, PW_PX};
+            pad = (Padding){d,d,d,d};
+        }
     }
     return pad;
 }
