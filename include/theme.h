@@ -7,7 +7,9 @@ typedef enum {
     P_DOUBLE,
     P_STRING,
     P_BOOLEAN,
-    P_COLOR
+    P_COLOR,
+    // Used in padding.
+    P_PADDING,
 } PropertyType;
 
 typedef struct
@@ -40,6 +42,7 @@ typedef struct {
         char          *s;
         int           b;
         ThemeColor color;
+        Padding    padding;
     } value;
 } Property;
 

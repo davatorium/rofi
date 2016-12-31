@@ -285,35 +285,9 @@ void rofi_theme_get_color ( const char *wclass, const char  *name, const char *s
 Padding rofi_theme_get_padding ( const char *wclass, const char  *name, const char *state, const char *property, Padding pad )
 {
     Widget *widget = rofi_theme_find_widget ( wclass, name, state );
-    Property *p = rofi_theme_find_property ( widget, P_INTEGER, property );
+    Property *p = rofi_theme_find_property ( widget, P_PADDING, property );
     if ( p ){
-        pad.left = pad.top = pad.bottom = pad.right = p->value.i; 
+        pad = p->value.padding;
     }
-
-    char *s = g_strdup_printf("%s-top", property);
-    p = rofi_theme_find_property ( widget, P_INTEGER, s );
-    if ( p ){
-        pad.top = p->value.i; 
-    }
-    g_free(s);
-    s = g_strdup_printf("%s-left", property);
-    p = rofi_theme_find_property ( widget, P_INTEGER, s );
-    if ( p ){
-        pad.left = p->value.i; 
-    }
-    g_free(s);
-    s = g_strdup_printf("%s-bottom", property);
-    p = rofi_theme_find_property ( widget, P_INTEGER, s );
-    if ( p ){
-        pad.bottom = p->value.i; 
-    }
-    g_free(s);
-    s = g_strdup_printf("%s-right", property);
-    p = rofi_theme_find_property ( widget, P_INTEGER, s );
-    if ( p ){
-        pad.right = p->value.i; 
-    }
-    g_free(s);
-
     return pad;
 }

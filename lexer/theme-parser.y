@@ -11,6 +11,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <glib.h>
 
 
 #include "theme.h"
@@ -39,6 +40,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token <sval>     NAME_ELEMENT
 %token <bval>     T_BOOLEAN
 %token <colorval> T_COLOR
+%token <ival>     T_PIXEL
 %token <sval>     CLASS_NAME
 %token <sval>     FIRST_NAME
 
@@ -165,6 +167,16 @@ property
         $$->name = $1;
         $$->value.b = $3;
     }
+|  pvalue PSEP T_PIXEL PCLOSE {
+        $$ = rofi_theme_property_create ( P_PADDING );
+        $$->name = $1;
+        $$->value.padding = (Padding){ $3, $3, $3, $3, FALSE };
+}
+|  pvalue PSEP T_PIXEL T_PIXEL T_PIXEL T_PIXEL PCLOSE {
+        $$ = rofi_theme_property_create ( P_PADDING );
+        $$->name = $1;
+        $$->value.padding = (Padding){ $3, $4, $5, $6, FALSE };
+}
 ;
 
 pvalue: N_STRING { $$ = $1; }
