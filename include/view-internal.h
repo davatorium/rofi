@@ -66,9 +66,6 @@ struct RofiViewState
     unsigned int     selected_line;
     /** The return state of the view */
     MenuReturn       retv;
-    /** Calculated border width */
-    unsigned int     border;
-    Padding          pad;
     /** Monitor #workarea the view is displayed on */
     workarea         mon;
 

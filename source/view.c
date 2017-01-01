@@ -209,6 +209,8 @@ static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
 {
     if ( current_active_menu  ) {
         // Repaint the view (if needed).
+        // After a resize the edit_pixmap surface might not contain anything anymore.
+        // If we already re-painted, this does nothing.
         rofi_view_update (current_active_menu, FALSE);
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "expose event" );
         TICK_N ( "Expose" );
@@ -662,7 +664,7 @@ static void rofi_view_calculate_window_and_element_width ( RofiViewState *state 
     else if ( config.menu_width < 0 ) {
         double fw = textbox_get_estimated_char_width ( );
         state->width  = -( fw * config.menu_width );
-        state->width += 2 * state->border;
+        state->width += window_get_border_width ( state->main_window );
     }
     else{
         // Calculate as float to stop silly, big rounding down errors.
@@ -1419,7 +1421,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->skip_absorb   = FALSE;
     //We want to filter on the first run.
     state->refilter   = TRUE;
-    state->border     = 0;
     state->finalize   = finalize;
     state->mouse_seen = FALSE;
 
@@ -1542,7 +1543,6 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->retv       = MENU_CANCEL;
     state->menu_flags = MENU_ERROR_DIALOG;
     state->finalize   = process_result;
-    state->border += rofi_theme_get_integer ( "@window", "window", NULL, "border-width" , config.menu_bw);
 
     rofi_view_calculate_window_and_element_width ( state );
     state->main_window = window_create ( "window" );
@@ -1675,9 +1675,19 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text )
     }
     widget_enable ( WIDGET ( state->overlay ) );
     textbox_text ( state->overlay, text );
-    unsigned int x_offset = state->width - ( 2 * state->border ) - widget_get_width ( WIDGET ( state->case_indicator ) );
+    int x_offset = widget_get_width ( WIDGET(state->main_window) );
+    // Within padding of window.
+    x_offset -= widget_padding_get_right ( WIDGET (state->main_window) );
+    // Within the border of widget.
+    x_offset -= window_get_border_width ( state->main_window );
+    x_offset -= widget_padding_get_right ( WIDGET (state->main_box ) );
+    x_offset -= widget_padding_get_right ( WIDGET (state->input_bar ) );
+    x_offset -= widget_get_width ( WIDGET ( state->case_indicator ) );
     x_offset -= widget_get_width ( WIDGET ( state->overlay ) );
-    widget_move ( WIDGET ( state->overlay ), x_offset, state->border );
+    int top_offset = window_get_border_width ( state->main_window );
+    top_offset += widget_padding_get_top   ( WIDGET (state->main_window) );
+    top_offset += widget_padding_get_top   ( WIDGET (state->main_box ) );
+    widget_move ( WIDGET ( state->overlay ), x_offset, top_offset );
     // We want to queue a repaint.
     rofi_view_queue_redraw ( );
 }
