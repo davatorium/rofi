@@ -95,4 +95,5 @@ void rofi_theme_get_color ( const char *wclass, const char  *name, const char *s
 Padding rofi_theme_get_padding ( const char *wclass, const char  *name, const char *state, const char *property, Padding pad );
 
 int distance_get_pixel ( Distance d );
+void rofi_theme_convert_old_theme ( void );
 #endif

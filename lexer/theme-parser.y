@@ -80,7 +80,7 @@ entries:
   %empty {
         // There is always a base widget.
         $$ =  rofi_theme = (Widget*)g_malloc0 (sizeof(Widget));
-        rofi_theme->name = g_strdup ( "Window" );
+        rofi_theme->name = g_strdup ( "Root" );
   }
 |  entries
    optional_properties

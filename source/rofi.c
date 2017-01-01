@@ -905,8 +905,14 @@ int main ( int argc, char *argv[] )
         TICK_N ( "Parse theme" );
         rofi_theme_parse_file ( config.theme );
         TICK_N ( "Parsed theme" );
+    } else {
+        rofi_theme_convert_old_theme ( );
     }
 
+    if ( find_arg ( "-dump-theme" ) >= 0 ){
+        rofi_theme_print ( rofi_theme );
+        exit (EXIT_SUCCESS);
+    }
     // Dump.
     // catch help request
     if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 || find_arg (  "--help" ) >= 0 ) {
