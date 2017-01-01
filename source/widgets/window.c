@@ -30,9 +30,10 @@
 #include "widgets/widget-internal.h"
 #include "widgets/window.h"
 #include "theme.h"
-#include "settings.h"
 
 #define LOG_DOMAIN    "Widgets.Window"
+
+#define DEFAULT_BORDER_WIDTH 2
 const char *WINDOW_CLASS_NAME = "@window";
 
 /**
@@ -147,7 +148,7 @@ window * window_create ( const char *name )
     b->widget.get_desired_height = window_get_desired_height;
     b->widget.enabled            = TRUE;
     b->border_width = rofi_theme_get_integer (
-            b->widget.class_name, b->widget.name, NULL,  "border-width" , config.menu_bw);
+            b->widget.class_name, b->widget.name, NULL,  "border-width" , DEFAULT_BORDER_WIDTH);
 
     return b;
 }

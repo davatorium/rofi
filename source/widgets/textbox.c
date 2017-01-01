@@ -29,7 +29,6 @@
 #include <string.h>
 #include <glib.h>
 #include <math.h>
-#include "settings.h"
 #include "widgets/textbox.h"
 #include "keyb.h"
 #include "x11-helper.h"

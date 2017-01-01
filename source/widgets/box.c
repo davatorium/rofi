@@ -30,10 +30,11 @@
 #include "widgets/widget-internal.h"
 #include "widgets/box.h"
 #include "theme.h"
-#include "settings.h"
 
 #define LOG_DOMAIN    "Widgets.Box"
 const char *BOX_CLASS_NAME = "@box";
+
+#define DEFAULT_SPACING  2
 
 /**
  * @param box Handle to the box widget.
@@ -351,7 +352,7 @@ box * box_create ( const char *name, boxType type )
     b->widget.get_desired_height = box_get_desired_height;
     b->widget.enabled             = TRUE;
 
-    box_set_spacing ( b, distance_get_pixel (rofi_theme_get_distance ( b->widget.class_name, b->widget.name, NULL, "spacing",config.line_margin )));
+    box_set_spacing ( b, distance_get_pixel (rofi_theme_get_distance ( b->widget.class_name, b->widget.name, NULL, "spacing",DEFAULT_SPACING )));
     return b;
 }
 

@@ -401,14 +401,42 @@ void rofi_theme_convert_old_theme ( void )
     rofi_theme->name = g_strdup ( "Root" );
     rofi_theme->properties = rofi_theme_convert_create_property_ht ( );
     {
+        // Spacing
+        Widget *box_widget = rofi_theme_find_or_create_class ( rofi_theme , "@box" );
+        box_widget->properties = rofi_theme_convert_create_property_ht ( );
+        Property *p = rofi_theme_property_create ( P_INTEGER );
+        p->name = g_strdup("spacing");
+        p->value.i = config.padding;
+        g_hash_table_replace ( box_widget->properties, p->name, p );
+    }
+    {
+        // Spacing
+        Widget *listview_widget = rofi_theme_find_or_create_class ( rofi_theme , "@listview" );
+        listview_widget->properties = rofi_theme_convert_create_property_ht ( );
+        Property *p = rofi_theme_property_create ( P_INTEGER );
+        p->name = g_strdup("spacing");
+        p->value.i = config.padding;
+        g_hash_table_replace ( listview_widget->properties, p->name, p );
+    }
+    {
+        // Border width.
+        Widget *window_widget = rofi_theme_find_or_create_class ( rofi_theme , "@window" );
+        window_widget->properties = rofi_theme_convert_create_property_ht ( );
+        Property *p = rofi_theme_property_create ( P_INTEGER );
+        p->name = g_strdup("border-width");
+        p->value.i = config.menu_bw;
+        g_hash_table_replace ( window_widget->properties, p->name, p );
+        // Padding
+        p = rofi_theme_property_create ( P_INTEGER );
+        p->name = g_strdup("padding");
+        p->value.i = config.padding;
+        g_hash_table_replace ( window_widget->properties, p->name, p );
+    }
+    {
         gchar **vals = g_strsplit ( config.color_window, ",", 3 );
         if ( vals != NULL ){
             if ( vals[0] != NULL ) {
                 Property *p = rofi_theme_convert_get_color ( vals[0], "background" );
-                g_hash_table_replace ( rofi_theme->properties, p->name, p );
-                p = rofi_theme_property_create ( P_INTEGER );
-                p->name = g_strdup("padding");
-                p->value.i = config.padding;
                 g_hash_table_replace ( rofi_theme->properties, p->name, p );
 
                 if ( vals[1] != NULL ) {

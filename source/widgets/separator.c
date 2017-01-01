@@ -30,7 +30,6 @@
 #include "widgets/widget-internal.h"
 #include "widgets/separator.h"
 #include "x11-helper.h"
-#include "settings.h"
 #include "theme.h"
 
 const char *SEPARATOR_CLASS_NAME = "@separator";

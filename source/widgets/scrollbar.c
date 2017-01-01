@@ -27,7 +27,6 @@
 #include <glib.h>
 #include "widgets/scrollbar.h"
 #include "x11-helper.h"
-#include "settings.h"
 
 #include "theme.h"
 
