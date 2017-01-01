@@ -8,6 +8,13 @@ AM_YFLAGS = -d
 noinst_LIBRARIES =
 include $(top_srcdir)/libgwater-xcb-nolibtool.mk
 
+
+BUILT_SOURCES=\
+			  lexer/theme-parser.h\
+			  lexer/theme-parser.c\
+			  lexer/theme-lexer.c
+
+
 ##
 # Rofi the program
 ##
