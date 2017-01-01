@@ -37,10 +37,10 @@ typedef struct
 
 typedef struct
 {
-    Distance left;
-    Distance right;
     Distance top;
+    Distance right;
     Distance bottom;
+    Distance left;
 } Padding;
 
 typedef struct {

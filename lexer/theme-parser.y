@@ -173,6 +173,16 @@ property
         $$->name = $1;
         $$->value.padding = (Padding){ $3, $3, $3, $3 };
 }
+|  pvalue PSEP T_PIXEL T_PIXEL PCLOSE {
+        $$ = rofi_theme_property_create ( P_PADDING );
+        $$->name = $1;
+        $$->value.padding = (Padding){ $3, $4, $3, $4 };
+}
+|  pvalue PSEP T_PIXEL T_PIXEL T_PIXEL PCLOSE {
+        $$ = rofi_theme_property_create ( P_PADDING );
+        $$->name = $1;
+        $$->value.padding = (Padding){ $3, $4, $5, $4 };
+}
 |  pvalue PSEP T_PIXEL T_PIXEL T_PIXEL T_PIXEL PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
