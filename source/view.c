@@ -657,7 +657,7 @@ void __create_window ( MenuFlags menu_flags )
  *
  * Calculate the width of the window and the width of an element.
  */
-static void rofi_view_calculate_window_and_element_width ( RofiViewState *state )
+static void rofi_view_calculate_window_width ( RofiViewState *state )
 {
     if ( config.fullscreen ) {
         state->width = CacheState.mon.w;
@@ -1437,8 +1437,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->main_box = box_create ( "mainbox.box", BOX_VERTICAL );
     window_add ( state->main_window, WIDGET ( state->main_box ) );
 
-    // we need this at this point so we can get height.
-    rofi_view_calculate_window_and_element_width ( state );
 
     state->input_bar = box_create ( "inputbar.box", BOX_HORIZONTAL );
     state->input_bar_separator = separator_create ( "inputbar.separator", S_HORIZONTAL, 2 );
@@ -1516,6 +1514,8 @@ RofiViewState *rofi_view_create ( Mode *sw,
     if ( (CacheState.flags&MENU_NORMAL_WINDOW) == MENU_NORMAL_WINDOW){
         config.fixed_num_lines = TRUE;
     }
+
+    rofi_view_calculate_window_width ( state );
     state->height = rofi_view_calculate_height ( state );
 
     // Move the window to the correct x,y position.
@@ -1545,7 +1545,6 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->menu_flags = MENU_ERROR_DIALOG;
     state->finalize   = process_result;
 
-    rofi_view_calculate_window_and_element_width ( state );
     state->main_window = window_create ( "window" );
     state->main_box = box_create ( "mainbox.box", BOX_VERTICAL);
     window_add ( state->main_window, WIDGET ( state->main_box ) );
@@ -1561,6 +1560,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     // resize window vertically to suit
     state->height = line_height + window_get_border_width ( state->main_window)+widget_padding_get_padding_height ( WIDGET(state->main_window) );
 
+    rofi_view_calculate_window_width ( state );
     // Calculte window position.
     rofi_view_calculate_window_position ( state );
 

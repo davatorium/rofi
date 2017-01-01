@@ -98,6 +98,8 @@ rofi.window-format:                  w   c   t
 ! rofi.click-to-exit:                  true
 ! "Indicate how it match by underlining it." Set from: Default
 ! rofi.show-match:                     true
+! "New style theme file" Set from: Default
+! rofi.theme:                          
 ! "Pidfile location" Set from: File
 rofi.pid:                            /tmp/rofi.pid
 ! "Paste primary selection" Set from: File
