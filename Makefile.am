@@ -293,7 +293,7 @@ box_test_SOURCES=\
 			lexer/theme-parser.y\
 			lexer/theme-lexer.l\
 			source/theme.c\
-			inlucde/theme.h\
+			include/theme.h\
 			test/box-test.c
 
 scrollbar_test_LDADD=$(textbox_test_LDADD)
@@ -304,7 +304,7 @@ scrollbar_test_SOURCES=\
 			lexer/theme-parser.y\
 			lexer/theme-lexer.l\
 			source/theme.c\
-			inlucde/theme.h\
+			include/theme.h\
 			test/scrollbar-test.c
 
 textbox_test_SOURCES=\
