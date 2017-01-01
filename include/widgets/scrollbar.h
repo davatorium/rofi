@@ -63,6 +63,12 @@ void scrollbar_set_max_value ( scrollbar *sb, unsigned int max );
  */
 unsigned int scrollbar_clicked ( const scrollbar *sb, int y );
 
+/**
+ * @param sb scrollbar object
+ * @param width width of the scrollbar
+ *
+ * Set the width of the scrollbar handle.
+ */
 void scrollbar_set_width ( scrollbar *sb, int width );
 /*@}*/
 #endif // ROFI_SCROLLBAR_H

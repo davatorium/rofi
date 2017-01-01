@@ -32,8 +32,11 @@
 #include "theme.h"
 
 #define LOG_DOMAIN    "Widgets.Box"
+
+/** Class name of box widget */
 const char *BOX_CLASS_NAME = "@box";
 
+/** Default spacing used in the box*/
 #define DEFAULT_SPACING  2
 
 /**

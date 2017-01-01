@@ -196,6 +196,12 @@ int textbox_get_font_width ( const textbox *tb );
  * @returns the width of a character in pixels.
  */
 double textbox_get_estimated_char_width ( void );
+
+/**
+ * Estimate the height of a character.
+ *
+ * @returns the height of a character in pixels.
+ */
 double textbox_get_estimated_char_height ( void  );
 
 /**
@@ -255,6 +261,5 @@ PangoAttrList *textbox_get_pango_attributes ( textbox *tb );
  * @returns the visible text.
  */
 const char *textbox_get_visible_text ( const textbox *tb );
-int distance_get_pixel ( Distance d );
 /*@}*/
 #endif //ROFI_TEXTBOX_H

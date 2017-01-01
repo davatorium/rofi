@@ -213,8 +213,6 @@ void widget_set_name ( widget *wid, const char *name )
     wid->name = g_strdup ( name );
 }
 
-// External
-double textbox_get_estimated_char_height ( void );
 int widget_padding_get_left ( const widget *wid )
 {
     return distance_get_pixel ( wid->pad.left );

@@ -127,9 +127,15 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
     return tb;
 }
 
+/**
+ * State names used for theming.
+ */
 const char const *const theme_prop_names[][3] = {
+    /** Normal row */
     {"normal.normal", "selected.normal", "alternate.normal"},
+    /** Urgent row */
     {"normal.urgent", "selected.urgent", "alternate.urgent"},
+    /** Active row */
     {"normal.active", "selected.active", "alternate.active"},
 };
 
@@ -758,6 +764,7 @@ int textbox_get_font_width ( const textbox *tb )
     return width;
 }
 
+/** Caching for the expected character height. */
 static double char_height = -1;
 double textbox_get_estimated_char_height ( void )
 {
@@ -768,6 +775,7 @@ double textbox_get_estimated_char_height ( void )
     return char_height;
 }
 
+/** Caching for the expected character width. */
 static double char_width = -1;
 double textbox_get_estimated_char_width ( void )
 {

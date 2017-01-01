@@ -16,7 +16,7 @@
 
 #include "theme.h"
 #include "lexer/theme-parser.h"
-Widget *rofi_theme = NULL;
+ThemeWidget *rofi_theme = NULL;
 void yyerror(YYLTYPE *yylloc, const char* s);
 int yylex (YYSTYPE *, YYLTYPE *);
 %}
@@ -27,7 +27,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
     char          *sval;
     int           bval;
     ThemeColor    colorval;
-    Widget        *theme;
+    ThemeWidget        *theme;
     GList         *name_path;
     Property      *property;
     GHashTable    *property_list;
@@ -79,7 +79,7 @@ start:
 entries:
   %empty {
         // There is always a base widget.
-        $$ =  rofi_theme = (Widget*)g_malloc0 (sizeof(Widget));
+        $$ =  rofi_theme = (ThemeWidget*)g_malloc0 (sizeof(ThemeWidget));
         rofi_theme->name = g_strdup ( "Root" );
   }
 |  entries
@@ -94,7 +94,7 @@ entry:
 CLASS_PREFIX class_name state_path BOPEN optional_properties BCLOSE
 {
         gchar *classn = g_strconcat ( "@", $2, NULL);
-        Widget *widget = rofi_theme_find_or_create_class ( rofi_theme , classn );
+        ThemeWidget *widget = rofi_theme_find_or_create_class ( rofi_theme , classn );
         g_free(classn);
         widget->set = TRUE;
         for ( GList *iter = g_list_first ( $3 ); iter ; iter = g_list_next ( iter ) ) {
@@ -107,7 +107,7 @@ CLASS_PREFIX class_name state_path BOPEN optional_properties BCLOSE
 }
 | NAME_PREFIX name_path state_path BOPEN optional_properties BCLOSE
 {
-        Widget *widget = rofi_theme;
+        ThemeWidget *widget = rofi_theme;
         for ( GList *iter = g_list_first ( $2 ); iter ; iter = g_list_next ( iter ) ) {
             widget = rofi_theme_find_or_create_class ( widget, iter->data );
         }

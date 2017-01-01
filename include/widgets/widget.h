@@ -175,7 +175,22 @@ void widget_set_clicked_handler ( widget *wid, widget_clicked_cb cb, void *udata
 gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
 
 
+/**
+ * @param wid The widget handle
+ * @param name The name of the widget.
+ *
+ * Set name on widget.
+ */
 void widget_set_name ( widget *wid, const char *name );
+
+/**
+ * @param wid The widget handle
+ *
+ * Get the desired height of this widget recursively.
+ *
+ * @returns the desired height of the widget in pixels.
+ */
 int widget_get_desired_height ( widget *wid );
+
 /*@}*/
 #endif // ROFI_WIDGET_H

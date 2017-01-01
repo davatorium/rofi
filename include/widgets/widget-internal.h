@@ -57,15 +57,90 @@ struct _widget
     const char *state;
 };
 
+/**
+ * @param widget The widget to initialize.
+ * @param name The name of the widget.
+ * @param class The class of the widget.
+ *
+ * Initializes the @widget structure.
+ *
+ */
 void widget_init ( widget *widget , const char *name, const char *class_name );
+
+/**
+ * @param widget The widget handle.
+ * @param state  The state of the widget.
+ *
+ * Set the state of the widget.
+ */
 void widget_set_state ( widget *widget, const char *state );
 
+/**
+ * @param wid The widget handle.
+ *
+ * Get the left padding of the widget.
+ *
+ * @returns the left padding in pixels.
+ */
 int widget_padding_get_left ( const widget *wid );
+
+/**
+ * @param wid The widget handle.
+ *
+ * Get the right padding of the widget.
+ *
+ * @returns the right padding in pixels.
+ */
 int widget_padding_get_right ( const widget *wid );
+
+/**
+ * @param wid The widget handle.
+ *
+ * Get the top padding of the widget.
+ *
+ * @returns the top padding in pixels.
+ */
 int widget_padding_get_top ( const widget *wid );
+
+/**
+ * @param wid The widget handle.
+ *
+ * Get the bottom padding of the widget.
+ *
+ * @returns the bottom padding in pixels.
+ */
 int widget_padding_get_bottom ( const widget *wid );
+
+/**
+ * @param wid The widget handle.
+ *
+ * Get width of the content of the widget 
+ *
+ * @returns the widget width, excluding padding. 
+ */
 int widget_padding_get_remaining_width ( const widget *wid );
+/**
+ * @param wid The widget handle.
+ *
+ * Get height of the content of the widget 
+ *
+ * @returns the widget height, excluding padding. 
+ */
 int widget_padding_get_remaining_height ( const widget *wid );
+/**
+ * @param wid The widget handle.
+ *
+ * Get the combined top and bottom padding.
+ *
+ * @returns the top and bottom padding of the widget in pixels.
+ */
 int widget_padding_get_padding_height ( const widget *wid );
+/**
+ * @param wid The widget handle.
+ *
+ * Get the combined left and right padding.
+ *
+ * @returns the left and right padding of the widget in pixels.
+ */
 int widget_padding_get_padding_width ( const widget *wid );
 #endif // WIDGET_INTERNAL_H

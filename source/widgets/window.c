@@ -33,7 +33,9 @@
 
 #define LOG_DOMAIN    "Widgets.Window"
 
+/** The default border width of the window */
 #define DEFAULT_BORDER_WIDTH 2
+/** The class name of the window */
 const char *WINDOW_CLASS_NAME = "@window";
 
 /**

@@ -24,7 +24,7 @@ struct RofiViewState
 
     /** Flag indicating if view needs to be refiltered. */
     int              refilter;
-
+    /** Widget representing the main window. */
     window           *main_window;
     /** Main #box widget holding different elements. */
     box              *main_box;
