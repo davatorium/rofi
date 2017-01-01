@@ -44,6 +44,8 @@ void widget_resize ( widget *widget, short w, short h )
             widget->w = w;
             widget->h = h;
         }
+        // On a resize we always want to udpate.
+        widget_queue_redraw ( widget );
     }
 }
 void widget_move ( widget *widget, short x, short y )
