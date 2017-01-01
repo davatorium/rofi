@@ -18,7 +18,6 @@ typedef struct _window   window;
 
 /**
  * @param name The name of the widget.
- * @param type The packing direction of the newly created window.
  *
  * @returns a newly created window, free with #widget_free
  */

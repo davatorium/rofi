@@ -138,7 +138,7 @@ void rofi_theme_property_free ( Property *p );
  *
  * Free the widget and alll children.
  */
-void rofi_theme_free ( ThemeWidget * );
+void rofi_theme_free ( ThemeWidget *wid );
 
 /**
  * @param file filename to parse. 
@@ -229,11 +229,10 @@ double rofi_theme_get_double ( const char *wclass,  const char *name, const char
  * @param name     The name class
  * @param state    The widget current state
  * @param property The property to query.
- * @param def      The default value.
+ * @param d        The drawable to apply color. 
  *
- * Obtain the color of the widget.
+ * Obtain the color of the widget and applies this to the drawable d.
  *
- * @returns The color value of this property for this widget. 
  */
 void rofi_theme_get_color ( const char *wclass, const char  *name, const char *state, const char *property, cairo_t *d);
 
@@ -242,7 +241,7 @@ void rofi_theme_get_color ( const char *wclass, const char  *name, const char *s
  * @param name     The name class
  * @param state    The widget current state
  * @param property The property to query.
- * @param def      The default value.
+ * @param pad      The default value.
  *
  * Obtain the padding of the widget.
  *

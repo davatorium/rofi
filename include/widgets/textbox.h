@@ -86,6 +86,7 @@ typedef enum
 } TextBoxFontType;
 
 /**
+ * @param name The name of the to be created widget.
  * @param flags #TextboxFlags indicating the type of textbox.
  * @param tbft #TextBoxFontType current state of textbox.
  * @param text intial text to display.
@@ -227,7 +228,10 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
 
 /**
  * @param tb Handle to the textbox
+ * @param eh The number of rows to display
+ *
  * Get the (estimated) with of a character, can be used to calculate window width.
+ * This includes padding.
  *
  * @returns the estimated width of a character.
  */

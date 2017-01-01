@@ -66,6 +66,7 @@
 #include "xcb.h"
 /**
  * @param state The handle to the view
+ * @param qr    Indicate if queue_redraw should be called on changes.
  *
  * Update the state of the view. This involves filter state.
  */

@@ -60,9 +60,9 @@ struct _widget
 /**
  * @param widget The widget to initialize.
  * @param name The name of the widget.
- * @param class The class of the widget.
+ * @param class_name The name of the class of the widget.
  *
- * Initializes the @widget structure.
+ * Initializes the widget structure.
  *
  */
 void widget_init ( widget *widget , const char *name, const char *class_name );
