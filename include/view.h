@@ -111,12 +111,6 @@ unsigned int rofi_view_get_selected_line ( const RofiViewState *state );
  */
 void rofi_view_restart ( RofiViewState *state );
 
-/**
- * @param state The handle to the view
- *
- * Update the state of the view. This involves filter state.
- */
-void rofi_view_update ( RofiViewState *state );
 
 /**
  * @param state The handle to the view

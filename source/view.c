@@ -64,6 +64,12 @@
 #define LOG_DOMAIN    "View"
 
 #include "xcb.h"
+/**
+ * @param state The handle to the view
+ *
+ * Update the state of the view. This involves filter state.
+ */
+void rofi_view_update ( RofiViewState *state, gboolean qr );
 
 static int rofi_view_calculate_height ( RofiViewState *state );
 
@@ -202,6 +208,8 @@ static void menu_capture_screenshot ( void )
 static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
 {
     if ( current_active_menu  ) {
+        // Repaint the view (if needed).
+        rofi_view_update (current_active_menu, FALSE);
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "expose event" );
         TICK_N ( "Expose" );
         xcb_copy_area ( xcb->connection, CacheState.edit_pixmap, CacheState.main_window, CacheState.gc,
@@ -771,7 +779,7 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
     }
 }
 
-void rofi_view_update ( RofiViewState *state )
+void rofi_view_update ( RofiViewState *state, gboolean qr )
 {
     if ( !widget_need_redraw ( WIDGET ( state->main_window ) ) && !widget_need_redraw ( WIDGET ( state->overlay ) )  ) {
         return;
@@ -807,7 +815,9 @@ void rofi_view_update ( RofiViewState *state )
     }
     TICK_N ( "widgets" );
     cairo_surface_flush ( CacheState.edit_surf );
-    rofi_view_queue_redraw ();
+    if ( qr ) {
+        rofi_view_queue_redraw ();
+    }
 }
 
 /**
@@ -1335,7 +1345,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
     if ( state->refilter ) {
         rofi_view_refilter ( state );
     }
-    rofi_view_update ( state );
+    rofi_view_update ( state, TRUE );
 
     if ( ( ev->response_type & ~0x80 ) == XCB_EXPOSE && CacheState.repaint_source == 0 ) {
         CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
@@ -1516,7 +1526,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->quit = FALSE;
     rofi_view_refilter ( state );
 
-    rofi_view_update ( state );
+    rofi_view_update ( state, TRUE );
     xcb_map_window ( xcb->connection, CacheState.main_window );
     widget_queue_redraw ( WIDGET ( state->main_window ) );
     xcb_flush ( xcb->connection );
@@ -1697,7 +1707,7 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
     state->reload   = TRUE;
     state->refilter = TRUE;
     rofi_view_refilter ( state );
-    rofi_view_update ( state );
+    rofi_view_update ( state, TRUE );
 }
 
 xcb_window_t rofi_view_get_window ( void )
