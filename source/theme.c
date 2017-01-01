@@ -204,19 +204,6 @@ void rofi_theme_widget_add_properties ( Widget *widget, GHashTable *table )
  * Public API
  */
 
-void rofi_theme_parse_file ( const char *file )
-{
-    char *filename = rofi_expand_path ( file );
-    yyin = fopen ( filename, "rb");
-    if ( yyin == NULL ){
-        fprintf(stderr, "Failed to open file: %s: '%s'\n", filename, strerror ( errno ) );
-        g_free(filename);
-        return;
-    }
-    while ( yyparse() );
-    yylex_destroy();
-    g_free(filename);
-}
 static Widget *rofi_theme_find_single ( Widget *widget, const char *name)
 {
     for ( unsigned int j = 0; j < widget->num_widgets;j++){
@@ -366,7 +353,6 @@ Padding rofi_theme_get_padding ( const char *wclass, const char  *name, const ch
     }
     return pad;
 }
-
 int distance_get_pixel ( Distance d )
 {
     if ( d.type == PW_EM ){
@@ -374,6 +360,8 @@ int distance_get_pixel ( Distance d )
     }
     return d.distance;
 }
+
+#ifdef THEME_CONVERTER
 
 static Property* rofi_theme_convert_get_color ( const char *color, const char *name )
 {
@@ -540,3 +528,17 @@ void rofi_theme_convert_old_theme ( void )
         }
     }
 }
+void rofi_theme_parse_file ( const char *file )
+{
+    char *filename = rofi_expand_path ( file );
+    yyin = fopen ( filename, "rb");
+    if ( yyin == NULL ){
+        fprintf(stderr, "Failed to open file: %s: '%s'\n", filename, strerror ( errno ) );
+        g_free(filename);
+        return;
+    }
+    while ( yyparse() );
+    yylex_destroy();
+    g_free(filename);
+}
+#endif

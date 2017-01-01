@@ -24,11 +24,6 @@ unsigned int normal_window_mode = 0;
 void rofi_view_queue_redraw ()
 {
 }
-Color color_get ( G_GNUC_UNUSED const char *name )
-{
-    Color retv = { 1.0, 1.0, 1.0, 1.0 };
-    return retv;
-}
 
 int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
 {
@@ -53,8 +48,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     PangoContext    *p    = pango_cairo_create_context ( draw );
     textbox_set_pango_context ( p );
 
-    textbox *box = textbox_create ( "textbox", TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, 0, 0, -1, -1,
-                                    NORMAL, "test" );
+    textbox *box = textbox_create ( "textbox", TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "test" );
     TASSERT ( box != NULL );
 
     textbox_keybinding ( box, MOVE_END );

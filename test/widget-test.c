@@ -12,7 +12,15 @@ unsigned int test =0;
         assert ( a );                                     \
         printf ( "Test %3i passed (%s)\n", ++test, # a ); \
 }
+void rofi_view_queue_redraw ( void )
+{
 
+}
+int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
+{
+    fputs ( msg, stderr );
+    return FALSE;
+}
 
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {

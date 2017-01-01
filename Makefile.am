@@ -96,7 +96,8 @@ rofi_CFLAGS=\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/\
 	-Werror=missing-prototypes\
-	-DSYSCONFDIR=\"$(sysconfdir)\"
+	-DSYSCONFDIR=\"$(sysconfdir)\"\
+	-DTHEME_CONVERTER
 
 rofi_LDADD=\
 	$(glib_LIBS)\
@@ -268,6 +269,13 @@ widget_test_LDADD=$(textbox_test_LDADD)
 widget_test_CFLAGS=$(textbox_test_CFLAGS)
 widget_test_SOURCES=\
 			source/widgets/widget.c\
+			source/widgets/textbox.c\
+			source/theme.c\
+			source/helper.c\
+			source/x11-helper.c\
+			config/config.c\
+			lexer/theme-parser.y\
+			lexer/theme-lexer.l\
 			test/widget-test.c
 
 box_test_LDADD=$(textbox_test_LDADD)
@@ -298,6 +306,8 @@ textbox_test_SOURCES=\
 	lexer/theme-parser.y\
 	lexer/theme-lexer.l\
 	source/theme.c\
+	source/helper.c\
+	source/x11-helper.c\
 	config/config.c\
 	include/keyb.h\
 	include/rofi.h\
