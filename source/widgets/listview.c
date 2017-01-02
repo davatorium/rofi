@@ -469,7 +469,9 @@ static int listview_get_desired_height ( widget *wid )
     if ( h == 0 ) {
         return widget_padding_get_padding_height ( WIDGET (lv) );
     }
-    return h * lv->element_height + ( h - 1 ) * lv->spacing+widget_padding_get_padding_height ( WIDGET (lv) );
+    int height = widget_padding_get_padding_height ( WIDGET (lv) );
+    height += h*(lv->element_height+lv->spacing)  - lv->spacing;
+    return height;
 }
 
 void listview_set_show_scrollbar ( listview *lv, gboolean enabled )
