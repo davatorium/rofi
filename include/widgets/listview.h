@@ -168,6 +168,21 @@ void listview_set_mouse_activated_cb ( listview *lv, listview_mouse_activated_cb
  * Enable,disable multi-select.
  */
 void listview_set_multi_select ( listview *lv, gboolean enable );
+/**
+ * @param lv Handler to the listview object.
+ * @param num_lines the maximum number of lines to display.
+ *
+ * Set the maximum number of lines to display.
+ */
+void listview_set_num_lines ( listview *lv, unsigned int num_lines );
+
+/**
+ * @param lv Handler to the listview object.
+ * @param max_lines the maximum number of lines to display.
+ *
+ * Set the maximum number of lines to display.
+ */
+void listview_set_max_lines ( listview *lv, unsigned int max_lines );
 /* @} */
 
 #endif // ROFI_LISTVIEW_H

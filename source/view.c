@@ -308,6 +308,7 @@ static void rofi_view_window_update_size ( RofiViewState * state )
     CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
     CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
 
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Re-size window based internal request: %dx%d.", state->width, state->height );
     // Should wrap main window in a widget.
     widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
 }
@@ -888,6 +889,7 @@ static void _rofi_view_reload_row ( RofiViewState *state )
     state->num_lines = mode_get_num_entries ( state->sw );
     state->line_map  = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
     state->distance  = g_malloc0_n ( state->num_lines, sizeof ( int ) );
+    listview_set_max_lines ( state->list_view, state->num_lines );
 }
 
 static void rofi_view_refilter ( RofiViewState *state )
@@ -971,7 +973,9 @@ static void rofi_view_refilter ( RofiViewState *state )
         state->retv              = MENU_OK;
         state->quit              = TRUE;
     }
-    if ( config.fixed_num_lines == FALSE && ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
+
+    // Make sure we enable fixed num lines when in normal window mode.
+    if ( (CacheState.flags&MENU_NORMAL_WINDOW) == 0 ){
         int height = rofi_view_calculate_height ( state );
         if ( height != state->height ) {
             state->height = height;
@@ -1269,6 +1273,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
 
                 CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
                 CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
+                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Re-size window based external request: %d %d\n", state->width, state->height);
                 widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
             }
         }
@@ -1494,40 +1499,26 @@ RofiViewState *rofi_view_create ( Mode *sw,
     listview_set_multi_select ( state->list_view, ( state->menu_flags & MENU_INDICATOR ) == MENU_INDICATOR );
     listview_set_scroll_type ( state->list_view, config.scroll_method );
     listview_set_mouse_activated_cb ( state->list_view, rofi_view_listview_mouse_activated_cb, state );
+    listview_set_num_lines ( state->list_view, config.menu_lines );
+    listview_set_max_lines ( state->list_view, state->num_lines );
 
     box_add ( state->main_box, WIDGET ( state->list_view ), TRUE, FALSE );
-
-
-
-    // Height of a row.
-    if ( config.menu_lines == 0 || config.fullscreen  ) {
-        state->height = CacheState.mon.h;
-        // Autosize it.
-        config.fixed_num_lines = TRUE;
-    }
 
     // filtered list
     state->line_map = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
     state->distance = (int *) g_malloc0_n ( state->num_lines, sizeof ( int ) );
 
-    // Make sure we enable fixed num lines when in normal window mode.
-    if ( (CacheState.flags&MENU_NORMAL_WINDOW) == MENU_NORMAL_WINDOW){
-        config.fixed_num_lines = TRUE;
-    }
-
     rofi_view_calculate_window_width ( state );
-    state->height = rofi_view_calculate_height ( state );
-
+    // Only needed when window is fixed size.
+    if (( CacheState.flags & MENU_NORMAL_WINDOW ) == MENU_NORMAL_WINDOW ) {
+        config.fixed_num_lines = TRUE;
+        rofi_view_window_update_size ( state );
+    }
     // Move the window to the correct x,y position.
     rofi_view_calculate_window_position ( state );
 
-    rofi_view_window_update_size ( state );
-    // Update.
-    //state->selected = 0;
-
     state->quit = FALSE;
     rofi_view_refilter ( state );
-
     rofi_view_update ( state, TRUE );
     xcb_map_window ( xcb->connection, CacheState.main_window );
     widget_queue_redraw ( WIDGET ( state->main_window ) );

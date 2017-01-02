@@ -58,6 +58,7 @@ struct _listview
 
     unsigned int                spacing;
     unsigned int                menu_lines;
+    unsigned int                max_displayed_lines;
     unsigned int                menu_columns;
     unsigned int                fixed_num_lines;
     unsigned int                eh;
@@ -352,7 +353,6 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
 
     // Some settings.
     lv->spacing      =    distance_get_pixel (rofi_theme_get_distance (lv->widget.class_name, lv->widget.name, NULL,  "spacing", DEFAULT_SPACING ));
-    lv->menu_lines   =    rofi_theme_get_integer (lv->widget.class_name, lv->widget.name, NULL,  "lines",   config.menu_lines );
     lv->menu_columns =    rofi_theme_get_integer (lv->widget.class_name, lv->widget.name, NULL,  "columns", config.menu_columns);
     lv->fixed_num_lines = rofi_theme_get_boolean (lv->widget.class_name, lv->widget.name, NULL,  "fixed-height", config.fixed_num_lines );
     listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( lv->widget.class_name, lv->widget.name, NULL, "scrollbar", !config.hide_scrollbar ));
@@ -509,5 +509,17 @@ void listview_set_multi_select ( listview *lv, gboolean enable )
 {
     if ( lv ) {
         lv->multi_select = enable;
+    }
+}
+void listview_set_num_lines ( listview *lv, unsigned int num_lines )
+{
+    if ( lv ) {
+        lv->menu_lines = num_lines;
+    }
+}
+void listview_set_max_lines ( listview *lv, unsigned int max_lines )
+{
+    if ( lv ) {
+        lv->max_displayed_lines = max_lines;
     }
 }
