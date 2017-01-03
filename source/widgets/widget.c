@@ -107,7 +107,7 @@ void widget_draw ( widget *widget, cairo_t *d )
         cairo_paint( d ) ;
 
         // Set new x/y possition.
-        cairo_translate ( d, widget->x+margin_left, widget->y+margin_top );
+        cairo_translate ( d, widget->x, widget->y);
 
         int left = distance_get_pixel ( widget->border.left, ORIENTATION_HORIZONTAL );
         int top  = distance_get_pixel ( widget->border.top, ORIENTATION_HORIZONTAL );
@@ -116,33 +116,26 @@ void widget_draw ( widget *widget, cairo_t *d )
         rofi_theme_get_color ( widget->class_name, widget->name, widget->state, "foreground", d );
         if ( left > 0 ) {
             cairo_set_line_width ( d, left );
-            cairo_move_to ( d, left/2.0, 0 );
-            cairo_line_to ( d, left/2.0, widget->h-margin_bottom-bottom-margin_top);
+            cairo_move_to ( d, margin_left + left/2.0, margin_top );
+            cairo_line_to ( d, margin_left + left/2.0, widget->h-margin_bottom);
             cairo_stroke ( d );
         }
         if ( right > 0 ) {
             cairo_set_line_width ( d, right );
-            cairo_move_to ( d,
-                    widget->w - margin_right -margin_left- right/2.0, 0 );
-            cairo_line_to ( d,
-                    widget->w - margin_right -margin_left- right/2.0,
-                    widget->h-margin_bottom-bottom-margin_top );
+            cairo_move_to ( d, widget->w - margin_right - right/2.0, 0 );
+            cairo_line_to ( d, widget->w - margin_right - right/2.0, widget->h-margin_bottom );
             cairo_stroke ( d );
         }
         if ( top > 0 ) {
             cairo_set_line_width ( d, top );
-            cairo_move_to ( d, 0,         top/2.0 );
-            cairo_line_to ( d, widget->w-margin_right-margin_left-right, top/2.0 );
+            cairo_move_to ( d, margin_left,margin_top+ top/2.0 );
+            cairo_line_to ( d, widget->w-margin_right, margin_top+top/2.0 );
             cairo_stroke ( d );
         }
         if ( bottom > 0 ) {
             cairo_set_line_width ( d, bottom );
-            cairo_move_to ( d,
-                    0,
-                    widget->h-bottom/2.0-margin_bottom-margin_top);
-            cairo_line_to ( d,
-                    widget->w-margin_right-margin_left-right,
-                    widget->h-bottom/2.0-margin_bottom-margin_top);
+            cairo_move_to ( d, margin_left, widget->h-bottom/2.0-margin_bottom);
+            cairo_line_to ( d, widget->w-margin_right, widget->h-bottom/2.0-margin_bottom);
             cairo_stroke ( d );
         }
 
