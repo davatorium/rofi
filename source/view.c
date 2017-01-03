@@ -108,7 +108,7 @@ struct
     /** timeout for reloading */
     guint           idle_timeout;
     /** debug counter for redraws */
-    uint64_t        count;
+    unsigned long long count;
     /** redraw idle time. */
     guint           repaint_source;
 } CacheState = {
@@ -335,7 +335,7 @@ void rofi_view_queue_redraw ( void  )
 {
     if ( current_active_menu && CacheState.repaint_source == 0 ) {
         CacheState.count++;
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "redraw %lu", CacheState.count );
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "redraw %llu", CacheState.count );
         CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
     }
 }
