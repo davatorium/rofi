@@ -27,6 +27,10 @@ int textbox_get_estimated_char_height ( void )
 {
     return 16;
 }
+void rofi_view_get_current_monitor ( int *width, int *height )
+{
+
+}
 
 
 static gboolean test_widget_clicked ( G_GNUC_UNUSED widget *wid, G_GNUC_UNUSED xcb_button_press_event_t* xce, G_GNUC_UNUSED void *data )

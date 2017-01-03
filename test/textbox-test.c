@@ -24,7 +24,10 @@ unsigned int normal_window_mode = 0;
 void rofi_view_queue_redraw ()
 {
 }
+void rofi_view_get_current_monitor ( int *width, int *height )
+{
 
+}
 int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
 {
     fputs ( msg, stderr );
