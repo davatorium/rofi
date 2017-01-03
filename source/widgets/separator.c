@@ -1,6 +1,6 @@
 /**
  *   MIT/X11 License
- *   Modified  (c) 2016 Qball Cow <qball@gmpclient.org>
+ *   Modified  (c) 2017 Qball Cow <qball@gmpclient.org>
  *
  *   Permission is hereby granted, free of charge, to any person obtaining
  *   a copy of this software and associated documentation files (the
