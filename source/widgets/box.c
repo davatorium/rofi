@@ -39,21 +39,13 @@ const char *BOX_CLASS_NAME = "@box";
 /** Default spacing used in the box*/
 #define DEFAULT_SPACING  2
 
-/**
- * @param box Handle to the box widget.
- * @param spacing The spacing to apply.
- *
- * Set the spacing to apply between the children in pixels.
- */
-void box_set_spacing ( box * box, unsigned int spacing );
-
 struct _box
 {
     widget  widget;
     boxType type;
     int     max_size;
     // Padding between elements
-    int     spacing;
+    Distance spacing;
 
     GList   *children;
 };
@@ -63,6 +55,7 @@ static void box_update ( widget *wid  );
 static int box_get_desired_height ( widget *wid )
 {
     box *b = (box *)wid;
+    int spacing = distance_get_pixel ( b->spacing );
     int active_widgets = 0;
     int height = 0;
     if ( b->type == BOX_VERTICAL ){
@@ -79,7 +72,7 @@ static int box_get_desired_height ( widget *wid )
             height += widget_get_desired_height ( child );
         }
         if ( active_widgets > 0 ){
-            height += (active_widgets - 1)*b->spacing;
+            height += (active_widgets - 1)*spacing;
         }
     } else {
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
@@ -97,6 +90,7 @@ static int box_get_desired_height ( widget *wid )
 
 static void vert_calculate_size ( box *b )
 {
+    int spacing = distance_get_pixel ( b->spacing );
     int expanding_widgets = 0;
     int active_widgets    = 0;
     int rem_width = widget_padding_get_remaining_width ( WIDGET (b) );
@@ -123,7 +117,7 @@ static void vert_calculate_size ( box *b )
         }
     }
     if ( active_widgets > 0 ){
-        b->max_size += ( active_widgets - 1 ) * b->spacing;
+        b->max_size += ( active_widgets - 1 ) * spacing;
     }
     if ( b->max_size > rem_height ) {
         b->max_size = rem_height;
@@ -147,13 +141,13 @@ static void vert_calculate_size ( box *b )
                     bottom -= expanding_widgets_size;
                     widget_move ( child, widget_padding_get_left ( WIDGET ( b ) ), bottom );
                     widget_resize ( child, rem_width, expanding_widgets_size );
-                    bottom -= b->spacing;
+                    bottom -= spacing;
                 }
                 else {
                     widget_move ( child, widget_padding_get_left ( WIDGET ( b ) ), top );
                     top += expanding_widgets_size;
                     widget_resize ( child, rem_width, expanding_widgets_size );
-                    top += b->spacing;
+                    top += spacing;
                 }
                 rem -= expanding_widgets_size;
                 index++;
@@ -162,12 +156,12 @@ static void vert_calculate_size ( box *b )
             else if ( child->end ) {
                 bottom -= widget_get_height (  child );
                 widget_move ( child, widget_padding_get_left ( WIDGET ( b ) ), bottom );
-                bottom -= b->spacing;
+                bottom -= spacing;
             }
             else {
                 widget_move ( child, widget_padding_get_left ( WIDGET ( b ) ), top );
                 top += widget_get_height (  child );
-                top += b->spacing;
+                top += spacing;
             }
         }
     }
@@ -175,6 +169,7 @@ static void vert_calculate_size ( box *b )
 }
 static void hori_calculate_size ( box *b )
 {
+    int spacing = distance_get_pixel ( b->spacing );
     int expanding_widgets = 0;
     int active_widgets    = 0;
     int rem_width = widget_padding_get_remaining_width ( WIDGET (b) );
@@ -201,7 +196,7 @@ static void hori_calculate_size ( box *b )
         b->max_size += child->w;
         }
     }
-    b->max_size += MAX ( 0, ( ( active_widgets - 1 ) * b->spacing ) );
+    b->max_size += MAX ( 0, ( ( active_widgets - 1 ) * spacing ) );
     if ( b->max_size > (rem_width)) {
         b->max_size = rem_width;
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Widgets to large (width) for box: %d %d", b->max_size, b->widget.w );
@@ -224,13 +219,13 @@ static void hori_calculate_size ( box *b )
                     right -= expanding_widgets_size;
                     widget_move ( child, right, widget_padding_get_top ( WIDGET ( b ) ));
                     widget_resize ( child, expanding_widgets_size, rem_height );
-                    right -= b->spacing;
+                    right -= spacing;
                 }
                 else {
                     widget_move ( child, left, widget_padding_get_top ( WIDGET ( b ) ) );
                     left += expanding_widgets_size;
                     widget_resize ( child, expanding_widgets_size, rem_height );
-                    left += b->spacing;
+                    left += spacing;
                 }
                 rem -= expanding_widgets_size;
                 index++;
@@ -239,12 +234,12 @@ static void hori_calculate_size ( box *b )
             else if ( child->end ) {
                 right -= widget_get_width (  child );
                 widget_move ( child, right, widget_padding_get_top ( WIDGET ( b ) ) );
-                right -= b->spacing;
+                right -= spacing;
             }
             else {
                 widget_move ( child, left, widget_padding_get_top ( WIDGET ( b ) ) );
                 left += widget_get_width (  child );
-                left += b->spacing;
+                left += spacing;
             }
         }
     }
@@ -354,7 +349,7 @@ box * box_create ( const char *name, boxType type )
     b->widget.get_desired_height = box_get_desired_height;
     b->widget.enabled             = TRUE;
 
-    box_set_spacing ( b, distance_get_pixel (rofi_theme_get_distance ( b->widget.class_name, b->widget.name, NULL, "spacing",DEFAULT_SPACING )));
+    b->spacing = rofi_theme_get_distance ( b->widget.class_name, b->widget.name, NULL, "spacing",DEFAULT_SPACING );
     return b;
 }
 
@@ -374,16 +369,7 @@ static void box_update ( widget *wid  )
 int box_get_fixed_pixels ( box *box )
 {
     if ( box != NULL ) {
-        printf("max size: %d\n", box->max_size);
         return box->max_size;
     }
     return 0;
-}
-
-void box_set_spacing ( box * box, unsigned int spacing )
-{
-    if ( box != NULL ) {
-        box->spacing = spacing;
-        widget_queue_redraw ( WIDGET ( box ) );
-    }
 }

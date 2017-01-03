@@ -131,17 +131,18 @@ Each property is closed by a semi-colon `;`;
 
 The following properties are currently supports:
 
+ * all widgets:
+    * spacing:         distance
+    * padding:         distance
+    * padding:         distance distance
+    * padding:         distance distance distance
+    * padding:         distance distance distance distance
+
  * window:
     * font:            string
     * background:      color
     * foreground:      color
     * border-width:    integer
-    * spacing:         integer
-    * padding:         integer
-    * padding-left:    integer
-    * padding-right:   integer
-    * padding-top:     integer
-    * padding-bottom:  integer
     * transparency:    string
         - real
         - background
@@ -156,22 +157,15 @@ The following properties are currently supports:
     * foreground:      color
 
   * box
-    * spacing:         integer
-    * padding:         integer
-    * padding-left:    integer
-    * padding-right:   integer
-    * padding-top:     integer
-    * padding-bottom:  integer
 
  * textbox:
    *  background:      color
    *  foreground:      color
 
   * listview:
-    * spacing:         integer
-    * lines:           integer
     * columns:         integer
     * fixed-height:    boolean
+    * dynamic:         boolean
     * scrollbar:       boolean
     * scrollbar-width: integer
     * cycle:           boolean

@@ -421,6 +421,14 @@ void rofi_theme_convert_old_theme ( void )
         p->name = g_strdup("spacing");
         p->value.i = config.padding;
         g_hash_table_replace ( listview_widget->properties, p->name, p );
+        p = rofi_theme_property_create ( P_INTEGER );
+        p->name = g_strdup("columns");
+        p->value.i = config.padding;
+        g_hash_table_replace ( listview_widget->properties, p->name, p );
+        p = rofi_theme_property_create ( P_INTEGER );
+        p->name = g_strdup("fixed-height");
+        p->value.i = !(config.fixed_num_lines);
+        g_hash_table_replace ( listview_widget->properties, p->name, p );
     }
     {
         // Border width.
