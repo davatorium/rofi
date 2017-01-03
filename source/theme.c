@@ -432,16 +432,17 @@ void rofi_theme_convert_old_theme ( void )
     }
     {
         // Border width.
-        ThemeWidget *window_widget = rofi_theme_find_or_create_class ( rofi_theme , "@window" );
+        ThemeWidget *window_widget = rofi_theme_find_or_create_class ( rofi_theme , "window" );
         window_widget->properties = rofi_theme_convert_create_property_ht ( );
-        Property *p = rofi_theme_property_create ( P_INTEGER );
-        p->name = g_strdup("border-width");
-        p->value.i = config.menu_bw;
-        g_hash_table_replace ( window_widget->properties, p->name, p );
         // Padding
-        p = rofi_theme_property_create ( P_INTEGER );
+        Property *p = rofi_theme_property_create ( P_INTEGER );
         p->name = g_strdup("padding");
         p->value.i = config.padding;
+        g_hash_table_replace ( window_widget->properties, p->name, p );
+
+        p = rofi_theme_property_create ( P_INTEGER );
+        p->name = g_strdup("border");
+        p->value.i = config.menu_bw;
         g_hash_table_replace ( window_widget->properties, p->name, p );
     }
     {

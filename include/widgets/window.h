@@ -30,14 +30,5 @@ window * window_create ( const char *name );
  * Add a widget to the window.
  */
 void window_add ( window *window, widget *child );
-
-/**
- * @param window Handle to the window widget.
- * 
- * Get the border width of the widget.
- *
- * @returns the border width (times 2) of the widget.
- */
-int window_get_border_width ( const window *window );
 /*@}*/
 #endif // ROFI_WINDOW_H

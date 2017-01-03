@@ -666,7 +666,7 @@ static void rofi_view_calculate_window_width ( RofiViewState *state )
     else if ( config.menu_width < 0 ) {
         double fw = textbox_get_estimated_char_width ( );
         state->width  = -( fw * config.menu_width );
-        state->width += window_get_border_width ( state->main_window );
+        state->width += widget_padding_get_padding_width ( WIDGET ( state->main_window ) );
     }
     else{
         // Calculate as float to stop silly, big rounding down errors.
@@ -1556,8 +1556,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     widget_resize ( WIDGET ( state->main_window ), state->width, 100);
     unsigned int line_height = textbox_get_height ( state->text );
     // resize window vertically to suit
-    state->height = line_height + window_get_border_width ( state->main_window);
-    state->height = widget_padding_get_padding_height ( WIDGET(state->main_window) );
+    state->height =  line_height + widget_padding_get_padding_height ( WIDGET(state->main_window) );
 
     // Calculte window position.
     rofi_view_calculate_window_position ( state );
@@ -1678,13 +1677,11 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text )
     // Within padding of window.
     x_offset -= widget_padding_get_right ( WIDGET (state->main_window) );
     // Within the border of widget.
-    x_offset -= window_get_border_width ( state->main_window );
     x_offset -= widget_padding_get_right ( WIDGET (state->main_box ) );
     x_offset -= widget_padding_get_right ( WIDGET (state->input_bar ) );
     x_offset -= widget_get_width ( WIDGET ( state->case_indicator ) );
     x_offset -= widget_get_width ( WIDGET ( state->overlay ) );
-    int top_offset = window_get_border_width ( state->main_window );
-    top_offset += widget_padding_get_top   ( WIDGET (state->main_window) );
+    int top_offset = widget_padding_get_top   ( WIDGET (state->main_window) );
     top_offset += widget_padding_get_top   ( WIDGET (state->main_box ) );
     widget_move ( WIDGET ( state->overlay ), x_offset, top_offset );
     // We want to queue a repaint.

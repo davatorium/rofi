@@ -50,7 +50,6 @@ struct _window
 {
     widget  widget;
     widget *child;
-    int border_width;
 };
 
 static void window_update ( widget *wid  );
@@ -59,7 +58,7 @@ static void window_update ( widget *wid  );
 static int window_get_desired_height ( widget *widget )
 {
     window *b = (window *) widget;
-    int height = b->border_width*2;
+    int height = 0;
     if ( b->child ) {
         height += widget_get_desired_height ( b->child );
     }
@@ -72,16 +71,6 @@ static void window_draw ( widget *wid, cairo_t *draw )
 {
     window *b = (window *) wid;
 
-    cairo_save ( draw );
-    rofi_theme_get_color ( "@window", "window" , NULL, "foreground", draw );
-    cairo_set_line_width ( draw, b->border_width );
-    cairo_rectangle ( draw,
-            b->border_width / 2.0,
-            b->border_width / 2.0,
-            wid->w - b->border_width,
-            wid->h - b->border_width );
-    cairo_stroke ( draw );
-    cairo_restore ( draw );
     widget_draw ( b->child, draw );
 }
 
@@ -149,9 +138,6 @@ window * window_create ( const char *name )
     b->widget.motion_notify      = window_motion_notify;
     b->widget.get_desired_height = window_get_desired_height;
     b->widget.enabled            = TRUE;
-    b->border_width = rofi_theme_get_integer (
-            b->widget.class_name, b->widget.name, NULL,  "border-width" , DEFAULT_BORDER_WIDTH);
-
     return b;
 }
 
@@ -160,17 +146,13 @@ static void window_update ( widget *wid  )
     window *b = (window *) wid;
     if ( b->child && b->child->enabled ){
         widget_resize ( WIDGET ( b->child ),
-                widget_padding_get_remaining_width  (WIDGET(b))-2*b->border_width,
-                widget_padding_get_remaining_height (WIDGET(b))-2*b->border_width
+                widget_padding_get_remaining_width  (WIDGET(b)),
+                widget_padding_get_remaining_height (WIDGET(b))
                 );
         widget_move ( WIDGET ( b->child ),
-                b->border_width+widget_padding_get_left (WIDGET(b)),
-                b->border_width+widget_padding_get_top (WIDGET(b))
+                widget_padding_get_left (WIDGET(b)),
+                widget_padding_get_top (WIDGET(b))
                 );
     }
 }
 
-int window_get_border_width ( const window *window )
-{
-    return window->border_width*2;
-}
