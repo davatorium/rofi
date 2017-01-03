@@ -16,7 +16,9 @@ struct _widget
     /** Height of the widget */
     short             h;
     /** Padding */
-    Padding           pad;
+    Padding           padding;
+    Padding           border;
+
     /** enabled or not */
     gboolean          enabled;
     /** Expand the widget when packed */

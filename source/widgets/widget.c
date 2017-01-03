@@ -8,8 +8,10 @@ void widget_init ( widget *widget , const char *name, const char *class_name )
 {
     widget->name       = g_strdup(name);
     widget->class_name = g_strdup(class_name);
-    widget->pad = (Padding){ {0, PW_PX}, {0, PW_PX}, {0, PW_PX}, {0, PW_PX}};
-    widget->pad = rofi_theme_get_padding (widget->class_name, widget->name, NULL, "padding", widget->pad);
+    widget->padding = (Padding){ {0, PW_PX}, {0, PW_PX}, {0, PW_PX}, {0, PW_PX}};
+    widget->padding = rofi_theme_get_padding (widget->class_name, widget->name, NULL, "padding", widget->padding);
+    widget->border  = (Padding){ {0, PW_PX}, {0, PW_PX}, {0, PW_PX}, {0, PW_PX}};
+    widget->border  = rofi_theme_get_padding (widget->class_name, widget->name, NULL, "border", widget->border);
 
 }
 
@@ -89,11 +91,44 @@ void widget_draw ( widget *widget, cairo_t *d )
         // Define a clipmask so we won't draw outside out widget.
         cairo_rectangle ( d, widget->x, widget->y, widget->w, widget->h );
         cairo_clip ( d );
+
         rofi_theme_get_color ( widget->class_name, widget->name, widget->state, "background", d );
         cairo_paint( d ) ;
 
         // Set new x/y possition.
         cairo_translate ( d, widget->x, widget->y );
+
+        int left = distance_get_pixel ( widget->border.left );
+        int top  = distance_get_pixel ( widget->border.top );
+        int right = distance_get_pixel ( widget->border.right );
+        int bottom  = distance_get_pixel ( widget->border.bottom );
+        rofi_theme_get_color ( widget->class_name, widget->name, widget->state, "foreground", d );
+        if ( left > 0 ) {
+            cairo_set_line_width ( d, left );
+            cairo_move_to ( d, left/2.0, 0);
+            cairo_line_to ( d, left/2.0, widget->h);
+            cairo_stroke ( d );
+        }
+        if ( right > 0 ) {
+            cairo_set_line_width ( d, right );
+            cairo_move_to ( d, widget->w - right/2.0, 0 );
+            cairo_line_to ( d, widget->w - right/2.0, widget->h );
+            cairo_stroke ( d );
+        }
+        if ( top > 0 ) {
+            cairo_set_line_width ( d, top );
+            cairo_move_to ( d, 0,            top/2.0);
+            cairo_line_to ( d, widget->w, top/2.0);
+            cairo_stroke ( d );
+        }
+        if ( bottom > 0 ) {
+            cairo_set_line_width ( d, bottom );
+            cairo_move_to ( d, 0,        widget->h-bottom/2.0);
+            cairo_line_to ( d, widget->w , widget->h-bottom/2.0);
+            cairo_stroke ( d );
+        }
+
+
 
         widget->draw ( widget, d );
         widget->need_redraw = FALSE;
@@ -215,19 +250,27 @@ void widget_set_name ( widget *wid, const char *name )
 
 int widget_padding_get_left ( const widget *wid )
 {
-    return distance_get_pixel ( wid->pad.left );
+    int distance = distance_get_pixel ( wid->padding.left );
+    distance += distance_get_pixel ( wid->border.left );
+    return distance;
 }
 int widget_padding_get_right ( const widget *wid )
 {
-    return distance_get_pixel ( wid->pad.right );
+    int distance = distance_get_pixel ( wid->padding.right );
+    distance += distance_get_pixel ( wid->border.right );
+    return distance;
 }
 int widget_padding_get_top ( const widget *wid )
 {
-    return distance_get_pixel ( wid->pad.top );
+    int distance = distance_get_pixel ( wid->padding.top );
+    distance += distance_get_pixel ( wid->border.top );
+    return distance;
 }
 int widget_padding_get_bottom ( const widget *wid )
 {
-    return distance_get_pixel ( wid->pad.bottom );
+    int distance = distance_get_pixel ( wid->padding.bottom );
+    distance += distance_get_pixel ( wid->border.bottom );
+    return distance;
 }
 
 int widget_padding_get_remaining_width ( const widget *wid )
