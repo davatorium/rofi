@@ -133,30 +133,31 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         // TODO should this happen automagically?
         widget_update ( WIDGET ( b ) ) ;
         TASSERTE ( wid1->w, 20);
-        TASSERTE ( wid1->h, 38);
+        TASSERTE ( wid1->h, 48);
         TASSERTE ( wid2->w, 20);
-        TASSERTE ( wid2->h, 38);
+        TASSERTE ( wid2->h, 48);
         TASSERTE ( wid3->w, 20);
-        TASSERTE ( wid3->h, 20);
+        TASSERTE ( wid3->h, 0);
 
         widget_resize ( WIDGET (b ), 20, 200 );
         TASSERTE ( wid1->w, 20);
-        TASSERTE ( wid1->h, 88);
+        TASSERTE ( wid1->h, 98);
         TASSERTE ( wid2->w, 20);
-        TASSERTE ( wid2->h, 88);
+        TASSERTE ( wid2->h, 98);
         TASSERTE ( wid3->w, 20);
-        TASSERTE ( wid3->h, 20);
-        TASSERTE ( box_get_fixed_pixels ( b ) , 24 );
+        // has no height, gets no height.
+        TASSERTE ( wid3->h, 0);
+        TASSERTE ( box_get_fixed_pixels ( b ) , 4 );
         widget *wid4 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid4 ) );
         widget_resize ( WIDGET ( wid4 ), 20, 20 );
         box_add ( b , WIDGET( wid4 ), FALSE, TRUE );
-        TASSERTE ( wid4->y, 200-20);
+        TASSERTE ( wid4->y, 200);
         widget *wid5 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid5 ) );
         widget_resize ( WIDGET ( wid5 ), 20, 20 );
         box_add ( b , WIDGET( wid5 ), TRUE, TRUE );
-        TASSERTE ( wid5->y, 127);
+        TASSERTE ( wid5->y, 134);
         widget_free ( WIDGET ( b ) );
     }
     {
