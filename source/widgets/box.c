@@ -91,7 +91,6 @@ static int box_get_desired_height ( widget *wid )
         }
     }
     height += widget_padding_get_padding_height ( wid );
-
     return height;
 }
 
@@ -105,7 +104,7 @@ static void vert_calculate_size ( box *b )
     for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
         widget * child = (widget *) iter->data;
         if ( child->enabled && child->expand == FALSE ){
-            widget_resize ( child, rem_width, child->h );
+            widget_resize ( child, rem_width, widget_get_desired_height (child) );
         }
     }
     b->max_size = 0;
