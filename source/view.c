@@ -840,9 +840,10 @@ static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t
         if ( text != NULL && text[0] != '\0' ) {
             unsigned int dl = strlen ( text );
             // Strip new line
-            while ( dl > 0 && text[dl] == '\n' ) {
-                text[dl] = '\0';
-                dl--;
+            for ( unsigned int i = 0; i < dl; i++){
+                if ( text[i] == '\n' ){
+                    dl = i;
+                }
             }
             // Insert string move cursor.
             textbox_insert ( state->text, state->text->cursor, text, dl );
