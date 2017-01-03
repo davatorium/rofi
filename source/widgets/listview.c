@@ -163,7 +163,11 @@ static void listview_draw ( widget *wid, cairo_t *draw )
     // Set these all together to make sure they update consistently.
     scrollbar_set_max_value ( lv->scrollbar, lv->req_elements );
     scrollbar_set_handle_length ( lv->scrollbar, lv->cur_columns * lv->max_rows );
-    scrollbar_set_handle ( lv->scrollbar, lv->selected  );
+    if ( lv->reverse ) {
+        scrollbar_set_handle ( lv->scrollbar, lv->req_elements - lv->selected -1 );
+    } else {
+        scrollbar_set_handle ( lv->scrollbar, lv->selected  );
+    }
     lv->last_offset = offset;
     int spacing_vert = distance_get_pixel ( lv->spacing, ORIENTATION_VERTICAL );
     int spacing_hori = distance_get_pixel ( lv->spacing, ORIENTATION_HORIZONTAL );
