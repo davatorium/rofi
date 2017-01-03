@@ -107,7 +107,7 @@ void widget_draw ( widget *widget, cairo_t *d )
         cairo_paint( d ) ;
 
         // Set new x/y possition.
-        cairo_translate ( d, widget->x, widget->y );
+        cairo_translate ( d, widget->x+margin_left, widget->y+margin_top );
 
         int left = distance_get_pixel ( widget->border.left, ORIENTATION_HORIZONTAL );
         int top  = distance_get_pixel ( widget->border.top, ORIENTATION_HORIZONTAL );
@@ -117,25 +117,32 @@ void widget_draw ( widget *widget, cairo_t *d )
         if ( left > 0 ) {
             cairo_set_line_width ( d, left );
             cairo_move_to ( d, left/2.0, 0 );
-            cairo_line_to ( d, left/2.0, widget->h-margin_bottom);
+            cairo_line_to ( d, left/2.0, widget->h-margin_bottom-bottom-margin_top);
             cairo_stroke ( d );
         }
         if ( right > 0 ) {
             cairo_set_line_width ( d, right );
-            cairo_move_to ( d, widget->w -right/2.0, 0 );
-            cairo_line_to ( d, widget->w -right/2.0, widget->h );
+            cairo_move_to ( d,
+                    widget->w - margin_right -margin_left- right/2.0, 0 );
+            cairo_line_to ( d,
+                    widget->w - margin_right -margin_left- right/2.0,
+                    widget->h-margin_bottom-bottom-margin_top );
             cairo_stroke ( d );
         }
         if ( top > 0 ) {
             cairo_set_line_width ( d, top );
             cairo_move_to ( d, 0,         top/2.0 );
-            cairo_line_to ( d, widget->w, top/2.0 );
+            cairo_line_to ( d, widget->w-margin_right-margin_left-right, top/2.0 );
             cairo_stroke ( d );
         }
         if ( bottom > 0 ) {
             cairo_set_line_width ( d, bottom );
-            cairo_move_to ( d, 0,         widget->h-bottom/2.0);
-            cairo_line_to ( d, widget->w, widget->h-bottom/2.0);
+            cairo_move_to ( d,
+                    0,
+                    widget->h-bottom/2.0-margin_bottom-margin_top);
+            cairo_line_to ( d,
+                    widget->w-margin_right-margin_left-right,
+                    widget->h-bottom/2.0-margin_bottom-margin_top);
             cairo_stroke ( d );
         }
 
