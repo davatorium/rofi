@@ -183,6 +183,14 @@ void listview_set_num_lines ( listview *lv, unsigned int num_lines );
  * Set the maximum number of lines to display.
  */
 void listview_set_max_lines ( listview *lv, unsigned int max_lines );
+
+/**
+ * @param lv Handler to the listview object.
+ * @param reverse Reverse the listview order.
+ *
+ * Set reversing the listview.
+ */
+void listview_reverse ( listview *lv, gboolean reverse );
 /* @} */
 
 #endif // ROFI_LISTVIEW_H

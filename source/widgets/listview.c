@@ -370,7 +370,6 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->menu_columns    = rofi_theme_get_integer  (lv->widget.class_name, lv->widget.name, NULL, "columns", config.menu_columns );
     lv->fixed_num_lines = rofi_theme_get_boolean  (lv->widget.class_name, lv->widget.name, NULL, "fixed-height", config.fixed_num_lines );
     lv->dynamic         = rofi_theme_get_boolean  (lv->widget.class_name, lv->widget.name, NULL, "dynamic",      TRUE );
-    lv->reverse         = rofi_theme_get_boolean  (lv->widget.class_name, lv->widget.name, NULL, "reverse",      FALSE );
 
     listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( lv->widget.class_name, lv->widget.name, NULL, "scrollbar", !config.hide_scrollbar ));
     listview_set_scrollbar_width ( lv, rofi_theme_get_integer ( lv->widget.class_name, lv->widget.name, NULL, "scrollbar-width", config.scrollbar_width ));
@@ -580,4 +579,8 @@ void listview_set_max_lines ( listview *lv, unsigned int max_lines )
     if ( lv ) {
         lv->max_displayed_lines = max_lines;
     }
+}
+void listview_reverse ( listview *lv, gboolean reverse )
+{
+    lv->reverse = reverse;
 }
