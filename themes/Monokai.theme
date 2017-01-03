@@ -1,6 +1,7 @@
 ! ------------------------------------------------------------------------------
 ! ROFI Color theme
 ! User: milouse
+! Copyright: Étienne Deparis
 ! ------------------------------------------------------------------------------
 ! "Color scheme for normal row" Set from: File
 rofi.color-normal:                   argb:00272822, #f8f8f2, argb:00272822, #141411, #f8f8f2

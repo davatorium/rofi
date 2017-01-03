@@ -1,6 +1,8 @@
 ! ------------------------------------------------------------------------------
 ! ROFI Color theme
 ! Based on Adapta-Nokto GTK theme (https://github.com/adapta-project/adapta-gtk-theme)  
+! User: PyGeek03
+! Copyright: PyGeek03
 ! ------------------------------------------------------------------------------
 rofi.color-enabled: true
 rofi.color-window: #3a4c54, #2a373e, #c3c6c8

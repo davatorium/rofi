@@ -1,6 +1,7 @@
 ! ------------------------------------------------------------------------------
 ! ROFI Color theme
 ! User: Rasi
+! Copyright: Rasmus Steinke
 ! ------------------------------------------------------------------------------
 ! Use extended color scheme
 rofi.color-enabled:                  true
