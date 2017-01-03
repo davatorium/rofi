@@ -1,6 +1,7 @@
 ! ------------------------------------------------------------------------------
 ! ROFI Color theme
 ! User: qball
+! Copyright: Dave Davenport
 ! ------------------------------------------------------------------------------
 ! "Color scheme for normal row" Set from: File
 rofi.color-normal:                   argb:07986cb, #e8eaf6, #283593, #3f51b5, #e8eaf6

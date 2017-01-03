@@ -1,5 +1,7 @@
 ! ------------------------------------------------------------------------------
 ! ROFI Color theme
+! User: Sergio Morales
+! Copyright: Sergio Morales
 ! ------------------------------------------------------------------------------
 ! Use extended color scheme
 rofi.color-enabled:                  true

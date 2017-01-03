@@ -150,7 +150,6 @@ theme_DATA=\
 		   themes/Monokai.theme\
 		   themes/Paper.theme\
 		   themes/android_notification.theme\
-		   themes/blor.theme\
 		   themes/blue.theme\
 		   themes/c64.theme\
 		   themes/glue_pro_blue.theme\
