@@ -27,6 +27,7 @@ NUMBER     [[:digit:]]
 REAL       [[:digit:]]+(\.[[:digit:]]+)?
 PX         (px)
 EM         (em)
+PERCENT    (\%)
 NEWLINES   (\r|\n)+
 
 %x PROPERTIES
@@ -115,6 +116,11 @@ if ( queue == NULL ){
 <PROPERTIES>{NUMBER}+{PX}        {
     yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
     yylval->distance.type     = PW_PX;
+    return T_PIXEL;
+}
+<PROPERTIES>{REAL}{PERCENT}        {
+    yylval->distance.distance = (double)g_ascii_strtod(yytext, NULL);
+    yylval->distance.type     = PW_PERCENT;
     return T_PIXEL;
 }
 <PROPERTIES>#{HEX}{8}       {

@@ -124,6 +124,15 @@ struct
     .repaint_source =               0,
 };
 
+void rofi_view_get_current_monitor ( int *width, int *height)
+{
+    if (width ){
+        *width = CacheState.mon.w;
+    }
+    if (height){
+        *height = CacheState.mon.h;
+    }
+}
 static char * get_matching_state ( void )
 {
     if ( config.case_sensitive ) {

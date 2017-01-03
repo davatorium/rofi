@@ -55,7 +55,7 @@ static void box_update ( widget *wid  );
 static int box_get_desired_height ( widget *wid )
 {
     box *b = (box *)wid;
-    int spacing = distance_get_pixel ( b->spacing );
+    int spacing = distance_get_pixel ( b->spacing, b->type == BOX_VERTICAL? ORIENTATION_VERTICAL:ORIENTATION_HORIZONTAL );
     int active_widgets = 0;
     int height = 0;
     if ( b->type == BOX_VERTICAL ){
@@ -90,7 +90,7 @@ static int box_get_desired_height ( widget *wid )
 
 static void vert_calculate_size ( box *b )
 {
-    int spacing = distance_get_pixel ( b->spacing );
+    int spacing = distance_get_pixel ( b->spacing, ORIENTATION_VERTICAL );
     int expanding_widgets = 0;
     int active_widgets    = 0;
     int rem_width = widget_padding_get_remaining_width ( WIDGET (b) );
@@ -169,7 +169,7 @@ static void vert_calculate_size ( box *b )
 }
 static void hori_calculate_size ( box *b )
 {
-    int spacing = distance_get_pixel ( b->spacing );
+    int spacing = distance_get_pixel ( b->spacing, ORIENTATION_HORIZONTAL );
     int expanding_widgets = 0;
     int active_widgets    = 0;
     int rem_width = widget_padding_get_remaining_width ( WIDGET (b) );

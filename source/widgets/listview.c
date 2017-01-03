@@ -164,21 +164,22 @@ static void listview_draw ( widget *wid, cairo_t *draw )
     scrollbar_set_handle_length ( lv->scrollbar, lv->cur_columns * lv->max_rows );
     scrollbar_set_handle ( lv->scrollbar, lv->selected  );
     lv->last_offset = offset;
-    int spacing = distance_get_pixel ( lv->spacing );
+    int spacing_vert = distance_get_pixel ( lv->spacing, ORIENTATION_VERTICAL );
+    int spacing_hori = distance_get_pixel ( lv->spacing, ORIENTATION_HORIZONTAL );
     if ( lv->cur_elements > 0 && lv->max_rows > 0 ) {
         // Set new x/y possition.
         unsigned int max = MIN ( lv->cur_elements, lv->req_elements - offset );
         if ( lv->rchanged ) {
-            unsigned int width = lv->widget.w - spacing * ( lv->cur_columns - 1 );
+            unsigned int width = lv->widget.w - spacing_hori * ( lv->cur_columns - 1 );
             width -= widget_padding_get_padding_width ( wid );
             if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) ) {
-                width -= spacing;
+                width -= spacing_hori;
                 width -= widget_get_width ( WIDGET ( lv->scrollbar ) );
             }
             unsigned int element_width = ( width ) / lv->cur_columns;
             for ( unsigned int i = 0; i < max; i++ ) {
-                unsigned int ex = widget_padding_get_left ( wid ) + ( ( i ) / lv->max_rows ) * ( element_width + spacing );
-                unsigned int ey = widget_padding_get_top ( wid ) + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing );
+                unsigned int ex = widget_padding_get_left ( wid ) + ( ( i ) / lv->max_rows ) * ( element_width + spacing_hori );
+                unsigned int ey = widget_padding_get_top ( wid ) + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing_vert );
                 textbox_moveresize ( lv->boxes[i], ex, ey, element_width, lv->element_height );
 
                 update_element ( lv, i, i + offset, TRUE );
@@ -256,8 +257,8 @@ static void listview_resize ( widget *wid, short w, short h )
     lv->widget.w     = MAX ( 0, w );
     lv->widget.h     = MAX ( 0, h );
     int height       = lv->widget.h - widget_padding_get_padding_height ( WIDGET (lv) );
-    int spacing      = distance_get_pixel ( lv->spacing );
-    lv->max_rows     = ( spacing + height ) / ( lv->element_height + spacing );
+    int spacing_vert      = distance_get_pixel ( lv->spacing, ORIENTATION_VERTICAL );
+    lv->max_rows     = ( spacing_vert + height ) / ( lv->element_height + spacing_vert );
     lv->max_elements = lv->max_rows * lv->menu_columns;
 
     widget_move ( WIDGET ( lv->scrollbar ),
@@ -464,7 +465,7 @@ void listview_nav_page_next ( listview *lv )
 static int listview_get_desired_height ( widget *wid )
 {
     listview *lv = (listview *)wid;
-    int spacing = distance_get_pixel ( lv->spacing );
+    int spacing = distance_get_pixel ( lv->spacing, ORIENTATION_VERTICAL );
     if ( lv == NULL  || lv->widget.enabled == FALSE ) {
         return 0;
     }

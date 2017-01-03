@@ -98,10 +98,10 @@ void widget_draw ( widget *widget, cairo_t *d )
         // Set new x/y possition.
         cairo_translate ( d, widget->x, widget->y );
 
-        int left = distance_get_pixel ( widget->border.left );
-        int top  = distance_get_pixel ( widget->border.top );
-        int right = distance_get_pixel ( widget->border.right );
-        int bottom  = distance_get_pixel ( widget->border.bottom );
+        int left = distance_get_pixel ( widget->border.left, ORIENTATION_HORIZONTAL );
+        int top  = distance_get_pixel ( widget->border.top, ORIENTATION_HORIZONTAL );
+        int right = distance_get_pixel ( widget->border.right, ORIENTATION_VERTICAL );
+        int bottom  = distance_get_pixel ( widget->border.bottom, ORIENTATION_VERTICAL );
         rofi_theme_get_color ( widget->class_name, widget->name, widget->state, "foreground", d );
         if ( left > 0 ) {
             cairo_set_line_width ( d, left );
@@ -250,26 +250,26 @@ void widget_set_name ( widget *wid, const char *name )
 
 int widget_padding_get_left ( const widget *wid )
 {
-    int distance = distance_get_pixel ( wid->padding.left );
-    distance += distance_get_pixel ( wid->border.left );
+    int distance = distance_get_pixel ( wid->padding.left, ORIENTATION_HORIZONTAL );
+    distance += distance_get_pixel ( wid->border.left, ORIENTATION_HORIZONTAL );
     return distance;
 }
 int widget_padding_get_right ( const widget *wid )
 {
-    int distance = distance_get_pixel ( wid->padding.right );
-    distance += distance_get_pixel ( wid->border.right );
+    int distance = distance_get_pixel ( wid->padding.right, ORIENTATION_HORIZONTAL );
+    distance += distance_get_pixel ( wid->border.right, ORIENTATION_HORIZONTAL );
     return distance;
 }
 int widget_padding_get_top ( const widget *wid )
 {
-    int distance = distance_get_pixel ( wid->padding.top );
-    distance += distance_get_pixel ( wid->border.top );
+    int distance = distance_get_pixel ( wid->padding.top, ORIENTATION_VERTICAL );
+    distance += distance_get_pixel ( wid->border.top, ORIENTATION_VERTICAL );
     return distance;
 }
 int widget_padding_get_bottom ( const widget *wid )
 {
-    int distance = distance_get_pixel ( wid->padding.bottom );
-    distance += distance_get_pixel ( wid->border.bottom );
+    int distance = distance_get_pixel ( wid->padding.bottom, ORIENTATION_VERTICAL );
+    distance += distance_get_pixel ( wid->border.bottom, ORIENTATION_VERTICAL );
     return distance;
 }
 

@@ -11,6 +11,8 @@ typedef enum {
     PW_PX,
     /** PixelWidth in EM. */
     PW_EM,
+    /** PixelWidget in percentage */
+    PW_PERCENT,
 } PixelWidth;
 
 /**
@@ -23,6 +25,13 @@ typedef struct {
     PixelWidth type;
 } Distance;
 
+/**
+ * Type of orientation.
+ */
+typedef enum {
+    ORIENTATION_VERTICAL,
+    ORIENTATION_HORIZONTAL
+} Orientation;
 /**
  * Type of property
  */
@@ -251,11 +260,12 @@ Padding rofi_theme_get_padding ( const char *wclass, const char  *name, const ch
 
 /**
  * @param d The distance handle.
+ * @param ori The orientation.
  *
  * Convert Distance into pixels.
  * @returns the number of pixels this distance represents.
  */
-int distance_get_pixel ( Distance d );
+int distance_get_pixel ( Distance d, Orientation ori );
 
 #ifdef THEME_CONVERTER
 /**
