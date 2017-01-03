@@ -118,8 +118,7 @@ static void scrollbar_draw ( widget *wid, cairo_t *draw )
     // Never go out of bar.
     height = MAX ( 2, height );
     // Cap length;
-    color_separator ( draw );
-    rofi_theme_get_color ( sb->widget.class_name, sb->widget.name, NULL, "foreground", draw );
+    rofi_theme_get_color ( sb->widget.class_name, sb->widget.name, "handle", "foreground", draw );
 
     cairo_rectangle ( draw,
             widget_padding_get_left ( wid ),
