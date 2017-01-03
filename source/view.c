@@ -1509,6 +1509,8 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->distance = (int *) g_malloc0_n ( state->num_lines, sizeof ( int ) );
 
     rofi_view_calculate_window_width ( state );
+    // Need to resize otherwise calculated desired height is wrong.
+    widget_resize ( WIDGET ( state->main_window ), state->width, 100);
     // Only needed when window is fixed size.
     if (( CacheState.flags & MENU_NORMAL_WINDOW ) == MENU_NORMAL_WINDOW ) {
         config.fixed_num_lines = TRUE;
@@ -1542,16 +1544,20 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->text = textbox_create ( "message", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
             NORMAL, ( msg != NULL ) ? msg : "" );
     box_add ( state->main_box, WIDGET ( state->text ), TRUE, FALSE );
-    unsigned int line_height = textbox_get_height ( state->text );
+
 
     // Make sure we enable fixed num lines when in normal window mode.
     if ( (CacheState.flags&MENU_NORMAL_WINDOW) == MENU_NORMAL_WINDOW){
         config.fixed_num_lines = TRUE;
     }
-    // resize window vertically to suit
-    state->height = line_height + window_get_border_width ( state->main_window)+widget_padding_get_padding_height ( WIDGET(state->main_window) );
-
     rofi_view_calculate_window_width ( state );
+    // Need to resize otherwise calculated desired height is wrong.
+    widget_resize ( WIDGET ( state->main_window ), state->width, 100);
+    unsigned int line_height = textbox_get_height ( state->text );
+    // resize window vertically to suit
+    state->height = line_height + window_get_border_width ( state->main_window);
+    state->height = widget_padding_get_padding_height ( WIDGET(state->main_window) );
+
     // Calculte window position.
     rofi_view_calculate_window_position ( state );
 
