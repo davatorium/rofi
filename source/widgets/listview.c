@@ -63,6 +63,7 @@ struct _listview
     unsigned int                fixed_num_lines;
     unsigned int                dynamic;
     unsigned int                eh;
+    unsigned int                reverse;
     gboolean                    cycle;
     gboolean                    multi_select;
 
@@ -179,8 +180,13 @@ static void listview_draw ( widget *wid, cairo_t *draw )
             unsigned int element_width = ( width ) / lv->cur_columns;
             for ( unsigned int i = 0; i < max; i++ ) {
                 unsigned int ex = widget_padding_get_left ( wid ) + ( ( i ) / lv->max_rows ) * ( element_width + spacing_hori );
-                unsigned int ey = widget_padding_get_top ( wid ) + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing_vert );
-                textbox_moveresize ( lv->boxes[i], ex, ey, element_width, lv->element_height );
+                if ( lv->reverse ) {
+                    unsigned int ey = wid->h-(widget_padding_get_bottom ( wid ) + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing_vert ))-lv->element_height;
+                    textbox_moveresize ( lv->boxes[i], ex, ey, element_width, lv->element_height );
+                } else {
+                    unsigned int ey = widget_padding_get_top ( wid ) + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing_vert );
+                    textbox_moveresize ( lv->boxes[i], ex, ey, element_width, lv->element_height );
+                }
 
                 update_element ( lv, i, i + offset, TRUE );
                 widget_draw ( WIDGET ( lv->boxes[i] ), draw );
@@ -360,6 +366,7 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->menu_columns    = rofi_theme_get_integer  (lv->widget.class_name, lv->widget.name, NULL, "columns", config.menu_columns );
     lv->fixed_num_lines = rofi_theme_get_boolean  (lv->widget.class_name, lv->widget.name, NULL, "fixed-height", config.fixed_num_lines );
     lv->dynamic         = rofi_theme_get_boolean  (lv->widget.class_name, lv->widget.name, NULL, "dynamic",      TRUE );
+    lv->reverse         = rofi_theme_get_boolean  (lv->widget.class_name, lv->widget.name, NULL, "reverse",      FALSE );
 
     listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( lv->widget.class_name, lv->widget.name, NULL, "scrollbar", !config.hide_scrollbar ));
     listview_set_scrollbar_width ( lv, rofi_theme_get_integer ( lv->widget.class_name, lv->widget.name, NULL, "scrollbar-width", config.scrollbar_width ));
@@ -373,7 +380,7 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
  * Navigation commands.
  */
 
-void listview_nav_up ( listview *lv )
+static void listview_nav_up_int ( listview *lv )
 {
     if ( lv == NULL ) {
         return;
@@ -387,7 +394,7 @@ void listview_nav_up ( listview *lv )
     lv->selected--;
     widget_queue_redraw ( WIDGET ( lv ) );
 }
-void listview_nav_down ( listview *lv )
+static void listview_nav_down_int ( listview *lv )
 {
     if ( lv == NULL ) {
         return;
@@ -398,6 +405,23 @@ void listview_nav_down ( listview *lv )
     lv->selected = lv->selected < lv->req_elements - 1 ? MIN ( lv->req_elements - 1, lv->selected + 1 ) : 0;
 
     widget_queue_redraw ( WIDGET ( lv ) );
+}
+
+void listview_nav_up ( listview *lv )
+{
+    if ( lv->reverse ) {
+        listview_nav_down_int ( lv );
+    } else {
+        listview_nav_up_int ( lv );
+    }
+}
+void listview_nav_down ( listview *lv )
+{
+    if ( lv->reverse ) {
+        listview_nav_up_int ( lv );
+    } else {
+        listview_nav_down_int ( lv );
+    }
 }
 
 void listview_nav_left ( listview *lv )
@@ -434,7 +458,7 @@ void listview_nav_right ( listview *lv )
     }
 }
 
-void listview_nav_page_prev ( listview *lv )
+static void listview_nav_page_prev_int ( listview *lv )
 {
     if ( lv == NULL ) {
         return;
@@ -447,7 +471,7 @@ void listview_nav_page_prev ( listview *lv )
     }
     widget_queue_redraw ( WIDGET ( lv ) );
 }
-void listview_nav_page_next ( listview *lv )
+static void listview_nav_page_next_int ( listview *lv )
 {
     if ( lv == NULL ) {
         return;
@@ -460,6 +484,23 @@ void listview_nav_page_next ( listview *lv )
         lv->selected = lv->req_elements - 1;
     }
     widget_queue_redraw ( WIDGET ( lv ) );
+}
+
+void listview_nav_page_prev ( listview *lv )
+{
+    if ( lv->reverse ){
+        listview_nav_page_next_int ( lv );
+    } else {
+        listview_nav_page_prev_int ( lv );
+    }
+}
+void listview_nav_page_next ( listview *lv )
+{
+    if ( lv->reverse ){
+        listview_nav_page_prev_int ( lv );
+    } else {
+        listview_nav_page_next_int ( lv );
+    }
 }
 
 static int listview_get_desired_height ( widget *wid )
