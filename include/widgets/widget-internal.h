@@ -16,6 +16,7 @@ struct _widget
     /** Height of the widget */
     short             h;
     /** Padding */
+    Padding           margin;
     Padding           padding;
     Padding           border;
 
