@@ -43,6 +43,7 @@ static void textbox_draw ( widget *, cairo_t * );
 static void textbox_free ( widget * );
 static int textbox_get_width ( widget * );
 static int _textbox_get_height ( widget * );
+static void __textbox_update_pango_text ( textbox *tb );
 
 /**
  * @param tb  Handle to the textbox
@@ -79,11 +80,15 @@ static void textbox_resize ( widget *wid, short w, short h )
 static int textbox_get_desired_height ( widget *wid )
 {
     textbox *tb = (textbox *)wid;
-    if ( tb->flags & TB_AUTOHEIGHT )
+    if ( (tb->flags & TB_AUTOHEIGHT) == 0 )
     {
         return tb->widget.h;
     }
-    return textbox_get_height (tb);
+    if ( tb->changed ) {
+        __textbox_update_pango_text ( tb );
+    }
+    int height = textbox_get_height (tb);
+    return height;
 }
 
 textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType tbft, const char *text )
@@ -318,7 +323,9 @@ static void texbox_update ( textbox *tb )
         int font_height = textbox_get_font_height ( tb );
 
         int cursor_x     = 0;
-        int cursor_width = MAX ( 2, font_height / 10 );
+        int cursor_y    = 0;
+        int cursor_width = 2;//MAX ( 2, font_height / 10 );
+        int cursor_height = font_height;
 
         if ( tb->changed ) {
             __textbox_update_pango_text ( tb );
@@ -334,6 +341,8 @@ static void texbox_update ( textbox *tb )
             char           *offset = g_utf8_offset_to_pointer ( text, cursor_offset );
             pango_layout_get_cursor_pos ( tb->layout, offset - text, &pos, NULL );
             cursor_x = pos.x / PANGO_SCALE;
+            cursor_y = pos.y / PANGO_SCALE;
+            cursor_height = pos.height/PANGO_SCALE;
         }
 
         // Skip the side MARGIN on the X axis.
@@ -359,7 +368,7 @@ static void texbox_update ( textbox *tb )
         rofi_theme_get_color ( tb->widget.class_name, tb->widget.name, tb->widget.state, "foreground", tb->main_draw);
         // draw the cursor
         if ( tb->flags & TB_EDITABLE && tb->blink ) {
-            cairo_rectangle ( tb->main_draw, x + cursor_x, y, cursor_width, font_height );
+            cairo_rectangle ( tb->main_draw, x + cursor_x, y+cursor_y, cursor_width, cursor_height);
             cairo_fill ( tb->main_draw );
         }
 
