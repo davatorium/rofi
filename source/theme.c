@@ -264,6 +264,10 @@ static Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType ty
             if ( p->type == type ){
                 return p;
             }
+            // Padding and integer can be converted.
+            if ( p->type == P_INTEGER && type == P_PADDING ){
+                return p;
+            }
         }
         widget = widget->parent;
     }
@@ -360,12 +364,11 @@ Padding rofi_theme_get_padding ( const char  *name, const char *state, const cha
     ThemeWidget *widget = rofi_theme_find_widget ( name, state );
     Property *p = rofi_theme_find_property ( widget, P_PADDING, property );
     if ( p ){
+        if ( p->type == P_PADDING ){
         pad = p->value.padding;
-    }else {
-        p = rofi_theme_find_property ( widget, P_INTEGER, property );
-        if ( p ){
+        } else {
             Distance d = (Distance){p->value.i, PW_PX};
-            pad = (Padding){d,d,d,d};
+            return (Padding){d,d,d,d};
         }
     }
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", name, state?state:"", property );
@@ -420,8 +423,16 @@ void rofi_theme_convert_old_theme ( void )
     rofi_theme->name = g_strdup ( "Root" );
     rofi_theme_convert_create_property_ht ( rofi_theme );
     {
+        // Background
+        Property *p = rofi_theme_property_create ( P_COLOR );
+        p->name = g_strdup("background");
+        p->value.color.alpha = 0;
+        p->value.color.red = 0;
+        p->value.color.green= 0;
+        p->value.color.blue= 0;
+        g_hash_table_replace ( rofi_theme->properties, p->name, p );
         // Spacing
-        Property *p = rofi_theme_property_create ( P_INTEGER );
+        p = rofi_theme_property_create ( P_INTEGER );
         p->name = g_strdup("spacing");
         p->value.i = config.padding;
         g_hash_table_replace ( rofi_theme->properties, p->name, p );
@@ -435,7 +446,7 @@ void rofi_theme_convert_old_theme ( void )
         rofi_theme_convert_create_property_ht ( inputbar_widget );
         p = rofi_theme_property_create ( P_INTEGER );
         p->name = g_strdup("spacing");
-        p->value.i = 0; 
+        p->value.i = 0;
         g_hash_table_replace ( inputbar_widget->properties, p->name, p );
     }
     {
@@ -474,14 +485,17 @@ void rofi_theme_convert_old_theme ( void )
         gchar **vals = g_strsplit ( config.color_window, ",", 3 );
         if ( vals != NULL ){
             if ( vals[0] != NULL ) {
+                ThemeWidget *window = rofi_theme_find_or_create_name ( rofi_theme, "window" );
+                rofi_theme_convert_create_property_ht ( window );
                 Property *p = rofi_theme_convert_get_color ( vals[0], "background" );
-                g_hash_table_replace ( rofi_theme->properties, p->name, p );
+                g_hash_table_replace ( window->properties, p->name, p );
 
                 if ( vals[1] != NULL ) {
                     p = rofi_theme_convert_get_color ( vals[1], "foreground" );
-                    g_hash_table_replace ( rofi_theme->properties, p->name, p );
+                    g_hash_table_replace ( window->properties, p->name, p );
 
-                    ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme , "inputbar.separator" );
+                    ThemeWidget *inputbar = rofi_theme_find_or_create_name ( rofi_theme , "inputbar" );
+                    ThemeWidget *widget = rofi_theme_find_or_create_name ( inputbar, "separator" );
                     rofi_theme_convert_create_property_ht ( widget );
                    if ( vals[2] != NULL ) {
                        p = rofi_theme_convert_get_color ( vals[2], "foreground" );
