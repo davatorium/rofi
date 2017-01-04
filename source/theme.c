@@ -12,6 +12,10 @@
 #define LOG_DOMAIN "Theme"
 
 void yyerror ( YYLTYPE *ylloc, const char *);
+static gboolean distance_compare ( Distance d, Distance e )
+{
+    return ( d.type == e.type && d.distance == e.distance && d.style == e.style );
+}
 
 ThemeWidget *rofi_theme_find_or_create_name ( ThemeWidget *base, const char *name )
 {
@@ -69,6 +73,19 @@ void rofi_theme_free ( ThemeWidget *widget )
 /**
  * print
  */
+static void rofi_theme_print_distance ( Distance d )
+{
+    if ( d.type == PW_PX ) {
+        printf("%upx ", (int)d.distance );
+    } else if ( d.type == PW_PERCENT ) {
+        printf("%f%% ", d.distance );
+    } else {
+        printf("%fem ", d.distance );
+    }
+    if ( d.style == DASH ) {
+        printf("dash ");
+    }
+}
 static void rofi_theme_print_property_index ( int depth, Property *p )
 {
     printf("%*s%s: ", depth, "", p->name );
@@ -94,25 +111,24 @@ static void rofi_theme_print_property_index ( int depth, Property *p )
                    (unsigned char)(p->value.color.blue*255.0));
            break;
         case P_PADDING:
-           if ( p->value.padding.left.type == PW_PX ) {
-               printf("%upx ", (int)p->value.padding.left.distance );
+           if ( distance_compare ( p->value.padding.top, p->value.padding.bottom) &&
+                   distance_compare ( p->value.padding.left, p->value.padding.right) &&
+                    distance_compare ( p->value.padding.left, p->value.padding.top) ) {
+                    rofi_theme_print_distance ( p->value.padding.left );
+           } else if ( distance_compare ( p->value.padding.top, p->value.padding.bottom) &&
+                   distance_compare ( p->value.padding.left, p->value.padding.right)){
+                    rofi_theme_print_distance ( p->value.padding.top );
+                    rofi_theme_print_distance ( p->value.padding.left );
+           } else if ( !distance_compare ( p->value.padding.top, p->value.padding.bottom) &&
+                   distance_compare ( p->value.padding.left, p->value.padding.right)){
+                    rofi_theme_print_distance ( p->value.padding.top );
+                    rofi_theme_print_distance ( p->value.padding.left );
+                    rofi_theme_print_distance ( p->value.padding.bottom);
            } else {
-               printf("%fem ", p->value.padding.left.distance );
-           }
-           if ( p->value.padding.right.type == PW_PX ) {
-               printf("%upx ", (int)p->value.padding.right.distance );
-           } else {
-               printf("%fem ", p->value.padding.right.distance );
-           }
-           if ( p->value.padding.top.type == PW_PX ) {
-               printf("%upx ", (int)p->value.padding.top.distance );
-           } else {
-               printf("%fem ", p->value.padding.top.distance );
-           }
-           if ( p->value.padding.bottom.type == PW_PX ) {
-               printf("%upx ", (int)p->value.padding.bottom.distance );
-           } else {
-               printf("%fem ", p->value.padding.bottom.distance );
+                    rofi_theme_print_distance ( p->value.padding.top );
+                    rofi_theme_print_distance ( p->value.padding.right );
+                    rofi_theme_print_distance ( p->value.padding.bottom);
+                    rofi_theme_print_distance ( p->value.padding.left );
            }
            printf(";\n");
     }
