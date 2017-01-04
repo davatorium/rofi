@@ -118,6 +118,7 @@ void widget_draw ( widget *widget, cairo_t *d )
         int right = distance_get_pixel ( widget->border.right, ORIENTATION_VERTICAL );
         int bottom  = distance_get_pixel ( widget->border.bottom, ORIENTATION_VERTICAL );
         if ( left || top || right || bottom ) {
+            cairo_save ( d );
             rofi_theme_get_color ( widget, "foreground", d );
             if ( left > 0 ) {
                 cairo_set_line_width ( d, left );
@@ -147,6 +148,7 @@ void widget_draw ( widget *widget, cairo_t *d )
                 cairo_line_to ( d, widget->w-margin_right, widget->h-bottom/2.0-margin_bottom);
                 cairo_stroke ( d );
             }
+            cairo_restore (d);
         }
         widget->draw ( widget, d );
         widget->need_redraw = FALSE;

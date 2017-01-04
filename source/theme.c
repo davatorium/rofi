@@ -397,6 +397,8 @@ void distance_get_linestyle ( Distance d, cairo_t *draw )
     if ( d.style == DASH ){
         const double dashes[1] = { 4 };
         cairo_set_dash ( draw, dashes, 1, 0.0 );
+    } else {
+        cairo_set_dash ( draw, NULL, 0, 0.0);
     }
 }
 
