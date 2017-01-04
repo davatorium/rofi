@@ -117,7 +117,7 @@ extern ThemeWidget *rofi_theme;
  *
  * @returns handle to the new entry.
  */
-ThemeWidget *rofi_theme_find_or_create_name ( ThemeWidget *base, const char *class );
+ThemeWidget *rofi_theme_find_or_create_name ( ThemeWidget *base, const char *name );
 
 /**
  * @param widget The widget handle.
