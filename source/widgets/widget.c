@@ -118,34 +118,33 @@ void widget_draw ( widget *widget, cairo_t *d )
         int top  = distance_get_pixel ( widget->border.top, ORIENTATION_HORIZONTAL );
         int right = distance_get_pixel ( widget->border.right, ORIENTATION_VERTICAL );
         int bottom  = distance_get_pixel ( widget->border.bottom, ORIENTATION_VERTICAL );
-        rofi_theme_get_color ( widget->class_name, widget->name, widget->state, "foreground", d );
-        if ( left > 0 ) {
-            cairo_set_line_width ( d, left );
-            cairo_move_to ( d, margin_left + left/2.0, margin_top );
-            cairo_line_to ( d, margin_left + left/2.0, widget->h-margin_bottom);
-            cairo_stroke ( d );
+        if ( left || top || right || bottom ) {
+            rofi_theme_get_color ( widget->class_name, widget->name, widget->state, "foreground", d );
+            if ( left > 0 ) {
+                cairo_set_line_width ( d, left );
+                cairo_move_to ( d, margin_left + left/2.0, margin_top );
+                cairo_line_to ( d, margin_left + left/2.0, widget->h-margin_bottom);
+                cairo_stroke ( d );
+            }
+            if ( right > 0 ) {
+                cairo_set_line_width ( d, right );
+                cairo_move_to ( d, widget->w - margin_right - right/2.0, 0 );
+                cairo_line_to ( d, widget->w - margin_right - right/2.0, widget->h-margin_bottom );
+                cairo_stroke ( d );
+            }
+            if ( top > 0 ) {
+                cairo_set_line_width ( d, top );
+                cairo_move_to ( d, margin_left,margin_top+ top/2.0 );
+                cairo_line_to ( d, widget->w-margin_right, margin_top+top/2.0 );
+                cairo_stroke ( d );
+            }
+            if ( bottom > 0 ) {
+                cairo_set_line_width ( d, bottom );
+                cairo_move_to ( d, margin_left, widget->h-bottom/2.0-margin_bottom);
+                cairo_line_to ( d, widget->w-margin_right, widget->h-bottom/2.0-margin_bottom);
+                cairo_stroke ( d );
+            }
         }
-        if ( right > 0 ) {
-            cairo_set_line_width ( d, right );
-            cairo_move_to ( d, widget->w - margin_right - right/2.0, 0 );
-            cairo_line_to ( d, widget->w - margin_right - right/2.0, widget->h-margin_bottom );
-            cairo_stroke ( d );
-        }
-        if ( top > 0 ) {
-            cairo_set_line_width ( d, top );
-            cairo_move_to ( d, margin_left,margin_top+ top/2.0 );
-            cairo_line_to ( d, widget->w-margin_right, margin_top+top/2.0 );
-            cairo_stroke ( d );
-        }
-        if ( bottom > 0 ) {
-            cairo_set_line_width ( d, bottom );
-            cairo_move_to ( d, margin_left, widget->h-bottom/2.0-margin_bottom);
-            cairo_line_to ( d, widget->w-margin_right, widget->h-bottom/2.0-margin_bottom);
-            cairo_stroke ( d );
-        }
-
-
-
         widget->draw ( widget, d );
         widget->need_redraw = FALSE;
 

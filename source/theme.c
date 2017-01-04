@@ -9,6 +9,8 @@
 #include "widgets/textbox.h"
 #include "view.h"
 
+#define LOG_DOMAIN "Theme"
+
 void yyerror ( YYLTYPE *ylloc, const char *);
 
 ThemeWidget *rofi_theme_find_or_create_class ( ThemeWidget *base, const char *class )
@@ -296,6 +298,7 @@ int rofi_theme_get_integer ( const char *wclass, const char  *name, const char *
     if ( p ){
         return p->value.i;
     }
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", name, state?state:"", property );
     return def;
 }
 Distance rofi_theme_get_distance ( const char *wclass, const char  *name, const char *state, const char *property, int def )
@@ -310,6 +313,7 @@ Distance rofi_theme_get_distance ( const char *wclass, const char  *name, const 
     if ( p ){
         return (Distance){(double)p->value.i, PW_PX};
     }
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", name, state?state:"", property );
     return (Distance){def, PW_PX};
 }
 
@@ -320,6 +324,7 @@ int rofi_theme_get_boolean ( const char *wclass, const char  *name, const char *
     if ( p ){
         return p->value.b;
     }
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", name, state?state:"", property );
     return def;
 }
 
@@ -330,6 +335,7 @@ char *rofi_theme_get_string ( const char *wclass, const char  *name, const char 
     if ( p ){
         return p->value.s;
     }
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", name, state?state:"", property );
     return def;
 }
 double rofi_theme_get_double ( const char *wclass, const char  *name, const char *state, const char *property, double def )
@@ -339,6 +345,7 @@ double rofi_theme_get_double ( const char *wclass, const char  *name, const char
     if ( p ){
         return p->value.b;
     }
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", name, state?state:"", property );
     return def;
 }
 void rofi_theme_get_color ( const char *wclass, const char  *name, const char *state, const char *property, cairo_t *d)
@@ -352,7 +359,8 @@ void rofi_theme_get_color ( const char *wclass, const char  *name, const char *s
                 p->value.color.blue,
                 p->value.color.alpha
                 );
-
+    } else {
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", name, state?state:"", property );
     }
 }
 Padding rofi_theme_get_padding ( const char *wclass, const char  *name, const char *state, const char *property, Padding pad )
@@ -368,6 +376,7 @@ Padding rofi_theme_get_padding ( const char *wclass, const char  *name, const ch
             pad = (Padding){d,d,d,d};
         }
     }
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", name, state?state:"", property );
     return pad;
 }
 int distance_get_pixel ( Distance d, Orientation ori )
