@@ -1505,10 +1505,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->overlay = textbox_create ( "overlay.textbox", TB_AUTOWIDTH|TB_AUTOHEIGHT, URGENT, "blaat"  );
     widget_disable ( WIDGET ( state->overlay ) );
 
-    state->list_view = listview_create ( "listview", update_callback, state, config.element_height );
-    if ( end ){
-        listview_reverse ( state->list_view, TRUE );
-    }
+    state->list_view = listview_create ( "listview", update_callback, state, config.element_height, end );
     // Set configuration
     listview_set_multi_select ( state->list_view, ( state->menu_flags & MENU_INDICATOR ) == MENU_INDICATOR );
     listview_set_scroll_type ( state->list_view, config.scroll_method );

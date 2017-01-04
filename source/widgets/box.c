@@ -282,8 +282,8 @@ void box_add ( box *box, widget *child, gboolean expand, gboolean end )
         height = MAX (height, child->h+widget_padding_get_padding_height ( WIDGET ( box )));
         box->widget.h = height;
     }
-    child->expand = expand;
-    child->end    = end;
+    child->expand = rofi_theme_get_boolean ( child->class_name, child->name, child->state, "expand", expand);
+    child->end = rofi_theme_get_boolean ( child->class_name, child->name, child->state, "end", end);
     child->parent = WIDGET ( box );
     box->children = g_list_append ( box->children, (void *) child );
     widget_update ( WIDGET ( box ) );

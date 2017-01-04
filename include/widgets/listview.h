@@ -46,10 +46,11 @@ typedef void ( *listview_mouse_activated_cb )( listview *, xcb_button_press_even
  * @param cb The update callback.
  * @param udata The user data to pass to the callback
  * @param eh The height of one element
+ * @param reverse Reverse the listview order.
  *
  * @returns a new listview
  */
-listview *listview_create ( const char *name, listview_update_callback cb, void *udata, unsigned int eh );
+listview *listview_create ( const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse );
 
 /**
  * @param lv The listview handle
@@ -184,13 +185,6 @@ void listview_set_num_lines ( listview *lv, unsigned int num_lines );
  */
 void listview_set_max_lines ( listview *lv, unsigned int max_lines );
 
-/**
- * @param lv Handler to the listview object.
- * @param reverse Reverse the listview order.
- *
- * Set reversing the listview.
- */
-void listview_reverse ( listview *lv, gboolean reverse );
 /* @} */
 
 #endif // ROFI_LISTVIEW_H

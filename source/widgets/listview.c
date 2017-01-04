@@ -336,7 +336,7 @@ static gboolean listview_motion_notify ( widget *wid, xcb_motion_notify_event_t 
 
     return FALSE;
 }
-listview *listview_create ( const char *name, listview_update_callback cb, void *udata, unsigned int eh )
+listview *listview_create ( const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse )
 {
     listview *lv = g_malloc0 ( sizeof ( listview ) );
 
@@ -371,6 +371,7 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->fixed_num_lines = rofi_theme_get_boolean  (lv->widget.class_name, lv->widget.name, NULL, "fixed-height", config.fixed_num_lines );
     lv->dynamic         = rofi_theme_get_boolean  (lv->widget.class_name, lv->widget.name, NULL, "dynamic",      TRUE );
 
+    lv->reverse         = rofi_theme_get_boolean  (lv->widget.class_name, lv->widget.name, NULL, "reverse",      reverse );
     listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( lv->widget.class_name, lv->widget.name, NULL, "scrollbar", !config.hide_scrollbar ));
     listview_set_scrollbar_width ( lv, rofi_theme_get_integer ( lv->widget.class_name, lv->widget.name, NULL, "scrollbar-width", config.scrollbar_width ));
     lv->cycle = rofi_theme_get_boolean ( lv->widget.class_name, lv->widget.name, NULL,  "cycle", config.cycle );
@@ -579,8 +580,4 @@ void listview_set_max_lines ( listview *lv, unsigned int max_lines )
     if ( lv ) {
         lv->max_displayed_lines = max_lines;
     }
-}
-void listview_reverse ( listview *lv, gboolean reverse )
-{
-    lv->reverse = reverse;
 }
