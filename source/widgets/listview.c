@@ -372,7 +372,8 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->dynamic         = rofi_theme_get_boolean  ( WIDGET ( lv ), "dynamic",      TRUE );
     lv->reverse         = rofi_theme_get_boolean  ( WIDGET ( lv ), "reverse",      reverse );
     listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( WIDGET ( lv ), "scrollbar", !config.hide_scrollbar ));
-    listview_set_scrollbar_width ( lv, rofi_theme_get_integer ( WIDGET ( lv ), "scrollbar-width", config.scrollbar_width ));
+    Distance d = rofi_theme_get_distance ( WIDGET ( lv ), "scrollbar-width", config.scrollbar_width );
+    listview_set_scrollbar_width ( lv, distance_get_pixel ( d, ORIENTATION_HORIZONTAL ) );
     lv->cycle = rofi_theme_get_boolean ( WIDGET ( lv ), "cycle", config.cycle );
 
 
