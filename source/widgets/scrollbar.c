@@ -45,6 +45,7 @@ scrollbar *scrollbar_create ( const char *name, int width )
 {
     scrollbar *sb = g_malloc0 ( sizeof ( scrollbar ) );
     widget_init ( WIDGET (sb), name );
+    sb->widget.state = g_strdup("handle");
     sb->widget.x = 0;
     sb->widget.y = 0;
     sb->widget.w = widget_padding_get_padding_width ( WIDGET (sb) ) +width;
@@ -118,7 +119,7 @@ static void scrollbar_draw ( widget *wid, cairo_t *draw )
     // Never go out of bar.
     height = MAX ( 2, height );
     // Cap length;
-    rofi_theme_get_color ( sb->widget.name, "handle", "foreground", draw );
+    rofi_theme_get_color ( WIDGET (sb ), "foreground", draw );
 
     cairo_rectangle ( draw,
             widget_padding_get_left ( wid ),

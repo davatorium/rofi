@@ -612,7 +612,9 @@ void __create_window ( MenuFlags menu_flags )
         pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, (double) config.dpi );
     }
     // Setup font.
-    char *font = rofi_theme_get_string ( "window", NULL, "font" , config.menu_font );
+    // Dummy widget.
+    window *win = window_create ( "window" );
+    char *font = rofi_theme_get_string ( WIDGET ( win ), "font" , config.menu_font );
     if ( font ) {
         PangoFontDescription *pfd = pango_font_description_from_string ( font );
         pango_context_set_font_description ( p, pfd );
@@ -650,7 +652,7 @@ void __create_window ( MenuFlags menu_flags )
     CacheState.flags       = menu_flags;
     monitor_active ( &( CacheState.mon ) );
 
-    char *transparency = rofi_theme_get_string ( "window", NULL, "transparency", NULL);
+    char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL);
     if ( transparency == NULL && config.fake_transparency ){
         transparency = config.fake_background;
     }
@@ -660,6 +662,7 @@ void __create_window ( MenuFlags menu_flags )
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_setup_window ( xcb->sncontext, CacheState.main_window );
     }
+    widget_free ( WIDGET ( win ) );
 }
 
 /**
@@ -1450,24 +1453,21 @@ RofiViewState *rofi_view_create ( Mode *sw,
     TICK_N ( "Get active monitor" );
 
     state->main_window = window_create ( "window" );
-    state->main_box = box_create ( "mainbox.box", BOX_VERTICAL );
+    state->main_box = box_create ( "window.mainbox.box", BOX_VERTICAL );
     window_add ( state->main_window, WIDGET ( state->main_box ) );
 
 
-    state->input_bar = box_create ( "inputbar.box", BOX_HORIZONTAL );
-    state->input_bar_separator = separator_create ( "inputbar.separator", S_HORIZONTAL, 2 );
+    state->input_bar = box_create ( "window.mainbox.inputbar.box", BOX_HORIZONTAL );
 
     // Only enable widget when sidebar is enabled.
     if ( config.sidebar_mode ) {
-        state->sidebar_bar = box_create ( "sidebar.box", BOX_HORIZONTAL );
-        separator *sep = separator_create ( "sidebar.separator", S_HORIZONTAL, 2 );
+        state->sidebar_bar = box_create ( "window.mainbox.sidebar.box", BOX_HORIZONTAL );
         box_add ( state->main_box, WIDGET ( state->sidebar_bar ), FALSE, TRUE );
-        box_add ( state->main_box, WIDGET ( sep ), FALSE, TRUE );
         state->num_modi = rofi_get_num_enabled_modi ();
         state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
         for ( unsigned int j = 0; j < state->num_modi; j++ ) {
             const Mode * mode = rofi_get_mode ( j );
-            state->modi[j] = textbox_create ( "sidebar.button", TB_CENTER|TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
+            state->modi[j] = textbox_create ( "window.mainbox.sidebar.button", TB_CENTER|TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
                                               mode_get_display_name ( mode  ) );
             box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, FALSE );
             widget_set_clicked_handler ( WIDGET ( state->modi[j] ), rofi_view_modi_clicked_cb, state );
@@ -1477,35 +1477,32 @@ RofiViewState *rofi_view_create ( Mode *sw,
     int end = ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST );
     box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, end );
 
-    state->case_indicator = textbox_create ( "inputbar.case-indicator", TB_AUTOWIDTH|TB_AUTOHEIGHT, NORMAL, "*" );
+    state->case_indicator = textbox_create ( "window.mainbox.inputbar.case-indicator", TB_AUTOWIDTH|TB_AUTOHEIGHT, NORMAL, "*" );
     // Add small separator between case indicator and text box.
     box_add ( state->input_bar, WIDGET ( state->case_indicator ), FALSE, TRUE );
 
     // Prompt box.
-    state->prompt = textbox_create ( "inputbar.prompt",TB_AUTOWIDTH|TB_AUTOHEIGHT, NORMAL, "" );
+    state->prompt = textbox_create ( "window.mainbox.inputbar.prompt",TB_AUTOWIDTH|TB_AUTOHEIGHT, NORMAL, "" );
     rofi_view_update_prompt ( state );
     box_add ( state->input_bar, WIDGET ( state->prompt ), FALSE, FALSE );
 
     // Entry box
     TextboxFlags tfl = TB_EDITABLE;
     tfl        |= ( ( menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
-    state->text = textbox_create ( "inputbar.entry", tfl|TB_AUTOHEIGHT, NORMAL, input );
+    state->text = textbox_create ( "window.mainbox.inputbar.entry", tfl|TB_AUTOHEIGHT, NORMAL, input );
 
     box_add ( state->input_bar, WIDGET ( state->text ), TRUE, FALSE );
 
     textbox_text ( state->case_indicator, get_matching_state () );
     if ( message ) {
-        textbox *message_tb = textbox_create ( "message.textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, message );
-        separator *sep = separator_create ( "message.separator", S_HORIZONTAL, 2 );
-        box_add ( state->main_box, WIDGET ( sep ), FALSE, end);
+        textbox *message_tb = textbox_create ( "window.mainbox.message.textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, message );
         box_add ( state->main_box, WIDGET ( message_tb ), FALSE, end);
     }
-    box_add ( state->main_box, WIDGET ( state->input_bar_separator ), FALSE, end );
 
-    state->overlay = textbox_create ( "overlay.textbox", TB_AUTOWIDTH|TB_AUTOHEIGHT, URGENT, "blaat"  );
+    state->overlay = textbox_create ( "window.overlay", TB_AUTOWIDTH|TB_AUTOHEIGHT, URGENT, "blaat"  );
     widget_disable ( WIDGET ( state->overlay ) );
 
-    state->list_view = listview_create ( "listview", update_callback, state, config.element_height, end );
+    state->list_view = listview_create ( "window.mainbox.listview", update_callback, state, config.element_height, end );
     // Set configuration
     listview_set_multi_select ( state->list_view, ( state->menu_flags & MENU_INDICATOR ) == MENU_INDICATOR );
     listview_set_scroll_type ( state->list_view, config.scroll_method );
@@ -1550,9 +1547,9 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->finalize   = process_result;
 
     state->main_window = window_create ( "window" );
-    state->main_box = box_create ( "mainbox.box", BOX_VERTICAL);
+    state->main_box = box_create ( "window.mainbox", BOX_VERTICAL);
     window_add ( state->main_window, WIDGET ( state->main_box ) );
-    state->text = textbox_create ( "message", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
+    state->text = textbox_create ( "window.mainbox.message", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
             NORMAL, ( msg != NULL ) ? msg : "" );
     box_add ( state->main_box, WIDGET ( state->text ), TRUE, FALSE );
 

@@ -365,7 +365,7 @@ static void texbox_update ( textbox *tb )
         //cairo_set_source_rgba ( tb->main_draw, 0,0,0,0.0);
         //cairo_paint ( tb->main_draw );
 
-        rofi_theme_get_color ( tb->widget.name, tb->widget.state, "foreground", tb->main_draw);
+        rofi_theme_get_color ( WIDGET ( tb ), "foreground", tb->main_draw);
         // draw the cursor
         if ( tb->flags & TB_EDITABLE && tb->blink ) {
             cairo_rectangle ( tb->main_draw, x + cursor_x, y+cursor_y, cursor_width, cursor_height);

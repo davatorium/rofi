@@ -279,8 +279,8 @@ void box_add ( box *box, widget *child, gboolean expand, gboolean end )
         height = MAX (height, child->h+widget_padding_get_padding_height ( WIDGET ( box )));
         box->widget.h = height;
     }
-    child->expand = rofi_theme_get_boolean ( child->name, child->state, "expand", expand);
-    child->end = rofi_theme_get_boolean ( child->name, child->state, "end", end);
+    child->expand = rofi_theme_get_boolean ( child, "expand", expand);
+    child->end = rofi_theme_get_boolean ( child, "end", end);
     child->parent = WIDGET ( box );
     box->children = g_list_append ( box->children, (void *) child );
     widget_update ( WIDGET ( box ) );
@@ -346,7 +346,7 @@ box * box_create ( const char *name, boxType type )
     b->widget.get_desired_height = box_get_desired_height;
     b->widget.enabled             = TRUE;
 
-    b->spacing = rofi_theme_get_distance ( b->widget.name, NULL, "spacing",DEFAULT_SPACING );
+    b->spacing = rofi_theme_get_distance ( WIDGET(b), "spacing", DEFAULT_SPACING );
     return b;
 }
 

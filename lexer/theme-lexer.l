@@ -30,6 +30,9 @@ EM         (em)
 PERCENT    (\%)
 NEWLINES   (\r|\n)+
 
+LS_DASH    "dash"
+LS_SOLID   "solid"
+
 %x PROPERTIES
 %x NAMESTR
 %x ENTRY
@@ -110,16 +113,55 @@ if ( queue == NULL ){
 <PROPERTIES>{REAL}{EM}        {
     yylval->distance.distance = (double)g_ascii_strtod(yytext, NULL);
     yylval->distance.type     = PW_EM;
+    yylval->distance.style    = SOLID;
     return T_PIXEL;
 }
 <PROPERTIES>{NUMBER}+{PX}        {
     yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
     yylval->distance.type     = PW_PX;
+    yylval->distance.style    = SOLID;
+    return T_PIXEL;
+}
+<PROPERTIES>{NUMBER}+{PX}{WHITESPACE}{LS_DASH} {
+    yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
+    yylval->distance.type     = PW_PX;
+    yylval->distance.style    = DASH;
+    return T_PIXEL;
+}
+<PROPERTIES>{NUMBER}+{EM}{WHITESPACE}{LS_DASH} {
+    yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
+    yylval->distance.type     = PW_PX;
+    yylval->distance.style    = DASH;
+    return T_PIXEL;
+}
+<PROPERTIES>{NUMBER}+{PX}{WHITESPACE}{LS_SOLID} {
+    yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
+    yylval->distance.type     = PW_PX;
+    yylval->distance.style    = SOLID;
+    return T_PIXEL;
+}
+<PROPERTIES>{NUMBER}+{EM}{WHITESPACE}{LS_SOLID} {
+    yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
+    yylval->distance.type     = PW_PX;
+    yylval->distance.style    = SOLID;
     return T_PIXEL;
 }
 <PROPERTIES>{REAL}{PERCENT}        {
     yylval->distance.distance = (double)g_ascii_strtod(yytext, NULL);
     yylval->distance.type     = PW_PERCENT;
+    yylval->distance.style    = SOLID;
+    return T_PIXEL;
+}
+<PROPERTIES>{REAL}{PERCENT}{WHITESPACE}{LS_SOLID}        {
+    yylval->distance.distance = (double)g_ascii_strtod(yytext, NULL);
+    yylval->distance.type     = PW_PERCENT;
+    yylval->distance.style    = SOLID;
+    return T_PIXEL;
+}
+<PROPERTIES>{REAL}{PERCENT}{WHITESPACE}{LS_DASH}        {
+    yylval->distance.distance = (double)g_ascii_strtod(yytext, NULL);
+    yylval->distance.type     = PW_PERCENT;
+    yylval->distance.style    = DASH;
     return T_PIXEL;
 }
 <PROPERTIES>#{HEX}{8}       {

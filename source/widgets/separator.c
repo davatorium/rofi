@@ -98,7 +98,7 @@ separator *separator_create ( const char *name, separator_type type, short sw )
     // Enabled by default
     sb->widget.enabled = TRUE;
 
-    const char *line_style = rofi_theme_get_string ( sb->widget.name, NULL, "line-style", "solid");
+    const char *line_style = rofi_theme_get_string ( WIDGET (sb), "line-style", "solid");
     separator_set_line_style_from_string ( sb, line_style );
     return sb;
 }
@@ -139,7 +139,7 @@ static void separator_draw ( widget *wid, cairo_t *draw )
         return;
     }
     color_separator ( draw );
-    rofi_theme_get_color ( wid->name, NULL, "foreground", draw );
+    rofi_theme_get_color ( wid, "foreground", draw );
     if ( sep->line_style == S_LINE_DASH ) {
         const double dashes[1] = { 4 };
         cairo_set_dash ( draw, dashes, 1, 0.0 );

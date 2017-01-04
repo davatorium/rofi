@@ -7,13 +7,13 @@
 void widget_init ( widget *widget , const char *name )
 {
     widget->name       = g_strdup(name);
-    widget->padding = (Padding){ {0, PW_PX}, {0, PW_PX}, {0, PW_PX}, {0, PW_PX}};
-    widget->padding = rofi_theme_get_padding ( widget->name, NULL, "padding", widget->padding);
-    widget->border  = (Padding){ {0, PW_PX}, {0, PW_PX}, {0, PW_PX}, {0, PW_PX}};
-    widget->border  = rofi_theme_get_padding ( widget->name, NULL, "border", widget->border);
+    widget->padding = (Padding){ {0, PW_PX, SOLID}, {0, PW_PX, SOLID}, {0, PW_PX, SOLID}, {0, PW_PX, SOLID}};
+    widget->padding = rofi_theme_get_padding ( widget, "padding", widget->padding);
+    widget->border  = (Padding){ {0, PW_PX, SOLID}, {0, PW_PX, SOLID}, {0, PW_PX, SOLID}, {0, PW_PX, SOLID}};
+    widget->border  = rofi_theme_get_padding ( widget, "border", widget->border);
 
-    widget->margin = (Padding){ {0, PW_PX}, {0, PW_PX}, {0, PW_PX}, {0, PW_PX}};
-    widget->margin = rofi_theme_get_padding ( widget->name, NULL, "margin", widget->margin);
+    widget->margin = (Padding){ {0, PW_PX, SOLID}, {0, PW_PX, SOLID}, {0, PW_PX, SOLID}, {0, PW_PX, SOLID}};
+    widget->margin = rofi_theme_get_padding ( widget, "margin", widget->margin);
 }
 
 void widget_set_state ( widget *widget, const char *state )
@@ -107,7 +107,7 @@ void widget_draw ( widget *widget, cairo_t *d )
                 );
         cairo_clip ( d );
 
-        rofi_theme_get_color ( widget->name, widget->state, "background", d );
+        rofi_theme_get_color ( widget, "background", d );
         cairo_paint( d ) ;
 
         // Set new x/y possition.
@@ -118,27 +118,31 @@ void widget_draw ( widget *widget, cairo_t *d )
         int right = distance_get_pixel ( widget->border.right, ORIENTATION_VERTICAL );
         int bottom  = distance_get_pixel ( widget->border.bottom, ORIENTATION_VERTICAL );
         if ( left || top || right || bottom ) {
-            rofi_theme_get_color ( widget->name, widget->state, "foreground", d );
+            rofi_theme_get_color ( widget, "foreground", d );
             if ( left > 0 ) {
                 cairo_set_line_width ( d, left );
+                distance_get_linestyle ( widget->border.left, d);
                 cairo_move_to ( d, margin_left + left/2.0, margin_top );
                 cairo_line_to ( d, margin_left + left/2.0, widget->h-margin_bottom);
                 cairo_stroke ( d );
             }
             if ( right > 0 ) {
                 cairo_set_line_width ( d, right );
+                distance_get_linestyle ( widget->border.right, d);
                 cairo_move_to ( d, widget->w - margin_right - right/2.0, 0 );
                 cairo_line_to ( d, widget->w - margin_right - right/2.0, widget->h-margin_bottom );
                 cairo_stroke ( d );
             }
             if ( top > 0 ) {
                 cairo_set_line_width ( d, top );
+                distance_get_linestyle ( widget->border.top, d);
                 cairo_move_to ( d, margin_left,margin_top+ top/2.0 );
                 cairo_line_to ( d, widget->w-margin_right, margin_top+top/2.0 );
                 cairo_stroke ( d );
             }
             if ( bottom > 0 ) {
                 cairo_set_line_width ( d, bottom );
+                distance_get_linestyle ( widget->border.bottom, d);
                 cairo_move_to ( d, margin_left, widget->h-bottom/2.0-margin_bottom);
                 cairo_line_to ( d, widget->w-margin_right, widget->h-bottom/2.0-margin_bottom);
                 cairo_stroke ( d );

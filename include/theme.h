@@ -2,7 +2,12 @@
 #define THEME_H
 #include <glib.h>
 #include <cairo.h>
+#include <widgets/widget.h>
 
+typedef enum {
+    SOLID,
+    DASH
+} LineStyle;
 /**
  * Distance unit type.
  */
@@ -23,6 +28,8 @@ typedef struct {
     double     distance;
     /** Unit type of the distance */
     PixelWidth type;
+    /** Style of the line */
+    LineStyle  style;
 } Distance;
 
 /**
@@ -150,7 +157,7 @@ void rofi_theme_property_free ( Property *p );
 void rofi_theme_free ( ThemeWidget *wid );
 
 /**
- * @param file filename to parse. 
+ * @param file filename to parse.
  *
  * Parse the input theme file.
  */
@@ -169,87 +176,87 @@ void rofi_theme_widget_add_properties ( ThemeWidget *widget, GHashTable *table )
  */
 
 /**
- * @param name     The name class
+ * @param widget   The widget to query
  * @param state    The widget current state
  * @param property The property to query.
  * @param def      The default value.
  *
  * Obtain the distance of the widget.
  *
- * @returns The distance value of this property for this widget. 
+ * @returns The distance value of this property for this widget.
  */
-Distance rofi_theme_get_distance ( const char  *name, const char *state, const char *property, int def );
+Distance rofi_theme_get_distance ( const widget *widget, const char *property, int def );
 
 /**
- * @param name     The name class
+ * @param widget   The widget to query
  * @param state    The widget current state
  * @param property The property to query.
  * @param def      The default value.
  *
  * Obtain the integer of the widget.
  *
- * @returns The integer value of this property for this widget. 
+ * @returns The integer value of this property for this widget.
  */
-int rofi_theme_get_integer   (  const char *name, const char *state,  const char *property, int def );
+int rofi_theme_get_integer   (  const widget *widget,  const char *property, int def );
 
 /**
- * @param name     The name class
+ * @param widget   The widget to query
  * @param state    The widget current state
  * @param property The property to query.
  * @param def      The default value.
  *
  * Obtain the boolean of the widget.
  *
- * @returns The boolean value of this property for this widget. 
+ * @returns The boolean value of this property for this widget.
  */
-int rofi_theme_get_boolean   (  const char *name, const char *state,  const char *property, int def );
+int rofi_theme_get_boolean   (  const widget *widget,  const char *property, int def );
 
 /**
- * @param name     The name class
+ * @param widget   The widget to query
  * @param state    The widget current state
  * @param property The property to query.
  * @param def      The default value.
  *
  * Obtain the string of the widget.
  *
- * @returns The string value of this property for this widget. 
+ * @returns The string value of this property for this widget.
  */
-char *rofi_theme_get_string  (  const char *name, const char *state,  const char *property, char *def );
+char *rofi_theme_get_string  (  const widget *widget,  const char *property, char *def );
 
 /**
- * @param name     The name class
+ * @param widget   The widget to query
  * @param state    The widget current state
  * @param property The property to query.
  * @param def      The default value.
  *
  * Obtain the padding of the widget.
  *
- * @returns The double value of this property for this widget. 
+ * @returns The double value of this property for this widget.
  */
-double rofi_theme_get_double (  const char *name, const char *state,  const char *property, double def );
+double rofi_theme_get_double (  const widget *widget,  const char *property, double def );
 
 /**
- * @param name     The name class
+ * @param widget   The widget to query
  * @param state    The widget current state
  * @param property The property to query.
- * @param d        The drawable to apply color. 
+ * @param d        The drawable to apply color.
  *
  * Obtain the color of the widget and applies this to the drawable d.
  *
  */
-void rofi_theme_get_color ( const char  *name, const char *state, const char *property, cairo_t *d);
+void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t *d);
 
 /**
- * @param name     The name class
+ * @param widget   The widget to query
  * @param state    The widget current state
  * @param property The property to query.
  * @param pad      The default value.
  *
  * Obtain the padding of the widget.
  *
- * @returns The padding of this property for this widget. 
+ * @returns The padding of this property for this widget.
  */
-Padding rofi_theme_get_padding ( const char  *name, const char *state, const char *property, Padding pad );
+Padding rofi_theme_get_padding ( const widget *widget, const char *property, Padding pad );
 
 /**
  * @param d The distance handle.
@@ -259,6 +266,13 @@ Padding rofi_theme_get_padding ( const char  *name, const char *state, const cha
  * @returns the number of pixels this distance represents.
  */
 int distance_get_pixel ( Distance d, Orientation ori );
+/**
+ * @param d The distance handle.
+ * @param draw The cairo drawable.
+ *
+ * Set linestyle.
+ */
+void distance_get_linestyle ( Distance d, cairo_t *draw );
 
 #ifdef THEME_CONVERTER
 /**

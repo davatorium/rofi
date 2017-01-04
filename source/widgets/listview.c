@@ -366,15 +366,14 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->udata    = udata;
 
     // Some settings.
-    lv->spacing         = rofi_theme_get_distance ( lv->widget.name, NULL,  "spacing", DEFAULT_SPACING );
-    lv->menu_columns    = rofi_theme_get_integer  ( lv->widget.name, NULL, "columns", config.menu_columns );
-    lv->fixed_num_lines = rofi_theme_get_boolean  ( lv->widget.name, NULL, "fixed-height", config.fixed_num_lines );
-    lv->dynamic         = rofi_theme_get_boolean  ( lv->widget.name, NULL, "dynamic",      TRUE );
-
-    lv->reverse         = rofi_theme_get_boolean  ( lv->widget.name, NULL, "reverse",      reverse );
-    listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( lv->widget.name, NULL, "scrollbar", !config.hide_scrollbar ));
-    listview_set_scrollbar_width ( lv, rofi_theme_get_integer ( lv->widget.name, NULL, "scrollbar-width", config.scrollbar_width ));
-    lv->cycle = rofi_theme_get_boolean ( lv->widget.name, NULL,  "cycle", config.cycle );
+    lv->spacing         = rofi_theme_get_distance ( WIDGET ( lv ), "spacing", DEFAULT_SPACING );
+    lv->menu_columns    = rofi_theme_get_integer  ( WIDGET ( lv ), "columns", config.menu_columns );
+    lv->fixed_num_lines = rofi_theme_get_boolean  ( WIDGET ( lv ), "fixed-height", config.fixed_num_lines );
+    lv->dynamic         = rofi_theme_get_boolean  ( WIDGET ( lv ), "dynamic",      TRUE );
+    lv->reverse         = rofi_theme_get_boolean  ( WIDGET ( lv ), "reverse",      reverse );
+    listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( WIDGET ( lv ), "scrollbar", !config.hide_scrollbar ));
+    listview_set_scrollbar_width ( lv, rofi_theme_get_integer ( WIDGET ( lv ), "scrollbar-width", config.scrollbar_width ));
+    lv->cycle = rofi_theme_get_boolean ( WIDGET ( lv ), "cycle", config.cycle );
 
 
     return lv;
