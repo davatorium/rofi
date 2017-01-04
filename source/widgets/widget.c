@@ -88,6 +88,11 @@ void widget_draw ( widget *widget, cairo_t *d )
 {
     // Check if enabled and if draw is implemented.
     if ( widget && widget->enabled && widget->draw ) {
+        // Don't draw if there is no space.
+        if ( widget->h < 1 || widget->w < 1 ){
+            widget->need_redraw = FALSE;
+            return;
+        }
         // Store current state.
         cairo_save ( d );
         int margin_left = distance_get_pixel ( widget->margin.left, ORIENTATION_HORIZONTAL );

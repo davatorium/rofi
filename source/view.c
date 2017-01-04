@@ -797,6 +797,7 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
     if ( !widget_need_redraw ( WIDGET ( state->main_window ) ) && !widget_need_redraw ( WIDGET ( state->overlay ) )  ) {
         return;
     }
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Redraw view" );
     TICK ();
     cairo_t *d = CacheState.edit_draw;
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
