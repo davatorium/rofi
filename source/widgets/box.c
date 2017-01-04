@@ -33,9 +33,6 @@
 
 #define LOG_DOMAIN    "Widgets.Box"
 
-/** Class name of box widget */
-const char *BOX_CLASS_NAME = "@box";
-
 /** Default spacing used in the box*/
 #define DEFAULT_SPACING  2
 
@@ -282,8 +279,8 @@ void box_add ( box *box, widget *child, gboolean expand, gboolean end )
         height = MAX (height, child->h+widget_padding_get_padding_height ( WIDGET ( box )));
         box->widget.h = height;
     }
-    child->expand = rofi_theme_get_boolean ( child->class_name, child->name, child->state, "expand", expand);
-    child->end = rofi_theme_get_boolean ( child->class_name, child->name, child->state, "end", end);
+    child->expand = rofi_theme_get_boolean ( child->name, child->state, "expand", expand);
+    child->end = rofi_theme_get_boolean ( child->name, child->state, "end", end);
     child->parent = WIDGET ( box );
     box->children = g_list_append ( box->children, (void *) child );
     widget_update ( WIDGET ( box ) );
@@ -338,7 +335,7 @@ box * box_create ( const char *name, boxType type )
 {
     box *b = g_malloc0 ( sizeof ( box ) );
     // Initialize widget.
-    widget_init ( WIDGET(b), name, BOX_CLASS_NAME);
+    widget_init ( WIDGET(b), name );
     b->type                      = type;
     b->widget.draw               = box_draw;
     b->widget.free               = box_free;
@@ -349,7 +346,7 @@ box * box_create ( const char *name, boxType type )
     b->widget.get_desired_height = box_get_desired_height;
     b->widget.enabled             = TRUE;
 
-    b->spacing = rofi_theme_get_distance ( b->widget.class_name, b->widget.name, NULL, "spacing",DEFAULT_SPACING );
+    b->spacing = rofi_theme_get_distance ( b->widget.name, NULL, "spacing",DEFAULT_SPACING );
     return b;
 }
 

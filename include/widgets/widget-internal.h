@@ -56,19 +56,17 @@ struct _widget
 
     /** Name of widget (used for theming) */
     char *name;
-    char *class_name;
     const char *state;
 };
 
 /**
  * @param widget The widget to initialize.
  * @param name The name of the widget.
- * @param class_name The name of the class of the widget.
  *
  * Initializes the widget structure.
  *
  */
-void widget_init ( widget *widget , const char *name, const char *class_name );
+void widget_init ( widget *widget , const char *name );
 
 /**
  * @param widget The widget handle.

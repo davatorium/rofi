@@ -612,7 +612,7 @@ void __create_window ( MenuFlags menu_flags )
         pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, (double) config.dpi );
     }
     // Setup font.
-    char *font = rofi_theme_get_string ("@window" , "window", NULL, "font" , config.menu_font );
+    char *font = rofi_theme_get_string ( "window", NULL, "font" , config.menu_font );
     if ( font ) {
         PangoFontDescription *pfd = pango_font_description_from_string ( font );
         pango_context_set_font_description ( p, pfd );
@@ -650,7 +650,7 @@ void __create_window ( MenuFlags menu_flags )
     CacheState.flags       = menu_flags;
     monitor_active ( &( CacheState.mon ) );
 
-    char *transparency = rofi_theme_get_string ( "@window", "window", NULL, "transparency", NULL);
+    char *transparency = rofi_theme_get_string ( "window", NULL, "transparency", NULL);
     if ( transparency == NULL && config.fake_transparency ){
         transparency = config.fake_background;
     }

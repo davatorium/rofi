@@ -90,7 +90,6 @@ if ( queue == NULL ){
     return BCLOSE;
 }
 
-<INITIAL>"@"            { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(NAMESTR);return CLASS_PREFIX;}
 <INITIAL>"#"            { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(NAMESTR);return NAME_PREFIX;}
 <INITIAL,NAMESTR>"."    { return NSEP; }
 <INITIAL,ENTRY>{WORD}   { yylval->sval = g_strdup(yytext); return N_STRING;}

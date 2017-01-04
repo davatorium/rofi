@@ -111,13 +111,13 @@ extern ThemeWidget *rofi_theme;
 
 /**
  * @param base Handle to the current level in the theme.
- * @param class Name of the new element.
+ * @param name Name of the new element.
  *
  * Create a new element in the theme structure.
  *
  * @returns handle to the new entry.
  */
-ThemeWidget *rofi_theme_find_or_create_class ( ThemeWidget *base, const char *class );
+ThemeWidget *rofi_theme_find_or_create_name ( ThemeWidget *base, const char *class );
 
 /**
  * @param widget The widget handle.
@@ -169,7 +169,6 @@ void rofi_theme_widget_add_properties ( ThemeWidget *widget, GHashTable *table )
  */
 
 /**
- * @param wclass   The widget class
  * @param name     The name class
  * @param state    The widget current state
  * @param property The property to query.
@@ -179,10 +178,9 @@ void rofi_theme_widget_add_properties ( ThemeWidget *widget, GHashTable *table )
  *
  * @returns The distance value of this property for this widget. 
  */
-Distance rofi_theme_get_distance ( const char *wclass, const char  *name, const char *state, const char *property, int def );
+Distance rofi_theme_get_distance ( const char  *name, const char *state, const char *property, int def );
 
 /**
- * @param wclass   The widget class
  * @param name     The name class
  * @param state    The widget current state
  * @param property The property to query.
@@ -192,10 +190,9 @@ Distance rofi_theme_get_distance ( const char *wclass, const char  *name, const 
  *
  * @returns The integer value of this property for this widget. 
  */
-int rofi_theme_get_integer   ( const char *wclass,  const char *name, const char *state,  const char *property, int def );
+int rofi_theme_get_integer   (  const char *name, const char *state,  const char *property, int def );
 
 /**
- * @param wclass   The widget class
  * @param name     The name class
  * @param state    The widget current state
  * @param property The property to query.
@@ -205,10 +202,9 @@ int rofi_theme_get_integer   ( const char *wclass,  const char *name, const char
  *
  * @returns The boolean value of this property for this widget. 
  */
-int rofi_theme_get_boolean   ( const char *wclass,  const char *name, const char *state,  const char *property, int def );
+int rofi_theme_get_boolean   (  const char *name, const char *state,  const char *property, int def );
 
 /**
- * @param wclass   The widget class
  * @param name     The name class
  * @param state    The widget current state
  * @param property The property to query.
@@ -218,10 +214,9 @@ int rofi_theme_get_boolean   ( const char *wclass,  const char *name, const char
  *
  * @returns The string value of this property for this widget. 
  */
-char *rofi_theme_get_string  ( const char *wclass,  const char *name, const char *state,  const char *property, char *def );
+char *rofi_theme_get_string  (  const char *name, const char *state,  const char *property, char *def );
 
 /**
- * @param wclass   The widget class
  * @param name     The name class
  * @param state    The widget current state
  * @param property The property to query.
@@ -231,10 +226,9 @@ char *rofi_theme_get_string  ( const char *wclass,  const char *name, const char
  *
  * @returns The double value of this property for this widget. 
  */
-double rofi_theme_get_double ( const char *wclass,  const char *name, const char *state,  const char *property, double def );
+double rofi_theme_get_double (  const char *name, const char *state,  const char *property, double def );
 
 /**
- * @param wclass   The widget class
  * @param name     The name class
  * @param state    The widget current state
  * @param property The property to query.
@@ -243,10 +237,9 @@ double rofi_theme_get_double ( const char *wclass,  const char *name, const char
  * Obtain the color of the widget and applies this to the drawable d.
  *
  */
-void rofi_theme_get_color ( const char *wclass, const char  *name, const char *state, const char *property, cairo_t *d);
+void rofi_theme_get_color ( const char  *name, const char *state, const char *property, cairo_t *d);
 
 /**
- * @param wclass   The widget class
  * @param name     The name class
  * @param state    The widget current state
  * @param property The property to query.
@@ -256,7 +249,7 @@ void rofi_theme_get_color ( const char *wclass, const char  *name, const char *s
  *
  * @returns The padding of this property for this widget. 
  */
-Padding rofi_theme_get_padding ( const char *wclass, const char  *name, const char *state, const char *property, Padding pad );
+Padding rofi_theme_get_padding ( const char  *name, const char *state, const char *property, Padding pad );
 
 /**
  * @param d The distance handle.

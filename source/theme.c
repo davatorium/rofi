@@ -13,10 +13,10 @@
 
 void yyerror ( YYLTYPE *ylloc, const char *);
 
-ThemeWidget *rofi_theme_find_or_create_class ( ThemeWidget *base, const char *class )
+ThemeWidget *rofi_theme_find_or_create_name ( ThemeWidget *base, const char *name )
 {
     for ( unsigned int i = 0; i < base->num_widgets;i++){
-        if ( g_strcmp0(base->widgets[i]->name, class) == 0 ){
+        if ( g_strcmp0(base->widgets[i]->name, name) == 0 ){
             return base->widgets[i];
         }
     }
@@ -25,7 +25,7 @@ ThemeWidget *rofi_theme_find_or_create_class ( ThemeWidget *base, const char *cl
     base->widgets[base->num_widgets] = g_malloc0(sizeof(ThemeWidget));
     ThemeWidget *retv = base->widgets[base->num_widgets];
     retv->parent = base;
-    retv->name = g_strdup(class);
+    retv->name = g_strdup(name);
     base->num_widgets++;
     return retv;
 }
@@ -269,31 +269,23 @@ static Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType ty
     }
     return NULL;
 }
-static ThemeWidget *rofi_theme_find_widget ( const char *wclass, const char *name, const char *state )
+static ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state )
 {
     // First find exact match based on name.
     ThemeWidget *widget = rofi_theme_find ( rofi_theme, name, TRUE );
     widget = rofi_theme_find ( widget, state, TRUE );
 
     if ( widget == NULL ){
-        // Fall back to class
-        widget = rofi_theme_find ( rofi_theme, wclass, TRUE);
-        widget = rofi_theme_find ( widget, state, TRUE );
-    }
-    if ( widget == NULL ){
         // Fuzzy finder
         widget = rofi_theme_find ( rofi_theme, name, FALSE );
-        if ( widget == rofi_theme ){
-            widget = rofi_theme_find ( widget, wclass, FALSE );
-        }
         widget = rofi_theme_find ( widget, state, FALSE );
     }
     return widget;
 }
 
-int rofi_theme_get_integer ( const char *wclass, const char  *name, const char *state, const char *property, int def )
+int rofi_theme_get_integer ( const char  *name, const char *state, const char *property, int def )
 {
-    ThemeWidget *widget = rofi_theme_find_widget ( wclass, name, state );
+    ThemeWidget *widget = rofi_theme_find_widget ( name, state );
     Property *p = rofi_theme_find_property ( widget, P_INTEGER, property );
     if ( p ){
         return p->value.i;
@@ -301,9 +293,9 @@ int rofi_theme_get_integer ( const char *wclass, const char  *name, const char *
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", name, state?state:"", property );
     return def;
 }
-Distance rofi_theme_get_distance ( const char *wclass, const char  *name, const char *state, const char *property, int def )
+Distance rofi_theme_get_distance ( const char  *name, const char *state, const char *property, int def )
 {
-    ThemeWidget *widget = rofi_theme_find_widget ( wclass, name, state );
+    ThemeWidget *widget = rofi_theme_find_widget ( name, state );
     Property *p = rofi_theme_find_property ( widget, P_PADDING, property );
     if ( p ){
         return p->value.padding.left;
@@ -317,9 +309,9 @@ Distance rofi_theme_get_distance ( const char *wclass, const char  *name, const 
     return (Distance){def, PW_PX};
 }
 
-int rofi_theme_get_boolean ( const char *wclass, const char  *name, const char *state, const char *property, int def )
+int rofi_theme_get_boolean ( const char  *name, const char *state, const char *property, int def )
 {
-    ThemeWidget *widget = rofi_theme_find_widget ( wclass, name, state );
+    ThemeWidget *widget = rofi_theme_find_widget ( name, state );
     Property *p = rofi_theme_find_property ( widget, P_BOOLEAN, property );
     if ( p ){
         return p->value.b;
@@ -328,9 +320,9 @@ int rofi_theme_get_boolean ( const char *wclass, const char  *name, const char *
     return def;
 }
 
-char *rofi_theme_get_string ( const char *wclass, const char  *name, const char *state, const char *property, char *def )
+char *rofi_theme_get_string ( const char  *name, const char *state, const char *property, char *def )
 {
-    ThemeWidget *widget = rofi_theme_find_widget ( wclass, name, state );
+    ThemeWidget *widget = rofi_theme_find_widget ( name, state );
     Property *p = rofi_theme_find_property ( widget, P_STRING, property );
     if ( p ){
         return p->value.s;
@@ -338,9 +330,9 @@ char *rofi_theme_get_string ( const char *wclass, const char  *name, const char 
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", name, state?state:"", property );
     return def;
 }
-double rofi_theme_get_double ( const char *wclass, const char  *name, const char *state, const char *property, double def )
+double rofi_theme_get_double ( const char  *name, const char *state, const char *property, double def )
 {
-    ThemeWidget *widget = rofi_theme_find_widget ( wclass, name, state );
+    ThemeWidget *widget = rofi_theme_find_widget ( name, state );
     Property *p = rofi_theme_find_property ( widget, P_DOUBLE, property );
     if ( p ){
         return p->value.b;
@@ -348,9 +340,9 @@ double rofi_theme_get_double ( const char *wclass, const char  *name, const char
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", name, state?state:"", property );
     return def;
 }
-void rofi_theme_get_color ( const char *wclass, const char  *name, const char *state, const char *property, cairo_t *d)
+void rofi_theme_get_color ( const char  *name, const char *state, const char *property, cairo_t *d)
 {
-    ThemeWidget *widget = rofi_theme_find_widget ( wclass, name, state );
+    ThemeWidget *widget = rofi_theme_find_widget ( name, state );
     Property *p = rofi_theme_find_property ( widget, P_COLOR, property );
     if ( p ){
         cairo_set_source_rgba ( d,
@@ -363,9 +355,9 @@ void rofi_theme_get_color ( const char *wclass, const char  *name, const char *s
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", name, state?state:"", property );
     }
 }
-Padding rofi_theme_get_padding ( const char *wclass, const char  *name, const char *state, const char *property, Padding pad )
+Padding rofi_theme_get_padding ( const char  *name, const char *state, const char *property, Padding pad )
 {
-    ThemeWidget *widget = rofi_theme_find_widget ( wclass, name, state );
+    ThemeWidget *widget = rofi_theme_find_widget ( name, state );
     Property *p = rofi_theme_find_property ( widget, P_PADDING, property );
     if ( p ){
         pad = p->value.padding;
@@ -412,9 +404,11 @@ static Property* rofi_theme_convert_get_color ( const char *color, const char *n
 
     return p;
 }
-static GHashTable * rofi_theme_convert_create_property_ht ( void )
+static void rofi_theme_convert_create_property_ht ( ThemeWidget *widget )
 {
-    return g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify)rofi_theme_property_free );
+    if ( widget->properties == NULL ) {
+        widget->properties = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify)rofi_theme_property_free );
+    }
 }
 
 void rofi_theme_convert_old_theme ( void )
@@ -424,27 +418,37 @@ void rofi_theme_convert_old_theme ( void )
     }
     rofi_theme = (ThemeWidget*)g_malloc0 ( sizeof ( ThemeWidget ) );
     rofi_theme->name = g_strdup ( "Root" );
-    rofi_theme->properties = rofi_theme_convert_create_property_ht ( );
+    rofi_theme_convert_create_property_ht ( rofi_theme );
     {
         // Spacing
-        ThemeWidget *box_widget = rofi_theme_find_or_create_class ( rofi_theme , "@box" );
-        box_widget->properties = rofi_theme_convert_create_property_ht ( );
         Property *p = rofi_theme_property_create ( P_INTEGER );
         p->name = g_strdup("spacing");
         p->value.i = config.padding;
-        g_hash_table_replace ( box_widget->properties, p->name, p );
+        g_hash_table_replace ( rofi_theme->properties, p->name, p );
+
+        p = rofi_theme_property_create ( P_STRING );
+        p->name = g_strdup ( "line-style" );
+        p->value.s= g_strdup(config.separator_style);
+        g_hash_table_replace ( rofi_theme->properties, p->name, p );
+
+        ThemeWidget *inputbar_widget = rofi_theme_find_or_create_name ( rofi_theme , "inputbar" );
+        rofi_theme_convert_create_property_ht ( inputbar_widget );
+        p = rofi_theme_property_create ( P_INTEGER );
+        p->name = g_strdup("spacing");
+        p->value.i = 0; 
+        g_hash_table_replace ( inputbar_widget->properties, p->name, p );
     }
     {
         // Spacing
-        ThemeWidget *listview_widget = rofi_theme_find_or_create_class ( rofi_theme , "@listview" );
-        listview_widget->properties = rofi_theme_convert_create_property_ht ( );
+        ThemeWidget *listview_widget = rofi_theme_find_or_create_name ( rofi_theme , "listview" );
+        rofi_theme_convert_create_property_ht ( listview_widget );
         Property *p = rofi_theme_property_create ( P_INTEGER );
         p->name = g_strdup("spacing");
         p->value.i = config.padding;
         g_hash_table_replace ( listview_widget->properties, p->name, p );
         p = rofi_theme_property_create ( P_INTEGER );
         p->name = g_strdup("columns");
-        p->value.i = config.padding;
+        p->value.i = config.menu_columns;
         g_hash_table_replace ( listview_widget->properties, p->name, p );
         p = rofi_theme_property_create ( P_INTEGER );
         p->name = g_strdup("fixed-height");
@@ -453,8 +457,8 @@ void rofi_theme_convert_old_theme ( void )
     }
     {
         // Border width.
-        ThemeWidget *window_widget = rofi_theme_find_or_create_class ( rofi_theme , "window" );
-        window_widget->properties = rofi_theme_convert_create_property_ht ( );
+        ThemeWidget *window_widget = rofi_theme_find_or_create_name ( rofi_theme , "window" );
+        rofi_theme_convert_create_property_ht ( window_widget );
         // Padding
         Property *p = rofi_theme_property_create ( P_INTEGER );
         p->name = g_strdup("padding");
@@ -477,9 +481,12 @@ void rofi_theme_convert_old_theme ( void )
                     p = rofi_theme_convert_get_color ( vals[1], "foreground" );
                     g_hash_table_replace ( rofi_theme->properties, p->name, p );
 
+                    ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme , "inputbar.separator" );
+                    rofi_theme_convert_create_property_ht ( widget );
                    if ( vals[2] != NULL ) {
-                       ThemeWidget *widget = rofi_theme_find_or_create_class ( rofi_theme , "@separator" );
-                       widget->properties = rofi_theme_convert_create_property_ht ();
+                       p = rofi_theme_convert_get_color ( vals[2], "foreground" );
+                       g_hash_table_replace ( widget->properties, p->name, p );
+                   } else {
                        p = rofi_theme_convert_get_color ( vals[1], "foreground" );
                        g_hash_table_replace ( widget->properties, p->name, p );
                    }
@@ -490,56 +497,73 @@ void rofi_theme_convert_old_theme ( void )
         g_strfreev ( vals );
         {
             Property *p = NULL;
-            ThemeWidget *widget = rofi_theme_find_or_create_class ( rofi_theme , "@textbox" );
+            ThemeWidget *listview= rofi_theme_find_or_create_name ( rofi_theme , "listview" );
+            ThemeWidget *widget = rofi_theme_find_or_create_name ( listview , "element" );
 
-            ThemeWidget *wnormal = rofi_theme_find_or_create_class ( widget, "normal" );
-            ThemeWidget *wselected = rofi_theme_find_or_create_class ( widget, "selected" );
-            ThemeWidget *walternate = rofi_theme_find_or_create_class ( widget, "alternate" );
+            ThemeWidget *wnormal = rofi_theme_find_or_create_name ( widget, "normal" );
+            ThemeWidget *wselected = rofi_theme_find_or_create_name ( widget, "selected" );
+            ThemeWidget *walternate = rofi_theme_find_or_create_name ( widget, "alternate" );
 
 
             gchar **vals = g_strsplit ( config.color_normal, ",", 5 );
             if ( g_strv_length (vals) == 5 ) {
-                ThemeWidget *wnn = rofi_theme_find_or_create_class ( wnormal, "normal" );
-                wnn->properties = rofi_theme_convert_create_property_ht ();
+                ThemeWidget *wnn = rofi_theme_find_or_create_name ( wnormal, "normal" );
+                rofi_theme_convert_create_property_ht ( wnn );
                 p = rofi_theme_convert_get_color ( vals[0], "background" );
                 g_hash_table_replace ( wnn->properties, p->name, p );
                 p = rofi_theme_convert_get_color ( vals[1], "foreground" );
                 g_hash_table_replace ( wnn->properties, p->name, p );
 
-                ThemeWidget *wsl = rofi_theme_find_or_create_class ( wselected, "normal" );
-                wsl->properties = rofi_theme_convert_create_property_ht ();
+                ThemeWidget *wsl = rofi_theme_find_or_create_name ( wselected, "normal" );
+                rofi_theme_convert_create_property_ht ( wsl );
                 p = rofi_theme_convert_get_color ( vals[3], "background" );
                 g_hash_table_replace ( wsl->properties, p->name, p );
                 p = rofi_theme_convert_get_color ( vals[4], "foreground" );
                 g_hash_table_replace ( wsl->properties, p->name, p );
 
-                ThemeWidget *wal = rofi_theme_find_or_create_class ( walternate, "normal" );
-                wal->properties = rofi_theme_convert_create_property_ht ();
+                ThemeWidget *wal = rofi_theme_find_or_create_name ( walternate, "normal" );
+                rofi_theme_convert_create_property_ht ( wal );
                 p = rofi_theme_convert_get_color ( vals[2], "background" );
                 g_hash_table_replace ( wal->properties, p->name, p );
                 p = rofi_theme_convert_get_color ( vals[1], "foreground" );
                 g_hash_table_replace ( wal->properties, p->name, p );
+
+                ThemeWidget *inputbar = rofi_theme_find_or_create_name ( rofi_theme, "inputbar" );
+                wnn = rofi_theme_find_or_create_name ( inputbar, "normal" );
+                rofi_theme_convert_create_property_ht ( wnn );
+                p = rofi_theme_convert_get_color ( vals[0], "background" );
+                g_hash_table_replace ( wnn->properties, p->name, p );
+                p = rofi_theme_convert_get_color ( vals[1], "foreground" );
+                g_hash_table_replace ( wnn->properties, p->name, p );
+
+                ThemeWidget *message = rofi_theme_find_or_create_name ( rofi_theme, "message" );
+                wnn = rofi_theme_find_or_create_name ( message, "normal" );
+                rofi_theme_convert_create_property_ht ( wnn );
+                p = rofi_theme_convert_get_color ( vals[0], "background" );
+                g_hash_table_replace ( wnn->properties, p->name, p );
+                p = rofi_theme_convert_get_color ( vals[1], "foreground" );
+                g_hash_table_replace ( wnn->properties, p->name, p );
             }
             g_strfreev ( vals );
 
             vals = g_strsplit ( config.color_urgent, ",", 5 );
             if ( g_strv_length (vals) == 5 ) {
-                ThemeWidget *wnn = rofi_theme_find_or_create_class ( wnormal, "urgent" );
-                wnn->properties =  rofi_theme_convert_create_property_ht ();
+                ThemeWidget *wnn = rofi_theme_find_or_create_name ( wnormal, "urgent" );
+                rofi_theme_convert_create_property_ht ( wnn );
                 p = rofi_theme_convert_get_color ( vals[0], "background" );
                 g_hash_table_replace ( wnn->properties, p->name, p );
                 p = rofi_theme_convert_get_color ( vals[1], "foreground" );
                 g_hash_table_replace ( wnn->properties, p->name, p );
 
-                ThemeWidget *wsl = rofi_theme_find_or_create_class ( wselected, "urgent" );
-                wsl->properties =  rofi_theme_convert_create_property_ht ();
+                ThemeWidget *wsl = rofi_theme_find_or_create_name ( wselected, "urgent" );
+                rofi_theme_convert_create_property_ht ( wsl );
                 p = rofi_theme_convert_get_color ( vals[3], "background" );
                 g_hash_table_replace ( wsl->properties, p->name, p );
                 p = rofi_theme_convert_get_color ( vals[4], "foreground" );
                 g_hash_table_replace ( wsl->properties, p->name, p );
 
-                ThemeWidget *wal = rofi_theme_find_or_create_class ( walternate, "urgent" );
-                wal->properties =  rofi_theme_convert_create_property_ht ();
+                ThemeWidget *wal = rofi_theme_find_or_create_name ( walternate, "urgent" );
+                rofi_theme_convert_create_property_ht ( wal );
                 p = rofi_theme_convert_get_color ( vals[2], "background" );
                 g_hash_table_replace ( wal->properties, p->name, p );
                 p = rofi_theme_convert_get_color ( vals[1], "foreground" );
@@ -549,22 +573,22 @@ void rofi_theme_convert_old_theme ( void )
 
             vals = g_strsplit ( config.color_active, ",", 5 );
             if ( g_strv_length (vals) == 5 ) {
-                ThemeWidget *wnn = rofi_theme_find_or_create_class ( wnormal, "active" );
-                wnn->properties =  rofi_theme_convert_create_property_ht ();
+                ThemeWidget *wnn = rofi_theme_find_or_create_name ( wnormal, "active" );
+                rofi_theme_convert_create_property_ht ( wnn );
                 p = rofi_theme_convert_get_color ( vals[0], "background" );
                 g_hash_table_replace ( wnn->properties, p->name, p );
                 p = rofi_theme_convert_get_color ( vals[1], "foreground" );
                 g_hash_table_replace ( wnn->properties, p->name, p );
 
-                ThemeWidget *wsl = rofi_theme_find_or_create_class ( wselected, "active" );
-                wsl->properties =  rofi_theme_convert_create_property_ht ();
+                ThemeWidget *wsl = rofi_theme_find_or_create_name ( wselected, "active" );
+                rofi_theme_convert_create_property_ht ( wsl );
                 p = rofi_theme_convert_get_color ( vals[3], "background" );
                 g_hash_table_replace ( wsl->properties, p->name, p );
                 p = rofi_theme_convert_get_color ( vals[4], "foreground" );
                 g_hash_table_replace ( wsl->properties, p->name, p );
 
-                ThemeWidget *wal = rofi_theme_find_or_create_class ( walternate, "active" );
-                wal->properties =  rofi_theme_convert_create_property_ht ();
+                ThemeWidget *wal = rofi_theme_find_or_create_name ( walternate, "active" );
+                rofi_theme_convert_create_property_ht ( wal );
                 p = rofi_theme_convert_get_color ( vals[2], "background" );
                 g_hash_table_replace ( wal->properties, p->name, p );
                 p = rofi_theme_convert_get_color ( vals[1], "foreground" );

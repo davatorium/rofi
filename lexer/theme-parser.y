@@ -42,7 +42,6 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token <bval>     T_BOOLEAN
 %token <colorval> T_COLOR
 %token <distance> T_PIXEL
-%token <sval>     CLASS_NAME
 %token <sval>     FIRST_NAME
 
 %token BOPEN  "bracket open";
@@ -50,13 +49,11 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token PSEP   "property separator";
 %token PCLOSE "property close";
 %token NSEP   "Name separator";
-%token CLASS_PREFIX  "Class prefix";
 %token NAME_PREFIX  "Name prefix";
 %token WHITESPACE    "White space";
 
 %type <sval> entry
 %type <sval> pvalue
-%type <sval> class_name
 %type <theme> entries
 %type <theme> start
 %type <name_path> name_path
@@ -91,31 +88,17 @@ entries:
 ;
 
 entry:
-CLASS_PREFIX class_name state_path BOPEN optional_properties BCLOSE
-{
-        gchar *classn = g_strconcat ( "@", $2, NULL);
-        ThemeWidget *widget = rofi_theme_find_or_create_class ( rofi_theme , classn );
-        g_free(classn);
-        widget->set = TRUE;
-        for ( GList *iter = g_list_first ( $3 ); iter ; iter = g_list_next ( iter ) ) {
-            widget = rofi_theme_find_or_create_class ( widget, iter->data );
-        }
-        g_list_foreach ( $3, (GFunc)g_free , NULL );
-        g_list_free ( $3 );
-        widget->set = TRUE;
-        rofi_theme_widget_add_properties ( widget, $5);
-}
-| NAME_PREFIX name_path state_path BOPEN optional_properties BCLOSE
+NAME_PREFIX name_path state_path BOPEN optional_properties BCLOSE
 {
         ThemeWidget *widget = rofi_theme;
         for ( GList *iter = g_list_first ( $2 ); iter ; iter = g_list_next ( iter ) ) {
-            widget = rofi_theme_find_or_create_class ( widget, iter->data );
+            widget = rofi_theme_find_or_create_name ( widget, iter->data );
         }
         g_list_foreach ( $2, (GFunc)g_free , NULL );
         g_list_free ( $2 );
         widget->set = TRUE;
         for ( GList *iter = g_list_first ( $3 ); iter ; iter = g_list_next ( iter ) ) {
-            widget = rofi_theme_find_or_create_class ( widget, iter->data );
+            widget = rofi_theme_find_or_create_name ( widget, iter->data );
         }
         g_list_foreach ( $3, (GFunc)g_free , NULL );
         g_list_free ( $3 );
@@ -191,7 +174,6 @@ property
 ;
 
 pvalue: N_STRING { $$ = $1; }
-class_name: NAME_ELEMENT {$$ = $1;}
 
 name_path:
 NAME_ELEMENT { $$ = g_list_append ( NULL, $1 );}

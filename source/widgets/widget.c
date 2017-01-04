@@ -4,17 +4,16 @@
 #include "theme.h"
 
 
-void widget_init ( widget *widget , const char *name, const char *class_name )
+void widget_init ( widget *widget , const char *name )
 {
     widget->name       = g_strdup(name);
-    widget->class_name = g_strdup(class_name);
     widget->padding = (Padding){ {0, PW_PX}, {0, PW_PX}, {0, PW_PX}, {0, PW_PX}};
-    widget->padding = rofi_theme_get_padding (widget->class_name, widget->name, NULL, "padding", widget->padding);
+    widget->padding = rofi_theme_get_padding ( widget->name, NULL, "padding", widget->padding);
     widget->border  = (Padding){ {0, PW_PX}, {0, PW_PX}, {0, PW_PX}, {0, PW_PX}};
-    widget->border  = rofi_theme_get_padding (widget->class_name, widget->name, NULL, "border", widget->border);
+    widget->border  = rofi_theme_get_padding ( widget->name, NULL, "border", widget->border);
 
     widget->margin = (Padding){ {0, PW_PX}, {0, PW_PX}, {0, PW_PX}, {0, PW_PX}};
-    widget->margin = rofi_theme_get_padding (widget->class_name, widget->name, NULL, "margin", widget->margin);
+    widget->margin = rofi_theme_get_padding ( widget->name, NULL, "margin", widget->margin);
 }
 
 void widget_set_state ( widget *widget, const char *state )
@@ -108,7 +107,7 @@ void widget_draw ( widget *widget, cairo_t *d )
                 );
         cairo_clip ( d );
 
-        rofi_theme_get_color ( widget->class_name, widget->name, widget->state, "background", d );
+        rofi_theme_get_color ( widget->name, widget->state, "background", d );
         cairo_paint( d ) ;
 
         // Set new x/y possition.
@@ -119,7 +118,7 @@ void widget_draw ( widget *widget, cairo_t *d )
         int right = distance_get_pixel ( widget->border.right, ORIENTATION_VERTICAL );
         int bottom  = distance_get_pixel ( widget->border.bottom, ORIENTATION_VERTICAL );
         if ( left || top || right || bottom ) {
-            rofi_theme_get_color ( widget->class_name, widget->name, widget->state, "foreground", d );
+            rofi_theme_get_color ( widget->name, widget->state, "foreground", d );
             if ( left > 0 ) {
                 cairo_set_line_width ( d, left );
                 cairo_move_to ( d, margin_left + left/2.0, margin_top );
@@ -156,9 +155,6 @@ void widget_free ( widget *wid )
     if ( wid ) {
         if ( wid->name ) {
             g_free ( wid->name );
-        }
-        if ( wid->class_name ) {
-            g_free( wid->class_name );
         }
         if ( wid->free ) {
             wid->free ( wid );

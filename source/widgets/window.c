@@ -35,8 +35,6 @@
 
 /** The default border width of the window */
 #define DEFAULT_BORDER_WIDTH 2
-/** The class name of the window */
-const char *WINDOW_CLASS_NAME = "@window";
 
 /**
  * @param window Handle to the window widget.
@@ -129,7 +127,7 @@ window * window_create ( const char *name )
 {
     window *b = g_malloc0 ( sizeof ( window ) );
     // Initialize widget.
-    widget_init ( WIDGET(b), name, WINDOW_CLASS_NAME);
+    widget_init ( WIDGET(b), name );
     b->widget.draw               = window_draw;
     b->widget.free               = window_free;
     b->widget.resize             = window_resize;
