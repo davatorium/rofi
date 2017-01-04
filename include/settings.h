@@ -48,6 +48,21 @@ typedef enum
 } WindowLocation;
 
 /**
+ * Enumeration indicating location of the input line
+ *
+ * \verbatim IL_TOP      IL_BOTTOM \endverbatim
+ *
+ * @ingroup CONFIGURATION
+ */
+typedef enum
+{
+    /** Above proposals */
+    IL_TOP    = 0,
+    /** Bellow proposals */
+    IL_BOTTOM = 1
+} InputLocation;
+
+/**
  * Settings structure holding all (static) configurable options.
  * @ingroup CONFIGURATION
  */
@@ -88,6 +103,8 @@ typedef struct
 
     /** Windows location/gravity */
     WindowLocation location;
+    /** Input line location */
+    InputLocation input_location;
     /** Padding between elements */
     unsigned int   padding;
     /** Y offset */
