@@ -1459,21 +1459,14 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     int end = ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST );
 
-    fprintf ( stderr, "config input location: %d\n", config.input_location );
-    fprintf ( stderr, "end value before: %d\n", end );
-
     if ( end == TRUE && config.input_location == IL_TOP ) {
       // Rofi run in top locations but we want the input line bellow proposals
-      fprintf ( stderr, "modifying to false" );
       end = FALSE;
 
     } else if ( end == FALSE && config.input_location == IL_BOTTOM ) {
       // Rofi run in bottom locations but we want the input line above proposals
-      fprintf ( stderr, "modifying to true" );
       end = TRUE;
     }
-
-    fprintf ( stderr, "end value after: %d\n", end );
 
     box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, end );
 
