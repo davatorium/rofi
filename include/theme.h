@@ -177,7 +177,6 @@ void rofi_theme_widget_add_properties ( ThemeWidget *widget, GHashTable *table )
 
 /**
  * @param widget   The widget to query
- * @param state    The widget current state
  * @param property The property to query.
  * @param def      The default value.
  *
@@ -189,7 +188,6 @@ Distance rofi_theme_get_distance ( const widget *widget, const char *property, i
 
 /**
  * @param widget   The widget to query
- * @param state    The widget current state
  * @param property The property to query.
  * @param def      The default value.
  *
@@ -201,7 +199,6 @@ int rofi_theme_get_integer   (  const widget *widget,  const char *property, int
 
 /**
  * @param widget   The widget to query
- * @param state    The widget current state
  * @param property The property to query.
  * @param def      The default value.
  *
@@ -213,7 +210,6 @@ int rofi_theme_get_boolean   (  const widget *widget,  const char *property, int
 
 /**
  * @param widget   The widget to query
- * @param state    The widget current state
  * @param property The property to query.
  * @param def      The default value.
  *
@@ -225,7 +221,6 @@ char *rofi_theme_get_string  (  const widget *widget,  const char *property, cha
 
 /**
  * @param widget   The widget to query
- * @param state    The widget current state
  * @param property The property to query.
  * @param def      The default value.
  *
@@ -237,7 +232,6 @@ double rofi_theme_get_double (  const widget *widget,  const char *property, dou
 
 /**
  * @param widget   The widget to query
- * @param state    The widget current state
  * @param property The property to query.
  * @param d        The drawable to apply color.
  *
@@ -248,7 +242,6 @@ void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t 
 
 /**
  * @param widget   The widget to query
- * @param state    The widget current state
  * @param property The property to query.
  * @param pad      The default value.
  *
