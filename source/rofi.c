@@ -600,7 +600,8 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         int has_keyboard = take_keyboard ( xcb_stuff_get_root_window ( xcb ) );
         if ( !has_keyboard ) {
             fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
-            return FALSE;
+            g_main_loop_quit ( main_loop );
+            return G_SOURCE_REMOVE;
         }
         take_pointer ( xcb_stuff_get_root_window ( xcb ) );
     }
