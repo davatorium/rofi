@@ -34,6 +34,7 @@ List of names in **rofi**:
          * `#window.mainbox.message`
            * `#window.mainbox.message.textbox`: The message textbox.
            * `#window.mainbox.message.separator`: The separator under/above the sidebar.
+           * `#window.mainbox.message.box`: The box containing the message.
 
 ## State
 

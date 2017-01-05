@@ -613,7 +613,7 @@ void __create_window ( MenuFlags menu_flags )
     }
     // Setup font.
     // Dummy widget.
-    window *win = window_create ( "window" );
+    container *win = container_create ( "window" );
     char *font = rofi_theme_get_string ( WIDGET ( win ), "font" , config.menu_font );
     if ( font ) {
         PangoFontDescription *pfd = pango_font_description_from_string ( font );
@@ -1452,9 +1452,9 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Get active monitor size.
     TICK_N ( "Get active monitor" );
 
-    state->main_window = window_create ( "window" );
+    state->main_window = container_create ( "window" );
     state->main_box = box_create ( "window.mainbox.box", BOX_VERTICAL );
-    window_add ( state->main_window, WIDGET ( state->main_box ) );
+    container_add ( state->main_window, WIDGET ( state->main_box ) );
 
 
     state->input_bar = box_create ( "window.mainbox.inputbar.box", BOX_HORIZONTAL );
@@ -1495,8 +1495,10 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     textbox_text ( state->case_indicator, get_matching_state () );
     if ( message ) {
+        container *box = container_create ( "window.mainbox.message.box" );
         textbox *message_tb = textbox_create ( "window.mainbox.message.textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, message );
-        box_add ( state->main_box, WIDGET ( message_tb ), FALSE, end);
+        container_add ( box, WIDGET (message_tb) );
+        box_add ( state->main_box, WIDGET ( box ), FALSE, end);
     }
 
     state->overlay = textbox_create ( "window.overlay", TB_AUTOWIDTH|TB_AUTOHEIGHT, URGENT, "blaat"  );
@@ -1546,9 +1548,9 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->menu_flags = MENU_ERROR_DIALOG;
     state->finalize   = process_result;
 
-    state->main_window = window_create ( "window" );
+    state->main_window = container_create ( "window" );
     state->main_box = box_create ( "window.mainbox", BOX_VERTICAL);
-    window_add ( state->main_window, WIDGET ( state->main_box ) );
+    container_add ( state->main_window, WIDGET ( state->main_box ) );
     state->text = textbox_create ( "window.mainbox.message", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
             NORMAL, ( msg != NULL ) ? msg : "" );
     box_add ( state->main_box, WIDGET ( state->text ), TRUE, FALSE );

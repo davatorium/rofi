@@ -1,6 +1,6 @@
 #ifndef ROFI_VIEW_INTERNAL_H
 #define ROFI_VIEW_INTERNAL_H
-#include "widgets/window.h"
+#include "widgets/container.h"
 #include "widgets/widget.h"
 #include "widgets/textbox.h"
 #include "widgets/separator.h"
@@ -24,8 +24,8 @@ struct RofiViewState
 
     /** Flag indicating if view needs to be refiltered. */
     int              refilter;
-    /** Widget representing the main window. */
-    window           *main_window;
+    /** Widget representing the main container. */
+    container           *main_window;
     /** Main #box widget holding different elements. */
     box              *main_box;
     /** #box widget packing the input bar widgets. */

@@ -28,21 +28,13 @@
 #include <stdio.h>
 #include "widgets/widget.h"
 #include "widgets/widget-internal.h"
-#include "widgets/window.h"
+#include "widgets/container.h"
 #include "theme.h"
 
 #define LOG_DOMAIN    "Widgets.Window"
 
-/** The default border width of the window */
+/** The default border width of the container */
 #define DEFAULT_BORDER_WIDTH 2
-
-/**
- * @param window Handle to the window widget.
- * @param spacing The spacing to apply.
- *
- * Set the spacing to apply between the children in pixels.
- */
-void window_set_spacing ( window * window, unsigned int spacing );
 
 struct _window
 {
@@ -50,12 +42,12 @@ struct _window
     widget *child;
 };
 
-static void window_update ( widget *wid  );
+static void container_update ( widget *wid  );
 
 
-static int window_get_desired_height ( widget *widget )
+static int container_get_desired_height ( widget *widget )
 {
-    window *b = (window *) widget;
+    container *b = (container *) widget;
     int height = 0;
     if ( b->child ) {
         height += widget_get_desired_height ( b->child );
@@ -65,34 +57,34 @@ static int window_get_desired_height ( widget *widget )
 }
 
 
-static void window_draw ( widget *wid, cairo_t *draw )
+static void container_draw ( widget *wid, cairo_t *draw )
 {
-    window *b = (window *) wid;
+    container *b = (container *) wid;
 
     widget_draw ( b->child, draw );
 }
 
-static void window_free ( widget *wid )
+static void container_free ( widget *wid )
 {
-    window *b = (window *) wid;
+    container *b = (container *) wid;
 
     widget_free ( b->child );
     g_free ( b );
 }
 
-void window_add ( window *window, widget *child )
+void container_add ( container *container, widget *child )
 {
-    if ( window == NULL ) {
+    if ( container == NULL ) {
         return;
     }
-    window->child = child;
-    child->parent = WIDGET ( window  );
-    widget_update ( WIDGET ( window ) );
+    container->child = child;
+    child->parent = WIDGET ( container  );
+    widget_update ( WIDGET ( container ) );
 }
 
-static void window_resize ( widget *widget, short w, short h )
+static void container_resize ( widget *widget, short w, short h )
 {
-    window *b = (window *) widget;
+    container *b = (container *) widget;
     if ( b->widget.w != w || b->widget.h != h ) {
         b->widget.w = w;
         b->widget.h = h;
@@ -100,9 +92,9 @@ static void window_resize ( widget *widget, short w, short h )
     }
 }
 
-static gboolean window_clicked ( widget *wid, xcb_button_press_event_t *xbe, G_GNUC_UNUSED void *udata )
+static gboolean container_clicked ( widget *wid, xcb_button_press_event_t *xbe, G_GNUC_UNUSED void *udata )
 {
-    window *b = (window *) wid;
+    container *b = (container *) wid;
     if ( widget_intersect ( b->child, xbe->event_x, xbe->event_y ) ) {
         xcb_button_press_event_t rel = *xbe;
         rel.event_x -= b->child->x;
@@ -111,9 +103,9 @@ static gboolean window_clicked ( widget *wid, xcb_button_press_event_t *xbe, G_G
     }
     return FALSE;
 }
-static gboolean window_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
+static gboolean container_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
 {
-    window *b = (window *) wid;
+    container *b = (container *) wid;
     if ( widget_intersect ( b->child, xme->event_x, xme->event_y ) ) {
         xcb_motion_notify_event_t rel = *xme;
         rel.event_x -= b->child->x;
@@ -123,25 +115,25 @@ static gboolean window_motion_notify ( widget *wid, xcb_motion_notify_event_t *x
     return FALSE;
 }
 
-window * window_create ( const char *name )
+container * container_create ( const char *name )
 {
-    window *b = g_malloc0 ( sizeof ( window ) );
+    container *b = g_malloc0 ( sizeof ( container ) );
     // Initialize widget.
     widget_init ( WIDGET(b), name );
-    b->widget.draw               = window_draw;
-    b->widget.free               = window_free;
-    b->widget.resize             = window_resize;
-    b->widget.update             = window_update;
-    b->widget.clicked            = window_clicked;
-    b->widget.motion_notify      = window_motion_notify;
-    b->widget.get_desired_height = window_get_desired_height;
+    b->widget.draw               = container_draw;
+    b->widget.free               = container_free;
+    b->widget.resize             = container_resize;
+    b->widget.update             = container_update;
+    b->widget.clicked            = container_clicked;
+    b->widget.motion_notify      = container_motion_notify;
+    b->widget.get_desired_height = container_get_desired_height;
     b->widget.enabled            = TRUE;
     return b;
 }
 
-static void window_update ( widget *wid  )
+static void container_update ( widget *wid  )
 {
-    window *b = (window *) wid;
+    container *b = (container *) wid;
     if ( b->child && b->child->enabled ){
         widget_resize ( WIDGET ( b->child ),
                 widget_padding_get_remaining_width  (WIDGET(b)),
