@@ -135,7 +135,8 @@ static void rofi_theme_print_property_index ( int depth, Property *p )
             printf(";");
             break;
         case P_LINK:
-            printf("@%s;", p->value.link.name);
+            printf("%s;", p->value.link.name);
+            break;
     }
     putchar ( '\n' );
 }
