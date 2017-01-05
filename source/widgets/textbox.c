@@ -264,7 +264,8 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
         // Width determines height!
         int tw = MAX ( 1, w );
         pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tw - widget_padding_get_padding_width ( WIDGET (tb) ) - offset ) );
-        h = textbox_get_height ( tb );
+        int hd = textbox_get_height ( tb );
+        h = MAX (hd, h);
     }
 
     if ( x != tb->widget.x || y != tb->widget.y || w != tb->widget.w || h != tb->widget.h ) {
