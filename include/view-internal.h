@@ -3,7 +3,6 @@
 #include "widgets/container.h"
 #include "widgets/widget.h"
 #include "widgets/textbox.h"
-#include "widgets/separator.h"
 #include "widgets/listview.h"
 #include "widgets/box.h"
 #include "keyb.h"
@@ -36,8 +35,6 @@ struct RofiViewState
     textbox          *text;
     /** #textbox showing the state of the case sensitive and sortng. */
     textbox          *case_indicator;
-    /** #separator widget below the input bar. */
-    separator        *input_bar_separator;
 
     /** #listview holding the displayed elements. */
     listview         *list_view;

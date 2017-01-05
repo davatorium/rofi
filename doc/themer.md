@@ -20,7 +20,6 @@ List of names in **rofi**:
         * `#window.mainbox.box`: The main vertical @box
          * `#window.mainbox.inputbar`
            * `#window.mainbox.inputbar.box`: The horizontal @box packing the widgets.
-           * `#window.mainbox.inputbar.separator`: The separator under/above the inputbar.
            * `#window.mainbox.inputbar.case-indicator`: The case/sort indicator @textbox
            * `#window.mainbox.inputbar.prompt`: The prompt @textbox
            * `#window.mainbox.inputbar.entry`: The main entry @textbox
@@ -30,10 +29,8 @@ List of names in **rofi**:
          * `#window.mainbox.sidebar`
            * `#window.mainbox.sidebar.box`: The main horizontal @box packing the buttons.
            * `#window.mainbox.sidebar.button`: The buttons @textbox for each mode.
-           * `#window.mainbox.sidebar.separator`: The separator under/above the sidebar.
          * `#window.mainbox.message`
            * `#window.mainbox.message.textbox`: The message textbox.
-           * `#window.mainbox.message.separator`: The separator under/above the sidebar.
            * `#window.mainbox.message.box`: The box containing the message.
 
 ## State

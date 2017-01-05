@@ -1382,11 +1382,9 @@ static int rofi_view_calculate_height ( RofiViewState *state )
         return height;
     }
     if ( state->filtered_lines == 0 && !config.fixed_num_lines ) {
-        widget_disable ( WIDGET ( state->input_bar_separator ) );
         widget_disable ( WIDGET ( state->list_view) );
     }
     else {
-        widget_enable ( WIDGET ( state->input_bar_separator ) );
         widget_enable ( WIDGET ( state->list_view) );
     }
 

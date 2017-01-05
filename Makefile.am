@@ -43,7 +43,6 @@ rofi_SOURCES=\
 	source/widgets/textbox.c\
 	source/widgets/listview.c\
 	source/widgets/scrollbar.c\
-	source/widgets/separator.c\
 	source/xrmoptions.c\
 	source/x11-helper.c\
 	source/dialogs/run.c\
@@ -76,7 +75,6 @@ rofi_SOURCES=\
 	include/widgets/textbox.h\
 	include/widgets/listview.h\
 	include/widgets/scrollbar.h\
-	include/widgets/separator.h\
 	include/xrmoptions.h\
 	include/x11-helper.h\
 	include/dialogs/ssh.h\
