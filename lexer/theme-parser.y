@@ -42,6 +42,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token <bval>     T_BOOLEAN
 %token <colorval> T_COLOR
 %token <distance> T_PIXEL
+%token <sval>     T_LINK
 %token <sval>     FIRST_NAME
 
 %token BOPEN  "bracket open";
@@ -145,6 +146,11 @@ property
         $$ = rofi_theme_property_create ( P_STRING );
         $$->name = $1;
         $$->value.s = $3;
+    }
+|   pvalue PSEP T_LINK PCLOSE {
+        $$ = rofi_theme_property_create ( P_LINK );
+        $$->name = $1;
+        $$->value.link.name = $3;
     }
 |   pvalue PSEP T_BOOLEAN PCLOSE {
         $$ = rofi_theme_property_create ( P_BOOLEAN );

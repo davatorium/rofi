@@ -109,6 +109,10 @@ if ( queue == NULL ){
 <PROPERTIES>{NUMBER}+            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
 <PROPERTIES>{NUMBER}+\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
 <PROPERTIES>\"{STRING}\"         { yytext[yyleng-1] = '\0'; yylval->sval = g_strdup(&yytext[1]); return T_STRING;}
+<PROPERTIES>@{WORD}              {
+    yylval->sval = g_strdup(yytext);
+    return T_LINK;
+}
 
 <PROPERTIES>{REAL}{EM}        {
     yylval->distance.distance = (double)g_ascii_strtod(yytext, NULL);
@@ -208,6 +212,11 @@ if ( queue == NULL ){
     return T_COLOR;
 }
 
+<*>'\n' {
+        printf("newlines\n");
+        yylloc->last_column = 1;
+        yylloc->last_line ++;
+};
 <*>(\r\n) {
         printf("newlines\n");
         yylloc->last_column = 1;

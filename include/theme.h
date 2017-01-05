@@ -55,6 +55,8 @@ typedef enum {
     P_COLOR,
     /** Padding */
     P_PADDING,
+    /** Link to global setting */
+    P_LINK,
 } PropertyType;
 
 /**
@@ -76,14 +78,14 @@ typedef struct
  * Padding
  */
 typedef struct
-{
+ {
     Distance top;
     Distance right;
     Distance bottom;
     Distance left;
 } Padding;
 
-typedef struct {
+typedef struct Property {
     char *name;
     PropertyType type;
     union {
@@ -93,6 +95,10 @@ typedef struct {
         int           b;
         ThemeColor color;
         Padding    padding;
+        struct {
+            char *name;
+            struct Property *ref;
+        } link;
     } value;
 } Property;
 /**

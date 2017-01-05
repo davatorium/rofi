@@ -50,6 +50,8 @@ void rofi_theme_property_free ( Property *p )
     g_free ( p->name );
     if ( p->type == P_STRING ) {
         g_free ( p->value.s );
+    } else if ( p->type == P_LINK ) {
+        g_free ( p->value.link.name );
     }
     g_free(p);
 }
@@ -92,45 +94,48 @@ static void rofi_theme_print_property_index ( int depth, Property *p )
     switch ( p->type )
     {
         case P_STRING:
-           printf("\"%s\";", p->value.s);
-           break;
+            printf("\"%s\";", p->value.s);
+            break;
         case P_INTEGER:
-           printf("%d;", p->value.i);
-           break;
+            printf("%d;", p->value.i);
+            break;
         case P_DOUBLE:
-           printf("%.2f;", p->value.f);
-           break;
+            printf("%.2f;", p->value.f);
+            break;
         case P_BOOLEAN:
-           printf("%s;", p->value.b?"true":"false");
-           break;
+            printf("%s;", p->value.b?"true":"false");
+            break;
         case P_COLOR:
-           printf("#%02X%02X%02X%02X;",
-                   (unsigned char)(p->value.color.alpha*255.0),
-                   (unsigned char)(p->value.color.red*255.0),
-                   (unsigned char)(p->value.color.green*255.0),
-                   (unsigned char)(p->value.color.blue*255.0));
-           break;
+            printf("#%02X%02X%02X%02X;",
+                    (unsigned char)(p->value.color.alpha*255.0),
+                    (unsigned char)(p->value.color.red*255.0),
+                    (unsigned char)(p->value.color.green*255.0),
+                    (unsigned char)(p->value.color.blue*255.0));
+            break;
         case P_PADDING:
-           if ( distance_compare ( p->value.padding.top, p->value.padding.bottom) &&
-                   distance_compare ( p->value.padding.left, p->value.padding.right) &&
+            if ( distance_compare ( p->value.padding.top, p->value.padding.bottom) &&
+                    distance_compare ( p->value.padding.left, p->value.padding.right) &&
                     distance_compare ( p->value.padding.left, p->value.padding.top) ) {
-                    rofi_theme_print_distance ( p->value.padding.left );
-           } else if ( distance_compare ( p->value.padding.top, p->value.padding.bottom) &&
-                   distance_compare ( p->value.padding.left, p->value.padding.right)){
-                    rofi_theme_print_distance ( p->value.padding.top );
-                    rofi_theme_print_distance ( p->value.padding.left );
-           } else if ( !distance_compare ( p->value.padding.top, p->value.padding.bottom) &&
-                   distance_compare ( p->value.padding.left, p->value.padding.right)){
-                    rofi_theme_print_distance ( p->value.padding.top );
-                    rofi_theme_print_distance ( p->value.padding.left );
-                    rofi_theme_print_distance ( p->value.padding.bottom);
-           } else {
-                    rofi_theme_print_distance ( p->value.padding.top );
-                    rofi_theme_print_distance ( p->value.padding.right );
-                    rofi_theme_print_distance ( p->value.padding.bottom);
-                    rofi_theme_print_distance ( p->value.padding.left );
-           }
-           printf(";\n");
+                rofi_theme_print_distance ( p->value.padding.left );
+            } else if ( distance_compare ( p->value.padding.top, p->value.padding.bottom) &&
+                    distance_compare ( p->value.padding.left, p->value.padding.right)){
+                rofi_theme_print_distance ( p->value.padding.top );
+                rofi_theme_print_distance ( p->value.padding.left );
+            } else if ( !distance_compare ( p->value.padding.top, p->value.padding.bottom) &&
+                    distance_compare ( p->value.padding.left, p->value.padding.right)){
+                rofi_theme_print_distance ( p->value.padding.top );
+                rofi_theme_print_distance ( p->value.padding.left );
+                rofi_theme_print_distance ( p->value.padding.bottom);
+            } else {
+                rofi_theme_print_distance ( p->value.padding.top );
+                rofi_theme_print_distance ( p->value.padding.right );
+                rofi_theme_print_distance ( p->value.padding.bottom);
+                rofi_theme_print_distance ( p->value.padding.left );
+            }
+            printf(";");
+            break;
+        case P_LINK:
+            printf("@%s;", p->value.link.name);
     }
     putchar ( '\n' );
 }
@@ -272,11 +277,50 @@ static ThemeWidget *rofi_theme_find ( ThemeWidget *widget , const char *name, co
     }
 }
 
+static void rofi_theme_resolve_link_property ( Property *p, int depth )
+{
+    // Set name, remove '@' prefix.
+    const char *name = p->value.link.name +1;
+    if ( depth > 20 ){
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_WARNING, "Found more then 20 redirects for property. Stopping.");
+        p->value.link.ref = p;
+        return;
+    }
+
+    if( g_hash_table_contains ( rofi_theme->properties, name ) ) {
+        Property *pr = g_hash_table_lookup ( rofi_theme->properties, name );
+        if ( pr->type == P_LINK ) {
+            if ( pr->value.link.ref == NULL ) {
+                rofi_theme_resolve_link_property ( pr, depth+1);
+            }
+            if ( pr->value.link.ref != pr ){
+                p->value.link.ref = pr->value.link.ref;
+                return;
+            }
+        } else {
+            p->value.link.ref = pr;
+            return;
+        }
+    }
+
+    // No found, set ref to self.
+    p->value.link.ref = p;
+}
+
 static Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, const char *property )
 {
     while ( widget ) {
         if ( widget->properties && g_hash_table_contains ( widget->properties, property) ) {
             Property *p = g_hash_table_lookup ( widget->properties, property);
+            if ( p->type == P_LINK ) {
+                if ( p->value.link.ref == NULL ) {
+                    // Resolve link.
+                    rofi_theme_resolve_link_property ( p, 0 );
+                }
+                if ( p->value.link.ref->type == type ){
+                    return p->value.link.ref;
+                }
+            }
             if ( p->type == type ){
                 return p;
             }
