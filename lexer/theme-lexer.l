@@ -1,4 +1,5 @@
 %option noyywrap nounput
+%option never-interactive
 %option bison-locations
 
 %{
@@ -16,10 +17,11 @@ GQueue *queue = NULL;
     yylloc->last_column+= yyleng;\
 }
 #define YY_LLOC_START {\
-    yylloc->first_line = yylloc->last_line; yylloc->first_column = yylloc->last_column;\
+    yylloc->first_line = yylloc->last_line;\
+    yylloc->first_column = yylloc->last_column;\
 }
 %}
-WHITESPACE [[:space:]]
+WHITESPACE [[:blank:]]
 WORD       [[:alnum:]-]+
 STRING     [[:print:]]+
 HEX        [[:xdigit:]]
@@ -28,7 +30,6 @@ REAL       [[:digit:]]+(\.[[:digit:]]+)?
 PX         (px)
 EM         (em)
 PERCENT    (\%)
-NEWLINES   (\r|\n)+
 
 LS_DASH    "dash"
 LS_SOLID   "solid"
@@ -46,6 +47,7 @@ if ( queue == NULL ){
     queue = g_queue_new ( );
 }
 %}
+
 <*>"//"            {
     int c;
     while ((c = input()) != EOF){
@@ -211,22 +213,19 @@ if ( queue == NULL ){
     yylval->colorval.alpha = 1.0;
     return T_COLOR;
 }
-
-<*>'\n' {
-        printf("newlines\n");
-        yylloc->last_column = 1;
-        yylloc->last_line ++;
-};
-<*>(\r\n) {
-        printf("newlines\n");
-        yylloc->last_column = 1;
-        yylloc->last_line ++;
-};
-
 <INITIAL><<EOF>>  {
     g_queue_free ( queue );
     yyterminate();
 }
+
+<*>\n {
+        yylloc->last_column = 1;
+        yylloc->last_line ++;
+};
+<*>(\r\n) {
+        yylloc->last_column = 1;
+        yylloc->last_line ++;
+};
 <*>. {
     fprintf(stderr, "Invalid character: '%c'\n", *yytext);
     yyterminate();
