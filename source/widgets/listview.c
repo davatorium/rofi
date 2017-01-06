@@ -523,6 +523,10 @@ static int listview_get_desired_height ( widget *wid )
         }
     }
     if ( h == 0 ) {
+        if ( lv->dynamic && !lv->fixed_num_lines ){
+            // Hide widget fully.
+            return 0;
+        }
         return widget_padding_get_padding_height ( WIDGET (lv) );
     }
     int height = widget_padding_get_padding_height ( WIDGET (lv) );

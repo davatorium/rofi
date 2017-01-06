@@ -1381,13 +1381,6 @@ static int rofi_view_calculate_height ( RofiViewState *state )
         height = CacheState.mon.h;
         return height;
     }
-    if ( state->filtered_lines == 0 && !config.fixed_num_lines ) {
-        widget_disable ( WIDGET ( state->list_view) );
-    }
-    else {
-        widget_enable ( WIDGET ( state->list_view) );
-    }
-
 
     widget *main_window = WIDGET ( state->main_window );
     height = widget_get_desired_height ( main_window );
