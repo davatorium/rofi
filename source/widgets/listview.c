@@ -171,6 +171,11 @@ static void listview_draw ( widget *wid, cairo_t *draw )
     lv->last_offset = offset;
     int spacing_vert = distance_get_pixel ( lv->spacing, ORIENTATION_VERTICAL );
     int spacing_hori = distance_get_pixel ( lv->spacing, ORIENTATION_HORIZONTAL );
+
+    int left_offset = widget_padding_get_left ( wid );
+    if ( lv->scrollbar->widget.index == 0 ) {
+        left_offset += spacing_hori + lv->scrollbar->widget.w;
+    }
     if ( lv->cur_elements > 0 && lv->max_rows > 0 ) {
         // Set new x/y possition.
         unsigned int max = MIN ( lv->cur_elements, lv->req_elements - offset );
@@ -183,7 +188,7 @@ static void listview_draw ( widget *wid, cairo_t *draw )
             }
             unsigned int element_width = ( width ) / lv->cur_columns;
             for ( unsigned int i = 0; i < max; i++ ) {
-                unsigned int ex = widget_padding_get_left ( wid ) + ( ( i ) / lv->max_rows ) * ( element_width + spacing_hori );
+                unsigned int ex = left_offset + ( ( i ) / lv->max_rows ) * ( element_width + spacing_hori );
                 if ( lv->reverse ) {
                     unsigned int ey = wid->h-(widget_padding_get_bottom ( wid ) + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing_vert ))-lv->element_height;
                     textbox_moveresize ( lv->boxes[i], ex, ey, element_width, lv->element_height );
@@ -271,9 +276,15 @@ static void listview_resize ( widget *wid, short w, short h )
     lv->max_rows     = ( spacing_vert + height ) / ( lv->element_height + spacing_vert );
     lv->max_elements = lv->max_rows * lv->menu_columns;
 
-    widget_move ( WIDGET ( lv->scrollbar ),
-            lv->widget.w - widget_padding_get_right ( WIDGET ( lv ) ) - widget_get_width ( WIDGET ( lv->scrollbar ) ),
-            widget_padding_get_top ( WIDGET (lv ) ));
+    if ( lv->scrollbar->widget.index == 0 ){
+        widget_move ( WIDGET ( lv->scrollbar ),
+                widget_padding_get_left ( WIDGET ( lv ) ),
+                widget_padding_get_top  ( WIDGET ( lv ) ) );
+    } else {
+        widget_move ( WIDGET ( lv->scrollbar ),
+                lv->widget.w - widget_padding_get_right ( WIDGET ( lv ) ) - widget_get_width ( WIDGET ( lv->scrollbar ) ),
+                widget_padding_get_top ( WIDGET (lv ) ));
+    }
     widget_resize (  WIDGET ( lv->scrollbar ), widget_get_width ( WIDGET ( lv->scrollbar ) ), height );
 
     listview_recompute_elements ( lv );
@@ -352,6 +363,8 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
 
     char *n = g_strjoin(".", lv->widget.name,"scrollbar", NULL);
     lv->scrollbar = scrollbar_create ( n );
+    // Default position on right.
+    lv->scrollbar->widget.index = rofi_theme_get_integer_exact ( WIDGET (lv->scrollbar), "index", 1);
     g_free(n);
     widget_set_clicked_handler ( WIDGET ( lv->scrollbar ), listview_scrollbar_clicked, lv );
     lv->scrollbar->widget.parent = WIDGET ( lv );

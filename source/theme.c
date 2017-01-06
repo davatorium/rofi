@@ -308,7 +308,7 @@ static void rofi_theme_resolve_link_property ( Property *p, int depth )
     p->value.link.ref = p;
 }
 
-static Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, const char *property )
+static Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, const char *property, gboolean exact )
 {
     while ( widget ) {
         if ( widget->properties && g_hash_table_contains ( widget->properties, property) ) {
@@ -330,38 +330,47 @@ static Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType ty
                 return p;
             }
         }
+        if ( exact ) {
+            return NULL;
+        }
         widget = widget->parent;
     }
     return NULL;
 }
-static ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state )
+static ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state, gboolean exact )
 {
     // First find exact match based on name.
-    ThemeWidget *widget = rofi_theme_find ( rofi_theme, name, TRUE );
-    widget = rofi_theme_find ( widget, state, TRUE );
+    ThemeWidget *widget = rofi_theme_find ( rofi_theme, name, exact );
+    widget = rofi_theme_find ( widget, state, exact );
 
-    if ( widget == NULL ){
-        // Fuzzy finder
-        widget = rofi_theme_find ( rofi_theme, name, FALSE );
-        widget = rofi_theme_find ( widget, state, FALSE );
-    }
     return widget;
 }
 
 int rofi_theme_get_integer ( const widget *widget, const char *property, int def )
 {
-    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state );
-    Property *p = rofi_theme_find_property ( wid, P_INTEGER, property );
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property *p = rofi_theme_find_property ( wid, P_INTEGER, property, FALSE );
     if ( p ){
         return p->value.i;
     }
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", widget->name, widget->state?widget->state:"", property );
     return def;
 }
+int rofi_theme_get_integer_exact ( const widget *widget, const char *property, int def )
+{
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, TRUE );
+    Property *p = rofi_theme_find_property ( wid, P_INTEGER, property, TRUE );
+    if ( p ){
+        return p->value.i;
+    }
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", widget->name, widget->state?widget->state:"", property );
+    return def;
+}
+
 Distance rofi_theme_get_distance ( const widget *widget, const char *property, int def )
 {
-    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state );
-    Property *p = rofi_theme_find_property ( wid, P_PADDING, property );
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property *p = rofi_theme_find_property ( wid, P_PADDING, property, FALSE );
     if ( p ){
         if ( p->type == P_INTEGER ){
             return (Distance){p->value.i,PW_PX, SOLID};
@@ -375,8 +384,8 @@ Distance rofi_theme_get_distance ( const widget *widget, const char *property, i
 
 int rofi_theme_get_boolean ( const widget *widget, const char *property, int def )
 {
-    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state );
-    Property *p = rofi_theme_find_property ( wid, P_BOOLEAN, property );
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property *p = rofi_theme_find_property ( wid, P_BOOLEAN, property, FALSE );
     if ( p ){
         return p->value.b;
     }
@@ -386,8 +395,8 @@ int rofi_theme_get_boolean ( const widget *widget, const char *property, int def
 
 char *rofi_theme_get_string ( const widget *widget, const char *property, char *def )
 {
-    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state );
-    Property *p = rofi_theme_find_property ( wid, P_STRING, property );
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property *p = rofi_theme_find_property ( wid, P_STRING, property, FALSE );
     if ( p ){
         return p->value.s;
     }
@@ -396,8 +405,8 @@ char *rofi_theme_get_string ( const widget *widget, const char *property, char *
 }
 double rofi_theme_get_double ( const widget *widget, const char *property, double def )
 {
-    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state );
-    Property *p = rofi_theme_find_property ( wid, P_DOUBLE, property );
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property *p = rofi_theme_find_property ( wid, P_DOUBLE, property, FALSE );
     if ( p ){
         return p->value.b;
     }
@@ -406,8 +415,8 @@ double rofi_theme_get_double ( const widget *widget, const char *property, doubl
 }
 void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t *d)
 {
-    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state );
-    Property *p = rofi_theme_find_property ( wid, P_COLOR, property );
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property *p = rofi_theme_find_property ( wid, P_COLOR, property, FALSE );
     if ( p ){
         cairo_set_source_rgba ( d,
                 p->value.color.red,
@@ -421,8 +430,8 @@ void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t 
 }
 Padding rofi_theme_get_padding ( const widget *widget, const char *property, Padding pad )
 {
-    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state );
-    Property *p = rofi_theme_find_property ( wid, P_PADDING, property );
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property *p = rofi_theme_find_property ( wid, P_PADDING, property, FALSE );
     if ( p ){
         if ( p->type == P_PADDING ){
             pad = p->value.padding;

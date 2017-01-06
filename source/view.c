@@ -1453,43 +1453,43 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Only enable widget when sidebar is enabled.
     if ( config.sidebar_mode ) {
         state->sidebar_bar = box_create ( "window.mainbox.sidebar.box", BOX_HORIZONTAL );
-        box_add ( state->main_box, WIDGET ( state->sidebar_bar ), FALSE, TRUE );
+        box_add ( state->main_box, WIDGET ( state->sidebar_bar ), FALSE, 10 );
         state->num_modi = rofi_get_num_enabled_modi ();
         state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
         for ( unsigned int j = 0; j < state->num_modi; j++ ) {
             const Mode * mode = rofi_get_mode ( j );
             state->modi[j] = textbox_create ( "window.mainbox.sidebar.button", TB_CENTER|TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
                                               mode_get_display_name ( mode  ) );
-            box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, FALSE );
+            box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, j );
             widget_set_clicked_handler ( WIDGET ( state->modi[j] ), rofi_view_modi_clicked_cb, state );
         }
     }
 
     int end = ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST );
-    box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, end );
+    box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, end?9:0 );
 
     state->case_indicator = textbox_create ( "window.mainbox.inputbar.case-indicator", TB_AUTOWIDTH|TB_AUTOHEIGHT, NORMAL, "*" );
     // Add small separator between case indicator and text box.
-    box_add ( state->input_bar, WIDGET ( state->case_indicator ), FALSE, TRUE );
+    box_add ( state->input_bar, WIDGET ( state->case_indicator ), FALSE, 3 );
 
     // Prompt box.
     state->prompt = textbox_create ( "window.mainbox.inputbar.prompt",TB_AUTOWIDTH|TB_AUTOHEIGHT, NORMAL, "" );
     rofi_view_update_prompt ( state );
-    box_add ( state->input_bar, WIDGET ( state->prompt ), FALSE, FALSE );
+    box_add ( state->input_bar, WIDGET ( state->prompt ), FALSE, 1 );
 
     // Entry box
     TextboxFlags tfl = TB_EDITABLE;
     tfl        |= ( ( menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
     state->text = textbox_create ( "window.mainbox.inputbar.entry", tfl|TB_AUTOHEIGHT, NORMAL, input );
 
-    box_add ( state->input_bar, WIDGET ( state->text ), TRUE, FALSE );
+    box_add ( state->input_bar, WIDGET ( state->text ), TRUE, 2 );
 
     textbox_text ( state->case_indicator, get_matching_state () );
     if ( message ) {
         container *box = container_create ( "window.mainbox.message.box" );
         textbox *message_tb = textbox_create ( "window.mainbox.message.textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, message );
         container_add ( box, WIDGET (message_tb) );
-        box_add ( state->main_box, WIDGET ( box ), FALSE, end);
+        box_add ( state->main_box, WIDGET ( box ), FALSE, end?8:2);
     }
 
     state->overlay = textbox_create ( "window.overlay", TB_AUTOWIDTH|TB_AUTOHEIGHT, URGENT, "blaat"  );
@@ -1503,7 +1503,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     listview_set_num_lines ( state->list_view, config.menu_lines );
     listview_set_max_lines ( state->list_view, state->num_lines );
 
-    box_add ( state->main_box, WIDGET ( state->list_view ), TRUE, FALSE );
+    box_add ( state->main_box, WIDGET ( state->list_view ), TRUE, 3);
 
     // filtered list
     state->line_map = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
@@ -1544,7 +1544,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     container_add ( state->main_window, WIDGET ( state->main_box ) );
     state->text = textbox_create ( "window.mainbox.message", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
             NORMAL, ( msg != NULL ) ? msg : "" );
-    box_add ( state->main_box, WIDGET ( state->text ), TRUE, FALSE );
+    box_add ( state->main_box, WIDGET ( state->text ), TRUE, 1 );
 
 
     // Make sure we enable fixed num lines when in normal window mode.

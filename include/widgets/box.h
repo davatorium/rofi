@@ -43,11 +43,11 @@ box * box_create ( const char *name, boxType type );
  * @param box   Handle to the box widget.
  * @param child Handle to the child widget to pack.
  * @param expand If the child widget should expand and use all available space.
- * @param end    If the child widget should be packed at the end.
+ * @param index The position index.
  *
  * Add a widget to the box.
  */
-void box_add ( box *box, widget *child, gboolean expand, gboolean end );
+void box_add ( box *box, widget *child, gboolean expand, int index );
 
 /**
  * @param box Handle to the box widget.

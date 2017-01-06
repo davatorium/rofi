@@ -202,6 +202,16 @@ Distance rofi_theme_get_distance ( const widget *widget, const char *property, i
  * @returns The integer value of this property for this widget.
  */
 int rofi_theme_get_integer   (  const widget *widget,  const char *property, int def );
+/**
+ * @param widget   The widget to query
+ * @param property The property to query.
+ * @param def      The default value.
+ *
+ * Obtain the integer of the widget.
+ *
+ * @returns The integer value of this property for this widget.
+ */
+int rofi_theme_get_integer_exact ( const widget *widget, const char *property, int def );
 
 /**
  * @param widget   The widget to query
