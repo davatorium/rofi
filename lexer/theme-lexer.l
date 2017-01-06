@@ -90,24 +90,25 @@ if ( queue == NULL ){
 }
 
   /* Go into parsing an entry */
-<INITIAL>"\{"                    {
+<NAMESTR>"\{"                    {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(ENTRY);
     return BOPEN;
 }
   /* Pop out of parsing an entry. */
 <ENTRY>"\}"             {
+    g_queue_pop_head ( queue );
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
     return BCLOSE;
 }
 
 <INITIAL>"#"            { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(NAMESTR);return NAME_PREFIX;}
-<INITIAL,NAMESTR>"."    { return NSEP; }
+<NAMESTR>\.|{WHITESPACE}    { return NSEP; }
 <INITIAL,ENTRY>{WORD}   { yylval->sval = g_strdup(yytext); return N_STRING;}
 <NAMESTR>{WORD}         { yylval->sval = g_strdup(yytext); return NAME_ELEMENT;}
 
     /* After Namestr/Classstr we want to go to state str, then to  { */
-<NAMESTR>{WHITESPACE}   { BEGIN(GPOINTER_TO_INT (g_queue_pop_head ( queue )));}
+   /*<NAMESTR>{WHITESPACE}   { BEGIN(GPOINTER_TO_INT (g_queue_pop_head ( queue )));}*/
 <INITIAL,ENTRY>{WHITESPACE}+	; // ignore all whitespace
 <PROPERTIES>{WHITESPACE}+	; // ignore all whitespace
 

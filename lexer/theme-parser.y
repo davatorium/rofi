@@ -90,7 +90,7 @@ entries:
 ;
 
 entry:
-NAME_PREFIX name_path state_path BOPEN optional_properties BCLOSE
+NAME_PREFIX name_path BOPEN optional_properties BCLOSE
 {
         ThemeWidget *widget = rofi_theme;
         for ( GList *iter = g_list_first ( $2 ); iter ; iter = g_list_next ( iter ) ) {
@@ -99,13 +99,7 @@ NAME_PREFIX name_path state_path BOPEN optional_properties BCLOSE
         g_list_foreach ( $2, (GFunc)g_free , NULL );
         g_list_free ( $2 );
         widget->set = TRUE;
-        for ( GList *iter = g_list_first ( $3 ); iter ; iter = g_list_next ( iter ) ) {
-            widget = rofi_theme_find_or_create_name ( widget, iter->data );
-        }
-        g_list_foreach ( $3, (GFunc)g_free , NULL );
-        g_list_free ( $3 );
-        widget->set = TRUE;
-        rofi_theme_widget_add_properties ( widget, $5);
+        rofi_theme_widget_add_properties ( widget, $4);
 };
 
 /**
@@ -190,14 +184,8 @@ pvalue: N_STRING { $$ = $1; }
 name_path:
 NAME_ELEMENT { $$ = g_list_append ( NULL, $1 );}
 | name_path NSEP NAME_ELEMENT { $$ = g_list_append ( $1, $3);}
+| name_path NSEP  { $$ = $1; }
 ;
-
-state_path:
-  %empty                   { $$ = NULL; }
-| N_STRING { $$ = g_list_append ( NULL, $1 );}
-| state_path NSEP N_STRING  { $$ = g_list_append ( $1, $3);}
-;
-
 
 %%
 
