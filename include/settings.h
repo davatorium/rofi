@@ -38,7 +38,7 @@ typedef enum
     /** Middle right */
     WL_EAST       = 4,
     /** Bottom right */
-    WL_EAST_SOUTH = 5,
+    WL_SOUTH_EAST = 5,
     /** Bottom middle */
     WL_SOUTH      = 6,
     /** Bottom left */

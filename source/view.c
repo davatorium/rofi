@@ -253,22 +253,29 @@ static void rofi_view_update_prompt ( RofiViewState *state )
  */
 static void rofi_view_calculate_window_position ( RofiViewState *state )
 {
+    int location = rofi_theme_get_position ( WIDGET ( state->main_window ), "location", config.location );
+    int anchor = location;
+    if ( !config.fixed_num_lines ) {
+        anchor = location;
+        if ( location == WL_CENTER ) {
+            anchor = WL_NORTH;
+        } else if ( location == WL_EAST ) {
+            anchor = WL_NORTH_EAST;
+        } else if (location == WL_WEST ) {
+            anchor = WL_NORTH_WEST;
+        }
+    }
+    anchor = rofi_theme_get_position ( WIDGET ( state->main_window ), "anchor", anchor );
+
     if ( config.fullscreen ) {
         state->x = CacheState.mon.x;
         state->y = CacheState.mon.y;
         return;
     }
-
-    if ( !config.fixed_num_lines && ( config.location == WL_CENTER || config.location == WL_EAST || config.location == WL_WEST ) ) {
-        state->y = CacheState.mon.y + CacheState.mon.h / 2 - widget_get_height ( WIDGET ( state->input_bar ) );
-    }
-    else {
-        // Default location is center.
-        state->y = CacheState.mon.y + ( CacheState.mon.h - state->height ) / 2;
-    }
-    state->x = CacheState.mon.x + ( CacheState.mon.w - state->width ) / 2;
+    state->y = CacheState.mon.y + ( CacheState.mon.h ) / 2;
+    state->x = CacheState.mon.x + ( CacheState.mon.w ) / 2;
     // Determine window location
-    switch ( config.location )
+    switch ( location )
     {
     case WL_NORTH_WEST:
         state->x = CacheState.mon.x;
@@ -278,21 +285,56 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
     case WL_NORTH_EAST:
         state->y = CacheState.mon.y;
     case WL_EAST:
-        state->x = CacheState.mon.x + CacheState.mon.w - state->width;
+        state->x = CacheState.mon.x + CacheState.mon.w;
         break;
-    case WL_EAST_SOUTH:
-        state->x = CacheState.mon.x + CacheState.mon.w - state->width;
+    case WL_SOUTH_EAST:
+        state->x = CacheState.mon.x + CacheState.mon.w;
     case WL_SOUTH:
-        state->y = CacheState.mon.y + CacheState.mon.h - state->height;
+        state->y = CacheState.mon.y + CacheState.mon.h;
         break;
     case WL_SOUTH_WEST:
-        state->y = CacheState.mon.y + CacheState.mon.h - state->height;
+        state->y = CacheState.mon.y + CacheState.mon.h;
     case WL_WEST:
         state->x = CacheState.mon.x;
         break;
     case WL_CENTER:
     default:
         break;
+    }
+    switch ( anchor )
+    {
+        case WL_SOUTH_WEST:
+              state->y -= state->height;
+              break;
+        case WL_SOUTH:
+              state->x -= state->width/2;
+              state->y -= state->height;
+              break;
+        case WL_SOUTH_EAST:
+              state->x -= state->width;
+              state->y -= state->height;
+              break;
+        case WL_NORTH_EAST:
+              state->x -= state->width;
+              break;
+        case WL_NORTH_WEST:
+              break;
+        case WL_NORTH:
+              state->x -= state->width/2;
+              break;
+        case WL_EAST:
+              state->x -= state->width;
+              state->y -= state->height/2;
+              break;
+        case WL_WEST:
+              state->y -= state->height/2;
+              break;
+        case WL_CENTER:
+              state->y -= state->height/2;
+              state->x -= state->width/2;
+              break;
+        default:
+           break;
     }
     // Apply offset.
     state->x += config.x_offset;
@@ -1469,7 +1511,8 @@ RofiViewState *rofi_view_create ( Mode *sw,
         }
     }
 
-    int end = ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST );
+    int location = rofi_theme_get_position ( WIDGET ( state->main_window ), "location", config.location );
+    int end = ( location == WL_SOUTH_EAST || location == WL_SOUTH || location == WL_SOUTH_WEST );
     box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, end?9:0 );
 
     state->case_indicator = textbox_create ( "window.mainbox.inputbar.case-indicator", TB_AUTOWIDTH|TB_AUTOHEIGHT, NORMAL, "*" );

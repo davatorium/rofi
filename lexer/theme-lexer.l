@@ -31,6 +31,12 @@ PX         (px)
 EM         (em)
 PERCENT    (\%)
 
+CENTER     "center"
+NORTH      "north"
+SOUTH      "south"
+EAST       "east"
+WEST       "west"
+
 LS_DASH    "dash"
 LS_SOLID   "solid"
 
@@ -212,6 +218,47 @@ if ( queue == NULL ){
     yylval->colorval.blue  = g_ascii_strtoull ( endptr+1, &endptr, 10);
     yylval->colorval.alpha = 1.0;
     return T_COLOR;
+}
+
+<PROPERTIES>{CENTER} {
+    yylval->sval = WL_CENTER;
+    return T_POSITION;
+}
+<PROPERTIES>{EAST} {
+    yylval->sval = WL_EAST;
+    return T_POSITION;
+}
+<PROPERTIES>{WEST} {
+    yylval->sval = WL_WEST;
+    return T_POSITION;
+}
+<PROPERTIES>{SOUTH}{EAST} {
+    yylval->sval = WL_SOUTH_EAST;
+    return T_POSITION;
+}
+<PROPERTIES>{SOUTH}{WEST} {
+    yylval->sval = WL_SOUTH_WEST;
+    return T_POSITION;
+}
+<PROPERTIES>{SOUTH} {
+    yylval->sval = WL_SOUTH;
+    return T_POSITION;
+}
+<PROPERTIES>{NORTH}{EAST} {
+    yylval->sval = WL_NORTH_EAST;
+    return T_POSITION;
+}
+<PROPERTIES>{NORTH}{WEST} {
+    yylval->sval = WL_NORTH_WEST;
+    return T_POSITION;
+}
+<PROPERTIES>{NORTH} {
+    yylval->sval = WL_NORTH;
+    return T_POSITION;
+}
+<PROPERTIES>NORTH {
+    yylval->sval = WL_NORTH;
+    return T_POSITION;
 }
 <INITIAL><<EOF>>  {
     g_queue_free ( queue );

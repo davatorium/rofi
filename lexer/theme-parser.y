@@ -38,6 +38,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token <fval>     T_DOUBLE
 %token <sval>     T_STRING
 %token <sval>     N_STRING
+%token <sval>     T_POSITION;
 %token <sval>     NAME_ELEMENT
 %token <bval>     T_BOOLEAN
 %token <colorval> T_COLOR
@@ -176,6 +177,11 @@ property
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
         $$->value.padding = (Padding){ $3, $4, $5, $6 };
+}
+| pvalue PSEP T_POSITION PCLOSE{
+        $$ = rofi_theme_property_create ( P_POSITION );
+        $$->name = $1;
+        $$->value.i = $3;
 }
 ;
 

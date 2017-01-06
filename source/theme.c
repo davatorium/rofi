@@ -93,6 +93,10 @@ static void rofi_theme_print_property_index ( int depth, Property *p )
     printf("%*s%s: ", depth, "", p->name );
     switch ( p->type )
     {
+        case P_POSITION:
+            // TODO Name
+            printf("%d;", p->value.i);
+            break;
         case P_STRING:
             printf("\"%s\";", p->value.s);
             break;
@@ -346,6 +350,17 @@ static ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state
     return widget;
 }
 
+int rofi_theme_get_position ( const widget *widget, const char *property, int def )
+{
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property *p = rofi_theme_find_property ( wid, P_POSITION, property, FALSE );
+    if ( p ){
+        return p->value.i;
+    }
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", widget->name, widget->state?widget->state:"", property );
+    return def;
+}
+
 int rofi_theme_get_integer ( const widget *widget, const char *property, int def )
 {
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
@@ -553,7 +568,7 @@ void rofi_theme_convert_old_theme ( void )
 
 
         LineStyle style = (g_strcmp0(config.separator_style,"dash") == 0)?DASH:SOLID;
-        int place_end = ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST );
+        int place_end = ( config.location == WL_SOUTH_EAST || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST );
         p = rofi_theme_property_create ( P_PADDING );
         p->name = g_strdup("border");
         Distance d = (Distance){config.menu_bw, PW_PX, style};

@@ -116,6 +116,7 @@ Value supports the following formats:
        * unit can be px,em,%. for px `{size}` is an integer number, for %,em it is a positive real.
        * {line-style} can be `dash` or `solid` and is optional.
  * padding: `({distance}){1,4}`
+ * position: (center|north|south|east|west|northeast|northwest|southwest|southeast)
 
 Each property is closed by a semi-colon `;`;
 
@@ -136,6 +137,10 @@ The following properties are currently supports:
         - background
         - screenshot
         - Path to png file
+    * position:       position
+        The place of the anchor on the monitor.
+    * anchor:         anchor
+        The anchor position on the window.
 
   * scrollbar
     * foreground:      color

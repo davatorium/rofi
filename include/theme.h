@@ -3,6 +3,7 @@
 #include <glib.h>
 #include <cairo.h>
 #include <widgets/widget.h>
+#include <settings.h>
 
 typedef enum {
     SOLID,
@@ -57,6 +58,8 @@ typedef enum {
     P_PADDING,
     /** Link to global setting */
     P_LINK,
+    /** Position */
+    P_POSITION,
 } PropertyType;
 
 /**
@@ -202,6 +205,18 @@ Distance rofi_theme_get_distance ( const widget *widget, const char *property, i
  * @returns The integer value of this property for this widget.
  */
 int rofi_theme_get_integer   (  const widget *widget,  const char *property, int def );
+
+/**
+ * @param widget   The widget to query
+ * @param property The property to query.
+ * @param def      The default value.
+ *
+ * Obtain the position of the widget.
+ *
+ * @returns The position value of this property for this widget.
+ */
+int rofi_theme_get_position ( const widget *widget, const char *property, int def );
+
 /**
  * @param widget   The widget to query
  * @param property The property to query.
