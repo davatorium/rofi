@@ -31,6 +31,8 @@ PX         (px)
 EM         (em)
 PERCENT    (\%)
 
+ASTERIX    \*
+
 CENTER     "center"
 NORTH      "north"
 SOUTH      "south"
@@ -43,6 +45,7 @@ LS_SOLID   "solid"
 %x PROPERTIES
 %x NAMESTR
 %x ENTRY
+%x DEFAULTS
 %%
 
 %{
@@ -87,6 +90,18 @@ if ( queue == NULL ){
         }
     }
     YY_LLOC_START
+}
+
+<INITIAL>{ASTERIX} {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(DEFAULTS);
+    return PDEFAULTS;
+}
+<DEFAULTS>{WHITESPACE} {}
+<DEFAULTS>"\{"   {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(ENTRY);
+    return BOPEN;
 }
 
   /* Go into parsing an entry */

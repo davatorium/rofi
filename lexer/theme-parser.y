@@ -53,13 +53,13 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token NSEP   "Name separator";
 %token NAME_PREFIX  "Name prefix";
 %token WHITESPACE    "White space";
+%token PDEFAULTS  "Default settings";
 
 %type <sval> entry
 %type <sval> pvalue
 %type <theme> entries
 %type <theme> start
 %type <name_path> name_path
-%type <name_path> state_path
 %type <property> property
 %type <property_list> property_list
 %type <property_list> optional_properties
@@ -100,7 +100,12 @@ NAME_PREFIX name_path BOPEN optional_properties BCLOSE
         g_list_free ( $2 );
         widget->set = TRUE;
         rofi_theme_widget_add_properties ( widget, $4);
-};
+}
+|
+    PDEFAULTS BOPEN optional_properties BCLOSE {
+    rofi_theme_widget_add_properties ( rofi_theme, $3);
+}
+;
 
 /**
  * properties
