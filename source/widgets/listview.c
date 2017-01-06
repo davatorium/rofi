@@ -173,6 +173,7 @@ static void listview_draw ( widget *wid, cairo_t *draw )
     int spacing_hori = distance_get_pixel ( lv->spacing, ORIENTATION_HORIZONTAL );
 
     int left_offset = widget_padding_get_left ( wid );
+    int top_offset  = widget_padding_get_top ( wid );
     if ( lv->scrollbar->widget.index == 0 ) {
         left_offset += spacing_hori + lv->scrollbar->widget.w;
     }
@@ -193,7 +194,7 @@ static void listview_draw ( widget *wid, cairo_t *draw )
                     unsigned int ey = wid->h-(widget_padding_get_bottom ( wid ) + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing_vert ))-lv->element_height;
                     textbox_moveresize ( lv->boxes[i], ex, ey, element_width, lv->element_height );
                 } else {
-                    unsigned int ey = widget_padding_get_top ( wid ) + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing_vert );
+                    unsigned int ey = top_offset + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing_vert );
                     textbox_moveresize ( lv->boxes[i], ex, ey, element_width, lv->element_height );
                 }
 

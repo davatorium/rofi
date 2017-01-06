@@ -100,10 +100,10 @@ void widget_draw ( widget *widget, cairo_t *d )
         }
         // Store current state.
         cairo_save ( d );
-        int margin_left = distance_get_pixel ( widget->margin.left, ORIENTATION_HORIZONTAL );
-        int margin_top  = distance_get_pixel ( widget->margin.top, ORIENTATION_HORIZONTAL );
-        int margin_right = distance_get_pixel ( widget->margin.right, ORIENTATION_VERTICAL );
-        int margin_bottom  = distance_get_pixel ( widget->margin.bottom, ORIENTATION_VERTICAL );
+        int margin_left = distance_get_pixel ( widget->margin.left, ORIENTATION_HORIZONTAL);
+        int margin_top  = distance_get_pixel ( widget->margin.top, ORIENTATION_VERTICAL);
+        int margin_right = distance_get_pixel ( widget->margin.right, ORIENTATION_HORIZONTAL);
+        int margin_bottom  = distance_get_pixel ( widget->margin.bottom, ORIENTATION_VERTICAL);
         // Define a clipmask so we won't draw outside out widget.
         cairo_rectangle ( d,
                 widget->x+margin_left,
@@ -119,9 +119,9 @@ void widget_draw ( widget *widget, cairo_t *d )
         // Set new x/y possition.
         cairo_translate ( d, widget->x, widget->y);
 
-        int left = distance_get_pixel ( widget->border.left, ORIENTATION_HORIZONTAL );
-        int top  = distance_get_pixel ( widget->border.top, ORIENTATION_HORIZONTAL );
-        int right = distance_get_pixel ( widget->border.right, ORIENTATION_VERTICAL );
+        int left    = distance_get_pixel ( widget->border.left, ORIENTATION_HORIZONTAL );
+        int right   = distance_get_pixel ( widget->border.right, ORIENTATION_HORIZONTAL);
+        int top     = distance_get_pixel ( widget->border.top, ORIENTATION_VERTICAL);
         int bottom  = distance_get_pixel ( widget->border.bottom, ORIENTATION_VERTICAL );
         if ( left || top || right || bottom ) {
             cairo_save ( d );
