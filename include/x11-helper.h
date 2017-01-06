@@ -123,21 +123,23 @@ void release_pointer ( void );
 
 /**
  * @param w       xcb_window_t we want to grab keyboard on.
+ * @param iters   Number of retries.
  *
  * Grab keyboard.
  *
  * @return 1 when keyboard is grabbed, 0 not.
  */
-int take_keyboard ( xcb_window_t w );
+int take_keyboard ( xcb_window_t w, int iters );
 
 /**
  * @param w       xcb_window_t we want to grab mouse on.
+ * @param iters   Number of retries.
  *
  * Grab mouse.
  *
  * @return 1 when mouse is grabbed, 0 not.
  */
-int take_pointer ( xcb_window_t w );
+int take_pointer ( xcb_window_t w, int iters );
 
 /**
  * @param mask The mask to canonilize
