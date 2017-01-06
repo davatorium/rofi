@@ -48,6 +48,7 @@
 [ -no-click-to-exit ]
 [ -threads *num* ]
 [ -config *filename* ]
+[ -no-show-match ]
 
 ## DESCRIPTION
 
@@ -203,6 +204,10 @@ Load alternative configuration file.
 `-scroll-method` *method*
 
 Select the scrolling method. 0: Per page, 1: continuous.
+
+`-no-show-match`
+
+Hide the indicator that shows what part of the string is matched.
 
 ### Theming
 
