@@ -674,8 +674,9 @@ static void rofi_view_calculate_window_width ( RofiViewState *state )
 {
     if ( config.fullscreen ) {
         state->width = CacheState.mon.w;
+        return;
     }
-    else if ( config.menu_width < 0 ) {
+    if ( config.menu_width < 0 ) {
         double fw = textbox_get_estimated_char_width ( );
         state->width  = -( fw * config.menu_width );
         state->width += widget_padding_get_padding_width ( WIDGET ( state->main_window ) );
@@ -684,6 +685,9 @@ static void rofi_view_calculate_window_width ( RofiViewState *state )
         // Calculate as float to stop silly, big rounding down errors.
         state->width = config.menu_width < 101 ? ( CacheState.mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
     }
+    // Use theme configured width, if set.
+    Distance width = rofi_theme_get_distance ( WIDGET ( state->main_window ), "width", state->width );
+    state->width = distance_get_pixel ( width, ORIENTATION_HORIZONTAL );
 }
 
 /**
