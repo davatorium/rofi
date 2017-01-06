@@ -209,8 +209,8 @@ static void listview_draw ( widget *wid, cairo_t *draw )
                 widget_draw ( WIDGET ( lv->boxes[i] ), draw );
             }
         }
-        widget_draw ( WIDGET ( lv->scrollbar ), draw );
     }
+    widget_draw ( WIDGET ( lv->scrollbar ), draw );
 }
 
 static void listview_recompute_elements ( listview *lv )
