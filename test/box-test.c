@@ -46,7 +46,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         widget_resize ( WIDGET (b), 100, 20);
 
         widget *wid1 = g_malloc0(sizeof(widget));
-        box_add ( b , WIDGET( wid1 ), TRUE, FALSE );
+        box_add ( b , WIDGET( wid1 ), TRUE, 0 );
         // Widget not enabled.  no width allocated.
         TASSERTE ( wid1->h, 0);
         TASSERTE ( wid1->w, 0 );
@@ -57,7 +57,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         TASSERTE ( wid1->w, 100 );
         widget *wid2 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid2 ) );
-        box_add ( b , WIDGET( wid2 ), TRUE, FALSE );
+        box_add ( b , WIDGET( wid2 ), TRUE, 1 );
         TASSERTE ( wid1->h, 20);
         TASSERTE ( wid1->w, 49);
         TASSERTE ( wid2->h, 20);
@@ -65,7 +65,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 
         widget *wid3 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid3 ) );
-        box_add ( b , WIDGET( wid3 ), FALSE, FALSE );
+        box_add ( b , WIDGET( wid3 ), FALSE, 2 );
         TASSERTE ( wid1->h, 20);
         TASSERTE ( wid1->w, 48);
         TASSERTE ( wid2->h, 20);
@@ -93,13 +93,13 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         widget *wid4 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid4 ) );
         widget_resize ( WIDGET ( wid4 ), 20, 20 );
-        box_add ( b , WIDGET( wid4 ), FALSE, TRUE );
+        box_add ( b , WIDGET( wid4 ), FALSE, 5 );
         TASSERTE ( wid4->x, 200-20);
         widget *wid5 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid5 ) );
         widget_resize ( WIDGET ( wid5 ), 20, 20 );
-        box_add ( b , WIDGET( wid5 ), TRUE, TRUE );
-        TASSERTE ( wid5->x, 127);
+        box_add ( b , WIDGET( wid5 ), TRUE, 6 );
+        TASSERTE ( wid5->x, 149);
         widget_free ( WIDGET ( b ) );
     }
     {
@@ -108,7 +108,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         //box_set_padding ( b, 5 );
 
         widget *wid1 = g_malloc0(sizeof(widget));
-        box_add ( b , WIDGET( wid1 ), TRUE, FALSE );
+        box_add ( b , WIDGET( wid1 ), TRUE, 0 );
         // Widget not enabled.  no width allocated.
         TASSERTE ( wid1->h, 0);
         TASSERTE ( wid1->w, 0 );
@@ -119,7 +119,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         TASSERTE ( wid1->w, 20 );
         widget *wid2 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid2 ) );
-        box_add ( b , WIDGET( wid2 ), TRUE, FALSE );
+        box_add ( b , WIDGET( wid2 ), TRUE, 1 );
         TASSERTE ( wid1->w, 20);
         TASSERTE ( wid1->h, 49);
         TASSERTE ( wid2->w, 20);
@@ -127,7 +127,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 
         widget *wid3 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid3 ) );
-        box_add ( b , WIDGET( wid3 ), FALSE, FALSE );
+        box_add ( b , WIDGET( wid3 ), FALSE, 2 );
         TASSERTE ( wid1->w, 20);
         TASSERTE ( wid1->h, 48);
         TASSERTE ( wid2->w, 20);
@@ -155,13 +155,13 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         widget *wid4 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid4 ) );
         widget_resize ( WIDGET ( wid4 ), 20, 20 );
-        box_add ( b , WIDGET( wid4 ), FALSE, TRUE );
+        box_add ( b , WIDGET( wid4 ), FALSE, 5 );
         TASSERTE ( wid4->y, 200);
         widget *wid5 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid5 ) );
         widget_resize ( WIDGET ( wid5 ), 20, 20 );
-        box_add ( b , WIDGET( wid5 ), TRUE, TRUE );
-        TASSERTE ( wid5->y, 134);
+        box_add ( b , WIDGET( wid5 ), TRUE, 6 );
+        TASSERTE ( wid5->y, 136);
         widget_free ( WIDGET ( b ) );
     }
     {
@@ -171,10 +171,10 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         widget *wid1 = g_malloc0(sizeof(widget));
         widget_enable(wid1);
         wid1->clicked = test_widget_clicked;
-        box_add ( b , WIDGET( wid1 ), TRUE, FALSE );
+        box_add ( b , WIDGET( wid1 ), TRUE, 0 );
         widget *wid2 = g_malloc0(sizeof(widget));
         widget_enable(wid2);
-        box_add ( b , WIDGET( wid2 ), TRUE, FALSE );
+        box_add ( b , WIDGET( wid2 ), TRUE, 1 );
 
         xcb_button_press_event_t xce;
         xce.event_x = 10;

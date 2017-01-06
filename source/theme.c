@@ -506,9 +506,13 @@ void rofi_theme_convert_old_theme ( void )
     ThemeWidget *mainbox_widget = rofi_theme_find_or_create_name ( window_widget, "mainbox" );
     rofi_theme_convert_create_property_ht ( mainbox_widget );
     ThemeWidget *message = rofi_theme_find_or_create_name ( mainbox_widget, "message" );
-    rofi_theme_convert_create_property_ht ( message );
+    ThemeWidget *message_box = rofi_theme_find_or_create_name ( message, "box" );
+    rofi_theme_convert_create_property_ht ( message_box );
     ThemeWidget *listview_widget = rofi_theme_find_or_create_name ( mainbox_widget, "listview" );
     rofi_theme_convert_create_property_ht ( listview_widget );
+    ThemeWidget *sidebar_widget = rofi_theme_find_or_create_name ( mainbox_widget, "sidebar" );
+    ThemeWidget *sidebarbox_widget = rofi_theme_find_or_create_name ( sidebar_widget, "box" );
+    rofi_theme_convert_create_property_ht ( sidebarbox_widget );
     {
         Property *p = rofi_theme_property_create ( P_INTEGER );
         p->name = g_strdup ("border");
@@ -560,6 +564,7 @@ void rofi_theme_convert_old_theme ( void )
         }
         g_hash_table_replace ( listview_widget->properties, p->name, p );
 
+
         p = rofi_theme_property_create ( P_PADDING );
         p->name = g_strdup("border");
         d = (Distance){config.menu_bw, PW_PX, style};
@@ -568,7 +573,17 @@ void rofi_theme_convert_old_theme ( void )
         } else {
             p->value.padding.top= d;
         }
-        g_hash_table_replace ( message->properties, p->name, p );
+        g_hash_table_replace ( message_box->properties, p->name, p );
+
+        /**
+         * Sidebar top
+         */
+        p = rofi_theme_property_create ( P_PADDING );
+        p->name = g_strdup("border");
+        d = (Distance){config.menu_bw, PW_PX, style};
+        p->value.padding.top= d;
+        g_hash_table_replace ( sidebarbox_widget->properties, p->name, p );
+
         p = rofi_theme_property_create ( P_PADDING );
         p->name = g_strdup("padding");
         d = (Distance){config.line_margin, PW_PX, SOLID};
@@ -587,7 +602,7 @@ void rofi_theme_convert_old_theme ( void )
         } else {
             p->value.padding.top= d;
         }
-        g_hash_table_replace ( message->properties, p->name, p );
+        g_hash_table_replace ( message_box->properties, p->name, p );
 
     }
     {
