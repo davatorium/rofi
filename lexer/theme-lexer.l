@@ -237,43 +237,43 @@ if ( queue == NULL ){
 }
 
 <PROPERTIES>{CENTER} {
-    yylval->sval = WL_CENTER;
+    yylval->ival = WL_CENTER;
     return T_POSITION;
 }
 <PROPERTIES>{EAST} {
-    yylval->sval = WL_EAST;
+    yylval->ival = WL_EAST;
     return T_POSITION;
 }
 <PROPERTIES>{WEST} {
-    yylval->sval = WL_WEST;
+    yylval->ival = WL_WEST;
     return T_POSITION;
 }
 <PROPERTIES>{SOUTH}{EAST} {
-    yylval->sval = WL_SOUTH_EAST;
+    yylval->ival = WL_SOUTH_EAST;
     return T_POSITION;
 }
 <PROPERTIES>{SOUTH}{WEST} {
-    yylval->sval = WL_SOUTH_WEST;
+    yylval->ival = WL_SOUTH_WEST;
     return T_POSITION;
 }
 <PROPERTIES>{SOUTH} {
-    yylval->sval = WL_SOUTH;
+    yylval->ival = WL_SOUTH;
     return T_POSITION;
 }
 <PROPERTIES>{NORTH}{EAST} {
-    yylval->sval = WL_NORTH_EAST;
+    yylval->ival = WL_NORTH_EAST;
     return T_POSITION;
 }
 <PROPERTIES>{NORTH}{WEST} {
-    yylval->sval = WL_NORTH_WEST;
+    yylval->ival = WL_NORTH_WEST;
     return T_POSITION;
 }
 <PROPERTIES>{NORTH} {
-    yylval->sval = WL_NORTH;
+    yylval->ival = WL_NORTH;
     return T_POSITION;
 }
 <PROPERTIES>NORTH {
-    yylval->sval = WL_NORTH;
+    yylval->ival = WL_NORTH;
     return T_POSITION;
 }
 <INITIAL><<EOF>>  {

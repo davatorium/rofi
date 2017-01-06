@@ -14,7 +14,6 @@
 #include <glib.h>
 
 
-#include "theme.h"
 #include "lexer/theme-parser.h"
 ThemeWidget *rofi_theme = NULL;
 void yyerror(YYLTYPE *yylloc, const char* s);
@@ -38,7 +37,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token <fval>     T_DOUBLE
 %token <sval>     T_STRING
 %token <sval>     N_STRING
-%token <sval>     T_POSITION;
+%token <ival>     T_POSITION;
 %token <sval>     NAME_ELEMENT
 %token <bval>     T_BOOLEAN
 %token <colorval> T_COLOR
@@ -58,23 +57,14 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %type <sval> entry
 %type <sval> pvalue
 %type <theme> entries
-%type <theme> start
 %type <name_path> name_path
 %type <property> property
 %type <property_list> property_list
 %type <property_list> optional_properties
-%start start
+%start entries
 
 %%
 
-start:
-     entries
-     optional_properties
-     {
-        $$ = $1;
-        rofi_theme_widget_add_properties ( $$, $2 );
-     }
-;
 entries:
   %empty {
         // There is always a base widget.
@@ -82,10 +72,7 @@ entries:
         rofi_theme->name = g_strdup ( "Root" );
   }
 |  entries
-   optional_properties
    entry {
-        $$ = $1;
-        rofi_theme_widget_add_properties ( $$, $2);
     }
 ;
 
