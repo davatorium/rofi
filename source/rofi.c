@@ -578,6 +578,36 @@ static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, xcb_connection_t 
     --error_trap_depth;
 }
 
+unsigned int lazy_grab_retry_count_kb = 0;
+unsigned int lazy_grab_retry_count_pt = 0;
+static gboolean lazy_grab_pointer ( G_GNUC_UNUSED gpointer data )
+{
+    // After 5 sec.
+    if ( lazy_grab_retry_count_kb > (5*1000)) {
+        fprintf(stderr, "Failed to grab keyboard after %u times. Giving up.\n", lazy_grab_retry_count_kb);
+        g_main_loop_quit (  main_loop );
+        return G_SOURCE_REMOVE;
+    }
+    if ( take_pointer ( xcb_stuff_get_root_window ( xcb ), 0 ) ){
+        return G_SOURCE_REMOVE;
+    }
+    lazy_grab_retry_count_kb++;
+    return G_SOURCE_CONTINUE;
+}
+static gboolean lazy_grab_keyboard ( G_GNUC_UNUSED gpointer data )
+{
+    // After 5 sec.
+    if ( lazy_grab_retry_count_pt > (5*1000)) {
+        fprintf(stderr, "Failed to grab pointer after %u times. Giving up.\n", lazy_grab_retry_count_pt);
+        return G_SOURCE_REMOVE;
+    }
+    if ( take_keyboard ( xcb_stuff_get_root_window ( xcb), 0 ) ){
+        return G_SOURCE_REMOVE;
+    }
+    lazy_grab_retry_count_pt++;
+    return G_SOURCE_CONTINUE;
+}
+
 static gboolean startup ( G_GNUC_UNUSED gpointer data )
 {
     TICK_N ( "Startup" );
@@ -597,13 +627,12 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
     if ( ( window_flags & MENU_NORMAL_WINDOW ) == 0 ) {
-        int has_keyboard = take_keyboard ( xcb_stuff_get_root_window ( xcb ) );
-        if ( !has_keyboard ) {
-            fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
-            g_main_loop_quit ( main_loop );
-            return G_SOURCE_REMOVE;
+        if ( !take_keyboard ( xcb_stuff_get_root_window ( xcb), 0) ){
+            g_timeout_add ( 1,lazy_grab_keyboard, NULL);
         }
-        take_pointer ( xcb_stuff_get_root_window ( xcb ) );
+        if ( !take_pointer ( xcb_stuff_get_root_window ( xcb ), 0 )) {
+            g_timeout_add ( 1,lazy_grab_pointer, NULL);
+        }
     }
     TICK_N ( "Grab keyboard" );
     __create_window ( window_flags );

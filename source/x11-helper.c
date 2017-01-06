@@ -515,9 +515,10 @@ int monitor_active ( workarea *mon )
     monitor_dimensions ( 0, 0, mon );
     return FALSE;
 }
-int take_pointer ( xcb_window_t w )
+int take_pointer ( xcb_window_t w, int iters )
 {
-    for ( int i = 0; i < 500; i++ ) {
+    int i = 0;
+    while ( TRUE ) {
         if ( xcb_connection_has_error ( xcb->connection ) ) {
             fprintf ( stderr, "Connection has error\n" );
             exit ( EXIT_FAILURE );
@@ -532,14 +533,17 @@ int take_pointer ( xcb_window_t w )
             }
             free ( r );
         }
+        if ( (++i) > iters ){
+            break;
+        }
         usleep ( 1000 );
     }
-    fprintf ( stderr, "Failed to grab pointer.\n" );
     return 0;
 }
-int take_keyboard ( xcb_window_t w )
+int take_keyboard ( xcb_window_t w, int iters )
 {
-    for ( int i = 0; i < 500; i++ ) {
+    int i = 0;
+    while ( TRUE ) {
         if ( xcb_connection_has_error ( xcb->connection ) ) {
             fprintf ( stderr, "Connection has error\n" );
             exit ( EXIT_FAILURE );
@@ -555,9 +559,11 @@ int take_keyboard ( xcb_window_t w )
             }
             free ( r );
         }
+        if ( (++i) > iters ){
+            break;
+        }
         usleep ( 1000 );
     }
-
     return 0;
 }
 
