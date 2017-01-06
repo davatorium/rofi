@@ -18,11 +18,13 @@ void widget_init ( widget *widget , const char *name )
 
 void widget_set_state ( widget *widget, const char *state )
 {
-    widget->state = state;
-    // Update border.
-    widget->border  = rofi_theme_get_padding ( widget, "border", widget->border);
+    if ( g_strcmp0(widget->state, state ) ){
+        widget->state = state;
+        // Update border.
+        widget->border  = rofi_theme_get_padding ( widget, "border", widget->border);
 
-    widget->need_redraw = TRUE;
+        widget_queue_redraw ( widget );
+    }
 }
 
 int widget_intersect ( const widget *widget, int x, int y )
