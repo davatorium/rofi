@@ -351,7 +351,7 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->eh = eh;
 
     char *n = g_strjoin(".", lv->widget.name,"scrollbar", NULL);
-    lv->scrollbar = scrollbar_create ( n, 4);
+    lv->scrollbar = scrollbar_create ( n );
     g_free(n);
     widget_set_clicked_handler ( WIDGET ( lv->scrollbar ), listview_scrollbar_clicked, lv );
     lv->scrollbar->widget.parent = WIDGET ( lv );
@@ -372,8 +372,6 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->dynamic         = rofi_theme_get_boolean  ( WIDGET ( lv ), "dynamic",      TRUE );
     lv->reverse         = rofi_theme_get_boolean  ( WIDGET ( lv ), "reverse",      reverse );
     listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( WIDGET ( lv ), "scrollbar", !config.hide_scrollbar ));
-    Distance d = rofi_theme_get_distance ( WIDGET ( lv ), "scrollbar-width", config.scrollbar_width );
-    listview_set_scrollbar_width ( lv, distance_get_pixel ( d, ORIENTATION_HORIZONTAL ) );
     lv->cycle = rofi_theme_get_boolean ( WIDGET ( lv ), "cycle", config.cycle );
 
 
@@ -544,12 +542,6 @@ void listview_set_show_scrollbar ( listview *lv, gboolean enabled )
             widget_disable ( WIDGET ( lv->scrollbar ) );
         }
         listview_recompute_elements ( lv );
-    }
-}
-void listview_set_scrollbar_width ( listview *lv, unsigned int width )
-{
-    if ( lv ) {
-        scrollbar_set_width ( lv->scrollbar, width );
     }
 }
 

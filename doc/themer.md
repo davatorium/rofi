@@ -139,7 +139,8 @@ The following properties are currently supports:
 
   * scrollbar
     * foreground:      color
-  * scrollbar handle
+    * handle-width:    distance
+    * handle-color:    color 
     * foreground:      color
 
   * box

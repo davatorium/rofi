@@ -30,6 +30,8 @@
 
 #include "theme.h"
 
+#define DEFAULT_SCROLLBAR_WIDTH 8
+
 static void scrollbar_draw ( widget *, cairo_t * );
 static void scrollbar_free ( widget * );
 static gboolean scrollbar_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
@@ -41,13 +43,15 @@ static int scrollbar_get_desired_height ( widget *wid )
     return wid->h;
 }
 
-scrollbar *scrollbar_create ( const char *name, int width )
+scrollbar *scrollbar_create ( const char *name )
 {
     scrollbar *sb = g_malloc0 ( sizeof ( scrollbar ) );
     widget_init ( WIDGET (sb), name );
     sb->widget.x = 0;
     sb->widget.y = 0;
-    sb->widget.w = widget_padding_get_padding_width ( WIDGET (sb) ) +width;
+    sb->width = rofi_theme_get_distance ( WIDGET (sb), "handle-width", DEFAULT_SCROLLBAR_WIDTH );
+    int width = distance_get_pixel (sb->width, ORIENTATION_HORIZONTAL);
+    sb->widget.w = widget_padding_get_padding_width ( WIDGET (sb)) + width;
     sb->widget.h = widget_padding_get_padding_height ( WIDGET ( sb ) );
 
     sb->widget.draw          = scrollbar_draw;
@@ -118,10 +122,8 @@ static void scrollbar_draw ( widget *wid, cairo_t *draw )
     // Never go out of bar.
     height = MAX ( 2, height );
     // Cap length;
-    // @TODO hack.
-    wid->state = "handle";
     rofi_theme_get_color ( WIDGET (sb ), "foreground", draw );
-    wid->state = NULL;
+    rofi_theme_get_color ( WIDGET (sb ), "handle-color", draw );
 
     cairo_rectangle ( draw,
             widget_padding_get_left ( wid ),
@@ -158,8 +160,3 @@ unsigned int scrollbar_clicked ( const scrollbar *sb, int y )
     return 0;
 }
 
-void scrollbar_set_width ( scrollbar *sb, int width )
-{
-    width += widget_padding_get_padding_width ( WIDGET ( sb ) );
-    sb->widget.w = width;
-}
