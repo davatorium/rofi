@@ -14,6 +14,7 @@ Command line only options:
 	-markup                                Enable pango markup where possible.
 	-normal-window                         In dmenu mode, behave as a normal window. (experimental)
 	-show [mode]                           Show the mode 'mode' and exit. The mode has to be enabled.
+	-lazy-grab                             When fail to grab keyboard, don't block but retry later.
 DMENU command line options:
 	-mesg [string]                         Print a small user message under the prompt (uses pango markup)
 	-p [string]                            Prompt to display left of entry field
