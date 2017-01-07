@@ -48,6 +48,7 @@
 [ -no-click-to-exit ]
 [ -threads *num* ]
 [ -config *filename* ]
+[ -no-show-match ]
 
 ## DESCRIPTION
 
@@ -203,6 +204,14 @@ Load alternative configuration file.
 `-scroll-method` *method*
 
 Select the scrolling method. 0: Per page, 1: continuous.
+
+`-no-show-match`
+
+Hide the indicator that shows what part of the string is matched.
+
+`-lazy-grab`
+
+When fail to grab keyboard, don't block but retry later in background.
 
 ### Theming
 
@@ -880,6 +889,15 @@ Show all keybindings:
 Use `qalc` to get a simple calculator in **rofi**:
 
      rofi -show calc -modi "calc:qalc +u8 -nocurrencies"
+
+## I3
+
+In [I3](http://i3wm.org/) you want to bind rofi to be launched on key-release. Otherwise it cannot grab the keyboard. 
+See also the I3 [manual](http://i3wm.org/docs/userguide.html):
+
+Some tools (such as import or xdotool) might be unable to run upon a KeyPress event, because the keyboard/pointer is
+still grabbed. For these situations, the --release flag can be used, which will execute the command after the keys have
+been released.
 
 ## LICENSE
 

@@ -1,13 +1,13 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-MANPAGE" "" "2016-12-23" "" ""
+.TH "ROFI\-MANPAGE" "" "January 2017" "" ""
 .
 .SH "NAME"
 \fBrofi\fR \- A window switcher, run launcher, ssh dialog and dmenu replacement
 .
 .SH "SYNOPSIS"
-\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-display \fIdisplay\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-select ] [ \-input \fIinput\fR ] ] [ \-filter \fIfilter\fR ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-window\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-cycle ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-version ] [ \-help ] [ \-dump\-xresources ] [ \-dump\-xresources\-theme ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-no\-parse\-known\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-normal\-window ] [ \-fake\-transparency ] [ \-matching \fImethod\fR ] [ \-tokenize ] [ \-no\-click\-to\-exit ] [ \-threads \fInum\fR ] [ \-config \fIfilename\fR ]
+\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-display \fIdisplay\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-select ] [ \-input \fIinput\fR ] ] [ \-filter \fIfilter\fR ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-window\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-cycle ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-version ] [ \-help ] [ \-dump\-xresources ] [ \-dump\-xresources\-theme ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-no\-parse\-known\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-normal\-window ] [ \-fake\-transparency ] [ \-matching \fImethod\fR ] [ \-tokenize ] [ \-no\-click\-to\-exit ] [ \-threads \fInum\fR ] [ \-config \fIfilename\fR ] [ \-no\-show\-match ]
 .
 .SH "DESCRIPTION"
 \fBrofi\fR is an X11 popup window switcher, run dialog, dmenu replacement and more\. It focuses on being fast to use and have minimal distraction\. It supports keyboard and mouse navigation, type to filter, tokenized search and more\.
@@ -293,6 +293,18 @@ Load alternative configuration file\.
 .
 .P
 Select the scrolling method\. 0: Per page, 1: continuous\.
+.
+.P
+\fB\-no\-show\-match\fR
+.
+.P
+Hide the indicator that shows what part of the string is matched\.
+.
+.P
+\fB\-lazy\-grab\fR
+.
+.P
+When fail to grab keyboard, don\'t block but retry later in background\.
 .
 .SS "Theming"
 All colors are either hex #rrggbb, #aarrggbb or argb:aarrggbbvalues or X11 color names\.
@@ -1462,6 +1474,12 @@ Use \fBqalc\fR to get a simple calculator in \fBrofi\fR:
 .fi
 .
 .IP "" 0
+.
+.SH "I3"
+In I3 \fIhttp://i3wm\.org/\fR you want to bind rofi to be launched on key\-release\. Otherwise it cannot grab the keyboard\. See also the I3 manual \fIhttp://i3wm\.org/docs/userguide\.html\fR:
+.
+.P
+Some tools (such as import or xdotool) might be unable to run upon a KeyPress event, because the keyboard/pointer is still grabbed\. For these situations, the \-\-release flag can be used, which will execute the command after the keys have been released\.
 .
 .SH "LICENSE"
 .
