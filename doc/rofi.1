@@ -300,6 +300,12 @@ Select the scrolling method\. 0: Per page, 1: continuous\.
 .P
 Hide the indicator that shows what part of the string is matched\.
 .
+.P
+\fB\-lazy\-grab\fR
+.
+.P
+When fail to grab keyboard, don\'t block but retry later in background\.
+.
 .SS "Theming"
 All colors are either hex #rrggbb, #aarrggbb or argb:aarrggbbvalues or X11 color names\.
 .
@@ -1468,6 +1474,12 @@ Use \fBqalc\fR to get a simple calculator in \fBrofi\fR:
 .fi
 .
 .IP "" 0
+.
+.SH "I3"
+In I3 \fIhttp://i3wm\.org/\fR you want to bind rofi to be launched on key\-release\. Otherwise it cannot grab the keyboard\. See also the I3 manual \fIhttp://i3wm\.org/docs/userguide\.html\fR:
+.
+.P
+Some tools (such as import or xdotool) might be unable to run upon a KeyPress event, because the keyboard/pointer is still grabbed\. For these situations, the \-\-release flag can be used, which will execute the command after the keys have been released\.
 .
 .SH "LICENSE"
 .

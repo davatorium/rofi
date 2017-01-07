@@ -252,6 +252,7 @@ static void print_main_application_options ( int is_term )
     print_help_msg ( "-markup", "", "Enable pango markup where possible.", NULL, is_term );
     print_help_msg ( "-normal-window", "", "In dmenu mode, behave as a normal window. (experimental)", NULL, is_term );
     print_help_msg ( "-show", "[mode]", "Show the mode 'mode' and exit. The mode has to be enabled.", NULL, is_term );
+    print_help_msg ( "-lazy-grab", "", "When fail to grab keyboard, don't block but retry later.", NULL, is_term );
 }
 static void help ( G_GNUC_UNUSED int argc, char **argv )
 {
@@ -625,11 +626,23 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
     if ( ( window_flags & MENU_NORMAL_WINDOW ) == 0 ) {
-        if ( !take_keyboard ( xcb_stuff_get_root_window ( xcb), 0) ){
-            g_timeout_add ( 1,lazy_grab_keyboard, NULL);
-        }
-        if ( !take_pointer ( xcb_stuff_get_root_window ( xcb ), 0 )) {
-            g_timeout_add ( 1,lazy_grab_pointer, NULL);
+        if ( find_arg ( "-lazy-grab") >= 0 ){
+            if ( !take_keyboard ( xcb_stuff_get_root_window ( xcb), 0) ){
+                g_timeout_add ( 1,lazy_grab_keyboard, NULL);
+            }
+            if ( !take_pointer ( xcb_stuff_get_root_window ( xcb ), 0 )) {
+                g_timeout_add ( 1,lazy_grab_pointer, NULL);
+            }
+        } else {
+            if ( !take_keyboard ( xcb_stuff_get_root_window ( xcb), 500) ){
+                fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
+                g_main_loop_quit ( main_loop );
+                return G_SOURCE_REMOVE;
+            }
+            if ( ! take_pointer ( xcb_stuff_get_root_window ( xcb ), 100 ) ) {
+                fprintf ( stderr, "Failed to grab mouse pointer, even after %d uS.", 100*1000);
+            }
+
         }
     }
     TICK_N ( "Grab keyboard" );
