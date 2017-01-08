@@ -13,6 +13,7 @@
 [ -font *pangofont* ]
 [ -terminal *terminal* ]
 [ -location *position* ]
+[ -input-location *position* ]
 [ -fixed-num-lines ]
 [ -padding *padding* ]
 [ -display *display* ]
@@ -243,7 +244,7 @@ Default: *1*
 
 The following options are further explained in the theming section:
 
-`-color-window` *background* *border color* *separator color* 
+`-color-window` *background* *border color* *separator color*
 
 Set window background, border and separator color.
 
@@ -338,6 +339,19 @@ Specify where the window should be located. The numbers map to the following loc
       1 2 3
       8 0 4
       7 6 5
+
+Default: *0*
+
+`-input-location`
+
+Specify where the input line should be placed, regarding the results (0
+above the results, while 1 will place it bellow):
+
+      input-location 0
+      -----
+      results
+      -----
+      input-location 1
 
 Default: *0*
 

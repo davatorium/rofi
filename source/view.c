@@ -1458,6 +1458,16 @@ RofiViewState *rofi_view_create ( Mode *sw,
     }
 
     int end = ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST );
+
+    if ( end == TRUE && config.input_location == IL_TOP ) {
+      // Rofi run in top locations but we want the input line bellow proposals
+      end = FALSE;
+
+    } else if ( end == FALSE && config.input_location == IL_BOTTOM ) {
+      // Rofi run in bottom locations but we want the input line above proposals
+      end = TRUE;
+    }
+
     box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, end );
 
     state->case_indicator = textbox_create ( TB_AUTOWIDTH, 0, 0, 0, line_height, NORMAL, "*" );

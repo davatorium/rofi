@@ -111,6 +111,9 @@ static XrmOption xrmOptions[] = {
     { xrm_Number,  "location",          { .num  = &config.location             }, NULL,
       "Location on screen", CONFIG_DEFAULT },
 
+    { xrm_Number,  "input-location",    { .num  = &config.input_location       }, NULL,
+      "Input location", CONFIG_DEFAULT },
+
     { xrm_Number,  "padding",           { .num  = &config.padding              }, NULL,
       "Padding", CONFIG_DEFAULT },
     { xrm_SNumber, "yoffset",           { .snum = &config.y_offset             }, NULL,

@@ -76,6 +76,14 @@ Settings config = {
      *
      */
     .location          = WL_CENTER,
+    /**
+     * Location of the input line.
+     * Enumeration indicating location of the input line
+     *
+     * IL_TOP       IL_BOTTOM
+     *
+     */
+    .input_location          = IL_TOP,
     /** Padding between elements */
     .padding           =                                         5,
     /** Y offset */
