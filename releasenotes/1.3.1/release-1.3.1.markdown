@@ -7,14 +7,14 @@ Below is the, modest, full list of changes.
 
 ### New Features
 
-- [DRun] Search categories. (#449)
+- [DRun] Search categories. ([#449](https://github.com/DaveDavenport/rofi/issues/449))
 
 ### Improvements
 
-- Fix exit when failed to grab keyboard. (#524)
+- Fix exit when failed to grab keyboard. ([#524](https://github.com/DaveDavenport/rofi/issues/524))
 - Introduce lazy keyboard grab mode for people who want rofi to show on key-down in i3.
 - Add copyrights to theme (needed for debian packaging).
-- DMENU: Correctly detect end-of-file (#518)
+- DMENU: Correctly detect end-of-file ([#518](https://github.com/DaveDavenport/rofi/issues/518))
 - Directly queue redraw on overlay change.
-- Remove pango markup from workspace names in I3. (#507)
+- Remove pango markup from workspace names in I3. ([#507](https://github.com/DaveDavenport/rofi/issues/507))
 
