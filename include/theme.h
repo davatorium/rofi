@@ -5,10 +5,14 @@
 #include <widgets/widget.h>
 #include <settings.h>
 
+/** Style of line */
 typedef enum {
+    /** Solid line */
     SOLID,
+    /** Dashed line */
     DASH
 } LineStyle;
+
 /**
  * Distance unit type.
  */
@@ -88,18 +92,33 @@ typedef struct
     Distance left;
 } Padding;
 
+/**
+ * Property structure.
+ */
 typedef struct Property {
+    /** Name of property */
     char *name;
+    /** Type of property. */
     PropertyType type;
+    /** Value */
     union {
+        /** integer */
         int           i;
+        /** Double */
         double        f;
+        /** String */
         char          *s;
-        int           b;
+        /** boolean */
+        gboolean      b;
+        /** Color */
         ThemeColor color;
+        /** Padding */
         Padding    padding;
+        /** Reference */
         struct {
+            /** Name */
             char *name;
+            /** Cached looked up ref */
             struct Property *ref;
         } link;
     } value;

@@ -9,6 +9,7 @@
 #include "widgets/textbox.h"
 #include "view.h"
 
+/** Logging domain for theme */
 #define LOG_DOMAIN "Theme"
 
 void yyerror ( YYLTYPE *ylloc, const char *);

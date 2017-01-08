@@ -578,8 +578,9 @@ static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, xcb_connection_t 
     xcb_flush ( xdisplay );
     --error_trap_depth;
 }
-
+/** Retry count of grabbing keyboard. */
 unsigned int lazy_grab_retry_count_kb = 0;
+/** Retry count of grabbing pointer. */
 unsigned int lazy_grab_retry_count_pt = 0;
 static gboolean lazy_grab_pointer ( G_GNUC_UNUSED gpointer data )
 {
