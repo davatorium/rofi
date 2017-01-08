@@ -165,19 +165,18 @@ static void rofi_theme_print_index ( ThemeWidget *widget )
             index = 4;
             for ( GList *iter = g_list_first ( list ); iter != NULL; iter = g_list_next ( iter ) ) {
                 char *name = (char *)iter->data;
-                if ( iter->prev == NULL && name[0] != '@' ){
+                if ( iter->prev == NULL ){
                     putchar ( '#' );
                 }
                 fputs(name, stdout);
-                if ( name[0] == '@' ) {
-                    putchar(' ');
-                } else {
-                    if ( iter->next ) {
-                        putchar('.');
-                    }
+                if ( iter->next ) {
+                    putchar('.');
                 }
             }
             printf(" {\n");
+        } else {
+            index = 4;
+            printf("* {\n");
         }
         g_hash_table_iter_init (&iter, widget->properties);
         while (g_hash_table_iter_next (&iter, &key, &value))
@@ -185,9 +184,7 @@ static void rofi_theme_print_index ( ThemeWidget *widget )
             Property *p = (Property*)value;
             rofi_theme_print_property_index ( index, p );
         }
-        if ( g_list_length ( list ) > 0 ) {
-            printf("}\n");
-        }
+        printf("}\n");
         g_list_free ( list );
     }
     for ( unsigned int i = 0; i < widget->num_widgets;i++){
