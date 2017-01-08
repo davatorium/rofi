@@ -605,3 +605,17 @@ void listview_set_max_lines ( listview *lv, unsigned int max_lines )
         lv->max_displayed_lines = max_lines;
     }
 }
+
+gboolean listview_get_fixed_num_lines ( listview *lv )
+{
+    if ( lv ) {
+        return lv->fixed_num_lines;
+    }
+    return FALSE;
+}
+void listview_set_fixed_num_lines ( listview *lv )
+{
+    if ( lv  ) {
+        lv->fixed_num_lines = TRUE;
+    }
+}

@@ -100,14 +100,14 @@ void listview_nav_down ( listview *lv );
  */
 void listview_nav_right ( listview *lv );
 /**
- * @param lv The listview handle 
+ * @param lv The listview handle
  *
  * Move the selection one column to the left.
  * - No wrap around.
  */
 void listview_nav_left ( listview *lv );
 /**
- * @param lv The listview handle 
+ * @param lv The listview handle
  *
  * Move the selection one page down.
  * - No wrap around.
@@ -116,7 +116,7 @@ void listview_nav_left ( listview *lv );
 void listview_nav_page_next ( listview *lv );
 
 /**
- * @param lv The listview handle 
+ * @param lv The listview handle
  *
  * Move the selection one page up.
  * - No wrap around.
@@ -185,6 +185,23 @@ void listview_set_num_lines ( listview *lv, unsigned int num_lines );
  * @returns get the numger of lines to display.
  */
 unsigned int listview_get_num_lines ( listview *lv );
+
+/**
+ * @param lv Handler to the listview object.
+ *
+ * Get the fixed-height property.
+ *
+ * @returns get fixed-height.
+ */
+gboolean listview_get_fixed_num_lines ( listview *lv );
+
+/**
+ * @param lv Handler to the listview object.
+ *
+ * Set fixed num lines mode.
+ */
+void listview_set_fixed_num_lines ( listview *lv );
+
 /**
  * @param lv Handler to the listview object.
  * @param max_lines the maximum number of lines to display.

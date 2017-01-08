@@ -255,7 +255,7 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
 {
     int location = rofi_theme_get_position ( WIDGET ( state->main_window ), "location", config.location );
     int anchor = location;
-    if ( !config.fixed_num_lines ) {
+    if ( !listview_get_fixed_num_lines ( state->list_view ) ) {
         anchor = location;
         if ( location == WL_CENTER ) {
             anchor = WL_NORTH;
@@ -1547,7 +1547,9 @@ RofiViewState *rofi_view_create ( Mode *sw,
     listview_set_multi_select ( state->list_view, ( state->menu_flags & MENU_INDICATOR ) == MENU_INDICATOR );
     listview_set_scroll_type ( state->list_view, config.scroll_method );
     listview_set_mouse_activated_cb ( state->list_view, rofi_view_listview_mouse_activated_cb, state );
-    listview_set_num_lines ( state->list_view, config.menu_lines );
+
+    int lines = rofi_theme_get_integer ( WIDGET (state->list_view ), "lines", config.menu_lines );
+    listview_set_num_lines ( state->list_view, lines );
     listview_set_max_lines ( state->list_view, state->num_lines );
 
     box_add ( state->main_box, WIDGET ( state->list_view ), TRUE, 3);
@@ -1561,7 +1563,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     widget_resize ( WIDGET ( state->main_window ), state->width, 100);
     // Only needed when window is fixed size.
     if (( CacheState.flags & MENU_NORMAL_WINDOW ) == MENU_NORMAL_WINDOW ) {
-        config.fixed_num_lines = TRUE;
+        listview_set_fixed_num_lines ( state->list_view );
         rofi_view_window_update_size ( state );
     }
     // Move the window to the correct x,y position.
@@ -1596,7 +1598,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 
     // Make sure we enable fixed num lines when in normal window mode.
     if ( (CacheState.flags&MENU_NORMAL_WINDOW) == MENU_NORMAL_WINDOW){
-        config.fixed_num_lines = TRUE;
+        listview_set_fixed_num_lines ( state->list_view );
     }
     rofi_view_calculate_window_width ( state );
     // Need to resize otherwise calculated desired height is wrong.

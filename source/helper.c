@@ -309,7 +309,7 @@ const char ** find_arg_strv ( const char *const key )
         int index = 0;
         for ( int i = 0; i < stored_argc; i++ ) {
             if ( strcasecmp ( stored_argv[i], key ) == 0 && i < (stored_argc -1 ) ){
-                retv[index] = stored_argv[i+1];
+                retv[index++] = stored_argv[i+1];
             }
         }
     }
