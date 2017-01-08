@@ -5,6 +5,21 @@
 #include <widgets/widget.h>
 #include <settings.h>
 
+/** Style of text highlight */
+typedef enum
+{
+    /** no highlight */
+    HL_NONE      = 0,
+    /** bold */
+    HL_BOLD      = 1,
+    /** underline */
+    HL_UNDERLINE = 2,
+    /** italic */
+    HL_ITALIC    = 4,
+    /** color */
+    HL_COLOR     = 8
+} HighlightStyle;
+
 /** Style of line */
 typedef enum
 {
@@ -69,6 +84,8 @@ typedef enum
     P_LINK,
     /** Position */
     P_POSITION,
+    /** Highlight */
+    P_HIGHLIGHT,
 } PropertyType;
 
 /**
@@ -97,6 +114,16 @@ typedef struct
     Distance left;
 } Padding;
 
+/**
+ * Theme highlight.
+ */
+typedef struct
+{
+    /** style to display */
+    HighlightStyle style;
+    /** Color */
+    ThemeColor     color;
+} ThemeHighlight;
 /**
  * Property structure.
  */
@@ -128,7 +155,9 @@ typedef struct Property
             char            *name;
             /** Cached looked up ref */
             struct Property *ref;
-        } link;
+        }              link;
+        /** Highlight Style */
+        ThemeHighlight highlight;
     } value;
 } Property;
 /**
@@ -319,6 +348,17 @@ void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t 
  * @returns The padding of this property for this widget.
  */
 Padding rofi_theme_get_padding ( const widget *widget, const char *property, Padding pad );
+
+/**
+ * @param widget   The widget to query
+ * @param property The property to query.
+ * @param th The default value.
+ *
+ * Obtain the highlight .
+ *
+ * @returns The highlight of this property for this widget.
+ */
+ThemeHighlight rofi_theme_get_highlight ( widget *widget, const char *property, ThemeHighlight th );
 
 /**
  * @param d The distance handle.

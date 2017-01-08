@@ -118,6 +118,7 @@ Value supports the following formats:
        * {line-style} can be `dash` or `solid` and is optional.
  * padding: `({distance}){1,4}`
  * position: (center|north|south|east|west|northeast|northwest|southwest|southeast)
+ * highlight-style:  (none|bold|underline|italic)
 
 Each property is closed by a semi-colon `;`;
 
@@ -156,6 +157,7 @@ The following properties are currently supports:
     *  background:      color
     *  foreground:      color
     *  text:            The text color to use (falls back to foreground if not set)
+    * highlight:        highlight {color}
 
   * listview:
     * columns:         integer

@@ -834,7 +834,9 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
             else{
                 list = pango_attr_list_new ();
             }
-            token_match_get_pango_attr ( state->tokens, textbox_get_visible_text ( t ), list );
+            ThemeHighlight th = { HL_BOLD | HL_UNDERLINE, { 0.0, 0.0, 0.0, 0.0 } };
+            th = rofi_theme_get_highlight ( WIDGET ( t ), "highlight", th );
+            token_match_get_pango_attr ( th, state->tokens, textbox_get_visible_text ( t ), list );
             textbox_set_pango_attributes ( t, list );
             pango_attr_list_unref ( list );
         }

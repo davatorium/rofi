@@ -391,7 +391,7 @@ int find_arg_char ( const char * const key, char *val )
     return FALSE;
 }
 
-PangoAttrList *token_match_get_pango_attr ( GRegex **tokens, const char *input, PangoAttrList *retv )
+PangoAttrList *token_match_get_pango_attr ( ThemeHighlight th, GRegex **tokens, const char *input, PangoAttrList *retv )
 {
     // Do a tokenized match.
     if ( tokens ) {
@@ -401,14 +401,35 @@ PangoAttrList *token_match_get_pango_attr ( GRegex **tokens, const char *input, 
             while ( g_match_info_matches ( gmi ) ) {
                 int count = g_match_info_get_match_count ( gmi );
                 for ( int index = ( count > 1 ) ? 1 : 0; index < count; index++ ) {
-                    int            start, end;
+                    int start, end;
                     g_match_info_fetch_pos ( gmi, index, &start, &end );
-                    PangoAttribute *pa  = pango_attr_underline_new ( PANGO_UNDERLINE_SINGLE );
-                    PangoAttribute *pa2 = pango_attr_weight_new ( PANGO_WEIGHT_BOLD );
-                    pa2->start_index = pa->start_index = start;
-                    pa2->end_index   = pa->end_index = end;
-                    pango_attr_list_insert ( retv, pa );
-                    pango_attr_list_insert ( retv, pa2 );
+                    if ( th.style & HL_BOLD ) {
+                        PangoAttribute *pa = pango_attr_weight_new ( PANGO_WEIGHT_BOLD );
+                        pa->start_index = start;
+                        pa->end_index   = end;
+                        pango_attr_list_insert ( retv, pa );
+                    }
+                    if ( th.style & HL_UNDERLINE ) {
+                        PangoAttribute *pa = pango_attr_underline_new ( PANGO_UNDERLINE_SINGLE );
+                        pa->start_index = start;
+                        pa->end_index   = end;
+                        pango_attr_list_insert ( retv, pa );
+                    }
+                    if ( th.style & HL_ITALIC ) {
+                        PangoAttribute *pa = pango_attr_style_new ( PANGO_STYLE_ITALIC );
+                        pa->start_index = start;
+                        pa->end_index   = end;
+                        pango_attr_list_insert ( retv, pa );
+                    }
+                    if ( th.style & HL_COLOR ) {
+                        PangoAttribute *pa = pango_attr_foreground_new (
+                            th.color.red * 65535,
+                            th.color.green * 65535,
+                            th.color.blue * 65535 );
+                        pa->start_index = start;
+                        pa->end_index   = end;
+                        pango_attr_list_insert ( retv, pa );
+                    }
                 }
                 g_match_info_next ( gmi, NULL );
             }

@@ -38,6 +38,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token <sval>     T_STRING
 %token <sval>     N_STRING
 %token <ival>     T_POSITION;
+%token <ival>     T_HIGHLIGHT_STYLE
 %token <sval>     NAME_ELEMENT "Element name"
 %token <bval>     T_BOOLEAN
 %token <colorval> T_COLOR
@@ -54,6 +55,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token WHITESPACE   "White space";
 %token PDEFAULTS    "Default settings";
 
+%type <ival> highlight_styles
 %type <sval> entry
 %type <sval> pvalue
 %type <theme> entries
@@ -171,8 +173,25 @@ property
         $$->name = $1;
         $$->value.i = $3;
 }
+| pvalue PSEP highlight_styles T_COLOR PCLOSE {
+        $$ = rofi_theme_property_create ( P_HIGHLIGHT );
+        $$->name = $1;
+        $$->value.highlight.style = $3|HL_COLOR;
+        $$->value.highlight.color = $4;
+}
+| pvalue PSEP highlight_styles PCLOSE {
+        $$ = rofi_theme_property_create ( P_HIGHLIGHT );
+        $$->name = $1;
+        $$->value.highlight.style = $3;
+}
 ;
 
+highlight_styles:
+                T_HIGHLIGHT_STYLE { $$ = $1; }
+| highlight_styles T_HIGHLIGHT_STYLE {
+    $$ = $1 | $2;
+}
+;
 pvalue: N_STRING { $$ = $1; }
 
 name_path:

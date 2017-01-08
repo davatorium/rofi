@@ -69,6 +69,11 @@ SOUTH      "south"
 EAST       "east"
 WEST       "west"
 
+NONE        "none"
+BOLD        "bold"
+UNDERLINE   "underline"
+ITALIC      "italic"
+
 LS_DASH    "dash"
 LS_SOLID   "solid"
 
@@ -302,9 +307,25 @@ if ( queue == NULL ){
     yylval->ival = WL_NORTH;
     return T_POSITION;
 }
-<PROPERTIES>NORTH {
+<PROPERTIES>{NORTH} {
     yylval->ival = WL_NORTH;
     return T_POSITION;
+}
+<PROPERTIES>{NONE} {
+    yylval->ival = HL_NONE;
+    return T_HIGHLIGHT_STYLE;
+}
+<PROPERTIES>{BOLD} {
+    yylval->ival = HL_BOLD;
+    return T_HIGHLIGHT_STYLE;
+}
+<PROPERTIES>{ITALIC} {
+    yylval->ival = HL_ITALIC;
+    return T_HIGHLIGHT_STYLE;
+}
+<PROPERTIES>{UNDERLINE} {
+    yylval->ival = HL_UNDERLINE;
+    return T_HIGHLIGHT_STYLE;
 }
 <INITIAL><<EOF>>  {
     g_queue_free ( queue );
@@ -325,7 +346,7 @@ if ( queue == NULL ){
     const char *error_msg = "Expected 'root' element or a 'named' element.\n"\
                          "Place all global properties in a root element:\n"\
                          "  * {\n"\
-                         "  }\n"; 
+                         "  }\n";
     YY_FATAL_ERROR( error_msg );
 }
 <*>. {

@@ -111,6 +111,25 @@ static void rofi_theme_print_property_index ( size_t pnl, int depth, Property *p
     printf ( "%*s%s:%*s ", depth, "", p->name, (int) pnl - pl, "" );
     switch ( p->type )
     {
+    case P_HIGHLIGHT:
+        if ( p->value.highlight.style & HL_BOLD ) {
+            printf ( "bold " );
+        }
+        if ( p->value.highlight.style & HL_UNDERLINE ) {
+            printf ( "underline " );
+        }
+        if ( p->value.highlight.style & HL_ITALIC ) {
+            printf ( "italic " );
+        }
+        if ( p->value.highlight.style & HL_COLOR ) {
+            printf ( "#%02X%02X%02X%02X",
+                     (unsigned char) ( p->value.highlight.color.alpha * 255.0 ),
+                     (unsigned char) ( p->value.highlight.color.red * 255.0 ),
+                     (unsigned char) ( p->value.highlight.color.green * 255.0 ),
+                     (unsigned char) ( p->value.highlight.color.blue * 255.0 ) );
+        }
+        printf ( ";" );
+        break;
     case P_POSITION:
         printf ( "%s;", WindowLocationStr[p->value.i] );
         break;
@@ -486,6 +505,17 @@ Padding rofi_theme_get_padding ( const widget *widget, const char *property, Pad
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return pad;
 }
+ThemeHighlight rofi_theme_get_highlight ( widget *widget, const char *property, ThemeHighlight th )
+{
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property    *p   = rofi_theme_find_property ( wid, P_HIGHLIGHT, property, FALSE );
+    if ( p ) {
+        return p->value.highlight;
+    }
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
+    return th;
+}
+
 int distance_get_pixel ( Distance d, Orientation ori )
 {
     if ( d.type == PW_EM ) {

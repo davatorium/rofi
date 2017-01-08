@@ -3,6 +3,7 @@
 #include "rofi.h"
 
 #include <pango/pango.h>
+#include <theme.h>
 /**
  * @defgroup HELPERS Helpers
  */
@@ -195,6 +196,7 @@ char * rofi_force_utf8 ( gchar *data, ssize_t length );
 char * rofi_latin_to_utf8_strdup ( const char *input, gssize length );
 
 /**
+ * @param th The ThemeHighlight
  * @param tokens Array of regexes used for matching
  * @param input The input string to find the matches on
  * @param retv The Attribute list to update with matches
@@ -203,6 +205,6 @@ char * rofi_latin_to_utf8_strdup ( const char *input, gssize length );
  *
  * @returns the updated retv list.
  */
-PangoAttrList *token_match_get_pango_attr ( GRegex **tokens, const char *input, PangoAttrList *retv );
+PangoAttrList *token_match_get_pango_attr ( ThemeHighlight th, GRegex **tokens, const char *input, PangoAttrList *retv );
 /*@}*/
 #endif // ROFI_HELPER_H
