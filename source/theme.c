@@ -89,14 +89,27 @@ static void rofi_theme_print_distance ( Distance d )
         printf("dash ");
     }
 }
-static void rofi_theme_print_property_index ( int depth, Property *p )
+/** Textual representation of Window Location */
+const char const * WindowLocationStr[9] = {
+    "center",
+    "northwest",
+    "north",
+    "northeast",
+    "east",
+    "southeast",
+    "south",
+    "southwest",
+    "west"
+};
+
+static void rofi_theme_print_property_index ( size_t pnl, int depth, Property *p )
 {
-    printf("%*s%s: ", depth, "", p->name );
+    int pl = strlen ( p->name );
+    printf("%*s%s:%*s ", depth, "", p->name, (int)pnl-pl,"" );
     switch ( p->type )
     {
         case P_POSITION:
-            // TODO Name
-            printf("%d;", p->value.i);
+            printf("%s;", WindowLocationStr[p->value.i]);
             break;
         case P_STRING:
             printf("\"%s\";", p->value.s);
@@ -178,11 +191,18 @@ static void rofi_theme_print_index ( ThemeWidget *widget )
             index = 4;
             printf("* {\n");
         }
+        size_t property_name_length = 0;
         g_hash_table_iter_init (&iter, widget->properties);
         while (g_hash_table_iter_next (&iter, &key, &value))
         {
             Property *p = (Property*)value;
-            rofi_theme_print_property_index ( index, p );
+            property_name_length = MAX ( strlen (p->name), property_name_length );
+        }
+        g_hash_table_iter_init (&iter, widget->properties);
+        while (g_hash_table_iter_next (&iter, &key, &value))
+        {
+            Property *p = (Property*)value;
+            rofi_theme_print_property_index ( property_name_length, index, p );
         }
         printf("}\n");
         g_list_free ( list );
