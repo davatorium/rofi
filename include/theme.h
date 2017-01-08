@@ -200,7 +200,7 @@ gboolean rofi_theme_parse_file ( const char *file );
  *
  * @returns returns TRUE when error.
  */
-gboolean rofi_theme_parse_string ( const char *file );
+gboolean rofi_theme_parse_string ( const char *string );
 
 /**
  * @param widget The widget handle.
