@@ -1,12 +1,13 @@
 #ifndef ROFI_VIEW_INTERNAL_H
 #define ROFI_VIEW_INTERNAL_H
+#include "widgets/container.h"
 #include "widgets/widget.h"
 #include "widgets/textbox.h"
-#include "widgets/separator.h"
 #include "widgets/listview.h"
 #include "widgets/box.h"
 #include "keyb.h"
 #include "x11-helper.h"
+#include "theme.h"
 
 /**
  * @ingroup ViewHandle
@@ -22,7 +23,8 @@ struct RofiViewState
 
     /** Flag indicating if view needs to be refiltered. */
     int              refilter;
-
+    /** Widget representing the main container. */
+    container           *main_window;
     /** Main #box widget holding different elements. */
     box              *main_box;
     /** #box widget packing the input bar widgets. */
@@ -33,8 +35,6 @@ struct RofiViewState
     textbox          *text;
     /** #textbox showing the state of the case sensitive and sortng. */
     textbox          *case_indicator;
-    /** #separator widget below the input bar. */
-    separator        *input_bar_separator;
 
     /** #listview holding the displayed elements. */
     listview         *list_view;
@@ -63,8 +63,6 @@ struct RofiViewState
     unsigned int     selected_line;
     /** The return state of the view */
     MenuReturn       retv;
-    /** Calculated border width */
-    unsigned int     border;
     /** Monitor #workarea the view is displayed on */
     workarea         mon;
 

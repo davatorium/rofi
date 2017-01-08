@@ -135,6 +135,8 @@ Global options:
 		True (Default)
 	-[no-]show-match                        Indicate how it match by underlining it.
 		True (Default)
+	-theme [string]                         New style theme file
+		(unset) (Default)
 	-pid [string]                           Pidfile location
 		/tmp/rofi.pid (File)
 	-kb-primary-paste [string]              Paste primary selection

@@ -64,6 +64,8 @@
 
 #include "gitconfig.h"
 
+#include "theme.h"
+
 // Pidfile.
 char       *pidfile   = NULL;
 const char *cache_dir = NULL;
@@ -576,8 +578,9 @@ static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, xcb_connection_t 
     xcb_flush ( xdisplay );
     --error_trap_depth;
 }
-
+/** Retry count of grabbing keyboard. */
 unsigned int lazy_grab_retry_count_kb = 0;
+/** Retry count of grabbing pointer. */
 unsigned int lazy_grab_retry_count_pt = 0;
 static gboolean lazy_grab_pointer ( G_GNUC_UNUSED gpointer data )
 {
@@ -942,6 +945,31 @@ int main ( int argc, char *argv[] )
     // Parse command line for settings, independent of other -no-config.
     config_parse_cmd_options_dynamic (  );
 
+    if ( config.theme ) {
+        TICK_N ( "Parse theme" );
+        rofi_theme_parse_file ( config.theme );
+        TICK_N ( "Parsed theme" );
+    } else {
+        rofi_theme_convert_old_theme ( );
+    }
+
+    const char ** theme_str = find_arg_strv ( "-theme-str" );
+    if ( theme_str ) {
+        for ( int index = 0; theme_str && theme_str[index]; index++ ){
+            if ( ! rofi_theme_parse_string ( theme_str[index] ) ){
+                fprintf(stderr, "Failed to parse: %s\n", theme_str[index]); 
+                exit ( EXIT_FAILURE );
+            }
+        }
+        g_free ( theme_str );
+    }
+
+
+
+    if ( find_arg ( "-dump-theme" ) >= 0 ){
+        rofi_theme_print ( rofi_theme );
+        exit (EXIT_SUCCESS);
+    }
     // Dump.
     // catch help request
     if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 || find_arg (  "--help" ) >= 0 ) {

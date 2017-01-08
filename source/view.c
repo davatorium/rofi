@@ -58,10 +58,19 @@
 #include "view.h"
 #include "view-internal.h"
 
+#include "theme.h"
+
 /** The Rofi View log domain */
 #define LOG_DOMAIN    "View"
 
 #include "xcb.h"
+/**
+ * @param state The handle to the view
+ * @param qr    Indicate if queue_redraw should be called on changes.
+ *
+ * Update the state of the view. This involves filter state.
+ */
+void rofi_view_update ( RofiViewState *state, gboolean qr );
 
 static int rofi_view_calculate_height ( RofiViewState *state );
 
@@ -99,9 +108,11 @@ struct
     /** timeout for reloading */
     guint           idle_timeout;
     /** debug counter for redraws */
-    uint64_t        count;
+    unsigned long long count;
     /** redraw idle time. */
     guint           repaint_source;
+    /** Window fullscreen */
+    gboolean        fullscreen;
 } CacheState = {
     .main_window    = XCB_WINDOW_NONE,
     .fake_bg        = NULL,
@@ -113,8 +124,18 @@ struct
     .idle_timeout   =               0,
     .count          =              0L,
     .repaint_source =               0,
+    .fullscreen     =           FALSE,
 };
 
+void rofi_view_get_current_monitor ( int *width, int *height)
+{
+    if (width ){
+        *width = CacheState.mon.w;
+    }
+    if (height){
+        *height = CacheState.mon.h;
+    }
+}
 static char * get_matching_state ( void )
 {
     if ( config.case_sensitive ) {
@@ -200,6 +221,10 @@ static void menu_capture_screenshot ( void )
 static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
 {
     if ( current_active_menu  ) {
+        // Repaint the view (if needed).
+        // After a resize the edit_pixmap surface might not contain anything anymore.
+        // If we already re-painted, this does nothing.
+        rofi_view_update (current_active_menu, FALSE);
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "expose event" );
         TICK_N ( "Expose" );
         xcb_copy_area ( xcb->connection, CacheState.edit_pixmap, CacheState.main_window, CacheState.gc,
@@ -231,22 +256,29 @@ static void rofi_view_update_prompt ( RofiViewState *state )
  */
 static void rofi_view_calculate_window_position ( RofiViewState *state )
 {
-    if ( config.fullscreen ) {
+    int location = rofi_theme_get_position ( WIDGET ( state->main_window ), "location", config.location );
+    int anchor = location;
+    if ( !listview_get_fixed_num_lines ( state->list_view ) ) {
+        anchor = location;
+        if ( location == WL_CENTER ) {
+            anchor = WL_NORTH;
+        } else if ( location == WL_EAST ) {
+            anchor = WL_NORTH_EAST;
+        } else if (location == WL_WEST ) {
+            anchor = WL_NORTH_WEST;
+        }
+    }
+    anchor = rofi_theme_get_position ( WIDGET ( state->main_window ), "anchor", anchor );
+
+    if ( CacheState.fullscreen ) {
         state->x = CacheState.mon.x;
         state->y = CacheState.mon.y;
         return;
     }
-
-    if ( !config.fixed_num_lines && ( config.location == WL_CENTER || config.location == WL_EAST || config.location == WL_WEST ) ) {
-        state->y = CacheState.mon.y + CacheState.mon.h / 2 - widget_get_height ( WIDGET ( state->input_bar ) );
-    }
-    else {
-        // Default location is center.
-        state->y = CacheState.mon.y + ( CacheState.mon.h - state->height ) / 2;
-    }
-    state->x = CacheState.mon.x + ( CacheState.mon.w - state->width ) / 2;
+    state->y = CacheState.mon.y + ( CacheState.mon.h ) / 2;
+    state->x = CacheState.mon.x + ( CacheState.mon.w ) / 2;
     // Determine window location
-    switch ( config.location )
+    switch ( location )
     {
     case WL_NORTH_WEST:
         state->x = CacheState.mon.x;
@@ -256,21 +288,56 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
     case WL_NORTH_EAST:
         state->y = CacheState.mon.y;
     case WL_EAST:
-        state->x = CacheState.mon.x + CacheState.mon.w - state->width;
+        state->x = CacheState.mon.x + CacheState.mon.w;
         break;
-    case WL_EAST_SOUTH:
-        state->x = CacheState.mon.x + CacheState.mon.w - state->width;
+    case WL_SOUTH_EAST:
+        state->x = CacheState.mon.x + CacheState.mon.w;
     case WL_SOUTH:
-        state->y = CacheState.mon.y + CacheState.mon.h - state->height;
+        state->y = CacheState.mon.y + CacheState.mon.h;
         break;
     case WL_SOUTH_WEST:
-        state->y = CacheState.mon.y + CacheState.mon.h - state->height;
+        state->y = CacheState.mon.y + CacheState.mon.h;
     case WL_WEST:
         state->x = CacheState.mon.x;
         break;
     case WL_CENTER:
     default:
         break;
+    }
+    switch ( anchor )
+    {
+        case WL_SOUTH_WEST:
+              state->y -= state->height;
+              break;
+        case WL_SOUTH:
+              state->x -= state->width/2;
+              state->y -= state->height;
+              break;
+        case WL_SOUTH_EAST:
+              state->x -= state->width;
+              state->y -= state->height;
+              break;
+        case WL_NORTH_EAST:
+              state->x -= state->width;
+              break;
+        case WL_NORTH_WEST:
+              break;
+        case WL_NORTH:
+              state->x -= state->width/2;
+              break;
+        case WL_EAST:
+              state->x -= state->width;
+              state->y -= state->height/2;
+              break;
+        case WL_WEST:
+              state->y -= state->height/2;
+              break;
+        case WL_CENTER:
+              state->y -= state->height/2;
+              state->x -= state->width/2;
+              break;
+        default:
+           break;
     }
     // Apply offset.
     state->x += config.x_offset;
@@ -294,7 +361,10 @@ static void rofi_view_window_update_size ( RofiViewState * state )
 
     CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
     CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
-    widget_resize ( WIDGET ( state->main_box ), state->width - 2 * state->border, state->height - 2 * state->border );
+
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Re-size window based internal request: %dx%d.", state->width, state->height );
+    // Should wrap main window in a widget.
+    widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
 }
 
 static gboolean rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
@@ -319,7 +389,7 @@ void rofi_view_queue_redraw ( void  )
 {
     if ( current_active_menu && CacheState.repaint_source == 0 ) {
         CacheState.count++;
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "redraw %lu", CacheState.count );
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "redraw %llu", CacheState.count );
         CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
     }
 }
@@ -382,7 +452,7 @@ void rofi_view_free ( RofiViewState *state )
     }
     // Do this here?
     // Wait for final release?
-    widget_free ( WIDGET ( state->main_box ) );
+    widget_free ( WIDGET ( state->main_window ) );
     widget_free ( WIDGET ( state->overlay ) );
 
     g_free ( state->line_map );
@@ -489,23 +559,26 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
     }
 }
 
-static void rofi_view_setup_fake_transparency ( void )
+static void rofi_view_setup_fake_transparency ( const char const *fake_background )
 {
     if ( CacheState.fake_bg == NULL ) {
         cairo_surface_t *s = NULL;
         /**
          * Select Background to use for fake transparency.
-         * Current options: 'screenshot','background'
+         * Current options: 'real', 'screenshot','background'
          */
         TICK_N ( "Fake start" );
-        if ( g_strcmp0 ( config.fake_background, "screenshot" ) == 0 ) {
+        if ( g_strcmp0 ( fake_background, "real" ) == 0 ){
+            return;
+        }
+        else if ( g_strcmp0 ( fake_background, "screenshot" ) == 0 ) {
             s = x11_helper_get_screenshot_surface ();
         }
-        else if ( g_strcmp0 ( config.fake_background, "background" ) == 0 ) {
+        else if ( g_strcmp0 ( fake_background, "background" ) == 0 ) {
             s = x11_helper_get_bg_surface ();
         }
         else {
-            char *fpath = rofi_expand_path ( config.fake_background );
+            char *fpath = rofi_expand_path ( fake_background );
             g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Opening %s to use as background.", fpath );
             s                     = cairo_image_surface_create_from_png ( fpath );
             CacheState.fake_bgrel = TRUE;
@@ -584,8 +657,11 @@ void __create_window ( MenuFlags menu_flags )
         pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, (double) config.dpi );
     }
     // Setup font.
-    if ( config.menu_font ) {
-        PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
+    // Dummy widget.
+    container *win = container_create ( "window" );
+    char *font = rofi_theme_get_string ( WIDGET ( win ), "font" , config.menu_font );
+    if ( font ) {
+        PangoFontDescription *pfd = pango_font_description_from_string ( font );
         pango_context_set_font_description ( p, pfd );
         pango_font_description_free ( pfd );
     }
@@ -605,7 +681,9 @@ void __create_window ( MenuFlags menu_flags )
         window_set_atom_prop ( box, xcb->ewmh._NET_WM_WINDOW_TYPE, &( xcb->ewmh._NET_WM_WINDOW_TYPE_NORMAL ), 1 );
         x11_disable_decoration ( box );
     }
-    if ( config.fullscreen ) {
+
+    CacheState.fullscreen = rofi_theme_get_boolean ( WIDGET (win ), "fullscreen", config.fullscreen );
+    if ( CacheState.fullscreen ) {
         xcb_atom_t atoms[] = {
             xcb->ewmh._NET_WM_STATE_FULLSCREEN,
             xcb->ewmh._NET_WM_STATE_ABOVE
@@ -620,12 +698,18 @@ void __create_window ( MenuFlags menu_flags )
     CacheState.main_window = box;
     CacheState.flags       = menu_flags;
     monitor_active ( &( CacheState.mon ) );
-    if ( config.fake_transparency ) {
-        rofi_view_setup_fake_transparency ();
+
+    char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL);
+    if ( transparency == NULL && config.fake_transparency ){
+        transparency = config.fake_background;
+    }
+    if ( transparency ) {
+        rofi_view_setup_fake_transparency ( transparency  );
     }
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_setup_window ( xcb->sncontext, CacheState.main_window );
     }
+    widget_free ( WIDGET ( win ) );
 }
 
 /**
@@ -633,20 +717,24 @@ void __create_window ( MenuFlags menu_flags )
  *
  * Calculate the width of the window and the width of an element.
  */
-static void rofi_view_calculate_window_and_element_width ( RofiViewState *state )
+static void rofi_view_calculate_window_width ( RofiViewState *state )
 {
-    if ( config.fullscreen ) {
+    if ( CacheState.fullscreen ) {
         state->width = CacheState.mon.w;
+        return;
     }
-    else if ( config.menu_width < 0 ) {
+    if ( config.menu_width < 0 ) {
         double fw = textbox_get_estimated_char_width ( );
         state->width  = -( fw * config.menu_width );
-        state->width += 2 * state->border;
+        state->width += widget_padding_get_padding_width ( WIDGET ( state->main_window ) );
     }
     else{
         // Calculate as float to stop silly, big rounding down errors.
         state->width = config.menu_width < 101 ? ( CacheState.mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
     }
+    // Use theme configured width, if set.
+    Distance width = rofi_theme_get_distance ( WIDGET ( state->main_window ), "width", state->width );
+    state->width = distance_get_pixel ( width, ORIENTATION_HORIZONTAL );
 }
 
 /**
@@ -758,15 +846,16 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
     }
 }
 
-void rofi_view_update ( RofiViewState *state )
+void rofi_view_update ( RofiViewState *state, gboolean qr )
 {
-    if ( !widget_need_redraw ( WIDGET ( state->main_box ) ) && !widget_need_redraw ( WIDGET ( state->overlay ) )  ) {
+    if ( !widget_need_redraw ( WIDGET ( state->main_window ) ) && !widget_need_redraw ( WIDGET ( state->overlay ) )  ) {
         return;
     }
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Redraw view" );
     TICK ();
     cairo_t *d = CacheState.edit_draw;
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
-    if ( config.fake_transparency && CacheState.fake_bg != NULL ) {
+    if ( CacheState.fake_bg != NULL ) {
         if ( CacheState.fake_bgrel ) {
             cairo_set_source_surface ( d, CacheState.fake_bg, 0.0, 0.0 );
         }
@@ -777,39 +866,26 @@ void rofi_view_update ( RofiViewState *state )
         }
         cairo_paint ( d );
         cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
-        color_background ( d );
-        cairo_paint ( d );
     }
     else {
-        // Paint the background.
-        color_background ( d );
+        // Paint the background transparent.
+        cairo_set_source_rgba ( d, 0,0,0,0.0);
         cairo_paint ( d );
     }
     TICK_N ( "Background" );
-    color_border ( d );
-
-    if ( config.menu_bw > 0 ) {
-        cairo_save ( d );
-        cairo_set_line_width ( d, config.menu_bw );
-        cairo_rectangle ( d,
-                          config.menu_bw / 2.0,
-                          config.menu_bw / 2.0,
-                          state->width - config.menu_bw,
-                          state->height - config.menu_bw );
-        cairo_stroke ( d );
-        cairo_restore ( d );
-    }
 
     // Always paint as overlay over the background.
     cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
-    widget_draw ( WIDGET ( state->main_box ), d );
+    widget_draw ( WIDGET ( state->main_window ), d );
 
     if ( state->overlay ) {
         widget_draw ( WIDGET ( state->overlay ), d );
     }
     TICK_N ( "widgets" );
     cairo_surface_flush ( CacheState.edit_surf );
-    rofi_view_queue_redraw ();
+    if ( qr ) {
+        rofi_view_queue_redraw ();
+    }
 }
 
 /**
@@ -828,9 +904,10 @@ static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t
         if ( text != NULL && text[0] != '\0' ) {
             unsigned int dl = strlen ( text );
             // Strip new line
-            while ( dl > 0 && text[dl] == '\n' ) {
-                text[dl] = '\0';
-                dl--;
+            for ( unsigned int i = 0; i < dl; i++){
+                if ( text[i] == '\n' ){
+                    dl = i;
+                }
             }
             // Insert string move cursor.
             textbox_insert ( state->text, state->text->cursor, text, dl );
@@ -865,9 +942,7 @@ static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_
     }
     else {
         xcb_button_press_event_t rel = *xbe;
-        rel.event_x -= config.padding;
-        rel.event_y -= config.padding;
-        if ( widget_clicked ( WIDGET ( state->main_box ), &rel ) ) {
+        if ( widget_clicked ( WIDGET ( state->main_window ), &rel ) ) {
             return;
         }
     }
@@ -879,6 +954,7 @@ static void _rofi_view_reload_row ( RofiViewState *state )
     state->num_lines = mode_get_num_entries ( state->sw );
     state->line_map  = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
     state->distance  = g_malloc0_n ( state->num_lines, sizeof ( int ) );
+    listview_set_max_lines ( state->list_view, state->num_lines );
 }
 
 static void rofi_view_refilter ( RofiViewState *state )
@@ -962,7 +1038,9 @@ static void rofi_view_refilter ( RofiViewState *state )
         state->retv              = MENU_OK;
         state->quit              = TRUE;
     }
-    if ( config.fixed_num_lines == FALSE && ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
+
+    // Make sure we enable fixed num lines when in normal window mode.
+    if ( (CacheState.flags&MENU_NORMAL_WINDOW) == 0 ){
         int height = rofi_view_calculate_height ( state );
         if ( height != state->height ) {
             state->height = height;
@@ -1244,6 +1322,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
             if ( state->x != xce->x || state->y != xce->y ) {
                 state->x = xce->x;
                 state->y = xce->y;
+                widget_queue_redraw ( WIDGET ( state->main_window ) );
             }
             if ( state->width != xce->width || state->height != xce->height ) {
                 state->width  = xce->width;
@@ -1259,7 +1338,8 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
 
                 CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
                 CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
-                widget_resize ( WIDGET ( state->main_box ), state->width - 2 * state->border, state->height - 2 * state->border );
+                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Re-size window based external request: %d %d\n", state->width, state->height);
+                widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
             }
         }
         break;
@@ -1280,9 +1360,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
             state->mouse_seen = TRUE;
         }
         xcb_motion_notify_event_t xme = *( (xcb_motion_notify_event_t *) ev );
-        xme.event_x -= config.padding;
-        xme.event_y -= config.padding;
-        if ( widget_motion_notify ( WIDGET ( state->main_box ), &xme ) ) {
+        if ( widget_motion_notify ( WIDGET ( state->main_window ), &xme ) ) {
             return;
         }
         break;
@@ -1340,7 +1418,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
     if ( state->refilter ) {
         rofi_view_refilter ( state );
     }
-    rofi_view_update ( state );
+    rofi_view_update ( state, TRUE );
 
     if ( ( ev->response_type & ~0x80 ) == XCB_EXPOSE && CacheState.repaint_source == 0 ) {
         CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
@@ -1350,19 +1428,13 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
 static int rofi_view_calculate_height ( RofiViewState *state )
 {
     unsigned int height = 0;
-    if ( config.menu_lines == 0 || config.fullscreen == TRUE ) {
+    if ( listview_get_num_lines ( state->list_view ) == 0 || CacheState.fullscreen == TRUE ) {
         height = CacheState.mon.h;
         return height;
     }
-    if ( state->filtered_lines == 0 && !config.fixed_num_lines ) {
-        widget_disable ( WIDGET ( state->input_bar_separator ) );
-    }
-    else {
-        widget_enable ( WIDGET ( state->input_bar_separator ) );
-    }
-    height  = listview_get_desired_height ( state->list_view );
-    height += box_get_fixed_pixels ( state->main_box );
-    height += 2 * state->border;
+
+    widget *main_window = WIDGET ( state->main_window );
+    height = widget_get_desired_height ( main_window );
     return height;
 }
 
@@ -1411,7 +1483,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->skip_absorb   = FALSE;
     //We want to filter on the first run.
     state->refilter   = TRUE;
-    state->border     = config.padding + config.menu_bw;
     state->finalize   = finalize;
     state->mouse_seen = FALSE;
 
@@ -1423,115 +1494,91 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Get active monitor size.
     TICK_N ( "Get active monitor" );
 
-    state->main_box = box_create ( BOX_VERTICAL,
-                                   state->border, state->border,
-                                   state->width - 2 * state->border, state->height - 2 * state->border );
-    box_set_padding ( state->main_box, config.line_margin );
+    state->main_window = container_create ( "window" );
+    state->main_box = box_create ( "window.mainbox.box", BOX_VERTICAL );
+    container_add ( state->main_window, WIDGET ( state->main_box ) );
 
-    // we need this at this point so we can get height.
-    unsigned int line_height = textbox_get_estimated_char_height ();
-    rofi_view_calculate_window_and_element_width ( state );
 
-    state->input_bar = box_create ( BOX_HORIZONTAL, 0, 0, state->width - state->border, line_height );
-    //box_set_padding ( state->input_bar, config.line_margin );
-    state->input_bar_separator = separator_create ( S_HORIZONTAL, 2 );
-    separator_set_line_style_from_string ( state->input_bar_separator, config.separator_style );
-
+    state->input_bar = box_create ( "window.mainbox.inputbar.box", BOX_HORIZONTAL );
 
     // Only enable widget when sidebar is enabled.
     if ( config.sidebar_mode ) {
-        state->sidebar_bar = box_create ( BOX_HORIZONTAL, 0, 0, state->width - 2 * state->border, line_height );
-        box_set_padding ( state->sidebar_bar, config.line_margin );
-        separator *sep = separator_create ( S_HORIZONTAL, 2 );
-        separator_set_line_style_from_string ( sep, config.separator_style );
-        box_add ( state->main_box, WIDGET ( state->sidebar_bar ), FALSE, TRUE );
-        box_add ( state->main_box, WIDGET ( sep ), FALSE, TRUE );
+        state->sidebar_bar = box_create ( "window.mainbox.sidebar.box", BOX_HORIZONTAL );
+        box_add ( state->main_box, WIDGET ( state->sidebar_bar ), FALSE, 10 );
         state->num_modi = rofi_get_num_enabled_modi ();
         state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
         for ( unsigned int j = 0; j < state->num_modi; j++ ) {
             const Mode * mode = rofi_get_mode ( j );
-            state->modi[j] = textbox_create ( TB_CENTER, 0, 0, 0, 0, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
+            state->modi[j] = textbox_create ( "window.mainbox.sidebar.button", TB_CENTER|TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
                                               mode_get_display_name ( mode  ) );
-            box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, FALSE );
+            box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, j );
             widget_set_clicked_handler ( WIDGET ( state->modi[j] ), rofi_view_modi_clicked_cb, state );
         }
     }
 
-    int end = ( config.location == WL_EAST_SOUTH || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST );
-    box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, end );
+    int location = rofi_theme_get_position ( WIDGET ( state->main_window ), "location", config.location );
+    int end = ( location == WL_SOUTH_EAST || location == WL_SOUTH || location == WL_SOUTH_WEST );
+    box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, end?9:0 );
 
-    state->case_indicator = textbox_create ( TB_AUTOWIDTH, 0, 0, 0, line_height, NORMAL, "*" );
+    state->case_indicator = textbox_create ( "window.mainbox.inputbar.case-indicator", TB_AUTOWIDTH|TB_AUTOHEIGHT, NORMAL, "*" );
     // Add small separator between case indicator and text box.
-    box_add ( state->input_bar, WIDGET ( state->case_indicator ), FALSE, TRUE );
+    box_add ( state->input_bar, WIDGET ( state->case_indicator ), FALSE, 3 );
 
     // Prompt box.
-    state->prompt = textbox_create ( TB_AUTOWIDTH, 0, 0, 0, line_height, NORMAL, "" );
+    state->prompt = textbox_create ( "window.mainbox.inputbar.prompt",TB_AUTOWIDTH|TB_AUTOHEIGHT, NORMAL, "" );
     rofi_view_update_prompt ( state );
-    box_add ( state->input_bar, WIDGET ( state->prompt ), FALSE, FALSE );
+    box_add ( state->input_bar, WIDGET ( state->prompt ), FALSE, 1 );
 
     // Entry box
     TextboxFlags tfl = TB_EDITABLE;
     tfl        |= ( ( menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
-    state->text = textbox_create ( tfl, 0, 0, 0, line_height, NORMAL, input );
+    state->text = textbox_create ( "window.mainbox.inputbar.entry", tfl|TB_AUTOHEIGHT, NORMAL, input );
 
-    box_add ( state->input_bar, WIDGET ( state->text ), TRUE, FALSE );
+    box_add ( state->input_bar, WIDGET ( state->text ), TRUE, 2 );
 
     textbox_text ( state->case_indicator, get_matching_state () );
     if ( message ) {
-        textbox *message_tb = textbox_create ( TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, 0, 0,
-                                               state->width - ( 2 * ( state->border ) ), -1, NORMAL, message );
-        separator *sep = separator_create ( S_HORIZONTAL, 2 );
-        box_add ( state->main_box, WIDGET ( sep ), FALSE, end);
-        box_add ( state->main_box, WIDGET ( message_tb ), FALSE, end);
-        separator_set_line_style_from_string ( sep, config.separator_style );
+        container *box = container_create ( "window.mainbox.message.box" );
+        textbox *message_tb = textbox_create ( "window.mainbox.message.textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, message );
+        container_add ( box, WIDGET (message_tb) );
+        box_add ( state->main_box, WIDGET ( box ), FALSE, end?8:2);
     }
-    box_add ( state->main_box, WIDGET ( state->input_bar_separator ), FALSE, end );
 
-    state->overlay = textbox_create ( TB_AUTOWIDTH, 0, 0, 20, line_height, URGENT, "blaat"  );
+    state->overlay = textbox_create ( "window.overlay", TB_AUTOWIDTH|TB_AUTOHEIGHT, URGENT, "blaat"  );
     widget_disable ( WIDGET ( state->overlay ) );
 
-    state->list_view = listview_create ( update_callback, state, config.element_height );
+    state->list_view = listview_create ( "window.mainbox.listview", update_callback, state, config.element_height, end );
     // Set configuration
     listview_set_multi_select ( state->list_view, ( state->menu_flags & MENU_INDICATOR ) == MENU_INDICATOR );
-    listview_set_padding ( state->list_view, config.line_margin );
-    listview_set_max_lines ( state->list_view, config.menu_lines );
-    listview_set_max_columns ( state->list_view, config.menu_columns );
-    listview_set_fixed_num_lines ( state->list_view, config.fixed_num_lines );
-    listview_set_hide_scrollbar ( state->list_view, !config.hide_scrollbar );
-    listview_set_scrollbar_width ( state->list_view, config.scrollbar_width );
-    listview_set_cycle ( state->list_view, config.cycle );
     listview_set_scroll_type ( state->list_view, config.scroll_method );
     listview_set_mouse_activated_cb ( state->list_view, rofi_view_listview_mouse_activated_cb, state );
 
-    box_add ( state->main_box, WIDGET ( state->list_view ), TRUE, FALSE );
+    int lines = rofi_theme_get_integer ( WIDGET (state->list_view ), "lines", config.menu_lines );
+    listview_set_num_lines ( state->list_view, lines );
+    listview_set_max_lines ( state->list_view, state->num_lines );
 
-
-    // Height of a row.
-    if ( config.menu_lines == 0 || config.fullscreen  ) {
-        state->height = CacheState.mon.h;
-        // Autosize it.
-        config.fixed_num_lines = TRUE;
-    }
+    box_add ( state->main_box, WIDGET ( state->list_view ), TRUE, 3);
 
     // filtered list
     state->line_map = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
     state->distance = (int *) g_malloc0_n ( state->num_lines, sizeof ( int ) );
 
-    state->height = rofi_view_calculate_height ( state );
-
+    rofi_view_calculate_window_width ( state );
+    // Need to resize otherwise calculated desired height is wrong.
+    widget_resize ( WIDGET ( state->main_window ), state->width, 100);
+    // Only needed when window is fixed size.
+    if (( CacheState.flags & MENU_NORMAL_WINDOW ) == MENU_NORMAL_WINDOW ) {
+        listview_set_fixed_num_lines ( state->list_view );
+        rofi_view_window_update_size ( state );
+    }
     // Move the window to the correct x,y position.
     rofi_view_calculate_window_position ( state );
 
-    rofi_view_window_update_size ( state );
-    // Update.
-    //state->selected = 0;
-
     state->quit = FALSE;
     rofi_view_refilter ( state );
-
-    rofi_view_update ( state );
+    rofi_view_update ( state, TRUE );
     xcb_map_window ( xcb->connection, CacheState.main_window );
-    widget_queue_redraw ( WIDGET ( state->main_box ) );
+    widget_queue_redraw ( WIDGET ( state->main_window ) );
     xcb_flush ( xcb->connection );
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_complete ( xcb->sncontext );
@@ -1543,22 +1590,27 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 {
     RofiViewState *state = __rofi_view_state_create ();
     state->retv       = MENU_CANCEL;
-    state->border     = config.padding + config.menu_bw;
     state->menu_flags = MENU_ERROR_DIALOG;
     state->finalize   = process_result;
 
-    rofi_view_calculate_window_and_element_width ( state );
-    state->main_box = box_create ( BOX_VERTICAL,
-                                   state->border, state->border,
-                                   state->width - 2 * state->border, state->height - 2 * state->border );
-    state->text = textbox_create ( ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
-                                   ( state->border ), ( state->border ),
-                                   ( state->width - ( 2 * ( state->border ) ) ), 1, NORMAL, ( msg != NULL ) ? msg : "" );
-    box_add ( state->main_box, WIDGET ( state->text ), TRUE, FALSE );
-    unsigned int line_height = textbox_get_height ( state->text );
+    state->main_window = container_create ( "window" );
+    state->main_box = box_create ( "window.mainbox.message.box", BOX_VERTICAL);
+    container_add ( state->main_window, WIDGET ( state->main_box ) );
+    state->text = textbox_create ( "window.mainbox.message.textbox", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
+            NORMAL, ( msg != NULL ) ? msg : "" );
+    box_add ( state->main_box, WIDGET ( state->text ), TRUE, 1 );
 
+
+    // Make sure we enable fixed num lines when in normal window mode.
+    if ( (CacheState.flags&MENU_NORMAL_WINDOW) == MENU_NORMAL_WINDOW){
+        listview_set_fixed_num_lines ( state->list_view );
+    }
+    rofi_view_calculate_window_width ( state );
+    // Need to resize otherwise calculated desired height is wrong.
+    widget_resize ( WIDGET ( state->main_window ), state->width, 100);
+    unsigned int line_height = textbox_get_height ( state->text );
     // resize window vertically to suit
-    state->height = line_height + ( state->border ) * 2;
+    state->height =  line_height + widget_padding_get_padding_height ( WIDGET(state->main_window) );
 
     // Calculte window position.
     rofi_view_calculate_window_position ( state );
@@ -1568,7 +1620,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 
     // Display it.
     xcb_map_window ( xcb->connection, CacheState.main_window );
-    widget_queue_redraw ( WIDGET ( state->main_box ) );
+    widget_queue_redraw ( WIDGET ( state->main_window ) );
 
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_complete ( xcb->sncontext );
@@ -1675,9 +1727,17 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text )
     }
     widget_enable ( WIDGET ( state->overlay ) );
     textbox_text ( state->overlay, text );
-    unsigned int x_offset = state->width - ( 2 * state->border ) - widget_get_width ( WIDGET ( state->case_indicator ) );
+    int x_offset = widget_get_width ( WIDGET(state->main_window) );
+    // Within padding of window.
+    x_offset -= widget_padding_get_right ( WIDGET (state->main_window) );
+    // Within the border of widget.
+    x_offset -= widget_padding_get_right ( WIDGET (state->main_box ) );
+    x_offset -= widget_padding_get_right ( WIDGET (state->input_bar ) );
+    x_offset -= widget_get_width ( WIDGET ( state->case_indicator ) );
     x_offset -= widget_get_width ( WIDGET ( state->overlay ) );
-    widget_move ( WIDGET ( state->overlay ), x_offset, state->border );
+    int top_offset = widget_padding_get_top   ( WIDGET (state->main_window) );
+    top_offset += widget_padding_get_top   ( WIDGET (state->main_box ) );
+    widget_move ( WIDGET ( state->overlay ), x_offset, top_offset );
     // We want to queue a repaint.
     rofi_view_queue_redraw ( );
 }
@@ -1707,7 +1767,7 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
     state->reload   = TRUE;
     state->refilter = TRUE;
     rofi_view_refilter ( state );
-    rofi_view_update ( state );
+    rofi_view_update ( state, TRUE );
 }
 
 xcb_window_t rofi_view_get_window ( void )

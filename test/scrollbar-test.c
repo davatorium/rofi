@@ -23,14 +23,25 @@ unsigned int test =0;
         }                                                                                \
 }
 
+int textbox_get_estimated_char_height ( void );
+int textbox_get_estimated_char_height ( void )
+{
+    return 16;
+}
 void color_separator ( G_GNUC_UNUSED void *d )
+{
+
+}
+
+void rofi_view_get_current_monitor ( int *width, int *height )
 {
 
 }
 
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
-    scrollbar * sb = scrollbar_create ( 0, 0, 10, 100);
+    scrollbar * sb = scrollbar_create ( "scrollbar" );
+    widget_resize ( WIDGET (sb), 10, 100);
 
     scrollbar_set_handle ( NULL, 10213);
     scrollbar_set_max_value ( NULL, 10 );

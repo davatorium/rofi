@@ -3,8 +3,17 @@ AUTOMAKE_OPTIONS  = 1.11.3
 
 ACLOCAL_AMFLAGS = -I libgwater ${ACLOCAL_FLAGS}
 
+AM_YFLAGS = -d
+
 noinst_LIBRARIES =
 include $(top_srcdir)/libgwater-xcb-nolibtool.mk
+
+
+BUILT_SOURCES=\
+			  lexer/theme-parser.h\
+			  lexer/theme-parser.c\
+			  lexer/theme-lexer.c
+
 
 ##
 # Rofi the program
@@ -27,12 +36,13 @@ rofi_SOURCES=\
 	source/helper.c\
 	source/timings.c\
 	source/history.c\
+	source/theme.c\
 	source/widgets/box.c\
+	source/widgets/container.c\
 	source/widgets/widget.c\
 	source/widgets/textbox.c\
 	source/widgets/listview.c\
 	source/widgets/scrollbar.c\
-	source/widgets/separator.c\
 	source/xrmoptions.c\
 	source/x11-helper.c\
 	source/dialogs/run.c\
@@ -43,6 +53,8 @@ rofi_SOURCES=\
 	source/dialogs/window.c\
 	source/dialogs/script.c\
 	source/dialogs/help-keys.c\
+	lexer/theme-parser.y\
+	lexer/theme-lexer.l\
 	include/xcb.h\
 	include/xcb-internal.h\
 	include/rofi.h\
@@ -55,13 +67,14 @@ rofi_SOURCES=\
 	include/helper.h\
 	include/timings.h\
 	include/history.h\
+	include/theme.h\
 	include/widgets/box.h\
+	include/widgets/container.h\
 	include/widgets/widget.h\
 	include/widgets/widget-internal.h\
 	include/widgets/textbox.h\
 	include/widgets/listview.h\
 	include/widgets/scrollbar.h\
-	include/widgets/separator.h\
 	include/xrmoptions.h\
 	include/x11-helper.h\
 	include/dialogs/ssh.h\
@@ -88,7 +101,8 @@ rofi_CFLAGS=\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/\
 	-Werror=missing-prototypes\
-	-DSYSCONFDIR=\"$(sysconfdir)\"
+	-DSYSCONFDIR=\"$(sysconfdir)\"\
+	-DTHEME_CONVERTER
 
 rofi_LDADD=\
 	$(glib_LIBS)\
@@ -259,6 +273,13 @@ widget_test_LDADD=$(textbox_test_LDADD)
 widget_test_CFLAGS=$(textbox_test_CFLAGS)
 widget_test_SOURCES=\
 			source/widgets/widget.c\
+			source/widgets/textbox.c\
+			source/theme.c\
+			source/helper.c\
+			source/x11-helper.c\
+			config/config.c\
+			lexer/theme-parser.y\
+			lexer/theme-lexer.l\
 			test/widget-test.c
 
 box_test_LDADD=$(textbox_test_LDADD)
@@ -266,6 +287,10 @@ box_test_CFLAGS=$(textbox_test_CFLAGS)
 box_test_SOURCES=\
 			source/widgets/widget.c\
 			source/widgets/box.c\
+			lexer/theme-parser.y\
+			lexer/theme-lexer.l\
+			source/theme.c\
+			include/theme.h\
 			test/box-test.c
 
 scrollbar_test_LDADD=$(textbox_test_LDADD)
@@ -273,11 +298,20 @@ scrollbar_test_CFLAGS=$(textbox_test_CFLAGS)
 scrollbar_test_SOURCES=\
 			source/widgets/widget.c\
 			source/widgets/scrollbar.c\
+			lexer/theme-parser.y\
+			lexer/theme-lexer.l\
+			source/theme.c\
+			include/theme.h\
 			test/scrollbar-test.c
 
 textbox_test_SOURCES=\
 	source/widgets/widget.c\
 	source/widgets/textbox.c\
+	lexer/theme-parser.y\
+	lexer/theme-lexer.l\
+	source/theme.c\
+	source/helper.c\
+	source/x11-helper.c\
 	config/config.c\
 	include/keyb.h\
 	include/rofi.h\

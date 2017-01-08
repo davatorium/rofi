@@ -42,13 +42,15 @@ typedef void ( *listview_update_callback )( textbox *tb, unsigned int entry, voi
 typedef void ( *listview_mouse_activated_cb )( listview *, xcb_button_press_event_t *, void * );
 
 /**
+ * @param name The name of the to be created widget.
  * @param cb The update callback.
  * @param udata The user data to pass to the callback
  * @param eh The height of one element
+ * @param reverse Reverse the listview order.
  *
  * @returns a new listview
  */
-listview *listview_create ( listview_update_callback cb, void *udata, unsigned int eh );
+listview *listview_create ( const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse );
 
 /**
  * @param lv The listview handle
@@ -78,15 +80,6 @@ unsigned int listview_get_selected ( listview *lv );
 /**
  * @param lv The listview handle
  *
- * Get the desired height of the listview widget.
- *
- * @returns the desired height.
- */
-unsigned int listview_get_desired_height ( listview *lv );
-
-/**
- * @param lv The listview handle
- *
  * Move the selection one row up.
  * - Wrap around.
  */
@@ -107,14 +100,14 @@ void listview_nav_down ( listview *lv );
  */
 void listview_nav_right ( listview *lv );
 /**
- * @param lv The listview handle 
+ * @param lv The listview handle
  *
  * Move the selection one column to the left.
  * - No wrap around.
  */
 void listview_nav_left ( listview *lv );
 /**
- * @param lv The listview handle 
+ * @param lv The listview handle
  *
  * Move the selection one page down.
  * - No wrap around.
@@ -123,7 +116,7 @@ void listview_nav_left ( listview *lv );
 void listview_nav_page_next ( listview *lv );
 
 /**
- * @param lv The listview handle 
+ * @param lv The listview handle
  *
  * Move the selection one page up.
  * - No wrap around.
@@ -133,42 +126,11 @@ void listview_nav_page_prev ( listview *lv );
 
 /**
  * @param lv Handler to the listview object
- * @param padding The padding
- *
- * Padding on between the widgets.
- */
-void listview_set_padding (  listview *lv, unsigned int padding );
-
-/**
- * @param lv Handler to the listview object
- * @param lines The maximum number of lines
- *
- * Set the maximum number of lines to show.
- */
-void listview_set_max_lines ( listview *lv, unsigned int lines );
-
-/**
- * @param lv Handler to the listview object
- * @param columns The maximum number of columns
- *
- * Set the maximum number of columns to show.
- */
-void listview_set_max_columns ( listview *lv, unsigned int columns );
-
-/**
- * @param lv Handler to the listview object
- * @param enabled enable
- *
- * Set fixed num lines mode.
- */
-void listview_set_fixed_num_lines ( listview *lv, gboolean enabled );
-/**
- * @param lv Handler to the listview object
  * @param enabled enable
  *
  * Hide the scrollbar.
  */
-void listview_set_hide_scrollbar ( listview *lv, gboolean enabled );
+void listview_set_show_scrollbar ( listview *lv, gboolean enabled );
 /**
  * @param lv Handler to the listview object
  * @param width Width in pixels
@@ -207,6 +169,47 @@ void listview_set_mouse_activated_cb ( listview *lv, listview_mouse_activated_cb
  * Enable,disable multi-select.
  */
 void listview_set_multi_select ( listview *lv, gboolean enable );
+/**
+ * @param lv Handler to the listview object.
+ * @param num_lines the maximum number of lines to display.
+ *
+ * Set the maximum number of lines to display.
+ */
+void listview_set_num_lines ( listview *lv, unsigned int num_lines );
+
+/**
+ * @param lv Handler to the listview object.
+ *
+ * Get the maximum number of lines to display.
+ *
+ * @returns get the numger of lines to display.
+ */
+unsigned int listview_get_num_lines ( listview *lv );
+
+/**
+ * @param lv Handler to the listview object.
+ *
+ * Get the fixed-height property.
+ *
+ * @returns get fixed-height.
+ */
+gboolean listview_get_fixed_num_lines ( listview *lv );
+
+/**
+ * @param lv Handler to the listview object.
+ *
+ * Set fixed num lines mode.
+ */
+void listview_set_fixed_num_lines ( listview *lv );
+
+/**
+ * @param lv Handler to the listview object.
+ * @param max_lines the maximum number of lines to display.
+ *
+ * Set the maximum number of lines to display.
+ */
+void listview_set_max_lines ( listview *lv, unsigned int max_lines );
+
 /* @} */
 
 #endif // ROFI_LISTVIEW_H

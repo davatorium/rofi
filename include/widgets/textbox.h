@@ -39,6 +39,8 @@ typedef struct
     int             update;
     int             blink;
     guint           blink_timeout;
+    //
+    const char *theme_name ;
 } textbox;
 
 /**
@@ -84,11 +86,8 @@ typedef enum
 } TextBoxFontType;
 
 /**
+ * @param name The name of the to be created widget.
  * @param flags #TextboxFlags indicating the type of textbox.
- * @param x horizontal positon of textbox
- * @param y vertical position of textbox
- * @param w width of textbox
- * @param h height of textbox
  * @param tbft #TextBoxFontType current state of textbox.
  * @param text intial text to display.
  *
@@ -97,8 +96,7 @@ typedef enum
  * free with #widget_free
  * @returns a new #textbox
  */
-textbox* textbox_create ( TextboxFlags flags,
-                          short x, short y, short w, short h,
+textbox* textbox_create ( const char *name, TextboxFlags flags,
                           TextBoxFontType tbft,
                           const char *text );
 /**
@@ -201,6 +199,13 @@ int textbox_get_font_width ( const textbox *tb );
 double textbox_get_estimated_char_width ( void );
 
 /**
+ * Estimate the height of a character.
+ *
+ * @returns the height of a character in pixels.
+ */
+double textbox_get_estimated_char_height ( void  );
+
+/**
  * @param tb Handle to the textbox
  * @param pos The start position
  * @param dlen The length
@@ -220,12 +225,17 @@ void textbox_delete ( textbox *tb, int pos, int dlen );
  * TODO remove for #widget_resize and #widget_move
  */
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
+
 /**
+ * @param tb Handle to the textbox
+ * @param eh The number of rows to display
+ *
  * Get the (estimated) with of a character, can be used to calculate window width.
+ * This includes padding.
  *
  * @returns the estimated width of a character.
  */
-int textbox_get_estimated_char_height ( void );
+int textbox_get_estimated_height ( const textbox *tb, int eh );
 /**
  * @param p The new default PangoContext
  *

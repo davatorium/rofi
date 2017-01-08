@@ -3,6 +3,10 @@ AC_INIT([rofi], [1.3.1], [https://github.com/DaveDavenport/rofi/],[],[https://fo
 AC_CONFIG_SRCDIR([source/rofi.c])
 AC_CONFIG_HEADER([config.h])
 
+
+AC_PROG_LEX
+AC_PROG_YACC
+
 dnl ---------------------------------------------------------------------
 dnl Setup automake to be silent and in foreign mode.
 dnl We want xz distribution

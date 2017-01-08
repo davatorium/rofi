@@ -29,12 +29,13 @@
 #include <string.h>
 #include <glib.h>
 #include <math.h>
-#include "settings.h"
 #include "widgets/textbox.h"
 #include "keyb.h"
 #include "x11-helper.h"
 #include "mode.h"
 #include "view.h"
+
+#include "theme.h"
 
 #define DOT_OFFSET    15
 
@@ -42,6 +43,7 @@ static void textbox_draw ( widget *, cairo_t * );
 static void textbox_free ( widget * );
 static int textbox_get_width ( widget * );
 static int _textbox_get_height ( widget * );
+static void __textbox_update_pango_text ( textbox *tb );
 
 /**
  * @param tb  Handle to the textbox
@@ -49,26 +51,6 @@ static int _textbox_get_height ( widget * );
  * Move the cursor to the end of the string.
  */
 static void textbox_cursor_end ( textbox *tb );
-
-/**
- * Font + font color cache.
- * Avoid re-loading font on every change on every textbox.
- */
-typedef struct
-{
-    Color fg;
-    Color bg;
-    Color bgalt;
-    Color hlfg;
-    Color hlbg;
-} RowColor;
-
-/** Number of states */
-#define num_states    3
-/**
- * Different colors for the different states
- */
-RowColor colors[num_states];
 
 /** Default pango context */
 static PangoContext     *p_context = NULL;
@@ -95,23 +77,33 @@ static void textbox_resize ( widget *wid, short w, short h )
     textbox *tb = (textbox *) wid;
     textbox_moveresize ( tb, tb->widget.x, tb->widget.y, w, h );
 }
+static int textbox_get_desired_height ( widget *wid )
+{
+    textbox *tb = (textbox *)wid;
+    if ( (tb->flags & TB_AUTOHEIGHT) == 0 )
+    {
+        return tb->widget.h;
+    }
+    if ( tb->changed ) {
+        __textbox_update_pango_text ( tb );
+    }
+    int height = textbox_get_height (tb);
+    return height;
+}
 
-textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h,
-                          TextBoxFontType tbft, const char *text )
+textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType tbft, const char *text )
 {
     textbox *tb = g_slice_new0 ( textbox );
+
+    widget_init ( WIDGET (tb), name );
 
     tb->widget.draw       = textbox_draw;
     tb->widget.free       = textbox_free;
     tb->widget.resize     = textbox_resize;
     tb->widget.get_width  = textbox_get_width;
     tb->widget.get_height = _textbox_get_height;
+    tb->widget.get_desired_height = textbox_get_desired_height;
     tb->flags             = flags;
-
-    tb->widget.x = x;
-    tb->widget.y = y;
-    tb->widget.w = MAX ( 1, w );
-    tb->widget.h = MAX ( 1, h );
 
     tb->changed = FALSE;
 
@@ -140,6 +132,18 @@ textbox* textbox_create ( TextboxFlags flags, short x, short y, short w, short h
     return tb;
 }
 
+/**
+ * State names used for theming.
+ */
+const char const *const theme_prop_names[][3] = {
+    /** Normal row */
+    {"normal.normal", "selected.normal", "alternate.normal"},
+    /** Urgent row */
+    {"normal.urgent", "selected.urgent", "alternate.urgent"},
+    /** Active row */
+    {"normal.active", "selected.active", "alternate.active"},
+};
+
 void textbox_font ( textbox *tb, TextBoxFontType tbft )
 {
     TextBoxFontType t = tbft & STATE_MASK;
@@ -150,23 +154,19 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
     if ( t == ( URGENT | ACTIVE ) ) {
         t = ACTIVE;
     }
-    RowColor *color = &( colors[t] );
     switch ( ( tbft & FMOD_MASK ) )
     {
     case HIGHLIGHT:
-        tb->color_bg = color->hlbg;
-        tb->color_fg = color->hlfg;
+        widget_set_state ( WIDGET (tb), theme_prop_names[t][1]);
         break;
     case ALT:
-        tb->color_bg = color->bgalt;
-        tb->color_fg = color->fg;
+        widget_set_state ( WIDGET (tb), theme_prop_names[t][2]);
         break;
     default:
-        tb->color_bg = color->bg;
-        tb->color_fg = color->fg;
+        widget_set_state ( WIDGET (tb), theme_prop_names[t][0]);
         break;
     }
-    if ( tb->tbft != tbft ) {
+    if ( tb->tbft != tbft || tb->widget.state == NULL ) {
         tb->update = TRUE;
         widget_queue_redraw ( WIDGET ( tb ) );
     }
@@ -232,7 +232,9 @@ void textbox_text ( textbox *tb, const char *text )
     __textbox_update_pango_text ( tb );
     if ( tb->flags & TB_AUTOWIDTH ) {
         textbox_moveresize ( tb, tb->widget.x, tb->widget.y, tb->widget.w, tb->widget.h );
-        widget_update ( WIDGET ( tb ) );
+        if ( WIDGET(tb)->parent ){
+            widget_update ( WIDGET ( tb )->parent );
+        }
     }
 
     tb->cursor = MAX ( 0, MIN ( ( int ) g_utf8_strlen ( tb->text, -1 ), tb->cursor ) );
@@ -246,7 +248,7 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     if ( tb->flags & TB_AUTOWIDTH ) {
         pango_layout_set_width ( tb->layout, -1 );
         unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
-        w = textbox_get_font_width ( tb ) + 2 * config.line_padding + offset;
+        w = textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( WIDGET (tb) ) + offset;
     }
     else {
         // set ellipsize
@@ -261,8 +263,9 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     if ( tb->flags & TB_AUTOHEIGHT ) {
         // Width determines height!
         int tw = MAX ( 1, w );
-        pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tw - 2 * config.line_padding - offset ) );
-        h = textbox_get_height ( tb );
+        pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tw - widget_padding_get_padding_width ( WIDGET (tb) ) - offset ) );
+        int hd = textbox_get_height ( tb );
+        h = MAX (hd, h);
     }
 
     if ( x != tb->widget.x || y != tb->widget.y || w != tb->widget.w || h != tb->widget.h ) {
@@ -273,7 +276,7 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
     }
 
     // We always want to update this
-    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - 2 * config.line_padding - offset ) );
+    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - widget_padding_get_padding_width ( WIDGET (tb) ) - offset ) );
     tb->update = TRUE;
     widget_queue_redraw ( WIDGET ( tb ) );
 }
@@ -286,7 +289,6 @@ static void textbox_free ( widget *wid )
         g_source_remove ( tb->blink_timeout );
         tb->blink_timeout = 0;
     }
-
     g_free ( tb->text );
 
     if ( tb->layout != NULL ) {
@@ -316,13 +318,15 @@ static void texbox_update ( textbox *tb )
         }
         tb->main_surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, tb->widget.w, tb->widget.h );
         tb->main_draw    = cairo_create ( tb->main_surface );
-        cairo_set_operator ( tb->main_draw, CAIRO_OPERATOR_SOURCE );
+        cairo_set_operator ( tb->main_draw, CAIRO_OPERATOR_OVER );
 
         pango_cairo_update_layout ( tb->main_draw, tb->layout );
         int font_height = textbox_get_font_height ( tb );
 
         int cursor_x     = 0;
-        int cursor_width = MAX ( 2, font_height / 10 );
+        int cursor_y    = 0;
+        int cursor_width = 2;//MAX ( 2, font_height / 10 );
+        int cursor_height = font_height;
 
         if ( tb->changed ) {
             __textbox_update_pango_text ( tb );
@@ -338,50 +342,52 @@ static void texbox_update ( textbox *tb )
             char           *offset = g_utf8_offset_to_pointer ( text, cursor_offset );
             pango_layout_get_cursor_pos ( tb->layout, offset - text, &pos, NULL );
             cursor_x = pos.x / PANGO_SCALE;
+            cursor_y = pos.y / PANGO_SCALE;
+            cursor_height = pos.height/PANGO_SCALE;
         }
 
         // Skip the side MARGIN on the X axis.
-        int x = config.line_padding + offset;
+        int x = widget_padding_get_left ( WIDGET (tb) ) + offset;
         int y = 0;
 
         if ( tb->flags & TB_RIGHT ) {
             int line_width = 0;
             // Get actual width.
             pango_layout_get_pixel_size ( tb->layout, &line_width, NULL );
-            x = ( tb->widget.w - line_width - config.line_padding - offset );
+            x = ( tb->widget.w - line_width - widget_padding_get_right ( WIDGET (tb) ) - offset );
         }
         else if ( tb->flags & TB_CENTER ) {
             int tw = textbox_get_font_width ( tb );
-            x = (  ( tb->widget.w - tw - 2 * config.line_padding - offset ) ) / 2;
+            x = (  ( tb->widget.w - tw - widget_padding_get_padding_width( WIDGET (tb) ) - offset ) ) / 2;
         }
-        y = config.line_padding + ( pango_font_metrics_get_ascent ( p_metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
+        y = widget_padding_get_top ( WIDGET (tb) ) + ( pango_font_metrics_get_ascent ( p_metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
-        // Set ARGB
-        Color col = tb->color_bg;
-        cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
-        cairo_paint ( tb->main_draw );
+        // Set background transparency
+        //cairo_set_source_rgba ( tb->main_draw, 0,0,0,0.0);
+        //cairo_paint ( tb->main_draw );
 
-        col = tb->color_fg;
-        cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
+        rofi_theme_get_color ( WIDGET ( tb ), "foreground", tb->main_draw);
         // draw the cursor
         if ( tb->flags & TB_EDITABLE && tb->blink ) {
-            cairo_rectangle ( tb->main_draw, x + cursor_x, y, cursor_width, font_height );
+            cairo_rectangle ( tb->main_draw, x + cursor_x, y+cursor_y, cursor_width, cursor_height);
             cairo_fill ( tb->main_draw );
         }
 
         // Set ARGB
         // We need to set over, otherwise subpixel hinting wont work.
-        cairo_set_operator ( tb->main_draw, CAIRO_OPERATOR_OVER );
+        //cairo_set_operator ( tb->main_draw, CAIRO_OPERATOR_OVER );
         cairo_move_to ( tb->main_draw, x, y );
         pango_cairo_show_layout ( tb->main_draw, tb->layout );
 
-        if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED | HIGHLIGHT ) ) ) {
+        if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED ) ) ) {
+            /*
             if ( ( tb->tbft & SELECTED ) == SELECTED ) {
                 cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
             }
             else if ( ( tb->tbft & HIGHLIGHT ) == HIGHLIGHT ) {
                 cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha * 0.2 );
             }
+            */
 
             cairo_arc ( tb->main_draw, DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
             cairo_fill ( tb->main_draw );
@@ -396,9 +402,8 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     texbox_update ( tb );
 
     /* Write buffer */
-
-    cairo_set_source_surface ( draw, tb->main_surface, tb->widget.x, tb->widget.y );
-    cairo_rectangle ( draw, tb->widget.x, tb->widget.y, tb->widget.w, tb->widget.h );
+    cairo_set_source_surface ( draw, tb->main_surface, 0,0 );
+    cairo_rectangle ( draw, 0,0, tb->widget.w, tb->widget.h );
     cairo_fill ( draw );
 }
 
@@ -709,47 +714,8 @@ gboolean textbox_append_char ( textbox *tb, const char *pad, const int pad_len )
     return FALSE;
 }
 
-/***
- * Font setup.
- */
-static void textbox_parse_string (  const char *str, RowColor *color )
-{
-    if ( str == NULL ) {
-        return;
-    }
-    char              *cstr = g_strdup ( str );
-    char              *endp = NULL;
-    char              *token;
-    int               index = 0;
-    const char *const sep   = ",";
-    for ( token = strtok_r ( cstr, sep, &endp ); token != NULL; token = strtok_r ( NULL, sep, &endp ) ) {
-        switch ( index )
-        {
-        case 0:
-            color->bg = color_get ( g_strstrip ( token ) );
-            break;
-        case 1:
-            color->fg = color_get ( g_strstrip ( token ) );
-            break;
-        case 2:
-            color->bgalt = color_get ( g_strstrip ( token ) );
-            break;
-        case 3:
-            color->hlbg = color_get ( g_strstrip ( token ) );
-            break;
-        case 4:
-            color->hlfg = color_get ( g_strstrip ( token ) );
-            break;
-        }
-        index++;
-    }
-    g_free ( cstr );
-}
 void textbox_setup ( void )
 {
-    textbox_parse_string ( config.color_normal, &( colors[NORMAL] ) );
-    textbox_parse_string ( config.color_urgent, &( colors[URGENT] ) );
-    textbox_parse_string ( config.color_active, &( colors[ACTIVE] ) );
 }
 
 void textbox_set_pango_context ( PangoContext *p )
@@ -774,12 +740,9 @@ void textbox_cleanup ( void )
 int textbox_get_width ( widget *wid )
 {
     textbox *tb = (textbox *) wid;
-    if ( !wid->expand ) {
-        if ( tb->flags & TB_AUTOWIDTH ) {
-            unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
-            return textbox_get_font_width ( tb ) + 2 * config.line_padding + offset;
-        }
-        return tb->widget.w;
+    if ( tb->flags & TB_AUTOWIDTH ) {
+        unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+        return textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( wid ) + offset;
     }
     return tb->widget.w;
 }
@@ -787,17 +750,14 @@ int textbox_get_width ( widget *wid )
 int _textbox_get_height ( widget *wid )
 {
     textbox *tb = (textbox *) wid;
-    if ( !wid->expand ) {
-        if ( tb->flags & TB_AUTOHEIGHT ) {
-            return textbox_get_height ( tb );
-        }
-        return tb->widget.h;
+    if ( tb->flags & TB_AUTOHEIGHT ) {
+        return textbox_get_height ( tb );
     }
     return tb->widget.h;
 }
 int textbox_get_height ( const textbox *tb )
 {
-    return textbox_get_font_height ( tb ) + 2 * config.line_padding;
+    return textbox_get_font_height ( tb ) + widget_padding_get_padding_height ( WIDGET (tb) );
 }
 
 int textbox_get_font_height ( const textbox *tb )
@@ -814,14 +774,30 @@ int textbox_get_font_width ( const textbox *tb )
     return width;
 }
 
-double textbox_get_estimated_char_width ( void )
+/** Caching for the expected character height. */
+static double char_height = -1;
+double textbox_get_estimated_char_height ( void )
 {
-    int width = pango_font_metrics_get_approximate_char_width ( p_metrics );
-    return ( width ) / (double) PANGO_SCALE;
+    if ( char_height < 0 ){
+        int height = pango_font_metrics_get_ascent ( p_metrics ) + pango_font_metrics_get_descent ( p_metrics );
+        char_height = ( height ) / (double) PANGO_SCALE;
+    }
+    return char_height;
 }
 
-int textbox_get_estimated_char_height ( void )
+/** Caching for the expected character width. */
+static double char_width = -1;
+double textbox_get_estimated_char_width ( void )
+{
+    if ( char_width < 0 ){
+        int width = pango_font_metrics_get_approximate_char_width ( p_metrics );
+        char_width = ( width ) / (double) PANGO_SCALE;
+    }
+    return char_width;
+}
+
+int textbox_get_estimated_height ( const textbox *tb, int eh )
 {
     int height = pango_font_metrics_get_ascent ( p_metrics ) + pango_font_metrics_get_descent ( p_metrics );
-    return ( height ) / PANGO_SCALE + 2 * config.line_padding;
+    return ( eh*height ) / PANGO_SCALE + widget_padding_get_padding_height ( WIDGET ( tb ) );
 }

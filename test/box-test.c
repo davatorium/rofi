@@ -22,6 +22,16 @@ unsigned int test =0;
             abort ( );                                                                   \
         }                                                                                \
 }
+int textbox_get_estimated_char_height ( void );
+int textbox_get_estimated_char_height ( void )
+{
+    return 16;
+}
+void rofi_view_get_current_monitor ( int *width, int *height )
+{
+
+}
+
 
 static gboolean test_widget_clicked ( G_GNUC_UNUSED widget *wid, G_GNUC_UNUSED xcb_button_press_event_t* xce, G_GNUC_UNUSED void *data )
 {
@@ -31,11 +41,12 @@ static gboolean test_widget_clicked ( G_GNUC_UNUSED widget *wid, G_GNUC_UNUSED x
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
     {
-        box *b = box_create ( BOX_HORIZONTAL, 0, 0, 100, 20 );
-        box_set_padding ( b, 5 );
+        box *b = box_create ( "box", BOX_HORIZONTAL );
+        //box_set_padding ( b, 5 );
+        widget_resize ( WIDGET (b), 100, 20);
 
         widget *wid1 = g_malloc0(sizeof(widget));
-        box_add ( b , WIDGET( wid1 ), TRUE, FALSE );
+        box_add ( b , WIDGET( wid1 ), TRUE, 0 );
         // Widget not enabled.  no width allocated.
         TASSERTE ( wid1->h, 0);
         TASSERTE ( wid1->w, 0 );
@@ -46,57 +57,58 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         TASSERTE ( wid1->w, 100 );
         widget *wid2 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid2 ) );
-        box_add ( b , WIDGET( wid2 ), TRUE, FALSE );
+        box_add ( b , WIDGET( wid2 ), TRUE, 1 );
         TASSERTE ( wid1->h, 20);
-        TASSERTE ( wid1->w, 47);
+        TASSERTE ( wid1->w, 49);
         TASSERTE ( wid2->h, 20);
-        TASSERTE ( wid2->w, 48);
+        TASSERTE ( wid2->w, 49);
 
         widget *wid3 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid3 ) );
-        box_add ( b , WIDGET( wid3 ), FALSE, FALSE );
+        box_add ( b , WIDGET( wid3 ), FALSE, 2 );
         TASSERTE ( wid1->h, 20);
-        TASSERTE ( wid1->w, 45);
+        TASSERTE ( wid1->w, 48);
         TASSERTE ( wid2->h, 20);
-        TASSERTE ( wid2->w, 45);
+        TASSERTE ( wid2->w, 48);
 
         widget_resize ( WIDGET (wid3) , 20, 10 );
         // TODO should this happen automagically?
         widget_update ( WIDGET ( b ) ) ;
         TASSERTE ( wid1->h, 20);
-        TASSERTE ( wid1->w, 35);
+        TASSERTE ( wid1->w, 38);
         TASSERTE ( wid2->h, 20);
-        TASSERTE ( wid2->w, 35);
+        TASSERTE ( wid2->w, 38);
         TASSERTE ( wid3->h, 20);
         TASSERTE ( wid3->w, 20);
 
         widget_resize ( WIDGET (b ), 200, 20 );
         TASSERTE ( wid1->h, 20);
-        TASSERTE ( wid1->w, 85);
+        TASSERTE ( wid1->w, 88);
         TASSERTE ( wid2->h, 20);
-        TASSERTE ( wid2->w, 85);
+        TASSERTE ( wid2->w, 88);
         TASSERTE ( wid3->h, 20);
         TASSERTE ( wid3->w, 20);
-        TASSERTE ( box_get_fixed_pixels ( b ) , 30 );
+        TASSERTE ( box_get_fixed_pixels ( b ) , 24 );
 
         widget *wid4 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid4 ) );
         widget_resize ( WIDGET ( wid4 ), 20, 20 );
-        box_add ( b , WIDGET( wid4 ), FALSE, TRUE );
+        box_add ( b , WIDGET( wid4 ), FALSE, 5 );
         TASSERTE ( wid4->x, 200-20);
         widget *wid5 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid5 ) );
         widget_resize ( WIDGET ( wid5 ), 20, 20 );
-        box_add ( b , WIDGET( wid5 ), TRUE, TRUE );
-        TASSERTE ( wid5->x, 128);
+        box_add ( b , WIDGET( wid5 ), TRUE, 6 );
+        TASSERTE ( wid5->x, 149);
         widget_free ( WIDGET ( b ) );
     }
     {
-        box *b = box_create ( BOX_VERTICAL, 0, 0, 20, 100 );
-        box_set_padding ( b, 5 );
+        box *b = box_create ( "box", BOX_VERTICAL );
+        widget_resize ( WIDGET (b), 20, 100);
+        //box_set_padding ( b, 5 );
 
         widget *wid1 = g_malloc0(sizeof(widget));
-        box_add ( b , WIDGET( wid1 ), TRUE, FALSE );
+        box_add ( b , WIDGET( wid1 ), TRUE, 0 );
         // Widget not enabled.  no width allocated.
         TASSERTE ( wid1->h, 0);
         TASSERTE ( wid1->w, 0 );
@@ -107,60 +119,62 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         TASSERTE ( wid1->w, 20 );
         widget *wid2 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid2 ) );
-        box_add ( b , WIDGET( wid2 ), TRUE, FALSE );
+        box_add ( b , WIDGET( wid2 ), TRUE, 1 );
         TASSERTE ( wid1->w, 20);
-        TASSERTE ( wid1->h, 47);
+        TASSERTE ( wid1->h, 49);
         TASSERTE ( wid2->w, 20);
-        TASSERTE ( wid2->h, 48);
+        TASSERTE ( wid2->h, 49);
 
         widget *wid3 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid3 ) );
-        box_add ( b , WIDGET( wid3 ), FALSE, FALSE );
+        box_add ( b , WIDGET( wid3 ), FALSE, 2 );
         TASSERTE ( wid1->w, 20);
-        TASSERTE ( wid1->h, 45);
+        TASSERTE ( wid1->h, 48);
         TASSERTE ( wid2->w, 20);
-        TASSERTE ( wid2->h, 45);
+        TASSERTE ( wid2->h, 48);
 
         widget_resize ( WIDGET (wid3) , 10, 20 );
         // TODO should this happen automagically?
         widget_update ( WIDGET ( b ) ) ;
         TASSERTE ( wid1->w, 20);
-        TASSERTE ( wid1->h, 35);
+        TASSERTE ( wid1->h, 48);
         TASSERTE ( wid2->w, 20);
-        TASSERTE ( wid2->h, 35);
+        TASSERTE ( wid2->h, 48);
         TASSERTE ( wid3->w, 20);
-        TASSERTE ( wid3->h, 20);
+        TASSERTE ( wid3->h, 0);
 
         widget_resize ( WIDGET (b ), 20, 200 );
         TASSERTE ( wid1->w, 20);
-        TASSERTE ( wid1->h, 85);
+        TASSERTE ( wid1->h, 98);
         TASSERTE ( wid2->w, 20);
-        TASSERTE ( wid2->h, 85);
+        TASSERTE ( wid2->h, 98);
         TASSERTE ( wid3->w, 20);
-        TASSERTE ( wid3->h, 20);
-        TASSERTE ( box_get_fixed_pixels ( b ) , 30 );
+        // has no height, gets no height.
+        TASSERTE ( wid3->h, 0);
+        TASSERTE ( box_get_fixed_pixels ( b ) , 4 );
         widget *wid4 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid4 ) );
         widget_resize ( WIDGET ( wid4 ), 20, 20 );
-        box_add ( b , WIDGET( wid4 ), FALSE, TRUE );
-        TASSERTE ( wid4->y, 200-20);
+        box_add ( b , WIDGET( wid4 ), FALSE, 5 );
+        TASSERTE ( wid4->y, 200);
         widget *wid5 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid5 ) );
         widget_resize ( WIDGET ( wid5 ), 20, 20 );
-        box_add ( b , WIDGET( wid5 ), TRUE, TRUE );
-        TASSERTE ( wid5->y, 128);
+        box_add ( b , WIDGET( wid5 ), TRUE, 6 );
+        TASSERTE ( wid5->y, 136);
         widget_free ( WIDGET ( b ) );
     }
     {
-        box *b = box_create ( BOX_VERTICAL, 0, 0, 20, 100 );
-        box_set_padding ( b, 5 );
+        box *b = box_create ( "box", BOX_VERTICAL );
+        widget_resize ( WIDGET (b), 20, 100);
+        //box_set_padding ( b, 5 );
         widget *wid1 = g_malloc0(sizeof(widget));
         widget_enable(wid1);
         wid1->clicked = test_widget_clicked;
-        box_add ( b , WIDGET( wid1 ), TRUE, FALSE );
+        box_add ( b , WIDGET( wid1 ), TRUE, 0 );
         widget *wid2 = g_malloc0(sizeof(widget));
         widget_enable(wid2);
-        box_add ( b , WIDGET( wid2 ), TRUE, FALSE );
+        box_add ( b , WIDGET( wid2 ), TRUE, 1 );
 
         xcb_button_press_event_t xce;
         xce.event_x = 10;
@@ -169,7 +183,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 
         xce.event_y = 50;
         TASSERTE ( widget_clicked ( WIDGET(b), &xce ), 0);
-        xce.event_y = 45;
+        xce.event_y = 48;
         TASSERTE ( widget_clicked ( WIDGET(b), &xce ), 1);
         widget_disable ( wid2 );
         xce.event_y = 60;
