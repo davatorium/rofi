@@ -169,8 +169,19 @@ void rofi_theme_free ( ThemeWidget *wid );
  * @param file filename to parse.
  *
  * Parse the input theme file.
+ *
+ * @returns returns TRUE when error.
  */
-void rofi_theme_parse_file ( const char *file );
+gboolean rofi_theme_parse_file ( const char *file );
+
+/**
+ * @param string to parse.
+ *
+ * Parse the input string in addition to theme file.
+ *
+ * @returns returns TRUE when error.
+ */
+gboolean rofi_theme_parse_string ( const char *file );
 
 /**
  * @param widget The widget handle.

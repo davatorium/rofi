@@ -295,6 +295,27 @@ int find_arg_str ( const char * const key, char** val )
     return FALSE;
 }
 
+const char ** find_arg_strv ( const char *const key )
+{
+    const char **retv =NULL;
+    int length = 0;
+    for ( int i = 0; i < stored_argc; i++ ) {
+        if ( strcasecmp ( stored_argv[i], key ) == 0 && i < (stored_argc -1 ) ){
+            length++;
+        }
+    }
+    if ( length > 0 ) {
+        retv = g_malloc0((length+1)*sizeof(char*));
+        int index = 0;
+        for ( int i = 0; i < stored_argc; i++ ) {
+            if ( strcasecmp ( stored_argv[i], key ) == 0 && i < (stored_argc -1 ) ){
+                retv[index] = stored_argv[i+1];
+            }
+        }
+    }
+    return retv;
+}
+
 int find_arg_int ( const char * const key, int *val )
 {
     int i = find_arg ( key );

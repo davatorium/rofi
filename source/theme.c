@@ -789,17 +789,34 @@ void rofi_theme_convert_old_theme ( void )
         }
     }
 }
-void rofi_theme_parse_file ( const char *file )
+gboolean rofi_theme_parse_file ( const char *file )
 {
     char *filename = rofi_expand_path ( file );
     yyin = fopen ( filename, "rb");
     if ( yyin == NULL ){
         fprintf(stderr, "Failed to open file: %s: '%s'\n", filename, strerror ( errno ) );
         g_free(filename);
-        return;
+        return TRUE;
     }
+    extern int str_len;
+    extern const char*input_str;
+    str_len   = 0;
+    input_str = NULL;
     while ( yyparse() );
     yylex_destroy();
     g_free(filename);
+    yyin = NULL;
+    return FALSE;
+}
+gboolean rofi_theme_parse_string ( const char *string )
+{
+    extern int str_len;
+    extern const char*input_str;
+    yyin = NULL;
+    input_str = string;
+    str_len = strlen ( string );
+    while ( yyparse () );
+    yylex_destroy();
+    return TRUE;
 }
 #endif

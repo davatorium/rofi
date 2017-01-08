@@ -85,6 +85,14 @@ int find_arg_str ( const char * const key, char** val );
 /**
  * @param key The key to search for
  *
+ * Parse all command line options 'key' to string vector.
+ *
+ * @returns str vector. user should free array.
+ */
+const char ** find_arg_strv ( const char *const key );
+/**
+ * @param key The key to search for
+ *
  * Check if key is passed as argument.
  *
  * @returns return position of string or -1 if not found.

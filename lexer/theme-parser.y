@@ -38,21 +38,21 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token <sval>     T_STRING
 %token <sval>     N_STRING
 %token <ival>     T_POSITION;
-%token <sval>     NAME_ELEMENT
+%token <sval>     NAME_ELEMENT "Element name"
 %token <bval>     T_BOOLEAN
 %token <colorval> T_COLOR
 %token <distance> T_PIXEL
 %token <sval>     T_LINK
 %token <sval>     FIRST_NAME
 
-%token BOPEN  "bracket open";
-%token BCLOSE "bracket close";
-%token PSEP   "property separator";
-%token PCLOSE "property close";
-%token NSEP   "Name separator";
+%token BOPEN        "bracket open";
+%token BCLOSE       "bracket close";
+%token PSEP         "property separator";
+%token PCLOSE       "property close";
+%token NSEP         "Name separator";
 %token NAME_PREFIX  "Name prefix";
-%token WHITESPACE    "White space";
-%token PDEFAULTS  "Default settings";
+%token WHITESPACE   "White space";
+%token PDEFAULTS    "Default settings";
 
 %type <sval> entry
 %type <sval> pvalue
@@ -68,8 +68,10 @@ int yylex (YYSTYPE *, YYLTYPE *);
 entries:
   %empty {
         // There is always a base widget.
-        $$ =  rofi_theme = (ThemeWidget*)g_malloc0 (sizeof(ThemeWidget));
-        rofi_theme->name = g_strdup ( "Root" );
+        if (rofi_theme == NULL ){
+            $$ =  rofi_theme = (ThemeWidget*)g_malloc0 (sizeof(ThemeWidget));
+            rofi_theme->name = g_strdup ( "Root" );
+        }
   }
 |  entries
    entry {

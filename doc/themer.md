@@ -24,6 +24,7 @@ List of names in **rofi**:
            * `#window.mainbox.inputbar.prompt`: The prompt @textbox
            * `#window.mainbox.inputbar.entry`: The main entry @textbox
          * `#window.mainbox.listview`
+            * `#window.mainbox.listview.box`: The listview container. 
             * `#window.mainbox.listview.scrollbar`: The listview scrollbar
             * `#window.mainbox.listview.element`: The entries in the listview
          * `#window.mainbox.sidebar`

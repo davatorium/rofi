@@ -80,6 +80,9 @@ struct _listview
     xcb_timestamp_t             last_click;
     listview_mouse_activated_cb mouse_activated;
     void                        *mouse_activated_data;
+
+
+    char *listview_name;
 };
 
 static int listview_get_desired_height ( widget *wid );
@@ -92,6 +95,7 @@ static void listview_free ( widget *wid )
     }
     g_free ( lv->boxes );
 
+    g_free( lv->listview_name );
     widget_free ( WIDGET ( lv->scrollbar ) );
     g_free ( lv );
 }
@@ -234,7 +238,7 @@ static void listview_recompute_elements ( listview *lv )
     if ( newne > 0   ) {
         for ( unsigned int i = lv->cur_elements; i < newne; i++ ) {
             TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
-            char *name = g_strjoin (".", lv->widget.name,"element", NULL);
+            char *name = g_strjoin (".", lv->listview_name,"element", NULL);
             lv->boxes[i] = textbox_create ( name, flags, NORMAL, "" );
             g_free ( name );
         }
@@ -351,8 +355,10 @@ static gboolean listview_motion_notify ( widget *wid, xcb_motion_notify_event_t 
 listview *listview_create ( const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse )
 {
     listview *lv = g_malloc0 ( sizeof ( listview ) );
-
-    widget_init ( WIDGET ( lv ), name );
+    gchar *box = g_strjoin (".", name, "box", NULL );
+    widget_init ( WIDGET ( lv ), box );
+    g_free(box);
+    lv->listview_name             = g_strdup ( name );
     lv->widget.free               = listview_free;
     lv->widget.resize             = listview_resize;
     lv->widget.draw               = listview_draw;
@@ -362,7 +368,7 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->widget.enabled            = TRUE;
     lv->eh = eh;
 
-    char *n = g_strjoin(".", lv->widget.name,"scrollbar", NULL);
+    char *n = g_strjoin(".", lv->listview_name,"scrollbar", NULL);
     lv->scrollbar = scrollbar_create ( n );
     // Default position on right.
     lv->scrollbar->widget.index = rofi_theme_get_integer_exact ( WIDGET (lv->scrollbar), "index", 1);
@@ -371,7 +377,7 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->scrollbar->widget.parent = WIDGET ( lv );
     // Calculate height of an element.
     //
-    char *tb_name = g_strjoin (".", lv->widget.name,"element", NULL);
+    char *tb_name = g_strjoin (".", lv->listview_name,"element", NULL);
     textbox *tb = textbox_create ( tb_name, 0, NORMAL, "" );
     lv->element_height = textbox_get_estimated_height (tb, lv->eh);
     g_free(tb_name);

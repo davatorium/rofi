@@ -952,6 +952,19 @@ int main ( int argc, char *argv[] )
         rofi_theme_convert_old_theme ( );
     }
 
+    const char ** theme_str = find_arg_strv ( "-theme-str" );
+    if ( theme_str ) {
+        for ( int index = 0; theme_str && theme_str[index]; index++ ){
+            if ( ! rofi_theme_parse_string ( theme_str[index] ) ){
+                fprintf(stderr, "Failed to parse: %s\n", theme_str[index]); 
+                exit ( EXIT_FAILURE );
+            }
+        }
+        g_free ( theme_str );
+    }
+
+
+
     if ( find_arg ( "-dump-theme" ) >= 0 ){
         rofi_theme_print ( rofi_theme );
         exit (EXIT_SUCCESS);

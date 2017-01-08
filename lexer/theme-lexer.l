@@ -1,5 +1,4 @@
-%option noyywrap nounput
-%option never-interactive
+%option noyywrap nounput never-interactive
 %option bison-locations
 
 %{
@@ -12,6 +11,37 @@ GQueue *queue = NULL;
 
 %}
 %{
+
+int str_len = 0;
+char      *input_str = NULL;
+
+#define YY_INPUT(buf,result,max_size) \
+{\
+    if ( input_str == NULL ) { \
+        errno =0; \
+        while ( (result = (int) fread(buf, 1, max_size, yyin))==0 && ferror(yyin)) \
+        { \
+            if( errno != EINTR) \
+            { \
+                YY_FATAL_ERROR( "input in flex scanner failed" ); \
+                break; \
+            } \
+            errno=0; \
+            clearerr(yyin); \
+        } \
+    } else {\
+        yy_size_t len = MIN (max_size, str_len);\
+        if ( len > 0 ){\
+            memcpy (buf, input_str, len);\
+            input_str+=len;\
+            str_len-=len;\
+            result = len;\
+        } else {\
+            result = YY_NULL;\
+        } \
+    }\
+}
+
 
 #define YY_USER_ACTION {\
     yylloc->last_column+= yyleng;\
@@ -119,7 +149,7 @@ if ( queue == NULL ){
 
 <INITIAL>"#"            { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(NAMESTR);return NAME_PREFIX;}
 <NAMESTR>\.|{WHITESPACE}    { return NSEP; }
-<INITIAL,ENTRY>{WORD}   { yylval->sval = g_strdup(yytext); return N_STRING;}
+<ENTRY>{WORD}   { yylval->sval = g_strdup(yytext); return N_STRING;}
 <NAMESTR>{WORD}         { yylval->sval = g_strdup(yytext); return NAME_ELEMENT;}
 
     /* After Namestr/Classstr we want to go to state str, then to  { */
@@ -289,6 +319,13 @@ if ( queue == NULL ){
         yylloc->last_column = 1;
         yylloc->last_line ++;
 };
+<INITIAL>. {
+    const char *error_msg = "Expected 'root' element or a 'named' element.\n"\
+                         "Place all global properties in a root element:\n"\
+                         "  * {\n"\
+                         "  }\n"; 
+    YY_FATAL_ERROR( error_msg );
+}
 <*>. {
     fprintf(stderr, "Invalid character: '%c'\n", *yytext);
     yyterminate();
