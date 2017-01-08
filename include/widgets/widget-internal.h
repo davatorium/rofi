@@ -57,8 +57,8 @@ struct _widget
     void              ( *free )( struct _widget *widget );
 
     /** Name of widget (used for theming) */
-    char *name;
-    const char *state;
+    char              *name;
+    const char        *state;
 };
 
 /**
@@ -68,7 +68,7 @@ struct _widget
  * Initializes the widget structure.
  *
  */
-void widget_init ( widget *widget , const char *name );
+void widget_init ( widget *widget, const char *name );
 
 /**
  * @param widget The widget handle.
@@ -117,17 +117,17 @@ int widget_padding_get_bottom ( const widget *wid );
 /**
  * @param wid The widget handle.
  *
- * Get width of the content of the widget 
+ * Get width of the content of the widget
  *
- * @returns the widget width, excluding padding. 
+ * @returns the widget width, excluding padding.
  */
 int widget_padding_get_remaining_width ( const widget *wid );
 /**
  * @param wid The widget handle.
  *
- * Get height of the content of the widget 
+ * Get height of the content of the widget
  *
- * @returns the widget height, excluding padding. 
+ * @returns the widget height, excluding padding.
  */
 int widget_padding_get_remaining_height ( const widget *wid );
 /**

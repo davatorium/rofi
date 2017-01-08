@@ -6,7 +6,8 @@
 #include <settings.h>
 
 /** Style of line */
-typedef enum {
+typedef enum
+{
     /** Solid line */
     SOLID,
     /** Dashed line */
@@ -16,7 +17,8 @@ typedef enum {
 /**
  * Distance unit type.
  */
-typedef enum {
+typedef enum
+{
     /** PixelWidth in pixels. */
     PW_PX,
     /** PixelWidth in EM. */
@@ -28,7 +30,8 @@ typedef enum {
 /**
  * Structure representing a distance.
  */
-typedef struct {
+typedef struct
+{
     /** Distance */
     double     distance;
     /** Unit type of the distance */
@@ -40,14 +43,16 @@ typedef struct {
 /**
  * Type of orientation.
  */
-typedef enum {
+typedef enum
+{
     ORIENTATION_VERTICAL,
     ORIENTATION_HORIZONTAL
 } Orientation;
 /**
  * Type of property
  */
-typedef enum {
+typedef enum
+{
     /** Integer */
     P_INTEGER,
     /** Double */
@@ -85,7 +90,7 @@ typedef struct
  * Padding
  */
 typedef struct
- {
+{
     Distance top;
     Distance right;
     Distance bottom;
@@ -95,29 +100,32 @@ typedef struct
 /**
  * Property structure.
  */
-typedef struct Property {
+typedef struct Property
+{
     /** Name of property */
-    char *name;
+    char         *name;
     /** Type of property. */
     PropertyType type;
     /** Value */
-    union {
+    union
+    {
         /** integer */
-        int           i;
+        int        i;
         /** Double */
-        double        f;
+        double     f;
         /** String */
-        char          *s;
+        char       *s;
         /** boolean */
-        gboolean      b;
+        gboolean   b;
         /** Color */
         ThemeColor color;
         /** Padding */
         Padding    padding;
         /** Reference */
-        struct {
+        struct
+        {
             /** Name */
-            char *name;
+            char            *name;
             /** Cached looked up ref */
             struct Property *ref;
         } link;
@@ -126,18 +134,18 @@ typedef struct Property {
 /**
  * ThemeWidget.
  */
-typedef struct ThemeWidget {
-    int set;
-    char *name;
+typedef struct ThemeWidget
+{
+    int                set;
+    char               *name;
 
-    unsigned int num_widgets;
+    unsigned int       num_widgets;
     struct ThemeWidget **widgets;
 
-    GHashTable *properties;
+    GHashTable         *properties;
 
     struct ThemeWidget *parent;
 } ThemeWidget;
-
 
 /**
  * Global pointer to the current active theme.
@@ -234,7 +242,7 @@ Distance rofi_theme_get_distance ( const widget *widget, const char *property, i
  *
  * @returns The integer value of this property for this widget.
  */
-int rofi_theme_get_integer   (  const widget *widget,  const char *property, int def );
+int rofi_theme_get_integer   (  const widget *widget, const char *property, int def );
 
 /**
  * @param widget   The widget to query
@@ -267,7 +275,7 @@ int rofi_theme_get_integer_exact ( const widget *widget, const char *property, i
  *
  * @returns The boolean value of this property for this widget.
  */
-int rofi_theme_get_boolean   (  const widget *widget,  const char *property, int def );
+int rofi_theme_get_boolean   (  const widget *widget, const char *property, int def );
 
 /**
  * @param widget   The widget to query
@@ -278,7 +286,7 @@ int rofi_theme_get_boolean   (  const widget *widget,  const char *property, int
  *
  * @returns The string value of this property for this widget.
  */
-char *rofi_theme_get_string  (  const widget *widget,  const char *property, char *def );
+char *rofi_theme_get_string  (  const widget *widget, const char *property, char *def );
 
 /**
  * @param widget   The widget to query
@@ -289,7 +297,7 @@ char *rofi_theme_get_string  (  const widget *widget,  const char *property, cha
  *
  * @returns The double value of this property for this widget.
  */
-double rofi_theme_get_double (  const widget *widget,  const char *property, double def );
+double rofi_theme_get_double (  const widget *widget, const char *property, double def );
 
 /**
  * @param widget   The widget to query
@@ -299,7 +307,7 @@ double rofi_theme_get_double (  const widget *widget,  const char *property, dou
  * Obtain the color of the widget and applies this to the drawable d.
  *
  */
-void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t *d);
+void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t *d );
 
 /**
  * @param widget   The widget to query

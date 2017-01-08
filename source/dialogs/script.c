@@ -146,7 +146,7 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
 
         rmpd->cmd_list        = new_list;
         rmpd->cmd_list_length = new_length;
-        retv   = RESET_DIALOG;
+        retv                  = RESET_DIALOG;
     }
     return retv;
 }

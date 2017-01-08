@@ -31,31 +31,29 @@
 #include "widgets/container.h"
 #include "theme.h"
 
-#define LOG_DOMAIN    "Widgets.Window"
+#define LOG_DOMAIN              "Widgets.Window"
 
 /** The default border width of the container */
-#define DEFAULT_BORDER_WIDTH 2
+#define DEFAULT_BORDER_WIDTH    2
 
 struct _window
 {
-    widget  widget;
+    widget widget;
     widget *child;
 };
 
 static void container_update ( widget *wid  );
 
-
 static int container_get_desired_height ( widget *widget )
 {
-    container *b = (container *) widget;
-    int height = 0;
+    container *b     = (container *) widget;
+    int       height = 0;
     if ( b->child ) {
         height += widget_get_desired_height ( b->child );
     }
     height += widget_padding_get_padding_height ( widget );
     return height;
 }
-
 
 static void container_draw ( widget *wid, cairo_t *draw )
 {
@@ -78,7 +76,7 @@ void container_add ( container *container, widget *child )
         return;
     }
     container->child = child;
-    child->parent = WIDGET ( container  );
+    child->parent    = WIDGET ( container  );
     widget_update ( WIDGET ( container ) );
 }
 
@@ -119,7 +117,7 @@ container * container_create ( const char *name )
 {
     container *b = g_malloc0 ( sizeof ( container ) );
     // Initialize widget.
-    widget_init ( WIDGET(b), name );
+    widget_init ( WIDGET ( b ), name );
     b->widget.draw               = container_draw;
     b->widget.free               = container_free;
     b->widget.resize             = container_resize;
@@ -134,15 +132,14 @@ container * container_create ( const char *name )
 static void container_update ( widget *wid  )
 {
     container *b = (container *) wid;
-    if ( b->child && b->child->enabled ){
+    if ( b->child && b->child->enabled ) {
         widget_resize ( WIDGET ( b->child ),
-                widget_padding_get_remaining_width  (WIDGET(b)),
-                widget_padding_get_remaining_height (WIDGET(b))
-                );
+                        widget_padding_get_remaining_width  ( WIDGET ( b ) ),
+                        widget_padding_get_remaining_height ( WIDGET ( b ) )
+                        );
         widget_move ( WIDGET ( b->child ),
-                widget_padding_get_left (WIDGET(b)),
-                widget_padding_get_top (WIDGET(b))
-                );
+                      widget_padding_get_left ( WIDGET ( b ) ),
+                      widget_padding_get_top ( WIDGET ( b ) )
+                      );
     }
 }
-

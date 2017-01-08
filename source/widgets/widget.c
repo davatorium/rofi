@@ -3,25 +3,24 @@
 #include "widgets/widget-internal.h"
 #include "theme.h"
 
-
-void widget_init ( widget *widget , const char *name )
+void widget_init ( widget *widget, const char *name )
 {
-    widget->name       = g_strdup(name);
-    widget->padding = (Padding){ {0, PW_PX, SOLID}, {0, PW_PX, SOLID}, {0, PW_PX, SOLID}, {0, PW_PX, SOLID}};
-    widget->border  = (Padding){ {0, PW_PX, SOLID}, {0, PW_PX, SOLID}, {0, PW_PX, SOLID}, {0, PW_PX, SOLID}};
-    widget->margin  = (Padding){ {0, PW_PX, SOLID}, {0, PW_PX, SOLID}, {0, PW_PX, SOLID}, {0, PW_PX, SOLID}};
+    widget->name    = g_strdup ( name );
+    widget->padding = (Padding){ { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID } };
+    widget->border  = (Padding){ { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID } };
+    widget->margin  = (Padding){ { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID } };
 
-    widget->padding = rofi_theme_get_padding ( widget, "padding", widget->padding);
-    widget->border  = rofi_theme_get_padding ( widget, "border", widget->border);
-    widget->margin  = rofi_theme_get_padding ( widget, "margin", widget->margin);
+    widget->padding = rofi_theme_get_padding ( widget, "padding", widget->padding );
+    widget->border  = rofi_theme_get_padding ( widget, "border", widget->border );
+    widget->margin  = rofi_theme_get_padding ( widget, "margin", widget->margin );
 }
 
 void widget_set_state ( widget *widget, const char *state )
 {
-    if ( g_strcmp0(widget->state, state ) ){
+    if ( g_strcmp0 ( widget->state, state ) ) {
         widget->state = state;
         // Update border.
-        widget->border  = rofi_theme_get_padding ( widget, "border", widget->border);
+        widget->border = rofi_theme_get_padding ( widget, "border", widget->border );
 
         widget_queue_redraw ( widget );
     }
@@ -94,67 +93,67 @@ void widget_draw ( widget *widget, cairo_t *d )
     // Check if enabled and if draw is implemented.
     if ( widget && widget->enabled && widget->draw ) {
         // Don't draw if there is no space.
-        if ( widget->h < 1 || widget->w < 1 ){
+        if ( widget->h < 1 || widget->w < 1 ) {
             widget->need_redraw = FALSE;
             return;
         }
         // Store current state.
         cairo_save ( d );
-        int margin_left = distance_get_pixel ( widget->margin.left, ORIENTATION_HORIZONTAL);
-        int margin_top  = distance_get_pixel ( widget->margin.top, ORIENTATION_VERTICAL);
-        int margin_right = distance_get_pixel ( widget->margin.right, ORIENTATION_HORIZONTAL);
-        int margin_bottom  = distance_get_pixel ( widget->margin.bottom, ORIENTATION_VERTICAL);
+        int margin_left   = distance_get_pixel ( widget->margin.left, ORIENTATION_HORIZONTAL );
+        int margin_top    = distance_get_pixel ( widget->margin.top, ORIENTATION_VERTICAL );
+        int margin_right  = distance_get_pixel ( widget->margin.right, ORIENTATION_HORIZONTAL );
+        int margin_bottom = distance_get_pixel ( widget->margin.bottom, ORIENTATION_VERTICAL );
         // Define a clipmask so we won't draw outside out widget.
         cairo_rectangle ( d,
-                widget->x+margin_left,
-                widget->y+margin_top,
-                widget->w-margin_right-margin_left,
-                widget->h-margin_top-margin_bottom
-                );
+                          widget->x + margin_left,
+                          widget->y + margin_top,
+                          widget->w - margin_right - margin_left,
+                          widget->h - margin_top - margin_bottom
+                          );
         cairo_clip ( d );
 
         rofi_theme_get_color ( widget, "background", d );
-        cairo_paint( d ) ;
+        cairo_paint ( d );
 
         // Set new x/y possition.
-        cairo_translate ( d, widget->x, widget->y);
+        cairo_translate ( d, widget->x, widget->y );
 
-        int left    = distance_get_pixel ( widget->border.left, ORIENTATION_HORIZONTAL );
-        int right   = distance_get_pixel ( widget->border.right, ORIENTATION_HORIZONTAL);
-        int top     = distance_get_pixel ( widget->border.top, ORIENTATION_VERTICAL);
-        int bottom  = distance_get_pixel ( widget->border.bottom, ORIENTATION_VERTICAL );
+        int left   = distance_get_pixel ( widget->border.left, ORIENTATION_HORIZONTAL );
+        int right  = distance_get_pixel ( widget->border.right, ORIENTATION_HORIZONTAL );
+        int top    = distance_get_pixel ( widget->border.top, ORIENTATION_VERTICAL );
+        int bottom = distance_get_pixel ( widget->border.bottom, ORIENTATION_VERTICAL );
         if ( left || top || right || bottom ) {
             cairo_save ( d );
             rofi_theme_get_color ( widget, "foreground", d );
             if ( left > 0 ) {
                 cairo_set_line_width ( d, left );
-                distance_get_linestyle ( widget->border.left, d);
-                cairo_move_to ( d, margin_left + left/2.0, margin_top );
-                cairo_line_to ( d, margin_left + left/2.0, widget->h-margin_bottom);
+                distance_get_linestyle ( widget->border.left, d );
+                cairo_move_to ( d, margin_left + left / 2.0, margin_top );
+                cairo_line_to ( d, margin_left + left / 2.0, widget->h - margin_bottom );
                 cairo_stroke ( d );
             }
             if ( right > 0 ) {
                 cairo_set_line_width ( d, right );
-                distance_get_linestyle ( widget->border.right, d);
-                cairo_move_to ( d, widget->w - margin_right - right/2.0, 0 );
-                cairo_line_to ( d, widget->w - margin_right - right/2.0, widget->h-margin_bottom );
+                distance_get_linestyle ( widget->border.right, d );
+                cairo_move_to ( d, widget->w - margin_right - right / 2.0, 0 );
+                cairo_line_to ( d, widget->w - margin_right - right / 2.0, widget->h - margin_bottom );
                 cairo_stroke ( d );
             }
             if ( top > 0 ) {
                 cairo_set_line_width ( d, top );
-                distance_get_linestyle ( widget->border.top, d);
-                cairo_move_to ( d, margin_left,margin_top+ top/2.0 );
-                cairo_line_to ( d, widget->w-margin_right, margin_top+top/2.0 );
+                distance_get_linestyle ( widget->border.top, d );
+                cairo_move_to ( d, margin_left, margin_top + top / 2.0 );
+                cairo_line_to ( d, widget->w - margin_right, margin_top + top / 2.0 );
                 cairo_stroke ( d );
             }
             if ( bottom > 0 ) {
                 cairo_set_line_width ( d, bottom );
-                distance_get_linestyle ( widget->border.bottom, d);
-                cairo_move_to ( d, margin_left, widget->h-bottom/2.0-margin_bottom);
-                cairo_line_to ( d, widget->w-margin_right, widget->h-bottom/2.0-margin_bottom);
+                distance_get_linestyle ( widget->border.bottom, d );
+                cairo_move_to ( d, margin_left, widget->h - bottom / 2.0 - margin_bottom );
+                cairo_line_to ( d, widget->w - margin_right, widget->h - bottom / 2.0 - margin_bottom );
                 cairo_stroke ( d );
             }
-            cairo_restore (d);
+            cairo_restore ( d );
         }
         widget->draw ( widget, d );
         widget->need_redraw = FALSE;
@@ -266,7 +265,7 @@ gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
 void widget_set_name ( widget *wid, const char *name )
 {
     if ( wid->name ) {
-        g_free(wid);
+        g_free ( wid );
     }
     wid->name = g_strdup ( name );
 }
@@ -329,11 +328,9 @@ int widget_padding_get_padding_width ( const widget *wid )
     return width;
 }
 
-
 int widget_get_desired_height ( widget *wid )
 {
-    if ( wid && wid->get_desired_height )
-    {
+    if ( wid && wid->get_desired_height ) {
         return wid->get_desired_height ( wid );
     }
     return 0;

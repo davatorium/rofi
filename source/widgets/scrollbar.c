@@ -30,12 +30,11 @@
 
 #include "theme.h"
 
-#define DEFAULT_SCROLLBAR_WIDTH 8
+#define DEFAULT_SCROLLBAR_WIDTH    8
 
 static void scrollbar_draw ( widget *, cairo_t * );
 static void scrollbar_free ( widget * );
 static gboolean scrollbar_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
-
 
 static int scrollbar_get_desired_height ( widget *wid )
 {
@@ -46,17 +45,17 @@ static int scrollbar_get_desired_height ( widget *wid )
 scrollbar *scrollbar_create ( const char *name )
 {
     scrollbar *sb = g_malloc0 ( sizeof ( scrollbar ) );
-    widget_init ( WIDGET (sb), name );
+    widget_init ( WIDGET ( sb ), name );
     sb->widget.x = 0;
     sb->widget.y = 0;
-    sb->width = rofi_theme_get_distance ( WIDGET (sb), "handle-width", DEFAULT_SCROLLBAR_WIDTH );
-    int width = distance_get_pixel (sb->width, ORIENTATION_HORIZONTAL);
-    sb->widget.w = widget_padding_get_padding_width ( WIDGET (sb)) + width;
+    sb->width    = rofi_theme_get_distance ( WIDGET ( sb ), "handle-width", DEFAULT_SCROLLBAR_WIDTH );
+    int width = distance_get_pixel ( sb->width, ORIENTATION_HORIZONTAL );
+    sb->widget.w = widget_padding_get_padding_width ( WIDGET ( sb ) ) + width;
     sb->widget.h = widget_padding_get_padding_height ( WIDGET ( sb ) );
 
-    sb->widget.draw          = scrollbar_draw;
-    sb->widget.free          = scrollbar_free;
-    sb->widget.motion_notify = scrollbar_motion_notify;
+    sb->widget.draw               = scrollbar_draw;
+    sb->widget.free               = scrollbar_free;
+    sb->widget.motion_notify      = scrollbar_motion_notify;
     sb->widget.get_desired_height = scrollbar_get_desired_height;
 
     sb->length     = 10;
@@ -110,7 +109,7 @@ void scrollbar_set_handle_length ( scrollbar *sb, unsigned int pos_length )
 static void scrollbar_draw ( widget *wid, cairo_t *draw )
 {
     scrollbar    *sb = (scrollbar *) wid;
-    unsigned int wh     = widget_padding_get_remaining_height ( wid );
+    unsigned int wh  = widget_padding_get_remaining_height ( wid );
     // Calculate position and size.
     unsigned int r      = ( sb->length * wh ) / ( (double) ( sb->length + sb->pos_length ) );
     unsigned int handle = wid->h - r;
@@ -122,14 +121,14 @@ static void scrollbar_draw ( widget *wid, cairo_t *draw )
     // Never go out of bar.
     height = MAX ( 2, height );
     // Cap length;
-    rofi_theme_get_color ( WIDGET (sb ), "foreground", draw );
-    rofi_theme_get_color ( WIDGET (sb ), "handle-color", draw );
+    rofi_theme_get_color ( WIDGET ( sb ), "foreground", draw );
+    rofi_theme_get_color ( WIDGET ( sb ), "handle-color", draw );
 
     cairo_rectangle ( draw,
-            widget_padding_get_left ( wid ),
-            widget_padding_get_top ( wid ) + y,
-            widget_padding_get_remaining_width ( wid ),
-            height );
+                      widget_padding_get_left ( wid ),
+                      widget_padding_get_top ( wid ) + y,
+                      widget_padding_get_remaining_width ( wid ),
+                      height );
     cairo_fill ( draw );
 }
 static gboolean scrollbar_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
@@ -146,10 +145,10 @@ unsigned int scrollbar_clicked ( const scrollbar *sb, int y )
 {
     if ( sb != NULL ) {
         if ( y >= sb->widget.y && y <= ( sb->widget.y + sb->widget.h ) ) {
-            short r           = ( sb->length * sb->widget.h ) / ( (double) ( sb->length + sb->pos_length ) );
-            short handle      = sb->widget.h - r;
-            double       sec         = ( ( r ) / (double) ( sb->length - 1 ) );
-            short half_handle = handle / 2;
+            short  r           = ( sb->length * sb->widget.h ) / ( (double) ( sb->length + sb->pos_length ) );
+            short  handle      = sb->widget.h - r;
+            double sec         = ( ( r ) / (double) ( sb->length - 1 ) );
+            short  half_handle = handle / 2;
             y -= sb->widget.y + half_handle;
             y  = MIN ( MAX ( 0, y ), sb->widget.h - 2 * half_handle );
 
@@ -159,4 +158,3 @@ unsigned int scrollbar_clicked ( const scrollbar *sb, int y )
     }
     return 0;
 }
-

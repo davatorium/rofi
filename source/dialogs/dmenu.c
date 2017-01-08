@@ -137,21 +137,23 @@ static void async_read_callback ( GObject *source_object, GAsyncResult *res, gpo
         g_data_input_stream_read_upto_async ( pd->data_input_stream, &( pd->separator ), 1, G_PRIORITY_LOW, pd->cancel,
                                               async_read_callback, pd );
         return;
-    } else {
+    }
+    else {
         GError *error = NULL;
         // Absorb separator, already in buffer so should not block.
         // If error == NULL end of stream..
-        g_data_input_stream_read_byte ( stream, NULL, &error);
+        g_data_input_stream_read_byte ( stream, NULL, &error );
         if (  error == NULL ) {
             // Add empty line.
-            read_add ( pd, "", 0);
+            read_add ( pd, "", 0 );
             rofi_view_reload ();
 
             g_data_input_stream_read_upto_async ( pd->data_input_stream, &( pd->separator ), 1, G_PRIORITY_LOW, pd->cancel,
-                    async_read_callback, pd );
+                                                  async_read_callback, pd );
             return;
-        } else {
-            g_error_free (error);
+        }
+        else {
+            g_error_free ( error );
         }
     }
     if ( !g_cancellable_is_cancelled ( pd->cancel ) ) {

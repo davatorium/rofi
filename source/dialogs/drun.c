@@ -192,7 +192,7 @@ static void exec_cmd_entry ( DRunModeEntry *e )
         fprintf ( stderr, "Nothing to execute after processing: %s.\n", e->exec );;
         return;
     }
-    gchar *fp = rofi_expand_path ( g_strstrip ( str ) );
+    gchar *fp        = rofi_expand_path ( g_strstrip ( str ) );
     gchar *exec_path = g_key_file_get_string ( e->key_file, "Desktop Entry", "Path", NULL );
     if ( execsh ( exec_path, fp, e->terminal ) ) {
         char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
@@ -539,12 +539,12 @@ static int drun_token_match ( const Mode *data, GRegex **tokens, unsigned int in
                 test = 1;
             }
             // Match against category.
-            if ( !test ){
-                gchar **list = g_key_file_get_locale_string_list ( rmpd->entry_list[index].key_file, "Desktop Entry", "Categories" , NULL, NULL,NULL );
-                for ( int iter = 0; !test && list && list[iter]; iter++){
-                    test = token_match ( ftokens, list[iter]);
+            if ( !test ) {
+                gchar **list = g_key_file_get_locale_string_list ( rmpd->entry_list[index].key_file, "Desktop Entry", "Categories", NULL, NULL, NULL );
+                for ( int iter = 0; !test && list && list[iter]; iter++ ) {
+                    test = token_match ( ftokens, list[iter] );
                 }
-                g_strfreev(list);
+                g_strfreev ( list );
             }
             if ( test == 0 ) {
                 match = 0;

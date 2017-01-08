@@ -399,12 +399,11 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 
     // Check if we are in I3 mode. I3 has to be special and allow markup in it window name......
     char *i3_socket_path = window_get_text_prop ( xcb_stuff_get_root_window ( xcb ), netatoms[I3_SOCKET_PATH] );
-    if ( i3_socket_path != NULL ){
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Detected I3 Window manager running.");
+    if ( i3_socket_path != NULL ) {
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Detected I3 Window manager running." );
         pd->i3_mode = TRUE;
         g_free ( i3_socket_path );
     }
-
 
     // Create cache
 
@@ -488,15 +487,15 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                     if ( has_names ) {
                         if ( pd->i3_mode ) {
                             char *output = NULL;
-                            if (pango_parse_markup ( _window_name_list_entry ( names.strings, names.strings_len,
-                                            c->wmdesktop ),-1, 0, NULL, &output, NULL, NULL)){
+                            if ( pango_parse_markup ( _window_name_list_entry ( names.strings, names.strings_len,
+                                                                                c->wmdesktop ), -1, 0, NULL, &output, NULL, NULL ) ) {
                                 c->wmdesktopstr = output;
                             }
                             else {
-                                c->wmdesktopstr = g_strdup ( "Invalid name");
+                                c->wmdesktopstr = g_strdup ( "Invalid name" );
                             }
-
-                        } else {
+                        }
+                        else {
                             c->wmdesktopstr = g_strdup ( _window_name_list_entry ( names.strings, names.strings_len, c->wmdesktop ) );
                         }
                     }
@@ -634,7 +633,7 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
         }
     }
     else if ( ( mretv & ( MENU_ENTRY_DELETE ) ) == MENU_ENTRY_DELETE ) {
-        xcb_ewmh_request_close_window ( &(xcb->ewmh), xcb->screen_nbr, rmpd->ids->array[selected_line], XCB_CURRENT_TIME, XCB_EWMH_CLIENT_SOURCE_TYPE_OTHER);
+        xcb_ewmh_request_close_window ( &( xcb->ewmh ), xcb->screen_nbr, rmpd->ids->array[selected_line], XCB_CURRENT_TIME, XCB_EWMH_CLIENT_SOURCE_TYPE_OTHER );
         xcb_flush ( xcb->connection );
     }
     return retv;

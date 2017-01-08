@@ -27,7 +27,7 @@ dist_bin_SCRIPTS=\
 nodist_rofi_SOURCES=\
 	$(top_builddir)/gitconfig.h
 
-rofi_SOURCES=\
+SOURCES=\
 	source/rofi.c\
 	source/view.c\
 	source/mode.c\
@@ -53,8 +53,6 @@ rofi_SOURCES=\
 	source/dialogs/window.c\
 	source/dialogs/script.c\
 	source/dialogs/help-keys.c\
-	lexer/theme-parser.y\
-	lexer/theme-lexer.l\
 	include/xcb.h\
 	include/xcb-internal.h\
 	include/rofi.h\
@@ -88,6 +86,11 @@ rofi_SOURCES=\
 	include/dialogs/help-keys.h\
 	include/xkb.h\
 	include/xkb-internal.h
+
+rofi_SOURCES=\
+			 lexer/theme-parser.y\
+			 lexer/theme-lexer.l\
+			 $(SOURCES)
 
 rofi_CFLAGS=\
 	$(AM_CFLAGS)\
@@ -253,7 +256,7 @@ helper_pidfile_SOURCES=\
 					   source/x11-helper.c\
 					   include/x11-helper.h\
 					   test/helper-pidfile.c
-					   
+
 helper_tokenize_CFLAGS=$(textbox_test_CFLAGS)
 helper_tokenize_LDADD=$(textbox_test_LDADD)
 helper_tokenize_SOURCES=\
@@ -399,7 +402,7 @@ TESTS=\
 	scrollbar_test
 
 .PHONY: test-x
-test-x: $(bin_PROGRAMS) 
+test-x: $(bin_PROGRAMS)
 	echo "Test 2"
 	$(top_srcdir)/test/run_test.sh 200 $(top_srcdir)/test/run_errormsg_test.sh $(top_builddir)
 	echo "Test 3"
@@ -448,7 +451,7 @@ test-x1: $(bin_PROGRAMS)
 
 
 .PHONY: indent
-indent: $(rofi_SOURCES) $(helper_test_SOURCES) $(textbox_test_SOURCES) $(history_test_SOURCES) $(helper_expand_SOURCES)
+indent: $(SOURCES)
 	uncrustify -c $(top_srcdir)/data/uncrustify.cfg --replace $^
 
 .PHONY: cppcheck

@@ -270,46 +270,47 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "\n" );
     x11_dump_monitor_layout ();
     printf ( "\n" );
-    printf ( "Compile time options:\n");
+    printf ( "Compile time options:\n" );
 #ifdef WINDOW_MODE
-    printf ( "\t* window  %senabled%s\n", is_term?color_green:"", is_term?color_reset:"");
+    printf ( "\t* window  %senabled%s\n", is_term ? color_green : "", is_term ? color_reset : "" );
 #else
-    printf ( "\t* window  %sdisabled%s\n", is_term?color_red:"", is_term?color_reset:"");
+    printf ( "\t* window  %sdisabled%s\n", is_term ? color_red : "", is_term ? color_reset : "" );
 #endif
 #ifdef ENABLE_DRUN
-    printf ( "\t* drun    %senabled%s\n", is_term?color_green:"", is_term?color_reset:"");
+    printf ( "\t* drun    %senabled%s\n", is_term ? color_green : "", is_term ? color_reset : "" );
 #else
-    printf ( "\t* drun    %sdisabled%s\n", is_term?color_red:"", is_term?color_reset:"");
+    printf ( "\t* drun    %sdisabled%s\n", is_term ? color_red : "", is_term ? color_reset : "" );
 #endif
 #ifdef TIMINGS
-    printf ( "\t* timings %senabled%s\n", is_term?color_green:"", is_term?color_reset:"");
+    printf ( "\t* timings %senabled%s\n", is_term ? color_green : "", is_term ? color_reset : "" );
 #else
-    printf ( "\t* timings %sdisabled%s\n", is_term?color_red:"", is_term?color_reset:"");
+    printf ( "\t* timings %sdisabled%s\n", is_term ? color_red : "", is_term ? color_reset : "" );
 #endif
 #ifdef ENABLE_GCOV
-    printf ( "\t* gcov    %senabled%s\n", is_term?color_green:"", is_term?color_reset:"");
+    printf ( "\t* gcov    %senabled%s\n", is_term ? color_green : "", is_term ? color_reset : "" );
 #else
-    printf ( "\t* gcov    %sdisabled%s\n", is_term?color_red:"", is_term?color_reset:"");
+    printf ( "\t* gcov    %sdisabled%s\n", is_term ? color_red : "", is_term ? color_reset : "" );
 #endif
 #ifdef ENABLE_ASAN
-    printf ( "\t* asan    %senabled%s\n", is_term?color_green:"", is_term?color_reset:"");
+    printf ( "\t* asan    %senabled%s\n", is_term ? color_green : "", is_term ? color_reset : "" );
 #else
-    printf ( "\t* asan    %sdisabled%s\n", is_term?color_red:"", is_term?color_reset:"");
+    printf ( "\t* asan    %sdisabled%s\n", is_term ? color_red : "", is_term ? color_reset : "" );
 #endif
     printf ( "\n" );
-    printf ( "For more information see: %sman rofi%s\n", is_term?color_bold:"",is_term?color_reset:"" );
+    printf ( "For more information see: %sman rofi%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
 #ifdef GIT_VERSION
-    printf ( "                 Version: %s"GIT_VERSION "%s\n", is_term?color_bold:"",is_term?color_reset:"" );
+    printf ( "                 Version: %s"GIT_VERSION "%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
 #else
-    printf ( "                 Version: %s"VERSION "%s\n", is_term?color_bold:"",is_term?color_reset:"" );
+    printf ( "                 Version: %s"VERSION "%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
 #endif
-    printf ( "              Bugreports: %s"PACKAGE_BUGREPORT "%s\n", is_term?color_bold:"",is_term?color_reset:"" );
-    printf ( "                 Support: %s"PACKAGE_URL "%s\n", is_term?color_bold:"",is_term?color_reset:"" );
-    printf ( "                          %s#rofi @ freenode.net%s\n", is_term?color_bold:"",is_term?color_reset:"" );
+    printf ( "              Bugreports: %s"PACKAGE_BUGREPORT "%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
+    printf ( "                 Support: %s"PACKAGE_URL "%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
+    printf ( "                          %s#rofi @ freenode.net%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
     if ( find_arg ( "-no-config" ) < 0 ) {
-        printf ( "      Configuration file: %s%s%s\n", is_term?color_bold:"", config_path, is_term?color_reset:"" );
-    } else {
-        printf ( "      Configuration file: %sDisabled%s\n", is_term?color_bold:"", is_term?color_reset:"" );
+        printf ( "      Configuration file: %s%s%s\n", is_term ? color_bold : "", config_path, is_term ? color_reset : "" );
+    }
+    else {
+        printf ( "      Configuration file: %sDisabled%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
     }
 }
 
@@ -396,7 +397,7 @@ static int add_mode ( const char * token )
     }
     else
 #endif // WINDOW_MODE
-       // SSh dialog
+    // SSh dialog
     if ( strcasecmp ( token, "ssh" ) == 0 ) {
         modi[num_modi] = &ssh_mode;
         num_modi++;
@@ -489,7 +490,8 @@ static inline void load_configuration_dynamic ( )
 /**
  * Process X11 events in the main-loop (gui-thread) of the application.
  */
-static void main_loop_x11_event_handler_view ( xcb_generic_event_t *ev){
+static void main_loop_x11_event_handler_view ( xcb_generic_event_t *ev )
+{
     RofiViewState *state = rofi_view_get_active ();
     if ( state != NULL ) {
         rofi_view_itterrate ( state, ev, &xkb );
@@ -585,12 +587,12 @@ unsigned int lazy_grab_retry_count_pt = 0;
 static gboolean lazy_grab_pointer ( G_GNUC_UNUSED gpointer data )
 {
     // After 5 sec.
-    if ( lazy_grab_retry_count_kb > (5*1000)) {
-        fprintf(stderr, "Failed to grab keyboard after %u times. Giving up.\n", lazy_grab_retry_count_kb);
+    if ( lazy_grab_retry_count_kb > ( 5 * 1000 ) ) {
+        fprintf ( stderr, "Failed to grab keyboard after %u times. Giving up.\n", lazy_grab_retry_count_kb );
         g_main_loop_quit (  main_loop );
         return G_SOURCE_REMOVE;
     }
-    if ( take_pointer ( xcb_stuff_get_root_window ( xcb ), 0 ) ){
+    if ( take_pointer ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
         return G_SOURCE_REMOVE;
     }
     lazy_grab_retry_count_kb++;
@@ -599,11 +601,11 @@ static gboolean lazy_grab_pointer ( G_GNUC_UNUSED gpointer data )
 static gboolean lazy_grab_keyboard ( G_GNUC_UNUSED gpointer data )
 {
     // After 5 sec.
-    if ( lazy_grab_retry_count_pt > (5*1000)) {
-        fprintf(stderr, "Failed to grab pointer after %u times. Giving up.\n", lazy_grab_retry_count_pt);
+    if ( lazy_grab_retry_count_pt > ( 5 * 1000 ) ) {
+        fprintf ( stderr, "Failed to grab pointer after %u times. Giving up.\n", lazy_grab_retry_count_pt );
         return G_SOURCE_REMOVE;
     }
-    if ( take_keyboard ( xcb_stuff_get_root_window ( xcb), 0 ) ){
+    if ( take_keyboard ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
         return G_SOURCE_REMOVE;
     }
     lazy_grab_retry_count_pt++;
@@ -629,23 +631,23 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
     if ( ( window_flags & MENU_NORMAL_WINDOW ) == 0 ) {
-        if ( find_arg ( "-lazy-grab") >= 0 ){
-            if ( !take_keyboard ( xcb_stuff_get_root_window ( xcb), 0) ){
-                g_timeout_add ( 1,lazy_grab_keyboard, NULL);
+        if ( find_arg ( "-lazy-grab" ) >= 0 ) {
+            if ( !take_keyboard ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
+                g_timeout_add ( 1, lazy_grab_keyboard, NULL );
             }
-            if ( !take_pointer ( xcb_stuff_get_root_window ( xcb ), 0 )) {
-                g_timeout_add ( 1,lazy_grab_pointer, NULL);
+            if ( !take_pointer ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
+                g_timeout_add ( 1, lazy_grab_pointer, NULL );
             }
-        } else {
-            if ( !take_keyboard ( xcb_stuff_get_root_window ( xcb), 500) ){
+        }
+        else {
+            if ( !take_keyboard ( xcb_stuff_get_root_window ( xcb ), 500 ) ) {
                 fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
                 g_main_loop_quit ( main_loop );
                 return G_SOURCE_REMOVE;
             }
-            if ( ! take_pointer ( xcb_stuff_get_root_window ( xcb ), 100 ) ) {
-                fprintf ( stderr, "Failed to grab mouse pointer, even after %d uS.", 100*1000);
+            if ( !take_pointer ( xcb_stuff_get_root_window ( xcb ), 100 ) ) {
+                fprintf ( stderr, "Failed to grab mouse pointer, even after %d uS.", 100 * 1000 );
             }
-
         }
     }
     TICK_N ( "Grab keyboard" );
@@ -949,26 +951,25 @@ int main ( int argc, char *argv[] )
         TICK_N ( "Parse theme" );
         rofi_theme_parse_file ( config.theme );
         TICK_N ( "Parsed theme" );
-    } else {
+    }
+    else {
         rofi_theme_convert_old_theme ( );
     }
 
     const char ** theme_str = find_arg_strv ( "-theme-str" );
     if ( theme_str ) {
-        for ( int index = 0; theme_str && theme_str[index]; index++ ){
-            if ( ! rofi_theme_parse_string ( theme_str[index] ) ){
-                fprintf(stderr, "Failed to parse: %s\n", theme_str[index]); 
+        for ( int index = 0; theme_str && theme_str[index]; index++ ) {
+            if ( !rofi_theme_parse_string ( theme_str[index] ) ) {
+                fprintf ( stderr, "Failed to parse: %s\n", theme_str[index] );
                 exit ( EXIT_FAILURE );
             }
         }
         g_free ( theme_str );
     }
 
-
-
-    if ( find_arg ( "-dump-theme" ) >= 0 ){
+    if ( find_arg ( "-dump-theme" ) >= 0 ) {
         rofi_theme_print ( rofi_theme );
-        exit (EXIT_SUCCESS);
+        exit ( EXIT_SUCCESS );
     }
     // Dump.
     // catch help request

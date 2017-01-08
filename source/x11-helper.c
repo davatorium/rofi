@@ -533,7 +533,7 @@ int take_pointer ( xcb_window_t w, int iters )
             }
             free ( r );
         }
-        if ( (++i) > iters ){
+        if ( ( ++i ) > iters ) {
             break;
         }
         usleep ( 1000 );
@@ -559,7 +559,7 @@ int take_keyboard ( xcb_window_t w, int iters )
             }
             free ( r );
         }
-        if ( (++i) > iters ){
+        if ( ( ++i ) > iters ) {
             break;
         }
         usleep ( 1000 );
@@ -646,14 +646,14 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
     char         *mod_key   = input_key;
     char         *error_msg = NULL;
     unsigned int modmask    = 0;
-    xkb_keysym_t sym      = XKB_KEY_NoSymbol;
+    xkb_keysym_t sym        = XKB_KEY_NoSymbol;
     // Test if this works on release.
     if ( g_str_has_prefix ( mod_key, "!" ) ) {
         ++mod_key;
         *release = TRUE;
     }
 
-    char **entries = g_strsplit_set ( mod_key, "+-", -1);
+    char **entries = g_strsplit_set ( mod_key, "+-", -1 );
     for ( int i = 0; entries && entries[i]; i++ ) {
         char *entry = entries[i];
         // Remove trailing and leading spaces.
@@ -704,7 +704,7 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
         }
         g_free ( entry_lowered );
     }
-    g_strfreev(entries);
+    g_strfreev ( entries );
 
     g_free ( input_key );
 

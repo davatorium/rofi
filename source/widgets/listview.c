@@ -32,7 +32,7 @@
 #include "settings.h"
 #include "theme.h"
 
-#define DEFAULT_SPACING 2
+#define DEFAULT_SPACING    2
 
 struct _listview
 {
@@ -81,8 +81,7 @@ struct _listview
     listview_mouse_activated_cb mouse_activated;
     void                        *mouse_activated_data;
 
-
-    char *listview_name;
+    char                        *listview_name;
 };
 
 static int listview_get_desired_height ( widget *wid );
@@ -95,7 +94,7 @@ static void listview_free ( widget *wid )
     }
     g_free ( lv->boxes );
 
-    g_free( lv->listview_name );
+    g_free ( lv->listview_name );
     widget_free ( WIDGET ( lv->scrollbar ) );
     g_free ( lv );
 }
@@ -168,8 +167,9 @@ static void listview_draw ( widget *wid, cairo_t *draw )
     scrollbar_set_max_value ( lv->scrollbar, lv->req_elements );
     scrollbar_set_handle_length ( lv->scrollbar, lv->cur_columns * lv->max_rows );
     if ( lv->reverse ) {
-        scrollbar_set_handle ( lv->scrollbar, lv->req_elements - lv->selected -1 );
-    } else {
+        scrollbar_set_handle ( lv->scrollbar, lv->req_elements - lv->selected - 1 );
+    }
+    else {
         scrollbar_set_handle ( lv->scrollbar, lv->selected  );
     }
     lv->last_offset = offset;
@@ -195,9 +195,10 @@ static void listview_draw ( widget *wid, cairo_t *draw )
             for ( unsigned int i = 0; i < max; i++ ) {
                 unsigned int ex = left_offset + ( ( i ) / lv->max_rows ) * ( element_width + spacing_hori );
                 if ( lv->reverse ) {
-                    unsigned int ey = wid->h-(widget_padding_get_bottom ( wid ) + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing_vert ))-lv->element_height;
+                    unsigned int ey = wid->h - ( widget_padding_get_bottom ( wid ) + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing_vert ) ) - lv->element_height;
                     textbox_moveresize ( lv->boxes[i], ex, ey, element_width, lv->element_height );
-                } else {
+                }
+                else {
                     unsigned int ey = top_offset + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing_vert );
                     textbox_moveresize ( lv->boxes[i], ex, ey, element_width, lv->element_height );
                 }
@@ -238,12 +239,12 @@ static void listview_recompute_elements ( listview *lv )
     if ( newne > 0   ) {
         for ( unsigned int i = lv->cur_elements; i < newne; i++ ) {
             TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
-            char *name = g_strjoin (".", lv->listview_name,"element", NULL);
+            char         *name = g_strjoin ( ".", lv->listview_name, "element", NULL );
             lv->boxes[i] = textbox_create ( name, flags, NORMAL, "" );
             g_free ( name );
         }
     }
-    lv->rchanged = TRUE;
+    lv->rchanged     = TRUE;
     lv->cur_elements = newne;
 }
 
@@ -274,21 +275,22 @@ void listview_set_selected ( listview *lv, unsigned int selected )
 static void listview_resize ( widget *wid, short w, short h )
 {
     listview *lv = (listview *) wid;
-    lv->widget.w     = MAX ( 0, w );
-    lv->widget.h     = MAX ( 0, h );
-    int height       = lv->widget.h - widget_padding_get_padding_height ( WIDGET (lv) );
-    int spacing_vert      = distance_get_pixel ( lv->spacing, ORIENTATION_VERTICAL );
+    lv->widget.w = MAX ( 0, w );
+    lv->widget.h = MAX ( 0, h );
+    int height       = lv->widget.h - widget_padding_get_padding_height ( WIDGET ( lv ) );
+    int spacing_vert = distance_get_pixel ( lv->spacing, ORIENTATION_VERTICAL );
     lv->max_rows     = ( spacing_vert + height ) / ( lv->element_height + spacing_vert );
     lv->max_elements = lv->max_rows * lv->menu_columns;
 
-    if ( lv->scrollbar->widget.index == 0 ){
+    if ( lv->scrollbar->widget.index == 0 ) {
         widget_move ( WIDGET ( lv->scrollbar ),
-                widget_padding_get_left ( WIDGET ( lv ) ),
-                widget_padding_get_top  ( WIDGET ( lv ) ) );
-    } else {
+                      widget_padding_get_left ( WIDGET ( lv ) ),
+                      widget_padding_get_top  ( WIDGET ( lv ) ) );
+    }
+    else {
         widget_move ( WIDGET ( lv->scrollbar ),
-                lv->widget.w - widget_padding_get_right ( WIDGET ( lv ) ) - widget_get_width ( WIDGET ( lv->scrollbar ) ),
-                widget_padding_get_top ( WIDGET (lv ) ));
+                      lv->widget.w - widget_padding_get_right ( WIDGET ( lv ) ) - widget_get_width ( WIDGET ( lv->scrollbar ) ),
+                      widget_padding_get_top ( WIDGET ( lv ) ) );
     }
     widget_resize (  WIDGET ( lv->scrollbar ), widget_get_width ( WIDGET ( lv->scrollbar ) ), height );
 
@@ -354,10 +356,10 @@ static gboolean listview_motion_notify ( widget *wid, xcb_motion_notify_event_t 
 }
 listview *listview_create ( const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse )
 {
-    listview *lv = g_malloc0 ( sizeof ( listview ) );
-    gchar *box = g_strjoin (".", name, "box", NULL );
+    listview *lv  = g_malloc0 ( sizeof ( listview ) );
+    gchar    *box = g_strjoin ( ".", name, "box", NULL );
     widget_init ( WIDGET ( lv ), box );
-    g_free(box);
+    g_free ( box );
     lv->listview_name             = g_strdup ( name );
     lv->widget.free               = listview_free;
     lv->widget.resize             = listview_resize;
@@ -366,21 +368,21 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->widget.motion_notify      = listview_motion_notify;
     lv->widget.get_desired_height = listview_get_desired_height;
     lv->widget.enabled            = TRUE;
-    lv->eh = eh;
+    lv->eh                        = eh;
 
-    char *n = g_strjoin(".", lv->listview_name,"scrollbar", NULL);
+    char *n = g_strjoin ( ".", lv->listview_name, "scrollbar", NULL );
     lv->scrollbar = scrollbar_create ( n );
     // Default position on right.
-    lv->scrollbar->widget.index = rofi_theme_get_integer_exact ( WIDGET (lv->scrollbar), "index", 1);
-    g_free(n);
+    lv->scrollbar->widget.index = rofi_theme_get_integer_exact ( WIDGET ( lv->scrollbar ), "index", 1 );
+    g_free ( n );
     widget_set_clicked_handler ( WIDGET ( lv->scrollbar ), listview_scrollbar_clicked, lv );
     lv->scrollbar->widget.parent = WIDGET ( lv );
     // Calculate height of an element.
     //
-    char *tb_name = g_strjoin (".", lv->listview_name,"element", NULL);
-    textbox *tb = textbox_create ( tb_name, 0, NORMAL, "" );
-    lv->element_height = textbox_get_estimated_height (tb, lv->eh);
-    g_free(tb_name);
+    char    *tb_name = g_strjoin ( ".", lv->listview_name, "element", NULL );
+    textbox *tb      = textbox_create ( tb_name, 0, NORMAL, "" );
+    lv->element_height = textbox_get_estimated_height ( tb, lv->eh );
+    g_free ( tb_name );
 
     lv->callback = cb;
     lv->udata    = udata;
@@ -389,11 +391,10 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->spacing         = rofi_theme_get_distance ( WIDGET ( lv ), "spacing", DEFAULT_SPACING );
     lv->menu_columns    = rofi_theme_get_integer  ( WIDGET ( lv ), "columns", config.menu_columns );
     lv->fixed_num_lines = rofi_theme_get_boolean  ( WIDGET ( lv ), "fixed-height", config.fixed_num_lines );
-    lv->dynamic         = rofi_theme_get_boolean  ( WIDGET ( lv ), "dynamic",      TRUE );
-    lv->reverse         = rofi_theme_get_boolean  ( WIDGET ( lv ), "reverse",      reverse );
-    listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( WIDGET ( lv ), "scrollbar", !config.hide_scrollbar ));
+    lv->dynamic         = rofi_theme_get_boolean  ( WIDGET ( lv ), "dynamic", TRUE );
+    lv->reverse         = rofi_theme_get_boolean  ( WIDGET ( lv ), "reverse", reverse );
+    listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( WIDGET ( lv ), "scrollbar", !config.hide_scrollbar ) );
     lv->cycle = rofi_theme_get_boolean ( WIDGET ( lv ), "cycle", config.cycle );
-
 
     return lv;
 }
@@ -433,7 +434,8 @@ void listview_nav_up ( listview *lv )
 {
     if ( lv->reverse ) {
         listview_nav_down_int ( lv );
-    } else {
+    }
+    else {
         listview_nav_up_int ( lv );
     }
 }
@@ -441,7 +443,8 @@ void listview_nav_down ( listview *lv )
 {
     if ( lv->reverse ) {
         listview_nav_up_int ( lv );
-    } else {
+    }
+    else {
         listview_nav_down_int ( lv );
     }
 }
@@ -510,45 +513,48 @@ static void listview_nav_page_next_int ( listview *lv )
 
 void listview_nav_page_prev ( listview *lv )
 {
-    if ( lv->reverse ){
+    if ( lv->reverse ) {
         listview_nav_page_next_int ( lv );
-    } else {
+    }
+    else {
         listview_nav_page_prev_int ( lv );
     }
 }
 void listview_nav_page_next ( listview *lv )
 {
-    if ( lv->reverse ){
+    if ( lv->reverse ) {
         listview_nav_page_prev_int ( lv );
-    } else {
+    }
+    else {
         listview_nav_page_next_int ( lv );
     }
 }
 
 static int listview_get_desired_height ( widget *wid )
 {
-    listview *lv = (listview *)wid;
-    int spacing = distance_get_pixel ( lv->spacing, ORIENTATION_VERTICAL );
-    if ( lv == NULL  || lv->widget.enabled == FALSE ) {
+    listview *lv     = (listview *) wid;
+    int      spacing = distance_get_pixel ( lv->spacing, ORIENTATION_VERTICAL );
+    if ( lv == NULL || lv->widget.enabled == FALSE ) {
         return 0;
     }
     int h = lv->menu_lines;
     if ( !( lv->fixed_num_lines ) ) {
         if ( lv->dynamic ) {
             h = MIN ( lv->menu_lines, lv->req_elements );
-        } else {
+        }
+        else {
             h = MIN ( lv->menu_lines, lv->max_displayed_lines );
         }
     }
     if ( h == 0 ) {
-        if ( lv->dynamic && !lv->fixed_num_lines ){
+        if ( lv->dynamic && !lv->fixed_num_lines ) {
             // Hide widget fully.
             return 0;
         }
-        return widget_padding_get_padding_height ( WIDGET (lv) );
+        return widget_padding_get_padding_height ( WIDGET ( lv ) );
     }
-    int height = widget_padding_get_padding_height ( WIDGET (lv) );
-    height += h*(lv->element_height+spacing)  - spacing;
+    int height = widget_padding_get_padding_height ( WIDGET ( lv ) );
+    height += h * ( lv->element_height + spacing ) - spacing;
     return height;
 }
 

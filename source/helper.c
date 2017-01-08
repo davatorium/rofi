@@ -181,11 +181,13 @@ static gchar *fuzzy_to_regex ( const char * input )
         else {
             g_string_append ( str, ".*(" );
         }
-        if ( *iter == '\\' ){
-            g_string_append_c ( str, '\\');
+        if ( *iter == '\\' ) {
+            g_string_append_c ( str, '\\' );
             iter = g_utf8_next_char ( iter );
             // If EOL, break out of for loop.
-            if ( (*iter) == '\0' ) break;
+            if ( ( *iter ) == '\0' ) {
+                break;
+            }
         }
         g_string_append_unichar ( str, g_utf8_get_char ( iter ) );
         g_string_append ( str, ")" );
@@ -246,7 +248,7 @@ GRegex **tokenize ( const char *input, int case_sensitive )
     }
 
     char   *saveptr = NULL, *token;
-    GRegex **retv   = NULL;
+    GRegex **retv = NULL;
     if ( !config.tokenize ) {
         retv    = g_malloc0 ( sizeof ( GRegex* ) * 2 );
         retv[0] = (GRegex *) create_regex ( input, case_sensitive );
@@ -297,19 +299,19 @@ int find_arg_str ( const char * const key, char** val )
 
 const char ** find_arg_strv ( const char *const key )
 {
-    const char **retv =NULL;
-    int length = 0;
+    const char **retv = NULL;
+    int        length = 0;
     for ( int i = 0; i < stored_argc; i++ ) {
-        if ( strcasecmp ( stored_argv[i], key ) == 0 && i < (stored_argc -1 ) ){
+        if ( strcasecmp ( stored_argv[i], key ) == 0 && i < ( stored_argc - 1 ) ) {
             length++;
         }
     }
     if ( length > 0 ) {
-        retv = g_malloc0((length+1)*sizeof(char*));
+        retv = g_malloc0 ( ( length + 1 ) * sizeof ( char* ) );
         int index = 0;
         for ( int i = 0; i < stored_argc; i++ ) {
-            if ( strcasecmp ( stored_argv[i], key ) == 0 && i < (stored_argc -1 ) ){
-                retv[index++] = stored_argv[i+1];
+            if ( strcasecmp ( stored_argv[i], key ) == 0 && i < ( stored_argc - 1 ) ) {
+                retv[index++] = stored_argv[i + 1];
             }
         }
     }
