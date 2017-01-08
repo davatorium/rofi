@@ -111,6 +111,8 @@ struct
     unsigned long long count;
     /** redraw idle time. */
     guint           repaint_source;
+    /** Window fullscreen */
+    gboolean        fullscreen;
 } CacheState = {
     .main_window    = XCB_WINDOW_NONE,
     .fake_bg        = NULL,
@@ -122,6 +124,7 @@ struct
     .idle_timeout   =               0,
     .count          =              0L,
     .repaint_source =               0,
+    .fullscreen     =           FALSE,
 };
 
 void rofi_view_get_current_monitor ( int *width, int *height)
@@ -267,7 +270,7 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
     }
     anchor = rofi_theme_get_position ( WIDGET ( state->main_window ), "anchor", anchor );
 
-    if ( config.fullscreen ) {
+    if ( CacheState.fullscreen ) {
         state->x = CacheState.mon.x;
         state->y = CacheState.mon.y;
         return;
@@ -678,7 +681,9 @@ void __create_window ( MenuFlags menu_flags )
         window_set_atom_prop ( box, xcb->ewmh._NET_WM_WINDOW_TYPE, &( xcb->ewmh._NET_WM_WINDOW_TYPE_NORMAL ), 1 );
         x11_disable_decoration ( box );
     }
-    if ( config.fullscreen ) {
+
+    CacheState.fullscreen = rofi_theme_get_boolean ( WIDGET (win ), "fullscreen", config.fullscreen );
+    if ( CacheState.fullscreen ) {
         xcb_atom_t atoms[] = {
             xcb->ewmh._NET_WM_STATE_FULLSCREEN,
             xcb->ewmh._NET_WM_STATE_ABOVE
@@ -714,7 +719,7 @@ void __create_window ( MenuFlags menu_flags )
  */
 static void rofi_view_calculate_window_width ( RofiViewState *state )
 {
-    if ( config.fullscreen ) {
+    if ( CacheState.fullscreen ) {
         state->width = CacheState.mon.w;
         return;
     }
@@ -1423,7 +1428,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
 static int rofi_view_calculate_height ( RofiViewState *state )
 {
     unsigned int height = 0;
-    if ( listview_get_num_lines ( state->list_view ) == 0 || config.fullscreen == TRUE ) {
+    if ( listview_get_num_lines ( state->list_view ) == 0 || CacheState.fullscreen == TRUE ) {
         height = CacheState.mon.h;
         return height;
     }
