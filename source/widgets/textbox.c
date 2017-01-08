@@ -362,11 +362,9 @@ static void texbox_update ( textbox *tb )
         }
         y = widget_padding_get_top ( WIDGET (tb) ) + ( pango_font_metrics_get_ascent ( p_metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
-        // Set background transparency
-        //cairo_set_source_rgba ( tb->main_draw, 0,0,0,0.0);
-        //cairo_paint ( tb->main_draw );
-
         rofi_theme_get_color ( WIDGET ( tb ), "foreground", tb->main_draw);
+        // Text
+        rofi_theme_get_color ( WIDGET ( tb ), "text", tb->main_draw);
         // draw the cursor
         if ( tb->flags & TB_EDITABLE && tb->blink ) {
             cairo_rectangle ( tb->main_draw, x + cursor_x, y+cursor_y, cursor_width, cursor_height);
@@ -380,14 +378,6 @@ static void texbox_update ( textbox *tb )
         pango_cairo_show_layout ( tb->main_draw, tb->layout );
 
         if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED ) ) ) {
-            /*
-            if ( ( tb->tbft & SELECTED ) == SELECTED ) {
-                cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha );
-            }
-            else if ( ( tb->tbft & HIGHLIGHT ) == HIGHLIGHT ) {
-                cairo_set_source_rgba ( tb->main_draw, col.red, col.green, col.blue, col.alpha * 0.2 );
-            }
-            */
 
             cairo_arc ( tb->main_draw, DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
             cairo_fill ( tb->main_draw );

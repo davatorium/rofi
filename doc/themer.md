@@ -155,6 +155,7 @@ The following properties are currently supports:
   * textbox:
     *  background:      color
     *  foreground:      color
+    *  text:            The text color to use (falls back to foreground if not set)
 
   * listview:
     * columns:         integer
