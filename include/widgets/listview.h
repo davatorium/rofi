@@ -179,6 +179,14 @@ void listview_set_num_lines ( listview *lv, unsigned int num_lines );
 
 /**
  * @param lv Handler to the listview object.
+ *
+ * Get the maximum number of lines to display.
+ *
+ * @returns get the numger of lines to display.
+ */
+unsigned int listview_get_num_lines ( listview *lv );
+/**
+ * @param lv Handler to the listview object.
  * @param max_lines the maximum number of lines to display.
  *
  * Set the maximum number of lines to display.

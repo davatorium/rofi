@@ -1423,7 +1423,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
 static int rofi_view_calculate_height ( RofiViewState *state )
 {
     unsigned int height = 0;
-    if ( config.menu_lines == 0 || config.fullscreen == TRUE ) {
+    if ( listview_get_num_lines ( state->list_view ) == 0 || config.fullscreen == TRUE ) {
         height = CacheState.mon.h;
         return height;
     }
@@ -1587,9 +1587,9 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->finalize   = process_result;
 
     state->main_window = container_create ( "window" );
-    state->main_box = box_create ( "window.mainbox", BOX_VERTICAL);
+    state->main_box = box_create ( "window.mainbox.message.box", BOX_VERTICAL);
     container_add ( state->main_window, WIDGET ( state->main_box ) );
-    state->text = textbox_create ( "window.mainbox.message", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
+    state->text = textbox_create ( "window.mainbox.message.textbox", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
             NORMAL, ( msg != NULL ) ? msg : "" );
     box_add ( state->main_box, WIDGET ( state->text ), TRUE, 1 );
 
