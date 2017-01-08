@@ -308,6 +308,8 @@ if ( queue == NULL ){
 }
 <INITIAL><<EOF>>  {
     g_queue_free ( queue );
+    // Reset pointer to NULL
+    queue = NULL;
     yyterminate();
 }
 
