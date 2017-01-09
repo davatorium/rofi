@@ -383,6 +383,11 @@ static void cleanup ()
         }
         g_list_free ( list_of_error_msgs );
     }
+
+    if ( rofi_theme ) {
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
     TIMINGS_STOP ();
 }
 

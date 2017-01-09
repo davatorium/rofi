@@ -383,6 +383,7 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     textbox *tb      = textbox_create ( tb_name, 0, NORMAL, "" );
     lv->element_height = textbox_get_estimated_height ( tb, lv->eh );
     g_free ( tb_name );
+    widget_free ( WIDGET ( tb ) );
 
     lv->callback = cb;
     lv->udata    = udata;
