@@ -25,6 +25,7 @@
  */
 
 #include <config.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -62,6 +63,17 @@
 
 /** The Rofi View log domain */
 #define LOG_DOMAIN    "View"
+
+#define FUZZY_SCORER_MAX_LENGTH      256
+#define MIN_SCORE                    (INT_MIN / 2)
+#define LEADING_GAP_SCORE            -4
+#define GAP_SCORE                    -5
+#define WORD_START_SCORE             50
+#define NON_WORD_SCORE               40
+#define CAMEL_SCORE                  (WORD_START_SCORE + GAP_SCORE - 1)
+#define CONSECUTIVE_SCORE            (WORD_START_SCORE + GAP_SCORE)
+#define PATTERN_NON_START_MULTIPLIER 1
+#define PATTERN_START_MULTIPLIER     2
 
 #include "xcb.h"
 /**
@@ -540,24 +552,132 @@ static void rofi_view_call_thread ( gpointer data, gpointer user_data )
     g_mutex_unlock ( t->mutex );
 }
 
+enum CharClass { LOWER, UPPER, DIGIT, NON_WORD };
+
+static enum CharClass rofi_scorer_get_character_class(gunichar c)
+{
+  if (g_unichar_islower(c))
+    return LOWER;
+  if (g_unichar_isupper(c))
+    return UPPER;
+  if (g_unichar_isdigit(c))
+    return DIGIT;
+  return NON_WORD;
+}
+
+static int rofi_scorer_get_score_for(enum CharClass prev, enum CharClass curr)
+{
+  if (prev == NON_WORD && curr != NON_WORD)
+    return WORD_START_SCORE;
+  if ((prev == LOWER && curr == UPPER) ||
+      (prev != DIGIT && curr == DIGIT))
+    return CAMEL_SCORE;
+  if (curr == NON_WORD)
+    return NON_WORD_SCORE;
+  return 0;
+}
+
+/*
+rofi_scorer_fuzzy_evaluate implements a global sequence alignment algorithm to find the maximum accumulated score by aligning `pattern` to `str`. It applies when `pattern` is a subsequence of `str`.
+
+Scoring criteria
+- Prefer matches at the start of a word, or the start of subwords in CamelCase/camelCase/camel123 words. See WORD_START_SCORE/CAMEL_SCORE.
+- Non-word characters matter. See NON_WORD_SCORE.
+- The first characters of words of `pattern` receive bonus because they usually have more significance than the rest. See PATTERN_START_MULTIPLIER/PATTERN_NON_START_MULTIPLIER.
+- Superfluous characters in `str` will reduce the score (gap penalty). See GAP_SCORE.
+- Prefer early occurrence of the first character. See LEADING_GAP_SCORE/GAP_SCORE.
+
+The recurrence of the dynamic programming:
+dp[i][j]: maximum accumulated score by aligning pattern[0..i] to str[0..j]
+dp[0][j] = leading_gap_penalty(0, j) + score[j]
+dp[i][j] = max(dp[i-1][j-1] + CONSECUTIVE_SCORE, max(dp[i-1][k] + gap_penalty(k+1, j) + score[j] : k < j))
+
+The first dimension can be suppressed since we do not need a matching scheme, which reduces the space complexity from O(N*M) to O(M)
+*/
+static int rofi_scorer_fuzzy_evaluate(const char *pattern, glong plen, const char *str, glong slen)
+{
+  if (plen == 5)
+    plen = plen;
+    glong pi, si;
+    gboolean pfirst = TRUE, // whether we are aligning the first character of pattern
+             pstart = TRUE; // whether the start of a word in pattern
+    int *score = g_malloc_n(slen, sizeof(int)), // score for each position
+        *dp = g_malloc_n(slen, sizeof(int)), // dp[i]: maximum value by aligning pattern[0..pi] to str[0..si]
+        uleft = 0, ulefts = 0, // uleft: value of the upper left cell; ulefts: maximum value of uleft and cells on the left. The arbitrary initial values suppress warnings.
+        left, lefts; // uleft & ulefts for the next row
+    const gchar *pit = pattern, *sit;
+    enum CharClass prev = NON_WORD, cur;
+    for (si = 0, sit = str; si < slen; si++, sit = g_utf8_next_char(sit)) {
+        cur = rofi_scorer_get_character_class(g_utf8_get_char(sit));
+        score[si] = rofi_scorer_get_score_for(prev, cur);
+        prev = cur;
+        dp[si] = MIN_SCORE;
+    }
+    for (pi = 0; pi < plen; pi++, pit = g_utf8_next_char(pit)) {
+        gunichar pc = g_utf8_get_char(pit), sc;
+        if (g_unichar_isspace(pc)) {
+            pstart = TRUE;
+            continue;
+        }
+        lefts = MIN_SCORE;
+        for (si = 0, sit = str; si < slen; si++, sit = g_utf8_next_char(sit)) {
+            left = dp[si];
+            lefts = MAX(lefts + GAP_SCORE, left);
+            sc = g_utf8_get_char(sit);
+            if (config.case_sensitive
+                ? pc == sc
+                : g_unichar_tolower(pc) == g_unichar_tolower(sc)) {
+                int t = score[si] * (pstart ? PATTERN_START_MULTIPLIER : PATTERN_NON_START_MULTIPLIER);
+                dp[si] = pfirst
+                    ? LEADING_GAP_SCORE * si + t
+                    : MAX(uleft + CONSECUTIVE_SCORE, ulefts + t);
+            } else {
+                dp[si] = MIN_SCORE;
+            }
+            uleft = left;
+            ulefts = lefts;
+        }
+        pfirst = pstart = FALSE;
+    }
+    lefts = MIN_SCORE;
+    for (si = 0; si < slen; si++)
+        lefts = MAX(lefts + GAP_SCORE, dp[si]);
+    g_free(score);
+    g_free(dp);
+    return lefts;
+}
+
 static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
 {
-    // input changed
+    char *pattern = NULL;
+    glong plen;
+    if (config.matching_method == MM_FUZZY || config.levenshtein_sort) {
+        pattern = mode_preprocess_input(t->state->sw, t->state->text->text);
+        plen = g_utf8_strlen(pattern, -1);
+    }
     for ( unsigned int i = t->start; i < t->stop; i++ ) {
         int match = mode_token_match ( t->state->sw, t->state->tokens, i );
         // If each token was matched, add it to list.
         if ( match ) {
             t->state->line_map[t->start + t->count] = i;
-            if ( config.levenshtein_sort ) {
+            if (config.matching_method == MM_FUZZY) {
+                char *str = mode_get_completion(t->state->sw, i);
+                glong slen = g_utf8_strlen(str, -1);
+                t->state->distance[i] = slen > FUZZY_SCORER_MAX_LENGTH
+                    ? - MIN_SCORE
+                    : - rofi_scorer_fuzzy_evaluate(pattern, plen, str, slen);
+                g_free(str);
+            } else if ( config.levenshtein_sort ) {
                 // This is inefficient, need to fix it.
                 char * str   = mode_get_completion ( t->state->sw, i );
-                char * input = mode_preprocess_input ( t->state->sw, t->state->text->text );
-                t->state->distance[i] = levenshtein ( input, str );
-                g_free ( input );
+                t->state->distance[i] = levenshtein ( pattern, str );
                 g_free ( str );
             }
             t->count++;
         }
+    }
+    if (pattern) {
+        g_free(pattern);
     }
 }
 
@@ -1022,7 +1142,7 @@ static void rofi_view_refilter ( RofiViewState *state )
             }
             j += states[i].count;
         }
-        if ( config.levenshtein_sort ) {
+        if ( config.matching_method == MM_FUZZY || config.levenshtein_sort ) {
             g_qsort_with_data ( state->line_map, j, sizeof ( int ), lev_sort, state->distance );
         }
 
