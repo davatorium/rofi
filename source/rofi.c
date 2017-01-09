@@ -397,7 +397,7 @@ static int add_mode ( const char * token )
     }
     else
 #endif // WINDOW_MODE
-    // SSh dialog
+       // SSh dialog
     if ( strcasecmp ( token, "ssh" ) == 0 ) {
         modi[num_modi] = &ssh_mode;
         num_modi++;
@@ -608,7 +608,7 @@ static gboolean lazy_grab_keyboard ( G_GNUC_UNUSED gpointer data )
     if ( take_keyboard ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
         return G_SOURCE_REMOVE;
     }
-    lazy_grab_retry_count_kb ++;
+    lazy_grab_retry_count_kb++;
     return G_SOURCE_CONTINUE;
 }
 

@@ -324,7 +324,7 @@ static void texbox_update ( textbox *tb )
 
         int cursor_x      = 0;
         int cursor_y      = 0;
-        int cursor_width  = 2;//MAX ( 2, font_height / 10 );
+        int cursor_width  = 2; //MAX ( 2, font_height / 10 );
         int cursor_height = font_height;
 
         if ( tb->changed ) {

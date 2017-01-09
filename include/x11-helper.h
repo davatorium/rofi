@@ -217,34 +217,6 @@ typedef struct
 Color color_get ( const char *const name );
 
 /**
- * @param d cairo drawing context to set color on
- *
- * Set cairo drawing context source color to the background color.
- */
-void color_background ( cairo_t *d );
-
-/**
- * @param d cairo drawing context to set color on
- *
- * Set cairo drawing context source color to the border color.
- */
-void color_border ( cairo_t *d  );
-/**
- * @param d cairo drawing context to set color on
- *
- * Set cairo drawing context source color to the separator color.
- */
-void color_separator ( cairo_t *d );
-
-/**
- * @param d cairo drawing context to set color on.
- * @param col The color to set.
- *
- * Sets col as cairo source color.
- */
-void x11_helper_set_cairo_rgba ( cairo_t *d, Color col );
-
-/**
  * Gets a surface containing the background image of the desktop.
  *
  * @returns a cairo surface with the background image of the desktop.
