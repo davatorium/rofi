@@ -31,7 +31,7 @@
 #include "widgets/container.h"
 #include "theme.h"
 
-#define LOG_DOMAIN              "Widgets.Window"
+#define LOG_DOMAIN    "Widgets.Window"
 
 struct _window
 {

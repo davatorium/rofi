@@ -248,7 +248,7 @@ GRegex **tokenize ( const char *input, int case_sensitive )
     }
 
     char   *saveptr = NULL, *token;
-    GRegex **retv   = NULL;
+    GRegex **retv = NULL;
     if ( !config.tokenize ) {
         retv    = g_malloc0 ( sizeof ( GRegex* ) * 2 );
         retv[0] = (GRegex *) create_regex ( input, case_sensitive );
