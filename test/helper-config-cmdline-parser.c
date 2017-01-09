@@ -24,7 +24,9 @@ struct xcb_stuff *xcb;
             abort ( );                                                                   \
         }                                                                                \
 }
-
+void rofi_add_error_message ( GString *msg )
+{
+}
 int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
 {
     fputs ( msg, stderr );

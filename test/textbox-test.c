@@ -21,6 +21,10 @@ unsigned int normal_window_mode = 0;
 }
 
 #include "view.h"
+
+void rofi_add_error_message ( GString *msg)
+{
+}
 void rofi_view_queue_redraw ()
 {
 }

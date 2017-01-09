@@ -15,7 +15,9 @@ static int       test = 0;
         assert ( a );                                    \
         printf ( "Test %i passed (%s)\n", ++test, # a ); \
 }
-
+void rofi_add_error_message ( GString *msg )
+{
+}
 int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
 {
     fputs ( msg, stderr );

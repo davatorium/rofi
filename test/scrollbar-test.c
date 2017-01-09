@@ -22,6 +22,8 @@ unsigned int test =0;
             abort ( );                                                                   \
         }                                                                                \
 }
+void rofi_add_error_message ( GString *msg )
+{}
 
 int textbox_get_estimated_char_height ( void );
 int textbox_get_estimated_char_height ( void )
