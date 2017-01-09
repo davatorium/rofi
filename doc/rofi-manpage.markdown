@@ -621,6 +621,9 @@ Allow multiple lines to be selected. Adds a small selection indicator to the lef
 
 Force rofi mode to first read all data from stdin before showing selection window. This is how original dmenu behaviour.
 
+Note: the default asynchronous mode will also be automatically disabled if used with conflicting options
+such as `-dump`, `-only-match` or `-auto-select`
+
 ### Message dialog
 
 `-e` *message*
