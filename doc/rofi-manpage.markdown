@@ -163,6 +163,8 @@ Or get the options from a script:
 `-show` *mode*
 
 Open **rofi** in a certain mode. Available modes are `window`, `run`, `drun`, `ssh`, `combi`.
+The special argument `keys` can be used to open a searchable list of supported keybindings
+(see *KEYBINDINGS*)
 
 To show the run-dialog:
 
