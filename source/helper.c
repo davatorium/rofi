@@ -614,7 +614,7 @@ int config_sanity_check ( void )
 
     if ( found_error ) {
         g_string_append ( msg, "Please update your configuration." );
-        rofi_view_error_dialog ( msg->str, TRUE );
+        rofi_add_error_message ( msg );
         return TRUE;
     }
 

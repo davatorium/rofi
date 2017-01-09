@@ -70,6 +70,13 @@
 char       *pidfile   = NULL;
 const char *cache_dir = NULL;
 
+GList *list_of_error_msgs = NULL;
+
+
+void rofi_add_error_message ( GString *str )
+{
+    list_of_error_msgs = g_list_append ( list_of_error_msgs, str );
+}
 /** global structure holding the keyboard status */
 struct xkb_stuff xkb = {
     .xcb_connection = NULL,
@@ -369,6 +376,14 @@ static void cleanup ()
 
     g_free ( config_path );
 
+
+    if ( list_of_error_msgs ) {
+        for ( GList *iter = g_list_first ( list_of_error_msgs );
+                iter != NULL; iter = g_list_next ( iter ) ){
+            g_string_free ( (GString*)iter->data, TRUE);
+        }
+        g_list_free ( list_of_error_msgs );
+    }
     TIMINGS_STOP ();
 }
 
@@ -660,10 +675,21 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     }
     TICK_N ( "Parse ABE" );
     // Sanity check
-    if ( config_sanity_check ( ) ) {
+    config_sanity_check ( );
+    TICK_N ( "Config sanity check" );
+
+
+    if ( list_of_error_msgs != NULL ) {
+        GString *emesg = g_string_new ( "The following errors where detected when starting rofi:\n");
+        for ( GList *iter = g_list_first ( list_of_error_msgs ); iter != NULL; iter = g_list_next ( iter ) ) {
+            GString *msg = (GString*)(iter->data);
+            g_string_append( emesg, "\n\n");
+            g_string_append ( emesg, msg->str );
+        }
+        rofi_view_error_dialog ( emesg->str, ERROR_MSG_MARKUP );
+        g_string_free ( emesg, TRUE );
         return G_SOURCE_REMOVE;
     }
-    TICK_N ( "Config sanity check" );
     // Dmenu mode.
     if ( dmenu_mode == TRUE ) {
         // force off sidebar mode:
@@ -950,8 +976,8 @@ int main ( int argc, char *argv[] )
     if ( config.theme ) {
         TICK_N ( "Parse theme" );
         if ( ! rofi_theme_parse_file ( config.theme ) ) {
-            // TODO: instantiate fallback theme.? 
-        
+            // TODO: instantiate fallback theme.?
+
         }
         TICK_N ( "Parsed theme" );
     }

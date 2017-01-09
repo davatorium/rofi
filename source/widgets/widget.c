@@ -111,12 +111,13 @@ void widget_draw ( widget *widget, cairo_t *d )
                           widget->h - margin_top - margin_bottom
                           );
         cairo_clip ( d );
-
+        cairo_set_source_rgba ( d, 1.0,1.0,1.0, 1.0 );
         rofi_theme_get_color ( widget, "background", d );
         cairo_paint ( d );
 
         // Set new x/y possition.
         cairo_translate ( d, widget->x, widget->y );
+        cairo_set_source_rgba ( d, 0.0,0.0,0.0, 1.0 );
 
         int left   = distance_get_pixel ( widget->border.left, ORIENTATION_HORIZONTAL );
         int right  = distance_get_pixel ( widget->border.right, ORIENTATION_HORIZONTAL );

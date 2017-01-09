@@ -37,6 +37,12 @@ unsigned int rofi_get_num_enabled_modi ( void );
 const Mode * rofi_get_mode ( unsigned int index );
 
 /**
+ * @param str A GString with an error message to display.
+ *
+ * Queue an error.
+ */
+void rofi_add_error_message ( GString *str );
+/**
  * @param code the code to return
  *
  * Return value are used for integrating dmenu rofi in scripts.

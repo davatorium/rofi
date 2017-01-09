@@ -263,9 +263,12 @@ extern FILE* yyin;
  */
 void yyerror ( YYLTYPE *yylloc, const char* s )
 {
-    fprintf ( stderr, "Parse error: %s\n", s );
-    fprintf ( stderr, "From line %d column %d to line %d column %d\n", yylloc->first_line, yylloc->first_column, yylloc->last_line, yylloc->last_column );
-    exit ( EXIT_FAILURE );
+    GString *str = g_string_new ("<big><b>Error while parsing theme file:</b></big>\n");
+    char *esc = g_markup_escape_text ( s, -1);
+    g_string_append_printf(str, "\tParser error: %s\n", esc );
+    g_free(esc);
+    g_string_append_printf(str, "\tLocation:     line %d column %d to line %d column %d\n", yylloc->first_line, yylloc->first_column, yylloc->last_line, yylloc->last_column );
+    rofi_add_error_message ( str );
 }
 
 static gboolean rofi_theme_steal_property_int ( gpointer key, gpointer value, gpointer user_data )
@@ -866,7 +869,6 @@ gboolean rofi_theme_parse_file ( const char *file )
     g_free ( filename );
     yyin = NULL;
     if ( parser_retv != 0 ){
-        fprintf ( stderr, "Failed to parse theme: %s.\n", file );
         return TRUE;
     }
     return FALSE;

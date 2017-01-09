@@ -342,7 +342,6 @@ if ( queue == NULL ){
     return T_ERROR;
 }
 <*>. {
-    fprintf(stderr, "Invalid character: '%c'\n", *yytext);
     return T_ERROR;
 }
 
