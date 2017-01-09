@@ -80,7 +80,7 @@ void rofi_theme_free ( ThemeWidget *widget )
 static void rofi_theme_print_distance ( Distance d )
 {
     if ( d.type == PW_PX ) {
-        printf ( "%upx ", (int) d.distance );
+        printf ( "%upx ", (unsigned int) d.distance );
     }
     else if ( d.type == PW_PERCENT ) {
         printf ( "%f%% ", d.distance );

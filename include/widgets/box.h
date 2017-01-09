@@ -48,15 +48,5 @@ box * box_create ( const char *name, boxType type );
  * Add a widget to the box.
  */
 void box_add ( box *box, widget *child, gboolean expand, int index );
-
-/**
- * @param box Handle to the box widget.
- *
- * Obtains the minimal size required to display all widgets. (expanding widgets are not counted, except for their
- * spacing)
- *
- * @returns the minimum size in pixels.
- */
-int box_get_fixed_pixels ( box *box );
 /*@}*/
 #endif // ROFI_HBOX_H

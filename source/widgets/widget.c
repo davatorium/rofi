@@ -262,14 +262,6 @@ gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
     return FALSE;
 }
 
-void widget_set_name ( widget *wid, const char *name )
-{
-    if ( wid->name ) {
-        g_free ( wid );
-    }
-    wid->name = g_strdup ( name );
-}
-
 int widget_padding_get_left ( const widget *wid )
 {
     int distance = distance_get_pixel ( wid->padding.left, ORIENTATION_HORIZONTAL );

@@ -533,10 +533,10 @@ void listview_nav_page_next ( listview *lv )
 static int listview_get_desired_height ( widget *wid )
 {
     listview *lv     = (listview *) wid;
-    int      spacing = distance_get_pixel ( lv->spacing, ORIENTATION_VERTICAL );
     if ( lv == NULL || lv->widget.enabled == FALSE ) {
         return 0;
     }
+    int spacing = distance_get_pixel ( lv->spacing, ORIENTATION_VERTICAL );
     int h = lv->menu_lines;
     if ( !( lv->fixed_num_lines ) ) {
         if ( lv->dynamic ) {

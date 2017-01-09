@@ -343,10 +343,3 @@ static void box_update ( widget *wid  )
         hori_calculate_size ( b );
     }
 }
-int box_get_fixed_pixels ( box *box )
-{
-    if ( box != NULL ) {
-        return box->max_size;
-    }
-    return 0;
-}
