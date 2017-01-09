@@ -162,7 +162,8 @@ Or get the options from a script:
 
 `-show` *mode*
 
-Open **rofi** in a certain mode. Available modes are `window`, `run`,`drun`, `ssh`, `combi`
+Open **rofi** in a certain mode. Available modes are `window`, `run`, `drun`, `ssh`, `combi`.
+
 To show the run-dialog:
 
     rofi -show run
