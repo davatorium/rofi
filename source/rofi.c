@@ -587,28 +587,28 @@ unsigned int lazy_grab_retry_count_pt = 0;
 static gboolean lazy_grab_pointer ( G_GNUC_UNUSED gpointer data )
 {
     // After 5 sec.
-    if ( lazy_grab_retry_count_kb > ( 5 * 1000 ) ) {
-        fprintf ( stderr, "Failed to grab keyboard after %u times. Giving up.\n", lazy_grab_retry_count_kb );
-        g_main_loop_quit (  main_loop );
+    if ( lazy_grab_retry_count_pt > ( 5 * 1000 ) ) {
+        fprintf ( stderr, "Failed to grab pointer after %u times. Giving up.\n", lazy_grab_retry_count_pt );
         return G_SOURCE_REMOVE;
     }
     if ( take_pointer ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
         return G_SOURCE_REMOVE;
     }
-    lazy_grab_retry_count_kb++;
+    lazy_grab_retry_count_pt++;
     return G_SOURCE_CONTINUE;
 }
 static gboolean lazy_grab_keyboard ( G_GNUC_UNUSED gpointer data )
 {
     // After 5 sec.
-    if ( lazy_grab_retry_count_pt > ( 5 * 1000 ) ) {
-        fprintf ( stderr, "Failed to grab pointer after %u times. Giving up.\n", lazy_grab_retry_count_pt );
+    if ( lazy_grab_retry_count_kb > ( 5 * 1000 ) ) {
+        fprintf ( stderr, "Failed to grab keyboard after %u times. Giving up.\n", lazy_grab_retry_count_kb );
+        g_main_loop_quit (  main_loop );
         return G_SOURCE_REMOVE;
     }
     if ( take_keyboard ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
         return G_SOURCE_REMOVE;
     }
-    lazy_grab_retry_count_pt++;
+    lazy_grab_retry_count_kb ++;
     return G_SOURCE_CONTINUE;
 }
 
