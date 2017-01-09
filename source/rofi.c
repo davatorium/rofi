@@ -949,7 +949,10 @@ int main ( int argc, char *argv[] )
 
     if ( config.theme ) {
         TICK_N ( "Parse theme" );
-        rofi_theme_parse_file ( config.theme );
+        if ( ! rofi_theme_parse_file ( config.theme ) ) {
+            // TODO: instantiate fallback theme.? 
+        
+        }
         TICK_N ( "Parsed theme" );
     }
     else {

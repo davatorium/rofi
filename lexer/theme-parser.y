@@ -33,6 +33,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
     Distance      distance;
 }
 
+%token <ival>     T_ERROR  "error from file parser"
 %token <ival>     T_INT
 %token <fval>     T_DOUBLE
 %token <sval>     T_STRING
@@ -51,9 +52,9 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token PSEP         "property separator";
 %token PCLOSE       "property close";
 %token NSEP         "Name separator";
-%token NAME_PREFIX  "Name prefix";
+%token NAME_PREFIX  "Name element prefix ('#')";
 %token WHITESPACE   "White space";
-%token PDEFAULTS    "Default settings";
+%token PDEFAULTS    "Default settings section ( '* { ... }')";
 
 %type <ival> highlight_styles
 %type <sval> entry

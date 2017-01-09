@@ -861,12 +861,14 @@ gboolean rofi_theme_parse_file ( const char *file )
     extern const char*input_str;
     str_len   = 0;
     input_str = NULL;
-    while ( yyparse () ) {
-        ;
-    }
+    int parser_retv = yyparse();
     yylex_destroy ();
     g_free ( filename );
     yyin = NULL;
+    if ( parser_retv != 0 ){
+        fprintf ( stderr, "Failed to parse theme: %s.\n", file );
+        return TRUE;
+    }
     return FALSE;
 }
 gboolean rofi_theme_parse_string ( const char *string )

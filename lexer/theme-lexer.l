@@ -307,10 +307,6 @@ if ( queue == NULL ){
     yylval->ival = WL_NORTH;
     return T_POSITION;
 }
-<PROPERTIES>{NORTH} {
-    yylval->ival = WL_NORTH;
-    return T_POSITION;
-}
 <PROPERTIES>{NONE} {
     yylval->ival = HL_NONE;
     return T_HIGHLIGHT_STYLE;
@@ -343,15 +339,11 @@ if ( queue == NULL ){
         yylloc->last_line ++;
 };
 <INITIAL>. {
-    const char *error_msg = "Expected 'root' element or a 'named' element.\n"\
-                         "Place all global properties in a root element:\n"\
-                         "  * {\n"\
-                         "  }\n";
-    YY_FATAL_ERROR( error_msg );
+    return T_ERROR;
 }
 <*>. {
     fprintf(stderr, "Invalid character: '%c'\n", *yytext);
-    yyterminate();
+    return T_ERROR;
 }
 
 %%
