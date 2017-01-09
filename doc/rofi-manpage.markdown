@@ -262,15 +262,13 @@ Specify the colors used in a row per state (normal, active, urgent).
 
 Set the spacing between the rows.
 
-    Default: *3*
-    Min:     *3*
-    Max:     *50*
+Default: *3*, Min: *3*, Max: *50*
 
 `-separator-style` *style*
 
 Set separator style. Possible options are "none", "solid" or "dash".
 
-    Default: *dash*
+Default: *dash*
 
 `-hide-scrollbar`
 
@@ -290,9 +288,9 @@ Current the following methods are supported.
 * **glob**: Match a glob pattern.
 * **fuzzy**: Do a fuzzy match.
 
-   Default: normal
+   Default: *normal*
 
-   Note:, glob matching might be slow for larger lists.
+Note: glob matching might be slow for larger lists
 
 `-tokenize`
 
