@@ -681,10 +681,14 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
 
     if ( list_of_error_msgs != NULL ) {
         GString *emesg = g_string_new ( "The following errors where detected when starting rofi:\n");
-        for ( GList *iter = g_list_first ( list_of_error_msgs ); iter != NULL; iter = g_list_next ( iter ) ) {
+        GList *iter = g_list_first ( list_of_error_msgs );
+        if (  iter != NULL ) {
             GString *msg = (GString*)(iter->data);
             g_string_append( emesg, "\n\n");
             g_string_append ( emesg, msg->str );
+        }
+        if ( g_list_length(iter)> 1 ){
+            g_string_append_printf(emesg, "\nThere are <b>%d</b> more errors.", g_list_length(iter)-1 );
         }
         rofi_view_error_dialog ( emesg->str, ERROR_MSG_MARKUP );
         g_string_free ( emesg, TRUE );

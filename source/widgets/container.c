@@ -33,9 +33,6 @@
 
 #define LOG_DOMAIN              "Widgets.Window"
 
-/** The default border width of the container */
-#define DEFAULT_BORDER_WIDTH    2
-
 struct _window
 {
     widget widget;

@@ -4,7 +4,6 @@
 %{
 #include <stdio.h>
 
-
 #include "lexer/theme-parser.h"
 int last_state = 0;
 GQueue *queue = NULL;
@@ -340,6 +339,18 @@ if ( queue == NULL ){
 };
 <INITIAL>. {
     return T_ERROR;
+}
+<ENTRY>. {
+    return T_ERROR_ENTRY;
+}
+<PROPERTIES>. {
+    return T_ERROR_PROPERTY;
+}
+<NAMESTR>. {
+    return T_ERROR_NAMESTRING;
+}
+<DEFAULTS>. {
+    return T_ERROR_DEFAULTS;
 }
 <*>. {
     return T_ERROR;

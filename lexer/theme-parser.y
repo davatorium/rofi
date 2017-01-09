@@ -1,10 +1,10 @@
 %define api.pure
+%locations
 %glr-parser
 %skeleton "glr.c"
-%locations
 %debug
 %error-verbose
-
+%parse-param {const char *what}
 %code requires {
 #include "theme.h"
 }
@@ -13,10 +13,9 @@
 #include <stdlib.h>
 #include <glib.h>
 
-
 #include "lexer/theme-parser.h"
 ThemeWidget *rofi_theme = NULL;
-void yyerror(YYLTYPE *yylloc, const char* s);
+void yyerror(YYLTYPE *yylloc, const char *what, const char* s);
 int yylex (YYSTYPE *, YYLTYPE *);
 %}
 
@@ -33,12 +32,16 @@ int yylex (YYSTYPE *, YYLTYPE *);
     Distance      distance;
 }
 
-%token <ival>     T_END     0  "end of file"
-%token <ival>     T_ERROR   1  "error from file parser"
+%token <ival>     T_END              0  "end of file"
+%token <ival>     T_ERROR            1  "error from file parser"
+%token <ival>     T_ERROR_PROPERTY   2  "invalid property value"
+%token <ival>     T_ERROR_ENTRY      3  "invalid property name"
+%token <ival>     T_ERROR_NAMESTRING 4  "invalid element name"
+%token <ival>     T_ERROR_DEFAULTS   5  "invalid defaults name"
 %token <ival>     T_INT
 %token <fval>     T_DOUBLE
 %token <sval>     T_STRING
-%token <sval>     N_STRING
+%token <sval>     N_STRING     "property name"
 %token <ival>     T_POSITION;
 %token <ival>     T_HIGHLIGHT_STYLE
 %token <sval>     NAME_ELEMENT "Element name"

@@ -3,10 +3,12 @@
 #include "widgets/widget-internal.h"
 #include "theme.h"
 
+#define WIDGET_DEFAULT_PADDING 2
+
 void widget_init ( widget *widget, const char *name )
 {
     widget->name    = g_strdup ( name );
-    widget->padding = (Padding){ { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID } };
+    widget->padding = (Padding){ { WIDGET_DEFAULT_PADDING, PW_PX, SOLID }, { WIDGET_DEFAULT_PADDING, PW_PX, SOLID }, { WIDGET_DEFAULT_PADDING, PW_PX, SOLID }, { WIDGET_DEFAULT_PADDING, PW_PX, SOLID } };
     widget->border  = (Padding){ { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID } };
     widget->margin  = (Padding){ { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID } };
 

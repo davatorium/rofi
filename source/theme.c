@@ -12,7 +12,7 @@
 /** Logging domain for theme */
 #define LOG_DOMAIN    "Theme"
 
-void yyerror ( YYLTYPE *ylloc, const char * );
+void yyerror ( YYLTYPE *ylloc, const char *,const char * );
 static gboolean distance_compare ( Distance d, Distance e )
 {
     return d.type == e.type && d.distance == e.distance && d.style == e.style;
@@ -261,11 +261,14 @@ extern FILE* yyin;
  *
  * Error handler for the lex parser.
  */
-void yyerror ( YYLTYPE *yylloc, const char* s )
+void yyerror ( YYLTYPE *yylloc, const char *what, const char* s )
 {
-    GString *str = g_string_new ("<big><b>Error while parsing theme file:</b></big>\n");
+    char *what_esc = g_markup_escape_text ( what, -1);
+    GString *str = g_string_new("");
+    g_string_printf ( str, "<big><b>Error while parsing them:</b></big> <i>%s</i>\n", what_esc);
+    g_free ( what_esc );
     char *esc = g_markup_escape_text ( s, -1);
-    g_string_append_printf(str, "\tParser error: %s\n", esc );
+    g_string_append_printf(str, "\tParser error: <i>%s</i>\n", esc );
     g_free(esc);
     g_string_append_printf(str, "\tLocation:     line %d column %d to line %d column %d\n", yylloc->first_line, yylloc->first_column, yylloc->last_line, yylloc->last_column );
     rofi_add_error_message ( str );
@@ -864,7 +867,7 @@ gboolean rofi_theme_parse_file ( const char *file )
     extern const char*input_str;
     str_len   = 0;
     input_str = NULL;
-    int parser_retv = yyparse();
+    int parser_retv = yyparse(file);
     yylex_destroy ();
     g_free ( filename );
     yyin = NULL;
@@ -880,7 +883,7 @@ gboolean rofi_theme_parse_string ( const char *string )
     yyin      = NULL;
     input_str = string;
     str_len   = strlen ( string );
-    while ( yyparse () ) {
+    while ( yyparse (string) ) {
         ;
     }
     yylex_destroy ();
