@@ -4,7 +4,7 @@
 #include "theme.h"
 
 /** Default padding. */
-#define WIDGET_DEFAULT_PADDING    2
+#define WIDGET_DEFAULT_PADDING    0
 
 void widget_init ( widget *widget, const char *name )
 {

@@ -979,8 +979,10 @@ int main ( int argc, char *argv[] )
 
     if ( config.theme ) {
         TICK_N ( "Parse theme" );
-        if ( !rofi_theme_parse_file ( config.theme ) ) {
+        if ( rofi_theme_parse_file ( config.theme ) ) {
             // TODO: instantiate fallback theme.?
+            rofi_theme_free ( rofi_theme );
+            rofi_theme = NULL;
         }
         TICK_N ( "Parsed theme" );
     }
@@ -991,9 +993,9 @@ int main ( int argc, char *argv[] )
     const char ** theme_str = find_arg_strv ( "-theme-str" );
     if ( theme_str ) {
         for ( int index = 0; theme_str && theme_str[index]; index++ ) {
-            if ( !rofi_theme_parse_string ( theme_str[index] ) ) {
-                fprintf ( stderr, "Failed to parse: %s\n", theme_str[index] );
-                exit ( EXIT_FAILURE );
+            if ( rofi_theme_parse_string ( theme_str[index] ) ) {
+                rofi_theme_free ( rofi_theme );
+                rofi_theme = NULL;
             }
         }
         g_free ( theme_str );
