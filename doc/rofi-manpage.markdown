@@ -162,7 +162,10 @@ Or get the options from a script:
 
 `-show` *mode*
 
-Open **rofi** in a certain mode. Available modes are `window`, `run`,`drun`, `ssh`, `combi`
+Open **rofi** in a certain mode. Available modes are `window`, `run`, `drun`, `ssh`, `combi`.
+The special argument `keys` can be used to open a searchable list of supported keybindings
+(see *KEYBINDINGS*)
+
 To show the run-dialog:
 
     rofi -show run
@@ -259,15 +262,13 @@ Specify the colors used in a row per state (normal, active, urgent).
 
 Set the spacing between the rows.
 
-    Default: *3*
-    Min:     *3*
-    Max:     *50*
+Default: *3*, Min: *3*, Max: *50*
 
 `-separator-style` *style*
 
 Set separator style. Possible options are "none", "solid" or "dash".
 
-    Default: *dash*
+Default: *dash*
 
 `-hide-scrollbar`
 
@@ -287,9 +288,9 @@ Current the following methods are supported.
 * **glob**: Match a glob pattern.
 * **fuzzy**: Do a fuzzy match.
 
-   Default: normal
+   Default: *normal*
 
-   Note:, glob matching might be slow for larger lists.
+Note: glob matching might be slow for larger lists
 
 `-tokenize`
 
@@ -454,6 +455,28 @@ If set, use an external tool to generate list of executable commands. Uses 'run-
 
 Default: *""*
 
+### Window switcher settings
+
+`-window-format` *format*
+
+Format what is being displayed for windows.
+
+*format*: {field[:len]}
+
+*field*:
+
+ * **w**: Desktop name
+ * **t**: Title of window
+ * **n**: Name
+ * **r**: Role
+ * **c**: Class
+
+*len*: maximum field length (0 for auto-size). If length negative and window *width* is negative field length is *width - len*.
+if length is positive, the entry will be truncated or padded to fill that length.
+
+
+default: {w}  {c}   {t}
+
 `-window-command` *cmd*
 
 Set command to execute on selected window for custom action.
@@ -598,27 +621,8 @@ Allow multiple lines to be selected. Adds a small selection indicator to the lef
 
 Force rofi mode to first read all data from stdin before showing selection window. This is how original dmenu behaviour.
 
-### Window Mode
-
-`-window-format` *format*
-
-Format what is being displayed for windows.
-
-*format*: {field[:len]}
-
-*field*:
-
- * **w**: Desktop name
- * **t**: Title of window
- * **n**: Name
- * **r**: Role
- * **c**: Class
-
-*len*: maximum field length (0 for auto-size). If length negative and window *width* is negative field length is *width - len*.
-if length is positive, the entry will be truncated or padded to fill that length.
-
-
-default: {w}  {c}   {t}
+Note: the default asynchronous mode will also be automatically disabled if used with conflicting options
+such as `-dump`, `-only-match` or `-auto-select`
 
 ### Message dialog
 
