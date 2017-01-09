@@ -454,6 +454,28 @@ If set, use an external tool to generate list of executable commands. Uses 'run-
 
 Default: *""*
 
+### Window switcher settings
+
+`-window-format` *format*
+
+Format what is being displayed for windows.
+
+*format*: {field[:len]}
+
+*field*:
+
+ * **w**: Desktop name
+ * **t**: Title of window
+ * **n**: Name
+ * **r**: Role
+ * **c**: Class
+
+*len*: maximum field length (0 for auto-size). If length negative and window *width* is negative field length is *width - len*.
+if length is positive, the entry will be truncated or padded to fill that length.
+
+
+default: {w}  {c}   {t}
+
 `-window-command` *cmd*
 
 Set command to execute on selected window for custom action.
@@ -597,28 +619,6 @@ Allow multiple lines to be selected. Adds a small selection indicator to the lef
 `-sync`
 
 Force rofi mode to first read all data from stdin before showing selection window. This is how original dmenu behaviour.
-
-### Window Mode
-
-`-window-format` *format*
-
-Format what is being displayed for windows.
-
-*format*: {field[:len]}
-
-*field*:
-
- * **w**: Desktop name
- * **t**: Title of window
- * **n**: Name
- * **r**: Role
- * **c**: Class
-
-*len*: maximum field length (0 for auto-size). If length negative and window *width* is negative field length is *width - len*.
-if length is positive, the entry will be truncated or padded to fill that length.
-
-
-default: {w}  {c}   {t}
 
 ### Message dialog
 

@@ -735,6 +735,41 @@ If set, use an external tool to generate list of executable commands\. Uses \'ru
 .P
 Default: \fI""\fR
 .
+.SS "Window switcher settings"
+\fB\-window\-format\fR \fIformat\fR
+.
+.P
+Format what is being displayed for windows\.
+.
+.P
+\fIformat\fR: {field[:len]}
+.
+.P
+\fIfield\fR:
+.
+.IP "\(bu" 4
+\fBw\fR: Desktop name
+.
+.IP "\(bu" 4
+\fBt\fR: Title of window
+.
+.IP "\(bu" 4
+\fBn\fR: Name
+.
+.IP "\(bu" 4
+\fBr\fR: Role
+.
+.IP "\(bu" 4
+\fBc\fR: Class
+.
+.IP "" 0
+.
+.P
+\fIlen\fR: maximum field length (0 for auto\-size)\. If length negative and window \fIwidth\fR is negative field length is \fIwidth \- len\fR\. if length is positive, the entry will be truncated or padded to fill that length\.
+.
+.P
+default: {w} {c} {t}
+.
 .P
 \fB\-window\-command\fR \fIcmd\fR
 .
@@ -947,41 +982,6 @@ Allow multiple lines to be selected\. Adds a small selection indicator to the le
 .
 .P
 Force rofi mode to first read all data from stdin before showing selection window\. This is how original dmenu behaviour\.
-.
-.SS "Window Mode"
-\fB\-window\-format\fR \fIformat\fR
-.
-.P
-Format what is being displayed for windows\.
-.
-.P
-\fIformat\fR: {field[:len]}
-.
-.P
-\fIfield\fR:
-.
-.IP "\(bu" 4
-\fBw\fR: Desktop name
-.
-.IP "\(bu" 4
-\fBt\fR: Title of window
-.
-.IP "\(bu" 4
-\fBn\fR: Name
-.
-.IP "\(bu" 4
-\fBr\fR: Role
-.
-.IP "\(bu" 4
-\fBc\fR: Class
-.
-.IP "" 0
-.
-.P
-\fIlen\fR: maximum field length (0 for auto\-size)\. If length negative and window \fIwidth\fR is negative field length is \fIwidth \- len\fR\. if length is positive, the entry will be truncated or padded to fill that length\.
-.
-.P
-default: {w} {c} {t}
 .
 .SS "Message dialog"
 \fB\-e\fR \fImessage\fR
