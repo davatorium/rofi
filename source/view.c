@@ -660,7 +660,7 @@ void __create_window ( MenuFlags menu_flags )
     }
     // Setup font.
     // Dummy widget.
-    container *win  = container_create ( "window" );
+    container *win  = container_create ( "window.box" );
     char      *font = rofi_theme_get_string ( WIDGET ( win ), "font", config.menu_font );
     if ( font ) {
         PangoFontDescription *pfd = pango_font_description_from_string ( font );
@@ -1517,7 +1517,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Get active monitor size.
     TICK_N ( "Get active monitor" );
 
-    state->main_window = container_create ( "window" );
+    state->main_window = container_create ( "window.box" );
     state->main_box    = box_create ( "window.mainbox.box", BOX_VERTICAL );
     container_add ( state->main_window, WIDGET ( state->main_box ) );
 
@@ -1615,7 +1615,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->menu_flags = MENU_ERROR_DIALOG;
     state->finalize   = process_result;
 
-    state->main_window = container_create ( "window" );
+    state->main_window = container_create ( "window box" );
     state->main_box    = box_create ( "window.mainbox.message.box", BOX_VERTICAL );
     container_add ( state->main_window, WIDGET ( state->main_box ) );
     state->text = textbox_create ( "window.mainbox.message.textbox", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
