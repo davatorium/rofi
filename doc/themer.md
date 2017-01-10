@@ -25,6 +25,7 @@ Comments can be nested and inline.
 
 The following is valid:
 ```css
+// Magic comment.
 property: /* comment */ value;
 ```
 
@@ -153,7 +154,7 @@ The current theme format support different type of properties:
 
 ##### String
 
-Format:  `"[:print:]"`
+* Format:  `"[:print:]"`
 
 A string is always surrounded by quotes ('"'), between the quotes it can have any printable character.
 
@@ -165,7 +166,7 @@ font: "Awasome 12";
 
 ###### Integer
 
-Format: "[:digit:]"
+* Format: "[:digit:]"
 
 An integer may contain any number.
 
@@ -177,7 +178,7 @@ lines: 12;
 
 ##### Real
 
-Format: `[:digit:]+(\.[:digit:]+)?`
+* Format: `[:digit:]+(\.[:digit:]+)?`
 
 A real is an integer with an optional fraction.
 
@@ -189,7 +190,7 @@ real: 3.4;
 
 ##### Boolean
 
-Format: `(true|false)`
+* Format: `(true|false)`
 
 For example:
 
@@ -199,11 +200,11 @@ dynamic: false;
 
 ##### Color
 
-Format: '#{HEX}{6}'
-Format: '#{HEX}{8}'
-Format: 'argb:{HEX}{8}' 
-Format: 'rgb({INTEGER},{INTEGER},{INTEGER})'
-Format: 'rgba({INTEGER},{INTEGER},{INTEGER}, {REAL})'
+* Format: '#{HEX}{6}'
+* Format: '#{HEX}{8}'
+* Format: 'argb:{HEX}{8}' 
+* Format: 'rgb({INTEGER},{INTEGER},{INTEGER})'
+* Format: 'rgba({INTEGER},{INTEGER},{INTEGER}, {REAL})'
 
 Where '{HEX}' is a hexidecimal number ('0-9a-f'). The '{INTEGER}' value can be between 0 and 255, the '{Real}' value
 between 0.0 and 1.0.
@@ -221,54 +222,55 @@ foreground: rgba(0,0,1, 0.5);
 
 ##### Text style
 
-Format: (bold|italic|underline|none)
+* Format: (bold|italic|underline|none)
 
 Text style indicates how the text should be displayed.  None indicates no style should be applied.
 
 ##### Line style
 
-Format: `(dash|solid)`
+* Format: `(dash|solid)`
 
 Indicates how a line should be drawn.
 
 
 ##### Distance
 
-Format: '{Integer}px'
-Format: '{Real}em'
-Format: '{Real}%'
+* Format: '{Integer}px'
+* Format: '{Real}em'
+* Format: '{Real}%'
 
 ##### Padding
 
-Format: '{Integer}'
-Format: '{Distance}'
-Format: '{Distance} {Distance}'
-Format: '{Distance} {Distance} {Distance}'
-Format: '{Distance} {Distance} {Distance} {Distance}'
+* Format: '{Integer}'
+* Format: '{Distance}'
+* Format: '{Distance} {Distance}'
+* Format: '{Distance} {Distance} {Distance}'
+* Format: '{Distance} {Distance} {Distance} {Distance}'
 
 ###### Border
 
-Format: '{Integer}'
-Format: '{Distance}'
-Format: '{Distance} {Distance}'
-Format: '{Distance} {Distance} {Distance}'
-Format: '{Distance} {Distance} {Distance} {Distance}'
-Format: '{Distance} {Line style}'
-Format: '{Distance} {Line style} {Distance} {Line style}'
-Format: '{Distance} {Line style} {Distance} {Line style} {Distance} {Line style}'
-Format: '{Distance} {Line style} {Distance} {Line style} {Distance} {Line style} {Distance} {Line style}'
+* Format: '{Integer}'
+* Format: '{Distance}'
+* Format: '{Distance} {Distance}'
+* Format: '{Distance} {Distance} {Distance}'
+* Format: '{Distance} {Distance} {Distance} {Distance}'
+* Format: '{Distance} {Line style}'
+* Format: '{Distance} {Line style} {Distance} {Line style}'
+* Format: '{Distance} {Line style} {Distance} {Line style} {Distance} {Line style}'
+* Format: '{Distance} {Line style} {Distance} {Line style} {Distance} {Line style} {Distance} {Line style}'
 
 ###### Position
 
-Format: '(center|east|north|west|northeast|northweast|south|southwest|southeast)'
+* Format: '(center|east|north|west|northeast|northweast|south|southwest|southeast)'
 
 ###### Reference
 
-Format: '@{PROPERTY NAME}'
+* Format: '@{PROPERTY NAME}'
 
 A reference can point to another reference. Currently the maximum number of redirects is 20.
 
 > REST NEEDS updating.
+
 # Basic Organization
 
 Each widget has:
