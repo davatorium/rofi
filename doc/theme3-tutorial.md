@@ -10,7 +10,7 @@ We first create an empty theme file: **arthur.rasi**
 ```
 We can preview this with `rofi -theme arthur.rasi -show run`. At this stage we see a black and white window.
 
-[theme empty](./rofi-theme3-empty.png)
+![theme empty](./rofi-theme3-empty.png)
 
 Lets add the different colors to the global properties:
 
@@ -64,7 +64,7 @@ As shown in this example, both C and C++ style comments are allows.
 We set the default foreground and background color, and add some aliases for other colors we can use.
 
 
-[theme empty](./rofi-theme3-empty.png)
+![theme empty](./rofi-theme3-global.png)
 
 As you can seen in the screenshot each widget takes the global background and foreground color.
 
@@ -91,7 +91,7 @@ We want to give the window, and each child, a padding of 10 pixels and a 1 pixel
 }
 ```
 
-[theme padding border](./rofi-theme3-padbor.png)
+![theme padding border](./rofi-theme3-padbor.png)
 
 This clearly shows how inheritance works, each child widget inherits the properties of its parents.
 So if we want to only set padding and border on the window, we need to specify the window box:
@@ -108,7 +108,7 @@ So if we want to only set padding and border on the window, we need to specify t
 }
 ```
 
-[theme padding border box](./rofi-theme3-padbor-box.png)
+![theme padding border box](./rofi-theme3-padbor-box.png)
 
 This example also shows how you can override the foreground color and refer to the global property `magenta`.
 
@@ -180,7 +180,7 @@ Now that we have this, lets extend the example a little:
 }
 ```
 
-[theme extend](./rofi-theme3-extend.png)
+![theme extend](./rofi-theme3-extend.png)
 
 In this example we see a few new things.
 
@@ -199,7 +199,7 @@ For this we add:
 }
 ```
 
-[theme extend](./rofi-theme3-extend-selected.png)
+![theme extend](./rofi-theme3-extend-selected.png)
 
 This already gives us a usable theme.
 Lets extend it, so urgent and active rows are visible:
@@ -219,7 +219,7 @@ Lets extend it, so urgent and active rows are visible:
 }
 ```
 
-[theme extend](./rofi-theme3-extend-colors.png)
+![theme extend](./rofi-theme3-extend-colors.png)
 
 So why does this require so many options (and we are not there yet)?
 
