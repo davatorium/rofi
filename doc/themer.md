@@ -12,7 +12,7 @@ In the second part we will list the possible options. In the final section a few
 ### Encoding
 
 The encoding of the file is ascii.
-Both unix ('\n') and windows ('\r\n') newlines format are supported. But unix is preferred. 
+Both unix ('\n') and windows ('\r\n') newlines format are supported. But unix is preferred.
 
 ### Comments
 
@@ -63,7 +63,7 @@ The file is structured like:
     {list of properties}
 }
 
-/* Element theme section. */ 
+/* Element theme section. */
 #{element path} {
     {list of properties}
 }
@@ -79,12 +79,12 @@ Reference properties (see properties section) can only link to properties in thi
 
 The section may only contain a '*' before the brace open..
 
-#### Element theme section 
+#### Element theme section
 
 A theme can have multiple element theme sections.
 
 The element path can consist of multiple names separated by whitespace or dots.
-Each element may contain any number of letters, numbers and '-'. 
+Each element may contain any number of letters, numbers and '-'.
 The first element should always start with a '#'.
 
 This is a valid element name:
@@ -154,7 +154,7 @@ The current theme format support different type of properties:
 
 ##### String
 
-* Format:  `"[:print:]"`
+* Format:  `"[:print:]+"`
 
 A string is always surrounded by quotes ('"'), between the quotes it can have any printable character.
 
@@ -166,7 +166,7 @@ font: "Awasome 12";
 
 ###### Integer
 
-* Format: "[:digit:]"
+* Format: `[:digit:]+`
 
 An integer may contain any number.
 
@@ -200,18 +200,18 @@ dynamic: false;
 
 ##### Color
 
-* Format: '#{HEX}{6}'
-* Format: '#{HEX}{8}'
-* Format: 'argb:{HEX}{8}' 
-* Format: 'rgb({INTEGER},{INTEGER},{INTEGER})'
-* Format: 'rgba({INTEGER},{INTEGER},{INTEGER}, {REAL})'
+* Format: `#{HEX}{6}`
+* Format: `#{HEX}{8}`
+* Format: `argb:{HEX}{8}`
+* Format: `rgb({INTEGER},{INTEGER},{INTEGER})`
+* Format: `rgba({INTEGER},{INTEGER},{INTEGER}, {REAL})`
 
 Where '{HEX}' is a hexidecimal number ('0-9a-f'). The '{INTEGER}' value can be between 0 and 255, the '{Real}' value
 between 0.0 and 1.0.
 
 
 The first formats specify the color as RRGGBB (R = red, G = green, B = Blue), the second adds an alpha (A) channel:
-AARRGGB. 
+AARRGGB.
 
 For example:
 
@@ -222,7 +222,7 @@ foreground: rgba(0,0,1, 0.5);
 
 ##### Text style
 
-* Format: (bold|italic|underline|none)
+* Format: `(bold|italic|underline|none)`
 
 Text style indicates how the text should be displayed.  None indicates no style should be applied.
 
@@ -235,79 +235,91 @@ Indicates how a line should be drawn.
 
 ##### Distance
 
-* Format: '{Integer}px'
-* Format: '{Real}em'
-* Format: '{Real}%'
+* Format: `{Integer}px`
+* Format: `{Real}em`
+* Format: `{Real}%`
 
 ##### Padding
 
-* Format: '{Integer}'
-* Format: '{Distance}'
-* Format: '{Distance} {Distance}'
-* Format: '{Distance} {Distance} {Distance}'
-* Format: '{Distance} {Distance} {Distance} {Distance}'
+* Format: `{Integer}`
+* Format: `{Distance}`
+* Format: `{Distance} {Distance}`
+* Format: `{Distance} {Distance} {Distance}`
+* Format: `{Distance} {Distance} {Distance} {Distance}`
 
 ###### Border
 
-* Format: '{Integer}'
-* Format: '{Distance}'
-* Format: '{Distance} {Distance}'
-* Format: '{Distance} {Distance} {Distance}'
-* Format: '{Distance} {Distance} {Distance} {Distance}'
-* Format: '{Distance} {Line style}'
-* Format: '{Distance} {Line style} {Distance} {Line style}'
-* Format: '{Distance} {Line style} {Distance} {Line style} {Distance} {Line style}'
-* Format: '{Distance} {Line style} {Distance} {Line style} {Distance} {Line style} {Distance} {Line style}'
+* Format: `{Integer}`
+* Format: `{Distance}`
+* Format: `{Distance} {Distance}`
+* Format: `{Distance} {Distance} {Distance}`
+* Format: `{Distance} {Distance} {Distance} {Distance}`
+* Format: `{Distance} {Line style}`
+* Format: `{Distance} {Line style} {Distance} {Line style}`
+* Format: `{Distance} {Line style} {Distance} {Line style} {Distance} {Line style}`
+* Format: `{Distance} {Line style} {Distance} {Line style} {Distance} {Line style} {Distance} {Line style}`
 
 ###### Position
 
-* Format: '(center|east|north|west|northeast|northweast|south|southwest|southeast)'
+* Format: `(center|east|north|west|northeast|northweast|south|southwest|southeast)`
 
 ###### Reference
 
-* Format: '@{PROPERTY NAME}'
+* Format: `@{PROPERTY NAME}`
 
 A reference can point to another reference. Currently the maximum number of redirects is 20.
 
-> REST NEEDS updating.
 
-# Basic Organization
+## Elements Paths
 
-Each widget has:
+Element paths exists of two parts, the first part refers to the actual widget by name.
+Some widgets have an extra state.
 
-## Name
+For example:
 
-Name: Internal name of the widget.
+```css
+#window mainbox listview element .selected {
+}
+```
 
-Sub-widgets are {Parent}.{Child}.
+Here `#window mainbox listview element` is the name of the widget, `selected` is the state of the widget.
 
-Example: window, window.mainbox.listview, window.mainbox.listview.element
+The difference between dots and spaces is purely cosmetic. These are all the same:
+```css
+#window mainbox listview element .selected {
+}
+#window.mainbox.listview.element.selected {
+}
+#window mainbox listview element selected {
+}
+```
 
-Names are prefixed with a `#`
+### Name
 
-List of names in **rofi**:
+The current widgets exist in **rofi**:
 
- * `#window`
-    * `#window.overlay`: The overlay widget.
-    * `#window.mainbox`
-        * `#window.mainbox.box`: The main vertical @box
-         * `#window.mainbox.inputbar`
-           * `#window.mainbox.inputbar.box`: The horizontal @box packing the widgets.
-           * `#window.mainbox.inputbar.case-indicator`: The case/sort indicator @textbox
-           * `#window.mainbox.inputbar.prompt`: The prompt @textbox
-           * `#window.mainbox.inputbar.entry`: The main entry @textbox
-         * `#window.mainbox.listview`
-            * `#window.mainbox.listview.box`: The listview container. 
-            * `#window.mainbox.listview.scrollbar`: The listview scrollbar
-            * `#window.mainbox.listview.element`: The entries in the listview
-         * `#window.mainbox.sidebar`
-           * `#window.mainbox.sidebar.box`: The main horizontal @box packing the buttons.
-           * `#window.mainbox.sidebar.button`: The buttons @textbox for each mode.
-         * `#window.mainbox.message`
-           * `#window.mainbox.message.textbox`: The message textbox.
-           * `#window.mainbox.message.box`: The box containing the message.
+* `#window`
+  * `#window.box`: The container holding the window.
+  * `#window.overlay`: The overlay widget.
+  * `#window.mainbox`
+    * `#window.mainbox.box`: The main vertical @box
+     * `#window.mainbox.inputbar`
+       * `#window.mainbox.inputbar.box`: The horizontal @box packing the widgets.
+       * `#window.mainbox.inputbar.case-indicator`: The case/sort indicator @textbox
+       * `#window.mainbox.inputbar.prompt`: The prompt @textbox
+       * `#window.mainbox.inputbar.entry`: The main entry @textbox
+     * `#window.mainbox.listview`
+        * `#window.mainbox.listview.box`: The listview container.
+        * `#window.mainbox.listview.scrollbar`: The listview scrollbar
+        * `#window.mainbox.listview.element`: The entries in the listview
+     * `#window.mainbox.sidebar`
+       * `#window.mainbox.sidebar.box`: The main horizontal @box packing the buttons.
+       * `#window.mainbox.sidebar.button`: The buttons @textbox for each mode.
+     * `#window.mainbox.message`
+       * `#window.mainbox.message.textbox`: The message textbox.
+       * `#window.mainbox.message.box`: The box containing the message.
 
-## State
+### State
 
 State: State of widget
 
@@ -348,62 +360,23 @@ Sets all selected textboxes marked active to the given foreground and background
 The scrollbar when drawing uses the `handle` state when drawing the small scrollbar handle.
 Allowing overriding of color.
 
-# File structure
 
-The file is structured as follows
-
-```
-/* Global properties, that apply as default to all widgets. */
-{list of properties}
-
-#{name} {optional state} {
-    {list of properties}
-}
-#{name}.{optional state} {
-    {list of properties}
-}
-```
-
-The global properties an freeĺy be mixed between entries.
-Name and state can be separated by a comman, or joined using a dot.
-
-Each property is constructed like:
-```
-{key} : {value} ;
-```
-Key is a simple ascii string.
-Separated from value by a colon ':';
-Value supports the following formats:
-
- * string:  `"{string}"`
- * integer: `[0-9]+`
- * double:  `[0-9]+\.[0-9]`
- * boolean: `true|false`
- * color:
-    * `#[0-9a-fA-F]{6}`: hexidecimal rgb color.
-    * `#[0-9a-fA-F]{8}`:  hexidecimal argb color.
-    * `argb:[0-0a-fA-F]{8}`: Old **rofi** argb color style.
-    * `rgba\([0-9]{1,3},[0-9]{1,3}, [0-9]{1,3}, {double}\)`: css style rgba color.
-    * `rgb\([0-9]{1,3},[0-9]{1,3}, [0-9]{1,3}\)`: css style rgb color.
- * distance:
-    * `{size}{unit} {line-style}`
-       * unit can be px,em,%. for px `{size}` is an integer number, for %,em it is a positive real.
-       * {line-style} can be `dash` or `solid` and is optional.
- * padding: `({distance}){1,4}`
- * position: (center|north|south|east|west|northeast|northwest|southwest|southeast)
- * highlight-style:  (none|bold|underline|italic)
-
-Each property is closed by a semi-colon `;`;
+### Supported properties
 
 The following properties are currently supports:
 
  * all widgets:
-    * padding:         distance
-    * margin:          distance
-    * border:          distance
+    * padding:         padding
+      Padding on the inside of the widget.
+    * margin:          padding
+      Margin on the outside of the widget.
+    * border:          border
+      Border around the widget (between padding and margin)/
     * background:      color
+      Background color.
     * foreground:      color
-    * end:             boolean
+      Foreground color.
+    * index:           integer  (This one does not inherits it value from the parent widget)
 
  * window:
     * font:            string
@@ -413,23 +386,26 @@ The following properties are currently supports:
         - screenshot
         - Path to png file
     * position:       position
-        The place of the anchor on the monitor.
+      The place of the anchor on the monitor.
     * anchor:         anchor
-        The anchor position on the window.
+      The anchor position on the window.
+    * fullscreen:     boolean
+      Window is fullscreen.
+
 
   * scrollbar
     * foreground:      color
     * handle-width:    distance
-    * handle-color:    color 
+    * handle-color:    color
     * foreground:      color
 
   * box
     * spacing:         distance
 
   * textbox:
-    *  background:      color
-    *  foreground:      color
-    *  text:            The text color to use (falls back to foreground if not set)
+    * background:      color
+    * foreground:      color
+    * text:            The text color to use (falls back to foreground if not set)
     * highlight:        highlight {color}
 
   * listview:
@@ -440,9 +416,4 @@ The following properties are currently supports:
     * scrollbar-width: distance
     * cycle:           boolean
     * spacing:         distance
-
-
-## Resolving properties
-
-It tries to find the longest match down the dependency tree.
 
