@@ -247,6 +247,26 @@ Global options:
 		Alt+asterisk (File)
 	-kb-custom-19 [string]                  Custom Keybinding 19
 		Alt+parenleft (File)
+	-kb-select-1 [string]                   Select row 1
+		Super+1 (Default)
+	-kb-select-2 [string]                   Select row 2
+		Super+2 (Default)
+	-kb-select-3 [string]                   Select row 3
+		Super+3 (Default)
+	-kb-select-4 [string]                   Select row 4
+		Super+4 (Default)
+	-kb-select-5 [string]                   Select row 5
+		Super+5 (Default)
+	-kb-select-6 [string]                   Select row 6
+		Super+6 (Default)
+	-kb-select-7 [string]                   Select row 7
+		Super+7 (Default)
+	-kb-select-8 [string]                   Select row 8
+		Super+8 (Default)
+	-kb-select-9 [string]                   Select row 9
+		Super+9 (Default)
+	-kb-select-10 [string]                  Select row 10
+		Super+0 (Default)
 	-display-ssh [string]                   The display name of this browser
 		 (File)
 	-display-run [string]                   The display name of this browser

@@ -210,6 +210,26 @@ rofi.kb-custom-17:                   Alt+ampersand
 rofi.kb-custom-18:                   Alt+asterisk
 ! "Custom Keybinding 19" Set from: File
 rofi.kb-custom-19:                   Alt+parenleft
+! "Select row 1" Set from: Default
+! rofi.kb-select-1:                    Super+1
+! "Select row 2" Set from: Default
+! rofi.kb-select-2:                    Super+2
+! "Select row 3" Set from: Default
+! rofi.kb-select-3:                    Super+3
+! "Select row 4" Set from: Default
+! rofi.kb-select-4:                    Super+4
+! "Select row 5" Set from: Default
+! rofi.kb-select-5:                    Super+5
+! "Select row 6" Set from: Default
+! rofi.kb-select-6:                    Super+6
+! "Select row 7" Set from: Default
+! rofi.kb-select-7:                    Super+7
+! "Select row 8" Set from: Default
+! rofi.kb-select-8:                    Super+8
+! "Select row 9" Set from: Default
+! rofi.kb-select-9:                    Super+9
+! "Select row 10" Set from: Default
+! rofi.kb-select-10:                   Super+0
 ! "The display name of this browser" Set from: File
 rofi.display-ssh:                    
 ! "The display name of this browser" Set from: File

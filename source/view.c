@@ -1125,6 +1125,25 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
         }
         break;
     }
+    case SELECT_ELEMENT_1:
+    case SELECT_ELEMENT_2:
+    case SELECT_ELEMENT_3:
+    case SELECT_ELEMENT_4:
+    case SELECT_ELEMENT_5:
+    case SELECT_ELEMENT_6:
+    case SELECT_ELEMENT_7:
+    case SELECT_ELEMENT_8:
+    case SELECT_ELEMENT_9:
+    case SELECT_ELEMENT_10:
+    {
+        unsigned int index = action - SELECT_ELEMENT_1;
+        if ( index < state->filtered_lines ) {
+            state->selected_line = state->line_map[index];
+            state->retv          = MENU_OK;
+            state->quit          = TRUE;
+        }
+        break;
+    }
     case CUSTOM_1:
     case CUSTOM_2:
     case CUSTOM_3:

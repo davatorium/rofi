@@ -1,3 +1,7 @@
+v1.4.0: (unreleased)
+	New Features:
+		- Super-{1-10} activates row 1-10. 
+
 v1.3.1: Dan vs. Greg: The never ending story, reloaded.
 	New Features
 		- [DRun] Search categories. (#449)

@@ -91,6 +91,16 @@ DefaultBinding bindings[NUM_ABE] =
     { .id = CUSTOM_17,               .name = "kb-custom-17",               .keybinding = "Alt+ampersand",                             .comment = "Custom keybinding 17"                                            },
     { .id = CUSTOM_18,               .name = "kb-custom-18",               .keybinding = "Alt+asterisk",                              .comment = "Custom keybinding 18"                                            },
     { .id = CUSTOM_19,               .name = "kb-custom-19",               .keybinding = "Alt+parenleft",                             .comment = "Custom Keybinding 19"                                            },
+    { .id = SELECT_ELEMENT_1,        .name = "kb-select-1",                .keybinding = "Super+1",                                   .comment = "Select row 1"                                                    },
+    { .id = SELECT_ELEMENT_2,        .name = "kb-select-2",                .keybinding = "Super+2",                                   .comment = "Select row 2"                                                    },
+    { .id = SELECT_ELEMENT_3,        .name = "kb-select-3",                .keybinding = "Super+3",                                   .comment = "Select row 3"                                                    },
+    { .id = SELECT_ELEMENT_4,        .name = "kb-select-4",                .keybinding = "Super+4",                                   .comment = "Select row 4"                                                    },
+    { .id = SELECT_ELEMENT_5,        .name = "kb-select-5",                .keybinding = "Super+5",                                   .comment = "Select row 5"                                                    },
+    { .id = SELECT_ELEMENT_6,        .name = "kb-select-6",                .keybinding = "Super+6",                                   .comment = "Select row 6"                                                    },
+    { .id = SELECT_ELEMENT_7,        .name = "kb-select-7",                .keybinding = "Super+7",                                   .comment = "Select row 7"                                                    },
+    { .id = SELECT_ELEMENT_8,        .name = "kb-select-8",                .keybinding = "Super+8",                                   .comment = "Select row 8"                                                    },
+    { .id = SELECT_ELEMENT_9,        .name = "kb-select-9",                .keybinding = "Super+9",                                   .comment = "Select row 9"                                                    },
+    { .id = SELECT_ELEMENT_10,       .name = "kb-select-10",               .keybinding = "Super+0",                                   .comment = "Select row 10"                                                   },
 };
 
 void setup_abe ( void )
