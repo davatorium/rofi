@@ -1,3 +1,274 @@
+# Theme format 3.0
+
+Rofi is now at the 3rd version of it theming format. Where previous formats was a basic version with an extension. This
+is a full rewrite. The new format is loosely modelled after [css](https://en.wikipedia.org/wiki/Cascading_Style_Sheets).
+This will hopefully be familiar and make it easier for people to get started with theming.
+
+This file is organized as follow, first we give the specification of the file format.
+In the second part we will list the possible options. In the final section a few examples are shown.
+
+## File Format Specification
+
+### Encoding
+
+The encoding of the file is ascii.
+Both unix ('\n') and windows ('\r\n') newlines format are supported. But unix is preferred. 
+
+### Comments
+
+C and C++ file comments are support.
+
+* Anything after  `// ` and before a newline is considered a comment.
+* Everything between `/*` and `*/` are a comment.
+
+Comments can be nested and inline.
+
+The following is valid:
+```css
+property: /* comment */ value;
+```
+
+However this is not:
+```css
+prop/*comment*/erty: value;
+```
+
+### White space
+
+White space and newlines, like comments, are ignored by the parser.
+
+This:
+
+```css
+property: name;
+```
+
+Is identical to:
+
+```css
+property             :
+name
+
+;
+```
+
+### Basic Structure
+
+The file is structured like:
+
+```
+/* Global properties section */
+* {
+    {list of properties}
+}
+
+/* Element theme section. */ 
+#{element path} {
+    {list of properties}
+}
+```
+
+#### Global properties section
+
+Each theme has one, optional, global properties list.
+If present, the global properties section has the be the first section in the file.
+
+The global properties section is special, as the properties here denote the defaults for each element.
+Reference properties (see properties section) can only link to properties in this section.
+
+The section may only contain a '*' before the brace open..
+
+#### Element theme section 
+
+A theme can have multiple element theme sections.
+
+The element path can consist of multiple names separated by whitespace or dots.
+Each element may contain any number of letters, numbers and '-'. 
+The first element should always start with a '#'.
+
+This is a valid element name:
+
+```css
+#window mainbox listview element normal.normal {
+}
+```
+
+And is identical to:
+
+```css
+#window.mainbox.listview.element normal.normal {
+}
+```
+
+Each section inherits the properties of it parents and it own properties are added. If the property is specified both in
+the parent as in the child, the childs property has priority.
+So `#window mainbox` will contain all properties of `#window` and `#window mainbox`.
+
+In the following example:
+```css
+#window {
+ a: 1;
+ b: 2;
+}
+#window mainbox {
+    b: 4;
+    c: 8;
+}
+```
+
+The element `#window mainbox` will have the following set of properties:
+
+```css
+a: 1;
+b: 4;
+c: 8;
+```
+
+
+#### Properties
+
+The properties in a section consist of:
+
+```css
+{identifier}: {value};
+```
+
+The `identifier` names the property specified. Identifier can consist of any combination of numbers, letters and '-'. It
+may not contain any whitespace.
+
+The current theme format support different type of properties:
+
+ * a string.
+ * an integer positive number.
+ * a positive fractional number.
+ * a boolean value.
+ * a color.
+ * text style.
+ * line style.
+ * a distance.
+ * a padding.
+ * a border.
+ * a position.
+ * a reference.
+
+##### String
+
+Format:  `"[:print:]"`
+
+A string is always surrounded by quotes ('"'), between the quotes it can have any printable character.
+
+For example:
+
+```css
+font: "Awasome 12";
+```
+
+###### Integer
+
+Format: "[:digit:]"
+
+An integer may contain any number.
+
+For examples:
+
+```css
+lines: 12;
+```
+
+##### Real
+
+Format: `[:digit:]+(\.[:digit:]+)?`
+
+A real is an integer with an optional fraction.
+
+For example:
+
+```css
+real: 3.4;
+```
+
+##### Boolean
+
+Format: `(true|false)`
+
+For example:
+
+```css
+dynamic: false;
+```
+
+##### Color
+
+Format: '#{HEX}{6}'
+Format: '#{HEX}{8}'
+Format: 'argb:{HEX}{8}' 
+Format: 'rgb({INTEGER},{INTEGER},{INTEGER})'
+Format: 'rgba({INTEGER},{INTEGER},{INTEGER}, {REAL})'
+
+Where '{HEX}' is a hexidecimal number ('0-9a-f'). The '{INTEGER}' value can be between 0 and 255, the '{Real}' value
+between 0.0 and 1.0.
+
+
+The first formats specify the color as RRGGBB (R = red, G = green, B = Blue), the second adds an alpha (A) channel:
+AARRGGB. 
+
+For example:
+
+```css
+background: #FF0000;
+foreground: rgba(0,0,1, 0.5);
+```
+
+##### Text style
+
+Format: (bold|italic|underline|none)
+
+Text style indicates how the text should be displayed.  None indicates no style should be applied.
+
+##### Line style
+
+Format: `(dash|solid)`
+
+Indicates how a line should be drawn.
+
+
+##### Distance
+
+Format: '{Integer}px'
+Format: '{Real}em'
+Format: '{Real}%'
+
+##### Padding
+
+Format: '{Integer}'
+Format: '{Distance}'
+Format: '{Distance} {Distance}'
+Format: '{Distance} {Distance} {Distance}'
+Format: '{Distance} {Distance} {Distance} {Distance}'
+
+###### Border
+
+Format: '{Integer}'
+Format: '{Distance}'
+Format: '{Distance} {Distance}'
+Format: '{Distance} {Distance} {Distance}'
+Format: '{Distance} {Distance} {Distance} {Distance}'
+Format: '{Distance} {Line style}'
+Format: '{Distance} {Line style} {Distance} {Line style}'
+Format: '{Distance} {Line style} {Distance} {Line style} {Distance} {Line style}'
+Format: '{Distance} {Line style} {Distance} {Line style} {Distance} {Line style} {Distance} {Line style}'
+
+###### Position
+
+Format: '(center|east|north|west|northeast|northweast|south|southwest|southeast)'
+
+###### Reference
+
+Format: '@{PROPERTY NAME}'
+
+A reference can point to another reference. Currently the maximum number of redirects is 20.
+
+> REST NEEDS updating.
 # Basic Organization
 
 Each widget has:
