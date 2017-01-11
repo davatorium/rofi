@@ -656,10 +656,8 @@ char *rofi_expand_path ( const char *input )
 /** Return the minimum value of a,b,c */
 #define MIN3( a, b, c )    ( ( a ) < ( b ) ? ( ( a ) < ( c ) ? ( a ) : ( c ) ) : ( ( b ) < ( c ) ? ( b ) : ( c ) ) )
 
-unsigned int levenshtein ( const char *needle, const char *haystack )
+unsigned int levenshtein ( const char *needle, const glong needlelen,  const char *haystack, const glong haystacklen )
 {
-    const size_t needlelen   = g_utf8_strlen ( needle, -1 );
-    const size_t haystacklen = g_utf8_strlen ( haystack, -1 );
     unsigned int column[needlelen + 1];
     for ( unsigned int y = 0; y <= needlelen; y++ ) {
         column[y] = y;

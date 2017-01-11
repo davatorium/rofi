@@ -44,7 +44,9 @@ rofi.run-shell-command:              {terminal} -e {cmd}
 rofi.window-command:                 xkill -id {window}
 ! "Disable history in run/ssh" Set from: File
 rofi.disable-history:                false
-! "Use levenshtein sorting" Set from: File
+! "Use sorting" Set from: Default
+! rofi.sort:                           false
+! "Use levenshtein sorting also for fuzzy matching" Set from: File
 rofi.levenshtein-sort:               false
 ! "Set case-sensitivity" Set from: File
 rofi.case-sensitive:                 false

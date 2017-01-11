@@ -98,6 +98,8 @@ typedef struct
     unsigned int   fixed_num_lines;
     /** Do not use history */
     unsigned int   disable_history;
+    /** Toggle to enable sorting. */
+    unsigned int   sort;
     /** Use levenshtein sorting when matching */
     unsigned int   levenshtein_sort;
     /** Search case sensitivity */

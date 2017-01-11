@@ -86,6 +86,8 @@ Settings config = {
     .fixed_num_lines   = TRUE,
     /** Do not use history */
     .disable_history   = FALSE,
+    /** Sort the displayed list */
+    .sort              = FALSE,
     /** Use levenshtein sorting when matching */
     .levenshtein_sort  = FALSE,
     /** Case sensitivity of the search */

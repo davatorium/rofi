@@ -137,8 +137,10 @@ static XrmOption xrmOptions[] = {
 
     { xrm_Boolean, "disable-history",   { .num  = &config.disable_history       }, NULL,
       "Disable history in run/ssh", CONFIG_DEFAULT },
+    { xrm_Boolean, "sort",              { .num  = &config.sort                  }, NULL,
+      "Use sorting",             CONFIG_DEFAULT },
     { xrm_Boolean, "levenshtein-sort",  { .num  = &config.levenshtein_sort      }, NULL,
-      "Use levenshtein sorting", CONFIG_DEFAULT },
+      "Use levenshtein sorting also for fuzzy matching", CONFIG_DEFAULT },
     { xrm_Boolean, "case-sensitive",    { .num  = &config.case_sensitive        }, NULL,
       "Set case-sensitivity", CONFIG_DEFAULT },
     { xrm_Boolean, "cycle",             { .num  = &config.cycle                 }, NULL,

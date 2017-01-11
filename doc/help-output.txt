@@ -81,7 +81,9 @@ Global options:
 		xkill -id {window} (File)
 	-[no-]disable-history                   Disable history in run/ssh
 		False (File)
-	-[no-]levenshtein-sort                  Use levenshtein sorting
+	-[no-]sort                              Use sorting
+		False (Default)
+	-[no-]levenshtein-sort                  Use levenshtein sorting also for fuzzy matching
 		False (File)
 	-[no-]case-sensitive                    Set case-sensitivity
 		False (File)

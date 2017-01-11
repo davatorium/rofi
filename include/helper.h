@@ -167,13 +167,15 @@ char *rofi_expand_path ( const char *input );
 
 /**
  * @param needle The string to find match weight off
+ * @param needlelen The length of the needle
  * @param haystack The string to match against
+ * @param haystacklen The length of the haystack
  *
  * UTF-8 aware levenshtein distance calculation
  *
  * @returns the levenshtein distance between needle and haystack
  */
-unsigned int levenshtein ( const char *needle, const char *haystack );
+unsigned int levenshtein ( const char *needle, const glong needlelen, const char *haystack, const glong haystacklen );
 
 /**
  * @param data the unvalidated character array holding possible UTF-8 data

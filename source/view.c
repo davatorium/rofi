@@ -140,7 +140,7 @@ void rofi_view_get_current_monitor ( int *width, int *height )
 static char * get_matching_state ( void )
 {
     if ( config.case_sensitive ) {
-        if ( config.levenshtein_sort ) {
+        if ( config.sort ) {
             return "±";
         }
         else {
@@ -148,7 +148,7 @@ static char * get_matching_state ( void )
         }
     }
     else{
-        if ( config.levenshtein_sort ) {
+        if ( config.sort ) {
             return "+";
         }
     }
@@ -545,7 +545,7 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
 {
     char  *pattern = NULL;
     glong plen     = 0;
-    if ( config.matching_method == MM_FUZZY || config.levenshtein_sort ) {
+    if ( config.sort ) {
         pattern = mode_preprocess_input ( t->state->sw, t->state->text->text );
         plen    = g_utf8_strlen ( pattern, -1 );
     }
@@ -554,16 +554,15 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
         // If each token was matched, add it to list.
         if ( match ) {
             t->state->line_map[t->start + t->count] = i;
-            if ( config.matching_method == MM_FUZZY ) {
-                char  *str = mode_get_completion ( t->state->sw, i );
-                glong slen = g_utf8_strlen ( str, -1 );
-                t->state->distance[i] = rofi_scorer_fuzzy_evaluate ( pattern, plen, str, slen );
-                g_free ( str );
-            }
-            else if ( config.levenshtein_sort ) {
+            if ( config.sort ) {
                 // This is inefficient, need to fix it.
                 char * str = mode_get_completion ( t->state->sw, i );
-                t->state->distance[i] = levenshtein ( pattern, str );
+                glong slen = g_utf8_strlen ( str, -1 );
+                if ( config.levenshtein_sort || config.matching_method != MM_FUZZY  ) {
+                    t->state->distance[i] = levenshtein ( pattern, plen, str, slen );
+                } else {
+                    t->state->distance[i] = rofi_scorer_fuzzy_evaluate ( pattern, plen, str, slen );
+                }
                 g_free ( str );
             }
             t->count++;
@@ -1034,7 +1033,7 @@ static void rofi_view_refilter ( RofiViewState *state )
             }
             j += states[i].count;
         }
-        if ( config.matching_method == MM_FUZZY || config.levenshtein_sort ) {
+        if ( config.sort ) {
             g_qsort_with_data ( state->line_map, j, sizeof ( int ), lev_sort, state->distance );
         }
 
@@ -1101,7 +1100,7 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
         menu_capture_screenshot ( );
         break;
     case TOGGLE_SORT:
-        config.levenshtein_sort = !config.levenshtein_sort;
+        config.sort             = !config.sort;
         state->refilter         = TRUE;
         textbox_text ( state->case_indicator, get_matching_state () );
         break;
