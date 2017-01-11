@@ -648,6 +648,9 @@ static int rofi_scorer_get_score_for ( enum CharClass prev, enum CharClass curr 
  */
 static int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *str, glong slen )
 {
+    if ( slen > FUZZY_SCORER_MAX_LENGTH ) {
+        return MIN_SCORE;
+    }
     if ( plen == 5 ) {
         plen = plen;
     }
@@ -723,9 +726,7 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
             if ( config.matching_method == MM_FUZZY ) {
                 char  *str = mode_get_completion ( t->state->sw, i );
                 glong slen = g_utf8_strlen ( str, -1 );
-                t->state->distance[i] = slen > FUZZY_SCORER_MAX_LENGTH
-                                        ? -MIN_SCORE
-                                        : -rofi_scorer_fuzzy_evaluate ( pattern, plen, str, slen );
+                t->state->distance[i] = -rofi_scorer_fuzzy_evaluate ( pattern, plen, str, slen );
                 g_free ( str );
             }
             else if ( config.levenshtein_sort ) {
