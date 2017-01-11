@@ -206,5 +206,19 @@ char * rofi_latin_to_utf8_strdup ( const char *input, gssize length );
  * @returns the updated retv list.
  */
 PangoAttrList *token_match_get_pango_attr ( ThemeHighlight th, GRegex **tokens, const char *input, PangoAttrList *retv );
+
+
+
+/**
+ * @param pattern   The user input to match against.
+ * @param plen      Pattern length.
+ * @param str       The input to match against pattern.
+ * @param slen      Lenght of str.
+ *
+ * FZF like fuzzy sorting algorithm.
+ *
+ * @returns the sorting weight.
+ */
+int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *str, glong slen );
 /*@}*/
 #endif // ROFI_HELPER_H
