@@ -140,8 +140,8 @@ may not contain any whitespace.
 The current theme format support different type of properties:
 
  * a string.
- * an integer positive number.
- * a positive fractional number.
+ * an integer number.
+ * a fractional number.
  * a boolean value.
  * a color.
  * text style.
@@ -166,7 +166,7 @@ font: "Awasome 12";
 
 ###### Integer
 
-* Format: `[:digit:]+`
+* Format: `[-+]?[:digit:]+`
 
 An integer may contain any number.
 
@@ -178,7 +178,7 @@ lines: 12;
 
 ##### Real
 
-* Format: `[:digit:]+(\.[:digit:]+)?`
+* Format: `[-+]?[:digit:]+(\.[:digit:]+)?`
 
 A real is an integer with an optional fraction.
 

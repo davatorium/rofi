@@ -343,8 +343,10 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
         break;
     }
     // Apply offset.
-    state->x += config.x_offset;
-    state->y += config.y_offset;
+    Distance x = rofi_theme_get_distance ( WIDGET ( state->main_window), "x-offset", config.x_offset );
+    Distance y = rofi_theme_get_distance ( WIDGET ( state->main_window), "y-offset", config.y_offset );
+    state->x += distance_get_pixel(x, ORIENTATION_HORIZONTAL);
+    state->y += distance_get_pixel(y, ORIENTATION_VERTICAL);
 }
 
 static void rofi_view_window_update_size ( RofiViewState * state )
