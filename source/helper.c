@@ -834,9 +834,6 @@ int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *st
     if ( slen > FUZZY_SCORER_MAX_LENGTH ) {
         return -MIN_SCORE;
     }
-    if ( plen == 5 ) {
-        plen = plen;
-    }
     glong    pi, si;
     // whether we are aligning the first character of pattern
     gboolean pfirst = TRUE;
