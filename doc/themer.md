@@ -391,6 +391,10 @@ The following properties are currently supports:
       The anchor position on the window.
     * fullscreen:     boolean
       Window is fullscreen.
+    * x-offset:  distance
+    * y-offset:  distance
+        The offset of the window to the anchor point.
+        Allowing you to push the window left/right/up/down.
 
 
   * scrollbar
