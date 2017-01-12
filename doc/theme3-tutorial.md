@@ -336,3 +336,35 @@ Note here, empty sections, because we want them to inherit from their parents, c
 This is a first quick tutorial into writing a theme.
 There are a lot more options that can be tweaked.
 For this see the full *TODO* theme specification.
+
+
+## Advanced
+
+To make the theme transparent, more care had to be taken. Because every widget renders over the underlying widget (with
+it transparency value). You cannot just set one background color as main property.
+This would result in:
+
+![rofi](rofi-theme3-transparent.png)
+
+There is an easy way to fix this. Set the default background to be fully transparent:
+
+```css
+* {
+    background: rgba(0,0,0,0);
+}
+```
+
+Now every widget without an explicit background, is going to be transparent.
+We can then set the background of the window to the desired transparent color:
+
+```css
+#window box {
+    background: #881c1c1c;
+}
+```
+
+This looks a lot nicer:
+
+![rofi](rofi-theme3-transparent-fixed.png)
+
+Now by updating the remaining backgrounds you can tweak the theme to have a nice overall look.
