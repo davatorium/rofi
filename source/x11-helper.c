@@ -678,7 +678,10 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
                 error_msg = g_strdup ( "X11 configured keyboard has no <b>Alt</b> key.\n" );
             }
         }
-        else if  ( g_utf8_collate ( entry_lowered, "super" ) == 0 ) {
+        else if  ( g_utf8_collate ( entry_lowered, "super" ) == 0 ||
+               g_utf8_collate ( entry_lowered, "super_l" ) == 0 ||
+               g_utf8_collate ( entry_lowered, "super_r" ) == 0
+                ) {
             modmask |= x11_mod_masks[X11MOD_SUPER];
             if  ( x11_mod_masks[X11MOD_SUPER] == 0 ) {
                 error_msg = g_strdup ( "X11 configured keyboard has no <b>Super</b> key.\n" );
@@ -697,6 +700,9 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
             }
         }
         else {
+            if ( sym != XKB_KEY_NoSymbol ) {
+                error_msg = g_markup_printf_escaped ( "Only one (non modifier) key can be bound per binding: <b>%s</b> is invalid.\n", entry);
+            }
             sym = xkb_keysym_from_name ( entry, XKB_KEYSYM_NO_FLAGS );
             if ( sym == XKB_KEY_NoSymbol ) {
                 error_msg = g_markup_printf_escaped ( "∙ Key <i>%s</i> is not understood\n", entry );
