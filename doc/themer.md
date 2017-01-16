@@ -19,7 +19,7 @@ Both unix ('\n') and windows ('\r\n') newlines format are supported. But unix is
 C and C++ file comments are support.
 
 * Anything after  `// ` and before a newline is considered a comment.
-* Everything between `/*` and `*/` are a comment.
+* Everything between `/*` and `*/` is a comment.
 
 Comments can be nested and inline.
 
@@ -52,6 +52,11 @@ name
 
 ;
 ```
+
+### File extension
+
+The prefered file extension for the new theme format is *rasi*. This is an abbriviation for **r**ofi **a**advanced
+**s**tyle **i**nformation (Or the nick of the user that helped form the new specification).
 
 ### Basic Structure
 
@@ -421,3 +426,344 @@ The following properties are currently supports:
     * cycle:           boolean
     * spacing:         distance
 
+
+## Examples
+
+### Arthur
+
+A simple theme showing basic theming and transparent background:
+
+```css
+* {
+    foreground:  #ffeedd;
+    background:  rgba(0,0,0,0);
+    dark: #1c1c1c;
+    // Black
+    black:       #3d352a;
+    lightblack:  #554444;
+    //
+    // Red
+    red:         #cd5c5c;
+    lightred:    #cc5533;
+    //
+    // Green
+    green:       #86af80;
+    lightgreen:  #88cc22;
+    //
+    // Yellow
+    yellow:      #e8ae5b;
+    lightyellow:     #ffa75d;
+    //
+    // Blue
+    blue:      #6495ed;
+    lightblue:     #87ceeb;
+    //
+    // Magenta
+    magenta:      #deb887;
+    lightmagenta:     #996600;
+    //
+    // Cyan
+    cyan:      #b0c4de;
+    lightcyan:     #b0c4de;
+    //
+    // White
+    white:      #bbaa99;
+    lightwhite:     #ddccbb;
+    //
+    // Bold, Italic, Underline
+    highlight:     bold #ffffff;
+}
+#window {
+    location: center;
+    anchor:   north;
+    y-offset: -5em;
+}
+#window box {
+    padding: 10px;
+    border:  1px;
+    foreground: @magenta;
+    background: #cc1c1c1c;
+}
+
+#window mainbox inputbar {
+    background: @lightblack;
+    text: @lightgreen;
+    padding: 4px;
+}
+#window mainbox inputbar box {
+    border: 0px 0px 2px 0px;
+}
+#window mainbox box {
+    spacing: 0.3em;
+}
+
+#window mainbox listview {
+    dynamic: false;
+}
+#window mainbox listview element selected  normal {
+    background: @blue;
+}
+#window mainbox listview element normal active {
+    foreground: @lightblue;
+}
+#window mainbox listview element normal urgent {
+    foreground: @lightred;
+}
+#window mainbox listview element alternate normal {
+}
+#window mainbox listview element alternate active {
+    foreground: @lightblue;
+}
+#window mainbox listview element alternate urgent {
+    foreground: @lightred;
+}
+#window mainbox listview element selected active {
+    background: @lightblue;
+    foreground: @dark;
+}
+#window mainbox listview element selected urgent {
+    background: @lightred;
+    foreground: @dark;
+}
+#window mainbox listview element normal normal {
+
+}
+```
+
+### Sidebar
+
+The previous theme modified to behave like a sidebar, positioned on the left of the screen.
+
+```css
+* {
+    foreground:  #ffeedd;
+    background:  rgba(0,0,0,0);
+    dark: #1c1c1c;
+    // Black
+    black:       #3d352a;
+    lightblack:  #554444;
+    //
+    // Red
+    red:         #cd5c5c;
+    lightred:    #cc5533;
+    //
+    // Green
+    green:       #86af80;
+    lightgreen:  #88cc22;
+    //
+    // Yellow
+    yellow:      #e8ae5b;
+    lightyellow:     #ffa75d;
+    //
+    // Blue
+    blue:      #6495ed;
+    lightblue:     #87ceeb;
+    //
+    // Magenta
+    magenta:      #deb887;
+    lightmagenta:     #996600;
+    //
+    // Cyan
+    cyan:      #b0c4de;
+    lightcyan:     #b0c4de;
+    //
+    // White
+    white:      #bbaa99;
+    lightwhite:     #ddccbb;
+    //
+    // Bold, Italic, Underline
+    highlight:     bold #ffffff;
+}
+#window {
+    width: 30em;
+    location: west;
+    anchor:   west;
+}
+#window box {
+    border:  0px 2px 0px 0px;
+    foreground: @lightwhite;
+    background: #ee1c1c1c;
+}
+
+#window mainbox sidebar box {
+    border: 2px 0px 0px 0px;
+    background: @lightblack;
+    padding: 10px;
+}
+#window mainbox sidebar selected {
+    foreground: @lightgreen;
+    text: @lightgreen;
+}
+#window mainbox inputbar {
+    background: @lightblack;
+    text: @lightgreen;
+    padding: 4px;
+}
+#window mainbox inputbar box {
+    border: 0px 0px 2px 0px;
+}
+#window mainbox box {
+    spacing: 1em;
+}
+#window mainbox listview box {
+    padding: 0em 0.4em 0em 1em;
+}
+#window mainbox listview {
+    dynamic: false;
+    lines: 0;
+}
+#window mainbox listview element selected  normal {
+    background: @blue;
+}
+#window mainbox listview element normal active {
+    foreground: @lightblue;
+}
+#window mainbox listview element normal urgent {
+    foreground: @lightred;
+}
+#window mainbox listview element alternate normal {
+}
+#window mainbox listview element alternate active {
+    foreground: @lightblue;
+}
+#window mainbox listview element alternate urgent {
+    foreground: @lightred;
+}
+#window mainbox listview element selected active {
+    background: @lightblue;
+    foreground: @dark;
+}
+#window mainbox listview element selected urgent {
+    background: @lightred;
+    foreground: @dark;
+}
+#window mainbox listview element normal normal {
+
+}
+
+```
+
+### Paper Float
+
+A theme that shows a floating inputbar. 
+
+> TODO: cleanup this theme.
+
+```css
+
+* {
+    blue:  #0000FF;
+    white: #FFFFFF;
+    black: #000000;
+    grey:  #eeeeee;
+
+    spacing: 2;
+    background: #00000000;
+    anchor: north;
+    location: center;
+}
+#window {
+    transparency: "screenshot";
+    background: #00000000;
+    border: 0;
+    padding: 0% 0% 1em 0%;
+    foreground: #FF444444;
+    x-offset: 0;
+    y-offset: -10%;
+}
+#window.mainbox {
+    padding: 0px;
+}
+#window.mainbox.box {
+    border: 0;
+    spacing: 1%;
+}
+#window.mainbox.message.box {
+    border: 2px; 
+    padding: 1em; 
+    background: @white; 
+    foreground: @back;
+}
+#window.mainbox.message.normal {
+    foreground: #FF002B36;
+    padding: 0;
+    border: 0;
+}
+#window.mainbox.listview {
+    fixed-height: 1;
+    border: 2px;
+    padding: 1em;
+    reverse: false;
+
+    columns: 1;
+    background: @white; 
+}
+#window.mainbox.listview.element {
+    border: 0;
+    padding: 2px;
+    highlight: bold ;
+}
+#window.mainbox.listview.element.normal.normal {
+    foreground: #FF002B36;
+    background: #00F5F5F5;
+}
+#window.mainbox.listview.element.normal.urgent {
+    foreground: #FFD75F00;
+    background: #FFF5F5F5;
+}
+#window.mainbox.listview.element.normal.active {
+    foreground: #FF005F87;
+    background: #FFF5F5F5;
+}
+#window.mainbox.listview.element.selected.normal {
+    foreground: #FFF5F5F5;
+    background: #FF4271AE;
+}
+#window.mainbox.listview.element.selected.urgent {
+    foreground: #FFF5F5F5;
+    background: #FFD75F00;
+}
+#window.mainbox.listview.element.selected.active {
+    foreground: #FFF5F5F5;
+    background: #FF005F87;
+}
+#window.mainbox.listview.element.alternate.normal {
+    foreground: #FF002B36;
+    background: #FFD0D0D0;
+}
+#window.mainbox.listview.element.alternate.urgent {
+    foreground: #FFD75F00;
+    background: #FFD0D0D0;
+}
+#window.mainbox.listview.element.alternate.active {
+    foreground: #FF005F87;
+    background: #FFD0D0D0;
+}
+#window.mainbox.listview.scrollbar {
+    border: 0;
+    padding: 0;
+}
+#window.mainbox.inputbar {
+    spacing: 0;
+}
+#window.mainbox.inputbar.box {
+    border: 2px;
+    padding: 0.5em 1em;
+    background: @grey;
+    index: 0;
+}
+#window.mainbox.inputbar.normal {
+    foreground: #FF002B36;
+    background: #00F5F5F5;
+}
+
+#window.mainbox.sidebar.box {
+    border: 2px;
+    padding: 0.5em 1em;
+    background: @grey;
+    index: 10;
+}
+#window.mainbox.sidebar.button selected {
+    text: #FF4271AE;
+}
+```
