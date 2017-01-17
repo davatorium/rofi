@@ -324,6 +324,10 @@ The current widgets exist in **rofi**:
        * `#window.mainbox.message.textbox`: The message textbox.
        * `#window.mainbox.message.box`: The box containing the message.
 
+Or in a graphical depiction:
+
+![Structure](structure.svg)
+
 ### State
 
 State: State of widget
