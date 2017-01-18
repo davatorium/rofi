@@ -659,17 +659,17 @@ char *rofi_expand_path ( const char *input )
 unsigned int levenshtein ( const char *needle, const glong needlelen,  const char *haystack, const glong haystacklen )
 {
     unsigned int column[needlelen + 1];
-    for ( unsigned int y = 0; y <= needlelen; y++ ) {
+    for ( glong y = 0; y <= needlelen; y++ ) {
         column[y] = y;
     }
-    for ( unsigned int x = 1; x <= haystacklen; x++ ) {
+    for ( glong x = 1; x <= haystacklen; x++ ) {
         const char *needles = needle;
         column[0] = x;
         gunichar   haystackc = g_utf8_get_char ( haystack );
         if ( !config.case_sensitive ) {
             haystackc = g_unichar_tolower ( haystackc );
         }
-        for ( unsigned int y = 1, lastdiag = x - 1; y <= needlelen; y++ ) {
+        for ( glong y = 1, lastdiag = x - 1; y <= needlelen; y++ ) {
             gunichar needlec = g_utf8_get_char ( needles );
             if ( !config.case_sensitive ) {
                 needlec = g_unichar_tolower ( needlec );

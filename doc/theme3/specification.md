@@ -1,18 +1,25 @@
 # Theme format 3.0
 
-Rofi is now at the 3rd version of it theming format. Where previous formats was a basic version with an extension. This
-is a full rewrite. The new format is loosely modelled after [css](https://en.wikipedia.org/wiki/Cascading_Style_Sheets).
-This will hopefully be familiar and make it easier for people to get started with theming.
+Rofi is now at the 3rd version of it theming format. Where previous formats was
+a basic version with an extension. This format is a full rewrite. Internally in
+**rofi** the way the interface is build up is changed in the past releases.
+Instead of having widgets placed on a canvas and moved when needed, widgets are
+now placed in containers that hierarchically recompute the locations. This
+change also allowed for a better theming format. The new format is loosely
+modelled after [css](https://en.wikipedia.org/wiki/Cascading_Style_Sheets).
+This will hopefully be familiar and make it easier for people to get started
+with theming.
 
-This file is organized as follow, first we give the specification of the file format.
-In the second part we will list the possible options. In the final section a few examples are shown.
+This file is organized as follow, first we give the specification of the file
+format. In the second part we will list the possible options. In the final
+section a few examples are shown.
 
 ## File Format Specification
 
 ### Encoding
 
-The encoding of the file is ascii.
-Both unix ('\n') and windows ('\r\n') newlines format are supported. But unix is preferred.
+The encoding of the file is ascii.  Both unix (`\n`) and windows (`\r\n`)
+newlines format are supported. But unix is preferred.
 
 ### Comments
 
@@ -21,7 +28,7 @@ C and C++ file comments are support.
 * Anything after  `// ` and before a newline is considered a comment.
 * Everything between `/*` and `*/` is a comment.
 
-Comments can be nested and inline.
+Comments can be nested and the C++ comments inline.
 
 The following is valid:
 ```css
@@ -47,7 +54,7 @@ property: name;
 Is identical to:
 
 ```css
-property             :
+     property             :
 name
 
 ;
@@ -55,22 +62,32 @@ name
 
 ### File extension
 
-The prefered file extension for the new theme format is *rasi*. This is an abbriviation for **r**ofi **a**advanced
-**s**tyle **i**nformation (Or the nick of the user that helped form the new specification).
+The preferred file extension for the new theme format is **rasi**. This is an
+abbreviation for **r**ofi **a**advanced **s**tyle **i**nformation (Or the nick
+of the user that helped form the new specification).
 
 ### Basic Structure
 
-The file is structured like:
+At the top level of the file there sections.
+There exist two type of sections:
+ * Global properties section.
+ * Element theme section.
+
+The *global properties section* should always be the first section, it is
+followed by one or more *element theme sections*. All sections are optional.
 
 ```
 /* Global properties section */
 * {
-    {list of properties}
+    // list of properties
 }
 
 /* Element theme section. */
 #{element path} {
-    {list of properties}
+    // list of properties
+}
+#{elements... } {
+    // list of properties
 }
 ```
 
@@ -79,10 +96,11 @@ The file is structured like:
 Each theme has one, optional, global properties list.
 If present, the global properties section has the be the first section in the file.
 
-The global properties section is special, as the properties here denote the defaults for each element.
-Reference properties (see properties section) can only link to properties in this section.
+The global properties section is special, as the properties here denote the
+defaults for each element.  Reference properties (see properties section) can
+only link to properties in this section.
 
-The section may only contain a '*' before the brace open..
+The section may only contain a `*` before the brace open..
 
 #### Element theme section
 
@@ -90,7 +108,7 @@ A theme can have multiple element theme sections.
 
 The element path can consist of multiple names separated by whitespace or dots.
 Each element may contain any number of letters, numbers and '-'.
-The first element should always start with a '#'.
+The first element should always start with a `#``.
 
 This is a valid element name:
 
@@ -106,9 +124,11 @@ And is identical to:
 }
 ```
 
-Each section inherits the properties of it parents and it own properties are added. If the property is specified both in
-the parent as in the child, the childs property has priority.
-So `#window mainbox` will contain all properties of `#window` and `#window mainbox`.
+Each section inherits the properties of it parents.  If the property is
+specified both in the parent, or the global section, as in the child, the
+childs property has priority.
+So `#window mainbox` will contain all properties of `#window` and `#window
+mainbox`.
 
 In the following example:
 ```css
@@ -130,6 +150,9 @@ b: 4;
 c: 8;
 ```
 
+If multiple sections are defined with the same name, they are merged by the
+parser. If multiple properties with the same name are defined in one section,
+the last encountered property is used.
 
 #### Properties
 
@@ -139,10 +162,13 @@ The properties in a section consist of:
 {identifier}: {value};
 ```
 
-The `identifier` names the property specified. Identifier can consist of any combination of numbers, letters and '-'. It
-may not contain any whitespace.
+Both fields are manditory for a property.
 
-The current theme format support different type of properties:
+The `identifier` names the property specified. Identifier can consist of any
+combination of numbers, letters and '-'. It may not contain any whitespace.
+The structure of the `value` defines the type of the property.
+
+The current theme format support different type:
 
  * a string.
  * an integer number.
@@ -150,12 +176,14 @@ The current theme format support different type of properties:
  * a boolean value.
  * a color.
  * text style.
- * line style.
+ * *line style*.
  * a distance.
  * a padding.
  * a border.
  * a position.
  * a reference.
+
+Some of these types are a combination of other types.
 
 ##### String
 
@@ -193,9 +221,14 @@ For example:
 real: 3.4;
 ```
 
+The following is not valid: `.3`, `3.` or scientific notation: `3.4e-3`.
+
 ##### Boolean
 
 * Format: `(true|false)`
+
+Boolean value is either `true` or `false`. This is case-sensitive.
+
 
 For example:
 
@@ -229,13 +262,17 @@ foreground: rgba(0,0,1, 0.5);
 
 * Format: `(bold|italic|underline|none)`
 
-Text style indicates how the text should be displayed.  None indicates no style should be applied.
+Text style indicates how the text should be displayed.  None indicates no style
+should be applied.
 
 ##### Line style
 
 * Format: `(dash|solid)`
 
 Indicates how a line should be drawn.
+It currently supports:
+ * `dash`:  A dashed line. Where the gap is the same width as the dash.
+ * `solid`: A solid line.
 
 
 ##### Distance
@@ -244,6 +281,19 @@ Indicates how a line should be drawn.
 * Format: `{Real}em`
 * Format: `{Real}%`
 
+A distance can be specified in 3 different units:
+ * `px`: Screen pixels.
+ * `em`: Relative to text width.
+ * `%`:  Percentage of the **monitor** size.
+ Distances used in the horizontal direction use the monitor width. Distances in
+ the vertical direction use the monitor height.
+ For example:
+ ```css
+    padding: 10%;
+ ```
+ On a full-hd (1920x1080) monitor defines a padding of 192 pixels on the left
+and right side and 108 pixels on the top and bottom.
+
 ##### Padding
 
 * Format: `{Integer}`
@@ -251,6 +301,15 @@ Indicates how a line should be drawn.
 * Format: `{Distance} {Distance}`
 * Format: `{Distance} {Distance} {Distance}`
 * Format: `{Distance} {Distance} {Distance} {Distance}`
+
+If no unit is set, it assumes pixels.
+
+The different number of fields in the formats are parsed like:
+ * 1 field: `all`
+ * 2 fields: `top&bottom` `left&right`
+ * 3 fields: `top`, `left&right`, `bottom`
+ * 4 fields: `top`, `right`, `bottom`, `left`
+
 
 ###### Border
 
@@ -263,6 +322,9 @@ Indicates how a line should be drawn.
 * Format: `{Distance} {Line style} {Distance} {Line style}`
 * Format: `{Distance} {Line style} {Distance} {Line style} {Distance} {Line style}`
 * Format: `{Distance} {Line style} {Distance} {Line style} {Distance} {Line style} {Distance} {Line style}`
+
+Border are identical to padding, except that each distance field has a line
+style property.
 
 ###### Position
 
@@ -649,7 +711,7 @@ The previous theme modified to behave like a sidebar, positioned on the left of 
 
 ### Paper Float
 
-A theme that shows a floating inputbar. 
+A theme that shows a floating inputbar.
 
 > TODO: cleanup this theme.
 
@@ -683,9 +745,9 @@ A theme that shows a floating inputbar.
     spacing: 1%;
 }
 #window.mainbox.message.box {
-    border: 2px; 
-    padding: 1em; 
-    background: @white; 
+    border: 2px;
+    padding: 1em;
+    background: @white;
     foreground: @back;
 }
 #window.mainbox.message.normal {
@@ -700,7 +762,7 @@ A theme that shows a floating inputbar.
     reverse: false;
 
     columns: 1;
-    background: @white; 
+    background: @white;
 }
 #window.mainbox.listview.element {
     border: 0;
