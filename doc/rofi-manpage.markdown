@@ -49,6 +49,8 @@
 [ -threads *num* ]
 [ -config *filename* ]
 [ -no-show-match ]
+[ -theme *filename* ]
+[ -theme-str *string* ]
 
 ## DESCRIPTION
 
@@ -246,7 +248,7 @@ Default: *1*
 
 The following options are further explained in the theming section:
 
-`-color-window` *background* *border color* *separator color* 
+`-color-window` *background* *border color* *separator color*
 
 Set window background, border and separator color.
 
@@ -390,6 +392,21 @@ detection).  Negative numbers are handled differently:
     Default: *-5*
 
 See `rofi -h` output for the detected monitors, their position and size.
+
+
+`-theme` *filename*
+
+Path to the new theme file format. This overrides the old theme settings.
+
+`-theme-str` *string*
+
+Allow theme parts to be specified on the commandline as an override.
+
+For example
+
+    rofi -theme-str '#window { fullscreen: true; }'
+
+This option can be specified multiple times.
 
 ### PATTERN setting
 
@@ -896,7 +913,7 @@ Use `qalc` to get a simple calculator in **rofi**:
 
 ## I3
 
-In [I3](http://i3wm.org/) you want to bind rofi to be launched on key-release. Otherwise it cannot grab the keyboard. 
+In [I3](http://i3wm.org/) you want to bind rofi to be launched on key-release. Otherwise it cannot grab the keyboard.
 See also the I3 [manual](http://i3wm.org/docs/userguide.html):
 
 Some tools (such as import or xdotool) might be unable to run upon a KeyPress event, because the keyboard/pointer is
