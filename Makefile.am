@@ -144,6 +144,7 @@ README.html: README.md
 ###
 themedir=$(pkgdatadir)/themes/
 theme_DATA=\
+		   themes/arthur.rasi\
 		   themes/Adapta-Nokto.rasi\
 		   themes/Arc.rasi\
 		   themes/DarkBlue.rasi\
