@@ -1380,16 +1380,6 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
         }
         break;
     }
-    case XCB_FOCUS_IN:
-        if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
-            take_keyboard ( CacheState.main_window, 1 );
-        }
-        break;
-    case XCB_FOCUS_OUT:
-        if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
-            release_keyboard ( );
-        }
-        break;
     case XCB_MOTION_NOTIFY:
     {
         if ( config.click_to_exit == TRUE ) {
