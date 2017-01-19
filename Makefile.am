@@ -144,7 +144,6 @@ README.html: README.md
 ###
 themedir=$(pkgdatadir)/themes/
 theme_DATA=\
-		   themes/arthur.rasi\
 		   themes/Adapta-Nokto.rasi\
 		   themes/Arc.rasi\
 		   themes/DarkBlue.rasi\
@@ -152,6 +151,7 @@ theme_DATA=\
 		   themes/Monokai.rasi\
 		   themes/Paper.rasi\
 		   themes/android_notification.rasi\
+		   themes/arthur.rasi\
 		   themes/blue.rasi\
 		   themes/c64.rasi\
 		   themes/glue_pro_blue.rasi\
@@ -162,7 +162,9 @@ theme_DATA=\
 		   themes/gruvbox-light-soft.rasi\
 		   themes/gruvbox-light.rasi\
 		   themes/lb.rasi\
+		   themes/paper-float.rasi\
 		   themes/purple.rasi\
+		   themes/sidebar.rasi\
 		   themes/solarized.rasi\
 		   themes/solarized_alternate.rasi
 
