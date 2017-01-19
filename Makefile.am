@@ -144,26 +144,26 @@ README.html: README.md
 ###
 themedir=$(pkgdatadir)/themes/
 theme_DATA=\
-		   themes/Adapta-Nokto.theme\
-		   themes/Arc.theme\
-		   themes/DarkBlue.theme\
-		   themes/Indego.theme\
-		   themes/Monokai.theme\
-		   themes/Paper.theme\
-		   themes/android_notification.theme\
-		   themes/blue.theme\
-		   themes/c64.theme\
-		   themes/glue_pro_blue.theme\
-		   themes/gruvbox-dark-hard.theme\
-		   themes/gruvbox-dark-soft.theme\
-		   themes/gruvbox-dark.theme\
-		   themes/gruvbox-light-hard.theme\
-		   themes/gruvbox-light-soft.theme\
-		   themes/gruvbox-light.theme\
-		   themes/lb.theme\
-		   themes/purple.theme\
-		   themes/solarized.theme\
-		   themes/solarized_alternate.theme
+		   themes/Adapta-Nokto.rasi\
+		   themes/Arc.rasi\
+		   themes/DarkBlue.rasi\
+		   themes/Indego.rasi\
+		   themes/Monokai.rasi\
+		   themes/Paper.rasi\
+		   themes/android_notification.rasi\
+		   themes/blue.rasi\
+		   themes/c64.rasi\
+		   themes/glue_pro_blue.rasi\
+		   themes/gruvbox-dark-hard.rasi\
+		   themes/gruvbox-dark-soft.rasi\
+		   themes/gruvbox-dark.rasi\
+		   themes/gruvbox-light-hard.rasi\
+		   themes/gruvbox-light-soft.rasi\
+		   themes/gruvbox-light.rasi\
+		   themes/lb.rasi\
+		   themes/purple.rasi\
+		   themes/solarized.rasi\
+		   themes/solarized_alternate.rasi
 
 ##
 # Extra DIST

@@ -1,0 +1,88 @@
+//! ------------------------------------------------------------------------------
+//! ROFI Color theme
+//! User: Rasi
+//! Copyright: Rasmus Steinke
+//! ------------------------------------------------------------------------------
+* {
+    spacing:    2;
+    background: #00000000;
+}
+#window {
+    border:     2;
+    foreground: #FF1E2529;
+    padding:    5;
+    background: #FF273238;
+}
+#window.mainbox {
+    border:  0;
+    padding: 0;
+}
+#window.mainbox.message.box {
+    border:  2px 0px 0px ;
+    padding: 2px 0px 0px ;
+}
+#window.mainbox.message.normal {
+    foreground: #FFC1C1C1;
+    background: #FF273238;
+}
+#window.mainbox.listview {
+    fixed-height: 1;
+    border:       2px 0px 0px ;
+    columns:      1;
+    padding:      2px 0px 0px ;
+}
+#window.mainbox.listview.element {
+    border: 0;
+}
+#window.mainbox.listview.element.normal.normal {
+    foreground: #FFC1C1C1;
+    background: #FF273238;
+}
+#window.mainbox.listview.element.normal.urgent {
+    foreground: #FFFF1844;
+    background: #FF273238;
+}
+#window.mainbox.listview.element.normal.active {
+    foreground: #FF80CBC4;
+    background: #FF273238;
+}
+#window.mainbox.listview.element.selected.normal {
+    foreground: #FFFFFFFF;
+    background: #FF394249;
+}
+#window.mainbox.listview.element.selected.urgent {
+    foreground: #FFFF1844;
+    background: #FF394249;
+}
+#window.mainbox.listview.element.selected.active {
+    foreground: #FF80CBC4;
+    background: #FF394249;
+}
+#window.mainbox.listview.element.alternate.normal {
+    foreground: #FFC1C1C1;
+    background: #FF273238;
+}
+#window.mainbox.listview.element.alternate.urgent {
+    foreground: #FFFF1844;
+    background: #FF273238;
+}
+#window.mainbox.listview.element.alternate.active {
+    foreground: #FF80CBC4;
+    background: #FF273238;
+}
+#window.mainbox.listview.scrollbar {
+    border:  0;
+    padding: 0;
+}
+#window.mainbox.sidebar.box {
+    border: 2px 0px 0px ;
+}
+#window.mainbox.inputbar {
+    spacing: 0;
+}
+#window.mainbox.inputbar.box {
+}
+#window.mainbox.inputbar.normal {
+    foreground: #FFC1C1C1;
+    background: #FF273238;
+}

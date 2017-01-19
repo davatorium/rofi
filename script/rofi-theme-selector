@@ -74,7 +74,7 @@ function find_themes()
         if [ -n "${p}" ] && [ -d "${TD}" ]
         then
             echo "Checking themes in: ${TD}"
-            for file in ${TD}/*.theme
+            for file in ${TD}/*.rasi
             do
                 if [ -f "${file}" ]
                 then
@@ -137,7 +137,12 @@ function select_theme ()
 <b>Alt-a</b> to accept the new theme.
 <b>Escape</b> to cancel
 Current theme: <b>${CUR}</b>"""
-        RES=$( create_theme_list | ${ROFI} ${MORE_FLAGS[@]} -selected-row "${SELECTED}" -mesg "${MESG}")
+        THEME_FLAG=
+        if [ -n "${SELECTED}" ]
+        then 
+            THEME_FLAG="-theme ${themes[${SELECTED}]}"
+        fi
+        RES=$( create_theme_list | ${ROFI} ${THEME_FLAG} ${MORE_FLAGS[@]} -selected-row "${SELECTED}" -mesg "${MESG}")
         RTR=$?
         if [ ${RTR} = 10 ]
         then
@@ -146,8 +151,6 @@ Current theme: <b>${CUR}</b>"""
         then
             return 1;
         fi
-        ${SED} -i '/#include .*/d' ${TMP_CONFIG_FILE}
-        echo "#include \"${themes[${RES}]}\"" >> ${TMP_CONFIG_FILE}
         CUR=${theme_names[${RES}]}
         SELECTED=${RES}
     done
@@ -166,9 +169,9 @@ function set_theme()
     fi
     if [ -f "${CDIR}/config" ]
     then
-        ${SED} -i "/#include \".*\.theme\"$/d" "${CDIR}/config"
+        ${SED} -i "/rofi\.theme: \".*\.rasi\"$/d" "${CDIR}/config"
     fi
-    echo "#include \"${1}\"" >> "${CDIR}/config"
+    echo "rofi.theme: ${1}" >> "${CDIR}/config"
 
 }
 

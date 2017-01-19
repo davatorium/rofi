@@ -1,0 +1,89 @@
+//! ------------------------------------------------------------------------------
+//! ROFI Color theme
+//! Based on Adapta-Nokto GTK theme (https://github.com/adapta-project/adapta-gtk-theme)  
+//! User: PyGeek03
+//! Copyright: PyGeek03
+//! ------------------------------------------------------------------------------
+* {
+    spacing:    2;
+    background: #00000000;
+}
+#window {
+    border:     2;
+    foreground: #FFC3C6C8;
+    padding:    5;
+    background: #FF3A4C54;
+}
+#window.mainbox {
+    border:  0;
+    padding: 0;
+}
+#window.mainbox.message.box {
+    border:  2px 0px 0px ;
+    padding: 2px 0px 0px ;
+}
+#window.mainbox.message.normal {
+    foreground: #FFFAFBFC;
+    background: #FF455A64;
+}
+#window.mainbox.listview {
+    fixed-height: 1;
+    border:       2px 0px 0px ;
+    columns:      1;
+    padding:      2px 0px 0px ;
+}
+#window.mainbox.listview.element {
+    border: 0;
+}
+#window.mainbox.listview.element.normal.normal {
+    foreground: #FFFAFBFC;
+    background: #FF455A64;
+}
+#window.mainbox.listview.element.normal.urgent {
+    foreground: #FFFF5252;
+    background: #FF455A64;
+}
+#window.mainbox.listview.element.normal.active {
+    foreground: #FF00BCD4;
+    background: #FF455A64;
+}
+#window.mainbox.listview.element.selected.normal {
+    foreground: #FFFAFBFC;
+    background: #FF00BCD4;
+}
+#window.mainbox.listview.element.selected.urgent {
+    foreground: #FFFDF6E3;
+    background: #FFFF5252;
+}
+#window.mainbox.listview.element.selected.active {
+    foreground: #FFFDF6E3;
+    background: #FF009688;
+}
+#window.mainbox.listview.element.alternate.normal {
+    foreground: #FFFAFBFC;
+    background: #FF455A64;
+}
+#window.mainbox.listview.element.alternate.urgent {
+    foreground: #FFFF5252;
+    background: #FF455A64;
+}
+#window.mainbox.listview.element.alternate.active {
+    foreground: #FF00BCD4;
+    background: #FF455A64;
+}
+#window.mainbox.listview.scrollbar {
+    border:  0;
+    padding: 0;
+}
+#window.mainbox.sidebar.box {
+    border: 2px 0px 0px ;
+}
+#window.mainbox.inputbar {
+    spacing: 0;
+}
+#window.mainbox.inputbar.box {
+}
+#window.mainbox.inputbar.normal {
+    foreground: #FFFAFBFC;
+    background: #FF455A64;
+}

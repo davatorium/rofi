@@ -1,0 +1,95 @@
+//!-------------------------------------------------------------------------------
+//! Rofi color theme
+//!
+//! Based on the Gruvbox color scheme for Vim by morhetz
+//! https://github.com/morhetz/gruvbox
+//!
+//! File: gruvbox-dark.theme
+//! Desc: Gruvbox dark color theme for Rofi
+//! Author: bardisty <b@bah.im>
+//! Source: https://github.com/bardisty/gruvbox-rofi
+//! Modified: Sat Oct 22 2016 03:11:40 PDT -0700
+//!-------------------------------------------------------------------------------
+* {
+    spacing:    2;
+    background: #00000000;
+}
+#window {
+    border:     2;
+    foreground: #FFA89984;
+    padding:    5;
+    background: #FF282828;
+}
+#window.mainbox {
+    border:  0;
+    padding: 0;
+}
+#window.mainbox.message.box {
+    border:  2px 0px 0px ;
+    padding: 2px 0px 0px ;
+}
+#window.mainbox.message.normal {
+    foreground: #FFEBDBB2;
+    background: #FF282828;
+}
+#window.mainbox.listview {
+    fixed-height: 1;
+    border:       2px 0px 0px ;
+    columns:      1;
+    padding:      2px 0px 0px ;
+}
+#window.mainbox.listview.element {
+    border: 0;
+}
+#window.mainbox.listview.element.normal.normal {
+    foreground: #FFEBDBB2;
+    background: #FF282828;
+}
+#window.mainbox.listview.element.normal.urgent {
+    foreground: #FF282828;
+    background: #FFCC241D;
+}
+#window.mainbox.listview.element.normal.active {
+    foreground: #FF282828;
+    background: #FFD79921;
+}
+#window.mainbox.listview.element.selected.normal {
+    foreground: #FFFBF1C7;
+    background: #FF665C54;
+}
+#window.mainbox.listview.element.selected.urgent {
+    foreground: #FF282828;
+    background: #FFFB4934;
+}
+#window.mainbox.listview.element.selected.active {
+    foreground: #FF282828;
+    background: #FFFABD2F;
+}
+#window.mainbox.listview.element.alternate.normal {
+    foreground: #FFEBDBB2;
+    background: #FF32302F;
+}
+#window.mainbox.listview.element.alternate.urgent {
+    foreground: #FF282828;
+    background: #FFCC241D;
+}
+#window.mainbox.listview.element.alternate.active {
+    foreground: #FF282828;
+    background: #FFD79921;
+}
+#window.mainbox.listview.scrollbar {
+    border:  0;
+    padding: 0;
+}
+#window.mainbox.sidebar.box {
+    border: 2px 0px 0px ;
+}
+#window.mainbox.inputbar {
+    spacing: 0;
+}
+#window.mainbox.inputbar.box {
+}
+#window.mainbox.inputbar.normal {
+    foreground: #FFEBDBB2;
+    background: #FF282828;
+}

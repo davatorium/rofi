@@ -1,0 +1,89 @@
+//! ------------------------------------------------------------------------------
+//! ROFI Color theme
+//! User: qball
+//! Copyright: Dave Davenport
+//! ------------------------------------------------------------------------------
+//! "Color scheme for normal row" Set from: File
+* {
+    spacing:    2;
+    background: #00000000;
+}
+#window {
+    border:     2;
+    foreground: #FFE8EAF6;
+    padding:    5;
+    background: #FF1A237E;
+}
+#window.mainbox {
+    border:  0;
+    padding: 0;
+}
+#window.mainbox.message.box {
+    border:  2px 0px 0px ;
+    padding: 2px 0px 0px ;
+}
+#window.mainbox.message.normal {
+    foreground: #FFE8EAF6;
+    background: #007986CB;
+}
+#window.mainbox.listview {
+    fixed-height: 1;
+    border:       2px 0px 0px ;
+    columns:      1;
+    padding:      2px 0px 0px ;
+}
+#window.mainbox.listview.element {
+    border: 0;
+}
+#window.mainbox.listview.element.normal.normal {
+    foreground: #FFE8EAF6;
+    background: #007986CB;
+}
+#window.mainbox.listview.element.normal.urgent {
+    foreground: #FFFFCDD2;
+    background: #00FDF6E3;
+}
+#window.mainbox.listview.element.normal.active {
+    foreground: #FFB2EBF2;
+    background: #00FDF6E3;
+}
+#window.mainbox.listview.element.selected.normal {
+    foreground: #FFE8EAF6;
+    background: #FF3F51B5;
+}
+#window.mainbox.listview.element.selected.urgent {
+    foreground: #FFB71C1C;
+    background: #FFFFCDD2;
+}
+#window.mainbox.listview.element.selected.active {
+    foreground: #FF006064;
+    background: #FFB2EBF2;
+}
+#window.mainbox.listview.element.alternate.normal {
+    foreground: #FFE8EAF6;
+    background: #FF283593;
+}
+#window.mainbox.listview.element.alternate.urgent {
+    foreground: #FFFFCDD2;
+    background: #FFB71C1C;
+}
+#window.mainbox.listview.element.alternate.active {
+    foreground: #FFB2EBF2;
+    background: #FF006064;
+}
+#window.mainbox.listview.scrollbar {
+    border:  0;
+    padding: 0;
+}
+#window.mainbox.sidebar.box {
+    border: 2px 0px 0px ;
+}
+#window.mainbox.inputbar {
+    spacing: 0;
+}
+#window.mainbox.inputbar.box {
+}
+#window.mainbox.inputbar.normal {
+    foreground: #FFE8EAF6;
+    background: #007986CB;
+}
