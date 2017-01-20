@@ -237,14 +237,20 @@ static char * combi_preprocess_input ( Mode *sw, const char *input )
 {
     CombiModePrivateData *pd = mode_get_private_data ( sw );
     pd->current = NULL;
-    if ( input != NULL && input[0] == '!' && strlen ( input ) > 1 ) {
-        for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
-            if ( input[1] == mode_get_name ( pd->switchers[i] )[0] ) {
-                pd->current = pd->switchers[i];
-                if ( input[2] == '\0' ) {
-                    return NULL;
+    if ( input != NULL && input[0] == '!' ) {
+        char *eob = strchrnul ( input, ' ' );
+        ssize_t bang_len = eob - input - 1;
+        if ( bang_len > 0 ) {
+            for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
+                const char *mode_name = mode_get_name ( pd->switchers[i] );
+                size_t mode_name_len = strlen ( mode_name );
+                if ( (size_t) bang_len <= mode_name_len && strncmp ( &input[1], mode_name, bang_len ) == 0 ) {
+                    pd->current = pd->switchers[i];
+                    if ( eob[0] == '\0' || eob[1] == '\0' ) {
+                        return NULL;
+                    }
+                    return g_strdup ( eob+1 );
                 }
-                return g_strdup ( &input[2] );
             }
         }
     }
