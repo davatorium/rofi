@@ -87,6 +87,8 @@ export DISPLAY=${VDISPLAY}
 
 # Create fake X11
 create_fake_x ${VDISPLAY}
+sleep 1
+fluxbox &
 sleep 1;
 compton -b 
 feh --bg-center background.jpg

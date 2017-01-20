@@ -499,6 +499,8 @@ The following properties are currently supports:
 
 A simple theme showing basic theming and transparent background:
 
+![example arthur](example-arthur.png)
+
 ```css
 * {
     foreground:  #ffeedd;
@@ -599,6 +601,8 @@ A simple theme showing basic theming and transparent background:
 ### Sidebar
 
 The previous theme modified to behave like a sidebar, positioned on the left of the screen.
+
+![example sidebar](example-sidebar.png)
 
 ```css
 * {
@@ -712,6 +716,8 @@ The previous theme modified to behave like a sidebar, positioned on the left of 
 ### Paper Float
 
 A theme that shows a floating inputbar.
+
+![example paper float](example-paper-float.png)
 
 > TODO: cleanup this theme.
 
