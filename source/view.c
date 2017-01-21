@@ -684,6 +684,8 @@ void __create_window ( MenuFlags menu_flags )
         else {
             dpi = ( xcb->screen->height_in_pixels * 25.4 ) / (double) ( xcb->screen->height_in_millimeters );
         }
+
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Auto-detected DPI: %.2lf", dpi );
         PangoFontMap *font_map = pango_cairo_font_map_get_default ();
         pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, dpi );
     }
