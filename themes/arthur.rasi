@@ -43,8 +43,7 @@
 }
 #window {
     location: center;
-    anchor:   north;
-    y-offset: -5em;
+    anchor:   center;
 }
 #window box {
     padding: 10px;
