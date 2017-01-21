@@ -861,9 +861,9 @@ gboolean rofi_theme_parse_file ( const char *file )
     yyin = fopen ( filename, "rb" );
     if ( yyin == NULL ) {
         char *str = g_markup_printf_escaped ( "Failed to open theme: <i>%s</i>\nError: <b>%s</b>",
-               filename, strerror ( errno ) );
+                                              filename, strerror ( errno ) );
         rofi_add_error_message ( g_string_new ( str ) );
-        g_free(str);
+        g_free ( str );
         g_free ( filename );
         return TRUE;
     }

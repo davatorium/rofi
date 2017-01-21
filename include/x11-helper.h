@@ -97,6 +97,7 @@ typedef struct _workarea
     int              w;
     /** Height of the monitor */
     int              h;
+    int              mw, mh;
     /** Output name of the monitor, e.g. eDP1 or VGA-1 */
     char             *name;
     /** Pointer to next monitor */

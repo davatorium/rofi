@@ -249,7 +249,7 @@ GRegex **tokenize ( const char *input, int case_sensitive )
     }
 
     char   *saveptr = NULL, *token;
-    GRegex **retv   = NULL;
+    GRegex **retv = NULL;
     if ( !config.tokenize ) {
         retv    = g_malloc0 ( sizeof ( GRegex* ) * 2 );
         retv[0] = (GRegex *) create_regex ( input, case_sensitive );
@@ -656,7 +656,7 @@ char *rofi_expand_path ( const char *input )
 /** Return the minimum value of a,b,c */
 #define MIN3( a, b, c )    ( ( a ) < ( b ) ? ( ( a ) < ( c ) ? ( a ) : ( c ) ) : ( ( b ) < ( c ) ? ( b ) : ( c ) ) )
 
-unsigned int levenshtein ( const char *needle, const glong needlelen,  const char *haystack, const glong haystacklen )
+unsigned int levenshtein ( const char *needle, const glong needlelen, const char *haystack, const glong haystacklen )
 {
     unsigned int column[needlelen + 1];
     for ( glong y = 0; y <= needlelen; y++ ) {
@@ -846,8 +846,8 @@ int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *st
     // uleft: value of the upper left cell; ulefts: maximum value of uleft and cells on the left. The arbitrary initial
     // values suppress warnings.
     int            uleft = 0, ulefts = 0, left, lefts;
-    const gchar    *pit  = pattern, *sit;
-    enum CharClass prev  = NON_WORD, cur;
+    const gchar    *pit = pattern, *sit;
+    enum CharClass prev = NON_WORD, cur;
     for ( si = 0, sit = str; si < slen; si++, sit = g_utf8_next_char ( sit ) ) {
         cur       = rofi_scorer_get_character_class ( g_utf8_get_char ( sit ) );
         score[si] = rofi_scorer_get_score_for ( prev, cur );
@@ -889,4 +889,3 @@ int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *st
     g_free ( dp );
     return -lefts;
 }
-

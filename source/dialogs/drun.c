@@ -194,9 +194,9 @@ static void exec_cmd_entry ( DRunModeEntry *e )
     }
     gchar *fp        = rofi_expand_path ( g_strstrip ( str ) );
     gchar *exec_path = g_key_file_get_string ( e->key_file, "Desktop Entry", "Path", NULL );
-    if ( exec_path != NULL && strlen(exec_path) == 0){
+    if ( exec_path != NULL && strlen ( exec_path ) == 0 ) {
         // If it is empty, ignore this property. (#529)
-        g_free(exec_path);
+        g_free ( exec_path );
         exec_path = NULL;
     }
 

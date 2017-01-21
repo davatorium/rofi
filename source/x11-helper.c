@@ -210,6 +210,9 @@ static workarea * x11_get_monitor_from_output ( xcb_randr_output_t out )
     retv->w = crtc_reply->width;
     retv->h = crtc_reply->height;
 
+    retv->mw = op_reply->mm_width;
+    retv->mh = op_reply->mm_height;
+
     char *tname    = (char *) xcb_randr_get_output_info_name ( op_reply );
     int  tname_len = xcb_randr_get_output_info_name_length ( op_reply );
 
@@ -337,6 +340,16 @@ void x11_dump_monitor_layout ( void )
         printf ( "%s            name%s: %s\n", ( is_term ) ? color_bold : "", is_term ? color_reset : "", iter->name );
         printf ( "%s        position%s: %d,%d\n", ( is_term ) ? color_bold : "", is_term ? color_reset : "", iter->x, iter->y );
         printf ( "%s            size%s: %d,%d\n", ( is_term ) ? color_bold : "", is_term ? color_reset : "", iter->w, iter->h );
+        if ( iter->mw > 0 && iter->mh > 0 ) {
+            printf ( "%s            size%s: %dmm,%dmm  dpi: %.0f,%.0f\n",
+                     ( is_term ) ? color_bold : "",
+                     is_term ? color_reset : "",
+                     iter->mw,
+                     iter->mh,
+                     iter->w * 25.4 / (double) iter->mw,
+                     iter->h * 25.4 / (double) iter->mh
+                     );
+        }
         printf ( "\n" );
     }
 }
@@ -679,9 +692,9 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
             }
         }
         else if  ( g_utf8_collate ( entry_lowered, "super" ) == 0 ||
-               g_utf8_collate ( entry_lowered, "super_l" ) == 0 ||
-               g_utf8_collate ( entry_lowered, "super_r" ) == 0
-                ) {
+                   g_utf8_collate ( entry_lowered, "super_l" ) == 0 ||
+                   g_utf8_collate ( entry_lowered, "super_r" ) == 0
+                   ) {
             modmask |= x11_mod_masks[X11MOD_SUPER];
             if  ( x11_mod_masks[X11MOD_SUPER] == 0 ) {
                 error_msg = g_strdup ( "X11 configured keyboard has no <b>Super</b> key.\n" );
@@ -701,7 +714,7 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
         }
         else {
             if ( sym != XKB_KEY_NoSymbol ) {
-                error_msg = g_markup_printf_escaped ( "Only one (non modifier) key can be bound per binding: <b>%s</b> is invalid.\n", entry);
+                error_msg = g_markup_printf_escaped ( "Only one (non modifier) key can be bound per binding: <b>%s</b> is invalid.\n", entry );
             }
             sym = xkb_keysym_from_name ( entry, XKB_KEYSYM_NO_FLAGS );
             if ( sym == XKB_KEY_NoSymbol ) {

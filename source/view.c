@@ -61,8 +61,7 @@
 #include "theme.h"
 
 /** The Rofi View log domain */
-#define LOG_DOMAIN                      "View"
-
+#define LOG_DOMAIN    "View"
 
 #include "xcb.h"
 /**
@@ -343,10 +342,10 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
         break;
     }
     // Apply offset.
-    Distance x = rofi_theme_get_distance ( WIDGET ( state->main_window), "x-offset", config.x_offset );
-    Distance y = rofi_theme_get_distance ( WIDGET ( state->main_window), "y-offset", config.y_offset );
-    state->x += distance_get_pixel(x, ORIENTATION_HORIZONTAL);
-    state->y += distance_get_pixel(y, ORIENTATION_VERTICAL);
+    Distance x = rofi_theme_get_distance ( WIDGET ( state->main_window ), "x-offset", config.x_offset );
+    Distance y = rofi_theme_get_distance ( WIDGET ( state->main_window ), "y-offset", config.y_offset );
+    state->x += distance_get_pixel ( x, ORIENTATION_HORIZONTAL );
+    state->y += distance_get_pixel ( y, ORIENTATION_VERTICAL );
 }
 
 static void rofi_view_window_update_size ( RofiViewState * state )
@@ -558,11 +557,12 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
             t->state->line_map[t->start + t->count] = i;
             if ( config.sort ) {
                 // This is inefficient, need to fix it.
-                char * str = mode_get_completion ( t->state->sw, i );
-                glong slen = g_utf8_strlen ( str, -1 );
+                char  * str = mode_get_completion ( t->state->sw, i );
+                glong slen  = g_utf8_strlen ( str, -1 );
                 if ( config.levenshtein_sort || config.matching_method != MM_FUZZY  ) {
                     t->state->distance[i] = levenshtein ( pattern, plen, str, slen );
-                } else {
+                }
+                else {
                     t->state->distance[i] = rofi_scorer_fuzzy_evaluate ( pattern, plen, str, slen );
                 }
                 g_free ( str );
@@ -666,10 +666,26 @@ void __create_window ( MenuFlags menu_flags )
     PangoContext *p = pango_cairo_create_context ( CacheState.edit_draw );
     // Set the font options from the xlib surface
     pango_cairo_context_set_font_options ( p, fo );
+
+    CacheState.main_window = box;
+    CacheState.flags       = menu_flags;
+    monitor_active ( &( CacheState.mon ) );
     // Setup dpi
     if ( config.dpi > 0 ) {
         PangoFontMap *font_map = pango_cairo_font_map_get_default ();
         pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, (double) config.dpi );
+    }
+    else if  ( config.dpi == 0 ) {
+        // Auto-detect mode.
+        double dpi = 96;
+        if ( CacheState.mon.mh > 0 ) {
+            dpi = ( CacheState.mon.h * 25.4 ) / (double) ( CacheState.mon.mh );
+        }
+        else {
+            dpi = ( xcb->screen->height_in_pixels * 25.4 ) / (double) ( xcb->screen->height_in_millimeters );
+        }
+        PangoFontMap *font_map = pango_cairo_font_map_get_default ();
+        pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, dpi );
     }
     // Setup font.
     // Dummy widget.
@@ -709,10 +725,6 @@ void __create_window ( MenuFlags menu_flags )
     // Set the WM_NAME
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box, xcb->ewmh._NET_WM_NAME, xcb->ewmh.UTF8_STRING, 8, 4, "rofi" );
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, 4, "rofi" );
-
-    CacheState.main_window = box;
-    CacheState.flags       = menu_flags;
-    monitor_active ( &( CacheState.mon ) );
 
     char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
     if ( transparency == NULL && config.fake_transparency ) {
@@ -1102,8 +1114,8 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
         menu_capture_screenshot ( );
         break;
     case TOGGLE_SORT:
-        config.sort             = !config.sort;
-        state->refilter         = TRUE;
+        config.sort     = !config.sort;
+        state->refilter = TRUE;
         textbox_text ( state->case_indicator, get_matching_state () );
         break;
     case MODE_PREVIOUS:

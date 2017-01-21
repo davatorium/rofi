@@ -209,8 +209,6 @@ char * rofi_latin_to_utf8_strdup ( const char *input, gssize length );
  */
 PangoAttrList *token_match_get_pango_attr ( ThemeHighlight th, GRegex **tokens, const char *input, PangoAttrList *retv );
 
-
-
 /**
  * @param pattern   The user input to match against.
  * @param plen      Pattern length.

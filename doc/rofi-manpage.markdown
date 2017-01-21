@@ -51,6 +51,7 @@
 [ -no-show-match ]
 [ -theme *filename* ]
 [ -theme-str *string* ]
+[ -dpi *dpi* ]
 
 ## DESCRIPTION
 
@@ -407,6 +408,13 @@ For example
     rofi -theme-str '#window { fullscreen: true; }'
 
 This option can be specified multiple times.
+
+
+
+`-dpi`  *number*
+
+Override the default DPI setting.
+If set to `0` it tries to auto-detect based on monitor.
 
 ### PATTERN setting
 
