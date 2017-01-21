@@ -671,9 +671,14 @@ void __create_window ( MenuFlags menu_flags )
     CacheState.flags       = menu_flags;
     monitor_active ( &( CacheState.mon ) );
     // Setup dpi
-    if ( config.dpi > 0 ) {
+    double dpi = config.dpi;
+    if ( dpi <= 0 ) {
+        // Default to using X11's vertical dpi
+        dpi = (double) xcb->screen->height_in_pixels * 25.4 / (double) xcb->screen->height_in_millimeters;
+    }
+    if ( dpi > 0 ) {
         PangoFontMap *font_map = pango_cairo_font_map_get_default ();
-        pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, (double) config.dpi );
+        pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, dpi );
     }
     else if  ( config.dpi == 0 ) {
         // Auto-detect mode.
