@@ -209,7 +209,7 @@ static void menu_capture_screenshot ( void )
     fprintf ( stderr, color_green "Storing screenshot %s\n"color_reset, fpath );
     cairo_status_t status = cairo_surface_write_to_png ( CacheState.edit_surf, fpath );
     if ( status != CAIRO_STATUS_SUCCESS ) {
-        fprintf ( stderr, "Failed to produce screenshot '%s', got error: '%s'\n", filename,
+        fprintf ( stderr, "Failed to produce screenshot '%s', got error: '%s'\n", fpath,
                   cairo_status_to_string ( status ) );
     }
     g_free ( fpath );
@@ -671,14 +671,14 @@ void __create_window ( MenuFlags menu_flags )
     CacheState.flags       = menu_flags;
     monitor_active ( &( CacheState.mon ) );
     // Setup dpi
-    if ( config.dpi > 0 ) {
+    if ( config.dpi > 1 ) {
         PangoFontMap *font_map = pango_cairo_font_map_get_default ();
         pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, (double) config.dpi );
     }
-    else if  ( config.dpi == 0 ) {
+    else if  ( config.dpi == 0 || config.dpi == 1 ) {
         // Auto-detect mode.
         double dpi = 96;
-        if ( CacheState.mon.mh > 0 ) {
+        if ( CacheState.mon.mh > 0  && config.dpi == 1 ) {
             dpi = ( CacheState.mon.h * 25.4 ) / (double) ( CacheState.mon.mh );
         }
         else {

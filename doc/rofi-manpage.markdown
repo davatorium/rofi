@@ -414,7 +414,8 @@ This option can be specified multiple times.
 `-dpi`  *number*
 
 Override the default DPI setting.
-If set to `0` it tries to auto-detect based on monitor.
+If set to `0` it tries to auto-detect based on X11 screen size. (Similar to i3 and GTK)
+If set to `1` it tries to auto-detect based on monitor (rofi is displayed on) size. (Similar to latest QT5) 
 
 ### PATTERN setting
 
