@@ -169,7 +169,7 @@ function set_theme()
     fi
     if [ -f "${CDIR}/config" ]
     then
-        ${SED} -i "/rofi\.theme: \".*\.rasi\"$/d" "${CDIR}/config"
+        ${SED} -i "/rofi\.theme: .*\.rasi$/d" "${CDIR}/config"
     fi
     echo "rofi.theme: ${1}" >> "${CDIR}/config"
 

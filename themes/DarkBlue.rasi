@@ -78,6 +78,11 @@
 #window.mainbox.sidebar.box {
     border: 2px 0px 0px ;
 }
+#window.mainbox.sidebar.button selected{
+    border: 2px 0px 0px ;
+    foreground: #FF02143F;
+    background: #FFDBDFBC;
+}
 #window.mainbox.inputbar {
     spacing: 0;
 }
