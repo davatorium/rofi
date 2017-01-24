@@ -57,6 +57,16 @@ static PangoContext     *p_context = NULL;
 /** The pango font metrics */
 static PangoFontMetrics *p_metrics = NULL;
 
+/** Cache to hold font descriptions. This it to avoid having to lookup each time. */
+typedef struct TBFontConfig {
+    /** Font description */
+    PangoFontDescription *pfd;
+    /** Font metrics */
+    PangoFontMetrics     *metrics;
+}TBFontConfig;
+
+static GHashTable *tbfc_cache = NULL;
+
 static gboolean textbox_blink ( gpointer data )
 {
     textbox *tb = (textbox *) data;
@@ -110,6 +120,22 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
     tb->main_draw    = cairo_create ( tb->main_surface );
     tb->layout       = pango_layout_new ( p_context );
     textbox_font ( tb, tbft );
+
+    tb->metrics = p_metrics;
+    char * font = rofi_theme_get_string ( WIDGET ( tb ), "font", NULL );
+    if ( font ){
+        TBFontConfig *tbfc = g_hash_table_lookup ( tbfc_cache, font );
+        if ( tbfc == NULL ){
+            tbfc = g_malloc0 ( sizeof (tbfc) );
+            tbfc->pfd = pango_font_description_from_string ( font );
+            tbfc->metrics = pango_context_get_metrics ( p_context, tbfc->pfd, NULL );
+            g_hash_table_insert ( tbfc_cache, font, tbfc);
+        }
+        // Update for used font.
+        pango_layout_set_font_description ( tb->layout, tbfc->pfd );
+        tb->metrics = tbfc->metrics;
+    }
+
 
     if ( ( flags & TB_WRAP ) == TB_WRAP ) {
         pango_layout_set_wrap ( tb->layout, PANGO_WRAP_WORD_CHAR );
@@ -359,7 +385,7 @@ static void texbox_update ( textbox *tb )
             int tw = textbox_get_font_width ( tb );
             x = (  ( tb->widget.w - tw - widget_padding_get_padding_width ( WIDGET ( tb ) ) - offset ) ) / 2;
         }
-        y = widget_padding_get_top ( WIDGET ( tb ) ) + ( pango_font_metrics_get_ascent ( p_metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
+        y = widget_padding_get_top ( WIDGET ( tb ) ) + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
         rofi_theme_get_color ( WIDGET ( tb ), "foreground", tb->main_draw );
         // Text
@@ -702,23 +728,31 @@ gboolean textbox_append_char ( textbox *tb, const char *pad, const int pad_len )
     return FALSE;
 }
 
+static void tbfc_entry_free ( TBFontConfig *tbfc )
+{
+    pango_font_metrics_unref ( tbfc->metrics);
+    if ( tbfc->pfd ){
+        pango_font_description_free ( tbfc->pfd );
+    }
+}
 void textbox_setup ( void )
 {
+    tbfc_cache = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify)tbfc_entry_free );
 }
-
-void textbox_set_pango_context ( PangoContext *p )
+const char *default_font_name = "default";
+void textbox_set_pango_context ( const char *font, PangoContext *p )
 {
-    textbox_cleanup ();
+    g_assert ( p_metrics == NULL);
     p_context = g_object_ref ( p );
     p_metrics = pango_context_get_metrics ( p_context, NULL, NULL );
+    TBFontConfig *tbfc = g_malloc0 ( sizeof (tbfc) );
+    tbfc->metrics = p_metrics;
+    g_hash_table_insert ( tbfc_cache,(gpointer *)(font?font:default_font_name), tbfc );
 }
 
 void textbox_cleanup ( void )
 {
-    if ( p_metrics ) {
-        pango_font_metrics_unref ( p_metrics );
-        p_metrics = NULL;
-    }
+    g_hash_table_destroy ( tbfc_cache );
     if ( p_context ) {
         g_object_unref ( p_context );
         p_context = NULL;
@@ -786,6 +820,6 @@ double textbox_get_estimated_char_width ( void )
 
 int textbox_get_estimated_height ( const textbox *tb, int eh )
 {
-    int height = pango_font_metrics_get_ascent ( p_metrics ) + pango_font_metrics_get_descent ( p_metrics );
+    int height = pango_font_metrics_get_ascent ( tb->metrics ) + pango_font_metrics_get_descent ( tb->metrics );
     return ( eh * height ) / PANGO_SCALE + widget_padding_get_padding_height ( WIDGET ( tb ) );
 }

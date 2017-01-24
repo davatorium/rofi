@@ -699,7 +699,7 @@ void __create_window ( MenuFlags menu_flags )
         pango_font_description_free ( pfd );
     }
     // Tell textbox to use this context.
-    textbox_set_pango_context ( p );
+    textbox_set_pango_context ( font, p );
     // cleanup
     g_object_unref ( p );
     cairo_font_options_destroy ( fo );

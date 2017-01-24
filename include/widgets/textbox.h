@@ -39,6 +39,8 @@ typedef struct
     int             update;
     int             blink;
     guint           blink_timeout;
+
+    PangoFontMetrics     *metrics;
     //
     const char      *theme_name;
 } textbox;
@@ -237,11 +239,12 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
  */
 int textbox_get_estimated_height ( const textbox *tb, int eh );
 /**
+ * @param font The name of the font used.
  * @param p The new default PangoContext
  *
  * Set the default pango context (with font description) for all textboxes.
  */
-void textbox_set_pango_context ( PangoContext *p );
+void textbox_set_pango_context ( const char *font, PangoContext *p );
 /**
  * @param tb Handle to the textbox
  * @param list New pango attributes
