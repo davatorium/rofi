@@ -53,7 +53,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     cairo_surface_t *surf = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, 100, 100 );
     cairo_t         *draw = cairo_create ( surf );
     PangoContext    *p    = pango_cairo_create_context ( draw );
-    textbox_set_pango_context ( p );
+    textbox_set_pango_context ( "default", p );
 
     textbox *box = textbox_create ( "textbox", TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "test" );
     TASSERT ( box != NULL );
