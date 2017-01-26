@@ -889,3 +889,26 @@ int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *st
     g_free ( dp );
     return -lefts;
 }
+
+/**
+ * @param a    UTF-8 string to compare
+ * @param b    UTF-8 string to compare
+ * @param n    Maximum number of characters to compare
+ *
+ * Compares the `G_NORMALIZE_ALL_COMPOSE` forms of the two strings.
+ *
+ * @returns less than, equal to, or greater than zero if the first `n` characters (not bytes) of `a`
+ *          are found, respectively, to be less than, to match, or be greater than the first `n`
+ *          characters (not bytes) of `b`.
+ */
+int utf8_strncmp ( const char* a, const char* b, size_t n )
+{
+    char *na = g_utf8_normalize ( a, -1, G_NORMALIZE_ALL_COMPOSE );
+    char *nb = g_utf8_normalize ( b, -1, G_NORMALIZE_ALL_COMPOSE );
+    *g_utf8_offset_to_pointer ( na, n ) = '\0';
+    *g_utf8_offset_to_pointer ( nb, n ) = '\0';
+    int r = g_utf8_collate ( na, nb );
+    g_free ( na );
+    g_free ( nb );
+    return r;
+}
