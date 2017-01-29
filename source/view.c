@@ -37,6 +37,7 @@
 #include <xkbcommon/xkbcommon-x11.h>
 #include <xcb/xkb.h>
 #include <xcb/xcb_ewmh.h>
+#include <xcb/xcb_icccm.h>
 
 #include <cairo.h>
 #include <cairo-xcb.h>
@@ -727,6 +728,9 @@ void __create_window ( MenuFlags menu_flags )
     // Set the WM_NAME
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box, xcb->ewmh._NET_WM_NAME, xcb->ewmh.UTF8_STRING, 8, 4, "rofi" );
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, 4, "rofi" );
+
+    const char wm_class_name[] = "rofi\0Rofi";
+    xcb_icccm_set_wm_class ( xcb->connection, box, sizeof(wm_class_name),wm_class_name); 
 
     char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
     if ( transparency == NULL && config.fake_transparency ) {
