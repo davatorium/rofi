@@ -168,10 +168,22 @@ static void async_read_cancel ( G_GNUC_UNUSED GCancellable *cancel, G_GNUC_UNUSE
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Cancelled the async read." );
 }
 
-static void get_dmenu_async ( DmenuModePrivateData *pd )
+static int get_dmenu_async ( DmenuModePrivateData *pd, int sync_pre_read )
 {
+    while(sync_pre_read-- ){
+        gsize len   = 0;
+        char  *data = g_data_input_stream_read_upto ( pd->data_input_stream, &( pd->separator ), 1, &len, NULL, NULL );
+        if ( data == NULL ) {
+            g_input_stream_close_async ( G_INPUT_STREAM ( pd->input_stream ), G_PRIORITY_LOW, pd->cancel, async_close_callback, pd );
+            return FALSE;
+        }
+        g_data_input_stream_read_byte ( pd->data_input_stream, NULL, NULL );
+        read_add ( pd, data, len );
+        g_free ( data );
+    }
     g_data_input_stream_read_upto_async ( pd->data_input_stream, &( pd->separator ), 1, G_PRIORITY_LOW, pd->cancel,
                                           async_read_callback, pd );
+    return TRUE;
 }
 static void get_dmenu_sync ( DmenuModePrivateData *pd )
 {
@@ -622,7 +634,9 @@ int dmenu_switcher_dialog ( void )
         async = FALSE;
     }
     if ( async ) {
-        get_dmenu_async ( pd );
+        unsigned int pre_read = 0;
+        find_arg_uint("-async-pre-read", &pre_read);
+        async = get_dmenu_async ( pd, pre_read );
     }
     else {
         get_dmenu_sync ( pd );
