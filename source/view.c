@@ -525,6 +525,9 @@ typedef struct _thread_state
     GCond         *cond;
     GMutex        *mutex;
     unsigned int  *acount;
+
+    const char    *pattern;
+    glong         plen;
     void ( *callback )( struct _thread_state *t, gpointer data );
 }thread_state;
 /**
@@ -545,12 +548,6 @@ static void rofi_view_call_thread ( gpointer data, gpointer user_data )
 
 static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
 {
-    char  *pattern = NULL;
-    glong plen     = 0;
-    if ( config.sort ) {
-        pattern = mode_preprocess_input ( t->state->sw, t->state->text->text );
-        plen    = g_utf8_strlen ( pattern, -1 );
-    }
     for ( unsigned int i = t->start; i < t->stop; i++ ) {
         int match = mode_token_match ( t->state->sw, t->state->tokens, i );
         // If each token was matched, add it to list.
@@ -561,18 +558,15 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
                 char  * str = mode_get_completion ( t->state->sw, i );
                 glong slen  = g_utf8_strlen ( str, -1 );
                 if ( config.levenshtein_sort || config.matching_method != MM_FUZZY  ) {
-                    t->state->distance[i] = levenshtein ( pattern, plen, str, slen );
+                    t->state->distance[i] = levenshtein ( t->pattern, t->plen, str, slen );
                 }
                 else {
-                    t->state->distance[i] = rofi_scorer_fuzzy_evaluate ( pattern, plen, str, slen );
+                    t->state->distance[i] = rofi_scorer_fuzzy_evaluate ( t->pattern, t->plen, str, slen );
                 }
                 g_free ( str );
             }
             t->count++;
         }
-    }
-    if ( pattern ) {
-        g_free ( pattern );
     }
 }
 static void rofi_view_setup_fake_transparency ( const char const *fake_background )
@@ -1005,9 +999,9 @@ static void rofi_view_refilter ( RofiViewState *state )
     }
     if ( strlen ( state->text->text ) > 0 ) {
         unsigned int j      = 0;
-        gchar        *input = mode_preprocess_input ( state->sw, state->text->text );
-        state->tokens = tokenize ( input, config.case_sensitive );
-        g_free ( input );
+        gchar        *pattern = mode_preprocess_input ( state->sw, state->text->text );
+        glong        plen = g_utf8_strlen ( pattern, -1 );
+        state->tokens = tokenize ( pattern, config.case_sensitive );
         /**
          * On long lists it can be beneficial to parallelize.
          * If number of threads is 1, no thread is spawn.
@@ -1030,6 +1024,8 @@ static void rofi_view_refilter ( RofiViewState *state )
             states[i].cond     = &cond;
             states[i].mutex    = &mutex;
             states[i].acount   = &count;
+            states[i].plen     = plen;
+            states[i].pattern  = pattern;
             states[i].callback = filter_elements;
             if ( i > 0 ) {
                 g_thread_pool_push ( tpool, &states[i], NULL );
@@ -1059,6 +1055,7 @@ static void rofi_view_refilter ( RofiViewState *state )
 
         // Cleanup + bookkeeping.
         state->filtered_lines = j;
+        g_free ( pattern );
     }
     else{
         for ( unsigned int i = 0; i < state->num_lines; i++ ) {
