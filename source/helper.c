@@ -442,10 +442,12 @@ PangoAttrList *token_match_get_pango_attr ( ThemeHighlight th, GRegex **tokens, 
 
 int token_match ( GRegex * const *tokens, const char *input )
 {
-    int match = ( tokens != NULL );
+    int match = TRUE;
     // Do a tokenized match.
-    for ( int j = 0; match && tokens[j]; j++ ) {
-        match = g_regex_match ( (const GRegex *) tokens[j], input, 0, NULL );
+    if ( tokens ) {
+        for ( int j = 0; match && tokens[j]; j++ ) {
+            match = g_regex_match ( (const GRegex *) tokens[j], input, 0, NULL );
+        }
     }
     return match;
 }
