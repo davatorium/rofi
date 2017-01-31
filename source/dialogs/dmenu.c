@@ -158,6 +158,7 @@ static void async_read_callback ( GObject *source_object, GAsyncResult *res, gpo
     }
     if ( !g_cancellable_is_cancelled ( pd->cancel ) ) {
         // Hack, don't use get active.
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Clearing overlay");
         rofi_view_set_overlay ( rofi_view_get_active (), NULL );
         g_input_stream_close_async ( G_INPUT_STREAM ( stream ), G_PRIORITY_LOW, pd->cancel, async_close_callback, pd );
     }

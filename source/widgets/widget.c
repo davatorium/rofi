@@ -81,6 +81,7 @@ void widget_enable ( widget *widget )
         widget->enabled = TRUE;
         widget_update ( widget );
         widget_update ( widget->parent );
+        widget_queue_redraw ( widget );
     }
 }
 void widget_disable ( widget *widget )
@@ -89,6 +90,7 @@ void widget_disable ( widget *widget )
         widget->enabled = FALSE;
         widget_update ( widget );
         widget_update ( widget->parent );
+        widget_queue_redraw ( widget );
     }
 }
 void widget_draw ( widget *widget, cairo_t *d )

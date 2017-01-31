@@ -877,7 +877,7 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
 
 void rofi_view_update ( RofiViewState *state, gboolean qr )
 {
-    if ( !widget_need_redraw ( WIDGET ( state->main_window ) ) && !widget_need_redraw ( WIDGET ( state->overlay ) )  ) {
+    if ( !widget_need_redraw ( WIDGET ( state->main_window ) ) ) {
         return;
     }
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Redraw view" );
@@ -1585,6 +1585,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     }
 
     state->overlay = textbox_create ( "window.overlay", TB_AUTOWIDTH | TB_AUTOHEIGHT, URGENT, "blaat"  );
+    state->overlay->widget.parent = WIDGET(state->main_window);
     widget_disable ( WIDGET ( state->overlay ) );
 
     state->list_view = listview_create ( "window.mainbox.listview", update_callback, state, config.element_height, end );
