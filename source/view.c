@@ -642,9 +642,11 @@ void __create_window ( MenuFlags menu_flags )
         printf ( "xcb_create_window() failed error=0x%x\n", error->error_code );
         exit ( EXIT_FAILURE );
     }
+    TICK_N ( "xcb create window");
     CacheState.gc = xcb_generate_id ( xcb->connection );
     xcb_create_gc ( xcb->connection, CacheState.gc, box, 0, 0 );
 
+    TICK_N ( "xcb create gc");
     // Create a drawable.
     CacheState.edit_pixmap = xcb_generate_id ( xcb->connection );
     xcb_create_pixmap ( xcb->connection, depth->depth,
@@ -653,6 +655,7 @@ void __create_window ( MenuFlags menu_flags )
     CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, 200, 100 );
     CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
 
+    TICK_N ( "create cairo surface");
     // Set up pango context.
     cairo_font_options_t *fo = cairo_font_options_create ();
     // Take font description from xlib surface
@@ -661,6 +664,7 @@ void __create_window ( MenuFlags menu_flags )
     PangoContext *p = pango_cairo_create_context ( CacheState.edit_draw );
     // Set the font options from the xlib surface
     pango_cairo_context_set_font_options ( p, fo );
+    TICK_N ( "pango cairo font setup");
 
     CacheState.main_window = box;
     CacheState.flags       = menu_flags;
@@ -693,12 +697,14 @@ void __create_window ( MenuFlags menu_flags )
         pango_context_set_font_description ( p, pfd );
         pango_font_description_free ( pfd );
     }
+    TICK_N ( "configure font");
     // Tell textbox to use this context.
     textbox_set_pango_context ( font, p );
     // cleanup
     g_object_unref ( p );
     cairo_font_options_destroy ( fo );
 
+    TICK_N ( "textbox setup");
     // // make it an unmanaged window
     if ( ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) ) {
         window_set_atom_prop ( box, xcb->ewmh._NET_WM_STATE, &( xcb->ewmh._NET_WM_STATE_ABOVE ), 1 );
@@ -710,6 +716,7 @@ void __create_window ( MenuFlags menu_flags )
         x11_disable_decoration ( box );
     }
 
+    TICK_N ( "setup window attributes");
     CacheState.fullscreen = rofi_theme_get_boolean ( WIDGET ( win ), "fullscreen", config.fullscreen );
     if ( CacheState.fullscreen ) {
         xcb_atom_t atoms[] = {
@@ -719,6 +726,7 @@ void __create_window ( MenuFlags menu_flags )
         window_set_atom_prop (  box, xcb->ewmh._NET_WM_STATE, atoms, sizeof ( atoms ) / sizeof ( xcb_atom_t ) );
     }
 
+    TICK_N ( "setup window fullscreen");
     // Set the WM_NAME
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box, xcb->ewmh._NET_WM_NAME, xcb->ewmh.UTF8_STRING, 8, 4, "rofi" );
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, 4, "rofi" );
@@ -726,6 +734,7 @@ void __create_window ( MenuFlags menu_flags )
     const char wm_class_name[] = "rofi\0Rofi";
     xcb_icccm_set_wm_class ( xcb->connection, box, sizeof(wm_class_name),wm_class_name); 
 
+    TICK_N ( "setup window name and class");
     char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
     if ( transparency == NULL && config.fake_transparency ) {
         transparency = config.fake_background;
@@ -736,7 +745,9 @@ void __create_window ( MenuFlags menu_flags )
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_setup_window ( xcb->sncontext, CacheState.main_window );
     }
+    TICK_N ( "setup startup notification");
     widget_free ( WIDGET ( win ) );
+    TICK_N ( "done");
 }
 
 /**
