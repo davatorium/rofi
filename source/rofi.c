@@ -857,6 +857,7 @@ int main ( int argc, char *argv[] )
         fprintf ( stderr, "Failed to create EWMH atoms\n" );
         free ( errors );
     }
+    TICK_N ( "Setup XCB" );
 
     if ( xkb_x11_setup_xkb_extension ( xcb->connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
                                        XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS, NULL, NULL, &xkb.first_event, NULL ) < 0 ) {
@@ -938,6 +939,7 @@ int main ( int argc, char *argv[] )
         exit ( EXIT_FAILURE );
     }
     x11_setup ( &xkb );
+    TICK_N ( "Setup xkb" );
     if ( xcb_connection_has_error ( xcb->connection ) ) {
         fprintf ( stderr, "Connection has error\n" );
         exit ( EXIT_FAILURE );

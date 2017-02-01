@@ -697,7 +697,10 @@ void __create_window ( MenuFlags menu_flags )
         pango_context_set_font_description ( p, pfd );
         pango_font_description_free ( pfd );
     }
+    PangoLanguage *l = pango_language_get_default();
+    pango_context_set_language ( p, l );
     TICK_N ( "configure font");
+
     // Tell textbox to use this context.
     textbox_set_pango_context ( font, p );
     // cleanup
@@ -732,7 +735,7 @@ void __create_window ( MenuFlags menu_flags )
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, 4, "rofi" );
 
     const char wm_class_name[] = "rofi\0Rofi";
-    xcb_icccm_set_wm_class ( xcb->connection, box, sizeof(wm_class_name),wm_class_name); 
+    xcb_icccm_set_wm_class ( xcb->connection, box, sizeof(wm_class_name),wm_class_name);
 
     TICK_N ( "setup window name and class");
     char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
