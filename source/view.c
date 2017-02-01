@@ -1084,16 +1084,13 @@ static void rofi_view_refilter ( RofiViewState *state )
         state->retv              = MENU_OK;
         state->quit              = TRUE;
     }
-
-    // Make sure we enable fixed num lines when in normal window mode.
-    if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
-        int height = rofi_view_calculate_height ( state );
-        if ( height != state->height ) {
-            state->height = height;
-            rofi_view_calculate_window_position ( state );
-            rofi_view_window_update_size ( state );
-            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Resize based on re-filter" );
-        }
+    // Size the window.
+    int height = rofi_view_calculate_height ( state );
+    if ( height != state->height ) {
+        state->height = height;
+        rofi_view_calculate_window_position ( state );
+        rofi_view_window_update_size ( state );
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Resize based on re-filter" );
     }
     state->refilter = FALSE;
     TICK_N ( "Filter done" );
