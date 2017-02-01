@@ -33,10 +33,6 @@ typedef struct
     int             markup;
     int             changed;
 
-    cairo_surface_t *main_surface;
-    cairo_t         *main_draw;
-
-    int             update;
     int             blink;
     guint           blink_timeout;
 
