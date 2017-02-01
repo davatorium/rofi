@@ -650,6 +650,12 @@ Force rofi mode to first read all data from stdin before showing selection windo
 Note: the default asynchronous mode will also be automatically disabled if used with conflicting options
 such as `-dump`, `-only-match` or `-auto-select`
 
+`-async-pre-read` *number*
+
+Reads the first 25 entries blocking. Then switches to async mode. This makes it feel more 'snappy'.
+
+*default*: 25
+
 ### Message dialog
 
 `-e` *message*
