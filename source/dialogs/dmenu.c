@@ -635,7 +635,7 @@ int dmenu_switcher_dialog ( void )
         async = FALSE;
     }
     if ( async ) {
-        unsigned int pre_read = 0;
+        unsigned int pre_read = 25;
         find_arg_uint("-async-pre-read", &pre_read);
         async = get_dmenu_async ( pd, pre_read );
     }
@@ -728,4 +728,5 @@ void print_dmenu_options ( void )
     print_help_msg ( "-sep", "[char]", "Element separator.", "'\\n'", is_term );
     print_help_msg ( "-input", "[filename]", "Read input from file instead from standard input.", NULL, is_term );
     print_help_msg ( "-sync", "", "Force dmenu to first read all input data, then show dialog.", NULL, is_term );
+    print_help_msg ( "-async-pre-read", "[number]", "Read several entries blocking before switching to async mode", "25", is_term);
 }

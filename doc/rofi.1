@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-MANPAGE" "" "January 2017" "" ""
+.TH "ROFI\-MANPAGE" "" "February 2017" "" ""
 .
 .SH "NAME"
 \fBrofi\fR \- A window switcher, run launcher, ssh dialog and dmenu replacement
@@ -1006,6 +1006,15 @@ Force rofi mode to first read all data from stdin before showing selection windo
 .
 .P
 Note: the default asynchronous mode will also be automatically disabled if used with conflicting options such as \fB\-dump\fR, \fB\-only\-match\fR or \fB\-auto\-select\fR
+.
+.P
+\fB\-async\-pre\-read\fR \fInumber\fR
+.
+.P
+Reads the first 25 entries blocking\. Then switches to async mode\. This makes it feel more \'snappy\'\.
+.
+.P
+\fIdefault\fR: 25
 .
 .SS "Message dialog"
 \fB\-e\fR \fImessage\fR
