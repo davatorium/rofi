@@ -215,9 +215,9 @@ Select the scrolling method. 0: Per page, 1: continuous.
 
 Hide the indicator that shows what part of the string is matched.
 
-`-lazy-grab`
+`-no-lazy-grab`
 
-When fail to grab keyboard, don't block but retry later in background.
+Disables lazy grab, this forces the keyboard being grabbed before gui is shown.
 
 ### Theming
 
