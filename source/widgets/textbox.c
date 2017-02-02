@@ -126,7 +126,7 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
     if ( font ){
         TBFontConfig *tbfc = g_hash_table_lookup ( tbfc_cache, font );
         if ( tbfc == NULL ){
-            tbfc = g_malloc0 ( sizeof (tbfc) );
+            tbfc = g_malloc0 ( sizeof (TBFontConfig) );
             tbfc->pfd = pango_font_description_from_string ( font );
             tbfc->metrics = pango_context_get_metrics ( p_context, tbfc->pfd, NULL );
             g_hash_table_insert ( tbfc_cache, font, tbfc);
@@ -734,6 +734,7 @@ static void tbfc_entry_free ( TBFontConfig *tbfc )
     if ( tbfc->pfd ){
         pango_font_description_free ( tbfc->pfd );
     }
+    g_free ( tbfc );
 }
 void textbox_setup ( void )
 {
@@ -745,7 +746,7 @@ void textbox_set_pango_context ( const char *font, PangoContext *p )
     g_assert ( p_metrics == NULL);
     p_context = g_object_ref ( p );
     p_metrics = pango_context_get_metrics ( p_context, NULL, NULL );
-    TBFontConfig *tbfc = g_malloc0 ( sizeof (tbfc) );
+    TBFontConfig *tbfc = g_malloc0 ( sizeof (TBFontConfig) );
     tbfc->metrics = p_metrics;
     g_hash_table_insert ( tbfc_cache,(gpointer *)(font?font:default_font_name), tbfc );
 }
