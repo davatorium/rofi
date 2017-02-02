@@ -98,14 +98,13 @@ typedef struct
     char         *generic_name;
 
     GKeyFile     *key_file;
-    /* Application needs to be launched in terminal. */
-    unsigned int terminal;
 } DRunModeEntry;
 
 typedef struct
 {
     DRunModeEntry *entry_list;
     unsigned int  cmd_list_length;
+    unsigned int  cmd_list_length_actual;
     unsigned int  history_length;
     // List of disabled entries.
     GHashTable    *disabled_entries;
@@ -200,7 +199,9 @@ static void exec_cmd_entry ( DRunModeEntry *e )
         exec_path = NULL;
     }
 
-    if ( execsh ( exec_path, fp, e->terminal ) ) {
+    // Returns false if not found, if key not found, we don't want run in terminal.
+    gboolean terminal = g_key_file_get_boolean ( e->key_file, "Desktop Entry", "Terminal", NULL );
+    if ( execsh ( exec_path, fp, terminal ) ) {
         char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
         char *key  = g_strdup_printf ( "%s:::%s", e->root, e->path );
         history_set ( path, key );
@@ -286,7 +287,10 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         return;
     }
     size_t nl = ( ( pd->cmd_list_length ) + 1 );
-    pd->entry_list                           = g_realloc ( pd->entry_list, nl * sizeof ( *( pd->entry_list ) ) );
+    if ( nl >= pd->cmd_list_length_actual ) {
+        pd->cmd_list_length_actual+=256;
+        pd->entry_list                           = g_realloc ( pd->entry_list, pd->cmd_list_length_actual * sizeof ( *( pd->entry_list ) ) );
+    }
     pd->entry_list[pd->cmd_list_length].root = g_strdup ( root );
     pd->entry_list[pd->cmd_list_length].path = g_strdup ( path );
     gchar *n = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
@@ -294,8 +298,6 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].generic_name = gn;
     pd->entry_list[pd->cmd_list_length].exec         = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
-    // Returns false if not found, if key not found, we don't want run in terminal.
-    pd->entry_list[pd->cmd_list_length].terminal = g_key_file_get_boolean ( kf, "Desktop Entry", "Terminal", NULL );
 
     // Keep keyfile around.
     pd->entry_list[pd->cmd_list_length].key_file = kf;
