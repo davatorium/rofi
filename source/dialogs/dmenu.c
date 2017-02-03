@@ -158,7 +158,7 @@ static void async_read_callback ( GObject *source_object, GAsyncResult *res, gpo
     }
     if ( !g_cancellable_is_cancelled ( pd->cancel ) ) {
         // Hack, don't use get active.
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Clearing overlay");
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Clearing overlay" );
         rofi_view_set_overlay ( rofi_view_get_active (), NULL );
         g_input_stream_close_async ( G_INPUT_STREAM ( stream ), G_PRIORITY_LOW, pd->cancel, async_close_callback, pd );
     }
@@ -171,7 +171,7 @@ static void async_read_cancel ( G_GNUC_UNUSED GCancellable *cancel, G_GNUC_UNUSE
 
 static int get_dmenu_async ( DmenuModePrivateData *pd, int sync_pre_read )
 {
-    while(sync_pre_read-- ){
+    while ( sync_pre_read-- ) {
         gsize len   = 0;
         char  *data = g_data_input_stream_read_upto ( pd->data_input_stream, &( pd->separator ), 1, &len, NULL, NULL );
         if ( data == NULL ) {
@@ -636,7 +636,7 @@ int dmenu_switcher_dialog ( void )
     }
     if ( async ) {
         unsigned int pre_read = 25;
-        find_arg_uint("-async-pre-read", &pre_read);
+        find_arg_uint ( "-async-pre-read", &pre_read );
         async = get_dmenu_async ( pd, pre_read );
     }
     else {
@@ -728,5 +728,5 @@ void print_dmenu_options ( void )
     print_help_msg ( "-sep", "[char]", "Element separator.", "'\\n'", is_term );
     print_help_msg ( "-input", "[filename]", "Read input from file instead from standard input.", NULL, is_term );
     print_help_msg ( "-sync", "", "Force dmenu to first read all input data, then show dialog.", NULL, is_term );
-    print_help_msg ( "-async-pre-read", "[number]", "Read several entries blocking before switching to async mode", "25", is_term);
+    print_help_msg ( "-async-pre-read", "[number]", "Read several entries blocking before switching to async mode", "25", is_term );
 }

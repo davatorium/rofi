@@ -59,7 +59,8 @@ static PangoContext     *p_context = NULL;
 static PangoFontMetrics *p_metrics = NULL;
 
 /** Cache to hold font descriptions. This it to avoid having to lookup each time. */
-typedef struct TBFontConfig {
+typedef struct TBFontConfig
+{
     /** Font description */
     PangoFontDescription *pfd;
     /** Font metrics */
@@ -72,7 +73,7 @@ static gboolean textbox_blink ( gpointer data )
 {
     textbox *tb = (textbox *) data;
     if ( tb->blink < 2 ) {
-        tb->blink  = !tb->blink;
+        tb->blink = !tb->blink;
         widget_queue_redraw ( WIDGET ( tb ) );
         rofi_view_queue_redraw ( );
     }
@@ -116,22 +117,23 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
 
     tb->changed = FALSE;
 
-    tb->layout       = pango_layout_new ( p_context );
+    tb->layout = pango_layout_new ( p_context );
     textbox_font ( tb, tbft );
 
     tb->metrics = p_metrics;
     char * font = rofi_theme_get_string ( WIDGET ( tb ), "font", NULL );
-    if ( font ){
+    if ( font ) {
         TBFontConfig *tbfc = g_hash_table_lookup ( tbfc_cache, font );
-        if ( tbfc == NULL ){
-            tbfc = g_malloc0 ( sizeof (TBFontConfig) );
+        if ( tbfc == NULL ) {
+            tbfc      = g_malloc0 ( sizeof ( TBFontConfig ) );
             tbfc->pfd = pango_font_description_from_string ( font );
-            if ( helper_validate_font ( tbfc->pfd, font)) {
+            if ( helper_validate_font ( tbfc->pfd, font ) ) {
                 tbfc->metrics = pango_context_get_metrics ( p_context, tbfc->pfd, NULL );
-                g_hash_table_insert ( tbfc_cache, font, tbfc);
-            } else {
+                g_hash_table_insert ( tbfc_cache, font, tbfc );
+            }
+            else {
                 pango_font_description_free ( tbfc->pfd );
-                g_free( tbfc);
+                g_free ( tbfc );
                 tbfc = NULL;
             }
         }
@@ -141,7 +143,6 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
             tb->metrics = tbfc->metrics;
         }
     }
-
 
     if ( ( flags & TB_WRAP ) == TB_WRAP ) {
         pango_layout_set_wrap ( tb->layout, PANGO_WRAP_WORD_CHAR );
@@ -328,14 +329,14 @@ static void textbox_free ( widget *wid )
 
 static void textbox_draw ( widget *wid, cairo_t *draw )
 {
-    textbox *tb = (textbox *) wid;
-    unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
-    int font_height = textbox_get_font_height ( tb );
+    textbox      *tb         = (textbox *) wid;
+    unsigned int offset      = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+    int          font_height = textbox_get_font_height ( tb );
 
-    int cursor_x      = 0;
-    int cursor_y      = 0;
-    int cursor_width  = 2; //MAX ( 2, font_height / 10 );
-    int cursor_height = font_height;
+    int          cursor_x      = 0;
+    int          cursor_y      = 0;
+    int          cursor_width  = 2; //MAX ( 2, font_height / 10 );
+    int          cursor_height = font_height;
 
     if ( tb->changed ) {
         __textbox_update_pango_text ( tb );
@@ -696,25 +697,25 @@ gboolean textbox_append_char ( textbox *tb, const char *pad, const int pad_len )
 
 static void tbfc_entry_free ( TBFontConfig *tbfc )
 {
-    pango_font_metrics_unref ( tbfc->metrics);
-    if ( tbfc->pfd ){
+    pango_font_metrics_unref ( tbfc->metrics );
+    if ( tbfc->pfd ) {
         pango_font_description_free ( tbfc->pfd );
     }
     g_free ( tbfc );
 }
 void textbox_setup ( void )
 {
-    tbfc_cache = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify)tbfc_entry_free );
+    tbfc_cache = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify) tbfc_entry_free );
 }
 const char *default_font_name = "default";
 void textbox_set_pango_context ( const char *font, PangoContext *p )
 {
-    g_assert ( p_metrics == NULL);
+    g_assert ( p_metrics == NULL );
     p_context = g_object_ref ( p );
     p_metrics = pango_context_get_metrics ( p_context, NULL, NULL );
-    TBFontConfig *tbfc = g_malloc0 ( sizeof (TBFontConfig) );
+    TBFontConfig *tbfc = g_malloc0 ( sizeof ( TBFontConfig ) );
     tbfc->metrics = p_metrics;
-    g_hash_table_insert ( tbfc_cache,(gpointer *)(font?font:default_font_name), tbfc );
+    g_hash_table_insert ( tbfc_cache, (gpointer *) ( font ? font : default_font_name ), tbfc );
 }
 
 void textbox_cleanup ( void )

@@ -154,13 +154,13 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
     CombiModePrivateData *pd = mode_get_private_data ( sw );
 
     if ( input[0][0] == '!' ) {
-        int switcher = -1;
-        char *eob = strchrnul ( input[0], ' ' );
+        int     switcher = -1;
+        char    *eob     = strchrnul ( input[0], ' ' );
         ssize_t bang_len = g_utf8_pointer_to_offset ( input[0], eob ) - 1;
         if ( bang_len > 0 ) {
             for ( unsigned i = 0; switcher == -1 && i < pd->num_switchers; i++ ) {
-                const char *mode_name = mode_get_name ( pd->switchers[i] );
-                size_t mode_name_len = g_utf8_strlen ( mode_name, -1 );
+                const char *mode_name    = mode_get_name ( pd->switchers[i] );
+                size_t     mode_name_len = g_utf8_strlen ( mode_name, -1 );
                 if ( (size_t) bang_len <= mode_name_len && utf8_strncmp ( &input[0][1], mode_name, bang_len ) == 0 ) {
                     switcher = i;
                 }
@@ -168,7 +168,7 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
         }
         if ( switcher >= 0 ) {
             if ( eob[0] == ' ' ) {
-                char *n = eob+1;
+                char *n = eob + 1;
                 return mode_result ( pd->switchers[switcher], mretv, &n,
                                      selected_line - pd->starts[switcher] );
             }
@@ -244,18 +244,18 @@ static char * combi_preprocess_input ( Mode *sw, const char *input )
     CombiModePrivateData *pd = mode_get_private_data ( sw );
     pd->current = NULL;
     if ( input != NULL && input[0] == '!' ) {
-        char *eob = strchrnul ( input, ' ' );
+        char    *eob     = strchrnul ( input, ' ' );
         ssize_t bang_len = g_utf8_pointer_to_offset ( input, eob ) - 1;
         if ( bang_len > 0 ) {
             for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
-                const char *mode_name = mode_get_name ( pd->switchers[i] );
-                size_t mode_name_len = g_utf8_strlen ( mode_name, -1 );
+                const char *mode_name    = mode_get_name ( pd->switchers[i] );
+                size_t     mode_name_len = g_utf8_strlen ( mode_name, -1 );
                 if ( (size_t) bang_len <= mode_name_len && utf8_strncmp ( &input[1], mode_name, bang_len ) == 0 ) {
                     pd->current = pd->switchers[i];
                     if ( eob[0] == '\0' || eob[1] == '\0' ) {
                         return NULL;
                     }
-                    return g_strdup ( eob+1 );
+                    return g_strdup ( eob + 1 );
                 }
             }
         }

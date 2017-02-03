@@ -87,17 +87,17 @@ static inline int execsh ( const char *wd, const char *cmd, int run_in_term )
 typedef struct
 {
     /* Root */
-    char         *root;
+    char     *root;
     /* Path to desktop file */
-    char         *path;
+    char     *path;
     /* Executable */
-    char         *exec;
+    char     *exec;
     /* Name of the Entry */
-    char         *name;
+    char     *name;
     /* Generic Name */
-    char         *generic_name;
+    char     *generic_name;
 
-    GKeyFile     *key_file;
+    GKeyFile *key_file;
 } DRunModeEntry;
 
 typedef struct
@@ -288,8 +288,8 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     }
     size_t nl = ( ( pd->cmd_list_length ) + 1 );
     if ( nl >= pd->cmd_list_length_actual ) {
-        pd->cmd_list_length_actual+=256;
-        pd->entry_list                           = g_realloc ( pd->entry_list, pd->cmd_list_length_actual * sizeof ( *( pd->entry_list ) ) );
+        pd->cmd_list_length_actual += 256;
+        pd->entry_list              = g_realloc ( pd->entry_list, pd->cmd_list_length_actual * sizeof ( *( pd->entry_list ) ) );
     }
     pd->entry_list[pd->cmd_list_length].root = g_strdup ( root );
     pd->entry_list[pd->cmd_list_length].path = g_strdup ( path );

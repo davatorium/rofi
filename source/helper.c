@@ -50,7 +50,7 @@
 #include "rofi.h"
 #include "view.h"
 
-#define LOG_DOMAIN "Helper"
+#define LOG_DOMAIN    "Helper"
 
 const char *const monitor_position_entries[] = {
     "on focused monitor",
@@ -528,11 +528,11 @@ void remove_pid_file ( int fd )
 
 gboolean helper_validate_font ( PangoFontDescription *pfd, const char *font )
 {
-    const char           *fam = pango_font_description_get_family ( pfd );
-    int                  size = pango_font_description_get_size ( pfd );
-    if ( fam == NULL || size == 0 ){
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Pango failed to parse font: '%s'", font);
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Got family: <b>%s</b> at size: <b>%d</b>", fam?fam:"{unknown}", size);
+    const char *fam = pango_font_description_get_family ( pfd );
+    int        size = pango_font_description_get_size ( pfd );
+    if ( fam == NULL || size == 0 ) {
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Pango failed to parse font: '%s'", font );
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Got family: <b>%s</b> at size: <b>%d</b>", fam ? fam : "{unknown}", size );
         return FALSE;
     }
     return TRUE;

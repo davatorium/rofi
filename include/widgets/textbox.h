@@ -23,22 +23,22 @@
  */
 typedef struct
 {
-    widget          widget;
-    unsigned long   flags;
-    short           cursor;
-    Color           color_fg, color_bg;
-    char            *text;
-    PangoLayout     *layout;
-    int             tbft;
-    int             markup;
-    int             changed;
+    widget           widget;
+    unsigned long    flags;
+    short            cursor;
+    Color            color_fg, color_bg;
+    char             *text;
+    PangoLayout      *layout;
+    int              tbft;
+    int              markup;
+    int              changed;
 
-    int             blink;
-    guint           blink_timeout;
+    int              blink;
+    guint            blink_timeout;
 
-    PangoFontMetrics     *metrics;
+    PangoFontMetrics *metrics;
     //
-    const char      *theme_name;
+    const char       *theme_name;
 } textbox;
 
 /**
