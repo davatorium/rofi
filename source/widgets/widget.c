@@ -9,13 +9,13 @@
 void widget_init ( widget *widget, const char *name )
 {
     widget->name    = g_strdup ( name );
-    widget->padding = (Padding){ { WIDGET_DEFAULT_PADDING, PW_PX, SOLID }, { WIDGET_DEFAULT_PADDING, PW_PX, SOLID }, { WIDGET_DEFAULT_PADDING, PW_PX, SOLID }, { WIDGET_DEFAULT_PADDING, PW_PX, SOLID } };
-    widget->border  = (Padding){ { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID } };
-    widget->margin  = (Padding){ { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID } };
+    widget->def_padding = (Padding){ { WIDGET_DEFAULT_PADDING, PW_PX, SOLID }, { WIDGET_DEFAULT_PADDING, PW_PX, SOLID }, { WIDGET_DEFAULT_PADDING, PW_PX, SOLID }, { WIDGET_DEFAULT_PADDING, PW_PX, SOLID } };
+    widget->def_border  = (Padding){ { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID } };
+    widget->def_margin  = (Padding){ { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID } };
 
-    widget->padding = rofi_theme_get_padding ( widget, "padding", widget->padding );
-    widget->border  = rofi_theme_get_padding ( widget, "border", widget->border );
-    widget->margin  = rofi_theme_get_padding ( widget, "margin", widget->margin );
+    widget->padding = rofi_theme_get_padding ( widget, "padding", widget->def_padding );
+    widget->border  = rofi_theme_get_padding ( widget, "border",  widget->def_border );
+    widget->margin  = rofi_theme_get_padding ( widget, "margin",  widget->def_margin );
 }
 
 void widget_set_state ( widget *widget, const char *state )
@@ -23,7 +23,7 @@ void widget_set_state ( widget *widget, const char *state )
     if ( g_strcmp0 ( widget->state, state ) ) {
         widget->state = state;
         // Update border.
-        widget->border = rofi_theme_get_padding ( widget, "border", widget->border );
+        widget->border = rofi_theme_get_padding ( widget, "border", widget->def_border );
 
         widget_queue_redraw ( widget );
     }
