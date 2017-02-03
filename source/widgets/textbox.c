@@ -31,6 +31,7 @@
 #include <math.h>
 #include "widgets/textbox.h"
 #include "keyb.h"
+#include "helper.h"
 #include "x11-helper.h"
 #include "mode.h"
 #include "view.h"
@@ -125,12 +126,20 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
         if ( tbfc == NULL ){
             tbfc = g_malloc0 ( sizeof (TBFontConfig) );
             tbfc->pfd = pango_font_description_from_string ( font );
-            tbfc->metrics = pango_context_get_metrics ( p_context, tbfc->pfd, NULL );
-            g_hash_table_insert ( tbfc_cache, font, tbfc);
+            if ( helper_validate_font ( tbfc->pfd, font)) {
+                tbfc->metrics = pango_context_get_metrics ( p_context, tbfc->pfd, NULL );
+                g_hash_table_insert ( tbfc_cache, font, tbfc);
+            } else {
+                pango_font_description_free ( tbfc->pfd );
+                g_free( tbfc);
+                tbfc = NULL;
+            }
         }
-        // Update for used font.
-        pango_layout_set_font_description ( tb->layout, tbfc->pfd );
-        tb->metrics = tbfc->metrics;
+        if ( tbfc ) {
+            // Update for used font.
+            pango_layout_set_font_description ( tb->layout, tbfc->pfd );
+            tb->metrics = tbfc->metrics;
+        }
     }
 
 

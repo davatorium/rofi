@@ -694,7 +694,9 @@ void __create_window ( MenuFlags menu_flags )
     char      *font = rofi_theme_get_string ( WIDGET ( win ), "font", config.menu_font );
     if ( font ) {
         PangoFontDescription *pfd = pango_font_description_from_string ( font );
-        pango_context_set_font_description ( p, pfd );
+        if ( helper_validate_font(pfd, font)) {
+            pango_context_set_font_description ( p, pfd );
+        }
         pango_font_description_free ( pfd );
     }
     PangoLanguage *l = pango_language_get_default();

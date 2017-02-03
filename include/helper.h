@@ -234,4 +234,12 @@ int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *st
  *          characters (not bytes) of `b`.
  */
 int utf8_strncmp ( const char *a, const char* b, size_t n );
+
+/**
+ * @param pfd Pango font description to validate.
+ * @param font The name of the font to check.
+ *
+ * @returns true if font is valid.
+ */
+gboolean helper_validate_font ( PangoFontDescription *pfd, const char *font );
 #endif // ROFI_HELPER_H
