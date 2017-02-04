@@ -38,6 +38,12 @@
  */
 typedef struct
 {
+    Mode     *mode;
+    gboolean disable;
+} CombiMode;
+
+typedef struct
+{
     // List of (combined) entries.
     unsigned int cmd_list_length;
     // List to validate where each switcher starts.
@@ -45,8 +51,7 @@ typedef struct
     unsigned int *lengths;
     // List of switchers to combine.
     unsigned int num_switchers;
-    Mode         **switchers;
-    Mode         *current;
+    CombiMode    *switchers;
 } CombiModePrivateData;
 
 static void combi_mode_parse_switchers ( Mode *sw )
@@ -60,37 +65,43 @@ static void combi_mode_parse_switchers ( Mode *sw )
     for ( char *token = strtok_r ( switcher_str, sep, &savept ); token != NULL;
           token = strtok_r ( NULL, sep, &savept ) ) {
         // Resize and add entry.
-        pd->switchers = (Mode * *) g_realloc ( pd->switchers,
-                                               sizeof ( Mode* ) * ( pd->num_switchers + 1 ) );
+        pd->switchers = (CombiMode  *) g_realloc ( pd->switchers,
+                                                   sizeof ( CombiMode ) * ( pd->num_switchers + 1 ) );
 
         // Window switcher.
         #ifdef WINDOW_MODE
         if ( strcasecmp ( token, "window" ) == 0 ) {
-            pd->switchers[pd->num_switchers++] = &window_mode;
+            pd->switchers[pd->num_switchers].disable = FALSE;
+            pd->switchers[pd->num_switchers++].mode  = &window_mode;
         }
         else if ( strcasecmp ( token, "windowcd" ) == 0 ) {
-            pd->switchers[pd->num_switchers++] = &window_mode_cd;
+            pd->switchers[pd->num_switchers].disable = FALSE;
+            pd->switchers[pd->num_switchers++].mode  = &window_mode_cd;
         }
         else
         #endif // WINDOW_MODE
         // SSh dialog
         if ( strcasecmp ( token, "ssh" ) == 0 ) {
-            pd->switchers[pd->num_switchers++] = &ssh_mode;
+            pd->switchers[pd->num_switchers].disable = FALSE;
+            pd->switchers[pd->num_switchers++].mode  = &ssh_mode;
         }
         // Run dialog
         else if ( strcasecmp ( token, "run" ) == 0 ) {
-            pd->switchers[pd->num_switchers++] = &run_mode;
+            pd->switchers[pd->num_switchers].disable = FALSE;
+            pd->switchers[pd->num_switchers++].mode  = &run_mode;
         }
         #ifdef ENABLE_DRUN
         else if ( strcasecmp ( token, "drun" ) == 0 ) {
-            pd->switchers[pd->num_switchers++] = &drun_mode;
+            pd->switchers[pd->num_switchers].disable = FALSE;
+            pd->switchers[pd->num_switchers++].mode  = &drun_mode;
         }
 #endif  // ENABLE_DRUN
         else {
             // If not build in, use custom switchers.
             Mode *sw = script_switcher_parse_setup ( token );
             if ( sw != NULL ) {
-                pd->switchers[pd->num_switchers++] = sw;
+                pd->switchers[pd->num_switchers].disable = FALSE;
+                pd->switchers[pd->num_switchers++].mode  = sw;
             }
             else{
                 // Report error, don't continue.
@@ -113,14 +124,14 @@ static int combi_mode_init ( Mode *sw )
         pd->starts  = g_malloc0 ( sizeof ( int ) * pd->num_switchers );
         pd->lengths = g_malloc0 ( sizeof ( int ) * pd->num_switchers );
         for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
-            if ( !mode_init ( pd->switchers[i] ) ) {
+            if ( !mode_init ( pd->switchers[i].mode ) ) {
                 return FALSE;
             }
         }
         if ( pd->cmd_list_length == 0 ) {
             pd->cmd_list_length = 0;
             for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
-                unsigned int length = mode_get_num_entries ( pd->switchers[i] );
+                unsigned int length = mode_get_num_entries ( pd->switchers[i].mode );
                 pd->starts[i]        = pd->cmd_list_length;
                 pd->lengths[i]       = length;
                 pd->cmd_list_length += length;
@@ -142,7 +153,7 @@ static void combi_mode_destroy ( Mode *sw )
         g_free ( pd->lengths );
         // Cleanup switchers.
         for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
-            mode_destroy ( pd->switchers[i] );
+            mode_destroy ( pd->switchers[i].mode );
         }
         g_free ( pd->switchers );
         g_free ( pd );
@@ -159,7 +170,7 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
         ssize_t bang_len = g_utf8_pointer_to_offset ( input[0], eob ) - 1;
         if ( bang_len > 0 ) {
             for ( unsigned i = 0; switcher == -1 && i < pd->num_switchers; i++ ) {
-                const char *mode_name    = mode_get_name ( pd->switchers[i] );
+                const char *mode_name    = mode_get_name ( pd->switchers[i].mode );
                 size_t     mode_name_len = g_utf8_strlen ( mode_name, -1 );
                 if ( (size_t) bang_len <= mode_name_len && utf8_strncmp ( &input[0][1], mode_name, bang_len ) == 0 ) {
                     switcher = i;
@@ -169,7 +180,7 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
         if ( switcher >= 0 ) {
             if ( eob[0] == ' ' ) {
                 char *n = eob + 1;
-                return mode_result ( pd->switchers[switcher], mretv, &n,
+                return mode_result ( pd->switchers[switcher].mode, mretv, &n,
                                      selected_line - pd->starts[switcher] );
             }
             return MODE_EXIT;
@@ -182,7 +193,7 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( selected_line >= pd->starts[i] &&
              selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
-            return mode_result ( pd->switchers[i], mretv, input, selected_line - pd->starts[i] );
+            return mode_result ( pd->switchers[i].mode, mretv, input, selected_line - pd->starts[i] );
         }
     }
     return MODE_EXIT;
@@ -191,11 +202,11 @@ static int combi_mode_match ( const Mode *sw, GRegex **tokens, unsigned int inde
 {
     CombiModePrivateData *pd = mode_get_private_data ( sw );
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
-        if ( pd->current != NULL && pd->switchers[i] != pd->current ) {
+        if ( pd->switchers[i].disable ) {
             continue;
         }
         if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
-            return mode_token_match ( pd->switchers[i], tokens, index - pd->starts[i] );
+            return mode_token_match ( pd->switchers[i].mode, tokens, index - pd->starts[i] );
         }
     }
     return 0;
@@ -206,7 +217,7 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
     if ( !get_entry ) {
         for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
             if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
-                mode_get_display_value ( pd->switchers[i], selected_line - pd->starts[i], state, FALSE );
+                mode_get_display_value ( pd->switchers[i].mode, selected_line - pd->starts[i], state, FALSE );
                 return NULL;
             }
         }
@@ -214,8 +225,8 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
     }
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
-            char * str  = mode_get_display_value ( pd->switchers[i], selected_line - pd->starts[i], state, TRUE );
-            char * retv = g_strdup_printf ( "%s %s", mode_get_display_name ( pd->switchers[i] ), str );
+            char * str  = mode_get_display_value ( pd->switchers[i].mode, selected_line - pd->starts[i], state, TRUE );
+            char * retv = g_strdup_printf ( "%s %s", mode_get_display_name ( pd->switchers[i].mode ), str );
             g_free ( str );
             return retv;
         }
@@ -228,8 +239,8 @@ static char * combi_get_completion ( const Mode *sw, unsigned int index )
     CombiModePrivateData *pd = mode_get_private_data ( sw );
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
-            char *comp  = mode_get_completion ( pd->switchers[i], index - pd->starts[i] );
-            char *mcomp = g_strdup_printf ( "!%s %s", mode_get_name ( pd->switchers[i] ), comp );
+            char *comp  = mode_get_completion ( pd->switchers[i].mode, index - pd->starts[i] );
+            char *mcomp = g_strdup_printf ( "!%s %s", mode_get_name ( pd->switchers[i].mode ), comp );
             g_free ( comp );
             return mcomp;
         }
@@ -242,22 +253,25 @@ static char * combi_get_completion ( const Mode *sw, unsigned int index )
 static char * combi_preprocess_input ( Mode *sw, const char *input )
 {
     CombiModePrivateData *pd = mode_get_private_data ( sw );
-    pd->current = NULL;
+    for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
+        pd->switchers[i].disable = FALSE;
+    }
     if ( input != NULL && input[0] == '!' ) {
         char    *eob     = strchrnul ( input, ' ' );
         ssize_t bang_len = g_utf8_pointer_to_offset ( input, eob ) - 1;
         if ( bang_len > 0 ) {
             for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
-                const char *mode_name    = mode_get_name ( pd->switchers[i] );
+                const char *mode_name    = mode_get_name ( pd->switchers[i].mode );
                 size_t     mode_name_len = g_utf8_strlen ( mode_name, -1 );
-                if ( (size_t) bang_len <= mode_name_len && utf8_strncmp ( &input[1], mode_name, bang_len ) == 0 ) {
-                    pd->current = pd->switchers[i];
-                    if ( eob[0] == '\0' || eob[1] == '\0' ) {
-                        return NULL;
-                    }
-                    return g_strdup ( eob + 1 );
+                if ( !( (size_t) bang_len <= mode_name_len && utf8_strncmp ( &input[1], mode_name, bang_len ) == 0 ) ) {
+                    // No match.
+                    pd->switchers[i].disable = TRUE;
                 }
             }
+            if ( eob[0] == '\0' || eob[1] == '\0' ) {
+                return NULL;
+            }
+            return g_strdup ( eob + 1 );
         }
     }
     return g_strdup ( input );
