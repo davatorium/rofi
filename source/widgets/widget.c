@@ -151,8 +151,7 @@ void widget_draw ( widget *widget, cairo_t *d )
         cairo_line_to ( d, widget->w - margin_right - radius_tr - right / 2.0, margin_top + top / 2.0 );
         cairo_arc ( d, widget->w - margin_right - radius_tr - right / 2.0, margin_top + radius_tr + top / 2.0, radius_tr, -0.5 * M_PI, 0 * M_PI );
         cairo_line_to ( d, widget->w - margin_right - right / 2.0, widget->h - margin_bottom - radius_br - bottom / 2.0 );
-        cairo_arc ( d, widget->w - margin_right - radius_br - right / 2.0, widget->h - margin_bottom - radius_br - bottom / 2.0, radius_br,
-                    0.0 * M_PI, 0.5 * M_PI );
+        cairo_arc ( d, widget->w - margin_right - radius_br - right / 2.0, widget->h - margin_bottom - radius_br - bottom / 2.0, radius_br, 0.0 * M_PI, 0.5 * M_PI );
         cairo_line_to ( d, margin_left + radius_bl + left / 2.0, widget->h - margin_bottom - bottom / 2.0 );
         cairo_arc ( d, margin_left + radius_bl + left / 2.0, widget->h - margin_bottom - radius_bl - bottom / 2.0, radius_bl, 0.5 * M_PI, 1.0 * M_PI );
         cairo_line_to ( d, margin_left + left / 2.0, margin_top + radius_tl + top / 2.0 );
@@ -162,8 +161,64 @@ void widget_draw ( widget *widget, cairo_t *d )
         rofi_theme_get_color ( widget, "background", d );
         cairo_fill ( d );
 
+        cairo_set_line_width ( d, 0 );
+        if ( radius_tl ) {
+            double a  = ( radius_tl - left );
+            double b  = ( radius_tl - top );
+            double be = acos ( ( 0.5 * sqrt ( a * a + b * b ) ) / radius_tl );
+            double a1 = atan ( a / b ) + be - 0.5 * M_PI;
+            double ai = 2 * ( 0.5 * M_PI - be );
+            cairo_arc ( d, margin_left + left + cos ( a1 ) * radius_tl,
+                    margin_top + ( radius_tl ) + radius_tl * sin ( a1 ),
+                    radius_tl+0.5, -M_PI + a1, -M_PI + a1 + ai);
+        }
+        cairo_line_to ( d, widget->w - margin_right - radius_tr, margin_top );
+        if ( radius_tr ) {
+            double a  = ( radius_tr - right );
+            double b  = ( radius_tr - top );
+            double be = acos ( ( 0.5 * sqrt ( a * a + b * b ) ) / radius_tr );
+            double a1 = atan ( a / b ) + be - 0.5 * M_PI;
+            double ai = 2 * ( 0.5 * M_PI - be );
+            cairo_arc ( d, widget->w - margin_right - right - cos ( a1 ) * radius_tr,
+                    margin_top + radius_tr * ( 1 + sin ( a1 ) ), radius_tr+0.5,
+                    -0.5*M_PI+ a1, -0.5*M_PI+a1 + ai );
+        }
+        cairo_line_to ( d, widget->w - margin_right, widget->h - margin_bottom - radius_br );
+        if ( radius_br ) {
+            double a  = ( radius_br - right );
+            double b  = ( radius_br - bottom );
+            double be = acos ( ( 0.5 * sqrt ( a * a + b * b ) ) / radius_br );
+            double a1 = atan ( a / b ) + be - 0.5 * M_PI;
+            double ai = 2 * ( 0.5 * M_PI - be );
+            cairo_arc ( d, widget->w - margin_right - right - cos ( a1 ) * radius_br,
+                    widget->h - margin_bottom - radius_br * ( 1 + sin ( a1 ) ), radius_br+0.5,
+                    0.0 * M_PI + a1 , 0.0 * M_PI + a1 + ai );
+        }
+        cairo_line_to ( d, margin_left + radius_bl, widget->h - margin_bottom );
+        if ( radius_bl ) {
+                    double a  = ( radius_bl - left );
+                    double b  = ( radius_bl - bottom );
+                    double be = acos ( ( 0.5 * sqrt ( a * a + b * b ) ) / radius_bl );
+                    double a1 = atan ( a / b ) + be - 0.5 * M_PI;
+                    double ai = 2 * ( 0.5 * M_PI - be );
+                    cairo_arc ( d, margin_left + left + cos ( a1 ) * radius_bl,
+                            widget->h - margin_bottom - radius_bl * ( 1 + sin ( a1 ) ), radius_bl+0.5,
+                            0.5 * M_PI + a1, 0.5 * M_PI + a1 + ai );
+        }
+        cairo_line_to ( d, margin_left, margin_top + radius_tl );
+        cairo_close_path ( d );
+
+        cairo_clip ( d );
+
+        widget->draw ( widget, d );
+        widget->need_redraw = FALSE;
+
+        cairo_restore ( d );
+
+
         if ( left || top || right || bottom ) {
             cairo_save ( d );
+            cairo_translate ( d, widget->x, widget->y );
             cairo_new_path ( d );
             rofi_theme_get_color ( widget, "foreground", d );
             if ( left > 0 ) {
@@ -289,59 +344,6 @@ void widget_draw ( widget *widget, cairo_t *d )
             }
             cairo_restore ( d );
         }
-
-        if ( radius_tl ) {
-            double a  = ( radius_tl - left );
-            double b  = ( radius_tl - top );
-            double be = acos ( ( 0.5 * sqrt ( a * a + b * b ) ) / radius_tl );
-            double a1 = atan ( a / b ) + be - 0.5 * M_PI;
-            double ai = 2 * ( 0.5 * M_PI - be );
-            cairo_arc ( d, margin_left + left + cos ( a1 ) * radius_tl,
-                    margin_top + ( radius_tl ) + radius_tl * sin ( a1 ),
-                    radius_tl, -M_PI + a1, -M_PI + a1 + ai);
-        }
-        cairo_line_to ( d, widget->w - margin_right - radius_tr, margin_top );
-        if ( radius_tr ) {
-            double a  = ( radius_tr - right );
-            double b  = ( radius_tr - top );
-            double be = acos ( ( 0.5 * sqrt ( a * a + b * b ) ) / radius_tr );
-            double a1 = atan ( a / b ) + be - 0.5 * M_PI;
-            double ai = 2 * ( 0.5 * M_PI - be );
-            cairo_arc ( d, widget->w - margin_right - right - cos ( a1 ) * radius_tr,
-                    margin_top + radius_tr * ( 1 + sin ( a1 ) ), radius_tr,
-                    -0.5*M_PI+ a1, -0.5*M_PI+a1 + ai );
-        }
-        cairo_line_to ( d, widget->w - margin_right, widget->h - margin_bottom - radius_br );
-        if ( radius_br ) {
-            double a  = ( radius_br - right );
-            double b  = ( radius_br - bottom );
-            double be = acos ( ( 0.5 * sqrt ( a * a + b * b ) ) / radius_br );
-            double a1 = atan ( a / b ) + be - 0.5 * M_PI;
-            double ai = 2 * ( 0.5 * M_PI - be );
-            cairo_arc ( d, widget->w - margin_right - right - cos ( a1 ) * radius_br,
-                    widget->h - margin_bottom - radius_br * ( 1 + sin ( a1 ) ), radius_br,
-                    0.0 * M_PI + a1 , 0.0 * M_PI + a1 + ai );
-        }
-        cairo_line_to ( d, margin_left + radius_bl, widget->h - margin_bottom );
-        if ( radius_bl ) {
-                    double a  = ( radius_bl - left );
-                    double b  = ( radius_bl - bottom );
-                    double be = acos ( ( 0.5 * sqrt ( a * a + b * b ) ) / radius_bl );
-                    double a1 = atan ( a / b ) + be - 0.5 * M_PI;
-                    double ai = 2 * ( 0.5 * M_PI - be );
-                    cairo_arc ( d, margin_left + left + cos ( a1 ) * radius_bl,
-                            widget->h - margin_bottom - radius_bl * ( 1 + sin ( a1 ) ), radius_bl,
-                            0.5 * M_PI + a1, 0.5 * M_PI + a1 + ai );
-        }
-        cairo_line_to ( d, margin_left, margin_top + radius_tl );
-        cairo_close_path ( d );
-
-        cairo_clip ( d );
-
-        widget->draw ( widget, d );
-        widget->need_redraw = FALSE;
-
-        cairo_restore ( d );
     }
 }
 void widget_free ( widget *wid )
