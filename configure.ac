@@ -90,6 +90,9 @@ AC_CHECK_FUNC([fcntl],,    AC_MSG_ERROR("Could not find fcntl"))
 AC_CHECK_FUNC([setlocale],,AC_MSG_ERROR("Could not find setlocale"))
 AC_CHECK_FUNC([atexit],,  AC_MSG_ERROR("Could not find atexit in c library"))
 
+AC_CHECK_HEADER([math.h],, AC_MSG_ERROR("Could not find math.h header file"))
+AC_CHECK_LIB([m],[asin],,      AC_MSG_ERROR("Could not find asin in math library"))
+
 dnl ---------------------------------------------------------------------
 dnl Check dependencies
 dnl ---------------------------------------------------------------------
