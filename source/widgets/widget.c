@@ -289,6 +289,7 @@ void widget_draw ( widget *widget, cairo_t *d )
             }
             cairo_restore ( d );
         }
+
         if ( radius_tl ) {
             double a  = ( radius_tl - left );
             double b  = ( radius_tl - top );
@@ -308,7 +309,7 @@ void widget_draw ( widget *widget, cairo_t *d )
             double ai = 2 * ( 0.5 * M_PI - be );
             cairo_arc ( d, widget->w - margin_right - right - cos ( a1 ) * radius_tr,
                     margin_top + radius_tr * ( 1 + sin ( a1 ) ), radius_tr,
-                    -0.5*M_PI+ a1, 0.5*M_PI+a1 + ai );
+                    -0.5*M_PI+ a1, -0.5*M_PI+a1 + ai );
         }
         cairo_line_to ( d, widget->w - margin_right, widget->h - margin_bottom - radius_br );
         if ( radius_br ) {
