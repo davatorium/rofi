@@ -121,6 +121,27 @@ void widget_draw ( widget *widget, cairo_t *d )
         int  top           = distance_get_pixel ( widget->border.top, ORIENTATION_VERTICAL );
         int  bottom        = distance_get_pixel ( widget->border.bottom, ORIENTATION_VERTICAL );
 
+        if ( (radius_bl + radius_tl) > (widget->h-margin_top-margin_bottom)) {
+            int j = (widget->h-margin_top-margin_bottom)/2.0;
+            radius_bl = MIN ( radius_bl, j );
+            radius_tl = MIN ( radius_tl, j );
+        }
+        if ( (radius_br + radius_tr) > (widget->h-margin_top-margin_bottom)) {
+            int j = (widget->h-margin_top-margin_bottom)/2.0;
+            radius_br = MIN ( radius_br, j);
+            radius_tr = MIN ( radius_tr, j);
+        }
+        if (( radius_tl + radius_tr ) > ( widget->w - margin_left - margin_right )) {
+            int j = ( widget->w - margin_left - margin_right )/2.0;
+            radius_tr = MIN ( radius_tr, j );
+            radius_tl = MIN ( radius_tl, j );
+        }
+        if (( radius_bl + radius_br ) > ( widget->w - margin_left - margin_right )) {
+            int j = ( widget->w - margin_left - margin_right )/2.0;
+            radius_br = MIN ( radius_br, j );
+            radius_bl = MIN ( radius_bl, j );
+        }
+
         // Background painting.
         // Set new x/y possition.
         cairo_translate ( d, widget->x, widget->y );
