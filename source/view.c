@@ -1016,7 +1016,7 @@ static void rofi_view_refilter ( RofiViewState *state )
     if ( strlen ( state->text->text ) > 0 ) {
         unsigned int j        = 0;
         gchar        *pattern = mode_preprocess_input ( state->sw, state->text->text );
-        glong        plen     = pattern?g_utf8_strlen ( pattern, -1 ):0;
+        glong        plen     = pattern ? g_utf8_strlen ( pattern, -1 ) : 0;
         state->tokens = tokenize ( pattern, config.case_sensitive );
         /**
          * On long lists it can be beneficial to parallelize.

@@ -19,9 +19,11 @@ struct _widget
     Padding           def_margin;
     Padding           def_padding;
     Padding           def_border;
+    Padding           def_border_radius;
     Padding           margin;
     Padding           padding;
     Padding           border;
+    Padding           border_radius;
 
     /** enabled or not */
     gboolean          enabled;
