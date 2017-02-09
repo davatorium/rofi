@@ -1,5 +1,6 @@
-v1.4.0: (unreleased)
+v1.4.0: I reject your thruth and substitute my own (unreleased)
 	New Features:
+		- Theme 3.0
 		- Super-{1-10} activates row 1-10. 
 		- FZF style sorting for fuzzy matching (thanks to MaskRay) (#533)
 
