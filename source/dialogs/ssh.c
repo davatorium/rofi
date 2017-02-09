@@ -138,7 +138,7 @@ static void delete_ssh ( const char *host )
  */
 static char **read_known_hosts_file ( char ** retv, unsigned int *length )
 {
-    char *path = g_build_filename ( g_getenv ( "HOME" ), ".ssh", "known_hosts", NULL );
+    char *path = g_build_filename ( g_get_home_dir (), ".ssh", "known_hosts", NULL );
     FILE *fd   = fopen ( path, "r" );
     if ( fd != NULL ) {
         char   *buffer       = NULL;
@@ -267,7 +267,7 @@ static char ** get_ssh (  unsigned int *length )
     unsigned int num_favorites = 0;
     char         *path;
 
-    if ( getenv ( "HOME" ) == NULL ) {
+    if ( g_get_home_dir () == NULL ) {
         return NULL;
     }
 
@@ -284,7 +284,7 @@ static char ** get_ssh (  unsigned int *length )
     }
 
     FILE       *fd = NULL;
-    const char *hd = getenv ( "HOME" );
+    const char *hd = g_get_home_dir ();
     path = g_build_filename ( hd, ".ssh", "config", NULL );
     fd   = fopen ( path, "r" );
 

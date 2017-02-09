@@ -82,7 +82,6 @@ dnl ---------------------------------------------------------------------
 AC_CHECK_FUNC([getline],,  AC_MSG_ERROR("Could not find getline in c library"))
 AC_CHECK_FUNC([open],,     AC_MSG_ERROR("Could not find open in c library"))
 AC_CHECK_FUNC([sysconf],,  AC_MSG_ERROR("Could not find sysconf"))
-AC_CHECK_FUNC([getenv],,   AC_MSG_ERROR("Could not find getenv"))
 AC_CHECK_FUNC([strtok_r],, AC_MSG_ERROR("Could not find strtok_r"))
 AC_CHECK_FUNC([flock],,    AC_MSG_ERROR("Could not find flock"))
 AC_CHECK_FUNC([ftruncate],,AC_MSG_ERROR("Could not find ftruncate"))
@@ -91,7 +90,8 @@ AC_CHECK_FUNC([setlocale],,AC_MSG_ERROR("Could not find setlocale"))
 AC_CHECK_FUNC([atexit],,  AC_MSG_ERROR("Could not find atexit in c library"))
 
 AC_CHECK_HEADER([math.h],, AC_MSG_ERROR("Could not find math.h header file"))
-AC_SEARCH_LIBS([asin],[m],,      AC_MSG_ERROR("Could not find asin in math library"))
+AC_SEARCH_LIBS([floor],[m],,      AC_MSG_ERROR("Could not find floor in math library"))
+AC_SEARCH_LIBS([ceil], [m],,      AC_MSG_ERROR("Could not find ceil in math library"))
 
 dnl ---------------------------------------------------------------------
 dnl Check dependencies

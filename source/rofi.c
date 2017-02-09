@@ -830,14 +830,15 @@ int main ( int argc, char *argv[] )
     atexit ( cleanup );
 
     TICK ();
-    // Get DISPLAY, first env, then argument.
-    char *display_str = getenv ( "DISPLAY" );
-    find_arg_str (  "-display", &display_str );
-
     if ( setlocale ( LC_ALL, "" ) == NULL ) {
         fprintf ( stderr, "Failed to set locale.\n" );
         return EXIT_FAILURE;
     }
+
+    // Get DISPLAY, first env, then argument.
+    // We never modify display_str content.
+    char *display_str = ( char *)g_getenv ( "DISPLAY" );
+    find_arg_str (  "-display", &display_str );
 
     xcb->connection = xcb_connect ( display_str, &xcb->screen_nbr );
     if ( xcb_connection_has_error ( xcb->connection ) ) {
