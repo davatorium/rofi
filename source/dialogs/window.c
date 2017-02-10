@@ -567,6 +567,47 @@ static inline int act_on_window ( xcb_window_t window )
     return retv;
 }
 
+static void switch_to_target_desktop ( xcb_window_t target )
+{
+    // Get the current desktop.
+    unsigned int              current_desktop = 0;
+    xcb_get_property_cookie_t c               = xcb_ewmh_get_current_desktop ( &xcb->ewmh, xcb->screen_nbr );
+    if ( !xcb_ewmh_get_current_desktop_reply ( &xcb->ewmh, c, &current_desktop, NULL ) ) {
+        current_desktop = 0;
+    }
+
+    // Get the desktop of the client to switch to
+    uint32_t                  wmdesktop = 0;
+    xcb_get_property_cookie_t cookie;
+    xcb_get_property_reply_t  *r;
+
+    cookie = xcb_get_property ( xcb->connection,
+                                0,
+                                target,
+                                xcb->ewmh._NET_WM_DESKTOP,
+                                XCB_ATOM_CARDINAL,
+                                0,
+                                1 );
+    r = xcb_get_property_reply ( xcb->connection, cookie, NULL );
+    if ( r && r->type == XCB_ATOM_CARDINAL ) {
+        wmdesktop = *( (uint32_t *) xcb_get_property_value ( r ) );
+    }
+    if ( r && r->type != XCB_ATOM_CARDINAL ) {
+        // Assume the client is on all desktops.
+        wmdesktop = current_desktop;
+    }
+    free ( r );
+
+    // If we have to switch the desktop, do
+    if ( wmdesktop != current_desktop ) {
+        xcb_ewmh_request_change_current_desktop ( &xcb->ewmh,
+                                                  xcb->screen_nbr,
+
+                                                  wmdesktop,
+                                                  XCB_CURRENT_TIME );
+    }
+}
+
 static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **input,
                                      unsigned int selected_line )
 {
@@ -587,42 +628,30 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
         }
         else {
             rofi_view_hide ();
-            // Get the current desktop.
-            unsigned int              current_desktop = 0;
-            xcb_get_property_cookie_t c               = xcb_ewmh_get_current_desktop ( &xcb->ewmh, xcb->screen_nbr );
-            if ( !xcb_ewmh_get_current_desktop_reply ( &xcb->ewmh, c, &current_desktop, NULL ) ) {
-                current_desktop = 0;
-            }
 
-            // Get the desktop of the client to switch to
-            uint32_t                  wmdesktop = 0;
-            xcb_get_property_cookie_t cookie;
-            xcb_get_property_reply_t  *r;
+            // Check if rofi is running inside awesome
+            //
+            // In that case, start by switching to the target window's desktop
+            xcb_window_t wm_win = 0;
+            xcb_get_property_cookie_t cc;
 
-            cookie = xcb_get_property ( xcb->connection,
-                                        0,
-                                        rmpd->ids->array[selected_line],
-                                        xcb->ewmh._NET_WM_DESKTOP,
-                                        XCB_ATOM_CARDINAL,
-                                        0,
-                                        1 );
-            r = xcb_get_property_reply ( xcb->connection, cookie, NULL );
-            if ( r && r->type == XCB_ATOM_CARDINAL ) {
-                wmdesktop = *( (uint32_t *) xcb_get_property_value ( r ) );
-            }
-            if ( r && r->type != XCB_ATOM_CARDINAL ) {
-                // Assume the client is on all desktops.
-                wmdesktop = current_desktop;
-            }
-            free ( r );
+            cc = xcb_ewmh_get_supporting_wm_check_unchecked ( &xcb->ewmh,
+                                                              xcb_stuff_get_root_window ( xcb ) );
 
-            // If we have to switch the desktop, do
-            if ( wmdesktop != current_desktop ) {
-                xcb_ewmh_request_change_current_desktop ( &xcb->ewmh,
-                                                          xcb->screen_nbr,
+            if ( xcb_ewmh_get_supporting_wm_check_reply ( &xcb->ewmh, cc,
+                                                          &wm_win, NULL ) ) {
 
-                                                          wmdesktop,
-                                                          XCB_CURRENT_TIME );
+                char *wm_name = window_get_text_prop ( wm_win, xcb->ewmh._NET_WM_NAME );
+
+                if ( wm_name == NULL ) {
+                    wm_name = window_get_text_prop ( wm_win, XCB_ATOM_WM_NAME );
+                }
+
+                if ( g_strcmp0 ( wm_name, "awesome" ) == 0 ) {
+                    switch_to_target_desktop( rmpd->ids->array[selected_line] );
+                }
+
+                g_free( wm_name );
             }
 
             // Activate the window
