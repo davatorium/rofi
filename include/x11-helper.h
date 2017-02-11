@@ -260,5 +260,26 @@ int x11_modifier_active ( unsigned int mask, int key );
  * (Set MOTIF_WM_HINTS, decoration field)
  */
 void x11_disable_decoration ( xcb_window_t window );
+
+
+typedef enum {
+    /** Default EWHM compatible window manager */
+    WM_EWHM,
+    /** I3 Window manager */
+    WM_I3,
+    /** Awesome window manager */
+    WM_AWESOME
+} WindowManager;
+
+/**
+ * Indicates the current window manager.
+ * This is used for work-arounds.
+ */
+extern WindowManager current_window_manager;
+
+/**
+ * discover the window manager.
+ */
+void x11_helper_discover_window_manager ( void );
 /*@}*/
 #endif

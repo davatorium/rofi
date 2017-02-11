@@ -44,6 +44,7 @@
 #include "xcb.h"
 #include "settings.h"
 #include "helper.h"
+#include "x11-helper.h"
 
 #include <rofi.h>
 /** Checks if the if x and y is inside rectangle. */
@@ -53,6 +54,9 @@
 
 /** Log domain for this module */
 #define LOG_DOMAIN    "X11Helper"
+
+
+WindowManager current_window_manager = WM_EWHM;
 
 /**
  * Structure holding xcb objects needed to function.
@@ -918,4 +922,21 @@ void x11_disable_decoration ( xcb_window_t window )
 
     xcb_atom_t ha = netatoms[_MOTIF_WM_HINTS];
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, window, ha, ha, 32, 5, &hints );
+}
+
+void x11_helper_discover_window_manager ( void )
+{
+    xcb_ewmh_get_utf8_strings_reply_t wtitle;
+    xcb_get_property_cookie_t cookie = xcb_ewmh_get_wm_name_unchecked(&(xcb->ewmh), xcb_stuff_get_root_window ( xcb ) );
+    if (  xcb_ewmh_get_wm_name_reply(&(xcb->ewmh), cookie, &wtitle, (void *)0))
+    {
+        if ( wtitle.strings_len > 0 ){
+            if ( g_strcmp0(wtitle.strings, "i3") == 0 ){
+                current_window_manager = WM_I3;
+            } else if  ( g_strcmp0 ( wtitle.strings, "awesome" )  == 0 ){
+                current_window_manager = WM_AWESOME;
+            }
+        }
+        xcb_ewmh_get_utf8_strings_reply_wipe(&wtitle);
+    }
 }

@@ -858,6 +858,8 @@ int main ( int argc, char *argv[] )
         fprintf ( stderr, "Failed to create EWMH atoms\n" );
         free ( errors );
     }
+    // Discover the current active window manager.
+    x11_helper_discover_window_manager();
     TICK_N ( "Setup XCB" );
 
     if ( xkb_x11_setup_xkb_extension ( xcb->connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
