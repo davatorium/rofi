@@ -264,11 +264,11 @@ void x11_disable_decoration ( xcb_window_t window );
 
 typedef enum {
     /** Default EWHM compatible window manager */
-    WM_EWHM,
+    WM_EWHM     = 0,
     /** I3 Window manager */
-    WM_I3,
+    WM_I3       = 1,
     /** Awesome window manager */
-    WM_AWESOME
+    WM_AWESOME  = 2
 } WindowManager;
 
 /**
