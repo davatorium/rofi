@@ -45,6 +45,7 @@
 #define SN_API_NOT_YET_FROZEN
 #include <libsn/sn.h>
 
+#include "timings.h"
 #include "settings.h"
 
 #include "rofi.h"

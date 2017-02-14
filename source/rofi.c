@@ -34,6 +34,7 @@
 #include <errno.h>
 #include <time.h>
 #include <locale.h>
+#include <gmodule.h>
 #include <xcb/xcb.h>
 #include <xcb/xcb_aux.h>
 #include <xcb/xcb_ewmh.h>
@@ -65,6 +66,8 @@
 #include "gitconfig.h"
 
 #include "theme.h"
+
+#include "timings.h"
 
 // Pidfile.
 char       *pidfile   = NULL;
@@ -440,6 +443,26 @@ static int add_mode ( const char * token )
     else if ( strcasecmp ( token, "combi" ) == 0 ) {
         modi[num_modi] = &combi_mode;
         num_modi++;
+    }
+    else if ( g_str_has_suffix ( token, G_MODULE_SUFFIX ) )
+    {
+        TICK_N("Loading module");
+        // Load module.
+        GModule *mod = g_module_open ( token, G_MODULE_BIND_LAZY|G_MODULE_BIND_LOCAL );
+        if ( mod ) {
+            gpointer m = NULL;
+            if ( g_module_symbol ( mod, "mode", &m) ){
+                modi[num_modi] = m;
+                num_modi++;
+            } else {
+                fprintf(stderr, "Symbol 'mode' not found in module: %s\n", token);
+                g_module_close ( mod );
+            }
+
+        } else {
+            fprintf ( stderr, "Failed to open module: %s\n", token);
+        }
+        TICK_N("Loading module done");
     }
     else {
         // If not build in, use custom modi.

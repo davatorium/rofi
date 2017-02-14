@@ -5,7 +5,6 @@
 #include <glib.h>
 #include <string.h>
 #include <stdlib.h>
-#include "timings.h"
 #include "keyb.h"
 #include "mode.h"
 #include "view.h"

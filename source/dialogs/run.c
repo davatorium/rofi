@@ -49,6 +49,8 @@
 #include "dialogs/run.h"
 
 #include "mode-private.h"
+
+#include "timings.h"
 /**
  * Name of the history file where previously choosen commands are stored.
  */
