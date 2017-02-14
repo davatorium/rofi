@@ -1,6 +1,8 @@
 #ifndef ROFI_MODE_PRIVATE_H
 #define ROFI_MODE_PRIVATE_H
 
+#define ABI_VERSION 0x00000001
+
 /**
  * @param data Pointer to #Mode object.
  *
@@ -98,6 +100,8 @@ typedef char* ( *_mode_preprocess_input )( Mode *sw, const char *input );
  */
 struct rofi_mode
 {
+    /** Used for external plugins. */
+    unsigned int abi_version;
     /** Name (max 31 char long) */
     char name[32];
     char cfg_name_key[128];

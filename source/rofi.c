@@ -48,6 +48,7 @@
 
 #include <libgwater-xcb.h>
 
+
 #include "xcb-internal.h"
 #include "xkb-internal.h"
 
@@ -68,6 +69,10 @@
 #include "theme.h"
 
 #include "timings.h"
+
+// Plugin abi version.
+// TODO: move this check to mode.c
+#include "mode-private.h"
 
 // Pidfile.
 char       *pidfile   = NULL;
@@ -450,10 +455,16 @@ static int add_mode ( const char * token )
         // Load module.
         GModule *mod = g_module_open ( token, G_MODULE_BIND_LAZY|G_MODULE_BIND_LOCAL );
         if ( mod ) {
-            gpointer m = NULL;
-            if ( g_module_symbol ( mod, "mode", &m) ){
-                modi[num_modi] = m;
-                num_modi++;
+            Mode *m = NULL;
+            if ( g_module_symbol ( mod, "mode", (gpointer *)&m) ){
+                // Simple abi check.
+                if ( m->abi_version != ABI_VERSION ){
+                    fprintf(stderr, "ABI version of plugin does not match: %08X expecting: %08X\n", m->abi_version, ABI_VERSION);
+                    g_module_close ( mod );
+                } else {
+                    modi[num_modi] = m;
+                    num_modi++;
+                }
             } else {
                 fprintf(stderr, "Symbol 'mode' not found in module: %s\n", token);
                 g_module_close ( mod );
