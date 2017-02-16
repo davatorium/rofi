@@ -8,6 +8,12 @@ AM_YFLAGS = -d
 noinst_LIBRARIES =
 include $(top_srcdir)/libgwater-xcb-nolibtool.mk
 
+##
+# PKG CONFIG file
+##
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = pkgconfig/rofi.pc
+
 
 BUILT_SOURCES=\
 			  lexer/theme-parser.h\

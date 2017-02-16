@@ -114,7 +114,7 @@ dnl Add extra compiler flags
 dnl ---------------------------------------------------------------------
 AC_SUBST([AM_CFLAGS])
 
-AC_CONFIG_FILES([Makefile doc/rofi.doxy])
+AC_CONFIG_FILES([Makefile doc/rofi.doxy pkgconfig/rofi.pc])
 AC_OUTPUT
 
 dnl -----------------------------------------------
