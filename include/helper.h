@@ -1,9 +1,5 @@
 #ifndef ROFI_HELPER_H
 #define ROFI_HELPER_H
-#include "rofi.h"
-
-#include <pango/pango.h>
-#include <theme.h>
 /**
  * @defgroup HELPERS Helpers
  */
@@ -198,18 +194,6 @@ char * rofi_force_utf8 ( gchar *data, ssize_t length );
 char * rofi_latin_to_utf8_strdup ( const char *input, gssize length );
 
 /**
- * @param th The ThemeHighlight
- * @param tokens Array of regexes used for matching
- * @param input The input string to find the matches on
- * @param retv The Attribute list to update with matches
- *
- * Creates a set of pango attributes highlighting the matches found in the input string.
- *
- * @returns the updated retv list.
- */
-PangoAttrList *token_match_get_pango_attr ( ThemeHighlight th, GRegex **tokens, const char *input, PangoAttrList *retv );
-
-/**
  * @param pattern   The user input to match against.
  * @param plen      Pattern length.
  * @param str       The input to match against pattern.
@@ -235,11 +219,15 @@ int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *st
  */
 int utf8_strncmp ( const char *a, const char* b, size_t n );
 
+
 /**
- * @param pfd Pango font description to validate.
- * @param font The name of the font to check.
+ * @param wd The work directory (optional)
+ * @param cmd The cmd to execute
+ * @param run_in_term Indicate if command should be run in a terminal
  *
- * @returns true if font is valid.
+ * Execute command.
+ *
+ * @returns FALSE On failure, TRUE on success
  */
-gboolean helper_validate_font ( PangoFontDescription *pfd, const char *font );
+int helper_execute_command ( const char *wd, const char *cmd, int run_in_term );
 #endif // ROFI_HELPER_H

@@ -53,6 +53,7 @@
 #include "xcb-internal.h"
 #include "xkb-internal.h"
 #include "helper.h"
+#include "helper-theme.h"
 #include "x11-helper.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
@@ -878,7 +879,7 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
             }
             ThemeHighlight th = { HL_BOLD | HL_UNDERLINE, { 0.0, 0.0, 0.0, 0.0 } };
             th = rofi_theme_get_highlight ( WIDGET ( t ), "highlight", th );
-            token_match_get_pango_attr ( th, state->tokens, textbox_get_visible_text ( t ), list );
+            helper_token_match_get_pango_attr ( th, state->tokens, textbox_get_visible_text ( t ), list );
             textbox_set_pango_attributes ( t, list );
             pango_attr_list_unref ( list );
         }

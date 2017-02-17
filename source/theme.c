@@ -8,6 +8,7 @@
 #include "settings.h"
 #include "widgets/textbox.h"
 #include "view.h"
+#include "rofi.h"
 
 /** Logging domain for theme */
 #define LOG_DOMAIN    "Theme"

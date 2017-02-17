@@ -3,6 +3,7 @@
 #include <glib.h>
 #include <cairo.h>
 #include <xcb/xcb.h>
+#include <xkbcommon/xkbcommon.h>
 
 #include "xkb.h"
 

@@ -50,36 +50,6 @@
 #define DRUN_CACHE_FILE    "rofi2.druncache"
 #define LOG_DOMAIN         "Dialogs.DRun"
 
-static inline int execsh ( const char *wd, const char *cmd, int run_in_term )
-{
-    int  retv   = TRUE;
-    char **args = NULL;
-    int  argc   = 0;
-    if ( !cmd || !cmd[0] ) {
-        return 0;
-    }
-    if ( run_in_term ) {
-        helper_parse_setup ( config.run_shell_command, &args, &argc, "{cmd}", cmd, NULL );
-    }
-    else {
-        helper_parse_setup ( config.run_command, &args, &argc, "{cmd}", cmd, NULL );
-    }
-    GError *error = NULL;
-    g_spawn_async ( wd, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error );
-    if ( error != NULL ) {
-        char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd, error->message );
-        rofi_view_error_dialog ( msg, FALSE  );
-        g_free ( msg );
-        // print error.
-        g_error_free ( error );
-        retv = FALSE;
-    }
-
-    // Free the args list.
-    g_strfreev ( args );
-    return retv;
-}
-
 /**
  * Store extra information about the entry.
  * Currently the executable and if it should run in terminal.
@@ -201,7 +171,7 @@ static void exec_cmd_entry ( DRunModeEntry *e )
 
     // Returns false if not found, if key not found, we don't want run in terminal.
     gboolean terminal = g_key_file_get_boolean ( e->key_file, "Desktop Entry", "Terminal", NULL );
-    if ( execsh ( exec_path, fp, terminal ) ) {
+    if ( helper_execute_command ( exec_path, fp, terminal ) ) {
         char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
         char *key  = g_strdup_printf ( "%s:::%s", e->root, e->path );
         history_set ( path, key );
@@ -462,7 +432,7 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
         exec_cmd_entry ( &( rmpd->entry_list[selected_line] ) );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
-        execsh ( NULL, *input, run_in_term );
+        helper_execute_command ( NULL, *input, run_in_term );
     }
     else if ( ( mretv & MENU_ENTRY_DELETE ) && selected_line < rmpd->cmd_list_length ) {
         if ( selected_line < rmpd->history_length ) {

@@ -45,6 +45,7 @@
 #include <pango/pango-fontmap.h>
 #include <pango/pangocairo.h>
 #include "helper.h"
+#include "helper-theme.h"
 #include "settings.h"
 #include "x11-helper.h"
 #include "rofi.h"
@@ -394,7 +395,7 @@ int find_arg_char ( const char * const key, char *val )
     return FALSE;
 }
 
-PangoAttrList *token_match_get_pango_attr ( ThemeHighlight th, GRegex **tokens, const char *input, PangoAttrList *retv )
+PangoAttrList *helper_token_match_get_pango_attr ( ThemeHighlight th, GRegex **tokens, const char *input, PangoAttrList *retv )
 {
     // Do a tokenized match.
     if ( tokens ) {
@@ -927,4 +928,31 @@ int utf8_strncmp ( const char* a, const char* b, size_t n )
     g_free ( na );
     g_free ( nb );
     return r;
+}
+
+int helper_execute_command ( const char *wd, const char *cmd, int run_in_term )
+{
+    int  retv   = TRUE;
+    char **args = NULL;
+    int  argc   = 0;
+    if ( run_in_term ) {
+        helper_parse_setup ( config.run_shell_command, &args, &argc, "{cmd}", cmd, NULL );
+    }
+    else {
+        helper_parse_setup ( config.run_command, &args, &argc, "{cmd}", cmd, NULL );
+    }
+    GError *error = NULL;
+    g_spawn_async ( wd, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error );
+    if ( error != NULL ) {
+        char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd, error->message );
+        rofi_view_error_dialog ( msg, FALSE  );
+        g_free ( msg );
+        // print error.
+        g_error_free ( error );
+        retv = FALSE;
+    }
+
+    // Free the args list.
+    g_strfreev ( args );
+    return retv;
 }

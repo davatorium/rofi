@@ -70,40 +70,6 @@ typedef struct
     unsigned int cmd_list_length;
 } RunModePrivateData;
 
-/**
- * @param cmd The cmd to execute
- * @param run_in_term Indicate if command should be run in a terminal
- *
- * Execute command.
- *
- * @returns FALSE On failure, TRUE on success
- */
-static inline int execsh ( const char *cmd, int run_in_term )
-{
-    int  retv   = TRUE;
-    char **args = NULL;
-    int  argc   = 0;
-    if ( run_in_term ) {
-        helper_parse_setup ( config.run_shell_command, &args, &argc, "{cmd}", cmd, NULL );
-    }
-    else {
-        helper_parse_setup ( config.run_command, &args, &argc, "{cmd}", cmd, NULL );
-    }
-    GError *error = NULL;
-    g_spawn_async ( NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error );
-    if ( error != NULL ) {
-        char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd, error->message );
-        rofi_view_error_dialog ( msg, FALSE  );
-        g_free ( msg );
-        // print error.
-        g_error_free ( error );
-        retv = FALSE;
-    }
-
-    // Free the args list.
-    g_strfreev ( args );
-    return retv;
-}
 
 /**
  * @param cmd The cmd to execute
@@ -126,7 +92,7 @@ static void exec_cmd ( const char *cmd, int run_in_term )
     }
 
     char *path = g_build_filename ( cache_dir, RUN_CACHE_FILE, NULL );
-    if (  execsh ( lf_cmd, run_in_term ) ) {
+    if (  helper_execute_command ( NULL, lf_cmd, run_in_term ) ) {
         /**
          * This happens in non-critical time (After launching app)
          * It is allowed to be a bit slower.

@@ -1,6 +1,6 @@
 #ifndef ROFI_VIEW_H
 #define ROFI_VIEW_H
-
+#include "mode.h"
 #include "xkb.h"
 
 /**

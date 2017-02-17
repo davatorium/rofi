@@ -20,6 +20,12 @@ BUILT_SOURCES=\
 			  lexer/theme-parser.c\
 			  lexer/theme-lexer.c
 
+rofiincludedir=${includedir}/rofi
+rofiinclude_HEADERS=\
+			include/mode.h\
+			include/mode-private.h\
+			include/settings.h\
+			include/helper.h
 
 ##
 # Rofi the program
@@ -69,6 +75,7 @@ SOURCES=\
 	include/view.h\
 	include/view-internal.h\
 	include/helper.h\
+	include/helper-theme.h\
 	include/timings.h\
 	include/history.h\
 	include/theme.h\
@@ -260,6 +267,7 @@ helper_pidfile_SOURCES=\
 					   include/mode-private.h\
 					   source/helper.c\
 					   include/helper.h\
+					   include/helper-theme.h\
 					   include/xrmoptions.h\
 					   source/xrmoptions.c\
 					   source/x11-helper.c\
@@ -275,6 +283,7 @@ helper_tokenize_SOURCES=\
 					   include/mode-private.h\
 					   source/helper.c\
 					   include/helper.h\
+					   include/helper-theme.h\
 					   include/xrmoptions.h\
 					   source/xrmoptions.c\
 					   source/x11-helper.c\
@@ -335,6 +344,7 @@ textbox_test_SOURCES=\
 	include/widgets/textbox.h\
 	include/xrmoptions.h\
 	include/helper.h\
+	include/helper-theme.h\
 	test/textbox-test.c
 
 helper_test_SOURCES=\
@@ -344,6 +354,7 @@ helper_test_SOURCES=\
 	include/mode-private.h\
 	source/helper.c\
 	include/helper.h\
+	include/helper-theme.h\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
 	source/x11-helper.c\
@@ -374,6 +385,7 @@ helper_expand_SOURCES=\
 	include/mode-private.h\
 	source/helper.c\
 	include/helper.h\
+	include/helper-theme.h\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
 	source/x11-helper.c\
@@ -393,6 +405,7 @@ helper_config_cmdline_parser_SOURCES=\
 	include/mode-private.h\
 	source/helper.c\
 	include/helper.h\
+	include/helper-theme.h\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
 	source/x11-helper.c\
