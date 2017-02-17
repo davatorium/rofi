@@ -117,7 +117,8 @@ rofi_CFLAGS=\
 	-I$(top_builddir)/\
 	-Werror=missing-prototypes\
 	-DSYSCONFDIR=\"$(sysconfdir)\"\
-	-DTHEME_CONVERTER
+	-DTHEME_CONVERTER\
+	-DPLUGIN_PATH=\"${libdir}/rofi\"
 
 rofi_LDADD=\
 	$(glib_LIBS)\

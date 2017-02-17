@@ -451,9 +451,15 @@ static int add_mode ( const char * token )
     }
     else if ( g_str_has_suffix ( token, G_MODULE_SUFFIX ) )
     {
+        gchar *fn;
+        if ( token[0] != G_DIR_SEPARATOR) {
+            fn = g_build_filename ( PLUGIN_PATH, token, NULL );
+        } else {
+            fn = g_strdup ( token );
+        }
         TICK_N("Loading module");
         // Load module.
-        GModule *mod = g_module_open ( token, G_MODULE_BIND_LAZY|G_MODULE_BIND_LOCAL );
+        GModule *mod = g_module_open ( fn, G_MODULE_BIND_LAZY|G_MODULE_BIND_LOCAL );
         if ( mod ) {
             Mode *m = NULL;
             if ( g_module_symbol ( mod, "mode", (gpointer *)&m) ){
@@ -473,6 +479,7 @@ static int add_mode ( const char * token )
         } else {
             fprintf ( stderr, "Failed to open module: %s\n", token);
         }
+        g_free(fn);
         TICK_N("Loading module done");
     }
     else {
