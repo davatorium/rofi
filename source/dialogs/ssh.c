@@ -483,7 +483,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
 static int ssh_token_match ( const Mode *sw, GRegex **tokens, unsigned int index )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) mode_get_private_data ( sw );
-    return token_match ( tokens, rmpd->hosts_list[index] );
+    return helper_token_match ( tokens, rmpd->hosts_list[index] );
 }
 #include "mode-private.h"
 Mode ssh_mode =

@@ -333,28 +333,28 @@ static int window_match ( const Mode *sw, GRegex **tokens, unsigned int index )
     if ( tokens ) {
         for ( int j = 0; match && tokens != NULL && tokens[j] != NULL; j++ ) {
             int test = 0;
-            // Dirty hack. Normally token_match does _all_ the matching,
+            // Dirty hack. Normally helper_token_match does _all_ the matching,
             // Now we want it to match only one item at the time.
             // If hack not in place it would not match queries spanning multiple fields.
             // e.g. when searching 'title element' and 'class element'
             GRegex *ftokens[2] = { tokens[j], NULL };
             if ( !test && c->title != NULL && c->title[0] != '\0' ) {
-                test = token_match ( ftokens, c->title );
+                test = helper_token_match ( ftokens, c->title );
             }
 
             if ( !test && c->class != NULL && c->class[0] != '\0' ) {
-                test = token_match ( ftokens, c->class );
+                test = helper_token_match ( ftokens, c->class );
             }
 
             if ( !test && c->role != NULL && c->role[0] != '\0' ) {
-                test = token_match ( ftokens, c->role );
+                test = helper_token_match ( ftokens, c->role );
             }
 
             if ( !test && c->name != NULL && c->name[0] != '\0' ) {
-                test = token_match ( ftokens, c->name );
+                test = helper_token_match ( ftokens, c->name );
             }
             if ( !test && c->wmdesktopstr != NULL && c->wmdesktopstr[0] != '\0' ) {
-                test = token_match ( ftokens, c->wmdesktopstr );
+                test = helper_token_match ( ftokens, c->wmdesktopstr );
             }
 
             if ( test == 0 ) {

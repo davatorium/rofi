@@ -469,7 +469,7 @@ static int dmenu_mode_init ( Mode *sw )
 static int dmenu_token_match ( const Mode *sw, GRegex **tokens, unsigned int index )
 {
     DmenuModePrivateData *rmpd = (DmenuModePrivateData *) mode_get_private_data ( sw );
-    return token_match ( tokens, rmpd->cmd_list[index] );
+    return helper_token_match ( tokens, rmpd->cmd_list[index] );
 }
 
 #include "mode-private.h"
@@ -677,7 +677,7 @@ int dmenu_switcher_dialog ( void )
         GRegex       **tokens = tokenize ( select, config.case_sensitive );
         unsigned int i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
-            if ( token_match ( tokens, cmd_list[i] ) ) {
+            if ( helper_token_match ( tokens, cmd_list[i] ) ) {
                 pd->selected_line = i;
                 break;
             }
@@ -688,7 +688,7 @@ int dmenu_switcher_dialog ( void )
         GRegex       **tokens = tokenize ( config.filter ? config.filter : "", config.case_sensitive );
         unsigned int i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
-            if ( tokens == NULL || token_match ( tokens, cmd_list[i] ) ) {
+            if ( tokens == NULL || helper_token_match ( tokens, cmd_list[i] ) ) {
                 dmenu_output_formatted_line ( pd->format, cmd_list[i], i, config.filter );
             }
         }

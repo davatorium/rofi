@@ -534,23 +534,23 @@ static int drun_token_match ( const Mode *data, GRegex **tokens, unsigned int in
             GRegex *ftokens[2] = { tokens[j], NULL };
             // Match name
             if ( !test && rmpd->entry_list[index].name &&
-                 token_match ( ftokens, rmpd->entry_list[index].name ) ) {
+                 helper_token_match ( ftokens, rmpd->entry_list[index].name ) ) {
                 test = 1;
             }
             // Match generic name
             if ( !test && rmpd->entry_list[index].generic_name &&
-                 token_match ( ftokens, rmpd->entry_list[index].generic_name ) ) {
+                 helper_token_match ( ftokens, rmpd->entry_list[index].generic_name ) ) {
                 test = 1;
             }
             // Match executable name.
-            if ( !test && token_match ( ftokens, rmpd->entry_list[index].exec ) ) {
+            if ( !test && helper_token_match ( ftokens, rmpd->entry_list[index].exec ) ) {
                 test = 1;
             }
             // Match against category.
             if ( !test ) {
                 gchar **list = g_key_file_get_locale_string_list ( rmpd->entry_list[index].key_file, "Desktop Entry", "Categories", NULL, NULL, NULL );
                 for ( int iter = 0; !test && list && list[iter]; iter++ ) {
-                    test = token_match ( ftokens, list[iter] );
+                    test = helper_token_match ( ftokens, list[iter] );
                 }
                 g_strfreev ( list );
             }

@@ -169,7 +169,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
 static int script_token_match ( const Mode *sw, GRegex **tokens, unsigned int index )
 {
     ScriptModePrivateData *rmpd = sw->private_data;
-    return token_match ( tokens, rmpd->cmd_list[index] );
+    return helper_token_match ( tokens, rmpd->cmd_list[index] );
 }
 
 #include "mode-private.h"

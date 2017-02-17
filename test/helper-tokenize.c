@@ -50,204 +50,204 @@ int main ( int argc, char ** argv )
         config.matching_method = MM_NORMAL;
         GRegex **tokens = tokenize ( "noot", FALSE );
 
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap Noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "Nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "noOTap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap Noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "Nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "noOTap mies") == TRUE );
 
         tokenize_free ( tokens );
 
         tokens = tokenize ( "noot", TRUE );
 
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap Noot mies") == FALSE );
-        TASSERT ( token_match ( tokens, "Nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "noOTap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap Noot mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "Nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "noOTap mies") == FALSE );
 
         tokenize_free ( tokens );
         tokens = tokenize ( "no ot", FALSE );
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "noap miesot") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "noap miesot") == TRUE );
         tokenize_free ( tokens );
     }
     {
         config.matching_method = MM_GLOB;
         GRegex **tokens = tokenize ( "noot", FALSE );
 
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap Noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "Nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "noOTap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap Noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "Nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "noOTap mies") == TRUE );
 
         tokenize_free ( tokens );
 
         tokens = tokenize ( "noot", TRUE );
 
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap Noot mies") == FALSE );
-        TASSERT ( token_match ( tokens, "Nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "noOTap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap Noot mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "Nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "noOTap mies") == FALSE );
         tokenize_free ( tokens );
 
         tokens = tokenize ( "no ot", FALSE );
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "noap miesot") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "noap miesot") == TRUE );
         tokenize_free ( tokens );
         
         tokens = tokenize ( "n?ot", FALSE );
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "noap miesot") == FALSE);
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "noap miesot") == FALSE);
         tokenize_free ( tokens );
         tokens = tokenize ( "n*ot", FALSE );
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "noap miesot") == TRUE);
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "noap miesot") == TRUE);
         tokenize_free ( tokens );
 
         tokens = tokenize ( "n* ot", FALSE );
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "noap miesot") == TRUE);
-        TASSERT ( token_match ( tokens, "ot nap mies") == TRUE);
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "noap miesot") == TRUE);
+        TASSERT ( helper_token_match ( tokens, "ot nap mies") == TRUE);
         tokenize_free ( tokens );
     }
     {
         config.matching_method = MM_FUZZY;
         GRegex **tokens = tokenize ( "noot", FALSE );
 
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap Noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "Nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "noOTap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap Noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "Nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "noOTap mies") == TRUE );
 
         tokenize_free ( tokens );
 
         tokens = tokenize ( "noot", TRUE );
 
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap Noot mies") == FALSE );
-        TASSERT ( token_match ( tokens, "Nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "noOTap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap Noot mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "Nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "noOTap mies") == FALSE );
         tokenize_free ( tokens );
 
         tokens = tokenize ( "no ot", FALSE );
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "noap miesot") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "noap miesot") == TRUE );
         tokenize_free ( tokens );
         
         tokens = tokenize ( "n ot", FALSE );
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "noap miesot") == TRUE);
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "noap miesot") == TRUE);
         tokenize_free ( tokens );
         tokens = tokenize ( "ont", FALSE );
-        TASSERT ( token_match ( tokens, "aap noot mies") == FALSE);
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap nmiest") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == FALSE);
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap nmiest") == TRUE );
         tokenize_free ( tokens );
 
         tokens = tokenize ( "o n t", FALSE );
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "noap miesot") == TRUE);
-        TASSERT ( token_match ( tokens, "ot nap mies") == TRUE);
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "noap miesot") == TRUE);
+        TASSERT ( helper_token_match ( tokens, "ot nap mies") == TRUE);
         tokenize_free ( tokens );
     }
     {
         config.matching_method = MM_REGEX;
         GRegex **tokens = tokenize ( "noot", FALSE );
 
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap Noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "Nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "noOTap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap Noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "Nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "noOTap mies") == TRUE );
 
         tokenize_free ( tokens );
 
         tokens = tokenize ( "noot", TRUE );
 
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap Noot mies") == FALSE );
-        TASSERT ( token_match ( tokens, "Nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "noOTap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap Noot mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "Nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "noOTap mies") == FALSE );
         tokenize_free ( tokens );
 
         tokens = tokenize ( "no ot", FALSE );
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "noap miesot") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "noap miesot") == TRUE );
         tokenize_free ( tokens );
         
         tokens = tokenize ( "n.?ot", FALSE );
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "noap miesot") == FALSE);
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "noap miesot") == FALSE);
         tokenize_free ( tokens );
         tokens = tokenize ( "n[oa]{2}t", FALSE );
-        TASSERT ( token_match ( tokens, "aap noot mies") == TRUE );
-        TASSERT ( token_match ( tokens, "aap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == TRUE );
-        TASSERT ( token_match ( tokens, "noat miesot") == TRUE);
-        TASSERT ( token_match ( tokens, "noaat miesot") == FALSE);
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+        TASSERT ( helper_token_match ( tokens, "noat miesot") == TRUE);
+        TASSERT ( helper_token_match ( tokens, "noaat miesot") == FALSE);
         tokenize_free ( tokens );
 
         tokens = tokenize ( "^(aap|noap)\\sMie.*", FALSE );
-        TASSERT ( token_match ( tokens, "aap noot mies") == FALSE );
-        TASSERT ( token_match ( tokens, "aap mies") == TRUE);
-        TASSERT ( token_match ( tokens, "nooaap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "nootap mies") == FALSE );
-        TASSERT ( token_match ( tokens, "noap miesot") == TRUE);
-        TASSERT ( token_match ( tokens, "ot nap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "aap noot mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "aap mies") == TRUE);
+        TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "nootap mies") == FALSE );
+        TASSERT ( helper_token_match ( tokens, "noap miesot") == TRUE);
+        TASSERT ( helper_token_match ( tokens, "ot nap mies") == FALSE );
         tokenize_free ( tokens );
     }
 }

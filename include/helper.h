@@ -108,7 +108,7 @@ int find_arg ( const char * const key );
  *
  * @returns TRUE when matches, FALSE otherwise
  */
-int token_match ( GRegex * const *tokens, const char *input );
+int helper_token_match ( GRegex * const *tokens, const char *input );
 /**
  * @param cmd The command to execute.
  *

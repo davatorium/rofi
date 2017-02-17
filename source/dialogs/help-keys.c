@@ -108,7 +108,7 @@ static int help_keys_token_match ( const Mode *data,
                                    )
 {
     KeysHelpModePrivateData *rmpd = (KeysHelpModePrivateData *) mode_get_private_data ( data );
-    return token_match ( tokens, rmpd->messages[index] );
+    return helper_token_match ( tokens, rmpd->messages[index] );
 }
 
 static unsigned int help_keys_mode_get_num_entries ( const Mode *sw )
