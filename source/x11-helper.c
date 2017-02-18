@@ -941,7 +941,7 @@ void x11_helper_discover_window_manager ( void )
                     current_window_manager = WM_I3;
                 } else if  ( g_strcmp0 ( wtitle.strings, "awesome" )  == 0 ){
                     current_window_manager = WM_AWESOME;
-                } else if  ( g_strcmp0 ( wtitle.strings, "openbox" )  == 0 ){
+                } else if  ( g_strcmp0 ( wtitle.strings, "Openbox" )  == 0 ){
                     current_window_manager = WM_OPENBOX;
                 }
             }
