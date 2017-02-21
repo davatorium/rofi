@@ -443,6 +443,8 @@ The following properties are currently supports:
       Margin on the outside of the widget.
     * border:          border
       Border around the widget (between padding and margin)/
+    * border-radius:    padding
+      Sets a radius on the corners of the borders.
     * background:      color
       Background color.
     * foreground:      color
