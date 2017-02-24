@@ -371,7 +371,9 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         int tw = textbox_get_font_width ( tb );
         x = (  ( tb->widget.w - tw - widget_padding_get_padding_width ( WIDGET ( tb ) ) - offset ) ) / 2;
     }
-    y = widget_padding_get_top ( WIDGET ( tb ) ) + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
+
+    int top = widget_padding_get_top ( WIDGET (tb) );
+    y = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
     rofi_theme_get_color ( WIDGET ( tb ), "foreground", draw );
     // Text
@@ -385,7 +387,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     // Set ARGB
     // We need to set over, otherwise subpixel hinting wont work.
     cairo_set_operator ( draw, CAIRO_OPERATOR_OVER );
-    cairo_move_to ( draw, x, y );
+    cairo_move_to ( draw, x, top );
     pango_cairo_show_layout ( draw, tb->layout );
 
     if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED ) ) ) {
