@@ -200,7 +200,7 @@ For the full list of keybindings see: `rofi -show keys` or `rofi -help`.
 
 There are currently three methods of setting configuration options:
 
- * Local configuration. Normally, depending on XDG, in `~/.local/rofi/config`. This uses the Xresources format.
+ * Local configuration. Normally, depending on XDG, in `~/.config/rofi/config`. This uses the Xresources format.
  * Xresources: A method of storing key values in the Xserver. See
    [here](https://en.wikipedia.org/wiki/X_resources) for more information.
  * Commandline options: Arguments passed to **Rofi**.
