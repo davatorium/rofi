@@ -542,6 +542,12 @@ static inline void load_configuration ( )
 }
 static inline void load_configuration_dynamic ( )
 {
+    // Load distro default settings
+    gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
+    if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
+        config_parse_xresource_options_dynamic_file ( etc );
+    }
+    g_free ( etc );
     // Load in config from X resources.
     config_parse_xresource_options_dynamic ( xcb );
     config_parse_xresource_options_dynamic_file ( config_path );
