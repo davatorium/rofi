@@ -1663,9 +1663,8 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     rofi_view_calculate_window_width ( state );
     // Need to resize otherwise calculated desired height is wrong.
     widget_resize ( WIDGET ( state->main_window ), state->width, 100 );
-    unsigned int line_height = textbox_get_height ( state->text );
     // resize window vertically to suit
-    state->height = line_height + widget_padding_get_padding_height ( WIDGET ( state->main_window ) );
+    state->height = widget_get_desired_height ( WIDGET (state->main_window));
 
     // Calculte window position.
     rofi_view_calculate_window_position ( state );
