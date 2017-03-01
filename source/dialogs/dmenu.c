@@ -110,12 +110,6 @@ static void async_close_callback ( GObject *source_object, GAsyncResult *res, G_
 
 static void read_add ( DmenuModePrivateData * pd, char *data, gsize len )
 {
-    if ( pd->cmd_list_real_length > 0 ){
-        if ( find_arg ( "-replace" ) >= 0 ){
-            g_free(pd->cmd_list[pd->cmd_list_length]);
-            pd->cmd_list_length--;
-        }
-    }
     if ( ( pd->cmd_list_length + 2 ) > pd->cmd_list_real_length ) {
         pd->cmd_list_real_length = MAX ( pd->cmd_list_real_length * 2, 512 );
         pd->cmd_list             = g_realloc ( pd->cmd_list, ( pd->cmd_list_real_length ) * sizeof ( char* ) );
