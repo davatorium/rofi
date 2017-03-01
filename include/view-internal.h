@@ -40,6 +40,11 @@ struct RofiViewState
     listview         *list_view;
     /** #textbox widget showing the overlay. */
     textbox          *overlay;
+    /** #container holding the message box */
+    container        *mesg_box;
+    /** #textbox containing the message entry */
+    textbox          *mesg_tb;
+
     /** Array with the levenshtein distance for each eleemnt. */
     int              *distance;
     /** Array with the translation between the filtered and unfiltered list. */

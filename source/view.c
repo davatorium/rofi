@@ -1592,12 +1592,13 @@ RofiViewState *rofi_view_create ( Mode *sw,
     box_add ( state->input_bar, WIDGET ( state->text ), TRUE, 2 );
 
     textbox_text ( state->case_indicator, get_matching_state () );
-    if ( message ) {
-        container *box        = container_create ( "window.mainbox.message.box" );
-        textbox   *message_tb = textbox_create ( "window.mainbox.message.textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, message );
-        container_add ( box, WIDGET ( message_tb ) );
-        box_add ( state->main_box, WIDGET ( box ), FALSE, end ? 8 : 2 );
+    state->mesg_box = container_create ( "window.mainbox.message.box" );
+    state->mesg_tb  = textbox_create ( "window.mainbox.message.textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, message );
+    container_add ( state->mesg_box, WIDGET ( state->mesg_tb ) );
+    if ( message  == NULL ) {
+        widget_disable ( WIDGET( state->mesg_box ) );
     }
+    box_add ( state->main_box, WIDGET ( state->mesg_box ), FALSE, end ? 8 : 2 );
 
     state->overlay                = textbox_create ( "window.overlay", TB_AUTOWIDTH | TB_AUTOHEIGHT, URGENT, "blaat"  );
     state->overlay->widget.parent = WIDGET ( state->main_window );
