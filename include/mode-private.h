@@ -1,7 +1,7 @@
 #ifndef ROFI_MODE_PRIVATE_H
 #define ROFI_MODE_PRIVATE_H
 
-#define ABI_VERSION 0x00000001
+#define ABI_VERSION 0x00000002
 
 /**
  * @param data Pointer to #Mode object.
@@ -94,6 +94,15 @@ typedef ModeMode ( *_mode_result )( Mode *sw, int menu_retv, char **input, unsig
 typedef char* ( *_mode_preprocess_input )( Mode *sw, const char *input );
 
 /**
+ * @param sw The #Mode pointer
+ *
+ * Message to show in the message bar.
+ *
+ * @returns the (valid pango markup) message to display.
+ */
+typedef char * (*_mode_get_message )( const Mode *sw );
+
+/**
  * Structure defining a switcher.
  * It consists of a name, callback and if enabled
  * a textbox for the sidebar-mode.
@@ -126,6 +135,8 @@ struct rofi_mode
     _mode_get_completion    _get_completion;
 
     _mode_preprocess_input  _preprocess_input;
+
+    _mode_get_message _get_message;
 
     /** Pointer to private data. */
     void                    *private_data;

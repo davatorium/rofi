@@ -196,7 +196,7 @@ static void run_switcher ( ModeMode mode )
         return;
     }
     curr_switcher = mode;
-    RofiViewState * state = rofi_view_create ( modi[mode], config.filter, NULL, MENU_PROMPT_COLON, process_result );
+    RofiViewState * state = rofi_view_create ( modi[mode], config.filter, MENU_PROMPT_COLON, process_result );
     if ( state ) {
         rofi_view_set_active ( state );
     }

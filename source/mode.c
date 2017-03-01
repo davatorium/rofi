@@ -124,4 +124,11 @@ char * mode_preprocess_input ( Mode *mode, const char *input )
     }
     return g_strdup ( input );
 }
+char *mode_get_message ( const Mode *mode )
+{
+    if ( mode->_get_message ) {
+        return mode->_get_message ( mode );
+    }
+    return NULL;
+}
 /*@}*/

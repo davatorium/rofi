@@ -185,5 +185,14 @@ void mode_set_config ( Mode *mode );
  * @returns a newly allocated string
  */
 char * mode_preprocess_input ( Mode *mode, const char *input );
+
+/**
+ * @param mode The mode to query
+ *
+ * Query the mode for a user display.
+ *
+ * @return a new allocated (valid pango markup) message to display (user should free).
+ */
+char *mode_get_message ( const Mode *mode );
 /*@}*/
 #endif

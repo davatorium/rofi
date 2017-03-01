@@ -470,6 +470,14 @@ static int dmenu_token_match ( const Mode *sw, GRegex **tokens, unsigned int ind
     DmenuModePrivateData *rmpd = (DmenuModePrivateData *) mode_get_private_data ( sw );
     return helper_token_match ( tokens, rmpd->cmd_list[index] );
 }
+static char *dmenu_get_message ( const Mode *sw )
+{
+    DmenuModePrivateData *pd = (DmenuModePrivateData *) mode_get_private_data ( sw );
+    if ( pd->message ){
+        return g_strdup ( pd->message );
+    }
+    return NULL; 
+}
 
 #include "mode-private.h"
 /** dmenu Mode object. */
@@ -485,6 +493,7 @@ Mode dmenu_mode =
     ._get_display_value = get_display_data,
     ._get_completion    = NULL,
     ._preprocess_input  = NULL,
+    ._get_message       = dmenu_get_message,
     .private_data       = NULL,
     .free               = NULL,
     .display_name       = "dmenu:"
@@ -697,7 +706,7 @@ int dmenu_switcher_dialog ( void )
         return TRUE;
     }
     find_arg_str (  "-p", &( dmenu_mode.display_name ) );
-    RofiViewState *state = rofi_view_create ( &dmenu_mode, input, pd->message, menu_flags, dmenu_finalize );
+    RofiViewState *state = rofi_view_create ( &dmenu_mode, input, menu_flags, dmenu_finalize );
     // @TODO we should do this better.
     if ( async ) {
         rofi_view_set_overlay ( state, "Loading.. " );

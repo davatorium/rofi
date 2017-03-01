@@ -374,6 +374,22 @@ static void rofi_view_window_update_size ( RofiViewState * state )
     widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
 }
 
+
+static void rofi_view_reload_message_bar ( RofiViewState *state )
+{
+    if ( state->mesg_box  == NULL ){
+        return ;
+    }
+    char *msg = mode_get_message ( state->sw );
+    if ( msg ) {
+        textbox_text ( state->mesg_tb, msg );
+        widget_enable ( WIDGET (state->mesg_box ) );
+        g_free ( msg );
+    } else {
+        widget_disable ( WIDGET (state->mesg_box ) );
+    }
+}
+
 static gboolean rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
 {
     if ( current_active_menu ) {
@@ -1002,6 +1018,7 @@ static void _rofi_view_reload_row ( RofiViewState *state )
     state->line_map  = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
     state->distance  = g_malloc0_n ( state->num_lines, sizeof ( int ) );
     listview_set_max_lines ( state->list_view, state->num_lines );
+    rofi_view_reload_message_bar ( state );
 }
 
 static void rofi_view_refilter ( RofiViewState *state )
@@ -1524,7 +1541,6 @@ static void rofi_view_listview_mouse_activated_cb ( listview *lv, xcb_button_pre
 
 RofiViewState *rofi_view_create ( Mode *sw,
                                   const char *input,
-                                  const char *message,
                                   MenuFlags menu_flags,
                                   void ( *finalize )( RofiViewState * ) )
 {
@@ -1593,11 +1609,9 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     textbox_text ( state->case_indicator, get_matching_state () );
     state->mesg_box = container_create ( "window.mainbox.message.box" );
-    state->mesg_tb  = textbox_create ( "window.mainbox.message.textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, message );
+    state->mesg_tb  = textbox_create ( "window.mainbox.message.textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, NULL );
     container_add ( state->mesg_box, WIDGET ( state->mesg_tb ) );
-    if ( message  == NULL ) {
-        widget_disable ( WIDGET( state->mesg_box ) );
-    }
+    rofi_view_reload_message_bar ( state );
     box_add ( state->main_box, WIDGET ( state->mesg_box ), FALSE, end ? 8 : 2 );
 
     state->overlay                = textbox_create ( "window.overlay", TB_AUTOWIDTH | TB_AUTOHEIGHT, URGENT, "blaat"  );
