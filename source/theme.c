@@ -28,7 +28,7 @@ ThemeWidget *rofi_theme_find_or_create_name ( ThemeWidget *base, const char *nam
     }
 
     base->widgets                    = g_realloc ( base->widgets, sizeof ( ThemeWidget* ) * ( base->num_widgets + 1 ) );
-    base->widgets[base->num_widgets] = g_malloc0 ( sizeof ( ThemeWidget ) );
+    base->widgets[base->num_widgets] = g_slice_new0 ( ThemeWidget );
     ThemeWidget *retv = base->widgets[base->num_widgets];
     retv->parent = base;
     retv->name   = g_strdup ( name );
@@ -40,7 +40,7 @@ ThemeWidget *rofi_theme_find_or_create_name ( ThemeWidget *base, const char *nam
  */
 Property *rofi_theme_property_create ( PropertyType type )
 {
-    Property *retv = g_malloc0 ( sizeof ( Property ) );
+    Property *retv = g_slice_new0 ( Property );
     retv->type = type;
     return retv;
 }
@@ -56,7 +56,7 @@ void rofi_theme_property_free ( Property *p )
     else if ( p->type == P_LINK ) {
         g_free ( p->value.link.name );
     }
-    g_free ( p );
+    g_slice_free ( Property, p );
 }
 
 void rofi_theme_free ( ThemeWidget *widget )
@@ -72,7 +72,7 @@ void rofi_theme_free ( ThemeWidget *widget )
     }
     g_free ( widget->widgets );
     g_free ( widget->name );
-    g_free ( widget );
+    g_slice_free ( ThemeWidget, widget );
 }
 
 /**
@@ -581,7 +581,7 @@ void rofi_theme_convert_old_theme ( void )
     if ( rofi_theme != NULL ) {
         return;
     }
-    rofi_theme       = (ThemeWidget *) g_malloc0 ( sizeof ( ThemeWidget ) );
+    rofi_theme       = (ThemeWidget *) g_slice_new0 ( ThemeWidget );
     rofi_theme->name = g_strdup ( "Root" );
     rofi_theme_convert_create_property_ht ( rofi_theme );
     ThemeWidget *window_widget = rofi_theme_find_or_create_name ( rofi_theme, "window" );

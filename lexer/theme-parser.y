@@ -76,7 +76,7 @@ entries:
   %empty {
         // There is always a base widget.
         if (rofi_theme == NULL ){
-            $$ =  rofi_theme = (ThemeWidget*)g_malloc0 (sizeof(ThemeWidget));
+            $$ =  rofi_theme = g_slice_new0 ( ThemeWidget  );
             rofi_theme->name = g_strdup ( "Root" );
         }
   }
