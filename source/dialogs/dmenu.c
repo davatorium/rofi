@@ -473,10 +473,10 @@ static int dmenu_token_match ( const Mode *sw, GRegex **tokens, unsigned int ind
 static char *dmenu_get_message ( const Mode *sw )
 {
     DmenuModePrivateData *pd = (DmenuModePrivateData *) mode_get_private_data ( sw );
-    if ( pd->message ){
+    if ( pd->message ) {
         return g_strdup ( pd->message );
     }
-    return NULL; 
+    return NULL;
 }
 
 #include "mode-private.h"

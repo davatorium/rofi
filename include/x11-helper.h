@@ -262,16 +262,16 @@ int x11_modifier_active ( unsigned int mask, int key );
  */
 void x11_disable_decoration ( xcb_window_t window );
 
-
-typedef enum {
+typedef enum
+{
     /** Default EWHM compatible window manager */
-    WM_EWHM     = 0,
+    WM_EWHM    = 0,
     /** I3 Window manager */
-    WM_I3       = 1,
+    WM_I3      = 1,
     /** Awesome window manager */
-    WM_AWESOME  = 2,
+    WM_AWESOME = 2,
     /** Openbox window manager */
-    WM_OPENBOX  = 4
+    WM_OPENBOX = 4
 } WindowManager;
 
 /**

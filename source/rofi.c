@@ -48,7 +48,6 @@
 
 #include <libgwater-xcb.h>
 
-
 #include "xcb-internal.h"
 #include "xkb-internal.h"
 
@@ -405,7 +404,7 @@ static void cleanup ()
  * Collected modi
  */
 // List of (possibly uninitialized) modi's
-Mode      ** available_modi     = NULL;
+Mode         ** available_modi  = NULL;
 unsigned int num_available_modi = 0;
 
 /**
@@ -415,7 +414,7 @@ unsigned int num_available_modi = 0;
  */
 Mode * rofi_collect_modi_search ( const char *name )
 {
-    for ( unsigned int i = 0; i < num_available_modi; i++ ){
+    for ( unsigned int i = 0; i < num_available_modi; i++ ) {
         if ( g_strcmp0 ( name, available_modi[i]->name ) == 0 ) {
             return available_modi[i];
         }
@@ -431,7 +430,7 @@ static gboolean rofi_collect_modi_add ( Mode *mode )
 {
     Mode *m = rofi_collect_modi_search ( mode->name );
     if ( m == NULL ) {
-        available_modi = g_realloc ( available_modi, sizeof(Mode *)*(num_available_modi+1));
+        available_modi = g_realloc ( available_modi, sizeof ( Mode * ) * ( num_available_modi + 1 ) );
         // Set mode.
         available_modi[num_available_modi] = mode;
         num_available_modi++;
@@ -445,27 +444,28 @@ static void rofi_collect_modi_dir ( const char *base_dir )
     GDir *dir = g_dir_open ( base_dir, 0, NULL );
     if ( dir ) {
         const char *dn = NULL;
-        while ( ( dn = g_dir_read_name ( dir ) ) )
-        {
+        while ( ( dn = g_dir_read_name ( dir ) ) ) {
             if ( !g_str_has_suffix ( dn, G_MODULE_SUFFIX ) ) {
                 continue;
             }
-            char *fn = g_build_filename ( PLUGIN_PATH, dn, NULL );
-            GModule *mod = g_module_open ( fn, G_MODULE_BIND_LAZY|G_MODULE_BIND_LOCAL );
+            char    *fn  = g_build_filename ( PLUGIN_PATH, dn, NULL );
+            GModule *mod = g_module_open ( fn, G_MODULE_BIND_LAZY | G_MODULE_BIND_LOCAL );
             if ( mod ) {
                 Mode *m = NULL;
-                if ( g_module_symbol ( mod, "mode", (gpointer *)&m) ){
+                if ( g_module_symbol ( mod, "mode", (gpointer *) &m ) ) {
                     if ( m->abi_version != ABI_VERSION ) {
-                        fprintf(stderr, "ABI version of plugin does not match: %08X expecting: %08X\n", m->abi_version, ABI_VERSION);
+                        fprintf ( stderr, "ABI version of plugin does not match: %08X expecting: %08X\n", m->abi_version, ABI_VERSION );
                         g_module_close ( mod );
-                    } else {
+                    }
+                    else {
                         m->module = mod;
-                        if ( ! rofi_collect_modi_add ( m ) ) {
+                        if ( !rofi_collect_modi_add ( m ) ) {
                             g_module_close ( mod );
                         }
                     }
-                } else {
-                    fprintf(stderr, "Symbol 'mode' not found in module: %s\n", fn);
+                }
+                else {
+                    fprintf ( stderr, "Symbol 'mode' not found in module: %s\n", fn );
                     g_module_close ( mod );
                 }
             }
@@ -500,19 +500,19 @@ static void rofi_collect_modi ( void )
  */
 static void rofi_collect_modi_setup ( void )
 {
-    for  ( unsigned int i = 0; i < num_available_modi ; i++ ) {
-        mode_set_config ( available_modi[i] );    
+    for  ( unsigned int i = 0; i < num_available_modi; i++ ) {
+        mode_set_config ( available_modi[i] );
     }
 }
 static void rofi_collect_modi_destroy ( void )
 {
-    for  ( unsigned int i = 0; i < num_available_modi ; i++ ) {
+    for  ( unsigned int i = 0; i < num_available_modi; i++ ) {
         if ( available_modi[i]->module ) {
             g_module_close ( available_modi[i]->module );
         }
     }
     g_free ( available_modi );
-    available_modi = NULL;
+    available_modi     = NULL;
     num_available_modi = 0;
 }
 
@@ -533,14 +533,16 @@ static int add_mode ( const char * token )
     if ( mode ) {
         modi[num_modi] = mode;
         num_modi++;
-    } else {
+    }
+    else {
         // If not build in, use custom modi.
         Mode *sw = script_switcher_parse_setup ( token );
         if ( sw != NULL ) {
             modi[num_modi] = sw;
             mode_set_config ( sw );
             num_modi++;
-        } else {
+        }
+        else {
             // Report error, don't continue.
             fprintf ( stderr, "Invalid script switcher: %s\n", token );
         }
@@ -922,7 +924,7 @@ int main ( int argc, char *argv[] )
 
     // Get DISPLAY, first env, then argument.
     // We never modify display_str content.
-    char *display_str = ( char *)g_getenv ( "DISPLAY" );
+    char *display_str = ( char *) g_getenv ( "DISPLAY" );
     find_arg_str (  "-display", &display_str );
 
     xcb->connection = xcb_connect ( display_str, &xcb->screen_nbr );
@@ -947,7 +949,7 @@ int main ( int argc, char *argv[] )
         free ( errors );
     }
     // Discover the current active window manager.
-    x11_helper_discover_window_manager();
+    x11_helper_discover_window_manager ();
     TICK_N ( "Setup XCB" );
 
     if ( xkb_x11_setup_xkb_extension ( xcb->connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,

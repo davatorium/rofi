@@ -219,7 +219,6 @@ int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *st
  */
 int utf8_strncmp ( const char *a, const char* b, size_t n );
 
-
 /**
  * @param wd The work directory (optional)
  * @param cmd The cmd to execute

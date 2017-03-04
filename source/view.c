@@ -374,19 +374,19 @@ static void rofi_view_window_update_size ( RofiViewState * state )
     widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
 }
 
-
 static void rofi_view_reload_message_bar ( RofiViewState *state )
 {
-    if ( state->mesg_box  == NULL ){
-        return ;
+    if ( state->mesg_box == NULL ) {
+        return;
     }
     char *msg = mode_get_message ( state->sw );
     if ( msg ) {
         textbox_text ( state->mesg_tb, msg );
-        widget_enable ( WIDGET (state->mesg_box ) );
+        widget_enable ( WIDGET ( state->mesg_box ) );
         g_free ( msg );
-    } else {
-        widget_disable ( WIDGET (state->mesg_box ) );
+    }
+    else {
+        widget_disable ( WIDGET ( state->mesg_box ) );
     }
 }
 
@@ -1679,7 +1679,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     // Need to resize otherwise calculated desired height is wrong.
     widget_resize ( WIDGET ( state->main_window ), state->width, 100 );
     // resize window vertically to suit
-    state->height = widget_get_desired_height ( WIDGET (state->main_window));
+    state->height = widget_get_desired_height ( WIDGET ( state->main_window ) );
 
     // Calculte window position.
     rofi_view_calculate_window_position ( state );

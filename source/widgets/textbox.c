@@ -336,7 +336,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
 
     int          cursor_x      = 0;
     int          cursor_y      = 0;
-    int          cursor_width  = 2; //MAX ( 2, font_height / 10 );
     int          cursor_height = font_height;
 
     if ( tb->changed ) {
@@ -372,7 +371,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         x = (  ( tb->widget.w - tw - widget_padding_get_padding_width ( WIDGET ( tb ) ) - offset ) ) / 2;
     }
 
-    int top = widget_padding_get_top ( WIDGET (tb) );
+    int top = widget_padding_get_top ( WIDGET ( tb ) );
     y = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
     rofi_theme_get_color ( WIDGET ( tb ), "foreground", draw );
@@ -380,6 +379,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     rofi_theme_get_color ( WIDGET ( tb ), "text", draw );
     // draw the cursor
     if ( tb->flags & TB_EDITABLE && tb->blink ) {
+        int cursor_width = 2;           //MAX ( 2, font_height / 10 );
         cairo_rectangle ( draw, x + cursor_x, y + cursor_y, cursor_width, cursor_height );
         cairo_fill ( draw );
     }

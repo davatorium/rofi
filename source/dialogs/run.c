@@ -70,7 +70,6 @@ typedef struct
     unsigned int cmd_list_length;
 } RunModePrivateData;
 
-
 /**
  * @param cmd The cmd to execute
  * @param run_in_term Indicate if command should be run in a terminal

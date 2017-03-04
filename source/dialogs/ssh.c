@@ -199,7 +199,7 @@ static char **read_hosts_file ( char ** retv, unsigned int *length )
         // Reading one line per time.
         while ( getline ( &buffer, &buffer_length, fd ) > 0 ) {
             // Evaluate one line.
-            unsigned int index  = 0, ti = 0;
+            unsigned int index = 0, ti = 0;
             char         *token = buffer;
 
             // Tokenize it.
@@ -284,10 +284,9 @@ static char ** get_ssh (  unsigned int *length )
         retv = read_hosts_file ( retv, length );
     }
 
-    FILE       *fd = NULL;
     const char *hd = g_get_home_dir ();
     path = g_build_filename ( hd, ".ssh", "config", NULL );
-    fd   = fopen ( path, "r" );
+    FILE       *fd = fopen ( path, "r" );
 
     if ( fd != NULL ) {
         char   *buffer         = NULL;

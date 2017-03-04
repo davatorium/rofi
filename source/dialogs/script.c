@@ -76,11 +76,9 @@ static char **get_script_output ( const char *command, unsigned int *length )
 
 static char **execute_executor ( Mode *sw, const char *result, unsigned int *length )
 {
-    char **retv = NULL;
-
     char *arg     = g_shell_quote ( result );
     char *command = g_strdup_printf ( "%s %s", (const char *) sw->ed, arg );
-    retv = get_script_output ( command, length );
+    char **retv   = get_script_output ( command, length );
     g_free ( command );
     g_free ( arg );
     return retv;

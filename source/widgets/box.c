@@ -51,11 +51,11 @@ static void box_update ( widget *wid  );
 
 static int box_get_desired_height ( widget *wid )
 {
-    box *b             = (box *) wid;
-    int spacing        = distance_get_pixel ( b->spacing, b->type == BOX_VERTICAL ? ORIENTATION_VERTICAL : ORIENTATION_HORIZONTAL );
-    int active_widgets = 0;
-    int height         = 0;
+    box *b      = (box *) wid;
+    int spacing = distance_get_pixel ( b->spacing, b->type == BOX_VERTICAL ? ORIENTATION_VERTICAL : ORIENTATION_HORIZONTAL );
+    int height  = 0;
     if ( b->type == BOX_VERTICAL ) {
+        int active_widgets = 0;
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
             widget * child = (widget *) iter->data;
             if ( !child->enabled ) {

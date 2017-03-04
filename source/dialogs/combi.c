@@ -69,16 +69,18 @@ static void combi_mode_parse_switchers ( Mode *sw )
                                                    sizeof ( CombiMode ) * ( pd->num_switchers + 1 ) );
 
         Mode *mode = rofi_collect_modi_search ( token );
-        if (  mode ){
+        if (  mode ) {
             pd->switchers[pd->num_switchers].disable = FALSE;
             pd->switchers[pd->num_switchers++].mode  = mode;
-        } else {
+        }
+        else {
             // If not build in, use custom switchers.
             Mode *sw = script_switcher_parse_setup ( token );
             if ( sw != NULL ) {
                 pd->switchers[pd->num_switchers].disable = FALSE;
                 pd->switchers[pd->num_switchers++].mode  = sw;
-            } else {
+            }
+            else {
                 // Report error, don't continue.
                 fprintf ( stderr, "Invalid script switcher: %s\n", token );
                 token = NULL;

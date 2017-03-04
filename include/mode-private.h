@@ -2,7 +2,7 @@
 #define ROFI_MODE_PRIVATE_H
 
 #include <gmodule.h>
-#define ABI_VERSION 0x00000003
+#define ABI_VERSION    0x00000003
 
 /**
  * @param data Pointer to #Mode object.
@@ -113,9 +113,9 @@ struct rofi_mode
     /** Used for external plugins. */
     unsigned int abi_version;
     /** Name (max 31 char long) */
-    char name[32];
-    char cfg_name_key[128];
-    char *display_name;
+    char         name[32];
+    char         cfg_name_key[128];
+    char         *display_name;
 
     /**
      * A switcher normally consists of the following parts:
@@ -137,7 +137,7 @@ struct rofi_mode
 
     _mode_preprocess_input  _preprocess_input;
 
-    _mode_get_message _get_message;
+    _mode_get_message       _get_message;
 
     /** Pointer to private data. */
     void                    *private_data;
@@ -152,6 +152,6 @@ struct rofi_mode
     void       *ed;
 
     /** Module */
-    GModule *module;
+    GModule    *module;
 };
 #endif // ROFI_MODE_PRIVATE_H

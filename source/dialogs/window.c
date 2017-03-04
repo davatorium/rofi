@@ -338,7 +338,7 @@ static int window_match ( const Mode *sw, GRegex **tokens, unsigned int index )
             // If hack not in place it would not match queries spanning multiple fields.
             // e.g. when searching 'title element' and 'class element'
             GRegex *ftokens[2] = { tokens[j], NULL };
-            if ( !test && c->title != NULL && c->title[0] != '\0' ) {
+            if ( c->title != NULL && c->title[0] != '\0' ) {
                 test = helper_token_match ( ftokens, c->title );
             }
 
@@ -578,21 +578,20 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
         }
         else {
             rofi_view_hide ();
-            if ( (current_window_manager&(WM_AWESOME|WM_OPENBOX)) != 0 )
-            {
+            if ( ( current_window_manager & ( WM_AWESOME | WM_OPENBOX ) ) != 0 ) {
                 // Get the desktop of the client to switch to
                 uint32_t                  wmdesktop = 0;
                 xcb_get_property_cookie_t cookie;
                 xcb_get_property_reply_t  *r;
                 // Get the current desktop.
-                unsigned int current_desktop = 0;
-                xcb_get_property_cookie_t c  = xcb_ewmh_get_current_desktop ( &xcb->ewmh, xcb->screen_nbr );
+                unsigned int              current_desktop = 0;
+                xcb_get_property_cookie_t c               = xcb_ewmh_get_current_desktop ( &xcb->ewmh, xcb->screen_nbr );
                 if ( !xcb_ewmh_get_current_desktop_reply ( &xcb->ewmh, c, &current_desktop, NULL ) ) {
                     current_desktop = 0;
                 }
 
                 cookie = xcb_get_property ( xcb->connection, 0, rmpd->ids->array[selected_line],
-                        xcb->ewmh._NET_WM_DESKTOP, XCB_ATOM_CARDINAL, 0, 1 );
+                                            xcb->ewmh._NET_WM_DESKTOP, XCB_ATOM_CARDINAL, 0, 1 );
                 r = xcb_get_property_reply ( xcb->connection, cookie, NULL );
                 if ( r && r->type == XCB_ATOM_CARDINAL ) {
                     wmdesktop = *( (uint32_t *) xcb_get_property_value ( r ) );
@@ -606,7 +605,7 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
                 // If we have to switch the desktop, do
                 if ( wmdesktop != current_desktop ) {
                     xcb_ewmh_request_change_current_desktop ( &xcb->ewmh,
-                            xcb->screen_nbr, wmdesktop, XCB_CURRENT_TIME );
+                                                              xcb->screen_nbr, wmdesktop, XCB_CURRENT_TIME );
                 }
             }
             // Activate the window
