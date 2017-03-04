@@ -439,24 +439,10 @@ static gboolean rofi_collect_modi_add ( Mode *mode )
     }
     return FALSE;
 }
-/**
- * Find all available modi.
- */
-static void rofi_collect_modi ( void )
-{
-#ifdef WINDOW_MODE
-    rofi_collect_modi_add ( &window_mode );
-    rofi_collect_modi_add ( &window_mode_cd );
-#endif
-    rofi_collect_modi_add ( &run_mode );
-    rofi_collect_modi_add ( &ssh_mode );
-#ifdef ENABLE_DRUN
-    rofi_collect_modi_add ( &drun_mode );
-#endif
-    rofi_collect_modi_add ( &combi_mode );
-    rofi_collect_modi_add ( &help_keys_mode );
 
-    GDir *dir = g_dir_open ( PLUGIN_PATH, 0, NULL );
+static void rofi_collect_modi_dir ( const char *base_dir )
+{
+    GDir *dir = g_dir_open ( base_dir, 0, NULL );
     if ( dir ) {
         const char *dn = NULL;
         while ( ( dn = g_dir_read_name ( dir ) ) )
@@ -487,6 +473,26 @@ static void rofi_collect_modi ( void )
         }
         g_dir_close ( dir );
     }
+}
+
+/**
+ * Find all available modi.
+ */
+static void rofi_collect_modi ( void )
+{
+#ifdef WINDOW_MODE
+    rofi_collect_modi_add ( &window_mode );
+    rofi_collect_modi_add ( &window_mode_cd );
+#endif
+    rofi_collect_modi_add ( &run_mode );
+    rofi_collect_modi_add ( &ssh_mode );
+#ifdef ENABLE_DRUN
+    rofi_collect_modi_add ( &drun_mode );
+#endif
+    rofi_collect_modi_add ( &combi_mode );
+    rofi_collect_modi_add ( &help_keys_mode );
+
+    rofi_collect_modi_dir ( PLUGIN_PATH );
 }
 
 /**
