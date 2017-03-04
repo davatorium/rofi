@@ -81,6 +81,7 @@ const char *cache_dir = NULL;
 /** List of error messages.*/
 GList *list_of_error_msgs = NULL;
 
+static void rofi_collect_modi_destroy ( void );
 void rofi_add_error_message ( GString *str )
 {
     list_of_error_msgs = g_list_append ( list_of_error_msgs, str );
@@ -397,6 +398,116 @@ static void cleanup ()
         rofi_theme = NULL;
     }
     TIMINGS_STOP ();
+    rofi_collect_modi_destroy ( );
+}
+
+/**
+ * Collected modi
+ */
+// List of (possibly uninitialized) modi's
+Mode      ** available_modi     = NULL;
+unsigned int num_available_modi = 0;
+
+/**
+ * @param name Search for mode with this name.
+ *
+ * @return returns Mode * when found, NULL if not.
+ */
+Mode * rofi_collect_modi_search ( const char *name )
+{
+    for ( unsigned int i = 0; i < num_available_modi; i++ ){
+        if ( g_strcmp0 ( name, available_modi[i]->name ) == 0 ) {
+            return available_modi[i];
+        }
+    }
+    return NULL;
+}
+/**
+ * @param mode Add mode to list.
+ *
+ * @returns TRUE when success.
+ */
+static gboolean rofi_collect_modi_add ( Mode *mode )
+{
+    Mode *m = rofi_collect_modi_search ( mode->name );
+    if ( m == NULL ) {
+        available_modi = g_realloc ( available_modi, sizeof(Mode *)*(num_available_modi+1));
+        // Set mode.
+        available_modi[num_available_modi] = mode;
+        num_available_modi++;
+        return TRUE;
+    }
+    return FALSE;
+}
+/**
+ * Find all available modi.
+ */
+static void rofi_collect_modi ( void )
+{
+#ifdef WINDOW_MODE
+    rofi_collect_modi_add ( &window_mode );
+    rofi_collect_modi_add ( &window_mode_cd );
+#endif
+    rofi_collect_modi_add ( &run_mode );
+    rofi_collect_modi_add ( &ssh_mode );
+#ifdef ENABLE_DRUN
+    rofi_collect_modi_add ( &drun_mode );
+#endif
+    rofi_collect_modi_add ( &combi_mode );
+    rofi_collect_modi_add ( &help_keys_mode );
+
+    GDir *dir = g_dir_open ( PLUGIN_PATH, 0, NULL );
+    if ( dir ) {
+        const char *dn = NULL;
+        while ( ( dn = g_dir_read_name ( dir ) ) )
+        {
+            if ( !g_str_has_suffix ( dn, G_MODULE_SUFFIX ) ) {
+                continue;
+            }
+            char *fn = g_build_filename ( PLUGIN_PATH, dn, NULL );
+            GModule *mod = g_module_open ( fn, G_MODULE_BIND_LAZY|G_MODULE_BIND_LOCAL );
+            if ( mod ) {
+                Mode *m = NULL;
+                if ( g_module_symbol ( mod, "mode", (gpointer *)&m) ){
+                    if ( m->abi_version != ABI_VERSION ) {
+                        fprintf(stderr, "ABI version of plugin does not match: %08X expecting: %08X\n", m->abi_version, ABI_VERSION);
+                        g_module_close ( mod );
+                    } else {
+                        m->module = mod;
+                        if ( ! rofi_collect_modi_add ( m ) ) {
+                            g_module_close ( mod );
+                        }
+                    }
+                } else {
+                    fprintf(stderr, "Symbol 'mode' not found in module: %s\n", fn);
+                    g_module_close ( mod );
+                }
+            }
+            g_free ( fn );
+        }
+        g_dir_close ( dir );
+    }
+}
+
+/**
+ * Setup configuration for config.
+ */
+static void rofi_collect_modi_setup ( void )
+{
+    for  ( unsigned int i = 0; i < num_available_modi ; i++ ) {
+        mode_set_config ( available_modi[i] );    
+    }
+}
+static void rofi_collect_modi_destroy ( void )
+{
+    for  ( unsigned int i = 0; i < num_available_modi ; i++ ) {
+        if ( available_modi[i]->module ) {
+            g_module_close ( available_modi[i]->module );
+        }
+    }
+    g_free ( available_modi );
+    available_modi = NULL;
+    num_available_modi = 0;
 }
 
 /**
@@ -412,85 +523,18 @@ static int add_mode ( const char * token )
     // Resize and add entry.
     modi = (Mode * *) g_realloc ( modi, sizeof ( Mode* ) * ( num_modi + 1 ) );
 
-    // Window switcher.
-#ifdef WINDOW_MODE
-    if ( strcasecmp ( token, "window" ) == 0 ) {
-        modi[num_modi] = &window_mode;
+    Mode *mode = rofi_collect_modi_search ( token );
+    if ( mode ) {
+        modi[num_modi] = mode;
         num_modi++;
-    }
-    else if ( strcasecmp ( token, "windowcd" ) == 0 ) {
-        modi[num_modi] = &window_mode_cd;
-        num_modi++;
-    }
-    else
-#endif // WINDOW_MODE
-       // SSh dialog
-    if ( strcasecmp ( token, "ssh" ) == 0 ) {
-        modi[num_modi] = &ssh_mode;
-        num_modi++;
-    }
-    else if ( strcasecmp ( token, mode_get_name ( &help_keys_mode ) ) == 0 ) {
-        modi[num_modi] = &help_keys_mode;
-        num_modi++;
-    }
-    // Run dialog
-    else if ( strcasecmp ( token, "run" ) == 0 ) {
-        modi[num_modi] = &run_mode;
-        num_modi++;
-    }
-#ifdef ENABLE_DRUN
-    else if ( strcasecmp ( token, "drun" ) == 0 ) {
-        modi[num_modi] = &drun_mode;
-        num_modi++;
-    }
-#endif
-    // combi dialog
-    else if ( strcasecmp ( token, "combi" ) == 0 ) {
-        modi[num_modi] = &combi_mode;
-        num_modi++;
-    }
-    else if ( g_str_has_suffix ( token, G_MODULE_SUFFIX ) )
-    {
-        gchar *fn;
-        if ( token[0] != G_DIR_SEPARATOR) {
-            fn = g_build_filename ( PLUGIN_PATH, token, NULL );
-        } else {
-            fn = g_strdup ( token );
-        }
-        TICK_N("Loading module");
-        // Load module.
-        GModule *mod = g_module_open ( fn, G_MODULE_BIND_LAZY|G_MODULE_BIND_LOCAL );
-        if ( mod ) {
-            Mode *m = NULL;
-            if ( g_module_symbol ( mod, "mode", (gpointer *)&m) ){
-                // Simple abi check.
-                if ( m->abi_version != ABI_VERSION ){
-                    fprintf(stderr, "ABI version of plugin does not match: %08X expecting: %08X\n", m->abi_version, ABI_VERSION);
-                    g_module_close ( mod );
-                } else {
-                    modi[num_modi] = m;
-                    num_modi++;
-                }
-            } else {
-                fprintf(stderr, "Symbol 'mode' not found in module: %s\n", token);
-                g_module_close ( mod );
-            }
-
-        } else {
-            fprintf ( stderr, "Failed to open module: %s\n", token);
-        }
-        g_free(fn);
-        TICK_N("Loading module done");
-    }
-    else {
+    } else {
         // If not build in, use custom modi.
         Mode *sw = script_switcher_parse_setup ( token );
         if ( sw != NULL ) {
             modi[num_modi] = sw;
             mode_set_config ( sw );
             num_modi++;
-        }
-        else{
+        } else {
             // Report error, don't continue.
             fprintf ( stderr, "Invalid script switcher: %s\n", token );
         }
@@ -509,19 +553,7 @@ static void setup_modi ( void )
     }
     // Free string that was modified by strtok_r
     g_free ( switcher_str );
-    // We cannot do this in main loop, as we create pointer to string,
-    // and re-alloc moves that pointer.
-    mode_set_config ( &ssh_mode );
-    mode_set_config ( &run_mode );
-#ifdef ENABLE_DRUN
-    mode_set_config ( &drun_mode );
-#endif
-
-#ifdef WINDOW_MODE
-    mode_set_config ( &window_mode );
-    mode_set_config ( &window_mode_cd );
-#endif // WINDOW_MODE
-    mode_set_config ( &combi_mode );
+    rofi_collect_modi_setup ();
 }
 
 /**
@@ -892,7 +924,10 @@ int main ( int argc, char *argv[] )
         fprintf ( stderr, "Failed to open display: %s", display_str );
         return EXIT_FAILURE;
     }
+
     TICK_N ( "Open Display" );
+    rofi_collect_modi ();
+    TICK_N ( "Collect MODI" );
 
     xcb->screen = xcb_aux_get_screen ( xcb->connection, xcb->screen_nbr );
 

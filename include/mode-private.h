@@ -1,7 +1,8 @@
 #ifndef ROFI_MODE_PRIVATE_H
 #define ROFI_MODE_PRIVATE_H
 
-#define ABI_VERSION 0x00000002
+#include <gmodule.h>
+#define ABI_VERSION 0x00000003
 
 /**
  * @param data Pointer to #Mode object.
@@ -149,5 +150,8 @@ struct rofi_mode
     _mode_free free;
     /** Extra fields for script */
     void       *ed;
+
+    /** Module */
+    GModule *module;
 };
 #endif // ROFI_MODE_PRIVATE_H

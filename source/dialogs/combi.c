@@ -68,48 +68,22 @@ static void combi_mode_parse_switchers ( Mode *sw )
         pd->switchers = (CombiMode  *) g_realloc ( pd->switchers,
                                                    sizeof ( CombiMode ) * ( pd->num_switchers + 1 ) );
 
-        // Window switcher.
-        #ifdef WINDOW_MODE
-        if ( strcasecmp ( token, "window" ) == 0 ) {
+        Mode *mode = rofi_collect_modi_search ( token );
+        if (  mode ){
             pd->switchers[pd->num_switchers].disable = FALSE;
-            pd->switchers[pd->num_switchers++].mode  = &window_mode;
-        }
-        else if ( strcasecmp ( token, "windowcd" ) == 0 ) {
-            pd->switchers[pd->num_switchers].disable = FALSE;
-            pd->switchers[pd->num_switchers++].mode  = &window_mode_cd;
-        }
-        else
-        #endif // WINDOW_MODE
-        // SSh dialog
-        if ( strcasecmp ( token, "ssh" ) == 0 ) {
-            pd->switchers[pd->num_switchers].disable = FALSE;
-            pd->switchers[pd->num_switchers++].mode  = &ssh_mode;
-        }
-        // Run dialog
-        else if ( strcasecmp ( token, "run" ) == 0 ) {
-            pd->switchers[pd->num_switchers].disable = FALSE;
-            pd->switchers[pd->num_switchers++].mode  = &run_mode;
-        }
-        #ifdef ENABLE_DRUN
-        else if ( strcasecmp ( token, "drun" ) == 0 ) {
-            pd->switchers[pd->num_switchers].disable = FALSE;
-            pd->switchers[pd->num_switchers++].mode  = &drun_mode;
-        }
-#endif  // ENABLE_DRUN
-        else {
+            pd->switchers[pd->num_switchers++].mode  = mode;
+        } else {
             // If not build in, use custom switchers.
             Mode *sw = script_switcher_parse_setup ( token );
             if ( sw != NULL ) {
                 pd->switchers[pd->num_switchers].disable = FALSE;
                 pd->switchers[pd->num_switchers++].mode  = sw;
-            }
-            else{
+            } else {
                 // Report error, don't continue.
                 fprintf ( stderr, "Invalid script switcher: %s\n", token );
                 token = NULL;
             }
         }
-        // Keybinding.
     }
     // Free string that was modified by strtok_r
     g_free ( switcher_str );

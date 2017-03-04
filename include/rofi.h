@@ -41,6 +41,7 @@ const Mode * rofi_get_mode ( unsigned int index );
  * Queue an error.
  */
 void rofi_add_error_message ( GString *str );
+
 /**
  * @param code the code to return
  *
@@ -48,6 +49,13 @@ void rofi_add_error_message ( GString *str );
  * This function sets the code that rofi will return on exit.
  */
 void rofi_set_return_code ( int code );
+
+/**
+ * @param name Search for mode with this name.
+ *
+ * @return returns Mode * when found, NULL if not.
+ */
+Mode * rofi_collect_modi_search ( const char *name );
 /** Reset terminal */
 #define  color_reset     "\033[0m"
 /** Set terminal text bold */
