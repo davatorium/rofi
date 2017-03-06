@@ -314,17 +314,18 @@ static ThemeWidget *rofi_theme_find ( ThemeWidget *widget, const char *name, con
     if ( widget == NULL || name == NULL ) {
         return widget;
     }
-    char **names = g_strsplit ( name, ".", 0 );
+    char *tname = g_strdup(name );
+    char *saveptr = NULL;
     int  found   = TRUE;
-    for ( unsigned int i = 0; found && names && names[i]; i++ ) {
+    for (const char *iter = strtok_r (tname, ".", &saveptr); iter != NULL ; iter = strtok_r ( NULL, "." , &saveptr ) ) {
         found = FALSE;
-        ThemeWidget *f = rofi_theme_find_single ( widget, names[i] );
+        ThemeWidget *f = rofi_theme_find_single ( widget, iter );
         if ( f != widget ) {
             widget = f;
             found  = TRUE;
         }
     }
-    g_strfreev ( names );
+    g_free ( tname );
     if ( !exact || found ) {
         return widget;
     }
