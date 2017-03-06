@@ -102,13 +102,13 @@ PKG_PROG_PKG_CONFIG
 
 
 dnl ---------------------------------------------------------------------
-dnl PKG_CONFIG based dependencies  
+dnl PKG_CONFIG based dependencies
 dnl ---------------------------------------------------------------------
 PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40 gio-unix-2.0 gmodule-2.0])
 GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon >= 0.5.0 xkbcommon-x11 xcb-ewmh xcb-icccm xcb-xrm xcb-randr xcb-xinerama])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])
-PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0 libprofiler])
+PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0 ])
 
 
 dnl ---------------------------------------------------------------------
