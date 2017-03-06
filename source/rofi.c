@@ -1068,14 +1068,17 @@ int main ( int argc, char *argv[] )
     if ( !dmenu_mode ) {
         // setup_modi
         setup_modi ();
+        TICK_N ( "Setup Modi" );
     }
 
     if ( find_arg ( "-no-config" ) < 0 ) {
         // Reload for dynamic part.
         load_configuration_dynamic ( );
+        TICK_N ( "Load config dynamic" );
     }
     // Parse command line for settings, independent of other -no-config.
     config_parse_cmd_options_dynamic (  );
+    TICK_N ( "Load cmd config dynamic" );
 
     if ( config.theme ) {
         TICK_N ( "Parse theme" );
