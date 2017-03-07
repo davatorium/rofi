@@ -43,6 +43,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <helper.h>
+#include <glob.h>
 
 #include "rofi.h"
 #include "settings.h"
@@ -266,6 +267,7 @@ static void parse_ssh_config_file ( const char *filename, char ***retv, unsigned
 {
     FILE       *fd = fopen ( filename, "r" );
 
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Parsing ssh config file: %s" , filename);
     if ( fd != NULL ) {
         char   *buffer         = NULL;
         size_t buffer_length   = 0;
@@ -286,7 +288,27 @@ static void parse_ssh_config_file ( const char *filename, char ***retv, unsigned
 
             if ( g_strcmp0 ( token, "Include") == 0 ) {
                 token = strtok_r ( NULL, SSH_TOKEN_DELIM, &strtok_pointer );
-                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Include: %s\n" , token);
+                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Include: %s" , token);
+                gchar *path = rofi_expand_path ( token );
+                gchar *full_path = NULL;
+                if ( ! g_path_is_absolute ( token ) ){
+                    char *dirname = g_path_get_dirname ( filename );
+                    full_path = g_build_filename ( dirname, token, NULL );
+                    g_free(dirname);
+                } else {
+                    full_path = g_strdup ( token );
+                }
+                glob_t globbuf = {0,};
+
+                if ( glob ( full_path, 0, NULL, &globbuf ) ==  0 ){
+                    for ( size_t iter = 0; iter < globbuf.gl_pathc; iter++){
+                        parse_ssh_config_file ( globbuf.gl_pathv[iter], retv, length, num_favorites );
+                    }
+                }
+                globfree ( &globbuf );
+
+                g_free ( full_path );
+                g_free ( path );
             }
             else if ( g_strcmp0 ( token, "Host" ) == 0 ) {
                 // Now we know that this is a "Host" line.
