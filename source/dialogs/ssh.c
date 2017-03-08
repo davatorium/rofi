@@ -43,11 +43,19 @@
 #include <ctype.h>
 #include <errno.h>
 #include <helper.h>
+#include <glob.h>
 
 #include "rofi.h"
 #include "settings.h"
 #include "history.h"
 #include "dialogs/ssh.h"
+
+
+/**
+ * Log domain for the ssh modi.
+ */
+
+#define LOG_DOMAIN "Dialogs.Ssh"
 
 /**
  * Name of the history file where previously choosen hosts are stored.
@@ -255,6 +263,104 @@ static char **read_hosts_file ( char ** retv, unsigned int *length )
     return retv;
 }
 
+static void parse_ssh_config_file ( const char *filename, char ***retv, unsigned int *length, unsigned int num_favorites )
+{
+    FILE       *fd = fopen ( filename, "r" );
+
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Parsing ssh config file: %s" , filename);
+    if ( fd != NULL ) {
+        char   *buffer         = NULL;
+        size_t buffer_length   = 0;
+        char   *strtok_pointer = NULL;
+        while ( getline ( &buffer, &buffer_length, fd ) > 0 ) {
+            // Each line is either empty, a comment line starting with a '#'
+            // character or of the form "keyword [=] arguments", where there may
+            // be multiple (possibly quoted) arguments separated by whitespace.
+            // The keyword is separated from its arguments by whitespace OR by
+            // optional whitespace and a '=' character.
+            char *token = strtok_r ( buffer, SSH_TOKEN_DELIM, &strtok_pointer );
+
+            // Skip empty lines and comment lines. Also skip lines where the
+            // keyword is not "Host".
+            if ( !token || *token == '#' ) {
+                continue;
+            }
+
+            if ( g_strcmp0 ( token, "Include") == 0 ) {
+                token = strtok_r ( NULL, SSH_TOKEN_DELIM, &strtok_pointer );
+                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Include: %s" , token);
+                gchar *path = rofi_expand_path ( token );
+                gchar *full_path = NULL;
+                if ( ! g_path_is_absolute ( path ) ){
+                    char *dirname = g_path_get_dirname ( filename );
+                    full_path = g_build_filename ( dirname, path, NULL );
+                    g_free(dirname);
+                } else {
+                    full_path = g_strdup ( path );
+                }
+                glob_t globbuf = {0,};
+
+                if ( glob ( full_path, 0, NULL, &globbuf ) ==  0 ){
+                    for ( size_t iter = 0; iter < globbuf.gl_pathc; iter++){
+                        parse_ssh_config_file ( globbuf.gl_pathv[iter], retv, length, num_favorites );
+                    }
+                }
+                globfree ( &globbuf );
+
+                g_free ( full_path );
+                g_free ( path );
+            }
+            else if ( g_strcmp0 ( token, "Host" ) == 0 ) {
+                // Now we know that this is a "Host" line.
+                // The "Host" keyword is followed by one more host names separated
+                // by whitespace; while host names may be quoted with double quotes
+                // to represent host names containing spaces, we don't support this
+                // (how many host names contain spaces?).
+                while ( ( token = strtok_r ( NULL, SSH_TOKEN_DELIM, &strtok_pointer ) ) ) {
+                    // We do not want to show wildcard entries, as you cannot ssh to them.
+                    const char *const sep = "*?";
+                    if ( *token == '!' || strpbrk ( token, sep ) ) {
+                        continue;
+                    }
+
+                    // If comment, skip from now on.
+                    if ( *token == '#' ) {
+                        break;
+                    }
+
+                    // Is this host name already in the history file?
+                    // This is a nice little penalty, but doable? time will tell.
+                    // given num_favorites is max 25.
+                    int found = 0;
+                    for ( unsigned int j = 0; j < num_favorites; j++ ) {
+                        if ( !g_ascii_strcasecmp ( token, (*retv)[j] ) ) {
+                            found = 1;
+                            break;
+                        }
+                    }
+
+                    if ( found ) {
+                        continue;
+                    }
+
+                    // Add this host name to the list.
+                    (*retv)                  = g_realloc ( (*retv), ( ( *length ) + 2 ) * sizeof ( char* ) );
+                    (*retv)[( *length )]     = g_strdup ( token );
+                    (*retv)[( *length ) + 1] = NULL;
+                    ( *length )++;
+                }
+            }
+        }
+        if ( buffer != NULL ) {
+            free ( buffer );
+        }
+
+        if ( fclose ( fd ) != 0 ) {
+            fprintf ( stderr, "Failed to close ssh configuration file: '%s'\n", strerror ( errno ) );
+        }
+    }
+}
+
 /**
  * @param length The number of found ssh hosts [out]
  *
@@ -286,74 +392,8 @@ static char ** get_ssh (  unsigned int *length )
 
     const char *hd = g_get_home_dir ();
     path = g_build_filename ( hd, ".ssh", "config", NULL );
-    FILE       *fd = fopen ( path, "r" );
 
-    if ( fd != NULL ) {
-        char   *buffer         = NULL;
-        size_t buffer_length   = 0;
-        char   *strtok_pointer = NULL;
-        while ( getline ( &buffer, &buffer_length, fd ) > 0 ) {
-            // Each line is either empty, a comment line starting with a '#'
-            // character or of the form "keyword [=] arguments", where there may
-            // be multiple (possibly quoted) arguments separated by whitespace.
-            // The keyword is separated from its arguments by whitespace OR by
-            // optional whitespace and a '=' character.
-            char *token = strtok_r ( buffer, SSH_TOKEN_DELIM, &strtok_pointer );
-
-            // Skip empty lines and comment lines. Also skip lines where the
-            // keyword is not "Host".
-            if ( !token || *token == '#' || g_ascii_strcasecmp ( token, "Host" ) ) {
-                continue;
-            }
-
-            // Now we know that this is a "Host" line.
-            // The "Host" keyword is followed by one more host names separated
-            // by whitespace; while host names may be quoted with double quotes
-            // to represent host names containing spaces, we don't support this
-            // (how many host names contain spaces?).
-            while ( ( token = strtok_r ( NULL, SSH_TOKEN_DELIM, &strtok_pointer ) ) ) {
-                // We do not want to show wildcard entries, as you cannot ssh to them.
-                const char *const sep = "*?";
-                if ( *token == '!' || strpbrk ( token, sep ) ) {
-                    continue;
-                }
-
-                // If comment, skip from now on.
-                if ( *token == '#' ) {
-                    break;
-                }
-
-                // Is this host name already in the history file?
-                // This is a nice little penalty, but doable? time will tell.
-                // given num_favorites is max 25.
-                int found = 0;
-                for ( unsigned int j = 0; j < num_favorites; j++ ) {
-                    if ( !g_ascii_strcasecmp ( token, retv[j] ) ) {
-                        found = 1;
-                        break;
-                    }
-                }
-
-                if ( found ) {
-                    continue;
-                }
-
-                // Add this host name to the list.
-                retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-                retv[( *length )]     = g_strdup ( token );
-                retv[( *length ) + 1] = NULL;
-                ( *length )++;
-            }
-        }
-        if ( buffer != NULL ) {
-            free ( buffer );
-        }
-
-        if ( fclose ( fd ) != 0 ) {
-            fprintf ( stderr, "Failed to close ssh configuration file: '%s'\n", strerror ( errno ) );
-        }
-    }
-
+    parse_ssh_config_file ( path, &retv, length, num_favorites );
     g_free ( path );
 
     return retv;
