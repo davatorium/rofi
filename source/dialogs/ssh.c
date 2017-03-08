@@ -291,12 +291,12 @@ static void parse_ssh_config_file ( const char *filename, char ***retv, unsigned
                 g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Include: %s" , token);
                 gchar *path = rofi_expand_path ( token );
                 gchar *full_path = NULL;
-                if ( ! g_path_is_absolute ( token ) ){
+                if ( ! g_path_is_absolute ( path ) ){
                     char *dirname = g_path_get_dirname ( filename );
-                    full_path = g_build_filename ( dirname, token, NULL );
+                    full_path = g_build_filename ( dirname, path, NULL );
                     g_free(dirname);
                 } else {
-                    full_path = g_strdup ( token );
+                    full_path = g_strdup ( path );
                 }
                 glob_t globbuf = {0,};
 
