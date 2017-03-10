@@ -383,8 +383,31 @@ void distance_get_linestyle ( Distance d, cairo_t *draw );
 void rofi_theme_convert_old_theme ( void );
 #endif
 
-/** hacks. */
-Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, const char *property, gboolean exact );
+/**
+ * Low-level functions.
+ * These can be used by non-widgets to obtain values.
+ */
+/**
+ * @param name The name of the element to find.
+ * @param state The state of the element.
+ * @param exact If the match should be exact, or parent can be included.
+ *
+ * Find the theme element. If not exact, the closest specified element is returned.
+ *
+ * @returns the ThemeWidget if found, otherwise NULL.
+ */
 ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state, gboolean exact );
+
+/**
+ * @param widget The widget to find the property on.
+ * @param type   The %PropertyType to find.
+ * @param property The property to find.
+ * @param exact  If the property should only be found on this widget, or on parents if not found.
+ *
+ * Find the property on the widget. If not exact, the parents are searched recursively until match is found.
+ *
+ * @returns the Property if found, otherwise NULL.
+ */
+Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, const char *property, gboolean exact );
 
 #endif

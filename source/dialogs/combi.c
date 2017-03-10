@@ -205,7 +205,8 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
             char * str  = mode_get_display_value ( pd->switchers[i].mode, selected_line - pd->starts[i], state, list, TRUE );
-            char * retv = g_strdup_printf ( "%s %s", mode_get_display_name ( pd->switchers[i].mode ), str );
+            const char *dname = mode_get_display_name ( pd->switchers[i].mode );
+            char * retv = g_strdup_printf ( "%s %s", dname, str );
             g_free ( str );
 
             if ( list != NULL ) {
@@ -217,7 +218,7 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
                             p->value.color.green * 65535,
                             p->value.color.blue * 65535 );
                     pa->start_index = PANGO_ATTR_INDEX_FROM_TEXT_BEGINNING;
-                    pa->end_index   = PANGO_ATTR_INDEX_TO_TEXT_END;
+                    pa->end_index   = strlen(dname);
                     *list = g_list_append ( *list, pa );
                 }
             }

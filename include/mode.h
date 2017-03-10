@@ -84,13 +84,14 @@ unsigned int mode_get_num_entries ( const Mode *sw );
  * @param mode The mode to query
  * @param selected_line The entry to query
  * @param state The state of the entry [out]
+ * @param attribute_list List of extra (pango) attribute to apply when displaying. [out][null]
  * @param get_entry If the should be returned.
  *
  * Returns the string as it should be displayed for the entry and the state of how it should be displayed.
  *
  * @returns allocated new string and state when get_entry is TRUE otherwise just the state.
  */
-char * mode_get_display_value ( const Mode *mode, unsigned int selected_line, int *state, GList **list, int get_entry );
+char * mode_get_display_value ( const Mode *mode, unsigned int selected_line, int *state, GList **attribute_list, int get_entry );
 
 /**
  * @param mode The mode to query
