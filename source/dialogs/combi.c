@@ -32,6 +32,9 @@
 #include "helper.h"
 
 #include <dialogs/dialogs.h>
+#include <pango/pango.h>
+#include "mode-private.h"
+#include <theme.h>
 
 /**
  * Combi Mode
@@ -187,13 +190,13 @@ static int combi_mode_match ( const Mode *sw, GRegex **tokens, unsigned int inde
     }
     return 0;
 }
-static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *state, int get_entry )
+static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *state, GList **list, int get_entry )
 {
     CombiModePrivateData *pd = mode_get_private_data ( sw );
     if ( !get_entry ) {
         for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
             if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
-                mode_get_display_value ( pd->switchers[i].mode, selected_line - pd->starts[i], state, FALSE );
+                mode_get_display_value ( pd->switchers[i].mode, selected_line - pd->starts[i], state, list, FALSE );
                 return NULL;
             }
         }
@@ -201,9 +204,23 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
     }
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
-            char * str  = mode_get_display_value ( pd->switchers[i].mode, selected_line - pd->starts[i], state, TRUE );
+            char * str  = mode_get_display_value ( pd->switchers[i].mode, selected_line - pd->starts[i], state, list, TRUE );
             char * retv = g_strdup_printf ( "%s %s", mode_get_display_name ( pd->switchers[i].mode ), str );
             g_free ( str );
+
+            if ( list != NULL ) {
+                ThemeWidget *wid = rofi_theme_find_widget ( sw->name, NULL, TRUE);
+                Property    *p   = rofi_theme_find_property ( wid, P_COLOR, pd->switchers[i].mode->name, TRUE);
+                if ( p != NULL ) {
+                    PangoAttribute *pa = pango_attr_foreground_new (
+                            p->value.color.red * 65535,
+                            p->value.color.green * 65535,
+                            p->value.color.blue * 65535 );
+                    pa->start_index = PANGO_ATTR_INDEX_FROM_TEXT_BEGINNING;
+                    pa->end_index   = PANGO_ATTR_INDEX_TO_TEXT_END;
+                    *list = g_list_append ( *list, pa );
+                }
+            }
             return retv;
         }
     }
@@ -253,7 +270,6 @@ static char * combi_preprocess_input ( Mode *sw, const char *input )
     return g_strdup ( input );
 }
 
-#include "mode-private.h"
 Mode combi_mode =
 {
     .name               = "combi",

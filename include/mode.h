@@ -1,6 +1,5 @@
 #ifndef ROFI_MODE_H
 #define ROFI_MODE_H
-
 /**
  * @defgroup MODE Mode
  *
@@ -91,7 +90,7 @@ unsigned int mode_get_num_entries ( const Mode *sw );
  *
  * @returns allocated new string and state when get_entry is TRUE otherwise just the state.
  */
-char * mode_get_display_value ( const Mode *mode, unsigned int selected_line, int *state, int get_entry );
+char * mode_get_display_value ( const Mode *mode, unsigned int selected_line, int *state, GList **list, int get_entry );
 
 /**
  * @param mode The mode to query

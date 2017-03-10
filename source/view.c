@@ -878,32 +878,37 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
 {
     RofiViewState *state = (RofiViewState *) udata;
     if ( full ) {
+        GList *add_list = NULL;
         int  fstate = 0;
-        char *text  = mode_get_display_value ( state->sw, state->line_map[index], &fstate, TRUE );
+        char *text  = mode_get_display_value ( state->sw, state->line_map[index], &fstate, &add_list, TRUE );
         type |= fstate;
         textbox_font ( t, type );
         // Move into list view.
         textbox_text ( t, text );
+        PangoAttrList *list = textbox_get_pango_attributes ( t );
+        if ( list != NULL ) {
+            pango_attr_list_ref ( list );
+        }
+        else{
+            list = pango_attr_list_new ();
+        }
 
         if ( state->tokens && config.show_match ) {
-            PangoAttrList *list = textbox_get_pango_attributes ( t );
-            if ( list != NULL ) {
-                pango_attr_list_ref ( list );
-            }
-            else{
-                list = pango_attr_list_new ();
-            }
             ThemeHighlight th = { HL_BOLD | HL_UNDERLINE, { 0.0, 0.0, 0.0, 0.0 } };
             th = rofi_theme_get_highlight ( WIDGET ( t ), "highlight", th );
             helper_token_match_get_pango_attr ( th, state->tokens, textbox_get_visible_text ( t ), list );
-            textbox_set_pango_attributes ( t, list );
-            pango_attr_list_unref ( list );
         }
+        for ( GList *iter = g_list_first ( add_list ); iter != NULL ; iter = g_list_next(iter) ) {
+            pango_attr_list_insert ( list, (PangoAttribute *)(iter->data));
+        }
+        textbox_set_pango_attributes ( t, list );
+        pango_attr_list_unref ( list );
+        g_list_free( add_list);
         g_free ( text );
     }
     else {
         int fstate = 0;
-        mode_get_display_value ( state->sw, state->line_map[index], &fstate, FALSE );
+        mode_get_display_value ( state->sw, state->line_map[index], &fstate, NULL, FALSE );
         type |= fstate;
         textbox_font ( t, type );
     }

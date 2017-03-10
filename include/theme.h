@@ -382,4 +382,9 @@ void distance_get_linestyle ( Distance d, cairo_t *draw );
  */
 void rofi_theme_convert_old_theme ( void );
 #endif
+
+/** hacks. */
+Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, const char *property, gboolean exact );
+ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state, gboolean exact );
+
 #endif

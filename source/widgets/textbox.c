@@ -213,19 +213,18 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
  */
 static void __textbox_update_pango_text ( textbox *tb )
 {
+    pango_layout_set_attributes ( tb->layout, NULL );
     if ( ( tb->flags & TB_PASSWORD ) == TB_PASSWORD ) {
         size_t l = g_utf8_strlen ( tb->text, -1 );
         char   string [l + 1];
         memset ( string, '*', l );
         string[l] = '\0';
-        pango_layout_set_attributes ( tb->layout, NULL );
         pango_layout_set_text ( tb->layout, string, l );
     }
     else if ( tb->flags & TB_MARKUP || tb->tbft & MARKUP ) {
         pango_layout_set_markup ( tb->layout, tb->text, -1 );
     }
     else {
-        pango_layout_set_attributes ( tb->layout, NULL );
         pango_layout_set_text ( tb->layout, tb->text, -1 );
     }
 }

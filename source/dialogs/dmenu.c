@@ -271,7 +271,7 @@ static gchar * dmenu_format_output_string ( const DmenuModePrivateData *pd, cons
     return retv ? retv : g_strdup ( "" );
 }
 
-static char *get_display_data ( const Mode *data, unsigned int index, int *state, int get_entry )
+static char *get_display_data ( const Mode *data, unsigned int index, int *state, G_GNUC_UNUSED GList **list, int get_entry )
 {
     Mode                 *sw    = (Mode *) data;
     DmenuModePrivateData *pd    = (DmenuModePrivateData *) mode_get_private_data ( sw );
