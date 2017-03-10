@@ -2,7 +2,7 @@
 #define ROFI_MODE_PRIVATE_H
 
 #include <gmodule.h>
-#define ABI_VERSION    0x00000003
+#define ABI_VERSION    0x00000004
 
 /**
  * @param data Pointer to #Mode object.
@@ -15,13 +15,14 @@ typedef void ( *_mode_free )( Mode *data );
  * @param sw The #Mode pointer
  * @param selected_line The selected line
  * @param state The state to display [out]
+ * @param attribute_list List of extra (pango) attribute to apply when displaying. [out][null]
  * @param get_entry if it should only return the state
  *
  * Get the value for displaying.
  *
  * @return the string and state for displaying.
  */
-typedef char * ( *_mode_get_display_value )( const Mode *sw, unsigned int selected_line, int *state, int get_entry );
+typedef char * ( *_mode_get_display_value )( const Mode *sw, unsigned int selected_line, int *state, GList **attribute_list, int get_entry );
 
 /**
  * @param sw The #Mode pointer

@@ -93,7 +93,7 @@ static void help_keys_mode_destroy ( Mode *sw )
     }
 }
 
-static char *_get_display_value ( const Mode *sw, unsigned int selected_line, int *state, int get_entry )
+static char *_get_display_value ( const Mode *sw, unsigned int selected_line, int *state, G_GNUC_UNUSED GList **list, int get_entry )
 {
     KeysHelpModePrivateData *pd = (KeysHelpModePrivateData *) mode_get_private_data ( sw );
     *state |= MARKUP;

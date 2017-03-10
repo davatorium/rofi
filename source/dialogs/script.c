@@ -158,7 +158,7 @@ static void script_mode_destroy ( Mode *sw )
         sw->private_data = NULL;
     }
 }
-static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, int get_entry )
+static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, G_GNUC_UNUSED GList **list, int get_entry )
 {
     ScriptModePrivateData *rmpd = sw->private_data;
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;

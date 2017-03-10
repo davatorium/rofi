@@ -365,7 +365,7 @@ static void rofi_theme_resolve_link_property ( Property *p, int depth )
     p->value.link.ref = p;
 }
 
-static Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, const char *property, gboolean exact )
+Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, const char *property, gboolean exact )
 {
     while ( widget ) {
         if ( widget->properties && g_hash_table_contains ( widget->properties, property ) ) {
@@ -394,7 +394,7 @@ static Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType ty
     }
     return NULL;
 }
-static ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state, gboolean exact )
+ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state, gboolean exact )
 {
     // First find exact match based on name.
     ThemeWidget *widget = rofi_theme_find ( rofi_theme, name, exact );

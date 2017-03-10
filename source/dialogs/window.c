@@ -709,7 +709,7 @@ static char * _generate_display_string ( const ModeModePrivateData *pd, client *
     return g_strchomp ( res );
 }
 
-static char *_get_display_value ( const Mode *sw, unsigned int selected_line, int *state, int get_entry )
+static char *_get_display_value ( const Mode *sw, unsigned int selected_line, int *state, G_GNUC_UNUSED GList **list, int get_entry )
 {
     ModeModePrivateData *rmpd = mode_get_private_data ( sw );
     client              *c    = window_client ( rmpd, rmpd->ids->array[selected_line] );
