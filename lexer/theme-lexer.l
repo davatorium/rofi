@@ -3,41 +3,82 @@
 
 %{
 #include <stdio.h>
+#include <glib.h>
+#include <helper.h>
+#include "rofi.h"
 
 #include "lexer/theme-parser.h"
 int last_state = 0;
+
+/**
+ * Type of Object to parse.
+ */
+typedef enum {
+    /** Parse a file */
+    PT_FILE,
+    /** Parse a string */
+    PT_STRING
+} ParseType;
+
+/**
+ * Parse object
+ */
+typedef struct _ParseObject {
+    /** Type */
+    ParseType type;
+
+    /** File pointer */
+    FILE *filein;
+
+    /** Length of string  */
+    int str_len;
+    /** String */
+    const char *input_str;
+
+} ParseObject;
+
+GQueue *file_queue = NULL;
 GQueue *queue = NULL;
+
+ParseObject *current = NULL;
 
 %}
 %{
 
-int str_len = 0;
-char      *input_str = NULL;
-
 #define YY_INPUT(buf,result,max_size) \
 {\
-    if ( input_str == NULL ) { \
-        errno =0; \
-        while ( (result = (int) fread(buf, 1, max_size, yyin))==0 && ferror(yyin)) \
-        { \
-            if( errno != EINTR) \
-            { \
-                YY_FATAL_ERROR( "input in flex scanner failed" ); \
-                break; \
-            } \
-            errno=0; \
-            clearerr(yyin); \
-        } \
+    if ( current == NULL ) {\
+        result = YY_NULL;\
     } else {\
-        yy_size_t len = MIN (max_size, str_len);\
-        if ( len > 0 ){\
-            memcpy (buf, input_str, len);\
-            input_str+=len;\
-            str_len-=len;\
-            result = len;\
-        } else {\
-            result = YY_NULL;\
-        } \
+        switch ( current->type ) { \
+            case PT_FILE:\
+            {\
+                errno =0; \
+                while ( (result = (int) fread(buf, 1, max_size, current->filein))==0 && ferror(current->filein)) \
+                { \
+                    if( errno != EINTR) \
+                    { \
+                        YY_FATAL_ERROR( "input in flex scanner failed" ); \
+                        break; \
+                    } \
+                    errno=0; \
+                    clearerr(current->filein); \
+                } \
+                break;\
+            }\
+            case PT_STRING:\
+            {\
+                yy_size_t len = MIN (max_size, current->str_len);\
+                if ( len > 0 ){\
+                    memcpy (buf, current->input_str, len);\
+                    current->input_str+=len;\
+                    current->str_len-=len;\
+                    result = len;\
+                } else {\
+                    result = YY_NULL;\
+                } \
+            }\
+        }\
     }\
 }
 
@@ -77,6 +118,9 @@ ITALIC      "italic"
 LS_DASH    "dash"
 LS_SOLID   "solid"
 
+INCLUDE    "@import"
+
+%x INCLUDE
 %x PROPERTIES
 %x NAMESTR
 %x ENTRY
@@ -94,7 +138,7 @@ if ( queue == NULL ){
 
 <*>"//"            {
     int c;
-    while ((c = input()) != EOF){
+    while ((c = input()) != 0){
         if (c == '\n') {
             yylloc->last_column = 1;
             yylloc->last_line ++;
@@ -118,7 +162,7 @@ if ( queue == NULL ){
             yylloc->last_line ++;
             break;
         }
-        case EOF: nesting_depth = 0; break;
+        case 0: nesting_depth = 0; break;
         default:
             yylloc->last_column++;
         ;
@@ -126,6 +170,42 @@ if ( queue == NULL ){
     }
     YY_LLOC_START
 }
+
+    /**
+     * HANDLE INCLUDES
+     */
+<INITIAL>{INCLUDE} {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(INCLUDE);
+}
+<INCLUDE>{WHITESPACE} {}
+
+<INCLUDE>\"{STRING}\" {
+    yytext[yyleng-1] = '\0';
+    char *filename = rofi_expand_path ( &yytext[1] );
+    FILE *f = fopen ( filename, "rb" );
+    if ( f ) {
+        ParseObject *po = g_malloc0(sizeof(ParseObject));
+        po->type = PT_FILE;
+        po->filein = f;
+        current = po;
+        g_queue_push_head ( file_queue, po );
+
+        yypush_buffer_state (yy_create_buffer ( 0, YY_BUF_SIZE ));
+    } else {
+        char *str = g_markup_printf_escaped ( "Failed to open theme: <i>%s</i>\nError: <b>%s</b>",
+                                              filename, strerror ( errno ) );
+        rofi_add_error_message ( g_string_new ( str ) );
+        g_free ( str );
+    }
+    g_free(filename);
+    // Pop out of include. */
+    BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
+}
+
+    /**
+     * END INCLUDES
+     */
 
 <INITIAL>{ASTERIX} {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
@@ -324,10 +404,24 @@ if ( queue == NULL ){
     return T_HIGHLIGHT_STYLE;
 }
 <INITIAL><<EOF>>  {
-    g_queue_free ( queue );
-    // Reset pointer to NULL
-    queue = NULL;
-    yyterminate();
+    ParseObject *po = g_queue_pop_head ( file_queue );
+    if ( po ) {
+        if ( po->type == PT_FILE ){
+            fclose ( po->filein );
+        }
+        g_free (  po );
+    }
+    po = g_queue_peek_head ( file_queue );
+    if ( po == NULL ) {
+        g_queue_free ( queue );
+        // Reset pointer to NULL
+        queue = NULL;
+        yyterminate();
+    } else {
+        yypop_buffer_state();
+        current = po;
+        BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue )));
+    }
 }
 
 <*>\n {
@@ -356,5 +450,63 @@ if ( queue == NULL ){
 <*>. {
     return T_ERROR;
 }
-
 %%
+
+gboolean rofi_theme_parse_file ( const char *file )
+{
+    char *filename = rofi_expand_path ( file );
+    yyin = fopen ( filename, "rb" );
+    if ( yyin == NULL ) {
+        char *str = g_markup_printf_escaped ( "Failed to open theme: <i>%s</i>\nError: <b>%s</b>",
+                                              filename, strerror ( errno ) );
+        rofi_add_error_message ( g_string_new ( str ) );
+        g_free ( str );
+        g_free ( filename );
+        return TRUE;
+    }
+
+    /** Add Parse object */
+    file_queue = g_queue_new ();
+    ParseObject *po = g_malloc0(sizeof(ParseObject));
+    po->type = PT_FILE;
+    po->filein = yyin;
+    current = po;
+    g_queue_push_head ( file_queue, po );
+
+    int parser_retv = yyparse ( file );
+    yylex_destroy ();
+    g_free ( filename );
+    yyin = NULL;
+
+    // Free up.
+    g_queue_free ( file_queue );
+    file_queue = NULL;
+    if ( parser_retv != 0 ) {
+        return TRUE;
+    }
+    return FALSE;
+}
+gboolean rofi_theme_parse_string ( const char *string )
+{
+    yyin      = NULL;
+
+    /** Add Parse object */
+    file_queue = g_queue_new ();
+    ParseObject *po = g_malloc0(sizeof(ParseObject));
+    po->type = PT_STRING;
+    po->input_str = string;
+    po->str_len   = strlen(string);
+    current = po;
+    g_queue_push_head ( file_queue, po );
+
+    int parser_retv = yyparse ( string );
+    yylex_destroy ();
+
+    // Free up.
+    g_queue_free ( file_queue );
+    file_queue = NULL;
+    if ( parser_retv != 0 ) {
+        return TRUE;
+    }
+    return FALSE;
+}

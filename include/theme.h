@@ -410,4 +410,9 @@ ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state, gbool
  */
 Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, const char *property, gboolean exact );
 
+/**
+ * Checks if a theme is set, or is empty.
+ * @returns TRUE when empty.
+ */
+gboolean rofi_theme_is_empty ( void );
 #endif

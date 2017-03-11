@@ -25,6 +25,10 @@ unsigned int test =0;
 void rofi_add_error_message ( GString *msg )
 {}
 
+char * rofi_expand_path ( const char *path )
+{
+
+}
 int textbox_get_estimated_char_height ( void );
 int textbox_get_estimated_char_height ( void )
 {

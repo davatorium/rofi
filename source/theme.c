@@ -556,6 +556,18 @@ void distance_get_linestyle ( Distance d, cairo_t *draw )
     }
 }
 
+gboolean rofi_theme_is_empty ( void )
+{
+    if ( rofi_theme == NULL ) {
+        return TRUE;
+    }
+    if ( rofi_theme->properties == NULL  && rofi_theme->num_widgets == 0 ) {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 #ifdef THEME_CONVERTER
 
 static Property* rofi_theme_convert_get_color ( const char *color, const char *name )
@@ -580,7 +592,7 @@ static void rofi_theme_convert_create_property_ht ( ThemeWidget *widget )
 void rofi_theme_convert_old_theme ( void )
 {
     if ( rofi_theme != NULL ) {
-        return;
+        rofi_theme_free ( rofi_theme );
     }
     rofi_theme       = (ThemeWidget *) g_slice_new0 ( ThemeWidget );
     rofi_theme->name = g_strdup ( "Root" );
@@ -856,44 +868,5 @@ void rofi_theme_convert_old_theme ( void )
             g_strfreev ( vals );
         }
     }
-}
-gboolean rofi_theme_parse_file ( const char *file )
-{
-    char *filename = rofi_expand_path ( file );
-    yyin = fopen ( filename, "rb" );
-    if ( yyin == NULL ) {
-        char *str = g_markup_printf_escaped ( "Failed to open theme: <i>%s</i>\nError: <b>%s</b>",
-                                              filename, strerror ( errno ) );
-        rofi_add_error_message ( g_string_new ( str ) );
-        g_free ( str );
-        g_free ( filename );
-        return TRUE;
-    }
-    extern int       str_len;
-    extern const char*input_str;
-    str_len   = 0;
-    input_str = NULL;
-    int parser_retv = yyparse ( file );
-    yylex_destroy ();
-    g_free ( filename );
-    yyin = NULL;
-    if ( parser_retv != 0 ) {
-        return TRUE;
-    }
-    return FALSE;
-}
-gboolean rofi_theme_parse_string ( const char *string )
-{
-    extern int       str_len;
-    extern const char*input_str;
-    yyin      = NULL;
-    input_str = string;
-    str_len   = strlen ( string );
-    int parser_retv = yyparse ( string );
-    yylex_destroy ();
-    if ( parser_retv != 0 ) {
-        return TRUE;
-    }
-    return FALSE;
 }
 #endif

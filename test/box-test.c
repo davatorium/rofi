@@ -23,6 +23,10 @@ unsigned int test =0;
         }                                                                                \
 }
 
+char * rofi_expand_path ( const char *path )
+{
+
+}
 void rofi_add_error_message ( GString *msg )
 {
 }

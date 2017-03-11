@@ -1090,9 +1090,6 @@ int main ( int argc, char *argv[] )
         }
         TICK_N ( "Parsed theme" );
     }
-    else {
-        rofi_theme_convert_old_theme ( );
-    }
 
     const char ** theme_str = find_arg_strv ( "-theme-str" );
     if ( theme_str ) {
@@ -1103,6 +1100,9 @@ int main ( int argc, char *argv[] )
             }
         }
         g_free ( theme_str );
+    }
+    if ( rofi_theme_is_empty ( ) ) {
+        rofi_theme_convert_old_theme ( );
     }
 
     if ( find_arg ( "-dump-theme" ) >= 0 ) {
