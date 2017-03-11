@@ -3,6 +3,9 @@ AC_INIT([rofi], [1.3.1], [https://github.com/DaveDavenport/rofi/],[],[https://fo
 AC_CONFIG_SRCDIR([source/rofi.c])
 AC_CONFIG_HEADER([config.h])
 
+dnl ---------------------------------------------------------------------
+dnl Lex & Bison language parser.
+dnl ---------------------------------------------------------------------
 AC_PROG_LEX
 AC_PROG_YACC
 
@@ -51,12 +54,10 @@ dnl ---------------------------------------------------------------------
 dnl Enable source code coverage reporting for GCC
 dnl ---------------------------------------------------------------------
 
-AC_ARG_ENABLE(gcov,
-              [  --enable-gcov           Enable source code coverage testing using gcov],
+AC_ARG_ENABLE(gcov, [  --enable-gcov           Enable source code coverage testing using gcov],
               [AM_CFLAGS="${AM_CFLAGS} -coverage"])
 AS_IF([test "x${enable_gcov}" = "xyes" ], [AC_DEFINE([ENABLE_GCOV], [1], [Enable gcov profiling])])
-AC_ARG_ENABLE(asan,
-              [  --enable-asan           asan],
+AC_ARG_ENABLE(asan, [  --enable-asan           asan],
               [AM_CFLAGS="${AM_CFLAGS} -fsanitize=address -fno-omit-frame-pointer -g3"])
 AS_IF([test "x${enable_asan}" = "xyes" ], [AC_DEFINE([ENABLE_ASAN], [1], [Enable libasan])])
 
@@ -66,6 +67,7 @@ dnl DRun dialog
 dnl --------------------------------------------------------------------
 AC_ARG_ENABLE([drun], AC_HELP_STRING([--disable-drun],[Disable desktop file run dialog]))
 AS_IF([test "x${enable_drun}" != "xno"], [AC_DEFINE([ENABLE_DRUN], [1], [Enable desktop file run dialog])])
+
 dnl ---------------------------------------------------------------------
 dnl Disable window mode
 dnl ---------------------------------------------------------------------
