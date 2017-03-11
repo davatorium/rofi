@@ -498,6 +498,7 @@ static void ssh_mode_destroy ( Mode *sw )
  * @param sw Object handle to the SSH Mode object
  * @param selected_line The line to view
  * @param state The state of the entry [out]
+ * @param attr_list List of extra rendering attributes to set [out]
  * @param get_entry
  *
  * Gets the string as it should be displayed and the display state.
@@ -505,7 +506,7 @@ static void ssh_mode_destroy ( Mode *sw )
  *
  * @return the string as it should be displayed and the display state.
  */
-static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, G_GNUC_UNUSED GList **list, int get_entry )
+static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, G_GNUC_UNUSED GList **attr_list, int get_entry )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) mode_get_private_data ( sw );
     return get_entry ? g_strdup ( rmpd->hosts_list[selected_line] ) : NULL;
