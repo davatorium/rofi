@@ -2,6 +2,8 @@
 #define ROFI_MODE_PRIVATE_H
 
 #include <gmodule.h>
+
+/** ABI version to check if loaded plugin is compatible. */
 #define ABI_VERSION    0x00000004
 
 /**

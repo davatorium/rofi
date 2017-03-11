@@ -262,6 +262,9 @@ int x11_modifier_active ( unsigned int mask, int key );
  */
 void x11_disable_decoration ( xcb_window_t window );
 
+/**
+ * List of window managers that need different behaviour to functioning.
+ */
 typedef enum
 {
     /** Default EWHM compatible window manager */

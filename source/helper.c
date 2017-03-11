@@ -53,6 +53,9 @@
 
 #define LOG_DOMAIN    "Helper"
 
+/**
+ * Textual description of positioning rofi.
+ */
 const char *const monitor_position_entries[] = {
     "on focused monitor",
     "on focused window",

@@ -68,6 +68,7 @@ typedef struct TBFontConfig
     PangoFontMetrics     *metrics;
 }TBFontConfig;
 
+/** HashMap of previously parsed font descriptions. */
 static GHashTable *tbfc_cache = NULL;
 
 static gboolean textbox_blink ( gpointer data )
@@ -709,6 +710,8 @@ void textbox_setup ( void )
 {
     tbfc_cache = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify) tbfc_entry_free );
 }
+
+/** Name of the default font (if none is given) */
 const char *default_font_name = "default";
 void textbox_set_pango_context ( const char *font, PangoContext *p )
 {
