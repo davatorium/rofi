@@ -4,6 +4,7 @@
 %{
 #include <stdio.h>
 #include <glib.h>
+#include <gio/gio.h>
 #include <helper.h>
 #include "rofi.h"
 
@@ -49,6 +50,7 @@ GQueue *queue = NULL;
 
 ParseObject *current = NULL;
 
+static char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file );
 %}
 %{
 
@@ -198,15 +200,7 @@ if ( queue == NULL ){
     yytext[yyleng-1] = '\0';
     ParseObject *top = g_queue_peek_head ( file_queue );
     g_assert ( top != NULL );
-    char *filename = rofi_expand_path ( &yytext[1] );
-    // If no absolute path specified, expand it.
-    if ( ! g_path_is_absolute ( filename )  && top->type == PT_FILE ) {
-        char *basedir = g_path_get_dirname ( top->filename );
-        char *path = g_build_filename ( basedir, filename, NULL );
-        g_free ( filename);
-        filename = path;
-        g_free ( basedir );
-    }
+    char *filename = rofi_theme_parse_prepare_file ( &yytext[1], top->filename );
     if ( g_list_find_custom ( imported_files, filename, (GCompareFunc)g_strcmp0 ) != NULL ) {
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping file: '%s' already parsed.", filename );
     } else {
@@ -493,9 +487,28 @@ if ( queue == NULL ){
 }
 %%
 
-gboolean rofi_theme_parse_file ( const char *file )
+
+static char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file )
 {
     char *filename = rofi_expand_path ( file );
+    // If no absolute path specified, expand it.
+    if ( parent_file != NULL && ! g_path_is_absolute ( filename )   ) {
+        char *basedir = g_path_get_dirname ( parent_file );
+        char *path = g_build_filename ( basedir, filename, NULL );
+        g_free ( filename);
+        filename = path;
+        g_free ( basedir );
+    }
+    GFile *gf = g_file_new_for_path ( filename );
+    g_free(filename);
+    filename = g_file_get_path ( gf );
+    g_object_unref ( gf );
+
+    return filename;
+}
+gboolean rofi_theme_parse_file ( const char *file )
+{
+    char *filename = rofi_theme_parse_prepare_file ( file, NULL );
     yyin = fopen ( filename, "rb" );
     if ( yyin == NULL ) {
         char *str = g_markup_printf_escaped ( "Failed to open theme: <i>%s</i>\nError: <b>%s</b>",
