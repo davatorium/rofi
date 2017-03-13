@@ -270,9 +270,15 @@ void yyerror ( YYLTYPE *yylloc, const char *what, const char* s )
     g_string_printf ( str, "<big><b>Error while parsing theme:</b></big> <i>%s</i>\n", what_esc );
     g_free ( what_esc );
     char *esc = g_markup_escape_text ( s, -1 );
-    g_string_append_printf ( str, "\tParser error: <i>%s</i>\n", esc );
+    g_string_append_printf ( str, "\tParser error: <span size=\"smaller\" style=\"italic\">%s</span>\n", esc );
     g_free ( esc );
-    g_string_append_printf ( str, "\tLocation:     line %d column %d to line %d column %d\n", yylloc->first_line, yylloc->first_column, yylloc->last_line, yylloc->last_column );
+    if ( yylloc->filename != NULL ) {
+        g_string_append_printf ( str, "\tLocation:     line %d column %d to line %d column %d.\n"\
+                                      "\tFile          '%s'\n", yylloc->first_line, yylloc->first_column, yylloc->last_line, yylloc->last_column, yylloc->filename);
+
+    }else {
+        g_string_append_printf ( str, "\tLocation:     line %d column %d to line %d column %d\n", yylloc->first_line, yylloc->first_column, yylloc->last_line, yylloc->last_column );
+    }
     rofi_add_error_message ( str );
 }
 

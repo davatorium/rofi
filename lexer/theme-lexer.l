@@ -142,6 +142,7 @@ YY_LLOC_START
 %{
 if ( queue == NULL ){
     queue = g_queue_new ( );
+    yylloc->filename = current->filename;
 }
 %}
 
@@ -219,6 +220,7 @@ if ( queue == NULL ){
             yypush_buffer_state (yy_create_buffer ( 0, YY_BUF_SIZE ));
             yylloc->first_line = yylloc->last_line = 1;
             yylloc->first_column = yylloc->last_column = 1;
+            yylloc->filename = current->filename;
         } else {
             char *str = g_markup_printf_escaped ( "Failed to open theme: <i>%s</i>\nError: <b>%s</b>",
                     filename, strerror ( errno ) );
