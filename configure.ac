@@ -122,10 +122,6 @@ AC_SUBST([AM_CFLAGS])
 AC_CONFIG_FILES([Makefile doc/rofi.doxy pkgconfig/rofi.pc])
 AC_OUTPUT
 
-dnl -----------------------------------------------
-dnl Some output to easily spot if I3 is enabled.
-dnl -----------------------------------------------
-
 echo ""
 echo "-------------------------------------"
 if test x$enable_timings = xyes; then
