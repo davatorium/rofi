@@ -35,7 +35,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token <ival>     T_END              0  "end of file"
 %token <ival>     T_ERROR            1  "error from file parser"
 %token <ival>     T_ERROR_PROPERTY   2  "invalid property value"
-%token <ival>     T_ERROR_ENTRY      3  "invalid property name"
+%token <ival>     T_ERROR_SECTION    3  "invalid property name"
 %token <ival>     T_ERROR_NAMESTRING 4  "invalid element name"
 %token <ival>     T_ERROR_DEFAULTS   5  "invalid defaults name"
 %token <ival>     T_ERROR_INCLUDE    6  "invalid import value"

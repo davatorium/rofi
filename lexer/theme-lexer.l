@@ -8,6 +8,8 @@
 #include "rofi.h"
 
 #include "lexer/theme-parser.h"
+
+#define LOG_DOMAIN "Parser"
 int last_state = 0;
 
 /**
@@ -32,13 +34,15 @@ typedef struct _ParseObject {
     char *filename;
 
     /** Length of string  */
-    int str_len;
+    size_t str_len;
     /** String */
     const char *input_str;
     /** Position in file */
     YYLTYPE  location;
 } ParseObject;
 
+
+GList  *prev_imported_files = NULL;
 GQueue *file_queue = NULL;
 GQueue *queue = NULL;
 
@@ -125,7 +129,7 @@ INCLUDE    "@import"
 %x INCLUDE
 %x PROPERTIES
 %x NAMESTR
-%x ENTRY
+%x SECTION
 %x DEFAULTS
 %%
 
@@ -137,6 +141,11 @@ if ( queue == NULL ){
     queue = g_queue_new ( );
 }
 %}
+
+  /**
+   * General code for handling comments.
+   * Both C and C++ style comments, including nexting.
+   */
 
 <*>"//"            {
     int c;
@@ -180,8 +189,10 @@ if ( queue == NULL ){
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(INCLUDE);
 }
+    /** Skip all whitespace */
 <INCLUDE>{WHITESPACE} {}
 
+    /** Parse path. Last element in this INCLUDE */
 <INCLUDE>\"{STRING}\" {
     yytext[yyleng-1] = '\0';
     ParseObject *top = g_queue_peek_head ( file_queue );
@@ -195,6 +206,7 @@ if ( queue == NULL ){
         filename = path;
         g_free ( basedir );
     }
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Parsing file: '%s'", filename );
     FILE *f = fopen ( filename, "rb" );
     if ( f ) {
         top->location = *yylloc;
@@ -218,47 +230,59 @@ if ( queue == NULL ){
     // Pop out of include. */
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
 }
+  /** Everythin not yet parsed is an error. */
+<INCLUDE>. {
+    return T_ERROR_INCLUDE;
+}
 
     /**
      * END INCLUDES
      */
 
+
+    /**
+     * Handle defaults:  * { ... }
+     */
 <INITIAL>{ASTERIX} {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(DEFAULTS);
     return PDEFAULTS;
 }
+    /** Skip all whitespace */
 <DEFAULTS>{WHITESPACE} {}
 <DEFAULTS>"\{"   {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
-    BEGIN(ENTRY);
+    BEGIN(SECTION);
     return BOPEN;
+}
+  /** Everythin not yet parsed is an error. */
+<DEFAULTS>. {
+    return T_ERROR_DEFAULTS;
 }
 
-  /* Go into parsing an entry */
+<INITIAL>"#"            { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(NAMESTR);return NAME_PREFIX;}
+  /* Go into parsing an section*/
 <NAMESTR>"\{"                    {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
-    BEGIN(ENTRY);
+    BEGIN(SECTION);
     return BOPEN;
 }
-  /* Pop out of parsing an entry. */
-<ENTRY>"\}"             {
+  /* Pop out of parsing an section. */
+<SECTION>"\}"             {
     g_queue_pop_head ( queue );
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
     return BCLOSE;
 }
 
-<INITIAL>"#"            { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(NAMESTR);return NAME_PREFIX;}
 <NAMESTR>\.|{WHITESPACE}    { return NSEP; }
-<ENTRY>{WORD}   { yylval->sval = g_strdup(yytext); return N_STRING;}
+<SECTION>{WORD}   { yylval->sval = g_strdup(yytext); return N_STRING;}
 <NAMESTR>{WORD}         { yylval->sval = g_strdup(yytext); return NAME_ELEMENT;}
 
-    /* After Namestr/Classstr we want to go to state str, then to  { */
-   /*<NAMESTR>{WHITESPACE}   { BEGIN(GPOINTER_TO_INT (g_queue_pop_head ( queue )));}*/
-<INITIAL,ENTRY>{WHITESPACE}+	; // ignore all whitespace
+  /* After Namestr/Classstr we want to go to state str, then to  { */
+<INITIAL,SECTION>{WHITESPACE}+	; // ignore all whitespace
 <PROPERTIES>{WHITESPACE}+	; // ignore all whitespace
 
-<INITIAL,ENTRY>":"               { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return PSEP; }
+<SECTION>":"               { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return PSEP; }
 <PROPERTIES>";"                  { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return PCLOSE;}
 <PROPERTIES>(true|false)         { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
 <PROPERTIES>{PNNUMBER}+            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
@@ -453,20 +477,14 @@ if ( queue == NULL ){
 <INITIAL>. {
     return T_ERROR;
 }
-<ENTRY>. {
-    return T_ERROR_ENTRY;
+<SECTION>. {
+    return T_ERROR_SECTION;
 }
 <PROPERTIES>. {
     return T_ERROR_PROPERTY;
 }
 <NAMESTR>. {
     return T_ERROR_NAMESTRING;
-}
-<DEFAULTS>. {
-    return T_ERROR_DEFAULTS;
-}
-<INCLUDE>. {
-    return T_ERROR_INCLUDE;
 }
 %%
 
@@ -491,6 +509,7 @@ gboolean rofi_theme_parse_file ( const char *file )
     po->filein = yyin;
     current = po;
     g_queue_push_head ( file_queue, po );
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Parsing top file: '%s'", filename );
 
     int parser_retv = yyparse ( file );
     yylex_destroy ();
@@ -516,6 +535,7 @@ gboolean rofi_theme_parse_string ( const char *string )
     po->str_len   = strlen(string);
     current = po;
     g_queue_push_head ( file_queue, po );
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Parsing string: '%s'", string );
 
     int parser_retv = yyparse ( string );
     yylex_destroy ();
