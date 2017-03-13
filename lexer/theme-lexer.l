@@ -42,6 +42,7 @@ typedef struct _ParseObject {
 } ParseObject;
 
 
+GList  *imported_files = NULL;
 GList  *prev_imported_files = NULL;
 GQueue *file_queue = NULL;
 GQueue *queue = NULL;
@@ -206,26 +207,31 @@ if ( queue == NULL ){
         filename = path;
         g_free ( basedir );
     }
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Parsing file: '%s'", filename );
-    FILE *f = fopen ( filename, "rb" );
-    if ( f ) {
-        top->location = *yylloc;
-        ParseObject *po = g_malloc0(sizeof(ParseObject));
-        po->type = PT_FILE;
-        po->filename = filename;
-        po->filein = f;
-        current = po;
-        g_queue_push_head ( file_queue, po );
-
-        yypush_buffer_state (yy_create_buffer ( 0, YY_BUF_SIZE ));
-        yylloc->first_line = yylloc->last_line = 1;
-        yylloc->first_column = yylloc->last_column = 1;
+    if ( g_list_find_custom ( imported_files, filename, (GCompareFunc)g_strcmp0 ) != NULL ) {
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping file: '%s' already parsed.", filename );
     } else {
-        char *str = g_markup_printf_escaped ( "Failed to open theme: <i>%s</i>\nError: <b>%s</b>",
-                                              filename, strerror ( errno ) );
-        rofi_add_error_message ( g_string_new ( str ) );
-        g_free ( str );
-        g_free(filename);
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Parsing file: '%s'", filename );
+        FILE *f = fopen ( filename, "rb" );
+        if ( f ) {
+            top->location = *yylloc;
+            ParseObject *po = g_malloc0(sizeof(ParseObject));
+            po->type = PT_FILE;
+            po->filename = filename;
+            po->filein = f;
+            current = po;
+            g_queue_push_head ( file_queue, po );
+            imported_files = g_list_append ( imported_files, po->filename );
+
+            yypush_buffer_state (yy_create_buffer ( 0, YY_BUF_SIZE ));
+            yylloc->first_line = yylloc->last_line = 1;
+            yylloc->first_column = yylloc->last_column = 1;
+        } else {
+            char *str = g_markup_printf_escaped ( "Failed to open theme: <i>%s</i>\nError: <b>%s</b>",
+                    filename, strerror ( errno ) );
+            rofi_add_error_message ( g_string_new ( str ) );
+            g_free ( str );
+            g_free(filename);
+        }
     }
     // Pop out of include. */
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
@@ -448,7 +454,6 @@ if ( queue == NULL ){
     if ( po ) {
         if ( po->type == PT_FILE ){
             fclose ( po->filein );
-            g_free ( po->filename );
         }
         g_free (  po );
     }
@@ -508,6 +513,7 @@ gboolean rofi_theme_parse_file ( const char *file )
     po->filename = filename;
     po->filein = yyin;
     current = po;
+    imported_files = g_list_append ( imported_files, po->filename );
     g_queue_push_head ( file_queue, po );
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Parsing top file: '%s'", filename );
 
@@ -516,6 +522,8 @@ gboolean rofi_theme_parse_file ( const char *file )
     yyin = NULL;
 
     // Free up.
+    g_list_foreach ( imported_files, (GFunc)g_free, NULL);
+    g_list_free ( imported_files );
     g_queue_free ( file_queue );
     file_queue = NULL;
     if ( parser_retv != 0 ) {
@@ -541,6 +549,8 @@ gboolean rofi_theme_parse_string ( const char *string )
     yylex_destroy ();
 
     // Free up.
+    g_list_foreach ( imported_files, (GFunc)g_free, NULL);
+    g_list_free ( imported_files );
     g_queue_free ( file_queue );
     file_queue = NULL;
     if ( parser_retv != 0 ) {
