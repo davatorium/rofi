@@ -1,9 +1,9 @@
 %define api.pure
+%define parse.error verbose
 %locations
 %glr-parser
 %skeleton "glr.c"
 %debug
-%error-verbose
 %parse-param {const char *what}
 %code requires {
 #include "theme.h"
@@ -25,7 +25,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
     char          *sval;
     int           bval;
     ThemeColor    colorval;
-    ThemeWidget        *theme;
+    ThemeWidget   *theme;
     GList         *name_path;
     Property      *property;
     GHashTable    *property_list;
@@ -38,6 +38,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token <ival>     T_ERROR_ENTRY      3  "invalid property name"
 %token <ival>     T_ERROR_NAMESTRING 4  "invalid element name"
 %token <ival>     T_ERROR_DEFAULTS   5  "invalid defaults name"
+%token <ival>     T_ERROR_INCLUDE    6  "invalid import value"
 %token <ival>     T_INT
 %token <fval>     T_DOUBLE
 %token <sval>     T_STRING
@@ -56,7 +57,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token PSEP         "property separator"
 %token PCLOSE       "property close"
 %token NSEP         "Name separator"
-%token NAME_PREFIX  "Name element prefix ('#')"
+%token NAME_PREFIX  "Element section ('# {name} { ... }')"
 %token WHITESPACE   "White space"
 %token PDEFAULTS    "Default settings section ( '* { ... }')"
 

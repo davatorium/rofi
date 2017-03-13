@@ -29,12 +29,14 @@ typedef struct _ParseObject {
 
     /** File pointer */
     FILE *filein;
+    char *filename;
 
     /** Length of string  */
     int str_len;
     /** String */
     const char *input_str;
-
+    /** Position in file */
+    YYLTYPE  location;
 } ParseObject;
 
 GQueue *file_queue = NULL;
@@ -182,23 +184,37 @@ if ( queue == NULL ){
 
 <INCLUDE>\"{STRING}\" {
     yytext[yyleng-1] = '\0';
+    ParseObject *top = g_queue_peek_head ( file_queue );
+    g_assert ( top != NULL );
     char *filename = rofi_expand_path ( &yytext[1] );
+    // If no absolute path specified, expand it.
+    if ( ! g_path_is_absolute ( filename )  && top->type == PT_FILE ) {
+        char *basedir = g_path_get_dirname ( top->filename );
+        char *path = g_build_filename ( basedir, filename, NULL );
+        g_free ( filename);
+        filename = path;
+        g_free ( basedir );
+    }
     FILE *f = fopen ( filename, "rb" );
     if ( f ) {
+        top->location = *yylloc;
         ParseObject *po = g_malloc0(sizeof(ParseObject));
         po->type = PT_FILE;
+        po->filename = filename;
         po->filein = f;
         current = po;
         g_queue_push_head ( file_queue, po );
 
         yypush_buffer_state (yy_create_buffer ( 0, YY_BUF_SIZE ));
+        yylloc->first_line = yylloc->last_line = 1;
+        yylloc->first_column = yylloc->last_column = 1;
     } else {
         char *str = g_markup_printf_escaped ( "Failed to open theme: <i>%s</i>\nError: <b>%s</b>",
                                               filename, strerror ( errno ) );
         rofi_add_error_message ( g_string_new ( str ) );
         g_free ( str );
+        g_free(filename);
     }
-    g_free(filename);
     // Pop out of include. */
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
 }
@@ -408,6 +424,7 @@ if ( queue == NULL ){
     if ( po ) {
         if ( po->type == PT_FILE ){
             fclose ( po->filein );
+            g_free ( po->filename );
         }
         g_free (  po );
     }
@@ -420,6 +437,7 @@ if ( queue == NULL ){
     } else {
         yypop_buffer_state();
         current = po;
+        *yylloc = current->location;
         BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue )));
     }
 }
@@ -447,8 +465,8 @@ if ( queue == NULL ){
 <DEFAULTS>. {
     return T_ERROR_DEFAULTS;
 }
-<*>. {
-    return T_ERROR;
+<INCLUDE>. {
+    return T_ERROR_INCLUDE;
 }
 %%
 
@@ -469,13 +487,13 @@ gboolean rofi_theme_parse_file ( const char *file )
     file_queue = g_queue_new ();
     ParseObject *po = g_malloc0(sizeof(ParseObject));
     po->type = PT_FILE;
+    po->filename = filename;
     po->filein = yyin;
     current = po;
     g_queue_push_head ( file_queue, po );
 
     int parser_retv = yyparse ( file );
     yylex_destroy ();
-    g_free ( filename );
     yyin = NULL;
 
     // Free up.
