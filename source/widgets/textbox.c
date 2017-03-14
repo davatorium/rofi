@@ -343,7 +343,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
 
     // Skip the side MARGIN on the X axis.
     int x = widget_padding_get_left ( WIDGET ( tb ) ) + offset;
-    int y = 0;
 
     if ( tb->flags & TB_RIGHT ) {
         int line_width = 0;
@@ -357,13 +356,13 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     }
 
     int top = widget_padding_get_top ( WIDGET ( tb ) );
-    y = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
     rofi_theme_get_color ( WIDGET ( tb ), "foreground", draw );
     // Text
     rofi_theme_get_color ( WIDGET ( tb ), "text", draw );
     // draw the cursor
     if ( tb->flags & TB_EDITABLE && tb->blink ) {
+        int y = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
         // We want to place the cursor based on the text shown.
         const char     *text = pango_layout_get_text ( tb->layout );
         // Clamp the position, should not be needed, but we are paranoid.
