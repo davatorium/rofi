@@ -50,6 +50,8 @@
 #define DRUN_CACHE_FILE    "rofi2.druncache"
 #define LOG_DOMAIN         "Dialogs.DRun"
 
+#define GET_CAT_PARSE_TIME
+
 /**
  * Store extra information about the entry.
  * Currently the executable and if it should run in terminal.
@@ -66,6 +68,9 @@ typedef struct
     char     *name;
     /* Generic Name */
     char     *generic_name;
+#ifdef GET_CAT_PARSE_TIME
+    char    **categories;
+#endif
 
     GKeyFile *key_file;
 } DRunModeEntry;
@@ -267,6 +272,9 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     pd->entry_list[pd->cmd_list_length].name = n;
     gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].generic_name = gn;
+#ifdef GET_CAT_PARSE_TIME
+    pd->entry_list[pd->cmd_list_length].categories= g_key_file_get_locale_string_list ( kf, "Desktop Entry", "Categories", NULL, NULL, NULL );
+#endif
     pd->entry_list[pd->cmd_list_length].exec         = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
 
     // Keep keyfile around.
@@ -409,6 +417,9 @@ static void drun_entry_clear ( DRunModeEntry *e )
     g_free ( e->exec );
     g_free ( e->name );
     g_free ( e->generic_name );
+#ifdef GET_CAT_PARSE_TIME
+    g_strfreev ( e->categories );
+#endif
     g_key_file_free ( e->key_file );
 }
 
@@ -518,11 +529,18 @@ static int drun_token_match ( const Mode *data, GRegex **tokens, unsigned int in
             }
             // Match against category.
             if ( !test ) {
+#ifdef GET_CAT_PARSE_TIME
+                gchar **list = rmpd->entry_list[index].categories;
+                for ( int iter = 0; !test && list && list[iter]; iter++ ) {
+                    test = helper_token_match ( ftokens, list[iter] );
+                }
+#else
                 gchar **list = g_key_file_get_locale_string_list ( rmpd->entry_list[index].key_file, "Desktop Entry", "Categories", NULL, NULL, NULL );
                 for ( int iter = 0; !test && list && list[iter]; iter++ ) {
                     test = helper_token_match ( ftokens, list[iter] );
                 }
                 g_strfreev ( list );
+#endif
             }
             if ( test == 0 ) {
                 match = 0;
