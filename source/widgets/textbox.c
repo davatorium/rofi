@@ -332,29 +332,14 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
 {
     textbox      *tb         = (textbox *) wid;
     unsigned int offset      = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
-    int          font_height = textbox_get_font_height ( tb );
 
     int          cursor_x      = 0;
     int          cursor_y      = 0;
-    int          cursor_height = font_height;
 
     if ( tb->changed ) {
         __textbox_update_pango_text ( tb );
     }
 
-    if ( tb->flags & TB_EDITABLE ) {
-        // We want to place the cursor based on the text shown.
-        const char     *text = pango_layout_get_text ( tb->layout );
-        // Clamp the position, should not be needed, but we are paranoid.
-        int            cursor_offset = MIN ( tb->cursor, g_utf8_strlen ( text, -1 ) );
-        PangoRectangle pos;
-        // convert to byte location.
-        char           *offset = g_utf8_offset_to_pointer ( text, cursor_offset );
-        pango_layout_get_cursor_pos ( tb->layout, offset - text, &pos, NULL );
-        cursor_x      = pos.x / PANGO_SCALE;
-        cursor_y      = pos.y / PANGO_SCALE;
-        cursor_height = pos.height / PANGO_SCALE;
-    }
 
     // Skip the side MARGIN on the X axis.
     int x = widget_padding_get_left ( WIDGET ( tb ) ) + offset;
@@ -379,7 +364,18 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     rofi_theme_get_color ( WIDGET ( tb ), "text", draw );
     // draw the cursor
     if ( tb->flags & TB_EDITABLE && tb->blink ) {
-        int cursor_width = 2;           //MAX ( 2, font_height / 10 );
+        // We want to place the cursor based on the text shown.
+        const char     *text = pango_layout_get_text ( tb->layout );
+        // Clamp the position, should not be needed, but we are paranoid.
+        int            cursor_offset = MIN ( tb->cursor, g_utf8_strlen ( text, -1 ) );
+        PangoRectangle pos;
+        // convert to byte location.
+        char           *offset = g_utf8_offset_to_pointer ( text, cursor_offset );
+        pango_layout_get_cursor_pos ( tb->layout, offset - text, &pos, NULL );
+        cursor_x      = pos.x / PANGO_SCALE;
+        cursor_y      = pos.y / PANGO_SCALE;
+        int cursor_height = pos.height / PANGO_SCALE;
+        int cursor_width = 2;
         cairo_rectangle ( draw, x + cursor_x, y + cursor_y, cursor_width, cursor_height );
         cairo_fill ( draw );
     }
