@@ -30,7 +30,7 @@ DMENU command line options:
 	-select [string]                       Select the first row that matches
 	-password                              Do not show what the user inputs. Show '*' instead.
 	-markup-rows                           Allow and render pango markup as input data.
-	-sep [char]                            Element separator.
+	-sep [string]                          Element separator.
 		'\n'
 	-input [filename]                      Read input from file instead from standard input.
 	-sync                                  Force dmenu to first read all input data, then show dialog.
