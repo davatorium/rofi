@@ -94,7 +94,7 @@ static void rofi_theme_print_distance ( Distance d )
     }
 }
 /** Textual representation of Window Location */
-const char const * WindowLocationStr[9] = {
+const char * const WindowLocationStr[9] = {
     "center",
     "northwest",
     "north",

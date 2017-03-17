@@ -587,7 +587,7 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
         }
     }
 }
-static void rofi_view_setup_fake_transparency ( const char const *fake_background )
+static void rofi_view_setup_fake_transparency ( const char* const fake_background )
 {
     if ( CacheState.fake_bg == NULL ) {
         cairo_surface_t *s = NULL;
