@@ -514,7 +514,7 @@ static int drun_token_match ( const Mode *data, GRegex **tokens, unsigned int in
             int    test        = 0;
             GRegex *ftokens[2] = { tokens[j], NULL };
             // Match name
-            if ( !test && rmpd->entry_list[index].name &&
+            if ( rmpd->entry_list[index].name &&
                  helper_token_match ( ftokens, rmpd->entry_list[index].name ) ) {
                 test = 1;
             }

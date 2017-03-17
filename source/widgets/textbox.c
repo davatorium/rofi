@@ -333,8 +333,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     textbox      *tb         = (textbox *) wid;
     unsigned int offset      = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
 
-    int          cursor_x      = 0;
-    int          cursor_y      = 0;
 
     if ( tb->changed ) {
         __textbox_update_pango_text ( tb );
@@ -371,8 +369,8 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         // convert to byte location.
         char           *offset = g_utf8_offset_to_pointer ( text, cursor_offset );
         pango_layout_get_cursor_pos ( tb->layout, offset - text, &pos, NULL );
-        cursor_x      = pos.x / PANGO_SCALE;
-        cursor_y      = pos.y / PANGO_SCALE;
+        int cursor_x      = pos.x / PANGO_SCALE;
+        int cursor_y      = pos.y / PANGO_SCALE;
         int cursor_height = pos.height / PANGO_SCALE;
         int cursor_width = 2;
         cairo_rectangle ( draw, x + cursor_x, y + cursor_y, cursor_width, cursor_height );
