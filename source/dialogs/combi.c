@@ -204,22 +204,22 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
     }
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
-            char * str  = mode_get_display_value ( pd->switchers[i].mode, selected_line - pd->starts[i], state, attr_list, TRUE );
+            char       * str  = mode_get_display_value ( pd->switchers[i].mode, selected_line - pd->starts[i], state, attr_list, TRUE );
             const char *dname = mode_get_display_name ( pd->switchers[i].mode );
-            char * retv = g_strdup_printf ( "%s %s", dname, str );
+            char       * retv = g_strdup_printf ( "%s %s", dname, str );
             g_free ( str );
 
             if ( attr_list != NULL ) {
-                ThemeWidget *wid = rofi_theme_find_widget ( sw->name, NULL, TRUE);
-                Property    *p   = rofi_theme_find_property ( wid, P_COLOR, pd->switchers[i].mode->name, TRUE);
+                ThemeWidget *wid = rofi_theme_find_widget ( sw->name, NULL, TRUE );
+                Property    *p   = rofi_theme_find_property ( wid, P_COLOR, pd->switchers[i].mode->name, TRUE );
                 if ( p != NULL ) {
                     PangoAttribute *pa = pango_attr_foreground_new (
-                            p->value.color.red * 65535,
-                            p->value.color.green * 65535,
-                            p->value.color.blue * 65535 );
+                        p->value.color.red * 65535,
+                        p->value.color.green * 65535,
+                        p->value.color.blue * 65535 );
                     pa->start_index = PANGO_ATTR_INDEX_FROM_TEXT_BEGINNING;
-                    pa->end_index   = strlen(dname);
-                    *attr_list = g_list_append ( *attr_list, pa );
+                    pa->end_index   = strlen ( dname );
+                    *attr_list      = g_list_append ( *attr_list, pa );
                 }
             }
             return retv;

@@ -69,7 +69,7 @@ typedef struct
     /* Generic Name */
     char     *generic_name;
 #ifdef GET_CAT_PARSE_TIME
-    char    **categories;
+    char     **categories;
 #endif
 
     GKeyFile *key_file;
@@ -273,9 +273,9 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].generic_name = gn;
 #ifdef GET_CAT_PARSE_TIME
-    pd->entry_list[pd->cmd_list_length].categories= g_key_file_get_locale_string_list ( kf, "Desktop Entry", "Categories", NULL, NULL, NULL );
+    pd->entry_list[pd->cmd_list_length].categories = g_key_file_get_locale_string_list ( kf, "Desktop Entry", "Categories", NULL, NULL, NULL );
 #endif
-    pd->entry_list[pd->cmd_list_length].exec         = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
+    pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
 
     // Keep keyfile around.
     pd->entry_list[pd->cmd_list_length].key_file = kf;

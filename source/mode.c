@@ -53,7 +53,7 @@ char * mode_get_completion ( const Mode *mode, unsigned int selected_line )
     else {
         int state;
         g_assert ( mode->_get_display_value != NULL );
-        return mode->_get_display_value ( mode, selected_line, &state,NULL, TRUE );
+        return mode->_get_display_value ( mode, selected_line, &state, NULL, TRUE );
     }
 }
 

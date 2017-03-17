@@ -273,10 +273,10 @@ void yyerror ( YYLTYPE *yylloc, const char *what, const char* s )
     g_string_append_printf ( str, "\tParser error: <span size=\"smaller\" style=\"italic\">%s</span>\n", esc );
     g_free ( esc );
     if ( yylloc->filename != NULL ) {
-        g_string_append_printf ( str, "\tLocation:     line %d column %d to line %d column %d.\n"\
-                                      "\tFile          '%s'\n", yylloc->first_line, yylloc->first_column, yylloc->last_line, yylloc->last_column, yylloc->filename);
-
-    }else {
+        g_string_append_printf ( str, "\tLocation:     line %d column %d to line %d column %d.\n" \
+                                 "\tFile          '%s'\n", yylloc->first_line, yylloc->first_column, yylloc->last_line, yylloc->last_column, yylloc->filename );
+    }
+    else {
         g_string_append_printf ( str, "\tLocation:     line %d column %d to line %d column %d\n", yylloc->first_line, yylloc->first_column, yylloc->last_line, yylloc->last_column );
     }
     rofi_add_error_message ( str );
@@ -320,10 +320,10 @@ static ThemeWidget *rofi_theme_find ( ThemeWidget *widget, const char *name, con
     if ( widget == NULL || name == NULL ) {
         return widget;
     }
-    char *tname = g_strdup(name );
+    char *tname   = g_strdup ( name );
     char *saveptr = NULL;
-    int  found   = TRUE;
-    for (const char *iter = strtok_r (tname, ".", &saveptr); iter != NULL ; iter = strtok_r ( NULL, "." , &saveptr ) ) {
+    int  found    = TRUE;
+    for ( const char *iter = strtok_r ( tname, ".", &saveptr ); iter != NULL; iter = strtok_r ( NULL, ".", &saveptr ) ) {
         found = FALSE;
         ThemeWidget *f = rofi_theme_find_single ( widget, iter );
         if ( f != widget ) {
@@ -567,7 +567,7 @@ gboolean rofi_theme_is_empty ( void )
     if ( rofi_theme == NULL ) {
         return TRUE;
     }
-    if ( rofi_theme->properties == NULL  && rofi_theme->num_widgets == 0 ) {
+    if ( rofi_theme->properties == NULL && rofi_theme->num_widgets == 0 ) {
         return TRUE;
     }
 

@@ -879,8 +879,8 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
     RofiViewState *state = (RofiViewState *) udata;
     if ( full ) {
         GList *add_list = NULL;
-        int  fstate = 0;
-        char *text  = mode_get_display_value ( state->sw, state->line_map[index], &fstate, &add_list, TRUE );
+        int   fstate    = 0;
+        char  *text     = mode_get_display_value ( state->sw, state->line_map[index], &fstate, &add_list, TRUE );
         type |= fstate;
         textbox_font ( t, type );
         // Move into list view.
@@ -898,12 +898,12 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
             th = rofi_theme_get_highlight ( WIDGET ( t ), "highlight", th );
             helper_token_match_get_pango_attr ( th, state->tokens, textbox_get_visible_text ( t ), list );
         }
-        for ( GList *iter = g_list_first ( add_list ); iter != NULL ; iter = g_list_next(iter) ) {
-            pango_attr_list_insert ( list, (PangoAttribute *)(iter->data));
+        for ( GList *iter = g_list_first ( add_list ); iter != NULL; iter = g_list_next ( iter ) ) {
+            pango_attr_list_insert ( list, (PangoAttribute *) ( iter->data ) );
         }
         textbox_set_pango_attributes ( t, list );
         pango_attr_list_unref ( list );
-        g_list_free( add_list);
+        g_list_free ( add_list );
         g_free ( text );
     }
     else {

@@ -635,33 +635,34 @@ void config_parse_xresources_theme_dump ( void )
     }
 }
 
-static char * config_parser_return_display_help_entry ( XrmOption *option )
+static char * config_parser_return_display_help_entry ( XrmOption *option, size_t l )
 {
+    int ll = (int) l;
     switch ( option->type )
     {
     case xrm_Number:
-        return g_markup_printf_escaped ( "<b%s</b> (%u) <span style='italic' size='small'>%s</span>",
-                                         option->name, *( option->value.num ), option->comment );
+        return g_markup_printf_escaped ( "<b%-*s</b> (%u) <span style='italic' size='small'>%s</span>",
+                                         ll, option->name + 3, *( option->value.num ), option->comment );
     case xrm_SNumber:
-        return g_markup_printf_escaped ( "<b%s</b> (%d) <span style='italic' size='small'>%s</span>",
-                                         option->name, *( option->value.snum ), option->comment );
+        return g_markup_printf_escaped ( "<b%-*s</b> (%d) <span style='italic' size='small'>%s</span>",
+                                         ll, option->name + 3, *( option->value.snum ), option->comment );
     case xrm_String:
-        return g_markup_printf_escaped ( "<b>%s</b> (%s) <span style='italic' size='small'>%s</span>",
-                                         option->name,
+        return g_markup_printf_escaped ( "<b>%-*s</b> (%s) <span style='italic' size='small'>%s</span>",
+                                         ll, option->name + 3,
                                          ( *( option->value.str ) != NULL ) ? *( option->value.str ) : "null",
                                          option->comment
                                          );
     case xrm_Boolean:
-        return g_markup_printf_escaped ( "<b>%s</b> (%s) <span style='italic' size='small'>%s</span>",
-                                         option->name, ( *( option->value.num ) == TRUE ) ? "true" : "false", option->comment );
+        return g_markup_printf_escaped ( "<b>%-*s</b> (%s) <span style='italic' size='small'>%s</span>",
+                                         ll, option->name + 3, ( *( option->value.num ) == TRUE ) ? "true" : "false", option->comment );
     case xrm_Char:
         if ( *( option->value.charc ) > 32 && *( option->value.charc ) < 127 ) {
-            return g_markup_printf_escaped ( "<b>%s</b> (%c) <span style='italic' size='small'>%s</span>",
-                                             option->name, *( option->value.charc ), option->comment );
+            return g_markup_printf_escaped ( "<b>%-*s</b> (%c) <span style='italic' size='small'>%s</span>",
+                                             ll, option->name + 3, *( option->value.charc ), option->comment );
         }
         else {
-            return g_markup_printf_escaped ( "<b%s</b> (\\x%02X) <span style='italic' size='small'>%s</span>",
-                                             option->name, *( option->value.charc ), option->comment );
+            return g_markup_printf_escaped ( "<b%-*s</b> (\\x%02X) <span style='italic' size='small'>%s</span>",
+                                             ll, option->name + 3, *( option->value.charc ), option->comment );
         }
     default:
         break;
@@ -674,6 +675,21 @@ char ** config_parser_return_display_help ( unsigned int *length )
 {
     unsigned int entries = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
     char         **retv  = NULL;
+    /**
+     * Get length of name
+     */
+    size_t max_length = 0;
+    for ( unsigned int i = 0; i < entries; ++i ) {
+        size_t l = strlen ( xrmOptions[i].name );
+        max_length = MAX ( max_length, l );
+    }
+    for ( unsigned int i = 0; i < num_extra_options; i++ ) {
+        size_t l = strlen ( extra_options[i].name );
+        max_length = MAX ( max_length, l );
+    }
+    /**
+     * Generate entries
+     */
     for ( unsigned int i = 0; i < entries; ++i ) {
         if ( ( i + 1 ) < entries ) {
             if ( xrmOptions[i].value.str == xrmOptions[i + 1].value.str ) {
@@ -686,7 +702,7 @@ char ** config_parser_return_display_help ( unsigned int *length )
 
         retv = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
 
-        retv[( *length )] = config_parser_return_display_help_entry ( &xrmOptions[i] );
+        retv[( *length )] = config_parser_return_display_help_entry ( &xrmOptions[i], max_length );
         ( *length )++;
     }
     for ( unsigned int i = 0; i < num_extra_options; i++ ) {
@@ -694,7 +710,7 @@ char ** config_parser_return_display_help ( unsigned int *length )
             continue;
         }
         retv              = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-        retv[( *length )] = config_parser_return_display_help_entry ( &extra_options[i] );
+        retv[( *length )] = config_parser_return_display_help_entry ( &extra_options[i], max_length );
         ( *length )++;
     }
     if ( ( *length ) > 0 ) {

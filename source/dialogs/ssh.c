@@ -50,12 +50,11 @@
 #include "history.h"
 #include "dialogs/ssh.h"
 
-
 /**
  * Log domain for the ssh modi.
  */
 
-#define LOG_DOMAIN "Dialogs.Ssh"
+#define LOG_DOMAIN         "Dialogs.Ssh"
 
 /**
  * Name of the history file where previously choosen hosts are stored.
@@ -265,9 +264,9 @@ static char **read_hosts_file ( char ** retv, unsigned int *length )
 
 static void parse_ssh_config_file ( const char *filename, char ***retv, unsigned int *length, unsigned int num_favorites )
 {
-    FILE       *fd = fopen ( filename, "r" );
+    FILE *fd = fopen ( filename, "r" );
 
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Parsing ssh config file: %s" , filename);
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Parsing ssh config file: %s", filename );
     if ( fd != NULL ) {
         char   *buffer         = NULL;
         size_t buffer_length   = 0;
@@ -286,22 +285,23 @@ static void parse_ssh_config_file ( const char *filename, char ***retv, unsigned
                 continue;
             }
 
-            if ( g_strcmp0 ( token, "Include") == 0 ) {
+            if ( g_strcmp0 ( token, "Include" ) == 0 ) {
                 token = strtok_r ( NULL, SSH_TOKEN_DELIM, &strtok_pointer );
-                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Include: %s" , token);
-                gchar *path = rofi_expand_path ( token );
+                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Include: %s", token );
+                gchar *path      = rofi_expand_path ( token );
                 gchar *full_path = NULL;
-                if ( ! g_path_is_absolute ( path ) ){
+                if ( !g_path_is_absolute ( path ) ) {
                     char *dirname = g_path_get_dirname ( filename );
                     full_path = g_build_filename ( dirname, path, NULL );
-                    g_free(dirname);
-                } else {
+                    g_free ( dirname );
+                }
+                else {
                     full_path = g_strdup ( path );
                 }
-                glob_t globbuf = {0,};
+                glob_t globbuf = { 0, };
 
-                if ( glob ( full_path, 0, NULL, &globbuf ) ==  0 ){
-                    for ( size_t iter = 0; iter < globbuf.gl_pathc; iter++){
+                if ( glob ( full_path, 0, NULL, &globbuf ) == 0 ) {
+                    for ( size_t iter = 0; iter < globbuf.gl_pathc; iter++ ) {
                         parse_ssh_config_file ( globbuf.gl_pathv[iter], retv, length, num_favorites );
                     }
                 }
@@ -333,7 +333,7 @@ static void parse_ssh_config_file ( const char *filename, char ***retv, unsigned
                     // given num_favorites is max 25.
                     int found = 0;
                     for ( unsigned int j = 0; j < num_favorites; j++ ) {
-                        if ( !g_ascii_strcasecmp ( token, (*retv)[j] ) ) {
+                        if ( !g_ascii_strcasecmp ( token, ( *retv )[j] ) ) {
                             found = 1;
                             break;
                         }
@@ -344,9 +344,9 @@ static void parse_ssh_config_file ( const char *filename, char ***retv, unsigned
                     }
 
                     // Add this host name to the list.
-                    (*retv)                  = g_realloc ( (*retv), ( ( *length ) + 2 ) * sizeof ( char* ) );
-                    (*retv)[( *length )]     = g_strdup ( token );
-                    (*retv)[( *length ) + 1] = NULL;
+                    ( *retv )                  = g_realloc ( ( *retv ), ( ( *length ) + 2 ) * sizeof ( char* ) );
+                    ( *retv )[( *length )]     = g_strdup ( token );
+                    ( *retv )[( *length ) + 1] = NULL;
                     ( *length )++;
                 }
             }

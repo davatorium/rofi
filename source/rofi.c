@@ -404,7 +404,7 @@ static void cleanup ()
  * Collected modi
  */
 /**  List of (possibly uninitialized) modi's */
-Mode         ** available_modi  = NULL;
+Mode         ** available_modi = NULL;
 /** Length of #num_available_modi */
 unsigned int num_available_modi = 0;
 
