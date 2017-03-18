@@ -135,6 +135,9 @@ dist_man1_MANS=\
 	doc/rofi.1\
 	doc/rofi-sensible-terminal.1
 
+dist_man5_MANS=\
+	doc/rofi-theme.5
+
 ##
 # Readme.md
 ##
@@ -199,8 +202,9 @@ EXTRA_DIST=\
 ##
 
 
-update-manpage: $(top_srcdir)/doc/rofi-manpage.markdown
-	ronn --roff --pipe $^ > $(top_srcdir)/doc/rofi.1
+update-manpage: $(top_srcdir)/doc/rofi-manpage.markdown $(top_srcdir)/doc/rofi-theme-manpage.markdown
+	ronn --roff --pipe $(top_srcdir)/doc/rofi-manpage.markdown > $(top_srcdir)/doc/rofi.1
+	ronn --roff --pipe $(top_srcdir)/doc/rofi-theme-manpage.markdown > $(top_srcdir)/doc/rofi-theme.5
 
 ##
 # Rofi test program
