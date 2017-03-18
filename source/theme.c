@@ -759,7 +759,6 @@ void rofi_theme_convert_old_theme ( void )
         }
         g_strfreev ( vals );
         {
-            Property    *p         = NULL;
             ThemeWidget *widget    = rofi_theme_find_or_create_name ( listview_widget, "element" );
             ThemeWidget *scrollbar = rofi_theme_find_or_create_name ( listview_widget, "scrollbar" );
 
@@ -768,7 +767,7 @@ void rofi_theme_convert_old_theme ( void )
             ThemeWidget *walternate = rofi_theme_find_or_create_name ( widget, "alternate" );
 
             rofi_theme_convert_create_property_ht  ( widget );
-            p          = rofi_theme_property_create ( P_INTEGER );
+            Property *p= rofi_theme_property_create ( P_INTEGER );
             p->name    = g_strdup ( "border" );
             p->value.i = 0;
             g_hash_table_replace ( widget->properties, p->name, p );
