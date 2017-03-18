@@ -1,10 +1,10 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-MANPAGE" "" "2017-02-02" "" ""
+.TH "ROFI\-MANPAGE" "" "March 2017" "" ""
 .
 .SH "NAME"
-\fBrofi\fR \- A window switcher, run launcher, ssh dialog and dmenu replacement
+\fBrofi\fR \- A window switcher, application launcher, ssh dialog and dmenu replacement
 .
 .SH "SYNOPSIS"
 \fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-display \fIdisplay\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-select ] [ \-input \fIinput\fR ] ] [ \-filter \fIfilter\fR ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-window\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-cycle ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-version ] [ \-help ] [ \-dump\-xresources ] [ \-dump\-xresources\-theme ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-no\-parse\-known\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-normal\-window ] [ \-fake\-transparency ] [ \-matching \fImethod\fR ] [ \-tokenize ] [ \-no\-click\-to\-exit ] [ \-threads \fInum\fR ] [ \-config \fIfilename\fR ] [ \-no\-show\-match ] [ \-theme \fIfilename\fR ] [ \-theme\-str \fIstring\fR ] [ \-dpi \fIdpi\fR ]
@@ -310,6 +310,9 @@ Hide the indicator that shows what part of the string is matched\.
 Disables lazy grab, this forces the keyboard being grabbed before gui is shown\.
 .
 .SS "Theming"
+These options are \fBdeprecated\fR and should not be used\. Please use the new theme format to customize rofi\.
+.
+.P
 All colors are either hex #rrggbb, #aarrggbb or argb:aarrggbbvalues or X11 color names\.
 .
 .P
@@ -420,7 +423,7 @@ Hide the scrollbar\.
 .P
 Set the scrollbar width\.
 .
-.P
+.SS "Matching"
 \fB\-matching\fR \fImethod\fR
 .
 .P
@@ -453,6 +456,9 @@ Note: glob matching might be slow for larger lists
 Tokenize the input\.
 .
 .SS "Layout"
+Most of the following options are \fBdeprecated\fR and should not be used\. Please use the new theme format to customize rofi\.
+.
+.P
 \fB\-lines\fR
 .
 .P
@@ -1098,7 +1104,10 @@ ln \-s /usr/bin/rofi /usr/bin/dmenu
 .IP "" 0
 .
 .SH "THEMING"
-With \fBrofi\fR 0\.15\.4 we have a new way of specifying theme colors\. The new setup allows you to specify colors per state, similar to \fBi3\fR Currently 3 states exists:
+The theme format below describes the old (pre version 1\.4) theme format\. Please see rofi\-theme(5) manpage for an updated manual\.
+.
+.P
+The theme setup allows you to specify colors per state, similar to \fBi3\fR Currently 3 states exists:
 .
 .IP "\(bu" 4
 \fBnormal\fR Normal row\.
@@ -1557,7 +1566,7 @@ Please see this \fIhttps://github\.com/DaveDavenport/rofi/wiki/Debugging%20Rofi\
 When creating an issue, please read this \fIhttps://github\.com/DaveDavenport/rofi/blob/master/\.github/CONTRIBUTING\.md\fR first\.
 .
 .SH "SEE ALSO"
-rofi\-sensible\-terminal(1), dmenu(1)
+rofi\-sensible\-terminal(1), dmenu(1), rofi\-theme(5)
 .
 .SH "AUTHOR"
 Qball Cow \fIqball@gmpclient\.org\fR

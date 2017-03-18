@@ -2,7 +2,7 @@
 
 ## NAME
 
-**rofi** - A window switcher, run launcher, ssh dialog and dmenu replacement
+**rofi** - A window switcher,  application launcher, ssh dialog and dmenu replacement
 
 ## SYNOPSIS
 
@@ -221,6 +221,8 @@ Disables lazy grab, this forces the keyboard being grabbed before gui is shown.
 
 ### Theming
 
+These options are **deprecated** and should not be used. Please use the new theme format to customize rofi.
+
 All colors are either hex #rrggbb, #aarrggbb or argb:aarrggbbvalues or X11 color names.
 
 `-bw`
@@ -281,6 +283,8 @@ Hide the scrollbar.
 
 Set the scrollbar width.
 
+### Matching
+
 `-matching` *method*
 
 Specify the matching algorithm used.
@@ -300,6 +304,9 @@ Note: glob matching might be slow for larger lists
 Tokenize the input.
 
 ### Layout
+
+Most of the following options are **deprecated** and should not be used. Please use the new theme format to customize
+rofi.
 
 `-lines`
 
@@ -719,8 +726,10 @@ This way it can be used as a drop-in replacement for dmenu. just copy or symlink
 
 ## THEMING
 
-With **rofi** 0.15.4 we have a new way of specifying theme colors.
-The new setup allows you to specify colors per state, similar to **i3**
+The theme format below describes the old (pre version 1.4) theme format. Please see rofi-theme(5) manpage for an updated
+manual.
+
+The theme setup allows you to specify colors per state, similar to **i3**
 Currently 3 states exists:
 
   * **normal** Normal row.
@@ -980,7 +989,7 @@ first.
 
 ## SEE ALSO
 
-rofi-sensible-terminal(1), dmenu(1)
+rofi-sensible-terminal(1), dmenu(1), rofi-theme(5)
 
 ## AUTHOR
 
