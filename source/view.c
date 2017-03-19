@@ -675,33 +675,36 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
     }
 }
 
-static void rofi_view_mouse_navigation ( RofiViewState *state )
+void rofi_view_mouse_navigation ( rofi_mouse_wheel_direction direction )
 {
-    // Scroll event
-    /* FIXME: use wheel events
-    if ( xbe->detail > 3 ) {
-        if ( xbe->detail == 4 ) {
+    RofiViewState *state = rofi_view_get_active();
+
+    switch ( direction )
+    {
+    case ROFI_MOUSE_WHEEL_UP:
             listview_nav_up ( state->list_view );
-        }
-        else if ( xbe->detail == 5 ) {
+    break;
+    case ROFI_MOUSE_WHEEL_DOWN:
             listview_nav_down ( state->list_view );
-        }
-        else if ( xbe->detail == 6 ) {
+    break;
+    case ROFI_MOUSE_WHEEL_LEFT:
             listview_nav_left ( state->list_view );
-        }
-        else if ( xbe->detail == 7 ) {
+    break;
+    case ROFI_MOUSE_WHEEL_RIGHT:
             listview_nav_right ( state->list_view );
-        }
-        return;
+    break;
     }
-    else {
-        xcb_button_press_event_t rel = *xbe;
-        if ( widget_clicked ( WIDGET ( state->main_window ), &rel ) ) {
-            return;
-        }
+}
+static void rofi_view_mouse_click ( RofiViewState *state )
+{
+    /* FIXME: use wheel events
+    xcb_button_press_event_t rel = *xbe;
+    if ( widget_clicked ( WIDGET ( state->main_window ), &rel ) ) {
+        return;
     }
     */
 }
+
 static void _rofi_view_reload_row ( RofiViewState *state )
 {
     g_free ( state->line_map );
@@ -1041,6 +1044,16 @@ void rofi_view_handle_keypress ( wayland_seat *seat, xkb_keysym_t key, char *tex
     if ( ( len > 0 ) && ( textbox_append_char ( state->text, text, len ) ) ) {
         state->refilter = TRUE;
     }
+}
+
+void rofi_view_maybe_update ( void )
+{
+    RofiViewState *state = rofi_view_get_active();
+
+    if ( state->refilter ) {
+        rofi_view_refilter ( state );
+    }
+    rofi_view_update ( state, TRUE );
 }
 
 /* FIXME: dispatch from Wayland callbacks

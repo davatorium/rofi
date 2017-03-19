@@ -165,6 +165,15 @@ int rofi_view_error_dialog ( const char *msg, int markup  );
  */
 void rofi_view_frame_callback(void);
 void rofi_view_handle_keypress ( wayland_seat *seat, xkb_keysym_t key, char *text, int len );
+typedef enum {
+    ROFI_MOUSE_WHEEL_UP,
+    ROFI_MOUSE_WHEEL_DOWN,
+    ROFI_MOUSE_WHEEL_LEFT,
+    ROFI_MOUSE_WHEEL_RIGHT,
+} rofi_mouse_wheel_direction;
+void rofi_view_mouse_navigation ( rofi_mouse_wheel_direction direction );
+//void rofi_view_mouse_click ( uint32_t button );
+void rofi_view_maybe_update ( void );
 /**
  * Queue a redraw.
  * This triggers a X11 Expose Event.

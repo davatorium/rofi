@@ -449,7 +449,7 @@ wayland_keyboard_keymap(void *data, struct wl_keyboard *keyboard, enum wl_keyboa
 }
 
 static void
-wayland_keyboard_enter(void *data, struct wl_keyboard *keyboard, uint32_t serial, struct wl_surface *surface, struct wl_array keys)
+wayland_keyboard_enter(void *data, struct wl_keyboard *keyboard, uint32_t serial, struct wl_surface *surface, struct wl_array *keys)
 {
     wayland_seat *self = data;
 }
@@ -467,6 +467,12 @@ wayland_keyboard_key(void *data, struct wl_keyboard *keyboard, uint32_t serial, 
     xkb_keysym_t keysym;
     char         pad[32];
     int          len = 0;
+
+    if ( state == WL_KEYBOARD_KEY_STATE_RELEASED ) {
+        // FIXME: check mods
+        // abe_trigger_release ();
+        return;
+    }
 
     keysym = xkb_state_key_get_one_sym ( self->xkb.state, key );
 
@@ -498,6 +504,7 @@ wayland_keyboard_key(void *data, struct wl_keyboard *keyboard, uint32_t serial, 
     }
 
     rofi_view_handle_keypress ( self, keysym, pad, len );
+    rofi_view_maybe_update();
 }
 
 static void
@@ -559,6 +566,12 @@ wayland_cursor_frame_callback(void *data, struct wl_callback *callback, uint32_t
 }
 
 static void
+wayland_pointer_trigger_wheel(wayland_seat *self)
+{
+    //rofi_view_mouse_navigation();
+}
+
+static void
 wayland_pointer_enter(void *data, struct wl_pointer *pointer, uint32_t serial, struct wl_surface *surface, wl_fixed_t x, wl_fixed_t y)
 {
     wayland_seat *self = data;
@@ -591,16 +604,31 @@ wayland_pointer_motion(void *data, struct wl_pointer *pointer, uint32_t time, wl
 static void
 wayland_pointer_button(void *data, struct wl_pointer *pointer, uint32_t serial, uint32_t time, uint32_t button, enum wl_pointer_button_state state)
 {
+    wayland_seat *self = data;
+
+    if ( wl_pointer_get_version(self->pointer) >= WL_POINTER_FRAME_SINCE_VERSION )
+        return;
+
+    rofi_view_maybe_update();
 }
 
 static void
 wayland_pointer_axis(void *data, struct wl_pointer *pointer, uint32_t time, enum wl_pointer_axis axis, wl_fixed_t value)
 {
+    wayland_seat *self = data;
+
+    if ( wl_pointer_get_version(self->pointer) >= WL_POINTER_FRAME_SINCE_VERSION )
+        return;
+
+    wayland_pointer_trigger_wheel(self);
 }
 
 static void
 wayland_pointer_frame(void *data, struct wl_pointer *pointer)
 {
+    wayland_seat *self = data;
+    wayland_pointer_trigger_wheel(self);
+    rofi_view_maybe_update();
 }
 
 static void
@@ -616,6 +644,7 @@ wayland_pointer_axis_stop(void *data, struct wl_pointer *pointer, uint32_t time,
 static void
 wayland_pointer_axis_discrete(void *data, struct wl_pointer *pointer, enum wl_pointer_axis axis, int32_t discrete)
 {
+    wayland_seat *self = data;
 }
 
 static const struct wl_pointer_listener wayland_pointer_listener = {
