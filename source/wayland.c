@@ -403,13 +403,13 @@ xkb_check_mod_match(wayland_seat *self, unsigned int mask, xkb_keysym_t key)
     guint i;
     xkb_mod_index_t *m;
     for ( i = 0; i < X11MOD_ANY; ++i ) {
-        if ( ( mask & ( 1 << i ) ) == 0 )
-            continue;
-
+        gboolean expected = ( mask & ( 1 << i ) );
+        gboolean found = FALSE;
         for ( m = self->xkb.mods[i] ; *m != G_MAXUINT32 ; ++m ) {
-            if ( ! xkb_state_mod_index_is_active(self->xkb.state, *m, XKB_STATE_MODS_EFFECTIVE) || xkb_state_mod_index_is_consumed(self->xkb.state, key, *m) )
-                return FALSE;
+            found = found || ( xkb_state_mod_index_is_active(self->xkb.state, *m, XKB_STATE_MODS_EFFECTIVE) && ! xkb_state_mod_index_is_consumed(self->xkb.state, key, *m) );
         }
+        if ( expected != found )
+            return FALSE;
     }
     return TRUE;
 }
