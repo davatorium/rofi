@@ -468,6 +468,8 @@ wayland_keyboard_key(void *data, struct wl_keyboard *keyboard, uint32_t serial, 
     char         pad[32];
     int          len = 0;
 
+    key += 8;
+
     if ( state == WL_KEYBOARD_KEY_STATE_RELEASED ) {
         // FIXME: check mods
         // abe_trigger_release ();
