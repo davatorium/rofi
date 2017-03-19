@@ -169,13 +169,13 @@ void cleanup_abe ( void )
  */
 static gboolean _abe_trigger_on_release[NUM_ABE] = { 0 };
 
-static gboolean abe_test_action ( KeyBindingAction action, unsigned int mask, xkb_keysym_t key )
+static gboolean abe_test_action ( KeyBindingAction action, wayland_seat *seat, xkb_keysym_t key )
 {
     ActionBindingEntry *akb = &( abe[action] );
 
     for ( int iter = 0; iter < akb->num_bindings; iter++ ) {
         const KeyBinding * const kb = &( akb->kb[iter] );
-        if ( ( kb->keysym == key ) && ( kb->modmask == mask ) ) {
+        if ( ( kb->keysym == key ) && xkb_check_mod_match(seat, kb->modmask, key) ) {
             if ( kb->release ) {
                 _abe_trigger_on_release[action] = TRUE;
             }
@@ -188,12 +188,12 @@ static gboolean abe_test_action ( KeyBindingAction action, unsigned int mask, xk
     return FALSE;
 }
 
-KeyBindingAction abe_find_action ( unsigned int mask, xkb_keysym_t key )
+KeyBindingAction abe_find_action ( wayland_seat *seat, xkb_keysym_t key )
 {
     KeyBindingAction action;
 
     for ( action = 0; action < NUM_ABE; ++action ) {
-        if ( abe_test_action ( action, mask, key ) ) {
+        if ( abe_test_action ( action, seat, key ) ) {
             break;
         }
     }

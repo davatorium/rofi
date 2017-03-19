@@ -78,16 +78,6 @@ void rofi_add_error_message ( GString *str )
 {
     list_of_error_msgs = g_list_append ( list_of_error_msgs, str );
 }
-/** global structure holding the keyboard status */
-struct xkb_stuff xkb = {
-    .context        = NULL,
-    .keymap         = NULL,
-    .state          = NULL,
-    .compose        = {
-        .table = NULL,
-        .state = NULL
-    }
-};
 
 /** Path to the configuration file */
 char         *config_path = NULL;
@@ -320,28 +310,6 @@ static void cleanup ()
     if ( main_loop != NULL  ) {
         g_main_loop_unref ( main_loop );
         main_loop = NULL;
-    }
-    // XKB Cleanup
-    //
-    if ( xkb.compose.state != NULL ) {
-        xkb_compose_state_unref ( xkb.compose.state );
-        xkb.compose.state = NULL;
-    }
-    if ( xkb.compose.table != NULL ) {
-        xkb_compose_table_unref ( xkb.compose.table );
-        xkb.compose.table = NULL;
-    }
-    if ( xkb.state != NULL ) {
-        xkb_state_unref ( xkb.state );
-        xkb.state = NULL;
-    }
-    if ( xkb.keymap != NULL ) {
-        xkb_keymap_unref ( xkb.keymap );
-        xkb.keymap = NULL;
-    }
-    if ( xkb.context != NULL ) {
-        xkb_context_unref ( xkb.context );
-        xkb.context = NULL;
     }
 
     // Cleanup
@@ -828,24 +796,6 @@ int main ( int argc, char *argv[] )
     rofi_collect_modi ();
     TICK_N ( "Collect MODI" );
 
-    TICK_N ( "Setup XKB" );
-
-    xkb.context = xkb_context_new ( XKB_CONTEXT_NO_FLAGS );
-    if ( xkb.context == NULL ) {
-        fprintf ( stderr, "cannot create XKB context!\n" );
-        return EXIT_FAILURE;
-    }
-
-    xkb.compose.table = xkb_compose_table_new_from_locale ( xkb.context, setlocale ( LC_CTYPE, NULL ), 0 );
-    if ( xkb.compose.table != NULL ) {
-        xkb.compose.state = xkb_compose_state_new ( xkb.compose.table, 0 );
-    }
-    else {
-        fprintf ( stderr, "Failed to get keyboard compose table. Trying to limp on.\n" );
-    }
-
-    x11_setup ( &xkb );
-    TICK_N ( "Setup xkb" );
     main_loop = g_main_loop_new ( NULL, FALSE );
 
     TICK_N ( "Setup mainloop" );

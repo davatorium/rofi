@@ -226,7 +226,8 @@ static void rofi_view_window_update_size ( RofiViewState * state )
     cairo_surface_destroy ( CacheState.edit_surf );
 
     // FIXME: get next buffer
-    wayland_buffer_pool_free(state->pool);
+    if ( state->pool != NULL )
+        wayland_buffer_pool_free(state->pool);
     state->pool = wayland_buffer_pool_new(state->width, state->height);
 
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Re-size window based internal request: %dx%d.", state->width, state->height );
@@ -474,14 +475,9 @@ void __create_window ( MenuFlags menu_flags )
     // FIXME: roll next buffer
 
     TICK_N ( "create cairo surface" );
-    // Set up pango context.
-    cairo_font_options_t *fo = cairo_font_options_create ();
-    // Take font description from xlib surface
-    cairo_surface_get_font_options ( CacheState.edit_surf, fo );
     // TODO should we update the drawable each time?
-    PangoContext *p = pango_cairo_create_context ( CacheState.edit_draw );
-    // Set the font options from the xlib surface
-    pango_cairo_context_set_font_options ( p, fo );
+    PangoContext *p = pango_context_new (  );
+    pango_context_set_font_map(p, pango_cairo_font_map_get_default());
     TICK_N ( "pango cairo font setup" );
 
     CacheState.flags       = menu_flags;
@@ -506,7 +502,6 @@ void __create_window ( MenuFlags menu_flags )
     textbox_set_pango_context ( font, p );
     // cleanup
     g_object_unref ( p );
-    cairo_font_options_destroy ( fo );
 
     widget_free ( WIDGET ( win ) );
     TICK_N ( "done" );
@@ -656,7 +651,8 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
     }
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Redraw view" );
     TICK ();
-    cairo_t *d = CacheState.edit_draw;
+    cairo_surface_t *surface = wayland_buffer_pool_get_next_buffer(state->pool);
+    cairo_t *d = cairo_create(surface);
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
     // Paint the background transparent.
     cairo_set_source_rgba ( d, 0, 0, 0, 0.0 );
@@ -671,7 +667,9 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
         widget_draw ( WIDGET ( state->overlay ), d );
     }
     TICK_N ( "widgets" );
-    cairo_surface_flush ( CacheState.edit_surf );
+    cairo_destroy(d);
+    wayland_surface_commit ( surface );
+
     if ( qr ) {
         rofi_view_queue_redraw ();
     }
@@ -1028,59 +1026,20 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
     return ret;
 }
 
-static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb )
+void rofi_view_handle_keypress ( wayland_seat *seat, xkb_keysym_t key, char *text, int len )
 {
-    xkb_keysym_t key;
-    char         pad[32];
-    int          len = 0;
-    int keycode = 0; // FIXME: use Wayland event
-
-    key = xkb_state_key_get_one_sym ( xkb->state, keycode );
-
-    if ( xkb->compose.state != NULL ) {
-        if ( ( key != XKB_KEY_NoSymbol ) && ( xkb_compose_state_feed ( xkb->compose.state, key ) == XKB_COMPOSE_FEED_ACCEPTED ) ) {
-            switch ( xkb_compose_state_get_status ( xkb->compose.state ) )
-            {
-            case XKB_COMPOSE_CANCELLED:
-            /* Eat the keysym that cancelled the compose sequence.
-             * This is default behaviour with Xlib */
-            case XKB_COMPOSE_COMPOSING:
-                key = XKB_KEY_NoSymbol;
-                break;
-            case XKB_COMPOSE_COMPOSED:
-                key = xkb_compose_state_get_one_sym ( xkb->compose.state );
-                len = xkb_compose_state_get_utf8 ( xkb->compose.state, pad, sizeof ( pad ) );
-                break;
-            case XKB_COMPOSE_NOTHING:
-                break;
-            }
-            if ( ( key == XKB_KEY_NoSymbol ) && ( len == 0 ) ) {
-                return;
-            }
-        }
-    }
-
-    if ( len == 0 ) {
-        len = xkb_state_key_get_utf8 ( xkb->state, keycode, pad, sizeof ( pad ) );
-    }
-
-    xkb_mod_mask_t effective = xkb_state_serialize_mods ( xkb->state, XKB_STATE_MODS_EFFECTIVE );
-    xkb_mod_mask_t consumed = xkb_state_key_get_consumed_mods ( xkb->state, keycode );
-
-    // FIXME: switch to directly check is_active+is_consumed
-    unsigned int   modstate = x11_canonalize_mask ( effective & ( ~consumed ) );
+    RofiViewState *state = rofi_view_get_active();
 
     if ( key != XKB_KEY_NoSymbol ) {
         KeyBindingAction action;
-        action = abe_find_action ( modstate, key );
+        action = abe_find_action ( seat, key );
         if ( rofi_view_trigger_action ( state, action ) ) {
             return;
         }
     }
 
-    if ( ( len > 0 ) && ( textbox_append_char ( state->text, pad, len ) ) ) {
+    if ( ( len > 0 ) && ( textbox_append_char ( state->text, text, len ) ) ) {
         state->refilter = TRUE;
-        return;
     }
 }
 
@@ -1219,7 +1178,7 @@ static gboolean rofi_view_modi_clicked_cb ( widget *textbox, G_GNUC_UNUSED xcb_b
 static void rofi_view_listview_mouse_activated_cb ( listview *lv, xcb_button_press_event_t *xce, void *udata )
 {
     RofiViewState *state  = (RofiViewState *) udata;
-    int           control = x11_modifier_active ( xce->state, X11MOD_CONTROL );
+    gboolean control = FALSE; //FIXME: get xkb from somewhere: xkb_check_mod_match(xkb, X11MOD_CONTROL, XKB_KEY_NoSymbol);
     state->retv = MENU_OK;
     if ( control ) {
         state->retv |= MENU_CUSTOM_ACTION;

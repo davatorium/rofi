@@ -1,7 +1,8 @@
 #ifndef ROFI_VIEW_H
 #define ROFI_VIEW_H
 #include "mode.h"
-#include "xkb.h"
+#include "keyb.h"
+#include "wayland.h"
 
 /**
  * @defgroup View View
@@ -163,6 +164,7 @@ int rofi_view_error_dialog ( const char *msg, int markup  );
  * and it can repaint a new one if needed
  */
 void rofi_view_frame_callback(void);
+void rofi_view_handle_keypress ( wayland_seat *seat, xkb_keysym_t key, char *text, int len );
 /**
  * Queue a redraw.
  * This triggers a X11 Expose Event.

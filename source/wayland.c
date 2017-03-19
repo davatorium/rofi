@@ -30,6 +30,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
+#include <locale.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -37,6 +38,10 @@
 #include <wayland-client.h>
 #include <wayland-cursor.h>
 #include <libgwater-wayland.h>
+#include <xkbcommon/xkbcommon.h>
+#include <xkbcommon/xkbcommon-compose.h>
+
+#include "view.h"
 
 #include "unstable/launcher-menu/launcher-menu-unstable-v1-client-protocol.h"
 #include "wayland.h"
@@ -83,12 +88,31 @@ typedef struct {
     int32_t scale;
 } wayland_stuff;
 
-typedef struct {
+struct _wayland_seat {
     wayland_stuff *context;
     uint32_t global_name;
     struct wl_seat *seat;
+    struct wl_keyboard *keyboard;
+    struct {
+        /** Keyboard context */
+        struct xkb_context *context;
+        /** Current keymap */
+        struct xkb_keymap  *keymap;
+        /** Keyboard state */
+        struct xkb_state   *state;
+        /** Modifiers indexes */
+        xkb_mod_index_t mods[X11MOD_ANY][8];
+        /** Compose information */
+        struct
+        {
+            /** Compose table */
+            struct xkb_compose_table *table;
+            /** Compose state */
+            struct xkb_compose_state *state;
+        } compose;
+    } xkb;
     struct wl_pointer *pointer;
-} wayland_seat;
+};
 
 typedef struct {
     wayland_stuff *context;
@@ -197,7 +221,7 @@ wayland_buffer_pool_new(gint width, gint height)
     data = mmap(NULL, pool_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if ( data == MAP_FAILED )
     {
-        g_warning("mmap failed: %s", g_strerror(errno));
+        g_warning("mmap of size %zu failed: %s", pool_size, g_strerror(errno));
         close(fd);
         return NULL;
     }
@@ -347,6 +371,159 @@ static const struct zww_launcher_menu_v1_listener wayland_listener = {
     .dismiss = wayland_dismiss,
 };
 
+static void xkb_find_mod_mask ( wayland_seat *self, gsize mod, ... )
+{
+    va_list         names;
+    const char      *name;
+    xkb_mod_index_t i, *m = self->xkb.mods[mod];
+    va_start ( names, mod );
+    while ( ( name = va_arg ( names, const char * ) ) != NULL ) {
+        i = xkb_keymap_mod_get_index ( self->xkb.keymap, name );
+        if ( i != XKB_MOD_INVALID ) {
+            *m++ = i;
+        }
+    }
+    *m = G_MAXUINT32;
+    va_end ( names );
+}
+
+static void xkb_figure_out_masks ( wayland_seat *self )
+{
+    xkb_find_mod_mask ( self, X11MOD_SHIFT, XKB_MOD_NAME_SHIFT, NULL );
+    xkb_find_mod_mask ( self, X11MOD_CONTROL, XKB_MOD_NAME_CTRL, NULL );
+    xkb_find_mod_mask ( self, X11MOD_ALT, XKB_MOD_NAME_ALT, "Alt", "LAlt", "RAlt", "AltGr", "Mod5", "LevelThree", NULL );
+    xkb_find_mod_mask ( self, X11MOD_META, "Meta", NULL );
+    xkb_find_mod_mask ( self, X11MOD_SUPER, XKB_MOD_NAME_LOGO, "Super", NULL );
+    xkb_find_mod_mask ( self, X11MOD_HYPER, "Hyper", NULL );
+}
+
+gboolean
+xkb_check_mod_match(wayland_seat *self, unsigned int mask, xkb_keysym_t key)
+{
+    guint i;
+    xkb_mod_index_t *m;
+    for ( i = 0; i < X11MOD_ANY; ++i ) {
+        if ( ( mask & ( 1 << i ) ) == 0 )
+            continue;
+
+        for ( m = self->xkb.mods[i] ; *m != G_MAXUINT32 ; ++m ) {
+            if ( ! xkb_state_mod_index_is_active(self->xkb.state, *m, XKB_STATE_MODS_EFFECTIVE) || xkb_state_mod_index_is_consumed(self->xkb.state, key, *m) )
+                return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+static void
+wayland_keyboard_keymap(void *data, struct wl_keyboard *keyboard, enum wl_keyboard_keymap_format format, int32_t fd, uint32_t size)
+{
+    wayland_seat *self = data;
+
+    if (format != WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1) {
+        close(fd);
+        return;
+    }
+
+    char *str = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
+    if (str == MAP_FAILED) {
+        close(fd);
+        return;
+    }
+
+    self->xkb.keymap = xkb_keymap_new_from_string ( self->xkb.context, str, XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS );
+    if ( self->xkb.keymap == NULL ) {
+        fprintf ( stderr, "Failed to get Keymap for current keyboard device.\n" );
+        return;
+    }
+    self->xkb.state = xkb_state_new ( self->xkb.keymap );
+    if ( self->xkb.state == NULL ) {
+        fprintf ( stderr, "Failed to get state object for current keyboard device.\n" );
+        return;
+    }
+
+    self->xkb.compose.table = xkb_compose_table_new_from_locale ( self->xkb.context, setlocale ( LC_CTYPE, NULL ), 0 );
+    if ( self->xkb.compose.table != NULL ) {
+        self->xkb.compose.state = xkb_compose_state_new ( self->xkb.compose.table, 0 );
+    }
+    xkb_figure_out_masks(self);
+}
+
+static void
+wayland_keyboard_enter(void *data, struct wl_keyboard *keyboard, uint32_t serial, struct wl_surface *surface, struct wl_array keys)
+{
+    wayland_seat *self = data;
+}
+
+static void
+wayland_keyboard_leave(void *data, struct wl_keyboard *keyboard, uint32_t serial, struct wl_surface *surface)
+{
+    wayland_seat *self = data;
+}
+
+static void
+wayland_keyboard_key(void *data, struct wl_keyboard *keyboard, uint32_t serial, uint32_t time, uint32_t key, enum wl_keyboard_key_state state)
+{
+    wayland_seat *self = data;
+    xkb_keysym_t keysym;
+    char         pad[32];
+    int          len = 0;
+
+    keysym = xkb_state_key_get_one_sym ( self->xkb.state, key );
+
+    if ( self->xkb.compose.state != NULL ) {
+        if ( ( keysym != XKB_KEY_NoSymbol ) && ( xkb_compose_state_feed ( self->xkb.compose.state, keysym ) == XKB_COMPOSE_FEED_ACCEPTED ) ) {
+            switch ( xkb_compose_state_get_status ( self->xkb.compose.state ) )
+            {
+            case XKB_COMPOSE_CANCELLED:
+            /* Eat the keysym that cancelled the compose sequence.
+             * This is default behaviour with Xlib */
+            case XKB_COMPOSE_COMPOSING:
+                keysym = XKB_KEY_NoSymbol;
+                break;
+            case XKB_COMPOSE_COMPOSED:
+                keysym = xkb_compose_state_get_one_sym ( self->xkb.compose.state );
+                len = xkb_compose_state_get_utf8 ( self->xkb.compose.state, pad, sizeof ( pad ) );
+                break;
+            case XKB_COMPOSE_NOTHING:
+                break;
+            }
+            if ( ( keysym == XKB_KEY_NoSymbol ) && ( len == 0 ) ) {
+                return;
+            }
+        }
+    }
+
+    if ( len == 0 ) {
+        len = xkb_state_key_get_utf8 ( self->xkb.state, key, pad, sizeof ( pad ) );
+    }
+
+    rofi_view_handle_keypress ( self, keysym, pad, len );
+}
+
+static void
+wayland_keyboard_modifiers(void *data, struct wl_keyboard *keyboard, uint32_t serial, uint32_t mods_depressed, uint32_t mods_latched, uint32_t mods_locked, uint32_t group)
+{
+    wayland_seat *self = data;
+
+    xkb_state_update_mask ( self->xkb.state, mods_depressed, mods_latched, mods_locked, 0, 0, group );
+}
+
+static void
+wayland_keyboard_repeat_info(void *data, struct wl_keyboard *keyboard, int32_t rate, int32_t delay)
+{
+    wayland_seat *self = data;
+}
+
+static const struct wl_keyboard_listener wayland_keyboard_listener = {
+    .keymap = wayland_keyboard_keymap,
+    .enter = wayland_keyboard_enter,
+    .leave = wayland_keyboard_leave,
+    .key = wayland_keyboard_key,
+    .modifiers = wayland_keyboard_modifiers,
+    .repeat_info = wayland_keyboard_repeat_info,
+};
+
+
 static void
 wayland_cursor_set_image(int i)
 {
@@ -454,6 +631,42 @@ static const struct wl_pointer_listener wayland_pointer_listener = {
 };
 
 static void
+wayland_keyboard_release(wayland_seat *self)
+{
+    if ( self->keyboard == NULL )
+        return;
+
+    if ( self->xkb.compose.state != NULL ) {
+        xkb_compose_state_unref ( self->xkb.compose.state );
+        self->xkb.compose.state = NULL;
+    }
+    if ( self->xkb.compose.table != NULL ) {
+        xkb_compose_table_unref ( self->xkb.compose.table );
+        self->xkb.compose.table = NULL;
+    }
+    if ( self->xkb.state != NULL ) {
+        xkb_state_unref ( self->xkb.state );
+        self->xkb.state = NULL;
+    }
+    if ( self->xkb.keymap != NULL ) {
+        xkb_keymap_unref ( self->xkb.keymap );
+        self->xkb.keymap = NULL;
+    }
+    if ( self->xkb.context != NULL ) {
+        xkb_context_unref ( self->xkb.context );
+        self->xkb.context = NULL;
+    }
+
+    if ( wl_keyboard_get_version(self->keyboard) >= WL_KEYBOARD_RELEASE_SINCE_VERSION )
+        wl_keyboard_release(self->keyboard);
+    else
+        wl_keyboard_destroy(self->keyboard);
+
+    self->keyboard = NULL;
+}
+
+
+static void
 wayland_pointer_release(wayland_seat *self)
 {
     if ( self->pointer == NULL )
@@ -470,6 +683,7 @@ wayland_pointer_release(wayland_seat *self)
 static void
 wayland_seat_release(wayland_seat *self)
 {
+    wayland_keyboard_release(self);
     wayland_pointer_release(self);
 
     if ( wl_seat_get_version(self->seat) >= WL_SEAT_RELEASE_SINCE_VERSION )
@@ -486,6 +700,16 @@ static void
 wayland_seat_capabilities(void *data, struct wl_seat *seat, uint32_t capabilities)
 {
     wayland_seat *self = data;
+
+    if ( ( capabilities & WL_SEAT_CAPABILITY_KEYBOARD ) && ( self->keyboard == NULL ) )
+    {
+        self->keyboard = wl_seat_get_keyboard(self->seat);
+        wl_keyboard_add_listener(self->keyboard, &wayland_keyboard_listener, self);
+        self->xkb.context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+    }
+    else if ( ( ! ( capabilities & WL_SEAT_CAPABILITY_POINTER ) ) && ( self->keyboard != NULL ) )
+        wayland_keyboard_release(self);
+
     if ( ( capabilities & WL_SEAT_CAPABILITY_POINTER ) && ( self->pointer == NULL ) )
     {
         self->pointer = wl_seat_get_pointer(self->seat);
@@ -702,7 +926,11 @@ wayland_init(GMainLoop *main_loop, const gchar *display)
     if ( wayland->main_loop_source == NULL )
         return FALSE;
 
+    wayland->buffer_count = 3;
     wayland->scale = 1;
+
+    wayland->outputs = g_hash_table_new(g_direct_hash, g_direct_equal);
+    wayland->seats = g_hash_table_new(g_direct_hash, g_direct_equal);
 
     wayland->display = g_water_wayland_source_get_display ( wayland->main_loop_source );
     wayland->registry = wl_display_get_registry ( wayland->display );
@@ -711,9 +939,6 @@ wayland_init(GMainLoop *main_loop, const gchar *display)
 
     if ( wayland->launcher_menu == NULL )
         return FALSE;
-
-    wayland->outputs = g_hash_table_new(g_direct_hash, g_direct_equal);
-    wayland->seats = g_hash_table_new(g_direct_hash, g_direct_equal);
 
     wayland->surface = wl_compositor_create_surface(wayland->compositor);
     zww_launcher_menu_v1_show(wayland->launcher_menu, wayland->surface);
