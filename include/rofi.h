@@ -1,6 +1,5 @@
 #ifndef ROFI_MAIN_H
 #define ROFI_MAIN_H
-#include <xcb/xcb.h>
 #include <xkbcommon/xkbcommon.h>
 #include <glib.h>
 #include <string.h>

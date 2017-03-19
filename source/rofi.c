@@ -35,20 +35,15 @@
 #include <time.h>
 #include <locale.h>
 #include <gmodule.h>
-#include <xcb/xcb.h>
-#include <xcb/xcb_aux.h>
-#include <xcb/xcb_ewmh.h>
-#include <xcb/xkb.h>
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-compose.h>
-#include <xkbcommon/xkbcommon-x11.h>
 #include <sys/types.h>
 
 #include <glib-unix.h>
 
-#include <libgwater-xcb.h>
+#include <wayland-client.h>
+#include <libgwater-wayland.h>
 
-#include "xcb-internal.h"
 #include "xkb-internal.h"
 
 #include "settings.h"
@@ -87,7 +82,6 @@ void rofi_add_error_message ( GString *str )
 }
 /** global structure holding the keyboard status */
 struct xkb_stuff xkb = {
-    .xcb_connection = NULL,
     .context        = NULL,
     .keymap         = NULL,
     .state          = NULL,
@@ -108,8 +102,8 @@ unsigned int curr_switcher = 0;
 
 /** Glib main loop. */
 GMainLoop       *main_loop = NULL;
-/** GWater xcb source, signalling events from the X server */
-GWaterXcbSource *main_loop_source = NULL;
+/** GWater Wayland source, signalling events from the Wayland compositor */
+GWaterWaylandSource *main_loop_source = NULL;
 
 /** Flag indicating we are in dmenu mode. */
 static int dmenu_mode = FALSE;
@@ -158,8 +152,6 @@ static int setup ()
     // Create pid file
     int pfd = create_pid_file ( pidfile );
     if ( pfd >= 0 ) {
-        // Request truecolor visual.
-        x11_create_visual_and_colormap ( );
         textbox_setup ();
     }
     return pfd;
@@ -172,10 +164,6 @@ static void teardown ( int pfd )
 {
     // Cleanup font setup.
     textbox_cleanup ( );
-
-    // Release the window.
-    release_keyboard ( );
-    release_pointer ( );
 
     // Cleanup view
     rofi_view_cleanup ();
@@ -283,14 +271,8 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "Global options:\n" );
     print_options ();
     printf ( "\n" );
-    x11_dump_monitor_layout ();
     printf ( "\n" );
     printf ( "Compile time options:\n" );
-#ifdef WINDOW_MODE
-    printf ( "\t* window  %senabled%s\n", is_term ? color_green : "", is_term ? color_reset : "" );
-#else
-    printf ( "\t* window  %sdisabled%s\n", is_term ? color_red : "", is_term ? color_reset : "" );
-#endif
 #ifdef ENABLE_DRUN
     printf ( "\t* drun    %senabled%s\n", is_term ? color_green : "", is_term ? color_reset : "" );
 #else
@@ -341,7 +323,7 @@ static void cleanup ()
     rofi_view_workers_finalize ();
     if ( main_loop != NULL  ) {
         if ( main_loop_source ) {
-            g_water_xcb_source_free ( main_loop_source );
+            g_water_wayland_source_free ( main_loop_source );
         }
         g_main_loop_unref ( main_loop );
         main_loop = NULL;
@@ -370,7 +352,7 @@ static void cleanup ()
     }
 
     // Cleanup
-    xcb_stuff_wipe ( xcb );
+    // FIXME: Wayland cleanup
 
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
@@ -481,17 +463,13 @@ static void rofi_collect_modi_dir ( const char *base_dir )
  */
 static void rofi_collect_modi ( void )
 {
-#ifdef WINDOW_MODE
-    rofi_collect_modi_add ( &window_mode );
-    rofi_collect_modi_add ( &window_mode_cd );
-#endif
     rofi_collect_modi_add ( &run_mode );
     rofi_collect_modi_add ( &ssh_mode );
 #ifdef ENABLE_DRUN
     rofi_collect_modi_add ( &drun_mode );
 #endif
-    rofi_collect_modi_add ( &combi_mode );
     rofi_collect_modi_add ( &help_keys_mode );
+    rofi_collect_modi_add ( &combi_mode );
 
     rofi_collect_modi_dir ( PLUGIN_PATH );
 }
@@ -578,7 +556,6 @@ static inline void load_configuration ( )
     }
     g_free ( etc );
     // Load in config from X resources.
-    config_parse_xresource_options ( xcb );
     config_parse_xresource_options_file ( config_path );
 }
 static inline void load_configuration_dynamic ( )
@@ -590,13 +567,13 @@ static inline void load_configuration_dynamic ( )
     }
     g_free ( etc );
     // Load in config from X resources.
-    config_parse_xresource_options_dynamic ( xcb );
     config_parse_xresource_options_dynamic_file ( config_path );
 }
 
 /**
  * Process X11 events in the main-loop (gui-thread) of the application.
  */
+/* FIXME: move relevant parts to Wayland callback
 static void main_loop_x11_event_handler_view ( xcb_generic_event_t *ev )
 {
     RofiViewState *state = rofi_view_get_active ();
@@ -612,6 +589,7 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *ev )
         }
     }
 }
+
 static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer data )
 {
     if ( ev == NULL ) {
@@ -656,12 +634,10 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
         }
         return G_SOURCE_CONTINUE;
     }
-    if ( xcb->sndisplay != NULL ) {
-        sn_xcb_display_process_event ( xcb->sndisplay, ev );
-    }
     main_loop_x11_event_handler_view ( ev );
     return G_SOURCE_CONTINUE;
 }
+*/
 
 static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
 {
@@ -670,54 +646,6 @@ static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
     return G_SOURCE_CONTINUE;
 }
 
-/** X server error depth. to handle nested errors. */
-static int error_trap_depth = 0;
-static void error_trap_push ( G_GNUC_UNUSED SnDisplay *display, G_GNUC_UNUSED xcb_connection_t *xdisplay )
-{
-    ++error_trap_depth;
-}
-
-static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, xcb_connection_t *xdisplay )
-{
-    if ( error_trap_depth == 0 ) {
-        fprintf ( stderr, "Error trap underflow!\n" );
-        exit ( EXIT_FAILURE );
-    }
-
-    xcb_flush ( xdisplay );
-    --error_trap_depth;
-}
-/** Retry count of grabbing keyboard. */
-unsigned int lazy_grab_retry_count_kb = 0;
-/** Retry count of grabbing pointer. */
-unsigned int lazy_grab_retry_count_pt = 0;
-static gboolean lazy_grab_pointer ( G_GNUC_UNUSED gpointer data )
-{
-    // After 5 sec.
-    if ( lazy_grab_retry_count_pt > ( 5 * 1000 ) ) {
-        fprintf ( stderr, "Failed to grab pointer after %u times. Giving up.\n", lazy_grab_retry_count_pt );
-        return G_SOURCE_REMOVE;
-    }
-    if ( take_pointer ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
-        return G_SOURCE_REMOVE;
-    }
-    lazy_grab_retry_count_pt++;
-    return G_SOURCE_CONTINUE;
-}
-static gboolean lazy_grab_keyboard ( G_GNUC_UNUSED gpointer data )
-{
-    // After 5 sec.
-    if ( lazy_grab_retry_count_kb > ( 5 * 1000 ) ) {
-        fprintf ( stderr, "Failed to grab keyboard after %u times. Giving up.\n", lazy_grab_retry_count_kb );
-        g_main_loop_quit (  main_loop );
-        return G_SOURCE_REMOVE;
-    }
-    if ( take_keyboard ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
-        return G_SOURCE_REMOVE;
-    }
-    lazy_grab_retry_count_kb++;
-    return G_SOURCE_CONTINUE;
-}
 
 static gboolean startup ( G_GNUC_UNUSED gpointer data )
 {
@@ -727,37 +655,12 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     char      *msg         = NULL;
     MenuFlags window_flags = MENU_NORMAL;
 
-    if ( find_arg ( "-normal-window" ) >= 0 ) {
-        window_flags |= MENU_NORMAL_WINDOW;
-    }
-
     /**
      * Create window (without showing)
      */
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
-    if ( ( window_flags & MENU_NORMAL_WINDOW ) == 0 ) {
-        if ( find_arg ( "-no-lazy-grab" ) >= 0 ) {
-            if ( !take_keyboard ( xcb_stuff_get_root_window ( xcb ), 500 ) ) {
-                fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
-                g_main_loop_quit ( main_loop );
-                return G_SOURCE_REMOVE;
-            }
-            if ( !take_pointer ( xcb_stuff_get_root_window ( xcb ), 100 ) ) {
-                fprintf ( stderr, "Failed to grab mouse pointer, even after %d uS.", 100 * 1000 );
-            }
-        }
-        else {
-            if ( !take_keyboard ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
-                g_timeout_add ( 1, lazy_grab_keyboard, NULL );
-            }
-            if ( !take_pointer ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
-                g_timeout_add ( 1, lazy_grab_pointer, NULL );
-            }
-        }
-    }
-    TICK_N ( "Grab keyboard" );
     __create_window ( window_flags );
     TICK_N ( "Create Window" );
     // Parse the keybindings.
@@ -925,98 +828,18 @@ int main ( int argc, char *argv[] )
 
     // Get DISPLAY, first env, then argument.
     // We never modify display_str content.
-    char *display_str = ( char *) g_getenv ( "DISPLAY" );
+    char *display_str = ( char *) g_getenv ( "WAYLAND_DISPLAY" );
     find_arg_str (  "-display", &display_str );
-
-    xcb->connection = xcb_connect ( display_str, &xcb->screen_nbr );
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
-        fprintf ( stderr, "Failed to open display: %s", display_str );
-        return EXIT_FAILURE;
-    }
 
     TICK_N ( "Open Display" );
     rofi_collect_modi ();
     TICK_N ( "Collect MODI" );
 
-    xcb->screen = xcb_aux_get_screen ( xcb->connection, xcb->screen_nbr );
-
-    x11_build_monitor_layout ();
-
-    xcb_intern_atom_cookie_t *ac     = xcb_ewmh_init_atoms ( xcb->connection, &xcb->ewmh );
-    xcb_generic_error_t      *errors = NULL;
-    xcb_ewmh_init_atoms_replies ( &xcb->ewmh, ac, &errors );
-    if ( errors ) {
-        fprintf ( stderr, "Failed to create EWMH atoms\n" );
-        free ( errors );
-    }
-    // Discover the current active window manager.
-    x11_helper_discover_window_manager ();
-    TICK_N ( "Setup XCB" );
-
-    if ( xkb_x11_setup_xkb_extension ( xcb->connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
-                                       XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS, NULL, NULL, &xkb.first_event, NULL ) < 0 ) {
-        fprintf ( stderr, "cannot setup XKB extension!\n" );
-        return EXIT_FAILURE;
-    }
+    TICK_N ( "Setup XKB" );
 
     xkb.context = xkb_context_new ( XKB_CONTEXT_NO_FLAGS );
     if ( xkb.context == NULL ) {
         fprintf ( stderr, "cannot create XKB context!\n" );
-        return EXIT_FAILURE;
-    }
-    xkb.xcb_connection = xcb->connection;
-
-    xkb.device_id = xkb_x11_get_core_keyboard_device_id ( xcb->connection );
-
-    enum
-    {
-        required_events =
-            ( XCB_XKB_EVENT_TYPE_NEW_KEYBOARD_NOTIFY |
-              XCB_XKB_EVENT_TYPE_MAP_NOTIFY |
-              XCB_XKB_EVENT_TYPE_STATE_NOTIFY ),
-
-        required_nkn_details =
-            ( XCB_XKB_NKN_DETAIL_KEYCODES ),
-
-        required_map_parts   =
-            ( XCB_XKB_MAP_PART_KEY_TYPES |
-              XCB_XKB_MAP_PART_KEY_SYMS |
-              XCB_XKB_MAP_PART_MODIFIER_MAP |
-              XCB_XKB_MAP_PART_EXPLICIT_COMPONENTS |
-              XCB_XKB_MAP_PART_KEY_ACTIONS |
-              XCB_XKB_MAP_PART_VIRTUAL_MODS |
-              XCB_XKB_MAP_PART_VIRTUAL_MOD_MAP ),
-
-        required_state_details =
-            ( XCB_XKB_STATE_PART_MODIFIER_BASE |
-              XCB_XKB_STATE_PART_MODIFIER_LATCH |
-              XCB_XKB_STATE_PART_MODIFIER_LOCK |
-              XCB_XKB_STATE_PART_GROUP_BASE |
-              XCB_XKB_STATE_PART_GROUP_LATCH |
-              XCB_XKB_STATE_PART_GROUP_LOCK ),
-    };
-
-    static const xcb_xkb_select_events_details_t details = {
-        .affectNewKeyboard  = required_nkn_details,
-        .newKeyboardDetails = required_nkn_details,
-        .affectState        = required_state_details,
-        .stateDetails       = required_state_details,
-    };
-    xcb_xkb_select_events ( xcb->connection, xkb.device_id, required_events, /* affectWhich */
-                            0,                                               /* clear */
-                            required_events,                                 /* selectAll */
-                            required_map_parts,                              /* affectMap */
-                            required_map_parts,                              /* map */
-                            &details );
-
-    xkb.keymap = xkb_x11_keymap_new_from_device ( xkb.context, xcb->connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
-    if ( xkb.keymap == NULL ) {
-        fprintf ( stderr, "Failed to get Keymap for current keyboard device.\n" );
-        return EXIT_FAILURE;
-    }
-    xkb.state = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
-    if ( xkb.state == NULL ) {
-        fprintf ( stderr, "Failed to get state object for current keyboard device.\n" );
         return EXIT_FAILURE;
     }
 
@@ -1028,34 +851,12 @@ int main ( int argc, char *argv[] )
         fprintf ( stderr, "Failed to get keyboard compose table. Trying to limp on.\n" );
     }
 
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
-        fprintf ( stderr, "Connection has error\n" );
-        exit ( EXIT_FAILURE );
-    }
     x11_setup ( &xkb );
     TICK_N ( "Setup xkb" );
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
-        fprintf ( stderr, "Connection has error\n" );
-        exit ( EXIT_FAILURE );
-    }
     main_loop = g_main_loop_new ( NULL, FALSE );
 
     TICK_N ( "Setup mainloop" );
-    // startup not.
-    xcb->sndisplay = sn_xcb_display_new ( xcb->connection, error_trap_push, error_trap_pop );
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
-        fprintf ( stderr, "Connection has error\n" );
-        exit ( EXIT_FAILURE );
-    }
 
-    if ( xcb->sndisplay != NULL ) {
-        xcb->sncontext = sn_launchee_context_new_from_environment ( xcb->sndisplay, xcb->screen_nbr );
-    }
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
-        fprintf ( stderr, "Connection has error\n" );
-        exit ( EXIT_FAILURE );
-    }
-    TICK_N ( "Startup Notification" );
     // Setup keybinding
     setup_abe ();
     TICK_N ( "Setup abe" );
@@ -1124,7 +925,7 @@ int main ( int argc, char *argv[] )
         exit ( EXIT_SUCCESS );
     }
 
-    main_loop_source = g_water_xcb_source_new_for_connection ( NULL, xcb->connection, main_loop_x11_event_handler, NULL, NULL );
+    main_loop_source = g_water_wayland_source_new ( NULL, display_str );
 
     TICK_N ( "X11 Setup " );
 

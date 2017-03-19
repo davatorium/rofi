@@ -40,7 +40,6 @@
 #include <sys/stat.h>
 #include <pwd.h>
 #include <ctype.h>
-#include <xcb/xcb.h>
 #include <pango/pango.h>
 #include <pango/pango-fontmap.h>
 #include <pango/pangocairo.h>
@@ -591,28 +590,6 @@ int config_sanity_check ( void )
         config.menu_columns = 50;
         found_error         = TRUE;
     }
-    if ( !( config.location >= WL_CENTER && config.location <= WL_WEST ) ) {
-        g_string_append_printf ( msg, "\t<b>config.location</b>=%d is invalid. Value should be between %d and %d.\n",
-                                 config.location, WL_CENTER, WL_WEST );
-        config.location = WL_CENTER;
-        found_error     = 1;
-    }
-
-    // Check size
-    {
-        workarea mon;
-        if ( !monitor_active ( &mon ) ) {
-            const char *name = config.monitor;
-            if ( name && name[0] == '-' ) {
-                int index = name[1] - '0';
-                if ( index < 5 && index > 0 ) {
-                    name = monitor_position_entries[index - 1];
-                }
-            }
-            g_string_append_printf ( msg, "\t<b>config.monitor</b>=%s Could not find monitor.\n", name );
-            found_error = TRUE;
-        }
-    }
 
     if ( config.menu_font ) {
         PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
@@ -625,12 +602,6 @@ int config_sanity_check ( void )
             found_error      = TRUE;
         }
         pango_font_description_free ( pfd );
-    }
-
-    if ( g_strcmp0 ( config.monitor, "-3" ) == 0 ) {
-        // On -3, set to location 1.
-        config.location   = 1;
-        config.fullscreen = 0;
     }
 
     if ( found_error ) {

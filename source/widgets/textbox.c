@@ -24,7 +24,6 @@
  */
 
 #include <config.h>
-#include <xcb/xcb.h>
 #include <ctype.h>
 #include <string.h>
 #include <glib.h>

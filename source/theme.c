@@ -539,12 +539,14 @@ int distance_get_pixel ( Distance d, Orientation ori )
     else if ( d.type == PW_PERCENT ) {
         if ( ori == ORIENTATION_VERTICAL ) {
             int height = 0;
-            rofi_view_get_current_monitor ( NULL, &height );
+            // FIXME: get monitor size
+            // rofi_view_get_current_monitor ( NULL, &height );
             return ( d.distance * height ) / ( 100.0 );
         }
         else {
             int width = 0;
-            rofi_view_get_current_monitor ( &width, NULL );
+            // FIXME: get monitor size
+            // rofi_view_get_current_monitor ( &width, NULL );
             return ( d.distance * width ) / ( 100.0 );
         }
     }
@@ -654,7 +656,7 @@ void rofi_theme_convert_old_theme ( void )
         g_hash_table_replace ( inputbar_widget->properties, p->name, p );
 
         LineStyle style     = ( g_strcmp0 ( config.separator_style, "dash" ) == 0 ) ? DASH : SOLID;
-        int       place_end = ( config.location == WL_SOUTH_EAST || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST );
+        int       place_end = 0; //FIXME: entry-at-bottom ( config.location == WL_SOUTH_EAST || config.location == WL_SOUTH || config.location == WL_SOUTH_WEST );
         p       = rofi_theme_property_create ( P_PADDING );
         p->name = g_strdup ( "border" );
         Distance d = (Distance){ config.menu_bw, PW_PX, style };

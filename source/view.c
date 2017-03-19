@@ -34,23 +34,14 @@
 #include <errno.h>
 #include <time.h>
 #include <locale.h>
-#include <xkbcommon/xkbcommon-x11.h>
-#include <xcb/xkb.h>
-#include <xcb/xcb_ewmh.h>
-#include <xcb/xcb_icccm.h>
 
 #include <cairo.h>
-#include <cairo-xcb.h>
-
-#define SN_API_NOT_YET_FROZEN
-#include <libsn/sn.h>
 
 #include "timings.h"
 #include "settings.h"
 
 #include "rofi.h"
 #include "mode.h"
-#include "xcb-internal.h"
 #include "xkb-internal.h"
 #include "helper.h"
 #include "helper-theme.h"
@@ -66,7 +57,6 @@
 /** The Rofi View log domain */
 #define LOG_DOMAIN    "View"
 
-#include "xcb.h"
 /**
  * @param state The handle to the view
  * @param qr    Indicate if queue_redraw should be called on changes.
@@ -88,26 +78,14 @@ RofiViewState *current_active_menu = NULL;
  */
 struct
 {
-    /** main x11 windows */
-    xcb_window_t       main_window;
-    /** surface containing the fake background. */
-    cairo_surface_t    *fake_bg;
-    /** Draw context  for main window */
-    xcb_gcontext_t     gc;
-    /** Main X11 side pixmap to draw on. */
-    xcb_pixmap_t       edit_pixmap;
     /** Cairo Surface for edit_pixmap */
     cairo_surface_t    *edit_surf;
     /** Drawable context for edit_surf */
     cairo_t            *edit_draw;
-    /** Indicate that fake background should be drawn relative to the window */
-    int                fake_bgrel;
     /** Main flags */
     MenuFlags          flags;
     /** List of stacked views */
     GQueue             views;
-    /** Current work area */
-    workarea           mon;
     /** timeout for reloading */
     guint              idle_timeout;
     /** debug counter for redraws */
@@ -117,11 +95,8 @@ struct
     /** Window fullscreen */
     gboolean           fullscreen;
 } CacheState = {
-    .main_window    = XCB_WINDOW_NONE,
-    .fake_bg        = NULL,
     .edit_surf      = NULL,
     .edit_draw      = NULL,
-    .fake_bgrel     = FALSE,
     .flags          = MENU_NORMAL,
     .views          = G_QUEUE_INIT,
     .idle_timeout   =               0,
@@ -130,15 +105,6 @@ struct
     .fullscreen     = FALSE,
 };
 
-void rofi_view_get_current_monitor ( int *width, int *height )
-{
-    if ( width ) {
-        *width = CacheState.mon.w;
-    }
-    if ( height ) {
-        *height = CacheState.mon.h;
-    }
-}
 static char * get_matching_state ( void )
 {
     if ( config.case_sensitive ) {
@@ -230,9 +196,7 @@ static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
         rofi_view_update ( current_active_menu, FALSE );
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "expose event" );
         TICK_N ( "Expose" );
-        xcb_copy_area ( xcb->connection, CacheState.edit_pixmap, CacheState.main_window, CacheState.gc,
-                        0, 0, 0, 0, current_active_menu->width, current_active_menu->height );
-        xcb_flush ( xcb->connection );
+        // FIXME: draw
         TICK_N ( "flush" );
         CacheState.repaint_source = 0;
     }
@@ -254,120 +218,13 @@ static void rofi_view_update_prompt ( RofiViewState *state )
     }
 }
 
-/**
- * Calculates the window position
- */
-static void rofi_view_calculate_window_position ( RofiViewState *state )
-{
-    int location = rofi_theme_get_position ( WIDGET ( state->main_window ), "location", config.location );
-    int anchor   = location;
-    if ( !listview_get_fixed_num_lines ( state->list_view ) ) {
-        anchor = location;
-        if ( location == WL_CENTER ) {
-            anchor = WL_NORTH;
-        }
-        else if ( location == WL_EAST ) {
-            anchor = WL_NORTH_EAST;
-        }
-        else if ( location == WL_WEST ) {
-            anchor = WL_NORTH_WEST;
-        }
-    }
-    anchor = rofi_theme_get_position ( WIDGET ( state->main_window ), "anchor", anchor );
-
-    if ( CacheState.fullscreen ) {
-        state->x = CacheState.mon.x;
-        state->y = CacheState.mon.y;
-        return;
-    }
-    state->y = CacheState.mon.y + ( CacheState.mon.h ) / 2;
-    state->x = CacheState.mon.x + ( CacheState.mon.w ) / 2;
-    // Determine window location
-    switch ( location )
-    {
-    case WL_NORTH_WEST:
-        state->x = CacheState.mon.x;
-    case WL_NORTH:
-        state->y = CacheState.mon.y;
-        break;
-    case WL_NORTH_EAST:
-        state->y = CacheState.mon.y;
-    case WL_EAST:
-        state->x = CacheState.mon.x + CacheState.mon.w;
-        break;
-    case WL_SOUTH_EAST:
-        state->x = CacheState.mon.x + CacheState.mon.w;
-    case WL_SOUTH:
-        state->y = CacheState.mon.y + CacheState.mon.h;
-        break;
-    case WL_SOUTH_WEST:
-        state->y = CacheState.mon.y + CacheState.mon.h;
-    case WL_WEST:
-        state->x = CacheState.mon.x;
-        break;
-    case WL_CENTER:
-    default:
-        break;
-    }
-    switch ( anchor )
-    {
-    case WL_SOUTH_WEST:
-        state->y -= state->height;
-        break;
-    case WL_SOUTH:
-        state->x -= state->width / 2;
-        state->y -= state->height;
-        break;
-    case WL_SOUTH_EAST:
-        state->x -= state->width;
-        state->y -= state->height;
-        break;
-    case WL_NORTH_EAST:
-        state->x -= state->width;
-        break;
-    case WL_NORTH_WEST:
-        break;
-    case WL_NORTH:
-        state->x -= state->width / 2;
-        break;
-    case WL_EAST:
-        state->x -= state->width;
-        state->y -= state->height / 2;
-        break;
-    case WL_WEST:
-        state->y -= state->height / 2;
-        break;
-    case WL_CENTER:
-        state->y -= state->height / 2;
-        state->x -= state->width / 2;
-        break;
-    default:
-        break;
-    }
-    // Apply offset.
-    Distance x = rofi_theme_get_distance ( WIDGET ( state->main_window ), "x-offset", config.x_offset );
-    Distance y = rofi_theme_get_distance ( WIDGET ( state->main_window ), "y-offset", config.y_offset );
-    state->x += distance_get_pixel ( x, ORIENTATION_HORIZONTAL );
-    state->y += distance_get_pixel ( y, ORIENTATION_VERTICAL );
-}
-
 static void rofi_view_window_update_size ( RofiViewState * state )
 {
-    uint16_t mask   = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
-    uint32_t vals[] = { state->x, state->y, state->width, state->height };
-
-    // Display it.
-    xcb_configure_window ( xcb->connection, CacheState.main_window, mask, vals );
+    // FIXME: Display it.
     cairo_destroy ( CacheState.edit_draw );
     cairo_surface_destroy ( CacheState.edit_surf );
 
-    xcb_free_pixmap ( xcb->connection, CacheState.edit_pixmap );
-    CacheState.edit_pixmap = xcb_generate_id ( xcb->connection );
-    xcb_create_pixmap ( xcb->connection, depth->depth,
-                        CacheState.edit_pixmap, CacheState.main_window, state->width, state->height );
-
-    CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
-    CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
+    // FIXME: get next buffer
 
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Re-size window based internal request: %dx%d.", state->width, state->height );
     // Should wrap main window in a widget.
@@ -463,8 +320,7 @@ void rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_l
         }
     }
     listview_set_selected ( state->list_view, selected );
-    xcb_clear_area ( xcb->connection, CacheState.main_window, 1, 0, 0, 1, 1 );
-    xcb_flush ( xcb->connection );
+    // FIXME: draw new state
 }
 
 void rofi_view_free ( RofiViewState *state )
@@ -587,91 +443,10 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
         }
     }
 }
-static void rofi_view_setup_fake_transparency ( const char* const fake_background )
-{
-    if ( CacheState.fake_bg == NULL ) {
-        cairo_surface_t *s = NULL;
-        /**
-         * Select Background to use for fake transparency.
-         * Current options: 'real', 'screenshot','background'
-         */
-        TICK_N ( "Fake start" );
-        if ( g_strcmp0 ( fake_background, "real" ) == 0 ) {
-            return;
-        }
-        else if ( g_strcmp0 ( fake_background, "screenshot" ) == 0 ) {
-            s = x11_helper_get_screenshot_surface ();
-        }
-        else if ( g_strcmp0 ( fake_background, "background" ) == 0 ) {
-            s = x11_helper_get_bg_surface ();
-        }
-        else {
-            char *fpath = rofi_expand_path ( fake_background );
-            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Opening %s to use as background.", fpath );
-            s                     = cairo_image_surface_create_from_png ( fpath );
-            CacheState.fake_bgrel = TRUE;
-            g_free ( fpath );
-        }
-        TICK_N ( "Get surface." );
-        if ( s != NULL ) {
-            if ( cairo_surface_status ( s ) != CAIRO_STATUS_SUCCESS ) {
-                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to open surface fake background: %s",
-                        cairo_status_to_string ( cairo_surface_status ( s ) ) );
-                cairo_surface_destroy ( s );
-                s = NULL;
-            }
-            else {
-                CacheState.fake_bg = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, CacheState.mon.w, CacheState.mon.h );
-                cairo_t *dr = cairo_create ( CacheState.fake_bg );
-                if ( CacheState.fake_bgrel ) {
-                    cairo_set_source_surface ( dr, s, 0, 0 );
-                }
-                else {
-                    cairo_set_source_surface ( dr, s, -CacheState.mon.x, -CacheState.mon.y );
-                }
-                cairo_paint ( dr );
-                cairo_destroy ( dr );
-                cairo_surface_destroy ( s );
-            }
-        }
-        TICK_N ( "Fake transparency" );
-    }
-}
 void __create_window ( MenuFlags menu_flags )
 {
-    uint32_t          selmask  = XCB_CW_BACK_PIXMAP | XCB_CW_BORDER_PIXEL | XCB_CW_BIT_GRAVITY | XCB_CW_BACKING_STORE | XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
-    uint32_t          selval[] = {
-        XCB_BACK_PIXMAP_NONE,                                                                           0,
-        XCB_GRAVITY_STATIC,
-        XCB_BACKING_STORE_NOT_USEFUL,
-        XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE |
-        XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_KEYMAP_STATE |
-        XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION,
-        map
-    };
-
-    xcb_window_t      box = xcb_generate_id ( xcb->connection );
-    xcb_void_cookie_t cc  = xcb_create_window_checked ( xcb->connection, depth->depth, box, xcb_stuff_get_root_window ( xcb ),
-                                                        0, 0, 200, 100, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
-                                                        visual->visual_id, selmask, selval );
-    xcb_generic_error_t *error;
-    error = xcb_request_check ( xcb->connection, cc );
-    if ( error ) {
-        printf ( "xcb_create_window() failed error=0x%x\n", error->error_code );
-        exit ( EXIT_FAILURE );
-    }
-    TICK_N ( "xcb create window" );
-    CacheState.gc = xcb_generate_id ( xcb->connection );
-    xcb_create_gc ( xcb->connection, CacheState.gc, box, 0, 0 );
-
-    TICK_N ( "xcb create gc" );
-    // Create a drawable.
-    CacheState.edit_pixmap = xcb_generate_id ( xcb->connection );
-    xcb_create_pixmap ( xcb->connection, depth->depth,
-                        CacheState.edit_pixmap, CacheState.main_window, 200, 100 );
-
-    CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, 200, 100 );
-    CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
+    // FIXME: create surface
+    // FIXME: roll next buffer
 
     TICK_N ( "create cairo surface" );
     // Set up pango context.
@@ -684,28 +459,9 @@ void __create_window ( MenuFlags menu_flags )
     pango_cairo_context_set_font_options ( p, fo );
     TICK_N ( "pango cairo font setup" );
 
-    CacheState.main_window = box;
     CacheState.flags       = menu_flags;
-    monitor_active ( &( CacheState.mon ) );
     // Setup dpi
-    if ( config.dpi > 1 ) {
-        PangoFontMap *font_map = pango_cairo_font_map_get_default ();
-        pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, (double) config.dpi );
-    }
-    else if  ( config.dpi == 0 || config.dpi == 1 ) {
-        // Auto-detect mode.
-        double dpi = 96;
-        if ( CacheState.mon.mh > 0 && config.dpi == 1 ) {
-            dpi = ( CacheState.mon.h * 25.4 ) / (double) ( CacheState.mon.mh );
-        }
-        else {
-            dpi = ( xcb->screen->height_in_pixels * 25.4 ) / (double) ( xcb->screen->height_in_millimeters );
-        }
-
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Auto-detected DPI: %.2lf", dpi );
-        PangoFontMap *font_map = pango_cairo_font_map_get_default ();
-        pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, dpi );
-    }
+    // FIXME: use scale, cairo_surface_set_device_scale
     // Setup font.
     // Dummy widget.
     container *win  = container_create ( "window.box" );
@@ -727,48 +483,6 @@ void __create_window ( MenuFlags menu_flags )
     g_object_unref ( p );
     cairo_font_options_destroy ( fo );
 
-    TICK_N ( "textbox setup" );
-    // // make it an unmanaged window
-    if ( ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) ) {
-        window_set_atom_prop ( box, xcb->ewmh._NET_WM_STATE, &( xcb->ewmh._NET_WM_STATE_ABOVE ), 1 );
-        uint32_t values[] = { 1 };
-        xcb_change_window_attributes ( xcb->connection, box, XCB_CW_OVERRIDE_REDIRECT, values );
-    }
-    else{
-        window_set_atom_prop ( box, xcb->ewmh._NET_WM_WINDOW_TYPE, &( xcb->ewmh._NET_WM_WINDOW_TYPE_NORMAL ), 1 );
-        x11_disable_decoration ( box );
-    }
-
-    TICK_N ( "setup window attributes" );
-    CacheState.fullscreen = rofi_theme_get_boolean ( WIDGET ( win ), "fullscreen", config.fullscreen );
-    if ( CacheState.fullscreen ) {
-        xcb_atom_t atoms[] = {
-            xcb->ewmh._NET_WM_STATE_FULLSCREEN,
-            xcb->ewmh._NET_WM_STATE_ABOVE
-        };
-        window_set_atom_prop (  box, xcb->ewmh._NET_WM_STATE, atoms, sizeof ( atoms ) / sizeof ( xcb_atom_t ) );
-    }
-
-    TICK_N ( "setup window fullscreen" );
-    // Set the WM_NAME
-    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box, xcb->ewmh._NET_WM_NAME, xcb->ewmh.UTF8_STRING, 8, 4, "rofi" );
-    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, 4, "rofi" );
-
-    const char wm_class_name[] = "rofi\0Rofi";
-    xcb_icccm_set_wm_class ( xcb->connection, box, sizeof ( wm_class_name ), wm_class_name );
-
-    TICK_N ( "setup window name and class" );
-    char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
-    if ( transparency == NULL && config.fake_transparency ) {
-        transparency = config.fake_background;
-    }
-    if ( transparency ) {
-        rofi_view_setup_fake_transparency ( transparency  );
-    }
-    if ( xcb->sncontext != NULL ) {
-        sn_launchee_context_setup_window ( xcb->sncontext, CacheState.main_window );
-    }
-    TICK_N ( "setup startup notification" );
     widget_free ( WIDGET ( win ) );
     TICK_N ( "done" );
 }
@@ -780,10 +494,6 @@ void __create_window ( MenuFlags menu_flags )
  */
 static void rofi_view_calculate_window_width ( RofiViewState *state )
 {
-    if ( CacheState.fullscreen ) {
-        state->width = CacheState.mon.w;
-        return;
-    }
     if ( config.menu_width < 0 ) {
         double fw = textbox_get_estimated_char_width ( );
         state->width  = -( fw * config.menu_width );
@@ -791,7 +501,7 @@ static void rofi_view_calculate_window_width ( RofiViewState *state )
     }
     else{
         // Calculate as float to stop silly, big rounding down errors.
-        state->width = config.menu_width < 101 ? ( CacheState.mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
+        state->width = config.menu_width < 101 ? ( /* FIXME: ??? what to use instead of monitor size here? */ 1000. / 100.0f ) * ( float ) config.menu_width : config.menu_width;
     }
     // Use theme configured width, if set.
     Distance width = rofi_theme_get_distance ( WIDGET ( state->main_window ), "width", state->width );
@@ -923,23 +633,9 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
     TICK ();
     cairo_t *d = CacheState.edit_draw;
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
-    if ( CacheState.fake_bg != NULL ) {
-        if ( CacheState.fake_bgrel ) {
-            cairo_set_source_surface ( d, CacheState.fake_bg, 0.0, 0.0 );
-        }
-        else {
-            cairo_set_source_surface ( d, CacheState.fake_bg,
-                                       -(double) ( state->x - CacheState.mon.x ),
-                                       -(double) ( state->y - CacheState.mon.y ) );
-        }
-        cairo_paint ( d );
-        cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
-    }
-    else {
-        // Paint the background transparent.
-        cairo_set_source_rgba ( d, 0, 0, 0, 0.0 );
-        cairo_paint ( d );
-    }
+    // Paint the background transparent.
+    cairo_set_source_rgba ( d, 0, 0, 0, 0.0 );
+    cairo_paint ( d );
     TICK_N ( "Background" );
 
     // Always paint as overlay over the background.
@@ -956,43 +652,10 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
     }
 }
 
-/**
- * @param state Internal state of the menu.
- * @param xse   X selection event.
- *
- * Handle paste event.
- */
-static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t *xse )
-{
-    if ( xse->property == XCB_ATOM_NONE ) {
-        fprintf ( stderr, "Failed to convert selection\n" );
-    }
-    else if ( xse->property == xcb->ewmh.UTF8_STRING ) {
-        gchar *text = window_get_text_prop ( CacheState.main_window, xcb->ewmh.UTF8_STRING );
-        if ( text != NULL && text[0] != '\0' ) {
-            unsigned int dl = strlen ( text );
-            // Strip new line
-            for ( unsigned int i = 0; i < dl; i++ ) {
-                if ( text[i] == '\n' ) {
-                    dl = i;
-                }
-            }
-            // Insert string move cursor.
-            textbox_insert ( state->text, state->text->cursor, text, dl );
-            textbox_cursor ( state->text, state->text->cursor + g_utf8_strlen ( text, -1 ) );
-            // Force a redraw and refiltering of the text.
-            state->refilter = TRUE;
-        }
-        g_free ( text );
-    }
-    else {
-        fprintf ( stderr, "Failed\n" );
-    }
-}
-
-static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_event_t *xbe )
+static void rofi_view_mouse_navigation ( RofiViewState *state )
 {
     // Scroll event
+    /* FIXME: use wheel events
     if ( xbe->detail > 3 ) {
         if ( xbe->detail == 4 ) {
             listview_nav_up ( state->list_view );
@@ -1014,6 +677,7 @@ static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_
             return;
         }
     }
+    */
 }
 static void _rofi_view_reload_row ( RofiViewState *state )
 {
@@ -1114,7 +778,6 @@ static void rofi_view_refilter ( RofiViewState *state )
     int height = rofi_view_calculate_height ( state );
     if ( height != state->height ) {
         state->height = height;
-        rofi_view_calculate_window_position ( state );
         rofi_view_window_update_size ( state );
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Resize based on re-filter" );
     }
@@ -1141,14 +804,8 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
     {
     // Handling of paste
     case PASTE_PRIMARY:
-        xcb_convert_selection ( xcb->connection, CacheState.main_window, XCB_ATOM_PRIMARY,
-                                xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
-        xcb_flush ( xcb->connection );
-        break;
     case PASTE_SECONDARY:
-        xcb_convert_selection ( xcb->connection, CacheState.main_window, netatoms[CLIPBOARD],
-                                xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
-        xcb_flush ( xcb->connection );
+        // FIXME: implement clipboard
         break;
     case SCREENSHOT:
         menu_capture_screenshot ( );
@@ -1346,13 +1003,14 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
     return ret;
 }
 
-static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xcb_key_press_event_t *xkpe )
+static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb )
 {
-    xcb_keysym_t key;
+    xkb_keysym_t key;
     char         pad[32];
     int          len = 0;
+    int keycode = 0; // FIXME: use Wayland event
 
-    key = xkb_state_key_get_one_sym ( xkb->state, xkpe->detail );
+    key = xkb_state_key_get_one_sym ( xkb->state, keycode );
 
     if ( xkb->compose.state != NULL ) {
         if ( ( key != XKB_KEY_NoSymbol ) && ( xkb_compose_state_feed ( xkb->compose.state, key ) == XKB_COMPOSE_FEED_ACCEPTED ) ) {
@@ -1378,12 +1036,14 @@ static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xc
     }
 
     if ( len == 0 ) {
-        len = xkb_state_key_get_utf8 ( xkb->state, xkpe->detail, pad, sizeof ( pad ) );
+        len = xkb_state_key_get_utf8 ( xkb->state, keycode, pad, sizeof ( pad ) );
     }
 
-    xkb_mod_mask_t consumed = xkb_state_key_get_consumed_mods ( xkb->state, xkpe->detail );
+    xkb_mod_mask_t effective = xkb_state_serialize_mods ( xkb->state, XKB_STATE_MODS_EFFECTIVE );
+    xkb_mod_mask_t consumed = xkb_state_key_get_consumed_mods ( xkb->state, keycode );
 
-    unsigned int   modstate = x11_canonalize_mask ( xkpe->state & ( ~consumed ) );
+    // FIXME: switch to directly check is_active+is_consumed
+    unsigned int   modstate = x11_canonalize_mask ( effective & ( ~consumed ) );
 
     if ( key != XKB_KEY_NoSymbol ) {
         KeyBindingAction action;
@@ -1399,6 +1059,7 @@ static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xc
     }
 }
 
+/* FIXME: dispatch from Wayland callbacks
 void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_stuff *xkb )
 {
     switch ( ev->response_type & ~0x80 )
@@ -1502,12 +1163,12 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
         CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
     }
 }
-
+*/
 static int rofi_view_calculate_height ( RofiViewState *state )
 {
     unsigned int height = 0;
     if ( listview_get_num_lines ( state->list_view ) == 0 || CacheState.fullscreen == TRUE ) {
-        height = CacheState.mon.h;
+        height = 300; // FIXME: whatever fits
         return height;
     }
 
@@ -1566,10 +1227,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Request the lines to show.
     state->num_lines = mode_get_num_entries ( sw );
 
-    TICK_N ( "Startup notification" );
-
-    // Get active monitor size.
-    TICK_N ( "Get active monitor" );
 
     state->main_window = container_create ( "window.box" );
     state->main_box    = box_create ( "window.mainbox.box", BOX_VERTICAL );
@@ -1592,9 +1249,8 @@ RofiViewState *rofi_view_create ( Mode *sw,
         }
     }
 
-    int location = rofi_theme_get_position ( WIDGET ( state->main_window ), "location", config.location );
-    int end      = ( location == WL_SOUTH_EAST || location == WL_SOUTH || location == WL_SOUTH_WEST );
-    box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, end ? 9 : 0 );
+    // FIXME: re-add input box at the bottom?
+    box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, 0 );
 
     state->case_indicator = textbox_create ( "window.mainbox.inputbar.case-indicator", TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "*" );
     // Add small separator between case indicator and text box.
@@ -1617,13 +1273,14 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->mesg_tb  = textbox_create ( "window.mainbox.message.textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, NULL );
     container_add ( state->mesg_box, WIDGET ( state->mesg_tb ) );
     rofi_view_reload_message_bar ( state );
-    box_add ( state->main_box, WIDGET ( state->mesg_box ), FALSE, end ? 8 : 2 );
+    // FIXME: re-add input box at the bottom?
+    box_add ( state->main_box, WIDGET ( state->mesg_box ), FALSE, 2 );
 
     state->overlay                = textbox_create ( "window.overlay", TB_AUTOWIDTH | TB_AUTOHEIGHT, URGENT, "blaat"  );
     state->overlay->widget.parent = WIDGET ( state->main_window );
     widget_disable ( WIDGET ( state->overlay ) );
 
-    state->list_view = listview_create ( "window.mainbox.listview", update_callback, state, config.element_height, end );
+    state->list_view = listview_create ( "window.mainbox.listview", update_callback, state, config.element_height, FALSE /* FIXME: entry-at-bottom */ );
     // Set configuration
     listview_set_multi_select ( state->list_view, ( state->menu_flags & MENU_INDICATOR ) == MENU_INDICATOR );
     listview_set_scroll_type ( state->list_view, config.scroll_method );
@@ -1642,23 +1299,13 @@ RofiViewState *rofi_view_create ( Mode *sw,
     rofi_view_calculate_window_width ( state );
     // Need to resize otherwise calculated desired height is wrong.
     widget_resize ( WIDGET ( state->main_window ), state->width, 100 );
-    // Only needed when window is fixed size.
-    if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == MENU_NORMAL_WINDOW ) {
-        listview_set_fixed_num_lines ( state->list_view );
-        rofi_view_window_update_size ( state );
-    }
-    // Move the window to the correct x,y position.
-    rofi_view_calculate_window_position ( state );
 
     state->quit = FALSE;
     rofi_view_refilter ( state );
     rofi_view_update ( state, TRUE );
-    xcb_map_window ( xcb->connection, CacheState.main_window );
+
+    // FIXME: push the surface
     widget_queue_redraw ( WIDGET ( state->main_window ) );
-    xcb_flush ( xcb->connection );
-    if ( xcb->sncontext != NULL ) {
-        sn_launchee_context_complete ( xcb->sncontext );
-    }
     return state;
 }
 
@@ -1676,29 +1323,19 @@ int rofi_view_error_dialog ( const char *msg, int markup )
                                    NORMAL, ( msg != NULL ) ? msg : "" );
     box_add ( state->main_box, WIDGET ( state->text ), TRUE, 1 );
 
-    // Make sure we enable fixed num lines when in normal window mode.
-    if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == MENU_NORMAL_WINDOW ) {
-        listview_set_fixed_num_lines ( state->list_view );
-    }
     rofi_view_calculate_window_width ( state );
     // Need to resize otherwise calculated desired height is wrong.
     widget_resize ( WIDGET ( state->main_window ), state->width, 100 );
     // resize window vertically to suit
     state->height = widget_get_desired_height ( WIDGET ( state->main_window ) );
 
-    // Calculte window position.
-    rofi_view_calculate_window_position ( state );
-
     // Move the window to the correct x,y position.
     rofi_view_window_update_size ( state );
 
     // Display it.
-    xcb_map_window ( xcb->connection, CacheState.main_window );
     widget_queue_redraw ( WIDGET ( state->main_window ) );
 
-    if ( xcb->sncontext != NULL ) {
-        sn_launchee_context_complete ( xcb->sncontext );
-    }
+    // FIXME: push the surface
 
     // Set it as current window.
     rofi_view_set_active ( state );
@@ -1707,12 +1344,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 
 void rofi_view_hide ( void )
 {
-    if ( CacheState.main_window != XCB_WINDOW_NONE ) {
-        xcb_unmap_window ( xcb->connection, CacheState.main_window );
-        release_keyboard ( );
-        release_pointer ( );
-        xcb_flush ( xcb->connection );
-    }
+    // FIXME: destroy the surface
 }
 
 void rofi_view_cleanup ()
@@ -1726,10 +1358,6 @@ void rofi_view_cleanup ()
         g_source_remove ( CacheState.repaint_source );
         CacheState.repaint_source = 0;
     }
-    if ( CacheState.fake_bg ) {
-        cairo_surface_destroy ( CacheState.fake_bg );
-        CacheState.fake_bg = NULL;
-    }
     if ( CacheState.edit_draw ) {
         cairo_destroy ( CacheState.edit_draw );
         CacheState.edit_draw = NULL;
@@ -1737,17 +1365,6 @@ void rofi_view_cleanup ()
     if ( CacheState.edit_surf ) {
         cairo_surface_destroy ( CacheState.edit_surf );
         CacheState.edit_surf = NULL;
-    }
-    if ( CacheState.main_window != XCB_WINDOW_NONE ) {
-        xcb_unmap_window ( xcb->connection, CacheState.main_window );
-        xcb_free_gc ( xcb->connection, CacheState.gc );
-        xcb_free_pixmap ( xcb->connection, CacheState.edit_pixmap );
-        xcb_destroy_window ( xcb->connection, CacheState.main_window );
-        CacheState.main_window = XCB_WINDOW_NONE;
-    }
-    if ( map != XCB_COLORMAP_NONE ) {
-        xcb_free_colormap ( xcb->connection, map );
-        map = XCB_COLORMAP_NONE;
     }
     g_assert ( g_queue_is_empty ( &( CacheState.views ) ) );
 }
@@ -1842,9 +1459,4 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
     state->refilter = TRUE;
     rofi_view_refilter ( state );
     rofi_view_update ( state, TRUE );
-}
-
-xcb_window_t rofi_view_get_window ( void )
-{
-    return CacheState.main_window;
 }

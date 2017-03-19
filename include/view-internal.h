@@ -68,8 +68,6 @@ struct RofiViewState
     unsigned int     selected_line;
     /** The return state of the view */
     MenuReturn       retv;
-    /** Monitor #workarea the view is displayed on */
-    workarea         mon;
 
     /** #box holding the different modi buttons */
     box              *sidebar_bar;

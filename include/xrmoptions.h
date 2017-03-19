@@ -1,7 +1,9 @@
 #ifndef ROFI_XRMOPTIONS_H
 #define ROFI_XRMOPTIONS_H
-#include "xcb.h"
 // Big thanks to Sean Pringle for this code.
+
+// FIXME: for real
+typedef void xcb_stuff;
 
 /**
  * @defgroup CONFXResources XResources Configuration

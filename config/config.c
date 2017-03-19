@@ -64,24 +64,8 @@ Settings config = {
     .run_shell_command = "{terminal} -e {cmd}",
     /** Command executed on accep-entry-custom for window modus */
     .window_command    = "xkill -id {window}",
-    /**
-     * Location of the window.
-     * Enumeration indicating location or gravity of window.
-     *
-     * WL_NORTH_WEST      WL_NORTH      WL_NORTH_EAST
-     *
-     * WL_EAST            WL_CENTER     WL_EAST
-     *
-     * WL_SOUTH_WEST      WL_SOUTH      WL_SOUTH_EAST
-     *
-     */
-    .location          = WL_CENTER,
     /** Padding between elements */
     .padding           =                                         5,
-    /** Y offset */
-    .y_offset          =                                         0,
-    /** X offset */
-    .x_offset          =                                         0,
     /** Always show config.menu_lines lines, even if less lines are available */
     .fixed_num_lines   = TRUE,
     /** Do not use history */
@@ -109,8 +93,6 @@ Settings config = {
     .tokenize        = TRUE,
     .matching        = "normal",
     .matching_method = MM_NORMAL,
-    /** Monitor */
-    .monitor           = "-5",
     /** set line margin */
     .line_margin  =                                         2,
     .line_padding =                                         1,
@@ -121,12 +103,9 @@ Settings config = {
     /** Hide scrollbar */
     .hide_scrollbar    = FALSE,
     .fullscreen        = FALSE,
-    .fake_transparency = FALSE,
-    .dpi               =                                        -1,
     .threads           =                                         0,
     .scrollbar_width   =                                         8,
     .scroll_method     =                                         0,
-    .fake_background   = "screenshot",
     .window_format     = "{w}   {c}   {t}",
     .click_to_exit     = TRUE,
     .show_match        = TRUE,

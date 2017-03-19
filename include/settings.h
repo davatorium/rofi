@@ -86,14 +86,8 @@ typedef struct
     /** Command for window */
     char           * window_command;
 
-    /** Windows location/gravity */
-    WindowLocation location;
     /** Padding between elements */
     unsigned int   padding;
-    /** Y offset */
-    int            y_offset;
-    /** X offset */
-    int            x_offset;
     /** Always should config.menu_lines lines, even if less lines are available */
     unsigned int   fixed_num_lines;
     /** Do not use history */
@@ -123,8 +117,6 @@ typedef struct
     char           *matching;
     MatchingMethod matching_method;
     unsigned int   tokenize;
-    /** Monitors */
-    char           *monitor;
     /** Line margin */
     unsigned int   line_margin;
     unsigned int   line_padding;
@@ -136,16 +128,10 @@ typedef struct
     unsigned int   hide_scrollbar;
     /** fullscreen */
     unsigned int   fullscreen;
-    /** bg image */
-    unsigned int   fake_transparency;
-    /** dpi */
-    int            dpi;
     /** Number threads (1 to disable) */
     unsigned int   threads;
     unsigned int   scrollbar_width;
     unsigned int   scroll_method;
-    /** Background type */
-    char           *fake_background;
 
     char           *window_format;
     /** Click outside the window to exit */

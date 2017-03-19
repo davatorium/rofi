@@ -6,7 +6,7 @@ ACLOCAL_AMFLAGS = -I libgwater ${ACLOCAL_FLAGS}
 AM_YFLAGS = -d
 
 noinst_LIBRARIES =
-include $(top_srcdir)/libgwater-xcb-nolibtool.mk
+include $(top_srcdir)/libgwater-wayland-nolibtool.mk
 
 ##
 # PKG CONFIG file
@@ -54,14 +54,13 @@ SOURCES=\
 	source/widgets/textbox.c\
 	source/widgets/listview.c\
 	source/widgets/scrollbar.c\
-	source/xrmoptions.c\
+	source/xrmoptions-dummy.c\
 	source/x11-helper.c\
 	source/dialogs/run.c\
 	source/dialogs/ssh.c\
 	source/dialogs/drun.c\
 	source/dialogs/dmenu.c\
 	source/dialogs/combi.c\
-	source/dialogs/window.c\
 	source/dialogs/script.c\
 	source/dialogs/help-keys.c\
 	include/xcb.h\
@@ -93,7 +92,6 @@ SOURCES=\
 	include/dialogs/dmenu.h\
 	include/dialogs/combi.h\
 	include/dialogs/script.h\
-	include/dialogs/window.h\
 	include/dialogs/dialogs.h\
 	include/dialogs/help-keys.h\
 	include/xkb.h\
@@ -107,9 +105,8 @@ rofi_SOURCES=\
 rofi_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
-	$(GW_XCB_CFLAGS)\
+	$(GW_WAYLAND_CFLAGS)\
 	$(pango_CFLAGS)\
-	$(libsn_CFLAGS)\
 	$(cairo_CFLAGS)\
 	-DMANPAGE_PATH="\"$(mandir)/\""\
 	-I$(top_srcdir)/include/\
@@ -122,8 +119,7 @@ rofi_CFLAGS=\
 
 rofi_LDADD=\
 	$(glib_LIBS)\
-	$(GW_XCB_LIBS)\
-	$(libsn_LIBS)\
+	$(GW_WAYLAND_LIBS)\
 	$(pango_LIBS)\
 	$(cairo_LIBS)\
 	$(LIBS)
@@ -248,9 +244,8 @@ textbox_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(pango_CFLAGS)\
-	$(GW_XCB_CFLAGS)\
+	$(GW_WAYLAND_CFLAGS)\
 	$(cairo_CFLAGS)\
-	$(libsn_CFLAGS)\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
@@ -258,9 +253,8 @@ textbox_test_CFLAGS=\
 textbox_test_LDADD=\
 	$(glib_LIBS)\
 	$(pango_LIBS)\
-	$(GW_XCB_LIBS)\
-	$(cairo_LIBS)\
-	$(libsn_LIBS)
+	$(GW_WAYLAND_LIBS)\
+	$(cairo_LIBS)
 
 helper_pidfile_CFLAGS=$(textbox_test_CFLAGS)
 helper_pidfile_LDADD=$(textbox_test_LDADD)
@@ -273,7 +267,7 @@ helper_pidfile_SOURCES=\
 					   include/helper.h\
 					   include/helper-theme.h\
 					   include/xrmoptions.h\
-					   source/xrmoptions.c\
+					   source/xrmoptions-dummy.c\
 					   source/x11-helper.c\
 					   include/x11-helper.h\
 					   test/helper-pidfile.c
@@ -289,7 +283,7 @@ helper_tokenize_SOURCES=\
 					   include/helper.h\
 					   include/helper-theme.h\
 					   include/xrmoptions.h\
-					   source/xrmoptions.c\
+					   source/xrmoptions-dummy.c\
 					   source/x11-helper.c\
 					   include/x11-helper.h\
 					   test/helper-tokenize.c
@@ -360,7 +354,7 @@ helper_test_SOURCES=\
 	include/helper.h\
 	include/helper-theme.h\
 	include/xrmoptions.h\
-	source/xrmoptions.c\
+	source/xrmoptions-dummy.c\
 	source/x11-helper.c\
 	test/helper-test.c
 
@@ -368,9 +362,8 @@ helper_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(pango_CFLAGS)\
-	$(GW_XCB_CFLAGS)\
+	$(GW_WAYLAND_CFLAGS)\
 	$(cairo_CFLAGS)\
-	$(libsn_CFLAGS)\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
@@ -378,8 +371,7 @@ helper_test_CFLAGS=\
 helper_test_LDADD=\
 	$(glib_LIBS)\
 	$(pango_LIBS)\
-	$(GW_XCB_LIBS)\
-	$(libsn_LIBS)\
+	$(GW_WAYLAND_LIBS)\
 	$(cairo_LIBS)
 
 helper_expand_SOURCES=\
@@ -391,7 +383,7 @@ helper_expand_SOURCES=\
 	include/helper.h\
 	include/helper-theme.h\
 	include/xrmoptions.h\
-	source/xrmoptions.c\
+	source/xrmoptions-dummy.c\
 	source/x11-helper.c\
 	test/helper-expand.c
 
@@ -411,7 +403,7 @@ helper_config_cmdline_parser_SOURCES=\
 	include/helper.h\
 	include/helper-theme.h\
 	include/xrmoptions.h\
-	source/xrmoptions.c\
+	source/xrmoptions-dummy.c\
 	source/x11-helper.c\
 	test/helper-config-cmdline-parser.c
 

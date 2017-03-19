@@ -6,10 +6,8 @@
 #include <glib.h>
 #include <history.h>
 #include <string.h>
-#include <xcb/xcb.h>
 #include <widgets/textbox.h>
 #include <rofi.h>
-#include <cairo-xlib.h>
 #include "settings.h"
 
 static int   test               = 0;

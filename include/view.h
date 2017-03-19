@@ -21,7 +21,7 @@ typedef enum
     /** Create a menu for entering passwords */
     MENU_PASSWORD      = 1,
     /** Create amanaged window. */
-    MENU_NORMAL_WINDOW = 2,
+    _DEPRECATED_MENU_NORMAL_WINDOW = 2,
     /** ERROR dialog */
     MENU_ERROR_DIALOG  = 4,
     /** INDICATOR */
@@ -72,7 +72,7 @@ unsigned int rofi_view_get_next_position ( const RofiViewState *state );
  *
  * Process an Xevent.
  */
-void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb_stuff *xkb );
+//FIXME: void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb_stuff *xkb );
 /**
  * @param state the Menu handle
  *
@@ -221,12 +221,6 @@ void rofi_view_clear_input ( RofiViewState *state );
  * TODO: Internal call to view exposed.
  */
 void __create_window ( MenuFlags menu_flags );
-/**
- * Get the handle of the main window.
- *
- * @returns the xcb_window_t for rofi's view or XCB_WINDOW_NONE.
- */
-xcb_window_t rofi_view_get_window ( void );
 /** @} */
 
 /***
