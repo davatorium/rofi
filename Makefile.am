@@ -36,7 +36,10 @@ dist_bin_SCRIPTS=\
 	script/rofi-theme-selector
 
 nodist_rofi_SOURCES=\
+	source/unstable/launcher-menu/launcher-menu-unstable-v1-protocol.c
 	$(top_builddir)/gitconfig.h
+
+rofi source/wayland.o: include/unstable/launcher-menu/launcher-menu-unstable-v1-client-protocol.h
 
 SOURCES=\
 	source/rofi.c\
@@ -55,6 +58,7 @@ SOURCES=\
 	source/widgets/listview.c\
 	source/widgets/scrollbar.c\
 	source/xrmoptions-dummy.c\
+	source/wayland.c\
 	source/x11-helper.c\
 	source/dialogs/run.c\
 	source/dialogs/ssh.c\
@@ -63,8 +67,7 @@ SOURCES=\
 	source/dialogs/combi.c\
 	source/dialogs/script.c\
 	source/dialogs/help-keys.c\
-	include/xcb.h\
-	include/xcb-internal.h\
+	include/wayland.h\
 	include/rofi.h\
 	include/mode.h\
 	include/mode-private.h\
@@ -511,3 +514,22 @@ coverage-clean:
 
 .PHONY: .FORCE
 .FORCE:
+
+# Wayland protocol code generation rules
+source/%-protocol.c: $(wpprotocoldir)/%.xml
+	$(AM_V_GEN)$(MKDIR_P) $(dir $@) && $(WAYLAND_SCANNER) code < $< > $@
+
+include/%-server-protocol.h: $(wpprotocoldir)/%.xml
+	$(AM_V_GEN)$(MKDIR_P) $(dir $@) && $(WAYLAND_SCANNER) server-header < $< > $@
+
+include/%-client-protocol.h: $(wpprotocoldir)/%.xml
+	$(AM_V_GEN)$(MKDIR_P) $(dir $@) && $(WAYLAND_SCANNER) client-header < $< > $@
+
+source/%-protocol.c: $(wwprotocoldir)/%.xml
+	$(AM_V_GEN)$(MKDIR_P) $(dir $@) && $(WAYLAND_SCANNER) code < $< > $@
+
+include/%-server-protocol.h: $(wwprotocoldir)/%.xml
+	$(AM_V_GEN)$(MKDIR_P) $(dir $@) && $(WAYLAND_SCANNER) server-header < $< > $@
+
+include/%-client-protocol.h: $(wwprotocoldir)/%.xml
+	$(AM_V_GEN)$(MKDIR_P) $(dir $@) && $(WAYLAND_SCANNER) client-header < $< > $@

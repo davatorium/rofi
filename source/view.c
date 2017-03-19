@@ -45,6 +45,7 @@
 #include "xkb-internal.h"
 #include "helper.h"
 #include "helper-theme.h"
+#include "wayland.h"
 #include "x11-helper.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
@@ -225,6 +226,7 @@ static void rofi_view_window_update_size ( RofiViewState * state )
     cairo_surface_destroy ( CacheState.edit_surf );
 
     // FIXME: get next buffer
+    state->pool = wayland_buffer_pool_new(state->width, state->height);
 
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Re-size window based internal request: %dx%d.", state->width, state->height );
     // Should wrap main window in a widget.

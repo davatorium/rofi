@@ -41,9 +41,7 @@
 
 #include <glib-unix.h>
 
-#include <wayland-client.h>
-#include <libgwater-wayland.h>
-
+#include "wayland.h"
 #include "xkb-internal.h"
 
 #include "settings.h"
@@ -102,8 +100,6 @@ unsigned int curr_switcher = 0;
 
 /** Glib main loop. */
 GMainLoop       *main_loop = NULL;
-/** GWater Wayland source, signalling events from the Wayland compositor */
-GWaterWaylandSource *main_loop_source = NULL;
 
 /** Flag indicating we are in dmenu mode. */
 static int dmenu_mode = FALSE;
@@ -322,9 +318,6 @@ static void cleanup ()
     }
     rofi_view_workers_finalize ();
     if ( main_loop != NULL  ) {
-        if ( main_loop_source ) {
-            g_water_wayland_source_free ( main_loop_source );
-        }
         g_main_loop_unref ( main_loop );
         main_loop = NULL;
     }
@@ -352,7 +345,7 @@ static void cleanup ()
     }
 
     // Cleanup
-    // FIXME: Wayland cleanup
+    wayland_cleanup();
 
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
@@ -925,9 +918,13 @@ int main ( int argc, char *argv[] )
         exit ( EXIT_SUCCESS );
     }
 
-    main_loop_source = g_water_wayland_source_new ( NULL, display_str );
+    if ( ! wayland_init ( main_loop, display_str ) )
+    {
+        fprintf ( stderr, "cannot setup Wayland connection!\n" );
+        return EXIT_FAILURE;
+    }
 
-    TICK_N ( "X11 Setup " );
+    TICK_N ( "Wayland Setup " );
 
     rofi_view_workers_initialize ();
 

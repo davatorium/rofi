@@ -16,7 +16,7 @@ dnl ---------------------------------------------------------------------
 dnl Setup automake to be silent and in foreign mode.
 dnl We want xz distribution
 dnl ---------------------------------------------------------------------
-AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects dist-xz])
+AM_INIT_AUTOMAKE([-Wall -Wno-portability -Werror foreign subdir-objects dist-xz])
 AM_SILENT_RULES([yes])
 
 dnl ---------------------------------------------------------------------
@@ -83,6 +83,7 @@ AS_IF( [ test "x$enable_timings" = "xyes"], [AC_DEFINE([TIMINGS],[1], [Enable ti
 dnl ---------------------------------------------------------------------
 dnl Check for C functions.
 dnl ---------------------------------------------------------------------
+AC_FUNC_MMAP
 AC_CHECK_FUNC([getline],,  AC_MSG_ERROR("Could not find getline in c library"))
 AC_CHECK_FUNC([open],,     AC_MSG_ERROR("Could not find open in c library"))
 AC_CHECK_FUNC([sysconf],,  AC_MSG_ERROR("Could not find sysconf"))
@@ -103,15 +104,27 @@ dnl Check dependencies
 dnl ---------------------------------------------------------------------
 PKG_PROG_PKG_CONFIG
 
+AC_ARG_VAR([WAYLAND_SCANNER], [Wayland XML scanner executable])
+AC_PATH_PROG([WAYLAND_SCANNER], [wayland-scanner])
+if test -z "${WAYLAND_SCANNER}"; then
+    AC_MSG_ERROR([wayland-scanner not found])
+fi
+
 
 dnl ---------------------------------------------------------------------
 dnl PKG_CONFIG based dependencies
 dnl ---------------------------------------------------------------------
 PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40 gio-unix-2.0 gmodule-2.0])
-GW_CHECK_WAYLAND([wayland-cursor xkbcommon >= 0.5.0])
+GW_CHECK_WAYLAND([wayland-cursor wayland-wall xkbcommon >= 0.5.0])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo])
 
+PKG_CHECK_MODULES([WAYLAND_PROTOCLS], [wayland-protocols])
+PKG_CHECK_MODULES([WAYLAND_WALL], [wayland-wall])
+wpprotocoldir=`${PKG_CONFIG} --variable=pkgdatadir wayland-protocols`
+wwprotocoldir=`${PKG_CONFIG} --variable=pkgdatadir wayland-wall`
+AC_SUBST([wpprotocoldir])
+AC_SUBST([wwprotocoldir])
 
 dnl ---------------------------------------------------------------------
 dnl Add extra compiler flags

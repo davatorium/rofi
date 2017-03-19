@@ -58,7 +58,7 @@ struct RofiViewState
     /** Previously called key action. */
     KeyBindingAction prev_action;
     /** Time previous key action was executed. */
-    xcb_timestamp_t  last_button_press;
+    int32_t          last_button_press;
 
     /** Indicate view should terminate */
     int              quit;
@@ -88,10 +88,8 @@ struct RofiViewState
     int              width;
     /** Height of the view */
     int              height;
-    /** X position of the view */
-    int              x;
-    /** Y position of the view */
-    int              y;
+    /** Buffer pool */
+    wayland_buffer_pool *pool;
 
     /** Regexs used for matching */
     GRegex           **tokens;
