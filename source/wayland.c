@@ -334,7 +334,7 @@ wayland_frame_callback(void *data, struct wl_callback *callback, uint32_t timest
     wayland->frame_cb = wl_surface_frame(wayland->surface);
     wl_callback_add_listener(wayland->frame_cb, &wayland_frame_wl_callback_listener, wayland);
 
-    // FIXME: trigger draw
+    rofi_view_frame_callback();
 }
 
 static void

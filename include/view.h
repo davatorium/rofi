@@ -159,6 +159,11 @@ void rofi_view_set_active ( RofiViewState *state );
 int rofi_view_error_dialog ( const char *msg, int markup  );
 
 /**
+ * Inform rofi that the last frame properly hit the screen
+ * and it can repaint a new one if needed
+ */
+void rofi_view_frame_callback(void);
+/**
  * Queue a redraw.
  * This triggers a X11 Expose Event.
  */

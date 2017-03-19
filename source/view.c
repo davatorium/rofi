@@ -226,6 +226,7 @@ static void rofi_view_window_update_size ( RofiViewState * state )
     cairo_surface_destroy ( CacheState.edit_surf );
 
     // FIXME: get next buffer
+    wayland_buffer_pool_free(state->pool);
     state->pool = wayland_buffer_pool_new(state->width, state->height);
 
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Re-size window based internal request: %dx%d.", state->width, state->height );
@@ -267,13 +268,35 @@ void rofi_view_reload ( void  )
         CacheState.idle_timeout = g_timeout_add ( 1000 / 10, rofi_view_reload_idle, NULL );
     }
 }
+
+static gboolean view_changed = FALSE;
+static gboolean frame_callback = FALSE;
+static void rofi_view_maybe_redraw ( void  )
+{
+    if ( ! frame_callback )
+        return;
+
+    // FIXME: has the view changed?
+    // FIXME: maybe we have a var already?
+    if ( ! view_changed )
+        return;
+
+    // FIXME: redraw
+
+    frame_callback = FALSE;
+}
+
+void rofi_view_frame_callback(void)
+{
+    frame_callback = TRUE;
+    rofi_view_maybe_redraw();
+}
+
 void rofi_view_queue_redraw ( void  )
 {
-    if ( current_active_menu && CacheState.repaint_source == 0 ) {
-        CacheState.count++;
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "redraw %llu", CacheState.count );
-        CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
-    }
+    // FIXME: maybe we have a var already?
+    view_changed = TRUE;
+    rofi_view_maybe_redraw();
 }
 
 void rofi_view_restart ( RofiViewState *state )
@@ -1307,6 +1330,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     rofi_view_update ( state, TRUE );
 
     // FIXME: push the surface
+    // maybe rofi_view_queue_redraw() ?
     widget_queue_redraw ( WIDGET ( state->main_window ) );
     return state;
 }
@@ -1338,6 +1362,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     widget_queue_redraw ( WIDGET ( state->main_window ) );
 
     // FIXME: push the surface
+    // maybe rofi_view_queue_redraw() ?
 
     // Set it as current window.
     rofi_view_set_active ( state );
@@ -1346,7 +1371,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 
 void rofi_view_hide ( void )
 {
-    // FIXME: destroy the surface
+    // FIXME: quit the mainloop
 }
 
 void rofi_view_cleanup ()
