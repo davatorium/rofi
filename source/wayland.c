@@ -371,7 +371,7 @@ static const struct zww_launcher_menu_v1_listener wayland_listener = {
     .dismiss = wayland_dismiss,
 };
 
-static void xkb_find_mod_mask ( wayland_seat *self, gsize mod, ... )
+static void xkb_find_mod_mask ( wayland_seat *self, guint mod, ... )
 {
     va_list         names;
     const char      *name;
@@ -383,7 +383,7 @@ static void xkb_find_mod_mask ( wayland_seat *self, gsize mod, ... )
             *m++ = i;
         }
     }
-    *m = G_MAXUINT32;
+    *m = XKB_MOD_INVALID;
     va_end ( names );
 }
 
@@ -400,13 +400,13 @@ static void xkb_figure_out_masks ( wayland_seat *self )
 gboolean
 xkb_check_mod_match(wayland_seat *self, unsigned int mask, xkb_keysym_t key)
 {
-    guint i;
-    xkb_mod_index_t *m;
-    for ( i = 0; i < X11MOD_ANY; ++i ) {
-        gboolean expected = ( mask & ( 1 << i ) );
+    guint mod;
+    xkb_mod_index_t *i;
+    for ( mod = 0; mod < X11MOD_ANY; ++mod ) {
+        gboolean expected = ( mask & ( 1 << mod ) );
         gboolean found = FALSE;
-        for ( m = self->xkb.mods[i] ; *m != G_MAXUINT32 ; ++m ) {
-            found = found || ( xkb_state_mod_index_is_active(self->xkb.state, *m, XKB_STATE_MODS_EFFECTIVE) && ! xkb_state_mod_index_is_consumed(self->xkb.state, key, *m) );
+        for ( i = self->xkb.mods[mod] ; *i != XKB_MOD_INVALID ; ++i ) {
+            found = found || ( xkb_state_mod_index_is_active(self->xkb.state, *i, XKB_STATE_MODS_EFFECTIVE) && ! xkb_state_mod_index_is_consumed(self->xkb.state, key, *i) );
         }
         if ( expected != found )
             return FALSE;
@@ -982,6 +982,9 @@ wayland_init(GMainLoop *main_loop, const gchar *display)
 void
 wayland_cleanup(void)
 {
+    if ( wayland->main_loop_source == NULL )
+        return;
+
     wl_surface_destroy(wayland->surface);
     g_hash_table_unref( wayland->seats);
     g_hash_table_unref( wayland->outputs);

@@ -600,6 +600,12 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
 }
 */
 
+void rofi_quit_main_loop(void)
+{
+    g_main_loop_quit ( main_loop );
+
+}
+
 static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
 {
     // Break out of loop.

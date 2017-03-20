@@ -1050,6 +1050,17 @@ void rofi_view_maybe_update ( void )
 {
     RofiViewState *state = rofi_view_get_active();
 
+    if ( rofi_view_get_completed ( state ) ) {
+        // This menu is done.
+        rofi_view_finalize ( state );
+        // cleanup
+        state = rofi_view_get_active();
+        if ( state == NULL ) {
+            rofi_quit_main_loop();
+            return;
+        }
+    }
+
     if ( state->refilter ) {
         rofi_view_refilter ( state );
     }
@@ -1061,35 +1072,6 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
 {
     switch ( ev->response_type & ~0x80 )
     {
-    case XCB_CONFIGURE_NOTIFY:
-    {
-        xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) ev;
-        if ( xce->window == CacheState.main_window ) {
-            if ( state->x != xce->x || state->y != xce->y ) {
-                state->x = xce->x;
-                state->y = xce->y;
-                widget_queue_redraw ( WIDGET ( state->main_window ) );
-            }
-            if ( state->width != xce->width || state->height != xce->height ) {
-                state->width  = xce->width;
-                state->height = xce->height;
-
-                cairo_destroy ( CacheState.edit_draw );
-                cairo_surface_destroy ( CacheState.edit_surf );
-
-                xcb_free_pixmap ( xcb->connection, CacheState.edit_pixmap );
-                CacheState.edit_pixmap = xcb_generate_id ( xcb->connection );
-                xcb_create_pixmap ( xcb->connection, depth->depth, CacheState.edit_pixmap, CacheState.main_window,
-                                    state->width, state->height );
-
-                CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
-                CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
-                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Re-size window based external request: %d %d\n", state->width, state->height );
-                widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
-            }
-        }
-        break;
-    }
     case XCB_MOTION_NOTIFY:
     {
         if ( config.click_to_exit == TRUE ) {
@@ -1135,29 +1117,8 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
         }
         break;
     }
-    case XCB_KEY_PRESS:
-        rofi_view_handle_keypress ( state, xkb, (xcb_key_press_event_t *) ev );
-        break;
-    case XCB_KEY_RELEASE:
-    {
-        xcb_key_release_event_t *xkre    = (xcb_key_release_event_t *) ev;
-        unsigned int            modstate = x11_canonalize_mask ( xkre->state );
-        if ( modstate == 0 ) {
-            abe_trigger_release ( );
-        }
-        break;
-    }
     default:
         break;
-    }
-    // Update if requested.
-    if ( state->refilter ) {
-        rofi_view_refilter ( state );
-    }
-    rofi_view_update ( state, TRUE );
-
-    if ( ( ev->response_type & ~0x80 ) == XCB_EXPOSE && CacheState.repaint_source == 0 ) {
-        CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
     }
 }
 */
