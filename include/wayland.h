@@ -4,26 +4,7 @@
 #include <glib.h>
 #include <cairo.h>
 #include <xkbcommon/xkbcommon.h>
-
-enum
-{
-    /** Shift key */
-    X11MOD_SHIFT,
-    /** Control Key */
-    X11MOD_CONTROL,
-    /** Alt key */
-    X11MOD_ALT,
-    /** Meta key */
-    X11MOD_META,
-    /** Super (window) key */
-    X11MOD_SUPER,
-    /** Hyper key */
-    X11MOD_HYPER,
-    /** Any modifier */
-    X11MOD_ANY,
-    /** Number of modifier keys */
-    NUM_X11MOD
-};
+#include "widgets/widget.h"
 
 typedef struct _wayland_seat wayland_seat;
 typedef struct _wayland_buffer_pool wayland_buffer_pool;

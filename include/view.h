@@ -164,7 +164,7 @@ int rofi_view_error_dialog ( const char *msg, int markup  );
  * and it can repaint a new one if needed
  */
 void rofi_view_frame_callback(void);
-void rofi_view_handle_keypress ( wayland_seat *seat, xkb_keysym_t key, char *text, int len );
+void rofi_view_handle_keypress ( widget_modifier_mask modmask, xkb_keysym_t key, char *text, int len );
 typedef enum {
     ROFI_MOUSE_WHEEL_UP,
     ROFI_MOUSE_WHEEL_DOWN,
@@ -172,7 +172,9 @@ typedef enum {
     ROFI_MOUSE_WHEEL_RIGHT,
 } rofi_mouse_wheel_direction;
 void rofi_view_mouse_navigation ( rofi_mouse_wheel_direction direction );
-//void rofi_view_mouse_click ( uint32_t button );
+void rofi_view_handle_mouse_button ( widget_button_event *be );
+void rofi_view_handle_mouse_motion ( widget_motion_event *me );
+
 void rofi_view_maybe_update ( void );
 /**
  * Queue a redraw.

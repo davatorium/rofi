@@ -118,7 +118,7 @@ void cleanup_abe ( void );
  * Find if a binding has been triggered.
  * @returns NUM_ABE if no key combo matches, a valid action otherwise.
  */
-KeyBindingAction abe_find_action ( wayland_seat *seat, xkb_keysym_t key );
+KeyBindingAction abe_find_action ( widget_modifier_mask modmask, xkb_keysym_t key );
 
 /**
  * Trigger keybinding on key release.

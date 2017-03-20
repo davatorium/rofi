@@ -695,15 +695,6 @@ void rofi_view_mouse_navigation ( rofi_mouse_wheel_direction direction )
     break;
     }
 }
-static void rofi_view_mouse_click ( RofiViewState *state )
-{
-    /* FIXME: use wheel events
-    xcb_button_press_event_t rel = *xbe;
-    if ( widget_clicked ( WIDGET ( state->main_window ), &rel ) ) {
-        return;
-    }
-    */
-}
 
 static void _rofi_view_reload_row ( RofiViewState *state )
 {
@@ -1029,13 +1020,13 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
     return ret;
 }
 
-void rofi_view_handle_keypress ( wayland_seat *seat, xkb_keysym_t key, char *text, int len )
+void rofi_view_handle_keypress ( widget_modifier_mask modmask, xkb_keysym_t key, char *text, int len )
 {
     RofiViewState *state = rofi_view_get_active();
 
     if ( key != XKB_KEY_NoSymbol ) {
         KeyBindingAction action;
-        action = abe_find_action ( seat, key );
+        action = abe_find_action ( modmask, key );
         if ( rofi_view_trigger_action ( state, action ) ) {
             return;
         }
@@ -1122,6 +1113,25 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
     }
 }
 */
+void rofi_view_handle_mouse_button( widget_button_event *be )
+{
+    RofiViewState *state = rofi_view_get_active();
+
+    if ( be->pressed ) {
+        widget_clicked ( WIDGET ( state->main_window ), be );
+    }
+}
+
+void rofi_view_handle_mouse_motion(widget_motion_event *me)
+{
+    RofiViewState *state = rofi_view_get_active();
+
+    if ( config.click_to_exit == TRUE ) {
+        state->mouse_seen = TRUE;
+    }
+    widget_motion_notify ( WIDGET ( state->main_window ), me );
+}
+
 static int rofi_view_calculate_height ( RofiViewState *state )
 {
     unsigned int height = 0;
@@ -1135,7 +1145,7 @@ static int rofi_view_calculate_height ( RofiViewState *state )
     return height;
 }
 
-static gboolean rofi_view_modi_clicked_cb ( widget *textbox, G_GNUC_UNUSED xcb_button_press_event_t *xbe, void *udata )
+static gboolean rofi_view_modi_clicked_cb ( widget *textbox, G_GNUC_UNUSED widget_button_event *be, void *udata )
 {
     RofiViewState *state = ( RofiViewState *) udata;
     for ( unsigned int i = 0; i < state->num_modi; i++ ) {
@@ -1149,12 +1159,11 @@ static gboolean rofi_view_modi_clicked_cb ( widget *textbox, G_GNUC_UNUSED xcb_b
     return FALSE;
 }
 // @TODO don't like this construction.
-static void rofi_view_listview_mouse_activated_cb ( listview *lv, xcb_button_press_event_t *xce, void *udata )
+static void rofi_view_listview_mouse_activated_cb ( listview *lv, widget_button_event *be, void *udata )
 {
     RofiViewState *state  = (RofiViewState *) udata;
-    gboolean control = FALSE; //FIXME: get xkb from somewhere: xkb_check_mod_match(xkb, X11MOD_CONTROL, XKB_KEY_NoSymbol);
     state->retv = MENU_OK;
-    if ( control ) {
+    if ( be->modifiers == WIDGET_MODMASK_CONTROL ) {
         state->retv |= MENU_CUSTOM_ACTION;
     }
     ( state->selected_line ) = state->line_map[listview_get_selected ( lv )];

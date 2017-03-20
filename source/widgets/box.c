@@ -276,7 +276,7 @@ static void box_resize ( widget *widget, short w, short h )
     }
 }
 
-static gboolean box_clicked ( widget *wid, xcb_button_press_event_t *xbe, G_GNUC_UNUSED void *udata )
+static gboolean box_clicked ( widget *wid, widget_button_event *be, G_GNUC_UNUSED void *udata )
 {
     box *b = (box *) wid;
     for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
@@ -284,16 +284,16 @@ static gboolean box_clicked ( widget *wid, xcb_button_press_event_t *xbe, G_GNUC
         if ( !child->enabled ) {
             continue;
         }
-        if ( widget_intersect ( child, xbe->event_x, xbe->event_y ) ) {
-            xcb_button_press_event_t rel = *xbe;
-            rel.event_x -= child->x;
-            rel.event_y -= child->y;
+        if ( widget_intersect ( child, be->x, be->y ) ) {
+            widget_button_event rel = *be;
+            rel.x -= child->x;
+            rel.y -= child->y;
             return widget_clicked ( child, &rel );
         }
     }
     return FALSE;
 }
-static gboolean box_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
+static gboolean box_motion_notify ( widget *wid, widget_motion_event *me )
 {
     box *b = (box *) wid;
     for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
@@ -301,10 +301,10 @@ static gboolean box_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme 
         if ( !child->enabled ) {
             continue;
         }
-        if ( widget_intersect ( child, xme->event_x, xme->event_y ) ) {
-            xcb_motion_notify_event_t rel = *xme;
-            rel.event_x -= child->x;
-            rel.event_y -= child->y;
+        if ( widget_intersect ( child, me->x, me->y ) ) {
+            widget_motion_event rel = *me;
+            rel.x -= child->x;
+            rel.y -= child->y;
             return widget_motion_notify ( child, &rel );
         }
     }

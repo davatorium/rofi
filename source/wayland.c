@@ -31,6 +31,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <locale.h>
+#include <linux/input-event-codes.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -103,7 +104,7 @@ struct _wayland_seat {
         /** Keyboard state */
         struct xkb_state   *state;
         /** Modifiers indexes */
-        xkb_mod_index_t mods[X11MOD_ANY][8];
+        xkb_mod_index_t mods[NUM_WIDGET_MOD][8];
         /** Compose information */
         struct
         {
@@ -114,6 +115,12 @@ struct _wayland_seat {
         } compose;
     } xkb;
     struct wl_pointer *pointer;
+    widget_button_event button;
+    widget_motion_event motion;
+    struct {
+        gint vertical;
+        gint horizontal;
+    } wheel;
 };
 
 typedef struct {
@@ -373,7 +380,7 @@ static const struct zww_launcher_menu_v1_listener wayland_listener = {
     .dismiss = wayland_dismiss,
 };
 
-static void xkb_find_mod_mask ( wayland_seat *self, guint mod, ... )
+static void xkb_find_mod_mask ( wayland_seat *self, widget_modifier mod, ... )
 {
     va_list         names;
     const char      *name;
@@ -391,12 +398,12 @@ static void xkb_find_mod_mask ( wayland_seat *self, guint mod, ... )
 
 static void xkb_figure_out_masks ( wayland_seat *self )
 {
-    xkb_find_mod_mask ( self, X11MOD_SHIFT, XKB_MOD_NAME_SHIFT, NULL );
-    xkb_find_mod_mask ( self, X11MOD_CONTROL, XKB_MOD_NAME_CTRL, NULL );
-    xkb_find_mod_mask ( self, X11MOD_ALT, XKB_MOD_NAME_ALT, "Alt", "LAlt", "RAlt", "AltGr", "Mod5", "LevelThree", NULL );
-    xkb_find_mod_mask ( self, X11MOD_META, "Meta", NULL );
-    xkb_find_mod_mask ( self, X11MOD_SUPER, XKB_MOD_NAME_LOGO, "Super", NULL );
-    xkb_find_mod_mask ( self, X11MOD_HYPER, "Hyper", NULL );
+    xkb_find_mod_mask ( self, WIDGET_MOD_SHIFT, XKB_MOD_NAME_SHIFT, NULL );
+    xkb_find_mod_mask ( self, WIDGET_MOD_CONTROL, XKB_MOD_NAME_CTRL, NULL );
+    xkb_find_mod_mask ( self, WIDGET_MOD_ALT, XKB_MOD_NAME_ALT, "Alt", "LAlt", "RAlt", "AltGr", "Mod5", "LevelThree", NULL );
+    xkb_find_mod_mask ( self, WIDGET_MOD_META, "Meta", NULL );
+    xkb_find_mod_mask ( self, WIDGET_MOD_SUPER, XKB_MOD_NAME_LOGO, "Super", NULL );
+    xkb_find_mod_mask ( self, WIDGET_MOD_HYPER, "Hyper", NULL );
 }
 
 gboolean
@@ -404,7 +411,7 @@ xkb_check_mod_match(wayland_seat *self, unsigned int mask, xkb_keysym_t key)
 {
     guint mod;
     xkb_mod_index_t *i;
-    for ( mod = 0; mod < X11MOD_ANY; ++mod ) {
+    for ( mod = 0; mod < NUM_WIDGET_MOD; ++mod ) {
         gboolean expected = ( mask & ( 1 << mod ) );
         gboolean found = FALSE;
         for ( i = self->xkb.mods[mod] ; *i != XKB_MOD_INVALID ; ++i ) {
@@ -414,6 +421,23 @@ xkb_check_mod_match(wayland_seat *self, unsigned int mask, xkb_keysym_t key)
             return FALSE;
     }
     return TRUE;
+}
+
+static widget_modifier_mask
+xkb_get_modmask(wayland_seat *self, xkb_keysym_t key)
+{
+    widget_modifier_mask mask = 0;
+    widget_modifier mod;
+    xkb_mod_index_t *i;
+    for ( mod = 0; mod < NUM_WIDGET_MOD; ++mod ) {
+        gboolean found = FALSE;
+        for ( i = self->xkb.mods[mod] ; ! found && *i != XKB_MOD_INVALID ; ++i ) {
+            found = ( xkb_state_mod_index_is_active(self->xkb.state, *i, XKB_STATE_MODS_EFFECTIVE) && ! xkb_state_mod_index_is_consumed(self->xkb.state, key, *i) );
+        }
+        if ( found )
+            mask |= (1 << mod);
+    }
+    return mask;
 }
 
 static void
@@ -507,7 +531,9 @@ wayland_keyboard_key(void *data, struct wl_keyboard *keyboard, uint32_t serial, 
         len = xkb_state_key_get_utf8 ( self->xkb.state, key, pad, sizeof ( pad ) );
     }
 
-    rofi_view_handle_keypress ( self, keysym, pad, len );
+    widget_modifier_mask modmask = xkb_get_modmask(self, key);
+
+    rofi_view_handle_keypress ( modmask, keysym, pad, len );
     rofi_view_maybe_update();
 }
 
@@ -570,9 +596,45 @@ wayland_cursor_frame_callback(void *data, struct wl_callback *callback, uint32_t
 }
 
 static void
-wayland_pointer_trigger_wheel(wayland_seat *self)
+wayland_pointer_send_events(wayland_seat *self)
 {
     //rofi_view_mouse_navigation();
+    widget_modifier_mask modmask = xkb_get_modmask(self, XKB_KEY_NoSymbol);
+
+    if ( self->motion.x > -1 || self->motion.y > -1 )
+    {
+        rofi_view_handle_mouse_motion(&self->motion);
+        self->motion.x = -1;
+        self->motion.y = -1;
+    }
+
+    if ( self->button.button > 0 )
+    {
+        rofi_view_handle_mouse_button(&self->button);
+        self->button.button = 0;
+    }
+
+    if ( self->wheel.vertical != 0 )
+    {
+        rofi_mouse_wheel_direction direction = self->wheel.vertical < 0 ? ROFI_MOUSE_WHEEL_UP : ROFI_MOUSE_WHEEL_DOWN;
+        guint val = ABS(self->wheel.vertical);
+        do
+            rofi_view_mouse_navigation(direction);
+        while ( --val > 0 );
+        self->wheel.vertical = 0;
+    }
+
+    if ( self->wheel.horizontal != 0 )
+    {
+        rofi_mouse_wheel_direction direction = self->wheel.horizontal < 0 ? ROFI_MOUSE_WHEEL_LEFT : ROFI_MOUSE_WHEEL_RIGHT;
+        guint val = ABS(self->wheel.horizontal);
+        do
+            rofi_view_mouse_navigation(direction);
+        while ( --val > 0 );
+        self->wheel.horizontal = 0;
+    }
+
+    rofi_view_maybe_update();
 }
 
 static void
@@ -603,6 +665,18 @@ wayland_pointer_leave(void *data, struct wl_pointer *pointer, uint32_t serial, s
 static void
 wayland_pointer_motion(void *data, struct wl_pointer *pointer, uint32_t time, wl_fixed_t x, wl_fixed_t y)
 {
+    wayland_seat *self = data;
+
+    self->button.x = wl_fixed_to_int(x);
+    self->button.y = wl_fixed_to_int(y);
+    self->motion.x = wl_fixed_to_int(x);
+    self->motion.y = wl_fixed_to_int(y);
+    self->motion.time = time;
+
+    if ( wl_pointer_get_version(self->pointer) >= WL_POINTER_FRAME_SINCE_VERSION )
+        return;
+
+    wayland_pointer_send_events(self);
 }
 
 static void
@@ -610,10 +684,25 @@ wayland_pointer_button(void *data, struct wl_pointer *pointer, uint32_t serial, 
 {
     wayland_seat *self = data;
 
+    self->button.time = time;
+    self->button.pressed = (state == WL_POINTER_BUTTON_STATE_PRESSED);
+    switch ( button )
+    {
+    case BTN_LEFT:
+        self->button.button = WIDGET_BUTTON_LEFT;
+    break;
+    case BTN_RIGHT:
+        self->button.button = WIDGET_BUTTON_RIGHT;
+    break;
+    case BTN_MIDDLE:
+        self->button.button = WIDGET_BUTTON_MIDDLE;
+    break;
+    }
+
     if ( wl_pointer_get_version(self->pointer) >= WL_POINTER_FRAME_SINCE_VERSION )
         return;
 
-    rofi_view_maybe_update();
+    wayland_pointer_send_events(self);
 }
 
 static void
@@ -624,15 +713,24 @@ wayland_pointer_axis(void *data, struct wl_pointer *pointer, uint32_t time, enum
     if ( wl_pointer_get_version(self->pointer) >= WL_POINTER_FRAME_SINCE_VERSION )
         return;
 
-    wayland_pointer_trigger_wheel(self);
+    switch ( axis )
+    {
+    case WL_POINTER_AXIS_VERTICAL_SCROLL:
+        self->wheel.vertical += (gint)(wl_fixed_to_double(value) / 10.);
+    break;
+    case WL_POINTER_AXIS_HORIZONTAL_SCROLL:
+        self->wheel.horizontal += (gint)(wl_fixed_to_double(value) / 10.);
+    break;
+    }
+
+    wayland_pointer_send_events(self);
 }
 
 static void
 wayland_pointer_frame(void *data, struct wl_pointer *pointer)
 {
     wayland_seat *self = data;
-    wayland_pointer_trigger_wheel(self);
-    rofi_view_maybe_update();
+    wayland_pointer_send_events(self);
 }
 
 static void
@@ -649,6 +747,16 @@ static void
 wayland_pointer_axis_discrete(void *data, struct wl_pointer *pointer, enum wl_pointer_axis axis, int32_t discrete)
 {
     wayland_seat *self = data;
+
+    switch ( axis )
+    {
+    case WL_POINTER_AXIS_VERTICAL_SCROLL:
+        self->wheel.vertical += discrete;
+    break;
+    case WL_POINTER_AXIS_HORIZONTAL_SCROLL:
+        self->wheel.horizontal += discrete;
+    break;
+    }
 }
 
 static const struct wl_pointer_listener wayland_pointer_listener = {

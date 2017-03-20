@@ -70,25 +70,25 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
         // Compare against lowered version.
         char *entry_lowered = g_utf8_strdown ( entry, -1 );
         if ( g_utf8_collate ( entry_lowered, "shift" ) == 0  ) {
-            modmask |= (1 << X11MOD_SHIFT);
+            modmask |= WIDGET_MODMASK_SHIFT;
         }
         else if  ( g_utf8_collate ( entry_lowered, "control" ) == 0 ) {
-            modmask |= (1 << X11MOD_CONTROL);
+            modmask |= WIDGET_MODMASK_CONTROL;
         }
         else if  ( g_utf8_collate ( entry_lowered, "alt" ) == 0 ) {
-            modmask |= (1 << X11MOD_ALT);
+            modmask |= WIDGET_MODMASK_ALT;
         }
         else if  ( g_utf8_collate ( entry_lowered, "super" ) == 0 ||
                    g_utf8_collate ( entry_lowered, "super_l" ) == 0 ||
                    g_utf8_collate ( entry_lowered, "super_r" ) == 0
                    ) {
-            modmask |= (1 << X11MOD_SUPER);
+            modmask |= WIDGET_MODMASK_SUPER;
         }
         else if  ( g_utf8_collate ( entry_lowered, "meta" ) == 0 ) {
-            modmask |= (1 << X11MOD_META);
+            modmask |= WIDGET_MODMASK_META;
         }
         else if  ( g_utf8_collate ( entry_lowered, "hyper" ) == 0 ) {
-            modmask |= (1 << X11MOD_HYPER);
+            modmask |= WIDGET_MODMASK_HYPER;
         }
         else {
             if ( sym != XKB_KEY_NoSymbol ) {

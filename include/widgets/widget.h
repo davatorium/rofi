@@ -2,8 +2,6 @@
 #define ROFI_WIDGET_H
 #include <glib.h>
 #include <cairo.h>
-#include <xcb/xcb.h>
-#include <xcb/xproto.h>
 /**
  * @defgroup widget widget
  *
@@ -22,10 +20,57 @@
  */
 typedef struct _widget   widget;
 
+typedef enum
+{
+    /** Shift key */
+    WIDGET_MOD_SHIFT,
+    /** Control Key */
+    WIDGET_MOD_CONTROL,
+    /** Alt key */
+    WIDGET_MOD_ALT,
+    /** Meta key */
+    WIDGET_MOD_META,
+    /** Super (window) key */
+    WIDGET_MOD_SUPER,
+    /** Hyper key */
+    WIDGET_MOD_HYPER,
+    /** Number of modifier keys */
+#define NUM_WIDGET_MOD (WIDGET_MOD_HYPER+1)
+} widget_modifier;
+
+typedef enum {
+    WIDGET_MODMASK_SHIFT   = (1 << WIDGET_MOD_SHIFT),
+    WIDGET_MODMASK_CONTROL = (1 << WIDGET_MOD_CONTROL),
+    WIDGET_MODMASK_ALT     = (1 << WIDGET_MOD_ALT),
+    WIDGET_MODMASK_META    = (1 << WIDGET_MOD_META),
+    WIDGET_MODMASK_SUPER   = (1 << WIDGET_MOD_SUPER),
+    WIDGET_MODMASK_HYPER   = (1 << WIDGET_MOD_HYPER),
+    WIDGET_MODMASK_ALL     = (WIDGET_MODMASK_SHIFT | WIDGET_MODMASK_CONTROL | WIDGET_MODMASK_ALT | WIDGET_MODMASK_META | WIDGET_MODMASK_SUPER | WIDGET_MODMASK_HYPER)
+} widget_modifier_mask;
+
+typedef enum {
+    WIDGET_BUTTON_LEFT = 1,
+    WIDGET_BUTTON_RIGHT,
+    WIDGET_BUTTON_MIDDLE,
+} widget_button;
+
+typedef struct {
+    widget_button button;
+    widget_modifier_mask modifiers;
+    gint x, y;
+    gboolean pressed;
+    guint32 time;
+} widget_button_event;
+
+typedef struct {
+    gint x, y;
+    guint32 time;
+} widget_motion_event;
+
 /**
  * Callback for when widget is clicked.
  */
-typedef gboolean ( *widget_clicked_cb )( widget *, xcb_button_press_event_t *, void * );
+typedef gboolean ( *widget_clicked_cb )( widget *, widget_button_event *, void * );
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
 #define WIDGET( a )    ( (widget *) ( a ) )
@@ -153,7 +198,7 @@ gboolean widget_need_redraw ( widget *wid );
  *
  * @returns returns TRUE if click is handled.
  */
-gboolean widget_clicked ( widget *wid, xcb_button_press_event_t *xbe );
+gboolean widget_clicked ( widget *wid, widget_button_event *be );
 
 /**
  * @param wid The widget handle
@@ -172,7 +217,7 @@ void widget_set_clicked_handler ( widget *wid, widget_clicked_cb cb, void *udata
  * TODO make this like clicked with callback.
  * returns TRUE when handled.
  */
-gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
+gboolean widget_motion_notify ( widget *wid, widget_motion_event *me );
 
 /**
  * @param wid The widget handle

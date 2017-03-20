@@ -389,10 +389,10 @@ gboolean widget_need_redraw ( widget *wid )
     }
     return FALSE;
 }
-gboolean widget_clicked ( widget *wid, xcb_button_press_event_t *xbe )
+gboolean widget_clicked ( widget *wid, widget_button_event *be )
 {
     if ( wid && wid->clicked ) {
-        return wid->clicked ( wid, xbe, wid->clicked_cb_data );
+        return wid->clicked ( wid, be, wid->clicked_cb_data );
     }
     return FALSE;
 }
@@ -404,10 +404,10 @@ void widget_set_clicked_handler ( widget *wid, widget_clicked_cb cb, void *udata
     }
 }
 
-gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
+gboolean widget_motion_notify ( widget *wid, widget_motion_event *me )
 {
     if ( wid && wid->motion_notify ) {
-        wid->motion_notify ( wid, xme );
+        wid->motion_notify ( wid, me );
     }
 
     return FALSE;

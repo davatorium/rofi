@@ -34,7 +34,7 @@
 
 static void scrollbar_draw ( widget *, cairo_t * );
 static void scrollbar_free ( widget * );
-static gboolean scrollbar_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
+static gboolean scrollbar_motion_notify ( widget *wid, widget_motion_event *me );
 
 static int scrollbar_get_desired_height ( widget *wid )
 {
@@ -131,12 +131,12 @@ static void scrollbar_draw ( widget *wid, cairo_t *draw )
                       height );
     cairo_fill ( draw );
 }
-static gboolean scrollbar_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
+static gboolean scrollbar_motion_notify ( widget *wid, widget_motion_event *me )
 {
-    xcb_button_press_event_t xle;
-    xle.event_x = xme->event_x;
-    xle.event_y = xme->event_y;
-    return widget_clicked ( WIDGET ( wid ), &xle );
+    widget_button_event le;
+    le.x = me->x;
+    le.y = me->y;
+    return widget_clicked ( WIDGET ( wid ), &le );
 }
 
 // TODO

@@ -87,24 +87,24 @@ static void container_resize ( widget *widget, short w, short h )
     }
 }
 
-static gboolean container_clicked ( widget *wid, xcb_button_press_event_t *xbe, G_GNUC_UNUSED void *udata )
+static gboolean container_clicked ( widget *wid, widget_button_event *be, G_GNUC_UNUSED void *udata )
 {
     container *b = (container *) wid;
-    if ( widget_intersect ( b->child, xbe->event_x, xbe->event_y ) ) {
-        xcb_button_press_event_t rel = *xbe;
-        rel.event_x -= b->child->x;
-        rel.event_y -= b->child->y;
+    if ( widget_intersect ( b->child, be->x, be->y ) ) {
+        widget_button_event rel = *be;
+        rel.x -= b->child->x;
+        rel.y -= b->child->y;
         return widget_clicked ( b->child, &rel );
     }
     return FALSE;
 }
-static gboolean container_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
+static gboolean container_motion_notify ( widget *wid, widget_motion_event *me )
 {
     container *b = (container *) wid;
-    if ( widget_intersect ( b->child, xme->event_x, xme->event_y ) ) {
-        xcb_motion_notify_event_t rel = *xme;
-        rel.event_x -= b->child->x;
-        rel.event_y -= b->child->y;
+    if ( widget_intersect ( b->child, me->x, me->y ) ) {
+        widget_motion_event rel = *me;
+        rel.x -= b->child->x;
+        rel.y -= b->child->y;
         return widget_motion_notify ( b->child, &rel );
     }
     return FALSE;

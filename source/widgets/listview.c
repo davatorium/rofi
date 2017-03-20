@@ -77,7 +77,7 @@ struct _listview
 
     gboolean                    scrollbar_scroll;
 
-    xcb_timestamp_t             last_click;
+    guint32                     last_click;
     listview_mouse_activated_cb mouse_activated;
     void                        *mouse_activated_data;
 
@@ -298,57 +298,57 @@ static void listview_resize ( widget *wid, short w, short h )
     widget_queue_redraw ( wid );
 }
 
-static gboolean listview_scrollbar_clicked ( widget *sb, xcb_button_press_event_t * xce, void *udata )
+static gboolean listview_scrollbar_clicked ( widget *sb, widget_button_event * be, void *udata )
 {
     listview     *lv = (listview *) udata;
 
-    unsigned int sel = scrollbar_clicked ( (scrollbar *) sb, xce->event_y );
+    unsigned int sel = scrollbar_clicked ( (scrollbar *) sb, be->y );
     listview_set_selected ( lv, sel );
 
     return TRUE;
 }
 
-static gboolean listview_clicked ( widget *wid, xcb_button_press_event_t *xce, G_GNUC_UNUSED void *udata )
+static gboolean listview_clicked ( widget *wid, widget_button_event *be, G_GNUC_UNUSED void *udata )
 {
     listview *lv = (listview *) wid;
     lv->scrollbar_scroll = FALSE;
-    if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) && widget_intersect ( WIDGET ( lv->scrollbar ), xce->event_x, xce->event_y ) ) {
+    if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) && widget_intersect ( WIDGET ( lv->scrollbar ), be->x, be->y ) ) {
         // Forward to handler of scrollbar.
-        xcb_button_press_event_t xce2 = *xce;
-        xce->event_x        -= widget_get_x_pos ( WIDGET ( lv->scrollbar ) );
-        xce->event_y        -= widget_get_y_pos ( WIDGET ( lv->scrollbar ) );
+        widget_button_event be2 = *be;
+        be2.x        -= widget_get_x_pos ( WIDGET ( lv->scrollbar ) );
+        be2.y        -= widget_get_y_pos ( WIDGET ( lv->scrollbar ) );
         lv->scrollbar_scroll = TRUE;
-        return widget_clicked ( WIDGET ( lv->scrollbar ), &xce2 );
+        return widget_clicked ( WIDGET ( lv->scrollbar ), &be2 );
     }
     // Handle the boxes.
     unsigned int max = MIN ( lv->cur_elements, lv->req_elements - lv->last_offset );
     for ( unsigned int i = 0; i < max; i++ ) {
         widget *w = WIDGET ( lv->boxes[i] );
-        if ( widget_intersect ( w, xce->event_x, xce->event_y ) ) {
+        if ( widget_intersect ( w, be->x, be->y ) ) {
             if ( ( lv->last_offset + i ) == lv->selected ) {
-                if ( ( xce->time - lv->last_click ) < 200 ) {
+                if ( ( be->time - lv->last_click ) < 200 ) {
                     // Somehow signal we accepted item.
-                    lv->mouse_activated ( lv, xce, lv->mouse_activated_data );
+                    lv->mouse_activated ( lv, be, lv->mouse_activated_data );
                 }
             }
             else {
                 listview_set_selected ( lv, lv->last_offset + i );
             }
-            lv->last_click = xce->time;
+            lv->last_click = be->time;
             return TRUE;
         }
     }
     return FALSE;
 }
 
-static gboolean listview_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
+static gboolean listview_motion_notify ( widget *wid, widget_motion_event *me )
 {
     listview *lv = (listview *) wid;
     if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) && lv->scrollbar_scroll ) {
-        xcb_motion_notify_event_t xle = *xme;
-        xle.event_x -= wid->x;
-        xle.event_y -= wid->y;
-        widget_motion_notify ( WIDGET ( lv->scrollbar ), &xle );
+        widget_motion_event le = *me;
+        le.x -= wid->x;
+        le.y -= wid->y;
+        widget_motion_notify ( WIDGET ( lv->scrollbar ), &le );
         return TRUE;
     }
 
