@@ -44,15 +44,5 @@ typedef struct
 Color color_get ( const char *const name );
 
 
-/**
- * @param mask the mask to check for key
- * @param key the key to check in mask
- *
- * Check if key is in the modifier mask.
- *
- * @returns TRUE if key is in the modifier mask
- */
-int x11_modifier_active ( unsigned int mask, int key );
-
 /*@}*/
 #endif

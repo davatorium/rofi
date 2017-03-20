@@ -1,7 +1,7 @@
 #ifndef ROFI_KEYB_H
 #define ROFI_KEYB_H
 
-#include "wayland.h"
+#include "display.h"
 
 /**
  * @defgroup KEYB KeyboardBindings

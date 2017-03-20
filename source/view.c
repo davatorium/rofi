@@ -45,7 +45,7 @@
 #include "xkb-internal.h"
 #include "helper.h"
 #include "helper-theme.h"
-#include "wayland.h"
+#include "display.h"
 #include "x11-helper.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
@@ -227,8 +227,8 @@ static void rofi_view_window_update_size ( RofiViewState * state )
 
     // FIXME: get next buffer
     if ( state->pool != NULL )
-        wayland_buffer_pool_free(state->pool);
-    state->pool = wayland_buffer_pool_new(state->width, state->height);
+        display_buffer_pool_free(state->pool);
+    state->pool = display_buffer_pool_new(state->width, state->height);
 
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Re-size window based internal request: %dx%d.", state->width, state->height );
     // Should wrap main window in a widget.
@@ -651,7 +651,7 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
     }
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Redraw view" );
     TICK ();
-    cairo_surface_t *surface = wayland_buffer_pool_get_next_buffer(state->pool);
+    cairo_surface_t *surface = display_buffer_pool_get_next_buffer(state->pool);
     cairo_t *d = cairo_create(surface);
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
     // Paint the background transparent.
@@ -668,7 +668,7 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
     }
     TICK_N ( "widgets" );
     cairo_destroy(d);
-    wayland_surface_commit ( surface );
+    display_surface_commit ( surface );
 
     if ( qr ) {
         rofi_view_queue_redraw ();

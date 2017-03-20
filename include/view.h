@@ -2,7 +2,7 @@
 #define ROFI_VIEW_H
 #include "mode.h"
 #include "keyb.h"
-#include "wayland.h"
+#include "display.h"
 
 /**
  * @defgroup View View

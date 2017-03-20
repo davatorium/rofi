@@ -67,7 +67,7 @@ SOURCES=\
 	source/dialogs/combi.c\
 	source/dialogs/script.c\
 	source/dialogs/help-keys.c\
-	include/wayland.h\
+	include/display.h\
 	include/rofi.h\
 	include/mode.h\
 	include/mode-private.h\

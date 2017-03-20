@@ -41,8 +41,7 @@
 
 #include <glib-unix.h>
 
-#include "wayland.h"
-#include "xkb-internal.h"
+#include "display.h"
 
 #include "settings.h"
 #include "mode.h"
@@ -313,7 +312,7 @@ static void cleanup ()
     }
 
     // Cleanup
-    wayland_cleanup();
+    display_cleanup();
 
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
@@ -874,7 +873,7 @@ int main ( int argc, char *argv[] )
         exit ( EXIT_SUCCESS );
     }
 
-    if ( ! wayland_init ( main_loop, display_str ) )
+    if ( ! display_init ( main_loop, display_str ) )
     {
         fprintf ( stderr, "cannot setup Wayland connection!\n" );
         return EXIT_FAILURE;

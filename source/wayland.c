@@ -45,7 +45,7 @@
 #include "view.h"
 
 #include "unstable/launcher-menu/launcher-menu-unstable-v1-client-protocol.h"
-#include "wayland.h"
+#include "display.h"
 
 /* Supported interface versions */
 #define WL_COMPOSITOR_INTERFACE_VERSION 3
@@ -90,7 +90,7 @@ typedef struct {
     int32_t scale;
 } wayland_stuff;
 
-struct _wayland_seat {
+typedef struct {
     wayland_stuff *context;
     uint32_t global_name;
     struct wl_seat *seat;
@@ -121,8 +121,9 @@ struct _wayland_seat {
         gint vertical;
         gint horizontal;
     } wheel;
-};
+} wayland_seat;
 
+typedef struct _display_buffer_pool wayland_buffer_pool;
 typedef struct {
     wayland_stuff *context;
     uint32_t global_name;
@@ -137,7 +138,7 @@ typedef struct {
     gboolean released;
 } wayland_buffer;
 
-struct _wayland_buffer_pool {
+struct _display_buffer_pool {
     wayland_stuff *context;
     uint8_t *data;
     size_t size;
@@ -196,7 +197,7 @@ static const struct wl_buffer_listener wayland_buffer_listener = {
 };
 
 wayland_buffer_pool *
-wayland_buffer_pool_new(gint width, gint height)
+display_buffer_pool_new(gint width, gint height)
 {
     struct wl_shm_pool *wl_pool;
     struct wl_buffer *buffer;
@@ -260,7 +261,7 @@ wayland_buffer_pool_new(gint width, gint height)
 }
 
 void
-wayland_buffer_pool_free(wayland_buffer_pool *self)
+display_buffer_pool_free(wayland_buffer_pool *self)
 {
     self->to_free = TRUE;
     wayland_buffer_cleanup(self);
@@ -322,7 +323,7 @@ static const struct wl_callback_listener wayland_frame_wl_callback_listener = {
 };
 
 cairo_surface_t *
-wayland_buffer_pool_get_next_buffer(wayland_buffer_pool *pool)
+display_buffer_pool_get_next_buffer(wayland_buffer_pool *pool)
 {
     wayland_buffer *buffer = NULL;
     size_t i;
@@ -343,7 +344,7 @@ wayland_buffer_pool_get_next_buffer(wayland_buffer_pool *pool)
 }
 
 void
-wayland_surface_commit(cairo_surface_t *surface)
+display_surface_commit(cairo_surface_t *surface)
 {
     wayland_buffer *buffer = cairo_surface_get_user_data(surface, &wayland_cairo_surface_user_data);
     wayland_buffer_pool *pool = buffer->pool;
@@ -404,23 +405,6 @@ static void xkb_figure_out_masks ( wayland_seat *self )
     xkb_find_mod_mask ( self, WIDGET_MOD_META, "Meta", NULL );
     xkb_find_mod_mask ( self, WIDGET_MOD_SUPER, XKB_MOD_NAME_LOGO, "Super", NULL );
     xkb_find_mod_mask ( self, WIDGET_MOD_HYPER, "Hyper", NULL );
-}
-
-gboolean
-xkb_check_mod_match(wayland_seat *self, unsigned int mask, xkb_keysym_t key)
-{
-    guint mod;
-    xkb_mod_index_t *i;
-    for ( mod = 0; mod < NUM_WIDGET_MOD; ++mod ) {
-        gboolean expected = ( mask & ( 1 << mod ) );
-        gboolean found = FALSE;
-        for ( i = self->xkb.mods[mod] ; *i != XKB_MOD_INVALID ; ++i ) {
-            found = found || ( xkb_state_mod_index_is_active(self->xkb.state, *i, XKB_STATE_MODS_EFFECTIVE) && ! xkb_state_mod_index_is_consumed(self->xkb.state, key, *i) );
-        }
-        if ( expected != found )
-            return FALSE;
-    }
-    return TRUE;
 }
 
 static widget_modifier_mask
@@ -1072,7 +1056,7 @@ wayland_error(gpointer user_data)
 }
 
 gboolean
-wayland_init(GMainLoop *main_loop, const gchar *display)
+display_init(GMainLoop *main_loop, const gchar *display)
 {
     wayland->main_loop = main_loop;
 
@@ -1131,7 +1115,7 @@ wayland_init(GMainLoop *main_loop, const gchar *display)
 }
 
 void
-wayland_cleanup(void)
+display_cleanup(void)
 {
     if ( wayland->main_loop_source == NULL )
         return;

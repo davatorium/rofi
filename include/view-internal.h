@@ -89,7 +89,7 @@ struct RofiViewState
     /** Height of the view */
     int              height;
     /** Buffer pool */
-    wayland_buffer_pool *pool;
+    display_buffer_pool *pool;
 
     /** Regexs used for matching */
     GRegex           **tokens;
