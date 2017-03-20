@@ -1002,7 +1002,16 @@ wayland_init(GMainLoop *main_loop, const gchar *display)
             return FALSE;
 
         guint64 serial = g_ascii_strtoull(serial_str, NULL, 10);
-        zww_launcher_menu_v1_show_at_pointer(wayland->launcher_menu, wayland->surface, seat->seat, serial);
+        const gchar *geometry = g_getenv("ROFI_GEOMETRY");
+        if ( geometry != NULL )
+        {
+            int x, y, width, height;
+            if ( sscanf(geometry, "%dx%d@%d,%d", &width, &height, &x, &y) != 4 )
+                return FALSE;
+            zww_launcher_menu_v1_show_at_surface(wayland->launcher_menu, wayland->surface, seat->seat, serial, x, y, width, height);
+        }
+        else
+            zww_launcher_menu_v1_show_at_pointer(wayland->launcher_menu, wayland->surface, seat->seat, serial);
     }
     else
         zww_launcher_menu_v1_show(wayland->launcher_menu, wayland->surface);
