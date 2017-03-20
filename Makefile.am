@@ -59,6 +59,7 @@ SOURCES=\
 	source/widgets/scrollbar.c\
 	source/xrmoptions-dummy.c\
 	source/wayland.c\
+	source/xkb.c\
 	source/x11-helper.c\
 	source/dialogs/run.c\
 	source/dialogs/ssh.c\
@@ -97,8 +98,7 @@ SOURCES=\
 	include/dialogs/script.h\
 	include/dialogs/dialogs.h\
 	include/dialogs/help-keys.h\
-	include/xkb.h\
-	include/xkb-internal.h
+	include/xkb.h
 
 rofi_SOURCES=\
 			 lexer/theme-parser.y\

@@ -42,6 +42,7 @@
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-compose.h>
 
+#include "xkb.h"
 #include "view.h"
 
 #include "unstable/launcher-menu/launcher-menu-unstable-v1-client-protocol.h"
@@ -96,24 +97,7 @@ typedef struct {
     struct wl_seat *seat;
     gchar *name;
     struct wl_keyboard *keyboard;
-    struct {
-        /** Keyboard context */
-        struct xkb_context *context;
-        /** Current keymap */
-        struct xkb_keymap  *keymap;
-        /** Keyboard state */
-        struct xkb_state   *state;
-        /** Modifiers indexes */
-        xkb_mod_index_t mods[NUM_WIDGET_MOD][8];
-        /** Compose information */
-        struct
-        {
-            /** Compose table */
-            struct xkb_compose_table *table;
-            /** Compose state */
-            struct xkb_compose_state *state;
-        } compose;
-    } xkb;
+    xkb_stuff xkb;
     struct wl_pointer *pointer;
     widget_button_event button;
     widget_motion_event motion;
@@ -381,48 +365,6 @@ static const struct zww_launcher_menu_v1_listener wayland_listener = {
     .dismiss = wayland_dismiss,
 };
 
-static void xkb_find_mod_mask ( wayland_seat *self, widget_modifier mod, ... )
-{
-    va_list         names;
-    const char      *name;
-    xkb_mod_index_t i, *m = self->xkb.mods[mod];
-    va_start ( names, mod );
-    while ( ( name = va_arg ( names, const char * ) ) != NULL ) {
-        i = xkb_keymap_mod_get_index ( self->xkb.keymap, name );
-        if ( i != XKB_MOD_INVALID ) {
-            *m++ = i;
-        }
-    }
-    *m = XKB_MOD_INVALID;
-    va_end ( names );
-}
-
-static void xkb_figure_out_masks ( wayland_seat *self )
-{
-    xkb_find_mod_mask ( self, WIDGET_MOD_SHIFT, XKB_MOD_NAME_SHIFT, NULL );
-    xkb_find_mod_mask ( self, WIDGET_MOD_CONTROL, XKB_MOD_NAME_CTRL, NULL );
-    xkb_find_mod_mask ( self, WIDGET_MOD_ALT, XKB_MOD_NAME_ALT, "Alt", "LAlt", "RAlt", "AltGr", "Mod5", "LevelThree", NULL );
-    xkb_find_mod_mask ( self, WIDGET_MOD_META, "Meta", NULL );
-    xkb_find_mod_mask ( self, WIDGET_MOD_SUPER, XKB_MOD_NAME_LOGO, "Super", NULL );
-    xkb_find_mod_mask ( self, WIDGET_MOD_HYPER, "Hyper", NULL );
-}
-
-static widget_modifier_mask
-xkb_get_modmask(wayland_seat *self, xkb_keysym_t key)
-{
-    widget_modifier_mask mask = 0;
-    widget_modifier mod;
-    xkb_mod_index_t *i;
-    for ( mod = 0; mod < NUM_WIDGET_MOD; ++mod ) {
-        gboolean found = FALSE;
-        for ( i = self->xkb.mods[mod] ; ! found && *i != XKB_MOD_INVALID ; ++i ) {
-            found = ( xkb_state_mod_index_is_active(self->xkb.state, *i, XKB_STATE_MODS_EFFECTIVE) && ! xkb_state_mod_index_is_consumed(self->xkb.state, key, *i) );
-        }
-        if ( found )
-            mask |= (1 << mod);
-    }
-    return mask;
-}
 
 static void
 wayland_keyboard_keymap(void *data, struct wl_keyboard *keyboard, enum wl_keyboard_keymap_format format, int32_t fd, uint32_t size)
@@ -451,11 +393,7 @@ wayland_keyboard_keymap(void *data, struct wl_keyboard *keyboard, enum wl_keyboa
         return;
     }
 
-    self->xkb.compose.table = xkb_compose_table_new_from_locale ( self->xkb.context, setlocale ( LC_CTYPE, NULL ), 0 );
-    if ( self->xkb.compose.table != NULL ) {
-        self->xkb.compose.state = xkb_compose_state_new ( self->xkb.compose.table, 0 );
-    }
-    xkb_figure_out_masks(self);
+    xkb_common_init(&self->xkb);
 }
 
 static void
@@ -474,50 +412,21 @@ static void
 wayland_keyboard_key(void *data, struct wl_keyboard *keyboard, uint32_t serial, uint32_t time, uint32_t key, enum wl_keyboard_key_state state)
 {
     wayland_seat *self = data;
+    widget_modifier_mask modmask;
     xkb_keysym_t keysym;
-    char         pad[32];
+    char *text;
     int          len = 0;
 
-    key += 8;
+    keysym = xkb_handle_key(&self->xkb, key + 8, &text, &len);
+    modmask = xkb_get_modmask(&self->xkb, keysym);
 
     if ( state == WL_KEYBOARD_KEY_STATE_RELEASED ) {
-        // FIXME: check mods
-        // abe_trigger_release ();
+        if ( modmask == 0 )
+            abe_trigger_release ();
         return;
     }
 
-    keysym = xkb_state_key_get_one_sym ( self->xkb.state, key );
-
-    if ( self->xkb.compose.state != NULL ) {
-        if ( ( keysym != XKB_KEY_NoSymbol ) && ( xkb_compose_state_feed ( self->xkb.compose.state, keysym ) == XKB_COMPOSE_FEED_ACCEPTED ) ) {
-            switch ( xkb_compose_state_get_status ( self->xkb.compose.state ) )
-            {
-            case XKB_COMPOSE_CANCELLED:
-            /* Eat the keysym that cancelled the compose sequence.
-             * This is default behaviour with Xlib */
-            case XKB_COMPOSE_COMPOSING:
-                keysym = XKB_KEY_NoSymbol;
-                break;
-            case XKB_COMPOSE_COMPOSED:
-                keysym = xkb_compose_state_get_one_sym ( self->xkb.compose.state );
-                len = xkb_compose_state_get_utf8 ( self->xkb.compose.state, pad, sizeof ( pad ) );
-                break;
-            case XKB_COMPOSE_NOTHING:
-                break;
-            }
-            if ( ( keysym == XKB_KEY_NoSymbol ) && ( len == 0 ) ) {
-                return;
-            }
-        }
-    }
-
-    if ( len == 0 ) {
-        len = xkb_state_key_get_utf8 ( self->xkb.state, key, pad, sizeof ( pad ) );
-    }
-
-    widget_modifier_mask modmask = xkb_get_modmask(self, key);
-
-    rofi_view_handle_keypress ( modmask, keysym, pad, len );
+    rofi_view_handle_keypress ( modmask, keysym, text, len );
     rofi_view_maybe_update();
 }
 
@@ -582,8 +491,7 @@ wayland_cursor_frame_callback(void *data, struct wl_callback *callback, uint32_t
 static void
 wayland_pointer_send_events(wayland_seat *self)
 {
-    //rofi_view_mouse_navigation();
-    widget_modifier_mask modmask = xkb_get_modmask(self, XKB_KEY_NoSymbol);
+    widget_modifier_mask modmask = xkb_get_modmask(&self->xkb, XKB_KEY_NoSymbol);
 
     if ( self->motion.x > -1 || self->motion.y > -1 )
     {
