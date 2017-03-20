@@ -81,6 +81,7 @@ typedef struct {
         struct wl_callback *frame_cb;
     } cursor;
     GHashTable *seats;
+    GHashTable *seats_by_name;
     GHashTable *outputs;
     struct wl_surface *surface;
     struct wl_callback *frame_cb;
@@ -92,6 +93,7 @@ struct _wayland_seat {
     wayland_stuff *context;
     uint32_t global_name;
     struct wl_seat *seat;
+    gchar *name;
     struct wl_keyboard *keyboard;
     struct {
         /** Keyboard context */
@@ -753,6 +755,12 @@ wayland_seat_capabilities(void *data, struct wl_seat *seat, uint32_t capabilitie
 static void
 wayland_seat_name(void *data, struct wl_seat *seat, const char *name)
 {
+    wayland_seat *self = data;
+
+    if ( self->name != NULL )
+        g_hash_table_remove(wayland->seats_by_name, self->name);
+    self->name = g_strdup(name);
+    g_hash_table_insert(wayland->seats_by_name, self->name, self);
 }
 
 static const struct wl_seat_listener wayland_seat_listener = {
@@ -948,6 +956,13 @@ static const struct wl_registry_listener wayland_registry_listener = {
     .global_remove = wayland_registry_handle_global_remove,
 };
 
+static gboolean
+wayland_error(gpointer user_data)
+{
+    g_main_loop_quit(wayland->main_loop);
+    return G_SOURCE_REMOVE;
+}
+
 gboolean
 wayland_init(GMainLoop *main_loop, const gchar *display)
 {
@@ -957,11 +972,14 @@ wayland_init(GMainLoop *main_loop, const gchar *display)
     if ( wayland->main_loop_source == NULL )
         return FALSE;
 
+    g_water_wayland_source_set_error_callback(wayland->main_loop_source, wayland_error, NULL, NULL);
+
     wayland->buffer_count = 3;
     wayland->scale = 1;
 
     wayland->outputs = g_hash_table_new(g_direct_hash, g_direct_equal);
     wayland->seats = g_hash_table_new(g_direct_hash, g_direct_equal);
+    wayland->seats_by_name = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 
     wayland->display = g_water_wayland_source_get_display ( wayland->main_loop_source );
     wayland->registry = wl_display_get_registry ( wayland->display );
@@ -972,7 +990,23 @@ wayland_init(GMainLoop *main_loop, const gchar *display)
         return FALSE;
 
     wayland->surface = wl_compositor_create_surface(wayland->compositor);
-    zww_launcher_menu_v1_show(wayland->launcher_menu, wayland->surface);
+
+    const gchar *serial_str = g_getenv("ROFI_SERIAL");
+    const gchar *seat_name = g_getenv("ROFI_SEAT");
+    if ( ( serial_str != NULL ) && ( seat_name != NULL ) )
+    {
+        wl_display_roundtrip ( wayland->display );
+
+        wayland_seat *seat = g_hash_table_lookup(wayland->seats_by_name, seat_name);
+        if ( seat == NULL )
+            return FALSE;
+
+        guint64 serial = g_ascii_strtoull(serial_str, NULL, 10);
+        zww_launcher_menu_v1_show_at_pointer(wayland->launcher_menu, wayland->surface, seat->seat, serial);
+    }
+    else
+        zww_launcher_menu_v1_show(wayland->launcher_menu, wayland->surface);
+
     wl_surface_add_listener(wayland->surface, &wayland_surface_interface, wayland);
     wayland_frame_callback(wayland, wayland->frame_cb, 0);
 
@@ -985,7 +1019,10 @@ wayland_cleanup(void)
     if ( wayland->main_loop_source == NULL )
         return;
 
-    wl_surface_destroy(wayland->surface);
+    if ( wayland->surface != NULL )
+        wl_surface_destroy(wayland->surface);
+
+    g_hash_table_unref( wayland->seats_by_name);
     g_hash_table_unref( wayland->seats);
     g_hash_table_unref( wayland->outputs);
     wl_registry_destroy ( wayland->registry );
