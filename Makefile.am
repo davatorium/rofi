@@ -6,7 +6,6 @@ ACLOCAL_AMFLAGS = -I libgwater ${ACLOCAL_FLAGS}
 AM_YFLAGS = -d
 
 noinst_LIBRARIES =
-include $(top_srcdir)/libgwater-wayland-nolibtool.mk
 
 ##
 # PKG CONFIG file
@@ -36,7 +35,6 @@ dist_bin_SCRIPTS=\
 	script/rofi-theme-selector
 
 nodist_rofi_SOURCES=\
-	source/unstable/launcher-menu/launcher-menu-unstable-v1-protocol.c
 	$(top_builddir)/gitconfig.h
 
 rofi source/wayland.o: include/unstable/launcher-menu/launcher-menu-unstable-v1-client-protocol.h
@@ -58,7 +56,6 @@ SOURCES=\
 	source/widgets/listview.c\
 	source/widgets/scrollbar.c\
 	source/xrmoptions-dummy.c\
-	source/wayland.c\
 	source/xkb.c\
 	source/x11-helper.c\
 	source/dialogs/run.c\
@@ -100,6 +97,16 @@ SOURCES=\
 	include/dialogs/help-keys.h\
 	include/xkb.h
 
+if WAYLAND_BACKEND
+SOURCES += source/wayland.c
+nodist_rofi_SOURCES += source/unstable/launcher-menu/launcher-menu-unstable-v1-protocol.c
+include $(top_srcdir)/libgwater-wayland-nolibtool.mk
+endif
+if XCB_BACKEND
+SOURCES += source/xcb.c
+include $(top_srcdir)/libgwater-xcb-nolibtool.mk
+endif
+
 rofi_SOURCES=\
 			 lexer/theme-parser.y\
 			 lexer/theme-lexer.l\
@@ -109,6 +116,7 @@ rofi_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(GW_WAYLAND_CFLAGS)\
+	$(GW_XCB_CFLAGS)\
 	$(pango_CFLAGS)\
 	$(cairo_CFLAGS)\
 	-DMANPAGE_PATH="\"$(mandir)/\""\
@@ -123,6 +131,7 @@ rofi_CFLAGS=\
 rofi_LDADD=\
 	$(glib_LIBS)\
 	$(GW_WAYLAND_LIBS)\
+	$(GW_XCB_LIBS)\
 	$(pango_LIBS)\
 	$(cairo_LIBS)\
 	$(LIBS)

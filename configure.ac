@@ -115,16 +115,25 @@ dnl ---------------------------------------------------------------------
 dnl PKG_CONFIG based dependencies
 dnl ---------------------------------------------------------------------
 PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40 gio-unix-2.0 gmodule-2.0])
-GW_CHECK_WAYLAND([wayland-cursor wayland-wall xkbcommon >= 0.5.0])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo])
 
-PKG_CHECK_MODULES([WAYLAND_PROTOCLS], [wayland-protocols])
-PKG_CHECK_MODULES([WAYLAND_WALL], [wayland-wall])
-wpprotocoldir=`${PKG_CONFIG} --variable=pkgdatadir wayland-protocols`
-wwprotocoldir=`${PKG_CONFIG} --variable=pkgdatadir wayland-wall`
-AC_SUBST([wpprotocoldir])
-AC_SUBST([wwprotocoldir])
+AC_ARG_WITH([display-backend], AS_HELP_STRING([--with-display-backend=@<:@wayland|xcb@:>@], [The display backend to use, Wayland or XCB]), [], [with_display_backend=yes])
+AS_CASE([${with_display_backend}],
+    [xcb], [
+        GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon >= 0.5.0 xkbcommon-x11 xcb-ewmh xcb-icccm xcb-xrm xcb-randr xcb-xinerama])
+    ] ,[
+        GW_CHECK_WAYLAND([wayland-cursor wayland-wall xkbcommon >= 0.5.0])
+        PKG_CHECK_MODULES([WAYLAND_PROTOCLS], [wayland-protocols])
+        PKG_CHECK_MODULES([WAYLAND_WALL], [wayland-wall])
+        wpprotocoldir=`${PKG_CONFIG} --variable=pkgdatadir wayland-protocols`
+        wwprotocoldir=`${PKG_CONFIG} --variable=pkgdatadir wayland-wall`
+        AC_SUBST([wpprotocoldir])
+        AC_SUBST([wwprotocoldir])
+        with_display_backend=wayland
+])
+AM_CONDITIONAL([WAYLAND_BACKEND], [test x${with_display_backend} = xwayland])
+AM_CONDITIONAL([XCB_BACKEND], [test x${with_display_backend} = xxcb])
 
 dnl ---------------------------------------------------------------------
 dnl Add extra compiler flags
