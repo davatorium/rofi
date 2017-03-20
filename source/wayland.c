@@ -421,12 +421,14 @@ wayland_keyboard_key(void *data, struct wl_keyboard *keyboard, uint32_t serial, 
     modmask = xkb_get_modmask(&self->xkb, keysym);
 
     if ( state == WL_KEYBOARD_KEY_STATE_RELEASED ) {
-        if ( modmask == 0 )
-            abe_trigger_release ();
-        return;
+        if ( modmask != 0 )
+            return;
+        abe_trigger_release ();
+    }
+    else {
+        rofi_view_handle_keypress ( modmask, keysym, text, len );
     }
 
-    rofi_view_handle_keypress ( modmask, keysym, text, len );
     rofi_view_maybe_update();
 }
 
