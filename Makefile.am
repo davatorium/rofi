@@ -121,6 +121,7 @@ rofi_CFLAGS=\
 	$(cairo_CFLAGS)\
 	-DMANPAGE_PATH="\"$(mandir)/\""\
 	-I$(top_srcdir)/include/\
+	-I$(top_builddir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/\
 	-Werror=missing-prototypes\
