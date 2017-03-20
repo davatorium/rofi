@@ -50,8 +50,8 @@ typedef enum {
 
 typedef enum {
     WIDGET_BUTTON_LEFT = 1,
-    WIDGET_BUTTON_RIGHT,
-    WIDGET_BUTTON_MIDDLE,
+    WIDGET_BUTTON_RIGHT = 3,
+    WIDGET_BUTTON_MIDDLE = 2,
 } widget_button;
 
 typedef struct {

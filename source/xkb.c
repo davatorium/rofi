@@ -31,14 +31,10 @@
 #include <errno.h>
 #include <unistd.h>
 #include <locale.h>
-#include <linux/input-event-codes.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <cairo.h>
-#include <wayland-client.h>
-#include <wayland-cursor.h>
-#include <libgwater-wayland.h>
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-compose.h>
 

@@ -875,7 +875,7 @@ int main ( int argc, char *argv[] )
 
     if ( ! display_init ( main_loop, display_str ) )
     {
-        fprintf ( stderr, "cannot setup Wayland connection!\n" );
+        fprintf ( stderr, "cannot setup display!\n" );
         return EXIT_FAILURE;
     }
 

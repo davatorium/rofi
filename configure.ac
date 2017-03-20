@@ -121,7 +121,7 @@ PKG_CHECK_MODULES([cairo],	  [cairo])
 AC_ARG_WITH([display-backend], AS_HELP_STRING([--with-display-backend=@<:@wayland|xcb@:>@], [The display backend to use, Wayland or XCB]), [], [with_display_backend=yes])
 AS_CASE([${with_display_backend}],
     [xcb], [
-        GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon >= 0.5.0 xkbcommon-x11 xcb-ewmh xcb-icccm xcb-xrm xcb-randr xcb-xinerama])
+        GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon >= 0.5.0 xkbcommon-x11 xcb-ewmh xcb-icccm xcb-xrm xcb-randr xcb-xinerama cairo-xcb])
     ] ,[
         GW_CHECK_WAYLAND([wayland-cursor wayland-wall xkbcommon >= 0.5.0])
         PKG_CHECK_MODULES([WAYLAND_PROTOCLS], [wayland-protocols])
