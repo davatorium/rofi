@@ -1739,6 +1739,7 @@ void rofi_view_cleanup ()
         CacheState.edit_surf = NULL;
     }
     if ( CacheState.main_window != XCB_WINDOW_NONE ) {
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Unmapping and free'ing window");
         xcb_unmap_window ( xcb->connection, CacheState.main_window );
         xcb_free_gc ( xcb->connection, CacheState.gc );
         xcb_free_pixmap ( xcb->connection, CacheState.edit_pixmap );
@@ -1749,6 +1750,7 @@ void rofi_view_cleanup ()
         xcb_free_colormap ( xcb->connection, map );
         map = XCB_COLORMAP_NONE;
     }
+    xcb_flush ( xcb->connection );
     g_assert ( g_queue_is_empty ( &( CacheState.views ) ) );
 }
 void rofi_view_workers_initialize ( void )
