@@ -317,8 +317,6 @@ static gboolean xcb_callback(xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer use
         modmask = xkb_get_modmask(&xcb->xkb, keysym);
 
         rofi_view_handle_keypress ( modmask, keysym, text, len );
-
-        rofi_view_maybe_update();
         break;
     }
     case XCB_KEY_RELEASE:
@@ -341,15 +339,6 @@ static gboolean xcb_callback(xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer use
         break;
     }
 
-    if ( rofi_view_get_completed ( state ) ) {
-        // This menu is done.
-        rofi_view_finalize ( state );
-        // cleanup
-        if ( rofi_view_get_active () == NULL ) {
-            g_main_loop_quit ( xcb->main_loop );
-            return G_SOURCE_CONTINUE;
-        }
-    }
     rofi_view_maybe_update();
     return G_SOURCE_CONTINUE;
 }
