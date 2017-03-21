@@ -423,28 +423,8 @@ gboolean display_init(GMainLoop *main_loop, const gchar *display)
     x11_create_frequently_used_atoms();
     x11_create_visual_and_colormap();
 
-    uint32_t          selmask  = XCB_CW_BACK_PIXMAP | XCB_CW_BORDER_PIXEL | XCB_CW_BIT_GRAVITY | XCB_CW_BACKING_STORE | XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
-    uint32_t          selval[] = {
-        XCB_BACK_PIXMAP_NONE,                                                                           0,
-        XCB_GRAVITY_STATIC,
-        XCB_BACKING_STORE_NOT_USEFUL,
-        XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE |
-        XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_KEYMAP_STATE |
-        XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION,
-        xcb->map
-    };
-
-    xcb->main_window = xcb_generate_id(xcb->connection);
-    xcb_void_cookie_t cc  = xcb_create_window_checked ( xcb->connection, xcb->depth->depth, xcb->main_window, xcb->screen->root, 0, 0, 0, 0, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT, xcb->visual->visual_id, selmask, selval );
-    xcb_generic_error_t *error;
-    error = xcb_request_check ( xcb->connection, cc );
-    if ( error ) {
-        printf ( "xcb_create_window() failed error=0x%x\n", error->error_code );
-        return FALSE;
-    }
-
-    xcb_grab_keyboard ( xcb->connection, 1, xcb->main_window, XCB_CURRENT_TIME, XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC );
-    xcb_grab_pointer ( xcb->connection, 1, xcb->main_window, XCB_EVENT_MASK_BUTTON_RELEASE, XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, xcb->main_window, XCB_NONE, XCB_CURRENT_TIME );
+    xcb_grab_keyboard ( xcb->connection, 1, xcb->screen->root, XCB_CURRENT_TIME, XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC );
+    xcb_grab_pointer ( xcb->connection, 1, xcb->screen->root, XCB_EVENT_MASK_BUTTON_RELEASE, XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, xcb->main_window, XCB_NONE, XCB_CURRENT_TIME );
 
     return TRUE;
 }
@@ -452,6 +432,7 @@ void display_cleanup(void)
 {
     xcb_ungrab_pointer ( xcb->connection, XCB_CURRENT_TIME );
     xcb_ungrab_keyboard ( xcb->connection, XCB_CURRENT_TIME );
+    xcb_flush(xcb->connection);
     g_water_xcb_source_free(xcb->main_loop_source);
 }
 
@@ -460,10 +441,41 @@ display_buffer_pool *display_buffer_pool_new(gint width, gint height)
     xcb->width = width;
     xcb->height = height;
 
-    uint32_t          selmask  = XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
-    uint32_t          selval[] = { xcb->width, xcb->height };
+    uint32_t          selmask  = 0;
+    uint32_t          selval[7];
+    gsize i = 0;
 
-    xcb_configure_window(xcb->connection, xcb->main_window, selmask, selval);
+    selmask |= XCB_CW_BACK_PIXMAP;
+    selval[i++] = XCB_BACK_PIXMAP_NONE;
+
+    selmask |= XCB_CW_BORDER_PIXEL;
+    selval[i++] = 0;
+
+    selmask |= XCB_CW_BIT_GRAVITY;
+    selval[i++] = XCB_GRAVITY_STATIC;
+
+    selmask |= XCB_CW_BACKING_STORE;
+    selval[i++] = XCB_BACKING_STORE_NOT_USEFUL;
+
+    selmask |= XCB_CW_OVERRIDE_REDIRECT;
+    selval[i++] = 1;
+
+    selmask |= XCB_CW_EVENT_MASK;
+    selval[i++] = XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE |
+                  XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_KEYMAP_STATE |
+                  XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION;
+
+    selmask |= XCB_CW_COLORMAP;
+    selval[i++] = xcb->map;
+
+    xcb->main_window = xcb_generate_id(xcb->connection);
+    xcb_void_cookie_t cc  = xcb_create_window_checked ( xcb->connection, xcb->depth->depth, xcb->main_window, xcb->screen->root, 0, 0, xcb->width, xcb->height, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT, xcb->visual->visual_id, selmask, selval );
+    xcb_generic_error_t *error;
+    error = xcb_request_check ( xcb->connection, cc );
+    if ( error ) {
+        printf ( "xcb_create_window() failed error=0x%x\n", error->error_code );
+        return FALSE;
+    }
 
     xcb->gc = xcb_generate_id ( xcb->connection );
     xcb_create_gc ( xcb->connection, xcb->gc, xcb->main_window, 0, 0 );
@@ -474,6 +486,7 @@ display_buffer_pool *display_buffer_pool_new(gint width, gint height)
 void display_buffer_pool_free(G_GNUC_UNUSED display_buffer_pool *pool)
 {
     xcb_free_gc(xcb->connection, xcb->gc);
+    xcb_destroy_window(xcb->connection, xcb->main_window);
 }
 
 static const cairo_user_data_key_t xcb_user_data;
@@ -500,4 +513,6 @@ void display_surface_commit(cairo_surface_t *surface)
         xcb->mapped = TRUE;
         xcb_map_window(xcb->connection, xcb->main_window);
     }
+
+    xcb_flush(xcb->connection);
 }
