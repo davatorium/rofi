@@ -423,6 +423,7 @@ gboolean display_init(GMainLoop *main_loop, const gchar *display)
     x11_create_frequently_used_atoms();
     x11_create_visual_and_colormap();
 
+    xcb_flush(xcb->connection);
     xcb_grab_keyboard ( xcb->connection, 1, xcb->screen->root, XCB_CURRENT_TIME, XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC );
     xcb_grab_pointer ( xcb->connection, 1, xcb->screen->root, XCB_EVENT_MASK_BUTTON_RELEASE, XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, xcb->screen->root, XCB_NONE, XCB_CURRENT_TIME );
 
