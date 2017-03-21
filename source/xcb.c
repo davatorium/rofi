@@ -272,19 +272,20 @@ static gboolean xcb_callback(xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer use
         break;
     }
     case XCB_BUTTON_RELEASE:
-        /* FIXME: handle this
+    {
+        /* FIXME: add config back
         if ( config.click_to_exit == TRUE ) {
-            if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
+            if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) */ {
                 xcb_button_release_event_t *bre = (xcb_button_release_event_t *) ev;
-                if ( ( state->mouse_seen == FALSE ) && ( bre->event != CacheState.main_window ) ) {
-                    state->quit = TRUE;
-                    state->retv = MENU_CANCEL;
+                if ( /*( state->mouse_seen == FALSE ) && */( bre->event != xcb->main_window ) ) {
+                    rofi_view_quit(state);
                 }
             }
-            state->mouse_seen = FALSE;
+            /*
         }
         */
         break;
+    }
     // Paste event.
     case XCB_SELECTION_NOTIFY:
         //FIXME: rofi_view_paste ( state, (xcb_selection_notify_event_t *) ev );

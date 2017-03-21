@@ -306,6 +306,12 @@ void rofi_view_restart ( RofiViewState *state )
     state->retv = MENU_CANCEL;
 }
 
+void rofi_view_quit ( RofiViewState *state )
+{
+    state->quit = TRUE;
+    state->retv = MENU_CANCEL;
+}
+
 RofiViewState * rofi_view_get_active ( void )
 {
     return current_active_menu;

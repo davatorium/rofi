@@ -110,6 +110,7 @@ unsigned int rofi_view_get_selected_line ( const RofiViewState *state );
  * Resets RofiViewState::quit and RofiViewState::retv.
  */
 void rofi_view_restart ( RofiViewState *state );
+void rofi_view_quit ( RofiViewState *state );
 
 /**
  * @param state The handle to the view
