@@ -356,9 +356,9 @@ static void walk_dir ( DRunModePrivateData *pd, const char *root, const char *di
 static void delete_entry_history ( const DRunModeEntry *entry )
 {
     char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
-
-    history_remove ( path, entry->path );
-
+    char *key  = g_strdup_printf ( "%s:::%s", entry->root, entry->path );
+    history_remove ( path, key );
+    g_free ( key );
     g_free ( path );
 }
 
