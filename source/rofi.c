@@ -65,6 +65,8 @@
 // TODO: move this check to mode.c
 #include "mode-private.h"
 
+#define LOG_DOMAIN "Rofi"
+
 // Pidfile.
 char       *pidfile   = NULL;
 const char *cache_dir = NULL;
@@ -147,6 +149,7 @@ static int setup ()
  */
 static void teardown ( int pfd )
 {
+    g_log ( LOG_DOMAIN , G_LOG_LEVEL_DEBUG, "Teardown");
     // Cleanup font setup.
     textbox_cleanup ( );
 

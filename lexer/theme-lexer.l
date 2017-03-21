@@ -358,15 +358,6 @@ if ( queue == NULL ){
     yylval->colorval.blue  = val.b/255.0;
     return T_COLOR;
 }
-<PROPERTIES>argb:{HEX}{8}       {
-    union {  unsigned int val; struct { unsigned char b,g,r,a;};} val;
-    val.val = (unsigned int)strtoull ( &yytext[1], NULL, 16);
-    yylval->colorval.alpha = val.a/255.0;
-    yylval->colorval.red   = val.r/255.0;
-    yylval->colorval.green = val.g/255.0;
-    yylval->colorval.blue  = val.b/255.0;
-    return T_COLOR;
-}
 <PROPERTIES>#{HEX}{6}       {
     union {  unsigned int val; struct { unsigned char b,g,r,a;};} val;
     val.val = (unsigned int)g_ascii_strtoull ( &yytext[1], NULL, 16);

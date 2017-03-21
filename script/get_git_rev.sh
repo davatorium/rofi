@@ -7,8 +7,9 @@ GIT=$(which git)
 if [ -d "${DIR}/.git/" ] && [ -n "${GIT}" ]
 then
     echo -n "#define GIT_VERSION \""  > ${FILE}.tmp
-    REV="$(${GIT} describe --tags --always --dirty) ($(${GIT} describe --tags --always --all | sed -e 's:heads/::'))"
-    echo -n "${REV}" >> ${FILE}.tmp
+    BRTG="$(${GIT} describe --tags --always --all | sed -e 's:heads/::')"
+    REV="$(${GIT} describe --tags --always --dirty| sed -e 's:-g\([a-f0-9]\{7\}\):-git-\1:g')"
+    echo -n "${REV} (${BRTG})" >> ${FILE}.tmp
     echo "\"" >> ${FILE}.tmp
 else
     echo "#undef GIT_VERSION" > ${FILE}.tmp

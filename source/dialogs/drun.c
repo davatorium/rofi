@@ -190,7 +190,7 @@ static void exec_cmd_entry ( DRunModeEntry *e )
 /**
  * This function absorbs/freeś path, so this is no longer available afterwards.
  */
-static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const char *path )
+static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, const char *path )
 {
     // Create ID on stack.
     // We know strlen (path ) > strlen(root)+1
@@ -206,7 +206,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     // Check if item is on disabled list.
     if ( g_hash_table_contains ( pd->disabled_entries, id ) ) {
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping: %s, was previously seen.", id );
-        return;
+        return TRUE;
     }
     GKeyFile *kf    = g_key_file_new ();
     GError   *error = NULL;
@@ -216,7 +216,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to parse desktop file: %s because: %s", path, error->message );
         g_error_free ( error );
         g_key_file_free ( kf );
-        return;
+        return FALSE;
     }
     // Skip non Application entries.
     gchar *key = g_key_file_get_string ( kf, "Desktop Entry", "Type", NULL );
@@ -224,13 +224,13 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         // No type? ignore.
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping desktop file: %s because: No type indicated", path );
         g_key_file_free ( kf );
-        return;
+        return FALSE;
     }
     if ( g_strcmp0 ( key, "Application" ) ) {
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping desktop file: %s because: Not of type application (%s)", path, key );
         g_free ( key );
         g_key_file_free ( kf );
-        return;
+        return FALSE;
     }
     g_free ( key );
 
@@ -238,7 +238,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     if ( !g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Invalid DesktopFile: '%s', no 'Name' key present.\n", path );
         g_key_file_free ( kf );
-        return;
+        return FALSE;
     }
 
     // Skip hidden entries.
@@ -246,20 +246,20 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Adding desktop file: %s to disabled list because: Hdden", path );
         g_key_file_free ( kf );
         g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
-        return;
+        return FALSE;
     }
     // Skip entries that have NoDisplay set.
     if ( g_key_file_get_boolean ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Adding desktop file: %s to disabled list because: NoDisplay", path );
         g_key_file_free ( kf );
         g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
-        return;
+        return FALSE;
     }
     // We need Exec, don't support DBusActivatable
     if ( !g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Unsupported DesktopFile: '%s', no 'Exec' key present.\n", path );
         g_key_file_free ( kf );
-        return;
+        return FALSE;
     }
     size_t nl = ( ( pd->cmd_list_length ) + 1 );
     if ( nl >= pd->cmd_list_length_actual ) {
@@ -282,6 +282,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     // We don't want to parse items with this id anymore.
     g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
     ( pd->cmd_list_length )++;
+    return TRUE;
 }
 
 /**
@@ -356,9 +357,9 @@ static void walk_dir ( DRunModePrivateData *pd, const char *root, const char *di
 static void delete_entry_history ( const DRunModeEntry *entry )
 {
     char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
-
-    history_remove ( path, entry->path );
-
+    char *key  = g_strdup_printf ( "%s:::%s", entry->root, entry->path );
+    history_remove ( path, key );
+    g_free ( key );
     g_free ( path );
 }
 
@@ -367,15 +368,17 @@ static void get_apps_history ( DRunModePrivateData *pd )
     unsigned int length = 0;
     gchar        *path  = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
     gchar        **retv = history_get_list ( path, &length );
-    g_free ( path );
     for ( unsigned int index = 0; index < length; index++ ) {
         char **st = g_strsplit ( retv[index], ":::", 2 );
         if ( st && st[0] && st[1] ) {
-            read_desktop_file ( pd, st[0], st[1] );
+            if ( ! read_desktop_file ( pd, st[0], st[1] ) ) {
+                history_remove ( path, retv[index]);
+            }
         }
         g_strfreev ( st );
     }
     g_strfreev ( retv );
+    g_free ( path );
     pd->history_length = pd->cmd_list_length;
 }
 

@@ -54,10 +54,12 @@ dnl ---------------------------------------------------------------------
 dnl Enable source code coverage reporting for GCC
 dnl ---------------------------------------------------------------------
 
-AC_ARG_ENABLE(gcov, [  --enable-gcov           Enable source code coverage testing using gcov],
+AC_ARG_ENABLE([gcov],
+              [AS_HELP_STRING ([--enable-gcov],[Enable source code coverage testing using gcov])],
               [AM_CFLAGS="${AM_CFLAGS} -coverage"])
 AS_IF([test "x${enable_gcov}" = "xyes" ], [AC_DEFINE([ENABLE_GCOV], [1], [Enable gcov profiling])])
-AC_ARG_ENABLE(asan, [  --enable-asan           asan],
+AC_ARG_ENABLE([asan],
+              [AS_HELP_STRING ([--enable-asan],[Enable asan support])],
               [AM_CFLAGS="${AM_CFLAGS} -fsanitize=address -fno-omit-frame-pointer -g3"])
 AS_IF([test "x${enable_asan}" = "xyes" ], [AC_DEFINE([ENABLE_ASAN], [1], [Enable libasan])])
 
@@ -65,19 +67,19 @@ AS_IF([test "x${enable_asan}" = "xyes" ], [AC_DEFINE([ENABLE_ASAN], [1], [Enable
 dnl --------------------------------------------------------------------
 dnl DRun dialog
 dnl --------------------------------------------------------------------
-AC_ARG_ENABLE([drun], AC_HELP_STRING([--disable-drun],[Disable desktop file run dialog]))
+AC_ARG_ENABLE([drun], AS_HELP_STRING([--disable-drun],[Disable desktop file run dialog]))
 AS_IF([test "x${enable_drun}" != "xno"], [AC_DEFINE([ENABLE_DRUN], [1], [Enable desktop file run dialog])])
 
 dnl ---------------------------------------------------------------------
 dnl Disable window mode
 dnl ---------------------------------------------------------------------
-AC_ARG_ENABLE([windowmode], AC_HELP_STRING([--disable-windowmode],[Disable window mode]))
+AC_ARG_ENABLE([windowmode], AS_HELP_STRING([--disable-windowmode],[Disable window mode]))
 AS_IF([ test "x$enable_windowmode" != "xno"], [AC_DEFINE([WINDOW_MODE],[1],[Enable the window mode])])
 
 dnl ---------------------------------------------------------------------
 dnl Output timing information
 dnl ---------------------------------------------------------------------
-AC_ARG_ENABLE([timings], AC_HELP_STRING([--enable-timings],[Enable timing output]))
+AC_ARG_ENABLE([timings], AS_HELP_STRING([--enable-timings],[Enable timing output]))
 AS_IF( [ test "x$enable_timings" = "xyes"], [AC_DEFINE([TIMINGS],[1], [Enable timings output])])
 
 dnl ---------------------------------------------------------------------
