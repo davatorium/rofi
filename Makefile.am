@@ -106,6 +106,9 @@ if XCB_BACKEND
 SOURCES += source/xcb.c
 include $(top_srcdir)/libgwater-xcb-nolibtool.mk
 endif
+if WINDOW_MODE
+SOURCES += source/dialogs/window.c
+endif
 
 rofi_SOURCES=\
 			 lexer/theme-parser.y\

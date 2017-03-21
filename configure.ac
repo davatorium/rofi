@@ -71,12 +71,6 @@ AC_ARG_ENABLE([drun], AS_HELP_STRING([--disable-drun],[Disable desktop file run 
 AS_IF([test "x${enable_drun}" != "xno"], [AC_DEFINE([ENABLE_DRUN], [1], [Enable desktop file run dialog])])
 
 dnl ---------------------------------------------------------------------
-dnl Disable window mode
-dnl ---------------------------------------------------------------------
-AC_ARG_ENABLE([windowmode], AS_HELP_STRING([--disable-windowmode],[Disable window mode]))
-AS_IF([ test "x$enable_windowmode" != "xno"], [AC_DEFINE([WINDOW_MODE],[1],[Enable the window mode])])
-
-dnl ---------------------------------------------------------------------
 dnl Output timing information
 dnl ---------------------------------------------------------------------
 AC_ARG_ENABLE([timings], AS_HELP_STRING([--enable-timings],[Enable timing output]))
@@ -120,10 +114,15 @@ PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40 gio-unix-2.0 gmodule-2.0])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo])
 
+
+dnl ---------------------------------------------------------------------
+dnl Display backend and window mode
+dnl ---------------------------------------------------------------------
 AC_ARG_WITH([display-backend], AS_HELP_STRING([--with-display-backend=@<:@wayland|xcb@:>@], [The display backend to use, Wayland or XCB]), [], [with_display_backend=yes])
 AS_CASE([${with_display_backend}],
     [xcb], [
         GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon >= 0.5.0 xkbcommon-x11 xcb-ewmh xcb-icccm xcb-xrm xcb-randr xcb-xinerama cairo-xcb])
+        enable_windowmode_default=yes
     ] ,[
         GW_CHECK_WAYLAND([wayland-cursor wayland-wall xkbcommon >= 0.5.0])
         PKG_CHECK_MODULES([WAYLAND_PROTOCLS], [wayland-protocols])
@@ -133,9 +132,14 @@ AS_CASE([${with_display_backend}],
         AC_SUBST([wpprotocoldir])
         AC_SUBST([wwprotocoldir])
         with_display_backend=wayland
+        enable_windowmode_default=no
 ])
 AM_CONDITIONAL([WAYLAND_BACKEND], [test x${with_display_backend} = xwayland])
 AM_CONDITIONAL([XCB_BACKEND], [test x${with_display_backend} = xxcb])
+
+AC_ARG_ENABLE([windowmode], AS_HELP_STRING([--disable-windowmode],[Disable window mode]), [], [enable_windowmode=${enable_windowmode_default}])
+AM_CONDITIONAL([WINDOW_MODE], [test x${enable_windowmode} = xyes])
+AS_IF([ test "x$enable_windowmode" = "xyes"], [AC_DEFINE([WINDOW_MODE],[1],[Enable the window mode])])
 
 dnl ---------------------------------------------------------------------
 dnl Add extra compiler flags

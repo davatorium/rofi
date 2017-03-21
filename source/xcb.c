@@ -40,53 +40,15 @@
 #include "view.h"
 #include "xkb.h"
 #include "display.h"
+#include "helper.h"
+#include "xcb.h"
 
 #define LOG_DOMAIN "Xcb"
 
-/** For getting the atoms in an enum  */
-#define ATOM_ENUM( x )    x
-/** Get the atoms as strings. */
-#define ATOM_CHAR( x )    # x
-
-/** Atoms we want to pre-load */
-#define EWMH_ATOMS( X )           \
-    X ( _NET_WM_WINDOW_OPACITY ), \
-    X ( I3_SOCKET_PATH ),         \
-    X ( UTF8_STRING ),            \
-    X ( STRING ),                 \
-    X ( CLIPBOARD ),              \
-    X ( WM_WINDOW_ROLE ),         \
-    X ( _XROOTPMAP_ID ),          \
-    X ( _MOTIF_WM_HINTS ),        \
-    X ( ESETROOT_PMAP_ID )
-
-/** enumeration of the atoms. */
-enum { EWMH_ATOMS ( ATOM_ENUM ), NUM_NETATOMS };
 static const char *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 
-typedef struct {
-    GMainLoop *main_loop;
-    GWaterXcbSource *main_loop_source;
-    xcb_connection_t *connection;
-    xcb_ewmh_connection_t ewmh;
-    xcb_screen_t          *screen;
-    int screen_nbr;
-    xkb_stuff xkb;
-    uint8_t xkb_first_event;
-    int32_t xkb_device_id;
-    xcb_atom_t netatoms[NUM_NETATOMS];
-    xcb_visualtype_t *root_visual;
-    xcb_depth_t      *depth;
-    xcb_visualtype_t *visual;
-    xcb_colormap_t map;
-    xcb_gc_t gc;
-    xcb_window_t main_window;
-    gint width, height;
-    gboolean mapped;
-} xcb_stuff;
-
 static xcb_stuff xcb_;
-static xcb_stuff *xcb = &xcb_;
+xcb_stuff *xcb = &xcb_;
 
 struct _display_buffer_pool {
     int dummy;
@@ -142,6 +104,32 @@ static void x11_create_visual_and_colormap ( void )
         xcb->depth  = root_depth;
         xcb->visual = xcb->root_visual;
         xcb->map    = xcb->screen->default_colormap;
+    }
+}
+
+static void x11_helper_discover_window_manager ( void )
+{
+    xcb_window_t              wm_win = 0;
+    xcb_get_property_cookie_t cc     = xcb_ewmh_get_supporting_wm_check_unchecked ( &xcb->ewmh, xcb->screen->root );
+
+    if ( xcb_ewmh_get_supporting_wm_check_reply ( &xcb->ewmh, cc, &wm_win, NULL ) ) {
+        xcb_ewmh_get_utf8_strings_reply_t wtitle;
+        xcb_get_property_cookie_t         cookie = xcb_ewmh_get_wm_name_unchecked ( &( xcb->ewmh ), wm_win );
+        if (  xcb_ewmh_get_wm_name_reply ( &( xcb->ewmh ), cookie, &wtitle, (void *) 0 ) ) {
+            if ( wtitle.strings_len > 0 ) {
+                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found window manager: %s", wtitle.strings );
+                if ( g_strcmp0 ( wtitle.strings, "i3" ) == 0 ) {
+                    xcb->wm = WM_I3;
+                }
+                else if  ( g_strcmp0 ( wtitle.strings, "awesome" ) == 0 ) {
+                    xcb->wm = WM_AWESOME;
+                }
+                else if  ( g_strcmp0 ( wtitle.strings, "Openbox" ) == 0 ) {
+                    xcb->wm = WM_OPENBOX;
+                }
+            }
+            xcb_ewmh_get_utf8_strings_reply_wipe ( &wtitle );
+        }
     }
 }
 
@@ -411,17 +399,27 @@ gboolean display_init(GMainLoop *main_loop, const gchar *display)
     xcb->xkb.keymap = xkb_x11_keymap_new_from_device ( xcb->xkb.context, xcb->connection, xcb->xkb_device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
     if ( xcb->xkb.keymap == NULL ) {
         fprintf ( stderr, "Failed to get Keymap for current keyboard device.\n" );
-        return EXIT_FAILURE;
+        return FALSE;
     }
     xcb->xkb.state = xkb_x11_state_new_from_device ( xcb->xkb.keymap, xcb->connection, xcb->xkb_device_id );
     if ( xcb->xkb.state == NULL ) {
         fprintf ( stderr, "Failed to get state object for current keyboard device.\n" );
-        return EXIT_FAILURE;
+        return FALSE;
     }
 
     xkb_common_init(&xcb->xkb);
     x11_create_frequently_used_atoms();
     x11_create_visual_and_colormap();
+
+    xcb_intern_atom_cookie_t *ac     = xcb_ewmh_init_atoms ( xcb->connection, &xcb->ewmh );
+    xcb_generic_error_t      *errors = NULL;
+    xcb_ewmh_init_atoms_replies ( &xcb->ewmh, ac, &errors );
+    if ( errors ) {
+        fprintf ( stderr, "Failed to create EWMH atoms\n" );
+        free ( errors );
+        return FALSE;
+    }
+    x11_helper_discover_window_manager();
 
     xcb_flush(xcb->connection);
     xcb_grab_keyboard ( xcb->connection, 1, xcb->screen->root, XCB_CURRENT_TIME, XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC );
@@ -429,6 +427,7 @@ gboolean display_init(GMainLoop *main_loop, const gchar *display)
 
     return TRUE;
 }
+
 void display_cleanup(void)
 {
     xcb_ungrab_pointer ( xcb->connection, XCB_CURRENT_TIME );
@@ -516,4 +515,31 @@ void display_surface_commit(cairo_surface_t *surface)
     }
 
     xcb_flush(xcb->connection);
+}
+
+// retrieve a text property from a window
+// technically we could use window_get_prop(), but this is better for character set support
+char* window_get_text_prop ( xcb_window_t w, xcb_atom_t atom )
+{
+    xcb_get_property_cookie_t c  = xcb_get_property ( xcb->connection, 0, w, atom, XCB_GET_PROPERTY_TYPE_ANY, 0, UINT_MAX );
+    xcb_get_property_reply_t  *r = xcb_get_property_reply ( xcb->connection, c, NULL );
+    if ( r ) {
+        if ( xcb_get_property_value_length ( r ) > 0 ) {
+            char *str = NULL;
+            if ( r->type == xcb->netatoms[UTF8_STRING] ) {
+                str = g_strndup ( xcb_get_property_value ( r ), xcb_get_property_value_length ( r ) );
+            }
+            else if ( r->type == xcb->netatoms[STRING] ) {
+                str = rofi_latin_to_utf8_strdup ( xcb_get_property_value ( r ), xcb_get_property_value_length ( r ) );
+            }
+            else {
+                str = g_strdup ( "Invalid encoding." );
+            }
+
+            free ( r );
+            return str;
+        }
+        free ( r );
+    }
+    return NULL;
 }

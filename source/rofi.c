@@ -263,6 +263,11 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "\n" );
     printf ( "\n" );
     printf ( "Compile time options:\n" );
+#ifdef WINDOW_MODE
+    printf ( "\t* window  %senabled%s\n", is_term ? color_green : "", is_term ? color_reset : "" );
+#else
+    printf ( "\t* window  %sdisabled%s\n", is_term ? color_red : "", is_term ? color_reset : "" );
+#endif
 #ifdef ENABLE_DRUN
     printf ( "\t* drun    %senabled%s\n", is_term ? color_green : "", is_term ? color_reset : "" );
 #else
@@ -428,13 +433,17 @@ static void rofi_collect_modi_dir ( const char *base_dir )
  */
 static void rofi_collect_modi ( void )
 {
+#ifdef WINDOW_MODE
+    rofi_collect_modi_add ( &window_mode );
+    rofi_collect_modi_add ( &window_mode_cd );
+#endif
     rofi_collect_modi_add ( &run_mode );
     rofi_collect_modi_add ( &ssh_mode );
 #ifdef ENABLE_DRUN
     rofi_collect_modi_add ( &drun_mode );
 #endif
-    rofi_collect_modi_add ( &help_keys_mode );
     rofi_collect_modi_add ( &combi_mode );
+    rofi_collect_modi_add ( &help_keys_mode );
 
     rofi_collect_modi_dir ( PLUGIN_PATH );
 }
