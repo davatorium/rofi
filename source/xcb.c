@@ -512,6 +512,7 @@ void display_surface_commit(cairo_surface_t *surface)
     }
 
     xcb_flush(xcb->connection);
+    rofi_view_frame_callback();
 }
 
 // retrieve a text property from a window

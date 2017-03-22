@@ -76,7 +76,7 @@ static gboolean textbox_blink ( gpointer data )
     if ( tb->blink < 2 ) {
         tb->blink = !tb->blink;
         widget_queue_redraw ( WIDGET ( tb ) );
-        rofi_view_queue_redraw ( );
+        rofi_view_queue_redraw ();
     }
     else {
         tb->blink--;

@@ -90,6 +90,7 @@ struct RofiViewState
     int              height;
     /** Buffer pool */
     display_buffer_pool *pool;
+    gboolean frame_callback;
 
     /** Regexs used for matching */
     GRegex           **tokens;

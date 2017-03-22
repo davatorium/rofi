@@ -164,7 +164,7 @@ int rofi_view_error_dialog ( const char *msg, int markup  );
  * Inform rofi that the last frame properly hit the screen
  * and it can repaint a new one if needed
  */
-void rofi_view_frame_callback(void);
+void rofi_view_frame_callback( void );
 void rofi_view_handle_keypress ( widget_modifier_mask modmask, xkb_keysym_t key, char *text, int len );
 typedef enum {
     ROFI_MOUSE_WHEEL_UP,

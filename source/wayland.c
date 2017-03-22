@@ -290,11 +290,12 @@ static void
 wayland_frame_callback(void *data, struct wl_callback *callback, uint32_t timestamp)
 {
     if ( wayland->frame_cb != NULL )
+    {
         wl_callback_destroy(wayland->frame_cb);
+        rofi_view_frame_callback();
+    }
     wayland->frame_cb = wl_surface_frame(wayland->surface);
     wl_callback_add_listener(wayland->frame_cb, &wayland_frame_wl_callback_listener, wayland);
-
-    rofi_view_frame_callback();
 }
 
 static void

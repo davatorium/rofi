@@ -184,9 +184,6 @@ static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
         // After a resize the edit_pixmap surface might not contain anything anymore.
         // If we already re-painted, this does nothing.
         rofi_view_update ( current_active_menu, FALSE );
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "expose event" );
-        TICK_N ( "Expose" );
-        // FIXME: draw
         TICK_N ( "flush" );
         CacheState.repaint_source = 0;
     }
@@ -212,7 +209,7 @@ static void rofi_view_window_update_size ( RofiViewState * state )
 {
     if ( state->pool != NULL )
         display_buffer_pool_free(state->pool);
-    state->pool = display_buffer_pool_new(state->width, state->height);
+    state->pool = NULL;
 
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Re-size window based internal request: %dx%d.", state->width, state->height );
     // Should wrap main window in a widget.
@@ -263,34 +260,25 @@ void rofi_view_reload ( void  )
     }
 }
 
-static gboolean view_changed = FALSE;
-static gboolean frame_callback = FALSE;
-static void rofi_view_maybe_redraw ( void  )
+void rofi_view_frame_callback( void )
 {
-    if ( ! frame_callback )
+    RofiViewState *state = rofi_view_get_active();
+    if ( state == NULL )
         return;
 
-    // FIXME: has the view changed?
-    // FIXME: maybe we have a var already?
-    if ( ! view_changed )
-        return;
-
-    // FIXME: redraw
-
-    frame_callback = FALSE;
-}
-
-void rofi_view_frame_callback(void)
-{
-    frame_callback = TRUE;
-    rofi_view_maybe_redraw();
+    state->frame_callback = TRUE;
+    if ( widget_need_redraw ( WIDGET ( state->main_window ) ) )  {
+        rofi_view_queue_redraw();
+    }
 }
 
 void rofi_view_queue_redraw ( void  )
 {
-    // FIXME: maybe we have a var already?
-    view_changed = TRUE;
-    rofi_view_maybe_redraw();
+    if ( current_active_menu && CacheState.repaint_source == 0 ) {
+        CacheState.count++;
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "redraw %llu", CacheState.count );
+        CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
+    }
 }
 
 void rofi_view_restart ( RofiViewState *state )
@@ -649,6 +637,9 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
         return;
     }
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Redraw view" );
+    if ( state->pool == NULL ) {
+        state->pool = display_buffer_pool_new(state->width, state->height);
+    }
     TICK ();
     cairo_surface_t *surface = display_buffer_pool_get_next_buffer(state->pool);
     cairo_t *d = cairo_create(surface);
@@ -1189,6 +1180,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     state->refilter   = TRUE;
     state->finalize   = finalize;
     state->mouse_seen = FALSE;
+    state->frame_callback = TRUE;
 
     // Request the lines to show.
     state->num_lines = mode_get_num_entries ( sw );
@@ -1390,7 +1382,7 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text )
     top_offset += widget_padding_get_top   ( WIDGET ( state->main_box ) );
     widget_move ( WIDGET ( state->overlay ), x_offset, top_offset );
     // We want to queue a repaint.
-    rofi_view_queue_redraw ( );
+    rofi_view_queue_redraw ();
 }
 
 void rofi_view_clear_input ( RofiViewState *state )
