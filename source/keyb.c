@@ -201,6 +201,18 @@ KeyBindingAction abe_find_action ( widget_modifier_mask modmask, xkb_keysym_t ke
     return action;
 }
 
+void abe_reset_release ( void )
+{
+    RofiViewState *state;
+
+    state = rofi_view_get_active ( );
+    if ( state ) {
+        for ( KeyBindingAction action = 0; action < NUM_ABE; ++action ) {
+            _abe_trigger_on_release[action] = FALSE;
+        }
+    }
+}
+
 void abe_trigger_release ( void )
 {
     RofiViewState *state;

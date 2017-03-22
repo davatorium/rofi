@@ -121,6 +121,10 @@ void cleanup_abe ( void );
 KeyBindingAction abe_find_action ( widget_modifier_mask modmask, xkb_keysym_t key );
 
 /**
+ * Reset state of all on-release bindings
+ */
+void abe_reset_release ( void );
+/**
  * Trigger keybinding on key release.
  */
 void abe_trigger_release ( void );

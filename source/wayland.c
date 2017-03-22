@@ -400,12 +400,20 @@ static void
 wayland_keyboard_enter(void *data, struct wl_keyboard *keyboard, uint32_t serial, struct wl_surface *surface, struct wl_array *keys)
 {
     wayland_seat *self = data;
+    uint32_t *key, *kend;
+    for ( key = keys->data, kend = key + keys->size ; key < kend ; ++key ) {
+        xkb_keysym_t keysym = xkb_state_key_get_one_sym ( self->xkb.state, *key + 8 );
+        widget_modifier_mask       modstate = xkb_get_modmask ( &self->xkb, keysym );
+        abe_find_action ( modstate, keysym );
+    }
 }
 
 static void
 wayland_keyboard_leave(void *data, struct wl_keyboard *keyboard, uint32_t serial, struct wl_surface *surface)
 {
     wayland_seat *self = data;
+
+    abe_reset_release ();
 }
 
 static void
