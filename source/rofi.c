@@ -153,8 +153,6 @@ static void teardown ( int pfd )
     // Cleanup font setup.
     textbox_cleanup ( );
 
-    display_cleanup();
-
     // Cleanup view
     rofi_view_cleanup ();
     // Cleanup pid file.
