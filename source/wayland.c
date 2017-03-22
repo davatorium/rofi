@@ -46,66 +46,8 @@
 #include "view.h"
 
 #include "unstable/launcher-menu/launcher-menu-unstable-v1-client-protocol.h"
+#include "wayland.h"
 #include "display.h"
-
-/* Supported interface versions */
-#define WL_COMPOSITOR_INTERFACE_VERSION 3
-#define WW_LAUNCHER_MENU_INTERFACE_VERSION 1
-#define WL_SHM_INTERFACE_VERSION 1
-#define WL_SEAT_INTERFACE_VERSION 5
-#define WL_OUTPUT_INTERFACE_VERSION 2
-
-typedef enum {
-    WAYLAND_GLOBAL_COMPOSITOR,
-    WAYLAND_GLOBAL_LAUNCHER_MENU,
-    WAYLAND_GLOBAL_SHM,
-    _WAYLAND_GLOBAL_SIZE,
-} wayland_global_name;
-
-
-typedef struct {
-    GMainLoop       *main_loop;
-    GWaterWaylandSource *main_loop_source;
-    struct wl_display *display;
-    struct wl_registry *registry;
-    uint32_t global_names[_WAYLAND_GLOBAL_SIZE];
-    struct wl_compositor *compositor;
-    struct zww_launcher_menu_v1 *launcher_menu;
-    struct wl_shm *shm;
-    size_t buffer_count;
-    struct {
-        char *theme_name;
-        char **name;
-        struct wl_cursor_theme *theme;
-        struct wl_cursor *cursor;
-        struct wl_cursor_image *image;
-        struct wl_surface *surface;
-        struct wl_callback *frame_cb;
-    } cursor;
-    GHashTable *seats;
-    GHashTable *seats_by_name;
-    GHashTable *outputs;
-    struct wl_surface *surface;
-    struct wl_callback *frame_cb;
-    size_t scales[3];
-    int32_t scale;
-} wayland_stuff;
-
-typedef struct {
-    wayland_stuff *context;
-    uint32_t global_name;
-    struct wl_seat *seat;
-    gchar *name;
-    struct wl_keyboard *keyboard;
-    xkb_stuff xkb;
-    struct wl_pointer *pointer;
-    widget_button_event button;
-    widget_motion_event motion;
-    struct {
-        gint vertical;
-        gint horizontal;
-    } wheel;
-} wayland_seat;
 
 typedef struct _display_buffer_pool wayland_buffer_pool;
 typedef struct {
@@ -133,7 +75,7 @@ struct _display_buffer_pool {
 };
 
 static wayland_stuff wayland_;
-static wayland_stuff *wayland = &wayland_;
+wayland_stuff *wayland = &wayland_;
 static const cairo_user_data_key_t wayland_cairo_surface_user_data;
 
 static void
@@ -361,7 +303,7 @@ wayland_dismiss(void *data, struct zww_launcher_menu_v1 *launcher_menu)
     g_main_loop_quit ( wayland->main_loop );
 }
 
-static const struct zww_launcher_menu_v1_listener wayland_listener = {
+static const struct zww_launcher_menu_v1_listener wayland_launcher_menu_listener = {
     .dismiss = wayland_dismiss,
 };
 
@@ -400,6 +342,10 @@ static void
 wayland_keyboard_enter(void *data, struct wl_keyboard *keyboard, uint32_t serial, struct wl_surface *surface, struct wl_array *keys)
 {
     wayland_seat *self = data;
+
+    wayland->last_seat = self;
+    self->serial = serial;
+
     uint32_t *key, *kend;
     for ( key = keys->data, kend = key + keys->size ; key < kend ; ++key ) {
         xkb_keysym_t keysym = xkb_state_key_get_one_sym ( self->xkb.state, *key + 8 );
@@ -412,7 +358,6 @@ static void
 wayland_keyboard_leave(void *data, struct wl_keyboard *keyboard, uint32_t serial, struct wl_surface *surface)
 {
     wayland_seat *self = data;
-
     abe_reset_release ();
 }
 
@@ -424,6 +369,9 @@ wayland_keyboard_key(void *data, struct wl_keyboard *keyboard, uint32_t serial, 
     xkb_keysym_t keysym;
     char *text;
     int          len = 0;
+
+    wayland->last_seat = self;
+    self->serial = serial;
 
     keysym = xkb_handle_key(&self->xkb, key + 8, &text, &len);
     modmask = xkb_get_modmask(&self->xkb, keysym);
@@ -585,6 +533,9 @@ static void
 wayland_pointer_button(void *data, struct wl_pointer *pointer, uint32_t serial, uint32_t time, uint32_t button, enum wl_pointer_button_state state)
 {
     wayland_seat *self = data;
+
+    wayland->last_seat = self;
+    self->serial = serial;
 
     self->button.time = time;
     self->button.pressed = (state == WL_POINTER_BUTTON_STATE_PRESSED);
@@ -841,7 +792,11 @@ wayland_registry_handle_global(void *data, struct wl_registry *registry, uint32_
     {
         wayland->global_names[WAYLAND_GLOBAL_LAUNCHER_MENU] = name;
         wayland->launcher_menu = wl_registry_bind(registry, name, &zww_launcher_menu_v1_interface, WW_LAUNCHER_MENU_INTERFACE_VERSION);
-        zww_launcher_menu_v1_add_listener(wayland->launcher_menu, &wayland_listener, wayland);
+        zww_launcher_menu_v1_add_listener(wayland->launcher_menu, &wayland_launcher_menu_listener, wayland);
+    }
+    else if ( g_strcmp0(interface, "zww_window_switcher_v1") == 0 )
+    {
+        wayland->global_names[WAYLAND_GLOBAL_WINDOW_SWITCHER] = name;
     }
     else if ( g_strcmp0(interface, "wl_shm") == 0 )
     {
@@ -908,8 +863,13 @@ wayland_registry_handle_global_remove(void *data, struct wl_registry *registry, 
             wayland->compositor = NULL;
         break;
         case WAYLAND_GLOBAL_LAUNCHER_MENU:
-            zww_launcher_menu_v1_destroy(wayland->launcher_menu);
+            if ( wayland->launcher_menu != NULL )
+                zww_launcher_menu_v1_destroy(wayland->launcher_menu);
             wayland->launcher_menu = NULL;
+        break;
+        case WAYLAND_GLOBAL_WINDOW_SWITCHER:
+            zww_window_switcher_v1_destroy(wayland->window_switcher);
+            wayland->window_switcher = NULL;
         break;
         case WAYLAND_GLOBAL_SHM:
             wl_shm_destroy(wayland->shm);

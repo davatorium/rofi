@@ -132,7 +132,7 @@ AS_CASE([${with_display_backend}],
         AC_SUBST([wpprotocoldir])
         AC_SUBST([wwprotocoldir])
         with_display_backend=wayland
-        enable_windowmode_default=no
+        enable_windowmode_default=yes
 ])
 AM_CONDITIONAL([WAYLAND_BACKEND], [test x${with_display_backend} = xwayland])
 AM_CONDITIONAL([XCB_BACKEND], [test x${with_display_backend} = xxcb])
