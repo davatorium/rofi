@@ -421,26 +421,6 @@ gboolean display_init(GMainLoop *main_loop, const gchar *display)
     }
     x11_helper_discover_window_manager();
 
-    xcb_flush(xcb->connection);
-    xcb_grab_keyboard ( xcb->connection, 1, xcb->screen->root, XCB_CURRENT_TIME, XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC );
-    xcb_grab_pointer ( xcb->connection, 1, xcb->screen->root, XCB_EVENT_MASK_BUTTON_RELEASE, XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, xcb->screen->root, XCB_NONE, XCB_CURRENT_TIME );
-
-    return TRUE;
-}
-
-void display_cleanup(void)
-{
-    xcb_ungrab_pointer ( xcb->connection, XCB_CURRENT_TIME );
-    xcb_ungrab_keyboard ( xcb->connection, XCB_CURRENT_TIME );
-    xcb_flush(xcb->connection);
-    g_water_xcb_source_free(xcb->main_loop_source);
-}
-
-display_buffer_pool *display_buffer_pool_new(gint width, gint height)
-{
-    xcb->width = width;
-    xcb->height = height;
-
     uint32_t          selmask  = 0;
     uint32_t          selval[7];
     gsize i = 0;
@@ -469,13 +449,39 @@ display_buffer_pool *display_buffer_pool_new(gint width, gint height)
     selval[i++] = xcb->map;
 
     xcb->main_window = xcb_generate_id(xcb->connection);
-    xcb_void_cookie_t cc  = xcb_create_window_checked ( xcb->connection, xcb->depth->depth, xcb->main_window, xcb->screen->root, 0, 0, xcb->width, xcb->height, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT, xcb->visual->visual_id, selmask, selval );
+    xcb_void_cookie_t cc  = xcb_create_window_checked ( xcb->connection, xcb->depth->depth, xcb->main_window, xcb->screen->root, 0, 0, 1, 1, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT, xcb->visual->visual_id, selmask, selval );
     xcb_generic_error_t *error;
     error = xcb_request_check ( xcb->connection, cc );
     if ( error ) {
         printf ( "xcb_create_window() failed error=0x%x\n", error->error_code );
         return FALSE;
     }
+
+    xcb_flush(xcb->connection);
+    xcb_grab_keyboard ( xcb->connection, 1, xcb->screen->root, XCB_CURRENT_TIME, XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC );
+    xcb_grab_pointer ( xcb->connection, 1, xcb->screen->root, XCB_EVENT_MASK_BUTTON_RELEASE, XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, xcb->screen->root, XCB_NONE, XCB_CURRENT_TIME );
+
+    return TRUE;
+}
+
+void display_cleanup(void)
+{
+    xcb_destroy_window(xcb->connection, xcb->main_window);
+    xcb_ungrab_pointer ( xcb->connection, XCB_CURRENT_TIME );
+    xcb_ungrab_keyboard ( xcb->connection, XCB_CURRENT_TIME );
+    xcb_flush(xcb->connection);
+    g_water_xcb_source_free(xcb->main_loop_source);
+}
+
+display_buffer_pool *display_buffer_pool_new(gint width, gint height)
+{
+    xcb->width = width;
+    xcb->height = height;
+
+    uint16_t          selmask  =  XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
+    uint32_t          selval[] = { xcb->width, xcb->height};
+
+    xcb_configure_window(xcb->connection, xcb->main_window, selmask, selval);
 
     xcb->gc = xcb_generate_id ( xcb->connection );
     xcb_create_gc ( xcb->connection, xcb->gc, xcb->main_window, 0, 0 );
@@ -486,7 +492,6 @@ display_buffer_pool *display_buffer_pool_new(gint width, gint height)
 void display_buffer_pool_free(G_GNUC_UNUSED display_buffer_pool *pool)
 {
     xcb_free_gc(xcb->connection, xcb->gc);
-    xcb_destroy_window(xcb->connection, xcb->main_window);
 }
 
 static const cairo_user_data_key_t xcb_user_data;
