@@ -338,7 +338,7 @@ static gboolean helper_eval_cb ( const GMatchInfo *info, GString *str, gpointer 
         if ( match[1] == 'w' ) {
             helper_eval_add_str ( str, d->window->workspace, l, d->pd->workspace_len );
         }
-        else if ( match[1] == 'a' ) {
+        else if ( match[1] == 'c' ) {
             helper_eval_add_str ( str, d->window->app_id, l, d->pd->app_id_len );
         }
         else if ( match[1] == 't' ) {
