@@ -192,19 +192,11 @@ static gboolean xcb_callback(xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer use
                 state->y = xce->y;
                 widget_queue_redraw ( WIDGET ( state->main_window ) );
             }
-            if ( state->width != xce->width || state->height != xce->height ) {
-                state->width  = xce->width;
-                state->height = xce->height;
-
-                xcb_free_pixmap ( xcb->connection, CacheState.edit_pixmap );
-                CacheState.edit_pixmap = xcb_generate_id ( xcb->connection );
-                xcb_create_pixmap ( xcb->connection, xcb->depth->depth, CacheState.edit_pixmap, CacheState.main_window,
-                                    state->width, state->height );
-
-                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Re-size window based external request: %d %d\n", state->width, state->height );
-                widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
-            }
             */
+            if ( xcb->width != xce->width || xcb->height != xce->height ) {
+                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Re-size window based external request: %d %d\n", xce->width, xce->height );
+                rofi_view_set_size(state, xce->width, xce->height);
+            }
         }
         break;
     }

@@ -79,10 +79,6 @@ RofiViewState *current_active_menu = NULL;
  */
 struct
 {
-    /** Cairo Surface for edit_pixmap */
-    cairo_surface_t    *edit_surf;
-    /** Drawable context for edit_surf */
-    cairo_t            *edit_draw;
     /** Main flags */
     MenuFlags          flags;
     /** List of stacked views */
@@ -96,8 +92,6 @@ struct
     /** Window fullscreen */
     gboolean           fullscreen;
 } CacheState = {
-    .edit_surf      = NULL,
-    .edit_draw      = NULL,
     .flags          = MENU_NORMAL,
     .views          = G_QUEUE_INIT,
     .idle_timeout   =               0,
@@ -142,11 +136,6 @@ static int lev_sort ( const void *p1, const void *p2, void *arg )
 static void menu_capture_screenshot ( void )
 {
     const char *outp = g_getenv ( "ROFI_PNG_OUTPUT" );
-    if ( CacheState.edit_surf == NULL ) {
-        // Nothing to store.
-        fprintf ( stderr, "There is no rofi surface to store\n" );
-        return;
-    }
     const char *xdg_pict_dir = g_get_user_special_dir ( G_USER_DIRECTORY_PICTURES );
     if ( outp == NULL && xdg_pict_dir == NULL ) {
         fprintf ( stderr, "XDG user picture directory or ROFI_PNG_OUTPUT is not set. Cannot store screenshot.\n" );
@@ -177,7 +166,7 @@ static void menu_capture_screenshot ( void )
         fpath = g_strdup ( outp );
     }
     fprintf ( stderr, color_green "Storing screenshot %s\n"color_reset, fpath );
-    cairo_status_t status = cairo_surface_write_to_png ( CacheState.edit_surf, fpath );
+    cairo_status_t status = CAIRO_STATUS_SUCCESS;//cairo_surface_write_to_png ( CacheState.edit_surf, fpath );
     if ( status != CAIRO_STATUS_SUCCESS ) {
         fprintf ( stderr, "Failed to produce screenshot '%s', got error: '%s'\n", fpath,
                   cairo_status_to_string ( status ) );
@@ -221,11 +210,6 @@ static void rofi_view_update_prompt ( RofiViewState *state )
 
 static void rofi_view_window_update_size ( RofiViewState * state )
 {
-    // FIXME: Display it.
-    cairo_destroy ( CacheState.edit_draw );
-    cairo_surface_destroy ( CacheState.edit_surf );
-
-    // FIXME: get next buffer
     if ( state->pool != NULL )
         display_buffer_pool_free(state->pool);
     state->pool = display_buffer_pool_new(state->width, state->height);
@@ -233,6 +217,15 @@ static void rofi_view_window_update_size ( RofiViewState * state )
     g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Re-size window based internal request: %dx%d.", state->width, state->height );
     // Should wrap main window in a widget.
     widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
+}
+
+void rofi_view_set_size ( RofiViewState * state, gint width, gint height )
+{
+    if ( width > -1 )
+        state->width = width;
+    if ( height > -1 )
+        state->height = height;
+    rofi_view_window_update_size(state);
 }
 
 static void rofi_view_reload_message_bar ( RofiViewState *state )
@@ -1332,14 +1325,6 @@ void rofi_view_cleanup ()
     if ( CacheState.repaint_source > 0 ) {
         g_source_remove ( CacheState.repaint_source );
         CacheState.repaint_source = 0;
-    }
-    if ( CacheState.edit_draw ) {
-        cairo_destroy ( CacheState.edit_draw );
-        CacheState.edit_draw = NULL;
-    }
-    if ( CacheState.edit_surf ) {
-        cairo_surface_destroy ( CacheState.edit_surf );
-        CacheState.edit_surf = NULL;
     }
     g_assert ( g_queue_is_empty ( &( CacheState.views ) ) );
 }

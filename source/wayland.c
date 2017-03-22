@@ -209,7 +209,7 @@ wayland_surface_protocol_enter(void *data, struct wl_surface *wl_surface, struct
     {
         wayland->scale = output->scale;
 
-        // FIXME: resize
+        rofi_view_set_size(rofi_view_get_active(), -1, -1);
     }
 }
 
@@ -232,7 +232,7 @@ wayland_surface_protocol_leave(void *data, struct wl_surface *wl_surface, struct
             if ( wayland->scales[i] > 0 )
                 wayland->scale = i + 1;
         }
-        // FIXME: resize
+        rofi_view_set_size(rofi_view_get_active(), -1, -1);
     }
 
 }

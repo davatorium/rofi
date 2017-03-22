@@ -175,7 +175,7 @@ typedef enum {
 void rofi_view_mouse_navigation ( rofi_mouse_wheel_direction direction );
 void rofi_view_handle_mouse_button ( widget_button_event *be );
 void rofi_view_handle_mouse_motion ( widget_motion_event *me );
-
+void rofi_view_set_size ( RofiViewState * state, gint width, gint height );
 void rofi_view_maybe_update ( void );
 /**
  * Queue a redraw.
