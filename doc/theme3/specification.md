@@ -240,7 +240,6 @@ dynamic: false;
 
 * Format: `#{HEX}{6}`
 * Format: `#{HEX}{8}`
-* Format: `argb:{HEX}{8}`
 * Format: `rgb({INTEGER},{INTEGER},{INTEGER})`
 * Format: `rgba({INTEGER},{INTEGER},{INTEGER}, {REAL})`
 
