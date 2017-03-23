@@ -37,9 +37,6 @@ dist_bin_SCRIPTS=\
 nodist_rofi_SOURCES=\
 	$(top_builddir)/gitconfig.h
 
-rofi source/wayland.o: include/unstable/launcher-menu/launcher-menu-unstable-v1-client-protocol.h
-rofi source/wayland.o source/dialogs/window-wayland.o: include/unstable/window-switcher/window-switcher-unstable-v1-client-protocol.h
-
 SOURCES=\
 	source/rofi.c\
 	source/view.c\
@@ -88,6 +85,7 @@ SOURCES=\
 	include/widgets/scrollbar.h\
 	include/xrmoptions.h\
 	include/x11-helper.h\
+	include/dialogs/window.h\
 	include/dialogs/ssh.h\
 	include/dialogs/run.h\
 	include/dialogs/drun.h\
@@ -96,6 +94,7 @@ SOURCES=\
 	include/dialogs/script.h\
 	include/dialogs/dialogs.h\
 	include/dialogs/help-keys.h\
+	include/xkb-internal.h\
 	include/xkb.h
 
 if WAYLAND_BACKEND
@@ -106,7 +105,11 @@ if WINDOW_MODE
 SOURCES += source/dialogs/window-wayland.c
 nodist_rofi_SOURCES += source/unstable/window-switcher/window-switcher-unstable-v1-protocol.c
 endif
+
+rofi source/rofi-wayland.o: include/unstable/launcher-menu/launcher-menu-unstable-v1-client-protocol.h
+rofi source/rofi-wayland.o source/dialogs/rofi-window-wayland.o: include/unstable/window-switcher/window-switcher-unstable-v1-client-protocol.h
 endif
+
 if XCB_BACKEND
 SOURCES += source/xcb.c include/xcb.h
 include $(top_srcdir)/libgwater-xcb-nolibtool.mk
