@@ -881,6 +881,7 @@ xcb_window_t xcb_stuff_get_root_window ( xcb_stuff *xcb )
 void xcb_stuff_wipe ( xcb_stuff *xcb )
 {
     if ( xcb->connection != NULL ) {
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Cleaning up XCB and XKB" );
         if ( xcb->sncontext != NULL ) {
             sn_launchee_context_unref ( xcb->sncontext );
             xcb->sncontext = NULL;
