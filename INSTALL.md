@@ -71,6 +71,7 @@ Make a checkout:
 
 ```
 git clone https://github.com/DaveDavenport/rofi
+cd rofi/
 ```
 
 
