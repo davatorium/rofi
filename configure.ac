@@ -114,6 +114,7 @@ PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40 gio-unix-2.0 gmodule-2.0])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo])
 
+PKG_CHECK_MODULES([xrm], [xcb-xrm])
 
 dnl ---------------------------------------------------------------------
 dnl Display backend and window mode

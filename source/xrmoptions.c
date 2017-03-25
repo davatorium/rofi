@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <xcb/xcb_xrm.h>
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-compose.h>
 #include <glib.h>
@@ -102,15 +103,8 @@ static XrmOption xrmOptions[] = {
     { xrm_Number,  "bw",                { .num  = &config.menu_bw               }, NULL,
       "Border width", CONFIG_DEFAULT },
 
-    { xrm_Number,  "location",          { .num  = &config.location              }, NULL,
-      "Location on screen", CONFIG_DEFAULT },
-
     { xrm_Number,  "padding",           { .num  = &config.padding               }, NULL,
       "Padding", CONFIG_DEFAULT },
-    { xrm_SNumber, "yoffset",           { .snum = &config.y_offset              }, NULL,
-      "Y-offset relative to location", CONFIG_DEFAULT },
-    { xrm_SNumber, "xoffset",           { .snum = &config.x_offset              }, NULL,
-      "X-offset relative to location", CONFIG_DEFAULT },
     { xrm_Boolean, "fixed-num-lines",   { .num  = &config.fixed_num_lines       }, NULL,
       "Always show number of lines", CONFIG_DEFAULT },
 
@@ -155,11 +149,6 @@ static XrmOption xrmOptions[] = {
       "Set the matching algorithm. (normal, regex, glob, fuzzy)", CONFIG_DEFAULT },
     { xrm_Boolean, "tokenize",          { .num  = &config.tokenize              }, NULL,
       "Tokenize input string", CONFIG_DEFAULT },
-    { xrm_String,  "monitor",           { .str  = &config.monitor               }, NULL,
-      "", CONFIG_DEFAULT },
-    /* Alias for dmenu compatibility. */
-    { xrm_String,  "m",                 { .str  = &config.monitor               }, NULL,
-      "Monitor id to show on", CONFIG_DEFAULT },
     { xrm_Number,  "line-margin",       { .num  = &config.line_margin           }, NULL,
       "Margin between rows", CONFIG_DEFAULT },
     { xrm_Number,  "line-padding",      { .num  = &config.line_padding          }, NULL,
@@ -172,18 +161,12 @@ static XrmOption xrmOptions[] = {
       "Hide scroll-bar", CONFIG_DEFAULT },
     { xrm_Boolean, "fullscreen",        { .num  = &config.fullscreen            }, NULL,
       "Fullscreen", CONFIG_DEFAULT },
-    { xrm_Boolean, "fake-transparency", { .num  = &config.fake_transparency     }, NULL,
-      "Fake transparency", CONFIG_DEFAULT },
-    { xrm_SNumber, "dpi",               { .snum = &config.dpi                   }, NULL,
-      "DPI", CONFIG_DEFAULT },
     { xrm_Number,  "threads",           { .num  = &config.threads               }, NULL,
       "Threads to use for string matching", CONFIG_DEFAULT },
     { xrm_Number,  "scrollbar-width",   { .num  = &config.scrollbar_width       }, NULL,
       "Scrollbar width", CONFIG_DEFAULT },
     { xrm_Number,  "scroll-method",     { .num  = &config.scroll_method         }, NULL,
       "Scrolling method. (0: Page, 1: Centered)", CONFIG_DEFAULT },
-    { xrm_String,  "fake-background",   { .str  = &config.fake_background       }, NULL,
-      "Background to use for fake transparency. (background or screenshot)", CONFIG_DEFAULT },
     { xrm_String,  "window-format",     { .str  = &config.window_format         }, NULL,
       "Window Format. w (desktop name), t (title), n (name), r (role), c (class)", CONFIG_DEFAULT },
     { xrm_Boolean, "click-to-exit",     { .snum = &config.click_to_exit         }, NULL,
@@ -267,14 +250,6 @@ static void __config_parse_xresource_options ( xcb_xrm_database_t *xDB, enum Con
         }
 
         g_free ( name );
-    }
-}
-void config_parse_xresource_options ( xcb_stuff *xcb )
-{
-    xcb_xrm_database_t *xDB = xcb_xrm_database_from_default ( xcb->connection );
-    if ( xDB ) {
-        __config_parse_xresource_options ( xDB, CONFIG_XRESOURCES );
-        xcb_xrm_database_free ( xDB );
     }
 }
 void config_parse_xresource_options_file ( const char *filename )
@@ -380,16 +355,6 @@ static void __config_parse_xresource_options_dynamic ( xcb_xrm_database_t *xDB, 
     }
 }
 
-void config_parse_xresource_options_dynamic ( xcb_stuff *xcb )
-{
-    char *name = window_get_text_prop ( xcb_stuff_get_root_window ( xcb ), XCB_ATOM_RESOURCE_MANAGER );
-    if ( name ) {
-        xcb_xrm_database_t *xDB = xcb_xrm_database_from_string ( name );
-        __config_parse_xresource_options_dynamic ( xDB, CONFIG_XRESOURCES );
-        xcb_xrm_database_free ( xDB );
-        g_free ( name );
-    }
-}
 void config_parse_xresource_options_dynamic_file ( const char *filename )
 {
     if ( !filename ) {

@@ -53,7 +53,7 @@ SOURCES=\
 	source/widgets/textbox.c\
 	source/widgets/listview.c\
 	source/widgets/scrollbar.c\
-	source/xrmoptions-dummy.c\
+	source/xrmoptions.c\
 	source/xkb.c\
 	source/x11-helper.c\
 	source/dialogs/run.c\
@@ -128,6 +128,7 @@ rofi_CFLAGS=\
 	$(glib_CFLAGS)\
 	$(GW_WAYLAND_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
+	$(xrm_CFLAGS)\
 	$(pango_CFLAGS)\
 	$(cairo_CFLAGS)\
 	-DMANPAGE_PATH="\"$(mandir)/\""\
@@ -144,6 +145,7 @@ rofi_LDADD=\
 	$(glib_LIBS)\
 	$(GW_WAYLAND_LIBS)\
 	$(GW_XCB_LIBS)\
+	$(xrm_LIBS)\
 	$(pango_LIBS)\
 	$(cairo_LIBS)\
 	$(LIBS)
