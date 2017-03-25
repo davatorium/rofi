@@ -896,10 +896,12 @@ int main ( int argc, char *argv[] )
     const char *path = g_get_user_runtime_dir ();
     if ( path ) {
         if ( g_mkdir_with_parents ( path, 0700 ) < 0 ) {
-            fprintf ( stderr, "Failed to create user runtime directory: %s\n", strerror ( errno ) );
-            return EXIT_FAILURE;
+            g_log ( LOG_DOMAIN, G_LOG_LEVEL_WARNING, "Failed to create user runtime directory: %s with error: %s\n", path, strerror ( errno ) );
+            pidfile = g_build_filename ( g_get_home_dir (), ".rofi.pid", NULL );
         }
-        pidfile = g_build_filename ( path, "rofi.pid", NULL );
+        else {
+            pidfile = g_build_filename ( path, "rofi.pid", NULL );
+        }
     }
     config_parser_add_option ( xrm_String, "pid", (void * *) &pidfile, "Pidfile location" );
 
