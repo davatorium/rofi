@@ -371,8 +371,8 @@ static void get_apps_history ( DRunModePrivateData *pd )
     for ( unsigned int index = 0; index < length; index++ ) {
         char **st = g_strsplit ( retv[index], ":::", 2 );
         if ( st && st[0] && st[1] ) {
-            if ( ! read_desktop_file ( pd, st[0], st[1] ) ) {
-                history_remove ( path, retv[index]);
+            if ( !read_desktop_file ( pd, st[0], st[1] ) ) {
+                history_remove ( path, retv[index] );
             }
         }
         g_strfreev ( st );
