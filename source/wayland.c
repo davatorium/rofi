@@ -272,6 +272,9 @@ display_buffer_pool_get_next_buffer(wayland_buffer_pool *pool)
 void
 display_surface_commit(cairo_surface_t *surface)
 {
+    if ( surface == NULL )
+        return;
+
     wayland_buffer *buffer = cairo_surface_get_user_data(surface, &wayland_cairo_surface_user_data);
     wayland_buffer_pool *pool = buffer->pool;
 
