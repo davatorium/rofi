@@ -100,9 +100,21 @@ static char * rofi_theme_parse_prepare_file ( const char *file, const char *pare
     yylloc->first_column = yylloc->last_column;\
 }
 %}
+
+ASC     [\x00-\x7f]
+ASCN    [\x00-\t\v-\x7f]
+U       [\x80-\xbf]
+U2      [\xc2-\xdf]
+U3      [\xe0-\xef]
+U4      [\xf0-\xf4]
+
+ // UANY    {ASC}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
+UANYN   {ASCN}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
+ // UONLY   {U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
+
 WHITESPACE [[:blank:]]
 WORD       [[:alnum:]-]+
-STRING     [[:print:]]+
+STRING     {UANYN}+
 HEX        [[:xdigit:]]
 NUMBER     [[:digit:]]
 PNNUMBER   [-+]?[[:digit:]]+
