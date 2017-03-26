@@ -1,5 +1,7 @@
 #ifndef ROFI_MODE_H
 #define ROFI_MODE_H
+
+#include <cairo.h>
 /**
  * @defgroup MODE Mode
  *
@@ -92,6 +94,16 @@ unsigned int mode_get_num_entries ( const Mode *sw );
  * @returns allocated new string and state when get_entry is TRUE otherwise just the state.
  */
 char * mode_get_display_value ( const Mode *mode, unsigned int selected_line, int *state, GList **attribute_list, int get_entry );
+
+/**
+ * @param mode The mode to query
+ * @param selected_line The entry to query
+ *
+ * Returns the icon for the selected_line
+ *
+ * @returns allocated new cairo_surface_t if applicable
+ */
+cairo_surface_t * mode_get_icon ( const Mode *mode, unsigned int selected_line );
 
 /**
  * @param mode The mode to query

@@ -244,6 +244,19 @@ static char * combi_get_completion ( const Mode *sw, unsigned int index )
     return NULL;
 }
 
+static cairo_surface_t * combi_get_icon ( const Mode *sw, unsigned int index )
+{
+    CombiModePrivateData *pd = mode_get_private_data ( sw );
+    for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
+        if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
+            cairo_surface_t *icon  = mode_get_icon ( pd->switchers[i].mode, index - pd->starts[i] );
+            return icon;
+        }
+    }
+    //Not all modes support icons so it's possible to reach here
+    return NULL;
+}
+
 static char * combi_preprocess_input ( Mode *sw, const char *input )
 {
     CombiModePrivateData *pd = mode_get_private_data ( sw );
@@ -282,6 +295,7 @@ Mode combi_mode =
     ._token_match       = combi_mode_match,
     ._get_completion    = combi_get_completion,
     ._get_display_value = combi_mgrv,
+    ._get_icon          = combi_get_icon,
     ._preprocess_input  = combi_preprocess_input,
     .private_data       = NULL,
     .free               = NULL

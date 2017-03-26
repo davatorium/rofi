@@ -41,6 +41,8 @@
 
 #define DOT_OFFSET    15
 
+#define LOG_DOMAIN         "Widgets.TextBox"
+
 static void textbox_draw ( widget *, cairo_t * );
 static void textbox_free ( widget * );
 static int textbox_get_width ( widget * );
@@ -121,9 +123,6 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
 
     tb->layout = pango_layout_new ( p_context );
     textbox_font ( tb, tbft );
-
-    //AA TODO - pass this is instead of hard coding
-    tb->icon = cairo_image_surface_create_from_png("/usr/share/icons/hicolor/32x32/apps/google-chrome.png");
 
     tb->metrics = p_metrics;
     char * font = rofi_theme_get_string ( WIDGET ( tb ), "font", NULL );
@@ -275,6 +274,18 @@ void textbox_text ( textbox *tb, const char *text )
     widget_queue_redraw ( WIDGET ( tb ) );
 }
 
+void textbox_icon ( textbox *tb, cairo_surface_t *icon ) {
+    tb->icon = icon;
+
+    if ( tb->icon != NULL ) {
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "AA DEBUG textbox_icon() != NULL");
+    } else {
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "AA DEBUG textbox_icon() == NULL");
+    }
+
+    widget_queue_redraw ( WIDGET ( tb ) );
+}
+
 // within the parent handled auto width/height modes
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
@@ -380,17 +391,19 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     }
 
     // Icon
-    cairo_save(draw);
-    int tbh = textbox_get_height(tb);
+    if ( tb->icon != NULL ) {
+        cairo_save(draw);
+        int tbh = textbox_get_height(tb);
 
-    /*int iconw = cairo_image_surface_get_width (tb->icon);*/
-    int iconh = cairo_image_surface_get_height (tb->icon);
-    double scale = (double)tbh / iconh;
+        /*int iconw = cairo_image_surface_get_width (tb->icon);*/
+        int iconh = cairo_image_surface_get_height (tb->icon);
+        double scale = (double)tbh / iconh;
 
-    cairo_scale(draw, scale, scale);
-    cairo_set_source_surface(draw, tb->icon, x, y);
-    cairo_paint(draw);
-    cairo_restore(draw);
+        cairo_scale(draw, scale, scale);
+        cairo_set_source_surface(draw, tb->icon, x, y);
+        cairo_paint(draw);
+        cairo_restore(draw);
+    }
 
 
     // Set ARGB

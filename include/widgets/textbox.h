@@ -116,6 +116,14 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft );
 void textbox_text ( textbox *tb, const char *text );
 
 /**
+ * @param tb  Handle to the textbox
+ * @param text The icon to show on the textbox
+ *
+ * Set the text to show. Cursor is moved to end (if visible)
+ */
+void textbox_icon ( textbox *tb, cairo_surface_t *icon );
+
+/**
  * @param tb Handle to the textbox
  * @param action the #KeyBindingAction to execute on textbox
  *

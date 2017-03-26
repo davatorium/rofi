@@ -599,6 +599,27 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
                                          dr->generic_name );
     }
 }
+static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line )
+{
+    DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
+    if ( pd->entry_list == NULL ) {
+        // Should never get here.
+        return NULL;
+    }
+    /* Free temp storage. */
+    DRunModeEntry *dr = &( pd->entry_list[selected_line] );
+    if ( dr->icon_path == NULL ) {
+        return NULL;
+    }
+    else {
+        //AA TODO - support svgs and any other common icon types
+        if ( g_str_has_suffix ( dr->icon_path, ".png" ) ) {
+            return cairo_image_surface_create_from_png(dr->icon_path);
+        } else {
+            return NULL;
+        }
+    }
+}
 static char *drun_get_completion ( const Mode *sw, unsigned int index )
 {
     DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
@@ -674,6 +695,7 @@ Mode drun_mode =
     ._token_match       = drun_token_match,
     ._get_completion    = drun_get_completion,
     ._get_display_value = _get_display_value,
+    ._get_icon          = _get_icon,
     ._preprocess_input  = NULL,
     .private_data       = NULL,
     .free               = NULL
