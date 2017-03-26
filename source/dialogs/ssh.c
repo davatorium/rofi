@@ -153,15 +153,19 @@ static char **read_known_hosts_file ( char ** retv, unsigned int *length )
         size_t buffer_length = 0;
         // Reading one line per time.
         while ( getline ( &buffer, &buffer_length, fd ) > 0 ) {
-            char *sep = strstr ( buffer, "," );
+            char *sep = strstr ( buffer, "]" );
+            if (sep == NULL) {
+                sep = strstr ( buffer, "," );
+            }
 
             if ( sep != NULL ) {
                 *sep = '\0';
                 // Is this host name already in the list?
                 // We often get duplicates in hosts file, so lets check this.
                 int found = 0;
+                int skip = buffer[0] == '[' ? 1 : 0;
                 for ( unsigned int j = 0; j < ( *length ); j++ ) {
-                    if ( !g_ascii_strcasecmp ( buffer, retv[j] ) ) {
+                    if ( !g_ascii_strcasecmp ( buffer + skip, retv[j] ) ) {
                         found = 1;
                         break;
                     }
@@ -170,7 +174,7 @@ static char **read_known_hosts_file ( char ** retv, unsigned int *length )
                 if ( !found ) {
                     // Add this host name to the list.
                     retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-                    retv[( *length )]     = g_strdup ( buffer );
+                    retv[( *length )]     = g_strdup ( buffer + skip );
                     retv[( *length ) + 1] = NULL;
                     ( *length )++;
                 }
