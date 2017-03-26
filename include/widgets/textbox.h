@@ -33,6 +33,8 @@ typedef struct
     int              markup;
     int              changed;
 
+    cairo_surface_t *icon;  // AA TODO - pass in icons for a textbox line if needed
+
     int              blink;
     guint            blink_timeout;
 

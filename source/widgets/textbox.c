@@ -122,6 +122,9 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
     tb->layout = pango_layout_new ( p_context );
     textbox_font ( tb, tbft );
 
+    //AA TODO - pass this is instead of hard coding
+    tb->icon = cairo_image_surface_create_from_png("/usr/share/icons/hicolor/32x32/apps/google-chrome.png");
+
     tb->metrics = p_metrics;
     char * font = rofi_theme_get_string ( WIDGET ( tb ), "font", NULL );
     if ( font ) {
@@ -352,13 +355,14 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     }
 
     int top = widget_padding_get_top ( WIDGET ( tb ) );
+    int y = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
     rofi_theme_get_color ( WIDGET ( tb ), "foreground", draw );
     // Text
     rofi_theme_get_color ( WIDGET ( tb ), "text", draw );
     // draw the cursor
     if ( tb->flags & TB_EDITABLE && tb->blink ) {
-        int            y = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
+        /*int            y = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;*/
         // We want to place the cursor based on the text shown.
         const char     *text = pango_layout_get_text ( tb->layout );
         // Clamp the position, should not be needed, but we are paranoid.
@@ -374,6 +378,20 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         cairo_rectangle ( draw, x + cursor_x, y + cursor_y, cursor_width, cursor_height );
         cairo_fill ( draw );
     }
+
+    // Icon
+    cairo_save(draw);
+    int tbh = textbox_get_height(tb);
+
+    /*int iconw = cairo_image_surface_get_width (tb->icon);*/
+    int iconh = cairo_image_surface_get_height (tb->icon);
+    double scale = (double)tbh / iconh;
+
+    cairo_scale(draw, scale, scale);
+    cairo_set_source_surface(draw, tb->icon, x, y);
+    cairo_paint(draw);
+    cairo_restore(draw);
+
 
     // Set ARGB
     // We need to set over, otherwise subpixel hinting wont work.
