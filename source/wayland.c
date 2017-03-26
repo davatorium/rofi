@@ -22,6 +22,7 @@
  *   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#define G_LOG_DOMAIN "Wayland"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
@@ -943,8 +944,10 @@ display_init(GMainLoop *main_loop, const gchar *display)
     wayland->main_loop = main_loop;
 
     wayland->main_loop_source = g_water_wayland_source_new ( NULL, display );
-    if ( wayland->main_loop_source == NULL )
+    if ( wayland->main_loop_source == NULL ) {
+        g_warning("Could not connect to the Wayland compositor");
         return FALSE;
+    }
 
     g_water_wayland_source_set_error_callback(wayland->main_loop_source, wayland_error, NULL, NULL);
 
@@ -960,8 +963,10 @@ display_init(GMainLoop *main_loop, const gchar *display)
     wl_registry_add_listener ( wayland->registry, &wayland_registry_listener, NULL );
     wl_display_roundtrip ( wayland->display );
 
-    if ( wayland->launcher_menu == NULL )
+    if ( wayland->launcher_menu == NULL ) {
+        g_warning("Wayland compositor missing 'ww_launcher_menu' interface");
         return FALSE;
+    }
 
     wayland->surface = wl_compositor_create_surface(wayland->compositor);
 
@@ -972,16 +977,20 @@ display_init(GMainLoop *main_loop, const gchar *display)
         wl_display_roundtrip ( wayland->display );
 
         wayland_seat *seat = g_hash_table_lookup(wayland->seats_by_name, seat_name);
-        if ( seat == NULL )
+        if ( seat == NULL ) {
+            g_warning("Could not find seat named %s (${ROFI_SEAT})", seat_name);
             return FALSE;
+        }
 
         guint64 serial = g_ascii_strtoull(serial_str, NULL, 10);
         const gchar *geometry = g_getenv("ROFI_GEOMETRY");
         if ( geometry != NULL )
         {
             int x, y, width, height;
-            if ( sscanf(geometry, "%dx%d@%d,%d", &width, &height, &x, &y) != 4 )
+            if ( sscanf(geometry, "%dx%d@%d,%d", &width, &height, &x, &y) != 4 ) {
+                g_warning("Malformed ${ROFI_GEOMETRY}, must be '<width>x<height>@<x>,<y>', was '%s'", geometry);
                 return FALSE;
+            }
             zww_launcher_menu_v1_show_at_surface(wayland->launcher_menu, wayland->surface, seat->seat, serial, x, y, width, height);
         }
         else
