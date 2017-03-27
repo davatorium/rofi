@@ -353,6 +353,25 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
 
     // Skip the side MARGIN on the X axis.
     int x = widget_padding_get_left ( WIDGET ( tb ) ) + offset;
+    int top = widget_padding_get_top ( WIDGET ( tb ) );
+    int y = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
+
+    // Icon
+    int tbh = textbox_get_height(tb);
+    if ( tb->icon != NULL ) {
+        cairo_save(draw);
+
+        /*int iconw = cairo_image_surface_get_width (tb->icon);*/
+        int iconh = cairo_image_surface_get_height (tb->icon);
+        double scale = (double)tbh / iconh;
+
+        cairo_scale(draw, scale, scale);
+        //AA TODO - Draw this just before the app name on the x axis
+        cairo_set_source_surface(draw, tb->icon, x, y);
+        cairo_paint(draw);
+        cairo_restore(draw);
+
+    }
 
     if ( tb->flags & TB_RIGHT ) {
         int line_width = 0;
@@ -365,8 +384,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         x = (  ( tb->widget.w - tw - widget_padding_get_padding_width ( WIDGET ( tb ) ) - offset ) ) / 2;
     }
 
-    int top = widget_padding_get_top ( WIDGET ( tb ) );
-    int y = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
     rofi_theme_get_color ( WIDGET ( tb ), "foreground", draw );
     // Text
@@ -390,26 +407,14 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         cairo_fill ( draw );
     }
 
-    // Icon
-    if ( tb->icon != NULL ) {
-        cairo_save(draw);
-        int tbh = textbox_get_height(tb);
-
-        /*int iconw = cairo_image_surface_get_width (tb->icon);*/
-        int iconh = cairo_image_surface_get_height (tb->icon);
-        double scale = (double)tbh / iconh;
-
-        cairo_scale(draw, scale, scale);
-        cairo_set_source_surface(draw, tb->icon, x, y);
-        cairo_paint(draw);
-        cairo_restore(draw);
-    }
-
-
     // Set ARGB
     // We need to set over, otherwise subpixel hinting wont work.
     cairo_set_operator ( draw, CAIRO_OPERATOR_OVER );
-    cairo_move_to ( draw, x, top );
+    if ( tb->icon != NULL ) { //AA TODO - draw the icon between the mode name and entry name
+        cairo_move_to ( draw, x + tbh, top );
+    } else {
+        cairo_move_to ( draw, x, top );
+    }
     pango_cairo_show_layout ( draw, tb->layout );
 
     if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED ) ) ) {
