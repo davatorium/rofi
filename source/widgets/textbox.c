@@ -357,13 +357,13 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     int y = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
     // Icon
-    int tbh = textbox_get_height(tb);
+    int iconheight = textbox_get_font_height ( tb );
     if ( tb->icon != NULL ) {
         cairo_save(draw);
 
         /*int iconw = cairo_image_surface_get_width (tb->icon);*/
         int iconh = cairo_image_surface_get_height (tb->icon);
-        double scale = (double)tbh / iconh;
+        double scale = (double)iconheight / iconh;
 
         cairo_scale(draw, scale, scale);
         //AA TODO - Draw this just before the app name on the x axis
@@ -411,7 +411,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     // We need to set over, otherwise subpixel hinting wont work.
     cairo_set_operator ( draw, CAIRO_OPERATOR_OVER );
     if ( tb->icon != NULL ) { //AA TODO - draw the icon between the mode name and entry name
-        cairo_move_to ( draw, x + tbh, top );
+        cairo_move_to ( draw, x + iconheight, top );
     } else {
         cairo_move_to ( draw, x, top );
     }
