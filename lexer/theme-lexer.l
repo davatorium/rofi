@@ -141,6 +141,8 @@ LS_SOLID   "solid"
 
 INCLUDE    "@import"
 
+CONFIGURATION "Configuration"
+
 %x INCLUDE
 %x PROPERTIES
 %x NAMESTR
@@ -257,6 +259,12 @@ if ( queue == NULL ){
     /**
      * Handle defaults:  * { ... }
      */
+<INITIAL>{CONFIGURATION} {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(DEFAULTS);
+    return CONFIGURATION;
+
+}
 <INITIAL>{ASTERIX} {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(DEFAULTS);

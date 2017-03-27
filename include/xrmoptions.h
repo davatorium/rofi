@@ -158,5 +158,14 @@ void print_help_msg ( const char *option, const char *type, const char*text, con
  */
 char ** config_parser_return_display_help ( unsigned int *length );
 
+/**
+ * @brief Set config option.
+ *
+ * Sets both the static as  dynamic config option.
+ *
+ * @param option Option to set.
+ * @param value  Value to set it too
+ */
+void config_parser_set_option ( char *option, char *value);
 /* @}*/
 #endif
