@@ -1045,14 +1045,11 @@ int main ( int argc, char *argv[] )
         gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
         if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
             config_parse_xresource_options_file ( etc );
-            config_parse_xresource_options_dynamic_file ( etc );
         }
         g_free ( etc );
         // Load in config from X resources.
         config_parse_xresource_options ( xcb );
-        config_parse_xresource_options_dynamic ( xcb );
         config_parse_xresource_options_file ( config_path );
-        config_parse_xresource_options_dynamic_file ( config_path );
 
         find_arg_str ( "-theme", &(config.theme));
         if ( config.theme ) {
@@ -1067,7 +1064,6 @@ int main ( int argc, char *argv[] )
     }
     // Parse command line for settings, independent of other -no-config.
     config_parse_cmd_options ( );
-    config_parse_cmd_options_dynamic (  );
     TICK_N ( "Load cmd config " );
 
     if ( !dmenu_mode ) {
