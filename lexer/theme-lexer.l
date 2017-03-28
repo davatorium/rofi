@@ -37,7 +37,7 @@ typedef struct _ParseObject {
     char *filename;
 
     /** Length of string  */
-    ssize_t str_len;
+    yy_size_t str_len;
     /** String */
     const char *input_str;
     /** Position in file */
