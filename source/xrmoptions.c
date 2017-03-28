@@ -387,10 +387,9 @@ void config_parse_cmd_options ( void )
 
 static void __config_parser_set_property ( XrmOption *option, const Property *p )
 {
-    if ( option->type == xrm_String  )
-    {
+    if ( option->type == xrm_String  ) {
         if ( p->type != P_STRING ) {
-            fprintf(stderr, "Option: %s needs to be set with a string.\n", option->name);
+            fprintf ( stderr, "Option: %s needs to be set with a string.\n", option->name );
             return;
         }
         if ( ( option )->mem != NULL ) {
@@ -401,46 +400,48 @@ static void __config_parser_set_property ( XrmOption *option, const Property *p 
 
         // Memory
         ( option )->mem = *( option->value.str );
-        option->source = CONFIG_FILE_THEME;
-    } else if ( option->type == xrm_Number ) {
-        if ( p->type != P_INTEGER ){
-            fprintf(stderr, "Option: %s needs to be set with a number.\n", option->name);
+        option->source  = CONFIG_FILE_THEME;
+    }
+    else if ( option->type == xrm_Number ) {
+        if ( p->type != P_INTEGER ) {
+            fprintf ( stderr, "Option: %s needs to be set with a number.\n", option->name );
             return;
         }
-        *(option->value.snum) = p->value.i;
-        option->source = CONFIG_FILE_THEME;
-    }  else if ( option->type == xrm_SNumber ) {
-        if ( p->type != P_INTEGER ){
-            fprintf(stderr, "Option: %s needs to be set with a number.\n", option->name);
+        *( option->value.snum ) = p->value.i;
+        option->source          = CONFIG_FILE_THEME;
+    }
+    else if ( option->type == xrm_SNumber ) {
+        if ( p->type != P_INTEGER ) {
+            fprintf ( stderr, "Option: %s needs to be set with a number.\n", option->name );
             return;
         }
-        *(option->value.num) = (unsigned int )(p->value.i);
-        option->source = CONFIG_FILE_THEME;
-    } else if ( option->type == xrm_Boolean ) {
-        if ( p->type != P_BOOLEAN ){
-            fprintf(stderr, "Option: %s needs to be set with a boolean.\n", option->name);
+        *( option->value.num ) = (unsigned int ) ( p->value.i );
+        option->source         = CONFIG_FILE_THEME;
+    }
+    else if ( option->type == xrm_Boolean ) {
+        if ( p->type != P_BOOLEAN ) {
+            fprintf ( stderr, "Option: %s needs to be set with a boolean.\n", option->name );
             return;
         }
-        *(option->value.num) = (p->value.b);
-        option->source = CONFIG_FILE_THEME;
+        *( option->value.num ) = ( p->value.b );
+        option->source         = CONFIG_FILE_THEME;
     }
 }
-
 
 void config_parse_set_property ( const Property *p )
 {
     for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( XrmOption ); ++i ) {
         XrmOption *op = &( xrmOptions[i] );
-        if ( g_strcmp0 ( op->name, p->name) == 0 ) {
+        if ( g_strcmp0 ( op->name, p->name ) == 0 ) {
             __config_parser_set_property ( op, p );
-            return; 
+            return;
         }
     }
     for ( unsigned int i = 0; i < num_extra_options; ++i ) {
         XrmOption *op = &( extra_options[i] );
-        if ( g_strcmp0 ( op->name, p->name) == 0 ) {
+        if ( g_strcmp0 ( op->name, p->name ) == 0 ) {
             __config_parser_set_property ( op, p );
-            return; 
+            return;
         }
     }
 }

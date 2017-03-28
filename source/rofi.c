@@ -1051,7 +1051,7 @@ int main ( int argc, char *argv[] )
         config_parse_xresource_options ( xcb );
         config_parse_xresource_options_file ( config_path );
 
-        find_arg_str ( "-theme", &(config.theme));
+        find_arg_str ( "-theme", &( config.theme ) );
         if ( config.theme ) {
             TICK_N ( "Parse theme" );
             if ( rofi_theme_parse_file ( config.theme ) ) {
@@ -1071,7 +1071,6 @@ int main ( int argc, char *argv[] )
         setup_modi ();
         TICK_N ( "Setup Modi" );
     }
-
 
     const char ** theme_str = find_arg_strv ( "-theme-str" );
     if ( theme_str ) {

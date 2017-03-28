@@ -142,6 +142,6 @@ char ** config_parser_return_display_help ( unsigned int *length );
  *
  * @param p Property to set
  */
-void config_parse_set_property ( const Property *p);
+void config_parse_set_property ( const Property *p );
 /* @}*/
 #endif
