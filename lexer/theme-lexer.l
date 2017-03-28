@@ -159,6 +159,9 @@ YY_LLOC_START
 if ( queue == NULL ){
     queue = g_queue_new ( );
     yylloc->filename = current->filename;
+    // unsure why todo this.
+    yylloc->first_line = yylloc->last_line = 1;
+    yylloc->first_column = yylloc->last_column = 1;
 }
 %}
 
