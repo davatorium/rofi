@@ -19,6 +19,10 @@ BUILT_SOURCES=\
 			  lexer/theme-parser.c\
 			  lexer/theme-lexer.c
 
+$(top_builddir)/lexer/theme-lexer.c: $(top_srcdir)/lexer/theme-lexer.l
+
+$(top_builddir)/lexer/theme-parser.c $(top_builddir)/lexer/theme-parser.h: $(top_srcdir)/lexer/theme-parser.y
+
 rofiincludedir=${includedir}/rofi
 rofiinclude_HEADERS=\
 			include/mode.h\

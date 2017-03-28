@@ -23,6 +23,9 @@ unsigned int test =0;
         }                                                                                \
 }
 
+void config_parse_set_property ( const void *p )
+{
+}
 char * rofi_expand_path ( const char *path )
 {
 

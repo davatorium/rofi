@@ -1350,7 +1350,7 @@ void rofi_view_workers_initialize ( void )
 void rofi_view_workers_finalize ( void )
 {
     if ( tpool ) {
-        g_thread_pool_free ( tpool, TRUE, FALSE );
+        g_thread_pool_free ( tpool, TRUE, TRUE );
         tpool = NULL;
     }
 }

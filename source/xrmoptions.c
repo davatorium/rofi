@@ -44,6 +44,7 @@ const char * const ConfigSourceStr[] = {
     "Default",
     "XResources",
     "File",
+    "Rasi File",
     "Commandline",
 };
 /** Enumerator of different sources of configuration. */
@@ -52,7 +53,8 @@ enum ConfigSource
     CONFIG_DEFAULT    = 0,
     CONFIG_XRESOURCES = 1,
     CONFIG_FILE       = 2,
-    CONFIG_CMDLINE    = 3
+    CONFIG_FILE_THEME = 3,
+    CONFIG_CMDLINE    = 4
 };
 
 typedef struct
@@ -325,48 +327,71 @@ void config_parse_cmd_options ( void )
         XrmOption *op = &( xrmOptions[i] );
         config_parse_cmd_option ( op );
     }
-}
-
-void config_parse_cmd_options_dynamic ( void )
-{
     for ( unsigned int i = 0; i < num_extra_options; ++i ) {
         XrmOption *op = &( extra_options[i] );
         config_parse_cmd_option ( op  );
     }
 }
 
-static void __config_parse_xresource_options_dynamic ( xcb_xrm_database_t *xDB, enum ConfigSource source )
+static void __config_parser_set_property ( XrmOption *option, const Property *p )
 {
-    const char * namePrefix = "rofi";
-
-    for ( unsigned int i = 0; i < num_extra_options; ++i ) {
-        char *name;
-
-        name = g_strdup_printf ( "%s.%s", namePrefix, extra_options[i].name );
-        char *xrmValue = NULL;
-        if ( xcb_xrm_resource_get_string ( xDB, name, NULL, &xrmValue ) == 0 ) {
-            config_parser_set ( &( extra_options[i] ), xrmValue, source );
+    if ( option->type == xrm_String  ) {
+        if ( p->type != P_STRING ) {
+            fprintf ( stderr, "Option: %s needs to be set with a string.\n", option->name );
+            return;
         }
-        if ( xrmValue ) {
-            free ( xrmValue );
+        if ( ( option )->mem != NULL ) {
+            g_free ( option->mem );
+            option->mem = NULL;
         }
+        *( option->value.str ) = g_strdup ( p->value.s );
 
-        g_free ( name );
+        // Memory
+        ( option )->mem = *( option->value.str );
+        option->source  = CONFIG_FILE_THEME;
+    }
+    else if ( option->type == xrm_Number ) {
+        if ( p->type != P_INTEGER ) {
+            fprintf ( stderr, "Option: %s needs to be set with a number.\n", option->name );
+            return;
+        }
+        *( option->value.snum ) = p->value.i;
+        option->source          = CONFIG_FILE_THEME;
+    }
+    else if ( option->type == xrm_SNumber ) {
+        if ( p->type != P_INTEGER ) {
+            fprintf ( stderr, "Option: %s needs to be set with a number.\n", option->name );
+            return;
+        }
+        *( option->value.num ) = (unsigned int ) ( p->value.i );
+        option->source         = CONFIG_FILE_THEME;
+    }
+    else if ( option->type == xrm_Boolean ) {
+        if ( p->type != P_BOOLEAN ) {
+            fprintf ( stderr, "Option: %s needs to be set with a boolean.\n", option->name );
+            return;
+        }
+        *( option->value.num ) = ( p->value.b );
+        option->source         = CONFIG_FILE_THEME;
     }
 }
 
-void config_parse_xresource_options_dynamic_file ( const char *filename )
+void config_parse_set_property ( const Property *p )
 {
-    if ( !filename ) {
-        return;
+    for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( XrmOption ); ++i ) {
+        XrmOption *op = &( xrmOptions[i] );
+        if ( g_strcmp0 ( op->name, p->name ) == 0 ) {
+            __config_parser_set_property ( op, p );
+            return;
+        }
     }
-    // Map Xresource entries to rofi config options.
-    xcb_xrm_database_t *xDB = xcb_xrm_database_from_file ( filename );
-    if ( xDB == NULL ) {
-        return;
+    for ( unsigned int i = 0; i < num_extra_options; ++i ) {
+        XrmOption *op = &( extra_options[i] );
+        if ( g_strcmp0 ( op->name, p->name ) == 0 ) {
+            __config_parser_set_property ( op, p );
+            return;
+        }
     }
-    __config_parse_xresource_options_dynamic ( xDB, CONFIG_FILE );
-    xcb_xrm_database_free ( xDB );
 }
 
 void config_xresource_free ( void )

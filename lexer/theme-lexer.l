@@ -1,4 +1,6 @@
-%option noyywrap nounput never-interactive
+%option noyywrap
+%option nounput
+%option never-interactive
 %option bison-locations
 
 %{
@@ -35,7 +37,7 @@ typedef struct _ParseObject {
     char *filename;
 
     /** Length of string  */
-    size_t str_len;
+    yy_size_t str_len;
     /** String */
     const char *input_str;
     /** Position in file */
@@ -100,9 +102,21 @@ static char * rofi_theme_parse_prepare_file ( const char *file, const char *pare
     yylloc->first_column = yylloc->last_column;\
 }
 %}
+
+ASC     [\x00-\x7f]
+ASCN    [\x00-\t\v-\x7f]
+U       [\x80-\xbf]
+U2      [\xc2-\xdf]
+U3      [\xe0-\xef]
+U4      [\xf0-\xf4]
+
+ // UANY    {ASC}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
+UANYN   {ASCN}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
+ // UONLY   {U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
+
 WHITESPACE [[:blank:]]
 WORD       [[:alnum:]-]+
-STRING     [[:print:]]+
+STRING     {UANYN}+
 HEX        [[:xdigit:]]
 NUMBER     [[:digit:]]
 PNNUMBER   [-+]?[[:digit:]]+
@@ -129,6 +143,8 @@ LS_SOLID   "solid"
 
 INCLUDE    "@import"
 
+CONFIGURATION "Configuration"
+
 %x INCLUDE
 %x PROPERTIES
 %x NAMESTR
@@ -143,6 +159,9 @@ YY_LLOC_START
 if ( queue == NULL ){
     queue = g_queue_new ( );
     yylloc->filename = current->filename;
+    // unsure why todo this.
+    yylloc->first_line = yylloc->last_line = 1;
+    yylloc->first_column = yylloc->last_column = 1;
 }
 %}
 
@@ -245,6 +264,12 @@ if ( queue == NULL ){
     /**
      * Handle defaults:  * { ... }
      */
+<INITIAL>{CONFIGURATION} {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(DEFAULTS);
+    return CONFIGURATION;
+
+}
 <INITIAL>{ASTERIX} {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(DEFAULTS);
