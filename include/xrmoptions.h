@@ -1,6 +1,7 @@
 #ifndef ROFI_XRMOPTIONS_H
 #define ROFI_XRMOPTIONS_H
 #include "xcb.h"
+#include "theme.h"
 // Big thanks to Sean Pringle for this code.
 
 /**
@@ -139,9 +140,8 @@ char ** config_parser_return_display_help ( unsigned int *length );
  *
  * Sets both the static as  dynamic config option.
  *
- * @param option Option to set.
- * @param value  Value to set it too
+ * @param p Property to set
  */
-void config_parser_set_option ( char *option, char *value);
+void config_parse_set_property ( const Property *p);
 /* @}*/
 #endif

@@ -4,6 +4,7 @@
 #include <cairo.h>
 #include <widgets/widget.h>
 #include <settings.h>
+#include "theme.h"
 
 /** Style of text highlight */
 typedef enum

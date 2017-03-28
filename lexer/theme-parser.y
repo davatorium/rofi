@@ -139,24 +139,7 @@ NAME_PREFIX name_path BOPEN optional_properties BCLOSE
     gpointer key,value;
     while ( g_hash_table_iter_next ( &iter, &key, &value ) ) {
             Property *p = (Property *) value;
-            switch ( p ->type )
-            {
-                case P_STRING:
-                    config_parser_set_option ( p->name, p->value.s);
-                    break;
-                case P_BOOLEAN:
-                    config_parser_set_option ( p->name, p->value.b?"true":"false");
-                    break;
-                case P_INTEGER:
-                   {
-                       char *str = g_strdup_printf("%d", p->value.i);
-                       config_parser_set_option ( p->name, str );
-                       g_free(str);
-                   }
-                default:
-                       break;
-
-            }
+            config_parse_set_property ( p );
     }
 }
 ;

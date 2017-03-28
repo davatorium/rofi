@@ -12,7 +12,7 @@ unsigned int test =0;
         assert ( a );                                     \
         printf ( "Test %3i passed (%s)\n", ++test, # a ); \
 }
-void config_parser_set_option ( const char *k, const char *v)
+void config_parse_set_property ( const void *p )
 {
 }
 void rofi_add_error_message ( GString *msg )
