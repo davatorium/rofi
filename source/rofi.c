@@ -542,7 +542,6 @@ static int add_mode ( const char * token )
         Mode *sw = script_switcher_parse_setup ( token );
         if ( sw != NULL ) {
             modi[num_modi] = sw;
-            mode_set_config ( sw );
             num_modi++;
         }
         else {
@@ -564,7 +563,6 @@ static void setup_modi ( void )
     }
     // Free string that was modified by strtok_r
     g_free ( switcher_str );
-    rofi_collect_modi_setup ();
 }
 
 /**
@@ -577,22 +575,14 @@ static inline void load_configuration ( )
     gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
     if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
         config_parse_xresource_options_file ( etc );
-    }
-    g_free ( etc );
-    // Load in config from X resources.
-    config_parse_xresource_options ( xcb );
-    config_parse_xresource_options_file ( config_path );
-}
-static inline void load_configuration_dynamic ( )
-{
-    // Load distro default settings
-    gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
-    if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
         config_parse_xresource_options_dynamic_file ( etc );
     }
     g_free ( etc );
     // Load in config from X resources.
+    config_parse_xresource_options ( xcb );
+    // Load in config from X resources.
     config_parse_xresource_options_dynamic ( xcb );
+    config_parse_xresource_options_file ( config_path );
     config_parse_xresource_options_dynamic_file ( config_path );
 }
 
@@ -938,6 +928,7 @@ int main ( int argc, char *argv[] )
 
     TICK_N ( "Open Display" );
     rofi_collect_modi ();
+    rofi_collect_modi_setup ();
     TICK_N ( "Collect MODI" );
 
     xcb->screen = xcb_aux_get_screen ( xcb->connection, xcb->screen_nbr );
@@ -1075,6 +1066,8 @@ int main ( int argc, char *argv[] )
     }
     // Parse command line for settings, independent of other -no-config.
     config_parse_cmd_options ( );
+    // Parse command line for settings, independent of other -no-config.
+    config_parse_cmd_options_dynamic (  );
 
     if ( !dmenu_mode ) {
         // setup_modi
@@ -1082,14 +1075,7 @@ int main ( int argc, char *argv[] )
         TICK_N ( "Setup Modi" );
     }
 
-    if ( find_arg ( "-no-config" ) < 0 ) {
-        // Reload for dynamic part.
-        load_configuration_dynamic ( );
-        TICK_N ( "Load config dynamic" );
-    }
-    // Parse command line for settings, independent of other -no-config.
-    config_parse_cmd_options_dynamic (  );
-    TICK_N ( "Load cmd config dynamic" );
+    TICK_N ( "Load cmd config" );
 
     if ( config.theme ) {
         TICK_N ( "Parse theme" );
