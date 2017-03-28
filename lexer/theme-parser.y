@@ -7,6 +7,7 @@
 %parse-param {const char *what}
 %code requires {
 #include "theme.h"
+#include "xrmoptions.h"
 
 typedef struct YYLTYPE {
   int first_line;

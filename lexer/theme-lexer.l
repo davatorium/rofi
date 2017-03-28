@@ -1,4 +1,6 @@
-%option noyywrap nounput never-interactive
+%option noyywrap
+%option nounput
+%option never-interactive
 %option bison-locations
 
 %{
@@ -35,7 +37,7 @@ typedef struct _ParseObject {
     char *filename;
 
     /** Length of string  */
-    size_t str_len;
+    ssize_t str_len;
     /** String */
     const char *input_str;
     /** Position in file */
