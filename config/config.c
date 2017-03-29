@@ -33,8 +33,6 @@ Settings config = {
     /** List of enabled modi. */
     /** -modi */
     .modi              = "window,run,ssh",
-    /** Border width around the window. */
-    .menu_bw           =                                         1,
     /** The width of the switcher. (0100 in % > 100 in pixels) */
     .menu_width        =                                        50,
     /** Maximum number of options to show. */
@@ -45,12 +43,6 @@ Settings config = {
     .menu_font         = "mono 12",
 
     /** Row colors */
-    // Enable new color
-    .color_normal = "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5",
-    .color_urgent = "#fdf6e3,#dc322f,#eee8d5,#dc322f,#fdf6e3",
-    .color_active = "#fdf6e3,#268bd2,#eee8d5,#268bd2,#fdf6e3",
-    .color_window = "#fdf6e3,#002b36",
-
     /** Terminal to use. (for ssh and open in terminal) */
     .terminal_emulator = "rofi-sensible-terminal",
     .ssh_client        = "ssh",
@@ -76,8 +68,6 @@ Settings config = {
      *
      */
     .location          = WL_CENTER,
-    /** Padding between elements */
-    .padding           =                                         5,
     /** Y offset */
     .y_offset          =                                         0,
     /** X offset */
@@ -111,22 +101,12 @@ Settings config = {
     .matching_method = MM_NORMAL,
     /** Monitor */
     .monitor           = "-5",
-    /** set line margin */
-    .line_margin  =                                         2,
-    .line_padding =                                         1,
     /** Set filter */
     .filter            = NULL,
-    /** Separator style: dash/solid */
-    .separator_style   = "dash",
-    /** Hide scrollbar */
-    .hide_scrollbar    = FALSE,
     .fullscreen        = FALSE,
-    .fake_transparency = FALSE,
     .dpi               =                                        -1,
     .threads           =                                         0,
-    .scrollbar_width   =                                         8,
     .scroll_method     =                                         0,
-    .fake_background   = "screenshot",
     .window_format     = "{w}   {c}   {t}",
     .click_to_exit     = TRUE,
     .show_match        = TRUE,

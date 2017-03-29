@@ -55,8 +55,6 @@ typedef struct
 {
     /** List of enabled modi */
     char           *modi;
-    /** Border width */
-    unsigned int   menu_bw;
     /** Width (0-100 in %, > 100 in pixels, < 0 in char width.) */
     int            menu_width;
     /** # lines */
@@ -66,11 +64,6 @@ typedef struct
     /** Font string (pango format) */
     char           * menu_font;
 
-    /** New row colors */
-    char           * color_normal;
-    char           * color_active;
-    char           * color_urgent;
-    char           * color_window;
     /** Terminal to use  */
     char           * terminal_emulator;
     /** SSH client to use */
@@ -88,8 +81,6 @@ typedef struct
 
     /** Windows location/gravity */
     WindowLocation location;
-    /** Padding between elements */
-    unsigned int   padding;
     /** Y offset */
     int            y_offset;
     /** X offset */
@@ -125,27 +116,15 @@ typedef struct
     unsigned int   tokenize;
     /** Monitors */
     char           *monitor;
-    /** Line margin */
-    unsigned int   line_margin;
-    unsigned int   line_padding;
     /** filter */
     char           *filter;
-    /** style */
-    char           *separator_style;
-    /** hide scrollbar */
-    unsigned int   hide_scrollbar;
     /** fullscreen */
     unsigned int   fullscreen;
-    /** bg image */
-    unsigned int   fake_transparency;
     /** dpi */
     int            dpi;
     /** Number threads (1 to disable) */
     unsigned int   threads;
-    unsigned int   scrollbar_width;
     unsigned int   scroll_method;
-    /** Background type */
-    char           *fake_background;
 
     char           *window_format;
     /** Click outside the window to exit */

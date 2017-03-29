@@ -82,6 +82,7 @@ SOURCES=\
 	include/timings.h\
 	include/history.h\
 	include/theme.h\
+	include/default-theme.h\
 	include/widgets/box.h\
 	include/widgets/container.h\
 	include/widgets/widget.h\

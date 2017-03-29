@@ -759,9 +759,6 @@ void __create_window ( MenuFlags menu_flags )
 
     TICK_N ( "setup window name and class" );
     char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
-    if ( transparency == NULL && config.fake_transparency ) {
-        transparency = config.fake_background;
-    }
     if ( transparency ) {
         rofi_view_setup_fake_transparency ( transparency  );
     }
