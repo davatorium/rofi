@@ -36,6 +36,7 @@
 #include <cairo-xcb.h>
 
 #include <xcb/xcb.h>
+#include <xcb/xcb_aux.h>
 #include <xcb/randr.h>
 #include <xcb/xinerama.h>
 #include <xcb/xcb_ewmh.h>
@@ -891,8 +892,10 @@ void xcb_stuff_wipe ( xcb_stuff *xcb )
             xcb->sndisplay = NULL;
         }
         x11_monitors_free ();
-        xcb_disconnect ( xcb->connection );
         xcb_ewmh_connection_wipe ( &( xcb->ewmh ) );
+        xcb_flush ( xcb->connection );
+        xcb_aux_sync ( xcb->connection );
+        xcb_disconnect ( xcb->connection );
         xcb->connection = NULL;
         xcb->screen     = NULL;
         xcb->screen_nbr = 0;
