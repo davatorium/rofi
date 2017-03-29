@@ -7,6 +7,7 @@
 %parse-param {const char *what}
 %code requires {
 #include "theme.h"
+#include "xrmoptions.h"
 
 typedef struct YYLTYPE {
   int first_line;
@@ -89,6 +90,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token NAME_PREFIX  "Element section ('# {name} { ... }')"
 %token WHITESPACE   "White space"
 %token PDEFAULTS    "Default settings section ( '* { ... }')"
+%token CONFIGURATION "Configuration block"
 
 %type <ival> highlight_styles
 %type <sval> entry
@@ -130,6 +132,15 @@ NAME_PREFIX name_path BOPEN optional_properties BCLOSE
 |
     PDEFAULTS BOPEN optional_properties BCLOSE {
     rofi_theme_widget_add_properties ( rofi_theme, $3);
+}
+| CONFIGURATION BOPEN optional_properties BCLOSE {
+    GHashTableIter iter;
+    g_hash_table_iter_init ( &iter, $3 );
+    gpointer key,value;
+    while ( g_hash_table_iter_next ( &iter, &key, &value ) ) {
+            Property *p = (Property *) value;
+            config_parse_set_property ( p );
+    }
 }
 ;
 

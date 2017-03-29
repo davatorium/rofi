@@ -1,6 +1,7 @@
 #ifndef ROFI_XRMOPTIONS_H
 #define ROFI_XRMOPTIONS_H
 #include "xcb.h"
+#include "theme.h"
 // Big thanks to Sean Pringle for this code.
 
 /**
@@ -77,30 +78,6 @@ void config_parse_xresource_options_file ( const char *filename );
 void config_parse_cmd_options ( void );
 
 /**
- * Parse dynamic commandline options.
- * @ingroup CONFCommandline
- */
-void config_parse_cmd_options_dynamic ( void );
-
-/**
- * @param xcb Handler object that holds connection to X11 server to fetch the settings from.
- *
- * Parse the rofi related X resource options of the
- * connected X server.
- *
- * @ingroup CONFXServer
- */
-void config_parse_xresource_options_dynamic ( xcb_stuff *xcb );
-
-/**
- * @param filename The xresources file to parse
- *
- * Parses filename and updates the config. For dynamic options.
- * @ingroup CONFFile
- */
-void config_parse_xresource_options_dynamic_file ( const char *filename );
-
-/**
  * Free any allocated memory.
  *
  * @ingroup CONFXResources
@@ -158,5 +135,13 @@ void print_help_msg ( const char *option, const char *type, const char*text, con
  */
 char ** config_parser_return_display_help ( unsigned int *length );
 
+/**
+ * @brief Set config option.
+ *
+ * Sets both the static as  dynamic config option.
+ *
+ * @param p Property to set
+ */
+void config_parse_set_property ( const Property *p );
 /* @}*/
 #endif

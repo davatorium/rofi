@@ -7,13 +7,13 @@
 [![Coverity](https://scan.coverity.com/projects/3850/badge.svg)](https://scan.coverity.com/projects/davedavenport-rofi)
 [![Forum](https://img.shields.io/badge/forum-online-green.svg)](https://forum.qtools.org)
 
-# A window switcher, run dialog and dmenu replacement
+# A window switcher, Application launcher and dmenu replacement
 
 **Rofi** started as clone of simpleswitcher, written by [Sean Pringle](http://github.com/seanpringle/simpleswitcher) a
 popup window switcher roughly based on [superswitcher](http://code.google.com/p/superswitcher/).
 Simpleswitcher laid the foundations and therefor Sean Pringle deserves most of the credit for this tool. **Rofi**,
-renamed as it lost the *simple* property, has been extended with extra features, like a run-dialog, ssh-launcher and
-can act as a drop-in dmenu replacement, making it a very versatile tool.
+renamed as it lost the *simple* property, has been extended with extra features, like a application launcher,
+ssh-launcher and can act as a drop-in dmenu replacement, making it a very versatile tool.
 
 **Rofi**, like dmenu, will provide the user with a textual list of options where one or more can be selected.
 This can either be, running an application, selecting a window or options provided by an external script.
@@ -33,8 +33,8 @@ It main features are:
 * Build in modes:
     - Window switcher mode.
         - EWMH compatible WM.
-    - Run mode.
-    - Desktop File Run mode.
+    - Application launcher.
+    - Desktop File Application launcher.
     - SSH launcher mode.
     - Combi mode, allow several modes to be merged into one list.
 * History based ordering last 25 choices are ordered on top based on use. (optional)
@@ -65,7 +65,7 @@ Window mode features:
   - Custom command by `Shift-Return`
 
 
-## Run mode
+## Application launcher
 
 ![run mode](https://davedavenport.github.io/rofi/images/rofi/run-dialog.png)
 
@@ -78,7 +78,7 @@ Run mode features:
   - Execute command to add custom entries, like aliases.
 
 
-## DRun mode
+## Desktop File Application launcher
 
 The desktop run mode allows users to quickly search and launch an application from the *freedesktop.org* Desktop
 Entries. These are used by most common Desktop Environments to populate launchers and menus.
@@ -240,7 +240,7 @@ The boolean option has a non-default commandline syntax, to enable option X  you
 to disable it:
 
 	rofi -no-X
-	
+
 # Manpage
 
 For more detailed information, please see the [manpage](doc/rofi-manpage.markdown), the [wiki](https://github.com/DaveDavenport/rofi/wiki) or the [forum](https://forum.qtools.org).

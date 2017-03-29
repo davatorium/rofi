@@ -73,7 +73,7 @@
 // TODO: move this check to mode.c
 #include "mode-private.h"
 
-#define LOG_DOMAIN "Rofi"
+#define LOG_DOMAIN    "Rofi"
 
 // Pidfile.
 char       *pidfile   = NULL;
@@ -172,7 +172,7 @@ static int setup ()
  */
 static void teardown ( int pfd )
 {
-    g_log ( LOG_DOMAIN , G_LOG_LEVEL_DEBUG, "Teardown");
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Teardown" );
     // Cleanup font setup.
     textbox_cleanup ( );
 
@@ -333,7 +333,6 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
 }
 
 /**
- * Function bound by 'atexit'.
  * Cleanup globally allocated memory.
  */
 static void cleanup ()
@@ -543,7 +542,6 @@ static int add_mode ( const char * token )
         Mode *sw = script_switcher_parse_setup ( token );
         if ( sw != NULL ) {
             modi[num_modi] = sw;
-            mode_set_config ( sw );
             num_modi++;
         }
         else {
@@ -565,36 +563,6 @@ static void setup_modi ( void )
     }
     // Free string that was modified by strtok_r
     g_free ( switcher_str );
-    rofi_collect_modi_setup ();
-}
-
-/**
- * Load configuration.
- * Following priority: (current), X, commandline arguments
- */
-static inline void load_configuration ( )
-{
-    // Load distro default settings
-    gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
-    if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
-        config_parse_xresource_options_file ( etc );
-    }
-    g_free ( etc );
-    // Load in config from X resources.
-    config_parse_xresource_options ( xcb );
-    config_parse_xresource_options_file ( config_path );
-}
-static inline void load_configuration_dynamic ( )
-{
-    // Load distro default settings
-    gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
-    if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
-        config_parse_xresource_options_dynamic_file ( etc );
-    }
-    g_free ( etc );
-    // Load in config from X resources.
-    config_parse_xresource_options_dynamic ( xcb );
-    config_parse_xresource_options_dynamic_file ( config_path );
 }
 
 /**
@@ -866,7 +834,7 @@ int main ( int argc, char *argv[] )
 #else
         fprintf ( stdout, "Version: "VERSION "\n" );
 #endif
-        exit ( EXIT_SUCCESS );
+        return EXIT_SUCCESS;
     }
 
     // Detect if we are in dmenu mode.
@@ -897,10 +865,12 @@ int main ( int argc, char *argv[] )
     const char *path = g_get_user_runtime_dir ();
     if ( path ) {
         if ( g_mkdir_with_parents ( path, 0700 ) < 0 ) {
-            fprintf ( stderr, "Failed to create user runtime directory: %s\n", strerror ( errno ) );
-            return EXIT_FAILURE;
+            g_log ( LOG_DOMAIN, G_LOG_LEVEL_WARNING, "Failed to create user runtime directory: %s with error: %s\n", path, strerror ( errno ) );
+            pidfile = g_build_filename ( g_get_home_dir (), ".rofi.pid", NULL );
         }
-        pidfile = g_build_filename ( path, "rofi.pid", NULL );
+        else {
+            pidfile = g_build_filename ( path, "rofi.pid", NULL );
+        }
     }
     config_parser_add_option ( xrm_String, "pid", (void * *) &pidfile, "Pidfile location" );
 
@@ -917,12 +887,9 @@ int main ( int argc, char *argv[] )
     }
 
     TICK ();
-    // Register cleanup function.
-    atexit ( cleanup );
-
-    TICK ();
     if ( setlocale ( LC_ALL, "" ) == NULL ) {
         fprintf ( stderr, "Failed to set locale.\n" );
+        cleanup ();
         return EXIT_FAILURE;
     }
 
@@ -934,11 +901,13 @@ int main ( int argc, char *argv[] )
     xcb->connection = xcb_connect ( display_str, &xcb->screen_nbr );
     if ( xcb_connection_has_error ( xcb->connection ) ) {
         fprintf ( stderr, "Failed to open display: %s", display_str );
+        cleanup ();
         return EXIT_FAILURE;
     }
 
     TICK_N ( "Open Display" );
     rofi_collect_modi ();
+    rofi_collect_modi_setup ();
     TICK_N ( "Collect MODI" );
 
     xcb->screen = xcb_aux_get_screen ( xcb->connection, xcb->screen_nbr );
@@ -959,12 +928,14 @@ int main ( int argc, char *argv[] )
     if ( xkb_x11_setup_xkb_extension ( xcb->connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
                                        XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS, NULL, NULL, &xkb.first_event, NULL ) < 0 ) {
         fprintf ( stderr, "cannot setup XKB extension!\n" );
+        cleanup ();
         return EXIT_FAILURE;
     }
 
     xkb.context = xkb_context_new ( XKB_CONTEXT_NO_FLAGS );
     if ( xkb.context == NULL ) {
         fprintf ( stderr, "cannot create XKB context!\n" );
+        cleanup ();
         return EXIT_FAILURE;
     }
     xkb.xcb_connection = xcb->connection;
@@ -1015,11 +986,13 @@ int main ( int argc, char *argv[] )
     xkb.keymap = xkb_x11_keymap_new_from_device ( xkb.context, xcb->connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
     if ( xkb.keymap == NULL ) {
         fprintf ( stderr, "Failed to get Keymap for current keyboard device.\n" );
+        cleanup ();
         return EXIT_FAILURE;
     }
     xkb.state = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
     if ( xkb.state == NULL ) {
         fprintf ( stderr, "Failed to get state object for current keyboard device.\n" );
+        cleanup ();
         return EXIT_FAILURE;
     }
 
@@ -1033,13 +1006,15 @@ int main ( int argc, char *argv[] )
 
     if ( xcb_connection_has_error ( xcb->connection ) ) {
         fprintf ( stderr, "Connection has error\n" );
-        exit ( EXIT_FAILURE );
+        cleanup ();
+        return EXIT_FAILURE;
     }
     x11_setup ( &xkb );
     TICK_N ( "Setup xkb" );
     if ( xcb_connection_has_error ( xcb->connection ) ) {
         fprintf ( stderr, "Connection has error\n" );
-        exit ( EXIT_FAILURE );
+        cleanup ();
+        return EXIT_FAILURE;
     }
     main_loop = g_main_loop_new ( NULL, FALSE );
 
@@ -1048,7 +1023,8 @@ int main ( int argc, char *argv[] )
     xcb->sndisplay = sn_xcb_display_new ( xcb->connection, error_trap_push, error_trap_pop );
     if ( xcb_connection_has_error ( xcb->connection ) ) {
         fprintf ( stderr, "Connection has error\n" );
-        exit ( EXIT_FAILURE );
+        cleanup ();
+        return EXIT_FAILURE;
     }
 
     if ( xcb->sndisplay != NULL ) {
@@ -1056,7 +1032,8 @@ int main ( int argc, char *argv[] )
     }
     if ( xcb_connection_has_error ( xcb->connection ) ) {
         fprintf ( stderr, "Connection has error\n" );
-        exit ( EXIT_FAILURE );
+        cleanup ();
+        return EXIT_FAILURE;
     }
     TICK_N ( "Startup Notification" );
     // Setup keybinding
@@ -1064,34 +1041,35 @@ int main ( int argc, char *argv[] )
     TICK_N ( "Setup abe" );
 
     if ( find_arg ( "-no-config" ) < 0 ) {
-        load_configuration ( );
+        // Load distro default settings
+        gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
+        if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
+            config_parse_xresource_options_file ( etc );
+        }
+        g_free ( etc );
+        // Load in config from X resources.
+        config_parse_xresource_options ( xcb );
+        config_parse_xresource_options_file ( config_path );
+
+        find_arg_str ( "-theme", &( config.theme ) );
+        if ( config.theme ) {
+            TICK_N ( "Parse theme" );
+            if ( rofi_theme_parse_file ( config.theme ) ) {
+                // TODO: instantiate fallback theme.?
+                rofi_theme_free ( rofi_theme );
+                rofi_theme = NULL;
+            }
+            TICK_N ( "Parsed theme" );
+        }
     }
     // Parse command line for settings, independent of other -no-config.
     config_parse_cmd_options ( );
+    TICK_N ( "Load cmd config " );
 
     if ( !dmenu_mode ) {
         // setup_modi
         setup_modi ();
         TICK_N ( "Setup Modi" );
-    }
-
-    if ( find_arg ( "-no-config" ) < 0 ) {
-        // Reload for dynamic part.
-        load_configuration_dynamic ( );
-        TICK_N ( "Load config dynamic" );
-    }
-    // Parse command line for settings, independent of other -no-config.
-    config_parse_cmd_options_dynamic (  );
-    TICK_N ( "Load cmd config dynamic" );
-
-    if ( config.theme ) {
-        TICK_N ( "Parse theme" );
-        if ( rofi_theme_parse_file ( config.theme ) ) {
-            // TODO: instantiate fallback theme.?
-            rofi_theme_free ( rofi_theme );
-            rofi_theme = NULL;
-        }
-        TICK_N ( "Parsed theme" );
     }
 
     const char ** theme_str = find_arg_strv ( "-theme-str" );
@@ -1110,21 +1088,25 @@ int main ( int argc, char *argv[] )
 
     if ( find_arg ( "-dump-theme" ) >= 0 ) {
         rofi_theme_print ( rofi_theme );
-        exit ( EXIT_SUCCESS );
+        cleanup ();
+        return EXIT_SUCCESS;
     }
     // Dump.
     // catch help request
     if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 || find_arg (  "--help" ) >= 0 ) {
         help ( argc, argv );
-        exit ( EXIT_SUCCESS );
+        cleanup ();
+        return EXIT_SUCCESS;
     }
     if ( find_arg (  "-dump-xresources" ) >= 0 ) {
         config_parse_xresource_dump ();
-        exit ( EXIT_SUCCESS );
+        cleanup ();
+        return EXIT_SUCCESS;
     }
     if ( find_arg (  "-dump-xresources-theme" ) >= 0 ) {
         config_parse_xresources_theme_dump ();
-        exit ( EXIT_SUCCESS );
+        cleanup ();
+        return EXIT_SUCCESS;
     }
 
     main_loop_source = g_water_xcb_source_new_for_connection ( NULL, xcb->connection, main_loop_x11_event_handler, NULL, NULL );
@@ -1147,5 +1129,6 @@ int main ( int argc, char *argv[] )
     // Start mainloop.
     g_main_loop_run ( main_loop );
     teardown ( pfd );
+    cleanup ();
     return return_code;
 }

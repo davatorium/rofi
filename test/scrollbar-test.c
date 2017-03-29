@@ -22,6 +22,9 @@ unsigned int test =0;
             abort ( );                                                                   \
         }                                                                                \
 }
+void config_parse_set_property ( const void *p ) 
+{
+}
 void rofi_add_error_message ( GString *msg )
 {}
 

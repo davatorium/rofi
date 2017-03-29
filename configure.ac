@@ -141,6 +141,16 @@ echo "Window Switcher dialog       Enabled"
 else
 echo "Window Switcher dialog       Disabled"
 fi
+if test x$enable_asan = xyes; then
+echo "Asan address sanitize        Enabled"
+else
+echo "Asan address sanitize        Disabled"
+fi
+if test x$enable_gcov = xyes; then
+echo "Code Coverage                Enabled"
+else
+echo "Code Coverage                Disabled"
+fi
 echo "-------------------------------------"
 echo "Now type 'make' to build"
 echo ""

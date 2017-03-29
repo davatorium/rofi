@@ -1739,7 +1739,7 @@ void rofi_view_cleanup ()
         CacheState.edit_surf = NULL;
     }
     if ( CacheState.main_window != XCB_WINDOW_NONE ) {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Unmapping and free'ing window");
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Unmapping and free'ing window" );
         xcb_unmap_window ( xcb->connection, CacheState.main_window );
         xcb_free_gc ( xcb->connection, CacheState.gc );
         xcb_free_pixmap ( xcb->connection, CacheState.edit_pixmap );
@@ -1783,7 +1783,7 @@ void rofi_view_workers_initialize ( void )
 void rofi_view_workers_finalize ( void )
 {
     if ( tpool ) {
-        g_thread_pool_free ( tpool, TRUE, FALSE );
+        g_thread_pool_free ( tpool, TRUE, TRUE );
         tpool = NULL;
     }
 }

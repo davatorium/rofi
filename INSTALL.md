@@ -1,5 +1,10 @@
 # Installation guide
 
+This guide explains how to install rofi using its build system and how you can make debug builds.
+
+Rofi uses autotools (GNU Build system), for more information see
+[here](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html).
+
 ## DEPENDENCY
 
 ### For building:
@@ -20,6 +25,8 @@
 * libcairo
 * libcairo-xcb
 * libglib2.0 >= 2.40
+  * gmodule-2.0
+  * gio-unix-2.0
 * libstartup-notification-1.0
 * libxkbcommon >= 0.5.0
 * libxkbcommon-x11
@@ -51,6 +58,7 @@ The actual install, execute as root (if needed):
 make install
 ```
 
+The default installation prefix is: `/usr/local/` use `./configure --prefix={prefix}` to install into another location.
 
 ## Install a checkout from git
 
@@ -58,6 +66,14 @@ The GitHub Pages version of these directions may be out of date.  Please use
 [INSTALL.md from the online repo][master-install] or your local repository.
 
 [master-install]: https://github.com/DaveDavenport/rofi/blob/master/INSTALL.md#install-a-checkout-from-git
+
+Make a checkout:
+
+```
+git clone https://github.com/DaveDavenport/rofi
+cd rofi/
+```
+
 
 Pull in dependencies
 
@@ -142,7 +158,7 @@ make V=1
 
 ### Debug build
 
-Compile with debug symbols and no optimization
+Compile with debug symbols and no optimization, this is useful for making backtraces:
 
 ```
 make CFLAGS="-O0 -g3" clean rofi
@@ -159,12 +175,15 @@ can then load the core in GDB.
 gdb rofi core
 ```
 
+> Where the core file is located and what its exact name is different on each distributions. Please consult the
+> relevant documentation.
+
 ## Install distribution
 
 ### Debian or Ubuntu
 
 ```
-apt-get install rofi
+apt install rofi
 
 ```
 
@@ -174,3 +193,9 @@ rofi from [russianfedora repository](http://ru.fedoracommunity.org/repository)
 and also
 [Yaroslav's COPR (Cool Other Package Repo)](https://copr.fedorainfracloud.org/coprs/yaroslav/i3desktop/)
 
+
+### ArchLinux
+
+```
+pacman -S rofi
+```
