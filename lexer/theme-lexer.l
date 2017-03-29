@@ -143,7 +143,7 @@ LS_SOLID   "solid"
 
 INCLUDE    "@import"
 
-CONFIGURATION "Configuration"
+CONFIGURATION "configuration"
 
 %x INCLUDE
 %x PROPERTIES
