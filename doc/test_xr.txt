@@ -145,13 +145,13 @@ rofi.kb-delete-entry:                Shift+Delete
 ! "Switch to the next mode." Set from: File
 rofi.kb-mode-next:                   Shift+Right,Control+Tab
 ! "Switch to the previous mode." Set from: File
-rofi.kb-mode-previous:               Shift+Left,Control+Shift+Tab
+rofi.kb-mode-previous:               Shift+Left,Control+ISO_Left_Tab
 ! "Go to the previous column" Set from: File
 rofi.kb-row-left:                    Control+Page_Up
 ! "Go to the next column" Set from: File
 rofi.kb-row-right:                   Control+Page_Down
 ! "Select previous entry" Set from: File
-rofi.kb-row-up:                      Up,Control+p,Shift+Tab
+rofi.kb-row-up:                      Up,Control+p,ISO_Left_Tab
 ! "Select next entry" Set from: File
 rofi.kb-row-down:                    Down,Control+n
 ! "Go to next row, if one left, accept it, if no left next mode." Set from: File
