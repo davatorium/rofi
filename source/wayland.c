@@ -1025,5 +1025,6 @@ display_cleanup(void)
     g_hash_table_unref( wayland->seats);
     g_hash_table_unref( wayland->outputs);
     wl_registry_destroy ( wayland->registry );
+    wl_display_flush(wayland->display);
     g_water_wayland_source_free ( wayland->main_loop_source );
 }
