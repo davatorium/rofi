@@ -397,8 +397,15 @@ static void
 wayland_keyboard_modifiers(void *data, struct wl_keyboard *keyboard, uint32_t serial, uint32_t mods_depressed, uint32_t mods_latched, uint32_t mods_locked, uint32_t group)
 {
     wayland_seat *self = data;
+    widget_modifier_mask modmask;
 
     xkb_state_update_mask ( self->xkb.state, mods_depressed, mods_latched, mods_locked, 0, 0, group );
+    modmask = xkb_get_modmask(&self->xkb, 0);
+    if ( modmask != 0 )
+        return;
+
+    abe_trigger_release ();
+    rofi_view_maybe_update();
 }
 
 static void
