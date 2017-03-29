@@ -27,6 +27,6 @@ typedef struct {
 
 
 void xkb_common_init ( xkb_stuff *xkb );
-widget_modifier_mask xkb_get_modmask(xkb_stuff *xkb, xkb_keysym_t key);
+widget_modifier_mask xkb_get_modmask(xkb_stuff *xkb, xkb_keycode_t key);
 xkb_keysym_t xkb_handle_key ( xkb_stuff *xkb, xkb_keycode_t keycode, char **text, int *length);
 #endif

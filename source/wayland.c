@@ -354,7 +354,7 @@ wayland_keyboard_enter(void *data, struct wl_keyboard *keyboard, uint32_t serial
     uint32_t *key, *kend;
     for ( key = keys->data, kend = key + keys->size ; key < kend ; ++key ) {
         xkb_keysym_t keysym = xkb_state_key_get_one_sym ( self->xkb.state, *key + 8 );
-        widget_modifier_mask       modstate = xkb_get_modmask ( &self->xkb, keysym );
+        widget_modifier_mask       modstate = xkb_get_modmask ( &self->xkb, *key + 8 );
         abe_find_action ( modstate, keysym );
     }
 }
@@ -378,15 +378,15 @@ wayland_keyboard_key(void *data, struct wl_keyboard *keyboard, uint32_t serial, 
     wayland->last_seat = self;
     self->serial = serial;
 
-    keysym = xkb_handle_key(&self->xkb, key + 8, &text, &len);
-    modmask = xkb_get_modmask(&self->xkb, keysym);
-
     if ( state == WL_KEYBOARD_KEY_STATE_RELEASED ) {
+        modmask = xkb_get_modmask(&self->xkb, 0);
         if ( modmask != 0 )
             return;
         abe_trigger_release ();
     }
     else {
+        keysym = xkb_handle_key(&self->xkb, key + 8, &text, &len);
+        modmask = xkb_get_modmask(&self->xkb, key + 8);
         rofi_view_handle_keypress ( modmask, keysym, text, len );
     }
 
@@ -454,7 +454,7 @@ wayland_cursor_frame_callback(void *data, struct wl_callback *callback, uint32_t
 static void
 wayland_pointer_send_events(wayland_seat *self)
 {
-    widget_modifier_mask modmask = xkb_get_modmask(&self->xkb, XKB_KEY_NoSymbol);
+    widget_modifier_mask modmask = xkb_get_modmask(&self->xkb, 0);
 
     if ( self->motion.x > -1 || self->motion.y > -1 )
     {

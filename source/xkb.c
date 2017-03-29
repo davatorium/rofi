@@ -72,7 +72,7 @@ void xkb_common_init ( xkb_stuff *xkb )
 }
 
 widget_modifier_mask
-xkb_get_modmask(xkb_stuff *xkb, xkb_keysym_t key)
+xkb_get_modmask(xkb_stuff *xkb, xkb_keycode_t key)
 {
     widget_modifier_mask mask = 0;
     widget_modifier mod;
@@ -80,7 +80,7 @@ xkb_get_modmask(xkb_stuff *xkb, xkb_keysym_t key)
     for ( mod = 0; mod < NUM_WIDGET_MOD; ++mod ) {
         gboolean found = FALSE;
         for ( i = xkb->mods[mod] ; ! found && *i != XKB_MOD_INVALID ; ++i ) {
-            found = ( xkb_state_mod_index_is_active(xkb->state, *i, XKB_STATE_MODS_EFFECTIVE) && ! xkb_state_mod_index_is_consumed(xkb->state, key, *i) );
+            found = ( xkb_state_mod_index_is_active(xkb->state, *i, XKB_STATE_MODS_EFFECTIVE) && xkb_state_mod_index_is_consumed(xkb->state, key, *i) != 1 );
         }
         if ( found )
             mask |= (1 << mod);

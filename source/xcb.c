@@ -162,7 +162,7 @@ static gboolean xcb_callback(xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer use
                                     ksne->baseGroup,
                                     ksne->latchedGroup,
                                     ksne->lockedGroup );
-            modmask = xkb_get_modmask ( &xcb->xkb, XKB_KEY_NoSymbol );
+            modmask = xkb_get_modmask ( &xcb->xkb, 0 );
             if ( modmask == 0 ) {
                 abe_trigger_release ( );
 
@@ -277,9 +277,10 @@ static gboolean xcb_callback(xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer use
             for ( gint8 bi = 0; bi < 7; ++bi ) {
                 if ( kne->keys[by] & ( 1 << bi ) ) {
                     // X11 keycodes starts at 8
-                    xkb_keysym_t key = xkb_state_key_get_one_sym ( xcb->xkb.state, ( 8 * by + bi ) + 8 );
-                    widget_modifier_mask       modstate = xkb_get_modmask ( &xcb->xkb, key);
-                    abe_find_action ( modstate, key );
+                    xkb_keycode_t key = ( 8 * by + bi ) + 8;
+                    xkb_keysym_t keysym = xkb_state_key_get_one_sym ( xcb->xkb.state, key );
+                    widget_modifier_mask       modstate = xkb_get_modmask ( &xcb->xkb, key );
+                    abe_find_action ( modstate, keysym );
                 }
             }
         }
@@ -294,7 +295,7 @@ static gboolean xcb_callback(xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer use
         int          len = 0;
 
         keysym = xkb_handle_key(&xcb->xkb, xkpe->detail, &text, &len);
-        modmask = xkb_get_modmask(&xcb->xkb, keysym);
+        modmask = xkb_get_modmask(&xcb->xkb, 0 );
 
         rofi_view_handle_keypress ( modmask, keysym, text, len );
         break;
@@ -307,8 +308,7 @@ static gboolean xcb_callback(xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer use
         char *text;
         int          len = 0;
 
-        keysym = xkb_handle_key(&xcb->xkb, xkre->detail, &text, &len);
-        modmask = xkb_get_modmask(&xcb->xkb, keysym);
+        modmask = xkb_get_modmask(&xcb->xkb, 0 );
 
         if ( modmask != 0 )
             return G_SOURCE_CONTINUE;
