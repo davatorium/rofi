@@ -27,7 +27,7 @@ C and C++ file comments are support.
 * Anything after  `// ` and before a newline is considered a comment.
 * Everything between `/*` and `*/` is a comment.
 
-Comments can be nested and the C++ comments can be inline.
+Comments can be nested and the C comments can be inline.
 
 The following is valid:
 ```css
@@ -242,7 +242,7 @@ Where '{HEX}' is a hexidecimal number ('0-9a-f'). The '{INTEGER}' value can be b
 between 0.0 and 1.0.
 
 The first formats specify the color as RRGGBB (R = red, G = green, B = Blue), the second adds an alpha (A) channel:
-AARRGGB.
+AARRGGBB.
 
 For example:
 
@@ -327,6 +327,13 @@ style property.
 * Format: `@{PROPERTY NAME}`
 
 A reference can point to another reference. Currently the maximum number of redirects is 20.
+A property always refers to another property. It cannot be used for a subpart of the property.
+e.g. this is not valid:
+
+```css
+highlight: bold @pink;
+```
+
 
 
 ## Elements Paths
@@ -361,7 +368,7 @@ The current widgets exist in **rofi**:
   * `#window.box`: The container holding the window.
   * `#window.overlay`: The overlay widget.
   * `#window.mainbox`
-    * `#window.mainbox.box`: The main vertical @box
+     * `#window.mainbox.box`: The main vertical @box
      * `#window.mainbox.inputbar`
        * `#window.mainbox.inputbar.box`: The horizontal @box packing the widgets.
        * `#window.mainbox.inputbar.case-indicator`: The case/sort indicator @textbox
@@ -406,7 +413,7 @@ Where `visible modifier` can be:
 Where `state` is:
  * normal: No modification.
  * urgent: This entry is marked urgent.
- * activE: This entry is marked active.
+ * active: This entry is marked active.
 
 These can be mixed.
 
@@ -421,7 +428,7 @@ Example:
 Sets all selected textboxes marked active to the given foreground and background color.
 
 The scrollbar uses the `handle` state when drawing the small scrollbar handle.
-Allowing overriding of color.
+This allows the colors used for drawing the handle to be set independently.
 
 
 ### Supported properties
@@ -456,6 +463,8 @@ The following properties are currently supports:
       The anchor position on the window.
     * fullscreen:     boolean
       Window is fullscreen.
+    * width:          distance
+        The width of the window.
     * x-offset:  distance
     * y-offset:  distance
         The offset of the window to the anchor point.
@@ -470,21 +479,32 @@ The following properties are currently supports:
 
   * box
     * spacing:         distance
+        Distance between the packed elements.
 
   * textbox:
     * background:      color
     * foreground:      color
     * text:            The text color to use (falls back to foreground if not set)
     * highlight:        highlight {color}
+        Color is optional, multiple highlight styles can be added like:  bold underlinei italic #000000;
 
   * listview:
     * columns:         integer
+        Number of columns to show (atleast 1).
     * fixed-height:    boolean
+        Always show `lines`  rows, even if less elements are available.
     * dynamic:         boolean
+        If the size should changed when filtering the list, or if it should keep the original height.
     * scrollbar:       boolean
+        If the scrollbar should be enabled/disabled.
     * scrollbar-width: distance
+        Width of the scrollbar
     * cycle:           boolean
+        When navigating it should wrap around.
     * spacing:         distance
+        Spacing between the elements (both vertical and horizontal)
+    * lines:           integer
+        Number of rows to show in the list view.
 
 
 ## Examples
@@ -674,7 +694,7 @@ The previous theme modified to behave like a sidebar, positioned on the left of 
 }
 #window mainbox listview {
     dynamic: false;
-    lines: 0;
+    lines: 9;
 }
 #window mainbox listview element selected  normal {
     background: @blue;
