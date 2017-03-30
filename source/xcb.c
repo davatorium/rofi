@@ -295,7 +295,7 @@ static gboolean xcb_callback(xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer use
         int          len = 0;
 
         keysym = xkb_handle_key(&xcb->xkb, xkpe->detail, &text, &len);
-        modmask = xkb_get_modmask(&xcb->xkb, 0 );
+        modmask = xkb_get_modmask(&xcb->xkb, xkpe->detail );
 
         rofi_view_handle_keypress ( modmask, keysym, text, len );
         break;
