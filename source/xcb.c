@@ -302,11 +302,7 @@ static gboolean xcb_callback(xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer use
     }
     case XCB_KEY_RELEASE:
     {
-        xcb_key_release_event_t *xkre    = (xcb_key_release_event_t *) ev;
         widget_modifier_mask modmask;
-        xkb_keysym_t keysym;
-        char *text;
-        int          len = 0;
 
         modmask = xkb_get_modmask(&xcb->xkb, 0 );
 
