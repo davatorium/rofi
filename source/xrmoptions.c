@@ -622,26 +622,6 @@ void print_help_msg ( const char *option, const char *type, const char*text, con
     }
 }
 
-void config_parse_xresources_theme_dump ( void )
-{
-    printf ( "! ------------------------------------------------------------------------------\n" );
-    printf ( "! ROFI Color theme\n" );
-    printf ( "! User: %s\n", g_get_user_name () );
-    printf ( "! ------------------------------------------------------------------------------\n" );
-    const char   * const namePrefix       = "rofi";
-    const char           colorPrefix[]    = "color-";
-    const char           separatorStyle[] = "separator-style";
-    unsigned int         entries          = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
-    for ( unsigned int i = 0; i < entries; ++i ) {
-        if ( strncmp ( xrmOptions[i].name, colorPrefix, sizeof ( colorPrefix ) - 1 ) == 0 ) {
-            xresource_dump_entry ( namePrefix, &xrmOptions[i] );
-        }
-        else if ( strcmp ( xrmOptions[i].name, separatorStyle ) == 0 ) {
-            xresource_dump_entry ( namePrefix, &xrmOptions[i] );
-        }
-    }
-}
-
 static char * config_parser_return_display_help_entry ( XrmOption *option, size_t l )
 {
     int ll = (int) l;

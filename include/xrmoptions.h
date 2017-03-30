@@ -93,14 +93,6 @@ void config_xresource_free ( void );
 void config_parse_xresource_dump ( void );
 
 /**
- * Dump the theme related settings in Xresources compatible way to
- * stdout.
- *
- * @ingroup CONFXResources
- */
-void config_parse_xresources_theme_dump ( void );
-
-/**
  * @param type The type of the value
  * @param key  The key refering to this configuration option
  * @param value The value to update based [out][in]

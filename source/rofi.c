@@ -1110,12 +1110,6 @@ int main ( int argc, char *argv[] )
         cleanup ();
         return EXIT_SUCCESS;
     }
-    if ( find_arg (  "-dump-xresources-theme" ) >= 0 ) {
-        config_parse_xresources_theme_dump ();
-        cleanup ();
-        return EXIT_SUCCESS;
-    }
-
     main_loop_source = g_water_xcb_source_new_for_connection ( NULL, xcb->connection, main_loop_x11_event_handler, NULL, NULL );
 
     TICK_N ( "X11 Setup " );
