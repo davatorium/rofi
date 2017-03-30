@@ -55,8 +55,6 @@ typedef struct
 {
     /** List of enabled modi */
     char           *modi;
-    /** Border width */
-    unsigned int   menu_bw;
     /** Width (0-100 in %, > 100 in pixels, < 0 in char width.) */
     int            menu_width;
     /** # lines */
@@ -66,11 +64,6 @@ typedef struct
     /** Font string (pango format) */
     char           * menu_font;
 
-    /** New row colors */
-    char           * color_normal;
-    char           * color_active;
-    char           * color_urgent;
-    char           * color_window;
     /** Terminal to use  */
     char           * terminal_emulator;
     /** SSH client to use */
@@ -86,8 +79,6 @@ typedef struct
     /** Command for window */
     char           * window_command;
 
-    /** Padding between elements */
-    unsigned int   padding;
     /** Always should config.menu_lines lines, even if less lines are available */
     unsigned int   fixed_num_lines;
     /** Do not use history */
@@ -117,20 +108,12 @@ typedef struct
     char           *matching;
     MatchingMethod matching_method;
     unsigned int   tokenize;
-    /** Line margin */
-    unsigned int   line_margin;
-    unsigned int   line_padding;
     /** filter */
     char           *filter;
-    /** style */
-    char           *separator_style;
-    /** hide scrollbar */
-    unsigned int   hide_scrollbar;
     /** fullscreen */
     unsigned int   fullscreen;
     /** Number threads (1 to disable) */
     unsigned int   threads;
-    unsigned int   scrollbar_width;
     unsigned int   scroll_method;
 
     char           *window_format;

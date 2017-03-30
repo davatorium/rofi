@@ -1,18 +1,17 @@
 # Theme format 3.0
 
-Rofi is now at the 3rd version of it theming format. Where previous formats was
-a basic version with an extension. This format is a full rewrite. Internally in
-**rofi** the way the interface is build up is changed in the past releases.
-Instead of having widgets placed on a canvas and moved when needed, widgets are
-now placed in containers that hierarchically recompute the locations. This
-change also allowed for a better theming format. The new format is loosely
-modelled after [css](https://en.wikipedia.org/wiki/Cascading_Style_Sheets).
-This will hopefully be familiar and make it easier for people to get started
-with theming.
+The way rofi handled widgets has changed in the last few releases. Widgets are now
+put into containers, allowing themes to be much more flexible than before.
+To expose these new theming abilities a new theming format has been created, replacing the old one.
+It is loosely based on [css](https://en.wikipedia.org/wiki/Cascading_Style_Sheets), a format
+widely known, which allows e.g. web developers to create their own rofi themes without learning
+a new markup.
 
-This file is organized as follow, first we give the specification of the file
-format. In the second part we will list the possible options. In the final
-section a few examples are shown.
+This file is split up into 3 sections:
+
+1. Specification of the file format
+2. List of possible options
+3. Examples
 
 ## File Format Specification
 
@@ -28,7 +27,7 @@ C and C++ file comments are support.
 * Anything after  `// ` and before a newline is considered a comment.
 * Everything between `/*` and `*/` is a comment.
 
-Comments can be nested and the C++ comments inline.
+Comments can be nested and the C comments can be inline.
 
 The following is valid:
 ```css
@@ -63,18 +62,16 @@ name
 ### File extension
 
 The preferred file extension for the new theme format is **rasi**. This is an
-abbreviation for **r**ofi **a**advanced **s**tyle **i**nformation (Or the nick
-of the user that helped form the new specification).
+abbreviation for **r**ofi **a**advanced **s**tyle **i**nformation.
 
 ### Basic Structure
 
-At the top level of the file there sections.
-There exist two type of sections:
- * Global properties section.
- * Element theme section.
+Each element has a section with defined properties. Properties can be inherited
+to sub-sections. Global properties can be defined in section `* { }`.
+Sub-section names begin with a hash symbol `#`.
 
-The *global properties section* should always be the first section, it is
-followed by one or more *element theme sections*. All sections are optional.
+It is advised to define the *global properties section* on top of the file to 
+make inheritance of properties clearer.
 
 ```
 /* Global properties section */
@@ -93,14 +90,12 @@ followed by one or more *element theme sections*. All sections are optional.
 
 #### Global properties section
 
-Each theme has one, optional, global properties list.
-If present, the global properties section has the be the first section in the file.
+A theme can have one or more global properties sections (If there is more than one
+they will be merged)
 
-The global properties section is special, as the properties here denote the
-defaults for each element.  Reference properties (see properties section) can
-only link to properties in this section.
-
-The section may only contain a `*` before the brace open..
+The global properties section denotes the defaults for each element.
+Each property of this section can be referenced with `@{identifier}`
+(See Properties section)
 
 #### Element theme section
 
@@ -108,7 +103,7 @@ A theme can have multiple element theme sections.
 
 The element path can consist of multiple names separated by whitespace or dots.
 Each element may contain any number of letters, numbers and '-'.
-The first element should always start with a `#``.
+The first element should always start with a `#`.
 
 This is a valid element name:
 
@@ -124,13 +119,13 @@ And is identical to:
 }
 ```
 
-Each section inherits the properties of it parents.  If the property is
-specified both in the parent, or the global section, as in the child, the
-childs property has priority.
+Each section inherits the properties of its parents. Inherited properties
+can be overridden by defining them again in the section itself.
 So `#window mainbox` will contain all properties of `#window` and `#window
 mainbox`.
 
 In the following example:
+
 ```css
 #window {
  a: 1;
@@ -164,8 +159,8 @@ The properties in a section consist of:
 
 Both fields are manditory for a property.
 
-The `identifier` names the property specified. Identifier can consist of any
-combination of numbers, letters and '-'. It may not contain any whitespace.
+The `identifier` names the specified property. Identifiers can consist of any
+combination of numbers, letters and '-'. It must not contain any whitespace.
 The structure of the `value` defines the type of the property.
 
 The current theme format support different type:
@@ -246,9 +241,8 @@ dynamic: false;
 Where '{HEX}' is a hexidecimal number ('0-9a-f'). The '{INTEGER}' value can be between 0 and 255, the '{Real}' value
 between 0.0 and 1.0.
 
-
 The first formats specify the color as RRGGBB (R = red, G = green, B = Blue), the second adds an alpha (A) channel:
-AARRGGB.
+AARRGGBB.
 
 For example:
 
@@ -272,7 +266,6 @@ Indicates how a line should be drawn.
 It currently supports:
  * `dash`:  A dashed line. Where the gap is the same width as the dash.
  * `solid`: A solid line.
-
 
 ##### Distance
 
@@ -301,7 +294,7 @@ and right side and 108 pixels on the top and bottom.
 * Format: `{Distance} {Distance} {Distance}`
 * Format: `{Distance} {Distance} {Distance} {Distance}`
 
-If no unit is set, it assumes pixels.
+If no unit is set, pixels are used.
 
 The different number of fields in the formats are parsed like:
  * 1 field: `all`
@@ -334,6 +327,13 @@ style property.
 * Format: `@{PROPERTY NAME}`
 
 A reference can point to another reference. Currently the maximum number of redirects is 20.
+A property always refers to another property. It cannot be used for a subpart of the property.
+e.g. this is not valid:
+
+```css
+highlight: bold @pink;
+```
+
 
 
 ## Elements Paths
@@ -368,7 +368,7 @@ The current widgets exist in **rofi**:
   * `#window.box`: The container holding the window.
   * `#window.overlay`: The overlay widget.
   * `#window.mainbox`
-    * `#window.mainbox.box`: The main vertical @box
+     * `#window.mainbox.box`: The main vertical @box
      * `#window.mainbox.inputbar`
        * `#window.mainbox.inputbar.box`: The horizontal @box packing the widgets.
        * `#window.mainbox.inputbar.case-indicator`: The case/sort indicator @textbox
@@ -401,7 +401,7 @@ These are appended after the name or class of the widget.
 
 `#window.mainbox.listview.element selected.urgent { }`
 
-Currently only the entrybox and scrollbar has states:
+Currently only the entrybox and scrollbar have states:
 
 `{visible modifier}.{state}`
 
@@ -413,7 +413,7 @@ Where `visible modifier` can be:
 Where `state` is:
  * normal: No modification.
  * urgent: This entry is marked urgent.
- * activE: This entry is marked active.
+ * active: This entry is marked active.
 
 These can be mixed.
 
@@ -427,8 +427,8 @@ Example:
 
 Sets all selected textboxes marked active to the given foreground and background color.
 
-The scrollbar when drawing uses the `handle` state when drawing the small scrollbar handle.
-Allowing overriding of color.
+The scrollbar uses the `handle` state when drawing the small scrollbar handle.
+This allows the colors used for drawing the handle to be set independently.
 
 
 ### Supported properties
@@ -463,6 +463,8 @@ The following properties are currently supports:
       The anchor position on the window.
     * fullscreen:     boolean
       Window is fullscreen.
+    * width:          distance
+        The width of the window.
     * x-offset:  distance
     * y-offset:  distance
         The offset of the window to the anchor point.
@@ -477,21 +479,32 @@ The following properties are currently supports:
 
   * box
     * spacing:         distance
+        Distance between the packed elements.
 
   * textbox:
     * background:      color
     * foreground:      color
     * text:            The text color to use (falls back to foreground if not set)
     * highlight:        highlight {color}
+        Color is optional, multiple highlight styles can be added like:  bold underlinei italic #000000;
 
   * listview:
     * columns:         integer
+        Number of columns to show (atleast 1).
     * fixed-height:    boolean
+        Always show `lines`  rows, even if less elements are available.
     * dynamic:         boolean
+        If the size should changed when filtering the list, or if it should keep the original height.
     * scrollbar:       boolean
+        If the scrollbar should be enabled/disabled.
     * scrollbar-width: distance
+        Width of the scrollbar
     * cycle:           boolean
+        When navigating it should wrap around.
     * spacing:         distance
+        Spacing between the elements (both vertical and horizontal)
+    * lines:           integer
+        Number of rows to show in the list view.
 
 
 ## Examples
@@ -681,7 +694,7 @@ The previous theme modified to behave like a sidebar, positioned on the left of 
 }
 #window mainbox listview {
     dynamic: false;
-    lines: 0;
+    lines: 9;
 }
 #window mainbox listview element selected  normal {
     background: @blue;

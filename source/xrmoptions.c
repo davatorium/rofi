@@ -91,22 +91,7 @@ static XrmOption xrmOptions[] = {
 
     { xrm_String,  "font",              { .str  = &config.menu_font             }, NULL,
       "Font to use", CONFIG_DEFAULT },
-    { xrm_String,  "color-normal",      { .str  = &config.color_normal          }, NULL,
-      "Color scheme for normal row", CONFIG_DEFAULT },
-    { xrm_String,  "color-urgent",      { .str  = &config.color_urgent          }, NULL,
-      "Color scheme for urgent row", CONFIG_DEFAULT },
-    { xrm_String,  "color-active",      { .str  = &config.color_active          }, NULL,
-      "Color scheme for active row", CONFIG_DEFAULT },
-    { xrm_String,  "color-window",      { .str  = &config.color_window          }, NULL,
-      "Color scheme window", CONFIG_DEFAULT },
 
-    { xrm_Number,  "borderwidth",       { .num  = &config.menu_bw               }, NULL,
-      "", CONFIG_DEFAULT },
-    { xrm_Number,  "bw",                { .num  = &config.menu_bw               }, NULL,
-      "Border width", CONFIG_DEFAULT },
-
-    { xrm_Number,  "padding",           { .num  = &config.padding               }, NULL,
-      "Padding", CONFIG_DEFAULT },
     { xrm_Boolean, "fixed-num-lines",   { .num  = &config.fixed_num_lines       }, NULL,
       "Always show number of lines", CONFIG_DEFAULT },
 
@@ -151,22 +136,12 @@ static XrmOption xrmOptions[] = {
       "Set the matching algorithm. (normal, regex, glob, fuzzy)", CONFIG_DEFAULT },
     { xrm_Boolean, "tokenize",          { .num  = &config.tokenize              }, NULL,
       "Tokenize input string", CONFIG_DEFAULT },
-    { xrm_Number,  "line-margin",       { .num  = &config.line_margin           }, NULL,
-      "Margin between rows", CONFIG_DEFAULT },
-    { xrm_Number,  "line-padding",      { .num  = &config.line_padding          }, NULL,
-      "Padding within rows", CONFIG_DEFAULT },
     { xrm_String,  "filter",            { .str  = &config.filter                }, NULL,
       "Pre-set filter", CONFIG_DEFAULT },
-    { xrm_String,  "separator-style",   { .str  = &config.separator_style       }, NULL,
-      "Separator style (none, dash, solid)", CONFIG_DEFAULT },
-    { xrm_Boolean, "hide-scrollbar",    { .num  = &config.hide_scrollbar        }, NULL,
-      "Hide scroll-bar", CONFIG_DEFAULT },
     { xrm_Boolean, "fullscreen",        { .num  = &config.fullscreen            }, NULL,
       "Fullscreen", CONFIG_DEFAULT },
     { xrm_Number,  "threads",           { .num  = &config.threads               }, NULL,
       "Threads to use for string matching", CONFIG_DEFAULT },
-    { xrm_Number,  "scrollbar-width",   { .num  = &config.scrollbar_width       }, NULL,
-      "Scrollbar width", CONFIG_DEFAULT },
     { xrm_Number,  "scroll-method",     { .num  = &config.scroll_method         }, NULL,
       "Scrolling method. (0: Page, 1: Centered)", CONFIG_DEFAULT },
     { xrm_String,  "window-format",     { .str  = &config.window_format         }, NULL,
@@ -595,26 +570,6 @@ void print_help_msg ( const char *option, const char *type, const char*text, con
         printf ( "\t%s %s %-*c%s\n", option, type, l, ' ', text );
         if ( def != NULL ) {
             printf ( "\t\t%s\n", def );
-        }
-    }
-}
-
-void config_parse_xresources_theme_dump ( void )
-{
-    printf ( "! ------------------------------------------------------------------------------\n" );
-    printf ( "! ROFI Color theme\n" );
-    printf ( "! User: %s\n", g_get_user_name () );
-    printf ( "! ------------------------------------------------------------------------------\n" );
-    const char   * const namePrefix       = "rofi";
-    const char           colorPrefix[]    = "color-";
-    const char           separatorStyle[] = "separator-style";
-    unsigned int         entries          = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
-    for ( unsigned int i = 0; i < entries; ++i ) {
-        if ( strncmp ( xrmOptions[i].name, colorPrefix, sizeof ( colorPrefix ) - 1 ) == 0 ) {
-            xresource_dump_entry ( namePrefix, &xrmOptions[i] );
-        }
-        else if ( strcmp ( xrmOptions[i].name, separatorStyle ) == 0 ) {
-            xresource_dump_entry ( namePrefix, &xrmOptions[i] );
         }
     }
 }

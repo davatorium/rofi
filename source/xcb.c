@@ -462,6 +462,9 @@ void display_cleanup(void)
     xcb_ungrab_pointer ( xcb->connection, XCB_CURRENT_TIME );
     xcb_ungrab_keyboard ( xcb->connection, XCB_CURRENT_TIME );
     xcb_flush(xcb->connection);
+    xcb_ewmh_connection_wipe ( &( xcb->ewmh ) );
+    xcb_flush ( xcb->connection );
+    xcb_aux_sync ( xcb->connection );
     g_water_xcb_source_free(xcb->main_loop_source);
 }
 

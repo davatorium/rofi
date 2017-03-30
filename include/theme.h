@@ -377,13 +377,6 @@ int distance_get_pixel ( Distance d, Orientation ori );
  */
 void distance_get_linestyle ( Distance d, cairo_t *draw );
 
-#ifdef THEME_CONVERTER
-/**
- * Function to convert old theme into new theme format.
- */
-void rofi_theme_convert_old_theme ( void );
-#endif
-
 /**
  * Low-level functions.
  * These can be used by non-widgets to obtain values.

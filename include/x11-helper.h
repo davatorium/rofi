@@ -21,27 +21,6 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
 
 
 
-/**
- * Structure describing a cairo color.
- */
-typedef struct
-{
-    /** red channel */
-    double red;
-    /** green channel */
-    double green;
-    /** blue channel */
-    double blue;
-    /**  alpha channel */
-    double alpha;
-} Color;
-
-/**
- * @param name    String representing the color.
- *
- * Allocate a pixel value for an X named color
- */
-Color color_get ( const char *const name );
 
 
 /*@}*/

@@ -61,6 +61,8 @@
 
 #include "timings.h"
 
+#include "default-theme.h"
+
 // Plugin abi version.
 // TODO: move this check to mode.c
 #include "mode-private.h"
@@ -833,7 +835,12 @@ int main ( int argc, char *argv[] )
         g_free ( theme_str );
     }
     if ( rofi_theme_is_empty ( ) ) {
-        rofi_theme_convert_old_theme ( );
+        if ( rofi_theme_parse_string ( default_theme ) ){
+            fprintf(stderr, "Failed to parse default theme. Giving up..\n");
+            rofi_theme = NULL;
+            cleanup ();
+            return EXIT_FAILURE;
+        }
     }
 
     if ( find_arg ( "-dump-theme" ) >= 0 ) {
@@ -850,11 +857,6 @@ int main ( int argc, char *argv[] )
     }
     if ( find_arg (  "-dump-xresources" ) >= 0 ) {
         config_parse_xresource_dump ();
-        cleanup ();
-        return EXIT_SUCCESS;
-    }
-    if ( find_arg (  "-dump-xresources-theme" ) >= 0 ) {
-        config_parse_xresources_theme_dump ();
         cleanup ();
         return EXIT_SUCCESS;
     }

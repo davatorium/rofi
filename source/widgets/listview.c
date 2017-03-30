@@ -394,7 +394,7 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->fixed_num_lines = rofi_theme_get_boolean  ( WIDGET ( lv ), "fixed-height", config.fixed_num_lines );
     lv->dynamic         = rofi_theme_get_boolean  ( WIDGET ( lv ), "dynamic", TRUE );
     lv->reverse         = rofi_theme_get_boolean  ( WIDGET ( lv ), "reverse", reverse );
-    listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( WIDGET ( lv ), "scrollbar", !config.hide_scrollbar ) );
+    listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( WIDGET ( lv ), "scrollbar", FALSE ) );
     lv->cycle = rofi_theme_get_boolean ( WIDGET ( lv ), "cycle", config.cycle );
 
     return lv;
