@@ -68,7 +68,9 @@ script:
     - make
     - make check
 # to re-enable if xdotool is allowed.
+    - ulimit -c unlimited
     - make test-x
+    - if [ -f core ]; then echo "bt" | gdb ./rofi core; fi
     - make test-x1
     - make coverage-cli
       #    - gcov source/rofi.c
