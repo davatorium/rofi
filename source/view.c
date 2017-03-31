@@ -1151,9 +1151,11 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
         menu_capture_screenshot ( );
         break;
     case TOGGLE_SORT:
-        config.sort     = !config.sort;
-        state->refilter = TRUE;
-        textbox_text ( state->case_indicator, get_matching_state () );
+        if ( state->case_indicator != NULL ) {
+            config.sort     = !config.sort;
+            state->refilter = TRUE;
+            textbox_text ( state->case_indicator, get_matching_state () );
+        }
         break;
     case MODE_PREVIOUS:
         state->retv              = MENU_PREVIOUS;
@@ -1168,10 +1170,12 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
         break;
     // Toggle case sensitivity.
     case TOGGLE_CASE_SENSITIVITY:
-        config.case_sensitive    = !config.case_sensitive;
-        ( state->selected_line ) = 0;
-        state->refilter          = TRUE;
-        textbox_text ( state->case_indicator, get_matching_state () );
+        if ( state->case_indicator != NULL ) {
+            config.case_sensitive    = !config.case_sensitive;
+            ( state->selected_line ) = 0;
+            state->refilter          = TRUE;
+            textbox_text ( state->case_indicator, get_matching_state () );
+        }
         break;
     // Special delete entry command.
     case DELETE_ENTRY:
