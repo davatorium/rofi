@@ -346,9 +346,11 @@ static void help_print_disabled_mode ( const char *mode )
     if ( is_term ) {
         fprintf ( stderr, "Mode %s%s%s is not enabled. I have enabled it for now.\n",
                 color_red, mode, color_reset);
-        fprintf ( stderr, "Please consider adding %s%s%s to the %smodi%s option.\n",
+        fprintf ( stderr, "Please consider adding %s%s%s to the list of enabled modi: %smodi: %s%s%s,%s%s.\n",
                 color_red, mode, color_reset,
-                color_green, color_reset);
+                color_green, config.modi,color_reset,
+                color_red, mode, color_reset
+                );
     }
 }
 static void help_print_no_arguments ( void )
@@ -604,7 +606,7 @@ static int add_mode ( const char * token )
 }
 static void setup_modi ( void )
 {
-    const char *const sep     = ",";
+    const char *const sep     = ",/";
     char              *savept = NULL;
     // Make a copy, as strtok will modify it.
     char              *switcher_str = g_strdup ( config.modi );
