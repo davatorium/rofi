@@ -63,7 +63,7 @@ static void combi_mode_parse_switchers ( Mode *sw )
     char                 *savept = NULL;
     // Make a copy, as strtok will modify it.
     char                 *switcher_str = g_strdup ( config.combi_modi );
-    const char * const   sep           = ",/";
+    const char * const   sep           = ",#";
     // Split token on ','. This modifies switcher_str.
     for ( char *token = strtok_r ( switcher_str, sep, &savept ); token != NULL;
           token = strtok_r ( NULL, sep, &savept ) ) {

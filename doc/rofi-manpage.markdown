@@ -191,7 +191,7 @@ Example: Have a mode 'Workspaces' using the `i3_switch_workspaces.sh` script:
     rofi -modi "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
 
 Notes: The I3 Window manager does not like commas in the command when specifying an exec command.
-For that case '/' can be used as an separator.
+For that case '#' can be used as an separator.
 
 `-case-sensitive`
 
@@ -467,7 +467,7 @@ To get one merge view, of window,run,ssh:
     rofi -show combi -combi-modi "window,run,ssh" -modi combi
 
 Notes: The I3 Window manager does not like commas in the command when specifying an exec command.
-For that case '/' can be used as an separator.
+For that case '#' can be used as an separator.
 
 ### History and Sorting
 

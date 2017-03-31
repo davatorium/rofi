@@ -611,7 +611,7 @@ static int add_mode ( const char * token )
 }
 static void setup_modi ( void )
 {
-    const char *const sep     = ",/";
+    const char *const sep     = ",#";
     char              *savept = NULL;
     // Make a copy, as strtok will modify it.
     char              *switcher_str = g_strdup ( config.modi );
