@@ -339,6 +339,18 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     }
 }
 
+static void help_print_disabled_mode ( const char *mode )
+{
+    int is_term = isatty ( fileno ( stdout ) );
+    // Only  output to terminal
+    if ( is_term ) {
+        fprintf ( stderr, "Mode %s%s%s is not enabled. I have enabled it for now.\n",
+                color_red, mode, color_reset);
+        fprintf ( stderr, "Please consider adding %s%s%s to the %smodi%s option.\n",
+                color_red, mode, color_reset,
+                color_green, color_reset);
+    }
+}
 static void help_print_no_arguments ( void )
 {
     int is_term = isatty ( fileno ( stdout ) );
@@ -371,7 +383,8 @@ static void help_print_no_arguments ( void )
                       is_term ? color_reset : "" );
         }
     }
-    fprintf ( stderr, "\nTo activate a mode, add it to the list of modi in the 'modi' setting." );
+    fprintf ( stderr, "\nTo activate a mode, add it to the list of modi in the %smodi%s setting.",
+           is_term?color_green:"",is_term?color_reset:"" );
 }
 
 /**
@@ -823,9 +836,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
             index = add_mode ( sname );
             // Complain
             if ( index >= 0 ) {
-                fprintf ( stdout, "Mode %s not enabled. Please add it to the list of enabled modi: %s\n",
-                          sname, config.modi );
-                fprintf ( stdout, "Adding mode: %s\n", sname );
+                help_print_disabled_mode ( sname );
             }
             // Run it anyway if found.
         }
