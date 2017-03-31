@@ -197,7 +197,12 @@ static void run_switcher ( ModeMode mode )
     // Otherwise check if requested mode is enabled.
     for ( unsigned int i = 0; i < num_modi; i++ ) {
         if ( !mode_init ( modi[i] ) ) {
-            rofi_view_error_dialog ( ERROR_MSG ( "Failed to initialize all the modi." ), ERROR_MSG_MARKUP );
+            GString *str= g_string_new ( "Failed to initialize the mode: ");
+            g_string_append ( str, modi[i]->name );
+            g_string_append ( str, "\n");
+
+            rofi_view_error_dialog ( str->str, ERROR_MSG_MARKUP );
+            g_string_free (str, FALSE);
             return;
         }
     }
