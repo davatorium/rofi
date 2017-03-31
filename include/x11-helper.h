@@ -18,10 +18,5 @@
  */
 gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key, gboolean *release, GString * );
 
-
-
-
-
-
 /*@}*/
 #endif

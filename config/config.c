@@ -34,11 +34,11 @@ Settings config = {
     /** -modi */
     .modi              = "window,run,ssh",
     /** The width of the switcher. (0100 in % > 100 in pixels) */
-    .menu_width        =                                        50,
+    .menu_width        =                                  50,
     /** Maximum number of options to show. */
-    .menu_lines        =                                        15,
+    .menu_lines        =                                  15,
     /** Number of columns */
-    .menu_columns      =                                         1,
+    .menu_columns      =                                   1,
     /** Font */
     .menu_font         = "mono 12",
 
@@ -69,7 +69,7 @@ Settings config = {
     /** Cycle through in the element list */
     .cycle             = TRUE,
     /** Height of an element in #chars */
-    .element_height    =                                         1,
+    .element_height    =                                   1,
     /** Sidebar mode, show the modi */
     .sidebar_mode      = FALSE,
     /** auto select */
@@ -84,12 +84,12 @@ Settings config = {
     .matching        = "normal",
     .matching_method = MM_NORMAL,
     /** Set filter */
-    .filter            = NULL,
-    .fullscreen        = FALSE,
-    .threads           =                                         0,
-    .scroll_method     =                                         0,
-    .window_format     = "{w}   {c}   {t}",
-    .click_to_exit     = TRUE,
-    .show_match        = TRUE,
-    .theme             = NULL,
+    .filter        = NULL,
+    .fullscreen    = FALSE,
+    .threads       =                                   0,
+    .scroll_method =                                   0,
+    .window_format = "{w}   {c}   {t}",
+    .click_to_exit = TRUE,
+    .show_match    = TRUE,
+    .theme         = NULL,
 };

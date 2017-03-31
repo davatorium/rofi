@@ -83,9 +83,14 @@ void rofi_add_error_message ( GString *str )
 }
 
 /** Path to the configuration file */
-char         *config_path = NULL;
+char *config_path = NULL;
 /** Array holding all activated modi. */
-Mode         **modi = NULL;
+Mode **modi = NULL;
+
+/**  List of (possibly uninitialized) modi's */
+Mode         ** available_modi = NULL;
+/** Length of #num_available_modi */
+unsigned int num_available_modi = 0;
 /** Number of activated modi in #modi array */
 unsigned int num_modi = 0;
 /** Current selected mode */
@@ -165,8 +170,13 @@ static void run_switcher ( ModeMode mode )
     // Otherwise check if requested mode is enabled.
     for ( unsigned int i = 0; i < num_modi; i++ ) {
         if ( !mode_init ( modi[i] ) ) {
-            rofi_view_error_dialog ( ERROR_MSG ( "Failed to initialize all the modi." ), ERROR_MSG_MARKUP );
-            return;
+            GString *str= g_string_new ( "Failed to initialize the mode: ");
+            g_string_append ( str, modi[i]->name );
+            g_string_append ( str, "\n");
+
+            rofi_view_error_dialog ( str->str, ERROR_MSG_MARKUP );
+            g_string_free (str, FALSE);
+            break;
         }
     }
     // Error dialog must have been created.
@@ -306,6 +316,56 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     }
 }
 
+static void help_print_disabled_mode ( const char *mode )
+{
+    int is_term = isatty ( fileno ( stdout ) );
+    // Only  output to terminal
+    if ( is_term ) {
+        fprintf ( stderr, "Mode %s%s%s is not enabled. I have enabled it for now.\n",
+                color_red, mode, color_reset);
+        fprintf ( stderr, "Please consider adding %s%s%s to the list of enabled modi: %smodi: %s%s%s,%s%s.\n",
+                color_red, mode, color_reset,
+                color_green, config.modi,color_reset,
+                color_red, mode, color_reset
+                );
+    }
+}
+static void help_print_no_arguments ( void )
+{
+    int is_term = isatty ( fileno ( stdout ) );
+    // Daemon mode
+    fprintf ( stderr, "Rofi is unsure what to show.\n" );
+    fprintf ( stderr, "Please specify the mode you want to show.\n\n" );
+    fprintf ( stderr, "    %srofi%s -show %s{mode}%s\n\n",
+              is_term ? color_bold : "", is_term ? color_reset : "",
+              is_term ? color_green : "", is_term ? color_reset : "" );
+    fprintf ( stderr, "The following modi are enabled:\n" );
+    for ( unsigned int j = 0; j < num_modi; j++ ) {
+        fprintf ( stderr, " * %s%s%s\n",
+                  is_term ? color_green : "",
+                  modi[j]->name,
+                  is_term ? color_reset : "" );
+    }
+    fprintf ( stderr, "\nThe following can be enabled:\n" );
+    for  ( unsigned int i = 0; i < num_available_modi; i++ ) {
+        gboolean active = FALSE;
+        for ( unsigned int j = 0; j < num_modi; j++ ) {
+            if ( modi[j] == available_modi[i] ) {
+                active = TRUE;
+                break;
+            }
+        }
+        if ( !active ) {
+            fprintf ( stderr, " * %s%s%s\n",
+                      is_term ? color_red : "",
+                      available_modi[i]->name,
+                      is_term ? color_reset : "" );
+        }
+    }
+    fprintf ( stderr, "\nTo activate a mode, add it to the list of modi in the %smodi%s setting.",
+           is_term?color_green:"",is_term?color_reset:"" );
+}
+
 /**
  * Cleanup globally allocated memory.
  */
@@ -354,10 +414,6 @@ static void cleanup ()
 /**
  * Collected modi
  */
-/**  List of (possibly uninitialized) modi's */
-Mode         ** available_modi = NULL;
-/** Length of #num_available_modi */
-unsigned int num_available_modi = 0;
 
 /**
  * @param name Search for mode with this name.
@@ -495,14 +551,14 @@ static int add_mode ( const char * token )
         }
         else {
             // Report error, don't continue.
-            fprintf ( stderr, "Invalid script switcher: %s\n", token );
+            fprintf ( stderr, "Invalid script mode: %s\n", token );
         }
     }
     return ( index == num_modi ) ? -1 : (int) index;
 }
 static void setup_modi ( void )
 {
-    const char *const sep     = ",";
+    const char *const sep     = ",/";
     char              *savept = NULL;
     // Make a copy, as strtok will modify it.
     char              *switcher_str = g_strdup ( config.modi );
@@ -667,9 +723,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
             index = add_mode ( sname );
             // Complain
             if ( index >= 0 ) {
-                fprintf ( stdout, "Mode %s not enabled. Please add it to the list of enabled modi: %s\n",
-                          sname, config.modi );
-                fprintf ( stdout, "Adding mode: %s\n", sname );
+                help_print_disabled_mode ( sname );
             }
             // Run it anyway if found.
         }
@@ -677,7 +731,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
             run_switcher ( index );
         }
         else {
-            fprintf ( stderr, "The %s switcher has not been enabled\n", sname );
+            fprintf ( stderr, "The %s mode has not been enabled\n", sname );
             g_main_loop_quit ( main_loop );
             return G_SOURCE_REMOVE;
         }
@@ -686,9 +740,8 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         run_switcher ( 0 );
     }
     else{
-        // Daemon mode
-        fprintf ( stderr, "Rofi daemon mode is now removed.\n" );
-        fprintf ( stderr, "Please use your window manager binding functionality or xbindkeys to replace it.\n" );
+        help_print_no_arguments ( );
+
         g_main_loop_quit ( main_loop );
     }
 
@@ -835,8 +888,8 @@ int main ( int argc, char *argv[] )
         g_free ( theme_str );
     }
     if ( rofi_theme_is_empty ( ) ) {
-        if ( rofi_theme_parse_string ( default_theme ) ){
-            fprintf(stderr, "Failed to parse default theme. Giving up..\n");
+        if ( rofi_theme_parse_string ( default_theme ) ) {
+            fprintf ( stderr, "Failed to parse default theme. Giving up..\n" );
             rofi_theme = NULL;
             cleanup ();
             return EXIT_FAILURE;
