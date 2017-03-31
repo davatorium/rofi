@@ -797,7 +797,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
             run_switcher ( index );
         }
         else {
-            fprintf ( stderr, "The %s switcher has not been enabled\n", sname );
+            fprintf ( stderr, "The %s mode has not been enabled\n", sname );
             g_main_loop_quit ( main_loop );
             return G_SOURCE_REMOVE;
         }
@@ -807,8 +807,27 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     }
     else{
         // Daemon mode
-        fprintf ( stderr, "Rofi daemon mode is now removed.\n" );
-        fprintf ( stderr, "Please use your window manager binding functionality or xbindkeys to replace it.\n" );
+        fprintf ( stderr, "Please specify the mode you want to show.\n\n" );
+        fprintf ( stderr, "    rofi -show {mode}\n\n");
+        fprintf ( stderr, "The following modi are available:\n" );
+        for ( unsigned int j = 0; j < num_modi; j++ ) {
+            fprintf ( stderr, " * %s\n", modi[j]->name); 
+        }
+        fprintf ( stderr, "\nThe following can be enabled:\n" );
+        for  ( unsigned int i = 0; i < num_available_modi; i++ ) {
+            gboolean active = FALSE;
+            for ( unsigned int j = 0; j < num_modi; j++ ) {
+                if ( modi[j] == available_modi[i] ){
+                    active = TRUE;
+                    break;
+                }
+            }
+            if ( ! active ) {
+                fprintf ( stderr, " * %s\n", available_modi[i]->name);
+            }
+        }
+        fprintf ( stderr, "\nTo activate a mode, add it to the list of modi in the 'modi' setting.");
+
         g_main_loop_quit ( main_loop );
     }
 

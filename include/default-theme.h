@@ -4,13 +4,13 @@
 const char *default_theme =
 "* {"
 "    spacing:    2;"
-"    background: #00000000;"
+"    background: #FFFDF6E3;"
 "}"
 "#window {"
 "    border:     1;"
 "    foreground: #FF002B36;"
 "    padding:    5;"
-"    background: #FFFDF6E3;"
+"    background: @background;"
 "}"
 "#window.mainbox {"
 "    border:  0;"
@@ -22,7 +22,6 @@ const char *default_theme =
 "}"
 "#window.mainbox.message.normal {"
 "    foreground: #FF002B36;"
-"    background: #FFFDF6E3;"
 "}"
 "#window.mainbox.listview {"
 "    fixed-height: 0;"
@@ -83,6 +82,6 @@ const char *default_theme =
 "}"
 "#window.mainbox.inputbar.normal {"
 "    foreground: #FF002B36;"
-"    background: #FFFDF6E3;"
+"    background: @background;"
 "}";
 #endif
