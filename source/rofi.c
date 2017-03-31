@@ -203,7 +203,7 @@ static void run_switcher ( ModeMode mode )
 
             rofi_view_error_dialog ( str->str, ERROR_MSG_MARKUP );
             g_string_free (str, FALSE);
-            return;
+            break;
         }
     }
     // Error dialog must have been created.
