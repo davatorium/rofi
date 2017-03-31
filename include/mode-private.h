@@ -104,7 +104,7 @@ typedef char* ( *_mode_preprocess_input )( Mode *sw, const char *input );
  *
  * @returns the (valid pango markup) message to display.
  */
-typedef char * (*_mode_get_message )( const Mode *sw );
+typedef char * ( *_mode_get_message )( const Mode *sw );
 
 /**
  * Structure defining a switcher.

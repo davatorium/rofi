@@ -807,7 +807,6 @@ void x11_create_visual_and_colormap ( void )
     }
 }
 
-
 xcb_window_t xcb_stuff_get_root_window ( xcb_stuff *xcb )
 {
     return xcb->screen->root;

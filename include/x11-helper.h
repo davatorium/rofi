@@ -196,7 +196,6 @@ extern xcb_colormap_t map;
  */
 void x11_create_visual_and_colormap ( void );
 
-
 /**
  * Gets a surface containing the background image of the desktop.
  *

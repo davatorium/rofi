@@ -34,11 +34,11 @@ Settings config = {
     /** -modi */
     .modi              = "window,run,ssh",
     /** The width of the switcher. (0100 in % > 100 in pixels) */
-    .menu_width        =                                        50,
+    .menu_width        =                                  50,
     /** Maximum number of options to show. */
-    .menu_lines        =                                        15,
+    .menu_lines        =                                  15,
     /** Number of columns */
-    .menu_columns      =                                         1,
+    .menu_columns      =                                   1,
     /** Font */
     .menu_font         = "mono 12",
 
@@ -69,9 +69,9 @@ Settings config = {
      */
     .location          = WL_CENTER,
     /** Y offset */
-    .y_offset          =                                         0,
+    .y_offset          =                                   0,
     /** X offset */
-    .x_offset          =                                         0,
+    .x_offset          =                                   0,
     /** Always show config.menu_lines lines, even if less lines are available */
     .fixed_num_lines   = TRUE,
     /** Do not use history */
@@ -85,7 +85,7 @@ Settings config = {
     /** Cycle through in the element list */
     .cycle             = TRUE,
     /** Height of an element in #chars */
-    .element_height    =                                         1,
+    .element_height    =                                   1,
     /** Sidebar mode, show the modi */
     .sidebar_mode      = FALSE,
     /** auto select */
@@ -102,13 +102,13 @@ Settings config = {
     /** Monitor */
     .monitor           = "-5",
     /** Set filter */
-    .filter            = NULL,
-    .fullscreen        = FALSE,
-    .dpi               =                                        -1,
-    .threads           =                                         0,
-    .scroll_method     =                                         0,
-    .window_format     = "{w}   {c}   {t}",
-    .click_to_exit     = TRUE,
-    .show_match        = TRUE,
-    .theme             = NULL,
+    .filter        = NULL,
+    .fullscreen    = FALSE,
+    .dpi           =                                  -1,
+    .threads       =                                   0,
+    .scroll_method =                                   0,
+    .window_format = "{w}   {c}   {t}",
+    .click_to_exit = TRUE,
+    .show_match    = TRUE,
+    .theme         = NULL,
 };

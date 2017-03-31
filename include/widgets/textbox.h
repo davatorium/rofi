@@ -45,16 +45,16 @@ typedef struct
  */
 typedef enum
 {
-    TB_AUTOHEIGHT    = 1 << 0,
-        TB_AUTOWIDTH = 1 << 1,
-        TB_LEFT      = 1 << 16,
-        TB_RIGHT     = 1 << 17,
-        TB_CENTER    = 1 << 18,
-        TB_EDITABLE  = 1 << 19,
-        TB_MARKUP    = 1 << 20,
-        TB_WRAP      = 1 << 21,
-        TB_PASSWORD  = 1 << 22,
-        TB_INDICATOR = 1 << 23,
+    TB_AUTOHEIGHT = 1 << 0,
+    TB_AUTOWIDTH  = 1 << 1,
+    TB_LEFT       = 1 << 16,
+    TB_RIGHT      = 1 << 17,
+    TB_CENTER     = 1 << 18,
+    TB_EDITABLE   = 1 << 19,
+    TB_MARKUP     = 1 << 20,
+    TB_WRAP       = 1 << 21,
+    TB_PASSWORD   = 1 << 22,
+    TB_INDICATOR  = 1 << 23,
 } TextboxFlags;
 /**
  * Flags indicating current state of the textbox.
