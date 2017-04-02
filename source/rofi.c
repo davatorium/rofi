@@ -197,12 +197,12 @@ static void run_switcher ( ModeMode mode )
     // Otherwise check if requested mode is enabled.
     for ( unsigned int i = 0; i < num_modi; i++ ) {
         if ( !mode_init ( modi[i] ) ) {
-            GString *str= g_string_new ( "Failed to initialize the mode: ");
+            GString *str = g_string_new ( "Failed to initialize the mode: " );
             g_string_append ( str, modi[i]->name );
-            g_string_append ( str, "\n");
+            g_string_append ( str, "\n" );
 
             rofi_view_error_dialog ( str->str, ERROR_MSG_MARKUP );
-            g_string_free (str, FALSE);
+            g_string_free ( str, FALSE );
             break;
         }
     }
@@ -350,12 +350,12 @@ static void help_print_disabled_mode ( const char *mode )
     // Only  output to terminal
     if ( is_term ) {
         fprintf ( stderr, "Mode %s%s%s is not enabled. I have enabled it for now.\n",
-                color_red, mode, color_reset);
+                  color_red, mode, color_reset );
         fprintf ( stderr, "Please consider adding %s%s%s to the list of enabled modi: %smodi: %s%s%s,%s%s.\n",
-                color_red, mode, color_reset,
-                color_green, config.modi,color_reset,
-                color_red, mode, color_reset
-                );
+                  color_red, mode, color_reset,
+                  color_green, config.modi, color_reset,
+                  color_red, mode, color_reset
+                  );
     }
 }
 static void help_print_no_arguments ( void )
@@ -391,7 +391,7 @@ static void help_print_no_arguments ( void )
         }
     }
     fprintf ( stderr, "\nTo activate a mode, add it to the list of modi in the %smodi%s setting.",
-           is_term?color_green:"",is_term?color_reset:"" );
+              is_term ? color_green : "", is_term ? color_reset : "" );
 }
 
 /**
@@ -1140,10 +1140,18 @@ int main ( int argc, char *argv[] )
     if ( rofi_theme_is_empty ( ) ) {
         if ( rofi_theme_parse_string ( default_theme ) ) {
             fprintf ( stderr, "Failed to parse default theme. Giving up..\n" );
+            if ( list_of_error_msgs ) {
+                for ( GList *iter = g_list_first ( list_of_error_msgs );
+                      iter != NULL; iter = g_list_next ( iter ) ) {
+                    fprintf ( stderr, "Error: %s%s%s\n",
+                              color_bold, ( (GString *) iter->data )->str, color_reset );
+                }
+            }
             rofi_theme = NULL;
             cleanup ();
             return EXIT_FAILURE;
         }
+        rofi_theme_convert_old ();
     }
 
     if ( find_arg ( "-dump-theme" ) >= 0 ) {

@@ -433,6 +433,9 @@ static void listview_nav_down_int ( listview *lv )
 
 void listview_nav_up ( listview *lv )
 {
+    if ( lv == NULL ) {
+        return;
+    }
     if ( lv->reverse ) {
         listview_nav_down_int ( lv );
     }
@@ -442,6 +445,9 @@ void listview_nav_up ( listview *lv )
 }
 void listview_nav_down ( listview *lv )
 {
+    if ( lv == NULL ) {
+        return;
+    }
     if ( lv->reverse ) {
         listview_nav_up_int ( lv );
     }
@@ -514,6 +520,9 @@ static void listview_nav_page_next_int ( listview *lv )
 
 void listview_nav_page_prev ( listview *lv )
 {
+    if ( lv == NULL ) {
+        return;
+    }
     if ( lv->reverse ) {
         listview_nav_page_next_int ( lv );
     }
@@ -523,6 +532,9 @@ void listview_nav_page_prev ( listview *lv )
 }
 void listview_nav_page_next ( listview *lv )
 {
+    if ( lv == NULL ) {
+        return;
+    }
     if ( lv->reverse ) {
         listview_nav_page_prev_int ( lv );
     }

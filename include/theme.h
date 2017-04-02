@@ -409,4 +409,9 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
  * @returns TRUE when empty.
  */
 gboolean rofi_theme_is_empty ( void );
+
+/**
+ * Convert old theme colors into default one.
+ */
+void rofi_theme_convert_old ( void );
 #endif

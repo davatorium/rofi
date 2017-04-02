@@ -408,6 +408,15 @@ if ( queue == NULL ){
     yylval->colorval.alpha = 1.0;
     return T_COLOR;
 }
+<PROPERTIES>argb:{HEX}{1,8}       {
+    union {  unsigned int val; struct { unsigned char b,g,r,a;};} val;
+    val.val = (unsigned int)strtoull ( &yytext[5], NULL, 16);
+    yylval->colorval.alpha = val.a/255.0;
+    yylval->colorval.red   = val.r/255.0;
+    yylval->colorval.green = val.g/255.0;
+    yylval->colorval.blue  = val.b/255.0;
+    return T_COLOR;
+}
 
 <PROPERTIES>{CENTER} {
     yylval->ival = WL_CENTER;

@@ -171,6 +171,14 @@ static XrmOption xrmOptions[] = {
       "Indicate how it match by underlining it.", CONFIG_DEFAULT },
     { xrm_String,  "theme",             { .str  = &config.theme                 }, NULL,
       "New style theme file", CONFIG_DEFAULT },
+    { xrm_String,  "color-normal",      { .str  = &config.color_normal          }, NULL,
+      "Color scheme for normal row", CONFIG_DEFAULT },
+    { xrm_String,  "color-urgent",      { .str  = &config.color_urgent          }, NULL,
+      "Color scheme for urgent row", CONFIG_DEFAULT },
+    { xrm_String,  "color-active",      { .str  = &config.color_active          }, NULL,
+      "Color scheme for active row", CONFIG_DEFAULT },
+    { xrm_String,  "color-window",      { .str  = &config.color_window          }, NULL,
+      "Color scheme window", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */

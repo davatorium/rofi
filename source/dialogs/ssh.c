@@ -206,7 +206,7 @@ static char **read_hosts_file ( char ** retv, unsigned int *length )
         // Reading one line per time.
         while ( getline ( &buffer, &buffer_length, fd ) > 0 ) {
             // Evaluate one line.
-            unsigned int index  = 0, ti = 0;
+            unsigned int index = 0, ti = 0;
             char         *token = buffer;
 
             // Tokenize it.

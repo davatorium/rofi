@@ -111,4 +111,8 @@ Settings config = {
     .click_to_exit = TRUE,
     .show_match    = TRUE,
     .theme         = NULL,
+    .color_normal  = NULL,
+    .color_active  = NULL,
+    .color_urgent  = NULL,
+    .color_window  = NULL,
 };

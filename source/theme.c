@@ -574,3 +574,68 @@ gboolean rofi_theme_is_empty ( void )
     return FALSE;
 }
 
+void rofi_theme_convert_old ( void )
+{
+    if ( config.color_window ) {
+        char             **retv  = g_strsplit ( config.color_window, ",", -1 );
+        const char const *conf[] = {
+            "* { background: %s; }",
+            "* { bordercolor: %s; }",
+            "* { separatorcolor: %s; }"
+        };
+        for ( int i = 0; retv && retv[i]; i++ ) {
+            char *str = g_strdup_printf ( conf[i], retv[i] );
+            rofi_theme_parse_string ( str );
+            g_free ( str );
+        }
+        g_strfreev ( retv );
+    }
+    if ( config.color_normal ) {
+        char             **retv  = g_strsplit ( config.color_normal, ",", -1 );
+        const char const *conf[] = {
+            "* { normal-background: %s; }",
+            "* { foreground: %s; normal-foreground: @foreground; alternate-normal-foreground: @foreground; }",
+            "* { alternate-normal-background: %s; }",
+            "* { selected-normal-background: %s; }",
+            "* { selected-normal-foreground: %s; }"
+        };
+        for ( int i = 0; retv && retv[i]; i++ ) {
+            char *str = g_strdup_printf ( conf[i], retv[i] );
+            rofi_theme_parse_string ( str );
+            g_free ( str );
+        }
+        g_strfreev ( retv );
+    }
+    if ( config.color_urgent ) {
+        char             **retv  = g_strsplit ( config.color_urgent, ",", -1 );
+        const char const *conf[] = {
+            "* { urgent-background: %s; }",
+            "* { urgent-foreground: %s; alternate-urgent-foreground: @urgent-foreground;}",
+            "* { alternate-urgent-background: %s; }",
+            "* { selected-urgent-background: %s; }",
+            "* { selected-urgent-foreground: %s; }"
+        };
+        for ( int i = 0; retv && retv[i]; i++ ) {
+            char *str = g_strdup_printf ( conf[i], retv[i] );
+            rofi_theme_parse_string ( str );
+            g_free ( str );
+        }
+        g_strfreev ( retv );
+    }
+    if ( config.color_active ) {
+        char             **retv  = g_strsplit ( config.color_active, ",", -1 );
+        const char const *conf[] = {
+            "* { active-background: %s; }",
+            "* { active-foreground: %s; alternate-active-foreground: @active-foreground;}",
+            "* { alternate-active-background: %s; }",
+            "* { selected-active-background: %s; }",
+            "* { selected-active-foreground: %s; }"
+        };
+        for ( int i = 0; retv && retv[i]; i++ ) {
+            char *str = g_strdup_printf ( conf[i], retv[i] );
+            rofi_theme_parse_string ( str );
+            g_free ( str );
+        }
+        g_strfreev ( retv );
+    }
+}

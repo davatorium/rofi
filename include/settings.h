@@ -64,6 +64,12 @@ typedef struct
     /** Font string (pango format) */
     char           * menu_font;
 
+    /** New row colors */
+    char           * color_normal;
+    char           * color_active;
+    char           * color_urgent;
+    char           * color_window;
+
     /** Terminal to use  */
     char           * terminal_emulator;
     /** SSH client to use */
