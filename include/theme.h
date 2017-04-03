@@ -410,8 +410,10 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
  */
 gboolean rofi_theme_is_empty ( void );
 
+#ifdef THEME_CONVERTER
 /**
  * Convert old theme colors into default one.
  */
 void rofi_theme_convert_old ( void );
+#endif
 #endif

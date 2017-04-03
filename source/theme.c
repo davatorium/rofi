@@ -574,6 +574,8 @@ gboolean rofi_theme_is_empty ( void )
     return FALSE;
 }
 
+#ifdef THEME_CONVERTER
+
 void rofi_theme_convert_old ( void )
 {
     if ( config.color_window ) {
@@ -639,3 +641,4 @@ void rofi_theme_convert_old ( void )
         g_strfreev ( retv );
     }
 }
+#endif // THEME_CONVERTER
