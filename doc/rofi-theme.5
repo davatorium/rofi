@@ -1,5 +1,852 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-THEME\-MANPAGE" "" "March 2017" "" ""
+.TH "ROFI\-THEME\-MANPAGE" "" "April 2017" "" ""
+.
+.SH "NAME"
+\fBrofi\-theme\fR \- Rofi theme format files
+.
+.SH "DESCRIPTION"
+The need for a new theme format was motivated by the fact that the way rofi handled widgets has changed\. From a very static drawing of lines and text to a nice structured form of packing widgets\. This change made it possible to provide a more flexible theme framework\. The old theme format and config file is not flexible enough to expose these options in a user\-friendly way\. Therefor a new file format has been created, replacing the old one\. The new format is loosely based on css \fIhttps://en\.wikipedia\.org/wiki/Cascading_Style_Sheets\fR, a format widely known, which allows e\.g\. web developers to create their own rofi themes without the need to learn a new markup language\.
+.
+.SH "FORMAT SPECIFICATION"
+.
+.SH "Encoding"
+The encoding of the file is utf\-8\. Both unix (\fB\en\fR) and windows (\fB\er\en\fR) newlines format are supported\. But unix is preferred\.
+.
+.SH "Comments"
+C and C++ file comments are support\.
+.
+.IP "\(bu" 4
+Anything after \fB//\fR and before a newline is considered a comment\.
+.
+.IP "\(bu" 4
+Everything between \fB/*\fR and \fB*/\fR is a comment\.
+.
+.IP "" 0
+.
+.P
+Comments can be nested and the C comments can be inline\.
+.
+.P
+The following is valid:
+.
+.IP "" 4
+.
+.nf
+
+// Magic comment\.
+property: /* comment */ value;
+.
+.fi
+.
+.IP "" 0
+.
+.P
+However this is not:
+.
+.IP "" 4
+.
+.nf
+
+prop/*comment*/erty: value;
+.
+.fi
+.
+.IP "" 0
+.
+.SH "White space"
+White space and newlines, like comments, are ignored by the parser\.
+.
+.P
+This:
+.
+.IP "" 4
+.
+.nf
+
+property: name;
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Is identical to:
+.
+.IP "" 4
+.
+.nf
+
+     property             :
+name
+
+;
+.
+.fi
+.
+.IP "" 0
+.
+.SH "File extension"
+The preferred file extension for the new theme format is \fBrasi\fR\. This is an abbreviation for \fBr\fRofi \fBa\fRdvanced \fBs\fRtyle \fBi\fRnformation\.
+.
+.SH "BASIC STRUCTURE"
+Each element has a section with defined properties\. Properties can be inherited to sub\-sections\. Global properties can be defined in section \fB* { }\fR\. Sub\-section names begin with a hash symbol \fB#\fR\.
+.
+.P
+It is advised to define the \fIglobal properties section\fR on top of the file to make inheritance of properties clearer\.
+.
+.IP "" 4
+.
+.nf
+
+/* Global properties section */
+* {
+    // list of properties
+}
+
+/* Element theme section\. */
+#{element path} {
+    // list of properties
+}
+#{elements\.\.\. } {
+    // list of properties
+}
+.
+.fi
+.
+.IP "" 0
+.
+.SH "Global properties section"
+A theme can have one or more global properties sections (If there is more than one they will be merged)
+.
+.P
+The global properties section denotes the defaults for each element\. Each property of this section can be referenced with \fB@{identifier}\fR (See Properties section)
+.
+.P
+A global properties section is indicated with a \fB*\fR as element path\.
+.
+.SH "Element theme section"
+A theme can have multiple element theme sections\.
+.
+.P
+The element path can consist of multiple names separated by whitespace or dots\. Each element may contain any number of letters, numbers and \fB\-\fR\. The first element in the element path should always start with a \fB#\fR\.
+.
+.P
+This is a valid element name:
+.
+.IP "" 4
+.
+.nf
+
+#window mainbox listview element normal\.normal {
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+And is identical to:
+.
+.IP "" 4
+.
+.nf
+
+#window\.mainbox\.listview\.element normal\.normal {
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Each section inherits the properties of its parents\. Inherited properties can be overridden by defining them again in the section itself\. So \fB#window mainbox\fR will contain all properties of \fB#window\fR and \fB#window mainbox\fR\.
+.
+.P
+In the following example:
+.
+.IP "" 4
+.
+.nf
+
+#window {
+ a: 1;
+ b: 2;
+}
+#window mainbox {
+    b: 4;
+    c: 8;
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+The element \fB#window mainbox\fR will have the following set of properties:
+.
+.IP "" 4
+.
+.nf
+
+a: 1;
+b: 4;
+c: 8;
+.
+.fi
+.
+.IP "" 0
+.
+.P
+If multiple sections are defined with the same name, they are merged by the parser\. If multiple properties with the same name are defined in one section, the last encountered property is used\.
+.
+.SH "PROPERTIES FORMAT"
+The properties in a section consist of:
+.
+.IP "" 4
+.
+.nf
+
+{identifier}: {value};
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Both fields are manditory for a property\.
+.
+.P
+The \fBidentifier\fR names the specified property\. Identifiers can consist of any combination of numbers, letters and \'\-\'\. It must not contain any whitespace\. The structure of the \fBvalue\fR defines the type of the property\.
+.
+.P
+The current theme format support different type:
+.
+.IP "\(bu" 4
+a string\.
+.
+.IP "\(bu" 4
+an integer number\.
+.
+.IP "\(bu" 4
+a fractional number\.
+.
+.IP "\(bu" 4
+a boolean value\.
+.
+.IP "\(bu" 4
+a color\.
+.
+.IP "\(bu" 4
+text style\.
+.
+.IP "\(bu" 4
+\fIline style\fR\.
+.
+.IP "\(bu" 4
+a distance\.
+.
+.IP "\(bu" 4
+a padding\.
+.
+.IP "\(bu" 4
+a border\.
+.
+.IP "\(bu" 4
+a position\.
+.
+.IP "\(bu" 4
+a reference\.
+.
+.IP "" 0
+.
+.P
+Some of these types are a combination of other types\.
+.
+.SH "String"
+.
+.IP "\(bu" 4
+Format: \fB"[:print:]+"\fR
+.
+.IP "" 0
+.
+.P
+A string is always surrounded by quotes (\'"\'), between the quotes it can have any printable character\.
+.
+.P
+For example:
+.
+.IP "" 4
+.
+.nf
+
+font: "Awasome 12";
+.
+.fi
+.
+.IP "" 0
+.
+.SH "Integer"
+.
+.IP "\(bu" 4
+Format: \fB[\-+]?[:digit:]+\fR
+.
+.IP "" 0
+.
+.P
+An integer may contain any number\.
+.
+.P
+For examples:
+.
+.IP "" 4
+.
+.nf
+
+lines: 12;
+.
+.fi
+.
+.IP "" 0
+.
+.SH "Real"
+.
+.IP "\(bu" 4
+Format: \fB[\-+]?[:digit:]+(\e\.[:digit:]+)?\fR
+.
+.IP "" 0
+.
+.P
+A real is an integer with an optional fraction\.
+.
+.P
+For example:
+.
+.IP "" 4
+.
+.nf
+
+real: 3\.4;
+.
+.fi
+.
+.IP "" 0
+.
+.P
+The following is not valid: \fB\.3\fR, \fB3\.\fR or scientific notation: \fB3\.4e\-3\fR\.
+.
+.SH "Boolean"
+.
+.IP "\(bu" 4
+Format: \fB(true|false)\fR
+.
+.IP "" 0
+.
+.P
+Boolean value is either \fBtrue\fR or \fBfalse\fR\. This is case\-sensitive\.
+.
+.P
+For example:
+.
+.IP "" 4
+.
+.nf
+
+dynamic: false;
+.
+.fi
+.
+.IP "" 0
+.
+.SH "Color"
+.
+.IP "\(bu" 4
+Format: \fB#{HEX}{6}\fR
+.
+.IP "\(bu" 4
+Format: \fB#{HEX}{8}\fR
+.
+.IP "\(bu" 4
+Format: \fBrgb({INTEGER},{INTEGER},{INTEGER})\fR
+.
+.IP "\(bu" 4
+Format: \fBrgba({INTEGER},{INTEGER},{INTEGER}, {REAL})\fR
+.
+.IP "" 0
+.
+.P
+Where \'{HEX}\' is a hexidecimal number (\'0\-9a\-f\')\. The \'{INTEGER}\' value can be between 0 and 255, the \'{Real}\' value between 0\.0 and 1\.0\.
+.
+.P
+The first formats specify the color as RRGGBB (R = red, G = green, B = Blue), the second adds an alpha (A) channel: AARRGGBB\.
+.
+.P
+For example:
+.
+.IP "" 4
+.
+.nf
+
+background: #FF0000;
+foreground: rgba(0,0,1, 0\.5);
+.
+.fi
+.
+.IP "" 0
+.
+.SH "Text style"
+.
+.IP "\(bu" 4
+Format: \fB(bold|italic|underline|none)\fR
+.
+.IP "" 0
+.
+.P
+Text style indicates how the text should be displayed\. None indicates no style should be applied\.
+.
+.SH "Line style"
+.
+.IP "\(bu" 4
+Format: \fB(dash|solid)\fR
+.
+.IP "" 0
+.
+.P
+Indicates how a line should be drawn\. It currently supports: * \fBdash\fR: A dashed line\. Where the gap is the same width as the dash\. * \fBsolid\fR: A solid line\.
+.
+.SH "Distance"
+.
+.IP "\(bu" 4
+Format: \fB{Integer}px\fR
+.
+.IP "\(bu" 4
+Format: \fB{Real}em\fR
+.
+.IP "\(bu" 4
+Format: \fB{Real}%\fR
+.
+.IP "" 0
+.
+.P
+A distance can be specified in 3 different units:
+.
+.IP "\(bu" 4
+\fBpx\fR: Screen pixels\.
+.
+.IP "\(bu" 4
+\fBem\fR: Relative to text width\.
+.
+.IP "\(bu" 4
+\fB%\fR: Percentage of the \fBmonitor\fR size\.
+.
+.IP "" 0
+.
+.P
+Distances used in the horizontal direction use the monitor width\. Distances in the vertical direction use the monitor height\. For example:
+.
+.IP "" 4
+.
+.nf
+
+   padding: 10%;
+.
+.fi
+.
+.IP "" 0
+.
+.P
+On a full\-hd (1920x1080) monitor defines a padding of 192 pixels on the left and right side and 108 pixels on the top and bottom\.
+.
+.SH "Padding"
+.
+.IP "\(bu" 4
+Format: \fB{Integer}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Distance}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Distance} {Distance}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Distance} {Distance} {Distance}\fR
+.
+.IP "" 0
+.
+.P
+If no unit is set, pixels are used\.
+.
+.P
+The different number of fields in the formats are parsed like:
+.
+.IP "\(bu" 4
+1 field: \fBall\fR
+.
+.IP "\(bu" 4
+2 fields: \fBtop&bottom\fR \fBleft&right\fR
+.
+.IP "\(bu" 4
+3 fields: \fBtop\fR, \fBleft&right\fR, \fBbottom\fR
+.
+.IP "\(bu" 4
+4 fields: \fBtop\fR, \fBright\fR, \fBbottom\fR, \fBleft\fR
+.
+.IP "" 0
+.
+.SH "Border"
+.
+.IP "\(bu" 4
+Format: \fB{Integer}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Distance}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Distance} {Distance}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Distance} {Distance} {Distance}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Line style}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Line style} {Distance} {Line style}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Line style} {Distance} {Line style} {Distance} {Line style}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Line style} {Distance} {Line style} {Distance} {Line style} {Distance} {Line style}\fR
+.
+.IP "" 0
+.
+.P
+Border are identical to padding, except that each distance field has a line style property\.
+.
+.SH "Position"
+.
+.IP "\(bu" 4
+Format: \fB(center|east|north|west|northeast|northweast|south|southwest|southeast)\fR
+.
+.IP "" 0
+.
+.SH "Reference"
+.
+.IP "\(bu" 4
+Format: \fB@{PROPERTY NAME}\fR
+.
+.IP "" 0
+.
+.P
+A reference can point to another reference\. Currently the maximum number of redirects is 20\. A property always refers to another property\. It cannot be used for a subpart of the property\. e\.g\. this is not valid:
+.
+.IP "" 4
+.
+.nf
+
+highlight: bold @pink;
+.
+.fi
+.
+.IP "" 0
+.
+.SH "ELEMENTS PATHS"
+Element paths exists of two parts, the first part refers to the actual widget by name\. Some widgets have an extra state\.
+.
+.P
+For example:
+.
+.IP "" 4
+.
+.nf
+
+#window mainbox listview element \.selected {
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Here \fB#window mainbox listview element\fR is the name of the widget, \fBselected\fR is the state of the widget\.
+.
+.P
+The difference between dots and spaces is purely cosmetic\. These are all the same:
+.
+.IP "" 4
+.
+.nf
+
+#window mainbox listview element \.selected {
+}
+#window\.mainbox\.listview\.element\.selected {
+}
+#window mainbox listview element selected {
+}
+.
+.fi
+.
+.IP "" 0
+.
+.SH "SUPPORTED ELEMENT PATH"
+.
+.SH "Name"
+The current widgets exist in \fBrofi\fR:
+.
+.IP "\(bu" 4
+.
+.IP "\(bu" 4
+\fB#window\.box\fR: The container holding the window\.
+.
+.IP "\(bu" 4
+\fB#window\.overlay\fR: The overlay widget\.
+.
+.IP "\(bu" 4
+.
+.IP "\(bu" 4
+\fB#window\.mainbox\.box\fR: The main vertical @box
+.
+.IP "\(bu" 4
+.
+.IP "\(bu" 4
+\fB#window\.mainbox\.inputbar\.box\fR: The horizontal @box packing the widgets\.
+.
+.IP "\(bu" 4
+\fB#window\.mainbox\.inputbar\.case\-indicator\fR: The case/sort indicator @textbox
+.
+.IP "\(bu" 4
+\fB#window\.mainbox\.inputbar\.prompt\fR: The prompt @textbox
+.
+.IP "\(bu" 4
+\fB#window\.mainbox\.inputbar\.entry\fR: The main entry @textbox
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+.
+.IP "\(bu" 4
+\fB#window\.mainbox\.listview\.box\fR: The listview container\.
+.
+.IP "\(bu" 4
+\fB#window\.mainbox\.listview\.scrollbar\fR: The listview scrollbar
+.
+.IP "\(bu" 4
+\fB#window\.mainbox\.listview\.element\fR: The entries in the listview
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+.
+.IP "\(bu" 4
+\fB#window\.mainbox\.sidebar\.box\fR: The main horizontal @box packing the buttons\.
+.
+.IP "\(bu" 4
+\fB#window\.mainbox\.sidebar\.button\fR: The buttons @textbox for each mode\.
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+.
+.IP "\(bu" 4
+\fB#window\.mainbox\.message\.textbox\fR: The message textbox\.
+.
+.IP "\(bu" 4
+\fB#window\.mainbox\.message\.box\fR: The box containing the message\.
+.
+.IP "" 0
+
+.
+.IP "" 0
+
+.
+.IP "" 0
+
+.
+.IP "" 0
+.
+.SH "State"
+State: State of widget
+.
+.P
+Optional flag(s) indicating state of the widget, used for theming\.
+.
+.P
+These are appended after the name or class of the widget\.
+.
+.SS "Example:"
+\fB#window\.mainbox\.sidebar\.button selected\.normal { }\fR
+.
+.P
+\fB#window\.mainbox\.listview\.element selected\.urgent { }\fR
+.
+.P
+Currently only the entrybox and scrollbar have states:
+.
+.SS "Entrybox:"
+\fB{visible modifier}\.{state}\fR
+.
+.P
+Where \fBvisible modifier\fR can be: * normal: No modification\. * selected: The entry is selected/highlighted by user\. * alternate: The entry is at an alternating row\. (uneven row)
+.
+.P
+Where \fBstate\fR is: * normal: No modification\. * urgent: This entry is marked urgent\. * active: This entry is marked active\.
+.
+.P
+These can be mixed\.
+.
+.P
+Example:
+.
+.IP "" 4
+.
+.nf
+
+#name\.to\.textbox selected\.active {
+    background: #003642;
+    foreground: #008ed4;
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Sets all selected textboxes marked active to the given foreground and background color\.
+.
+.SS "Scrollbar"
+The scrollbar uses the \fBhandle\fR state when drawing the small scrollbar handle\. This allows the colors used for drawing the handle to be set independently\.
+.
+.SH "SUPPORTED PROPERTIES"
+The following properties are currently supports:
+.
+.SS "all widgets:"
+.
+.IP "\(bu" 4
+\fBpadding\fR: padding Padding on the inside of the widget\.
+.
+.IP "\(bu" 4
+\fBmargin\fR: padding Margin on the outside of the widget\.
+.
+.IP "\(bu" 4
+\fBborder\fR: border Border around the widget (between padding and margin)/
+.
+.IP "\(bu" 4
+\fBborder\-radius\fR: padding Sets a radius on the corners of the borders\.
+.
+.IP "\(bu" 4
+\fBbackground\fR: color Background color\.
+.
+.IP "\(bu" 4
+\fBforeground\fR: color Foreground color\.
+.
+.IP "\(bu" 4
+\fBindex\fR: integer (This one does not inherits it value from the parent widget)
+.
+.IP "" 0
+.
+.SS "window:"
+.
+.IP "\(bu" 4
+\fBfont\fR: string The font used in the window\.
+.
+.IP "\(bu" 4
+\fBtransparency\fR: string Indicating if transparency should be used and what type: \fBreal\fR \- True transparency\. Only works with a compositor\. \fBbackground\fR \- Take a screenshot of the background image and use that\. \fBscreenshot\fR \- Take a screenshot of the screen and use that\. \fBPath\fR to png file \- Use an image\.
+.
+.IP "\(bu" 4
+\fBposition\fR: position The place of the anchor on the monitor\.
+.
+.IP "\(bu" 4
+\fBanchor\fR: anchor The anchor position on the window\.
+.
+.IP "\(bu" 4
+\fBfullscreen\fR: boolean Window is fullscreen\.
+.
+.IP "\(bu" 4
+\fBwidth\fR: distance The width of the window\.
+.
+.IP "\(bu" 4
+\fBx\-offset\fR: distance
+.
+.IP "\(bu" 4
+\fBy\-offset\fR: distance The offset of the window to the anchor point\. Allowing you to push the window left/right/up/down\.
+.
+.IP "" 0
+.
+.SS "scrollbar:"
+.
+.IP "\(bu" 4
+\fBforeground\fR: color
+.
+.IP "\(bu" 4
+\fBhandle\-width\fR: distance
+.
+.IP "\(bu" 4
+\fBhandle\-color\fR: color
+.
+.IP "\(bu" 4
+\fBforeground\fR: color
+.
+.IP "" 0
+.
+.SS "box:"
+.
+.IP "\(bu" 4
+\fBspacing\fR: distance Distance between the packed elements\.
+.
+.IP "" 0
+.
+.SS "textbox:"
+.
+.IP "\(bu" 4
+\fBbackground\fR: color
+.
+.IP "\(bu" 4
+\fBforeground\fR: color
+.
+.IP "\(bu" 4
+\fBtext\fR: The text color to use (falls back to foreground if not set)
+.
+.IP "\(bu" 4
+\fBhighlight\fR: highlight {color} Color is optional, multiple highlight styles can be added like: bold underlinei italic #000000;
+.
+.IP "" 0
+.
+.SS "listview:"
+.
+.IP "\(bu" 4
+\fBcolumns\fR: integer Number of columns to show (atleast 1)\.
+.
+.IP "\(bu" 4
+\fBfixed\-height\fR: boolean Always show \fBlines\fR rows, even if less elements are available\.
+.
+.IP "\(bu" 4
+\fBdynamic\fR: boolean If the size should changed when filtering the list, or if it should keep the original height\.
+.
+.IP "\(bu" 4
+\fBscrollbar\fR: boolean If the scrollbar should be enabled/disabled\.
+.
+.IP "\(bu" 4
+\fBscrollbar\-width\fR: distance Width of the scrollbar
+.
+.IP "\(bu" 4
+\fBcycle\fR: boolean When navigating it should wrap around\.
+.
+.IP "\(bu" 4
+\fBspacing\fR: distance Spacing between the elements (both vertical and horizontal)
+.
+.IP "\(bu" 4
+\fBlines\fR: integer Number of rows to show in the list view\.
+.
+.IP "" 0
 

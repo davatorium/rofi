@@ -17,7 +17,7 @@ This file is split up into 3 sections:
 
 ### Encoding
 
-The encoding of the file is ascii.  Both unix (`\n`) and windows (`\r\n`)
+The encoding of the file is utf-8.  Both unix (`\n`) and windows (`\r\n`)
 newlines format are supported. But unix is preferred.
 
 ### Comments
@@ -62,7 +62,7 @@ name
 ### File extension
 
 The preferred file extension for the new theme format is **rasi**. This is an
-abbreviation for **r**ofi **a**advanced **s**tyle **i**nformation.
+abbreviation for **r**ofi **a**dvanced **s**tyle **i**nformation.
 
 ### Basic Structure
 
