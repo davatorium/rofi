@@ -299,6 +299,23 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     print_options ();
     printf ( "\n" );
     x11_dump_monitor_layout ();
+    printf("\n");
+    printf("Detected modi:\n");
+    for ( unsigned int i = 0; i < num_available_modi; i++ ) {
+        gboolean active = FALSE;
+        for ( unsigned int j = 0; j < num_modi; j++ ) {
+            if ( modi[j] == available_modi[i] ) {
+                active = TRUE;
+                break;
+            }
+        }
+        fprintf ( stderr, "        * %s%s%s%s\n",
+                active?"+":"" ,
+                is_term ? (active?color_green:color_red) : "",
+                  available_modi[i]->name,
+                  is_term ? color_reset : ""
+                   );
+    }
     printf ( "\n" );
     printf ( "Compile time options:\n" );
 #ifdef WINDOW_MODE
