@@ -1,6 +1,6 @@
 
 sudo: required
-dist: xenial 
+dist: trusty
 language: c
 env:
   global:
@@ -44,6 +44,7 @@ compiler:
     - gcc
 
 before_install:
+    - sudo add-apt-repository -y 'deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse'
     - sudo add-apt-repository -y 'deb http://debian.jpleau.ca/ jessie-backports main contrib non-free'
     - sudo apt-get update -qq
     - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
@@ -52,7 +53,7 @@ before_install:
 # TODO: We install xkbcommon here, until Travis use an up-to-date enough Ubuntu
 # TODO: We install libxcb-ewmh-dev here, until it is whitelisted again in Travis
 install:
-    - sudo apt-get install -y --force-yes libxkbcommon-dev libxkbcommon-x11-dev libxcb-ewmh-dev
+    - sudo apt-get install -y --force-yes libxkbcommon-dev libxkbcommon-x11-dev libxcb-ewmh-dev flex/trusty-backports
 
 before_script:
     - git clone --recursive https://github.com/Airblader/xcb-util-xrm.git
