@@ -6,11 +6,16 @@ AC_CONFIG_HEADER([config.h])
 dnl ---------------------------------------------------------------------
 dnl Lex & Bison language parser.
 dnl ---------------------------------------------------------------------
-AC_PROG_LEX
+AC_PROG_LEX([flex])
 AC_PROG_YACC
 
-AS_IF([test "x${LEX}" != "xflex" ], [AC_MSG_ERROR( "Failed to find flex")])
 AS_IF([test "x${YACC}" != "xbison -y" ], [AC_MSG_ERROR( "Failed to find bison")])
+
+m4_include([m4/ax_prog_flex_version.m4])
+m4_include([m4/ax_compare_version.m4])
+AC_SUBST([FLEX], [${LEX}])
+AX_PROG_FLEX_VERSION([2.5.39],,AC_MSG_ERROR("Require flex version 2.5.39 or higher"))
+#
 
 dnl ---------------------------------------------------------------------
 dnl Setup automake to be silent and in foreign mode.
