@@ -595,7 +595,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
         return g_markup_escape_text ( dr->name, -1 );
     }
     else {
-        return g_markup_printf_escaped ( "%s <span weight='light' size='small'><i>(%s)</i></span>", dr->name,
+        return g_markup_printf_escaped ( "\t%s <span weight='light' size='small'><i>(%s)</i></span>", dr->name,
                                          dr->generic_name );
     }
 }

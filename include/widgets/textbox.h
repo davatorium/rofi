@@ -34,6 +34,7 @@ typedef struct
     int              changed;
 
     cairo_surface_t *icon;  // AA TODO - pass in icons for a textbox line if needed
+    int              icon_index;
 
     int              blink;
     guint            blink_timeout;
@@ -258,6 +259,14 @@ void textbox_set_pango_context ( const char *font, PangoContext *p );
  * Sets list as active pango attributes.
  */
 void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list );
+
+/**
+ * @param tb Handle to the textbox
+ * @param index character index to draw the icon at. -1 for no icon
+ *
+ * Sets the character index where the icon should be drawn
+ */
+void textbox_set_icon_index ( textbox *tb, int index);
 
 /**
  * @param tb Handle to the textbox

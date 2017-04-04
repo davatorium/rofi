@@ -163,6 +163,8 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
         tb->blink_timeout = g_timeout_add ( 1200, textbox_blink, tb );
     }
 
+    tb->icon_index = -1; //Don't draw the icon by default
+
     // Enabled by default
     tb->widget.enabled = TRUE;
     return tb;
@@ -242,6 +244,12 @@ PangoAttrList *textbox_get_pango_attributes ( textbox *tb )
 void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list )
 {
     pango_layout_set_attributes ( tb->layout, list );
+}
+
+void textbox_set_icon_index ( textbox *tb, int index)
+{
+    tb->icon_index = index;
+    widget_queue_redraw ( WIDGET ( tb ) );
 }
 
 // set the default text to display
@@ -356,15 +364,19 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     int top = widget_padding_get_top ( WIDGET ( tb ) );
     int y = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
-    // Icon
+    // draw Icon
     int iconheight = textbox_get_font_height ( tb );
-    if ( tb->icon != NULL ) {
+    int translatex = (textbox_get_estimated_char_height() * tb->icon_index / 2);
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "AA DEBUG textbox_draw() tb->text = %s - tb->icon_index = %d - tb_get_est_char_height = %f - translatex = %d", tb->text, tb->icon_index, textbox_get_estimated_char_height(), translatex);
+    if ( tb->icon != NULL &&  tb->icon_index != -1) {
         cairo_save(draw);
 
         /*int iconw = cairo_image_surface_get_width (tb->icon);*/
         int iconh = cairo_image_surface_get_height (tb->icon);
         double scale = (double)iconheight / iconh;
 
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "AA DEBUG textbox_draw() scale = %f", scale);
+        cairo_translate(draw, translatex, 0);
         cairo_scale(draw, scale, scale);
         //AA TODO - Draw this just before the app name on the x axis
         cairo_set_source_surface(draw, tb->icon, x, y);
@@ -410,11 +422,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     // Set ARGB
     // We need to set over, otherwise subpixel hinting wont work.
     cairo_set_operator ( draw, CAIRO_OPERATOR_OVER );
-    if ( tb->icon != NULL ) { //AA TODO - draw the icon between the mode name and entry name
-        cairo_move_to ( draw, x + iconheight, top );
-    } else {
-        cairo_move_to ( draw, x, top );
-    }
+    cairo_move_to ( draw, x, top );
     pango_cairo_show_layout ( draw, tb->layout );
 
     if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED ) ) ) {

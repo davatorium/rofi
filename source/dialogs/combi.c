@@ -207,6 +207,8 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
             char       * str  = mode_get_display_value ( pd->switchers[i].mode, selected_line - pd->starts[i], state, attr_list, TRUE );
             const char *dname = mode_get_display_name ( pd->switchers[i].mode );
             char       * retv = g_strdup_printf ( "%s %s", dname, str );
+            /*char       * retv = g_strdup_printf ( "%s    %s", dname, str );*/
+            /*char       * retv = g_strdup_printf ( "%s \t  %s", dname, str );*/
             g_free ( str );
 
             if ( attr_list != NULL ) {
@@ -296,6 +298,7 @@ Mode combi_mode =
     ._get_completion    = combi_get_completion,
     ._get_display_value = combi_mgrv,
     ._get_icon          = combi_get_icon,
+    /*._get_icon_index    = combi_get_icon_index, //AA TODO - Do we need this function?*/
     ._preprocess_input  = combi_preprocess_input,
     .private_data       = NULL,
     .free               = NULL
