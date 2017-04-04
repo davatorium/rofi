@@ -280,6 +280,7 @@ void yyerror ( YYLTYPE *yylloc, const char *what, const char* s )
         g_string_append_printf ( str, "\tLocation:     line %d column %d to line %d column %d\n", yylloc->first_line, yylloc->first_column, yylloc->last_line, yylloc->last_column );
     }
     rofi_add_error_message ( str );
+    g_log ( "Parser", G_LOG_LEVEL_DEBUG, "Failed to parse theme:\n%s", str->str );
 }
 
 static gboolean rofi_theme_steal_property_int ( gpointer key, gpointer value, gpointer user_data )

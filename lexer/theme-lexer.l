@@ -574,6 +574,7 @@ gboolean rofi_theme_parse_file ( const char *file )
     g_list_foreach ( imported_files, (GFunc)g_free, NULL);
     g_list_free ( imported_files );
     g_queue_free ( file_queue );
+    imported_files = NULL;
     file_queue = NULL;
     if ( parser_retv != 0 ) {
         return TRUE;
@@ -600,6 +601,7 @@ gboolean rofi_theme_parse_string ( const char *string )
     // Free up.
     g_list_foreach ( imported_files, (GFunc)g_free, NULL);
     g_list_free ( imported_files );
+    imported_files = NULL;
     g_queue_free ( file_queue );
     file_queue = NULL;
     if ( parser_retv != 0 ) {
