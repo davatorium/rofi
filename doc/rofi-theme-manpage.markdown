@@ -73,7 +73,7 @@ Each element has a section with defined properties. Properties can be inherited
 to sub-sections. Global properties can be defined in section `* { }`.
 Sub-section names begin with a hash symbol `#`.
 
-It is advised to define the *global properties section* on top of the file to 
+It is advised to define the *global properties section* on top of the file to
 make inheritance of properties clearer.
 
 ```
@@ -530,3 +530,41 @@ The following properties are currently supports:
     Spacing between the elements (both vertical and horizontal)
 * **lines**:           integer
     Number of rows to show in the list view.
+
+## DEBUGGING
+
+To get debug information from the parser run rofi like:
+
+```
+G_MESSAGES_DEBUG=Parser rofi -show run
+```
+
+Syntax errors are shown in a popup and printed out to commandline with the above command.
+
+To see the elements queried during running, run:
+
+```
+G_MESSAGES_DEBUG=Theme rofi -show run
+```
+
+To test minor changes, part of the theme can be passed on the commandline, for example to set it fullscreen:
+
+```
+rofi -theme-str '#window { fullscreen:true;}' -show run
+```
+
+To print the current theme run:
+
+```
+rofi -dump-theme
+```
+
+## EXAMPLES
+
+Several examples are installed together with **rofi**. These can be found in `{prefix}/share/rofi/themes/` where
+`{prefix}` is the install path of **rofi**. When installed using a package manager this usually: `/usr/`. 
+
+## SEE ALSO
+
+rofi(1)
+

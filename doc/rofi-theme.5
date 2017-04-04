@@ -849,4 +849,64 @@ The following properties are currently supports:
 \fBlines\fR: integer Number of rows to show in the list view\.
 .
 .IP "" 0
+.
+.SH "DEBUGGING"
+To get debug information from the parser run rofi like:
+.
+.IP "" 4
+.
+.nf
 
+G_MESSAGES_DEBUG=Parser rofi \-show run
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Syntax errors are shown in a popup and printed out to commandline with the above command\.
+.
+.P
+To see the elements queried during running, run:
+.
+.IP "" 4
+.
+.nf
+
+G_MESSAGES_DEBUG=Theme rofi \-show run
+.
+.fi
+.
+.IP "" 0
+.
+.P
+To test minor changes, part of the theme can be passed on the commandline, for example to set it fullscreen:
+.
+.IP "" 4
+.
+.nf
+
+rofi \-theme\-str \'#window { fullscreen:true;}\' \-show run
+.
+.fi
+.
+.IP "" 0
+.
+.P
+To print the current theme run:
+.
+.IP "" 4
+.
+.nf
+
+rofi \-dump\-theme
+.
+.fi
+.
+.IP "" 0
+.
+.SH "EXAMPLES"
+Several examples are installed together with \fBrofi\fR\. These can be found in \fB{prefix}/share/rofi/themes/\fR where \fB{prefix}\fR is the install path of \fBrofi\fR\. When installed using a package manager this usually: \fB/usr/\fR\.
+.
+.SH "SEE ALSO"
+rofi(1)
