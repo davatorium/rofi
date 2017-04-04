@@ -9,6 +9,7 @@
 #include "rofi.h"
 #include "settings.h"
 #include "theme.h"
+#include "widgets/widget-internal.h"
 
 static int       test = 0;
 struct xcb_stuff *xcb;
@@ -47,10 +48,10 @@ int show_error_message ( const char *msg, int markup )
 void rofi_view_get_current_monitor ( int *width, int *height )
 {
     if ( width ) {
-        *width = 1920; 
+        *width = 1920;
     }
     if ( height ) {
-        *height = 1080; 
+        *height = 1080;
     }
 }
 double textbox_get_estimated_char_height ( void )
@@ -91,4 +92,83 @@ int main ( int argc, char ** argv )
     rofi_theme_free ( rofi_theme );
     rofi_theme = NULL;
     error = FALSE;
+    // C++ style comments with nesting.
+    rofi_theme_parse_string ( "// Random comments // /*test */");
+    TASSERT ( rofi_theme != NULL );
+    rofi_theme_free ( rofi_theme );
+    rofi_theme = NULL;
+    rofi_theme_parse_string ( "/* test /* aap */ */");
+    TASSERT ( rofi_theme != NULL );
+    rofi_theme_free ( rofi_theme );
+    rofi_theme = NULL;
+    // C++ comments multiple lines.
+    rofi_theme_parse_string ( "// Random comments\n// /*test */");
+    TASSERT ( rofi_theme != NULL );
+    rofi_theme_free ( rofi_theme );
+    rofi_theme = NULL;
+    rofi_theme_parse_string ( "/* test \n*\n*/* aap */ */");
+    TASSERT ( rofi_theme != NULL );
+    rofi_theme_free ( rofi_theme );
+    rofi_theme = NULL;
+
+
+    widget wid;
+    wid.name = "blaat";
+    /** Boolean property */
+    rofi_theme_parse_string ( "*{ test: true; test2:/* inline */false; }");
+    TASSERT ( rofi_theme_get_boolean ( &wid, "test", FALSE) == TRUE );
+    TASSERT ( rofi_theme_get_boolean ( &wid, "test2", TRUE) == FALSE );
+    TASSERT ( rofi_theme != NULL );
+    rofi_theme_free ( rofi_theme );
+    rofi_theme = NULL;
+
+    /** reference. */
+    error = 0;
+    rofi_theme_parse_string ( "* { test: true; test2:/* inline */false;} *{ a:@test; b:@test2;}");
+    TASSERT ( error == 0 );
+    TASSERT ( rofi_theme_get_boolean ( &wid, "test", FALSE) == TRUE );
+    TASSERT ( rofi_theme_get_boolean ( &wid, "b", TRUE) == FALSE );
+    TASSERT ( rofi_theme != NULL );
+    rofi_theme_free ( rofi_theme );
+    rofi_theme = NULL;
+    {
+        error = 0;
+        rofi_theme_parse_string ( "* { test: 10em;}");
+        TASSERT ( error == 0 );
+        Distance d = (Distance){ 1, PW_PX, SOLID};
+        Padding pi = (Padding){d,d,d,d};
+        Padding p = rofi_theme_get_padding ( &wid, "test", pi);
+        TASSERT (  p.left.distance == 10 );
+        TASSERT (  p.left.type == PW_EM );
+        TASSERT ( rofi_theme != NULL );
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
+
+    {
+        error = 0;
+        rofi_theme_parse_string ( "* { test: 10px;}");
+        TASSERT ( error == 0 );
+        Distance d = (Distance){ 1, PW_PX, SOLID};
+        Padding pi = (Padding){d,d,d,d};
+        Padding p = rofi_theme_get_padding ( &wid, "test", pi);
+        TASSERT (  p.left.distance == 10 );
+        TASSERT (  p.left.type == PW_PX );
+        TASSERT ( rofi_theme != NULL );
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
+    {
+        error = 0;
+        rofi_theme_parse_string ( "* { test: 10%;}");
+        TASSERT ( error == 0 );
+        Distance d = (Distance){ 1, PW_PX, SOLID};
+        Padding pi = (Padding){d,d,d,d};
+        Padding p = rofi_theme_get_padding ( &wid, "test", pi);
+        TASSERT (  p.left.distance == 10 );
+        TASSERT (  p.left.type == PW_PERCENT );
+        TASSERT ( rofi_theme != NULL );
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
 }

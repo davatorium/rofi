@@ -351,7 +351,7 @@ static void rofi_theme_resolve_link_property ( Property *p, int depth )
         return;
     }
 
-    if ( g_hash_table_contains ( rofi_theme->properties, name ) ) {
+    if ( rofi_theme->properties && g_hash_table_contains ( rofi_theme->properties, name ) ) {
         Property *pr = g_hash_table_lookup ( rofi_theme->properties, name );
         if ( pr->type == P_LINK ) {
             if ( pr->value.link.ref == NULL ) {
