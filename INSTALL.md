@@ -14,7 +14,7 @@ Rofi uses autotools (GNU Build system), for more information see
 * autoconf
 * automake (1.11.3 or up)
 * pkg-config
-* flex
+* flex 2.5.39 or higher
 * bison
 * Developer packages of the external libraries
 
