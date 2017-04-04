@@ -114,6 +114,7 @@ int main ( int argc, char ** argv )
 
     widget wid;
     wid.name = "blaat";
+    wid.state = NULL;
     /** Boolean property */
     rofi_theme_parse_string ( "*{ test: true; test2:/* inline */false; }");
     TASSERT ( rofi_theme_get_boolean ( &wid, "test", FALSE) == TRUE );
