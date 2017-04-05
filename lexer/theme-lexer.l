@@ -1,4 +1,5 @@
-%option noyywrap
+%option nodefault noyywrap
+%option nostdinit
 %option nounput
 %option never-interactive
 %option bison-locations
@@ -59,7 +60,7 @@ static char * rofi_theme_parse_prepare_file ( const char *file, const char *pare
 #define YY_INPUT(buf,result,max_size) \
 {\
     if ( current == NULL ) {\
-        result = YY_NULL;\
+        result = 0;\
     } else {\
         switch ( current->type ) { \
             case PT_FILE:\
@@ -86,8 +87,8 @@ static char * rofi_theme_parse_prepare_file ( const char *file, const char *pare
                     current->str_len-=len;\
                     result = len;\
                 } else {\
-                    result = YY_NULL;\
-                } \
+                    result = 0;\
+                }\
             }\
         }\
     }\
@@ -171,14 +172,15 @@ if ( queue == NULL ){
    */
 
 <*>"//"            {
-    int c;
-    while ((c = input()) != 0){
+    int c = input();
+    while ( c != 0 && c != EOF){
         if (c == '\n') {
             yylloc->last_column = 1;
             yylloc->last_line ++;
             break;
         }
         yylloc->last_column++;
+        c = input();
     }
     YY_LLOC_START
 }
@@ -197,6 +199,7 @@ if ( queue == NULL ){
             break;
         }
         case 0: nesting_depth = 0; break;
+        case EOF: nesting_depth = 0; break;
         default:
             yylloc->last_column++;
         ;
