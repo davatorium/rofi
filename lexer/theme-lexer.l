@@ -315,8 +315,8 @@ if ( queue == NULL ){
 <SECTION>":"               { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return PSEP; }
 <PROPERTIES>";"                  { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return PCLOSE;}
 <PROPERTIES>(true|false)         { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
-<PROPERTIES>{PNNUMBER}+            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
-<PROPERTIES>{PNNUMBER}+\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
+<PROPERTIES>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
+<PROPERTIES>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
 <PROPERTIES>\"{STRING}\"         { yytext[yyleng-1] = '\0'; yylval->sval = g_strdup(&yytext[1]); return T_STRING;}
 <PROPERTIES>@{WORD}              {
     yylval->sval = g_strdup(yytext);
@@ -335,25 +335,25 @@ if ( queue == NULL ){
     yylval->distance.style    = SOLID;
     return T_PIXEL;
 }
-<PROPERTIES>{PNNUMBER}+{PX}{WHITESPACE}{LS_DASH} {
+<PROPERTIES>{PNNUMBER}{PX}{WHITESPACE}{LS_DASH} {
     yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
     yylval->distance.type     = PW_PX;
     yylval->distance.style    = DASH;
     return T_PIXEL;
 }
-<PROPERTIES>{PNNUMBER}+{EM}{WHITESPACE}{LS_DASH} {
+<PROPERTIES>{REAL}{EM}{WHITESPACE}{LS_DASH} {
     yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
     yylval->distance.type     = PW_PX;
     yylval->distance.style    = DASH;
     return T_PIXEL;
 }
-<PROPERTIES>{PNNUMBER}+{PX}{WHITESPACE}{LS_SOLID} {
+<PROPERTIES>{PNNUMBER}{PX}{WHITESPACE}{LS_SOLID} {
     yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
     yylval->distance.type     = PW_PX;
     yylval->distance.style    = SOLID;
     return T_PIXEL;
 }
-<PROPERTIES>{PNNUMBER}+{EM}{WHITESPACE}{LS_SOLID} {
+<PROPERTIES>{REAL}{EM}{WHITESPACE}{LS_SOLID} {
     yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
     yylval->distance.type     = PW_PX;
     yylval->distance.style    = SOLID;
