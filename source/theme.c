@@ -238,7 +238,9 @@ static void rofi_theme_print_index ( ThemeWidget *widget )
 }
 void rofi_theme_print ( ThemeWidget *widget )
 {
-    rofi_theme_print_index ( widget );
+    if ( widget != NULL ) {
+        rofi_theme_print_index ( widget );
+    }
 }
 
 /**
@@ -382,7 +384,7 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
                     // Resolve link.
                     rofi_theme_resolve_link_property ( p, 0 );
                 }
-                if ( p->value.link.ref->type == type ) {
+                if ( p->value.link.ref != NULL && p->value.link.ref->type == type ) {
                     return p->value.link.ref;
                 }
             }
