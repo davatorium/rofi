@@ -615,7 +615,10 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line )
         //AA TODO - support svgs and any other common icon types
         if ( g_str_has_suffix ( dr->icon_path, ".png" ) ) {
             return cairo_image_surface_create_from_png(dr->icon_path);
+        } else if ( g_str_has_suffix ( dr->icon_path, ".svg" ) ) {
+            return cairo_image_surface_create_from_svg(dr->icon_path);
         } else {
+            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", dr->icon_path );
             return NULL;
         }
     }
