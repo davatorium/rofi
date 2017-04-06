@@ -573,6 +573,14 @@ gboolean rofi_theme_parse_file ( const char *file )
     yylex_destroy ();
     yyin = NULL;
 
+    while ( (po = g_queue_pop_head ( file_queue ) )) {
+        if ( po ) {
+            if ( po->type == PT_FILE ){
+                fclose ( po->filein );
+            }
+            g_free ( po );
+        }
+    }
     // Free up.
     g_list_foreach ( imported_files, (GFunc)g_free, NULL);
     g_list_free ( imported_files );
@@ -601,6 +609,14 @@ gboolean rofi_theme_parse_string ( const char *string )
     int parser_retv = yyparse ( string );
     yylex_destroy ();
 
+    while ( (po = g_queue_pop_head ( file_queue ) )) {
+        if ( po ) {
+            if ( po->type == PT_FILE ){
+                fclose ( po->filein );
+            }
+            g_free ( po );
+        }
+    }
     // Free up.
     g_list_foreach ( imported_files, (GFunc)g_free, NULL);
     g_list_free ( imported_files );

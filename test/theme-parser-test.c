@@ -86,6 +86,7 @@ int main ( int argc, char ** argv )
     TASSERT ( rofi_theme != NULL );
     rofi_theme_free ( rofi_theme );
     rofi_theme = NULL;
+
     rofi_theme_parse_string ( " Blaat ");
     TASSERT ( rofi_theme != NULL );
     TASSERT ( error == TRUE );
