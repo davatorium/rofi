@@ -52,11 +52,9 @@ cairo_surface_t * mode_get_icon ( const Mode *mode, unsigned int selected_line )
     g_assert ( mode != NULL );
 
     if ( mode->_get_icon != NULL ) {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "AA DEBUG mode_get_icon()  mode->_get_icon != NULL ");
         return mode->_get_icon ( mode, selected_line );
     }
     else {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "AA DEBUG mode_get_icon()  mode->_get_icon == NULL ");
         return NULL;
     }
 }

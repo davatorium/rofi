@@ -3,7 +3,6 @@
 #include <glib.h>
 #include <cairo.h>
 #include <librsvg/rsvg.h>
-#include <librsvg/rsvg-cairo.h>
 #include <xcb/xcb.h>
 #include <xkbcommon/xkbcommon.h>
 

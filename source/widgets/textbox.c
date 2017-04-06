@@ -285,12 +285,6 @@ void textbox_text ( textbox *tb, const char *text )
 void textbox_icon ( textbox *tb, cairo_surface_t *icon ) {
     tb->icon = icon;
 
-    if ( tb->icon != NULL ) {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "AA DEBUG textbox_icon() != NULL");
-    } else {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "AA DEBUG textbox_icon() == NULL");
-    }
-
     widget_queue_redraw ( WIDGET ( tb ) );
 }
 
@@ -367,7 +361,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     // draw Icon
     int iconheight = textbox_get_font_height ( tb );
     int translatex = (textbox_get_estimated_char_height() * tb->icon_index / 2);
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "AA DEBUG textbox_draw() tb->text = %s - tb->icon_index = %d - tb_get_est_char_height = %f - translatex = %d", tb->text, tb->icon_index, textbox_get_estimated_char_height(), translatex);
     if ( tb->icon != NULL &&  tb->icon_index != -1) {
         cairo_save(draw);
 
@@ -375,7 +368,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         int iconh = cairo_image_surface_get_height (tb->icon);
         double scale = (double)iconheight / iconh;
 
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "AA DEBUG textbox_draw() scale = %f", scale);
         cairo_translate(draw, translatex, 0);
         cairo_scale(draw, scale, scale);
         //AA TODO - Draw this just before the app name on the x axis
