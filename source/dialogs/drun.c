@@ -502,6 +502,7 @@ static void get_app_icons ( DRunModePrivateData *pd )
         walk_dir_for_icons ( pd, dir, dir );
         g_free ( dir );
     }
+    walk_dir_for_icons ( pd, "/usr/share/pixmaps", "/usr/share/pixmaps" );
     TICK_N ( "Get Desktop app icons (system dirs)" );
 }
 
@@ -592,7 +593,8 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     /* Free temp storage. */
     DRunModeEntry *dr = &( pd->entry_list[selected_line] );
     if ( dr->generic_name == NULL ) {
-        return g_markup_escape_text ( dr->name, -1 );
+        /*return g_markup_escape_text ( dr->name, -1 );*/
+        return g_markup_printf_escaped ( "\t%s", dr->name );
     }
     else {
         return g_markup_printf_escaped ( "\t%s <span weight='light' size='small'><i>(%s)</i></span>", dr->name,
@@ -612,14 +614,27 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line )
         return NULL;
     }
     else {
-        //AA TODO - support svgs and any other common icon types
+        cairo_surface_t *surface = NULL;
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Loading icon from %s", dr->icon_path );
         if ( g_str_has_suffix ( dr->icon_path, ".png" ) ) {
-            return cairo_image_surface_create_from_png(dr->icon_path);
+            surface = cairo_image_surface_create_from_png(dr->icon_path);
+            return surface;
         } else if ( g_str_has_suffix ( dr->icon_path, ".svg" ) ) {
-            return cairo_image_surface_create_from_svg(dr->icon_path);
+            surface = cairo_image_surface_create_from_svg(dr->icon_path);
+            return surface;
+        /*} else if ( g_str_has_suffix ( dr->icon_path, ".xpm" ) ) {*/
+            /*g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Loading icon from %s", dr->icon_path );*/
+            /*surface = cairo_image_surface_create_from_pixbuf(dr->icon_path);*/
+            /*if(surface == NULL) { g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "surface == NULL %s", dr->icon_path ); }*/
+            /*return surface;*/
         } else {
-            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", dr->icon_path );
-            return NULL;
+            surface = cairo_image_surface_create_from_pixbuf(dr->icon_path);
+            if(surface == NULL) {
+                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", dr->icon_path );
+                return NULL;
+            } else {
+                return surface;
+            }
         }
     }
 }
