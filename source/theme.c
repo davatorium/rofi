@@ -13,6 +13,29 @@
 /** Logging domain for theme */
 #define LOG_DOMAIN    "Theme"
 
+/**
+ * Name of the property type
+ */
+const char *PropertyTypeName[] = {
+    /** Integer */
+    "Integer",
+    /** Double */
+    "Double",
+    /** String */
+    "String",
+    /** Boolean */
+    "Boolean",
+    /** Color */
+    "Color",
+    /** Padding */
+    "Padding",
+    /** Link to global setting */
+    "Reference",
+    /** Position */
+    "Position",
+    /** Highlight */
+    "Highlight",
+};
 void yyerror ( YYLTYPE *ylloc, const char *, const char * );
 static gboolean distance_compare ( Distance d, Distance e )
 {
@@ -395,6 +418,11 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
             if ( p->type == P_INTEGER && type == P_PADDING ) {
                 return p;
             }
+            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found property: '%s' on '%s', but type %s does not match expected type %s.",
+                    property, widget->name,
+                    PropertyTypeName[p->type],
+                    PropertyTypeName[type]
+                    );
         }
         if ( exact ) {
             return NULL;

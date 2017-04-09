@@ -82,11 +82,11 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token <sval>     T_LINK
 %token <sval>     FIRST_NAME
 
-%token BOPEN        "bracket open"
-%token BCLOSE       "bracket close"
-%token PSEP         "property separator"
-%token PCLOSE       "property close"
-%token NSEP         "Name separator"
+%token BOPEN        "bracket open ('{')"
+%token BCLOSE       "bracket close ('}')"
+%token PSEP         "property separator (':')"
+%token PCLOSE       "property close (';')"
+%token NSEP         "Name separator (' ' or '.')"
 %token NAME_PREFIX  "Element section ('# {name} { ... }')"
 %token WHITESPACE   "White space"
 %token PDEFAULTS    "Default settings section ( '* { ... }')"
