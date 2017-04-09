@@ -4,6 +4,7 @@
 #include <cairo.h>
 #include <widgets/widget.h>
 #include <settings.h>
+#include "theme.h"
 
 /** Style of text highlight */
 typedef enum
@@ -376,13 +377,6 @@ int distance_get_pixel ( Distance d, Orientation ori );
  */
 void distance_get_linestyle ( Distance d, cairo_t *draw );
 
-#ifdef THEME_CONVERTER
-/**
- * Function to convert old theme into new theme format.
- */
-void rofi_theme_convert_old_theme ( void );
-#endif
-
 /**
  * Low-level functions.
  * These can be used by non-widgets to obtain values.
@@ -415,4 +409,11 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
  * @returns TRUE when empty.
  */
 gboolean rofi_theme_is_empty ( void );
+
+#ifdef THEME_CONVERTER
+/**
+ * Convert old theme colors into default one.
+ */
+void rofi_theme_convert_old ( void );
+#endif
 #endif

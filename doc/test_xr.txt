@@ -8,20 +8,8 @@ rofi.lines:                          8
 rofi.columns:                        1
 ! "Font to use" Set from: File
 rofi.font:                           Source Code Pro Medium 10
-! "Color scheme for normal row" Set from: File
-rofi.color-normal:                   argb:0000000, #a2b5df, argb:3affffff, #a2b5df, #02143f
-! "Color scheme for urgent row" Set from: File
-rofi.color-urgent:                   argb:0000000, #ff817f, argb:3affffff, #ff817f, #02143f
-! "Color scheme for active row" Set from: File
-rofi.color-active:                   argb:0000000, #6aa4ff, argb:3affffff, #6aa4ff, #02143f
-! "Color scheme window" Set from: File
-rofi.color-window:                   argb:ee02143f, #a2b5df, #a2b5df
-! "Border width" Set from: File
-rofi.bw:                             2
 ! "Location on screen" Set from: File
 rofi.location:                       2
-! "Padding" Set from: File
-rofi.padding:                        2
 ! "Y-offset relative to location" Set from: File
 rofi.yoffset:                        -2
 ! "X-offset relative to location" Set from: File
@@ -70,30 +58,16 @@ rofi.combi-modi:                     window,drun,run,ssh
 rofi.tokenize:                       true
 ! "Monitor id to show on" Set from: File
 rofi.m:                              -1
-! "Margin between rows" Set from: File
-rofi.line-margin:                    3
-! "Padding within rows" Set from: Default
-! rofi.line-padding:                   1
 ! "Pre-set filter" Set from: Default
 ! rofi.filter:                         
-! "Separator style (none, dash, solid)" Set from: File
-rofi.separator-style:                solid
-! "Hide scroll-bar" Set from: File
-rofi.hide-scrollbar:                 false
 ! "Fullscreen" Set from: File
 rofi.fullscreen:                     false
-! "Fake transparency" Set from: File
-rofi.fake-transparency:              false
 ! "DPI" Set from: File
 rofi.dpi:                            101
 ! "Threads to use for string matching" Set from: File
 rofi.threads:                        8
-! "Scrollbar width" Set from: File
-rofi.scrollbar-width:                8
 ! "Scrolling method. (0: Page, 1: Centered)" Set from: File
 rofi.scroll-method:                  0
-! "Background to use for fake transparency. (background or screenshot)" Set from: File
-rofi.fake-background:                screenshot
 ! "Window Format. w (desktop name), t (title), n (name), r (role), c (class)" Set from: File
 rofi.window-format:                  w   c   t
 ! "Click outside the window to exit" Set from: Default
@@ -102,6 +76,14 @@ rofi.window-format:                  w   c   t
 ! rofi.show-match:                     true
 ! "New style theme file" Set from: Default
 ! rofi.theme:                          
+! "Color scheme for normal row" Set from: Default
+! rofi.color-normal:                   
+! "Color scheme for urgent row" Set from: Default
+! rofi.color-urgent:                   
+! "Color scheme for active row" Set from: Default
+! rofi.color-active:                   
+! "Color scheme window" Set from: Default
+! rofi.color-window:                   
 ! "Pidfile location" Set from: File
 rofi.pid:                            /tmp/rofi.pid
 ! "Paste primary selection" Set from: File
@@ -145,13 +127,13 @@ rofi.kb-delete-entry:                Shift+Delete
 ! "Switch to the next mode." Set from: File
 rofi.kb-mode-next:                   Shift+Right,Control+Tab
 ! "Switch to the previous mode." Set from: File
-rofi.kb-mode-previous:               Shift+Left,Control+Shift+Tab
+rofi.kb-mode-previous:               Shift+Left,Control+ISO_Left_Tab
 ! "Go to the previous column" Set from: File
 rofi.kb-row-left:                    Control+Page_Up
 ! "Go to the next column" Set from: File
 rofi.kb-row-right:                   Control+Page_Down
 ! "Select previous entry" Set from: File
-rofi.kb-row-up:                      Up,Control+p,Shift+Tab
+rofi.kb-row-up:                      Up,Control+p,ISO_Left_Tab
 ! "Select next entry" Set from: File
 rofi.kb-row-down:                    Down,Control+n
 ! "Go to next row, if one left, accept it, if no left next mode." Set from: File

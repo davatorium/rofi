@@ -22,6 +22,10 @@ unsigned int normal_window_mode = 0;
 
 #include "view.h"
 
+void config_parse_set_property ( void *p )
+{
+}
+
 void rofi_add_error_message ( GString *msg)
 {
 }

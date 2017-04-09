@@ -394,7 +394,7 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->fixed_num_lines = rofi_theme_get_boolean  ( WIDGET ( lv ), "fixed-height", config.fixed_num_lines );
     lv->dynamic         = rofi_theme_get_boolean  ( WIDGET ( lv ), "dynamic", TRUE );
     lv->reverse         = rofi_theme_get_boolean  ( WIDGET ( lv ), "reverse", reverse );
-    listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( WIDGET ( lv ), "scrollbar", !config.hide_scrollbar ) );
+    listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( WIDGET ( lv ), "scrollbar", FALSE ) );
     lv->cycle = rofi_theme_get_boolean ( WIDGET ( lv ), "cycle", config.cycle );
 
     return lv;
@@ -433,6 +433,9 @@ static void listview_nav_down_int ( listview *lv )
 
 void listview_nav_up ( listview *lv )
 {
+    if ( lv == NULL ) {
+        return;
+    }
     if ( lv->reverse ) {
         listview_nav_down_int ( lv );
     }
@@ -442,6 +445,9 @@ void listview_nav_up ( listview *lv )
 }
 void listview_nav_down ( listview *lv )
 {
+    if ( lv == NULL ) {
+        return;
+    }
     if ( lv->reverse ) {
         listview_nav_up_int ( lv );
     }
@@ -514,6 +520,9 @@ static void listview_nav_page_next_int ( listview *lv )
 
 void listview_nav_page_prev ( listview *lv )
 {
+    if ( lv == NULL ) {
+        return;
+    }
     if ( lv->reverse ) {
         listview_nav_page_next_int ( lv );
     }
@@ -523,6 +532,9 @@ void listview_nav_page_prev ( listview *lv )
 }
 void listview_nav_page_next ( listview *lv )
 {
+    if ( lv == NULL ) {
+        return;
+    }
     if ( lv->reverse ) {
         listview_nav_page_prev_int ( lv );
     }

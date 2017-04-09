@@ -20,8 +20,7 @@ int mode_init ( Mode *mode )
 {
     g_return_val_if_fail ( mode != NULL, FALSE );
     g_return_val_if_fail ( mode->_init != NULL, FALSE );
-    mode->_init ( mode );
-    return TRUE;
+    return mode->_init ( mode );
 }
 
 void mode_destroy ( Mode *mode )

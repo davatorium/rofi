@@ -14,4 +14,4 @@ You can preview the theme using:
 rofi -theme new_theme.rasi -show run
 ```
 
-
+> Note: support for named colors has been dropped.

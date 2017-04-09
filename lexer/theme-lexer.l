@@ -1,4 +1,7 @@
-%option noyywrap nounput never-interactive
+%option nodefault noyywrap
+%option nostdinit
+%option nounput
+%option never-interactive
 %option bison-locations
 
 %{
@@ -35,7 +38,7 @@ typedef struct _ParseObject {
     char *filename;
 
     /** Length of string  */
-    size_t str_len;
+    int str_len;
     /** String */
     const char *input_str;
     /** Position in file */
@@ -57,7 +60,7 @@ static char * rofi_theme_parse_prepare_file ( const char *file, const char *pare
 #define YY_INPUT(buf,result,max_size) \
 {\
     if ( current == NULL ) {\
-        result = YY_NULL;\
+        result = 0;\
     } else {\
         switch ( current->type ) { \
             case PT_FILE:\
@@ -84,8 +87,8 @@ static char * rofi_theme_parse_prepare_file ( const char *file, const char *pare
                     current->str_len-=len;\
                     result = len;\
                 } else {\
-                    result = YY_NULL;\
-                } \
+                    result = 0;\
+                }\
             }\
         }\
     }\
@@ -100,9 +103,21 @@ static char * rofi_theme_parse_prepare_file ( const char *file, const char *pare
     yylloc->first_column = yylloc->last_column;\
 }
 %}
+
+ASC     [\x00-\x7f]
+ASCN    [\x00-\t\v-\x7f]
+U       [\x80-\xbf]
+U2      [\xc2-\xdf]
+U3      [\xe0-\xef]
+U4      [\xf0-\xf4]
+
+ // UANY    {ASC}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
+UANYN   {ASCN}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
+ // UONLY   {U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
+
 WHITESPACE [[:blank:]]
 WORD       [[:alnum:]-]+
-STRING     [[:print:]]+
+STRING     {UANYN}+
 HEX        [[:xdigit:]]
 NUMBER     [[:digit:]]
 PNNUMBER   [-+]?[[:digit:]]+
@@ -129,6 +144,8 @@ LS_SOLID   "solid"
 
 INCLUDE    "@import"
 
+CONFIGURATION "configuration"
+
 %x INCLUDE
 %x PROPERTIES
 %x NAMESTR
@@ -143,6 +160,9 @@ YY_LLOC_START
 if ( queue == NULL ){
     queue = g_queue_new ( );
     yylloc->filename = current->filename;
+    // unsure why todo this.
+    yylloc->first_line = yylloc->last_line = 1;
+    yylloc->first_column = yylloc->last_column = 1;
 }
 %}
 
@@ -152,14 +172,15 @@ if ( queue == NULL ){
    */
 
 <*>"//"            {
-    int c;
-    while ((c = input()) != 0){
+    int c = input();
+    while ( c != 0 && c != EOF){
         if (c == '\n') {
             yylloc->last_column = 1;
             yylloc->last_line ++;
             break;
         }
         yylloc->last_column++;
+        c = input();
     }
     YY_LLOC_START
 }
@@ -178,6 +199,7 @@ if ( queue == NULL ){
             break;
         }
         case 0: nesting_depth = 0; break;
+        case EOF: nesting_depth = 0; break;
         default:
             yylloc->last_column++;
         ;
@@ -245,6 +267,12 @@ if ( queue == NULL ){
     /**
      * Handle defaults:  * { ... }
      */
+<INITIAL>{CONFIGURATION} {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(DEFAULTS);
+    return CONFIGURATION;
+
+}
 <INITIAL>{ASTERIX} {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(DEFAULTS);
@@ -287,8 +315,8 @@ if ( queue == NULL ){
 <SECTION>":"               { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return PSEP; }
 <PROPERTIES>";"                  { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return PCLOSE;}
 <PROPERTIES>(true|false)         { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
-<PROPERTIES>{PNNUMBER}+            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
-<PROPERTIES>{PNNUMBER}+\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
+<PROPERTIES>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
+<PROPERTIES>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
 <PROPERTIES>\"{STRING}\"         { yytext[yyleng-1] = '\0'; yylval->sval = g_strdup(&yytext[1]); return T_STRING;}
 <PROPERTIES>@{WORD}              {
     yylval->sval = g_strdup(yytext);
@@ -307,25 +335,25 @@ if ( queue == NULL ){
     yylval->distance.style    = SOLID;
     return T_PIXEL;
 }
-<PROPERTIES>{PNNUMBER}+{PX}{WHITESPACE}{LS_DASH} {
+<PROPERTIES>{PNNUMBER}{PX}{WHITESPACE}{LS_DASH} {
     yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
     yylval->distance.type     = PW_PX;
     yylval->distance.style    = DASH;
     return T_PIXEL;
 }
-<PROPERTIES>{PNNUMBER}+{EM}{WHITESPACE}{LS_DASH} {
+<PROPERTIES>{REAL}{EM}{WHITESPACE}{LS_DASH} {
     yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
     yylval->distance.type     = PW_PX;
     yylval->distance.style    = DASH;
     return T_PIXEL;
 }
-<PROPERTIES>{PNNUMBER}+{PX}{WHITESPACE}{LS_SOLID} {
+<PROPERTIES>{PNNUMBER}{PX}{WHITESPACE}{LS_SOLID} {
     yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
     yylval->distance.type     = PW_PX;
     yylval->distance.style    = SOLID;
     return T_PIXEL;
 }
-<PROPERTIES>{PNNUMBER}+{EM}{WHITESPACE}{LS_SOLID} {
+<PROPERTIES>{REAL}{EM}{WHITESPACE}{LS_SOLID} {
     yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
     yylval->distance.type     = PW_PX;
     yylval->distance.style    = SOLID;
@@ -367,6 +395,15 @@ if ( queue == NULL ){
     yylval->colorval.blue  = val.b/255.0;
     return T_COLOR;
 }
+<PROPERTIES>#{HEX}{3}       {
+    union {  uint16_t val; struct { unsigned char b:4,g:4,r:4,a :4;};} val;
+    val.val = (uint16_t )g_ascii_strtoull ( &yytext[1], NULL, 16);
+    yylval->colorval.alpha = 1.0;
+    yylval->colorval.red   = val.r/16.0;
+    yylval->colorval.green = val.g/16.0;
+    yylval->colorval.blue  = val.b/16.0;
+    return T_COLOR;
+}
 <PROPERTIES>rgba\({NUMBER}{1,3},{NUMBER}{1,3},{NUMBER}{1,3},[01](\.{NUMBER}+)?\) {
     char *endptr = &yytext[5];
     yylval->colorval.red = g_ascii_strtoull ( endptr, &endptr, 10);
@@ -381,6 +418,15 @@ if ( queue == NULL ){
     yylval->colorval.green = g_ascii_strtoull ( endptr+1, &endptr, 10);
     yylval->colorval.blue  = g_ascii_strtoull ( endptr+1, &endptr, 10);
     yylval->colorval.alpha = 1.0;
+    return T_COLOR;
+}
+<PROPERTIES>argb:{HEX}{1,8}       {
+    union {  unsigned int val; struct { unsigned char b,g,r,a;};} val;
+    val.val = (unsigned int)strtoull ( &yytext[5], NULL, 16);
+    yylval->colorval.alpha = val.a/255.0;
+    yylval->colorval.red   = val.r/255.0;
+    yylval->colorval.green = val.g/255.0;
+    yylval->colorval.blue  = val.b/255.0;
     return T_COLOR;
 }
 
@@ -527,10 +573,19 @@ gboolean rofi_theme_parse_file ( const char *file )
     yylex_destroy ();
     yyin = NULL;
 
+    while ( (po = g_queue_pop_head ( file_queue ) )) {
+        if ( po ) {
+            if ( po->type == PT_FILE ){
+                fclose ( po->filein );
+            }
+            g_free ( po );
+        }
+    }
     // Free up.
     g_list_foreach ( imported_files, (GFunc)g_free, NULL);
     g_list_free ( imported_files );
     g_queue_free ( file_queue );
+    imported_files = NULL;
     file_queue = NULL;
     if ( parser_retv != 0 ) {
         return TRUE;
@@ -554,9 +609,18 @@ gboolean rofi_theme_parse_string ( const char *string )
     int parser_retv = yyparse ( string );
     yylex_destroy ();
 
+    while ( (po = g_queue_pop_head ( file_queue ) )) {
+        if ( po ) {
+            if ( po->type == PT_FILE ){
+                fclose ( po->filein );
+            }
+            g_free ( po );
+        }
+    }
     // Free up.
     g_list_foreach ( imported_files, (GFunc)g_free, NULL);
     g_list_free ( imported_files );
+    imported_files = NULL;
     g_queue_free ( file_queue );
     file_queue = NULL;
     if ( parser_retv != 0 ) {

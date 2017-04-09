@@ -20,6 +20,10 @@ BUILT_SOURCES=\
 			  lexer/theme-parser.c\
 			  lexer/theme-lexer.c
 
+$(top_builddir)/lexer/theme-lexer.c: $(top_srcdir)/lexer/theme-lexer.l
+
+$(top_builddir)/lexer/theme-parser.c $(top_builddir)/lexer/theme-parser.h: $(top_srcdir)/lexer/theme-parser.y
+
 rofiincludedir=${includedir}/rofi
 rofiinclude_HEADERS=\
 			include/mode.h\
@@ -78,6 +82,7 @@ SOURCES=\
 	include/timings.h\
 	include/history.h\
 	include/theme.h\
+	include/default-theme.h\
 	include/widgets/box.h\
 	include/widgets/container.h\
 	include/widgets/widget.h\
@@ -225,6 +230,7 @@ check_PROGRAMS=\
 			   helper_config_cmdline_parser\
 			   widget_test\
 			   box_test\
+			   theme_parser_test\
 			   scrollbar_test
 
 
@@ -357,6 +363,24 @@ textbox_test_SOURCES=\
 	include/helper-theme.h\
 	test/textbox-test.c
 
+theme_parser_test_SOURCES=\
+	config/config.c\
+	include/rofi.h\
+	include/mode.h\
+	include/mode-private.h\
+	source/helper.c\
+	include/helper.h\
+	include/helper-theme.h\
+	include/theme.h\
+	include/xrmoptions.h\
+	source/xrmoptions.c\
+	source/x11-helper.c\
+	lexer/theme-lexer.c\
+	lexer/theme-parser.c\
+	lexer/theme-parser.h\
+	source/theme.c\
+	test/theme-parser-test.c
+
 helper_test_SOURCES=\
 	config/config.c\
 	include/rofi.h\
@@ -369,6 +393,7 @@ helper_test_SOURCES=\
 	source/xrmoptions.c\
 	source/x11-helper.c\
 	test/helper-test.c
+
 
 helper_test_CFLAGS=\
 	$(AM_CFLAGS)\
@@ -387,6 +412,9 @@ helper_test_LDADD=\
 	$(GW_XCB_LIBS)\
 	$(libsn_LIBS)\
 	$(cairo_LIBS)
+
+theme_parser_test_CFLAGS=${helper_test_CFLAGS}
+theme_parser_test_LDADD=${helper_test_LDADD}
 
 helper_expand_SOURCES=\
 	config/config.c\
@@ -431,6 +459,7 @@ TESTS=\
 	textbox_test\
 	widget_test\
 	box_test\
+	theme_parser_test\
 	scrollbar_test
 
 .PHONY: test-x

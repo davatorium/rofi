@@ -37,6 +37,7 @@
 #include <cairo-xcb.h>
 
 #include <xcb/xcb.h>
+#include <xcb/xcb_aux.h>
 #include <xcb/randr.h>
 #include <xcb/xinerama.h>
 #include <xcb/xcb_ewmh.h>
@@ -859,73 +860,6 @@ void x11_create_visual_and_colormap ( void )
     }
 }
 
-Color color_get ( const char *const name )
-{
-    char *copy  = g_strdup ( name );
-    char *cname = g_strstrip ( copy );
-
-    union
-    {
-        struct
-        {
-            uint8_t b;
-            uint8_t g;
-            uint8_t r;
-            uint8_t a;
-        }        sep;
-        uint32_t pixel;
-    } color = {
-        .pixel = 0xffffffff,
-    };
-    // Special format.
-    if ( strncmp ( cname, "argb:", 5 ) == 0 ) {
-        color.pixel = strtoul ( &cname[5], NULL, 16 );
-    }
-    else if ( strncmp ( cname, "#", 1 ) == 0 ) {
-        unsigned long val    = strtoul ( &cname[1], NULL, 16 );
-        ssize_t       length = strlen ( &cname[1] );
-        switch ( length )
-        {
-        case 3:
-            color.sep.a = 0xff;
-            color.sep.r = 16 * ( ( val & 0xF00 ) >> 8 );
-            color.sep.g = 16 * ( ( val & 0x0F0 ) >> 4 );
-            color.sep.b = 16 * ( val & 0x00F );
-            break;
-        case 6:
-            color.pixel = val;
-            color.sep.a = 0xff;
-            break;
-        case 8:
-            color.pixel = val;
-            break;
-        default:
-            break;
-        }
-    }
-    else {
-        xcb_alloc_named_color_cookie_t cc = xcb_alloc_named_color ( xcb->connection,
-                                                                    map, strlen ( cname ), cname );
-        xcb_alloc_named_color_reply_t  *r = xcb_alloc_named_color_reply ( xcb->connection, cc, NULL );
-        if ( r ) {
-            color.sep.a = 0xFF;
-            color.sep.r = r->visual_red;
-            color.sep.g = r->visual_green;
-            color.sep.b = r->visual_blue;
-            free ( r );
-        }
-    }
-    g_free ( copy );
-
-    Color ret = {
-        .red   = color.sep.r / 255.0,
-        .green = color.sep.g / 255.0,
-        .blue  = color.sep.b / 255.0,
-        .alpha = color.sep.a / 255.0,
-    };
-    return ret;
-}
-
 xcb_window_t xcb_stuff_get_root_window ( xcb_stuff *xcb )
 {
     return xcb->screen->root;
@@ -944,8 +878,10 @@ void xcb_stuff_wipe ( xcb_stuff *xcb )
             xcb->sndisplay = NULL;
         }
         x11_monitors_free ();
-        xcb_disconnect ( xcb->connection );
         xcb_ewmh_connection_wipe ( &( xcb->ewmh ) );
+        xcb_flush ( xcb->connection );
+        xcb_aux_sync ( xcb->connection );
+        xcb_disconnect ( xcb->connection );
         xcb->connection = NULL;
         xcb->screen     = NULL;
         xcb->screen_nbr = 0;

@@ -199,28 +199,6 @@ extern xcb_colormap_t map;
 void x11_create_visual_and_colormap ( void );
 
 /**
- * Structure describing a cairo color.
- */
-typedef struct
-{
-    /** red channel */
-    double red;
-    /** green channel */
-    double green;
-    /** blue channel */
-    double blue;
-    /**  alpha channel */
-    double alpha;
-} Color;
-
-/**
- * @param name    String representing the color.
- *
- * Allocate a pixel value for an X named color
- */
-Color color_get ( const char *const name );
-
-/**
  * Gets a surface containing the background image of the desktop.
  *
  * @returns a cairo surface with the background image of the desktop.

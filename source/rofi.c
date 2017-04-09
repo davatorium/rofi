@@ -69,6 +69,8 @@
 
 #include "timings.h"
 
+#include "default-theme.h"
+
 // Plugin abi version.
 // TODO: move this check to mode.c
 #include "mode-private.h"
@@ -100,9 +102,14 @@ struct xkb_stuff xkb = {
 };
 
 /** Path to the configuration file */
-char         *config_path = NULL;
+char *config_path = NULL;
 /** Array holding all activated modi. */
-Mode         **modi = NULL;
+Mode **modi = NULL;
+
+/**  List of (possibly uninitialized) modi's */
+Mode         ** available_modi = NULL;
+/** Length of #num_available_modi */
+unsigned int num_available_modi = 0;
 /** Number of activated modi in #modi array */
 unsigned int num_modi = 0;
 /** Current selected mode */
@@ -190,8 +197,13 @@ static void run_switcher ( ModeMode mode )
     // Otherwise check if requested mode is enabled.
     for ( unsigned int i = 0; i < num_modi; i++ ) {
         if ( !mode_init ( modi[i] ) ) {
-            rofi_view_error_dialog ( ERROR_MSG ( "Failed to initialize all the modi." ), ERROR_MSG_MARKUP );
-            return;
+            GString *str = g_string_new ( "Failed to initialize the mode: " );
+            g_string_append ( str, modi[i]->name );
+            g_string_append ( str, "\n" );
+
+            rofi_view_error_dialog ( str->str, ERROR_MSG_MARKUP );
+            g_string_free ( str, FALSE );
+            break;
         }
     }
     // Error dialog must have been created.
@@ -287,6 +299,23 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     print_options ();
     printf ( "\n" );
     x11_dump_monitor_layout ();
+    printf("\n");
+    printf("Detected modi:\n");
+    for ( unsigned int i = 0; i < num_available_modi; i++ ) {
+        gboolean active = FALSE;
+        for ( unsigned int j = 0; j < num_modi; j++ ) {
+            if ( modi[j] == available_modi[i] ) {
+                active = TRUE;
+                break;
+            }
+        }
+        fprintf ( stderr, "        * %s%s%s%s\n",
+                active?"+":"" ,
+                is_term ? (active?color_green:color_red) : "",
+                  available_modi[i]->name,
+                  is_term ? color_reset : ""
+                   );
+    }
     printf ( "\n" );
     printf ( "Compile time options:\n" );
 #ifdef WINDOW_MODE
@@ -330,6 +359,56 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     else {
         printf ( "      Configuration file: %sDisabled%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
     }
+}
+
+static void help_print_disabled_mode ( const char *mode )
+{
+    int is_term = isatty ( fileno ( stdout ) );
+    // Only  output to terminal
+    if ( is_term ) {
+        fprintf ( stderr, "Mode %s%s%s is not enabled. I have enabled it for now.\n",
+                  color_red, mode, color_reset );
+        fprintf ( stderr, "Please consider adding %s%s%s to the list of enabled modi: %smodi: %s%s%s,%s%s.\n",
+                  color_red, mode, color_reset,
+                  color_green, config.modi, color_reset,
+                  color_red, mode, color_reset
+                  );
+    }
+}
+static void help_print_no_arguments ( void )
+{
+    int is_term = isatty ( fileno ( stdout ) );
+    // Daemon mode
+    fprintf ( stderr, "Rofi is unsure what to show.\n" );
+    fprintf ( stderr, "Please specify the mode you want to show.\n\n" );
+    fprintf ( stderr, "    %srofi%s -show %s{mode}%s\n\n",
+              is_term ? color_bold : "", is_term ? color_reset : "",
+              is_term ? color_green : "", is_term ? color_reset : "" );
+    fprintf ( stderr, "The following modi are enabled:\n" );
+    for ( unsigned int j = 0; j < num_modi; j++ ) {
+        fprintf ( stderr, " * %s%s%s\n",
+                  is_term ? color_green : "",
+                  modi[j]->name,
+                  is_term ? color_reset : "" );
+    }
+    fprintf ( stderr, "\nThe following can be enabled:\n" );
+    for  ( unsigned int i = 0; i < num_available_modi; i++ ) {
+        gboolean active = FALSE;
+        for ( unsigned int j = 0; j < num_modi; j++ ) {
+            if ( modi[j] == available_modi[i] ) {
+                active = TRUE;
+                break;
+            }
+        }
+        if ( !active ) {
+            fprintf ( stderr, " * %s%s%s\n",
+                      is_term ? color_red : "",
+                      available_modi[i]->name,
+                      is_term ? color_reset : "" );
+        }
+    }
+    fprintf ( stderr, "\nTo activate a mode, add it to the list of modi in the %smodi%s setting.",
+              is_term ? color_green : "", is_term ? color_reset : "" );
 }
 
 /**
@@ -405,10 +484,6 @@ static void cleanup ()
 /**
  * Collected modi
  */
-/**  List of (possibly uninitialized) modi's */
-Mode         ** available_modi = NULL;
-/** Length of #num_available_modi */
-unsigned int num_available_modi = 0;
 
 /**
  * @param name Search for mode with this name.
@@ -542,19 +617,18 @@ static int add_mode ( const char * token )
         Mode *sw = script_switcher_parse_setup ( token );
         if ( sw != NULL ) {
             modi[num_modi] = sw;
-            mode_set_config ( sw );
             num_modi++;
         }
         else {
             // Report error, don't continue.
-            fprintf ( stderr, "Invalid script switcher: %s\n", token );
+            fprintf ( stderr, "Invalid script mode: %s\n", token );
         }
     }
     return ( index == num_modi ) ? -1 : (int) index;
 }
 static void setup_modi ( void )
 {
-    const char *const sep     = ",";
+    const char *const sep     = ",#";
     char              *savept = NULL;
     // Make a copy, as strtok will modify it.
     char              *switcher_str = g_strdup ( config.modi );
@@ -564,36 +638,6 @@ static void setup_modi ( void )
     }
     // Free string that was modified by strtok_r
     g_free ( switcher_str );
-    rofi_collect_modi_setup ();
-}
-
-/**
- * Load configuration.
- * Following priority: (current), X, commandline arguments
- */
-static inline void load_configuration ( )
-{
-    // Load distro default settings
-    gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
-    if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
-        config_parse_xresource_options_file ( etc );
-    }
-    g_free ( etc );
-    // Load in config from X resources.
-    config_parse_xresource_options ( xcb );
-    config_parse_xresource_options_file ( config_path );
-}
-static inline void load_configuration_dynamic ( )
-{
-    // Load distro default settings
-    gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
-    if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
-        config_parse_xresource_options_dynamic_file ( etc );
-    }
-    g_free ( etc );
-    // Load in config from X resources.
-    config_parse_xresource_options_dynamic ( xcb );
-    config_parse_xresource_options_dynamic_file ( config_path );
 }
 
 /**
@@ -816,9 +860,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
             index = add_mode ( sname );
             // Complain
             if ( index >= 0 ) {
-                fprintf ( stdout, "Mode %s not enabled. Please add it to the list of enabled modi: %s\n",
-                          sname, config.modi );
-                fprintf ( stdout, "Adding mode: %s\n", sname );
+                help_print_disabled_mode ( sname );
             }
             // Run it anyway if found.
         }
@@ -826,7 +868,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
             run_switcher ( index );
         }
         else {
-            fprintf ( stderr, "The %s switcher has not been enabled\n", sname );
+            fprintf ( stderr, "The %s mode has not been enabled\n", sname );
             g_main_loop_quit ( main_loop );
             return G_SOURCE_REMOVE;
         }
@@ -835,9 +877,8 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         run_switcher ( 0 );
     }
     else{
-        // Daemon mode
-        fprintf ( stderr, "Rofi daemon mode is now removed.\n" );
-        fprintf ( stderr, "Please use your window manager binding functionality or xbindkeys to replace it.\n" );
+        help_print_no_arguments ( );
+
         g_main_loop_quit ( main_loop );
     }
 
@@ -938,6 +979,7 @@ int main ( int argc, char *argv[] )
 
     TICK_N ( "Open Display" );
     rofi_collect_modi ();
+    rofi_collect_modi_setup ();
     TICK_N ( "Collect MODI" );
 
     xcb->screen = xcb_aux_get_screen ( xcb->connection, xcb->screen_nbr );
@@ -1071,34 +1113,35 @@ int main ( int argc, char *argv[] )
     TICK_N ( "Setup abe" );
 
     if ( find_arg ( "-no-config" ) < 0 ) {
-        load_configuration ( );
+        // Load distro default settings
+        gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
+        if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
+            config_parse_xresource_options_file ( etc );
+        }
+        g_free ( etc );
+        // Load in config from X resources.
+        config_parse_xresource_options ( xcb );
+        config_parse_xresource_options_file ( config_path );
+
+        find_arg_str ( "-theme", &( config.theme ) );
+        if ( config.theme ) {
+            TICK_N ( "Parse theme" );
+            if ( rofi_theme_parse_file ( config.theme ) ) {
+                // TODO: instantiate fallback theme.?
+                rofi_theme_free ( rofi_theme );
+                rofi_theme = NULL;
+            }
+            TICK_N ( "Parsed theme" );
+        }
     }
     // Parse command line for settings, independent of other -no-config.
     config_parse_cmd_options ( );
+    TICK_N ( "Load cmd config " );
 
     if ( !dmenu_mode ) {
         // setup_modi
         setup_modi ();
         TICK_N ( "Setup Modi" );
-    }
-
-    if ( find_arg ( "-no-config" ) < 0 ) {
-        // Reload for dynamic part.
-        load_configuration_dynamic ( );
-        TICK_N ( "Load config dynamic" );
-    }
-    // Parse command line for settings, independent of other -no-config.
-    config_parse_cmd_options_dynamic (  );
-    TICK_N ( "Load cmd config dynamic" );
-
-    if ( config.theme ) {
-        TICK_N ( "Parse theme" );
-        if ( rofi_theme_parse_file ( config.theme ) ) {
-            // TODO: instantiate fallback theme.?
-            rofi_theme_free ( rofi_theme );
-            rofi_theme = NULL;
-        }
-        TICK_N ( "Parsed theme" );
     }
 
     const char ** theme_str = find_arg_strv ( "-theme-str" );
@@ -1112,7 +1155,20 @@ int main ( int argc, char *argv[] )
         g_free ( theme_str );
     }
     if ( rofi_theme_is_empty ( ) ) {
-        rofi_theme_convert_old_theme ( );
+        if ( rofi_theme_parse_string ( default_theme ) ) {
+            fprintf ( stderr, "Failed to parse default theme. Giving up..\n" );
+            if ( list_of_error_msgs ) {
+                for ( GList *iter = g_list_first ( list_of_error_msgs );
+                      iter != NULL; iter = g_list_next ( iter ) ) {
+                    fprintf ( stderr, "Error: %s%s%s\n",
+                              color_bold, ( (GString *) iter->data )->str, color_reset );
+                }
+            }
+            rofi_theme = NULL;
+            cleanup ();
+            return EXIT_FAILURE;
+        }
+        rofi_theme_convert_old ();
     }
 
     if ( find_arg ( "-dump-theme" ) >= 0 ) {
@@ -1132,12 +1188,6 @@ int main ( int argc, char *argv[] )
         cleanup ();
         return EXIT_SUCCESS;
     }
-    if ( find_arg (  "-dump-xresources-theme" ) >= 0 ) {
-        config_parse_xresources_theme_dump ();
-        cleanup ();
-        return EXIT_SUCCESS;
-    }
-
     main_loop_source = g_water_xcb_source_new_for_connection ( NULL, xcb->connection, main_loop_x11_event_handler, NULL, NULL );
 
     TICK_N ( "X11 Setup " );

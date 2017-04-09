@@ -678,6 +678,10 @@ char *rofi_expand_path ( const char *input )
 
 unsigned int levenshtein ( const char *needle, const glong needlelen, const char *haystack, const glong haystacklen )
 {
+    if ( needlelen  == G_MAXLONG ){
+        // String to long, we cannot handle this.
+        return UINT_MAX;
+    }
     unsigned int column[needlelen + 1];
     for ( glong y = 0; y <= needlelen; y++ ) {
         column[y] = y;

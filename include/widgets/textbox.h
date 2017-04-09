@@ -26,7 +26,6 @@ typedef struct
     widget           widget;
     unsigned long    flags;
     short            cursor;
-    Color            color_fg, color_bg;
     char             *text;
     PangoLayout      *layout;
     int              tbft;
