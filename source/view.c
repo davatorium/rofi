@@ -768,6 +768,21 @@ void __create_window ( MenuFlags menu_flags )
     TICK_N ( "setup startup notification" );
     widget_free ( WIDGET ( win ) );
     TICK_N ( "done" );
+
+    // Set the PID.
+    pid_t pid= getpid ();
+    xcb_ewmh_set_wm_pid (&(xcb->ewmh), CacheState.main_window, pid );
+
+    // Get hostname
+    const char *hostname = g_get_host_name ();
+    char *ahost = g_hostname_to_ascii ( hostname );
+    if ( ahost != NULL ) {
+        xcb_icccm_set_wm_client_machine(xcb->connection,
+                CacheState.main_window,
+                XCB_ATOM_STRING, 8,
+                strlen(ahost), ahost);
+        g_free(ahost);
+    }
 }
 
 /**
