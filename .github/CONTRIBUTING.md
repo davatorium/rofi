@@ -26,7 +26,7 @@ The issue tracker is not for:
 * Questions. 
 * Writing complaints.
 
-These topics belong on [FORUM](https://forum.qtools.org/), [IRC](https://webchat.freenode.net/?channels=#rofi),
+These topics belong on [FORUM](https://reddit.com/r/qtools//), [IRC](https://webchat.freenode.net/?channels=#rofi),
 frequently asked questions will be added to the [F.A.Q](https://github.com/DaveDavenport/rofi/wiki#faq) on the
 [wiki](https://github.com/DaveDavenport/rofi/wiki).
 
