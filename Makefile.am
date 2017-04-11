@@ -234,6 +234,7 @@ history_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(libsn_CFLAGS)\
+	$(cairo_CFLAGS)\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
@@ -259,6 +260,7 @@ textbox_test_CFLAGS=\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
+	$(librsvg_CFLAGS)\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
@@ -268,6 +270,7 @@ textbox_test_LDADD=\
 	$(pango_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(cairo_LIBS)\
+	$(librsvg_LIBS)\
 	$(libsn_LIBS)
 
 helper_pidfile_CFLAGS=$(textbox_test_CFLAGS)
@@ -397,6 +400,7 @@ helper_test_CFLAGS=\
 	$(pango_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
+	$(librsvg_CFLAGS)\
 	$(libsn_CFLAGS)\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
@@ -407,6 +411,7 @@ helper_test_LDADD=\
 	$(pango_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(libsn_LIBS)\
+	$(librsvg_LIBS)\
 	$(cairo_LIBS)
 
 theme_parser_test_CFLAGS=${helper_test_CFLAGS}
