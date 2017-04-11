@@ -463,7 +463,8 @@ int rofi_theme_get_integer ( const widget *widget, const char *property, int def
 }
 int rofi_theme_get_integer_exact ( const widget *widget, const char *property, int def )
 {
-    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, TRUE );
+    // State is note considered when doing exact match, only base name.
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, NULL, TRUE );
     Property    *p   = rofi_theme_find_property ( wid, P_INTEGER, property, TRUE );
     if ( p ) {
         return p->value.i;
