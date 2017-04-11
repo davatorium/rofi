@@ -152,7 +152,8 @@ cairo_surface_t* cairo_image_surface_create_from_svg (const gchar* file)
     rsvg_handle_render_cairo(handle, cr);
     cairo_destroy(cr);
 
-    //AA TODO: do I have to free/close handle?
+    rsvg_handle_close(handle, NULL);
+    g_object_unref(handle);
 
     return surface;
 }

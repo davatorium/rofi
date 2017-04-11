@@ -341,7 +341,10 @@ static void textbox_free ( widget *wid )
         g_object_unref ( tb->layout );
     }
 
+    cairo_surface_destroy ( tb->icon );
+
     g_slice_free ( textbox, tb );
+
 }
 
 static void textbox_draw ( widget *wid, cairo_t *draw )
@@ -370,7 +373,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
 
         cairo_translate(draw, translatex, 0);
         cairo_scale(draw, scale, scale);
-        //AA TODO - Draw this just before the app name on the x axis
         cairo_set_source_surface(draw, tb->icon, x, y);
         cairo_paint(draw);
         cairo_restore(draw);
