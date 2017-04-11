@@ -916,7 +916,7 @@ been released.
 ## SUPPORT
 
 **rofi** support can be obtained [here](irc://irc.freenode.net/#rofi) (#rofi on irc.freenode.net), or via the
-[forum](https://forum.qtools.org/)
+[forum](https://reddit.com/r/qtools//)
 
 ## DEBUGGING
 

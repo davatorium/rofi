@@ -5,7 +5,7 @@
 [![Stars](https://img.shields.io/github/stars/DaveDavenport/rofi.svg)](https://github.com/DaveDavenport/rofi/stargazers)
 [![Downloads](https://img.shields.io/github/downloads/DaveDavenport/rofi/total.svg)](https://github.com/DaveDavenport/rofi/releases)
 [![Coverity](https://scan.coverity.com/projects/3850/badge.svg)](https://scan.coverity.com/projects/davedavenport-rofi)
-[![Forum](https://img.shields.io/badge/forum-online-green.svg)](https://forum.qtools.org)
+[![Forum](https://img.shields.io/badge/forum-online-green.svg)](https://reddit.com/r/qtools/)
 
 # A window switcher, Application launcher and dmenu replacement
 
@@ -243,7 +243,7 @@ to disable it:
 
 # Manpage
 
-For more detailed information, please see the [manpage](doc/rofi-manpage.markdown), the [wiki](https://github.com/DaveDavenport/rofi/wiki) or the [forum](https://forum.qtools.org).
+For more detailed information, please see the [manpage](doc/rofi-manpage.markdown), the [wiki](https://github.com/DaveDavenport/rofi/wiki) or the [forum](https://reddit.com/r/qtools/).
 
 # Installation
 
