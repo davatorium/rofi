@@ -622,19 +622,9 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line )
         } else if ( g_str_has_suffix ( dr->icon_path, ".svg" ) ) {
             surface = cairo_image_surface_create_from_svg(dr->icon_path);
             return surface;
-        /*} else if ( g_str_has_suffix ( dr->icon_path, ".xpm" ) ) {*/
-            /*g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Loading icon from %s", dr->icon_path );*/
-            /*surface = cairo_image_surface_create_from_pixbuf(dr->icon_path);*/
-            /*if(surface == NULL) { g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "surface == NULL %s", dr->icon_path ); }*/
-            /*return surface;*/
         } else {
-            surface = cairo_image_surface_create_from_pixbuf(dr->icon_path);
-            if(surface == NULL) {
-                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", dr->icon_path );
-                return NULL;
-            } else {
-                return surface;
-            }
+            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", dr->icon_path );
+            return NULL;
         }
     }
 }

@@ -120,8 +120,6 @@ PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])
 PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0 ])
 PKG_CHECK_MODULES([librsvg],    [librsvg-2.0 ])
-PKG_CHECK_MODULES([libgdk_pixbuf], [gdk-pixbuf-2.0])
-PKG_CHECK_MODULES([libgtk], [gtk+-2.0])
 
 
 dnl ---------------------------------------------------------------------

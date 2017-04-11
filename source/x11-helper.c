@@ -32,7 +32,6 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <glib.h>
-#include <gdk/gdk.h>
 #include <cairo.h>
 #include <cairo-xcb.h>
 
@@ -154,37 +153,6 @@ cairo_surface_t* cairo_image_surface_create_from_svg (const gchar* file)
 
     rsvg_handle_close(handle, NULL);
     g_object_unref(handle);
-
-    return surface;
-}
-
-cairo_surface_t* cairo_image_surface_create_from_pixbuf (const gchar* file)
-{
-    GdkPixbuf *pixbuf;
-    gint width;
-    gint height;
-    cairo_format_t format;
-    cairo_surface_t *surface;
-    cairo_t *cr;
-
-    pixbuf = gdk_pixbuf_new_from_file (file, NULL);
-    if(pixbuf == NULL) {
-        return NULL;
-    }
-    format = (gdk_pixbuf_get_has_alpha (pixbuf)) ? CAIRO_FORMAT_ARGB32 : CAIRO_FORMAT_RGB24;
-    width = gdk_pixbuf_get_width (pixbuf);
-    height = gdk_pixbuf_get_height (pixbuf);
-    surface = cairo_image_surface_create (format, width, height);
-    /*g_assert (surface != NULL);*/
-    if(surface == NULL) {
-        return NULL;
-    }
-    cr = cairo_create (surface);
-    gdk_cairo_set_source_pixbuf (cr, pixbuf, 0, 0);
-    cairo_paint (cr);
-    cairo_destroy(cr);
-
-    g_object_unref(pixbuf);
 
     return surface;
 }

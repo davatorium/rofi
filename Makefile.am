@@ -117,8 +117,6 @@ rofi_CFLAGS=\
 	$(libsn_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(librsvg_CFLAGS)\
-	$(libgdk_pixbuf_CFLAGS)\
-	$(libgtk_CFLAGS)\
 	-DMANPAGE_PATH="\"$(mandir)/\""\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
@@ -135,8 +133,6 @@ rofi_LDADD=\
 	$(pango_LIBS)\
 	$(cairo_LIBS)\
 	$(librsvg_LIBS)\
-	$(libgdk_pixbuf_LIBS)\
-	$(libgtk_LIBS)\
 	$(LIBS)
 
 ##
