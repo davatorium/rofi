@@ -123,6 +123,7 @@ rofi_CFLAGS=\
 	$(pango_CFLAGS)\
 	$(libsn_CFLAGS)\
 	$(cairo_CFLAGS)\
+	$(librsvg_CFLAGS)\
 	-DMANPAGE_PATH="\"$(mandir)/\""\
 	-I$(top_srcdir)/include/\
 	-I$(top_builddir)/lexer/\
@@ -142,6 +143,7 @@ rofi_LDADD=\
 	$(libsn_LIBS)\
 	$(pango_LIBS)\
 	$(cairo_LIBS)\
+	$(librsvg_LIBS)\
 	$(LIBS)
 
 ##
@@ -247,6 +249,7 @@ history_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(libsn_CFLAGS)\
+	$(cairo_CFLAGS)\
 	-DTHEME_DIR=\"$(themedir)\"\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-I$(top_srcdir)/include/\
@@ -274,6 +277,7 @@ textbox_test_CFLAGS=\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
+	$(librsvg_CFLAGS)\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-DTHEME_DIR=\"$(themedir)\"\
 	-I$(top_srcdir)/include/\
@@ -287,6 +291,7 @@ textbox_test_LDADD=\
 	$(pango_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(cairo_LIBS)\
+	$(librsvg_LIBS)\
 	$(libsn_LIBS)
 
 helper_pidfile_CFLAGS=$(textbox_test_CFLAGS)
@@ -428,6 +433,7 @@ helper_test_CFLAGS=\
 	$(pango_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
+	$(librsvg_CFLAGS)\
 	$(libsn_CFLAGS)\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-DTHEME_DIR=\"$(themedir)\"\
@@ -442,6 +448,7 @@ helper_test_LDADD=\
 	$(pango_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(libsn_LIBS)\
+	$(librsvg_LIBS)\
 	$(cairo_LIBS)
 
 

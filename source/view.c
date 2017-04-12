@@ -906,6 +906,14 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
         else{
             list = pango_attr_list_new ();
         }
+        int             icon_height = textbox_get_font_height ( t );
+
+        cairo_surface_t *icon = mode_get_icon ( state->sw, state->line_map[index], icon_height );
+        textbox_icon ( t, icon );
+
+        //AA TODO: Find a better way to position icon than tab char
+        gchar *firstspace = g_utf8_strchr ( t->text, -1, '\t' );
+        textbox_set_icon_index ( t, ( firstspace == NULL ) ? -1 : g_utf8_pointer_to_offset ( t->text, firstspace ) + 1 );
 
         if ( state->tokens && config.show_match ) {
             ThemeHighlight th = { HL_BOLD | HL_UNDERLINE, { 0.0, 0.0, 0.0, 0.0 } };

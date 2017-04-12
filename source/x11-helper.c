@@ -133,6 +133,30 @@ cairo_surface_t * x11_helper_get_bg_surface ( void )
                                       xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
 }
 
+cairo_surface_t* cairo_image_surface_create_from_svg ( const gchar* file, int height )
+{
+    cairo_surface_t   *surface;
+    cairo_t           *cr;
+    RsvgHandle        * handle;
+    RsvgDimensionData dimensions;
+
+    handle = rsvg_handle_new_from_file ( file, NULL );
+    rsvg_handle_get_dimensions ( handle, &dimensions );
+    double scale = (double) height / dimensions.height;
+    surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32,
+                                           (double) dimensions.width * scale,
+                                           (double) dimensions.height * scale );
+    cr = cairo_create ( surface );
+    cairo_scale ( cr, scale, scale );
+    rsvg_handle_render_cairo ( handle, cr );
+    cairo_destroy ( cr );
+
+    rsvg_handle_close ( handle, NULL );
+    g_object_unref ( handle );
+
+    return surface;
+}
+
 // retrieve a text property from a window
 // technically we could use window_get_prop(), but this is better for character set support
 char* window_get_text_prop ( xcb_window_t w, xcb_atom_t atom )

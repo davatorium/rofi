@@ -122,6 +122,7 @@ GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11 xcb-ewmh xcb-icccm xcb-xrm
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])
 PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0 ])
+PKG_CHECK_MODULES([librsvg],    [librsvg-2.0 ])
 
 dnl ---------------------------------------------------------------------
 dnl check - Unit testing.

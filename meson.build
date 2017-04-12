@@ -46,6 +46,7 @@ deps = [
     dependency('pango'),
     dependency('pangocairo'),
     dependency('xkbcommon'),
+    dependency('librsvg-2.0'),
     c_compiler.find_library('m', required: false),
 ]
 
