@@ -49,6 +49,7 @@
 #include "widgets/textbox.h"
 #include "history.h"
 #include "dialogs/drun.h"
+#include "nkutils-xdg-theme.h"
 
 #define DRUN_CACHE_FILE    "rofi2.druncache"
 
@@ -61,31 +62,35 @@
 typedef struct
 {
     /* Root */
-    char     *root;
+    char            *root;
     /* Path to desktop file */
-    char     *path;
+    char            *path;
+    /* Icon stuff */
+    char            *icon_name;
+    cairo_surface_t *icon;
     /* Executable */
-    char     *exec;
+    char            *exec;
     /* Name of the Entry */
-    char     *name;
+    char            *name;
     /* Generic Name */
-    char     *generic_name;
+    char            *generic_name;
 #ifdef GET_CAT_PARSE_TIME
-    char     **categories;
+    char            **categories;
 #endif
 
-    GKeyFile *key_file;
+    GKeyFile        *key_file;
 } DRunModeEntry;
 
 typedef struct
 {
-    DRunModeEntry *entry_list;
-    unsigned int  cmd_list_length;
-    unsigned int  cmd_list_length_actual;
-    unsigned int  history_length;
+    NkXdgThemeContext *xdg_context;
+    DRunModeEntry     *entry_list;
+    unsigned int      cmd_list_length;
+    unsigned int      cmd_list_length_actual;
+    unsigned int      history_length;
     // List of disabled entries.
-    GHashTable    *disabled_entries;
-    unsigned int  disabled_entries_length;
+    GHashTable        *disabled_entries;
+    unsigned int      disabled_entries_length;
 } DRunModePrivateData;
 
 struct RegexEvalArg
@@ -279,6 +284,9 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
 #endif
     pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
 
+    pd->entry_list[pd->cmd_list_length].icon_name = g_key_file_get_locale_string ( kf, "Desktop Entry", "Icon", NULL, NULL );
+    pd->entry_list[pd->cmd_list_length].icon      = NULL;
+
     // Keep keyfile around.
     pd->entry_list[pd->cmd_list_length].key_file = kf;
     // We don't want to parse items with this id anymore.
@@ -411,6 +419,7 @@ static int drun_mode_init ( Mode *sw )
         DRunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         pd->disabled_entries = g_hash_table_new_full ( g_str_hash, g_str_equal, g_free, NULL );
         mode_set_private_data ( sw, (void *) pd );
+        pd->xdg_context = nk_xdg_theme_context_new ();
         get_apps ( pd );
     }
     return TRUE;
@@ -419,6 +428,10 @@ static void drun_entry_clear ( DRunModeEntry *e )
 {
     g_free ( e->root );
     g_free ( e->path );
+    if ( e->icon != NULL ) {
+        cairo_surface_destroy ( e->icon );
+    }
+    g_free ( e->icon_name );
     g_free ( e->exec );
     g_free ( e->name );
     g_free ( e->generic_name );
@@ -471,6 +484,7 @@ static void drun_mode_destroy ( Mode *sw )
         }
         g_hash_table_destroy ( rmpd->disabled_entries );
         g_free ( rmpd->entry_list );
+        nk_xdg_theme_context_free ( rmpd->xdg_context );
         g_free ( rmpd );
         mode_set_private_data ( sw, NULL );
     }
@@ -489,14 +503,75 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     }
     /* Free temp storage. */
     DRunModeEntry *dr = &( pd->entry_list[selected_line] );
+    /* We use '\t' as the icon placeholder for now */
     if ( dr->generic_name == NULL ) {
-        return g_markup_escape_text ( dr->name, -1 );
+        return g_markup_printf_escaped ( "<span alpha=\"1\">\uFFFC</span>%s", dr->name );
     }
     else {
-        return g_markup_printf_escaped ( "%s <span weight='light' size='small'><i>(%s)</i></span>", dr->name,
-                                         dr->generic_name );
+        return g_markup_printf_escaped ( "<span alpha=\"1\">\uFFFC</span>%s <span weight='light' size='small'><i>(%s)</i></span>",
+                                         dr->name, dr->generic_name );
     }
 }
+
+static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, int height )
+{
+    DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
+    g_return_val_if_fail ( pd->entry_list != NULL, NULL );
+    DRunModeEntry       *dr = &( pd->entry_list[selected_line] );
+    if ( dr->icon != NULL ) {
+        return dr->icon;
+    }
+    if ( dr->icon_name == NULL ) {
+        return NULL;
+    }
+
+    gchar *icon_path;
+
+    if ( g_path_is_absolute ( dr->icon_name ) ) {
+        icon_path = dr->icon_name;
+    }
+    else {
+        const gchar *name = dr->icon_name;
+        if ( g_str_has_suffix ( name, ".png" ) || g_str_has_suffix ( name, ".svg" ) || g_str_has_suffix ( name, ".xpm" ) ) {
+            /* We truncate the extension if the .desktop file is not compliant
+             * We cannot just strip at '.' because D-Bus-styled names are now common.
+             */
+            gchar *c = g_utf8_strrchr ( name, -1, '.' );
+            g_assert_nonnull ( c );
+            *c = '\0';
+            c  = g_utf8_strchr ( name, -1, G_DIR_SEPARATOR );
+            if ( c != NULL ) {
+                /* And just in case, we strip any path component too */
+                *c   = '\0';
+                name = ++c;
+            }
+        }
+        icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, config.drun_icon_theme, "Applications", name, height, 1, TRUE );
+        if ( icon_path != NULL ) {
+            g_debug ( "Found Icon %s(%d): %s", name, height, icon_path );
+        }
+        g_free ( dr->icon_name );
+    }
+    dr->icon_name = NULL;
+
+    if ( icon_path == NULL ) {
+        return NULL;
+    }
+
+    if ( g_str_has_suffix ( icon_path, ".png" ) ) {
+        dr->icon = cairo_image_surface_create_from_png ( icon_path );
+    }
+    else if ( g_str_has_suffix ( icon_path, ".svg" ) ) {
+        dr->icon = cairo_image_surface_create_from_svg ( icon_path, height );
+    }
+    else {
+        g_debug ( "Icon type not yet supported: %s", icon_path );
+    }
+
+    g_free ( icon_path );
+    return dr->icon;
+}
+
 static char *drun_get_completion ( const Mode *sw, unsigned int index )
 {
     DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
@@ -572,6 +647,7 @@ Mode drun_mode =
     ._token_match       = drun_token_match,
     ._get_completion    = drun_get_completion,
     ._get_display_value = _get_display_value,
+    ._get_icon          = _get_icon,
     ._preprocess_input  = NULL,
     .private_data       = NULL,
     .free               = NULL

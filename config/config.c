@@ -58,6 +58,8 @@ Settings config = {
     .run_shell_command = "{terminal} -e {cmd}",
     /** Command executed on accep-entry-custom for window modus */
     .window_command    = "xkill -id {window}",
+    /** Sane default for an icon theme */
+    .drun_icon_theme   = "gnome",
     /**
      * Location of the window.
      * Enumeration indicating location or gravity of window.
