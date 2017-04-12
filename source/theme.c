@@ -89,6 +89,7 @@ void rofi_theme_free ( ThemeWidget *widget )
     }
     if ( widget->properties ) {
         g_hash_table_destroy ( widget->properties );
+        widget->properties = NULL;
     }
     for ( unsigned int i = 0; i < widget->num_widgets; i++ ) {
         rofi_theme_free ( widget->widgets[i] );

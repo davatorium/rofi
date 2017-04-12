@@ -141,6 +141,7 @@ NAME_PREFIX name_path BOPEN optional_properties BCLOSE
             Property *p = (Property *) value;
             config_parse_set_property ( p );
     }
+    g_hash_table_destroy ( $3 );
 }
 ;
 
