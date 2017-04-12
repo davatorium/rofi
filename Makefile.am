@@ -232,6 +232,7 @@ history_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(libsn_CFLAGS)\
+	$(cairo_CFLAGS)\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
