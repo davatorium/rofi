@@ -530,6 +530,8 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
 
     if ( g_str_has_suffix ( icon_path, ".png" ) )
         dr->icon = cairo_image_surface_create_from_png(icon_path);
+    else if ( g_str_has_suffix ( icon_path, ".svg" ) )
+        dr->icon = cairo_image_surface_create_from_svg(icon_path, height);
     else {
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", icon_path );
         g_free(dr->icon_name);
