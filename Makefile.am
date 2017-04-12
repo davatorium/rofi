@@ -1,12 +1,16 @@
 # Specify automake version.
 AUTOMAKE_OPTIONS  = 1.11.3
 
-ACLOCAL_AMFLAGS = -I libgwater ${ACLOCAL_FLAGS}
+ACLOCAL_AMFLAGS = -I libgwater -I libnkutils ${ACLOCAL_FLAGS}
 
 AM_YFLAGS = -d
 
 noinst_LIBRARIES =
+TESTS =
+EXTRA_DIST =
+check_PROGRAMS =
 include $(top_srcdir)/libgwater-xcb-nolibtool.mk
+include $(top_srcdir)/libnkutils/libnkutils-nolibtool.mk
 
 ##
 # PKG CONFIG file
@@ -113,6 +117,7 @@ rofi_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
+	$(NKUTILS_CFLAGS)\
 	$(pango_CFLAGS)\
 	$(libsn_CFLAGS)\
 	$(cairo_CFLAGS)\
@@ -128,6 +133,7 @@ rofi_CFLAGS=\
 rofi_LDADD=\
 	$(glib_LIBS)\
 	$(GW_XCB_LIBS)\
+	$(NKUTILS_LIBS)\
 	$(libsn_LIBS)\
 	$(pango_LIBS)\
 	$(cairo_LIBS)\
@@ -192,7 +198,7 @@ theme_DATA=\
 ##
 # Extra DIST
 ##
-EXTRA_DIST=\
+EXTRA_DIST+=\
 	$(markdown_FILES)\
 	$(markdown_SC_FILES)\
 	Examples/i3_switch_workspaces.sh\
@@ -214,7 +220,7 @@ update-manpage: $(top_srcdir)/doc/rofi-manpage.markdown $(top_srcdir)/doc/rofi-t
 ##
 # Rofi test program
 ##
-check_PROGRAMS=\
+check_PROGRAMS+=\
 			   history_test\
 			   textbox_test\
 			   helper_test\
@@ -444,7 +450,7 @@ helper_config_cmdline_parser_SOURCES=\
 	source/x11-helper.c\
 	test/helper-config-cmdline-parser.c
 
-TESTS=\
+TESTS+=\
 	history_test\
 	helper_test\
 	helper_expand\
