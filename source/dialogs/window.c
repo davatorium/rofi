@@ -30,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <strings.h>
 #include <string.h>
@@ -725,6 +726,107 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     return get_entry ? _generate_display_string ( rmpd, c ) : NULL;
 }
 
+/**
+ * Icon code borrowed from https://github.com/olejorgenb/extract-window-icon
+ */
+static cairo_user_data_key_t data_key;
+
+
+/** Create a surface object from this image data.
+ * \param width The width of the image.
+ * \param height The height of the image
+ * \param data The image's data in ARGB format, will be copied by this function.
+ */
+static cairo_surface_t * draw_surface_from_data(int width, int height, uint32_t *data)
+{
+    unsigned long int len = width * height;
+    unsigned long int i;
+    uint32_t *buffer = g_new0(uint32_t, len);
+    cairo_surface_t *surface;
+
+    /* Cairo wants premultiplied alpha, meh :( */
+    for(i = 0; i < len; i++)
+    {
+        uint8_t a = (data[i] >> 24) & 0xff;
+        double alpha = a / 255.0;
+        uint8_t r = ((data[i] >> 16) & 0xff) * alpha;
+        uint8_t g = ((data[i] >>  8) & 0xff) * alpha;
+        uint8_t b = ((data[i] >>  0) & 0xff) * alpha;
+        buffer[i] = (a << 24) | (r << 16) | (g << 8) | b;
+    }
+
+    surface = cairo_image_surface_create_for_data((unsigned char *) buffer,
+                                            CAIRO_FORMAT_ARGB32,
+                                            width,
+                                            height,
+                                            width*4);
+    /* This makes sure that buffer will be freed */
+    cairo_surface_set_user_data(surface, &data_key, buffer, g_free);
+
+    return surface;
+}
+static cairo_surface_t * ewmh_window_icon_from_reply(xcb_get_property_reply_t *r, uint32_t preferred_size)
+{
+    uint32_t *data, *end, *found_data = 0;
+    uint32_t found_size = 0;
+
+    if(!r || r->type != XCB_ATOM_CARDINAL || r->format != 32 || r->length < 2)
+        return 0;
+
+    data = (uint32_t *) xcb_get_property_value(r);
+    if (!data) return 0;
+
+    end = data + r->length;
+
+    /* Goes over the icon data and picks the icon that best matches the size preference.
+     * In case the size match is not exact, picks the closest bigger size if present,
+     * closest smaller size otherwise.
+     */
+    while (data + 1 < end) {
+        /* check whether the data size specified by width and height fits into the array we got */
+        uint64_t data_size = (uint64_t) data[0] * data[1];
+        if (data_size > (uint64_t) (end - data - 2)) break;
+
+        /* use the greater of the two dimensions to match against the preferred size */
+        uint32_t size = MAX(data[0], data[1]);
+
+        /* pick the icon if it's a better match than the one we already have */
+        gboolean found_icon_too_small = found_size < preferred_size;
+        gboolean found_icon_too_large = found_size > preferred_size;
+        gboolean icon_empty = data[0] == 0 || data[1] == 0;
+        gboolean better_because_bigger =  found_icon_too_small && size > found_size;
+        gboolean better_because_smaller = found_icon_too_large &&
+            size >= preferred_size && size < found_size;
+        if (!icon_empty && (better_because_bigger || better_because_smaller || found_size == 0))
+        {
+            found_data = data;
+            found_size = size;
+        }
+
+        data += data_size + 2;
+    }
+
+    if (!found_data) return 0;
+
+    return draw_surface_from_data(found_data[0], found_data[1], found_data + 2);
+}
+/** Get NET_WM_ICON. */
+static cairo_surface_t * get_net_wm_icon(xcb_window_t xid, uint32_t preferred_size)
+{
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(
+            xcb->connection, FALSE, xid,
+            xcb->ewmh. _NET_WM_ICON, XCB_ATOM_CARDINAL, 0, UINT32_MAX);
+    xcb_get_property_reply_t *r = xcb_get_property_reply(xcb->connection, cookie, NULL);
+    cairo_surface_t *surface = ewmh_window_icon_from_reply(r, preferred_size);
+    free(r);
+    return surface;
+}
+static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, int size )
+{
+    ModeModePrivateData *rmpd = mode_get_private_data ( sw );
+    return get_net_wm_icon ( rmpd->ids->array[selected_line], size);
+}
+
 #include "mode-private.h"
 Mode window_mode =
 {
@@ -736,6 +838,7 @@ Mode window_mode =
     ._destroy           = window_mode_destroy,
     ._token_match       = window_match,
     ._get_display_value = _get_display_value,
+    ._get_icon          = _get_icon,
     ._get_completion    = NULL,
     ._preprocess_input  = NULL,
     .private_data       = NULL,
@@ -751,6 +854,7 @@ Mode window_mode_cd =
     ._destroy           = window_mode_destroy,
     ._token_match       = window_match,
     ._get_display_value = _get_display_value,
+    ._get_icon          = _get_icon,
     ._get_completion    = NULL,
     ._preprocess_input  = NULL,
     .private_data       = NULL,
