@@ -77,6 +77,8 @@ typedef struct
     long                              hint_flags;
     uint32_t                          wmdesktop;
     char                              *wmdesktopstr;
+    cairo_surface_t                   *icon;
+    gboolean icon_checked;
 } client;
 
 // window lists
@@ -149,6 +151,9 @@ static void winlist_empty ( winlist *l )
     while ( l->len > 0 ) {
         client *c = l->data[--l->len];
         if ( c != NULL ) {
+            if ( c->icon ) {
+                cairo_surface_destroy ( c->icon );
+            }
             g_free ( c->title );
             g_free ( c->class );
             g_free ( c->name );
@@ -824,7 +829,12 @@ static cairo_surface_t * get_net_wm_icon(xcb_window_t xid, uint32_t preferred_si
 static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, int size )
 {
     ModeModePrivateData *rmpd = mode_get_private_data ( sw );
-    return get_net_wm_icon ( rmpd->ids->array[selected_line], size);
+    client              *c    = window_client ( rmpd, rmpd->ids->array[selected_line] );
+    if ( c->icon_checked == FALSE ){
+        c->icon = get_net_wm_icon ( rmpd->ids->array[selected_line], size);
+        c->icon_checked = TRUE;
+    }
+    return c->icon;
 }
 
 #include "mode-private.h"
