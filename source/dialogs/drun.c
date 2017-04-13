@@ -522,10 +522,14 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
 
     gchar *icon_path;
 
-    icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", dr->icon_name, height, 1, TRUE );
-    if ( icon_path != NULL )
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon %s(%d): %s", dr->icon_name, height, icon_path );
-    g_free(dr->icon_name);
+    if ( g_path_is_absolute ( dr->icon_name ) )
+        icon_path = dr->icon_name;
+    else {
+        icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", dr->icon_name, height, 1, TRUE );
+        if ( icon_path != NULL )
+            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon %s(%d): %s", dr->icon_name, height, icon_path );
+        g_free(dr->icon_name);
+    }
     dr->icon_name = NULL;
 
     if ( icon_path == NULL )
