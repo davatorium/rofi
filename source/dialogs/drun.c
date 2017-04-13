@@ -525,9 +525,24 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
     if ( g_path_is_absolute ( dr->icon_name ) )
         icon_path = dr->icon_name;
     else {
-        icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", dr->icon_name, height, 1, TRUE );
+        const gchar *name = dr->icon_name;
+        if ( g_str_has_suffix ( name, ".png" ) || g_str_has_suffix ( name, ".svg" ) || g_str_has_suffix ( name, ".xpm" ) ) {
+            /* We truncate the extension if the .desktop file is not compliant
+             * We cannot just strip at '.' because D-Bus-styled names are now common.
+             */
+            gchar *c = g_utf8_strrchr ( name, -1, '.' );
+            g_assert_nonnull(c);
+            *c = '\0';
+            c = g_utf8_strchr ( name, -1, G_DIR_SEPARATOR );
+            if ( c != NULL ) {
+                /* And just in case, we strip any path component too */
+                *c = '\0';
+                name = ++c;
+            }
+        }
+        icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", name, height, 1, TRUE );
         if ( icon_path != NULL )
-            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon %s(%d): %s", dr->icon_name, height, icon_path );
+            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon %s(%d): %s", name, height, icon_path );
         g_free(dr->icon_name);
     }
     dr->icon_name = NULL;
