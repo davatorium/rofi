@@ -519,14 +519,17 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
         return dr->icon;
     if ( dr->icon_name == NULL )
         return NULL;
-    gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", dr->icon_name, height, 1, TRUE );
-    if ( icon_path == NULL ) {
-        g_free(dr->icon_name);
-        dr->icon_name = NULL;
-        return NULL;
-    }
-    else
+
+    gchar *icon_path;
+
+    icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", dr->icon_name, height, 1, TRUE );
+    if ( icon_path != NULL )
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon %s(%d): %s", dr->icon_name, height, icon_path );
+    g_free(dr->icon_name);
+    dr->icon_name = NULL;
+
+    if ( icon_path == NULL )
+        return NULL;
 
     if ( g_str_has_suffix ( icon_path, ".png" ) )
         dr->icon = cairo_image_surface_create_from_png(icon_path);
@@ -534,8 +537,6 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
         dr->icon = cairo_image_surface_create_from_svg(icon_path, height);
     else {
         g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", icon_path );
-        g_free(dr->icon_name);
-        dr->icon_name = NULL;
     }
 
     g_free(icon_path);
