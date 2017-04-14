@@ -121,6 +121,8 @@ static XrmOption xrmOptions[] = {
       "Run command to execute that runs in shell", CONFIG_DEFAULT },
     { xrm_String,  "window-command",    { .str  = &config.window_command        }, NULL,
       "Command executed on accep-entry-custom for window modus", CONFIG_DEFAULT },
+    { xrm_String,  "drun-icon-theme",   { .str  = &config.drun_icon_theme       }, NULL,
+      "Theme to use to look for icons", CONFIG_DEFAULT },
 
     { xrm_Boolean, "disable-history",   { .num  = &config.disable_history       }, NULL,
       "Disable history in run/ssh", CONFIG_DEFAULT },

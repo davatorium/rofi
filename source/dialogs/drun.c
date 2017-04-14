@@ -540,7 +540,7 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
                 name = ++c;
             }
         }
-        icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", name, height, 1, TRUE );
+        icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, config.drun_icon_theme, "Applications", name, height, 1, TRUE );
         if ( icon_path != NULL )
             g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon %s(%d): %s", name, height, icon_path );
         g_free(dr->icon_name);

@@ -84,6 +84,8 @@ typedef struct
     char           * run_list_command;
     /** Command for window */
     char           * window_command;
+    /** Theme for icons */
+    char           * drun_icon_theme;
 
     /** Windows location/gravity */
     WindowLocation location;
