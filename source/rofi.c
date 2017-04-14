@@ -667,7 +667,7 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
             g_main_loop_quit ( main_loop );
             return G_SOURCE_REMOVE;
         } else {
-            fprintf ( stderr, "Warning: main_loop_x11_event_handler: ev == NULL, status == %d\n", status );
+            g_log ( LOG_DOMAIN, G_LOG_LEVEL_WARNING, "main_loop_x11_event_handler: ev == NULL, status == %d", status );
             return G_SOURCE_CONTINUE;
         }
     }
