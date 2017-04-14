@@ -662,9 +662,14 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
 {
     if ( ev == NULL ) {
         int status = xcb_connection_has_error ( xcb->connection );
-        fprintf ( stderr, "The XCB connection to X server had a fatal error: %d\n", status );
-        g_main_loop_quit ( main_loop );
-        return G_SOURCE_REMOVE;
+        if(status > 0) {
+            fprintf ( stderr, "The XCB connection to X server had a fatal error: %d\n", status );
+            g_main_loop_quit ( main_loop );
+            return G_SOURCE_REMOVE;
+        } else {
+            fprintf ( stderr, "Warning: main_loop_x11_event_handler: ev == NULL, status == %d\n", status );
+            return G_SOURCE_CONTINUE;
+        }
     }
     uint8_t type = ev->response_type & ~0x80;
     if ( type == xkb.first_event ) {
