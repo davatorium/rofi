@@ -66,6 +66,7 @@ typedef struct
     /* Icon stuff */
     char     *icon_name;
     cairo_surface_t *icon;
+    int      icon_size;
     /* Executable */
     char     *exec;
     /* Name of the Entry */
@@ -89,6 +90,8 @@ typedef struct
     // List of disabled entries.
     GHashTable    *disabled_entries;
     unsigned int  disabled_entries_length;
+    GThread *thread;
+    GAsyncQueue *thread_queue;
 } DRunModePrivateData;
 
 struct RegexEvalArg
@@ -284,6 +287,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
 
     pd->entry_list[pd->cmd_list_length].icon_name = g_key_file_get_locale_string ( kf, "Desktop Entry", "Icon", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].icon = NULL;
+    pd->entry_list[pd->cmd_list_length].icon_size = 0;
 
     // Keep keyfile around.
     pd->entry_list[pd->cmd_list_length].key_file = kf;
@@ -411,6 +415,60 @@ static void get_apps ( DRunModePrivateData *pd )
     TICK_N ( "Get Desktop apps (system dirs)" );
 }
 
+static gpointer drun_icon_fetch ( gpointer data )
+{
+    // as long as dr->icon is updated atomicly.. (is a pointer write atomic?)
+    // this should be fine running in another thread.
+    DRunModePrivateData *pd = (DRunModePrivateData*)data;
+    DRunModeEntry *dr = NULL;
+    while ( (dr = g_async_queue_pop ( pd->thread_queue )) != NULL )
+    {
+        if ( (void*)dr  == (void*)pd ) return NULL;
+
+        // If we have seen it before
+        if ( dr->icon_name == NULL  || dr->icon != NULL )
+            continue;
+        const gchar *name = dr->icon_name;
+        if ( g_str_has_suffix ( name, ".png" ) || g_str_has_suffix ( name, ".svg" ) || g_str_has_suffix ( name, ".xpm" ) ) {
+            /* We truncate the extension if the .desktop file is not compliant
+             * We cannot just strip at '.' because D-Bus-styled names are now common.
+             */
+            gchar *c = g_utf8_strrchr ( name, -1, '.' );
+            g_assert_nonnull(c);
+            *c = '\0';
+            c = g_utf8_strchr ( name, -1, G_DIR_SEPARATOR );
+            if ( c != NULL ) {
+                /* And just in case, we strip any path component too */
+                *c = '\0';
+                name = ++c;
+            }
+        }
+        gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, config.drun_icon_theme, NULL, name, dr->icon_size, 1, TRUE );
+        /*gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", dr->icon_name, dr->icon_size, 1, TRUE );*/
+        if ( icon_path == NULL ) {
+            g_free(dr->icon_name);
+            dr->icon_name = NULL;
+            continue;
+        }
+        else
+            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon %s(%d): %s", dr->icon_name, dr->icon_size, icon_path );
+
+        if ( g_str_has_suffix ( icon_path, ".png" ) )
+            dr->icon = cairo_image_surface_create_from_png(icon_path);
+        else if ( g_str_has_suffix ( icon_path, ".svg" ) )
+            dr->icon = cairo_image_surface_create_from_svg(icon_path, dr->icon_size);
+        else {
+            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", icon_path );
+            char *r = dr->icon_name;
+            dr->icon_name = NULL;
+            g_free(r);
+        }
+        g_free(icon_path);
+        rofi_view_reload();
+    }
+    return NULL;
+}
+
 static int drun_mode_init ( Mode *sw )
 {
     if ( mode_get_private_data ( sw ) == NULL ) {
@@ -419,6 +477,8 @@ static int drun_mode_init ( Mode *sw )
         mode_set_private_data ( sw, (void *) pd );
         pd->xdg_context = nk_xdg_theme_context_new ();
         get_apps ( pd );
+        pd->thread_queue = g_async_queue_new ();
+        pd->thread = g_thread_new( "icon-fetch-drun", &drun_icon_fetch, pd );
     }
     return TRUE;
 }
@@ -462,6 +522,15 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
     }
     else if ( ( mretv & MENU_ENTRY_DELETE ) && selected_line < rmpd->cmd_list_length ) {
         if ( selected_line < rmpd->history_length ) {
+            if ( rmpd->thread ) {
+                // empty queue.
+                g_async_queue_lock ( rmpd->thread_queue );
+                DRunModeEntry *dr;
+                while ( (dr = g_async_queue_try_pop_unlocked ( rmpd->thread_queue)) != NULL ){
+                    dr->icon_size = 0;
+                }
+                g_async_queue_unlock ( rmpd->thread_queue );
+            }
             delete_entry_history ( &( rmpd->entry_list[selected_line] ) );
             drun_entry_clear ( &( rmpd->entry_list[selected_line] ) );
             memmove ( &( rmpd->entry_list[selected_line] ), &rmpd->entry_list[selected_line + 1],
@@ -476,6 +545,14 @@ static void drun_mode_destroy ( Mode *sw )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( sw );
     if ( rmpd != NULL ) {
+        if ( rmpd->thread ){
+            g_async_queue_lock ( rmpd->thread_queue );
+            while ( g_async_queue_try_pop_unlocked ( rmpd->thread_queue));
+            g_async_queue_push_unlocked ( rmpd->thread_queue, rmpd);
+            g_async_queue_unlock ( rmpd->thread_queue );
+            g_thread_join ( rmpd->thread );
+            rmpd->thread = NULL;
+        }
         for ( size_t i = 0; i < rmpd->cmd_list_length; i++ ) {
             drun_entry_clear ( &( rmpd->entry_list[i] ) );
         }
@@ -500,66 +577,26 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     }
     /* Free temp storage. */
     DRunModeEntry *dr = &( pd->entry_list[selected_line] );
-    /* We use '\t' as the icon placeholder for now */
     if ( dr->generic_name == NULL ) {
-        return g_markup_printf_escaped ( "\t%s", dr->name );
+        return g_markup_printf_escaped ( "%s", dr->name );
     }
     else {
-        return g_markup_printf_escaped ( "\t%s <span weight='light' size='small'><i>(%s)</i></span>", dr->name,
+        return g_markup_printf_escaped ( "%s <span weight='light' size='small'><i>(%s)</i></span>", dr->name,
                                          dr->generic_name );
     }
 }
 
 static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, int height )
 {
-    DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
-    g_return_val_if_fail ( pd->entry_list != NULL, NULL );
-    DRunModeEntry *dr = &( pd->entry_list[selected_line] );
-    if ( dr->icon != NULL )
-        return dr->icon;
-    if ( dr->icon_name == NULL )
-        return NULL;
+		DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
+		g_return_val_if_fail ( pd->entry_list != NULL, NULL );
+		DRunModeEntry *dr = &( pd->entry_list[selected_line] );
 
-    gchar *icon_path;
-
-    if ( g_path_is_absolute ( dr->icon_name ) )
-        icon_path = dr->icon_name;
-    else {
-        const gchar *name = dr->icon_name;
-        if ( g_str_has_suffix ( name, ".png" ) || g_str_has_suffix ( name, ".svg" ) || g_str_has_suffix ( name, ".xpm" ) ) {
-            /* We truncate the extension if the .desktop file is not compliant
-             * We cannot just strip at '.' because D-Bus-styled names are now common.
-             */
-            gchar *c = g_utf8_strrchr ( name, -1, '.' );
-            g_assert_nonnull(c);
-            *c = '\0';
-            c = g_utf8_strchr ( name, -1, G_DIR_SEPARATOR );
-            if ( c != NULL ) {
-                /* And just in case, we strip any path component too */
-                *c = '\0';
-                name = ++c;
-            }
-        }
-        icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, config.drun_icon_theme, NULL, name, height, 1, TRUE );
-        if ( icon_path != NULL )
-            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon %s(%d): %s", name, height, icon_path );
-        g_free(dr->icon_name);
-    }
-    dr->icon_name = NULL;
-
-    if ( icon_path == NULL )
-        return NULL;
-
-    if ( g_str_has_suffix ( icon_path, ".png" ) )
-        dr->icon = cairo_image_surface_create_from_png(icon_path);
-    else if ( g_str_has_suffix ( icon_path, ".svg" ) )
-        dr->icon = cairo_image_surface_create_from_svg(icon_path, height);
-    else {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", icon_path );
-    }
-
-    g_free(icon_path);
-    return dr->icon;
+		if ( dr->icon_size == 0 && dr->icon_name != NULL ) {
+				dr->icon_size = height;
+				g_async_queue_push ( pd->thread_queue, dr );
+		}
+		return dr->icon;
 }
 
 static char *drun_get_completion ( const Mode *sw, unsigned int index )
