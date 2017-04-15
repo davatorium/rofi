@@ -24,6 +24,9 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+
+#define G_LOG_DOMAIN         "Dialogs.Combi"
+
 #include <config.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -85,7 +88,7 @@ static void combi_mode_parse_switchers ( Mode *sw )
             }
             else {
                 // Report error, don't continue.
-                fprintf ( stderr, "Invalid script switcher: %s\n", token );
+                g_warning ( "Invalid script switcher: %s", token );
                 token = NULL;
             }
         }
@@ -240,7 +243,7 @@ static char * combi_get_completion ( const Mode *sw, unsigned int index )
         }
     }
     // Should never get here.
-    g_error ( "Failure, could not resolve sub-switcher." );
+    g_assert_not_reached ();
     return NULL;
 }
 

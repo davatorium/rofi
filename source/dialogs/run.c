@@ -29,6 +29,10 @@
  * \ingroup RUNMode
  * @{
  */
+
+/** The log domain of this dialog. */
+#define G_LOG_DOMAIN        "Dialogs.Run"
+
 #include <config.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -56,10 +60,6 @@
  */
 #define RUN_CACHE_FILE    "rofi-3.runcache"
 
-/** The log domain of this dialog. */
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN        "Dialogs.Run"
-
 /**
  * The internal data structure holding the private data of the Run Mode.
  */
@@ -86,7 +86,7 @@ static void exec_cmd ( const char *cmd, int run_in_term )
     gsize lf_cmd_size = 0;
     gchar *lf_cmd     = g_locale_from_utf8 ( cmd, -1, NULL, &lf_cmd_size, &error );
     if ( error != NULL ) {
-        fprintf ( stderr, "Failed to convert command to locale encoding: %s\n", error->message );
+        g_warning ( "Failed to convert command to locale encoding: %s", error->message );
         g_error_free ( error );
         return;
     }
@@ -188,8 +188,8 @@ static char ** get_apps_external ( char **retv, unsigned int *length, unsigned i
                 free ( buffer );
             }
             if ( fclose ( inp ) != 0 ) {
-                fprintf ( stderr, "Failed to close stdout off executor script: '%s'\n",
-                          strerror ( errno ) );
+                g_warning ( "Failed to close stdout off executor script: '%s'",
+                          g_strerror ( errno ) );
             }
         }
     }

@@ -368,7 +368,7 @@ static void __config_parser_set_property ( XrmOption *option, const Property *p 
 {
     if ( option->type == xrm_String  ) {
         if ( p->type != P_STRING ) {
-            fprintf ( stderr, "Option: %s needs to be set with a string.\n", option->name );
+            g_warning ( "Option: %s needs to be set with a string.", option->name );
             return;
         }
         if ( ( option )->mem != NULL ) {
@@ -383,7 +383,7 @@ static void __config_parser_set_property ( XrmOption *option, const Property *p 
     }
     else if ( option->type == xrm_Number ) {
         if ( p->type != P_INTEGER ) {
-            fprintf ( stderr, "Option: %s needs to be set with a number.\n", option->name );
+            g_warning ( "Option: %s needs to be set with a number.", option->name );
             return;
         }
         *( option->value.snum ) = p->value.i;
@@ -391,7 +391,7 @@ static void __config_parser_set_property ( XrmOption *option, const Property *p 
     }
     else if ( option->type == xrm_SNumber ) {
         if ( p->type != P_INTEGER ) {
-            fprintf ( stderr, "Option: %s needs to be set with a number.\n", option->name );
+            g_warning ( "Option: %s needs to be set with a number.", option->name );
             return;
         }
         *( option->value.num ) = (unsigned int ) ( p->value.i );
@@ -399,7 +399,7 @@ static void __config_parser_set_property ( XrmOption *option, const Property *p 
     }
     else if ( option->type == xrm_Boolean ) {
         if ( p->type != P_BOOLEAN ) {
-            fprintf ( stderr, "Option: %s needs to be set with a boolean.\n", option->name );
+            g_warning ( "Option: %s needs to be set with a boolean.", option->name );
             return;
         }
         *( option->value.num ) = ( p->value.b );

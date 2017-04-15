@@ -24,6 +24,9 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+
+#define G_LOG_DOMAIN         "Dialogs.DRun"
+
 #include <config.h>
 #ifdef ENABLE_DRUN
 #include <stdlib.h>
@@ -48,8 +51,6 @@
 #include "dialogs/drun.h"
 
 #define DRUN_CACHE_FILE    "rofi2.druncache"
-#undef  G_LOG_DOMAIN
-#define G_LOG_DOMAIN         "Dialogs.DRun"
 
 #define GET_CAT_PARSE_TIME
 
@@ -147,24 +148,24 @@ static void exec_cmd_entry ( DRunModeEntry *e )
     GError *error = NULL;
     GRegex *reg   = g_regex_new ( "%[a-zA-Z]", 0, 0, &error );
     if ( error != NULL ) {
-        fprintf ( stderr, "Internal error, failed to create regex: %s.\n", error->message );
+        g_warning ( "Internal error, failed to create regex: %s.", error->message );
         g_error_free ( error );
         return;
     }
     struct RegexEvalArg earg = { .e = e, .success = TRUE };
     char                *str = g_regex_replace_eval ( reg, e->exec, -1, 0, 0, drun_helper_eval_cb, &earg, &error );
     if ( error != NULL ) {
-        fprintf ( stderr, "Internal error, failed replace field codes: %s.\n", error->message );
+        g_warning ( "Internal error, failed replace field codes: %s.", error->message );
         g_error_free ( error );
         return;
     }
     g_regex_unref ( reg );
     if ( earg.success == FALSE ) {
-        fprintf ( stderr, "Invalid field code in Exec line: %s.\n", e->exec );;
+        g_warning ( "Invalid field code in Exec line: %s.", e->exec );;
         return;
     }
     if ( str == NULL ) {
-        fprintf ( stderr, "Nothing to execute after processing: %s.\n", e->exec );;
+        g_warning ( "Nothing to execute after processing: %s.", e->exec );;
         return;
     }
     gchar *fp        = rofi_expand_path ( g_strstrip ( str ) );
@@ -237,7 +238,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
 
     // Name key is required.
     if ( !g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
-        g_debug ( "Invalid DesktopFile: '%s', no 'Name' key present.\n", path );
+        g_debug ( "Invalid DesktopFile: '%s', no 'Name' key present.", path );
         g_key_file_free ( kf );
         return FALSE;
     }
@@ -258,7 +259,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     }
     // We need Exec, don't support DBusActivatable
     if ( !g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
-        g_debug ( "Unsupported DesktopFile: '%s', no 'Exec' key present.\n", path );
+        g_debug ( "Unsupported DesktopFile: '%s', no 'Exec' key present.", path );
         g_key_file_free ( kf );
         return FALSE;
     }

@@ -25,6 +25,9 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+
+#define G_LOG_DOMAIN    "Helper"
+
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,9 +53,6 @@
 #include "x11-helper.h"
 #include "rofi.h"
 #include "view.h"
-
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN    "Helper"
 
 /**
  * Textual description of positioning rofi.
@@ -383,7 +383,7 @@ char helper_parse_char ( const char *arg )
     if ( len > 2 && arg[0] == '\\' && arg[1] == 'x' ) {
         return (char) strtol ( &arg[2], NULL, 16 );
     }
-    fprintf ( stderr, "Failed to parse character string: \"%s\"\n", arg );
+    g_warning ( "Failed to parse character string: \"%s\"", arg );
     // for now default to newline.
     return '\n';
 }
@@ -491,22 +491,22 @@ int create_pid_file ( const char *pidfile )
 
     int fd = g_open ( pidfile, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
     if ( fd < 0 ) {
-        fprintf ( stderr, "Failed to create pid file: '%s'.\n", pidfile );
+        g_warning ( "Failed to create pid file: '%s'.", pidfile );
         return -1;
     }
     // Set it to close the File Descriptor on exit.
     int flags = fcntl ( fd, F_GETFD, NULL );
     flags = flags | FD_CLOEXEC;
     if ( fcntl ( fd, F_SETFD, flags, NULL ) < 0 ) {
-        fprintf ( stderr, "Failed to set CLOEXEC on pidfile.\n" );
+        g_warning ( "Failed to set CLOEXEC on pidfile." );
         remove_pid_file ( fd );
         return -1;
     }
     // Try to get exclusive write lock on FD
     int retv = flock ( fd, LOCK_EX | LOCK_NB );
     if ( retv != 0 ) {
-        fprintf ( stderr, "Failed to set lock on pidfile: Rofi already running?\n" );
-        fprintf ( stderr, "Got error: %d %s\n", retv, strerror ( errno ) );
+        g_warning ( "Failed to set lock on pidfile: Rofi already running?" );
+        g_warning ( "Got error: %d %s", retv, g_strerror ( errno ) );
         remove_pid_file ( fd );
         return -1;
     }
@@ -526,7 +526,7 @@ void remove_pid_file ( int fd )
 {
     if ( fd >= 0 ) {
         if ( close ( fd ) ) {
-            fprintf ( stderr, "Failed to close pidfile: '%s'\n", strerror ( errno ) );
+            g_warning ( "Failed to close pidfile: '%s'", g_strerror ( errno ) );
         }
     }
 }

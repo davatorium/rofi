@@ -25,6 +25,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#define G_LOG_DOMAIN    "Rofi"
+
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -74,9 +76,6 @@
 // Plugin abi version.
 // TODO: move this check to mode.c
 #include "mode-private.h"
-
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN    "Rofi"
 
 // Pidfile.
 char       *pidfile   = NULL;
@@ -310,7 +309,7 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
                 break;
             }
         }
-        fprintf ( stderr, "        * %s%s%s%s\n",
+        printf ( "        * %s%s%s%s\n",
                 active?"+":"" ,
                 is_term ? (active?color_green:color_red) : "",
                   available_modi[i]->name,
@@ -367,9 +366,9 @@ static void help_print_disabled_mode ( const char *mode )
     int is_term = isatty ( fileno ( stdout ) );
     // Only  output to terminal
     if ( is_term ) {
-        fprintf ( stderr, "Mode %s%s%s is not enabled. I have enabled it for now.\n",
+        g_warning ( "Mode %s%s%s is not enabled. I have enabled it for now.",
                   color_red, mode, color_reset );
-        fprintf ( stderr, "Please consider adding %s%s%s to the list of enabled modi: %smodi: %s%s%s,%s%s.\n",
+        g_warning ( "Please consider adding %s%s%s to the list of enabled modi: %smodi: %s%s%s,%s%s.",
                   color_red, mode, color_reset,
                   color_green, config.modi, color_reset,
                   color_red, mode, color_reset
@@ -533,7 +532,7 @@ static void rofi_collect_modi_dir ( const char *base_dir )
                 Mode *m = NULL;
                 if ( g_module_symbol ( mod, "mode", (gpointer *) &m ) ) {
                     if ( m->abi_version != ABI_VERSION ) {
-                        fprintf ( stderr, "ABI version of plugin does not match: %08X expecting: %08X\n", m->abi_version, ABI_VERSION );
+                        g_warning ( "ABI version of plugin does not match: %08X expecting: %08X", m->abi_version, ABI_VERSION );
                         g_module_close ( mod );
                     }
                     else {
@@ -544,7 +543,7 @@ static void rofi_collect_modi_dir ( const char *base_dir )
                     }
                 }
                 else {
-                    fprintf ( stderr, "Symbol 'mode' not found in module: %s\n", fn );
+                    g_warning ( "Symbol 'mode' not found in module: %s", fn );
                     g_module_close ( mod );
                 }
             }
@@ -622,7 +621,7 @@ static int add_mode ( const char * token )
         }
         else {
             // Report error, don't continue.
-            fprintf ( stderr, "Invalid script mode: %s\n", token );
+            g_warning ( "Invalid script mode: %s", token );
         }
     }
     return ( index == num_modi ) ? -1 : (int) index;
@@ -664,7 +663,7 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
     if ( ev == NULL ) {
         int status = xcb_connection_has_error ( xcb->connection );
         if(status > 0) {
-            fprintf ( stderr, "The XCB connection to X server had a fatal error: %d\n", status );
+            g_warning ( "The XCB connection to X server had a fatal error: %d", status );
             g_main_loop_quit ( main_loop );
             return G_SOURCE_REMOVE;
         } else {
@@ -732,7 +731,7 @@ static void error_trap_push ( G_GNUC_UNUSED SnDisplay *display, G_GNUC_UNUSED xc
 static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, xcb_connection_t *xdisplay )
 {
     if ( error_trap_depth == 0 ) {
-        fprintf ( stderr, "Error trap underflow!\n" );
+        g_warning ( "Error trap underflow!" );
         exit ( EXIT_FAILURE );
     }
 
@@ -747,7 +746,7 @@ static gboolean lazy_grab_pointer ( G_GNUC_UNUSED gpointer data )
 {
     // After 5 sec.
     if ( lazy_grab_retry_count_pt > ( 5 * 1000 ) ) {
-        fprintf ( stderr, "Failed to grab pointer after %u times. Giving up.\n", lazy_grab_retry_count_pt );
+        g_warning ( "Failed to grab pointer after %u times. Giving up.", lazy_grab_retry_count_pt );
         return G_SOURCE_REMOVE;
     }
     if ( take_pointer ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
@@ -760,7 +759,7 @@ static gboolean lazy_grab_keyboard ( G_GNUC_UNUSED gpointer data )
 {
     // After 5 sec.
     if ( lazy_grab_retry_count_kb > ( 5 * 1000 ) ) {
-        fprintf ( stderr, "Failed to grab keyboard after %u times. Giving up.\n", lazy_grab_retry_count_kb );
+        g_warning ( "Failed to grab keyboard after %u times. Giving up.", lazy_grab_retry_count_kb );
         g_main_loop_quit (  main_loop );
         return G_SOURCE_REMOVE;
     }
@@ -792,12 +791,12 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     if ( ( window_flags & MENU_NORMAL_WINDOW ) == 0 ) {
         if ( find_arg ( "-no-lazy-grab" ) >= 0 ) {
             if ( !take_keyboard ( xcb_stuff_get_root_window ( xcb ), 500 ) ) {
-                fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
+                g_warning ( "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
                 g_main_loop_quit ( main_loop );
                 return G_SOURCE_REMOVE;
             }
             if ( !take_pointer ( xcb_stuff_get_root_window ( xcb ), 100 ) ) {
-                fprintf ( stderr, "Failed to grab mouse pointer, even after %d uS.", 100 * 1000 );
+                g_warning ( "Failed to grab mouse pointer, even after %d uS.", 100 * 1000 );
             }
         }
         else {
@@ -874,7 +873,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
             run_switcher ( index );
         }
         else {
-            fprintf ( stderr, "The %s mode has not been enabled\n", sname );
+            g_warning ( "The %s mode has not been enabled", sname );
             g_main_loop_quit ( main_loop );
             return G_SOURCE_REMOVE;
         }
@@ -908,9 +907,9 @@ int main ( int argc, char *argv[] )
     // Version
     if ( find_arg (  "-v" ) >= 0 || find_arg (  "-version" ) >= 0 ) {
 #ifdef GIT_VERSION
-        fprintf ( stdout, "Version: "GIT_VERSION "\n" );
+        g_print ( "Version: "GIT_VERSION "\n" );
 #else
-        fprintf ( stdout, "Version: "VERSION "\n" );
+        g_print ( "Version: "VERSION "\n" );
 #endif
         return EXIT_SUCCESS;
     }
@@ -935,7 +934,7 @@ int main ( int argc, char *argv[] )
     cache_dir = g_get_user_cache_dir ();
 
     if ( g_mkdir_with_parents ( cache_dir, 0700 ) < 0 ) {
-        fprintf ( stderr, "Failed to create cache directory: %s\n", strerror ( errno ) );
+        g_warning ( "Failed to create cache directory: %s", g_strerror ( errno ) );
         return EXIT_FAILURE;
     }
 
@@ -943,7 +942,7 @@ int main ( int argc, char *argv[] )
     const char *path = g_get_user_runtime_dir ();
     if ( path ) {
         if ( g_mkdir_with_parents ( path, 0700 ) < 0 ) {
-            g_warning ( "Failed to create user runtime directory: %s with error: %s\n", path, strerror ( errno ) );
+            g_warning ( "Failed to create user runtime directory: %s with error: %s", path, g_strerror ( errno ) );
             pidfile = g_build_filename ( g_get_home_dir (), ".rofi.pid", NULL );
         }
         else {
@@ -966,7 +965,7 @@ int main ( int argc, char *argv[] )
 
     TICK ();
     if ( setlocale ( LC_ALL, "" ) == NULL ) {
-        fprintf ( stderr, "Failed to set locale.\n" );
+        g_warning ( "Failed to set locale." );
         cleanup ();
         return EXIT_FAILURE;
     }
@@ -978,7 +977,7 @@ int main ( int argc, char *argv[] )
 
     xcb->connection = xcb_connect ( display_str, &xcb->screen_nbr );
     if ( xcb_connection_has_error ( xcb->connection ) ) {
-        fprintf ( stderr, "Failed to open display: %s", display_str );
+        g_warning( "Failed to open display: %s", display_str );
         cleanup ();
         return EXIT_FAILURE;
     }
@@ -996,7 +995,7 @@ int main ( int argc, char *argv[] )
     xcb_generic_error_t      *errors = NULL;
     xcb_ewmh_init_atoms_replies ( &xcb->ewmh, ac, &errors );
     if ( errors ) {
-        fprintf ( stderr, "Failed to create EWMH atoms\n" );
+        g_warning ( "Failed to create EWMH atoms" );
         free ( errors );
     }
     // Discover the current active window manager.
@@ -1005,14 +1004,14 @@ int main ( int argc, char *argv[] )
 
     if ( xkb_x11_setup_xkb_extension ( xcb->connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
                                        XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS, NULL, NULL, &xkb.first_event, NULL ) < 0 ) {
-        fprintf ( stderr, "cannot setup XKB extension!\n" );
+        g_warning ( "cannot setup XKB extension!" );
         cleanup ();
         return EXIT_FAILURE;
     }
 
     xkb.context = xkb_context_new ( XKB_CONTEXT_NO_FLAGS );
     if ( xkb.context == NULL ) {
-        fprintf ( stderr, "cannot create XKB context!\n" );
+        g_warning ( "cannot create XKB context!" );
         cleanup ();
         return EXIT_FAILURE;
     }
@@ -1063,13 +1062,13 @@ int main ( int argc, char *argv[] )
 
     xkb.keymap = xkb_x11_keymap_new_from_device ( xkb.context, xcb->connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
     if ( xkb.keymap == NULL ) {
-        fprintf ( stderr, "Failed to get Keymap for current keyboard device.\n" );
+        g_warning ( "Failed to get Keymap for current keyboard device." );
         cleanup ();
         return EXIT_FAILURE;
     }
     xkb.state = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
     if ( xkb.state == NULL ) {
-        fprintf ( stderr, "Failed to get state object for current keyboard device.\n" );
+        g_warning ( "Failed to get state object for current keyboard device." );
         cleanup ();
         return EXIT_FAILURE;
     }
@@ -1079,18 +1078,18 @@ int main ( int argc, char *argv[] )
         xkb.compose.state = xkb_compose_state_new ( xkb.compose.table, 0 );
     }
     else {
-        fprintf ( stderr, "Failed to get keyboard compose table. Trying to limp on.\n" );
+        g_warning ( "Failed to get keyboard compose table. Trying to limp on." );
     }
 
     if ( xcb_connection_has_error ( xcb->connection ) ) {
-        fprintf ( stderr, "Connection has error\n" );
+        g_warning ( "Connection has error" );
         cleanup ();
         return EXIT_FAILURE;
     }
     x11_setup ( &xkb );
     TICK_N ( "Setup xkb" );
     if ( xcb_connection_has_error ( xcb->connection ) ) {
-        fprintf ( stderr, "Connection has error\n" );
+        g_warning ( "Connection has error" );
         cleanup ();
         return EXIT_FAILURE;
     }
@@ -1100,7 +1099,7 @@ int main ( int argc, char *argv[] )
     // startup not.
     xcb->sndisplay = sn_xcb_display_new ( xcb->connection, error_trap_push, error_trap_pop );
     if ( xcb_connection_has_error ( xcb->connection ) ) {
-        fprintf ( stderr, "Connection has error\n" );
+        g_warning ( "Connection has error" );
         cleanup ();
         return EXIT_FAILURE;
     }
@@ -1109,7 +1108,7 @@ int main ( int argc, char *argv[] )
         xcb->sncontext = sn_launchee_context_new_from_environment ( xcb->sndisplay, xcb->screen_nbr );
     }
     if ( xcb_connection_has_error ( xcb->connection ) ) {
-        fprintf ( stderr, "Connection has error\n" );
+        g_warning ( "Connection has error" );
         cleanup ();
         return EXIT_FAILURE;
     }
@@ -1162,11 +1161,11 @@ int main ( int argc, char *argv[] )
     }
     if ( rofi_theme_is_empty ( ) ) {
         if ( rofi_theme_parse_string ( default_theme ) ) {
-            fprintf ( stderr, "Failed to parse default theme. Giving up..\n" );
+            g_warning ( "Failed to parse default theme. Giving up.." );
             if ( list_of_error_msgs ) {
                 for ( GList *iter = g_list_first ( list_of_error_msgs );
                       iter != NULL; iter = g_list_next ( iter ) ) {
-                    fprintf ( stderr, "Error: %s%s%s\n",
+                    g_warning ( "Error: %s%s%s",
                               color_bold, ( (GString *) iter->data )->str, color_reset );
                 }
             }

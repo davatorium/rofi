@@ -145,7 +145,7 @@ void history_set ( const char *filename, const char *entry )
         list = __history_get_element_list ( fd, &length );
         // Close file, if fails let user know on stderr.
         if ( fclose ( fd ) != 0 ) {
-            fprintf ( stderr, "Failed to close history file: %s\n", strerror ( errno ) );
+            g_warning ( "Failed to close history file: %s", g_strerror ( errno ) );
         }
     }
     // Look if the entry exists.
@@ -178,14 +178,14 @@ void history_set ( const char *filename, const char *entry )
 
     fd = fopen ( filename, "w" );
     if ( fd == NULL ) {
-        fprintf ( stderr, "Failed to open file: %s\n", strerror ( errno ) );
+        g_warning ( "Failed to open file: %s", g_strerror ( errno ) );
     }
     else {
         // Write list.
         __history_write_element_list ( fd, list, length );
         // Close file, if fails let user know on stderr.
         if ( fclose ( fd ) != 0 ) {
-            fprintf ( stderr, "Failed to close history file: %s\n", strerror ( errno ) );
+            g_warning ( "Failed to close history file: %s", g_strerror ( errno ) );
         }
     }
     // Free the list.
@@ -208,7 +208,7 @@ void history_remove ( const char *filename, const char *entry )
     // Open file for reading and writing.
     FILE         *fd = g_fopen ( filename, "r" );
     if ( fd == NULL ) {
-        fprintf ( stderr, "Failed to open file: %s\n", strerror ( errno ) );
+        g_warning ( "Failed to open file: %s", g_strerror ( errno ) );
         return;
     }
     // Get list.
@@ -216,7 +216,7 @@ void history_remove ( const char *filename, const char *entry )
 
     // Close file, if fails let user know on stderr.
     if ( fclose ( fd ) != 0 ) {
-        fprintf ( stderr, "Failed to close history file: %s\n", strerror ( errno ) );
+        g_warning ( "Failed to close history file: %s", g_strerror ( errno ) );
     }
     // Find entry.
     for ( unsigned int iter = 0; !found && iter < length; iter++ ) {
@@ -244,11 +244,11 @@ void history_remove ( const char *filename, const char *entry )
             __history_write_element_list ( fd, list, length );
             // Close file, if fails let user know on stderr.
             if ( fclose ( fd ) != 0 ) {
-                fprintf ( stderr, "Failed to close history file: %s\n", strerror ( errno ) );
+                g_warning ( "Failed to close history file: %s", g_strerror ( errno ) );
             }
         }
         else{
-            fprintf ( stderr, "Failed to open file: %s\n", strerror ( errno ) );
+            g_warning ( "Failed to open file: %s", g_strerror ( errno ) );
         }
     }
 
@@ -277,7 +277,7 @@ char ** history_get_list ( const char *filename, unsigned int *length )
         // File that does not exists is not an error, so ignore it.
         // Everything else? panic.
         if ( errno != ENOENT ) {
-            fprintf ( stderr, "Failed to open file: %s\n", strerror ( errno ) );
+            g_warning ( "Failed to open file: %s", g_strerror ( errno ) );
         }
         return NULL;
     }
@@ -298,7 +298,7 @@ char ** history_get_list ( const char *filename, unsigned int *length )
 
     // Close file, if fails let user know on stderr.
     if ( fclose ( fd ) != 0 ) {
-        fprintf ( stderr, "Failed to close history file: %s\n", strerror ( errno ) );
+        g_warning ( "Failed to close history file: %s", g_strerror ( errno ) );
     }
     return retv;
 }

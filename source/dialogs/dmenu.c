@@ -25,6 +25,8 @@
  *
  */
 
+#define G_LOG_DOMAIN    "Dialogs.DMenu"
+
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,9 +48,6 @@
 #include "helper.h"
 #include "xrmoptions.h"
 #include "view.h"
-
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN    "Dialogs.DMenu"
 
 struct range_pair
 {
@@ -444,7 +443,7 @@ static int dmenu_mode_init ( Mode *sw )
         char *estr = rofi_expand_path ( str );
         fd = open ( str, O_RDONLY );
         if ( fd < 0 ) {
-            char *msg = g_markup_printf_escaped ( "Failed to open file: <b>%s</b>:\n\t<i>%s</i>", estr, strerror ( errno ) );
+            char *msg = g_markup_printf_escaped ( "Failed to open file: <b>%s</b>:\n\t<i>%s</i>", estr, g_strerror ( errno ) );
             rofi_view_error_dialog ( msg, TRUE );
             g_free ( msg );
             g_free ( estr );

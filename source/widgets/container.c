@@ -24,15 +24,14 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#define G_LOG_DOMAIN    "Widgets.Window"
+
 #include <config.h>
 #include <stdio.h>
 #include "widgets/widget.h"
 #include "widgets/widget-internal.h"
 #include "widgets/container.h"
 #include "theme.h"
-
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN    "Widgets.Window"
 
 struct _window
 {

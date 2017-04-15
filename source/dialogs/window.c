@@ -24,6 +24,9 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+
+#define G_LOG_DOMAIN          "Dialogs.Window"
+
 #include <config.h>
 
 #ifdef WINDOW_MODE
@@ -55,9 +58,6 @@
 
 #define CLIENTSTATE         10
 #define CLIENTWINDOWTYPE    10
-
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN          "Dialogs.Window"
 
 // a manageable window
 typedef struct

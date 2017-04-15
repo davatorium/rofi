@@ -24,15 +24,14 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#define G_LOG_DOMAIN         "Widgets.Box"
+
 #include <config.h>
 #include <stdio.h>
 #include "widgets/widget.h"
 #include "widgets/widget-internal.h"
 #include "widgets/box.h"
 #include "theme.h"
-
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN         "Widgets.Box"
 
 /** Default spacing used in the box*/
 #define DEFAULT_SPACING    2

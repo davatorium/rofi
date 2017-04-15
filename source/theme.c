@@ -1,3 +1,6 @@
+
+#define G_LOG_DOMAIN    "Theme"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -9,10 +12,6 @@
 #include "widgets/textbox.h"
 #include "view.h"
 #include "rofi.h"
-
-/** Logging domain for theme */
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN    "Theme"
 
 /**
  * Name of the property type

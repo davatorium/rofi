@@ -29,6 +29,12 @@
  * \ingroup SSHMode
  * @{
  */
+
+/**
+ * Log domain for the ssh modi.
+ */
+#define G_LOG_DOMAIN         "Dialogs.Ssh"
+
 #include <config.h>
 #include <glib.h>
 #include <stdlib.h>
@@ -49,13 +55,6 @@
 #include "settings.h"
 #include "history.h"
 #include "dialogs/ssh.h"
-
-/**
- * Log domain for the ssh modi.
- */
-
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN         "Dialogs.Ssh"
 
 /**
  * Name of the history file where previously choosen hosts are stored.
@@ -181,7 +180,7 @@ static char **read_known_hosts_file ( char ** retv, unsigned int *length )
             free ( buffer );
         }
         if ( fclose ( fd ) != 0 ) {
-            fprintf ( stderr, "Failed to close hosts file: '%s'\n", strerror ( errno ) );
+            g_warning ( "Failed to close hosts file: '%s'", g_strerror ( errno ) );
         }
     }
 
@@ -256,7 +255,7 @@ static char **read_hosts_file ( char ** retv, unsigned int *length )
             free ( buffer );
         }
         if ( fclose ( fd ) != 0 ) {
-            fprintf ( stderr, "Failed to close hosts file: '%s'\n", strerror ( errno ) );
+            g_warning ( "Failed to close hosts file: '%s'", g_strerror ( errno ) );
         }
     }
 
@@ -357,7 +356,7 @@ static void parse_ssh_config_file ( const char *filename, char ***retv, unsigned
         }
 
         if ( fclose ( fd ) != 0 ) {
-            fprintf ( stderr, "Failed to close ssh configuration file: '%s'\n", strerror ( errno ) );
+            g_warning ( "Failed to close ssh configuration file: '%s'", g_strerror ( errno ) );
         }
     }
 }

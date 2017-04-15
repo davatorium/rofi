@@ -24,6 +24,9 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/** The Rofi View log domain */
+#define G_LOG_DOMAIN    "View"
+
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,10 +65,6 @@
 #include "view-internal.h"
 
 #include "theme.h"
-
-/** The Rofi View log domain */
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN    "View"
 
 #include "xcb.h"
 /**
@@ -178,12 +177,12 @@ static void menu_capture_screenshot ( void )
     const char *outp = g_getenv ( "ROFI_PNG_OUTPUT" );
     if ( CacheState.edit_surf == NULL ) {
         // Nothing to store.
-        fprintf ( stderr, "There is no rofi surface to store\n" );
+        g_warning ( "There is no rofi surface to store" );
         return;
     }
     const char *xdg_pict_dir = g_get_user_special_dir ( G_USER_DIRECTORY_PICTURES );
     if ( outp == NULL && xdg_pict_dir == NULL ) {
-        fprintf ( stderr, "XDG user picture directory or ROFI_PNG_OUTPUT is not set. Cannot store screenshot.\n" );
+        g_warning ( "XDG user picture directory or ROFI_PNG_OUTPUT is not set. Cannot store screenshot." );
         return;
     }
     // Get current time.
@@ -210,10 +209,10 @@ static void menu_capture_screenshot ( void )
     else {
         fpath = g_strdup ( outp );
     }
-    fprintf ( stderr, color_green "Storing screenshot %s\n"color_reset, fpath );
+    g_warning ( color_green "Storing screenshot %s\n"color_reset, fpath );
     cairo_status_t status = cairo_surface_write_to_png ( CacheState.edit_surf, fpath );
     if ( status != CAIRO_STATUS_SUCCESS ) {
-        fprintf ( stderr, "Failed to produce screenshot '%s', got error: '%s'\n", fpath,
+        g_warning ( "Failed to produce screenshot '%s', got error: '%s'", fpath,
                   cairo_status_to_string ( status ) );
     }
     g_free ( fpath );
@@ -978,7 +977,7 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
 static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t *xse )
 {
     if ( xse->property == XCB_ATOM_NONE ) {
-        fprintf ( stderr, "Failed to convert selection\n" );
+        g_warning ( "Failed to convert selection" );
     }
     else if ( xse->property == xcb->ewmh.UTF8_STRING ) {
         gchar *text = window_get_text_prop ( CacheState.main_window, xcb->ewmh.UTF8_STRING );
@@ -999,7 +998,7 @@ static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t
         g_free ( text );
     }
     else {
-        fprintf ( stderr, "Failed\n" );
+        g_warning ( "Failed" );
     }
 }
 
@@ -1443,7 +1442,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
 
                 CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
                 CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
-                g_debug ( "Re-size window based external request: %d %d\n", state->width, state->height );
+                g_debug ( "Re-size window based external request: %d %d", state->width, state->height );
                 widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
             }
         }
@@ -1791,7 +1790,7 @@ void rofi_view_workers_initialize ( void )
     }
     // If error occured during setup of pool, tell user and exit.
     if ( error != NULL ) {
-        fprintf ( stderr, "Failed to setup thread pool: '%s'", error->message );
+        g_warning ( "Failed to setup thread pool: '%s'", error->message );
         g_error_free ( error );
         exit ( EXIT_FAILURE );
     }

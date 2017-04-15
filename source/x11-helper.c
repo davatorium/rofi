@@ -25,6 +25,10 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+
+/** Log domain for this module */
+#define G_LOG_DOMAIN    "X11Helper"
+
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,11 +56,6 @@
 #define INTERSECT( x, y, x1, y1, w1, h1 )    ( ( ( ( x ) >= ( x1 ) ) && ( ( x ) < ( x1 + w1 ) ) ) && ( ( ( y ) >= ( y1 ) ) && ( ( y ) < ( y1 + h1 ) ) ) )
 #include "x11-helper.h"
 #include "xkb-internal.h"
-
-/** Log domain for this module */
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN    "X11Helper"
-
 WindowManager current_window_manager = WM_EWHM;
 
 /**
@@ -523,7 +522,7 @@ int monitor_active ( workarea *mon )
             if ( monitor_get_dimension ( mon_id, mon ) ) {
                 return TRUE;
             }
-            fprintf ( stderr, "Failed to find selected monitor.\n" );
+            g_warning ( "Failed to find selected monitor." );
         }
         else {
             return monitor_active_from_id ( mon_id, mon );
@@ -538,7 +537,7 @@ int take_pointer ( xcb_window_t w, int iters )
     int i = 0;
     while ( TRUE ) {
         if ( xcb_connection_has_error ( xcb->connection ) ) {
-            fprintf ( stderr, "Connection has error\n" );
+            g_warning ( "Connection has error" );
             exit ( EXIT_FAILURE );
         }
         xcb_grab_pointer_cookie_t cc = xcb_grab_pointer ( xcb->connection, 1, w, XCB_EVENT_MASK_BUTTON_RELEASE,
@@ -563,7 +562,7 @@ int take_keyboard ( xcb_window_t w, int iters )
     int i = 0;
     while ( TRUE ) {
         if ( xcb_connection_has_error ( xcb->connection ) ) {
-            fprintf ( stderr, "Connection has error\n" );
+            g_warning ( "Connection has error" );
             exit ( EXIT_FAILURE );
         }
         xcb_grab_keyboard_cookie_t cc = xcb_grab_keyboard ( xcb->connection,

@@ -25,6 +25,8 @@
  *
  */
 
+#define G_LOG_DOMAIN "Dialogs.Script"
+
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,8 +68,8 @@ static char **get_script_output ( const char *command, unsigned int *length )
                 free ( buffer );
             }
             if ( fclose ( inp ) != 0 ) {
-                fprintf ( stderr, "Failed to close stdout off executor script: '%s'\n",
-                          strerror ( errno ) );
+                g_warning ( "Failed to close stdout off executor script: '%s'",
+                          g_strerror ( errno ) );
             }
         }
     }
@@ -201,7 +203,7 @@ Mode *script_switcher_parse_setup ( const char *str )
 
         return sw;
     }
-    fprintf ( stderr, "The script command '%s' has %u options, but needs 2: <name>:<script>.\n", str, index );
+    g_warning ( "The script command '%s' has %u options, but needs 2: <name>:<script>.", str, index );
     script_switcher_free ( sw );
     return NULL;
 }
