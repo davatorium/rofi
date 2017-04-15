@@ -54,7 +54,8 @@
  * Log domain for the ssh modi.
  */
 
-#define LOG_DOMAIN         "Dialogs.Ssh"
+#undef G_LOG_DOMAIN
+#define G_LOG_DOMAIN         "Dialogs.Ssh"
 
 /**
  * Name of the history file where previously choosen hosts are stored.
@@ -266,7 +267,7 @@ static void parse_ssh_config_file ( const char *filename, char ***retv, unsigned
 {
     FILE *fd = fopen ( filename, "r" );
 
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Parsing ssh config file: %s", filename );
+    g_debug ( "Parsing ssh config file: %s", filename );
     if ( fd != NULL ) {
         char   *buffer         = NULL;
         size_t buffer_length   = 0;
@@ -287,7 +288,7 @@ static void parse_ssh_config_file ( const char *filename, char ***retv, unsigned
 
             if ( g_strcmp0 ( token, "Include" ) == 0 ) {
                 token = strtok_r ( NULL, SSH_TOKEN_DELIM, &strtok_pointer );
-                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Include: %s", token );
+                g_debug ( "Found Include: %s", token );
                 gchar *path      = rofi_expand_path ( token );
                 gchar *full_path = NULL;
                 if ( !g_path_is_absolute ( path ) ) {

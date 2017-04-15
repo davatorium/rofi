@@ -57,7 +57,8 @@
 #define RUN_CACHE_FILE    "rofi-3.runcache"
 
 /** The log domain of this dialog. */
-#define LOG_DOMAIN        "Dialogs.Run"
+#undef G_LOG_DOMAIN
+#define G_LOG_DOMAIN        "Dialogs.Run"
 
 /**
  * The internal data structure holding the private data of the Run Mode.
@@ -221,7 +222,7 @@ static char ** get_apps ( unsigned int *length )
     gsize l        = 0;
     gchar *homedir = g_locale_to_utf8 (  g_get_home_dir (), -1, NULL, &l, &error );
     if ( error != NULL ) {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to convert homedir to UTF-8: %s", error->message );
+        g_debug ( "Failed to convert homedir to UTF-8: %s", error->message );
         g_clear_error ( &error );
         g_free ( homedir );
         return NULL;
@@ -232,13 +233,13 @@ static char ** get_apps ( unsigned int *length )
     for ( const char *dirname = strtok_r ( path, sep, &strtok_savepointer ); dirname != NULL; dirname = strtok_r ( NULL, sep, &strtok_savepointer ) ) {
         DIR *dir = opendir ( dirname );
 
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Checking path %s for executable.", dirname );
+        g_debug ( "Checking path %s for executable.", dirname );
         if ( dir != NULL ) {
             struct dirent *dent;
             gsize         dirn_len = 0;
             gchar         *dirn    = g_locale_to_utf8 ( dirname, -1, NULL, &dirn_len, &error );
             if ( error != NULL ) {
-                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to convert directory name to UTF-8: %s", error->message );
+                g_debug ( "Failed to convert directory name to UTF-8: %s", error->message );
                 g_clear_error ( &error );
                 closedir ( dir );
                 continue;
@@ -266,7 +267,7 @@ static char ** get_apps ( unsigned int *length )
                 gsize name_len;
                 gchar *name = g_filename_to_utf8 ( dent->d_name, -1, NULL, &name_len, &error );
                 if ( error != NULL ) {
-                    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to convert filename to UTF-8: %s", error->message );
+                    g_debug ( "Failed to convert filename to UTF-8: %s", error->message );
                     g_clear_error ( &error );
                     g_free ( name );
                     continue;

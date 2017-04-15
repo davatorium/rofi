@@ -11,7 +11,8 @@
 #include "rofi.h"
 
 /** Logging domain for theme */
-#define LOG_DOMAIN    "Theme"
+#undef G_LOG_DOMAIN
+#define G_LOG_DOMAIN    "Theme"
 
 /**
  * Name of the property type
@@ -372,7 +373,7 @@ static void rofi_theme_resolve_link_property ( Property *p, int depth )
     // Set name, remove '@' prefix.
     const char *name = p->value.link.name + 1;
     if ( depth > 20 ) {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_WARNING, "Found more then 20 redirects for property. Stopping." );
+        g_warning ( "Found more then 20 redirects for property. Stopping." );
         p->value.link.ref = p;
         return;
     }
@@ -419,7 +420,7 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
             if ( p->type == P_INTEGER && type == P_PADDING ) {
                 return p;
             }
-            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found property: '%s' on '%s', but type %s does not match expected type %s.",
+            g_debug ( "Found property: '%s' on '%s', but type %s does not match expected type %s.",
                     property, widget->name,
                     PropertyTypeName[p->type],
                     PropertyTypeName[type]
@@ -448,7 +449,7 @@ int rofi_theme_get_position ( const widget *widget, const char *property, int de
     if ( p ) {
         return p->value.i;
     }
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
+    g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return def;
 }
 
@@ -459,7 +460,7 @@ int rofi_theme_get_integer ( const widget *widget, const char *property, int def
     if ( p ) {
         return p->value.i;
     }
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
+    g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return def;
 }
 int rofi_theme_get_integer_exact ( const widget *widget, const char *property, int def )
@@ -470,7 +471,7 @@ int rofi_theme_get_integer_exact ( const widget *widget, const char *property, i
     if ( p ) {
         return p->value.i;
     }
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
+    g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return def;
 }
 
@@ -486,7 +487,7 @@ Distance rofi_theme_get_distance ( const widget *widget, const char *property, i
             return p->value.padding.left;
         }
     }
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
+    g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return (Distance){ def, PW_PX, SOLID };
 }
 
@@ -497,7 +498,7 @@ int rofi_theme_get_boolean ( const widget *widget, const char *property, int def
     if ( p ) {
         return p->value.b;
     }
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
+    g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return def;
 }
 
@@ -508,7 +509,7 @@ char *rofi_theme_get_string ( const widget *widget, const char *property, char *
     if ( p ) {
         return p->value.s;
     }
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
+    g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return def;
 }
 double rofi_theme_get_double ( const widget *widget, const char *property, double def )
@@ -518,7 +519,7 @@ double rofi_theme_get_double ( const widget *widget, const char *property, doubl
     if ( p ) {
         return p->value.b;
     }
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
+    g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return def;
 }
 void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t *d )
@@ -534,7 +535,7 @@ void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t 
                                 );
     }
     else {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
+        g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     }
 }
 Padding rofi_theme_get_padding ( const widget *widget, const char *property, Padding pad )
@@ -550,7 +551,7 @@ Padding rofi_theme_get_padding ( const widget *widget, const char *property, Pad
             return (Padding){ d, d, d, d };
         }
     }
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
+    g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return pad;
 }
 ThemeHighlight rofi_theme_get_highlight ( widget *widget, const char *property, ThemeHighlight th )
@@ -560,7 +561,7 @@ ThemeHighlight rofi_theme_get_highlight ( widget *widget, const char *property, 
     if ( p ) {
         return p->value.highlight;
     }
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
+    g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return th;
 }
 

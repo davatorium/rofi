@@ -75,7 +75,8 @@
 // TODO: move this check to mode.c
 #include "mode-private.h"
 
-#define LOG_DOMAIN    "Rofi"
+#undef G_LOG_DOMAIN
+#define G_LOG_DOMAIN    "Rofi"
 
 // Pidfile.
 char       *pidfile   = NULL;
@@ -179,7 +180,7 @@ static int setup ()
  */
 static void teardown ( int pfd )
 {
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Teardown" );
+    g_debug ( "Teardown" );
     // Cleanup font setup.
     textbox_cleanup ( );
 
@@ -667,7 +668,7 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
             g_main_loop_quit ( main_loop );
             return G_SOURCE_REMOVE;
         } else {
-            g_log ( LOG_DOMAIN, G_LOG_LEVEL_WARNING, "main_loop_x11_event_handler: ev == NULL, status == %d", status );
+            g_warning ( "main_loop_x11_event_handler: ev == NULL, status == %d", status );
             return G_SOURCE_CONTINUE;
         }
     }
@@ -942,7 +943,7 @@ int main ( int argc, char *argv[] )
     const char *path = g_get_user_runtime_dir ();
     if ( path ) {
         if ( g_mkdir_with_parents ( path, 0700 ) < 0 ) {
-            g_log ( LOG_DOMAIN, G_LOG_LEVEL_WARNING, "Failed to create user runtime directory: %s with error: %s\n", path, strerror ( errno ) );
+            g_warning ( "Failed to create user runtime directory: %s with error: %s\n", path, strerror ( errno ) );
             pidfile = g_build_filename ( g_get_home_dir (), ".rofi.pid", NULL );
         }
         else {

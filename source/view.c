@@ -64,7 +64,8 @@
 #include "theme.h"
 
 /** The Rofi View log domain */
-#define LOG_DOMAIN    "View"
+#undef G_LOG_DOMAIN
+#define G_LOG_DOMAIN    "View"
 
 #include "xcb.h"
 /**
@@ -228,7 +229,7 @@ static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
         // After a resize the edit_pixmap surface might not contain anything anymore.
         // If we already re-painted, this does nothing.
         rofi_view_update ( current_active_menu, FALSE );
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "expose event" );
+        g_debug ( "expose event" );
         TICK_N ( "Expose" );
         xcb_copy_area ( xcb->connection, CacheState.edit_pixmap, CacheState.main_window, CacheState.gc,
                         0, 0, 0, 0, current_active_menu->width, current_active_menu->height );
@@ -369,7 +370,7 @@ static void rofi_view_window_update_size ( RofiViewState * state )
     CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
     CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
 
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Re-size window based internal request: %dx%d.", state->width, state->height );
+    g_debug ( "Re-size window based internal request: %dx%d.", state->width, state->height );
     // Should wrap main window in a widget.
     widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
 }
@@ -412,7 +413,7 @@ void rofi_view_queue_redraw ( void  )
 {
     if ( current_active_menu && CacheState.repaint_source == 0 ) {
         CacheState.count++;
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "redraw %llu", CacheState.count );
+        g_debug ( "redraw %llu", CacheState.count );
         CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
     }
 }
@@ -434,13 +435,13 @@ void rofi_view_set_active ( RofiViewState *state )
         g_queue_push_head ( &( CacheState.views ), current_active_menu );
         // TODO check.
         current_active_menu = state;
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "stack view." );
+        g_debug ( "stack view." );
         rofi_view_window_update_size ( current_active_menu );
         rofi_view_queue_redraw ();
         return;
     }
     else if ( state == NULL && !g_queue_is_empty ( &( CacheState.views ) ) ) {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "pop view." );
+        g_debug ( "pop view." );
         current_active_menu = g_queue_pop_head ( &( CacheState.views ) );
         rofi_view_window_update_size ( current_active_menu );
         rofi_view_queue_redraw ();
@@ -607,7 +608,7 @@ static void rofi_view_setup_fake_transparency ( const char* const fake_backgroun
         }
         else {
             char *fpath = rofi_expand_path ( fake_background );
-            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Opening %s to use as background.", fpath );
+            g_debug ( "Opening %s to use as background.", fpath );
             s                     = cairo_image_surface_create_from_png ( fpath );
             CacheState.fake_bgrel = TRUE;
             g_free ( fpath );
@@ -615,7 +616,7 @@ static void rofi_view_setup_fake_transparency ( const char* const fake_backgroun
         TICK_N ( "Get surface." );
         if ( s != NULL ) {
             if ( cairo_surface_status ( s ) != CAIRO_STATUS_SUCCESS ) {
-                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to open surface fake background: %s",
+                g_debug ( "Failed to open surface fake background: %s",
                         cairo_status_to_string ( cairo_surface_status ( s ) ) );
                 cairo_surface_destroy ( s );
                 s = NULL;
@@ -702,7 +703,7 @@ void __create_window ( MenuFlags menu_flags )
             dpi = ( xcb->screen->height_in_pixels * 25.4 ) / (double) ( xcb->screen->height_in_millimeters );
         }
 
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Auto-detected DPI: %.2lf", dpi );
+        g_debug ( "Auto-detected DPI: %.2lf", dpi );
         PangoFontMap *font_map = pango_cairo_font_map_get_default ();
         pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, dpi );
     }
@@ -931,7 +932,7 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
     if ( !widget_need_redraw ( WIDGET ( state->main_window ) ) ) {
         return;
     }
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Redraw view" );
+    g_debug ( "Redraw view" );
     TICK ();
     cairo_t *d = CacheState.edit_draw;
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
@@ -1128,7 +1129,7 @@ static void rofi_view_refilter ( RofiViewState *state )
         state->height = height;
         rofi_view_calculate_window_position ( state );
         rofi_view_window_update_size ( state );
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Resize based on re-filter" );
+        g_debug ( "Resize based on re-filter" );
     }
     state->refilter = FALSE;
     TICK_N ( "Filter done" );
@@ -1442,7 +1443,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
 
                 CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
                 CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
-                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Re-size window based external request: %d %d\n", state->width, state->height );
+                g_debug ( "Re-size window based external request: %d %d\n", state->width, state->height );
                 widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
             }
         }
@@ -1733,7 +1734,7 @@ void rofi_view_hide ( void )
 
 void rofi_view_cleanup ()
 {
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Cleanup." );
+    g_debug ( "Cleanup." );
     if ( CacheState.idle_timeout > 0 ) {
         g_source_remove ( CacheState.idle_timeout );
         CacheState.idle_timeout = 0;
@@ -1755,7 +1756,7 @@ void rofi_view_cleanup ()
         CacheState.edit_surf = NULL;
     }
     if ( CacheState.main_window != XCB_WINDOW_NONE ) {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Unmapping and free'ing window" );
+        g_debug ( "Unmapping and free'ing window" );
         xcb_unmap_window ( xcb->connection, CacheState.main_window );
         xcb_free_gc ( xcb->connection, CacheState.gc );
         xcb_free_pixmap ( xcb->connection, CacheState.edit_pixmap );

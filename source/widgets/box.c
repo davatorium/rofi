@@ -31,7 +31,8 @@
 #include "widgets/box.h"
 #include "theme.h"
 
-#define LOG_DOMAIN         "Widgets.Box"
+#undef G_LOG_DOMAIN
+#define G_LOG_DOMAIN         "Widgets.Box"
 
 /** Default spacing used in the box*/
 #define DEFAULT_SPACING    2
@@ -118,7 +119,7 @@ static void vert_calculate_size ( box *b )
     }
     if ( b->max_size > rem_height ) {
         b->max_size = rem_height;
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Widgets to large (height) for box: %d %d", b->max_size, b->widget.h );
+        g_debug ( "Widgets to large (height) for box: %d %d", b->max_size, b->widget.h );
         return;
     }
     if ( active_widgets > 0 ) {
@@ -181,7 +182,7 @@ static void hori_calculate_size ( box *b )
     b->max_size += MAX ( 0, ( ( active_widgets - 1 ) * spacing ) );
     if ( b->max_size > ( rem_width ) ) {
         b->max_size = rem_width;
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Widgets to large (width) for box: %d %d", b->max_size, b->widget.w );
+        g_debug ( "Widgets to large (width) for box: %d %d", b->max_size, b->widget.w );
         return;
     }
     if ( active_widgets > 0 ) {

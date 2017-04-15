@@ -56,7 +56,8 @@
 #define CLIENTSTATE         10
 #define CLIENTWINDOWTYPE    10
 
-#define LOG_DOMAIN          "Dialogs.Window"
+#undef G_LOG_DOMAIN
+#define G_LOG_DOMAIN          "Dialogs.Window"
 
 // a manageable window
 typedef struct
