@@ -408,7 +408,7 @@ static void help_print_no_arguments ( void )
                       is_term ? color_reset : "" );
         }
     }
-    fprintf ( stderr, "\nTo activate a mode, add it to the list of modi in the %smodi%s setting.",
+    fprintf ( stderr, "\nTo activate a mode, add it to the list of modi in the %smodi%s setting.\n",
               is_term ? color_green : "", is_term ? color_reset : "" );
 }
 
