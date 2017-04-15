@@ -1,9 +1,9 @@
-/**
+/*
  * rofi
  *
  * MIT/X11 License
- * Copyright (c) 2012 Sean Pringle <sean.pringle@gmail.com>
- * Modified 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2012 Sean Pringle <sean.pringle@gmail.com>
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -23,6 +23,7 @@
  * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
  */
 
 #define G_LOG_DOMAIN    "Rofi"
