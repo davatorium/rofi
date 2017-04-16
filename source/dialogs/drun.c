@@ -64,6 +64,8 @@ typedef struct
     char     *root;
     /* Path to desktop file */
     char     *path;
+    /* Path to icon file */
+    char     *icon_path;
     /* Executable */
     char     *exec;
     /* Name of the Entry */
@@ -279,6 +281,11 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
 #endif
     pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
 
+    // Stuff the icon name in icon_path first. Look up the full path later in walk_dir_for_icons()
+    gchar *iconname = g_key_file_get_locale_string ( kf, "Desktop Entry", "Icon", NULL, NULL );
+    pd->entry_list[pd->cmd_list_length].icon_path = iconname;
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon=%s", iconname );
+
     // Keep keyfile around.
     pd->entry_list[pd->cmd_list_length].key_file = kf;
     // We don't want to parse items with this id anymore.
@@ -351,6 +358,80 @@ static void walk_dir ( DRunModePrivateData *pd, const char *root, const char *di
     }
     closedir ( dir );
 }
+
+/**
+ * Internal spider used to find application icon files.
+ * AA TOOD: Currently just finds the first match for each app.
+ *          We should choose based on size/type eg. 16x16 or svg vs png etc
+ */
+static void walk_dir_for_icons ( DRunModePrivateData *pd, const char *root, const char *dirname )
+{
+    DIR *dir;
+
+    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Checking directory %s icon files.", root );
+    dir = opendir ( dirname );
+    if ( dir == NULL ) {
+        return;
+    }
+
+    struct dirent *file;
+    gchar         *filename = NULL;
+    struct stat   st;
+    while ( ( file = readdir ( dir ) ) != NULL ) {
+        if ( file->d_name[0] == '.' ) {
+            continue;
+        }
+        switch ( file->d_type )
+        {
+        case DT_LNK:
+        case DT_REG:
+        case DT_DIR:
+        case DT_UNKNOWN:
+            filename = g_build_filename ( dirname, file->d_name, NULL );
+            break;
+        default:
+            continue;
+        }
+
+        // On a link, or if FS does not support providing this information
+        // Fallback to stat method.
+        if ( file->d_type == DT_LNK || file->d_type == DT_UNKNOWN ) {
+            file->d_type = DT_UNKNOWN;
+            if ( stat ( filename, &st ) == 0 ) {
+                if ( S_ISDIR ( st.st_mode ) ) {
+                    file->d_type = DT_DIR;
+                }
+                else if ( S_ISREG ( st.st_mode ) ) {
+                    file->d_type = DT_REG;
+                }
+            }
+        }
+
+        switch ( file->d_type )
+        {
+        case DT_REG:
+            // Check if file is one of our icon files
+            for ( size_t i = 0; i < pd->cmd_list_length; i++ ) {
+                if ( pd->entry_list[i].icon_path == NULL ) {
+                    continue;
+                }
+                if ( g_str_has_prefix ( file->d_name, pd->entry_list[i].icon_path ) ) {
+                    g_free ( pd->entry_list[i].icon_path );
+                    pd->entry_list[i].icon_path = g_build_filename ( dirname, file->d_name, NULL );
+                    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon=%s", pd->entry_list[i].icon_path );
+                }
+            }
+            break;
+        case DT_DIR:
+            walk_dir_for_icons ( pd, root, filename );
+            break;
+        default:
+            break;
+        }
+        g_free ( filename );
+    }
+    closedir ( dir );
+}
 /**
  * @param entry The command entry to remove from history
  *
@@ -405,6 +486,28 @@ static void get_apps ( DRunModePrivateData *pd )
     TICK_N ( "Get Desktop apps (system dirs)" );
 }
 
+static void get_app_icons ( DRunModePrivateData *pd )
+{
+    TICK_N ( "Get Desktop app icons (start)" );
+    //get_apps_history ( pd ); //AA TODO - caching
+
+    gchar *dir;
+    // First read the user directory.
+    dir = g_build_filename ( g_get_user_data_dir (), "icons", NULL );
+    walk_dir_for_icons ( pd, dir, dir );
+    g_free ( dir );
+    TICK_N ( "Get Desktop app icons (user dir)" );
+    // Then read thee system data dirs.
+    const gchar * const * sys = g_get_system_data_dirs ();
+    for (; *sys != NULL; ++sys ) {
+        dir = g_build_filename ( *sys, "icons", NULL );
+        walk_dir_for_icons ( pd, dir, dir );
+        g_free ( dir );
+    }
+    walk_dir_for_icons ( pd, "/usr/share/pixmaps", "/usr/share/pixmaps" );
+    TICK_N ( "Get Desktop app icons (system dirs)" );
+}
+
 static int drun_mode_init ( Mode *sw )
 {
     if ( mode_get_private_data ( sw ) == NULL ) {
@@ -412,6 +515,7 @@ static int drun_mode_init ( Mode *sw )
         pd->disabled_entries = g_hash_table_new_full ( g_str_hash, g_str_equal, g_free, NULL );
         mode_set_private_data ( sw, (void *) pd );
         get_apps ( pd );
+        get_app_icons ( pd );
     }
     return TRUE;
 }
@@ -419,6 +523,7 @@ static void drun_entry_clear ( DRunModeEntry *e )
 {
     g_free ( e->root );
     g_free ( e->path );
+    g_free ( e->icon_path );
     g_free ( e->exec );
     g_free ( e->name );
     g_free ( e->generic_name );
@@ -490,11 +595,39 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     /* Free temp storage. */
     DRunModeEntry *dr = &( pd->entry_list[selected_line] );
     if ( dr->generic_name == NULL ) {
-        return g_markup_escape_text ( dr->name, -1 );
+        /*return g_markup_escape_text ( dr->name, -1 );*/
+        return g_markup_printf_escaped ( "\t%s", dr->name );
     }
     else {
-        return g_markup_printf_escaped ( "%s <span weight='light' size='small'><i>(%s)</i></span>", dr->name,
+        return g_markup_printf_escaped ( "\t%s <span weight='light' size='small'><i>(%s)</i></span>", dr->name,
                                          dr->generic_name );
+    }
+}
+static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line )
+{
+    DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
+    if ( pd->entry_list == NULL ) {
+        // Should never get here.
+        return NULL;
+    }
+    /* Free temp storage. */
+    DRunModeEntry *dr = &( pd->entry_list[selected_line] );
+    if ( dr->icon_path == NULL ) {
+        return NULL;
+    }
+    else {
+        cairo_surface_t *surface = NULL;
+        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Loading icon from %s", dr->icon_path );
+        if ( g_str_has_suffix ( dr->icon_path, ".png" ) ) {
+            surface = cairo_image_surface_create_from_png(dr->icon_path);
+            return surface;
+        } else if ( g_str_has_suffix ( dr->icon_path, ".svg" ) ) {
+            surface = cairo_image_surface_create_from_svg(dr->icon_path);
+            return surface;
+        } else {
+            g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", dr->icon_path );
+            return NULL;
+        }
     }
 }
 static char *drun_get_completion ( const Mode *sw, unsigned int index )
@@ -572,6 +705,7 @@ Mode drun_mode =
     ._token_match       = drun_token_match,
     ._get_completion    = drun_get_completion,
     ._get_display_value = _get_display_value,
+    ._get_icon          = _get_icon,
     ._preprocess_input  = NULL,
     .private_data       = NULL,
     .free               = NULL

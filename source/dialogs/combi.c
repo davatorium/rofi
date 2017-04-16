@@ -210,6 +210,8 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
             char       * str  = mode_get_display_value ( pd->switchers[i].mode, selected_line - pd->starts[i], state, attr_list, TRUE );
             const char *dname = mode_get_display_name ( pd->switchers[i].mode );
             char       * retv = g_strdup_printf ( "%s %s", dname, str );
+            /*char       * retv = g_strdup_printf ( "%s    %s", dname, str );*/
+            /*char       * retv = g_strdup_printf ( "%s \t  %s", dname, str );*/
             g_free ( str );
 
             if ( attr_list != NULL ) {
@@ -244,6 +246,19 @@ static char * combi_get_completion ( const Mode *sw, unsigned int index )
     }
     // Should never get here.
     g_assert_not_reached ();
+    return NULL;
+}
+
+static cairo_surface_t * combi_get_icon ( const Mode *sw, unsigned int index )
+{
+    CombiModePrivateData *pd = mode_get_private_data ( sw );
+    for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
+        if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
+            cairo_surface_t *icon  = mode_get_icon ( pd->switchers[i].mode, index - pd->starts[i] );
+            return icon;
+        }
+    }
+    //Not all modes support icons so it's possible to reach here
     return NULL;
 }
 
@@ -285,6 +300,8 @@ Mode combi_mode =
     ._token_match       = combi_mode_match,
     ._get_completion    = combi_get_completion,
     ._get_display_value = combi_mgrv,
+    ._get_icon          = combi_get_icon,
+    /*._get_icon_index    = combi_get_icon_index, //AA TODO - Do we need this function?*/
     ._preprocess_input  = combi_preprocess_input,
     .private_data       = NULL,
     .free               = NULL

@@ -35,6 +35,9 @@
 
 // This one should only be in mode implementations.
 #include "mode-private.h"
+
+#define LOG_DOMAIN    "Mode"
+
 /**
  * @ingroup MODE
  * @{
@@ -68,6 +71,18 @@ char * mode_get_display_value ( const Mode *mode, unsigned int selected_line, in
     g_assert ( mode->_get_display_value != NULL );
 
     return mode->_get_display_value ( mode, selected_line, state, list, get_entry );
+}
+
+cairo_surface_t * mode_get_icon ( const Mode *mode, unsigned int selected_line )
+{
+    g_assert ( mode != NULL );
+
+    if ( mode->_get_icon != NULL ) {
+        return mode->_get_icon ( mode, selected_line );
+    }
+    else {
+        return NULL;
+    }
 }
 
 char * mode_get_completion ( const Mode *mode, unsigned int selected_line )

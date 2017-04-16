@@ -44,6 +44,8 @@
 
 #define DOT_OFFSET    15
 
+#define LOG_DOMAIN         "Widgets.TextBox"
+
 static void textbox_draw ( widget *, cairo_t * );
 static void textbox_free ( widget * );
 static int textbox_get_width ( widget * );
@@ -164,6 +166,8 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
         tb->blink_timeout = g_timeout_add ( 1200, textbox_blink, tb );
     }
 
+    tb->icon_index = -1; //Don't draw the icon by default
+
     // Enabled by default
     tb->widget.enabled = TRUE;
     return tb;
@@ -245,6 +249,12 @@ void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list )
     pango_layout_set_attributes ( tb->layout, list );
 }
 
+void textbox_set_icon_index ( textbox *tb, int index)
+{
+    tb->icon_index = index;
+    widget_queue_redraw ( WIDGET ( tb ) );
+}
+
 // set the default text to display
 void textbox_text ( textbox *tb, const char *text )
 {
@@ -272,6 +282,12 @@ void textbox_text ( textbox *tb, const char *text )
     }
 
     tb->cursor = MAX ( 0, MIN ( ( int ) g_utf8_strlen ( tb->text, -1 ), tb->cursor ) );
+    widget_queue_redraw ( WIDGET ( tb ) );
+}
+
+void textbox_icon ( textbox *tb, cairo_surface_t *icon ) {
+    tb->icon = icon;
+
     widget_queue_redraw ( WIDGET ( tb ) );
 }
 
@@ -328,7 +344,10 @@ static void textbox_free ( widget *wid )
         g_object_unref ( tb->layout );
     }
 
+    cairo_surface_destroy ( tb->icon );
+
     g_slice_free ( textbox, tb );
+
 }
 
 static void textbox_draw ( widget *wid, cairo_t *draw )
@@ -342,6 +361,26 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
 
     // Skip the side MARGIN on the X axis.
     int x = widget_padding_get_left ( WIDGET ( tb ) ) + offset;
+    int top = widget_padding_get_top ( WIDGET ( tb ) );
+    int y = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
+
+    // draw Icon
+    int iconheight = textbox_get_font_height ( tb );
+    int translatex = (textbox_get_estimated_char_height() * tb->icon_index / 2);
+    if ( tb->icon != NULL &&  tb->icon_index != -1) {
+        cairo_save(draw);
+
+        /*int iconw = cairo_image_surface_get_width (tb->icon);*/
+        int iconh = cairo_image_surface_get_height (tb->icon);
+        double scale = (double)iconheight / iconh;
+
+        cairo_translate(draw, translatex, 0);
+        cairo_scale(draw, scale, scale);
+        cairo_set_source_surface(draw, tb->icon, x, y);
+        cairo_paint(draw);
+        cairo_restore(draw);
+
+    }
 
     if ( tb->flags & TB_RIGHT ) {
         int line_width = 0;
@@ -354,14 +393,13 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         x = (  ( tb->widget.w - tw - widget_padding_get_padding_width ( WIDGET ( tb ) ) - offset ) ) / 2;
     }
 
-    int top = widget_padding_get_top ( WIDGET ( tb ) );
 
     rofi_theme_get_color ( WIDGET ( tb ), "foreground", draw );
     // Text
     rofi_theme_get_color ( WIDGET ( tb ), "text", draw );
     // draw the cursor
     if ( tb->flags & TB_EDITABLE && tb->blink ) {
-        int            y = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
+        /*int            y = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;*/
         // We want to place the cursor based on the text shown.
         const char     *text = pango_layout_get_text ( tb->layout );
         // Clamp the position, should not be needed, but we are paranoid.
