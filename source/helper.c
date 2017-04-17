@@ -964,3 +964,39 @@ int helper_execute_command ( const char *wd, const char *cmd, int run_in_term )
     g_strfreev ( args );
     return retv;
 }
+
+
+char *helper_get_theme_path ( const char *file )
+{
+    char *filename = rofi_expand_path ( file );
+    if ( g_file_test ( filename, G_FILE_TEST_EXISTS ) ) {
+        return filename;
+    }
+    g_free ( filename );
+
+    if ( g_str_has_suffix ( file, ".rasi" ) ) {
+        filename = g_strdup ( file );
+    } else {
+        filename = g_strconcat ( file, ".rasi", NULL );
+    }
+    // Check config directory.
+    const char *cpath = g_get_user_config_dir ();
+    if ( cpath ) {
+        char *themep = g_build_filename ( cpath, "rofi", filename, NULL );
+        if ( g_file_test ( themep, G_FILE_TEST_EXISTS ) ) {
+            g_free ( filename );
+            return themep;
+        }
+        g_free ( themep );
+    }
+
+    char *theme_path = g_build_filename ( THEME_DIR, filename, NULL );
+    if ( theme_path ) {
+        if ( g_file_test ( theme_path, G_FILE_TEST_EXISTS ) ) {
+            g_free ( filename );
+            return theme_path;
+        }
+        g_free ( theme_path );
+    }
+    return filename;
+}

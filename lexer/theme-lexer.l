@@ -574,11 +574,14 @@ static char * rofi_theme_parse_prepare_file ( const char *file, const char *pare
 }
 gboolean rofi_theme_parse_file ( const char *file )
 {
-    char *filename = rofi_theme_parse_prepare_file ( file, NULL );
+    char *file2 = helper_get_theme_path ( file );
+    char *filename = rofi_theme_parse_prepare_file ( file2, NULL );
+    g_free ( file2 );
+
     yyin = fopen ( filename, "rb" );
     if ( yyin == NULL ) {
         char *str = g_markup_printf_escaped ( "Failed to open theme: <i>%s</i>\nError: <b>%s</b>",
-                                              filename, strerror ( errno ) );
+                filename, strerror ( errno ) );
         rofi_add_error_message ( g_string_new ( str ) );
         g_free ( str );
         g_free ( filename );
