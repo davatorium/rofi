@@ -233,6 +233,7 @@ history_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(libsn_CFLAGS)\
+	-DTHEME_DIR=\"${prefix}/share/rofi/themes/\"\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
@@ -258,6 +259,7 @@ textbox_test_CFLAGS=\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
+	-DTHEME_DIR=\"${prefix}/share/rofi/themes/\"\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
@@ -397,6 +399,7 @@ helper_test_CFLAGS=\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
+	-DTHEME_DIR=\"${prefix}/share/rofi/themes/\"\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/

@@ -57,6 +57,11 @@ char * rofi_expand_path ( const char *path )
 {
 
 }
+
+char * helper_get_theme_path ( const char *file )
+{
+    return g_strdup ( file );
+}
 void rofi_add_error_message ( GString *msg )
 {
 }

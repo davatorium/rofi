@@ -49,6 +49,11 @@ unsigned int test =0;
             abort ( );                                                                   \
         }                                                                                \
 }
+
+char * helper_get_theme_path ( const char *file )
+{
+    return g_strdup ( file );
+}
 void config_parse_set_property ( const void *p )
 {
 }
