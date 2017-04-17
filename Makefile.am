@@ -124,7 +124,7 @@ rofi_CFLAGS=\
 	-DSYSCONFDIR=\"$(sysconfdir)\"\
 	-DTHEME_CONVERTER\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
-	-DTHEME_DIR=\"${prefix}/share/rofi/themes/\"
+	-DTHEME_DIR=\"$(themedir)\"
 
 rofi_LDADD=\
 	$(glib_LIBS)\
@@ -233,7 +233,7 @@ history_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(libsn_CFLAGS)\
-	-DTHEME_DIR=\"${prefix}/share/rofi/themes/\"\
+	-DTHEME_DIR=\"$(themedir)\"\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
@@ -259,7 +259,7 @@ textbox_test_CFLAGS=\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
-	-DTHEME_DIR=\"${prefix}/share/rofi/themes/\"\
+	-DTHEME_DIR=\"$(themedir)\"\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
@@ -399,7 +399,7 @@ helper_test_CFLAGS=\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
-	-DTHEME_DIR=\"${prefix}/share/rofi/themes/\"\
+	-DTHEME_DIR=\"$(themedir)\"\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/

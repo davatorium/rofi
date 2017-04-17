@@ -561,8 +561,8 @@ rofi -dump-theme
 
 ## EXAMPLES
 
-Several examples are installed together with **rofi**. These can be found in `{prefix}/share/rofi/themes/` where
-`{prefix}` is the install path of **rofi**. When installed using a package manager this usually: `/usr/`. 
+Several examples are installed together with **rofi**. These can be found in `{datadir}/rofi/themes/` where
+`{datadir}` is the install path of **rofi** data. When installed using a package manager this is usually: `/usr/share/`.
 
 ## SEE ALSO
 
