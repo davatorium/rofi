@@ -120,6 +120,9 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
     tb->changed = FALSE;
 
     tb->layout = pango_layout_new ( p_context );
+    if ( (tb->flags&TB_ICON) == TB_ICON ) {
+        tb->left_offset   = 1.2*textbox_get_estimated_char_height();
+    }
     textbox_font ( tb, tbft );
 
     tb->metrics = p_metrics;
@@ -160,8 +163,6 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
     if ( ( flags & TB_EDITABLE ) == TB_EDITABLE ) {
         tb->blink_timeout = g_timeout_add ( 1200, textbox_blink, tb );
     }
-
-    tb->icon_index = -1; //Don't draw the icon by default
 
     // Enabled by default
     tb->widget.enabled = TRUE;
@@ -246,8 +247,8 @@ void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list )
 
 void textbox_set_icon_index ( textbox *tb, int index)
 {
-    tb->icon_index = index;
-    widget_queue_redraw ( WIDGET ( tb ) );
+    /*tb->icon_index = index;*/
+    /*widget_queue_redraw ( WIDGET ( tb ) );*/
 }
 
 // set the default text to display
@@ -289,10 +290,9 @@ void textbox_icon ( textbox *tb, cairo_surface_t *icon ) {
 // within the parent handled auto width/height modes
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
-    unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+    unsigned int offset = tb->left_offset + ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
     if ( tb->flags & TB_AUTOWIDTH ) {
         pango_layout_set_width ( tb->layout, -1 );
-        unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
         w = textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( WIDGET ( tb ) ) + offset;
     }
     else {
@@ -345,21 +345,22 @@ static void textbox_free ( widget *wid )
 static void textbox_draw ( widget *wid, cairo_t *draw )
 {
     textbox      *tb    = (textbox *) wid;
-    unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+    unsigned int offset = tb->left_offset + (( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0);
+
 
     if ( tb->changed ) {
         __textbox_update_pango_text ( tb );
     }
 
     // Skip the side MARGIN on the X axis.
-    int x = widget_padding_get_left ( WIDGET ( tb ) ) + offset;
+    int x = widget_padding_get_left ( WIDGET ( tb ) );
     int top = widget_padding_get_top ( WIDGET ( tb ) );
     int y = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
     // draw Icon
-    int iconheight = textbox_get_font_height ( tb );
-    int translatex = (textbox_get_estimated_char_height() * tb->icon_index / 2);
-    if ( tb->icon != NULL &&  tb->icon_index != -1) {
+    if ( (tb->flags|TB_ICON) == TB_ICON && tb->icon != NULL ) {
+        int iconheight = textbox_get_font_height ( tb );
+        int translatex = 0;//(textbox_get_estimated_char_height() * tb->icon_index / 2);
         cairo_save(draw);
 
         /*int iconw = cairo_image_surface_get_width (tb->icon);*/
@@ -373,6 +374,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         cairo_restore(draw);
 
     }
+    x+=offset;
 
     if ( tb->flags & TB_RIGHT ) {
         int line_width = 0;
@@ -414,7 +416,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     pango_cairo_show_layout ( draw, tb->layout );
 
     if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED ) ) ) {
-        cairo_arc ( draw, DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
+        cairo_arc ( draw, tb->left_offset + DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
         cairo_fill ( draw );
     }
 }
@@ -759,7 +761,8 @@ int textbox_get_width ( widget *wid )
 {
     textbox *tb = (textbox *) wid;
     if ( tb->flags & TB_AUTOWIDTH ) {
-        unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+        unsigned int offset = tb->left_offset + ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+
         return textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( wid ) + offset;
     }
     return tb->widget.w;
