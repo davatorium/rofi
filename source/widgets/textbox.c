@@ -165,7 +165,7 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
     }
 
     // Enabled by default
-    tb->widget.enabled = TRUE;
+    tb->widget.enabled = rofi_theme_get_boolean ( WIDGET ( tb ), "enabled", TRUE );
     return tb;
 }
 

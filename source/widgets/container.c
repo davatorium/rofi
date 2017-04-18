@@ -123,7 +123,7 @@ container * container_create ( const char *name )
     b->widget.clicked            = container_clicked;
     b->widget.motion_notify      = container_motion_notify;
     b->widget.get_desired_height = container_get_desired_height;
-    b->widget.enabled            = TRUE;
+    b->widget.enabled = rofi_theme_get_boolean ( WIDGET ( b ), "enabled", TRUE );
     return b;
 }
 

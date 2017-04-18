@@ -66,7 +66,7 @@ scrollbar *scrollbar_create ( const char *name )
     sb->pos_length = 4;
 
     // Enabled by default
-    sb->widget.enabled = TRUE;
+    sb->widget.enabled = rofi_theme_get_boolean ( WIDGET ( sb ), "enabled", TRUE );
     return sb;
 }
 
