@@ -367,9 +367,9 @@ static void help_print_disabled_mode ( const char *mode )
     int is_term = isatty ( fileno ( stdout ) );
     // Only  output to terminal
     if ( is_term ) {
-        g_warning ( "Mode %s%s%s is not enabled. I have enabled it for now.",
+        fprintf ( stderr,  "Mode %s%s%s is not enabled. I have enabled it for now.\n",
                   color_red, mode, color_reset );
-        g_warning ( "Please consider adding %s%s%s to the list of enabled modi: %smodi: %s%s%s,%s%s.",
+        fprintf ( stderr,  "Please consider adding %s%s%s to the list of enabled modi: %smodi: %s%s%s,%s%s.\n",
                   color_red, mode, color_reset,
                   color_green, config.modi, color_reset,
                   color_red, mode, color_reset
