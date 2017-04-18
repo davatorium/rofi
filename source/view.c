@@ -210,7 +210,7 @@ static void menu_capture_screenshot ( void )
     else {
         fpath = g_strdup ( outp );
     }
-    g_warning ( color_green "Storing screenshot %s\n"color_reset, fpath );
+    fprintf ( stderr, color_green "Storing screenshot %s\n"color_reset, fpath );
     cairo_status_t status = cairo_surface_write_to_png ( CacheState.edit_surf, fpath );
     if ( status != CAIRO_STATUS_SUCCESS ) {
         g_warning ( "Failed to produce screenshot '%s', got error: '%s'", fpath,
