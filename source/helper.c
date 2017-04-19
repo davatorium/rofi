@@ -872,9 +872,9 @@ int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *st
     // values suppress warnings.
     int            uleft = 0, ulefts = 0, left, lefts;
     const gchar    *pit = pattern, *sit;
-    enum CharClass prev = NON_WORD, cur;
+    enum CharClass prev = NON_WORD;
     for ( si = 0, sit = str; si < slen; si++, sit = g_utf8_next_char ( sit ) ) {
-        cur       = rofi_scorer_get_character_class ( g_utf8_get_char ( sit ) );
+        enum CharClass cur       = rofi_scorer_get_character_class ( g_utf8_get_char ( sit ) );
         score[si] = rofi_scorer_get_score_for ( prev, cur );
         prev      = cur;
         dp[si]    = MIN_SCORE;

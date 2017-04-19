@@ -231,7 +231,9 @@ static char ** get_apps ( unsigned int *length )
     const char *const sep                 = ":";
     char              *strtok_savepointer = NULL;
     for ( const char *dirname = strtok_r ( path, sep, &strtok_savepointer ); dirname != NULL; dirname = strtok_r ( NULL, sep, &strtok_savepointer ) ) {
-        DIR *dir = opendir ( dirname );
+        char *fpath = rofi_expand_path ( dirname );
+        DIR *dir = opendir ( fpath );
+        g_free ( fpath );
 
         g_debug ( "Checking path %s for executable.", dirname );
         if ( dir != NULL ) {
