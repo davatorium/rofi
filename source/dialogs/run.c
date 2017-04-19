@@ -233,9 +233,9 @@ static char ** get_apps ( unsigned int *length )
     for ( const char *dirname = strtok_r ( path, sep, &strtok_savepointer ); dirname != NULL; dirname = strtok_r ( NULL, sep, &strtok_savepointer ) ) {
         char *fpath = rofi_expand_path ( dirname );
         DIR *dir = opendir ( fpath );
+        g_debug ( "Checking path %s for executable.", fpath );
         g_free ( fpath );
 
-        g_debug ( "Checking path %s for executable.", dirname );
         if ( dir != NULL ) {
             struct dirent *dent;
             gsize         dirn_len = 0;
