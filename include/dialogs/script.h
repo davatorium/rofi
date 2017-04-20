@@ -43,5 +43,14 @@
  * @returns NULL when it fails, a newly allocated ScriptOptions when successful.
  */
 Mode *script_switcher_parse_setup ( const char *str );
+
+/**
+ * @param token The modi str to check
+ *
+ * Check if token could be a valid script modi.
+ *
+ * @returns true when valid.
+ */
+gboolean script_switcher_is_valid ( const char *token );
 /*@}*/
 #endif // ROFI_DIALOG_SCRIPT_H

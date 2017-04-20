@@ -272,6 +272,25 @@ void process_result ( RofiViewState *state )
 /**
  * Help function.
  */
+static void print_list_of_modi ( int is_term )
+{
+    for ( unsigned int i = 0; i < num_available_modi; i++ ) {
+        gboolean active = FALSE;
+        for ( unsigned int j = 0; j < num_modi; j++ ) {
+            if ( modi[j] == available_modi[i] ) {
+                active = TRUE;
+                break;
+            }
+        }
+        printf ( "        * %s%s%s%s\n",
+                active?"+":"" ,
+                is_term ? (active?color_green:color_red) : "",
+                available_modi[i]->name,
+                is_term ? color_reset : ""
+               );
+    }
+
+}
 static void print_main_application_options ( int is_term )
 {
     print_help_msg ( "-no-config", "", "Do not load configuration, use default values.", NULL, is_term );
@@ -302,21 +321,7 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     x11_dump_monitor_layout ();
     printf("\n");
     printf("Detected modi:\n");
-    for ( unsigned int i = 0; i < num_available_modi; i++ ) {
-        gboolean active = FALSE;
-        for ( unsigned int j = 0; j < num_modi; j++ ) {
-            if ( modi[j] == available_modi[i] ) {
-                active = TRUE;
-                break;
-            }
-        }
-        printf ( "        * %s%s%s%s\n",
-                active?"+":"" ,
-                is_term ? (active?color_green:color_red) : "",
-                  available_modi[i]->name,
-                  is_term ? color_reset : ""
-                   );
-    }
+    print_list_of_modi ( is_term );
     printf ( "\n" );
     printf ( "Compile time options:\n" );
 #ifdef WINDOW_MODE
@@ -375,6 +380,15 @@ static void help_print_disabled_mode ( const char *mode )
                   color_red, mode, color_reset
                   );
     }
+}
+static void help_print_mode_not_found ( const char *mode )
+{
+    int is_term = isatty ( fileno ( stdout ) );
+    fprintf ( stderr, "Mode %s%s%s is not found.\n",
+            is_term?color_red:"", mode, is_term?color_reset:"");
+    fprintf( stderr, "The following modi are known:\n");
+    print_list_of_modi ( is_term );
+    printf ( "\n" );
 }
 static void help_print_no_arguments ( void )
 {
@@ -613,21 +627,17 @@ static int add_mode ( const char * token )
         modi[num_modi] = mode;
         num_modi++;
     }
-    else {
+    else if ( script_switcher_is_valid ( token ) ){
         // If not build in, use custom modi.
         Mode *sw = script_switcher_parse_setup ( token );
         if ( sw != NULL ) {
             modi[num_modi] = sw;
             num_modi++;
         }
-        else {
-            // Report error, don't continue.
-            g_warning ( "Invalid script mode: %s", token );
-        }
     }
     return ( index == num_modi ) ? -1 : (int) index;
 }
-static void setup_modi ( void )
+static gboolean setup_modi ( void )
 {
     const char *const sep     = ",#";
     char              *savept = NULL;
@@ -635,10 +645,15 @@ static void setup_modi ( void )
     char              *switcher_str = g_strdup ( config.modi );
     // Split token on ','. This modifies switcher_str.
     for ( char *token = strtok_r ( switcher_str, sep, &savept ); token != NULL; token = strtok_r ( NULL, sep, &savept ) ) {
-        add_mode ( token );
+        if ( add_mode ( token ) == -1 ){
+            help_print_mode_not_found ( token );
+            g_free ( switcher_str );
+            return TRUE;
+        }
     }
     // Free string that was modified by strtok_r
     g_free ( switcher_str );
+    return FALSE;
 }
 
 /**
@@ -874,7 +889,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
             run_switcher ( index );
         }
         else {
-            g_warning ( "The %s mode has not been enabled", sname );
+            help_print_mode_not_found ( sname );
             g_main_loop_quit ( main_loop );
             return G_SOURCE_REMOVE;
         }
@@ -1146,7 +1161,11 @@ int main ( int argc, char *argv[] )
 
     if ( !dmenu_mode ) {
         // setup_modi
-        setup_modi ();
+        if ( setup_modi () )
+        {
+            cleanup ();
+            return EXIT_FAILURE;
+        }
         TICK_N ( "Setup Modi" );
     }
 
