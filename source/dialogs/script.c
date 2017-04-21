@@ -91,6 +91,7 @@ static void script_switcher_free ( Mode *sw )
     if ( sw == NULL ) {
         return;
     }
+    g_free ( sw->name );
     g_free ( sw->ed );
     g_free ( sw );
 }
@@ -182,7 +183,7 @@ Mode *script_switcher_parse_setup ( const char *str )
     const char *const sep    = ":";
     for ( char *token = strtok_r ( parse, sep, &endp ); token != NULL; token = strtok_r ( NULL, sep, &endp ) ) {
         if ( index == 0 ) {
-            g_strlcpy ( sw->name, token, 32 );
+            sw->name = g_strdup ( token );
         }
         else if ( index == 1 ) {
             sw->ed = (void *) rofi_expand_path ( token );
@@ -203,7 +204,7 @@ Mode *script_switcher_parse_setup ( const char *str )
 
         return sw;
     }
-    g_warning ( "The script command '%s' has %u options, but needs 2: <name>:<script>.", str, index );
+    fprintf ( stderr, "The script command '%s' has %u options, but needs 2: <name>:<script>.", str, index );
     script_switcher_free ( sw );
     return NULL;
 }

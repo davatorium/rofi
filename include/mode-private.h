@@ -31,7 +31,7 @@
 #include <gmodule.h>
 
 /** ABI version to check if loaded plugin is compatible. */
-#define ABI_VERSION    0x00000004
+#define ABI_VERSION    0x00000005
 
 /**
  * @param data Pointer to #Mode object.
@@ -143,7 +143,7 @@ struct rofi_mode
     /** Used for external plugins. */
     unsigned int abi_version;
     /** Name (max 31 char long) */
-    char         name[32];
+    char         *name;
     char         cfg_name_key[128];
     char         *display_name;
 
