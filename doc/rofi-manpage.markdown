@@ -36,7 +36,6 @@
 [ -version ]
 [ -help ]
 [ -dump-xresources ]
-[ -dump-xresources-theme ]
 [ -auto-select ]
 [ -parse-hosts ]
 [ -no-parse-known-hosts ]
@@ -138,10 +137,6 @@ These include dynamic (run-time generated) options.
 
 Dump the current active configuration in Xresources format to the command-line.
 This does not validate all passed values (e.g. colors).
-
-`-dump-xresources-theme`
-
-Dump the current color scheme in Xresources format to the command-line.
 
 `-threads` *num*
 
