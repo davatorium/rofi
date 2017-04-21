@@ -116,4 +116,5 @@ Settings config = {
     .color_active  = NULL,
     .color_urgent  = NULL,
     .color_window  = NULL,
+    .plugin_path   = PLUGIN_PATH,
 };

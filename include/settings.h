@@ -165,6 +165,8 @@ typedef struct
     gboolean       show_match;
 
     char           *theme;
+    /** Path where plugins can be found. */
+    char            * plugin_path;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

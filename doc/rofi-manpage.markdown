@@ -222,6 +222,15 @@ Hide the indicator that shows what part of the string is matched.
 
 Disables lazy grab, this forces the keyboard being grabbed before gui is shown.
 
+`-no-plugins`
+
+Disable plugin loading.
+
+`-plugin-path` *directory*
+
+Specify the directory where *rofi* should look for plugins.
+
+
 ### Matching
 
 `-matching` *method*

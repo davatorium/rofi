@@ -305,6 +305,7 @@ static void print_main_application_options ( int is_term )
     print_help_msg ( "-normal-window", "", "In dmenu mode, behave as a normal window. (experimental)", NULL, is_term );
     print_help_msg ( "-show", "[mode]", "Show the mode 'mode' and exit. The mode has to be enabled.", NULL, is_term );
     print_help_msg ( "-no-lazy-grab", "", "Disable lazy grab that, when fail to grab keyboard, does not block but retry later.", NULL, is_term );
+    print_help_msg ( "-no-plugins", "", "Disable loading of external plugins.", NULL, is_term );
 }
 static void help ( G_GNUC_UNUSED int argc, char **argv )
 {
@@ -547,7 +548,7 @@ static void rofi_collect_modi_dir ( const char *base_dir )
                 Mode *m = NULL;
                 if ( g_module_symbol ( mod, "mode", (gpointer *) &m ) ) {
                     if ( m->abi_version != ABI_VERSION ) {
-                        g_warning ( "ABI version of plugin does not match: %08X expecting: %08X", m->abi_version, ABI_VERSION );
+                        g_warning ( "ABI version of plugin: '%s' does not match: %08X expecting: %08X", dn, m->abi_version, ABI_VERSION );
                         g_module_close ( mod );
                     }
                     else {
@@ -558,7 +559,7 @@ static void rofi_collect_modi_dir ( const char *base_dir )
                     }
                 }
                 else {
-                    g_warning ( "Symbol 'mode' not found in module: %s", fn );
+                    g_warning ( "Symbol 'mode' not found in module: %s", dn );
                     g_module_close ( mod );
                 }
             }
@@ -585,7 +586,9 @@ static void rofi_collect_modi ( void )
     rofi_collect_modi_add ( &combi_mode );
     rofi_collect_modi_add ( &help_keys_mode );
 
-    rofi_collect_modi_dir ( PLUGIN_PATH );
+    if ( find_arg ( "-no-plugins" ) < 0 ) {
+        rofi_collect_modi_dir ( config.plugin_path );
+    }
 }
 
 /**

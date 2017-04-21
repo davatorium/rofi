@@ -180,6 +180,8 @@ static XrmOption xrmOptions[] = {
       "Color scheme for active row", CONFIG_DEFAULT },
     { xrm_String,  "color-window",      { .str  = &config.color_window          }, NULL,
       "Color scheme window", CONFIG_DEFAULT },
+    { xrm_String,  "plugin-path",      { .str  = &config.plugin_path            }, NULL,
+      "Directory containing plugins", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */
