@@ -1416,13 +1416,13 @@ static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xc
     }
 }
 
-void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_stuff *xkb )
+void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb_stuff *xkb )
 {
-    switch ( ev->response_type & ~0x80 )
+    switch ( event->response_type & ~0x80 )
     {
     case XCB_CONFIGURE_NOTIFY:
     {
-        xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) ev;
+        xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
         if ( xce->window == CacheState.main_window ) {
             if ( state->x != xce->x || state->y != xce->y ) {
                 state->x = xce->x;
@@ -1454,19 +1454,19 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
         if ( config.click_to_exit == TRUE ) {
             state->mouse_seen = TRUE;
         }
-        xcb_motion_notify_event_t xme = *( (xcb_motion_notify_event_t *) ev );
+        xcb_motion_notify_event_t xme = *( (xcb_motion_notify_event_t *) event );
         if ( widget_motion_notify ( WIDGET ( state->main_window ), &xme ) ) {
             return;
         }
         break;
     }
     case XCB_BUTTON_PRESS:
-        rofi_view_mouse_navigation ( state, (xcb_button_press_event_t *) ev );
+        rofi_view_mouse_navigation ( state, (xcb_button_press_event_t *) event );
         break;
     case XCB_BUTTON_RELEASE:
         if ( config.click_to_exit == TRUE ) {
             if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
-                xcb_button_release_event_t *bre = (xcb_button_release_event_t *) ev;
+                xcb_button_release_event_t *bre = (xcb_button_release_event_t *) event;
                 if ( ( state->mouse_seen == FALSE ) && ( bre->event != CacheState.main_window ) ) {
                     state->quit = TRUE;
                     state->retv = MENU_CANCEL;
@@ -1477,11 +1477,11 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
         break;
     // Paste event.
     case XCB_SELECTION_NOTIFY:
-        rofi_view_paste ( state, (xcb_selection_notify_event_t *) ev );
+        rofi_view_paste ( state, (xcb_selection_notify_event_t *) event );
         break;
     case XCB_KEYMAP_NOTIFY:
     {
-        xcb_keymap_notify_event_t *kne     = (xcb_keymap_notify_event_t *) ev;
+        xcb_keymap_notify_event_t *kne     = (xcb_keymap_notify_event_t *) event;
         guint                     modstate = x11_get_current_mask ( xkb );
         for ( gint32 by = 0; by < 31; ++by ) {
             for ( gint8 bi = 0; bi < 7; ++bi ) {
@@ -1495,11 +1495,11 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
         break;
     }
     case XCB_KEY_PRESS:
-        rofi_view_handle_keypress ( state, xkb, (xcb_key_press_event_t *) ev );
+        rofi_view_handle_keypress ( state, xkb, (xcb_key_press_event_t *) event );
         break;
     case XCB_KEY_RELEASE:
     {
-        xcb_key_release_event_t *xkre    = (xcb_key_release_event_t *) ev;
+        xcb_key_release_event_t *xkre    = (xcb_key_release_event_t *) event;
         unsigned int            modstate = x11_canonalize_mask ( xkre->state );
         if ( modstate == 0 ) {
             abe_trigger_release ( );
@@ -1515,7 +1515,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *ev, xkb_st
     }
     rofi_view_update ( state, TRUE );
 
-    if ( ( ev->response_type & ~0x80 ) == XCB_EXPOSE && CacheState.repaint_source == 0 ) {
+    if ( ( event->response_type & ~0x80 ) == XCB_EXPOSE && CacheState.repaint_source == 0 ) {
         CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
     }
 }

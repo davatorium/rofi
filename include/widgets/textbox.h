@@ -168,13 +168,13 @@ void textbox_cursor ( textbox *tb, int pos );
 
 /**
  * @param tb   Handle to the textbox
- * @param pos  The position to insert the string at
+ * @param char_pos  The position to insert the string at
  * @param str  The string to insert.
  * @param slen The length of the string.
  *
  * Insert the string str at position pos.
  */
-void textbox_insert ( textbox *tb, const int pos, const char *str, const int slen );
+void textbox_insert ( textbox *tb, const int char_pos, const char *str, const int slen );
 
 /**
  * Setup the cached fonts. This is required to do

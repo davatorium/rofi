@@ -208,7 +208,7 @@ unsigned int levenshtein ( const char *needle, const glong needlelen, const char
  *
  * @returns the converted UTF-8 string
  */
-char * rofi_force_utf8 ( gchar *data, ssize_t length );
+char * rofi_force_utf8 ( const gchar *data, ssize_t length );
 
 /**
  * @param input the char array holding latin text

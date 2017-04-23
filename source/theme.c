@@ -62,7 +62,7 @@ const char *PropertyTypeName[] = {
     /** Highlight */
     "Highlight",
 };
-void yyerror ( YYLTYPE *ylloc, const char *, const char * );
+void yyerror ( YYLTYPE *yylloc, const char *, const char * );
 static gboolean distance_compare ( Distance d, Distance e )
 {
     return d.type == e.type && d.distance == e.distance && d.style == e.style;

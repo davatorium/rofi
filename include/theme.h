@@ -244,11 +244,11 @@ Property *rofi_theme_property_create ( PropertyType type );
 void rofi_theme_property_free ( Property *p );
 
 /**
- * @param wid
+ * @param widget
  *
  * Free the widget and alll children.
  */
-void rofi_theme_free ( ThemeWidget *wid );
+void rofi_theme_free ( ThemeWidget *widget );
 
 /**
  * @param file filename to parse.
@@ -445,10 +445,10 @@ gboolean rofi_theme_is_empty ( void );
 void rofi_theme_convert_old ( void );
 
 /**
- * @param filename File name passed to option.
+ * @param file File name passed to option.
  *
  * @returns path to theme or copy of filename if not found.
  */
-char *helper_get_theme_path ( const char *filename );
+char *helper_get_theme_path ( const char *file );
 #endif
 #endif

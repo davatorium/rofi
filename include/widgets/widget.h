@@ -98,7 +98,7 @@ void widget_disable ( widget *widget );
 void widget_enable ( widget *widget );
 
 /**
- * @param widget tb  Handle to the widget
+ * @param widget widget  Handle to the widget
  * @param d The cairo object used to draw itself.
  *
  * Render the textbox.
@@ -110,7 +110,7 @@ void widget_draw ( widget *widget, cairo_t *d );
  *
  * Free the widget and all allocated memory.
  */
-void widget_free ( widget *widget );
+void widget_free ( widget *wid );
 
 /**
  * @param widget The widget toresize
@@ -157,12 +157,12 @@ int widget_get_x_pos ( widget *widget );
  */
 void widget_update ( widget *widget );
 /**
- * @param widget The widget handle
+ * @param wid The widget handle
  *
  * Indicate that the widget needs to be redrawn.
  * This is done by setting the redraw flag on the toplevel widget.
  */
-void widget_queue_redraw ( widget *widget );
+void widget_queue_redraw ( widget *wid );
 /**
  * @param wid The widget handle
  *

@@ -99,13 +99,13 @@ int mode_init ( Mode *mode );
 void mode_destroy ( Mode *mode );
 
 /**
- * @param sw The mode to query
+ * @param mode The mode to query
  *
  * Get the number of entries in the mode.
  *
  * @returns an unsigned in with the number of entries.
  */
-unsigned int mode_get_num_entries ( const Mode *sw );
+unsigned int mode_get_num_entries ( const Mode *mode );
 
 /**
  * @param mode The mode to query

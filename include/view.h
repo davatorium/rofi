@@ -60,14 +60,14 @@ typedef enum
 /**
  * @param sw the Mode to show.
  * @param input A pointer to a string where the inputted data is placed.
- * @param flags   Flags indicating state of the menu.
+ * @param menu_flags   Flags indicating state of the menu.
  * @param finalize the finailze callback
  *
  * Main menu callback.
  *
  * @returns The command issued (see MenuReturn)
  */
-RofiViewState *rofi_view_create ( Mode *sw, const char *input, MenuFlags flags, void ( *finalize )( RofiViewState * ) );
+RofiViewState *rofi_view_create ( Mode *sw, const char *input, MenuFlags menu_flags, void ( *finalize )( RofiViewState * ) );
 
 /**
  * @param state The Menu Handle

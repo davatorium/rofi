@@ -310,7 +310,7 @@ const char ** find_arg_strv ( const char *const key )
     const char **retv = NULL;
     int        length = 0;
     for ( int i = 0; i < stored_argc; i++ ) {
-        if ( strcasecmp ( stored_argv[i], key ) == 0 && i < ( stored_argc - 1 ) ) {
+        if (  i < ( stored_argc - 1 ) && strcasecmp ( stored_argv[i], key ) == 0 ) {
             length++;
         }
     }
@@ -318,7 +318,7 @@ const char ** find_arg_strv ( const char *const key )
         retv = g_malloc0 ( ( length + 1 ) * sizeof ( char* ) );
         int index = 0;
         for ( int i = 0; i < stored_argc; i++ ) {
-            if ( strcasecmp ( stored_argv[i], key ) == 0 && i < ( stored_argc - 1 ) ) {
+            if ( i < ( stored_argc - 1 )  && strcasecmp ( stored_argv[i], key ) == 0 ) {
                 retv[index++] = stored_argv[i + 1];
             }
         }
@@ -715,17 +715,16 @@ char * rofi_latin_to_utf8_strdup ( const char *input, gssize length )
     return g_convert_with_fallback ( input, length, "UTF-8", "latin1", "\uFFFD", NULL, &slength, NULL );
 }
 
-char * rofi_force_utf8 ( gchar *start, ssize_t length )
+char * rofi_force_utf8 ( const gchar *data, ssize_t length )
 {
-    if ( start == NULL ) {
+    if ( data == NULL ) {
         return NULL;
     }
-    const char *data = start;
     const char *end;
     GString    *string;
 
     if ( g_utf8_validate ( data, length, &end ) ) {
-        return g_memdup ( start, length + 1 );
+        return g_memdup ( data, length + 1 );
     }
     string = g_string_sized_new ( length + 16 );
 

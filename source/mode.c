@@ -61,13 +61,13 @@ unsigned int mode_get_num_entries ( const Mode *mode )
     return mode->_get_num_entries ( mode );
 }
 
-char * mode_get_display_value ( const Mode *mode, unsigned int selected_line, int *state, GList **list, int get_entry )
+char * mode_get_display_value ( const Mode *mode, unsigned int selected_line, int *state, GList **attribute_list, int get_entry )
 {
     g_assert ( mode != NULL );
     g_assert ( state != NULL );
     g_assert ( mode->_get_display_value != NULL );
 
-    return mode->_get_display_value ( mode, selected_line, state, list, get_entry );
+    return mode->_get_display_value ( mode, selected_line, state, attribute_list, get_entry );
 }
 
 char * mode_get_completion ( const Mode *mode, unsigned int selected_line )
