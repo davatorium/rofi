@@ -8,6 +8,7 @@ rofi -config ${TOP_DIR}/doc/test_xr.txt -dump-xresources | grep -v "rofi.display
 if ! diff temp.txt ${TOP_DIR}/doc/test_xr.txt > /dev/null
 then
     echo "Dump xresources does not match."
+    diff temp.txt ${TOP_DIR}/doc/test_xr.txt 
     exit 1;
 fi
 
