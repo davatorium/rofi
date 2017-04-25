@@ -53,7 +53,7 @@ before_install:
 # TODO: We install xkbcommon here, until Travis use an up-to-date enough Ubuntu
 # TODO: We install libxcb-ewmh-dev here, until it is whitelisted again in Travis
 install:
-    - sudo apt-get install -y --force-yes libxkbcommon-dev libxkbcommon-x11-dev libxcb-ewmh-dev flex/trusty-backports
+    - sudo apt-get install -y --force-yes libxkbcommon-dev libxkbcommon-x11-dev libxcb-ewmh-dev flex/trusty-backports libfl-dev/trusty-backports
 
 before_script:
     - git clone --recursive https://github.com/Airblader/xcb-util-xrm.git
