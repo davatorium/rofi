@@ -234,6 +234,7 @@ history_test_CFLAGS=\
 	$(glib_CFLAGS)\
 	$(libsn_CFLAGS)\
 	-DTHEME_DIR=\"$(themedir)\"\
+	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
@@ -259,6 +260,7 @@ textbox_test_CFLAGS=\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
+	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-DTHEME_DIR=\"$(themedir)\"\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
@@ -399,6 +401,7 @@ helper_test_CFLAGS=\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
+	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-DTHEME_DIR=\"$(themedir)\"\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
