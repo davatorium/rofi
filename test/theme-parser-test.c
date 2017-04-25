@@ -56,7 +56,7 @@ struct xcb_stuff *xcb;
 gboolean error = FALSE;
 void rofi_add_error_message ( GString *msg )
 {
-
+    fprintf ( stdout, "%s\n", msg->str );
     error = TRUE;
     g_string_free ( msg, TRUE );
 }
@@ -175,6 +175,7 @@ int main ( int argc, char ** argv )
     }
 
     {
+        rofi_theme = NULL;
         error = 0;
         rofi_theme_parse_string ( "* { test: 10px;}");
         TASSERT ( error == 0 );
@@ -188,6 +189,7 @@ int main ( int argc, char ** argv )
         rofi_theme = NULL;
     }
     {
+        rofi_theme = NULL;
         error = 0;
         rofi_theme_parse_string ( "* { test: 10%;}");
         TASSERT ( error == 0 );
@@ -199,5 +201,29 @@ int main ( int argc, char ** argv )
         TASSERT ( rofi_theme != NULL );
         rofi_theme_free ( rofi_theme );
         rofi_theme = NULL;
+    }
+
+    {
+        rofi_theme = NULL;
+        rofi_theme_parse_file ("/dev/null");
+        TASSERT ( error == 0 );
+        TASSERT ( rofi_theme != NULL );
+        rofi_theme_free ( rofi_theme );
+    }
+    {
+        rofi_theme = NULL;
+        rofi_theme_parse_file ("not-existing-file.rasi");
+        TASSERT ( error == TRUE );
+        TASSERT ( rofi_theme == NULL );
+        error = 0;
+    }
+    {
+        rofi_theme = NULL;
+        rofi_theme_parse_string ( "@import \"/dev/null\"" );
+        TASSERT ( error == 0 );
+        TASSERT ( rofi_theme != NULL );
+        rofi_theme_free ( rofi_theme );
+
+
     }
 }
