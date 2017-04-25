@@ -106,7 +106,7 @@ void widget_enable ( widget *widget );
 void widget_draw ( widget *widget, cairo_t *d );
 
 /**
- * @param widget Handle to the widget
+ * @param wid Handle to the widget
  *
  * Free the widget and all allocated memory.
  */
