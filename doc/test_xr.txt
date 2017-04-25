@@ -85,7 +85,7 @@ rofi.window-format:                  w   c   t
 ! "Color scheme window" Set from: Default
 ! rofi.color-window:                   
 ! "Directory containing plugins" Set from: Default
-! rofi.plugin-path:                    /home/qball/.local/lib/rofi
+rofi.plugin-path:                    /usr/lib/rofi
 ! "Pidfile location" Set from: File
 rofi.pid:                            /tmp/rofi.pid
 ! "Paste primary selection" Set from: File
