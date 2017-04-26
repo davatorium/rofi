@@ -426,9 +426,9 @@ if ( queue == NULL ){
     union {  uint16_t val; struct { unsigned char b:4,g:4,r:4,a :4;};} val;
     val.val = (uint16_t )g_ascii_strtoull ( &yytext[1], NULL, 16);
     yylval->colorval.alpha = 1.0;
-    yylval->colorval.red   = val.r/16.0;
-    yylval->colorval.green = val.g/16.0;
-    yylval->colorval.blue  = val.b/16.0;
+    yylval->colorval.red   = val.r/15.0;
+    yylval->colorval.green = val.g/15.0;
+    yylval->colorval.blue  = val.b/15.0;
     return T_COLOR;
 }
 <PROPERTIES>rgba\({NUMBER}{1,3},{NUMBER}{1,3},{NUMBER}{1,3},[01](\.{NUMBER}+)?\) {

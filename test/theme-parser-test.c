@@ -299,6 +299,57 @@ int main ( int argc, char ** argv )
     }
     {
         rofi_theme = NULL;
+        error = 0;
+        rofi_theme_parse_string ( "* { none: none; bold: bold; underline: underline; italic: italic;}");
+        TASSERT ( error == 0 );
+        ThemeHighlight th = { HL_BOLD, {0.0,0.0,0.0,0.0}};
+        th = rofi_theme_get_highlight ( &wid, "none",      th);
+        TASSERT ( th.style == HL_NONE );
+        th = rofi_theme_get_highlight ( &wid, "underline", th);
+        TASSERT ( th.style == HL_UNDERLINE);
+        th = rofi_theme_get_highlight ( &wid, "italic",    th);
+        TASSERT ( th.style == HL_ITALIC);
+        th = rofi_theme_get_highlight ( &wid, "bold",      th);
+        TASSERT ( th.style == HL_BOLD);
+
+        rofi_theme_parse_string ( "* { boldu: bold underline ; boldi: bold italic; underlinei: underline italic; italicu: italic underline;}");
+        th = rofi_theme_get_highlight ( &wid, "boldu", th);
+        TASSERT ( th.style == (HL_UNDERLINE|HL_BOLD));
+        th = rofi_theme_get_highlight ( &wid, "boldi", th);
+        TASSERT ( th.style == (HL_ITALIC|HL_BOLD));
+        th = rofi_theme_get_highlight ( &wid, "underlinei", th);
+        TASSERT ( th.style == (HL_ITALIC|HL_UNDERLINE));
+        th = rofi_theme_get_highlight ( &wid, "italicu", th);
+        TASSERT ( th.style == (HL_ITALIC|HL_UNDERLINE));
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
+    {
+        rofi_theme = NULL;
+        error = 0;
+        rofi_theme_parse_string ( "* { red: #F00; green: #0F0; blue: #00F; }");
+        TASSERT ( error == 0 );
+        ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+        Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.red  == 1 );
+        TASSERT ( p->value.color.green == 0 );
+        TASSERT ( p->value.color.blue == 0 );
+        p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.red  == 0 );
+        TASSERT ( p->value.color.green == 1 );
+        TASSERT ( p->value.color.blue == 0 );
+        p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.red  == 0 );
+        TASSERT ( p->value.color.green == 0 );
+        TASSERT ( p->value.color.blue == 1 );
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
+    {
+        rofi_theme = NULL;
         rofi_theme_parse_file ("/dev/null");
         TASSERT ( error == 0 );
         TASSERT ( rofi_theme != NULL );
