@@ -204,6 +204,43 @@ int main ( int argc, char ** argv )
     }
 
     {
+        // Test newline and link.
+        rofi_theme = NULL;
+        error = 0;
+        rofi_theme_parse_string ( "* { test: 10%;}\n* { blaat: @test;}");
+        TASSERT ( error == 0 );
+        Distance d = (Distance){ 1, PW_PX, SOLID};
+        Padding pi = (Padding){d,d,d,d};
+        Padding p = rofi_theme_get_padding ( &wid, "test", pi);
+        TASSERT (  p.left.distance == 10 );
+        TASSERT (  p.left.type == PW_PERCENT );
+        Padding p2 = rofi_theme_get_padding ( &wid, "blaat", pi);
+        TASSERT (  p2.left.distance == p.left.distance );
+        TASSERT (  p2.left.type == p.left.type );
+        TASSERT ( rofi_theme != NULL );
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
+    {
+        rofi_theme = NULL;
+        error = 0;
+        rofi_theme_parse_string ( "\r\n\n\n\r\n* { center: center; east: east; west: west; south: south; north:north;}" );
+        TASSERT ( error == 0 );
+        TASSERT ( rofi_theme != NULL );
+        TASSERT ( rofi_theme_get_position ( &wid, "center", WL_SOUTH) == WL_CENTER );
+        TASSERT ( rofi_theme_get_position ( &wid, "south", WL_EAST) == WL_SOUTH);
+        TASSERT ( rofi_theme_get_position ( &wid, "east", WL_WEST) == WL_EAST);
+        TASSERT ( rofi_theme_get_position ( &wid, "west", WL_NORTH) == WL_WEST);
+        TASSERT ( rofi_theme_get_position ( &wid, "north", WL_CENTER) == WL_NORTH);
+        rofi_theme_parse_string ( "* { southwest: southwest; southeast: southeast; northwest: northwest; northeast:northeast;}" );
+        TASSERT ( rofi_theme_get_position ( &wid, "southwest", WL_EAST) == WL_SOUTH_WEST);
+        TASSERT ( rofi_theme_get_position ( &wid, "southeast", WL_WEST) == WL_SOUTH_EAST);
+        TASSERT ( rofi_theme_get_position ( &wid, "northwest", WL_NORTH) == WL_NORTH_WEST);
+        TASSERT ( rofi_theme_get_position ( &wid, "northeast", WL_CENTER) == WL_NORTH_EAST);
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
+    {
         rofi_theme = NULL;
         rofi_theme_parse_file ("/dev/null");
         TASSERT ( error == 0 );
