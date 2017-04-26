@@ -369,8 +369,8 @@ if ( queue == NULL ){
     return T_PIXEL;
 }
 <PROPERTIES>{REAL}{EM}{WHITESPACE}{LS_DASH} {
-    yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
-    yylval->distance.type     = PW_PX;
+    yylval->distance.distance = (double)g_ascii_strtod(yytext, NULL);
+    yylval->distance.type     = PW_EM;
     yylval->distance.style    = DASH;
     return T_PIXEL;
 }
@@ -381,8 +381,8 @@ if ( queue == NULL ){
     return T_PIXEL;
 }
 <PROPERTIES>{REAL}{EM}{WHITESPACE}{LS_SOLID} {
-    yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
-    yylval->distance.type     = PW_PX;
+    yylval->distance.distance = (double)g_ascii_strtod(yytext, NULL);
+    yylval->distance.type     = PW_EM;
     yylval->distance.style    = SOLID;
     return T_PIXEL;
 }

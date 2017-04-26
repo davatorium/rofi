@@ -202,6 +202,63 @@ int main ( int argc, char ** argv )
         rofi_theme_free ( rofi_theme );
         rofi_theme = NULL;
     }
+    {
+        rofi_theme = NULL;
+        error = 0;
+        rofi_theme_parse_string ( "* { sol: 10% solid; dash: 10% dash;}");
+        TASSERT ( error == 0 );
+        Distance d = (Distance){ 1, PW_PX, DASH};
+        Padding pi = (Padding){d,d,d,d};
+        Padding p = rofi_theme_get_padding ( &wid, "sol", pi);
+        TASSERT (  p.left.distance == 10 );
+        TASSERT (  p.left.type == PW_PERCENT );
+        TASSERT (  p.left.style == SOLID );
+        p = rofi_theme_get_padding ( &wid, "dash", pi);
+        TASSERT (  p.left.distance == 10 );
+        TASSERT (  p.left.type == PW_PERCENT );
+        TASSERT (  p.left.style == DASH );
+        TASSERT ( rofi_theme != NULL );
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
+    {
+        rofi_theme = NULL;
+        error = 0;
+        rofi_theme_parse_string ( "* { sol: 10px solid; dash: 14px dash;}");
+        TASSERT ( error == 0 );
+        Distance d = (Distance){ 1, PW_PX, DASH};
+        Padding pi = (Padding){d,d,d,d};
+        Padding p = rofi_theme_get_padding ( &wid, "sol", pi);
+        TASSERT (  p.left.distance == 10 );
+        TASSERT (  p.left.type == PW_PX);
+        TASSERT (  p.left.style == SOLID );
+        p = rofi_theme_get_padding ( &wid, "dash", pi);
+        TASSERT (  p.left.distance == 14 );
+        TASSERT (  p.left.type == PW_PX);
+        TASSERT (  p.left.style == DASH );
+        TASSERT ( rofi_theme != NULL );
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
+    {
+        rofi_theme = NULL;
+        error = 0;
+        rofi_theme_parse_string ( "* { sol: 1.3em solid; dash: 1.5em dash;}");
+        TASSERT ( error == 0 );
+        Distance d = (Distance){ 1, PW_PX, DASH};
+        Padding pi = (Padding){d,d,d,d};
+        Padding p = rofi_theme_get_padding ( &wid, "sol", pi);
+        TASSERT (  p.left.distance == 1.3 );
+        TASSERT (  p.left.type == PW_EM );
+        TASSERT (  p.left.style == SOLID );
+        p = rofi_theme_get_padding ( &wid, "dash", pi);
+        TASSERT (  p.left.distance == 1.5 );
+        TASSERT (  p.left.type == PW_EM );
+        TASSERT (  p.left.style == DASH );
+        TASSERT ( rofi_theme != NULL );
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
 
     {
         // Test newline and link.
