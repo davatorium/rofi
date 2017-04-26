@@ -323,11 +323,12 @@ int main ( int argc, char ** argv )
         TASSERT ( th.style == (HL_ITALIC|HL_UNDERLINE));
 
         rofi_theme_parse_string ( "* { comb: bold #123; }");
+        th.style = HL_NONE;
         th = rofi_theme_get_highlight ( &wid, "comb", th);
-        TASSERT ( th.style == (HL_BOLD));
-        TASSERT ( th.color.r == (1/15.0));
-        TASSERT ( th.color.g == (2/15.0));
-        TASSERT ( th.color.b == (3/15.0));
+        TASSERT ( th.style == (HL_BOLD|HL_COLOR));
+        TASSERT ( th.color.red == (1/15.0));
+        TASSERT ( th.color.green == (2/15.0));
+        TASSERT ( th.color.blue == (3/15.0));
         rofi_theme_free ( rofi_theme );
         rofi_theme = NULL;
     }
