@@ -350,6 +350,135 @@ int main ( int argc, char ** argv )
     }
     {
         rofi_theme = NULL;
+        error = 0;
+        rofi_theme_parse_string ( "* { red: #FF0000; green: #00FF00; blue: #0000FF; }");
+        TASSERT ( error == 0 );
+        ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+        Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.red  == 1 );
+        TASSERT ( p->value.color.green == 0 );
+        TASSERT ( p->value.color.blue == 0 );
+        p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.red  == 0 );
+        TASSERT ( p->value.color.green == 1 );
+        TASSERT ( p->value.color.blue == 0 );
+        p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.red  == 0 );
+        TASSERT ( p->value.color.green == 0 );
+        TASSERT ( p->value.color.blue == 1 );
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
+    {
+        rofi_theme = NULL;
+        error = 0;
+        rofi_theme_parse_string ( "* { red: #33FF0000; green: #2200FF00; blue: #110000FF; }");
+        TASSERT ( error == 0 );
+        ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+        Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.alpha == 0.2 );
+        TASSERT ( p->value.color.red  == 1 );
+        TASSERT ( p->value.color.green == 0 );
+        TASSERT ( p->value.color.blue == 0 );
+        p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.alpha == 1/7.5 );
+        TASSERT ( p->value.color.red  == 0 );
+        TASSERT ( p->value.color.green == 1 );
+        TASSERT ( p->value.color.blue == 0 );
+        p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.alpha == 1/15.0 );
+        TASSERT ( p->value.color.red  == 0 );
+        TASSERT ( p->value.color.green == 0 );
+        TASSERT ( p->value.color.blue == 1 );
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
+    {
+        rofi_theme = NULL;
+        error = 0;
+        rofi_theme_parse_string ( "* { red: rgb(255,0,0); green: rgb(0,255,0); blue: rgb(0,0,255); }");
+        TASSERT ( error == 0 );
+        ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+        Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.red  == 1 );
+        TASSERT ( p->value.color.green == 0 );
+        TASSERT ( p->value.color.blue == 0 );
+        p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.red  == 0 );
+        TASSERT ( p->value.color.green == 1 );
+        TASSERT ( p->value.color.blue == 0 );
+        p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.red  == 0 );
+        TASSERT ( p->value.color.green == 0 );
+        TASSERT ( p->value.color.blue == 1 );
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
+    {
+        rofi_theme = NULL;
+        error = 0;
+        rofi_theme_parse_string ( "* { red: rgba(255,0,0,0.3); green: rgba(0,255,0,0.2); blue: rgba(0,0,255,0.7); }");
+        TASSERT ( error == 0 );
+        ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+        Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.alpha == 0.3 );
+        TASSERT ( p->value.color.red  == 1 );
+        TASSERT ( p->value.color.green == 0 );
+        TASSERT ( p->value.color.blue == 0 );
+        p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.alpha == 0.2 );
+        TASSERT ( p->value.color.red  == 0 );
+        TASSERT ( p->value.color.green == 1 );
+        TASSERT ( p->value.color.blue == 0 );
+        p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.alpha == 0.7 );
+        TASSERT ( p->value.color.red  == 0 );
+        TASSERT ( p->value.color.green == 0 );
+        TASSERT ( p->value.color.blue == 1 );
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
+    {
+        rofi_theme = NULL;
+        error = 0;
+        rofi_theme_parse_string ( "* { red: argb:33FF0000; green: argb:2200FF00; blue: argb:110000FF; }");
+        TASSERT ( error == 0 );
+        ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+        Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.alpha == 0.2 );
+        TASSERT ( p->value.color.red  == 1 );
+        TASSERT ( p->value.color.green == 0 );
+        TASSERT ( p->value.color.blue == 0 );
+        p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.alpha == 1/7.5 );
+        TASSERT ( p->value.color.red  == 0 );
+        TASSERT ( p->value.color.green == 1 );
+        TASSERT ( p->value.color.blue == 0 );
+        p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
+        TASSERT ( p != NULL );
+        TASSERT ( p->value.color.alpha == 1/15.0 );
+        TASSERT ( p->value.color.red  == 0 );
+        TASSERT ( p->value.color.green == 0 );
+        TASSERT ( p->value.color.blue == 1 );
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
+    {
+        rofi_theme = NULL;
         rofi_theme_parse_file ("/dev/null");
         TASSERT ( error == 0 );
         TASSERT ( rofi_theme != NULL );

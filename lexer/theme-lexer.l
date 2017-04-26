@@ -433,17 +433,17 @@ if ( queue == NULL ){
 }
 <PROPERTIES>rgba\({NUMBER}{1,3},{NUMBER}{1,3},{NUMBER}{1,3},[01](\.{NUMBER}+)?\) {
     char *endptr = &yytext[5];
-    yylval->colorval.red = g_ascii_strtoull ( endptr, &endptr, 10);
-    yylval->colorval.green= g_ascii_strtoull ( endptr+1, &endptr, 10);
-    yylval->colorval.blue= g_ascii_strtoull ( endptr+1, &endptr, 10);
+    yylval->colorval.red = g_ascii_strtoull ( endptr, &endptr, 10)/255.0;
+    yylval->colorval.green= g_ascii_strtoull ( endptr+1, &endptr, 10)/255.0;
+    yylval->colorval.blue= g_ascii_strtoull ( endptr+1, &endptr, 10)/255.0;
     yylval->colorval.alpha= g_ascii_strtod ( endptr+1, NULL);
     return T_COLOR;
 }
 <PROPERTIES>rgb\({NUMBER}{1,3},{NUMBER}{1,3},{NUMBER}{1,3}\) {
     char *endptr = &yytext[4];
-    yylval->colorval.red   = g_ascii_strtoull ( endptr, &endptr, 10);
-    yylval->colorval.green = g_ascii_strtoull ( endptr+1, &endptr, 10);
-    yylval->colorval.blue  = g_ascii_strtoull ( endptr+1, &endptr, 10);
+    yylval->colorval.red   = g_ascii_strtoull ( endptr, &endptr, 10)/255.0;
+    yylval->colorval.green = g_ascii_strtoull ( endptr+1, &endptr, 10)/255.0;
+    yylval->colorval.blue  = g_ascii_strtoull ( endptr+1, &endptr, 10)/255.0;
     yylval->colorval.alpha = 1.0;
     return T_COLOR;
 }
