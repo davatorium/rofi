@@ -522,10 +522,11 @@ int main ( int argc, char ** argv )
     {
         rofi_theme = NULL;
         error = 0;
-        rofi_theme_parse_string ( "configuration { font: \"blaat€\"; y-offset: 4; }");
+        rofi_theme_parse_string ( "configuration { font: \"blaat€\"; yoffset: 4; }");
         TASSERT ( error == 0 );
 
-        TASSERT ( g_utf8_collate ( config.font, "blaat€" ) == 0 );
+        printf("%s\n", config.menu_font);
+        TASSERT ( g_utf8_collate ( config.menu_font, "blaat€" ) == 0 );
         TASSERT ( config.y_offset == 4 );
         rofi_theme_free ( rofi_theme );
         rofi_theme = NULL;
