@@ -527,7 +527,7 @@ int rofi_theme_get_boolean ( const widget *widget, const char *property, int def
     return def;
 }
 
-char *rofi_theme_get_string ( const widget *widget, const char *property, char *def )
+const char *rofi_theme_get_string ( const widget *widget, const char *property, char *def )
 {
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
     Property    *p   = rofi_theme_find_property ( wid, P_STRING, property, FALSE );
@@ -542,7 +542,7 @@ double rofi_theme_get_double ( const widget *widget, const char *property, doubl
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
     Property    *p   = rofi_theme_find_property ( wid, P_DOUBLE, property, FALSE );
     if ( p ) {
-        return p->value.b;
+        return p->value.f;
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return def;

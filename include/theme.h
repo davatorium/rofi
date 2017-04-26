@@ -344,7 +344,7 @@ int rofi_theme_get_boolean   (  const widget *widget, const char *property, int 
  *
  * @returns The string value of this property for this widget.
  */
-char *rofi_theme_get_string  (  const widget *widget, const char *property, char *def );
+const char *rofi_theme_get_string  (  const widget *widget, const char *property, char *def );
 
 /**
  * @param widget   The widget to query

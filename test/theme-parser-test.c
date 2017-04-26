@@ -321,6 +321,13 @@ int main ( int argc, char ** argv )
         TASSERT ( th.style == (HL_ITALIC|HL_UNDERLINE));
         th = rofi_theme_get_highlight ( &wid, "italicu", th);
         TASSERT ( th.style == (HL_ITALIC|HL_UNDERLINE));
+
+        rofi_theme_parse_string ( "* { comb: bold #123; }");
+        th = rofi_theme_get_highlight ( &wid, "comb", th);
+        TASSERT ( th.style == (HL_BOLD));
+        TASSERT ( th.color.r == (1/15.0));
+        TASSERT ( th.color.g == (2/15.0));
+        TASSERT ( th.color.b == (3/15.0));
         rofi_theme_free ( rofi_theme );
         rofi_theme = NULL;
     }
@@ -474,6 +481,40 @@ int main ( int argc, char ** argv )
         TASSERT ( p->value.color.red  == 0 );
         TASSERT ( p->value.color.green == 0 );
         TASSERT ( p->value.color.blue == 1 );
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
+    {
+        error = 0;
+        rofi_theme_parse_string ( "* { test: 10px 20px;}");
+        TASSERT ( error == 0 );
+        Distance d = (Distance){ 1, PW_PX, SOLID};
+        Padding pi = (Padding){d,d,d,d};
+        Padding p = rofi_theme_get_padding ( &wid, "test", pi);
+        TASSERT (  p.left.distance == 20 );
+        TASSERT (  p.left.type == PW_PX );
+        TASSERT (  p.right.distance == 20 );
+        TASSERT (  p.right.type == PW_PX );
+        TASSERT (  p.top.distance == 10 );
+        TASSERT (  p.top.type == PW_PX );
+        TASSERT (  p.bottom.distance == 10 );
+        TASSERT (  p.bottom.type == PW_PX );
+        TASSERT ( rofi_theme != NULL );
+        rofi_theme_free ( rofi_theme );
+        rofi_theme = NULL;
+    }
+
+    {
+        rofi_theme = NULL;
+        error = 0;
+        rofi_theme_parse_string ( "* { font: \"blaat€\"; test: 123.432; }");
+        TASSERT ( error == 0 );
+
+        const char *str= rofi_theme_get_string ( &wid, "font", NULL );
+        TASSERT( str != NULL );
+        TASSERT ( g_utf8_collate ( str, "blaat€" ) == 0 );
+
+        TASSERT ( rofi_theme_get_double ( &wid, "test", 0.0) == 123.432 );
         rofi_theme_free ( rofi_theme );
         rofi_theme = NULL;
     }
