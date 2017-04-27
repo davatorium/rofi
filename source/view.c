@@ -173,7 +173,7 @@ static int lev_sort ( const void *p1, const void *p2, void *arg )
 /**
  * Stores a screenshot of Rofi at that point in time.
  */
-static void menu_capture_screenshot ( void )
+void rofi_capture_screenshot ( void )
 {
     const char *outp = g_getenv ( "ROFI_PNG_OUTPUT" );
     if ( CacheState.edit_surf == NULL ) {
@@ -190,7 +190,7 @@ static void menu_capture_screenshot ( void )
     GDateTime *now = g_date_time_new_now_local ();
     // Format filename.
     char      *timestmp = g_date_time_format ( now, "rofi-%Y-%m-%d-%H%M" );
-    char      *filename = g_strdup_printf ( "%s.png", timestmp );
+    char      *filename = g_strdup_printf ( "%s-%05d.png", timestmp, 0 );
     // Build full path
     char      *fpath = NULL;
     if ( outp == NULL ) {
@@ -202,7 +202,7 @@ static void menu_capture_screenshot ( void )
             // Try the next index.
             index++;
             // Format filename.
-            filename = g_strdup_printf ( "%s-%d.png", timestmp, index );
+            filename = g_strdup_printf ( "%s-%05d.png", timestmp, index );
             // Build full path
             fpath = g_build_filename ( xdg_pict_dir, filename, NULL );
         }
@@ -214,7 +214,7 @@ static void menu_capture_screenshot ( void )
     cairo_status_t status = cairo_surface_write_to_png ( CacheState.edit_surf, fpath );
     if ( status != CAIRO_STATUS_SUCCESS ) {
         g_warning ( "Failed to produce screenshot '%s', got error: '%s'", fpath,
-                  cairo_status_to_string ( status ) );
+                    cairo_status_to_string ( status ) );
     }
     g_free ( fpath );
     g_free ( filename );
@@ -617,7 +617,7 @@ static void rofi_view_setup_fake_transparency ( const char* const fake_backgroun
         if ( s != NULL ) {
             if ( cairo_surface_status ( s ) != CAIRO_STATUS_SUCCESS ) {
                 g_debug ( "Failed to open surface fake background: %s",
-                        cairo_status_to_string ( cairo_surface_status ( s ) ) );
+                          cairo_status_to_string ( cairo_surface_status ( s ) ) );
                 cairo_surface_destroy ( s );
                 s = NULL;
             }
@@ -771,18 +771,18 @@ void __create_window ( MenuFlags menu_flags )
     TICK_N ( "done" );
 
     // Set the PID.
-    pid_t pid= getpid ();
-    xcb_ewmh_set_wm_pid (&(xcb->ewmh), CacheState.main_window, pid );
+    pid_t pid = getpid ();
+    xcb_ewmh_set_wm_pid ( &( xcb->ewmh ), CacheState.main_window, pid );
 
     // Get hostname
     const char *hostname = g_get_host_name ();
-    char *ahost = g_hostname_to_ascii ( hostname );
+    char       *ahost    = g_hostname_to_ascii ( hostname );
     if ( ahost != NULL ) {
-        xcb_icccm_set_wm_client_machine(xcb->connection,
-                CacheState.main_window,
-                XCB_ATOM_STRING, 8,
-                strlen(ahost), ahost);
-        g_free(ahost);
+        xcb_icccm_set_wm_client_machine ( xcb->connection,
+                                          CacheState.main_window,
+                                          XCB_ATOM_STRING, 8,
+                                          strlen ( ahost ), ahost );
+        g_free ( ahost );
     }
 }
 
@@ -1164,7 +1164,7 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
         xcb_flush ( xcb->connection );
         break;
     case SCREENSHOT:
-        menu_capture_screenshot ( );
+        rofi_capture_screenshot ( );
         break;
     case TOGGLE_SORT:
         if ( state->case_indicator != NULL ) {

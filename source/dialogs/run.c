@@ -31,7 +31,7 @@
  */
 
 /** The log domain of this dialog. */
-#define G_LOG_DOMAIN        "Dialogs.Run"
+#define G_LOG_DOMAIN    "Dialogs.Run"
 
 #include <config.h>
 #include <stdlib.h>
@@ -189,7 +189,7 @@ static char ** get_apps_external ( char **retv, unsigned int *length, unsigned i
             }
             if ( fclose ( inp ) != 0 ) {
                 g_warning ( "Failed to close stdout off executor script: '%s'",
-                          g_strerror ( errno ) );
+                            g_strerror ( errno ) );
             }
         }
     }
@@ -232,7 +232,7 @@ static char ** get_apps ( unsigned int *length )
     char              *strtok_savepointer = NULL;
     for ( const char *dirname = strtok_r ( path, sep, &strtok_savepointer ); dirname != NULL; dirname = strtok_r ( NULL, sep, &strtok_savepointer ) ) {
         char *fpath = rofi_expand_path ( dirname );
-        DIR *dir = opendir ( fpath );
+        DIR  *dir   = opendir ( fpath );
         g_debug ( "Checking path %s for executable.", fpath );
         g_free ( fpath );
 

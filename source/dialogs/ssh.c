@@ -33,7 +33,7 @@
 /**
  * Log domain for the ssh modi.
  */
-#define G_LOG_DOMAIN         "Dialogs.Ssh"
+#define G_LOG_DOMAIN    "Dialogs.Ssh"
 
 #include <config.h>
 #include <glib.h>

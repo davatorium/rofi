@@ -25,7 +25,7 @@
  *
  */
 
-#define G_LOG_DOMAIN "Dialogs.Script"
+#define G_LOG_DOMAIN    "Dialogs.Script"
 
 #include <config.h>
 #include <stdio.h>
@@ -69,7 +69,7 @@ static char **get_script_output ( const char *command, unsigned int *length )
             }
             if ( fclose ( inp ) != 0 ) {
                 g_warning ( "Failed to close stdout off executor script: '%s'",
-                          g_strerror ( errno ) );
+                            g_strerror ( errno ) );
             }
         }
     }
@@ -211,5 +211,5 @@ Mode *script_switcher_parse_setup ( const char *str )
 
 gboolean script_switcher_is_valid ( const char *token )
 {
-    return strchr ( token, ':') != NULL;
+    return strchr ( token, ':' ) != NULL;
 }

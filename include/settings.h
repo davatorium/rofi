@@ -166,7 +166,7 @@ typedef struct
 
     char           *theme;
     /** Path where plugins can be found. */
-    char            * plugin_path;
+    char           * plugin_path;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

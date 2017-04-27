@@ -116,7 +116,6 @@ typedef enum
     P_HIGHLIGHT,
 } PropertyType;
 
-
 /**
  * Represent the color in theme.
  */

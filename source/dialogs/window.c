@@ -25,7 +25,7 @@
  *
  */
 
-#define G_LOG_DOMAIN          "Dialogs.Window"
+#define G_LOG_DOMAIN    "Dialogs.Window"
 
 #include <config.h>
 

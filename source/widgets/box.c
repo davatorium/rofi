@@ -25,7 +25,7 @@
  *
  */
 
-#define G_LOG_DOMAIN         "Widgets.Box"
+#define G_LOG_DOMAIN    "Widgets.Box"
 
 #include <config.h>
 #include <stdio.h>
@@ -325,7 +325,7 @@ box * box_create ( const char *name, boxType type )
     b->widget.clicked            = box_clicked;
     b->widget.motion_notify      = box_motion_notify;
     b->widget.get_desired_height = box_get_desired_height;
-    b->widget.enabled = rofi_theme_get_boolean ( WIDGET ( b ), "enabled", TRUE );
+    b->widget.enabled            = rofi_theme_get_boolean ( WIDGET ( b ), "enabled", TRUE );
 
     b->spacing = rofi_theme_get_distance ( WIDGET ( b ), "spacing", DEFAULT_SPACING );
     return b;

@@ -283,13 +283,12 @@ static void print_list_of_modi ( int is_term )
             }
         }
         printf ( "        * %s%s%s%s\n",
-                active?"+":"" ,
-                is_term ? (active?color_green:color_red) : "",
-                available_modi[i]->name,
-                is_term ? color_reset : ""
-               );
+                 active ? "+" : "",
+                 is_term ? ( active ? color_green : color_red ) : "",
+                 available_modi[i]->name,
+                 is_term ? color_reset : ""
+                 );
     }
-
 }
 static void print_main_application_options ( int is_term )
 {
@@ -319,8 +318,8 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     print_options ();
     printf ( "\n" );
     x11_dump_monitor_layout ();
-    printf("\n");
-    printf("Detected modi:\n");
+    printf ( "\n" );
+    printf ( "Detected modi:\n" );
     print_list_of_modi ( is_term );
     printf ( "\n" );
     printf ( "Compile time options:\n" );
@@ -372,9 +371,9 @@ static void help_print_disabled_mode ( const char *mode )
     int is_term = isatty ( fileno ( stdout ) );
     // Only  output to terminal
     if ( is_term ) {
-        fprintf ( stderr,  "Mode %s%s%s is not enabled. I have enabled it for now.\n",
+        fprintf ( stderr, "Mode %s%s%s is not enabled. I have enabled it for now.\n",
                   color_red, mode, color_reset );
-        fprintf ( stderr,  "Please consider adding %s%s%s to the list of enabled modi: %smodi: %s%s%s,%s%s.\n",
+        fprintf ( stderr, "Please consider adding %s%s%s to the list of enabled modi: %smodi: %s%s%s,%s%s.\n",
                   color_red, mode, color_reset,
                   color_green, config.modi, color_reset,
                   color_red, mode, color_reset
@@ -385,8 +384,8 @@ static void help_print_mode_not_found ( const char *mode )
 {
     int is_term = isatty ( fileno ( stdout ) );
     fprintf ( stderr, "Mode %s%s%s is not found.\n",
-            is_term?color_red:"", mode, is_term?color_reset:"");
-    fprintf( stderr, "The following modi are known:\n");
+              is_term ? color_red : "", mode, is_term ? color_reset : "" );
+    fprintf ( stderr, "The following modi are known:\n" );
     print_list_of_modi ( is_term );
     printf ( "\n" );
 }
@@ -629,7 +628,7 @@ static int add_mode ( const char * token )
         modi[num_modi] = mode;
         num_modi++;
     }
-    else if ( script_switcher_is_valid ( token ) ){
+    else if ( script_switcher_is_valid ( token ) ) {
         // If not build in, use custom modi.
         Mode *sw = script_switcher_parse_setup ( token );
         if ( sw != NULL ) {
@@ -647,7 +646,7 @@ static gboolean setup_modi ( void )
     char              *switcher_str = g_strdup ( config.modi );
     // Split token on ','. This modifies switcher_str.
     for ( char *token = strtok_r ( switcher_str, sep, &savept ); token != NULL; token = strtok_r ( NULL, sep, &savept ) ) {
-        if ( add_mode ( token ) == -1 ){
+        if ( add_mode ( token ) == -1 ) {
             help_print_mode_not_found ( token );
             g_free ( switcher_str );
             return TRUE;
@@ -680,11 +679,12 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
 {
     if ( ev == NULL ) {
         int status = xcb_connection_has_error ( xcb->connection );
-        if(status > 0) {
+        if ( status > 0 ) {
             g_warning ( "The XCB connection to X server had a fatal error: %d", status );
             g_main_loop_quit ( main_loop );
             return G_SOURCE_REMOVE;
-        } else {
+        }
+        else {
             g_warning ( "main_loop_x11_event_handler: ev == NULL, status == %d", status );
             return G_SOURCE_CONTINUE;
         }
@@ -908,6 +908,11 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     return G_SOURCE_REMOVE;
 }
 
+static gboolean record ( void )
+{
+    rofi_capture_screenshot ();
+    return G_SOURCE_CONTINUE;
+}
 /**
  * @param argc number of input arguments.
  * @param argv array of the input arguments.
@@ -995,7 +1000,7 @@ int main ( int argc, char *argv[] )
 
     xcb->connection = xcb_connect ( display_str, &xcb->screen_nbr );
     if ( xcb_connection_has_error ( xcb->connection ) ) {
-        g_warning( "Failed to open display: %s", display_str );
+        g_warning ( "Failed to open display: %s", display_str );
         cleanup ();
         return EXIT_FAILURE;
     }
@@ -1163,8 +1168,7 @@ int main ( int argc, char *argv[] )
 
     if ( !dmenu_mode ) {
         // setup_modi
-        if ( setup_modi () )
-        {
+        if ( setup_modi () ) {
             cleanup ();
             return EXIT_FAILURE;
         }
@@ -1188,7 +1192,7 @@ int main ( int argc, char *argv[] )
                 for ( GList *iter = g_list_first ( list_of_error_msgs );
                       iter != NULL; iter = g_list_next ( iter ) ) {
                     g_warning ( "Error: %s%s%s",
-                              color_bold, ( (GString *) iter->data )->str, color_reset );
+                                color_bold, ( (GString *) iter->data )->str, color_reset );
                 }
             }
             rofi_theme = NULL;
@@ -1214,6 +1218,11 @@ int main ( int argc, char *argv[] )
         config_parse_xresource_dump ();
         cleanup ();
         return EXIT_SUCCESS;
+    }
+
+    unsigned int interval = 1;
+    if ( find_arg_uint ( "-record-screenshots", &interval ) ) {
+        g_timeout_add ( 1000 / (double) interval, record, NULL );
     }
     main_loop_source = g_water_xcb_source_new_for_connection ( NULL, xcb->connection, main_loop_x11_event_handler, NULL, NULL );
 

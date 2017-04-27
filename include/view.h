@@ -280,5 +280,10 @@ void rofi_view_workers_finalize ( void );
  * @returns the current monitor workarea
  */
 void rofi_view_get_current_monitor ( int *width, int *height );
+
+/**
+ * Takes a screenshot.
+ */
+void rofi_capture_screenshot ( void );
 /**@}*/
 #endif

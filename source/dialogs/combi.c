@@ -25,7 +25,7 @@
  *
  */
 
-#define G_LOG_DOMAIN         "Dialogs.Combi"
+#define G_LOG_DOMAIN    "Dialogs.Combi"
 
 #include <config.h>
 #include <stdlib.h>

@@ -446,10 +446,10 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
                 return p;
             }
             g_debug ( "Found property: '%s' on '%s', but type %s does not match expected type %s.",
-                    property, widget->name,
-                    PropertyTypeName[p->type],
-                    PropertyTypeName[type]
-                    );
+                      property, widget->name,
+                      PropertyTypeName[p->type],
+                      PropertyTypeName[type]
+                      );
         }
         if ( exact ) {
             return NULL;

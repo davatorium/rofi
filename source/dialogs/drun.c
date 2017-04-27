@@ -25,7 +25,7 @@
  *
  */
 
-#define G_LOG_DOMAIN         "Dialogs.DRun"
+#define G_LOG_DOMAIN    "Dialogs.DRun"
 
 #include <config.h>
 #ifdef ENABLE_DRUN

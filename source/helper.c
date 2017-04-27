@@ -318,7 +318,7 @@ const char ** find_arg_strv ( const char *const key )
         retv = g_malloc0 ( ( length + 1 ) * sizeof ( char* ) );
         int index = 0;
         for ( int i = 0; i < stored_argc; i++ ) {
-            if ( i < ( stored_argc - 1 )  && strcasecmp ( stored_argv[i], key ) == 0 ) {
+            if ( i < ( stored_argc - 1 ) && strcasecmp ( stored_argv[i], key ) == 0 ) {
                 retv[index++] = stored_argv[i + 1];
             }
         }
@@ -679,7 +679,7 @@ char *rofi_expand_path ( const char *input )
 
 unsigned int levenshtein ( const char *needle, const glong needlelen, const char *haystack, const glong haystacklen )
 {
-    if ( needlelen  == G_MAXLONG ){
+    if ( needlelen == G_MAXLONG ) {
         // String to long, we cannot handle this.
         return UINT_MAX;
     }
@@ -873,7 +873,7 @@ int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *st
     const gchar    *pit = pattern, *sit;
     enum CharClass prev = NON_WORD;
     for ( si = 0, sit = str; si < slen; si++, sit = g_utf8_next_char ( sit ) ) {
-        enum CharClass cur       = rofi_scorer_get_character_class ( g_utf8_get_char ( sit ) );
+        enum CharClass cur = rofi_scorer_get_character_class ( g_utf8_get_char ( sit ) );
         score[si] = rofi_scorer_get_score_for ( prev, cur );
         prev      = cur;
         dp[si]    = MIN_SCORE;
@@ -964,7 +964,6 @@ int helper_execute_command ( const char *wd, const char *cmd, int run_in_term )
     return retv;
 }
 
-
 char *helper_get_theme_path ( const char *file )
 {
     char *filename = rofi_expand_path ( file );
@@ -975,7 +974,8 @@ char *helper_get_theme_path ( const char *file )
 
     if ( g_str_has_suffix ( file, ".rasi" ) ) {
         filename = g_strdup ( file );
-    } else {
+    }
+    else {
         filename = g_strconcat ( file, ".rasi", NULL );
     }
     // Check config directory.
