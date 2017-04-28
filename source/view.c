@@ -710,7 +710,7 @@ void __create_window ( MenuFlags menu_flags )
     // Setup font.
     // Dummy widget.
     container *win  = container_create ( "window.box" );
-    char      *font = rofi_theme_get_string ( WIDGET ( win ), "font", config.menu_font );
+    const char      *font = rofi_theme_get_string ( WIDGET ( win ), "font", config.menu_font );
     if ( font ) {
         PangoFontDescription *pfd = pango_font_description_from_string ( font );
         if ( helper_validate_font ( pfd, font ) ) {
@@ -759,7 +759,7 @@ void __create_window ( MenuFlags menu_flags )
     xcb_icccm_set_wm_class ( xcb->connection, box, sizeof ( wm_class_name ), wm_class_name );
 
     TICK_N ( "setup window name and class" );
-    char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
+    const char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
     if ( transparency ) {
         rofi_view_setup_fake_transparency ( transparency  );
     }

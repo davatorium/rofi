@@ -908,7 +908,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     return G_SOURCE_REMOVE;
 }
 
-static gboolean record ( void )
+static gboolean record ( G_GNUC_UNUSED void *data )
 {
     rofi_capture_screenshot ();
     return G_SOURCE_CONTINUE;

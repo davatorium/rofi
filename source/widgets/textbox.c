@@ -126,7 +126,7 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
     textbox_font ( tb, tbft );
 
     tb->metrics = p_metrics;
-    char * font = rofi_theme_get_string ( WIDGET ( tb ), "font", NULL );
+    const char * font = rofi_theme_get_string ( WIDGET ( tb ), "font", NULL );
     if ( font ) {
         TBFontConfig *tbfc = g_hash_table_lookup ( tbfc_cache, font );
         if ( tbfc == NULL ) {
