@@ -226,7 +226,8 @@ check_PROGRAMS=\
 			   widget_test\
 			   box_test\
 			   theme_parser_test\
-			   scrollbar_test
+			   scrollbar_test\
+			   mode_test
 
 
 history_test_CFLAGS=\
@@ -450,6 +451,20 @@ helper_config_cmdline_parser_SOURCES=\
 	source/x11-helper.c\
 	test/helper-config-cmdline-parser.c
 
+
+mode_test_CFLAGS=$(textbox_test_CFLAGS)
+mode_test_LDADD=$(textbox_test_LDADD)
+mode_test_SOURCES=\
+				  config/config.c\
+				  test/mode-test.c\
+			      source/dialogs/help-keys.c\
+				  source/helper.c\
+				  source/mode.c\
+				  source/xrmoptions.c\
+				  source/keyb.c\
+				  include/mode.h\
+				  include/mode-private.h
+
 TESTS=\
 	history_test\
 	helper_test\
@@ -461,7 +476,8 @@ TESTS=\
 	widget_test\
 	box_test\
 	theme_parser_test\
-	scrollbar_test
+	scrollbar_test\
+	mode_test
 
 .PHONY: test-x
 test-x: $(bin_PROGRAMS)
