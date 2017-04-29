@@ -74,8 +74,21 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
 {
     return TRUE;
 }
+#ifndef _ck_assert_ptr_null
+/* Pointer against NULL comparison macros with improved output
+ * compared to ck_assert(). */
+/* OP may only be == or !=  */
+#define _ck_assert_ptr_null(X, OP) do { \
+  const void* _ck_x = (X); \
+  ck_assert_msg(_ck_x OP NULL, \
+  "Assertion '%s' failed: %s == %#x", \
+  #X" "#OP" NULL", \
+  #X, _ck_x); \
+} while (0)
 
-
+#define ck_assert_ptr_null(X) _ck_assert_ptr_null(X, ==)
+#define ck_assert_ptr_nonnull(X) _ck_assert_ptr_null(X, !=)
+#endif
 void test_mode_setup ( void )
 {
     ck_assert_int_eq ( mode_init ( &help_keys_mode ), TRUE);
