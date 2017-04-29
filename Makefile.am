@@ -452,8 +452,8 @@ helper_config_cmdline_parser_SOURCES=\
 	test/helper-config-cmdline-parser.c
 
 
-mode_test_CFLAGS=$(textbox_test_CFLAGS)
-mode_test_LDADD=$(textbox_test_LDADD)
+mode_test_CFLAGS=$(textbox_test_CFLAGS) $(check_CFLAGS)
+mode_test_LDADD=$(textbox_test_LDADD) $(check_LIBS)
 mode_test_SOURCES=\
 				  config/config.c\
 				  test/mode-test.c\

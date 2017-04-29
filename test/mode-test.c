@@ -38,20 +38,10 @@
 #include <dialogs/help-keys.h>
 #include <xkbcommon/xkbcommon.h>
 #include <keyb.h>
-unsigned int test =0;
-#define TASSERT( a )    {                                 \
-        assert ( a );                                     \
-        printf ( "Test %3i passed (%s)\n", ++test, # a ); \
-}
+#include <helper.h>
 
-#define TASSERTE( a, b )    {                                                            \
-        if ( ( a ) == ( b ) ) {                                                          \
-            printf ( "Test %i passed (%s == %s) (%u == %u)\n", ++test, # a, # b, a, b ); \
-        }else {                                                                          \
-            printf ( "Test %i failed (%s == %s) (%u != %u)\n", ++test, # a, # b, a, b ); \
-            abort ( );                                                                   \
-        }                                                                                \
-}
+#include <check.h>
+
 void rofi_add_error_message ( GString *msg )
 {
 }
@@ -86,23 +76,108 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
 }
 
 
-int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
+void test_mode_setup ( void )
 {
-    setup_abe ();
-    TASSERTE ( mode_init ( &help_keys_mode ), TRUE );
+    ck_assert_int_eq ( mode_init ( &help_keys_mode ), TRUE);
+}
+void test_mode_teardown (void )
+{
+    mode_destroy ( &help_keys_mode );
+}
 
+START_TEST(test_mode_create)
+{
+    ck_assert_ptr_nonnull ( help_keys_mode.private_data );
+}
+END_TEST
+
+START_TEST(test_mode_destroy)
+{
+    mode_destroy ( &help_keys_mode );
+    ck_assert_ptr_null ( help_keys_mode.private_data );
+}
+END_TEST
+
+START_TEST(test_mode_num_items)
+{
     unsigned int rows = mode_get_num_entries ( &help_keys_mode);
-    TASSERTE ( rows , 64);
-    
-    for ( int i =0; i < rows; i++  ){
+    ck_assert_int_eq ( rows, 64);
+    for ( unsigned int i =0; i < rows; i++  ){
         int state = 0;
         GList *list = NULL;
         char *v = mode_get_display_value ( &help_keys_mode, i, &state, &list, TRUE ); 
-        TASSERT ( v != NULL );
+        ck_assert_ptr_nonnull ( v );
         g_free ( v );
         v = mode_get_display_value ( &help_keys_mode, i, &state, &list, FALSE ); 
-        TASSERT ( v == NULL );
+        ck_assert_ptr_null ( v );
     }
-
     mode_destroy ( &help_keys_mode );
+}
+END_TEST
+
+START_TEST(test_mode_result)
+{
+    char *res;
+    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_NEXT, &res,0), NEXT_DIALOG);
+    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_PREVIOUS, &res,0), PREVIOUS_DIALOG);
+    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_QUICK_SWITCH|1, &res,0), 1);
+    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_QUICK_SWITCH|2, &res,0), 2);
+
+}
+END_TEST
+
+START_TEST(test_mode_match_entry)
+{
+    GRegex **t = tokenize( "primary-paste", FALSE );
+    ck_assert_ptr_nonnull ( t );
+
+    ck_assert_int_eq ( mode_token_match ( &help_keys_mode, t, 0), TRUE );
+    ck_assert_int_eq ( mode_token_match ( &help_keys_mode, t, 1), FALSE );
+    tokenize_free ( t );
+    t = tokenize( "-paste", FALSE );
+    ck_assert_ptr_nonnull ( t );
+
+    ck_assert_int_eq ( mode_token_match ( &help_keys_mode, t, 0), TRUE );
+    ck_assert_int_eq ( mode_token_match ( &help_keys_mode, t, 1), TRUE );
+    ck_assert_int_eq ( mode_token_match ( &help_keys_mode, t, 2), FALSE );
+    tokenize_free ( t );
+
+}
+END_TEST
+
+Suite * mode_suite (void)
+{
+    Suite *s;
+    TCase *tc_core;
+
+    s = suite_create("Mode");
+
+    /* Core test case */
+    tc_core = tcase_create("HelpKeys");
+    tcase_add_checked_fixture(tc_core, test_mode_setup, test_mode_teardown);
+    tcase_add_test(tc_core, test_mode_create);
+    tcase_add_test(tc_core, test_mode_num_items);
+    tcase_add_test(tc_core, test_mode_result );
+    tcase_add_test(tc_core, test_mode_destroy);
+    tcase_add_test(tc_core, test_mode_match_entry );
+    suite_add_tcase(s, tc_core);
+
+    return s;
+}
+
+
+int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
+{
+    setup_abe ();
+    int number_failed = 0;
+    Suite *s;
+    SRunner *sr;
+
+    s = mode_suite();
+    sr = srunner_create(s);
+
+    srunner_run_all(sr, CK_NORMAL);
+    number_failed = srunner_ntests_failed(sr);
+    srunner_free(sr);
+    return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
