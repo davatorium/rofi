@@ -86,7 +86,7 @@ script:
       #    - gcov source/rofi.c
     - make distcheck
     - git clone https://github.com/alobbs/doxy-coverage
-    - make doxy 2>&1 > tee doxygen.log
+    - make doxy 2>&1 > doxygen.log
     - test $(grep -c warning doxygen.log) -eq 0
     - ./doxy-coverage/doxy-coverage.py doc/html/xml/
 
