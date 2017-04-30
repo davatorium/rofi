@@ -174,6 +174,16 @@ START_TEST ( test_core_comments )
 
 }
 END_TEST
+START_TEST ( test_core_newline )
+{
+    rofi_theme_parse_string ( "\r\n\n\r\n\n/*\r\n*/");
+    ck_assert_ptr_nonnull ( rofi_theme );
+    ck_assert_ptr_null ( rofi_theme->widgets );
+    ck_assert_ptr_null ( rofi_theme->properties );
+    ck_assert_ptr_null ( rofi_theme->parent );
+    ck_assert_str_eq ( rofi_theme->name, "Root" );
+}
+END_TEST
 
 START_TEST(test_properties_boolean)
 {
@@ -682,6 +692,7 @@ Suite * theme_parser_suite (void)
         tcase_add_test(tc_core, test_core_empty_section);
         tcase_add_test(tc_core, test_core_error_root );
         tcase_add_test(tc_core, test_core_comments );
+        tcase_add_test(tc_core, test_core_newline );
         suite_add_tcase(s, tc_core);
     }
     {
