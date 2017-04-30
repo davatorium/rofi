@@ -415,8 +415,8 @@ helper_test_LDADD=\
 	$(libsn_LIBS)\
 	$(cairo_LIBS)
 
-theme_parser_test_CFLAGS=${helper_test_CFLAGS}
-theme_parser_test_LDADD=${helper_test_LDADD}
+theme_parser_test_CFLAGS=${helper_test_CFLAGS} $(check_CFLAGS)
+theme_parser_test_LDADD=${helper_test_LDADD} $(check_LIBS)
 
 helper_expand_SOURCES=\
 	config/config.c\
