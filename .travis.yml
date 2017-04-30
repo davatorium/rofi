@@ -69,7 +69,7 @@ before_script:
     - autoreconf -i
     - TEX="false" ./configure --prefix=/usr/
     - make
-    - make install
+    - sudo make install
     - cd -
     - autoreconf -i
     - ./configure --enable-gcov --enable-drun
