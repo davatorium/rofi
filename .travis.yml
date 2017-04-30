@@ -39,6 +39,8 @@ addons:
             - lcov
             - doxygen
             - graphviz
+            - texinfo
+            - texi2html
 
 compiler:
     - gcc

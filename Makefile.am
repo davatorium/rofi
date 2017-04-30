@@ -225,9 +225,12 @@ check_PROGRAMS=\
 			   helper_config_cmdline_parser\
 			   widget_test\
 			   box_test\
-			   theme_parser_test\
-			   scrollbar_test\
-			   mode_test
+			   scrollbar_test
+
+if HAVE_CHECK
+check_PROGRAMS+=mode_test theme_parser_test
+endif
+
 
 
 history_test_CFLAGS=\
@@ -363,6 +366,9 @@ textbox_test_SOURCES=\
 	include/helper-theme.h\
 	test/textbox-test.c
 
+if HAVE_CHECK
+theme_parser_test_CFLAGS=${helper_test_CFLAGS} $(check_CFLAGS)
+theme_parser_test_LDADD=${helper_test_LDADD} $(check_LIBS)
 theme_parser_test_SOURCES=\
 	config/config.c\
 	include/rofi.h\
@@ -380,6 +386,7 @@ theme_parser_test_SOURCES=\
 	lexer/theme-parser.h\
 	source/theme.c\
 	test/theme-parser-test.c
+endif
 
 helper_test_SOURCES=\
 	config/config.c\
@@ -415,8 +422,6 @@ helper_test_LDADD=\
 	$(libsn_LIBS)\
 	$(cairo_LIBS)
 
-theme_parser_test_CFLAGS=${helper_test_CFLAGS} $(check_CFLAGS)
-theme_parser_test_LDADD=${helper_test_LDADD} $(check_LIBS)
 
 helper_expand_SOURCES=\
 	config/config.c\
@@ -452,6 +457,7 @@ helper_config_cmdline_parser_SOURCES=\
 	test/helper-config-cmdline-parser.c
 
 
+if HAVE_CHECK
 mode_test_CFLAGS=$(textbox_test_CFLAGS) $(check_CFLAGS)
 mode_test_LDADD=$(textbox_test_LDADD) $(check_LIBS)
 mode_test_SOURCES=\
@@ -464,6 +470,7 @@ mode_test_SOURCES=\
 				  source/keyb.c\
 				  include/mode.h\
 				  include/mode-private.h
+endif
 
 TESTS=\
 	history_test\
@@ -475,9 +482,12 @@ TESTS=\
 	textbox_test\
 	widget_test\
 	box_test\
-	theme_parser_test\
-	scrollbar_test\
+	scrollbar_test
+
+if HAVE_CHECK
+TESTS+=theme_parser_test\
 	mode_test
+endif
 
 .PHONY: test-x
 test-x: $(bin_PROGRAMS)
