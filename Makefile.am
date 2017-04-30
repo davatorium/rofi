@@ -227,7 +227,7 @@ check_PROGRAMS=\
 			   box_test\
 			   scrollbar_test
 
-if HAVE_CHECK
+if USE_CHECK
 check_PROGRAMS+=mode_test theme_parser_test
 endif
 
@@ -366,7 +366,7 @@ textbox_test_SOURCES=\
 	include/helper-theme.h\
 	test/textbox-test.c
 
-if HAVE_CHECK
+if USE_CHECK
 theme_parser_test_CFLAGS=${helper_test_CFLAGS} $(check_CFLAGS)
 theme_parser_test_LDADD=${helper_test_LDADD} $(check_LIBS)
 theme_parser_test_SOURCES=\
@@ -457,7 +457,7 @@ helper_config_cmdline_parser_SOURCES=\
 	test/helper-config-cmdline-parser.c
 
 
-if HAVE_CHECK
+if USE_CHECK
 mode_test_CFLAGS=$(textbox_test_CFLAGS) $(check_CFLAGS)
 mode_test_LDADD=$(textbox_test_LDADD) $(check_LIBS)
 mode_test_SOURCES=\
@@ -484,7 +484,7 @@ TESTS=\
 	box_test\
 	scrollbar_test
 
-if HAVE_CHECK
+if USE_CHECK
 TESTS+=theme_parser_test\
 	mode_test
 endif
