@@ -33,4 +33,5 @@ frequently asked questions will be added to the [F.A.Q](https://github.com/DaveD
 Questions filled in on the bug tracker will be marked `question`, locked and closed. If the question is clear, I
 normally try to provide an answer.
 
-
+**Please do not submit reports related to wayland, see [here](https://github.com/DaveDavenport/rofi/wiki/Wayland) for
+more information.**
