@@ -51,6 +51,14 @@ struct xcb_stuff *xcb;
             abort ( );                                                                   \
         }                                                                                \
 }
+#define TASSERTL( a, b )    {                                                            \
+        if ( ( a ) == ( b ) ) {                                                          \
+            printf ( "Test %i passed (%s == %s) (%d == %d)\n", ++test, # a, # b, a, b ); \
+        }else {                                                                          \
+            printf ( "Test %i failed (%s == %s) (%d != %d)\n", ++test, # a, # b, a, b ); \
+            abort ( );                                                                   \
+        }                                                                                \
+}
 void rofi_add_error_message ( GString *msg )
 {
 
@@ -144,5 +152,24 @@ int main ( int argc, char ** argv )
         fd = create_pid_file ( path );
         TASSERT ( fd >= 0 );
         remove_pid_file ( fd );
+    }
+    {
+        TASSERT ( utf8_strncmp ( "aapno", "aap€",3) == 0 );
+        TASSERT ( utf8_strncmp ( "aapno", "aap€",4) != 0 );
+        TASSERT ( utf8_strncmp ( "aapno", "a",4) != 0 );
+        TASSERT ( utf8_strncmp ( "a", "aap€",4) != 0 );
+//        char in[] = "Valid utf8 until \xc3\x28 we continue here";
+//        TASSERT ( utf8_strncmp ( in, "Valid", 3 ) == 0);
+    }
+    {
+        TASSERTL ( rofi_scorer_fuzzy_evaluate ("aap noot mies", 12 , "aap noot mies", 12), -605);
+        TASSERTL ( rofi_scorer_fuzzy_evaluate ("anm", 3, "aap noot mies", 12), -155);
+        TASSERTL ( rofi_scorer_fuzzy_evaluate ("blu", 3, "aap noot mies", 12), 1073741824);
+        config.case_sensitive = TRUE;
+        TASSERTL ( rofi_scorer_fuzzy_evaluate ("Anm", 3, "aap noot mies", 12), 1073741754);
+        config.case_sensitive = FALSE;
+        TASSERTL ( rofi_scorer_fuzzy_evaluate ("Anm", 3, "aap noot mies", 12), -155);
+        TASSERTL ( rofi_scorer_fuzzy_evaluate ("aap noot mies", 12,"Anm", 3 ), 1073741824);
+
     }
 }
