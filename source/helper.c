@@ -684,9 +684,12 @@ unsigned int levenshtein ( const char *needle, const glong needlelen, const char
         return UINT_MAX;
     }
     unsigned int column[needlelen + 1];
-    for ( glong y = 0; y <= needlelen; y++ ) {
+    for ( glong y = 0; y < needlelen; y++ ) {
         column[y] = y;
     }
+    // Removed out of the loop, otherwise static code analyzers think it is unset.. silly but true.
+    // old loop: for ( glong y = 0; y <= needlelen; y++)
+    column[needlelen] = needlelen;
     for ( glong x = 1; x <= haystacklen; x++ ) {
         const char *needles = needle;
         column[0] = x;
