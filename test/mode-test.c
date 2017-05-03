@@ -42,10 +42,10 @@
 
 #include <check.h>
 
-void rofi_add_error_message ( GString *msg )
+void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {
 }
-int monitor_active ( void *d )
+int monitor_active ( G_GNUC_UNUSED void *d )
 {
     return 0;
 }
@@ -59,7 +59,7 @@ int textbox_get_estimated_char_height ( void )
 {
     return 16;
 }
-void rofi_view_get_current_monitor ( int *width, int *height )
+void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
 {
 
 }
@@ -67,10 +67,11 @@ void * rofi_view_get_active ( void )
 {
     return NULL;
 }
-gboolean rofi_view_trigger_action ( void *state, KeyBindingAction action )
+gboolean rofi_view_trigger_action ( G_GNUC_UNUSED void *state, G_GNUC_UNUSED KeyBindingAction action )
 {
+    return FALSE;
 }
-gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key, gboolean *release, GString *msg )
+gboolean x11_parse_key ( G_GNUC_UNUSED const char *combo, G_GNUC_UNUSED unsigned int *mod, G_GNUC_UNUSED xkb_keysym_t *key, G_GNUC_UNUSED gboolean *release, G_GNUC_UNUSED GString *msg )
 {
     return TRUE;
 }

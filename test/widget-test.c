@@ -39,17 +39,17 @@ unsigned int test =0;
         assert ( a );                                     \
         printf ( "Test %3i passed (%s)\n", ++test, # a ); \
 }
-void config_parse_set_property ( const void *p )
+void config_parse_set_property ( G_GNUC_UNUSED const void *p )
 {
 }
-void rofi_add_error_message ( GString *msg )
+void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {
 }
 void rofi_view_queue_redraw ( void )
 {
 
 }
-void rofi_view_get_current_monitor ( int *width, int *height )
+void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
 {
 
 }

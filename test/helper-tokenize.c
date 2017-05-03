@@ -42,7 +42,7 @@ static int       test = 0;
         assert ( a );                                    \
         printf ( "Test %i passed (%s)\n", ++test, # a ); \
 }
-void rofi_add_error_message ( GString *msg )
+void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {
 }
 int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
@@ -51,7 +51,7 @@ int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
     return TRUE;
 }
 
-int show_error_message ( const char *msg, int markup )
+int show_error_message ( const char *msg, G_GNUC_UNUSED int markup )
 {
     fputs ( msg, stderr );
     return 0;
@@ -61,7 +61,7 @@ xcb_ewmh_connection_t xcb_ewmh;
 int                   xcb_screen_nbr;
 #include <x11-helper.h>
 
-int main ( int argc, char ** argv )
+int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
 {
     if ( setlocale ( LC_ALL, "" ) == NULL ) {
         fprintf ( stderr, "Failed to set locale.\n" );

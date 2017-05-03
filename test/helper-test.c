@@ -59,7 +59,7 @@ struct xcb_stuff *xcb;
             abort ( );                                                                   \
         }                                                                                \
 }
-void rofi_add_error_message ( GString *msg )
+void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {
 
 }

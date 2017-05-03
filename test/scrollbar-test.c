@@ -54,15 +54,15 @@ char * helper_get_theme_path ( const char *file )
 {
     return g_strdup ( file );
 }
-void config_parse_set_property ( const void *p )
+void config_parse_set_property ( G_GNUC_UNUSED const void *p )
 {
 }
-void rofi_add_error_message ( GString *msg )
+void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {}
 
-char * rofi_expand_path ( const char *path )
+char * rofi_expand_path ( G_GNUC_UNUSED const char *path )
 {
-
+    return NULL;
 }
 int textbox_get_estimated_char_height ( void );
 int textbox_get_estimated_char_height ( void )
@@ -74,7 +74,7 @@ void color_separator ( G_GNUC_UNUSED void *d )
 
 }
 
-void rofi_view_get_current_monitor ( int *width, int *height )
+void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
 {
 
 }

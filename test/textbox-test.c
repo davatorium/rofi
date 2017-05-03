@@ -49,17 +49,17 @@ unsigned int normal_window_mode = 0;
 
 #include "view.h"
 
-void config_parse_set_property ( void *p )
+void config_parse_set_property ( G_GNUC_UNUSED void *p )
 {
 }
 
-void rofi_add_error_message ( GString *msg)
+void rofi_add_error_message ( G_GNUC_UNUSED GString *msg)
 {
 }
 void rofi_view_queue_redraw ()
 {
 }
-void rofi_view_get_current_monitor ( int *width, int *height )
+void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
 {
 
 }

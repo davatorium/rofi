@@ -51,7 +51,7 @@ struct xcb_stuff *xcb;
             abort ( );                                                                   \
         }                                                                                \
 }
-void rofi_add_error_message ( GString *msg )
+void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {
 }
 int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
@@ -66,7 +66,7 @@ int show_error_message ( const char *msg, int markup )
     return 0;
 }
 
-int main ( int argc, char ** argv )
+int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
 {
 
     if ( setlocale ( LC_ALL, "" ) == NULL ) {
@@ -103,17 +103,17 @@ int main ( int argc, char ** argv )
     TASSERT ( str == list[3] );
 
     unsigned int u = 1234;
-    unsigned int i = -1234;
+    int d = -1234;
     TASSERT ( find_arg_uint ( "-x", &u ) == FALSE );
     TASSERT ( u == 1234 );
-    TASSERT ( find_arg_int ( "-x", &i ) == FALSE );
-    TASSERT ( i == -1234 );
+    TASSERT ( find_arg_int ( "-x", &d ) == FALSE );
+    TASSERT ( d == -1234 );
     TASSERT ( find_arg_uint ( "-u", &u ) == TRUE );
     TASSERT ( u == 4 );
     TASSERT ( find_arg_uint ( "-i", &u ) == TRUE );
     TASSERT ( u == 4294967293 );
-    TASSERT ( find_arg_int ( "-i", &i ) == TRUE );
-    TASSERT ( i == -3 );
+    TASSERT ( find_arg_int ( "-i", &d ) == TRUE );
+    TASSERT ( d == -3 );
 
     g_strfreev ( list );
 
