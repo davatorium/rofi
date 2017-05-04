@@ -587,3 +587,8 @@ coverage-clean:
 
 .PHONY: .FORCE
 .FORCE:
+
+EXTRA_DIST += \
+	doc/meson.build \
+	subprojects/libgwater/xcb/meson.build \
+	meson.build
