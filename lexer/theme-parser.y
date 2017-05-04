@@ -70,7 +70,7 @@ typedef struct YYLTYPE {
 #include <stdlib.h>
 #include <glib.h>
 
-#include "lexer/theme-parser.h"
+#include "theme-parser.h"
 ThemeWidget *rofi_theme = NULL;
 void yyerror(YYLTYPE *yylloc, const char *what, const char* s);
 int yylex (YYSTYPE *, YYLTYPE *);

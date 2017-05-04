@@ -39,7 +39,7 @@
 #include "rofi.h"
 #include "theme.h"
 
-#include "lexer/theme-parser.h"
+#include "theme-parser.h"
 
 #define LOG_DOMAIN "Parser"
 int last_state = 0;

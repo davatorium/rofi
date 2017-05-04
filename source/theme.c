@@ -32,7 +32,7 @@
 #include <errno.h>
 #include <string.h>
 #include "theme.h"
-#include "lexer/theme-parser.h"
+#include "theme-parser.h"
 #include "helper.h"
 #include "settings.h"
 #include "widgets/textbox.h"
