@@ -68,6 +68,11 @@
 #include "theme.h"
 
 #include "xcb.h"
+
+#ifdef XkBCOMMON_HAS_CONSUMED2
+#define xkb_state_key_get_consumed_mods(s, k) xkb_state_key_get_consumed_mods2(s, k, XKB_CONSUMED_MODE_GTK)
+#endif
+
 /**
  * @param state The handle to the view
  * @param qr    Indicate if queue_redraw should be called on changes.
