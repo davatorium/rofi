@@ -386,7 +386,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     pango_cairo_show_layout ( draw, tb->layout );
 
     if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED ) ) ) {
-        cairo_arc ( draw, DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
+        cairo_arc ( draw, DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * G_PI );
         cairo_fill ( draw );
     }
 }
