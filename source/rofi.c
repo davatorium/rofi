@@ -66,8 +66,6 @@
 #include "view.h"
 #include "view-internal.h"
 
-#include "gitconfig.h"
-
 #include "theme.h"
 
 #include "timings.h"
