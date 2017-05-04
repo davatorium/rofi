@@ -55,11 +55,10 @@ before_install:
 # TODO: We install xkbcommon here, until Travis use an up-to-date enough Ubuntu
 # TODO: We install libxcb-ewmh-dev here, until it is whitelisted again in Travis
 install:
-    - sudo apt-get install -y --force-yes libxkbcommon-dev libxkbcommon-x11-dev libxcb-ewmh-dev flex/trusty-backports libfl-dev/trusty-backports 
-
-before_script:
+    - sudo apt-get install -y --force-yes libxkbcommon-dev libxkbcommon-x11-dev libxcb-ewmh-dev flex/trusty-backports libfl-dev/trusty-backports
+    - git clone https://github.com/alobbs/doxy-coverage
     - git clone --recursive https://github.com/Airblader/xcb-util-xrm.git
-    - cd xcb-util-xrm 
+    - cd xcb-util-xrm
     - ./autogen.sh --prefix=/usr
     - make
     - sudo make install
@@ -71,21 +70,20 @@ before_script:
     - make
     - sudo make install
     - cd -
+
+before_script:
     - autoreconf -i
     - ./configure --enable-gcov --enable-drun
 
 script:
     - make
     - make check
-# to re-enable if xdotool is allowed.
     - ulimit -c unlimited
     - make test-x
     - if [ -f core ]; then echo "bt" | gdb ./rofi core; fi
     - make test-x1
     - make coverage-cli
-      #    - gcov source/rofi.c
     - make distcheck
-    - git clone https://github.com/alobbs/doxy-coverage
     - make doxy 2>&1 > doxygen.log
     - test $(grep -c warning doxygen.log) -eq 0
     - ./doxy-coverage/doxy-coverage.py doc/html/xml/
