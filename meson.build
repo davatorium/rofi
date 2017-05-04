@@ -10,6 +10,31 @@ project('rofi', 'c',
 
 c_compiler = meson.get_compiler('c')
 
+add_project_arguments(
+    '-fvisibility=hidden',
+    '-I@0@'.format(meson.build_root()),
+    '-I@0@'.format(join_paths(meson.source_root(), 'include')),
+    language: 'c'
+)
+
+flags = [
+    '-Wparentheses',
+    '-Winline',
+    '-Wunreachable-code',
+    '-Werror=missing-prototypes',
+]
+if get_option('enable-asan')
+    flags += [
+        '-fsanitize=address',
+        '-fno-omit-frame-pointer',
+    ]
+endif
+foreach f : flags
+    if c_compiler.has_argument(f)
+        add_project_arguments(f, language: 'c')
+    endif
+endforeach
+
 plugindir = join_paths(get_option('prefix'), get_option('libdir'), meson.project_name())
 themedir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name(), 'themes')
 
@@ -75,31 +100,6 @@ header_conf.set_quoted('PLUGIN_PATH', plugindir)
 header_conf.set_quoted('THEME_DIR', themedir)
 
 config_h = configure_file(output: 'config.h', configuration: header_conf)
-
-add_project_arguments(
-    '-fvisibility=hidden',
-    '-I@0@'.format(meson.build_root()),
-    '-I@0@'.format(join_paths(meson.source_root(), 'include')),
-    language: 'c'
-)
-
-flags = [
-    '-Wparentheses',
-    '-Winline',
-    '-Wunreachable-code',
-    '-Werror=missing-prototypes',
-]
-if get_option('enable-asan')
-    flags += [
-        '-fsanitize=address',
-        '-fno-omit-frame-pointer',
-    ]
-endif
-foreach f : flags
-    if c_compiler.has_argument(f)
-        add_project_arguments(f, language: 'c')
-    endif
-endforeach
 
 
 install_headers([
