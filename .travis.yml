@@ -56,6 +56,10 @@ before_install:
 # TODO: We install libxcb-ewmh-dev here, until it is whitelisted again in Travis
 install:
     - sudo apt-get install -y --force-yes libxkbcommon-dev libxkbcommon-x11-dev libxcb-ewmh-dev flex/trusty-backports libfl-dev/trusty-backports
+    - pip3 install meson
+    - wget https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-linux.zip
+    - unzip ninja-linux.zip
+    - export PATH=$(pwd):$PATH
     - git clone https://github.com/alobbs/doxy-coverage
     - git clone --recursive https://github.com/Airblader/xcb-util-xrm.git
     - cd xcb-util-xrm
@@ -72,21 +76,16 @@ install:
     - cd -
 
 before_script:
-    - autoreconf -i
-    - ./configure --enable-gcov --enable-drun
+    - meson build -Db_coverage=true
 
 script:
-    - make
-    - make check
+    - ninja -C build
+    - ninja -C build test
     - ulimit -c unlimited
-    - make test-x
-    - if [ -f core ]; then echo "bt" | gdb ./rofi core; fi
-    - make test-x1
-    - make coverage-cli
-    - make distcheck
-    - make doxy 2>&1 > doxygen.log
+    - ninja -C build test-x
+    - ninja -C build doc/html 2>&1 > doxygen.log
     - test $(grep -c warning doxygen.log) -eq 0
-    - ./doxy-coverage/doxy-coverage.py doc/html/xml/
+    - ./doxy-coverage/doxy-coverage.py build/doc/html/xml/
 
 after_success:
       - bash <(curl -s https://codecov.io/bash)
