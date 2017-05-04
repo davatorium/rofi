@@ -1,7 +1,7 @@
 # Specify automake version.
 AUTOMAKE_OPTIONS  = 1.11.3
 
-ACLOCAL_AMFLAGS = -I libgwater ${ACLOCAL_FLAGS}
+ACLOCAL_AMFLAGS = -I subprojects/libgwater ${ACLOCAL_FLAGS}
 
 AM_YFLAGS = -d
 
