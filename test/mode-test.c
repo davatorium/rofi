@@ -90,11 +90,11 @@ gboolean x11_parse_key ( G_GNUC_UNUSED const char *combo, G_GNUC_UNUSED unsigned
 #define ck_assert_ptr_null(X) _ck_assert_ptr_null(X, ==)
 #define ck_assert_ptr_nonnull(X) _ck_assert_ptr_null(X, !=)
 #endif
-void test_mode_setup ( void )
+static void test_mode_setup ( void )
 {
     ck_assert_int_eq ( mode_init ( &help_keys_mode ), TRUE);
 }
-void test_mode_teardown (void )
+static void test_mode_teardown (void )
 {
     mode_destroy ( &help_keys_mode );
 }
@@ -159,7 +159,7 @@ START_TEST(test_mode_match_entry)
 }
 END_TEST
 
-Suite * mode_suite (void)
+static Suite * mode_suite (void)
 {
     Suite *s;
     TCase *tc_core;

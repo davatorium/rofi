@@ -90,12 +90,12 @@ void rofi_add_error_message ( GString *msg )
     error = TRUE;
 }
 
-void theme_parser_setup ( void )
+static void theme_parser_setup ( void )
 {
     error = 0;
 
 }
-void theme_parser_teardown ( void )
+static void theme_parser_teardown ( void )
 {
     ck_assert_ptr_null ( error_msg );
     ck_assert_int_eq ( error, 0);
@@ -671,7 +671,7 @@ START_TEST ( test_import_empty)
 }
 END_TEST
 
-Suite * theme_parser_suite (void)
+static Suite * theme_parser_suite (void)
 {
     Suite *s;
     TCase *tc_core;
