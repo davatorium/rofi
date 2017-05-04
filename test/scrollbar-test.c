@@ -35,6 +35,9 @@
 #include <widgets/scrollbar.h>
 #include <widgets/widget.h>
 #include <widgets/widget-internal.h>
+#include "rofi.h"
+#include "xrmoptions.h"
+#include "helper.h"
 unsigned int test =0;
 #define TASSERT( a )    {                                 \
         assert ( a );                                     \
@@ -54,7 +57,7 @@ char * helper_get_theme_path ( const char *file )
 {
     return g_strdup ( file );
 }
-void config_parse_set_property ( G_GNUC_UNUSED const void *p )
+void config_parse_set_property ( G_GNUC_UNUSED const Property *p )
 {
 }
 void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )

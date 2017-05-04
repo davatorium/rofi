@@ -37,6 +37,7 @@
 #include "settings.h"
 #include "theme.h"
 #include "widgets/widget-internal.h"
+#include "widgets/textbox.h"
 
 
 #include <check.h>

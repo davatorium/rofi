@@ -35,6 +35,9 @@
 #include <widgets/box.h>
 #include <widgets/widget.h>
 #include <widgets/widget-internal.h>
+#include "rofi.h"
+#include "xrmoptions.h"
+#include "helper.h"
 unsigned int test =0;
 #define TASSERT( a )    {                                 \
         assert ( a );                                     \
@@ -50,7 +53,7 @@ unsigned int test =0;
         }                                                                                \
 }
 
-void config_parse_set_property ( G_GNUC_UNUSED const void *p )
+void config_parse_set_property ( G_GNUC_UNUSED const Property *p )
 {
 }
 char * rofi_expand_path ( G_GNUC_UNUSED const char *path )

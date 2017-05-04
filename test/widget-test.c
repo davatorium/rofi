@@ -34,12 +34,14 @@
 #include <string.h>
 #include <widgets/widget.h>
 #include <widgets/widget-internal.h>
+#include "rofi.h"
+#include "xrmoptions.h"
 unsigned int test =0;
 #define TASSERT( a )    {                                 \
         assert ( a );                                     \
         printf ( "Test %3i passed (%s)\n", ++test, # a ); \
 }
-void config_parse_set_property ( G_GNUC_UNUSED const void *p )
+void config_parse_set_property ( G_GNUC_UNUSED const Property *p )
 {
 }
 void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )

@@ -38,6 +38,7 @@
 #include <rofi.h>
 #include <cairo-xlib.h>
 #include "settings.h"
+#include "xrmoptions.h"
 
 static int   test               = 0;
 unsigned int normal_window_mode = 0;
@@ -49,7 +50,7 @@ unsigned int normal_window_mode = 0;
 
 #include "view.h"
 
-void config_parse_set_property ( G_GNUC_UNUSED void *p )
+void config_parse_set_property ( G_GNUC_UNUSED const Property *p )
 {
 }
 

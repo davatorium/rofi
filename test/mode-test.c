@@ -37,6 +37,8 @@
 #include <mode-private.h>
 #include <dialogs/help-keys.h>
 #include <xkbcommon/xkbcommon.h>
+#include "rofi.h"
+#include "x11-helper.h"
 #include <keyb.h>
 #include <helper.h>
 
@@ -45,7 +47,7 @@
 void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {
 }
-int monitor_active ( G_GNUC_UNUSED void *d )
+int monitor_active ( G_GNUC_UNUSED workarea *d )
 {
     return 0;
 }
@@ -63,11 +65,11 @@ void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int
 {
 
 }
-void * rofi_view_get_active ( void )
+RofiViewState * rofi_view_get_active ( void )
 {
     return NULL;
 }
-gboolean rofi_view_trigger_action ( G_GNUC_UNUSED void *state, G_GNUC_UNUSED KeyBindingAction action )
+gboolean rofi_view_trigger_action ( G_GNUC_UNUSED RofiViewState *state, G_GNUC_UNUSED KeyBindingAction action )
 {
     return FALSE;
 }
