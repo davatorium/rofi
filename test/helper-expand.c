@@ -61,11 +61,6 @@ int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
     return TRUE;
 }
 
-int show_error_message ( const char *msg, int markup )
-{
-    rofi_view_error_dialog ( msg, markup );
-    return 0;
-}
 xcb_screen_t          *xcb_screen;
 xcb_ewmh_connection_t xcb_ewmh;
 int                   xcb_screen_nbr;

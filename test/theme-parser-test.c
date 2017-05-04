@@ -48,11 +48,6 @@ int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
     return TRUE;
 }
 
-int show_error_message ( const char *msg, int markup )
-{
-    rofi_view_error_dialog ( msg, markup );
-    return 0;
-}
 void rofi_view_get_current_monitor ( int *width, int *height )
 {
     if ( width ) {

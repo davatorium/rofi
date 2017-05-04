@@ -60,12 +60,6 @@ int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
     return TRUE;
 }
 
-int show_error_message ( const char *msg, int markup )
-{
-    rofi_view_error_dialog ( msg, markup );
-    return 0;
-}
-
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
 {
 

@@ -69,16 +69,6 @@ int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
     return FALSE;
 }
 
-int abe_test_action ( G_GNUC_UNUSED KeyBindingAction action, G_GNUC_UNUSED unsigned int mask, G_GNUC_UNUSED xkb_keysym_t key )
-{
-    return FALSE;
-}
-int show_error_message ( const char *msg, int markup )
-{
-    rofi_view_error_dialog ( msg, markup );
-    return 0;
-}
-
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
     cairo_surface_t *surf = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, 100, 100 );

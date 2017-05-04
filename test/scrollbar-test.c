@@ -69,10 +69,6 @@ int textbox_get_estimated_char_height ( void )
 {
     return 16;
 }
-void color_separator ( G_GNUC_UNUSED void *d )
-{
-
-}
 
 void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
 {
