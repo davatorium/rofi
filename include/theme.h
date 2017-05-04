@@ -442,6 +442,7 @@ gboolean rofi_theme_is_empty ( void );
  * Convert old theme colors into default one.
  */
 void rofi_theme_convert_old ( void );
+#endif
 
 /**
  * @param file File name passed to option.
@@ -449,5 +450,4 @@ void rofi_theme_convert_old ( void );
  * @returns path to theme or copy of filename if not found.
  */
 char *helper_get_theme_path ( const char *file );
-#endif
 #endif

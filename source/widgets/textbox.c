@@ -134,7 +134,8 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
             tbfc->pfd = pango_font_description_from_string ( font );
             if ( helper_validate_font ( tbfc->pfd, font ) ) {
                 tbfc->metrics = pango_context_get_metrics ( p_context, tbfc->pfd, NULL );
-                g_hash_table_insert ( tbfc_cache, font, tbfc );
+                // Cast away consts. (*yuck*) because table_insert does not know it is const.
+                g_hash_table_insert ( tbfc_cache, (char *)font, tbfc );
             }
             else {
                 pango_font_description_free ( tbfc->pfd );

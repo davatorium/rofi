@@ -37,6 +37,7 @@
 #include <gio/gio.h>
 #include <helper.h>
 #include "rofi.h"
+#include "theme.h"
 
 #include "lexer/theme-parser.h"
 
