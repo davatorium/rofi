@@ -118,7 +118,7 @@ rofi_CFLAGS=\
 	$(cairo_CFLAGS)\
 	-DMANPAGE_PATH="\"$(mandir)/\""\
 	-I$(top_srcdir)/include/\
-	-I$(top_srcdir)/lexer/\
+	-I$(top_builddir)/lexer/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/\
 	-Werror=missing-prototypes\
@@ -268,7 +268,7 @@ textbox_test_CFLAGS=\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-DTHEME_DIR=\"$(themedir)\"\
 	-I$(top_srcdir)/include/\
-	-I$(top_srcdir)/lexer/\
+	-I$(top_builddir)/lexer/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
 
@@ -414,7 +414,7 @@ helper_test_CFLAGS=\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-DTHEME_DIR=\"$(themedir)\"\
 	-I$(top_srcdir)/include/\
-	-I$(top_srcdir)/lexer/\
+	-I$(top_builddir)/lexer/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
 
