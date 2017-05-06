@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 #include <helper.h>
+#include <math.h>
 #include "rofi.h"
 #include "theme.h"
 
@@ -82,6 +83,39 @@ GQueue *queue = NULL;
 ParseObject *current = NULL;
 
 static char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file );
+#define IN_RANGE(index,low,high) ( ( (index) > (low) )? ( ( (index) < (high) )? (index):(high) ) : ( low ) )
+
+static double hue2rgb(double p, double q, double t){
+    t += (t<0)?1:0;
+    t -= (t>1)?1:0;
+    if( t < (1/6.0) ) {
+         return p + (q - p) * 6 * t;
+    }
+    if( t < (1/2.0) ) {
+         return q;
+    }
+    if( t < (2/3.0) ) {
+        return p + (q - p) * (2/3.0 - t) * 6;
+    }
+    return p;
+}
+static ThemeColor hsl_to_rgb ( double h, double s, double l )
+{
+    ThemeColor colour;
+
+    if(s <  0.001 && s > -0.001){
+        colour.red = colour.green = colour.blue = l; // achromatic
+    }else{
+
+        double q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        double p = 2 * l - q;
+        colour.red   = hue2rgb(p, q, h + 1/3.0);
+        colour.green = hue2rgb(p, q, h);
+        colour.blue  = hue2rgb(p, q, h - 1/3.0);
+    }
+
+    return colour;
+}
 %}
 %{
 
@@ -445,6 +479,52 @@ if ( queue == NULL ){
     yylval->colorval.red   = g_ascii_strtoull ( endptr, &endptr, 10)/255.0;
     yylval->colorval.green = g_ascii_strtoull ( endptr+1, &endptr, 10)/255.0;
     yylval->colorval.blue  = g_ascii_strtoull ( endptr+1, &endptr, 10)/255.0;
+    yylval->colorval.alpha = 1.0;
+    return T_COLOR;
+}
+<PROPERTIES>hsl\({NUMBER}{1,3},[1]?{NUMBER}{1,2}{PERCENT},[1]?{NUMBER}{1,2}{PERCENT}\) {
+    char *endptr = &yytext[4];
+    gint64  hi= g_ascii_strtoll ( endptr, &endptr, 10);
+    gint64  si= g_ascii_strtoll ( endptr+1, &endptr, 10);
+    gint64  li= g_ascii_strtoll ( endptr+2, &endptr, 10);
+    gdouble h = IN_RANGE(hi, 0, 359);
+    gdouble s = IN_RANGE(si, 0, 100);
+    gdouble l = IN_RANGE(li, 0, 100);
+    yylval->colorval = hsl_to_rgb ( h/360.0, s/100.0, l/100.0 );
+    yylval->colorval.alpha = 1.0;
+    return T_COLOR;
+}
+<PROPERTIES>cmyk\([1]?{NUMBER}{1,2}{PERCENT},[1]?{NUMBER}{1,2}{PERCENT},[1]?{NUMBER}{1,2}{PERCENT},[1]?{NUMBER}{1,2}{PERCENT}\) {
+    char *endptr = &yytext[5];
+    gint64 ci = g_ascii_strtoll ( endptr,   &endptr, 10);
+    gint64 mi = g_ascii_strtoll ( endptr+2,   &endptr, 10);
+    gint64 my = g_ascii_strtoll ( endptr+2,   &endptr, 10);
+    gint64 mk = g_ascii_strtoll ( endptr+2,   &endptr, 10);
+    double  c= IN_RANGE(ci, 0, 100)/100.0;
+    double  m= IN_RANGE(mi, 0, 100)/100.0;
+    double  y= IN_RANGE(my, 0, 100)/100.0;
+    double  k= IN_RANGE(mk, 0, 100)/100.0;
+    yylval->colorval.red   = (1.0-c)*(1.0-k);
+    yylval->colorval.green = (1.0-m)*(1.0-k);
+    yylval->colorval.blue  = (1.0-y)*(1.0-k);
+    yylval->colorval.alpha = 1.0;
+    return T_COLOR;
+}
+<PROPERTIES>hwb\({NUMBER}{1,3},[1]?{NUMBER}{1,2}{PERCENT},[1]?{NUMBER}{1,2}{PERCENT}\) {
+    char *endptr = &yytext[4];
+    gint64 hi = g_ascii_strtoll ( endptr,   &endptr, 10);
+    gint64 hw = g_ascii_strtoll ( endptr+1, &endptr, 10);
+    gint64 hb = g_ascii_strtoll ( endptr+2, &endptr, 10);
+    double  h= IN_RANGE(hi,0,360)/360.0;
+    double  w= IN_RANGE(hw,0,100)/100.0;
+    double  b= IN_RANGE(hb,0,100)/100.0;
+    yylval->colorval = hsl_to_rgb ( h, 1.0, 0.5);
+    yylval->colorval.red   *= ( 1. - w - b );
+    yylval->colorval.red   += w;
+    yylval->colorval.green *= ( 1. - w - b );
+    yylval->colorval.green += w;
+    yylval->colorval.blue  *= ( 1. - w - b );
+    yylval->colorval.blue += w;
     yylval->colorval.alpha = 1.0;
     return T_COLOR;
 }
