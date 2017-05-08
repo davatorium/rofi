@@ -178,6 +178,7 @@ UANYN   {ASCN}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
  // UONLY   {U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
 
 WHITESPACE [[:blank:]]
+WSO        [[:blank:]]*
 WORD       [[:alnum:]-]+
 STRING     {UANYN}+
 HEX        [[:xdigit:]]
@@ -466,7 +467,7 @@ if ( queue == NULL ){
     yylval->colorval.blue  = val.b/15.0;
     return T_COLOR;
 }
-<PROPERTIES>rgba\({NUMBER}{1,3},{NUMBER}{1,3},{NUMBER}{1,3},[01](\.{NUMBER}+)?\) {
+<PROPERTIES>rgba\({WSO}{NUMBER}{1,3},{WSO}{NUMBER}{1,3},{WSO}{NUMBER}{1,3},{WSO}[01](\.{NUMBER}+)?\) {
     char *endptr = &yytext[5];
     yylval->colorval.red = g_ascii_strtoull ( endptr, &endptr, 10)/255.0;
     yylval->colorval.green= g_ascii_strtoull ( endptr+1, &endptr, 10)/255.0;
@@ -474,7 +475,7 @@ if ( queue == NULL ){
     yylval->colorval.alpha= g_ascii_strtod ( endptr+1, NULL);
     return T_COLOR;
 }
-<PROPERTIES>rgb\({NUMBER}{1,3},{NUMBER}{1,3},{NUMBER}{1,3}\) {
+<PROPERTIES>rgb\({WSO}{NUMBER}{1,3},{WSO}{NUMBER}{1,3},{WSO}{NUMBER}{1,3}\) {
     char *endptr = &yytext[4];
     yylval->colorval.red   = g_ascii_strtoull ( endptr, &endptr, 10)/255.0;
     yylval->colorval.green = g_ascii_strtoull ( endptr+1, &endptr, 10)/255.0;
@@ -482,7 +483,7 @@ if ( queue == NULL ){
     yylval->colorval.alpha = 1.0;
     return T_COLOR;
 }
-<PROPERTIES>hsl\({NUMBER}{1,3},[1]?{NUMBER}{1,2}{PERCENT},[1]?{NUMBER}{1,2}{PERCENT}\) {
+<PROPERTIES>hsl\({WSO}{NUMBER}{1,3},{WSO}[1]?{NUMBER}{1,2}{PERCENT},{WSO}[1]?{NUMBER}{1,2}{PERCENT}\) {
     char *endptr = &yytext[4];
     gint64  hi= g_ascii_strtoll ( endptr, &endptr, 10);
     gint64  si= g_ascii_strtoll ( endptr+1, &endptr, 10);
@@ -494,7 +495,7 @@ if ( queue == NULL ){
     yylval->colorval.alpha = 1.0;
     return T_COLOR;
 }
-<PROPERTIES>cmyk\([1]?{NUMBER}{1,2}{PERCENT},[1]?{NUMBER}{1,2}{PERCENT},[1]?{NUMBER}{1,2}{PERCENT},[1]?{NUMBER}{1,2}{PERCENT}\) {
+<PROPERTIES>cmyk\({WHITESPACE}[1]?{NUMBER}{1,2}{PERCENT},{WHITESPACE}[1]?{NUMBER}{1,2}{PERCENT},{WHITESPACE}[1]?{NUMBER}{1,2}{PERCENT},{WHITESPACE}[1]?{NUMBER}{1,2}{PERCENT}\) {
     char *endptr = &yytext[5];
     gint64 ci = g_ascii_strtoll ( endptr,   &endptr, 10);
     gint64 mi = g_ascii_strtoll ( endptr+2,   &endptr, 10);
@@ -510,7 +511,7 @@ if ( queue == NULL ){
     yylval->colorval.alpha = 1.0;
     return T_COLOR;
 }
-<PROPERTIES>hwb\({NUMBER}{1,3},[1]?{NUMBER}{1,2}{PERCENT},[1]?{NUMBER}{1,2}{PERCENT}\) {
+<PROPERTIES>hwb\({WHITESPACE}{NUMBER}{1,3},{WHITESPACE}[1]?{NUMBER}{1,2}{PERCENT},{WHITESPACE}[1]?{NUMBER}{1,2}{PERCENT}\) {
     char *endptr = &yytext[4];
     gint64 hi = g_ascii_strtoll ( endptr,   &endptr, 10);
     gint64 hw = g_ascii_strtoll ( endptr+1, &endptr, 10);
