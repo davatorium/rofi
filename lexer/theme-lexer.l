@@ -539,42 +539,11 @@ if ( queue == NULL ){
     return T_COLOR;
 }
 
-<PROPERTIES>{CENTER} {
-    yylval->ival = WL_CENTER;
-    return T_POSITION;
-}
-<PROPERTIES>{EAST} {
-    yylval->ival = WL_EAST;
-    return T_POSITION;
-}
-<PROPERTIES>{WEST} {
-    yylval->ival = WL_WEST;
-    return T_POSITION;
-}
-<PROPERTIES>{SOUTH}{EAST} {
-    yylval->ival = WL_SOUTH_EAST;
-    return T_POSITION;
-}
-<PROPERTIES>{SOUTH}{WEST} {
-    yylval->ival = WL_SOUTH_WEST;
-    return T_POSITION;
-}
-<PROPERTIES>{SOUTH} {
-    yylval->ival = WL_SOUTH;
-    return T_POSITION;
-}
-<PROPERTIES>{NORTH}{EAST} {
-    yylval->ival = WL_NORTH_EAST;
-    return T_POSITION;
-}
-<PROPERTIES>{NORTH}{WEST} {
-    yylval->ival = WL_NORTH_WEST;
-    return T_POSITION;
-}
-<PROPERTIES>{NORTH} {
-    yylval->ival = WL_NORTH;
-    return T_POSITION;
-}
+<PROPERTIES>{CENTER} { return T_POS_CENTER; }
+<PROPERTIES>{EAST}   { return T_POS_EAST;   }
+<PROPERTIES>{WEST}   { return T_POS_WEST;   }
+<PROPERTIES>{SOUTH}  { return T_POS_SOUTH;  }
+<PROPERTIES>{NORTH}  { return T_POS_NORTH;  }
 <PROPERTIES>{NONE} {
     yylval->ival = HL_NONE;
     return T_HIGHLIGHT_STYLE;

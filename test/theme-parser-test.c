@@ -332,6 +332,27 @@ START_TEST ( test_properties_position)
     ck_assert_int_eq ( rofi_theme_get_position ( &wid, "southeast", WL_WEST) , WL_SOUTH_EAST);
     ck_assert_int_eq ( rofi_theme_get_position ( &wid, "northwest", WL_NORTH) , WL_NORTH_WEST);
     ck_assert_int_eq ( rofi_theme_get_position ( &wid, "northeast", WL_CENTER) , WL_NORTH_EAST);
+    rofi_theme_parse_string ( "* { southwest: south west; southeast: south east; northwest: north west; northeast:north east;}" );
+    ck_assert_int_eq ( rofi_theme_get_position ( &wid, "southwest", WL_EAST) , WL_SOUTH_WEST);
+    ck_assert_int_eq ( rofi_theme_get_position ( &wid, "southeast", WL_WEST) , WL_SOUTH_EAST);
+    ck_assert_int_eq ( rofi_theme_get_position ( &wid, "northwest", WL_NORTH) , WL_NORTH_WEST);
+    ck_assert_int_eq ( rofi_theme_get_position ( &wid, "northeast", WL_CENTER) , WL_NORTH_EAST);
+    rofi_theme_parse_string ( "* { westsouth: westsouth; eastsouth: eastsouth; westnorth: westnorth; eastnorth:eastnorth;}" );
+    ck_assert_int_eq ( rofi_theme_get_position ( &wid, "westsouth", WL_EAST) , WL_SOUTH_WEST);
+    ck_assert_int_eq ( rofi_theme_get_position ( &wid, "eastsouth", WL_WEST) , WL_SOUTH_EAST);
+    ck_assert_int_eq ( rofi_theme_get_position ( &wid, "westnorth", WL_NORTH) , WL_NORTH_WEST);
+    ck_assert_int_eq ( rofi_theme_get_position ( &wid, "eastnorth", WL_CENTER) , WL_NORTH_EAST);
+    rofi_theme_parse_string ( "* { westsouth: west south; eastsouth: east south; westnorth: west north; eastnorth:east north;}" );
+    ck_assert_int_eq ( rofi_theme_get_position ( &wid, "westsouth", WL_EAST) , WL_SOUTH_WEST);
+    ck_assert_int_eq ( rofi_theme_get_position ( &wid, "eastsouth", WL_WEST) , WL_SOUTH_EAST);
+    ck_assert_int_eq ( rofi_theme_get_position ( &wid, "westnorth", WL_NORTH) , WL_NORTH_WEST);
+    ck_assert_int_eq ( rofi_theme_get_position ( &wid, "eastnorth", WL_CENTER) , WL_NORTH_EAST);
+    rofi_theme_parse_string ( "* { westeast: west east;}" );
+    // Should return error.
+    // TODO: check error message.
+    g_string_free ( error_msg, TRUE);
+    error_msg = NULL;
+    error = 0;
 }
 END_TEST
 

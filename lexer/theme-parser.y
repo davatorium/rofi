@@ -81,6 +81,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
 	double        fval;
     char          *sval;
     int           bval;
+    WindowLocation wloc;
     ThemeColor    colorval;
     ThemeWidget   *theme;
     GList         *name_path;
@@ -100,7 +101,6 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token <fval>     T_DOUBLE
 %token <sval>     T_STRING
 %token <sval>     N_STRING     "property name"
-%token <ival>     T_POSITION;
 %token <ival>     T_HIGHLIGHT_STYLE
 %token <sval>     NAME_ELEMENT "Element name"
 %token <bval>     T_BOOLEAN
@@ -108,6 +108,12 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token <distance> T_PIXEL
 %token <sval>     T_LINK
 %token <sval>     FIRST_NAME
+%token T_POS_CENTER  "Center"
+%token T_POS_EAST    "East"
+%token T_POS_WEST    "West"
+%token T_POS_NORTH   "North"
+%token T_POS_SOUTH   "South"
+
 
 %token BOPEN        "bracket open ('{')"
 %token BCLOSE       "bracket close ('}')"
@@ -120,6 +126,9 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token CONFIGURATION "Configuration block"
 
 %type <ival> highlight_styles
+%type <wloc> t_position
+%type <wloc> t_position_ew
+%type <wloc> t_position_sn
 %type <sval> entry
 %type <sval> pvalue
 %type <theme> entries
@@ -242,7 +251,7 @@ property
         $$->name = $1;
         $$->value.padding = (Padding){ $3, $4, $5, $6 };
 }
-| pvalue PSEP T_POSITION PCLOSE{
+| pvalue PSEP t_position PCLOSE{
         $$ = rofi_theme_property_create ( P_POSITION );
         $$->name = $1;
         $$->value.i = $3;
@@ -260,6 +269,30 @@ property
 }
 ;
 
+/**
+ * Position can be either center,
+ * East or West, North Or South
+ * Or combi of East or West and North or South
+ */
+t_position
+: T_POS_CENTER { $$ =WL_CENTER;}
+| t_position_ew
+| t_position_sn
+| t_position_ew t_position_sn { $$ = $1|$2;}
+| t_position_sn t_position_ew { $$ = $1|$2;}
+;
+t_position_ew
+: T_POS_EAST   { $$ = WL_EAST;}
+| T_POS_WEST   { $$ = WL_WEST;}
+;
+t_position_sn
+: T_POS_NORTH  { $$ = WL_NORTH;}
+| T_POS_SOUTH  { $$ = WL_SOUTH;}
+;
+
+/**
+ * Highlight style, allow mulitple styles to be combined.
+ */
 highlight_styles:
                 T_HIGHLIGHT_STYLE { $$ = $1; }
 | highlight_styles T_HIGHLIGHT_STYLE {

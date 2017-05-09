@@ -56,22 +56,22 @@ typedef enum
 {
     /** Center */
     WL_CENTER     = 0,
-    /** Left top corner. */
-    WL_NORTH_WEST = 1,
     /** Top middle */
-    WL_NORTH      = 2,
-    /** Top right */
-    WL_NORTH_EAST = 3,
+    WL_NORTH      = 1,
     /** Middle right */
-    WL_EAST       = 4,
-    /** Bottom right */
-    WL_SOUTH_EAST = 5,
+    WL_EAST       = 2,
     /** Bottom middle */
-    WL_SOUTH      = 6,
-    /** Bottom left */
-    WL_SOUTH_WEST = 7,
+    WL_SOUTH      = 4,
     /** Middle left */
-    WL_WEST       = 8
+    WL_WEST       = 8,
+    /** Left top corner. */
+    WL_NORTH_WEST = WL_NORTH|WL_WEST,
+    /** Top right */
+    WL_NORTH_EAST = WL_NORTH|WL_EAST,
+    /** Bottom right */
+    WL_SOUTH_EAST = WL_SOUTH|WL_EAST,
+    /** Bottom left */
+    WL_SOUTH_WEST = WL_SOUTH|WL_WEST,
 } WindowLocation;
 
 /**
