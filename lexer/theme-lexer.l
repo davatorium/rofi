@@ -377,11 +377,11 @@ if ( queue == NULL ){
 
 <SECTION>":"               { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return PSEP; }
 <PROPERTIES>";"                  { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return PCLOSE;}
-<PROPERTIES>(true|false)         { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
+<PROPERTIES>(true|false)          { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
 <PROPERTIES>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
 <PROPERTIES>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
-<PROPERTIES>\"{STRING}\"         { yytext[yyleng-1] = '\0'; yylval->sval = g_strdup(&yytext[1]); return T_STRING;}
-<PROPERTIES>@{WORD}              {
+<PROPERTIES>\"{STRING}\"          { yytext[yyleng-1] = '\0'; yylval->sval = g_strdup(&yytext[1]); return T_STRING;}
+<PROPERTIES>@{WORD}               {
     yylval->sval = g_strdup(yytext);
     return T_LINK;
 }
@@ -539,27 +539,15 @@ if ( queue == NULL ){
     return T_COLOR;
 }
 
-<PROPERTIES>{CENTER} { return T_POS_CENTER; }
-<PROPERTIES>{EAST}   { return T_POS_EAST;   }
-<PROPERTIES>{WEST}   { return T_POS_WEST;   }
-<PROPERTIES>{SOUTH}  { return T_POS_SOUTH;  }
-<PROPERTIES>{NORTH}  { return T_POS_NORTH;  }
-<PROPERTIES>{NONE} {
-    yylval->ival = HL_NONE;
-    return T_HIGHLIGHT_STYLE;
-}
-<PROPERTIES>{BOLD} {
-    yylval->ival = HL_BOLD;
-    return T_HIGHLIGHT_STYLE;
-}
-<PROPERTIES>{ITALIC} {
-    yylval->ival = HL_ITALIC;
-    return T_HIGHLIGHT_STYLE;
-}
-<PROPERTIES>{UNDERLINE} {
-    yylval->ival = HL_UNDERLINE;
-    return T_HIGHLIGHT_STYLE;
-}
+<PROPERTIES>{CENTER}    { return T_POS_CENTER; }
+<PROPERTIES>{EAST}      { return T_POS_EAST;   }
+<PROPERTIES>{WEST}      { return T_POS_WEST;   }
+<PROPERTIES>{SOUTH}     { return T_POS_SOUTH;  }
+<PROPERTIES>{NORTH}     { return T_POS_NORTH;  }
+<PROPERTIES>{NONE}      { return T_NONE; }
+<PROPERTIES>{BOLD}      { return T_BOLD; }
+<PROPERTIES>{ITALIC}    { return T_ITALIC; }
+<PROPERTIES>{UNDERLINE} { return T_UNDERLINE; }
 <INITIAL><<EOF>>  {
     ParseObject *po = g_queue_pop_head ( file_queue );
     if ( po ) {

@@ -101,7 +101,6 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token <fval>     T_DOUBLE
 %token <sval>     T_STRING
 %token <sval>     N_STRING     "property name"
-%token <ival>     T_HIGHLIGHT_STYLE
 %token <sval>     NAME_ELEMENT "Element name"
 %token <bval>     T_BOOLEAN
 %token <colorval> T_COLOR
@@ -113,6 +112,11 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token T_POS_WEST    "West"
 %token T_POS_NORTH   "North"
 %token T_POS_SOUTH   "South"
+
+%token T_NONE          "None"
+%token T_BOLD          "Bold"
+%token T_ITALIC        "Italic"
+%token T_UNDERLINE     "Underline"
 
 
 %token BOPEN        "bracket open ('{')"
@@ -126,6 +130,7 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token CONFIGURATION "Configuration block"
 
 %type <ival> highlight_styles
+%type <ival> highlight_style
 %type <wloc> t_position
 %type <wloc> t_position_ew
 %type <wloc> t_position_sn
@@ -292,12 +297,18 @@ t_position_sn
 
 /**
  * Highlight style, allow mulitple styles to be combined.
+ * Empty not allowed
  */
-highlight_styles:
-                T_HIGHLIGHT_STYLE { $$ = $1; }
-| highlight_styles T_HIGHLIGHT_STYLE {
-    $$ = $1 | $2;
-}
+highlight_styles
+: highlight_style { $$ = $1;}
+| highlight_styles highlight_style { $$ = $1|$2;} 
+;
+/** Single style. */
+highlight_style
+: T_NONE      { $$ = HL_NONE; }
+| T_BOLD      { $$ = HL_BOLD; }
+| T_UNDERLINE { $$ = HL_UNDERLINE; }
+| T_ITALIC    { $$ = HL_ITALIC; }
 ;
 pvalue: N_STRING { $$ = $1; }
 
