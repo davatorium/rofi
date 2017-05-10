@@ -74,6 +74,40 @@ typedef struct YYLTYPE {
 ThemeWidget *rofi_theme = NULL;
 void yyerror(YYLTYPE *yylloc, const char *what, const char* s);
 int yylex (YYSTYPE *, YYLTYPE *);
+
+#define IN_RANGE(index,low,high) ( ( (index) > (low) )? ( ( (index) < (high) )? (index):(high) ) : ( low ) )
+
+static double hue2rgb(double p, double q, double t){
+    t += (t<0)?1:0;
+    t -= (t>1)?1:0;
+    if( t < (1/6.0) ) {
+         return p + (q - p) * 6 * t;
+    }
+    if( t < (1/2.0) ) {
+         return q;
+    }
+    if( t < (2/3.0) ) {
+        return p + (q - p) * (2/3.0 - t) * 6;
+    }
+    return p;
+}
+static ThemeColor hsl_to_rgb ( double h, double s, double l )
+{
+    ThemeColor colour;
+
+    if(s <  0.001 && s > -0.001){
+        colour.red = colour.green = colour.blue = l; // achromatic
+    }else{
+
+        double q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        double p = 2 * l - q;
+        colour.red   = hue2rgb(p, q, h + 1/3.0);
+        colour.green = hue2rgb(p, q, h);
+        colour.blue  = hue2rgb(p, q, h - 1/3.0);
+    }
+
+    return colour;
+}
 %}
 
 %union {
@@ -104,7 +138,6 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token <sval>     NAME_ELEMENT "Element name"
 %token <bval>     T_BOOLEAN
 %token <colorval> T_COLOR
-%token <distance> T_PIXEL
 %token <sval>     T_LINK
 %token <sval>     FIRST_NAME
 %token T_POS_CENTER  "Center"
@@ -117,7 +150,24 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %token T_BOLD          "Bold"
 %token T_ITALIC        "Italic"
 %token T_UNDERLINE     "Underline"
+%token T_DASH          "Dash"
+%token T_SOLID         "Solid"
 
+%token T_UNIT_PX       "pixels"
+%token T_UNIT_EM       "em"
+%token T_UNIT_PERCENT  "%"
+
+%token T_COL_ARGB
+%token T_COL_RGBA
+%token T_COL_RGB
+%token T_COL_HSL
+%token T_COL_HWB
+%token T_COL_CMYK
+
+%token PARENT_LEFT "Parent left '('"
+%token PARENT_RIGHT "Parent right ')'"
+%token COMMA "comma separator"
+%token PERCENT "Percent sign"
 
 %token BOPEN        "bracket open ('{')"
 %token BCLOSE       "bracket close ('}')"
@@ -131,6 +181,8 @@ int yylex (YYSTYPE *, YYLTYPE *);
 
 %type <ival> highlight_styles
 %type <ival> highlight_style
+%type <ival> t_line_style
+%type <ival> t_unit
 %type <wloc> t_position
 %type <wloc> t_position_ew
 %type <wloc> t_position_sn
@@ -141,6 +193,8 @@ int yylex (YYSTYPE *, YYLTYPE *);
 %type <property> property
 %type <property_list> property_list
 %type <property_list> optional_properties
+%type <distance> t_distance
+%type <colorval> t_color
 %start entries
 
 %%
@@ -216,11 +270,6 @@ property
         $$->name = $1;
         $$->value.f = $3;
     }
-|   pvalue PSEP T_COLOR PCLOSE {
-        $$ = rofi_theme_property_create ( P_COLOR );
-        $$->name = $1;
-        $$->value.color = $3;
-    }
 |   pvalue PSEP T_STRING PCLOSE {
         $$ = rofi_theme_property_create ( P_STRING );
         $$->name = $1;
@@ -236,22 +285,22 @@ property
         $$->name = $1;
         $$->value.b = $3;
     }
-|  pvalue PSEP T_PIXEL PCLOSE {
+|  pvalue PSEP t_distance PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
         $$->value.padding = (Padding){ $3, $3, $3, $3 };
 }
-|  pvalue PSEP T_PIXEL T_PIXEL PCLOSE {
+|  pvalue PSEP t_distance t_distance PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
         $$->value.padding = (Padding){ $3, $4, $3, $4 };
 }
-|  pvalue PSEP T_PIXEL T_PIXEL T_PIXEL PCLOSE {
+|  pvalue PSEP t_distance t_distance t_distance PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
         $$->value.padding = (Padding){ $3, $4, $5, $4 };
 }
-|  pvalue PSEP T_PIXEL T_PIXEL T_PIXEL T_PIXEL PCLOSE {
+|  pvalue PSEP t_distance t_distance t_distance t_distance PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
         $$->value.padding = (Padding){ $3, $4, $5, $6 };
@@ -261,7 +310,7 @@ property
         $$->name = $1;
         $$->value.i = $3;
 }
-| pvalue PSEP highlight_styles T_COLOR PCLOSE {
+| pvalue PSEP highlight_styles t_color PCLOSE {
         $$ = rofi_theme_property_create ( P_HIGHLIGHT );
         $$->name = $1;
         $$->value.highlight.style = $3|HL_COLOR;
@@ -271,6 +320,11 @@ property
         $$ = rofi_theme_property_create ( P_HIGHLIGHT );
         $$->name = $1;
         $$->value.highlight.style = $3;
+}
+| pvalue PSEP t_color PCLOSE {
+        $$ = rofi_theme_property_create ( P_COLOR );
+        $$->name = $1;
+        $$->value.color = $3;
 }
 ;
 
@@ -301,7 +355,7 @@ t_position_sn
  */
 highlight_styles
 : highlight_style { $$ = $1;}
-| highlight_styles highlight_style { $$ = $1|$2;} 
+| highlight_styles highlight_style { $$ = $1|$2;}
 ;
 /** Single style. */
 highlight_style
@@ -310,6 +364,87 @@ highlight_style
 | T_UNDERLINE { $$ = HL_UNDERLINE; }
 | T_ITALIC    { $$ = HL_ITALIC; }
 ;
+
+
+t_distance
+: T_INT t_unit t_line_style {
+    $$.distance = (double)$1;
+    $$.type     = $2;
+    $$.style    = $3;
+}
+| T_DOUBLE t_unit t_line_style {
+    $$.distance = (double)$1;
+    $$.type     = $2;
+    $$.style    = $3;
+};
+
+t_unit
+: T_UNIT_PX      { $$ = PW_PX; }
+| T_UNIT_EM      { $$ = PW_EM; }
+| PERCENT        { $$ = PW_PERCENT; }
+;
+/******
+ * Line style
+ * If not set, solid.
+ */
+t_line_style
+: %empty   { $$ = SOLID; }
+| T_SOLID  { $$ = SOLID; }
+| T_DASH   { $$ = DASH;  }
+;
+
+/**
+ * Color formats
+ */
+t_color
+: T_COL_RGBA PARENT_LEFT  T_INT COMMA T_INT COMMA T_INT COMMA T_DOUBLE PARENT_RIGHT {
+    $$.alpha = $9;
+    $$.red   = $3/255.0;
+    $$.green = $5/255.0;
+    $$.blue  = $7/255.0;
+}
+| T_COL_RGB PARENT_LEFT  T_INT COMMA T_INT COMMA T_INT PARENT_RIGHT {
+    $$.alpha = 1.0;
+    $$.red   = $3/255.0;
+    $$.green = $5/255.0;
+    $$.blue  = $7/255.0;
+}
+| T_COL_HWB PARENT_LEFT T_INT COMMA T_DOUBLE PERCENT COMMA T_DOUBLE PERCENT PARENT_RIGHT {
+    $$.alpha = 1.0;
+    double h = IN_RANGE($3,0,360)/360.0;
+    double w = IN_RANGE($5,0,100)/100.0;
+    double b = IN_RANGE($8,0,100)/100.0;
+    $$ = hsl_to_rgb ( h, 1.0, 0.5);
+    $$.red   *= ( 1. - w - b );
+    $$.red   += w;
+    $$.green *= ( 1. - w - b );
+    $$.green += w;
+    $$.blue  *= ( 1. - w - b );
+    $$.blue += w;
+}
+| T_COL_CMYK PARENT_LEFT T_DOUBLE PERCENT COMMA T_DOUBLE PERCENT COMMA T_DOUBLE PERCENT COMMA T_DOUBLE PERCENT PARENT_RIGHT {
+    $$.alpha = 1.0;
+    double  c= IN_RANGE($3,  0, 100)/100.0;
+    double  m= IN_RANGE($6,  0, 100)/100.0;
+    double  y= IN_RANGE($9,  0, 100)/100.0;
+    double  k= IN_RANGE($12, 0, 100)/100.0;
+    $$.red   = (1.0-c)*(1.0-k);
+    $$.green = (1.0-m)*(1.0-k);
+    $$.blue  = (1.0-y)*(1.0-k);
+}
+| T_COL_HSL PARENT_LEFT T_INT COMMA T_DOUBLE PERCENT COMMA T_DOUBLE PERCENT PARENT_RIGHT {
+    gdouble h = IN_RANGE($3, 0, 359);
+    gdouble s = IN_RANGE($5, 0, 100);
+    gdouble l = IN_RANGE($8, 0, 100);
+    $$ = hsl_to_rgb ( h/360.0, s/100.0, l/100.0 );
+    $$.alpha = 1.0;
+}
+| T_COLOR {
+    $$ = $1;
+}
+;
+
+
 pvalue: N_STRING { $$ = $1; }
 
 name_path:
