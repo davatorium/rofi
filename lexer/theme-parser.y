@@ -75,11 +75,22 @@ ThemeWidget *rofi_theme = NULL;
 void yyerror(YYLTYPE *yylloc, const char *what, const char* s);
 int yylex (YYSTYPE *, YYLTYPE *);
 
-#define IN_RANGE(index,low,high) ( ( (index) > (low) )? ( ( (index) < (high) )? (index):(high) ) : ( low ) )
+
+static int check_in_range ( double index, double low, double high, YYLTYPE *loc )
+{
+    if ( index > high || index < low ){
+        gchar *str = g_strdup_printf("Value out of range: \n\t\tValue: X = %.2lf;\n\t\tRange: %.2lf <= X <= %.2lf.", index, low, high );
+        yyerror ( loc, loc->filename, str);
+        g_free(str);
+        return FALSE;
+    }
+
+    return TRUE;
+}
 
 static double hue2rgb(double p, double q, double t){
-    t += (t<0)?1:0;
-    t -= (t>1)?1:0;
+    t += (t<0)?1.0:0.0;
+    t -= (t>1)?1.0:0.0;
     if( t < (1/6.0) ) {
          return p + (q - p) * 6 * t;
     }
@@ -183,6 +194,7 @@ static ThemeColor hsl_to_rgb ( double h, double s, double l )
 %type <ival> highlight_style
 %type <ival> t_line_style
 %type <ival> t_unit
+%type <fval> color_val
 %type <wloc> t_position
 %type <wloc> t_position_ew
 %type <wloc> t_position_sn
@@ -398,22 +410,42 @@ t_line_style
  */
 t_color
 : T_COL_RGBA PARENT_LEFT  T_INT COMMA T_INT COMMA T_INT COMMA T_DOUBLE PARENT_RIGHT {
+    if ( ! check_in_range($3,0,255, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($5,0,255, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($7,0,255, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($9,0,1.00, &(@$)) ) { YYABORT; }
     $$.alpha = $9;
     $$.red   = $3/255.0;
     $$.green = $5/255.0;
     $$.blue  = $7/255.0;
 }
+| T_COL_RGBA PARENT_LEFT  T_INT COMMA T_INT COMMA T_INT COMMA color_val PERCENT PARENT_RIGHT {
+    if ( ! check_in_range($3,0,255, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($5,0,255, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($7,0,255, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($9,0,100, &(@$)) ) { YYABORT; }
+    $$.alpha = $9/100.0;
+    $$.red   = $3/255.0;
+    $$.green = $5/255.0;
+    $$.blue  = $7/255.0;
+}
 | T_COL_RGB PARENT_LEFT  T_INT COMMA T_INT COMMA T_INT PARENT_RIGHT {
+    if ( ! check_in_range($3,0,255, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($5,0,255, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($7,0,255, &(@$)) ) { YYABORT; }
     $$.alpha = 1.0;
     $$.red   = $3/255.0;
     $$.green = $5/255.0;
     $$.blue  = $7/255.0;
 }
-| T_COL_HWB PARENT_LEFT T_INT COMMA T_DOUBLE PERCENT COMMA T_DOUBLE PERCENT PARENT_RIGHT {
+| T_COL_HWB PARENT_LEFT T_INT COMMA color_val PERCENT COMMA color_val PERCENT PARENT_RIGHT {
     $$.alpha = 1.0;
-    double h = IN_RANGE($3,0,360)/360.0;
-    double w = IN_RANGE($5,0,100)/100.0;
-    double b = IN_RANGE($8,0,100)/100.0;
+    if ( ! check_in_range($3,0,360, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($5,0,100, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($8,0,100, &(@$)) ) { YYABORT; }
+    double h = $3/360.0;
+    double w = $5/100.0;
+    double b = $8/100.0;
     $$ = hsl_to_rgb ( h, 1.0, 0.5);
     $$.red   *= ( 1. - w - b );
     $$.red   += w;
@@ -422,26 +454,52 @@ t_color
     $$.blue  *= ( 1. - w - b );
     $$.blue += w;
 }
-| T_COL_CMYK PARENT_LEFT T_DOUBLE PERCENT COMMA T_DOUBLE PERCENT COMMA T_DOUBLE PERCENT COMMA T_DOUBLE PERCENT PARENT_RIGHT {
+| T_COL_CMYK PARENT_LEFT color_val PERCENT COMMA color_val PERCENT COMMA color_val PERCENT COMMA color_val PERCENT PARENT_RIGHT {
     $$.alpha = 1.0;
-    double  c= IN_RANGE($3,  0, 100)/100.0;
-    double  m= IN_RANGE($6,  0, 100)/100.0;
-    double  y= IN_RANGE($9,  0, 100)/100.0;
-    double  k= IN_RANGE($12, 0, 100)/100.0;
+    if ( ! check_in_range($3, 0,100, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($6, 0,100, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($9, 0,100, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($12,0,100, &(@$)) ) { YYABORT; }
+    double  c= $3/100.0;
+    double  m= $6/100.0;
+    double  y= $9/100.0;
+    double  k= $12/100.0;
     $$.red   = (1.0-c)*(1.0-k);
     $$.green = (1.0-m)*(1.0-k);
     $$.blue  = (1.0-y)*(1.0-k);
 }
-| T_COL_HSL PARENT_LEFT T_INT COMMA T_DOUBLE PERCENT COMMA T_DOUBLE PERCENT PARENT_RIGHT {
-    gdouble h = IN_RANGE($3, 0, 359);
-    gdouble s = IN_RANGE($5, 0, 100);
-    gdouble l = IN_RANGE($8, 0, 100);
+| T_COL_CMYK PARENT_LEFT color_val COMMA color_val COMMA color_val COMMA color_val PARENT_RIGHT {
+    $$.alpha = 1.0;
+    if ( ! check_in_range($3, 0,1.00, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($5, 0,1.00, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($7, 0,1.00, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($9, 0,1.00, &(@$)) ) { YYABORT; }
+    double  c= $3;
+    double  m= $5;
+    double  y= $7;
+    double  k= $9;
+    $$.red   = (1.0-c)*(1.0-k);
+    $$.green = (1.0-m)*(1.0-k);
+    $$.blue  = (1.0-y)*(1.0-k);
+}
+| T_COL_HSL PARENT_LEFT T_INT COMMA color_val PERCENT COMMA color_val PERCENT PARENT_RIGHT {
+    if ( ! check_in_range($3, 0,360, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($5, 0,100, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($8, 0,100, &(@$)) ) { YYABORT; }
+    gdouble h = $3;
+    gdouble s = $5;
+    gdouble l = $8;
     $$ = hsl_to_rgb ( h/360.0, s/100.0, l/100.0 );
     $$.alpha = 1.0;
 }
 | T_COLOR {
     $$ = $1;
 }
+;
+
+color_val
+: T_DOUBLE { $$ = $1; }
+| T_INT    { $$ = $1; }
 ;
 
 

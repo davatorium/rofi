@@ -179,8 +179,8 @@ HWB  "hwb"
 CMYK "cmyk"
 HSL  "hsl"
 
-PARENT_LEFT  \(
-PARENT_RIGHT \)
+S_PARENT_LEFT  \(
+S_PARENT_RIGHT \)
 COMMA        ,
 
 LS_DASH    "dash"
@@ -421,8 +421,8 @@ if ( queue == NULL ){
 <PROPERTIES>{HWB}          { return T_COL_HWB;   }
 <PROPERTIES>{CMYK}         { return T_COL_CMYK;  }
  /* Fluff */
-<PROPERTIES>{PARENT_LEFT}  { return PARENT_LEFT; }
-<PROPERTIES>{PARENT_RIGHT} { return PARENT_RIGHT;}
+<PROPERTIES>{S_PARENT_LEFT}  { return PARENT_LEFT; }
+<PROPERTIES>{S_PARENT_RIGHT} { return PARENT_RIGHT;}
 <PROPERTIES>{COMMA}        { return COMMA;       }
  /* Position */
 <PROPERTIES>{CENTER}       { return T_POS_CENTER; }

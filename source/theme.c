@@ -317,7 +317,7 @@ extern FILE* yyin;
  */
 void yyerror ( YYLTYPE *yylloc, const char *what, const char* s )
 {
-    char    *what_esc = g_markup_escape_text ( what, -1 );
+    char    *what_esc = what?g_markup_escape_text ( what, -1 ):g_strdup("");
     GString *str      = g_string_new ( "" );
     g_string_printf ( str, "<big><b>Error while parsing theme:</b></big> <i>%s</i>\n", what_esc );
     g_free ( what_esc );

@@ -86,7 +86,7 @@ gboolean error = FALSE;
 GString *error_msg = NULL;
 void rofi_add_error_message ( GString *msg )
 {
-    ck_assert_ptr_null ( error_msg );    
+    ck_assert_ptr_null ( error_msg );
     error_msg = msg;
     error = TRUE;
 }
@@ -534,6 +534,33 @@ START_TEST ( test_properties_color_rgba )
     ck_assert_double_eq ( p->value.color.blue , 1 );
 }
 END_TEST
+START_TEST ( test_properties_color_rgba_percent )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    rofi_theme_parse_string ( "* { red: rgba(255,0,0,30%); green: rgba(0,255,0,20%); blue: rgba(0,0,255,70.0%); }");
+    ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+    Property *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 0.3 );
+    ck_assert_double_eq ( p->value.color.red  , 1 );
+    ck_assert_double_eq ( p->value.color.green , 0 );
+    ck_assert_double_eq ( p->value.color.blue , 0 );
+    p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 0.2 );
+    ck_assert_double_eq ( p->value.color.red  , 0 );
+    ck_assert_double_eq ( p->value.color.green , 1 );
+    ck_assert_double_eq ( p->value.color.blue , 0 );
+    p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 0.7 );
+    ck_assert_double_eq ( p->value.color.red  , 0 );
+    ck_assert_double_eq ( p->value.color.green , 0 );
+    ck_assert_double_eq ( p->value.color.blue , 1 );
+}
+END_TEST
 START_TEST ( test_properties_color_argb )
 {
     widget wid;
@@ -559,6 +586,50 @@ START_TEST ( test_properties_color_argb )
     ck_assert_double_eq ( p->value.color.red  , 0 );
     ck_assert_double_eq ( p->value.color.green , 0 );
     ck_assert_double_eq ( p->value.color.blue , 1 );
+}
+END_TEST
+START_TEST ( test_properties_color_hsl )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    rofi_theme_parse_string ( "* { test1: hsl(127,40%,66.66666%); test2: hsl(0, 100%, 50%); }");
+    ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+
+    Property *p   = rofi_theme_find_property ( twid, P_COLOR, "test1", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0x88/255.0 , 0.004);
+    ck_assert_double_eq_tol ( p->value.color.green , 0xcd/255.0, 0.004 );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0x90/255.0 , 0.004);
+    p   = rofi_theme_find_property ( twid, P_COLOR, "test2", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 1 , 0.004);
+    ck_assert_double_eq_tol ( p->value.color.green , 0, 0.004 );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , 0.004);
+}
+END_TEST
+START_TEST ( test_properties_color_cmyk )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    rofi_theme_parse_string ( "* { test1: cmyk ( 41%, 0%, 100%, 0%); test2: cmyk ( 0, 1.0, 1.0, 0);}");
+    ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+
+    Property *p   = rofi_theme_find_property ( twid, P_COLOR, "test1", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0x96/255.0 , 0.004);
+    ck_assert_double_eq_tol ( p->value.color.green , 1.0, 0.004 );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0.0 , 0.004);
+    p   = rofi_theme_find_property ( twid, P_COLOR, "test2", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 1 , 0.004);
+    ck_assert_double_eq_tol ( p->value.color.green , 0, 0.004 );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , 0.004);
 }
 END_TEST
 START_TEST ( test_properties_padding_2 )
@@ -752,7 +823,10 @@ static Suite * theme_parser_suite (void)
         tcase_add_test ( tc_prop_color, test_properties_color_h8);
         tcase_add_test ( tc_prop_color, test_properties_color_rgb);
         tcase_add_test ( tc_prop_color, test_properties_color_rgba);
+        tcase_add_test ( tc_prop_color, test_properties_color_rgba_percent);
         tcase_add_test ( tc_prop_color, test_properties_color_argb);
+        tcase_add_test ( tc_prop_color, test_properties_color_hsl);
+        tcase_add_test ( tc_prop_color, test_properties_color_cmyk);
         suite_add_tcase(s, tc_prop_color );
     }
     {
@@ -813,7 +887,7 @@ int main ( int argc, char ** argv )
         return EXIT_FAILURE;
     }
 
-    
+
     Suite *s;
     SRunner *sr;
 
