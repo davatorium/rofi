@@ -513,7 +513,9 @@ t_property_color_value
 ;
 
 /** Property name */
-t_property_name: T_PROP_NAME { $$ = $1; }
+t_property_name
+: T_PROP_NAME { $$ = $1; }
+;
 
 t_entry_name_path:
 T_NAME_ELEMENT { $$ = g_list_append ( NULL, $1 );}
