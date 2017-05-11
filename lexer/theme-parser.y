@@ -142,76 +142,74 @@ static ThemeColor hsl_to_rgb ( double h, double s, double l )
 %token <ival>     T_ERROR_NAMESTRING 4  "invalid element name"
 %token <ival>     T_ERROR_DEFAULTS   5  "invalid defaults name"
 %token <ival>     T_ERROR_INCLUDE    6  "invalid import value"
-%token <ival>     T_INT
-%token <fval>     T_DOUBLE
-%token <sval>     T_STRING
-%token <sval>     N_STRING     "property name"
-%token <sval>     NAME_ELEMENT "Element name"
-%token <bval>     T_BOOLEAN
-%token <colorval> T_COLOR
-%token <sval>     T_LINK
-%token <sval>     FIRST_NAME
-%token T_POS_CENTER  "Center"
-%token T_POS_EAST    "East"
-%token T_POS_WEST    "West"
-%token T_POS_NORTH   "North"
-%token T_POS_SOUTH   "South"
+%token <ival>     T_INT                 "Integer number"
+%token <fval>     T_DOUBLE              "Floating-point number"
+%token <sval>     T_STRING              "UTF-8 encoded string"
+%token <sval>     T_PROP_NAME           "property name"
+%token <sval>     T_NAME_ELEMENT        "Element name"
+%token <bval>     T_BOOLEAN             "Boolean value (true or false)"
+%token <colorval> T_COLOR               "Hexidecimal color value"
+%token <sval>     T_LINK                "Reference"
+%token T_POS_CENTER                     "Center"
+%token T_POS_EAST                       "East"
+%token T_POS_WEST                       "West"
+%token T_POS_NORTH                      "North"
+%token T_POS_SOUTH                      "South"
 
-%token T_NONE          "None"
-%token T_BOLD          "Bold"
-%token T_ITALIC        "Italic"
-%token T_UNDERLINE     "Underline"
-%token T_DASH          "Dash"
-%token T_SOLID         "Solid"
+%token T_NONE                           "None"
+%token T_BOLD                           "Bold"
+%token T_ITALIC                         "Italic"
+%token T_UNDERLINE                      "Underline"
+%token T_DASH                           "Dash"
+%token T_SOLID                          "Solid"
 
-%token T_UNIT_PX       "pixels"
-%token T_UNIT_EM       "em"
-%token T_UNIT_PERCENT  "%"
+%token T_UNIT_PX                        "pixels"
+%token T_UNIT_EM                        "em"
+%token T_UNIT_PERCENT                   "%"
 
-%token T_COL_ARGB
-%token T_COL_RGBA
-%token T_COL_RGB
-%token T_COL_HSL
-%token T_COL_HWB
-%token T_COL_CMYK
+%token T_COL_RGBA                       "rgba colorscheme"
+%token T_COL_RGB                        "rgb colorscheme"
+%token T_COL_HSL                        "hsl colorscheme"
+%token T_COL_HWB                        "hwb colorscheme"
+%token T_COL_CMYK                       "cmyk colorscheme"
 
-%token PARENT_LEFT "Parent left '('"
-%token PARENT_RIGHT "Parent right ')'"
-%token COMMA "comma separator"
-%token PERCENT "Percent sign"
+%token T_PARENT_LEFT                    "Parent left ('(')"
+%token T_PARENT_RIGHT                   "Parent right (')')"
+%token T_COMMA                          "comma separator (',')"
+%token T_PERCENT                        "Percent sign ('%')"
 
-%token BOPEN        "bracket open ('{')"
-%token BCLOSE       "bracket close ('}')"
-%token PSEP         "property separator (':')"
-%token PCLOSE       "property close (';')"
-%token NSEP         "Name separator (' ' or '.')"
-%token NAME_PREFIX  "Element section ('# {name} { ... }')"
-%token WHITESPACE   "White space"
-%token PDEFAULTS    "Default settings section ( '* { ... }')"
-%token CONFIGURATION "Configuration block"
+%token T_BOPEN                          "bracket open ('{')"
+%token T_BCLOSE                         "bracket close ('}')"
+%token T_PSEP                           "property separator (':')"
+%token T_PCLOSE                         "property close (';')"
+%token T_NSEP                           "Name separator (' ' or '.')"
+%token T_NAME_PREFIX                    "Element section ('# {name} { ... }')"
+%token T_WHITESPACE                     "White space"
+%token T_PDEFAULTS                      "Default settings section ( '* { ... }')"
+%token T_CONFIGURATION                  "Configuration block"
 
-%type <ival> highlight_styles
-%type <ival> highlight_style
-%type <ival> t_line_style
-%type <ival> t_unit
-%type <fval> color_val
-%type <wloc> t_position
-%type <wloc> t_position_ew
-%type <wloc> t_position_sn
-%type <sval> entry
-%type <sval> pvalue
-%type <theme> entries
-%type <name_path> name_path
-%type <property> property
-%type <property_list> property_list
-%type <property_list> optional_properties
-%type <distance> t_distance
-%type <colorval> t_color
-%start entries
+%type <sval>           t_entry
+%type <theme>          t_entry_list
+%type <name_path>      t_entry_name_path
+%type <property>       t_property
+%type <property_list>  t_property_list
+%type <property_list>  t_property_list_optional
+%type <colorval>       t_property_color
+%type <fval>           t_property_color_value
+%type <sval>           t_property_name
+%type <distance>       t_property_distance
+%type <ival>           t_property_unit
+%type <wloc>           t_property_position
+%type <wloc>           t_property_position_ew
+%type <wloc>           t_property_position_sn
+%type <ival>           t_property_highlight_styles
+%type <ival>           t_property_highlight_style
+%type <ival>           t_property_line_style
+%start t_entry_list
 
 %%
 
-entries:
+t_entry_list:
   %empty {
         // There is always a base widget.
         if (rofi_theme == NULL ){
@@ -219,13 +217,13 @@ entries:
             rofi_theme->name = g_strdup ( "Root" );
         }
   }
-|  entries
-   entry {
+|  t_entry_list
+   t_entry {
     }
 ;
 
-entry:
-NAME_PREFIX name_path BOPEN optional_properties BCLOSE
+t_entry:
+T_NAME_PREFIX t_entry_name_path T_BOPEN t_property_list_optional T_BCLOSE
 {
         ThemeWidget *widget = rofi_theme;
         for ( GList *iter = g_list_first ( $2 ); iter ; iter = g_list_next ( iter ) ) {
@@ -237,10 +235,10 @@ NAME_PREFIX name_path BOPEN optional_properties BCLOSE
         rofi_theme_widget_add_properties ( widget, $4);
 }
 |
-    PDEFAULTS BOPEN optional_properties BCLOSE {
+    T_PDEFAULTS T_BOPEN t_property_list_optional T_BCLOSE {
     rofi_theme_widget_add_properties ( rofi_theme, $3);
 }
-| CONFIGURATION BOPEN optional_properties BCLOSE {
+| T_CONFIGURATION T_BOPEN t_property_list_optional T_BCLOSE {
     GHashTableIter iter;
     g_hash_table_iter_init ( &iter, $3 );
     gpointer key,value;
@@ -255,85 +253,85 @@ NAME_PREFIX name_path BOPEN optional_properties BCLOSE
 /**
  * properties
  */
-optional_properties
+t_property_list_optional
           : %empty { $$ = NULL; }
-          | property_list { $$ = $1; }
+          | t_property_list { $$ = $1; }
 ;
 
-property_list:
-  property {
+t_property_list:
+  t_property {
     $$ = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify)rofi_theme_property_free );
     g_hash_table_replace ( $$, $1->name, $1 );
   }
-| property_list property {
+| t_property_list t_property {
     // Old will be free'ed, and key/value will be replaced.
     g_hash_table_replace ( $$, $2->name, $2 );
   }
 ;
 
-property
-:   pvalue PSEP T_INT PCLOSE  {
+t_property
+:   t_property_name T_PSEP T_INT T_PCLOSE  {
         $$ = rofi_theme_property_create ( P_INTEGER );
         $$->name = $1;
         $$->value.i = $3;
     }
-|   pvalue PSEP T_DOUBLE PCLOSE {
+|   t_property_name T_PSEP T_DOUBLE T_PCLOSE {
         $$ = rofi_theme_property_create ( P_DOUBLE );
         $$->name = $1;
         $$->value.f = $3;
     }
-|   pvalue PSEP T_STRING PCLOSE {
+|   t_property_name T_PSEP T_STRING T_PCLOSE {
         $$ = rofi_theme_property_create ( P_STRING );
         $$->name = $1;
         $$->value.s = $3;
     }
-|   pvalue PSEP T_LINK PCLOSE {
+|   t_property_name T_PSEP T_LINK T_PCLOSE {
         $$ = rofi_theme_property_create ( P_LINK );
         $$->name = $1;
         $$->value.link.name = $3;
     }
-|   pvalue PSEP T_BOOLEAN PCLOSE {
+|   t_property_name T_PSEP T_BOOLEAN T_PCLOSE {
         $$ = rofi_theme_property_create ( P_BOOLEAN );
         $$->name = $1;
         $$->value.b = $3;
     }
-|  pvalue PSEP t_distance PCLOSE {
+|  t_property_name T_PSEP t_property_distance T_PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
         $$->value.padding = (Padding){ $3, $3, $3, $3 };
 }
-|  pvalue PSEP t_distance t_distance PCLOSE {
+|  t_property_name T_PSEP t_property_distance t_property_distance T_PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
         $$->value.padding = (Padding){ $3, $4, $3, $4 };
 }
-|  pvalue PSEP t_distance t_distance t_distance PCLOSE {
+|  t_property_name T_PSEP t_property_distance t_property_distance t_property_distance T_PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
         $$->value.padding = (Padding){ $3, $4, $5, $4 };
 }
-|  pvalue PSEP t_distance t_distance t_distance t_distance PCLOSE {
+|  t_property_name T_PSEP t_property_distance t_property_distance t_property_distance t_property_distance T_PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
         $$->value.padding = (Padding){ $3, $4, $5, $6 };
 }
-| pvalue PSEP t_position PCLOSE{
+| t_property_name T_PSEP t_property_position T_PCLOSE{
         $$ = rofi_theme_property_create ( P_POSITION );
         $$->name = $1;
         $$->value.i = $3;
 }
-| pvalue PSEP highlight_styles t_color PCLOSE {
+| t_property_name T_PSEP t_property_highlight_styles t_property_color T_PCLOSE {
         $$ = rofi_theme_property_create ( P_HIGHLIGHT );
         $$->name = $1;
         $$->value.highlight.style = $3|HL_COLOR;
         $$->value.highlight.color = $4;
 }
-| pvalue PSEP highlight_styles PCLOSE {
+| t_property_name T_PSEP t_property_highlight_styles T_PCLOSE {
         $$ = rofi_theme_property_create ( P_HIGHLIGHT );
         $$->name = $1;
         $$->value.highlight.style = $3;
 }
-| pvalue PSEP t_color PCLOSE {
+| t_property_name T_PSEP t_property_color T_PCLOSE {
         $$ = rofi_theme_property_create ( P_COLOR );
         $$->name = $1;
         $$->value.color = $3;
@@ -345,18 +343,18 @@ property
  * East or West, North Or South
  * Or combi of East or West and North or South
  */
-t_position
+t_property_position
 : T_POS_CENTER { $$ =WL_CENTER;}
-| t_position_ew
-| t_position_sn
-| t_position_ew t_position_sn { $$ = $1|$2;}
-| t_position_sn t_position_ew { $$ = $1|$2;}
+| t_property_position_ew
+| t_property_position_sn
+| t_property_position_ew t_property_position_sn { $$ = $1|$2;}
+| t_property_position_sn t_property_position_ew { $$ = $1|$2;}
 ;
-t_position_ew
+t_property_position_ew
 : T_POS_EAST   { $$ = WL_EAST;}
 | T_POS_WEST   { $$ = WL_WEST;}
 ;
-t_position_sn
+t_property_position_sn
 : T_POS_NORTH  { $$ = WL_NORTH;}
 | T_POS_SOUTH  { $$ = WL_SOUTH;}
 ;
@@ -365,41 +363,44 @@ t_position_sn
  * Highlight style, allow mulitple styles to be combined.
  * Empty not allowed
  */
-highlight_styles
-: highlight_style { $$ = $1;}
-| highlight_styles highlight_style { $$ = $1|$2;}
+t_property_highlight_styles
+: t_property_highlight_style { $$ = $1;}
+| t_property_highlight_styles t_property_highlight_style { $$ = $1|$2;}
 ;
 /** Single style. */
-highlight_style
+t_property_highlight_style
 : T_NONE      { $$ = HL_NONE; }
 | T_BOLD      { $$ = HL_BOLD; }
 | T_UNDERLINE { $$ = HL_UNDERLINE; }
 | T_ITALIC    { $$ = HL_ITALIC; }
 ;
 
-
-t_distance
-: T_INT t_unit t_line_style {
+/** Distance. */
+t_property_distance
+/** Interger unit and line style */
+: T_INT t_property_unit t_property_line_style {
     $$.distance = (double)$1;
     $$.type     = $2;
     $$.style    = $3;
 }
-| T_DOUBLE t_unit t_line_style {
+/** Double unit and line style */
+| T_DOUBLE t_property_unit t_property_line_style {
     $$.distance = (double)$1;
     $$.type     = $2;
     $$.style    = $3;
 };
 
-t_unit
+/** distance unit. px, em, % */
+t_property_unit
 : T_UNIT_PX      { $$ = PW_PX; }
 | T_UNIT_EM      { $$ = PW_EM; }
-| PERCENT        { $$ = PW_PERCENT; }
+| T_PERCENT        { $$ = PW_PERCENT; }
 ;
 /******
  * Line style
  * If not set, solid.
  */
-t_line_style
+t_property_line_style
 : %empty   { $$ = SOLID; }
 | T_SOLID  { $$ = SOLID; }
 | T_DASH   { $$ = DASH;  }
@@ -408,8 +409,9 @@ t_line_style
 /**
  * Color formats
  */
-t_color
-: T_COL_RGBA PARENT_LEFT  T_INT COMMA T_INT COMMA T_INT COMMA T_DOUBLE PARENT_RIGHT {
+t_property_color
+ /** rgba ( 0-255 , 0-255, 0-255, 0-1.0 ) */
+: T_COL_RGBA T_PARENT_LEFT  T_INT T_COMMA T_INT T_COMMA T_INT T_COMMA T_DOUBLE T_PARENT_RIGHT {
     if ( ! check_in_range($3,0,255, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($5,0,255, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($7,0,255, &(@$)) ) { YYABORT; }
@@ -419,7 +421,8 @@ t_color
     $$.green = $5/255.0;
     $$.blue  = $7/255.0;
 }
-| T_COL_RGBA PARENT_LEFT  T_INT COMMA T_INT COMMA T_INT COMMA color_val PERCENT PARENT_RIGHT {
+ /** rgba ( 0-255 , 0-255, 0-255, 0-100% ) */
+| T_COL_RGBA T_PARENT_LEFT  T_INT T_COMMA T_INT T_COMMA T_INT T_COMMA t_property_color_value T_PERCENT T_PARENT_RIGHT {
     if ( ! check_in_range($3,0,255, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($5,0,255, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($7,0,255, &(@$)) ) { YYABORT; }
@@ -429,7 +432,8 @@ t_color
     $$.green = $5/255.0;
     $$.blue  = $7/255.0;
 }
-| T_COL_RGB PARENT_LEFT  T_INT COMMA T_INT COMMA T_INT PARENT_RIGHT {
+ /** rgb ( 0-255 , 0-255, 0-255 ) */
+| T_COL_RGB T_PARENT_LEFT  T_INT T_COMMA T_INT T_COMMA T_INT T_PARENT_RIGHT {
     if ( ! check_in_range($3,0,255, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($5,0,255, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($7,0,255, &(@$)) ) { YYABORT; }
@@ -438,7 +442,8 @@ t_color
     $$.green = $5/255.0;
     $$.blue  = $7/255.0;
 }
-| T_COL_HWB PARENT_LEFT T_INT COMMA color_val PERCENT COMMA color_val PERCENT PARENT_RIGHT {
+ /** hwb ( 0-360 , 0-100  %, 0 - 100  %) */
+| T_COL_HWB T_PARENT_LEFT T_INT T_COMMA t_property_color_value T_PERCENT T_COMMA t_property_color_value T_PERCENT T_PARENT_RIGHT {
     $$.alpha = 1.0;
     if ( ! check_in_range($3,0,360, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($5,0,100, &(@$)) ) { YYABORT; }
@@ -454,7 +459,8 @@ t_color
     $$.blue  *= ( 1. - w - b );
     $$.blue += w;
 }
-| T_COL_CMYK PARENT_LEFT color_val PERCENT COMMA color_val PERCENT COMMA color_val PERCENT COMMA color_val PERCENT PARENT_RIGHT {
+  /** cmyk ( 0-100%, 0-100%, 0-100%, 0-100%) */
+| T_COL_CMYK T_PARENT_LEFT t_property_color_value T_PERCENT T_COMMA t_property_color_value T_PERCENT T_COMMA t_property_color_value T_PERCENT T_COMMA t_property_color_value T_PERCENT T_PARENT_RIGHT {
     $$.alpha = 1.0;
     if ( ! check_in_range($3, 0,100, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($6, 0,100, &(@$)) ) { YYABORT; }
@@ -468,7 +474,8 @@ t_color
     $$.green = (1.0-m)*(1.0-k);
     $$.blue  = (1.0-y)*(1.0-k);
 }
-| T_COL_CMYK PARENT_LEFT color_val COMMA color_val COMMA color_val COMMA color_val PARENT_RIGHT {
+  /** cmyk ( 0-1.0, 0-1.0, 0-1.0, 0-1.0) */
+| T_COL_CMYK T_PARENT_LEFT t_property_color_value T_COMMA t_property_color_value T_COMMA t_property_color_value T_COMMA t_property_color_value T_PARENT_RIGHT {
     $$.alpha = 1.0;
     if ( ! check_in_range($3, 0,1.00, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($5, 0,1.00, &(@$)) ) { YYABORT; }
@@ -482,7 +489,8 @@ t_color
     $$.green = (1.0-m)*(1.0-k);
     $$.blue  = (1.0-y)*(1.0-k);
 }
-| T_COL_HSL PARENT_LEFT T_INT COMMA color_val PERCENT COMMA color_val PERCENT PARENT_RIGHT {
+ /** hsl ( 0-360 , 0-100  %, 0 - 100  %) */
+| T_COL_HSL T_PARENT_LEFT T_INT T_COMMA t_property_color_value T_PERCENT T_COMMA t_property_color_value T_PERCENT T_PARENT_RIGHT {
     if ( ! check_in_range($3, 0,360, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($5, 0,100, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($8, 0,100, &(@$)) ) { YYABORT; }
@@ -492,23 +500,25 @@ t_color
     $$ = hsl_to_rgb ( h/360.0, s/100.0, l/100.0 );
     $$.alpha = 1.0;
 }
+/** Hex colors parsed by lexer. */
 | T_COLOR {
     $$ = $1;
 }
 ;
 
-color_val
+/** Color value to be double or integer. */
+t_property_color_value
 : T_DOUBLE { $$ = $1; }
 | T_INT    { $$ = $1; }
 ;
 
+/** Property name */
+t_property_name: T_PROP_NAME { $$ = $1; }
 
-pvalue: N_STRING { $$ = $1; }
-
-name_path:
-NAME_ELEMENT { $$ = g_list_append ( NULL, $1 );}
-| name_path NSEP NAME_ELEMENT { $$ = g_list_append ( $1, $3);}
-| name_path NSEP  { $$ = $1; }
+t_entry_name_path:
+T_NAME_ELEMENT { $$ = g_list_append ( NULL, $1 );}
+| t_entry_name_path T_NSEP T_NAME_ELEMENT { $$ = g_list_append ( $1, $3);}
+| t_entry_name_path T_NSEP  { $$ = $1; }
 ;
 
 %%

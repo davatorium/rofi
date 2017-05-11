@@ -172,15 +172,14 @@ UNDERLINE  "underline"
 ITALIC     "italic"
 
  /* Color schema */
-ARGB "argb"
 RGBA "rgba"
 RGB  "rgb"
 HWB  "hwb"
 CMYK "cmyk"
 HSL  "hsl"
 
-S_PARENT_LEFT  \(
-S_PARENT_RIGHT \)
+S_T_PARENT_LEFT  \(
+S_T_PARENT_RIGHT \)
 COMMA        ,
 
 LS_DASH    "dash"
@@ -314,50 +313,50 @@ if ( queue == NULL ){
 <INITIAL>{CONFIGURATION} {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(DEFAULTS);
-    return CONFIGURATION;
+    return T_CONFIGURATION;
 
 }
 <INITIAL>{ASTERIX} {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(DEFAULTS);
-    return PDEFAULTS;
+    return T_PDEFAULTS;
 }
     /** Skip all whitespace */
 <DEFAULTS>{WHITESPACE} {}
 <DEFAULTS>"\{"   {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(SECTION);
-    return BOPEN;
+    return T_BOPEN;
 }
   /** Everythin not yet parsed is an error. */
 <DEFAULTS>. {
     return T_ERROR_DEFAULTS;
 }
 
-<INITIAL>"#"            { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(NAMESTR);return NAME_PREFIX;}
+<INITIAL>"#"            { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(NAMESTR);return T_NAME_PREFIX;}
   /* Go into parsing an section*/
 <NAMESTR>"\{"                    {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(SECTION);
-    return BOPEN;
+    return T_BOPEN;
 }
   /* Pop out of parsing an section. */
 <SECTION>"\}"             {
     g_queue_pop_head ( queue );
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
-    return BCLOSE;
+    return T_BCLOSE;
 }
 
-<NAMESTR>\.|{WHITESPACE}    { return NSEP; }
-<SECTION>{WORD}   { yylval->sval = g_strdup(yytext); return N_STRING;}
-<NAMESTR>{WORD}         { yylval->sval = g_strdup(yytext); return NAME_ELEMENT;}
+<NAMESTR>\.|{WHITESPACE}    { return T_NSEP; }
+<SECTION>{WORD}   { yylval->sval = g_strdup(yytext); return T_PROP_NAME;}
+<NAMESTR>{WORD}         { yylval->sval = g_strdup(yytext); return T_NAME_ELEMENT;}
 
   /* After Namestr/Classstr we want to go to state str, then to  { */
 <INITIAL,SECTION>{WHITESPACE}+	; // ignore all whitespace
 <PROPERTIES>{WHITESPACE}+	; // ignore all whitespace
 
-<SECTION>":"                      { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return PSEP; }
-<PROPERTIES>";"                   { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return PCLOSE;}
+<SECTION>":"                      { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return T_PSEP; }
+<PROPERTIES>";"                   { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return T_PCLOSE;}
 <PROPERTIES>(true|false)          { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
 <PROPERTIES>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
 <PROPERTIES>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
@@ -369,7 +368,7 @@ if ( queue == NULL ){
 
 <PROPERTIES>{EM}       { return T_UNIT_EM; }
 <PROPERTIES>{PX}       { return T_UNIT_PX; }
-<PROPERTIES>{PERCENT}  { return PERCENT; }
+<PROPERTIES>{PERCENT}  { return T_PERCENT; }
 <PROPERTIES>{LS_SOLID} { return T_SOLID; }
 <PROPERTIES>{LS_DASH}  { return T_DASH; }
 
@@ -414,16 +413,15 @@ if ( queue == NULL ){
     return T_COLOR;
 }
  /* Color schemes */
-<PROPERTIES>{ARGB}         { return T_COL_ARGB;  }
 <PROPERTIES>{RGBA}         { return T_COL_RGBA;  }
 <PROPERTIES>{RGB}          { return T_COL_RGB;   }
 <PROPERTIES>{HSL}          { return T_COL_HSL;   }
 <PROPERTIES>{HWB}          { return T_COL_HWB;   }
 <PROPERTIES>{CMYK}         { return T_COL_CMYK;  }
  /* Fluff */
-<PROPERTIES>{S_PARENT_LEFT}  { return PARENT_LEFT; }
-<PROPERTIES>{S_PARENT_RIGHT} { return PARENT_RIGHT;}
-<PROPERTIES>{COMMA}        { return COMMA;       }
+<PROPERTIES>{S_T_PARENT_LEFT}  { return T_PARENT_LEFT; }
+<PROPERTIES>{S_T_PARENT_RIGHT} { return T_PARENT_RIGHT;}
+<PROPERTIES>{COMMA}        { return T_COMMA;       }
  /* Position */
 <PROPERTIES>{CENTER}       { return T_POS_CENTER; }
 <PROPERTIES>{EAST}         { return T_POS_EAST;   }

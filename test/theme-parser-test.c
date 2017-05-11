@@ -764,6 +764,20 @@ START_TEST ( test_import_empty)
 }
 END_TEST
 
+START_TEST ( test_core_properties_error )
+{
+    rofi_theme_parse_string ( " * { test: cmky(a,e,3); }");
+    const char *errstr = "<big><b>Error while parsing theme:</b></big> <i> * { test: cmky(a,e,3); }</i>\n"\
+    "	Parser error: <span size=\"smaller\" style=\"italic\">syntax error, unexpected invalid property value</span>\n"\
+    "	Location:     line 1 column 11 to line 1 column 13\n";
+    ck_assert_int_eq ( error, 1);
+    ck_assert_str_eq ( error_msg->str, errstr );
+    g_string_free ( error_msg, TRUE);
+    error_msg = NULL;
+    error = 0;
+}
+END_TEST
+
 static Suite * theme_parser_suite (void)
 {
     Suite *s;
@@ -781,6 +795,7 @@ static Suite * theme_parser_suite (void)
         tcase_add_test(tc_core, test_core_error_root );
         tcase_add_test(tc_core, test_core_comments );
         tcase_add_test(tc_core, test_core_newline );
+        tcase_add_test(tc_core, test_core_properties_error );
         suite_add_tcase(s, tc_core);
     }
     {
