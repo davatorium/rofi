@@ -173,7 +173,7 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
 /**
  * State names used for theming.
  */
-const char const *const theme_prop_names[][3] = {
+const char *const theme_prop_names[][3] = {
     /** Normal row */
     { "normal.normal", "selected.normal", "alternate.normal" },
     /** Urgent row */

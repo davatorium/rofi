@@ -639,7 +639,7 @@ void rofi_theme_convert_old ( void )
 {
     if ( config.color_window ) {
         char             **retv  = g_strsplit ( config.color_window, ",", -1 );
-        const char const *conf[] = {
+        const char * const conf[] = {
             "* { background: %s; }",
             "* { bordercolor: %s; }",
             "* { separatorcolor: %s; }"
@@ -653,7 +653,7 @@ void rofi_theme_convert_old ( void )
     }
     if ( config.color_normal ) {
         char             **retv  = g_strsplit ( config.color_normal, ",", -1 );
-        const char const *conf[] = {
+        const char * const conf[] = {
             "* { normal-background: %s; }",
             "* { foreground: %s; normal-foreground: @foreground; alternate-normal-foreground: @foreground; }",
             "* { alternate-normal-background: %s; }",
@@ -669,7 +669,7 @@ void rofi_theme_convert_old ( void )
     }
     if ( config.color_urgent ) {
         char             **retv  = g_strsplit ( config.color_urgent, ",", -1 );
-        const char const *conf[] = {
+        const char * const conf[] = {
             "* { urgent-background: %s; }",
             "* { urgent-foreground: %s; alternate-urgent-foreground: @urgent-foreground;}",
             "* { alternate-urgent-background: %s; }",
@@ -685,7 +685,7 @@ void rofi_theme_convert_old ( void )
     }
     if ( config.color_active ) {
         char             **retv  = g_strsplit ( config.color_active, ",", -1 );
-        const char const *conf[] = {
+        const char * const conf[] = {
             "* { active-background: %s; }",
             "* { active-foreground: %s; alternate-active-foreground: @active-foreground;}",
             "* { alternate-active-background: %s; }",
