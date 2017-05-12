@@ -83,7 +83,6 @@ const char *default_theme =
     "#window.mainbox.listview {"
     "    fixed-height: 0;"
     "    border:       1px dash 0px 0px ;"
-    "    columns:      1;"
     "    padding:      2px 0px 0px ;"
     "}"
     "#window.mainbox.listview.element {"
