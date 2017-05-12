@@ -405,20 +405,28 @@ void textbox_cursor ( textbox *tb, int pos )
  * @param tb Handle to the textbox
  *
  * Move cursor one position forward.
+ *
+ * @returns if cursor was moved.
  */
-static void textbox_cursor_inc ( textbox *tb )
+static int textbox_cursor_inc ( textbox *tb )
 {
+    int old = tb->cursor;
     textbox_cursor ( tb, tb->cursor + 1 );
+    return ( old != tb->cursor );
 }
 
 /**
  * @param tb Handle to the textbox
  *
  * Move cursor one position backward.
+ *
+ * @returns if cursor was moved.
  */
-static void textbox_cursor_dec ( textbox *tb )
+static int textbox_cursor_dec ( textbox *tb )
 {
+    int old = tb->cursor;
     textbox_cursor ( tb, tb->cursor - 1 );
+    return ( old != tb->cursor );
 }
 
 // Move word right
@@ -625,12 +633,10 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action )
     {
     // Left or Ctrl-b
     case MOVE_CHAR_BACK:
-        textbox_cursor_dec ( tb );
-        return 2;
+        return (textbox_cursor_dec ( tb ) == TRUE)?2:0;
     // Right or Ctrl-F
     case MOVE_CHAR_FORWARD:
-        textbox_cursor_inc ( tb );
-        return 2;
+        return (textbox_cursor_inc ( tb ) == TRUE)?2:0;
     // Ctrl-U: Kill from the beginning to the end of the line.
     case CLEAR_LINE:
         textbox_text ( tb, "" );

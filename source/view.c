@@ -1297,7 +1297,19 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
         break;
     // If you add a binding here, make sure to add it to textbox_keybinding too
     case MOVE_CHAR_BACK:
+        {
+            if ( textbox_keybinding ( state->text, action ) == 0 ) {
+                listview_nav_left ( state->list_view );
+            }
+            break;
+        }
     case MOVE_CHAR_FORWARD:
+        {
+            if ( textbox_keybinding ( state->text, action ) == 0 ) {
+                listview_nav_right ( state->list_view );
+            }
+            break;
+        }
     case CLEAR_LINE:
     case MOVE_FRONT:
     case MOVE_END:
