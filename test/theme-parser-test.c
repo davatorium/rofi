@@ -610,6 +610,28 @@ START_TEST ( test_properties_color_hsl )
     ck_assert_double_eq_tol ( p->value.color.blue , 0 , 0.004);
 }
 END_TEST
+START_TEST ( test_properties_color_hwb )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    rofi_theme_parse_string ( "* { test1: hwb(190,65%,0%); test2: hwb(265, 31%, 29%); }");
+    ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+
+    Property *p   = rofi_theme_find_property ( twid, P_COLOR, "test2", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.red  ,  0x7a/255.0 , 0.004);
+    ck_assert_double_eq_tol ( p->value.color.green , 0x4f/255.0, 0.004 );
+    ck_assert_double_eq_tol ( p->value.color.blue ,  0xb5/255.0 , 0.004);
+    p   = rofi_theme_find_property ( twid, P_COLOR, "test1", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 166/255.0, 0.004);
+    ck_assert_double_eq_tol ( p->value.color.green ,240/255.0, 0.004 );
+    ck_assert_double_eq_tol ( p->value.color.blue , 255/255.0 , 0.004);
+}
+END_TEST
 START_TEST ( test_properties_color_cmyk )
 {
     widget wid;
@@ -841,6 +863,7 @@ static Suite * theme_parser_suite (void)
         tcase_add_test ( tc_prop_color, test_properties_color_rgba_percent);
         tcase_add_test ( tc_prop_color, test_properties_color_argb);
         tcase_add_test ( tc_prop_color, test_properties_color_hsl);
+        tcase_add_test ( tc_prop_color, test_properties_color_hwb);
         tcase_add_test ( tc_prop_color, test_properties_color_cmyk);
         suite_add_tcase(s, tc_prop_color );
     }

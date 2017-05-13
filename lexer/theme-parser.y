@@ -444,7 +444,6 @@ t_property_color
 }
  /** hwb ( 0-360 , 0-100  %, 0 - 100  %) */
 | T_COL_HWB T_PARENT_LEFT T_INT T_COMMA t_property_color_value T_PERCENT T_COMMA t_property_color_value T_PERCENT T_PARENT_RIGHT {
-    $$.alpha = 1.0;
     if ( ! check_in_range($3,0,360, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($5,0,100, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($8,0,100, &(@$)) ) { YYABORT; }
@@ -452,6 +451,7 @@ t_property_color
     double w = $5/100.0;
     double b = $8/100.0;
     $$ = hsl_to_rgb ( h, 1.0, 0.5);
+    $$.alpha = 1.0;
     $$.red   *= ( 1. - w - b );
     $$.red   += w;
     $$.green *= ( 1. - w - b );
