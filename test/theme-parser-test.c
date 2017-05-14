@@ -800,6 +800,22 @@ START_TEST ( test_core_properties_error )
 }
 END_TEST
 
+START_TEST ( test_import_error )
+{
+
+    rofi_theme_parse_string("@import \"non-existing-file.rasi\"");
+
+    const char *errstr =
+        "Failed to open theme: <i>/home/qball/Programming/GitHub/rofi/build/non-existing-file.rasi</i>\n"\
+        "Error: <b>No such file or directory</b>";
+    ck_assert_int_eq ( error, 1);
+    ck_assert_str_eq ( error_msg->str, errstr );
+    g_string_free ( error_msg, TRUE);
+    error_msg = NULL;
+    error = 0;
+}
+END_TEST
+
 static Suite * theme_parser_suite (void)
 {
     Suite *s;
@@ -911,6 +927,7 @@ static Suite * theme_parser_suite (void)
         TCase *tc_prop_import = tcase_create("Import");
         tcase_add_checked_fixture(tc_prop_import, theme_parser_setup, theme_parser_teardown);
         tcase_add_test ( tc_prop_import, test_import_empty);
+        tcase_add_test ( tc_prop_import, test_import_error);
         suite_add_tcase(s, tc_prop_import );
     }
     return s;
