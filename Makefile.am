@@ -530,9 +530,13 @@ test-x: $(bin_PROGRAMS)
 	echo "Test dmenu glob"
 	$(top_srcdir)/test/run_test.sh 216 $(top_srcdir)/test/run_glob_test.sh $(top_builddir)
 	echo "Test issue 333"
-	$(top_srcdir)/test/run_test.sh 221 $(top_srcdir)/test/run_issue333_test.sh $(top_builddir)
+	$(top_srcdir)/test/run_test.sh 217 $(top_srcdir)/test/run_issue333_test.sh $(top_builddir)
 	echo "Test help output"
-	$(top_srcdir)/test/run_test.sh 212 $(top_srcdir)/test/help_output_test.sh $(top_builddir) $(top_srcdir)
+	$(top_srcdir)/test/run_test.sh 218 $(top_srcdir)/test/help_output_test.sh $(top_builddir) $(top_srcdir)
+	echo "Test theme output"
+	$(top_srcdir)/test/run_test.sh 219 $(top_srcdir)/test/default_theme_test.sh $(top_builddir) $(top_srcdir)
+	echo "Test theme convert output"
+	$(top_srcdir)/test/run_test.sh 220 $(top_srcdir)/test/convert_old_theme_test.sh $(top_builddir) $(top_srcdir)
 
 test-x1: $(bin_PROGRAMS)
 	echo "Test dmenu-normal-window"
