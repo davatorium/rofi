@@ -78,6 +78,7 @@ before_script:
 script:
     - make
     - make check
+    - ./theme_parser_test
     - ulimit -c unlimited
     - make test-x
     - if [ -f core ]; then echo "bt" | gdb ./rofi core; fi
