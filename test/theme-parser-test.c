@@ -803,10 +803,10 @@ END_TEST
 START_TEST ( test_import_error )
 {
 
-    rofi_theme_parse_string("@import \"non-existing-file.rasi\"");
+    rofi_theme_parse_string("@import \"/non-existing-file.rasi\"");
 
     const char *errstr =
-        "Failed to open theme: <i>/home/qball/Programming/GitHub/rofi/build/non-existing-file.rasi</i>\n"\
+        "Failed to open theme: <i>/non-existing-file.rasi</i>\n"\
         "Error: <b>No such file or directory</b>";
     ck_assert_int_eq ( error, 1);
     ck_assert_str_eq ( error_msg->str, errstr );
