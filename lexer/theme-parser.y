@@ -35,6 +35,7 @@
 %code requires {
 #include "theme.h"
 #include "xrmoptions.h"
+#include "css-colors.h"
 
 typedef struct YYLTYPE {
   int first_line;
@@ -157,6 +158,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token <fval>     T_DOUBLE              "Floating-point number"
 %token <sval>     T_STRING              "UTF-8 encoded string"
 %token <sval>     T_PROP_NAME           "property name"
+%token <colorval> T_COLOR_NAME          "Color value by name"
 %token <sval>     T_NAME_ELEMENT        "Element name"
 %token <bval>     T_BOOLEAN             "Boolean value (true or false)"
 %token <colorval> T_COLOR               "Hexidecimal color value"
@@ -183,8 +185,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_ANGLE_RAD                      "Radians"
 %token T_ANGLE_TURN                     "Turns"
 
-%token T_COL_RGBA                       "rgba colorscheme"
-%token T_COL_RGB                        "rgb colorscheme"
+%token T_COL_RGBA                       "rgb[a] colorscheme"
 %token T_COL_HSL                        "hsl colorscheme"
 %token T_COL_HWB                        "hwb colorscheme"
 %token T_COL_CMYK                       "cmyk colorscheme"
@@ -205,6 +206,8 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_WHITESPACE                     "White space"
 %token T_PDEFAULTS                      "Default settings section ( '* { ... }')"
 %token T_CONFIGURATION                  "Configuration block"
+
+%token T_COLOR_TRANSPARENT              "Transparent"
 
 %type <sval>           t_entry
 %type <theme>          t_entry_list
@@ -433,41 +436,21 @@ t_property_line_style
  */
 t_property_color
  /** rgba ( 0-255 , 0-255, 0-255, 0-1.0 ) */
-: T_COL_RGBA T_PARENT_LEFT  T_INT T_COMMA T_INT T_COMMA T_INT T_COMMA t_property_color_value_unit T_PARENT_RIGHT {
+: T_COL_RGBA T_PARENT_LEFT  T_INT T_COMMA T_INT T_COMMA T_INT t_property_color_opt_alpha_c T_PARENT_RIGHT {
     if ( ! check_in_range($3,0,255, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($5,0,255, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($7,0,255, &(@$)) ) { YYABORT; }
-    $$.alpha = $9;
+    $$.alpha = $8;
     $$.red   = $3/255.0;
     $$.green = $5/255.0;
     $$.blue  = $7/255.0;
 }
  /** rgba ( 0-255   0-255  0-255  / 0-1.0 ) */
-| T_COL_RGBA T_PARENT_LEFT  T_INT  T_INT  T_INT  T_FORWARD_SLASH t_property_color_value_unit T_PARENT_RIGHT {
+| T_COL_RGBA T_PARENT_LEFT  T_INT  T_INT  T_INT  t_property_color_opt_alpha_ws T_PARENT_RIGHT {
     if ( ! check_in_range($3,0,255, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($4,0,255, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($5,0,255, &(@$)) ) { YYABORT; }
-    $$.alpha = $7;
-    $$.red   = $3/255.0;
-    $$.green = $4/255.0;
-    $$.blue  = $5/255.0;
-}
- /** rgb ( 0-255 , 0-255, 0-255 ) */
-| T_COL_RGB T_PARENT_LEFT  T_INT T_COMMA T_INT T_COMMA T_INT T_PARENT_RIGHT {
-    if ( ! check_in_range($3,0,255, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($5,0,255, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($7,0,255, &(@$)) ) { YYABORT; }
-    $$.alpha = 1.0;
-    $$.red   = $3/255.0;
-    $$.green = $5/255.0;
-    $$.blue  = $7/255.0;
-}
- /** rgb ( 0-255   0-255  0-255 ) */
-| T_COL_RGB T_PARENT_LEFT  T_INT  T_INT  T_INT T_PARENT_RIGHT {
-    if ( ! check_in_range($3,0,255, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($4,0,255, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($5,0,255, &(@$)) ) { YYABORT; }
-    $$.alpha = 1.0;
+    $$.alpha = $6;
     $$.red   = $3/255.0;
     $$.green = $4/255.0;
     $$.blue  = $5/255.0;
@@ -515,6 +498,14 @@ t_property_color
 /** Hex colors parsed by lexer. */
 | T_COLOR {
     $$ = $1;
+}
+| T_COLOR_TRANSPARENT {
+    $$.alpha = 0.0;
+    $$.red = $$.green = $$.blue = 0.0;
+}
+| T_COLOR_NAME t_property_color_opt_alpha_ws {
+    $$ = $1;
+    $$.alpha  = $2;
 }
 ;
 t_property_color_opt_alpha_c

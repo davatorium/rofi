@@ -244,7 +244,7 @@ int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *st
  *          are found, respectively, to be less than, to match, or be greater than the first `n`
  *          characters (not bytes) of `b`.
  */
-int utf8_strncmp ( const char *a, const char* b, size_t n ) __attribute__((nonnull(1,2)));
+int utf8_strncmp ( const char *a, const char* b, size_t n ) __attribute__( ( nonnull ( 1, 2 ) ) );
 
 /**
  * @param wd The work directory (optional)

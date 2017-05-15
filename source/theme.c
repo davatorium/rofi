@@ -317,7 +317,7 @@ extern FILE* yyin;
  */
 void yyerror ( YYLTYPE *yylloc, const char *what, const char* s )
 {
-    char    *what_esc = what?g_markup_escape_text ( what, -1 ):g_strdup("");
+    char    *what_esc = what ? g_markup_escape_text ( what, -1 ) : g_strdup ( "" );
     GString *str      = g_string_new ( "" );
     g_string_printf ( str, "<big><b>Error while parsing theme:</b></big> <i>%s</i>\n", what_esc );
     g_free ( what_esc );
@@ -638,7 +638,7 @@ gboolean rofi_theme_is_empty ( void )
 void rofi_theme_convert_old ( void )
 {
     if ( config.color_window ) {
-        char             **retv  = g_strsplit ( config.color_window, ",", -1 );
+        char               **retv = g_strsplit ( config.color_window, ",", -1 );
         const char * const conf[] = {
             "* { background: %s; }",
             "* { bordercolor: %s; }",
@@ -652,7 +652,7 @@ void rofi_theme_convert_old ( void )
         g_strfreev ( retv );
     }
     if ( config.color_normal ) {
-        char             **retv  = g_strsplit ( config.color_normal, ",", -1 );
+        char               **retv = g_strsplit ( config.color_normal, ",", -1 );
         const char * const conf[] = {
             "* { normal-background: %s; }",
             "* { foreground: %s; normal-foreground: @foreground; alternate-normal-foreground: @foreground; }",
@@ -668,7 +668,7 @@ void rofi_theme_convert_old ( void )
         g_strfreev ( retv );
     }
     if ( config.color_urgent ) {
-        char             **retv  = g_strsplit ( config.color_urgent, ",", -1 );
+        char               **retv = g_strsplit ( config.color_urgent, ",", -1 );
         const char * const conf[] = {
             "* { urgent-background: %s; }",
             "* { urgent-foreground: %s; alternate-urgent-foreground: @urgent-foreground;}",
@@ -684,7 +684,7 @@ void rofi_theme_convert_old ( void )
         g_strfreev ( retv );
     }
     if ( config.color_active ) {
-        char             **retv  = g_strsplit ( config.color_active, ",", -1 );
+        char               **retv = g_strsplit ( config.color_active, ",", -1 );
         const char * const conf[] = {
             "* { active-background: %s; }",
             "* { active-foreground: %s; alternate-active-foreground: @active-foreground;}",
