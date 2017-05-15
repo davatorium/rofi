@@ -659,9 +659,9 @@ unsigned int x11_get_current_mask ( xkb_stuff *xkb )
 // convert a Mod+key arg to mod mask and keysym
 gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key, gboolean *release, GString *str )
 {
-    char         *input_key = g_strdup ( combo );
-    char         *mod_key   = input_key;
-    char         *error_msg = NULL;
+    char         *input_key   = g_strdup ( combo );
+    char         *mod_key     = input_key;
+    char         *error_msg   = NULL;
     unsigned int last_modmask = 0;
     unsigned int modmask      = 0;
     xkb_keysym_t last_sym     = XKB_KEY_NoSymbol;
@@ -679,7 +679,7 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
         entry = g_strstrip ( entry );
         // Compare against lowered version.
         last_modmask = modmask;
-        last_sym = xkb_keysym_from_name ( entry, XKB_KEYSYM_NO_FLAGS );
+        last_sym     = xkb_keysym_from_name ( entry, XKB_KEYSYM_NO_FLAGS );
         char *entry_lowered = g_utf8_strdown ( entry, -1 );
         if ( g_utf8_collate ( entry_lowered, "shift" ) == 0  ) {
             modmask |= x11_mod_masks[X11MOD_SHIFT];
@@ -735,10 +735,9 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
 
     g_free ( input_key );
     if ( ( sym == XKB_KEY_NoSymbol ) && ( last_sym != XKB_KEY_NoSymbol ) ) {
-        sym = last_sym;
+        sym     = last_sym;
         modmask = last_modmask;
     }
-
 
     if ( error_msg ) {
         char *name = g_markup_escape_text ( combo, -1 );

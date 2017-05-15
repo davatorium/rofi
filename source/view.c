@@ -70,7 +70,7 @@
 #include "xcb.h"
 
 #ifdef XkBCOMMON_HAS_CONSUMED2
-#define xkb_state_key_get_consumed_mods(s, k) xkb_state_key_get_consumed_mods2(s, k, XKB_CONSUMED_MODE_GTK)
+#define xkb_state_key_get_consumed_mods( s, k )    xkb_state_key_get_consumed_mods2 ( s, k, XKB_CONSUMED_MODE_GTK )
 #endif
 
 /**
@@ -714,8 +714,8 @@ void __create_window ( MenuFlags menu_flags )
     }
     // Setup font.
     // Dummy widget.
-    container *win  = container_create ( "window.box" );
-    const char      *font = rofi_theme_get_string ( WIDGET ( win ), "font", config.menu_font );
+    container  *win  = container_create ( "window.box" );
+    const char *font = rofi_theme_get_string ( WIDGET ( win ), "font", config.menu_font );
     if ( font ) {
         PangoFontDescription *pfd = pango_font_description_from_string ( font );
         if ( helper_validate_font ( pfd, font ) ) {
@@ -1297,19 +1297,19 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
         break;
     // If you add a binding here, make sure to add it to textbox_keybinding too
     case MOVE_CHAR_BACK:
-        {
-            if ( textbox_keybinding ( state->text, action ) == 0 ) {
-                listview_nav_left ( state->list_view );
-            }
-            break;
+    {
+        if ( textbox_keybinding ( state->text, action ) == 0 ) {
+            listview_nav_left ( state->list_view );
         }
+        break;
+    }
     case MOVE_CHAR_FORWARD:
-        {
-            if ( textbox_keybinding ( state->text, action ) == 0 ) {
-                listview_nav_right ( state->list_view );
-            }
-            break;
+    {
+        if ( textbox_keybinding ( state->text, action ) == 0 ) {
+            listview_nav_right ( state->list_view );
         }
+        break;
+    }
     case CLEAR_LINE:
     case MOVE_FRONT:
     case MOVE_END:

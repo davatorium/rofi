@@ -65,13 +65,13 @@ typedef enum
     /** Middle left */
     WL_WEST       = 8,
     /** Left top corner. */
-    WL_NORTH_WEST = WL_NORTH|WL_WEST,
+    WL_NORTH_WEST = WL_NORTH | WL_WEST,
     /** Top right */
-    WL_NORTH_EAST = WL_NORTH|WL_EAST,
+    WL_NORTH_EAST = WL_NORTH | WL_EAST,
     /** Bottom right */
-    WL_SOUTH_EAST = WL_SOUTH|WL_EAST,
+    WL_SOUTH_EAST = WL_SOUTH | WL_EAST,
     /** Bottom left */
-    WL_SOUTH_WEST = WL_SOUTH|WL_WEST,
+    WL_SOUTH_WEST = WL_SOUTH | WL_WEST,
 } WindowLocation;
 
 /**

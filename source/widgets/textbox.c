@@ -135,7 +135,7 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
             if ( helper_validate_font ( tbfc->pfd, font ) ) {
                 tbfc->metrics = pango_context_get_metrics ( p_context, tbfc->pfd, NULL );
                 // Cast away consts. (*yuck*) because table_insert does not know it is const.
-                g_hash_table_insert ( tbfc_cache, (char *)font, tbfc );
+                g_hash_table_insert ( tbfc_cache, (char *) font, tbfc );
             }
             else {
                 pango_font_description_free ( tbfc->pfd );
@@ -412,7 +412,7 @@ static int textbox_cursor_inc ( textbox *tb )
 {
     int old = tb->cursor;
     textbox_cursor ( tb, tb->cursor + 1 );
-    return ( old != tb->cursor );
+    return old != tb->cursor;
 }
 
 /**
@@ -426,7 +426,7 @@ static int textbox_cursor_dec ( textbox *tb )
 {
     int old = tb->cursor;
     textbox_cursor ( tb, tb->cursor - 1 );
-    return ( old != tb->cursor );
+    return old != tb->cursor;
 }
 
 // Move word right
@@ -633,10 +633,10 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action )
     {
     // Left or Ctrl-b
     case MOVE_CHAR_BACK:
-        return (textbox_cursor_dec ( tb ) == TRUE)?2:0;
+        return ( textbox_cursor_dec ( tb ) == TRUE ) ? 2 : 0;
     // Right or Ctrl-F
     case MOVE_CHAR_FORWARD:
-        return (textbox_cursor_inc ( tb ) == TRUE)?2:0;
+        return ( textbox_cursor_inc ( tb ) == TRUE ) ? 2 : 0;
     // Ctrl-U: Kill from the beginning to the end of the line.
     case CLEAR_LINE:
         textbox_text ( tb, "" );

@@ -751,9 +751,9 @@ START_TEST ( test_properties_color_names )
         Property *p   = rofi_theme_find_property ( twid, P_COLOR, "color", FALSE );
         ck_assert_ptr_nonnull ( p );
         ck_assert_double_eq ( p->value.color.alpha , 1.0 );
-        ck_assert_double_eq_tol ( p->value.color.red  , CSSColors[iter].argb.r/255.0, 0.004);
-        ck_assert_double_eq_tol ( p->value.color.green, CSSColors[iter].argb.g/255.0, 0.004 );
-        ck_assert_double_eq_tol ( p->value.color.blue , CSSColors[iter].argb.b/255.0, 0.004);
+        ck_assert_double_eq_tol ( p->value.color.red  , CSSColors[iter].r/255.0, 0.004);
+        ck_assert_double_eq_tol ( p->value.color.green, CSSColors[iter].g/255.0, 0.004 );
+        ck_assert_double_eq_tol ( p->value.color.blue , CSSColors[iter].b/255.0, 0.004);
 
         g_free ( str );
     }
@@ -771,9 +771,9 @@ START_TEST ( test_properties_color_names_alpha )
         Property *p   = rofi_theme_find_property ( twid, P_COLOR, "color", FALSE );
         ck_assert_ptr_nonnull ( p );
         ck_assert_double_eq ( p->value.color.alpha , (iter%101)/100.0);
-        ck_assert_double_eq_tol ( p->value.color.red  , CSSColors[iter].argb.r/255.0, 0.004);
-        ck_assert_double_eq_tol ( p->value.color.green, CSSColors[iter].argb.g/255.0, 0.004 );
-        ck_assert_double_eq_tol ( p->value.color.blue , CSSColors[iter].argb.b/255.0, 0.004);
+        ck_assert_double_eq_tol ( p->value.color.red  , CSSColors[iter].r/255.0, 0.004);
+        ck_assert_double_eq_tol ( p->value.color.green, CSSColors[iter].g/255.0, 0.004 );
+        ck_assert_double_eq_tol ( p->value.color.blue , CSSColors[iter].b/255.0, 0.004);
 
         g_free ( str );
     }

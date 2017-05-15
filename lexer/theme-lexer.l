@@ -457,9 +457,9 @@ if ( queue == NULL ){
     for ( unsigned int iter = 0; iter < num_CSSColors; iter++){
         if ( strcasecmp(yytext, CSSColors[iter].name )== 0 ) {
             yylval->colorval.alpha = 1.0;
-            yylval->colorval.red   = CSSColors[iter].argb.r/255.0;
-            yylval->colorval.green = CSSColors[iter].argb.g/255.0;
-            yylval->colorval.blue  = CSSColors[iter].argb.b/255.0;
+            yylval->colorval.red   = CSSColors[iter].r/255.0;
+            yylval->colorval.green = CSSColors[iter].g/255.0;
+            yylval->colorval.blue  = CSSColors[iter].b/255.0;
             return T_COLOR_NAME;
         }
     }
