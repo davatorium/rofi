@@ -171,6 +171,13 @@ BOLD       "bold"
 UNDERLINE  "underline"
 ITALIC     "italic"
 
+/* ANGLES */
+
+ANGLE_DEG  "deg"
+ANGLE_GRAD "grad"
+ANGLE_RAD  "rad"
+ANGLE_TURN "turn"
+
  /* Color schema */
 RGBA "rgba"
 RGB  "rgb"
@@ -180,7 +187,8 @@ HSL  hsl[a]?
 
 S_T_PARENT_LEFT  \(
 S_T_PARENT_RIGHT \)
-COMMA        ,
+COMMA            ,
+FORWARD_SLASH    \/
 
 LS_DASH    "dash"
 LS_SOLID   "solid"
@@ -422,6 +430,7 @@ if ( queue == NULL ){
 <PROPERTIES>{S_T_PARENT_LEFT}  { return T_PARENT_LEFT; }
 <PROPERTIES>{S_T_PARENT_RIGHT} { return T_PARENT_RIGHT;}
 <PROPERTIES>{COMMA}        { return T_COMMA;       }
+<PROPERTIES>{FORWARD_SLASH}        { return T_FORWARD_SLASH;       }
  /* Position */
 <PROPERTIES>{CENTER}       { return T_POS_CENTER; }
 <PROPERTIES>{EAST}         { return T_POS_EAST;   }
@@ -434,6 +443,10 @@ if ( queue == NULL ){
 <PROPERTIES>{ITALIC}       { return T_ITALIC; }
 <PROPERTIES>{UNDERLINE}    { return T_UNDERLINE; }
 
+<PROPERTIES>{ANGLE_DEG} { return T_ANGLE_DEG; }
+<PROPERTIES>{ANGLE_RAD} { return T_ANGLE_RAD; }
+<PROPERTIES>{ANGLE_GRAD} { return T_ANGLE_GRAD; }
+<PROPERTIES>{ANGLE_TURN} { return T_ANGLE_TURN; }
 
 <INITIAL><<EOF>>  {
     ParseObject *po = g_queue_pop_head ( file_queue );

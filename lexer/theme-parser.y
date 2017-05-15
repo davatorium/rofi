@@ -119,6 +119,17 @@ static ThemeColor hsl_to_rgb ( double h, double s, double l )
 
     return colour;
 }
+static ThemeColor hwb_to_rgb ( double h, double w, double b)
+{
+    ThemeColor retv = hsl_to_rgb ( h, 1.0, 0.5);
+    retv.red   *= ( 1. - w - b );
+    retv.red   += w;
+    retv.green *= ( 1. - w - b );
+    retv.green += w;
+    retv.blue  *= ( 1. - w - b );
+    retv.blue += w;
+    return retv;
+}
 %}
 
 %union {
@@ -167,6 +178,11 @@ static ThemeColor hsl_to_rgb ( double h, double s, double l )
 %token T_UNIT_EM                        "em"
 %token T_UNIT_PERCENT                   "%"
 
+%token T_ANGLE_DEG                      "Degrees"
+%token T_ANGLE_GRAD                     "Gradians"
+%token T_ANGLE_RAD                      "Radians"
+%token T_ANGLE_TURN                     "Turns"
+
 %token T_COL_RGBA                       "rgba colorscheme"
 %token T_COL_RGB                        "rgb colorscheme"
 %token T_COL_HSL                        "hsl colorscheme"
@@ -176,6 +192,8 @@ static ThemeColor hsl_to_rgb ( double h, double s, double l )
 %token T_PARENT_LEFT                    "Parent left ('(')"
 %token T_PARENT_RIGHT                   "Parent right (')')"
 %token T_COMMA                          "comma separator (',')"
+%token T_OPTIONAL_COMMA                          "Optional comma separator (',')"
+%token T_FORWARD_SLASH                  "forward slash ('/')"
 %token T_PERCENT                        "Percent sign ('%')"
 
 %token T_BOPEN                          "bracket open ('{')"
@@ -196,6 +214,10 @@ static ThemeColor hsl_to_rgb ( double h, double s, double l )
 %type <property_list>  t_property_list_optional
 %type <colorval>       t_property_color
 %type <fval>           t_property_color_value
+%type <fval>           t_property_color_opt_alpha_c
+%type <fval>           t_property_color_opt_alpha_ws
+%type <fval>           t_property_color_value_unit
+%type <fval>           t_property_color_value_angle
 %type <sval>           t_property_name
 %type <distance>       t_property_distance
 %type <ival>           t_property_unit
@@ -411,26 +433,24 @@ t_property_line_style
  */
 t_property_color
  /** rgba ( 0-255 , 0-255, 0-255, 0-1.0 ) */
-: T_COL_RGBA T_PARENT_LEFT  T_INT T_COMMA T_INT T_COMMA T_INT T_COMMA T_DOUBLE T_PARENT_RIGHT {
+: T_COL_RGBA T_PARENT_LEFT  T_INT T_COMMA T_INT T_COMMA T_INT T_COMMA t_property_color_value_unit T_PARENT_RIGHT {
     if ( ! check_in_range($3,0,255, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($5,0,255, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($7,0,255, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($9,0,1.00, &(@$)) ) { YYABORT; }
     $$.alpha = $9;
     $$.red   = $3/255.0;
     $$.green = $5/255.0;
     $$.blue  = $7/255.0;
 }
- /** rgba ( 0-255 , 0-255, 0-255, 0-100% ) */
-| T_COL_RGBA T_PARENT_LEFT  T_INT T_COMMA T_INT T_COMMA T_INT T_COMMA t_property_color_value T_PERCENT T_PARENT_RIGHT {
+ /** rgba ( 0-255   0-255  0-255  / 0-1.0 ) */
+| T_COL_RGBA T_PARENT_LEFT  T_INT  T_INT  T_INT  T_FORWARD_SLASH t_property_color_value_unit T_PARENT_RIGHT {
     if ( ! check_in_range($3,0,255, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($4,0,255, &(@$)) ) { YYABORT; }
     if ( ! check_in_range($5,0,255, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($7,0,255, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($9,0,100, &(@$)) ) { YYABORT; }
-    $$.alpha = $9/100.0;
+    $$.alpha = $7;
     $$.red   = $3/255.0;
-    $$.green = $5/255.0;
-    $$.blue  = $7/255.0;
+    $$.green = $4/255.0;
+    $$.blue  = $5/255.0;
 }
  /** rgb ( 0-255 , 0-255, 0-255 ) */
 | T_COL_RGB T_PARENT_LEFT  T_INT T_COMMA T_INT T_COMMA T_INT T_PARENT_RIGHT {
@@ -442,81 +462,81 @@ t_property_color
     $$.green = $5/255.0;
     $$.blue  = $7/255.0;
 }
- /** hwb ( 0-360 , 0-100  %, 0 - 100  %) */
-| T_COL_HWB T_PARENT_LEFT T_INT T_COMMA t_property_color_value T_PERCENT T_COMMA t_property_color_value T_PERCENT T_PARENT_RIGHT {
-    if ( ! check_in_range($3,0,360, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($5,0,100, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($8,0,100, &(@$)) ) { YYABORT; }
-    double h = $3/360.0;
-    double w = $5/100.0;
-    double b = $8/100.0;
-    $$ = hsl_to_rgb ( h, 1.0, 0.5);
+ /** rgb ( 0-255   0-255  0-255 ) */
+| T_COL_RGB T_PARENT_LEFT  T_INT  T_INT  T_INT T_PARENT_RIGHT {
+    if ( ! check_in_range($3,0,255, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($4,0,255, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($5,0,255, &(@$)) ) { YYABORT; }
     $$.alpha = 1.0;
-    $$.red   *= ( 1. - w - b );
-    $$.red   += w;
-    $$.green *= ( 1. - w - b );
-    $$.green += w;
-    $$.blue  *= ( 1. - w - b );
-    $$.blue += w;
+    $$.red   = $3/255.0;
+    $$.green = $4/255.0;
+    $$.blue  = $5/255.0;
 }
-  /** cmyk ( 0-100%, 0-100%, 0-100%, 0-100%) */
-| T_COL_CMYK T_PARENT_LEFT t_property_color_value T_PERCENT T_COMMA t_property_color_value T_PERCENT T_COMMA t_property_color_value T_PERCENT T_COMMA t_property_color_value T_PERCENT T_PARENT_RIGHT {
+ /** hwb with comma */
+| T_COL_HWB T_PARENT_LEFT t_property_color_value_angle T_COMMA t_property_color_value_unit T_COMMA t_property_color_value_unit t_property_color_opt_alpha_c T_PARENT_RIGHT {
+    double h = $3, w = $5, b = $7;
+    $$ = hwb_to_rgb ( h, w, b );
+    $$.alpha = $8;
+}
+ /** hwb whitespace */
+| T_COL_HWB T_PARENT_LEFT t_property_color_value_angle  t_property_color_value_unit  t_property_color_value_unit t_property_color_opt_alpha_ws T_PARENT_RIGHT {
+    double h = $3, w = $4, b = $5;
+    $$ = hwb_to_rgb ( h, w, b );
+    $$.alpha = $6;
+}
+  /** cmyk  with comma */
+| T_COL_CMYK T_PARENT_LEFT t_property_color_value_unit T_COMMA t_property_color_value_unit T_COMMA t_property_color_value_unit T_COMMA t_property_color_value_unit T_PARENT_RIGHT {
     $$.alpha = 1.0;
-    if ( ! check_in_range($3, 0,100, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($6, 0,100, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($9, 0,100, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($12,0,100, &(@$)) ) { YYABORT; }
-    double  c= $3/100.0;
-    double  m= $6/100.0;
-    double  y= $9/100.0;
-    double  k= $12/100.0;
+    double  c= $3, m= $5, y= $7, k= $9;
     $$.red   = (1.0-c)*(1.0-k);
     $$.green = (1.0-m)*(1.0-k);
     $$.blue  = (1.0-y)*(1.0-k);
 }
-  /** cmyk ( 0-1.0, 0-1.0, 0-1.0, 0-1.0) */
-| T_COL_CMYK T_PARENT_LEFT t_property_color_value T_COMMA t_property_color_value T_COMMA t_property_color_value T_COMMA t_property_color_value T_PARENT_RIGHT {
+ /** cmyk whitespace edition. */
+| T_COL_CMYK T_PARENT_LEFT t_property_color_value_unit  t_property_color_value_unit  t_property_color_value_unit  t_property_color_value_unit T_PARENT_RIGHT {
     $$.alpha = 1.0;
-    if ( ! check_in_range($3, 0,1.00, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($5, 0,1.00, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($7, 0,1.00, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($9, 0,1.00, &(@$)) ) { YYABORT; }
-    double  c= $3;
-    double  m= $5;
-    double  y= $7;
-    double  k= $9;
+    double  c= $3, m= $4, y= $5, k= $6;
     $$.red   = (1.0-c)*(1.0-k);
     $$.green = (1.0-m)*(1.0-k);
     $$.blue  = (1.0-y)*(1.0-k);
 }
- /** hsl ( 0-360 , 0-100  %, 0 - 100  %) */
-| T_COL_HSL T_PARENT_LEFT T_INT T_COMMA t_property_color_value T_PERCENT T_COMMA t_property_color_value T_PERCENT T_PARENT_RIGHT {
-    if ( ! check_in_range($3, 0,360, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($5, 0,100, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($8, 0,100, &(@$)) ) { YYABORT; }
-    gdouble h = $3;
-    gdouble s = $5;
-    gdouble l = $8;
-    $$ = hsl_to_rgb ( h/360.0, s/100.0, l/100.0 );
-    $$.alpha = 1.0;
+ /** hsl ( 0-360 0-100  % 0 - 100  % / alpha) */
+| T_COL_HSL T_PARENT_LEFT t_property_color_value_angle t_property_color_value_unit t_property_color_value_unit t_property_color_opt_alpha_ws T_PARENT_RIGHT {
+    double h = $3, s = $4, l = $5;
+    $$ = hsl_to_rgb ( h, s, l );
+    $$.alpha = $6;
 }
  /** hsl ( 0-360 , 0-100  %, 0 - 100  %) */
-| T_COL_HSL T_PARENT_LEFT T_INT T_COMMA t_property_color_value T_PERCENT T_COMMA t_property_color_value T_PERCENT T_COMMA  t_property_color_value T_PERCENT  T_PARENT_RIGHT {
-    if ( ! check_in_range($3, 0,360, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($5, 0,100, &(@$)) ) { YYABORT; }
-    if ( ! check_in_range($8, 0,100, &(@$)) ) { YYABORT; }
-    gdouble h = $3;
-    gdouble s = $5;
-    gdouble l = $8;
-    $$ = hsl_to_rgb ( h/360.0, s/100.0, l/100.0 );
-    $$.alpha = $11/100.0;
+| T_COL_HSL T_PARENT_LEFT t_property_color_value_angle T_COMMA t_property_color_value_unit T_COMMA t_property_color_value_unit t_property_color_opt_alpha_c T_PARENT_RIGHT {
+    double h = $3, s = $5, l = $7;
+    $$ = hsl_to_rgb ( h, s, l );
+    $$.alpha = $8;
 }
 /** Hex colors parsed by lexer. */
 | T_COLOR {
     $$ = $1;
 }
 ;
+t_property_color_opt_alpha_c
+: %empty { $$ = 1.0; }
+| T_COMMA t_property_color_value_unit { $$ = $2;}
+;
+t_property_color_opt_alpha_ws
+: %empty { $$ = 1.0; }
+| T_FORWARD_SLASH t_property_color_value_unit { $$ = $2;}
+;
+ t_property_color_value_angle
+: t_property_color_value              { $$ = $1/360.0;    if ( ! check_in_range ( $1, 0, 360, &(@$))){YYABORT;}}
+| t_property_color_value T_ANGLE_DEG  { $$ = $1/360.0;    if ( ! check_in_range ( $1, 0, 360, &(@$))){YYABORT;}}
+| t_property_color_value T_ANGLE_RAD  { $$ = $1/(2*G_PI); if ( ! check_in_range ( $1, 0.0, (2*G_PI), &(@$))){YYABORT;}}
+| t_property_color_value T_ANGLE_GRAD { $$ = $1/400.0;    if ( ! check_in_range ( $1, 0, 400, &(@$))){YYABORT;}}
+| t_property_color_value T_ANGLE_TURN { $$ = $1;          if ( ! check_in_range ( $1, 0.0, 1.0, &(@$))){YYABORT;}}
+;
 
+t_property_color_value_unit
+: t_property_color_value T_PERCENT { $$ = $1/100.0; if ( !check_in_range ( $1, 0, 100, &(@$))){YYABORT;}}
+| t_property_color_value           { $$ = $1;       if ( !check_in_range ( $1, 0.0, 1.0, &(@$))){YYABORT;}}
+;
 /** Color value to be double or integer. */
 t_property_color_value
 : T_DOUBLE { $$ = $1; }
