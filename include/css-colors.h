@@ -4,7 +4,7 @@
 typedef struct CSSColor {
     char *name;
     union {
-        struct { uint8_t a,r,g,b;} argb;
+        struct { uint8_t b,g,r,a;} argb;
         uint32_t val;
     };
 }CSSColor;

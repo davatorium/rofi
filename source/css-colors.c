@@ -148,7 +148,7 @@ const CSSColor CSSColors[] = {
     {.name = "White", .val = 0xFFFFFF },
     {.name = "WhiteSmoke", .val = 0xF5F5F5 },
     {.name = "Yellow", .val = 0xFFFF00 },
-    {.name = "YellowGreen", .val = 0x9ACD32 },
+    {.name = "YellowGreen", .val = 0x9ACD32 }
 };
 
 const unsigned int num_CSSColors = sizeof(CSSColors)/sizeof(*CSSColors);

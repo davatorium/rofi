@@ -41,6 +41,7 @@
 #include "theme.h"
 
 #include "theme-parser.h"
+#include "css-colors.h"
 
 #define LOG_DOMAIN "Parser"
 int last_state = 0;
@@ -147,7 +148,7 @@ UANYN   {ASCN}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
 WHITESPACE [[:blank:]]
 WSO        [[:blank:]]*
 WORD       [[:alnum:]-]+
-COLOR_NAME [[::alpha]]+
+COLOR_NAME [[:alpha:]]+
 STRING     {UANYN}+
 HEX        [[:xdigit:]]
 NUMBER     [[:digit:]]
@@ -180,11 +181,12 @@ ANGLE_RAD  "rad"
 ANGLE_TURN "turn"
 
  /* Color schema */
-RGBA "rgba"
-RGB  "rgb"
+RGBA rgb[a]?
 HWB  "hwb"
 CMYK "cmyk"
 HSL  hsl[a]?
+
+COLOR_TRANSPARENT "transparent"
 
 S_T_PARENT_LEFT  \(
 S_T_PARENT_RIGHT \)
@@ -423,7 +425,6 @@ if ( queue == NULL ){
 }
  /* Color schemes */
 <PROPERTIES>{RGBA}         { return T_COL_RGBA;  }
-<PROPERTIES>{RGB}          { return T_COL_RGB;   }
 <PROPERTIES>{HSL}          { return T_COL_HSL;   }
 <PROPERTIES>{HWB}          { return T_COL_HWB;   }
 <PROPERTIES>{CMYK}         { return T_COL_CMYK;  }
@@ -449,9 +450,18 @@ if ( queue == NULL ){
 <PROPERTIES>{ANGLE_GRAD} { return T_ANGLE_GRAD; }
 <PROPERTIES>{ANGLE_TURN} { return T_ANGLE_TURN; }
 
+<PROPERTIES>{COLOR_TRANSPARENT} {
+    return T_COLOR_TRANSPARENT;
+}
 <PROPERTIES>{COLOR_NAME} {
-    yylval->sval = g_strdup(yytext);
-    return T_COLOR_NAME;
+    for ( unsigned int iter = 0; iter < num_CSSColors; iter++){
+        if ( strcasecmp(yytext, CSSColors[iter].name )== 0 ) {
+            yylval->sval = g_strdup(yytext);
+            // TODO parse color and return that.
+            return T_COLOR_NAME;
+        }
+    }
+    REJECT;
 }
 
 <INITIAL><<EOF>>  {

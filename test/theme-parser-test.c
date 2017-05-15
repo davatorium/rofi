@@ -875,7 +875,7 @@ START_TEST ( test_core_properties_error )
     rofi_theme_parse_string ( " * { test: cmky(a,e,3); }");
     const char *errstr = "<big><b>Error while parsing theme:</b></big> <i> * { test: cmky(a,e,3); }</i>\n"\
     "	Parser error: <span size=\"smaller\" style=\"italic\">syntax error, unexpected invalid property value</span>\n"\
-    "	Location:     line 1 column 11 to line 1 column 13\n";
+    "	Location:     line 1 column 11 to line 1 column 23\n";
     ck_assert_int_eq ( error, 1);
     ck_assert_str_eq ( error_msg->str, errstr );
     g_string_free ( error_msg, TRUE);
