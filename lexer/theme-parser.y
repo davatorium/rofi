@@ -158,7 +158,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token <fval>     T_DOUBLE              "Floating-point number"
 %token <sval>     T_STRING              "UTF-8 encoded string"
 %token <sval>     T_PROP_NAME           "property name"
-%token <sval>     T_COLOR_NAME          "Color name"
+%token <colorval> T_COLOR_NAME          "Color value by name"
 %token <sval>     T_NAME_ELEMENT        "Element name"
 %token <bval>     T_BOOLEAN             "Boolean value (true or false)"
 %token <colorval> T_COLOR               "Hexidecimal color value"
@@ -504,23 +504,8 @@ t_property_color
     $$.red = $$.green = $$.blue = 0.0;
 }
 | T_COLOR_NAME t_property_color_opt_alpha_ws {
-    int found = FALSE;
-    for ( unsigned int iter = 0; !found && iter < num_CSSColors; iter++){
-        if ( strcasecmp($1, CSSColors[iter].name )== 0 ) {
-            $$.alpha = $2;
-            $$.red = CSSColors[iter].argb.r/255.0;
-            $$.green= CSSColors[iter].argb.g/255.0;
-            $$.blue= CSSColors[iter].argb.b/255.0;
-            found = TRUE;
-        }
-    }
-    if ( ! found ) {
-        char *errormsg = g_strdup_printf ("Invalid color name: '%s'", $1);
-
-        yyerror( &(@$), what, errormsg);
-        g_free(errormsg);
-        YYERROR;
-    }
+    $$ = $1;
+    $$.alpha  = $2;
 }
 ;
 t_property_color_opt_alpha_c
