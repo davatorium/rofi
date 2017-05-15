@@ -157,6 +157,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token <fval>     T_DOUBLE              "Floating-point number"
 %token <sval>     T_STRING              "UTF-8 encoded string"
 %token <sval>     T_PROP_NAME           "property name"
+%token <sval>     T_COLOR_NAME          "Color name"
 %token <sval>     T_NAME_ELEMENT        "Element name"
 %token <bval>     T_BOOLEAN             "Boolean value (true or false)"
 %token <colorval> T_COLOR               "Hexidecimal color value"

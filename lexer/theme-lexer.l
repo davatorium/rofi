@@ -147,6 +147,7 @@ UANYN   {ASCN}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
 WHITESPACE [[:blank:]]
 WSO        [[:blank:]]*
 WORD       [[:alnum:]-]+
+COLOR_NAME [[::alpha]]+
 STRING     {UANYN}+
 HEX        [[:xdigit:]]
 NUMBER     [[:digit:]]
@@ -447,6 +448,11 @@ if ( queue == NULL ){
 <PROPERTIES>{ANGLE_RAD} { return T_ANGLE_RAD; }
 <PROPERTIES>{ANGLE_GRAD} { return T_ANGLE_GRAD; }
 <PROPERTIES>{ANGLE_TURN} { return T_ANGLE_TURN; }
+
+<PROPERTIES>{COLOR_NAME} {
+    yylval->sval = g_strdup(yytext);
+    return T_COLOR_NAME;
+}
 
 <INITIAL><<EOF>>  {
     ParseObject *po = g_queue_pop_head ( file_queue );
