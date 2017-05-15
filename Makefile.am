@@ -591,4 +591,5 @@ coverage-clean:
 EXTRA_DIST += \
 	doc/meson.build \
 	subprojects/libgwater/xcb/meson.build \
+	meson_options.txt \
 	meson.build

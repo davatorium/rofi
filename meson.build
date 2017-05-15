@@ -439,5 +439,3 @@ if ohcount.found()
         ],
     )
 endif
-
-run_target('dist', command: [ 'script/dist.sh' ])
