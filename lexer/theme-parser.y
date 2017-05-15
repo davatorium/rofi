@@ -500,6 +500,17 @@ t_property_color
     $$ = hsl_to_rgb ( h/360.0, s/100.0, l/100.0 );
     $$.alpha = 1.0;
 }
+ /** hsl ( 0-360 , 0-100  %, 0 - 100  %) */
+| T_COL_HSL T_PARENT_LEFT T_INT T_COMMA t_property_color_value T_PERCENT T_COMMA t_property_color_value T_PERCENT T_COMMA  t_property_color_value T_PERCENT  T_PARENT_RIGHT {
+    if ( ! check_in_range($3, 0,360, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($5, 0,100, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($8, 0,100, &(@$)) ) { YYABORT; }
+    gdouble h = $3;
+    gdouble s = $5;
+    gdouble l = $8;
+    $$ = hsl_to_rgb ( h/360.0, s/100.0, l/100.0 );
+    $$.alpha = $11/100.0;
+}
 /** Hex colors parsed by lexer. */
 | T_COLOR {
     $$ = $1;

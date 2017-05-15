@@ -593,7 +593,35 @@ START_TEST ( test_properties_color_hsl )
     widget wid;
     wid.name = "blaat";
     wid.state = NULL;
-    rofi_theme_parse_string ( "* { test1: hsl(127,40%,66.66666%); test2: hsl(0, 100%, 50%); }");
+    rofi_theme_parse_string ( "* { test1: hsl(127,40%,66.66666%); test2: hsl(0, 100%, 50%); testa: hsl(127,40%, 66.66666%, 30%);}");
+    ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+
+    Property *p   = rofi_theme_find_property ( twid, P_COLOR, "test1", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0x88/255.0 , 0.004);
+    ck_assert_double_eq_tol ( p->value.color.green, 0xcd/255.0, 0.004 );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0x90/255.0 , 0.004);
+    p   = rofi_theme_find_property ( twid, P_COLOR, "test2", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 1 , 0.004);
+    ck_assert_double_eq_tol ( p->value.color.green , 0, 0.004 );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , 0.004);
+    p   = rofi_theme_find_property ( twid, P_COLOR, "testa", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 0.3 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0x88/255.0 ,0.004);
+    ck_assert_double_eq_tol ( p->value.color.green ,0xcd/255.0, 0.004 );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0x90/255.0 ,0.004);
+}
+END_TEST
+START_TEST ( test_properties_color_hsla )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    rofi_theme_parse_string ( "* { test1: hsla(127,40%,66.66666%); test2: hsla(0, 100%, 50%); }");
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
 
     Property *p   = rofi_theme_find_property ( twid, P_COLOR, "test1", FALSE );
@@ -879,6 +907,7 @@ static Suite * theme_parser_suite (void)
         tcase_add_test ( tc_prop_color, test_properties_color_rgba_percent);
         tcase_add_test ( tc_prop_color, test_properties_color_argb);
         tcase_add_test ( tc_prop_color, test_properties_color_hsl);
+        tcase_add_test ( tc_prop_color, test_properties_color_hsla);
         tcase_add_test ( tc_prop_color, test_properties_color_hwb);
         tcase_add_test ( tc_prop_color, test_properties_color_cmyk);
         suite_add_tcase(s, tc_prop_color );

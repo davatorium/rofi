@@ -176,7 +176,7 @@ RGBA "rgba"
 RGB  "rgb"
 HWB  "hwb"
 CMYK "cmyk"
-HSL  "hsl"
+HSL  hsl[a]?
 
 S_T_PARENT_LEFT  \(
 S_T_PARENT_RIGHT \)
