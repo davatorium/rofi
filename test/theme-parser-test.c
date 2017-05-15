@@ -36,6 +36,7 @@
 #include "rofi.h"
 #include "settings.h"
 #include "theme.h"
+#include "css-colors.h"
 #include "widgets/widget-internal.h"
 #include "widgets/textbox.h"
 
@@ -738,6 +739,46 @@ START_TEST ( test_properties_color_cmyk_ws )
     ck_assert_double_eq_tol ( p->value.color.blue , 0 , 0.004);
 }
 END_TEST
+START_TEST ( test_properties_color_names )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    for ( unsigned int iter = 0; iter < num_CSSColors; iter++ ) {
+        char * str = g_strdup_printf("* { color: %s;}", CSSColors[iter].name);
+        rofi_theme_parse_string(str);
+        ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+        Property *p   = rofi_theme_find_property ( twid, P_COLOR, "color", FALSE );
+        ck_assert_ptr_nonnull ( p );
+        ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+        ck_assert_double_eq_tol ( p->value.color.red  , CSSColors[iter].argb.r/255.0, 0.004);
+        ck_assert_double_eq_tol ( p->value.color.green, CSSColors[iter].argb.g/255.0, 0.004 );
+        ck_assert_double_eq_tol ( p->value.color.blue , CSSColors[iter].argb.b/255.0, 0.004);
+
+        g_free ( str );
+    }
+}
+END_TEST
+START_TEST ( test_properties_color_names_alpha )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    for ( unsigned int iter = 0; iter < num_CSSColors; iter++ ) {
+        char * str = g_strdup_printf("* { color: %s / %d %%;}", CSSColors[iter].name, iter%101);
+        rofi_theme_parse_string(str);
+        ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+        Property *p   = rofi_theme_find_property ( twid, P_COLOR, "color", FALSE );
+        ck_assert_ptr_nonnull ( p );
+        ck_assert_double_eq ( p->value.color.alpha , (iter%101)/100.0);
+        ck_assert_double_eq_tol ( p->value.color.red  , CSSColors[iter].argb.r/255.0, 0.004);
+        ck_assert_double_eq_tol ( p->value.color.green, CSSColors[iter].argb.g/255.0, 0.004 );
+        ck_assert_double_eq_tol ( p->value.color.blue , CSSColors[iter].argb.b/255.0, 0.004);
+
+        g_free ( str );
+    }
+}
+END_TEST
 START_TEST ( test_properties_padding_2 )
 {
     widget wid;
@@ -968,6 +1009,8 @@ static Suite * theme_parser_suite (void)
         tcase_add_test ( tc_prop_color, test_properties_color_hwb_ws);
         tcase_add_test ( tc_prop_color, test_properties_color_cmyk);
         tcase_add_test ( tc_prop_color, test_properties_color_cmyk_ws);
+        tcase_add_test ( tc_prop_color, test_properties_color_names);
+        tcase_add_test ( tc_prop_color, test_properties_color_names_alpha);
         suite_add_tcase(s, tc_prop_color );
     }
     {

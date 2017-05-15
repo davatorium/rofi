@@ -456,11 +456,10 @@ if ( queue == NULL ){
 <PROPERTIES>{COLOR_NAME} {
     for ( unsigned int iter = 0; iter < num_CSSColors; iter++){
         if ( strcasecmp(yytext, CSSColors[iter].name )== 0 ) {
-            // TODO parse color and return that.
             yylval->colorval.alpha = 1.0;
-            yylval->colorval.red   = CSSColors[iter].argb.r;
-            yylval->colorval.green = CSSColors[iter].argb.g;
-            yylval->colorval.blue  = CSSColors[iter].argb.b;
+            yylval->colorval.red   = CSSColors[iter].argb.r/255.0;
+            yylval->colorval.green = CSSColors[iter].argb.g/255.0;
+            yylval->colorval.blue  = CSSColors[iter].argb.b/255.0;
             return T_COLOR_NAME;
         }
     }
