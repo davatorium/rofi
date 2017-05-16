@@ -9,9 +9,9 @@
 }
 #window {
     border:     2;
-    foreground: #FF10A0A0;
+    foreground: #10A0A0FF;
     padding:    5;
-    background: #EE333333;
+    background: #333333EE;
 }
 #window.mainbox {
     border:  0;
@@ -22,7 +22,7 @@
     padding: 2px 0px 0px ;
 }
 #window.mainbox.message.normal {
-    foreground: #FF10A0A0;
+    foreground: #10A0A0FF;
     background: #00000000;
 }
 #window.mainbox.listview {
@@ -35,40 +35,40 @@
     border: 0;
 }
 #window.mainbox.listview.element.normal.normal {
-    foreground: #FF10A0A0;
+    foreground: #10A0A0FF;
     background: #00000000;
 }
 #window.mainbox.listview.element.normal.urgent {
-    foreground: #FFF09090;
+    foreground: #F09090FF;
     background: #00000000;
 }
 #window.mainbox.listview.element.normal.active {
-    foreground: #FFA0A010;
+    foreground: #A0A010FF;
     background: #00000000;
 }
 #window.mainbox.listview.element.selected.normal {
-    foreground: #FF303030;
-    background: #FF10A0A0;
+    foreground: #303030FF;
+    background: #10A0A0FF;
 }
 #window.mainbox.listview.element.selected.urgent {
-    foreground: #FF303030;
-    background: #FFF09090;
+    foreground: #303030FF;
+    background: #F09090FF;
 }
 #window.mainbox.listview.element.selected.active {
-    foreground: #FF303030;
-    background: #FFA0A010;
+    foreground: #303030FF;
+    background: #A0A010FF;
 }
 #window.mainbox.listview.element.alternate.normal {
-    foreground: #FF10A0A0;
-    background: #11FFFFFF;
+    foreground: #10A0A0FF;
+    background: #FFFFFF11;
 }
 #window.mainbox.listview.element.alternate.urgent {
-    foreground: #FFF09090;
-    background: #11FFFFFF;
+    foreground: #F09090FF;
+    background: #FFFFFF11;
 }
 #window.mainbox.listview.element.alternate.active {
-    foreground: #FFA0A010;
-    background: #11FFFFFF;
+    foreground: #A0A010FF;
+    background: #FFFFFF11;
 }
 #window.mainbox.listview.scrollbar {
     border:  0;
@@ -83,6 +83,6 @@
 #window.mainbox.inputbar.box {
 }
 #window.mainbox.inputbar.normal {
-    foreground: #FF10A0A0;
+    foreground: #10A0A0FF;
     background: #00000000;
 }

@@ -49,7 +49,7 @@
 #window box {
     border:  0px 2px 0px 0px;
     foreground: @lightwhite;
-    background: #ee1c1c1c;
+    background: #1c1c1cee;
 }
 
 #window mainbox sidebar box {

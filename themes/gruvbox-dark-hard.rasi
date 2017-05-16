@@ -16,9 +16,9 @@
 }
 #window {
     border:     2;
-    foreground: #FFA89984;
+    foreground: #A89984FF;
     padding:    5;
-    background: #FF1D2021;
+    background: #1D2021FF;
 }
 #window.mainbox {
     border:  0;
@@ -29,8 +29,8 @@
     padding: 2px 0px 0px ;
 }
 #window.mainbox.message.normal {
-    foreground: #FFEBDBB2;
-    background: #FF1D2021;
+    foreground: #EBDBB2FF;
+    background: #1D2021FF;
 }
 #window.mainbox.listview {
     fixed-height: 1;
@@ -42,40 +42,40 @@
     border: 0;
 }
 #window.mainbox.listview.element.normal.normal {
-    foreground: #FFEBDBB2;
-    background: #FF1D2021;
+    foreground: #EBDBB2FF;
+    background: #1D2021FF;
 }
 #window.mainbox.listview.element.normal.urgent {
-    foreground: #FF1D2021;
-    background: #FFCC241D;
+    foreground: #1D2021FF;
+    background: #CC241DFF;
 }
 #window.mainbox.listview.element.normal.active {
-    foreground: #FF1D2021;
-    background: #FFD79921;
+    foreground: #1D2021FF;
+    background: #D79921FF;
 }
 #window.mainbox.listview.element.selected.normal {
-    foreground: #FFFBF1C7;
-    background: #FF504945;
+    foreground: #FBF1C7FF;
+    background: #504945FF;
 }
 #window.mainbox.listview.element.selected.urgent {
-    foreground: #FF1D2021;
-    background: #FFFB4934;
+    foreground: #1D2021FF;
+    background: #FB4934FF;
 }
 #window.mainbox.listview.element.selected.active {
-    foreground: #FF1D2021;
-    background: #FFFABD2F;
+    foreground: #1D2021FF;
+    background: #FABD2FFF;
 }
 #window.mainbox.listview.element.alternate.normal {
-    foreground: #FFEBDBB2;
-    background: #FF282828;
+    foreground: #EBDBB2FF;
+    background: #282828FF;
 }
 #window.mainbox.listview.element.alternate.urgent {
-    foreground: #FF1D2021;
-    background: #FFCC241D;
+    foreground: #1D2021FF;
+    background: #CC241DFF;
 }
 #window.mainbox.listview.element.alternate.active {
-    foreground: #FF1D2021;
-    background: #FFD79921;
+    foreground: #1D2021FF;
+    background: #D79921FF;
 }
 #window.mainbox.listview.scrollbar {
     border:  0;
@@ -90,6 +90,6 @@
 #window.mainbox.inputbar.box {
 }
 #window.mainbox.inputbar.normal {
-    foreground: #FFEBDBB2;
-    background: #FF1D2021;
+    foreground: #EBDBB2FF;
+    background: #1D2021FF;
 }

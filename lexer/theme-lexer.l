@@ -37,6 +37,7 @@
 #include <gio/gio.h>
 #include <helper.h>
 #include <math.h>
+#include <ctype.h>
 #include "rofi.h"
 #include "theme.h"
 
@@ -84,6 +85,21 @@ GQueue *queue = NULL;
 ParseObject *current = NULL;
 
 static char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file );
+
+
+static double rofi_theme_parse_convert_hex ( char high, char low)
+{
+    uint8_t retv = 0;
+
+    int t = toupper(high);
+    t = ( t > '9')? (t-'A'+10):(t-'0');
+    retv = t<<4;
+    t = toupper ( low );
+    t = ( t > '9')? (t-'A'+10):(t-'0');
+    retv +=t;
+    return retv/255.0;
+}
+
 %}
 %{
 
@@ -388,39 +404,38 @@ if ( queue == NULL ){
   * Other schemes are done at yacc level.
   */
 <PROPERTIES>#{HEX}{8}       {
-    union {  unsigned int val; struct { unsigned char b,g,r,a;};} val;
-    val.val = (unsigned int)strtoull ( &yytext[1], NULL, 16);
-    yylval->colorval.alpha = val.a/255.0;
-    yylval->colorval.red   = val.r/255.0;
-    yylval->colorval.green = val.g/255.0;
-    yylval->colorval.blue  = val.b/255.0;
+    yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[1],yytext[2]);
+    yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[3],yytext[4]);
+    yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[5],yytext[6]);
+    yylval->colorval.alpha = rofi_theme_parse_convert_hex(yytext[7],yytext[8]);
     return T_COLOR;
 }
 <PROPERTIES>#{HEX}{6}       {
-    union {  unsigned int val; struct { unsigned char b,g,r,a;};} val;
-    val.val = (unsigned int)g_ascii_strtoull ( &yytext[1], NULL, 16);
     yylval->colorval.alpha = 1.0;
-    yylval->colorval.red   = val.r/255.0;
-    yylval->colorval.green = val.g/255.0;
-    yylval->colorval.blue  = val.b/255.0;
+    yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[1],yytext[2]);
+    yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[3],yytext[4]);
+    yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[5],yytext[6]);
     return T_COLOR;
 }
 <PROPERTIES>#{HEX}{3}       {
-    union {  uint16_t val; struct { unsigned char b:4,g:4,r:4,a :4;};} val;
-    val.val = (uint16_t )g_ascii_strtoull ( &yytext[1], NULL, 16);
     yylval->colorval.alpha = 1.0;
-    yylval->colorval.red   = val.r/15.0;
-    yylval->colorval.green = val.g/15.0;
-    yylval->colorval.blue  = val.b/15.0;
+    yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[1],yytext[1]);
+    yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[2],yytext[2]);
+    yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[3],yytext[3]);
     return T_COLOR;
 }
-<PROPERTIES>argb:{HEX}{1,8}       {
-    union {  unsigned int val; struct { unsigned char b,g,r,a;};} val;
-    val.val = (unsigned int)strtoull ( &yytext[5], NULL, 16);
-    yylval->colorval.alpha = val.a/255.0;
-    yylval->colorval.red   = val.r/255.0;
-    yylval->colorval.green = val.g/255.0;
-    yylval->colorval.blue  = val.b/255.0;
+<PROPERTIES>#{HEX}{4}       {
+    yylval->colorval.alpha = rofi_theme_parse_convert_hex(yytext[4],yytext[4]);
+    yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[1],yytext[1]);
+    yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[2],yytext[2]);
+    yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[3],yytext[3]);
+    return T_COLOR;
+}
+<PROPERTIES>argb:{HEX}{8}       {
+    yylval->colorval.alpha = rofi_theme_parse_convert_hex(yytext[5],yytext[6]);
+    yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[7],yytext[8]);
+    yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[9],yytext[10]);
+    yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[11],yytext[12]);
     return T_COLOR;
 }
  /* Color schemes */

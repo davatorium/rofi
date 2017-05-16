@@ -50,7 +50,7 @@
     border:  1px;
     border-radius: 15px;
     foreground: @magenta;
-    background: #cc1c1c1c;
+    background: #1c1c1ccc;
 }
 
 

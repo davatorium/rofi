@@ -457,12 +457,39 @@ START_TEST ( test_properties_color_h6 )
 }
 END_TEST
 
+START_TEST ( test_properties_color_h4 )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    rofi_theme_parse_string ( "* { red: #F003; green: #0F02; blue: #00F1; }");
+    ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+    Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 0.2 );
+    ck_assert_double_eq ( p->value.color.red  , 1 );
+    ck_assert_double_eq ( p->value.color.green , 0 );
+    ck_assert_double_eq ( p->value.color.blue , 0 );
+    p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 1/7.5 );
+    ck_assert_double_eq ( p->value.color.red  , 0 );
+    ck_assert_double_eq ( p->value.color.green , 1 );
+    ck_assert_double_eq ( p->value.color.blue , 0 );
+    p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 1/15.0 );
+    ck_assert_double_eq ( p->value.color.red  , 0 );
+    ck_assert_double_eq ( p->value.color.green , 0 );
+    ck_assert_double_eq ( p->value.color.blue , 1 );
+}
+END_TEST
 START_TEST ( test_properties_color_h8 )
 {
     widget wid;
     wid.name = "blaat";
     wid.state = NULL;
-    rofi_theme_parse_string ( "* { red: #33FF0000; green: #2200FF00; blue: #110000FF; }");
+    rofi_theme_parse_string ( "* { red: #FF000033; green: #00FF0022; blue: #0000FF11; }");
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
     Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
     ck_assert_ptr_nonnull ( p );
@@ -997,6 +1024,7 @@ static Suite * theme_parser_suite (void)
         TCase *tc_prop_color = tcase_create("PropertiesColor");
         tcase_add_checked_fixture(tc_prop_color, theme_parser_setup, theme_parser_teardown);
         tcase_add_test ( tc_prop_color, test_properties_color_h3);
+        tcase_add_test ( tc_prop_color, test_properties_color_h4);
         tcase_add_test ( tc_prop_color, test_properties_color_h6);
         tcase_add_test ( tc_prop_color, test_properties_color_h8);
         tcase_add_test ( tc_prop_color, test_properties_color_rgb);

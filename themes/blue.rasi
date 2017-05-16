@@ -10,9 +10,9 @@
 }
 #window {
     border:     2;
-    foreground: #FF00B0EF;
+    foreground: #00B0EFFF;
     padding:    5;
-    background: #EE0060A0;
+    background: #0060A0EE;
 }
 #window.mainbox {
     border:  0;
@@ -23,7 +23,7 @@
     padding: 2px 0px 0px ;
 }
 #window.mainbox.message.normal {
-    foreground: #FF00B0EF;
+    foreground: #00B0EFFF;
     background: #00000000;
 }
 #window.mainbox.listview {
@@ -36,39 +36,39 @@
     border: 0;
 }
 #window.mainbox.listview.element.normal.normal {
-    foreground: #FF00B0EF;
+    foreground: #00B0EFFF;
     background: #00000000;
 }
 #window.mainbox.listview.element.normal.urgent {
-    foreground: #FFFFA0A0;
+    foreground: #FFA0A0FF;
     background: #00000000;
 }
 #window.mainbox.listview.element.normal.active {
-    foreground: #FFA0FFA0;
+    foreground: #A0FFA0FF;
     background: #00000000;
 }
 #window.mainbox.listview.element.selected.normal {
-    foreground: #FF0060A0;
-    background: #FF00B0EF;
+    foreground: #0060A0FF;
+    background: #00B0EFFF;
 }
 #window.mainbox.listview.element.selected.urgent {
-    foreground: #FF0060A0;
-    background: #FFFFA0A0;
+    foreground: #0060A0FF;
+    background: #FFA0A0FF;
 }
 #window.mainbox.listview.element.selected.active {
-    foreground: #FF0060A0;
-    background: #FFA0FFA0;
+    foreground: #0060A0FF;
+    background: #A0FFA0FF;
 }
 #window.mainbox.listview.element.alternate.normal {
-    foreground: #FF00B0EF;
+    foreground: #00B0EFFF;
     background: #00000000;
 }
 #window.mainbox.listview.element.alternate.urgent {
-    foreground: #FFFFA0A0;
+    foreground: #FFA0A0FF;
     background: #00000000;
 }
 #window.mainbox.listview.element.alternate.active {
-    foreground: #FFA0FFA0;
+    foreground: #A0FFA0FF;
     background: #00000000;
 }
 #window.mainbox.listview.scrollbar {
@@ -84,6 +84,6 @@
 #window.mainbox.inputbar.box {
 }
 #window.mainbox.inputbar.normal {
-    foreground: #FF00B0EF;
+    foreground: #00B0EFFF;
     background: #00000000;
 }

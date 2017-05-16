@@ -173,11 +173,11 @@ static void rofi_theme_print_property_index ( size_t pnl, int depth, Property *p
             printf ( "italic " );
         }
         if ( p->value.highlight.style & HL_COLOR ) {
-            printf ( "#%02X%02X%02X%02X",
-                     (unsigned char) ( p->value.highlight.color.alpha * 255.0 ),
-                     (unsigned char) ( p->value.highlight.color.red * 255.0 ),
-                     (unsigned char) ( p->value.highlight.color.green * 255.0 ),
-                     (unsigned char) ( p->value.highlight.color.blue * 255.0 ) );
+            printf ( "rgba ( %.0f, %.0f, %.0f, %.0f %% )",
+                     ( p->value.highlight.color.red * 255.0 ),
+                     ( p->value.highlight.color.green * 255.0 ),
+                     ( p->value.highlight.color.blue * 255.0 ),
+                     ( p->value.highlight.color.alpha * 100.0 ) );
         }
         printf ( ";" );
         break;
@@ -197,11 +197,11 @@ static void rofi_theme_print_property_index ( size_t pnl, int depth, Property *p
         printf ( "%s;", p->value.b ? "true" : "false" );
         break;
     case P_COLOR:
-        printf ( "#%02X%02X%02X%02X;",
-                 (unsigned char) ( p->value.color.alpha * 255.0 ),
-                 (unsigned char) ( p->value.color.red * 255.0 ),
-                 (unsigned char) ( p->value.color.green * 255.0 ),
-                 (unsigned char) ( p->value.color.blue * 255.0 ) );
+        printf ( "rgba ( %.0f, %.0f, %.0f, %.0f %% );",
+                 ( p->value.color.red * 255.0 ),
+                 ( p->value.color.green * 255.0 ),
+                 ( p->value.color.blue * 255.0 ),
+                 ( p->value.color.alpha * 100.0 ) );
         break;
     case P_PADDING:
         if ( distance_compare ( p->value.padding.top, p->value.padding.bottom ) &&
@@ -635,6 +635,20 @@ gboolean rofi_theme_is_empty ( void )
 
 #ifdef THEME_CONVERTER
 
+static char * rofi_theme_convert_color ( char *col )
+{
+    char *r = g_strstrip ( col );
+    if ( *r == '#' && strlen ( r ) == 9 ) {
+        char t1 = r[7];
+        char t2 = r[8];
+        r[7] = r[1];
+        r[8] = r[2];
+        r[1] = t1;
+        r[2] = t2;
+    }
+
+    return r;
+}
 void rofi_theme_convert_old ( void )
 {
     if ( config.color_window ) {
@@ -645,7 +659,7 @@ void rofi_theme_convert_old ( void )
             "* { separatorcolor: %s; }"
         };
         for ( int i = 0; retv && retv[i] && i < 3; i++ ) {
-            char *str = g_strdup_printf ( conf[i], retv[i] );
+            char *str = g_strdup_printf ( conf[i], rofi_theme_convert_color ( retv[i] ) );
             rofi_theme_parse_string ( str );
             g_free ( str );
         }
@@ -661,7 +675,7 @@ void rofi_theme_convert_old ( void )
             "* { selected-normal-foreground: %s; }"
         };
         for ( int i = 0; retv && retv[i]; i++ ) {
-            char *str = g_strdup_printf ( conf[i], retv[i] );
+            char *str = g_strdup_printf ( conf[i], rofi_theme_convert_color ( retv[i] ) );
             rofi_theme_parse_string ( str );
             g_free ( str );
         }
@@ -677,7 +691,7 @@ void rofi_theme_convert_old ( void )
             "* { selected-urgent-foreground: %s; }"
         };
         for ( int i = 0; retv && retv[i]; i++ ) {
-            char *str = g_strdup_printf ( conf[i], retv[i] );
+            char *str = g_strdup_printf ( conf[i], rofi_theme_convert_color ( retv[i] ) );
             rofi_theme_parse_string ( str );
             g_free ( str );
         }
@@ -693,7 +707,7 @@ void rofi_theme_convert_old ( void )
             "* { selected-active-foreground: %s; }"
         };
         for ( int i = 0; retv && retv[i]; i++ ) {
-            char *str = g_strdup_printf ( conf[i], retv[i] );
+            char *str = g_strdup_printf ( conf[i], rofi_theme_convert_color ( retv[i] ) );
             rofi_theme_parse_string ( str );
             g_free ( str );
         }

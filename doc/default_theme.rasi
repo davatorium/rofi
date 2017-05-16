@@ -1,22 +1,22 @@
 * {
-    foreground:                  #FF002B36;
+    foreground:                  rgba ( 0, 43, 54, 255 );
     selected-normal-foreground:  @lightbg;
     normal-foreground:           @foreground;
-    red:                         #FFDC322F;
+    red:                         rgba ( 220, 50, 47, 255 );
     alternate-normal-background: @lightbg;
-    blue:                        #FF268BD2;
+    blue:                        rgba ( 38, 139, 210, 255 );
     selected-urgent-foreground:  @background;
     urgent-foreground:           @red;
     alternate-urgent-background: @lightbg;
     active-foreground:           @blue;
-    lightbg:                     #FFEEE8D5;
+    lightbg:                     rgba ( 238, 232, 213, 255 );
     selected-active-foreground:  @background;
     alternate-normal-foreground: @foreground;
     alternate-active-background: @lightbg;
     bordercolor:                 @foreground;
-    background:                  #FFFDF6E3;
+    background:                  rgba ( 253, 246, 227, 255 );
     normal-background:           @background;
-    lightfg:                     #FF586875;
+    lightfg:                     rgba ( 88, 104, 117, 255 );
     selected-normal-background:  @lightfg;
     separatorcolor:              @foreground;
     spacing:                     2;
@@ -30,7 +30,7 @@
 #window {
     border:     1;
     foreground: @foreground;
-    background: #00000000;
+    background: rgba ( 0, 0, 0, 0 );
     padding:    5;
 }
 #window.box {
