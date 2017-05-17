@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-THEME\-MANPAGE" "" "April 2017" "" ""
+.TH "ROFI\-THEME\-MANPAGE" "" "May 2017" "" ""
 .
 .SH "NAME"
 \fBrofi\-theme\fR \- Rofi theme format files
@@ -360,26 +360,59 @@ dynamic: false;
 .IP "" 0
 .
 .SH "Color"
+\fBrofi\fR supports the color formats as specified in the CSS standard (1,2,3 and some of CSS 4)
 .
 .IP "\(bu" 4
-Format: \fB#{HEX}{6}\fR
+Format: \fB#{HEX}{3}\fR (rgb)
 .
 .IP "\(bu" 4
-Format: \fB#{HEX}{8}\fR
+Format: \fB#{HEX}{4}\fR (rgba)
 .
 .IP "\(bu" 4
-Format: \fBrgb({INTEGER},{INTEGER},{INTEGER})\fR
+Format: \fB#{HEX}{6}\fR (rrggbb)
 .
 .IP "\(bu" 4
-Format: \fBrgba({INTEGER},{INTEGER},{INTEGER}, {REAL})\fR
+Format: \fB#{HEX}{8}\fR (rrggbbaa)
+.
+.IP "\(bu" 4
+Format: \fBrgb[a]({INTEGER},{INTEGER},{INTEGER}[, {PERCENTAGE}])\fR
+.
+.IP "\(bu" 4
+Format: \fBrgb[a]({INTEGER}%,{INTEGER}%,{INTEGER}%[, {PERCENTAGE}])\fR
+.
+.IP "\(bu" 4
+Format: \fBhsl[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [{PERCENTAGE}])\fR
+.
+.IP "\(bu" 4
+Format: \fBhwb[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [{PERCENTAGE}])\fR
+.
+.IP "\(bu" 4
+Format: \fBcmyk( {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE} ])\fR
+.
+.IP "\(bu" 4
+Format: \fB<named\-color>\fR
 .
 .IP "" 0
 .
 .P
-Where \'{HEX}\' is a hexidecimal number (\'0\-9a\-f\')\. The \'{INTEGER}\' value can be between 0 and 255, the \'{Real}\' value between 0\.0 and 1\.0\.
+The in CSS proposed white\-space format is also supported\.
 .
 .P
-The first formats specify the color as RRGGBB (R = red, G = green, B = Blue), the second adds an alpha (A) channel: AARRGGBB\.
+The different values are:
+.
+.IP "\(bu" 4
+\fB{HEX}\fR is a hexidecimal number (\'0\-9a\-f\' case insensitive)\.
+.
+.IP "\(bu" 4
+\fB{INTEGER}\fR value can be between 0 and 255 or 0\-100 when representing percentage\.
+.
+.IP "\(bu" 4
+\fB{ANGLE}\fR Angle on the color wheel, can be in deg, rad, grad or turns\. When no unit is specified, degrees is assumed\.
+.
+.IP "\(bu" 4
+\fB{PERCENTAGE}\fR Can be between 0\-1\.0, or 0%\-100%
+.
+.IP "" 0
 .
 .P
 For example:

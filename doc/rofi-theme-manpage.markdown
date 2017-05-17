@@ -238,16 +238,28 @@ dynamic: false;
 
 ## Color
 
-* Format: `#{HEX}{6}`
-* Format: `#{HEX}{8}`
-* Format: `rgb({INTEGER},{INTEGER},{INTEGER})`
-* Format: `rgba({INTEGER},{INTEGER},{INTEGER}, {REAL})`
+**rofi** supports the color formats as specified in the CSS standard (1,2,3 and some of CSS 4)
 
-Where '{HEX}' is a hexidecimal number ('0-9a-f'). The '{INTEGER}' value can be between 0 and 255, the '{Real}' value
-between 0.0 and 1.0.
+* Format: `#{HEX}{3}` (rgb)
+* Format: `#{HEX}{4}` (rgba)
+* Format: `#{HEX}{6}` (rrggbb)
+* Format: `#{HEX}{8}` (rrggbbaa)
+* Format: `rgb[a]({INTEGER},{INTEGER},{INTEGER}[, {PERCENTAGE}])`
+* Format: `rgb[a]({INTEGER}%,{INTEGER}%,{INTEGER}%[, {PERCENTAGE}])`
+* Format: `hsl[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [{PERCENTAGE}])`
+* Format: `hwb[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [{PERCENTAGE}])`
+* Format: `cmyk( {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE} ])`
+* Format: `<named-color>`
 
-The first formats specify the color as RRGGBB (R = red, G = green, B = Blue), the second adds an alpha (A) channel:
-AARRGGBB.
+The in CSS proposed white-space format is also supported.
+
+The different values are:
+
+ * `{HEX}` is a hexidecimal number ('0-9a-f' case insensitive).
+ * `{INTEGER}` value can be between 0 and 255 or 0-100 when representing percentage.
+ * `{ANGLE}` Angle on the color wheel, can be in deg, rad, grad or turns. When no unit is specified, degrees is assumed.
+ * `{PERCENTAGE}` Can be between 0-1.0, or 0%-100%
+
 
 For example:
 

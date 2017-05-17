@@ -455,6 +455,20 @@ t_property_color
     $$.green = $4/255.0;
     $$.blue  = $5/255.0;
 }
+ /** rgba ( 0-100% , 0-100%, 0-100%, 0-1.0 ) */
+| T_COL_RGBA T_PARENT_LEFT  t_property_color_value T_PERCENT T_COMMA t_property_color_value T_PERCENT T_COMMA t_property_color_value T_PERCENT t_property_color_opt_alpha_c T_PARENT_RIGHT {
+    if ( ! check_in_range($3,0,100, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($6,0,100, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($9,0,100, &(@$)) ) { YYABORT; }
+    $$.alpha = $11; $$.red   = $3/100.0; $$.green = $6/100.0; $$.blue  = $9/100.0;
+}
+ /** rgba ( 0-100%   0-100%  0-100%  / 0-1.0 ) */
+| T_COL_RGBA T_PARENT_LEFT  t_property_color_value T_PERCENT  t_property_color_value T_PERCENT  t_property_color_value T_PERCENT  t_property_color_opt_alpha_ws T_PARENT_RIGHT {
+    if ( ! check_in_range($3,0,100, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($5,0,100, &(@$)) ) { YYABORT; }
+    if ( ! check_in_range($7,0,100, &(@$)) ) { YYABORT; }
+    $$.alpha = $9; $$.red   = $3/100.0; $$.green = $5/100.0; $$.blue  = $7/100.0;
+}
  /** hwb with comma */
 | T_COL_HWB T_PARENT_LEFT t_property_color_value_angle T_COMMA t_property_color_value_unit T_COMMA t_property_color_value_unit t_property_color_opt_alpha_c T_PARENT_RIGHT {
     double h = $3, w = $5, b = $7;
@@ -468,16 +482,16 @@ t_property_color
     $$.alpha = $6;
 }
   /** cmyk  with comma */
-| T_COL_CMYK T_PARENT_LEFT t_property_color_value_unit T_COMMA t_property_color_value_unit T_COMMA t_property_color_value_unit T_COMMA t_property_color_value_unit T_PARENT_RIGHT {
-    $$.alpha = 1.0;
+| T_COL_CMYK T_PARENT_LEFT t_property_color_value_unit T_COMMA t_property_color_value_unit T_COMMA t_property_color_value_unit T_COMMA t_property_color_value_unit t_property_color_opt_alpha_c T_PARENT_RIGHT {
+    $$.alpha = $10;
     double  c= $3, m= $5, y= $7, k= $9;
     $$.red   = (1.0-c)*(1.0-k);
     $$.green = (1.0-m)*(1.0-k);
     $$.blue  = (1.0-y)*(1.0-k);
 }
  /** cmyk whitespace edition. */
-| T_COL_CMYK T_PARENT_LEFT t_property_color_value_unit  t_property_color_value_unit  t_property_color_value_unit  t_property_color_value_unit T_PARENT_RIGHT {
-    $$.alpha = 1.0;
+| T_COL_CMYK T_PARENT_LEFT t_property_color_value_unit  t_property_color_value_unit  t_property_color_value_unit t_property_color_value_unit t_property_color_opt_alpha_ws T_PARENT_RIGHT {
+    $$.alpha = $7;
     double  c= $3, m= $4, y= $5, k= $6;
     $$.red   = (1.0-c)*(1.0-k);
     $$.green = (1.0-m)*(1.0-k);

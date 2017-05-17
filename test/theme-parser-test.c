@@ -516,6 +516,84 @@ START_TEST ( test_properties_color_rgb )
     widget wid;
     wid.name = "blaat";
     wid.state = NULL;
+    rofi_theme_parse_string ( "* { red: rgb(100%,0%,0%); green: rgb(0%,100%,0%); blue: rgb(0%,0%,100%); }");
+    ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+    Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.red  , 1 );
+    ck_assert_double_eq ( p->value.color.green , 0 );
+    ck_assert_double_eq ( p->value.color.blue , 0 );
+    p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.red  , 0 );
+    ck_assert_double_eq ( p->value.color.green , 1 );
+    ck_assert_double_eq ( p->value.color.blue , 0 );
+    p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.red  , 0 );
+    ck_assert_double_eq ( p->value.color.green , 0 );
+    ck_assert_double_eq ( p->value.color.blue , 1 );
+}
+END_TEST
+START_TEST ( test_properties_color_rgba_p )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    rofi_theme_parse_string ( "* { red: rgba(100%,0%,0%,0.3); green: rgba(0%,100%,0%,0.2); blue: rgba(0%,0%,100%,0.7); }");
+    ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+    Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 0.3 );
+    ck_assert_double_eq ( p->value.color.red  , 1 );
+    ck_assert_double_eq ( p->value.color.green , 0 );
+    ck_assert_double_eq ( p->value.color.blue , 0 );
+    p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 0.2 );
+    ck_assert_double_eq ( p->value.color.red  , 0 );
+    ck_assert_double_eq ( p->value.color.green , 1 );
+    ck_assert_double_eq ( p->value.color.blue , 0 );
+    p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 0.7 );
+    ck_assert_double_eq ( p->value.color.red  , 0 );
+    ck_assert_double_eq ( p->value.color.green , 0 );
+    ck_assert_double_eq ( p->value.color.blue , 1 );
+}
+END_TEST
+START_TEST ( test_properties_color_rgba_percent_p )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    rofi_theme_parse_string ( "* { red: rgba(100%,0%,0%,30%); green: rgba(0%,100%,0%,20%); blue: rgba(0%,0%,100%,70.0%); }");
+    ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+    Property *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 0.3 );
+    ck_assert_double_eq ( p->value.color.red  , 1 );
+    ck_assert_double_eq ( p->value.color.green , 0 );
+    ck_assert_double_eq ( p->value.color.blue , 0 );
+    p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 0.2 );
+    ck_assert_double_eq ( p->value.color.red  , 0 );
+    ck_assert_double_eq ( p->value.color.green , 1 );
+    ck_assert_double_eq ( p->value.color.blue , 0 );
+    p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 0.7 );
+    ck_assert_double_eq ( p->value.color.red  , 0 );
+    ck_assert_double_eq ( p->value.color.green , 0 );
+    ck_assert_double_eq ( p->value.color.blue , 1 );
+}
+END_TEST
+START_TEST ( test_properties_color_rgb_p )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
     rofi_theme_parse_string ( "* { red: rgb(255,0,0); green: rgb(0,255,0); blue: rgb(0,0,255); }");
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
     Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
@@ -1030,6 +1108,9 @@ static Suite * theme_parser_suite (void)
         tcase_add_test ( tc_prop_color, test_properties_color_rgb);
         tcase_add_test ( tc_prop_color, test_properties_color_rgba);
         tcase_add_test ( tc_prop_color, test_properties_color_rgba_percent);
+        tcase_add_test ( tc_prop_color, test_properties_color_rgb_p);
+        tcase_add_test ( tc_prop_color, test_properties_color_rgba_p);
+        tcase_add_test ( tc_prop_color, test_properties_color_rgba_percent_p);
         tcase_add_test ( tc_prop_color, test_properties_color_argb);
         tcase_add_test ( tc_prop_color, test_properties_color_hsl);
         tcase_add_test ( tc_prop_color, test_properties_color_hsla);
