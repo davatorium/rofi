@@ -282,6 +282,7 @@ For example:
 ```
 background: #FF0000;
 foreground: rgba(0,0,1, 0.5);
+text: SeaGreen;
 ```
 
 ## Text style

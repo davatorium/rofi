@@ -101,6 +101,7 @@ AC_CHECK_FUNC([fcntl],,    AC_MSG_ERROR("Could not find fcntl"))
 AC_CHECK_FUNC([setlocale],,AC_MSG_ERROR("Could not find setlocale"))
 AC_CHECK_FUNC([atexit],,   AC_MSG_ERROR("Could not find atexit in c library"))
 AC_CHECK_FUNC([glob],,     AC_MSG_ERROR("Could not find glob in c library"))
+AC_CHECK_FUNC([toupper],,  AC_MSG_ERROR("Could not find toupper in c library"))
 
 AC_CHECK_HEADER([math.h],, AC_MSG_ERROR("Could not find math.h header file"))
 AC_SEARCH_LIBS([floor],[m],,      AC_MSG_ERROR("Could not find floor in math library"))
@@ -122,6 +123,9 @@ PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])
 PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0 ])
 
+dnl ---------------------------------------------------------------------
+dnl check - Unit testing.
+dnl ---------------------------------------------------------------------
 AC_ARG_ENABLE([check], AS_HELP_STRING([--disable-check], [Build with checks using check library (default: enabled)]))
 
 AS_IF([test "x${enable_check}" != "xno"], [ PKG_CHECK_MODULES([check],[check >= 0.11.0], [HAVE_CHECK=1]) ])

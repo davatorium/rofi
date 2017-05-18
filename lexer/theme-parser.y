@@ -173,6 +173,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_BOLD                           "Bold"
 %token T_ITALIC                         "Italic"
 %token T_UNDERLINE                      "Underline"
+%token T_STRIKETHROUGH                  "Strikethrough"
 %token T_DASH                           "Dash"
 %token T_SOLID                          "Solid"
 
@@ -394,10 +395,11 @@ t_property_highlight_styles
 ;
 /** Single style. */
 t_property_highlight_style
-: T_NONE      { $$ = HL_NONE; }
-| T_BOLD      { $$ = HL_BOLD; }
-| T_UNDERLINE { $$ = HL_UNDERLINE; }
-| T_ITALIC    { $$ = HL_ITALIC; }
+: T_NONE          { $$ = HL_NONE; }
+| T_BOLD          { $$ = HL_BOLD; }
+| T_UNDERLINE     { $$ = HL_UNDERLINE; }
+| T_STRIKETHROUGH { $$ = HL_STRIKETHROUGH; }
+| T_ITALIC        { $$ = HL_ITALIC; }
 ;
 
 /** Distance. */

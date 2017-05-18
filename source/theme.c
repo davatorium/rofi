@@ -169,6 +169,9 @@ static void rofi_theme_print_property_index ( size_t pnl, int depth, Property *p
         if ( p->value.highlight.style & HL_UNDERLINE ) {
             printf ( "underline " );
         }
+        if ( p->value.highlight.style & HL_STRIKETHROUGH ) {
+            printf ( "strikethrough " );
+        }
         if ( p->value.highlight.style & HL_ITALIC ) {
             printf ( "italic " );
         }

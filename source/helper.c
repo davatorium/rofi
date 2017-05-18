@@ -423,6 +423,12 @@ PangoAttrList *helper_token_match_get_pango_attr ( ThemeHighlight th, GRegex **t
                         pa->end_index   = end;
                         pango_attr_list_insert ( retv, pa );
                     }
+                    if ( th.style & HL_STRIKETHROUGH ) {
+                        PangoAttribute *pa = pango_attr_strikethrough_new ( TRUE );
+                        pa->start_index = start;
+                        pa->end_index   = end;
+                        pango_attr_list_insert ( retv, pa );
+                    }
                     if ( th.style & HL_ITALIC ) {
                         PangoAttribute *pa = pango_attr_style_new ( PANGO_STYLE_ITALIC );
                         pa->start_index = start;

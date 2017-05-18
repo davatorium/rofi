@@ -184,10 +184,11 @@ EAST       "east"
 WEST       "west"
 
  /* Line Style */
-NONE       "none"
-BOLD       "bold"
-UNDERLINE  "underline"
-ITALIC     "italic"
+NONE          "none"
+BOLD          "bold"
+UNDERLINE     "underline"
+ITALIC        "italic"
+STRIKETHROUGH "strikethrough"
 
 /* ANGLES */
 
@@ -439,31 +440,32 @@ if ( queue == NULL ){
     return T_COLOR;
 }
  /* Color schemes */
-<PROPERTIES>{RGBA}         { return T_COL_RGBA;  }
-<PROPERTIES>{HSL}          { return T_COL_HSL;   }
-<PROPERTIES>{HWB}          { return T_COL_HWB;   }
-<PROPERTIES>{CMYK}         { return T_COL_CMYK;  }
+<PROPERTIES>{RGBA}             { return T_COL_RGBA;       }
+<PROPERTIES>{HSL}              { return T_COL_HSL;        }
+<PROPERTIES>{HWB}              { return T_COL_HWB;        }
+<PROPERTIES>{CMYK}             { return T_COL_CMYK;       }
  /* Fluff */
-<PROPERTIES>{S_T_PARENT_LEFT}  { return T_PARENT_LEFT; }
-<PROPERTIES>{S_T_PARENT_RIGHT} { return T_PARENT_RIGHT;}
-<PROPERTIES>{COMMA}        { return T_COMMA;       }
-<PROPERTIES>{FORWARD_SLASH}        { return T_FORWARD_SLASH;       }
+<PROPERTIES>{S_T_PARENT_LEFT}  { return T_PARENT_LEFT;    }
+<PROPERTIES>{S_T_PARENT_RIGHT} { return T_PARENT_RIGHT;   }
+<PROPERTIES>{COMMA}            { return T_COMMA;          }
+<PROPERTIES>{FORWARD_SLASH}    { return T_FORWARD_SLASH;  }
  /* Position */
-<PROPERTIES>{CENTER}       { return T_POS_CENTER; }
-<PROPERTIES>{EAST}         { return T_POS_EAST;   }
-<PROPERTIES>{WEST}         { return T_POS_WEST;   }
-<PROPERTIES>{SOUTH}        { return T_POS_SOUTH;  }
-<PROPERTIES>{NORTH}        { return T_POS_NORTH;  }
+<PROPERTIES>{CENTER}           { return T_POS_CENTER;     }
+<PROPERTIES>{EAST}             { return T_POS_EAST;       }
+<PROPERTIES>{WEST}             { return T_POS_WEST;       }
+<PROPERTIES>{SOUTH}            { return T_POS_SOUTH;      }
+<PROPERTIES>{NORTH}            { return T_POS_NORTH;      }
  /* Highlight style */
-<PROPERTIES>{NONE}         { return T_NONE; }
-<PROPERTIES>{BOLD}         { return T_BOLD; }
-<PROPERTIES>{ITALIC}       { return T_ITALIC; }
-<PROPERTIES>{UNDERLINE}    { return T_UNDERLINE; }
+<PROPERTIES>{NONE}             { return T_NONE;           }
+<PROPERTIES>{BOLD}             { return T_BOLD;           }
+<PROPERTIES>{ITALIC}           { return T_ITALIC;         }
+<PROPERTIES>{UNDERLINE}        { return T_UNDERLINE;      }
+<PROPERTIES>{STRIKETHROUGH}    { return T_STRIKETHROUGH;  }
 
-<PROPERTIES>{ANGLE_DEG} { return T_ANGLE_DEG; }
-<PROPERTIES>{ANGLE_RAD} { return T_ANGLE_RAD; }
-<PROPERTIES>{ANGLE_GRAD} { return T_ANGLE_GRAD; }
-<PROPERTIES>{ANGLE_TURN} { return T_ANGLE_TURN; }
+<PROPERTIES>{ANGLE_DEG}        { return T_ANGLE_DEG;      }
+<PROPERTIES>{ANGLE_RAD}        { return T_ANGLE_RAD;      }
+<PROPERTIES>{ANGLE_GRAD}       { return T_ANGLE_GRAD;     }
+<PROPERTIES>{ANGLE_TURN}       { return T_ANGLE_TURN;     }
 
 <PROPERTIES>{COLOR_TRANSPARENT} {
     return T_COLOR_TRANSPARENT;
