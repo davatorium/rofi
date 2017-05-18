@@ -567,7 +567,7 @@ START_TEST ( test_properties_color_rgba_percent_p )
     widget wid;
     wid.name = "blaat";
     wid.state = NULL;
-    rofi_theme_parse_string ( "* { red: rgba(100%,0%,0%,30%); green: rgba(0%,100%,0%,20%); blue: rgba(0%,0%,100%,70.0%); }");
+    rofi_theme_parse_string ( "* { red: rgba(100%,0%,0%,30%); green: rgba(0%,100%,0%,20%); blue: rgba(0% 0% 100%/70.0%); }");
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
     Property *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
     ck_assert_ptr_nonnull ( p );
@@ -618,7 +618,7 @@ START_TEST ( test_properties_color_rgba )
     widget wid;
     wid.name = "blaat";
     wid.state = NULL;
-    rofi_theme_parse_string ( "* { red: rgba(255,0,0,0.3); green: rgba(0,255,0,0.2); blue: rgba(0,0,255,0.7); }");
+    rofi_theme_parse_string ( "* { red: rgba(255,0,0,0.3); green: rgba(0,255,0,0.2); blue: rgba(0 0 255 /0.7); }");
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
     Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
     ck_assert_ptr_nonnull ( p );

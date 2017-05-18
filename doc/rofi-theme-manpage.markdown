@@ -287,7 +287,7 @@ text: SeaGreen;
 
 ## Text style
 
-* Format: `(bold|italic|underline|none)`
+* Format: `(bold|italic|underline|strikethrough|none)`
 
 Text style indicates how the text should be displayed.  None indicates no style
 should be applied.
