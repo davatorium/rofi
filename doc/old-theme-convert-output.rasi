@@ -100,6 +100,10 @@
 #window.mainbox.sidebar.box {
     border: 1px dash 0px 0px ;
 }
+#window.mainbox.sidebar.button.selected {
+    foreground: @selected-normal-foreground;
+    background: @selected-normal-background;
+}
 #window.mainbox.inputbar {
     spacing: 0;
 }
