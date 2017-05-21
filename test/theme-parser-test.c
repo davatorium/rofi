@@ -362,7 +362,7 @@ START_TEST ( test_properties_style)
     widget wid;
     wid.name = "blaat";
     wid.state = NULL;
-    rofi_theme_parse_string ( "* { none: none; bold: bold; underline: underline; italic: italic;}");
+    rofi_theme_parse_string ( "* { none: none; bold: bold; underline: underline; italic: italic; st: italic strikethrough;}");
     ThemeHighlight th = { HL_BOLD, {0.0,0.0,0.0,0.0}};
     th = rofi_theme_get_highlight ( &wid, "none",      th);
     ck_assert_int_eq ( th.style , HL_NONE );
@@ -372,6 +372,8 @@ START_TEST ( test_properties_style)
     ck_assert_int_eq ( th.style , HL_ITALIC);
     th = rofi_theme_get_highlight ( &wid, "bold",      th);
     ck_assert_int_eq ( th.style , HL_BOLD);
+    th = rofi_theme_get_highlight ( &wid, "st",      th);
+    ck_assert_int_eq ( th.style , HL_ITALIC|HL_STRIKETHROUGH);
 }
 END_TEST
 START_TEST ( test_properties_style2 )
@@ -727,18 +729,68 @@ START_TEST ( test_properties_color_hsla )
     widget wid;
     wid.name = "blaat";
     wid.state = NULL;
-    rofi_theme_parse_string ( "* { test1: hsla(127,40%,66.66666%); test2: hsla(0, 100%, 50%); }");
+    rofi_theme_parse_string ( "* { test1: hsla(127,40%,66.66666%, 40%); test2: hsla(0, 100%, 50%,55%); }");
+    ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+
+    Property *p   = rofi_theme_find_property ( twid, P_COLOR, "test1", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 0.4 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0x88/255.0 , 0.004);
+    ck_assert_double_eq_tol ( p->value.color.green , 0xcd/255.0, 0.004 );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0x90/255.0 , 0.004);
+    p   = rofi_theme_find_property ( twid, P_COLOR, "test2", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 0.55 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 1 , 0.004);
+    ck_assert_double_eq_tol ( p->value.color.green , 0, 0.004 );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , 0.004);
+}
+END_TEST
+START_TEST ( test_properties_color_hsl_ws )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    rofi_theme_parse_string ( "* { test1: hsl(127 40% 66.66666%); test2: hsl(0  100%  50%); testa: hsl(127 40%  66.66666%  / 30%);}");
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
 
     Property *p   = rofi_theme_find_property ( twid, P_COLOR, "test1", FALSE );
     ck_assert_ptr_nonnull ( p );
     ck_assert_double_eq ( p->value.color.alpha , 1.0 );
     ck_assert_double_eq_tol ( p->value.color.red  , 0x88/255.0 , 0.004);
-    ck_assert_double_eq_tol ( p->value.color.green , 0xcd/255.0, 0.004 );
+    ck_assert_double_eq_tol ( p->value.color.green, 0xcd/255.0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 0x90/255.0 , 0.004);
     p   = rofi_theme_find_property ( twid, P_COLOR, "test2", FALSE );
     ck_assert_ptr_nonnull ( p );
     ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 1 , 0.004);
+    ck_assert_double_eq_tol ( p->value.color.green , 0, 0.004 );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , 0.004);
+    p   = rofi_theme_find_property ( twid, P_COLOR, "testa", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 0.3 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0x88/255.0 ,0.004);
+    ck_assert_double_eq_tol ( p->value.color.green ,0xcd/255.0, 0.004 );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0x90/255.0 ,0.004);
+}
+END_TEST
+START_TEST ( test_properties_color_hsla_ws )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    rofi_theme_parse_string ( "* { test1: hsla(127 40% 66.66666% / 0.3); test2: hsla(0  100%  50%/ 55%); }");
+    ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+
+    Property *p   = rofi_theme_find_property ( twid, P_COLOR, "test1", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 0.3 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0x88/255.0 , 0.004);
+    ck_assert_double_eq_tol ( p->value.color.green , 0xcd/255.0, 0.004 );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0x90/255.0 , 0.004);
+    p   = rofi_theme_find_property ( twid, P_COLOR, "test2", FALSE );
+    ck_assert_ptr_nonnull ( p );
+    ck_assert_double_eq ( p->value.color.alpha , 0.55 );
     ck_assert_double_eq_tol ( p->value.color.red  , 1 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green , 0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 0 , 0.004);
@@ -867,6 +919,16 @@ START_TEST ( test_properties_color_names )
         ck_assert_double_eq_tol ( p->value.color.blue , CSSColors[iter].b/255.0, 0.004);
 
         g_free ( str );
+    }
+    {
+        rofi_theme_parse_string("* {color: transparent;}");
+        ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
+        Property *p   = rofi_theme_find_property ( twid, P_COLOR, "color", FALSE );
+        ck_assert_ptr_nonnull ( p );
+        ck_assert_double_eq ( p->value.color.alpha , 0.0 );
+        ck_assert_double_eq_tol ( p->value.color.red  , 0.0, 0.004);
+        ck_assert_double_eq_tol ( p->value.color.green, 0.0, 0.004 );
+        ck_assert_double_eq_tol ( p->value.color.blue , 0.0, 0.004);
     }
 }
 END_TEST
@@ -1033,6 +1095,19 @@ START_TEST ( test_core_properties_error )
     g_string_free ( error_msg, TRUE);
     error_msg = NULL;
     error = 0;
+
+    const char *errstr2 = "<big><b>Error while parsing theme:</b></big> <i></i>\n"\
+                           "	Parser error: <span size=\"smaller\" style=\"italic\">Value out of range: \n"\
+                           "		Value: X = 500.00;\n"\
+                           "		Range: 0.00 &lt;= X &lt;= 360.00.</span>\n"\
+                           "	Location:     line 0 column 15 to line 0 column 18\n";
+    rofi_theme_parse_string ( " * { test: hsl(500, 100% 10% ); }");
+    ck_assert_int_eq ( error, 1);
+    ck_assert_str_eq ( error_msg->str, errstr2 );
+    g_string_free ( error_msg, TRUE);
+    error_msg = NULL;
+    error = 0;
+
 }
 END_TEST
 
@@ -1120,6 +1195,8 @@ static Suite * theme_parser_suite (void)
         tcase_add_test ( tc_prop_color, test_properties_color_argb);
         tcase_add_test ( tc_prop_color, test_properties_color_hsl);
         tcase_add_test ( tc_prop_color, test_properties_color_hsla);
+        tcase_add_test ( tc_prop_color, test_properties_color_hsl_ws);
+        tcase_add_test ( tc_prop_color, test_properties_color_hsla_ws);
         tcase_add_test ( tc_prop_color, test_properties_color_hwb);
         tcase_add_test ( tc_prop_color, test_properties_color_hwb_ws);
         tcase_add_test ( tc_prop_color, test_properties_color_cmyk);
