@@ -274,7 +274,7 @@ The different values are:
     OldLace, Olive, OliveDrab, Orange, OrangeRed, Orchid, PaleGoldenRod, PaleGreen, PaleTurquoise, PaleVioletRed,
     PapayaWhip, PeachPuff, Peru, Pink, Plum, PowderBlue, Purple, RebeccaPurple, Red, RosyBrown, RoyalBlue, SaddleBrown,
     Salmon, SandyBrown, SeaGreen, SeaShell, Sienna, Silver, SkyBlue, SlateBlue, SlateGray, SlateGrey, Snow, SpringGreen,
-    SteelBlue, Tan, Teal, Thistle, Tomato, Turquoise, Violet, Wheat, White, WhiteSmoke, Yellow, YellowGreen 
+    SteelBlue, Tan, Teal, Thistle, Tomato, Turquoise, Violet, Wheat, White, WhiteSmoke, Yellow, YellowGreen
 
 
 For example:
@@ -289,8 +289,14 @@ text: SeaGreen;
 
 * Format: `(bold|italic|underline|strikethrough|none)`
 
-Text style indicates how the text should be displayed.  None indicates no style
+Text style indicates how the highlighted text is emphasised. None indicates no emphasis
 should be applied.
+
+ * `bold`: make the text thicker then the surrounding text.
+ * `italic`: put the highlighted text in script type (slanted).
+ * `underline`: put a line under the highlighted text.
+ * `strikethrough`: put a line through the highlighted text.
+ * `small caps`: emphasise the text using capitalization.
 
 ## Line style
 

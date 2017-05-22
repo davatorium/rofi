@@ -189,6 +189,7 @@ BOLD          "bold"
 UNDERLINE     "underline"
 ITALIC        "italic"
 STRIKETHROUGH "strikethrough"
+SMALLCAPS     "small caps"
 
 /* ANGLES */
 
@@ -461,6 +462,7 @@ if ( queue == NULL ){
 <PROPERTIES>{ITALIC}           { return T_ITALIC;         }
 <PROPERTIES>{UNDERLINE}        { return T_UNDERLINE;      }
 <PROPERTIES>{STRIKETHROUGH}    { return T_STRIKETHROUGH;  }
+<PROPERTIES>{SMALLCAPS}        { return T_SMALLCAPS;      }
 
 <PROPERTIES>{ANGLE_DEG}        { return T_ANGLE_DEG;      }
 <PROPERTIES>{ANGLE_RAD}        { return T_ANGLE_RAD;      }
