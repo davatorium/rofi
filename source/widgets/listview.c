@@ -100,8 +100,10 @@ struct _listview
     char                        *listview_name;
 
     /** Barview */
-    MoveDirection               direction;
-    unsigned int cur_visible;
+    struct {
+        MoveDirection               direction;
+        unsigned int cur_visible;
+    } barview;
 };
 
 static int listview_get_desired_height ( widget *wid );
@@ -118,23 +120,25 @@ static void listview_free ( widget *wid )
     widget_free ( WIDGET ( lv->scrollbar ) );
     g_free ( lv );
 }
+static unsigned int scroll_per_page_barview ( listview *lv )
+{
+    unsigned int offset = lv->last_offset;
+
+    // selected row is always visible.
+    // If selected is visible do not scroll.
+    if ( lv->selected < lv->last_offset ) {
+        offset = lv->selected;
+        lv->rchanged = TRUE;
+    } else if ( lv->selected >= (lv->last_offset + lv->barview.cur_visible ) ) {
+        offset = lv->selected;
+        lv->rchanged = TRUE;
+    }
+    return offset;
+
+}
 static unsigned int scroll_per_page ( listview * lv )
 {
     int offset = 0;
-    if ( lv->type == BARVIEW ){
-        offset = lv->last_offset;
-
-        // selected row is always visible.
-        // If selected is visible do not scroll.
-        if ( lv->selected < lv->last_offset ) {
-            offset = lv->selected;
-            lv->rchanged = TRUE;
-        } else if ( lv->selected >= (lv->last_offset + lv->cur_visible ) ) {
-            offset = lv->selected;
-            lv->rchanged = TRUE;
-        }
-        return offset;
-    }
 
     // selected row is always visible.
     // If selected is visible do not scroll.
@@ -191,10 +195,8 @@ static void barview_draw ( widget *wid, cairo_t *draw )
 {
     unsigned int offset = 0;
     listview *lv    = (listview *) wid;
-    offset = scroll_per_page ( lv );
+    offset = scroll_per_page_barview ( lv );
     lv->last_offset = offset;
-    printf("offset %d %d lines: %d\n", lv->last_offset, lv->direction, lv->cur_elements);
-    int spacing_vert = distance_get_pixel ( lv->spacing, ORIENTATION_VERTICAL );
     int spacing_hori = distance_get_pixel ( lv->spacing, ORIENTATION_HORIZONTAL );
 
     int left_offset = widget_padding_get_left ( wid );
@@ -204,17 +206,16 @@ static void barview_draw ( widget *wid, cairo_t *draw )
         // Set new x/y possition.
         unsigned int max = MIN ( lv->cur_elements, lv->req_elements - offset );
         if ( lv->rchanged ) {
-            lv->cur_visible = 0;
+            int first = TRUE;
             int width = lv->widget.w;
+            lv->barview.cur_visible = 0;
             width -= widget_padding_get_padding_width ( wid );
-            if ( lv->direction == LEFT_TO_RIGHT ) {
-                int first = TRUE;
+            if ( lv->barview.direction == LEFT_TO_RIGHT ) {
                 for ( unsigned int i = 0; i < max&& width > 0; i++ ) {
                     update_element ( lv, i, i + offset, TRUE );
                     int twidth = textbox_get_desired_width ( WIDGET(lv->boxes[i]));
                     if ( twidth >= width ) {
                         if ( ! first ) {
-                            printf("break: %d\n", twidth);
                             break;
                         }
                         twidth = width;
@@ -222,41 +223,36 @@ static void barview_draw ( widget *wid, cairo_t *draw )
                     textbox_moveresize ( lv->boxes[i], left_offset, top_offset, twidth, lv->element_height );
 
                     widget_draw ( WIDGET ( lv->boxes[i] ), draw );
-                    width -= twidth + spacing_vert;
-                    left_offset += twidth + spacing_vert;
+                    width -= twidth + spacing_hori;
+                    left_offset += twidth + spacing_hori;
                     first = FALSE;
-                    lv->cur_visible++ ;
+                    lv->barview.cur_visible++ ;
                 }
             } else {
-                int first = TRUE;
                 for ( unsigned int i = 0; i < lv->cur_elements &&  width > 0 && i <= offset; i++ ) {
                     update_element ( lv, i, offset-i, TRUE );
                     int twidth = textbox_get_desired_width ( WIDGET ( lv->boxes[i] ));
                     if ( twidth >= width ) {
                         if ( ! first ) {
-                            printf("break: %d\n", twidth);
                             break;
                         }
                         twidth = width;
                     }
                     right_offset -= twidth;
-                    printf("ro: %d\n", right_offset);
                     textbox_moveresize ( lv->boxes[i], right_offset, top_offset, twidth, lv->element_height );
 
                     widget_draw ( WIDGET ( lv->boxes[i] ), draw );
-                    width -= twidth + spacing_vert;
-                    right_offset -= spacing_vert;
+                    width -= twidth + spacing_hori;
+                    right_offset -= spacing_hori;
                     first = FALSE;
-                    lv->cur_visible++ ;
-                    printf("i < offset: %d < %d widht: %d max: %d\n" , i , offset, width,max);
+                    lv->barview.cur_visible++ ;
                 }
-                offset -= lv->cur_visible-1;
+                offset -= lv->barview.cur_visible-1;
                 lv->last_offset = offset;
-                for  ( unsigned int i = 0; i < (lv->cur_visible/2); i++)
+                for  ( unsigned int i = 0; i < (lv->barview.cur_visible/2); i++)
                 {
                     void * temp = lv->boxes[i];
-                    int sw = lv->cur_visible-i-1;
-                    printf("%d <-->%d\n", i, sw);
+                    int sw = lv->barview.cur_visible-i-1;
                     lv->boxes[i] = lv->boxes[sw];
                     lv->boxes[sw] = temp;
                 }
@@ -265,7 +261,7 @@ static void barview_draw ( widget *wid, cairo_t *draw )
             lv->rchanged = FALSE;
         }
         else {
-            for ( unsigned int i = 0; i < lv->cur_visible; i++ ) {
+            for ( unsigned int i = 0; i < lv->barview.cur_visible; i++ ) {
                 update_element ( lv, i, i + offset, FALSE );
                 widget_draw ( WIDGET ( lv->boxes[i] ), draw );
             }
@@ -397,7 +393,7 @@ void listview_set_selected ( listview *lv, unsigned int selected )
 {
     if ( lv && lv->req_elements > 0 ) {
         lv->selected = MIN ( selected, lv->req_elements - 1 );
-        lv->direction = LEFT_TO_RIGHT;
+        lv->barview.direction = LEFT_TO_RIGHT;
         widget_queue_redraw ( WIDGET ( lv ) );
     }
 }
@@ -528,10 +524,14 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->fixed_num_lines = rofi_theme_get_boolean  ( WIDGET ( lv ), "fixed-height", config.fixed_num_lines );
     lv->dynamic         = rofi_theme_get_boolean  ( WIDGET ( lv ), "dynamic", TRUE );
     lv->reverse         = rofi_theme_get_boolean  ( WIDGET ( lv ), "reverse", reverse );
-    listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( WIDGET ( lv ), "scrollbar", FALSE ) );
     lv->cycle = rofi_theme_get_boolean ( WIDGET ( lv ), "cycle", config.cycle );
 
     lv->type = rofi_theme_get_boolean ( WIDGET (lv) , "barview", FALSE );
+    if ( lv->type == LISTVIEW ) {
+        listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( WIDGET ( lv ), "scrollbar", FALSE ) );
+    } else {
+        listview_set_show_scrollbar ( lv, FALSE );
+    }
     return lv;
 }
 
@@ -551,7 +551,7 @@ static void listview_nav_up_int ( listview *lv )
         lv->selected = lv->req_elements;
     }
     lv->selected--;
-    lv->direction = RIGHT_TO_LEFT;
+    lv->barview.direction = RIGHT_TO_LEFT;
     widget_queue_redraw ( WIDGET ( lv ) );
 }
 static void listview_nav_down_int ( listview *lv )
@@ -563,7 +563,7 @@ static void listview_nav_down_int ( listview *lv )
         return;
     }
     lv->selected = lv->selected < lv->req_elements - 1 ? MIN ( lv->req_elements - 1, lv->selected + 1 ) : 0;
-    lv->direction = LEFT_TO_RIGHT;
+    lv->barview.direction = LEFT_TO_RIGHT;
     widget_queue_redraw ( WIDGET ( lv ) );
 }
 
