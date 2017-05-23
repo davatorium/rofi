@@ -797,3 +797,17 @@ int textbox_get_estimated_height ( const textbox *tb, int eh )
     int height = pango_font_metrics_get_ascent ( tb->metrics ) + pango_font_metrics_get_descent ( tb->metrics );
     return ( eh * height ) / PANGO_SCALE + widget_padding_get_padding_height ( WIDGET ( tb ) );
 }
+int textbox_get_desired_width ( widget *wid )
+{
+    textbox *tb = (textbox *) wid;
+    unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+    if ( tb->flags & TB_AUTOWIDTH ) {
+        return textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( wid ) + offset;
+    }
+    int width = 0;
+    pango_layout_set_width ( tb->layout, -1);
+    width = textbox_get_font_width ( tb );
+    // Restore.
+    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - widget_padding_get_padding_width ( WIDGET ( tb ) ) - offset ) );
+    return width + widget_padding_get_padding_width ( wid ) + offset;
+}
