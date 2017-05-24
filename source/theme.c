@@ -502,11 +502,10 @@ int rofi_theme_get_integer_exact ( const widget *widget, const char *property, i
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return def;
 }
-
-Distance rofi_theme_get_distance ( const widget *widget, const char *property, int def )
+static Distance _rofi_theme_get_distance ( const widget *widget, const char *property, int def , gboolean exact)
 {
-    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
-    Property    *p   = rofi_theme_find_property ( wid, P_PADDING, property, FALSE );
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, exact );
+    Property    *p   = rofi_theme_find_property ( wid, P_PADDING, property, exact );
     if ( p ) {
         if ( p->type == P_INTEGER ) {
             return (Distance){ p->value.i, PW_PX, SOLID };
@@ -517,6 +516,16 @@ Distance rofi_theme_get_distance ( const widget *widget, const char *property, i
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return (Distance){ def, PW_PX, SOLID };
+}
+
+
+Distance rofi_theme_get_distance_exact ( const widget *widget, const char *property, int def )
+{
+    return _rofi_theme_get_distance ( widget, property, def , TRUE );
+}
+Distance rofi_theme_get_distance ( const widget *widget, const char *property, int def )
+{
+    return _rofi_theme_get_distance ( widget, property, def , FALSE);
 }
 
 int rofi_theme_get_boolean ( const widget *widget, const char *property, int def )

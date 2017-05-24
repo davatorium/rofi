@@ -293,6 +293,16 @@ void rofi_theme_widget_add_properties ( ThemeWidget *widget, GHashTable *table )
  * @returns The distance value of this property for this widget.
  */
 Distance rofi_theme_get_distance ( const widget *widget, const char *property, int def );
+/**
+ * @param widget   The widget to query
+ * @param property The property to query.
+ * @param def      The default value.
+ *
+ * Obtain the distance of the widget.
+ *
+ * @returns The distance value of this property for this widget.
+ */
+Distance rofi_theme_get_distance_exact ( const widget *widget, const char *property, int def );
 
 /**
  * @param widget   The widget to query
@@ -354,7 +364,7 @@ const char *rofi_theme_get_string  (  const widget *widget, const char *property
  * @param property The property to query.
  * @param def      The default value.
  *
- * Obtain the padding of the widget.
+ * Obtain the double of the widget.
  *
  * @returns The double value of this property for this widget.
  */

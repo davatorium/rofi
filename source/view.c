@@ -1667,10 +1667,10 @@ RofiViewState *rofi_view_create ( Mode *sw,
     listview_set_num_lines ( state->list_view, lines );
     listview_set_max_lines ( state->list_view, state->num_lines );
 
-    if ( rofi_theme_get_boolean ( state->main_window, "listview-in-inputbar", FALSE)){
+    if ( rofi_theme_get_boolean ( WIDGET ( state->main_window ), "listview-in-inputbar", FALSE)){
         box_add ( state->input_bar, WIDGET ( state->list_view ), TRUE, 3 );
 
-        Distance d = rofi_theme_get_distance ( WIDGET ( state->text ) , "width", 150);
+        Distance d = rofi_theme_get_distance_exact  ( WIDGET ( state->text ) , "width", 150);
         state->text->widget.expand = FALSE;
         widget_resize ( WIDGET( state->text ), distance_get_pixel ( d, ORIENTATION_HORIZONTAL ), -1);
     } else {
