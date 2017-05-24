@@ -639,6 +639,18 @@ static void listview_nav_page_prev_int ( listview *lv )
     if ( lv == NULL ) {
         return;
     }
+    if ( lv->type == BARVIEW ){
+
+        if ( lv->last_offset == 0 ){
+            lv->selected = 0;
+        } else {
+            lv->selected = lv->last_offset-1;
+        }
+        lv->barview.direction = RIGHT_TO_LEFT;
+        widget_queue_redraw ( WIDGET ( lv ) );
+        return;
+    }
+
     if ( lv->selected < lv->max_elements ) {
         lv->selected = 0;
     }
@@ -653,6 +665,14 @@ static void listview_nav_page_next_int ( listview *lv )
         return;
     }
     if ( lv->req_elements == 0 ) {
+        return;
+    }
+    if ( lv->type == BARVIEW ) {
+        unsigned int new = lv->last_offset+lv->barview.cur_visible;
+        lv->selected = MIN ( new, lv->req_elements-1);
+        lv->barview.direction = LEFT_TO_RIGHT;
+
+        widget_queue_redraw ( WIDGET ( lv ) );
         return;
     }
     lv->selected += ( lv->max_elements );
