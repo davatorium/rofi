@@ -62,6 +62,8 @@ typedef struct
     int              blink;
     guint            blink_timeout;
 
+    double           yalign ;
+
     PangoFontMetrics *metrics;
     //
     const char       *theme_name;

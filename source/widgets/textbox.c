@@ -165,6 +165,8 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
         tb->blink_timeout = g_timeout_add ( 1200, textbox_blink, tb );
     }
 
+    tb->yalign = rofi_theme_get_double ( WIDGET ( tb ), "vertical-align" , 0.0);
+    tb->yalign = MAX ( 0, MIN ( 1.0, tb->yalign));
     // Enabled by default
     tb->widget.enabled = rofi_theme_get_boolean ( WIDGET ( tb ), "enabled", TRUE );
     return tb;
@@ -356,6 +358,11 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     }
 
     int top = widget_padding_get_top ( WIDGET ( tb ) );
+    if ( tb->yalign > 0.001 ) {
+        int height = (pango_font_metrics_get_ascent ( tb->metrics ) + pango_font_metrics_get_descent ( tb->metrics ))/PANGO_SCALE;
+        int bottom = widget_padding_get_bottom ( WIDGET ( tb ) );
+        top = (tb->widget.h - bottom - height -top)*tb->yalign+top;
+    }
 
     rofi_theme_get_color ( WIDGET ( tb ), "foreground", draw );
     // Text
@@ -378,6 +385,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         cairo_rectangle ( draw, x + cursor_x, y + cursor_y, cursor_width, cursor_height );
         cairo_fill ( draw );
     }
+
 
     // Set ARGB
     // We need to set over, otherwise subpixel hinting wont work.
