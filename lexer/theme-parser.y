@@ -141,7 +141,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
     WindowLocation wloc;
     ThemeColor    colorval;
     ThemeWidget   *theme;
-    GList         *name_path;
+    GList         *list;
     Property      *property;
     GHashTable    *property_list;
     Distance      distance;
@@ -163,6 +163,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token <bval>     T_BOOLEAN             "Boolean value (true or false)"
 %token <colorval> T_COLOR               "Hexidecimal color value"
 %token <sval>     T_LINK                "Reference"
+%token <sval>     T_ELEMENT             "Name of element"
 %token T_POS_CENTER                     "Center"
 %token T_POS_EAST                       "East"
 %token T_POS_WEST                       "West"
@@ -198,6 +199,8 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_OPTIONAL_COMMA                          "Optional comma separator (',')"
 %token T_FORWARD_SLASH                  "forward slash ('/')"
 %token T_PERCENT                        "Percent sign ('%')"
+%token T_LIST_OPEN                      "List open ('[')"
+%token T_LIST_CLOSE                     "List close (']')"
 
 %token T_BOPEN                          "bracket open ('{')"
 %token T_BCLOSE                         "bracket close ('}')"
@@ -213,7 +216,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 
 %type <sval>           t_entry
 %type <theme>          t_entry_list
-%type <name_path>      t_entry_name_path
+%type <list>           t_entry_name_path
 %type <property>       t_property
 %type <property_list>  t_property_list
 %type <property_list>  t_property_list_optional
@@ -232,6 +235,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %type <ival>           t_property_highlight_styles
 %type <ival>           t_property_highlight_style
 %type <ival>           t_property_line_style
+%type <list>           t_property_element_list
 %start t_entry_list
 
 %%
@@ -362,6 +366,19 @@ t_property
         $$ = rofi_theme_property_create ( P_COLOR );
         $$->name = $1;
         $$->value.color = $3;
+}
+| t_property_name T_PSEP T_LIST_OPEN t_property_element_list T_LIST_CLOSE T_PCLOSE {
+        $$ = rofi_theme_property_create ( P_LIST );
+        $$->name = $1;
+        $$->value.list = $4;
+}
+;
+
+/** List of elements */
+t_property_element_list
+: T_ELEMENT { $$ = g_list_append ( NULL, $1); }
+| t_property_element_list T_COMMA T_ELEMENT {
+    $$ = g_list_append ( $1, $3 );
 }
 ;
 

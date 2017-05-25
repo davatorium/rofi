@@ -263,7 +263,7 @@ void box_add ( box *box, widget *child, gboolean expand, int index )
     child->index  = rofi_theme_get_integer_exact ( child, "index", index );
     child->parent = WIDGET ( box );
     box->children = g_list_append ( box->children, (void *) child );
-    box->children = g_list_sort   ( box->children, box_sort_children );
+    //box->children = g_list_sort   ( box->children, box_sort_children );
     widget_update ( WIDGET ( box ) );
 }
 

@@ -118,6 +118,8 @@ typedef enum
     P_POSITION,
     /** Highlight */
     P_HIGHLIGHT,
+    /** List */
+    P_LIST,
 } PropertyType;
 
 /**
@@ -156,6 +158,34 @@ typedef struct
     /** Color */
     ThemeColor     color;
 } ThemeHighlight;
+
+typedef union {
+    /** integer */
+    int        i;
+    /** Double */
+    double     f;
+    /** String */
+    char       *s;
+    /** boolean */
+    gboolean   b;
+    /** Color */
+    ThemeColor color;
+    /** Padding */
+    Padding    padding;
+    /** Reference */
+    struct
+    {
+        /** Name */
+        char            *name;
+        /** Cached looked up ref */
+        struct Property *ref;
+    }              link;
+    /** Highlight Style */
+    ThemeHighlight highlight;
+    /** List */
+    GList *list;
+} PropertyValue;
+
 /**
  * Property structure.
  */
@@ -166,31 +196,7 @@ typedef struct Property
     /** Type of property. */
     PropertyType type;
     /** Value */
-    union
-    {
-        /** integer */
-        int        i;
-        /** Double */
-        double     f;
-        /** String */
-        char       *s;
-        /** boolean */
-        gboolean   b;
-        /** Color */
-        ThemeColor color;
-        /** Padding */
-        Padding    padding;
-        /** Reference */
-        struct
-        {
-            /** Name */
-            char            *name;
-            /** Cached looked up ref */
-            struct Property *ref;
-        }              link;
-        /** Highlight Style */
-        ThemeHighlight highlight;
-    } value;
+    PropertyValue value;
 } Property;
 /**
  * ThemeWidget.
@@ -445,6 +451,7 @@ ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state, gbool
  */
 Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, const char *property, gboolean exact );
 
+GList *rofi_theme_get_list ( const widget *widget, const char * property, const char *defaults);
 /**
  * Checks if a theme is set, or is empty.
  * @returns TRUE when empty.

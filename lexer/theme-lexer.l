@@ -211,6 +211,9 @@ S_T_PARENT_RIGHT \)
 COMMA            ,
 FORWARD_SLASH    \/
 
+LIST_OPEN        \[
+LIST_CLOSE       \]
+
 LS_DASH    "dash"
 LS_SOLID   "solid"
 
@@ -220,6 +223,7 @@ CONFIGURATION "configuration"
 
 %x INCLUDE
 %x PROPERTIES
+%x PROPERTIES_LIST
 %x NAMESTR
 %x SECTION
 %x DEFAULTS
@@ -382,7 +386,7 @@ if ( queue == NULL ){
 
   /* After Namestr/Classstr we want to go to state str, then to  { */
 <INITIAL,SECTION>{WHITESPACE}+	; // ignore all whitespace
-<PROPERTIES>{WHITESPACE}+	; // ignore all whitespace
+<PROPERTIES,PROPERTIES_LIST>{WHITESPACE}+	; // ignore all whitespace
 
 <SECTION>":"                      { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return T_PSEP; }
 <PROPERTIES>";"                   { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return T_PCLOSE;}
@@ -448,7 +452,16 @@ if ( queue == NULL ){
  /* Fluff */
 <PROPERTIES>{S_T_PARENT_LEFT}  { return T_PARENT_LEFT;    }
 <PROPERTIES>{S_T_PARENT_RIGHT} { return T_PARENT_RIGHT;   }
-<PROPERTIES>{COMMA}            { return T_COMMA;          }
+<PROPERTIES,PROPERTIES_LIST>{COMMA}            { return T_COMMA;          }
+<PROPERTIES>{LIST_OPEN}        {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(PROPERTIES_LIST);
+    return T_LIST_OPEN;
+}
+<PROPERTIES_LIST>{LIST_CLOSE}       {
+    BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
+    return T_LIST_CLOSE;
+}
 <PROPERTIES>{FORWARD_SLASH}    { return T_FORWARD_SLASH;  }
  /* Position */
 <PROPERTIES>{CENTER}           { return T_POS_CENTER;     }
@@ -521,7 +534,12 @@ if ( queue == NULL ){
 <SECTION>. {
     return T_ERROR_SECTION;
 }
-<PROPERTIES>. {
+<PROPERTIES_LIST>{WORD} {
+    yylval->sval = g_strdup(yytext);
+    return T_ELEMENT;
+}
+
+<PROPERTIES,PROPERTIES_LIST>. {
     return T_ERROR_PROPERTY;
 }
 <NAMESTR>. {

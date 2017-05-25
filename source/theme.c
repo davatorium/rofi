@@ -591,6 +591,28 @@ Padding rofi_theme_get_padding ( const widget *widget, const char *property, Pad
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return pad;
 }
+
+GList *rofi_theme_get_list ( const widget *widget, const char * property, const char *defaults )
+{
+    ThemeWidget *wid2 = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property    *p   = rofi_theme_find_property ( wid2, P_LIST, property, TRUE);
+    if ( p ) {
+        if ( p->type == P_LIST ){
+            return g_list_copy_deep ( p->value.list, g_strdup, NULL );
+        }
+    }
+    char **r = defaults?g_strsplit (defaults, ",",0):NULL;
+    if ( r ){
+        GList *l = NULL;
+        for ( int i =0; r[i] != NULL; i++){
+            l = g_list_append(l, r[i]);
+        }
+        g_free(r);
+        return l;
+    }
+    return NULL;
+}
+
 ThemeHighlight rofi_theme_get_highlight ( widget *widget, const char *property, ThemeHighlight th )
 {
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );

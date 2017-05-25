@@ -1578,6 +1578,121 @@ static void rofi_view_listview_mouse_activated_cb ( listview *lv, xcb_button_pre
     state->skip_absorb = TRUE;
 }
 
+
+static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, const char *parent, const char *name )
+{
+    char *defaults = NULL;
+    widget *wid = NULL;
+    char *str= g_strjoin ( "." , parent, name, NULL );
+    char *strbox= g_strjoin ( "." , str, "box",NULL );
+
+    /**
+     * MAINBOX
+     */
+    if ( strcmp ( name, "mainbox") == 0 ){
+        state->main_box    = box_create ( strbox, BOX_VERTICAL );
+        container_add ( (container *)parent_widget, WIDGET ( state->main_box ) );
+        wid = WIDGET ( state->main_box );
+        defaults = "inputbar,message,listview";
+    }
+    /**
+     * INPUTBAR
+     */
+    else if ( strcmp ( name, "inputbar" ) == 0 ){
+        state->input_bar = box_create ( strbox, BOX_HORIZONTAL );
+        wid = WIDGET( state->input_bar );
+        defaults = "prompt,entry,case-indicator";
+
+        box_add ( (box *)parent_widget, WIDGET ( state->input_bar ), FALSE, 0 );
+    }
+    /**
+     * PROMPT
+     */
+    else if ( strcmp ( name, "prompt" ) == 0 ){
+        // Prompt box.
+        state->prompt = textbox_create ( str, TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "" );
+        rofi_view_update_prompt ( state );
+        box_add ( (box *)parent_widget, WIDGET ( state->prompt ), FALSE, 1 );
+        defaults = NULL;
+    }
+    /**
+     * CASE INDICATOR
+     */
+    else if ( strcmp ( name, "case-indicator") == 0 ){
+        state->case_indicator = textbox_create ( str, TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "*" );
+        // Add small separator between case indicator and text box.
+        box_add ( (box *)parent_widget, WIDGET ( state->case_indicator ), FALSE, 3 );
+        textbox_text ( state->case_indicator, get_matching_state () );
+    }
+    /**
+     * ENTRY BOX
+     */
+    else if ( strcmp ( name, "entry" ) == 0 ){
+        // Entry box
+        TextboxFlags tfl = TB_EDITABLE;
+        tfl        |= ( ( state->menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
+        state->text = textbox_create ( str, tfl | TB_AUTOHEIGHT, NORMAL, NULL);
+        box_add ( (box*)parent_widget, WIDGET ( state->text ), TRUE, 2 );
+    }
+    /**
+     * MESSAGE
+     */
+    else if ( strcmp ( name, "message") == 0 ){
+        char *strmsg= g_strjoin ( "." , str, "textbox",NULL );
+        state->mesg_box = container_create ( strbox );
+        state->mesg_tb  = textbox_create ( strmsg, TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, NULL );
+        container_add ( state->mesg_box, WIDGET ( state->mesg_tb ) );
+        rofi_view_reload_message_bar ( state );
+        box_add ( (box*)parent_widget, WIDGET ( state->mesg_box ), FALSE, 2 );
+        g_free(strmsg);
+    }
+    /**
+     * LISTVIEW
+     */
+    else if ( strcmp ( name, "listview" ) == 0 ) {
+        state->list_view = listview_create ( str, update_callback, state, config.element_height, 0);
+        box_add ( (box*)parent_widget, WIDGET ( state->list_view ), TRUE, 3 );
+        // Set configuration
+        listview_set_multi_select ( state->list_view, ( state->menu_flags & MENU_INDICATOR ) == MENU_INDICATOR );
+        listview_set_scroll_type ( state->list_view, config.scroll_method );
+        listview_set_mouse_activated_cb ( state->list_view, rofi_view_listview_mouse_activated_cb, state );
+
+        int lines = rofi_theme_get_integer ( WIDGET ( state->list_view ), "lines", config.menu_lines );
+        listview_set_num_lines ( state->list_view, lines );
+        listview_set_max_lines ( state->list_view, state->num_lines );
+    }
+    /**
+     * SIDEBAR
+     */
+    else if ( strcmp( name, "sidebar" ) == 0 ) {
+        state->sidebar_bar = box_create ( strbox, BOX_HORIZONTAL );
+        box_add ( (box*)parent_widget, WIDGET ( state->sidebar_bar ), FALSE, 10 );
+        state->num_modi = rofi_get_num_enabled_modi ();
+        state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
+        char *strbutton= g_strjoin ( "." , str, "button",NULL );
+        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
+            const Mode * mode = rofi_get_mode ( j );
+            state->modi[j] = textbox_create ( strbutton, TB_CENTER | TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
+                                              mode_get_display_name ( mode  ) );
+            box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, j );
+            widget_set_clicked_handler ( WIDGET ( state->modi[j] ), rofi_view_modi_clicked_cb, state );
+        }
+        g_free(strbutton);
+    }
+    else {
+        g_error("The widget %s does not exists. Invalid layout.", name);
+    }
+    if ( wid ) {
+        GList *list = rofi_theme_get_list ( wid, "children",defaults);
+        for ( const GList *iter = list; iter != NULL; iter = g_list_next ( iter )){
+            rofi_view_add_widget ( state, wid, str, (const char *)iter->data );
+        }
+        g_list_free_full ( list, g_free );
+    }
+    g_free(strbox);
+    g_free(str);
+}
+
 RofiViewState *rofi_view_create ( Mode *sw,
                                   const char *input,
                                   MenuFlags menu_flags,
@@ -1605,77 +1720,24 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Get active monitor size.
     TICK_N ( "Get active monitor" );
 
+
     state->main_window = container_create ( "window.box" );
-    state->main_box    = box_create ( "window.mainbox.box", BOX_VERTICAL );
-    container_add ( state->main_window, WIDGET ( state->main_box ) );
+    // Get children.
+    GList *list = rofi_theme_get_list ( WIDGET(state->main_window), "children", "mainbox");
+    for ( const GList *iter = list; iter != NULL; iter = g_list_next ( iter )){
+        rofi_view_add_widget ( state, WIDGET(state->main_window), "window", (const char *)iter->data );
 
-    state->input_bar = box_create ( "window.mainbox.inputbar.box", BOX_HORIZONTAL );
-
-    // Only enable widget when sidebar is enabled.
-    if ( config.sidebar_mode ) {
-        state->sidebar_bar = box_create ( "window.mainbox.sidebar.box", BOX_HORIZONTAL );
-        box_add ( state->main_box, WIDGET ( state->sidebar_bar ), FALSE, 10 );
-        state->num_modi = rofi_get_num_enabled_modi ();
-        state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
-        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
-            const Mode * mode = rofi_get_mode ( j );
-            state->modi[j] = textbox_create ( "window.mainbox.sidebar.button", TB_CENTER | TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
-                                              mode_get_display_name ( mode  ) );
-            box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, j );
-            widget_set_clicked_handler ( WIDGET ( state->modi[j] ), rofi_view_modi_clicked_cb, state );
-        }
     }
+    g_list_free_full ( list, g_free );
 
-    int location = rofi_theme_get_position ( WIDGET ( state->main_window ), "location", config.location );
-    int end      = ( location == WL_SOUTH_EAST || location == WL_SOUTH || location == WL_SOUTH_WEST );
-    box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, end ? 9 : 0 );
-
-    state->case_indicator = textbox_create ( "window.mainbox.inputbar.case-indicator", TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "*" );
-    // Add small separator between case indicator and text box.
-    box_add ( state->input_bar, WIDGET ( state->case_indicator ), FALSE, 3 );
-
-    // Prompt box.
-    state->prompt = textbox_create ( "window.mainbox.inputbar.prompt", TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "" );
-    rofi_view_update_prompt ( state );
-    box_add ( state->input_bar, WIDGET ( state->prompt ), FALSE, 1 );
-
-    // Entry box
-    TextboxFlags tfl = TB_EDITABLE;
-    tfl        |= ( ( menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
-    state->text = textbox_create ( "window.mainbox.inputbar.entry", tfl | TB_AUTOHEIGHT, NORMAL, input );
-
-    box_add ( state->input_bar, WIDGET ( state->text ), TRUE, 2 );
-
-    textbox_text ( state->case_indicator, get_matching_state () );
-    state->mesg_box = container_create ( "window.mainbox.message.box" );
-    state->mesg_tb  = textbox_create ( "window.mainbox.message.textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, NULL );
-    container_add ( state->mesg_box, WIDGET ( state->mesg_tb ) );
-    rofi_view_reload_message_bar ( state );
-    box_add ( state->main_box, WIDGET ( state->mesg_box ), FALSE, end ? 8 : 2 );
+    if ( state->text && input) {
+        textbox_text ( state->text, input );
+    }
 
     state->overlay                = textbox_create ( "window.overlay", TB_AUTOWIDTH | TB_AUTOHEIGHT, URGENT, "blaat"  );
     state->overlay->widget.parent = WIDGET ( state->main_window );
     widget_disable ( WIDGET ( state->overlay ) );
 
-    state->list_view = listview_create ( "window.mainbox.listview", update_callback, state, config.element_height, end );
-    // Set configuration
-    listview_set_multi_select ( state->list_view, ( state->menu_flags & MENU_INDICATOR ) == MENU_INDICATOR );
-    listview_set_scroll_type ( state->list_view, config.scroll_method );
-    listview_set_mouse_activated_cb ( state->list_view, rofi_view_listview_mouse_activated_cb, state );
-
-    int lines = rofi_theme_get_integer ( WIDGET ( state->list_view ), "lines", config.menu_lines );
-    listview_set_num_lines ( state->list_view, lines );
-    listview_set_max_lines ( state->list_view, state->num_lines );
-
-    if ( rofi_theme_get_boolean ( WIDGET ( state->main_window ), "listview-in-inputbar", FALSE)){
-        box_add ( state->input_bar, WIDGET ( state->list_view ), TRUE, 3 );
-
-        Distance d = rofi_theme_get_distance_exact  ( WIDGET ( state->text ) , "width", 150);
-        state->text->widget.expand = FALSE;
-        widget_resize ( WIDGET( state->text ), distance_get_pixel ( d, ORIENTATION_HORIZONTAL ), -1);
-    } else {
-        box_add ( state->main_box, WIDGET ( state->list_view ), TRUE, 3 );
-    }
 
     // filtered list
     state->line_map = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
