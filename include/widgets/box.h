@@ -53,9 +53,9 @@ typedef struct _box   box;
 typedef enum
 {
     /** Pack widgets horizontal */
-    BOX_HORIZONTAL,
+    BOX_HORIZONTAL = 0,
     /** Pack widgets vertical */
-    BOX_VERTICAL
+    BOX_VERTICAL   = 1
 } boxType;
 
 /**
