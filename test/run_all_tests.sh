@@ -26,6 +26,7 @@ tests=(
 )
 
 cd ${MESON_BUILD_ROOT}
+mkdir -p test-x-logs
 rm -f core
 
 display=200
