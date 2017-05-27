@@ -51,7 +51,7 @@ struct RofiViewState
     /** Flag indicating if view needs to be refiltered. */
     int              refilter;
     /** Widget representing the main container. */
-    container        *main_window;
+    box              *main_window;
     /** Main #box widget holding different elements. */
     box              *main_box;
     /** #box widget packing the input bar widgets. */

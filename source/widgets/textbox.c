@@ -174,7 +174,6 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
     int wi = distance_get_pixel ( w, ORIENTATION_HORIZONTAL );
     if ( wi > 0 )
     {
-        printf("set width: %d\n", wi);
         tb->widget.w = wi;
         textbox_moveresize ( tb, tb->widget.x, tb->widget.y, tb->widget.w, tb->widget.h );
     }

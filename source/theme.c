@@ -385,6 +385,8 @@ static ThemeWidget *rofi_theme_find ( ThemeWidget *widget, const char *name, con
         if ( f != widget ) {
             widget = f;
             found  = TRUE;
+        } else if ( exact ) {
+            break;
         }
     }
     g_free ( tname );
@@ -594,7 +596,7 @@ Padding rofi_theme_get_padding ( const widget *widget, const char *property, Pad
 
 GList *rofi_theme_get_list ( const widget *widget, const char * property, const char *defaults )
 {
-    ThemeWidget *wid2 = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    ThemeWidget *wid2 = rofi_theme_find_widget ( widget->name, widget->state, TRUE );
     Property    *p   = rofi_theme_find_property ( wid2, P_LIST, property, TRUE);
     if ( p ) {
         if ( p->type == P_LIST ){

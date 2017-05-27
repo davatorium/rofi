@@ -656,8 +656,8 @@ void __create_window ( MenuFlags menu_flags )
         map
     };
 
-    xcb_window_t      box = xcb_generate_id ( xcb->connection );
-    xcb_void_cookie_t cc  = xcb_create_window_checked ( xcb->connection, depth->depth, box, xcb_stuff_get_root_window ( xcb ),
+    xcb_window_t      box_window = xcb_generate_id ( xcb->connection );
+    xcb_void_cookie_t cc  = xcb_create_window_checked ( xcb->connection, depth->depth, box_window, xcb_stuff_get_root_window ( xcb ),
                                                         0, 0, 200, 100, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
                                                         visual->visual_id, selmask, selval );
     xcb_generic_error_t *error;
@@ -668,7 +668,7 @@ void __create_window ( MenuFlags menu_flags )
     }
     TICK_N ( "xcb create window" );
     CacheState.gc = xcb_generate_id ( xcb->connection );
-    xcb_create_gc ( xcb->connection, CacheState.gc, box, 0, 0 );
+    xcb_create_gc ( xcb->connection, CacheState.gc, box_window, 0, 0 );
 
     TICK_N ( "xcb create gc" );
     // Create a drawable.
@@ -690,7 +690,7 @@ void __create_window ( MenuFlags menu_flags )
     pango_cairo_context_set_font_options ( p, fo );
     TICK_N ( "pango cairo font setup" );
 
-    CacheState.main_window = box;
+    CacheState.main_window = box_window;
     CacheState.flags       = menu_flags;
     monitor_active ( &( CacheState.mon ) );
     // Setup dpi
@@ -714,7 +714,7 @@ void __create_window ( MenuFlags menu_flags )
     }
     // Setup font.
     // Dummy widget.
-    container  *win  = container_create ( "window.box" );
+    box *win  = box_create ( "window.box_window", BOX_HORIZONTAL );
     const char *font = rofi_theme_get_string ( WIDGET ( win ), "font", config.menu_font );
     if ( font ) {
         PangoFontDescription *pfd = pango_font_description_from_string ( font );
@@ -736,13 +736,13 @@ void __create_window ( MenuFlags menu_flags )
     TICK_N ( "textbox setup" );
     // // make it an unmanaged window
     if ( ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) ) {
-        window_set_atom_prop ( box, xcb->ewmh._NET_WM_STATE, &( xcb->ewmh._NET_WM_STATE_ABOVE ), 1 );
+        window_set_atom_prop ( box_window, xcb->ewmh._NET_WM_STATE, &( xcb->ewmh._NET_WM_STATE_ABOVE ), 1 );
         uint32_t values[] = { 1 };
-        xcb_change_window_attributes ( xcb->connection, box, XCB_CW_OVERRIDE_REDIRECT, values );
+        xcb_change_window_attributes ( xcb->connection, box_window, XCB_CW_OVERRIDE_REDIRECT, values );
     }
     else{
-        window_set_atom_prop ( box, xcb->ewmh._NET_WM_WINDOW_TYPE, &( xcb->ewmh._NET_WM_WINDOW_TYPE_NORMAL ), 1 );
-        x11_disable_decoration ( box );
+        window_set_atom_prop ( box_window, xcb->ewmh._NET_WM_WINDOW_TYPE, &( xcb->ewmh._NET_WM_WINDOW_TYPE_NORMAL ), 1 );
+        x11_disable_decoration ( box_window );
     }
 
     TICK_N ( "setup window attributes" );
@@ -752,16 +752,16 @@ void __create_window ( MenuFlags menu_flags )
             xcb->ewmh._NET_WM_STATE_FULLSCREEN,
             xcb->ewmh._NET_WM_STATE_ABOVE
         };
-        window_set_atom_prop (  box, xcb->ewmh._NET_WM_STATE, atoms, sizeof ( atoms ) / sizeof ( xcb_atom_t ) );
+        window_set_atom_prop (  box_window, xcb->ewmh._NET_WM_STATE, atoms, sizeof ( atoms ) / sizeof ( xcb_atom_t ) );
     }
 
     TICK_N ( "setup window fullscreen" );
     // Set the WM_NAME
-    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box, xcb->ewmh._NET_WM_NAME, xcb->ewmh.UTF8_STRING, 8, 4, "rofi" );
-    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, 4, "rofi" );
+    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box_window, xcb->ewmh._NET_WM_NAME, xcb->ewmh.UTF8_STRING, 8, 4, "rofi" );
+    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, 4, "rofi" );
 
     const char wm_class_name[] = "rofi\0Rofi";
-    xcb_icccm_set_wm_class ( xcb->connection, box, sizeof ( wm_class_name ), wm_class_name );
+    xcb_icccm_set_wm_class ( xcb->connection, box_window, sizeof ( wm_class_name ), wm_class_name );
 
     TICK_N ( "setup window name and class" );
     const char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
@@ -1591,7 +1591,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
      */
     if ( strcmp ( name, "mainbox") == 0 ){
         state->main_box    = box_create ( strbox, BOX_VERTICAL );
-        container_add ( (container *)parent_widget, WIDGET ( state->main_box ) );
+        box_add ( (box *)parent_widget, WIDGET ( state->main_box ), TRUE, 0 );
         wid = WIDGET ( state->main_box );
         defaults = "inputbar,message,listview";
     }
@@ -1680,7 +1680,9 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         g_free(strbutton);
     }
     else {
-        g_error("The widget %s does not exists. Invalid layout.", name);
+        wid = box_create ( strbox, BOX_VERTICAL );
+        box_add ( (box *)parent_widget, WIDGET ( wid ), TRUE, 0 );
+        //g_error("The widget %s does not exists. Invalid layout.", name);
     }
     if ( wid ) {
         GList *list = rofi_theme_get_list ( wid, "children",defaults);
@@ -1721,12 +1723,11 @@ RofiViewState *rofi_view_create ( Mode *sw,
     TICK_N ( "Get active monitor" );
 
 
-    state->main_window = container_create ( "window.box" );
+    state->main_window = box_create ( "window.box", BOX_VERTICAL );
     // Get children.
     GList *list = rofi_theme_get_list ( WIDGET(state->main_window), "children", "mainbox");
     for ( const GList *iter = list; iter != NULL; iter = g_list_next ( iter )){
         rofi_view_add_widget ( state, WIDGET(state->main_window), "window", (const char *)iter->data );
-
     }
     g_list_free_full ( list, g_free );
 
@@ -1773,9 +1774,9 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->menu_flags = MENU_ERROR_DIALOG;
     state->finalize   = process_result;
 
-    state->main_window = container_create ( "window.box" );
+    state->main_window = box_create ( "window.box", BOX_VERTICAL );
     state->main_box    = box_create ( "window.mainbox.message.box", BOX_VERTICAL );
-    container_add ( state->main_window, WIDGET ( state->main_box ) );
+    box_add ( state->main_window, WIDGET ( state->main_box ), TRUE, 0 );
     state->text = textbox_create ( "window.mainbox.message.textbox", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
                                    NORMAL, ( msg != NULL ) ? msg : "" );
     box_add ( state->main_box, WIDGET ( state->text ), TRUE, 1 );
