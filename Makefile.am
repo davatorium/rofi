@@ -507,53 +507,9 @@ endif
 
 .PHONY: test-x
 test-x: $(bin_PROGRAMS)
-	echo "Test 2"
-	$(top_srcdir)/test/run_test.sh 200 $(top_srcdir)/test/run_errormsg_test.sh $(top_builddir)
-	echo "Test 3"
-	$(top_srcdir)/test/run_test.sh 201 $(top_srcdir)/test/run_switchdialog_test.sh $(top_builddir)
-	echo "Test 4"
-	$(top_srcdir)/test/run_test.sh 202 $(top_srcdir)/test/run_dmenu_test.sh $(top_builddir)
-	echo "Test 5"
-	$(top_srcdir)/test/run_test.sh 203 $(top_srcdir)/test/run_dmenu_custom_test.sh $(top_builddir)
-	echo "Test 6"
-	$(top_srcdir)/test/run_test.sh 204 $(top_srcdir)/test/run_run_test.sh $(top_builddir)
-	echo "Test 7"
-	$(top_srcdir)/test/run_test.sh 205 $(top_srcdir)/test/run_script_test.sh $(top_builddir)
-	echo "Issue 256"
-	$(top_srcdir)/test/run_test.sh 206 $(top_srcdir)/test/run_issue_256.sh $(top_builddir)
-	echo "Issue 275"
-	$(top_srcdir)/test/run_test.sh 207 $(top_srcdir)/test/run_issue_275.sh $(top_builddir)
-	echo "Crash empty list"
-	$(top_srcdir)/test/run_test.sh 208 $(top_srcdir)/test/run_dmenu_empty.sh $(top_builddir)
-	echo "Test multiple select"
-	$(top_srcdir)/test/run_test.sh 209 $(top_srcdir)/test/run_dmenu_issue_292.sh $(top_builddir)
-	echo "Test screenshot"
-	$(top_srcdir)/test/run_test.sh 210 $(top_srcdir)/test/run_screenshot_test.sh $(top_builddir)
-	echo "Test xr dump"
-	$(top_srcdir)/test/run_test.sh 212 $(top_srcdir)/test/xr_dump_test.sh $(top_builddir) $(top_srcdir)
-	echo "Test drun"
-	$(top_srcdir)/test/run_test.sh 213 $(top_srcdir)/test/run_drun_test.sh $(top_builddir)
-	echo "Test combi"
-	$(top_srcdir)/test/run_test.sh 214 $(top_srcdir)/test/run_combi_test.sh $(top_builddir)
-	echo "Test dmenu regex"
-	$(top_srcdir)/test/run_test.sh 215 $(top_srcdir)/test/run_regex_test.sh $(top_builddir)
-	echo "Test dmenu glob"
-	$(top_srcdir)/test/run_test.sh 216 $(top_srcdir)/test/run_glob_test.sh $(top_builddir)
-	echo "Test issue 333"
-	$(top_srcdir)/test/run_test.sh 217 $(top_srcdir)/test/run_issue333_test.sh $(top_builddir)
-	echo "Test help output"
-	$(top_srcdir)/test/run_test.sh 218 $(top_srcdir)/test/help_output_test.sh $(top_builddir) $(top_srcdir)
-	echo "Test theme output"
-	$(top_srcdir)/test/run_test.sh 219 $(top_srcdir)/test/default_theme_test.sh $(top_builddir) $(top_srcdir)
-	echo "Test theme convert output"
-	$(top_srcdir)/test/run_test.sh 220 $(top_srcdir)/test/convert_old_theme_test.sh $(top_builddir) $(top_srcdir)
-
-test-x1: $(bin_PROGRAMS)
-	echo "Test dmenu-normal-window"
-	$(top_srcdir)/test/run_test.sh 219 $(top_srcdir)/test/run_dmenu_normal_window_test.sh $(top_builddir)
-	echo "Test window"
-	$(top_srcdir)/test/run_test.sh 220 $(top_srcdir)/test/run_window_test.sh $(top_builddir) $(top_srcdir)
-	echo "End tests"
+	MESON_SOURCE_ROOT="$(top_srcdir)" \
+	MESON_BUILD_ROOT="$(top_builddir)" \
+	$(top_srcdir)/test/run_all_tests.sh
 
 
 .PHONY: indent
