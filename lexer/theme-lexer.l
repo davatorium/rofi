@@ -36,10 +36,13 @@
 #include <glib.h>
 #include <gio/gio.h>
 #include <helper.h>
+#include <math.h>
+#include <ctype.h>
 #include "rofi.h"
 #include "theme.h"
 
 #include "theme-parser.h"
+#include "css-colors.h"
 
 #define LOG_DOMAIN "Parser"
 int last_state = 0;
@@ -82,6 +85,21 @@ GQueue *queue = NULL;
 ParseObject *current = NULL;
 
 static char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file );
+
+
+static double rofi_theme_parse_convert_hex ( char high, char low)
+{
+    uint8_t retv = 0;
+
+    int t = toupper(high);
+    t = ( t > '9')? (t-'A'+10):(t-'0');
+    retv = t<<4;
+    t = toupper ( low );
+    t = ( t > '9')? (t-'A'+10):(t-'0');
+    retv +=t;
+    return retv/255.0;
+}
+
 %}
 %{
 
@@ -144,7 +162,9 @@ UANYN   {ASCN}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
  // UONLY   {U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
 
 WHITESPACE [[:blank:]]
+WSO        [[:blank:]]*
 WORD       [[:alnum:]-]+
+COLOR_NAME [[:alpha:]]+
 STRING     {UANYN}+
 HEX        [[:xdigit:]]
 NUMBER     [[:digit:]]
@@ -156,16 +176,40 @@ PERCENT    (\%)
 
 ASTERIX    \*
 
+ /* Position */
 CENTER     "center"
 NORTH      "north"
 SOUTH      "south"
 EAST       "east"
 WEST       "west"
 
-NONE        "none"
-BOLD        "bold"
-UNDERLINE   "underline"
-ITALIC      "italic"
+ /* Line Style */
+NONE          "none"
+BOLD          "bold"
+UNDERLINE     "underline"
+ITALIC        "italic"
+STRIKETHROUGH "strikethrough"
+SMALLCAPS     "small caps"
+
+/* ANGLES */
+
+ANGLE_DEG  "deg"
+ANGLE_GRAD "grad"
+ANGLE_RAD  "rad"
+ANGLE_TURN "turn"
+
+ /* Color schema */
+RGBA rgb[a]?
+HWB  "hwb"
+CMYK "cmyk"
+HSL  hsl[a]?
+
+COLOR_TRANSPARENT "transparent"
+
+S_T_PARENT_LEFT  \(
+S_T_PARENT_RIGHT \)
+COMMA            ,
+FORWARD_SLASH    \/
 
 LS_DASH    "dash"
 LS_SOLID   "solid"
@@ -298,218 +342,149 @@ if ( queue == NULL ){
 <INITIAL>{CONFIGURATION} {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(DEFAULTS);
-    return CONFIGURATION;
+    return T_CONFIGURATION;
 
 }
 <INITIAL>{ASTERIX} {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(DEFAULTS);
-    return PDEFAULTS;
+    return T_PDEFAULTS;
 }
     /** Skip all whitespace */
 <DEFAULTS>{WHITESPACE} {}
 <DEFAULTS>"\{"   {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(SECTION);
-    return BOPEN;
+    return T_BOPEN;
 }
   /** Everythin not yet parsed is an error. */
 <DEFAULTS>. {
     return T_ERROR_DEFAULTS;
 }
 
-<INITIAL>"#"            { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(NAMESTR);return NAME_PREFIX;}
+<INITIAL>"#"            { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(NAMESTR);return T_NAME_PREFIX;}
   /* Go into parsing an section*/
 <NAMESTR>"\{"                    {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(SECTION);
-    return BOPEN;
+    return T_BOPEN;
 }
   /* Pop out of parsing an section. */
 <SECTION>"\}"             {
     g_queue_pop_head ( queue );
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
-    return BCLOSE;
+    return T_BCLOSE;
 }
 
-<NAMESTR>\.|{WHITESPACE}    { return NSEP; }
-<SECTION>{WORD}   { yylval->sval = g_strdup(yytext); return N_STRING;}
-<NAMESTR>{WORD}         { yylval->sval = g_strdup(yytext); return NAME_ELEMENT;}
+<NAMESTR>\.|{WHITESPACE}    { return T_NSEP; }
+<SECTION>{WORD}   { yylval->sval = g_strdup(yytext); return T_PROP_NAME;}
+<NAMESTR>{WORD}         { yylval->sval = g_strdup(yytext); return T_NAME_ELEMENT;}
 
   /* After Namestr/Classstr we want to go to state str, then to  { */
 <INITIAL,SECTION>{WHITESPACE}+	; // ignore all whitespace
 <PROPERTIES>{WHITESPACE}+	; // ignore all whitespace
 
-<SECTION>":"               { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return PSEP; }
-<PROPERTIES>";"                  { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return PCLOSE;}
-<PROPERTIES>(true|false)         { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
-<PROPERTIES>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
+<SECTION>":"                      { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return T_PSEP; }
+<PROPERTIES>";"                   { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return T_PCLOSE;}
+<PROPERTIES>(true|false)          { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
 <PROPERTIES>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
-<PROPERTIES>\"{STRING}\"         { yytext[yyleng-1] = '\0'; yylval->sval = g_strdup(&yytext[1]); return T_STRING;}
-<PROPERTIES>@{WORD}              {
+<PROPERTIES>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
+<PROPERTIES>\"{STRING}\"          { yytext[yyleng-1] = '\0'; yylval->sval = g_strdup(&yytext[1]); return T_STRING;}
+<PROPERTIES>@{WORD}               {
     yylval->sval = g_strdup(yytext);
     return T_LINK;
 }
 
-<PROPERTIES>{REAL}{EM}        {
-    yylval->distance.distance = (double)g_ascii_strtod(yytext, NULL);
-    yylval->distance.type     = PW_EM;
-    yylval->distance.style    = SOLID;
-    return T_PIXEL;
-}
-<PROPERTIES>{PNNUMBER}{PX}        {
-    yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
-    yylval->distance.type     = PW_PX;
-    yylval->distance.style    = SOLID;
-    return T_PIXEL;
-}
-<PROPERTIES>{PNNUMBER}{PX}{WHITESPACE}{LS_DASH} {
-    yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
-    yylval->distance.type     = PW_PX;
-    yylval->distance.style    = DASH;
-    return T_PIXEL;
-}
-<PROPERTIES>{REAL}{EM}{WHITESPACE}{LS_DASH} {
-    yylval->distance.distance = (double)g_ascii_strtod(yytext, NULL);
-    yylval->distance.type     = PW_EM;
-    yylval->distance.style    = DASH;
-    return T_PIXEL;
-}
-<PROPERTIES>{PNNUMBER}{PX}{WHITESPACE}{LS_SOLID} {
-    yylval->distance.distance = (double)g_ascii_strtoll(yytext, NULL, 10);
-    yylval->distance.type     = PW_PX;
-    yylval->distance.style    = SOLID;
-    return T_PIXEL;
-}
-<PROPERTIES>{REAL}{EM}{WHITESPACE}{LS_SOLID} {
-    yylval->distance.distance = (double)g_ascii_strtod(yytext, NULL);
-    yylval->distance.type     = PW_EM;
-    yylval->distance.style    = SOLID;
-    return T_PIXEL;
-}
-<PROPERTIES>{REAL}{PERCENT}        {
-    yylval->distance.distance = (double)g_ascii_strtod(yytext, NULL);
-    yylval->distance.type     = PW_PERCENT;
-    yylval->distance.style    = SOLID;
-    return T_PIXEL;
-}
-<PROPERTIES>{REAL}{PERCENT}{WHITESPACE}{LS_SOLID}        {
-    yylval->distance.distance = (double)g_ascii_strtod(yytext, NULL);
-    yylval->distance.type     = PW_PERCENT;
-    yylval->distance.style    = SOLID;
-    return T_PIXEL;
-}
-<PROPERTIES>{REAL}{PERCENT}{WHITESPACE}{LS_DASH}        {
-    yylval->distance.distance = (double)g_ascii_strtod(yytext, NULL);
-    yylval->distance.type     = PW_PERCENT;
-    yylval->distance.style    = DASH;
-    return T_PIXEL;
-}
+<PROPERTIES>{EM}       { return T_UNIT_EM; }
+<PROPERTIES>{PX}       { return T_UNIT_PX; }
+<PROPERTIES>{PERCENT}  { return T_PERCENT; }
+<PROPERTIES>{LS_SOLID} { return T_SOLID; }
+<PROPERTIES>{LS_DASH}  { return T_DASH; }
+
+ /**
+  * Color parsing. It is easier to do this at lexer level.
+  * Other schemes are done at yacc level.
+  */
 <PROPERTIES>#{HEX}{8}       {
-    union {  unsigned int val; struct { unsigned char b,g,r,a;};} val;
-    val.val = (unsigned int)strtoull ( &yytext[1], NULL, 16);
-    yylval->colorval.alpha = val.a/255.0;
-    yylval->colorval.red   = val.r/255.0;
-    yylval->colorval.green = val.g/255.0;
-    yylval->colorval.blue  = val.b/255.0;
+    yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[1],yytext[2]);
+    yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[3],yytext[4]);
+    yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[5],yytext[6]);
+    yylval->colorval.alpha = rofi_theme_parse_convert_hex(yytext[7],yytext[8]);
     return T_COLOR;
 }
 <PROPERTIES>#{HEX}{6}       {
-    union {  unsigned int val; struct { unsigned char b,g,r,a;};} val;
-    val.val = (unsigned int)g_ascii_strtoull ( &yytext[1], NULL, 16);
     yylval->colorval.alpha = 1.0;
-    yylval->colorval.red   = val.r/255.0;
-    yylval->colorval.green = val.g/255.0;
-    yylval->colorval.blue  = val.b/255.0;
+    yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[1],yytext[2]);
+    yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[3],yytext[4]);
+    yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[5],yytext[6]);
     return T_COLOR;
 }
 <PROPERTIES>#{HEX}{3}       {
-    union {  uint16_t val; struct { unsigned char b:4,g:4,r:4,a :4;};} val;
-    val.val = (uint16_t )g_ascii_strtoull ( &yytext[1], NULL, 16);
     yylval->colorval.alpha = 1.0;
-    yylval->colorval.red   = val.r/15.0;
-    yylval->colorval.green = val.g/15.0;
-    yylval->colorval.blue  = val.b/15.0;
+    yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[1],yytext[1]);
+    yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[2],yytext[2]);
+    yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[3],yytext[3]);
     return T_COLOR;
 }
-<PROPERTIES>rgba\({NUMBER}{1,3},{NUMBER}{1,3},{NUMBER}{1,3},[01](\.{NUMBER}+)?\) {
-    char *endptr = &yytext[5];
-    yylval->colorval.red = g_ascii_strtoull ( endptr, &endptr, 10)/255.0;
-    yylval->colorval.green= g_ascii_strtoull ( endptr+1, &endptr, 10)/255.0;
-    yylval->colorval.blue= g_ascii_strtoull ( endptr+1, &endptr, 10)/255.0;
-    yylval->colorval.alpha= g_ascii_strtod ( endptr+1, NULL);
+<PROPERTIES>#{HEX}{4}       {
+    yylval->colorval.alpha = rofi_theme_parse_convert_hex(yytext[4],yytext[4]);
+    yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[1],yytext[1]);
+    yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[2],yytext[2]);
+    yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[3],yytext[3]);
     return T_COLOR;
 }
-<PROPERTIES>rgb\({NUMBER}{1,3},{NUMBER}{1,3},{NUMBER}{1,3}\) {
-    char *endptr = &yytext[4];
-    yylval->colorval.red   = g_ascii_strtoull ( endptr, &endptr, 10)/255.0;
-    yylval->colorval.green = g_ascii_strtoull ( endptr+1, &endptr, 10)/255.0;
-    yylval->colorval.blue  = g_ascii_strtoull ( endptr+1, &endptr, 10)/255.0;
-    yylval->colorval.alpha = 1.0;
+<PROPERTIES>argb:{HEX}{8}       {
+    yylval->colorval.alpha = rofi_theme_parse_convert_hex(yytext[5],yytext[6]);
+    yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[7],yytext[8]);
+    yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[9],yytext[10]);
+    yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[11],yytext[12]);
     return T_COLOR;
 }
-<PROPERTIES>argb:{HEX}{1,8}       {
-    union {  unsigned int val; struct { unsigned char b,g,r,a;};} val;
-    val.val = (unsigned int)strtoull ( &yytext[5], NULL, 16);
-    yylval->colorval.alpha = val.a/255.0;
-    yylval->colorval.red   = val.r/255.0;
-    yylval->colorval.green = val.g/255.0;
-    yylval->colorval.blue  = val.b/255.0;
-    return T_COLOR;
+ /* Color schemes */
+<PROPERTIES>{RGBA}             { return T_COL_RGBA;       }
+<PROPERTIES>{HSL}              { return T_COL_HSL;        }
+<PROPERTIES>{HWB}              { return T_COL_HWB;        }
+<PROPERTIES>{CMYK}             { return T_COL_CMYK;       }
+ /* Fluff */
+<PROPERTIES>{S_T_PARENT_LEFT}  { return T_PARENT_LEFT;    }
+<PROPERTIES>{S_T_PARENT_RIGHT} { return T_PARENT_RIGHT;   }
+<PROPERTIES>{COMMA}            { return T_COMMA;          }
+<PROPERTIES>{FORWARD_SLASH}    { return T_FORWARD_SLASH;  }
+ /* Position */
+<PROPERTIES>{CENTER}           { return T_POS_CENTER;     }
+<PROPERTIES>{EAST}             { return T_POS_EAST;       }
+<PROPERTIES>{WEST}             { return T_POS_WEST;       }
+<PROPERTIES>{SOUTH}            { return T_POS_SOUTH;      }
+<PROPERTIES>{NORTH}            { return T_POS_NORTH;      }
+ /* Highlight style */
+<PROPERTIES>{NONE}             { return T_NONE;           }
+<PROPERTIES>{BOLD}             { return T_BOLD;           }
+<PROPERTIES>{ITALIC}           { return T_ITALIC;         }
+<PROPERTIES>{UNDERLINE}        { return T_UNDERLINE;      }
+<PROPERTIES>{STRIKETHROUGH}    { return T_STRIKETHROUGH;  }
+<PROPERTIES>{SMALLCAPS}        { return T_SMALLCAPS;      }
+
+<PROPERTIES>{ANGLE_DEG}        { return T_ANGLE_DEG;      }
+<PROPERTIES>{ANGLE_RAD}        { return T_ANGLE_RAD;      }
+<PROPERTIES>{ANGLE_GRAD}       { return T_ANGLE_GRAD;     }
+<PROPERTIES>{ANGLE_TURN}       { return T_ANGLE_TURN;     }
+
+<PROPERTIES>{COLOR_TRANSPARENT} {
+    return T_COLOR_TRANSPARENT;
+}
+<PROPERTIES>{COLOR_NAME} {
+    for ( unsigned int iter = 0; iter < num_CSSColors; iter++){
+        if ( strcasecmp(yytext, CSSColors[iter].name )== 0 ) {
+            yylval->colorval.alpha = 1.0;
+            yylval->colorval.red   = CSSColors[iter].r/255.0;
+            yylval->colorval.green = CSSColors[iter].g/255.0;
+            yylval->colorval.blue  = CSSColors[iter].b/255.0;
+            return T_COLOR_NAME;
+        }
+    }
+    REJECT;
 }
 
-<PROPERTIES>{CENTER} {
-    yylval->ival = WL_CENTER;
-    return T_POSITION;
-}
-<PROPERTIES>{EAST} {
-    yylval->ival = WL_EAST;
-    return T_POSITION;
-}
-<PROPERTIES>{WEST} {
-    yylval->ival = WL_WEST;
-    return T_POSITION;
-}
-<PROPERTIES>{SOUTH}{EAST} {
-    yylval->ival = WL_SOUTH_EAST;
-    return T_POSITION;
-}
-<PROPERTIES>{SOUTH}{WEST} {
-    yylval->ival = WL_SOUTH_WEST;
-    return T_POSITION;
-}
-<PROPERTIES>{SOUTH} {
-    yylval->ival = WL_SOUTH;
-    return T_POSITION;
-}
-<PROPERTIES>{NORTH}{EAST} {
-    yylval->ival = WL_NORTH_EAST;
-    return T_POSITION;
-}
-<PROPERTIES>{NORTH}{WEST} {
-    yylval->ival = WL_NORTH_WEST;
-    return T_POSITION;
-}
-<PROPERTIES>{NORTH} {
-    yylval->ival = WL_NORTH;
-    return T_POSITION;
-}
-<PROPERTIES>{NONE} {
-    yylval->ival = HL_NONE;
-    return T_HIGHLIGHT_STYLE;
-}
-<PROPERTIES>{BOLD} {
-    yylval->ival = HL_BOLD;
-    return T_HIGHLIGHT_STYLE;
-}
-<PROPERTIES>{ITALIC} {
-    yylval->ival = HL_ITALIC;
-    return T_HIGHLIGHT_STYLE;
-}
-<PROPERTIES>{UNDERLINE} {
-    yylval->ival = HL_UNDERLINE;
-    return T_HIGHLIGHT_STYLE;
-}
 <INITIAL><<EOF>>  {
     ParseObject *po = g_queue_pop_head ( file_queue );
     if ( po ) {

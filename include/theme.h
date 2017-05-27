@@ -42,6 +42,10 @@ typedef enum
     HL_BOLD      = 1,
     /** underline */
     HL_UNDERLINE = 2,
+    /** strikethrough */
+    HL_STRIKETHROUGH = 16,
+    /** small caps */
+    HL_SMALL_CAPS = 32,
     /** italic */
     HL_ITALIC    = 4,
     /** color */

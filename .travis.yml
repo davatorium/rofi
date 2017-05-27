@@ -81,6 +81,7 @@ before_script:
 script:
     - ninja -C build
     - ninja -C build test
+    - ./theme_parser_test
     - ulimit -c unlimited
     - ninja -C build test-x
     - ninja -C build doc/html 2>&1 > doxygen.log

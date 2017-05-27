@@ -101,6 +101,7 @@ AC_CHECK_FUNC([fcntl],,    AC_MSG_ERROR("Could not find fcntl"))
 AC_CHECK_FUNC([setlocale],,AC_MSG_ERROR("Could not find setlocale"))
 AC_CHECK_FUNC([atexit],,   AC_MSG_ERROR("Could not find atexit in c library"))
 AC_CHECK_FUNC([glob],,     AC_MSG_ERROR("Could not find glob in c library"))
+AC_CHECK_FUNC([toupper],,  AC_MSG_ERROR("Could not find toupper in c library"))
 
 AC_CHECK_HEADER([math.h],, AC_MSG_ERROR("Could not find math.h header file"))
 AC_SEARCH_LIBS([floor],[m],,      AC_MSG_ERROR("Could not find floor in math library"))
@@ -117,10 +118,14 @@ dnl PKG_CONFIG based dependencies
 dnl ---------------------------------------------------------------------
 PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40 gio-unix-2.0 gmodule-2.0])
 GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon >= 0.5.0 xkbcommon-x11 xcb-ewmh xcb-icccm xcb-xrm xcb-randr xcb-xinerama])
+PKG_CHECK_EXISTS([xkbcommon >= 0.7.0], [AC_DEFINE([XkBCOMMON_HAS_CONSUMED2], [1], [If xkbcommon has the consumed2 API])])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])
 PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0 ])
 
+dnl ---------------------------------------------------------------------
+dnl check - Unit testing.
+dnl ---------------------------------------------------------------------
 AC_ARG_ENABLE([check], AS_HELP_STRING([--disable-check], [Build with checks using check library (default: enabled)]))
 
 AS_IF([test "x${enable_check}" != "xno"], [ PKG_CHECK_MODULES([check],[check >= 0.11.0], [HAVE_CHECK=1]) ])

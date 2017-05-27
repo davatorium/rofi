@@ -298,7 +298,7 @@ static void parse_ssh_config_file ( const char *filename, char ***retv, unsigned
                 else {
                     full_path = g_strdup ( path );
                 }
-                glob_t globbuf = { 0, };
+                glob_t globbuf = { .gl_pathc = 0, .gl_pathv = NULL, .gl_offs = 0 };
 
                 if ( glob ( full_path, 0, NULL, &globbuf ) == 0 ) {
                     for ( size_t iter = 0; iter < globbuf.gl_pathc; iter++ ) {

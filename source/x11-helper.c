@@ -659,11 +659,13 @@ unsigned int x11_get_current_mask ( xkb_stuff *xkb )
 // convert a Mod+key arg to mod mask and keysym
 gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key, gboolean *release, GString *str )
 {
-    char         *input_key = g_strdup ( combo );
-    char         *mod_key   = input_key;
-    char         *error_msg = NULL;
-    unsigned int modmask    = 0;
-    xkb_keysym_t sym        = XKB_KEY_NoSymbol;
+    char         *input_key   = g_strdup ( combo );
+    char         *mod_key     = input_key;
+    char         *error_msg   = NULL;
+    unsigned int last_modmask = 0;
+    unsigned int modmask      = 0;
+    xkb_keysym_t last_sym     = XKB_KEY_NoSymbol;
+    xkb_keysym_t sym          = XKB_KEY_NoSymbol;
     // Test if this works on release.
     if ( g_str_has_prefix ( mod_key, "!" ) ) {
         ++mod_key;
@@ -676,6 +678,8 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
         // Remove trailing and leading spaces.
         entry = g_strstrip ( entry );
         // Compare against lowered version.
+        last_modmask = modmask;
+        last_sym     = xkb_keysym_from_name ( entry, XKB_KEYSYM_NO_FLAGS );
         char *entry_lowered = g_utf8_strdown ( entry, -1 );
         if ( g_utf8_collate ( entry_lowered, "shift" ) == 0  ) {
             modmask |= x11_mod_masks[X11MOD_SHIFT];
@@ -720,7 +724,7 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
             if ( sym != XKB_KEY_NoSymbol ) {
                 error_msg = g_markup_printf_escaped ( "Only one (non modifier) key can be bound per binding: <b>%s</b> is invalid.\n", entry );
             }
-            sym = xkb_keysym_from_name ( entry, XKB_KEYSYM_NO_FLAGS );
+            sym = last_sym;
             if ( sym == XKB_KEY_NoSymbol ) {
                 error_msg = g_markup_printf_escaped ( "∙ Key <i>%s</i> is not understood\n", entry );
             }
@@ -730,6 +734,10 @@ gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key
     g_strfreev ( entries );
 
     g_free ( input_key );
+    if ( ( sym == XKB_KEY_NoSymbol ) && ( last_sym != XKB_KEY_NoSymbol ) ) {
+        sym     = last_sym;
+        modmask = last_modmask;
+    }
 
     if ( error_msg ) {
         char *name = g_markup_escape_text ( combo, -1 );

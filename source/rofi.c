@@ -1148,17 +1148,16 @@ int main ( int argc, char *argv[] )
         // Load in config from X resources.
         config_parse_xresource_options ( xcb );
         config_parse_xresource_options_file ( config_path );
-
-        find_arg_str ( "-theme", &( config.theme ) );
-        if ( config.theme ) {
-            TICK_N ( "Parse theme" );
-            if ( rofi_theme_parse_file ( config.theme ) ) {
-                // TODO: instantiate fallback theme.?
-                rofi_theme_free ( rofi_theme );
-                rofi_theme = NULL;
-            }
-            TICK_N ( "Parsed theme" );
+    }
+    find_arg_str ( "-theme", &( config.theme ) );
+    if ( config.theme ) {
+        TICK_N ( "Parse theme" );
+        if ( rofi_theme_parse_file ( config.theme ) ) {
+            // TODO: instantiate fallback theme.?
+            rofi_theme_free ( rofi_theme );
+            rofi_theme = NULL;
         }
+        TICK_N ( "Parsed theme" );
     }
     // Parse command line for settings, independent of other -no-config.
     config_parse_cmd_options ( );

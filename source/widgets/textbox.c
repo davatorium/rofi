@@ -135,7 +135,7 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
             if ( helper_validate_font ( tbfc->pfd, font ) ) {
                 tbfc->metrics = pango_context_get_metrics ( p_context, tbfc->pfd, NULL );
                 // Cast away consts. (*yuck*) because table_insert does not know it is const.
-                g_hash_table_insert ( tbfc_cache, (char *)font, tbfc );
+                g_hash_table_insert ( tbfc_cache, (char *) font, tbfc );
             }
             else {
                 pango_font_description_free ( tbfc->pfd );
@@ -173,7 +173,7 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
 /**
  * State names used for theming.
  */
-const char const *const theme_prop_names[][3] = {
+const char *const theme_prop_names[][3] = {
     /** Normal row */
     { "normal.normal", "selected.normal", "alternate.normal" },
     /** Urgent row */
@@ -405,20 +405,28 @@ void textbox_cursor ( textbox *tb, int pos )
  * @param tb Handle to the textbox
  *
  * Move cursor one position forward.
+ *
+ * @returns if cursor was moved.
  */
-static void textbox_cursor_inc ( textbox *tb )
+static int textbox_cursor_inc ( textbox *tb )
 {
+    int old = tb->cursor;
     textbox_cursor ( tb, tb->cursor + 1 );
+    return old != tb->cursor;
 }
 
 /**
  * @param tb Handle to the textbox
  *
  * Move cursor one position backward.
+ *
+ * @returns if cursor was moved.
  */
-static void textbox_cursor_dec ( textbox *tb )
+static int textbox_cursor_dec ( textbox *tb )
 {
+    int old = tb->cursor;
     textbox_cursor ( tb, tb->cursor - 1 );
+    return old != tb->cursor;
 }
 
 // Move word right
@@ -625,12 +633,10 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action )
     {
     // Left or Ctrl-b
     case MOVE_CHAR_BACK:
-        textbox_cursor_dec ( tb );
-        return 2;
+        return ( textbox_cursor_dec ( tb ) == TRUE ) ? 2 : 0;
     // Right or Ctrl-F
     case MOVE_CHAR_FORWARD:
-        textbox_cursor_inc ( tb );
-        return 2;
+        return ( textbox_cursor_inc ( tb ) == TRUE ) ? 2 : 0;
     // Ctrl-U: Kill from the beginning to the end of the line.
     case CLEAR_LINE:
         textbox_text ( tb, "" );
@@ -790,4 +796,18 @@ int textbox_get_estimated_height ( const textbox *tb, int eh )
 {
     int height = pango_font_metrics_get_ascent ( tb->metrics ) + pango_font_metrics_get_descent ( tb->metrics );
     return ( eh * height ) / PANGO_SCALE + widget_padding_get_padding_height ( WIDGET ( tb ) );
+}
+int textbox_get_desired_width ( widget *wid )
+{
+    textbox *tb = (textbox *) wid;
+    unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+    if ( tb->flags & TB_AUTOWIDTH ) {
+        return textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( wid ) + offset;
+    }
+    int width = 0;
+    pango_layout_set_width ( tb->layout, -1);
+    width = textbox_get_font_width ( tb );
+    // Restore.
+    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - widget_padding_get_padding_width ( WIDGET ( tb ) ) - offset ) );
+    return width + widget_padding_get_padding_width ( wid ) + offset;
 }

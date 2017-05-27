@@ -238,30 +238,65 @@ dynamic: false;
 
 ## Color
 
-* Format: `#{HEX}{6}`
-* Format: `#{HEX}{8}`
-* Format: `rgb({INTEGER},{INTEGER},{INTEGER})`
-* Format: `rgba({INTEGER},{INTEGER},{INTEGER}, {REAL})`
+**rofi** supports the color formats as specified in the CSS standard (1,2,3 and some of CSS 4)
 
-Where '{HEX}' is a hexidecimal number ('0-9a-f'). The '{INTEGER}' value can be between 0 and 255, the '{Real}' value
-between 0.0 and 1.0.
+* Format: `#{HEX}{3}` (rgb)
+* Format: `#{HEX}{4}` (rgba)
+* Format: `#{HEX}{6}` (rrggbb)
+* Format: `#{HEX}{8}` (rrggbbaa)
+* Format: `rgb[a]({INTEGER},{INTEGER},{INTEGER}[, {PERCENTAGE}])`
+* Format: `rgb[a]({INTEGER}%,{INTEGER}%,{INTEGER}%[, {PERCENTAGE}])`
+* Format: `hsl[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [{PERCENTAGE}])`
+* Format: `hwb[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [{PERCENTAGE}])`
+* Format: `cmyk( {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE} ])`
+* Format: `{named-color} [ / {PERCENTAGE} ]`
 
-The first formats specify the color as RRGGBB (R = red, G = green, B = Blue), the second adds an alpha (A) channel:
-AARRGGBB.
+The in CSS 4 proposed white-space format is also supported.
+
+The different values are:
+
+ * `{HEX}` is a hexidecimal number ('0-9a-f' case insensitive).
+ * `{INTEGER}` value can be between 0 and 255 or 0-100 when representing percentage.
+ * `{ANGLE}` Angle on the color wheel, can be in `deg`, `rad`, `grad` or `turn`. When no unit is specified, degrees is assumed.
+ * `{PERCENTAGE}` Can be between 0-1.0, or 0%-100%
+ * `{named-color}` Is one of the following colors:
+
+    AliceBlue, AntiqueWhite, Aqua, Aquamarine, Azure, Beige, Bisque, Black, BlanchedAlmond, Blue, BlueViolet, Brown,
+    BurlyWood, CadetBlue, Chartreuse, Chocolate, Coral, CornflowerBlue, Cornsilk, Crimson, Cyan, DarkBlue, DarkCyan,
+    DarkGoldenRod, DarkGray, DarkGrey, DarkGreen, DarkKhaki, DarkMagenta, DarkOliveGreen, DarkOrange, DarkOrchid, DarkRed,
+    DarkSalmon, DarkSeaGreen, DarkSlateBlue, DarkSlateGray, DarkSlateGrey, DarkTurquoise, DarkViolet, DeepPink, DeepSkyBlue,
+    DimGray, DimGrey, DodgerBlue, FireBrick, FloralWhite, ForestGreen, Fuchsia, Gainsboro, GhostWhite, Gold, GoldenRod,
+    Gray, Grey, Green, GreenYellow, HoneyDew, HotPink, IndianRed, Indigo, Ivory, Khaki, Lavender, LavenderBlush, LawnGreen,
+    LemonChiffon, LightBlue, LightCoral, LightCyan, LightGoldenRodYellow, LightGray, LightGrey, LightGreen, LightPink,
+    LightSalmon, LightSeaGreen, LightSkyBlue, LightSlateGray, LightSlateGrey, LightSteelBlue, LightYellow, Lime, LimeGreen,
+    Linen, Magenta, Maroon, MediumAquaMarine, MediumBlue, MediumOrchid, MediumPurple, MediumSeaGreen, MediumSlateBlue,
+    MediumSpringGreen, MediumTurquoise, MediumVioletRed, MidnightBlue, MintCream, MistyRose, Moccasin, NavajoWhite, Navy,
+    OldLace, Olive, OliveDrab, Orange, OrangeRed, Orchid, PaleGoldenRod, PaleGreen, PaleTurquoise, PaleVioletRed,
+    PapayaWhip, PeachPuff, Peru, Pink, Plum, PowderBlue, Purple, RebeccaPurple, Red, RosyBrown, RoyalBlue, SaddleBrown,
+    Salmon, SandyBrown, SeaGreen, SeaShell, Sienna, Silver, SkyBlue, SlateBlue, SlateGray, SlateGrey, Snow, SpringGreen,
+    SteelBlue, Tan, Teal, Thistle, Tomato, Turquoise, Violet, Wheat, White, WhiteSmoke, Yellow, YellowGreen
+
 
 For example:
 
 ```
 background: #FF0000;
 foreground: rgba(0,0,1, 0.5);
+text: SeaGreen;
 ```
 
 ## Text style
 
-* Format: `(bold|italic|underline|none)`
+* Format: `(bold|italic|underline|strikethrough|none)`
 
-Text style indicates how the text should be displayed.  None indicates no style
+Text style indicates how the highlighted text is emphasised. None indicates no emphasis
 should be applied.
+
+ * `bold`: make the text thicker then the surrounding text.
+ * `italic`: put the highlighted text in script type (slanted).
+ * `underline`: put a line under the highlighted text.
+ * `strikethrough`: put a line through the highlighted text.
+ * `small caps`: emphasise the text using capitalization.
 
 ## Line style
 

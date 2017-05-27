@@ -170,15 +170,18 @@ static void rofi_theme_print_property_index ( size_t pnl, int depth, Property *p
         if ( p->value.highlight.style & HL_UNDERLINE ) {
             printf ( "underline " );
         }
+        if ( p->value.highlight.style & HL_STRIKETHROUGH ) {
+            printf ( "strikethrough " );
+        }
         if ( p->value.highlight.style & HL_ITALIC ) {
             printf ( "italic " );
         }
         if ( p->value.highlight.style & HL_COLOR ) {
-            printf ( "#%02X%02X%02X%02X",
-                     (unsigned char) ( p->value.highlight.color.alpha * 255.0 ),
-                     (unsigned char) ( p->value.highlight.color.red * 255.0 ),
-                     (unsigned char) ( p->value.highlight.color.green * 255.0 ),
-                     (unsigned char) ( p->value.highlight.color.blue * 255.0 ) );
+            printf ( "rgba ( %.0f, %.0f, %.0f, %.0f %% )",
+                     ( p->value.highlight.color.red * 255.0 ),
+                     ( p->value.highlight.color.green * 255.0 ),
+                     ( p->value.highlight.color.blue * 255.0 ),
+                     ( p->value.highlight.color.alpha * 100.0 ) );
         }
         printf ( ";" );
         break;
@@ -198,11 +201,11 @@ static void rofi_theme_print_property_index ( size_t pnl, int depth, Property *p
         printf ( "%s;", p->value.b ? "true" : "false" );
         break;
     case P_COLOR:
-        printf ( "#%02X%02X%02X%02X;",
-                 (unsigned char) ( p->value.color.alpha * 255.0 ),
-                 (unsigned char) ( p->value.color.red * 255.0 ),
-                 (unsigned char) ( p->value.color.green * 255.0 ),
-                 (unsigned char) ( p->value.color.blue * 255.0 ) );
+        printf ( "rgba ( %.0f, %.0f, %.0f, %.0f %% );",
+                 ( p->value.color.red * 255.0 ),
+                 ( p->value.color.green * 255.0 ),
+                 ( p->value.color.blue * 255.0 ),
+                 ( p->value.color.alpha * 100.0 ) );
         break;
     case P_PADDING:
         if ( distance_compare ( p->value.padding.top, p->value.padding.bottom ) &&
@@ -318,7 +321,7 @@ extern FILE* yyin;
  */
 void yyerror ( YYLTYPE *yylloc, const char *what, const char* s )
 {
-    char    *what_esc = g_markup_escape_text ( what, -1 );
+    char    *what_esc = what ? g_markup_escape_text ( what, -1 ) : g_strdup ( "" );
     GString *str      = g_string_new ( "" );
     g_string_printf ( str, "<big><b>Error while parsing theme:</b></big> <i>%s</i>\n", what_esc );
     g_free ( what_esc );
@@ -636,25 +639,39 @@ gboolean rofi_theme_is_empty ( void )
 
 #ifdef THEME_CONVERTER
 
+static char * rofi_theme_convert_color ( char *col )
+{
+    char *r = g_strstrip ( col );
+    if ( *r == '#' && strlen ( r ) == 9 ) {
+        char t1 = r[7];
+        char t2 = r[8];
+        r[7] = r[1];
+        r[8] = r[2];
+        r[1] = t1;
+        r[2] = t2;
+    }
+
+    return r;
+}
 void rofi_theme_convert_old ( void )
 {
     if ( config.color_window ) {
-        char             **retv  = g_strsplit ( config.color_window, ",", -1 );
-        const char const *conf[] = {
+        char               **retv = g_strsplit ( config.color_window, ",", -1 );
+        const char * const conf[] = {
             "* { background: %s; }",
             "* { bordercolor: %s; }",
             "* { separatorcolor: %s; }"
         };
         for ( int i = 0; retv && retv[i] && i < 3; i++ ) {
-            char *str = g_strdup_printf ( conf[i], retv[i] );
+            char *str = g_strdup_printf ( conf[i], rofi_theme_convert_color ( retv[i] ) );
             rofi_theme_parse_string ( str );
             g_free ( str );
         }
         g_strfreev ( retv );
     }
     if ( config.color_normal ) {
-        char             **retv  = g_strsplit ( config.color_normal, ",", -1 );
-        const char const *conf[] = {
+        char               **retv = g_strsplit ( config.color_normal, ",", -1 );
+        const char * const conf[] = {
             "* { normal-background: %s; }",
             "* { foreground: %s; normal-foreground: @foreground; alternate-normal-foreground: @foreground; }",
             "* { alternate-normal-background: %s; }",
@@ -662,15 +679,15 @@ void rofi_theme_convert_old ( void )
             "* { selected-normal-foreground: %s; }"
         };
         for ( int i = 0; retv && retv[i]; i++ ) {
-            char *str = g_strdup_printf ( conf[i], retv[i] );
+            char *str = g_strdup_printf ( conf[i], rofi_theme_convert_color ( retv[i] ) );
             rofi_theme_parse_string ( str );
             g_free ( str );
         }
         g_strfreev ( retv );
     }
     if ( config.color_urgent ) {
-        char             **retv  = g_strsplit ( config.color_urgent, ",", -1 );
-        const char const *conf[] = {
+        char               **retv = g_strsplit ( config.color_urgent, ",", -1 );
+        const char * const conf[] = {
             "* { urgent-background: %s; }",
             "* { urgent-foreground: %s; alternate-urgent-foreground: @urgent-foreground;}",
             "* { alternate-urgent-background: %s; }",
@@ -678,15 +695,15 @@ void rofi_theme_convert_old ( void )
             "* { selected-urgent-foreground: %s; }"
         };
         for ( int i = 0; retv && retv[i]; i++ ) {
-            char *str = g_strdup_printf ( conf[i], retv[i] );
+            char *str = g_strdup_printf ( conf[i], rofi_theme_convert_color ( retv[i] ) );
             rofi_theme_parse_string ( str );
             g_free ( str );
         }
         g_strfreev ( retv );
     }
     if ( config.color_active ) {
-        char             **retv  = g_strsplit ( config.color_active, ",", -1 );
-        const char const *conf[] = {
+        char               **retv = g_strsplit ( config.color_active, ",", -1 );
+        const char * const conf[] = {
             "* { active-background: %s; }",
             "* { active-foreground: %s; alternate-active-foreground: @active-foreground;}",
             "* { alternate-active-background: %s; }",
@@ -694,7 +711,7 @@ void rofi_theme_convert_old ( void )
             "* { selected-active-foreground: %s; }"
         };
         for ( int i = 0; retv && retv[i]; i++ ) {
-            char *str = g_strdup_printf ( conf[i], retv[i] );
+            char *str = g_strdup_printf ( conf[i], rofi_theme_convert_color ( retv[i] ) );
             rofi_theme_parse_string ( str );
             g_free ( str );
         }

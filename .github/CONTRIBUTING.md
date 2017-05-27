@@ -1,9 +1,11 @@
 # Creating an issue
 
-When reporting bugs keep in mind that the people working on it do this unpaid, in their free time and as a hobby. So be
-polite and helpful. Bug reports that demand, contain insults to this or other projects, or have a general unfriendly
-tone will be closed without discussion. Everybody has it own way of working; What might be the norm for you, might not
-be for others. Therefore be verbose in your description.
+When reporting bugs keep in mind that the people working on it do this unpaid,
+in their free time and as a hobby. So be polite and helpful. Bug reports that
+demand, contain insults to this or other projects, or have a general unfriendly
+tone will be closed without discussion. Everybody has it own way of working;
+What might be the norm for you, might not be for others. Therefore be verbose in
+your description.
 
 Before creating an issue:
 
@@ -21,17 +23,30 @@ When reporting bugs include the following information:
 * A proper title for others to search for.
 * Be exact.
 
+When adding comments to an issue make sure:
+
+* It is relevant to the issue.
+* It contributes to solving the issue.
+* Use :+1: :-1: emojis instead of replying 'me too' or 'I also have this.'
+
+
+Issue high-jacking, e.g. adding a request/issue to an existing issue, is very
+disruptive.
+Please create a new issue, if it is similar it will be marked duplicate.
+
 The issue tracker is not for:
 
 * Questions. 
 * Writing complaints.
 
-These topics belong on [FORUM](https://reddit.com/r/qtools//), [IRC](https://webchat.freenode.net/?channels=#rofi),
-frequently asked questions will be added to the [F.A.Q](https://github.com/DaveDavenport/rofi/wiki#faq) on the
-[wiki](https://github.com/DaveDavenport/rofi/wiki).
+These topics belong on [FORUM](https://reddit.com/r/qtools//),
+[IRC](https://webchat.freenode.net/?channels=#rofi), frequently asked questions
+will be added to the [F.A.Q](https://github.com/DaveDavenport/rofi/wiki#faq) on
+the [wiki](https://github.com/DaveDavenport/rofi/wiki).
 
-Questions filled in on the bug tracker will be marked `question`, locked and closed. If the question is clear, I
-normally try to provide an answer.
+Questions filled in on the bug tracker will be marked `question`, locked and
+closed. If the question is clear, I normally try to provide an answer.
 
-**Please do not submit reports related to wayland, see [here](https://github.com/DaveDavenport/rofi/wiki/Wayland) for
-more information.**
+**Please do not submit reports related to wayland, see
+[here](https://github.com/DaveDavenport/rofi/wiki/Wayland) for more
+information.**

@@ -60,6 +60,7 @@ SOURCES=\
 	source/widgets/scrollbar.c\
 	source/xrmoptions.c\
 	source/x11-helper.c\
+	source/css-colors.c\
 	source/dialogs/run.c\
 	source/dialogs/ssh.c\
 	source/dialogs/drun.c\
@@ -82,6 +83,7 @@ SOURCES=\
 	include/timings.h\
 	include/history.h\
 	include/theme.h\
+	include/css-colors.h\
 	include/default-theme.h\
 	include/widgets/box.h\
 	include/widgets/container.h\
@@ -319,6 +321,7 @@ widget_test_SOURCES=\
 			source/widgets/widget.c\
 			source/widgets/textbox.c\
 			source/theme.c\
+			source/css-colors.c\
 			source/helper.c\
 			source/x11-helper.c\
 			config/config.c\
@@ -334,7 +337,9 @@ box_test_SOURCES=\
 			lexer/theme-parser.y\
 			lexer/theme-lexer.l\
 			source/theme.c\
+			source/css-colors.c\
 			include/theme.h\
+			include/css-colors.h\
 			test/box-test.c
 
 scrollbar_test_LDADD=$(textbox_test_LDADD)
@@ -345,7 +350,9 @@ scrollbar_test_SOURCES=\
 			lexer/theme-parser.y\
 			lexer/theme-lexer.l\
 			source/theme.c\
+			source/css-colors.c\
 			include/theme.h\
+			include/css-colors.h\
 			test/scrollbar-test.c
 
 textbox_test_SOURCES=\
@@ -354,6 +361,7 @@ textbox_test_SOURCES=\
 	lexer/theme-parser.y\
 	lexer/theme-lexer.l\
 	source/theme.c\
+	source/css-colors.c\
 	source/helper.c\
 	source/x11-helper.c\
 	config/config.c\
@@ -382,6 +390,7 @@ theme_parser_test_SOURCES=\
 	include/helper.h\
 	include/helper-theme.h\
 	include/theme.h\
+	include/css-colors.h\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
 	source/x11-helper.c\
@@ -389,6 +398,7 @@ theme_parser_test_SOURCES=\
 	lexer/theme-parser.c\
 	lexer/theme-parser.h\
 	source/theme.c\
+	source/css-colors.c\
 	test/theme-parser-test.c
 endif
 
@@ -530,9 +540,13 @@ test-x: $(bin_PROGRAMS)
 	echo "Test dmenu glob"
 	$(top_srcdir)/test/run_test.sh 216 $(top_srcdir)/test/run_glob_test.sh $(top_builddir)
 	echo "Test issue 333"
-	$(top_srcdir)/test/run_test.sh 221 $(top_srcdir)/test/run_issue333_test.sh $(top_builddir)
+	$(top_srcdir)/test/run_test.sh 217 $(top_srcdir)/test/run_issue333_test.sh $(top_builddir)
 	echo "Test help output"
-	$(top_srcdir)/test/run_test.sh 212 $(top_srcdir)/test/help_output_test.sh $(top_builddir) $(top_srcdir)
+	$(top_srcdir)/test/run_test.sh 218 $(top_srcdir)/test/help_output_test.sh $(top_builddir) $(top_srcdir)
+	echo "Test theme output"
+	$(top_srcdir)/test/run_test.sh 219 $(top_srcdir)/test/default_theme_test.sh $(top_builddir) $(top_srcdir)
+	echo "Test theme convert output"
+	$(top_srcdir)/test/run_test.sh 220 $(top_srcdir)/test/convert_old_theme_test.sh $(top_builddir) $(top_srcdir)
 
 test-x1: $(bin_PROGRAMS)
 	echo "Test dmenu-normal-window"
