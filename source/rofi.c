@@ -101,7 +101,7 @@ struct xkb_stuff xkb = {
 };
 
 /** Path to the configuration file */
-char *config_path = NULL;
+G_MODULE_EXPORT char *config_path = NULL;
 /** Array holding all activated modi. */
 Mode **modi = NULL;
 
