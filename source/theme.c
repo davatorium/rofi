@@ -27,6 +27,7 @@
 
 #define G_LOG_DOMAIN    "Theme"
 
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
