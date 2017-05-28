@@ -1055,7 +1055,7 @@ static void rofi_view_refilter ( RofiViewState *state )
         tokenize_free ( state->tokens );
         state->tokens = NULL;
     }
-    if ( strlen ( state->text->text ) > 0 ) {
+    if ( state->text && strlen ( state->text->text ) > 0 ) {
         unsigned int j        = 0;
         gchar        *pattern = mode_preprocess_input ( state->sw, state->text->text );
         glong        plen     = pattern ? g_utf8_strlen ( pattern, -1 ) : 0;

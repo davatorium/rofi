@@ -241,20 +241,32 @@ static void __textbox_update_pango_text ( textbox *tb )
 }
 const char *textbox_get_visible_text ( const textbox *tb )
 {
+    if ( tb == NULL ){
+        return NULL;
+    }
     return pango_layout_get_text ( tb->layout );
 }
 PangoAttrList *textbox_get_pango_attributes ( textbox *tb )
 {
+    if ( tb == NULL ){
+        return NULL;
+    }
     return pango_layout_get_attributes ( tb->layout );
 }
 void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list )
 {
+    if ( tb == NULL ){
+        return;
+    }
     pango_layout_set_attributes ( tb->layout, list );
 }
 
 // set the default text to display
 void textbox_text ( textbox *tb, const char *text )
 {
+    if ( tb == NULL ){
+        return;
+    }
     g_free ( tb->text );
     const gchar *last_pointer = NULL;
 
@@ -324,6 +336,9 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 // will also unmap the window if still displayed
 static void textbox_free ( widget *wid )
 {
+    if ( wid == NULL ) {
+        return;
+    }
     textbox *tb = (textbox *) wid;
     if ( tb->blink_timeout > 0 ) {
         g_source_remove ( tb->blink_timeout );
@@ -340,6 +355,9 @@ static void textbox_free ( widget *wid )
 
 static void textbox_draw ( widget *wid, cairo_t *draw )
 {
+    if ( wid == NULL ) {
+        return;
+    }
     textbox      *tb    = (textbox *) wid;
     unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
 
@@ -406,6 +424,9 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
 // cursor handling for edit mode
 void textbox_cursor ( textbox *tb, int pos )
 {
+    if ( tb == NULL ) {
+        return;
+    }
     int length = ( tb->text == NULL ) ? 0 : g_utf8_strlen ( tb->text, -1 );
     tb->cursor = MAX ( 0, MIN ( length, pos ) );
     // Stop blink!
@@ -520,6 +541,9 @@ static void textbox_cursor_end ( textbox *tb )
 // insert text
 void textbox_insert ( textbox *tb, const int char_pos, const char *str, const int slen )
 {
+    if ( tb == NULL ) {
+        return;
+    }
     char *c  = g_utf8_offset_to_pointer ( tb->text, char_pos );
     int  pos = c - tb->text;
     int  len = ( int ) strlen ( tb->text );
@@ -541,6 +565,9 @@ void textbox_insert ( textbox *tb, const int char_pos, const char *str, const in
 // remove text
 void textbox_delete ( textbox *tb, int pos, int dlen )
 {
+    if ( tb == NULL ) {
+        return;
+    }
     int len = g_utf8_strlen ( tb->text, -1 );
     if ( len == pos ) {
         return;
@@ -573,7 +600,7 @@ void textbox_delete ( textbox *tb, int pos, int dlen )
  */
 static void textbox_cursor_del ( textbox *tb )
 {
-    if ( tb->text == NULL ) {
+    if ( tb == NULL || tb->text == NULL ) {
         return;
     }
     textbox_delete ( tb, tb->cursor, 1 );
@@ -586,14 +613,14 @@ static void textbox_cursor_del ( textbox *tb )
  */
 static void textbox_cursor_bkspc ( textbox *tb )
 {
-    if ( tb->cursor > 0 ) {
+    if ( tb && tb->cursor > 0 ) {
         textbox_cursor_dec ( tb );
         textbox_cursor_del ( tb );
     }
 }
 static void textbox_cursor_bkspc_word ( textbox *tb )
 {
-    if ( tb->cursor > 0 ) {
+    if ( tb && tb->cursor > 0 ) {
         int cursor = tb->cursor;
         textbox_cursor_dec_word ( tb );
         if ( cursor > tb->cursor ) {
@@ -603,7 +630,7 @@ static void textbox_cursor_bkspc_word ( textbox *tb )
 }
 static void textbox_cursor_del_eol ( textbox *tb )
 {
-    if ( tb->cursor >= 0 ) {
+    if ( tb && tb->cursor >= 0 ) {
         int length = g_utf8_strlen ( tb->text, -1 ) - tb->cursor;
         if ( length >= 0 ) {
             textbox_delete ( tb, tb->cursor, length );
@@ -612,7 +639,7 @@ static void textbox_cursor_del_eol ( textbox *tb )
 }
 static void textbox_cursor_del_sol ( textbox *tb )
 {
-    if ( tb->cursor >= 0 ) {
+    if ( tb && tb->cursor >= 0 ) {
         int length = tb->cursor;
         if ( length >= 0 ) {
             textbox_delete ( tb, 0, length );
@@ -621,7 +648,7 @@ static void textbox_cursor_del_sol ( textbox *tb )
 }
 static void textbox_cursor_del_word ( textbox *tb )
 {
-    if ( tb->cursor >= 0 ) {
+    if ( tb &&  tb->cursor >= 0 ) {
         int cursor = tb->cursor;
         textbox_cursor_inc_word ( tb );
         if ( cursor < tb->cursor ) {
@@ -637,6 +664,9 @@ static void textbox_cursor_del_word ( textbox *tb )
 // -1 = handled and return pressed (finished)
 int textbox_keybinding ( textbox *tb, KeyBindingAction action )
 {
+    if ( tb == NULL ) {
+        return 0;
+    }
     if ( !( tb->flags & TB_EDITABLE ) ) {
         return 0;
     }
@@ -698,6 +728,9 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action )
 
 gboolean textbox_append_char ( textbox *tb, const char *pad, const int pad_len )
 {
+    if ( tb == NULL ) {
+        return FALSE;
+    }
     if ( !( tb->flags & TB_EDITABLE ) ) {
         return FALSE;
     }

@@ -375,6 +375,9 @@ static void listview_recompute_elements ( listview *lv )
 
 void listview_set_num_elements ( listview *lv, unsigned int rows )
 {
+    if ( lv == NULL ) {
+        return;
+    }
     lv->req_elements = rows;
     listview_set_selected ( lv, lv->selected );
     listview_recompute_elements ( lv );
