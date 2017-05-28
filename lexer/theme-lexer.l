@@ -394,7 +394,8 @@ if ( queue == NULL ){
 <PROPERTIES>(true|false)          { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
 <PROPERTIES>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
 <PROPERTIES>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
-<PROPERTIES>\"{STRING}\"          { yytext[yyleng-1] = '\0'; yylval->sval = g_strdup(&yytext[1]); return T_STRING;}
+<PROPERTIES>\"{STRING}\"          { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
+
 <PROPERTIES>@{WORD}               {
     yylval->sval = g_strdup(yytext);
     return T_LINK;

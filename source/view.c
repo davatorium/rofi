@@ -1678,8 +1678,10 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
             }
             g_free(strbutton);
         }
-    }
-    else {
+    } else if (  g_ascii_strncasecmp ( name, "textbox", 7) == 0 ){
+        textbox *t = textbox_create ( str, TB_WRAP, NORMAL, "");
+        box_add ( (box *)parent_widget, WIDGET(t), TRUE, 0);
+    } else {
         wid = box_create ( strbox, BOX_VERTICAL );
         box_add ( (box *)parent_widget, WIDGET ( wid ), TRUE, 0 );
         //g_error("The widget %s does not exists. Invalid layout.", name);

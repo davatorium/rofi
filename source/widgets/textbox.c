@@ -154,7 +154,9 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
     if ( ( flags & TB_WRAP ) == TB_WRAP ) {
         pango_layout_set_wrap ( tb->layout, PANGO_WRAP_WORD_CHAR );
     }
-    textbox_text ( tb, text ? text : "" );
+
+    const char *txt = rofi_theme_get_string ( WIDGET  ( tb ), "str", text);
+    textbox_text ( tb, txt? txt: "" );
     textbox_cursor_end ( tb );
 
     // auto height/width modes get handled here
