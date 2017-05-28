@@ -33,9 +33,6 @@
 #include <xcb/xcb.h>
 #include <xcb/xkb.h>
 #include <xcb/xcb_xrm.h>
-#include <xkbcommon/xkbcommon.h>
-#include <xkbcommon/xkbcommon-compose.h>
-#include <xkbcommon/xkbcommon-x11.h>
 #include <glib.h>
 #include "xcb.h"
 #include "xcb-internal.h"

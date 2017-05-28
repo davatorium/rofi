@@ -69,13 +69,9 @@ RofiViewState * rofi_view_get_active ( void )
 {
     return NULL;
 }
-gboolean rofi_view_trigger_action ( G_GNUC_UNUSED RofiViewState *state, G_GNUC_UNUSED KeyBindingAction action )
+gboolean rofi_view_trigger_action ( G_GNUC_UNUSED guint scope, G_GNUC_UNUSED gpointer user_data )
 {
     return FALSE;
-}
-gboolean x11_parse_key ( G_GNUC_UNUSED const char *combo, G_GNUC_UNUSED unsigned int *mod, G_GNUC_UNUSED xkb_keysym_t *key, G_GNUC_UNUSED gboolean *release, G_GNUC_UNUSED GString *msg )
-{
-    return TRUE;
 }
 #ifndef _ck_assert_ptr_null
 /* Pointer against NULL comparison macros with improved output
@@ -121,10 +117,10 @@ START_TEST(test_mode_num_items)
     for ( unsigned int i =0; i < rows; i++  ){
         int state = 0;
         GList *list = NULL;
-        char *v = mode_get_display_value ( &help_keys_mode, i, &state, &list, TRUE ); 
+        char *v = mode_get_display_value ( &help_keys_mode, i, &state, &list, TRUE );
         ck_assert_ptr_nonnull ( v );
         g_free ( v );
-        v = mode_get_display_value ( &help_keys_mode, i, &state, &list, FALSE ); 
+        v = mode_get_display_value ( &help_keys_mode, i, &state, &list, FALSE );
         ck_assert_ptr_null ( v );
     }
     mode_destroy ( &help_keys_mode );

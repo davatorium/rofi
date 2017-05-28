@@ -1,11 +1,15 @@
 # Specify automake version.
 AUTOMAKE_OPTIONS  = 1.11.3
 
-ACLOCAL_AMFLAGS = -I subprojects/libgwater ${ACLOCAL_FLAGS}
+ACLOCAL_AMFLAGS = -I subprojects/libnkutils -I subprojects/libgwater ${ACLOCAL_FLAGS}
 
 AM_YFLAGS = -d
 
 noinst_LIBRARIES =
+EXTRA_DIST=
+check_PROGRAMS=
+TESTS=
+include $(top_srcdir)/subprojects/libnkutils/libnkutils-nolibtool.mk
 include $(top_srcdir)/libgwater-xcb-nolibtool.mk
 
 ##
@@ -114,6 +118,7 @@ rofi_SOURCES=\
 rofi_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
+	$(NKUTILS_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
 	$(pango_CFLAGS)\
 	$(libsn_CFLAGS)\
@@ -132,6 +137,7 @@ rofi_CFLAGS=\
 
 rofi_LDADD=\
 	$(glib_LIBS)\
+	$(NKUTILS_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(libsn_LIBS)\
 	$(pango_LIBS)\
@@ -197,7 +203,7 @@ theme_DATA=\
 ##
 # Extra DIST
 ##
-EXTRA_DIST=\
+EXTRA_DIST+=\
 	$(markdown_FILES)\
 	$(markdown_SC_FILES)\
 	Examples/i3_switch_workspaces.sh\
@@ -219,7 +225,7 @@ update-manpage: $(top_srcdir)/doc/rofi-manpage.markdown $(top_srcdir)/doc/rofi-t
 ##
 # Rofi test program
 ##
-check_PROGRAMS=\
+check_PROGRAMS+=\
 			   history_test\
 			   textbox_test\
 			   helper_test\
@@ -488,7 +494,7 @@ mode_test_SOURCES=\
 				  include/mode-private.h
 endif
 
-TESTS=\
+TESTS+=\
 	history_test\
 	helper_test\
 	helper_expand\
@@ -560,6 +566,7 @@ coverage-clean:
 
 EXTRA_DIST += \
 	doc/meson.build \
+	subprojects/libnkutils/meson.build \
 	subprojects/libgwater/xcb/meson.build \
 	meson_options.txt \
 	meson.build

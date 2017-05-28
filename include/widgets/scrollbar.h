@@ -43,6 +43,7 @@
 typedef struct _scrollbar
 {
     widget       widget;
+    gboolean     scrolling;
     unsigned int length;
     unsigned int pos;
     unsigned int pos_length;
@@ -88,7 +89,7 @@ void scrollbar_set_max_value ( scrollbar *sb, unsigned int max );
  *
  * Calculate the position of the click relative to the max value of bar
  */
-unsigned int scrollbar_clicked ( const scrollbar *sb, int y );
+unsigned int scrollbar_scroll ( const scrollbar *sb, int y );
 
 /*@}*/
 #endif // ROFI_SCROLLBAR_H

@@ -37,19 +37,19 @@
 typedef enum
 {
     /** no highlight */
-    HL_NONE      = 0,
+    HL_NONE          = 0,
     /** bold */
-    HL_BOLD      = 1,
+    HL_BOLD          = 1,
     /** underline */
-    HL_UNDERLINE = 2,
+    HL_UNDERLINE     = 2,
     /** strikethrough */
     HL_STRIKETHROUGH = 16,
     /** small caps */
-    HL_SMALL_CAPS = 32,
+    HL_SMALL_CAPS    = 32,
     /** italic */
-    HL_ITALIC    = 4,
+    HL_ITALIC        = 4,
     /** color */
-    HL_COLOR     = 8
+    HL_COLOR         = 8
 } HighlightStyle;
 
 /** Style of line */

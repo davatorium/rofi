@@ -34,8 +34,9 @@
 /** Default padding. */
 #define WIDGET_DEFAULT_PADDING    0
 
-void widget_init ( widget *widget, const char *name )
+void widget_init ( widget *widget, WidgetType type, const char *name )
 {
+    widget->type              = type;
     widget->name              = g_strdup ( name );
     widget->def_padding       = (Padding){ { WIDGET_DEFAULT_PADDING, PW_PX, SOLID }, { WIDGET_DEFAULT_PADDING, PW_PX, SOLID }, { WIDGET_DEFAULT_PADDING, PW_PX, SOLID }, { WIDGET_DEFAULT_PADDING, PW_PX, SOLID } };
     widget->def_border        = (Padding){ { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID }, { 0, PW_PX, SOLID } };
@@ -96,6 +97,14 @@ void widget_move ( widget *widget, short x, short y )
         widget->x = x;
         widget->y = y;
     }
+}
+
+WidgetType widget_type ( widget *widget )
+{
+    if ( widget != NULL ) {
+        return widget->type;
+    }
+    return WIDGET_TYPE_UNKNOWN;
 }
 
 gboolean widget_enabled ( widget *widget )
@@ -416,19 +425,41 @@ gboolean widget_need_redraw ( widget *wid )
     }
     return FALSE;
 }
-gboolean widget_clicked ( widget *wid, xcb_button_press_event_t *xbe )
+
+widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint *x, gint *y )
 {
-    if ( wid && wid->clicked ) {
-        return wid->clicked ( wid, xbe, wid->clicked_cb_data );
+    if ( !wid ) {
+        return NULL;
+    }
+
+    if ( wid->find_mouse_target ) {
+        widget *target = wid->find_mouse_target ( wid, type, x, y );
+        if ( target != NULL ) {
+            return target;
+        }
+    }
+    if ( wid->type == type ) {
+        return wid;
+    }
+    return NULL;
+}
+
+gboolean widget_trigger_action ( widget *wid, guint action, gint x, gint y )
+{
+    g_print ( "TRIGGER %p\n", wid );
+    if ( wid && wid->trigger_action ) {
+        return wid->trigger_action ( wid, action, x, y, wid->trigger_action_cb_data );
     }
     return FALSE;
 }
-void widget_set_clicked_handler ( widget *wid, widget_clicked_cb cb, void *udata )
+
+void widget_set_trigger_action_handler ( widget *wid, widget_trigger_action_cb cb, void * cb_data )
 {
-    if ( wid ) {
-        wid->clicked         = cb;
-        wid->clicked_cb_data = udata;
+    if ( wid->type == WIDGET_TYPE_SIDEBAR_MODI ) {
+        g_print ( "CUSTOM TRIGGER %p\n", wid );
     }
+    wid->trigger_action         = cb;
+    wid->trigger_action_cb_data = cb_data;
 }
 
 gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )

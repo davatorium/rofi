@@ -31,6 +31,7 @@
 #include <cairo.h>
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
+#include "keyb.h"
 /**
  * @defgroup widget widget
  *
@@ -48,11 +49,18 @@
  * Structure is elaborated in widget-internal.h
  */
 typedef struct _widget   widget;
+typedef enum
+{
+    WIDGET_TYPE_UNKNOWN,
+    WIDGET_TYPE_LISTVIEW         = SCOPE_MOUSE_LISTVIEW,
+    WIDGET_TYPE_LISTVIEW_ELEMENT = SCOPE_MOUSE_LISTVIEW_ELEMENT,
+    WIDGET_TYPE_EDITBOX          = SCOPE_MOUSE_EDITBOX,
+    WIDGET_TYPE_SCROLLBAR        = SCOPE_MOUSE_SCROLLBAR,
+    WIDGET_TYPE_SIDEBAR_MODI     = SCOPE_MOUSE_SIDEBAR_MODI,
+} WidgetType;
 
-/**
- * Callback for when widget is clicked.
- */
-typedef gboolean ( *widget_clicked_cb )( widget *, xcb_button_press_event_t *, void * );
+typedef widget * ( *widget_find_mouse_target_cb )( widget *, WidgetType type, gint *x, gint *y );
+typedef gboolean ( *widget_trigger_action_cb )( widget *, guint action, gint x, gint y, void * );
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
 #define WIDGET( a )    ( (widget *) ( a ) )
@@ -76,6 +84,14 @@ int widget_intersect ( const widget *widget, int x, int y );
  * Moves the widget.
  */
 void widget_move ( widget *widget, short x, short y );
+
+/**
+ * @param widget Handle to widget
+ *
+ * Get the type of the widget.
+ * @returns The type of the widget.
+ */
+WidgetType widget_type ( widget *widget );
 
 /**
  * @param widget Handle to widget
@@ -172,24 +188,35 @@ gboolean widget_need_redraw ( widget *wid );
 
 /**
  * @param wid The widget handle
- * @param xbe The button press event
+ * @param x A pointer to the x coordinate of the mouse event
+ * @param y A pointer to the y coordinate of the mouse event
  *
- * Signal the widget that it has been clicked,
- * The click should have happened within the region of the widget, check with
- * ::widget_intersect.
+ * Get the widget that should handle a mouse event.
+ * @x and @y are adjusted to be relative to the widget.
  *
- * @returns returns TRUE if click is handled.
+ * @returns returns the widget that should handle the mouse event.
  */
-gboolean widget_clicked ( widget *wid, xcb_button_press_event_t *xbe );
+widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint *x, gint *y );
 
 /**
  * @param wid The widget handle
- * @param cb The widget click callback
+ * @param action The action to trigger
+ * @param x A pointer to the x coordinate of the click
+ * @param y A pointer to the y coordinate of the click
+ *
+ * Trigger an action on widget.
+ * @x and @y are relative to the widget.
+ */
+gboolean widget_trigger_action ( widget *wid, guint action, gint x, gint y );
+
+/**
+ * @param wid The widget handle
+ * @param cb The widget trigger action callback
  * @param udata the user data to pass to callback
  *
- * Override the widget clicked handler on widget.
+ * Override the widget trigger action handler on widget.
  */
-void widget_set_clicked_handler ( widget *wid, widget_clicked_cb cb, void *udata );
+void widget_set_trigger_action_handler ( widget *wid, widget_trigger_action_cb cb, void *udata );
 
 /**
  * @param wid The widget handle

@@ -143,7 +143,7 @@ void rofi_view_restart ( RofiViewState *state );
  *
  * @returns TRUE if action was handled.
  */
-gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction action );
+gboolean rofi_view_trigger_action ( guint scope, gpointer user_data );
 
 /**
  * @param state The handle to the view

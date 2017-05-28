@@ -69,10 +69,6 @@
 
 #include "xcb.h"
 
-#ifdef XkBCOMMON_HAS_CONSUMED2
-#define xkb_state_key_get_consumed_mods( s, k )    xkb_state_key_get_consumed_mods2 ( s, k, XKB_CONSUMED_MODE_GTK )
-#endif
-
 /**
  * @param state The handle to the view
  * @param qr    Indicate if queue_redraw should be called on changes.
@@ -1008,31 +1004,6 @@ static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t
     }
 }
 
-static void rofi_view_mouse_navigation ( RofiViewState *state, xcb_button_press_event_t *xbe )
-{
-    // Scroll event
-    if ( xbe->detail > 3 ) {
-        if ( xbe->detail == 4 ) {
-            listview_nav_up ( state->list_view );
-        }
-        else if ( xbe->detail == 5 ) {
-            listview_nav_down ( state->list_view );
-        }
-        else if ( xbe->detail == 6 ) {
-            listview_nav_left ( state->list_view );
-        }
-        else if ( xbe->detail == 7 ) {
-            listview_nav_right ( state->list_view );
-        }
-        return;
-    }
-    else {
-        xcb_button_press_event_t rel = *xbe;
-        if ( widget_clicked ( WIDGET ( state->main_window ), &rel ) ) {
-            return;
-        }
-    }
-}
 static void _rofi_view_reload_row ( RofiViewState *state )
 {
     g_free ( state->line_map );
@@ -1152,9 +1123,9 @@ void rofi_view_finalize ( RofiViewState *state )
     }
 }
 
-gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction action )
+static void rofi_view_trigger_global_action ( KeyBindingAction action )
 {
-    gboolean ret = TRUE;
+    RofiViewState *state = rofi_view_get_active ();
     switch ( action )
     {
     // Handling of paste
@@ -1206,9 +1177,6 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
             ( state->selected_line ) = state->line_map[selected];
             state->retv              = MENU_ENTRY_DELETE;
             state->quit              = TRUE;
-        }
-        else {
-            ret = FALSE;
         }
         break;
     }
@@ -1372,65 +1340,34 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction actio
         state->quit = TRUE;
         break;
     }
-    case NUM_ABE:
-        ret = FALSE;
-        break;
     }
-
-    return ret;
 }
 
-static void rofi_view_handle_keypress ( RofiViewState *state, xkb_stuff *xkb, xcb_key_press_event_t *xkpe )
+gboolean rofi_view_trigger_action ( guint scope, gpointer user_data )
 {
-    xcb_keysym_t key;
-    char         pad[32];
-    int          len = 0;
-
-    key = xkb_state_key_get_one_sym ( xkb->state, xkpe->detail );
-
-    if ( xkb->compose.state != NULL ) {
-        if ( ( key != XKB_KEY_NoSymbol ) && ( xkb_compose_state_feed ( xkb->compose.state, key ) == XKB_COMPOSE_FEED_ACCEPTED ) ) {
-            switch ( xkb_compose_state_get_status ( xkb->compose.state ) )
-            {
-            case XKB_COMPOSE_CANCELLED:
-            /* Eat the keysym that cancelled the compose sequence.
-             * This is default behaviour with Xlib */
-            case XKB_COMPOSE_COMPOSING:
-                key = XKB_KEY_NoSymbol;
-                break;
-            case XKB_COMPOSE_COMPOSED:
-                key = xkb_compose_state_get_one_sym ( xkb->compose.state );
-                len = xkb_compose_state_get_utf8 ( xkb->compose.state, pad, sizeof ( pad ) );
-                break;
-            case XKB_COMPOSE_NOTHING:
-                break;
-            }
-            if ( ( key == XKB_KEY_NoSymbol ) && ( len == 0 ) ) {
-                return;
-            }
+    RofiViewState *state = rofi_view_get_active ();
+    g_print ( "TRY ACTION scope %u\n", scope );
+    switch ( (BindingsScope) scope )
+    {
+    case SCOPE_GLOBAL:
+        rofi_view_trigger_global_action ( GPOINTER_TO_UINT ( user_data ) );
+        return TRUE;
+    case SCOPE_MOUSE_LISTVIEW:
+    case SCOPE_MOUSE_LISTVIEW_ELEMENT:
+    case SCOPE_MOUSE_EDITBOX:
+    case SCOPE_MOUSE_SCROLLBAR:
+    case SCOPE_MOUSE_SIDEBAR_MODI:
+    {
+        gint   x       = state->mouse.x, y = state->mouse.y;
+        widget *target = widget_find_mouse_target ( WIDGET ( state->main_window ), scope, &x, &y );
+        if ( target == NULL ) {
+            return FALSE;
         }
+
+        return widget_trigger_action ( target, GPOINTER_TO_UINT ( user_data ), x, y );
     }
-
-    if ( len == 0 ) {
-        len = xkb_state_key_get_utf8 ( xkb->state, xkpe->detail, pad, sizeof ( pad ) );
     }
-
-    xkb_mod_mask_t consumed = xkb_state_key_get_consumed_mods ( xkb->state, xkpe->detail );
-
-    unsigned int   modstate = x11_canonalize_mask ( xkpe->state & ( ~consumed ) );
-
-    if ( key != XKB_KEY_NoSymbol ) {
-        KeyBindingAction action;
-        action = abe_find_action ( modstate, key );
-        if ( rofi_view_trigger_action ( state, action ) ) {
-            return;
-        }
-    }
-
-    if ( ( len > 0 ) && ( textbox_append_char ( state->text, pad, len ) ) ) {
-        state->refilter = TRUE;
-        return;
-    }
+    return FALSE;
 }
 
 void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb_stuff *xkb )
@@ -1472,18 +1409,27 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb
             state->mouse_seen = TRUE;
         }
         xcb_motion_notify_event_t xme = *( (xcb_motion_notify_event_t *) event );
+        state->mouse.x = xme.event_x;
+        state->mouse.y = xme.event_y;
         if ( widget_motion_notify ( WIDGET ( state->main_window ), &xme ) ) {
             return;
         }
         break;
     }
     case XCB_BUTTON_PRESS:
-        rofi_view_mouse_navigation ( state, (xcb_button_press_event_t *) event );
+    {
+        xcb_button_press_event_t *bpe = (xcb_button_press_event_t *) event;
+        state->mouse.x = bpe->event_x;
+        state->mouse.y = bpe->event_y;
+        nk_bindings_handle_button ( xkb->bindings, bpe->detail, NK_BINDINGS_BUTTON_STATE_PRESS, bpe->time );
         break;
+    }
     case XCB_BUTTON_RELEASE:
+    {
+        xcb_button_release_event_t *bre = (xcb_button_release_event_t *) event;
+        nk_bindings_handle_button ( xkb->bindings, bre->detail, NK_BINDINGS_BUTTON_STATE_RELEASE, bre->time );
         if ( config.click_to_exit == TRUE ) {
             if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
-                xcb_button_release_event_t *bre = (xcb_button_release_event_t *) event;
                 if ( ( state->mouse_seen == FALSE ) && ( bre->event != CacheState.main_window ) ) {
                     state->quit = TRUE;
                     state->retv = MENU_CANCEL;
@@ -1492,35 +1438,39 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb
             state->mouse_seen = FALSE;
         }
         break;
+    }
     // Paste event.
     case XCB_SELECTION_NOTIFY:
         rofi_view_paste ( state, (xcb_selection_notify_event_t *) event );
         break;
     case XCB_KEYMAP_NOTIFY:
     {
-        xcb_keymap_notify_event_t *kne     = (xcb_keymap_notify_event_t *) event;
-        guint                     modstate = x11_get_current_mask ( xkb );
+        xcb_keymap_notify_event_t *kne = (xcb_keymap_notify_event_t *) event;
         for ( gint32 by = 0; by < 31; ++by ) {
             for ( gint8 bi = 0; bi < 7; ++bi ) {
                 if ( kne->keys[by] & ( 1 << bi ) ) {
                     // X11 keycodes starts at 8
-                    xkb_keysym_t key = xkb_state_key_get_one_sym ( xkb->state, ( 8 * by + bi ) + 8 );
-                    abe_find_action ( modstate, key );
+                    nk_bindings_handle_key ( xkb->bindings, ( 8 * by + bi ) + 8, NK_BINDINGS_KEY_STATE_PRESSED );
                 }
             }
         }
         break;
     }
     case XCB_KEY_PRESS:
-        rofi_view_handle_keypress ( state, xkb, (xcb_key_press_event_t *) event );
+    {
+        xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *) event;
+        gchar                 *text;
+
+        text = nk_bindings_handle_key ( xkb->bindings, xkpe->detail, NK_BINDINGS_KEY_STATE_PRESS );
+        if ( ( text != NULL ) && ( textbox_append_char ( state->text, text, strlen ( text ) ) ) ) {
+            state->refilter = TRUE;
+        }
         break;
+    }
     case XCB_KEY_RELEASE:
     {
-        xcb_key_release_event_t *xkre    = (xcb_key_release_event_t *) event;
-        unsigned int            modstate = x11_canonalize_mask ( xkre->state );
-        if ( modstate == 0 ) {
-            abe_trigger_release ( );
-        }
+        xcb_key_release_event_t *xkre = (xcb_key_release_event_t *) event;
+        nk_bindings_handle_key ( xkb->bindings, xkre->detail, NK_BINDINGS_KEY_STATE_RELEASE );
         break;
     }
     default:
@@ -1550,26 +1500,41 @@ static int rofi_view_calculate_height ( RofiViewState *state )
     return height;
 }
 
-static gboolean rofi_view_modi_clicked_cb ( widget *textbox, G_GNUC_UNUSED xcb_button_press_event_t *xbe, void *udata )
+static gboolean textbox_sidebar_modi_trigger_action ( widget *wid, MouseBindingMouseDefaultAction action, gint x, gint y, G_GNUC_UNUSED void *user_data )
 {
-    RofiViewState *state = ( RofiViewState *) udata;
-    for ( unsigned int i = 0; i < state->num_modi; i++ ) {
-        if ( WIDGET ( state->modi[i] ) == textbox ) {
-            state->retv        = MENU_QUICK_SWITCH | ( i & MENU_LOWER_MASK );
-            state->quit        = TRUE;
-            state->skip_absorb = TRUE;
-            return TRUE;
+    g_print ( "CLICK ON SIDEBAR\n" );
+    RofiViewState *state = ( RofiViewState *) user_data;
+    unsigned int  i;
+    for ( i = 0; i < state->num_modi; i++ ) {
+        if ( WIDGET ( state->modi[i] ) == wid ) {
+            break;
         }
+    }
+    if ( i == state->num_modi ) {
+        return FALSE;
+    }
+
+    switch ( action )
+    {
+    case MOUSE_CLICK_DOWN:
+        state->retv        = MENU_QUICK_SWITCH | ( i & MENU_LOWER_MASK );
+        state->quit        = TRUE;
+        state->skip_absorb = TRUE;
+        return TRUE;
+    case MOUSE_CLICK_UP:
+    case MOUSE_DCLICK_DOWN:
+    case MOUSE_DCLICK_UP:
+        break;
     }
     return FALSE;
 }
+
 // @TODO don't like this construction.
-static void rofi_view_listview_mouse_activated_cb ( listview *lv, xcb_button_press_event_t *xce, void *udata )
+static void rofi_view_listview_mouse_activated_cb ( listview *lv, gboolean custom, void *udata )
 {
-    RofiViewState *state  = (RofiViewState *) udata;
-    int           control = x11_modifier_active ( xce->state, X11MOD_CONTROL );
+    RofiViewState *state = (RofiViewState *) udata;
     state->retv = MENU_OK;
-    if ( control ) {
+    if ( custom ) {
         state->retv |= MENU_CUSTOM_ACTION;
     }
     ( state->selected_line ) = state->line_map[listview_get_selected ( lv )];
@@ -1619,10 +1584,10 @@ RofiViewState *rofi_view_create ( Mode *sw,
         state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
         for ( unsigned int j = 0; j < state->num_modi; j++ ) {
             const Mode * mode = rofi_get_mode ( j );
-            state->modi[j] = textbox_create ( "window.mainbox.sidebar.button", TB_CENTER | TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
-                                              mode_get_display_name ( mode  ) );
+            state->modi[j] = textbox_create_full ( WIDGET_TYPE_SIDEBAR_MODI, "window.mainbox.sidebar.button", TB_CENTER | TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
+                                                   mode_get_display_name ( mode  ) );
             box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, j );
-            widget_set_clicked_handler ( WIDGET ( state->modi[j] ), rofi_view_modi_clicked_cb, state );
+            widget_set_trigger_action_handler ( WIDGET ( state->modi[j] ), textbox_sidebar_modi_trigger_action, state );
         }
     }
 
@@ -1642,7 +1607,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Entry box
     TextboxFlags tfl = TB_EDITABLE;
     tfl        |= ( ( menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
-    state->text = textbox_create ( "window.mainbox.inputbar.entry", tfl | TB_AUTOHEIGHT, NORMAL, input );
+    state->text = textbox_create_full ( WIDGET_TYPE_EDITBOX, "window.mainbox.inputbar.entry", tfl | TB_AUTOHEIGHT, NORMAL, input );
 
     box_add ( state->input_bar, WIDGET ( state->text ), TRUE, 2 );
 

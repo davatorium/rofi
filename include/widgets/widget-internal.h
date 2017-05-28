@@ -34,63 +34,67 @@
  */
 struct _widget
 {
+    /** The type of the widget */
+    WidgetType                  type;
     /** X position relative to parent */
-    short             x;
+    short                       x;
     /** Y position relative to parent */
-    short             y;
+    short                       y;
     /** Width of the widget */
-    short             w;
+    short                       w;
     /** Height of the widget */
-    short             h;
+    short                       h;
     /** Padding */
-    Padding           def_margin;
-    Padding           def_padding;
-    Padding           def_border;
-    Padding           def_border_radius;
-    Padding           margin;
-    Padding           padding;
-    Padding           border;
-    Padding           border_radius;
+    Padding                     def_margin;
+    Padding                     def_padding;
+    Padding                     def_border;
+    Padding                     def_border_radius;
+    Padding                     margin;
+    Padding                     padding;
+    Padding                     border;
+    Padding                     border_radius;
 
     /** enabled or not */
-    gboolean          enabled;
+    gboolean                    enabled;
     /** Expand the widget when packed */
-    gboolean          expand;
+    gboolean                    expand;
     /*** The packing index */
-    int               index;
+    int                         index;
     /** Place widget at end of parent */
-    gboolean          end;
+    gboolean                    end;
     /** Parent widget */
-    struct _widget    *parent;
+    struct _widget              *parent;
     /** Internal */
-    gboolean          need_redraw;
+    gboolean                    need_redraw;
     /** get width of widget implementation function */
-    int               ( *get_width )( struct _widget * );
+    int                         ( *get_width )( struct _widget * );
     /** get height of widget implementation function */
-    int               ( *get_height )( struct _widget * );
+    int                         ( *get_height )( struct _widget * );
     /** draw widget implementation function */
-    void              ( *draw )( struct _widget *widget, cairo_t *draw );
+    void                        ( *draw )( struct _widget *widget, cairo_t *draw );
     /** resize widget implementation function */
-    void              ( *resize )( struct _widget *, short, short );
+    void                        ( *resize )( struct _widget *, short, short );
     /** update widget implementation function */
-    void              ( *update )( struct _widget * );
+    void                        ( *update )( struct _widget * );
 
     /** Handle mouse motion, used for dragging */
-    gboolean          ( *motion_notify )( struct _widget *, xcb_motion_notify_event_t * );
+    gboolean                    ( *motion_notify )( struct _widget *, xcb_motion_notify_event_t * );
 
-    int               ( *get_desired_height )( struct _widget * );
+    int                         ( *get_desired_height )( struct _widget * );
 
-    /** widget clicked callback */
-    widget_clicked_cb clicked;
-    /** user data for clicked callback */
-    void              *clicked_cb_data;
+    /** widget find_mouse_target callback */
+    widget_find_mouse_target_cb find_mouse_target;
+    /** widget trigger_action callback */
+    widget_trigger_action_cb    trigger_action;
+    /** user data for find_mouse_target and trigger_action callback */
+    void                        *trigger_action_cb_data;
 
     /** Free widget callback */
-    void              ( *free )( struct _widget *widget );
+    void                        ( *free )( struct _widget *widget );
 
     /** Name of widget (used for theming) */
-    char              *name;
-    const char        *state;
+    char                        *name;
+    const char                  *state;
 };
 
 /**
@@ -100,7 +104,7 @@ struct _widget
  * Initializes the widget structure.
  *
  */
-void widget_init ( widget *widget, const char *name );
+void widget_init ( widget *widget, WidgetType type, const char *name );
 
 /**
  * @param widget The widget handle.

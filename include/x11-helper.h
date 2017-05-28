@@ -171,38 +171,12 @@ int take_keyboard ( xcb_window_t w, int iters );
 int take_pointer ( xcb_window_t w, int iters );
 
 /**
- * @param mask The mask to canonilize
- *
- * @return The canonilized mask
- */
-unsigned int x11_canonalize_mask ( unsigned int mask );
-
-/**
- * @param xkb the xkb structure.
- *
- * Calculates the mask of all active modifier keys.
- *
- * @returns the mask describing all active modifier keys.
- */
-unsigned int x11_get_current_mask ( xkb_stuff *xkb );
-
-/**
- * @param combo String representing the key combo
- * @param mod [out]  The modifier specified (or AnyModifier if not specified)
- * @param key [out]  The key specified
- * @param release [out] If it should react on key-release, not key-press
- *
- * Parse key from user input string.
- */
-gboolean x11_parse_key ( const char *combo, unsigned int *mod, xkb_keysym_t *key, gboolean *release, GString * );
-
-/**
  * Setup several items required.
  * * Error handling,
  * * Numlock detection
  * * Cache
  */
-void x11_setup ( xkb_stuff *xkb );
+void x11_setup ( void );
 
 /**
  * Depth of visual
@@ -248,16 +222,6 @@ void x11_build_monitor_layout ( void );
  * Dump the monitor layout to stdout.
  */
 void x11_dump_monitor_layout ( void );
-
-/**
- * @param mask the mask to check for key
- * @param key the key to check in mask
- *
- * Check if key is in the modifier mask.
- *
- * @returns TRUE if key is in the modifier mask
- */
-int x11_modifier_active ( unsigned int mask, int key );
 
 /**
  * @param window The X11 window to modify

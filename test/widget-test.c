@@ -189,8 +189,10 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     widget_update ( NULL );
     widget_queue_redraw ( NULL );
     TASSERT (widget_need_redraw ( NULL ) == FALSE);
+    /* FIXME: add relevant code for binding rework
     widget_clicked ( NULL, NULL );
     widget_set_clicked_handler ( NULL, NULL, NULL );
+    */
 
 
     g_free(wid);

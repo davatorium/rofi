@@ -122,8 +122,14 @@ struct RofiViewState
     /** Y position of the view */
     int              y;
 
+    struct
+    {
+        int x;
+        int y;
+    }      mouse;
+
     /** Regexs used for matching */
-    GRegex           **tokens;
+    GRegex **tokens;
 };
 /** @} */
 #endif

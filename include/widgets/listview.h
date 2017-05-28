@@ -66,7 +66,7 @@ typedef void ( *listview_update_callback )( textbox *tb, unsigned int entry, voi
 /**
  * Callback when a element is activated.
  */
-typedef void ( *listview_mouse_activated_cb )( listview *, xcb_button_press_event_t *, void * );
+typedef void ( *listview_mouse_activated_cb )( listview *, gboolean, void * );
 
 /**
  * @param name The name of the to be created widget.

@@ -78,8 +78,6 @@ struct _listview
     listview_update_callback    callback;
     void                        *udata;
 
-    gboolean                    scrollbar_scroll;
-
     xcb_timestamp_t             last_click;
     listview_mouse_activated_cb mouse_activated;
     void                        *mouse_activated_data;
@@ -221,6 +219,8 @@ static void listview_draw ( widget *wid, cairo_t *draw )
     widget_draw ( WIDGET ( lv->scrollbar ), draw );
 }
 
+static gboolean listview_element_trigger_action ( widget *wid, MouseBindingListviewElementAction action, gint x, gint y, void *user_data );
+
 static void listview_recompute_elements ( listview *lv )
 {
     unsigned int newne = 0;
@@ -243,7 +243,8 @@ static void listview_recompute_elements ( listview *lv )
         char *name = g_strjoin ( ".", lv->listview_name, "element", NULL );
         for ( unsigned int i = lv->cur_elements; i < newne; i++ ) {
             TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
-            lv->boxes[i] = textbox_create ( name, flags, NORMAL, "" );
+            lv->boxes[i] = textbox_create_full ( WIDGET_TYPE_LISTVIEW_ELEMENT, name, flags, NORMAL, "" );
+            widget_set_trigger_action_handler ( WIDGET ( lv->boxes[i] ), listview_element_trigger_action, lv );
         }
         g_free ( name );
     }
@@ -301,74 +302,97 @@ static void listview_resize ( widget *wid, short w, short h )
     widget_queue_redraw ( wid );
 }
 
-static gboolean listview_scrollbar_clicked ( widget *sb, xcb_button_press_event_t * xce, void *udata )
+static widget *listview_find_mouse_target ( widget *wid, WidgetType type, gint *x, gint *y )
 {
-    listview     *lv = (listview *) udata;
+    widget   *target = NULL;
+    gint     rx, ry;
+    listview *lv = (listview *) wid;
+    if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) && widget_intersect ( WIDGET ( lv->scrollbar ), *x, *y ) ) {
+        rx     = *x - widget_get_x_pos ( WIDGET ( lv->scrollbar ) );
+        ry     = *y - widget_get_y_pos ( WIDGET ( lv->scrollbar ) );
+        target = widget_find_mouse_target ( WIDGET ( lv->scrollbar ), type, &rx, &ry );
+    }
 
-    unsigned int sel = scrollbar_clicked ( (scrollbar *) sb, xce->event_y );
-    listview_set_selected ( lv, sel );
+    unsigned int max = MIN ( lv->cur_elements, lv->req_elements - lv->last_offset );
+    unsigned int i;
+    for ( i = 0; i < max && target == NULL; i++ ) {
+        widget *w = WIDGET ( lv->boxes[i] );
+        if ( widget_intersect ( w, *x, *y ) ) {
+            rx     = *x - widget_get_x_pos ( w );
+            ry     = *y - widget_get_y_pos ( w );
+            target = widget_find_mouse_target ( w, type, &rx, &ry );
+        }
+    }
 
+    if ( target != NULL ) {
+        *x = rx;
+        *y = ry;
+        return target;
+    }
+
+    return NULL;
+}
+
+static gboolean listview_trigger_action ( widget *wid, MouseBindingListviewAction action, G_GNUC_UNUSED gint x, G_GNUC_UNUSED gint y, G_GNUC_UNUSED void *user_data )
+{
+    listview *lv = (listview *) wid;
+    switch ( action )
+    {
+    case SCROLL_LEFT:
+        listview_nav_left ( lv );
+        break;
+    case SCROLL_RIGHT:
+        listview_nav_right ( lv );
+        break;
+    case SCROLL_DOWN:
+        listview_nav_down ( lv );
+        break;
+    case SCROLL_UP:
+        listview_nav_up ( lv );
+        break;
+    }
     return TRUE;
 }
 
-static gboolean listview_clicked ( widget *wid, xcb_button_press_event_t *xce, G_GNUC_UNUSED void *udata )
+static gboolean listview_element_trigger_action ( widget *wid, MouseBindingListviewElementAction action, gint x, gint y, void *user_data )
 {
-    listview *lv = (listview *) wid;
-    lv->scrollbar_scroll = FALSE;
-    if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) && widget_intersect ( WIDGET ( lv->scrollbar ), xce->event_x, xce->event_y ) ) {
-        // Forward to handler of scrollbar.
-        xcb_button_press_event_t xce2 = *xce;
-        xce->event_x        -= widget_get_x_pos ( WIDGET ( lv->scrollbar ) );
-        xce->event_y        -= widget_get_y_pos ( WIDGET ( lv->scrollbar ) );
-        lv->scrollbar_scroll = TRUE;
-        return widget_clicked ( WIDGET ( lv->scrollbar ), &xce2 );
-    }
-    // Handle the boxes.
+    listview     *lv = (listview *) user_data;
     unsigned int max = MIN ( lv->cur_elements, lv->req_elements - lv->last_offset );
-    for ( unsigned int i = 0; i < max; i++ ) {
-        widget *w = WIDGET ( lv->boxes[i] );
-        if ( widget_intersect ( w, xce->event_x, xce->event_y ) ) {
-            if ( ( lv->last_offset + i ) == lv->selected ) {
-                if ( ( xce->time - lv->last_click ) < 200 ) {
-                    // Somehow signal we accepted item.
-                    lv->mouse_activated ( lv, xce, lv->mouse_activated_data );
-                }
-            }
-            else {
-                listview_set_selected ( lv, lv->last_offset + i );
-            }
-            lv->last_click = xce->time;
-            return TRUE;
-        }
+    unsigned int i;
+    for ( i = 0; i < max && WIDGET ( lv->boxes[i] ) != wid; i++ ) {
     }
-    return FALSE;
-}
-
-static gboolean listview_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
-{
-    listview *lv = (listview *) wid;
-    if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) && lv->scrollbar_scroll ) {
-        xcb_motion_notify_event_t xle = *xme;
-        xle.event_x -= wid->x;
-        xle.event_y -= wid->y;
-        widget_motion_notify ( WIDGET ( lv->scrollbar ), &xle );
-        return TRUE;
+    if ( i == max ) {
+        return FALSE;
     }
 
-    return FALSE;
+    gboolean custom = FALSE;
+    switch ( action )
+    {
+    case SELECT_HOVERED_ENTRY:
+        listview_set_selected ( lv, lv->last_offset + i );
+        break;
+    case ACCEPT_HOVERED_CUSTOM:
+        custom = TRUE;
+    case ACCEPT_HOVERED_ENTRY:
+        listview_set_selected ( lv, lv->last_offset + i );
+        lv->mouse_activated ( lv, custom, lv->mouse_activated_data );
+        break;
+    }
+    return TRUE;
 }
+
 listview *listview_create ( const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse )
 {
     listview *lv  = g_malloc0 ( sizeof ( listview ) );
     gchar    *box = g_strjoin ( ".", name, "box", NULL );
-    widget_init ( WIDGET ( lv ), box );
+    widget_init ( WIDGET ( lv ), WIDGET_TYPE_LISTVIEW, box );
     g_free ( box );
     lv->listview_name             = g_strdup ( name );
     lv->widget.free               = listview_free;
     lv->widget.resize             = listview_resize;
     lv->widget.draw               = listview_draw;
-    lv->widget.clicked            = listview_clicked;
-    lv->widget.motion_notify      = listview_motion_notify;
+    lv->widget.find_mouse_target  = listview_find_mouse_target;
+    lv->widget.trigger_action     = listview_trigger_action;
     lv->widget.get_desired_height = listview_get_desired_height;
     lv->widget.enabled            = rofi_theme_get_boolean ( WIDGET ( lv ), "enabled", TRUE );
     lv->eh                        = eh;
@@ -378,12 +402,11 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     // Default position on right.
     lv->scrollbar->widget.index = rofi_theme_get_integer_exact ( WIDGET ( lv->scrollbar ), "index", 1 );
     g_free ( n );
-    widget_set_clicked_handler ( WIDGET ( lv->scrollbar ), listview_scrollbar_clicked, lv );
     lv->scrollbar->widget.parent = WIDGET ( lv );
     // Calculate height of an element.
     //
     char    *tb_name = g_strjoin ( ".", lv->listview_name, "element", NULL );
-    textbox *tb      = textbox_create ( tb_name, 0, NORMAL, "" );
+    textbox *tb      = textbox_create_full ( WIDGET_TYPE_LISTVIEW_ELEMENT, tb_name, 0, NORMAL, "" );
     lv->element_height = textbox_get_estimated_height ( tb, lv->eh );
     g_free ( tb_name );
     widget_free ( WIDGET ( tb ) );
