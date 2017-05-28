@@ -50,6 +50,42 @@ struct _box
 
 static void box_update ( widget *wid  );
 
+
+static int box_get_desired_width  ( widget *wid )
+{
+    box *b      = (box *) wid;
+    int spacing = distance_get_pixel ( b->spacing, b->type == BOX_VERTICAL ? ORIENTATION_VERTICAL : ORIENTATION_HORIZONTAL );
+    int width  = 0;
+    if ( b->type == BOX_HORIZONTAL ) {
+        int active_widgets = 0;
+        for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
+            widget * child = (widget *) iter->data;
+            if ( !child->enabled ) {
+                continue;
+            }
+            active_widgets++;
+            if ( child->expand == TRUE ) {
+                width += widget_get_desired_width ( child );
+                continue;
+            }
+            width += widget_get_desired_width ( child );
+        }
+        if ( active_widgets > 0 ) {
+            width += ( active_widgets - 1 ) * spacing;
+        }
+    }
+    else {
+        for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
+            widget * child = (widget *) iter->data;
+            if ( !child->enabled ) {
+                continue;
+            }
+            width = MAX ( widget_get_desired_width ( child ), width );
+        }
+    }
+    width += widget_padding_get_padding_width ( wid );
+    return width;
+}
 static int box_get_desired_height ( widget *wid )
 {
     box *b      = (box *) wid;
@@ -160,7 +196,9 @@ static void hori_calculate_size ( box *b )
     for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
         widget * child = (widget *) iter->data;
         if ( child->enabled && child->expand == FALSE ) {
-            widget_resize ( child, child->w, rem_height );
+            widget_resize ( child,
+                    widget_get_desired_width ( child ), //child->w,
+                    rem_height );
         }
     }
     b->max_size = 0;
@@ -325,6 +363,7 @@ box * box_create ( const char *name, boxType type )
     b->widget.clicked            = box_clicked;
     b->widget.motion_notify      = box_motion_notify;
     b->widget.get_desired_height = box_get_desired_height;
+    b->widget.get_desired_width  = box_get_desired_width;
     b->widget.enabled            = rofi_theme_get_boolean ( WIDGET ( b ), "enabled", TRUE );
 
     b->type = rofi_theme_get_boolean ( WIDGET (b), "vertical",b->type );

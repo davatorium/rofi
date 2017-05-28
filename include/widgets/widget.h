@@ -210,5 +210,13 @@ gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
  */
 int widget_get_desired_height ( widget *wid );
 
+/**
+ * @param wid The widget handle
+ *
+ * Get the desired width of this widget recursively.
+ *
+ * @returns the desired width of the widget in pixels.
+ */
+int widget_get_desired_width ( widget *wid );
 /*@}*/
 #endif // ROFI_WIDGET_H

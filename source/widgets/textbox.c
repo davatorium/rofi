@@ -118,6 +118,7 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
     tb->widget.get_width          = textbox_get_width;
     tb->widget.get_height         = _textbox_get_height;
     tb->widget.get_desired_height = textbox_get_desired_height;
+    tb->widget.get_desired_width = textbox_get_desired_width;
     tb->flags                     = flags;
 
     tb->changed = FALSE;
@@ -169,14 +170,6 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
     tb->yalign = MAX ( 0, MIN ( 1.0, tb->yalign));
     // Enabled by default
     tb->widget.enabled = rofi_theme_get_boolean ( WIDGET ( tb ), "enabled", TRUE );
-
-    Distance w = rofi_theme_get_distance ( WIDGET ( tb ), "width", 0 );
-    int wi = distance_get_pixel ( w, ORIENTATION_HORIZONTAL );
-    if ( wi > 0 )
-    {
-        tb->widget.w = wi;
-        textbox_moveresize ( tb, tb->widget.x, tb->widget.y, tb->widget.w, tb->widget.h );
-    }
 
     return tb;
 }
@@ -818,13 +811,21 @@ int textbox_get_desired_width ( widget *wid )
 {
     textbox *tb = (textbox *) wid;
     unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
-    if ( tb->flags & TB_AUTOWIDTH ) {
+    if ( wid->expand && tb->flags & TB_AUTOWIDTH ) {
         return textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( wid ) + offset;
+    }
+    Distance w = rofi_theme_get_distance ( WIDGET ( tb ), "width", 0 );
+    int wi = distance_get_pixel ( w, ORIENTATION_HORIZONTAL );
+    if ( wi > 0 )
+    {
+        return wi;
     }
     int width = 0;
     pango_layout_set_width ( tb->layout, -1);
     width = textbox_get_font_width ( tb );
     // Restore.
     pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - widget_padding_get_padding_width ( WIDGET ( tb ) ) - offset ) );
-    return width + widget_padding_get_padding_width ( wid ) + offset;
+    width = width + widget_padding_get_padding_width ( wid ) + offset;
+
+    return width;
 }

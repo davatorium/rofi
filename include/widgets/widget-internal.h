@@ -79,6 +79,7 @@ struct _widget
     gboolean          ( *motion_notify )( struct _widget *, xcb_motion_notify_event_t * );
 
     int               ( *get_desired_height )( struct _widget * );
+    int               ( *get_desired_width )( struct _widget * );
 
     /** widget clicked callback */
     widget_clicked_cb clicked;
