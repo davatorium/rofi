@@ -101,7 +101,7 @@ struct xkb_stuff xkb = {
 };
 
 /** Path to the configuration file */
-char *config_path = NULL;
+G_MODULE_EXPORT char *config_path = NULL;
 /** Array holding all activated modi. */
 Mode **modi = NULL;
 
@@ -558,6 +558,8 @@ static void rofi_collect_modi_dir ( const char *base_dir )
                     g_warning ( "Symbol 'mode' not found in module: %s", dn );
                     g_module_close ( mod );
                 }
+            } else {
+                g_warning ( "Failed to open 'mode' plugin: '%s', error: %s", dn, g_module_error());
             }
             g_free ( fn );
         }
