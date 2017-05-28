@@ -1590,20 +1590,18 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
      * MAINBOX
      */
     if ( strcmp ( name, "mainbox") == 0 ){
-        state->main_box    = box_create ( strbox, BOX_VERTICAL );
-        box_add ( (box *)parent_widget, WIDGET ( state->main_box ), TRUE, 0 );
-        wid = WIDGET ( state->main_box );
+        wid = (widget *)box_create ( strbox, BOX_VERTICAL );
+        box_add ( (box *)parent_widget, WIDGET ( wid ), TRUE, 0 );
         defaults = "inputbar,message,listview";
     }
     /**
      * INPUTBAR
      */
     else if ( strcmp ( name, "inputbar" ) == 0 ){
-        state->input_bar = box_create ( strbox, BOX_HORIZONTAL );
-        wid = WIDGET( state->input_bar );
+        wid = (widget *)box_create ( strbox, BOX_HORIZONTAL );
         defaults = "prompt,entry,case-indicator";
 
-        box_add ( (box *)parent_widget, WIDGET ( state->input_bar ), FALSE, 0 );
+        box_add ( (box *)parent_widget, WIDGET ( wid ), FALSE, 0 );
     }
     /**
      * PROMPT
@@ -1777,11 +1775,11 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->finalize   = process_result;
 
     state->main_window = box_create ( "window.box", BOX_VERTICAL );
-    state->main_box    = box_create ( "window.mainbox.message.box", BOX_VERTICAL );
-    box_add ( state->main_window, WIDGET ( state->main_box ), TRUE, 0 );
+    box *box           = box_create ( "window.mainbox.message.box", BOX_VERTICAL );
+    box_add ( state->main_window, WIDGET ( box ), TRUE, 0 );
     state->text = textbox_create ( "window.mainbox.message.textbox", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
                                    NORMAL, ( msg != NULL ) ? msg : "" );
-    box_add ( state->main_box, WIDGET ( state->text ), TRUE, 1 );
+    box_add ( box, WIDGET ( state->text ), TRUE, 1 );
 
     // Make sure we enable fixed num lines when in normal window mode.
     if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == MENU_NORMAL_WINDOW ) {
@@ -1914,12 +1912,9 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text )
     // Within padding of window.
     x_offset -= widget_padding_get_right ( WIDGET ( state->main_window ) );
     // Within the border of widget.
-    x_offset -= widget_padding_get_right ( WIDGET ( state->main_box ) );
-    x_offset -= widget_padding_get_right ( WIDGET ( state->input_bar ) );
     x_offset -= widget_get_width ( WIDGET ( state->case_indicator ) );
     x_offset -= widget_get_width ( WIDGET ( state->overlay ) );
     int top_offset = widget_padding_get_top   ( WIDGET ( state->main_window ) );
-    top_offset += widget_padding_get_top   ( WIDGET ( state->main_box ) );
     widget_move ( WIDGET ( state->overlay ), x_offset, top_offset );
     // We want to queue a repaint.
     rofi_view_queue_redraw ( );

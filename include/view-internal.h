@@ -52,10 +52,6 @@ struct RofiViewState
     int              refilter;
     /** Widget representing the main container. */
     box              *main_window;
-    /** Main #box widget holding different elements. */
-    box              *main_box;
-    /** #box widget packing the input bar widgets. */
-    box              *input_bar;
     /** #textbox showing the prompt in the input bar. */
     textbox          *prompt;
     /** #textbox with the user input in the input bar. */

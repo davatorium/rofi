@@ -442,6 +442,9 @@ gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
 
 int widget_padding_get_left ( const widget *wid )
 {
+    if ( wid == NULL ) {
+        return 0;
+    }
     int distance = distance_get_pixel ( wid->padding.left, ORIENTATION_HORIZONTAL );
     distance += distance_get_pixel ( wid->border.left, ORIENTATION_HORIZONTAL );
     distance += distance_get_pixel ( wid->margin.left, ORIENTATION_HORIZONTAL );
@@ -449,6 +452,9 @@ int widget_padding_get_left ( const widget *wid )
 }
 int widget_padding_get_right ( const widget *wid )
 {
+    if ( wid == NULL ) {
+        return 0;
+    }
     int distance = distance_get_pixel ( wid->padding.right, ORIENTATION_HORIZONTAL );
     distance += distance_get_pixel ( wid->border.right, ORIENTATION_HORIZONTAL );
     distance += distance_get_pixel ( wid->margin.right, ORIENTATION_HORIZONTAL );
@@ -456,6 +462,9 @@ int widget_padding_get_right ( const widget *wid )
 }
 int widget_padding_get_top ( const widget *wid )
 {
+    if ( wid == NULL ) {
+        return 0;
+    }
     int distance = distance_get_pixel ( wid->padding.top, ORIENTATION_VERTICAL );
     distance += distance_get_pixel ( wid->border.top, ORIENTATION_VERTICAL );
     distance += distance_get_pixel ( wid->margin.top, ORIENTATION_VERTICAL );
@@ -463,6 +472,9 @@ int widget_padding_get_top ( const widget *wid )
 }
 int widget_padding_get_bottom ( const widget *wid )
 {
+    if ( wid == NULL ) {
+        return 0;
+    }
     int distance = distance_get_pixel ( wid->padding.bottom, ORIENTATION_VERTICAL );
     distance += distance_get_pixel ( wid->border.bottom, ORIENTATION_VERTICAL );
     distance += distance_get_pixel ( wid->margin.bottom, ORIENTATION_VERTICAL );
