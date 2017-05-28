@@ -38,6 +38,7 @@
 #include <helper.h>
 #include <math.h>
 #include <ctype.h>
+#include <strings.h>
 #include "rofi.h"
 #include "theme.h"
 
