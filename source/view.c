@@ -1665,19 +1665,21 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
      * SIDEBAR
      */
     else if ( strcmp( name, "sidebar" ) == 0 ) {
-        state->sidebar_bar = box_create ( strbox, BOX_HORIZONTAL );
-        box_add ( (box*)parent_widget, WIDGET ( state->sidebar_bar ), FALSE, 10 );
-        state->num_modi = rofi_get_num_enabled_modi ();
-        state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
-        char *strbutton= g_strjoin ( "." , str, "button",NULL );
-        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
-            const Mode * mode = rofi_get_mode ( j );
-            state->modi[j] = textbox_create ( strbutton, TB_CENTER | TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
-                                              mode_get_display_name ( mode  ) );
-            box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, j );
-            widget_set_clicked_handler ( WIDGET ( state->modi[j] ), rofi_view_modi_clicked_cb, state );
+        if ( config.sidebar_mode ){
+            state->sidebar_bar = box_create ( strbox, BOX_HORIZONTAL );
+            box_add ( (box*)parent_widget, WIDGET ( state->sidebar_bar ), FALSE, 10 );
+            state->num_modi = rofi_get_num_enabled_modi ();
+            state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
+            char *strbutton= g_strjoin ( "." , str, "button",NULL );
+            for ( unsigned int j = 0; j < state->num_modi; j++ ) {
+                const Mode * mode = rofi_get_mode ( j );
+                state->modi[j] = textbox_create ( strbutton, TB_CENTER | TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
+                        mode_get_display_name ( mode  ) );
+                box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, j );
+                widget_set_clicked_handler ( WIDGET ( state->modi[j] ), rofi_view_modi_clicked_cb, state );
+            }
+            g_free(strbutton);
         }
-        g_free(strbutton);
     }
     else {
         wid = box_create ( strbox, BOX_VERTICAL );
