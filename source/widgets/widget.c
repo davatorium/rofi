@@ -446,7 +446,6 @@ widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint *x, gint *
 
 gboolean widget_trigger_action ( widget *wid, guint action, gint x, gint y )
 {
-    g_print ( "TRIGGER %p\n", wid );
     if ( wid && wid->trigger_action ) {
         return wid->trigger_action ( wid, action, x, y, wid->trigger_action_cb_data );
     }
@@ -455,9 +454,6 @@ gboolean widget_trigger_action ( widget *wid, guint action, gint x, gint y )
 
 void widget_set_trigger_action_handler ( widget *wid, widget_trigger_action_cb cb, void * cb_data )
 {
-    if ( wid->type == WIDGET_TYPE_SIDEBAR_MODI ) {
-        g_print ( "CUSTOM TRIGGER %p\n", wid );
-    }
     wid->trigger_action         = cb;
     wid->trigger_action_cb_data = cb_data;
 }
