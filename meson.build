@@ -413,6 +413,7 @@ if uncrustify.found()
         command: [
             uncrustify,
             '-c', join_paths(meson.source_root(), 'data', 'uncrustify.cfg'),
+            '--replace',
             rofi_sources
         ],
     )
