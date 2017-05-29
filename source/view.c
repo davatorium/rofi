@@ -1346,7 +1346,6 @@ static void rofi_view_trigger_global_action ( KeyBindingAction action )
 gboolean rofi_view_trigger_action ( guint scope, gpointer user_data )
 {
     RofiViewState *state = rofi_view_get_active ();
-    g_print ( "TRY ACTION scope %u\n", scope );
     switch ( (BindingsScope) scope )
     {
     case SCOPE_GLOBAL:
