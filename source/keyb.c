@@ -122,9 +122,6 @@ ActionBindingEntry rofi_bindings[] =
     { .id = SELECT_HOVERED_ENTRY,    .scope = SCOPE_MOUSE_LISTVIEW_ELEMENT, .name    = "me-select-entry",                      .binding = "Mouse1", .comment = "Select hovered row"                               },
     { .id = ACCEPT_HOVERED_ENTRY,    .scope = SCOPE_MOUSE_LISTVIEW_ELEMENT, .name    = "me-accept-entry",                      .binding = "MouseD1", .comment = "Accept hovered row"                              },
     { .id = ACCEPT_HOVERED_CUSTOM,   .scope = SCOPE_MOUSE_LISTVIEW_ELEMENT, .name    = "me-accept-custom",                     .binding = "Control+MouseD1", .comment = "Accept hovered row with custom action"   },
-
-    /* Sentinel */
-    { .id = 0 }
 };
 
 static const gchar *mouse_default_bindings[] = {
