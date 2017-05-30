@@ -453,7 +453,7 @@ widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y 
     return NULL;
 }
 
-gboolean widget_trigger_action ( widget *wid, guint action, gint x, gint y )
+WidgetTriggerActionResult widget_trigger_action ( widget *wid, guint action, gint x, gint y )
 {
     if ( wid && wid->trigger_action ) {
         return wid->trigger_action ( wid, action, x, y, wid->trigger_action_cb_data );

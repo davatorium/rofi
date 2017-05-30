@@ -219,7 +219,7 @@ static void listview_draw ( widget *wid, cairo_t *draw )
     widget_draw ( WIDGET ( lv->scrollbar ), draw );
 }
 
-static gboolean listview_element_trigger_action ( widget *wid, MouseBindingListviewElementAction action, gint x, gint y, void *user_data );
+static WidgetTriggerActionResult listview_element_trigger_action ( widget *wid, MouseBindingListviewElementAction action, gint x, gint y, void *user_data );
 
 static void listview_recompute_elements ( listview *lv )
 {
@@ -327,7 +327,7 @@ static widget *listview_find_mouse_target ( widget *wid, WidgetType type, gint x
     return target;
 }
 
-static gboolean listview_trigger_action ( widget *wid, MouseBindingListviewAction action, G_GNUC_UNUSED gint x, G_GNUC_UNUSED gint y, G_GNUC_UNUSED void *user_data )
+static WidgetTriggerActionResult listview_trigger_action ( widget *wid, MouseBindingListviewAction action, G_GNUC_UNUSED gint x, G_GNUC_UNUSED gint y, G_GNUC_UNUSED void *user_data )
 {
     listview *lv = (listview *) wid;
     switch ( action )
@@ -345,10 +345,10 @@ static gboolean listview_trigger_action ( widget *wid, MouseBindingListviewActio
         listview_nav_up ( lv );
         break;
     }
-    return TRUE;
+    return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
 }
 
-static gboolean listview_element_trigger_action ( widget *wid, MouseBindingListviewElementAction action, gint x, gint y, void *user_data )
+static WidgetTriggerActionResult listview_element_trigger_action ( widget *wid, MouseBindingListviewElementAction action, G_GNUC_UNUSED gint x, G_GNUC_UNUSED gint y, void *user_data )
 {
     listview     *lv = (listview *) user_data;
     unsigned int max = MIN ( lv->cur_elements, lv->req_elements - lv->last_offset );
@@ -356,7 +356,7 @@ static gboolean listview_element_trigger_action ( widget *wid, MouseBindingListv
     for ( i = 0; i < max && WIDGET ( lv->boxes[i] ) != wid; i++ ) {
     }
     if ( i == max ) {
-        return FALSE;
+        return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
     }
 
     gboolean custom = FALSE;
@@ -372,7 +372,7 @@ static gboolean listview_element_trigger_action ( widget *wid, MouseBindingListv
         lv->mouse_activated ( lv, custom, lv->mouse_activated_data );
         break;
     }
-    return TRUE;
+    return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
 }
 
 listview *listview_create ( const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse )

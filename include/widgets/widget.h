@@ -70,6 +70,21 @@ typedef enum
 } WidgetType;
 
 /**
+ * Whether and how the action was handled
+ */
+typedef enum
+{
+    /** The action was ignore and should bubble */
+    WIDGET_TRIGGER_ACTION_RESULT_IGNORED,
+    /** The action was handled directly */
+    WIDGET_TRIGGER_ACTION_RESULT_HANDLED,
+    /** The action was handled and should start the grab for motion events */
+    WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN,
+    /** The action was handled and should stop the grab for motion events */
+    WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_END,
+} WidgetTriggerActionResult;
+
+/**
  * @param widget The container widget itself
  * @param type The widget type searched for
  * @param x The X coordination of the mouse event relative to @widget
@@ -90,9 +105,9 @@ typedef widget * ( *widget_find_mouse_target_cb )( widget *widget, WidgetType ty
  *
  * This callback should handle the action if relevant, and returns whether it did or not.
  *
- * @returns Whether the action was handled or not
+ * @returns Whether the action was handled or not, see enum values for details
  */
-typedef gboolean ( *widget_trigger_action_cb )( widget *widget, guint action, gint x, gint y, void *user_data );
+typedef WidgetTriggerActionResult ( *widget_trigger_action_cb )( widget *widget, guint action, gint x, gint y, void *user_data );
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
 #define WIDGET( a )    ( (widget *) ( a ) )
@@ -249,7 +264,7 @@ widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y 
  *
  * @returns Whether the action was handled or not
  */
-gboolean widget_trigger_action ( widget *wid, guint action, gint x, gint y );
+WidgetTriggerActionResult widget_trigger_action ( widget *wid, guint action, gint x, gint y );
 
 /**
  * @param wid The widget handle

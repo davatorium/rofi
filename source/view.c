@@ -1363,7 +1363,19 @@ gboolean rofi_view_trigger_action ( guint scope, gpointer user_data )
             return FALSE;
         }
         widget_xy_to_relative ( target, &x, &y );
-        return widget_trigger_action ( target, GPOINTER_TO_UINT ( user_data ), x, y );
+        switch ( widget_trigger_action ( target, GPOINTER_TO_UINT ( user_data ), x, y ) )
+        {
+        case WIDGET_TRIGGER_ACTION_RESULT_IGNORED:
+            return FALSE;
+            return TRUE;
+        case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_END:
+            target = NULL;
+        case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN:
+            state->mouse.motion_target = target;
+        case WIDGET_TRIGGER_ACTION_RESULT_HANDLED:
+            return TRUE;
+        }
+        break;
     }
     }
     return FALSE;
@@ -1502,7 +1514,7 @@ static int rofi_view_calculate_height ( RofiViewState *state )
     return height;
 }
 
-static gboolean textbox_sidebar_modi_trigger_action ( widget *wid, MouseBindingMouseDefaultAction action, gint x, gint y, G_GNUC_UNUSED void *user_data )
+static WidgetTriggerActionResult textbox_sidebar_modi_trigger_action ( widget *wid, MouseBindingMouseDefaultAction action, G_GNUC_UNUSED gint x, G_GNUC_UNUSED gint y, G_GNUC_UNUSED void *user_data )
 {
     RofiViewState *state = ( RofiViewState *) user_data;
     unsigned int  i;
@@ -1512,7 +1524,7 @@ static gboolean textbox_sidebar_modi_trigger_action ( widget *wid, MouseBindingM
         }
     }
     if ( i == state->num_modi ) {
-        return FALSE;
+        return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
     }
 
     switch ( action )
@@ -1521,13 +1533,13 @@ static gboolean textbox_sidebar_modi_trigger_action ( widget *wid, MouseBindingM
         state->retv        = MENU_QUICK_SWITCH | ( i & MENU_LOWER_MASK );
         state->quit        = TRUE;
         state->skip_absorb = TRUE;
-        return TRUE;
+        return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
     case MOUSE_CLICK_UP:
     case MOUSE_DCLICK_DOWN:
     case MOUSE_DCLICK_UP:
         break;
     }
-    return FALSE;
+    return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
 }
 
 // @TODO don't like this construction.

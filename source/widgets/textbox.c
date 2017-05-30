@@ -106,7 +106,7 @@ static int textbox_get_desired_height ( widget *wid )
     return height;
 }
 
-static gboolean textbox_editable_trigger_action ( widget *wid, MouseBindingMouseDefaultAction action, gint x, gint y, G_GNUC_UNUSED void *user_data )
+static WidgetTriggerActionResult textbox_editable_trigger_action ( widget *wid, MouseBindingMouseDefaultAction action, gint x, gint y, G_GNUC_UNUSED void *user_data )
 {
     textbox *tb = (textbox *) wid;
     switch ( action )
@@ -116,14 +116,14 @@ static gboolean textbox_editable_trigger_action ( widget *wid, MouseBindingMouse
         gint i;
         pango_layout_xy_to_index ( tb->layout, x * PANGO_SCALE, y * PANGO_SCALE, &i, NULL );
         textbox_cursor ( tb, i );
-        return TRUE;
+        return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
     }
     case MOUSE_CLICK_UP:
     case MOUSE_DCLICK_DOWN:
     case MOUSE_DCLICK_UP:
         break;
     }
-    return FALSE;
+    return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
 }
 
 textbox* textbox_create_full ( WidgetType type, const char *name, TextboxFlags flags, TextBoxFontType tbft, const char *text )

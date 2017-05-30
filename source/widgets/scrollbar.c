@@ -75,16 +75,16 @@ static void scrollbar_scroll ( scrollbar *sb, int y )
     listview_set_selected ( (listview *) sb->widget.parent, scrollbar_scroll_get_line ( sb, y ) );
 }
 
-static gboolean scrollbar_trigger_action ( widget *wid, MouseBindingMouseDefaultAction action, G_GNUC_UNUSED gint x, gint y, G_GNUC_UNUSED void *user_data )
+static WidgetTriggerActionResult scrollbar_trigger_action ( widget *wid, MouseBindingMouseDefaultAction action, G_GNUC_UNUSED gint x, gint y, G_GNUC_UNUSED void *user_data )
 {
     scrollbar *sb = (scrollbar *) wid;
     switch ( action )
     {
     case MOUSE_CLICK_DOWN:
-        return TRUE;
+        return WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN;
     case MOUSE_CLICK_UP:
         scrollbar_scroll ( sb, y );
-        return TRUE;
+        return WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_END;
     case MOUSE_DCLICK_DOWN:
     case MOUSE_DCLICK_UP:
         break;
