@@ -284,8 +284,13 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
 #endif
     pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
 
-    pd->entry_list[pd->cmd_list_length].icon_name = g_key_file_get_locale_string ( kf, "Desktop Entry", "Icon", NULL, NULL );
-    pd->entry_list[pd->cmd_list_length].icon      = NULL;
+    if ( config.show_icons ) {
+        pd->entry_list[pd->cmd_list_length].icon_name = g_key_file_get_locale_string ( kf, "Desktop Entry", "Icon", NULL, NULL );
+    }
+    else{
+        pd->entry_list[pd->cmd_list_length].icon_name = NULL;
+    }
+    pd->entry_list[pd->cmd_list_length].icon = NULL;
 
     // Keep keyfile around.
     pd->entry_list[pd->cmd_list_length].key_file = kf;

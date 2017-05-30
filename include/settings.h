@@ -97,6 +97,9 @@ typedef struct
     char           * color_urgent;
     char           * color_window;
 
+    /** Whether to load and show icons  */
+    gboolean       show_icons;
+
     /** Terminal to use  */
     char           * terminal_emulator;
     /** SSH client to use */

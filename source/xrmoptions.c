@@ -105,6 +105,9 @@ static XrmOption xrmOptions[] = {
     { xrm_Boolean, "fixed-num-lines",   { .num  = &config.fixed_num_lines        }, NULL,
       "Always show number of lines", CONFIG_DEFAULT },
 
+    { xrm_Boolean, "show-icons",        { .snum = &config.show_icons             }, NULL,
+      "Whether to load and show icons", CONFIG_DEFAULT },
+
     { xrm_String,  "terminal",          { .str  = &config.terminal_emulator      }, NULL,
       "Terminal to use", CONFIG_DEFAULT },
     { xrm_String,  "ssh-client",        { .str  = &config.ssh_client             }, NULL,

@@ -44,7 +44,9 @@ Settings config = {
     /** Font */
     .menu_font         = "mono 12",
 
-    /** Row colors */
+    /** Whether to load and show icons */
+    .show_icons        = FALSE,
+
     /** Terminal to use. (for ssh and open in terminal) */
     .terminal_emulator = "rofi-sensible-terminal",
     .ssh_client        = "ssh",

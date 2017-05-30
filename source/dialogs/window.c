@@ -693,7 +693,9 @@ static gboolean helper_eval_cb ( const GMatchInfo *info, GString *str, gpointer 
             helper_eval_add_str ( str, d->c->wmdesktopstr, l, d->pd->wmdn_len );
         }
         else if ( match[1] == 'i' ) {
-            g_string_append ( str, "<span alpha=\"1\">\uFFFC</span>" );
+            if ( config.show_icons ) {
+                g_string_append ( str, "<span alpha=\"1\">\uFFFC</span>" );
+            }
         }
         else if ( match[1] == 'c' ) {
             helper_eval_add_str ( str, d->c->class, l, d->pd->clf_len );
