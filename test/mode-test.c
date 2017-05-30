@@ -69,7 +69,7 @@ RofiViewState * rofi_view_get_active ( void )
 {
     return NULL;
 }
-gboolean rofi_view_trigger_action ( G_GNUC_UNUSED guint scope, G_GNUC_UNUSED gpointer user_data )
+gboolean rofi_view_trigger_action ( G_GNUC_UNUSED RofiViewState *state, G_GNUC_UNUSED BindingsScope scope, G_GNUC_UNUSED guint action )
 {
     return FALSE;
 }

@@ -1343,13 +1343,12 @@ static void rofi_view_trigger_global_action ( KeyBindingAction action )
     }
 }
 
-gboolean rofi_view_trigger_action ( guint scope, gpointer user_data )
+gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, guint action )
 {
-    RofiViewState *state = rofi_view_get_active ();
-    switch ( (BindingsScope) scope )
+    switch ( scope )
     {
     case SCOPE_GLOBAL:
-        rofi_view_trigger_global_action ( GPOINTER_TO_UINT ( user_data ) );
+        rofi_view_trigger_global_action ( action );
         return TRUE;
     case SCOPE_MOUSE_LISTVIEW:
     case SCOPE_MOUSE_LISTVIEW_ELEMENT:
@@ -1363,7 +1362,7 @@ gboolean rofi_view_trigger_action ( guint scope, gpointer user_data )
             return FALSE;
         }
         widget_xy_to_relative ( target, &x, &y );
-        switch ( widget_trigger_action ( target, GPOINTER_TO_UINT ( user_data ), x, y ) )
+        switch ( widget_trigger_action ( target, action, x, y ) )
         {
         case WIDGET_TRIGGER_ACTION_RESULT_IGNORED:
             return FALSE;

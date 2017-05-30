@@ -140,6 +140,11 @@ void setup_abe ( void )
     }
 }
 
+static gboolean binding_trigger_action ( guint scope, gpointer user_data )
+{
+    return rofi_view_trigger_action ( rofi_view_get_active (), scope, GPOINTER_TO_UINT ( user_data ) );
+}
+
 gboolean parse_keys_abe ( NkBindings *bindings )
 {
     GError  *error     = NULL;
@@ -152,7 +157,7 @@ gboolean parse_keys_abe ( NkBindings *bindings )
         // Iter over bindings.
         const char *const sep = ",";
         for ( char *entry = strtok_r ( keystr, sep, &sp ); entry != NULL; entry = strtok_r ( NULL, sep, &sp ) ) {
-            if ( !nk_bindings_add_binding ( bindings, b->scope, entry, rofi_view_trigger_action, GUINT_TO_POINTER ( b->id ), NULL, &error ) ) {
+            if ( !nk_bindings_add_binding ( bindings, b->scope, entry, binding_trigger_action, GUINT_TO_POINTER ( b->id ), NULL, &error ) ) {
                 g_string_append_c ( g_string_append ( error_msg, error->message ), '\n' );
                 g_clear_error ( &error );
             }
@@ -168,7 +173,7 @@ gboolean parse_keys_abe ( NkBindings *bindings )
 
     for ( gsize i = SCOPE_MIN_FIXED; i <= SCOPE_MAX_FIXED; ++i ) {
         for ( gsize j = 1; j < G_N_ELEMENTS ( mouse_default_bindings ); ++j ) {
-            nk_bindings_add_binding ( bindings, i, mouse_default_bindings[j], rofi_view_trigger_action, GSIZE_TO_POINTER ( j ), NULL, NULL );
+            nk_bindings_add_binding ( bindings, i, mouse_default_bindings[j], binding_trigger_action, GSIZE_TO_POINTER ( j ), NULL, NULL );
         }
     }
 
