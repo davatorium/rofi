@@ -1410,8 +1410,11 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb
         xcb_motion_notify_event_t xme = *( (xcb_motion_notify_event_t *) event );
         state->mouse.x = xme.event_x;
         state->mouse.y = xme.event_y;
-        if ( widget_motion_notify ( WIDGET ( state->main_window ), &xme ) ) {
-            return;
+        if ( state->mouse.motion_target != NULL ) {
+            gint x = state->mouse.x;
+            gint y = state->mouse.y;
+            widget_xy_to_relative ( state->mouse.motion_target, &x, &y );
+            widget_motion_notify ( state->mouse.motion_target, x, y );
         }
         break;
     }

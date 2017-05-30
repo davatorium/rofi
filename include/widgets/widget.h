@@ -268,7 +268,7 @@ void widget_set_trigger_action_handler ( widget *wid, widget_trigger_action_cb c
  * TODO make this like clicked with callback.
  * returns TRUE when handled.
  */
-gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
+gboolean widget_motion_notify ( widget *wid, gint x, gint y );
 
 /**
  * @param wid The widget handle

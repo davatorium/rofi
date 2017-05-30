@@ -100,18 +100,6 @@ static widget *container_find_mouse_target ( widget *wid, WidgetType type, gint 
     return widget_find_mouse_target ( b->child, type, x, y );
 }
 
-static gboolean container_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
-{
-    container *b = (container *) wid;
-    if ( widget_intersect ( b->child, xme->event_x, xme->event_y ) ) {
-        xcb_motion_notify_event_t rel = *xme;
-        rel.event_x -= b->child->x;
-        rel.event_y -= b->child->y;
-        return widget_motion_notify ( b->child, &rel );
-    }
-    return FALSE;
-}
-
 container * container_create ( const char *name )
 {
     container *b = g_malloc0 ( sizeof ( container ) );
@@ -122,7 +110,6 @@ container * container_create ( const char *name )
     b->widget.resize             = container_resize;
     b->widget.update             = container_update;
     b->widget.find_mouse_target  = container_find_mouse_target;
-    b->widget.motion_notify      = container_motion_notify;
     b->widget.get_desired_height = container_get_desired_height;
     b->widget.enabled            = rofi_theme_get_boolean ( WIDGET ( b ), "enabled", TRUE );
     return b;

@@ -78,7 +78,7 @@ struct _widget
     void                        ( *update )( struct _widget * );
 
     /** Handle mouse motion, used for dragging */
-    gboolean                    ( *motion_notify )( struct _widget *, xcb_motion_notify_event_t * );
+    gboolean                    ( *motion_notify )( struct _widget *, gint x, gint y );
 
     int                         ( *get_desired_height )( struct _widget * );
 

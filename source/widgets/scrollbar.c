@@ -83,7 +83,7 @@ static gboolean scrollbar_trigger_action ( widget *wid, MouseBindingMouseDefault
     return FALSE;
 }
 
-static gboolean scrollbar_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
+static gboolean scrollbar_motion_notify ( widget *wid, G_GNUC_UNUSED gint x, gint y )
 {
     /* FIXME: scoll
        scrollbar *sb = (scrollbar *) wid;

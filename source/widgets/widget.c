@@ -467,10 +467,10 @@ void widget_set_trigger_action_handler ( widget *wid, widget_trigger_action_cb c
     wid->trigger_action_cb_data = cb_data;
 }
 
-gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
+gboolean widget_motion_notify ( widget *wid, gint x, gint y )
 {
     if ( wid && wid->motion_notify ) {
-        wid->motion_notify ( wid, xme );
+        wid->motion_notify ( wid, x, y );
     }
 
     return FALSE;

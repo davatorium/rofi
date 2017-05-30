@@ -124,8 +124,9 @@ struct RofiViewState
 
     struct
     {
-        int x;
-        int y;
+        int    x;
+        int    y;
+        widget *motion_target;
     }      mouse;
 
     /** Regexs used for matching */
