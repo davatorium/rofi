@@ -49,18 +49,51 @@
  * Structure is elaborated in widget-internal.h
  */
 typedef struct _widget   widget;
+
+/**
+ * Type of the widget. It is used to bubble events to the relevant widget.
+ */
 typedef enum
 {
+    /** Default type */
     WIDGET_TYPE_UNKNOWN,
+    /** The listview widget */
     WIDGET_TYPE_LISTVIEW         = SCOPE_MOUSE_LISTVIEW,
+    /** An element in the listview */
     WIDGET_TYPE_LISTVIEW_ELEMENT = SCOPE_MOUSE_LISTVIEW_ELEMENT,
+    /** The input bar edit box */
     WIDGET_TYPE_EDITBOX          = SCOPE_MOUSE_EDITBOX,
+    /** The listview scrollbar */
     WIDGET_TYPE_SCROLLBAR        = SCOPE_MOUSE_SCROLLBAR,
+    /** A tab in the modi sidebar */
     WIDGET_TYPE_SIDEBAR_MODI     = SCOPE_MOUSE_SIDEBAR_MODI,
 } WidgetType;
 
-typedef widget * ( *widget_find_mouse_target_cb )( widget *, WidgetType type, gint *x, gint *y );
-typedef gboolean ( *widget_trigger_action_cb )( widget *, guint action, gint x, gint y, void * );
+/**
+ * @param widget The container widget itself
+ * @param type The widget type searched for
+ * @param x A pointer to the X coordination of the mouse event relative to @widget
+ * @param y A pointer to the Y coordination of the mouse event relative to @widget
+ *
+ * This callback must only iterate over the children of a Widget, and return NULL if none of them is relevant.
+ * If one was found, @x and @y must be adjusted to be relative to this child.
+ *
+ * @returns A child widget if found, NULL otherwise
+ */
+typedef widget * ( *widget_find_mouse_target_cb )( widget *widget, WidgetType type, gint *x, gint *y );
+
+/**
+ * @param widget The target widget
+ * @param action The action value (which enum it is depends on the widget type)
+ * @param x The X coordination of the mouse event relative to @widget
+ * @param y The Y coordination of the mouse event relative to @widget
+ * @param user_data The data passed to widget_set_trigger_action_handler()
+ *
+ * This callback should handle the action if relevant, and returns whether it did or not.
+ *
+ * @returns Whether the action was handled or not
+ */
+typedef gboolean ( *widget_trigger_action_cb )( widget *widget, guint action, gint x, gint y, void *user_data );
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
 #define WIDGET( a )    ( (widget *) ( a ) )
@@ -206,6 +239,8 @@ widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint *x, gint *
  *
  * Trigger an action on widget.
  * @x and @y are relative to the widget.
+ *
+ * @returns Whether the action was handled or not
  */
 gboolean widget_trigger_action ( widget *wid, guint action, gint x, gint y );
 
