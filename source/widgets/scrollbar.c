@@ -70,10 +70,8 @@ static gboolean scrollbar_trigger_action ( widget *wid, MouseBindingMouseDefault
     switch ( action )
     {
     case MOUSE_CLICK_DOWN:
-        sb->scrolling = TRUE;
         return TRUE;
     case MOUSE_CLICK_UP:
-        sb->scrolling = FALSE;
         /* FIXME: scoll
            scrollbar_scroll(sb, y);
          */

@@ -43,7 +43,6 @@
 typedef struct _scrollbar
 {
     widget       widget;
-    gboolean     scrolling;
     unsigned int length;
     unsigned int pos;
     unsigned int pos_length;
