@@ -1501,7 +1501,6 @@ static int rofi_view_calculate_height ( RofiViewState *state )
 
 static gboolean textbox_sidebar_modi_trigger_action ( widget *wid, MouseBindingMouseDefaultAction action, gint x, gint y, G_GNUC_UNUSED void *user_data )
 {
-    g_print ( "CLICK ON SIDEBAR\n" );
     RofiViewState *state = ( RofiViewState *) user_data;
     unsigned int  i;
     for ( i = 0; i < state->num_modi; i++ ) {
