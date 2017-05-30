@@ -88,24 +88,18 @@ static void container_resize ( widget *widget, short w, short h )
     }
 }
 
-static widget *container_find_mouse_target ( widget *wid, WidgetType type, gint *x, gint *y )
+static widget *container_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y )
 {
     container *b = (container *) wid;
-    if ( !widget_intersect ( b->child, *x, *y ) ) {
+    if ( !widget_intersect ( b->child, x, y ) ) {
         return NULL;
     }
 
-    gint   rx      = *x - b->child->x;
-    gint   ry      = *y - b->child->y;
-    widget *target = widget_find_mouse_target ( b->child, type, &rx, &ry );
-    if ( target == NULL ) {
-        return NULL;
-    }
-
-    *x = rx;
-    *y = ry;
-    return target;
+    x -= b->child->x;
+    y -= b->child->y;
+    return widget_find_mouse_target ( b->child, type, x, y );
 }
+
 static gboolean container_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
 {
     container *b = (container *) wid;

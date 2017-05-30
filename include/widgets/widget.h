@@ -72,15 +72,14 @@ typedef enum
 /**
  * @param widget The container widget itself
  * @param type The widget type searched for
- * @param x A pointer to the X coordination of the mouse event relative to @widget
- * @param y A pointer to the Y coordination of the mouse event relative to @widget
+ * @param x The X coordination of the mouse event relative to @widget
+ * @param y The Y coordination of the mouse event relative to @widget
  *
  * This callback must only iterate over the children of a Widget, and return NULL if none of them is relevant.
- * If one was found, @x and @y must be adjusted to be relative to this child.
  *
  * @returns A child widget if found, NULL otherwise
  */
-typedef widget * ( *widget_find_mouse_target_cb )( widget *widget, WidgetType type, gint *x, gint *y );
+typedef widget * ( *widget_find_mouse_target_cb )( widget *widget, WidgetType type, gint x, gint y );
 
 /**
  * @param widget The target widget
@@ -200,6 +199,15 @@ int widget_get_x_pos ( widget *widget );
 
 /**
  * @param widget The widget handle
+ * @param x A pointer to the absolute X coordinates
+ * @param y A pointer to the absolute Y coordinates
+ *
+ * Will modify @x and @y to make them relative to @widget.
+ */
+void widget_xy_to_relative ( widget *widget, gint *x, gint *y );
+
+/**
+ * @param widget The widget handle
  *
  * Update the widget, and its parent recursively.
  * This should be called when size of widget changes.
@@ -221,15 +229,14 @@ gboolean widget_need_redraw ( widget *wid );
 
 /**
  * @param wid The widget handle
- * @param x A pointer to the x coordinate of the mouse event
- * @param y A pointer to the y coordinate of the mouse event
+ * @param x The x coordinate of the mouse event
+ * @param y The y coordinate of the mouse event
  *
  * Get the widget that should handle a mouse event.
- * @x and @y are adjusted to be relative to the widget.
  *
  * @returns returns the widget that should handle the mouse event.
  */
-widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint *x, gint *y );
+widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y );
 
 /**
  * @param wid The widget handle

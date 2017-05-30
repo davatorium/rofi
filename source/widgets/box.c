@@ -277,7 +277,7 @@ static void box_resize ( widget *widget, short w, short h )
     }
 }
 
-static widget *box_find_mouse_target ( widget *wid, WidgetType type, gint *x, gint *y )
+static widget *box_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y )
 {
     box *b = (box *) wid;
     for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
@@ -285,13 +285,11 @@ static widget *box_find_mouse_target ( widget *wid, WidgetType type, gint *x, gi
         if ( !child->enabled ) {
             continue;
         }
-        if ( widget_intersect ( child, *x, *y ) ) {
-            gint   rx      = *x - child->x;
-            gint   ry      = *y - child->y;
-            widget *target = widget_find_mouse_target ( child, type, &rx, &ry );
+        if ( widget_intersect ( child, x, y ) ) {
+            gint   rx      = x - child->x;
+            gint   ry      = y - child->y;
+            widget *target = widget_find_mouse_target ( child, type, rx, ry );
             if ( target != NULL ) {
-                *x = rx;
-                *y = ry;
                 return target;
             }
         }

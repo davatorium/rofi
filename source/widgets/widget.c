@@ -395,6 +395,15 @@ int widget_get_y_pos ( widget *widget )
     return 0;
 }
 
+void widget_xy_to_relative ( widget *widget, gint *x, gint *y )
+{
+    *x -= widget->x;
+    *y -= widget->y;
+    if ( widget->parent != NULL ) {
+        widget_xy_to_relative ( widget->parent, x, y );
+    }
+}
+
 void widget_update ( widget *widget )
 {
     // When (desired )size of widget changes.
@@ -426,7 +435,7 @@ gboolean widget_need_redraw ( widget *wid )
     return FALSE;
 }
 
-widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint *x, gint *y )
+widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y )
 {
     if ( !wid ) {
         return NULL;

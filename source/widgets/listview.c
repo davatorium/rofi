@@ -302,35 +302,29 @@ static void listview_resize ( widget *wid, short w, short h )
     widget_queue_redraw ( wid );
 }
 
-static widget *listview_find_mouse_target ( widget *wid, WidgetType type, gint *x, gint *y )
+static widget *listview_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y )
 {
     widget   *target = NULL;
     gint     rx, ry;
     listview *lv = (listview *) wid;
-    if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) && widget_intersect ( WIDGET ( lv->scrollbar ), *x, *y ) ) {
-        rx     = *x - widget_get_x_pos ( WIDGET ( lv->scrollbar ) );
-        ry     = *y - widget_get_y_pos ( WIDGET ( lv->scrollbar ) );
-        target = widget_find_mouse_target ( WIDGET ( lv->scrollbar ), type, &rx, &ry );
+    if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) && widget_intersect ( WIDGET ( lv->scrollbar ), x, y ) ) {
+        rx     = x - widget_get_x_pos ( WIDGET ( lv->scrollbar ) );
+        ry     = y - widget_get_y_pos ( WIDGET ( lv->scrollbar ) );
+        target = widget_find_mouse_target ( WIDGET ( lv->scrollbar ), type, rx, ry );
     }
 
     unsigned int max = MIN ( lv->cur_elements, lv->req_elements - lv->last_offset );
     unsigned int i;
     for ( i = 0; i < max && target == NULL; i++ ) {
         widget *w = WIDGET ( lv->boxes[i] );
-        if ( widget_intersect ( w, *x, *y ) ) {
-            rx     = *x - widget_get_x_pos ( w );
-            ry     = *y - widget_get_y_pos ( w );
-            target = widget_find_mouse_target ( w, type, &rx, &ry );
+        if ( widget_intersect ( w, x, y ) ) {
+            rx     = x - widget_get_x_pos ( w );
+            ry     = y - widget_get_y_pos ( w );
+            target = widget_find_mouse_target ( w, type, rx, ry );
         }
     }
 
-    if ( target != NULL ) {
-        *x = rx;
-        *y = ry;
-        return target;
-    }
-
-    return NULL;
+    return target;
 }
 
 static gboolean listview_trigger_action ( widget *wid, MouseBindingListviewAction action, G_GNUC_UNUSED gint x, G_GNUC_UNUSED gint y, G_GNUC_UNUSED void *user_data )

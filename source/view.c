@@ -1358,11 +1358,11 @@ gboolean rofi_view_trigger_action ( guint scope, gpointer user_data )
     case SCOPE_MOUSE_SIDEBAR_MODI:
     {
         gint   x       = state->mouse.x, y = state->mouse.y;
-        widget *target = widget_find_mouse_target ( WIDGET ( state->main_window ), scope, &x, &y );
+        widget *target = widget_find_mouse_target ( WIDGET ( state->main_window ), scope, x, y );
         if ( target == NULL ) {
             return FALSE;
         }
-
+        widget_xy_to_relative ( target, &x, &y );
         return widget_trigger_action ( target, GPOINTER_TO_UINT ( user_data ), x, y );
     }
     }
