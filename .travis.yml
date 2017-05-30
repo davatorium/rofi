@@ -26,6 +26,7 @@ addons:
             - libpango1.0-dev
             - libcairo2-dev
             - libstartup-notification0-dev
+            - libxcb-ewmh-dev
             - libxcb-icccm4-dev
             - libxcb-util0-dev
             - libxcb-xinerama0-dev
@@ -53,9 +54,8 @@ before_install:
 
 
 # TODO: We install xkbcommon here, until Travis use an up-to-date enough Ubuntu
-# TODO: We install libxcb-ewmh-dev here, until it is whitelisted again in Travis
 install:
-    - sudo apt-get install -y --force-yes libxkbcommon-dev libxkbcommon-x11-dev libxcb-ewmh-dev flex/trusty-backports libfl-dev/trusty-backports
+    - sudo apt-get install -y --force-yes libxkbcommon-dev libxkbcommon-x11-dev flex/trusty-backports libfl-dev/trusty-backports
     - pip3 install meson
     - wget https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-linux.zip
     - unzip ninja-linux.zip

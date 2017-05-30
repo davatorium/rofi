@@ -28,6 +28,8 @@
 #include <config.h>
 #include <xkbcommon/xkbcommon.h>
 #include <glib.h>
+#include "widgets/textbox.h"
+#include "widgets/listview.h"
 #include "widgets/scrollbar.h"
 #include "x11-helper.h"
 
@@ -37,7 +39,6 @@
 
 static void scrollbar_draw ( widget *, cairo_t * );
 static void scrollbar_free ( widget * );
-static gboolean scrollbar_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
 
 static int scrollbar_get_desired_height ( widget *wid )
 {
@@ -45,10 +46,63 @@ static int scrollbar_get_desired_height ( widget *wid )
     return wid->h;
 }
 
+// TODO
+// This should behave more like a real scrollbar.
+guint scrollbar_scroll_get_line ( const scrollbar *sb, int y )
+{
+    y -= sb->widget.border.top.distance;
+    if ( y < 0 ) {
+        return 0;
+    }
+
+    if ( y > sb->widget.h ) {
+        return sb->length - 1;
+    }
+
+    short  r           = ( sb->length * sb->widget.h ) / ( (double) ( sb->length + sb->pos_length ) );
+    short  handle      = sb->widget.h - r;
+    double sec         = ( ( r ) / (double) ( sb->length - 1 ) );
+    short  half_handle = handle / 2;
+    y -= half_handle;
+    y  = MIN ( MAX ( 0, y ), sb->widget.h - 2 * half_handle );
+
+    unsigned int sel = ( ( y ) / sec );
+    return MIN ( sel, sb->length - 1 );
+}
+
+static void scrollbar_scroll ( scrollbar *sb, int y )
+{
+    listview_set_selected ( (listview *) sb->widget.parent, scrollbar_scroll_get_line ( sb, y ) );
+}
+
+static WidgetTriggerActionResult scrollbar_trigger_action ( widget *wid, MouseBindingMouseDefaultAction action, G_GNUC_UNUSED gint x, gint y, G_GNUC_UNUSED void *user_data )
+{
+    scrollbar *sb = (scrollbar *) wid;
+    switch ( action )
+    {
+    case MOUSE_CLICK_DOWN:
+        return WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN;
+    case MOUSE_CLICK_UP:
+        scrollbar_scroll ( sb, y );
+        return WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_END;
+    case MOUSE_DCLICK_DOWN:
+    case MOUSE_DCLICK_UP:
+        break;
+    }
+    return FALSE;
+}
+
+static gboolean scrollbar_motion_notify ( widget *wid, G_GNUC_UNUSED gint x, gint y )
+{
+    scrollbar *sb = (scrollbar *) wid;
+    scrollbar_scroll ( sb, y );
+    return TRUE;
+}
+
 scrollbar *scrollbar_create ( const char *name )
 {
     scrollbar *sb = g_malloc0 ( sizeof ( scrollbar ) );
-    widget_init ( WIDGET ( sb ), name );
+    widget_init ( WIDGET ( sb ), WIDGET_TYPE_SCROLLBAR, name );
     sb->widget.x = 0;
     sb->widget.y = 0;
     sb->width    = rofi_theme_get_distance ( WIDGET ( sb ), "handle-width", DEFAULT_SCROLLBAR_WIDTH );
@@ -58,6 +112,7 @@ scrollbar *scrollbar_create ( const char *name )
 
     sb->widget.draw               = scrollbar_draw;
     sb->widget.free               = scrollbar_free;
+    sb->widget.trigger_action     = scrollbar_trigger_action;
     sb->widget.motion_notify      = scrollbar_motion_notify;
     sb->widget.get_desired_height = scrollbar_get_desired_height;
 
@@ -133,31 +188,4 @@ static void scrollbar_draw ( widget *wid, cairo_t *draw )
                       widget_padding_get_remaining_width ( wid ),
                       height );
     cairo_fill ( draw );
-}
-static gboolean scrollbar_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
-{
-    xcb_button_press_event_t xle;
-    xle.event_x = xme->event_x;
-    xle.event_y = xme->event_y;
-    return widget_clicked ( WIDGET ( wid ), &xle );
-}
-
-// TODO
-// This should behave more like a real scrollbar.
-unsigned int scrollbar_clicked ( const scrollbar *sb, int y )
-{
-    if ( sb != NULL ) {
-        if ( y >= sb->widget.y && y <= ( sb->widget.y + sb->widget.h ) ) {
-            short  r           = ( sb->length * sb->widget.h ) / ( (double) ( sb->length + sb->pos_length ) );
-            short  handle      = sb->widget.h - r;
-            double sec         = ( ( r ) / (double) ( sb->length - 1 ) );
-            short  half_handle = handle / 2;
-            y -= sb->widget.y + half_handle;
-            y  = MIN ( MAX ( 0, y ), sb->widget.h - 2 * half_handle );
-
-            unsigned int sel = ( ( y ) / sec );
-            return MIN ( sel, sb->length - 1 );
-        }
-    }
-    return 0;
 }

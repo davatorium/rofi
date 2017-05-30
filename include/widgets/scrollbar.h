@@ -88,7 +88,7 @@ void scrollbar_set_max_value ( scrollbar *sb, unsigned int max );
  *
  * Calculate the position of the click relative to the max value of bar
  */
-unsigned int scrollbar_clicked ( const scrollbar *sb, int y );
+guint scrollbar_scroll_get_line ( const scrollbar *sb, int y );
 
 /*@}*/
 #endif // ROFI_SCROLLBAR_H

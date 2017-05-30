@@ -106,11 +106,31 @@ static int textbox_get_desired_height ( widget *wid )
     return height;
 }
 
-textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType tbft, const char *text )
+static WidgetTriggerActionResult textbox_editable_trigger_action ( widget *wid, MouseBindingMouseDefaultAction action, gint x, gint y, G_GNUC_UNUSED void *user_data )
+{
+    textbox *tb = (textbox *) wid;
+    switch ( action )
+    {
+    case MOUSE_CLICK_DOWN:
+    {
+        gint i;
+        pango_layout_xy_to_index ( tb->layout, x * PANGO_SCALE, y * PANGO_SCALE, &i, NULL );
+        textbox_cursor ( tb, i );
+        return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
+    }
+    case MOUSE_CLICK_UP:
+    case MOUSE_DCLICK_DOWN:
+    case MOUSE_DCLICK_UP:
+        break;
+    }
+    return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
+}
+
+textbox* textbox_create_full ( WidgetType type, const char *name, TextboxFlags flags, TextBoxFontType tbft, const char *text )
 {
     textbox *tb = g_slice_new0 ( textbox );
 
-    widget_init ( WIDGET ( tb ), name );
+    widget_init ( WIDGET ( tb ), type, name );
 
     tb->widget.draw               = textbox_draw;
     tb->widget.free               = textbox_free;
@@ -165,7 +185,8 @@ textbox* textbox_create ( const char *name, TextboxFlags flags, TextBoxFontType 
     tb->blink_timeout = 0;
     tb->blink         = 1;
     if ( ( flags & TB_EDITABLE ) == TB_EDITABLE ) {
-        tb->blink_timeout = g_timeout_add ( 1200, textbox_blink, tb );
+        tb->blink_timeout         = g_timeout_add ( 1200, textbox_blink, tb );
+        tb->widget.trigger_action = textbox_editable_trigger_action;
     }
 
     tb->yalign = rofi_theme_get_double ( WIDGET ( tb ), "vertical-align" , 0.0);
@@ -844,7 +865,7 @@ int textbox_get_estimated_height ( const textbox *tb, int eh )
 }
 int textbox_get_desired_width ( widget *wid )
 {
-    textbox *tb = (textbox *) wid;
+    textbox      *tb    = (textbox *) wid;
     unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
     if ( wid->expand && tb->flags & TB_AUTOWIDTH ) {
         return textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( wid ) + offset;
@@ -856,7 +877,7 @@ int textbox_get_desired_width ( widget *wid )
         return wi;
     }
     int width = 0;
-    pango_layout_set_width ( tb->layout, -1);
+    pango_layout_set_width ( tb->layout, -1 );
     width = textbox_get_font_width ( tb );
     // Restore.
     pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - widget_padding_get_padding_width ( WIDGET ( tb ) ) - offset ) );

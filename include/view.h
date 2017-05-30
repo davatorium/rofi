@@ -139,11 +139,12 @@ void rofi_view_restart ( RofiViewState *state );
 
 /**
  * @param state The handle to the view
- * @param action The keyboard action
+ * @param scope The scope of the action
+ * @param action The action
  *
  * @returns TRUE if action was handled.
  */
-gboolean rofi_view_trigger_action ( RofiViewState *state, KeyBindingAction action );
+gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, guint action );
 
 /**
  * @param state The handle to the view

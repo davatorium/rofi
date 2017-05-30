@@ -189,8 +189,8 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     widget_update ( NULL );
     widget_queue_redraw ( NULL );
     TASSERT (widget_need_redraw ( NULL ) == FALSE);
-    widget_clicked ( NULL, NULL );
-    widget_set_clicked_handler ( NULL, NULL, NULL );
+    widget_trigger_action ( NULL, 0, 0, 0 );
+    widget_set_trigger_action_handler ( NULL, NULL, NULL );
 
 
     g_free(wid);

@@ -88,40 +88,28 @@ static void container_resize ( widget *widget, short w, short h )
     }
 }
 
-static gboolean container_clicked ( widget *wid, xcb_button_press_event_t *xbe, G_GNUC_UNUSED void *udata )
+static widget *container_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y )
 {
     container *b = (container *) wid;
-    if ( widget_intersect ( b->child, xbe->event_x, xbe->event_y ) ) {
-        xcb_button_press_event_t rel = *xbe;
-        rel.event_x -= b->child->x;
-        rel.event_y -= b->child->y;
-        return widget_clicked ( b->child, &rel );
+    if ( !widget_intersect ( b->child, x, y ) ) {
+        return NULL;
     }
-    return FALSE;
-}
-static gboolean container_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
-{
-    container *b = (container *) wid;
-    if ( widget_intersect ( b->child, xme->event_x, xme->event_y ) ) {
-        xcb_motion_notify_event_t rel = *xme;
-        rel.event_x -= b->child->x;
-        rel.event_y -= b->child->y;
-        return widget_motion_notify ( b->child, &rel );
-    }
-    return FALSE;
+
+    x -= b->child->x;
+    y -= b->child->y;
+    return widget_find_mouse_target ( b->child, type, x, y );
 }
 
 container * container_create ( const char *name )
 {
     container *b = g_malloc0 ( sizeof ( container ) );
     // Initialize widget.
-    widget_init ( WIDGET ( b ), name );
+    widget_init ( WIDGET ( b ), WIDGET_TYPE_UNKNOWN, name );
     b->widget.draw               = container_draw;
     b->widget.free               = container_free;
     b->widget.resize             = container_resize;
     b->widget.update             = container_update;
-    b->widget.clicked            = container_clicked;
-    b->widget.motion_notify      = container_motion_notify;
+    b->widget.find_mouse_target  = container_find_mouse_target;
     b->widget.get_desired_height = container_get_desired_height;
     b->widget.enabled            = rofi_theme_get_boolean ( WIDGET ( b ), "enabled", TRUE );
     return b;

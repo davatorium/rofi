@@ -53,6 +53,15 @@ unsigned int test =0;
         }                                                                                \
 }
 
+#define TASSERTW( a, b )    {                                                                            \
+        if ( ( a ) == ( b ) ) {                                                                          \
+            printf ( "Test %i passed (%s == %s) (%p == %p)\n", ++test, # a, # b, (void *)a, (void *)b ); \
+        }else {                                                                                          \
+            printf ( "Test %i failed (%s == %s) (%p != %p)\n", ++test, # a, # b, (void *)a, (void *)b ); \
+            abort ( );                                                                                   \
+        }                                                                                                \
+}
+
 void config_parse_set_property ( G_GNUC_UNUSED const Property *p )
 {
 }
@@ -78,11 +87,6 @@ void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int
 
 }
 
-
-static gboolean test_widget_clicked ( G_GNUC_UNUSED widget *wid, G_GNUC_UNUSED xcb_button_press_event_t* xce, G_GNUC_UNUSED void *data )
-{
-    return TRUE;
-}
 
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
@@ -212,31 +216,38 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     }
     {
         box *b = box_create ( "box", BOX_VERTICAL );
-        widget_resize ( WIDGET (b), 20, 100);
+        widget_resize ( WIDGET (b), 20, 90);
         //box_set_padding ( b, 5 );
         widget *wid1 = g_malloc0(sizeof(widget));
+        wid1->type = 1;
         widget_enable(wid1);
-        wid1->clicked = test_widget_clicked;
         box_add ( b , WIDGET( wid1 ), TRUE, 0 );
         widget *wid2 = g_malloc0(sizeof(widget));
+        wid2->type = 1;
         widget_enable(wid2);
         box_add ( b , WIDGET( wid2 ), TRUE, 1 );
+        widget *wid3 = g_malloc0(sizeof(widget));
+        wid3->type = 2;
+        widget_enable(wid3);
+        box_add ( b , WIDGET( wid3 ), TRUE, 2 );
 
-        xcb_button_press_event_t xce;
-        xce.event_x = 10;
-        xce.event_y = 60;
-        TASSERTE ( widget_clicked ( WIDGET(b), &xce ), 0);
+        gint x = 10;
+        gint y = 50;
+        TASSERTW ( widget_find_mouse_target ( WIDGET(b), 1, x, y ), WIDGET(wid2) );
 
-        xce.event_y = 50;
-        TASSERTE ( widget_clicked ( WIDGET(b), &xce ), 0);
-        xce.event_y = 48;
-        TASSERTE ( widget_clicked ( WIDGET(b), &xce ), 1);
+        y = 30;
+        TASSERTW ( widget_find_mouse_target ( WIDGET(b), 1, x, y ), WIDGET(wid2) );
+        y = 27;
+        TASSERTW ( widget_find_mouse_target ( WIDGET(b), 1, x, y ), WIDGET(wid1) );
         widget_disable ( wid2 );
-        xce.event_y = 60;
-        TASSERTE ( widget_clicked ( WIDGET(b), &xce ), 1);
+        y = 40;
+        TASSERTW ( widget_find_mouse_target ( WIDGET(b), 1, x, y ), WIDGET(wid1) );
         widget_disable ( wid1 );
         widget_enable ( wid2 );
-        TASSERTE ( widget_clicked ( WIDGET(b), &xce ), 0);
+        TASSERTW ( widget_find_mouse_target ( WIDGET(b), 1, x, y ), WIDGET(wid2) );
+        TASSERTW ( widget_find_mouse_target ( WIDGET(b), 2, x, y ), NULL );
+        y = 55;
+        TASSERTW ( widget_find_mouse_target ( WIDGET(b), 2, x, y ), WIDGET(wid3) );
         widget_free ( WIDGET ( b ) );
     }
 }

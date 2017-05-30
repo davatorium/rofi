@@ -315,7 +315,7 @@ static void box_resize ( widget *widget, short w, short h )
     }
 }
 
-static gboolean box_clicked ( widget *wid, xcb_button_press_event_t *xbe, G_GNUC_UNUSED void *udata )
+static widget *box_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y )
 {
     box *b = (box *) wid;
     for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
@@ -323,45 +323,29 @@ static gboolean box_clicked ( widget *wid, xcb_button_press_event_t *xbe, G_GNUC
         if ( !child->enabled ) {
             continue;
         }
-        if ( widget_intersect ( child, xbe->event_x, xbe->event_y ) ) {
-            xcb_button_press_event_t rel = *xbe;
-            rel.event_x -= child->x;
-            rel.event_y -= child->y;
-            return widget_clicked ( child, &rel );
+        if ( widget_intersect ( child, x, y ) ) {
+            gint   rx      = x - child->x;
+            gint   ry      = y - child->y;
+            widget *target = widget_find_mouse_target ( child, type, rx, ry );
+            if ( target != NULL ) {
+                return target;
+            }
         }
     }
-    return FALSE;
-}
-static gboolean box_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
-{
-    box *b = (box *) wid;
-    for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
-        widget * child = (widget *) iter->data;
-        if ( !child->enabled ) {
-            continue;
-        }
-        if ( widget_intersect ( child, xme->event_x, xme->event_y ) ) {
-            xcb_motion_notify_event_t rel = *xme;
-            rel.event_x -= child->x;
-            rel.event_y -= child->y;
-            return widget_motion_notify ( child, &rel );
-        }
-    }
-    return FALSE;
+    return NULL;
 }
 
 box * box_create ( const char *name, boxType type )
 {
     box *b = g_malloc0 ( sizeof ( box ) );
     // Initialize widget.
-    widget_init ( WIDGET ( b ), name );
+    widget_init ( WIDGET ( b ), WIDGET_TYPE_UNKNOWN, name );
     b->type                      = type;
     b->widget.draw               = box_draw;
     b->widget.free               = box_free;
     b->widget.resize             = box_resize;
     b->widget.update             = box_update;
-    b->widget.clicked            = box_clicked;
-    b->widget.motion_notify      = box_motion_notify;
+    b->widget.find_mouse_target  = box_find_mouse_target;
     b->widget.get_desired_height = box_get_desired_height;
     b->widget.get_desired_width  = box_get_desired_width;
     b->widget.enabled            = rofi_theme_get_boolean ( WIDGET ( b ), "enabled", TRUE );

@@ -45,7 +45,7 @@ deps = [
     dependency('cairo'),
     dependency('pango'),
     dependency('pangocairo'),
-    dependency('xkbcommon', version: '>= 0.5.0'),
+    dependency('xkbcommon'),
     c_compiler.find_library('m', required: false),
 ]
 
@@ -101,6 +101,17 @@ header_conf.set_quoted('THEME_DIR', themedir)
 
 config_h = configure_file(output: 'config.h', configuration: header_conf)
 
+nk_modules = [
+    'bindings=true',
+]
+nk = subproject('libnkutils', default_options: nk_modules)
+nk_options = nk.get_variable('nk_options')
+foreach o : nk_modules + nk_options
+    if not nk_modules.contains(o) or not nk_options.contains(o)
+        error('You must not change libnkutils options @0@ != @1@'.format('|'.join(nk_modules), '|'.join(nk_options)))
+    endif
+endforeach
+deps += nk.get_variable('libnkutils')
 
 install_headers([
         'include/mode.h',

@@ -43,7 +43,6 @@
 #include <xcb/xcb_ewmh.h>
 #include <xcb/xkb.h>
 #include <xkbcommon/xkbcommon.h>
-#include <xkbcommon/xkbcommon-compose.h>
 #include <xkbcommon/xkbcommon-x11.h>
 #include <sys/types.h>
 
@@ -91,19 +90,13 @@ void rofi_add_error_message ( GString *str )
 /** global structure holding the keyboard status */
 struct xkb_stuff xkb = {
     .xcb_connection = NULL,
-    .context        = NULL,
-    .keymap         = NULL,
-    .state          = NULL,
-    .compose        = {
-        .table = NULL,
-        .state = NULL
-    }
+    .bindings       = NULL,
 };
 
 /** Path to the configuration file */
 G_MODULE_EXPORT char *config_path = NULL;
 /** Array holding all activated modi. */
-Mode **modi = NULL;
+Mode                 **modi = NULL;
 
 /**  List of (possibly uninitialized) modi's */
 Mode         ** available_modi = NULL;
@@ -441,26 +434,7 @@ static void cleanup ()
     }
     // XKB Cleanup
     //
-    if ( xkb.compose.state != NULL ) {
-        xkb_compose_state_unref ( xkb.compose.state );
-        xkb.compose.state = NULL;
-    }
-    if ( xkb.compose.table != NULL ) {
-        xkb_compose_table_unref ( xkb.compose.table );
-        xkb.compose.table = NULL;
-    }
-    if ( xkb.state != NULL ) {
-        xkb_state_unref ( xkb.state );
-        xkb.state = NULL;
-    }
-    if ( xkb.keymap != NULL ) {
-        xkb_keymap_unref ( xkb.keymap );
-        xkb.keymap = NULL;
-    }
-    if ( xkb.context != NULL ) {
-        xkb_context_unref ( xkb.context );
-        xkb.context = NULL;
-    }
+    nk_bindings_free ( xkb.bindings );
 
     // Cleanup
     xcb_stuff_wipe ( xcb );
@@ -471,9 +445,6 @@ static void cleanup ()
         mode_free ( &( modi[i] ) );
     }
     g_free ( modi );
-
-    // Cleanup the custom keybinding
-    cleanup_abe ();
 
     g_free ( config_path );
 
@@ -558,8 +529,9 @@ static void rofi_collect_modi_dir ( const char *base_dir )
                     g_warning ( "Symbol 'mode' not found in module: %s", dn );
                     g_module_close ( mod );
                 }
-            } else {
-                g_warning ( "Failed to open 'mode' plugin: '%s', error: %s", dn, g_module_error());
+            }
+            else {
+                g_warning ( "Failed to open 'mode' plugin: '%s', error: %s", dn, g_module_error () );
             }
             g_free ( fn );
         }
@@ -694,32 +666,27 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
         switch ( ev->pad0 )
         {
         case XCB_XKB_MAP_NOTIFY:
-            xkb_state_unref ( xkb.state );
-            xkb_keymap_unref ( xkb.keymap );
-            xkb.keymap = xkb_x11_keymap_new_from_device ( xkb.context, xcb->connection, xkb.device_id, 0 );
-            xkb.state  = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
+        {
+            struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( nk_bindings_get_context ( xkb.bindings ), xcb->connection, xkb.device_id, 0 );
+            struct xkb_state  *state  = xkb_x11_state_new_from_device ( keymap, xcb->connection, xkb.device_id );
+            nk_bindings_update_keymap ( xkb.bindings, keymap, state );
+            xkb_keymap_unref ( keymap );
+            xkb_state_unref ( state );
             break;
+        }
         case XCB_XKB_STATE_NOTIFY:
         {
             xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
-            guint                        modmask;
-            xkb_state_update_mask ( xkb.state,
-                                    ksne->baseMods,
-                                    ksne->latchedMods,
-                                    ksne->lockedMods,
-                                    ksne->baseGroup,
-                                    ksne->latchedGroup,
-                                    ksne->lockedGroup );
-            modmask = x11_get_current_mask ( &xkb );
-            if ( modmask == 0 ) {
-                abe_trigger_release ( );
-
-                // Because of abe_trigger, state of rofi can be changed. handle this!
-                // Run mainloop on dummy event.
-                xcb_generic_event_t dev;
-                dev.response_type = 0;
-                main_loop_x11_event_handler_view ( &dev );
-            }
+            nk_bindings_update_mask ( xkb.bindings,
+                                      ksne->baseMods,
+                                      ksne->latchedMods,
+                                      ksne->lockedMods,
+                                      ksne->baseGroup,
+                                      ksne->latchedGroup,
+                                      ksne->lockedGroup );
+            xcb_generic_event_t dev;
+            dev.response_type = 0;
+            main_loop_x11_event_handler_view ( &dev );
             break;
         }
         }
@@ -830,7 +797,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     __create_window ( window_flags );
     TICK_N ( "Create Window" );
     // Parse the keybindings.
-    if ( !parse_keys_abe () ) {
+    if ( !parse_keys_abe ( xkb.bindings ) ) {
         // Error dialog
         return G_SOURCE_REMOVE;
     }
@@ -1032,8 +999,8 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
-    xkb.context = xkb_context_new ( XKB_CONTEXT_NO_FLAGS );
-    if ( xkb.context == NULL ) {
+    struct xkb_context *xkb_context = xkb_context_new ( XKB_CONTEXT_NO_FLAGS );
+    if ( xkb_context == NULL ) {
         g_warning ( "cannot create XKB context!" );
         cleanup ();
         return EXIT_FAILURE;
@@ -1083,33 +1050,27 @@ int main ( int argc, char *argv[] )
                             required_map_parts,                              /* map */
                             &details );
 
-    xkb.keymap = xkb_x11_keymap_new_from_device ( xkb.context, xcb->connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
-    if ( xkb.keymap == NULL ) {
+    struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( xkb_context, xcb->connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
+    if ( keymap == NULL ) {
         g_warning ( "Failed to get Keymap for current keyboard device." );
         cleanup ();
         return EXIT_FAILURE;
     }
-    xkb.state = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
-    if ( xkb.state == NULL ) {
+    struct xkb_state *state = xkb_x11_state_new_from_device ( keymap, xcb->connection, xkb.device_id );
+    if ( state == NULL ) {
         g_warning ( "Failed to get state object for current keyboard device." );
         cleanup ();
         return EXIT_FAILURE;
     }
 
-    xkb.compose.table = xkb_compose_table_new_from_locale ( xkb.context, setlocale ( LC_CTYPE, NULL ), 0 );
-    if ( xkb.compose.table != NULL ) {
-        xkb.compose.state = xkb_compose_state_new ( xkb.compose.table, 0 );
-    }
-    else {
-        g_warning ( "Failed to get keyboard compose table. Trying to limp on." );
-    }
+    xkb.bindings = nk_bindings_new ( xkb_context, keymap, state );
 
     if ( xcb_connection_has_error ( xcb->connection ) ) {
         g_warning ( "Connection has error" );
         cleanup ();
         return EXIT_FAILURE;
     }
-    x11_setup ( &xkb );
+    x11_setup ();
     TICK_N ( "Setup xkb" );
     if ( xcb_connection_has_error ( xcb->connection ) ) {
         g_warning ( "Connection has error" );

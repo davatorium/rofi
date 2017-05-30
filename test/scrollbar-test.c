@@ -33,6 +33,8 @@
 #include <glib.h>
 #include <string.h>
 #include <widgets/scrollbar.h>
+#include <widgets/textbox.h>
+#include <widgets/listview.h>
 #include <widgets/widget.h>
 #include <widgets/widget-internal.h>
 #include "rofi.h"
@@ -67,12 +69,15 @@ char * rofi_expand_path ( G_GNUC_UNUSED const char *path )
 {
     return NULL;
 }
-int textbox_get_estimated_char_height ( void );
-int textbox_get_estimated_char_height ( void )
+double textbox_get_estimated_char_height ( void )
 {
     return 16;
 }
 
+void listview_set_selected ( G_GNUC_UNUSED listview *lv, G_GNUC_UNUSED unsigned int selected )
+{
+
+}
 void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
 {
 
@@ -103,22 +108,22 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERTE ( sb->pos_length, 1 );
 
 
-    unsigned int cl = scrollbar_clicked ( sb, 10 );
+    guint cl = scrollbar_scroll_get_line ( sb, 10 );
     TASSERTE ( cl, 1010);
-    cl = scrollbar_clicked ( sb, 20 );
+    cl = scrollbar_scroll_get_line ( sb, 20 );
     TASSERTE ( cl, 2020);
-    cl = scrollbar_clicked ( sb, 0 );
+    cl = scrollbar_scroll_get_line ( sb, 0 );
     TASSERTE ( cl, 0);
-    cl = scrollbar_clicked ( sb, 99 );
+    cl = scrollbar_scroll_get_line ( sb, 99 );
     TASSERTE ( cl, 9999);
     scrollbar_set_handle_length ( sb, 1000);
-    cl = scrollbar_clicked ( sb, 10 );
+    cl = scrollbar_scroll_get_line ( sb, 10 );
     TASSERTE ( cl, 555);
-    cl = scrollbar_clicked ( sb, 20 );
+    cl = scrollbar_scroll_get_line ( sb, 20 );
     TASSERTE ( cl, 1666);
-    cl = scrollbar_clicked ( sb, 0 );
+    cl = scrollbar_scroll_get_line ( sb, 0 );
     TASSERTE ( cl, 0);
-    cl = scrollbar_clicked ( sb, 99 );
+    cl = scrollbar_scroll_get_line ( sb, 99 );
     TASSERTE ( cl, 9999);
 
     widget_free( WIDGET (sb ) );

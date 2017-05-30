@@ -112,6 +112,7 @@ typedef enum
 } TextBoxFontType;
 
 /**
+ * @param type The type of the to be created widget.
  * @param name The name of the to be created widget.
  * @param flags #TextboxFlags indicating the type of textbox.
  * @param tbft #TextBoxFontType current state of textbox.
@@ -122,9 +123,10 @@ typedef enum
  * free with #widget_free
  * @returns a new #textbox
  */
-textbox* textbox_create ( const char *name, TextboxFlags flags,
-                          TextBoxFontType tbft,
-                          const char *text );
+textbox* textbox_create_full ( WidgetType type, const char *name, TextboxFlags flags,
+                               TextBoxFontType tbft,
+                               const char *text );
+#define textbox_create( n, f, tbft, t )    textbox_create_full ( WIDGET_TYPE_UNKNOWN, n, f, tbft, t )
 /**
  * @param tb  Handle to the textbox
  * @param tbft The style of font to render.
