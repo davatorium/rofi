@@ -99,6 +99,7 @@ struct _widget
 
 /**
  * @param widget The widget to initialize.
+ * @param type The type of the widget.
  * @param name The name of the widget.
  *
  * Initializes the widget structure.

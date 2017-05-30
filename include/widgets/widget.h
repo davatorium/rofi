@@ -87,8 +87,8 @@ typedef enum
 /**
  * @param widget The container widget itself
  * @param type The widget type searched for
- * @param x The X coordination of the mouse event relative to @widget
- * @param y The Y coordination of the mouse event relative to @widget
+ * @param x The X coordination of the mouse event relative to @param widget
+ * @param y The Y coordination of the mouse event relative to @param widget
  *
  * This callback must only iterate over the children of a Widget, and return NULL if none of them is relevant.
  *
@@ -99,8 +99,8 @@ typedef widget * ( *widget_find_mouse_target_cb )( widget *widget, WidgetType ty
 /**
  * @param widget The target widget
  * @param action The action value (which enum it is depends on the widget type)
- * @param x The X coordination of the mouse event relative to @widget
- * @param y The Y coordination of the mouse event relative to @widget
+ * @param x The X coordination of the mouse event relative to @param widget
+ * @param y The Y coordination of the mouse event relative to @param widget
  * @param user_data The data passed to widget_set_trigger_action_handler()
  *
  * This callback should handle the action if relevant, and returns whether it did or not.
@@ -217,7 +217,7 @@ int widget_get_x_pos ( widget *widget );
  * @param x A pointer to the absolute X coordinates
  * @param y A pointer to the absolute Y coordinates
  *
- * Will modify @x and @y to make them relative to @widget.
+ * Will modify @param x and @param y to make them relative to @param widget .
  */
 void widget_xy_to_relative ( widget *widget, gint *x, gint *y );
 
@@ -244,6 +244,7 @@ gboolean widget_need_redraw ( widget *wid );
 
 /**
  * @param wid The widget handle
+ * @param type The type of the wanted widget
  * @param x The x coordinate of the mouse event
  * @param y The y coordinate of the mouse event
  *
@@ -260,7 +261,7 @@ widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y 
  * @param y A pointer to the y coordinate of the click
  *
  * Trigger an action on widget.
- * @x and @y are relative to the widget.
+ * @param x and @param y are relative to @param wid .
  *
  * @returns Whether the action was handled or not
  */
@@ -277,11 +278,12 @@ void widget_set_trigger_action_handler ( widget *wid, widget_trigger_action_cb c
 
 /**
  * @param wid The widget handle
- * @param xme The motion notify object.
+ * @param x The x coordinate of the mouse event
+ * @param y The y coordinate of the mouse event
  *
  * Motion notify.
- * TODO make this like clicked with callback.
- * returns TRUE when handled.
+ *
+ * @returns TRUE when handled.
  */
 gboolean widget_motion_notify ( widget *wid, gint x, gint y );
 
