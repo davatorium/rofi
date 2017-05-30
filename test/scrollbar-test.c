@@ -103,22 +103,22 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERTE ( sb->pos_length, 1 );
 
 
-    unsigned int cl = scrollbar_scroll ( sb, 10 );
+    guint cl = scrollbar_scroll_get_line ( sb, 10 );
     TASSERTE ( cl, 1010);
-    cl = scrollbar_scroll ( sb, 20 );
+    cl = scrollbar_scroll_get_line ( sb, 20 );
     TASSERTE ( cl, 2020);
-    cl = scrollbar_scroll ( sb, 0 );
+    cl = scrollbar_scroll_get_line ( sb, 0 );
     TASSERTE ( cl, 0);
-    cl = scrollbar_scroll ( sb, 99 );
+    cl = scrollbar_scroll_get_line ( sb, 99 );
     TASSERTE ( cl, 9999);
     scrollbar_set_handle_length ( sb, 1000);
-    cl = scrollbar_scroll ( sb, 10 );
+    cl = scrollbar_scroll_get_line ( sb, 10 );
     TASSERTE ( cl, 555);
-    cl = scrollbar_scroll ( sb, 20 );
+    cl = scrollbar_scroll_get_line ( sb, 20 );
     TASSERTE ( cl, 1666);
-    cl = scrollbar_scroll ( sb, 0 );
+    cl = scrollbar_scroll_get_line ( sb, 0 );
     TASSERTE ( cl, 0);
-    cl = scrollbar_scroll ( sb, 99 );
+    cl = scrollbar_scroll_get_line ( sb, 99 );
     TASSERTE ( cl, 9999);
 
     widget_free( WIDGET (sb ) );

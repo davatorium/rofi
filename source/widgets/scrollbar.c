@@ -46,22 +46,26 @@ static int scrollbar_get_desired_height ( widget *wid )
 
 // TODO
 // This should behave more like a real scrollbar.
-unsigned int scrollbar_scroll ( const scrollbar *sb, int y )
+guint scrollbar_scroll_get_line ( const scrollbar *sb, int y )
 {
-    if ( sb != NULL ) {
-        if ( y >= sb->widget.y && y <= ( sb->widget.y + sb->widget.h ) ) {
-            short  r           = ( sb->length * sb->widget.h ) / ( (double) ( sb->length + sb->pos_length ) );
-            short  handle      = sb->widget.h - r;
-            double sec         = ( ( r ) / (double) ( sb->length - 1 ) );
-            short  half_handle = handle / 2;
-            y -= sb->widget.y + half_handle;
-            y  = MIN ( MAX ( 0, y ), sb->widget.h - 2 * half_handle );
-
-            unsigned int sel = ( ( y ) / sec );
-            return MIN ( sel, sb->length - 1 );
-        }
+    y -= sb->widget.border.top.distance;
+    if ( y < 0 ) {
+        return 0;
     }
-    return 0;
+
+    if ( y > sb->widget.h ) {
+        return sb->length - 1;
+    }
+
+    short  r           = ( sb->length * sb->widget.h ) / ( (double) ( sb->length + sb->pos_length ) );
+    short  handle      = sb->widget.h - r;
+    double sec         = ( ( r ) / (double) ( sb->length - 1 ) );
+    short  half_handle = handle / 2;
+    y -= half_handle;
+    y  = MIN ( MAX ( 0, y ), sb->widget.h - 2 * half_handle );
+
+    unsigned int sel = ( ( y ) / sec );
+    return MIN ( sel, sb->length - 1 );
 }
 
 static gboolean scrollbar_trigger_action ( widget *wid, MouseBindingMouseDefaultAction action, G_GNUC_UNUSED gint x, gint y, G_GNUC_UNUSED void *user_data )
