@@ -637,27 +637,27 @@ static char * config_parser_return_display_help_entry ( XrmOption *option, size_
     {
     case xrm_Number:
         return g_markup_printf_escaped ( "<b%-*s</b> (%u) <span style='italic' size='small'>%s</span>",
-                                         ll, option->name + 3, *( option->value.num ), option->comment );
+                                         ll, option->name, *( option->value.num ), option->comment );
     case xrm_SNumber:
         return g_markup_printf_escaped ( "<b%-*s</b> (%d) <span style='italic' size='small'>%s</span>",
-                                         ll, option->name + 3, *( option->value.snum ), option->comment );
+                                         ll, option->name, *( option->value.snum ), option->comment );
     case xrm_String:
         return g_markup_printf_escaped ( "<b>%-*s</b> (%s) <span style='italic' size='small'>%s</span>",
-                                         ll, option->name + 3,
+                                         ll, option->name,
                                          ( *( option->value.str ) != NULL ) ? *( option->value.str ) : "null",
                                          option->comment
                                          );
     case xrm_Boolean:
         return g_markup_printf_escaped ( "<b>%-*s</b> (%s) <span style='italic' size='small'>%s</span>",
-                                         ll, option->name + 3, ( *( option->value.num ) == TRUE ) ? "true" : "false", option->comment );
+                                         ll, option->name, ( *( option->value.num ) == TRUE ) ? "true" : "false", option->comment );
     case xrm_Char:
         if ( *( option->value.charc ) > 32 && *( option->value.charc ) < 127 ) {
             return g_markup_printf_escaped ( "<b>%-*s</b> (%c) <span style='italic' size='small'>%s</span>",
-                                             ll, option->name + 3, *( option->value.charc ), option->comment );
+                                             ll, option->name, *( option->value.charc ), option->comment );
         }
         else {
             return g_markup_printf_escaped ( "<b%-*s</b> (\\x%02X) <span style='italic' size='small'>%s</span>",
-                                             ll, option->name + 3, *( option->value.charc ), option->comment );
+                                             ll, option->name, *( option->value.charc ), option->comment );
         }
     default:
         break;
@@ -691,7 +691,7 @@ char ** config_parser_return_display_help ( unsigned int *length )
                 continue;
             }
         }
-        if ( strncmp ( xrmOptions[i].name, "kb", 2 ) != 0 ) {
+        if ( strncmp ( xrmOptions[i].name, "kb", 2 ) != 0 && strncmp ( xrmOptions[i].name, "ml", 2 ) != 0 && strncmp ( xrmOptions[i].name, "me", 2 ) != 0 ) {
             continue;
         }
 
@@ -701,7 +701,7 @@ char ** config_parser_return_display_help ( unsigned int *length )
         ( *length )++;
     }
     for ( unsigned int i = 0; i < num_extra_options; i++ ) {
-        if ( strncmp ( extra_options[i].name, "kb", 2 ) != 0 ) {
+        if ( strncmp ( extra_options[i].name, "kb", 2 ) != 0 && strncmp ( extra_options[i].name, "ml", 2 ) != 0 && strncmp ( extra_options[i].name, "me", 2 ) != 0 ) {
             continue;
         }
         retv              = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
