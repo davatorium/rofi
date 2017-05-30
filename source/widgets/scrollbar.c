@@ -28,6 +28,8 @@
 #include <config.h>
 #include <xkbcommon/xkbcommon.h>
 #include <glib.h>
+#include "widgets/textbox.h"
+#include "widgets/listview.h"
 #include "widgets/scrollbar.h"
 #include "x11-helper.h"
 
@@ -68,6 +70,11 @@ guint scrollbar_scroll_get_line ( const scrollbar *sb, int y )
     return MIN ( sel, sb->length - 1 );
 }
 
+static void scrollbar_scroll ( scrollbar *sb, int y )
+{
+    listview_set_selected ( (listview *) sb->widget.parent, scrollbar_scroll_get_line ( sb, y ) );
+}
+
 static gboolean scrollbar_trigger_action ( widget *wid, MouseBindingMouseDefaultAction action, G_GNUC_UNUSED gint x, gint y, G_GNUC_UNUSED void *user_data )
 {
     scrollbar *sb = (scrollbar *) wid;
@@ -76,9 +83,7 @@ static gboolean scrollbar_trigger_action ( widget *wid, MouseBindingMouseDefault
     case MOUSE_CLICK_DOWN:
         return TRUE;
     case MOUSE_CLICK_UP:
-        /* FIXME: scoll
-           scrollbar_scroll(sb, y);
-         */
+        scrollbar_scroll ( sb, y );
         return TRUE;
     case MOUSE_DCLICK_DOWN:
     case MOUSE_DCLICK_UP:
@@ -89,10 +94,8 @@ static gboolean scrollbar_trigger_action ( widget *wid, MouseBindingMouseDefault
 
 static gboolean scrollbar_motion_notify ( widget *wid, G_GNUC_UNUSED gint x, gint y )
 {
-    /* FIXME: scoll
-       scrollbar *sb = (scrollbar *) wid;
-       scrollbar_scroll(sb, xme->event_y);
-     */
+    scrollbar *sb = (scrollbar *) wid;
+    scrollbar_scroll ( sb, y );
     return TRUE;
 }
 

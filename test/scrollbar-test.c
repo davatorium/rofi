@@ -33,6 +33,8 @@
 #include <glib.h>
 #include <string.h>
 #include <widgets/scrollbar.h>
+#include <widgets/textbox.h>
+#include <widgets/listview.h>
 #include <widgets/widget.h>
 #include <widgets/widget-internal.h>
 #include "rofi.h"
@@ -67,12 +69,15 @@ char * rofi_expand_path ( G_GNUC_UNUSED const char *path )
 {
     return NULL;
 }
-int textbox_get_estimated_char_height ( void );
-int textbox_get_estimated_char_height ( void )
+double textbox_get_estimated_char_height ( void )
 {
     return 16;
 }
 
+void listview_set_selected ( G_GNUC_UNUSED listview *lv, G_GNUC_UNUSED unsigned int selected )
+{
+
+}
 void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
 {
 
