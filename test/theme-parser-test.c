@@ -1259,7 +1259,7 @@ int main ( int argc, char ** argv )
 {
     cmd_set_arguments ( argc, argv );
 
-    if ( setlocale ( LC_ALL, "" ) == NULL ) {
+    if ( setlocale ( LC_ALL, "C" ) == NULL ) {
         fprintf ( stderr, "Failed to set locale.\n" );
         return EXIT_FAILURE;
     }
