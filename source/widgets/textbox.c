@@ -373,7 +373,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     }
 
     // Skip the side MARGIN on the X axis.
-    int x   = widget_padding_get_left ( WIDGET ( tb ) ) + offset;
+    int x   = widget_padding_get_left ( WIDGET ( tb ) );
     int top = widget_padding_get_top ( WIDGET ( tb ) );
     int y   = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
