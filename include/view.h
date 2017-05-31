@@ -28,7 +28,6 @@
 #ifndef ROFI_VIEW_H
 #define ROFI_VIEW_H
 #include "mode.h"
-#include "xkb.h"
 
 /**
  * @defgroup View View
@@ -99,7 +98,7 @@ unsigned int rofi_view_get_next_position ( const RofiViewState *state );
  *
  * Process an Xevent.
  */
-void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb_stuff *xkb );
+void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, NkBindingsSeat *seat );
 /**
  * @param state the Menu handle
  *

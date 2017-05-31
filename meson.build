@@ -197,8 +197,6 @@ rofi_sources = files(
         'include/dialogs/window.h',
         'include/dialogs/dialogs.h',
         'include/dialogs/help-keys.h',
-        'include/xkb.h',
-        'include/xkb-internal.h',
 )
 theme_lexer_sources = files('lexer/theme-lexer.l')
 theme_parser_sources = files('lexer/theme-parser.y')

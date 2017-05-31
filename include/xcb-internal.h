@@ -34,6 +34,8 @@
 #include <xcb/xcb.h>
 #include <xcb/xcb_ewmh.h>
 
+#include "nkutils-bindings.h"
+
 /**
  * Structure to keep xcb stuff around.
  */
@@ -46,6 +48,15 @@ struct _xcb_stuff
     SnDisplay             *sndisplay;
     SnLauncheeContext     *sncontext;
     struct _workarea      *monitors;
+    struct
+    {
+        /** Flag indicating first event */
+        uint8_t first_event;
+        /** Keyboard device id */
+        int32_t device_id;
+    }              xkb;
+    NkBindings     *bindings;
+    NkBindingsSeat *bindings_seat;
 };
 
 #endif

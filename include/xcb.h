@@ -40,6 +40,8 @@ typedef struct _xcb_stuff   xcb_stuff;
  */
 extern xcb_stuff *xcb;
 
+gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer data );
+
 /**
  * @param xcb the xcb data structure
  *
@@ -54,7 +56,6 @@ xcb_window_t xcb_stuff_get_root_window ( xcb_stuff *xcb );
  * Disconnect and free all xcb connections and references.
  */
 void xcb_stuff_wipe ( xcb_stuff *xcb );
-
 
 /**
  * @param w The xcb_window_t to read property from.
@@ -192,7 +193,7 @@ int take_pointer ( xcb_window_t w, int iters );
  * * Numlock detection
  * * Cache
  */
-void x11_setup ( void );
+gboolean x11_setup ( void );
 
 /**
  * Depth of visual

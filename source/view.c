@@ -55,7 +55,6 @@
 #include "rofi.h"
 #include "mode.h"
 #include "xcb-internal.h"
-#include "xkb-internal.h"
 #include "helper.h"
 #include "helper-theme.h"
 #include "xrmoptions.h"
@@ -1383,7 +1382,7 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, g
     return FALSE;
 }
 
-void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb_stuff *xkb )
+void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, NkBindingsSeat *seat )
 {
     switch ( event->response_type & ~0x80 )
     {
@@ -1437,13 +1436,13 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb
         xcb_button_press_event_t *bpe = (xcb_button_press_event_t *) event;
         state->mouse.x = bpe->event_x;
         state->mouse.y = bpe->event_y;
-        nk_bindings_seat_handle_button ( xkb->bindings_seat, bpe->detail, NK_BINDINGS_BUTTON_STATE_PRESS, bpe->time );
+        nk_bindings_seat_handle_button ( seat, bpe->detail, NK_BINDINGS_BUTTON_STATE_PRESS, bpe->time );
         break;
     }
     case XCB_BUTTON_RELEASE:
     {
         xcb_button_release_event_t *bre = (xcb_button_release_event_t *) event;
-        nk_bindings_seat_handle_button ( xkb->bindings_seat, bre->detail, NK_BINDINGS_BUTTON_STATE_RELEASE, bre->time );
+        nk_bindings_seat_handle_button ( seat, bre->detail, NK_BINDINGS_BUTTON_STATE_RELEASE, bre->time );
         if ( config.click_to_exit == TRUE ) {
             if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
                 if ( ( state->mouse_seen == FALSE ) && ( bre->event != CacheState.main_window ) ) {
@@ -1466,7 +1465,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb
             for ( gint8 bi = 0; bi < 7; ++bi ) {
                 if ( kne->keys[by] & ( 1 << bi ) ) {
                     // X11 keycodes starts at 8
-                    nk_bindings_seat_handle_key ( xkb->bindings_seat, ( 8 * by + bi ) + 8, NK_BINDINGS_KEY_STATE_PRESSED );
+                    nk_bindings_seat_handle_key ( seat, ( 8 * by + bi ) + 8, NK_BINDINGS_KEY_STATE_PRESSED );
                 }
             }
         }
@@ -1477,7 +1476,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb
         xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *) event;
         gchar                 *text;
 
-        text = nk_bindings_seat_handle_key ( xkb->bindings_seat, xkpe->detail, NK_BINDINGS_KEY_STATE_PRESS );
+        text = nk_bindings_seat_handle_key ( seat, xkpe->detail, NK_BINDINGS_KEY_STATE_PRESS );
         if ( ( text != NULL ) && ( textbox_append_char ( state->text, text, strlen ( text ) ) ) ) {
             state->refilter = TRUE;
         }
@@ -1486,7 +1485,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb
     case XCB_KEY_RELEASE:
     {
         xcb_key_release_event_t *xkre = (xcb_key_release_event_t *) event;
-        nk_bindings_seat_handle_key ( xkb->bindings_seat, xkre->detail, NK_BINDINGS_KEY_STATE_RELEASE );
+        nk_bindings_seat_handle_key ( seat, xkre->detail, NK_BINDINGS_KEY_STATE_RELEASE );
         break;
     }
     default:

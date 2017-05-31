@@ -28,8 +28,6 @@
 #include <config.h>
 #include <string.h>
 #include "rofi.h"
-#include "xkb.h"
-#include "xkb-internal.h"
 #include "nkutils-bindings.h"
 #include "xrmoptions.h"
 

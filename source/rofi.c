@@ -39,11 +39,6 @@
 #include <locale.h>
 #include <gmodule.h>
 #include <xcb/xcb.h>
-#include <xcb/xcb_aux.h>
-#include <xcb/xcb_ewmh.h>
-#include <xcb/xkb.h>
-#include <xkbcommon/xkbcommon.h>
-#include <xkbcommon/xkbcommon-x11.h>
 #include <sys/types.h>
 
 #include <glib-unix.h>
@@ -51,7 +46,6 @@
 #include <libgwater-xcb.h>
 
 #include "xcb-internal.h"
-#include "xkb-internal.h"
 
 #include "settings.h"
 #include "mode.h"
@@ -86,12 +80,6 @@ void rofi_add_error_message ( GString *str )
 {
     list_of_error_msgs = g_list_append ( list_of_error_msgs, str );
 }
-/** global structure holding the keyboard status */
-struct xkb_stuff xkb = {
-    .xcb_connection = NULL,
-    .bindings       = NULL,
-    .bindings_seat  = NULL,
-};
 
 /** Path to the configuration file */
 G_MODULE_EXPORT char *config_path = NULL;
@@ -432,10 +420,6 @@ static void cleanup ()
         g_main_loop_unref ( main_loop );
         main_loop = NULL;
     }
-    // XKB Cleanup
-    //
-    nk_bindings_free ( xkb.bindings );
-
     // Cleanup
     xcb_stuff_wipe ( xcb );
 
@@ -629,76 +613,6 @@ static gboolean setup_modi ( void )
     return FALSE;
 }
 
-/**
- * Process X11 events in the main-loop (gui-thread) of the application.
- */
-static void main_loop_x11_event_handler_view ( xcb_generic_event_t *ev )
-{
-    RofiViewState *state = rofi_view_get_active ();
-    if ( state != NULL ) {
-        rofi_view_itterrate ( state, ev, &xkb );
-        if ( rofi_view_get_completed ( state ) ) {
-            // This menu is done.
-            rofi_view_finalize ( state );
-            // cleanup
-            if ( rofi_view_get_active () == NULL ) {
-                g_main_loop_quit ( main_loop );
-            }
-        }
-    }
-}
-static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer data )
-{
-    if ( ev == NULL ) {
-        int status = xcb_connection_has_error ( xcb->connection );
-        if ( status > 0 ) {
-            g_warning ( "The XCB connection to X server had a fatal error: %d", status );
-            g_main_loop_quit ( main_loop );
-            return G_SOURCE_REMOVE;
-        }
-        else {
-            g_warning ( "main_loop_x11_event_handler: ev == NULL, status == %d", status );
-            return G_SOURCE_CONTINUE;
-        }
-    }
-    uint8_t type = ev->response_type & ~0x80;
-    if ( type == xkb.first_event ) {
-        switch ( ev->pad0 )
-        {
-        case XCB_XKB_MAP_NOTIFY:
-        {
-            struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( nk_bindings_seat_get_context ( xkb.bindings_seat ), xcb->connection, xkb.device_id, 0 );
-            struct xkb_state  *state  = xkb_x11_state_new_from_device ( keymap, xcb->connection, xkb.device_id );
-            nk_bindings_seat_update_keymap ( xkb.bindings_seat, keymap, state );
-            xkb_keymap_unref ( keymap );
-            xkb_state_unref ( state );
-            break;
-        }
-        case XCB_XKB_STATE_NOTIFY:
-        {
-            xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
-            nk_bindings_seat_update_mask ( xkb.bindings_seat,
-                                           ksne->baseMods,
-                                           ksne->latchedMods,
-                                           ksne->lockedMods,
-                                           ksne->baseGroup,
-                                           ksne->latchedGroup,
-                                           ksne->lockedGroup );
-            xcb_generic_event_t dev;
-            dev.response_type = 0;
-            main_loop_x11_event_handler_view ( &dev );
-            break;
-        }
-        }
-        return G_SOURCE_CONTINUE;
-    }
-    if ( xcb->sndisplay != NULL ) {
-        sn_xcb_display_process_event ( xcb->sndisplay, ev );
-    }
-    main_loop_x11_event_handler_view ( ev );
-    return G_SOURCE_CONTINUE;
-}
-
 static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
 {
     // Break out of loop.
@@ -706,23 +620,6 @@ static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
     return G_SOURCE_CONTINUE;
 }
 
-/** X server error depth. to handle nested errors. */
-static int error_trap_depth = 0;
-static void error_trap_push ( G_GNUC_UNUSED SnDisplay *display, G_GNUC_UNUSED xcb_connection_t *xdisplay )
-{
-    ++error_trap_depth;
-}
-
-static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, xcb_connection_t *xdisplay )
-{
-    if ( error_trap_depth == 0 ) {
-        g_warning ( "Error trap underflow!" );
-        exit ( EXIT_FAILURE );
-    }
-
-    xcb_flush ( xdisplay );
-    --error_trap_depth;
-}
 /** Retry count of grabbing keyboard. */
 unsigned int lazy_grab_retry_count_kb = 0;
 /** Retry count of grabbing pointer. */
@@ -797,10 +694,6 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     __create_window ( window_flags );
     TICK_N ( "Create Window" );
     // Parse the keybindings.
-    if ( !parse_keys_abe ( xkb.bindings ) ) {
-        // Error dialog
-        return G_SOURCE_REMOVE;
-    }
     TICK_N ( "Parse ABE" );
     // Sanity check
     config_sanity_check ( );
@@ -960,138 +853,21 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
-    // Get DISPLAY, first env, then argument.
-    // We never modify display_str content.
-    char *display_str = ( char *) g_getenv ( "DISPLAY" );
-    find_arg_str (  "-display", &display_str );
-
-    xcb->connection = xcb_connect ( display_str, &xcb->screen_nbr );
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
-        g_warning ( "Failed to open display: %s", display_str );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
-
-    TICK_N ( "Open Display" );
     rofi_collect_modi ();
     rofi_collect_modi_setup ();
     TICK_N ( "Collect MODI" );
 
-    xcb->screen = xcb_aux_get_screen ( xcb->connection, xcb->screen_nbr );
-
-    x11_build_monitor_layout ();
-
-    xcb_intern_atom_cookie_t *ac     = xcb_ewmh_init_atoms ( xcb->connection, &xcb->ewmh );
-    xcb_generic_error_t      *errors = NULL;
-    xcb_ewmh_init_atoms_replies ( &xcb->ewmh, ac, &errors );
-    if ( errors ) {
-        g_warning ( "Failed to create EWMH atoms" );
-        free ( errors );
-    }
-    // Discover the current active window manager.
-    x11_helper_discover_window_manager ();
-    TICK_N ( "Setup XCB" );
-
-    if ( xkb_x11_setup_xkb_extension ( xcb->connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
-                                       XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS, NULL, NULL, &xkb.first_event, NULL ) < 0 ) {
-        g_warning ( "cannot setup XKB extension!" );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
-
-    xkb.xcb_connection = xcb->connection;
-
-    xkb.device_id = xkb_x11_get_core_keyboard_device_id ( xcb->connection );
-
-    enum
-    {
-        required_events =
-            ( XCB_XKB_EVENT_TYPE_NEW_KEYBOARD_NOTIFY |
-              XCB_XKB_EVENT_TYPE_MAP_NOTIFY |
-              XCB_XKB_EVENT_TYPE_STATE_NOTIFY ),
-
-        required_nkn_details =
-            ( XCB_XKB_NKN_DETAIL_KEYCODES ),
-
-        required_map_parts   =
-            ( XCB_XKB_MAP_PART_KEY_TYPES |
-              XCB_XKB_MAP_PART_KEY_SYMS |
-              XCB_XKB_MAP_PART_MODIFIER_MAP |
-              XCB_XKB_MAP_PART_EXPLICIT_COMPONENTS |
-              XCB_XKB_MAP_PART_KEY_ACTIONS |
-              XCB_XKB_MAP_PART_VIRTUAL_MODS |
-              XCB_XKB_MAP_PART_VIRTUAL_MOD_MAP ),
-
-        required_state_details =
-            ( XCB_XKB_STATE_PART_MODIFIER_BASE |
-              XCB_XKB_STATE_PART_MODIFIER_LATCH |
-              XCB_XKB_STATE_PART_MODIFIER_LOCK |
-              XCB_XKB_STATE_PART_GROUP_BASE |
-              XCB_XKB_STATE_PART_GROUP_LATCH |
-              XCB_XKB_STATE_PART_GROUP_LOCK ),
-    };
-
-    static const xcb_xkb_select_events_details_t details = {
-        .affectNewKeyboard  = required_nkn_details,
-        .newKeyboardDetails = required_nkn_details,
-        .affectState        = required_state_details,
-        .stateDetails       = required_state_details,
-    };
-    xcb_xkb_select_events ( xcb->connection, xkb.device_id, required_events, /* affectWhich */
-                            0,                                               /* clear */
-                            required_events,                                 /* selectAll */
-                            required_map_parts,                              /* affectMap */
-                            required_map_parts,                              /* map */
-                            &details );
-
-    xkb.bindings      = nk_bindings_new ();
-    xkb.bindings_seat = nk_bindings_seat_new ( xkb.bindings, XKB_CONTEXT_NO_FLAGS );
-    struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( nk_bindings_seat_get_context ( xkb.bindings_seat ), xcb->connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
-    if ( keymap == NULL ) {
-        g_warning ( "Failed to get Keymap for current keyboard device." );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
-    struct xkb_state *state = xkb_x11_state_new_from_device ( keymap, xcb->connection, xkb.device_id );
-    if ( state == NULL ) {
-        g_warning ( "Failed to get state object for current keyboard device." );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
-
-    nk_bindings_seat_update_keymap ( xkb.bindings_seat, keymap, state );
-
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
+    if ( !x11_setup () ) {
         g_warning ( "Connection has error" );
         cleanup ();
         return EXIT_FAILURE;
     }
-    x11_setup ();
-    TICK_N ( "Setup xkb" );
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
-        g_warning ( "Connection has error" );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
+    TICK_N ( "Setup X11" );
+
     main_loop = g_main_loop_new ( NULL, FALSE );
 
     TICK_N ( "Setup mainloop" );
-    // startup not.
-    xcb->sndisplay = sn_xcb_display_new ( xcb->connection, error_trap_push, error_trap_pop );
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
-        g_warning ( "Connection has error" );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
 
-    if ( xcb->sndisplay != NULL ) {
-        xcb->sncontext = sn_launchee_context_new_from_environment ( xcb->sndisplay, xcb->screen_nbr );
-    }
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
-        g_warning ( "Connection has error" );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
     TICK_N ( "Startup Notification" );
     // Setup keybinding
     setup_abe ();
@@ -1180,7 +956,7 @@ int main ( int argc, char *argv[] )
     if ( find_arg_uint ( "-record-screenshots", &interval ) ) {
         g_timeout_add ( 1000 / (double) interval, record, NULL );
     }
-    main_loop_source = g_water_xcb_source_new_for_connection ( NULL, xcb->connection, main_loop_x11_event_handler, NULL, NULL );
+    main_loop_source = g_water_xcb_source_new_for_connection ( NULL, xcb->connection, main_loop_x11_event_handler, main_loop, NULL );
 
     TICK_N ( "X11 Setup " );
 
