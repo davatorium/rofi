@@ -403,16 +403,15 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     // draw Icon
     if ( (tb->flags&TB_ICON) == TB_ICON && tb->icon != NULL ) {
         int iconheight = textbox_get_font_height ( tb );
-        int translatex = 0;
         cairo_save(draw);
 
         /*int iconw = cairo_image_surface_get_width (tb->icon);*/
         int iconh = cairo_image_surface_get_height (tb->icon);
         double scale = (double)iconheight / iconh;
 
-        cairo_translate(draw, translatex, 0);
+        cairo_translate(draw, x, y);
         cairo_scale(draw, scale, scale);
-        cairo_set_source_surface(draw, tb->icon, x, y);
+        cairo_set_source_surface(draw, tb->icon, 0,0);
         cairo_paint(draw);
         cairo_restore(draw);
     }
