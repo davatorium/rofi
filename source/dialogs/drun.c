@@ -89,9 +89,9 @@ typedef struct
     unsigned int      cmd_list_length_actual;
     unsigned int      history_length;
     // List of disabled entries.
-    GHashTable    *disabled_entries;
-    unsigned int  disabled_entries_length;
-    GThread *thread;
+    GHashTable        *disabled_entries;
+    unsigned int      disabled_entries_length;
+    GThread           *thread;
 } DRunModePrivateData;
 
 struct RegexEvalArg
@@ -423,41 +423,44 @@ static void drun_icon_fetch ( gpointer data )
 {
     // as long as dr->icon is updated atomicly.. (is a pointer write atomic?)
     // this should be fine running in another thread.
-    GTimer *t = g_timer_new ();
-   DRunModePrivateData *pd = (DRunModePrivateData*)data;
-   for ( size_t i = 0; i < pd->cmd_list_length; i++ ) {
-       DRunModeEntry *dr = &( pd->entry_list[i] );
-       if ( dr->icon_name == NULL )
-           continue;
-       gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", dr->icon_name, 32, 1, TRUE );
-       if ( icon_path == NULL ) {
-           g_free(dr->icon_name);
-           dr->icon_name = NULL;
-           continue;
-       }
-       else
-           g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon %s(%d): %s", dr->icon_name, 32, icon_path );
+    GTimer              *t  = g_timer_new ();
+    DRunModePrivateData *pd = (DRunModePrivateData *) data;
+    for ( size_t i = 0; i < pd->cmd_list_length; i++ ) {
+        DRunModeEntry *dr = &( pd->entry_list[i] );
+        if ( dr->icon_name == NULL ) {
+            continue;
+        }
+        gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", dr->icon_name, 32, 1, TRUE );
+        if ( icon_path == NULL ) {
+            g_free ( dr->icon_name );
+            dr->icon_name = NULL;
+            continue;
+        }
+        else{
+            g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon %s(%d): %s", dr->icon_name, 32, icon_path );
+        }
 
-       if ( g_str_has_suffix ( icon_path, ".png" ) )
-           dr->icon = cairo_image_surface_create_from_png(icon_path);
-       else if ( g_str_has_suffix ( icon_path, ".svg" ) )
-           dr->icon = cairo_image_surface_create_from_svg(icon_path, 32);
-       else {
-           g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", icon_path );
-           char *r = dr->icon_name;
-           dr->icon_name = NULL;
-           g_free(r);
-       }
-       g_free(icon_path);
-      // if ( (i%100) == 99 )
-       {
-
-           rofi_view_reload();
-       }
-   }
-   rofi_view_reload();
-   g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "elapsed: %f\n" , g_timer_elapsed ( t, NULL));
-   g_timer_destroy ( t );
+        if ( g_str_has_suffix ( icon_path, ".png" ) ) {
+            dr->icon = cairo_image_surface_create_from_png ( icon_path );
+        }
+        else if ( g_str_has_suffix ( icon_path, ".svg" ) ) {
+            dr->icon = cairo_image_surface_create_from_svg ( icon_path, 32 );
+        }
+        else {
+            g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", icon_path );
+            char *r = dr->icon_name;
+            dr->icon_name = NULL;
+            g_free ( r );
+        }
+        g_free ( icon_path );
+        // if ( (i%100) == 99 )
+        {
+            rofi_view_reload ();
+        }
+    }
+    rofi_view_reload ();
+    g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "elapsed: %f\n", g_timer_elapsed ( t, NULL ) );
+    g_timer_destroy ( t );
 }
 
 static int drun_mode_init ( Mode *sw )
@@ -531,7 +534,7 @@ static void drun_mode_destroy ( Mode *sw )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( sw );
     if ( rmpd != NULL ) {
-        if ( rmpd->thread ){
+        if ( rmpd->thread ) {
             g_thread_join ( rmpd->thread );
             rmpd->thread = NULL;
         }
@@ -572,7 +575,7 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
 {
     DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
     g_return_val_if_fail ( pd->entry_list != NULL, NULL );
-    DRunModeEntry *dr = &( pd->entry_list[selected_line] );
+    DRunModeEntry       *dr = &( pd->entry_list[selected_line] );
     return dr->icon;
 }
 

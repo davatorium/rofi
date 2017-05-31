@@ -86,7 +86,7 @@ typedef enum
         TB_WRAP      = 1 << 21,
         TB_PASSWORD  = 1 << 22,
         TB_INDICATOR = 1 << 23,
-        TB_ICON = 1<<24,
+        TB_ICON      = 1 << 24,
 } TextboxFlags;
 /**
  * Flags indicating current state of the textbox.

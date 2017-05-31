@@ -143,8 +143,8 @@ textbox* textbox_create_full ( WidgetType type, const char *name, TextboxFlags f
     tb->changed = FALSE;
 
     tb->layout = pango_layout_new ( p_context );
-    if ( (tb->flags&TB_ICON) == TB_ICON) {
-        tb->left_offset   = 1.2*textbox_get_estimated_char_height();
+    if ( ( tb->flags & TB_ICON ) == TB_ICON ) {
+        tb->left_offset = 1.2 * textbox_get_estimated_char_height ();
     }
     textbox_font ( tb, tbft );
 
@@ -188,7 +188,6 @@ textbox* textbox_create_full ( WidgetType type, const char *name, TextboxFlags f
         tb->blink_timeout         = g_timeout_add ( 1200, textbox_blink, tb );
         tb->widget.trigger_action = textbox_editable_trigger_action;
     }
-
 
     // Enabled by default
     tb->widget.enabled = rofi_theme_get_boolean ( WIDGET ( tb ), "enabled", TRUE );
@@ -366,7 +365,7 @@ static void textbox_free ( widget *wid )
 static void textbox_draw ( widget *wid, cairo_t *draw )
 {
     textbox      *tb    = (textbox *) wid;
-    unsigned int offset = tb->left_offset + (( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0);
+    unsigned int offset = tb->left_offset + ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
 
     if ( tb->changed ) {
         __textbox_update_pango_text ( tb );
@@ -378,21 +377,21 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     int y   = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
     // draw Icon
-    if ( (tb->flags&TB_ICON) == TB_ICON && tb->icon != NULL ) {
+    if ( ( tb->flags & TB_ICON ) == TB_ICON && tb->icon != NULL ) {
         int iconheight = textbox_get_font_height ( tb );
-        cairo_save(draw);
+        cairo_save ( draw );
 
         /*int iconw = cairo_image_surface_get_width (tb->icon);*/
-        int iconh = cairo_image_surface_get_height (tb->icon);
-        double scale = (double)iconheight / iconh;
+        int    iconh = cairo_image_surface_get_height ( tb->icon );
+        double scale = (double) iconheight / iconh;
 
-        cairo_translate(draw, x, y);
-        cairo_scale(draw, scale, scale);
-        cairo_set_source_surface(draw, tb->icon, 0,0);
-        cairo_paint(draw);
-        cairo_restore(draw);
+        cairo_translate ( draw, x, y );
+        cairo_scale ( draw, scale, scale );
+        cairo_set_source_surface ( draw, tb->icon, 0, 0 );
+        cairo_paint ( draw );
+        cairo_restore ( draw );
     }
-    x+=offset;
+    x += offset;
 
     if ( tb->flags & TB_RIGHT ) {
         int line_width = 0;
