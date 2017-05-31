@@ -301,18 +301,18 @@ static client* window_client ( ModeModePrivateData *pd, xcb_window_t win )
 
     c->title = window_get_text_prop ( c->window, xcb->ewmh._NET_WM_NAME );
     if ( c->title == NULL ) {
-        c->title = rofi_escape_markup ( window_get_text_prop ( c->window, XCB_ATOM_WM_NAME ) );
+        c->title = window_get_text_prop ( c->window, XCB_ATOM_WM_NAME );
     }
     pd->title_len = MAX ( c->title ? g_utf8_strlen ( c->title, -1 ) : 0, pd->title_len );
 
-    c->role      = rofi_escape_markup ( window_get_text_prop ( c->window, netatoms[WM_WINDOW_ROLE] ) );
+    c->role      = window_get_text_prop ( c->window, netatoms[WM_WINDOW_ROLE] );
     pd->role_len = MAX ( c->role ? g_utf8_strlen ( c->role, -1 ) : 0, pd->role_len );
 
     cky = xcb_icccm_get_wm_class ( xcb->connection, c->window );
     xcb_icccm_get_wm_class_reply_t wcr;
     if ( xcb_icccm_get_wm_class_reply ( xcb->connection, cky, &wcr, NULL ) ) {
-        c->class     = rofi_escape_markup ( rofi_latin_to_utf8_strdup ( wcr.class_name, -1 ) );
-        c->name      = rofi_escape_markup ( rofi_latin_to_utf8_strdup ( wcr.instance_name, -1 ) );
+        c->class     = rofi_latin_to_utf8_strdup ( wcr.class_name, -1 );
+        c->name      = rofi_latin_to_utf8_strdup ( wcr.instance_name, -1 );
         pd->name_len = MAX ( c->name ? g_utf8_strlen ( c->name, -1 ) : 0, pd->name_len );
         xcb_icccm_get_wm_class_reply_wipe ( &wcr );
     }
@@ -692,11 +692,6 @@ static gboolean helper_eval_cb ( const GMatchInfo *info, GString *str, gpointer 
         if ( match[1] == 'w' ) {
             helper_eval_add_str ( str, d->c->wmdesktopstr, l, d->pd->wmdn_len );
         }
-        else if ( match[1] == 'i' ) {
-            if ( config.show_icons ) {
-                g_string_append ( str, "<span alpha=\"1\">\uFFFC</span>" );
-            }
-        }
         else if ( match[1] == 'c' ) {
             helper_eval_add_str ( str, d->c->class, l, d->pd->clf_len );
         }
@@ -728,7 +723,6 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     if ( c == NULL ) {
         return get_entry ? g_strdup ( "Window has fanished" ) : NULL;
     }
-    *state |= MARKUP;
     if ( c->demands ) {
         *state |= URGENT;
     }
