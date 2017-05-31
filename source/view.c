@@ -58,7 +58,6 @@
 #include "xkb-internal.h"
 #include "helper.h"
 #include "helper-theme.h"
-#include "x11-helper.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
 

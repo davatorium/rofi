@@ -35,6 +35,7 @@
 #include "xcb-internal.h"
 #include "rofi.h"
 #include "settings.h"
+#include "xcb.h"
 #include "theme.h"
 #include "css-colors.h"
 #include "widgets/widget-internal.h"
@@ -63,10 +64,12 @@ double textbox_get_estimated_char_height ( void )
 {
     return 16.0;
 }
-xcb_screen_t          *xcb_screen;
-xcb_ewmh_connection_t xcb_ewmh;
-int                   xcb_screen_nbr;
-#include <x11-helper.h>
+
+int monitor_active ( G_GNUC_UNUSED workarea *mon )
+{
+    return 0;
+}
+
 #ifndef _ck_assert_ptr_null
 /* Pointer against NULL comparison macros with improved output
  * compared to ck_assert(). */

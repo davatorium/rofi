@@ -36,6 +36,7 @@
 #include <widgets/widget-internal.h>
 #include "rofi.h"
 #include "xrmoptions.h"
+#include "xcb.h"
 unsigned int test =0;
 #define TASSERT( a )    {                                 \
         assert ( a );                                     \
@@ -50,6 +51,10 @@ void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 void rofi_view_queue_redraw ( void )
 {
 
+}
+int monitor_active ( G_GNUC_UNUSED workarea *mon )
+{
+    return 0;
 }
 void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
 {

@@ -36,7 +36,6 @@
 #include "keyb.h"
 #include "helper.h"
 #include "helper-theme.h"
-#include "x11-helper.h"
 #include "mode.h"
 #include "view.h"
 

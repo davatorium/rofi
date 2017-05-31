@@ -58,7 +58,6 @@
 #include "rofi.h"
 #include "helper.h"
 #include "widgets/textbox.h"
-#include "x11-helper.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
 

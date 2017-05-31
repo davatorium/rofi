@@ -47,10 +47,10 @@
 #include <pango/pango.h>
 #include <pango/pango-fontmap.h>
 #include <pango/pangocairo.h>
+#include "xcb.h"
 #include "helper.h"
 #include "helper-theme.h"
 #include "settings.h"
-#include "x11-helper.h"
 #include "rofi.h"
 #include "view.h"
 

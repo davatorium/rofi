@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <cairo.h>
 #include <cairo-xcb.h>
+#include <librsvg/rsvg.h>
 
 #include <xcb/xcb.h>
 #include <xcb/xcb_aux.h>
@@ -49,12 +50,10 @@
 #include "xcb.h"
 #include "settings.h"
 #include "helper.h"
-#include "x11-helper.h"
 
 #include <rofi.h>
 /** Checks if the if x and y is inside rectangle. */
 #define INTERSECT( x, y, x1, y1, w1, h1 )    ( ( ( ( x ) >= ( x1 ) ) && ( ( x ) < ( x1 + w1 ) ) ) && ( ( ( y ) >= ( y1 ) ) && ( ( y ) < ( y1 + h1 ) ) ) )
-#include "x11-helper.h"
 #include "xkb-internal.h"
 WindowManager current_window_manager = WM_EWHM;
 

@@ -32,12 +32,12 @@
 #include <helper.h>
 #include <string.h>
 #include <xcb/xcb_ewmh.h>
+#include "xcb.h"
 #include "xcb-internal.h"
 #include "rofi.h"
 #include "settings.h"
 
 static int       test = 0;
-struct xcb_stuff *xcb;
 
 #define TASSERT( a )        {                            \
         assert ( a );                                    \
@@ -58,6 +58,11 @@ int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
 {
     fputs ( msg, stderr );
     return TRUE;
+}
+
+int monitor_active ( G_GNUC_UNUSED workarea *mon )
+{
+    return 0;
 }
 
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )

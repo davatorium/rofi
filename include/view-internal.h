@@ -33,7 +33,7 @@
 #include "widgets/listview.h"
 #include "widgets/box.h"
 #include "keyb.h"
-#include "x11-helper.h"
+#include "xcb.h"
 #include "theme.h"
 
 /**

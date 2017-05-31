@@ -35,7 +35,6 @@
 #include <cairo.h>
 #include "widgets/widget.h"
 #include "widgets/widget-internal.h"
-#include "x11-helper.h"
 #include "keyb.h"
 
 /**

@@ -36,7 +36,6 @@
 #include <glib.h>
 #include "xcb.h"
 #include "xcb-internal.h"
-#include "x11-helper.h"
 #include "rofi.h"
 #include "xrmoptions.h"
 #include "settings.h"

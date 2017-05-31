@@ -50,6 +50,7 @@
 #include "history.h"
 #include "dialogs/drun.h"
 #include "nkutils-xdg-theme.h"
+#include "xcb.h"
 
 #define DRUN_CACHE_FILE    "rofi2.druncache"
 
