@@ -1000,12 +1000,6 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
-    struct xkb_context *xkb_context = xkb_context_new ( XKB_CONTEXT_NO_FLAGS );
-    if ( xkb_context == NULL ) {
-        g_warning ( "cannot create XKB context!" );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
     xkb.xcb_connection = xcb->connection;
 
     xkb.device_id = xkb_x11_get_core_keyboard_device_id ( xcb->connection );
@@ -1051,7 +1045,8 @@ int main ( int argc, char *argv[] )
                             required_map_parts,                              /* map */
                             &details );
 
-    struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( xkb_context, xcb->connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
+    xkb.bindings_seat = nk_bindings_seat_new ( xkb.bindings, XKB_CONTEXT_NO_FLAGS );
+    struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( nk_bindings_seat_get_context ( xkb.bindings_seat ), xcb->connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
     if ( keymap == NULL ) {
         g_warning ( "Failed to get Keymap for current keyboard device." );
         cleanup ();
@@ -1065,7 +1060,7 @@ int main ( int argc, char *argv[] )
     }
 
     xkb.bindings      = nk_bindings_new ();
-    xkb.bindings_seat = nk_bindings_seat_new ( xkb.bindings, xkb_context, keymap, state );
+    nk_bindings_seat_update_keymap ( xkb.bindings_seat, keymap, state );
 
     if ( xcb_connection_has_error ( xcb->connection ) ) {
         g_warning ( "Connection has error" );
