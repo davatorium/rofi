@@ -1045,6 +1045,7 @@ int main ( int argc, char *argv[] )
                             required_map_parts,                              /* map */
                             &details );
 
+    xkb.bindings      = nk_bindings_new ();
     xkb.bindings_seat = nk_bindings_seat_new ( xkb.bindings, XKB_CONTEXT_NO_FLAGS );
     struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( nk_bindings_seat_get_context ( xkb.bindings_seat ), xcb->connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
     if ( keymap == NULL ) {
@@ -1059,7 +1060,6 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
-    xkb.bindings      = nk_bindings_new ();
     nk_bindings_seat_update_keymap ( xkb.bindings_seat, keymap, state );
 
     if ( xcb_connection_has_error ( xcb->connection ) ) {
