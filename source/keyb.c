@@ -140,7 +140,7 @@ void setup_abe ( void )
     }
 }
 
-static gboolean binding_trigger_action ( guint scope, gpointer user_data )
+static gboolean binding_trigger_action ( guint64 scope, gpointer user_data )
 {
     return rofi_view_trigger_action ( rofi_view_get_active (), scope, GPOINTER_TO_UINT ( user_data ) );
 }

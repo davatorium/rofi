@@ -91,6 +91,7 @@ void rofi_add_error_message ( GString *str )
 struct xkb_stuff xkb = {
     .xcb_connection = NULL,
     .bindings       = NULL,
+    .bindings_seat  = NULL,
 };
 
 /** Path to the configuration file */
@@ -667,9 +668,9 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
         {
         case XCB_XKB_MAP_NOTIFY:
         {
-            struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( nk_bindings_get_context ( xkb.bindings ), xcb->connection, xkb.device_id, 0 );
+            struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( nk_bindings_seat_get_context ( xkb.bindings_seat ), xcb->connection, xkb.device_id, 0 );
             struct xkb_state  *state  = xkb_x11_state_new_from_device ( keymap, xcb->connection, xkb.device_id );
-            nk_bindings_update_keymap ( xkb.bindings, keymap, state );
+            nk_bindings_seat_update_keymap ( xkb.bindings_seat, keymap, state );
             xkb_keymap_unref ( keymap );
             xkb_state_unref ( state );
             break;
@@ -677,13 +678,13 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
         case XCB_XKB_STATE_NOTIFY:
         {
             xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
-            nk_bindings_update_mask ( xkb.bindings,
-                                      ksne->baseMods,
-                                      ksne->latchedMods,
-                                      ksne->lockedMods,
-                                      ksne->baseGroup,
-                                      ksne->latchedGroup,
-                                      ksne->lockedGroup );
+            nk_bindings_seat_update_mask ( xkb.bindings_seat,
+                                           ksne->baseMods,
+                                           ksne->latchedMods,
+                                           ksne->lockedMods,
+                                           ksne->baseGroup,
+                                           ksne->latchedGroup,
+                                           ksne->lockedGroup );
             xcb_generic_event_t dev;
             dev.response_type = 0;
             main_loop_x11_event_handler_view ( &dev );
@@ -1063,7 +1064,8 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
-    xkb.bindings = nk_bindings_new ( xkb_context, keymap, state );
+    xkb.bindings      = nk_bindings_new ();
+    xkb.bindings_seat = nk_bindings_seat_new ( xkb.bindings, xkb_context, keymap, state );
 
     if ( xcb_connection_has_error ( xcb->connection ) ) {
         g_warning ( "Connection has error" );

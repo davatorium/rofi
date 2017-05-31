@@ -40,6 +40,7 @@ struct xkb_stuff
     /** Keyboard device id */
     int32_t          device_id;
     NkBindings       *bindings;
+    NkBindingsSeat   *bindings_seat;
 };
 
 #endif
