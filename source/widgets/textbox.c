@@ -378,7 +378,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     int y   = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
     // draw Icon
-    if ( (tb->flags|TB_ICON) == TB_ICON && tb->icon != NULL ) {
+    if ( (tb->flags&TB_ICON) == TB_ICON && tb->icon != NULL ) {
         int iconheight = textbox_get_font_height ( tb );
         int translatex = 0;
         cairo_save(draw);
