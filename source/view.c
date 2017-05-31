@@ -906,6 +906,10 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
         else{
             list = pango_attr_list_new ();
         }
+        int icon_height = textbox_get_font_height ( t );
+
+        cairo_surface_t *icon = mode_get_icon ( state->sw, state->line_map[index], icon_height );
+        textbox_icon ( t, icon );
 
         if ( state->tokens && config.show_match ) {
             ThemeHighlight th = { HL_BOLD | HL_UNDERLINE, { 0.0, 0.0, 0.0, 0.0 } };

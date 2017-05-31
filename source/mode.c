@@ -70,6 +70,18 @@ char * mode_get_display_value ( const Mode *mode, unsigned int selected_line, in
     return mode->_get_display_value ( mode, selected_line, state, attribute_list, get_entry );
 }
 
+cairo_surface_t * mode_get_icon ( const Mode *mode, unsigned int selected_line, int height )
+{
+    g_assert ( mode != NULL );
+
+    if ( mode->_get_icon != NULL ) {
+        return mode->_get_icon ( mode, selected_line, height );
+    }
+    else {
+        return NULL;
+    }
+}
+
 char * mode_get_completion ( const Mode *mode, unsigned int selected_line )
 {
     g_assert ( mode != NULL );

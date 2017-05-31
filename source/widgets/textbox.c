@@ -144,6 +144,9 @@ textbox* textbox_create_full ( WidgetType type, const char *name, TextboxFlags f
     tb->changed = FALSE;
 
     tb->layout = pango_layout_new ( p_context );
+    if ( (tb->flags&TB_ICON) == TB_ICON) {
+        tb->left_offset   = 1.2*textbox_get_estimated_char_height();
+    }
     textbox_font ( tb, tbft );
 
     tb->metrics = p_metrics;
@@ -315,13 +318,19 @@ void textbox_text ( textbox *tb, const char *text )
     widget_queue_redraw ( WIDGET ( tb ) );
 }
 
+void textbox_icon ( textbox *tb, cairo_surface_t *icon )
+{
+    tb->icon = icon;
+
+    widget_queue_redraw ( WIDGET ( tb ) );
+}
+
 // within the parent handled auto width/height modes
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
-    unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+    unsigned int offset = tb->left_offset + ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
     if ( tb->flags & TB_AUTOWIDTH ) {
         pango_layout_set_width ( tb->layout, -1 );
-        unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
         w = textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( WIDGET ( tb ) ) + offset;
     }
     else {
@@ -380,14 +389,34 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         return;
     }
     textbox      *tb    = (textbox *) wid;
-    unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+    unsigned int offset = tb->left_offset + (( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0);
 
     if ( tb->changed ) {
         __textbox_update_pango_text ( tb );
     }
 
     // Skip the side MARGIN on the X axis.
-    int x = widget_padding_get_left ( WIDGET ( tb ) ) + offset;
+    int x   = widget_padding_get_left ( WIDGET ( tb ) ) + offset;
+    int top = widget_padding_get_top ( WIDGET ( tb ) );
+    int y   = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
+
+    // draw Icon
+    if ( (tb->flags|TB_ICON) == TB_ICON && tb->icon != NULL ) {
+        int iconheight = textbox_get_font_height ( tb );
+        int translatex = 0;
+        cairo_save(draw);
+
+        /*int iconw = cairo_image_surface_get_width (tb->icon);*/
+        int iconh = cairo_image_surface_get_height (tb->icon);
+        double scale = (double)iconheight / iconh;
+
+        cairo_translate(draw, translatex, 0);
+        cairo_scale(draw, scale, scale);
+        cairo_set_source_surface(draw, tb->icon, x, y);
+        cairo_paint(draw);
+        cairo_restore(draw);
+    }
+    x+=offset;
 
     if ( tb->flags & TB_RIGHT ) {
         int line_width = 0;
@@ -400,7 +429,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         x = (  ( tb->widget.w - tw - widget_padding_get_padding_width ( WIDGET ( tb ) ) - offset ) ) / 2;
     }
 
-    int top = widget_padding_get_top ( WIDGET ( tb ) );
     if ( tb->yalign > 0.001 ) {
         int height = (pango_font_metrics_get_ascent ( tb->metrics ) + pango_font_metrics_get_descent ( tb->metrics ))/PANGO_SCALE;
         int bottom = widget_padding_get_bottom ( WIDGET ( tb ) );
@@ -412,7 +440,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     rofi_theme_get_color ( WIDGET ( tb ), "text", draw );
     // draw the cursor
     if ( tb->flags & TB_EDITABLE && tb->blink ) {
-        int            y = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
         // We want to place the cursor based on the text shown.
         const char     *text = pango_layout_get_text ( tb->layout );
         // Clamp the position, should not be needed, but we are paranoid.
@@ -437,7 +464,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     pango_cairo_show_layout ( draw, tb->layout );
 
     if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED ) ) ) {
-        cairo_arc ( draw, DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * G_PI );
+        cairo_arc ( draw, tb->left_offset + DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
         cairo_fill ( draw );
     }
 }
@@ -866,7 +893,7 @@ int textbox_get_estimated_height ( const textbox *tb, int eh )
 int textbox_get_desired_width ( widget *wid )
 {
     textbox      *tb    = (textbox *) wid;
-    unsigned int offset = ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+    unsigned int offset = tb->left_offset + ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
     if ( wid->expand && tb->flags & TB_AUTOWIDTH ) {
         return textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( wid ) + offset;
     }

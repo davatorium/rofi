@@ -29,6 +29,7 @@
 #define X11_ROFI_HELPER_H
 #include <glib.h>
 #include <cairo.h>
+#include <librsvg/rsvg.h>
 #include <xcb/xcb.h>
 #include <xkbcommon/xkbcommon.h>
 
@@ -211,6 +212,13 @@ cairo_surface_t * x11_helper_get_bg_surface ( void );
  * @returns a cairo surface for the root window of the desktop.
  */
 cairo_surface_t *x11_helper_get_screenshot_surface ( void );
+
+/**
+ * Gets a surface from an svg path
+ *
+ * @returns a cairo surface from an svg path
+ */
+cairo_surface_t *cairo_image_surface_create_from_svg ( const gchar* file, int height );
 
 /**
  * Creates an internal represenation of the available monitors.

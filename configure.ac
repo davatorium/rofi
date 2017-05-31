@@ -116,12 +116,13 @@ PKG_PROG_PKG_CONFIG
 dnl ---------------------------------------------------------------------
 dnl PKG_CONFIG based dependencies
 dnl ---------------------------------------------------------------------
-NK_INIT([bindings])
+NK_INIT([bindings xdg-theme])
 PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40 gio-unix-2.0 gmodule-2.0])
 GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11 xcb-ewmh xcb-icccm xcb-xrm xcb-randr xcb-xinerama])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])
 PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0 ])
+PKG_CHECK_MODULES([librsvg],    [librsvg-2.0 ])
 
 dnl ---------------------------------------------------------------------
 dnl check - Unit testing.

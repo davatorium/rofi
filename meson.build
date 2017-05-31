@@ -46,6 +46,7 @@ deps = [
     dependency('pango'),
     dependency('pangocairo'),
     dependency('xkbcommon'),
+    dependency('librsvg-2.0'),
     c_compiler.find_library('m', required: false),
 ]
 
@@ -103,6 +104,7 @@ config_h = configure_file(output: 'config.h', configuration: header_conf)
 
 nk_modules = [
     'bindings=true',
+    'xdg-theme=true',
 ]
 nk = subproject('libnkutils', default_options: nk_modules)
 nk_options = nk.get_variable('nk_options')

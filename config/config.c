@@ -44,7 +44,9 @@ Settings config = {
     /** Font */
     .menu_font         = "mono 12",
 
-    /** Row colors */
+    /** Whether to load and show icons */
+    .show_icons        = FALSE,
+
     /** Terminal to use. (for ssh and open in terminal) */
     .terminal_emulator = "rofi-sensible-terminal",
     .ssh_client        = "ssh",
@@ -58,6 +60,8 @@ Settings config = {
     .run_shell_command = "{terminal} -e {cmd}",
     /** Command executed on accep-entry-custom for window modus */
     .window_command    = "xkill -id {window}",
+    /** Sane default for an icon theme */
+    .drun_icon_theme   = "gnome",
     /**
      * Location of the window.
      * Enumeration indicating location or gravity of window.
@@ -109,7 +113,7 @@ Settings config = {
     .dpi           =                                  -1,
     .threads       =                                   0,
     .scroll_method =                                   0,
-    .window_format = "{w}   {c}   {t}",
+    .window_format = "{w}    {i}{c}   {t}",
     .click_to_exit = TRUE,
     .show_match    = TRUE,
     .theme         = NULL,
