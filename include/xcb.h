@@ -210,7 +210,7 @@ extern xcb_visualtype_t *visual;
  */
 extern xcb_colormap_t map;
 
-void x11_late_setup ( void );
+gboolean x11_late_setup ( void );
 
 /**
  * Gets a surface containing the background image of the desktop.

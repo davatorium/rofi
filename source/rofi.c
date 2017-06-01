@@ -600,38 +600,6 @@ static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
     return G_SOURCE_CONTINUE;
 }
 
-/** Retry count of grabbing keyboard. */
-unsigned int lazy_grab_retry_count_kb = 0;
-/** Retry count of grabbing pointer. */
-unsigned int lazy_grab_retry_count_pt = 0;
-static gboolean lazy_grab_pointer ( G_GNUC_UNUSED gpointer data )
-{
-    // After 5 sec.
-    if ( lazy_grab_retry_count_pt > ( 5 * 1000 ) ) {
-        g_warning ( "Failed to grab pointer after %u times. Giving up.", lazy_grab_retry_count_pt );
-        return G_SOURCE_REMOVE;
-    }
-    if ( take_pointer ( xcb_stuff_get_root_window (), 0 ) ) {
-        return G_SOURCE_REMOVE;
-    }
-    lazy_grab_retry_count_pt++;
-    return G_SOURCE_CONTINUE;
-}
-static gboolean lazy_grab_keyboard ( G_GNUC_UNUSED gpointer data )
-{
-    // After 5 sec.
-    if ( lazy_grab_retry_count_kb > ( 5 * 1000 ) ) {
-        g_warning ( "Failed to grab keyboard after %u times. Giving up.", lazy_grab_retry_count_kb );
-        g_main_loop_quit (  main_loop );
-        return G_SOURCE_REMOVE;
-    }
-    if ( take_keyboard ( xcb_stuff_get_root_window (), 0 ) ) {
-        return G_SOURCE_REMOVE;
-    }
-    lazy_grab_retry_count_kb++;
-    return G_SOURCE_CONTINUE;
-}
-
 static gboolean startup ( G_GNUC_UNUSED gpointer data )
 {
     TICK_N ( "Startup" );
@@ -642,33 +610,6 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
 
     if ( find_arg ( "-normal-window" ) >= 0 ) {
         window_flags |= MENU_NORMAL_WINDOW;
-    }
-
-    /**
-     * Create window (without showing)
-     */
-    // Try to grab the keyboard as early as possible.
-    // We grab this using the rootwindow (as dmenu does it).
-    // this seems to result in the smallest delay for most people.
-    if ( ( window_flags & MENU_NORMAL_WINDOW ) == 0 ) {
-        if ( find_arg ( "-no-lazy-grab" ) >= 0 ) {
-            if ( !take_keyboard ( xcb_stuff_get_root_window (), 500 ) ) {
-                g_warning ( "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
-                g_main_loop_quit ( main_loop );
-                return G_SOURCE_REMOVE;
-            }
-            if ( !take_pointer ( xcb_stuff_get_root_window (), 100 ) ) {
-                g_warning ( "Failed to grab mouse pointer, even after %d uS.", 100 * 1000 );
-            }
-        }
-        else {
-            if ( !take_keyboard ( xcb_stuff_get_root_window (), 0 ) ) {
-                g_timeout_add ( 1, lazy_grab_keyboard, NULL );
-            }
-            if ( !take_pointer ( xcb_stuff_get_root_window (), 0 ) ) {
-                g_timeout_add ( 1, lazy_grab_pointer, NULL );
-            }
-        }
     }
     TICK_N ( "Grab keyboard" );
     __create_window ( window_flags );
@@ -949,7 +890,11 @@ int main ( int argc, char *argv[] )
     }
     textbox_setup ();
 
-    x11_late_setup ();
+    if ( !x11_late_setup () ) {
+        g_warning ( "Failed to properly finish display setup" );
+        cleanup ();
+        return EXIT_FAILURE;
+    }
 
     // Setup signal handling sources.
     // SIGINT

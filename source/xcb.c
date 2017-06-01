@@ -890,9 +890,69 @@ static void x11_create_visual_and_colormap ( void )
     }
 }
 
-void x11_late_setup ( void )
+/** Retry count of grabbing keyboard. */
+unsigned int lazy_grab_retry_count_kb = 0;
+/** Retry count of grabbing pointer. */
+unsigned int lazy_grab_retry_count_pt = 0;
+static gboolean lazy_grab_pointer ( G_GNUC_UNUSED gpointer data )
+{
+    // After 5 sec.
+    if ( lazy_grab_retry_count_pt > ( 5 * 1000 ) ) {
+        g_warning ( "Failed to grab pointer after %u times. Giving up.", lazy_grab_retry_count_pt );
+        return G_SOURCE_REMOVE;
+    }
+    if ( take_pointer ( xcb_stuff_get_root_window (), 0 ) ) {
+        return G_SOURCE_REMOVE;
+    }
+    lazy_grab_retry_count_pt++;
+    return G_SOURCE_CONTINUE;
+}
+static gboolean lazy_grab_keyboard ( G_GNUC_UNUSED gpointer data )
+{
+    // After 5 sec.
+    if ( lazy_grab_retry_count_kb > ( 5 * 1000 ) ) {
+        g_warning ( "Failed to grab keyboard after %u times. Giving up.", lazy_grab_retry_count_kb );
+        g_main_loop_quit ( xcb->main_loop );
+        return G_SOURCE_REMOVE;
+    }
+    if ( take_keyboard ( xcb_stuff_get_root_window (), 0 ) ) {
+        return G_SOURCE_REMOVE;
+    }
+    lazy_grab_retry_count_kb++;
+    return G_SOURCE_CONTINUE;
+}
+
+gboolean x11_late_setup ( void )
 {
     x11_create_visual_and_colormap ();
+
+    /**
+     * Create window (without showing)
+     */
+    // Try to grab the keyboard as early as possible.
+    // We grab this using the rootwindow (as dmenu does it).
+    // this seems to result in the smallest delay for most people.
+    if ( find_arg ( "-normal-window" ) >= 0 ) {
+        return;
+    }
+    if ( find_arg ( "-no-lazy-grab" ) >= 0 ) {
+        if ( !take_keyboard ( xcb_stuff_get_root_window (), 500 ) ) {
+            g_warning ( "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
+            return FALSE;
+        }
+        if ( !take_pointer ( xcb_stuff_get_root_window (), 100 ) ) {
+            g_warning ( "Failed to grab mouse pointer, even after %d uS.", 100 * 1000 );
+        }
+    }
+    else {
+        if ( !take_keyboard ( xcb_stuff_get_root_window (), 0 ) ) {
+            g_timeout_add ( 1, lazy_grab_keyboard, NULL );
+        }
+        if ( !take_pointer ( xcb_stuff_get_root_window (), 0 ) ) {
+            g_timeout_add ( 1, lazy_grab_pointer, NULL );
+        }
+    }
+    return TRUE;
 }
 
 xcb_window_t xcb_stuff_get_root_window ( void )
