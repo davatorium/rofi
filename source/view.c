@@ -1477,7 +1477,7 @@ void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, NkB
         gchar                 *text;
 
         text = nk_bindings_seat_handle_key ( seat, xkpe->detail, NK_BINDINGS_KEY_STATE_PRESS );
-        if ( ( text != NULL ) && ( textbox_append_char ( state->text, text, strlen ( text ) ) ) ) {
+        if ( ( text != NULL ) && ( textbox_append_text ( state->text, text, strlen ( text ) ) ) ) {
             state->refilter = TRUE;
         }
         break;

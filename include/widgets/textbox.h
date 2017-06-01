@@ -170,7 +170,7 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action );
  * The text should be one insert from a keypress..  the first gunichar is validated to be (or not) control
  * return TRUE if inserted
  */
-gboolean textbox_append_char ( textbox *tb, const char *pad, const int pad_len );
+gboolean textbox_append_text ( textbox *tb, const char *pad, const int pad_len );
 
 /**
  * @param tb  Handle to the textbox
