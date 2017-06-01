@@ -787,9 +787,8 @@ int main ( int argc, char *argv[] )
         cleanup ();
         return EXIT_FAILURE;
     }
-    TICK_N ( "Setup X11" );
+    TICK_N ( "Setup Display" );
 
-    TICK_N ( "Startup Notification" );
     // Setup keybinding
     setup_abe ();
     TICK_N ( "Setup abe" );
@@ -878,8 +877,6 @@ int main ( int argc, char *argv[] )
         g_timeout_add ( 1000 / (double) interval, record, NULL );
     }
 
-    TICK_N ( "X11 Setup " );
-
     rofi_view_workers_initialize ();
 
     // Create pid file
@@ -895,6 +892,7 @@ int main ( int argc, char *argv[] )
         cleanup ();
         return EXIT_FAILURE;
     }
+    TICK_N ( "Setup late Display" );
 
     // Setup signal handling sources.
     // SIGINT
