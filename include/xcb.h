@@ -49,12 +49,6 @@ extern xcb_stuff *xcb;
  * @returns the root window.
  */
 xcb_window_t xcb_stuff_get_root_window ( void );
-/**
- * @param xcb The xcb data structure.
- *
- * Disconnect and free all xcb connections and references.
- */
-void xcb_stuff_wipe ( void );
 
 /**
  * @param w The xcb_window_t to read property from.
@@ -135,18 +129,6 @@ typedef struct _workarea
 int monitor_active ( workarea *mon );
 
 /**
- * @param main_loop The GMainLoop
- *
- * Setup several items required.
- * * Error handling,
- * * Numlock detection
- * * Cache
- *
- * @returns Whether the setup succeeded or not
- */
-gboolean x11_setup ( GMainLoop *main_loop );
-
-/**
  * Depth of visual
  */
 extern xcb_depth_t *depth;
@@ -158,10 +140,6 @@ extern xcb_visualtype_t *visual;
  * Color map to use for creating window
  */
 extern xcb_colormap_t map;
-
-gboolean x11_late_setup ( void );
-
-void x11_early_cleanup ( void );
 
 /**
  * Gets a surface containing the background image of the desktop.
@@ -177,17 +155,6 @@ cairo_surface_t * x11_helper_get_bg_surface ( void );
  * @returns a cairo surface for the root window of the desktop.
  */
 cairo_surface_t *x11_helper_get_screenshot_surface ( void );
-
-/**
- * Creates an internal represenation of the available monitors.
- * Used for positioning rofi.
- */
-void x11_build_monitor_layout ( void );
-
-/**
- * Dump the monitor layout to stdout.
- */
-void x11_dump_monitor_layout ( void );
 
 /**
  * @param window The X11 window to modify

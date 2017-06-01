@@ -25,41 +25,42 @@
  *
  */
 
-#ifndef ROFI_XCB_INTERNAL_H
-#define ROFI_XCB_INTERNAL_H
-/** Indication we accept that startup notification api is not yet frozen */
-#define SN_API_NOT_YET_FROZEN
-#include <libsn/sn.h>
+#ifndef ROFI_DISPLAY_H
+#define ROFI_DISPLAY_H
 
-#include <xcb/xcb.h>
-#include <xcb/xcb_ewmh.h>
-#include "libgwater-xcb.h"
-
+#include <glib.h>
 #include "nkutils-bindings.h"
 
 /**
- * Structure to keep xcb stuff around.
+ * @param main_loop The GMainLoop
+ * @param bindings The bindings object
+ *
+ * Setup the display backend
+ *
+ * @returns Whether the setup succeeded or not
  */
-struct _xcb_stuff
-{
-    GMainLoop             *main_loop;
-    GWaterXcbSource       *source;
-    xcb_connection_t      *connection;
-    xcb_ewmh_connection_t ewmh;
-    xcb_screen_t          *screen;
-    int                   screen_nbr;
-    SnDisplay             *sndisplay;
-    SnLauncheeContext     *sncontext;
-    struct _workarea      *monitors;
-    struct
-    {
-        /** Flag indicating first event */
-        uint8_t first_event;
-        /** Keyboard device id */
-        int32_t device_id;
-    }              xkb;
-    NkBindingsSeat *bindings_seat;
-    gboolean    mouse_seen;
-};
+gboolean display_setup(GMainLoop *main_loop, NkBindings *bindings);
+
+/**
+ * Do some late setup of the display backend
+ *
+ * @returns Whether the setup succeeded or not
+ */
+gboolean display_late_setup(void);
+
+/**
+ * Do some early cleanup, like unmapping the surface
+ */
+void display_early_cleanup(void);
+
+/**
+ * Cleanup any remaining display related stuff
+ */
+void display_cleanup(void);
+
+/**
+ * Dumps the display layout for -help output
+ */
+void display_dump_monitor_layout ( void );
 
 #endif

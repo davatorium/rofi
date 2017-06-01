@@ -54,6 +54,7 @@
 
 #include "rofi.h"
 #include "mode.h"
+#include "display.h"
 #include "xcb-internal.h"
 #include "helper.h"
 #include "helper-theme.h"
@@ -1649,7 +1650,7 @@ void rofi_view_hide ( void )
 {
     if ( CacheState.main_window != XCB_WINDOW_NONE ) {
         xcb_unmap_window ( xcb->connection, CacheState.main_window );
-        x11_early_cleanup ();
+        display_early_cleanup ();
     }
 }
 
