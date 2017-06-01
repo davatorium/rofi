@@ -47,7 +47,7 @@ typedef enum
     /** Create a menu for entering passwords */
     MENU_PASSWORD      = 1,
     /** Create amanaged window. */
-    MENU_NORMAL_WINDOW = 2,
+    _DEPRECATED_MENU_NORMAL_WINDOW = 2,
     /** ERROR dialog */
     MENU_ERROR_DIALOG  = 4,
     /** INDICATOR */
@@ -112,8 +112,7 @@ void rofi_view_handle_mouse_motion( RofiViewState *state, gint x, gint y );
  * Update the state if needed.
  */
 void rofi_view_maybe_update ( RofiViewState *state );
-void rofi_view_temp_configure_notify ( RofiViewState *state, xcb_configure_notify_event_t *xce );
-void rofi_view_temp_click_to_exit ( RofiViewState *state, xcb_window_t target );
+void rofi_view_set_size ( RofiViewState *state, gint width, gint height );
 /**
  * @param state the Menu handle
  *
@@ -156,6 +155,11 @@ unsigned int rofi_view_get_selected_line ( const RofiViewState *state );
  * Resets RofiViewState::quit and RofiViewState::retv.
  */
 void rofi_view_restart ( RofiViewState *state );
+
+/**
+ * @param state The Menu Handle
+ */
+void rofi_view_quit ( RofiViewState *state );
 
 /**
  * @param state The handle to the view
@@ -269,12 +273,6 @@ void rofi_view_clear_input ( RofiViewState *state );
  * TODO: Internal call to view exposed.
  */
 void __create_window ( MenuFlags menu_flags );
-/**
- * Get the handle of the main window.
- *
- * @returns the xcb_window_t for rofi's view or XCB_WINDOW_NONE.
- */
-xcb_window_t rofi_view_get_window ( void );
 /** @} */
 
 /***

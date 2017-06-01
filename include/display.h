@@ -29,8 +29,11 @@
 #define ROFI_DISPLAY_H
 
 #include <glib.h>
+#include <cairo.h>
 #include "helper.h"
 #include "nkutils-bindings.h"
+
+typedef struct _display_buffer_pool display_buffer_pool;
 
 /**
  * @param main_loop The GMainLoop
@@ -72,5 +75,14 @@ void display_dump_monitor_layout ( void );
  * Provides the needed child setup function
  */
 void display_startup_notification ( RofiHelperExecuteContext *context, GSpawnChildSetupFunc *child_setup, gpointer *user_data );
+
+display_buffer_pool *display_buffer_pool_new(gint width, gint height);
+void display_buffer_pool_free(display_buffer_pool *pool);
+
+cairo_surface_t *display_buffer_pool_get_next_buffer(display_buffer_pool *pool);
+void display_surface_commit(cairo_surface_t *surface);
+void display_surface_drop(cairo_surface_t *surface);
+
+void display_trigger_paste(gboolean primary);
 
 #endif

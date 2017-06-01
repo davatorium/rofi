@@ -45,6 +45,7 @@
 #include <xcb/randr.h>
 #include <xcb/xinerama.h>
 #include <xcb/xcb_ewmh.h>
+#include <xcb/xcb_icccm.h>
 #include <xcb/xproto.h>
 #include <xcb/xkb.h>
 #include <xkbcommon/xkbcommon.h>
@@ -78,16 +79,11 @@ struct _xcb_stuff xcb_int = {
 };
 xcb_stuff         *xcb = &xcb_int;
 
-/**
- * Depth of root window.
- */
-xcb_depth_t      *depth  = NULL;
-xcb_visualtype_t *visual = NULL;
-xcb_colormap_t   map     = XCB_COLORMAP_NONE;
-/**
- * Visual of the root window.
- */
-static xcb_visualtype_t *root_visual = NULL;
+struct _display_buffer_pool {
+    xcb_gc_t gc;
+    gint width;
+    gint height;
+};
 xcb_atom_t              netatoms[NUM_NETATOMS];
 const char              *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 
@@ -98,7 +94,7 @@ const char              *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 cairo_surface_t *x11_helper_get_screenshot_surface ( void )
 {
     return cairo_xcb_surface_create ( xcb->connection,
-                                      xcb_stuff_get_root_window (), root_visual,
+                                      xcb_stuff_get_root_window (), xcb->root_visual,
                                       xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
 }
 
@@ -136,7 +132,7 @@ cairo_surface_t * x11_helper_get_bg_surface ( void )
     if ( pm == XCB_NONE ) {
         return NULL;
     }
-    return cairo_xcb_surface_create ( xcb->connection, pm, root_visual,
+    return cairo_xcb_surface_create ( xcb->connection, pm, xcb->root_visual,
                                       xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
 }
 
@@ -625,7 +621,14 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
     case XCB_CONFIGURE_NOTIFY:
     {
         xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
-        rofi_view_temp_configure_notify ( state, xce );
+        if ( xce->window == xcb->main_window ) {
+            if ( state->x != xce->x || state->y != xce->y ) {
+                state->x = xce->x;
+                state->y = xce->y;
+                rofi_view_queue_redraw ();
+            }
+            rofi_view_set_size(state, xce->width, xce->height);
+        }
         break;
     }
     case XCB_MOTION_NOTIFY:
@@ -651,8 +654,8 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
         xcb->last_timestamp = bre->time;
         nk_bindings_seat_handle_button ( xcb->bindings_seat, bre->detail, NK_BINDINGS_BUTTON_STATE_RELEASE, bre->time );
         if ( config.click_to_exit == TRUE ) {
-            if ( ! xcb->mouse_seen ) {
-                rofi_view_temp_click_to_exit ( state, bre->event );
+            if ( ! xcb->mouse_seen && !xcb->normal_window && bre->event != xcb->main_window) {
+                rofi_view_quit ( state );
             }
             xcb->mouse_seen = FALSE;
         }
@@ -1005,12 +1008,12 @@ static void x11_create_visual_and_colormap ( void )
         for ( visual_iter = xcb_depth_visuals_iterator ( d ); visual_iter.rem; xcb_visualtype_next ( &visual_iter ) ) {
             xcb_visualtype_t *v = visual_iter.data;
             if ( ( v->bits_per_rgb_value == 8 ) && ( d->depth == 32 ) && ( v->_class == XCB_VISUAL_CLASS_TRUE_COLOR ) ) {
-                depth  = d;
-                visual = v;
+                xcb->depth  = d;
+                xcb->visual = v;
             }
             if ( xcb->screen->root_visual == v->visual_id ) {
                 root_depth  = d;
-                root_visual = v;
+                xcb->root_visual = v;
             }
         }
     }
@@ -1021,16 +1024,16 @@ static void x11_create_visual_and_colormap ( void )
         c   = xcb_create_colormap_checked ( xcb->connection, XCB_COLORMAP_ALLOC_NONE, map, xcb->screen->root, visual->visual_id );
         e   = xcb_request_check ( xcb->connection, c );
         if ( e ) {
-            depth  = NULL;
-            visual = NULL;
+            xcb->depth  = NULL;
+            xcb->visual = NULL;
             free ( e );
         }
     }
 
-    if ( visual == NULL ) {
-        depth  = root_depth;
-        visual = root_visual;
-        map    = xcb->screen->default_colormap;
+    if ( xcb->visual == NULL ) {
+        xcb->depth  = root_depth;
+        xcb->visual = xcb->root_visual;
+        xcb->map    = xcb->screen->default_colormap;
     }
 }
 
@@ -1076,9 +1079,104 @@ gboolean display_late_setup ( void )
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
-    if ( find_arg ( "-normal-window" ) >= 0 ) {
+    xcb->normal_window = ( find_arg ( "-normal-window" ) >= 0 );
+
+    uint32_t          selmask  = 0;
+    uint32_t          selval[7];
+    gsize i = 0;
+
+    selmask |= XCB_CW_BACK_PIXMAP;
+    selval[i++] = XCB_BACK_PIXMAP_NONE;
+
+    selmask |= XCB_CW_BORDER_PIXEL;
+    selval[i++] = 0;
+
+    selmask |= XCB_CW_BIT_GRAVITY;
+    selval[i++] = XCB_GRAVITY_STATIC;
+
+    selmask |= XCB_CW_BACKING_STORE;
+    selval[i++] = XCB_BACKING_STORE_NOT_USEFUL;
+
+    if ( ! xcb->normal_window )
+    {
+        selmask |= XCB_CW_OVERRIDE_REDIRECT;
+        selval[i++] = 1;
+    }
+
+    selmask |= XCB_CW_EVENT_MASK;
+    selval[i++] = XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE |
+                  XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_KEYMAP_STATE |
+                  XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION;
+
+    selmask |= XCB_CW_COLORMAP;
+    selval[i++] = xcb->map;
+
+    xcb->main_window = xcb_generate_id(xcb->connection);
+    xcb_void_cookie_t cc  = xcb_create_window_checked ( xcb->connection, xcb->depth->depth, xcb->main_window, xcb->screen->root, 0, 0, 1, 1, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT, xcb->visual->visual_id, selmask, selval );
+    xcb_generic_error_t *error;
+    error = xcb_request_check ( xcb->connection, cc );
+    if ( error ) {
+        printf ( "xcb_create_window() failed error=0x%x\n", error->error_code );
+        free(error);
+        return FALSE;
+    }
+
+    // Set the PID.
+    pid_t pid = getpid ();
+    xcb_ewmh_set_wm_pid ( &( xcb->ewmh ), xcb->main_window, pid );
+
+    // Set the WM_NAME
+    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, xcb->main_window, xcb->ewmh._NET_WM_NAME, xcb->ewmh.UTF8_STRING, 8, 4, "rofi" );
+    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, xcb->main_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, 4, "rofi" );
+
+    const char wm_class_name[] = "rofi\0Rofi";
+    xcb_icccm_set_wm_class ( xcb->connection, xcb->main_window, sizeof ( wm_class_name ), wm_class_name );
+
+    if ( xcb->sncontext != NULL ) {
+        sn_launchee_context_setup_window ( xcb->sncontext, xcb->main_window );
+    }
+
+    // Get hostname
+    const char *hostname = g_get_host_name ();
+    char       *ahost    = g_hostname_to_ascii ( hostname );
+    if ( ahost != NULL ) {
+        xcb_icccm_set_wm_client_machine ( xcb->connection,
+                                          xcb->main_window,
+                                          XCB_ATOM_STRING, 8,
+                                          strlen ( ahost ), ahost );
+        g_free ( ahost );
+    }
+
+    if ( xcb->normal_window ) {
+        window_set_atom_prop ( xcb->main_window, xcb->ewmh._NET_WM_WINDOW_TYPE, &( xcb->ewmh._NET_WM_WINDOW_TYPE_NORMAL ), 1 );
+
+        // Flag used to indicate we are setting the decoration type.
+        const uint32_t MWM_HINTS_DECORATIONS = ( 1 << 1 );
+        // Motif property data structure
+        struct MotifWMHints
+        {
+            uint32_t flags;
+            uint32_t functions;
+            uint32_t decorations;
+            int32_t  inputMode;
+            uint32_t state;
+        };
+
+        struct MotifWMHints hints;
+        hints.flags       = MWM_HINTS_DECORATIONS;
+        hints.decorations = 0;
+        hints.functions   = 0;
+        hints.inputMode   = 0;
+        hints.state       = 0;
+
+        xcb_atom_t ha = netatoms[_MOTIF_WM_HINTS];
+        xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, xcb->main_window, ha, ha, 32, 5, &hints );
+
         return TRUE;
     }
+
+    window_set_atom_prop ( xcb->main_window, xcb->ewmh._NET_WM_STATE, &( xcb->ewmh._NET_WM_STATE_ABOVE ), 1 );
+
     if ( find_arg ( "-no-lazy-grab" ) >= 0 ) {
         if ( !take_keyboard ( xcb_stuff_get_root_window (), 500 ) ) {
             g_warning ( "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
@@ -1106,6 +1204,15 @@ xcb_window_t xcb_stuff_get_root_window ( void )
 
 void display_early_cleanup ( void )
 {
+    g_debug ( "Unmapping and free'ing window" );
+    xcb_unmap_window ( xcb->connection, xcb->main_window );
+    xcb_destroy_window ( xcb->connection, xcb->main_window );
+
+    if ( map != XCB_COLORMAP_NONE ) {
+        xcb_free_colormap ( xcb->connection, map );
+        map = XCB_COLORMAP_NONE;
+    }
+
     release_keyboard ( );
     release_pointer ( );
     xcb_flush ( xcb->connection );
@@ -1162,4 +1269,87 @@ void x11_disable_decoration ( xcb_window_t window )
 
     xcb_atom_t ha = netatoms[_MOTIF_WM_HINTS];
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, window, ha, ha, 32, 5, &hints );
+}
+
+display_buffer_pool *display_buffer_pool_new(gint width, gint height)
+{
+    uint16_t          selmask  =  XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
+    uint32_t          selval[] = { xcb->width, xcb->height};
+
+    xcb_configure_window(xcb->connection, xcb->main_window, selmask, selval);
+
+    xcb_gc_t gc = xcb_generate_id ( xcb->connection );
+    xcb_create_gc ( xcb->connection, gc, xcb->main_window, 0, 0 );
+
+    display_buffer_pool pool = {
+        .gc = gc,
+        .width = width,
+        .height = height,
+    };
+    return g_slice_dup(display_buffer_pool, &pool);
+}
+void display_buffer_pool_free(display_buffer_pool *pool)
+{
+    xcb_free_gc(xcb->connection, pool->gc);
+    g_slice_free(display_buffer_pool, pool);
+}
+
+static const cairo_user_data_key_t xcb_user_data_pixmap;
+static const cairo_user_data_key_t xcb_user_data_pool;
+cairo_surface_t *display_buffer_pool_get_next_buffer(display_buffer_pool *pool)
+{
+    xcb_pixmap_t p = xcb_generate_id ( xcb->connection );
+    cairo_surface_t *surface;
+
+    xcb_create_pixmap ( xcb->connection, xcb->depth->depth, p, xcb->main_window, pool->width, pool->height );
+
+    surface = cairo_xcb_surface_create ( xcb->connection, p, xcb->visual, pool->width, pool->height );
+
+    cairo_surface_set_user_data(surface, &xcb_user_data_pixmap, GUINT_TO_POINTER(p), NULL);
+    cairo_surface_set_user_data(surface, &xcb_user_data_pool, pool, NULL);
+    return surface;
+}
+
+void display_surface_commit(cairo_surface_t *surface)
+{
+    display_buffer_pool *pool = cairo_surface_get_user_data(surface, &xcb_user_data_pool);
+    xcb_pixmap_t p = GPOINTER_TO_UINT(cairo_surface_get_user_data(surface, &xcb_user_data_pixmap));
+    cairo_surface_destroy(surface);
+
+    xcb_copy_area ( xcb->connection, p, xcb->main_window, pool->gc, 0, 0, 0, 0, pool->width, pool->height );
+    xcb_free_pixmap(xcb->connection, p);
+
+    if ( ! xcb->mapped ) {
+        xcb->mapped = TRUE;
+        xcb_map_window(xcb->connection, xcb->main_window);
+        if ( xcb->sncontext != NULL ) {
+            sn_launchee_context_complete ( xcb->sncontext );
+        }
+    }
+
+    xcb_flush(xcb->connection);
+}
+
+void display_surface_drop(cairo_surface_t *surface)
+{
+    xcb_pixmap_t p = GPOINTER_TO_UINT(cairo_surface_get_user_data(surface, &xcb_user_data_pixmap));
+    cairo_surface_destroy(surface);
+
+    xcb_free_pixmap(xcb->connection, p);
+
+    xcb_flush(xcb->connection);
+}
+
+void display_trigger_paste(gboolean primary)
+{
+    if ( primary )
+    {
+        xcb_convert_selection ( xcb->connection, xcb->main_window, XCB_ATOM_PRIMARY,
+                                xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
+    }
+    else {
+    xcb_convert_selection ( xcb->connection, xcb->main_window, netatoms[CLIPBOARD],
+                            xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
+    }
+    xcb_flush ( xcb->connection );
 }

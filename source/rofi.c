@@ -615,9 +615,6 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     char      *msg         = NULL;
     MenuFlags window_flags = MENU_NORMAL;
 
-    if ( find_arg ( "-normal-window" ) >= 0 ) {
-        window_flags |= MENU_NORMAL_WINDOW;
-    }
     TICK_N ( "Grab keyboard" );
     __create_window ( window_flags );
     TICK_N ( "Create Window" );

@@ -48,6 +48,13 @@ struct _xcb_stuff
     xcb_ewmh_connection_t ewmh;
     xcb_screen_t          *screen;
     int                   screen_nbr;
+    xcb_depth_t      *depth;
+    xcb_visualtype_t *visual;
+    xcb_colormap_t   map;
+    /**
+     * Visual of the root window.
+     */
+    xcb_visualtype_t *root_visual;
     SnDisplay             *sndisplay;
     SnLauncheeContext     *sncontext;
     struct _workarea      *monitors;
@@ -60,7 +67,12 @@ struct _xcb_stuff
     }               xkb;
     xcb_timestamp_t last_timestamp;
     NkBindingsSeat  *bindings_seat;
-    gboolean        mouse_seen;
+    gboolean normal_window;
+    gboolean mapped;
+    /** main x11 windows */
+    xcb_window_t       main_window;
+
+    gboolean    mouse_seen;
 };
 
 #endif
