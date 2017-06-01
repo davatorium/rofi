@@ -558,22 +558,122 @@ int monitor_active ( workarea *mon )
 }
 
 /**
+ * @param state Internal state of the menu.
+ * @param xse   X selection event.
+ *
+ * Handle paste event.
+ */
+static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t *xse )
+{
+    if ( xse->property == XCB_ATOM_NONE ) {
+        g_warning ( "Failed to convert selection" );
+    }
+    else if ( xse->property == xcb->ewmh.UTF8_STRING ) {
+        gchar *text = window_get_text_prop ( xse->requestor, xcb->ewmh.UTF8_STRING );
+        if ( text != NULL && text[0] != '\0' ) {
+            unsigned int dl = strlen ( text );
+            // Strip new line
+            for ( unsigned int i = 0; i < dl; i++ ) {
+                if ( text[i] == '\n' ) {
+                    text[i] = '\0';
+                }
+            }
+            rofi_view_handle_text ( state, text );
+        }
+        g_free ( text );
+    }
+    else {
+        g_warning ( "Failed" );
+    }
+}
+
+/**
  * Process X11 events in the main-loop (gui-thread) of the application.
  */
-static void main_loop_x11_event_handler_view ( xcb_generic_event_t *ev )
+static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
 {
     RofiViewState *state = rofi_view_get_active ();
-    if ( state != NULL ) {
-        rofi_view_itterrate ( state, ev, xcb->bindings_seat );
-        if ( rofi_view_get_completed ( state ) ) {
-            // This menu is done.
-            rofi_view_finalize ( state );
-            // cleanup
-            if ( rofi_view_get_active () == NULL ) {
-                g_main_loop_quit ( xcb->main_loop );
+    if ( state == NULL ) {
+        return;
+    }
+
+    switch ( event->response_type & ~0x80 )
+    {
+    case XCB_EXPOSE:
+        rofi_view_frame_callback ();
+        break;
+    case XCB_CONFIGURE_NOTIFY:
+    {
+        xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
+        rofi_view_temp_configure_notify ( state, xce );
+        break;
+    }
+    case XCB_MOTION_NOTIFY:
+    {
+        if ( config.click_to_exit == TRUE ) {
+            xcb->mouse_seen = TRUE;
+        }
+        xcb_motion_notify_event_t *xme = (xcb_motion_notify_event_t *) event;
+        rofi_view_handle_mouse_motion ( state, xme->event_x, xme->event_y );
+        break;
+    }
+    case XCB_BUTTON_PRESS:
+    {
+        xcb_button_press_event_t *bpe = (xcb_button_press_event_t *) event;
+        rofi_view_handle_mouse_motion ( state, bpe->event_x, bpe->event_y );
+        nk_bindings_seat_handle_button ( xcb->bindings_seat, bpe->detail, NK_BINDINGS_BUTTON_STATE_PRESS, bpe->time );
+        break;
+    }
+    case XCB_BUTTON_RELEASE:
+    {
+        xcb_button_release_event_t *bre = (xcb_button_release_event_t *) event;
+        nk_bindings_seat_handle_button ( xcb->bindings_seat, bre->detail, NK_BINDINGS_BUTTON_STATE_RELEASE, bre->time );
+        if ( config.click_to_exit == TRUE ) {
+            if ( ! xcb->mouse_seen ) {
+                rofi_view_temp_click_to_exit ( state, bre->event );
+            }
+            xcb->mouse_seen = FALSE;
+        }
+        break;
+    }
+    // Paste event.
+    case XCB_SELECTION_NOTIFY:
+        rofi_view_paste ( state, (xcb_selection_notify_event_t *) event );
+        break;
+    case XCB_KEYMAP_NOTIFY:
+    {
+        xcb_keymap_notify_event_t *kne = (xcb_keymap_notify_event_t *) event;
+        for ( gint32 by = 0; by < 31; ++by ) {
+            for ( gint8 bi = 0; bi < 7; ++bi ) {
+                if ( kne->keys[by] & ( 1 << bi ) ) {
+                    // X11 keycodes starts at 8
+                    nk_bindings_seat_handle_key ( xcb->bindings_seat, ( 8 * by + bi ) + 8, NK_BINDINGS_KEY_STATE_PRESSED );
+                }
             }
         }
+        break;
     }
+    case XCB_KEY_PRESS:
+    {
+        xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *) event;
+        gchar                 *text;
+
+        text = nk_bindings_seat_handle_key ( xcb->bindings_seat, xkpe->detail, NK_BINDINGS_KEY_STATE_PRESS );
+        if ( text != NULL )  {
+            rofi_view_handle_text ( state, text );
+        }
+        break;
+    }
+    case XCB_KEY_RELEASE:
+    {
+        xcb_key_release_event_t *xkre = (xcb_key_release_event_t *) event;
+        nk_bindings_seat_handle_key ( xcb->bindings_seat, xkre->detail, NK_BINDINGS_KEY_STATE_RELEASE );
+        break;
+    }
+    default:
+        break;
+    }
+    rofi_view_maybe_update ( state );
 }
 
 static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer user_data )
@@ -613,9 +713,7 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
                                            ksne->baseGroup,
                                            ksne->latchedGroup,
                                            ksne->lockedGroup );
-            xcb_generic_event_t dev;
-            dev.response_type = 0;
-            main_loop_x11_event_handler_view ( &dev );
+            rofi_view_maybe_update ( rofi_view_get_active () );
             break;
         }
         }

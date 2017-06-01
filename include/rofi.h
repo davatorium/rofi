@@ -77,6 +77,8 @@ void rofi_add_error_message ( GString *str );
  */
 void rofi_set_return_code ( int code );
 
+void rofi_quit_main_loop ( void );
+
 /**
  * @param name Search for mode with this name.
  *

@@ -591,6 +591,11 @@ static gboolean setup_modi ( void )
     return FALSE;
 }
 
+void rofi_quit_main_loop ( void )
+{
+    g_main_loop_quit ( main_loop );
+}
+
 static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
 {
     // Break out of loop.

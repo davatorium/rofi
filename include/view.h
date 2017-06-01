@@ -93,12 +93,33 @@ MenuReturn rofi_view_get_return_value ( const RofiViewState *state );
 unsigned int rofi_view_get_next_position ( const RofiViewState *state );
 /**
  * @param state the Menu handle
- * @param event the event to handle
- * @param xkb  the keyboard handle
+ * @param text The text to add to the input box
  *
- * Process an Xevent.
+ * Update the state if needed.
  */
-void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, NkBindingsSeat *seat );
+void rofi_view_handle_text ( RofiViewState *state, char *text );
+/**
+ * @param state the Menu handle
+ * @param x The X coordinates of the motion
+ * @param x The Y coordinates of the motion
+ *
+ * Update the state if needed.
+ */
+void rofi_view_handle_mouse_motion( RofiViewState *state, gint x, gint y );
+/**
+ * @param state the Menu handle
+ *
+ * Update the state if needed.
+ */
+void rofi_view_maybe_update ( RofiViewState *state );
+void rofi_view_temp_configure_notify ( RofiViewState *state, xcb_configure_notify_event_t *xce );
+void rofi_view_temp_click_to_exit ( RofiViewState *state, xcb_window_t target );
+/**
+ * @param state the Menu handle
+ *
+ * Update the state if needed.
+ */
+void rofi_view_frame_callback ( void );
 /**
  * @param state the Menu handle
  *

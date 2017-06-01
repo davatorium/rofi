@@ -60,6 +60,7 @@ struct _xcb_stuff
     }              xkb;
     NkBindings     *bindings;
     NkBindingsSeat *bindings_seat;
+    gboolean    mouse_seen;
 };
 
 #endif
