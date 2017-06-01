@@ -33,6 +33,7 @@
 
 #include <xcb/xcb.h>
 #include <xcb/xcb_ewmh.h>
+#include "libgwater-xcb.h"
 
 #include "nkutils-bindings.h"
 
@@ -41,6 +42,8 @@
  */
 struct _xcb_stuff
 {
+    GMainLoop             *main_loop;
+    GWaterXcbSource       *source;
     xcb_connection_t      *connection;
     xcb_ewmh_connection_t ewmh;
     xcb_screen_t          *screen;

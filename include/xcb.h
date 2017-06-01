@@ -49,13 +49,13 @@ gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gp
  *
  * @returns the root window.
  */
-xcb_window_t xcb_stuff_get_root_window ( xcb_stuff *xcb );
+xcb_window_t xcb_stuff_get_root_window ( void );
 /**
  * @param xcb The xcb data structure.
  *
  * Disconnect and free all xcb connections and references.
  */
-void xcb_stuff_wipe ( xcb_stuff *xcb );
+void xcb_stuff_wipe ( void );
 
 /**
  * @param w The xcb_window_t to read property from.
@@ -188,12 +188,16 @@ int take_keyboard ( xcb_window_t w, int iters );
 int take_pointer ( xcb_window_t w, int iters );
 
 /**
+ * @param main_loop The GMainLoop
+ *
  * Setup several items required.
  * * Error handling,
  * * Numlock detection
  * * Cache
+ *
+ * @returns Whether the setup succeeded or not
  */
-gboolean x11_setup ( void );
+gboolean x11_setup ( GMainLoop *main_loop );
 
 /**
  * Depth of visual

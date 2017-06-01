@@ -93,7 +93,7 @@ const char              *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 cairo_surface_t *x11_helper_get_screenshot_surface ( void )
 {
     return cairo_xcb_surface_create ( xcb->connection,
-                                      xcb_stuff_get_root_window ( xcb ), root_visual,
+                                      xcb_stuff_get_root_window (), root_visual,
                                       xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
 }
 
@@ -651,18 +651,20 @@ static void x11_create_frequently_used_atoms ( void )
     }
 }
 
-gboolean x11_setup ( void )
+gboolean x11_setup ( GMainLoop *main_loop )
 {
     // Get DISPLAY, first env, then argument.
     // We never modify display_str content.
     char *display_str = ( char *) g_getenv ( "DISPLAY" );
     find_arg_str (  "-display", &display_str );
 
-    xcb->connection = xcb_connect ( display_str, &xcb->screen_nbr );
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
+    xcb->main_loop = main_loop;
+    xcb->source = g_water_xcb_source_new ( g_main_loop_get_context ( xcb->main_loop ), display_str, &xcb->screen_nbr, main_loop_x11_event_handler, NULL, NULL );
+    if ( xcb->source == NULL ) {
         g_warning ( "Failed to open display: %s", display_str );
         return FALSE;
     }
+    xcb->connection = g_water_xcb_source_get_connection ( xcb->source );
 
     TICK_N ( "Open Display" );
 
@@ -819,7 +821,7 @@ void x11_create_visual_and_colormap ( void )
 /**
  * Process X11 events in the main-loop (gui-thread) of the application.
  */
-static void main_loop_x11_event_handler_view ( xcb_generic_event_t *ev, GMainLoop *main_loop )
+static void main_loop_x11_event_handler_view ( xcb_generic_event_t *ev )
 {
     RofiViewState *state = rofi_view_get_active ();
     if ( state != NULL ) {
@@ -829,19 +831,19 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *ev, GMainLoo
             rofi_view_finalize ( state );
             // cleanup
             if ( rofi_view_get_active () == NULL ) {
-                g_main_loop_quit ( main_loop );
+                g_main_loop_quit ( xcb->main_loop );
             }
         }
     }
 }
 
-gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, gpointer user_data )
+gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer user_data )
 {
     if ( ev == NULL ) {
         int status = xcb_connection_has_error ( xcb->connection );
         if ( status > 0 ) {
             g_warning ( "The XCB connection to X server had a fatal error: %d", status );
-            g_main_loop_quit ( user_data );
+            g_main_loop_quit ( xcb->main_loop );
             return G_SOURCE_REMOVE;
         }
         else {
@@ -874,7 +876,7 @@ gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, gpointer user_da
                                            ksne->lockedGroup );
             xcb_generic_event_t dev;
             dev.response_type = 0;
-            main_loop_x11_event_handler_view ( &dev, user_data );
+            main_loop_x11_event_handler_view ( &dev );
             break;
         }
         }
@@ -883,39 +885,42 @@ gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, gpointer user_da
     if ( xcb->sndisplay != NULL ) {
         sn_xcb_display_process_event ( xcb->sndisplay, ev );
     }
-    main_loop_x11_event_handler_view ( ev, user_data );
+    main_loop_x11_event_handler_view ( ev );
     return G_SOURCE_CONTINUE;
 }
 
-xcb_window_t xcb_stuff_get_root_window ( xcb_stuff *xcb )
+xcb_window_t xcb_stuff_get_root_window ( void )
 {
     return xcb->screen->root;
 }
 
-void xcb_stuff_wipe ( xcb_stuff *xcb )
+void xcb_stuff_wipe ( void )
 {
+    if ( xcb->connection == NULL ) {
+        return;
+    }
+
+    g_debug ( "Cleaning up XCB and XKB" );
+
     nk_bindings_seat_free ( xcb->bindings_seat );
     nk_bindings_free ( xcb->bindings );
-
-    if ( xcb->connection != NULL ) {
-        g_debug ( "Cleaning up XCB and XKB" );
-        if ( xcb->sncontext != NULL ) {
-            sn_launchee_context_unref ( xcb->sncontext );
-            xcb->sncontext = NULL;
-        }
-        if ( xcb->sndisplay != NULL ) {
-            sn_display_unref ( xcb->sndisplay );
-            xcb->sndisplay = NULL;
-        }
-        x11_monitors_free ();
-        xcb_ewmh_connection_wipe ( &( xcb->ewmh ) );
-        xcb_flush ( xcb->connection );
-        xcb_aux_sync ( xcb->connection );
-        xcb_disconnect ( xcb->connection );
-        xcb->connection = NULL;
-        xcb->screen     = NULL;
-        xcb->screen_nbr = 0;
+    if ( xcb->sncontext != NULL ) {
+        sn_launchee_context_unref ( xcb->sncontext );
+        xcb->sncontext = NULL;
     }
+    if ( xcb->sndisplay != NULL ) {
+        sn_display_unref ( xcb->sndisplay );
+        xcb->sndisplay = NULL;
+    }
+    x11_monitors_free ();
+    xcb_ewmh_connection_wipe ( &( xcb->ewmh ) );
+    xcb_flush ( xcb->connection );
+    xcb_aux_sync ( xcb->connection );
+    g_water_xcb_source_free ( xcb->source );
+    xcb->source = NULL;
+    xcb->connection = NULL;
+    xcb->screen     = NULL;
+    xcb->screen_nbr = 0;
 }
 
 void x11_disable_decoration ( xcb_window_t window )
@@ -947,7 +952,7 @@ void x11_helper_discover_window_manager ( void )
 {
     xcb_window_t              wm_win = 0;
     xcb_get_property_cookie_t cc     = xcb_ewmh_get_supporting_wm_check_unchecked ( &xcb->ewmh,
-                                                                                    xcb_stuff_get_root_window ( xcb ) );
+                                                                                    xcb_stuff_get_root_window () );
 
     if ( xcb_ewmh_get_supporting_wm_check_reply ( &xcb->ewmh, cc, &wm_win, NULL ) ) {
         xcb_ewmh_get_utf8_strings_reply_t wtitle;

@@ -97,8 +97,6 @@ unsigned int curr_switcher = 0;
 
 /** Glib main loop. */
 GMainLoop       *main_loop = NULL;
-/** GWater xcb source, signalling events from the X server */
-GWaterXcbSource *main_loop_source = NULL;
 
 /** Flag indicating we are in dmenu mode. */
 static int dmenu_mode = FALSE;
@@ -414,14 +412,11 @@ static void cleanup ()
     }
     rofi_view_workers_finalize ();
     if ( main_loop != NULL  ) {
-        if ( main_loop_source ) {
-            g_water_xcb_source_free ( main_loop_source );
-        }
         g_main_loop_unref ( main_loop );
         main_loop = NULL;
     }
     // Cleanup
-    xcb_stuff_wipe ( xcb );
+    xcb_stuff_wipe ();
 
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
@@ -631,7 +626,7 @@ static gboolean lazy_grab_pointer ( G_GNUC_UNUSED gpointer data )
         g_warning ( "Failed to grab pointer after %u times. Giving up.", lazy_grab_retry_count_pt );
         return G_SOURCE_REMOVE;
     }
-    if ( take_pointer ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
+    if ( take_pointer ( xcb_stuff_get_root_window (), 0 ) ) {
         return G_SOURCE_REMOVE;
     }
     lazy_grab_retry_count_pt++;
@@ -645,7 +640,7 @@ static gboolean lazy_grab_keyboard ( G_GNUC_UNUSED gpointer data )
         g_main_loop_quit (  main_loop );
         return G_SOURCE_REMOVE;
     }
-    if ( take_keyboard ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
+    if ( take_keyboard ( xcb_stuff_get_root_window (), 0 ) ) {
         return G_SOURCE_REMOVE;
     }
     lazy_grab_retry_count_kb++;
@@ -672,20 +667,20 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     // this seems to result in the smallest delay for most people.
     if ( ( window_flags & MENU_NORMAL_WINDOW ) == 0 ) {
         if ( find_arg ( "-no-lazy-grab" ) >= 0 ) {
-            if ( !take_keyboard ( xcb_stuff_get_root_window ( xcb ), 500 ) ) {
+            if ( !take_keyboard ( xcb_stuff_get_root_window (), 500 ) ) {
                 g_warning ( "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
                 g_main_loop_quit ( main_loop );
                 return G_SOURCE_REMOVE;
             }
-            if ( !take_pointer ( xcb_stuff_get_root_window ( xcb ), 100 ) ) {
+            if ( !take_pointer ( xcb_stuff_get_root_window (), 100 ) ) {
                 g_warning ( "Failed to grab mouse pointer, even after %d uS.", 100 * 1000 );
             }
         }
         else {
-            if ( !take_keyboard ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
+            if ( !take_keyboard ( xcb_stuff_get_root_window (), 0 ) ) {
                 g_timeout_add ( 1, lazy_grab_keyboard, NULL );
             }
-            if ( !take_pointer ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
+            if ( !take_pointer ( xcb_stuff_get_root_window (), 0 ) ) {
                 g_timeout_add ( 1, lazy_grab_pointer, NULL );
             }
         }
@@ -857,16 +852,16 @@ int main ( int argc, char *argv[] )
     rofi_collect_modi_setup ();
     TICK_N ( "Collect MODI" );
 
-    if ( !x11_setup () ) {
+    main_loop = g_main_loop_new ( NULL, FALSE );
+
+    TICK_N ( "Setup mainloop" );
+
+    if ( !x11_setup ( main_loop ) ) {
         g_warning ( "Connection has error" );
         cleanup ();
         return EXIT_FAILURE;
     }
     TICK_N ( "Setup X11" );
-
-    main_loop = g_main_loop_new ( NULL, FALSE );
-
-    TICK_N ( "Setup mainloop" );
 
     TICK_N ( "Startup Notification" );
     // Setup keybinding
@@ -956,7 +951,6 @@ int main ( int argc, char *argv[] )
     if ( find_arg_uint ( "-record-screenshots", &interval ) ) {
         g_timeout_add ( 1000 / (double) interval, record, NULL );
     }
-    main_loop_source = g_water_xcb_source_new_for_connection ( NULL, xcb->connection, main_loop_x11_event_handler, main_loop, NULL );
 
     TICK_N ( "X11 Setup " );
 

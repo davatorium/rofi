@@ -651,7 +651,7 @@ void __create_window ( MenuFlags menu_flags )
     };
 
     xcb_window_t      box = xcb_generate_id ( xcb->connection );
-    xcb_void_cookie_t cc  = xcb_create_window_checked ( xcb->connection, depth->depth, box, xcb_stuff_get_root_window ( xcb ),
+    xcb_void_cookie_t cc  = xcb_create_window_checked ( xcb->connection, depth->depth, box, xcb_stuff_get_root_window (),
                                                         0, 0, 200, 100, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
                                                         visual->visual_id, selmask, selval );
     xcb_generic_error_t *error;
