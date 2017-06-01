@@ -49,6 +49,7 @@
 #include <xcb/xkb.h>
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-x11.h>
+#include "display.h"
 #include "xcb-internal.h"
 #include "xcb.h"
 #include "settings.h"
@@ -277,7 +278,7 @@ static void x11_build_monitor_layout_xinerama ()
     free ( screens_reply );
 }
 
-void x11_build_monitor_layout ()
+static void x11_build_monitor_layout ()
 {
     if ( xcb->monitors ) {
         return;
@@ -331,7 +332,7 @@ void x11_build_monitor_layout ()
     free ( res_reply );
 }
 
-void x11_dump_monitor_layout ( void )
+void display_dump_monitor_layout ( void )
 {
     int is_term = isatty ( fileno ( stdout ) );
     printf ( "Monitor layout:\n" );
@@ -798,7 +799,34 @@ static void x11_create_frequently_used_atoms ( void )
     }
 }
 
-gboolean x11_setup ( GMainLoop *main_loop )
+static void x11_helper_discover_window_manager ( void )
+{
+    xcb_window_t              wm_win = 0;
+    xcb_get_property_cookie_t cc     = xcb_ewmh_get_supporting_wm_check_unchecked ( &xcb->ewmh,
+                                                                                    xcb_stuff_get_root_window () );
+
+    if ( xcb_ewmh_get_supporting_wm_check_reply ( &xcb->ewmh, cc, &wm_win, NULL ) ) {
+        xcb_ewmh_get_utf8_strings_reply_t wtitle;
+        xcb_get_property_cookie_t         cookie = xcb_ewmh_get_wm_name_unchecked ( &( xcb->ewmh ), wm_win );
+        if (  xcb_ewmh_get_wm_name_reply ( &( xcb->ewmh ), cookie, &wtitle, (void *) 0 ) ) {
+            if ( wtitle.strings_len > 0 ) {
+                g_debug ( "Found window manager: %s", wtitle.strings );
+                if ( g_strcmp0 ( wtitle.strings, "i3" ) == 0 ) {
+                    current_window_manager = WM_I3;
+                }
+                else if  ( g_strcmp0 ( wtitle.strings, "awesome" ) == 0 ) {
+                    current_window_manager = WM_AWESOME;
+                }
+                else if  ( g_strcmp0 ( wtitle.strings, "Openbox" ) == 0 ) {
+                    current_window_manager = WM_OPENBOX;
+                }
+            }
+            xcb_ewmh_get_utf8_strings_reply_wipe ( &wtitle );
+        }
+    }
+}
+
+gboolean display_setup ( GMainLoop *main_loop, NkBindings *bindings )
 {
     // Get DISPLAY, first env, then argument.
     // We never modify display_str content.
@@ -879,8 +907,7 @@ gboolean x11_setup ( GMainLoop *main_loop )
                             required_map_parts,                                   /* map */
                             &details );
 
-    xcb->bindings      = nk_bindings_new ();
-    xcb->bindings_seat = nk_bindings_seat_new ( xcb->bindings, XKB_CONTEXT_NO_FLAGS );
+    xcb->bindings_seat = nk_bindings_seat_new ( bindings, XKB_CONTEXT_NO_FLAGS );
     struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( nk_bindings_seat_get_context ( xcb->bindings_seat ), xcb->connection, xcb->xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
     if ( keymap == NULL ) {
         g_warning ( "Failed to get Keymap for current keyboard device." );
@@ -893,11 +920,6 @@ gboolean x11_setup ( GMainLoop *main_loop )
     }
 
     nk_bindings_seat_update_keymap ( xcb->bindings_seat, keymap, state );
-
-    if ( !parse_keys_abe ( xcb->bindings ) ) {
-        // Error dialog
-        return FALSE;
-    }
 
     // determine numlock mask so we can bind on keys with and without it
     x11_create_frequently_used_atoms (  );
@@ -997,7 +1019,7 @@ static gboolean lazy_grab_keyboard ( G_GNUC_UNUSED gpointer data )
     return G_SOURCE_CONTINUE;
 }
 
-gboolean x11_late_setup ( void )
+gboolean display_late_setup ( void )
 {
     x11_create_visual_and_colormap ();
 
@@ -1035,14 +1057,14 @@ xcb_window_t xcb_stuff_get_root_window ( void )
     return xcb->screen->root;
 }
 
-void x11_early_cleanup ( void )
+void display_early_cleanup ( void )
 {
     release_keyboard ( );
     release_pointer ( );
     xcb_flush ( xcb->connection );
 }
 
-void xcb_stuff_wipe ( void )
+void display_cleanup ( void )
 {
     if ( xcb->connection == NULL ) {
         return;
@@ -1051,7 +1073,6 @@ void xcb_stuff_wipe ( void )
     g_debug ( "Cleaning up XCB and XKB" );
 
     nk_bindings_seat_free ( xcb->bindings_seat );
-    nk_bindings_free ( xcb->bindings );
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_unref ( xcb->sncontext );
         xcb->sncontext = NULL;
@@ -1094,31 +1115,4 @@ void x11_disable_decoration ( xcb_window_t window )
 
     xcb_atom_t ha = netatoms[_MOTIF_WM_HINTS];
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, window, ha, ha, 32, 5, &hints );
-}
-
-void x11_helper_discover_window_manager ( void )
-{
-    xcb_window_t              wm_win = 0;
-    xcb_get_property_cookie_t cc     = xcb_ewmh_get_supporting_wm_check_unchecked ( &xcb->ewmh,
-                                                                                    xcb_stuff_get_root_window () );
-
-    if ( xcb_ewmh_get_supporting_wm_check_reply ( &xcb->ewmh, cc, &wm_win, NULL ) ) {
-        xcb_ewmh_get_utf8_strings_reply_t wtitle;
-        xcb_get_property_cookie_t         cookie = xcb_ewmh_get_wm_name_unchecked ( &( xcb->ewmh ), wm_win );
-        if (  xcb_ewmh_get_wm_name_reply ( &( xcb->ewmh ), cookie, &wtitle, (void *) 0 ) ) {
-            if ( wtitle.strings_len > 0 ) {
-                g_debug ( "Found window manager: %s", wtitle.strings );
-                if ( g_strcmp0 ( wtitle.strings, "i3" ) == 0 ) {
-                    current_window_manager = WM_I3;
-                }
-                else if  ( g_strcmp0 ( wtitle.strings, "awesome" ) == 0 ) {
-                    current_window_manager = WM_AWESOME;
-                }
-                else if  ( g_strcmp0 ( wtitle.strings, "Openbox" ) == 0 ) {
-                    current_window_manager = WM_OPENBOX;
-                }
-            }
-            xcb_ewmh_get_utf8_strings_reply_wipe ( &wtitle );
-        }
-    }
 }

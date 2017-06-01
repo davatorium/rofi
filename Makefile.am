@@ -73,6 +73,7 @@ SOURCES=\
 	source/dialogs/window.c\
 	source/dialogs/script.c\
 	source/dialogs/help-keys.c\
+	include/display.h\
 	include/xcb.h\
 	include/xcb-internal.h\
 	include/rofi.h\

@@ -45,7 +45,7 @@
 
 #include <libgwater-xcb.h>
 
-#include "xcb-internal.h"
+#include "display.h"
 
 #include "settings.h"
 #include "mode.h"
@@ -94,6 +94,8 @@ unsigned int num_available_modi = 0;
 unsigned int num_modi = 0;
 /** Current selected mode */
 unsigned int curr_switcher = 0;
+
+NkBindings *bindings = NULL;
 
 /** Glib main loop. */
 GMainLoop       *main_loop = NULL;
@@ -146,7 +148,7 @@ static void teardown ( int pfd )
     // Cleanup font setup.
     textbox_cleanup ( );
 
-    x11_early_cleanup ();
+    display_early_cleanup ();
 
     // Cleanup view
     rofi_view_cleanup ();
@@ -277,7 +279,7 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "Global options:\n" );
     print_options ();
     printf ( "\n" );
-    x11_dump_monitor_layout ();
+    display_dump_monitor_layout ();
     printf ( "\n" );
     printf ( "Detected modi:\n" );
     print_list_of_modi ( is_term );
@@ -399,7 +401,9 @@ static void cleanup ()
         main_loop = NULL;
     }
     // Cleanup
-    xcb_stuff_wipe ();
+    display_cleanup ();
+
+    nk_bindings_free ( bindings );
 
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
@@ -785,7 +789,9 @@ int main ( int argc, char *argv[] )
 
     TICK_N ( "Setup mainloop" );
 
-    if ( !x11_setup ( main_loop ) ) {
+    bindings = nk_bindings_new ();
+
+    if ( !display_setup ( main_loop, bindings ) ) {
         g_warning ( "Connection has error" );
         cleanup ();
         return EXIT_FAILURE;
@@ -820,6 +826,11 @@ int main ( int argc, char *argv[] )
     // Parse command line for settings, independent of other -no-config.
     config_parse_cmd_options ( );
     TICK_N ( "Load cmd config " );
+
+    if ( !parse_keys_abe ( bindings ) ) {
+        cleanup ();
+        return EXIT_FAILURE;
+    }
 
     if ( !dmenu_mode ) {
         // setup_modi
@@ -890,7 +901,7 @@ int main ( int argc, char *argv[] )
     }
     textbox_setup ();
 
-    if ( !x11_late_setup () ) {
+    if ( !display_late_setup () ) {
         g_warning ( "Failed to properly finish display setup" );
         cleanup ();
         return EXIT_FAILURE;
