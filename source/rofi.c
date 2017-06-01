@@ -790,10 +790,6 @@ int main ( int argc, char *argv[] )
     TICK_N ( "Setup mainloop" );
 
     bindings = nk_bindings_new ();
-    if ( !parse_keys_abe ( bindings ) ) {
-        cleanup ();
-        return EXIT_FAILURE;
-    }
 
     if ( !display_setup ( main_loop, bindings ) ) {
         g_warning ( "Connection has error" );
@@ -830,6 +826,11 @@ int main ( int argc, char *argv[] )
     // Parse command line for settings, independent of other -no-config.
     config_parse_cmd_options ( );
     TICK_N ( "Load cmd config " );
+
+    if ( !parse_keys_abe ( bindings ) ) {
+        cleanup ();
+        return EXIT_FAILURE;
+    }
 
     if ( !dmenu_mode ) {
         // setup_modi
