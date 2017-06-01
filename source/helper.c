@@ -43,10 +43,10 @@
 #include <sys/stat.h>
 #include <pwd.h>
 #include <ctype.h>
-#include <xcb/xcb.h>
 #include <pango/pango.h>
 #include <pango/pango-fontmap.h>
 #include <pango/pangocairo.h>
+#include <librsvg/rsvg.h>
 #include "xcb.h"
 #include "helper.h"
 #include "helper-theme.h"
@@ -1023,4 +1023,28 @@ char *helper_get_theme_path ( const char *file )
         g_free ( theme_path );
     }
     return filename;
+}
+
+cairo_surface_t* cairo_image_surface_create_from_svg ( const gchar* file, int height )
+{
+    cairo_surface_t   *surface;
+    cairo_t           *cr;
+    RsvgHandle        * handle;
+    RsvgDimensionData dimensions;
+
+    handle = rsvg_handle_new_from_file ( file, NULL );
+    rsvg_handle_get_dimensions ( handle, &dimensions );
+    double scale = (double) height / dimensions.height;
+    surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32,
+                                           (double) dimensions.width * scale,
+                                           (double) dimensions.height * scale );
+    cr = cairo_create ( surface );
+    cairo_scale ( cr, scale, scale );
+    rsvg_handle_render_cairo ( handle, cr );
+    cairo_destroy ( cr );
+
+    rsvg_handle_close ( handle, NULL );
+    g_object_unref ( handle );
+
+    return surface;
 }
