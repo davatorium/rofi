@@ -102,29 +102,6 @@ extern const char *netatom_names[];
 extern xcb_atom_t netatoms[NUM_NETATOMS];
 
 /**
- * Enumerator describing the different modifier keys.
- */
-enum
-{
-    /** Shift key */
-    X11MOD_SHIFT,
-    /** Control Key */
-    X11MOD_CONTROL,
-    /** Alt key */
-    X11MOD_ALT,
-    /** Meta key */
-    X11MOD_META,
-    /** Super (window) key */
-    X11MOD_SUPER,
-    /** Hyper key */
-    X11MOD_HYPER,
-    /** Any modifier */
-    X11MOD_ANY,
-    /** Number of modifier keys */
-    NUM_X11MOD
-};
-
-/**
  * Structure describing a workarea/monitor.
  */
 typedef struct _workarea
