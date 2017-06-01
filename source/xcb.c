@@ -850,7 +850,7 @@ gboolean x11_setup ( GMainLoop *main_loop )
     return TRUE;
 }
 
-void x11_create_visual_and_colormap ( void )
+static void x11_create_visual_and_colormap ( void )
 {
     xcb_depth_t          *root_depth = NULL;
     xcb_depth_iterator_t depth_iter;
@@ -888,6 +888,11 @@ void x11_create_visual_and_colormap ( void )
         visual = root_visual;
         map    = xcb->screen->default_colormap;
     }
+}
+
+void x11_late_setup ( void )
+{
+    x11_create_visual_and_colormap ();
 }
 
 xcb_window_t xcb_stuff_get_root_window ( void )

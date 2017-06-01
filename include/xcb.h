@@ -210,11 +210,7 @@ extern xcb_visualtype_t *visual;
  */
 extern xcb_colormap_t map;
 
-/**
- * This function tries to create a 32bit TrueColor colormap.
- * If this fails, it falls back to the default for the connected display.
- */
-void x11_create_visual_and_colormap ( void );
+void x11_late_setup ( void );
 
 /**
  * Gets a surface containing the background image of the desktop.

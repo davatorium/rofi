@@ -138,21 +138,6 @@ static int switcher_get ( const char *name )
 }
 
 /**
- * Do needed steps to start showing the gui
- */
-static int setup ()
-{
-    // Create pid file
-    int pfd = create_pid_file ( pidfile );
-    if ( pfd >= 0 ) {
-        // Request truecolor visual.
-        x11_create_visual_and_colormap ( );
-        textbox_setup ();
-    }
-    return pfd;
-}
-
-/**
  * Teardown the gui.
  */
 static void teardown ( int pfd )
@@ -956,17 +941,22 @@ int main ( int argc, char *argv[] )
 
     rofi_view_workers_initialize ();
 
+    // Create pid file
+    int pfd = create_pid_file ( pidfile );
+    if ( pfd < 0 ) {
+        cleanup ();
+        return EXIT_FAILURE;
+    }
+    textbox_setup ();
+
+    x11_late_setup ();
+
     // Setup signal handling sources.
     // SIGINT
     g_unix_signal_add ( SIGINT, main_loop_signal_handler_int, NULL );
 
     g_idle_add ( startup, NULL );
 
-    // Pidfile + visuals
-    int pfd = setup ();
-    if ( pfd < 0 ) {
-        return EXIT_FAILURE;
-    }
     // Start mainloop.
     g_main_loop_run ( main_loop );
     teardown ( pfd );
