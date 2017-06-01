@@ -799,6 +799,33 @@ static void x11_create_frequently_used_atoms ( void )
     }
 }
 
+static void x11_helper_discover_window_manager ( void )
+{
+    xcb_window_t              wm_win = 0;
+    xcb_get_property_cookie_t cc     = xcb_ewmh_get_supporting_wm_check_unchecked ( &xcb->ewmh,
+                                                                                    xcb_stuff_get_root_window () );
+
+    if ( xcb_ewmh_get_supporting_wm_check_reply ( &xcb->ewmh, cc, &wm_win, NULL ) ) {
+        xcb_ewmh_get_utf8_strings_reply_t wtitle;
+        xcb_get_property_cookie_t         cookie = xcb_ewmh_get_wm_name_unchecked ( &( xcb->ewmh ), wm_win );
+        if (  xcb_ewmh_get_wm_name_reply ( &( xcb->ewmh ), cookie, &wtitle, (void *) 0 ) ) {
+            if ( wtitle.strings_len > 0 ) {
+                g_debug ( "Found window manager: %s", wtitle.strings );
+                if ( g_strcmp0 ( wtitle.strings, "i3" ) == 0 ) {
+                    current_window_manager = WM_I3;
+                }
+                else if  ( g_strcmp0 ( wtitle.strings, "awesome" ) == 0 ) {
+                    current_window_manager = WM_AWESOME;
+                }
+                else if  ( g_strcmp0 ( wtitle.strings, "Openbox" ) == 0 ) {
+                    current_window_manager = WM_OPENBOX;
+                }
+            }
+            xcb_ewmh_get_utf8_strings_reply_wipe ( &wtitle );
+        }
+    }
+}
+
 gboolean display_setup ( GMainLoop *main_loop, NkBindings *bindings )
 {
     // Get DISPLAY, first env, then argument.
@@ -1088,31 +1115,4 @@ void x11_disable_decoration ( xcb_window_t window )
 
     xcb_atom_t ha = netatoms[_MOTIF_WM_HINTS];
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, window, ha, ha, 32, 5, &hints );
-}
-
-void x11_helper_discover_window_manager ( void )
-{
-    xcb_window_t              wm_win = 0;
-    xcb_get_property_cookie_t cc     = xcb_ewmh_get_supporting_wm_check_unchecked ( &xcb->ewmh,
-                                                                                    xcb_stuff_get_root_window () );
-
-    if ( xcb_ewmh_get_supporting_wm_check_reply ( &xcb->ewmh, cc, &wm_win, NULL ) ) {
-        xcb_ewmh_get_utf8_strings_reply_t wtitle;
-        xcb_get_property_cookie_t         cookie = xcb_ewmh_get_wm_name_unchecked ( &( xcb->ewmh ), wm_win );
-        if (  xcb_ewmh_get_wm_name_reply ( &( xcb->ewmh ), cookie, &wtitle, (void *) 0 ) ) {
-            if ( wtitle.strings_len > 0 ) {
-                g_debug ( "Found window manager: %s", wtitle.strings );
-                if ( g_strcmp0 ( wtitle.strings, "i3" ) == 0 ) {
-                    current_window_manager = WM_I3;
-                }
-                else if  ( g_strcmp0 ( wtitle.strings, "awesome" ) == 0 ) {
-                    current_window_manager = WM_AWESOME;
-                }
-                else if  ( g_strcmp0 ( wtitle.strings, "Openbox" ) == 0 ) {
-                    current_window_manager = WM_OPENBOX;
-                }
-            }
-            xcb_ewmh_get_utf8_strings_reply_wipe ( &wtitle );
-        }
-    }
 }

@@ -185,8 +185,4 @@ typedef enum
  */
 extern WindowManager current_window_manager;
 
-/**
- * discover the window manager.
- */
-void x11_helper_discover_window_manager ( void );
 #endif
