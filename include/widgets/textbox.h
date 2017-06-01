@@ -35,7 +35,6 @@
 #include <cairo.h>
 #include "widgets/widget.h"
 #include "widgets/widget-internal.h"
-#include "x11-helper.h"
 #include "keyb.h"
 
 /**
@@ -88,7 +87,7 @@ typedef enum
         TB_WRAP      = 1 << 21,
         TB_PASSWORD  = 1 << 22,
         TB_INDICATOR = 1 << 23,
-        TB_ICON = 1<<24,
+        TB_ICON      = 1 << 24,
 } TextboxFlags;
 /**
  * Flags indicating current state of the textbox.
@@ -173,7 +172,7 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action );
  * The text should be one insert from a keypress..  the first gunichar is validated to be (or not) control
  * return TRUE if inserted
  */
-gboolean textbox_append_char ( textbox *tb, const char *pad, const int pad_len );
+gboolean textbox_append_text ( textbox *tb, const char *pad, const int pad_len );
 
 /**
  * @param tb  Handle to the textbox

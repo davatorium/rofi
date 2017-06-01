@@ -36,7 +36,6 @@
 #include "keyb.h"
 #include "helper.h"
 #include "helper-theme.h"
-#include "x11-helper.h"
 #include "mode.h"
 #include "view.h"
 
@@ -144,8 +143,8 @@ textbox* textbox_create_full ( WidgetType type, const char *name, TextboxFlags f
     tb->changed = FALSE;
 
     tb->layout = pango_layout_new ( p_context );
-    if ( (tb->flags&TB_ICON) == TB_ICON) {
-        tb->left_offset   = 1.2*textbox_get_estimated_char_height();
+    if ( ( tb->flags & TB_ICON ) == TB_ICON ) {
+        tb->left_offset = 1.2 * textbox_get_estimated_char_height ();
     }
     textbox_font ( tb, tbft );
 
@@ -773,7 +772,7 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action )
     }
 }
 
-gboolean textbox_append_char ( textbox *tb, const char *pad, const int pad_len )
+gboolean textbox_append_text ( textbox *tb, const char *pad, const int pad_len )
 {
     if ( tb == NULL ) {
         return FALSE;
@@ -783,12 +782,18 @@ gboolean textbox_append_char ( textbox *tb, const char *pad, const int pad_len )
     }
 
     // Filter When alt/ctrl is pressed do not accept the character.
-    if ( !g_unichar_iscntrl ( g_utf8_get_char ( pad ) ) ) {
-        textbox_insert ( tb, tb->cursor, pad, pad_len );
+
+    gboolean used_something = FALSE;
+    const gchar *w, *n, *e;
+    for ( w = pad, n = g_utf8_next_char(w), e = w + pad_len ; w < e ; w = n, n = g_utf8_next_char(n) ) {
+        if ( g_unichar_iscntrl ( g_utf8_get_char ( w ) ) ) {
+            continue;
+        }
+        textbox_insert ( tb, tb->cursor, w, n - w );
         textbox_cursor ( tb, tb->cursor + 1 );
-        return TRUE;
+        used_something = TRUE;
     }
-    return FALSE;
+    return used_something;
 }
 
 static void tbfc_entry_free ( TBFontConfig *tbfc )

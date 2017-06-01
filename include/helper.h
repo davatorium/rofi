@@ -27,6 +27,9 @@
 
 #ifndef ROFI_HELPER_H
 #define ROFI_HELPER_H
+
+#include <cairo.h>
+
 /**
  * @defgroup HELPERS Helpers
  */
@@ -265,4 +268,14 @@ int utf8_strncmp ( const char *a, const char* b, size_t n ) __attribute__( ( non
  * @returns FALSE On failure, TRUE on success
  */
 int helper_execute_command ( const char *wd, const char *cmd, int run_in_term );
+
+/**
+ * @param file The file path
+ * @param height The wanted height
+ * Gets a surface from an svg path
+ *
+ * @returns a cairo surface from an svg path
+ */
+cairo_surface_t *cairo_image_surface_create_from_svg ( const gchar* file, int height );
+
 #endif // ROFI_HELPER_H

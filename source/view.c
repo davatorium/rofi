@@ -55,10 +55,8 @@
 #include "rofi.h"
 #include "mode.h"
 #include "xcb-internal.h"
-#include "xkb-internal.h"
 #include "helper.h"
 #include "helper-theme.h"
-#include "x11-helper.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
 
@@ -653,7 +651,7 @@ void __create_window ( MenuFlags menu_flags )
     };
 
     xcb_window_t      box_window = xcb_generate_id ( xcb->connection );
-    xcb_void_cookie_t cc  = xcb_create_window_checked ( xcb->connection, depth->depth, box_window, xcb_stuff_get_root_window ( xcb ),
+    xcb_void_cookie_t cc  = xcb_create_window_checked ( xcb->connection, depth->depth, box_window, xcb_stuff_get_root_window ( ),
                                                         0, 0, 200, 100, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
                                                         visual->visual_id, selmask, selval );
     xcb_generic_error_t *error;
@@ -906,7 +904,7 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
         else{
             list = pango_attr_list_new ();
         }
-        int icon_height = textbox_get_font_height ( t );
+        int             icon_height = textbox_get_font_height ( t );
 
         cairo_surface_t *icon = mode_get_icon ( state->sw, state->line_map[index], icon_height );
         textbox_icon ( t, icon );
@@ -971,40 +969,6 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
     cairo_surface_flush ( CacheState.edit_surf );
     if ( qr ) {
         rofi_view_queue_redraw ();
-    }
-}
-
-/**
- * @param state Internal state of the menu.
- * @param xse   X selection event.
- *
- * Handle paste event.
- */
-static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t *xse )
-{
-    if ( xse->property == XCB_ATOM_NONE ) {
-        g_warning ( "Failed to convert selection" );
-    }
-    else if ( xse->property == xcb->ewmh.UTF8_STRING ) {
-        gchar *text = window_get_text_prop ( CacheState.main_window, xcb->ewmh.UTF8_STRING );
-        if ( text != NULL && text[0] != '\0' ) {
-            unsigned int dl = strlen ( text );
-            // Strip new line
-            for ( unsigned int i = 0; i < dl; i++ ) {
-                if ( text[i] == '\n' ) {
-                    dl = i;
-                }
-            }
-            // Insert string move cursor.
-            textbox_insert ( state->text, state->text->cursor, text, dl );
-            textbox_cursor ( state->text, state->text->cursor + g_utf8_strlen ( text, -1 ) );
-            // Force a redraw and refiltering of the text.
-            state->refilter = TRUE;
-        }
-        g_free ( text );
-    }
-    else {
-        g_warning ( "Failed" );
     }
 }
 
@@ -1384,122 +1348,83 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, g
     return FALSE;
 }
 
-void rofi_view_itterrate ( RofiViewState *state, xcb_generic_event_t *event, xkb_stuff *xkb )
+void rofi_view_handle_text ( RofiViewState *state, char *text )
 {
-    switch ( event->response_type & ~0x80 )
-    {
-    case XCB_CONFIGURE_NOTIFY:
-    {
-        xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
-        if ( xce->window == CacheState.main_window ) {
-            if ( state->x != xce->x || state->y != xce->y ) {
-                state->x = xce->x;
-                state->y = xce->y;
-                widget_queue_redraw ( WIDGET ( state->main_window ) );
-            }
-            if ( state->width != xce->width || state->height != xce->height ) {
-                state->width  = xce->width;
-                state->height = xce->height;
+    if ( textbox_append_text ( state->text, text, strlen ( text ) ) ) {
+        state->refilter = TRUE;
+    }
+}
 
-                cairo_destroy ( CacheState.edit_draw );
-                cairo_surface_destroy ( CacheState.edit_surf );
+void rofi_view_handle_mouse_motion( RofiViewState *state, gint x, gint y )
+{
+    state->mouse.x = x;
+    state->mouse.y = y;
+    if ( state->mouse.motion_target != NULL ) {
+        widget_xy_to_relative ( state->mouse.motion_target, &x, &y );
+        widget_motion_notify ( state->mouse.motion_target, x, y );
+    }
+}
 
-                xcb_free_pixmap ( xcb->connection, CacheState.edit_pixmap );
-                CacheState.edit_pixmap = xcb_generate_id ( xcb->connection );
-                xcb_create_pixmap ( xcb->connection, depth->depth, CacheState.edit_pixmap, CacheState.main_window,
-                                    state->width, state->height );
+void rofi_view_maybe_update ( RofiViewState *state )
+{
+    if ( rofi_view_get_completed ( state ) ) {
+        // This menu is done.
+        rofi_view_finalize ( state );
+        // cleanup
+        if ( rofi_view_get_active () == NULL ) {
+            rofi_quit_main_loop();
+            return;
+        }
+    }
 
-                CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
-                CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
-                g_debug ( "Re-size window based external request: %d %d", state->width, state->height );
-                widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
-            }
-        }
-        break;
-    }
-    case XCB_MOTION_NOTIFY:
-    {
-        if ( config.click_to_exit == TRUE ) {
-            state->mouse_seen = TRUE;
-        }
-        xcb_motion_notify_event_t xme = *( (xcb_motion_notify_event_t *) event );
-        state->mouse.x = xme.event_x;
-        state->mouse.y = xme.event_y;
-        if ( state->mouse.motion_target != NULL ) {
-            gint x = state->mouse.x;
-            gint y = state->mouse.y;
-            widget_xy_to_relative ( state->mouse.motion_target, &x, &y );
-            widget_motion_notify ( state->mouse.motion_target, x, y );
-        }
-        break;
-    }
-    case XCB_BUTTON_PRESS:
-    {
-        xcb_button_press_event_t *bpe = (xcb_button_press_event_t *) event;
-        state->mouse.x = bpe->event_x;
-        state->mouse.y = bpe->event_y;
-        nk_bindings_handle_button ( xkb->bindings, bpe->detail, NK_BINDINGS_BUTTON_STATE_PRESS, bpe->time );
-        break;
-    }
-    case XCB_BUTTON_RELEASE:
-    {
-        xcb_button_release_event_t *bre = (xcb_button_release_event_t *) event;
-        nk_bindings_handle_button ( xkb->bindings, bre->detail, NK_BINDINGS_BUTTON_STATE_RELEASE, bre->time );
-        if ( config.click_to_exit == TRUE ) {
-            if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
-                if ( ( state->mouse_seen == FALSE ) && ( bre->event != CacheState.main_window ) ) {
-                    state->quit = TRUE;
-                    state->retv = MENU_CANCEL;
-                }
-            }
-            state->mouse_seen = FALSE;
-        }
-        break;
-    }
-    // Paste event.
-    case XCB_SELECTION_NOTIFY:
-        rofi_view_paste ( state, (xcb_selection_notify_event_t *) event );
-        break;
-    case XCB_KEYMAP_NOTIFY:
-    {
-        xcb_keymap_notify_event_t *kne = (xcb_keymap_notify_event_t *) event;
-        for ( gint32 by = 0; by < 31; ++by ) {
-            for ( gint8 bi = 0; bi < 7; ++bi ) {
-                if ( kne->keys[by] & ( 1 << bi ) ) {
-                    // X11 keycodes starts at 8
-                    nk_bindings_handle_key ( xkb->bindings, ( 8 * by + bi ) + 8, NK_BINDINGS_KEY_STATE_PRESSED );
-                }
-            }
-        }
-        break;
-    }
-    case XCB_KEY_PRESS:
-    {
-        xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *) event;
-        gchar                 *text;
-
-        text = nk_bindings_handle_key ( xkb->bindings, xkpe->detail, NK_BINDINGS_KEY_STATE_PRESS );
-        if ( ( text != NULL ) && ( textbox_append_char ( state->text, text, strlen ( text ) ) ) ) {
-            state->refilter = TRUE;
-        }
-        break;
-    }
-    case XCB_KEY_RELEASE:
-    {
-        xcb_key_release_event_t *xkre = (xcb_key_release_event_t *) event;
-        nk_bindings_handle_key ( xkb->bindings, xkre->detail, NK_BINDINGS_KEY_STATE_RELEASE );
-        break;
-    }
-    default:
-        break;
-    }
     // Update if requested.
     if ( state->refilter ) {
         rofi_view_refilter ( state );
     }
     rofi_view_update ( state, TRUE );
+}
 
-    if ( ( event->response_type & ~0x80 ) == XCB_EXPOSE && CacheState.repaint_source == 0 ) {
+void rofi_view_temp_configure_notify ( RofiViewState *state, xcb_configure_notify_event_t *xce )
+{
+    if ( xce->window == CacheState.main_window ) {
+        if ( state->x != xce->x || state->y != xce->y ) {
+            state->x = xce->x;
+            state->y = xce->y;
+            widget_queue_redraw ( WIDGET ( state->main_window ) );
+        }
+        if ( state->width != xce->width || state->height != xce->height ) {
+            state->width  = xce->width;
+            state->height = xce->height;
+
+            cairo_destroy ( CacheState.edit_draw );
+            cairo_surface_destroy ( CacheState.edit_surf );
+
+            xcb_free_pixmap ( xcb->connection, CacheState.edit_pixmap );
+            CacheState.edit_pixmap = xcb_generate_id ( xcb->connection );
+            xcb_create_pixmap ( xcb->connection, depth->depth, CacheState.edit_pixmap, CacheState.main_window,
+                                state->width, state->height );
+
+            CacheState.edit_surf = cairo_xcb_surface_create ( xcb->connection, CacheState.edit_pixmap, visual, state->width, state->height );
+            CacheState.edit_draw = cairo_create ( CacheState.edit_surf );
+            g_debug ( "Re-size window based external request: %d %d", state->width, state->height );
+            widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
+        }
+    }
+}
+
+void rofi_view_temp_click_to_exit ( RofiViewState *state, xcb_window_t target )
+{
+    if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
+        if ( target != CacheState.main_window ) {
+            state->quit = TRUE;
+            state->retv = MENU_CANCEL;
+        }
+    }
+}
+
+void rofi_view_frame_callback ( void )
+{
+    if ( CacheState.repaint_source == 0 ) {
         CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
     }
 }
@@ -1797,9 +1722,7 @@ void rofi_view_hide ( void )
 {
     if ( CacheState.main_window != XCB_WINDOW_NONE ) {
         xcb_unmap_window ( xcb->connection, CacheState.main_window );
-        release_keyboard ( );
-        release_pointer ( );
-        xcb_flush ( xcb->connection );
+        x11_early_cleanup ();
     }
 }
 
@@ -1895,9 +1818,12 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text )
     // Within padding of window.
     x_offset -= widget_padding_get_right ( WIDGET ( state->main_window ) );
     // Within the border of widget.
+    //x_offset -= widget_padding_get_right ( WIDGET ( state->main_box ) );
+    //x_offset -= widget_padding_get_right ( WIDGET ( state->input_bar ) );
     x_offset -= widget_get_width ( WIDGET ( state->case_indicator ) );
     x_offset -= widget_get_width ( WIDGET ( state->overlay ) );
     int top_offset = widget_padding_get_top   ( WIDGET ( state->main_window ) );
+    //top_offset += widget_padding_get_top   ( WIDGET ( state->main_box ) );
     widget_move ( WIDGET ( state->overlay ), x_offset, top_offset );
     // We want to queue a repaint.
     rofi_view_queue_redraw ( );

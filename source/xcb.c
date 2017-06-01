@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <cairo.h>
 #include <cairo-xcb.h>
+#include <librsvg/rsvg.h>
 
 #include <xcb/xcb.h>
 #include <xcb/xcb_aux.h>
@@ -45,17 +46,18 @@
 #include <xcb/xinerama.h>
 #include <xcb/xcb_ewmh.h>
 #include <xcb/xproto.h>
+#include <xcb/xkb.h>
+#include <xkbcommon/xkbcommon.h>
+#include <xkbcommon/xkbcommon-x11.h>
 #include "xcb-internal.h"
 #include "xcb.h"
 #include "settings.h"
 #include "helper.h"
-#include "x11-helper.h"
+#include "timings.h"
 
 #include <rofi.h>
 /** Checks if the if x and y is inside rectangle. */
 #define INTERSECT( x, y, x1, y1, w1, h1 )    ( ( ( ( x ) >= ( x1 ) ) && ( ( x ) < ( x1 + w1 ) ) ) && ( ( ( y ) >= ( y1 ) ) && ( ( y ) < ( y1 + h1 ) ) ) )
-#include "x11-helper.h"
-#include "xkb-internal.h"
 WindowManager current_window_manager = WM_EWHM;
 
 /**
@@ -91,7 +93,7 @@ const char              *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 cairo_surface_t *x11_helper_get_screenshot_surface ( void )
 {
     return cairo_xcb_surface_create ( xcb->connection,
-                                      xcb_stuff_get_root_window ( xcb ), root_visual,
+                                      xcb_stuff_get_root_window (), root_visual,
                                       xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
 }
 
@@ -131,30 +133,6 @@ cairo_surface_t * x11_helper_get_bg_surface ( void )
     }
     return cairo_xcb_surface_create ( xcb->connection, pm, root_visual,
                                       xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
-}
-
-cairo_surface_t* cairo_image_surface_create_from_svg ( const gchar* file, int height )
-{
-    cairo_surface_t   *surface;
-    cairo_t           *cr;
-    RsvgHandle        * handle;
-    RsvgDimensionData dimensions;
-
-    handle = rsvg_handle_new_from_file ( file, NULL );
-    rsvg_handle_get_dimensions ( handle, &dimensions );
-    double scale = (double) height / dimensions.height;
-    surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32,
-                                           (double) dimensions.width * scale,
-                                           (double) dimensions.height * scale );
-    cr = cairo_create ( surface );
-    cairo_scale ( cr, scale, scale );
-    rsvg_handle_render_cairo ( handle, cr );
-    cairo_destroy ( cr );
-
-    rsvg_handle_close ( handle, NULL );
-    g_object_unref ( handle );
-
-    return surface;
 }
 
 // retrieve a text property from a window
@@ -554,7 +532,177 @@ int monitor_active ( workarea *mon )
     monitor_dimensions ( 0, 0, mon );
     return FALSE;
 }
-int take_pointer ( xcb_window_t w, int iters )
+
+/**
+ * @param state Internal state of the menu.
+ * @param xse   X selection event.
+ *
+ * Handle paste event.
+ */
+static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t *xse )
+{
+    if ( xse->property == XCB_ATOM_NONE ) {
+        g_warning ( "Failed to convert selection" );
+    }
+    else if ( xse->property == xcb->ewmh.UTF8_STRING ) {
+        gchar *text = window_get_text_prop ( xse->requestor, xcb->ewmh.UTF8_STRING );
+        if ( text != NULL && text[0] != '\0' ) {
+            unsigned int dl = strlen ( text );
+            // Strip new line
+            for ( unsigned int i = 0; i < dl; i++ ) {
+                if ( text[i] == '\n' ) {
+                    text[i] = '\0';
+                }
+            }
+            rofi_view_handle_text ( state, text );
+        }
+        g_free ( text );
+    }
+    else {
+        g_warning ( "Failed" );
+    }
+}
+
+/**
+ * Process X11 events in the main-loop (gui-thread) of the application.
+ */
+static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
+{
+    RofiViewState *state = rofi_view_get_active ();
+    if ( state == NULL ) {
+        return;
+    }
+
+    switch ( event->response_type & ~0x80 )
+    {
+    case XCB_EXPOSE:
+        rofi_view_frame_callback ();
+        break;
+    case XCB_CONFIGURE_NOTIFY:
+    {
+        xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
+        rofi_view_temp_configure_notify ( state, xce );
+        break;
+    }
+    case XCB_MOTION_NOTIFY:
+    {
+        if ( config.click_to_exit == TRUE ) {
+            xcb->mouse_seen = TRUE;
+        }
+        xcb_motion_notify_event_t *xme = (xcb_motion_notify_event_t *) event;
+        rofi_view_handle_mouse_motion ( state, xme->event_x, xme->event_y );
+        break;
+    }
+    case XCB_BUTTON_PRESS:
+    {
+        xcb_button_press_event_t *bpe = (xcb_button_press_event_t *) event;
+        rofi_view_handle_mouse_motion ( state, bpe->event_x, bpe->event_y );
+        nk_bindings_seat_handle_button ( xcb->bindings_seat, bpe->detail, NK_BINDINGS_BUTTON_STATE_PRESS, bpe->time );
+        break;
+    }
+    case XCB_BUTTON_RELEASE:
+    {
+        xcb_button_release_event_t *bre = (xcb_button_release_event_t *) event;
+        nk_bindings_seat_handle_button ( xcb->bindings_seat, bre->detail, NK_BINDINGS_BUTTON_STATE_RELEASE, bre->time );
+        if ( config.click_to_exit == TRUE ) {
+            if ( ! xcb->mouse_seen ) {
+                rofi_view_temp_click_to_exit ( state, bre->event );
+            }
+            xcb->mouse_seen = FALSE;
+        }
+        break;
+    }
+    // Paste event.
+    case XCB_SELECTION_NOTIFY:
+        rofi_view_paste ( state, (xcb_selection_notify_event_t *) event );
+        break;
+    case XCB_KEYMAP_NOTIFY:
+    {
+        xcb_keymap_notify_event_t *kne = (xcb_keymap_notify_event_t *) event;
+        for ( gint32 by = 0; by < 31; ++by ) {
+            for ( gint8 bi = 0; bi < 7; ++bi ) {
+                if ( kne->keys[by] & ( 1 << bi ) ) {
+                    // X11 keycodes starts at 8
+                    nk_bindings_seat_handle_key ( xcb->bindings_seat, ( 8 * by + bi ) + 8, NK_BINDINGS_KEY_STATE_PRESSED );
+                }
+            }
+        }
+        break;
+    }
+    case XCB_KEY_PRESS:
+    {
+        xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *) event;
+        gchar                 *text;
+
+        text = nk_bindings_seat_handle_key ( xcb->bindings_seat, xkpe->detail, NK_BINDINGS_KEY_STATE_PRESS );
+        if ( text != NULL )  {
+            rofi_view_handle_text ( state, text );
+        }
+        break;
+    }
+    case XCB_KEY_RELEASE:
+    {
+        xcb_key_release_event_t *xkre = (xcb_key_release_event_t *) event;
+        nk_bindings_seat_handle_key ( xcb->bindings_seat, xkre->detail, NK_BINDINGS_KEY_STATE_RELEASE );
+        break;
+    }
+    default:
+        break;
+    }
+    rofi_view_maybe_update ( state );
+}
+
+static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer user_data )
+{
+    if ( ev == NULL ) {
+        int status = xcb_connection_has_error ( xcb->connection );
+        if ( status > 0 ) {
+            g_warning ( "The XCB connection to X server had a fatal error: %d", status );
+            g_main_loop_quit ( xcb->main_loop );
+            return G_SOURCE_REMOVE;
+        }
+        else {
+            g_warning ( "main_loop_x11_event_handler: ev == NULL, status == %d", status );
+            return G_SOURCE_CONTINUE;
+        }
+    }
+    uint8_t type = ev->response_type & ~0x80;
+    if ( type == xcb->xkb.first_event ) {
+        switch ( ev->pad0 )
+        {
+        case XCB_XKB_MAP_NOTIFY:
+        {
+            struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( nk_bindings_seat_get_context ( xcb->bindings_seat ), xcb->connection, xcb->xkb.device_id, 0 );
+            struct xkb_state  *state  = xkb_x11_state_new_from_device ( keymap, xcb->connection, xcb->xkb.device_id );
+            nk_bindings_seat_update_keymap ( xcb->bindings_seat, keymap, state );
+            xkb_keymap_unref ( keymap );
+            xkb_state_unref ( state );
+            break;
+        }
+        case XCB_XKB_STATE_NOTIFY:
+        {
+            xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
+            nk_bindings_seat_update_mask ( xcb->bindings_seat,
+                                           ksne->baseMods,
+                                           ksne->latchedMods,
+                                           ksne->lockedMods,
+                                           ksne->baseGroup,
+                                           ksne->latchedGroup,
+                                           ksne->lockedGroup );
+            rofi_view_maybe_update ( rofi_view_get_active () );
+            break;
+        }
+        }
+        return G_SOURCE_CONTINUE;
+    }
+    if ( xcb->sndisplay != NULL ) {
+        sn_xcb_display_process_event ( xcb->sndisplay, ev );
+    }
+    main_loop_x11_event_handler_view ( ev );
+    return G_SOURCE_CONTINUE;
+}
+
+static int take_pointer ( xcb_window_t w, int iters )
 {
     int i = 0;
     while ( TRUE ) {
@@ -579,7 +727,8 @@ int take_pointer ( xcb_window_t w, int iters )
     }
     return 0;
 }
-int take_keyboard ( xcb_window_t w, int iters )
+
+static int take_keyboard ( xcb_window_t w, int iters )
 {
     int i = 0;
     while ( TRUE ) {
@@ -606,13 +755,31 @@ int take_keyboard ( xcb_window_t w, int iters )
     return 0;
 }
 
-void release_keyboard ( void )
+static void release_keyboard ( void )
 {
     xcb_ungrab_keyboard ( xcb->connection, XCB_CURRENT_TIME );
 }
-void release_pointer ( void )
+static void release_pointer ( void )
 {
     xcb_ungrab_pointer ( xcb->connection, XCB_CURRENT_TIME );
+}
+
+/** X server error depth. to handle nested errors. */
+static int error_trap_depth = 0;
+static void error_trap_push ( G_GNUC_UNUSED SnDisplay *display, G_GNUC_UNUSED xcb_connection_t *xdisplay )
+{
+    ++error_trap_depth;
+}
+
+static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, xcb_connection_t *xdisplay )
+{
+    if ( error_trap_depth == 0 ) {
+        g_warning ( "Error trap underflow!" );
+        exit ( EXIT_FAILURE );
+    }
+
+    xcb_flush ( xdisplay );
+    --error_trap_depth;
 }
 
 /**
@@ -631,13 +798,134 @@ static void x11_create_frequently_used_atoms ( void )
     }
 }
 
-void x11_setup ( void )
+gboolean x11_setup ( GMainLoop *main_loop )
 {
+    // Get DISPLAY, first env, then argument.
+    // We never modify display_str content.
+    char *display_str = ( char *) g_getenv ( "DISPLAY" );
+    find_arg_str (  "-display", &display_str );
+
+    xcb->main_loop = main_loop;
+    xcb->source = g_water_xcb_source_new ( g_main_loop_get_context ( xcb->main_loop ), display_str, &xcb->screen_nbr, main_loop_x11_event_handler, NULL, NULL );
+    if ( xcb->source == NULL ) {
+        g_warning ( "Failed to open display: %s", display_str );
+        return FALSE;
+    }
+    xcb->connection = g_water_xcb_source_get_connection ( xcb->source );
+
+    TICK_N ( "Open Display" );
+
+    xcb->screen = xcb_aux_get_screen ( xcb->connection, xcb->screen_nbr );
+
+    x11_build_monitor_layout ();
+
+    xcb_intern_atom_cookie_t *ac     = xcb_ewmh_init_atoms ( xcb->connection, &xcb->ewmh );
+    xcb_generic_error_t      *errors = NULL;
+    xcb_ewmh_init_atoms_replies ( &xcb->ewmh, ac, &errors );
+    if ( errors ) {
+        g_warning ( "Failed to create EWMH atoms" );
+        free ( errors );
+    }
+    // Discover the current active window manager.
+    x11_helper_discover_window_manager ();
+    TICK_N ( "Setup XCB" );
+
+    if ( xkb_x11_setup_xkb_extension ( xcb->connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
+                                       XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS, NULL, NULL, &xcb->xkb.first_event, NULL ) < 0 ) {
+        g_warning ( "cannot setup XKB extension!" );
+        return FALSE;
+    }
+
+    xcb->xkb.device_id = xkb_x11_get_core_keyboard_device_id ( xcb->connection );
+
+    enum
+    {
+        required_events =
+            ( XCB_XKB_EVENT_TYPE_NEW_KEYBOARD_NOTIFY |
+              XCB_XKB_EVENT_TYPE_MAP_NOTIFY |
+              XCB_XKB_EVENT_TYPE_STATE_NOTIFY ),
+
+        required_nkn_details =
+            ( XCB_XKB_NKN_DETAIL_KEYCODES ),
+
+        required_map_parts   =
+            ( XCB_XKB_MAP_PART_KEY_TYPES |
+              XCB_XKB_MAP_PART_KEY_SYMS |
+              XCB_XKB_MAP_PART_MODIFIER_MAP |
+              XCB_XKB_MAP_PART_EXPLICIT_COMPONENTS |
+              XCB_XKB_MAP_PART_KEY_ACTIONS |
+              XCB_XKB_MAP_PART_VIRTUAL_MODS |
+              XCB_XKB_MAP_PART_VIRTUAL_MOD_MAP ),
+
+        required_state_details =
+            ( XCB_XKB_STATE_PART_MODIFIER_BASE |
+              XCB_XKB_STATE_PART_MODIFIER_LATCH |
+              XCB_XKB_STATE_PART_MODIFIER_LOCK |
+              XCB_XKB_STATE_PART_GROUP_BASE |
+              XCB_XKB_STATE_PART_GROUP_LATCH |
+              XCB_XKB_STATE_PART_GROUP_LOCK ),
+    };
+
+    static const xcb_xkb_select_events_details_t details = {
+        .affectNewKeyboard  = required_nkn_details,
+        .newKeyboardDetails = required_nkn_details,
+        .affectState        = required_state_details,
+        .stateDetails       = required_state_details,
+    };
+    xcb_xkb_select_events ( xcb->connection, xcb->xkb.device_id, required_events, /* affectWhich */
+                            0,                                                    /* clear */
+                            required_events,                                      /* selectAll */
+                            required_map_parts,                                   /* affectMap */
+                            required_map_parts,                                   /* map */
+                            &details );
+
+    xcb->bindings      = nk_bindings_new ();
+    xcb->bindings_seat = nk_bindings_seat_new ( xcb->bindings, XKB_CONTEXT_NO_FLAGS );
+    struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( nk_bindings_seat_get_context ( xcb->bindings_seat ), xcb->connection, xcb->xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
+    if ( keymap == NULL ) {
+        g_warning ( "Failed to get Keymap for current keyboard device." );
+        return FALSE;
+    }
+    struct xkb_state *state = xkb_x11_state_new_from_device ( keymap, xcb->connection, xcb->xkb.device_id );
+    if ( state == NULL ) {
+        g_warning ( "Failed to get state object for current keyboard device." );
+        return FALSE;
+    }
+
+    nk_bindings_seat_update_keymap ( xcb->bindings_seat, keymap, state );
+
+    if ( !parse_keys_abe ( xcb->bindings ) ) {
+        // Error dialog
+        return FALSE;
+    }
+
     // determine numlock mask so we can bind on keys with and without it
     x11_create_frequently_used_atoms (  );
+
+    if ( xcb_connection_has_error ( xcb->connection ) ) {
+        g_warning ( "Connection has error" );
+        return FALSE;
+    }
+
+    // startup not.
+    xcb->sndisplay = sn_xcb_display_new ( xcb->connection, error_trap_push, error_trap_pop );
+    if ( xcb_connection_has_error ( xcb->connection ) ) {
+        g_warning ( "Connection has error" );
+        return FALSE;
+    }
+
+    if ( xcb->sndisplay != NULL ) {
+        xcb->sncontext = sn_launchee_context_new_from_environment ( xcb->sndisplay, xcb->screen_nbr );
+    }
+    if ( xcb_connection_has_error ( xcb->connection ) ) {
+        g_warning ( "Connection has error" );
+        return FALSE;
+    }
+
+    return TRUE;
 }
 
-void x11_create_visual_and_colormap ( void )
+static void x11_create_visual_and_colormap ( void )
 {
     xcb_depth_t          *root_depth = NULL;
     xcb_depth_iterator_t depth_iter;
@@ -677,32 +965,110 @@ void x11_create_visual_and_colormap ( void )
     }
 }
 
-xcb_window_t xcb_stuff_get_root_window ( xcb_stuff *xcb )
+/** Retry count of grabbing keyboard. */
+unsigned int lazy_grab_retry_count_kb = 0;
+/** Retry count of grabbing pointer. */
+unsigned int lazy_grab_retry_count_pt = 0;
+static gboolean lazy_grab_pointer ( G_GNUC_UNUSED gpointer data )
+{
+    // After 5 sec.
+    if ( lazy_grab_retry_count_pt > ( 5 * 1000 ) ) {
+        g_warning ( "Failed to grab pointer after %u times. Giving up.", lazy_grab_retry_count_pt );
+        return G_SOURCE_REMOVE;
+    }
+    if ( take_pointer ( xcb_stuff_get_root_window (), 0 ) ) {
+        return G_SOURCE_REMOVE;
+    }
+    lazy_grab_retry_count_pt++;
+    return G_SOURCE_CONTINUE;
+}
+static gboolean lazy_grab_keyboard ( G_GNUC_UNUSED gpointer data )
+{
+    // After 5 sec.
+    if ( lazy_grab_retry_count_kb > ( 5 * 1000 ) ) {
+        g_warning ( "Failed to grab keyboard after %u times. Giving up.", lazy_grab_retry_count_kb );
+        g_main_loop_quit ( xcb->main_loop );
+        return G_SOURCE_REMOVE;
+    }
+    if ( take_keyboard ( xcb_stuff_get_root_window (), 0 ) ) {
+        return G_SOURCE_REMOVE;
+    }
+    lazy_grab_retry_count_kb++;
+    return G_SOURCE_CONTINUE;
+}
+
+gboolean x11_late_setup ( void )
+{
+    x11_create_visual_and_colormap ();
+
+    /**
+     * Create window (without showing)
+     */
+    // Try to grab the keyboard as early as possible.
+    // We grab this using the rootwindow (as dmenu does it).
+    // this seems to result in the smallest delay for most people.
+    if ( find_arg ( "-normal-window" ) >= 0 ) {
+        return TRUE;
+    }
+    if ( find_arg ( "-no-lazy-grab" ) >= 0 ) {
+        if ( !take_keyboard ( xcb_stuff_get_root_window (), 500 ) ) {
+            g_warning ( "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
+            return FALSE;
+        }
+        if ( !take_pointer ( xcb_stuff_get_root_window (), 100 ) ) {
+            g_warning ( "Failed to grab mouse pointer, even after %d uS.", 100 * 1000 );
+        }
+    }
+    else {
+        if ( !take_keyboard ( xcb_stuff_get_root_window (), 0 ) ) {
+            g_timeout_add ( 1, lazy_grab_keyboard, NULL );
+        }
+        if ( !take_pointer ( xcb_stuff_get_root_window (), 0 ) ) {
+            g_timeout_add ( 1, lazy_grab_pointer, NULL );
+        }
+    }
+    return TRUE;
+}
+
+xcb_window_t xcb_stuff_get_root_window ( void )
 {
     return xcb->screen->root;
 }
 
-void xcb_stuff_wipe ( xcb_stuff *xcb )
+void x11_early_cleanup ( void )
 {
-    if ( xcb->connection != NULL ) {
-        g_debug ( "Cleaning up XCB and XKB" );
-        if ( xcb->sncontext != NULL ) {
-            sn_launchee_context_unref ( xcb->sncontext );
-            xcb->sncontext = NULL;
-        }
-        if ( xcb->sndisplay != NULL ) {
-            sn_display_unref ( xcb->sndisplay );
-            xcb->sndisplay = NULL;
-        }
-        x11_monitors_free ();
-        xcb_ewmh_connection_wipe ( &( xcb->ewmh ) );
-        xcb_flush ( xcb->connection );
-        xcb_aux_sync ( xcb->connection );
-        xcb_disconnect ( xcb->connection );
-        xcb->connection = NULL;
-        xcb->screen     = NULL;
-        xcb->screen_nbr = 0;
+    release_keyboard ( );
+    release_pointer ( );
+    xcb_flush ( xcb->connection );
+}
+
+void xcb_stuff_wipe ( void )
+{
+    if ( xcb->connection == NULL ) {
+        return;
     }
+
+    g_debug ( "Cleaning up XCB and XKB" );
+
+    nk_bindings_seat_free ( xcb->bindings_seat );
+    nk_bindings_free ( xcb->bindings );
+    if ( xcb->sncontext != NULL ) {
+        sn_launchee_context_unref ( xcb->sncontext );
+        xcb->sncontext = NULL;
+    }
+    if ( xcb->sndisplay != NULL ) {
+        sn_display_unref ( xcb->sndisplay );
+        xcb->sndisplay = NULL;
+    }
+    x11_monitors_free ();
+    xcb_ewmh_connection_wipe ( &( xcb->ewmh ) );
+    xcb_flush ( xcb->connection );
+    xcb_aux_sync ( xcb->connection );
+    g_water_xcb_source_free ( xcb->source );
+    xcb->source = NULL;
+    xcb->connection = NULL;
+    xcb->screen     = NULL;
+    xcb->screen_nbr = 0;
 }
 
 void x11_disable_decoration ( xcb_window_t window )
@@ -734,7 +1100,7 @@ void x11_helper_discover_window_manager ( void )
 {
     xcb_window_t              wm_win = 0;
     xcb_get_property_cookie_t cc     = xcb_ewmh_get_supporting_wm_check_unchecked ( &xcb->ewmh,
-                                                                                    xcb_stuff_get_root_window ( xcb ) );
+                                                                                    xcb_stuff_get_root_window () );
 
     if ( xcb_ewmh_get_supporting_wm_check_reply ( &xcb->ewmh, cc, &wm_win, NULL ) ) {
         xcb_ewmh_get_utf8_strings_reply_t wtitle;

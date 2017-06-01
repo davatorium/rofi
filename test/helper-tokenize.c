@@ -32,6 +32,7 @@
 #include <helper.h>
 #include <string.h>
 #include <xcb/xcb_ewmh.h>
+#include "xcb.h"
 #include "xcb-internal.h"
 #include "rofi.h"
 #include "settings.h"
@@ -50,11 +51,10 @@ int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
     fputs ( msg, stderr );
     return TRUE;
 }
-
-xcb_screen_t          *xcb_screen;
-xcb_ewmh_connection_t xcb_ewmh;
-int                   xcb_screen_nbr;
-#include <x11-helper.h>
+int monitor_active ( G_GNUC_UNUSED workarea *mon )
+{
+    return 0;
+}
 
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
 {

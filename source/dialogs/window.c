@@ -52,7 +52,6 @@
 #include "settings.h"
 #include "helper.h"
 #include "widgets/textbox.h"
-#include "x11-helper.h"
 #include "dialogs/window.h"
 
 #define WINLIST             32

@@ -37,6 +37,7 @@
 #include <widgets/textbox.h>
 #include <rofi.h>
 #include <cairo-xlib.h>
+#include "xcb.h"
 #include "settings.h"
 #include "xrmoptions.h"
 
@@ -68,6 +69,11 @@ int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
 {
     fputs ( msg, stderr );
     return FALSE;
+}
+
+int monitor_active ( G_GNUC_UNUSED workarea *mon )
+{
+    return 0;
 }
 
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )

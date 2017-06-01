@@ -367,7 +367,7 @@ static void listview_recompute_elements ( listview *lv )
         char *name = g_strjoin ( ".", lv->listview_name, "element", NULL );
         for ( unsigned int i = lv->cur_elements; i < newne; i++ ) {
             TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
-            flags |= ((config.show_icons)? TB_ICON:0);
+            flags       |= ( ( config.show_icons ) ? TB_ICON : 0 );
             lv->boxes[i] = textbox_create_full ( WIDGET_TYPE_LISTVIEW_ELEMENT, name, flags, NORMAL, "" );
             widget_set_trigger_action_handler ( WIDGET ( lv->boxes[i] ), listview_element_trigger_action, lv );
         }

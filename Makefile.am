@@ -63,7 +63,7 @@ SOURCES=\
 	source/widgets/listview.c\
 	source/widgets/scrollbar.c\
 	source/xrmoptions.c\
-	source/x11-helper.c\
+	source/xcb.c\
 	source/css-colors.c\
 	source/dialogs/run.c\
 	source/dialogs/ssh.c\
@@ -248,6 +248,7 @@ endif
 history_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
+	$(NKUTILS_CFLAGS)\
 	$(libsn_CFLAGS)\
 	$(cairo_CFLAGS)\
 	-DTHEME_DIR=\"$(themedir)\"\
@@ -257,7 +258,8 @@ history_test_CFLAGS=\
 	-I$(top_builddir)/
 
 history_test_LDADD=\
-	$(glib_LIBS)
+	$(glib_LIBS)\
+	$(NKUTILS_LIBS)
 
 
 history_test_SOURCES=\
@@ -274,6 +276,7 @@ textbox_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(pango_CFLAGS)\
+	$(NKUTILS_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
@@ -289,6 +292,7 @@ textbox_test_CFLAGS=\
 textbox_test_LDADD=\
 	$(glib_LIBS)\
 	$(pango_LIBS)\
+	$(NKUTILS_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(cairo_LIBS)\
 	$(librsvg_LIBS)\
@@ -306,8 +310,6 @@ helper_pidfile_SOURCES=\
 					   include/helper-theme.h\
 					   include/xrmoptions.h\
 					   source/xrmoptions.c\
-					   source/x11-helper.c\
-					   include/x11-helper.h\
 					   test/helper-pidfile.c
 
 helper_tokenize_CFLAGS=$(textbox_test_CFLAGS)
@@ -322,8 +324,6 @@ helper_tokenize_SOURCES=\
 					   include/helper-theme.h\
 					   include/xrmoptions.h\
 					   source/xrmoptions.c\
-					   source/x11-helper.c\
-					   include/x11-helper.h\
 					   test/helper-tokenize.c
 
 widget_test_LDADD=$(textbox_test_LDADD)
@@ -334,7 +334,6 @@ widget_test_SOURCES=\
 			source/theme.c\
 			source/css-colors.c\
 			source/helper.c\
-			source/x11-helper.c\
 			config/config.c\
 			lexer/theme-parser.y\
 			lexer/theme-lexer.l\
@@ -374,7 +373,6 @@ textbox_test_SOURCES=\
 	source/theme.c\
 	source/css-colors.c\
 	source/helper.c\
-	source/x11-helper.c\
 	config/config.c\
 	include/keyb.h\
 	include/rofi.h\
@@ -404,7 +402,6 @@ theme_parser_test_SOURCES=\
 	include/css-colors.h\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
-	source/x11-helper.c\
 	lexer/theme-lexer.c\
 	lexer/theme-parser.c\
 	lexer/theme-parser.h\
@@ -423,7 +420,6 @@ helper_test_SOURCES=\
 	include/helper-theme.h\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
-	source/x11-helper.c\
 	test/helper-test.c
 
 
@@ -431,6 +427,7 @@ helper_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(pango_CFLAGS)\
+	$(NKUTILS_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(librsvg_CFLAGS)\
@@ -446,6 +443,7 @@ helper_test_CFLAGS=\
 helper_test_LDADD=\
 	$(glib_LIBS)\
 	$(pango_LIBS)\
+	$(NKUTILS_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(libsn_LIBS)\
 	$(librsvg_LIBS)\
@@ -462,7 +460,6 @@ helper_expand_SOURCES=\
 	include/helper-theme.h\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
-	source/x11-helper.c\
 	test/helper-expand.c
 
 helper_expand_CFLAGS=${helper_test_CFLAGS}
@@ -482,7 +479,6 @@ helper_config_cmdline_parser_SOURCES=\
 	include/helper-theme.h\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
-	source/x11-helper.c\
 	test/helper-config-cmdline-parser.c
 
 

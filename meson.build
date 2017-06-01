@@ -155,7 +155,7 @@ rofi_sources = files(
         'source/widgets/listview.c',
         'source/widgets/scrollbar.c',
         'source/xrmoptions.c',
-        'source/x11-helper.c',
+        'source/xcb.c',
         'source/dialogs/run.c',
         'source/dialogs/ssh.c',
         'source/dialogs/drun.c',
@@ -188,7 +188,6 @@ rofi_sources = files(
         'include/widgets/listview.h',
         'include/widgets/scrollbar.h',
         'include/xrmoptions.h',
-        'include/x11-helper.h',
         'include/dialogs/ssh.h',
         'include/dialogs/run.h',
         'include/dialogs/drun.h',
@@ -198,8 +197,6 @@ rofi_sources = files(
         'include/dialogs/window.h',
         'include/dialogs/dialogs.h',
         'include/dialogs/help-keys.h',
-        'include/xkb.h',
-        'include/xkb-internal.h',
 )
 theme_lexer_sources = files('lexer/theme-lexer.l')
 theme_parser_sources = files('lexer/theme-parser.y')
@@ -266,7 +263,6 @@ test('helper_pidfile test', executable('helper_pidfile.test', [
         'config/config.c',
         'source/helper.c',
         'source/xrmoptions.c',
-        'source/x11-helper.c',
     ]),
     dependencies: deps,
 ))
@@ -278,7 +274,6 @@ test('helper_tokenize test', executable('helper_tokenize.test', [
         'config/config.c',
         'source/helper.c',
         'source/xrmoptions.c',
-        'source/x11-helper.c',
     ]),
     dependencies: deps,
 ))
@@ -294,7 +289,6 @@ test('widget test', executable('widget.test', [
         'source/theme.c',
         'source/css-colors.c',
         'source/helper.c',
-        'source/x11-helper.c',
         'config/config.c',
     ]),
     dependencies: deps,
@@ -341,7 +335,6 @@ test('textbox test', executable('textbox.test', [
         'source/theme.c',
         'source/css-colors.c',
         'source/helper.c',
-        'source/x11-helper.c',
         'config/config.c',
     ]),
     dependencies: deps,
@@ -354,7 +347,6 @@ test('helper test', executable('helper.test', [
         'config/config.c',
         'source/helper.c',
         'source/xrmoptions.c',
-        'source/x11-helper.c',
     ]),
     dependencies: deps,
 ))
@@ -366,7 +358,6 @@ test('helper_expand test', executable('helper_expand.test', [
         'config/config.c',
         'source/helper.c',
         'source/xrmoptions.c',
-        'source/x11-helper.c',
     ]),
     dependencies: deps,
 ))
@@ -378,7 +369,6 @@ test('helper_config_cmdline_parser test', executable('helper_config_cmdline_pars
         'config/config.c',
         'source/helper.c',
         'source/xrmoptions.c',
-        'source/x11-helper.c',
     ]),
     dependencies: deps,
 ))
@@ -395,7 +385,6 @@ if check.found()
             'config/config.c',
             'source/helper.c',
             'source/xrmoptions.c',
-            'source/x11-helper.c',
             'source/theme.c',
             'source/css-colors.c',
         ]),

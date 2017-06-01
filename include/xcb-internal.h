@@ -33,12 +33,17 @@
 
 #include <xcb/xcb.h>
 #include <xcb/xcb_ewmh.h>
+#include "libgwater-xcb.h"
+
+#include "nkutils-bindings.h"
 
 /**
  * Structure to keep xcb stuff around.
  */
 struct _xcb_stuff
 {
+    GMainLoop             *main_loop;
+    GWaterXcbSource       *source;
     xcb_connection_t      *connection;
     xcb_ewmh_connection_t ewmh;
     xcb_screen_t          *screen;
@@ -46,6 +51,16 @@ struct _xcb_stuff
     SnDisplay             *sndisplay;
     SnLauncheeContext     *sncontext;
     struct _workarea      *monitors;
+    struct
+    {
+        /** Flag indicating first event */
+        uint8_t first_event;
+        /** Keyboard device id */
+        int32_t device_id;
+    }              xkb;
+    NkBindings     *bindings;
+    NkBindingsSeat *bindings_seat;
+    gboolean    mouse_seen;
 };
 
 #endif

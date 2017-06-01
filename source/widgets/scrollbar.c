@@ -31,7 +31,6 @@
 #include "widgets/textbox.h"
 #include "widgets/listview.h"
 #include "widgets/scrollbar.h"
-#include "x11-helper.h"
 
 #include "theme.h"
 

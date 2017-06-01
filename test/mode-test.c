@@ -38,7 +38,7 @@
 #include <dialogs/help-keys.h>
 #include <xkbcommon/xkbcommon.h>
 #include "rofi.h"
-#include "x11-helper.h"
+#include "xcb.h"
 #include <keyb.h>
 #include <helper.h>
 

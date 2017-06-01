@@ -30,7 +30,6 @@
 #include <string.h>
 #include "rofi.h"
 #include "xrmoptions.h"
-#include "x11-helper.h"
 #include "mode.h"
 
 // This one should only be in mode implementations.
