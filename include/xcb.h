@@ -157,35 +157,6 @@ typedef struct _workarea
 int monitor_active ( workarea *mon );
 
 /**
- * Release keyboard grab on root window.
- */
-void release_keyboard ( void );
-/**
- * Release pointer grab on root window.
- */
-void release_pointer ( void );
-
-/**
- * @param w       xcb_window_t we want to grab keyboard on.
- * @param iters   Number of retries.
- *
- * Grab keyboard.
- *
- * @return 1 when keyboard is grabbed, 0 not.
- */
-int take_keyboard ( xcb_window_t w, int iters );
-
-/**
- * @param w       xcb_window_t we want to grab mouse on.
- * @param iters   Number of retries.
- *
- * Grab mouse.
- *
- * @return 1 when mouse is grabbed, 0 not.
- */
-int take_pointer ( xcb_window_t w, int iters );
-
-/**
  * @param main_loop The GMainLoop
  *
  * Setup several items required.
@@ -211,6 +182,8 @@ extern xcb_visualtype_t *visual;
 extern xcb_colormap_t map;
 
 gboolean x11_late_setup ( void );
+
+void x11_early_cleanup ( void );
 
 /**
  * Gets a surface containing the background image of the desktop.

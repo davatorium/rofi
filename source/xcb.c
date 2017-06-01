@@ -628,7 +628,7 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
     return G_SOURCE_CONTINUE;
 }
 
-int take_pointer ( xcb_window_t w, int iters )
+static int take_pointer ( xcb_window_t w, int iters )
 {
     int i = 0;
     while ( TRUE ) {
@@ -653,7 +653,8 @@ int take_pointer ( xcb_window_t w, int iters )
     }
     return 0;
 }
-int take_keyboard ( xcb_window_t w, int iters )
+
+static int take_keyboard ( xcb_window_t w, int iters )
 {
     int i = 0;
     while ( TRUE ) {
@@ -680,11 +681,11 @@ int take_keyboard ( xcb_window_t w, int iters )
     return 0;
 }
 
-void release_keyboard ( void )
+static void release_keyboard ( void )
 {
     xcb_ungrab_keyboard ( xcb->connection, XCB_CURRENT_TIME );
 }
-void release_pointer ( void )
+static void release_pointer ( void )
 {
     xcb_ungrab_pointer ( xcb->connection, XCB_CURRENT_TIME );
 }
@@ -958,6 +959,13 @@ gboolean x11_late_setup ( void )
 xcb_window_t xcb_stuff_get_root_window ( void )
 {
     return xcb->screen->root;
+}
+
+void x11_early_cleanup ( void )
+{
+    release_keyboard ( );
+    release_pointer ( );
+    xcb_flush ( xcb->connection );
 }
 
 void xcb_stuff_wipe ( void )

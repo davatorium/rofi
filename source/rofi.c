@@ -146,9 +146,7 @@ static void teardown ( int pfd )
     // Cleanup font setup.
     textbox_cleanup ( );
 
-    // Release the window.
-    release_keyboard ( );
-    release_pointer ( );
+    x11_early_cleanup ();
 
     // Cleanup view
     rofi_view_cleanup ();
