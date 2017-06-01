@@ -933,7 +933,7 @@ gboolean x11_late_setup ( void )
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
     if ( find_arg ( "-normal-window" ) >= 0 ) {
-        return;
+        return TRUE;
     }
     if ( find_arg ( "-no-lazy-grab" ) >= 0 ) {
         if ( !take_keyboard ( xcb_stuff_get_root_window (), 500 ) ) {
