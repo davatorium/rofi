@@ -425,13 +425,6 @@ static int dmenu_mode_init ( Mode *sw )
     // DMENU COMPATIBILITY
     find_arg_uint (  "-l", &( config.menu_lines ) );
 
-    /**
-     * Dmenu compatibility.
-     * `-b` put on bottom.
-     */
-    if ( find_arg ( "-b" ) >= 0 ) {
-        config.location = 6;
-    }
     /* -i case insensitive */
     config.case_sensitive = TRUE;
     if ( find_arg ( "-i" ) >= 0 ) {

@@ -38,6 +38,8 @@
 #include <glib.h>
 #include <cairo.h>
 #include <cairo-xcb.h>
+#include <pango/pango.h>
+#include <pango/pangocairo.h>
 #include <librsvg/rsvg.h>
 
 #include <xcb/xcb.h>
@@ -48,15 +50,19 @@
 #include <xcb/xcb_icccm.h>
 #include <xcb/xproto.h>
 #include <xcb/xkb.h>
+#include <xcb/xcb_xrm.h>
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-x11.h>
 #define SN_API_NOT_YET_FROZEN
 /* This function is declared as sn_launcher_context_set_application_id but implemented as sn_launcher_set_application_id */
 #define sn_launcher_context_set_application_id    sn_launcher_set_application_id
 #include <libsn/sn.h>
+#include "widgets/container.h"
 #include "display.h"
+#include "theme.h"
 #include "xcb-internal.h"
 #include "xcb.h"
+#include "xrmoptions.h"
 #include "settings.h"
 #include "helper.h"
 #include "timings.h"
@@ -75,7 +81,29 @@ struct _xcb_stuff xcb_int = {
     .screen_nbr =   -1,
     .sndisplay  = NULL,
     .sncontext  = NULL,
-    .monitors   = NULL
+    .monitors   = NULL,
+    .config = {
+        /**
+         * Location of the window.
+         * Enumeration indicating location or gravity of window.
+         *
+         * WL_NORTH_WEST      WL_NORTH      WL_NORTH_EAST
+         *
+         * WL_EAST            WL_CENTER     WL_EAST
+         *
+         * WL_SOUTH_WEST      WL_SOUTH      WL_SOUTH_EAST
+         *
+         */
+        .location          = WL_CENTER,
+        /** Y offset */
+        .y_offset          =                                   0,
+        /** X offset */
+        .x_offset          =                                   0,
+        /** Monitor */
+        .monitor           = "-5",
+        .fullscreen    = FALSE,
+        .dpi           =                                  -1,
+    },
 };
 xcb_stuff         *xcb = &xcb_int;
 
@@ -88,10 +116,21 @@ xcb_atom_t              netatoms[NUM_NETATOMS];
 const char              *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 
 /**
+ * Textual description of positioning rofi.
+ */
+const char *const monitor_position_entries[] = {
+    "on focused monitor",
+    "on focused window",
+    "at mouse pointer",
+    "on monitor with focused window",
+    "on monitor that has mouse pointer"
+};
+
+/**
  * Holds for each supported modifier the possible modifier mask.
  * Check x11_mod_masks[MODIFIER]&mask != 0 to see if MODIFIER is activated.
  */
-cairo_surface_t *x11_helper_get_screenshot_surface ( void )
+static cairo_surface_t *x11_helper_get_screenshot_surface ( void )
 {
     return cairo_xcb_surface_create ( xcb->connection,
                                       xcb_stuff_get_root_window (), xcb->root_visual,
@@ -126,7 +165,7 @@ static xcb_pixmap_t get_root_pixmap ( xcb_connection_t *c,
     return rootpixmap;
 }
 
-cairo_surface_t * x11_helper_get_bg_surface ( void )
+static cairo_surface_t * x11_helper_get_bg_surface ( void )
 {
     xcb_pixmap_t pm = get_root_pixmap ( xcb->connection, xcb->screen, netatoms[ESETROOT_PMAP_ID] );
     if ( pm == XCB_NONE ) {
@@ -535,18 +574,18 @@ static int monitor_active_from_id ( int mon_id, workarea *mon )
 }
 
 // determine which monitor holds the active window, or failing that the mouse pointer
-int monitor_active ( workarea *mon )
+static int monitor_active ( workarea *mon )
 {
-    if ( config.monitor != NULL ) {
+    if ( xcb->config.monitor != NULL ) {
         for ( workarea *iter = xcb->monitors; iter; iter = iter->next ) {
-            if ( g_strcmp0 ( config.monitor, iter->name ) == 0 ) {
+            if ( g_strcmp0 ( xcb->config.monitor, iter->name ) == 0 ) {
                 *mon = *iter;
                 return TRUE;
             }
         }
     }
     // Grab primary.
-    if ( g_strcmp0 ( config.monitor, "primary" ) == 0 ) {
+    if ( g_strcmp0 ( xcb->config.monitor, "primary" ) == 0 ) {
         for ( workarea *iter = xcb->monitors; iter; iter = iter->next ) {
             if ( iter->primary ) {
                 *mon = *iter;
@@ -556,8 +595,8 @@ int monitor_active ( workarea *mon )
     }
     // IF fail, fall back to classic mode.
     char   *end   = NULL;
-    gint64 mon_id = g_ascii_strtoll ( config.monitor, &end, 0 );
-    if ( end != config.monitor ) {
+    gint64 mon_id = g_ascii_strtoll ( xcb->config.monitor, &end, 0 );
+    if ( end != xcb->config.monitor ) {
         if ( mon_id >= 0 ) {
             if ( monitor_get_dimension ( mon_id, mon ) ) {
                 return TRUE;
@@ -573,6 +612,22 @@ int monitor_active ( workarea *mon )
     return FALSE;
 }
 
+
+void display_get_current_monitor ( gint *width, gint *height )
+{
+    if ( width ) {
+        *width = xcb->mon.w;
+    }
+    if ( height ) {
+        *height = xcb->mon.h;
+    }
+}
+
+gboolean display_reversed ( widget *main_box )
+{
+    int location = rofi_theme_get_position ( main_box, "location", xcb->config.location );
+    return ( location == WL_SOUTH_EAST || location == WL_SOUTH || location == WL_SOUTH_WEST );
+}
 /**
  * @param state Internal state of the menu.
  * @param xse   X selection event.
@@ -622,9 +677,9 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
     {
         xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
         if ( xce->window == xcb->main_window ) {
-            if ( state->x != xce->x || state->y != xce->y ) {
-                state->x = xce->x;
-                state->y = xce->y;
+            if ( xcb->x != xce->x || xcb->y != xce->y ) {
+                xcb->x = xce->x;
+                xcb->y = xce->y;
                 rofi_view_queue_redraw ();
             }
             rofi_view_set_size(state, xce->width, xce->height);
@@ -654,7 +709,7 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
         xcb->last_timestamp = bre->time;
         nk_bindings_seat_handle_button ( xcb->bindings_seat, bre->detail, NK_BINDINGS_BUTTON_STATE_RELEASE, bre->time );
         if ( config.click_to_exit == TRUE ) {
-            if ( ! xcb->mouse_seen && !xcb->normal_window && bre->event != xcb->main_window) {
+            if ( ! xcb->mouse_seen && !xcb->config.normal_window && bre->event != xcb->main_window) {
                 rofi_view_quit ( state );
             }
             xcb->mouse_seen = FALSE;
@@ -994,6 +1049,35 @@ gboolean display_setup ( GMainLoop *main_loop, NkBindings *bindings )
         return FALSE;
     }
 
+    struct
+    {
+        int        type;
+        const char * name;
+        gpointer pointer;
+        const char        *comment;
+    } options[] = {
+        { xrm_Number,  "location",          &xcb->config.location               ,
+          "Location on screen" },
+
+        { xrm_SNumber, "yoffset",            &xcb->config.y_offset               ,
+          "Y-offset relative to location" },
+        { xrm_SNumber, "xoffset",           &xcb->config.x_offset               ,
+          "X-offset relative to location" },
+        { xrm_String,  "monitor",           &xcb->config.monitor                ,
+          "" },
+        /* Alias for dmenu compatibility. */
+        { xrm_String,  "m",                 &xcb->config.monitor                ,
+          "Monitor id to show on" },
+        { xrm_Boolean, "fullscreen",       &xcb->config.fullscreen             ,
+          "Fullscreen" },
+        { xrm_SNumber, "dpi",               &xcb->config.dpi                    ,
+          "DPI" },
+    };
+
+    for ( gsize i = 0 ; i < G_N_ELEMENTS(options) ; ++i )
+        config_parser_add_option ( options[i].type, options[i].name, options[i].pointer, options[i].comment );
+
+
     return TRUE;
 }
 
@@ -1017,11 +1101,11 @@ static void x11_create_visual_and_colormap ( void )
             }
         }
     }
-    if ( visual != NULL ) {
+    if ( xcb->visual != NULL ) {
         xcb_void_cookie_t   c;
         xcb_generic_error_t *e;
-        map = xcb_generate_id ( xcb->connection );
-        c   = xcb_create_colormap_checked ( xcb->connection, XCB_COLORMAP_ALLOC_NONE, map, xcb->screen->root, visual->visual_id );
+        xcb->map = xcb_generate_id ( xcb->connection );
+        c   = xcb_create_colormap_checked ( xcb->connection, XCB_COLORMAP_ALLOC_NONE, xcb->map, xcb->screen->root, xcb->visual->visual_id );
         e   = xcb_request_check ( xcb->connection, c );
         if ( e ) {
             xcb->depth  = NULL;
@@ -1069,6 +1153,57 @@ static gboolean lazy_grab_keyboard ( G_GNUC_UNUSED gpointer data )
     return G_SOURCE_CONTINUE;
 }
 
+static void rofi_view_setup_fake_transparency ( const char* const fake_background )
+{
+    if ( xcb->fake_bg == NULL ) {
+        cairo_surface_t *s = NULL;
+        /**
+         * Select Background to use for fake transparency.
+         * Current options: 'real', 'screenshot','background'
+         */
+        TICK_N ( "Fake start" );
+        if ( g_strcmp0 ( fake_background, "real" ) == 0 ) {
+            return;
+        }
+        else if ( g_strcmp0 ( fake_background, "screenshot" ) == 0 ) {
+            s = x11_helper_get_screenshot_surface ();
+        }
+        else if ( g_strcmp0 ( fake_background, "background" ) == 0 ) {
+            s = x11_helper_get_bg_surface ();
+        }
+        else {
+            char *fpath = rofi_expand_path ( fake_background );
+            g_debug ( "Opening %s to use as background.", fpath );
+            s                     = cairo_image_surface_create_from_png ( fpath );
+            xcb->config.fake_bgrel = TRUE;
+            g_free ( fpath );
+        }
+        TICK_N ( "Get surface." );
+        if ( s != NULL ) {
+            if ( cairo_surface_status ( s ) != CAIRO_STATUS_SUCCESS ) {
+                g_debug ( "Failed to open surface fake background: %s",
+                          cairo_status_to_string ( cairo_surface_status ( s ) ) );
+                cairo_surface_destroy ( s );
+                s = NULL;
+            }
+            else {
+                xcb->fake_bg = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, xcb->mon.w, xcb->mon.h );
+                cairo_t *dr = cairo_create ( xcb->fake_bg );
+                if ( xcb->config.fake_bgrel ) {
+                    cairo_set_source_surface ( dr, s, 0, 0 );
+                }
+                else {
+                    cairo_set_source_surface ( dr, s, -xcb->mon.x, -xcb->mon.y );
+                }
+                cairo_paint ( dr );
+                cairo_destroy ( dr );
+                cairo_surface_destroy ( s );
+            }
+        }
+        TICK_N ( "Fake transparency" );
+    }
+}
+
 gboolean display_late_setup ( void )
 {
     x11_create_visual_and_colormap ();
@@ -1079,7 +1214,7 @@ gboolean display_late_setup ( void )
     // Try to grab the keyboard as early as possible.
     // We grab this using the rootwindow (as dmenu does it).
     // this seems to result in the smallest delay for most people.
-    xcb->normal_window = ( find_arg ( "-normal-window" ) >= 0 );
+    xcb->config.normal_window = ( find_arg ( "-normal-window" ) >= 0 );
 
     uint32_t          selmask  = 0;
     uint32_t          selval[7];
@@ -1097,7 +1232,7 @@ gboolean display_late_setup ( void )
     selmask |= XCB_CW_BACKING_STORE;
     selval[i++] = XCB_BACKING_STORE_NOT_USEFUL;
 
-    if ( ! xcb->normal_window )
+    if ( ! xcb->config.normal_window )
     {
         selmask |= XCB_CW_OVERRIDE_REDIRECT;
         selval[i++] = 1;
@@ -1147,7 +1282,9 @@ gboolean display_late_setup ( void )
         g_free ( ahost );
     }
 
-    if ( xcb->normal_window ) {
+    TICK_N ( "setup window name and class" );
+
+    if ( xcb->config.normal_window ) {
         window_set_atom_prop ( xcb->main_window, xcb->ewmh._NET_WM_WINDOW_TYPE, &( xcb->ewmh._NET_WM_WINDOW_TYPE_NORMAL ), 1 );
 
         // Flag used to indicate we are setting the decoration type.
@@ -1171,29 +1308,105 @@ gboolean display_late_setup ( void )
 
         xcb_atom_t ha = netatoms[_MOTIF_WM_HINTS];
         xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, xcb->main_window, ha, ha, 32, 5, &hints );
-
-        return TRUE;
-    }
-
-    window_set_atom_prop ( xcb->main_window, xcb->ewmh._NET_WM_STATE, &( xcb->ewmh._NET_WM_STATE_ABOVE ), 1 );
-
-    if ( find_arg ( "-no-lazy-grab" ) >= 0 ) {
-        if ( !take_keyboard ( xcb_stuff_get_root_window (), 500 ) ) {
-            g_warning ( "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
-            return FALSE;
-        }
-        if ( !take_pointer ( xcb_stuff_get_root_window (), 100 ) ) {
-            g_warning ( "Failed to grab mouse pointer, even after %d uS.", 100 * 1000 );
-        }
     }
     else {
-        if ( !take_keyboard ( xcb_stuff_get_root_window (), 0 ) ) {
-            g_timeout_add ( 1, lazy_grab_keyboard, NULL );
+        window_set_atom_prop ( xcb->main_window, xcb->ewmh._NET_WM_STATE, &( xcb->ewmh._NET_WM_STATE_ABOVE ), 1 );
+
+        if ( find_arg ( "-no-lazy-grab" ) >= 0 ) {
+            if ( !take_keyboard ( xcb_stuff_get_root_window (), 500 ) ) {
+                g_warning ( "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
+                return FALSE;
+            }
+            if ( !take_pointer ( xcb_stuff_get_root_window (), 100 ) ) {
+                g_warning ( "Failed to grab mouse pointer, even after %d uS.", 100 * 1000 );
+            }
         }
-        if ( !take_pointer ( xcb_stuff_get_root_window (), 0 ) ) {
-            g_timeout_add ( 1, lazy_grab_pointer, NULL );
+        else {
+            if ( !take_keyboard ( xcb_stuff_get_root_window (), 0 ) ) {
+                g_timeout_add ( 1, lazy_grab_keyboard, NULL );
+            }
+            if ( !take_pointer ( xcb_stuff_get_root_window (), 0 ) ) {
+                g_timeout_add ( 1, lazy_grab_pointer, NULL );
+            }
         }
     }
+
+    container  *win  = container_create ( "window.box" );
+
+    xcb->config.fullscreen = rofi_theme_get_boolean ( WIDGET ( win ), "fullscreen", xcb->config.fullscreen );
+    if ( xcb->config.fullscreen ) {
+        xcb_atom_t atoms[] = {
+            xcb->ewmh._NET_WM_STATE_FULLSCREEN,
+            xcb->ewmh._NET_WM_STATE_ABOVE
+        };
+        window_set_atom_prop (  xcb->main_window, xcb->ewmh._NET_WM_STATE, atoms, sizeof ( atoms ) / sizeof ( xcb_atom_t ) );
+    }
+
+    TICK_N ( "setup window fullscreen" );
+
+    const char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
+    if ( transparency ) {
+        rofi_view_setup_fake_transparency ( transparency  );
+    }
+
+    widget_free ( WIDGET ( win ) );
+    // Setup dpi
+    if ( xcb->config.dpi > 1 ) {
+        PangoFontMap *font_map = pango_cairo_font_map_get_default ();
+        pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, (double) xcb->config.dpi );
+    }
+    else if  ( xcb->config.dpi == 0 || xcb->config.dpi == 1 ) {
+        // Auto-detect mode.
+        double dpi = 96;
+        if ( xcb->mon.mh > 0 && xcb->config.dpi == 1 ) {
+            dpi = ( xcb->mon.h * 25.4 ) / (double) ( xcb->mon.mh );
+        }
+        else {
+            dpi = ( xcb->screen->height_in_pixels * 25.4 ) / (double) ( xcb->screen->height_in_millimeters );
+        }
+
+        g_debug ( "Auto-detected DPI: %.2lf", dpi );
+        PangoFontMap *font_map = pango_cairo_font_map_get_default ();
+        pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, dpi );
+    }
+
+    // Check size
+    {
+        if ( !monitor_active ( &xcb->mon ) ) {
+            const char *name = xcb->config.monitor;
+            if ( name && name[0] == '-' ) {
+                int index = name[1] - '0';
+                if ( index < 5 && index > 0 ) {
+                    name = monitor_position_entries[index - 1];
+                }
+            }
+            //FIXME: g_string_append_printf ( msg, "\t<b>config.monitor</b>=%s Could not find monitor.\n", name );
+            //FIXME: found_error = TRUE;
+            return FALSE;
+        }
+    }
+
+    /**
+     * Dmenu compatibility.
+     * `-b` put on bottom.
+     */
+    if ( find_arg ("-dmenu") >= 0 && find_arg ( "-b" ) >= 0 ) {
+        xcb->config.location = 6;
+    }
+
+    if ( !( xcb->config.location >= WL_CENTER && xcb->config.location <= WL_WEST ) ) {
+        //FIXME: g_string_append_printf ( msg, "\t<b>config.location</b>=%d is invalid. Value should be between %d and %d.\n",
+        //                         xcb->config.location, WL_CENTER, WL_WEST );
+        xcb->config.location = WL_CENTER;
+        //FIXME: found_error     = 1;
+    }
+
+    if ( g_strcmp0 ( xcb->config.monitor, "-3" ) == 0 ) {
+        // On -3, set to location 1.
+        xcb->config.location   = 1;
+        xcb->config.fullscreen = 0;
+    }
+
     return TRUE;
 }
 
@@ -1208,14 +1421,19 @@ void display_early_cleanup ( void )
     xcb_unmap_window ( xcb->connection, xcb->main_window );
     xcb_destroy_window ( xcb->connection, xcb->main_window );
 
-    if ( map != XCB_COLORMAP_NONE ) {
-        xcb_free_colormap ( xcb->connection, map );
-        map = XCB_COLORMAP_NONE;
+    if ( xcb->map != XCB_COLORMAP_NONE ) {
+        xcb_free_colormap ( xcb->connection, xcb->map );
+        xcb->map = XCB_COLORMAP_NONE;
     }
 
     release_keyboard ( );
     release_pointer ( );
     xcb_flush ( xcb->connection );
+
+    if ( xcb->fake_bg ) {
+        cairo_surface_destroy ( xcb->fake_bg );
+        xcb->fake_bg = NULL;
+    }
 }
 
 void display_cleanup ( void )
@@ -1246,35 +1464,10 @@ void display_cleanup ( void )
     xcb->screen_nbr = 0;
 }
 
-void x11_disable_decoration ( xcb_window_t window )
-{
-    // Flag used to indicate we are setting the decoration type.
-    const uint32_t MWM_HINTS_DECORATIONS = ( 1 << 1 );
-    // Motif property data structure
-    struct MotifWMHints
-    {
-        uint32_t flags;
-        uint32_t functions;
-        uint32_t decorations;
-        int32_t  inputMode;
-        uint32_t state;
-    };
-
-    struct MotifWMHints hints;
-    hints.flags       = MWM_HINTS_DECORATIONS;
-    hints.decorations = 0;
-    hints.functions   = 0;
-    hints.inputMode   = 0;
-    hints.state       = 0;
-
-    xcb_atom_t ha = netatoms[_MOTIF_WM_HINTS];
-    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, window, ha, ha, 32, 5, &hints );
-}
-
 display_buffer_pool *display_buffer_pool_new(gint width, gint height)
 {
     uint16_t          selmask  =  XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
-    uint32_t          selval[] = { xcb->width, xcb->height};
+    uint32_t          selval[] = { width, height };
 
     xcb_configure_window(xcb->connection, xcb->main_window, selmask, selval);
 
@@ -1307,6 +1500,28 @@ cairo_surface_t *display_buffer_pool_get_next_buffer(display_buffer_pool *pool)
 
     cairo_surface_set_user_data(surface, &xcb_user_data_pixmap, GUINT_TO_POINTER(p), NULL);
     cairo_surface_set_user_data(surface, &xcb_user_data_pool, pool, NULL);
+
+    cairo_t *d = cairo_create ( surface );
+    cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
+    if ( xcb->fake_bg != NULL ) {
+        if ( xcb->config.fake_bgrel ) {
+            cairo_set_source_surface ( d, xcb->fake_bg, 0.0, 0.0 );
+        }
+        else {
+            cairo_set_source_surface ( d, xcb->fake_bg,
+                                       -(double) ( xcb->x - xcb->mon.x ),
+                                       -(double) ( xcb->y - xcb->mon.y ) );
+        }
+        cairo_paint ( d );
+        cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
+    }
+    else {
+        // Paint the background transparent.
+        cairo_set_source_rgba ( d, 0, 0, 0, 0.0 );
+        cairo_paint ( d );
+    }
+    cairo_destroy ( d );
+
     return surface;
 }
 
@@ -1352,4 +1567,132 @@ void display_trigger_paste(gboolean primary)
                             xcb->ewmh.UTF8_STRING, xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME );
     }
     xcb_flush ( xcb->connection );
+}
+
+gint display_get_view_width ( widget *main_box )
+{
+    if ( xcb->config.fullscreen ) {
+        return xcb->mon.w;
+    }
+    gint width;
+    if ( config.menu_width < 0 ) {
+        double fw = textbox_get_estimated_char_width ( );
+        width  = -( fw * config.menu_width );
+        width += widget_padding_get_padding_width ( main_box );
+    }
+    else{
+        // Calculate as float to stop silly, big rounding down errors.
+        width = config.menu_width < 101 ? ( xcb->mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
+    }
+    // Use theme configured width, if set.
+    Distance w = rofi_theme_get_distance ( main_box, "width", width );
+    return distance_get_pixel ( w, ORIENTATION_HORIZONTAL );
+}
+
+gint display_get_view_height ( widget *main_box, listview *list_view )
+{
+    unsigned int height = 0;
+    if ( listview_get_num_lines ( list_view ) == 0 || xcb->config.fullscreen == TRUE ) {
+        return xcb->mon.h;
+        return height;
+    }
+
+    return widget_get_desired_height ( main_box );
+}
+
+/**
+ * Calculates the window position
+ */
+void display_update_view_position ( widget *main_box, listview *list_view, gint width, gint height )
+{
+    int location = rofi_theme_get_position ( main_box, "location", xcb->config.location );
+    int anchor   = location;
+    if ( !listview_get_fixed_num_lines ( list_view ) ) {
+        anchor = location;
+        if ( location == WL_CENTER ) {
+            anchor = WL_NORTH;
+        }
+        else if ( location == WL_EAST ) {
+            anchor = WL_NORTH_EAST;
+        }
+        else if ( location == WL_WEST ) {
+            anchor = WL_NORTH_WEST;
+        }
+    }
+    anchor = rofi_theme_get_position ( main_box, "anchor", anchor );
+
+    if ( xcb->config.fullscreen ) {
+        xcb->x = xcb->mon.x;
+        xcb->y = xcb->mon.y;
+        return;
+    }
+    xcb->y = xcb->mon.y + ( xcb->mon.h ) / 2;
+    xcb->x = xcb->mon.x + ( xcb->mon.w ) / 2;
+    // Determine window location
+    switch ( location )
+    {
+    case WL_NORTH_WEST:
+        xcb->x = xcb->mon.x;
+    case WL_NORTH:
+        xcb->y = xcb->mon.y;
+        break;
+    case WL_NORTH_EAST:
+        xcb->y = xcb->mon.y;
+    case WL_EAST:
+        xcb->x = xcb->mon.x + xcb->mon.w;
+        break;
+    case WL_SOUTH_EAST:
+        xcb->x = xcb->mon.x + xcb->mon.w;
+    case WL_SOUTH:
+        xcb->y = xcb->mon.y + xcb->mon.h;
+        break;
+    case WL_SOUTH_WEST:
+        xcb->y = xcb->mon.y + xcb->mon.h;
+    case WL_WEST:
+        xcb->x = xcb->mon.x;
+        break;
+    case WL_CENTER:
+    default:
+        break;
+    }
+    switch ( anchor )
+    {
+    case WL_SOUTH_WEST:
+        xcb->y -= height;
+        break;
+    case WL_SOUTH:
+        xcb->x -= width / 2;
+        xcb->y -= height;
+        break;
+    case WL_SOUTH_EAST:
+        xcb->x -= width;
+        xcb->y -= height;
+        break;
+    case WL_NORTH_EAST:
+        xcb->x -= width;
+        break;
+    case WL_NORTH_WEST:
+        break;
+    case WL_NORTH:
+        xcb->x -= width / 2;
+        break;
+    case WL_EAST:
+        xcb->x -= width;
+        xcb->y -= height / 2;
+        break;
+    case WL_WEST:
+        xcb->y -= height / 2;
+        break;
+    case WL_CENTER:
+        xcb->y -= height / 2;
+        xcb->x -= width / 2;
+        break;
+    default:
+        break;
+    }
+    // Apply offset.
+    Distance x = rofi_theme_get_distance ( main_box, "x-offset", xcb->config.x_offset );
+    Distance y = rofi_theme_get_distance ( main_box, "y-offset", xcb->config.y_offset );
+    xcb->x += distance_get_pixel ( x, ORIENTATION_HORIZONTAL );
+    xcb->y += distance_get_pixel ( y, ORIENTATION_VERTICAL );
 }

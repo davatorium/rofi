@@ -48,21 +48,17 @@
 void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {
 }
-int monitor_active ( G_GNUC_UNUSED workarea *d )
-{
-    return 0;
-}
+
 int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
 {
     fputs ( msg, stderr );
     return TRUE;
 }
-int textbox_get_estimated_char_height ( void );
-int textbox_get_estimated_char_height ( void )
+double textbox_get_estimated_char_height ( void )
 {
     return 16;
 }
-void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
+void display_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
 {
 
 }

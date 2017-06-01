@@ -119,50 +119,37 @@ typedef struct _workarea
     struct _workarea *next;
 } workarea;
 
-/**
- * @param mon workarea to be filled in.
- *
- * Fills in #mon with the information about the monitor rofi should show on.
- *
- * @returns TRUE if monitor is found, FALSE if no monitor could be detected.
- */
-int monitor_active ( workarea *mon );
 
 /**
- * Depth of visual
- */
-extern xcb_depth_t *depth;
-/**
- * Visual to use for creating window
- */
-extern xcb_visualtype_t *visual;
-/**
- * Color map to use for creating window
- */
-extern xcb_colormap_t map;
-
-/**
- * Gets a surface containing the background image of the desktop.
+ * Enumeration indicating location or gravity of window.
  *
- * @returns a cairo surface with the background image of the desktop.
- */
-cairo_surface_t * x11_helper_get_bg_surface ( void );
-/**
- * Gets a surface for the root window of the desktop.
+ * \verbatim WL_NORTH_WEST      WL_NORTH      WL_NORTH_EAST \endverbatim
+ * \verbatim WL_EAST            WL_CENTER     WL_EAST \endverbatim
+ * \verbatim WL_SOUTH_WEST      WL_SOUTH      WL_SOUTH_EAST\endverbatim
  *
- * Can be used to take screenshot.
- *
- * @returns a cairo surface for the root window of the desktop.
+ * @ingroup CONFIGURATION
  */
-cairo_surface_t *x11_helper_get_screenshot_surface ( void );
-
-/**
- * @param window The X11 window to modify
- *
- * Set the right hints to disable the window decoration.
- * (Set MOTIF_WM_HINTS, decoration field)
- */
-void x11_disable_decoration ( xcb_window_t window );
+typedef enum
+{
+    /** Center */
+    WL_CENTER     = 0,
+    /** Top middle */
+    WL_NORTH      = 1,
+    /** Middle right */
+    WL_EAST       = 2,
+    /** Bottom middle */
+    WL_SOUTH      = 4,
+    /** Middle left */
+    WL_WEST       = 8,
+    /** Left top corner. */
+    WL_NORTH_WEST = WL_NORTH | WL_WEST,
+    /** Top right */
+    WL_NORTH_EAST = WL_NORTH | WL_EAST,
+    /** Bottom right */
+    WL_SOUTH_EAST = WL_SOUTH | WL_EAST,
+    /** Bottom left */
+    WL_SOUTH_WEST = WL_SOUTH | WL_WEST,
+} WindowLocation;
 
 /**
  * List of window managers that need different behaviour to functioning.

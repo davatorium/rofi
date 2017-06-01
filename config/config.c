@@ -62,22 +62,6 @@ Settings config = {
     .window_command    = "xkill -id {window}",
     /** Sane default for an icon theme */
     .drun_icon_theme   = "gnome",
-    /**
-     * Location of the window.
-     * Enumeration indicating location or gravity of window.
-     *
-     * WL_NORTH_WEST      WL_NORTH      WL_NORTH_EAST
-     *
-     * WL_EAST            WL_CENTER     WL_EAST
-     *
-     * WL_SOUTH_WEST      WL_SOUTH      WL_SOUTH_EAST
-     *
-     */
-    .location          = WL_CENTER,
-    /** Y offset */
-    .y_offset          =                                   0,
-    /** X offset */
-    .x_offset          =                                   0,
     /** Always show config.menu_lines lines, even if less lines are available */
     .fixed_num_lines   = TRUE,
     /** Do not use history */
@@ -105,12 +89,8 @@ Settings config = {
     .tokenize        = TRUE,
     .matching        = "normal",
     .matching_method = MM_NORMAL,
-    /** Monitor */
-    .monitor           = "-5",
     /** Set filter */
     .filter        = NULL,
-    .fullscreen    = FALSE,
-    .dpi           =                                  -1,
     .threads       =                                   0,
     .scroll_method =                                   0,
     .window_format = "{w}    {i}{c}   {t}",

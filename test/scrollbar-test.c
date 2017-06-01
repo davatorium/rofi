@@ -38,6 +38,7 @@
 #include <widgets/widget.h>
 #include <widgets/widget-internal.h>
 #include "rofi.h"
+#include "display.h"
 #include "xrmoptions.h"
 #include "helper.h"
 unsigned int test =0;
@@ -78,7 +79,7 @@ void listview_set_selected ( G_GNUC_UNUSED listview *lv, G_GNUC_UNUSED unsigned 
 {
 
 }
-void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
+void display_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
 {
 
 }

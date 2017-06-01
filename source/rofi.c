@@ -909,7 +909,8 @@ int main ( int argc, char *argv[] )
     // SIGINT
     g_unix_signal_add ( SIGINT, main_loop_signal_handler_int, NULL );
 
-    g_idle_add ( startup, NULL );
+    //g_idle_add ( startup, NULL );
+    startup(NULL);
 
     // Start mainloop.
     g_main_loop_run ( main_loop );

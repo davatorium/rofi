@@ -94,13 +94,6 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "font",              { .str  = &config.menu_font              }, NULL,
       "Font to use", CONFIG_DEFAULT },
 
-    { xrm_Number,  "location",          { .num  = &config.location               }, NULL,
-      "Location on screen", CONFIG_DEFAULT },
-
-    { xrm_SNumber, "yoffset",           { .snum = &config.y_offset               }, NULL,
-      "Y-offset relative to location", CONFIG_DEFAULT },
-    { xrm_SNumber, "xoffset",           { .snum = &config.x_offset               }, NULL,
-      "X-offset relative to location", CONFIG_DEFAULT },
     { xrm_Boolean, "fixed-num-lines",   { .num  = &config.fixed_num_lines        }, NULL,
       "Always show number of lines", CONFIG_DEFAULT },
 
@@ -150,17 +143,8 @@ static XrmOption xrmOptions[] = {
       "Set the matching algorithm. (normal, regex, glob, fuzzy)", CONFIG_DEFAULT },
     { xrm_Boolean, "tokenize",          { .num  = &config.tokenize               }, NULL,
       "Tokenize input string", CONFIG_DEFAULT },
-    { xrm_String,  "monitor",           { .str  = &config.monitor                }, NULL,
-      "", CONFIG_DEFAULT },
-    /* Alias for dmenu compatibility. */
-    { xrm_String,  "m",                 { .str  = &config.monitor                }, NULL,
-      "Monitor id to show on", CONFIG_DEFAULT },
     { xrm_String,  "filter",            { .str  = &config.filter                 }, NULL,
       "Pre-set filter", CONFIG_DEFAULT },
-    { xrm_Boolean, "fullscreen",        { .num  = &config.fullscreen             }, NULL,
-      "Fullscreen", CONFIG_DEFAULT },
-    { xrm_SNumber, "dpi",               { .snum = &config.dpi                    }, NULL,
-      "DPI", CONFIG_DEFAULT },
     { xrm_Number,  "threads",           { .num  = &config.threads                }, NULL,
       "Threads to use for string matching", CONFIG_DEFAULT },
     { xrm_Number,  "scroll-method",     { .num  = &config.scroll_method          }, NULL,

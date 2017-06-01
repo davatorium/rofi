@@ -36,6 +36,7 @@
 #include <widgets/widget.h>
 #include <widgets/widget-internal.h>
 #include "rofi.h"
+#include "display.h"
 #include "xrmoptions.h"
 #include "helper.h"
 unsigned int test =0;
@@ -77,12 +78,11 @@ char * helper_get_theme_path ( const char *file )
 void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {
 }
-int textbox_get_estimated_char_height ( void );
-int textbox_get_estimated_char_height ( void )
+double textbox_get_estimated_char_height ( void )
 {
     return 16;
 }
-void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
+void display_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
 {
 
 }

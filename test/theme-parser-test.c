@@ -52,7 +52,7 @@ int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
     return TRUE;
 }
 
-void rofi_view_get_current_monitor ( int *width, int *height )
+void display_get_current_monitor ( int *width, int *height )
 {
     if ( width ) {
         *width = 1920;
@@ -64,11 +64,6 @@ void rofi_view_get_current_monitor ( int *width, int *height )
 double textbox_get_estimated_char_height ( void )
 {
     return 16.0;
-}
-
-int monitor_active ( G_GNUC_UNUSED workarea *mon )
-{
-    return 0;
 }
 
 void display_startup_notification ( G_GNUC_UNUSED RofiHelperExecuteContext *context, G_GNUC_UNUSED GSpawnChildSetupFunc *child_setup, G_GNUC_UNUSED gpointer *user_data )
@@ -1055,7 +1050,6 @@ START_TEST ( test_configuration )
 {
     rofi_theme_parse_string ( "configuration { font: \"blaat€\"; yoffset: 4; }");
     ck_assert_int_eq ( g_utf8_collate ( config.menu_font, "blaat€" ) , 0 );
-    ck_assert_int_eq ( config.y_offset , 4 );
 }
 END_TEST
 

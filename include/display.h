@@ -30,6 +30,9 @@
 
 #include <glib.h>
 #include <cairo.h>
+#include "widgets/widget.h"
+#include "widgets/textbox.h"
+#include "widgets/listview.h"
 #include "helper.h"
 #include "nkutils-bindings.h"
 
@@ -66,6 +69,8 @@ void display_cleanup(void);
  * Dumps the display layout for -help output
  */
 void display_dump_monitor_layout ( void );
+void display_get_current_monitor ( int *width, int *height );
+gboolean display_reversed ( widget *main_box );
 
 /**
  * @param context The startup notification context for the application to launch
@@ -84,5 +89,10 @@ void display_surface_commit(cairo_surface_t *surface);
 void display_surface_drop(cairo_surface_t *surface);
 
 void display_trigger_paste(gboolean primary);
+
+gint display_get_view_width ( widget *main_box );
+gint display_get_view_height ( widget *main_box, listview *list_view );
+void display_update_view_position ( widget *main_box, listview *list_view, gint width, gint height );
+
 
 #endif

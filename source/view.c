@@ -88,51 +88,30 @@ RofiViewState *current_active_menu = NULL;
  */
 struct
 {
-    /** surface containing the fake background. */
-    cairo_surface_t    *fake_bg;
     display_buffer_pool *pool;
     /** Cairo Surface for edit_pixmap */
     cairo_surface_t    *edit_surf;
     /** Drawable context for edit_surf */
     cairo_t            *edit_draw;
-    /** Indicate that fake background should be drawn relative to the window */
-    int                fake_bgrel;
     /** Main flags */
     MenuFlags          flags;
     /** List of stacked views */
     GQueue             views;
-    /** Current work area */
-    workarea           mon;
     /** timeout for reloading */
     guint              idle_timeout;
     /** debug counter for redraws */
     unsigned long long count;
     /** redraw idle time. */
     guint              repaint_source;
-    /** Window fullscreen */
-    gboolean           fullscreen;
 } CacheState = {
-    .fake_bg        = NULL,
     .edit_surf      = NULL,
     .edit_draw      = NULL,
-    .fake_bgrel     = FALSE,
     .flags          = MENU_NORMAL,
     .views          = G_QUEUE_INIT,
     .idle_timeout   =               0,
     .count          =              0L,
     .repaint_source =               0,
-    .fullscreen     = FALSE,
 };
-
-void rofi_view_get_current_monitor ( int *width, int *height )
-{
-    if ( width ) {
-        *width = CacheState.mon.w;
-    }
-    if ( height ) {
-        *height = CacheState.mon.h;
-    }
-}
 static char * get_matching_state ( void )
 {
     if ( config.case_sensitive ) {
@@ -246,101 +225,9 @@ static void rofi_view_update_prompt ( RofiViewState *state )
     }
 }
 
-/**
- * Calculates the window position
- */
-static void rofi_view_calculate_window_position ( RofiViewState *state )
+static void rofi_view_calculate_window_position ( RofiViewState * state )
 {
-    int location = rofi_theme_get_position ( WIDGET ( state->main_window ), "location", config.location );
-    int anchor   = location;
-    if ( !listview_get_fixed_num_lines ( state->list_view ) ) {
-        anchor = location;
-        if ( location == WL_CENTER ) {
-            anchor = WL_NORTH;
-        }
-        else if ( location == WL_EAST ) {
-            anchor = WL_NORTH_EAST;
-        }
-        else if ( location == WL_WEST ) {
-            anchor = WL_NORTH_WEST;
-        }
-    }
-    anchor = rofi_theme_get_position ( WIDGET ( state->main_window ), "anchor", anchor );
-
-    if ( CacheState.fullscreen ) {
-        state->x = CacheState.mon.x;
-        state->y = CacheState.mon.y;
-        return;
-    }
-    state->y = CacheState.mon.y + ( CacheState.mon.h ) / 2;
-    state->x = CacheState.mon.x + ( CacheState.mon.w ) / 2;
-    // Determine window location
-    switch ( location )
-    {
-    case WL_NORTH_WEST:
-        state->x = CacheState.mon.x;
-    case WL_NORTH:
-        state->y = CacheState.mon.y;
-        break;
-    case WL_NORTH_EAST:
-        state->y = CacheState.mon.y;
-    case WL_EAST:
-        state->x = CacheState.mon.x + CacheState.mon.w;
-        break;
-    case WL_SOUTH_EAST:
-        state->x = CacheState.mon.x + CacheState.mon.w;
-    case WL_SOUTH:
-        state->y = CacheState.mon.y + CacheState.mon.h;
-        break;
-    case WL_SOUTH_WEST:
-        state->y = CacheState.mon.y + CacheState.mon.h;
-    case WL_WEST:
-        state->x = CacheState.mon.x;
-        break;
-    case WL_CENTER:
-    default:
-        break;
-    }
-    switch ( anchor )
-    {
-    case WL_SOUTH_WEST:
-        state->y -= state->height;
-        break;
-    case WL_SOUTH:
-        state->x -= state->width / 2;
-        state->y -= state->height;
-        break;
-    case WL_SOUTH_EAST:
-        state->x -= state->width;
-        state->y -= state->height;
-        break;
-    case WL_NORTH_EAST:
-        state->x -= state->width;
-        break;
-    case WL_NORTH_WEST:
-        break;
-    case WL_NORTH:
-        state->x -= state->width / 2;
-        break;
-    case WL_EAST:
-        state->x -= state->width;
-        state->y -= state->height / 2;
-        break;
-    case WL_WEST:
-        state->y -= state->height / 2;
-        break;
-    case WL_CENTER:
-        state->y -= state->height / 2;
-        state->x -= state->width / 2;
-        break;
-    default:
-        break;
-    }
-    // Apply offset.
-    Distance x = rofi_theme_get_distance ( WIDGET ( state->main_window ), "x-offset", config.x_offset );
-    Distance y = rofi_theme_get_distance ( WIDGET ( state->main_window ), "y-offset", config.y_offset );
-    state->x += distance_get_pixel ( x, ORIENTATION_HORIZONTAL );
-    state->y += distance_get_pixel ( y, ORIENTATION_VERTICAL );
+    display_update_view_position ( WIDGET ( state->main_window ), state->list_view, state->width, state->height );
 }
 
 static void rofi_view_window_update_size ( RofiViewState * state )
@@ -574,56 +461,7 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
         }
     }
 }
-static void rofi_view_setup_fake_transparency ( const char* const fake_background )
-{
-    if ( CacheState.fake_bg == NULL ) {
-        cairo_surface_t *s = NULL;
-        /**
-         * Select Background to use for fake transparency.
-         * Current options: 'real', 'screenshot','background'
-         */
-        TICK_N ( "Fake start" );
-        if ( g_strcmp0 ( fake_background, "real" ) == 0 ) {
-            return;
-        }
-        else if ( g_strcmp0 ( fake_background, "screenshot" ) == 0 ) {
-            s = x11_helper_get_screenshot_surface ();
-        }
-        else if ( g_strcmp0 ( fake_background, "background" ) == 0 ) {
-            s = x11_helper_get_bg_surface ();
-        }
-        else {
-            char *fpath = rofi_expand_path ( fake_background );
-            g_debug ( "Opening %s to use as background.", fpath );
-            s                     = cairo_image_surface_create_from_png ( fpath );
-            CacheState.fake_bgrel = TRUE;
-            g_free ( fpath );
-        }
-        TICK_N ( "Get surface." );
-        if ( s != NULL ) {
-            if ( cairo_surface_status ( s ) != CAIRO_STATUS_SUCCESS ) {
-                g_debug ( "Failed to open surface fake background: %s",
-                          cairo_status_to_string ( cairo_surface_status ( s ) ) );
-                cairo_surface_destroy ( s );
-                s = NULL;
-            }
-            else {
-                CacheState.fake_bg = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, CacheState.mon.w, CacheState.mon.h );
-                cairo_t *dr = cairo_create ( CacheState.fake_bg );
-                if ( CacheState.fake_bgrel ) {
-                    cairo_set_source_surface ( dr, s, 0, 0 );
-                }
-                else {
-                    cairo_set_source_surface ( dr, s, -CacheState.mon.x, -CacheState.mon.y );
-                }
-                cairo_paint ( dr );
-                cairo_destroy ( dr );
-                cairo_surface_destroy ( s );
-            }
-        }
-        TICK_N ( "Fake transparency" );
-    }
-}
+
 void __create_window ( MenuFlags menu_flags )
 {
     CacheState.pool = display_buffer_pool_new(200, 100);
@@ -642,26 +480,6 @@ void __create_window ( MenuFlags menu_flags )
     TICK_N ( "pango cairo font setup" );
 
     CacheState.flags       = menu_flags;
-    monitor_active ( &( CacheState.mon ) );
-    // Setup dpi
-    if ( config.dpi > 1 ) {
-        PangoFontMap *font_map = pango_cairo_font_map_get_default ();
-        pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, (double) config.dpi );
-    }
-    else if  ( config.dpi == 0 || config.dpi == 1 ) {
-        // Auto-detect mode.
-        double dpi = 96;
-        if ( CacheState.mon.mh > 0 && config.dpi == 1 ) {
-            dpi = ( CacheState.mon.h * 25.4 ) / (double) ( CacheState.mon.mh );
-        }
-        else {
-            dpi = ( xcb->screen->height_in_pixels * 25.4 ) / (double) ( xcb->screen->height_in_millimeters );
-        }
-
-        g_debug ( "Auto-detected DPI: %.2lf", dpi );
-        PangoFontMap *font_map = pango_cairo_font_map_get_default ();
-        pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, dpi );
-    }
     // Setup font.
     // Dummy widget.
     container  *win  = container_create ( "window.box" );
@@ -684,23 +502,6 @@ void __create_window ( MenuFlags menu_flags )
     cairo_font_options_destroy ( fo );
 
     TICK_N ( "textbox setup" );
-    CacheState.fullscreen = rofi_theme_get_boolean ( WIDGET ( win ), "fullscreen", config.fullscreen );
-    if ( CacheState.fullscreen ) {
-        /* FIXME: move to the backend
-        xcb_atom_t atoms[] = {
-            xcb->ewmh._NET_WM_STATE_FULLSCREEN,
-            xcb->ewmh._NET_WM_STATE_ABOVE
-        };
-        window_set_atom_prop (  box, xcb->ewmh._NET_WM_STATE, atoms, sizeof ( atoms ) / sizeof ( xcb_atom_t ) );
-        */
-    }
-
-    TICK_N ( "setup window fullscreen" );
-    TICK_N ( "setup window name and class" );
-    const char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
-    if ( transparency ) {
-        rofi_view_setup_fake_transparency ( transparency  );
-    }
     TICK_N ( "setup startup notification" );
     widget_free ( WIDGET ( win ) );
     TICK_N ( "done" );
@@ -713,22 +514,7 @@ void __create_window ( MenuFlags menu_flags )
  */
 static void rofi_view_calculate_window_width ( RofiViewState *state )
 {
-    if ( CacheState.fullscreen ) {
-        state->width = CacheState.mon.w;
-        return;
-    }
-    if ( config.menu_width < 0 ) {
-        double fw = textbox_get_estimated_char_width ( );
-        state->width  = -( fw * config.menu_width );
-        state->width += widget_padding_get_padding_width ( WIDGET ( state->main_window ) );
-    }
-    else{
-        // Calculate as float to stop silly, big rounding down errors.
-        state->width = config.menu_width < 101 ? ( CacheState.mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
-    }
-    // Use theme configured width, if set.
-    Distance width = rofi_theme_get_distance ( WIDGET ( state->main_window ), "width", state->width );
-    state->width = distance_get_pixel ( width, ORIENTATION_HORIZONTAL );
+    state->width = display_get_view_width ( WIDGET ( state->main_window ) );
 }
 
 /**
@@ -859,24 +645,6 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
     g_debug ( "Redraw view" );
     TICK ();
     cairo_t *d = CacheState.edit_draw;
-    cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
-    if ( CacheState.fake_bg != NULL ) {
-        if ( CacheState.fake_bgrel ) {
-            cairo_set_source_surface ( d, CacheState.fake_bg, 0.0, 0.0 );
-        }
-        else {
-            cairo_set_source_surface ( d, CacheState.fake_bg,
-                                       -(double) ( state->x - CacheState.mon.x ),
-                                       -(double) ( state->y - CacheState.mon.y ) );
-        }
-        cairo_paint ( d );
-        cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
-    }
-    else {
-        // Paint the background transparent.
-        cairo_set_source_rgba ( d, 0, 0, 0, 0.0 );
-        cairo_paint ( d );
-    }
     TICK_N ( "Background" );
 
     // Always paint as overlay over the background.
@@ -992,7 +760,6 @@ static void rofi_view_refilter ( RofiViewState *state )
     int height = rofi_view_calculate_height ( state );
     if ( height != state->height ) {
         state->height = height;
-        rofi_view_calculate_window_position ( state );
         rofi_view_window_update_size ( state );
         g_debug ( "Resize based on re-filter" );
     }
@@ -1317,15 +1084,7 @@ void rofi_view_frame_callback ( void )
 
 static int rofi_view_calculate_height ( RofiViewState *state )
 {
-    unsigned int height = 0;
-    if ( listview_get_num_lines ( state->list_view ) == 0 || CacheState.fullscreen == TRUE ) {
-        height = CacheState.mon.h;
-        return height;
-    }
-
-    widget *main_window = WIDGET ( state->main_window );
-    height = widget_get_desired_height ( main_window );
-    return height;
+    return display_get_view_height ( WIDGET ( state->main_window ), state->list_view );
 }
 
 static WidgetTriggerActionResult textbox_sidebar_modi_trigger_action ( widget *wid, MouseBindingMouseDefaultAction action, G_GNUC_UNUSED gint x, G_GNUC_UNUSED gint y, G_GNUC_UNUSED void *user_data )
@@ -1418,8 +1177,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
         }
     }
 
-    int location = rofi_theme_get_position ( WIDGET ( state->main_window ), "location", config.location );
-    int end      = ( location == WL_SOUTH_EAST || location == WL_SOUTH || location == WL_SOUTH_WEST );
+    int end      = display_reversed ( WIDGET ( state->main_window ) );
     box_add ( state->main_box, WIDGET ( state->input_bar ), FALSE, end ? 9 : 0 );
 
     state->case_indicator = textbox_create ( "window.mainbox.inputbar.case-indicator", TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "*" );
@@ -1540,10 +1298,6 @@ void rofi_view_cleanup ()
     if ( CacheState.repaint_source > 0 ) {
         g_source_remove ( CacheState.repaint_source );
         CacheState.repaint_source = 0;
-    }
-    if ( CacheState.fake_bg ) {
-        cairo_surface_destroy ( CacheState.fake_bg );
-        CacheState.fake_bg = NULL;
     }
     if ( CacheState.edit_draw ) {
         cairo_destroy ( CacheState.edit_draw );

@@ -36,6 +36,7 @@
 #include "libgwater-xcb.h"
 
 #include "nkutils-bindings.h"
+#include "xcb.h"
 
 /**
  * Structure to keep xcb stuff around.
@@ -67,10 +68,31 @@ struct _xcb_stuff
     }               xkb;
     xcb_timestamp_t last_timestamp;
     NkBindingsSeat  *bindings_seat;
-    gboolean normal_window;
+    struct {
+        gboolean normal_window;
+
+        /** Windows location/gravity */
+        WindowLocation location;
+        /** Y offset */
+        int            y_offset;
+        /** X offset */
+        int            x_offset;
+        /** Monitors */
+        char           *monitor;
+        /** fullscreen */
+        gboolean       fullscreen;
+        /** dpi */
+        int            dpi;
+        /** Indicate that fake background should be drawn relative to the window */
+        gboolean           fake_bgrel;
+    } config;
+    /** surface containing the fake background. */
+    cairo_surface_t    *fake_bg;
+    workarea mon;
     gboolean mapped;
     /** main x11 windows */
     xcb_window_t       main_window;
+    gint x, y;
 
     gboolean    mouse_seen;
 };

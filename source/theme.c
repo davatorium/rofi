@@ -602,12 +602,12 @@ int distance_get_pixel ( Distance d, Orientation ori )
     else if ( d.type == PW_PERCENT ) {
         if ( ori == ORIENTATION_VERTICAL ) {
             int height = 0;
-            rofi_view_get_current_monitor ( NULL, &height );
+            display_get_current_monitor ( NULL, &height );
             return ( d.distance * height ) / ( 100.0 );
         }
         else {
             int width = 0;
-            rofi_view_get_current_monitor ( &width, NULL );
+            display_get_current_monitor ( &width, NULL );
             return ( d.distance * width ) / ( 100.0 );
         }
     }

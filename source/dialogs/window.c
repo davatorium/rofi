@@ -617,7 +617,7 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
             // Activate the window
             xcb_ewmh_request_change_active_window ( &xcb->ewmh, xcb->screen_nbr, rmpd->ids->array[selected_line],
                                                     XCB_EWMH_CLIENT_SOURCE_TYPE_OTHER,
-                                                    XCB_CURRENT_TIME, rofi_view_get_window () );
+                                                    XCB_CURRENT_TIME, xcb->main_window );
             xcb_flush ( xcb->connection );
         }
     }
