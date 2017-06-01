@@ -40,8 +40,6 @@ typedef struct _xcb_stuff   xcb_stuff;
  */
 extern xcb_stuff *xcb;
 
-gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer data );
-
 /**
  * @param xcb the xcb data structure
  *

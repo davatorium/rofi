@@ -556,6 +556,78 @@ int monitor_active ( workarea *mon )
     monitor_dimensions ( 0, 0, mon );
     return FALSE;
 }
+
+/**
+ * Process X11 events in the main-loop (gui-thread) of the application.
+ */
+static void main_loop_x11_event_handler_view ( xcb_generic_event_t *ev )
+{
+    RofiViewState *state = rofi_view_get_active ();
+    if ( state != NULL ) {
+        rofi_view_itterrate ( state, ev, xcb->bindings_seat );
+        if ( rofi_view_get_completed ( state ) ) {
+            // This menu is done.
+            rofi_view_finalize ( state );
+            // cleanup
+            if ( rofi_view_get_active () == NULL ) {
+                g_main_loop_quit ( xcb->main_loop );
+            }
+        }
+    }
+}
+
+static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer user_data )
+{
+    if ( ev == NULL ) {
+        int status = xcb_connection_has_error ( xcb->connection );
+        if ( status > 0 ) {
+            g_warning ( "The XCB connection to X server had a fatal error: %d", status );
+            g_main_loop_quit ( xcb->main_loop );
+            return G_SOURCE_REMOVE;
+        }
+        else {
+            g_warning ( "main_loop_x11_event_handler: ev == NULL, status == %d", status );
+            return G_SOURCE_CONTINUE;
+        }
+    }
+    uint8_t type = ev->response_type & ~0x80;
+    if ( type == xcb->xkb.first_event ) {
+        switch ( ev->pad0 )
+        {
+        case XCB_XKB_MAP_NOTIFY:
+        {
+            struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( nk_bindings_seat_get_context ( xcb->bindings_seat ), xcb->connection, xcb->xkb.device_id, 0 );
+            struct xkb_state  *state  = xkb_x11_state_new_from_device ( keymap, xcb->connection, xcb->xkb.device_id );
+            nk_bindings_seat_update_keymap ( xcb->bindings_seat, keymap, state );
+            xkb_keymap_unref ( keymap );
+            xkb_state_unref ( state );
+            break;
+        }
+        case XCB_XKB_STATE_NOTIFY:
+        {
+            xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
+            nk_bindings_seat_update_mask ( xcb->bindings_seat,
+                                           ksne->baseMods,
+                                           ksne->latchedMods,
+                                           ksne->lockedMods,
+                                           ksne->baseGroup,
+                                           ksne->latchedGroup,
+                                           ksne->lockedGroup );
+            xcb_generic_event_t dev;
+            dev.response_type = 0;
+            main_loop_x11_event_handler_view ( &dev );
+            break;
+        }
+        }
+        return G_SOURCE_CONTINUE;
+    }
+    if ( xcb->sndisplay != NULL ) {
+        sn_xcb_display_process_event ( xcb->sndisplay, ev );
+    }
+    main_loop_x11_event_handler_view ( ev );
+    return G_SOURCE_CONTINUE;
+}
+
 int take_pointer ( xcb_window_t w, int iters )
 {
     int i = 0;
@@ -816,77 +888,6 @@ void x11_create_visual_and_colormap ( void )
         visual = root_visual;
         map    = xcb->screen->default_colormap;
     }
-}
-
-/**
- * Process X11 events in the main-loop (gui-thread) of the application.
- */
-static void main_loop_x11_event_handler_view ( xcb_generic_event_t *ev )
-{
-    RofiViewState *state = rofi_view_get_active ();
-    if ( state != NULL ) {
-        rofi_view_itterrate ( state, ev, xcb->bindings_seat );
-        if ( rofi_view_get_completed ( state ) ) {
-            // This menu is done.
-            rofi_view_finalize ( state );
-            // cleanup
-            if ( rofi_view_get_active () == NULL ) {
-                g_main_loop_quit ( xcb->main_loop );
-            }
-        }
-    }
-}
-
-gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer user_data )
-{
-    if ( ev == NULL ) {
-        int status = xcb_connection_has_error ( xcb->connection );
-        if ( status > 0 ) {
-            g_warning ( "The XCB connection to X server had a fatal error: %d", status );
-            g_main_loop_quit ( xcb->main_loop );
-            return G_SOURCE_REMOVE;
-        }
-        else {
-            g_warning ( "main_loop_x11_event_handler: ev == NULL, status == %d", status );
-            return G_SOURCE_CONTINUE;
-        }
-    }
-    uint8_t type = ev->response_type & ~0x80;
-    if ( type == xcb->xkb.first_event ) {
-        switch ( ev->pad0 )
-        {
-        case XCB_XKB_MAP_NOTIFY:
-        {
-            struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( nk_bindings_seat_get_context ( xcb->bindings_seat ), xcb->connection, xcb->xkb.device_id, 0 );
-            struct xkb_state  *state  = xkb_x11_state_new_from_device ( keymap, xcb->connection, xcb->xkb.device_id );
-            nk_bindings_seat_update_keymap ( xcb->bindings_seat, keymap, state );
-            xkb_keymap_unref ( keymap );
-            xkb_state_unref ( state );
-            break;
-        }
-        case XCB_XKB_STATE_NOTIFY:
-        {
-            xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
-            nk_bindings_seat_update_mask ( xcb->bindings_seat,
-                                           ksne->baseMods,
-                                           ksne->latchedMods,
-                                           ksne->lockedMods,
-                                           ksne->baseGroup,
-                                           ksne->latchedGroup,
-                                           ksne->lockedGroup );
-            xcb_generic_event_t dev;
-            dev.response_type = 0;
-            main_loop_x11_event_handler_view ( &dev );
-            break;
-        }
-        }
-        return G_SOURCE_CONTINUE;
-    }
-    if ( xcb->sndisplay != NULL ) {
-        sn_xcb_display_process_event ( xcb->sndisplay, ev );
-    }
-    main_loop_x11_event_handler_view ( ev );
-    return G_SOURCE_CONTINUE;
 }
 
 xcb_window_t xcb_stuff_get_root_window ( void )
