@@ -16,6 +16,8 @@ rofi.yoffset:                        -2
 rofi.xoffset:                        0
 ! "Always show number of lines" Set from: File
 rofi.fixed-num-lines:                true
+! "Whether to load and show icons" Set from: Default
+! rofi.show-icons:                     false
 ! "Terminal to use" Set from: File
 rofi.terminal:                       sakura
 ! "Ssh client to use" Set from: File
@@ -30,6 +32,8 @@ rofi.run-command:                    bash -c "{cmd}"
 rofi.run-shell-command:              {terminal} -e {cmd}
 ! "Command executed on accep-entry-custom for window modus" Set from: File
 rofi.window-command:                 xkill -id {window}
+! "Theme to use to look for icons" Set from: Default
+! rofi.drun-icon-theme:                gnome
 ! "Disable history in run/ssh" Set from: File
 rofi.disable-history:                false
 ! "Use sorting" Set from: Default
