@@ -166,7 +166,7 @@ WHITESPACE [[:blank:]]
 WSO        [[:blank:]]*
 WORD       [[:alnum:]-]+
 COLOR_NAME [[:alpha:]]+
-STRING     {UANYN}+
+STRING     \"{UANYN}+\"
 HEX        [[:xdigit:]]
 NUMBER     [[:digit:]]
 PNNUMBER   [-+]?[[:digit:]]+
@@ -178,40 +178,43 @@ PERCENT    (\%)
 ASTERIX    \*
 
  /* Position */
-CENTER     "center"
-NORTH      "north"
-SOUTH      "south"
-EAST       "east"
-WEST       "west"
+CENTER     (?i:center)
+NORTH      (?i:north)
+SOUTH      (?i:south)
+EAST       (?i:east)
+WEST       (?i:west)
 
  /* Line Style */
-NONE          "none"
-BOLD          "bold"
-UNDERLINE     "underline"
-ITALIC        "italic"
-STRIKETHROUGH "strikethrough"
-SMALLCAPS     "small caps"
+NONE          (?i:none)
+BOLD          (?i:bold)
+UNDERLINE     (?i:underline)
+ITALIC        (?i:italic)
+STRIKETHROUGH (?i:strikethrough)
+SMALLCAPS     (?i:small\ caps)
 
 /* ANGLES */
 
-ANGLE_DEG  "deg"
-ANGLE_GRAD "grad"
-ANGLE_RAD  "rad"
-ANGLE_TURN "turn"
+ANGLE_DEG  (?i:deg)
+ANGLE_GRAD (?i:grad)
+ANGLE_RAD  (?i:rad)
+ANGLE_TURN (?i:turn)
 
+/* LINE STYLE */
+LS_DASH    (?i:dash)
+LS_SOLID   (?i:solid)
 
 /* Orientation */
 
-ORIENTATION_HORI "horizontal"
-ORIENTATION_VERT "vertical"
+ORIENTATION_HORI (?i:horizontal)
+ORIENTATION_VERT (?i:vertical)
 
  /* Color schema */
-RGBA rgb[a]?
-HWB  "hwb"
-CMYK "cmyk"
-HSL  hsl[a]?
+RGBA (?i:rgb[a]?)
+HWB  (?i:hwb)
+CMYK (?i:cmyk)
+HSL  (?i:hsl[a]?)
 
-COLOR_TRANSPARENT "transparent"
+COLOR_TRANSPARENT (?i:transparent)
 
 S_T_PARENT_LEFT  \(
 S_T_PARENT_RIGHT \)
@@ -221,12 +224,13 @@ FORWARD_SLASH    \/
 LIST_OPEN        \[
 LIST_CLOSE       \]
 
-LS_DASH    "dash"
-LS_SOLID   "solid"
+CPP_COMMENT  "//"
+C_COMMENT_OPEN "/*"
+
 
 INCLUDE    "@import"
 
-CONFIGURATION "configuration"
+CONFIGURATION (?i:configuration)
 
 %x INCLUDE
 %x PROPERTIES
@@ -254,7 +258,7 @@ if ( queue == NULL ){
    * Both C and C++ style comments, including nexting.
    */
 
-<*>"//"            {
+<*>{CPP_COMMENT}            {
     int c = input();
     while ( c != 0 && c != EOF){
         if (c == '\n') {
@@ -267,7 +271,7 @@ if ( queue == NULL ){
     }
     YY_LLOC_START
 }
-<*>"/*"            {
+<*>{C_COMMENT_OPEN}            {
     int c = 0, p;
     int nesting_depth = 1;
     while (nesting_depth) {
@@ -302,7 +306,7 @@ if ( queue == NULL ){
 <INCLUDE>{WHITESPACE} {}
 
     /** Parse path. Last element in this INCLUDE */
-<INCLUDE>\"{STRING}\" {
+<INCLUDE>{STRING} {
     yytext[yyleng-1] = '\0';
     ParseObject *top = g_queue_peek_head ( file_queue );
     g_assert ( top != NULL );
@@ -400,7 +404,7 @@ if ( queue == NULL ){
 <PROPERTIES>(true|false)          { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
 <PROPERTIES>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
 <PROPERTIES>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
-<PROPERTIES>\"{STRING}\"          { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
+<PROPERTIES>{STRING}              { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
 
 <PROPERTIES>@{WORD}               {
     yylval->sval = g_strdup(yytext);

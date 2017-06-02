@@ -1051,6 +1051,34 @@ START_TEST ( test_properties_integer)
     ck_assert_int_eq ( rofi_theme_get_integer ( &wid, "yoffset", 0) , 4);
 }
 END_TEST
+
+
+START_TEST  ( test_properties_orientation )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    rofi_theme_parse_string ( "* { vert: vertical; hori: horizontal; }");
+    ck_assert_int_eq ( rofi_theme_get_orientation( &wid, "vert", ROFI_ORIENTATION_HORIZONTAL) , ROFI_ORIENTATION_VERTICAL);
+    ck_assert_int_eq ( rofi_theme_get_orientation( &wid, "hori", ROFI_ORIENTATION_VERTICAL) , ROFI_ORIENTATION_HORIZONTAL);
+    // default propagation
+    ck_assert_int_eq ( rofi_theme_get_orientation( &wid, "notfo", ROFI_ORIENTATION_HORIZONTAL) , ROFI_ORIENTATION_HORIZONTAL);
+    ck_assert_int_eq ( rofi_theme_get_orientation( &wid, "notfo", ROFI_ORIENTATION_VERTICAL) , ROFI_ORIENTATION_VERTICAL);
+
+}
+END_TEST
+START_TEST  ( test_properties_orientation_case )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    rofi_theme_parse_string ( "* { vert: Vertical; hori: HoriZonTal;}");
+    ck_assert_int_eq ( rofi_theme_get_orientation( &wid, "vert", ROFI_ORIENTATION_HORIZONTAL) , ROFI_ORIENTATION_VERTICAL);
+    ck_assert_int_eq ( rofi_theme_get_orientation( &wid, "hori", ROFI_ORIENTATION_VERTICAL) , ROFI_ORIENTATION_HORIZONTAL);
+
+}
+END_TEST
+
 START_TEST ( test_configuration )
 {
     rofi_theme_parse_string ( "configuration { font: \"blaat€\"; yoffset: 4; }");
@@ -1239,6 +1267,13 @@ static Suite * theme_parser_suite (void)
         tcase_add_checked_fixture(tc_prop_integer, theme_parser_setup, theme_parser_teardown);
         tcase_add_test ( tc_prop_integer, test_properties_integer);
         suite_add_tcase(s, tc_prop_integer );
+    }
+    {
+        TCase *tc_prop_orientation = tcase_create("Propertiesorientation");
+        tcase_add_checked_fixture(tc_prop_orientation, theme_parser_setup, theme_parser_teardown);
+        tcase_add_test ( tc_prop_orientation, test_properties_orientation);
+        tcase_add_test ( tc_prop_orientation, test_properties_orientation_case );
+        suite_add_tcase(s, tc_prop_orientation );
     }
     {
         TCase *tc_prop_configuration = tcase_create("Configuration");
