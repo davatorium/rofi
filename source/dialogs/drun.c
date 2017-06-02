@@ -65,6 +65,8 @@ typedef struct
     char            *root;
     /* Path to desktop file */
     char            *path;
+    /* Application id (.desktop filename) */
+    char            *app_id;
     /* Icon stuff */
     int             icon_size;
     char            *icon_name;
@@ -187,15 +189,27 @@ static void exec_cmd_entry ( DRunModeEntry *e )
         exec_path = NULL;
     }
 
+    RofiHelperExecuteContext context = {
+        .name = e->name,
+        .icon = e->icon_name,
+        .app_id = e->app_id,
+    };
+    gboolean sn       = g_key_file_get_boolean ( e->key_file, "Desktop Entry", "StartupNotify", NULL );
+    gchar    *wmclass = NULL;
+    if ( sn && g_key_file_has_key ( e->key_file, "Desktop Entry", "StartupWMClass", NULL ) ) {
+        context.wmclass = wmclass = g_key_file_get_string ( e->key_file, "Desktop Entry", "StartupWMClass", NULL );
+    }
+
     // Returns false if not found, if key not found, we don't want run in terminal.
     gboolean terminal = g_key_file_get_boolean ( e->key_file, "Desktop Entry", "Terminal", NULL );
-    if ( helper_execute_command ( exec_path, fp, terminal ) ) {
+    if ( helper_execute_command ( exec_path, fp, terminal, sn ? &context : NULL ) ) {
         char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
         char *key  = g_strdup_printf ( "%s:::%s", e->root, e->path );
         history_set ( path, key );
         g_free ( key );
         g_free ( path );
     }
+    g_free ( wmclass );
     g_free ( exec_path );
     g_free ( str );
     g_free ( fp );
@@ -203,7 +217,7 @@ static void exec_cmd_entry ( DRunModeEntry *e )
 /**
  * This function absorbs/freeś path, so this is no longer available afterwards.
  */
-static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, const char *path )
+static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, const char *path, const gchar *basename )
 {
     // Create ID on stack.
     // We know strlen (path ) > strlen(root)+1
@@ -280,8 +294,9 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         pd->entry_list              = g_realloc ( pd->entry_list, pd->cmd_list_length_actual * sizeof ( *( pd->entry_list ) ) );
     }
     pd->entry_list[pd->cmd_list_length].icon_size = 0;
-    pd->entry_list[pd->cmd_list_length].root = g_strdup ( root );
-    pd->entry_list[pd->cmd_list_length].path = g_strdup ( path );
+    pd->entry_list[pd->cmd_list_length].root   = g_strdup ( root );
+    pd->entry_list[pd->cmd_list_length].path   = g_strdup ( path );
+    pd->entry_list[pd->cmd_list_length].app_id = g_strndup ( basename, strlen ( basename ) - strlen ( ".desktop" ) );
     gchar *n = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].name = n;
     gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
@@ -356,7 +371,7 @@ static void walk_dir ( DRunModePrivateData *pd, const char *root, const char *di
         case DT_REG:
             // Skip files not ending on .desktop.
             if ( g_str_has_suffix ( file->d_name, ".desktop" ) ) {
-                read_desktop_file ( pd, root, filename );
+                read_desktop_file ( pd, root, filename, file->d_name );
             }
             break;
         case DT_DIR:
@@ -391,7 +406,8 @@ static void get_apps_history ( DRunModePrivateData *pd )
     for ( unsigned int index = 0; index < length; index++ ) {
         char **st = g_strsplit ( retv[index], ":::", 2 );
         if ( st && st[0] && st[1] ) {
-            if ( !read_desktop_file ( pd, st[0], st[1] ) ) {
+            const gchar *basename = g_utf8_strrchr ( st[1], -1, G_DIR_SEPARATOR );
+            if ( basename == NULL || !read_desktop_file ( pd, st[0], st[1], ++basename ) ) {
                 history_remove ( path, retv[index] );
             }
         }
@@ -490,6 +506,7 @@ static void drun_entry_clear ( DRunModeEntry *e )
 {
     g_free ( e->root );
     g_free ( e->path );
+    g_free ( e->app_id );
     if ( e->icon != NULL ) {
         cairo_surface_destroy ( e->icon );
     }
@@ -521,7 +538,9 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
         exec_cmd_entry ( &( rmpd->entry_list[selected_line] ) );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
-        helper_execute_command ( NULL, *input, run_in_term );
+        RofiHelperExecuteContext context = { .name = NULL };
+        // FIXME: We assume startup notification in terminals, not in others
+        helper_execute_command ( NULL, *input, run_in_term, run_in_term ? &context : NULL );
     }
     else if ( ( mretv & MENU_ENTRY_DELETE ) && selected_line < rmpd->cmd_list_length ) {
         if ( selected_line < rmpd->history_length ) {

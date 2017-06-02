@@ -78,25 +78,20 @@ static inline int execshssh ( const char *host )
 {
     char **args = NULL;
     int  argsv  = 0;
+
     helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, NULL );
 
-    GError *error = NULL;
-    g_spawn_async ( NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error );
+    gsize l     = strlen ( "Connecting to '' via rofi" ) + strlen ( host ) + 1;
+    gchar *desc = g_newa ( gchar, l );
 
-    if ( error != NULL ) {
-        char *msg = g_strdup_printf ( "Failed to execute: 'ssh %s'\nError: '%s'", host, error->message );
-        rofi_view_error_dialog ( msg, FALSE  );
-        g_free ( msg );
-        // print error.
-        g_error_free ( error );
+    g_snprintf ( desc, l, "Connecting to '%s' via rofi", host );
 
-        g_strfreev ( args );
-        return FALSE;
-    }
-    // Free the args list.
-    g_strfreev ( args );
-
-    return TRUE;
+    RofiHelperExecuteContext context = {
+        .name        = "ssh",
+        .description = desc,
+        .command     = "ssh",
+    };
+    return helper_execute ( NULL, args, "ssh ", host, &context );
 }
 
 /**

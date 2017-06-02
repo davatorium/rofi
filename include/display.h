@@ -29,6 +29,7 @@
 #define ROFI_DISPLAY_H
 
 #include <glib.h>
+#include "helper.h"
 #include "nkutils-bindings.h"
 
 /**
@@ -62,5 +63,14 @@ void display_cleanup(void);
  * Dumps the display layout for -help output
  */
 void display_dump_monitor_layout ( void );
+
+/**
+ * @param context The startup notification context for the application to launch
+ * @param child_setup A pointer to return the child setup function
+ * @param user_data A pointer to return the child setup function user_data
+ *
+ * Provides the needed child setup function
+ */
+void display_startup_notification ( RofiHelperExecuteContext *context, GSpawnChildSetupFunc *child_setup, gpointer *user_data );
 
 #endif

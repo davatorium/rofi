@@ -38,6 +38,7 @@
 #include <dialogs/help-keys.h>
 #include <xkbcommon/xkbcommon.h>
 #include "rofi.h"
+#include "display.h"
 #include "xcb.h"
 #include <keyb.h>
 #include <helper.h>
@@ -73,6 +74,11 @@ gboolean rofi_view_trigger_action ( G_GNUC_UNUSED RofiViewState *state, G_GNUC_U
 {
     return FALSE;
 }
+
+void display_startup_notification ( G_GNUC_UNUSED RofiHelperExecuteContext *context, G_GNUC_UNUSED GSpawnChildSetupFunc *child_setup, G_GNUC_UNUSED gpointer *user_data )
+{
+}
+
 #ifndef _ck_assert_ptr_null
 /* Pointer against NULL comparison macros with improved output
  * compared to ck_assert(). */

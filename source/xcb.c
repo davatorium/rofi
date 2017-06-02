@@ -49,6 +49,10 @@
 #include <xcb/xkb.h>
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-x11.h>
+#define SN_API_NOT_YET_FROZEN
+/* This function is declared as sn_launcher_context_set_application_id but implemented as sn_launcher_set_application_id */
+#define sn_launcher_context_set_application_id    sn_launcher_set_application_id
+#include <libsn/sn.h>
 #include "display.h"
 #include "xcb-internal.h"
 #include "xcb.h"
@@ -359,6 +363,45 @@ void display_dump_monitor_layout ( void )
     }
 }
 
+void display_startup_notification ( RofiHelperExecuteContext *context, GSpawnChildSetupFunc *child_setup, gpointer *user_data )
+{
+    if ( context == NULL ) {
+        return;
+    }
+
+    SnLauncherContext *sncontext;
+
+    sncontext = sn_launcher_context_new ( xcb->sndisplay, xcb->screen_nbr );
+
+    sn_launcher_context_set_name ( sncontext, context->name );
+    sn_launcher_context_set_description ( sncontext, context->description );
+    if ( context->binary != NULL ) {
+        sn_launcher_context_set_binary_name ( sncontext, context->binary );
+    }
+    if ( context->icon != NULL ) {
+        sn_launcher_context_set_icon_name ( sncontext, context->icon );
+    }
+    if ( context->app_id != NULL ) {
+        sn_launcher_context_set_application_id ( sncontext, context->app_id );
+    }
+    if ( context->wmclass != NULL ) {
+        sn_launcher_context_set_wmclass ( sncontext, context->wmclass );
+    }
+
+    xcb_get_property_cookie_t c;
+    unsigned int              current_desktop = 0;
+
+    c = xcb_ewmh_get_current_desktop ( &xcb->ewmh, xcb->screen_nbr );
+    if ( xcb_ewmh_get_current_desktop_reply ( &xcb->ewmh, c, &current_desktop, NULL ) ) {
+        sn_launcher_context_set_workspace ( sncontext, current_desktop );
+    }
+
+    sn_launcher_context_initiate ( sncontext, "rofi", context->command, xcb->last_timestamp );
+
+    *child_setup = (GSpawnChildSetupFunc) sn_launcher_context_setup_child_process;
+    *user_data   = sncontext;
+}
+
 static int monitor_get_dimension ( int monitor_id, workarea *mon )
 {
     memset ( mon, 0, sizeof ( workarea ) );
@@ -597,6 +640,7 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
     case XCB_BUTTON_PRESS:
     {
         xcb_button_press_event_t *bpe = (xcb_button_press_event_t *) event;
+        xcb->last_timestamp = bpe->time;
         rofi_view_handle_mouse_motion ( state, bpe->event_x, bpe->event_y );
         nk_bindings_seat_handle_button ( xcb->bindings_seat, bpe->detail, NK_BINDINGS_BUTTON_STATE_PRESS, bpe->time );
         break;
@@ -604,6 +648,7 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
     case XCB_BUTTON_RELEASE:
     {
         xcb_button_release_event_t *bre = (xcb_button_release_event_t *) event;
+        xcb->last_timestamp = bre->time;
         nk_bindings_seat_handle_button ( xcb->bindings_seat, bre->detail, NK_BINDINGS_BUTTON_STATE_RELEASE, bre->time );
         if ( config.click_to_exit == TRUE ) {
             if ( ! xcb->mouse_seen ) {
@@ -635,8 +680,9 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
         xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *) event;
         gchar                 *text;
 
-        text = nk_bindings_seat_handle_key ( xcb->bindings_seat, xkpe->detail, NK_BINDINGS_KEY_STATE_PRESS );
-        if ( text != NULL )  {
+        xcb->last_timestamp = xkpe->time;
+        text                = nk_bindings_seat_handle_key ( xcb->bindings_seat, xkpe->detail, NK_BINDINGS_KEY_STATE_PRESS );
+        if ( text != NULL ) {
             rofi_view_handle_text ( state, text );
         }
         break;
@@ -644,6 +690,7 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
     case XCB_KEY_RELEASE:
     {
         xcb_key_release_event_t *xkre = (xcb_key_release_event_t *) event;
+        xcb->last_timestamp = xkre->time;
         nk_bindings_seat_handle_key ( xcb->bindings_seat, xkre->detail, NK_BINDINGS_KEY_STATE_RELEASE );
         break;
     }

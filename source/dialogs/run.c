@@ -92,7 +92,9 @@ static void exec_cmd ( const char *cmd, int run_in_term )
     }
 
     char *path = g_build_filename ( cache_dir, RUN_CACHE_FILE, NULL );
-    if (  helper_execute_command ( NULL, lf_cmd, run_in_term ) ) {
+    RofiHelperExecuteContext context = { .name = NULL };
+    // FIXME: assume startup notification support for terminals
+    if (  helper_execute_command ( NULL, lf_cmd, run_in_term, run_in_term ? &context : NULL ) ) {
         /**
          * This happens in non-critical time (After launching app)
          * It is allowed to be a bit slower.

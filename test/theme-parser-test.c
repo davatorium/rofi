@@ -35,6 +35,7 @@
 #include "xcb-internal.h"
 #include "rofi.h"
 #include "settings.h"
+#include "display.h"
 #include "xcb.h"
 #include "theme.h"
 #include "css-colors.h"
@@ -68,6 +69,10 @@ double textbox_get_estimated_char_height ( void )
 int monitor_active ( G_GNUC_UNUSED workarea *mon )
 {
     return 0;
+}
+
+void display_startup_notification ( G_GNUC_UNUSED RofiHelperExecuteContext *context, G_GNUC_UNUSED GSpawnChildSetupFunc *child_setup, G_GNUC_UNUSED gpointer *user_data )
+{
 }
 
 #ifndef _ck_assert_ptr_null
