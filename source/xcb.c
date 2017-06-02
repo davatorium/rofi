@@ -359,6 +359,10 @@ void display_dump_monitor_layout ( void )
     }
 }
 
+void display_startup_notification ( RofiHelperExecuteContext *context, GSpawnChildSetupFunc *child_setup, gpointer *user_data )
+{
+}
+
 static int monitor_get_dimension ( int monitor_id, workarea *mon )
 {
     memset ( mon, 0, sizeof ( workarea ) );

@@ -81,7 +81,7 @@ static inline int execshssh ( const char *host )
 
     helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, NULL );
 
-    return helper_execute ( NULL, args, "ssh ", host );
+    return helper_execute ( NULL, args, "ssh ", host, NULL );
 }
 
 /**

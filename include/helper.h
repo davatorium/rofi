@@ -260,26 +260,50 @@ int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *st
 int utf8_strncmp ( const char *a, const char* b, size_t n ) __attribute__( ( nonnull ( 1, 2 ) ) );
 
 /**
+ * The startup notification context of the application to launch
+ */
+typedef struct
+{
+    /** The name of the application */
+    const gchar *name;
+    /** The binary name of the application */
+    const gchar *binary;
+    /** The description of the launch */
+    const gchar *description;
+    /** The icon name of the application */
+    const gchar *icon;
+    /** The application id (desktop file with the .desktop suffix) */
+    const gchar *app_id;
+    /** The window manager class of the application */
+    const gchar *wmclass;
+    /** The command we run */
+    const gchar *command;
+} RofiHelperExecuteContext;
+
+/**
  * @param args The arguments of the command to exec.
  * @param error_precmd Prefix to error message command.
  * @param error_cmd Error message command
+ * @param context The startup notification context, if any
  *
  * Executes the command
  *
  * @returns TRUE when successful, FALSE when failed.
  */
-gboolean helper_execute ( const char *wd, char **args, const char *error_precmd, const char *error_cmd );
+gboolean helper_execute ( const char *wd, char **args, const char *error_precmd, const char *error_cmd, RofiHelperExecuteContext *context );
 
 /**
  * @param wd The work directory (optional)
  * @param cmd The cmd to execute
  * @param run_in_term Indicate if command should be run in a terminal
+ * @param context The startup notification context, if any
  *
  * Execute command.
+ * If needed members of @param context are NULL, they will be filled.
  *
  * @returns FALSE On failure, TRUE on success
  */
-gboolean helper_execute_command ( const char *wd, const char *cmd, int run_in_term );
+gboolean helper_execute_command ( const char *wd, const char *cmd, gboolean run_in_term, RofiHelperExecuteContext *context );
 
 /**
  * @param file The file path

@@ -35,6 +35,7 @@
 #include <widgets/widget.h>
 #include <widgets/widget-internal.h>
 #include "rofi.h"
+#include "display.h"
 #include "xrmoptions.h"
 #include "xcb.h"
 unsigned int test =0;
@@ -64,6 +65,10 @@ int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
 {
     fputs ( msg, stderr );
     return FALSE;
+}
+
+void display_startup_notification ( G_GNUC_UNUSED RofiHelperExecuteContext *context, G_GNUC_UNUSED GSpawnChildSetupFunc *child_setup, G_GNUC_UNUSED gpointer *user_data )
+{
 }
 
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )

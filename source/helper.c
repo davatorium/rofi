@@ -47,6 +47,7 @@
 #include <pango/pango-fontmap.h>
 #include <pango/pangocairo.h>
 #include <librsvg/rsvg.h>
+#include "display.h"
 #include "xcb.h"
 #include "helper.h"
 #include "helper-theme.h"
@@ -962,13 +963,15 @@ int utf8_strncmp ( const char* a, const char* b, size_t n )
     return r;
 }
 
-gboolean helper_execute ( const char *wd, char **args, const char *error_precmd, const char *error_cmd )
+gboolean helper_execute ( const char *wd, char **args, const char *error_precmd, const char *error_cmd, RofiHelperExecuteContext *context )
 {
     gboolean             retv   = TRUE;
     GError               *error = NULL;
 
     GSpawnChildSetupFunc child_setup = NULL;
     gpointer             user_data   = NULL;
+
+    display_startup_notification ( context, &child_setup, &user_data );
 
     g_spawn_async ( wd, args, NULL, G_SPAWN_SEARCH_PATH, child_setup, user_data, NULL, &error );
     if ( error != NULL ) {
@@ -985,7 +988,7 @@ gboolean helper_execute ( const char *wd, char **args, const char *error_precmd,
     return retv;
 }
 
-gboolean helper_execute_command ( const char *wd, const char *cmd, int run_in_term )
+gboolean helper_execute_command ( const char *wd, const char *cmd, gboolean run_in_term, RofiHelperExecuteContext *context )
 {
     char **args = NULL;
     int  argc   = 0;
@@ -997,7 +1000,26 @@ gboolean helper_execute_command ( const char *wd, const char *cmd, int run_in_te
         helper_parse_setup ( config.run_command, &args, &argc, "{cmd}", cmd, NULL );
     }
 
-    return helper_execute ( wd, args, "", cmd );
+    if ( context != NULL ) {
+        if ( context->name == NULL ) {
+            context->name = args[0];
+        }
+        if ( context->binary == NULL ) {
+            context->binary = args[0];
+        }
+        if ( context->description == NULL ) {
+            gsize l            = strlen ( "Launching '' via rofi" ) + strlen ( cmd ) + 1;
+            gchar *description = g_newa ( gchar, l );
+
+            g_snprintf ( description, l, "Launching '%s' via rofi", cmd );
+            context->description = description;
+        }
+        if ( context->command == NULL ) {
+            context->command = cmd;
+        }
+    }
+
+    return helper_execute ( wd, args, "", cmd, context );
 }
 
 char *helper_get_theme_path ( const char *file )
