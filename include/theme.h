@@ -159,7 +159,7 @@ typedef struct
     RofiHighlightStyle style;
     /** Color */
     ThemeColor     color;
-} ThemeHighlight;
+} RofiHighlightColorStyle;
 
 typedef union {
     /** integer */
@@ -183,7 +183,7 @@ typedef union {
         struct Property *ref;
     }              link;
     /** Highlight Style */
-    ThemeHighlight highlight;
+    RofiHighlightColorStyle highlight;
     /** List */
     GList *list;
 } PropertyValue;
@@ -418,7 +418,7 @@ RofiPadding rofi_theme_get_padding ( const widget *widget, const char *property,
  *
  * @returns The highlight of this property for this widget.
  */
-ThemeHighlight rofi_theme_get_highlight ( widget *widget, const char *property, ThemeHighlight th );
+RofiHighlightColorStyle rofi_theme_get_highlight ( widget *widget, const char *property, RofiHighlightColorStyle th );
 
 /**
  * @param d The distance handle.

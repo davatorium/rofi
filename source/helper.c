@@ -399,7 +399,7 @@ int find_arg_char ( const char * const key, char *val )
     return FALSE;
 }
 
-PangoAttrList *helper_token_match_get_pango_attr ( ThemeHighlight th, GRegex **tokens, const char *input, PangoAttrList *retv )
+PangoAttrList *helper_token_match_get_pango_attr ( RofiHighlightColorStyle th, GRegex **tokens, const char *input, PangoAttrList *retv )
 {
     // Do a tokenized match.
     if ( tokens ) {

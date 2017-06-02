@@ -34,7 +34,7 @@
  * @{
  */
 /**
- * @param th The ThemeHighlight
+ * @param th The RofiHighlightColorStyle
  * @param tokens Array of regexes used for matching
  * @param input The input string to find the matches on
  * @param retv The Attribute list to update with matches
@@ -43,7 +43,7 @@
  *
  * @returns the updated retv list.
  */
-PangoAttrList *helper_token_match_get_pango_attr ( ThemeHighlight th, GRegex **tokens, const char *input, PangoAttrList *retv );
+PangoAttrList *helper_token_match_get_pango_attr ( RofiHighlightColorStyle th, GRegex **tokens, const char *input, PangoAttrList *retv );
 
 /**
  * @param pfd Pango font description to validate.

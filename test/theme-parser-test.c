@@ -366,7 +366,7 @@ START_TEST ( test_properties_style)
     wid.name = "blaat";
     wid.state = NULL;
     rofi_theme_parse_string ( "* { none: none; bold: bold; underline: underline; italic: italic; st: italic strikethrough;}");
-    ThemeHighlight th = { ROFI_HL_BOLD, {0.0,0.0,0.0,0.0}};
+    RofiHighlightColorStyle th = { ROFI_HL_BOLD, {0.0,0.0,0.0,0.0}};
     th = rofi_theme_get_highlight ( &wid, "none",      th);
     ck_assert_int_eq ( th.style , ROFI_HL_NONE );
     th = rofi_theme_get_highlight ( &wid, "underline", th);
@@ -386,7 +386,7 @@ START_TEST ( test_properties_style2 )
     wid.state = NULL;
 
     rofi_theme_parse_string ( "* { boldu: bold underline ; boldi: bold italic; underlinei: underline italic; italicu: italic underline;}");
-    ThemeHighlight th = { ROFI_HL_BOLD, {0.0,0.0,0.0,0.0}};
+    RofiHighlightColorStyle th = { ROFI_HL_BOLD, {0.0,0.0,0.0,0.0}};
     th = rofi_theme_get_highlight ( &wid, "boldu", th);
     ck_assert_int_eq ( th.style , (ROFI_HL_UNDERLINE|ROFI_HL_BOLD));
     th = rofi_theme_get_highlight ( &wid, "boldi", th);
@@ -403,7 +403,7 @@ START_TEST ( test_properties_style_color )
     wid.name = "blaat";
     wid.state = NULL;
     rofi_theme_parse_string ( "* { comb: bold #123; }");
-    ThemeHighlight th = { ROFI_HL_BOLD, {0.0,0.0,0.0,0.0}};
+    RofiHighlightColorStyle th = { ROFI_HL_BOLD, {0.0,0.0,0.0,0.0}};
     th = rofi_theme_get_highlight ( &wid, "comb", th);
     ck_assert_int_eq ( th.style , (ROFI_HL_BOLD|ROFI_HL_COLOR));
     ck_assert_double_eq ( th.color.red , (1/15.0));

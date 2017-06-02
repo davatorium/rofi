@@ -626,7 +626,7 @@ GList *rofi_theme_get_list ( const widget *widget, const char * property, const 
     return NULL;
 }
 
-ThemeHighlight rofi_theme_get_highlight ( widget *widget, const char *property, ThemeHighlight th )
+RofiHighlightColorStyle rofi_theme_get_highlight ( widget *widget, const char *property, RofiHighlightColorStyle th )
 {
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
     Property    *p   = rofi_theme_find_property ( wid, P_HIGHLIGHT, property, FALSE );
