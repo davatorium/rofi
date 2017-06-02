@@ -54,7 +54,6 @@
 
 #define DRUN_CACHE_FILE    "rofi2.druncache"
 
-#define GET_CAT_PARSE_TIME
 
 /**
  * Store extra information about the entry.
@@ -67,6 +66,7 @@ typedef struct
     /* Path to desktop file */
     char            *path;
     /* Icon stuff */
+    int             icon_size;
     char            *icon_name;
     cairo_surface_t *icon;
     /* Executable */
@@ -75,9 +75,7 @@ typedef struct
     char            *name;
     /* Generic Name */
     char            *generic_name;
-#ifdef GET_CAT_PARSE_TIME
     char            **categories;
-#endif
 
     GKeyFile        *key_file;
 } DRunModeEntry;
@@ -93,8 +91,10 @@ typedef struct
     GHashTable        *disabled_entries;
     unsigned int      disabled_entries_length;
     GThread           *thread;
+    GAsyncQueue      *icon_fetch_queue;
 
     unsigned int      expected_line_height;
+    DRunModeEntry    quit_entry;
 } DRunModePrivateData;
 
 struct RegexEvalArg
@@ -283,9 +283,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     pd->entry_list[pd->cmd_list_length].name = n;
     gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].generic_name = gn;
-#ifdef GET_CAT_PARSE_TIME
     pd->entry_list[pd->cmd_list_length].categories = g_key_file_get_locale_string_list ( kf, "Desktop Entry", "Categories", NULL, NULL, NULL );
-#endif
     pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
 
     if ( config.show_icons ) {
@@ -422,32 +420,32 @@ static void get_apps ( DRunModePrivateData *pd )
     TICK_N ( "Get Desktop apps (system dirs)" );
 }
 
-static void drun_icon_fetch ( gpointer data )
+static gpointer drun_icon_fetch ( gpointer data )
 {
     // as long as dr->icon is updated atomicly.. (is a pointer write atomic?)
     // this should be fine running in another thread.
-    GTimer              *t  = g_timer_new ();
     DRunModePrivateData *pd = (DRunModePrivateData *) data;
-    for ( size_t i = 0; i < pd->cmd_list_length; i++ ) {
-        DRunModeEntry *dr = &( pd->entry_list[i] );
+    DRunModeEntry *dr;
+    while ( ( dr = g_async_queue_pop ( pd->icon_fetch_queue )) != &(pd->quit_entry)  )
+    {
         if ( dr->icon_name == NULL ) {
             continue;
         }
-        gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", dr->icon_name, pd->expected_line_height, 1, TRUE );
+        gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", dr->icon_name, dr->icon_size, 1, TRUE );
         if ( icon_path == NULL ) {
             g_free ( dr->icon_name );
             dr->icon_name = NULL;
             continue;
         }
         else{
-            g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon %s(%d): %s", dr->icon_name, pd->expected_line_height, icon_path );
+            g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon %s(%d): %s", dr->icon_name, dr->icon_size, icon_path );
         }
 
         if ( g_str_has_suffix ( icon_path, ".png" ) ) {
             dr->icon = cairo_image_surface_create_from_png ( icon_path );
         }
         else if ( g_str_has_suffix ( icon_path, ".svg" ) ) {
-            dr->icon = cairo_image_surface_create_from_svg ( icon_path, pd->expected_line_height );
+            dr->icon = cairo_image_surface_create_from_svg ( icon_path, dr->icon_size);
         }
         else {
             g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", icon_path );
@@ -458,20 +456,18 @@ static void drun_icon_fetch ( gpointer data )
         g_free ( icon_path );
         rofi_view_reload ();
     }
-    g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "elapsed: %f\n", g_timer_elapsed ( t, NULL ) );
-    g_timer_destroy ( t );
+    return NULL;
 }
 
 static int drun_mode_init ( Mode *sw )
 {
     if ( mode_get_private_data ( sw ) == NULL ) {
         DRunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
-        pd->expected_line_height = ceil ( textbox_get_estimated_char_height ( ) );
         pd->disabled_entries = g_hash_table_new_full ( g_str_hash, g_str_equal, g_free, NULL );
         mode_set_private_data ( sw, (void *) pd );
         pd->xdg_context = nk_xdg_theme_context_new ();
         get_apps ( pd );
-        pd->thread = g_thread_new ( "icon-fetch-drun", drun_icon_fetch, pd );
+        pd->icon_fetch_queue = g_async_queue_new ( );
     }
     return TRUE;
 }
@@ -486,9 +482,7 @@ static void drun_entry_clear ( DRunModeEntry *e )
     g_free ( e->exec );
     g_free ( e->name );
     g_free ( e->generic_name );
-#ifdef GET_CAT_PARSE_TIME
     g_strfreev ( e->categories );
-#endif
     g_key_file_free ( e->key_file );
 }
 
@@ -517,8 +511,13 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
     else if ( ( mretv & MENU_ENTRY_DELETE ) && selected_line < rmpd->cmd_list_length ) {
         if ( selected_line < rmpd->history_length ) {
             if ( rmpd->thread ) {
-                g_thread_join ( rmpd->thread );
-                rmpd->thread = NULL;
+                g_async_queue_lock ( rmpd->icon_fetch_queue );
+                DRunModeEntry *dr;
+                while ( (dr = g_async_queue_try_pop_unlocked ( rmpd->icon_fetch_queue )) != NULL ){
+                    // Reset for possible re-fetch.
+                    dr->icon_size = 0;
+                }
+                g_async_queue_unlock ( rmpd->icon_fetch_queue );
             }
             delete_entry_history ( &( rmpd->entry_list[selected_line] ) );
             drun_entry_clear ( &( rmpd->entry_list[selected_line] ) );
@@ -535,8 +534,17 @@ static void drun_mode_destroy ( Mode *sw )
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( sw );
     if ( rmpd != NULL ) {
         if ( rmpd->thread ) {
+            g_async_queue_lock ( rmpd->icon_fetch_queue );
+            while ( g_async_queue_try_pop_unlocked ( rmpd->icon_fetch_queue ) );
+            // Make the thread quit.
+            g_async_queue_push_front_unlocked ( rmpd->icon_fetch_queue, (gpointer) &(rmpd->quit_entry));
+            g_async_queue_unlock ( rmpd->icon_fetch_queue );
             g_thread_join ( rmpd->thread );
             rmpd->thread = NULL;
+        }
+        if ( rmpd->icon_fetch_queue ) {
+            g_async_queue_unref ( rmpd->icon_fetch_queue );
+            rmpd->icon_fetch_queue = NULL;
         }
         for ( size_t i = 0; i < rmpd->cmd_list_length; i++ ) {
             drun_entry_clear ( &( rmpd->entry_list[i] ) );
@@ -576,6 +584,13 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
     DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
     g_return_val_if_fail ( pd->entry_list != NULL, NULL );
     DRunModeEntry       *dr = &( pd->entry_list[selected_line] );
+    if ( pd->thread == NULL ) {
+        pd->thread = g_thread_new ( "icon-fetch-drun", drun_icon_fetch, pd );
+    }
+    if ( dr->icon_size ==  0 && dr->icon_name  ) {
+        dr->icon_size = height;
+        g_async_queue_push ( pd->icon_fetch_queue, dr );
+    }
     return dr->icon;
 }
 
@@ -616,18 +631,10 @@ static int drun_token_match ( const Mode *data, GRegex **tokens, unsigned int in
             }
             // Match against category.
             if ( !test ) {
-#ifdef GET_CAT_PARSE_TIME
                 gchar **list = rmpd->entry_list[index].categories;
                 for ( int iter = 0; !test && list && list[iter]; iter++ ) {
                     test = helper_token_match ( ftokens, list[iter] );
                 }
-#else
-                gchar **list = g_key_file_get_locale_string_list ( rmpd->entry_list[index].key_file, "Desktop Entry", "Categories", NULL, NULL, NULL );
-                for ( int iter = 0; !test && list && list[iter]; iter++ ) {
-                    test = helper_token_match ( ftokens, list[iter] );
-                }
-                g_strfreev ( list );
-#endif
             }
             if ( test == 0 ) {
                 match = 0;
