@@ -420,7 +420,7 @@ static void get_apps ( DRunModePrivateData *pd )
     TICK_N ( "Get Desktop apps (system dirs)" );
 }
 
-static void drun_icon_fetch ( gpointer data )
+static gpointer drun_icon_fetch ( gpointer data )
 {
     // as long as dr->icon is updated atomicly.. (is a pointer write atomic?)
     // this should be fine running in another thread.
@@ -462,6 +462,7 @@ static void drun_icon_fetch ( gpointer data )
     rofi_view_reload ();
     g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "elapsed: %f\n", g_timer_elapsed ( t, NULL ) );
     g_timer_destroy ( t );
+    return NULL;
 }
 
 static int drun_mode_init ( Mode *sw )
