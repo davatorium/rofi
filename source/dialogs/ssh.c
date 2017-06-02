@@ -81,7 +81,17 @@ static inline int execshssh ( const char *host )
 
     helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, NULL );
 
-    return helper_execute ( NULL, args, "ssh ", host, NULL );
+    gsize l     = strlen ( "Connecting to '' via rofi" ) + strlen ( host ) + 1;
+    gchar *desc = g_newa ( gchar, l );
+
+    g_snprintf ( desc, l, "Connecting to '%s' via rofi", host );
+
+    RofiHelperExecuteContext context = {
+        .name        = "ssh",
+        .description = desc,
+        .command     = "ssh",
+    };
+    return helper_execute ( NULL, args, "ssh ", host, &context );
 }
 
 /**
