@@ -197,7 +197,7 @@ static void barview_draw ( widget *wid, cairo_t *draw )
     listview *lv    = (listview *) wid;
     offset = scroll_per_page_barview ( lv );
     lv->last_offset = offset;
-    int spacing_hori = distance_get_pixel ( lv->spacing, ORIENTATION_HORIZONTAL );
+    int spacing_hori = distance_get_pixel ( lv->spacing, ROFI_ORIENTATION_HORIZONTAL );
 
     int left_offset = widget_padding_get_left ( wid );
     int right_offset = lv->widget.w - widget_padding_get_right( wid );
@@ -289,8 +289,8 @@ static void listview_draw ( widget *wid, cairo_t *draw )
         scrollbar_set_handle ( lv->scrollbar, lv->selected  );
     }
     lv->last_offset = offset;
-    int spacing_vert = distance_get_pixel ( lv->spacing, ORIENTATION_VERTICAL );
-    int spacing_hori = distance_get_pixel ( lv->spacing, ORIENTATION_HORIZONTAL );
+    int spacing_vert = distance_get_pixel ( lv->spacing, ROFI_ORIENTATION_VERTICAL );
+    int spacing_hori = distance_get_pixel ( lv->spacing, ROFI_ORIENTATION_HORIZONTAL );
 
     int left_offset = widget_padding_get_left ( wid );
     int top_offset  = widget_padding_get_top ( wid );
@@ -411,7 +411,7 @@ static void listview_resize ( widget *wid, short w, short h )
     lv->widget.w = MAX ( 0, w );
     lv->widget.h = MAX ( 0, h );
     int height       = lv->widget.h - widget_padding_get_padding_height ( WIDGET ( lv ) );
-    int spacing_vert = distance_get_pixel ( lv->spacing, ORIENTATION_VERTICAL );
+    int spacing_vert = distance_get_pixel ( lv->spacing, ROFI_ORIENTATION_VERTICAL );
     lv->max_rows     = ( spacing_vert + height ) / ( lv->element_height + spacing_vert );
     lv->max_elements = lv->max_rows * lv->menu_columns;
 
@@ -736,7 +736,7 @@ static int listview_get_desired_height ( widget *wid )
     if ( lv == NULL || lv->widget.enabled == FALSE ) {
         return 0;
     }
-    int spacing = distance_get_pixel ( lv->spacing, ORIENTATION_VERTICAL );
+    int spacing = distance_get_pixel ( lv->spacing, ROFI_ORIENTATION_VERTICAL );
     int h       = lv->menu_lines;
     if ( !( lv->fixed_num_lines ) ) {
         if ( lv->dynamic ) {

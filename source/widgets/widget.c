@@ -144,18 +144,18 @@ void widget_draw ( widget *widget, cairo_t *d )
         }
         // Store current state.
         cairo_save ( d );
-        const int margin_left   = distance_get_pixel ( widget->margin.left, ORIENTATION_HORIZONTAL );
-        const int margin_top    = distance_get_pixel ( widget->margin.top, ORIENTATION_VERTICAL );
-        const int margin_right  = distance_get_pixel ( widget->margin.right, ORIENTATION_HORIZONTAL );
-        const int margin_bottom = distance_get_pixel ( widget->margin.bottom, ORIENTATION_VERTICAL );
-        const int left          = distance_get_pixel ( widget->border.left, ORIENTATION_HORIZONTAL );
-        const int right         = distance_get_pixel ( widget->border.right, ORIENTATION_HORIZONTAL );
-        const int top           = distance_get_pixel ( widget->border.top, ORIENTATION_VERTICAL );
-        const int bottom        = distance_get_pixel ( widget->border.bottom, ORIENTATION_VERTICAL );
-        int       radius_bl     = distance_get_pixel ( widget->border_radius.left, ORIENTATION_HORIZONTAL );
-        int       radius_tr     = distance_get_pixel ( widget->border_radius.right, ORIENTATION_HORIZONTAL );
-        int       radius_tl     = distance_get_pixel ( widget->border_radius.top, ORIENTATION_VERTICAL );
-        int       radius_br     = distance_get_pixel ( widget->border_radius.bottom, ORIENTATION_VERTICAL );
+        const int margin_left   = distance_get_pixel ( widget->margin.left, ROFI_ORIENTATION_HORIZONTAL );
+        const int margin_top    = distance_get_pixel ( widget->margin.top, ROFI_ORIENTATION_VERTICAL );
+        const int margin_right  = distance_get_pixel ( widget->margin.right, ROFI_ORIENTATION_HORIZONTAL );
+        const int margin_bottom = distance_get_pixel ( widget->margin.bottom, ROFI_ORIENTATION_VERTICAL );
+        const int left          = distance_get_pixel ( widget->border.left, ROFI_ORIENTATION_HORIZONTAL );
+        const int right         = distance_get_pixel ( widget->border.right, ROFI_ORIENTATION_HORIZONTAL );
+        const int top           = distance_get_pixel ( widget->border.top, ROFI_ORIENTATION_VERTICAL );
+        const int bottom        = distance_get_pixel ( widget->border.bottom, ROFI_ORIENTATION_VERTICAL );
+        int       radius_bl     = distance_get_pixel ( widget->border_radius.left, ROFI_ORIENTATION_HORIZONTAL );
+        int       radius_tr     = distance_get_pixel ( widget->border_radius.right, ROFI_ORIENTATION_HORIZONTAL );
+        int       radius_tl     = distance_get_pixel ( widget->border_radius.top, ROFI_ORIENTATION_VERTICAL );
+        int       radius_br     = distance_get_pixel ( widget->border_radius.bottom, ROFI_ORIENTATION_VERTICAL );
 
         double    vspace = widget->h - margin_top - margin_bottom - top / 2.0 - bottom / 2.0;
         double    hspace = widget->w - margin_left - margin_right - left / 2.0 - right / 2.0;
@@ -484,9 +484,9 @@ int widget_padding_get_left ( const widget *wid )
     if ( wid == NULL ) {
         return 0;
     }
-    int distance = distance_get_pixel ( wid->padding.left, ORIENTATION_HORIZONTAL );
-    distance += distance_get_pixel ( wid->border.left, ORIENTATION_HORIZONTAL );
-    distance += distance_get_pixel ( wid->margin.left, ORIENTATION_HORIZONTAL );
+    int distance = distance_get_pixel ( wid->padding.left, ROFI_ORIENTATION_HORIZONTAL );
+    distance += distance_get_pixel ( wid->border.left, ROFI_ORIENTATION_HORIZONTAL );
+    distance += distance_get_pixel ( wid->margin.left, ROFI_ORIENTATION_HORIZONTAL );
     return distance;
 }
 int widget_padding_get_right ( const widget *wid )
@@ -494,9 +494,9 @@ int widget_padding_get_right ( const widget *wid )
     if ( wid == NULL ) {
         return 0;
     }
-    int distance = distance_get_pixel ( wid->padding.right, ORIENTATION_HORIZONTAL );
-    distance += distance_get_pixel ( wid->border.right, ORIENTATION_HORIZONTAL );
-    distance += distance_get_pixel ( wid->margin.right, ORIENTATION_HORIZONTAL );
+    int distance = distance_get_pixel ( wid->padding.right, ROFI_ORIENTATION_HORIZONTAL );
+    distance += distance_get_pixel ( wid->border.right, ROFI_ORIENTATION_HORIZONTAL );
+    distance += distance_get_pixel ( wid->margin.right, ROFI_ORIENTATION_HORIZONTAL );
     return distance;
 }
 int widget_padding_get_top ( const widget *wid )
@@ -504,9 +504,9 @@ int widget_padding_get_top ( const widget *wid )
     if ( wid == NULL ) {
         return 0;
     }
-    int distance = distance_get_pixel ( wid->padding.top, ORIENTATION_VERTICAL );
-    distance += distance_get_pixel ( wid->border.top, ORIENTATION_VERTICAL );
-    distance += distance_get_pixel ( wid->margin.top, ORIENTATION_VERTICAL );
+    int distance = distance_get_pixel ( wid->padding.top, ROFI_ORIENTATION_VERTICAL );
+    distance += distance_get_pixel ( wid->border.top, ROFI_ORIENTATION_VERTICAL );
+    distance += distance_get_pixel ( wid->margin.top, ROFI_ORIENTATION_VERTICAL );
     return distance;
 }
 int widget_padding_get_bottom ( const widget *wid )
@@ -514,9 +514,9 @@ int widget_padding_get_bottom ( const widget *wid )
     if ( wid == NULL ) {
         return 0;
     }
-    int distance = distance_get_pixel ( wid->padding.bottom, ORIENTATION_VERTICAL );
-    distance += distance_get_pixel ( wid->border.bottom, ORIENTATION_VERTICAL );
-    distance += distance_get_pixel ( wid->margin.bottom, ORIENTATION_VERTICAL );
+    int distance = distance_get_pixel ( wid->padding.bottom, ROFI_ORIENTATION_VERTICAL );
+    distance += distance_get_pixel ( wid->border.bottom, ROFI_ORIENTATION_VERTICAL );
+    distance += distance_get_pixel ( wid->margin.bottom, ROFI_ORIENTATION_VERTICAL );
     return distance;
 }
 

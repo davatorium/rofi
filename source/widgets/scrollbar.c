@@ -105,7 +105,7 @@ scrollbar *scrollbar_create ( const char *name )
     sb->widget.x = 0;
     sb->widget.y = 0;
     sb->width    = rofi_theme_get_distance ( WIDGET ( sb ), "handle-width", DEFAULT_SCROLLBAR_WIDTH );
-    int width = distance_get_pixel ( sb->width, ORIENTATION_HORIZONTAL );
+    int width = distance_get_pixel ( sb->width, ROFI_ORIENTATION_HORIZONTAL );
     sb->widget.w = widget_padding_get_padding_width ( WIDGET ( sb ) ) + width;
     sb->widget.h = widget_padding_get_padding_height ( WIDGET ( sb ) );
 

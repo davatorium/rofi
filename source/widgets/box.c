@@ -40,7 +40,7 @@
 struct _box
 {
     widget   widget;
-    Orientation type;
+    RofiOrientation type;
     int      max_size;
     // Padding between elements
     RofiDistance spacing;
@@ -56,7 +56,7 @@ static int box_get_desired_width  ( widget *wid )
     box *b      = (box *) wid;
     int spacing = distance_get_pixel ( b->spacing, b->type );
     int width  = 0;
-    if ( b->type == ORIENTATION_HORIZONTAL ) {
+    if ( b->type == ROFI_ORIENTATION_HORIZONTAL ) {
         int active_widgets = 0;
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
             widget * child = (widget *) iter->data;
@@ -91,7 +91,7 @@ static int box_get_desired_height ( widget *wid )
     box *b      = (box *) wid;
     int spacing = distance_get_pixel ( b->spacing, b->type );
     int height  = 0;
-    if ( b->type == ORIENTATION_VERTICAL) {
+    if ( b->type == ROFI_ORIENTATION_VERTICAL) {
         int active_widgets = 0;
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
             widget * child = (widget *) iter->data;
@@ -124,7 +124,7 @@ static int box_get_desired_height ( widget *wid )
 
 static void vert_calculate_size ( box *b )
 {
-    int spacing           = distance_get_pixel ( b->spacing, ORIENTATION_VERTICAL );
+    int spacing           = distance_get_pixel ( b->spacing, ROFI_ORIENTATION_VERTICAL );
     int expanding_widgets = 0;
     int active_widgets    = 0;
     int rem_width         = widget_padding_get_remaining_width ( WIDGET ( b ) );
@@ -188,7 +188,7 @@ static void vert_calculate_size ( box *b )
 }
 static void hori_calculate_size ( box *b )
 {
-    int spacing           = distance_get_pixel ( b->spacing, ORIENTATION_HORIZONTAL );
+    int spacing           = distance_get_pixel ( b->spacing, ROFI_ORIENTATION_HORIZONTAL );
     int expanding_widgets = 0;
     int active_widgets    = 0;
     int rem_width         = widget_padding_get_remaining_width ( WIDGET ( b ) );
@@ -287,7 +287,7 @@ void box_add ( box *box, widget *child, gboolean expand, int index )
         return;
     }
     // Make sure box is width/heigh enough.
-    if ( box->type == ORIENTATION_VERTICAL ) {
+    if ( box->type == ROFI_ORIENTATION_VERTICAL ) {
         int width = box->widget.w;
         width         = MAX ( width, child->w + widget_padding_get_padding_width ( WIDGET ( box ) ) );
         box->widget.w = width;
@@ -335,7 +335,7 @@ static widget *box_find_mouse_target ( widget *wid, WidgetType type, gint x, gin
     return NULL;
 }
 
-box * box_create ( const char *name, Orientation type )
+box * box_create ( const char *name, RofiOrientation type )
 {
     box *b = g_malloc0 ( sizeof ( box ) );
     // Initialize widget.
@@ -361,10 +361,10 @@ static void box_update ( widget *wid  )
     box *b = (box *) wid;
     switch ( b->type )
     {
-    case ORIENTATION_VERTICAL:
+    case ROFI_ORIENTATION_VERTICAL:
         vert_calculate_size ( b );
         break;
-    case ORIENTATION_HORIZONTAL:
+    case ROFI_ORIENTATION_HORIZONTAL:
     default:
         hori_calculate_size ( b );
     }

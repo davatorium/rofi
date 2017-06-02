@@ -348,8 +348,8 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
     // Apply offset.
     RofiDistance x = rofi_theme_get_distance ( WIDGET ( state->main_window ), "x-offset", config.x_offset );
     RofiDistance y = rofi_theme_get_distance ( WIDGET ( state->main_window ), "y-offset", config.y_offset );
-    state->x += distance_get_pixel ( x, ORIENTATION_HORIZONTAL );
-    state->y += distance_get_pixel ( y, ORIENTATION_VERTICAL );
+    state->x += distance_get_pixel ( x, ROFI_ORIENTATION_HORIZONTAL );
+    state->y += distance_get_pixel ( y, ROFI_ORIENTATION_VERTICAL );
 }
 
 static void rofi_view_window_update_size ( RofiViewState * state )
@@ -709,7 +709,7 @@ void __create_window ( MenuFlags menu_flags )
     }
     // Setup font.
     // Dummy widget.
-    box *win  = box_create ( "window.box_window", ORIENTATION_HORIZONTAL);
+    box *win  = box_create ( "window.box_window", ROFI_ORIENTATION_HORIZONTAL);
     const char *font = rofi_theme_get_string ( WIDGET ( win ), "font", config.menu_font );
     if ( font ) {
         PangoFontDescription *pfd = pango_font_description_from_string ( font );
@@ -808,7 +808,7 @@ static void rofi_view_calculate_window_width ( RofiViewState *state )
     }
     // Use theme configured width, if set.
     RofiDistance width = rofi_theme_get_distance ( WIDGET ( state->main_window ), "width", state->width );
-    state->width = distance_get_pixel ( width, ORIENTATION_HORIZONTAL );
+    state->width = distance_get_pixel ( width, ROFI_ORIENTATION_HORIZONTAL );
 }
 
 /**
@@ -1497,7 +1497,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
      * MAINBOX
      */
     if ( strcmp ( name, "mainbox") == 0 ){
-        wid = (widget *)box_create ( strbox, ORIENTATION_VERTICAL );
+        wid = (widget *)box_create ( strbox, ROFI_ORIENTATION_VERTICAL );
         box_add ( (box *)parent_widget, WIDGET ( wid ), TRUE, 0 );
         defaults = "inputbar,message,listview";
     }
@@ -1505,7 +1505,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
      * INPUTBAR
      */
     else if ( strcmp ( name, "inputbar" ) == 0 ){
-        wid = (widget *)box_create ( strbox, ORIENTATION_HORIZONTAL );
+        wid = (widget *)box_create ( strbox, ROFI_ORIENTATION_HORIZONTAL );
         defaults = "prompt,entry,case-indicator";
 
         box_add ( (box *)parent_widget, WIDGET ( wid ), FALSE, 0 );
@@ -1571,7 +1571,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
      */
     else if ( strcmp( name, "sidebar" ) == 0 ) {
         if ( config.sidebar_mode ){
-            state->sidebar_bar = box_create ( strbox, ORIENTATION_HORIZONTAL );
+            state->sidebar_bar = box_create ( strbox, ROFI_ORIENTATION_HORIZONTAL );
             box_add ( (box*)parent_widget, WIDGET ( state->sidebar_bar ), FALSE, 10 );
             state->num_modi = rofi_get_num_enabled_modi ();
             state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
@@ -1589,7 +1589,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         textbox *t = textbox_create ( str, TB_WRAP, NORMAL, "");
         box_add ( (box *)parent_widget, WIDGET(t), TRUE, 0);
     } else {
-        wid = box_create ( strbox, ORIENTATION_VERTICAL );
+        wid = box_create ( strbox, ROFI_ORIENTATION_VERTICAL );
         box_add ( (box *)parent_widget, WIDGET ( wid ), TRUE, 0 );
         //g_error("The widget %s does not exists. Invalid layout.", name);
     }
@@ -1632,7 +1632,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     TICK_N ( "Get active monitor" );
 
 
-    state->main_window = box_create ( "window.box", ORIENTATION_VERTICAL );
+    state->main_window = box_create ( "window.box", ROFI_ORIENTATION_VERTICAL );
     // Get children.
     GList *list = rofi_theme_get_list ( WIDGET(state->main_window), "children", "mainbox");
     for ( const GList *iter = list; iter != NULL; iter = g_list_next ( iter )){
@@ -1683,8 +1683,8 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->menu_flags = MENU_ERROR_DIALOG;
     state->finalize   = process_result;
 
-    state->main_window = box_create ( "window.box", ORIENTATION_VERTICAL );
-    box *box           = box_create ( "window.mainbox.message.box", ORIENTATION_VERTICAL );
+    state->main_window = box_create ( "window.box", ROFI_ORIENTATION_VERTICAL );
+    box *box           = box_create ( "window.mainbox.message.box", ROFI_ORIENTATION_VERTICAL );
     box_add ( state->main_window, WIDGET ( box ), TRUE, 0 );
     state->text = textbox_create ( "window.mainbox.message.textbox", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
                                    NORMAL, ( msg != NULL ) ? msg : "" );

@@ -83,7 +83,7 @@ typedef struct
     double     distance;
     /** Unit type of the distance */
     RofiPixelUnit  type;
-    /** Style of the line */
+    /** Style of the line (optional)*/
     RofiLineStyle  style;
 } RofiDistance;
 
@@ -92,9 +92,9 @@ typedef struct
  */
 typedef enum
 {
-    ORIENTATION_VERTICAL,
-    ORIENTATION_HORIZONTAL
-} Orientation;
+    ROFI_ORIENTATION_VERTICAL,
+    ROFI_ORIENTATION_HORIZONTAL
+} RofiOrientation;
 /**
  * Type of property
  */
@@ -365,7 +365,7 @@ int rofi_theme_get_boolean   (  const widget *widget, const char *property, int 
  *
  * @returns The orientation of this property for this widget or %def not found.
  */
-Orientation rofi_theme_get_orientation ( const widget *widget, const char *property, Orientation def );
+RofiOrientation rofi_theme_get_orientation ( const widget *widget, const char *property, RofiOrientation def );
 /**
  * @param widget   The widget to query
  * @param property The property to query.
@@ -427,7 +427,7 @@ ThemeHighlight rofi_theme_get_highlight ( widget *widget, const char *property, 
  * Convert RofiDistance into pixels.
  * @returns the number of pixels this distance represents.
  */
-int distance_get_pixel ( RofiDistance d, Orientation ori );
+int distance_get_pixel ( RofiDistance d, RofiOrientation ori );
 /**
  * @param d The distance handle.
  * @param draw The cairo drawable.

@@ -579,8 +579,8 @@ t_property_color_value
 ;
 
 t_property_orientation
-: ORIENTATION_HORI {  $$ = ORIENTATION_HORIZONTAL; }
-| ORIENTATION_VERT {  $$ = ORIENTATION_VERTICAL;   }
+: ORIENTATION_HORI {  $$ = ROFI_ORIENTATION_HORIZONTAL; }
+| ORIENTATION_VERT {  $$ = ROFI_ORIENTATION_VERTICAL;   }
 ;
 
 /** Property name */
