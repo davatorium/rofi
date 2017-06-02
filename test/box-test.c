@@ -32,6 +32,7 @@
 #include <assert.h>
 #include <glib.h>
 #include <string.h>
+#include <theme.h>
 #include <widgets/box.h>
 #include <widgets/widget.h>
 #include <widgets/widget-internal.h>
@@ -91,7 +92,7 @@ void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
     {
-        box *b = box_create ( "box", BOX_HORIZONTAL );
+        box *b = box_create ( "box", ORIENTATION_HORIZONTAL );
         //box_set_padding ( b, 5 );
         widget_resize ( WIDGET (b), 100, 20);
 
@@ -153,7 +154,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         widget_free ( WIDGET ( b ) );
     }
     {
-        box *b = box_create ( "box", BOX_VERTICAL );
+        box *b = box_create ( "box", ORIENTATION_VERTICAL );
         widget_resize ( WIDGET (b), 20, 100);
         //box_set_padding ( b, 5 );
 
@@ -187,35 +188,34 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         // TODO should this happen automagically?
         widget_update ( WIDGET ( b ) ) ;
         TASSERTE ( wid1->w, 20);
-        TASSERTE ( wid1->h, 48);
+        TASSERTE ( wid1->h, 38);
         TASSERTE ( wid2->w, 20);
-        TASSERTE ( wid2->h, 48);
+        TASSERTE ( wid2->h, 38);
         TASSERTE ( wid3->w, 20);
-        TASSERTE ( wid3->h, 0);
+        TASSERTE ( wid3->h, 20);
 
         widget_resize ( WIDGET (b ), 20, 200 );
         TASSERTE ( wid1->w, 20);
-        TASSERTE ( wid1->h, 98);
+        TASSERTE ( wid1->h, 88);
         TASSERTE ( wid2->w, 20);
-        TASSERTE ( wid2->h, 98);
+        TASSERTE ( wid2->h, 88);
         TASSERTE ( wid3->w, 20);
-        // has no height, gets no height.
-        TASSERTE ( wid3->h, 0);
+        TASSERTE ( wid3->h, 20);
 //        TASSERTE ( box_get_fixed_pixels ( b ) , 4 );
         widget *wid4 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid4 ) );
         widget_resize ( WIDGET ( wid4 ), 20, 20 );
         box_add ( b , WIDGET( wid4 ), FALSE, 5 );
-        TASSERTE ( wid4->y, 200);
+        TASSERTE ( wid4->y, 180);
         widget *wid5 = g_malloc0(sizeof(widget));
         widget_enable ( WIDGET ( wid5 ) );
         widget_resize ( WIDGET ( wid5 ), 20, 20 );
         box_add ( b , WIDGET( wid5 ), TRUE, 6 );
-        TASSERTE ( wid5->y, 136);
+        TASSERTE ( wid5->y, 149);
         widget_free ( WIDGET ( b ) );
     }
     {
-        box *b = box_create ( "box", BOX_VERTICAL );
+        box *b = box_create ( "box", ORIENTATION_VERTICAL );
         widget_resize ( WIDGET (b), 20, 90);
         //box_set_padding ( b, 5 );
         widget *wid1 = g_malloc0(sizeof(widget));

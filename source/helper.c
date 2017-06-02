@@ -411,37 +411,37 @@ PangoAttrList *helper_token_match_get_pango_attr ( ThemeHighlight th, GRegex **t
                 for ( int index = ( count > 1 ) ? 1 : 0; index < count; index++ ) {
                     int start, end;
                     g_match_info_fetch_pos ( gmi, index, &start, &end );
-                    if ( th.style & HL_BOLD ) {
+                    if ( th.style & ROFI_HL_BOLD ) {
                         PangoAttribute *pa = pango_attr_weight_new ( PANGO_WEIGHT_BOLD );
                         pa->start_index = start;
                         pa->end_index   = end;
                         pango_attr_list_insert ( retv, pa );
                     }
-                    if ( th.style & HL_UNDERLINE ) {
+                    if ( th.style & ROFI_HL_UNDERLINE ) {
                         PangoAttribute *pa = pango_attr_underline_new ( PANGO_UNDERLINE_SINGLE );
                         pa->start_index = start;
                         pa->end_index   = end;
                         pango_attr_list_insert ( retv, pa );
                     }
-                    if ( th.style & HL_STRIKETHROUGH ) {
+                    if ( th.style & ROFI_HL_STRIKETHROUGH ) {
                         PangoAttribute *pa = pango_attr_strikethrough_new ( TRUE );
                         pa->start_index = start;
                         pa->end_index   = end;
                         pango_attr_list_insert ( retv, pa );
                     }
-                    if ( th.style & HL_SMALL_CAPS ) {
+                    if ( th.style & ROFI_HL_SMALL_CAPS ) {
                         PangoAttribute *pa = pango_attr_variant_new ( PANGO_VARIANT_SMALL_CAPS );
                         pa->start_index = start;
                         pa->end_index   = end;
                         pango_attr_list_insert ( retv, pa );
                     }
-                    if ( th.style & HL_ITALIC ) {
+                    if ( th.style & ROFI_HL_ITALIC ) {
                         PangoAttribute *pa = pango_attr_style_new ( PANGO_STYLE_ITALIC );
                         pa->start_index = start;
                         pa->end_index   = end;
                         pango_attr_list_insert ( retv, pa );
                     }
-                    if ( th.style & HL_COLOR ) {
+                    if ( th.style & ROFI_HL_COLOR ) {
                         PangoAttribute *pa = pango_attr_foreground_new (
                             th.color.red * 65535,
                             th.color.green * 65535,

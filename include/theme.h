@@ -37,20 +37,20 @@
 typedef enum
 {
     /** no highlight */
-    HL_NONE          = 0,
+    ROFI_HL_NONE          = 0,
     /** bold */
-    HL_BOLD          = 1,
+    ROFI_HL_BOLD          = 1,
     /** underline */
-    HL_UNDERLINE     = 2,
+    ROFI_HL_UNDERLINE     = 2,
     /** strikethrough */
-    HL_STRIKETHROUGH = 16,
+    ROFI_HL_STRIKETHROUGH = 16,
     /** small caps */
-    HL_SMALL_CAPS    = 32,
+    ROFI_HL_SMALL_CAPS    = 32,
     /** italic */
-    HL_ITALIC        = 4,
+    ROFI_HL_ITALIC        = 4,
     /** color */
-    HL_COLOR         = 8
-} HighlightStyle;
+    ROFI_HL_COLOR         = 8
+} RofiHighlightStyle;
 
 /** Style of line */
 typedef enum
@@ -156,7 +156,7 @@ typedef struct
 typedef struct
 {
     /** style to display */
-    HighlightStyle style;
+    RofiHighlightStyle style;
     /** Color */
     ThemeColor     color;
 } ThemeHighlight;

@@ -164,19 +164,19 @@ static void rofi_theme_print_property_index ( size_t pnl, int depth, Property *p
     switch ( p->type )
     {
     case P_HIGHLIGHT:
-        if ( p->value.highlight.style & HL_BOLD ) {
+        if ( p->value.highlight.style & ROFI_HL_BOLD ) {
             printf ( "bold " );
         }
-        if ( p->value.highlight.style & HL_UNDERLINE ) {
+        if ( p->value.highlight.style & ROFI_HL_UNDERLINE ) {
             printf ( "underline " );
         }
-        if ( p->value.highlight.style & HL_STRIKETHROUGH ) {
+        if ( p->value.highlight.style & ROFI_HL_STRIKETHROUGH ) {
             printf ( "strikethrough " );
         }
-        if ( p->value.highlight.style & HL_ITALIC ) {
+        if ( p->value.highlight.style & ROFI_HL_ITALIC ) {
             printf ( "italic " );
         }
-        if ( p->value.highlight.style & HL_COLOR ) {
+        if ( p->value.highlight.style & ROFI_HL_COLOR ) {
             printf ( "rgba ( %.0f, %.0f, %.0f, %.0f %% )",
                      ( p->value.highlight.color.red * 255.0 ),
                      ( p->value.highlight.color.green * 255.0 ),

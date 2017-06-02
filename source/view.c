@@ -911,7 +911,7 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
         textbox_icon ( t, icon );
 
         if ( state->tokens && config.show_match ) {
-            ThemeHighlight th = { HL_BOLD | HL_UNDERLINE, { 0.0, 0.0, 0.0, 0.0 } };
+            ThemeHighlight th = { ROFI_HL_BOLD | ROFI_HL_UNDERLINE, { 0.0, 0.0, 0.0, 0.0 } };
             th = rofi_theme_get_highlight ( WIDGET ( t ), "highlight", th );
             helper_token_match_get_pango_attr ( th, state->tokens, textbox_get_visible_text ( t ), list );
         }

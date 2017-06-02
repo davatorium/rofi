@@ -358,7 +358,7 @@ t_property
 | t_property_name T_PSEP t_property_highlight_styles t_property_color T_PCLOSE {
         $$ = rofi_theme_property_create ( P_HIGHLIGHT );
         $$->name = $1;
-        $$->value.highlight.style = $3|HL_COLOR;
+        $$->value.highlight.style = $3|ROFI_HL_COLOR;
         $$->value.highlight.color = $4;
 }
 | t_property_name T_PSEP t_property_highlight_styles T_PCLOSE {
@@ -422,12 +422,12 @@ t_property_highlight_styles
 ;
 /** Single style. */
 t_property_highlight_style
-: T_NONE          { $$ = HL_NONE; }
-| T_BOLD          { $$ = HL_BOLD; }
-| T_UNDERLINE     { $$ = HL_UNDERLINE; }
-| T_STRIKETHROUGH { $$ = HL_STRIKETHROUGH; }
-| T_ITALIC        { $$ = HL_ITALIC; }
-| T_SMALLCAPS     { $$ = HL_SMALL_CAPS; }
+: T_NONE          { $$ = ROFI_HL_NONE; }
+| T_BOLD          { $$ = ROFI_HL_BOLD; }
+| T_UNDERLINE     { $$ = ROFI_HL_UNDERLINE; }
+| T_STRIKETHROUGH { $$ = ROFI_HL_STRIKETHROUGH; }
+| T_ITALIC        { $$ = ROFI_HL_ITALIC; }
+| T_SMALLCAPS     { $$ = ROFI_HL_SMALL_CAPS; }
 ;
 
 /** Distance. */
