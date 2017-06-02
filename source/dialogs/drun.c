@@ -95,6 +95,8 @@ typedef struct
 
     unsigned int      expected_line_height;
     DRunModeEntry    quit_entry;
+    // Theme
+    const gchar             *icon_theme;
 } DRunModePrivateData;
 
 struct RegexEvalArg
@@ -277,6 +279,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         pd->cmd_list_length_actual += 256;
         pd->entry_list              = g_realloc ( pd->entry_list, pd->cmd_list_length_actual * sizeof ( *( pd->entry_list ) ) );
     }
+    pd->entry_list[pd->cmd_list_length].icon_size = 0;
     pd->entry_list[pd->cmd_list_length].root = g_strdup ( root );
     pd->entry_list[pd->cmd_list_length].path = g_strdup ( path );
     gchar *n = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
@@ -441,7 +444,7 @@ static gpointer drun_icon_fetch ( gpointer data )
         if ( dr->icon_name == NULL ) {
             continue;
         }
-        gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", dr->icon_name, dr->icon_size, 1, TRUE );
+        gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, pd->icon_theme, "Applications", dr->icon_name, dr->icon_size, 1, TRUE );
         if ( icon_path == NULL ) {
             g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to get Icon %s(%d): n/a", dr->icon_name, dr->icon_size );
             g_free ( dr->icon_name );
@@ -478,6 +481,7 @@ static int drun_mode_init ( Mode *sw )
         mode_set_private_data ( sw, (void *) pd );
         pd->xdg_context = nk_xdg_theme_context_new ();
         get_apps ( pd );
+        pd->icon_theme =g_getenv("ROFI_ICON_THEME");
         pd->icon_fetch_queue = g_async_queue_new ( );
     }
     return TRUE;
