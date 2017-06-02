@@ -185,15 +185,27 @@ static void exec_cmd_entry ( DRunModeEntry *e )
         exec_path = NULL;
     }
 
+    RofiHelperExecuteContext context = {
+        .name = e->name,
+        .icon = e->icon_name,
+        .app_id = e->app_id,
+    };
+    gboolean sn       = g_key_file_get_boolean ( e->key_file, "Desktop Entry", "StartupNotify", NULL );
+    gchar    *wmclass = NULL;
+    if ( sn && g_key_file_has_key ( e->key_file, "Desktop Entry", "StartupWMClass", NULL ) ) {
+        context.wmclass = wmclass = g_key_file_get_string ( e->key_file, "Desktop Entry", "StartupWMClass", NULL );
+    }
+
     // Returns false if not found, if key not found, we don't want run in terminal.
     gboolean terminal = g_key_file_get_boolean ( e->key_file, "Desktop Entry", "Terminal", NULL );
-    if ( helper_execute_command ( exec_path, fp, terminal, NULL ) ) {
+    if ( helper_execute_command ( exec_path, fp, terminal, sn ? &context : NULL ) ) {
         char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
         char *key  = g_strdup_printf ( "%s:::%s", e->root, e->path );
         history_set ( path, key );
         g_free ( key );
         g_free ( path );
     }
+    g_free ( wmclass );
     g_free ( exec_path );
     g_free ( str );
     g_free ( fp );
@@ -516,7 +528,9 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
         exec_cmd_entry ( &( rmpd->entry_list[selected_line] ) );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
-        helper_execute_command ( NULL, *input, run_in_term, NULL );
+        RofiHelperExecuteContext context = { .name = NULL };
+        // FIXME: We assume startup notification in terminals, not in others
+        helper_execute_command ( NULL, *input, run_in_term, run_in_term ? &context : NULL );
     }
     else if ( ( mretv & MENU_ENTRY_DELETE ) && selected_line < rmpd->cmd_list_length ) {
         if ( selected_line < rmpd->history_length ) {
