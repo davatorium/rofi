@@ -37,7 +37,6 @@
 #include <gio/gio.h>
 #include <helper.h>
 #include <math.h>
-#include <ctype.h>
 #include <strings.h>
 #include "rofi.h"
 #include "theme.h"
@@ -92,10 +91,10 @@ static double rofi_theme_parse_convert_hex ( char high, char low)
 {
     uint8_t retv = 0;
 
-    int t = toupper(high);
+    int t = g_ascii_toupper ( high );
     t = ( t > '9')? (t-'A'+10):(t-'0');
     retv = t<<4;
-    t = toupper ( low );
+    t = g_ascii_toupper ( low );
     t = ( t > '9')? (t-'A'+10):(t-'0');
     retv +=t;
     return retv/255.0;
