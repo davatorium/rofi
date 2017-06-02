@@ -465,7 +465,7 @@ static gpointer drun_icon_fetch ( gpointer data )
         if ( dr->icon_name == NULL ) {
             continue;
         }
-        gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, pd->icon_theme, "Applications", dr->icon_name, dr->icon_size, 1, TRUE );
+        gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, config.drun_icon_theme, "Applications", dr->icon_name, 32, 1, TRUE );
         if ( icon_path == NULL ) {
             g_debug ( "Failed to get Icon %s(%d): n/a", dr->icon_name, dr->icon_size  );
             continue;
@@ -507,7 +507,6 @@ static int drun_mode_init ( Mode *sw )
         mode_set_private_data ( sw, (void *) pd );
         pd->xdg_context = nk_xdg_theme_context_new ();
         get_apps ( pd );
-        pd->icon_theme =g_getenv("ROFI_ICON_THEME");
         pd->icon_fetch_queue = g_async_queue_new ( );
     }
     return TRUE;
