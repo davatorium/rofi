@@ -449,9 +449,6 @@ static gpointer drun_icon_fetch ( gpointer data )
         }
         else {
             g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", icon_path );
-            char *r = dr->icon_name;
-            dr->icon_name = NULL;
-            g_free ( r );
         }
         g_free ( icon_path );
         // if ( (i%100) == 99 )
