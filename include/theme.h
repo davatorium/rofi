@@ -110,7 +110,7 @@ typedef enum
     P_BOOLEAN,
     /** Color */
     P_COLOR,
-    /** Padding */
+    /** RofiPadding */
     P_PADDING,
     /** Link to global setting */
     P_LINK,
@@ -140,7 +140,7 @@ typedef struct
 } ThemeColor;
 
 /**
- * Padding
+ * RofiPadding
  */
 typedef struct
 {
@@ -148,7 +148,7 @@ typedef struct
     RofiDistance right;
     RofiDistance bottom;
     RofiDistance left;
-} Padding;
+} RofiPadding;
 
 /**
  * Theme highlight.
@@ -172,8 +172,8 @@ typedef union {
     gboolean   b;
     /** Color */
     ThemeColor color;
-    /** Padding */
-    Padding    padding;
+    /** RofiPadding */
+    RofiPadding    padding;
     /** Reference */
     struct
     {
@@ -407,7 +407,7 @@ void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t 
  *
  * @returns The padding of this property for this widget.
  */
-Padding rofi_theme_get_padding ( const widget *widget, const char *property, Padding pad );
+RofiPadding rofi_theme_get_padding ( const widget *widget, const char *property, RofiPadding pad );
 
 /**
  * @param widget   The widget to query

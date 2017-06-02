@@ -333,22 +333,22 @@ t_property
 |  t_property_name T_PSEP t_property_distance T_PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
-        $$->value.padding = (Padding){ $3, $3, $3, $3 };
+        $$->value.padding = (RofiPadding){ $3, $3, $3, $3 };
 }
 |  t_property_name T_PSEP t_property_distance t_property_distance T_PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
-        $$->value.padding = (Padding){ $3, $4, $3, $4 };
+        $$->value.padding = (RofiPadding){ $3, $4, $3, $4 };
 }
 |  t_property_name T_PSEP t_property_distance t_property_distance t_property_distance T_PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
-        $$->value.padding = (Padding){ $3, $4, $5, $4 };
+        $$->value.padding = (RofiPadding){ $3, $4, $5, $4 };
 }
 |  t_property_name T_PSEP t_property_distance t_property_distance t_property_distance t_property_distance T_PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
-        $$->value.padding = (Padding){ $3, $4, $5, $6 };
+        $$->value.padding = (RofiPadding){ $3, $4, $5, $6 };
 }
 | t_property_name T_PSEP t_property_position T_PCLOSE{
         $$ = rofi_theme_property_create ( P_POSITION );

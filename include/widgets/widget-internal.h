@@ -44,15 +44,15 @@ struct _widget
     short                       w;
     /** Height of the widget */
     short                       h;
-    /** Padding */
-    Padding                     def_margin;
-    Padding                     def_padding;
-    Padding                     def_border;
-    Padding                     def_border_radius;
-    Padding                     margin;
-    Padding                     padding;
-    Padding                     border;
-    Padding                     border_radius;
+    /** RofiPadding */
+    RofiPadding                     def_margin;
+    RofiPadding                     def_padding;
+    RofiPadding                     def_border;
+    RofiPadding                     def_border_radius;
+    RofiPadding                     margin;
+    RofiPadding                     padding;
+    RofiPadding                     border;
+    RofiPadding                     border_radius;
 
     /** enabled or not */
     gboolean                    enabled;

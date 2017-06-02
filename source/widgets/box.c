@@ -42,7 +42,7 @@ struct _box
     widget   widget;
     RofiOrientation type;
     int      max_size;
-    // Padding between elements
+    // RofiPadding between elements
     RofiDistance spacing;
 
     GList    *children;

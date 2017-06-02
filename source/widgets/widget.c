@@ -38,10 +38,10 @@ void widget_init ( widget *widget, WidgetType type, const char *name )
 {
     widget->type              = type;
     widget->name              = g_strdup ( name );
-    widget->def_padding       = (Padding){ { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_HL_SOLID }, { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_HL_SOLID }, { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_HL_SOLID }, { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_HL_SOLID } };
-    widget->def_border        = (Padding){ { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID } };
-    widget->def_border_radius = (Padding){ { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID } };
-    widget->def_margin        = (Padding){ { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID } };
+    widget->def_padding       = (RofiPadding){ { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_HL_SOLID }, { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_HL_SOLID }, { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_HL_SOLID }, { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_HL_SOLID } };
+    widget->def_border        = (RofiPadding){ { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID } };
+    widget->def_border_radius = (RofiPadding){ { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID } };
+    widget->def_margin        = (RofiPadding){ { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID } };
 
     widget->padding       = rofi_theme_get_padding ( widget, "padding", widget->def_padding );
     widget->border        = rofi_theme_get_padding ( widget, "border", widget->def_border );

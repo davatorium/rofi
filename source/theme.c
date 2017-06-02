@@ -54,8 +54,8 @@ const char *PropertyTypeName[] = {
     "Boolean",
     /** Color */
     "Color",
-    /** Padding */
-    "Padding",
+    /** RofiPadding */
+    "RofiPadding",
     /** Link to global setting */
     "Reference",
     /** Position */
@@ -447,7 +447,7 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
             if ( p->type == type ) {
                 return p;
             }
-            // Padding and integer can be converted.
+            // RofiPadding and integer can be converted.
             if ( p->type == P_INTEGER && type == P_PADDING ) {
                 return p;
             }
@@ -588,7 +588,7 @@ void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t 
         g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     }
 }
-Padding rofi_theme_get_padding ( const widget *widget, const char *property, Padding pad )
+RofiPadding rofi_theme_get_padding ( const widget *widget, const char *property, RofiPadding pad )
 {
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
     Property    *p   = rofi_theme_find_property ( wid, P_PADDING, property, FALSE );
@@ -598,7 +598,7 @@ Padding rofi_theme_get_padding ( const widget *widget, const char *property, Pad
         }
         else {
             RofiDistance d = (RofiDistance){ p->value.i, ROFI_PU_PX, ROFI_HL_SOLID };
-            return (Padding){ d, d, d, d };
+            return (RofiPadding){ d, d, d, d };
         }
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
