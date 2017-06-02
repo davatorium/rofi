@@ -68,8 +68,12 @@ typedef struct
     /* Application id (.desktop filename) */
     char            *app_id;
     /* Icon stuff */
-    int             icon_size;
     char            *icon_name;
+    /* Icon size is used to indicate what size is requested by the gui.
+     * secondary it indicates if the request for a lookup has been issued (0 not issued )
+     */
+    int             icon_size;
+    /* Surface holding the icon. */
     cairo_surface_t *icon;
     /* Executable */
     char            *exec;
@@ -451,6 +455,7 @@ static void get_apps ( DRunModePrivateData *pd )
 
 static gpointer drun_icon_fetch ( gpointer data )
 {
+    g_debug ( "Starting up icon fetching thread." );
     // as long as dr->icon is updated atomicly.. (is a pointer write atomic?)
     // this should be fine running in another thread.
     DRunModePrivateData *pd = (DRunModePrivateData *) data;
@@ -468,19 +473,29 @@ static gpointer drun_icon_fetch ( gpointer data )
         else{
             g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon %s(%d): %s", dr->icon_name, dr->icon_size, icon_path );
         }
-
+        cairo_surface_t *icon_surf = NULL;
         if ( g_str_has_suffix ( icon_path, ".png" ) ) {
-            dr->icon = cairo_image_surface_create_from_png ( icon_path );
+            icon_surf = cairo_image_surface_create_from_png ( icon_path );
         }
         else if ( g_str_has_suffix ( icon_path, ".svg" ) ) {
-            dr->icon = cairo_image_surface_create_from_svg ( icon_path, dr->icon_size);
+            icon_surf = cairo_image_surface_create_from_svg ( icon_path, dr->icon_size);
         }
         else {
             g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", icon_path );
         }
+        if ( icon_surf ) {
+            // Check if surface is valid.
+            if ( cairo_surface_status ( icon_surf ) != CAIRO_STATUS_SUCCESS ) {
+                g_debug ( "Icon failed to open: %s(%d): %s", dr->icon_name, dr->icon_size, icon_path );
+                cairo_surface_destroy ( icon_surf );
+                icon_surf  = NULL;
+            }
+            dr->icon = icon_surf;
+        }
         g_free ( icon_path );
         rofi_view_reload ();
     }
+    g_debug ( "Shutting down icon fetching thread." );
     return NULL;
 }
 
