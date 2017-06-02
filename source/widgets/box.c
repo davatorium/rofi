@@ -273,15 +273,7 @@ static void box_free ( widget *wid )
     g_free ( b );
 }
 
-static int box_sort_children ( gconstpointer a, gconstpointer b )
-{
-    widget *child_a = (widget *) a;
-    widget *child_b = (widget *) b;
-
-    return child_a->index - child_b->index;
-}
-
-void box_add ( box *box, widget *child, gboolean expand, int index )
+void box_add ( box *box, widget *child, gboolean expand )
 {
     if ( box == NULL ) {
         return;
@@ -298,10 +290,8 @@ void box_add ( box *box, widget *child, gboolean expand, int index )
         box->widget.h = height;
     }
     child->expand = rofi_theme_get_boolean ( child, "expand", expand );
-    child->index  = rofi_theme_get_integer_exact ( child, "index", index );
     child->parent = WIDGET ( box );
     box->children = g_list_append ( box->children, (void *) child );
-    //box->children = g_list_sort   ( box->children, box_sort_children );
     widget_update ( WIDGET ( box ) );
 }
 

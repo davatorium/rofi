@@ -294,9 +294,11 @@ static void listview_draw ( widget *wid, cairo_t *draw )
 
     int left_offset = widget_padding_get_left ( wid );
     int top_offset  = widget_padding_get_top ( wid );
+    /*
     if ( lv->scrollbar->widget.index == 0 ) {
         left_offset += spacing_hori + lv->scrollbar->widget.w;
     }
+    */
     if ( lv->cur_elements > 0 && lv->max_rows > 0 ) {
         // Set new x/y possition.
         unsigned int max = MIN ( lv->cur_elements, lv->req_elements - offset );
@@ -415,7 +417,7 @@ static void listview_resize ( widget *wid, short w, short h )
     lv->max_rows     = ( spacing_vert + height ) / ( lv->element_height + spacing_vert );
     lv->max_elements = lv->max_rows * lv->menu_columns;
 
-    if ( lv->scrollbar->widget.index == 0 ) {
+    if ( /*lv->scrollbar->widget.index ==*/ 0 ) {
         widget_move ( WIDGET ( lv->scrollbar ),
                       widget_padding_get_left ( WIDGET ( lv ) ),
                       widget_padding_get_top  ( WIDGET ( lv ) ) );
@@ -526,8 +528,6 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
 
     char *n = g_strjoin ( ".", lv->listview_name, "scrollbar", NULL );
     lv->scrollbar = scrollbar_create ( n );
-    // Default position on right.
-    lv->scrollbar->widget.index = rofi_theme_get_integer_exact ( WIDGET ( lv->scrollbar ), "index", 1 );
     g_free ( n );
     lv->scrollbar->widget.parent = WIDGET ( lv );
     // Calculate height of an element.

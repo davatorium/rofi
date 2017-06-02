@@ -1498,7 +1498,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
      */
     if ( strcmp ( name, "mainbox") == 0 ){
         wid = (widget *)box_create ( strbox, ROFI_ORIENTATION_VERTICAL );
-        box_add ( (box *)parent_widget, WIDGET ( wid ), TRUE, 0 );
+        box_add ( (box *)parent_widget, WIDGET ( wid ), TRUE );
         defaults = "inputbar,message,listview";
     }
     /**
@@ -1508,7 +1508,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         wid = (widget *)box_create ( strbox, ROFI_ORIENTATION_HORIZONTAL );
         defaults = "prompt,entry,case-indicator";
 
-        box_add ( (box *)parent_widget, WIDGET ( wid ), FALSE, 0 );
+        box_add ( (box *)parent_widget, WIDGET ( wid ), FALSE );
     }
     /**
      * PROMPT
@@ -1517,7 +1517,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         // Prompt box.
         state->prompt = textbox_create ( str, TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "" );
         rofi_view_update_prompt ( state );
-        box_add ( (box *)parent_widget, WIDGET ( state->prompt ), FALSE, 1 );
+        box_add ( (box *)parent_widget, WIDGET ( state->prompt ), FALSE );
         defaults = NULL;
     }
     /**
@@ -1526,7 +1526,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     else if ( strcmp ( name, "case-indicator") == 0 ){
         state->case_indicator = textbox_create ( str, TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "*" );
         // Add small separator between case indicator and text box.
-        box_add ( (box *)parent_widget, WIDGET ( state->case_indicator ), FALSE, 3 );
+        box_add ( (box *)parent_widget, WIDGET ( state->case_indicator ), FALSE );
         textbox_text ( state->case_indicator, get_matching_state () );
     }
     /**
@@ -1537,7 +1537,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         TextboxFlags tfl = TB_EDITABLE;
         tfl        |= ( ( state->menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
         state->text = textbox_create ( str, tfl | TB_AUTOHEIGHT, NORMAL, NULL);
-        box_add ( (box*)parent_widget, WIDGET ( state->text ), TRUE, 2 );
+        box_add ( (box*)parent_widget, WIDGET ( state->text ), TRUE );
     }
     /**
      * MESSAGE
@@ -1548,7 +1548,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         state->mesg_tb  = textbox_create ( strmsg, TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, NULL );
         container_add ( state->mesg_box, WIDGET ( state->mesg_tb ) );
         rofi_view_reload_message_bar ( state );
-        box_add ( (box*)parent_widget, WIDGET ( state->mesg_box ), FALSE, 2 );
+        box_add ( (box*)parent_widget, WIDGET ( state->mesg_box ), FALSE );
         g_free(strmsg);
     }
     /**
@@ -1556,7 +1556,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
      */
     else if ( strcmp ( name, "listview" ) == 0 ) {
         state->list_view = listview_create ( str, update_callback, state, config.element_height, 0);
-        box_add ( (box*)parent_widget, WIDGET ( state->list_view ), TRUE, 3 );
+        box_add ( (box*)parent_widget, WIDGET ( state->list_view ), TRUE );
         // Set configuration
         listview_set_multi_select ( state->list_view, ( state->menu_flags & MENU_INDICATOR ) == MENU_INDICATOR );
         listview_set_scroll_type ( state->list_view, config.scroll_method );
@@ -1572,7 +1572,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     else if ( strcmp( name, "sidebar" ) == 0 ) {
         if ( config.sidebar_mode ){
             state->sidebar_bar = box_create ( strbox, ROFI_ORIENTATION_HORIZONTAL );
-            box_add ( (box*)parent_widget, WIDGET ( state->sidebar_bar ), FALSE, 10 );
+            box_add ( (box*)parent_widget, WIDGET ( state->sidebar_bar ), FALSE );
             state->num_modi = rofi_get_num_enabled_modi ();
             state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
             char *strbutton= g_strjoin ( "." , str, "button",NULL );
@@ -1580,17 +1580,17 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
                 const Mode * mode = rofi_get_mode ( j );
                 state->modi[j] = textbox_create ( strbutton, TB_CENTER | TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
                         mode_get_display_name ( mode  ) );
-                box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE, j );
+                box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE );
                 //widget_set_clicked_handler ( WIDGET ( state->modi[j] ), rofi_view_modi_clicked_cb, state );
             }
             g_free(strbutton);
         }
     } else if (  g_ascii_strncasecmp ( name, "textbox", 7) == 0 ){
         textbox *t = textbox_create ( str, TB_WRAP, NORMAL, "");
-        box_add ( (box *)parent_widget, WIDGET(t), TRUE, 0);
+        box_add ( (box *)parent_widget, WIDGET(t), TRUE);
     } else {
         wid = box_create ( strbox, ROFI_ORIENTATION_VERTICAL );
-        box_add ( (box *)parent_widget, WIDGET ( wid ), TRUE, 0 );
+        box_add ( (box *)parent_widget, WIDGET ( wid ), TRUE );
         //g_error("The widget %s does not exists. Invalid layout.", name);
     }
     if ( wid ) {
@@ -1685,10 +1685,10 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 
     state->main_window = box_create ( "window.box", ROFI_ORIENTATION_VERTICAL );
     box *box           = box_create ( "window.mainbox.message.box", ROFI_ORIENTATION_VERTICAL );
-    box_add ( state->main_window, WIDGET ( box ), TRUE, 0 );
+    box_add ( state->main_window, WIDGET ( box ), TRUE );
     state->text = textbox_create ( "window.mainbox.message.textbox", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
                                    NORMAL, ( msg != NULL ) ? msg : "" );
-    box_add ( box, WIDGET ( state->text ), TRUE, 1 );
+    box_add ( box, WIDGET ( state->text ), TRUE );
 
     // Make sure we enable fixed num lines when in normal window mode.
     if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == MENU_NORMAL_WINDOW ) {

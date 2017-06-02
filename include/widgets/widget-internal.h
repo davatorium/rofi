@@ -58,8 +58,6 @@ struct _widget
     gboolean                    enabled;
     /** Expand the widget when packed */
     gboolean                    expand;
-    /*** The packing index */
-    int                         index;
     /** Place widget at end of parent */
     gboolean                    end;
     /** Parent widget */

@@ -59,10 +59,9 @@ box * box_create ( const char *name, RofiOrientation type );
  * @param box   Handle to the box widget.
  * @param child Handle to the child widget to pack.
  * @param expand If the child widget should expand and use all available space.
- * @param index The position index.
  *
  * Add a widget to the box.
  */
-void box_add ( box *box, widget *child, gboolean expand, int index );
+void box_add ( box *box, widget *child, gboolean expand );
 /*@}*/
 #endif // ROFI_HBOX_H
