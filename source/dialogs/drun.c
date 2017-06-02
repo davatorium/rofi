@@ -447,7 +447,7 @@ static gpointer drun_icon_fetch ( gpointer data )
         if ( dr->icon_name == NULL ) {
             continue;
         }
-        gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", dr->icon_name, 32, 1, TRUE );
+        gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, config.drun_icon_theme, "Applications", dr->icon_name, 32, 1, TRUE );
         if ( icon_path == NULL ) {
             g_free ( dr->icon_name );
             dr->icon_name = NULL;
