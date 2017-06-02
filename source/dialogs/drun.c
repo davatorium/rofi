@@ -66,6 +66,8 @@ typedef struct
     char            *root;
     /* Path to desktop file */
     char            *path;
+    /* Application id (.desktop filename) */
+    char            *app_id;
     /* Icon stuff */
     char            *icon_name;
     cairo_surface_t *icon;
@@ -199,7 +201,7 @@ static void exec_cmd_entry ( DRunModeEntry *e )
 /**
  * This function absorbs/freeś path, so this is no longer available afterwards.
  */
-static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, const char *path )
+static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, const char *path, const gchar *basename )
 {
     // Create ID on stack.
     // We know strlen (path ) > strlen(root)+1
@@ -275,8 +277,9 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         pd->cmd_list_length_actual += 256;
         pd->entry_list              = g_realloc ( pd->entry_list, pd->cmd_list_length_actual * sizeof ( *( pd->entry_list ) ) );
     }
-    pd->entry_list[pd->cmd_list_length].root = g_strdup ( root );
-    pd->entry_list[pd->cmd_list_length].path = g_strdup ( path );
+    pd->entry_list[pd->cmd_list_length].root   = g_strdup ( root );
+    pd->entry_list[pd->cmd_list_length].path   = g_strdup ( path );
+    pd->entry_list[pd->cmd_list_length].app_id = g_strndup ( basename, strlen ( basename ) - strlen ( ".desktop" ) );
     gchar *n = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].name = n;
     gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
@@ -353,7 +356,7 @@ static void walk_dir ( DRunModePrivateData *pd, const char *root, const char *di
         case DT_REG:
             // Skip files not ending on .desktop.
             if ( g_str_has_suffix ( file->d_name, ".desktop" ) ) {
-                read_desktop_file ( pd, root, filename );
+                read_desktop_file ( pd, root, filename, file->d_name );
             }
             break;
         case DT_DIR:
@@ -388,7 +391,8 @@ static void get_apps_history ( DRunModePrivateData *pd )
     for ( unsigned int index = 0; index < length; index++ ) {
         char **st = g_strsplit ( retv[index], ":::", 2 );
         if ( st && st[0] && st[1] ) {
-            if ( !read_desktop_file ( pd, st[0], st[1] ) ) {
+            const gchar *basename = g_utf8_strrchr ( st[1], -1, G_DIR_SEPARATOR );
+            if ( basename == NULL || !read_desktop_file ( pd, st[0], st[1], ++basename ) ) {
                 history_remove ( path, retv[index] );
             }
         }
@@ -478,6 +482,7 @@ static void drun_entry_clear ( DRunModeEntry *e )
 {
     g_free ( e->root );
     g_free ( e->path );
+    g_free ( e->app_id );
     if ( e->icon != NULL ) {
         cairo_surface_destroy ( e->icon );
     }
