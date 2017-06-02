@@ -309,7 +309,7 @@ static void walk_dir ( DRunModePrivateData *pd, const char *root, const char *di
 {
     DIR *dir;
 
-    g_debug ( "Checking directory %s for desktop files.", root );
+    g_debug ( "Checking directory %s for desktop files.", dirname );
     dir = opendir ( dirname );
     if ( dir == NULL ) {
         return;
@@ -412,10 +412,20 @@ static void get_apps ( DRunModePrivateData *pd )
     TICK_N ( "Get Desktop apps (user dir)" );
     // Then read thee system data dirs.
     const gchar * const * sys = g_get_system_data_dirs ();
-    for (; *sys != NULL; ++sys ) {
-        dir = g_build_filename ( *sys, "applications", NULL );
-        walk_dir ( pd, dir, dir );
-        g_free ( dir );
+    for (const gchar * const *iter = sys ; *iter != NULL; ++iter ) {
+        gboolean unique = TRUE;
+        // Stupid duplicate detection, better then walking dir.
+        for ( const gchar *const *iterd = sys ; iterd != iter; ++iterd ){
+            if ( g_strcmp0 ( *iter, *iterd ) == 0 ) {
+                unique = FALSE;
+            }
+        }
+        // Check, we seem to be getting empty string...
+        if ( unique  && (**iter) != '\0') {
+            dir = g_build_filename ( *iter, "applications", NULL );
+            walk_dir ( pd, dir, dir );
+            g_free ( dir );
+        }
     }
     TICK_N ( "Get Desktop apps (system dirs)" );
 }
