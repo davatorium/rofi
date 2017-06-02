@@ -311,9 +311,9 @@ if ( queue == NULL ){
     g_assert ( top != NULL );
     char *filename = rofi_theme_parse_prepare_file ( &yytext[1], top->filename );
     if ( g_list_find_custom ( imported_files, filename, (GCompareFunc)g_strcmp0 ) != NULL ) {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Skipping file: '%s' already parsed.", filename );
+        g_debug ( "Skipping file: '%s' already parsed.", filename );
     } else {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Parsing file: '%s'", filename );
+        g_debug ( "Parsing file: '%s'", filename );
         FILE *f = fopen ( filename, "rb" );
         if ( f ) {
             top->location = *yylloc;
@@ -605,7 +605,7 @@ gboolean rofi_theme_parse_file ( const char *file )
     current = po;
     imported_files = g_list_append ( imported_files, po->filename );
     g_queue_push_head ( file_queue, po );
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Parsing top file: '%s'", filename );
+    g_debug ( "Parsing top file: '%s'", filename );
 
     int parser_retv = yyparse ( file );
     yylex_destroy ();
@@ -642,7 +642,7 @@ gboolean rofi_theme_parse_string ( const char *string )
     po->str_len   = strlen(string);
     current = po;
     g_queue_push_head ( file_queue, po );
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Parsing string: '%s'", string );
+    g_debug ( "Parsing string: '%s'", string );
 
     int parser_retv = yyparse ( string );
     yylex_destroy ();

@@ -467,11 +467,11 @@ static gpointer drun_icon_fetch ( gpointer data )
         }
         gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, pd->icon_theme, "Applications", dr->icon_name, dr->icon_size, 1, TRUE );
         if ( icon_path == NULL ) {
-            g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to get Icon %s(%d): n/a", dr->icon_name, dr->icon_size );
+            g_debug ( "Failed to get Icon %s(%d): n/a", dr->icon_name, dr->icon_size  );
             continue;
         }
         else{
-            g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon %s(%d): %s", dr->icon_name, dr->icon_size, icon_path );
+            g_debug ( "Found Icon %s(%d): %s", dr->icon_name, dr->icon_size, icon_path  );
         }
         cairo_surface_t *icon_surf = NULL;
         if ( g_str_has_suffix ( icon_path, ".png" ) ) {
@@ -481,7 +481,7 @@ static gpointer drun_icon_fetch ( gpointer data )
             icon_surf = cairo_image_surface_create_from_svg ( icon_path, dr->icon_size);
         }
         else {
-            g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", icon_path );
+            g_debug ( "Icon type not yet supported: %s", icon_path  );
         }
         if ( icon_surf ) {
             // Check if surface is valid.
