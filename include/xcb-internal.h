@@ -57,9 +57,10 @@ struct _xcb_stuff
         uint8_t first_event;
         /** Keyboard device id */
         int32_t device_id;
-    }              xkb;
-    NkBindingsSeat *bindings_seat;
-    gboolean    mouse_seen;
+    }               xkb;
+    xcb_timestamp_t last_timestamp;
+    NkBindingsSeat  *bindings_seat;
+    gboolean        mouse_seen;
 };
 
 #endif
