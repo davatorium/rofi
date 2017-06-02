@@ -56,10 +56,10 @@ typedef enum
 typedef enum
 {
     /** Solid line */
-    SOLID,
+    ROFI_HL_SOLID,
     /** Dashed line */
-    DASH
-} LineStyle;
+    ROFI_HL_DASH
+} RofiLineStyle;
 
 /**
  * Distance unit type.
@@ -67,12 +67,12 @@ typedef enum
 typedef enum
 {
     /** PixelWidth in pixels. */
-    PW_PX,
+    ROFI_PU_PX,
     /** PixelWidth in EM. */
-    PW_EM,
+    ROFI_PU_EM,
     /** PixelWidget in percentage */
-    PW_PERCENT,
-} PixelWidth;
+    ROFI_PU_PERCENT,
+} RofiPixelUnit;
 
 /**
  * Structure representing a distance.
@@ -82,9 +82,9 @@ typedef struct
     /** Distance */
     double     distance;
     /** Unit type of the distance */
-    PixelWidth type;
+    RofiPixelUnit  type;
     /** Style of the line */
-    LineStyle  style;
+    RofiLineStyle  style;
 } Distance;
 
 /**

@@ -447,18 +447,18 @@ t_property_distance
 
 /** distance unit. px, em, % */
 t_property_unit
-: T_UNIT_PX      { $$ = PW_PX; }
-| T_UNIT_EM      { $$ = PW_EM; }
-| T_PERCENT        { $$ = PW_PERCENT; }
+: T_UNIT_PX      { $$ = ROFI_PU_PX; }
+| T_UNIT_EM      { $$ = ROFI_PU_EM; }
+| T_PERCENT        { $$ = ROFI_PU_PERCENT; }
 ;
 /******
  * Line style
  * If not set, solid.
  */
 t_property_line_style
-: %empty   { $$ = SOLID; }
-| T_SOLID  { $$ = SOLID; }
-| T_DASH   { $$ = DASH;  }
+: %empty   { $$ = ROFI_HL_SOLID; }
+| T_SOLID  { $$ = ROFI_HL_SOLID; }
+| T_DASH   { $$ = ROFI_HL_DASH;  }
 ;
 
 /**

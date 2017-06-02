@@ -131,16 +131,16 @@ void rofi_theme_free ( ThemeWidget *widget )
  */
 static void rofi_theme_print_distance ( Distance d )
 {
-    if ( d.type == PW_PX ) {
+    if ( d.type == ROFI_PU_PX ) {
         printf ( "%upx ", (unsigned int) d.distance );
     }
-    else if ( d.type == PW_PERCENT ) {
+    else if ( d.type == ROFI_PU_PERCENT ) {
         printf ( "%f%% ", d.distance );
     }
     else {
         printf ( "%fem ", d.distance );
     }
-    if ( d.style == DASH ) {
+    if ( d.style == ROFI_HL_DASH ) {
         printf ( "dash " );
     }
 }
@@ -511,14 +511,14 @@ static Distance _rofi_theme_get_distance ( const widget *widget, const char *pro
     Property    *p   = rofi_theme_find_property ( wid, P_PADDING, property, exact );
     if ( p ) {
         if ( p->type == P_INTEGER ) {
-            return (Distance){ p->value.i, PW_PX, SOLID };
+            return (Distance){ p->value.i, ROFI_PU_PX, ROFI_HL_SOLID };
         }
         else {
             return p->value.padding.left;
         }
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
-    return (Distance){ def, PW_PX, SOLID };
+    return (Distance){ def, ROFI_PU_PX, ROFI_HL_SOLID };
 }
 
 
@@ -597,7 +597,7 @@ Padding rofi_theme_get_padding ( const widget *widget, const char *property, Pad
             pad = p->value.padding;
         }
         else {
-            Distance d = (Distance){ p->value.i, PW_PX, SOLID };
+            Distance d = (Distance){ p->value.i, ROFI_PU_PX, ROFI_HL_SOLID };
             return (Padding){ d, d, d, d };
         }
     }
@@ -639,10 +639,10 @@ ThemeHighlight rofi_theme_get_highlight ( widget *widget, const char *property, 
 
 int distance_get_pixel ( Distance d, Orientation ori )
 {
-    if ( d.type == PW_EM ) {
+    if ( d.type == ROFI_PU_EM ) {
         return d.distance * textbox_get_estimated_char_height ();
     }
-    else if ( d.type == PW_PERCENT ) {
+    else if ( d.type == ROFI_PU_PERCENT ) {
         if ( ori == ORIENTATION_VERTICAL ) {
             int height = 0;
             rofi_view_get_current_monitor ( NULL, &height );
@@ -659,7 +659,7 @@ int distance_get_pixel ( Distance d, Orientation ori )
 
 void distance_get_linestyle ( Distance d, cairo_t *draw )
 {
-    if ( d.style == DASH ) {
+    if ( d.style == ROFI_HL_DASH ) {
         const double dashes[1] = { 4 };
         cairo_set_dash ( draw, dashes, 1, 0.0 );
     }
