@@ -463,8 +463,6 @@ static gpointer drun_icon_fetch ( gpointer data )
         gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, pd->icon_theme, "Applications", dr->icon_name, dr->icon_size, 1, TRUE );
         if ( icon_path == NULL ) {
             g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to get Icon %s(%d): n/a", dr->icon_name, dr->icon_size );
-            g_free ( dr->icon_name );
-            dr->icon_name = NULL;
             continue;
         }
         else{
@@ -479,9 +477,6 @@ static gpointer drun_icon_fetch ( gpointer data )
         }
         else {
             g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", icon_path );
-            char *r = dr->icon_name;
-            dr->icon_name = NULL;
-            g_free ( r );
         }
         g_free ( icon_path );
         rofi_view_reload ();
@@ -621,7 +616,7 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
     if ( pd->thread == NULL ) {
         pd->thread = g_thread_new ( "icon-fetch-drun", drun_icon_fetch, pd );
     }
-    if ( dr->icon_size ==  0 && dr->icon_name  ) {
+    if ( dr->icon_size == 0 ) {
         dr->icon_size = height;
         g_async_queue_push ( pd->icon_fetch_queue, dr );
     }
