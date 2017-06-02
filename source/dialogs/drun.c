@@ -443,6 +443,7 @@ static gpointer drun_icon_fetch ( gpointer data )
         }
         gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", dr->icon_name, dr->icon_size, 1, TRUE );
         if ( icon_path == NULL ) {
+            g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to get Icon %s(%d): n/a", dr->icon_name, dr->icon_size );
             g_free ( dr->icon_name );
             dr->icon_name = NULL;
             continue;
