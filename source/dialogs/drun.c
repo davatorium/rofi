@@ -93,6 +93,8 @@ typedef struct
     GHashTable        *disabled_entries;
     unsigned int      disabled_entries_length;
     GThread           *thread;
+
+    unsigned int      expected_line_height;
 } DRunModePrivateData;
 
 struct RegexEvalArg
@@ -431,21 +433,21 @@ static void drun_icon_fetch ( gpointer data )
         if ( dr->icon_name == NULL ) {
             continue;
         }
-        gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", dr->icon_name, 32, 1, TRUE );
+        gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, NULL, "Applications", dr->icon_name, pd->expected_line_height, 1, TRUE );
         if ( icon_path == NULL ) {
             g_free ( dr->icon_name );
             dr->icon_name = NULL;
             continue;
         }
         else{
-            g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon %s(%d): %s", dr->icon_name, 32, icon_path );
+            g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Icon %s(%d): %s", dr->icon_name, pd->expected_line_height, icon_path );
         }
 
         if ( g_str_has_suffix ( icon_path, ".png" ) ) {
             dr->icon = cairo_image_surface_create_from_png ( icon_path );
         }
         else if ( g_str_has_suffix ( icon_path, ".svg" ) ) {
-            dr->icon = cairo_image_surface_create_from_svg ( icon_path, 32 );
+            dr->icon = cairo_image_surface_create_from_svg ( icon_path, pd->expected_line_height );
         }
         else {
             g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Icon type not yet supported: %s", icon_path );
@@ -454,12 +456,8 @@ static void drun_icon_fetch ( gpointer data )
             g_free ( r );
         }
         g_free ( icon_path );
-        // if ( (i%100) == 99 )
-        {
-            rofi_view_reload ();
-        }
+        rofi_view_reload ();
     }
-    rofi_view_reload ();
     g_log ( G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "elapsed: %f\n", g_timer_elapsed ( t, NULL ) );
     g_timer_destroy ( t );
 }
@@ -468,6 +466,7 @@ static int drun_mode_init ( Mode *sw )
 {
     if ( mode_get_private_data ( sw ) == NULL ) {
         DRunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
+        pd->expected_line_height = ceil ( textbox_get_estimated_char_height ( ) );
         pd->disabled_entries = g_hash_table_new_full ( g_str_hash, g_str_equal, g_free, NULL );
         mode_set_private_data ( sw, (void *) pd );
         pd->xdg_context = nk_xdg_theme_context_new ();
