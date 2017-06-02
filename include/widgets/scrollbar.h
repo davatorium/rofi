@@ -46,7 +46,7 @@ typedef struct _scrollbar
     unsigned int length;
     unsigned int pos;
     unsigned int pos_length;
-    Distance     width;
+    RofiDistance     width;
 } scrollbar;
 
 /**

@@ -901,7 +901,7 @@ int textbox_get_desired_width ( widget *wid )
     if ( wid->expand && tb->flags & TB_AUTOWIDTH ) {
         return textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( wid ) + offset;
     }
-    Distance w = rofi_theme_get_distance ( WIDGET ( tb ), "width", 0 );
+    RofiDistance w = rofi_theme_get_distance ( WIDGET ( tb ), "width", 0 );
     int wi = distance_get_pixel ( w, ORIENTATION_HORIZONTAL );
     if ( wi > 0 )
     {

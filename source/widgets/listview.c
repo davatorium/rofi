@@ -72,7 +72,7 @@ struct _listview
     unsigned int                req_elements;
     unsigned int                cur_elements;
 
-    Distance                    spacing;
+    RofiDistance                spacing;
     unsigned int                menu_lines;
     unsigned int                max_displayed_lines;
     unsigned int                menu_columns;

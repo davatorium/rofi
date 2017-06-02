@@ -144,7 +144,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
     GList         *list;
     Property      *property;
     GHashTable    *property_list;
-    Distance      distance;
+    RofiDistance      distance;
 }
 
 %token <ival>     T_END              0  "end of file"

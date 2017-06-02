@@ -85,7 +85,7 @@ typedef struct
     RofiPixelUnit  type;
     /** Style of the line */
     RofiLineStyle  style;
-} Distance;
+} RofiDistance;
 
 /**
  * Type of orientation.
@@ -144,10 +144,10 @@ typedef struct
  */
 typedef struct
 {
-    Distance top;
-    Distance right;
-    Distance bottom;
-    Distance left;
+    RofiDistance top;
+    RofiDistance right;
+    RofiDistance bottom;
+    RofiDistance left;
 } Padding;
 
 /**
@@ -300,7 +300,7 @@ void rofi_theme_widget_add_properties ( ThemeWidget *widget, GHashTable *table )
  *
  * @returns The distance value of this property for this widget.
  */
-Distance rofi_theme_get_distance ( const widget *widget, const char *property, int def );
+RofiDistance rofi_theme_get_distance ( const widget *widget, const char *property, int def );
 /**
  * @param widget   The widget to query
  * @param property The property to query.
@@ -310,7 +310,7 @@ Distance rofi_theme_get_distance ( const widget *widget, const char *property, i
  *
  * @returns The distance value of this property for this widget.
  */
-Distance rofi_theme_get_distance_exact ( const widget *widget, const char *property, int def );
+RofiDistance rofi_theme_get_distance_exact ( const widget *widget, const char *property, int def );
 
 /**
  * @param widget   The widget to query
@@ -424,17 +424,17 @@ ThemeHighlight rofi_theme_get_highlight ( widget *widget, const char *property, 
  * @param d The distance handle.
  * @param ori The orientation.
  *
- * Convert Distance into pixels.
+ * Convert RofiDistance into pixels.
  * @returns the number of pixels this distance represents.
  */
-int distance_get_pixel ( Distance d, Orientation ori );
+int distance_get_pixel ( RofiDistance d, Orientation ori );
 /**
  * @param d The distance handle.
  * @param draw The cairo drawable.
  *
  * Set linestyle.
  */
-void distance_get_linestyle ( Distance d, cairo_t *draw );
+void distance_get_linestyle ( RofiDistance d, cairo_t *draw );
 
 /**
  * Low-level functions.

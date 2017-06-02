@@ -346,8 +346,8 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
         break;
     }
     // Apply offset.
-    Distance x = rofi_theme_get_distance ( WIDGET ( state->main_window ), "x-offset", config.x_offset );
-    Distance y = rofi_theme_get_distance ( WIDGET ( state->main_window ), "y-offset", config.y_offset );
+    RofiDistance x = rofi_theme_get_distance ( WIDGET ( state->main_window ), "x-offset", config.x_offset );
+    RofiDistance y = rofi_theme_get_distance ( WIDGET ( state->main_window ), "y-offset", config.y_offset );
     state->x += distance_get_pixel ( x, ORIENTATION_HORIZONTAL );
     state->y += distance_get_pixel ( y, ORIENTATION_VERTICAL );
 }
@@ -807,7 +807,7 @@ static void rofi_view_calculate_window_width ( RofiViewState *state )
         state->width = config.menu_width < 101 ? ( CacheState.mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
     }
     // Use theme configured width, if set.
-    Distance width = rofi_theme_get_distance ( WIDGET ( state->main_window ), "width", state->width );
+    RofiDistance width = rofi_theme_get_distance ( WIDGET ( state->main_window ), "width", state->width );
     state->width = distance_get_pixel ( width, ORIENTATION_HORIZONTAL );
 }
 

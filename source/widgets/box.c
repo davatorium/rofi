@@ -43,7 +43,7 @@ struct _box
     Orientation type;
     int      max_size;
     // Padding between elements
-    Distance spacing;
+    RofiDistance spacing;
 
     GList    *children;
 };

@@ -64,7 +64,7 @@ const char *PropertyTypeName[] = {
     "Highlight",
 };
 void yyerror ( YYLTYPE *yylloc, const char *, const char * );
-static gboolean distance_compare ( Distance d, Distance e )
+static gboolean distance_compare ( RofiDistance d, RofiDistance e )
 {
     return d.type == e.type && d.distance == e.distance && d.style == e.style;
 }
@@ -129,7 +129,7 @@ void rofi_theme_free ( ThemeWidget *widget )
 /**
  * print
  */
-static void rofi_theme_print_distance ( Distance d )
+static void rofi_theme_print_distance ( RofiDistance d )
 {
     if ( d.type == ROFI_PU_PX ) {
         printf ( "%upx ", (unsigned int) d.distance );
@@ -505,28 +505,28 @@ int rofi_theme_get_integer_exact ( const widget *widget, const char *property, i
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return def;
 }
-static Distance _rofi_theme_get_distance ( const widget *widget, const char *property, int def , gboolean exact)
+static RofiDistance _rofi_theme_get_distance ( const widget *widget, const char *property, int def , gboolean exact)
 {
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, exact );
     Property    *p   = rofi_theme_find_property ( wid, P_PADDING, property, exact );
     if ( p ) {
         if ( p->type == P_INTEGER ) {
-            return (Distance){ p->value.i, ROFI_PU_PX, ROFI_HL_SOLID };
+            return (RofiDistance){ p->value.i, ROFI_PU_PX, ROFI_HL_SOLID };
         }
         else {
             return p->value.padding.left;
         }
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
-    return (Distance){ def, ROFI_PU_PX, ROFI_HL_SOLID };
+    return (RofiDistance){ def, ROFI_PU_PX, ROFI_HL_SOLID };
 }
 
 
-Distance rofi_theme_get_distance_exact ( const widget *widget, const char *property, int def )
+RofiDistance rofi_theme_get_distance_exact ( const widget *widget, const char *property, int def )
 {
     return _rofi_theme_get_distance ( widget, property, def , TRUE );
 }
-Distance rofi_theme_get_distance ( const widget *widget, const char *property, int def )
+RofiDistance rofi_theme_get_distance ( const widget *widget, const char *property, int def )
 {
     return _rofi_theme_get_distance ( widget, property, def , FALSE);
 }
@@ -597,7 +597,7 @@ Padding rofi_theme_get_padding ( const widget *widget, const char *property, Pad
             pad = p->value.padding;
         }
         else {
-            Distance d = (Distance){ p->value.i, ROFI_PU_PX, ROFI_HL_SOLID };
+            RofiDistance d = (RofiDistance){ p->value.i, ROFI_PU_PX, ROFI_HL_SOLID };
             return (Padding){ d, d, d, d };
         }
     }
@@ -637,7 +637,7 @@ ThemeHighlight rofi_theme_get_highlight ( widget *widget, const char *property, 
     return th;
 }
 
-int distance_get_pixel ( Distance d, Orientation ori )
+int distance_get_pixel ( RofiDistance d, Orientation ori )
 {
     if ( d.type == ROFI_PU_EM ) {
         return d.distance * textbox_get_estimated_char_height ();
@@ -657,7 +657,7 @@ int distance_get_pixel ( Distance d, Orientation ori )
     return d.distance;
 }
 
-void distance_get_linestyle ( Distance d, cairo_t *draw )
+void distance_get_linestyle ( RofiDistance d, cairo_t *draw )
 {
     if ( d.style == ROFI_HL_DASH ) {
         const double dashes[1] = { 4 };
