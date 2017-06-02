@@ -40,7 +40,7 @@
 struct _box
 {
     widget   widget;
-    boxType  type;
+    Orientation type;
     int      max_size;
     // Padding between elements
     Distance spacing;
@@ -54,9 +54,9 @@ static void box_update ( widget *wid  );
 static int box_get_desired_width  ( widget *wid )
 {
     box *b      = (box *) wid;
-    int spacing = distance_get_pixel ( b->spacing, b->type == BOX_VERTICAL ? ORIENTATION_VERTICAL : ORIENTATION_HORIZONTAL );
+    int spacing = distance_get_pixel ( b->spacing, b->type );
     int width  = 0;
-    if ( b->type == BOX_HORIZONTAL ) {
+    if ( b->type == ORIENTATION_HORIZONTAL ) {
         int active_widgets = 0;
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
             widget * child = (widget *) iter->data;
@@ -89,9 +89,9 @@ static int box_get_desired_width  ( widget *wid )
 static int box_get_desired_height ( widget *wid )
 {
     box *b      = (box *) wid;
-    int spacing = distance_get_pixel ( b->spacing, b->type == BOX_VERTICAL ? ORIENTATION_VERTICAL : ORIENTATION_HORIZONTAL );
+    int spacing = distance_get_pixel ( b->spacing, b->type );
     int height  = 0;
-    if ( b->type == BOX_VERTICAL ) {
+    if ( b->type == ORIENTATION_VERTICAL) {
         int active_widgets = 0;
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
             widget * child = (widget *) iter->data;
@@ -287,7 +287,7 @@ void box_add ( box *box, widget *child, gboolean expand, int index )
         return;
     }
     // Make sure box is width/heigh enough.
-    if ( box->type == BOX_VERTICAL ) {
+    if ( box->type == ORIENTATION_VERTICAL ) {
         int width = box->widget.w;
         width         = MAX ( width, child->w + widget_padding_get_padding_width ( WIDGET ( box ) ) );
         box->widget.w = width;
@@ -335,7 +335,7 @@ static widget *box_find_mouse_target ( widget *wid, WidgetType type, gint x, gin
     return NULL;
 }
 
-box * box_create ( const char *name, boxType type )
+box * box_create ( const char *name, Orientation type )
 {
     box *b = g_malloc0 ( sizeof ( box ) );
     // Initialize widget.
@@ -350,7 +350,7 @@ box * box_create ( const char *name, boxType type )
     b->widget.get_desired_width  = box_get_desired_width;
     b->widget.enabled            = rofi_theme_get_boolean ( WIDGET ( b ), "enabled", TRUE );
 
-    b->type = rofi_theme_get_boolean ( WIDGET (b), "vertical",b->type );
+    b->type = rofi_theme_get_orientation ( WIDGET (b), "orientation",b->type );
 
     b->spacing = rofi_theme_get_distance ( WIDGET ( b ), "spacing", DEFAULT_SPACING );
     return b;
@@ -361,10 +361,10 @@ static void box_update ( widget *wid  )
     box *b = (box *) wid;
     switch ( b->type )
     {
-    case BOX_VERTICAL:
+    case ORIENTATION_VERTICAL:
         vert_calculate_size ( b );
         break;
-    case BOX_HORIZONTAL:
+    case ORIENTATION_HORIZONTAL:
     default:
         hori_calculate_size ( b );
     }

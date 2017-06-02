@@ -188,6 +188,9 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_ANGLE_RAD                      "Radians"
 %token T_ANGLE_TURN                     "Turns"
 
+%token ORIENTATION_HORI                 "Horizontal"
+%token ORIENTATION_VERT                 "Vertical"
+
 %token T_COL_RGBA                       "rgb[a] colorscheme"
 %token T_COL_HSL                        "hsl colorscheme"
 %token T_COL_HWB                        "hwb colorscheme"
@@ -236,6 +239,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %type <ival>           t_property_highlight_style
 %type <ival>           t_property_line_style
 %type <list>           t_property_element_list
+%type <ival>           t_property_orientation
 %start t_entry_list
 
 %%
@@ -371,6 +375,11 @@ t_property
         $$ = rofi_theme_property_create ( P_LIST );
         $$->name = $1;
         $$->value.list = $4;
+}
+| t_property_name T_PSEP t_property_orientation T_PCLOSE {
+        $$ = rofi_theme_property_create ( P_ORIENTATION );
+        $$->name = $1;
+        $$->value.i = $3;
 }
 ;
 
@@ -567,6 +576,11 @@ t_property_color_value_unit
 t_property_color_value
 : T_DOUBLE { $$ = $1; }
 | T_INT    { $$ = $1; }
+;
+
+t_property_orientation
+: ORIENTATION_HORI {  $$ = ORIENTATION_HORIZONTAL; }
+| ORIENTATION_VERT {  $$ = ORIENTATION_VERTICAL;   }
 ;
 
 /** Property name */

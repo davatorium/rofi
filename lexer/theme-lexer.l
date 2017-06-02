@@ -199,6 +199,12 @@ ANGLE_GRAD "grad"
 ANGLE_RAD  "rad"
 ANGLE_TURN "turn"
 
+
+/* Orientation */
+
+ORIENTATION_HORI "horizontal"
+ORIENTATION_VERT "vertical"
+
  /* Color schema */
 RGBA rgb[a]?
 HWB  "hwb"
@@ -483,6 +489,9 @@ if ( queue == NULL ){
 <PROPERTIES>{ANGLE_RAD}        { return T_ANGLE_RAD;      }
 <PROPERTIES>{ANGLE_GRAD}       { return T_ANGLE_GRAD;     }
 <PROPERTIES>{ANGLE_TURN}       { return T_ANGLE_TURN;     }
+
+<PROPERTIES>{ORIENTATION_HORI} { return ORIENTATION_HORI; }
+<PROPERTIES>{ORIENTATION_VERT} { return ORIENTATION_VERT; }
 
 <PROPERTIES>{COLOR_TRANSPARENT} {
     return T_COLOR_TRANSPARENT;

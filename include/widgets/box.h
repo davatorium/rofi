@@ -48,23 +48,12 @@
 typedef struct _box   box;
 
 /**
- * The packing direction of the box
- */
-typedef enum
-{
-    /** Pack widgets horizontal */
-    BOX_HORIZONTAL = 0,
-    /** Pack widgets vertical */
-    BOX_VERTICAL   = 1
-} boxType;
-
-/**
  * @param name The name of the widget.
  * @param type The packing direction of the newly created box.
  *
  * @returns a newly created box, free with #widget_free
  */
-box * box_create ( const char *name, boxType type );
+box * box_create ( const char *name, Orientation type );
 
 /**
  * @param box   Handle to the box widget.

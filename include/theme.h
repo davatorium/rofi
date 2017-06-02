@@ -120,6 +120,8 @@ typedef enum
     P_HIGHLIGHT,
     /** List */
     P_LIST,
+    /** Orientation */
+    P_ORIENTATION,
 } PropertyType;
 
 /**
@@ -354,6 +356,16 @@ int rofi_theme_get_integer_exact ( const widget *widget, const char *property, i
  */
 int rofi_theme_get_boolean   (  const widget *widget, const char *property, int def );
 
+/**
+ * @param widget   The widget to query
+ * @param property The property to query.
+ * @param def      The default value.
+ *
+ * Obtain the orientation indicated by %property of the widget.
+ *
+ * @returns The orientation of this property for this widget or %def not found.
+ */
+Orientation rofi_theme_get_orientation ( const widget *widget, const char *property, Orientation def );
 /**
  * @param widget   The widget to query
  * @param property The property to query.

@@ -541,6 +541,16 @@ int rofi_theme_get_boolean ( const widget *widget, const char *property, int def
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return def;
 }
+Orientation rofi_theme_get_orientation ( const widget *widget, const char *property, Orientation def )
+{
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property    *p   = rofi_theme_find_property ( wid, P_ORIENTATION, property, FALSE );
+    if ( p ) {
+        return p->value.b;
+    }
+    g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
+    return def;
+}
 
 const char *rofi_theme_get_string ( const widget *widget, const char *property, char *def )
 {
