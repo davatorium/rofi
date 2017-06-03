@@ -115,8 +115,17 @@ static WidgetTriggerActionResult textbox_editable_trigger_action ( widget *wid, 
     case MOUSE_CLICK_DOWN:
     {
         gint i;
-        pango_layout_xy_to_index ( tb->layout, x * PANGO_SCALE, y * PANGO_SCALE, &i, NULL );
-        textbox_cursor ( tb, i );
+        // substract padding on left.
+        x -= widget_padding_get_left ( wid );
+        gint max = textbox_get_font_width ( tb );
+        // Right of text, move to end.
+        if ( x >= max ){
+            textbox_cursor_end ( tb );
+        } else if ( x > 0 ) {
+            // If in range, get index.
+            pango_layout_xy_to_index ( tb->layout, x * PANGO_SCALE, y * PANGO_SCALE, &i, NULL );
+            textbox_cursor ( tb, i );
+        }
         return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
     }
     case MOUSE_CLICK_UP:
