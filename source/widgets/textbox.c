@@ -68,6 +68,8 @@ typedef struct TBFontConfig
     PangoFontDescription *pfd;
     /** Font metrics */
     PangoFontMetrics     *metrics;
+    /** height */
+    double height;
 }TBFontConfig;
 
 /** HashMap of previously parsed font descriptions. */
@@ -143,13 +145,12 @@ textbox* textbox_create_full ( WidgetType type, const char *name, TextboxFlags f
     tb->changed = FALSE;
 
     tb->layout = pango_layout_new ( p_context );
-    if ( ( tb->flags & TB_ICON ) == TB_ICON ) {
-        tb->left_offset = 1.2 * textbox_get_estimated_char_height ();
-    }
     textbox_font ( tb, tbft );
 
     tb->metrics = p_metrics;
     const char * font = rofi_theme_get_string ( WIDGET ( tb ), "font", NULL );
+    tb->left_offset = textbox_get_estimated_char_height();
+
     if ( font ) {
         TBFontConfig *tbfc = g_hash_table_lookup ( tbfc_cache, font );
         if ( tbfc == NULL ) {
@@ -157,6 +158,8 @@ textbox* textbox_create_full ( WidgetType type, const char *name, TextboxFlags f
             tbfc->pfd = pango_font_description_from_string ( font );
             if ( helper_validate_font ( tbfc->pfd, font ) ) {
                 tbfc->metrics = pango_context_get_metrics ( p_context, tbfc->pfd, NULL );
+                tbfc->height = pango_font_metrics_get_ascent ( tbfc->metrics ) + pango_font_metrics_get_descent ( tbfc->metrics );
+
                 // Cast away consts. (*yuck*) because table_insert does not know it is const.
                 g_hash_table_insert ( tbfc_cache, (char *) font, tbfc );
             }
@@ -170,7 +173,11 @@ textbox* textbox_create_full ( WidgetType type, const char *name, TextboxFlags f
             // Update for used font.
             pango_layout_set_font_description ( tb->layout, tbfc->pfd );
             tb->metrics = tbfc->metrics;
+            tb->left_offset = (tbfc->height)/(double)PANGO_SCALE;
         }
+    }
+    if ( ( tb->flags & TB_ICON ) != TB_ICON ) {
+        tb->left_offset = 0;
     }
 
     if ( ( flags & TB_WRAP ) == TB_WRAP ) {
@@ -327,7 +334,7 @@ void textbox_icon ( textbox *tb, cairo_surface_t *icon )
 // within the parent handled auto width/height modes
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
-    unsigned int offset = tb->left_offset + (( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0);
+    unsigned int offset = tb->left_offset*1.2 + (( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0);
     if ( tb->flags & TB_AUTOWIDTH ) {
         pango_layout_set_width ( tb->layout, -1 );
         w = textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( WIDGET ( tb ) ) + offset;
@@ -388,7 +395,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         return;
     }
     textbox      *tb    = (textbox *) wid;
-    unsigned int offset = tb->left_offset + (( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0);
+    unsigned int offset = tb->left_offset*1.2 + (( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0);
 
     if ( tb->changed ) {
         __textbox_update_pango_text ( tb );
@@ -401,7 +408,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
 
     // draw Icon
     if ( (tb->flags&TB_ICON) == TB_ICON && tb->icon != NULL ) {
-        int iconheight = textbox_get_font_height ( tb );
+        int iconheight = tb->left_offset;
         cairo_save(draw);
 
         /*int iconw = cairo_image_surface_get_width (tb->icon);*/
@@ -462,7 +469,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     pango_cairo_show_layout ( draw, tb->layout );
 
     if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED ) ) ) {
-        cairo_arc ( draw, tb->left_offset + DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
+        cairo_arc ( draw, tb->left_offset*1.2 + DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
         cairo_fill ( draw );
     }
 }
@@ -897,7 +904,7 @@ int textbox_get_estimated_height ( const textbox *tb, int eh )
 int textbox_get_desired_width ( widget *wid )
 {
     textbox      *tb    = (textbox *) wid;
-    unsigned int offset = tb->left_offset + (( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0);
+    unsigned int offset = tb->left_offset*1.2 + (( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0);
     if ( wid->expand && tb->flags & TB_AUTOWIDTH ) {
         return textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( wid ) + offset;
     }
