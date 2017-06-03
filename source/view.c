@@ -1515,7 +1515,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
      */
     else if ( strcmp ( name, "prompt" ) == 0 ){
         // Prompt box.
-        state->prompt = textbox_create ( str, TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "" );
+        state->prompt = textbox_create ( WIDGET_TYPE_TEXTBOX_TEXT, str, TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "" );
         rofi_view_update_prompt ( state );
         box_add ( (box *)parent_widget, WIDGET ( state->prompt ), FALSE );
         defaults = NULL;
@@ -1524,7 +1524,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
      * CASE INDICATOR
      */
     else if ( strcmp ( name, "case-indicator") == 0 ){
-        state->case_indicator = textbox_create ( str, TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "*" );
+        state->case_indicator = textbox_create ( WIDGET_TYPE_TEXTBOX_TEXT, str, TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "*" );
         // Add small separator between case indicator and text box.
         box_add ( (box *)parent_widget, WIDGET ( state->case_indicator ), FALSE );
         textbox_text ( state->case_indicator, get_matching_state () );
@@ -1536,7 +1536,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         // Entry box
         TextboxFlags tfl = TB_EDITABLE;
         tfl        |= ( ( state->menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
-        state->text = textbox_create_full ( WIDGET_TYPE_EDITBOX,  str, tfl | TB_AUTOHEIGHT, NORMAL, NULL);
+        state->text = textbox_create ( WIDGET_TYPE_EDITBOX,  str, tfl | TB_AUTOHEIGHT, NORMAL, NULL);
         box_add ( (box*)parent_widget, WIDGET ( state->text ), TRUE );
     }
     /**
@@ -1545,7 +1545,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     else if ( strcmp ( name, "message") == 0 ){
         char *strmsg= g_strjoin ( "." , str, "textbox",NULL );
         state->mesg_box = container_create ( strbox );
-        state->mesg_tb  = textbox_create ( strmsg, TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, NULL );
+        state->mesg_tb  = textbox_create ( WIDGET_TYPE_TEXTBOX_TEXT, strmsg, TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, NULL );
         container_add ( state->mesg_box, WIDGET ( state->mesg_tb ) );
         rofi_view_reload_message_bar ( state );
         box_add ( (box*)parent_widget, WIDGET ( state->mesg_box ), FALSE );
@@ -1578,7 +1578,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
             char *strbutton= g_strjoin ( "." , str, "button",NULL );
             for ( unsigned int j = 0; j < state->num_modi; j++ ) {
                 const Mode * mode = rofi_get_mode ( j );
-                state->modi[j] = textbox_create_full ( WIDGET_TYPE_SIDEBAR_MODI, strbutton, TB_CENTER | TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
+                state->modi[j] = textbox_create ( WIDGET_TYPE_SIDEBAR_MODI, strbutton, TB_CENTER | TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
                         mode_get_display_name ( mode  ) );
                 box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE );
                 widget_set_trigger_action_handler ( WIDGET ( state->modi[j] ), textbox_sidebar_modi_trigger_action, state );
@@ -1586,7 +1586,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
             g_free(strbutton);
         }
     } else if (  g_ascii_strncasecmp ( name, "textbox", 7) == 0 ){
-        textbox *t = textbox_create ( str, TB_WRAP, NORMAL, "");
+        textbox *t = textbox_create ( WIDGET_TYPE_TEXTBOX_TEXT, str, TB_WRAP, NORMAL, "");
         box_add ( (box *)parent_widget, WIDGET(t), TRUE);
     } else {
         wid = (widget *)box_create ( strbox, ROFI_ORIENTATION_VERTICAL );
@@ -1644,7 +1644,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
         textbox_text ( state->text, input );
     }
 
-    state->overlay                = textbox_create ( "window.overlay", TB_AUTOWIDTH | TB_AUTOHEIGHT, URGENT, "blaat"  );
+    state->overlay                = textbox_create ( WIDGET_TYPE_TEXTBOX_TEXT, "window.overlay", TB_AUTOWIDTH | TB_AUTOHEIGHT, URGENT, "blaat"  );
     state->overlay->widget.parent = WIDGET ( state->main_window );
     widget_disable ( WIDGET ( state->overlay ) );
 
@@ -1686,7 +1686,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->main_window = box_create ( "window.box", ROFI_ORIENTATION_VERTICAL );
     box *box           = box_create ( "window.mainbox.message.box", ROFI_ORIENTATION_VERTICAL );
     box_add ( state->main_window, WIDGET ( box ), TRUE );
-    state->text = textbox_create ( "window.mainbox.message.textbox", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
+    state->text = textbox_create ( WIDGET_TYPE_TEXTBOX_TEXT, "window.mainbox.message.textbox", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
                                    NORMAL, ( msg != NULL ) ? msg : "" );
     box_add ( box, WIDGET ( state->text ), TRUE );
 

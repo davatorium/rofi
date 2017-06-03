@@ -370,7 +370,7 @@ static void listview_recompute_elements ( listview *lv )
         for ( unsigned int i = lv->cur_elements; i < newne; i++ ) {
             TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
             flags       |= ( ( config.show_icons ) ? TB_ICON : 0 );
-            lv->boxes[i] = textbox_create_full ( WIDGET_TYPE_LISTVIEW_ELEMENT, name, flags, NORMAL, "" );
+            lv->boxes[i] = textbox_create ( WIDGET_TYPE_LISTVIEW_ELEMENT, name, flags, NORMAL, "" );
             widget_set_trigger_action_handler ( WIDGET ( lv->boxes[i] ), listview_element_trigger_action, lv );
         }
         g_free ( name );
@@ -533,7 +533,7 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     // Calculate height of an element.
     //
     char    *tb_name = g_strjoin ( ".", lv->listview_name, "element", NULL );
-    textbox *tb      = textbox_create_full ( WIDGET_TYPE_LISTVIEW_ELEMENT, tb_name, 0, NORMAL, "" );
+    textbox *tb      = textbox_create ( WIDGET_TYPE_LISTVIEW_ELEMENT, tb_name, 0, NORMAL, "" );
     lv->element_height = textbox_get_estimated_height ( tb, lv->eh );
     g_free ( tb_name );
     widget_free ( WIDGET ( tb ) );

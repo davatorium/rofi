@@ -136,7 +136,7 @@ static WidgetTriggerActionResult textbox_editable_trigger_action ( widget *wid, 
     return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
 }
 
-textbox* textbox_create_full ( WidgetType type, const char *name, TextboxFlags flags, TextBoxFontType tbft, const char *text )
+textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags, TextBoxFontType tbft, const char *text )
 {
     textbox *tb = g_slice_new0 ( textbox );
 

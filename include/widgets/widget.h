@@ -67,6 +67,8 @@ typedef enum
     WIDGET_TYPE_SCROLLBAR        = SCOPE_MOUSE_SCROLLBAR,
     /** A tab in the modi sidebar */
     WIDGET_TYPE_SIDEBAR_MODI     = SCOPE_MOUSE_SIDEBAR_MODI,
+    /** Text-only textbox */
+    WIDGET_TYPE_TEXTBOX_TEXT,
 } WidgetType;
 
 /**
