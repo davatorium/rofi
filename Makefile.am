@@ -98,7 +98,6 @@ SOURCES=\
 	include/widgets/listview.h\
 	include/widgets/scrollbar.h\
 	include/xrmoptions.h\
-	include/x11-helper.h\
 	include/dialogs/ssh.h\
 	include/dialogs/run.h\
 	include/dialogs/drun.h\
@@ -107,9 +106,7 @@ SOURCES=\
 	include/dialogs/script.h\
 	include/dialogs/window.h\
 	include/dialogs/dialogs.h\
-	include/dialogs/help-keys.h\
-	include/xkb.h\
-	include/xkb-internal.h
+	include/dialogs/help-keys.h
 
 rofi_SOURCES=\
 			 lexer/theme-parser.y\
