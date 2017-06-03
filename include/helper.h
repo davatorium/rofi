@@ -281,6 +281,7 @@ typedef struct
 } RofiHelperExecuteContext;
 
 /**
+ * @param wd   The working directory.
  * @param args The arguments of the command to exec.
  * @param error_precmd Prefix to error message command.
  * @param error_cmd Error message command

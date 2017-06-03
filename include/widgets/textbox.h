@@ -149,7 +149,7 @@ void textbox_text ( textbox *tb, const char *text );
 
 /**
  * @param tb  Handle to the textbox
- * @param text The icon to show on the textbox
+ * @param icon The icon to show on the textbox
  *
  * Set the text to show. Cursor is moved to end (if visible)
  */

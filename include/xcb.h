@@ -42,8 +42,6 @@ typedef struct _xcb_stuff   xcb_stuff;
 extern xcb_stuff *xcb;
 
 /**
- * @param xcb the xcb data structure
- *
  * Get the root window.
  *
  * @returns the root window.

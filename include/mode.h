@@ -125,6 +125,7 @@ char * mode_get_display_value ( const Mode *mode, unsigned int selected_line, in
 /**
  * @param mode The mode to query
  * @param selected_line The entry to query
+ * @param height The desired height of the icon.
  *
  * Returns the icon for the selected_line
  *

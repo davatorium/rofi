@@ -101,7 +101,7 @@ void rofi_view_handle_text ( RofiViewState *state, char *text );
 /**
  * @param state the Menu handle
  * @param x The X coordinates of the motion
- * @param x The Y coordinates of the motion
+ * @param y The Y coordinates of the motion
  *
  * Update the state if needed.
  */
@@ -115,8 +115,6 @@ void rofi_view_maybe_update ( RofiViewState *state );
 void rofi_view_temp_configure_notify ( RofiViewState *state, xcb_configure_notify_event_t *xce );
 void rofi_view_temp_click_to_exit ( RofiViewState *state, xcb_window_t target );
 /**
- * @param state the Menu handle
- *
  * Update the state if needed.
  */
 void rofi_view_frame_callback ( void );
