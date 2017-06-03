@@ -257,7 +257,7 @@ GRegex **tokenize ( const char *input, int case_sensitive )
     }
 
     char   *saveptr = NULL, *token;
-    GRegex **retv   = NULL;
+    GRegex **retv = NULL;
     if ( !config.tokenize ) {
         retv    = g_malloc0 ( sizeof ( GRegex* ) * 2 );
         retv[0] = (GRegex *) create_regex ( input, case_sensitive );
@@ -896,8 +896,8 @@ int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *st
     // uleft: value of the upper left cell; ulefts: maximum value of uleft and cells on the left. The arbitrary initial
     // values suppress warnings.
     int            uleft = 0, ulefts = 0, left, lefts;
-    const gchar    *pit  = pattern, *sit;
-    enum CharClass prev  = NON_WORD;
+    const gchar    *pit = pattern, *sit;
+    enum CharClass prev = NON_WORD;
     for ( si = 0, sit = str; si < slen; si++, sit = g_utf8_next_char ( sit ) ) {
         enum CharClass cur = rofi_scorer_get_character_class ( g_utf8_get_char ( sit ) );
         score[si] = rofi_scorer_get_score_for ( prev, cur );

@@ -39,7 +39,7 @@
  *
  * @{
  */
-typedef struct RofiViewState   RofiViewState;
+typedef struct RofiViewState RofiViewState;
 typedef enum
 {
     /** Create a menu for entering text */
@@ -105,7 +105,7 @@ void rofi_view_handle_text ( RofiViewState *state, char *text );
  *
  * Update the state if needed.
  */
-void rofi_view_handle_mouse_motion( RofiViewState *state, gint x, gint y );
+void rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y );
 /**
  * @param state the Menu handle
  *

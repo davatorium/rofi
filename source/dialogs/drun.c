@@ -54,7 +54,6 @@
 
 #define DRUN_CACHE_FILE    "rofi2.druncache"
 
-
 /**
  * Store extra information about the entry.
  * Currently the executable and if it should run in terminal.
@@ -62,13 +61,13 @@
 typedef struct
 {
     /* Root */
-    char            *root;
+    char *root;
     /* Path to desktop file */
-    char            *path;
+    char *path;
     /* Application id (.desktop filename) */
-    char            *app_id;
+    char *app_id;
     /* Icon stuff */
-    char            *icon_name;
+    char *icon_name;
     /* Icon size is used to indicate what size is requested by the gui.
      * secondary it indicates if the request for a lookup has been issued (0 not issued )
      */
@@ -97,12 +96,12 @@ typedef struct
     GHashTable        *disabled_entries;
     unsigned int      disabled_entries_length;
     GThread           *thread;
-    GAsyncQueue      *icon_fetch_queue;
+    GAsyncQueue       *icon_fetch_queue;
 
     unsigned int      expected_line_height;
-    DRunModeEntry    quit_entry;
+    DRunModeEntry     quit_entry;
     // Theme
-    const gchar             *icon_theme;
+    const gchar       *icon_theme;
 } DRunModePrivateData;
 
 struct RegexEvalArg
@@ -194,12 +193,12 @@ static void exec_cmd_entry ( DRunModeEntry *e )
     }
 
     RofiHelperExecuteContext context = {
-        .name = e->name,
-        .icon = e->icon_name,
+        .name   = e->name,
+        .icon   = e->icon_name,
         .app_id = e->app_id,
     };
-    gboolean sn       = g_key_file_get_boolean ( e->key_file, "Desktop Entry", "StartupNotify", NULL );
-    gchar    *wmclass = NULL;
+    gboolean                 sn       = g_key_file_get_boolean ( e->key_file, "Desktop Entry", "StartupNotify", NULL );
+    gchar                    *wmclass = NULL;
     if ( sn && g_key_file_has_key ( e->key_file, "Desktop Entry", "StartupWMClass", NULL ) ) {
         context.wmclass = wmclass = g_key_file_get_string ( e->key_file, "Desktop Entry", "StartupWMClass", NULL );
     }
@@ -298,15 +297,15 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         pd->entry_list              = g_realloc ( pd->entry_list, pd->cmd_list_length_actual * sizeof ( *( pd->entry_list ) ) );
     }
     pd->entry_list[pd->cmd_list_length].icon_size = 0;
-    pd->entry_list[pd->cmd_list_length].root   = g_strdup ( root );
-    pd->entry_list[pd->cmd_list_length].path   = g_strdup ( path );
-    pd->entry_list[pd->cmd_list_length].app_id = g_strndup ( basename, strlen ( basename ) - strlen ( ".desktop" ) );
+    pd->entry_list[pd->cmd_list_length].root      = g_strdup ( root );
+    pd->entry_list[pd->cmd_list_length].path      = g_strdup ( path );
+    pd->entry_list[pd->cmd_list_length].app_id    = g_strndup ( basename, strlen ( basename ) - strlen ( ".desktop" ) );
     gchar *n = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].name = n;
     gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].generic_name = gn;
-    pd->entry_list[pd->cmd_list_length].categories = g_key_file_get_locale_string_list ( kf, "Desktop Entry", "Categories", NULL, NULL, NULL );
-    pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
+    pd->entry_list[pd->cmd_list_length].categories   = g_key_file_get_locale_string_list ( kf, "Desktop Entry", "Categories", NULL, NULL, NULL );
+    pd->entry_list[pd->cmd_list_length].exec         = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
 
     if ( config.show_icons ) {
         pd->entry_list[pd->cmd_list_length].icon_name = g_key_file_get_locale_string ( kf, "Desktop Entry", "Icon", NULL, NULL );
@@ -435,16 +434,16 @@ static void get_apps ( DRunModePrivateData *pd )
     TICK_N ( "Get Desktop apps (user dir)" );
     // Then read thee system data dirs.
     const gchar * const * sys = g_get_system_data_dirs ();
-    for (const gchar * const *iter = sys ; *iter != NULL; ++iter ) {
+    for ( const gchar * const *iter = sys; *iter != NULL; ++iter ) {
         gboolean unique = TRUE;
         // Stupid duplicate detection, better then walking dir.
-        for ( const gchar *const *iterd = sys ; iterd != iter; ++iterd ){
+        for ( const gchar *const *iterd = sys; iterd != iter; ++iterd ) {
             if ( g_strcmp0 ( *iter, *iterd ) == 0 ) {
                 unique = FALSE;
             }
         }
         // Check, we seem to be getting empty string...
-        if ( unique  && (**iter) != '\0') {
+        if ( unique && ( **iter ) != '\0' ) {
             dir = g_build_filename ( *iter, "applications", NULL );
             walk_dir ( pd, dir, dir );
             g_free ( dir );
@@ -459,9 +458,8 @@ static gpointer drun_icon_fetch ( gpointer data )
     // as long as dr->icon is updated atomicly.. (is a pointer write atomic?)
     // this should be fine running in another thread.
     DRunModePrivateData *pd = (DRunModePrivateData *) data;
-    DRunModeEntry *dr;
-    while ( ( dr = g_async_queue_pop ( pd->icon_fetch_queue )) != &(pd->quit_entry)  )
-    {
+    DRunModeEntry       *dr;
+    while ( ( dr = g_async_queue_pop ( pd->icon_fetch_queue ) ) != &( pd->quit_entry )  ) {
         if ( dr->icon_name == NULL ) {
             continue;
         }
@@ -478,7 +476,7 @@ static gpointer drun_icon_fetch ( gpointer data )
             icon_surf = cairo_image_surface_create_from_png ( icon_path );
         }
         else if ( g_str_has_suffix ( icon_path, ".svg" ) ) {
-            icon_surf = cairo_image_surface_create_from_svg ( icon_path, dr->icon_size);
+            icon_surf = cairo_image_surface_create_from_svg ( icon_path, dr->icon_size );
         }
         else {
             g_debug ( "Icon type not yet supported: %s", icon_path  );
@@ -488,7 +486,7 @@ static gpointer drun_icon_fetch ( gpointer data )
             if ( cairo_surface_status ( icon_surf ) != CAIRO_STATUS_SUCCESS ) {
                 g_debug ( "Icon failed to open: %s(%d): %s", dr->icon_name, dr->icon_size, icon_path );
                 cairo_surface_destroy ( icon_surf );
-                icon_surf  = NULL;
+                icon_surf = NULL;
             }
             dr->icon = icon_surf;
         }
@@ -556,7 +554,7 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
             if ( rmpd->thread ) {
                 g_async_queue_lock ( rmpd->icon_fetch_queue );
                 DRunModeEntry *dr;
-                while ( (dr = g_async_queue_try_pop_unlocked ( rmpd->icon_fetch_queue )) != NULL ){
+                while ( ( dr = g_async_queue_try_pop_unlocked ( rmpd->icon_fetch_queue ) ) != NULL ) {
                     // Reset for possible re-fetch.
                     dr->icon_size = 0;
                 }
@@ -578,9 +576,11 @@ static void drun_mode_destroy ( Mode *sw )
     if ( rmpd != NULL ) {
         if ( rmpd->thread ) {
             g_async_queue_lock ( rmpd->icon_fetch_queue );
-            while ( g_async_queue_try_pop_unlocked ( rmpd->icon_fetch_queue ) );
+            while ( g_async_queue_try_pop_unlocked ( rmpd->icon_fetch_queue ) ) {
+                ;
+            }
             // Make the thread quit.
-            g_async_queue_push_unlocked ( rmpd->icon_fetch_queue, (gpointer) &(rmpd->quit_entry));
+            g_async_queue_push_unlocked ( rmpd->icon_fetch_queue, ( gpointer ) & ( rmpd->quit_entry ) );
             g_async_queue_unlock ( rmpd->icon_fetch_queue );
             g_thread_join ( rmpd->thread );
             rmpd->thread = NULL;

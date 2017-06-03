@@ -39,23 +39,22 @@
 
 struct _box
 {
-    widget   widget;
+    widget          widget;
     RofiOrientation type;
-    int      max_size;
+    int             max_size;
     // RofiPadding between elements
-    RofiDistance spacing;
+    RofiDistance    spacing;
 
-    GList    *children;
+    GList           *children;
 };
 
 static void box_update ( widget *wid  );
-
 
 static int box_get_desired_width  ( widget *wid )
 {
     box *b      = (box *) wid;
     int spacing = distance_get_pixel ( b->spacing, b->type );
-    int width  = 0;
+    int width   = 0;
     if ( b->type == ROFI_ORIENTATION_HORIZONTAL ) {
         int active_widgets = 0;
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
@@ -91,7 +90,7 @@ static int box_get_desired_height ( widget *wid )
     box *b      = (box *) wid;
     int spacing = distance_get_pixel ( b->spacing, b->type );
     int height  = 0;
-    if ( b->type == ROFI_ORIENTATION_VERTICAL) {
+    if ( b->type == ROFI_ORIENTATION_VERTICAL ) {
         int active_widgets = 0;
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
             widget * child = (widget *) iter->data;
@@ -197,8 +196,8 @@ static void hori_calculate_size ( box *b )
         widget * child = (widget *) iter->data;
         if ( child->enabled && child->expand == FALSE ) {
             widget_resize ( child,
-                    widget_get_desired_width ( child ), //child->w,
-                    rem_height );
+                            widget_get_desired_width ( child ), //child->w,
+                            rem_height );
         }
     }
     b->max_size = 0;
@@ -340,7 +339,7 @@ box * box_create ( const char *name, RofiOrientation type )
     b->widget.get_desired_width  = box_get_desired_width;
     b->widget.enabled            = rofi_theme_get_boolean ( WIDGET ( b ), "enabled", TRUE );
 
-    b->type = rofi_theme_get_orientation ( WIDGET (b), "orientation",b->type );
+    b->type = rofi_theme_get_orientation ( WIDGET ( b ), "orientation", b->type );
 
     b->spacing = rofi_theme_get_distance ( WIDGET ( b ), "spacing", DEFAULT_SPACING );
     return b;

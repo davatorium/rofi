@@ -80,11 +80,11 @@ typedef enum
 typedef struct
 {
     /** Distance */
-    double     distance;
+    double        distance;
     /** Unit type of the distance */
-    RofiPixelUnit  type;
+    RofiPixelUnit type;
     /** Style of the line (optional)*/
-    RofiLineStyle  style;
+    RofiLineStyle style;
 } RofiDistance;
 
 /**
@@ -158,22 +158,23 @@ typedef struct
     /** style to display */
     RofiHighlightStyle style;
     /** Color */
-    ThemeColor     color;
+    ThemeColor         color;
 } RofiHighlightColorStyle;
 
-typedef union {
+typedef union
+{
     /** integer */
-    int        i;
+    int         i;
     /** Double */
-    double     f;
+    double      f;
     /** String */
-    char       *s;
+    char        *s;
     /** boolean */
-    gboolean   b;
+    gboolean    b;
     /** Color */
-    ThemeColor color;
+    ThemeColor  color;
     /** RofiPadding */
-    RofiPadding    padding;
+    RofiPadding padding;
     /** Reference */
     struct
     {
@@ -181,11 +182,11 @@ typedef union {
         char            *name;
         /** Cached looked up ref */
         struct Property *ref;
-    }              link;
+    }                       link;
     /** Highlight Style */
     RofiHighlightColorStyle highlight;
     /** List */
-    GList *list;
+    GList                   *list;
 } PropertyValue;
 
 /**
@@ -194,9 +195,9 @@ typedef union {
 typedef struct Property
 {
     /** Name of property */
-    char         *name;
+    char          *name;
     /** Type of property. */
-    PropertyType type;
+    PropertyType  type;
     /** Value */
     PropertyValue value;
 } Property;
@@ -463,7 +464,7 @@ ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state, gbool
  */
 Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, const char *property, gboolean exact );
 
-GList *rofi_theme_get_list ( const widget *widget, const char * property, const char *defaults);
+GList *rofi_theme_get_list ( const widget *widget, const char * property, const char *defaults );
 /**
  * Checks if a theme is set, or is empty.
  * @returns TRUE when empty.

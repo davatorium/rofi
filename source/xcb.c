@@ -651,7 +651,7 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
         xcb->last_timestamp = bre->time;
         nk_bindings_seat_handle_button ( xcb->bindings_seat, bre->detail, NK_BINDINGS_BUTTON_STATE_RELEASE, bre->time );
         if ( config.click_to_exit == TRUE ) {
-            if ( ! xcb->mouse_seen ) {
+            if ( !xcb->mouse_seen ) {
                 rofi_view_temp_click_to_exit ( state, bre->event );
             }
             xcb->mouse_seen = FALSE;
@@ -881,7 +881,7 @@ gboolean display_setup ( GMainLoop *main_loop, NkBindings *bindings )
     find_arg_str (  "-display", &display_str );
 
     xcb->main_loop = main_loop;
-    xcb->source = g_water_xcb_source_new ( g_main_loop_get_context ( xcb->main_loop ), display_str, &xcb->screen_nbr, main_loop_x11_event_handler, NULL, NULL );
+    xcb->source    = g_water_xcb_source_new ( g_main_loop_get_context ( xcb->main_loop ), display_str, &xcb->screen_nbr, main_loop_x11_event_handler, NULL, NULL );
     if ( xcb->source == NULL ) {
         g_warning ( "Failed to open display: %s", display_str );
         return FALSE;
@@ -967,8 +967,8 @@ gboolean display_setup ( GMainLoop *main_loop, NkBindings *bindings )
     }
 
     nk_bindings_seat_update_keymap ( xcb->bindings_seat, keymap, state );
-    xkb_state_unref(state);
-    xkb_keymap_unref(keymap);
+    xkb_state_unref ( state );
+    xkb_keymap_unref ( keymap );
 
     // determine numlock mask so we can bind on keys with and without it
     x11_create_frequently_used_atoms (  );
@@ -1135,7 +1135,7 @@ void display_cleanup ( void )
     xcb_flush ( xcb->connection );
     xcb_aux_sync ( xcb->connection );
     g_water_xcb_source_free ( xcb->source );
-    xcb->source = NULL;
+    xcb->source     = NULL;
     xcb->connection = NULL;
     xcb->screen     = NULL;
     xcb->screen_nbr = 0;

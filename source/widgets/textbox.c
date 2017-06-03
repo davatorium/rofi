@@ -69,7 +69,7 @@ typedef struct TBFontConfig
     /** Font metrics */
     PangoFontMetrics     *metrics;
     /** height */
-    double height;
+    double               height;
 }TBFontConfig;
 
 /** HashMap of previously parsed font descriptions. */
@@ -119,9 +119,10 @@ static WidgetTriggerActionResult textbox_editable_trigger_action ( widget *wid, 
         x -= widget_padding_get_left ( wid );
         gint max = textbox_get_font_width ( tb );
         // Right of text, move to end.
-        if ( x >= max ){
+        if ( x >= max ) {
             textbox_cursor_end ( tb );
-        } else if ( x > 0 ) {
+        }
+        else if ( x > 0 ) {
             // If in range, get index.
             pango_layout_xy_to_index ( tb->layout, x * PANGO_SCALE, y * PANGO_SCALE, &i, NULL );
             textbox_cursor ( tb, i );
@@ -148,7 +149,7 @@ textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags,
     tb->widget.get_width          = textbox_get_width;
     tb->widget.get_height         = _textbox_get_height;
     tb->widget.get_desired_height = textbox_get_desired_height;
-    tb->widget.get_desired_width = textbox_get_desired_width;
+    tb->widget.get_desired_width  = textbox_get_desired_width;
     tb->flags                     = flags;
 
     tb->changed = FALSE;
@@ -158,7 +159,7 @@ textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags,
 
     tb->metrics = p_metrics;
     const char * font = rofi_theme_get_string ( WIDGET ( tb ), "font", NULL );
-    tb->left_offset = textbox_get_estimated_char_height();
+    tb->left_offset = textbox_get_estimated_char_height ();
 
     if ( font ) {
         TBFontConfig *tbfc = g_hash_table_lookup ( tbfc_cache, font );
@@ -167,7 +168,7 @@ textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags,
             tbfc->pfd = pango_font_description_from_string ( font );
             if ( helper_validate_font ( tbfc->pfd, font ) ) {
                 tbfc->metrics = pango_context_get_metrics ( p_context, tbfc->pfd, NULL );
-                tbfc->height = pango_font_metrics_get_ascent ( tbfc->metrics ) + pango_font_metrics_get_descent ( tbfc->metrics );
+                tbfc->height  = pango_font_metrics_get_ascent ( tbfc->metrics ) + pango_font_metrics_get_descent ( tbfc->metrics );
 
                 // Cast away consts. (*yuck*) because table_insert does not know it is const.
                 g_hash_table_insert ( tbfc_cache, (char *) font, tbfc );
@@ -181,8 +182,8 @@ textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags,
         if ( tbfc ) {
             // Update for used font.
             pango_layout_set_font_description ( tb->layout, tbfc->pfd );
-            tb->metrics = tbfc->metrics;
-            tb->left_offset = (tbfc->height)/(double)PANGO_SCALE;
+            tb->metrics     = tbfc->metrics;
+            tb->left_offset = ( tbfc->height ) / (double) PANGO_SCALE;
         }
     }
     if ( ( tb->flags & TB_ICON ) != TB_ICON ) {
@@ -193,8 +194,8 @@ textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags,
         pango_layout_set_wrap ( tb->layout, PANGO_WRAP_WORD_CHAR );
     }
 
-    const char *txt = rofi_theme_get_string ( WIDGET  ( tb ), "str", text);
-    textbox_text ( tb, txt? txt: "" );
+    const char *txt = rofi_theme_get_string ( WIDGET  ( tb ), "str", text );
+    textbox_text ( tb, txt ? txt : "" );
     textbox_cursor_end ( tb );
 
     // auto height/width modes get handled here
@@ -207,8 +208,8 @@ textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags,
         tb->widget.trigger_action = textbox_editable_trigger_action;
     }
 
-    tb->yalign = rofi_theme_get_double ( WIDGET ( tb ), "vertical-align" , 0.0);
-    tb->yalign = MAX ( 0, MIN ( 1.0, tb->yalign));
+    tb->yalign = rofi_theme_get_double ( WIDGET ( tb ), "vertical-align", 0.0 );
+    tb->yalign = MAX ( 0, MIN ( 1.0, tb->yalign ) );
     // Enabled by default
     tb->widget.enabled = rofi_theme_get_boolean ( WIDGET ( tb ), "enabled", TRUE );
 
@@ -280,21 +281,21 @@ static void __textbox_update_pango_text ( textbox *tb )
 }
 const char *textbox_get_visible_text ( const textbox *tb )
 {
-    if ( tb == NULL ){
+    if ( tb == NULL ) {
         return NULL;
     }
     return pango_layout_get_text ( tb->layout );
 }
 PangoAttrList *textbox_get_pango_attributes ( textbox *tb )
 {
-    if ( tb == NULL ){
+    if ( tb == NULL ) {
         return NULL;
     }
     return pango_layout_get_attributes ( tb->layout );
 }
 void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list )
 {
-    if ( tb == NULL ){
+    if ( tb == NULL ) {
         return;
     }
     pango_layout_set_attributes ( tb->layout, list );
@@ -303,7 +304,7 @@ void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list )
 // set the default text to display
 void textbox_text ( textbox *tb, const char *text )
 {
-    if ( tb == NULL ){
+    if ( tb == NULL ) {
         return;
     }
     g_free ( tb->text );
@@ -343,7 +344,7 @@ void textbox_icon ( textbox *tb, cairo_surface_t *icon )
 // within the parent handled auto width/height modes
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
-    unsigned int offset = tb->left_offset*1.2 + (( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0);
+    unsigned int offset = tb->left_offset * 1.2 + ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
     if ( tb->flags & TB_AUTOWIDTH ) {
         pango_layout_set_width ( tb->layout, -1 );
         w = textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( WIDGET ( tb ) ) + offset;
@@ -404,7 +405,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         return;
     }
     textbox      *tb    = (textbox *) wid;
-    unsigned int offset = tb->left_offset*1.2 + (( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0);
+    unsigned int offset = tb->left_offset * 1.2 + ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
 
     if ( tb->changed ) {
         __textbox_update_pango_text ( tb );
@@ -416,21 +417,21 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     int y   = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
 
     // draw Icon
-    if ( (tb->flags&TB_ICON) == TB_ICON && tb->icon != NULL ) {
+    if ( ( tb->flags & TB_ICON ) == TB_ICON && tb->icon != NULL ) {
         int iconheight = tb->left_offset;
-        cairo_save(draw);
+        cairo_save ( draw );
 
         /*int iconw = cairo_image_surface_get_width (tb->icon);*/
-        int iconh = cairo_image_surface_get_height (tb->icon);
-        double scale = (double)iconheight / iconh;
+        int    iconh = cairo_image_surface_get_height ( tb->icon );
+        double scale = (double) iconheight / iconh;
 
-        cairo_translate(draw, x, y);
-        cairo_scale(draw, scale, scale);
-        cairo_set_source_surface(draw, tb->icon, 0,0);
-        cairo_paint(draw);
-        cairo_restore(draw);
+        cairo_translate ( draw, x, y );
+        cairo_scale ( draw, scale, scale );
+        cairo_set_source_surface ( draw, tb->icon, 0, 0 );
+        cairo_paint ( draw );
+        cairo_restore ( draw );
     }
-    x+=offset;
+    x += offset;
 
     if ( tb->flags & TB_RIGHT ) {
         int line_width = 0;
@@ -444,9 +445,9 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     }
 
     if ( tb->yalign > 0.001 ) {
-        int height = (pango_font_metrics_get_ascent ( tb->metrics ) + pango_font_metrics_get_descent ( tb->metrics ))/PANGO_SCALE;
+        int height = ( pango_font_metrics_get_ascent ( tb->metrics ) + pango_font_metrics_get_descent ( tb->metrics ) ) / PANGO_SCALE;
         int bottom = widget_padding_get_bottom ( WIDGET ( tb ) );
-        top = (tb->widget.h - bottom - height -top)*tb->yalign+top;
+        top = ( tb->widget.h - bottom - height - top ) * tb->yalign + top;
     }
 
     rofi_theme_get_color ( WIDGET ( tb ), "foreground", draw );
@@ -470,7 +471,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         cairo_fill ( draw );
     }
 
-
     // Set ARGB
     // We need to set over, otherwise subpixel hinting wont work.
     cairo_set_operator ( draw, CAIRO_OPERATOR_OVER );
@@ -478,7 +478,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     pango_cairo_show_layout ( draw, tb->layout );
 
     if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED ) ) ) {
-        cairo_arc ( draw, tb->left_offset*1.2 + DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
+        cairo_arc ( draw, tb->left_offset * 1.2 + DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
         cairo_fill ( draw );
     }
 }
@@ -710,7 +710,7 @@ static void textbox_cursor_del_sol ( textbox *tb )
 }
 static void textbox_cursor_del_word ( textbox *tb )
 {
-    if ( tb &&  tb->cursor >= 0 ) {
+    if ( tb && tb->cursor >= 0 ) {
         int cursor = tb->cursor;
         textbox_cursor_inc_word ( tb );
         if ( cursor < tb->cursor ) {
@@ -799,9 +799,9 @@ gboolean textbox_append_text ( textbox *tb, const char *pad, const int pad_len )
 
     // Filter When alt/ctrl is pressed do not accept the character.
 
-    gboolean used_something = FALSE;
+    gboolean    used_something = FALSE;
     const gchar *w, *n, *e;
-    for ( w = pad, n = g_utf8_next_char(w), e = w + pad_len ; w < e ; w = n, n = g_utf8_next_char(n) ) {
+    for ( w = pad, n = g_utf8_next_char ( w ), e = w + pad_len; w < e; w = n, n = g_utf8_next_char ( n ) ) {
         if ( g_unichar_iscntrl ( g_utf8_get_char ( w ) ) ) {
             continue;
         }
@@ -880,7 +880,7 @@ int textbox_get_font_width ( const textbox *tb )
 {
     PangoRectangle rect;
     pango_layout_get_pixel_extents ( tb->layout, NULL, &rect );
-    return rect.width+rect.x;
+    return rect.width + rect.x;
 }
 
 /** Caching for the expected character height. */
@@ -913,14 +913,13 @@ int textbox_get_estimated_height ( const textbox *tb, int eh )
 int textbox_get_desired_width ( widget *wid )
 {
     textbox      *tb    = (textbox *) wid;
-    unsigned int offset = tb->left_offset*1.2 + (( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0);
+    unsigned int offset = tb->left_offset * 1.2 + ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
     if ( wid->expand && tb->flags & TB_AUTOWIDTH ) {
         return textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( wid ) + offset;
     }
-    RofiDistance w = rofi_theme_get_distance ( WIDGET ( tb ), "width", 0 );
-    int wi = distance_get_pixel ( w, ROFI_ORIENTATION_HORIZONTAL );
-    if ( wi > 0 )
-    {
+    RofiDistance w  = rofi_theme_get_distance ( WIDGET ( tb ), "width", 0 );
+    int          wi = distance_get_pixel ( w, ROFI_ORIENTATION_HORIZONTAL );
+    if ( wi > 0 ) {
         return wi;
     }
     int padding = widget_padding_get_left ( WIDGET ( tb ) );

@@ -64,7 +64,7 @@ typedef struct
     int              blink;
     guint            blink_timeout;
 
-    double           yalign ;
+    double           yalign;
 
     PangoFontMetrics *metrics;
     int              left_offset;

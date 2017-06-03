@@ -40,24 +40,24 @@
  *
  * @returns Whether the setup succeeded or not
  */
-gboolean display_setup(GMainLoop *main_loop, NkBindings *bindings);
+gboolean display_setup ( GMainLoop *main_loop, NkBindings *bindings );
 
 /**
  * Do some late setup of the display backend
  *
  * @returns Whether the setup succeeded or not
  */
-gboolean display_late_setup(void);
+gboolean display_late_setup ( void );
 
 /**
  * Do some early cleanup, like unmapping the surface
  */
-void display_early_cleanup(void);
+void display_early_cleanup ( void );
 
 /**
  * Cleanup any remaining display related stuff
  */
-void display_cleanup(void);
+void display_cleanup ( void );
 
 /**
  * Dumps the display layout for -help output

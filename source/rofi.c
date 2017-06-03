@@ -95,10 +95,10 @@ unsigned int num_modi = 0;
 /** Current selected mode */
 unsigned int curr_switcher = 0;
 
-NkBindings *bindings = NULL;
+NkBindings   *bindings = NULL;
 
 /** Glib main loop. */
-GMainLoop       *main_loop = NULL;
+GMainLoop *main_loop = NULL;
 
 /** Flag indicating we are in dmenu mode. */
 static int dmenu_mode = FALSE;

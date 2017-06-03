@@ -45,14 +45,14 @@ struct _widget
     /** Height of the widget */
     short                       h;
     /** RofiPadding */
-    RofiPadding                     def_margin;
-    RofiPadding                     def_padding;
-    RofiPadding                     def_border;
-    RofiPadding                     def_border_radius;
-    RofiPadding                     margin;
-    RofiPadding                     padding;
-    RofiPadding                     border;
-    RofiPadding                     border_radius;
+    RofiPadding                 def_margin;
+    RofiPadding                 def_padding;
+    RofiPadding                 def_border;
+    RofiPadding                 def_border_radius;
+    RofiPadding                 margin;
+    RofiPadding                 padding;
+    RofiPadding                 border;
+    RofiPadding                 border_radius;
 
     /** enabled or not */
     gboolean                    enabled;
@@ -78,8 +78,8 @@ struct _widget
     /** Handle mouse motion, used for dragging */
     gboolean                    ( *motion_notify )( struct _widget *, gint x, gint y );
 
-    int               ( *get_desired_height )( struct _widget * );
-    int               ( *get_desired_width )( struct _widget * );
+    int                         ( *get_desired_height )( struct _widget * );
+    int                         ( *get_desired_width )( struct _widget * );
 
     /** widget find_mouse_target callback */
     widget_find_mouse_target_cb find_mouse_target;

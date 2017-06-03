@@ -386,7 +386,8 @@ static ThemeWidget *rofi_theme_find ( ThemeWidget *widget, const char *name, con
         if ( f != widget ) {
             widget = f;
             found  = TRUE;
-        } else if ( exact ) {
+        }
+        else if ( exact ) {
             break;
         }
     }
@@ -505,7 +506,7 @@ int rofi_theme_get_integer_exact ( const widget *widget, const char *property, i
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return def;
 }
-static RofiDistance _rofi_theme_get_distance ( const widget *widget, const char *property, int def , gboolean exact)
+static RofiDistance _rofi_theme_get_distance ( const widget *widget, const char *property, int def, gboolean exact )
 {
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, exact );
     Property    *p   = rofi_theme_find_property ( wid, P_PADDING, property, exact );
@@ -521,14 +522,13 @@ static RofiDistance _rofi_theme_get_distance ( const widget *widget, const char 
     return (RofiDistance){ def, ROFI_PU_PX, ROFI_HL_SOLID };
 }
 
-
 RofiDistance rofi_theme_get_distance_exact ( const widget *widget, const char *property, int def )
 {
-    return _rofi_theme_get_distance ( widget, property, def , TRUE );
+    return _rofi_theme_get_distance ( widget, property, def, TRUE );
 }
 RofiDistance rofi_theme_get_distance ( const widget *widget, const char *property, int def )
 {
-    return _rofi_theme_get_distance ( widget, property, def , FALSE);
+    return _rofi_theme_get_distance ( widget, property, def, FALSE );
 }
 
 int rofi_theme_get_boolean ( const widget *widget, const char *property, int def )
@@ -608,19 +608,19 @@ RofiPadding rofi_theme_get_padding ( const widget *widget, const char *property,
 GList *rofi_theme_get_list ( const widget *widget, const char * property, const char *defaults )
 {
     ThemeWidget *wid2 = rofi_theme_find_widget ( widget->name, widget->state, TRUE );
-    Property    *p   = rofi_theme_find_property ( wid2, P_LIST, property, TRUE);
+    Property    *p    = rofi_theme_find_property ( wid2, P_LIST, property, TRUE );
     if ( p ) {
-        if ( p->type == P_LIST ){
+        if ( p->type == P_LIST ) {
             return g_list_copy_deep ( p->value.list, g_strdup, NULL );
         }
     }
-    char **r = defaults?g_strsplit (defaults, ",",0):NULL;
-    if ( r ){
+    char **r = defaults ? g_strsplit ( defaults, ",", 0 ) : NULL;
+    if ( r ) {
         GList *l = NULL;
-        for ( int i =0; r[i] != NULL; i++){
-            l = g_list_append(l, r[i]);
+        for ( int i = 0; r[i] != NULL; i++ ) {
+            l = g_list_append ( l, r[i] );
         }
-        g_free(r);
+        g_free ( r );
         return l;
     }
     return NULL;
