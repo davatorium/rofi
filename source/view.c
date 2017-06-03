@@ -204,6 +204,7 @@ static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
         g_debug ( "expose event" );
         TICK_N ( "Expose" );
         display_surface_commit ( CacheState.edit_surf );
+        CacheState.edit_surf = display_buffer_pool_get_next_buffer(CacheState.pool);
         TICK_N ( "flush" );
         CacheState.repaint_source = 0;
     }
