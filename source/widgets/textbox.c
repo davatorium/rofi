@@ -327,7 +327,7 @@ void textbox_icon ( textbox *tb, cairo_surface_t *icon )
 // within the parent handled auto width/height modes
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
-    unsigned int offset = tb->left_offset + ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+    unsigned int offset = tb->left_offset + (( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0);
     if ( tb->flags & TB_AUTOWIDTH ) {
         pango_layout_set_width ( tb->layout, -1 );
         w = textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( WIDGET ( tb ) ) + offset;
@@ -862,9 +862,9 @@ int textbox_get_font_height ( const textbox *tb )
 
 int textbox_get_font_width ( const textbox *tb )
 {
-    int width;
-    pango_layout_get_pixel_size ( tb->layout, &width, NULL );
-    return width;
+    PangoRectangle rect;
+    pango_layout_get_pixel_extents ( tb->layout, NULL, &rect );
+    return rect.width+rect.x;
 }
 
 /** Caching for the expected character height. */
@@ -897,7 +897,7 @@ int textbox_get_estimated_height ( const textbox *tb, int eh )
 int textbox_get_desired_width ( widget *wid )
 {
     textbox      *tb    = (textbox *) wid;
-    unsigned int offset = tb->left_offset + ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0;
+    unsigned int offset = tb->left_offset + (( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0);
     if ( wid->expand && tb->flags & TB_AUTOWIDTH ) {
         return textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( wid ) + offset;
     }
@@ -907,12 +907,12 @@ int textbox_get_desired_width ( widget *wid )
     {
         return wi;
     }
-    int width = 0;
+    int padding = widget_padding_get_left ( WIDGET ( tb ) );
+    padding += widget_padding_get_right ( WIDGET ( tb ) );
+    int old_width = pango_layout_get_width ( tb->layout );
     pango_layout_set_width ( tb->layout, -1 );
-    width = textbox_get_font_width ( tb );
+    int width = textbox_get_font_width ( tb );
     // Restore.
-    pango_layout_set_width ( tb->layout, PANGO_SCALE * ( tb->widget.w - widget_padding_get_padding_width ( WIDGET ( tb ) ) - offset ) );
-    width = width + widget_padding_get_padding_width ( wid ) + offset;
-
-    return width;
+    pango_layout_set_width ( tb->layout, old_width );
+    return width + padding + offset;
 }
