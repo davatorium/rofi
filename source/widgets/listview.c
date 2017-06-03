@@ -39,8 +39,8 @@
 
 typedef enum
 {
-    LISTVIEW = 0,
-    BARVIEW  = 1,
+    LISTVIEW = ROFI_ORIENTATION_VERTICAL,
+    BARVIEW  = ROFI_ORIENTATION_HORIZONTAL,
 } ViewType;
 
 typedef enum
@@ -551,7 +551,7 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->reverse         = rofi_theme_get_boolean  ( WIDGET ( lv ), "reverse", reverse );
     lv->cycle           = rofi_theme_get_boolean ( WIDGET ( lv ), "cycle", config.cycle );
 
-    lv->type = rofi_theme_get_boolean ( WIDGET ( lv ), "barview", FALSE );
+    lv->type = rofi_theme_get_orientation ( WIDGET ( lv ), "layout", ROFI_ORIENTATION_VERTICAL );
     if ( lv->type == LISTVIEW ) {
         listview_set_show_scrollbar ( lv, rofi_theme_get_boolean ( WIDGET ( lv ), "scrollbar", FALSE ) );
     }
