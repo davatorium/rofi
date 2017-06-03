@@ -967,6 +967,8 @@ gboolean display_setup ( GMainLoop *main_loop, NkBindings *bindings )
     }
 
     nk_bindings_seat_update_keymap ( xcb->bindings_seat, keymap, state );
+    xkb_state_unref(state);
+    xkb_keymap_unref(keymap);
 
     // determine numlock mask so we can bind on keys with and without it
     x11_create_frequently_used_atoms (  );
