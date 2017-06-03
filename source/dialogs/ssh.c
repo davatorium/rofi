@@ -74,7 +74,7 @@
  *
  * @returns FALSE On failure, TRUE on success
  */
-static inline int execshssh ( const char *host )
+static int execshssh ( const char *host )
 {
     char **args = NULL;
     int  argsv  = 0;
