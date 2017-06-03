@@ -164,8 +164,9 @@ gboolean parse_keys_abe ( NkBindings *bindings )
         g_free ( keystr );
     }
     if ( error_msg->len > 0 ) {
-        rofi_view_error_dialog ( error_msg->str, TRUE );
-        g_string_free ( error_msg, TRUE );
+        //rofi_view_error_dialog ( error_msg->str, TRUE );
+        rofi_add_error_message ( error_msg );
+//        g_string_free ( error_msg, TRUE );
         return FALSE;
     }
 

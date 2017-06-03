@@ -97,7 +97,7 @@ rofi.kb-primary-paste:               Control+Shift+v,Shift+Insert
 ! "Paste clipboard" Set from: File
 rofi.kb-secondary-paste:             Control+v,Insert
 ! "Clear input line" Set from: File
-rofi.kb-clear-line:                  Control+u
+rofi.kb-clear-line:                  Control+w
 ! "Beginning of line" Set from: File
 rofi.kb-move-front:                  Control+a
 ! "End of line" Set from: File

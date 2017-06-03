@@ -827,10 +827,7 @@ int main ( int argc, char *argv[] )
     config_parse_cmd_options ( );
     TICK_N ( "Load cmd config " );
 
-    if ( !parse_keys_abe ( bindings ) ) {
-        cleanup ();
-        return EXIT_FAILURE;
-    }
+    parse_keys_abe ( bindings );
 
     if ( !dmenu_mode ) {
         // setup_modi
