@@ -1335,7 +1335,6 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, g
         {
         case WIDGET_TRIGGER_ACTION_RESULT_IGNORED:
             return FALSE;
-            return TRUE;
         case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_END:
             target = NULL;
         case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN:
