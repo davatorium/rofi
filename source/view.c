@@ -658,7 +658,7 @@ void __create_window ( MenuFlags menu_flags )
     xcb_generic_error_t *error;
     error = xcb_request_check ( xcb->connection, cc );
     if ( error ) {
-        printf ( "xcb_create_window() failed error=0x%x\n", error->error_code );
+        g_error ( "xcb_create_window() failed error=0x%x\n", error->error_code );
         exit ( EXIT_FAILURE );
     }
     TICK_N ( "xcb create window" );
@@ -1536,7 +1536,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         // Entry box
         TextboxFlags tfl = TB_EDITABLE;
         tfl        |= ( ( state->menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
-        state->text = textbox_create ( str, tfl | TB_AUTOHEIGHT, NORMAL, NULL);
+        state->text = textbox_create_full ( WIDGET_TYPE_EDITBOX,  str, tfl | TB_AUTOHEIGHT, NORMAL, NULL);
         box_add ( (box*)parent_widget, WIDGET ( state->text ), TRUE );
     }
     /**
@@ -1581,7 +1581,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
                 state->modi[j] = textbox_create ( strbutton, TB_CENTER | TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
                         mode_get_display_name ( mode  ) );
                 box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE );
-                //widget_set_clicked_handler ( WIDGET ( state->modi[j] ), rofi_view_modi_clicked_cb, state );
+                widget_set_trigger_action_handler ( WIDGET ( state->modi[j] ), textbox_sidebar_modi_trigger_action, state );
             }
             g_free(strbutton);
         }
