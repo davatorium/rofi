@@ -1499,7 +1499,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     if ( strcmp ( name, "mainbox") == 0 ){
         wid = (widget *)box_create ( strbox, ROFI_ORIENTATION_VERTICAL );
         box_add ( (box *)parent_widget, WIDGET ( wid ), TRUE );
-        defaults = "inputbar,message,listview";
+        defaults = "inputbar,message,listview,sidebar";
     }
     /**
      * INPUTBAR
@@ -1578,7 +1578,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
             char *strbutton= g_strjoin ( "." , str, "button",NULL );
             for ( unsigned int j = 0; j < state->num_modi; j++ ) {
                 const Mode * mode = rofi_get_mode ( j );
-                state->modi[j] = textbox_create ( strbutton, TB_CENTER | TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
+                state->modi[j] = textbox_create_full ( WIDGET_TYPE_SIDEBAR_MODI, strbutton, TB_CENTER | TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
                         mode_get_display_name ( mode  ) );
                 box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE );
                 widget_set_trigger_action_handler ( WIDGET ( state->modi[j] ), textbox_sidebar_modi_trigger_action, state );
@@ -1589,7 +1589,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         textbox *t = textbox_create ( str, TB_WRAP, NORMAL, "");
         box_add ( (box *)parent_widget, WIDGET(t), TRUE);
     } else {
-        wid = box_create ( strbox, ROFI_ORIENTATION_VERTICAL );
+        wid = (widget *)box_create ( strbox, ROFI_ORIENTATION_VERTICAL );
         box_add ( (box *)parent_widget, WIDGET ( wid ), TRUE );
         //g_error("The widget %s does not exists. Invalid layout.", name);
     }
