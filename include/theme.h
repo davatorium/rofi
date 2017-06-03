@@ -376,7 +376,7 @@ RofiOrientation rofi_theme_get_orientation ( const widget *widget, const char *p
  *
  * @returns The string value of this property for this widget.
  */
-const char *rofi_theme_get_string  (  const widget *widget, const char *property, char *def );
+const char *rofi_theme_get_string  (  const widget *widget, const char *property, const char *def );
 
 /**
  * @param widget   The widget to query

@@ -163,6 +163,19 @@ static void rofi_theme_print_property_index ( size_t pnl, int depth, Property *p
     printf ( "%*s%s:%*s ", depth, "", p->name, (int) pnl - pl, "" );
     switch ( p->type )
     {
+    case P_LIST:
+        printf ("[ ");
+        for ( GList *iter = p->value.list; iter != NULL; iter = g_list_next ( iter ) ) {
+            printf("%s", (char*)(iter->data));
+            if ( iter->next != NULL ) {
+                printf(",");
+            }
+        }
+        printf (" ];");
+        break;
+    case P_ORIENTATION:
+        printf("%s;", (p->value.i == ROFI_ORIENTATION_HORIZONTAL)? "horizontal":"vertical" );
+        break;
     case P_HIGHLIGHT:
         if ( p->value.highlight.style & ROFI_HL_BOLD ) {
             printf ( "bold " );
@@ -552,7 +565,7 @@ RofiOrientation rofi_theme_get_orientation ( const widget *widget, const char *p
     return def;
 }
 
-const char *rofi_theme_get_string ( const widget *widget, const char *property, char *def )
+const char *rofi_theme_get_string ( const widget *widget, const char *property, const char *def )
 {
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
     Property    *p   = rofi_theme_find_property ( wid, P_STRING, property, FALSE );
@@ -611,7 +624,7 @@ GList *rofi_theme_get_list ( const widget *widget, const char * property, const 
     Property    *p    = rofi_theme_find_property ( wid2, P_LIST, property, TRUE );
     if ( p ) {
         if ( p->type == P_LIST ) {
-            return g_list_copy_deep ( p->value.list, g_strdup, NULL );
+            return g_list_copy_deep ( p->value.list, (GCopyFunc)g_strdup, NULL );
         }
     }
     char **r = defaults ? g_strsplit ( defaults, ",", 0 ) : NULL;
