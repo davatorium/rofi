@@ -580,7 +580,7 @@ static void drun_mode_destroy ( Mode *sw )
             g_async_queue_lock ( rmpd->icon_fetch_queue );
             while ( g_async_queue_try_pop_unlocked ( rmpd->icon_fetch_queue ) );
             // Make the thread quit.
-            g_async_queue_push_front_unlocked ( rmpd->icon_fetch_queue, (gpointer) &(rmpd->quit_entry));
+            g_async_queue_push_unlocked ( rmpd->icon_fetch_queue, (gpointer) &(rmpd->quit_entry));
             g_async_queue_unlock ( rmpd->icon_fetch_queue );
             g_thread_join ( rmpd->thread );
             rmpd->thread = NULL;
