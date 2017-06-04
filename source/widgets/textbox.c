@@ -160,7 +160,6 @@ textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags,
     tb->metrics = p_metrics;
     const char * font = rofi_theme_get_string ( WIDGET ( tb ), "font", NULL );
     tb->left_offset = textbox_get_estimated_char_height ();
-
     if ( font ) {
         TBFontConfig *tbfc = g_hash_table_lookup ( tbfc_cache, font );
         if ( tbfc == NULL ) {
@@ -449,6 +448,8 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         int bottom = widget_padding_get_bottom ( WIDGET ( tb ) );
         top = ( tb->widget.h - bottom - height - top ) * tb->yalign + top;
     }
+    // TODO check if this is still needed after flatning.
+    cairo_set_operator ( draw, CAIRO_OPERATOR_OVER );
 
     rofi_theme_get_color ( WIDGET ( tb ), "foreground", draw );
     // Text
@@ -473,7 +474,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
 
     // Set ARGB
     // We need to set over, otherwise subpixel hinting wont work.
-    cairo_set_operator ( draw, CAIRO_OPERATOR_OVER );
     cairo_move_to ( draw, x, top );
     pango_cairo_show_layout ( draw, tb->layout );
 
@@ -834,6 +834,7 @@ void textbox_set_pango_context ( const char *font, PangoContext *p )
     p_metrics = pango_context_get_metrics ( p_context, NULL, NULL );
     TBFontConfig *tbfc = g_malloc0 ( sizeof ( TBFontConfig ) );
     tbfc->metrics = p_metrics;
+    tbfc->height  = pango_font_metrics_get_ascent ( tbfc->metrics ) + pango_font_metrics_get_descent ( tbfc->metrics );
     g_hash_table_insert ( tbfc_cache, (gpointer *) ( font ? font : default_font_name ), tbfc );
 }
 
