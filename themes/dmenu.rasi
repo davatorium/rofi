@@ -1,0 +1,44 @@
+* {
+    background:      Black;
+    foreground:      White;
+    font:            "Times New Roman 12";
+}
+
+configuration {
+    show-icons:      true;
+    drun-icon-theme: "gnome";
+}
+
+#window {
+    anchor:     north;
+    location:   north;
+}
+
+#window box {
+    width:      100%;
+    padding:    4px;    
+    children:   [ horibox ];
+}
+
+#window horibox box {
+    orientation: horizontal;
+    children:   [ prompt, entry, listview ];    
+}
+
+#window horibox listview box {
+    layout:     horizontal;
+    spacing:    5px;
+    lines:      10;
+}
+
+#window horibox entry {
+    expand:     false;
+    width:      10em;
+}
+
+#window horibox listview element {
+    padding: 0px 2px;
+}
+#window horibox listview element selected {
+    background: SteelBlue;
+}

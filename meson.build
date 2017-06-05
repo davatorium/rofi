@@ -229,6 +229,7 @@ install_data(
     'themes/arthur.rasi',
     'themes/blue.rasi',
     'themes/c64.rasi',
+    'themes/dmenu.rasi',
     'themes/glue_pro_blue.rasi',
     'themes/gruvbox-dark-hard.rasi',
     'themes/gruvbox-dark-soft.rasi',
