@@ -259,5 +259,5 @@ Rofi is not:
  * A library to be used in other applications.
  * An application that can support every possible use-case. It tries to generic enough to be usable by everybody.
    Specific functionality can be added using scripts.
- * Just a dmenu replacement. The dmenu functionality is a nice 'extra' to **rofi** not it main purpose.
+ * Just a dmenu replacement. The dmenu functionality is a nice 'extra' to **rofi** not its main purpose.
 
