@@ -413,7 +413,14 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     // Skip the side MARGIN on the X axis.
     int x   = widget_padding_get_left ( WIDGET ( tb ) );
     int top = widget_padding_get_top ( WIDGET ( tb ) );
-    int y   = top + ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
+    int y   = ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
+
+    if ( tb->yalign > 0.001 ) {
+        int height = ( pango_font_metrics_get_ascent ( tb->metrics ) + pango_font_metrics_get_descent ( tb->metrics ) ) / PANGO_SCALE;
+        int bottom = widget_padding_get_bottom ( WIDGET ( tb ) );
+        top = ( tb->widget.h - bottom - height - top ) * tb->yalign + top;
+    }
+    y+=top;
 
     // draw Icon
     if ( ( tb->flags & TB_ICON ) == TB_ICON && tb->icon != NULL ) {
@@ -441,12 +448,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     else if ( tb->flags & TB_CENTER ) {
         int tw = textbox_get_font_width ( tb );
         x = (  ( tb->widget.w - tw - widget_padding_get_padding_width ( WIDGET ( tb ) ) - offset ) ) / 2;
-    }
-
-    if ( tb->yalign > 0.001 ) {
-        int height = ( pango_font_metrics_get_ascent ( tb->metrics ) + pango_font_metrics_get_descent ( tb->metrics ) ) / PANGO_SCALE;
-        int bottom = widget_padding_get_bottom ( WIDGET ( tb ) );
-        top = ( tb->widget.h - bottom - height - top ) * tb->yalign + top;
     }
     // TODO check if this is still needed after flatning.
     cairo_set_operator ( draw, CAIRO_OPERATOR_OVER );
