@@ -1432,7 +1432,7 @@ void rofi_view_frame_callback ( void )
 static int rofi_view_calculate_height ( RofiViewState *state )
 {
     unsigned int height = 0;
-    if ( listview_get_num_lines ( state->list_view ) == 0 || CacheState.fullscreen == TRUE ) {
+    if ( CacheState.fullscreen == TRUE ) {
         height = CacheState.mon.h;
         return height;
     }
