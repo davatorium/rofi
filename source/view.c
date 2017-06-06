@@ -1842,11 +1842,11 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
     // Update prompt;
     if ( state->prompt ) {
         rofi_view_update_prompt ( state );
-        if ( config.sidebar_mode ) {
-            for ( unsigned int j = 0; j < state->num_modi; j++ ) {
-                const Mode * mode = rofi_get_mode ( j );
-                textbox_font ( state->modi[j], ( mode == state->sw ) ? HIGHLIGHT : NORMAL );
-            }
+    }
+    if ( config.sidebar_mode && state->sidebar_bar ) {
+        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
+            const Mode * mode = rofi_get_mode ( j );
+            textbox_font ( state->modi[j], ( mode == state->sw ) ? HIGHLIGHT : NORMAL );
         }
     }
     rofi_view_restart ( state );
