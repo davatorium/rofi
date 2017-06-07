@@ -472,7 +472,7 @@ static gpointer drun_icon_fetch ( gpointer data )
         if ( dr->icon_name == NULL ) {
             continue;
         }
-        gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, themes, "Applications", dr->icon_name, 32, 1, TRUE );
+        gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, themes, NULL, dr->icon_name, 32, 1, TRUE );
         if ( icon_path == NULL ) {
             g_debug ( "Failed to get Icon %s(%d): n/a", dr->icon_name, dr->icon_size  );
             continue;
