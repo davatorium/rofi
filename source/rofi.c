@@ -839,10 +839,6 @@ int main ( int argc, char *argv[] )
     }
 
     if ( rofi_theme_is_empty ( ) ) {
-        rofi_theme_convert_old ();
-    }
-
-    if ( rofi_theme_is_empty ( ) ) {
         if ( rofi_theme_parse_string ( default_theme ) ) {
             g_warning ( "Failed to parse default theme. Giving up.." );
             if ( list_of_error_msgs ) {
@@ -856,7 +852,9 @@ int main ( int argc, char *argv[] )
             cleanup ();
             return EXIT_FAILURE;
         }
+        rofi_theme_convert_old ();
     }
+
     /**
      * Make small commandline changes to the current theme.
      */

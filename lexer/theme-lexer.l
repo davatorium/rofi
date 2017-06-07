@@ -448,7 +448,7 @@ if ( queue == NULL ){
     yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[3],yytext[3]);
     return T_COLOR;
 }
-<PROPERTIES>argb:{HEX}{8}       {
+<PROPERTIES>argb:{HEX}{7,8}       {
     yylval->colorval.alpha = rofi_theme_parse_convert_hex(yytext[5],yytext[6]);
     yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[7],yytext[8]);
     yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[9],yytext[10]);
