@@ -165,7 +165,7 @@ WHITESPACE [[:blank:]]
 WSO        [[:blank:]]*
 WORD       [[:alnum:]-]+
 COLOR_NAME [[:alpha:]]+
-STRING     \"{UANYN}+\"
+STRING     \"{UANYN}*\"
 HEX        [[:xdigit:]]
 NUMBER     [[:digit:]]
 PNNUMBER   [-+]?[[:digit:]]+
