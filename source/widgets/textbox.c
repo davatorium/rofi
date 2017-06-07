@@ -137,7 +137,7 @@ static WidgetTriggerActionResult textbox_editable_trigger_action ( widget *wid, 
     return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
 }
 
-textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags, TextBoxFontType tbft, const char *text )
+textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags, TextBoxFontType tbft, const char *text, double xalign, double yalign )
 {
     textbox *tb = g_slice_new0 ( textbox );
 
@@ -207,8 +207,10 @@ textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags,
         tb->widget.trigger_action = textbox_editable_trigger_action;
     }
 
-    tb->yalign = rofi_theme_get_double ( WIDGET ( tb ), "vertical-align", 0.0 );
+    tb->yalign = rofi_theme_get_double ( WIDGET ( tb ), "vertical-align", xalign );
     tb->yalign = MAX ( 0, MIN ( 1.0, tb->yalign ) );
+    tb->xalign = rofi_theme_get_double ( WIDGET ( tb ), "horizontal-align", yalign );
+    tb->xalign = MAX ( 0, MIN ( 1.0, tb->xalign ) );
     // Enabled by default
     tb->widget.enabled = rofi_theme_get_boolean ( WIDGET ( tb ), "enabled", TRUE );
 
@@ -439,16 +441,12 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     }
     x += offset;
 
-    if ( tb->flags & TB_RIGHT ) {
+    if ( tb->xalign > 0.001 ) {
         int line_width = 0;
         // Get actual width.
         pango_layout_get_pixel_size ( tb->layout, &line_width, NULL );
-        x = ( tb->widget.w - line_width - widget_padding_get_right ( WIDGET ( tb ) ) - offset );
-    }
-    else if ( tb->flags & TB_CENTER ) {
-        int tw = textbox_get_font_width ( tb );
-        x  = (  ( tb->widget.w - tw - widget_padding_get_padding_width ( WIDGET ( tb ) ) - offset ) ) / 2;
-        x += widget_padding_get_left ( WIDGET ( tb ) );
+        int rem = MAX ( 0, tb->widget.w - widget_padding_get_padding_width ( WIDGET ( tb ) ) - line_width );
+        x = tb->xalign * rem + widget_padding_get_left ( WIDGET ( tb ) );
     }
     // TODO check if this is still needed after flatning.
     cairo_set_operator ( draw, CAIRO_OPERATOR_OVER );

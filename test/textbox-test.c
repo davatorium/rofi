@@ -92,7 +92,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     textbox_set_pango_context ( "default", p );
 
 
-    textbox *box = textbox_create ( WIDGET_TYPE_TEXTBOX_TEXT, "textbox", TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "test" );
+    textbox *box = textbox_create ( WIDGET_TYPE_TEXTBOX_TEXT, "textbox", TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "test",0,0 );
     TASSERT ( box != NULL );
 
     textbox_keybinding ( box, MOVE_END );
