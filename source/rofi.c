@@ -838,16 +838,10 @@ int main ( int argc, char *argv[] )
         TICK_N ( "Setup Modi" );
     }
 
-    const char ** theme_str = find_arg_strv ( "-theme-str" );
-    if ( theme_str ) {
-        for ( int index = 0; theme_str && theme_str[index]; index++ ) {
-            if ( rofi_theme_parse_string ( theme_str[index] ) ) {
-                rofi_theme_free ( rofi_theme );
-                rofi_theme = NULL;
-            }
-        }
-        g_free ( theme_str );
+    if ( rofi_theme_is_empty ( ) ) {
+        rofi_theme_convert_old ();
     }
+
     if ( rofi_theme_is_empty ( ) ) {
         if ( rofi_theme_parse_string ( default_theme ) ) {
             g_warning ( "Failed to parse default theme. Giving up.." );
@@ -862,7 +856,19 @@ int main ( int argc, char *argv[] )
             cleanup ();
             return EXIT_FAILURE;
         }
-        rofi_theme_convert_old ();
+    }
+    /**
+     * Make small commandline changes to the current theme.
+     */
+    const char ** theme_str = find_arg_strv ( "-theme-str" );
+    if ( theme_str ) {
+        for ( int index = 0; theme_str && theme_str[index]; index++ ) {
+            if ( rofi_theme_parse_string ( theme_str[index] ) ) {
+                rofi_theme_free ( rofi_theme );
+                rofi_theme = NULL;
+            }
+        }
+        g_free ( theme_str );
     }
 
     if ( find_arg ( "-dump-theme" ) >= 0 ) {
