@@ -33,7 +33,7 @@ rofi.run-shell-command:              {terminal} -e {cmd}
 ! "Command executed on accep-entry-custom for window modus" Set from: File
 rofi.window-command:                 xkill -id {window}
 ! "Theme to use to look for icons" Set from: Default
-! rofi.drun-icon-theme:                gnome
+! rofi.drun-icon-theme:                
 ! "Disable history in run/ssh" Set from: File
 rofi.disable-history:                false
 ! "Use sorting" Set from: Default
