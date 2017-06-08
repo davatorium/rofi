@@ -87,22 +87,10 @@ Generate build system:
 autoreconf -i
 ```
 
-Create a build directory:
-
-```
-mkdir build
-```
-
-Enter build directory:
-
-```
-cd build
-```
-
 Check dependencies and configure build system:
 
 ```
-../configure
+./configure
 ```
 
 Build rofi:
