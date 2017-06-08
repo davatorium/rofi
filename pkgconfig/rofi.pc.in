@@ -6,6 +6,6 @@ includedir=@includedir@
 
 Name: rofi
 Description: Header files for rofi plugins
-Requires: glib-2.0 >= 2.40 gmodule-2.0 cairo
+Requires.private: glib-2.0 >= 2.40 gmodule-2.0 cairo
 Version: @VERSION@
 Cflags: -I${includedir}/
