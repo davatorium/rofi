@@ -625,7 +625,8 @@ simultaneously. This is useful when running **rofi** from a keybinding daemon.
 
 `-fake-transparency`
 
-Enable fake transparency. This only works with transparent background color in the theme.
+Enable fake transparency. This only works with transparent background color in the theme. 
+Note: The difference between real and fake transparency is that the fake one is in need of a screenshot, that will be used as the background of rofi. Real transparency also needs your current setup to support ARGB visuals in compositing.
 
 `-fake-background`
 
