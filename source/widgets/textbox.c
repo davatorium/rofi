@@ -413,14 +413,16 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     }
 
     // Skip the side MARGIN on the X axis.
-    int x   = widget_padding_get_left ( WIDGET ( tb ) );
+    int x = widget_padding_get_left ( WIDGET ( tb ) );
     int top = widget_padding_get_top ( WIDGET ( tb ) );
-    int y   = ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
+    int y = ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
+    int line_width = 0, line_height = 0;
+    // Get actual width.
+    pango_layout_get_pixel_size ( tb->layout, &line_width, &line_height );
 
     if ( tb->yalign > 0.001 ) {
-        int height = ( pango_font_metrics_get_ascent ( tb->metrics ) + pango_font_metrics_get_descent ( tb->metrics ) ) / PANGO_SCALE;
         int bottom = widget_padding_get_bottom ( WIDGET ( tb ) );
-        top = ( tb->widget.h - bottom - height - top ) * tb->yalign + top;
+        top = ( tb->widget.h - bottom - line_height - top ) * tb->yalign + top;
     }
     y += top;
 
@@ -442,9 +444,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     x += offset;
 
     if ( tb->xalign > 0.001 ) {
-        int line_width = 0;
-        // Get actual width.
-        pango_layout_get_pixel_size ( tb->layout, &line_width, NULL );
         int rem = MAX ( 0, tb->widget.w - widget_padding_get_padding_width ( WIDGET ( tb ) ) - line_width );
         x = tb->xalign * rem + widget_padding_get_left ( WIDGET ( tb ) );
     }

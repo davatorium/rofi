@@ -459,14 +459,14 @@ static gpointer drun_icon_fetch ( gpointer data )
     // this should be fine running in another thread.
     DRunModePrivateData *pd = (DRunModePrivateData *) data;
     DRunModeEntry       *dr;
-    gsize i = 0;
-    const gchar *themes[4];
+    gsize               i = 0;
+    const gchar         *themes[4];
     if ( config.drun_icon_theme != NULL ) {
         themes[i++] = config.drun_icon_theme;
     }
     themes[i++] = "Adwaita";
     themes[i++] = "gnome";
-    themes[i] = NULL;
+    themes[i]   = NULL;
 
     while ( ( dr = g_async_queue_pop ( pd->icon_fetch_queue ) ) != &( pd->quit_entry )  ) {
         if ( dr->icon_name == NULL ) {
