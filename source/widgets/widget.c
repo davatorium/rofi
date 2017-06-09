@@ -551,14 +551,20 @@ int widget_padding_get_padding_width ( const widget *wid )
 
 int widget_get_desired_height ( widget *wid )
 {
-    if ( wid && wid->get_desired_height ) {
+    if ( wid == NULL ) {
+        return 0;
+    }
+    if ( wid->get_desired_height ) {
         return wid->get_desired_height ( wid );
     }
     return wid->h;
 }
 int widget_get_desired_width ( widget *wid )
 {
-    if ( wid && wid->get_desired_width ) {
+    if ( wid == NULL ) {
+        return 0;
+    }
+    if ( wid->get_desired_width ) {
         return wid->get_desired_width ( wid );
     }
     return wid->w;

@@ -272,11 +272,11 @@ WidgetTriggerActionResult widget_trigger_action ( widget *wid, guint action, gin
 /**
  * @param wid The widget handle
  * @param cb The widget trigger action callback
- * @param udata the user data to pass to callback
+ * @param cb_data the user data to pass to callback
  *
  * Override the widget trigger action handler on widget.
  */
-void widget_set_trigger_action_handler ( widget *wid, widget_trigger_action_cb cb, void *udata );
+void widget_set_trigger_action_handler ( widget *wid, widget_trigger_action_cb cb, void *cb_data );
 
 /**
  * @param wid The widget handle
