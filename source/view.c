@@ -1577,7 +1577,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
             for ( unsigned int j = 0; j < state->num_modi; j++ ) {
                 const Mode * mode = rofi_get_mode ( j );
                 state->modi[j] = textbox_create ( WIDGET_TYPE_SIDEBAR_MODI, strbutton, TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
-                                                  mode_get_display_name ( mode  ), 0.5, 0 );
+                                                  mode_get_display_name ( mode  ), 0.5, 0.5 );
                 box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE );
                 widget_set_trigger_action_handler ( WIDGET ( state->modi[j] ), textbox_sidebar_modi_trigger_action, state );
             }
