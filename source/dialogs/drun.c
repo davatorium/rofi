@@ -459,14 +459,10 @@ static gpointer drun_icon_fetch ( gpointer data )
     // this should be fine running in another thread.
     DRunModePrivateData *pd = (DRunModePrivateData *) data;
     DRunModeEntry       *dr;
-    gsize               i = 0;
-    const gchar         *themes[4];
-    if ( config.drun_icon_theme != NULL ) {
-        themes[i++] = config.drun_icon_theme;
-    }
-    themes[i++] = "Adwaita";
-    themes[i++] = "gnome";
-    themes[i]   = NULL;
+    const gchar         *themes[2] = {
+        config.drun_icon_theme,
+        NULL
+    };
 
     while ( ( dr = g_async_queue_pop ( pd->icon_fetch_queue ) ) != &( pd->quit_entry )  ) {
         if ( dr->icon_name == NULL ) {
@@ -509,10 +505,15 @@ static gpointer drun_icon_fetch ( gpointer data )
 static int drun_mode_init ( Mode *sw )
 {
     if ( mode_get_private_data ( sw ) == NULL ) {
+        static const gchar * const drun_icon_fallback_themes[] = {
+            "Adwaita",
+            "gnome",
+            NULL
+        };
         DRunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         pd->disabled_entries = g_hash_table_new_full ( g_str_hash, g_str_equal, g_free, NULL );
         mode_set_private_data ( sw, (void *) pd );
-        pd->xdg_context = nk_xdg_theme_context_new ();
+        pd->xdg_context = nk_xdg_theme_context_new ( drun_icon_fallback_themes, NULL );
         get_apps ( pd );
         pd->icon_fetch_queue = g_async_queue_new ( );
     }
