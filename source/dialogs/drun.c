@@ -510,7 +510,7 @@ static int drun_mode_init ( Mode *sw )
             "gnome",
             NULL
         };
-        DRunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
+        DRunModePrivateData        *pd = g_malloc0 ( sizeof ( *pd ) );
         pd->disabled_entries = g_hash_table_new_full ( g_str_hash, g_str_equal, g_free, NULL );
         mode_set_private_data ( sw, (void *) pd );
         pd->xdg_context = nk_xdg_theme_context_new ( drun_icon_fallback_themes, NULL );

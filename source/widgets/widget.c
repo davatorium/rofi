@@ -569,3 +569,26 @@ int widget_get_desired_width ( widget *wid )
     }
     return wid->w;
 }
+
+int widget_get_absolute_xpos ( widget *wid )
+{
+    int retv = 0;
+    if ( wid ) {
+        retv += wid->x;
+        if ( wid->parent ) {
+            retv += widget_get_absolute_xpos ( wid->parent );
+        }
+    }
+    return retv;
+}
+int widget_get_absolute_ypos ( widget *wid )
+{
+    int retv = 0;
+    if ( wid ) {
+        retv += wid->y;
+        if ( wid->parent ) {
+            retv += widget_get_absolute_ypos ( wid->parent );
+        }
+    }
+    return retv;
+}

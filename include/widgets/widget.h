@@ -306,5 +306,21 @@ int widget_get_desired_height ( widget *wid );
  * @returns the desired width of the widget in pixels.
  */
 int widget_get_desired_width ( widget *wid );
+/**
+ * @param wid The widget handle
+ *
+ * Get the absolute x-position on the root widget..
+ *
+ * @returns the absolute x-position of widget of the widget in pixels.
+ */
+int widget_get_absolute_xpos ( widget *wid );
+/**
+ * @param wid The widget handle
+ *
+ * Get the absolute y-position on the root widget..
+ *
+ * @returns the absolute y-position of widget of the widget in pixels.
+ */
+int widget_get_absolute_ypos ( widget *wid );
 /*@}*/
 #endif // ROFI_WIDGET_H

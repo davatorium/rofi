@@ -288,30 +288,30 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
     {
     case WL_NORTH_WEST:
         state->x = CacheState.mon.x;
-         __attribute__ ((fallthrough));
+        __attribute__ ( ( fallthrough ) );
     case WL_NORTH:
         state->y = CacheState.mon.y;
         break;
     case WL_NORTH_EAST:
         state->y = CacheState.mon.y;
-         __attribute__ ((fallthrough));
+        __attribute__ ( ( fallthrough ) );
     case WL_EAST:
         state->x = CacheState.mon.x + CacheState.mon.w;
         break;
     case WL_SOUTH_EAST:
         state->x = CacheState.mon.x + CacheState.mon.w;
-         __attribute__ ((fallthrough));
+        __attribute__ ( ( fallthrough ) );
     case WL_SOUTH:
         state->y = CacheState.mon.y + CacheState.mon.h;
         break;
     case WL_SOUTH_WEST:
         state->y = CacheState.mon.y + CacheState.mon.h;
-         __attribute__ ((fallthrough));
+        __attribute__ ( ( fallthrough ) );
     case WL_WEST:
         state->x = CacheState.mon.x;
         break;
     case WL_CENTER:
-         __attribute__ ((fallthrough));
+        __attribute__ ( ( fallthrough ) );
     default:
         break;
     }
@@ -1342,10 +1342,10 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, g
             return FALSE;
         case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_END:
             target = NULL;
-            __attribute__ ((fallthrough));
+            __attribute__ ( ( fallthrough ) );
         case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN:
             state->mouse.motion_target = target;
-            __attribute__ ((fallthrough));
+            __attribute__ ( ( fallthrough ) );
         case WIDGET_TRIGGER_ACTION_RESULT_HANDLED:
             return TRUE;
         }
@@ -1811,7 +1811,7 @@ Mode * rofi_view_get_mode ( RofiViewState *state )
 
 void rofi_view_set_overlay ( RofiViewState *state, const char *text )
 {
-    if ( state->overlay == NULL ) {
+    if ( state->overlay == NULL || state->list_view == NULL ) {
         return;
     }
     if ( text == NULL ) {
@@ -1820,16 +1820,12 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text )
     }
     widget_enable ( WIDGET ( state->overlay ) );
     textbox_text ( state->overlay, text );
-    int x_offset = widget_get_width ( WIDGET ( state->main_window ) );
+    int x_offset = widget_get_width ( WIDGET ( state->list_view ) );
     // Within padding of window.
-    x_offset -= widget_padding_get_right ( WIDGET ( state->main_window ) );
-    // Within the border of widget.
-    //x_offset -= widget_padding_get_right ( WIDGET ( state->main_box ) );
-    //x_offset -= widget_padding_get_right ( WIDGET ( state->input_bar ) );
-    x_offset -= widget_get_width ( WIDGET ( state->case_indicator ) );
+    x_offset += widget_get_absolute_xpos ( WIDGET ( state->list_view )  );
     x_offset -= widget_get_width ( WIDGET ( state->overlay ) );
-    int top_offset = widget_padding_get_top   ( WIDGET ( state->main_window ) );
-    //top_offset += widget_padding_get_top   ( WIDGET ( state->main_box ) );
+    // Within the border of widget.
+    int top_offset = widget_get_absolute_ypos ( WIDGET ( state->list_view ) );
     widget_move ( WIDGET ( state->overlay ), x_offset, top_offset );
     // We want to queue a repaint.
     rofi_view_queue_redraw ( );
