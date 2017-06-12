@@ -311,7 +311,7 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
         state->x = CacheState.mon.x;
         break;
     case WL_CENTER:
-        __attribute__ ( ( fallthrough ) );
+        ;__attribute__ ( ( fallthrough ) );
     default:
         break;
     }
