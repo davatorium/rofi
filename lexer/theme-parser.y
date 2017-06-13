@@ -106,6 +106,7 @@ static double hue2rgb(double p, double q, double t){
 static ThemeColor hsl_to_rgb ( double h, double s, double l )
 {
     ThemeColor colour;
+    colour.alpha = 1.0;
 
     if(s <  0.001 && s > -0.001){
         colour.red = colour.green = colour.blue = l; // achromatic
