@@ -62,6 +62,10 @@ const char *PropertyTypeName[] = {
     "Position",
     /** Highlight */
     "Highlight",
+    /** List */
+    "List",
+    /** Orientation */
+    "Orientation",
 };
 void yyerror ( YYLTYPE *yylloc, const char *, const char * );
 static gboolean distance_compare ( RofiDistance d, RofiDistance e )
