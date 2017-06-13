@@ -117,11 +117,11 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
     va_start ( ap, length );
     while ( 1 ) {
         char * key = va_arg ( ap, char * );
-        if ( key == NULL ) {
+        if ( key == (char *) 0 ) {
             break;
         }
         char *value = va_arg ( ap, char * );
-        if ( value == NULL ) {
+        if ( value == (char *) 0 ) {
             break;
         }
         g_hash_table_insert ( h, key, value );
@@ -476,7 +476,7 @@ int execute_generator ( const char * cmd )
 {
     char **args = NULL;
     int  argv   = 0;
-    helper_parse_setup ( config.run_command, &args, &argv, "{cmd}", cmd, NULL );
+    helper_parse_setup ( config.run_command, &args, &argv, "{cmd}", cmd, (char *) 0 );
 
     int    fd     = -1;
     GError *error = NULL;
@@ -994,10 +994,10 @@ gboolean helper_execute_command ( const char *wd, const char *cmd, gboolean run_
     int  argc   = 0;
 
     if ( run_in_term ) {
-        helper_parse_setup ( config.run_shell_command, &args, &argc, "{cmd}", cmd, NULL );
+        helper_parse_setup ( config.run_shell_command, &args, &argc, "{cmd}", cmd, (char *) 0 );
     }
     else {
-        helper_parse_setup ( config.run_command, &args, &argc, "{cmd}", cmd, NULL );
+        helper_parse_setup ( config.run_command, &args, &argc, "{cmd}", cmd, (char *) 0 );
     }
 
     if ( context != NULL ) {

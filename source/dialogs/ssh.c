@@ -79,7 +79,7 @@ static int execshssh ( const char *host )
     char **args = NULL;
     int  argsv  = 0;
 
-    helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, NULL );
+    helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, (char *) 0 );
 
     gsize l     = strlen ( "Connecting to '' via rofi" ) + strlen ( host ) + 1;
     gchar *desc = g_newa ( gchar, l );
