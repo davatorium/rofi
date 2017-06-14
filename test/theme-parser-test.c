@@ -1078,6 +1078,34 @@ START_TEST  ( test_properties_orientation_case )
 
 }
 END_TEST
+START_TEST  ( test_properties_list )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    rofi_theme_parse_string ( "#blaat { liste: [];  list1: [ one ]; list2: [ one, two ];}");
+    GList *list = rofi_theme_get_list ( &wid, "liste", NULL );
+    ck_assert_ptr_null ( list );
+    list = rofi_theme_get_list ( &wid, "list1", NULL );
+    ck_assert_ptr_nonnull ( list );
+    ck_assert_str_eq ( (char *)list->data, "one" );
+    g_list_free_full ( list, (GDestroyNotify)g_free);
+    list = rofi_theme_get_list ( &wid, "list2", NULL );
+    ck_assert_ptr_nonnull ( list );
+    ck_assert_int_eq ( g_list_length ( list ), 2 );
+    ck_assert_str_eq ( (char *)list->data, "one" );
+    ck_assert_str_eq ( (char *)list->next->data, "two" );
+    g_list_free_full ( list, (GDestroyNotify)g_free);
+
+    list = rofi_theme_get_list ( &wid, "blaat", "aap,noot,mies");
+    ck_assert_ptr_nonnull ( list );
+    ck_assert_int_eq ( g_list_length ( list ), 3 );
+    ck_assert_str_eq ( (char *)list->data, "aap" );
+    ck_assert_str_eq ( (char *)list->next->data, "noot" );
+    ck_assert_str_eq ( (char *)list->next->next->data, "mies" );
+    g_list_free_full ( list, (GDestroyNotify)g_free);
+}
+END_TEST
 
 START_TEST ( test_configuration )
 {
@@ -1274,6 +1302,12 @@ static Suite * theme_parser_suite (void)
         tcase_add_test ( tc_prop_orientation, test_properties_orientation);
         tcase_add_test ( tc_prop_orientation, test_properties_orientation_case );
         suite_add_tcase(s, tc_prop_orientation );
+    }
+    {
+        TCase *tc_prop_list = tcase_create("Propertieslist");
+        tcase_add_checked_fixture(tc_prop_list, theme_parser_setup, theme_parser_teardown);
+        tcase_add_test ( tc_prop_list, test_properties_list);
+        suite_add_tcase(s, tc_prop_list );
     }
     {
         TCase *tc_prop_configuration = tcase_create("Configuration");

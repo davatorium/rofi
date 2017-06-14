@@ -240,6 +240,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %type <ival>           t_property_highlight_style
 %type <ival>           t_property_line_style
 %type <list>           t_property_element_list
+%type <list>           t_property_element_list_optional
 %type <ival>           t_property_orientation
 %start t_entry_list
 
@@ -372,7 +373,7 @@ t_property
         $$->name = $1;
         $$->value.color = $3;
 }
-| t_property_name T_PSEP T_LIST_OPEN t_property_element_list T_LIST_CLOSE T_PCLOSE {
+| t_property_name T_PSEP T_LIST_OPEN t_property_element_list_optional T_LIST_CLOSE T_PCLOSE {
         $$ = rofi_theme_property_create ( P_LIST );
         $$->name = $1;
         $$->value.list = $4;
@@ -385,6 +386,11 @@ t_property
 ;
 
 /** List of elements */
+t_property_element_list_optional
+: %empty { $$ = NULL; }
+| t_property_element_list { $$ = $1; }
+;
+
 t_property_element_list
 : T_ELEMENT { $$ = g_list_append ( NULL, $1); }
 | t_property_element_list T_COMMA T_ELEMENT {
