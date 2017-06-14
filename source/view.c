@@ -1512,13 +1512,16 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     else if ( strcmp ( name, "inputbar" ) == 0 ) {
         wid      = (widget *) box_create ( strbox, ROFI_ORIENTATION_HORIZONTAL );
         defaults = "prompt,entry,case-indicator";
-
         box_add ( (box *) parent_widget, WIDGET ( wid ), FALSE );
     }
     /**
      * PROMPT
      */
     else if ( strcmp ( name, "prompt" ) == 0 ) {
+        if ( state->prompt != NULL ) {
+            g_error ( "Prompt widget can only be added once to the layout." );
+            return;
+        }
         // Prompt box.
         state->prompt = textbox_create ( WIDGET_TYPE_TEXTBOX_TEXT, str, TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "", 0, 0 );
         rofi_view_update_prompt ( state );
@@ -1529,6 +1532,10 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
      * CASE INDICATOR
      */
     else if ( strcmp ( name, "case-indicator" ) == 0 ) {
+        if ( state->case_indicator != NULL ) {
+            g_error ( "Case indicator widget can only be added once to the layout." );
+            return;
+        }
         state->case_indicator = textbox_create ( WIDGET_TYPE_TEXTBOX_TEXT, str, TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "*", 0, 0 );
         // Add small separator between case indicator and text box.
         box_add ( (box *) parent_widget, WIDGET ( state->case_indicator ), FALSE );
@@ -1538,6 +1545,10 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
      * ENTRY BOX
      */
     else if ( strcmp ( name, "entry" ) == 0 ) {
+        if ( state->text != NULL ) {
+            g_error ( "Entry textbox widget can only be added once to the layout." );
+            return;
+        }
         // Entry box
         TextboxFlags tfl = TB_EDITABLE;
         tfl        |= ( ( state->menu_flags & MENU_PASSWORD ) == MENU_PASSWORD ) ? TB_PASSWORD : 0;
@@ -1548,6 +1559,10 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
      * MESSAGE
      */
     else if ( strcmp ( name, "message" ) == 0 ) {
+        if ( state->mesg_box != NULL ) {
+            g_error ( "Message widget can only be added once to the layout." );
+            return;
+        }
         char *strmsg = g_strjoin ( ".", str, "textbox", NULL );
         state->mesg_box = container_create ( strbox );
         state->mesg_tb  = textbox_create ( WIDGET_TYPE_TEXTBOX_TEXT, strmsg, TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, NULL, 0, 0 );
@@ -1560,6 +1575,10 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
      * LISTVIEW
      */
     else if ( strcmp ( name, "listview" ) == 0 ) {
+        if ( state->list_view != NULL ) {
+            g_error ( "Listview widget can only be added once to the layout." );
+            return;
+        }
         state->list_view = listview_create ( str, update_callback, state, config.element_height, 0 );
         box_add ( (box *) parent_widget, WIDGET ( state->list_view ), TRUE );
         // Set configuration
@@ -1575,6 +1594,10 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
      * SIDEBAR
      */
     else if ( strcmp ( name, "sidebar" ) == 0 ) {
+        if ( state->sidebar_bar != NULL ) {
+            g_error ( "Sidebar widget can only be added once to the layout." );
+            return;
+        }
         if ( config.sidebar_mode ) {
             state->sidebar_bar = box_create ( strbox, ROFI_ORIENTATION_HORIZONTAL );
             box_add ( (box *) parent_widget, WIDGET ( state->sidebar_bar ), FALSE );
