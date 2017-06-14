@@ -486,8 +486,17 @@ static int monitor_active_from_id ( int mon_id, workarea *mon )
                     xcb_ewmh_get_desktop_viewport_reply_wipe ( &vp );
                     return TRUE;
                 }
+                else {
+                    g_debug ( "Viewport does not exist for current desktop: %d, falling back to mouse location (-5)", current_desktop );
+                }
                 xcb_ewmh_get_desktop_viewport_reply_wipe ( &vp );
             }
+            else {
+                g_debug ( "Failed to get viewport for current desktop: %d, falling back to mouse location (-5).", current_desktop );
+            }
+        }
+        else {
+            g_debug ( "Failed to get current desktop, falling back to mouse location (-5)." );
         }
     }
     else if ( mon_id == -2 || mon_id == -4 ) {
@@ -521,8 +530,17 @@ static int monitor_active_from_id ( int mon_id, workarea *mon )
                         return TRUE;
                     }
                 }
+                else {
+                    g_debug ( "Failed to get translate position of active window, falling back to mouse location (-5)." );
+                }
                 free ( r );
             }
+            else {
+                g_debug ( "Failed to get geometry of active window, falling back to mouse location (-5)." );
+            }
+        }
+        else {
+            g_debug ( "Failed to get active window, falling back to mouse location (-5)." );
         }
     }
     // Monitor that has mouse pointer.
