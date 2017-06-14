@@ -484,4 +484,14 @@ void rofi_theme_convert_old ( void );
  * @returns path to theme or copy of filename if not found.
  */
 char *helper_get_theme_path ( const char *file );
+
+/**
+ * @param file File name to prepare.
+ * @param parent_file Filename of parent file.
+ *
+ * Tries to find full path relative to parent file.
+ *
+ * @returns full path to file.
+ */
+char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file );
 #endif

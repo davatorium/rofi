@@ -177,6 +177,9 @@ START_TEST ( test_core_comments )
     ck_assert_ptr_null ( rofi_theme->parent );
     ck_assert_str_eq ( rofi_theme->name, "Root" );
 
+    // Test comment on last lines
+    rofi_theme_parse_string ( "// c++ style" );
+    rofi_theme_parse_string ( "/* c style" );
 }
 END_TEST
 START_TEST ( test_core_newline )
@@ -1191,6 +1194,30 @@ START_TEST ( test_import_error )
 }
 END_TEST
 
+START_TEST ( test_prepare_path )
+{
+    char *current_dir = g_get_current_dir ();
+    ck_assert_ptr_nonnull ( current_dir );
+    char *f = rofi_theme_parse_prepare_file ( "../", NULL );
+    ck_assert_ptr_nonnull ( f );
+    ck_assert_int_eq ( *f, '/');
+    ck_assert_str_ne ( f, current_dir);
+    ck_assert ( g_str_has_prefix( current_dir, f ) == TRUE );
+    g_free(f);
+
+    f = rofi_theme_parse_prepare_file ( "../", "/tmp/" );
+    ck_assert_ptr_nonnull ( f );
+    ck_assert_str_eq ( f, "/");
+    g_free ( f );
+
+    f = rofi_theme_parse_prepare_file ( "/tmp/test.rasi" , "/random/");
+    ck_assert_ptr_nonnull ( f );
+    ck_assert_str_eq ( f, "/tmp/test.rasi" );
+    g_free ( f  );
+
+    g_free ( current_dir );
+}
+END_TEST
 static Suite * theme_parser_suite (void)
 {
     Suite *s;
@@ -1328,6 +1355,11 @@ static Suite * theme_parser_suite (void)
         tcase_add_test ( tc_prop_import, test_import_empty);
         tcase_add_test ( tc_prop_import, test_import_error);
         suite_add_tcase(s, tc_prop_import );
+    }
+    {
+        TCase *tc_prepare_path = tcase_create("prepare_path");
+        tcase_add_test ( tc_prepare_path, test_prepare_path);
+        suite_add_tcase(s, tc_prepare_path );
     }
     return s;
 }

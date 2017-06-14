@@ -34,7 +34,6 @@
 %{
 #include <stdio.h>
 #include <glib.h>
-#include <gio/gio.h>
 #include <helper.h>
 #include <math.h>
 #include <strings.h>
@@ -84,7 +83,6 @@ GQueue *queue = NULL;
 
 ParseObject *current = NULL;
 
-static char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file );
 
 
 static double rofi_theme_parse_convert_hex ( char high, char low)
@@ -562,24 +560,6 @@ if ( queue == NULL ){
 %%
 
 
-static char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file )
-{
-    char *filename = rofi_expand_path ( file );
-    // If no absolute path specified, expand it.
-    if ( parent_file != NULL && ! g_path_is_absolute ( filename )   ) {
-        char *basedir = g_path_get_dirname ( parent_file );
-        char *path = g_build_filename ( basedir, filename, NULL );
-        g_free ( filename);
-        filename = path;
-        g_free ( basedir );
-    }
-    GFile *gf = g_file_new_for_path ( filename );
-    g_free(filename);
-    filename = g_file_get_path ( gf );
-    g_object_unref ( gf );
-
-    return filename;
-}
 gboolean rofi_theme_parse_file ( const char *file )
 {
     char *file2 = helper_get_theme_path ( file );

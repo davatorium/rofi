@@ -32,6 +32,8 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+// GFile stuff.
+#include <gio/gio.h>
 #include "theme.h"
 #include "theme-parser.h"
 #include "helper.h"
@@ -779,3 +781,22 @@ void rofi_theme_convert_old ( void )
     }
 }
 #endif // THEME_CONVERTER
+
+char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file )
+{
+    char *filename = rofi_expand_path ( file );
+    // If no absolute path specified, expand it.
+    if ( parent_file != NULL && ! g_path_is_absolute ( filename )   ) {
+        char *basedir = g_path_get_dirname ( parent_file );
+        char *path = g_build_filename ( basedir, filename, NULL );
+        g_free ( filename);
+        filename = path;
+        g_free ( basedir );
+    }
+    GFile *gf = g_file_new_for_path ( filename );
+    g_free(filename);
+    filename = g_file_get_path ( gf );
+    g_object_unref ( gf );
+
+    return filename;
+}
