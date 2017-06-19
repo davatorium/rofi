@@ -1,0 +1,117 @@
+/**
+ * Author: Primetoxinz
+ */
+* {
+    foreground:                  #f2f2f2;
+    background:                  #4e4743;
+    lightbg:                     #534c48;
+    red:                         #f15d22;
+    orange:                      #faa41a; 
+    blue:                        #48b9c7; 
+
+    selected-normal-foreground:  @foreground;
+    normal-foreground:           @foreground;
+    alternate-normal-background: @background;
+    selected-urgent-foreground:  @foreground;
+    urgent-foreground:           @foreground;
+    alternate-urgent-background: @background;
+    active-foreground:           @foreground;
+    selected-active-foreground:  @foreground;
+    alternate-normal-foreground: @foreground;
+    alternate-active-background: @blue;
+    bordercolor:                 @foreground;
+    normal-background:           @background;
+    selected-normal-background:  @blue;
+    separatorcolor:              @orange;
+    spacing:                     2;
+    urgent-background:           @red;
+    alternate-urgent-foreground: @foreground;
+    selected-urgent-background:  @red;
+    alternate-active-foreground: @foreground;
+    selected-active-background:  @blue;
+    active-background:           @orange;
+}
+#window {
+    border:     0;
+    foreground: @foreground;
+    background: rgba ( 0, 0, 0, 0 % );
+    padding:    5;
+}
+#window.box {
+    foreground: @bordercolor;
+    background: @background;
+}
+#window.mainbox {
+    border:  0;
+    padding: 0;
+}
+#window.mainbox.message.box {
+    border:     1px dash 0px 0px ;
+    foreground: @separatorcolor;
+    padding:    2px 0px 0px ;
+}
+#window.mainbox.message.normal {
+    foreground: @foreground;
+}
+#window.mainbox.listview {
+    fixed-height: 0;
+    border:       2px 0px 0px ;
+    padding:      2px 0px 0px ;
+    foreground: @separatorcolor;
+}
+#window.mainbox.listview.element {
+    border: 0;
+}
+#window.mainbox.listview.element.normal.normal {
+    foreground: @normal-foreground;
+    background: @normal-background;
+}
+#window.mainbox.listview.element.normal.urgent {
+    foreground: @urgent-foreground;
+    background: @urgent-background;
+}
+#window.mainbox.listview.element.normal.active {
+    foreground: @active-foreground;
+    background: @active-background;
+}
+#window.mainbox.listview.element.selected.normal {
+    foreground: @selected-normal-foreground;
+    background: @selected-normal-background;
+}
+#window.mainbox.listview.element.selected.urgent {
+    foreground: @selected-urgent-foreground;
+    background: @selected-urgent-background;
+}
+#window.mainbox.listview.element.selected.active {
+    foreground: @selected-active-foreground;
+    background: @selected-active-background;
+}
+#window.mainbox.listview.element.alternate.normal {
+    foreground: @alternate-normal-foreground;
+    background: @alternate-normal-background;
+}
+#window.mainbox.listview.element.alternate.urgent {
+    foreground: @alternate-urgent-foreground;
+    background: @alternate-urgent-background;
+}
+#window.mainbox.listview.element.alternate.active {
+    foreground: @alternate-active-foreground;
+    background: @alternate-active-background;
+}
+#window.mainbox.sidebar.box {
+    border: 1px dash 0px 0px ;
+}
+#window.mainbox.sidebar.button.selected {
+    foreground: @selected-normal-foreground;
+    background: @selected-normal-background;
+}
+#window.mainbox.inputbar {
+    spacing: 0;
+}
+#window.mainbox.inputbar.box {
+    border: 0px ;
+}
+#window.mainbox.inputbar.normal {
+    foreground: @foreground;
+}
+

@@ -222,6 +222,7 @@ install_data(
     'themes/Adapta-Nokto.rasi',
     'themes/Arc.rasi',
     'themes/DarkBlue.rasi',
+    'themes/Pop-Dark.rasi',
     'themes/Indego.rasi',
     'themes/Monokai.rasi',
     'themes/Paper.rasi',
