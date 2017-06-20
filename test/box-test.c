@@ -63,8 +63,9 @@ unsigned int test =0;
         }                                                                                                \
 }
 
-void config_parse_set_property ( G_GNUC_UNUSED const Property *p )
+gboolean config_parse_set_property ( G_GNUC_UNUSED const Property *p, char **error )
 {
+    return FALSE;
 }
 char * rofi_expand_path ( G_GNUC_UNUSED const char *path )
 {

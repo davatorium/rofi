@@ -56,6 +56,7 @@ SOURCES=\
 	source/timings.c\
 	source/history.c\
 	source/theme.c\
+	source/rofi-types.c\
 	source/widgets/box.c\
 	source/widgets/container.c\
 	source/widgets/widget.c\
@@ -77,6 +78,7 @@ SOURCES=\
 	include/xcb.h\
 	include/xcb-internal.h\
 	include/rofi.h\
+	include/rofi-types.h\
 	include/mode.h\
 	include/mode-private.h\
 	include/settings.h\
@@ -306,6 +308,8 @@ helper_pidfile_SOURCES=\
 					   include/mode.h\
 					   include/mode-private.h\
 					   source/helper.c\
+					   source/rofi-types.c\
+					   include/rofi-types.h\
 					   include/helper.h\
 					   include/helper-theme.h\
 					   include/xrmoptions.h\
@@ -320,6 +324,8 @@ helper_tokenize_SOURCES=\
 					   include/mode.h\
 					   include/mode-private.h\
 					   source/helper.c\
+					   source/rofi-types.c\
+					   include/rofi-types.h\
 					   include/helper.h\
 					   include/helper-theme.h\
 					   include/xrmoptions.h\
@@ -332,6 +338,8 @@ widget_test_SOURCES=\
 			source/widgets/widget.c\
 			source/widgets/textbox.c\
 			source/theme.c\
+			source/rofi-types.c\
+			include/rofi-types.h\
 			source/css-colors.c\
 			source/helper.c\
 			config/config.c\
@@ -347,6 +355,8 @@ box_test_SOURCES=\
 			lexer/theme-parser.y\
 			lexer/theme-lexer.l\
 			source/theme.c\
+			source/rofi-types.c\
+			include/rofi-types.h\
 			source/css-colors.c\
 			include/theme.h\
 			include/css-colors.h\
@@ -360,6 +370,8 @@ scrollbar_test_SOURCES=\
 			lexer/theme-parser.y\
 			lexer/theme-lexer.l\
 			source/theme.c\
+			source/rofi-types.c\
+			include/rofi-types.h\
 			source/css-colors.c\
 			include/theme.h\
 			include/css-colors.h\
@@ -371,6 +383,8 @@ textbox_test_SOURCES=\
 	lexer/theme-parser.y\
 	lexer/theme-lexer.l\
 	source/theme.c\
+	source/rofi-types.c\
+	include/rofi-types.h\
 	source/css-colors.c\
 	source/helper.c\
 	config/config.c\
@@ -406,6 +420,8 @@ theme_parser_test_SOURCES=\
 	lexer/theme-parser.c\
 	lexer/theme-parser.h\
 	source/theme.c\
+	source/rofi-types.c\
+	include/rofi-types.h\
 	source/css-colors.c\
 	test/theme-parser-test.c
 endif
@@ -420,6 +436,8 @@ helper_test_SOURCES=\
 	include/helper-theme.h\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
+	source/rofi-types.c\
+	include/rofi-types.h\
 	test/helper-test.c
 
 
@@ -460,6 +478,8 @@ helper_expand_SOURCES=\
 	include/helper-theme.h\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
+	source/rofi-types.c\
+	include/rofi-types.h\
 	test/helper-expand.c
 
 helper_expand_CFLAGS=${helper_test_CFLAGS}
@@ -475,6 +495,8 @@ helper_config_cmdline_parser_SOURCES=\
 	include/mode.h\
 	include/mode-private.h\
 	source/helper.c\
+	source/rofi-types.c\
+	include/rofi-types.h\
 	include/helper.h\
 	include/helper-theme.h\
 	include/xrmoptions.h\
@@ -491,6 +513,8 @@ mode_test_SOURCES=\
 			      source/dialogs/help-keys.c\
 				  source/helper.c\
 				  source/mode.c\
+				  source/rofi-types.c\
+				  include/rofi-types.h\
 				  source/xrmoptions.c\
 				  source/keyb.c\
 				  include/mode.h\

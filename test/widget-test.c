@@ -43,8 +43,9 @@ unsigned int test =0;
         assert ( a );                                     \
         printf ( "Test %3i passed (%s)\n", ++test, # a ); \
 }
-void config_parse_set_property ( G_GNUC_UNUSED const Property *p )
+gboolean config_parse_set_property ( G_GNUC_UNUSED const Property *p, char **error )
 {
+    return FALSE;
 }
 void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {

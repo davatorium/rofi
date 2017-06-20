@@ -52,8 +52,9 @@ unsigned int normal_window_mode = 0;
 
 #include "view.h"
 
-void config_parse_set_property ( G_GNUC_UNUSED const Property *p )
+gboolean config_parse_set_property ( G_GNUC_UNUSED const Property *p, char **error )
 {
+    return FALSE;
 }
 
 void rofi_add_error_message ( G_GNUC_UNUSED GString *msg)

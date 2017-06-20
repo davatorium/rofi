@@ -40,6 +40,7 @@
 #include "xrmoptions.h"
 #include "settings.h"
 #include "helper.h"
+#include "rofi-types.h"
 
 /** Different sources of configuration. */
 const char * const ConfigSourceStr[] = {

@@ -59,8 +59,9 @@ char * helper_get_theme_path ( const char *file )
 {
     return g_strdup ( file );
 }
-void config_parse_set_property ( G_GNUC_UNUSED const Property *p )
+gboolean config_parse_set_property ( G_GNUC_UNUSED const Property *p, char **error )
 {
+    return FALSE;
 }
 void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {}
