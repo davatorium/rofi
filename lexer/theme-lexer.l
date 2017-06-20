@@ -307,7 +307,9 @@ if ( queue == NULL ){
     yytext[yyleng-1] = '\0';
     ParseObject *top = g_queue_peek_head ( file_queue );
     g_assert ( top != NULL );
-    char *filename = rofi_theme_parse_prepare_file ( &yytext[1], top->filename );
+    char *file2 = helper_get_theme_path ( &yytext[1] );
+    char *filename = rofi_theme_parse_prepare_file ( file2, top->filename );
+    g_free ( file2 );
     if ( g_list_find_custom ( imported_files, filename, (GCompareFunc)g_strcmp0 ) != NULL ) {
         g_debug ( "Skipping file: '%s' already parsed.", filename );
     } else {

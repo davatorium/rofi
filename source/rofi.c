@@ -83,6 +83,7 @@ void rofi_add_error_message ( GString *str )
 
 /** Path to the configuration file */
 G_MODULE_EXPORT char *config_path = NULL;
+G_MODULE_EXPORT char *config_path_new = NULL;
 /** Array holding all activated modi. */
 Mode                 **modi = NULL;
 
@@ -321,7 +322,11 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "                 Support: %s"PACKAGE_URL "%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
     printf ( "                          %s#rofi @ freenode.net%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
     if ( find_arg ( "-no-config" ) < 0 ) {
-        printf ( "      Configuration file: %s%s%s\n", is_term ? color_bold : "", config_path, is_term ? color_reset : "" );
+        if ( config_path_new ) {
+            printf ( "      Configuration file: %s%s%s\n", is_term ? color_bold : "", config_path_new, is_term ? color_reset : "" );
+        } else {
+            printf ( "      Configuration file: %s%s%s\n", is_term ? color_bold : "", config_path, is_term ? color_reset : "" );
+        }
     }
     else {
         printf ( "      Configuration file: %sDisabled%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
@@ -413,6 +418,7 @@ static void cleanup ()
     g_free ( modi );
 
     g_free ( config_path );
+    g_free ( config_path_new );
 
     if ( list_of_error_msgs ) {
         for ( GList *iter = g_list_first ( list_of_error_msgs );
@@ -766,12 +772,17 @@ int main ( int argc, char *argv[] )
         const char *cpath = g_get_user_config_dir ();
         if ( cpath ) {
             config_path = g_build_filename ( cpath, "rofi", "config", NULL );
+            config_path_new = g_strconcat ( config_path, ".rasi" , NULL );
         }
     }
     else {
         char *c = NULL;
         find_arg_str ( "-config", &c );
-        config_path = rofi_expand_path ( c );
+        if ( g_str_has_suffix ( c, ".rasi" ) ) {
+            config_path_new = rofi_expand_path ( c );
+        } else {
+            config_path = rofi_expand_path ( c );
+        }
     }
 
     TICK ();
@@ -811,7 +822,14 @@ int main ( int argc, char *argv[] )
         g_free ( etc );
         // Load in config from X resources.
         config_parse_xresource_options ( xcb );
-        config_parse_xresource_options_file ( config_path );
+        if ( config_path_new && g_file_test ( config_path_new, G_FILE_TEST_IS_REGULAR) ) {
+            if ( rofi_theme_parse_file ( config_path_new) ) {
+                rofi_theme_free ( rofi_theme );
+                rofi_theme = NULL;
+            }
+        } else {
+            config_parse_xresource_options_file ( config_path );
+        }
     }
     find_arg_str ( "-theme", &( config.theme ) );
     if ( config.theme ) {
