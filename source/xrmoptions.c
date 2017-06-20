@@ -368,12 +368,13 @@ void config_parse_cmd_options ( void )
     }
 }
 
-static void __config_parser_set_property ( XrmOption *option, const Property *p )
+static gboolean __config_parser_set_property ( XrmOption *option, const Property *p, char **error  )
 {
+    extern const char *PropertyTypeName[];
     if ( option->type == xrm_String  ) {
         if ( p->type != P_STRING ) {
-            g_warning ( "Option: %s needs to be set with a string.", option->name );
-            return;
+            *error = g_strdup_printf ( "Option: %s needs to be set with a string not a %s.", option->name, PropertyTypeName[p->type] );
+            return TRUE;
         }
         if ( ( option )->mem != NULL ) {
             g_free ( option->mem );
@@ -387,46 +388,52 @@ static void __config_parser_set_property ( XrmOption *option, const Property *p 
     }
     else if ( option->type == xrm_Number ) {
         if ( p->type != P_INTEGER ) {
-            g_warning ( "Option: %s needs to be set with a number.", option->name );
-            return;
+            *error = g_strdup_printf ( "Option: %s needs to be set with a numger not a %s.", option->name, PropertyTypeName[p->type] );
+            return TRUE;
         }
         *( option->value.snum ) = p->value.i;
         option->source          = CONFIG_FILE_THEME;
     }
     else if ( option->type == xrm_SNumber ) {
         if ( p->type != P_INTEGER ) {
-            g_warning ( "Option: %s needs to be set with a number.", option->name );
-            return;
+            *error = g_strdup_printf ( "Option: %s needs to be set with a numger not a %s.", option->name, PropertyTypeName[p->type] );
+            return TRUE;
         }
         *( option->value.num ) = (unsigned int ) ( p->value.i );
         option->source         = CONFIG_FILE_THEME;
     }
     else if ( option->type == xrm_Boolean ) {
         if ( p->type != P_BOOLEAN ) {
-            g_warning ( "Option: %s needs to be set with a boolean.", option->name );
-            return;
+            *error = g_strdup_printf ( "Option: %s needs to be set with a boolean not a %s.", option->name, PropertyTypeName[p->type] );
+            return TRUE;
         }
         *( option->value.num ) = ( p->value.b );
         option->source         = CONFIG_FILE_THEME;
     }
+    else {
+        // TODO add type
+        *error = g_strdup_printf ( "Option: %s is not of a supported type: %s.", option->name, PropertyTypeName[p->type] );
+        return TRUE;
+    }
+    return FALSE;
 }
 
-void config_parse_set_property ( const Property *p )
+gboolean config_parse_set_property ( const Property *p, char **error )
 {
     for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( XrmOption ); ++i ) {
         XrmOption *op = &( xrmOptions[i] );
         if ( g_strcmp0 ( op->name, p->name ) == 0 ) {
-            __config_parser_set_property ( op, p );
-            return;
+            return __config_parser_set_property ( op, p, error );
         }
     }
     for ( unsigned int i = 0; i < num_extra_options; ++i ) {
         XrmOption *op = &( extra_options[i] );
         if ( g_strcmp0 ( op->name, p->name ) == 0 ) {
-            __config_parser_set_property ( op, p );
-            return;
+            return __config_parser_set_property ( op, p, error );
         }
     }
+    *error = g_strdup_printf ( "Option: %s is not found.", p->name );
+    return TRUE;
 }
 
 void config_xresource_free ( void )

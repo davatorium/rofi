@@ -160,7 +160,10 @@ char ** config_parser_return_display_help ( unsigned int *length );
  * Sets both the static as  dynamic config option.
  *
  * @param p Property to set
+ * @param error Error msg when not found.
+ *
+ * @returns true when failed to set property.
  */
-void config_parse_set_property ( const Property *p );
+gboolean config_parse_set_property ( const Property *p, char **error );
 /* @}*/
 #endif

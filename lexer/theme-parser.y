@@ -275,17 +275,31 @@ T_NAME_PREFIX t_entry_name_path T_BOPEN t_property_list_optional T_BCLOSE
     T_PDEFAULTS T_BOPEN t_property_list_optional T_BCLOSE {
     rofi_theme_widget_add_properties ( rofi_theme, $3);
 }
-| T_CONFIGURATION T_BOPEN t_property_list_optional T_BCLOSE {
-    GHashTableIter iter;
-    g_hash_table_iter_init ( &iter, $3 );
-    gpointer key,value;
-    while ( g_hash_table_iter_next ( &iter, &key, &value ) ) {
-            Property *p = (Property *) value;
-            config_parse_set_property ( p );
-    }
-    g_hash_table_destroy ( $3 );
+| T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {
+    // Dummy at this point.
 }
 ;
+
+t_config_property_list_optional
+: %empty {}
+| t_config_property_list
+;
+
+t_config_property_list
+: t_config_property {
+}
+| t_config_property_list  t_config_property  {
+};
+
+t_config_property
+: t_property {
+    char *error = NULL;
+    if ( config_parse_set_property ( $1, &error ) ) {
+        // TODO Generate error.
+        yyerror ( &(@$), @$.filename, error );
+        g_free(error);
+    }
+}
 
 /**
  * properties
