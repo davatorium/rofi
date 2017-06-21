@@ -898,7 +898,8 @@ int main ( int argc, char *argv[] )
         return EXIT_SUCCESS;
     }
     if ( find_arg ( "-dump-config" ) >= 0 ) {
-        rofi_dump_config ( rofi_theme );
+        config_parse_dump_config_rasi_format ( );
+        rofi_theme_print ( rofi_theme );
         cleanup ();
         return EXIT_SUCCESS;
     }

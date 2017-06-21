@@ -557,7 +557,7 @@ static void config_parse_dump_config_option ( XrmOption *option )
     printf ( "\n" );
 }
 
-void config_parse_dump_config ( void )
+void config_parse_dump_config_rasi_format ( void )
 {
     printf ( "configuration {\n" );
 
