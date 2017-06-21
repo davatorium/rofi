@@ -513,6 +513,75 @@ void config_parse_xresource_dump ( void )
     }
 }
 
+static void config_parse_dump_config_option ( XrmOption *option )
+{
+    if ( option->type == xrm_Char ) {
+        printf ( "/*" );
+    }
+    printf ( "\t%s: ", option->name );
+    switch ( option->type )
+    {
+    case xrm_Number:
+        printf ( "%u", *( option->value.num ) );
+        break;
+    case xrm_SNumber:
+        printf ( "%i", *( option->value.snum ) );
+        break;
+    case xrm_String:
+        if ( ( *( option->value.str ) ) != NULL ) {
+            // TODO should this be escaped?
+            printf ( "\"%s\"", *( option->value.str ) );
+        }
+        break;
+    case xrm_Boolean:
+        printf ( "%s", ( *( option->value.num ) == TRUE ) ? "true" : "false" );
+        break;
+    case xrm_Char:
+        // TODO
+        if ( *( option->value.charc ) > 32 && *( option->value.charc ) < 127 ) {
+            printf ( "'%c'", *( option->value.charc ) );
+        }
+        else {
+            printf ( "'\\x%02X'", *( option->value.charc ) );
+        }
+        printf ( " /* unsupported */" );
+        break;
+    default:
+        break;
+    }
+
+    printf ( ";" );
+    if ( option->type == xrm_Char ) {
+        printf ( "*/" );
+    }
+    printf ( "\n" );
+}
+
+void config_parse_dump_config ( void )
+{
+    printf ( "configuration {\n" );
+
+    unsigned int entries = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
+    for ( unsigned int i = 0; i < entries; ++i ) {
+        // Skip duplicates.
+        if ( ( i + 1 ) < entries ) {
+            if ( xrmOptions[i].value.str == xrmOptions[i + 1].value.str ) {
+                continue;
+            }
+        }
+        if ( xrmOptions[i].source != CONFIG_DEFAULT ) {
+            config_parse_dump_config_option ( &( xrmOptions[i] ) );
+        }
+    }
+    for ( unsigned int i = 0; i < num_extra_options; i++ ) {
+        if ( extra_options[i].source != CONFIG_DEFAULT ) {
+            config_parse_dump_config_option ( &( extra_options[i] ) );
+        }
+    }
+
+    printf ( "}\n" );
+}
+
 static void print_option_string ( XrmOption *xo, int is_term )
 {
     int l = strlen ( xo->name );

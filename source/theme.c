@@ -290,6 +290,14 @@ void rofi_theme_print ( ThemeWidget *widget )
     }
 }
 
+void rofi_dump_config ( ThemeWidget *widget )
+{
+    config_parse_dump_config ( );
+    if ( widget != NULL ) {
+        rofi_theme_print_index ( widget );
+    }
+}
+
 /**
  * Main lex parser.
  */

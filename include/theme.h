@@ -240,6 +240,13 @@ ThemeWidget *rofi_theme_find_or_create_name ( ThemeWidget *base, const char *nam
 void rofi_theme_print ( ThemeWidget *widget );
 
 /**
+ * @param widget The widget handle.
+ *
+ * Print out the theme and config to the commandline.
+ */
+void rofi_dump_config ( ThemeWidget *widget );
+
+/**
  * @param type The type of the property to create.
  *
  * Create a theme property of type.

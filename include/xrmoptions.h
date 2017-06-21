@@ -165,5 +165,10 @@ char ** config_parser_return_display_help ( unsigned int *length );
  * @returns true when failed to set property.
  */
 gboolean config_parse_set_property ( const Property *p, char **error );
+
+/**
+ * @brief Dump configuration in rasi format.
+ */
+void config_parse_dump_config ( void );
 /* @}*/
 #endif
