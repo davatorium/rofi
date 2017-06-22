@@ -699,7 +699,7 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
         gchar                 *text;
 
         xcb->last_timestamp = xkpe->time;
-        text                = nk_bindings_seat_handle_key ( xcb->bindings_seat, xkpe->detail, NK_BINDINGS_KEY_STATE_PRESS );
+        text                = nk_bindings_seat_handle_key_with_modmask ( xcb->bindings_seat, xkpe->state, xkpe->detail, NK_BINDINGS_KEY_STATE_PRESS );
         if ( text != NULL ) {
             rofi_view_handle_text ( state, text );
         }
