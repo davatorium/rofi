@@ -449,7 +449,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     }
     // TODO check if this is still needed after flatning.
     cairo_set_operator ( draw, CAIRO_OPERATOR_OVER );
-
+    cairo_set_source_rgb ( draw, 0.0, 0.0, 0.0 );
     rofi_theme_get_color ( WIDGET ( tb ), "foreground", draw );
     // Text
     rofi_theme_get_color ( WIDGET ( tb ), "text", draw );

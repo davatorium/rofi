@@ -1025,6 +1025,7 @@ gboolean helper_execute_command ( const char *wd, const char *cmd, gboolean run_
 char *helper_get_theme_path ( const char *file )
 {
     char *filename = rofi_expand_path ( file );
+    g_debug ( "Opening theme, testing: %s\n", filename );
     if ( g_file_test ( filename, G_FILE_TEST_EXISTS ) ) {
         return filename;
     }
@@ -1040,15 +1041,29 @@ char *helper_get_theme_path ( const char *file )
     const char *cpath = g_get_user_config_dir ();
     if ( cpath ) {
         char *themep = g_build_filename ( cpath, "rofi", filename, NULL );
+        g_debug ( "Opening theme, testing: %s\n", themep );
         if ( g_file_test ( themep, G_FILE_TEST_EXISTS ) ) {
             g_free ( filename );
             return themep;
         }
         g_free ( themep );
     }
+    const char * datadir = g_get_user_data_dir();
+    if ( datadir ) {
+        char *theme_path = g_build_filename ( datadir, "rofi", "themes", filename, NULL );
+        g_debug ( "Opening theme, testing: %s\n", theme_path );
+        if ( theme_path ) {
+            if ( g_file_test ( theme_path, G_FILE_TEST_EXISTS ) ) {
+                g_free ( filename );
+                return theme_path;
+            }
+            g_free ( theme_path );
+        }
+    }
 
     char *theme_path = g_build_filename ( THEME_DIR, filename, NULL );
     if ( theme_path ) {
+        g_debug ( "Opening theme, testing: %s\n", theme_path );
         if ( g_file_test ( theme_path, G_FILE_TEST_EXISTS ) ) {
             g_free ( filename );
             return theme_path;
