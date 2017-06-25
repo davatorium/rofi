@@ -95,8 +95,7 @@ typedef struct
     // List of disabled entries.
     GHashTable        *disabled_entries;
     unsigned int      disabled_entries_length;
-    GThread           *thread;
-    GAsyncQueue       *icon_fetch_queue;
+    GThreadPool       *pool;
 
     unsigned int      expected_line_height;
     DRunModeEntry     quit_entry;
@@ -452,54 +451,50 @@ static void get_apps ( DRunModePrivateData *pd )
     TICK_N ( "Get Desktop apps (system dirs)" );
 }
 
-static gpointer drun_icon_fetch ( gpointer data )
+static void drun_icon_fetch ( gpointer data, gpointer user_data)
 {
     g_debug ( "Starting up icon fetching thread." );
     // as long as dr->icon is updated atomicly.. (is a pointer write atomic?)
     // this should be fine running in another thread.
-    DRunModePrivateData *pd = (DRunModePrivateData *) data;
-    DRunModeEntry       *dr;
+    DRunModePrivateData *pd = (DRunModePrivateData *) user_data;
+    DRunModeEntry       *dr =  (DRunModeEntry *)data;
     const gchar         *themes[2] = {
         config.drun_icon_theme,
         NULL
     };
 
-    while ( ( dr = g_async_queue_pop ( pd->icon_fetch_queue ) ) != &( pd->quit_entry )  ) {
-        if ( dr->icon_name == NULL ) {
-            continue;
-        }
-        gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, themes, NULL, dr->icon_name, dr->icon_size, 1, TRUE );
-        if ( icon_path == NULL ) {
-            g_debug ( "Failed to get Icon %s(%d): n/a", dr->icon_name, dr->icon_size  );
-            continue;
-        }
-        else{
-            g_debug ( "Found Icon %s(%d): %s", dr->icon_name, dr->icon_size, icon_path  );
-        }
-        cairo_surface_t *icon_surf = NULL;
-        if ( g_str_has_suffix ( icon_path, ".png" ) ) {
-            icon_surf = cairo_image_surface_create_from_png ( icon_path );
-        }
-        else if ( g_str_has_suffix ( icon_path, ".svg" ) ) {
-            icon_surf = cairo_image_surface_create_from_svg ( icon_path, dr->icon_size );
-        }
-        else {
-            g_debug ( "Icon type not yet supported: %s", icon_path  );
-        }
-        if ( icon_surf ) {
-            // Check if surface is valid.
-            if ( cairo_surface_status ( icon_surf ) != CAIRO_STATUS_SUCCESS ) {
-                g_debug ( "Icon failed to open: %s(%d): %s", dr->icon_name, dr->icon_size, icon_path );
-                cairo_surface_destroy ( icon_surf );
-                icon_surf = NULL;
-            }
-            dr->icon = icon_surf;
-        }
-        g_free ( icon_path );
-        rofi_view_reload ();
+    if ( dr->icon_name == NULL ) {
+        return;
     }
-    g_debug ( "Shutting down icon fetching thread." );
-    return NULL;
+    gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, themes, NULL, dr->icon_name, dr->icon_size, 1, TRUE );
+    if ( icon_path == NULL ) {
+        g_debug ( "Failed to get Icon %s(%d): n/a", dr->icon_name, dr->icon_size  );
+        return;
+    }
+    else{
+        g_debug ( "Found Icon %s(%d): %s", dr->icon_name, dr->icon_size, icon_path  );
+    }
+    cairo_surface_t *icon_surf = NULL;
+    if ( g_str_has_suffix ( icon_path, ".png" ) ) {
+        icon_surf = cairo_image_surface_create_from_png ( icon_path );
+    }
+    else if ( g_str_has_suffix ( icon_path, ".svg" ) ) {
+        icon_surf = cairo_image_surface_create_from_svg ( icon_path, dr->icon_size );
+    }
+    else {
+        g_debug ( "Icon type not yet supported: %s", icon_path  );
+    }
+    if ( icon_surf ) {
+        // Check if surface is valid.
+        if ( cairo_surface_status ( icon_surf ) != CAIRO_STATUS_SUCCESS ) {
+            g_debug ( "Icon failed to open: %s(%d): %s", dr->icon_name, dr->icon_size, icon_path );
+            cairo_surface_destroy ( icon_surf );
+            icon_surf = NULL;
+        }
+        dr->icon = icon_surf;
+    }
+    g_free ( icon_path );
+    rofi_view_reload ();
 }
 
 static int drun_mode_init ( Mode *sw )
@@ -520,7 +515,6 @@ static int drun_mode_init ( Mode *sw )
         pd->xdg_context = nk_xdg_theme_context_new ( drun_icon_fallback_themes, NULL );
         nk_xdg_theme_preload_themes_icon ( pd->xdg_context, themes );
         get_apps ( pd );
-        pd->icon_fetch_queue = g_async_queue_new ( );
     }
     return TRUE;
 }
@@ -566,14 +560,9 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
     }
     else if ( ( mretv & MENU_ENTRY_DELETE ) && selected_line < rmpd->cmd_list_length ) {
         if ( selected_line < rmpd->history_length ) {
-            if ( rmpd->thread ) {
-                g_async_queue_lock ( rmpd->icon_fetch_queue );
-                DRunModeEntry *dr;
-                while ( ( dr = g_async_queue_try_pop_unlocked ( rmpd->icon_fetch_queue ) ) != NULL ) {
-                    // Reset for possible re-fetch.
-                    dr->icon_size = 0;
-                }
-                g_async_queue_unlock ( rmpd->icon_fetch_queue );
+            if ( rmpd->pool ) {
+                  g_thread_pool_free ( rmpd->pool, TRUE, TRUE);                
+                  rmpd->pool = NULL;
             }
             delete_entry_history ( &( rmpd->entry_list[selected_line] ) );
             drun_entry_clear ( &( rmpd->entry_list[selected_line] ) );
@@ -589,20 +578,9 @@ static void drun_mode_destroy ( Mode *sw )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( sw );
     if ( rmpd != NULL ) {
-        if ( rmpd->thread ) {
-            g_async_queue_lock ( rmpd->icon_fetch_queue );
-            while ( g_async_queue_try_pop_unlocked ( rmpd->icon_fetch_queue ) ) {
-                ;
-            }
-            // Make the thread quit.
-            g_async_queue_push_unlocked ( rmpd->icon_fetch_queue, ( gpointer ) & ( rmpd->quit_entry ) );
-            g_async_queue_unlock ( rmpd->icon_fetch_queue );
-            g_thread_join ( rmpd->thread );
-            rmpd->thread = NULL;
-        }
-        if ( rmpd->icon_fetch_queue ) {
-            g_async_queue_unref ( rmpd->icon_fetch_queue );
-            rmpd->icon_fetch_queue = NULL;
+        if ( rmpd->pool) {
+            g_thread_pool_free ( rmpd->pool, TRUE, TRUE);
+            rmpd->pool = NULL;
         }
         for ( size_t i = 0; i < rmpd->cmd_list_length; i++ ) {
             drun_entry_clear ( &( rmpd->entry_list[i] ) );
@@ -642,12 +620,14 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
     DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
     g_return_val_if_fail ( pd->entry_list != NULL, NULL );
     DRunModeEntry       *dr = &( pd->entry_list[selected_line] );
-    if ( pd->thread == NULL ) {
-        pd->thread = g_thread_new ( "icon-fetch-drun", drun_icon_fetch, pd );
+    if ( pd->pool == NULL ) {
+        /* TODO: 4 threads good? */
+        pd->pool = g_thread_pool_new ( drun_icon_fetch, pd, 4, FALSE, NULL);
     }
     if ( dr->icon_size == 0 ) {
         dr->icon_size = height;
-        g_async_queue_push ( pd->icon_fetch_queue, dr );
+        //g_async_queue_push ( pd->icon_fetch_queue, dr );
+        g_thread_pool_push ( pd->pool, dr, NULL );
     }
     return dr->icon;
 }
