@@ -1048,7 +1048,7 @@ char *helper_get_theme_path ( const char *file )
         }
         g_free ( themep );
     }
-    const char * datadir = g_get_user_data_dir();
+    const char * datadir = g_get_user_data_dir ();
     if ( datadir ) {
         char *theme_path = g_build_filename ( datadir, "rofi", "themes", filename, NULL );
         g_debug ( "Opening theme, testing: %s\n", theme_path );

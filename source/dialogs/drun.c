@@ -451,13 +451,13 @@ static void get_apps ( DRunModePrivateData *pd )
     TICK_N ( "Get Desktop apps (system dirs)" );
 }
 
-static void drun_icon_fetch ( gpointer data, gpointer user_data)
+static void drun_icon_fetch ( gpointer data, gpointer user_data )
 {
     g_debug ( "Starting up icon fetching thread." );
     // as long as dr->icon is updated atomicly.. (is a pointer write atomic?)
     // this should be fine running in another thread.
-    DRunModePrivateData *pd = (DRunModePrivateData *) user_data;
-    DRunModeEntry       *dr =  (DRunModeEntry *)data;
+    DRunModePrivateData *pd        = (DRunModePrivateData *) user_data;
+    DRunModeEntry       *dr        = (DRunModeEntry *) data;
     const gchar         *themes[2] = {
         config.drun_icon_theme,
         NULL
@@ -505,7 +505,7 @@ static int drun_mode_init ( Mode *sw )
             "gnome",
             NULL
         };
-        const gchar         *themes[2] = {
+        const gchar                *themes[2] = {
             config.drun_icon_theme,
             NULL
         };
@@ -561,8 +561,8 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
     else if ( ( mretv & MENU_ENTRY_DELETE ) && selected_line < rmpd->cmd_list_length ) {
         if ( selected_line < rmpd->history_length ) {
             if ( rmpd->pool ) {
-                  g_thread_pool_free ( rmpd->pool, TRUE, TRUE);                
-                  rmpd->pool = NULL;
+                g_thread_pool_free ( rmpd->pool, TRUE, TRUE );
+                rmpd->pool = NULL;
             }
             delete_entry_history ( &( rmpd->entry_list[selected_line] ) );
             drun_entry_clear ( &( rmpd->entry_list[selected_line] ) );
@@ -578,8 +578,8 @@ static void drun_mode_destroy ( Mode *sw )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( sw );
     if ( rmpd != NULL ) {
-        if ( rmpd->pool) {
-            g_thread_pool_free ( rmpd->pool, TRUE, TRUE);
+        if ( rmpd->pool ) {
+            g_thread_pool_free ( rmpd->pool, TRUE, TRUE );
             rmpd->pool = NULL;
         }
         for ( size_t i = 0; i < rmpd->cmd_list_length; i++ ) {
@@ -622,7 +622,7 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
     DRunModeEntry       *dr = &( pd->entry_list[selected_line] );
     if ( pd->pool == NULL ) {
         /* TODO: 4 threads good? */
-        pd->pool = g_thread_pool_new ( drun_icon_fetch, pd, 4, FALSE, NULL);
+        pd->pool = g_thread_pool_new ( drun_icon_fetch, pd, 4, FALSE, NULL );
     }
     if ( dr->icon_size == 0 ) {
         dr->icon_size = height;
