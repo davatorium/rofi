@@ -1075,24 +1075,44 @@ char *helper_get_theme_path ( const char *file )
 
 cairo_surface_t* cairo_image_surface_create_from_svg ( const gchar* file, int height )
 {
-    cairo_surface_t   *surface;
-    cairo_t           *cr;
-    RsvgHandle        * handle;
-    RsvgDimensionData dimensions;
+    GError          *error   = NULL;
+    cairo_surface_t *surface = NULL;
+    RsvgHandle      * handle;
 
-    handle = rsvg_handle_new_from_file ( file, NULL );
-    rsvg_handle_get_dimensions ( handle, &dimensions );
-    double scale = (double) height / dimensions.height;
-    surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32,
-                                           (double) dimensions.width * scale,
-                                           (double) dimensions.height * scale );
-    cr = cairo_create ( surface );
-    cairo_scale ( cr, scale, scale );
-    rsvg_handle_render_cairo ( handle, cr );
-    cairo_destroy ( cr );
+    handle = rsvg_handle_new_from_file ( file, &error );
+    if ( handle != NULL ) {
+        cairo_t           *cr;
+        RsvgDimensionData dimensions;
+        // Update DPI.
+        rsvg_handle_set_dpi ( handle, config.dpi );
+        // Get size.
+        rsvg_handle_get_dimensions ( handle, &dimensions );
+        // Create cairo surface in the right size.
+        double scale = (double) height / dimensions.height;
+        surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32,
+                                               (double) dimensions.width * scale,
+                                               (double) dimensions.height * scale );
+        gboolean failed = cairo_surface_status ( surface ) != CAIRO_STATUS_SUCCESS;
+        if ( !failed ) {
+            cr = cairo_create ( surface );
+            cairo_scale ( cr, scale, scale );
+            failed = rsvg_handle_render_cairo ( handle, cr );
+            cairo_destroy ( cr );
+        }
 
-    rsvg_handle_close ( handle, NULL );
-    g_object_unref ( handle );
+        rsvg_handle_close ( handle, &error );
+        g_object_unref ( handle );
+
+        /** Rendering fails */
+        if ( failed ) {
+            cairo_surface_destroy ( surface );
+            surface = NULL;
+        }
+    }
+    if ( error != NULL ) {
+        g_warning ( "Failed to render SVG file: '%s': %s", file, error->message );
+        g_error_free ( error );
+    }
 
     return surface;
 }
