@@ -431,7 +431,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         int iconheight = tb->left_offset;
         cairo_save ( draw );
 
-        /*int iconw = cairo_image_surface_get_width (tb->icon);*/
         int    iconh = cairo_image_surface_get_height ( tb->icon );
         double scale = (double) iconheight / iconh;
 
