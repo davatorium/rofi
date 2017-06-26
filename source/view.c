@@ -711,6 +711,7 @@ void __create_window ( MenuFlags menu_flags )
         g_debug ( "Auto-detected DPI: %.2lf", dpi );
         PangoFontMap *font_map = pango_cairo_font_map_get_default ();
         pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, dpi );
+        config.dpi = dpi;
     }
     // Setup font.
     // Dummy widget.
