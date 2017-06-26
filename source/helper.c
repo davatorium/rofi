@@ -1096,7 +1096,7 @@ cairo_surface_t* cairo_image_surface_create_from_svg ( const gchar* file, int he
         if ( !failed ) {
             cr = cairo_create ( surface );
             cairo_scale ( cr, scale, scale );
-            failed = rsvg_handle_render_cairo ( handle, cr );
+            failed = rsvg_handle_render_cairo ( handle, cr ) == FALSE;
             cairo_destroy ( cr );
         }
 
@@ -1105,6 +1105,7 @@ cairo_surface_t* cairo_image_surface_create_from_svg ( const gchar* file, int he
 
         /** Rendering fails */
         if ( failed ) {
+            g_warning ( "Failed to render file: '%s'", file );
             cairo_surface_destroy ( surface );
             surface = NULL;
         }
