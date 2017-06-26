@@ -1024,6 +1024,21 @@ START_TEST ( test_properties_padding_4 )
 }
 END_TEST
 
+START_TEST ( test_properties_string_escape )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    rofi_theme_parse_string ( "* { font: \"aap\" noot\" mies \";\ntest: \"'123.432'\"; }");
+
+    const char *str= rofi_theme_get_string ( &wid, "font", NULL );
+    ck_assert_ptr_nonnull ( str );
+    ck_assert_int_eq ( g_utf8_collate ( str, "aap\" noot\" mies " ) , 0 );
+    const char *str2= rofi_theme_get_string ( &wid, "test", NULL );
+    ck_assert_ptr_nonnull ( str2 );
+    ck_assert_int_eq ( g_utf8_collate ( str2, "'123.432'" ) , 0 );
+}
+END_TEST
 START_TEST ( test_properties_string )
 {
     widget wid;
@@ -1308,6 +1323,7 @@ static Suite * theme_parser_suite (void)
         TCase *tc_prop_string = tcase_create("PropertiesString");
         tcase_add_checked_fixture(tc_prop_string, theme_parser_setup, theme_parser_teardown);
         tcase_add_test ( tc_prop_string, test_properties_string);
+        tcase_add_test ( tc_prop_string, test_properties_string_escape);
         suite_add_tcase(s, tc_prop_string );
     }
 
