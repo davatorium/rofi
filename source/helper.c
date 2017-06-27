@@ -1080,8 +1080,7 @@ cairo_surface_t* cairo_image_surface_create_from_svg ( const gchar* file, int he
     RsvgHandle      * handle;
 
     handle = rsvg_handle_new_from_file ( file, &error );
-    if ( handle != NULL ) {
-        cairo_t           *cr;
+    if ( G_LIKELY ( handle != NULL ) ) {
         RsvgDimensionData dimensions;
         // Update DPI.
         rsvg_handle_set_dpi ( handle, config.dpi );
@@ -1093,8 +1092,8 @@ cairo_surface_t* cairo_image_surface_create_from_svg ( const gchar* file, int he
                                                (double) dimensions.width * scale,
                                                (double) dimensions.height * scale );
         gboolean failed = cairo_surface_status ( surface ) != CAIRO_STATUS_SUCCESS;
-        if ( !failed ) {
-            cr = cairo_create ( surface );
+        if ( G_LIKELY ( failed == FALSE ) ) {
+            cairo_t *cr = cairo_create ( surface );
             cairo_scale ( cr, scale, scale );
             failed = rsvg_handle_render_cairo ( handle, cr ) == FALSE;
             cairo_destroy ( cr );
@@ -1104,13 +1103,13 @@ cairo_surface_t* cairo_image_surface_create_from_svg ( const gchar* file, int he
         g_object_unref ( handle );
 
         /** Rendering fails */
-        if ( failed ) {
+        if ( G_UNLIKELY ( failed ) ){
             g_warning ( "Failed to render file: '%s'", file );
             cairo_surface_destroy ( surface );
             surface = NULL;
         }
     }
-    if ( error != NULL ) {
+    if ( G_UNLIKELY ( error != NULL ) ) {
         g_warning ( "Failed to render SVG file: '%s': %s", file, error->message );
         g_error_free ( error );
     }

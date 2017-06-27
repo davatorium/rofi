@@ -393,7 +393,6 @@ static gboolean __config_parser_set_property ( XrmOption *option, const Property
         else {
             value = g_strdup ( p->value.s );
         }
-        printf ( "set: %s\n", value );
         if ( ( option )->mem != NULL ) {
             g_free ( option->mem );
             option->mem = NULL;
