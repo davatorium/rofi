@@ -373,15 +373,32 @@ static gboolean __config_parser_set_property ( XrmOption *option, const Property
 {
     extern const char *PropertyTypeName[];
     if ( option->type == xrm_String  ) {
-        if ( p->type != P_STRING ) {
+        if ( p->type != P_STRING && p->type != P_LIST ) {
             *error = g_strdup_printf ( "Option: %s needs to be set with a string not a %s.", option->name, PropertyTypeName[p->type] );
             return TRUE;
         }
+        gchar *value = NULL;
+        if ( p->type == P_LIST ) {
+            for ( GList *iter = p->value.list; iter != NULL; iter = g_list_next ( iter ) ) {
+                if ( value == NULL ) {
+                    value = g_strdup ( (char *) ( iter->data ) );
+                }
+                else {
+                    char *nv = g_strjoin ( ",", value, (char *) ( iter->data ), NULL );
+                    g_free ( value );
+                    value = nv;
+                }
+            }
+        }
+        else {
+            value = g_strdup ( p->value.s );
+        }
+        printf ( "set: %s\n", value );
         if ( ( option )->mem != NULL ) {
             g_free ( option->mem );
             option->mem = NULL;
         }
-        *( option->value.str ) = g_strdup ( p->value.s );
+        *( option->value.str ) = value;
 
         // Memory
         ( option )->mem = *( option->value.str );
