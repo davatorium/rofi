@@ -183,7 +183,8 @@ static void exec_cmd_entry ( DRunModeEntry *e )
         g_warning ( "Nothing to execute after processing: %s.", e->exec );;
         return;
     }
-    gchar *fp        = rofi_expand_path ( g_strstrip ( str ) );
+
+    const gchar *fp        = g_strstrip ( str );
     gchar *exec_path = g_key_file_get_string ( e->key_file, "Desktop Entry", "Path", NULL );
     if ( exec_path != NULL && strlen ( exec_path ) == 0 ) {
         // If it is empty, ignore this property. (#529)
@@ -214,7 +215,6 @@ static void exec_cmd_entry ( DRunModeEntry *e )
     g_free ( wmclass );
     g_free ( exec_path );
     g_free ( str );
-    g_free ( fp );
 }
 /**
  * This function absorbs/freeś path, so this is no longer available afterwards.
