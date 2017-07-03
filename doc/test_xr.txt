@@ -8,8 +8,12 @@ rofi.lines:                          8
 rofi.columns:                        1
 ! "Font to use" Set from: File
 rofi.font:                           Source Code Pro Medium 10
+! "Border width" Set from: Default
+! rofi.bw:                             1
 ! "Location on screen" Set from: File
 rofi.location:                       2
+! "Padding" Set from: Default
+! rofi.padding:                        5
 ! "Y-offset relative to location" Set from: File
 rofi.yoffset:                        -2
 ! "X-offset relative to location" Set from: File
