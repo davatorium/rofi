@@ -691,6 +691,11 @@ static char * rofi_theme_convert_color ( char *col )
 }
 void rofi_theme_convert_old ( void )
 {
+    {
+        char *str = g_strdup_printf ( "#window { border: %d; padding: %d;}", config.menu_bw, config.padding );
+        rofi_theme_parse_string ( str );
+        g_free ( str );
+    }
     if ( config.color_window ) {
         char               **retv = g_strsplit ( config.color_window, ",", -1 );
         const char * const conf[] = {
