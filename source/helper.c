@@ -1103,7 +1103,7 @@ cairo_surface_t* cairo_image_surface_create_from_svg ( const gchar* file, int he
         g_object_unref ( handle );
 
         /** Rendering fails */
-        if ( G_UNLIKELY ( failed ) ){
+        if ( G_UNLIKELY ( failed ) ) {
             g_warning ( "Failed to render file: '%s'", file );
             cairo_surface_destroy ( surface );
             surface = NULL;

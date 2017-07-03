@@ -185,7 +185,7 @@ static void exec_cmd_entry ( DRunModeEntry *e )
     }
 
     const gchar *fp        = g_strstrip ( str );
-    gchar *exec_path = g_key_file_get_string ( e->key_file, "Desktop Entry", "Path", NULL );
+    gchar       *exec_path = g_key_file_get_string ( e->key_file, "Desktop Entry", "Path", NULL );
     if ( exec_path != NULL && strlen ( exec_path ) == 0 ) {
         // If it is empty, ignore this property. (#529)
         g_free ( exec_path );

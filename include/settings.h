@@ -82,6 +82,8 @@ typedef struct
 {
     /** List of enabled modi */
     char           *modi;
+    /** Border width */
+    unsigned int   menu_bw;
     /** Width (0-100 in %, > 100 in pixels, < 0 in char width.) */
     int            menu_width;
     /** # lines */
@@ -119,6 +121,8 @@ typedef struct
 
     /** Windows location/gravity */
     WindowLocation location;
+    /** Padding between elements */
+    unsigned int   padding;
     /** Y offset */
     int            y_offset;
     /** X offset */

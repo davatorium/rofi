@@ -796,15 +796,18 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
+    TICK_N ( "Setup Locale" );
     rofi_collect_modi ();
-    rofi_collect_modi_setup ();
     TICK_N ( "Collect MODI" );
+    rofi_collect_modi_setup ();
+    TICK_N ( "Setup MODI" );
 
     main_loop = g_main_loop_new ( NULL, FALSE );
 
     TICK_N ( "Setup mainloop" );
 
     bindings = nk_bindings_new ();
+    TICK_N ( "NK Bindings" );
 
     if ( !display_setup ( main_loop, bindings ) ) {
         g_warning ( "Connection has error" );

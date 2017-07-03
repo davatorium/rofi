@@ -94,10 +94,16 @@ static XrmOption xrmOptions[] = {
 
     { xrm_String,  "font",              { .str  = &config.menu_font              }, NULL,
       "Font to use", CONFIG_DEFAULT },
+    { xrm_Number,  "borderwidth",       { .num  = &config.menu_bw                }, NULL,
+      "", CONFIG_DEFAULT },
+    { xrm_Number,  "bw",                { .num  = &config.menu_bw                }, NULL,
+      "Border width", CONFIG_DEFAULT },
 
     { xrm_Number,  "location",          { .num  = &config.location               }, NULL,
       "Location on screen", CONFIG_DEFAULT },
 
+    { xrm_Number,  "padding",           { .num  = &config.padding                }, NULL,
+      "Padding", CONFIG_DEFAULT },
     { xrm_SNumber, "yoffset",           { .snum = &config.y_offset               }, NULL,
       "Y-offset relative to location", CONFIG_DEFAULT },
     { xrm_SNumber, "xoffset",           { .snum = &config.x_offset               }, NULL,
