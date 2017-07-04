@@ -300,6 +300,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
                 g_key_file_free ( kf );
                 return FALSE;
             }
+            g_free ( fp );
         }
         else {
             if ( g_file_test ( te, G_FILE_TEST_IS_EXECUTABLE ) == FALSE ) {
