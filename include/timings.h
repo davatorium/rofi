@@ -34,7 +34,7 @@
  * @ingroup HELPERS
  * @{
  */
-#if TIMINGS
+#ifdef TIMINGS
 /**
  * Init the timestamping mechanism .
  * implementation.

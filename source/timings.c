@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include "rofi.h"
 #include "timings.h"
-#if TIMINGS
+#ifdef TIMINGS
 GTimer *global_timer     = NULL;
 double global_timer_last = 0.0;
 FILE   *timing_log       = NULL;
