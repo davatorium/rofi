@@ -185,7 +185,7 @@ static void exec_cmd_entry ( DRunModeEntry *e )
     }
 
     const gchar *fp        = g_strstrip ( str );
-    gchar *exec_path = g_key_file_get_string ( e->key_file, "Desktop Entry", "Path", NULL );
+    gchar       *exec_path = g_key_file_get_string ( e->key_file, "Desktop Entry", "Path", NULL );
     if ( exec_path != NULL && strlen ( exec_path ) == 0 ) {
         // If it is empty, ignore this property. (#529)
         g_free ( exec_path );
@@ -290,6 +290,28 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         g_key_file_free ( kf );
         return FALSE;
     }
+
+    if ( g_key_file_has_key ( kf, "Desktop Entry", "TryExec", NULL ) ) {
+        char *te = g_key_file_get_string ( kf, "Desktop Entry", "TryExec", NULL );
+        if ( !g_path_is_absolute ( te ) ) {
+            char *fp = g_find_program_in_path ( te );
+            if ( fp == NULL ) {
+                g_free ( te );
+                g_key_file_free ( kf );
+                return FALSE;
+            }
+            g_free ( fp );
+        }
+        else {
+            if ( g_file_test ( te, G_FILE_TEST_IS_EXECUTABLE ) == FALSE ) {
+                g_free ( te );
+                g_key_file_free ( kf );
+                return FALSE;
+            }
+        }
+        g_free ( te );
+    }
+
     size_t nl = ( ( pd->cmd_list_length ) + 1 );
     if ( nl >= pd->cmd_list_length_actual ) {
         pd->cmd_list_length_actual += 256;
