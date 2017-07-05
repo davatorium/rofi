@@ -885,6 +885,9 @@ static void x11_helper_discover_window_manager ( void )
                 else if  ( g_strcmp0 ( wtitle.strings, "Openbox" ) == 0 ) {
                     current_window_manager = WM_OPENBOX;
                 }
+                else if ( g_strcmp0 ( wtitle.strings, "Xfwm4" ) == 0 ) {
+                    current_window_manager = WM_XFWM4;
+                }
             }
             xcb_ewmh_get_utf8_strings_reply_wipe ( &wtitle );
         }
