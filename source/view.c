@@ -1378,8 +1378,12 @@ void rofi_view_maybe_update ( RofiViewState *state )
     if ( rofi_view_get_completed ( state ) ) {
         // This menu is done.
         rofi_view_finalize ( state );
-        // cleanup
-        if ( rofi_view_get_active () == NULL ) {
+        // If there a state. (for example error) reload it.
+        state = rofi_view_get_active ();
+
+        // cleanup, if no more state to display.
+        if ( state == NULL ) {
+            // Quit main-loop.
             rofi_quit_main_loop ();
             return;
         }
