@@ -584,7 +584,7 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
         }
         else {
             rofi_view_hide ();
-            if ( ( current_window_manager & ( WM_AWESOME | WM_OPENBOX ) ) != 0 ) {
+            if ( ( current_window_manager & ( WM_AWESOME | WM_OPENBOX | WM_XFWM4 ) ) != 0 ) {
                 // Get the desktop of the client to switch to
                 uint32_t                  wmdesktop = 0;
                 xcb_get_property_cookie_t cookie;

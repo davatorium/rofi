@@ -174,7 +174,9 @@ typedef enum
     /** Awesome window manager */
     WM_AWESOME = 2,
     /** Openbox window manager */
-    WM_OPENBOX = 4
+    WM_OPENBOX = 4,
+    /** Xfwm4 */
+    WM_XFWM4   = 8,
 } WindowManager;
 
 /**
