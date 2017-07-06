@@ -387,7 +387,7 @@ The current widgets exist in **rofi**:
 
 Or in a graphical depiction:
 
-![Structure](structure.svg)
+![Structure](structure.png)
 
 ### State
 
