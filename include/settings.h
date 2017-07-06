@@ -158,15 +158,27 @@ typedef struct
     unsigned int   tokenize;
     /** Monitors */
     char           *monitor;
+    /** Line margin */
+    unsigned int   line_margin;
+    unsigned int   line_padding;
     /** filter */
     char           *filter;
+    /** style */
+    char           *separator_style;
+    /** hide scrollbar */
+    unsigned int   hide_scrollbar;
     /** fullscreen */
     unsigned int   fullscreen;
+    /** bg image */
+    unsigned int   fake_transparency;
     /** dpi */
     int            dpi;
     /** Number threads (1 to disable) */
     unsigned int   threads;
     unsigned int   scroll_method;
+    unsigned int   scrollbar_width;
+    /** Background type */
+    char           *fake_background;
 
     char           *window_format;
     /** Click outside the window to exit */

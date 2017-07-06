@@ -758,6 +758,49 @@ void rofi_theme_convert_old ( void )
         }
         g_strfreev ( retv );
     }
+
+    if ( config.separator_style != NULL  ) {
+        if ( g_strcmp0 ( config.separator_style, "none" ) == 0 ) {
+            const char *const str = "#window.mainbox.listview box { border: 0px; }";
+            rofi_theme_parse_string ( str );
+            const char *const str2 = "#window.mainbox.sidebar box { border: 0px; }";
+            rofi_theme_parse_string ( str2 );
+        }
+        else if  ( g_strcmp0 ( config.separator_style, "solid" ) == 0 ) {
+            const char *const str = "#window.mainbox.listview box { border: 2px solid 0px 0px 0px; }";
+            rofi_theme_parse_string ( str );
+            const char *const str2 = "#window.mainbox.sidebar box { border: 2px solid 0px 0px 0px; }";
+            rofi_theme_parse_string ( str2 );
+        } /* dash is default */
+    }
+    /* Line Margin */
+    {
+        char *str = g_strdup_printf ( "#window.mainbox.listview box { spacing: %dpx;}", config.line_margin );
+        rofi_theme_parse_string ( str );
+        g_free ( str );
+    }
+    /* Line Padding */
+    {
+        char *str = g_strdup_printf ( "#window.mainbox.listview.element { padding: %dpx;}", config.line_padding );
+        rofi_theme_parse_string ( str );
+        g_free ( str );
+    }
+    if ( config.hide_scrollbar ) {
+        const char *str = "#window.mainbox.listview.box { scrollbar: false; }";
+        rofi_theme_parse_string ( str );
+    }
+    else {
+        const char *str = "#window.mainbox.listview.box { scrollbar: true; }";
+        rofi_theme_parse_string ( str );
+        char       *str2 = g_strdup_printf ( "#window.mainbox.listview.scrollbar { handle-width: %dpx; }", config.scrollbar_width );
+        rofi_theme_parse_string ( str2 );
+        g_free ( str2 );
+    }
+    if ( config.fake_transparency ) {
+        char *str = g_strdup_printf ( "#window { transparency: \"%s\"; }", config.fake_background );
+        rofi_theme_parse_string ( str );
+        g_free ( str );
+    }
 }
 #endif // THEME_CONVERTER
 

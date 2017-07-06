@@ -66,18 +66,32 @@ rofi.combi-modi:                     window,drun,run,ssh
 rofi.tokenize:                       true
 ! "Monitor id to show on" Set from: File
 rofi.m:                              -1
+! "Margin between rows *DEPRECATED*" Set from: Default
+! rofi.line-margin:                    2
+! "Padding within rows *DEPRECATED*" Set from: Default
+! rofi.line-padding:                   1
 ! "Pre-set filter" Set from: Default
 ! rofi.filter:                         
+! "Separator style (none, dash, solid) *DEPRECATED*" Set from: Default
+! rofi.separator-style:                dash
+! "Hide scroll-bar *DEPRECATED*" Set from: Default
+! rofi.hide-scrollbar:                 false
 ! "Fullscreen" Set from: File
 rofi.fullscreen:                     false
+! "Fake transparency *DEPRECATED*" Set from: Default
+! rofi.fake-transparency:              false
 ! "DPI" Set from: File
 rofi.dpi:                            101
 ! "Threads to use for string matching" Set from: File
 rofi.threads:                        8
+! "Scrollbar width *DEPRECATED*" Set from: Default
+! rofi.scrollbar-width:                8
 ! "Scrolling method. (0: Page, 1: Centered)" Set from: File
 rofi.scroll-method:                  0
-! "Window Format. w (desktop name), t (title), n (name), r (role), c (class)" Set from: File
-rofi.window-format:                  w   c   t
+! "Background to use for fake transparency. (background or screenshot)" Set from: Default
+! rofi.fake-background:                screenshot
+! "Window Format. w (desktop name), t (title), n (name), r (role), c (class) *DEPRECATED*" Set from: Default
+! rofi.window-format:                  {w}    {i}{c}   {t}
 ! "Click outside the window to exit" Set from: Default
 ! rofi.click-to-exit:                  true
 ! "Indicate how it match by underlining it." Set from: Default
