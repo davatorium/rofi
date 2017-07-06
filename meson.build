@@ -436,7 +436,7 @@ if check.found()
 endif
 
 
-run_target('test-x', command: [ 'test/run_all_tests.sh' ])
+run_target('test-x', command: [ 'test/run_all_tests.sh' ], depends: [ rofi ])
 
 uncrustify = find_program('uncrustify', required: false)
 if uncrustify.found()
