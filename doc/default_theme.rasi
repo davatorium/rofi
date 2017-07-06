@@ -51,11 +51,12 @@
 }
 #window.mainbox.listview {
     fixed-height: 0;
-    border:       1px dash 0px 0px ;
+    border:       2px dash 0px 0px ;
     padding:      2px 0px 0px ;
 }
 #window.mainbox.listview.element {
-    border: 0;
+    border:  0;
+    padding: 1px ;
 }
 #window.mainbox.listview.element.normal.normal {
     foreground: @normal-foreground;
@@ -94,11 +95,17 @@
     background: @alternate-active-background;
 }
 #window.mainbox.listview.scrollbar {
-    border:  0;
-    padding: 0;
+    width:        4px ;
+    border:       0;
+    handle-width: 8px ;
+    padding:      0;
+}
+#window.mainbox.listview.box {
+    scrollbar: true;
+    spacing:   2px ;
 }
 #window.mainbox.sidebar.box {
-    border: 1px dash 0px 0px ;
+    border: 2px dash 0px 0px ;
 }
 #window.mainbox.sidebar.button.selected {
     foreground: @selected-normal-foreground;
