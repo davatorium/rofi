@@ -560,7 +560,25 @@ static void dmenu_finalize ( RofiViewState *state )
             restart = ( find_arg ( "-only-match" ) >= 0 );
         }
         else if ( pd->selected_line != UINT32_MAX ) {
-            if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line] != NULL ) {
+            if ( ( mretv & MENU_CUSTOM_ACTION ) && pd->multi_select ) {
+                restart = TRUE;
+                if ( pd->selected_list == NULL ) {
+                    pd->selected_list = g_malloc0 ( sizeof ( uint32_t ) * ( pd->cmd_list_length / 32 + 1 ) );
+                }
+                pd->selected_count += ( bitget ( pd->selected_list, pd->selected_line ) ? ( -1 ) : ( 1 ) );
+                bittoggle ( pd->selected_list, pd->selected_line );
+                // Move to next line.
+                pd->selected_line = MIN ( next_pos, cmd_list_length - 1 );
+                if ( pd->selected_count > 0 ) {
+                    char *str = g_strdup_printf ( "%u/%u", pd->selected_count, pd->cmd_list_length );
+                    rofi_view_set_overlay ( state, str );
+                    g_free ( str );
+                }
+                else {
+                    rofi_view_set_overlay ( state, NULL );
+                }
+            }
+            else if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line] != NULL ) {
                 dmenu_print_results ( pd, input );
                 retv = TRUE;
                 if ( ( mretv & MENU_QUICK_SWITCH ) ) {
@@ -570,7 +588,9 @@ static void dmenu_finalize ( RofiViewState *state )
                 dmenu_finish ( state, retv );
                 return;
             }
-            pd->selected_line = next_pos - 1;
+            else {
+                pd->selected_line = next_pos - 1;
+            }
         }
         // Restart
         rofi_view_restart ( state );
