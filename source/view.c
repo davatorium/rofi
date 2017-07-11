@@ -258,9 +258,29 @@ static void rofi_view_update_prompt ( RofiViewState *state )
 /**
  * Calculates the window position
  */
+/** Convert the old location to the new location type.
+ * 123
+ * 804
+ * 765
+ *
+ * nw n ne
+ * w  c e
+ * sw s se
+ */
+static const int loc_transtable[9] = {
+    WL_CENTER,
+    WL_NORTH|WL_WEST,
+    WL_NORTH,
+    WL_NORTH|WL_EAST,
+    WL_EAST,
+    WL_SOUTH|WL_EAST,
+    WL_SOUTH,
+    WL_SOUTH|WL_WEST,
+    WL_WEST
+};
 static void rofi_view_calculate_window_position ( RofiViewState *state )
 {
-    int location = rofi_theme_get_position ( WIDGET ( state->main_window ), "location", config.location );
+    int location = rofi_theme_get_position ( WIDGET ( state->main_window ), "location", loc_transtable[config.location] );
     int anchor   = location;
     if ( !listview_get_fixed_num_lines ( state->list_view ) ) {
         anchor = location;

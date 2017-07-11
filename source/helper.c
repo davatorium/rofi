@@ -605,9 +605,9 @@ int config_sanity_check ( void )
         config.menu_columns = 50;
         found_error         = TRUE;
     }
-    if ( !( config.location >= WL_CENTER && config.location <= WL_WEST ) ) {
+    if ( !( config.location >= 0 && config.location <= 8) ) {
         g_string_append_printf ( msg, "\t<b>config.location</b>=%d is invalid. Value should be between %d and %d.\n",
-                                 config.location, WL_CENTER, WL_WEST );
+                                 config.location, 0, 8);
         config.location = WL_CENTER;
         found_error     = 1;
     }
