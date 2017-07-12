@@ -269,13 +269,13 @@ static void rofi_view_update_prompt ( RofiViewState *state )
  */
 static const int loc_transtable[9] = {
     WL_CENTER,
-    WL_NORTH|WL_WEST,
+    WL_NORTH | WL_WEST,
     WL_NORTH,
-    WL_NORTH|WL_EAST,
+    WL_NORTH | WL_EAST,
     WL_EAST,
-    WL_SOUTH|WL_EAST,
+    WL_SOUTH | WL_EAST,
     WL_SOUTH,
-    WL_SOUTH|WL_WEST,
+    WL_SOUTH | WL_WEST,
     WL_WEST
 };
 static void rofi_view_calculate_window_position ( RofiViewState *state )

@@ -456,7 +456,30 @@ static int pointer_get ( xcb_window_t root, int *x, int *y )
 
     return FALSE;
 }
-
+static int monitor_active_from_winid ( xcb_drawable_t id, workarea *mon )
+{
+    xcb_window_t              root = xcb->screen->root;
+    xcb_get_geometry_cookie_t c    = xcb_get_geometry ( xcb->connection, id );
+    xcb_get_geometry_reply_t  *r   = xcb_get_geometry_reply ( xcb->connection, c, NULL );
+    if ( r ) {
+        xcb_translate_coordinates_cookie_t ct = xcb_translate_coordinates ( xcb->connection, id, root, r->x, r->y );
+        xcb_translate_coordinates_reply_t  *t = xcb_translate_coordinates_reply ( xcb->connection, ct, NULL );
+        if ( t ) {
+            // place the menu above the window
+            // if some window is focused, place menu above window, else fall
+            // back to selected monitor.
+            mon->x = t->dst_x - r->x;
+            mon->y = t->dst_y - r->y;
+            mon->w = r->width;
+            mon->h = r->height;
+            free ( r );
+            free ( t );
+            return TRUE;
+        }
+        free ( r );
+    }
+    return FALSE;
+}
 static int monitor_active_from_id ( int mon_id, workarea *mon )
 {
     xcb_window_t root = xcb->screen->root;
@@ -576,18 +599,29 @@ int monitor_active ( workarea *mon )
             }
         }
     }
-    // IF fail, fall back to classic mode.
-    char   *end   = NULL;
-    gint64 mon_id = g_ascii_strtoll ( config.monitor, &end, 0 );
-    if ( end != config.monitor ) {
-        if ( mon_id >= 0 ) {
-            if ( monitor_get_dimension ( mon_id, mon ) ) {
+    if ( g_str_has_prefix ( config.monitor, "wid:" ) ) {
+        char           *end = NULL;
+        xcb_drawable_t win  = g_ascii_strtoll ( config.monitor + 4, &end, 0 );
+        if ( end != config.monitor ) {
+            if ( monitor_active_from_winid ( win, mon ) ) {
                 return TRUE;
             }
-            g_warning ( "Failed to find selected monitor." );
         }
-        else {
-            return monitor_active_from_id ( mon_id, mon );
+    }
+    {
+        // IF fail, fall back to classic mode.
+        char   *end   = NULL;
+        gint64 mon_id = g_ascii_strtoll ( config.monitor, &end, 0 );
+        if ( end != config.monitor ) {
+            if ( mon_id >= 0 ) {
+                if ( monitor_get_dimension ( mon_id, mon ) ) {
+                    return TRUE;
+                }
+                g_warning ( "Failed to find selected monitor." );
+            }
+            else {
+                return monitor_active_from_id ( mon_id, mon );
+            }
         }
     }
     // Fallback.
