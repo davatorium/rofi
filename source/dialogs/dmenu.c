@@ -656,6 +656,7 @@ int dmenu_switcher_dialog ( void )
     MenuFlags            menu_flags = MENU_NORMAL;
     DmenuModePrivateData *pd        = (DmenuModePrivateData *) dmenu_mode.private_data;
     int                  async      = TRUE;
+
     // For now these only work in sync mode.
     if ( find_arg ( "-sync" ) >= 0 || find_arg ( "-dump" ) >= 0 || find_arg ( "-select" ) >= 0
          || find_arg ( "-no-custom" ) >= 0 || find_arg ( "-only-match" ) >= 0 || config.auto_select ||
@@ -757,4 +758,5 @@ void print_dmenu_options ( void )
     print_help_msg ( "-input", "[filename]", "Read input from file instead from standard input.", NULL, is_term );
     print_help_msg ( "-sync", "", "Force dmenu to first read all input data, then show dialog.", NULL, is_term );
     print_help_msg ( "-async-pre-read", "[number]", "Read several entries blocking before switching to async mode", "25", is_term );
+    print_help_msg ( "-w", "windowid", "Position over window with X11 windowid.", NULL, is_term );
 }

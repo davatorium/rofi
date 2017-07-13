@@ -855,6 +855,8 @@ int main ( int argc, char *argv[] )
 
     parse_keys_abe ( bindings );
 
+    /** dirty hack for dmenu compatibility */
+    char *windowid = NULL;
     if ( !dmenu_mode ) {
         // setup_modi
         if ( setup_modi () ) {
@@ -863,7 +865,13 @@ int main ( int argc, char *argv[] )
         }
         TICK_N ( "Setup Modi" );
     }
-
+    else {
+        // Hack for dmenu compatibility.
+        if ( find_arg_str ( "-w", &windowid ) == TRUE ) {
+            config.monitor = g_strdup_printf ( "wid:%s", windowid );
+            windowid       = config.monitor;
+        }
+    }
     if ( rofi_theme_is_empty ( ) ) {
         if ( rofi_theme_parse_string ( default_theme ) ) {
             g_warning ( "Failed to parse default theme. Giving up.." );
@@ -951,5 +959,8 @@ int main ( int argc, char *argv[] )
     g_main_loop_run ( main_loop );
     teardown ( pfd );
     cleanup ();
+
+    /* dirty hack */
+    g_free ( windowid );
     return return_code;
 }
