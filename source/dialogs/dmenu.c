@@ -73,7 +73,8 @@ typedef struct
 {
     /** Settings */
     // Separator.
-    char              separator;
+    char              *separator;
+    GString           *gseparator;
 
     unsigned int      selected_line;
     char              *message;
@@ -120,46 +121,102 @@ static void read_add ( DmenuModePrivateData * pd, char *data, gsize len )
 
     pd->cmd_list_length++;
 }
+
+static GString *read_bytes(GDataInputStream  *data_input_stream, size_t len) {
+  GString *txt = g_string_new("");
+  for (size_t i=0; i < len; i++) {
+    guchar val = g_data_input_stream_read_byte ( data_input_stream, NULL, NULL );
+    if (val == 0) {
+      return txt;
+    }
+    g_string_append_c(txt, val);
+  }
+  return txt;
+}
+
+static char add_separator_maybe (DmenuModePrivateData *pd, GString *data)
+{
+  GDataInputStream  *data_input_stream = pd->data_input_stream;
+  GString *separator = pd->gseparator;
+  GString *maybesep = read_bytes(data_input_stream, separator->len);
+  char retval = 'b';            /* 'b' -> break */
+  if (maybesep->len < separator->len) {
+    g_string_append(data, maybesep->str);
+  }
+  else if (!g_string_equal(separator, maybesep)) {
+    g_string_append(data, maybesep->str);
+    retval = 'c';               /* 'c' -> continue */
+  }
+  g_string_free(maybesep, TRUE);
+  return retval;
+}
+
+static char get_next_element( DmenuModePrivateData *pd, GString *data )
+{
+  char *sepstr = pd->gseparator->str;
+  while ( TRUE ) {
+    gsize len   = 0;
+    char *firstpart = g_data_input_stream_read_upto ( pd->data_input_stream, sepstr, 1, &len, NULL, NULL );
+    if (firstpart == NULL) {
+      g_free (firstpart);
+      return 'e';               /* 'e' -> error */
+    }
+    g_string_append(data, firstpart);
+    g_free (firstpart);
+    if (add_separator_maybe(pd, data) == 'b') {
+      return 'b';               /* 'b' -> break */
+    }
+  }
+}
+
+static char get_next_element_async( DmenuModePrivateData *pd, GAsyncResult *res, GString *data )
+{
+  gsize len   = 0;
+  char *firstpart = g_data_input_stream_read_upto_finish ( pd->data_input_stream, res, &len, NULL );
+  if (firstpart == NULL) {
+    g_free (firstpart);
+    return 'e';                 /* 'e' -> error */
+  }
+  g_string_append(data, firstpart);
+  g_free (firstpart);
+  if (add_separator_maybe(pd, data) == 'b') {
+    return 'b';                 /* 'b' -> break */
+  }
+  return 'c';                   /* 'c' -> continue */
+}
+
 static void async_read_callback ( GObject *source_object, GAsyncResult *res, gpointer user_data )
 {
     GDataInputStream     *stream = (GDataInputStream *) source_object;
     DmenuModePrivateData *pd     = (DmenuModePrivateData *) user_data;
-    gsize                len;
-    char                 *data = g_data_input_stream_read_upto_finish ( stream, res, &len, NULL );
-    if ( data != NULL ) {
-        // Absorb separator, already in buffer so should not block.
-        g_data_input_stream_read_byte ( stream, NULL, NULL );
-        read_add ( pd, data, len );
-        g_free ( data );
-        rofi_view_reload ();
-
-        g_data_input_stream_read_upto_async ( pd->data_input_stream, &( pd->separator ), 1, G_PRIORITY_LOW, pd->cancel,
-                                              async_read_callback, pd );
-        return;
+    GString              *txt = g_string_new("");
+    char status = get_next_element_async(pd, res, txt);
+    char status2 = 0;
+    /* printf("status: %c\n", status); */
+    if ( (status == 'c') || (status == 'e') ) {
+      GString *txt2 = g_string_new("");
+      status2 = get_next_element(pd, txt2);
+      /* printf("status2: %c\n", status2); */
+      g_string_append(txt, txt2->str);
+      g_string_free ( txt2, TRUE );
     }
-    else {
-        GError *error = NULL;
-        // Absorb separator, already in buffer so should not block.
-        // If error == NULL end of stream..
-        g_data_input_stream_read_byte ( stream, NULL, &error );
-        if (  error == NULL ) {
-            // Add empty line.
-            read_add ( pd, "", 0 );
-            rofi_view_reload ();
 
-            g_data_input_stream_read_upto_async ( pd->data_input_stream, &( pd->separator ), 1, G_PRIORITY_LOW, pd->cancel,
-                                                  async_read_callback, pd );
-            return;
-        }
-        else {
-            g_error_free ( error );
-        }
-    }
-    if ( !g_cancellable_is_cancelled ( pd->cancel ) ) {
+    if ( status2 == 'e' ) {
+      g_string_free ( txt, TRUE );
+      if ( !g_cancellable_is_cancelled ( pd->cancel ) ) {
         // Hack, don't use get active.
         g_debug ( "Clearing overlay" );
         rofi_view_set_overlay ( rofi_view_get_active (), NULL );
         g_input_stream_close_async ( G_INPUT_STREAM ( stream ), G_PRIORITY_LOW, pd->cancel, async_close_callback, pd );
+      }
+    }
+    else {
+      read_add ( pd, txt->str, txt->len );
+      g_string_free ( txt, TRUE );
+      rofi_view_reload ();
+      g_data_input_stream_read_upto_async ( pd->data_input_stream, pd->gseparator->str, 1, G_PRIORITY_LOW, pd->cancel,
+                                            async_read_callback, pd );
+      return;
     }
 }
 
@@ -168,37 +225,40 @@ static void async_read_cancel ( G_GNUC_UNUSED GCancellable *cancel, G_GNUC_UNUSE
     g_debug ( "Cancelled the async read." );
 }
 
-static int get_dmenu_async ( DmenuModePrivateData *pd, int sync_pre_read )
+
+static long int get_dmenu_sync ( DmenuModePrivateData *pd, long int n_items )
 {
-    while ( sync_pre_read-- ) {
-        gsize len   = 0;
-        char  *data = g_data_input_stream_read_upto ( pd->data_input_stream, &( pd->separator ), 1, &len, NULL, NULL );
-        if ( data == NULL ) {
-            g_input_stream_close_async ( G_INPUT_STREAM ( pd->input_stream ), G_PRIORITY_LOW, pd->cancel, async_close_callback, pd );
-            return FALSE;
-        }
-        g_data_input_stream_read_byte ( pd->data_input_stream, NULL, NULL );
-        read_add ( pd, data, len );
-        g_free ( data );
+  GString *data = g_string_new("");
+  /* If n_items is negative go ahead and process all or LONG_MAX  */
+  /* entries from pd->input_stream, whichever comes first  */
+  if (n_items < 0) {
+    n_items = LONG_MAX;
+  }
+  long int i = 0;
+  for (i=0; i < n_items; i++) {
+    g_string_set_size(data, 0);
+    char status = get_next_element(pd, data);
+    if ( status == 'e' ) {
+      g_input_stream_close_async ( G_INPUT_STREAM ( pd->input_stream ), G_PRIORITY_LOW, pd->cancel, async_close_callback, pd );
+      break;
     }
-    g_data_input_stream_read_upto_async ( pd->data_input_stream, &( pd->separator ), 1, G_PRIORITY_LOW, pd->cancel,
+    read_add ( pd, data->str, data->len );
+  }
+  g_string_free(data, TRUE);
+  return i;
+}
+
+static int get_dmenu_async ( DmenuModePrivateData *pd, long int sync_pre_read )
+{
+  long int n_read = get_dmenu_sync(pd, sync_pre_read);
+  if (n_read < sync_pre_read) {
+    return FALSE;
+  }
+    g_data_input_stream_read_upto_async ( pd->data_input_stream, pd->gseparator->str, 1, G_PRIORITY_LOW, pd->cancel,
                                           async_read_callback, pd );
     return TRUE;
 }
-static void get_dmenu_sync ( DmenuModePrivateData *pd )
-{
-    while  ( TRUE ) {
-        gsize len   = 0;
-        char  *data = g_data_input_stream_read_upto ( pd->data_input_stream, &( pd->separator ), 1, &len, NULL, NULL );
-        if ( data == NULL ) {
-            break;
-        }
-        g_data_input_stream_read_byte ( pd->data_input_stream, NULL, NULL );
-        read_add ( pd, data, len );
-        g_free ( data );
-    }
-    g_input_stream_close_async ( G_INPUT_STREAM ( pd->input_stream ), G_PRIORITY_LOW, pd->cancel, async_close_callback, pd );
-}
+
 
 static unsigned int dmenu_mode_get_num_entries ( const Mode *sw )
 {
@@ -395,14 +455,14 @@ static int dmenu_mode_init ( Mode *sw )
     mode_set_private_data ( sw, g_malloc0 ( sizeof ( DmenuModePrivateData ) ) );
     DmenuModePrivateData *pd = (DmenuModePrivateData *) mode_get_private_data ( sw );
 
-    pd->separator     = '\n';
+    pd->separator     = "\n";
     pd->selected_line = UINT32_MAX;
 
     find_arg_str ( "-mesg", &( pd->message ) );
 
     // Input data separator.
-    find_arg_char ( "-sep", &( pd->separator ) );
-
+    find_arg_str ( "-sep", &( pd->separator ) );
+    pd->gseparator = g_string_new(g_strcompress(pd->separator));
     find_arg_uint (  "-selected-row", &( pd->selected_line ) );
     // By default we print the unescaped line back.
     pd->format = "s";
@@ -669,7 +729,7 @@ int dmenu_switcher_dialog ( void )
         async = get_dmenu_async ( pd, pre_read );
     }
     else {
-        get_dmenu_sync ( pd );
+      get_dmenu_sync ( pd, -1 );
     }
     char         *input          = NULL;
     unsigned int cmd_list_length = pd->cmd_list_length;
@@ -754,7 +814,7 @@ void print_dmenu_options ( void )
     print_help_msg ( "-select", "[string]", "Select the first row that matches", NULL, is_term );
     print_help_msg ( "-password", "", "Do not show what the user inputs. Show '*' instead.", NULL, is_term );
     print_help_msg ( "-markup-rows", "", "Allow and render pango markup as input data.", NULL, is_term );
-    print_help_msg ( "-sep", "[char]", "Element separator.", "'\\n'", is_term );
+    print_help_msg ( "-sep", "[string]", "Element separator.", "'\\n'", is_term );
     print_help_msg ( "-input", "[filename]", "Read input from file instead from standard input.", NULL, is_term );
     print_help_msg ( "-sync", "", "Force dmenu to first read all input data, then show dialog.", NULL, is_term );
     print_help_msg ( "-async-pre-read", "[number]", "Read several entries blocking before switching to async mode", "25", is_term );
