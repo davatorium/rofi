@@ -91,3 +91,8 @@ script:
 after_success:
       - bash <(curl -s https://codecov.io/bash)
 
+notifications:
+    webhooks:
+        urls:
+            - secure: "AqDM5SkWJPSBeCiyGdXzHYLnFCML/vKxWW/0wE00ocX+97Fa5ixeU7apMJ0OMZ0ZQVXG96xVtlJ513ZSpnRYHx6FF+Ivvw5pYeZjKHqtxThEhOueW1YynYWMX7HJrA4P19ollqRLrtsJqG6x7BhVEnIyhyu9eXtgj6hiI70F0SE="
+        on_success: change
