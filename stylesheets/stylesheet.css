@@ -50,7 +50,7 @@ table {
 body {
   font-size: 15px;
   line-height: 1.5;
-  background: #fafafa url(../images/body-bg.jpg) 0 0 repeat;
+  background: #fafafa; 
   font-family: 'Helvetica Neue', Helvetica, Arial, serif;
   font-weight: 400;
   color: #666;
@@ -64,19 +64,18 @@ a:hover {
 }
 
 header {
-  padding-top: 40px;
-  padding-bottom: 40px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
-  background: #2e7bcf url(../images/header-bg.jpg) 0 0 repeat-x;
-  border-bottom: solid 1px #275da1;
+  background: linear-gradient(#339a9a,#136a6a);
+  border-bottom: solid 2px #136a6a;
 }
 
 header h1 {
   letter-spacing: -1px;
-  font-size: 72px;
+  font-size: 3em; 
   color: #fff;
   line-height: 1;
-  margin-bottom: 0.2em;
   width: 840px;
 }
 
@@ -114,9 +113,11 @@ aside#sidebar {
   padding-left: 20px;
   min-height: 504px;
   float: right;
-  background: transparent url(../images/sidebar-bg.jpg) 0 0 no-repeat;
+/*  background: transparent url(../images/sidebar-bg.jpg) 0 0 no-repeat;*/
   font-size: 12px;
   line-height: 1.3;
+  box-shadow: 5px 5px 20px grey;
+  border: solid 1px lightgrey;
 }
 
 aside#sidebar h1 {
@@ -146,12 +147,11 @@ aside#sidebar p.repo-owner a {
 }
 
 a.button {
-  width: 134px;
-  height: 58px;
+    border: 1px;
   line-height: 1.2;
   font-size: 23px;
-  color: #fff;
-  padding-left: 68px;
+  color: #000;
+  padding-left: 22px;
   padding-top: 22px;
   font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
 }
@@ -163,23 +163,26 @@ header a.button {
   position: absolute;
   right: 0;
   top: 0;
-  background: transparent url(../images/github-button.png) 0 0 no-repeat;
+  color: #FFF;
+  border: solid 1px #FFF;
+  border-radius: 10px;
+  padding: .2em;
+/*  background: transparent url(../images/github-button.png) 0 0 no-repeat;*/
 }
 header img.logo {
+    margin: 0;
     position: absolute;
-    height: 128px;
-    width: 128px;
 }
 header .title{
     position: relative;
     padding-left: 140px;
 }
 aside a.button {
-  width: 138px;
-  padding-left: 64px;
+/*  width: 138px;*/
+/*  padding-left: 64px;*/
   display: block;
-  background: transparent url(../images/download-button.png) 0 0 no-repeat;
-  margin-bottom: 20px;
+/*  background: transparent url(../images/download-button.png) 0 0 no-repeat;*/
+/*  margin-bottom: 20px;*/
   font-size: 21px;
 }
 
@@ -368,7 +371,7 @@ dl dd {
 }
 
 footer {
-  background: transparent url('../images/hr.png') 0 0 no-repeat;
+/*  background: transparent url('../images/hr.png') 0 0 no-repeat;*/
   margin-top: 40px;
   padding-top: 20px;
   padding-bottom: 30px;
