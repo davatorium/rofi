@@ -109,22 +109,23 @@ header h2 {
 }
 
 aside#sidebar {
-  width: 200px;
-  padding-left: 20px;
-  min-height: 504px;
+  width: 20em; 
   float: right;
   font-size: 10px;
   line-height: 1.3;
   box-shadow: 5px 5px 20px grey;
-  border: solid 1px lightgrey;
+  border: solid 2px darkgrey;
   border-radius: 10px;
+  padding-left:1em;
+  padding-right:1em;
 }
 
 aside#sidebar h1 {
-  font-size:  1.5em; 
+  font-size:  1.8em; 
   font-weight: bold;
-  padding-top: 0.6em;
-  padding-bottom: 0.6em;
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
+  border-bottom: solid 1px black;
 }
 
 aside#sidebar h2.menuentry {
