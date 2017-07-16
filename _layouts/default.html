@@ -43,10 +43,12 @@
         <h1>Pages</h1>
         {% assign sorted_pages = site.pages | sort:"path" %}
         {% for iter_page in sorted_pages %}
-        {% if iter_page.url != page.url %}
-        <h2 class="menuentry"><a href="{{ site.url }}{{ iter_page.url }}">{{ iter_page.title }}</a></h2>
-        {% else %}
-        <h2 class="menuentry">{{ iter_page.title }}</h2>
+        {% if iter_page.url.size > 0 %}
+            {% if iter_page.url != page.url %}
+                <h2 class="menuentry"><a href="{{ site.url }}{{ iter_page.url }}">{{ iter_page.title }}</a></h2>
+            {% else %}
+                <h2 class="menuentry">{{ iter_page.title }}</h2>
+            {% endif %}
         {% endif %}
         {% endfor %} <!-- page -->
         <h2 class="menuentry"><a href="{{ site.url }}/manpage.html">Manpage</a></h2>
