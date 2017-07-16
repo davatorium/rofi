@@ -51,8 +51,8 @@ body {
   font-size: 15px;
   line-height: 1.5;
   background: #fafafa; 
-  font-family: 'Helvetica Neue', Helvetica, Arial, serif;
-  font-weight: 400;
+  font-family: Helvitica,Serif;
+/*  font-weight: 400;*/
   color: #666;
 }
 
@@ -113,11 +113,11 @@ aside#sidebar {
   padding-left: 20px;
   min-height: 504px;
   float: right;
-/*  background: transparent url(../images/sidebar-bg.jpg) 0 0 no-repeat;*/
-  font-size: 12px;
+  font-size: 10px;
   line-height: 1.3;
   box-shadow: 5px 5px 20px grey;
   border: solid 1px lightgrey;
+  border-radius: 10px;
 }
 
 aside#sidebar h1 {
