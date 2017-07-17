@@ -1,9 +1,9 @@
 ronn = find_program('ronn', required: false)
 if ronn.found()
     run_target('update-manpage',
-        command: [ ronn, files(
-            'rofi-manpage.markdown',
-            'rofi-theme-manpage.markdown',
+        command: [ ronn, '--roff', files(
+            'rofi.1.markdown',
+            'rofi-theme.5.markdown',
         )]
     )
 endif

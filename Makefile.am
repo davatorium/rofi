@@ -222,9 +222,9 @@ EXTRA_DIST+=\
 ##
 
 
-update-manpage: $(top_srcdir)/doc/rofi-manpage.markdown $(top_srcdir)/doc/rofi-theme-manpage.markdown
-	ronn --roff --pipe $(top_srcdir)/doc/rofi-manpage.markdown > $(top_srcdir)/doc/rofi.1
-	ronn --roff --pipe $(top_srcdir)/doc/rofi-theme-manpage.markdown > $(top_srcdir)/doc/rofi-theme.5
+update-manpage: $(top_srcdir)/doc/rofi.1.markdown $(top_srcdir)/doc/rofi-theme.5.markdown
+	ronn --roff $(top_srcdir)/doc/rofi.1.markdown
+	ronn --roff $(top_srcdir)/doc/rofi-theme.5.markdown
 
 ##
 # Rofi test program
