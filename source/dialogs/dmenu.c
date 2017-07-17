@@ -734,7 +734,7 @@ int dmenu_switcher_dialog ( void )
     find_arg_str (  "-p", &( dmenu_mode.display_name ) );
     RofiViewState *state = rofi_view_create ( &dmenu_mode, input, menu_flags, dmenu_finalize );
     // @TODO we should do this better.
-    if ( async ) {
+    if ( async && (pd->cancel != NULL ) ) {
         rofi_view_set_overlay ( state, "Loading.. " );
     }
     rofi_view_set_selected_line ( state, pd->selected_line );
