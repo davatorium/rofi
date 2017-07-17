@@ -249,7 +249,7 @@ Tokenize the input.
 ### Layout
 
 Most of the following options are **deprecated** and should not be used. Please use the new theme format to customize
-rofi.
+rofi. More information about the new format can be found in the **rofi-theme(5)** manpage.
 
 `-lines`
 
@@ -649,6 +649,22 @@ Default: *enabled*
 `-no-config`
 
 Disable parsing of configuration. This runs rofi in *stock* mode.
+
+`-no-plugins`
+
+Disables the loading of plugins.
+
+To get a trace with (lots of) debug information set the following environment variable when executing **rofi**:
+
+```
+G_MESSAGES_DEBUG=all
+```
+
+The trace can be filtered by only outputting the relevant domains, f.e.:
+
+```
+G_MESSAGES_DEBUG=Dialogs.DRun
+```
 
 For more information on debugging see the [wiki](https://github.com/DaveDavenport/rofi/wiki/Debugging%20Rofi)
 

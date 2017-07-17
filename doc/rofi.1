@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-MANPAGE" "" "April 2017" "" ""
+.TH "ROFI\-MANPAGE" "" "July 2017" "" ""
 .
 .SH "NAME"
 \fBrofi\fR \- A window switcher, application launcher, ssh dialog and dmenu replacement
@@ -351,7 +351,7 @@ Note: glob matching might be slow for larger lists
 Tokenize the input\.
 .
 .SS "Layout"
-Most of the following options are \fBdeprecated\fR and should not be used\. Please use the new theme format to customize rofi\.
+Most of the following options are \fBdeprecated\fR and should not be used\. Please use the new theme format to customize rofi\. More information about the new format can be found in the \fBrofi\-theme(5)\fR manpage\.
 .
 .P
 \fB\-lines\fR
@@ -964,6 +964,38 @@ Default: \fIenabled\fR
 .
 .P
 Disable parsing of configuration\. This runs rofi in \fIstock\fR mode\.
+.
+.P
+\fB\-no\-plugins\fR
+.
+.P
+Disables the loading of plugins\.
+.
+.P
+To get a trace with (lots of) debug information set the following environment variable when executing \fBrofi\fR:
+.
+.IP "" 4
+.
+.nf
+
+G_MESSAGES_DEBUG=all
+.
+.fi
+.
+.IP "" 0
+.
+.P
+The trace can be filtered by only outputting the relevant domains, f\.e\.:
+.
+.IP "" 4
+.
+.nf
+
+G_MESSAGES_DEBUG=Dialogs\.DRun
+.
+.fi
+.
+.IP "" 0
 .
 .P
 For more information on debugging see the wiki \fIhttps://github\.com/DaveDavenport/rofi/wiki/Debugging%20Rofi\fR
