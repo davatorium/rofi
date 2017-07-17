@@ -451,11 +451,13 @@ static int dmenu_mode_init ( Mode *sw )
         }
         g_free ( estr );
     }
-    pd->cancel            = g_cancellable_new ();
-    pd->cancel_source     = g_cancellable_connect ( pd->cancel, G_CALLBACK ( async_read_cancel ), pd, NULL );
-    pd->input_stream      = g_unix_input_stream_new ( fd, fd != STDIN_FILENO );
-    pd->data_input_stream = g_data_input_stream_new ( pd->input_stream );
-
+    // If input is stdin, and a tty, do not read as rofi grabs input and therefor blocks.
+    if ( ! ( fd == STDIN_FILENO && isatty ( fd ) == 1 ) ) {
+        pd->cancel            = g_cancellable_new ();
+        pd->cancel_source     = g_cancellable_connect ( pd->cancel, G_CALLBACK ( async_read_cancel ), pd, NULL );
+        pd->input_stream      = g_unix_input_stream_new ( fd, fd != STDIN_FILENO );
+        pd->data_input_stream = g_data_input_stream_new ( pd->input_stream );
+    }
     gchar *columns = NULL;
     if ( find_arg_str ( "-display-columns", &columns ) ) {
         pd->columns          = g_strsplit ( columns, ",", 0 );
@@ -663,13 +665,16 @@ int dmenu_switcher_dialog ( void )
          find_arg ( "-selected-row" ) >= 0 ) {
         async = FALSE;
     }
-    if ( async ) {
-        unsigned int pre_read = 25;
-        find_arg_uint ( "-async-pre-read", &pre_read );
-        async = get_dmenu_async ( pd, pre_read );
-    }
-    else {
-        get_dmenu_sync ( pd );
+    // Check if the subsystem is setup for reading, otherwise do not read.
+    if ( pd->cancel != NULL ) {
+        if ( async ) {
+            unsigned int pre_read = 25;
+            find_arg_uint ( "-async-pre-read", &pre_read );
+            async = get_dmenu_async ( pd, pre_read );
+        }
+        else {
+            get_dmenu_sync ( pd );
+        }
     }
     char         *input          = NULL;
     unsigned int cmd_list_length = pd->cmd_list_length;
