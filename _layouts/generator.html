@@ -49,7 +49,8 @@ layout: default
     </div><div id="generator"><pre id="config"><span>! ------------------------------------------------------------------------------
 ! ROFI Color theme
 ! ------------------------------------------------------------------------------
-rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
+rofi.color-enabled: true</span></pre><p id="command">rofi</p>
+</div>
     <div id="buttons"></div>
     <div>
         <h2>Load an Xresources theme</h2>
@@ -59,6 +60,9 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
         </form>
     </div>
 
+    <pre  id="rasi">/* RASI Theme */
+
+    </pre>
 
 
     <script>
@@ -69,26 +73,123 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
             el.attachEvent('on' + ev, func);
         }
     }
-
+    var rasi_theme_body = "\n\n"+
+        "#window {\n"+
+        "    border:     1;\n"+
+        "    foreground: @foreground;\n"+
+        "    background: rgba ( 0, 0, 0, 0 % );\n"+
+        "    padding:    5;\n"+
+        "}\n"+
+        "#window.box {\n"+
+        "    foreground: @bordercolor;\n"+
+        "    background: @background;\n"+
+        "}\n"+
+        "#window.mainbox {\n"+
+        "    border:  0;\n"+
+        "    padding: 0;\n"+
+        "}\n"+
+        "#window.mainbox.message.box {\n"+
+        "    border:     1px dash 0px 0px ;\n"+
+        "    foreground: @separatorcolor;\n"+
+        "    padding:    2px 0px 0px ;\n"+
+        "}\n"+
+        "#window.mainbox.message.normal {\n"+
+        "    foreground: @foreground;\n"+
+        "}\n"+
+        "#window.mainbox.listview {\n"+
+        "    fixed-height: 0;\n"+
+        "    border:       2px dash 0px 0px ;\n"+
+        "    padding:      2px 0px 0px ;\n"+
+        "}\n"+
+        "#window.mainbox.listview.element {\n"+
+        "    border:  0;\n"+
+        "    padding: 1px ;\n"+
+        "}\n"+
+        "#window.mainbox.listview.element.normal.normal {\n"+
+        "    foreground: @normal-foreground;\n"+
+        "    background: @normal-background;\n"+
+        "}\n"+
+        "#window.mainbox.listview.element.normal.urgent {\n"+
+        "    foreground: @urgent-foreground;\n"+
+        "    background: @urgent-background;\n"+
+        "}\n"+
+        "#window.mainbox.listview.element.normal.active {\n"+
+        "    foreground: @active-foreground;\n"+
+        "    background: @active-background;\n"+
+        "}\n"+
+        "#window.mainbox.listview.element.selected.normal {\n"+
+        "    foreground: @selected-normal-foreground;\n"+
+        "    background: @selected-normal-background;\n"+
+        "}\n"+
+        "#window.mainbox.listview.element.selected.urgent {\n"+
+        "    foreground: @selected-urgent-foreground;\n"+
+        "    background: @selected-urgent-background;\n"+
+        "}\n"+
+        "#window.mainbox.listview.element.selected.active {\n"+
+        "    foreground: @selected-active-foreground;\n"+
+        "    background: @selected-active-background;\n"+
+        "}\n"+
+        "#window.mainbox.listview.element.alternate.normal {\n"+
+        "    foreground: @alternate-normal-foreground;\n"+
+        "    background: @alternate-normal-background;\n"+
+        "}\n"+
+        "#window.mainbox.listview.element.alternate.urgent {\n"+
+        "    foreground: @alternate-urgent-foreground;\n"+
+        "    background: @alternate-urgent-background;\n"+
+        "}\n"+
+        "#window.mainbox.listview.element.alternate.active {\n"+
+        "    foreground: @alternate-active-foreground;\n"+
+        "    background: @alternate-active-background;\n"+
+        "}\n"+
+        "#window.mainbox.listview.scrollbar {\n"+
+        "    width:        4px ;\n"+
+        "    border:       0;\n"+
+        "    handle-width: 8px ;\n"+
+        "    padding:      0;\n"+
+        "}\n"+
+        "#window.mainbox.listview.box {\n"+
+        "    scrollbar: true;\n"+
+        "    spacing:   2px ;\n"+
+        "}\n"+
+        "#window.mainbox.sidebar.box {\n"+
+        "    border: 2px dash 0px 0px ;\n"+
+        "}\n"+
+        "#window.mainbox.sidebar.button.selected {\n"+
+        "    foreground: @selected-normal-foreground;\n"+
+        "    background: @selected-normal-background;\n"+
+        "}\n"+
+        "#window.mainbox.inputbar {\n"+
+        "    spacing: 0;\n"+
+        "}\n"+
+        "#window.mainbox.inputbar.box {\n"+
+        "    border: 0px ;\n"+
+        "}\n"+
+        "#window.mainbox.inputbar.normal {\n"+
+        "    foreground: @foreground;\n"+
+        "}\n"+
+        "";
     var colors = {
         "window": [
             {
                 name: "rofi-bg",
                 type: "backgroundColor",
                 def: "#fdf6e3",
-                display: "Background"
+                display: "Background",
+                rasi: "background"
             },
             {
                 name: "rofi-border",
                 type: "borderColor",
                 def: "#002b36",
-                display: "Border"
+                display: "Border",
+                rasi: "bordercolor"
             },
             {
                 name: "rofi-sep",
                 type: "backgroundColor",
                 def: "#000000",
-                display: "Separator"
+                display: "Separator",
+                rasi: "separatorcolor"
             },
         ],
         "normal": [
@@ -96,31 +197,36 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
                 name: "rofi-normal-bg",
                 type: "backgroundColor",
                 def: "#fdf6e3",
-                display: "Background"
+                display: "Background",
+                rasi: "normal-background"
             },
             {
                 name: "rofi-normal-fg",
                 type: "color",
                 def: "#002b36",
-                display: "Foreground"
+                display: "Foreground",
+                rasi: "normal-foreground"
             },
             {
                 name: "rofi-normal-altbg",
                 type: "backgroundColor",
                 def: "#eee8d5",
-                display: "Alternative background"
+                display: "Alternative background",
+                rasi: "alternate-normal-foreground"
             },
             {
                 name: "rofi-normal-hlbg",
                 type: "backgroundColor",
                 def: "#586e75",
-                display: "Highlight background"
+                display: "Highlight background",
+                rasi: "selected-normal-background"
             },
             {
                 name: "rofi-normal-hlfg",
                 type: "color",
                 def: "#eee8d5",
-                display: "Highlight foreground"
+                display: "Highlight foreground",
+                rasi: "selected-normal-foreground"
             },
         ],
         "active": [
@@ -128,31 +234,36 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
                 name: "rofi-active-bg",
                 type: "backgroundColor",
                 def: "#fdf6e3",
-                display: "Background"
+                display: "Background",
+                rasi: "active-background"
             },
             {
                 name: "rofi-active-fg",
                 type: "color",
                 def: "#268bd2",
-                display: "Foreground"
+                display: "Foreground",
+                rasi: "active-foreground"
             },
             {
                 name: "rofi-active-altbg",
                 type: "backgroundColor",
                 def: "#eee8d5",
-                display: "Alternative background"
+                display: "Alternative background",
+                rasi: "alternate-active-background"
             },
             {
                 name: "rofi-active-hlbg",
                 type: "backgroundColor",
                 def: "#268bd2",
-                display: "Highlight background"
+                display: "Highlight background",
+                rasi: "selected-active-background"
             },
             {
                 name: "rofi-active-hlfg",
                 type: "color",
                 def: "#fdf6e3",
-                display: "Highlight foreground"
+                display: "Highlight foreground",
+                rasi: "selected-active-foreground"
             },
         ],
         "urgent": [
@@ -160,31 +271,36 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
                 name: "rofi-urgent-bg",
                 type: "backgroundColor",
                 def: "#fdf6e3",
-                display: "Background"
+                display: "Background",
+                rasi: "urgent-background"
             },
             {
                 name: "rofi-urgent-fg",
                 type: "color",
                 def: "#dc322f",
-                display: "Foreground"
+                display: "Foreground",
+                rasi: "urgent-foreground"
             },
             {
                 name: "rofi-urgent-altbg",
                 type: "backgroundColor",
                 def: "#eee8d5",
-                display: "Alternative background"
+                display: "Alternative background",
+                rasi: "alternate-urgent-background"
             },
             {
                 name: "rofi-urgent-hlbg",
                 type: "backgroundColor",
                 def: "#dc322f",
-                display: "Highlight background"
+                display: "Highlight background",
+                rasi: "selected-urgent-background"
             },
             {
                 name: "rofi-urgent-hlfg",
                 type: "color",
                 def: "#fdf6e3",
-                display: "Highlight foreground"
+                display: "Highlight foreground",
+                rasi: "selected-urgent-foreground"
             },
         ],
     };
@@ -193,6 +309,7 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
     var preview = document.getElementById('preview');
     var config = document.getElementById('config');
     var command = document.getElementById('command');
+    var rasi    = document.getElementById('rasi');
 
     function get_value(name) {
         var label = document.getElementById(name);
@@ -222,6 +339,8 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
         config_value[0].textContent = value;
         var command_value = command.getElementsByClassName(name);
         command_value[0].textContent = value;
+        var rasi_value = rasi.getElementsByClassName(name);
+        rasi_value[0].textContent = value;
         if ( do_save )
         {
             save[name] = value;
@@ -304,6 +423,7 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
         set_color(this.name, ev.type === 'change');
     }
 
+    rasi.appendChild (new Text("\n* {") );
     for ( var name in colors ) {
         var ge = document.createElement('div');
         var title = document.createElement('p');
@@ -322,6 +442,12 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
             var label = document.createElement('label');
             label.setAttribute('id', color.name);
             label.setAttribute('class', color.type);
+
+            var rasi_label = document.createElement('label');
+            /** Append type */
+            var str = ("\n\t"+color.rasi+":                       ").substring(0,35);
+            rasi_label.appendChild(new Text(str));
+            rasi.appendChild(rasi_label);
 
             var text = document.createElement('span');
             text.appendChild(new Text(color.display));
@@ -362,11 +488,24 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p></div>
                 command.appendChild(new Text(', '));
             command.appendChild(command_value);
 
+            var rl = document.createElement('span');
+            rl.setAttribute('class', color.name);
+            rl.appendChild ( new Text(save[color.name])); 
+            rasi_label.appendChild(rl);
+            rasi_label.appendChild(new Text(";"));
+
             set_input_value(color.name, save[color.name]);
+
         }
 
         command.appendChild(new Text('"'));
     }
+    rasi.appendChild (new Text("\n\talternate-normal-foreground:     @normal-foreground;") );
+    rasi.appendChild (new Text("\n\talternate-urgent-foreground:     @urgent-foreground;") );
+    rasi.appendChild (new Text("\n\talternate-active-foreground:     @active-foreground;") );
+    rasi.appendChild (new Text("\n\tforeground:                      @normal-foreground;") );
+    rasi.appendChild (new Text("\n}") );
+    rasi.appendChild ( new Text(rasi_theme_body));
 
     function change_background() {
         preview.style.backgroundColor = this.value;

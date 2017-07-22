@@ -74,7 +74,7 @@ h1 {
     vertical-align: top;
 }
 
-#config, #command {
+#config, #command, #rasi{
     margin: 0;
     padding: 5px;
     border: 2px dashed black;
@@ -83,7 +83,7 @@ h1 {
     font-size: 13px;
 }
 
-#command {
+#command, #rasi {
     margin-top: 10px;
 }
 
