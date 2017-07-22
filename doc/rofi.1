@@ -7,7 +7,7 @@
 \fBrofi\fR \- A window switcher, application launcher, ssh dialog and dmenu replacement
 .
 .SH "SYNOPSIS"
-\fBrofi\fR [ \-width \fIpct_scr\fR ] [ \-lines \fIlines\fR ] [ \-columns \fIcolumns\fR ] [ \-font \fIpangofont\fR ] [ \-terminal \fIterminal\fR ] [ \-location \fIposition\fR ] [ \-fixed\-num\-lines ] [ \-padding \fIpadding\fR ] [ \-display \fIdisplay\fR ] [ \-bw \fIwidth\fR ] [ \-dmenu [ \-p \fIprompt\fR ] [ \-sep \fIseparator\fR ] [ \-l \fIselected line\fR ] [ \-mesg ] [ \-select ] [ \-input \fIinput\fR ] ] [ \-filter \fIfilter\fR ] [ \-ssh\-client \fIclient\fR ] [ \-ssh\-command \fIcommand\fR ] [ \-window\-command \fIcommand\fR ] [ \-disable\-history ] [ \-levenshtein\-sort ] [ \-case\-sensitive ] [ \-cycle ] [ \-show \fImode\fR ] [ \-modi \fImode1,mode2\fR ] [ \-eh \fIelement height\fR ] [ \-e \fImessage\fR] [ \-a \fIrow\fR ] [ \-u \fIrow\fR ] [ \-pid \fIpath\fR ] [ \-version ] [ \-help ] [ \-dump\-xresources ] [ \-auto\-select ] [ \-parse\-hosts ] [ \-no\-parse\-known\-hosts ] [ \-combi\-modi \fImode1,mode2\fR ] [ \-normal\-window ] [ \-fake\-transparency ] [ \-matching \fImethod\fR ] [ \-tokenize ] [ \-no\-click\-to\-exit ] [ \-threads \fInum\fR ] [ \-config \fIfilename\fR ] [ \-no\-show\-match ] [ \-theme \fIfilename\fR ] [ \-theme\-str \fIstring\fR ] [ \-dpi \fIdpi\fR ]
+\fBrofi\fR [ \-show \fImode\fR ]|[ \-dmenu ]|[ \-e \fImsg\fR ] [ CONFIGURATION ]
 .
 .SH "DESCRIPTION"
 \fBrofi\fR is an X11 popup window switcher, run dialog, dmenu replacement and more\. It focuses on being fast to use and have minimal distraction\. It supports keyboard and mouse navigation, type to filter, tokenized search and more\.
@@ -39,6 +39,22 @@ The "official" website for \fBdmenu\fR can be found here \fIhttp://tools\.suckle
 .
 .P
 \fBrofi\fR does not aim to be 100% compatible with dmenu\. There are simply to many different flavours of dmenu\. The idea is the basic usage commandline flags are obeyed, theme related flags are not\. Besides this, \fBrofi\fR offers some extended features (like multi\-select, highlighting, message bar, extra key\-bindings)\.
+.
+.SS "Display Error message"
+\fBrofi\fR error dialog can also be called from the commandline\.
+.
+.IP "" 4
+.
+.nf
+
+rofi \-e "my message"
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Markup support can be enabled, see CONFIGURATION options\.
 .
 .SH "CONFIGURATION"
 There are currently three methods of setting configuration options (evaluated in order below):

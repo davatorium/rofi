@@ -6,51 +6,8 @@
 
 ## SYNOPSIS
 
-**rofi**
-[ -width *pct_scr* ]
-[ -lines *lines* ]
-[ -columns *columns* ]
-[ -font *pangofont* ]
-[ -terminal *terminal* ]
-[ -location *position* ]
-[ -fixed-num-lines ]
-[ -padding *padding* ]
-[ -display *display* ]
-[ -bw *width* ]
-[ -dmenu [ -p *prompt* ] [ -sep *separator* ] [ -l *selected line* ] [ -mesg ] [ -select ] [ -input *input* ] ]
-[ -filter *filter* ]
-[ -ssh-client *client* ]
-[ -ssh-command *command* ]
-[ -window-command *command* ]
-[ -disable-history ]
-[ -levenshtein-sort ]
-[ -case-sensitive ]
-[ -cycle ]
-[ -show *mode* ]
-[ -modi *mode1,mode2* ]
-[ -eh *element height* ]
-[ -e *message*]
-[ -a *row* ]
-[ -u *row* ]
-[ -pid *path* ]
-[ -version ]
-[ -help ]
-[ -dump-xresources ]
-[ -auto-select ]
-[ -parse-hosts ]
-[ -no-parse-known-hosts ]
-[ -combi-modi *mode1,mode2* ]
-[ -normal-window ]
-[ -fake-transparency ]
-[ -matching *method* ]
-[ -tokenize ]
-[ -no-click-to-exit ]
-[ -threads *num* ]
-[ -config *filename* ]
-[ -no-show-match ]
-[ -theme *filename* ]
-[ -theme-str *string* ]
-[ -dpi *dpi* ]
+**rofi** [ -show *mode* ]|[ -dmenu ]|[ -e *msg* ] [ CONFIGURATION ]
+
 
 ## DESCRIPTION
 
@@ -84,6 +41,15 @@ The "official" website for `dmenu` can be found [here](http://tools.suckless.org
 **rofi** does not aim to be 100% compatible with dmenu. There are simply to many different flavours of dmenu.
 The idea is the basic usage commandline flags are obeyed, theme related flags are not.
 Besides this, **rofi** offers some extended features (like multi-select, highlighting, message bar, extra key-bindings).
+
+
+### Display Error message
+
+**rofi** error dialog can also be called from the commandline.
+
+    rofi -e "my message"
+
+Markup support can be enabled, see CONFIGURATION options.
 
 ## CONFIGURATION
 
