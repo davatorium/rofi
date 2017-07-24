@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-THEME" "5" "July 2017" "" ""
+.TH "ROFI\-THEME" "5" "2017-07-24" "" ""
 .
 .SH "NAME"
 \fBrofi\-theme\fR \- Rofi theme format files
@@ -963,6 +963,153 @@ rofi \-dump\-theme
 .IP "" 0
 .
 .SH "Layout"
+The new format allows the layout of the \fBrofi\fR window to be tweaked extensively\. For each widget the themer can specify padding, margin, border, font and more\. It even allows, as advanced feature, to pack widgets in a custom structure\.
+.
+.SS "Basic structure"
+The whole view is build up out of boxes that pack other boxes or widgets\. The box can be either vertical or horizontal\. This is loosely inspired GTK \fIhttp://gtk\.org/\fR\.
+.
+.P
+The current layout of \fBrofi\fR is structured as follow:
+.
+.IP "" 4
+.
+.nf
+
+|\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
+| #window {BOX:vertical}                                                             |
+| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
+| | #window\.mainbox  {BOX:vertical}                                               |  |
+| | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
+| | | #window\.mainbox\.inputbar {BOX:horizontal}                                 | |  |
+| | | |\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-| | |  |
+| | | | prompt | | entry                                                 | |ci| | |  |
+| | | |\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-| | |  |
+| | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
+| |                                                                               |  |
+| | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
+| | | #window\.mainbox\.message                                                   | |  |
+| | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
+| |                                                                               |  |
+| | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
+| | | #window\.mainbox\.listview                                                    |  |
+| | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
+| |                                                                               |  |
+| | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
+| | | #window\.mainbox\.sidebar {BOX:horizontal}                                  | |  |
+| | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|   |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| | |  |
+| | | | Button        |   | Button        |  | Button       | | Button        | | |  |
+| | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|   |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| | |  |
+| | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
+| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
+|\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
+.
+.fi
+.
+.IP "" 0
+.
+.SS "Advanced layout"
+The layout of \fBrofi\fR can be tweaked by packing the \'fixed\' widgets in a custom structure\.
+.
+.P
+The following widgets names are \'fixed\' widgets with functionality:
+.
+.IP "\(bu" 4
+prompt
+.
+.IP "\(bu" 4
+entry
+.
+.IP "\(bu" 4
+case\-indicator
+.
+.IP "\(bu" 4
+message
+.
+.IP "\(bu" 4
+listview
+.
+.IP "\(bu" 4
+sidebar
+.
+.IP "" 0
+.
+.P
+The following exists and automatically pack a subset of the widgets as in the above picture:
+.
+.IP "\(bu" 4
+mainbox Packs: \fBinputbar, message, listview, sidebar\fR
+.
+.IP "\(bu" 4
+inputbar Packs: \fBprompt,entry,case\-indicator\fR
+.
+.IP "" 0
+.
+.P
+Any widget name starting with \fBtextbox\fR is a textbox widget, all others are boxes that can pack other widgets\. To specify children, set the children property (this always happens on the \fBbox\fR child, see example below):
+.
+.IP "" 4
+.
+.nf
+
+children: [prompt,entry,case\-indicator];
+.
+.fi
+.
+.IP "" 0
+.
+.P
+The theme needs to be update to match the hierarchy specified\.
+.
+.P
+Below is an example of a theme emulating dmenu:
+.
+.IP "" 4
+.
+.nf
+
+* {
+    background:      Black;
+    foreground:      White;
+    font:            "Times New Roman 12";
+}
+
+#window {
+    anchor:     north;
+    location:   north;
+}
+
+#window box {
+    width:      100%;
+    padding:    4px;
+    children:   [ horibox ];
+}
+
+#window horibox box {
+    orientation: horizontal;
+    children:   [ prompt, entry, listview ];
+}
+
+#window horibox listview box {
+    layout:     horizontal;
+    spacing:    5px;
+    lines:      10;
+}
+
+#window horibox entry {
+    expand:     false;
+    width:      10em;
+}
+
+#window horibox listview element {
+    padding: 0px 2px;
+}
+#window horibox listview element selected {
+    background: SteelBlue;
+}
+.
+.fi
+.
+.IP "" 0
 .
 .SS "Padding and margin"
 Just like css \fBrofi\fR uses the box model for each widget\.

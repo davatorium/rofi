@@ -596,6 +596,124 @@ rofi -dump-theme
 
 ## Layout
 
+The new format allows the layout of the **rofi** window to be tweaked extensively.
+For each widget the themer can specify padding, margin, border, font and more.
+It even allows, as advanced feature, to pack widgets in a custom structure.
+
+### Basic structure
+
+The whole view is build up out of boxes that pack other boxes or widgets.
+The box can be either vertical or horizontal. This is loosely inspired [GTK](http://gtk.org/).
+
+The current layout of **rofi** is structured as follow:
+
+```
+|------------------------------------------------------------------------------------|
+| #window {BOX:vertical}                                                             |
+| |-------------------------------------------------------------------------------|  |
+| | #window.mainbox  {BOX:vertical}                                               |  |
+| | |---------------------------------------------------------------------------| |  |
+| | | #window.mainbox.inputbar {BOX:horizontal}                                 | |  |
+| | | |--------| |-------------------------------------------------------| |--| | |  |
+| | | | prompt | | entry                                                 | |ci| | |  |
+| | | |--------| |-------------------------------------------------------| |--| | |  |
+| | |---------------------------------------------------------------------------| |  |
+| |                                                                               |  |
+| | |---------------------------------------------------------------------------| |  |
+| | | #window.mainbox.message                                                   | |  |
+| | |---------------------------------------------------------------------------| |  |
+| |                                                                               |  |
+| | |-----------------------------------------------------------------------------|  |
+| | | #window.mainbox.listview                                                    |  |
+| | |-----------------------------------------------------------------------------|  |
+| |                                                                               |  |
+| | |---------------------------------------------------------------------------| |  |
+| | | #window.mainbox.sidebar {BOX:horizontal}                                  | |  |
+| | | |---------------|   |---------------|  |--------------| |---------------| | |  |
+| | | | Button        |   | Button        |  | Button       | | Button        | | |  |
+| | | |---------------|   |---------------|  |--------------| |---------------| | |  |
+| | |---------------------------------------------------------------------------| |  |
+| |-------------------------------------------------------------------------------|  |
+|------------------------------------------------------------------------------------|
+
+
+```
+> ci is case-indicator
+
+### Advanced layout
+
+The layout of **rofi** can be tweaked by packing the 'fixed' widgets in a custom structure.
+
+The following widgets names are 'fixed' widgets with functionality:
+
+ * prompt
+ * entry
+ * case-indicator
+ * message
+ * listview
+ * sidebar
+
+The following exists and automatically pack a subset of the widgets as in the above picture:
+
+ * mainbox
+   Packs: `inputbar, message, listview, sidebar`
+ * inputbar
+   Packs: `prompt,entry,case-indicator`
+
+Any widget name starting with `textbox` is a textbox widget, all others are
+boxes that can pack other widgets.  To specify children, set the children
+property (this always happens on the `box` child, see example below):
+
+```
+children: [prompt,entry,case-indicator];
+```
+
+The theme needs to be update to match the hierarchy specified.
+
+Below is an example of a theme emulating dmenu:
+
+```css
+* {
+    background:      Black;
+    foreground:      White;
+    font:            "Times New Roman 12";
+}
+
+#window {
+    anchor:     north;
+    location:   north;
+}
+
+#window box {
+    width:      100%;
+    padding:    4px;
+    children:   [ horibox ];
+}
+
+#window horibox box {
+    orientation: horizontal;
+    children:   [ prompt, entry, listview ];
+}
+
+#window horibox listview box {
+    layout:     horizontal;
+    spacing:    5px;
+    lines:      10;
+}
+
+#window horibox entry {
+    expand:     false;
+    width:      10em;
+}
+
+#window horibox listview element {
+    padding: 0px 2px;
+}
+#window horibox listview element selected {
+    background: SteelBlue;
+}
+```
+
 ### Padding and margin
 
 Just like css **rofi** uses the box model for each widget.
@@ -625,7 +743,7 @@ Explanation of the different parts:
  * Margin - Clears an area outside the border.
    The margin is transparent
 
-The box model allows us to add a border around elements, and to define space between elements. 
+The box model allows us to add a border around elements, and to define space between elements.
 
 The size, on each side, of margin, border and padding can be set.
 For the border a linestyle and radius can be set.
