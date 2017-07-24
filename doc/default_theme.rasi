@@ -54,6 +54,11 @@
     border:       2px dash 0px 0px ;
     padding:      2px 0px 0px ;
 }
+#window.mainbox.listview.box {
+    foreground: @separatorcolor;
+    spacing:    2px ;
+    scrollbar:  true;
+}
 #window.mainbox.listview.element {
     border:  0;
     padding: 1px ;
@@ -100,23 +105,18 @@
     handle-width: 8px ;
     padding:      0;
 }
-#window.mainbox.listview.box {
-    scrollbar: true;
-    spacing:   2px ;
-}
 #window.mainbox.sidebar.box {
-    border: 2px dash 0px 0px ;
+    border:     2px dash 0px 0px ;
+    foreground: @separatorcolor;
 }
 #window.mainbox.sidebar.button.selected {
     foreground: @selected-normal-foreground;
     background: @selected-normal-background;
 }
 #window.mainbox.inputbar {
+    text:    @normal-foreground;
     spacing: 0;
 }
 #window.mainbox.inputbar.box {
     border: 0px ;
-}
-#window.mainbox.inputbar.normal {
-    foreground: @foreground;
 }

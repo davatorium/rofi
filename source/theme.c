@@ -765,12 +765,16 @@ void rofi_theme_convert_old ( void )
             rofi_theme_parse_string ( str );
             const char *const str2 = "#window.mainbox.sidebar box { border: 0px; }";
             rofi_theme_parse_string ( str2 );
+            const char *const str3 = "#window.mainbox.message box { border: 0px; }";
+            rofi_theme_parse_string ( str3 );
         }
         else if  ( g_strcmp0 ( config.separator_style, "solid" ) == 0 ) {
             const char *const str = "#window.mainbox.listview box { border: 2px solid 0px 0px 0px; }";
             rofi_theme_parse_string ( str );
             const char *const str2 = "#window.mainbox.sidebar box { border: 2px solid 0px 0px 0px; }";
             rofi_theme_parse_string ( str2 );
+            const char *const str3 = "#window.mainbox.message box { border: 2px solid 0px 0px 0px; }";
+            rofi_theme_parse_string ( str3 );
         } /* dash is default */
     }
     /* Line Margin */
