@@ -594,6 +594,80 @@ To print the current theme run:
 rofi -dump-theme
 ```
 
+## Layout
+
+### Padding and margin
+
+Just like css **rofi** uses the box model for each widget.
+
+```
+|-------------------------------------------------------------------|
+| margin                                                            |
+|  |-------------------------------------------------------------|  |
+|  | border                                                      |  |
+|  | |---------------------------------------------------------| |  |
+|  | | padding                                                 | |  |
+|  | | |-----------------------------------------------------| | |  |
+|  | | | content                                             | | |  |
+|  | | |-----------------------------------------------------| | |  |
+|  | |---------------------------------------------------------| |  |
+|  |-------------------------------------------------------------|  |
+|-------------------------------------------------------------------|
+```
+
+Explanation of the different parts:
+
+ * Content - The content of the widget.
+ * Padding - Clears an area around the widget.
+   The padding shows the background color of the widget.
+ * Border - A border that goes around the padding and content.
+   The border use the foreground color of the widget.
+ * Margin - Clears an area outside the border.
+   The margin is transparent
+
+The box model allows us to add a border around elements, and to define space between elements. 
+
+The size, on each side, of margin, border and padding can be set.
+For the border a linestyle and radius can be set.
+
+### Spacing
+
+Widgets that can pack more then one child widget, currently box and listview, the `spacing` property exists.
+This determines the space between the packed widgets (both in horizontal as vertical direction).
+
+```
+|---------------------------------------|
+|  |--------| s |--------| s |-------|  |
+|  | child  | p | child  | p | child |  |
+|  |        | a |        | a |       |  |
+|  |        | c |        | c |       |  |
+|  |        | i |        | i |       |  |
+|  |        | n |        | n |       |  |
+|  |--------| g |--------| g |-------|  |
+|---------------------------------------|
+```
+
+### Advanced box packing
+
+More dynamic spacing can be achieved by adding dummy widgets, for example to get one widget centered:
+
+```
+|--------------------------------------------|
+|  |-----------|  |--------|  |-----------|  |
+|  | dummy     |  | child  |  | dummy     |  |
+|  | expand: y |  |        |  | expand: y |  |
+|  |           |  |        |  |           |  |
+|  |           |  |        |  |           |  |
+|  |           |  |        |  |           |  |
+|  |-----------|  |--------|  |-----------|  |
+|--------------------------------------------|
+```
+
+If both dummy widgets are set to expanding, `child` will be centered. Depending on the `expand` flag of child the
+remaining space will be equally divided between both dummy and child widget (expand enabled), or both dummy widgets
+(expand disabled).
+
+
 ## EXAMPLES
 
 Several examples are installed together with **rofi**. These can be found in `{datadir}/rofi/themes/` where

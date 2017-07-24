@@ -962,6 +962,100 @@ rofi \-dump\-theme
 .
 .IP "" 0
 .
+.SH "Layout"
+.
+.SS "Padding and margin"
+Just like css \fBrofi\fR uses the box model for each widget\.
+.
+.IP "" 4
+.
+.nf
+
+|\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
+| margin                                                            |
+|  |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
+|  | border                                                      |  |
+|  | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
+|  | | padding                                                 | |  |
+|  | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| | |  |
+|  | | | content                                             | | |  |
+|  | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| | |  |
+|  | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
+|  |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
+|\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Explanation of the different parts:
+.
+.IP "\(bu" 4
+Content \- The content of the widget\.
+.
+.IP "\(bu" 4
+Padding \- Clears an area around the widget\. The padding shows the background color of the widget\.
+.
+.IP "\(bu" 4
+Border \- A border that goes around the padding and content\. The border use the foreground color of the widget\.
+.
+.IP "\(bu" 4
+Margin \- Clears an area outside the border\. The margin is transparent
+.
+.IP "" 0
+.
+.P
+The box model allows us to add a border around elements, and to define space between elements\.
+.
+.P
+The size, on each side, of margin, border and padding can be set\. For the border a linestyle and radius can be set\.
+.
+.SS "Spacing"
+Widgets that can pack more then one child widget, currently box and listview, the \fBspacing\fR property exists\. This determines the space between the packed widgets (both in horizontal as vertical direction)\.
+.
+.IP "" 4
+.
+.nf
+
+|\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
+|  |\-\-\-\-\-\-\-\-| s |\-\-\-\-\-\-\-\-| s |\-\-\-\-\-\-\-|  |
+|  | child  | p | child  | p | child |  |
+|  |        | a |        | a |       |  |
+|  |        | c |        | c |       |  |
+|  |        | i |        | i |       |  |
+|  |        | n |        | n |       |  |
+|  |\-\-\-\-\-\-\-\-| g |\-\-\-\-\-\-\-\-| g |\-\-\-\-\-\-\-|  |
+|\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
+.
+.fi
+.
+.IP "" 0
+.
+.SS "Advanced box packing"
+More dynamic spacing can be achieved by adding dummy widgets, for example to get one widget centered:
+.
+.IP "" 4
+.
+.nf
+
+|\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
+|  |\-\-\-\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-\-\-\-|  |
+|  | dummy     |  | child  |  | dummy     |  |
+|  | expand: y |  |        |  | expand: y |  |
+|  |           |  |        |  |           |  |
+|  |           |  |        |  |           |  |
+|  |           |  |        |  |           |  |
+|  |\-\-\-\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-\-\-\-|  |
+|\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
+.
+.fi
+.
+.IP "" 0
+.
+.P
+If both dummy widgets are set to expanding, \fBchild\fR will be centered\. Depending on the \fBexpand\fR flag of child the remaining space will be equally divided between both dummy and child widget (expand enabled), or both dummy widgets (expand disabled)\.
+.
 .SH "EXAMPLES"
 Several examples are installed together with \fBrofi\fR\. These can be found in \fB{datadir}/rofi/themes/\fR where \fB{datadir}\fR is the install path of \fBrofi\fR data\. When installed using a package manager this is usually: \fB/usr/share/\fR\.
 .
