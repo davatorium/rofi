@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-THEME" "5" "2017-07-24" "" ""
+.TH "ROFI\-THEME" "5" "July 2017" "" ""
 .
 .SH "NAME"
 \fBrofi\-theme\fR \- Rofi theme format files
@@ -242,7 +242,7 @@ a color\.
 text style\.
 .
 .IP "\(bu" 4
-\fIline style\fR\.
+line style\.
 .
 .IP "\(bu" 4
 a distance\.
@@ -258,6 +258,9 @@ a position\.
 .
 .IP "\(bu" 4
 a reference\.
+.
+.IP "\(bu" 4
+a list of keywords\.
 .
 .IP "" 0
 .
@@ -614,6 +617,16 @@ highlight: bold @pink;
 .fi
 .
 .IP "" 0
+.
+.SH "List of keywords"
+.
+.IP "\(bu" 4
+Format: \fB[ keyword, keyword ]\fR
+.
+.IP "" 0
+.
+.P
+A list starts with a \'[\' and ends with a \']\'\. The entries in the list are comma separated\. The \fBkeyword\fR in the list refers to an widget name\.
 .
 .SH "ELEMENTS PATHS"
 Element paths exists of two parts, the first part refers to the actual widget by name\. Some widgets have an extra state\.

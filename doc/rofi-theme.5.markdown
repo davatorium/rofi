@@ -176,12 +176,13 @@ The current theme format support different type:
  * a boolean value.
  * a color.
  * text style.
- * *line style*.
+ * line style.
  * a distance.
  * a padding.
  * a border.
  * a position.
  * a reference.
+ * a list of keywords.
 
 Some of these types are a combination of other types.
 
@@ -378,7 +379,12 @@ e.g. this is not valid:
 highlight: bold @pink;
 ```
 
+## List of keywords
 
+* Format: `[ keyword, keyword ]`
+
+A list starts with a '[' and ends with a ']'. The entries in the list are comma separated.
+The `keyword` in the list refers to an widget name.
 
 ## ELEMENTS PATHS
 
