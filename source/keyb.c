@@ -156,7 +156,10 @@ gboolean parse_keys_abe ( NkBindings *bindings )
         const char *const sep = ",";
         for ( char *entry = strtok_r ( keystr, sep, &sp ); entry != NULL; entry = strtok_r ( NULL, sep, &sp ) ) {
             if ( !nk_bindings_add_binding ( bindings, b->scope, entry, binding_trigger_action, GUINT_TO_POINTER ( b->id ), NULL, &error ) ) {
-                g_string_append_c ( g_string_append ( error_msg, error->message ), '\n' );
+                char *str = g_markup_printf_escaped ( "Failed to set binding <i>%s</i> for: <i>%s (%s)</i>:\n\t<span size=\"smaller\" style=\"italic\">%s</span>\n",
+                                                      b->binding, b->comment, b->name, error->message );
+                g_string_append ( error_msg, str );
+                g_free ( str );
                 g_clear_error ( &error );
             }
         }

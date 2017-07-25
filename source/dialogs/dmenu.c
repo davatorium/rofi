@@ -452,7 +452,7 @@ static int dmenu_mode_init ( Mode *sw )
         g_free ( estr );
     }
     // If input is stdin, and a tty, do not read as rofi grabs input and therefor blocks.
-    if ( ! ( fd == STDIN_FILENO && isatty ( fd ) == 1 ) ) {
+    if ( !( fd == STDIN_FILENO && isatty ( fd ) == 1 ) ) {
         pd->cancel            = g_cancellable_new ();
         pd->cancel_source     = g_cancellable_connect ( pd->cancel, G_CALLBACK ( async_read_cancel ), pd, NULL );
         pd->input_stream      = g_unix_input_stream_new ( fd, fd != STDIN_FILENO );
@@ -734,7 +734,7 @@ int dmenu_switcher_dialog ( void )
     find_arg_str (  "-p", &( dmenu_mode.display_name ) );
     RofiViewState *state = rofi_view_create ( &dmenu_mode, input, menu_flags, dmenu_finalize );
     // @TODO we should do this better.
-    if ( async && (pd->cancel != NULL ) ) {
+    if ( async && ( pd->cancel != NULL ) ) {
         rofi_view_set_overlay ( state, "Loading.. " );
     }
     rofi_view_set_selected_line ( state, pd->selected_line );
