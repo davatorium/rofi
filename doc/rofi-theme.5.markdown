@@ -182,6 +182,7 @@ The current theme format support different type:
  * a border.
  * a position.
  * a reference.
+ * an orientation.
  * a list of keywords.
 
 Some of these types are a combination of other types.
@@ -379,6 +380,12 @@ e.g. this is not valid:
 highlight: bold @pink;
 ```
 
+## Orientation
+
+ * Format: `(horizontal|vertical)`
+
+Specify an orientation of the widget.
+
 ## List of keywords
 
 * Format: `[ keyword, keyword ]`
@@ -543,6 +550,8 @@ The following properties are currently supports:
 
 ### box:
 
+* **orientation**:      orientation
+        Set the direction the elements are packed.
 * **spacing**:         distance
         Distance between the packed elements.
 
@@ -551,8 +560,8 @@ The following properties are currently supports:
 * **background**:      color
 * **foreground**:      color
 * **text**:            The text color to use (falls back to foreground if not set)
-* **highlight**:        highlight {color}
-    Color is optional, multiple highlight styles can be added like:  bold underlinei italic #000000;
+* **highlight**:       Text Style {color}
+    Color is optional, multiple highlight styles can be added like:  bold underline italic #000000;
 
 ### listview:
 * **columns**:         integer
@@ -571,34 +580,8 @@ The following properties are currently supports:
     Spacing between the elements (both vertical and horizontal)
 * **lines**:           integer
     Number of rows to show in the list view.
-
-## DEBUGGING
-
-To get debug information from the parser run rofi like:
-
-```
-G_MESSAGES_DEBUG=Parser rofi -show run
-```
-
-Syntax errors are shown in a popup and printed out to commandline with the above command.
-
-To see the elements queried during running, run:
-
-```
-G_MESSAGES_DEBUG=Theme rofi -show run
-```
-
-To test minor changes, part of the theme can be passed on the commandline, for example to set it fullscreen:
-
-```
-rofi -theme-str '#window { fullscreen:true;}' -show run
-```
-
-To print the current theme run:
-
-```
-rofi -dump-theme
-```
+* **layout**:           orientation
+    Indicate how elements are stacked. Horizontal implements the dmenu style.
 
 ## Layout
 
@@ -790,6 +773,34 @@ More dynamic spacing can be achieved by adding dummy widgets, for example to get
 If both dummy widgets are set to expanding, `child` will be centered. Depending on the `expand` flag of child the
 remaining space will be equally divided between both dummy and child widget (expand enabled), or both dummy widgets
 (expand disabled).
+
+## DEBUGGING
+
+To get debug information from the parser run rofi like:
+
+```
+G_MESSAGES_DEBUG=Parser rofi -show run
+```
+
+Syntax errors are shown in a popup and printed out to commandline with the above command.
+
+To see the elements queried during running, run:
+
+```
+G_MESSAGES_DEBUG=Theme rofi -show run
+```
+
+To test minor changes, part of the theme can be passed on the commandline, for example to set it fullscreen:
+
+```
+rofi -theme-str '#window { fullscreen:true;}' -show run
+```
+
+To print the current theme run:
+
+```
+rofi -dump-theme
+```
 
 
 ## EXAMPLES

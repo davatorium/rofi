@@ -260,6 +260,9 @@ a position\.
 a reference\.
 .
 .IP "\(bu" 4
+an orientation\.
+.
+.IP "\(bu" 4
 a list of keywords\.
 .
 .IP "" 0
@@ -618,6 +621,16 @@ highlight: bold @pink;
 .
 .IP "" 0
 .
+.SH "Orientation"
+.
+.IP "\(bu" 4
+Format: \fB(horizontal|vertical)\fR
+.
+.IP "" 0
+.
+.P
+Specify an orientation of the widget\.
+.
 .SH "List of keywords"
 .
 .IP "\(bu" 4
@@ -872,6 +885,9 @@ The following properties are currently supports:
 .SS "box:"
 .
 .IP "\(bu" 4
+\fBorientation\fR: orientation Set the direction the elements are packed\.
+.
+.IP "\(bu" 4
 \fBspacing\fR: distance Distance between the packed elements\.
 .
 .IP "" 0
@@ -888,7 +904,7 @@ The following properties are currently supports:
 \fBtext\fR: The text color to use (falls back to foreground if not set)
 .
 .IP "\(bu" 4
-\fBhighlight\fR: highlight {color} Color is optional, multiple highlight styles can be added like: bold underlinei italic #000000;
+\fBhighlight\fR: Text Style {color} Color is optional, multiple highlight styles can be added like: bold underline italic #000000;
 .
 .IP "" 0
 .
@@ -918,60 +934,8 @@ The following properties are currently supports:
 .IP "\(bu" 4
 \fBlines\fR: integer Number of rows to show in the list view\.
 .
-.IP "" 0
-.
-.SH "DEBUGGING"
-To get debug information from the parser run rofi like:
-.
-.IP "" 4
-.
-.nf
-
-G_MESSAGES_DEBUG=Parser rofi \-show run
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Syntax errors are shown in a popup and printed out to commandline with the above command\.
-.
-.P
-To see the elements queried during running, run:
-.
-.IP "" 4
-.
-.nf
-
-G_MESSAGES_DEBUG=Theme rofi \-show run
-.
-.fi
-.
-.IP "" 0
-.
-.P
-To test minor changes, part of the theme can be passed on the commandline, for example to set it fullscreen:
-.
-.IP "" 4
-.
-.nf
-
-rofi \-theme\-str \'#window { fullscreen:true;}\' \-show run
-.
-.fi
-.
-.IP "" 0
-.
-.P
-To print the current theme run:
-.
-.IP "" 4
-.
-.nf
-
-rofi \-dump\-theme
-.
-.fi
+.IP "\(bu" 4
+\fBlayout\fR: orientation Indicate how elements are stacked\. Horizontal implements the dmenu style\.
 .
 .IP "" 0
 .
@@ -1215,6 +1179,61 @@ More dynamic spacing can be achieved by adding dummy widgets, for example to get
 .
 .P
 If both dummy widgets are set to expanding, \fBchild\fR will be centered\. Depending on the \fBexpand\fR flag of child the remaining space will be equally divided between both dummy and child widget (expand enabled), or both dummy widgets (expand disabled)\.
+.
+.SH "DEBUGGING"
+To get debug information from the parser run rofi like:
+.
+.IP "" 4
+.
+.nf
+
+G_MESSAGES_DEBUG=Parser rofi \-show run
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Syntax errors are shown in a popup and printed out to commandline with the above command\.
+.
+.P
+To see the elements queried during running, run:
+.
+.IP "" 4
+.
+.nf
+
+G_MESSAGES_DEBUG=Theme rofi \-show run
+.
+.fi
+.
+.IP "" 0
+.
+.P
+To test minor changes, part of the theme can be passed on the commandline, for example to set it fullscreen:
+.
+.IP "" 4
+.
+.nf
+
+rofi \-theme\-str \'#window { fullscreen:true;}\' \-show run
+.
+.fi
+.
+.IP "" 0
+.
+.P
+To print the current theme run:
+.
+.IP "" 4
+.
+.nf
+
+rofi \-dump\-theme
+.
+.fi
+.
+.IP "" 0
 .
 .SH "EXAMPLES"
 Several examples are installed together with \fBrofi\fR\. These can be found in \fB{datadir}/rofi/themes/\fR where \fB{datadir}\fR is the install path of \fBrofi\fR data\. When installed using a package manager this is usually: \fB/usr/share/\fR\.
