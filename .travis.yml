@@ -43,6 +43,7 @@ addons:
             - graphviz
             - texinfo
             - texi2html
+            - xfonts-base
 
 compiler:
     - gcc
