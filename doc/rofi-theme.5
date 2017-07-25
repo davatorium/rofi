@@ -758,6 +758,9 @@ The current widgets exist in \fBrofi\fR:
 .
 .IP "" 0
 .
+.P
+Note that these paths names match the default theme\. Themes that provide a custom layout will have different element paths\.
+.
 .SH "State"
 State: State of widget
 .
@@ -901,10 +904,25 @@ The following properties are currently supports:
 \fBforeground\fR: color
 .
 .IP "\(bu" 4
+\fBfont\fR: The font used by this textbox\. (string)
+.
+.IP "\(bu" 4
+\fBstr\fR: The string to display by this textbox\. (string)
+.
+.IP "\(bu" 4
+\fBvertical\-align\fR: Vertical alignment of the text\. (0 top, 1 bottom)
+.
+.IP "\(bu" 4
+\fBhorizontal\-align\fR: Horizontal alignment of the text\. (0 left, 1 right)
+.
+.IP "\(bu" 4
 \fBtext\fR: The text color to use (falls back to foreground if not set)
 .
 .IP "\(bu" 4
 \fBhighlight\fR: Text Style {color} Color is optional, multiple highlight styles can be added like: bold underline italic #000000;
+.
+.IP "\(bu" 4
+\fBwidth\fR: Override the desired width for the textbox\.
 .
 .IP "" 0
 .

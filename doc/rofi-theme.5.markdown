@@ -445,6 +445,9 @@ The current widgets exist in **rofi**:
        * `#window.mainbox.message.textbox`: The message textbox.
        * `#window.mainbox.message.box`: The box containing the message.
 
+Note that these paths names match the default theme. Themes that provide a custom layout will have different
+element paths.
+
 
 ## State
 
@@ -557,11 +560,16 @@ The following properties are currently supports:
 
 ### textbox:
 
-* **background**:      color
-* **foreground**:      color
-* **text**:            The text color to use (falls back to foreground if not set)
-* **highlight**:       Text Style {color}
+* **background**:       color
+* **foreground**:       color
+* **font**:             The font used by this textbox. (string)
+* **str**:              The string to display by this textbox. (string)
+* **vertical-align**:   Vertical alignment of the text. (0 top, 1 bottom)
+* **horizontal-align**: Horizontal alignment of the text. (0 left, 1 right)
+* **text**:             The text color to use (falls back to foreground if not set)
+* **highlight**:        Text Style {color}
     Color is optional, multiple highlight styles can be added like:  bold underline italic #000000;
+* **width**:            Override the desired width for the textbox.
 
 ### listview:
 * **columns**:         integer
