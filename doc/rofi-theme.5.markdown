@@ -657,8 +657,8 @@ The following exists and automatically pack a subset of the widgets as in the ab
  * inputbar
    Packs: `prompt,entry,case-indicator`
 
-Any widget name starting with `textbox` is a textbox widget, all others are
-boxes that can pack other widgets.  To specify children, set the children
+Any widget name starting with `textbox` is a textbox widget, all others are a
+box widget and can pack other widgets.  To specify children, set the children
 property (this always happens on the `box` child, see example below):
 
 ```
