@@ -117,6 +117,9 @@ It is advised to define the \fIglobal properties section\fR on top of the file t
 .
 .IP "" 0
 .
+.P
+If there are mulitple sections with the same name, they are merged\. Duplicate properties are overwritten and the last parsed entry kept\.
+.
 .SH "Global properties section"
 A theme can have one or more global properties sections (If there is more than one they will be merged)
 .
@@ -218,7 +221,7 @@ The properties in a section consist of:
 Both fields are manditory for a property\.
 .
 .P
-The \fBidentifier\fR names the specified property\. Identifiers can consist of any combination of numbers, letters and \'\-\'\. It must not contain any whitespace\. The structure of the \fBvalue\fR defines the type of the property\.
+The \fBidentifier\fR names the specified property\. Identifiers can consist of any combination of numbers, letters and \'\-\'\. It must not contain any whitespace\. The structure of the \fBvalue\fR defines the type of the property\. The current parser does not define or enforce a certain type of a particular \fBidentifier\fR\. When used, values with the wrong type that cannot be converted, are ignored\.
 .
 .P
 The current theme format support different type:
@@ -292,6 +295,9 @@ font: "Awasome 12";
 .fi
 .
 .IP "" 0
+.
+.P
+The string must be valid utf\-8\.
 .
 .SH "Integer"
 .
@@ -387,10 +393,10 @@ Format: \fBrgb[a]({INTEGER},{INTEGER},{INTEGER}[, {PERCENTAGE}])\fR
 Format: \fBrgb[a]({INTEGER}%,{INTEGER}%,{INTEGER}%[, {PERCENTAGE}])\fR
 .
 .IP "\(bu" 4
-Format: \fBhsl[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [{PERCENTAGE}])\fR
+Format: \fBhsl[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE}])\fR
 .
 .IP "\(bu" 4
-Format: \fBhwb[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [{PERCENTAGE}])\fR
+Format: \fBhwb[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE}])\fR
 .
 .IP "\(bu" 4
 Format: \fBcmyk( {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE} ])\fR
@@ -595,9 +601,25 @@ Format: \fB{Distance} {Line style} {Distance} {Line style} {Distance} {Line styl
 Border are identical to padding, except that each distance field has a line style property\.
 .
 .SH "Position"
+Indicate a place on the window/monitor\.
 .
 .IP "\(bu" 4
-Format: \fB(center|east|north|west|northeast|northweast|south|southwest|southeast)\fR
+Format: \fB(center|east|north|west|south|north east|north west|south west|south east)\fR
+.
+.IP "" 0
+.
+.IP "" 4
+.
+.nf
+
+
+north west   |    north    |  north east
+\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-
+      west   |   center    |  east
+\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-
+south west   |    south    |  south east
+.
+.fi
 .
 .IP "" 0
 .
@@ -616,6 +638,25 @@ A reference can point to another reference\. Currently the maximum number of red
 .nf
 
 highlight: bold @pink;
+.
+.fi
+.
+.IP "" 0
+.
+.P
+But this is:
+.
+.IP "" 4
+.
+.nf
+
+* {
+    myhigh: bold #FAA;
+}
+
+#window {
+    highlight: @myhigh;
+}
 .
 .fi
 .

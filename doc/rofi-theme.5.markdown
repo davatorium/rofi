@@ -18,7 +18,7 @@ to create their own rofi themes without the need to learn a new markup language.
 
 ## Encoding
 
-The encoding of the file is utf-8.  Both unix (`\n`) and windows (`\r\n`) newlines format are supported. But unix is
+The encoding of the file is utf-8. Both unix (`\n`) and windows (`\r\n`) newlines format are supported. But unix is
 preferred.
 
 ## Comments
@@ -90,6 +90,9 @@ make inheritance of properties clearer.
     // list of properties
 }
 ```
+
+If there are mulitple sections with the same name, they are merged. Duplicate properties are overwritten and the last
+parsed entry kept.
 
 ## Global properties section
 
@@ -166,7 +169,9 @@ Both fields are manditory for a property.
 
 The `identifier` names the specified property. Identifiers can consist of any
 combination of numbers, letters and '-'. It must not contain any whitespace.
-The structure of the `value` defines the type of the property.
+The structure of the `value` defines the type of the property. The current
+parser does not define or enforce a certain type of a particular `identifier`.
+When used, values with the wrong type that cannot be converted, are ignored.
 
 The current theme format support different type:
 
@@ -198,6 +203,8 @@ For example:
 ```
 font: "Awasome 12";
 ```
+
+The string must be valid utf-8.
 
 ## Integer
 
@@ -248,8 +255,8 @@ dynamic: false;
 * Format: `#{HEX}{8}` (rrggbbaa)
 * Format: `rgb[a]({INTEGER},{INTEGER},{INTEGER}[, {PERCENTAGE}])`
 * Format: `rgb[a]({INTEGER}%,{INTEGER}%,{INTEGER}%[, {PERCENTAGE}])`
-* Format: `hsl[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [{PERCENTAGE}])`
-* Format: `hwb[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [{PERCENTAGE}])`
+* Format: `hsl[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE}])`
+* Format: `hwb[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE}])`
 * Format: `cmyk( {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE} ])`
 * Format: `{named-color} [ / {PERCENTAGE} ]`
 
@@ -299,6 +306,8 @@ should be applied.
  * `underline`: put a line under the highlighted text.
  * `strikethrough`: put a line through the highlighted text.
  * `small caps`: emphasise the text using capitalization.
+
+> For some reason `small caps` is not working on some systems.
 
 ## Line style
 
@@ -366,7 +375,18 @@ style property.
 
 ## Position
 
-* Format: `(center|east|north|west|northeast|northweast|south|southwest|southeast)`
+Indicate a place on the window/monitor.
+
+* Format: `(center|east|north|west|south|north east|north west|south west|south east)`
+
+```
+
+north west   |    north    |  north east
+-------------|-------------|------------
+      west   |   center    |  east
+-------------|-------------|------------
+south west   |    south    |  south east
+```
 
 ## Reference
 
@@ -378,6 +398,18 @@ e.g. this is not valid:
 
 ```
 highlight: bold @pink;
+```
+
+But this is:
+
+```
+* {
+    myhigh: bold #FAA;
+}
+
+#window {
+    highlight: @myhigh;
+}
 ```
 
 ## Orientation
