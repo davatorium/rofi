@@ -37,6 +37,7 @@ addons:
             - discount
             - xdotool
             - fluxbox
+            - xterm
             - gdb
             - lcov
             - doxygen
