@@ -64,10 +64,13 @@ AC_ARG_ENABLE([gcov],
               [AS_HELP_STRING ([--enable-gcov],[Enable source code coverage testing using gcov])],
               [AM_CFLAGS="${AM_CFLAGS} -coverage"])
 AS_IF([test "x${enable_gcov}" = "xyes" ], [AC_DEFINE([ENABLE_GCOV], [1], [Enable gcov profiling])])
-AC_ARG_ENABLE([asan],
-              [AS_HELP_STRING ([--enable-asan],[Enable asan support])],
-              [AM_CFLAGS="${AM_CFLAGS} -fsanitize=address -fno-omit-frame-pointer -g3"])
-AS_IF([test "x${enable_asan}" = "xyes" ], [AC_DEFINE([ENABLE_ASAN], [1], [Enable libasan])])
+
+AC_ARG_ENABLE([asan], [AS_HELP_STRING ([--enable-asan],[Enable asan support])])
+AS_IF([test "x${enable_asan}" = "xyes" ], [
+       AC_DEFINE([ENABLE_ASAN], [1], [Enable libasan])
+       AM_CFLAGS="${AM_CFLAGS} -fsanitize=address -fno-omit-frame-pointer -g3"]
+
+       ])
 
 
 dnl --------------------------------------------------------------------
