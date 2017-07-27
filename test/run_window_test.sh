@@ -26,7 +26,7 @@ sleep 1;
 echo -n "Killing TermUnwanted: "
 if kill ${TPID}; then
     echo "done"
-#    wait ${TPID}
+    wait ${TPID}
 fi
 
 if pgrep -u $USER xterm
