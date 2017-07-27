@@ -31,14 +31,20 @@ rm -f core
 
 display=200
 for test in "${tests[@]}"; do
-    echo "Test ${test}"
-    ${MESON_SOURCE_ROOT}/test/run_test.sh ${display} ${MESON_SOURCE_ROOT}/test/${test}.sh ${MESON_BUILD_ROOT} ${MESON_SOURCE_ROOT}
+    log_prefix=test-x-logs/${display}
+    echo -n "Test ${test}: "
+    ${MESON_SOURCE_ROOT}/test/run_test.sh ${display} ${log_prefix} ${MESON_SOURCE_ROOT}/test/${test}.sh ${MESON_BUILD_ROOT} ${MESON_SOURCE_ROOT} &> ${log_prefix}-wrapper.log
     ret=$?
     if [[ -f core ]]; then
+        echo "COREDUMP"
         echo "bt" | gdb ./rofi core
+        more ${log_prefix}*.log | cat
         exit ${ret}
     elif [[ ${ret} != 0 ]]; then
+        echo "FAIL"
+        more ${log_prefix}*.log | cat
         exit ${ret}
     fi
+    echo "PASS"
     display=$(( ${display} + 1 ))
 done
