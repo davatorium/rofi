@@ -9,18 +9,18 @@
 
 # A window switcher, Application launcher and dmenu replacement
 
-**Rofi** started as clone of simpleswitcher, written by [Sean Pringle](http://github.com/seanpringle/simpleswitcher) a
+**Rofi** started as a clone of simpleswitcher, written by [Sean Pringle](http://github.com/seanpringle/simpleswitcher) a
 popup window switcher roughly based on [superswitcher](http://code.google.com/p/superswitcher/).
-Simpleswitcher laid the foundations and therefor Sean Pringle deserves most of the credit for this tool. **Rofi**,
-renamed as it lost the *simple* property, has been extended with extra features, like a application launcher,
+Simpleswitcher laid the foundations, and therefor Sean Pringle deserves most of the credit for this tool. **Rofi**
+(renamed, as it lost the *simple* property) has been extended with extra features, like an application launcher,
 ssh-launcher and can act as a drop-in dmenu replacement, making it a very versatile tool.
 
 **Rofi**, like dmenu, will provide the user with a textual list of options where one or more can be selected.
 This can either be, running an application, selecting a window or options provided by an external script.
 
-It main features are:
+Its main features are:
 
-* Fully configurable keyboard navigation.
+* Fully configurable keyboard navigation
 * Type to filter
     - Tokenized: Type any word in any order to filter.
     - (toggable) Case insensitive.
@@ -37,14 +37,14 @@ It main features are:
     - Desktop File Application launcher.
     - SSH launcher mode.
     - Combi mode, allow several modes to be merged into one list.
-* History based ordering last 25 choices are ordered on top based on use. (optional)
+* History-based ordering last 25 choices are ordered on top based on use. (optional)
 * Levenshtein distance ordering of matches. (optional)
 * Drop in dmenu replacement.
     - With many added improvements.
 * Can be easily extended using scripts.
-* Themeing.
+* Theming.
 
-**Rofi** has several buildin modes implementing common use-cases and can be exteneded by scripts (either called from
+**Rofi** has several built-in modes implementing common use cases and can be exteneded by scripts (either called from
 **Rofi** or calling **Rofi**).
 
 Below the different modes are listed:
@@ -105,7 +105,7 @@ rofi  -show fb -modi fb:../Examples/rofi-file-browser.sh
 
 ## COMBI mode
 
-Combine multiple modes in one view. This is especially usefull when merging the window and run mode into one view.
+Combine multiple modes in one view. This is especially useful when merging the window and run mode into one view.
 Allowing to quickly switch to an application, either by switching to it when it is already running or starting it.
 
 Example to combine Desktop run and the window switcher:
@@ -196,7 +196,7 @@ Type `Shift-/Left/Right` to switch between active modi.
 |`Alt-grave`                  | Toggle levenshtein  sort. |
 |`Alt-Shift-S`                | Take a screenshot and store this in the Pictures directory. |
 
-For the full list of keybindings see: `rofi -show keys` or `rofi -help`.
+For the full list of key bindings see: `rofi -show keys` or `rofi -help`.
 
 # Configuration
 
@@ -205,15 +205,15 @@ There are currently three methods of setting configuration options:
  * Local configuration. Normally, depending on XDG, in `~/.local/rofi/config`. This uses the Xresources format.
  * Xresources: A method of storing key values in the Xserver. See
    [here](https://en.wikipedia.org/wiki/X_resources) for more information.
- * Commandline options: Arguments passed to **Rofi**.
+ * Command line options: Arguments passed to **Rofi**.
 
 A distribution can ship defaults in `/etc/rofi.conf`.
 
-The Xresources options and the commandline options are aliased. To define option X set:
+The Xresources options and the command line options are aliased. To define option X set:
 
     rofi.X: value
 
-In the Xresources file. To set/override this from commandline pass the same key
+In the Xresources file. To set/override this from command line pass the same key
 prefixed with '-':
 
     rofi -X value
@@ -233,13 +233,13 @@ The configuration system supports the following types:
  * Char
  * Boolean
 
-The boolean option has a non-default commandline syntax, to enable option X  you do:
+The boolean option has a non-default command line syntax, to enable option X  you do:
 
-	rofi -X
+    rofi -X
 
 to disable it:
 
-	rofi -no-X
+    rofi -no-X
 
 # Manpage
 
@@ -257,7 +257,7 @@ Rofi is not:
  * A preview application.  In other words, it will not show a (small) preview of image, movie or other files.
  * A UI toolkit.
  * A library to be used in other applications.
- * An application that can support every possible use-case. It tries to generic enough to be usable by everybody.
+ * An application that can support every possible use-case. It tries to be generic enough to be usable by everybody.
    Specific functionality can be added using scripts.
  * Just a dmenu replacement. The dmenu functionality is a nice 'extra' to **rofi** not its main purpose.
 
