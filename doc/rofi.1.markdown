@@ -31,7 +31,6 @@ To show the run dialog:
 
     rofi -show run
 
-
 ### Emulating dmenu
 
 **rofi** can emulate **dmenu(1)** (a dynamic menu for X) when launched with the `-dmenu` flag.
@@ -41,7 +40,6 @@ The official website for `dmenu` can be found [here](http://tools.suckless.org/d
 **rofi** does not aim to be 100% compatible with dmenu. There are simply too many different flavors of dmenu.
 The idea is that the basic usage command-line flags are obeyed, theme-related flags are not.
 Besides, **rofi** offers some extended features (like multi-select, highlighting, message bar, extra key bindings).
-
 
 ### Display Error message
 
@@ -167,7 +165,7 @@ This option can be changed at run-time using the `-kb-toggle-case-sensitivity` k
 
 `-cycle`
 
-Cycle through the results list. Default is 'true'.
+Cycle through the result list. Default is 'true'.
 
 `-filter` *filter*
 
@@ -175,7 +173,7 @@ Filter the list by setting text in input bar to *filter*
 
 `-config` *filename*
 
-Load alternative configuration file.
+Load an alternative configuration file.
 
 `-scroll-method` *method*
 
@@ -195,8 +193,7 @@ Disable plugin loading.
 
 `-plugin-path` *directory*
 
-Specify the directory where *rofi* should look for plugins.
-
+Specify the directory where **rofi** should look for plugins.
 
 ### Matching
 
@@ -205,10 +202,10 @@ Specify the directory where *rofi* should look for plugins.
 Specify the matching algorithm used.
 Current the following methods are supported.
 
-* **normal**: Match the int string.
-* **regex**: Match a regex input.
-* **glob**: Match a glob pattern.
-* **fuzzy**: Do a fuzzy match.
+* **normal**: match the int string
+* **regex**: match a regex input
+* **glob**: match a glob pattern
+* **fuzzy**: do a fuzzy match
 
    Default: *normal*
 
@@ -221,7 +218,7 @@ Tokenize the input.
 ### Layout
 
 Most of the following options are **deprecated** and should not be used. Please use the new theme format to customize
-rofi. More information about the new format can be found in the **rofi-theme(5)** manpage.
+**rofi**. More information about the new format can be found in the **rofi-theme(5)** manpage.
 
 `-lines`
 
@@ -245,15 +242,15 @@ Set width of menu. `[value]` is specified in percentage.
 
     rofi -width 60
 
-If `[value]` is larger then 100, size is set in pixels. Example to span a full hd monitor:
+If `[value]` is larger then 100, size is set in pixels. Example to span a full-HD monitor:
 
     rofi -width 1920
 
-If `[value]` is negative, it tries to estimates a character width. To show 30 characters on a row:
+If `[value]` is negative, it tries to estimates a character width. To show 30 characters in a row:
 
     rofi -width -30
 
-Character width is a rough estimation, and might not be correct, but should work for most monospaced fonts.
+Character width is a rough estimate, and might not be correct, but should work for most monospaced fonts.
 
 Default: *50*
 
@@ -279,13 +276,13 @@ Default: *5*
 
 `-fullscreen`
 
-Use the full screen height and width.
+Use the full-screen height and width.
 
 `-sidebar-mode`
 
 Open in sidebar-mode. In this mode a list of all enabled modes is shown at the bottom.
 (See `-modi` option)
-To show sidebar use:
+To show sidebar, use:
 
     rofi -show run -sidebar-mode -lines 0
 
@@ -302,19 +299,19 @@ When one entry is left, automatically select it.
 `-monitor` *name*
 
 Select monitor to display **rofi** on.
-As input it accepts: *primary* (if primary output is set), the *xrandr* output name or integer number (in order of
-detection).  Negative numbers are handled differently:
+It accepts as input: *primary* (if primary output is set), the *xrandr* output name, or integer number (in order of
+detection). Negative numbers are handled differently:
 
  *  **-1**: the currently focused monitor.
- *  **-2**: the currently focused window (i.e. rofi will be displayed on top of the focused window).
+ *  **-2**: the currently focused window (i.e. **rofi** will be displayed on top of the focused window).
  *  **-3**: Position at mouse (overrides the location setting to get normal context menu
-    behaviour.)
+    behavior.)
  *  **-4**: the monitor with the focused window.
  *  **-5**: the monitor that shows the mouse pointer.
 
     Default: *-5*
 
-See `rofi -h` output for the detected monitors, their position and size.
+See `rofi -h` output for the detected monitors, their position, and size.
 
 
 `-theme` *filename*
@@ -323,27 +320,25 @@ Path to the new theme file format. This overrides the old theme settings.
 
 `-theme-str` *string*
 
-Allow theme parts to be specified on the commandline as an override.
+Allow theme parts to be specified on the command line as an override.
 
-For example
+For example:
 
     rofi -theme-str '#window { fullscreen: true; }'
 
 This option can be specified multiple times.
 
-
-
 `-dpi`  *number*
 
 Override the default DPI setting.
-If set to `0` it tries to auto-detect based on X11 screen size. (Similar to i3 and GTK)
-If set to `1` it tries to auto-detect based on monitor (rofi is displayed on) size. (Similar to latest QT5) 
+If set to `0`, it tries to auto-detect based on X11 screen size (similar to i3 and GTK).
+If set to `1`, it tries to auto-detect based on the size of the monitor that rofi is displayed on (similar to latest Qt 5). 
 
 ### PATTERN setting
 
 `-terminal`
 
-Specify what terminal to start.
+Specify which terminal to start.
 
     rofi -terminal xterm
 
@@ -356,7 +351,6 @@ Override the used ssh client.
 
 Pattern: *{ssh-client}*
 Default: *ssh*
-
 
 ### SSH settings
 
@@ -399,7 +393,7 @@ Default: *{terminal} -e {cmd}*
 
 `-run-list-command` *cmd*
 
-If set, use an external tool to generate list of executable commands. Uses 'run-command'
+If set, use an external tool to generate list of executable commands. Uses `run-command`.
 
 Default: *""*
 
@@ -616,7 +610,6 @@ Click the mouse outside of the **rofi** window to exit.
 Default: *enabled*
 
 ### Debug
-
 
 `-no-config`
 
