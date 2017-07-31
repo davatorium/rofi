@@ -158,11 +158,11 @@ In both cases, rofi will output the user's selection to STDOUT.
 Type `Shift-/Left/Right` to switch between active modi.
 
 
-## Keybindings
+## Key bindings
 
 | Key                         | Action                                                             |
 |:----------------------------|:-------------------------------------------------------------------|
-|`Ctrl-v, Insert`             | Paste clipboard |
+|`Ctrl-v, Insert`             | Paste from clipboard |
 |`Ctrl-Shift-v, Shift-Insert` | Paste primary selection |
 |`Ctrl-w`                     | Clear the line |
 |`Ctrl-u`                     | Delete till the start of line |
@@ -183,7 +183,7 @@ Type `Shift-/Left/Right` to switch between active modi.
 |`Page Down`                  | Go to the next page |
 |`Ctrl-Page Up`               | Go to the previous column |
 |`Ctrl-Page Down`             | Go to the next column |
-|`Ctrl-Enter`                 | Use entered text as command (in ssh/run modi) |
+|`Ctrl-Enter`                 | Use entered text as a command (in `ssh/run modi`) |
 |`Shift-Enter`                | Launch the application in a terminal (in run mode) |
 |`Shift-Enter`                | Return the selected entry and move to the next item while keeping Rofi open. (in dmenu) |
 |`Shift-Right`                | Switch to the next modi. The list can be customized with the -modi option. |
@@ -193,8 +193,8 @@ Type `Shift-/Left/Right` to switch between active modi.
 |`Ctrl-space`                 | Set selected item as input text. |
 |`Shift-Del`                  | Delete entry from history. |
 |`grave`                      | Toggle case sensitivity. |
-|`Alt-grave`                  | Toggle levenshtein  sort. |
-|`Alt-Shift-S`                | Take a screenshot and store this in the Pictures directory. |
+|`Alt-grave`                  | Toggle levenshtein sort. |
+|`Alt-Shift-S`                | Take a screenshot and store it in the Pictures directory. |
 
 For the full list of key bindings, see: `rofi -show keys` or `rofi -help`.
 
