@@ -131,8 +131,8 @@ Or get the options from a script:
 `-show` *mode*
 
 Open **rofi** in a certain mode. Available modes are `window`, `run`, `drun`, `ssh`, `combi`.
-The special argument `keys` can be used to open a searchable list of supported keybindings
-(see *KEYBINDINGS*)
+The special argument `keys` can be used to open a searchable list of supported key bindings
+(see *KEY BINDINGS*)
 
 To show the run-dialog:
 
@@ -165,7 +165,7 @@ This option can be changed at run-time using the `-kb-toggle-case-sensitivity` k
 
 `-cycle`
 
-Cycle through the result list. Default is 'true'.
+Cycle thru the result list. Default is 'true'.
 
 `-filter` *filter*
 
@@ -586,8 +586,8 @@ Message can be multi-line.
 
 `-pid` *path*
 
-Make **rofi** create a pid file and check this on startup. Avoiding multiple copies running
-simultaneously. This is useful when running **rofi** from a keybinding daemon.
+Make **rofi** create a pid file and check this on startup. Avoid multiple copies running
+simultaneously. This is useful when running **rofi** from a key-binding daemon.
 
 `-fake-transparency`
 
@@ -619,35 +619,35 @@ Disable parsing of configuration. This runs rofi in *stock* mode.
 
 Disables the loading of plugins.
 
-To get a trace with (lots of) debug information set the following environment variable when executing **rofi**:
+To get a trace with (lots of) debug information, set the following environment variable when executing **rofi**:
 
 ```
 G_MESSAGES_DEBUG=all
 ```
 
-The trace can be filtered by only outputting the relevant domains, f.e.:
+The trace can be filtered by only outputting the relevant domains, for example:
 
 ```
 G_MESSAGES_DEBUG=Dialogs.DRun
 ```
 
-For more information on debugging see the [wiki](https://github.com/DaveDavenport/rofi/wiki/Debugging%20Rofi)
+For more information on debugging, see the [wiki](https://github.com/DaveDavenport/rofi/wiki/Debugging%20Rofi)
 
 ## PATTERN
 
-To launch commands (e.g. when using the ssh launcher) the user can enter the used command-line,
+To launch commands (e.g. when using the ssh launcher), the user can enter the used command-line,
 the following keys can be used that will be replaced at runtime:
 
-  * `{host}`: The host to connect to.
-  * `{terminal}`: The configured terminal (See -terminal-emulator)
-  * `{ssh-client}`: The configured ssh client (See -ssh-client)
-  * `{cmd}`: The command to execute.
-  * `{window}`: The window id of the selected window. (In `window-command`)
+  * `{host}`: the host to connect to
+  * `{terminal}`: the configured terminal (see -terminal-emulator)
+  * `{ssh-client}`: the configured ssh client (see -ssh-client)
+  * `{cmd}`: the command to execute
+  * `{window}`: the window ID of the selected window (in `window-command`)
 
 ## DMENU REPLACEMENT
 
 If `argv[0]` (calling command) is dmenu, **rofi** will start in dmenu mode.
-This way it can be used as a drop-in replacement for dmenu. just copy or symlink **rofi** to dmenu in `$PATH`.
+This way it can be used as a drop-in replacement for dmenu. Just copy or symlink **rofi** to dmenu in `$PATH`.
 
     ln -s /usr/bin/rofi /usr/bin/dmenu
 
@@ -657,21 +657,21 @@ The theme format below describes the old (pre version 1.4) theme format. Please 
 manual.
 
 The theme setup allows you to specify colors per state, similar to **i3**
-Currently 3 states exists:
+Currently 3 states exist:
 
-  * **normal** Normal row.
-  * **urgent** Highlighted row (urgent)
-  * **active** Highlighted row (active)
+  * **normal**: normal row
+  * **urgent**: highlighted row (urgent)
+  * **active**: highlighted row (active)
 
-For each state the following 5 colors must be set:
+For each state, the following 5 colors must be set:
 
-  * **bg** Background color row
-  * **fg** Text color
-  * **bgalt** Background color alternating row
-  * **hlfg** Foreground color selected row
-  * **hlbg** Background color selected row
+  * **bg**: background color row
+  * **fg**: text color
+  * **bgalt**: background color alternating row
+  * **hlfg**: foreground color selected row
+  * **hlbg**: background color selected row
 
-The window background and border color should be specified separate. The key `color-window` contains
+The window background and border color should be specified separately. The key `color-window` contains
 a pair `background,border,separator`.
 An example for `Xresources` file:
 
@@ -689,35 +689,33 @@ Same settings can also be specified on command-line:
 
 ## COLORS
 
-RGB colors can be specified by either its X11 name, or hexadecimal notation.
+RGB colors can be specified by either their X11 name or hexadecimal notation.
 For example:
 
     white
 
-Or
+Or:
 
     #FFFFFF
 
-ARGB colors are also support, these can be used to create a transparent window if: 1. Your Xserver supports TrueColor, 2.
-You are running a composite manager.
-
+ARGB colors are also supported. These can be used to create a transparent window if (1) your Xserver supports TrueColor, and (2) you are running a composite manager.
+For example:
     argb:FF444444
 
-Or
+Or:
 
     #FF444444
 
-The first two fields specify the alpha level. This determines the amount of transparency.
-(00 everything, FF nothing). The other fields represent the actual color, in hex.
+The first two fields specify the alpha level. This determines the amount of transparency (00 everything, FF nothing). The other fields represent the actual color, in hex.
 
-Within **rofi** transparency can be used, e.g. if the selected background color is 50% transparent, the background color
-of the window will be visible through it.
+Transparency can be used within **rofi**, for example if the selected background color is 50% transparent, the background color
+of the window will be visible thru it.
 
-## KEYBINDINGS
+## KEY BINDINGS
 
-**rofi** has the following key-bindings:
+**rofi** has the following key bindings:
 
-  * `Ctrl-v, Insert`: Paste clipboard
+  * `Ctrl-v, Insert`: Paste from clipboard
   * `Ctrl-Shift-v, Shift-Insert`: Paste primary selection
   * `Ctrl-u`: Clear the line
   * `Ctrl-a`: Beginning of line
@@ -733,13 +731,13 @@ of the window will be visible through it.
   * `Ctrl-j,Ctrl-m,Enter`: Accept entry
   * `Ctrl-n,Down`: Select next entry
   * `Ctrl-p,Up`: Select previous entry
-  * `Page Up`: Go to the previous page
-  * `Page Down`: Go to the next page
-  * `Ctrl-Page Up`: Go to the previous column
-  * `Ctrl-Page Down`: Go to the next column
-  * `Ctrl-Enter`: Use entered text as command (in ssh/run modi)
+  * `Page Up`: Go to previous page
+  * `Page Down`: Go to next page
+  * `Ctrl-Page Up`: Go to previous column
+  * `Ctrl-Page Down`: Go to next column
+  * `Ctrl-Enter`: Use entered text as a command (in `ssh/run modi`)
   * `Shift-Enter`: Launch the application in a terminal (in run mode)
-  * `Shift-Enter`: Return the selected entry and move to the next item while keeping Rofi open. (in dmenu)
+  * `Shift-Enter`: Return the selected entry and move to the next item while keeping **rofi** open. (in dmenu)
   * `Shift-Right`: Switch to the next modi. The list can be customized with the `-switchers` argument.
   * `Shift-Left`: Switch to the previous modi. The list can be customized with the `-switchers` argument.
   * `Ctrl-Tab`: Switch to the next modi. The list can be customized with the `-switchers` argument.
@@ -748,13 +746,13 @@ of the window will be visible through it.
   * `Shift-Del`: Delete entry from history.
   * `grave`: Toggle case sensitivity.
   * `Alt-grave`: Toggle levenshtein sorting.
-  * `Alt-Shift-S`: Take a screenshot and store this in the Pictures directory.
+  * `Alt-Shift-S`: Take a screenshot and store it in the Pictures directory.
 
-To get a full list of keybindings on the commandline, see `rofi -dump-xresources | grep kb-`.
-Keybindings can be modified using the configuration systems.
-To get searchable list of keybindings, run `rofi -show keys`.
+To get a full list of key bindings on the commandline, see `rofi -dump-xresources | grep kb-`.
+Key bindings can be modified using the configuration systems.
+To get a searchable list of key bindings, run `rofi -show keys`.
 
-A keybinding starting with `!` will act when all keys have been released.
+A key binding starting with `!` will act when all keys have been released.
 
 ## Available Modi
 
@@ -787,7 +785,7 @@ Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) with cus
 
 ### SSH
 
-Shows a list of SSH targets based on your ssh config file, and allows to quickly ssh into them.
+Shows a list of SSH targets based on your ssh config file, and allows to quickly `ssh` into them.
 
 ### Keys
 
@@ -805,7 +803,7 @@ Try using a mono-space font.
 
 ### The window is completely black.
 
-Check quotes used on the commandline: e.g. used “ instead of ".
+Check quotes used on the commandline: you might have used `“` ("smart quotes") instead of `"` ("machine quotes").
 
 ### What does the icon in the top right show?
 
@@ -824,8 +822,7 @@ Show the run dialog:
 
     rofi -modi run -show run
 
-
-Show the the run dialog and allow switching to Desktop File run dialog (drun):
+Show the the run dialog, and allow switching to Desktop File run dialog (drun):
 
     rofi -modi run,drun -show run
 
@@ -833,8 +830,7 @@ Combine the run and Desktop File run dialog (drun):
 
     rofi -modi combi -show combi -combi-modi run,drun
 
-
-Combine the run and Desktop File run dialog (drun) and allow switching to window switcher:
+Combine the run and Desktop File run dialog (drun), and allow switching to window switcher:
 
     rofi -modi combi,window -show combi -combi-modi run,drun
 
@@ -842,19 +838,19 @@ Run **rofi** full monitor width at the top of the monitor like a dropdown menu:
 
     rofi -show run -width 100 -location 1 -lines 5 -bw 2 -yoffset -2
 
-Get a colored list of available wifi networks:
+Get a colored list of available wi-fi networks:
 
     tty-pipe nmcli device wifi | out2html -p | rofi -dmenu -markup-rows
 
-Popup a text message claiming that this is the end:
+Pop up a text message claiming that this is the end:
 
     rofi -e "This is the end"
 
-Popup a text message in red, bold font claiming that this is still the end:
+Pop up a text message in red, bold font claiming that this is still the end:
 
     rofi -e "<span color='red'><b>This is still the end</b></span>>" -markup
 
-Show all keybindings:
+Show all key bindings:
 
     rofi -show keys
 
@@ -862,13 +858,13 @@ Use `qalc` to get a simple calculator in **rofi**:
 
      rofi -show calc -modi "calc:qalc +u8 -nocurrencies"
 
-## I3
+## i3
 
-In [I3](http://i3wm.org/) you want to bind rofi to be launched on key-release. Otherwise it cannot grab the keyboard.
-See also the I3 [manual](http://i3wm.org/docs/userguide.html):
+In [i3](http://i3wm.org/) you want to bind **rofi** to be launched on key release. Otherwise, it cannot grab the keyboard.
+See also the i3 [manual](http://i3wm.org/docs/userguide.html):
 
 Some tools (such as import or xdotool) might be unable to run upon a KeyPress event, because the keyboard/pointer is
-still grabbed. For these situations, the --release flag can be used, which will execute the command after the keys have
+still grabbed. For these situations, the `--release` flag can be used, as it will execute the command after the keys have
 been released.
 
 ## LICENSE
@@ -896,7 +892,7 @@ been released.
 
 ## WEBSITE
 
-**rofi** website can be found at [here](https://davedavenport.github.io/rofi/)
+**rofi** website can be found [here](https://davedavenport.github.io/rofi/)
 
 ## SUPPORT
 
