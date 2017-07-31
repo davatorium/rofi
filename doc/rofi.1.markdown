@@ -407,13 +407,13 @@ Format what is being displayed for windows.
 
 *field*:
 
- * **w**: Desktop name
- * **t**: Title of window
- * **n**: Name
- * **r**: Role
- * **c**: Class
+ * **w**: desktop name
+ * **t**: title of window
+ * **n**: name
+ * **r**: role
+ * **c**: class
 
-*len*: maximum field length (0 for auto-size). If length negative and window *width* is negative field length is *width - len*.
+*len*: maximum field length (0 for auto-size). If length and window *width* are negative, field length is *width - len*.
 if length is positive, the entry will be truncated or padded to fill that length.
 
 
@@ -421,7 +421,7 @@ default: {w}  {c}   {t}
 
 `-window-command` *cmd*
 
-Set command to execute on selected window for custom action.
+Set command to execute on selected window for a custom action.
 See *PATTERN*.
 
 Default: *"xkill -id {window}"*
@@ -432,12 +432,12 @@ Default: *"xkill -id {window}"*
 
 The modi to combine in combi mode.
 For syntax to see `-modi`.
-To get one merge view, of window,run,ssh:
+To get one merge view, of `window`,`run`, and `ssh`:
 
     rofi -show combi -combi-modi "window,run,ssh" -modi combi
 
 Notes: The I3 Window manager does not like commas in the command when specifying an exec command.
-For that case '#' can be used as an separator.
+For that case '#' can be used as a separator.
 
 ### History and Sorting
 
@@ -449,20 +449,20 @@ Disable history
 `-levenshtein-sort` to enable
 `-no-levenshtein-sort` to disable
 
-When searching sort the result based on levenshtein distance.
-This setting can be changed at runtime, see `-kb-toggle-sort`.
+When searching, sort the result based on levenshtein distance.
+This setting can be changed at runtime (see `-kb-toggle-sort`).
 
 ### Dmenu specific
 
 `-sep` *separator*
 
-Separator for dmenu. Example: To show list 'a' to 'e' with '|' as separator:
+Separator for dmenu. Example: To show a list of 'a' to 'e' with '|' as a separator:
 
     echo "a|b|c|d|e" | rofi -sep '|' -dmenu
 
 `-p` *prompt*
 
-Specify the prompt to show in dmenu mode. E.g. select monkey a,b,c,d or e.
+Specify the prompt to show in dmenu mode. E.g. select 'monkey', a,b,c,d, or e.
 
     echo "a|b|c|d|e" | rofi -sep '|' -dmenu -p "monkey:"
 
@@ -488,7 +488,7 @@ Makes dmenu searches case-insensitive
 
 `-a` *X*
 
-Active row, mark row X as active. (starting at 0)
+Active row, mark row X as active (starting at 0).
 You can specify single element: -a 3
 A range: -a 3-8
 or a set of rows: -a 0,2
@@ -496,7 +496,7 @@ or any combination: -a 0,2-3,9
 
 `-u` *X*
 
-Urgent row, mark row X as urgent. (starting at 0)
+Urgent row, mark row X as urgent (starting at 0).
 You can specify single element: -u 3
 A range: -u 3-8
 or a set of rows: -u 0,2
@@ -514,14 +514,14 @@ This mode returns directly when no entries given.
 
 `-format` *format*
 
-Allows the output of dmenu to be customized (N is total number of input entries):
+Allows the output of dmenu to be customized (N is the total number of input entries):
 
-  * 's' selected string.
-  * 'i' index (0 - (N-1)).
-  * 'd' index (1 - N).
-  * 'q' quote string.
-  * 'f' filter string (user input).
-  * 'F' quoted filter string (user input).
+  * 's' selected string
+  * 'i' index (0 - (N-1))
+  * 'd' index (1 - N)
+  * 'q' quote string
+  * 'f' filter string (user input)
+  * 'F' quoted filter string (user input)
 
 Default: 's'
 
@@ -554,7 +554,7 @@ Hide the input text. This should not be considered secure!
 
 `-markup-rows`
 
-Tell **rofi** that DMenu input is pango markup encoded and should be rendered.
+Tell **rofi** that DMenu input is pango markup encoded, and should be rendered.
 See [here](https://developer.gnome.org/pango/stable/PangoMarkupFormat.html) for details about pango markup.
 
 
@@ -564,14 +564,14 @@ Allow multiple lines to be selected. Adds a small selection indicator to the lef
 
 `-sync`
 
-Force rofi mode to first read all data from stdin before showing selection window. This is how original dmenu behaviour.
+Force rofi mode to first read all data from stdin before showing the selection window. This is original dmenu behavior.
 
-Note: the default asynchronous mode will also be automatically disabled if used with conflicting options
-such as `-dump`, `-only-match` or `-auto-select`
+Note: the default asynchronous mode will also be automatically disabled if used with conflicting options,
+such as `-dump`, `-only-match` or `-auto-select`.
 
 `-async-pre-read` *number*
 
-Reads the first 25 entries blocking. Then switches to async mode. This makes it feel more 'snappy'.
+Reads the first 25 entries blocking, then switches to async mode. This makes it feel more 'snappy'.
 
 *default*: 25
 
@@ -579,7 +579,7 @@ Reads the first 25 entries blocking. Then switches to async mode. This makes it 
 
 `-e` *message*
 
-Popup a message dialog (used internally for showing errors) with *message*.
+Pops up a message dialog (used internally for showing errors) with *message*.
 Message can be multi-line.
 
 ### Other
