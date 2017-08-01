@@ -395,7 +395,7 @@ Default: *{terminal} -e {cmd}*
 
 If set, use an external tool to generate list of executable commands. Uses `run-command`.
 
-Default: *""*
+Default: *{cmd}*
 
 ### Window switcher settings
 
@@ -586,8 +586,7 @@ Message can be multi-line.
 
 `-pid` *path*
 
-Make **rofi** create a pid file and check this on startup. Avoid multiple copies running
-simultaneously. This is useful when running **rofi** from a key-binding daemon.
+Make **rofi** create a pid file and check this on startup. The pid file prevents multiple **rofi** instances from running simultaneously. This is useful when running **rofi** from a key-binding daemon.
 
 `-fake-transparency`
 
@@ -672,7 +671,7 @@ For each state, the following 5 colors must be set:
   * **hlbg**: background color selected row
 
 The window background and border color should be specified separately. The key `color-window` contains
-a pair `background,border,separator`.
+a tuple `background,border,separator`.
 An example for `Xresources` file:
 
     ! State:           'bg',     'fg',     'bgalt',  'hlbg',   'hlfg'
