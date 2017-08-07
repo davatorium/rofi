@@ -454,30 +454,30 @@ The difference between dots and spaces is purely cosmetic. These are all the sam
 
 ## Name
 
-The current widgets exist in **rofi**:
+The current widgets available in **rofi**:
 
 * `#window`
-  * `#window.box`: The container holding the window.
-  * `#window.overlay`: The overlay widget.
+  * `#window.box`: the container holding the window
+  * `#window.overlay`: the overlay widget
   * `#window.mainbox`
-     * `#window.mainbox.box`: The main vertical @box
+     * `#window.mainbox.box`: the main vertical @box
      * `#window.mainbox.inputbar`
-       * `#window.mainbox.inputbar.box`: The horizontal @box packing the widgets.
-       * `#window.mainbox.inputbar.case-indicator`: The case/sort indicator @textbox
-       * `#window.mainbox.inputbar.prompt`: The prompt @textbox
-       * `#window.mainbox.inputbar.entry`: The main entry @textbox
+       * `#window.mainbox.inputbar.box`: the horizontal @box packing the widgets
+       * `#window.mainbox.inputbar.case-indicator`: the case/sort indicator @textbox
+       * `#window.mainbox.inputbar.prompt`: the prompt @textbox
+       * `#window.mainbox.inputbar.entry`: the main entry @textbox
      * `#window.mainbox.listview`
-        * `#window.mainbox.listview.box`: The listview container.
-        * `#window.mainbox.listview.scrollbar`: The listview scrollbar
-        * `#window.mainbox.listview.element`: The entries in the listview
+        * `#window.mainbox.listview.box`: the listview container
+        * `#window.mainbox.listview.scrollbar`: the listview scrollbar
+        * `#window.mainbox.listview.element`: the entries in the listview
      * `#window.mainbox.sidebar`
-       * `#window.mainbox.sidebar.box`: The main horizontal @box packing the buttons.
-       * `#window.mainbox.sidebar.button`: The buttons @textbox for each mode.
+       * `#window.mainbox.sidebar.box`: the main horizontal @box packing the buttons
+       * `#window.mainbox.sidebar.button`: the buttons @textbox for each mode
      * `#window.mainbox.message`
-       * `#window.mainbox.message.textbox`: The message textbox.
-       * `#window.mainbox.message.box`: The box containing the message.
+       * `#window.mainbox.message.textbox`: the message textbox
+       * `#window.mainbox.message.box`: the box containing the message
 
-Note that these paths names match the default theme. Themes that provide a custom layout will have different
+Note that these path names match the default theme. Themes that provide a custom layout will have different
 element paths.
 
 
@@ -502,14 +502,14 @@ Currently only the entrybox and scrollbar have states:
 `{visible modifier}.{state}`
 
 Where `visible modifier` can be:
- * normal: No modification.
- * selected: The entry is selected/highlighted by user.
- * alternate: The entry is at an alternating row. (uneven row)
+ * normal: no modification
+ * selected: the entry is selected/highlighted by user
+ * alternate: the entry is at an alternating row (uneven row)
 
 Where `state` is:
- * normal: No modification.
- * urgent: This entry is marked urgent.
- * active: This entry is marked active.
+ * normal: no modification
+ * urgent: this entry is marked urgent
+ * active: this entry is marked active
 
 These can be mixed.
 
@@ -532,28 +532,28 @@ This allows the colors used for drawing the handle to be set independently.
 
 ## SUPPORTED PROPERTIES
 
-The following properties are currently supports:
+The following properties are currently supported:
 
 ###  all widgets:
 
 * **padding**:         padding
-  Padding on the inside of the widget.
+  Padding on the inside of the widget
 * **margin**:          padding
-  Margin on the outside of the widget.
+  Margin on the outside of the widget
 * **border**:          border
   Border around the widget (between padding and margin)/
 * **border-radius**:    padding
   Sets a radius on the corners of the borders.
 * **background**:      color
-  Background color.
+  Background color
 * **foreground**:      color
-  Foreground color.
-* **index**:           integer  (This one does not inherits it value from the parent widget)
+  Foreground color
+* **index**:           integer  (This one does not inherit it value from the parent widget)
 
 ### window:
 
 * **font**:            string
-  The font used in the window.
+  The font used in the window
 
 * **transparency**:    string
   Indicating if transparency should be used and what type:
@@ -563,17 +563,16 @@ The following properties are currently supports:
   **Path** to png file - Use an image.
 
 * **position**:       position
-    The place of the anchor on the monitor.
+    The place of the anchor on the monitor
 * **anchor**:         anchor
-    The anchor position on the window.
+    The anchor position on the window
 * **fullscreen**:     boolean
     Window is fullscreen.
 * **width**:          distance
-    The width of the window.
+    The width of the window
 * **x-offset**:  distance
 * **y-offset**:  distance
-    The offset of the window to the anchor point.
-    Allowing you to push the window left/right/up/down.
+    The offset of the window to the anchor point, allowing you to push the window left/right/up/down
 
 
 ### scrollbar:
@@ -594,28 +593,28 @@ The following properties are currently supports:
 
 * **background**:       color
 * **foreground**:       color
-* **font**:             The font used by this textbox. (string)
-* **str**:              The string to display by this textbox. (string)
-* **vertical-align**:   Vertical alignment of the text. (0 top, 1 bottom)
-* **horizontal-align**: Horizontal alignment of the text. (0 left, 1 right)
-* **text**:             The text color to use (falls back to foreground if not set)
-* **highlight**:        Text Style {color}
-    Color is optional, multiple highlight styles can be added like:  bold underline italic #000000;
-* **width**:            Override the desired width for the textbox.
+* **font**:             the font used by this textbox (string)
+* **str**:              the string to display by this textbox (string)
+* **vertical-align**:   vertical alignment of the text (`0` top, `1` bottom)
+* **horizontal-align**: horizontal alignment of the text (`0` left, `1` right)
+* **text**:             the text color to use (falls back to foreground if not set)
+* **highlight**:        text style {color}
+    color is optional, multiple highlight styles can be added like: bold underline italic #000000;
+* **width**:            override the desired width for the textbox
 
 ### listview:
 * **columns**:         integer
-    Number of columns to show (atleast 1).
+    Number of columns to show (at least 1)
 * **fixed-height**:    boolean
-    Always show `lines`  rows, even if less elements are available.
+    Always show `lines` rows, even if fewer elements are available.
 * **dynamic**:         boolean
-    If the size should changed when filtering the list, or if it should keep the original height.
+    If the size should change when filtering the list, or if it should keep the original height.
 * **scrollbar**:       boolean
     If the scrollbar should be enabled/disabled.
 * **scrollbar-width**: distance
     Width of the scrollbar
 * **cycle**:           boolean
-    When navigating it should wrap around.
+    When navigating, it should wrap around
 * **spacing**:         distance
     Spacing between the elements (both vertical and horizontal)
 * **lines**:           integer
@@ -626,15 +625,15 @@ The following properties are currently supports:
 ## Layout
 
 The new format allows the layout of the **rofi** window to be tweaked extensively.
-For each widget the themer can specify padding, margin, border, font and more.
-It even allows, as advanced feature, to pack widgets in a custom structure.
+For each widget, the themer can specify padding, margin, border, font, and more.
+It even allows, as an advanced feature, to pack widgets in a custom structure.
 
 ### Basic structure
 
-The whole view is build up out of boxes that pack other boxes or widgets.
-The box can be either vertical or horizontal. This is loosely inspired [GTK](http://gtk.org/).
+The whole view is made out of boxes that pack other boxes or widgets.
+The box can be vertical or horizontal. This is loosely inspired by [GTK](http://gtk.org/).
 
-The current layout of **rofi** is structured as follow:
+The current layout of **rofi** is structured as follows:
 
 ```
 |------------------------------------------------------------------------------------|
@@ -667,13 +666,13 @@ The current layout of **rofi** is structured as follow:
 
 
 ```
-> ci is case-indicator
+> ci is the case-indicator
 
 ### Advanced layout
 
 The layout of **rofi** can be tweaked by packing the 'fixed' widgets in a custom structure.
 
-The following widgets names are 'fixed' widgets with functionality:
+The following widgets are 'fixed' with functionality:
 
  * prompt
  * entry
@@ -682,22 +681,22 @@ The following widgets names are 'fixed' widgets with functionality:
  * listview
  * sidebar
 
-The following exists and automatically pack a subset of the widgets as in the above picture:
+The following exist and automatically pack a subset of the widgets as in the above picture:
 
  * mainbox
    Packs: `inputbar, message, listview, sidebar`
  * inputbar
    Packs: `prompt,entry,case-indicator`
 
-Any widget name starting with `textbox` is a textbox widget, all others are a
-box widget and can pack other widgets.  To specify children, set the children
+Any widget name starting with `textbox` is a textbox widget, others are box widgets and can pack other widgets.
+To specify children, set the `children`
 property (this always happens on the `box` child, see example below):
 
 ```
 children: [prompt,entry,case-indicator];
 ```
 
-The theme needs to be update to match the hierarchy specified.
+The theme needs to be updated to match the hierarchy specified.
 
 Below is an example of a theme emulating dmenu:
 
@@ -745,7 +744,7 @@ Below is an example of a theme emulating dmenu:
 
 ### Padding and margin
 
-Just like css **rofi** uses the box model for each widget.
+Just like CSS, **rofi** uses the box model for each widget.
 
 ```
 |-------------------------------------------------------------------|
@@ -770,17 +769,17 @@ Explanation of the different parts:
  * Border - A border that goes around the padding and content.
    The border use the foreground color of the widget.
  * Margin - Clears an area outside the border.
-   The margin is transparent
+   The margin is transparent.
 
 The box model allows us to add a border around elements, and to define space between elements.
 
-The size, on each side, of margin, border and padding can be set.
-For the border a linestyle and radius can be set.
+The size of each margin, border, and padding can be set.
+For the border, a linestyle and radius can be set.
 
 ### Spacing
 
-Widgets that can pack more then one child widget, currently box and listview, the `spacing` property exists.
-This determines the space between the packed widgets (both in horizontal as vertical direction).
+Widgets that can pack more then one child widget (currently box and listview) have the `spacing` property.
+This determines the space between the packed widgets (both in horizontally as vertically).
 
 ```
 |---------------------------------------|
@@ -796,7 +795,7 @@ This determines the space between the packed widgets (both in horizontal as vert
 
 ### Advanced box packing
 
-More dynamic spacing can be achieved by adding dummy widgets, for example to get one widget centered:
+More dynamic spacing can be achieved by adding dummy widgets, for example to make one widget centered:
 
 ```
 |--------------------------------------------|
@@ -810,19 +809,19 @@ More dynamic spacing can be achieved by adding dummy widgets, for example to get
 |--------------------------------------------|
 ```
 
-If both dummy widgets are set to expanding, `child` will be centered. Depending on the `expand` flag of child the
+If both dummy widgets are set to expand, `child` will be centered. Depending on the `expand` flag of child the
 remaining space will be equally divided between both dummy and child widget (expand enabled), or both dummy widgets
 (expand disabled).
 
 ## DEBUGGING
 
-To get debug information from the parser run rofi like:
+To get debug information from the parser, run rofi like:
 
 ```
 G_MESSAGES_DEBUG=Parser rofi -show run
 ```
 
-Syntax errors are shown in a popup and printed out to commandline with the above command.
+Syntax errors are shown in a popup and printed out to command line with the above command.
 
 To see the elements queried during running, run:
 
@@ -830,13 +829,13 @@ To see the elements queried during running, run:
 G_MESSAGES_DEBUG=Theme rofi -show run
 ```
 
-To test minor changes, part of the theme can be passed on the commandline, for example to set it fullscreen:
+To test minor changes, part of the theme can be passed on the command line, for example to set it to full-screen:
 
 ```
 rofi -theme-str '#window { fullscreen:true;}' -show run
 ```
 
-To print the current theme run:
+To print the current theme, run:
 
 ```
 rofi -dump-theme
@@ -845,10 +844,9 @@ rofi -dump-theme
 
 ## EXAMPLES
 
-Several examples are installed together with **rofi**. These can be found in `{datadir}/rofi/themes/` where
-`{datadir}` is the install path of **rofi** data. When installed using a package manager this is usually: `/usr/share/`.
+Several examples are installed together with **rofi**. These can be found in `{datadir}/rofi/themes/`, where
+`{datadir}` is the install path of **rofi** data. When installed using a package manager, this is usually: `/usr/share/`.
 
 ## SEE ALSO
 
 rofi(1)
-
