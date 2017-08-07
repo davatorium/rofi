@@ -106,7 +106,7 @@ These include dynamic (run-time generated) options.
 `-dump-xresources`
 
 Dump the current active configuration in Xresources format to the command-line.
-This does not validate all passed values (e.g. colors).
+This does not validate all passed values (for example, colors).
 
 `-threads` *num*
 
@@ -303,7 +303,7 @@ It accepts as input: *primary* (if primary output is set), the *xrandr* output n
 detection). Negative numbers are handled differently:
 
  *  **-1**: the currently focused monitor.
- *  **-2**: the currently focused window (i.e. **rofi** will be displayed on top of the focused window).
+ *  **-2**: the currently focused window (that is, **rofi** will be displayed on top of the focused window).
  *  **-3**: Position at mouse (overrides the location setting to get normal context menu
     behavior.)
  *  **-4**: the monitor with the focused window.
@@ -462,7 +462,7 @@ Separator for dmenu. Example: To show a list of 'a' to 'e' with '|' as a separat
 
 `-p` *prompt*
 
-Specify the prompt to show in dmenu mode. E.g. select 'monkey', a,b,c,d, or e.
+Specify the prompt to show in dmenu mode. For example, select 'monkey', a,b,c,d, or e.
 
     echo "a|b|c|d|e" | rofi -sep '|' -dmenu -p "monkey:"
 
@@ -634,8 +634,7 @@ For more information on debugging, see the [wiki](https://github.com/DaveDavenpo
 
 ## PATTERN
 
-To launch commands (e.g. when using the ssh launcher), the user can enter the used command-line,
-the following keys can be used that will be replaced at runtime:
+To launch commands (for example, when using the ssh launcher), the user can enter the used command-line. The following keys can be used that will be replaced at runtime:
 
   * `{host}`: the host to connect to
   * `{terminal}`: the configured terminal (see -terminal-emulator)
