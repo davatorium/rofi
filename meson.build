@@ -11,7 +11,6 @@ project('rofi', 'c',
 c_compiler = meson.get_compiler('c')
 
 add_project_arguments(
-    '-fvisibility=hidden',
     '-I@0@'.format(meson.build_root()),
     '-I@0@'.format(join_paths(meson.source_root(), 'include')),
     language: 'c'
