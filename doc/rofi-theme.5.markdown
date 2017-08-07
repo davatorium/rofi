@@ -23,7 +23,7 @@ preferred.
 
 ## Comments
 
-C and C++ file comments are support.
+C and C++ file comments are supported.
 
 * Anything after  `// ` and before a newline is considered a comment.
 * Everything between `/*` and `*/` is a comment.
@@ -96,8 +96,8 @@ parsed entry kept.
 
 ## Global properties section
 
-A theme can have one or more global properties sections (If there is more than one
-they will be merged)
+A theme can have one or more global properties sections. If there is more than one,
+they will be merged.
 
 The global properties section denotes the defaults for each element.
 Each property of this section can be referenced with `@{identifier}`
@@ -110,7 +110,7 @@ A global properties section is indicated with a `*` as element path.
 A theme can have multiple element theme sections.
 
 The element path can consist of multiple names separated by whitespace or dots.
-Each element may contain any number of letters, numbers and `-`.
+Each element may contain any number of letters, numbers and `-`'s.
 The first element in the element path should always start with a `#`.
 
 This is a valid element name:
@@ -171,24 +171,24 @@ The `identifier` names the specified property. Identifiers can consist of any
 combination of numbers, letters and '-'. It must not contain any whitespace.
 The structure of the `value` defines the type of the property. The current
 parser does not define or enforce a certain type of a particular `identifier`.
-When used, values with the wrong type that cannot be converted, are ignored.
+When used, values with the wrong type that cannot be converted are ignored.
 
-The current theme format support different type:
+The current theme format supports different types:
 
- * a string.
- * an integer number.
- * a fractional number.
- * a boolean value.
- * a color.
- * text style.
- * line style.
- * a distance.
- * a padding.
- * a border.
- * a position.
- * a reference.
- * an orientation.
- * a list of keywords.
+ * a string
+ * an integer number
+ * a fractional number
+ * a boolean value
+ * a color
+ * text style
+ * line style
+ * a distance
+ * a padding
+ * a border
+ * a position
+ * a reference
+ * an orientation
+ * a list of keywords
 
 Some of these types are a combination of other types.
 
@@ -196,7 +196,7 @@ Some of these types are a combination of other types.
 
 * Format:  `"[:print:]+"`
 
-A string is always surrounded by quotes ('"'), between the quotes it can have any printable character.
+A string is always surrounded by double quotes (`"`). Between the quotes there can be any printable character.
 
 For example:
 
@@ -204,7 +204,7 @@ For example:
 font: "Awasome 12";
 ```
 
-The string must be valid utf-8.
+The string must be valid UTF-8.
 
 ## Integer
 
@@ -260,15 +260,15 @@ dynamic: false;
 * Format: `cmyk( {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE} ])`
 * Format: `{named-color} [ / {PERCENTAGE} ]`
 
-The in CSS 4 proposed white-space format is also supported.
+The white-space format proposed in CSS4 is also supported.
 
 The different values are:
 
  * `{HEX}` is a hexidecimal number ('0-9a-f' case insensitive).
  * `{INTEGER}` value can be between 0 and 255 or 0-100 when representing percentage.
- * `{ANGLE}` Angle on the color wheel, can be in `deg`, `rad`, `grad` or `turn`. When no unit is specified, degrees is assumed.
- * `{PERCENTAGE}` Can be between 0-1.0, or 0%-100%
- * `{named-color}` Is one of the following colors:
+ * `{ANGLE}` is the angle on the color wheel, can be in `deg`, `rad`, `grad` or `turn`. When no unit is specified, degrees is assumed.
+ * `{PERCENTAGE}` can be between 0-1.0, or 0%-100%
+ * `{named-color}` is one of the following colors:
 
     AliceBlue, AntiqueWhite, Aqua, Aquamarine, Azure, Beige, Bisque, Black, BlanchedAlmond, Blue, BlueViolet, Brown,
     BurlyWood, CadetBlue, Chartreuse, Chocolate, Coral, CornflowerBlue, Cornsilk, Crimson, Cyan, DarkBlue, DarkCyan,
@@ -298,7 +298,7 @@ text: SeaGreen;
 
 * Format: `(bold|italic|underline|strikethrough|none)`
 
-Text style indicates how the highlighted text is emphasised. None indicates no emphasis
+Text style indicates how the highlighted text is emphasized. `None` indicates that no emphasis
 should be applied.
 
  * `bold`: make the text thicker then the surrounding text.
@@ -307,7 +307,7 @@ should be applied.
  * `strikethrough`: put a line through the highlighted text.
  * `small caps`: emphasise the text using capitalization.
 
-> For some reason `small caps` is not working on some systems.
+> For some reason `small caps` does not work on some systems.
 
 ## Line style
 
@@ -315,8 +315,8 @@ should be applied.
 
 Indicates how a line should be drawn.
 It currently supports:
- * `dash`:  A dashed line. Where the gap is the same width as the dash.
- * `solid`: A solid line.
+ * `dash`:  a dashed line, where the gap is the same width as the dash
+ * `solid`: a solid line
 
 ## Distance
 
@@ -337,7 +337,7 @@ For example:
 ```
    padding: 10%;
 ```
-On a full-hd (1920x1080) monitor defines a padding of 192 pixels on the left
+On a full-HD (1920x1080) monitor, it defines a padding of 192 pixels on the left
 and right side and 108 pixels on the top and bottom.
 
 ## Padding
@@ -348,7 +348,7 @@ and right side and 108 pixels on the top and bottom.
 * Format: `{Distance} {Distance} {Distance}`
 * Format: `{Distance} {Distance} {Distance} {Distance}`
 
-If no unit is set, pixels are used.
+If no unit is specified, pixels are used.
 
 The different number of fields in the formats are parsed like:
 
@@ -370,7 +370,7 @@ The different number of fields in the formats are parsed like:
 * Format: `{Distance} {Line style} {Distance} {Line style} {Distance} {Line style}`
 * Format: `{Distance} {Line style} {Distance} {Line style} {Distance} {Line style} {Distance} {Line style}`
 
-Border are identical to padding, except that each distance field has a line
+Borders are identical to padding, except that each distance field has a line
 style property.
 
 ## Position
@@ -392,9 +392,9 @@ south west   |    south    |  south east
 
 * Format: `@{PROPERTY NAME}`
 
-A reference can point to another reference. Currently the maximum number of redirects is 20.
+A reference can point to another reference. Currently, the maximum number of redirects is 20.
 A property always refers to another property. It cannot be used for a subpart of the property.
-e.g. this is not valid:
+For example, this is not valid:
 
 ```
 highlight: bold @pink;
@@ -416,13 +416,13 @@ But this is:
 
  * Format: `(horizontal|vertical)`
 
-Specify an orientation of the widget.
+Specify the orientation of the widget.
 
 ## List of keywords
 
 * Format: `[ keyword, keyword ]`
 
-A list starts with a '[' and ends with a ']'. The entries in the list are comma separated.
+A list starts with a '[' and ends with a ']'. The entries in the list are comma-separated.
 The `keyword` in the list refers to an widget name.
 
 ## ELEMENTS PATHS
