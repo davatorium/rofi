@@ -35,7 +35,7 @@ To show the run dialog:
 
 **rofi** can emulate **dmenu(1)** (a dynamic menu for X) when launched with the `-dmenu` flag.
 
-The official website for `dmenu` can be found [here](http://tools.suckless.org/dmenu/).
+The website for `dmenu` can be found [here](http://tools.suckless.org/dmenu/).
 
 **rofi** does not aim to be 100% compatible with dmenu. There are simply too many different flavors of dmenu.
 The idea is that the basic usage command-line flags are obeyed, theme-related flags are not.
