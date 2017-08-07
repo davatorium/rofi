@@ -37,7 +37,7 @@ The following is valid:
 property: /* comment */ value;
 ```
 
-However this is not:
+However, this is not:
 
 ```
 prop/*comment*/erty: value;
@@ -608,7 +608,7 @@ The following properties are currently supported:
 * **fixed-height**:    boolean
     Always show `lines` rows, even if fewer elements are available.
 * **dynamic**:         boolean
-    If the size should change when filtering the list, or if it should keep the original height.
+    `True` if the size should change when filtering the list, `False` if it should keep the original height.
 * **scrollbar**:       boolean
     If the scrollbar should be enabled/disabled.
 * **scrollbar-width**: distance
@@ -681,7 +681,8 @@ The following widgets are 'fixed' with functionality:
  * listview
  * sidebar
 
-The following exist and automatically pack a subset of the widgets as in the above picture:
+The following keywords are defined and can be used to automatically pack a subset of the widgets.
+These are used in the default theme as depicted in the figure above.
 
  * mainbox
    Packs: `inputbar, message, listview, sidebar`
@@ -779,7 +780,7 @@ For the border, a linestyle and radius can be set.
 ### Spacing
 
 Widgets that can pack more then one child widget (currently box and listview) have the `spacing` property.
-This determines the space between the packed widgets (both in horizontally as vertically).
+This property sets the distance between the packed widgets (both horizontally and vertically).
 
 ```
 |---------------------------------------|
