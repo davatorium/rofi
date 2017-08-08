@@ -703,7 +703,7 @@ void rofi_theme_convert_old ( void )
             "* { bordercolor: %s; }",
             "* { separatorcolor: %s; }"
         };
-        for ( int i = 0; retv && retv[i] && i < 3; i++ ) {
+        for ( int i = 0; retv && i < 3 && retv[i] ; i++ ) {
             char *str = g_strdup_printf ( conf[i], rofi_theme_convert_color ( retv[i] ) );
             rofi_theme_parse_string ( str );
             g_free ( str );
