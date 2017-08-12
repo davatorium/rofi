@@ -31,6 +31,7 @@
 #include <assert.h>
 #include <glib.h>
 #include <history.h>
+#include <settings.h>
 #include <string.h>
 
 static int test = 0;
@@ -112,6 +113,17 @@ static void history_test ( void )
         g_free ( p );
     }
 
+    g_strfreev ( retv );
+
+    // Pinning the last entry
+    config.pin_last = 1;
+    for ( unsigned int in = 0; in < 10; in++ ) {
+        history_set ( file, "popular" );
+    }
+    history_set ( file, "last" );
+
+    retv = history_get_list ( file, &length );
+    TASSERT ( g_strcmp0 ( retv[0], "last" ) == 0 );
     g_strfreev ( retv );
 
     unlink ( file );
