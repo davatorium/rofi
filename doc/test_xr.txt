@@ -44,6 +44,8 @@ rofi.window-command:                 xkill -id {window}
 ! rofi.drun-match-fields:              name,generic,exec,categories
 ! "Disable history in run/ssh" Set from: File
 rofi.disable-history:                false
+! "Always place the last-executed item in first place" Set from: Default
+! rofi.pin-last:                       false
 ! "Use sorting" Set from: Default
 ! rofi.sort:                           false
 ! "Use levenshtein sorting also for fuzzy matching" Set from: File

@@ -91,6 +91,8 @@ Settings config = {
     .fixed_num_lines        = TRUE,
     /** Do not use history */
     .disable_history        = FALSE,
+    /** Always place the last-executed item in first place */
+    .pin_last               = FALSE,
     /** Sort the displayed list */
     .sort                   = FALSE,
     /** Use levenshtein sorting when matching */

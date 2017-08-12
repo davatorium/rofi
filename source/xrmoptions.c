@@ -137,6 +137,8 @@ static XrmOption xrmOptions[] = {
       "Desktop entry fields to match in drun", CONFIG_DEFAULT },
     { xrm_Boolean, "disable-history",        { .num  = &config.disable_history                }, NULL,
       "Disable history in run/ssh", CONFIG_DEFAULT },
+    { xrm_Boolean, "pin-last",               { .num  = &config.pin_last                       }, NULL,
+      "Always place the last-executed item in first place", CONFIG_DEFAULT },
     { xrm_Boolean, "sort",                   { .num  = &config.sort                           }, NULL,
       "Use sorting", CONFIG_DEFAULT },
     { xrm_Boolean, "levenshtein-sort",       { .num  = &config.levenshtein_sort               }, NULL,
