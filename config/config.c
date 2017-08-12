@@ -92,7 +92,7 @@ Settings config = {
     /** Do not use history */
     .disable_history        = FALSE,
     /** Always place the last-executed item in first place */
-    .pin_last               = FALSE,
+    .pin_last               = TRUE,
     /** Sort the displayed list */
     .sort                   = FALSE,
     /** Use levenshtein sorting when matching */

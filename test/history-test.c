@@ -46,6 +46,7 @@ const char *file = "text";
 static void history_test ( void )
 {
     unlink ( file );
+    config.pin_last = 0;
 
     // Empty list.
     unsigned int length = 0;
