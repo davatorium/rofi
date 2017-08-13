@@ -672,7 +672,7 @@ The current layout of **rofi** is structured as follows:
 
 The layout of **rofi** can be tweaked by packing the 'fixed' widgets in a custom structure.
 
-The following widgets are 'fixed' with functionality:
+The following widgets are fixed, as they provide core **rofi** functionality:
 
  * prompt
  * entry
