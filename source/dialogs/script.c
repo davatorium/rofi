@@ -46,11 +46,16 @@ static char **get_script_output ( char *command, char *arg, unsigned int *length
     int    fd     = -1;
     GError *error = NULL;
     char **retv = NULL;
-    char *args[3] = { command, arg, NULL };
+    char **argv = NULL;
+    int argc = 0;
     *length = 0;
-
-    g_spawn_async_with_pipes ( NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, &fd, NULL, &error );
-
+    if ( g_shell_parse_argv ( command, &argc, &argv, &error ) )
+    {
+        argv = g_realloc ( argv, (argc+2)*sizeof(char*) );
+        argv[argc] = g_strdup(arg);
+        argv[argc+1] = NULL;
+        g_spawn_async_with_pipes ( NULL, argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, &fd, NULL, &error );
+    }
     if ( error != NULL ) {
         char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", command, error->message );
         rofi_view_error_dialog ( msg, FALSE );
