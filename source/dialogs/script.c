@@ -41,12 +41,24 @@
 #include "helper.h"
 
 #include "mode-private.h"
-static char **get_script_output ( const char *command, unsigned int *length )
+static char **get_script_output ( char *command, char *arg, unsigned int *length )
 {
+    int    fd     = -1;
+    GError *error = NULL;
     char **retv = NULL;
-
+    char *args[3] = { command, arg, NULL };
     *length = 0;
-    int fd = execute_generator ( command );
+
+    g_spawn_async_with_pipes ( NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, &fd, NULL, &error );
+
+    if ( error != NULL ) {
+        char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", command, error->message );
+        rofi_view_error_dialog ( msg, FALSE );
+        g_free ( msg );
+        // print error.
+        g_error_free ( error );
+        fd = -1;
+    }
     if ( fd >= 0 ) {
         FILE *inp = fdopen ( fd, "r" );
         if ( inp ) {
@@ -76,13 +88,9 @@ static char **get_script_output ( const char *command, unsigned int *length )
     return retv;
 }
 
-static char **execute_executor ( Mode *sw, const char *result, unsigned int *length )
+static char **execute_executor ( Mode *sw, char *result, unsigned int *length )
 {
-    char *arg     = g_shell_quote ( result );
-    char *command = g_strdup_printf ( "%s %s", (const char *) sw->ed, arg );
-    char **retv   = get_script_output ( command, length );
-    g_free ( command );
-    g_free ( arg );
+    char **retv   = get_script_output ( sw->ed, result, length );
     return retv;
 }
 
@@ -108,7 +116,7 @@ static int script_mode_init ( Mode *sw )
     if ( sw->private_data == NULL ) {
         ScriptModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         sw->private_data = (void *) pd;
-        pd->cmd_list     = get_script_output ( (const char *) sw->ed, &( pd->cmd_list_length ) );
+        pd->cmd_list     = get_script_output ( (char *) sw->ed, NULL, &( pd->cmd_list_length ) );
     }
     return TRUE;
 }
