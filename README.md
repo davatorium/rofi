@@ -243,7 +243,7 @@ to disable it:
 
 # Manpage
 
-For more detailed information, please see the [manpage](doc/rofi-manpage.markdown), the [wiki](https://github.com/DaveDavenport/rofi/wiki), or the [forum](https://reddit.com/r/qtools/).
+For more detailed information, please see the [manpage](doc/rofi.1.markdown), the [wiki](https://github.com/DaveDavenport/rofi/wiki), or the [forum](https://reddit.com/r/qtools/).
 
 # Installation
 

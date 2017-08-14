@@ -1,13 +1,13 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-THEME" "5" "July 2017" "" ""
+.TH "ROFI\-THEME" "5" "August 2017" "" ""
 .
 .SH "NAME"
 \fBrofi\-theme\fR \- Rofi theme format files
 .
 .SH "DESCRIPTION"
-The need for a new theme format was motivated by the fact that the way rofi handled widgets has changed\. From a very static drawing of lines and text to a nice structured form of packing widgets\. This change made it possible to provide a more flexible theme framework\. The old theme format and config file is not flexible enough to expose these options in a user\-friendly way\. Therefor a new file format has been created, replacing the old one\. The new format is loosely based on css \fIhttps://en\.wikipedia\.org/wiki/Cascading_Style_Sheets\fR, a format widely known, which allows e\.g\. web developers to create their own rofi themes without the need to learn a new markup language\.
+The need for a new theme format was motivated by the fact that the way rofi handled widgets has changed\. From a very static drawing of lines and text to a nice structured form of packing widgets\. This change made it possible to provide a more flexible theme framework\. The old theme format and config file are not flexible enough to expose these options in a user\-friendly way\. Therefor, a new file format has been created, replacing the old one\. The new format is loosely based on CSS \fIhttps://en\.wikipedia\.org/wiki/Cascading_Style_Sheets\fR, a widely known format, which allows web developers for example to create their own \fBrofi\fR themes without the need to learn a new markup language\.
 .
 .SH "FORMAT SPECIFICATION"
 .
@@ -15,7 +15,7 @@ The need for a new theme format was motivated by the fact that the way rofi hand
 The encoding of the file is utf\-8\. Both unix (\fB\en\fR) and windows (\fB\er\en\fR) newlines format are supported\. But unix is preferred\.
 .
 .SH "Comments"
-C and C++ file comments are support\.
+C and C++ file comments are supported\.
 .
 .IP "\(bu" 4
 Anything after \fB//\fR and before a newline is considered a comment\.
@@ -43,7 +43,7 @@ property: /* comment */ value;
 .IP "" 0
 .
 .P
-However this is not:
+However, this is not:
 .
 .IP "" 4
 .
@@ -121,7 +121,7 @@ It is advised to define the \fIglobal properties section\fR on top of the file t
 If there are mulitple sections with the same name, they are merged\. Duplicate properties are overwritten and the last parsed entry kept\.
 .
 .SH "Global properties section"
-A theme can have one or more global properties sections (If there is more than one they will be merged)
+A theme can have one or more global properties sections\. If there is more than one, they will be merged\.
 .
 .P
 The global properties section denotes the defaults for each element\. Each property of this section can be referenced with \fB@{identifier}\fR (See Properties section)
@@ -133,7 +133,7 @@ A global properties section is indicated with a \fB*\fR as element path\.
 A theme can have multiple element theme sections\.
 .
 .P
-The element path can consist of multiple names separated by whitespace or dots\. Each element may contain any number of letters, numbers and \fB\-\fR\. The first element in the element path should always start with a \fB#\fR\.
+The element path can consist of multiple names separated by whitespace or dots\. Each element may contain any number of letters, numbers and \fB\-\fR\'s\. The first element in the element path should always start with a \fB#\fR\.
 .
 .P
 This is a valid element name:
@@ -221,52 +221,52 @@ The properties in a section consist of:
 Both fields are manditory for a property\.
 .
 .P
-The \fBidentifier\fR names the specified property\. Identifiers can consist of any combination of numbers, letters and \'\-\'\. It must not contain any whitespace\. The structure of the \fBvalue\fR defines the type of the property\. The current parser does not define or enforce a certain type of a particular \fBidentifier\fR\. When used, values with the wrong type that cannot be converted, are ignored\.
+The \fBidentifier\fR names the specified property\. Identifiers can consist of any combination of numbers, letters and \'\-\'\. It must not contain any whitespace\. The structure of the \fBvalue\fR defines the type of the property\. The current parser does not define or enforce a certain type of a particular \fBidentifier\fR\. When used, values with the wrong type that cannot be converted are ignored\.
 .
 .P
-The current theme format support different type:
+The current theme format supports different types:
 .
 .IP "\(bu" 4
-a string\.
+a string
 .
 .IP "\(bu" 4
-an integer number\.
+an integer number
 .
 .IP "\(bu" 4
-a fractional number\.
+a fractional number
 .
 .IP "\(bu" 4
-a boolean value\.
+a boolean value
 .
 .IP "\(bu" 4
-a color\.
+a color
 .
 .IP "\(bu" 4
-text style\.
+text style
 .
 .IP "\(bu" 4
-line style\.
+line style
 .
 .IP "\(bu" 4
-a distance\.
+a distance
 .
 .IP "\(bu" 4
-a padding\.
+a padding
 .
 .IP "\(bu" 4
-a border\.
+a border
 .
 .IP "\(bu" 4
-a position\.
+a position
 .
 .IP "\(bu" 4
-a reference\.
+a reference
 .
 .IP "\(bu" 4
-an orientation\.
+an orientation
 .
 .IP "\(bu" 4
-a list of keywords\.
+a list of keywords
 .
 .IP "" 0
 .
@@ -281,7 +281,7 @@ Format: \fB"[:print:]+"\fR
 .IP "" 0
 .
 .P
-A string is always surrounded by quotes (\'"\'), between the quotes it can have any printable character\.
+A string is always surrounded by double quotes (\fB"\fR)\. Between the quotes there can be any printable character\.
 .
 .P
 For example:
@@ -297,7 +297,7 @@ font: "Awasome 12";
 .IP "" 0
 .
 .P
-The string must be valid utf\-8\.
+The string must be valid UTF\-8\.
 .
 .SH "Integer"
 .
@@ -407,7 +407,7 @@ Format: \fB{named\-color} [ / {PERCENTAGE} ]\fR
 .IP "" 0
 .
 .P
-The in CSS 4 proposed white\-space format is also supported\.
+The white\-space format proposed in CSS4 is also supported\.
 .
 .P
 The different values are:
@@ -419,13 +419,13 @@ The different values are:
 \fB{INTEGER}\fR value can be between 0 and 255 or 0\-100 when representing percentage\.
 .
 .IP "\(bu" 4
-\fB{ANGLE}\fR Angle on the color wheel, can be in \fBdeg\fR, \fBrad\fR, \fBgrad\fR or \fBturn\fR\. When no unit is specified, degrees is assumed\.
+\fB{ANGLE}\fR is the angle on the color wheel, can be in \fBdeg\fR, \fBrad\fR, \fBgrad\fR or \fBturn\fR\. When no unit is specified, degrees is assumed\.
 .
 .IP "\(bu" 4
-\fB{PERCENTAGE}\fR Can be between 0\-1\.0, or 0%\-100%
+\fB{PERCENTAGE}\fR can be between 0\-1\.0, or 0%\-100%
 .
 .IP "\(bu" 4
-\fB{named\-color}\fR Is one of the following colors:
+\fB{named\-color}\fR is one of the following colors:
 .
 .IP
 AliceBlue, AntiqueWhite, Aqua, Aquamarine, Azure, Beige, Bisque, Black, BlanchedAlmond, Blue, BlueViolet, Brown, BurlyWood, CadetBlue, Chartreuse, Chocolate, Coral, CornflowerBlue, Cornsilk, Crimson, Cyan, DarkBlue, DarkCyan, DarkGoldenRod, DarkGray, DarkGrey, DarkGreen, DarkKhaki, DarkMagenta, DarkOliveGreen, DarkOrange, DarkOrchid, DarkRed, DarkSalmon, DarkSeaGreen, DarkSlateBlue, DarkSlateGray, DarkSlateGrey, DarkTurquoise, DarkViolet, DeepPink, DeepSkyBlue, DimGray, DimGrey, DodgerBlue, FireBrick, FloralWhite, ForestGreen, Fuchsia, Gainsboro, GhostWhite, Gold, GoldenRod, Gray, Grey, Green, GreenYellow, HoneyDew, HotPink, IndianRed, Indigo, Ivory, Khaki, Lavender, LavenderBlush, LawnGreen, LemonChiffon, LightBlue, LightCoral, LightCyan, LightGoldenRodYellow, LightGray, LightGrey, LightGreen, LightPink, LightSalmon, LightSeaGreen, LightSkyBlue, LightSlateGray, LightSlateGrey, LightSteelBlue, LightYellow, Lime, LimeGreen, Linen, Magenta, Maroon, MediumAquaMarine, MediumBlue, MediumOrchid, MediumPurple, MediumSeaGreen, MediumSlateBlue, MediumSpringGreen, MediumTurquoise, MediumVioletRed, MidnightBlue, MintCream, MistyRose, Moccasin, NavajoWhite, Navy, OldLace, Olive, OliveDrab, Orange, OrangeRed, Orchid, PaleGoldenRod, PaleGreen, PaleTurquoise, PaleVioletRed, PapayaWhip, PeachPuff, Peru, Pink, Plum, PowderBlue, Purple, RebeccaPurple, Red, RosyBrown, RoyalBlue, SaddleBrown, Salmon, SandyBrown, SeaGreen, SeaShell, Sienna, Silver, SkyBlue, SlateBlue, SlateGray, SlateGrey, Snow, SpringGreen, SteelBlue, Tan, Teal, Thistle, Tomato, Turquoise, Violet, Wheat, White, WhiteSmoke, Yellow, YellowGreen
@@ -455,7 +455,7 @@ Format: \fB(bold|italic|underline|strikethrough|none)\fR
 .IP "" 0
 .
 .P
-Text style indicates how the highlighted text is emphasised\. None indicates no emphasis should be applied\.
+Text style indicates how the highlighted text is emphasized\. \fBNone\fR indicates that no emphasis should be applied\.
 .
 .IP "\(bu" 4
 \fBbold\fR: make the text thicker then the surrounding text\.
@@ -482,7 +482,7 @@ Format: \fB(dash|solid)\fR
 .IP "" 0
 .
 .P
-Indicates how a line should be drawn\. It currently supports: * \fBdash\fR: A dashed line\. Where the gap is the same width as the dash\. * \fBsolid\fR: A solid line\.
+Indicates how a line should be drawn\. It currently supports: * \fBdash\fR: a dashed line, where the gap is the same width as the dash * \fBsolid\fR: a solid line
 .
 .SH "Distance"
 .
@@ -525,7 +525,7 @@ Distances used in the horizontal direction use the monitor width\. Distances in 
 .IP "" 0
 .
 .P
-On a full\-hd (1920x1080) monitor defines a padding of 192 pixels on the left and right side and 108 pixels on the top and bottom\.
+On a full\-HD (1920x1080) monitor, it defines a padding of 192 pixels on the left and right side and 108 pixels on the top and bottom\.
 .
 .SH "Padding"
 .
@@ -547,7 +547,7 @@ Format: \fB{Distance} {Distance} {Distance} {Distance}\fR
 .IP "" 0
 .
 .P
-If no unit is set, pixels are used\.
+If no unit is specified, pixels are used\.
 .
 .P
 The different number of fields in the formats are parsed like:
@@ -598,7 +598,7 @@ Format: \fB{Distance} {Line style} {Distance} {Line style} {Distance} {Line styl
 .IP "" 0
 .
 .P
-Border are identical to padding, except that each distance field has a line style property\.
+Borders are identical to padding, except that each distance field has a line style property\.
 .
 .SH "Position"
 Indicate a place on the window/monitor\.
@@ -631,7 +631,7 @@ Format: \fB@{PROPERTY NAME}\fR
 .IP "" 0
 .
 .P
-A reference can point to another reference\. Currently the maximum number of redirects is 20\. A property always refers to another property\. It cannot be used for a subpart of the property\. e\.g\. this is not valid:
+A reference can point to another reference\. Currently, the maximum number of redirects is 20\. A property always refers to another property\. It cannot be used for a subpart of the property\. For example, this is not valid:
 .
 .IP "" 4
 .
@@ -670,7 +670,7 @@ Format: \fB(horizontal|vertical)\fR
 .IP "" 0
 .
 .P
-Specify an orientation of the widget\.
+Specify the orientation of the widget\.
 .
 .SH "List of keywords"
 .
@@ -680,7 +680,7 @@ Format: \fB[ keyword, keyword ]\fR
 .IP "" 0
 .
 .P
-A list starts with a \'[\' and ends with a \']\'\. The entries in the list are comma separated\. The \fBkeyword\fR in the list refers to an widget name\.
+A list starts with a \'[\' and ends with a \']\'\. The entries in the list are comma\-separated\. The \fBkeyword\fR in the list refers to an widget name\.
 .
 .SH "ELEMENTS PATHS"
 Element paths exists of two parts, the first part refers to the actual widget by name\. Some widgets have an extra state\.
@@ -723,34 +723,34 @@ The difference between dots and spaces is purely cosmetic\. These are all the sa
 .SH "SUPPORTED ELEMENT PATH"
 .
 .SH "Name"
-The current widgets exist in \fBrofi\fR:
+The current widgets available in \fBrofi\fR:
 .
 .IP "\(bu" 4
 .
 .IP "\(bu" 4
-\fB#window\.box\fR: The container holding the window\.
+\fB#window\.box\fR: the container holding the window
 .
 .IP "\(bu" 4
-\fB#window\.overlay\fR: The overlay widget\.
-.
-.IP "\(bu" 4
-.
-.IP "\(bu" 4
-\fB#window\.mainbox\.box\fR: The main vertical @box
+\fB#window\.overlay\fR: the overlay widget
 .
 .IP "\(bu" 4
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.inputbar\.box\fR: The horizontal @box packing the widgets\.
+\fB#window\.mainbox\.box\fR: the main vertical @box
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.inputbar\.case\-indicator\fR: The case/sort indicator @textbox
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.inputbar\.prompt\fR: The prompt @textbox
+\fB#window\.mainbox\.inputbar\.box\fR: the horizontal @box packing the widgets
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.inputbar\.entry\fR: The main entry @textbox
+\fB#window\.mainbox\.inputbar\.case\-indicator\fR: the case/sort indicator @textbox
+.
+.IP "\(bu" 4
+\fB#window\.mainbox\.inputbar\.prompt\fR: the prompt @textbox
+.
+.IP "\(bu" 4
+\fB#window\.mainbox\.inputbar\.entry\fR: the main entry @textbox
 .
 .IP "" 0
 
@@ -758,13 +758,13 @@ The current widgets exist in \fBrofi\fR:
 .IP "\(bu" 4
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.listview\.box\fR: The listview container\.
+\fB#window\.mainbox\.listview\.box\fR: the listview container
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.listview\.scrollbar\fR: The listview scrollbar
+\fB#window\.mainbox\.listview\.scrollbar\fR: the listview scrollbar
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.listview\.element\fR: The entries in the listview
+\fB#window\.mainbox\.listview\.element\fR: the entries in the listview
 .
 .IP "" 0
 
@@ -772,10 +772,10 @@ The current widgets exist in \fBrofi\fR:
 .IP "\(bu" 4
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.sidebar\.box\fR: The main horizontal @box packing the buttons\.
+\fB#window\.mainbox\.sidebar\.box\fR: the main horizontal @box packing the buttons
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.sidebar\.button\fR: The buttons @textbox for each mode\.
+\fB#window\.mainbox\.sidebar\.button\fR: the buttons @textbox for each mode
 .
 .IP "" 0
 
@@ -783,10 +783,10 @@ The current widgets exist in \fBrofi\fR:
 .IP "\(bu" 4
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.message\.textbox\fR: The message textbox\.
+\fB#window\.mainbox\.message\.textbox\fR: the message textbox
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.message\.box\fR: The box containing the message\.
+\fB#window\.mainbox\.message\.box\fR: the box containing the message
 .
 .IP "" 0
 
@@ -800,7 +800,7 @@ The current widgets exist in \fBrofi\fR:
 .IP "" 0
 .
 .P
-Note that these paths names match the default theme\. Themes that provide a custom layout will have different element paths\.
+Note that these path names match the default theme\. Themes that provide a custom layout will have different element paths\.
 .
 .SH "State"
 State: State of widget
@@ -824,10 +824,10 @@ Currently only the entrybox and scrollbar have states:
 \fB{visible modifier}\.{state}\fR
 .
 .P
-Where \fBvisible modifier\fR can be: * normal: No modification\. * selected: The entry is selected/highlighted by user\. * alternate: The entry is at an alternating row\. (uneven row)
+Where \fBvisible modifier\fR can be: * normal: no modification * selected: the entry is selected/highlighted by user * alternate: the entry is at an alternating row (uneven row)
 .
 .P
-Where \fBstate\fR is: * normal: No modification\. * urgent: This entry is marked urgent\. * active: This entry is marked active\.
+Where \fBstate\fR is: * normal: no modification * urgent: this entry is marked urgent * active: this entry is marked active
 .
 .P
 These can be mixed\.
@@ -855,15 +855,15 @@ Sets all selected textboxes marked active to the given foreground and background
 The scrollbar uses the \fBhandle\fR state when drawing the small scrollbar handle\. This allows the colors used for drawing the handle to be set independently\.
 .
 .SH "SUPPORTED PROPERTIES"
-The following properties are currently supports:
+The following properties are currently supported:
 .
 .SS "all widgets:"
 .
 .IP "\(bu" 4
-\fBpadding\fR: padding Padding on the inside of the widget\.
+\fBpadding\fR: padding Padding on the inside of the widget
 .
 .IP "\(bu" 4
-\fBmargin\fR: padding Margin on the outside of the widget\.
+\fBmargin\fR: padding Margin on the outside of the widget
 .
 .IP "\(bu" 4
 \fBborder\fR: border Border around the widget (between padding and margin)/
@@ -872,41 +872,41 @@ The following properties are currently supports:
 \fBborder\-radius\fR: padding Sets a radius on the corners of the borders\.
 .
 .IP "\(bu" 4
-\fBbackground\fR: color Background color\.
+\fBbackground\fR: color Background color
 .
 .IP "\(bu" 4
-\fBforeground\fR: color Foreground color\.
+\fBforeground\fR: color Foreground color
 .
 .IP "\(bu" 4
-\fBindex\fR: integer (This one does not inherits it value from the parent widget)
+\fBindex\fR: integer (This one does not inherit it value from the parent widget)
 .
 .IP "" 0
 .
 .SS "window:"
 .
 .IP "\(bu" 4
-\fBfont\fR: string The font used in the window\.
+\fBfont\fR: string The font used in the window
 .
 .IP "\(bu" 4
 \fBtransparency\fR: string Indicating if transparency should be used and what type: \fBreal\fR \- True transparency\. Only works with a compositor\. \fBbackground\fR \- Take a screenshot of the background image and use that\. \fBscreenshot\fR \- Take a screenshot of the screen and use that\. \fBPath\fR to png file \- Use an image\.
 .
 .IP "\(bu" 4
-\fBposition\fR: position The place of the anchor on the monitor\.
+\fBposition\fR: position The place of the anchor on the monitor
 .
 .IP "\(bu" 4
-\fBanchor\fR: anchor The anchor position on the window\.
+\fBanchor\fR: anchor The anchor position on the window
 .
 .IP "\(bu" 4
 \fBfullscreen\fR: boolean Window is fullscreen\.
 .
 .IP "\(bu" 4
-\fBwidth\fR: distance The width of the window\.
+\fBwidth\fR: distance The width of the window
 .
 .IP "\(bu" 4
 \fBx\-offset\fR: distance
 .
 .IP "\(bu" 4
-\fBy\-offset\fR: distance The offset of the window to the anchor point\. Allowing you to push the window left/right/up/down\.
+\fBy\-offset\fR: distance The offset of the window to the anchor point, allowing you to push the window left/right/up/down
 .
 .IP "" 0
 .
@@ -945,38 +945,38 @@ The following properties are currently supports:
 \fBforeground\fR: color
 .
 .IP "\(bu" 4
-\fBfont\fR: The font used by this textbox\. (string)
+\fBfont\fR: the font used by this textbox (string)
 .
 .IP "\(bu" 4
-\fBstr\fR: The string to display by this textbox\. (string)
+\fBstr\fR: the string to display by this textbox (string)
 .
 .IP "\(bu" 4
-\fBvertical\-align\fR: Vertical alignment of the text\. (0 top, 1 bottom)
+\fBvertical\-align\fR: vertical alignment of the text (\fB0\fR top, \fB1\fR bottom)
 .
 .IP "\(bu" 4
-\fBhorizontal\-align\fR: Horizontal alignment of the text\. (0 left, 1 right)
+\fBhorizontal\-align\fR: horizontal alignment of the text (\fB0\fR left, \fB1\fR right)
 .
 .IP "\(bu" 4
-\fBtext\fR: The text color to use (falls back to foreground if not set)
+\fBtext\fR: the text color to use (falls back to foreground if not set)
 .
 .IP "\(bu" 4
-\fBhighlight\fR: Text Style {color} Color is optional, multiple highlight styles can be added like: bold underline italic #000000;
+\fBhighlight\fR: text style {color} color is optional, multiple highlight styles can be added like: bold underline italic #000000;
 .
 .IP "\(bu" 4
-\fBwidth\fR: Override the desired width for the textbox\.
+\fBwidth\fR: override the desired width for the textbox
 .
 .IP "" 0
 .
 .SS "listview:"
 .
 .IP "\(bu" 4
-\fBcolumns\fR: integer Number of columns to show (atleast 1)\.
+\fBcolumns\fR: integer Number of columns to show (at least 1)
 .
 .IP "\(bu" 4
-\fBfixed\-height\fR: boolean Always show \fBlines\fR rows, even if less elements are available\.
+\fBfixed\-height\fR: boolean Always show \fBlines\fR rows, even if fewer elements are available\.
 .
 .IP "\(bu" 4
-\fBdynamic\fR: boolean If the size should changed when filtering the list, or if it should keep the original height\.
+\fBdynamic\fR: boolean \fBTrue\fR if the size should change when filtering the list, \fBFalse\fR if it should keep the original height\.
 .
 .IP "\(bu" 4
 \fBscrollbar\fR: boolean If the scrollbar should be enabled/disabled\.
@@ -985,7 +985,7 @@ The following properties are currently supports:
 \fBscrollbar\-width\fR: distance Width of the scrollbar
 .
 .IP "\(bu" 4
-\fBcycle\fR: boolean When navigating it should wrap around\.
+\fBcycle\fR: boolean When navigating, it should wrap around
 .
 .IP "\(bu" 4
 \fBspacing\fR: distance Spacing between the elements (both vertical and horizontal)
@@ -999,13 +999,13 @@ The following properties are currently supports:
 .IP "" 0
 .
 .SH "Layout"
-The new format allows the layout of the \fBrofi\fR window to be tweaked extensively\. For each widget the themer can specify padding, margin, border, font and more\. It even allows, as advanced feature, to pack widgets in a custom structure\.
+The new format allows the layout of the \fBrofi\fR window to be tweaked extensively\. For each widget, the themer can specify padding, margin, border, font, and more\. It even allows, as an advanced feature, to pack widgets in a custom structure\.
 .
 .SS "Basic structure"
-The whole view is build up out of boxes that pack other boxes or widgets\. The box can be either vertical or horizontal\. This is loosely inspired GTK \fIhttp://gtk\.org/\fR\.
+The whole view is made out of boxes that pack other boxes or widgets\. The box can be vertical or horizontal\. This is loosely inspired by GTK \fIhttp://gtk\.org/\fR\.
 .
 .P
-The current layout of \fBrofi\fR is structured as follow:
+The current layout of \fBrofi\fR is structured as follows:
 .
 .IP "" 4
 .
@@ -1047,7 +1047,7 @@ The current layout of \fBrofi\fR is structured as follow:
 The layout of \fBrofi\fR can be tweaked by packing the \'fixed\' widgets in a custom structure\.
 .
 .P
-The following widgets names are \'fixed\' widgets with functionality:
+The following widgets are fixed, as they provide core \fBrofi\fR functionality:
 .
 .IP "\(bu" 4
 prompt
@@ -1070,7 +1070,7 @@ sidebar
 .IP "" 0
 .
 .P
-The following exists and automatically pack a subset of the widgets as in the above picture:
+The following keywords are defined and can be used to automatically pack a subset of the widgets\. These are used in the default theme as depicted in the figure above\.
 .
 .IP "\(bu" 4
 mainbox Packs: \fBinputbar, message, listview, sidebar\fR
@@ -1081,7 +1081,7 @@ inputbar Packs: \fBprompt,entry,case\-indicator\fR
 .IP "" 0
 .
 .P
-Any widget name starting with \fBtextbox\fR is a textbox widget, all others are a box widget and can pack other widgets\. To specify children, set the children property (this always happens on the \fBbox\fR child, see example below):
+Any widget name starting with \fBtextbox\fR is a textbox widget, others are box widgets and can pack other widgets\. To specify children, set the \fBchildren\fR property (this always happens on the \fBbox\fR child, see example below):
 .
 .IP "" 4
 .
@@ -1094,7 +1094,7 @@ children: [prompt,entry,case\-indicator];
 .IP "" 0
 .
 .P
-The theme needs to be update to match the hierarchy specified\.
+The theme needs to be updated to match the hierarchy specified\.
 .
 .P
 Below is an example of a theme emulating dmenu:
@@ -1148,7 +1148,7 @@ Below is an example of a theme emulating dmenu:
 .IP "" 0
 .
 .SS "Padding and margin"
-Just like css \fBrofi\fR uses the box model for each widget\.
+Just like CSS, \fBrofi\fR uses the box model for each widget\.
 .
 .IP "" 4
 .
@@ -1184,7 +1184,7 @@ Padding \- Clears an area around the widget\. The padding shows the background c
 Border \- A border that goes around the padding and content\. The border use the foreground color of the widget\.
 .
 .IP "\(bu" 4
-Margin \- Clears an area outside the border\. The margin is transparent
+Margin \- Clears an area outside the border\. The margin is transparent\.
 .
 .IP "" 0
 .
@@ -1192,10 +1192,10 @@ Margin \- Clears an area outside the border\. The margin is transparent
 The box model allows us to add a border around elements, and to define space between elements\.
 .
 .P
-The size, on each side, of margin, border and padding can be set\. For the border a linestyle and radius can be set\.
+The size of each margin, border, and padding can be set\. For the border, a linestyle and radius can be set\.
 .
 .SS "Spacing"
-Widgets that can pack more then one child widget, currently box and listview, the \fBspacing\fR property exists\. This determines the space between the packed widgets (both in horizontal as vertical direction)\.
+Widgets that can pack more then one child widget (currently box and listview) have the \fBspacing\fR property\. This property sets the distance between the packed widgets (both horizontally and vertically)\.
 .
 .IP "" 4
 .
@@ -1216,7 +1216,7 @@ Widgets that can pack more then one child widget, currently box and listview, th
 .IP "" 0
 .
 .SS "Advanced box packing"
-More dynamic spacing can be achieved by adding dummy widgets, for example to get one widget centered:
+More dynamic spacing can be achieved by adding dummy widgets, for example to make one widget centered:
 .
 .IP "" 4
 .
@@ -1237,10 +1237,10 @@ More dynamic spacing can be achieved by adding dummy widgets, for example to get
 .IP "" 0
 .
 .P
-If both dummy widgets are set to expanding, \fBchild\fR will be centered\. Depending on the \fBexpand\fR flag of child the remaining space will be equally divided between both dummy and child widget (expand enabled), or both dummy widgets (expand disabled)\.
+If both dummy widgets are set to expand, \fBchild\fR will be centered\. Depending on the \fBexpand\fR flag of child the remaining space will be equally divided between both dummy and child widget (expand enabled), or both dummy widgets (expand disabled)\.
 .
 .SH "DEBUGGING"
-To get debug information from the parser run rofi like:
+To get debug information from the parser, run rofi like:
 .
 .IP "" 4
 .
@@ -1253,7 +1253,7 @@ G_MESSAGES_DEBUG=Parser rofi \-show run
 .IP "" 0
 .
 .P
-Syntax errors are shown in a popup and printed out to commandline with the above command\.
+Syntax errors are shown in a popup and printed out to command line with the above command\.
 .
 .P
 To see the elements queried during running, run:
@@ -1269,7 +1269,7 @@ G_MESSAGES_DEBUG=Theme rofi \-show run
 .IP "" 0
 .
 .P
-To test minor changes, part of the theme can be passed on the commandline, for example to set it fullscreen:
+To test minor changes, part of the theme can be passed on the command line, for example to set it to full\-screen:
 .
 .IP "" 4
 .
@@ -1282,7 +1282,7 @@ rofi \-theme\-str \'#window { fullscreen:true;}\' \-show run
 .IP "" 0
 .
 .P
-To print the current theme run:
+To print the current theme, run:
 .
 .IP "" 4
 .
@@ -1295,7 +1295,7 @@ rofi \-dump\-theme
 .IP "" 0
 .
 .SH "EXAMPLES"
-Several examples are installed together with \fBrofi\fR\. These can be found in \fB{datadir}/rofi/themes/\fR where \fB{datadir}\fR is the install path of \fBrofi\fR data\. When installed using a package manager this is usually: \fB/usr/share/\fR\.
+Several examples are installed together with \fBrofi\fR\. These can be found in \fB{datadir}/rofi/themes/\fR, where \fB{datadir}\fR is the install path of \fBrofi\fR data\. When installed using a package manager, this is usually: \fB/usr/share/\fR\.
 .
 .SH "SEE ALSO"
 rofi(1)

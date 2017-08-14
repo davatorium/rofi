@@ -218,6 +218,7 @@ subdir('doc')
 install_man(
     'doc/rofi.1',
     'doc/rofi-sensible-terminal.1',
+    'doc/rofi-theme.5',
 )
 
 install_data(
