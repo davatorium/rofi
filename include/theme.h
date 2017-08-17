@@ -31,7 +31,8 @@
 #include <cairo.h>
 #include <widgets/widget.h>
 #include <settings.h>
-#include "theme.h"
+
+#include "rofi-types.h"
 
 /** Style of text highlight */
 typedef enum
@@ -95,34 +96,6 @@ typedef enum
     ROFI_ORIENTATION_VERTICAL,
     ROFI_ORIENTATION_HORIZONTAL
 } RofiOrientation;
-/**
- * Type of property
- */
-typedef enum
-{
-    /** Integer */
-    P_INTEGER,
-    /** Double */
-    P_DOUBLE,
-    /** String */
-    P_STRING,
-    /** Boolean */
-    P_BOOLEAN,
-    /** Color */
-    P_COLOR,
-    /** RofiPadding */
-    P_PADDING,
-    /** Link to global setting */
-    P_LINK,
-    /** Position */
-    P_POSITION,
-    /** Highlight */
-    P_HIGHLIGHT,
-    /** List */
-    P_LIST,
-    /** Orientation */
-    P_ORIENTATION,
-} PropertyType;
 
 /**
  * Represent the color in theme.
