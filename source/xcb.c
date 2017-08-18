@@ -52,6 +52,7 @@
 #define SN_API_NOT_YET_FROZEN
 /* This function is declared as sn_launcher_context_set_application_id but implemented as sn_launcher_set_application_id */
 #define sn_launcher_context_set_application_id    sn_launcher_set_application_id
+#include "rofi-types.h"
 #include <libsn/sn.h>
 #include "display.h"
 #include "xcb-internal.h"

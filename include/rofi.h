@@ -32,6 +32,7 @@
 #include <glib.h>
 #include <string.h>
 #include <stdlib.h>
+#include "rofi-types.h"
 #include "keyb.h"
 #include "mode.h"
 #include "view.h"

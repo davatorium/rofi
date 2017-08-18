@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
+#include "rofi-types.h"
 #include "settings.h"
 
 Settings config = {

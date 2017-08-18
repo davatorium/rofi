@@ -30,8 +30,6 @@
 #include <glib.h>
 #include <cairo.h>
 #include <widgets/widget.h>
-#include <settings.h>
-
 #include "rofi-types.h"
 
 /**

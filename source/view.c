@@ -48,11 +48,11 @@
 
 #define SN_API_NOT_YET_FROZEN
 #include <libsn/sn.h>
+#include "rofi.h"
 
 #include "timings.h"
 #include "settings.h"
 
-#include "rofi.h"
 #include "mode.h"
 #include "display.h"
 #include "xcb-internal.h"
