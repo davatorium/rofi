@@ -20,11 +20,47 @@ release notes for the full list of changes.
 
 ## CSS Like Theme engine
 
+The biggest new feature of this release is the theme engine. It has a completely new theme format modelled after CSS.
+This allows for a lot more customizations. 
 
-## Flexible layout
+### Colors
 
+You can now set the color on each widget independent in most of the CSS supported color formats (hsl, cmyk, rgb, etc.).
+
+> TODO: add picture of rofi rainbow colors.
+
+### Borders
+
+On every widget we can now configure a border for each of the four sides, the color of the border, the style of the
+border and the radius of the corners.
+
+> TODO: Add picture of crazy borders.
+
+This combined with (fake) transparency can make for a very nice looking, rounded rofi experience.
+
+> TODO: Rounded corner rofi.
+
+### Fonts
+
+An often made request was support for different fonts for the entry box and the list. With the new theme, it is possible
+to change the font and size of all widgets.
+
+> TODO: picture of mixture of fonts.
+
+### Flexible layout
+
+To top all these changes, as an advanced feature the whole layout of the window can be changed. Making it possible to
+mimic the original dmenu view, or make it appear as a minimal context menu.
+
+> TODO: insert two screenshot.
 
 ## Icons
+
+Another often made request, I never expected to be implemented, was icon support. But with the help of SardemFF7 an
+implementation was possible that correctly follows the XDG icon specification and does not negatively impact the
+performance.
+
+> TODO: Screenshot with icons.
 
 
 ## More flexible key and mouse bindings
