@@ -1,7 +1,7 @@
 # V1.4.0: I reject your truth and trumpstitute my own
 
 > This release contains some major changes. One of them being a new theme engine. The migration from older versions
-> to this version might not go flawless. 
+> to this version might not go flawless.
 
 With more then 700 commits since the last version, this is one of the biggest releases so far.
 In this version we used the groundwork laid in v1.3.0 and went completely nuts. This release should satisfy the die-hard
@@ -11,28 +11,34 @@ The great work of [SardemFF7](https://github.com/SardemFF7/) simplified the code
 handling. It also made it possible to add a often requested feature of icons (correctly using the icon-theme). A feature
 I never expected to be added.
 
-A last big addition, is support for plugins. Allowing the addition of some weird/fancy features. Currently two plugins
-are available, [blezz](https://gitcrate.org/qtools/rofi-blezz) a quick launch menu with it own menu definition and
-[top](https://gitcrate.org/qtools/rofi-top/) displaying running processes.
+A last big addition and still in beta, is support for plugins. Allowing the addition of some weird/fancy features.
+Currently two plugins are available, [blezz](https://gitcrate.org/qtools/rofi-blezz) a quick launch menu with it own
+menu definition and [top](https://gitcrate.org/qtools/rofi-top/) displaying running processes.
 
 Beside these major changes, this release includes a lot of bug-fixes and small improvements. See the bottom of this
 release notes for the full list of changes.
 
+
 ## CSS Like Theme engine
 
-The biggest new feature of this release is the theme engine. It has a completely new theme format modelled after CSS.
-This allows for a lot more customizations. 
+The biggest new feature of this release is the theme engine. Building on the changes made in v1.3.0 we implemented a new
+theme engine and it has a completely new theme format modelled after CSS. We decided to model the theme format after
+CSS because many people are familiar with it and it seems to be a reasonable fit. While the themes are a lot more
+verbose now, it does allow for a lot of extra customizations.
+
+It is now possible to theme each widget in rofi independently:
 
 ### Colors
 
-You can now set the color on each widget independent in most of the CSS supported color formats (hsl, cmyk, rgb, etc.).
+You can now set the color on each widget independent in most of the CSS supported color formats (hsl, cmyk, rgb, etc.)
+and each color can have a transparency. Each widget has three colors: background, foreground and text.
 
 > TODO: add picture of rofi rainbow colors.
 
 ### Borders
 
 On every widget we can now configure a border for each of the four sides, the color of the border, the style of the
-border and the radius of the corners.
+border (solid or dashed0) and the radius of the corners can be set.
 
 > TODO: Add picture of crazy borders.
 
@@ -70,6 +76,12 @@ performance.
 ## Initial Plugin support
 
 ## Screenshot
+
+## Configuration File
+
+The new theme format can now (as an alpha) feature be used to set rofi's configuration. In the future, when we add
+wayland support, we want to get rid of the current Xresources (X11) based configuration format.
+You can see how this would look using: `rofi -dump-config`.
 
 ## Detailed Changelog
 
