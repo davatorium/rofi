@@ -3,7 +3,7 @@
 /**
  * Name of the property type
  */
-const char *PropertyTypeName[] = {
+const char * const PropertyTypeName[P_NUM_TYPES] = {
     /** Integer */
     "Integer",
     /** Double */
@@ -14,8 +14,8 @@ const char *PropertyTypeName[] = {
     "Boolean",
     /** Color */
     "Color",
-    /** RofiPadding */
-    "RofiPadding",
+    /** Padding */
+    "Padding",
     /** Link to global setting */
     "Reference",
     /** Position */

@@ -45,11 +45,11 @@
 
 #include <libgwater-xcb.h>
 
+#include "rofi.h"
 #include "display.h"
 
 #include "settings.h"
 #include "mode.h"
-#include "rofi.h"
 #include "helper.h"
 #include "widgets/textbox.h"
 #include "xrmoptions.h"

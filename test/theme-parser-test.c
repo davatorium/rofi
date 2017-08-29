@@ -1233,6 +1233,25 @@ START_TEST ( test_prepare_path )
     g_free ( current_dir );
 }
 END_TEST
+
+
+START_TEST(test_properties_types_names)
+{
+    ck_assert_str_eq ( PropertyTypeName[P_INTEGER],     "Integer");
+    ck_assert_str_eq ( PropertyTypeName[P_DOUBLE],      "Double");
+    ck_assert_str_eq ( PropertyTypeName[P_STRING],      "String");
+    ck_assert_str_eq ( PropertyTypeName[P_BOOLEAN],     "Boolean");
+    ck_assert_str_eq ( PropertyTypeName[P_COLOR],       "Color");
+    ck_assert_str_eq ( PropertyTypeName[P_PADDING],     "Padding");
+    ck_assert_str_eq ( PropertyTypeName[P_LINK],        "Reference");
+    ck_assert_str_eq ( PropertyTypeName[P_POSITION],    "Position");
+    ck_assert_str_eq ( PropertyTypeName[P_HIGHLIGHT],   "Highlight");
+    ck_assert_str_eq ( PropertyTypeName[P_LIST],        "List");
+    ck_assert_str_eq ( PropertyTypeName[P_ORIENTATION], "Orientation");
+
+}
+END_TEST
+
 static Suite * theme_parser_suite (void)
 {
     Suite *s;
@@ -1244,6 +1263,7 @@ static Suite * theme_parser_suite (void)
     {
         tc_core = tcase_create("Core");
         tcase_add_checked_fixture(tc_core, theme_parser_setup, theme_parser_teardown);
+        tcase_add_test(tc_core, test_properties_types_names);
         tcase_add_test(tc_core, test_core_empty_string);
         tcase_add_test(tc_core, test_core_empty_global_section);
         tcase_add_test(tc_core, test_core_empty_section);

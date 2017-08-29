@@ -48,11 +48,11 @@
 
 #define SN_API_NOT_YET_FROZEN
 #include <libsn/sn.h>
+#include "rofi.h"
 
 #include "timings.h"
 #include "settings.h"
 
-#include "rofi.h"
 #include "mode.h"
 #include "display.h"
 #include "xcb-internal.h"
@@ -1696,6 +1696,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     if ( state->text && input ) {
         textbox_text ( state->text, input );
+        textbox_cursor_end ( state->text );
     }
 
     state->overlay                = textbox_create ( WIDGET_TYPE_TEXTBOX_TEXT, "window.overlay", TB_AUTOWIDTH | TB_AUTOHEIGHT, URGENT, "blaat", 0.5, 0 );

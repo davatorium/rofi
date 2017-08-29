@@ -49,13 +49,6 @@ static int textbox_get_width ( widget * );
 static int _textbox_get_height ( widget * );
 static void __textbox_update_pango_text ( textbox *tb );
 
-/**
- * @param tb  Handle to the textbox
- *
- * Move the cursor to the end of the string.
- */
-static void textbox_cursor_end ( textbox *tb );
-
 /** Default pango context */
 static PangoContext     *p_context = NULL;
 /** The pango font metrics */
@@ -585,7 +578,7 @@ static void textbox_cursor_dec_word ( textbox *tb )
 }
 
 // end of line
-static void textbox_cursor_end ( textbox *tb )
+void textbox_cursor_end ( textbox *tb )
 {
     if ( tb->text == NULL ) {
         tb->cursor = 0;

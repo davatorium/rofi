@@ -44,37 +44,6 @@ typedef enum
 } MatchingMethod;
 
 /**
- * Enumeration indicating location or gravity of window.
- *
- * \verbatim WL_NORTH_WEST      WL_NORTH      WL_NORTH_EAST \endverbatim
- * \verbatim WL_EAST            WL_CENTER     WL_EAST \endverbatim
- * \verbatim WL_SOUTH_WEST      WL_SOUTH      WL_SOUTH_EAST\endverbatim
- *
- * @ingroup CONFIGURATION
- */
-typedef enum
-{
-    /** Center */
-    WL_CENTER     = 0,
-    /** Top middle */
-    WL_NORTH      = 1,
-    /** Middle right */
-    WL_EAST       = 2,
-    /** Bottom middle */
-    WL_SOUTH      = 4,
-    /** Middle left */
-    WL_WEST       = 8,
-    /** Left top corner. */
-    WL_NORTH_WEST = WL_NORTH | WL_WEST,
-    /** Top right */
-    WL_NORTH_EAST = WL_NORTH | WL_EAST,
-    /** Bottom right */
-    WL_SOUTH_EAST = WL_SOUTH | WL_EAST,
-    /** Bottom left */
-    WL_SOUTH_WEST = WL_SOUTH | WL_WEST,
-} WindowLocation;
-
-/**
  * Settings structure holding all (static) configurable options.
  * @ingroup CONFIGURATION
  */
