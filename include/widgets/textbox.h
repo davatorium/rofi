@@ -313,5 +313,12 @@ PangoAttrList *textbox_get_pango_attributes ( textbox *tb );
  */
 const char *textbox_get_visible_text ( const textbox *tb );
 int textbox_get_desired_width ( widget *wid );
+
+/**
+ * @param tb  Handle to the textbox
+ *
+ * Move the cursor to the end of the string.
+ */
+void textbox_cursor_end ( textbox *tb );
 /*@}*/
 #endif //ROFI_TEXTBOX_H
