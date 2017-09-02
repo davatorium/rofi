@@ -51,14 +51,14 @@ This combined with (fake) transparency can make for a very nice looking, rounded
 An often made request was support for different fonts for the entry box and the list. With the new theme, it is possible
 to change the font and size of all widgets.
 
-> TODO: picture of mixture of fonts.
+![fonts](rofi-fonts.png)
 
 ### Flexible layout
 
 To top all these changes, as an advanced feature the whole layout of the window can be changed. Making it possible to
 mimic the original dmenu view, or make it appear as a minimal context menu.
 
-> TODO: insert two screenshot.
+![dmenu](rofi-dmenu.png)
 
 ## Icons
 
