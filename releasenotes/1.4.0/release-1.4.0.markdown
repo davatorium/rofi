@@ -40,11 +40,11 @@ and each color can have a transparency. Each widget has three colors: background
 On every widget we can now configure a border for each of the four sides, the color of the border, the style of the
 border (solid or dashed0) and the radius of the corners can be set.
 
-> TODO: Add picture of crazy borders.
+![border1](rofi-border.png)
 
 This combined with (fake) transparency can make for a very nice looking, rounded rofi experience.
 
-> TODO: Rounded corner rofi.
+![border2](rofi-border-transp.png)
 
 ### Fonts
 
