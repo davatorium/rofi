@@ -66,7 +66,8 @@ Another often made request, I never expected to be implemented, was icon support
 implementation was possible that correctly follows the XDG icon specification and does not negatively impact the
 performance.
 
-> TODO: Screenshot with icons.
+
+![icons](rofi-icons.png)
 
 
 ## More flexible key and mouse bindings
