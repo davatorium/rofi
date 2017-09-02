@@ -33,7 +33,7 @@ It is now possible to theme each widget in rofi independently:
 You can now set the color on each widget independent in most of the CSS supported color formats (hsl, cmyk, rgb, etc.)
 and each color can have a transparency. Each widget has three colors: background, foreground and text.
 
-> TODO: add picture of rofi rainbow colors.
+![rainbox](rofi-rainbow.png)
 
 ### Borders
 
