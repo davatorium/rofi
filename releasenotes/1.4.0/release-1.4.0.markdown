@@ -72,11 +72,39 @@ performance.
 
 ## More flexible key and mouse bindings
 
+Thanks to the great work of SardemFF7 you can now configure how the mouse
+behave and bind modifier keys. It also improves on error messages. It will now
+detect duplicate bindings.
+
+For example to select an entry on single click, instead of double click:
+
+```
+rofi -show run -me-select-entry '' -me-accept-entry 'Mouse1'
+```
+
+
 ## Fuzzy Matching
+
+With thanks to Fangrui Song, the `fuzzy` matcher will now use a ranking similar to `fzf` to sort the results.
+This should hopefully to improve the results, something a lot of users will appreciate.
+
+Without:
+
+![rofi no fzf](rofi-no-fzf.png)
+
+With:
+
+![rofi fzf](rofi-fzf.png)
+
 
 ## Initial Plugin support
 
-## Screenshot
+It is now possible to add custom mode via C plugins. This way more interactive modi can be added to rofi.
+For example it is possible to have `top` (display linux processes) shown:
+
+![rofi top](rofi-top.png)
+
+See [here](https://gitcrate.org/qtools/rofi-top).
 
 ## Configuration File
 
