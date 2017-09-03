@@ -114,9 +114,40 @@ You can see how this would look using: `rofi -dump-config`.
 
 ## Detailed Changelog
 
-
+* Improved error messages
+  * Theme parsing.
+  * Keybinding.
+  * invalid commandline options.
+  * etc.
+* Customizable highlight.
+* Give up when keyboard is not grabbed in first 5 seconds.
+* Improved manpage
+    * rofi (1)
+    * rofi-themes (5)
+* Super-{1..10} hotkey for first 10 rows.
+* Allow x-align/y-align for textbox.
+* Support matching bangs on multiple characters in combi mode. (#542)
+* Set WM_CLASS (#549)
+* Async pre-read 25 rows for improving user experience. (#550)
+* Improve handling in floating window manager by always setting window size.
+* DRun speedup.
+* Make lazy-grab defualt.
+* Remove extra layer in textbox. (#553)
+* Ignore fonts that result in a family name or size 0. (#554)
+* [Combi] Allow bang to match multiple modes. (#552)
+* Add detection of window manager and work around quirks.
+* Support dynamic plugins.
 * DMENU tty detection.
+* Support for icons in drun, combi and window mode.
 * Startup notification of launched application support.
 * Meson support.
 * Fuzzy matching with fzf based sorting algorithm.
 * Auto-detect DPI.
+* Set cursor at the end of the input field. (#662)
+* Meson support (thx to SardemFF7).
+* [Script] parse the command as if it was commandline. (#650)
+* Don't enable asan by meson. (#642)
+* Allow text widgets to be added in theme and string to be set.
+* [Dmenu] Support the -w flag.
+* Allow window (via window id) to be location for rofi window.
+* [Dmenu] Allow multi-select mode in `-no-custom` mode.
