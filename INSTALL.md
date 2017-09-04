@@ -27,6 +27,8 @@ Rofi uses autotools (GNU Build system), for more information see
 * libglib2.0 >= 2.40
   * gmodule-2.0
   * gio-unix-2.0
+* librsvg2.0
+* uuid
 * libstartup-notification-1.0
 * libxkbcommon >= 0.4.1
 * libxkbcommon-x11
