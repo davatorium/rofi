@@ -117,7 +117,9 @@
 #window.mainbox.inputbar {
     text:    @normal-foreground;
     spacing: 0;
+    padding: 1px ;
 }
 #window.mainbox.inputbar.box {
-    border: 0px ;
+    border:  0px ;
+    padding: 0px ;
 }
