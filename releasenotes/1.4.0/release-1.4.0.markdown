@@ -5,7 +5,7 @@
 
 With more then 750 commits since the last version, this is one of the biggest releases so far.
 In this version we used the groundwork laid in v1.3.0 and went completely nuts with it. Hopefully this release should
-satisfy the die-hard desktop [ricers](https://www.reddit.com/r/unixporn/) with a brand new, CSS based, theme engine.
+satisfy the die-hard desktop [ricers](https://www.reddit.com/r/unixporn/) with a brand new theme engine.
 Lot of different colors, border, multiple fonts everything is now possible.
 
 Because of The great work done by [SardemFF7](https://github.com/SardemFF7/) the code base is simplified and the
@@ -21,12 +21,11 @@ Beside these major changes, this release includes a lot of bug-fixes and small i
 release notes for a more complete list of changes.
 
 
-## CSS Like Theme engine
+## Theme engine
 
 The biggest new feature of this release is the theme engine. Building on the changes made in v1.3.0 we implemented a new
-theme engine and it has a completely new theme format modelled after CSS. We decided to model the theme format after
-CSS because many people are familiar with it and it seems to be a reasonable fit. While the themes are a lot more
-verbose now, it does allow for a lot of extra customizations.
+theme engine and it has a completely new theme format. While the themes are a lot more verbose now, it does allow for a
+lot of extra customizations.
 
 It is now possible to theme each widget in rofi independently:
 
