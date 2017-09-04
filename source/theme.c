@@ -788,6 +788,11 @@ void rofi_theme_convert_old ( void )
         char *str = g_strdup_printf ( "#window.mainbox.listview.element { padding: %dpx;}", config.line_padding );
         rofi_theme_parse_string ( str );
         g_free ( str );
+        // inputbar
+        str = g_strdup_printf ( "#window.mainbox.inputbar { padding: %dpx;}\n"\
+                "#window.mainbox.inputbar.box { padding: 0px; }", config.line_padding );
+        rofi_theme_parse_string ( str );
+        g_free ( str );
     }
     if ( config.hide_scrollbar ) {
         const char *str = "#window.mainbox.listview.box { scrollbar: false; }";
