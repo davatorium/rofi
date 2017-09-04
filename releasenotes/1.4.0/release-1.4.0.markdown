@@ -1,23 +1,24 @@
 # V1.4.0: I reject your truth and trumpstitute my own
 
-> This release contains some major changes. One of them being a new theme engine. The migration from older versions
-> to this version might not go flawless.
+> This release contains some major changes. One of them being a new theme engine. The migration from older versions to
+> this version might not go flawless.
 
 With more then 750 commits since the last version, this is one of the biggest releases so far.
-In this version we used the groundwork laid in v1.3.0 and went completely nuts. This release should satisfy the die-hard
-desktop [ricers](https://www.reddit.com/r/unixporn/) with a brand new, CSS based, theme engine.
+In this version we used the groundwork laid in v1.3.0 and went completely nuts with it. Hopefully this release should
+satisfy the die-hard desktop [ricers](https://www.reddit.com/r/unixporn/) with a brand new, CSS based, theme engine.
+Lot of different colors, border, multiple fonts everything is now possible.
 
 Because of The great work done by [SardemFF7](https://github.com/SardemFF7/) the code base is simplified and the
-key and mouse handling improved. It also made it possible to add a often requested feature of icons (correctly using the
-icon-theme). A feature I never expected to be added. To top this off, SardemFF7 made it possible to build rofi using
-[meson](http://mesonbuild.com/).
+key and mouse handling improved. The libraries provided by SardemFF7  also made it possible to add a often requested
+feature of icons (correctly using the icon-theme). A feature I never expected to be added. To top this off, SardemFF7
+added support to build rofi using [meson](http://mesonbuild.com/).
 
 A last big addition and still in beta, is support for plugins. Allowing the addition of some weird/fancy features.
 Currently two plugins are available, [blezz](https://gitcrate.org/qtools/rofi-blezz) a quick launch menu with it own
 menu definition and [top](https://gitcrate.org/qtools/rofi-top/) displaying running processes.
 
 Beside these major changes, this release includes a lot of bug-fixes and small improvements. See the bottom of this
-release notes for the full list of changes.
+release notes for a more complete list of changes.
 
 
 ## CSS Like Theme engine
@@ -89,11 +90,14 @@ theme, without having to completely copy it. For example, I want to use the `art
 fake transparency and change the font off the result list. 
 
 ```css
+// Import the default arthur theme
 @import "arthur"
 
+/* on the window widget, set transparency to use a screenshot of the screen. */
 #window {
     transparency: "screenshot";
 }
+/* Override the font on the listview widget (and children) */
 #window mainbox listview { 
     font: "Ubuntu Mono 18";
 }                          
@@ -138,14 +142,22 @@ With:
 
 ## Initial Plugin support
 
-It is now possible to add custom mode via C plugins. This way more interactive modi can be added to rofi.
-For example it is possible to have `top` (display linux processes) shown:
+> This feature is still in beta stage.
+
+It is now possible to add custom mode via C plugins. This is allows interactive modi to be added to rofi.
+For example it is possible to have `top` (display linux processes) mode:
 
 ![rofi top](rofi-top.png)
+
+This mode allows sorting of the result on different keys (cpu usage, memory, etc.) to be selected, programs to be killed
+and refreshes the results every 2 seconds.
+
 
 See [here](https://gitcrate.org/qtools/rofi-top).
 
 ## Configuration File
+
+> This feature is in  alpha stage.
 
 The new theme format can now (as an alpha) feature be used to set rofi's configuration. In the future, when we add
 wayland support, we want to get rid of the current Xresources (X11) based configuration format.
@@ -155,22 +167,22 @@ You can see how this would look using: `rofi -dump-config`.
 
 * Improved error messages
   * Theme parsing.
-  * Keybinding.
-  * invalid commandline options.
-  * etc.
-* Customizable highlight.
+  * Keybinding. Duplicate bindings will now be reported.
+  * Invalid commandline options.
+  * Etc.
+* Customizable highlight, allowing underline, strikethrough, italic, bold, small caps and the color to be set.
 * Give up when keyboard is not grabbed in first 5 seconds.
-* Improved manpage
+* Improve manpage
     * rofi (1)
     * rofi-themes (5)
-* Super-{1..10} hotkey for first 10 rows.
-* Allow x-align/y-align for textbox.
+* Super-{1..10} hotkeys for selecting the first 10 rows.
+* Allow x-align/y-align on textbox.
 * Support matching bangs on multiple characters in combi mode. (#542)
 * Set WM_CLASS (#549)
 * Async pre-read 25 rows for improving user experience. (#550)
 * Improve handling in floating window manager by always setting window size.
-* DRun speedup.
-* Make lazy-grab defualt.
+* DRun speedups.
+* Make lazy-grab default.
 * Remove extra layer in textbox. (#553)
 * Ignore fonts that result in a family name or size 0. (#554)
 * [Combi] Allow bang to match multiple modes. (#552)
@@ -190,3 +202,11 @@ You can see how this would look using: `rofi -dump-config`.
 * [Dmenu] Support the -w flag.
 * Allow window (via window id) to be location for rofi window.
 * [Dmenu] Allow multi-select mode in `-no-custom` mode.
+* Flex/Bison based parser for new theme format.
+* Meson build support.
+* Initial plugin support, exporting of pkg-config file for rofi.
+* Improved positioning support for placing window on monitor.
+* Allow rofi to be placed above window based on window id.
+* Support different font per textbox.
+  * Keep cache of previous used fonts.
+
