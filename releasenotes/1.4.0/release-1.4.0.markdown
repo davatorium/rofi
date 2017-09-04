@@ -3,13 +3,14 @@
 > This release contains some major changes. One of them being a new theme engine. The migration from older versions
 > to this version might not go flawless.
 
-With more then 700 commits since the last version, this is one of the biggest releases so far.
+With more then 750 commits since the last version, this is one of the biggest releases so far.
 In this version we used the groundwork laid in v1.3.0 and went completely nuts. This release should satisfy the die-hard
 desktop [ricers](https://www.reddit.com/r/unixporn/) with a brand new, CSS based, theme engine.
 
-The great work of [SardemFF7](https://github.com/SardemFF7/) simplified the code base and improved the key and mouse
-handling. It also made it possible to add a often requested feature of icons (correctly using the icon-theme). A feature
-I never expected to be added.
+Because of The great work done by [SardemFF7](https://github.com/SardemFF7/) the code base is simplified and the
+key and mouse handling improved. It also made it possible to add a often requested feature of icons (correctly using the
+icon-theme). A feature I never expected to be added. To top this off, SardemFF7 made it possible to build rofi using
+[meson](http://mesonbuild.com/).
 
 A last big addition and still in beta, is support for plugins. Allowing the addition of some weird/fancy features.
 Currently two plugins are available, [blezz](https://gitcrate.org/qtools/rofi-blezz) a quick launch menu with it own
@@ -31,14 +32,22 @@ It is now possible to theme each widget in rofi independently:
 ### Colors
 
 You can now set the color on each widget independent in most of the CSS supported color formats (hsl, cmyk, rgb, etc.)
-and each color can have a transparency. Each widget has three colors: background, foreground and text.
+and each color can have a transparency. There are three colors that can be set on each widget:
+
+*  **background**
+   Used to draw the background of the widget. Each widget is drawn on top of it parent, if the background is
+   transparent, you will see the parents widget.
+*  **foreground**
+   Used to draw the borders.
+*  **text**
+   Used to draw text. If not set the foreground color is used.
 
 ![rainbox](rofi-rainbow.png)
 
 ### Borders
 
 On every widget we can now configure a border for each of the four sides, the color of the border, the style of the
-border (solid or dashed0) and the radius of the corners can be set.
+border (solid or dashed) and the radius of the corners can be set.
 
 ![border1](rofi-border.png)
 
@@ -53,12 +62,42 @@ to change the font and size of all widgets.
 
 ![fonts](rofi-fonts.png)
 
+> Note that opening a fonts is one of the slowest operations during rofi startup; having multiple fonts could have a
+> significant impact on startup times. 
+
 ### Flexible layout
 
 To top all these changes, as an advanced feature the whole layout of the window can be changed. Making it possible to
 mimic the original dmenu view, or make it appear as a minimal context menu.
 
 ![dmenu](rofi-dmenu.png)
+
+
+## Error reporting
+
+The new theme parser will also be more verbose when encountering parsing errors, hopefully helping debugging and
+modifying themes.
+
+For example when forgetting a trailing ';' will report where it failed, and what it expected (a ';').
+
+![rofi-error](rofi-error.png)
+
+## Importing
+
+The new theme parser also support importing and overriding. This allow you to make make modifications to an existing
+theme, without having to completely copy it. For example, I want to use the `arthur` theme (shipped with rofi) but use
+fake transparency and change the font off the result list. 
+
+```css
+@import "arthur"
+
+#window {
+    transparency: "screenshot";
+}
+#window mainbox listview { 
+    font: "Ubuntu Mono 18";
+}                          
+```
 
 ## Icons
 
