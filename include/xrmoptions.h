@@ -167,8 +167,10 @@ char ** config_parser_return_display_help ( unsigned int *length );
 gboolean config_parse_set_property ( const Property *p, char **error );
 
 /**
+ * @param changes Only print the changed options.
+ *
  * @brief Dump configuration in rasi format.
  */
-void config_parse_dump_config_rasi_format ( void );
+void config_parse_dump_config_rasi_format ( gboolean changes );
 /* @}*/
 #endif

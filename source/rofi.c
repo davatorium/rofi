@@ -267,7 +267,7 @@ static void print_main_application_options ( int is_term )
     print_help_msg ( "-show", "[mode]", "Show the mode 'mode' and exit. The mode has to be enabled.", NULL, is_term );
     print_help_msg ( "-no-lazy-grab", "", "Disable lazy grab that, when fail to grab keyboard, does not block but retry later.", NULL, is_term );
     print_help_msg ( "-no-plugins", "", "Disable loading of external plugins.", NULL, is_term );
-    print_help_msg ( "-dump-config", "", "Dump the current configuration and theme in rasi format and exit.", NULL, is_term );
+    print_help_msg ( "-dump-config", "", "Dump the current configuration in rasi format and exit.", NULL, is_term );
     print_help_msg ( "-dump-theme", "", "Dump the current theme in rasi format and exit.", NULL, is_term );
 }
 static void help ( G_GNUC_UNUSED int argc, char **argv )
@@ -909,8 +909,7 @@ int main ( int argc, char *argv[] )
         return EXIT_SUCCESS;
     }
     if ( find_arg ( "-dump-config" ) >= 0 ) {
-        config_parse_dump_config_rasi_format ( );
-        rofi_theme_print ( rofi_theme );
+        config_parse_dump_config_rasi_format ( TRUE );
         cleanup ();
         return EXIT_SUCCESS;
     }

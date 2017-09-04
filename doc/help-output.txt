@@ -15,7 +15,7 @@ Command line only options:
 	-show [mode]                           Show the mode 'mode' and exit. The mode has to be enabled.
 	-no-lazy-grab                          Disable lazy grab that, when fail to grab keyboard, does not block but retry later.
 	-no-plugins                            Disable loading of external plugins.
-	-dump-config                           Dump the current configuration and theme in rasi format and exit.
+	-dump-config                           Dump the current configuration in rasi format and exit.
 	-dump-theme                            Dump the current theme in rasi format and exit.
 DMENU command line options:
 	-mesg [string]                         Print a small user message under the prompt (uses pango markup)

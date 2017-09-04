@@ -592,7 +592,7 @@ static void config_parse_dump_config_option ( XrmOption *option )
     printf ( "\n" );
 }
 
-void config_parse_dump_config_rasi_format ( void )
+void config_parse_dump_config_rasi_format ( gboolean changes )
 {
     printf ( "configuration {\n" );
 
@@ -604,12 +604,12 @@ void config_parse_dump_config_rasi_format ( void )
                 continue;
             }
         }
-        if ( xrmOptions[i].source != CONFIG_DEFAULT ) {
+        if ( !changes || xrmOptions[i].source != CONFIG_DEFAULT ) {
             config_parse_dump_config_option ( &( xrmOptions[i] ) );
         }
     }
     for ( unsigned int i = 0; i < num_extra_options; i++ ) {
-        if ( extra_options[i].source != CONFIG_DEFAULT ) {
+        if ( !changes || extra_options[i].source != CONFIG_DEFAULT ) {
             config_parse_dump_config_option ( &( extra_options[i] ) );
         }
     }
