@@ -45,15 +45,14 @@ static char **get_script_output ( char *command, char *arg, unsigned int *length
 {
     int    fd     = -1;
     GError *error = NULL;
-    char **retv = NULL;
-    char **argv = NULL;
-    int argc = 0;
+    char   **retv = NULL;
+    char   **argv = NULL;
+    int    argc   = 0;
     *length = 0;
-    if ( g_shell_parse_argv ( command, &argc, &argv, &error ) )
-    {
-        argv = g_realloc ( argv, (argc+2)*sizeof(char*) );
-        argv[argc] = g_strdup(arg);
-        argv[argc+1] = NULL;
+    if ( g_shell_parse_argv ( command, &argc, &argv, &error ) ) {
+        argv           = g_realloc ( argv, ( argc + 2 ) * sizeof ( char* ) );
+        argv[argc]     = g_strdup ( arg );
+        argv[argc + 1] = NULL;
         g_spawn_async_with_pipes ( NULL, argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, &fd, NULL, &error );
     }
     if ( error != NULL ) {
@@ -95,7 +94,7 @@ static char **get_script_output ( char *command, char *arg, unsigned int *length
 
 static char **execute_executor ( Mode *sw, char *result, unsigned int *length )
 {
-    char **retv   = get_script_output ( sw->ed, result, length );
+    char **retv = get_script_output ( sw->ed, result, length );
     return retv;
 }
 

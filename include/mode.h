@@ -40,7 +40,7 @@
  * Type of a mode.
  * Access should be done via mode_* functions.
  */
-typedef struct rofi_mode Mode;
+typedef struct rofi_mode   Mode;
 
 /**
  * Enum used to sum the possible states of ROFI.

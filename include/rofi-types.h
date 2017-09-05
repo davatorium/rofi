@@ -40,7 +40,6 @@ typedef enum
  */
 extern const char * const PropertyTypeName[P_NUM_TYPES];
 
-
 /** Style of text highlight */
 typedef enum
 {
@@ -142,7 +141,6 @@ typedef struct
     /** Color */
     ThemeColor         color;
 } RofiHighlightColorStyle;
-
 
 /**
  * Enumeration indicating location or gravity of window.

@@ -706,7 +706,7 @@ void rofi_theme_convert_old ( void )
             "* { bordercolor: %s; }",
             "* { separatorcolor: %s; }"
         };
-        for ( int i = 0; retv && i < 3 && retv[i] ; i++ ) {
+        for ( int i = 0; retv && i < 3 && retv[i]; i++ ) {
             char *str = g_strdup_printf ( conf[i], rofi_theme_convert_color ( retv[i] ) );
             rofi_theme_parse_string ( str );
             g_free ( str );
@@ -792,8 +792,8 @@ void rofi_theme_convert_old ( void )
         rofi_theme_parse_string ( str );
         g_free ( str );
         // inputbar
-        str = g_strdup_printf ( "#window.mainbox.inputbar { padding: %dpx;}\n"\
-                "#window.mainbox.inputbar.box { padding: 0px; }", config.line_padding );
+        str = g_strdup_printf ( "#window.mainbox.inputbar { padding: %dpx;}\n" \
+                                "#window.mainbox.inputbar.box { padding: 0px; }", config.line_padding );
         rofi_theme_parse_string ( str );
         g_free ( str );
     }

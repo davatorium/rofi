@@ -897,16 +897,14 @@ double textbox_get_estimated_char_width ( void )
     return char_width;
 }
 
-static double ch_width  = -1;
+static double ch_width = -1;
 double textbox_get_estimated_ch ( void )
 {
-
     if ( ch_width < 0 ) {
         int width = pango_font_metrics_get_approximate_digit_width ( p_metrics );
         ch_width = ( width ) / (double) PANGO_SCALE;
     }
     return ch_width;
-
 }
 
 int textbox_get_estimated_height ( const textbox *tb, int eh )

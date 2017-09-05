@@ -45,7 +45,7 @@
 /**
  * Abstract handle to the box widget internal state.
  */
-typedef struct _box box;
+typedef struct _box   box;
 
 /**
  * @param name The name of the widget.

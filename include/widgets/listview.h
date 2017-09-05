@@ -39,7 +39,7 @@
  * Handle to the listview.
  * No internal fields should be accessed directly.
  */
-typedef struct _listview listview;
+typedef struct _listview   listview;
 
 /**
  * The scrolling type used in the list view

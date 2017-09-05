@@ -34,7 +34,7 @@
 /**
  * xcb data structure type declaration.
  */
-typedef struct _xcb_stuff xcb_stuff;
+typedef struct _xcb_stuff   xcb_stuff;
 
 /**
  * Global pointer to xcb_stuff instance.

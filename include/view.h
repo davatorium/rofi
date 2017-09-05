@@ -39,7 +39,7 @@
  *
  * @{
  */
-typedef struct RofiViewState RofiViewState;
+typedef struct RofiViewState   RofiViewState;
 typedef enum
 {
     /** Create a menu for entering text */
