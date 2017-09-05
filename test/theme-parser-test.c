@@ -66,6 +66,11 @@ double textbox_get_estimated_char_height ( void )
     return 16.0;
 }
 
+double textbox_get_estimated_ch ( void )
+{
+    return 8.0;
+}
+
 int monitor_active ( G_GNUC_UNUSED workarea *mon )
 {
     return 0;

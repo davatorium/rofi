@@ -635,6 +635,9 @@ int distance_get_pixel ( RofiDistance d, RofiOrientation ori )
     if ( d.type == ROFI_PU_EM ) {
         return d.distance * textbox_get_estimated_char_height ();
     }
+    else if ( d.type == ROFI_PU_CH ) {
+        return d.distance * textbox_get_estimated_ch ();
+    }
     else if ( d.type == ROFI_PU_PERCENT ) {
         if ( ori == ROFI_ORIENTATION_VERTICAL ) {
             int height = 0;

@@ -550,7 +550,7 @@ void config_parse_xresource_dump ( void )
 
 static void config_parse_dump_config_option ( XrmOption *option )
 {
-    if ( option->type == xrm_Char ) {
+    if ( option->type == xrm_Char  || option->source == CONFIG_DEFAULT ) {
         printf ( "/*" );
     }
     printf ( "\t%s: ", option->name );
@@ -586,7 +586,7 @@ static void config_parse_dump_config_option ( XrmOption *option )
     }
 
     printf ( ";" );
-    if ( option->type == xrm_Char ) {
+    if ( option->type == xrm_Char || option->source == CONFIG_DEFAULT ) {
         printf ( "*/" );
     }
     printf ( "\n" );

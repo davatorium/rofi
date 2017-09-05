@@ -237,6 +237,12 @@ int textbox_get_font_width ( const textbox *tb );
 double textbox_get_estimated_char_width ( void );
 
 /**
+ * Estimate the width of a 0.
+ *
+ * @returns the width of a 0 in pixels.
+ */
+double textbox_get_estimated_ch ( void );
+/**
  * Estimate the height of a character.
  *
  * @returns the height of a character in pixels.

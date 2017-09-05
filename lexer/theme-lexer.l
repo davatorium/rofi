@@ -170,6 +170,7 @@ PNNUMBER   [-+]?[[:digit:]]+
 REAL       [-+]?[[:digit:]]+(\.[[:digit:]]+)?
 PX         (px)
 EM         (em)
+CH         (ch)
 PERCENT    (\%)
 
 ASTERIX    \*
@@ -411,6 +412,7 @@ if ( queue == NULL ){
 }
 
 <PROPERTIES>{EM}       { return T_UNIT_EM; }
+<PROPERTIES>{CH}       { return T_UNIT_CH; }
 <PROPERTIES>{PX}       { return T_UNIT_PX; }
 <PROPERTIES>{PERCENT}  { return T_PERCENT; }
 <PROPERTIES>{LS_SOLID} { return T_SOLID; }

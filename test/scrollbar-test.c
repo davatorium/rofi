@@ -74,6 +74,10 @@ double textbox_get_estimated_char_height ( void )
 {
     return 16;
 }
+double textbox_get_estimated_ch ( void )
+{
+    return 8.0;
+}
 
 void listview_set_selected ( G_GNUC_UNUSED listview *lv, G_GNUC_UNUSED unsigned int selected )
 {

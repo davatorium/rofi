@@ -80,6 +80,8 @@ typedef enum
     ROFI_PU_EM,
     /** PixelWidget in percentage */
     ROFI_PU_PERCENT,
+    /** PixelWidth in CH. */
+    ROFI_PU_CH,
 } RofiPixelUnit;
 
 /**

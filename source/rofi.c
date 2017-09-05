@@ -909,7 +909,7 @@ int main ( int argc, char *argv[] )
         return EXIT_SUCCESS;
     }
     if ( find_arg ( "-dump-config" ) >= 0 ) {
-        config_parse_dump_config_rasi_format ( TRUE );
+        config_parse_dump_config_rasi_format ( FALSE );
         cleanup ();
         return EXIT_SUCCESS;
     }

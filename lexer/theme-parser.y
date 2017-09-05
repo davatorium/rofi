@@ -182,6 +182,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 
 %token T_UNIT_PX                        "pixels"
 %token T_UNIT_EM                        "em"
+%token T_UNIT_CH                        "ch"
 %token T_UNIT_PERCENT                   "%"
 
 %token T_ANGLE_DEG                      "Degrees"
@@ -470,6 +471,7 @@ t_property_distance
 t_property_unit
 : T_UNIT_PX      { $$ = ROFI_PU_PX; }
 | T_UNIT_EM      { $$ = ROFI_PU_EM; }
+| T_UNIT_CH      { $$ = ROFI_PU_CH; }
 | T_PERCENT        { $$ = ROFI_PU_PERCENT; }
 ;
 /******
