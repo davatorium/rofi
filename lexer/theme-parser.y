@@ -219,6 +219,8 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 
 %token T_COLOR_TRANSPARENT              "Transparent"
 
+%token T_INHERIT                        "Inherit"
+
 %type <sval>           t_entry
 %type <theme>          t_entry_list
 %type <list>           t_entry_name_path
@@ -322,7 +324,11 @@ t_property_list:
 ;
 
 t_property
-:   t_property_name T_PSEP T_INT T_PCLOSE  {
+:   t_property_name T_PSEP T_INHERIT T_PCLOSE {
+        $$ = rofi_theme_property_create ( P_INHERIT );
+        $$->name = $1;
+    } 
+|   t_property_name T_PSEP T_INT T_PCLOSE  {
         $$ = rofi_theme_property_create ( P_INTEGER );
         $$->name = $1;
         $$->value.i = $3;

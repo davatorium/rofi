@@ -429,6 +429,9 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
     while ( widget ) {
         if ( widget->properties && g_hash_table_contains ( widget->properties, property ) ) {
             Property *p = g_hash_table_lookup ( widget->properties, property );
+            if ( p ->type == P_INHERIT ) {
+                return p; 
+            }
             if ( p->type == P_LINK ) {
                 if ( p->value.link.ref == NULL ) {
                     // Resolve link.
@@ -454,14 +457,15 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
         if ( exact ) {
             return NULL;
         }
-        widget = widget->parent;
+        // Fall back to defaults.
+        widget = widget == rofi_theme?NULL:rofi_theme;
     }
     return NULL;
 }
 ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state, gboolean exact )
 {
     // First find exact match based on name.
-    ThemeWidget *widget = rofi_theme_find ( rofi_theme, name, exact );
+    ThemeWidget *widget = rofi_theme_find ( rofi_theme, name, FALSE );
     widget = rofi_theme_find ( widget, state, exact );
 
     return widget;
@@ -472,6 +476,9 @@ int rofi_theme_get_position ( const widget *widget, const char *property, int de
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
     Property    *p   = rofi_theme_find_property ( wid, P_POSITION, property, FALSE );
     if ( p ) {
+        if ( p->type == P_INHERIT ) {
+            return rofi_theme_get_position ( widget->parent, property, def );
+        }
         return p->value.i;
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
