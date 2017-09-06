@@ -394,6 +394,7 @@ if ( queue == NULL ){
 }
 
 <NAMESTR>\.|{WHITESPACE}    { return T_NSEP; }
+<NAMESTR>,{WHITESPACE}*      { return T_SSEP; }
 <SECTION>{WORD}   { yylval->sval = g_strdup(yytext); return T_PROP_NAME;}
 <NAMESTR>{WORD}         { yylval->sval = g_strdup(yytext); return T_NAME_ELEMENT;}
 

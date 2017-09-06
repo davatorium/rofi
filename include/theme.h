@@ -87,6 +87,12 @@ Property *rofi_theme_property_create ( PropertyType type );
 void rofi_theme_property_free ( Property *p );
 
 /**
+ * @param p The property to free.
+ *
+ * @returns a copy of p
+ */
+Property* rofi_theme_property_copy ( Property *p);
+/**
  * @param widget
  *
  * Free the widget and alll children.
