@@ -458,7 +458,7 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
             return NULL;
         }
         // Fall back to defaults.
-        widget = widget == rofi_theme?NULL:rofi_theme;
+        widget = widget->parent;
     }
     return NULL;
 }
