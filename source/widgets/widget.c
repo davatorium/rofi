@@ -205,7 +205,7 @@ void widget_draw ( widget *widget, cairo_t *d )
         cairo_close_path ( d );
 
         cairo_set_source_rgba ( d, 1.0, 1.0, 1.0, 1.0 );
-        rofi_theme_get_color ( widget, "background", d );
+        rofi_theme_get_color ( widget, "background-color", d );
         cairo_fill_preserve ( d );
         cairo_clip ( d );
 
@@ -218,7 +218,7 @@ void widget_draw ( widget *widget, cairo_t *d )
             cairo_save ( d );
             cairo_translate ( d, widget->x, widget->y );
             cairo_new_path ( d );
-            rofi_theme_get_color ( widget, "foreground", d );
+            rofi_theme_get_color ( widget, "border-color", d );
             if ( left > 0 ) {
                 double offset = ( radius_tl > 0 ) ? floor ( top / 2.0 ) : 0;
                 cairo_set_line_width ( d, left );

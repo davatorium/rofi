@@ -504,27 +504,10 @@ int rofi_theme_get_integer ( const widget *widget, const char *property, int def
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return def;
 }
-int rofi_theme_get_integer_exact ( const widget *widget, const char *property, int def )
+RofiDistance rofi_theme_get_distance ( const widget *widget, const char *property, int def )
 {
-    // State is note considered when doing exact match, only base name.
-    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, NULL, TRUE );
-    Property    *p   = rofi_theme_find_property ( wid, P_INTEGER, property, TRUE );
-    if ( p ) {
-        if ( p->type == P_INHERIT ) {
-            if ( widget->parent ) {
-                return rofi_theme_get_integer_exact( widget->parent, property, def );
-            }
-            return def;
-        }
-        return p->value.i;
-    }
-    g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
-    return def;
-}
-static RofiDistance _rofi_theme_get_distance ( const widget *widget, const char *property, int def, gboolean exact )
-{
-    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, exact );
-    Property    *p   = rofi_theme_find_property ( wid, P_PADDING, property, exact );
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property    *p   = rofi_theme_find_property ( wid, P_PADDING, property, FALSE );
     if ( p ) {
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
@@ -541,15 +524,6 @@ static RofiDistance _rofi_theme_get_distance ( const widget *widget, const char 
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return (RofiDistance){ def, ROFI_PU_PX, ROFI_HL_SOLID };
-}
-
-RofiDistance rofi_theme_get_distance_exact ( const widget *widget, const char *property, int def )
-{
-    return _rofi_theme_get_distance ( widget, property, def, TRUE );
-}
-RofiDistance rofi_theme_get_distance ( const widget *widget, const char *property, int def )
-{
-    return _rofi_theme_get_distance ( widget, property, def, FALSE );
 }
 
 int rofi_theme_get_boolean ( const widget *widget, const char *property, int def )
