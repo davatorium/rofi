@@ -533,10 +533,8 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->scrollbar->widget.parent = WIDGET ( lv );
     // Calculate height of an element.
     //
-    char    *tb_name = g_strjoin ( ".", lv->listview_name, "element", NULL );
-    textbox *tb      = textbox_create ( WIDGET_TYPE_LISTVIEW_ELEMENT, tb_name, 0, NORMAL, "", 0, 0 );
+    textbox *tb      = textbox_create ( WIDGET_TYPE_LISTVIEW_ELEMENT, "element", 0, NORMAL, "", 0, 0 );
     lv->element_height = textbox_get_estimated_height ( tb, lv->eh );
-    g_free ( tb_name );
     widget_free ( WIDGET ( tb ) );
 
     lv->callback = cb;
