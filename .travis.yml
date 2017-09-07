@@ -60,7 +60,7 @@ before_install:
 install:
     - sudo apt-get install -y --force-yes libxkbcommon-dev libxkbcommon-x11-dev flex/trusty-backports libfl-dev/trusty-backports
     - sudo apt-get install -y --force-yes python3-pip
-    - pip3 install meson==0.41.2
+    - pip3 install --user meson==0.41.2
     - wget https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-linux.zip
     - unzip ninja-linux.zip
     - export PATH=$(pwd):$PATH
