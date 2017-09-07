@@ -47,6 +47,9 @@ void widget_init ( widget *widget, WidgetType type, const char *name )
     widget->border        = rofi_theme_get_padding ( widget, "border", widget->def_border );
     widget->border_radius = rofi_theme_get_padding ( widget, "border-radius", widget->def_border_radius );
     widget->margin        = rofi_theme_get_padding ( widget, "margin", widget->def_margin );
+
+    // Enabled by default
+    widget->enabled = rofi_theme_get_boolean ( widget, "enabled", TRUE );
 }
 
 void widget_set_state ( widget *widget, const char *state )

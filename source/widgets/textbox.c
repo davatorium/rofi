@@ -130,26 +130,8 @@ static WidgetTriggerActionResult textbox_editable_trigger_action ( widget *wid, 
     return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
 }
 
-textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags, TextBoxFontType tbft, const char *text, double xalign, double yalign )
+static void textbox_initialize_font ( textbox *tb )
 {
-    textbox *tb = g_slice_new0 ( textbox );
-
-    widget_init ( WIDGET ( tb ), type, name );
-
-    tb->widget.draw               = textbox_draw;
-    tb->widget.free               = textbox_free;
-    tb->widget.resize             = textbox_resize;
-    tb->widget.get_width          = textbox_get_width;
-    tb->widget.get_height         = _textbox_get_height;
-    tb->widget.get_desired_height = textbox_get_desired_height;
-    tb->widget.get_desired_width  = textbox_get_desired_width;
-    tb->flags                     = flags;
-
-    tb->changed = FALSE;
-
-    tb->layout = pango_layout_new ( p_context );
-    textbox_font ( tb, tbft );
-
     tb->metrics = p_metrics;
     const char * font = rofi_theme_get_string ( WIDGET ( tb ), "font", NULL );
     tb->left_offset = textbox_get_estimated_char_height ();
@@ -178,6 +160,31 @@ textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags,
             tb->left_offset = ( tbfc->height ) / (double) PANGO_SCALE;
         }
     }
+}
+
+textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags, TextBoxFontType tbft, const char *text, double xalign, double yalign )
+{
+    textbox *tb = g_slice_new0 ( textbox );
+
+    widget_init ( WIDGET ( tb ), type, name );
+
+    tb->widget.draw               = textbox_draw;
+    tb->widget.free               = textbox_free;
+    tb->widget.resize             = textbox_resize;
+    tb->widget.get_width          = textbox_get_width;
+    tb->widget.get_height         = _textbox_get_height;
+    tb->widget.get_desired_height = textbox_get_desired_height;
+    tb->widget.get_desired_width  = textbox_get_desired_width;
+    tb->flags                     = flags;
+
+    tb->changed = FALSE;
+
+    tb->layout = pango_layout_new ( p_context );
+    textbox_font ( tb, tbft );
+
+
+    textbox_initialize_font ( tb );
+
     if ( ( tb->flags & TB_ICON ) != TB_ICON ) {
         tb->left_offset = 0;
     }
@@ -204,8 +211,6 @@ textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags,
     tb->yalign = MAX ( 0, MIN ( 1.0, tb->yalign ) );
     tb->xalign = rofi_theme_get_double ( WIDGET ( tb ), "horizontal-align", yalign );
     tb->xalign = MAX ( 0, MIN ( 1.0, tb->xalign ) );
-    // Enabled by default
-    tb->widget.enabled = rofi_theme_get_boolean ( WIDGET ( tb ), "enabled", TRUE );
 
     return tb;
 }

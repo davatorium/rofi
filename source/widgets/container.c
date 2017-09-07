@@ -111,7 +111,6 @@ container * container_create ( const char *name )
     b->widget.update             = container_update;
     b->widget.find_mouse_target  = container_find_mouse_target;
     b->widget.get_desired_height = container_get_desired_height;
-    b->widget.enabled            = rofi_theme_get_boolean ( WIDGET ( b ), "enabled", TRUE );
     return b;
 }
 

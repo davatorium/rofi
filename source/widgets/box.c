@@ -337,7 +337,6 @@ box * box_create ( const char *name, RofiOrientation type )
     b->widget.find_mouse_target  = box_find_mouse_target;
     b->widget.get_desired_height = box_get_desired_height;
     b->widget.get_desired_width  = box_get_desired_width;
-    b->widget.enabled            = rofi_theme_get_boolean ( WIDGET ( b ), "enabled", TRUE );
 
     b->type = rofi_theme_get_orientation ( WIDGET ( b ), "orientation", b->type );
 

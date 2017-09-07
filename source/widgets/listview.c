@@ -524,7 +524,6 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->widget.find_mouse_target  = listview_find_mouse_target;
     lv->widget.trigger_action     = listview_trigger_action;
     lv->widget.get_desired_height = listview_get_desired_height;
-    lv->widget.enabled            = rofi_theme_get_boolean ( WIDGET ( lv ), "enabled", TRUE );
     lv->eh                        = eh;
 
     char *n = g_strjoin ( ".", lv->listview_name, "scrollbar", NULL );
