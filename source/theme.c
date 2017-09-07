@@ -485,7 +485,7 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
 ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state, gboolean exact )
 {
     // First find exact match based on name.
-    ThemeWidget *widget = rofi_theme_find ( rofi_theme, name, FALSE );
+    ThemeWidget *widget = rofi_theme_find_single ( rofi_theme, name );
     widget = rofi_theme_find ( widget, state, exact );
 
     return widget;
