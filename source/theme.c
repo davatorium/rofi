@@ -377,7 +377,7 @@ void rofi_theme_widget_add_properties ( ThemeWidget *widget, GHashTable *table )
 
 static inline ThemeWidget *rofi_theme_find_single ( ThemeWidget *widget, const char *name )
 {
-    for ( unsigned int j = 0; j < widget->num_widgets; j++ ) {
+    for ( unsigned int j = 0; widget && j < widget->num_widgets; j++ ) {
         if ( g_strcmp0 ( widget->widgets[j]->name, name ) == 0 ) {
             return widget->widgets[j];
         }

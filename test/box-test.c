@@ -103,6 +103,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         widget_resize ( WIDGET (b), 100, 20);
 
         widget *wid1 = g_malloc0(sizeof(widget));
+        wid1->parent = WIDGET(b);
         box_add ( b , WIDGET( wid1 ), TRUE );
         // Widget not enabled.  no width allocated.
         TASSERTE ( wid1->h, 0);
@@ -113,6 +114,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         TASSERTE ( wid1->h, 20);
         TASSERTE ( wid1->w, 100 );
         widget *wid2 = g_malloc0(sizeof(widget));
+        wid2->parent = WIDGET (b) ;
         widget_enable ( WIDGET ( wid2 ) );
         box_add ( b , WIDGET( wid2 ), TRUE );
         TASSERTE ( wid1->h, 20);
@@ -121,6 +123,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         TASSERTE ( wid2->w, 49);
 
         widget *wid3 = g_malloc0(sizeof(widget));
+        wid3->parent = WIDGET (b);
         widget_enable ( WIDGET ( wid3 ) );
         box_add ( b , WIDGET( wid3 ), FALSE );
         TASSERTE ( wid1->h, 20);
@@ -148,11 +151,13 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 //        TASSERTE ( box_get_fixed_pixels ( b ) , 24 );
 
         widget *wid4 = g_malloc0(sizeof(widget));
+        wid4->parent = WIDGET ( b );
         widget_enable ( WIDGET ( wid4 ) );
         widget_resize ( WIDGET ( wid4 ), 20, 20 );
         box_add ( b , WIDGET( wid4 ), FALSE );
         TASSERTE ( wid4->x, 200-20);
         widget *wid5 = g_malloc0(sizeof(widget));
+        wid5->parent = WIDGET ( b );
         widget_enable ( WIDGET ( wid5 ) );
         widget_resize ( WIDGET ( wid5 ), 20, 20 );
         box_add ( b , WIDGET( wid5 ), TRUE );
@@ -165,6 +170,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         //box_set_padding ( b, 5 );
 
         widget *wid1 = g_malloc0(sizeof(widget));
+        wid1->parent = WIDGET ( b );
         box_add ( b , WIDGET( wid1 ), TRUE );
         // Widget not enabled.  no width allocated.
         TASSERTE ( wid1->h, 0);
@@ -175,6 +181,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         TASSERTE ( wid1->h, 100);
         TASSERTE ( wid1->w, 20 );
         widget *wid2 = g_malloc0(sizeof(widget));
+        wid2->parent = WIDGET ( b );
         widget_enable ( WIDGET ( wid2 ) );
         box_add ( b , WIDGET( wid2 ), TRUE );
         TASSERTE ( wid1->w, 20);
@@ -183,6 +190,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         TASSERTE ( wid2->h, 49);
 
         widget *wid3 = g_malloc0(sizeof(widget));
+        wid3->parent = WIDGET ( b );
         widget_enable ( WIDGET ( wid3 ) );
         box_add ( b , WIDGET( wid3 ), FALSE );
         TASSERTE ( wid1->w, 20);
@@ -209,11 +217,13 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         TASSERTE ( wid3->h, 20);
 //        TASSERTE ( box_get_fixed_pixels ( b ) , 4 );
         widget *wid4 = g_malloc0(sizeof(widget));
+        wid4->parent = WIDGET ( b );
         widget_enable ( WIDGET ( wid4 ) );
         widget_resize ( WIDGET ( wid4 ), 20, 20 );
         box_add ( b , WIDGET( wid4 ), FALSE );
         TASSERTE ( wid4->y, 180);
         widget *wid5 = g_malloc0(sizeof(widget));
+        wid5->parent = WIDGET ( b );
         widget_enable ( WIDGET ( wid5 ) );
         widget_resize ( WIDGET ( wid5 ), 20, 20 );
         box_add ( b , WIDGET( wid5 ), TRUE );
@@ -225,14 +235,17 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         widget_resize ( WIDGET (b), 20, 90);
         //box_set_padding ( b, 5 );
         widget *wid1 = g_malloc0(sizeof(widget));
+        wid1->parent = WIDGET ( b );
         wid1->type = 1;
         widget_enable(wid1);
         box_add ( b , WIDGET( wid1 ), TRUE );
         widget *wid2 = g_malloc0(sizeof(widget));
+        wid2->parent = WIDGET ( b );
         wid2->type = 1;
         widget_enable(wid2);
         box_add ( b , WIDGET( wid2 ), TRUE );
         widget *wid3 = g_malloc0(sizeof(widget));
+        wid3->parent = WIDGET ( b );
         wid3->type = 2;
         widget_enable(wid3);
         box_add ( b , WIDGET( wid3 ), TRUE );

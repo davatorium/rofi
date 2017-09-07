@@ -927,7 +927,7 @@ START_TEST ( test_properties_color_names )
         char * str = g_strdup_printf("* { color: %s;}", CSSColors[iter].name);
         rofi_theme_parse_string(str);
         ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
-        Property *p   = rofi_theme_find_property ( twid, P_COLOR, "color", FALSE );
+        Property *p   = rofi_theme_find_property ( twid, P_COLOR, "text-color", FALSE );
         ck_assert_ptr_nonnull ( p );
         ck_assert_double_eq ( p->value.color.alpha , 1.0 );
         ck_assert_double_eq_tol ( p->value.color.red  , CSSColors[iter].r/255.0, 0.004);
@@ -939,7 +939,7 @@ START_TEST ( test_properties_color_names )
     {
         rofi_theme_parse_string("* {color: transparent;}");
         ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
-        Property *p   = rofi_theme_find_property ( twid, P_COLOR, "color", FALSE );
+        Property *p   = rofi_theme_find_property ( twid, P_COLOR, "text-color", FALSE );
         ck_assert_ptr_nonnull ( p );
         ck_assert_double_eq ( p->value.color.alpha , 0.0 );
         ck_assert_double_eq_tol ( p->value.color.red  , 0.0, 0.004);
@@ -957,7 +957,7 @@ START_TEST ( test_properties_color_names_alpha )
         char * str = g_strdup_printf("* { color: %s / %d %%;}", CSSColors[iter].name, iter%101);
         rofi_theme_parse_string(str);
         ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
-        Property *p   = rofi_theme_find_property ( twid, P_COLOR, "color", FALSE );
+        Property *p   = rofi_theme_find_property ( twid, P_COLOR, "text-color", FALSE );
         ck_assert_ptr_nonnull ( p );
         ck_assert_double_eq ( p->value.color.alpha , (iter%101)/100.0);
         ck_assert_double_eq_tol ( p->value.color.red  , CSSColors[iter].r/255.0, 0.004);
