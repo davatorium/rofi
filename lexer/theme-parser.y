@@ -237,6 +237,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %type <fval>           t_property_color_value_angle
 %type <sval>           t_property_name
 %type <distance>       t_property_distance
+%type <distance>       t_property_distance_zero
 %type <ival>           t_property_unit
 %type <wloc>           t_property_position
 %type <wloc>           t_property_position_ew
@@ -369,17 +370,17 @@ t_property
         $$->name = $1;
         $$->value.padding = (RofiPadding){ $3, $3, $3, $3 };
 }
-|  t_property_name T_PSEP t_property_distance t_property_distance T_PCLOSE {
+|  t_property_name T_PSEP t_property_distance_zero t_property_distance_zero T_PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
         $$->value.padding = (RofiPadding){ $3, $4, $3, $4 };
 }
-|  t_property_name T_PSEP t_property_distance t_property_distance t_property_distance T_PCLOSE {
+|  t_property_name T_PSEP t_property_distance_zero t_property_distance_zero t_property_distance_zero T_PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
         $$->value.padding = (RofiPadding){ $3, $4, $5, $4 };
 }
-|  t_property_name T_PSEP t_property_distance t_property_distance t_property_distance t_property_distance T_PCLOSE {
+|  t_property_name T_PSEP t_property_distance_zero t_property_distance_zero t_property_distance_zero t_property_distance_zero T_PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
         $$->value.padding = (RofiPadding){ $3, $4, $5, $6 };
@@ -469,6 +470,15 @@ t_property_highlight_style
 | T_SMALLCAPS     { $$ = ROFI_HL_SMALL_CAPS; }
 ;
 
+
+t_property_distance_zero
+: T_INT t_property_line_style {
+    $$.distance = (double) $1;
+    $$.type     = ROFI_PU_PX;
+    $$.style    = $2;
+}
+| t_property_distance { $$ = $1;}
+;
 /** Distance. */
 t_property_distance
 /** Interger unit and line style */
