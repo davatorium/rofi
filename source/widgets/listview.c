@@ -371,7 +371,7 @@ static void listview_recompute_elements ( listview *lv )
         for ( unsigned int i = lv->cur_elements; i < newne; i++ ) {
             TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
             flags       |= ( ( config.show_icons ) ? TB_ICON : 0 );
-            lv->boxes[i] = textbox_create ( WIDGET_TYPE_LISTVIEW_ELEMENT, "element", flags, NORMAL, "", 0, 0 );
+            lv->boxes[i] = textbox_create ( WIDGET (lv),  WIDGET_TYPE_LISTVIEW_ELEMENT, "element", flags, NORMAL, "", 0, 0 );
             widget_set_trigger_action_handler ( WIDGET ( lv->boxes[i] ), listview_element_trigger_action, lv );
         }
     }
@@ -511,12 +511,10 @@ static WidgetTriggerActionResult listview_element_trigger_action ( widget *wid, 
     return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
 }
 
-listview *listview_create ( const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse )
+listview *listview_create ( widget *parent, const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse )
 {
     listview *lv  = g_malloc0 ( sizeof ( listview ) );
-    gchar    *box = g_strjoin ( ".", name, "box", NULL );
-    widget_init ( WIDGET ( lv ), WIDGET_TYPE_LISTVIEW, box );
-    g_free ( box );
+    widget_init ( WIDGET ( lv ), parent,  WIDGET_TYPE_LISTVIEW, name );
     lv->listview_name             = g_strdup ( name );
     lv->widget.free               = listview_free;
     lv->widget.resize             = listview_resize;
@@ -526,13 +524,10 @@ listview *listview_create ( const char *name, listview_update_callback cb, void 
     lv->widget.get_desired_height = listview_get_desired_height;
     lv->eh                        = eh;
 
-    char *n = g_strjoin ( ".", lv->listview_name, "scrollbar", NULL );
-    lv->scrollbar = scrollbar_create ( n );
-    g_free ( n );
-    lv->scrollbar->widget.parent = WIDGET ( lv );
+    lv->scrollbar = scrollbar_create ( WIDGET ( lv ) , "scrollbar" );
     // Calculate height of an element.
     //
-    textbox *tb      = textbox_create ( WIDGET_TYPE_LISTVIEW_ELEMENT, "element", 0, NORMAL, "", 0, 0 );
+    textbox *tb      = textbox_create ( WIDGET (lv), WIDGET_TYPE_LISTVIEW_ELEMENT, "element", 0, NORMAL, "", 0, 0 );
     lv->element_height = textbox_get_estimated_height ( tb, lv->eh );
     widget_free ( WIDGET ( tb ) );
 

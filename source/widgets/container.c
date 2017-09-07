@@ -74,7 +74,7 @@ void container_add ( container *container, widget *child )
         return;
     }
     container->child = child;
-    child->parent    = WIDGET ( container  );
+    g_assert ( child->parent    == WIDGET ( container  ));
     widget_update ( WIDGET ( container ) );
 }
 
@@ -100,11 +100,11 @@ static widget *container_find_mouse_target ( widget *wid, WidgetType type, gint 
     return widget_find_mouse_target ( b->child, type, x, y );
 }
 
-container * container_create ( const char *name )
+container * container_create ( widget *parent, const char *name )
 {
     container *b = g_malloc0 ( sizeof ( container ) );
     // Initialize widget.
-    widget_init ( WIDGET ( b ), WIDGET_TYPE_UNKNOWN, name );
+    widget_init ( WIDGET ( b ), parent, WIDGET_TYPE_UNKNOWN, name );
     b->widget.draw               = container_draw;
     b->widget.free               = container_free;
     b->widget.resize             = container_resize;

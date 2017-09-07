@@ -44,11 +44,12 @@
 typedef struct _window   container;
 
 /**
+ * @parem parent The widget's parent
  * @param name The name of the widget.
  *
  * @returns a newly created container, free with #widget_free
  */
-container * container_create ( const char *name );
+container * container_create ( widget *parent, const char *name );
 
 /**
  * @param container   Handle to the container widget.

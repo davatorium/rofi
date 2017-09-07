@@ -77,7 +77,7 @@ typedef void ( *listview_mouse_activated_cb )( listview *, gboolean, void * );
  *
  * @returns a new listview
  */
-listview *listview_create ( const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse );
+listview *listview_create ( widget *parent, const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse );
 
 /**
  * @param lv The listview handle

@@ -162,11 +162,11 @@ static void textbox_initialize_font ( textbox *tb )
     }
 }
 
-textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags, TextBoxFontType tbft, const char *text, double xalign, double yalign )
+textbox* textbox_create ( widget *parent, WidgetType type, const char *name, TextboxFlags flags, TextBoxFontType tbft, const char *text, double xalign, double yalign )
 {
     textbox *tb = g_slice_new0 ( textbox );
 
-    widget_init ( WIDGET ( tb ), type, name );
+    widget_init ( WIDGET ( tb ), parent, type, name );
 
     tb->widget.draw               = textbox_draw;
     tb->widget.free               = textbox_free;

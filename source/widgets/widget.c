@@ -34,22 +34,23 @@
 /** Default padding. */
 #define WIDGET_DEFAULT_PADDING    0
 
-void widget_init ( widget *widget, WidgetType type, const char *name )
+void widget_init ( widget *wid, widget *parent, WidgetType type, const char *name )
 {
-    widget->type              = type;
-    widget->name              = g_strdup ( name );
-    widget->def_padding       = (RofiPadding){ { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_HL_SOLID }, { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_HL_SOLID }, { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_HL_SOLID }, { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_HL_SOLID } };
-    widget->def_border        = (RofiPadding){ { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID } };
-    widget->def_border_radius = (RofiPadding){ { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID } };
-    widget->def_margin        = (RofiPadding){ { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID } };
+    wid->type              = type;
+    wid->parent            = parent;
+    wid->name              = g_strdup ( name );
+    wid->def_padding       = (RofiPadding){ { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_HL_SOLID }, { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_HL_SOLID }, { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_HL_SOLID }, { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_HL_SOLID } };
+    wid->def_border        = (RofiPadding){ { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID } };
+    wid->def_border_radius = (RofiPadding){ { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID } };
+    wid->def_margin        = (RofiPadding){ { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID }, { 0, ROFI_PU_PX, ROFI_HL_SOLID } };
 
-    widget->padding       = rofi_theme_get_padding ( widget, "padding", widget->def_padding );
-    widget->border        = rofi_theme_get_padding ( widget, "border", widget->def_border );
-    widget->border_radius = rofi_theme_get_padding ( widget, "border-radius", widget->def_border_radius );
-    widget->margin        = rofi_theme_get_padding ( widget, "margin", widget->def_margin );
+    wid->padding       = rofi_theme_get_padding ( wid, "padding", wid->def_padding );
+    wid->border        = rofi_theme_get_padding ( wid, "border", wid->def_border );
+    wid->border_radius = rofi_theme_get_padding ( wid, "border-radius", wid->def_border_radius );
+    wid->margin        = rofi_theme_get_padding ( wid, "margin", wid->def_margin );
 
-    // Enabled by default
-    widget->enabled = rofi_theme_get_boolean ( widget, "enabled", TRUE );
+    // bled by default
+    wid->enabled = rofi_theme_get_boolean ( wid, "enabled", TRUE );
 }
 
 void widget_set_state ( widget *widget, const char *state )

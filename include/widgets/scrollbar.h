@@ -50,13 +50,14 @@ typedef struct _scrollbar
 } scrollbar;
 
 /**
+ * @parem parent The parent widget.
  * @param name  The name of the widget.
  *
  * Create a new scrollbar
  *
  * @returns the scrollbar object.
  */
-scrollbar *scrollbar_create ( const char *name );
+scrollbar *scrollbar_create ( widget *parent, const char *name );
 
 /**
  * @param sb scrollbar object

@@ -97,14 +97,15 @@ struct _widget
 };
 
 /**
- * @param widget The widget to initialize.
+ * @param wid    The widget to initialize.
+ * @param parent The widget's parent.
  * @param type The type of the widget.
  * @param name The name of the widget.
  *
  * Initializes the widget structure.
  *
  */
-void widget_init ( widget *widget, WidgetType type, const char *name );
+void widget_init ( widget *wid, widget *parent, WidgetType type, const char *name );
 
 /**
  * @param widget The widget handle.

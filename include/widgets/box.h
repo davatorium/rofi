@@ -53,7 +53,7 @@ typedef struct _box   box;
  *
  * @returns a newly created box, free with #widget_free
  */
-box * box_create ( const char *name, RofiOrientation type );
+box * box_create ( widget *parent, const char *name, RofiOrientation type );
 
 /**
  * @param box   Handle to the box widget.

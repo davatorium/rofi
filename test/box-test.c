@@ -98,7 +98,7 @@ void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
     {
-        box *b = box_create ( "box", ROFI_ORIENTATION_HORIZONTAL );
+        box *b = box_create ( NULL, "box", ROFI_ORIENTATION_HORIZONTAL );
         //box_set_padding ( b, 5 );
         widget_resize ( WIDGET (b), 100, 20);
 
@@ -160,7 +160,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         widget_free ( WIDGET ( b ) );
     }
     {
-        box *b = box_create ( "box", ROFI_ORIENTATION_VERTICAL );
+        box *b = box_create ( NULL, "box", ROFI_ORIENTATION_VERTICAL );
         widget_resize ( WIDGET (b), 20, 100);
         //box_set_padding ( b, 5 );
 
@@ -221,7 +221,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         widget_free ( WIDGET ( b ) );
     }
     {
-        box *b = box_create ( "box", ROFI_ORIENTATION_VERTICAL );
+        box *b = box_create ( NULL, "box", ROFI_ORIENTATION_VERTICAL );
         widget_resize ( WIDGET (b), 20, 90);
         //box_set_padding ( b, 5 );
         widget *wid1 = g_malloc0(sizeof(widget));
