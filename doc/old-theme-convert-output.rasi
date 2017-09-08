@@ -1,20 +1,20 @@
 * {
-    foreground:                  rgba ( 219, 223, 188, 100 % );
     selected-normal-foreground:  rgba ( 2, 20, 63, 100 % );
+    foreground:                  rgba ( 219, 223, 188, 100 % );
     normal-foreground:           @foreground;
-    red:                         rgba ( 220, 50, 47, 100 % );
     alternate-normal-background: rgba ( 0, 0, 0, 0 % );
-    blue:                        rgba ( 38, 139, 210, 100 % );
+    red:                         rgba ( 220, 50, 47, 100 % );
     selected-urgent-foreground:  rgba ( 2, 20, 63, 100 % );
+    blue:                        rgba ( 38, 139, 210, 100 % );
     urgent-foreground:           rgba ( 255, 129, 255, 100 % );
     alternate-urgent-background: rgba ( 0, 0, 0, 0 % );
     active-foreground:           rgba ( 138, 196, 255, 100 % );
     lightbg:                     rgba ( 238, 232, 213, 100 % );
     selected-active-foreground:  rgba ( 2, 20, 63, 100 % );
-    alternate-normal-foreground: @foreground;
     alternate-active-background: rgba ( 0, 0, 0, 0 % );
     bordercolor:                 rgba ( 219, 223, 188, 100 % );
     background:                  rgba ( 0, 0, 33, 87 % );
+    alternate-normal-foreground: @foreground;
     normal-background:           rgba ( 0, 0, 0, 0 % );
     lightfg:                     rgba ( 88, 104, 117, 100 % );
     selected-normal-background:  rgba ( 219, 223, 188, 100 % );
