@@ -167,7 +167,7 @@ function set_theme()
     then
         mkdir -p ${CDIR}
     fi
-	if [ -f "${CDIR}/config.rasi" ]
+    if [ -f "${CDIR}/config.rasi" ]
     then
         ${SED} -i "/@import.*/d" "${CDIR}/config.rasi"
         echo "@import \"${1}\"" >> "${CDIR}/config.rasi"
