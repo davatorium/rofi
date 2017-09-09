@@ -832,47 +832,46 @@ void rofi_theme_convert_old ( void )
 
     if ( config.separator_style != NULL  ) {
         if ( g_strcmp0 ( config.separator_style, "none" ) == 0 ) {
-            const char *const str = "#window.mainbox.listview box { border: 0px; }";
+            const char *const str = "#listview { border: 0px; }";
             rofi_theme_parse_string ( str );
-            const char *const str2 = "#window.mainbox.sidebar box { border: 0px; }";
+            const char *const str2 = "#sidebar { border: 0px; }";
             rofi_theme_parse_string ( str2 );
-            const char *const str3 = "#window.mainbox.message box { border: 0px; }";
+            const char *const str3 = "#message { border: 0px; }";
             rofi_theme_parse_string ( str3 );
         }
         else if  ( g_strcmp0 ( config.separator_style, "solid" ) == 0 ) {
-            const char *const str = "#window.mainbox.listview box { border: 2px solid 0px 0px 0px; }";
+            const char *const str = "#listview { border: 2px solid 0px 0px 0px; }";
             rofi_theme_parse_string ( str );
-            const char *const str2 = "#window.mainbox.sidebar box { border: 2px solid 0px 0px 0px; }";
+            const char *const str2 = "#sidebar { border: 2px solid 0px 0px 0px; }";
             rofi_theme_parse_string ( str2 );
-            const char *const str3 = "#window.mainbox.message box { border: 2px solid 0px 0px 0px; }";
+            const char *const str3 = "#message { border: 2px solid 0px 0px 0px; }";
             rofi_theme_parse_string ( str3 );
         } /* dash is default */
     }
     /* Line Margin */
     {
-        char *str = g_strdup_printf ( "#window.mainbox.listview box { spacing: %dpx;}", config.line_margin );
+        char *str = g_strdup_printf ( "#listview { spacing: %dpx;}", config.line_margin );
         rofi_theme_parse_string ( str );
         g_free ( str );
     }
     /* Line Padding */
     {
-        char *str = g_strdup_printf ( "#window.mainbox.listview.element { padding: %dpx;}", config.line_padding );
+        char *str = g_strdup_printf ( "#element { padding: %dpx;}", config.line_padding );
         rofi_theme_parse_string ( str );
         g_free ( str );
         // inputbar
-        str = g_strdup_printf ( "#window.mainbox.inputbar { padding: %dpx;}\n" \
-                                "#window.mainbox.inputbar.box { padding: 0px; }", config.line_padding );
+        str = g_strdup_printf ( "#inputbar { padding: %dpx;}", config.line_padding );
         rofi_theme_parse_string ( str );
         g_free ( str );
     }
     if ( config.hide_scrollbar ) {
-        const char *str = "#window.mainbox.listview.box { scrollbar: false; }";
+        const char *str = "#listview { scrollbar: false; }";
         rofi_theme_parse_string ( str );
     }
     else {
-        const char *str = "#window.mainbox.listview.box { scrollbar: true; }";
+        const char *str = "#listview { scrollbar: true; }";
         rofi_theme_parse_string ( str );
-        char       *str2 = g_strdup_printf ( "#window.mainbox.listview.scrollbar { handle-width: %dpx; }", config.scrollbar_width );
+        char       *str2 = g_strdup_printf ( "#scrollbar { handle-width: %dpx; }", config.scrollbar_width );
         rofi_theme_parse_string ( str2 );
         g_free ( str2 );
     }
