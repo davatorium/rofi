@@ -123,7 +123,7 @@ const char *default_theme =
     "    text-color: @alternate-active-foreground;"
     "    background-color: @alternate-active-background;"
     "}"
-    "#window.mainbox.listview.scrollbar {"
+    "#scrollbar {"
     "    border:  0;"
     "    width: 4px;"
     "    padding: 0;"
@@ -136,7 +136,7 @@ const char *default_theme =
     "    background-color: @selected-normal-background;"
     "    text-color:       @selected-normal-foreground;"
     "}"
-    "#inputbar {"
+    "#inputbar, case-indicator, entry, prompt {"
     "    spacing: 0;"
     "    text-color:      @normal-foreground;"
     "}";
