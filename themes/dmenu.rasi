@@ -1,44 +1,40 @@
 * {
-    background:      Black;
-    foreground:      White;
+    background-color:      Black;
+    border-color:          White;
+    text-color:           White;
     font:            "Times New Roman 12";
 }
 
 configuration {
-    show-icons:      true;
-    drun-icon-theme: "gnome";
 }
 
 #window {
     anchor:     north;
     location:   north;
-}
-
-#window box {
     width:      100%;
     padding:    4px;    
     children:   [ horibox ];
 }
 
-#window horibox box {
+#horibox {
     orientation: horizontal;
     children:   [ prompt, entry, listview ];    
 }
 
-#window horibox listview box {
+#listview {
     layout:     horizontal;
     spacing:    5px;
-    lines:      10;
+    lines:      100;
 }
 
-#window horibox entry {
+#entry {
     expand:     false;
     width:      10em;
 }
 
-#window horibox listview element {
+#element {
     padding: 0px 2px;
 }
-#window horibox listview element selected {
-    background: SteelBlue;
+#element selected {
+    background-color: SteelBlue;
 }

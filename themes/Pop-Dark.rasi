@@ -2,8 +2,8 @@
  * Author: Primetoxinz
  */
 * {
-    foreground:                  #f2f2f2;
-    background:                  #4e4743;
+    text-color:                  #f2f2f2;
+    background-color:            #4e4743;
     lightbg:                     #534c48;
     red:                         #f15d22;
     orange:                      #faa41a; 
@@ -33,85 +33,81 @@
 }
 #window {
     border:     0;
-    foreground: @foreground;
-    background: rgba ( 0, 0, 0, 0 % );
+    text-color: @foreground;
+    background-color: rgba ( 0, 0, 0, 0 % );
     padding:    5;
+    text-color: @bordercolor;
+    background-color: @background;
 }
-#window.box {
-    foreground: @bordercolor;
-    background: @background;
-}
-#window.mainbox {
+#mainbox {
     border:  0;
     padding: 0;
 }
-#window.mainbox.message.box {
+#message {
     border:     1px dash 0px 0px ;
-    foreground: @separatorcolor;
+    text-color: @separatorcolor;
     padding:    2px 0px 0px ;
 }
-#window.mainbox.message.normal {
-    foreground: @foreground;
+#textbox {
+    text-color: @foreground;
 }
-#window.mainbox.listview {
+#listview {
     fixed-height: 0;
     border:       2px 0px 0px ;
     padding:      2px 0px 0px ;
-    foreground: @separatorcolor;
+    text-color: @separatorcolor;
 }
-#window.mainbox.listview.element {
+#element {
     border: 0;
 }
-#window.mainbox.listview.element.normal.normal {
-    foreground: @normal-foreground;
-    background: @normal-background;
+#element.normal.normal {
+    text-color: @normal-foreground;
+    background-color: @normal-background;
 }
-#window.mainbox.listview.element.normal.urgent {
-    foreground: @urgent-foreground;
-    background: @urgent-background;
+#element.normal.urgent {
+    text-color: @urgent-foreground;
+    background-color: @urgent-background;
 }
-#window.mainbox.listview.element.normal.active {
-    foreground: @active-foreground;
-    background: @active-background;
+#element.normal.active {
+    text-color: @active-foreground;
+    background-color: @active-background;
 }
-#window.mainbox.listview.element.selected.normal {
-    foreground: @selected-normal-foreground;
-    background: @selected-normal-background;
+#element.selected.normal {
+    text-color: @selected-normal-foreground;
+    background-color: @selected-normal-background;
 }
-#window.mainbox.listview.element.selected.urgent {
-    foreground: @selected-urgent-foreground;
-    background: @selected-urgent-background;
+#element.selected.urgent {
+    text-color: @selected-urgent-foreground;
+    background-color: @selected-urgent-background;
 }
-#window.mainbox.listview.element.selected.active {
-    foreground: @selected-active-foreground;
-    background: @selected-active-background;
+#element.selected.active {
+    text-color: @selected-active-foreground;
+    background-color: @selected-active-background;
 }
-#window.mainbox.listview.element.alternate.normal {
-    foreground: @alternate-normal-foreground;
-    background: @alternate-normal-background;
+#element.alternate.normal {
+    text-color: @alternate-normal-foreground;
+    background-color: @alternate-normal-background;
 }
-#window.mainbox.listview.element.alternate.urgent {
-    foreground: @alternate-urgent-foreground;
-    background: @alternate-urgent-background;
+#element.alternate.urgent {
+    text-color: @alternate-urgent-foreground;
+    background-color: @alternate-urgent-background;
 }
-#window.mainbox.listview.element.alternate.active {
-    foreground: @alternate-active-foreground;
-    background: @alternate-active-background;
+#element.alternate.active {
+    text-color: @alternate-active-foreground;
+    background-color: @alternate-active-background;
 }
-#window.mainbox.sidebar.box {
+#sidebar {
     border: 1px dash 0px 0px ;
 }
-#window.mainbox.sidebar.button.selected {
-    foreground: @selected-normal-foreground;
-    background: @selected-normal-background;
+#button selected {
+    text-color: @selected-normal-foreground;
+    background-color: @selected-normal-background;
 }
-#window.mainbox.inputbar {
+#inputbar {
     spacing: 0;
-}
-#window.mainbox.inputbar.box {
     border: 0px ;
 }
-#window.mainbox.inputbar.normal {
-    foreground: @foreground;
+#button normal {
+    text-color: @foreground;
 }
 

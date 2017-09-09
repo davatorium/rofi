@@ -856,11 +856,7 @@ void rofi_theme_convert_old ( void )
     }
     /* Line Padding */
     {
-        char *str = g_strdup_printf ( "#element { padding: %dpx;}", config.line_padding );
-        rofi_theme_parse_string ( str );
-        g_free ( str );
-        // inputbar
-        str = g_strdup_printf ( "#inputbar { padding: %dpx;}", config.line_padding );
+        char *str = g_strdup_printf ( "#element, inputbar, message { padding: %dpx;}", config.line_padding );
         rofi_theme_parse_string ( str );
         g_free ( str );
     }

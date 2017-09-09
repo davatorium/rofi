@@ -73,7 +73,7 @@ const char *default_theme =
     "    padding: 2px 0px 0px ;"
     "    border-color: @separatorcolor;"
     "}"
-    "#message normal {"
+    "#textbox {"
     "    text-color: @foreground;"
     "}"
     "#listview {"

@@ -40,9 +40,9 @@
 #message {
     border:       1px dash 0px 0px ;
     border-color: @separatorcolor;
-    padding:      2px 0px 0px ;
+    padding:      1px ;
 }
-#message.normal {
+#textbox {
     text-color: @foreground;
 }
 #listview {
