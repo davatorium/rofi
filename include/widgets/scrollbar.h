@@ -50,7 +50,7 @@ typedef struct _scrollbar
 } scrollbar;
 
 /**
- * @parem parent The parent widget.
+ * @param parent The parent widget.
  * @param name  The name of the widget.
  *
  * Create a new scrollbar

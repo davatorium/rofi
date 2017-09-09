@@ -114,6 +114,7 @@ typedef enum
 } TextBoxFontType;
 
 /**
+ * @param parent The widget's parent.
  * @param type The type of the to be created widget.
  * @param name The name of the to be created widget.
  * @param flags #TextboxFlags indicating the type of textbox.

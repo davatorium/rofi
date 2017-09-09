@@ -69,6 +69,7 @@ typedef void ( *listview_update_callback )( textbox *tb, unsigned int entry, voi
 typedef void ( *listview_mouse_activated_cb )( listview *, gboolean, void * );
 
 /**
+ * @param parent The widget's parent.
  * @param name The name of the to be created widget.
  * @param cb The update callback.
  * @param udata The user data to pass to the callback

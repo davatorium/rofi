@@ -48,6 +48,7 @@
 typedef struct _box   box;
 
 /**
+ * @param parent The widgets parent.
  * @param name The name of the widget.
  * @param type The packing direction of the newly created box.
  *
