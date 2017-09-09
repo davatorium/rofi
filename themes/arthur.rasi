@@ -97,24 +97,16 @@ configuration {
 
 #inputbar {
     color: @lightgreen;
-    padding: 8px;
+    padding: 11px;
     background-color: @tlightblack;
     border: 2px 2px 2px 2px;
     border-radius:  15px 15px 0px 0px;
     border-color: @foreground;
     font: "Sauce Code Pro 18";
 }
-#prompt {
-    color: inherit;
-}
-#entry {
-    color:inherit;
-}
-#entry {
-    color:inherit;
-}
-#entry {
-    font: inherit; 
+#entry,prompt,case-indicator {
+    text-font: inherit; 
+    text-color:inherit;
 }
 #listview {
     padding: 8px;
