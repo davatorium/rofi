@@ -96,6 +96,7 @@
 #scrollbar {
     width:        4px ;
     border:       0;
+    handle-color: @normal-foreground;
     handle-width: 8px ;
     padding:      0;
 }

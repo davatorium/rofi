@@ -127,6 +127,7 @@ const char *default_theme =
     "    border:  0;"
     "    width: 4px;"
     "    padding: 0;"
+    "    handle-color: @normal-foreground;"
     "}"
     "#sidebar {"
     "    border:       2px dash 0px 0px ;"
