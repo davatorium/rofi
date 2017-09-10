@@ -579,6 +579,8 @@ static int add_mode ( const char * token )
         // If not build in, use custom modi.
         Mode *sw = script_switcher_parse_setup ( token );
         if ( sw != NULL ) {
+            // Add to available list, so combi can find it.
+            rofi_collect_modi_add(sw);
             modi[num_modi] = sw;
             num_modi++;
         }
