@@ -186,6 +186,7 @@ The current theme format supports different types:
  * a reference
  * an orientation
  * a list of keywords
+ * Inherit
 
 Some of these types are a combination of other types.
 
@@ -319,12 +320,14 @@ It currently supports:
 
 * Format: `{Integer}px`
 * Format: `{Real}em`
+* Format: `{Real}ch`
 * Format: `{Real}%`
 
 A distance can be specified in 3 different units:
 
 * `px`: Screen pixels.
-* `em`: Relative to text width.
+* `em`: Relative to text height.
+* `ch`: Relative to width of a single number.
 * `%`:  Percentage of the **monitor** size.
 
 Distances used in the horizontal direction use the monitor width. Distances in
@@ -422,6 +425,19 @@ Specify the orientation of the widget.
 A list starts with a '[' and ends with a ']'. The entries in the list are comma-separated.
 The `keyword` in the list refers to an widget name.
 
+## Inherit
+
+ * Format: `inherit`
+
+Inherits the property from its parent widget.
+
+```
+#mainbox {
+    border-color: inherit;
+}
+```
+
+
 ## ELEMENTS PATHS
 
 Element paths exists of two parts, the first part refers to the actual widget by name.
@@ -430,20 +446,20 @@ Some widgets have an extra state.
 For example:
 
 ```
-#window mainbox listview element .selected {
+#element selected {
 }
 ```
 
-Here `#window mainbox listview element` is the name of the widget, `selected` is the state of the widget.
+Here `#element selected` is the name of the widget, `selected` is the state of the widget.
 
 The difference between dots and spaces is purely cosmetic. These are all the same:
 
 ```
-#window mainbox listview element .selected {
+#element .selected {
+
+#element.selected {
 }
-#window.mainbox.listview.element.selected {
-}
-#window mainbox listview element selected {
+#element selected {
 }
 ```
 
@@ -454,25 +470,20 @@ The difference between dots and spaces is purely cosmetic. These are all the sam
 The current widgets available in **rofi**:
 
 * `#window`
-  * `#window.box`: the container holding the window
-  * `#window.overlay`: the overlay widget
-  * `#window.mainbox`
-     * `#window.mainbox.box`: the main vertical @box
-     * `#window.mainbox.inputbar`
-       * `#window.mainbox.inputbar.box`: the horizontal @box packing the widgets
-       * `#window.mainbox.inputbar.case-indicator`: the case/sort indicator @textbox
-       * `#window.mainbox.inputbar.prompt`: the prompt @textbox
-       * `#window.mainbox.inputbar.entry`: the main entry @textbox
-     * `#window.mainbox.listview`
-        * `#window.mainbox.listview.box`: the listview container
-        * `#window.mainbox.listview.scrollbar`: the listview scrollbar
-        * `#window.mainbox.listview.element`: the entries in the listview
-     * `#window.mainbox.sidebar`
-       * `#window.mainbox.sidebar.box`: the main horizontal @box packing the buttons
-       * `#window.mainbox.sidebar.button`: the buttons @textbox for each mode
-     * `#window.mainbox.message`
-       * `#window.mainbox.message.textbox`: the message textbox
-       * `#window.mainbox.message.box`: the box containing the message
+  * `#overlay`: the overlay widget.
+  * `#mainbox`: The mainbox box.
+    * `#inputbar`: The input bar box.
+      * `#box`: the horizontal @box packing the widgets
+      * `#case-indicator`: the case/sort indicator @textbox
+      * `#prompt`: the prompt @textbox
+      * `#entry`: the main entry @textbox
+    * `#listview`: The listview. 
+       * `#scrollbar`: the listview scrollbar
+       * `#element`: the entries in the listview
+    * `#sidebar`: the main horizontal @box packing the buttons.
+      * `#button`: the buttons @textbox for each mode
+    * `#message`: The container holding the textbox.
+      * `#textbox`: the message textbox
 
 Note that these path names match the default theme. Themes that provide a custom layout will have different
 element paths.
@@ -488,9 +499,9 @@ These are appended after the name or class of the widget.
 
 ### Example:
 
-`#window.mainbox.sidebar.button selected.normal { }`
+`#button selected.normal { }`
 
-`#window.mainbox.listview.element selected.urgent { }`
+`#element selected.urgent { }`
 
 Currently only the entrybox and scrollbar have states:
 
@@ -513,7 +524,7 @@ These can be mixed.
 Example:
 
 ```
-#name.to.textbox selected.active {
+#nametotextbox selected.active {
     background: #003642;
     foreground: #008ed4;
 }
@@ -711,34 +722,31 @@ Below is an example of a theme emulating dmenu:
 #window {
     anchor:     north;
     location:   north;
-}
-
-#window box {
     width:      100%;
     padding:    4px;
     children:   [ horibox ];
 }
 
-#window horibox box {
+#horibox {
     orientation: horizontal;
     children:   [ prompt, entry, listview ];
 }
 
-#window horibox listview box {
+#listview {
     layout:     horizontal;
     spacing:    5px;
     lines:      10;
 }
 
-#window horibox entry {
+#entry {
     expand:     false;
     width:      10em;
 }
 
-#window horibox listview element {
+#element {
     padding: 0px 2px;
 }
-#window horibox listview element selected {
+#element selected {
     background: SteelBlue;
 }
 ```

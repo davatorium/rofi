@@ -268,6 +268,9 @@ an orientation
 .IP "\(bu" 4
 a list of keywords
 .
+.IP "\(bu" 4
+Inherit
+.
 .IP "" 0
 .
 .P
@@ -493,6 +496,9 @@ Format: \fB{Integer}px\fR
 Format: \fB{Real}em\fR
 .
 .IP "\(bu" 4
+Format: \fB{Real}ch\fR
+.
+.IP "\(bu" 4
 Format: \fB{Real}%\fR
 .
 .IP "" 0
@@ -504,7 +510,10 @@ A distance can be specified in 3 different units:
 \fBpx\fR: Screen pixels\.
 .
 .IP "\(bu" 4
-\fBem\fR: Relative to text width\.
+\fBem\fR: Relative to text height\.
+.
+.IP "\(bu" 4
+\fBch\fR: Relative to width of a single number\.
 .
 .IP "\(bu" 4
 \fB%\fR: Percentage of the \fBmonitor\fR size\.
@@ -682,6 +691,28 @@ Format: \fB[ keyword, keyword ]\fR
 .P
 A list starts with a \'[\' and ends with a \']\'\. The entries in the list are comma\-separated\. The \fBkeyword\fR in the list refers to an widget name\.
 .
+.SH "Inherit"
+.
+.IP "\(bu" 4
+Format: \fBinherit\fR
+.
+.IP "" 0
+.
+.P
+Inherits the property from its parent widget\.
+.
+.IP "" 4
+.
+.nf
+
+#mainbox {
+    border\-color: inherit;
+}
+.
+.fi
+.
+.IP "" 0
+.
 .SH "ELEMENTS PATHS"
 Element paths exists of two parts, the first part refers to the actual widget by name\. Some widgets have an extra state\.
 .
@@ -692,7 +723,7 @@ For example:
 .
 .nf
 
-#window mainbox listview element \.selected {
+#element selected {
 }
 .
 .fi
@@ -700,7 +731,7 @@ For example:
 .IP "" 0
 .
 .P
-Here \fB#window mainbox listview element\fR is the name of the widget, \fBselected\fR is the state of the widget\.
+Here \fB#element selected\fR is the name of the widget, \fBselected\fR is the state of the widget\.
 .
 .P
 The difference between dots and spaces is purely cosmetic\. These are all the same:
@@ -709,11 +740,11 @@ The difference between dots and spaces is purely cosmetic\. These are all the sa
 .
 .nf
 
-#window mainbox listview element \.selected {
+#element \.selected {
+
+#element\.selected {
 }
-#window\.mainbox\.listview\.element\.selected {
-}
-#window mainbox listview element selected {
+#element selected {
 }
 .
 .fi
@@ -728,29 +759,23 @@ The current widgets available in \fBrofi\fR:
 .IP "\(bu" 4
 .
 .IP "\(bu" 4
-\fB#window\.box\fR: the container holding the window
-.
-.IP "\(bu" 4
-\fB#window\.overlay\fR: the overlay widget
+\fB#overlay\fR: the overlay widget\.
 .
 .IP "\(bu" 4
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.box\fR: the main vertical @box
 .
 .IP "\(bu" 4
+\fB#box\fR: the horizontal @box packing the widgets
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.inputbar\.box\fR: the horizontal @box packing the widgets
+\fB#case\-indicator\fR: the case/sort indicator @textbox
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.inputbar\.case\-indicator\fR: the case/sort indicator @textbox
+\fB#prompt\fR: the prompt @textbox
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.inputbar\.prompt\fR: the prompt @textbox
-.
-.IP "\(bu" 4
-\fB#window\.mainbox\.inputbar\.entry\fR: the main entry @textbox
+\fB#entry\fR: the main entry @textbox
 .
 .IP "" 0
 
@@ -758,13 +783,10 @@ The current widgets available in \fBrofi\fR:
 .IP "\(bu" 4
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.listview\.box\fR: the listview container
+\fB#scrollbar\fR: the listview scrollbar
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.listview\.scrollbar\fR: the listview scrollbar
-.
-.IP "\(bu" 4
-\fB#window\.mainbox\.listview\.element\fR: the entries in the listview
+\fB#element\fR: the entries in the listview
 .
 .IP "" 0
 
@@ -772,10 +794,7 @@ The current widgets available in \fBrofi\fR:
 .IP "\(bu" 4
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.sidebar\.box\fR: the main horizontal @box packing the buttons
-.
-.IP "\(bu" 4
-\fB#window\.mainbox\.sidebar\.button\fR: the buttons @textbox for each mode
+\fB#button\fR: the buttons @textbox for each mode
 .
 .IP "" 0
 
@@ -783,10 +802,7 @@ The current widgets available in \fBrofi\fR:
 .IP "\(bu" 4
 .
 .IP "\(bu" 4
-\fB#window\.mainbox\.message\.textbox\fR: the message textbox
-.
-.IP "\(bu" 4
-\fB#window\.mainbox\.message\.box\fR: the box containing the message
+\fB#textbox\fR: the message textbox
 .
 .IP "" 0
 
@@ -812,10 +828,10 @@ Optional flag(s) indicating state of the widget, used for theming\.
 These are appended after the name or class of the widget\.
 .
 .SS "Example:"
-\fB#window\.mainbox\.sidebar\.button selected\.normal { }\fR
+\fB#button selected\.normal { }\fR
 .
 .P
-\fB#window\.mainbox\.listview\.element selected\.urgent { }\fR
+\fB#element selected\.urgent { }\fR
 .
 .P
 Currently only the entrybox and scrollbar have states:
@@ -839,7 +855,7 @@ Example:
 .
 .nf
 
-#name\.to\.textbox selected\.active {
+#nametotextbox selected\.active {
     background: #003642;
     foreground: #008ed4;
 }
@@ -913,7 +929,7 @@ The following properties are currently supported:
 .SS "scrollbar:"
 .
 .IP "\(bu" 4
-\fBforeground\fR: color
+\fBbackground\-color\fR: color
 .
 .IP "\(bu" 4
 \fBhandle\-width\fR: distance
@@ -922,7 +938,7 @@ The following properties are currently supported:
 \fBhandle\-color\fR: color
 .
 .IP "\(bu" 4
-\fBforeground\fR: color
+\fBborder\-color\fR: color
 .
 .IP "" 0
 .
@@ -1014,24 +1030,27 @@ The current layout of \fBrofi\fR is structured as follows:
 |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
 | #window {BOX:vertical}                                                             |
 | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
-| | #window\.mainbox  {BOX:vertical}                                               |  |
+| | #mainbox  {BOX:vertical}                                                      |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
-| | | #window\.mainbox\.inputbar {BOX:horizontal}                                 | |  |
-| | | |\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-| | |  |
-| | | | prompt | | entry                                                 | |ci| | |  |
-| | | |\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-| | |  |
+| | | #inputbar {BOX:horizontal}                                                | |  |
+| | | |\-\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-\-| | |  |
+| | | | #prompt | | #entry                                              | |#ci| | |  |
+| | | |\-\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-\-| | |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
 | |                                                                               |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
-| | | #window\.mainbox\.message                                                   | |  |
+| | | #message                                                                  | |  |
+| | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| | |  |
+| | | | #textbox                                                              | | |  |
+| | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| | |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
 | |                                                                               |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
-| | | #window\.mainbox\.listview                                                    |  |
+| | | #listview                                                                   |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
 | |                                                                               |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
-| | | #window\.mainbox\.sidebar {BOX:horizontal}                                  | |  |
+| | | #sidebar {BOX:horizontal}                                                 | |  |
 | | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|   |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| | |  |
 | | | | Button        |   | Button        |  | Button       | | Button        | | |  |
 | | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|   |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| | |  |
@@ -1112,34 +1131,31 @@ Below is an example of a theme emulating dmenu:
 #window {
     anchor:     north;
     location:   north;
-}
-
-#window box {
     width:      100%;
     padding:    4px;
     children:   [ horibox ];
 }
 
-#window horibox box {
+#horibox {
     orientation: horizontal;
     children:   [ prompt, entry, listview ];
 }
 
-#window horibox listview box {
+#listview {
     layout:     horizontal;
     spacing:    5px;
     lines:      10;
 }
 
-#window horibox entry {
+#entry {
     expand:     false;
     width:      10em;
 }
 
-#window horibox listview element {
+#element {
     padding: 0px 2px;
 }
-#window horibox listview element selected {
+#element selected {
     background: SteelBlue;
 }
 .
