@@ -415,9 +415,6 @@ static void cleanup ()
 
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
-    for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_free ( &( modi[i] ) );
-    }
     g_free ( modi );
 
     g_free ( config_path );
@@ -549,7 +546,12 @@ static void rofi_collect_modi_destroy ( void )
 {
     for  ( unsigned int i = 0; i < num_available_modi; i++ ) {
         if ( available_modi[i]->module ) {
-            g_module_close ( available_modi[i]->module );
+            GModule *mod = available_modi[i]->module;
+            available_modi[i] = NULL;
+            g_module_close ( mod );
+        }
+        if ( available_modi[i] ) {
+            mode_free ( &(available_modi[i]) );
         }
     }
     g_free ( available_modi );
