@@ -146,7 +146,7 @@ static int sort_func ( const void *a, const void *b, G_GNUC_UNUSED void *data )
     else if ( bstr == NULL ) {
         return -1;
     }
-    return g_ascii_strcasecmp ( astr, bstr );
+    return g_strcmp0 ( astr, bstr );
 }
 
 /**
