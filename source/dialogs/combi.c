@@ -125,7 +125,14 @@ static int combi_mode_init ( Mode *sw )
 static unsigned int combi_mode_get_num_entries ( const Mode *sw )
 {
     const CombiModePrivateData *pd = (const CombiModePrivateData *) mode_get_private_data ( sw );
-    return pd->cmd_list_length;
+    unsigned int length = 0;
+    for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
+        unsigned int entries = mode_get_num_entries ( pd->switchers[i].mode );
+        pd->starts[i]        = length;
+        pd->lengths[i]       = entries;
+        length+=entries;
+    }
+    return length;
 }
 static void combi_mode_destroy ( Mode *sw )
 {
