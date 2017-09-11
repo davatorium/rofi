@@ -212,6 +212,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_PSEP                           "property separator (':')"
 %token T_PCLOSE                         "property close (';')"
 %token T_NSEP                           "Name separator (' ' or '.')"
+%token T_SSEP                           "Selector separator (',')"
 %token T_NAME_PREFIX                    "Element section ('# {name} { ... }')"
 %token T_WHITESPACE                     "White space"
 %token T_PDEFAULTS                      "Default settings section ( '* { ... }')"
@@ -219,9 +220,12 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 
 %token T_COLOR_TRANSPARENT              "Transparent"
 
+%token T_INHERIT                        "Inherit"
+
 %type <sval>           t_entry
 %type <theme>          t_entry_list
 %type <list>           t_entry_name_path
+%type <list>           t_entry_name_path_selectors
 %type <property>       t_property
 %type <property_list>  t_property_list
 %type <property_list>  t_property_list_optional
@@ -233,6 +237,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %type <fval>           t_property_color_value_angle
 %type <sval>           t_property_name
 %type <distance>       t_property_distance
+%type <distance>       t_property_distance_zero
 %type <ival>           t_property_unit
 %type <wloc>           t_property_position
 %type <wloc>           t_property_position_ew
@@ -261,20 +266,29 @@ t_entry_list:
 ;
 
 t_entry:
-T_NAME_PREFIX t_entry_name_path T_BOPEN t_property_list_optional T_BCLOSE
+T_NAME_PREFIX t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE
 {
+    for ( GList *liter = g_list_first ( $2); liter; liter = g_list_next ( liter ) ) {
         ThemeWidget *widget = rofi_theme;
-        for ( GList *iter = g_list_first ( $2 ); iter ; iter = g_list_next ( iter ) ) {
+        for ( GList *iter = g_list_first ( (GList*)liter->data ); iter ; iter = g_list_next ( iter ) ) {
             widget = rofi_theme_find_or_create_name ( widget, iter->data );
         }
-        g_list_foreach ( $2, (GFunc)g_free , NULL );
-        g_list_free ( $2 );
+        g_list_foreach ( (GList*)liter->data, (GFunc)g_free , NULL );
+        g_list_free ( (GList*)liter->data );
         widget->set = TRUE;
         rofi_theme_widget_add_properties ( widget, $4);
+    }
+    if ( $4 ) {
+        g_hash_table_destroy ( $4 );
+    }
+    g_list_free ( $2 );
 }
 |
     T_PDEFAULTS T_BOPEN t_property_list_optional T_BCLOSE {
     rofi_theme_widget_add_properties ( rofi_theme, $3);
+    if ( $3 ) {
+        g_hash_table_destroy ( $3 );
+    }
 }
 | T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {
     // Dummy at this point.
@@ -322,7 +336,11 @@ t_property_list:
 ;
 
 t_property
-:   t_property_name T_PSEP T_INT T_PCLOSE  {
+:   t_property_name T_PSEP T_INHERIT T_PCLOSE {
+        $$ = rofi_theme_property_create ( P_INHERIT );
+        $$->name = $1;
+    }
+|   t_property_name T_PSEP T_INT T_PCLOSE  {
         $$ = rofi_theme_property_create ( P_INTEGER );
         $$->name = $1;
         $$->value.i = $3;
@@ -352,17 +370,17 @@ t_property
         $$->name = $1;
         $$->value.padding = (RofiPadding){ $3, $3, $3, $3 };
 }
-|  t_property_name T_PSEP t_property_distance t_property_distance T_PCLOSE {
+|  t_property_name T_PSEP t_property_distance_zero t_property_distance_zero T_PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
         $$->value.padding = (RofiPadding){ $3, $4, $3, $4 };
 }
-|  t_property_name T_PSEP t_property_distance t_property_distance t_property_distance T_PCLOSE {
+|  t_property_name T_PSEP t_property_distance_zero t_property_distance_zero t_property_distance_zero T_PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
         $$->value.padding = (RofiPadding){ $3, $4, $5, $4 };
 }
-|  t_property_name T_PSEP t_property_distance t_property_distance t_property_distance t_property_distance T_PCLOSE {
+|  t_property_name T_PSEP t_property_distance_zero t_property_distance_zero t_property_distance_zero t_property_distance_zero T_PCLOSE {
         $$ = rofi_theme_property_create ( P_PADDING );
         $$->name = $1;
         $$->value.padding = (RofiPadding){ $3, $4, $5, $6 };
@@ -452,6 +470,15 @@ t_property_highlight_style
 | T_SMALLCAPS     { $$ = ROFI_HL_SMALL_CAPS; }
 ;
 
+
+t_property_distance_zero
+: T_INT t_property_line_style {
+    $$.distance = (double) $1;
+    $$.type     = ROFI_PU_PX;
+    $$.style    = $2;
+}
+| t_property_distance { $$ = $1;}
+;
 /** Distance. */
 t_property_distance
 /** Interger unit and line style */
@@ -611,6 +638,16 @@ t_property_name
 : T_PROP_NAME { $$ = $1; }
 ;
 
+t_entry_name_path_selectors:
+t_entry_name_path { $$ = g_list_append  ( NULL, $1 ); }
+| t_entry_name_path_selectors T_SSEP t_entry_name_path {
+    $$ = g_list_append ( $1, $3);
+}
+| t_entry_name_path_selectors T_SSEP {
+   $$ = $1;
+}
+
+;
 t_entry_name_path:
 T_NAME_ELEMENT { $$ = g_list_append ( NULL, $1 );}
 | t_entry_name_path T_NSEP T_NAME_ELEMENT { $$ = g_list_append ( $1, $3);}

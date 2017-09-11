@@ -48,12 +48,13 @@
 typedef struct _box   box;
 
 /**
+ * @param parent The widgets parent.
  * @param name The name of the widget.
  * @param type The packing direction of the newly created box.
  *
  * @returns a newly created box, free with #widget_free
  */
-box * box_create ( const char *name, RofiOrientation type );
+box * box_create ( widget *parent, const char *name, RofiOrientation type );
 
 /**
  * @param box   Handle to the box widget.

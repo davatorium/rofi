@@ -90,7 +90,7 @@ void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int
 
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
-    scrollbar * sb = scrollbar_create ( "scrollbar" );
+    scrollbar * sb = scrollbar_create ( NULL, "scrollbar" );
     widget_resize ( WIDGET (sb), 10, 100);
 
     scrollbar_set_handle ( NULL, 10213);

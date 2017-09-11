@@ -1,14 +1,32 @@
+
+configuration {
+
+    // The display name of this browser
+    display-ssh:                   "  ";
+    // The display name of this browser
+    display-run:                    "";
+    // The display name of this browser
+    display-drun:                   "";
+    // The display name of this browser
+    display-window:                 "";
+    display-combi:                  "";
+    show-icons: true;
+}
+
+
 /**
  * User: Qball
  * Copyright: Dave Davenport
  */
 * {
     foreground:  #ffeedd;
-    background:  rgba(0,0,0,0);
+    backlight:   #ccffeedd;
+    background-color:  rgba(0,0,0,0);
     dark: #1c1c1c;
     // Black
     black:       #3d352a;
     lightblack:  #554444;
+    tlightblack:  #554444cc;
     //
     // Red
     red:         #cd5c5c;
@@ -32,6 +50,7 @@
     //
     // Cyan
     cyan:      #b0c4de;
+    tcyan:      #ccb0c4de;
     lightcyan:     #b0c4de;
     //
     // White
@@ -39,61 +58,130 @@
     lightwhite:     #ddccbb;
     //
     // Bold, Italic, Underline
-    highlight:     bold #ffffff;
+    highlight:     underline bold #ffffff;
+
+    transparent: rgba(0,0,0,0);
+    font: "Sauce Code Powerline Medium 10";
 }
 #window {
     location: center;
     anchor:   center;
-}
-#window box {
+    transparency: "screenshot";
     padding: 10px;
-    border:  1px;
-    border-radius: 15px;
-    foreground: @magenta;
-    background: #1c1c1ccc;
+    border:  0px;
+    border-radius: 10px;
+    color: @magenta;
+    background-color: @transparent;
+    spacing: 0;
+    children:  [vertb, mainbox];
+    orientation: horizontal;
 }
 
-
-#window mainbox inputbar {
-    background: @lightblack;
-    text: @lightgreen;
-    padding: 4px;
-}
-#window mainbox inputbar box {
-    border: 0px 0px 2px 0px;
-}
-#window mainbox box {
-    spacing: 0.3em;
+#mainbox {
+    spacing: 0;
+    children: [ inputbar, listview ];
 }
 
-#window mainbox listview {
+#message {
+    border-color: @foreground;
+    border:  0px 2px 2px 2px;
+//    border-radius: 10px;
+    padding: 5;
+    background-color: @tcyan;
+}
+#message {
+    font: "Sauce Code Powerline ExtraLight 8";
+    color: @black;
+}
+
+#inputbar {
+    color: @lightgreen;
+    padding: 11px;
+    background-color: @tlightblack;
+    border: 2px 2px 2px 2px;
+    border-radius:  15px 15px 0px 0px;
+    border-color: @foreground;
+    font: "Sauce Code Pro 18";
+}
+#entry,prompt,case-indicator {
+    text-font: inherit; 
+    text-color:inherit;
+}
+#listview {
+    padding: 8px;
+    border-radius: 0px 0px 15px 15px;
+    border-color: @foreground;
+    border: 0px 2px 2px 2px;
+    background-color: #1c1c1ccc;
     dynamic: false;
+    lines: 10;
 }
-#window mainbox listview element selected  normal {
-    background: @blue;
+#element {
+    padding: 3px; 
+    vertical-align: 0.5;
+//    border: 2px;
+    border-radius: 4px;
+    background-color: transparent; 
+    color: @foreground;
+    font:inherit;
 }
-#window mainbox listview element normal active {
+#element selected.normal {
+    background-color: @blue;
+}
+#element normal active {
     foreground: @lightblue;
 }
-#window mainbox listview element normal urgent {
+#element normal urgent {
     foreground: @lightred;
 }
-#window mainbox listview element alternate normal {
+#element alternate normal {
 }
-#window mainbox listview element alternate active {
+#element alternate active {
     foreground: @lightblue;
 }
-#window mainbox listview element alternate urgent {
+#element alternate urgent {
     foreground: @lightred;
 }
-#window mainbox listview element selected active {
-    background: @lightblue;
+#element selected active {
+    background-color: @lightblue;
     foreground: @dark;
 }
-#window mainbox listview element selected urgent {
-    background: @lightred;
+#element selected urgent {
+    background-color: @lightred;
     foreground: @dark;
 }
-#window mainbox listview element normal normal {
+#element normal normal {
 
 }
+
+#vertb {
+    expand: false;
+    children: [ dummy0, sidebar, dummy1  ];
+}
+#dummy0,  dummy1 {
+    expand: true;
+}
+
+#sidebar {
+    expand: false;
+    orientation: vertical;
+    spacing: 0px;
+    border: 0px 0px 0px 0px;
+}
+#button {
+    font: "FontAwesome 22";
+    padding: 6px;
+    border: 2px 0px 2px 2px;
+    border-radius: 4px 0px 0px 4px;
+    background-color: @tlightblack;
+    border-color: @foreground;
+    color: @foreground;
+    horizontal-align: 0.5;
+}
+#button selected normal {
+    color: @dark;
+    border: 2px 0px 2px 2px;
+    background-color: @backlight;
+    border-color: @foreground;
+}
+

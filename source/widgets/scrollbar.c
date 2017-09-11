@@ -98,10 +98,10 @@ static gboolean scrollbar_motion_notify ( widget *wid, G_GNUC_UNUSED gint x, gin
     return TRUE;
 }
 
-scrollbar *scrollbar_create ( const char *name )
+scrollbar *scrollbar_create ( widget *parent, const char *name )
 {
     scrollbar *sb = g_malloc0 ( sizeof ( scrollbar ) );
-    widget_init ( WIDGET ( sb ), WIDGET_TYPE_SCROLLBAR, name );
+    widget_init ( WIDGET ( sb ), parent, WIDGET_TYPE_SCROLLBAR, name );
     sb->widget.x = 0;
     sb->widget.y = 0;
     sb->width    = rofi_theme_get_distance ( WIDGET ( sb ), "handle-width", DEFAULT_SCROLLBAR_WIDTH );
@@ -119,8 +119,6 @@ scrollbar *scrollbar_create ( const char *name )
     sb->pos        = 0;
     sb->pos_length = 4;
 
-    // Enabled by default
-    sb->widget.enabled = rofi_theme_get_boolean ( WIDGET ( sb ), "enabled", TRUE );
     return sb;
 }
 
@@ -178,7 +176,6 @@ static void scrollbar_draw ( widget *wid, cairo_t *draw )
     // Never go out of bar.
     height = MAX ( 2, height );
     // Cap length;
-    rofi_theme_get_color ( WIDGET ( sb ), "foreground", draw );
     rofi_theme_get_color ( WIDGET ( sb ), "handle-color", draw );
 
     cairo_rectangle ( draw,

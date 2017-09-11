@@ -173,6 +173,8 @@ EM         (em)
 CH         (ch)
 PERCENT    (\%)
 
+INHERIT    (inherit)
+
 ASTERIX    \*
 
  /* Position */
@@ -392,6 +394,9 @@ if ( queue == NULL ){
 }
 
 <NAMESTR>\.|{WHITESPACE}    { return T_NSEP; }
+<NAMESTR>,{WHITESPACE}*      { return T_SSEP; }
+ /* Alias color to text-color */
+<SECTION>"color"            { yylval->sval = g_strdup("text-color"); return T_PROP_NAME;}
 <SECTION>{WORD}   { yylval->sval = g_strdup(yytext); return T_PROP_NAME;}
 <NAMESTR>{WORD}         { yylval->sval = g_strdup(yytext); return T_NAME_ELEMENT;}
 
@@ -415,8 +420,10 @@ if ( queue == NULL ){
 <PROPERTIES>{CH}       { return T_UNIT_CH; }
 <PROPERTIES>{PX}       { return T_UNIT_PX; }
 <PROPERTIES>{PERCENT}  { return T_PERCENT; }
-<PROPERTIES>{LS_SOLID} { return T_SOLID; }
-<PROPERTIES>{LS_DASH}  { return T_DASH; }
+<PROPERTIES>{LS_SOLID} { return T_SOLID;   }
+<PROPERTIES>{LS_DASH}  { return T_DASH;    }
+
+<PROPERTIES>{INHERIT}  { return T_INHERIT; }
 
  /**
   * Color parsing. It is easier to do this at lexer level.

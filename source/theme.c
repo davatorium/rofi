@@ -74,6 +74,28 @@ Property *rofi_theme_property_create ( PropertyType type )
     retv->type = type;
     return retv;
 }
+Property* rofi_theme_property_copy ( Property *p)
+{
+    Property *retv = rofi_theme_property_create ( p->type );
+    retv->name = g_strdup ( p->name );
+
+    switch ( p->type ) {
+        case P_STRING:
+          retv->value.s = g_strdup ( p->value.s );
+          break;
+        case P_LIST:
+          retv->value.list = g_list_copy_deep ( p->value.list, (GCopyFunc)g_strdup, NULL );
+          break;
+        case P_LINK:
+          retv->value.link.name = g_strdup ( p->value.link.name );
+          retv->value.link.ref  = NULL;
+          break;
+        default:
+           retv->value = p->value;
+    }
+    return retv;
+}
+
 void rofi_theme_property_free ( Property *p )
 {
     if ( p == NULL ) {
@@ -332,11 +354,11 @@ void yyerror ( YYLTYPE *yylloc, const char *what, const char* s )
     rofi_add_error_message ( str );
 }
 
-static gboolean rofi_theme_steal_property_int ( gpointer key, gpointer value, gpointer user_data )
+static void rofi_theme_copy_property_int ( gpointer key, gpointer value, gpointer user_data )
 {
     GHashTable *table = (GHashTable *) user_data;
-    g_hash_table_replace ( table, key, value );
-    return TRUE;
+    Property *p = rofi_theme_property_copy( (Property*) value);
+    g_hash_table_replace ( table, p->name, p );
 }
 void rofi_theme_widget_add_properties ( ThemeWidget *widget, GHashTable *table )
 {
@@ -344,11 +366,9 @@ void rofi_theme_widget_add_properties ( ThemeWidget *widget, GHashTable *table )
         return;
     }
     if ( widget->properties == NULL ) {
-        widget->properties = table;
-        return;
+        widget->properties = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify)rofi_theme_property_free );
     }
-    g_hash_table_foreach_steal ( table, rofi_theme_steal_property_int, widget->properties );
-    g_hash_table_destroy ( table );
+    g_hash_table_foreach ( table, rofi_theme_copy_property_int, widget->properties );
 }
 
 /**
@@ -357,7 +377,7 @@ void rofi_theme_widget_add_properties ( ThemeWidget *widget, GHashTable *table )
 
 static inline ThemeWidget *rofi_theme_find_single ( ThemeWidget *widget, const char *name )
 {
-    for ( unsigned int j = 0; j < widget->num_widgets; j++ ) {
+    for ( unsigned int j = 0; widget && j < widget->num_widgets; j++ ) {
         if ( g_strcmp0 ( widget->widgets[j]->name, name ) == 0 ) {
             return widget->widgets[j];
         }
@@ -429,6 +449,9 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
     while ( widget ) {
         if ( widget->properties && g_hash_table_contains ( widget->properties, property ) ) {
             Property *p = g_hash_table_lookup ( widget->properties, property );
+            if ( p ->type == P_INHERIT ) {
+                return p;
+            }
             if ( p->type == P_LINK ) {
                 if ( p->value.link.ref == NULL ) {
                     // Resolve link.
@@ -454,6 +477,7 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
         if ( exact ) {
             return NULL;
         }
+        // Fall back to defaults.
         widget = widget->parent;
     }
     return NULL;
@@ -461,7 +485,7 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
 ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state, gboolean exact )
 {
     // First find exact match based on name.
-    ThemeWidget *widget = rofi_theme_find ( rofi_theme, name, exact );
+    ThemeWidget *widget = rofi_theme_find_single ( rofi_theme, name );
     widget = rofi_theme_find ( widget, state, exact );
 
     return widget;
@@ -472,6 +496,12 @@ int rofi_theme_get_position ( const widget *widget, const char *property, int de
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
     Property    *p   = rofi_theme_find_property ( wid, P_POSITION, property, FALSE );
     if ( p ) {
+        if ( p->type == P_INHERIT ) {
+            if ( widget->parent ) {
+                return rofi_theme_get_position ( widget->parent, property, def );
+            }
+            return def;
+        }
         return p->value.i;
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
@@ -483,27 +513,28 @@ int rofi_theme_get_integer ( const widget *widget, const char *property, int def
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
     Property    *p   = rofi_theme_find_property ( wid, P_INTEGER, property, FALSE );
     if ( p ) {
+        if ( p->type == P_INHERIT ) {
+            if ( widget->parent ) {
+                return rofi_theme_get_integer ( widget->parent, property, def );
+            }
+            return def;
+        }
         return p->value.i;
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return def;
 }
-int rofi_theme_get_integer_exact ( const widget *widget, const char *property, int def )
+RofiDistance rofi_theme_get_distance ( const widget *widget, const char *property, int def )
 {
-    // State is note considered when doing exact match, only base name.
-    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, NULL, TRUE );
-    Property    *p   = rofi_theme_find_property ( wid, P_INTEGER, property, TRUE );
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property    *p   = rofi_theme_find_property ( wid, P_PADDING, property, FALSE );
     if ( p ) {
-        return p->value.i;
-    }
-    g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
-    return def;
-}
-static RofiDistance _rofi_theme_get_distance ( const widget *widget, const char *property, int def, gboolean exact )
-{
-    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, exact );
-    Property    *p   = rofi_theme_find_property ( wid, P_PADDING, property, exact );
-    if ( p ) {
+        if ( p->type == P_INHERIT ) {
+            if ( widget->parent ) {
+                return rofi_theme_get_distance ( widget->parent, property, def );
+            }
+            return (RofiDistance){ def, ROFI_PU_PX, ROFI_HL_SOLID };
+        }
         if ( p->type == P_INTEGER ) {
             return (RofiDistance){ p->value.i, ROFI_PU_PX, ROFI_HL_SOLID };
         }
@@ -515,20 +546,17 @@ static RofiDistance _rofi_theme_get_distance ( const widget *widget, const char 
     return (RofiDistance){ def, ROFI_PU_PX, ROFI_HL_SOLID };
 }
 
-RofiDistance rofi_theme_get_distance_exact ( const widget *widget, const char *property, int def )
-{
-    return _rofi_theme_get_distance ( widget, property, def, TRUE );
-}
-RofiDistance rofi_theme_get_distance ( const widget *widget, const char *property, int def )
-{
-    return _rofi_theme_get_distance ( widget, property, def, FALSE );
-}
-
 int rofi_theme_get_boolean ( const widget *widget, const char *property, int def )
 {
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
     Property    *p   = rofi_theme_find_property ( wid, P_BOOLEAN, property, FALSE );
     if ( p ) {
+        if ( p->type == P_INHERIT ) {
+            if ( widget->parent ) {
+                return rofi_theme_get_boolean ( widget->parent, property, def );
+            }
+            return def;
+        }
         return p->value.b;
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
@@ -539,6 +567,12 @@ RofiOrientation rofi_theme_get_orientation ( const widget *widget, const char *p
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
     Property    *p   = rofi_theme_find_property ( wid, P_ORIENTATION, property, FALSE );
     if ( p ) {
+        if ( p->type == P_INHERIT ) {
+            if ( widget->parent ) {
+                return rofi_theme_get_orientation ( widget->parent, property, def );
+            }
+            return def;
+        }
         return p->value.b;
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
@@ -550,6 +584,12 @@ const char *rofi_theme_get_string ( const widget *widget, const char *property, 
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
     Property    *p   = rofi_theme_find_property ( wid, P_STRING, property, FALSE );
     if ( p ) {
+        if ( p->type == P_INHERIT ) {
+            if ( widget->parent ) {
+                return rofi_theme_get_string ( widget->parent, property, def );
+            }
+            return def;
+        }
         return p->value.s;
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
@@ -560,6 +600,12 @@ double rofi_theme_get_double ( const widget *widget, const char *property, doubl
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
     Property    *p   = rofi_theme_find_property ( wid, P_DOUBLE, property, FALSE );
     if ( p ) {
+        if ( p->type == P_INHERIT ) {
+            if ( widget->parent ) {
+                return rofi_theme_get_double ( widget->parent, property, def );
+            }
+            return def;
+        }
         return p->value.f;
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
@@ -570,6 +616,12 @@ void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t 
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
     Property    *p   = rofi_theme_find_property ( wid, P_COLOR, property, FALSE );
     if ( p ) {
+        if ( p->type == P_INHERIT ) {
+            if ( widget->parent ) {
+                rofi_theme_get_color ( widget->parent, property, d );
+            }
+            return ;
+        }
         cairo_set_source_rgba ( d,
                                 p->value.color.red,
                                 p->value.color.green,
@@ -586,6 +638,12 @@ RofiPadding rofi_theme_get_padding ( const widget *widget, const char *property,
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
     Property    *p   = rofi_theme_find_property ( wid, P_PADDING, property, FALSE );
     if ( p ) {
+        if ( p->type == P_INHERIT ) {
+            if ( widget->parent ) {
+                return rofi_theme_get_padding ( widget->parent, property, pad );
+            }
+            return pad;
+        }
         if ( p->type == P_PADDING ) {
             pad = p->value.padding;
         }
@@ -603,7 +661,11 @@ GList *rofi_theme_get_list ( const widget *widget, const char * property, const 
     ThemeWidget *wid2 = rofi_theme_find_widget ( widget->name, widget->state, TRUE );
     Property    *p    = rofi_theme_find_property ( wid2, P_LIST, property, TRUE );
     if ( p ) {
-        if ( p->type == P_LIST ) {
+        if ( p->type == P_INHERIT ) {
+            if ( widget->parent ) {
+                return rofi_theme_get_list ( widget->parent, property, defaults );
+            }
+        } else if ( p->type == P_LIST ) {
             return g_list_copy_deep ( p->value.list, (GCopyFunc) g_strdup, NULL );
         }
     }
@@ -624,6 +686,12 @@ RofiHighlightColorStyle rofi_theme_get_highlight ( widget *widget, const char *p
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
     Property    *p   = rofi_theme_find_property ( wid, P_HIGHLIGHT, property, FALSE );
     if ( p ) {
+        if ( p->type == P_INHERIT ) {
+            if ( widget->parent ) {
+                return rofi_theme_get_highlight ( widget->parent, property, th );
+            }
+            return th;
+        }
         return p->value.highlight;
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
@@ -764,47 +832,42 @@ void rofi_theme_convert_old ( void )
 
     if ( config.separator_style != NULL  ) {
         if ( g_strcmp0 ( config.separator_style, "none" ) == 0 ) {
-            const char *const str = "#window.mainbox.listview box { border: 0px; }";
+            const char *const str = "#listview { border: 0px; }";
             rofi_theme_parse_string ( str );
-            const char *const str2 = "#window.mainbox.sidebar box { border: 0px; }";
+            const char *const str2 = "#sidebar { border: 0px; }";
             rofi_theme_parse_string ( str2 );
-            const char *const str3 = "#window.mainbox.message box { border: 0px; }";
+            const char *const str3 = "#message { border: 0px; }";
             rofi_theme_parse_string ( str3 );
         }
         else if  ( g_strcmp0 ( config.separator_style, "solid" ) == 0 ) {
-            const char *const str = "#window.mainbox.listview box { border: 2px solid 0px 0px 0px; }";
+            const char *const str = "#listview { border: 2px solid 0px 0px 0px; }";
             rofi_theme_parse_string ( str );
-            const char *const str2 = "#window.mainbox.sidebar box { border: 2px solid 0px 0px 0px; }";
+            const char *const str2 = "#sidebar { border: 2px solid 0px 0px 0px; }";
             rofi_theme_parse_string ( str2 );
-            const char *const str3 = "#window.mainbox.message box { border: 2px solid 0px 0px 0px; }";
+            const char *const str3 = "#message { border: 2px solid 0px 0px 0px; }";
             rofi_theme_parse_string ( str3 );
         } /* dash is default */
     }
     /* Line Margin */
     {
-        char *str = g_strdup_printf ( "#window.mainbox.listview box { spacing: %dpx;}", config.line_margin );
+        char *str = g_strdup_printf ( "#listview { spacing: %dpx;}", config.line_margin );
         rofi_theme_parse_string ( str );
         g_free ( str );
     }
     /* Line Padding */
     {
-        char *str = g_strdup_printf ( "#window.mainbox.listview.element { padding: %dpx;}", config.line_padding );
-        rofi_theme_parse_string ( str );
-        g_free ( str );
-        // inputbar
-        str = g_strdup_printf ( "#window.mainbox.inputbar { padding: %dpx;}\n" \
-                                "#window.mainbox.inputbar.box { padding: 0px; }", config.line_padding );
+        char *str = g_strdup_printf ( "#element, inputbar, message { padding: %dpx;}", config.line_padding );
         rofi_theme_parse_string ( str );
         g_free ( str );
     }
     if ( config.hide_scrollbar ) {
-        const char *str = "#window.mainbox.listview.box { scrollbar: false; }";
+        const char *str = "#listview { scrollbar: false; }";
         rofi_theme_parse_string ( str );
     }
     else {
-        const char *str = "#window.mainbox.listview.box { scrollbar: true; }";
+        const char *str = "#listview { scrollbar: true; }";
         rofi_theme_parse_string ( str );
-        char       *str2 = g_strdup_printf ( "#window.mainbox.listview.scrollbar { handle-width: %dpx; }", config.scrollbar_width );
+        char       *str2 = g_strdup_printf ( "#scrollbar { handle-width: %dpx; }", config.scrollbar_width );
         rofi_theme_parse_string ( str2 );
         g_free ( str2 );
     }

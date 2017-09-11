@@ -289,7 +289,7 @@ void box_add ( box *box, widget *child, gboolean expand )
         box->widget.h = height;
     }
     child->expand = rofi_theme_get_boolean ( child, "expand", expand );
-    child->parent = WIDGET ( box );
+    g_assert ( child->parent == WIDGET ( box ) );
     box->children = g_list_append ( box->children, (void *) child );
     widget_update ( WIDGET ( box ) );
 }
@@ -324,11 +324,11 @@ static widget *box_find_mouse_target ( widget *wid, WidgetType type, gint x, gin
     return NULL;
 }
 
-box * box_create ( const char *name, RofiOrientation type )
+box * box_create ( widget *parent, const char *name, RofiOrientation type )
 {
     box *b = g_malloc0 ( sizeof ( box ) );
     // Initialize widget.
-    widget_init ( WIDGET ( b ), WIDGET_TYPE_UNKNOWN, name );
+    widget_init ( WIDGET ( b ), parent, WIDGET_TYPE_UNKNOWN, name );
     b->type                      = type;
     b->widget.draw               = box_draw;
     b->widget.free               = box_free;
@@ -337,7 +337,6 @@ box * box_create ( const char *name, RofiOrientation type )
     b->widget.find_mouse_target  = box_find_mouse_target;
     b->widget.get_desired_height = box_get_desired_height;
     b->widget.get_desired_width  = box_get_desired_width;
-    b->widget.enabled            = rofi_theme_get_boolean ( WIDGET ( b ), "enabled", TRUE );
 
     b->type = rofi_theme_get_orientation ( WIDGET ( b ), "orientation", b->type );
 

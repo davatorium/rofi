@@ -30,6 +30,8 @@ typedef enum
     P_LIST,
     /** Orientation */
     P_ORIENTATION,
+    /** Inherit */
+    P_INHERIT,
     /** Number of types. */
     P_NUM_TYPES,
 } PropertyType;

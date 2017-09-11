@@ -69,6 +69,7 @@ typedef void ( *listview_update_callback )( textbox *tb, unsigned int entry, voi
 typedef void ( *listview_mouse_activated_cb )( listview *, gboolean, void * );
 
 /**
+ * @param parent The widget's parent.
  * @param name The name of the to be created widget.
  * @param cb The update callback.
  * @param udata The user data to pass to the callback
@@ -77,7 +78,7 @@ typedef void ( *listview_mouse_activated_cb )( listview *, gboolean, void * );
  *
  * @returns a new listview
  */
-listview *listview_create ( const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse );
+listview *listview_create ( widget *parent, const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse );
 
 /**
  * @param lv The listview handle

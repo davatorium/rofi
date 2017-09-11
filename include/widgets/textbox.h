@@ -114,6 +114,7 @@ typedef enum
 } TextBoxFontType;
 
 /**
+ * @param parent The widget's parent.
  * @param type The type of the to be created widget.
  * @param name The name of the to be created widget.
  * @param flags #TextboxFlags indicating the type of textbox.
@@ -127,7 +128,7 @@ typedef enum
  * free with #widget_free
  * @returns a new #textbox
  */
-textbox* textbox_create ( WidgetType type, const char *name, TextboxFlags flags,
+textbox* textbox_create ( widget *parent, WidgetType type, const char *name, TextboxFlags flags,
                           TextBoxFontType tbft, const char *text, double xalign, double yalign );
 /**
  * @param tb  Handle to the textbox

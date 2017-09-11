@@ -87,6 +87,12 @@ Property *rofi_theme_property_create ( PropertyType type );
 void rofi_theme_property_free ( Property *p );
 
 /**
+ * @param p The property to free.
+ *
+ * @returns a copy of p
+ */
+Property* rofi_theme_property_copy ( Property *p);
+/**
  * @param widget
  *
  * Free the widget and alll children.
@@ -133,16 +139,6 @@ void rofi_theme_widget_add_properties ( ThemeWidget *widget, GHashTable *table )
  * @returns The distance value of this property for this widget.
  */
 RofiDistance rofi_theme_get_distance ( const widget *widget, const char *property, int def );
-/**
- * @param widget   The widget to query
- * @param property The property to query.
- * @param def      The default value.
- *
- * Obtain the distance of the widget.
- *
- * @returns The distance value of this property for this widget.
- */
-RofiDistance rofi_theme_get_distance_exact ( const widget *widget, const char *property, int def );
 
 /**
  * @param widget   The widget to query
@@ -166,16 +162,6 @@ int rofi_theme_get_integer   (  const widget *widget, const char *property, int 
  */
 int rofi_theme_get_position ( const widget *widget, const char *property, int def );
 
-/**
- * @param widget   The widget to query
- * @param property The property to query.
- * @param def      The default value.
- *
- * Obtain the integer of the widget.
- *
- * @returns The integer value of this property for this widget.
- */
-int rofi_theme_get_integer_exact ( const widget *widget, const char *property, int def );
 
 /**
  * @param widget   The widget to query

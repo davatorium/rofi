@@ -1,124 +1,127 @@
 * {
-    foreground:                  rgba ( 0, 43, 54, 100 % );
     selected-normal-foreground:  @lightbg;
+    foreground:                  rgba ( 0, 43, 54, 100 % );
     normal-foreground:           @foreground;
-    red:                         rgba ( 220, 50, 47, 100 % );
     alternate-normal-background: @lightbg;
-    blue:                        rgba ( 38, 139, 210, 100 % );
+    red:                         rgba ( 220, 50, 47, 100 % );
     selected-urgent-foreground:  @background;
+    blue:                        rgba ( 38, 139, 210, 100 % );
     urgent-foreground:           @red;
     alternate-urgent-background: @lightbg;
     active-foreground:           @blue;
     lightbg:                     rgba ( 238, 232, 213, 100 % );
     selected-active-foreground:  @background;
-    alternate-normal-foreground: @foreground;
     alternate-active-background: @lightbg;
-    bordercolor:                 @foreground;
     background:                  rgba ( 253, 246, 227, 100 % );
+    alternate-normal-foreground: @foreground;
     normal-background:           @background;
     lightfg:                     rgba ( 88, 104, 117, 100 % );
     selected-normal-background:  @lightfg;
-    separatorcolor:              @foreground;
+    border-color:                @foreground;
     spacing:                     2;
+    separatorcolor:              @foreground;
     urgent-background:           @background;
-    alternate-urgent-foreground: @red;
     selected-urgent-background:  @red;
+    alternate-urgent-foreground: @red;
+    background-color:            rgba ( 0, 0, 0, 0 % );
     alternate-active-foreground: @blue;
-    selected-active-background:  @blue;
     active-background:           @background;
+    selected-active-background:  @blue;
 }
 #window {
-    border:     1;
-    foreground: @foreground;
-    background: rgba ( 0, 0, 0, 0 % );
-    padding:    5;
+    background-color: @background;
+    border:           1;
+    padding:          5;
 }
-#window.box {
-    foreground: @bordercolor;
-    background: @background;
-}
-#window.mainbox {
+#mainbox {
     border:  0;
     padding: 0;
 }
-#window.mainbox.message.box {
-    border:     1px dash 0px 0px ;
-    foreground: @separatorcolor;
-    padding:    2px 0px 0px ;
+#message {
+    border:       1px dash 0px 0px ;
+    border-color: @separatorcolor;
+    padding:      1px ;
 }
-#window.mainbox.message.normal {
-    foreground: @foreground;
+#textbox {
+    text-color: @foreground;
 }
-#window.mainbox.listview {
+#listview {
     fixed-height: 0;
     border:       2px dash 0px 0px ;
+    border-color: @separatorcolor;
+    spacing:      2px ;
+    scrollbar:    true;
     padding:      2px 0px 0px ;
 }
-#window.mainbox.listview.box {
-    foreground: @separatorcolor;
-    spacing:    2px ;
-    scrollbar:  true;
-}
-#window.mainbox.listview.element {
+#element {
     border:  0;
     padding: 1px ;
 }
-#window.mainbox.listview.element.normal.normal {
-    foreground: @normal-foreground;
-    background: @normal-background;
+#element.normal.normal {
+    background-color: @normal-background;
+    text-color:       @normal-foreground;
 }
-#window.mainbox.listview.element.normal.urgent {
-    foreground: @urgent-foreground;
-    background: @urgent-background;
+#element.normal.urgent {
+    background-color: @urgent-background;
+    text-color:       @urgent-foreground;
 }
-#window.mainbox.listview.element.normal.active {
-    foreground: @active-foreground;
-    background: @active-background;
+#element.normal.active {
+    background-color: @active-background;
+    text-color:       @active-foreground;
 }
-#window.mainbox.listview.element.selected.normal {
-    foreground: @selected-normal-foreground;
-    background: @selected-normal-background;
+#element.selected.normal {
+    background-color: @selected-normal-background;
+    text-color:       @selected-normal-foreground;
 }
-#window.mainbox.listview.element.selected.urgent {
-    foreground: @selected-urgent-foreground;
-    background: @selected-urgent-background;
+#element.selected.urgent {
+    background-color: @selected-urgent-background;
+    text-color:       @selected-urgent-foreground;
 }
-#window.mainbox.listview.element.selected.active {
-    foreground: @selected-active-foreground;
-    background: @selected-active-background;
+#element.selected.active {
+    background-color: @selected-active-background;
+    text-color:       @selected-active-foreground;
 }
-#window.mainbox.listview.element.alternate.normal {
-    foreground: @alternate-normal-foreground;
-    background: @alternate-normal-background;
+#element.alternate.normal {
+    background-color: @alternate-normal-background;
+    text-color:       @alternate-normal-foreground;
 }
-#window.mainbox.listview.element.alternate.urgent {
-    foreground: @alternate-urgent-foreground;
-    background: @alternate-urgent-background;
+#element.alternate.urgent {
+    background-color: @alternate-urgent-background;
+    text-color:       @alternate-urgent-foreground;
 }
-#window.mainbox.listview.element.alternate.active {
-    foreground: @alternate-active-foreground;
-    background: @alternate-active-background;
+#element.alternate.active {
+    background-color: @alternate-active-background;
+    text-color:       @alternate-active-foreground;
 }
-#window.mainbox.listview.scrollbar {
+#scrollbar {
     width:        4px ;
     border:       0;
+    handle-color: @normal-foreground;
     handle-width: 8px ;
     padding:      0;
 }
-#window.mainbox.sidebar.box {
-    border:     2px dash 0px 0px ;
-    foreground: @separatorcolor;
+#sidebar {
+    border:       2px dash 0px 0px ;
+    border-color: @separatorcolor;
 }
-#window.mainbox.sidebar.button.selected {
-    foreground: @selected-normal-foreground;
-    background: @selected-normal-background;
+#button.selected {
+    background-color: @selected-normal-background;
+    text-color:       @selected-normal-foreground;
 }
-#window.mainbox.inputbar {
-    text:    @normal-foreground;
-    spacing: 0;
-    padding: 1px ;
+#inputbar {
+    spacing:    0;
+    text-color: @normal-foreground;
+    padding:    1px ;
 }
-#window.mainbox.inputbar.box {
-    border:  0px ;
-    padding: 0px ;
+#case-indicator {
+    spacing:    0;
+    text-color: @normal-foreground;
+}
+#entry {
+    spacing:    0;
+    text-color: @normal-foreground;
+}
+#prompt {
+    spacing:    0;
+    text-color: @normal-foreground;
 }

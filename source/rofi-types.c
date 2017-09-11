@@ -26,4 +26,6 @@ const char * const PropertyTypeName[P_NUM_TYPES] = {
     "List",
     /** Orientation */
     "Orientation",
+    /** Inherit */
+    "Inherit",
 };
