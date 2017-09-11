@@ -2,15 +2,14 @@
 configuration {
 
     // The display name of this browser
-    display-ssh: "  ";
+    display-ssh:                   "  ";
     // The display name of this browser
     display-run:                    "";
     // The display name of this browser
     display-drun:                   "";
     // The display name of this browser
     display-window:                 "";
-    display-combi:              "";
-    display-top: "";
+    display-combi:                  "";
     show-icons: true;
 }
 
@@ -177,6 +176,7 @@ configuration {
     background-color: @tlightblack;
     border-color: @foreground;
     color: @foreground;
+    horizontal-align: 0.5;
 }
 #button selected normal {
     color: @dark;
