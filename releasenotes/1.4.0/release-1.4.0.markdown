@@ -96,17 +96,17 @@ fake transparency and change the font off the result list.
 #window {
     transparency: "screenshot";
 }
-/* Override the font on the listview widget (and children) */
-#window mainbox listview { 
+/* Override the font on the listview elements */
+#element { 
     font: "Ubuntu Mono 18";
 }                          
 ```
 
 ## Icons
 
-Another often made request, I never expected to be implemented, was icon support. But with the help of SardemFF7 an
+Another often made request, I never expected to be implemented, was icon support. With the help of SardemFF7 an
 implementation was possible that correctly follows the XDG icon specification and does not negatively impact the
-performance.
+performance. Currently the drun and the window switcher can application icons.
 
 
 ![icons](rofi-icons.png)
@@ -114,7 +114,7 @@ performance.
 
 ## More flexible key and mouse bindings
 
-Thanks to the great work of SardemFF7 you can now configure how the mouse
+Thanks to another great work of SardemFF7 you can now configure how the mouse
 behave and bind modifier keys. It also improves on error messages. It will now
 detect duplicate bindings.
 
