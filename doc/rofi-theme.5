@@ -91,7 +91,7 @@ name
 The preferred file extension for the new theme format is \fBrasi\fR\. This is an abbreviation for \fBr\fRofi \fBa\fRdvanced \fBs\fRtyle \fBi\fRnformation\.
 .
 .SH "BASIC STRUCTURE"
-Each element has a section with defined properties\. Properties can be inherited to sub\-sections\. Global properties can be defined in section \fB* { }\fR\. Sub\-section names begin with a hash symbol \fB#\fR\.
+Each element has a section with defined properties\. Global properties can be defined in section \fB* { }\fR\. Sub\-section names begin with a hash symbol \fB#\fR\.
 .
 .P
 It is advised to define the \fIglobal properties section\fR on top of the file to make inheritance of properties clearer\.
@@ -133,7 +133,7 @@ A global properties section is indicated with a \fB*\fR as element path\.
 A theme can have multiple element theme sections\.
 .
 .P
-The element path can consist of multiple names separated by whitespace or dots\. Each element may contain any number of letters, numbers and \fB\-\fR\'s\. The first element in the element path should always start with a \fB#\fR\.
+The element path can consist of multiple names separated by whitespace or dots\. Each element may contain any number of letters, numbers and \fB\-\fR\'s\. The first element in the element path should always start with a \fB#\fR\. Multiple elements can be specified by a \fB,\fR\.
 .
 .P
 This is a valid element name:
@@ -142,7 +142,11 @@ This is a valid element name:
 .
 .nf
 
-#window mainbox listview element normal\.normal {
+#element normal\.normal {
+    background\-color: blue;
+}
+#button {
+    background\-color: blue;
 }
 .
 .fi
@@ -156,7 +160,8 @@ And is identical to:
 .
 .nf
 
-#window\.mainbox\.listview\.element normal\.normal {
+#element normal normal, button {
+    background\-color: blue;
 }
 .
 .fi
@@ -164,10 +169,7 @@ And is identical to:
 .IP "" 0
 .
 .P
-Each section inherits the properties of its parents\. Inherited properties can be overridden by defining them again in the section itself\. So \fB#window mainbox\fR will contain all properties of \fB#window\fR and \fB#window mainbox\fR\.
-.
-.P
-In the following example:
+Each section inherits the global properties\. Properties can be explicitely inherited from there parent with the \fBinherit\fR keyword\. In the following example:
 .
 .IP "" 4
 .
@@ -177,7 +179,8 @@ In the following example:
  a: 1;
  b: 2;
 }
-#window mainbox {
+#mainbox {
+    a: inherit;
     b: 4;
     c: 8;
 }
@@ -187,7 +190,7 @@ In the following example:
 .IP "" 0
 .
 .P
-The element \fB#window mainbox\fR will have the following set of properties:
+The element \fB#mainbox\fR will have the following set of properties (if \fBmainbox\fR is a child of \fBwindow\fR):
 .
 .IP "" 4
 .
@@ -865,7 +868,7 @@ Example:
 .IP "" 0
 .
 .P
-Sets all selected textboxes marked active to the given foreground and background color\.
+Sets all selected textboxes marked active to the given foreground and background color\. Note that a state modifies the original element, it therefor contains all the properties of that element\.
 .
 .SS "Scrollbar"
 The scrollbar uses the \fBhandle\fR state when drawing the small scrollbar handle\. This allows the colors used for drawing the handle to be set independently\.
