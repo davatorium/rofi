@@ -308,30 +308,31 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
     {
     case WL_NORTH_WEST:
         state->x = CacheState.mon.x;
-        __attribute__ ( ( fallthrough ) );
+        /* FALLTHRU */
     case WL_NORTH:
         state->y = CacheState.mon.y;
         break;
     case WL_NORTH_EAST:
         state->y = CacheState.mon.y;
-        __attribute__ ( ( fallthrough ) );
+        /* FALLTHRU */
     case WL_EAST:
         state->x = CacheState.mon.x + CacheState.mon.w;
         break;
     case WL_SOUTH_EAST:
         state->x = CacheState.mon.x + CacheState.mon.w;
-        __attribute__ ( ( fallthrough ) );
+        /* FALLTHRU */
     case WL_SOUTH:
         state->y = CacheState.mon.y + CacheState.mon.h;
         break;
     case WL_SOUTH_WEST:
         state->y = CacheState.mon.y + CacheState.mon.h;
-        __attribute__ ( ( fallthrough ) );
+        /* FALLTHRU */
     case WL_WEST:
         state->x = CacheState.mon.x;
         break;
     case WL_CENTER:
-        ; __attribute__ ( ( fallthrough ) );
+        ;
+        /* FALLTHRU */
     default:
         break;
     }
@@ -1363,10 +1364,10 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, g
             return FALSE;
         case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_END:
             target = NULL;
-            __attribute__ ( ( fallthrough ) );
+            /* FALLTHRU */
         case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN:
             state->mouse.motion_target = target;
-            __attribute__ ( ( fallthrough ) );
+            /* FALLTHRU */
         case WIDGET_TRIGGER_ACTION_RESULT_HANDLED:
             return TRUE;
         }
@@ -1516,7 +1517,7 @@ static void rofi_view_listview_mouse_activated_cb ( listview *lv, gboolean custo
     state->skip_absorb = TRUE;
 }
 
-static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, const char *parent, const char *name )
+static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, const char *name )
 {
     char   *defaults = NULL;
     widget *wid      = NULL;
@@ -1587,7 +1588,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
             return;
         }
         state->mesg_box = container_create ( parent_widget, name );
-        state->mesg_tb  = textbox_create ( state->mesg_box, WIDGET_TYPE_TEXTBOX_TEXT, "textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, NULL, 0, 0 );
+        state->mesg_tb  = textbox_create ( WIDGET ( state->mesg_box ), WIDGET_TYPE_TEXTBOX_TEXT, "textbox", TB_AUTOHEIGHT | TB_MARKUP | TB_WRAP, NORMAL, NULL, 0, 0 );
         container_add ( state->mesg_box, WIDGET ( state->mesg_tb ) );
         rofi_view_reload_message_bar ( state );
         box_add ( (box *) parent_widget, WIDGET ( state->mesg_box ), FALSE );
@@ -1645,7 +1646,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     if ( wid ) {
         GList *list = rofi_theme_get_list ( wid, "children", defaults );
         for ( const GList *iter = list; iter != NULL; iter = g_list_next ( iter ) ) {
-            rofi_view_add_widget ( state, wid, "", (const char *) iter->data );
+            rofi_view_add_widget ( state, wid, (const char *) iter->data );
         }
         g_list_free_full ( list, g_free );
     }
@@ -1682,7 +1683,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Get children.
     GList *list = rofi_theme_get_list ( WIDGET ( state->main_window ), "children", "mainbox" );
     for ( const GList *iter = list; iter != NULL; iter = g_list_next ( iter ) ) {
-        rofi_view_add_widget ( state, WIDGET ( state->main_window ), "window", (const char *) iter->data );
+        rofi_view_add_widget ( state, WIDGET ( state->main_window ), (const char *) iter->data );
     }
     g_list_free_full ( list, g_free );
 

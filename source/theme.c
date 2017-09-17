@@ -250,6 +250,11 @@ static void rofi_theme_print_property_index ( size_t pnl, int depth, Property *p
     case P_LINK:
         printf ( "%s;", p->value.link.name );
         break;
+    case P_INHERIT:
+        printf ( "inherit;" );
+        break;
+    default:
+        break;
     }
     putchar ( '\n' );
 }
@@ -354,7 +359,7 @@ void yyerror ( YYLTYPE *yylloc, const char *what, const char* s )
     rofi_add_error_message ( str );
 }
 
-static void rofi_theme_copy_property_int ( gpointer key, gpointer value, gpointer user_data )
+static void rofi_theme_copy_property_int ( G_GNUC_UNUSED gpointer key, gpointer value, gpointer user_data )
 {
     GHashTable *table = (GHashTable *) user_data;
     Property *p = rofi_theme_property_copy( (Property*) value);
