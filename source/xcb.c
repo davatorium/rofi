@@ -64,7 +64,7 @@
 #include <rofi.h>
 /** Checks if the if x and y is inside rectangle. */
 #define INTERSECT( x, y, x1, y1, w1, h1 )    ( ( ( ( x ) >= ( x1 ) ) && ( ( x ) < ( x1 + w1 ) ) ) && ( ( ( y ) >= ( y1 ) ) && ( ( y ) < ( y1 + h1 ) ) ) )
-WindowManager current_window_manager = WM_EWHM;
+WindowManagerQuirk current_window_manager = WM_EWHM;
 
 /**
  * Structure holding xcb objects needed to function.
@@ -912,16 +912,7 @@ static void x11_helper_discover_window_manager ( void )
             if ( wtitle.strings_len > 0 ) {
                 g_debug ( "Found window manager: %s", wtitle.strings );
                 if ( g_strcmp0 ( wtitle.strings, "i3" ) == 0 ) {
-                    current_window_manager = WM_I3;
-                }
-                else if  ( g_strcmp0 ( wtitle.strings, "awesome" ) == 0 ) {
-                    current_window_manager = WM_AWESOME;
-                }
-                else if  ( g_strcmp0 ( wtitle.strings, "Openbox" ) == 0 ) {
-                    current_window_manager = WM_OPENBOX;
-                }
-                else if ( g_strcmp0 ( wtitle.strings, "Xfwm4" ) == 0 ) {
-                    current_window_manager = WM_XFWM4;
+                    current_window_manager = WM_DO_NOT_CHANGE_CURRENT_DESKTOP|WM_PANGO_WORKSPACE_NAMES;
                 }
             }
             xcb_ewmh_get_utf8_strings_reply_wipe ( &wtitle );
