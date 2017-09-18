@@ -21,7 +21,7 @@ configuration {
 * {
     foreground:  #ffeedd;
     backlight:   #ccffeedd;
-    background-color:  rgba(0,0,0,0);
+    background-color:  transparent;
     dark: #1c1c1c;
     // Black
     black:       #3d352a;
@@ -104,7 +104,7 @@ configuration {
     font: "Sauce Code Pro 18";
 }
 #entry,prompt,case-indicator {
-    text-font: inherit; 
+    text-font: inherit;
     text-color:inherit;
 }
 #listview {
@@ -117,11 +117,11 @@ configuration {
     lines: 10;
 }
 #element {
-    padding: 3px; 
+    padding: 3px;
     vertical-align: 0.5;
 //    border: 2px;
     border-radius: 4px;
-    background-color: transparent; 
+    background-color: transparent;
     color: @foreground;
     font:inherit;
 }
