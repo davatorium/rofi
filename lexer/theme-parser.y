@@ -256,8 +256,8 @@ t_entry_list:
   %empty {
         // There is always a base widget.
         if (rofi_theme == NULL ){
-            $$ =  rofi_theme = g_slice_new0 ( ThemeWidget  );
-            rofi_theme->name = g_strdup ( "Root" );
+            rofi_theme_reset();
+            $$ =  rofi_theme;
         }
   }
 |  t_entry_list

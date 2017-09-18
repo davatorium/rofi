@@ -111,6 +111,13 @@ void rofi_theme_property_free ( Property *p )
     g_slice_free ( Property, p );
 }
 
+void rofi_theme_reset ( void )
+{
+    rofi_theme_free ( rofi_theme );
+    rofi_theme = g_slice_new0 ( ThemeWidget );
+    rofi_theme->name = g_strdup("Root");
+}
+
 void rofi_theme_free ( ThemeWidget *widget )
 {
     if ( widget == NULL ) {

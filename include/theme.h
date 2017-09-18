@@ -288,6 +288,11 @@ GList *rofi_theme_get_list ( const widget *widget, const char * property, const 
  */
 gboolean rofi_theme_is_empty ( void );
 
+
+/**
+ * Reset the current theme.
+ */
+void rofi_theme_reset ( void );
 #ifdef THEME_CONVERTER
 /**
  * Convert old theme colors into default one.
