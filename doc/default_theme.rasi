@@ -104,6 +104,10 @@
     border:       2px dash 0px 0px ;
     border-color: @separatorcolor;
 }
+#button {
+    spacing:    0;
+    text-color: @normal-foreground;
+}
 #button.selected {
     background-color: @selected-normal-background;
     text-color:       @selected-normal-foreground;
