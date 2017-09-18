@@ -137,7 +137,7 @@ const char *default_theme =
     "    background-color: @selected-normal-background;"
     "    text-color:       @selected-normal-foreground;"
     "}"
-    "#inputbar, case-indicator, entry, prompt {"
+    "#inputbar, case-indicator, entry, prompt, button {"
     "    spacing: 0;"
     "    text-color:      @normal-foreground;"
     "}";
