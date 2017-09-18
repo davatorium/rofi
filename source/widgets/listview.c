@@ -502,7 +502,7 @@ static WidgetTriggerActionResult listview_element_trigger_action ( widget *wid, 
         break;
     case ACCEPT_HOVERED_CUSTOM:
         custom = TRUE;
-        __attribute__ ( ( fallthrough ) );
+        /* FALLTHRU */
     case ACCEPT_HOVERED_ENTRY:
         listview_set_selected ( lv, lv->last_offset + i );
         lv->mouse_activated ( lv, custom, lv->mouse_activated_data );

@@ -52,7 +52,7 @@ unsigned int normal_window_mode = 0;
 
 #include "view.h"
 
-gboolean config_parse_set_property ( G_GNUC_UNUSED const Property *p, char **error )
+gboolean config_parse_set_property ( G_GNUC_UNUSED const Property *p, G_GNUC_UNUSED char **error )
 {
     return FALSE;
 }

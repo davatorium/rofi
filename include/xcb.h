@@ -168,21 +168,17 @@ void x11_disable_decoration ( xcb_window_t window );
 typedef enum
 {
     /** Default EWHM compatible window manager */
-    WM_EWHM    = 0,
+    WM_EWHM                               = 0,
     /** I3 Window manager */
-    WM_I3      = 1,
-    /** Awesome window manager */
-    WM_AWESOME = 2,
-    /** Openbox window manager */
-    WM_OPENBOX = 4,
-    /** Xfwm4 */
-    WM_XFWM4   = 8,
-} WindowManager;
+    WM_DO_NOT_CHANGE_CURRENT_DESKTOP      = 1,
+    /** PANGO WORKSPACE NAMES */
+    WM_PANGO_WORKSPACE_NAMES              = 2,
+} WindowManagerQuirk;
 
 /**
  * Indicates the current window manager.
  * This is used for work-arounds.
  */
-extern WindowManager current_window_manager;
+extern WindowManagerQuirk current_window_manager;
 
 #endif

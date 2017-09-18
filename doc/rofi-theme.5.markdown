@@ -66,8 +66,7 @@ abbreviation for **r**ofi **a**dvanced **s**tyle **i**nformation.
 
 ## BASIC STRUCTURE
 
-Each element has a section with defined properties. Properties can be inherited
-to sub-sections. Global properties can be defined in section `* { }`.
+Each element has a section with defined properties. Global properties can be defined in section `* { }`.
 Sub-section names begin with a hash symbol `#`.
 
 It is advised to define the *global properties section* on top of the file to
@@ -109,26 +108,29 @@ A theme can have multiple element theme sections.
 The element path can consist of multiple names separated by whitespace or dots.
 Each element may contain any number of letters, numbers and `-`'s.
 The first element in the element path should always start with a `#`.
+Multiple elements can be specified by a `,`.
 
 This is a valid element name:
 
 ```
-#window mainbox listview element normal.normal {
+#element normal.normal {
+    background-color: blue;
+}
+#button {
+    background-color: blue;
 }
 ```
 
 And is identical to:
 
 ```
-#window.mainbox.listview.element normal.normal {
+#element normal normal, button {
+    background-color: blue;
 }
 ```
 
-Each section inherits the properties of its parents. Inherited properties
-can be overridden by defining them again in the section itself.
-So `#window mainbox` will contain all properties of `#window` and `#window
-mainbox`.
-
+Each section inherits the global properties. Properties can be explicitely inherited from there parent with the
+`inherit` keyword.
 In the following example:
 
 ```
@@ -136,13 +138,14 @@ In the following example:
  a: 1;
  b: 2;
 }
-#window mainbox {
+#mainbox {
+    a: inherit;
     b: 4;
     c: 8;
 }
 ```
 
-The element `#window mainbox` will have the following set of properties:
+The element `#mainbox` will have the following set of properties (if `mainbox` is a child of `window`):
 
 ```
 a: 1;
@@ -477,7 +480,7 @@ The current widgets available in **rofi**:
       * `#case-indicator`: the case/sort indicator @textbox
       * `#prompt`: the prompt @textbox
       * `#entry`: the main entry @textbox
-    * `#listview`: The listview. 
+    * `#listview`: The listview.
        * `#scrollbar`: the listview scrollbar
        * `#element`: the entries in the listview
     * `#sidebar`: the main horizontal @box packing the buttons.
@@ -531,6 +534,7 @@ Example:
 ```
 
 Sets all selected textboxes marked active to the given foreground and background color.
+Note that a state modifies the original element, it therefor contains all the properties of that element.
 
 ### Scrollbar
 
