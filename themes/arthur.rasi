@@ -79,7 +79,7 @@ configuration {
 
 #mainbox {
     spacing: 0;
-    children: [ inputbar, listview ];
+    children: [ inputbar, message, listview ];
 }
 
 #message {
