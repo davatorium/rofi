@@ -76,96 +76,92 @@ rofi.color-enabled: true</span></pre><p id="command">rofi</p>
     var rasi_theme_body = "\n\n"+
         "#window {\n"+
         "    border:     1;\n"+
-        "    foreground: @foreground;\n"+
-        "    background: rgba ( 0, 0, 0, 0 % );\n"+
+        "    spacing:    2;\n"+
+        "    border-color: @foreground;\n"+
+        "    background-color: rgba ( 0, 0, 0, 0 % );\n"+
         "    padding:    5;\n"+
         "}\n"+
-        "#window.box {\n"+
-        "    foreground: @bordercolor;\n"+
-        "    background: @background;\n"+
+        "#window {\n"+
+        "    border:     1;\n"+
+        "    padding:    5;\n"+
+        "    background-color: @background;\n"+
         "}\n"+
-        "#window.mainbox {\n"+
+        "#mainbox {\n"+
         "    border:  0;\n"+
         "    padding: 0;\n"+
         "}\n"+
-        "#window.mainbox.message.box {\n"+
-        "    border:     1px dash 0px 0px ;\n"+
-        "    foreground: @separatorcolor;\n"+
-        "    padding:    2px 0px 0px ;\n"+
+        "#message {\n"+
+        "    border:  1px dash 0px 0px ;\n"+
+        "    padding: 2px 0px 0px ;\n"+
+        "    border-color: @separatorcolor;\n"+
         "}\n"+
-        "#window.mainbox.message.normal {\n"+
-        "    foreground: @foreground;\n"+
+        "#textbox {\n"+
+        "    text-color: @foreground;\n"+
         "}\n"+
-        "#window.mainbox.listview {\n"+
+        "#listview {\n"+
+        "    border-color: @separatorcolor;\n"+
+        "}\n"+
+        "#listview {\n"+
         "    fixed-height: 0;\n"+
         "    border:       2px dash 0px 0px ;\n"+
         "    padding:      2px 0px 0px ;\n"+
         "}\n"+
-        "#window.mainbox.listview.element {\n"+
+        "#element {\n"+
+        "    border: 0;\n"+
+        "}\n"+
+        "#element normal.normal {\n"+
+        "    text-color: @normal-foreground;\n"+
+        "    background-color: @normal-background;\n"+
+        "}\n"+
+        "#element normal.urgent {\n"+
+        "    text-color: @urgent-foreground;\n"+
+        "    background-color: @urgent-background;\n"+
+        "}\n"+
+        "#element normal.active {\n"+
+        "    text-color: @active-foreground;\n"+
+        "    background-color: @active-background;\n"+
+        "}\n"+
+        "#element selected.normal {\n"+
+        "    text-color: @selected-normal-foreground;\n"+
+        "    background-color: @selected-normal-background;\n"+
+        "}\n"+
+        "#element selected.urgent {\n"+
+        "    text-color: @selected-urgent-foreground;\n"+
+        "    background-color: @selected-urgent-background;\n"+
+        "}\n"+
+        "#element selected.active {\n"+
+        "    text-color: @selected-active-foreground;\n"+
+        "    background-color: @selected-active-background;\n"+
+        "}\n"+
+        "#element alternate.normal {\n"+
+        "    text-color: @alternate-normal-foreground;\n"+
+        "    background-color: @alternate-normal-background;\n"+
+        "}\n"+
+        "#element alternate.urgent {\n"+
+        "    text-color: @alternate-urgent-foreground;\n"+
+        "    background-color: @alternate-urgent-background;\n"+
+        "}\n"+
+        "#element alternate.active {\n"+
+        "    text-color: @alternate-active-foreground;\n"+
+        "    background-color: @alternate-active-background;\n"+
+        "}\n"+
+        "#scrollbar {\n"+
         "    border:  0;\n"+
-        "    padding: 1px ;\n"+
+        "    width: 4px;\n"+
+        "    padding: 0;\n"+
+        "    handle-color: @normal-foreground;\n"+
         "}\n"+
-        "#window.mainbox.listview.element.normal.normal {\n"+
-        "    foreground: @normal-foreground;\n"+
-        "    background: @normal-background;\n"+
+        "#sidebar {\n"+
+        "    border:       2px dash 0px 0px ;\n"+
+        "    border-color: @separatorcolor;\n"+
         "}\n"+
-        "#window.mainbox.listview.element.normal.urgent {\n"+
-        "    foreground: @urgent-foreground;\n"+
-        "    background: @urgent-background;\n"+
+        "#button selected {\n"+
+        "    background-color: @selected-normal-background;\n"+
+        "    text-color:       @selected-normal-foreground;\n"+
         "}\n"+
-        "#window.mainbox.listview.element.normal.active {\n"+
-        "    foreground: @active-foreground;\n"+
-        "    background: @active-background;\n"+
-        "}\n"+
-        "#window.mainbox.listview.element.selected.normal {\n"+
-        "    foreground: @selected-normal-foreground;\n"+
-        "    background: @selected-normal-background;\n"+
-        "}\n"+
-        "#window.mainbox.listview.element.selected.urgent {\n"+
-        "    foreground: @selected-urgent-foreground;\n"+
-        "    background: @selected-urgent-background;\n"+
-        "}\n"+
-        "#window.mainbox.listview.element.selected.active {\n"+
-        "    foreground: @selected-active-foreground;\n"+
-        "    background: @selected-active-background;\n"+
-        "}\n"+
-        "#window.mainbox.listview.element.alternate.normal {\n"+
-        "    foreground: @alternate-normal-foreground;\n"+
-        "    background: @alternate-normal-background;\n"+
-        "}\n"+
-        "#window.mainbox.listview.element.alternate.urgent {\n"+
-        "    foreground: @alternate-urgent-foreground;\n"+
-        "    background: @alternate-urgent-background;\n"+
-        "}\n"+
-        "#window.mainbox.listview.element.alternate.active {\n"+
-        "    foreground: @alternate-active-foreground;\n"+
-        "    background: @alternate-active-background;\n"+
-        "}\n"+
-        "#window.mainbox.listview.scrollbar {\n"+
-        "    width:        4px ;\n"+
-        "    border:       0;\n"+
-        "    handle-width: 8px ;\n"+
-        "    padding:      0;\n"+
-        "}\n"+
-        "#window.mainbox.listview.box {\n"+
-        "    scrollbar: true;\n"+
-        "    spacing:   2px ;\n"+
-        "}\n"+
-        "#window.mainbox.sidebar.box {\n"+
-        "    border: 2px dash 0px 0px ;\n"+
-        "}\n"+
-        "#window.mainbox.sidebar.button.selected {\n"+
-        "    foreground: @selected-normal-foreground;\n"+
-        "    background: @selected-normal-background;\n"+
-        "}\n"+
-        "#window.mainbox.inputbar {\n"+
+        "#inputbar, case-indicator, entry, prompt {\n"+
         "    spacing: 0;\n"+
-        "}\n"+
-        "#window.mainbox.inputbar.box {\n"+
-        "    border: 0px ;\n"+
-        "}\n"+
-        "#window.mainbox.inputbar.normal {\n"+
-        "    foreground: @foreground;\n"+
+        "    text-color:      @normal-foreground;\n"+
         "}\n"+
         "";
     var colors = {
