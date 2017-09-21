@@ -430,11 +430,12 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         cairo_save ( draw );
 
         int    iconh = cairo_image_surface_get_height ( tb->icon );
-        double scale = (double) iconheight / iconh;
-
-        cairo_translate ( draw, x, y );
+        int    iconw = cairo_image_surface_get_width ( tb->icon );
+        int    icons = MAX(iconh, iconw);
+        double scale = (double) iconheight / icons;
+        cairo_translate ( draw, x+(iconheight-iconw*scale)/2.0, y+(iconheight-iconh*scale)/2.0 );
         cairo_scale ( draw, scale, scale );
-        cairo_set_source_surface ( draw, tb->icon, 0, 0 );
+        cairo_set_source_surface ( draw, tb->icon, 0,0);
         cairo_paint ( draw );
         cairo_restore ( draw );
     }
