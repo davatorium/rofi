@@ -11,6 +11,13 @@ before_script:
     - make
     - sudo make install
     - cd -
+    - git clone https://github.com/libcheck/check/ -b 0.11.0
+    - cd check
+    - autoreconf -i
+    - TEX="false" ./configure --prefix=/usr/
+    - make
+    - sudo make install
+    - cd -
     - git clone https://github.com/alobbs/doxy-coverage
 
 build-rofi:
