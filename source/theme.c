@@ -783,7 +783,7 @@ void rofi_theme_convert_old ( void )
         char               **retv = g_strsplit ( config.color_window, ",", -1 );
         const char * const conf[] = {
             "* { background: %s; }",
-            "* { bordercolor: %s; }",
+            "* { border-color: %s; }",
             "* { separatorcolor: %s; }"
         };
         for ( int i = 0; retv && i < 3 && retv[i]; i++ ) {
