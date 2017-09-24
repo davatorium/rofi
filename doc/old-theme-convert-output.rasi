@@ -13,12 +13,11 @@
     selected-active-foreground:  rgba ( 2, 20, 63, 100 % );
     alternate-active-background: rgba ( 0, 0, 0, 0 % );
     background:                  rgba ( 0, 0, 33, 87 % );
-    bordercolor:                 rgba ( 219, 223, 188, 100 % );
     alternate-normal-foreground: @foreground;
     normal-background:           rgba ( 0, 0, 0, 0 % );
     lightfg:                     rgba ( 88, 104, 117, 100 % );
     selected-normal-background:  rgba ( 219, 223, 188, 100 % );
-    border-color:                @foreground;
+    border-color:                rgba ( 219, 223, 188, 100 % );
     spacing:                     2;
     separatorcolor:              rgba ( 219, 223, 188, 100 % );
     urgent-background:           rgba ( 0, 0, 0, 0 % );
