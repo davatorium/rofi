@@ -1,7 +1,7 @@
 ---
 layout: default
 github: DaveDavenport
-title: Rofi
+title: Rofi (old)
 subtitle: A window switcher, run dialog and dmenu replacement
 ---
 
