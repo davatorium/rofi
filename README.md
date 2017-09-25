@@ -247,7 +247,7 @@ For more detailed information, please see the [manpage](doc/rofi.1.markdown), th
 
 # Installation
 
-Please see the [installation guide](https://davedavenport.github.io/rofi/p08-INSTALL.html) for instructions on how to
+Please see the [installation guide](https://github.com/DaveDavenport/rofi/blob/next/INSTALL.md) for instructions on how to
 install **Rofi**.
 
 # What is rofi not?
