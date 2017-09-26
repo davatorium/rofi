@@ -1,3 +1,5 @@
+development:
+
 v1.4.0: I reject your truth and substitute my own (unreleased)
 	New Features:
 		- FZF style sorting for fuzzy matching (thanks to MaskRay) (#533)
