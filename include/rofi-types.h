@@ -216,4 +216,13 @@ typedef struct Property
     PropertyValue value;
 } Property;
 
+
+/**
+ * Structure to hold a range.
+ */
+typedef struct rofi_range_pair
+{
+    unsigned int start;
+    unsigned int stop;
+} rofi_range_pair;
 #endif // INCLUDE_ROFI_TYPES_H

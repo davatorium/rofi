@@ -49,12 +49,6 @@
 #include "xrmoptions.h"
 #include "view.h"
 
-struct range_pair
-{
-    unsigned int start;
-    unsigned int stop;
-};
-
 static inline unsigned int bitget ( uint32_t *array, unsigned int index )
 {
     uint32_t bit = index % 32;
@@ -78,9 +72,9 @@ typedef struct
     unsigned int      selected_line;
     char              *message;
     char              *format;
-    struct range_pair * urgent_list;
+    struct rofi_range_pair * urgent_list;
     unsigned int      num_urgent_list;
-    struct range_pair * active_list;
+    struct rofi_range_pair * active_list;
     unsigned int      num_active_list;
     uint32_t          *selected_list;
     unsigned int      num_selected_list;
@@ -206,42 +200,7 @@ static unsigned int dmenu_mode_get_num_entries ( const Mode *sw )
     return rmpd->cmd_list_length;
 }
 
-static void parse_pair ( char  *input, struct range_pair  *item )
-{
-    int                index = 0;
-    const char * const sep   = "-";
-    for ( char *token = strsep ( &input, sep ); token != NULL; token = strsep ( &input, sep ) ) {
-        if ( index == 0 ) {
-            item->start = item->stop = (unsigned int) strtoul ( token, NULL, 10 );
-            index++;
-        }
-        else {
-            if ( token[0] == '\0' ) {
-                item->stop = 0xFFFFFFFF;
-            }
-            else{
-                item->stop = (unsigned int) strtoul ( token, NULL, 10 );
-            }
-        }
-    }
-}
 
-static void parse_ranges ( char *input, struct range_pair **list, unsigned int *length )
-{
-    char *endp;
-    if ( input == NULL ) {
-        return;
-    }
-    const char *const sep = ",";
-    for ( char *token = strtok_r ( input, sep, &endp ); token != NULL; token = strtok_r ( NULL, sep, &endp ) ) {
-        // Make space.
-        *list = g_realloc ( ( *list ), ( ( *length ) + 1 ) * sizeof ( struct range_pair ) );
-        // Parse a single pair.
-        parse_pair ( token, &( ( *list )[*length] ) );
-
-        ( *length )++;
-    }
-}
 
 static gchar * dmenu_format_output_string ( const DmenuModePrivateData *pd, const char *input )
 {
@@ -295,61 +254,6 @@ static char *get_display_data ( const Mode *data, unsigned int index, int *state
     return get_entry ? dmenu_format_output_string ( pd, retv[index] ) : NULL;
 }
 
-/**
- * @param format The format string used. See below for possible syntax.
- * @param string The selected entry.
- * @param selected_line The selected line index.
- * @param filter The entered filter.
- *
- * Function that outputs the selected line in the user-specified format.
- * Currently the following formats are supported:
- *   * i: Print the index (0-(N-1))
- *   * d: Print the index (1-N)
- *   * s: Print input string.
- *   * q: Print quoted input string.
- *   * f: Print the entered filter.
- *   * F: Print the entered filter, quoted
- *
- * This functions outputs the formatted string to stdout, appends a newline (\n) character and
- * calls flush on the file descriptor.
- */
-static void dmenu_output_formatted_line ( const char *format, const char *string, int selected_line,
-                                          const char *filter )
-{
-    for ( int i = 0; format && format[i]; i++ ) {
-        if ( format[i] == 'i' ) {
-            fprintf ( stdout, "%d", selected_line );
-        }
-        else if ( format[i] == 'd' ) {
-            fprintf ( stdout, "%d", ( selected_line + 1 ) );
-        }
-        else if ( format[i] == 's' ) {
-            fputs ( string, stdout );
-        }
-        else if ( format[i] == 'q' ) {
-            char *quote = g_shell_quote ( string );
-            fputs ( quote, stdout );
-            g_free ( quote );
-        }
-        else if ( format[i] == 'f' ) {
-            if ( filter ) {
-                fputs ( filter, stdout );
-            }
-        }
-        else if ( format[i] == 'F' ) {
-            if ( filter ) {
-                char *quote = g_shell_quote ( filter );
-                fputs ( quote, stdout );
-                g_free ( quote );
-            }
-        }
-        else {
-            fputc ( format[i], stdout );
-        }
-    }
-    fputc ( '\n', stdout );
-    fflush ( stdout );
-}
 static void dmenu_mode_free ( Mode *sw )
 {
     if ( mode_get_private_data ( sw ) == NULL ) {
@@ -525,7 +429,7 @@ static void dmenu_print_results ( DmenuModePrivateData *pd, const char *input )
         for ( unsigned int st = 0; st < pd->cmd_list_length; st++ ) {
             if ( bitget ( pd->selected_list, st ) ) {
                 seen = TRUE;
-                dmenu_output_formatted_line ( pd->format, cmd_list[st], st, input );
+                rofi_output_formatted_line ( pd->format, cmd_list[st], st, input );
             }
         }
     }
@@ -534,7 +438,7 @@ static void dmenu_print_results ( DmenuModePrivateData *pd, const char *input )
         if ( pd->selected_line != UINT32_MAX ) {
             cmd = cmd_list[pd->selected_line];
         }
-        dmenu_output_formatted_line ( pd->format, cmd, pd->selected_line, input );
+        rofi_output_formatted_line ( pd->format, cmd, pd->selected_line, input );
     }
 }
 
@@ -696,7 +600,7 @@ int dmenu_switcher_dialog ( void )
         }
     }
     if ( config.auto_select && cmd_list_length == 1 ) {
-        dmenu_output_formatted_line ( pd->format, cmd_list[0], 0, config.filter );
+        rofi_output_formatted_line ( pd->format, cmd_list[0], 0, config.filter );
         return TRUE;
     }
     if ( find_arg ( "-password" ) >= 0 ) {
@@ -723,7 +627,7 @@ int dmenu_switcher_dialog ( void )
         unsigned int i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
             if ( tokens == NULL || helper_token_match ( tokens, cmd_list[i] ) ) {
-                dmenu_output_formatted_line ( pd->format, cmd_list[i], i, config.filter );
+                rofi_output_formatted_line ( pd->format, cmd_list[i], i, config.filter );
             }
         }
         tokenize_free ( tokens );

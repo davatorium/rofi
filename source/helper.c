@@ -1114,3 +1114,93 @@ cairo_surface_t* cairo_image_surface_create_from_svg ( const gchar* file, int he
 
     return surface;
 }
+
+static void parse_pair ( char  *input, rofi_range_pair  *item )
+{
+    int                index = 0;
+    const char * const sep   = "-";
+    for ( char *token = strsep ( &input, sep ); token != NULL; token = strsep ( &input, sep ) ) {
+        if ( index == 0 ) {
+            item->start = item->stop = (unsigned int) strtoul ( token, NULL, 10 );
+            index++;
+        }
+        else {
+            if ( token[0] == '\0' ) {
+                item->stop = 0xFFFFFFFF;
+            }
+            else{
+                item->stop = (unsigned int) strtoul ( token, NULL, 10 );
+            }
+        }
+    }
+}
+void parse_ranges ( char *input, rofi_range_pair **list, unsigned int *length )
+{
+    char *endp;
+    if ( input == NULL ) {
+        return;
+    }
+    const char *const sep = ",";
+    for ( char *token = strtok_r ( input, sep, &endp ); token != NULL; token = strtok_r ( NULL, sep, &endp ) ) {
+        // Make space.
+        *list = g_realloc ( ( *list ), ( ( *length ) + 1 ) * sizeof ( struct rofi_range_pair ) );
+        // Parse a single pair.
+        parse_pair ( token, &( ( *list )[*length] ) );
+
+        ( *length )++;
+    }
+}
+/**
+ * @param format The format string used. See below for possible syntax.
+ * @param string The selected entry.
+ * @param selected_line The selected line index.
+ * @param filter The entered filter.
+ *
+ * Function that outputs the selected line in the user-specified format.
+ * Currently the following formats are supported:
+ *   * i: Print the index (0-(N-1))
+ *   * d: Print the index (1-N)
+ *   * s: Print input string.
+ *   * q: Print quoted input string.
+ *   * f: Print the entered filter.
+ *   * F: Print the entered filter, quoted
+ *
+ * This functions outputs the formatted string to stdout, appends a newline (\n) character and
+ * calls flush on the file descriptor.
+ */
+void rofi_output_formatted_line ( const char *format, const char *string, int selected_line, const char *filter )
+{
+    for ( int i = 0; format && format[i]; i++ ) {
+        if ( format[i] == 'i' ) {
+            fprintf ( stdout, "%d", selected_line );
+        }
+        else if ( format[i] == 'd' ) {
+            fprintf ( stdout, "%d", ( selected_line + 1 ) );
+        }
+        else if ( format[i] == 's' ) {
+            fputs ( string, stdout );
+        }
+        else if ( format[i] == 'q' ) {
+            char *quote = g_shell_quote ( string );
+            fputs ( quote, stdout );
+            g_free ( quote );
+        }
+        else if ( format[i] == 'f' ) {
+            if ( filter ) {
+                fputs ( filter, stdout );
+            }
+        }
+        else if ( format[i] == 'F' ) {
+            if ( filter ) {
+                char *quote = g_shell_quote ( filter );
+                fputs ( quote, stdout );
+                g_free ( quote );
+            }
+        }
+        else {
+            fputc ( format[i], stdout );
+        }
+    }
+    fputc ( '\n', stdout );
+    fflush ( stdout );
+}

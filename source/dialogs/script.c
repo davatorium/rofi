@@ -40,9 +40,67 @@
 #include "dialogs/script.h"
 #include "helper.h"
 
+#include "widgets/textbox.h"
+
 #include "mode-private.h"
-static char **get_script_output ( char *command, char *arg, unsigned int *length )
+
+typedef struct
 {
+    /** ID of the current script. */
+    unsigned int id;
+    /** List of visible items. */
+    char         **cmd_list;
+    /** length list of visible items. */
+    unsigned int cmd_list_length;
+
+    /** Urgent list */
+    struct rofi_range_pair * urgent_list;
+    unsigned int      num_urgent_list;
+    /** Active list */
+    struct rofi_range_pair * active_list;
+    unsigned int      num_active_list;
+    /** Configuration settings. */
+    char *message;
+    char *prompt;
+    gboolean do_markup;
+
+} ScriptModePrivateData;
+
+static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
+{
+    ScriptModePrivateData *pd = (ScriptModePrivateData *) sw->private_data;
+    ssize_t length_key = 0;//strlen ( line );
+    while ( line[length_key] != '\x1f' && length_key <= length ) {
+        length_key++;
+    }
+
+    if ( length_key < length )
+    {
+        line[length_key] = '\0';
+        char *value = line+length_key+1;
+        if ( strcasecmp ( line, "message" ) == 0 ) {
+            g_free ( pd->message );
+            pd->message = g_strdup ( value );
+        } else if ( strcasecmp ( line, "prompt" )      == 0 ) {
+            g_free ( pd->prompt );
+            pd->prompt = g_strdup  ( value );
+            sw->display_name = pd->prompt;
+        } else if ( strcasecmp ( line, "markup-rows" ) == 0 ) {
+            pd->do_markup = ( strcasecmp ( value, "true" ) == 0 );
+        } else if ( strcasecmp ( line, "urgent" )      == 0 ) {
+            parse_ranges ( value, &( pd->urgent_list ), &( pd->num_urgent_list ) );
+        } else if ( strcasecmp ( line, "active" )      == 0 ) {
+            parse_ranges ( value, &( pd->active_list ), &( pd->num_active_list ) );
+        }
+    }
+}
+
+
+
+
+static char **get_script_output ( Mode *sw, char *command, char *arg, unsigned int *length )
+{
+    size_t actual_size = 0;
     int    fd     = -1;
     GError *error = NULL;
     char   **retv = NULL;
@@ -68,17 +126,23 @@ static char **get_script_output ( char *command, char *arg, unsigned int *length
         if ( inp ) {
             char   *buffer       = NULL;
             size_t buffer_length = 0;
-            while ( getline ( &buffer, &buffer_length, inp ) > 0 ) {
-                retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-                retv[( *length )]     = g_strdup ( buffer );
-                retv[( *length ) + 1] = NULL;
-
+            ssize_t read_length = 0;
+            while ( (read_length = getline ( &buffer, &buffer_length, inp ) ) > 0 ) {
                 // Filter out line-end.
-                if ( retv[( *length )][strlen ( buffer ) - 1] == '\n' ) {
-                    retv[( *length )][strlen ( buffer ) - 1] = '\0';
+                if ( buffer[read_length-1] == '\n' ) {
+                    buffer[read_length-1] = '\0';
                 }
-
-                ( *length )++;
+                if ( buffer[0] == '\0' ) {
+                    parse_header_entry ( sw, &buffer[1], read_length-1 );
+                } else {
+                    if ( actual_size < ((*length)+2) ){
+                        actual_size += 256;
+                        retv = g_realloc ( retv, ( actual_size ) * sizeof ( char* ) );
+                    }
+                    retv[( *length )]     = g_strdup ( buffer );
+                    retv[( *length ) + 1] = NULL;
+                    ( *length )++;
+                }
             }
             if ( buffer ) {
                 free ( buffer );
@@ -94,7 +158,7 @@ static char **get_script_output ( char *command, char *arg, unsigned int *length
 
 static char **execute_executor ( Mode *sw, char *result, unsigned int *length )
 {
-    char **retv = get_script_output ( sw->ed, result, length );
+    char **retv = get_script_output ( sw, sw->ed, result, length );
     return retv;
 }
 
@@ -108,19 +172,13 @@ static void script_switcher_free ( Mode *sw )
     g_free ( sw );
 }
 
-typedef struct
-{
-    unsigned int id;
-    char         **cmd_list;
-    unsigned int cmd_list_length;
-} ScriptModePrivateData;
 
 static int script_mode_init ( Mode *sw )
 {
     if ( sw->private_data == NULL ) {
         ScriptModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         sw->private_data = (void *) pd;
-        pd->cmd_list     = get_script_output ( (char *) sw->ed, NULL, &( pd->cmd_list_length ) );
+        pd->cmd_list     = get_script_output ( sw, (char *) sw->ed, NULL, &( pd->cmd_list_length ) );
     }
     return TRUE;
 }
@@ -169,20 +227,42 @@ static void script_mode_destroy ( Mode *sw )
     ScriptModePrivateData *rmpd = (ScriptModePrivateData *) sw->private_data;
     if ( rmpd != NULL ) {
         g_strfreev ( rmpd->cmd_list );
+        g_free ( rmpd->message );
+        g_free ( rmpd->prompt );
+        g_free ( rmpd->urgent_list );
+        g_free ( rmpd->active_list );
         g_free ( rmpd );
         sw->private_data = NULL;
     }
 }
 static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, G_GNUC_UNUSED GList **list, int get_entry )
 {
-    ScriptModePrivateData *rmpd = sw->private_data;
-    return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
+    ScriptModePrivateData *pd = sw->private_data;
+    for ( unsigned int i = 0; i < pd->num_active_list; i++ ) {
+        if ( selected_line >= pd->active_list[i].start && selected_line <= pd->active_list[i].stop ) {
+            *state |= ACTIVE;
+        }
+    }
+    for ( unsigned int i = 0; i < pd->num_urgent_list; i++ ) {
+        if ( selected_line >= pd->urgent_list[i].start && selected_line <= pd->urgent_list[i].stop ) {
+            *state |= URGENT;
+        }
+    }
+    if ( pd->do_markup ) {
+        *state |= MARKUP;
+    }
+    return get_entry ? g_strdup ( pd->cmd_list[selected_line] ) : NULL;
 }
 
 static int script_token_match ( const Mode *sw, GRegex **tokens, unsigned int index )
 {
     ScriptModePrivateData *rmpd = sw->private_data;
     return helper_token_match ( tokens, rmpd->cmd_list[index] );
+}
+static char *script_get_message ( const Mode *sw )
+{
+    ScriptModePrivateData *pd = sw->private_data;
+    return g_strdup ( pd->message );
 }
 
 #include "mode-private.h"
@@ -210,6 +290,7 @@ Mode *script_switcher_parse_setup ( const char *str )
         sw->_result            = script_mode_result;
         sw->_destroy           = script_mode_destroy;
         sw->_token_match       = script_token_match;
+        sw->_get_message       = script_get_message;
         sw->_get_completion    = NULL,
         sw->_preprocess_input  = NULL,
         sw->_get_display_value = _get_display_value;

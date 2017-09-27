@@ -29,6 +29,7 @@
 #define ROFI_HELPER_H
 
 #include <cairo.h>
+#include <rofi-types.h>
 
 /**
  * @defgroup HELPERS Helpers
@@ -315,4 +316,25 @@ gboolean helper_execute_command ( const char *wd, const char *cmd, gboolean run_
  */
 cairo_surface_t *cairo_image_surface_create_from_svg ( const gchar* file, int height );
 
+
+/**
+ * Ranges.
+ */
+
+/**
+ * @param input String to parse
+ * @param list  List of ranges
+ * @param length Length of list.
+ *
+ * ranges
+ */
+void parse_ranges ( char *input, rofi_range_pair **list, unsigned int *length );
+
+/**
+ * @param format
+ * @param string
+ * @param selected_line
+ * @param filter
+ */
+void rofi_output_formatted_line ( const char *format, const char *string, int selected_line, const char *filter );
 #endif // ROFI_HELPER_H
