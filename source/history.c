@@ -80,6 +80,7 @@ static void __history_write_element_list ( FILE *fd, _element **list, unsigned i
 
 static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
 {
+    unsigned int real_length = 0;
     _element **retv = NULL;
 
     if  ( length == NULL ) {
@@ -108,8 +109,12 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
         if ( ( l - ( start - buffer ) ) < 2 ) {
             continue;
         }
-        // Resize and check.
-        retv = g_realloc ( retv, ( *length + 2 ) * sizeof ( _element* ) );
+        if ( real_length < (*length+2) )
+        {
+            real_length += 15;
+            // Resize and check.
+            retv = g_realloc ( retv, ( real_length ) * sizeof ( _element* ) );
+        }
 
         retv[( *length )] = g_malloc ( sizeof ( _element ) );
 

@@ -55,6 +55,7 @@
 #include "rofi.h"
 #include "view.h"
 
+
 /**
  * Textual description of positioning rofi.
  */
@@ -152,10 +153,12 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
     return FALSE;
 }
 
-void tokenize_free ( GRegex ** tokens )
+void tokenize_free ( rofi_int_matcher ** tokens )
 {
     for ( size_t i = 0; tokens && tokens[i]; i++ ) {
-        g_regex_unref ( (GRegex *) tokens[i] );
+        g_regex_unref ( (GRegex *) tokens[i]->regex );
+        g_free ( tokens[i] );
+
     }
     g_free ( tokens );
 }
@@ -214,10 +217,15 @@ static inline GRegex * R ( const char *s, int case_sensitive  )
     return g_regex_new ( s, G_REGEX_OPTIMIZE | ( ( case_sensitive ) ? 0 : G_REGEX_CASELESS ), 0, NULL );
 }
 
-static GRegex * create_regex ( const char *input, int case_sensitive )
+static rofi_int_matcher * create_regex ( const char *input, int case_sensitive )
 {
     GRegex * retv = NULL;
     gchar  *r;
+    rofi_int_matcher *rv = g_malloc0(sizeof(rofi_int_matcher));
+    if ( input && input[0] == '-') {
+        rv->invert = 1;
+        input++;
+    }
     switch ( config.matching_method )
     {
     case MM_GLOB:
@@ -244,9 +252,10 @@ static GRegex * create_regex ( const char *input, int case_sensitive )
         g_free ( r );
         break;
     }
-    return retv;
+    rv->regex = retv;
+    return rv;
 }
-GRegex **tokenize ( const char *input, int case_sensitive )
+rofi_int_matcher **tokenize ( const char *input, int case_sensitive )
 {
     if ( input == NULL ) {
         return NULL;
@@ -257,10 +266,10 @@ GRegex **tokenize ( const char *input, int case_sensitive )
     }
 
     char   *saveptr = NULL, *token;
-    GRegex **retv = NULL;
+    rofi_int_matcher **retv = NULL;
     if ( !config.tokenize ) {
-        retv    = g_malloc0 ( sizeof ( GRegex* ) * 2 );
-        retv[0] = (GRegex *) create_regex ( input, case_sensitive );
+        retv    = g_malloc0 ( sizeof ( rofi_int_matcher* ) * 2 );
+        retv[0] = create_regex ( input, case_sensitive );
         return retv;
     }
 
@@ -274,8 +283,8 @@ GRegex **tokenize ( const char *input, int case_sensitive )
     // strtok should still be valid for utf8.
     const char * const sep = " ";
     for ( token = strtok_r ( str, sep, &saveptr ); token != NULL; token = strtok_r ( NULL, sep, &saveptr ) ) {
-        retv                 = g_realloc ( retv, sizeof ( GRegex* ) * ( num_tokens + 2 ) );
-        retv[num_tokens]     = (GRegex *) create_regex ( token, case_sensitive );
+        retv                 = g_realloc ( retv, sizeof ( rofi_int_matcher* ) * ( num_tokens + 2 ) );
+        retv[num_tokens]     = create_regex ( token, case_sensitive );
         retv[num_tokens + 1] = NULL;
         num_tokens++;
     }
@@ -400,13 +409,14 @@ int find_arg_char ( const char * const key, char *val )
     return FALSE;
 }
 
-PangoAttrList *helper_token_match_get_pango_attr ( RofiHighlightColorStyle th, GRegex **tokens, const char *input, PangoAttrList *retv )
+PangoAttrList *helper_token_match_get_pango_attr ( RofiHighlightColorStyle th, rofi_int_matcher**tokens, const char *input, PangoAttrList *retv )
 {
     // Do a tokenized match.
     if ( tokens ) {
         for ( int j = 0; tokens[j]; j++ ) {
             GMatchInfo *gmi = NULL;
-            g_regex_match ( (GRegex *) tokens[j], input, G_REGEX_MATCH_PARTIAL, &gmi );
+            if ( tokens[j]->invert ) continue;
+            g_regex_match ( tokens[j]->regex, input, G_REGEX_MATCH_PARTIAL, &gmi );
             while ( g_match_info_matches ( gmi ) ) {
                 int count = g_match_info_get_match_count ( gmi );
                 for ( int index = ( count > 1 ) ? 1 : 0; index < count; index++ ) {
@@ -460,13 +470,14 @@ PangoAttrList *helper_token_match_get_pango_attr ( RofiHighlightColorStyle th, G
     return retv;
 }
 
-int helper_token_match ( GRegex * const *tokens, const char *input )
+int helper_token_match ( rofi_int_matcher* const *tokens, const char *input )
 {
     int match = TRUE;
     // Do a tokenized match.
     if ( tokens ) {
         for ( int j = 0; match && tokens[j]; j++ ) {
-            match = g_regex_match ( (const GRegex *) tokens[j], input, 0, NULL );
+            match = g_regex_match ( tokens[j]->regex, input, 0, NULL );
+            match ^= tokens[j]->invert;
         }
     }
     return match;

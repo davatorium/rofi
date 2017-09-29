@@ -37,6 +37,7 @@
 #include "xcb-internal.h"
 #include "rofi.h"
 #include "settings.h"
+#include "rofi-types.h"
 
 static int       test = 0;
 
@@ -75,7 +76,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
     }
     {
         config.matching_method = MM_NORMAL;
-        GRegex **tokens = tokenize ( "noot", FALSE );
+        rofi_int_matcher **tokens = tokenize ( "noot", FALSE );
 
         TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
         TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
@@ -108,7 +109,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
     }
     {
         config.matching_method = MM_GLOB;
-        GRegex **tokens = tokenize ( "noot", FALSE );
+        rofi_int_matcher **tokens = tokenize ( "noot", FALSE );
 
         TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
         TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
@@ -165,7 +166,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
     }
     {
         config.matching_method = MM_FUZZY;
-        GRegex **tokens = tokenize ( "noot", FALSE );
+        rofi_int_matcher **tokens = tokenize ( "noot", FALSE );
 
         TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
         TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
@@ -221,7 +222,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
     }
     {
         config.matching_method = MM_REGEX;
-        GRegex **tokens = tokenize ( "noot", FALSE );
+        rofi_int_matcher **tokens = tokenize ( "noot", FALSE );
 
         TASSERT ( helper_token_match ( tokens, "aap noot mies") == TRUE );
         TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );

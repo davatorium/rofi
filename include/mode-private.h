@@ -31,7 +31,7 @@
 #include <gmodule.h>
 
 /** ABI version to check if loaded plugin is compatible. */
-#define ABI_VERSION    0x00000005
+#define ABI_VERSION    0x00000006
 
 /**
  * @param data Pointer to #Mode object.
@@ -84,7 +84,7 @@ typedef char * ( *_mode_get_completion )( const Mode *sw, unsigned int selected_
  *
  * @returns 1 when it matches, 0 if not.
  */
-typedef int ( *_mode_token_match )( const Mode *data, GRegex **tokens, unsigned int index );
+typedef int ( *_mode_token_match )( const Mode *data, rofi_int_matcher **tokens, unsigned int index );
 
 /**
  * @param sw The #Mode pointer

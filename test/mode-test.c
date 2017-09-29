@@ -146,13 +146,13 @@ END_TEST
 
 START_TEST(test_mode_match_entry)
 {
-    GRegex **t = tokenize( "primary-paste", FALSE );
+    rofi_int_matcher **t = tokenize( "primary-paste", FALSE );
     ck_assert_ptr_nonnull ( t );
 
     ck_assert_int_eq ( mode_token_match ( &help_keys_mode, t, 0), TRUE );
     ck_assert_int_eq ( mode_token_match ( &help_keys_mode, t, 1), FALSE );
     tokenize_free ( t );
-    t = tokenize( "-paste", FALSE );
+    t = tokenize( "y-paste", FALSE );
     ck_assert_ptr_nonnull ( t );
 
     ck_assert_int_eq ( mode_token_match ( &help_keys_mode, t, 0), TRUE );

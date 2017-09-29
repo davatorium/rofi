@@ -516,7 +516,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
  *
  * @returns TRUE if matches
  */
-static int ssh_token_match ( const Mode *sw, GRegex **tokens, unsigned int index )
+static int ssh_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) mode_get_private_data ( sw );
     return helper_token_match ( tokens, rmpd->hosts_list[index] );

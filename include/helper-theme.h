@@ -43,7 +43,7 @@
  *
  * @returns the updated retv list.
  */
-PangoAttrList *helper_token_match_get_pango_attr ( RofiHighlightColorStyle th, GRegex **tokens, const char *input, PangoAttrList *retv );
+PangoAttrList *helper_token_match_get_pango_attr ( RofiHighlightColorStyle th, rofi_int_matcher **tokens, const char *input, PangoAttrList *retv );
 
 /**
  * @param pfd Pango font description to validate.

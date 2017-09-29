@@ -102,7 +102,7 @@ ModeMode mode_result ( Mode *mode, int menu_retv, char **input, unsigned int sel
     return mode->_result ( mode, menu_retv, input, selected_line );
 }
 
-int mode_token_match ( const Mode *mode, GRegex **tokens, unsigned int selected_line )
+int mode_token_match ( const Mode *mode, rofi_int_matcher **tokens, unsigned int selected_line )
 {
     g_assert ( mode != NULL );
     g_assert ( mode->_token_match != NULL );

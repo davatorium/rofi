@@ -400,7 +400,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
-static int run_token_match ( const Mode *sw, GRegex **tokens, unsigned int index )
+static int run_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     return helper_token_match ( tokens, rmpd->cmd_list[index] );
