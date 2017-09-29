@@ -235,14 +235,13 @@ check_PROGRAMS+=\
 			   helper_test\
 			   helper_expand\
 			   helper_pidfile\
-			   helper_tokenize\
 			   helper_config_cmdline_parser\
 			   widget_test\
 			   box_test\
 			   scrollbar_test
 
 if USE_CHECK
-check_PROGRAMS+=mode_test theme_parser_test
+check_PROGRAMS+=mode_test theme_parser_test helper_tokenize
 endif
 
 
@@ -315,22 +314,6 @@ helper_pidfile_SOURCES=\
 					   include/xrmoptions.h\
 					   source/xrmoptions.c\
 					   test/helper-pidfile.c
-
-helper_tokenize_CFLAGS=$(textbox_test_CFLAGS)
-helper_tokenize_LDADD=$(textbox_test_LDADD)
-helper_tokenize_SOURCES=\
-					   config/config.c\
-					   include/rofi.h\
-					   include/mode.h\
-					   include/mode-private.h\
-					   source/helper.c\
-					   source/rofi-types.c\
-					   include/rofi-types.h\
-					   include/helper.h\
-					   include/helper-theme.h\
-					   include/xrmoptions.h\
-					   source/xrmoptions.c\
-					   test/helper-tokenize.c
 
 widget_test_LDADD=$(textbox_test_LDADD)
 widget_test_CFLAGS=$(textbox_test_CFLAGS)
@@ -519,6 +502,22 @@ mode_test_SOURCES=\
 				  source/keyb.c\
 				  include/mode.h\
 				  include/mode-private.h
+helper_tokenize_CFLAGS=$(textbox_test_CFLAGS) $(check_CFLAGS)
+helper_tokenize_LDADD=$(textbox_test_LDADD) $(check_LIBS)
+helper_tokenize_SOURCES=\
+					   config/config.c\
+					   include/rofi.h\
+					   include/mode.h\
+					   include/mode-private.h\
+					   source/helper.c\
+					   source/rofi-types.c\
+					   include/rofi-types.h\
+					   include/helper.h\
+					   include/helper-theme.h\
+					   include/xrmoptions.h\
+					   source/xrmoptions.c\
+					   test/helper-tokenize.c
+
 endif
 
 TESTS+=\
@@ -526,7 +525,6 @@ TESTS+=\
 	helper_test\
 	helper_expand\
 	helper_pidfile\
-	helper_tokenize\
 	helper_config_cmdline_parser\
 	textbox_test\
 	widget_test\
@@ -535,6 +533,7 @@ TESTS+=\
 
 if USE_CHECK
 TESTS+=theme_parser_test\
+	helper_tokenize\
 	mode_test
 endif
 
