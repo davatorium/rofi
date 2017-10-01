@@ -59,16 +59,16 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... );
  *
  * Tokenize the string on spaces.
  *
- * @returns a newly allocated array of regex objest
+ * @returns a newly allocated array of matching objects
  */
-rofi_int_matcher **tokenize ( const char *input, int case_sensitive );
+rofi_int_matcher **helper_tokenize ( const char *input, int case_sensitive );
 
 /**
  * @param tokens Array of regex objects
  *
- * Frees the array of regex expressions.
+ * Frees the array of matching objects.
  */
-void tokenize_free ( rofi_int_matcher ** tokens );
+void helper_tokenize_free ( rofi_int_matcher ** tokens );
 
 /**
  * @param key The key to search for

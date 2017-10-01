@@ -497,7 +497,7 @@ void rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_l
 void rofi_view_free ( RofiViewState *state )
 {
     if ( state->tokens ) {
-        tokenize_free ( state->tokens );
+        helper_tokenize_free ( state->tokens );
         state->tokens = NULL;
     }
     // Do this here?
@@ -1019,14 +1019,14 @@ static void rofi_view_refilter ( RofiViewState *state )
         state->reload = FALSE;
     }
     if ( state->tokens ) {
-        tokenize_free ( state->tokens );
+        helper_tokenize_free ( state->tokens );
         state->tokens = NULL;
     }
     if ( state->text && strlen ( state->text->text ) > 0 ) {
         unsigned int j        = 0;
         gchar        *pattern = mode_preprocess_input ( state->sw, state->text->text );
         glong        plen     = pattern ? g_utf8_strlen ( pattern, -1 ) : 0;
-        state->tokens = tokenize ( pattern, config.case_sensitive );
+        state->tokens = helper_tokenize ( pattern, config.case_sensitive );
         /**
          * On long lists it can be beneficial to parallelize.
          * If number of threads is 1, no thread is spawn.

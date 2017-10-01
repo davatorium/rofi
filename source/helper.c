@@ -153,7 +153,7 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
     return FALSE;
 }
 
-void tokenize_free ( rofi_int_matcher ** tokens )
+void helper_tokenize_free ( rofi_int_matcher ** tokens )
 {
     for ( size_t i = 0; tokens && tokens[i]; i++ ) {
         g_regex_unref ( (GRegex *) tokens[i]->regex );
@@ -255,7 +255,7 @@ static rofi_int_matcher * create_regex ( const char *input, int case_sensitive )
     rv->regex = retv;
     return rv;
 }
-rofi_int_matcher **tokenize ( const char *input, int case_sensitive )
+rofi_int_matcher **helper_tokenize ( const char *input, int case_sensitive )
 {
     if ( input == NULL ) {
         return NULL;
