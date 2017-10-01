@@ -126,7 +126,7 @@ struct RofiViewState
     }      mouse;
 
     /** Regexs used for matching */
-    GRegex **tokens;
+    rofi_int_matcher **tokens;
 };
 /** @} */
 #endif

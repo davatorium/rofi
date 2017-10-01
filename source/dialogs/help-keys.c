@@ -104,7 +104,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     return g_strdup ( pd->messages[selected_line] );
 }
 static int help_keys_token_match ( const Mode *data,
-                                   GRegex **tokens,
+                                   rofi_int_matcher **tokens,
                                    unsigned int index
                                    )
 {

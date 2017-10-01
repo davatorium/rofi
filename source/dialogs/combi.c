@@ -187,7 +187,7 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
     }
     return MODE_EXIT;
 }
-static int combi_mode_match ( const Mode *sw, GRegex **tokens, unsigned int index )
+static int combi_mode_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
     CombiModePrivateData *pd = mode_get_private_data ( sw );
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {

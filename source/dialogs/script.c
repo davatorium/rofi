@@ -254,7 +254,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
     return get_entry ? g_strdup ( pd->cmd_list[selected_line] ) : NULL;
 }
 
-static int script_token_match ( const Mode *sw, GRegex **tokens, unsigned int index )
+static int script_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
     ScriptModePrivateData *rmpd = sw->private_data;
     return helper_token_match ( tokens, rmpd->cmd_list[index] );

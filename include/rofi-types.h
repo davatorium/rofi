@@ -225,4 +225,14 @@ typedef struct rofi_range_pair
     unsigned int start;
     unsigned int stop;
 } rofi_range_pair;
+
+
+/**
+ * Internal structure for matching.
+ */
+typedef struct rofi_int_matcher_t {
+    GRegex   *regex;
+    gboolean invert;
+} rofi_int_matcher;
+
 #endif // INCLUDE_ROFI_TYPES_H

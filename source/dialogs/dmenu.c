@@ -371,7 +371,7 @@ static int dmenu_mode_init ( Mode *sw )
     return TRUE;
 }
 
-static int dmenu_token_match ( const Mode *sw, GRegex **tokens, unsigned int index )
+static int dmenu_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
     DmenuModePrivateData *rmpd = (DmenuModePrivateData *) mode_get_private_data ( sw );
     return helper_token_match ( tokens, rmpd->cmd_list[index] );
@@ -612,7 +612,7 @@ int dmenu_switcher_dialog ( void )
     char *select = NULL;
     find_arg_str ( "-select", &select );
     if ( select != NULL ) {
-        GRegex       **tokens = tokenize ( select, config.case_sensitive );
+        rofi_int_matcher **tokens = helper_tokenize ( select, config.case_sensitive );
         unsigned int i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
             if ( helper_token_match ( tokens, cmd_list[i] ) ) {
@@ -620,17 +620,17 @@ int dmenu_switcher_dialog ( void )
                 break;
             }
         }
-        tokenize_free ( tokens );
+        helper_tokenize_free ( tokens );
     }
     if ( find_arg ( "-dump" ) >= 0 ) {
-        GRegex       **tokens = tokenize ( config.filter ? config.filter : "", config.case_sensitive );
+        rofi_int_matcher **tokens = helper_tokenize ( config.filter ? config.filter : "", config.case_sensitive );
         unsigned int i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
             if ( tokens == NULL || helper_token_match ( tokens, cmd_list[i] ) ) {
                 rofi_output_formatted_line ( pd->format, cmd_list[i], i, config.filter );
             }
         }
-        tokenize_free ( tokens );
+        helper_tokenize_free ( tokens );
         dmenu_mode_free ( &dmenu_mode );
         g_free ( input );
         return TRUE;

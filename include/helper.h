@@ -59,16 +59,16 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... );
  *
  * Tokenize the string on spaces.
  *
- * @returns a newly allocated array of regex objest
+ * @returns a newly allocated array of matching objects
  */
-GRegex **tokenize ( const char *input, int case_sensitive );
+rofi_int_matcher **helper_tokenize ( const char *input, int case_sensitive );
 
 /**
  * @param tokens Array of regex objects
  *
- * Frees the array of regex expressions.
+ * Frees the array of matching objects.
  */
-void tokenize_free ( GRegex ** tokens );
+void helper_tokenize_free ( rofi_int_matcher ** tokens );
 
 /**
  * @param key The key to search for
@@ -136,7 +136,7 @@ int find_arg ( const char * const key );
  *
  * @returns TRUE when matches, FALSE otherwise
  */
-int helper_token_match ( GRegex * const *tokens, const char *input );
+int helper_token_match ( rofi_int_matcher * const *tokens, const char *input );
 /**
  * @param cmd The command to execute.
  *

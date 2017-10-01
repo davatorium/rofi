@@ -29,6 +29,7 @@
 #define ROFI_MODE_H
 
 #include <cairo.h>
+#include <rofi-types.h>
 /**
  * @defgroup MODE Mode
  *
@@ -164,7 +165,7 @@ ModeMode mode_result ( Mode *mode, int menu_retv, char **input, unsigned int sel
  *
  * @returns TRUE if matches
  */
-int mode_token_match ( const Mode *mode, GRegex **tokens, unsigned int selected_line );
+int mode_token_match ( const Mode *mode, rofi_int_matcher **tokens, unsigned int selected_line );
 
 /**
  * @param mode The mode to query

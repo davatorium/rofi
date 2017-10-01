@@ -667,32 +667,30 @@ static char *drun_get_completion ( const Mode *sw, unsigned int index )
     }
 }
 
-static int drun_token_match ( const Mode *data, GRegex **tokens, unsigned int index )
+static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsigned int index )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( data );
     int                 match = 1;
     if ( tokens ) {
         for ( int j = 0; match && tokens != NULL && tokens[j] != NULL; j++ ) {
             int    test        = 0;
-            GRegex *ftokens[2] = { tokens[j], NULL };
+            rofi_int_matcher *ftokens[2] = { tokens[j], NULL };
             // Match name
-            if ( rmpd->entry_list[index].name &&
-                 helper_token_match ( ftokens, rmpd->entry_list[index].name ) ) {
-                test = 1;
+            if ( rmpd->entry_list[index].name ) {
+                test = helper_token_match ( ftokens, rmpd->entry_list[index].name );
             }
             // Match generic name
-            if ( !test && rmpd->entry_list[index].generic_name &&
-                 helper_token_match ( ftokens, rmpd->entry_list[index].generic_name ) ) {
-                test = 1;
+            if ( test == tokens[j]->invert && rmpd->entry_list[index].generic_name) {
+                test = helper_token_match ( ftokens, rmpd->entry_list[index].generic_name );
             }
             // Match executable name.
-            if ( !test && helper_token_match ( ftokens, rmpd->entry_list[index].exec ) ) {
-                test = 1;
+            if ( test == tokens[j]->invert  ) { 
+                test = helper_token_match ( ftokens, rmpd->entry_list[index].exec );
             }
             // Match against category.
-            if ( !test ) {
+            if ( test == tokens[j]->invert ) {
                 gchar **list = rmpd->entry_list[index].categories;
-                for ( int iter = 0; !test && list && list[iter]; iter++ ) {
+                for ( int iter = 0; test == tokens[j]->invert && list && list[iter]; iter++ ) {
                     test = helper_token_match ( ftokens, list[iter] );
                 }
             }

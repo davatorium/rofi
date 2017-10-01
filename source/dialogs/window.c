@@ -326,7 +326,7 @@ static client* window_client ( ModeModePrivateData *pd, xcb_window_t win )
     g_free ( attr );
     return c;
 }
-static int window_match ( const Mode *sw, GRegex **tokens, unsigned int index )
+static int window_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
     ModeModePrivateData *rmpd = (ModeModePrivateData *) mode_get_private_data ( sw );
     int                 match = 1;
@@ -343,23 +343,23 @@ static int window_match ( const Mode *sw, GRegex **tokens, unsigned int index )
             // Now we want it to match only one item at the time.
             // If hack not in place it would not match queries spanning multiple fields.
             // e.g. when searching 'title element' and 'class element'
-            GRegex *ftokens[2] = { tokens[j], NULL };
+            rofi_int_matcher *ftokens[2] = { tokens[j], NULL };
             if ( c->title != NULL && c->title[0] != '\0' ) {
                 test = helper_token_match ( ftokens, c->title );
             }
 
-            if ( !test && c->class != NULL && c->class[0] != '\0' ) {
+            if ( test == tokens[j]->invert && c->class != NULL && c->class[0] != '\0' ) {
                 test = helper_token_match ( ftokens, c->class );
             }
 
-            if ( !test && c->role != NULL && c->role[0] != '\0' ) {
+            if ( test == tokens[j]->invert && c->role != NULL && c->role[0] != '\0' ) {
                 test = helper_token_match ( ftokens, c->role );
             }
 
-            if ( !test && c->name != NULL && c->name[0] != '\0' ) {
+            if ( test == tokens[j]->invert && c->name != NULL && c->name[0] != '\0' ) {
                 test = helper_token_match ( ftokens, c->name );
             }
-            if ( !test && c->wmdesktopstr != NULL && c->wmdesktopstr[0] != '\0' ) {
+            if ( test == tokens[j]->invert && c->wmdesktopstr != NULL && c->wmdesktopstr[0] != '\0' ) {
                 test = helper_token_match ( ftokens, c->wmdesktopstr );
             }
 
