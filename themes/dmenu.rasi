@@ -1,3 +1,8 @@
+/**
+ * ROFI Color theme
+ * User: Qball
+ * Copyright: Dave Davenport
+ */
 * {
     background-color:      Black;
     border-color:          White;
@@ -12,13 +17,13 @@ configuration {
     anchor:     north;
     location:   north;
     width:      100%;
-    padding:    4px;    
+    padding:    4px;
     children:   [ horibox ];
 }
 
 #horibox {
     orientation: horizontal;
-    children:   [ prompt, entry, listview ];    
+    children:   [ prompt, entry, listview ];
 }
 
 #listview {

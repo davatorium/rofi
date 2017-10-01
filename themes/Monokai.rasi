@@ -1,3 +1,9 @@
+/**
+ * ROFI Color theme
+ * User: milouse
+ * Copyright: Étienne Deparis
+ */
+
 * {
     selected-normal-foreground:  rgba ( 248, 248, 242, 100 % );
     foreground:                  rgba ( 248, 248, 242, 100 % );

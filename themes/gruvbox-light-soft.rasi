@@ -1,3 +1,15 @@
+/*******************
+ * Rofi color theme
+ *
+ * Based on the Gruvbox color scheme for Vim by morhetz
+ * https://github.com/morhetz/gruvbox
+ *
+ * File: gruvbox-light-soft.theme
+ * Desc: Gruvbox light (soft contrast) color theme for Rofi
+ * Author: bardisty <b@bah.im>
+ * Source: https://github.com/bardisty/gruvbox-rofi
+ * Modified: Sat Oct 22 2016 03:11:32 PDT -0700
+ */
 * {
     selected-normal-foreground:  rgba ( 40, 40, 40, 100 % );
     foreground:                  rgba ( 60, 56, 54, 100 % );
