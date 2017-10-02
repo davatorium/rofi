@@ -205,3 +205,22 @@ and also
 ```
 pacman -S rofi
 ```
+
+### Gentoo
+
+An ebuild is available, `x11-misc/rofi`. It's up to date, but you may need to
+enable ~arch to get the latest release:
+
+```
+echo 'x11-misc/rofi ~amd64' >> /etc/portage/package.accept_keywords
+```
+
+for amd64 or:
+
+```
+echo 'x11-misc/rofi ~x86' >> /etc/portage/package.accept_keywords
+```
+
+for i386.
+
+To install it, simply issue `emerge rofi`.
