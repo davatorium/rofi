@@ -126,7 +126,7 @@
     spacing:    0;
     text-color: @normal-foreground;
 }
-#prompt {
+#prompt, prompt-colon {
     spacing:    0;
     text-color: @normal-foreground;
 }

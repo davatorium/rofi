@@ -110,4 +110,6 @@
 #button normal {
     text-color: @foreground;
 }
-
+#prompt, prompt-box, prompt-colon {
+    text-color: inherit;
+}
