@@ -245,9 +245,7 @@ static void rofi_view_update_prompt ( RofiViewState *state )
     if ( state->prompt ) {
         const char *str = mode_get_display_name ( state->sw );
         if ( ( state->menu_flags & MENU_PROMPT_COLON ) != 0 ) {
-            char *pr = g_strconcat ( str, ":", NULL );
-            textbox_text ( state->prompt, pr );
-            g_free ( pr );
+            textbox_text ( state->prompt, str );
         }
         else {
             textbox_text ( state->prompt, str );
@@ -1535,8 +1533,21 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
      */
     else if ( strcmp ( name, "inputbar" ) == 0 ) {
         wid      = (widget *) box_create ( parent_widget, name, ROFI_ORIENTATION_HORIZONTAL );
-        defaults = "prompt,entry,case-indicator";
+        defaults = "prompt-box,entry,case-indicator";
         box_add ( (box *) parent_widget, WIDGET ( wid ), FALSE );
+    }
+    /**
+     * Prompt box
+     */
+    else if ( strcmp ( name, "prompt-box" ) == 0 ) {
+        wid      = (widget *) box_create ( parent_widget, name, ROFI_ORIENTATION_HORIZONTAL );
+        defaults = "prompt,prompt-colon";
+        box_add ( (box *) parent_widget, WIDGET ( wid ), FALSE );
+    }
+    else if ( strcmp ( name, "prompt-colon" ) == 0 ) {
+        widget *pc = (widget *) textbox_create ( parent_widget, WIDGET_TYPE_TEXTBOX_TEXT, name, TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, ":", 0, 0 );
+        box_add ( (box *) parent_widget, WIDGET ( pc ), FALSE );
+        defaults = NULL;
     }
     /**
      * PROMPT

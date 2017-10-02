@@ -23,7 +23,7 @@ configuration {
 
 #horibox {
     orientation: horizontal;
-    children:   [ prompt, entry, listview ];
+    children:   [ prompt-box, entry, listview ];
 }
 
 #listview {

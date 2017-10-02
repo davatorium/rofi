@@ -113,9 +113,11 @@
     text-color:       @selected-normal-foreground;
 }
 #inputbar {
-    spacing:    0;
-    text-color: @normal-foreground;
-    padding:    1px ;
+    spacing: 4;
+    padding: 1px ;
+}
+#prompt-box {
+    spacing: 0;
 }
 #case-indicator {
     spacing:    0;
@@ -126,6 +128,10 @@
     text-color: @normal-foreground;
 }
 #prompt {
+    spacing:    0;
+    text-color: @normal-foreground;
+}
+#prompt-colon {
     spacing:    0;
     text-color: @normal-foreground;
 }

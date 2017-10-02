@@ -18,11 +18,6 @@ configuration {
     show-icons: true;
 }
 
-
-/**
- * User: Qball
- * Copyright: Dave Davenport
- */
 * {
     foreground:  #ffeedd;
     backlight:   #ccffeedd;
@@ -108,7 +103,7 @@ configuration {
     border-color: @foreground;
     font: "Sauce Code Pro 18";
 }
-#entry,prompt,case-indicator {
+#entry,prompt,prompt-colon,prompt-box,case-indicator {
     text-font: inherit;
     text-color:inherit;
 }
