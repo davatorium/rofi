@@ -35,7 +35,11 @@
 Settings config = {
     /** List of enabled modi. */
     /** -modi */
+#ifdef WINDOW_MODE
     .modi              = "window,run,ssh",
+#else
+    .modi              = "run,ssh",
+#endif
     /** Border width around the window. */
     .menu_bw           =                                   1,
     /** The width of the switcher. (0100 in % > 100 in pixels) */
