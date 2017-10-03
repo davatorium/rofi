@@ -332,7 +332,7 @@ This option can be specified multiple times.
 
 Override the default DPI setting.
 If set to `0`, it tries to auto-detect based on X11 screen size (similar to i3 and GTK).
-If set to `1`, it tries to auto-detect based on the size of the monitor that rofi is displayed on (similar to latest Qt 5). 
+If set to `1`, it tries to auto-detect based on the size of the monitor that rofi is displayed on (similar to latest Qt 5).
 
 ### PATTERN setting
 
@@ -446,11 +446,20 @@ For that case '#' can be used as a separator.
 
 Disable history
 
+`-sort` to enable
+`-no-sort` to disable
+
+Enable, disable sorting.
+This setting can be changed at runtime (see `-kb-toggle-sort`).
+
 `-levenshtein-sort` to enable
 `-no-levenshtein-sort` to disable
 
-When searching, sort the result based on levenshtein distance.
-This setting can be changed at runtime (see `-kb-toggle-sort`).
+When searching, always sort the result based on levenshtein distance.
+If disabled, fzf sorting is used when fuzzy matching is used.
+If enabled, levenshtein sorting is used event fuzzy matching is used.
+
+For other matching modes sorting is always done via levenshtein-sort.
 
 ### Dmenu specific
 
