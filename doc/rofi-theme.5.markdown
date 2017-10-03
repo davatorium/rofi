@@ -284,15 +284,22 @@ The different values are:
     OldLace, Olive, OliveDrab, Orange, OrangeRed, Orchid, PaleGoldenRod, PaleGreen, PaleTurquoise, PaleVioletRed,
     PapayaWhip, PeachPuff, Peru, Pink, Plum, PowderBlue, Purple, RebeccaPurple, Red, RosyBrown, RoyalBlue, SaddleBrown,
     Salmon, SandyBrown, SeaGreen, SeaShell, Sienna, Silver, SkyBlue, SlateBlue, SlateGray, SlateGrey, Snow, SpringGreen,
-    SteelBlue, Tan, Teal, Thistle, Tomato, Turquoise, Violet, Wheat, White, WhiteSmoke, Yellow, YellowGreen
+    SteelBlue, Tan, Teal, Thistle, Tomato, Turquoise, Violet, Wheat, White, WhiteSmoke, Yellow, YellowGreen,transparent
+
 
 
 For example:
 
 ```
-background: #FF0000;
-foreground: rgba(0,0,1, 0.5);
-text: SeaGreen;
+background-color: #FF0000;
+border-color: rgba(0,0,1, 0.5);
+text-color: SeaGreen;
+```
+or
+
+```
+background-color: transparent;
+text-color: Black;
 ```
 
 ## Text style
@@ -528,8 +535,8 @@ Example:
 
 ```
 #nametotextbox selected.active {
-    background: #003642;
-    foreground: #008ed4;
+    background-color: #003642;
+    text-color: #008ed4;
 }
 ```
 
@@ -718,8 +725,9 @@ Below is an example of a theme emulating dmenu:
 
 ```css
 * {
-    background:      Black;
-    foreground:      White;
+    background-color:      Black;
+    text-color:            White;
+    border-color:          White;
     font:            "Times New Roman 12";
 }
 
@@ -751,7 +759,7 @@ Below is an example of a theme emulating dmenu:
     padding: 0px 2px;
 }
 #element selected {
-    background: SteelBlue;
+    background-color: SteelBlue;
 }
 ```
 
