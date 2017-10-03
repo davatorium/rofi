@@ -31,6 +31,7 @@
 #ifdef ENABLE_DRUN
 #include <stdlib.h>
 #include <stdio.h>
+#include <limits.h>
 
 #include <unistd.h>
 #include <limits.h>
@@ -52,7 +53,7 @@
 #include "nkutils-xdg-theme.h"
 #include "xcb.h"
 
-#define DRUN_CACHE_FILE    "rofi2.druncache"
+#define DRUN_CACHE_FILE    "rofi3.druncache"
 
 /**
  * Store extra information about the entry.
@@ -83,6 +84,8 @@ typedef struct
     char            **categories;
 
     GKeyFile        *key_file;
+
+    gint             sort_index;
 } DRunModeEntry;
 
 typedef struct
@@ -91,7 +94,6 @@ typedef struct
     DRunModeEntry     *entry_list;
     unsigned int      cmd_list_length;
     unsigned int      cmd_list_length_actual;
-    unsigned int      history_length;
     // List of disabled entries.
     GHashTable        *disabled_entries;
     unsigned int      disabled_entries_length;
@@ -207,9 +209,8 @@ static void exec_cmd_entry ( DRunModeEntry *e )
     gboolean terminal = g_key_file_get_boolean ( e->key_file, "Desktop Entry", "Terminal", NULL );
     if ( helper_execute_command ( exec_path, fp, terminal, sn ? &context : NULL ) ) {
         char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
-        char *key  = g_strdup_printf ( "%s:::%s", e->root, e->path );
-        history_set ( path, key );
-        g_free ( key );
+        // Store it based on the unique identifiers (app_id).
+        history_set ( path, e->app_id );
         g_free ( path );
     }
     g_free ( wmclass );
@@ -317,10 +318,18 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         pd->cmd_list_length_actual += 256;
         pd->entry_list              = g_realloc ( pd->entry_list, pd->cmd_list_length_actual * sizeof ( *( pd->entry_list ) ) );
     }
-    pd->entry_list[pd->cmd_list_length].icon_size = 0;
-    pd->entry_list[pd->cmd_list_length].root      = g_strdup ( root );
-    pd->entry_list[pd->cmd_list_length].path      = g_strdup ( path );
-    pd->entry_list[pd->cmd_list_length].app_id    = g_strndup ( basename, strlen ( basename ) - strlen ( ".desktop" ) );
+    // Make sure order is preserved, this will break when cmd_list_length is bigger then INT_MAX.
+    // This is not likely to happen.
+    if ( G_UNLIKELY ( pd->cmd_list_length > INT_MAX ) ) {
+        // Default to smallest value.
+        pd->entry_list[pd->cmd_list_length].sort_index = INT_MIN;
+    } else {
+        pd->entry_list[pd->cmd_list_length].sort_index = -pd->cmd_list_length;
+    }
+    pd->entry_list[pd->cmd_list_length].icon_size  = 0;
+    pd->entry_list[pd->cmd_list_length].root       = g_strdup ( root );
+    pd->entry_list[pd->cmd_list_length].path       = g_strdup ( path );
+    pd->entry_list[pd->cmd_list_length].app_id     = g_strndup ( basename, strlen ( basename ) - strlen ( ".desktop" ) );
     gchar *n = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].name = n;
     gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
@@ -416,36 +425,45 @@ static void walk_dir ( DRunModePrivateData *pd, const char *root, const char *di
 static void delete_entry_history ( const DRunModeEntry *entry )
 {
     char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
-    char *key  = g_strdup_printf ( "%s:::%s", entry->root, entry->path );
-    history_remove ( path, key );
-    g_free ( key );
+    history_remove ( path, entry->app_id );
     g_free ( path );
 }
 
 static void get_apps_history ( DRunModePrivateData *pd )
 {
+    TICK_N ( "Start drun history" );
     unsigned int length = 0;
     gchar        *path  = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
     gchar        **retv = history_get_list ( path, &length );
     for ( unsigned int index = 0; index < length; index++ ) {
-        char **st = g_strsplit ( retv[index], ":::", 2 );
-        if ( st && st[0] && st[1] ) {
-            const gchar *basename = g_utf8_strrchr ( st[1], -1, G_DIR_SEPARATOR );
-            if ( basename == NULL || !read_desktop_file ( pd, st[0], st[1], ++basename ) ) {
-                history_remove ( path, retv[index] );
+        for ( size_t i = 0; i < pd->cmd_list_length; i++ ) {
+            if ( g_strcmp0 ( pd->entry_list[i].app_id, retv[index] ) == 0 ) {
+                unsigned int sort_index = length-index;
+                if ( G_LIKELY ( sort_index < INT_MAX ) ) {
+                    pd->entry_list[i].sort_index = sort_index;
+                } else {
+                    // This won't sort right anymore, but never gonna hit it anyway.
+                    pd->entry_list[i].sort_index = INT_MAX;
+                }
             }
         }
-        g_strfreev ( st );
     }
     g_strfreev ( retv );
     g_free ( path );
-    pd->history_length = pd->cmd_list_length;
+    TICK_N ( "Stop drun history" );
+}
+
+static gint drun_int_sort_list ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED gpointer user_data )
+{
+    DRunModeEntry *da = (DRunModeEntry *)a;
+    DRunModeEntry *db = (DRunModeEntry *)b;
+
+    return db->sort_index - da->sort_index;
 }
 
 static void get_apps ( DRunModePrivateData *pd )
 {
     TICK_N ( "Get Desktop apps (start)" );
-    get_apps_history ( pd );
 
     gchar *dir;
     // First read the user directory.
@@ -471,6 +489,12 @@ static void get_apps ( DRunModePrivateData *pd )
         }
     }
     TICK_N ( "Get Desktop apps (system dirs)" );
+    get_apps_history ( pd );
+
+
+    g_qsort_with_data ( pd->entry_list, pd->cmd_list_length, sizeof ( DRunModeEntry ) , drun_int_sort_list, NULL );
+
+    TICK_N ( "Sorting done." );
 }
 
 static void drun_icon_fetch ( gpointer data, gpointer user_data )
@@ -581,7 +605,8 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
         helper_execute_command ( NULL, *input, run_in_term, run_in_term ? &context : NULL );
     }
     else if ( ( mretv & MENU_ENTRY_DELETE ) && selected_line < rmpd->cmd_list_length ) {
-        if ( selected_line < rmpd->history_length ) {
+        // Possitive sort index means it is in history.
+        if ( rmpd->entry_list[selected_line].sort_index >= 0 ) {
             if ( rmpd->pool ) {
                 g_thread_pool_free ( rmpd->pool, TRUE, TRUE );
                 rmpd->pool = NULL;
@@ -684,7 +709,7 @@ static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsig
                 test = helper_token_match ( ftokens, rmpd->entry_list[index].generic_name );
             }
             // Match executable name.
-            if ( test == tokens[j]->invert  ) { 
+            if ( test == tokens[j]->invert  ) {
                 test = helper_token_match ( ftokens, rmpd->entry_list[index].exec );
             }
             // Match against category.
