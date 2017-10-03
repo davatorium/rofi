@@ -32,7 +32,8 @@ rofiincludedir=${includedir}/rofi
 rofiinclude_HEADERS=\
 			include/mode.h\
 			include/mode-private.h\
-			include/helper.h
+			include/helper.h\
+			include/rofi-types.h
 
 ##
 # Rofi the program

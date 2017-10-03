@@ -29,7 +29,7 @@
 #define ROFI_HELPER_H
 
 #include <cairo.h>
-#include <rofi-types.h>
+#include "rofi-types.h"
 
 /**
  * @defgroup HELPERS Helpers

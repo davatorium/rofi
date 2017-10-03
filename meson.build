@@ -119,6 +119,7 @@ install_headers([
         'include/mode.h',
         'include/mode-private.h',
         'include/helper.h',
+        'include/rofi-types.h',
     ],
     subdir: meson.project_name(),
 )
