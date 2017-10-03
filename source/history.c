@@ -38,8 +38,6 @@
 #include "history.h"
 #include "settings.h"
 
-#define HISTORY_MAX_ENTRIES    25
-
 /**
  * History element
  */
@@ -70,7 +68,7 @@ static void __history_write_element_list ( FILE *fd, _element **list, unsigned i
     int min_value = list[length - 1]->index;
 
     // Set the max length of the list.
-    length = ( length > HISTORY_MAX_ENTRIES ) ? HISTORY_MAX_ENTRIES : length;
+    length = ( length > config.max_history_size ) ? config.max_history_size: length;
 
     // Write out entries.
     for ( unsigned int iter = 0; iter < length; iter++ ) {

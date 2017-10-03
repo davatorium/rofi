@@ -141,4 +141,5 @@ Settings config = {
     .color_urgent      = NULL,
     .color_window      = NULL,
     .plugin_path       = PLUGIN_PATH,
+    .max_history_size  = 25,
 };

@@ -157,6 +157,9 @@ typedef struct
     char           *theme;
     /** Path where plugins can be found. */
     char           * plugin_path;
+
+    /** Maximum history length per mode. */
+    unsigned int   max_history_size;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;
