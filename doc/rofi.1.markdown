@@ -215,6 +215,10 @@ Note: glob matching might be slow for larger lists
 
 Tokenize the input.
 
+`-name-only`
+
+When using drun, match only with the Desktop entry name. 
+
 ### Layout
 
 Most of the following options are **deprecated** and should not be used. Please use the new theme format to customize

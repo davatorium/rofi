@@ -102,6 +102,8 @@ typedef struct
     unsigned int   disable_history;
     /** Toggle to enable sorting. */
     unsigned int   sort;
+    /** Match only with the name of desktop entries with drun */
+    unsigned int   name_only;
     /** Use levenshtein sorting when matching */
     unsigned int   levenshtein_sort;
     /** Search case sensitivity */

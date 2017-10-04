@@ -708,21 +708,23 @@ static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsig
             if ( rmpd->entry_list[index].name ) {
                 test = helper_token_match ( ftokens, rmpd->entry_list[index].name );
             }
-            // Match generic name
-            if ( test == tokens[j]->invert && rmpd->entry_list[index].generic_name) {
-                test = helper_token_match ( ftokens, rmpd->entry_list[index].generic_name );
-            }
-            // Match executable name.
-            if ( test == tokens[j]->invert  ) {
-                test = helper_token_match ( ftokens, rmpd->entry_list[index].exec );
-            }
-            // Match against category.
-            if ( test == tokens[j]->invert ) {
-                gchar **list = rmpd->entry_list[index].categories;
-                for ( int iter = 0; test == tokens[j]->invert && list && list[iter]; iter++ ) {
-                    test = helper_token_match ( ftokens, list[iter] );
+	    if (! config.name_only) {
+	        // Match generic name
+            	if ( test == tokens[j]->invert && rmpd->entry_list[index].generic_name) {
+                    test = helper_token_match ( ftokens, rmpd->entry_list[index].generic_name );
                 }
-            }
+                // Match executable name.
+                if ( test == tokens[j]->invert  ) {
+                    test = helper_token_match ( ftokens, rmpd->entry_list[index].exec );
+                }
+                // Match against category.
+                if ( test == tokens[j]->invert ) {
+                    gchar **list = rmpd->entry_list[index].categories;
+                    for ( int iter = 0; test == tokens[j]->invert && list && list[iter]; iter++ ) {
+                        test = helper_token_match ( ftokens, list[iter] );
+                    }
+                }
+	    }
             if ( test == 0 ) {
                 match = 0;
             }
