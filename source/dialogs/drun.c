@@ -67,6 +67,8 @@ typedef struct
     char *path;
     /* Application id (.desktop filename) */
     char *app_id;
+    /* Desktop id */
+    char *desktop_id;
     /* Icon stuff */
     char *icon_name;
     /* Icon size is used to indicate what size is requested by the gui.
@@ -209,8 +211,8 @@ static void exec_cmd_entry ( DRunModeEntry *e )
     gboolean terminal = g_key_file_get_boolean ( e->key_file, "Desktop Entry", "Terminal", NULL );
     if ( helper_execute_command ( exec_path, fp, terminal, sn ? &context : NULL ) ) {
         char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
-        // Store it based on the unique identifiers (app_id).
-        history_set ( path, e->app_id );
+        // Store it based on the unique identifiers (desktop_id).
+        history_set ( path, e->desktop_id);
         g_free ( path );
     }
     g_free ( wmclass );
@@ -329,6 +331,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     pd->entry_list[pd->cmd_list_length].icon_size  = 0;
     pd->entry_list[pd->cmd_list_length].root       = g_strdup ( root );
     pd->entry_list[pd->cmd_list_length].path       = g_strdup ( path );
+    pd->entry_list[pd->cmd_list_length].desktop_id = g_strdup ( id );
     pd->entry_list[pd->cmd_list_length].app_id     = g_strndup ( basename, strlen ( basename ) - strlen ( ".desktop" ) );
     gchar *n = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].name = n;
@@ -425,7 +428,7 @@ static void walk_dir ( DRunModePrivateData *pd, const char *root, const char *di
 static void delete_entry_history ( const DRunModeEntry *entry )
 {
     char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
-    history_remove ( path, entry->app_id );
+    history_remove ( path, entry->desktop_id );
     g_free ( path );
 }
 
@@ -437,7 +440,7 @@ static void get_apps_history ( DRunModePrivateData *pd )
     gchar        **retv = history_get_list ( path, &length );
     for ( unsigned int index = 0; index < length; index++ ) {
         for ( size_t i = 0; i < pd->cmd_list_length; i++ ) {
-            if ( g_strcmp0 ( pd->entry_list[i].app_id, retv[index] ) == 0 ) {
+            if ( g_strcmp0 ( pd->entry_list[i].desktop_id, retv[index] ) == 0 ) {
                 unsigned int sort_index = length-index;
                 if ( G_LIKELY ( sort_index < INT_MAX ) ) {
                     pd->entry_list[i].sort_index = sort_index;
@@ -569,6 +572,7 @@ static void drun_entry_clear ( DRunModeEntry *e )
     g_free ( e->root );
     g_free ( e->path );
     g_free ( e->app_id );
+    g_free ( e->desktop_id );
     if ( e->icon != NULL ) {
         cairo_surface_destroy ( e->icon );
     }
