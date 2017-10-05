@@ -216,7 +216,6 @@ typedef struct Property
     PropertyValue value;
 } Property;
 
-
 /**
  * Structure to hold a range.
  */
@@ -226,11 +225,11 @@ typedef struct rofi_range_pair
     unsigned int stop;
 } rofi_range_pair;
 
-
 /**
  * Internal structure for matching.
  */
-typedef struct rofi_int_matcher_t {
+typedef struct rofi_int_matcher_t
+{
     GRegex   *regex;
     gboolean invert;
 } rofi_int_matcher;

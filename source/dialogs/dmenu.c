@@ -67,33 +67,33 @@ typedef struct
 {
     /** Settings */
     // Separator.
-    char              separator;
+    char                   separator;
 
-    unsigned int      selected_line;
-    char              *message;
-    char              *format;
+    unsigned int           selected_line;
+    char                   *message;
+    char                   *format;
     struct rofi_range_pair * urgent_list;
-    unsigned int      num_urgent_list;
+    unsigned int           num_urgent_list;
     struct rofi_range_pair * active_list;
-    unsigned int      num_active_list;
-    uint32_t          *selected_list;
-    unsigned int      num_selected_list;
-    unsigned int      do_markup;
+    unsigned int           num_active_list;
+    uint32_t               *selected_list;
+    unsigned int           num_selected_list;
+    unsigned int           do_markup;
     // List with entries.
-    char              **cmd_list;
-    unsigned int      cmd_list_real_length;
-    unsigned int      cmd_list_length;
-    unsigned int      only_selected;
-    unsigned int      selected_count;
+    char                   **cmd_list;
+    unsigned int           cmd_list_real_length;
+    unsigned int           cmd_list_length;
+    unsigned int           only_selected;
+    unsigned int           selected_count;
 
-    gchar             **columns;
-    gchar             *column_separator;
-    gboolean          multi_select;
+    gchar                  **columns;
+    gchar                  *column_separator;
+    gboolean               multi_select;
 
-    GCancellable      *cancel;
-    gulong            cancel_source;
-    GInputStream      *input_stream;
-    GDataInputStream  *data_input_stream;
+    GCancellable           *cancel;
+    gulong                 cancel_source;
+    GInputStream           *input_stream;
+    GDataInputStream       *data_input_stream;
 } DmenuModePrivateData;
 
 static void async_close_callback ( GObject *source_object, GAsyncResult *res, G_GNUC_UNUSED gpointer user_data )
@@ -199,8 +199,6 @@ static unsigned int dmenu_mode_get_num_entries ( const Mode *sw )
     const DmenuModePrivateData *rmpd = (const DmenuModePrivateData *) mode_get_private_data ( sw );
     return rmpd->cmd_list_length;
 }
-
-
 
 static gchar * dmenu_format_output_string ( const DmenuModePrivateData *pd, const char *input )
 {
@@ -613,7 +611,7 @@ int dmenu_switcher_dialog ( void )
     find_arg_str ( "-select", &select );
     if ( select != NULL ) {
         rofi_int_matcher **tokens = helper_tokenize ( select, config.case_sensitive );
-        unsigned int i        = 0;
+        unsigned int     i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
             if ( helper_token_match ( tokens, cmd_list[i] ) ) {
                 pd->selected_line = i;
@@ -624,7 +622,7 @@ int dmenu_switcher_dialog ( void )
     }
     if ( find_arg ( "-dump" ) >= 0 ) {
         rofi_int_matcher **tokens = helper_tokenize ( config.filter ? config.filter : "", config.case_sensitive );
-        unsigned int i        = 0;
+        unsigned int     i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
             if ( tokens == NULL || helper_token_match ( tokens, cmd_list[i] ) ) {
                 rofi_output_formatted_line ( pd->format, cmd_list[i], i, config.filter );

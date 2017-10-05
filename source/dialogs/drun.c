@@ -87,7 +87,7 @@ typedef struct
 
     GKeyFile        *key_file;
 
-    gint             sort_index;
+    gint            sort_index;
 } DRunModeEntry;
 
 typedef struct
@@ -212,7 +212,7 @@ static void exec_cmd_entry ( DRunModeEntry *e )
     if ( helper_execute_command ( exec_path, fp, terminal, sn ? &context : NULL ) ) {
         char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
         // Store it based on the unique identifiers (desktop_id).
-        history_set ( path, e->desktop_id);
+        history_set ( path, e->desktop_id );
         g_free ( path );
     }
     g_free ( wmclass );
@@ -325,7 +325,8 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     if ( G_UNLIKELY ( pd->cmd_list_length > INT_MAX ) ) {
         // Default to smallest value.
         pd->entry_list[pd->cmd_list_length].sort_index = INT_MIN;
-    } else {
+    }
+    else {
         pd->entry_list[pd->cmd_list_length].sort_index = -pd->cmd_list_length;
     }
     pd->entry_list[pd->cmd_list_length].icon_size  = 0;
@@ -441,10 +442,11 @@ static void get_apps_history ( DRunModePrivateData *pd )
     for ( unsigned int index = 0; index < length; index++ ) {
         for ( size_t i = 0; i < pd->cmd_list_length; i++ ) {
             if ( g_strcmp0 ( pd->entry_list[i].desktop_id, retv[index] ) == 0 ) {
-                unsigned int sort_index = length-index;
+                unsigned int sort_index = length - index;
                 if ( G_LIKELY ( sort_index < INT_MAX ) ) {
                     pd->entry_list[i].sort_index = sort_index;
-                } else {
+                }
+                else {
                     // This won't sort right anymore, but never gonna hit it anyway.
                     pd->entry_list[i].sort_index = INT_MAX;
                 }
@@ -458,8 +460,8 @@ static void get_apps_history ( DRunModePrivateData *pd )
 
 static gint drun_int_sort_list ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED gpointer user_data )
 {
-    DRunModeEntry *da = (DRunModeEntry *)a;
-    DRunModeEntry *db = (DRunModeEntry *)b;
+    DRunModeEntry *da = (DRunModeEntry *) a;
+    DRunModeEntry *db = (DRunModeEntry *) b;
 
     return db->sort_index - da->sort_index;
 }
@@ -494,8 +496,7 @@ static void get_apps ( DRunModePrivateData *pd )
     TICK_N ( "Get Desktop apps (system dirs)" );
     get_apps_history ( pd );
 
-
-    g_qsort_with_data ( pd->entry_list, pd->cmd_list_length, sizeof ( DRunModeEntry ) , drun_int_sort_list, NULL );
+    g_qsort_with_data ( pd->entry_list, pd->cmd_list_length, sizeof ( DRunModeEntry ), drun_int_sort_list, NULL );
 
     TICK_N ( "Sorting done." );
 }
@@ -702,15 +703,15 @@ static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsig
     int                 match = 1;
     if ( tokens ) {
         for ( int j = 0; match && tokens != NULL && tokens[j] != NULL; j++ ) {
-            int    test        = 0;
+            int              test        = 0;
             rofi_int_matcher *ftokens[2] = { tokens[j], NULL };
             // Match name
             if ( rmpd->entry_list[index].name ) {
                 test = helper_token_match ( ftokens, rmpd->entry_list[index].name );
             }
-	    if (! config.name_only) {
-	        // Match generic name
-            	if ( test == tokens[j]->invert && rmpd->entry_list[index].generic_name) {
+            if ( !config.name_only ) {
+                // Match generic name
+                if ( test == tokens[j]->invert && rmpd->entry_list[index].generic_name ) {
                     test = helper_token_match ( ftokens, rmpd->entry_list[index].generic_name );
                 }
                 // Match executable name.
@@ -724,7 +725,7 @@ static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsig
                         test = helper_token_match ( ftokens, list[iter] );
                     }
                 }
-	    }
+            }
             if ( test == 0 ) {
                 match = 0;
             }

@@ -28,7 +28,7 @@ tests=(
 cd ${MESON_BUILD_ROOT}
 mkdir -p test-x-logs
 rm -f core
-
+MESON_SOURCE_ROOT=~/Documents/rofi/rofi
 display=200
 for test in "${tests[@]}"; do
     log_prefix=test-x-logs/${display}

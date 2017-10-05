@@ -74,7 +74,7 @@ void container_add ( container *container, widget *child )
         return;
     }
     container->child = child;
-    g_assert ( child->parent    == WIDGET ( container  ));
+    g_assert ( child->parent == WIDGET ( container  ) );
     widget_update ( WIDGET ( container ) );
 }
 

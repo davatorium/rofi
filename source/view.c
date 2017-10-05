@@ -308,31 +308,31 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
     {
     case WL_NORTH_WEST:
         state->x = CacheState.mon.x;
-        /* FALLTHRU */
+    /* FALLTHRU */
     case WL_NORTH:
         state->y = CacheState.mon.y;
         break;
     case WL_NORTH_EAST:
         state->y = CacheState.mon.y;
-        /* FALLTHRU */
+    /* FALLTHRU */
     case WL_EAST:
         state->x = CacheState.mon.x + CacheState.mon.w;
         break;
     case WL_SOUTH_EAST:
         state->x = CacheState.mon.x + CacheState.mon.w;
-        /* FALLTHRU */
+    /* FALLTHRU */
     case WL_SOUTH:
         state->y = CacheState.mon.y + CacheState.mon.h;
         break;
     case WL_SOUTH_WEST:
         state->y = CacheState.mon.y + CacheState.mon.h;
-        /* FALLTHRU */
+    /* FALLTHRU */
     case WL_WEST:
         state->x = CacheState.mon.x;
         break;
     case WL_CENTER:
         ;
-        /* FALLTHRU */
+    /* FALLTHRU */
     default:
         break;
     }
@@ -1364,10 +1364,10 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, g
             return FALSE;
         case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_END:
             target = NULL;
-            /* FALLTHRU */
+        /* FALLTHRU */
         case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN:
             state->mouse.motion_target = target;
-            /* FALLTHRU */
+        /* FALLTHRU */
         case WIDGET_TRIGGER_ACTION_RESULT_HANDLED:
             return TRUE;
         }
@@ -1621,7 +1621,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
             return;
         }
         if ( config.sidebar_mode ) {
-            state->sidebar_bar = box_create ( parent_widget, name,ROFI_ORIENTATION_HORIZONTAL );
+            state->sidebar_bar = box_create ( parent_widget, name, ROFI_ORIENTATION_HORIZONTAL );
             box_add ( (box *) parent_widget, WIDGET ( state->sidebar_bar ), FALSE );
             state->num_modi = rofi_get_num_enabled_modi ();
             state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
@@ -1692,7 +1692,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
         textbox_cursor_end ( state->text );
     }
 
-    state->overlay                = textbox_create ( WIDGET ( state->main_window), WIDGET_TYPE_TEXTBOX_TEXT, "overlay", TB_AUTOWIDTH | TB_AUTOHEIGHT, URGENT, "blaat", 0.5, 0 );
+    state->overlay = textbox_create ( WIDGET ( state->main_window ), WIDGET_TYPE_TEXTBOX_TEXT, "overlay", TB_AUTOWIDTH | TB_AUTOHEIGHT, URGENT, "blaat", 0.5, 0 );
     widget_disable ( WIDGET ( state->overlay ) );
 
     // filtered list

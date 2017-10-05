@@ -316,7 +316,6 @@ gboolean helper_execute_command ( const char *wd, const char *cmd, gboolean run_
  */
 cairo_surface_t *cairo_image_surface_create_from_svg ( const gchar* file, int height );
 
-
 /**
  * Ranges.
  */

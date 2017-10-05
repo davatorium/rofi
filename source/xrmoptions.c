@@ -131,7 +131,7 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "drun-icon-theme",   { .str  = &config.drun_icon_theme        }, NULL,
       "Theme to use to look for icons", CONFIG_DEFAULT },
 
-    { xrm_Boolean, "name-only",         { .num  = &config.name_only   	         }, NULL,
+    { xrm_Boolean, "name-only",         { .num  = &config.name_only              }, NULL,
       "Match only the name of desktop entries in drun", CONFIG_DEFAULT },
     { xrm_Boolean, "disable-history",   { .num  = &config.disable_history        }, NULL,
       "Disable history in run/ssh", CONFIG_DEFAULT },

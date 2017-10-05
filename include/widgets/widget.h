@@ -48,7 +48,7 @@
  * Abstract structure holding internal state of a widget.
  * Structure is elaborated in widget-internal.h
  */
-typedef struct _widget   widget;
+typedef struct _widget widget;
 
 /**
  * Type of the widget. It is used to bubble events to the relevant widget.

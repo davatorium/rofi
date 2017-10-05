@@ -68,7 +68,7 @@ static void __history_write_element_list ( FILE *fd, _element **list, unsigned i
     int min_value = list[length - 1]->index;
 
     // Set the max length of the list.
-    length = ( length > config.max_history_size ) ? config.max_history_size: length;
+    length = ( length > config.max_history_size ) ? config.max_history_size : length;
 
     // Write out entries.
     for ( unsigned int iter = 0; iter < length; iter++ ) {
@@ -79,7 +79,7 @@ static void __history_write_element_list ( FILE *fd, _element **list, unsigned i
 static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
 {
     unsigned int real_length = 0;
-    _element **retv = NULL;
+    _element     **retv      = NULL;
 
     if  ( length == NULL ) {
         return NULL;
@@ -107,8 +107,7 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
         if ( ( l - ( start - buffer ) ) < 2 ) {
             continue;
         }
-        if ( real_length < (*length+2) )
-        {
+        if ( real_length < ( *length + 2 ) ) {
             real_length += 15;
             // Resize and check.
             retv = g_realloc ( retv, ( real_length ) * sizeof ( _element* ) );

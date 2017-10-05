@@ -38,6 +38,8 @@ rofi.run-shell-command:              {terminal} -e {cmd}
 rofi.window-command:                 xkill -id {window}
 ! "Theme to use to look for icons" Set from: Default
 ! rofi.drun-icon-theme:                
+! "Match only the name of desktop entries in drun" Set from: Default
+! rofi.name-only:                      false
 ! "Disable history in run/ssh" Set from: File
 rofi.disable-history:                false
 ! "Use sorting" Set from: Default

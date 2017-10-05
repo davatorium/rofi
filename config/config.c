@@ -115,7 +115,7 @@ Settings config = {
     .matching        = "normal",
     .matching_method = MM_NORMAL,
     /** Match only name in desktop entry. */
-    .name_only	     = FALSE,
+    .name_only         = FALSE,
     /** Monitor */
     .monitor           = "-5",
     /** set line margin */
@@ -143,5 +143,5 @@ Settings config = {
     .color_urgent      = NULL,
     .color_window      = NULL,
     .plugin_path       = PLUGIN_PATH,
-    .max_history_size  = 25,
+    .max_history_size  =                                  25,
 };

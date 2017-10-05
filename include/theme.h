@@ -91,7 +91,7 @@ void rofi_theme_property_free ( Property *p );
  *
  * @returns a copy of p
  */
-Property* rofi_theme_property_copy ( Property *p);
+Property* rofi_theme_property_copy ( Property *p );
 /**
  * @param widget
  *
@@ -161,7 +161,6 @@ int rofi_theme_get_integer   (  const widget *widget, const char *property, int 
  * @returns The position value of this property for this widget.
  */
 int rofi_theme_get_position ( const widget *widget, const char *property, int def );
-
 
 /**
  * @param widget   The widget to query
@@ -287,7 +286,6 @@ GList *rofi_theme_get_list ( const widget *widget, const char * property, const 
  * @returns TRUE when empty.
  */
 gboolean rofi_theme_is_empty ( void );
-
 
 /**
  * Reset the current theme.

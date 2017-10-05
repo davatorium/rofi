@@ -34,7 +34,7 @@
 /**
  * xcb data structure type declaration.
  */
-typedef struct _xcb_stuff   xcb_stuff;
+typedef struct _xcb_stuff xcb_stuff;
 
 /**
  * Global pointer to xcb_stuff instance.
@@ -168,11 +168,11 @@ void x11_disable_decoration ( xcb_window_t window );
 typedef enum
 {
     /** Default EWHM compatible window manager */
-    WM_EWHM                               = 0,
+    WM_EWHM                          = 0,
     /** I3 Window manager */
-    WM_DO_NOT_CHANGE_CURRENT_DESKTOP      = 1,
+    WM_DO_NOT_CHANGE_CURRENT_DESKTOP = 1,
     /** PANGO WORKSPACE NAMES */
-    WM_PANGO_WORKSPACE_NAMES              = 2,
+    WM_PANGO_WORKSPACE_NAMES         = 2,
 } WindowManagerQuirk;
 
 /**
