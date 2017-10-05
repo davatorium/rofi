@@ -551,7 +551,7 @@ static void rofi_collect_modi_destroy ( void )
             g_module_close ( mod );
         }
         if ( available_modi[i] ) {
-            mode_free ( &(available_modi[i]) );
+            mode_free ( &( available_modi[i] ) );
         }
     }
     g_free ( available_modi );
@@ -582,7 +582,7 @@ static int add_mode ( const char * token )
         Mode *sw = script_switcher_parse_setup ( token );
         if ( sw != NULL ) {
             // Add to available list, so combi can find it.
-            rofi_collect_modi_add(sw);
+            rofi_collect_modi_add ( sw );
             modi[num_modi] = sw;
             num_modi++;
         }

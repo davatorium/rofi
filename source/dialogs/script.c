@@ -47,65 +47,64 @@
 typedef struct
 {
     /** ID of the current script. */
-    unsigned int id;
+    unsigned int           id;
     /** List of visible items. */
-    char         **cmd_list;
+    char                   **cmd_list;
     /** length list of visible items. */
-    unsigned int cmd_list_length;
+    unsigned int           cmd_list_length;
 
     /** Urgent list */
     struct rofi_range_pair * urgent_list;
-    unsigned int      num_urgent_list;
+    unsigned int           num_urgent_list;
     /** Active list */
     struct rofi_range_pair * active_list;
-    unsigned int      num_active_list;
+    unsigned int           num_active_list;
     /** Configuration settings. */
-    char *message;
-    char *prompt;
-    gboolean do_markup;
-
+    char                   *message;
+    char                   *prompt;
+    gboolean               do_markup;
 } ScriptModePrivateData;
 
 static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
 {
-    ScriptModePrivateData *pd = (ScriptModePrivateData *) sw->private_data;
-    ssize_t length_key = 0;//strlen ( line );
+    ScriptModePrivateData *pd        = (ScriptModePrivateData *) sw->private_data;
+    ssize_t               length_key = 0;//strlen ( line );
     while ( line[length_key] != '\x1f' && length_key <= length ) {
         length_key++;
     }
 
-    if ( length_key < length )
-    {
+    if ( length_key < length ) {
         line[length_key] = '\0';
-        char *value = line+length_key+1;
+        char *value = line + length_key + 1;
         if ( strcasecmp ( line, "message" ) == 0 ) {
             g_free ( pd->message );
             pd->message = g_strdup ( value );
-        } else if ( strcasecmp ( line, "prompt" )      == 0 ) {
+        }
+        else if ( strcasecmp ( line, "prompt" ) == 0 ) {
             g_free ( pd->prompt );
-            pd->prompt = g_strdup  ( value );
+            pd->prompt       = g_strdup  ( value );
             sw->display_name = pd->prompt;
-        } else if ( strcasecmp ( line, "markup-rows" ) == 0 ) {
+        }
+        else if ( strcasecmp ( line, "markup-rows" ) == 0 ) {
             pd->do_markup = ( strcasecmp ( value, "true" ) == 0 );
-        } else if ( strcasecmp ( line, "urgent" )      == 0 ) {
+        }
+        else if ( strcasecmp ( line, "urgent" ) == 0 ) {
             parse_ranges ( value, &( pd->urgent_list ), &( pd->num_urgent_list ) );
-        } else if ( strcasecmp ( line, "active" )      == 0 ) {
+        }
+        else if ( strcasecmp ( line, "active" ) == 0 ) {
             parse_ranges ( value, &( pd->active_list ), &( pd->num_active_list ) );
         }
     }
 }
 
-
-
-
 static char **get_script_output ( Mode *sw, char *command, char *arg, unsigned int *length )
 {
     size_t actual_size = 0;
-    int    fd     = -1;
-    GError *error = NULL;
-    char   **retv = NULL;
-    char   **argv = NULL;
-    int    argc   = 0;
+    int    fd          = -1;
+    GError *error      = NULL;
+    char   **retv      = NULL;
+    char   **argv      = NULL;
+    int    argc        = 0;
     *length = 0;
     if ( g_shell_parse_argv ( command, &argc, &argv, &error ) ) {
         argv           = g_realloc ( argv, ( argc + 2 ) * sizeof ( char* ) );
@@ -124,20 +123,21 @@ static char **get_script_output ( Mode *sw, char *command, char *arg, unsigned i
     if ( fd >= 0 ) {
         FILE *inp = fdopen ( fd, "r" );
         if ( inp ) {
-            char   *buffer       = NULL;
-            size_t buffer_length = 0;
-            ssize_t read_length = 0;
-            while ( (read_length = getline ( &buffer, &buffer_length, inp ) ) > 0 ) {
+            char    *buffer       = NULL;
+            size_t  buffer_length = 0;
+            ssize_t read_length   = 0;
+            while ( ( read_length = getline ( &buffer, &buffer_length, inp ) ) > 0 ) {
                 // Filter out line-end.
-                if ( buffer[read_length-1] == '\n' ) {
-                    buffer[read_length-1] = '\0';
+                if ( buffer[read_length - 1] == '\n' ) {
+                    buffer[read_length - 1] = '\0';
                 }
                 if ( buffer[0] == '\0' ) {
-                    parse_header_entry ( sw, &buffer[1], read_length-1 );
-                } else {
-                    if ( actual_size < ((*length)+2) ){
+                    parse_header_entry ( sw, &buffer[1], read_length - 1 );
+                }
+                else {
+                    if ( actual_size < ( ( *length ) + 2 ) ) {
                         actual_size += 256;
-                        retv = g_realloc ( retv, ( actual_size ) * sizeof ( char* ) );
+                        retv         = g_realloc ( retv, ( actual_size ) * sizeof ( char* ) );
                     }
                     retv[( *length )]     = g_strdup ( buffer );
                     retv[( *length ) + 1] = NULL;
@@ -171,7 +171,6 @@ static void script_switcher_free ( Mode *sw )
     g_free ( sw->ed );
     g_free ( sw );
 }
-
 
 static int script_mode_init ( Mode *sw )
 {

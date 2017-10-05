@@ -182,7 +182,6 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
     tb->layout = pango_layout_new ( p_context );
     textbox_font ( tb, tbft );
 
-
     textbox_initialize_font ( tb );
 
     if ( ( tb->flags & TB_ICON ) != TB_ICON ) {
@@ -431,11 +430,11 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
 
         int    iconh = cairo_image_surface_get_height ( tb->icon );
         int    iconw = cairo_image_surface_get_width ( tb->icon );
-        int    icons = MAX(iconh, iconw);
+        int    icons = MAX ( iconh, iconw );
         double scale = (double) iconheight / icons;
-        cairo_translate ( draw, x+(iconheight-iconw*scale)/2.0, y+(iconheight-iconh*scale)/2.0 );
+        cairo_translate ( draw, x + ( iconheight - iconw * scale ) / 2.0, y + ( iconheight - iconh * scale ) / 2.0 );
         cairo_scale ( draw, scale, scale );
-        cairo_set_source_surface ( draw, tb->icon, 0,0);
+        cairo_set_source_surface ( draw, tb->icon, 0, 0 );
         cairo_paint ( draw );
         cairo_restore ( draw );
     }

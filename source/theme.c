@@ -74,24 +74,25 @@ Property *rofi_theme_property_create ( PropertyType type )
     retv->type = type;
     return retv;
 }
-Property* rofi_theme_property_copy ( Property *p)
+Property* rofi_theme_property_copy ( Property *p )
 {
     Property *retv = rofi_theme_property_create ( p->type );
     retv->name = g_strdup ( p->name );
 
-    switch ( p->type ) {
-        case P_STRING:
-          retv->value.s = g_strdup ( p->value.s );
-          break;
-        case P_LIST:
-          retv->value.list = g_list_copy_deep ( p->value.list, (GCopyFunc)g_strdup, NULL );
-          break;
-        case P_LINK:
-          retv->value.link.name = g_strdup ( p->value.link.name );
-          retv->value.link.ref  = NULL;
-          break;
-        default:
-           retv->value = p->value;
+    switch ( p->type )
+    {
+    case P_STRING:
+        retv->value.s = g_strdup ( p->value.s );
+        break;
+    case P_LIST:
+        retv->value.list = g_list_copy_deep ( p->value.list, (GCopyFunc) g_strdup, NULL );
+        break;
+    case P_LINK:
+        retv->value.link.name = g_strdup ( p->value.link.name );
+        retv->value.link.ref  = NULL;
+        break;
+    default:
+        retv->value = p->value;
     }
     return retv;
 }
@@ -114,8 +115,8 @@ void rofi_theme_property_free ( Property *p )
 void rofi_theme_reset ( void )
 {
     rofi_theme_free ( rofi_theme );
-    rofi_theme = g_slice_new0 ( ThemeWidget );
-    rofi_theme->name = g_strdup("Root");
+    rofi_theme       = g_slice_new0 ( ThemeWidget );
+    rofi_theme->name = g_strdup ( "Root" );
 }
 
 void rofi_theme_free ( ThemeWidget *widget )
@@ -369,7 +370,7 @@ void yyerror ( YYLTYPE *yylloc, const char *what, const char* s )
 static void rofi_theme_copy_property_int ( G_GNUC_UNUSED gpointer key, gpointer value, gpointer user_data )
 {
     GHashTable *table = (GHashTable *) user_data;
-    Property *p = rofi_theme_property_copy( (Property*) value);
+    Property   *p     = rofi_theme_property_copy ( (Property *) value );
     g_hash_table_replace ( table, p->name, p );
 }
 void rofi_theme_widget_add_properties ( ThemeWidget *widget, GHashTable *table )
@@ -378,7 +379,7 @@ void rofi_theme_widget_add_properties ( ThemeWidget *widget, GHashTable *table )
         return;
     }
     if ( widget->properties == NULL ) {
-        widget->properties = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify)rofi_theme_property_free );
+        widget->properties = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify) rofi_theme_property_free );
     }
     g_hash_table_foreach ( table, rofi_theme_copy_property_int, widget->properties );
 }
@@ -461,7 +462,7 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
     while ( widget ) {
         if ( widget->properties && g_hash_table_contains ( widget->properties, property ) ) {
             Property *p = g_hash_table_lookup ( widget->properties, property );
-            if ( p ->type == P_INHERIT ) {
+            if ( p->type == P_INHERIT ) {
                 return p;
             }
             if ( p->type == P_LINK ) {
@@ -632,7 +633,7 @@ void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t 
             if ( widget->parent ) {
                 rofi_theme_get_color ( widget->parent, property, d );
             }
-            return ;
+            return;
         }
         cairo_set_source_rgba ( d,
                                 p->value.color.red,
@@ -677,7 +678,8 @@ GList *rofi_theme_get_list ( const widget *widget, const char * property, const 
             if ( widget->parent ) {
                 return rofi_theme_get_list ( widget->parent, property, defaults );
             }
-        } else if ( p->type == P_LIST ) {
+        }
+        else if ( p->type == P_LIST ) {
             return g_list_copy_deep ( p->value.list, (GCopyFunc) g_strdup, NULL );
         }
     }

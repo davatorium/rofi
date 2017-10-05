@@ -123,7 +123,7 @@ struct RofiViewState
         int    x;
         int    y;
         widget *motion_target;
-    }      mouse;
+    }                mouse;
 
     /** Regexs used for matching */
     rofi_int_matcher **tokens;

@@ -55,7 +55,6 @@
 #include "rofi.h"
 #include "view.h"
 
-
 /**
  * Textual description of positioning rofi.
  */
@@ -158,7 +157,6 @@ void helper_tokenize_free ( rofi_int_matcher ** tokens )
     for ( size_t i = 0; tokens && tokens[i]; i++ ) {
         g_regex_unref ( (GRegex *) tokens[i]->regex );
         g_free ( tokens[i] );
-
     }
     g_free ( tokens );
 }
@@ -219,10 +217,10 @@ static inline GRegex * R ( const char *s, int case_sensitive  )
 
 static rofi_int_matcher * create_regex ( const char *input, int case_sensitive )
 {
-    GRegex * retv = NULL;
-    gchar  *r;
-    rofi_int_matcher *rv = g_malloc0(sizeof(rofi_int_matcher));
-    if ( input && input[0] == '-') {
+    GRegex           * retv = NULL;
+    gchar            *r;
+    rofi_int_matcher *rv = g_malloc0 ( sizeof ( rofi_int_matcher ) );
+    if ( input && input[0] == '-' ) {
         rv->invert = 1;
         input++;
     }
@@ -265,7 +263,7 @@ rofi_int_matcher **helper_tokenize ( const char *input, int case_sensitive )
         return NULL;
     }
 
-    char   *saveptr = NULL, *token;
+    char             *saveptr = NULL, *token;
     rofi_int_matcher **retv = NULL;
     if ( !config.tokenize ) {
         retv    = g_malloc0 ( sizeof ( rofi_int_matcher* ) * 2 );
@@ -415,7 +413,9 @@ PangoAttrList *helper_token_match_get_pango_attr ( RofiHighlightColorStyle th, r
     if ( tokens ) {
         for ( int j = 0; tokens[j]; j++ ) {
             GMatchInfo *gmi = NULL;
-            if ( tokens[j]->invert ) continue;
+            if ( tokens[j]->invert ) {
+                continue;
+            }
             g_regex_match ( tokens[j]->regex, input, G_REGEX_MATCH_PARTIAL, &gmi );
             while ( g_match_info_matches ( gmi ) ) {
                 int count = g_match_info_get_match_count ( gmi );
@@ -476,7 +476,7 @@ int helper_token_match ( rofi_int_matcher* const *tokens, const char *input )
     // Do a tokenized match.
     if ( tokens ) {
         for ( int j = 0; match && tokens[j]; j++ ) {
-            match = g_regex_match ( tokens[j]->regex, input, 0, NULL );
+            match  = g_regex_match ( tokens[j]->regex, input, 0, NULL );
             match ^= tokens[j]->invert;
         }
     }
