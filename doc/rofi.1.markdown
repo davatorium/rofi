@@ -222,9 +222,26 @@ The different fields are:
 
 * **name**: the application's name
 * **generic**: the application's generic name
-* **exec**:the application's  executable 
+* **exec**: the application's  executable 
 * **categories**: the application's categories
 * **all**: all of the above
+
+    Default: *all*
+
+`-window-match-fields` *field1*,*field2*,...
+
+When using window mode, match only with the specified fields. 
+The different fields are:
+
+* **title**: window's title
+* **class**: window's class
+* **role**: window's role 
+* **name**: window's name
+* **desktop**: window's current desktop
+* **all**: all of the above
+
+    Default: *all*
+
 
 ### Layout
 

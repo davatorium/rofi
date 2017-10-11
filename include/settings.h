@@ -85,6 +85,8 @@ typedef struct
     char           * run_list_command;
     /** Command for window */
     char           * window_command;
+    /** Window fields to match in window mode */
+    char           * window_match_fields;
     /** Theme for icons */
     char           * drun_icon_theme;
 

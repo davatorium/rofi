@@ -59,6 +59,13 @@
 #define CLIENTSTATE         10
 #define CLIENTWINDOWTYPE    10
 
+// Fields to match in window mode
+typedef struct
+{
+    char     *field_name;
+    gboolean enabled;
+} WinModeField;
+
 // a manageable window
 typedef struct
 {
@@ -93,6 +100,8 @@ typedef struct
 {
     unsigned int id;
     winlist      *ids;
+    WinModeField *matching_window_fields;
+    unsigned int matching_window_fields_length;
     // Current window.
     unsigned int index;
     char         *cache;
@@ -344,22 +353,22 @@ static int window_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned in
             // If hack not in place it would not match queries spanning multiple fields.
             // e.g. when searching 'title element' and 'class element'
             rofi_int_matcher *ftokens[2] = { tokens[j], NULL };
-            if ( c->title != NULL && c->title[0] != '\0' ) {
+            if ( c->title != NULL && c->title[0] != '\0' && rmpd->matching_window_fields[0].enabled ) {
                 test = helper_token_match ( ftokens, c->title );
             }
 
-            if ( test == tokens[j]->invert && c->class != NULL && c->class[0] != '\0' ) {
+            if ( test == tokens[j]->invert && c->class != NULL && c->class[0] != '\0' && rmpd->matching_window_fields[1].enabled ) {
                 test = helper_token_match ( ftokens, c->class );
             }
 
-            if ( test == tokens[j]->invert && c->role != NULL && c->role[0] != '\0' ) {
+            if ( test == tokens[j]->invert && c->role != NULL && c->role[0] != '\0' && rmpd->matching_window_fields[2].enabled ) {
                 test = helper_token_match ( ftokens, c->role );
             }
 
-            if ( test == tokens[j]->invert && c->name != NULL && c->name[0] != '\0' ) {
+            if ( test == tokens[j]->invert && c->name != NULL && c->name[0] != '\0' && rmpd->matching_window_fields[3].enabled ) {
                 test = helper_token_match ( ftokens, c->name );
             }
-            if ( test == tokens[j]->invert && c->wmdesktopstr != NULL && c->wmdesktopstr[0] != '\0' ) {
+            if ( test == tokens[j]->invert && c->wmdesktopstr != NULL && c->wmdesktopstr[0] != '\0' && rmpd->matching_window_fields[4].enabled ) {
                 test = helper_token_match ( ftokens, c->wmdesktopstr );
             }
 
@@ -370,6 +379,62 @@ static int window_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned in
     }
 
     return match;
+}
+
+/**
+ * Initialize window fields.
+ */
+static void window_mode_collect_fields ( ModeModePrivateData *pd )
+{
+    unsigned int length = 5;
+    pd->matching_window_fields               = g_realloc ( pd->matching_window_fields, length * sizeof ( WinModeField ) );
+    pd->matching_window_fields[0].field_name = "title";
+    pd->matching_window_fields[0].enabled    = TRUE;
+    pd->matching_window_fields[1].field_name = "class";
+    pd->matching_window_fields[1].enabled    = TRUE;
+    pd->matching_window_fields[2].field_name = "role";
+    pd->matching_window_fields[2].enabled    = TRUE;
+    pd->matching_window_fields[3].field_name = "name";
+    pd->matching_window_fields[3].enabled    = TRUE;
+    pd->matching_window_fields[4].field_name = "desktop";
+    pd->matching_window_fields[4].enabled    = TRUE;
+    pd->matching_window_fields_length        = length;
+}
+
+static void window_mode_parse_fields ( ModeModePrivateData *pd )
+{
+    char               *savept = NULL;
+    // Make a copy, as strtok will modify it.
+    char               *switcher_str = g_strdup ( config.window_match_fields );
+    const char * const sep           = ",#";
+    // Split token on ','. This modifies switcher_str.
+    for ( unsigned int i = 0; i < pd->matching_window_fields_length; i++ ) {
+        pd->matching_window_fields[i].enabled = FALSE;
+    }
+    for ( char *token = strtok_r ( switcher_str, sep, &savept ); token != NULL;
+          token = strtok_r ( NULL, sep, &savept ) ) {
+        if ( strcmp ( token, "all" ) == 0 ) {
+            for ( unsigned int i = 0; i < pd->matching_window_fields_length; i++ ) {
+                pd->matching_window_fields[i].enabled = TRUE;
+            }
+            break;
+        }
+        else {
+            gboolean matched = FALSE;
+            for ( unsigned int i = 0; i < pd->matching_window_fields_length; i++ ) {
+                const char * field_name = pd->matching_window_fields[i].field_name;
+                if ( strcmp ( token, field_name ) == 0 ) {
+                    pd->matching_window_fields[i].enabled = TRUE;
+                    matched                               = TRUE;
+                }
+            }
+            if ( !matched ) {
+                g_warning ( "Invalid window field name :%s", token );
+            }
+        }
+    }
+    // Free string that was modified by strtok_r
+    g_free ( switcher_str );
 }
 
 static unsigned int window_mode_get_num_entries ( const Mode *sw )
@@ -523,6 +588,8 @@ static int window_mode_init ( Mode *sw )
         pd->window_regex = g_regex_new ( "{[-\\w]+(:-?[0-9]+)?}", 0, 0, NULL );
         mode_set_private_data ( sw, (void *) pd );
         _window_mode_load_data ( sw, FALSE );
+        window_mode_collect_fields ( pd );
+        window_mode_parse_fields ( pd );
     }
     return TRUE;
 }
@@ -533,6 +600,8 @@ static int window_mode_init_cd ( Mode *sw )
         pd->window_regex = g_regex_new ( "{[-\\w]+(:-?[0-9]+)?}", 0, 0, NULL );
         mode_set_private_data ( sw, (void *) pd );
         _window_mode_load_data ( sw, TRUE );
+        window_mode_collect_fields ( pd );
+        window_mode_parse_fields ( pd );
     }
     return TRUE;
 }
@@ -636,6 +705,7 @@ static void window_mode_destroy ( Mode *sw )
         x11_cache_free ();
         g_free ( rmpd->cache );
         g_regex_unref ( rmpd->window_regex );
+        g_free ( rmpd->matching_window_fields );
         g_free ( rmpd );
         mode_set_private_data ( sw, NULL );
     }

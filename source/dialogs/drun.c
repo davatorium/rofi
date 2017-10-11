@@ -574,7 +574,6 @@ static void drun_collect_entry_fields ( DRunModePrivateData *pd )
     pd->matching_entry_fields_length              = 4;
 }
 
-
 static void drun_mode_parse_entry_fields ( DRunModePrivateData *pd )
 {
     char               *savept = NULL;

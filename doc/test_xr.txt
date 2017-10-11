@@ -36,6 +36,8 @@ rofi.run-command:                    bash -c "{cmd}"
 rofi.run-shell-command:              {terminal} -e {cmd}
 ! "Command executed on accep-entry-custom for window modus" Set from: File
 rofi.window-command:                 xkill -id {window}
+! "Window fields to match in window mode" Set from: Default
+! rofi.window-match-fields:            all
 ! "Theme to use to look for icons" Set from: Default
 ! rofi.drun-icon-theme:                
 ! "Desktop entry fields to match in drun" Set from: Default

@@ -36,39 +36,39 @@ Settings config = {
     /** List of enabled modi. */
     /** -modi */
 #ifdef WINDOW_MODE
-    .modi              = "window,run,ssh",
+    .modi                = "window,run,ssh",
 #else
-    .modi              = "run,ssh",
+    .modi                = "run,ssh",
 #endif
     /** Border width around the window. */
-    .menu_bw           =                                   1,
+    .menu_bw             =                                   1,
     /** The width of the switcher. (0100 in % > 100 in pixels) */
-    .menu_width        =                                  50,
+    .menu_width          =                                  50,
     /** Maximum number of options to show. */
-    .menu_lines        =                                  15,
+    .menu_lines          =                                  15,
     /** Number of columns */
-    .menu_columns      =                                   1,
+    .menu_columns        =                                   1,
     /** Font */
-    .menu_font         = "mono 12",
+    .menu_font           = "mono 12",
 
     /** Whether to load and show icons */
-    .show_icons        = FALSE,
+    .show_icons          = FALSE,
 
     /** Terminal to use. (for ssh and open in terminal) */
     .terminal_emulator = "rofi-sensible-terminal",
     .ssh_client        = "ssh",
     /** Command when executing ssh. */
-    .ssh_command       = "{terminal} -e {ssh-client} {host}",
+    .ssh_command         = "{terminal} -e {ssh-client} {host}",
     /** Command when running */
-    .run_command       = "{cmd}",
+    .run_command         = "{cmd}",
     /** Command used to list executable commands. empty -> internal */
-    .run_list_command  = "",
+    .run_list_command    = "",
     /** Command executed when running application in terminal */
-    .run_shell_command = "{terminal} -e {cmd}",
+    .run_shell_command   = "{terminal} -e {cmd}",
     /** Command executed on accep-entry-custom for window modus */
-    .window_command    = "xkill -id {window}",
+    .window_command      = "xkill -id {window}",
     /** No default icon theme, we search Adwaita and gnome as fallback */
-    .drun_icon_theme   = NULL,
+    .drun_icon_theme     = NULL,
     /**
      * Location of the window.
      * Enumeration indicating location or gravity of window.
@@ -80,51 +80,53 @@ Settings config = {
      * WL_SOUTH_WEST      WL_SOUTH      WL_SOUTH_EAST
      *
      */
-    .location          = WL_CENTER,
+    .location            = WL_CENTER,
     /** Padding between elements */
-    .padding           =                                   5,
+    .padding             =                                   5,
     /** Y offset */
-    .y_offset          =                                   0,
+    .y_offset            =                                   0,
     /** X offset */
-    .x_offset          =                                   0,
+    .x_offset            =                                   0,
     /** Always show config.menu_lines lines, even if less lines are available */
-    .fixed_num_lines   = TRUE,
+    .fixed_num_lines     = TRUE,
     /** Do not use history */
-    .disable_history   = FALSE,
+    .disable_history     = FALSE,
     /** Sort the displayed list */
-    .sort              = FALSE,
+    .sort                = FALSE,
     /** Use levenshtein sorting when matching */
-    .levenshtein_sort  = FALSE,
+    .levenshtein_sort    = FALSE,
     /** Case sensitivity of the search */
-    .case_sensitive    = FALSE,
+    .case_sensitive      = FALSE,
     /** Cycle through in the element list */
-    .cycle             = TRUE,
+    .cycle               = TRUE,
     /** Height of an element in #chars */
-    .element_height    =                                   1,
+    .element_height      =                                   1,
     /** Sidebar mode, show the modi */
-    .sidebar_mode      = FALSE,
+    .sidebar_mode        = FALSE,
     /** auto select */
-    .auto_select       = FALSE,
+    .auto_select         = FALSE,
     /** Parse /etc/hosts file in ssh view. */
-    .parse_hosts       = FALSE,
+    .parse_hosts         = FALSE,
     /** Parse ~/.ssh/known_hosts file in ssh view. */
-    .parse_known_hosts = TRUE,
+    .parse_known_hosts   = TRUE,
     /** Modi to combine into one view. */
     .combi_modi      = "window,run",
     .tokenize        = TRUE,
     .matching        = "normal",
     .matching_method = MM_NORMAL,
     /** Desktop entry fields to match*/
-    .drun_match_fields = "all",
+    .drun_match_fields   = "all",
+    /** Window fields to match in window mode*/
+    .window_match_fields = "all",
     /** Monitor */
-    .monitor           = "-5",
+    .monitor             = "-5",
     /** set line margin */
     .line_margin  =                                   2,
     .line_padding =                                   1,
     /** Set filter */
-    .filter            = NULL,
+    .filter              = NULL,
     /** Separator style: dash/solid */
-    .separator_style   = "dash",
+    .separator_style     = "dash",
     /** Hide scrollbar */
     .hide_scrollbar    = FALSE,
     .fullscreen        = FALSE,
