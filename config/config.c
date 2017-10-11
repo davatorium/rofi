@@ -114,8 +114,8 @@ Settings config = {
     .tokenize        = TRUE,
     .matching        = "normal",
     .matching_method = MM_NORMAL,
-    /** Match only name in desktop entry. */
-    .name_only         = FALSE,
+    /** Desktop entry fields to match*/
+    .drun_match_fields = "all",
     /** Monitor */
     .monitor           = "-5",
     /** set line margin */

@@ -215,9 +215,16 @@ Note: glob matching might be slow for larger lists
 
 Tokenize the input.
 
-`-name-only`
+`-drun-match-fields` *field1*,*field2*,...
 
-When using drun, match only with the Desktop entry name. 
+When using drun, match only with the specified Desktop entry fields. 
+The different fields are:
+
+* **name**: the application's name
+* **generic**: the application's generic name
+* **exec**:the application's  executable 
+* **categories**: the application's categories
+* **all**: all of the above
 
 ### Layout
 
