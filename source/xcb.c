@@ -695,14 +695,14 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
         xcb_button_press_event_t *bpe = (xcb_button_press_event_t *) event;
         xcb->last_timestamp = bpe->time;
         rofi_view_handle_mouse_motion ( state, bpe->event_x, bpe->event_y );
-        nk_bindings_seat_handle_button ( xcb->bindings_seat, bpe->detail, NK_BINDINGS_BUTTON_STATE_PRESS, bpe->time );
+        nk_bindings_seat_handle_button ( xcb->bindings_seat, NULL, bpe->detail, NK_BINDINGS_BUTTON_STATE_PRESS, bpe->time );
         break;
     }
     case XCB_BUTTON_RELEASE:
     {
         xcb_button_release_event_t *bre = (xcb_button_release_event_t *) event;
         xcb->last_timestamp = bre->time;
-        nk_bindings_seat_handle_button ( xcb->bindings_seat, bre->detail, NK_BINDINGS_BUTTON_STATE_RELEASE, bre->time );
+        nk_bindings_seat_handle_button ( xcb->bindings_seat, NULL, bre->detail, NK_BINDINGS_BUTTON_STATE_RELEASE, bre->time );
         if ( config.click_to_exit == TRUE ) {
             if ( !xcb->mouse_seen ) {
                 rofi_view_temp_click_to_exit ( state, bre->event );
@@ -722,7 +722,7 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
             for ( gint8 bi = 0; bi < 7; ++bi ) {
                 if ( kne->keys[by] & ( 1 << bi ) ) {
                     // X11 keycodes starts at 8
-                    nk_bindings_seat_handle_key ( xcb->bindings_seat, ( 8 * by + bi ) + 8, NK_BINDINGS_KEY_STATE_PRESSED );
+                    nk_bindings_seat_handle_key ( xcb->bindings_seat, NULL, ( 8 * by + bi ) + 8, NK_BINDINGS_KEY_STATE_PRESSED );
                 }
             }
         }
@@ -734,7 +734,7 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
         gchar                 *text;
 
         xcb->last_timestamp = xkpe->time;
-        text                = nk_bindings_seat_handle_key_with_modmask ( xcb->bindings_seat, xkpe->state, xkpe->detail, NK_BINDINGS_KEY_STATE_PRESS );
+        text                = nk_bindings_seat_handle_key_with_modmask ( xcb->bindings_seat, NULL, xkpe->state, xkpe->detail, NK_BINDINGS_KEY_STATE_PRESS );
         if ( text != NULL ) {
             rofi_view_handle_text ( state, text );
         }
@@ -744,7 +744,7 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
     {
         xcb_key_release_event_t *xkre = (xcb_key_release_event_t *) event;
         xcb->last_timestamp = xkre->time;
-        nk_bindings_seat_handle_key ( xcb->bindings_seat, xkre->detail, NK_BINDINGS_KEY_STATE_RELEASE );
+        nk_bindings_seat_handle_key ( xcb->bindings_seat, NULL, xkre->detail, NK_BINDINGS_KEY_STATE_RELEASE );
         break;
     }
     default:
@@ -783,7 +783,7 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
         case XCB_XKB_STATE_NOTIFY:
         {
             xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
-            nk_bindings_seat_update_mask ( xcb->bindings_seat,
+            nk_bindings_seat_update_mask ( xcb->bindings_seat, NULL,
                                            ksne->baseMods,
                                            ksne->latchedMods,
                                            ksne->lockedMods,
