@@ -76,6 +76,45 @@ static void __history_write_element_list ( FILE *fd, _element **list, unsigned i
     }
 }
 
+static char ** __history_get_element_list_fields ( FILE *fd, unsigned int *length )
+{
+    unsigned int real_length = 0;
+    char **retv = NULL;;
+    if  ( length == NULL ) {
+        return NULL;
+    }
+    *length = 0;
+
+    if ( fd == NULL ) {
+        return NULL;
+    }
+    char    *buffer       = NULL;
+    size_t  buffer_length = 0;
+    ssize_t l             = 0;
+    while ( ( l = getline ( &buffer, &buffer_length, fd ) ) > 0 ) {
+        // Jump to the first space.
+        const char *start = strchr( buffer, ' ');
+        // not found, skip.
+        if ( start == NULL ) continue;
+        start++;
+        // remove trailing \n
+        buffer[l - 1] = '\0';
+        if ( real_length < ( *length + 2 ) ) {
+            real_length += 15;
+            // Resize and check.
+            retv = g_realloc ( retv, ( real_length ) * sizeof ( char* ) );
+        }
+        // Parse the number of times.
+        retv[( *length )] = g_strndup ( start, l - 1 - ( start - buffer ) );
+        // Force trailing '\0'
+        retv[( *length ) + 1] = NULL;
+
+        ( *length )++;
+
+    }
+    return retv;
+}
+
 static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
 {
     unsigned int real_length = 0;
@@ -272,7 +311,6 @@ char ** history_get_list ( const char *filename, unsigned int *length )
     if ( config.disable_history ) {
         return NULL;
     }
-    _element **list = NULL;
     char     **retv = NULL;
     // Open file.
     FILE     *fd = g_fopen ( filename, "r" );
@@ -285,19 +323,7 @@ char ** history_get_list ( const char *filename, unsigned int *length )
         return NULL;
     }
     // Get list.
-    list = __history_get_element_list ( fd, length );
-
-    // Copy list in right format.
-    // Lists are always short, so performance should not be an issue.
-    if ( ( *length ) > 0 ) {
-        retv = g_malloc ( ( ( *length ) + 1 ) * sizeof ( char * ) );
-        for ( unsigned int iter = 0; iter < ( *length ); iter++ ) {
-            retv[iter] = ( list[iter]->name );
-            g_free ( list[iter] );
-        }
-        retv[( *length )] = NULL;
-        g_free ( list );
-    }
+    retv = __history_get_element_list_fields ( fd, length );
 
     // Close file, if fails let user know on stderr.
     if ( fclose ( fd ) != 0 ) {
