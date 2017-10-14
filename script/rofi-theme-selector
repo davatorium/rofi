@@ -81,7 +81,7 @@ function find_themes()
                     themes+=(${file})
                     FN=$(basename ${file})
                     NAME=${FN%.*}
-                    USER=$(${SED} -n 's/^.*User: \(.*\)/\1/p' ${file} )
+                    USER=$(${SED} -n 's/^.*User: \(.*\)/\1/p' ${file} | head -n 1 )
                     if [ -z "${USER}" ]
                     then
                         theme_names+=(${NAME})
