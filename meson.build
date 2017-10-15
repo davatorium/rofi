@@ -119,7 +119,6 @@ install_headers([
         'include/mode.h',
         'include/mode-private.h',
         'include/helper.h',
-        'include/rofi-types.h',
     ],
     subdir: meson.project_name(),
 )
@@ -287,6 +286,18 @@ test('helper_pidfile test', executable('helper_pidfile.test', [
     dependencies: deps,
 ))
 
+test('helper_tokenize test', executable('helper_tokenize.test', [
+        'test/helper-tokenize.c',
+    ],
+    objects: rofi.extract_objects([
+        'config/config.c',
+        'source/helper.c',
+        'source/xrmoptions.c',
+        'source/rofi-types.c',
+    ]),
+    dependencies: deps,
+))
+
 test('widget test', executable('widget.test', [
         'test/widget-test.c',
         theme_parser,
@@ -422,18 +433,6 @@ if check.found()
         ]),
         dependencies: deps,
     ))
-    test('helper_tokenize test', executable('helper_tokenize.test', [
-            'test/helper-tokenize.c',
-        ],
-        objects: rofi.extract_objects([
-            'config/config.c',
-            'source/helper.c',
-            'source/xrmoptions.c',
-            'source/rofi-types.c',
-        ]),
-        dependencies: deps,
-    ))
-
 endif
 
 
