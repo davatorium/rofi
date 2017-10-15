@@ -92,7 +92,7 @@ config_h = configure_file(output: 'config.h', configuration: header_conf)
 nk_options = [
     'bindings=true',
     'xdg-theme=true',
-    'git-root=@0@'.format(join_paths(meson.source_root(), '.git')),
+    'git-work-tree=@0@'.format(meson.source_root()),
 ]
 nk = subproject('libnkutils', default_options: nk_options)
 nk_subproject_options = nk.get_variable('nk_options')
