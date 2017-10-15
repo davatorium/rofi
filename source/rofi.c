@@ -45,6 +45,13 @@
 
 #include <libgwater-xcb.h>
 
+#ifdef USE_NK_GIT_VERSION
+#include "nkutils-git-version.h"
+#ifdef NK_GIT_VERSION
+#define GIT_VERSION NK_GIT_VERSION
+#endif
+#endif
+
 #include "rofi.h"
 #include "display.h"
 
