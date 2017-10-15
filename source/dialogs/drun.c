@@ -96,6 +96,22 @@ typedef struct
     gboolean   enabled;
 } DRunEntryField;
 
+typedef enum
+{
+    DRUN_MATCH_FIELD_NAME,
+    DRUN_MATCH_FIELD_GENERIC,
+    DRUN_MATCH_FIELD_EXEC,
+    DRUN_MATCH_FIELD_CATEGORIES,
+    DRUN_MATCH_NUM_FIELDS,
+} DRunMatchingFields;
+
+static DRunEntryField matching_entry_fields[DRUN_MATCH_NUM_FIELDS] = {
+    { .entry_field_name = "name",       .enabled = TRUE, },
+    { .entry_field_name = "generic",    .enabled = TRUE, },
+    { .entry_field_name = "exec",       .enabled = TRUE, },
+    { .entry_field_name = "categories", .enabled = TRUE, }
+};
+
 typedef struct
 {
     NkXdgThemeContext *xdg_context;
@@ -106,8 +122,6 @@ typedef struct
     GHashTable        *disabled_entries;
     unsigned int      disabled_entries_length;
     GThreadPool       *pool;
-    DRunEntryField    *matching_entry_fields;
-    unsigned int      matching_entry_fields_length;
     unsigned int      expected_line_height;
     DRunModeEntry     quit_entry;
 
@@ -556,49 +570,31 @@ static void drun_icon_fetch ( gpointer data, gpointer user_data )
     rofi_view_reload ();
 }
 
-/**
- * Initialize desktop entry fields.
- */
-static void drun_collect_entry_fields ( DRunModePrivateData *pd )
-{
-    unsigned int entry_fields_length = 4;
-    pd->matching_entry_fields                     = g_realloc ( pd->matching_entry_fields, entry_fields_length * sizeof ( DRunEntryField ) );
-    pd->matching_entry_fields[0].entry_field_name = "name";
-    pd->matching_entry_fields[0].enabled          = TRUE;
-    pd->matching_entry_fields[1].entry_field_name = "generic";
-    pd->matching_entry_fields[1].enabled          = TRUE;
-    pd->matching_entry_fields[2].entry_field_name = "exec";
-    pd->matching_entry_fields[2].enabled          = TRUE;
-    pd->matching_entry_fields[3].entry_field_name = "categories";
-    pd->matching_entry_fields[3].enabled          = TRUE;
-    pd->matching_entry_fields_length              = 4;
-}
-
-static void drun_mode_parse_entry_fields ( DRunModePrivateData *pd )
+static void drun_mode_parse_entry_fields ()
 {
     char               *savept = NULL;
     // Make a copy, as strtok will modify it.
     char               *switcher_str = g_strdup ( config.drun_match_fields );
     const char * const sep           = ",#";
     // Split token on ','. This modifies switcher_str.
-    for ( unsigned int i = 0; i < pd->matching_entry_fields_length; i++ ) {
-        pd->matching_entry_fields[i].enabled = FALSE;
+    for ( unsigned int i = 0; i < DRUN_MATCH_NUM_FIELDS; i++ ) {
+        matching_entry_fields[i].enabled = FALSE;
     }
     for ( char *token = strtok_r ( switcher_str, sep, &savept ); token != NULL;
           token = strtok_r ( NULL, sep, &savept ) ) {
         if ( strcmp ( token, "all" ) == 0 ) {
-            for ( unsigned int i = 0; i < pd->matching_entry_fields_length; i++ ) {
-                pd->matching_entry_fields[i].enabled = TRUE;
+            for ( unsigned int i = 0; i < DRUN_MATCH_NUM_FIELDS; i++ ) {
+                matching_entry_fields[i].enabled = TRUE;
             }
             break;
         }
         else {
             gboolean matched = FALSE;
-            for ( unsigned int i = 0; i < pd->matching_entry_fields_length; i++ ) {
-                const char * entry_name = pd->matching_entry_fields[i].entry_field_name;
+            for ( unsigned int i = 0; i < DRUN_MATCH_NUM_FIELDS; i++ ) {
+                const char * entry_name = matching_entry_fields[i].entry_field_name;
                 if ( strcmp ( token, entry_name ) == 0 ) {
-                    pd->matching_entry_fields[i].enabled = TRUE;
-                    matched                              = TRUE;
+                    matching_entry_fields[i].enabled = TRUE;
+                    matched                          = TRUE;
                 }
             }
             if ( !matched ) {
@@ -628,8 +624,7 @@ static int drun_mode_init ( Mode *sw )
         pd->xdg_context = nk_xdg_theme_context_new ( drun_icon_fallback_themes, NULL );
         nk_xdg_theme_preload_themes_icon ( pd->xdg_context, themes );
         get_apps ( pd );
-        drun_collect_entry_fields ( pd );
-        drun_mode_parse_entry_fields ( pd );
+        drun_mode_parse_entry_fields ();
     }
     return TRUE;
 }
@@ -705,7 +700,6 @@ static void drun_mode_destroy ( Mode *sw )
         g_hash_table_destroy ( rmpd->disabled_entries );
         g_free ( rmpd->entry_list );
         nk_xdg_theme_context_free ( rmpd->xdg_context );
-        g_free ( rmpd->matching_entry_fields );
         g_free ( rmpd );
         mode_set_private_data ( sw, NULL );
     }
@@ -765,6 +759,7 @@ static char *drun_get_completion ( const Mode *sw, unsigned int index )
 
 static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsigned int index )
 {
+    TICK_N ( "begin drun_token_match" );
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( data );
     int                 match = 1;
     if ( tokens ) {
@@ -772,24 +767,24 @@ static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsig
             int              test        = 0;
             rofi_int_matcher *ftokens[2] = { tokens[j], NULL };
             // Match name
-            if ( rmpd->matching_entry_fields[0].enabled ) {
+            if ( matching_entry_fields[DRUN_MATCH_FIELD_NAME].enabled ) {
                 if ( rmpd->entry_list[index].name ) {
                     test = helper_token_match ( ftokens, rmpd->entry_list[index].name );
                 }
             }
-            if ( rmpd->matching_entry_fields[1].enabled ) {
+            if ( matching_entry_fields[DRUN_MATCH_FIELD_GENERIC].enabled ) {
                 // Match generic name
                 if ( test == tokens[j]->invert && rmpd->entry_list[index].generic_name ) {
                     test = helper_token_match ( ftokens, rmpd->entry_list[index].generic_name );
                 }
             }
-            if ( rmpd->matching_entry_fields[2].enabled ) {
+            if ( matching_entry_fields[DRUN_MATCH_FIELD_EXEC].enabled ) {
                 // Match executable name.
                 if ( test == tokens[j]->invert  ) {
                     test = helper_token_match ( ftokens, rmpd->entry_list[index].exec );
                 }
             }
-            if ( rmpd->matching_entry_fields[3].enabled ) {
+            if ( matching_entry_fields[DRUN_MATCH_FIELD_CATEGORIES].enabled ) {
                 // Match against category.
                 if ( test == tokens[j]->invert ) {
                     gchar **list = rmpd->entry_list[index].categories;
@@ -803,6 +798,8 @@ static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsig
             }
         }
     }
+
+    TICK_N ( "end drun_token_match" );
     return match;
 }
 
