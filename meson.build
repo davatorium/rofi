@@ -239,18 +239,21 @@ install_data(
     install_dir: themedir
 )
 
-pkgconfig = import('pkgconfig')
-pkgconfig.generate(
-    name: 'rofi',
-    filebase: 'rofi',
-    description: 'Header files for rofi plugins',
-    version: meson.project_version(),
-    requires_private: [
-        'glib-2.0 >= 2.40',
-        'gmodule-2.0',
-        'cairo',
-    ],
+pkg = import('pkgconfig')
+pkgconfig_conf = configuration_data()
+pkgconfig_conf.set('prefix', get_option('prefix'))
+pkgconfig_conf.set('exec_prefix', '${prefix}')
+pkgconfig_conf.set('VERSION', meson.project_version())
+pkgconfig_conf.set('libdir',  join_paths('${prefix}',get_option('libdir')))
+pkgconfig_conf.set('includedir',  join_paths('${prefix}',get_option('includedir')))
+
+configure_file(
+    input: 'pkgconfig/rofi.pc.in',
+    output: 'rofi.pc',
+    configuration: pkgconfig_conf,
+    install_dir: join_paths(get_option('libdir'), 'pkgconfig'),
 )
+
 
 
 test('history test', executable('history.test', [
