@@ -759,7 +759,6 @@ static char *drun_get_completion ( const Mode *sw, unsigned int index )
 
 static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsigned int index )
 {
-    TICK_N ( "begin drun_token_match" );
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( data );
     int                 match = 1;
     if ( tokens ) {
@@ -799,7 +798,6 @@ static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsig
         }
     }
 
-    TICK_N ( "end drun_token_match" );
     return match;
 }
 
