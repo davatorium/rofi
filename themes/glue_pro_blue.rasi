@@ -7,26 +7,26 @@
     selected-normal-foreground:  rgba ( 255, 255, 255, 100 % );
     foreground:                  rgba ( 255, 255, 255, 100 % );
     normal-foreground:           @foreground;
-    alternate-normal-background: rgba ( 57, 57, 57, 100 % );
+    alternate-normal-background: transparent;
     red:                         rgba ( 220, 50, 47, 100 % );
     selected-urgent-foreground:  rgba ( 255, 195, 156, 100 % );
     blue:                        rgba ( 38, 139, 210, 100 % );
     urgent-foreground:           rgba ( 243, 132, 61, 100 % );
-    alternate-urgent-background: rgba ( 57, 57, 57, 100 % );
+    alternate-urgent-background: transparent;
     active-foreground:           rgba ( 38, 139, 210, 100 % );
     lightbg:                     rgba ( 238, 232, 213, 100 % );
     selected-active-foreground:  rgba ( 32, 81, 113, 100 % );
-    alternate-active-background: rgba ( 57, 57, 57, 100 % );
-    background:                  rgba ( 57, 57, 57, 100 % );
+    alternate-active-background: transparent;
+    background:                  transparent;
     bordercolor:                 rgba ( 57, 57, 57, 100 % );
     alternate-normal-foreground: @foreground;
-    normal-background:           rgba ( 57, 57, 57, 100 % );
+    normal-background:           transparent;
     lightfg:                     rgba ( 88, 104, 117, 100 % );
     selected-normal-background:  rgba ( 38, 139, 210, 100 % );
     border-color:                @foreground;
     spacing:                     2;
     separatorcolor:              rgba ( 38, 139, 210, 100 % );
-    urgent-background:           rgba ( 57, 57, 57, 100 % );
+    urgent-background:           transparent;
     selected-urgent-background:  rgba ( 38, 139, 210, 100 % );
     alternate-urgent-foreground: @urgent-foreground;
     background-color:            rgba ( 0, 0, 0, 0 % );
@@ -35,7 +35,7 @@
     selected-active-background:  rgba ( 38, 139, 210, 100 % );
 }
 #window {
-    background-color: @background;
+    background-color: rgba ( 57, 57, 57, 95 % );
     border:           1;
     padding:          5;
 }
@@ -112,6 +112,10 @@
 #button.selected {
     background-color: @selected-normal-background;
     text-color:       @selected-normal-foreground;
+}
+#button {
+    background-color: @background;
+    text-color:       @foreground;
 }
 #inputbar {
     spacing:    0;

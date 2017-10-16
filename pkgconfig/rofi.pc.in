@@ -3,6 +3,7 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
+pluginsdir=@libdir@/rofi/
 
 Name: rofi
 Description: Header files for rofi plugins

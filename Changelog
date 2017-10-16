@@ -1,5 +1,17 @@
 development:
 
+v1.4.2: 
+	- Add sort to manpage. (#682)
+	- Add tranaparent to theme manpage. (#688)
+	- Re-add theme headers. (#679)
+	- Fix super key. (#684)
+	- Unknown option libnkutils:uuid. (#677)
+	- Mode window is not found. (#686)
+	- Fix meson build in dist file. 
+
+v1.4.1: All Hail Rasi
+	- Bump meson release version
+
 v1.4.0: I reject your truth and substitute my own (unreleased)
 	New Features:
 		- FZF style sorting for fuzzy matching (thanks to MaskRay) (#533)

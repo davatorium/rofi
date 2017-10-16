@@ -76,20 +76,7 @@ header_conf.set_quoted('PACKAGE_URL', 'https://reddit.com/r/qtools/')
 header_conf.set('THEME_CONVERTER', true)
 header_conf.set('_GNU_SOURCE', true)
 
-git = find_program('git', required: false)
-if git.found()
-	git_version = run_command(git, '--git-dir', join_paths(meson.source_root(), '.git'), 'describe', '--tags', '--always', '--dirty')
-	git_branch = run_command(git, '--git-dir', join_paths(meson.source_root(), '.git'), 'describe', '--tags', '--always', '--all')
-	if git_version.returncode() == 0 and git_branch.returncode() == 0
-		git_branch_parts = []
-		foreach b : git_branch.stdout().strip().split('/')
-			if b != 'heads'
-				git_branch_parts += b
-			endif
-		endforeach
-		header_conf.set_quoted('GIT_VERSION', '@0@ - @1@ (@2@)'.format(meson.project_version(), git_version.stdout().strip(), '/'.join(git_branch_parts)))
-	endif
-endif
+header_conf.set('USE_NK_GIT_VERSION', true)
 
 header_conf.set('ENABLE_DRUN', get_option('enable-drun'))
 header_conf.set('WINDOW_MODE', get_option('enable-window'))
@@ -102,15 +89,16 @@ header_conf.set_quoted('THEME_DIR', themedir)
 
 config_h = configure_file(output: 'config.h', configuration: header_conf)
 
-nk_modules = [
+nk_options = [
     'bindings=true',
     'xdg-theme=true',
+    'git-work-tree=@0@'.format(meson.source_root()),
 ]
-nk = subproject('libnkutils', default_options: nk_modules)
-nk_options = nk.get_variable('nk_options')
-foreach o : nk_modules + nk_options
-    if not nk_modules.contains(o) or not nk_options.contains(o)
-        error('You must not change libnkutils options @0@ != @1@'.format('|'.join(nk_modules), '|'.join(nk_options)))
+nk = subproject('libnkutils', default_options: nk_options)
+nk_subproject_options = nk.get_variable('nk_options')
+foreach o : nk_options + nk_subproject_options
+    if not nk_options.contains(o) or not nk_subproject_options.contains(o)
+        error('You must not change libnkutils options @0@ != @1@'.format('|'.join(nk_options), '|'.join(nk_subproject_options)))
     endif
 endforeach
 deps += nk.get_variable('libnkutils')
@@ -287,6 +275,7 @@ test('helper_pidfile test', executable('helper_pidfile.test', [
     dependencies: deps,
 ))
 
+
 test('widget test', executable('widget.test', [
         'test/widget-test.c',
         theme_parser,
@@ -422,6 +411,7 @@ if check.found()
         ]),
         dependencies: deps,
     ))
+
     test('helper_tokenize test', executable('helper_tokenize.test', [
             'test/helper-tokenize.c',
         ],
@@ -433,7 +423,6 @@ if check.found()
         ]),
         dependencies: deps,
     ))
-
 endif
 
 

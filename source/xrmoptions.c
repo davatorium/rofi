@@ -206,9 +206,7 @@ static XrmOption xrmOptions[] = {
       "Color scheme for active row", CONFIG_DEFAULT },
     { xrm_String,  "color-window",        { .str  = &config.color_window                   }, NULL,
       "Color scheme window", CONFIG_DEFAULT },
-    { xrm_String,  "plugin-path",         { .str  = &config.plugin_path                    }, NULL,
-      "Directory containing plugins", CONFIG_DEFAULT },
-    { xrm_Number,  "max-history-size",    { .num  = &config.max_history_size               }, NULL,
+    { xrm_Number,  "max-history-size",  { .num  = &config.max_history_size       }, NULL,
       "Max history size (WARNING: can cause slowdowns when set to high).", CONFIG_DEFAULT },
 };
 

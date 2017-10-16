@@ -81,7 +81,7 @@ function find_themes()
                     themes+=(${file})
                     FN=$(basename ${file})
                     NAME=${FN%.*}
-                    USER=$(${SED} -n 's/^.*User: \(.*\)/\1/p' ${file} )
+                    USER=$(${SED} -n 's/^.*User: \(.*\)/\1/p' ${file} | head -n 1 )
                     if [ -z "${USER}" ]
                     then
                         theme_names+=(${NAME})
@@ -129,6 +129,7 @@ function select_theme ()
     MORE_FLAGS+=(-kb-custom-1 "Alt-a")
     MORE_FLAGS+=(-u 2,3 -a 4,5 )
     local CUR="default"
+    SELECTED="-1"
     while true
     do
         declare -i RTR
@@ -140,9 +141,9 @@ Current theme: <b>${CUR}</b>"""
         THEME_FLAG=
         if [ -n "${SELECTED}" ]
         then 
-            THEME_FLAG="-theme ${themes[${SELECTED}]}"
+			THEME_FLAG="-theme ${themes[${SELECTED}]}"
         fi
-        RES=$( create_theme_list | ${ROFI} ${THEME_FLAG} ${MORE_FLAGS[@]} -selected-row "${SELECTED}" -mesg "${MESG}")
+		RES=$( create_theme_list | ${ROFI} ${THEME_FLAG} ${MORE_FLAGS[@]} -cycle -selected-row "${SELECTED}" -mesg "${MESG}")
         RTR=$?
         if [ ${RTR} = 10 ]
         then
@@ -152,7 +153,7 @@ Current theme: <b>${CUR}</b>"""
             return 1;
         fi
         CUR=${theme_names[${RES}]}
-        SELECTED=${RES}
+		SELECTED=${RES}
     done
 }
 

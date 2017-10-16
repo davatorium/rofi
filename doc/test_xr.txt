@@ -110,8 +110,6 @@ rofi.scroll-method:                  0
 ! rofi.color-active:                   
 ! "Color scheme window" Set from: Default
 ! rofi.color-window:                   
-! "Directory containing plugins" Set from: File
-rofi.plugin-path:                    /usr/lib/rofi
 ! "Max history size (WARNING: can cause slowdowns when set to high)." Set from: Default
 ! rofi.max-history-size:               25
 ! "Pidfile location" Set from: File

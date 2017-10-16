@@ -45,6 +45,13 @@
 
 #include <libgwater-xcb.h>
 
+#ifdef USE_NK_GIT_VERSION
+#include "nkutils-git-version.h"
+#ifdef NK_GIT_VERSION
+#define GIT_VERSION NK_GIT_VERSION
+#endif
+#endif
+
 #include "rofi.h"
 #include "display.h"
 
@@ -267,6 +274,7 @@ static void print_main_application_options ( int is_term )
     print_help_msg ( "-show", "[mode]", "Show the mode 'mode' and exit. The mode has to be enabled.", NULL, is_term );
     print_help_msg ( "-no-lazy-grab", "", "Disable lazy grab that, when fail to grab keyboard, does not block but retry later.", NULL, is_term );
     print_help_msg ( "-no-plugins", "", "Disable loading of external plugins.", NULL, is_term );
+    print_help_msg ( "-plugin-path", "", "Directory used to search for rofi plugins.", NULL, is_term );
     print_help_msg ( "-dump-config", "", "Dump the current configuration in rasi format and exit.", NULL, is_term );
     print_help_msg ( "-dump-theme", "", "Dump the current theme in rasi format and exit.", NULL, is_term );
 }
@@ -481,7 +489,7 @@ static void rofi_collect_modi_dir ( const char *base_dir )
             if ( !g_str_has_suffix ( dn, G_MODULE_SUFFIX ) ) {
                 continue;
             }
-            char    *fn  = g_build_filename ( PLUGIN_PATH, dn, NULL );
+            char    *fn  = g_build_filename ( base_dir, dn, NULL );
             GModule *mod = g_module_open ( fn, G_MODULE_BIND_LAZY | G_MODULE_BIND_LOCAL );
             if ( mod ) {
                 Mode *m = NULL;
@@ -529,6 +537,8 @@ static void rofi_collect_modi ( void )
     rofi_collect_modi_add ( &help_keys_mode );
 
     if ( find_arg ( "-no-plugins" ) < 0 ) {
+        find_arg_str ( "-plugin-path", &(config.plugin_path) );
+        g_debug ( "Parse plugin path: %s", config.plugin_path );
         rofi_collect_modi_dir ( config.plugin_path );
     }
 }
@@ -810,7 +820,7 @@ int main ( int argc, char *argv[] )
 
     TICK_N ( "Setup mainloop" );
 
-    bindings = nk_bindings_new ();
+    bindings = nk_bindings_new ( -1 );
     TICK_N ( "NK Bindings" );
 
     if ( !display_setup ( main_loop, bindings ) ) {
