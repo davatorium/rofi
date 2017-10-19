@@ -651,7 +651,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     TICK_N ( "Config sanity check" );
 
     if ( list_of_error_msgs != NULL ) {
-        GString *emesg = g_string_new ( "The following errors where detected when starting rofi:\n" );
+        GString *emesg = g_string_new ( "The following errors were detected when starting rofi:\n" );
         GList   *iter  = g_list_first ( list_of_error_msgs );
         int     index  = 0;
         for (; iter != NULL && index < 2; iter = g_list_next ( iter ) ) {
