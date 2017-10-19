@@ -764,12 +764,16 @@ static char * rofi_theme_convert_color ( char *col )
 {
     char *r = g_strstrip ( col );
     if ( *r == '#' && strlen ( r ) == 9 ) {
-        char t1 = r[7];
-        char t2 = r[8];
-        r[7] = r[1];
-        r[8] = r[2];
-        r[1] = t1;
-        r[2] = t2;
+        char a1 = r[1];
+        char a2 = r[2];
+        r[1] = r[3];
+        r[2] = r[4];
+        r[3] = r[5];
+        r[4] = r[6];
+        r[5] = r[7];
+        r[6] = r[8];
+        r[7] = a1;
+        r[8] = a2;
     }
 
     return r;
