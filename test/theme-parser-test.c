@@ -45,6 +45,8 @@
 
 #include <check.h>
 
+#define REAL_COMPARE_DELTA 0.001
+
 
 int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
 {
@@ -254,12 +256,12 @@ START_TEST ( test_properties_distance_em_linestyle)
     RofiDistance d = (RofiDistance){ 1, ROFI_PU_PX, ROFI_HL_SOLID};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "sol", pi);
-    ck_assert_double_eq (  p.left.distance , 1.3 );
+    ck_assert_double_eq_tol (  p.left.distance , 1.3 , REAL_COMPARE_DELTA );
     ck_assert_int_eq(  p.left.type , ROFI_PU_EM );
     ck_assert_int_eq(  p.left.style, ROFI_HL_SOLID);
 
     p = rofi_theme_get_padding ( &wid, "dash", pi);
-    ck_assert_double_eq (  p.left.distance , 1.5 );
+    ck_assert_double_eq_tol (  p.left.distance , 1.5 , REAL_COMPARE_DELTA );
     ck_assert_int_eq(  p.left.type , ROFI_PU_EM );
     ck_assert_int_eq(  p.left.style, ROFI_HL_DASH);
 }
@@ -274,7 +276,7 @@ START_TEST ( test_properties_distance_px)
     RofiDistance d = (RofiDistance){ 1, ROFI_PU_EM, ROFI_HL_DASH};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "test", pi);
-    ck_assert_double_eq (  p.left.distance , 10.0 );
+    ck_assert_double_eq_tol (  p.left.distance , 10.0 , REAL_COMPARE_DELTA );
     ck_assert_int_eq(  p.left.type , ROFI_PU_PX );
     ck_assert_int_eq(  p.left.style, ROFI_HL_SOLID);
 }
@@ -289,11 +291,11 @@ START_TEST ( test_properties_distance_px_linestyle)
     RofiDistance d = (RofiDistance){ 1, ROFI_PU_EM, ROFI_HL_DASH};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "sol", pi);
-    ck_assert_double_eq (  p.left.distance , 10.0 );
+    ck_assert_double_eq_tol (  p.left.distance , 10.0 , REAL_COMPARE_DELTA );
     ck_assert_int_eq(  p.left.type , ROFI_PU_PX );
     ck_assert_int_eq(  p.left.style, ROFI_HL_SOLID);
     p = rofi_theme_get_padding ( &wid, "dash", pi);
-    ck_assert_double_eq (  p.left.distance , 14.0 );
+    ck_assert_double_eq_tol (  p.left.distance , 14.0 , REAL_COMPARE_DELTA );
     ck_assert_int_eq(  p.left.type , ROFI_PU_PX );
     ck_assert_int_eq(  p.left.style, ROFI_HL_DASH);
 }
@@ -308,7 +310,7 @@ START_TEST ( test_properties_distance_percent)
     RofiDistance d = (RofiDistance){ 1, ROFI_PU_EM, ROFI_HL_DASH};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "test", pi);
-    ck_assert_double_eq (  p.left.distance , 10.0 );
+    ck_assert_double_eq_tol (  p.left.distance , 10.0 , REAL_COMPARE_DELTA );
     ck_assert_int_eq(  p.left.type , ROFI_PU_PERCENT);
     ck_assert_int_eq(  p.left.style, ROFI_HL_SOLID);
 }
@@ -323,11 +325,11 @@ START_TEST ( test_properties_distance_percent_linestyle)
     RofiDistance d = (RofiDistance){ 1, ROFI_PU_EM, ROFI_HL_DASH};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "sol", pi);
-    ck_assert_double_eq (  p.left.distance , 10.0 );
+    ck_assert_double_eq_tol (  p.left.distance , 10.0 , REAL_COMPARE_DELTA );
     ck_assert_int_eq(  p.left.type , ROFI_PU_PERCENT);
     ck_assert_int_eq(  p.left.style, ROFI_HL_SOLID);
     p = rofi_theme_get_padding ( &wid, "dash", pi);
-    ck_assert_double_eq (  p.left.distance , 10 );
+    ck_assert_double_eq_tol (  p.left.distance , 10 , REAL_COMPARE_DELTA );
     ck_assert_int_eq(  p.left.type , ROFI_PU_PERCENT);
     ck_assert_int_eq(  p.left.style, ROFI_HL_DASH);
 }
@@ -419,9 +421,9 @@ START_TEST ( test_properties_style_color )
     RofiHighlightColorStyle th = { ROFI_HL_BOLD, {0.0,0.0,0.0,0.0}};
     th = rofi_theme_get_highlight ( &wid, "comb", th);
     ck_assert_int_eq ( th.style , (ROFI_HL_BOLD|ROFI_HL_COLOR));
-    ck_assert_double_eq ( th.color.red , (1/15.0));
-    ck_assert_double_eq ( th.color.green , (2/15.0));
-    ck_assert_double_eq ( th.color.blue , (3/15.0));
+    ck_assert_double_eq_tol ( th.color.red , (1/15.0), REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( th.color.green , (2/15.0), REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( th.color.blue , (3/15.0), REAL_COMPARE_DELTA );
 }
 END_TEST
 
@@ -434,19 +436,19 @@ START_TEST ( test_properties_color_h3 )
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
     Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.red  , 1 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 1 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 1 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 1 , REAL_COMPARE_DELTA );
 }
 END_TEST
 
@@ -459,19 +461,19 @@ START_TEST ( test_properties_color_h6 )
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
     Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.red  , 1 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 1 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 1 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 1 , REAL_COMPARE_DELTA );
 }
 END_TEST
 
@@ -484,22 +486,22 @@ START_TEST ( test_properties_color_h4 )
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
     Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.2 );
-    ck_assert_double_eq ( p->value.color.red  , 1 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.2 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1/7.5 );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 1 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1/7.5 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1/15.0 );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 1 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1/15.0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 1 , REAL_COMPARE_DELTA );
 }
 END_TEST
 START_TEST ( test_properties_color_h8 )
@@ -511,22 +513,22 @@ START_TEST ( test_properties_color_h8 )
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
     Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.2 );
-    ck_assert_double_eq ( p->value.color.red  , 1 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.2 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1/7.5 );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 1 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1/7.5 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1/15.0 );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 1 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1/15.0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 1 , REAL_COMPARE_DELTA );
 }
 END_TEST
 START_TEST ( test_properties_color_rgb )
@@ -538,19 +540,19 @@ START_TEST ( test_properties_color_rgb )
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
     Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.red  , 1 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 1 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 1 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 1 , REAL_COMPARE_DELTA );
 }
 END_TEST
 START_TEST ( test_properties_color_rgba_p )
@@ -562,22 +564,22 @@ START_TEST ( test_properties_color_rgba_p )
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
     Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.3 );
-    ck_assert_double_eq ( p->value.color.red  , 1 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.3 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.2 );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 1 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.2 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.7 );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 1 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.7 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 1 , REAL_COMPARE_DELTA );
 }
 END_TEST
 START_TEST ( test_properties_color_rgba_percent_p )
@@ -589,22 +591,22 @@ START_TEST ( test_properties_color_rgba_percent_p )
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
     Property *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.3 );
-    ck_assert_double_eq ( p->value.color.red  , 1 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.3 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.2 );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 1 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.2 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.7 );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 1 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.7 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 1 , REAL_COMPARE_DELTA );
 }
 END_TEST
 START_TEST ( test_properties_color_rgb_p )
@@ -616,19 +618,19 @@ START_TEST ( test_properties_color_rgb_p )
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
     Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.red  , 1 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 1 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 1 );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 1 , REAL_COMPARE_DELTA );
 }
 END_TEST
 START_TEST ( test_properties_color_rgba )
@@ -640,22 +642,22 @@ START_TEST ( test_properties_color_rgba )
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
     Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.3 );
-    ck_assert_double_eq ( p->value.color.red  , 1 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.3 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.2 );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 1 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.2 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.7 );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 1 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.7 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 1 , REAL_COMPARE_DELTA );
 }
 END_TEST
 START_TEST ( test_properties_color_rgba_percent )
@@ -667,22 +669,22 @@ START_TEST ( test_properties_color_rgba_percent )
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
     Property *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.3 );
-    ck_assert_double_eq ( p->value.color.red  , 1 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.3 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.2 );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 1 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.2 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.7 );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 1 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.7 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 1 , REAL_COMPARE_DELTA );
 }
 END_TEST
 START_TEST ( test_properties_color_argb )
@@ -694,22 +696,22 @@ START_TEST ( test_properties_color_argb )
     ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
     Property    *p   = rofi_theme_find_property ( twid, P_COLOR, "red", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.2 );
-    ck_assert_double_eq ( p->value.color.red  , 1 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.2 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "green", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1/7.5 );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 1 );
-    ck_assert_double_eq ( p->value.color.blue , 0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1/7.5 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 1 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 0 , REAL_COMPARE_DELTA );
     p   = rofi_theme_find_property ( twid, P_COLOR, "blue", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1/15.0 );
-    ck_assert_double_eq ( p->value.color.red  , 0 );
-    ck_assert_double_eq ( p->value.color.green , 0 );
-    ck_assert_double_eq ( p->value.color.blue , 1 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1/15.0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.red  , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.green , 0 , REAL_COMPARE_DELTA );
+    ck_assert_double_eq_tol ( p->value.color.blue , 1 , REAL_COMPARE_DELTA );
 }
 END_TEST
 START_TEST ( test_properties_color_hsl )
@@ -722,19 +724,19 @@ START_TEST ( test_properties_color_hsl )
 
     Property *p   = rofi_theme_find_property ( twid, P_COLOR, "test1", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1.0 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  , 0x88/255.0 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green, 0xcd/255.0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 0x90/255.0 , 0.004);
     p   = rofi_theme_find_property ( twid, P_COLOR, "test2", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1.0 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  , 1 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green , 0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 0 , 0.004);
     p   = rofi_theme_find_property ( twid, P_COLOR, "testa", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.3 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.3 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  , 0x88/255.0 ,0.004);
     ck_assert_double_eq_tol ( p->value.color.green ,0xcd/255.0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 0x90/255.0 ,0.004);
@@ -750,13 +752,13 @@ START_TEST ( test_properties_color_hsla )
 
     Property *p   = rofi_theme_find_property ( twid, P_COLOR, "test1", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.4 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.4 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  , 0x88/255.0 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green , 0xcd/255.0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 0x90/255.0 , 0.004);
     p   = rofi_theme_find_property ( twid, P_COLOR, "test2", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.55 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.55 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  , 1 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green , 0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 0 , 0.004);
@@ -772,19 +774,19 @@ START_TEST ( test_properties_color_hsl_ws )
 
     Property *p   = rofi_theme_find_property ( twid, P_COLOR, "test1", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1.0 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  , 0x88/255.0 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green, 0xcd/255.0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 0x90/255.0 , 0.004);
     p   = rofi_theme_find_property ( twid, P_COLOR, "test2", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1.0 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  , 1 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green , 0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 0 , 0.004);
     p   = rofi_theme_find_property ( twid, P_COLOR, "testa", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.3 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.3 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  , 0x88/255.0 ,0.004);
     ck_assert_double_eq_tol ( p->value.color.green ,0xcd/255.0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 0x90/255.0 ,0.004);
@@ -800,13 +802,13 @@ START_TEST ( test_properties_color_hsla_ws )
 
     Property *p   = rofi_theme_find_property ( twid, P_COLOR, "test1", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.3 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.3 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  , 0x88/255.0 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green , 0xcd/255.0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 0x90/255.0 , 0.004);
     p   = rofi_theme_find_property ( twid, P_COLOR, "test2", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.55 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.55 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  , 1 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green , 0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 0 , 0.004);
@@ -822,19 +824,19 @@ START_TEST ( test_properties_color_hwb )
 
     Property *p   = rofi_theme_find_property ( twid, P_COLOR, "test2", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1.0 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  ,  0x7a/255.0 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green , 0x4f/255.0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue ,  0xb5/255.0 , 0.004);
     p   = rofi_theme_find_property ( twid, P_COLOR, "test1", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1.0 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  , 166/255.0, 0.004);
     ck_assert_double_eq_tol ( p->value.color.green ,240/255.0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 255/255.0 , 0.004);
     p   = rofi_theme_find_property ( twid, P_COLOR, "testa", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.4 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.4 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  ,  0x7a/255.0 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green , 0x4f/255.0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue ,  0xb5/255.0 , 0.004);
@@ -850,25 +852,25 @@ START_TEST ( test_properties_color_hwb_ws )
 
     Property *p   = rofi_theme_find_property ( twid, P_COLOR, "test2", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1.0 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  ,  0x7a/255.0 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green , 0x4f/255.0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue ,  0xb5/255.0 , 0.004);
     p   = rofi_theme_find_property ( twid, P_COLOR, "test1", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1.0 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  , 166/255.0, 0.004);
     ck_assert_double_eq_tol ( p->value.color.green ,240/255.0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 255/255.0 , 0.004);
     p   = rofi_theme_find_property ( twid, P_COLOR, "testa", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.4 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.4 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  ,  0x7a/255.0 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green , 0x4f/255.0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue ,  0xb5/255.0 , 0.004);
     p   = rofi_theme_find_property ( twid, P_COLOR, "rada", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 0.4 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 0.4 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  ,  0.7 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green , 0.376, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue ,  0.3 , 0.004);
@@ -884,13 +886,13 @@ START_TEST ( test_properties_color_cmyk )
 
     Property *p   = rofi_theme_find_property ( twid, P_COLOR, "test1", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1.0 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  , 0x96/255.0 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green , 1.0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 0.0 , 0.004);
     p   = rofi_theme_find_property ( twid, P_COLOR, "test2", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1.0 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  , 1 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green , 0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 0 , 0.004);
@@ -906,13 +908,13 @@ START_TEST ( test_properties_color_cmyk_ws )
 
     Property *p   = rofi_theme_find_property ( twid, P_COLOR, "test1", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1.0 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  , 0x96/255.0 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green , 1.0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 0.0 , 0.004);
     p   = rofi_theme_find_property ( twid, P_COLOR, "test2", FALSE );
     ck_assert_ptr_nonnull ( p );
-    ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+    ck_assert_double_eq_tol ( p->value.color.alpha , 1.0 , REAL_COMPARE_DELTA );
     ck_assert_double_eq_tol ( p->value.color.red  , 1 , 0.004);
     ck_assert_double_eq_tol ( p->value.color.green , 0, 0.004 );
     ck_assert_double_eq_tol ( p->value.color.blue , 0 , 0.004);
@@ -929,7 +931,7 @@ START_TEST ( test_properties_color_names )
         ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
         Property *p   = rofi_theme_find_property ( twid, P_COLOR, "text-color", FALSE );
         ck_assert_ptr_nonnull ( p );
-        ck_assert_double_eq ( p->value.color.alpha , 1.0 );
+        ck_assert_double_eq_tol ( p->value.color.alpha , 1.0 , REAL_COMPARE_DELTA );
         ck_assert_double_eq_tol ( p->value.color.red  , CSSColors[iter].r/255.0, 0.004);
         ck_assert_double_eq_tol ( p->value.color.green, CSSColors[iter].g/255.0, 0.004 );
         ck_assert_double_eq_tol ( p->value.color.blue , CSSColors[iter].b/255.0, 0.004);
@@ -941,7 +943,7 @@ START_TEST ( test_properties_color_names )
         ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
         Property *p   = rofi_theme_find_property ( twid, P_COLOR, "text-color", FALSE );
         ck_assert_ptr_nonnull ( p );
-        ck_assert_double_eq ( p->value.color.alpha , 0.0 );
+        ck_assert_double_eq_tol ( p->value.color.alpha , 0.0 , REAL_COMPARE_DELTA );
         ck_assert_double_eq_tol ( p->value.color.red  , 0.0, 0.004);
         ck_assert_double_eq_tol ( p->value.color.green, 0.0, 0.004 );
         ck_assert_double_eq_tol ( p->value.color.blue , 0.0, 0.004);
@@ -959,7 +961,7 @@ START_TEST ( test_properties_color_names_alpha )
         ThemeWidget *twid = rofi_theme_find_widget ( wid.name, wid.state, FALSE );
         Property *p   = rofi_theme_find_property ( twid, P_COLOR, "text-color", FALSE );
         ck_assert_ptr_nonnull ( p );
-        ck_assert_double_eq ( p->value.color.alpha , (iter%101)/100.0);
+        ck_assert_double_eq_tol ( p->value.color.alpha , (iter%101)/100.0, REAL_COMPARE_DELTA);
         ck_assert_double_eq_tol ( p->value.color.red  , CSSColors[iter].r/255.0, 0.004);
         ck_assert_double_eq_tol ( p->value.color.green, CSSColors[iter].g/255.0, 0.004 );
         ck_assert_double_eq_tol ( p->value.color.blue , CSSColors[iter].b/255.0, 0.004);
@@ -977,13 +979,13 @@ START_TEST ( test_properties_padding_2 )
     RofiDistance d = (RofiDistance){ 1, ROFI_PU_PX, ROFI_HL_SOLID};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "test", pi);
-    ck_assert_double_eq (  p.left.distance , 20 );
+    ck_assert_double_eq_tol (  p.left.distance , 20, REAL_COMPARE_DELTA );
     ck_assert_int_eq (  p.left.type , ROFI_PU_PX );
-    ck_assert_double_eq (  p.right.distance , 20 );
+    ck_assert_double_eq_tol (  p.right.distance , 20, REAL_COMPARE_DELTA  );
     ck_assert_int_eq (  p.right.type , ROFI_PU_PX );
-    ck_assert_double_eq (  p.top.distance , 10 );
+    ck_assert_double_eq_tol (  p.top.distance , 10, REAL_COMPARE_DELTA);
     ck_assert_int_eq (  p.top.type , ROFI_PU_PX );
-    ck_assert_double_eq (  p.bottom.distance , 10 );
+    ck_assert_double_eq_tol (  p.bottom.distance , 10, REAL_COMPARE_DELTA );
     ck_assert_int_eq (  p.bottom.type , ROFI_PU_PX );
 
 }
@@ -997,13 +999,13 @@ START_TEST ( test_properties_padding_3 )
     RofiDistance d = (RofiDistance){ 1, ROFI_PU_PX, ROFI_HL_SOLID};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "test", pi);
-    ck_assert_double_eq (  p.left.distance , 30 );
+    ck_assert_double_eq_tol (  p.left.distance , 30, REAL_COMPARE_DELTA);
     ck_assert_int_eq (  p.left.type , ROFI_PU_PX );
-    ck_assert_double_eq (  p.right.distance , 30 );
+    ck_assert_double_eq_tol (  p.right.distance , 30, REAL_COMPARE_DELTA );
     ck_assert_int_eq (  p.right.type , ROFI_PU_PX );
-    ck_assert_double_eq (  p.top.distance , 10 );
+    ck_assert_double_eq_tol (  p.top.distance , 10, REAL_COMPARE_DELTA );
     ck_assert_int_eq (  p.top.type , ROFI_PU_PX );
-    ck_assert_double_eq (  p.bottom.distance , 20 );
+    ck_assert_double_eq_tol (  p.bottom.distance , 20, REAL_COMPARE_DELTA );
     ck_assert_int_eq (  p.bottom.type , ROFI_PU_PX );
 
 }
@@ -1017,13 +1019,13 @@ START_TEST ( test_properties_padding_4 )
     RofiDistance d = (RofiDistance){ 1, ROFI_PU_PX, ROFI_HL_SOLID};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "test", pi);
-    ck_assert_double_eq (  p.left.distance , 40 );
+    ck_assert_double_eq_tol (  p.left.distance , 40 , REAL_COMPARE_DELTA );
     ck_assert_int_eq (  p.left.type , ROFI_PU_PX );
-    ck_assert_double_eq (  p.right.distance , 30 );
+    ck_assert_double_eq_tol (  p.right.distance , 30 , REAL_COMPARE_DELTA );
     ck_assert_int_eq (  p.right.type , ROFI_PU_PX );
-    ck_assert_double_eq (  p.top.distance , 10 );
+    ck_assert_double_eq_tol (  p.top.distance , 10 , REAL_COMPARE_DELTA );
     ck_assert_int_eq (  p.top.type , ROFI_PU_PX );
-    ck_assert_double_eq (  p.bottom.distance , 20 );
+    ck_assert_double_eq_tol (  p.bottom.distance , 20 , REAL_COMPARE_DELTA );
     ck_assert_int_eq (  p.bottom.type , ROFI_PU_PX );
 
 }
@@ -1062,7 +1064,7 @@ START_TEST ( test_properties_double)
     wid.name = "blaat";
     wid.state = NULL;
     rofi_theme_parse_string ( "* { test: 123.432; }");
-    ck_assert_double_eq ( rofi_theme_get_double ( &wid, "test", 0.0) , 123.432 );
+    ck_assert_double_eq_tol ( rofi_theme_get_double ( &wid, "test", 0.0) , 123.432 , REAL_COMPARE_DELTA );
 }
 END_TEST
 START_TEST ( test_properties_integer)
