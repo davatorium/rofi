@@ -808,7 +808,7 @@ void rofi_theme_convert_old ( void )
             "* { selected-normal-background: %s; }",
             "* { selected-normal-foreground: %s; }"
         };
-        for ( int i = 0; retv && retv[i]; i++ ) {
+        for ( int i = 0; retv && retv[i] && i < 5; i++ ) {
             char *str = g_strdup_printf ( conf[i], rofi_theme_convert_color ( retv[i] ) );
             rofi_theme_parse_string ( str );
             g_free ( str );
@@ -824,7 +824,7 @@ void rofi_theme_convert_old ( void )
             "* { selected-urgent-background: %s; }",
             "* { selected-urgent-foreground: %s; }"
         };
-        for ( int i = 0; retv && retv[i]; i++ ) {
+        for ( int i = 0; retv && retv[i] && i < 5; i++ ) {
             char *str = g_strdup_printf ( conf[i], rofi_theme_convert_color ( retv[i] ) );
             rofi_theme_parse_string ( str );
             g_free ( str );
@@ -840,7 +840,7 @@ void rofi_theme_convert_old ( void )
             "* { selected-active-background: %s; }",
             "* { selected-active-foreground: %s; }"
         };
-        for ( int i = 0; retv && retv[i]; i++ ) {
+        for ( int i = 0; retv && retv[i] && i < 5; i++ ) {
             char *str = g_strdup_printf ( conf[i], rofi_theme_convert_color ( retv[i] ) );
             rofi_theme_parse_string ( str );
             g_free ( str );
