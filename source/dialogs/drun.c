@@ -516,13 +516,20 @@ static void drun_icon_fetch ( gpointer data, gpointer user_data )
     if ( dr->icon_name == NULL ) {
         return;
     }
-    gchar *icon_path = nk_xdg_theme_get_icon ( pd->xdg_context, themes, NULL, dr->icon_name, dr->icon_size, 1, TRUE );
-    if ( icon_path == NULL ) {
-        g_debug ( "Failed to get Icon %s(%d): n/a", dr->icon_name, dr->icon_size  );
-        return;
-    }
-    else{
-        g_debug ( "Found Icon %s(%d): %s", dr->icon_name, dr->icon_size, icon_path  );
+    const gchar *icon_path;
+    gchar *icon_path_ = NULL;
+
+    if ( g_path_is_absolute ( dr->icon_name ) )
+        icon_path = dr->icon_name;
+    else {
+        icon_path = icon_path_ = nk_xdg_theme_get_icon ( pd->xdg_context, themes, NULL, dr->icon_name, dr->icon_size, 1, TRUE );
+        if ( icon_path_ == NULL ) {
+            g_debug ( "Failed to get Icon %s(%d): n/a", dr->icon_name, dr->icon_size  );
+            return;
+        }
+        else{
+            g_debug ( "Found Icon %s(%d): %s", dr->icon_name, dr->icon_size, icon_path  );
+        }
     }
     cairo_surface_t *icon_surf = NULL;
     if ( g_str_has_suffix ( icon_path, ".png" ) ) {
@@ -543,7 +550,7 @@ static void drun_icon_fetch ( gpointer data, gpointer user_data )
         }
         dr->icon = icon_surf;
     }
-    g_free ( icon_path );
+    g_free ( icon_path_ );
     rofi_view_reload ();
 }
 
