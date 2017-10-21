@@ -54,10 +54,39 @@
 #include "widgets/textbox.h"
 #include "dialogs/window.h"
 
+#include "timings.h"
+
 #define WINLIST             32
 
 #define CLIENTSTATE         10
 #define CLIENTWINDOWTYPE    10
+
+// Fields to match in window mode
+typedef struct
+{
+    char     *field_name;
+    gboolean enabled;
+} WinModeField;
+
+typedef enum
+{
+    WIN_MATCH_FIELD_TITLE,
+    WIN_MATCH_FIELD_CLASS,
+    WIN_MATCH_FIELD_ROLE,
+    WIN_MATCH_FIELD_NAME,
+    WIN_MATCH_FIELD_DESKTOP,
+    WIN_MATCH_NUM_FIELDS,
+} WinModeMatchingFields;
+
+static WinModeField matching_window_fields[WIN_MATCH_NUM_FIELDS] = {
+    { .field_name = "title",   .enabled = TRUE, },
+    { .field_name = "class",   .enabled = TRUE, },
+    { .field_name = "role",    .enabled = TRUE, },
+    { .field_name = "name",    .enabled = TRUE, },
+    { .field_name = "desktop", .enabled = TRUE, }
+};
+
+static gboolean window_matching_fields_parsed = FALSE;
 
 // a manageable window
 typedef struct
@@ -344,22 +373,22 @@ static int window_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned in
             // If hack not in place it would not match queries spanning multiple fields.
             // e.g. when searching 'title element' and 'class element'
             rofi_int_matcher *ftokens[2] = { tokens[j], NULL };
-            if ( c->title != NULL && c->title[0] != '\0' ) {
+            if ( c->title != NULL && c->title[0] != '\0' && matching_window_fields[WIN_MATCH_FIELD_TITLE].enabled ) {
                 test = helper_token_match ( ftokens, c->title );
             }
 
-            if ( test == tokens[j]->invert && c->class != NULL && c->class[0] != '\0' ) {
+            if ( test == tokens[j]->invert && c->class != NULL && c->class[0] != '\0' && matching_window_fields[WIN_MATCH_FIELD_CLASS].enabled ) {
                 test = helper_token_match ( ftokens, c->class );
             }
 
-            if ( test == tokens[j]->invert && c->role != NULL && c->role[0] != '\0' ) {
+            if ( test == tokens[j]->invert && c->role != NULL && c->role[0] != '\0' && matching_window_fields[WIN_MATCH_FIELD_ROLE].enabled ) {
                 test = helper_token_match ( ftokens, c->role );
             }
 
-            if ( test == tokens[j]->invert && c->name != NULL && c->name[0] != '\0' ) {
+            if ( test == tokens[j]->invert && c->name != NULL && c->name[0] != '\0' && matching_window_fields[WIN_MATCH_FIELD_NAME].enabled ) {
                 test = helper_token_match ( ftokens, c->name );
             }
-            if ( test == tokens[j]->invert && c->wmdesktopstr != NULL && c->wmdesktopstr[0] != '\0' ) {
+            if ( test == tokens[j]->invert && c->wmdesktopstr != NULL && c->wmdesktopstr[0] != '\0' && matching_window_fields[WIN_MATCH_FIELD_DESKTOP].enabled ) {
                 test = helper_token_match ( ftokens, c->wmdesktopstr );
             }
 
@@ -370,6 +399,43 @@ static int window_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned in
     }
 
     return match;
+}
+
+static void window_mode_parse_fields ()
+{
+	window_matching_fields_parsed = TRUE;
+    char               *savept = NULL;
+    // Make a copy, as strtok will modify it.
+    char               *switcher_str = g_strdup ( config.window_match_fields );
+    const char * const sep           = ",#";
+    // Split token on ','. This modifies switcher_str.
+    for ( unsigned int i = 0; i < WIN_MATCH_NUM_FIELDS; i++ ) {
+        matching_window_fields[i].enabled = FALSE;
+    }
+    for ( char *token = strtok_r ( switcher_str, sep, &savept ); token != NULL;
+          token = strtok_r ( NULL, sep, &savept ) ) {
+        if ( strcmp ( token, "all" ) == 0 ) {
+            for ( unsigned int i = 0; i < WIN_MATCH_NUM_FIELDS; i++ ) {
+                matching_window_fields[i].enabled = TRUE;
+            }
+            break;
+        }
+        else {
+            gboolean matched = FALSE;
+            for ( unsigned int i = 0; i < WIN_MATCH_NUM_FIELDS; i++ ) {
+                const char * field_name = matching_window_fields[i].field_name;
+                if ( strcmp ( token, field_name ) == 0 ) {
+                    matching_window_fields[i].enabled = TRUE;
+                    matched                           = TRUE;
+                }
+            }
+            if ( !matched ) {
+                g_warning ( "Invalid window field name :%s", token );
+            }
+        }
+    }
+    // Free string that was modified by strtok_r
+    g_free ( switcher_str );
 }
 
 static unsigned int window_mode_get_num_entries ( const Mode *sw )
@@ -523,6 +589,9 @@ static int window_mode_init ( Mode *sw )
         pd->window_regex = g_regex_new ( "{[-\\w]+(:-?[0-9]+)?}", 0, 0, NULL );
         mode_set_private_data ( sw, (void *) pd );
         _window_mode_load_data ( sw, FALSE );
+	if ( !window_matching_fields_parsed ) {
+        	window_mode_parse_fields ();
+	}
     }
     return TRUE;
 }
@@ -533,6 +602,9 @@ static int window_mode_init_cd ( Mode *sw )
         pd->window_regex = g_regex_new ( "{[-\\w]+(:-?[0-9]+)?}", 0, 0, NULL );
         mode_set_private_data ( sw, (void *) pd );
         _window_mode_load_data ( sw, TRUE );
+	if ( !window_matching_fields_parsed ) {
+        	window_mode_parse_fields ();
+	}
     }
     return TRUE;
 }

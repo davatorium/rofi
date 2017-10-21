@@ -215,6 +215,34 @@ Note: glob matching might be slow for larger lists
 
 Tokenize the input.
 
+`-drun-match-fields` *field1*,*field2*,...
+
+When using drun, match only with the specified Desktop entry fields. 
+The different fields are:
+
+* **name**: the application's name
+* **generic**: the application's generic name
+* **exec**: the application's  executable 
+* **categories**: the application's categories
+* **all**: all of the above
+
+    Default: *all*
+
+`-window-match-fields` *field1*,*field2*,...
+
+When using window mode, match only with the specified fields. 
+The different fields are:
+
+* **title**: window's title
+* **class**: window's class
+* **role**: window's role 
+* **name**: window's name
+* **desktop**: window's current desktop
+* **all**: all of the above
+
+    Default: *all*
+
+
 ### Layout
 
 Most of the following options are **deprecated** and should not be used. Please use the new theme format to customize

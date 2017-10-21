@@ -28,7 +28,6 @@ tests=(
 cd ${MESON_BUILD_ROOT}
 mkdir -p test-x-logs
 rm -f core
-
 display=200
 for test in "${tests[@]}"; do
     log_prefix=test-x-logs/${display}

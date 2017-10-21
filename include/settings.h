@@ -85,6 +85,8 @@ typedef struct
     char           * run_list_command;
     /** Command for window */
     char           * window_command;
+    /** Window fields to match in window mode */
+    char           * window_match_fields;
     /** Theme for icons */
     char           * drun_icon_theme;
 
@@ -102,6 +104,8 @@ typedef struct
     unsigned int   disable_history;
     /** Toggle to enable sorting. */
     unsigned int   sort;
+    /** Desktop entries to match in drun */
+    char           * drun_match_fields;
     /** Use levenshtein sorting when matching */
     unsigned int   levenshtein_sort;
     /** Search case sensitivity */
