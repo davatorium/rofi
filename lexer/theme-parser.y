@@ -248,6 +248,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %type <list>           t_property_element_list
 %type <list>           t_property_element_list_optional
 %type <ival>           t_property_orientation
+%type <ival>           t_name_prefix_optional
 %start t_entry_list
 
 %%
@@ -265,8 +266,16 @@ t_entry_list:
     }
 ;
 
+/**
+ * Small dummy object to make the prefix optional.
+ */
+t_name_prefix_optional
+: T_NAME_PREFIX {}
+| %empty {}
+;
+
 t_entry:
-T_NAME_PREFIX t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE
+t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE
 {
     for ( GList *liter = g_list_first ( $2); liter; liter = g_list_next ( liter ) ) {
         ThemeWidget *widget = rofi_theme;

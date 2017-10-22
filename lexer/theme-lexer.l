@@ -359,15 +359,16 @@ if ( queue == NULL ){
      */
 
 
-    /**
-     * Handle defaults:  * { ... }
-     */
 <INITIAL>{CONFIGURATION} {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(DEFAULTS);
     return T_CONFIGURATION;
 
 }
+
+    /**
+     * Handle defaults:  * { ... }
+     */
 <INITIAL>{ASTERIX} {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(DEFAULTS);
@@ -385,8 +386,12 @@ if ( queue == NULL ){
     return T_ERROR_DEFAULTS;
 }
 
-<INITIAL>"#"            { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(NAMESTR);return T_NAME_PREFIX;}
-  /* Go into parsing an section*/
+<INITIAL>"#"            {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(NAMESTR);
+    return T_NAME_PREFIX;
+}
+    /* Go into parsing an section*/
 <NAMESTR>"\{"                    {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(SECTION);
@@ -557,6 +562,17 @@ if ( queue == NULL ){
         yylloc->last_column = 1;
         yylloc->last_line ++;
 };
+
+ /**
+  * If we just encounter a word, we assume it is a Widget name.
+  * This makes include,theme, configuration a reserved keyword.
+  */
+<INITIAL>{WORD} {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(NAMESTR);
+    yylval->sval = g_strdup(yytext);
+    return T_NAME_ELEMENT;
+}
 <INITIAL>. {
     return T_ERROR;
 }
