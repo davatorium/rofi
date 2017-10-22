@@ -48,7 +48,7 @@
     background-color: #003AFF;
 }
 #message {
-    border:       1px dash 0px 0px ;
+    border:       1px dash 0px dash ;
     border-color: @separatorcolor;
     padding:      1px ;
 }
