@@ -162,9 +162,11 @@ START_TEST (test_core_error_root )
     ck_assert_ptr_null ( rofi_theme->widgets );
     ck_assert_ptr_null ( rofi_theme->properties );
     ck_assert_ptr_null ( rofi_theme->parent );
+    const char *error_str =  "<big><b>Error while parsing theme:</b></big> <i>Blaat</i>\n"\
+"	Parser error: <span size=\"smaller\" style=\"italic\">syntax error, unexpected end of file, expecting &quot;bracket open (&apos;{&apos;)&quot; or &quot;Selector separator (&apos;,&apos;)&quot;</span>\n"\
+"	Location:     line 1 column 6 to line 1 column 6\n";
+    ck_assert_str_eq ( error_msg->str, error_str );
 
-    ck_assert_str_eq ( error_msg->str, "<big><b>Error while parsing theme:</b></big> <i>Blaat</i>\n"\
-	"\tParser error: <span size=\"smaller\" style=\"italic\">syntax error, unexpected error from file parser, expecting end of file or &quot;Element section (&apos;# {name} { ... }&apos;)&quot; or &quot;Default settings section ( &apos;* { ... }&apos;)&quot; or Configuration block</span>\n	Location:     line 1 column 1 to line 1 column 2\n");
 
     g_string_free ( error_msg, TRUE );
     error_msg = NULL;
