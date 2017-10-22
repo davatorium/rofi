@@ -36,13 +36,16 @@
     selected-active-background:  rgba ( 79, 128, 255, 100 % );
 }
 #window {
-    background-color: @background;
+	font: "Topaz-8 10";
+    background-color: #4E7FFF;
     border:           1;
     padding:          5;
 }
 #mainbox {
     border:  0;
     padding: 0;
+    margin: 40;
+    background-color: #003AFF;
 }
 #message {
     border:       1px dash 0px 0px ;
@@ -54,11 +57,11 @@
 }
 #listview {
     fixed-height: 0;
-    border:       2px dash 0px 0px ;
+    border:       0px 0px 0px 0px ;
     border-color: @separatorcolor;
     spacing:      2px ;
-    scrollbar:    true;
-    padding:      2px 0px 0px ;
+    scrollbar:    false;
+    padding:      5px 5px 5px ;
 }
 #element {
     border:  0;
@@ -101,7 +104,7 @@
     text-color:       @alternate-active-foreground;
 }
 #scrollbar {
-    width:        4px ;
+    width:        0px ;
     border:       0;
     handle-width: 8px ;
     padding:      0;
