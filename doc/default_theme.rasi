@@ -38,7 +38,7 @@
     padding: 0;
 }
 #message {
-    border:       1px dash 0px 0px ;
+    border:       2px dash 0px 0px ;
     border-color: @separatorcolor;
     padding:      1px ;
 }
