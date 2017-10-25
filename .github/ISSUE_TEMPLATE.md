@@ -1,3 +1,5 @@
+ :arrow_right: First read the [guidelines](https://github.com/DaveDavenport/rofi/blob/next/.github/CONTRIBUTING.md)! :arrow_left:
+
 ## Version
 
 Output of `rofi -v`
