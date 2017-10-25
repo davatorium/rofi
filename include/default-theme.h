@@ -69,7 +69,7 @@ const char *default_theme =
     "    padding: 0;"
     "}"
     "#message {"
-    "    border:  1px dash 0px 0px ;"
+    "    border:  2px dash 0px 0px ;"
     "    padding: 2px 0px 0px ;"
     "    border-color: @separatorcolor;"
     "}"
