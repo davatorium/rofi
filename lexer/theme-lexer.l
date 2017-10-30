@@ -475,6 +475,9 @@ if ( queue == NULL ){
     yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[11],yytext[12]);
     return T_COLOR;
 }
+<PROPERTIES>argb:{HEX}{7}       {
+    return T_ERROR_ARGB_SPEC;
+}
  /* Color schemes */
 <PROPERTIES>{RGBA}             { return T_COL_RGBA;       }
 <PROPERTIES>{HSL}              { return T_COL_HSL;        }

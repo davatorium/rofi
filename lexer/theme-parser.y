@@ -155,6 +155,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token <ival>     T_ERROR_NAMESTRING 4  "invalid element name"
 %token <ival>     T_ERROR_DEFAULTS   5  "invalid defaults name"
 %token <ival>     T_ERROR_INCLUDE    6  "invalid import value"
+%token <ival>     T_ERROR_ARGB_SPEC  7  "invalid argb color. Requires 8 (not 7) elements: argb:AARRGGBB."
 %token <ival>     T_INT                 "Integer number"
 %token <fval>     T_DOUBLE              "Floating-point number"
 %token <sval>     T_STRING              "UTF-8 encoded string"
