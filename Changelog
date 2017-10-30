@@ -1,4 +1,17 @@
-development:
+v1.4.3 (dev):
+	- Fix default theme border.
+	- Make '#' in the parser optional.
+	- Update themes.
+	- Add -drun/window-match-fields option (thx to Askrenteam) for drun/window menu. (#690/#656)
+	- Implement negated match. (#665)
+	- Fix parsing of non-existing fields. (#700)
+	- rofi-theme-selector fixes.
+	- Fix spelling error (thx to jmkjaer)
+	- Fix test on i686/arm. (#692)
+	- Fix error in theme manpage. (#686)
+	- Allow history size to be specified. (#613)
+	- Fix drun history implementation. (#579)
+	- Add gentoo install instruction. (#685)
 
 v1.4.2: 
 	- Add sort to manpage. (#682)
