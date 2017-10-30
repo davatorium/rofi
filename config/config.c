@@ -53,6 +53,8 @@ Settings config = {
 
     /** Whether to load and show icons */
     .show_icons          = FALSE,
+    /** Icon size */
+    .icon_size           = 0,
 
     /** Terminal to use. (for ssh and open in terminal) */
     .terminal_emulator = "rofi-sensible-terminal",

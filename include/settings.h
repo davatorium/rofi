@@ -70,6 +70,8 @@ typedef struct
 
     /** Whether to load and show icons  */
     gboolean       show_icons;
+    /** Icon size */
+    unsigned int   icon_size;
 
     /** Terminal to use  */
     char           * terminal_emulator;
