@@ -52,8 +52,6 @@ typedef enum
     MENU_ERROR_DIALOG  = 4,
     /** INDICATOR */
     MENU_INDICATOR     = 8,
-    /** Show column */
-    MENU_PROMPT_COLON  = 16,
 } MenuFlags;
 
 /**

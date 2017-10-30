@@ -244,14 +244,7 @@ static void rofi_view_update_prompt ( RofiViewState *state )
 {
     if ( state->prompt ) {
         const char *str = mode_get_display_name ( state->sw );
-        if ( ( state->menu_flags & MENU_PROMPT_COLON ) != 0 ) {
-            char *pr = g_strconcat ( str, ":", NULL );
-            textbox_text ( state->prompt, pr );
-            g_free ( pr );
-        }
-        else {
-            textbox_text ( state->prompt, str );
-        }
+        textbox_text ( state->prompt, str );
     }
 }
 
