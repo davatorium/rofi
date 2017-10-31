@@ -52,7 +52,7 @@
 #endif
 #endif
 
-#include "resources/resources.h"
+#include "resources.h"
 
 #include "rofi.h"
 #include "display.h"
