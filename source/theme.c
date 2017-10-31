@@ -286,11 +286,10 @@ static void rofi_theme_print_index ( ThemeWidget *widget )
             index = 4;
             for ( GList *iter = g_list_first ( list ); iter != NULL; iter = g_list_next ( iter ) ) {
                 char *name = (char *) iter->data;
-                if ( iter->prev == NULL ) {
-                    putchar ( '#' );
-                }
                 fputs ( name, stdout );
-                if ( iter->next ) {
+                if ( iter->prev == NULL && iter->next ) {
+                    putchar ( ' ' );
+                } else if ( iter->next ) {
                     putchar ( '.' );
                 }
             }
@@ -321,6 +320,7 @@ static void rofi_theme_print_index ( ThemeWidget *widget )
 void rofi_theme_print ( ThemeWidget *widget )
 {
     if ( widget != NULL ) {
+        printf("/**\n * rofi -dump-theme output.\n * Rofi version: %s\n **/\n", VERSION);
         rofi_theme_print_index ( widget );
     }
 }
