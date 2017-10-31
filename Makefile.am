@@ -28,11 +28,11 @@ BUILT_SOURCES=\
 
 $(top_builddir)/resources/resources.c: $(top_srcdir)/resources/resources.xml
 			mkdir -p $(top_builddir)/resources/
-			glib-compile-resources $<  --generate-source --target=$@ --sourcedir=$(top_srcdir)
+			$(GLIB_COMPILE_RESOURCES) $<  --generate-source --target=$@ --sourcedir=$(top_srcdir)
 
 $(top_builddir)/resources/resources.h: $(top_srcdir)/resources/resources.xml
 			mkdir -p $(top_builddir)/resources/
-			glib-compile-resources $<  --generate-header --target=$@ --sourcedir=$(top_srcdir)
+			$(GLIB_COMPILE_RESOURCES) $<  --generate-header --target=$@ --sourcedir=$(top_srcdir)
 
 $(top_builddir)/lexer/theme-lexer.c: $(top_srcdir)/lexer/theme-lexer.l
 
