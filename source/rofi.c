@@ -71,8 +71,6 @@
 
 #include "timings.h"
 
-#include "default-theme.h"
-
 // Plugin abi version.
 // TODO: move this check to mode.c
 #include "mode-private.h"

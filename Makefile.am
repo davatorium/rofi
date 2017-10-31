@@ -102,7 +102,6 @@ SOURCES=\
 	include/history.h\
 	include/theme.h\
 	include/css-colors.h\
-	include/default-theme.h\
 	include/widgets/box.h\
 	include/widgets/container.h\
 	include/widgets/widget.h\

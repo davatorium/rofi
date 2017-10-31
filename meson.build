@@ -171,7 +171,6 @@ rofi_sources = files(
         'include/theme.h',
         'include/rofi-types.h',
         'include/css-colors.h',
-        'include/default-theme.h',
         'include/widgets/box.h',
         'include/widgets/container.h',
         'include/widgets/widget.h',
