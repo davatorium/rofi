@@ -320,7 +320,7 @@ static void rofi_theme_print_index ( ThemeWidget *widget )
 void rofi_theme_print ( ThemeWidget *widget )
 {
     if ( widget != NULL ) {
-        printf("/**\n * rofi -dump-theme output.\n * Rofi version: %s\n **/\n", VERSION);
+        printf("/**\n * rofi -dump-theme output.\n * Rofi version: %s\n **/\n", PACKAGE_VERSION);
         rofi_theme_print_index ( widget );
     }
 }
