@@ -22,7 +22,17 @@ pkgconfig_DATA = pkgconfig/rofi.pc
 BUILT_SOURCES=\
 			  lexer/theme-parser.h\
 			  lexer/theme-parser.c\
-			  lexer/theme-lexer.c
+			  lexer/theme-lexer.c\
+			  resources/resources.c\
+			  resources/resources.h
+
+$(top_builddir)/resources/resources.c: $(top_srcdir)/resources/resources.xml
+			mkdir -p $(top_builddir)/resources/
+			glib-compile-resources $<  --generate-source --target=$@ --sourcedir=$(top_srcdir)
+
+$(top_builddir)/resources/resources.h: $(top_srcdir)/resources/resources.xml
+			mkdir -p $(top_builddir)/resources/
+			glib-compile-resources $<  --generate-header --target=$@ --sourcedir=$(top_srcdir)
 
 $(top_builddir)/lexer/theme-lexer.c: $(top_srcdir)/lexer/theme-lexer.l
 
@@ -109,11 +119,14 @@ SOURCES=\
 	include/dialogs/script.h\
 	include/dialogs/window.h\
 	include/dialogs/dialogs.h\
-	include/dialogs/help-keys.h
+	include/dialogs/help-keys.h\
+	resources/resources.c\
+	resources/resources.h
 
 rofi_SOURCES=\
 			 lexer/theme-parser.y\
 			 lexer/theme-lexer.l\
+			 resources/resources.xml\
 			 $(SOURCES)
 
 rofi_CFLAGS=\
@@ -217,6 +230,7 @@ EXTRA_DIST+=\
 	doc/rofi.doxy.in\
 	script/get_git_rev.sh\
 	$(theme_DATA)\
+	doc/default_theme.rasi\
 	Changelog
 ##
 # Indent
@@ -564,6 +578,8 @@ doxy: doc/rofi.doxy $(rofi_SOURCES)
 
 clean-local:
 	-rm $(top_builddir)/gitconfig.h
+	-rm $(top_builddir)/resources/resources.h
+	-rm $(top_builddir)/resources/resources.c
 
 $(top_builddir)/gitconfig.h: .FORCE
 	$(top_srcdir)/script/get_git_rev.sh $(top_srcdir) $(top_builddir)/gitconfig.h
