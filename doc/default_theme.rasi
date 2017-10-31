@@ -113,7 +113,7 @@
     text-color:       @selected-normal-foreground;
 }
 #inputbar {
-    spacing:    0;
+    spacing:    3px ;
     text-color: @normal-foreground;
     padding:    1px ;
 }

@@ -140,5 +140,6 @@ const char *default_theme =
     "#inputbar, case-indicator, entry, prompt, button {"
     "    spacing: 0;"
     "    text-color:      @normal-foreground;"
-    "}";
+    "}"
+    "#inputbar { spacing: 3px; }";
 #endif
