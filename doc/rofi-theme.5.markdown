@@ -79,10 +79,10 @@ make inheritance of properties clearer.
 }
 
 /* Element theme section. */
-#{element path} {
+{element path} {
     // list of properties
 }
-#{elements... } {
+{elements... } {
     // list of properties
 }
 ```
@@ -113,10 +113,10 @@ Multiple elements can be specified by a `,`.
 This is a valid element name:
 
 ```
-#element normal.normal {
+element normal.normal {
     background-color: blue;
 }
-#button {
+button {
     background-color: blue;
 }
 ```
@@ -124,7 +124,7 @@ This is a valid element name:
 And is identical to:
 
 ```
-#element normal normal, button {
+element normal normal, button {
     background-color: blue;
 }
 ```
@@ -134,18 +134,18 @@ Each section inherits the global properties. Properties can be explicitely inher
 In the following example:
 
 ```
-#window {
+window {
  a: 1;
  b: 2;
 }
-#mainbox {
+mainbox {
     a: inherit;
     b: 4;
     c: 8;
 }
 ```
 
-The element `#mainbox` will have the following set of properties (if `mainbox` is a child of `window`):
+The element `mainbox` will have the following set of properties (if `mainbox` is a child of `window`):
 
 ```
 a: 1;
@@ -398,6 +398,14 @@ north west   |    north    |  north east
 south west   |    south    |  south east
 ```
 
+## Visibility
+
+It is possible to hide widgets:
+
+inputbar {
+    enabled: false;
+}
+
 ## Reference
 
 * Format: `@{PROPERTY NAME}`
@@ -417,7 +425,7 @@ But this is:
     myhigh: bold #FAA;
 }
 
-#window {
+window {
     highlight: @myhigh;
 }
 ```
@@ -442,7 +450,7 @@ The `keyword` in the list refers to an widget name.
 Inherits the property from its parent widget.
 
 ```
-#mainbox {
+mainbox {
     border-color: inherit;
 }
 ```
@@ -456,20 +464,20 @@ Some widgets have an extra state.
 For example:
 
 ```
-#element selected {
+element selected {
 }
 ```
 
-Here `#element selected` is the name of the widget, `selected` is the state of the widget.
+Here `element selected` is the name of the widget, `selected` is the state of the widget.
 
 The difference between dots and spaces is purely cosmetic. These are all the same:
 
 ```
-#element .selected {
+element .selected {
 
-#element.selected {
+element.selected {
 }
-#element selected {
+element selected {
 }
 ```
 
@@ -479,21 +487,21 @@ The difference between dots and spaces is purely cosmetic. These are all the sam
 
 The current widgets available in **rofi**:
 
-* `#window`
-  * `#overlay`: the overlay widget.
-  * `#mainbox`: The mainbox box.
-    * `#inputbar`: The input bar box.
-      * `#box`: the horizontal @box packing the widgets
-      * `#case-indicator`: the case/sort indicator @textbox
-      * `#prompt`: the prompt @textbox
-      * `#entry`: the main entry @textbox
-    * `#listview`: The listview.
-       * `#scrollbar`: the listview scrollbar
-       * `#element`: the entries in the listview
-    * `#sidebar`: the main horizontal @box packing the buttons.
-      * `#button`: the buttons @textbox for each mode
-    * `#message`: The container holding the textbox.
-      * `#textbox`: the message textbox
+* `window`
+  * `overlay`: the overlay widget.
+  * `mainbox`: The mainbox box.
+    * `inputbar`: The input bar box.
+      * `box`: the horizontal @box packing the widgets
+      * `case-indicator`: the case/sort indicator @textbox
+      * `prompt`: the prompt @textbox
+      * `entry`: the main entry @textbox
+    * `listview`: The listview.
+       * `scrollbar`: the listview scrollbar
+       * `element`: the entries in the listview
+    * `sidebar`: the main horizontal @box packing the buttons.
+      * `button`: the buttons @textbox for each mode
+    * `message`: The container holding the textbox.
+      * `textbox`: the message textbox
 
 Note that these path names match the default theme. Themes that provide a custom layout will have different
 element paths.
@@ -509,9 +517,9 @@ These are appended after the name or class of the widget.
 
 ### Example:
 
-`#button selected.normal { }`
+`button selected.normal { }`
 
-`#element selected.urgent { }`
+`element selected.urgent { }`
 
 Currently only the entrybox and scrollbar have states:
 
@@ -534,7 +542,7 @@ These can be mixed.
 Example:
 
 ```
-#nametotextbox selected.active {
+nametotextbox selected.active {
     background-color: #003642;
     text-color: #008ed4;
 }
@@ -656,29 +664,29 @@ The current layout of **rofi** is structured as follows:
 
 ```
 |------------------------------------------------------------------------------------|
-| #window {BOX:vertical}                                                             |
+| window {BOX:vertical}                                                              |
 | |-------------------------------------------------------------------------------|  |
-| | #mainbox  {BOX:vertical}                                                      |  |
+| | mainbox  {BOX:vertical}                                                       |  |
 | | |---------------------------------------------------------------------------| |  |
-| | | #inputbar {BOX:horizontal}                                                | |  |
+| | | inputbar {BOX:horizontal}                                                 | |  |
 | | | |---------| |-----------------------------------------------------| |---| | |  |
-| | | | #prompt | | #entry                                              | |#ci| | |  |
+| | | | prompt  | | entry                                               | |ci | | |  |
 | | | |---------| |-----------------------------------------------------| |---| | |  |
 | | |---------------------------------------------------------------------------| |  |
 | |                                                                               |  |
 | | |---------------------------------------------------------------------------| |  |
-| | | #message                                                                  | |  |
+| | | message                                                                   | |  |
 | | | |-----------------------------------------------------------------------| | |  |
-| | | | #textbox                                                              | | |  |
+| | | | textbox                                                               | | |  |
 | | | |-----------------------------------------------------------------------| | |  |
 | | |---------------------------------------------------------------------------| |  |
 | |                                                                               |  |
 | | |-----------------------------------------------------------------------------|  |
-| | | #listview                                                                   |  |
+| | | listview                                                                    |  |
 | | |-----------------------------------------------------------------------------|  |
 | |                                                                               |  |
 | | |---------------------------------------------------------------------------| |  |
-| | | #sidebar {BOX:horizontal}                                                 | |  |
+| | |  sidebar {BOX:horizontal}                                                | |  |
 | | | |---------------|   |---------------|  |--------------| |---------------| | |  |
 | | | | Button        |   | Button        |  | Button       | | Button        | | |  |
 | | | |---------------|   |---------------|  |--------------| |---------------| | |  |
@@ -731,7 +739,7 @@ Below is an example of a theme emulating dmenu:
     font:            "Times New Roman 12";
 }
 
-#window {
+window {
     anchor:     north;
     location:   north;
     width:      100%;
@@ -739,26 +747,26 @@ Below is an example of a theme emulating dmenu:
     children:   [ horibox ];
 }
 
-#horibox {
+horibox {
     orientation: horizontal;
     children:   [ prompt, entry, listview ];
 }
 
-#listview {
+listview {
     layout:     horizontal;
     spacing:    5px;
     lines:      10;
 }
 
-#entry {
+entry {
     expand:     false;
     width:      10em;
 }
 
-#element {
+element {
     padding: 0px 2px;
 }
-#element selected {
+element selected {
     background-color: SteelBlue;
 }
 ```
