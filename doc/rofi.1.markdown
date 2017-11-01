@@ -195,6 +195,16 @@ Disable plugin loading.
 
 Specify the directory where **rofi** should look for plugins.
 
+`-show-icons`
+
+Show application icons in drun and window modes.
+
+`-drun-icon-theme`
+
+Specify icon theme to be used in drun mode if show-icons setting is enabled.
+If not specified default theme from DE is used, *Adwaita* and *gnome* themes act as
+fallback themes.
+
 ### Matching
 
 `-matching` *method*
