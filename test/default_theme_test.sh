@@ -2,7 +2,7 @@
 
 TOP_DIR=$1
 
-rofi -no-config -dump-theme  > temp.txt
+rofi -no-config -dump-theme |  grep -v "Rofi version" > temp.txt
 
 if ! diff temp.txt ${TOP_DIR}/doc/default_theme.rasi > /dev/null
 then
