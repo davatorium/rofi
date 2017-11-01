@@ -171,7 +171,6 @@ rofi_sources = files(
         'include/theme.h',
         'include/rofi-types.h',
         'include/css-colors.h',
-        'include/default-theme.h',
         'include/widgets/box.h',
         'include/widgets/container.h',
         'include/widgets/widget.h',
@@ -195,9 +194,14 @@ theme_parser_sources = files('lexer/theme-parser.y')
 
 theme_lexer = flex.process(theme_lexer_sources)
 theme_parser = bison.process(theme_parser_sources)
+
+gnome = import('gnome')
+default_theme = gnome.compile_resources('resources', files('resources/resources.xml'))
+
 rofi = executable('rofi', rofi_sources + [
         theme_lexer,
         theme_parser,
+        default_theme,
     ],
     dependencies: deps,
     install: true,

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/qtools/rofi">
+    <file alias="default_theme.rasi">doc/default_theme.rasi</file>
+  </gresource>
+</gresources>

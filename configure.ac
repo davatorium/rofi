@@ -135,6 +135,11 @@ AS_IF([test "x${enable_check}" != "xno"], [ PKG_CHECK_MODULES([check],[check >= 
 AM_CONDITIONAL([USE_CHECK],  [test "x${enable_check}" != "xno" && test "$HAVE_CHECK" -eq 1])
 
 
+dnl ---------------------------------------------------------------------
+dnl Gets the resource compile tool path.
+dnl ---------------------------------------------------------------------
+AM_PATH_GLIB_2_0
+
 
 dnl ---------------------------------------------------------------------
 dnl Add extra compiler flags

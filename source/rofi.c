@@ -52,6 +52,8 @@
 #endif
 #endif
 
+#include "resources.h"
+
 #include "rofi.h"
 #include "display.h"
 
@@ -68,8 +70,6 @@
 #include "theme.h"
 
 #include "timings.h"
-
-#include "default-theme.h"
 
 // Plugin abi version.
 // TODO: move this check to mode.c
@@ -887,18 +887,27 @@ int main ( int argc, char *argv[] )
         }
     }
     if ( rofi_theme_is_empty ( ) ) {
-        if ( rofi_theme_parse_string ( default_theme ) ) {
-            g_warning ( "Failed to parse default theme. Giving up.." );
-            if ( list_of_error_msgs ) {
-                for ( GList *iter = g_list_first ( list_of_error_msgs );
-                      iter != NULL; iter = g_list_next ( iter ) ) {
-                    g_warning ( "Error: %s%s%s",
+        GBytes *theme_data = g_resource_lookup_data (
+                resources_get_resource(),
+                "/org/qtools/rofi/default_theme.rasi",
+                G_RESOURCE_LOOKUP_FLAGS_NONE,
+                NULL );
+        if ( theme_data ) {
+            const char *theme = g_bytes_get_data ( theme_data, NULL );
+            if ( rofi_theme_parse_string ( (const char *)theme ) ) {
+                g_warning ( "Failed to parse default theme. Giving up.." );
+                if ( list_of_error_msgs ) {
+                    for ( GList *iter = g_list_first ( list_of_error_msgs );
+                            iter != NULL; iter = g_list_next ( iter ) ) {
+                        g_warning ( "Error: %s%s%s",
                                 color_bold, ( (GString *) iter->data )->str, color_reset );
+                    }
                 }
+                rofi_theme = NULL;
+                cleanup ();
+                return EXIT_FAILURE;
             }
-            rofi_theme = NULL;
-            cleanup ();
-            return EXIT_FAILURE;
+            g_bytes_unref ( theme_data );
         }
         rofi_theme_convert_old ();
     }
