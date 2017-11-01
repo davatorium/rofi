@@ -130,7 +130,6 @@ function select_theme ()
     MORE_FLAGS+=(-kb-custom-1 "Alt-a")
     MORE_FLAGS+=(-u 2,3 -a 4,5 )
     local CUR="default"
-    SELECTED="-1"
     while true
     do
         declare -i RTR
