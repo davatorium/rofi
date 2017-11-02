@@ -481,6 +481,56 @@ static int monitor_active_from_winid ( xcb_drawable_t id, workarea *mon )
     }
     return FALSE;
 }
+static int monitor_active_from_id_focused ( int mon_id, workarea *mon )
+{
+    int retv = FALSE;
+    xcb_window_t              active_window;
+    xcb_get_property_cookie_t awc;
+    awc = xcb_ewmh_get_active_window ( &xcb->ewmh, xcb->screen_nbr );
+    if ( ! xcb_ewmh_get_active_window_reply ( &xcb->ewmh, awc, &active_window, NULL ) ) {
+        g_debug ( "Failed to get active window, falling back to mouse location (-5)." );
+        return retv;
+    }
+    xcb_query_tree_cookie_t tree_cookie = xcb_query_tree ( xcb->connection, active_window );
+    xcb_query_tree_reply_t *tree_reply = xcb_query_tree_reply ( xcb->connection, tree_cookie, NULL );
+    if ( !tree_reply ) {
+        g_debug ( "Failed to get parent window, falling back to mouse location (-5)." );
+        return retv;
+    }
+    // get geometry.
+    xcb_get_geometry_cookie_t c  = xcb_get_geometry ( xcb->connection, active_window );
+    xcb_get_geometry_reply_t  *r = xcb_get_geometry_reply ( xcb->connection, c, NULL );
+    if ( !r ) {
+        g_debug ( "Failed to get geometry of active window, falling back to mouse location (-5)." );
+        free ( tree_reply );
+        return retv;
+    }
+    xcb_translate_coordinates_cookie_t ct = xcb_translate_coordinates ( xcb->connection, tree_reply->parent, r->root, r->x, r->y );
+    xcb_translate_coordinates_reply_t  *t = xcb_translate_coordinates_reply ( xcb->connection, ct, NULL );
+    if ( t ) {
+        if ( mon_id == -2 ) {
+            // place the menu above the window
+            // if some window is focused, place menu above window, else fall
+            // back to selected monitor.
+            mon->x = t->dst_x - r->x;
+            mon->y = t->dst_y - r->y;
+            mon->w = r->width;
+            mon->h = r->height;
+            retv = TRUE;
+        }
+        else if ( mon_id == -4 ) {
+            monitor_dimensions ( t->dst_x, t->dst_y, mon );
+            retv = TRUE;
+        }
+        free ( t );
+    }
+    else {
+        g_debug ( "Failed to get translate position of active window, falling back to mouse location (-5)." );
+    }
+    free ( r );
+    free ( tree_reply );
+    return retv;
+}
 static int monitor_active_from_id ( int mon_id, workarea *mon )
 {
     xcb_window_t root = xcb->screen->root;
@@ -524,47 +574,8 @@ static int monitor_active_from_id ( int mon_id, workarea *mon )
         }
     }
     else if ( mon_id == -2 || mon_id == -4 ) {
-        xcb_window_t              active_window;
-        xcb_get_property_cookie_t awc;
-        awc = xcb_ewmh_get_active_window ( &xcb->ewmh, xcb->screen_nbr );
-        if ( xcb_ewmh_get_active_window_reply ( &xcb->ewmh, awc, &active_window, NULL ) ) {
-            // get geometry.
-            xcb_get_geometry_cookie_t c  = xcb_get_geometry ( xcb->connection, active_window );
-            xcb_get_geometry_reply_t  *r = xcb_get_geometry_reply ( xcb->connection, c, NULL );
-            if ( r ) {
-                xcb_translate_coordinates_cookie_t ct = xcb_translate_coordinates ( xcb->connection, active_window, root, r->x, r->y );
-                xcb_translate_coordinates_reply_t  *t = xcb_translate_coordinates_reply ( xcb->connection, ct, NULL );
-                if ( t ) {
-                    if ( mon_id == -2 ) {
-                        // place the menu above the window
-                        // if some window is focused, place menu above window, else fall
-                        // back to selected monitor.
-                        mon->x = t->dst_x - r->x;
-                        mon->y = t->dst_y - r->y;
-                        mon->w = r->width;
-                        mon->h = r->height;
-                        free ( r );
-                        free ( t );
-                        return TRUE;
-                    }
-                    else if ( mon_id == -4 ) {
-                        monitor_dimensions ( t->dst_x, t->dst_y, mon );
-                        free ( r );
-                        free ( t );
-                        return TRUE;
-                    }
-                }
-                else {
-                    g_debug ( "Failed to get translate position of active window, falling back to mouse location (-5)." );
-                }
-                free ( r );
-            }
-            else {
-                g_debug ( "Failed to get geometry of active window, falling back to mouse location (-5)." );
-            }
-        }
-        else {
-            g_debug ( "Failed to get active window, falling back to mouse location (-5)." );
+        if ( monitor_active_from_id_focused ( mon_id, mon ) ){
+            return TRUE;
         }
     }
     // Monitor that has mouse pointer.
