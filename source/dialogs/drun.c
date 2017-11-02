@@ -314,7 +314,9 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
             gchar **list = g_key_file_get_string_list ( kf, "Desktop Entry", "OnlyShowIn", &llength, NULL);
             if ( list )  {
                 for ( gsize lcd = 0; !show && pd->current_desktop_list[lcd]; lcd++ ) {
-                        show = g_strv_contains ( (const char * const *)list, pd->current_desktop_list[lcd] );
+                    for ( gsize lle = 0; !show && lle < llength; lle++ ) {
+                        show = ( g_strcmp0  ( pd->current_desktop_list[lcd], list[lle] ) == 0 );
+                    }
                 }
                 g_strfreev ( list );
             }
@@ -324,7 +326,9 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
             gchar **list = g_key_file_get_string_list ( kf, "Desktop Entry", "NotShowIn", &llength, NULL);
             if ( list )  {
                 for ( gsize lcd = 0; show && pd->current_desktop_list[lcd]; lcd++ ) {
-                        show = !g_strv_contains ( (const char * const *)list, pd->current_desktop_list[lcd] );
+                    for ( gsize lle = 0; show && lle < llength; lle++ ) {
+                        show = ! ( g_strcmp0  ( pd->current_desktop_list[lcd], list[lle] ) == 0 );
+                    }
                 }
                 g_strfreev ( list );
             }
