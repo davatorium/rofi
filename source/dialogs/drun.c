@@ -127,6 +127,8 @@ typedef struct
 
     // Theme
     const gchar       *icon_theme;
+    // DE
+    gchar            **current_desktop_list;
 } DRunModePrivateData;
 
 struct RegexEvalArg
@@ -302,6 +304,42 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         g_key_file_free ( kf );
         g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
         return FALSE;
+    }
+    if ( pd->current_desktop_list ) {
+        gboolean show = TRUE;
+        // If the DE is set, check the keys.
+        if ( g_key_file_has_key ( kf, "Desktop Entry", "OnlyShowIn", NULL ) ) {
+            gsize llength = 0;
+            show = FALSE;
+            gchar **list = g_key_file_get_string_list ( kf, "Desktop Entry", "OnlyShowIn", &llength, NULL);
+            if ( list )  {
+                for ( gsize lcd = 0; !show && pd->current_desktop_list[lcd]; lcd++ ) {
+                    for ( gsize lle = 0; !show && lle < llength; lle++ ) {
+                        show = ( g_strcmp0  ( pd->current_desktop_list[lcd], list[lle] ) == 0 );
+                    }
+                }
+                g_strfreev ( list );
+            }
+        }
+        if ( show && g_key_file_has_key ( kf, "Desktop Entry", "NotShowIn", NULL )) {
+            gsize llength = 0;
+            gchar **list = g_key_file_get_string_list ( kf, "Desktop Entry", "NotShowIn", &llength, NULL);
+            if ( list )  {
+                for ( gsize lcd = 0; show && pd->current_desktop_list[lcd]; lcd++ ) {
+                    for ( gsize lle = 0; show && lle < llength; lle++ ) {
+                        show = ! ( g_strcmp0  ( pd->current_desktop_list[lcd], list[lle] ) == 0 );
+                    }
+                }
+                g_strfreev ( list );
+            }
+        }
+
+        if ( ! show ) {
+            g_debug ( "Adding desktop file: %s to disabled list because: OnlyShowIn/NotShowIn", path );
+            g_key_file_free ( kf );
+            g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
+            return FALSE;
+        }
     }
     // Skip entries that have NoDisplay set.
     if ( g_key_file_get_boolean ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
@@ -628,6 +666,12 @@ static int drun_mode_init ( Mode *sw )
         DRunModePrivateData        *pd = g_malloc0 ( sizeof ( *pd ) );
         pd->disabled_entries = g_hash_table_new_full ( g_str_hash, g_str_equal, g_free, NULL );
         mode_set_private_data ( sw, (void *) pd );
+        // current destkop
+        const char *current_desktop = g_getenv ( "XDG_CURRENT_DESKTOP" );
+        pd->current_desktop_list = current_desktop? g_strsplit(current_desktop, ":", 0) : NULL;
+
+
+        // Theme
         pd->xdg_context = nk_xdg_theme_context_new ( drun_icon_fallback_themes, NULL );
         nk_xdg_theme_preload_themes_icon ( pd->xdg_context, themes );
         get_apps ( pd );
@@ -707,6 +751,8 @@ static void drun_mode_destroy ( Mode *sw )
         g_hash_table_destroy ( rmpd->disabled_entries );
         g_free ( rmpd->entry_list );
         nk_xdg_theme_context_free ( rmpd->xdg_context );
+
+        g_strfreev ( rmpd->current_desktop_list );
         g_free ( rmpd );
         mode_set_private_data ( sw, NULL );
     }
