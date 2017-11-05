@@ -139,16 +139,24 @@ void rofi_theme_free ( ThemeWidget *widget )
 /**
  * print
  */
+inline static void printf_double ( double d )
+{
+    char buf[G_ASCII_DTOSTR_BUF_SIZE];
+    g_ascii_formatd ( buf, G_ASCII_DTOSTR_BUF_SIZE,"%.4lf", d );
+    fputs ( buf, stdout );
+}
 static void rofi_theme_print_distance ( RofiDistance d )
 {
     if ( d.type == ROFI_PU_PX ) {
         printf ( "%upx ", (unsigned int) d.distance );
     }
     else if ( d.type == ROFI_PU_PERCENT ) {
-        printf ( "%f%% ", d.distance );
+        printf_double ( d.distance );
+        fputs ( "%% ", stdout );
     }
     else {
-        printf ( "%fem ", d.distance );
+        printf_double ( d.distance );
+        fputs ( "em ", stdout );
     }
     if ( d.style == ROFI_HL_DASH ) {
         printf ( "dash " );

@@ -116,9 +116,10 @@ button selected {
     text-color:       @selected-normal-foreground;
 }
 inputbar {
-    spacing:    3px ;
+    spacing:    0px ;
     text-color: @normal-foreground;
     padding:    1px ;
+    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
 }
 case-indicator {
     spacing:    0;
@@ -131,4 +132,10 @@ entry {
 prompt {
     spacing:    0;
     text-color: @normal-foreground;
+}
+textbox-prompt-colon {
+    expand:     false;
+    str:        ":";
+    margin:     0px 0.3000em 0.0000em 0.0000em ;
+    text-color: inherit;
 }

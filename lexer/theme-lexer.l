@@ -167,7 +167,6 @@ STRING     \"{UANYN}*\"
 HEX        [[:xdigit:]]
 NUMBER     [[:digit:]]
 PNNUMBER   [-+]?[[:digit:]]+
-REAL       [-+]?[[:digit:]]+(\.[[:digit:]]+)?
 PX         (px)
 EM         (em)
 CH         (ch)
