@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI" "1" "October 2017" "" ""
+.TH "ROFI" "1" "November 2017" "" ""
 .
 .SH "NAME"
 \fBrofi\fR \- A window switcher, application launcher, ssh dialog and dmenu replacement
@@ -339,6 +339,18 @@ Disable plugin loading\.
 .
 .P
 Specify the directory where \fBrofi\fR should look for plugins\.
+.
+.P
+\fB\-show\-icons\fR
+.
+.P
+Show application icons in drun and window modes\.
+.
+.P
+\fB\-drun\-icon\-theme\fR
+.
+.P
+Specify icon theme to be used in drun mode if show\-icons setting is enabled\. If not specified default theme from DE is used, \fIAdwaita\fR and \fIgnome\fR themes act as fallback themes\.
 .
 .SS "Matching"
 \fB\-matching\fR \fImethod\fR
@@ -1572,7 +1584,7 @@ Please see this \fIhttps://github\.com/DaveDavenport/rofi/wiki/Debugging%20Rofi\
 When creating an issue, please read this \fIhttps://github\.com/DaveDavenport/rofi/blob/master/\.github/CONTRIBUTING\.md\fR first\.
 .
 .SH "SEE ALSO"
-rofi\-sensible\-terminal(1), dmenu(1), rofi\-theme(5)
+rofi\-sensible\-terminal(1), dmenu(1), rofi\-theme(5), rofi\-theme\-selector(1)
 .
 .SH "AUTHOR"
 Qball Cow \fIqball@gmpclient\.org\fR

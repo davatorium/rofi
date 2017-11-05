@@ -32,7 +32,6 @@
 /textbox_test
 /rofi
 /doc/*.html
-/doc/*.1
 /doc/*.doxy
 /gitconfig.h
 

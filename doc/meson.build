@@ -3,6 +3,7 @@ if ronn.found()
     run_target('update-manpage',
         command: [ ronn, '--roff', files(
             'rofi.1.markdown',
+            'rofi-theme-selector.1.markdown',
             'rofi-theme.5.markdown',
         )]
     )

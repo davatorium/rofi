@@ -165,6 +165,7 @@ rofi_LDADD=\
 ##
 dist_man1_MANS=\
 	doc/rofi.1\
+	doc/rofi-theme-selector.1\
 	doc/rofi-sensible-terminal.1
 
 dist_man5_MANS=\
@@ -237,8 +238,9 @@ EXTRA_DIST+=\
 ##
 
 
-update-manpage: $(top_srcdir)/doc/rofi.1.markdown $(top_srcdir)/doc/rofi-theme.5.markdown
+update-manpage: $(top_srcdir)/doc/rofi-theme-selector.1.markdown $(top_srcdir)/doc/rofi.1.markdown $(top_srcdir)/doc/rofi-theme.5.markdown
 	ronn --roff $(top_srcdir)/doc/rofi.1.markdown
+	ronn --roff $(top_srcdir)/doc/rofi-theme-selector.1.markdown
 	ronn --roff $(top_srcdir)/doc/rofi-theme.5.markdown
 
 ##
