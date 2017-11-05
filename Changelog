@@ -1,5 +1,9 @@
 v1.4.3 (dev):
+	- Add prompt widget to default theme.
+	- Add manpage for rofi-theme-selector.
 	- Dump theme without # prefix and separator .
+	- Fix issue with xnomad and -4 placing. (#683)
+	- DRun obey OnlyShowIn and NotShowIn properties.
 	- Store default theme in rofi binary using GResources.
 	- Add extra margin between prompt and entry.
 	- Remove colon from prompt. (#637)
