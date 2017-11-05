@@ -957,7 +957,7 @@ first.
 
 ## SEE ALSO
 
-rofi-sensible-terminal(1), dmenu(1), rofi-theme(5)
+rofi-sensible-terminal(1), dmenu(1), rofi-theme(5), rofi-theme-selector(1)
 
 ## AUTHOR
 
