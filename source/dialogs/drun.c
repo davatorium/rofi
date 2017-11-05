@@ -267,7 +267,12 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     }
     GKeyFile *kf    = g_key_file_new ();
     GError   *error = NULL;
-    g_key_file_load_from_file ( kf, path, 0, &error );
+    gboolean res = g_key_file_load_from_file ( kf, path, 0, &error );
+    if ( !res && error == NULL) {
+        g_debug ( "Failed to parse desktop file: %s because: unknown.", path );
+        g_key_file_free ( kf );
+        return FALSE;
+    }
     // If error, skip to next entry
     if ( error != NULL ) {
         g_debug ( "Failed to parse desktop file: %s because: %s", path, error->message );
