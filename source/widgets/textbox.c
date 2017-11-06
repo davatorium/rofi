@@ -40,6 +40,7 @@
 #include "view.h"
 
 #include "theme.h"
+#include "settings.h"
 
 #define DOT_OFFSET    15
 
@@ -431,8 +432,8 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         int    iconh = cairo_image_surface_get_height ( tb->icon );
         int    iconw = cairo_image_surface_get_width ( tb->icon );
         int    icons = MAX ( iconh, iconw );
-        double scale = (double) iconheight / icons;
-        cairo_translate ( draw, x + ( iconheight - iconw * scale ) / 2.0, y + ( iconheight - iconh * scale ) / 2.0 );
+        double scale = (double) (config.icon_size ? MIN ( iconheight, config.icon_size ) : iconheight) / icons;
+        cairo_translate ( draw, round ( x + ( iconheight - iconw * scale ) / 2.0 ), round ( y + ( iconheight - iconh * scale ) / 2.0 ) );
         cairo_scale ( draw, scale, scale );
         cairo_set_source_surface ( draw, tb->icon, 0, 0 );
         cairo_paint ( draw );

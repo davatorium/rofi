@@ -22,6 +22,8 @@ rofi.xoffset:                        0
 rofi.fixed-num-lines:                true
 ! "Whether to load and show icons" Set from: Default
 ! rofi.show-icons:                     false
+! "Icon size" Set from: Default
+! rofi.icon-size:                      0
 ! "Terminal to use" Set from: File
 rofi.terminal:                       sakura
 ! "Ssh client to use" Set from: File
