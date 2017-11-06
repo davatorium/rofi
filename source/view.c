@@ -1457,15 +1457,19 @@ void rofi_view_frame_callback ( void )
 
 static int rofi_view_calculate_height ( RofiViewState *state )
 {
-    unsigned int height = 0;
     if ( CacheState.fullscreen == TRUE ) {
-        height = CacheState.mon.h;
-        return height;
+        return CacheState.mon.h;
     }
 
+    RofiDistance h = rofi_theme_get_distance ( WIDGET ( state->main_window ), "height", 0 );
+    unsigned int height = distance_get_pixel ( h, ROFI_ORIENTATION_VERTICAL );
+    // If height is set, return it.
+    if ( height  > 0 ) {
+        return height;
+    }
+    // Autosize based on widgets.
     widget *main_window = WIDGET ( state->main_window );
-    height = widget_get_desired_height ( main_window );
-    return height;
+    return widget_get_desired_height ( main_window );
 }
 
 static WidgetTriggerActionResult textbox_sidebar_modi_trigger_action ( widget *wid, MouseBindingMouseDefaultAction action, G_GNUC_UNUSED gint x, G_GNUC_UNUSED gint y, G_GNUC_UNUSED void *user_data )
