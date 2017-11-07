@@ -128,7 +128,7 @@ typedef struct
     // Theme
     const gchar       *icon_theme;
     // DE
-    gchar            **current_desktop_list;
+    gchar             **current_desktop_list;
 } DRunModePrivateData;
 
 struct RegexEvalArg
@@ -267,8 +267,8 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     }
     GKeyFile *kf    = g_key_file_new ();
     GError   *error = NULL;
-    gboolean res = g_key_file_load_from_file ( kf, path, 0, &error );
-    if ( !res && error == NULL) {
+    gboolean res    = g_key_file_load_from_file ( kf, path, 0, &error );
+    if ( !res && error == NULL ) {
         g_debug ( "Failed to parse desktop file: %s because: unknown.", path );
         g_key_file_free ( kf );
         return FALSE;
@@ -316,8 +316,8 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         if ( g_key_file_has_key ( kf, "Desktop Entry", "OnlyShowIn", NULL ) ) {
             gsize llength = 0;
             show = FALSE;
-            gchar **list = g_key_file_get_string_list ( kf, "Desktop Entry", "OnlyShowIn", &llength, NULL);
-            if ( list )  {
+            gchar **list = g_key_file_get_string_list ( kf, "Desktop Entry", "OnlyShowIn", &llength, NULL );
+            if ( list ) {
                 for ( gsize lcd = 0; !show && pd->current_desktop_list[lcd]; lcd++ ) {
                     for ( gsize lle = 0; !show && lle < llength; lle++ ) {
                         show = ( g_strcmp0  ( pd->current_desktop_list[lcd], list[lle] ) == 0 );
@@ -326,20 +326,20 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
                 g_strfreev ( list );
             }
         }
-        if ( show && g_key_file_has_key ( kf, "Desktop Entry", "NotShowIn", NULL )) {
+        if ( show && g_key_file_has_key ( kf, "Desktop Entry", "NotShowIn", NULL ) ) {
             gsize llength = 0;
-            gchar **list = g_key_file_get_string_list ( kf, "Desktop Entry", "NotShowIn", &llength, NULL);
-            if ( list )  {
+            gchar **list  = g_key_file_get_string_list ( kf, "Desktop Entry", "NotShowIn", &llength, NULL );
+            if ( list ) {
                 for ( gsize lcd = 0; show && pd->current_desktop_list[lcd]; lcd++ ) {
                     for ( gsize lle = 0; show && lle < llength; lle++ ) {
-                        show = ! ( g_strcmp0  ( pd->current_desktop_list[lcd], list[lle] ) == 0 );
+                        show = !( g_strcmp0  ( pd->current_desktop_list[lcd], list[lle] ) == 0 );
                     }
                 }
                 g_strfreev ( list );
             }
         }
 
-        if ( ! show ) {
+        if ( !show ) {
             g_debug ( "Adding desktop file: %s to disabled list because: OnlyShowIn/NotShowIn", path );
             g_key_file_free ( kf );
             g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
@@ -583,10 +583,11 @@ static void drun_icon_fetch ( gpointer data, gpointer user_data )
         return;
     }
     const gchar *icon_path;
-    gchar *icon_path_ = NULL;
+    gchar       *icon_path_ = NULL;
 
-    if ( g_path_is_absolute ( dr->icon_name ) )
+    if ( g_path_is_absolute ( dr->icon_name ) ) {
         icon_path = dr->icon_name;
+    }
     else {
         icon_path = icon_path_ = nk_xdg_theme_get_icon ( pd->xdg_context, themes, NULL, dr->icon_name, dr->icon_size, 1, TRUE );
         if ( icon_path_ == NULL ) {
@@ -673,8 +674,7 @@ static int drun_mode_init ( Mode *sw )
         mode_set_private_data ( sw, (void *) pd );
         // current destkop
         const char *current_desktop = g_getenv ( "XDG_CURRENT_DESKTOP" );
-        pd->current_desktop_list = current_desktop? g_strsplit(current_desktop, ":", 0) : NULL;
-
+        pd->current_desktop_list = current_desktop ? g_strsplit ( current_desktop, ":", 0 ) : NULL;
 
         // Theme
         pd->xdg_context = nk_xdg_theme_context_new ( drun_icon_fallback_themes, NULL );

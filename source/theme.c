@@ -142,7 +142,7 @@ void rofi_theme_free ( ThemeWidget *widget )
 inline static void printf_double ( double d )
 {
     char buf[G_ASCII_DTOSTR_BUF_SIZE];
-    g_ascii_formatd ( buf, G_ASCII_DTOSTR_BUF_SIZE,"%.4lf", d );
+    g_ascii_formatd ( buf, G_ASCII_DTOSTR_BUF_SIZE, "%.4lf", d );
     fputs ( buf, stdout );
 }
 static void rofi_theme_print_distance ( RofiDistance d )
@@ -297,7 +297,8 @@ static void rofi_theme_print_index ( ThemeWidget *widget )
                 fputs ( name, stdout );
                 if ( iter->prev == NULL && iter->next ) {
                     putchar ( ' ' );
-                } else if ( iter->next ) {
+                }
+                else if ( iter->next ) {
                     putchar ( '.' );
                 }
             }
@@ -328,7 +329,7 @@ static void rofi_theme_print_index ( ThemeWidget *widget )
 void rofi_theme_print ( ThemeWidget *widget )
 {
     if ( widget != NULL ) {
-        printf("/**\n * rofi -dump-theme output.\n * Rofi version: %s\n **/\n", PACKAGE_VERSION);
+        printf ( "/**\n * rofi -dump-theme output.\n * Rofi version: %s\n **/\n", PACKAGE_VERSION );
         rofi_theme_print_index ( widget );
     }
 }

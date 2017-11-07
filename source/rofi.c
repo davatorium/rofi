@@ -48,7 +48,7 @@
 #ifdef USE_NK_GIT_VERSION
 #include "nkutils-git-version.h"
 #ifdef NK_GIT_VERSION
-#define GIT_VERSION NK_GIT_VERSION
+#define GIT_VERSION    NK_GIT_VERSION
 #endif
 #endif
 
@@ -537,7 +537,7 @@ static void rofi_collect_modi ( void )
     rofi_collect_modi_add ( &help_keys_mode );
 
     if ( find_arg ( "-no-plugins" ) < 0 ) {
-        find_arg_str ( "-plugin-path", &(config.plugin_path) );
+        find_arg_str ( "-plugin-path", &( config.plugin_path ) );
         g_debug ( "Parse plugin path: %s", config.plugin_path );
         rofi_collect_modi_dir ( config.plugin_path );
     }
@@ -888,19 +888,19 @@ int main ( int argc, char *argv[] )
     }
     if ( rofi_theme_is_empty ( ) ) {
         GBytes *theme_data = g_resource_lookup_data (
-                resources_get_resource(),
-                "/org/qtools/rofi/default_theme.rasi",
-                G_RESOURCE_LOOKUP_FLAGS_NONE,
-                NULL );
+            resources_get_resource (),
+            "/org/qtools/rofi/default_theme.rasi",
+            G_RESOURCE_LOOKUP_FLAGS_NONE,
+            NULL );
         if ( theme_data ) {
             const char *theme = g_bytes_get_data ( theme_data, NULL );
-            if ( rofi_theme_parse_string ( (const char *)theme ) ) {
+            if ( rofi_theme_parse_string ( (const char *) theme ) ) {
                 g_warning ( "Failed to parse default theme. Giving up.." );
                 if ( list_of_error_msgs ) {
                     for ( GList *iter = g_list_first ( list_of_error_msgs );
-                            iter != NULL; iter = g_list_next ( iter ) ) {
+                          iter != NULL; iter = g_list_next ( iter ) ) {
                         g_warning ( "Error: %s%s%s",
-                                color_bold, ( (GString *) iter->data )->str, color_reset );
+                                    color_bold, ( (GString *) iter->data )->str, color_reset );
                     }
                 }
                 rofi_theme = NULL;

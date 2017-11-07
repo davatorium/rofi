@@ -1461,10 +1461,10 @@ static int rofi_view_calculate_height ( RofiViewState *state )
         return CacheState.mon.h;
     }
 
-    RofiDistance h = rofi_theme_get_distance ( WIDGET ( state->main_window ), "height", 0 );
+    RofiDistance h      = rofi_theme_get_distance ( WIDGET ( state->main_window ), "height", 0 );
     unsigned int height = distance_get_pixel ( h, ROFI_ORIENTATION_VERTICAL );
     // If height is set, return it.
-    if ( height  > 0 ) {
+    if ( height > 0 ) {
         return height;
     }
     // Autosize based on widgets.

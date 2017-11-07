@@ -483,16 +483,16 @@ static int monitor_active_from_winid ( xcb_drawable_t id, workarea *mon )
 }
 static int monitor_active_from_id_focused ( int mon_id, workarea *mon )
 {
-    int retv = FALSE;
+    int                       retv = FALSE;
     xcb_window_t              active_window;
     xcb_get_property_cookie_t awc;
     awc = xcb_ewmh_get_active_window ( &xcb->ewmh, xcb->screen_nbr );
-    if ( ! xcb_ewmh_get_active_window_reply ( &xcb->ewmh, awc, &active_window, NULL ) ) {
+    if ( !xcb_ewmh_get_active_window_reply ( &xcb->ewmh, awc, &active_window, NULL ) ) {
         g_debug ( "Failed to get active window, falling back to mouse location (-5)." );
         return retv;
     }
     xcb_query_tree_cookie_t tree_cookie = xcb_query_tree ( xcb->connection, active_window );
-    xcb_query_tree_reply_t *tree_reply = xcb_query_tree_reply ( xcb->connection, tree_cookie, NULL );
+    xcb_query_tree_reply_t  *tree_reply = xcb_query_tree_reply ( xcb->connection, tree_cookie, NULL );
     if ( !tree_reply ) {
         g_debug ( "Failed to get parent window, falling back to mouse location (-5)." );
         return retv;
@@ -516,7 +516,7 @@ static int monitor_active_from_id_focused ( int mon_id, workarea *mon )
             mon->y = t->dst_y - r->y;
             mon->w = r->width;
             mon->h = r->height;
-            retv = TRUE;
+            retv   = TRUE;
         }
         else if ( mon_id == -4 ) {
             monitor_dimensions ( t->dst_x, t->dst_y, mon );
@@ -574,7 +574,7 @@ static int monitor_active_from_id ( int mon_id, workarea *mon )
         }
     }
     else if ( mon_id == -2 || mon_id == -4 ) {
-        if ( monitor_active_from_id_focused ( mon_id, mon ) ){
+        if ( monitor_active_from_id_focused ( mon_id, mon ) ) {
             return TRUE;
         }
     }

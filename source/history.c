@@ -79,7 +79,7 @@ static void __history_write_element_list ( FILE *fd, _element **list, unsigned i
 static char ** __history_get_element_list_fields ( FILE *fd, unsigned int *length )
 {
     unsigned int real_length = 0;
-    char **retv = NULL;;
+    char         **retv      = NULL;;
     if  ( length == NULL ) {
         return NULL;
     }
@@ -93,9 +93,11 @@ static char ** __history_get_element_list_fields ( FILE *fd, unsigned int *lengt
     ssize_t l             = 0;
     while ( ( l = getline ( &buffer, &buffer_length, fd ) ) > 0 ) {
         // Jump to the first space.
-        const char *start = strchr( buffer, ' ');
+        const char *start = strchr ( buffer, ' ' );
         // not found, skip.
-        if ( start == NULL ) continue;
+        if ( start == NULL ) {
+            continue;
+        }
         start++;
         // remove trailing \n
         buffer[l - 1] = '\0';
@@ -110,7 +112,6 @@ static char ** __history_get_element_list_fields ( FILE *fd, unsigned int *lengt
         retv[( *length ) + 1] = NULL;
 
         ( *length )++;
-
     }
     return retv;
 }
@@ -311,9 +312,9 @@ char ** history_get_list ( const char *filename, unsigned int *length )
     if ( config.disable_history ) {
         return NULL;
     }
-    char     **retv = NULL;
+    char **retv = NULL;
     // Open file.
-    FILE     *fd = g_fopen ( filename, "r" );
+    FILE *fd = g_fopen ( filename, "r" );
     if ( fd == NULL ) {
         // File that does not exists is not an error, so ignore it.
         // Everything else? panic.

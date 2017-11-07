@@ -86,7 +86,7 @@ static WinModeField matching_window_fields[WIN_MATCH_NUM_FIELDS] = {
     { .field_name = "desktop", .enabled = TRUE, }
 };
 
-static gboolean window_matching_fields_parsed = FALSE;
+static gboolean     window_matching_fields_parsed = FALSE;
 
 // a manageable window
 typedef struct
@@ -403,7 +403,7 @@ static int window_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned in
 
 static void window_mode_parse_fields ()
 {
-	window_matching_fields_parsed = TRUE;
+    window_matching_fields_parsed = TRUE;
     char               *savept = NULL;
     // Make a copy, as strtok will modify it.
     char               *switcher_str = g_strdup ( config.window_match_fields );
@@ -589,9 +589,9 @@ static int window_mode_init ( Mode *sw )
         pd->window_regex = g_regex_new ( "{[-\\w]+(:-?[0-9]+)?}", 0, 0, NULL );
         mode_set_private_data ( sw, (void *) pd );
         _window_mode_load_data ( sw, FALSE );
-	if ( !window_matching_fields_parsed ) {
-        	window_mode_parse_fields ();
-	}
+        if ( !window_matching_fields_parsed ) {
+            window_mode_parse_fields ();
+        }
     }
     return TRUE;
 }
@@ -602,9 +602,9 @@ static int window_mode_init_cd ( Mode *sw )
         pd->window_regex = g_regex_new ( "{[-\\w]+(:-?[0-9]+)?}", 0, 0, NULL );
         mode_set_private_data ( sw, (void *) pd );
         _window_mode_load_data ( sw, TRUE );
-	if ( !window_matching_fields_parsed ) {
-        	window_mode_parse_fields ();
-	}
+        if ( !window_matching_fields_parsed ) {
+            window_mode_parse_fields ();
+        }
     }
     return TRUE;
 }
