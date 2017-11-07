@@ -208,6 +208,8 @@ static XrmOption xrmOptions[] = {
       "Color scheme window", CONFIG_DEFAULT },
     { xrm_Number,  "max-history-size",  { .num  = &config.max_history_size       }, NULL,
       "Max history size (WARNING: can cause slowdowns when set to high).", CONFIG_DEFAULT },
+    { xrm_Boolean, "combi-hide-mode-prefix",  { .snum = &config.combi_hide_mode_prefix       }, NULL,
+      "Hide the prefix mode prefix on the combi view.", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */

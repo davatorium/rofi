@@ -164,6 +164,7 @@ typedef struct
 
     /** Maximum history length per mode. */
     unsigned int   max_history_size;
+    gboolean       combi_hide_mode_prefix;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

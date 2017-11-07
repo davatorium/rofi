@@ -214,10 +214,13 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
     }
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
         if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
-            char       * str  = mode_get_display_value ( pd->switchers[i].mode, selected_line - pd->starts[i], state, attr_list, TRUE );
+            char       * retv;
+            char       * str  = retv = mode_get_display_value ( pd->switchers[i].mode, selected_line - pd->starts[i], state, attr_list, TRUE );
             const char *dname = mode_get_display_name ( pd->switchers[i].mode );
-            char       * retv = g_strdup_printf ( "%s %s", dname, str );
-            g_free ( str );
+            if ( !config.combi_hide_mode_prefix ) {
+                retv = g_strdup_printf ( "%s %s", dname, str );
+                g_free ( str );
+            }
 
             if ( attr_list != NULL ) {
                 ThemeWidget *wid = rofi_theme_find_widget ( sw->name, NULL, TRUE );
