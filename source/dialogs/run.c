@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -29,6 +29,10 @@
  * \ingroup RUNMode
  * @{
  */
+
+/** The log domain of this dialog. */
+#define G_LOG_DOMAIN    "Dialogs.Run"
+
 #include <config.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -56,9 +60,6 @@
  */
 #define RUN_CACHE_FILE    "rofi-3.runcache"
 
-/** The log domain of this dialog. */
-#define LOG_DOMAIN        "Dialogs.Run"
-
 /**
  * The internal data structure holding the private data of the Run Mode.
  */
@@ -85,13 +86,15 @@ static void exec_cmd ( const char *cmd, int run_in_term )
     gsize lf_cmd_size = 0;
     gchar *lf_cmd     = g_locale_from_utf8 ( cmd, -1, NULL, &lf_cmd_size, &error );
     if ( error != NULL ) {
-        fprintf ( stderr, "Failed to convert command to locale encoding: %s\n", error->message );
+        g_warning ( "Failed to convert command to locale encoding: %s", error->message );
         g_error_free ( error );
         return;
     }
 
-    char *path = g_build_filename ( cache_dir, RUN_CACHE_FILE, NULL );
-    if (  helper_execute_command ( NULL, lf_cmd, run_in_term ) ) {
+    char                     *path   = g_build_filename ( cache_dir, RUN_CACHE_FILE, NULL );
+    RofiHelperExecuteContext context = { .name = NULL };
+    // FIXME: assume startup notification support for terminals
+    if (  helper_execute_command ( NULL, lf_cmd, run_in_term, run_in_term ? &context : NULL ) ) {
         /**
          * This happens in non-critical time (After launching app)
          * It is allowed to be a bit slower.
@@ -143,7 +146,7 @@ static int sort_func ( const void *a, const void *b, G_GNUC_UNUSED void *data )
     else if ( bstr == NULL ) {
         return -1;
     }
-    return g_ascii_strcasecmp ( astr, bstr );
+    return g_strcmp0 ( astr, bstr );
 }
 
 /**
@@ -187,8 +190,8 @@ static char ** get_apps_external ( char **retv, unsigned int *length, unsigned i
                 free ( buffer );
             }
             if ( fclose ( inp ) != 0 ) {
-                fprintf ( stderr, "Failed to close stdout off executor script: '%s'\n",
-                          strerror ( errno ) );
+                g_warning ( "Failed to close stdout off executor script: '%s'",
+                            g_strerror ( errno ) );
             }
         }
     }
@@ -221,7 +224,7 @@ static char ** get_apps ( unsigned int *length )
     gsize l        = 0;
     gchar *homedir = g_locale_to_utf8 (  g_get_home_dir (), -1, NULL, &l, &error );
     if ( error != NULL ) {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to convert homedir to UTF-8: %s", error->message );
+        g_debug ( "Failed to convert homedir to UTF-8: %s", error->message );
         g_clear_error ( &error );
         g_free ( homedir );
         return NULL;
@@ -230,15 +233,17 @@ static char ** get_apps ( unsigned int *length )
     const char *const sep                 = ":";
     char              *strtok_savepointer = NULL;
     for ( const char *dirname = strtok_r ( path, sep, &strtok_savepointer ); dirname != NULL; dirname = strtok_r ( NULL, sep, &strtok_savepointer ) ) {
-        DIR *dir = opendir ( dirname );
+        char *fpath = rofi_expand_path ( dirname );
+        DIR  *dir   = opendir ( fpath );
+        g_debug ( "Checking path %s for executable.", fpath );
+        g_free ( fpath );
 
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Checking path %s for executable.", dirname );
         if ( dir != NULL ) {
             struct dirent *dent;
             gsize         dirn_len = 0;
             gchar         *dirn    = g_locale_to_utf8 ( dirname, -1, NULL, &dirn_len, &error );
             if ( error != NULL ) {
-                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to convert directory name to UTF-8: %s", error->message );
+                g_debug ( "Failed to convert directory name to UTF-8: %s", error->message );
                 g_clear_error ( &error );
                 closedir ( dir );
                 continue;
@@ -266,7 +271,7 @@ static char ** get_apps ( unsigned int *length )
                 gsize name_len;
                 gchar *name = g_filename_to_utf8 ( dent->d_name, -1, NULL, &name_len, &error );
                 if ( error != NULL ) {
-                    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Failed to convert filename to UTF-8: %s", error->message );
+                    g_debug ( "Failed to convert filename to UTF-8: %s", error->message );
                     g_clear_error ( &error );
                     g_free ( name );
                     continue;

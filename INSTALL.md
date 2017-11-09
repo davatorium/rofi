@@ -14,7 +14,7 @@ Rofi uses autotools (GNU Build system), for more information see
 * autoconf
 * automake (1.11.3 or up)
 * pkg-config
-* flex
+* flex 2.5.39 or higher
 * bison
 * Developer packages of the external libraries
 
@@ -27,8 +27,9 @@ Rofi uses autotools (GNU Build system), for more information see
 * libglib2.0 >= 2.40
   * gmodule-2.0
   * gio-unix-2.0
+* librsvg2.0
 * libstartup-notification-1.0
-* libxkbcommon >= 0.5.0
+* libxkbcommon >= 0.4.1
 * libxkbcommon-x11
 * libxcb (sometimes split, you need libxcb, libxcb-xkb and libxcb-randr libxcb-xinerama)
 * xcb-util
@@ -184,8 +185,13 @@ gdb rofi core
 
 ```
 apt install rofi
-
 ```
+
+#### Ubuntu 16.04 Xenial
+
+**Please note that the latest version of rofi in Ubuntu 16.04 is extremly outdated (v0.15.11)** 
+
+This will cause issues with newer scripts (i.e. with clerk) and we recommend to manually download and install the deb file for zesty instead. You can find the deb on [ubuntu's launchpad page for rofi](https://launchpad.net/ubuntu/+source/rofi).
 
 ### Fedora
 
@@ -199,3 +205,22 @@ and also
 ```
 pacman -S rofi
 ```
+
+### Gentoo
+
+An ebuild is available, `x11-misc/rofi`. It's up to date, but you may need to
+enable ~arch to get the latest release:
+
+```
+echo 'x11-misc/rofi ~amd64' >> /etc/portage/package.accept_keywords
+```
+
+for amd64 or:
+
+```
+echo 'x11-misc/rofi ~x86' >> /etc/portage/package.accept_keywords
+```
+
+for i386.
+
+To install it, simply issue `emerge rofi`.

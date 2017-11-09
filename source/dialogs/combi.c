@@ -1,8 +1,8 @@
-/**
+/*
  * rofi
  *
  * MIT/X11 License
- * Copyright 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -24,6 +24,9 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+
+#define G_LOG_DOMAIN    "Dialogs.Combi"
+
 #include <config.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -63,7 +66,7 @@ static void combi_mode_parse_switchers ( Mode *sw )
     char                 *savept = NULL;
     // Make a copy, as strtok will modify it.
     char                 *switcher_str = g_strdup ( config.combi_modi );
-    const char * const   sep           = ",";
+    const char * const   sep           = ",#";
     // Split token on ','. This modifies switcher_str.
     for ( char *token = strtok_r ( switcher_str, sep, &savept ); token != NULL;
           token = strtok_r ( NULL, sep, &savept ) ) {
@@ -85,7 +88,7 @@ static void combi_mode_parse_switchers ( Mode *sw )
             }
             else {
                 // Report error, don't continue.
-                fprintf ( stderr, "Invalid script switcher: %s\n", token );
+                g_warning ( "Invalid script switcher: %s", token );
                 token = NULL;
             }
         }
@@ -122,7 +125,14 @@ static int combi_mode_init ( Mode *sw )
 static unsigned int combi_mode_get_num_entries ( const Mode *sw )
 {
     const CombiModePrivateData *pd = (const CombiModePrivateData *) mode_get_private_data ( sw );
-    return pd->cmd_list_length;
+    unsigned int length = 0;
+    for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
+        unsigned int entries = mode_get_num_entries ( pd->switchers[i].mode );
+        pd->starts[i]        = length;
+        pd->lengths[i]       = entries;
+        length+=entries;
+    }
+    return length;
 }
 static void combi_mode_destroy ( Mode *sw )
 {
@@ -240,7 +250,19 @@ static char * combi_get_completion ( const Mode *sw, unsigned int index )
         }
     }
     // Should never get here.
-    g_error ( "Failure, could not resolve sub-switcher." );
+    g_assert_not_reached ();
+    return NULL;
+}
+
+static cairo_surface_t * combi_get_icon ( const Mode *sw, unsigned int index, int height )
+{
+    CombiModePrivateData *pd = mode_get_private_data ( sw );
+    for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
+        if ( index >= pd->starts[i] && index < ( pd->starts[i] + pd->lengths[i] ) ) {
+            cairo_surface_t *icon = mode_get_icon ( pd->switchers[i].mode, index - pd->starts[i], height );
+            return icon;
+        }
+    }
     return NULL;
 }
 
@@ -282,6 +304,7 @@ Mode combi_mode =
     ._token_match       = combi_mode_match,
     ._get_completion    = combi_get_completion,
     ._get_display_value = combi_mgrv,
+    ._get_icon          = combi_get_icon,
     ._preprocess_input  = combi_preprocess_input,
     .private_data       = NULL,
     .free               = NULL

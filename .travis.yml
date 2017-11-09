@@ -26,58 +26,76 @@ addons:
             - libpango1.0-dev
             - libcairo2-dev
             - libstartup-notification0-dev
+            - libxcb-ewmh-dev
             - libxcb-icccm4-dev
             - libxcb-util0-dev
             - libxcb-xinerama0-dev
             - libxcb-xkb-dev
+            - libxcb-randr0-dev
             - libxcb1-dev
             - xvfb
             - discount
             - xdotool
             - fluxbox
+            - xterm
             - gdb
             - lcov
             - doxygen
             - graphviz
+            - texinfo
+            - texi2html
+            - xfonts-base
 
 compiler:
     - gcc
 
 before_install:
+    - sudo add-apt-repository -y 'deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse'
     - sudo add-apt-repository -y 'deb http://debian.jpleau.ca/ jessie-backports main contrib non-free'
     - sudo apt-get update -qq
     - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 
 # TODO: We install xkbcommon here, until Travis use an up-to-date enough Ubuntu
-# TODO: We install libxcb-ewmh-dev here, until it is whitelisted again in Travis
 install:
-    - sudo apt-get install -y --force-yes libxkbcommon-dev libxkbcommon-x11-dev libxcb-ewmh-dev
-
-before_script:
+    - sudo apt-get install -y --force-yes libxkbcommon-dev libxkbcommon-x11-dev flex/trusty-backports libfl-dev/trusty-backports
+    - sudo apt-get install -y --force-yes python3-pip
+    - pip3 install --user meson==0.41.2
+    - wget https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-linux.zip
+    - unzip ninja-linux.zip
+    - export PATH=$(pwd):$PATH
+    - git clone https://github.com/alobbs/doxy-coverage
     - git clone --recursive https://github.com/Airblader/xcb-util-xrm.git
-    - cd xcb-util-xrm 
+    - cd xcb-util-xrm
     - ./autogen.sh --prefix=/usr
     - make
     - sudo make install
     - cd -
+    - git clone https://github.com/libcheck/check/ -b 0.11.0
+    - cd check
     - autoreconf -i
-    - ./configure --enable-gcov --enable-drun
+    - TEX="false" ./configure --prefix=/usr/
+    - make
+    - sudo make install
+    - cd -
+
+before_script:
+    - meson build -Db_coverage=true
 
 script:
-    - make
-    - make check
-# to re-enable if xdotool is allowed.
-    - make test-x
-    - make test-x1
-    - make coverage-cli
-      #    - gcov source/rofi.c
-    - make distcheck
-    - git clone https://github.com/alobbs/doxy-coverage
-    - make doxy 2>&1 | tee doxygen.log 
+    - ninja -C build
+    - ninja -C build test
+    - ulimit -c unlimited
+    - ninja -C build test-x
+    - ninja -C build doc/html 2>&1 > doxygen.log
     - test $(grep -c warning doxygen.log) -eq 0
-    - ./doxy-coverage/doxy-coverage.py doc/html/xml/
+    - ./doxy-coverage/doxy-coverage.py build/doc/html/xml/
 
 after_success:
       - bash <(curl -s https://codecov.io/bash)
 
+notifications:
+    webhooks:
+        urls:
+            - secure: "AqDM5SkWJPSBeCiyGdXzHYLnFCML/vKxWW/0wE00ocX+97Fa5ixeU7apMJ0OMZ0ZQVXG96xVtlJ513ZSpnRYHx6FF+Ivvw5pYeZjKHqtxThEhOueW1YynYWMX7HJrA4P19ollqRLrtsJqG6x7BhVEnIyhyu9eXtgj6hiI70F0SE="
+        on_success: change

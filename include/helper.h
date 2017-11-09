@@ -1,5 +1,35 @@
+/*
+ * rofi
+ *
+ * MIT/X11 License
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 #ifndef ROFI_HELPER_H
 #define ROFI_HELPER_H
+
+#include <cairo.h>
+
 /**
  * @defgroup HELPERS Helpers
  */
@@ -9,6 +39,7 @@
  *
  * @{
  */
+
 /**
  * @param string The input string.
  * @param output Pointer to 2 dimensional array with parsed string.
@@ -181,7 +212,7 @@ unsigned int levenshtein ( const char *needle, const glong needlelen, const char
  *
  * @returns the converted UTF-8 string
  */
-char * rofi_force_utf8 ( gchar *data, ssize_t length );
+char * rofi_force_utf8 ( const gchar *data, ssize_t length );
 
 /**
  * @param input the char array holding latin text
@@ -192,6 +223,15 @@ char * rofi_force_utf8 ( gchar *data, ssize_t length );
  * @return the UTF-8 representation of data
  */
 char * rofi_latin_to_utf8_strdup ( const char *input, gssize length );
+
+/**
+ * @param text the string to escape
+ *
+ * Escape XML markup from the string. @param text is freed.
+ *
+ * @return the escaped string
+ */
+gchar *rofi_escape_markup ( gchar *text );
 
 /**
  * @param pattern   The user input to match against.
@@ -217,16 +257,62 @@ int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *st
  *          are found, respectively, to be less than, to match, or be greater than the first `n`
  *          characters (not bytes) of `b`.
  */
-int utf8_strncmp ( const char *a, const char* b, size_t n );
+int utf8_strncmp ( const char *a, const char* b, size_t n ) __attribute__( ( nonnull ( 1, 2 ) ) );
+
+/**
+ * The startup notification context of the application to launch
+ */
+typedef struct
+{
+    /** The name of the application */
+    const gchar *name;
+    /** The binary name of the application */
+    const gchar *binary;
+    /** The description of the launch */
+    const gchar *description;
+    /** The icon name of the application */
+    const gchar *icon;
+    /** The application id (desktop file with the .desktop suffix) */
+    const gchar *app_id;
+    /** The window manager class of the application */
+    const gchar *wmclass;
+    /** The command we run */
+    const gchar *command;
+} RofiHelperExecuteContext;
+
+/**
+ * @param wd   The working directory.
+ * @param args The arguments of the command to exec.
+ * @param error_precmd Prefix to error message command.
+ * @param error_cmd Error message command
+ * @param context The startup notification context, if any
+ *
+ * Executes the command
+ *
+ * @returns TRUE when successful, FALSE when failed.
+ */
+gboolean helper_execute ( const char *wd, char **args, const char *error_precmd, const char *error_cmd, RofiHelperExecuteContext *context );
 
 /**
  * @param wd The work directory (optional)
  * @param cmd The cmd to execute
  * @param run_in_term Indicate if command should be run in a terminal
+ * @param context The startup notification context, if any
  *
  * Execute command.
+ * If needed members of @param context are NULL, they will be filled.
  *
  * @returns FALSE On failure, TRUE on success
  */
-int helper_execute_command ( const char *wd, const char *cmd, int run_in_term );
+gboolean helper_execute_command ( const char *wd, const char *cmd, gboolean run_in_term, RofiHelperExecuteContext *context );
+
+/**
+ * @param file The file path
+ * @param height The wanted height
+ * Gets a surface from an svg path
+ *
+ * @returns a cairo surface from an svg path
+ */
+cairo_surface_t *cairo_image_surface_create_from_svg ( const gchar* file, int height );
+
 #endif // ROFI_HELPER_H

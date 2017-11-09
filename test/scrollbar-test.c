@@ -1,3 +1,30 @@
+/*
+ * rofi
+ *
+ * MIT/X11 License
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -6,8 +33,13 @@
 #include <glib.h>
 #include <string.h>
 #include <widgets/scrollbar.h>
+#include <widgets/textbox.h>
+#include <widgets/listview.h>
 #include <widgets/widget.h>
 #include <widgets/widget-internal.h>
+#include "rofi.h"
+#include "xrmoptions.h"
+#include "helper.h"
 unsigned int test =0;
 #define TASSERT( a )    {                                 \
         assert ( a );                                     \
@@ -22,31 +54,43 @@ unsigned int test =0;
             abort ( );                                                                   \
         }                                                                                \
 }
-void rofi_add_error_message ( GString *msg )
+
+char * helper_get_theme_path ( const char *file )
+{
+    return g_strdup ( file );
+}
+gboolean config_parse_set_property ( G_GNUC_UNUSED const Property *p, G_GNUC_UNUSED char **error )
+{
+    return FALSE;
+}
+void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {}
 
-char * rofi_expand_path ( const char *path )
+char * rofi_expand_path ( G_GNUC_UNUSED const char *path )
 {
-
+    return NULL;
 }
-int textbox_get_estimated_char_height ( void );
-int textbox_get_estimated_char_height ( void )
+double textbox_get_estimated_char_height ( void )
 {
     return 16;
 }
-void color_separator ( G_GNUC_UNUSED void *d )
+double textbox_get_estimated_ch ( void )
+{
+    return 8.0;
+}
+
+void listview_set_selected ( G_GNUC_UNUSED listview *lv, G_GNUC_UNUSED unsigned int selected )
 {
 
 }
-
-void rofi_view_get_current_monitor ( int *width, int *height )
+void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
 {
 
 }
 
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
-    scrollbar * sb = scrollbar_create ( "scrollbar" );
+    scrollbar * sb = scrollbar_create ( NULL, "scrollbar" );
     widget_resize ( WIDGET (sb), 10, 100);
 
     scrollbar_set_handle ( NULL, 10213);
@@ -69,22 +113,22 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERTE ( sb->pos_length, 1 );
 
 
-    unsigned int cl = scrollbar_clicked ( sb, 10 );
+    guint cl = scrollbar_scroll_get_line ( sb, 10 );
     TASSERTE ( cl, 1010);
-    cl = scrollbar_clicked ( sb, 20 );
+    cl = scrollbar_scroll_get_line ( sb, 20 );
     TASSERTE ( cl, 2020);
-    cl = scrollbar_clicked ( sb, 0 );
+    cl = scrollbar_scroll_get_line ( sb, 0 );
     TASSERTE ( cl, 0);
-    cl = scrollbar_clicked ( sb, 99 );
+    cl = scrollbar_scroll_get_line ( sb, 99 );
     TASSERTE ( cl, 9999);
     scrollbar_set_handle_length ( sb, 1000);
-    cl = scrollbar_clicked ( sb, 10 );
+    cl = scrollbar_scroll_get_line ( sb, 10 );
     TASSERTE ( cl, 555);
-    cl = scrollbar_clicked ( sb, 20 );
+    cl = scrollbar_scroll_get_line ( sb, 20 );
     TASSERTE ( cl, 1666);
-    cl = scrollbar_clicked ( sb, 0 );
+    cl = scrollbar_scroll_get_line ( sb, 0 );
     TASSERTE ( cl, 0);
-    cl = scrollbar_clicked ( sb, 99 );
+    cl = scrollbar_scroll_get_line ( sb, 99 );
     TASSERTE ( cl, 9999);
 
     widget_free( WIDGET (sb ) );

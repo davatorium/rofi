@@ -1,9 +1,37 @@
+/*
+ * rofi
+ *
+ * MIT/X11 License
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 #ifndef ROFI_WIDGET_H
 #define ROFI_WIDGET_H
 #include <glib.h>
 #include <cairo.h>
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
+#include "keyb.h"
 /**
  * @defgroup widget widget
  *
@@ -23,9 +51,65 @@
 typedef struct _widget   widget;
 
 /**
- * Callback for when widget is clicked.
+ * Type of the widget. It is used to bubble events to the relevant widget.
  */
-typedef gboolean ( *widget_clicked_cb )( widget *, xcb_button_press_event_t *, void * );
+typedef enum
+{
+    /** Default type */
+    WIDGET_TYPE_UNKNOWN,
+    /** The listview widget */
+    WIDGET_TYPE_LISTVIEW         = SCOPE_MOUSE_LISTVIEW,
+    /** An element in the listview */
+    WIDGET_TYPE_LISTVIEW_ELEMENT = SCOPE_MOUSE_LISTVIEW_ELEMENT,
+    /** The input bar edit box */
+    WIDGET_TYPE_EDITBOX          = SCOPE_MOUSE_EDITBOX,
+    /** The listview scrollbar */
+    WIDGET_TYPE_SCROLLBAR        = SCOPE_MOUSE_SCROLLBAR,
+    /** A tab in the modi sidebar */
+    WIDGET_TYPE_SIDEBAR_MODI     = SCOPE_MOUSE_SIDEBAR_MODI,
+    /** Text-only textbox */
+    WIDGET_TYPE_TEXTBOX_TEXT,
+} WidgetType;
+
+/**
+ * Whether and how the action was handled
+ */
+typedef enum
+{
+    /** The action was ignore and should bubble */
+    WIDGET_TRIGGER_ACTION_RESULT_IGNORED,
+    /** The action was handled directly */
+    WIDGET_TRIGGER_ACTION_RESULT_HANDLED,
+    /** The action was handled and should start the grab for motion events */
+    WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN,
+    /** The action was handled and should stop the grab for motion events */
+    WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_END,
+} WidgetTriggerActionResult;
+
+/**
+ * @param widget The container widget itself
+ * @param type The widget type searched for
+ * @param x The X coordination of the mouse event relative to @param widget
+ * @param y The Y coordination of the mouse event relative to @param widget
+ *
+ * This callback must only iterate over the children of a Widget, and return NULL if none of them is relevant.
+ *
+ * @returns A child widget if found, NULL otherwise
+ */
+typedef widget * ( *widget_find_mouse_target_cb )( widget *widget, WidgetType type, gint x, gint y );
+
+/**
+ * @param widget The target widget
+ * @param action The action value (which enum it is depends on the widget type)
+ * @param x The X coordination of the mouse event relative to @param widget
+ * @param y The Y coordination of the mouse event relative to @param widget
+ * @param user_data The data passed to widget_set_trigger_action_handler()
+ *
+ * This callback should handle the action if relevant, and returns whether it did or not.
+ *
+ * @returns Whether the action was handled or not, see enum values for details
+ */
+typedef WidgetTriggerActionResult ( *widget_trigger_action_cb )( widget *widget, guint action, gint x, gint y, void *user_data );
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
 #define WIDGET( a )    ( (widget *) ( a ) )
@@ -53,6 +137,14 @@ void widget_move ( widget *widget, short x, short y );
 /**
  * @param widget Handle to widget
  *
+ * Get the type of the widget.
+ * @returns The type of the widget.
+ */
+WidgetType widget_type ( widget *widget );
+
+/**
+ * @param widget Handle to widget
+ *
  * Check if widget is enabled.
  * @returns TRUE when widget is enabled.
  */
@@ -71,7 +163,7 @@ void widget_disable ( widget *widget );
 void widget_enable ( widget *widget );
 
 /**
- * @param widget tb  Handle to the widget
+ * @param widget widget  Handle to the widget
  * @param d The cairo object used to draw itself.
  *
  * Render the textbox.
@@ -79,11 +171,11 @@ void widget_enable ( widget *widget );
 void widget_draw ( widget *widget, cairo_t *d );
 
 /**
- * @param widget Handle to the widget
+ * @param wid Handle to the widget
  *
  * Free the widget and all allocated memory.
  */
-void widget_free ( widget *widget );
+void widget_free ( widget *wid );
 
 /**
  * @param widget The widget toresize
@@ -124,18 +216,27 @@ int widget_get_x_pos ( widget *widget );
 
 /**
  * @param widget The widget handle
+ * @param x A pointer to the absolute X coordinates
+ * @param y A pointer to the absolute Y coordinates
+ *
+ * Will modify @param x and @param y to make them relative to @param widget .
+ */
+void widget_xy_to_relative ( widget *widget, gint *x, gint *y );
+
+/**
+ * @param widget The widget handle
  *
  * Update the widget, and its parent recursively.
  * This should be called when size of widget changes.
  */
 void widget_update ( widget *widget );
 /**
- * @param widget The widget handle
+ * @param wid The widget handle
  *
  * Indicate that the widget needs to be redrawn.
  * This is done by setting the redraw flag on the toplevel widget.
  */
-void widget_queue_redraw ( widget *widget );
+void widget_queue_redraw ( widget *wid );
 /**
  * @param wid The widget handle
  *
@@ -145,34 +246,48 @@ gboolean widget_need_redraw ( widget *wid );
 
 /**
  * @param wid The widget handle
- * @param xbe The button press event
+ * @param type The type of the wanted widget
+ * @param x The x coordinate of the mouse event
+ * @param y The y coordinate of the mouse event
  *
- * Signal the widget that it has been clicked,
- * The click should have happened within the region of the widget, check with
- * ::widget_intersect.
+ * Get the widget that should handle a mouse event.
  *
- * @returns returns TRUE if click is handled.
+ * @returns returns the widget that should handle the mouse event.
  */
-gboolean widget_clicked ( widget *wid, xcb_button_press_event_t *xbe );
+widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y );
 
 /**
  * @param wid The widget handle
- * @param cb The widget click callback
- * @param udata the user data to pass to callback
+ * @param action The action to trigger
+ * @param x A pointer to the x coordinate of the click
+ * @param y A pointer to the y coordinate of the click
  *
- * Override the widget clicked handler on widget.
+ * Trigger an action on widget.
+ * @param x and @param y are relative to @param wid .
+ *
+ * @returns Whether the action was handled or not
  */
-void widget_set_clicked_handler ( widget *wid, widget_clicked_cb cb, void *udata );
+WidgetTriggerActionResult widget_trigger_action ( widget *wid, guint action, gint x, gint y );
 
 /**
  * @param wid The widget handle
- * @param xme The motion notify object.
+ * @param cb The widget trigger action callback
+ * @param cb_data the user data to pass to callback
+ *
+ * Override the widget trigger action handler on widget.
+ */
+void widget_set_trigger_action_handler ( widget *wid, widget_trigger_action_cb cb, void *cb_data );
+
+/**
+ * @param wid The widget handle
+ * @param x The x coordinate of the mouse event
+ * @param y The y coordinate of the mouse event
  *
  * Motion notify.
- * TODO make this like clicked with callback.
- * returns TRUE when handled.
+ *
+ * @returns TRUE when handled.
  */
-gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
+gboolean widget_motion_notify ( widget *wid, gint x, gint y );
 
 /**
  * @param wid The widget handle
@@ -183,5 +298,29 @@ gboolean widget_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme );
  */
 int widget_get_desired_height ( widget *wid );
 
+/**
+ * @param wid The widget handle
+ *
+ * Get the desired width of this widget recursively.
+ *
+ * @returns the desired width of the widget in pixels.
+ */
+int widget_get_desired_width ( widget *wid );
+/**
+ * @param wid The widget handle
+ *
+ * Get the absolute x-position on the root widget..
+ *
+ * @returns the absolute x-position of widget of the widget in pixels.
+ */
+int widget_get_absolute_xpos ( widget *wid );
+/**
+ * @param wid The widget handle
+ *
+ * Get the absolute y-position on the root widget..
+ *
+ * @returns the absolute y-position of widget of the widget in pixels.
+ */
+int widget_get_absolute_ypos ( widget *wid );
 /*@}*/
 #endif // ROFI_WIDGET_H

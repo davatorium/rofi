@@ -1,9 +1,9 @@
-/**
+/*
  * rofi
  *
  * MIT/X11 License
- * Copyright (c) 2012 Sean Pringle <sean.pringle@gmail.com>
- * Modified 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2012 Sean Pringle <sean.pringle@gmail.com>
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -25,6 +25,9 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+
+#define G_LOG_DOMAIN    "Helper"
+
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,18 +43,17 @@
 #include <sys/stat.h>
 #include <pwd.h>
 #include <ctype.h>
-#include <xcb/xcb.h>
 #include <pango/pango.h>
 #include <pango/pango-fontmap.h>
 #include <pango/pangocairo.h>
+#include <librsvg/rsvg.h>
+#include "display.h"
+#include "xcb.h"
 #include "helper.h"
 #include "helper-theme.h"
 #include "settings.h"
-#include "x11-helper.h"
 #include "rofi.h"
 #include "view.h"
-
-#define LOG_DOMAIN    "Helper"
 
 /**
  * Textual description of positioning rofi.
@@ -115,11 +117,11 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
     va_start ( ap, length );
     while ( 1 ) {
         char * key = va_arg ( ap, char * );
-        if ( key == NULL ) {
+        if ( key == (char *) 0 ) {
             break;
         }
         char *value = va_arg ( ap, char * );
-        if ( value == NULL ) {
+        if ( value == (char *) 0 ) {
             break;
         }
         g_hash_table_insert ( h, key, value );
@@ -309,7 +311,7 @@ const char ** find_arg_strv ( const char *const key )
     const char **retv = NULL;
     int        length = 0;
     for ( int i = 0; i < stored_argc; i++ ) {
-        if ( strcasecmp ( stored_argv[i], key ) == 0 && i < ( stored_argc - 1 ) ) {
+        if (  i < ( stored_argc - 1 ) && strcasecmp ( stored_argv[i], key ) == 0 ) {
             length++;
         }
     }
@@ -317,7 +319,7 @@ const char ** find_arg_strv ( const char *const key )
         retv = g_malloc0 ( ( length + 1 ) * sizeof ( char* ) );
         int index = 0;
         for ( int i = 0; i < stored_argc; i++ ) {
-            if ( strcasecmp ( stored_argv[i], key ) == 0 && i < ( stored_argc - 1 ) ) {
+            if ( i < ( stored_argc - 1 ) && strcasecmp ( stored_argv[i], key ) == 0 ) {
                 retv[index++] = stored_argv[i + 1];
             }
         }
@@ -382,7 +384,7 @@ char helper_parse_char ( const char *arg )
     if ( len > 2 && arg[0] == '\\' && arg[1] == 'x' ) {
         return (char) strtol ( &arg[2], NULL, 16 );
     }
-    fprintf ( stderr, "Failed to parse character string: \"%s\"\n", arg );
+    g_warning ( "Failed to parse character string: \"%s\"", arg );
     // for now default to newline.
     return '\n';
 }
@@ -398,7 +400,7 @@ int find_arg_char ( const char * const key, char *val )
     return FALSE;
 }
 
-PangoAttrList *helper_token_match_get_pango_attr ( ThemeHighlight th, GRegex **tokens, const char *input, PangoAttrList *retv )
+PangoAttrList *helper_token_match_get_pango_attr ( RofiHighlightColorStyle th, GRegex **tokens, const char *input, PangoAttrList *retv )
 {
     // Do a tokenized match.
     if ( tokens ) {
@@ -410,25 +412,37 @@ PangoAttrList *helper_token_match_get_pango_attr ( ThemeHighlight th, GRegex **t
                 for ( int index = ( count > 1 ) ? 1 : 0; index < count; index++ ) {
                     int start, end;
                     g_match_info_fetch_pos ( gmi, index, &start, &end );
-                    if ( th.style & HL_BOLD ) {
+                    if ( th.style & ROFI_HL_BOLD ) {
                         PangoAttribute *pa = pango_attr_weight_new ( PANGO_WEIGHT_BOLD );
                         pa->start_index = start;
                         pa->end_index   = end;
                         pango_attr_list_insert ( retv, pa );
                     }
-                    if ( th.style & HL_UNDERLINE ) {
+                    if ( th.style & ROFI_HL_UNDERLINE ) {
                         PangoAttribute *pa = pango_attr_underline_new ( PANGO_UNDERLINE_SINGLE );
                         pa->start_index = start;
                         pa->end_index   = end;
                         pango_attr_list_insert ( retv, pa );
                     }
-                    if ( th.style & HL_ITALIC ) {
+                    if ( th.style & ROFI_HL_STRIKETHROUGH ) {
+                        PangoAttribute *pa = pango_attr_strikethrough_new ( TRUE );
+                        pa->start_index = start;
+                        pa->end_index   = end;
+                        pango_attr_list_insert ( retv, pa );
+                    }
+                    if ( th.style & ROFI_HL_SMALL_CAPS ) {
+                        PangoAttribute *pa = pango_attr_variant_new ( PANGO_VARIANT_SMALL_CAPS );
+                        pa->start_index = start;
+                        pa->end_index   = end;
+                        pango_attr_list_insert ( retv, pa );
+                    }
+                    if ( th.style & ROFI_HL_ITALIC ) {
                         PangoAttribute *pa = pango_attr_style_new ( PANGO_STYLE_ITALIC );
                         pa->start_index = start;
                         pa->end_index   = end;
                         pango_attr_list_insert ( retv, pa );
                     }
-                    if ( th.style & HL_COLOR ) {
+                    if ( th.style & ROFI_HL_COLOR ) {
                         PangoAttribute *pa = pango_attr_foreground_new (
                             th.color.red * 65535,
                             th.color.green * 65535,
@@ -462,7 +476,7 @@ int execute_generator ( const char * cmd )
 {
     char **args = NULL;
     int  argv   = 0;
-    helper_parse_setup ( config.run_command, &args, &argv, "{cmd}", cmd, NULL );
+    helper_parse_setup ( config.run_command, &args, &argv, "{cmd}", cmd, (char *) 0 );
 
     int    fd     = -1;
     GError *error = NULL;
@@ -470,8 +484,6 @@ int execute_generator ( const char * cmd )
 
     if ( error != NULL ) {
         char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd, error->message );
-        fputs ( msg, stderr );
-        fputs ( "\n", stderr );
         rofi_view_error_dialog ( msg, FALSE );
         g_free ( msg );
         // print error.
@@ -490,22 +502,22 @@ int create_pid_file ( const char *pidfile )
 
     int fd = g_open ( pidfile, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
     if ( fd < 0 ) {
-        fprintf ( stderr, "Failed to create pid file: '%s'.\n", pidfile );
+        g_warning ( "Failed to create pid file: '%s'.", pidfile );
         return -1;
     }
     // Set it to close the File Descriptor on exit.
     int flags = fcntl ( fd, F_GETFD, NULL );
     flags = flags | FD_CLOEXEC;
     if ( fcntl ( fd, F_SETFD, flags, NULL ) < 0 ) {
-        fprintf ( stderr, "Failed to set CLOEXEC on pidfile.\n" );
+        g_warning ( "Failed to set CLOEXEC on pidfile." );
         remove_pid_file ( fd );
         return -1;
     }
     // Try to get exclusive write lock on FD
     int retv = flock ( fd, LOCK_EX | LOCK_NB );
     if ( retv != 0 ) {
-        fprintf ( stderr, "Failed to set lock on pidfile: Rofi already running?\n" );
-        fprintf ( stderr, "Got error: %d %s\n", retv, strerror ( errno ) );
+        g_warning ( "Failed to set lock on pidfile: Rofi already running?" );
+        g_warning ( "Got error: %d %s", retv, g_strerror ( errno ) );
         remove_pid_file ( fd );
         return -1;
     }
@@ -525,7 +537,7 @@ void remove_pid_file ( int fd )
 {
     if ( fd >= 0 ) {
         if ( close ( fd ) ) {
-            fprintf ( stderr, "Failed to close pidfile: '%s'\n", strerror ( errno ) );
+            g_warning ( "Failed to close pidfile: '%s'", g_strerror ( errno ) );
         }
     }
 }
@@ -535,8 +547,8 @@ gboolean helper_validate_font ( PangoFontDescription *pfd, const char *font )
     const char *fam = pango_font_description_get_family ( pfd );
     int        size = pango_font_description_get_size ( pfd );
     if ( fam == NULL || size == 0 ) {
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Pango failed to parse font: '%s'", font );
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Got family: <b>%s</b> at size: <b>%d</b>", fam ? fam : "{unknown}", size );
+        g_debug ( "Pango failed to parse font: '%s'", font );
+        g_debug ( "Got family: <b>%s</b> at size: <b>%d</b>", fam ? fam : "{unknown}", size );
         return FALSE;
     }
     return TRUE;
@@ -591,9 +603,9 @@ int config_sanity_check ( void )
         config.menu_columns = 50;
         found_error         = TRUE;
     }
-    if ( !( config.location >= WL_CENTER && config.location <= WL_WEST ) ) {
+    if ( !( config.location >= 0 && config.location <= 8 ) ) {
         g_string_append_printf ( msg, "\t<b>config.location</b>=%d is invalid. Value should be between %d and %d.\n",
-                                 config.location, WL_CENTER, WL_WEST );
+                                 config.location, 0, 8 );
         config.location = WL_CENTER;
         found_error     = 1;
     }
@@ -678,10 +690,17 @@ char *rofi_expand_path ( const char *input )
 
 unsigned int levenshtein ( const char *needle, const glong needlelen, const char *haystack, const glong haystacklen )
 {
+    if ( needlelen == G_MAXLONG ) {
+        // String to long, we cannot handle this.
+        return UINT_MAX;
+    }
     unsigned int column[needlelen + 1];
-    for ( glong y = 0; y <= needlelen; y++ ) {
+    for ( glong y = 0; y < needlelen; y++ ) {
         column[y] = y;
     }
+    // Removed out of the loop, otherwise static code analyzers think it is unset.. silly but true.
+    // old loop: for ( glong y = 0; y <= needlelen; y++)
+    column[needlelen] = needlelen;
     for ( glong x = 1; x <= haystacklen; x++ ) {
         const char *needles = needle;
         column[0] = x;
@@ -710,17 +729,26 @@ char * rofi_latin_to_utf8_strdup ( const char *input, gssize length )
     return g_convert_with_fallback ( input, length, "UTF-8", "latin1", "\uFFFD", NULL, &slength, NULL );
 }
 
-char * rofi_force_utf8 ( gchar *start, ssize_t length )
+gchar *rofi_escape_markup ( gchar *text )
 {
-    if ( start == NULL ) {
+    if ( text == NULL ) {
         return NULL;
     }
-    const char *data = start;
+    gchar *ret = g_markup_escape_text ( text, -1 );
+    g_free ( text );
+    return ret;
+}
+
+char * rofi_force_utf8 ( const gchar *data, ssize_t length )
+{
+    if ( data == NULL ) {
+        return NULL;
+    }
     const char *end;
     GString    *string;
 
     if ( g_utf8_validate ( data, length, &end ) ) {
-        return g_memdup ( start, length + 1 );
+        return g_memdup ( data, length + 1 );
     }
     string = g_string_sized_new ( length + 16 );
 
@@ -867,9 +895,9 @@ int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *st
     // values suppress warnings.
     int            uleft = 0, ulefts = 0, left, lefts;
     const gchar    *pit = pattern, *sit;
-    enum CharClass prev = NON_WORD, cur;
+    enum CharClass prev = NON_WORD;
     for ( si = 0, sit = str; si < slen; si++, sit = g_utf8_next_char ( sit ) ) {
-        cur       = rofi_scorer_get_character_class ( g_utf8_get_char ( sit ) );
+        enum CharClass cur = rofi_scorer_get_character_class ( g_utf8_get_char ( sit ) );
         score[si] = rofi_scorer_get_score_for ( prev, cur );
         prev      = cur;
         dp[si]    = MIN_SCORE;
@@ -933,21 +961,19 @@ int utf8_strncmp ( const char* a, const char* b, size_t n )
     return r;
 }
 
-int helper_execute_command ( const char *wd, const char *cmd, int run_in_term )
+gboolean helper_execute ( const char *wd, char **args, const char *error_precmd, const char *error_cmd, RofiHelperExecuteContext *context )
 {
-    int  retv   = TRUE;
-    char **args = NULL;
-    int  argc   = 0;
-    if ( run_in_term ) {
-        helper_parse_setup ( config.run_shell_command, &args, &argc, "{cmd}", cmd, NULL );
-    }
-    else {
-        helper_parse_setup ( config.run_command, &args, &argc, "{cmd}", cmd, NULL );
-    }
-    GError *error = NULL;
-    g_spawn_async ( wd, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error );
+    gboolean             retv   = TRUE;
+    GError               *error = NULL;
+
+    GSpawnChildSetupFunc child_setup = NULL;
+    gpointer             user_data   = NULL;
+
+    display_startup_notification ( context, &child_setup, &user_data );
+
+    g_spawn_async ( wd, args, NULL, G_SPAWN_SEARCH_PATH, child_setup, user_data, NULL, &error );
     if ( error != NULL ) {
-        char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", cmd, error->message );
+        char *msg = g_strdup_printf ( "Failed to execute: '%s%s'\nError: '%s'", error_precmd, error_cmd, error->message );
         rofi_view_error_dialog ( msg, FALSE  );
         g_free ( msg );
         // print error.
@@ -958,4 +984,133 @@ int helper_execute_command ( const char *wd, const char *cmd, int run_in_term )
     // Free the args list.
     g_strfreev ( args );
     return retv;
+}
+
+gboolean helper_execute_command ( const char *wd, const char *cmd, gboolean run_in_term, RofiHelperExecuteContext *context )
+{
+    char **args = NULL;
+    int  argc   = 0;
+
+    if ( run_in_term ) {
+        helper_parse_setup ( config.run_shell_command, &args, &argc, "{cmd}", cmd, (char *) 0 );
+    }
+    else {
+        helper_parse_setup ( config.run_command, &args, &argc, "{cmd}", cmd, (char *) 0 );
+    }
+
+    if ( context != NULL ) {
+        if ( context->name == NULL ) {
+            context->name = args[0];
+        }
+        if ( context->binary == NULL ) {
+            context->binary = args[0];
+        }
+        if ( context->description == NULL ) {
+            gsize l            = strlen ( "Launching '' via rofi" ) + strlen ( cmd ) + 1;
+            gchar *description = g_newa ( gchar, l );
+
+            g_snprintf ( description, l, "Launching '%s' via rofi", cmd );
+            context->description = description;
+        }
+        if ( context->command == NULL ) {
+            context->command = cmd;
+        }
+    }
+
+    return helper_execute ( wd, args, "", cmd, context );
+}
+
+char *helper_get_theme_path ( const char *file )
+{
+    char *filename = rofi_expand_path ( file );
+    g_debug ( "Opening theme, testing: %s\n", filename );
+    if ( g_file_test ( filename, G_FILE_TEST_EXISTS ) ) {
+        return filename;
+    }
+    g_free ( filename );
+
+    if ( g_str_has_suffix ( file, ".rasi" ) ) {
+        filename = g_strdup ( file );
+    }
+    else {
+        filename = g_strconcat ( file, ".rasi", NULL );
+    }
+    // Check config directory.
+    const char *cpath = g_get_user_config_dir ();
+    if ( cpath ) {
+        char *themep = g_build_filename ( cpath, "rofi", filename, NULL );
+        g_debug ( "Opening theme, testing: %s\n", themep );
+        if ( g_file_test ( themep, G_FILE_TEST_EXISTS ) ) {
+            g_free ( filename );
+            return themep;
+        }
+        g_free ( themep );
+    }
+    const char * datadir = g_get_user_data_dir ();
+    if ( datadir ) {
+        char *theme_path = g_build_filename ( datadir, "rofi", "themes", filename, NULL );
+        g_debug ( "Opening theme, testing: %s\n", theme_path );
+        if ( theme_path ) {
+            if ( g_file_test ( theme_path, G_FILE_TEST_EXISTS ) ) {
+                g_free ( filename );
+                return theme_path;
+            }
+            g_free ( theme_path );
+        }
+    }
+
+    char *theme_path = g_build_filename ( THEME_DIR, filename, NULL );
+    if ( theme_path ) {
+        g_debug ( "Opening theme, testing: %s\n", theme_path );
+        if ( g_file_test ( theme_path, G_FILE_TEST_EXISTS ) ) {
+            g_free ( filename );
+            return theme_path;
+        }
+        g_free ( theme_path );
+    }
+    return filename;
+}
+
+cairo_surface_t* cairo_image_surface_create_from_svg ( const gchar* file, int height )
+{
+    GError          *error   = NULL;
+    cairo_surface_t *surface = NULL;
+    RsvgHandle      * handle;
+
+    handle = rsvg_handle_new_from_file ( file, &error );
+    if ( G_LIKELY ( handle != NULL ) ) {
+        RsvgDimensionData dimensions;
+        // Update DPI.
+        rsvg_handle_set_dpi ( handle, config.dpi );
+        // Get size.
+        rsvg_handle_get_dimensions ( handle, &dimensions );
+        // Create cairo surface in the right size.
+        double scale = (double) height / dimensions.height;
+        surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32,
+                                               (double) dimensions.width * scale,
+                                               (double) dimensions.height * scale );
+        gboolean failed = cairo_surface_status ( surface ) != CAIRO_STATUS_SUCCESS;
+        if ( G_LIKELY ( failed == FALSE ) ) {
+            cairo_t *cr = cairo_create ( surface );
+            cairo_scale ( cr, scale, scale );
+            failed = rsvg_handle_render_cairo ( handle, cr ) == FALSE;
+            cairo_destroy ( cr );
+        }
+
+        rsvg_handle_close ( handle, &error );
+        g_object_unref ( handle );
+
+        /** Rendering fails */
+        if ( G_UNLIKELY ( failed ) ) {
+            g_warning ( "Failed to render file: '%s'", file );
+            cairo_surface_destroy ( surface );
+            surface = NULL;
+        }
+    }
+    if ( G_UNLIKELY ( error != NULL ) ) {
+        g_warning ( "Failed to render SVG file: '%s': %s", file, error->message );
+        g_error_free ( error );
+    }
+
+    return surface;
 }

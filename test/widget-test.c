@@ -1,3 +1,30 @@
+/*
+ * rofi
+ *
+ * MIT/X11 License
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -7,19 +34,31 @@
 #include <string.h>
 #include <widgets/widget.h>
 #include <widgets/widget-internal.h>
+#include "rofi.h"
+#include "display.h"
+#include "xrmoptions.h"
+#include "xcb.h"
 unsigned int test =0;
 #define TASSERT( a )    {                                 \
         assert ( a );                                     \
         printf ( "Test %3i passed (%s)\n", ++test, # a ); \
 }
-void rofi_add_error_message ( GString *msg )
+gboolean config_parse_set_property ( G_GNUC_UNUSED const Property *p, G_GNUC_UNUSED char **error )
+{
+    return FALSE;
+}
+void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {
 }
 void rofi_view_queue_redraw ( void )
 {
 
 }
-void rofi_view_get_current_monitor ( int *width, int *height )
+int monitor_active ( G_GNUC_UNUSED workarea *mon )
+{
+    return 0;
+}
+void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
 {
 
 }
@@ -29,10 +68,14 @@ int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
     return FALSE;
 }
 
+void display_startup_notification ( G_GNUC_UNUSED RofiHelperExecuteContext *context, G_GNUC_UNUSED GSpawnChildSetupFunc *child_setup, G_GNUC_UNUSED gpointer *user_data )
+{
+}
+
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
 //    box 20 by 40
-    widget *wid= (widget*)g_malloc0(sizeof(widget)); 
+    widget *wid= (widget*)g_malloc0(sizeof(widget));
     widget_resize ( wid, 20, 40);
     widget_move ( wid, 10, 10);
     // Getter, setter x pos
@@ -157,8 +200,8 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     widget_update ( NULL );
     widget_queue_redraw ( NULL );
     TASSERT (widget_need_redraw ( NULL ) == FALSE);
-    widget_clicked ( NULL, NULL );
-    widget_set_clicked_handler ( NULL, NULL, NULL );
+    widget_trigger_action ( NULL, 0, 0, 0 );
+    widget_set_trigger_action_handler ( NULL, NULL, NULL );
 
 
     g_free(wid);

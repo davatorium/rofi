@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -29,6 +29,12 @@
  * \ingroup SSHMode
  * @{
  */
+
+/**
+ * Log domain for the ssh modi.
+ */
+#define G_LOG_DOMAIN    "Dialogs.Ssh"
+
 #include <config.h>
 #include <glib.h>
 #include <stdlib.h>
@@ -51,12 +57,6 @@
 #include "dialogs/ssh.h"
 
 /**
- * Log domain for the ssh modi.
- */
-
-#define LOG_DOMAIN         "Dialogs.Ssh"
-
-/**
  * Name of the history file where previously choosen hosts are stored.
  */
 #define SSH_CACHE_FILE     "rofi-2.sshcache"
@@ -74,7 +74,7 @@
  *
  * @returns FALSE On failure, TRUE on success
  */
-static inline int execshssh ( const char *host )
+static int execshssh ( const char *host )
 {
     char **args = NULL;
     int  argsv  = 0;
@@ -82,29 +82,23 @@ static inline int execshssh ( const char *host )
     char *port = strstr ( host, ":" );
     if (port != NULL) {
       *port = '\0';
-      helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, "{port}", port + 1, NULL );
+      helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, "{port}", port + 1, (char *) 0 );
       *port = ':';
     } else {
-      helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, "{port}", "22", NULL );
+      helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, "{port}", "22", (char *) 0 );
     }
 
-    GError *error = NULL;
-    g_spawn_async ( NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error );
+    gsize l     = strlen ( "Connecting to '' via rofi" ) + strlen ( host ) + 1;
+    gchar *desc = g_newa ( gchar, l );
 
-    if ( error != NULL ) {
-        char *msg = g_strdup_printf ( "Failed to execute: 'ssh %s'\nError: '%s'", host, error->message );
-        rofi_view_error_dialog ( msg, FALSE  );
-        g_free ( msg );
-        // print error.
-        g_error_free ( error );
+    g_snprintf ( desc, l, "Connecting to '%s' via rofi", host );
 
-        g_strfreev ( args );
-        return FALSE;
-    }
-    // Free the args list.
-    g_strfreev ( args );
-
-    return TRUE;
+    RofiHelperExecuteContext context = {
+        .name        = "ssh",
+        .description = desc,
+        .command     = "ssh",
+    };
+    return helper_execute ( NULL, args, "ssh ", host, &context );
 }
 
 /**
@@ -207,7 +201,7 @@ static char **read_known_hosts_file ( char ** retv, unsigned int *length )
             free ( buffer );
         }
         if ( fclose ( fd ) != 0 ) {
-            fprintf ( stderr, "Failed to close hosts file: '%s'\n", strerror ( errno ) );
+            g_warning ( "Failed to close hosts file: '%s'", g_strerror ( errno ) );
         }
     }
 
@@ -282,7 +276,7 @@ static char **read_hosts_file ( char ** retv, unsigned int *length )
             free ( buffer );
         }
         if ( fclose ( fd ) != 0 ) {
-            fprintf ( stderr, "Failed to close hosts file: '%s'\n", strerror ( errno ) );
+            g_warning ( "Failed to close hosts file: '%s'", g_strerror ( errno ) );
         }
     }
 
@@ -293,7 +287,7 @@ static void parse_ssh_config_file ( const char *filename, char ***retv, unsigned
 {
     FILE *fd = fopen ( filename, "r" );
 
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Parsing ssh config file: %s", filename );
+    g_debug ( "Parsing ssh config file: %s", filename );
     if ( fd != NULL ) {
         char   *buffer         = NULL;
         size_t buffer_length   = 0;
@@ -314,7 +308,7 @@ static void parse_ssh_config_file ( const char *filename, char ***retv, unsigned
 
             if ( g_strcmp0 ( token, "Include" ) == 0 ) {
                 token = strtok_r ( NULL, SSH_TOKEN_DELIM, &strtok_pointer );
-                g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Found Include: %s", token );
+                g_debug ( "Found Include: %s", token );
                 gchar *path      = rofi_expand_path ( token );
                 gchar *full_path = NULL;
                 if ( !g_path_is_absolute ( path ) ) {
@@ -325,7 +319,7 @@ static void parse_ssh_config_file ( const char *filename, char ***retv, unsigned
                 else {
                     full_path = g_strdup ( path );
                 }
-                glob_t globbuf = { 0, };
+                glob_t globbuf = { .gl_pathc = 0, .gl_pathv = NULL, .gl_offs = 0 };
 
                 if ( glob ( full_path, 0, NULL, &globbuf ) == 0 ) {
                     for ( size_t iter = 0; iter < globbuf.gl_pathc; iter++ ) {
@@ -383,7 +377,7 @@ static void parse_ssh_config_file ( const char *filename, char ***retv, unsigned
         }
 
         if ( fclose ( fd ) != 0 ) {
-            fprintf ( stderr, "Failed to close ssh configuration file: '%s'\n", strerror ( errno ) );
+            g_warning ( "Failed to close ssh configuration file: '%s'", g_strerror ( errno ) );
         }
     }
 }

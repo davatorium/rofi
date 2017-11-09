@@ -1,11 +1,15 @@
 # Specify automake version.
 AUTOMAKE_OPTIONS  = 1.11.3
 
-ACLOCAL_AMFLAGS = -I libgwater ${ACLOCAL_FLAGS}
+ACLOCAL_AMFLAGS = -I subprojects/libnkutils -I subprojects/libgwater ${ACLOCAL_FLAGS}
 
 AM_YFLAGS = -d
 
 noinst_LIBRARIES =
+EXTRA_DIST=
+check_PROGRAMS=
+TESTS=
+include $(top_srcdir)/subprojects/libnkutils/libnkutils-nolibtool.mk
 include $(top_srcdir)/libgwater-xcb-nolibtool.mk
 
 ##
@@ -19,6 +23,10 @@ BUILT_SOURCES=\
 			  lexer/theme-parser.h\
 			  lexer/theme-parser.c\
 			  lexer/theme-lexer.c
+
+$(top_builddir)/lexer/theme-lexer.c: $(top_srcdir)/lexer/theme-lexer.l
+
+$(top_builddir)/lexer/theme-parser.c $(top_builddir)/lexer/theme-parser.h: $(top_srcdir)/lexer/theme-parser.y
 
 rofiincludedir=${includedir}/rofi
 rofiinclude_HEADERS=\
@@ -48,6 +56,7 @@ SOURCES=\
 	source/timings.c\
 	source/history.c\
 	source/theme.c\
+	source/rofi-types.c\
 	source/widgets/box.c\
 	source/widgets/container.c\
 	source/widgets/widget.c\
@@ -55,7 +64,8 @@ SOURCES=\
 	source/widgets/listview.c\
 	source/widgets/scrollbar.c\
 	source/xrmoptions.c\
-	source/x11-helper.c\
+	source/xcb.c\
+	source/css-colors.c\
 	source/dialogs/run.c\
 	source/dialogs/ssh.c\
 	source/dialogs/drun.c\
@@ -64,9 +74,11 @@ SOURCES=\
 	source/dialogs/window.c\
 	source/dialogs/script.c\
 	source/dialogs/help-keys.c\
+	include/display.h\
 	include/xcb.h\
 	include/xcb-internal.h\
 	include/rofi.h\
+	include/rofi-types.h\
 	include/mode.h\
 	include/mode-private.h\
 	include/settings.h\
@@ -78,6 +90,8 @@ SOURCES=\
 	include/timings.h\
 	include/history.h\
 	include/theme.h\
+	include/css-colors.h\
+	include/default-theme.h\
 	include/widgets/box.h\
 	include/widgets/container.h\
 	include/widgets/widget.h\
@@ -86,7 +100,6 @@ SOURCES=\
 	include/widgets/listview.h\
 	include/widgets/scrollbar.h\
 	include/xrmoptions.h\
-	include/x11-helper.h\
 	include/dialogs/ssh.h\
 	include/dialogs/run.h\
 	include/dialogs/drun.h\
@@ -95,9 +108,7 @@ SOURCES=\
 	include/dialogs/script.h\
 	include/dialogs/window.h\
 	include/dialogs/dialogs.h\
-	include/dialogs/help-keys.h\
-	include/xkb.h\
-	include/xkb-internal.h
+	include/dialogs/help-keys.h
 
 rofi_SOURCES=\
 			 lexer/theme-parser.y\
@@ -107,25 +118,32 @@ rofi_SOURCES=\
 rofi_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
+	$(NKUTILS_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
 	$(pango_CFLAGS)\
 	$(libsn_CFLAGS)\
 	$(cairo_CFLAGS)\
+	$(librsvg_CFLAGS)\
 	-DMANPAGE_PATH="\"$(mandir)/\""\
 	-I$(top_srcdir)/include/\
+	-I$(top_builddir)/lexer/\
+	-I$(top_srcdir)/lexer/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/\
 	-Werror=missing-prototypes\
 	-DSYSCONFDIR=\"$(sysconfdir)\"\
 	-DTHEME_CONVERTER\
-	-DPLUGIN_PATH=\"${libdir}/rofi\"
+	-DPLUGIN_PATH=\"${libdir}/rofi\"\
+	-DTHEME_DIR=\"$(themedir)\"
 
 rofi_LDADD=\
 	$(glib_LIBS)\
+	$(NKUTILS_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(libsn_LIBS)\
 	$(pango_LIBS)\
 	$(cairo_LIBS)\
+	$(librsvg_LIBS)\
 	$(LIBS)
 
 ##
@@ -163,6 +181,7 @@ theme_DATA=\
 		   themes/Adapta-Nokto.rasi\
 		   themes/Arc.rasi\
 		   themes/DarkBlue.rasi\
+		   themes/Pop-Dark.rasi\
 		   themes/Indego.rasi\
 		   themes/Monokai.rasi\
 		   themes/Paper.rasi\
@@ -170,6 +189,7 @@ theme_DATA=\
 		   themes/arthur.rasi\
 		   themes/blue.rasi\
 		   themes/c64.rasi\
+		   themes/dmenu.rasi\
 		   themes/glue_pro_blue.rasi\
 		   themes/gruvbox-dark-hard.rasi\
 		   themes/gruvbox-dark-soft.rasi\
@@ -187,7 +207,7 @@ theme_DATA=\
 ##
 # Extra DIST
 ##
-EXTRA_DIST=\
+EXTRA_DIST+=\
 	$(markdown_FILES)\
 	$(markdown_SC_FILES)\
 	Examples/i3_switch_workspaces.sh\
@@ -202,14 +222,14 @@ EXTRA_DIST=\
 ##
 
 
-update-manpage: $(top_srcdir)/doc/rofi-manpage.markdown $(top_srcdir)/doc/rofi-theme-manpage.markdown
-	ronn --roff --pipe $(top_srcdir)/doc/rofi-manpage.markdown > $(top_srcdir)/doc/rofi.1
-	ronn --roff --pipe $(top_srcdir)/doc/rofi-theme-manpage.markdown > $(top_srcdir)/doc/rofi-theme.5
+update-manpage: $(top_srcdir)/doc/rofi.1.markdown $(top_srcdir)/doc/rofi-theme.5.markdown
+	ronn --roff $(top_srcdir)/doc/rofi.1.markdown
+	ronn --roff $(top_srcdir)/doc/rofi-theme.5.markdown
 
 ##
 # Rofi test program
 ##
-check_PROGRAMS=\
+check_PROGRAMS+=\
 			   history_test\
 			   textbox_test\
 			   helper_test\
@@ -221,17 +241,27 @@ check_PROGRAMS=\
 			   box_test\
 			   scrollbar_test
 
+if USE_CHECK
+check_PROGRAMS+=mode_test theme_parser_test
+endif
+
+
 
 history_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
+	$(NKUTILS_CFLAGS)\
 	$(libsn_CFLAGS)\
+	$(cairo_CFLAGS)\
+	-DTHEME_DIR=\"$(themedir)\"\
+	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-I$(top_srcdir)/include/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
 
 history_test_LDADD=\
-	$(glib_LIBS)
+	$(glib_LIBS)\
+	$(NKUTILS_LIBS)
 
 
 history_test_SOURCES=\
@@ -248,18 +278,26 @@ textbox_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(pango_CFLAGS)\
+	$(NKUTILS_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
+	$(librsvg_CFLAGS)\
+	-DPLUGIN_PATH=\"${libdir}/rofi\"\
+	-DTHEME_DIR=\"$(themedir)\"\
 	-I$(top_srcdir)/include/\
+	-I$(top_builddir)/lexer/\
+	-I$(top_srcdir)/lexer/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
 
 textbox_test_LDADD=\
 	$(glib_LIBS)\
 	$(pango_LIBS)\
+	$(NKUTILS_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(cairo_LIBS)\
+	$(librsvg_LIBS)\
 	$(libsn_LIBS)
 
 helper_pidfile_CFLAGS=$(textbox_test_CFLAGS)
@@ -270,12 +308,12 @@ helper_pidfile_SOURCES=\
 					   include/mode.h\
 					   include/mode-private.h\
 					   source/helper.c\
+					   source/rofi-types.c\
+					   include/rofi-types.h\
 					   include/helper.h\
 					   include/helper-theme.h\
 					   include/xrmoptions.h\
 					   source/xrmoptions.c\
-					   source/x11-helper.c\
-					   include/x11-helper.h\
 					   test/helper-pidfile.c
 
 helper_tokenize_CFLAGS=$(textbox_test_CFLAGS)
@@ -286,12 +324,12 @@ helper_tokenize_SOURCES=\
 					   include/mode.h\
 					   include/mode-private.h\
 					   source/helper.c\
+					   source/rofi-types.c\
+					   include/rofi-types.h\
 					   include/helper.h\
 					   include/helper-theme.h\
 					   include/xrmoptions.h\
 					   source/xrmoptions.c\
-					   source/x11-helper.c\
-					   include/x11-helper.h\
 					   test/helper-tokenize.c
 
 widget_test_LDADD=$(textbox_test_LDADD)
@@ -300,8 +338,10 @@ widget_test_SOURCES=\
 			source/widgets/widget.c\
 			source/widgets/textbox.c\
 			source/theme.c\
+			source/rofi-types.c\
+			include/rofi-types.h\
+			source/css-colors.c\
 			source/helper.c\
-			source/x11-helper.c\
 			config/config.c\
 			lexer/theme-parser.y\
 			lexer/theme-lexer.l\
@@ -315,7 +355,11 @@ box_test_SOURCES=\
 			lexer/theme-parser.y\
 			lexer/theme-lexer.l\
 			source/theme.c\
+			source/rofi-types.c\
+			include/rofi-types.h\
+			source/css-colors.c\
 			include/theme.h\
+			include/css-colors.h\
 			test/box-test.c
 
 scrollbar_test_LDADD=$(textbox_test_LDADD)
@@ -326,7 +370,11 @@ scrollbar_test_SOURCES=\
 			lexer/theme-parser.y\
 			lexer/theme-lexer.l\
 			source/theme.c\
+			source/rofi-types.c\
+			include/rofi-types.h\
+			source/css-colors.c\
 			include/theme.h\
+			include/css-colors.h\
 			test/scrollbar-test.c
 
 textbox_test_SOURCES=\
@@ -335,8 +383,10 @@ textbox_test_SOURCES=\
 	lexer/theme-parser.y\
 	lexer/theme-lexer.l\
 	source/theme.c\
+	source/rofi-types.c\
+	include/rofi-types.h\
+	source/css-colors.c\
 	source/helper.c\
-	source/x11-helper.c\
 	config/config.c\
 	include/keyb.h\
 	include/rofi.h\
@@ -351,6 +401,31 @@ textbox_test_SOURCES=\
 	include/helper-theme.h\
 	test/textbox-test.c
 
+if USE_CHECK
+theme_parser_test_CFLAGS=${helper_test_CFLAGS} $(check_CFLAGS)
+theme_parser_test_LDADD=${helper_test_LDADD} $(check_LIBS)
+theme_parser_test_SOURCES=\
+	config/config.c\
+	include/rofi.h\
+	include/mode.h\
+	include/mode-private.h\
+	source/helper.c\
+	include/helper.h\
+	include/helper-theme.h\
+	include/theme.h\
+	include/css-colors.h\
+	include/xrmoptions.h\
+	source/xrmoptions.c\
+	lexer/theme-lexer.c\
+	lexer/theme-parser.c\
+	lexer/theme-parser.h\
+	source/theme.c\
+	source/rofi-types.c\
+	include/rofi-types.h\
+	source/css-colors.c\
+	test/theme-parser-test.c
+endif
+
 helper_test_SOURCES=\
 	config/config.c\
 	include/rofi.h\
@@ -361,26 +436,37 @@ helper_test_SOURCES=\
 	include/helper-theme.h\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
-	source/x11-helper.c\
+	source/rofi-types.c\
+	include/rofi-types.h\
 	test/helper-test.c
+
 
 helper_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
 	$(pango_CFLAGS)\
+	$(NKUTILS_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
+	$(librsvg_CFLAGS)\
 	$(libsn_CFLAGS)\
+	-DPLUGIN_PATH=\"${libdir}/rofi\"\
+	-DTHEME_DIR=\"$(themedir)\"\
 	-I$(top_srcdir)/include/\
+	-I$(top_builddir)/lexer/\
+	-I$(top_srcdir)/lexer/\
 	-I$(top_srcdir)/config/\
 	-I$(top_builddir)/
 
 helper_test_LDADD=\
 	$(glib_LIBS)\
 	$(pango_LIBS)\
+	$(NKUTILS_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(libsn_LIBS)\
+	$(librsvg_LIBS)\
 	$(cairo_LIBS)
+
 
 helper_expand_SOURCES=\
 	config/config.c\
@@ -392,7 +478,8 @@ helper_expand_SOURCES=\
 	include/helper-theme.h\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
-	source/x11-helper.c\
+	source/rofi-types.c\
+	include/rofi-types.h\
 	test/helper-expand.c
 
 helper_expand_CFLAGS=${helper_test_CFLAGS}
@@ -408,14 +495,33 @@ helper_config_cmdline_parser_SOURCES=\
 	include/mode.h\
 	include/mode-private.h\
 	source/helper.c\
+	source/rofi-types.c\
+	include/rofi-types.h\
 	include/helper.h\
 	include/helper-theme.h\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
-	source/x11-helper.c\
 	test/helper-config-cmdline-parser.c
 
-TESTS=\
+
+if USE_CHECK
+mode_test_CFLAGS=$(textbox_test_CFLAGS) $(check_CFLAGS)
+mode_test_LDADD=$(textbox_test_LDADD) $(check_LIBS)
+mode_test_SOURCES=\
+				  config/config.c\
+				  test/mode-test.c\
+			      source/dialogs/help-keys.c\
+				  source/helper.c\
+				  source/mode.c\
+				  source/rofi-types.c\
+				  include/rofi-types.h\
+				  source/xrmoptions.c\
+				  source/keyb.c\
+				  include/mode.h\
+				  include/mode-private.h
+endif
+
+TESTS+=\
 	history_test\
 	helper_test\
 	helper_expand\
@@ -427,51 +533,16 @@ TESTS=\
 	box_test\
 	scrollbar_test
 
+if USE_CHECK
+TESTS+=theme_parser_test\
+	mode_test
+endif
+
 .PHONY: test-x
 test-x: $(bin_PROGRAMS)
-	echo "Test 2"
-	$(top_srcdir)/test/run_test.sh 200 $(top_srcdir)/test/run_errormsg_test.sh $(top_builddir)
-	echo "Test 3"
-	$(top_srcdir)/test/run_test.sh 201 $(top_srcdir)/test/run_switchdialog_test.sh $(top_builddir)
-	echo "Test 4"
-	$(top_srcdir)/test/run_test.sh 202 $(top_srcdir)/test/run_dmenu_test.sh $(top_builddir)
-	echo "Test 5"
-	$(top_srcdir)/test/run_test.sh 203 $(top_srcdir)/test/run_dmenu_custom_test.sh $(top_builddir)
-	echo "Test 6"
-	$(top_srcdir)/test/run_test.sh 204 $(top_srcdir)/test/run_run_test.sh $(top_builddir)
-	echo "Test 7"
-	$(top_srcdir)/test/run_test.sh 205 $(top_srcdir)/test/run_script_test.sh $(top_builddir)
-	echo "Issue 256"
-	$(top_srcdir)/test/run_test.sh 206 $(top_srcdir)/test/run_issue_256.sh $(top_builddir)
-	echo "Issue 275"
-	$(top_srcdir)/test/run_test.sh 207 $(top_srcdir)/test/run_issue_275.sh $(top_builddir)
-	echo "Crash empty list"
-	$(top_srcdir)/test/run_test.sh 208 $(top_srcdir)/test/run_dmenu_empty.sh $(top_builddir)
-	echo "Test multiple select"
-	$(top_srcdir)/test/run_test.sh 209 $(top_srcdir)/test/run_dmenu_issue_292.sh $(top_builddir)
-	echo "Test screenshot"
-	$(top_srcdir)/test/run_test.sh 210 $(top_srcdir)/test/run_screenshot_test.sh $(top_builddir)
-	echo "Test xr dump"
-	$(top_srcdir)/test/run_test.sh 212 $(top_srcdir)/test/xr_dump_test.sh $(top_builddir) $(top_srcdir)
-	echo "Test drun"
-	$(top_srcdir)/test/run_test.sh 213 $(top_srcdir)/test/run_drun_test.sh $(top_builddir)
-	echo "Test combi"
-	$(top_srcdir)/test/run_test.sh 214 $(top_srcdir)/test/run_combi_test.sh $(top_builddir)
-	echo "Test dmenu regex"
-	$(top_srcdir)/test/run_test.sh 215 $(top_srcdir)/test/run_regex_test.sh $(top_builddir)
-	echo "Test dmenu glob"
-	$(top_srcdir)/test/run_test.sh 216 $(top_srcdir)/test/run_glob_test.sh $(top_builddir)
-	echo "Test issue 333"
-	$(top_srcdir)/test/run_test.sh 221 $(top_srcdir)/test/run_issue333_test.sh $(top_builddir)
-	echo "Test help output"
-	$(top_srcdir)/test/run_test.sh 212 $(top_srcdir)/test/help_output_test.sh $(top_builddir) $(top_srcdir)
-
-test-x1: $(bin_PROGRAMS)
-	echo "Test dmenu-normal-window"
-	$(top_srcdir)/test/run_test.sh 219 $(top_srcdir)/test/run_dmenu_normal_window_test.sh $(top_builddir)
-	echo "Test window"
-	$(top_srcdir)/test/run_test.sh 220 $(top_srcdir)/test/run_window_test.sh $(top_builddir) $(top_srcdir)
-	echo "End tests"
+	MESON_SOURCE_ROOT="$(top_srcdir)" \
+	MESON_BUILD_ROOT="$(top_builddir)" \
+	$(top_srcdir)/test/run_all_tests.sh
 
 
 .PHONY: indent
@@ -519,3 +590,11 @@ coverage-clean:
 
 .PHONY: .FORCE
 .FORCE:
+
+EXTRA_DIST += \
+	doc/meson.build \
+	subprojects/libnkutils/meson.build \
+	subprojects/libnkutils/meson_options.txt \
+	subprojects/libgwater/xcb/meson.build \
+	meson_options.txt \
+	meson.build

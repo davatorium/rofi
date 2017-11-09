@@ -1,3 +1,30 @@
+/*
+ * rofi
+ *
+ * MIT/X11 License
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 #include <unistd.h>
 #include <stdlib.h>
 
@@ -10,7 +37,10 @@
 #include <widgets/textbox.h>
 #include <rofi.h>
 #include <cairo-xlib.h>
+#include "display.h"
+#include "xcb.h"
 #include "settings.h"
+#include "xrmoptions.h"
 
 static int   test               = 0;
 unsigned int normal_window_mode = 0;
@@ -22,13 +52,18 @@ unsigned int normal_window_mode = 0;
 
 #include "view.h"
 
-void rofi_add_error_message ( GString *msg)
+gboolean config_parse_set_property ( G_GNUC_UNUSED const Property *p, G_GNUC_UNUSED char **error )
+{
+    return FALSE;
+}
+
+void rofi_add_error_message ( G_GNUC_UNUSED GString *msg)
 {
 }
 void rofi_view_queue_redraw ()
 {
 }
-void rofi_view_get_current_monitor ( int *width, int *height )
+void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
 {
 
 }
@@ -38,14 +73,13 @@ int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
     return FALSE;
 }
 
-int abe_test_action ( G_GNUC_UNUSED KeyBindingAction action, G_GNUC_UNUSED unsigned int mask, G_GNUC_UNUSED xkb_keysym_t key )
+int monitor_active ( G_GNUC_UNUSED workarea *mon )
 {
-    return FALSE;
-}
-int show_error_message ( const char *msg, int markup )
-{
-    rofi_view_error_dialog ( msg, markup );
     return 0;
+}
+
+void display_startup_notification ( G_GNUC_UNUSED RofiHelperExecuteContext *context, G_GNUC_UNUSED GSpawnChildSetupFunc *child_setup, G_GNUC_UNUSED gpointer *user_data )
+{
 }
 
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
@@ -53,9 +87,13 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     cairo_surface_t *surf = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, 100, 100 );
     cairo_t         *draw = cairo_create ( surf );
     PangoContext    *p    = pango_cairo_create_context ( draw );
+
+
+    textbox_setup();
     textbox_set_pango_context ( "default", p );
 
-    textbox *box = textbox_create ( "textbox", TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "test" );
+
+    textbox *box = textbox_create ( NULL, WIDGET_TYPE_TEXTBOX_TEXT, "textbox", TB_EDITABLE | TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "test",0,0 );
     TASSERT ( box != NULL );
 
     textbox_keybinding ( box, MOVE_END );

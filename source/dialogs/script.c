@@ -1,8 +1,8 @@
-/**
+/*
  * rofi
  *
  * MIT/X11 License
- * Copyright 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -25,6 +25,8 @@
  *
  */
 
+#define G_LOG_DOMAIN    "Dialogs.Script"
+
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,12 +41,28 @@
 #include "helper.h"
 
 #include "mode-private.h"
-static char **get_script_output ( const char *command, unsigned int *length )
+static char **get_script_output ( char *command, char *arg, unsigned int *length )
 {
-    char **retv = NULL;
-
+    int    fd     = -1;
+    GError *error = NULL;
+    char   **retv = NULL;
+    char   **argv = NULL;
+    int    argc   = 0;
     *length = 0;
-    int fd = execute_generator ( command );
+    if ( g_shell_parse_argv ( command, &argc, &argv, &error ) ) {
+        argv           = g_realloc ( argv, ( argc + 2 ) * sizeof ( char* ) );
+        argv[argc]     = g_strdup ( arg );
+        argv[argc + 1] = NULL;
+        g_spawn_async_with_pipes ( NULL, argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, &fd, NULL, &error );
+    }
+    if ( error != NULL ) {
+        char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", command, error->message );
+        rofi_view_error_dialog ( msg, FALSE );
+        g_free ( msg );
+        // print error.
+        g_error_free ( error );
+        fd = -1;
+    }
     if ( fd >= 0 ) {
         FILE *inp = fdopen ( fd, "r" );
         if ( inp ) {
@@ -66,21 +84,17 @@ static char **get_script_output ( const char *command, unsigned int *length )
                 free ( buffer );
             }
             if ( fclose ( inp ) != 0 ) {
-                fprintf ( stderr, "Failed to close stdout off executor script: '%s'\n",
-                          strerror ( errno ) );
+                g_warning ( "Failed to close stdout off executor script: '%s'",
+                            g_strerror ( errno ) );
             }
         }
     }
     return retv;
 }
 
-static char **execute_executor ( Mode *sw, const char *result, unsigned int *length )
+static char **execute_executor ( Mode *sw, char *result, unsigned int *length )
 {
-    char *arg     = g_shell_quote ( result );
-    char *command = g_strdup_printf ( "%s %s", (const char *) sw->ed, arg );
-    char **retv   = get_script_output ( command, length );
-    g_free ( command );
-    g_free ( arg );
+    char **retv = get_script_output ( sw->ed, result, length );
     return retv;
 }
 
@@ -89,6 +103,7 @@ static void script_switcher_free ( Mode *sw )
     if ( sw == NULL ) {
         return;
     }
+    g_free ( sw->name );
     g_free ( sw->ed );
     g_free ( sw );
 }
@@ -105,7 +120,7 @@ static int script_mode_init ( Mode *sw )
     if ( sw->private_data == NULL ) {
         ScriptModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         sw->private_data = (void *) pd;
-        pd->cmd_list     = get_script_output ( (const char *) sw->ed, &( pd->cmd_list_length ) );
+        pd->cmd_list     = get_script_output ( (char *) sw->ed, NULL, &( pd->cmd_list_length ) );
     }
     return TRUE;
 }
@@ -180,7 +195,7 @@ Mode *script_switcher_parse_setup ( const char *str )
     const char *const sep    = ":";
     for ( char *token = strtok_r ( parse, sep, &endp ); token != NULL; token = strtok_r ( NULL, sep, &endp ) ) {
         if ( index == 0 ) {
-            g_strlcpy ( sw->name, token, 32 );
+            sw->name = g_strdup ( token );
         }
         else if ( index == 1 ) {
             sw->ed = (void *) rofi_expand_path ( token );
@@ -201,7 +216,12 @@ Mode *script_switcher_parse_setup ( const char *str )
 
         return sw;
     }
-    fprintf ( stderr, "The script command '%s' has %u options, but needs 2: <name>:<script>.\n", str, index );
+    fprintf ( stderr, "The script command '%s' has %u options, but needs 2: <name>:<script>.", str, index );
     script_switcher_free ( sw );
     return NULL;
+}
+
+gboolean script_switcher_is_valid ( const char *token )
+{
+    return strchr ( token, ':' ) != NULL;
 }

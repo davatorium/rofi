@@ -1,9 +1,9 @@
-/**
+/*
  * rofi
  *
  * MIT/X11 License
- * Copyright (c) 2012 Sean Pringle <sean.pringle@gmail.com>
- * Modified 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2012 Sean Pringle <sean.pringle@gmail.com>
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -23,7 +23,10 @@
  * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
  */
+
+#define G_LOG_DOMAIN    "Rofi"
 
 #include <config.h>
 #include <stdio.h>
@@ -36,44 +39,34 @@
 #include <locale.h>
 #include <gmodule.h>
 #include <xcb/xcb.h>
-#include <xcb/xcb_aux.h>
-#include <xcb/xcb_ewmh.h>
-#include <xcb/xkb.h>
-#include <xkbcommon/xkbcommon.h>
-#include <xkbcommon/xkbcommon-compose.h>
-#include <xkbcommon/xkbcommon-x11.h>
 #include <sys/types.h>
 
 #include <glib-unix.h>
 
 #include <libgwater-xcb.h>
 
-#include "xcb-internal.h"
-#include "xkb-internal.h"
+#include "rofi.h"
+#include "display.h"
 
 #include "settings.h"
 #include "mode.h"
-#include "rofi.h"
 #include "helper.h"
 #include "widgets/textbox.h"
-#include "x11-helper.h"
 #include "xrmoptions.h"
 #include "dialogs/dialogs.h"
 
 #include "view.h"
 #include "view-internal.h"
 
-#include "gitconfig.h"
-
 #include "theme.h"
 
 #include "timings.h"
 
+#include "default-theme.h"
+
 // Plugin abi version.
 // TODO: move this check to mode.c
 #include "mode-private.h"
-
-#define LOG_DOMAIN    "Rofi"
 
 // Pidfile.
 char       *pidfile   = NULL;
@@ -87,31 +80,26 @@ void rofi_add_error_message ( GString *str )
 {
     list_of_error_msgs = g_list_append ( list_of_error_msgs, str );
 }
-/** global structure holding the keyboard status */
-struct xkb_stuff xkb = {
-    .xcb_connection = NULL,
-    .context        = NULL,
-    .keymap         = NULL,
-    .state          = NULL,
-    .compose        = {
-        .table = NULL,
-        .state = NULL
-    }
-};
 
 /** Path to the configuration file */
-char         *config_path = NULL;
+G_MODULE_EXPORT char *config_path     = NULL;
+G_MODULE_EXPORT char *config_path_new = NULL;
 /** Array holding all activated modi. */
-Mode         **modi = NULL;
+Mode                 **modi = NULL;
+
+/**  List of (possibly uninitialized) modi's */
+Mode         ** available_modi = NULL;
+/** Length of #num_available_modi */
+unsigned int num_available_modi = 0;
 /** Number of activated modi in #modi array */
 unsigned int num_modi = 0;
 /** Current selected mode */
 unsigned int curr_switcher = 0;
 
+NkBindings   *bindings = NULL;
+
 /** Glib main loop. */
-GMainLoop       *main_loop = NULL;
-/** GWater xcb source, signalling events from the X server */
-GWaterXcbSource *main_loop_source = NULL;
+GMainLoop *main_loop = NULL;
 
 /** Flag indicating we are in dmenu mode. */
 static int dmenu_mode = FALSE;
@@ -153,32 +141,15 @@ static int switcher_get ( const char *name )
 }
 
 /**
- * Do needed steps to start showing the gui
- */
-static int setup ()
-{
-    // Create pid file
-    int pfd = create_pid_file ( pidfile );
-    if ( pfd >= 0 ) {
-        // Request truecolor visual.
-        x11_create_visual_and_colormap ( );
-        textbox_setup ();
-    }
-    return pfd;
-}
-
-/**
  * Teardown the gui.
  */
 static void teardown ( int pfd )
 {
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Teardown" );
+    g_debug ( "Teardown" );
     // Cleanup font setup.
     textbox_cleanup ( );
 
-    // Release the window.
-    release_keyboard ( );
-    release_pointer ( );
+    display_early_cleanup ();
 
     // Cleanup view
     rofi_view_cleanup ();
@@ -190,8 +161,13 @@ static void run_switcher ( ModeMode mode )
     // Otherwise check if requested mode is enabled.
     for ( unsigned int i = 0; i < num_modi; i++ ) {
         if ( !mode_init ( modi[i] ) ) {
-            rofi_view_error_dialog ( ERROR_MSG ( "Failed to initialize all the modi." ), ERROR_MSG_MARKUP );
-            return;
+            GString *str = g_string_new ( "Failed to initialize the mode: " );
+            g_string_append ( str, modi[i]->name );
+            g_string_append ( str, "\n" );
+
+            rofi_view_error_dialog ( str->str, ERROR_MSG_MARKUP );
+            g_string_free ( str, FALSE );
+            break;
         }
     }
     // Error dialog must have been created.
@@ -259,6 +235,24 @@ void process_result ( RofiViewState *state )
 /**
  * Help function.
  */
+static void print_list_of_modi ( int is_term )
+{
+    for ( unsigned int i = 0; i < num_available_modi; i++ ) {
+        gboolean active = FALSE;
+        for ( unsigned int j = 0; j < num_modi; j++ ) {
+            if ( modi[j] == available_modi[i] ) {
+                active = TRUE;
+                break;
+            }
+        }
+        printf ( "        * %s%s%s%s\n",
+                 active ? "+" : "",
+                 is_term ? ( active ? color_green : color_red ) : "",
+                 available_modi[i]->name,
+                 is_term ? color_reset : ""
+                 );
+    }
+}
 static void print_main_application_options ( int is_term )
 {
     print_help_msg ( "-no-config", "", "Do not load configuration, use default values.", NULL, is_term );
@@ -267,12 +261,14 @@ static void print_main_application_options ( int is_term )
     print_help_msg ( "-display", "[string]", "X server to contact.", "${DISPLAY}", is_term );
     print_help_msg ( "-h,-help", "", "This help message.", NULL, is_term );
     print_help_msg ( "-dump-xresources", "", "Dump the current configuration in Xresources format and exit.", NULL, is_term );
-    print_help_msg ( "-dump-xresources-theme", "", "Dump the current color scheme in Xresources format and exit.", NULL, is_term );
     print_help_msg ( "-e", "[string]", "Show a dialog displaying the passed message and exit.", NULL, is_term );
     print_help_msg ( "-markup", "", "Enable pango markup where possible.", NULL, is_term );
     print_help_msg ( "-normal-window", "", "In dmenu mode, behave as a normal window. (experimental)", NULL, is_term );
     print_help_msg ( "-show", "[mode]", "Show the mode 'mode' and exit. The mode has to be enabled.", NULL, is_term );
     print_help_msg ( "-no-lazy-grab", "", "Disable lazy grab that, when fail to grab keyboard, does not block but retry later.", NULL, is_term );
+    print_help_msg ( "-no-plugins", "", "Disable loading of external plugins.", NULL, is_term );
+    print_help_msg ( "-dump-config", "", "Dump the current configuration in rasi format and exit.", NULL, is_term );
+    print_help_msg ( "-dump-theme", "", "Dump the current theme in rasi format and exit.", NULL, is_term );
 }
 static void help ( G_GNUC_UNUSED int argc, char **argv )
 {
@@ -286,7 +282,10 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "Global options:\n" );
     print_options ();
     printf ( "\n" );
-    x11_dump_monitor_layout ();
+    display_dump_monitor_layout ();
+    printf ( "\n" );
+    printf ( "Detected modi:\n" );
+    print_list_of_modi ( is_term );
     printf ( "\n" );
     printf ( "Compile time options:\n" );
 #ifdef WINDOW_MODE
@@ -325,11 +324,75 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "                 Support: %s"PACKAGE_URL "%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
     printf ( "                          %s#rofi @ freenode.net%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
     if ( find_arg ( "-no-config" ) < 0 ) {
-        printf ( "      Configuration file: %s%s%s\n", is_term ? color_bold : "", config_path, is_term ? color_reset : "" );
+        if ( config_path_new ) {
+            printf ( "      Configuration file: %s%s%s\n", is_term ? color_bold : "", config_path_new, is_term ? color_reset : "" );
+        }
+        else {
+            printf ( "      Configuration file: %s%s%s\n", is_term ? color_bold : "", config_path, is_term ? color_reset : "" );
+        }
     }
     else {
         printf ( "      Configuration file: %sDisabled%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
     }
+}
+
+static void help_print_disabled_mode ( const char *mode )
+{
+    int is_term = isatty ( fileno ( stdout ) );
+    // Only  output to terminal
+    if ( is_term ) {
+        fprintf ( stderr, "Mode %s%s%s is not enabled. I have enabled it for now.\n",
+                  color_red, mode, color_reset );
+        fprintf ( stderr, "Please consider adding %s%s%s to the list of enabled modi: %smodi: %s%s%s,%s%s.\n",
+                  color_red, mode, color_reset,
+                  color_green, config.modi, color_reset,
+                  color_red, mode, color_reset
+                  );
+    }
+}
+static void help_print_mode_not_found ( const char *mode )
+{
+    int is_term = isatty ( fileno ( stdout ) );
+    fprintf ( stderr, "Mode %s%s%s is not found.\n",
+              is_term ? color_red : "", mode, is_term ? color_reset : "" );
+    fprintf ( stderr, "The following modi are known:\n" );
+    print_list_of_modi ( is_term );
+    printf ( "\n" );
+}
+static void help_print_no_arguments ( void )
+{
+    int is_term = isatty ( fileno ( stdout ) );
+    // Daemon mode
+    fprintf ( stderr, "Rofi is unsure what to show.\n" );
+    fprintf ( stderr, "Please specify the mode you want to show.\n\n" );
+    fprintf ( stderr, "    %srofi%s -show %s{mode}%s\n\n",
+              is_term ? color_bold : "", is_term ? color_reset : "",
+              is_term ? color_green : "", is_term ? color_reset : "" );
+    fprintf ( stderr, "The following modi are enabled:\n" );
+    for ( unsigned int j = 0; j < num_modi; j++ ) {
+        fprintf ( stderr, " * %s%s%s\n",
+                  is_term ? color_green : "",
+                  modi[j]->name,
+                  is_term ? color_reset : "" );
+    }
+    fprintf ( stderr, "\nThe following can be enabled:\n" );
+    for  ( unsigned int i = 0; i < num_available_modi; i++ ) {
+        gboolean active = FALSE;
+        for ( unsigned int j = 0; j < num_modi; j++ ) {
+            if ( modi[j] == available_modi[i] ) {
+                active = TRUE;
+                break;
+            }
+        }
+        if ( !active ) {
+            fprintf ( stderr, " * %s%s%s\n",
+                      is_term ? color_red : "",
+                      available_modi[i]->name,
+                      is_term ? color_reset : "" );
+        }
+    }
+    fprintf ( stderr, "\nTo activate a mode, add it to the list of modi in the %smodi%s setting.\n",
+              is_term ? color_green : "", is_term ? color_reset : "" );
 }
 
 /**
@@ -342,49 +405,20 @@ static void cleanup ()
     }
     rofi_view_workers_finalize ();
     if ( main_loop != NULL  ) {
-        if ( main_loop_source ) {
-            g_water_xcb_source_free ( main_loop_source );
-        }
         g_main_loop_unref ( main_loop );
         main_loop = NULL;
     }
-    // XKB Cleanup
-    //
-    if ( xkb.compose.state != NULL ) {
-        xkb_compose_state_unref ( xkb.compose.state );
-        xkb.compose.state = NULL;
-    }
-    if ( xkb.compose.table != NULL ) {
-        xkb_compose_table_unref ( xkb.compose.table );
-        xkb.compose.table = NULL;
-    }
-    if ( xkb.state != NULL ) {
-        xkb_state_unref ( xkb.state );
-        xkb.state = NULL;
-    }
-    if ( xkb.keymap != NULL ) {
-        xkb_keymap_unref ( xkb.keymap );
-        xkb.keymap = NULL;
-    }
-    if ( xkb.context != NULL ) {
-        xkb_context_unref ( xkb.context );
-        xkb.context = NULL;
-    }
-
     // Cleanup
-    xcb_stuff_wipe ( xcb );
+    display_cleanup ();
+
+    nk_bindings_free ( bindings );
 
     // Cleaning up memory allocated by the Xresources file.
     config_xresource_free ();
-    for ( unsigned int i = 0; i < num_modi; i++ ) {
-        mode_free ( &( modi[i] ) );
-    }
     g_free ( modi );
 
-    // Cleanup the custom keybinding
-    cleanup_abe ();
-
     g_free ( config_path );
+    g_free ( config_path_new );
 
     if ( list_of_error_msgs ) {
         for ( GList *iter = g_list_first ( list_of_error_msgs );
@@ -405,10 +439,6 @@ static void cleanup ()
 /**
  * Collected modi
  */
-/**  List of (possibly uninitialized) modi's */
-Mode         ** available_modi = NULL;
-/** Length of #num_available_modi */
-unsigned int num_available_modi = 0;
 
 /**
  * @param name Search for mode with this name.
@@ -457,7 +487,7 @@ static void rofi_collect_modi_dir ( const char *base_dir )
                 Mode *m = NULL;
                 if ( g_module_symbol ( mod, "mode", (gpointer *) &m ) ) {
                     if ( m->abi_version != ABI_VERSION ) {
-                        fprintf ( stderr, "ABI version of plugin does not match: %08X expecting: %08X\n", m->abi_version, ABI_VERSION );
+                        g_warning ( "ABI version of plugin: '%s' does not match: %08X expecting: %08X", dn, m->abi_version, ABI_VERSION );
                         g_module_close ( mod );
                     }
                     else {
@@ -468,9 +498,12 @@ static void rofi_collect_modi_dir ( const char *base_dir )
                     }
                 }
                 else {
-                    fprintf ( stderr, "Symbol 'mode' not found in module: %s\n", fn );
+                    g_warning ( "Symbol 'mode' not found in module: %s", dn );
                     g_module_close ( mod );
                 }
+            }
+            else {
+                g_warning ( "Failed to open 'mode' plugin: '%s', error: %s", dn, g_module_error () );
             }
             g_free ( fn );
         }
@@ -495,7 +528,9 @@ static void rofi_collect_modi ( void )
     rofi_collect_modi_add ( &combi_mode );
     rofi_collect_modi_add ( &help_keys_mode );
 
-    rofi_collect_modi_dir ( PLUGIN_PATH );
+    if ( find_arg ( "-no-plugins" ) < 0 ) {
+        rofi_collect_modi_dir ( config.plugin_path );
+    }
 }
 
 /**
@@ -511,7 +546,12 @@ static void rofi_collect_modi_destroy ( void )
 {
     for  ( unsigned int i = 0; i < num_available_modi; i++ ) {
         if ( available_modi[i]->module ) {
-            g_module_close ( available_modi[i]->module );
+            GModule *mod = available_modi[i]->module;
+            available_modi[i] = NULL;
+            g_module_close ( mod );
+        }
+        if ( available_modi[i] ) {
+            mode_free ( &(available_modi[i]) );
         }
     }
     g_free ( available_modi );
@@ -537,187 +577,46 @@ static int add_mode ( const char * token )
         modi[num_modi] = mode;
         num_modi++;
     }
-    else {
+    else if ( script_switcher_is_valid ( token ) ) {
         // If not build in, use custom modi.
         Mode *sw = script_switcher_parse_setup ( token );
         if ( sw != NULL ) {
+            // Add to available list, so combi can find it.
+            rofi_collect_modi_add(sw);
             modi[num_modi] = sw;
-            mode_set_config ( sw );
             num_modi++;
-        }
-        else {
-            // Report error, don't continue.
-            fprintf ( stderr, "Invalid script switcher: %s\n", token );
         }
     }
     return ( index == num_modi ) ? -1 : (int) index;
 }
-static void setup_modi ( void )
+static gboolean setup_modi ( void )
 {
-    const char *const sep     = ",";
+    const char *const sep     = ",#";
     char              *savept = NULL;
     // Make a copy, as strtok will modify it.
     char              *switcher_str = g_strdup ( config.modi );
     // Split token on ','. This modifies switcher_str.
     for ( char *token = strtok_r ( switcher_str, sep, &savept ); token != NULL; token = strtok_r ( NULL, sep, &savept ) ) {
-        add_mode ( token );
+        if ( add_mode ( token ) == -1 ) {
+            help_print_mode_not_found ( token );
+            g_free ( switcher_str );
+            return TRUE;
+        }
     }
     // Free string that was modified by strtok_r
     g_free ( switcher_str );
-    rofi_collect_modi_setup ();
+    return FALSE;
 }
 
-/**
- * Load configuration.
- * Following priority: (current), X, commandline arguments
- */
-static inline void load_configuration ( )
+void rofi_quit_main_loop ( void )
 {
-    // Load distro default settings
-    gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
-    if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
-        config_parse_xresource_options_file ( etc );
-    }
-    g_free ( etc );
-    // Load in config from X resources.
-    config_parse_xresource_options ( xcb );
-    config_parse_xresource_options_file ( config_path );
-}
-static inline void load_configuration_dynamic ( )
-{
-    // Load distro default settings
-    gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
-    if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
-        config_parse_xresource_options_dynamic_file ( etc );
-    }
-    g_free ( etc );
-    // Load in config from X resources.
-    config_parse_xresource_options_dynamic ( xcb );
-    config_parse_xresource_options_dynamic_file ( config_path );
-}
-
-/**
- * Process X11 events in the main-loop (gui-thread) of the application.
- */
-static void main_loop_x11_event_handler_view ( xcb_generic_event_t *ev )
-{
-    RofiViewState *state = rofi_view_get_active ();
-    if ( state != NULL ) {
-        rofi_view_itterrate ( state, ev, &xkb );
-        if ( rofi_view_get_completed ( state ) ) {
-            // This menu is done.
-            rofi_view_finalize ( state );
-            // cleanup
-            if ( rofi_view_get_active () == NULL ) {
-                g_main_loop_quit ( main_loop );
-            }
-        }
-    }
-}
-static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UNUSED gpointer data )
-{
-    if ( ev == NULL ) {
-        int status = xcb_connection_has_error ( xcb->connection );
-        fprintf ( stderr, "The XCB connection to X server had a fatal error: %d\n", status );
-        g_main_loop_quit ( main_loop );
-        return G_SOURCE_REMOVE;
-    }
-    uint8_t type = ev->response_type & ~0x80;
-    if ( type == xkb.first_event ) {
-        switch ( ev->pad0 )
-        {
-        case XCB_XKB_MAP_NOTIFY:
-            xkb_state_unref ( xkb.state );
-            xkb_keymap_unref ( xkb.keymap );
-            xkb.keymap = xkb_x11_keymap_new_from_device ( xkb.context, xcb->connection, xkb.device_id, 0 );
-            xkb.state  = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
-            break;
-        case XCB_XKB_STATE_NOTIFY:
-        {
-            xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
-            guint                        modmask;
-            xkb_state_update_mask ( xkb.state,
-                                    ksne->baseMods,
-                                    ksne->latchedMods,
-                                    ksne->lockedMods,
-                                    ksne->baseGroup,
-                                    ksne->latchedGroup,
-                                    ksne->lockedGroup );
-            modmask = x11_get_current_mask ( &xkb );
-            if ( modmask == 0 ) {
-                abe_trigger_release ( );
-
-                // Because of abe_trigger, state of rofi can be changed. handle this!
-                // Run mainloop on dummy event.
-                xcb_generic_event_t dev;
-                dev.response_type = 0;
-                main_loop_x11_event_handler_view ( &dev );
-            }
-            break;
-        }
-        }
-        return G_SOURCE_CONTINUE;
-    }
-    if ( xcb->sndisplay != NULL ) {
-        sn_xcb_display_process_event ( xcb->sndisplay, ev );
-    }
-    main_loop_x11_event_handler_view ( ev );
-    return G_SOURCE_CONTINUE;
+    g_main_loop_quit ( main_loop );
 }
 
 static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
 {
     // Break out of loop.
     g_main_loop_quit ( main_loop );
-    return G_SOURCE_CONTINUE;
-}
-
-/** X server error depth. to handle nested errors. */
-static int error_trap_depth = 0;
-static void error_trap_push ( G_GNUC_UNUSED SnDisplay *display, G_GNUC_UNUSED xcb_connection_t *xdisplay )
-{
-    ++error_trap_depth;
-}
-
-static void error_trap_pop ( G_GNUC_UNUSED SnDisplay *display, xcb_connection_t *xdisplay )
-{
-    if ( error_trap_depth == 0 ) {
-        fprintf ( stderr, "Error trap underflow!\n" );
-        exit ( EXIT_FAILURE );
-    }
-
-    xcb_flush ( xdisplay );
-    --error_trap_depth;
-}
-/** Retry count of grabbing keyboard. */
-unsigned int lazy_grab_retry_count_kb = 0;
-/** Retry count of grabbing pointer. */
-unsigned int lazy_grab_retry_count_pt = 0;
-static gboolean lazy_grab_pointer ( G_GNUC_UNUSED gpointer data )
-{
-    // After 5 sec.
-    if ( lazy_grab_retry_count_pt > ( 5 * 1000 ) ) {
-        fprintf ( stderr, "Failed to grab pointer after %u times. Giving up.\n", lazy_grab_retry_count_pt );
-        return G_SOURCE_REMOVE;
-    }
-    if ( take_pointer ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
-        return G_SOURCE_REMOVE;
-    }
-    lazy_grab_retry_count_pt++;
-    return G_SOURCE_CONTINUE;
-}
-static gboolean lazy_grab_keyboard ( G_GNUC_UNUSED gpointer data )
-{
-    // After 5 sec.
-    if ( lazy_grab_retry_count_kb > ( 5 * 1000 ) ) {
-        fprintf ( stderr, "Failed to grab keyboard after %u times. Giving up.\n", lazy_grab_retry_count_kb );
-        g_main_loop_quit (  main_loop );
-        return G_SOURCE_REMOVE;
-    }
-    if ( take_keyboard ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
-        return G_SOURCE_REMOVE;
-    }
-    lazy_grab_retry_count_kb++;
     return G_SOURCE_CONTINUE;
 }
 
@@ -732,41 +631,10 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     if ( find_arg ( "-normal-window" ) >= 0 ) {
         window_flags |= MENU_NORMAL_WINDOW;
     }
-
-    /**
-     * Create window (without showing)
-     */
-    // Try to grab the keyboard as early as possible.
-    // We grab this using the rootwindow (as dmenu does it).
-    // this seems to result in the smallest delay for most people.
-    if ( ( window_flags & MENU_NORMAL_WINDOW ) == 0 ) {
-        if ( find_arg ( "-no-lazy-grab" ) >= 0 ) {
-            if ( !take_keyboard ( xcb_stuff_get_root_window ( xcb ), 500 ) ) {
-                fprintf ( stderr, "Failed to grab keyboard, even after %d uS.", 500 * 1000 );
-                g_main_loop_quit ( main_loop );
-                return G_SOURCE_REMOVE;
-            }
-            if ( !take_pointer ( xcb_stuff_get_root_window ( xcb ), 100 ) ) {
-                fprintf ( stderr, "Failed to grab mouse pointer, even after %d uS.", 100 * 1000 );
-            }
-        }
-        else {
-            if ( !take_keyboard ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
-                g_timeout_add ( 1, lazy_grab_keyboard, NULL );
-            }
-            if ( !take_pointer ( xcb_stuff_get_root_window ( xcb ), 0 ) ) {
-                g_timeout_add ( 1, lazy_grab_pointer, NULL );
-            }
-        }
-    }
     TICK_N ( "Grab keyboard" );
     __create_window ( window_flags );
     TICK_N ( "Create Window" );
     // Parse the keybindings.
-    if ( !parse_keys_abe () ) {
-        // Error dialog
-        return G_SOURCE_REMOVE;
-    }
     TICK_N ( "Parse ABE" );
     // Sanity check
     config_sanity_check ( );
@@ -816,9 +684,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
             index = add_mode ( sname );
             // Complain
             if ( index >= 0 ) {
-                fprintf ( stdout, "Mode %s not enabled. Please add it to the list of enabled modi: %s\n",
-                          sname, config.modi );
-                fprintf ( stdout, "Adding mode: %s\n", sname );
+                help_print_disabled_mode ( sname );
             }
             // Run it anyway if found.
         }
@@ -826,7 +692,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
             run_switcher ( index );
         }
         else {
-            fprintf ( stderr, "The %s switcher has not been enabled\n", sname );
+            help_print_mode_not_found ( sname );
             g_main_loop_quit ( main_loop );
             return G_SOURCE_REMOVE;
         }
@@ -835,15 +701,19 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         run_switcher ( 0 );
     }
     else{
-        // Daemon mode
-        fprintf ( stderr, "Rofi daemon mode is now removed.\n" );
-        fprintf ( stderr, "Please use your window manager binding functionality or xbindkeys to replace it.\n" );
+        help_print_no_arguments ( );
+
         g_main_loop_quit ( main_loop );
     }
 
     return G_SOURCE_REMOVE;
 }
 
+static gboolean record ( G_GNUC_UNUSED void *data )
+{
+    rofi_capture_screenshot ();
+    return G_SOURCE_CONTINUE;
+}
 /**
  * @param argc number of input arguments.
  * @param argv array of the input arguments.
@@ -861,9 +731,9 @@ int main ( int argc, char *argv[] )
     // Version
     if ( find_arg (  "-v" ) >= 0 || find_arg (  "-version" ) >= 0 ) {
 #ifdef GIT_VERSION
-        fprintf ( stdout, "Version: "GIT_VERSION "\n" );
+        g_print ( "Version: "GIT_VERSION "\n" );
 #else
-        fprintf ( stdout, "Version: "VERSION "\n" );
+        g_print ( "Version: "VERSION "\n" );
 #endif
         return EXIT_SUCCESS;
     }
@@ -888,7 +758,7 @@ int main ( int argc, char *argv[] )
     cache_dir = g_get_user_cache_dir ();
 
     if ( g_mkdir_with_parents ( cache_dir, 0700 ) < 0 ) {
-        fprintf ( stderr, "Failed to create cache directory: %s\n", strerror ( errno ) );
+        g_warning ( "Failed to create cache directory: %s", g_strerror ( errno ) );
         return EXIT_FAILURE;
     }
 
@@ -896,7 +766,7 @@ int main ( int argc, char *argv[] )
     const char *path = g_get_user_runtime_dir ();
     if ( path ) {
         if ( g_mkdir_with_parents ( path, 0700 ) < 0 ) {
-            g_log ( LOG_DOMAIN, G_LOG_LEVEL_WARNING, "Failed to create user runtime directory: %s with error: %s\n", path, strerror ( errno ) );
+            g_warning ( "Failed to create user runtime directory: %s with error: %s", path, g_strerror ( errno ) );
             pidfile = g_build_filename ( g_get_home_dir (), ".rofi.pid", NULL );
         }
         else {
@@ -908,189 +778,72 @@ int main ( int argc, char *argv[] )
     if ( find_arg ( "-config" ) < 0 ) {
         const char *cpath = g_get_user_config_dir ();
         if ( cpath ) {
-            config_path = g_build_filename ( cpath, "rofi", "config", NULL );
+            config_path     = g_build_filename ( cpath, "rofi", "config", NULL );
+            config_path_new = g_strconcat ( config_path, ".rasi", NULL );
         }
     }
     else {
         char *c = NULL;
         find_arg_str ( "-config", &c );
-        config_path = rofi_expand_path ( c );
+        if ( g_str_has_suffix ( c, ".rasi" ) ) {
+            config_path_new = rofi_expand_path ( c );
+        }
+        else {
+            config_path = rofi_expand_path ( c );
+        }
     }
 
     TICK ();
     if ( setlocale ( LC_ALL, "" ) == NULL ) {
-        fprintf ( stderr, "Failed to set locale.\n" );
+        g_warning ( "Failed to set locale." );
         cleanup ();
         return EXIT_FAILURE;
     }
 
-    // Get DISPLAY, first env, then argument.
-    // We never modify display_str content.
-    char *display_str = ( char *) g_getenv ( "DISPLAY" );
-    find_arg_str (  "-display", &display_str );
-
-    xcb->connection = xcb_connect ( display_str, &xcb->screen_nbr );
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
-        fprintf ( stderr, "Failed to open display: %s", display_str );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
-
-    TICK_N ( "Open Display" );
+    TICK_N ( "Setup Locale" );
     rofi_collect_modi ();
     TICK_N ( "Collect MODI" );
+    rofi_collect_modi_setup ();
+    TICK_N ( "Setup MODI" );
 
-    xcb->screen = xcb_aux_get_screen ( xcb->connection, xcb->screen_nbr );
-
-    x11_build_monitor_layout ();
-
-    xcb_intern_atom_cookie_t *ac     = xcb_ewmh_init_atoms ( xcb->connection, &xcb->ewmh );
-    xcb_generic_error_t      *errors = NULL;
-    xcb_ewmh_init_atoms_replies ( &xcb->ewmh, ac, &errors );
-    if ( errors ) {
-        fprintf ( stderr, "Failed to create EWMH atoms\n" );
-        free ( errors );
-    }
-    // Discover the current active window manager.
-    x11_helper_discover_window_manager ();
-    TICK_N ( "Setup XCB" );
-
-    if ( xkb_x11_setup_xkb_extension ( xcb->connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
-                                       XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS, NULL, NULL, &xkb.first_event, NULL ) < 0 ) {
-        fprintf ( stderr, "cannot setup XKB extension!\n" );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
-
-    xkb.context = xkb_context_new ( XKB_CONTEXT_NO_FLAGS );
-    if ( xkb.context == NULL ) {
-        fprintf ( stderr, "cannot create XKB context!\n" );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
-    xkb.xcb_connection = xcb->connection;
-
-    xkb.device_id = xkb_x11_get_core_keyboard_device_id ( xcb->connection );
-
-    enum
-    {
-        required_events =
-            ( XCB_XKB_EVENT_TYPE_NEW_KEYBOARD_NOTIFY |
-              XCB_XKB_EVENT_TYPE_MAP_NOTIFY |
-              XCB_XKB_EVENT_TYPE_STATE_NOTIFY ),
-
-        required_nkn_details =
-            ( XCB_XKB_NKN_DETAIL_KEYCODES ),
-
-        required_map_parts   =
-            ( XCB_XKB_MAP_PART_KEY_TYPES |
-              XCB_XKB_MAP_PART_KEY_SYMS |
-              XCB_XKB_MAP_PART_MODIFIER_MAP |
-              XCB_XKB_MAP_PART_EXPLICIT_COMPONENTS |
-              XCB_XKB_MAP_PART_KEY_ACTIONS |
-              XCB_XKB_MAP_PART_VIRTUAL_MODS |
-              XCB_XKB_MAP_PART_VIRTUAL_MOD_MAP ),
-
-        required_state_details =
-            ( XCB_XKB_STATE_PART_MODIFIER_BASE |
-              XCB_XKB_STATE_PART_MODIFIER_LATCH |
-              XCB_XKB_STATE_PART_MODIFIER_LOCK |
-              XCB_XKB_STATE_PART_GROUP_BASE |
-              XCB_XKB_STATE_PART_GROUP_LATCH |
-              XCB_XKB_STATE_PART_GROUP_LOCK ),
-    };
-
-    static const xcb_xkb_select_events_details_t details = {
-        .affectNewKeyboard  = required_nkn_details,
-        .newKeyboardDetails = required_nkn_details,
-        .affectState        = required_state_details,
-        .stateDetails       = required_state_details,
-    };
-    xcb_xkb_select_events ( xcb->connection, xkb.device_id, required_events, /* affectWhich */
-                            0,                                               /* clear */
-                            required_events,                                 /* selectAll */
-                            required_map_parts,                              /* affectMap */
-                            required_map_parts,                              /* map */
-                            &details );
-
-    xkb.keymap = xkb_x11_keymap_new_from_device ( xkb.context, xcb->connection, xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );
-    if ( xkb.keymap == NULL ) {
-        fprintf ( stderr, "Failed to get Keymap for current keyboard device.\n" );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
-    xkb.state = xkb_x11_state_new_from_device ( xkb.keymap, xcb->connection, xkb.device_id );
-    if ( xkb.state == NULL ) {
-        fprintf ( stderr, "Failed to get state object for current keyboard device.\n" );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
-
-    xkb.compose.table = xkb_compose_table_new_from_locale ( xkb.context, setlocale ( LC_CTYPE, NULL ), 0 );
-    if ( xkb.compose.table != NULL ) {
-        xkb.compose.state = xkb_compose_state_new ( xkb.compose.table, 0 );
-    }
-    else {
-        fprintf ( stderr, "Failed to get keyboard compose table. Trying to limp on.\n" );
-    }
-
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
-        fprintf ( stderr, "Connection has error\n" );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
-    x11_setup ( &xkb );
-    TICK_N ( "Setup xkb" );
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
-        fprintf ( stderr, "Connection has error\n" );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
     main_loop = g_main_loop_new ( NULL, FALSE );
 
     TICK_N ( "Setup mainloop" );
-    // startup not.
-    xcb->sndisplay = sn_xcb_display_new ( xcb->connection, error_trap_push, error_trap_pop );
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
-        fprintf ( stderr, "Connection has error\n" );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
 
-    if ( xcb->sndisplay != NULL ) {
-        xcb->sncontext = sn_launchee_context_new_from_environment ( xcb->sndisplay, xcb->screen_nbr );
-    }
-    if ( xcb_connection_has_error ( xcb->connection ) ) {
-        fprintf ( stderr, "Connection has error\n" );
+    bindings = nk_bindings_new ();
+    TICK_N ( "NK Bindings" );
+
+    if ( !display_setup ( main_loop, bindings ) ) {
+        g_warning ( "Connection has error" );
         cleanup ();
         return EXIT_FAILURE;
     }
-    TICK_N ( "Startup Notification" );
+    TICK_N ( "Setup Display" );
+
     // Setup keybinding
     setup_abe ();
     TICK_N ( "Setup abe" );
 
     if ( find_arg ( "-no-config" ) < 0 ) {
-        load_configuration ( );
+        // Load distro default settings
+        gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
+        if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
+            config_parse_xresource_options_file ( etc );
+        }
+        g_free ( etc );
+        // Load in config from X resources.
+        config_parse_xresource_options ( xcb );
+        if ( config_path_new && g_file_test ( config_path_new, G_FILE_TEST_IS_REGULAR ) ) {
+            if ( rofi_theme_parse_file ( config_path_new ) ) {
+                rofi_theme_free ( rofi_theme );
+                rofi_theme = NULL;
+            }
+        }
+        else {
+            config_parse_xresource_options_file ( config_path );
+        }
     }
-    // Parse command line for settings, independent of other -no-config.
-    config_parse_cmd_options ( );
-
-    if ( !dmenu_mode ) {
-        // setup_modi
-        setup_modi ();
-        TICK_N ( "Setup Modi" );
-    }
-
-    if ( find_arg ( "-no-config" ) < 0 ) {
-        // Reload for dynamic part.
-        load_configuration_dynamic ( );
-        TICK_N ( "Load config dynamic" );
-    }
-    // Parse command line for settings, independent of other -no-config.
-    config_parse_cmd_options_dynamic (  );
-    TICK_N ( "Load cmd config dynamic" );
-
+    find_arg_str ( "-theme", &( config.theme ) );
     if ( config.theme ) {
         TICK_N ( "Parse theme" );
         if ( rofi_theme_parse_file ( config.theme ) ) {
@@ -1100,7 +853,49 @@ int main ( int argc, char *argv[] )
         }
         TICK_N ( "Parsed theme" );
     }
+    // Parse command line for settings, independent of other -no-config.
+    config_parse_cmd_options ( );
+    TICK_N ( "Load cmd config " );
 
+    parse_keys_abe ( bindings );
+
+    /** dirty hack for dmenu compatibility */
+    char *windowid = NULL;
+    if ( !dmenu_mode ) {
+        // setup_modi
+        if ( setup_modi () ) {
+            cleanup ();
+            return EXIT_FAILURE;
+        }
+        TICK_N ( "Setup Modi" );
+    }
+    else {
+        // Hack for dmenu compatibility.
+        if ( find_arg_str ( "-w", &windowid ) == TRUE ) {
+            config.monitor = g_strdup_printf ( "wid:%s", windowid );
+            windowid       = config.monitor;
+        }
+    }
+    if ( rofi_theme_is_empty ( ) ) {
+        if ( rofi_theme_parse_string ( default_theme ) ) {
+            g_warning ( "Failed to parse default theme. Giving up.." );
+            if ( list_of_error_msgs ) {
+                for ( GList *iter = g_list_first ( list_of_error_msgs );
+                      iter != NULL; iter = g_list_next ( iter ) ) {
+                    g_warning ( "Error: %s%s%s",
+                                color_bold, ( (GString *) iter->data )->str, color_reset );
+                }
+            }
+            rofi_theme = NULL;
+            cleanup ();
+            return EXIT_FAILURE;
+        }
+        rofi_theme_convert_old ();
+    }
+
+    /**
+     * Make small commandline changes to the current theme.
+     */
     const char ** theme_str = find_arg_strv ( "-theme-str" );
     if ( theme_str ) {
         for ( int index = 0; theme_str && theme_str[index]; index++ ) {
@@ -1111,12 +906,14 @@ int main ( int argc, char *argv[] )
         }
         g_free ( theme_str );
     }
-    if ( rofi_theme_is_empty ( ) ) {
-        rofi_theme_convert_old_theme ( );
-    }
 
     if ( find_arg ( "-dump-theme" ) >= 0 ) {
         rofi_theme_print ( rofi_theme );
+        cleanup ();
+        return EXIT_SUCCESS;
+    }
+    if ( find_arg ( "-dump-config" ) >= 0 ) {
+        config_parse_dump_config_rasi_format ( FALSE );
         cleanup ();
         return EXIT_SUCCESS;
     }
@@ -1132,17 +929,28 @@ int main ( int argc, char *argv[] )
         cleanup ();
         return EXIT_SUCCESS;
     }
-    if ( find_arg (  "-dump-xresources-theme" ) >= 0 ) {
-        config_parse_xresources_theme_dump ();
-        cleanup ();
-        return EXIT_SUCCESS;
+
+    unsigned int interval = 1;
+    if ( find_arg_uint ( "-record-screenshots", &interval ) ) {
+        g_timeout_add ( 1000 / (double) interval, record, NULL );
     }
 
-    main_loop_source = g_water_xcb_source_new_for_connection ( NULL, xcb->connection, main_loop_x11_event_handler, NULL, NULL );
-
-    TICK_N ( "X11 Setup " );
-
     rofi_view_workers_initialize ();
+
+    // Create pid file
+    int pfd = create_pid_file ( pidfile );
+    if ( pfd < 0 ) {
+        cleanup ();
+        return EXIT_FAILURE;
+    }
+    textbox_setup ();
+
+    if ( !display_late_setup () ) {
+        g_warning ( "Failed to properly finish display setup" );
+        cleanup ();
+        return EXIT_FAILURE;
+    }
+    TICK_N ( "Setup late Display" );
 
     // Setup signal handling sources.
     // SIGINT
@@ -1150,14 +958,12 @@ int main ( int argc, char *argv[] )
 
     g_idle_add ( startup, NULL );
 
-    // Pidfile + visuals
-    int pfd = setup ();
-    if ( pfd < 0 ) {
-        return EXIT_FAILURE;
-    }
     // Start mainloop.
     g_main_loop_run ( main_loop );
     teardown ( pfd );
     cleanup ();
+
+    /* dirty hack */
+    g_free ( windowid );
     return return_code;
 }

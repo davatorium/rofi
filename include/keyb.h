@@ -1,5 +1,34 @@
+/*
+ * rofi
+ *
+ * MIT/X11 License
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 #ifndef ROFI_KEYB_H
 #define ROFI_KEYB_H
+
+#include "nkutils-bindings.h"
 
 /**
  * @defgroup KEYB KeyboardBindings
@@ -7,13 +36,26 @@
  * @{
  */
 
+typedef enum
+{
+    SCOPE_GLOBAL,
+    SCOPE_MOUSE_LISTVIEW,
+    SCOPE_MOUSE_LISTVIEW_ELEMENT,
+
+#define SCOPE_MIN_FIXED    SCOPE_MOUSE_EDITBOX
+    SCOPE_MOUSE_EDITBOX,
+    SCOPE_MOUSE_SCROLLBAR,
+    SCOPE_MOUSE_SIDEBAR_MODI,
+#define SCOPE_MAX_FIXED    SCOPE_MOUSE_SIDEBAR_MODI
+} BindingsScope;
+
 /**
  * List of all possible actions that can be triggered by a keybinding.
  */
 typedef enum
 {
     /** Paste from primary clipboard */
-    PASTE_PRIMARY = 0,
+    PASTE_PRIMARY = 1,
     /** Paste from secondary clipboard */
     PASTE_SECONDARY,
     /** Clear the entry box. */
@@ -92,36 +134,42 @@ typedef enum
     SELECT_ELEMENT_8,
     SELECT_ELEMENT_9,
     SELECT_ELEMENT_10,
-    NUM_ABE
 } KeyBindingAction;
+
+typedef enum
+{
+    SCROLL_LEFT = 1,
+    SCROLL_RIGHT,
+    SCROLL_DOWN,
+    SCROLL_UP,
+} MouseBindingListviewAction;
+
+typedef enum
+{
+    SELECT_HOVERED_ENTRY = 1,
+    ACCEPT_HOVERED_ENTRY,
+    ACCEPT_HOVERED_CUSTOM,
+} MouseBindingListviewElementAction;
+
+typedef enum
+{
+    MOUSE_CLICK_DOWN = 1,
+    MOUSE_CLICK_UP,
+    MOUSE_DCLICK_DOWN,
+    MOUSE_DCLICK_UP,
+} MouseBindingMouseDefaultAction;
 
 /**
  * Parse the keybindings.
  * This should be called after the setting system is initialized.
  */
-gboolean parse_keys_abe ( void );
+gboolean parse_keys_abe ( NkBindings *bindings );
 
 /**
  * Setup the keybindings
  * This adds all the entries to the settings system.
  */
 void setup_abe ( void );
-
-/**
- * Cleanup.
- */
-void cleanup_abe ( void );
-
-/**
- * Find if a binding has been triggered.
- * @returns NUM_ABE if no key combo matches, a valid action otherwise.
- */
-KeyBindingAction abe_find_action ( unsigned int mask, xkb_keysym_t key );
-
-/**
- * Trigger keybinding on key release.
- */
-void abe_trigger_release ( void );
 
 /*@}*/
 #endif // ROFI_KEYB_H

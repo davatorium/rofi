@@ -1,8 +1,8 @@
-/**
+/*
  * rofi
  *
  * MIT/X11 License
- * Modified 2016-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -22,7 +22,10 @@
  * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
  */
+
+#define G_LOG_DOMAIN    "Widgets.Box"
 
 #include <config.h>
 #include <stdio.h>
@@ -31,30 +34,63 @@
 #include "widgets/box.h"
 #include "theme.h"
 
-#define LOG_DOMAIN         "Widgets.Box"
-
 /** Default spacing used in the box*/
 #define DEFAULT_SPACING    2
 
 struct _box
 {
-    widget   widget;
-    boxType  type;
-    int      max_size;
-    // Padding between elements
-    Distance spacing;
+    widget          widget;
+    RofiOrientation type;
+    int             max_size;
+    // RofiPadding between elements
+    RofiDistance    spacing;
 
-    GList    *children;
+    GList           *children;
 };
 
 static void box_update ( widget *wid  );
 
+static int box_get_desired_width  ( widget *wid )
+{
+    box *b      = (box *) wid;
+    int spacing = distance_get_pixel ( b->spacing, b->type );
+    int width   = 0;
+    if ( b->type == ROFI_ORIENTATION_HORIZONTAL ) {
+        int active_widgets = 0;
+        for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
+            widget * child = (widget *) iter->data;
+            if ( !child->enabled ) {
+                continue;
+            }
+            active_widgets++;
+            if ( child->expand == TRUE ) {
+                width += widget_get_desired_width ( child );
+                continue;
+            }
+            width += widget_get_desired_width ( child );
+        }
+        if ( active_widgets > 0 ) {
+            width += ( active_widgets - 1 ) * spacing;
+        }
+    }
+    else {
+        for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
+            widget * child = (widget *) iter->data;
+            if ( !child->enabled ) {
+                continue;
+            }
+            width = MAX ( widget_get_desired_width ( child ), width );
+        }
+    }
+    width += widget_padding_get_padding_width ( wid );
+    return width;
+}
 static int box_get_desired_height ( widget *wid )
 {
     box *b      = (box *) wid;
-    int spacing = distance_get_pixel ( b->spacing, b->type == BOX_VERTICAL ? ORIENTATION_VERTICAL : ORIENTATION_HORIZONTAL );
+    int spacing = distance_get_pixel ( b->spacing, b->type );
     int height  = 0;
-    if ( b->type == BOX_VERTICAL ) {
+    if ( b->type == ROFI_ORIENTATION_VERTICAL ) {
         int active_widgets = 0;
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
             widget * child = (widget *) iter->data;
@@ -87,7 +123,7 @@ static int box_get_desired_height ( widget *wid )
 
 static void vert_calculate_size ( box *b )
 {
-    int spacing           = distance_get_pixel ( b->spacing, ORIENTATION_VERTICAL );
+    int spacing           = distance_get_pixel ( b->spacing, ROFI_ORIENTATION_VERTICAL );
     int expanding_widgets = 0;
     int active_widgets    = 0;
     int rem_width         = widget_padding_get_remaining_width ( WIDGET ( b ) );
@@ -118,7 +154,7 @@ static void vert_calculate_size ( box *b )
     }
     if ( b->max_size > rem_height ) {
         b->max_size = rem_height;
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Widgets to large (height) for box: %d %d", b->max_size, b->widget.h );
+        g_debug ( "Widgets to large (height) for box: %d %d", b->max_size, b->widget.h );
         return;
     }
     if ( active_widgets > 0 ) {
@@ -151,7 +187,7 @@ static void vert_calculate_size ( box *b )
 }
 static void hori_calculate_size ( box *b )
 {
-    int spacing           = distance_get_pixel ( b->spacing, ORIENTATION_HORIZONTAL );
+    int spacing           = distance_get_pixel ( b->spacing, ROFI_ORIENTATION_HORIZONTAL );
     int expanding_widgets = 0;
     int active_widgets    = 0;
     int rem_width         = widget_padding_get_remaining_width ( WIDGET ( b ) );
@@ -159,7 +195,9 @@ static void hori_calculate_size ( box *b )
     for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
         widget * child = (widget *) iter->data;
         if ( child->enabled && child->expand == FALSE ) {
-            widget_resize ( child, child->w, rem_height );
+            widget_resize ( child,
+                            widget_get_desired_width ( child ), //child->w,
+                            rem_height );
         }
     }
     b->max_size = 0;
@@ -181,7 +219,7 @@ static void hori_calculate_size ( box *b )
     b->max_size += MAX ( 0, ( ( active_widgets - 1 ) * spacing ) );
     if ( b->max_size > ( rem_width ) ) {
         b->max_size = rem_width;
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Widgets to large (width) for box: %d %d", b->max_size, b->widget.w );
+        g_debug ( "Widgets to large (width) for box: %d %d", b->max_size, b->widget.w );
         return;
     }
     if ( active_widgets > 0 ) {
@@ -234,21 +272,13 @@ static void box_free ( widget *wid )
     g_free ( b );
 }
 
-static int box_sort_children ( gconstpointer a, gconstpointer b )
-{
-    widget *child_a = (widget *) a;
-    widget *child_b = (widget *) b;
-
-    return child_a->index - child_b->index;
-}
-
-void box_add ( box *box, widget *child, gboolean expand, int index )
+void box_add ( box *box, widget *child, gboolean expand )
 {
     if ( box == NULL ) {
         return;
     }
     // Make sure box is width/heigh enough.
-    if ( box->type == BOX_VERTICAL ) {
+    if ( box->type == ROFI_ORIENTATION_VERTICAL ) {
         int width = box->widget.w;
         width         = MAX ( width, child->w + widget_padding_get_padding_width ( WIDGET ( box ) ) );
         box->widget.w = width;
@@ -259,10 +289,8 @@ void box_add ( box *box, widget *child, gboolean expand, int index )
         box->widget.h = height;
     }
     child->expand = rofi_theme_get_boolean ( child, "expand", expand );
-    child->index  = rofi_theme_get_integer_exact ( child, "index", index );
-    child->parent = WIDGET ( box );
+    g_assert ( child->parent == WIDGET ( box ) );
     box->children = g_list_append ( box->children, (void *) child );
-    box->children = g_list_sort   ( box->children, box_sort_children );
     widget_update ( WIDGET ( box ) );
 }
 
@@ -276,7 +304,7 @@ static void box_resize ( widget *widget, short w, short h )
     }
 }
 
-static gboolean box_clicked ( widget *wid, xcb_button_press_event_t *xbe, G_GNUC_UNUSED void *udata )
+static widget *box_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y )
 {
     box *b = (box *) wid;
     for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
@@ -284,47 +312,33 @@ static gboolean box_clicked ( widget *wid, xcb_button_press_event_t *xbe, G_GNUC
         if ( !child->enabled ) {
             continue;
         }
-        if ( widget_intersect ( child, xbe->event_x, xbe->event_y ) ) {
-            xcb_button_press_event_t rel = *xbe;
-            rel.event_x -= child->x;
-            rel.event_y -= child->y;
-            return widget_clicked ( child, &rel );
+        if ( widget_intersect ( child, x, y ) ) {
+            gint   rx      = x - child->x;
+            gint   ry      = y - child->y;
+            widget *target = widget_find_mouse_target ( child, type, rx, ry );
+            if ( target != NULL ) {
+                return target;
+            }
         }
     }
-    return FALSE;
-}
-static gboolean box_motion_notify ( widget *wid, xcb_motion_notify_event_t *xme )
-{
-    box *b = (box *) wid;
-    for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
-        widget * child = (widget *) iter->data;
-        if ( !child->enabled ) {
-            continue;
-        }
-        if ( widget_intersect ( child, xme->event_x, xme->event_y ) ) {
-            xcb_motion_notify_event_t rel = *xme;
-            rel.event_x -= child->x;
-            rel.event_y -= child->y;
-            return widget_motion_notify ( child, &rel );
-        }
-    }
-    return FALSE;
+    return NULL;
 }
 
-box * box_create ( const char *name, boxType type )
+box * box_create ( widget *parent, const char *name, RofiOrientation type )
 {
     box *b = g_malloc0 ( sizeof ( box ) );
     // Initialize widget.
-    widget_init ( WIDGET ( b ), name );
+    widget_init ( WIDGET ( b ), parent, WIDGET_TYPE_UNKNOWN, name );
     b->type                      = type;
     b->widget.draw               = box_draw;
     b->widget.free               = box_free;
     b->widget.resize             = box_resize;
     b->widget.update             = box_update;
-    b->widget.clicked            = box_clicked;
-    b->widget.motion_notify      = box_motion_notify;
+    b->widget.find_mouse_target  = box_find_mouse_target;
     b->widget.get_desired_height = box_get_desired_height;
-    b->widget.enabled            = TRUE;
+    b->widget.get_desired_width  = box_get_desired_width;
+
+    b->type = rofi_theme_get_orientation ( WIDGET ( b ), "orientation", b->type );
 
     b->spacing = rofi_theme_get_distance ( WIDGET ( b ), "spacing", DEFAULT_SPACING );
     return b;
@@ -335,10 +349,10 @@ static void box_update ( widget *wid  )
     box *b = (box *) wid;
     switch ( b->type )
     {
-    case BOX_VERTICAL:
+    case ROFI_ORIENTATION_VERTICAL:
         vert_calculate_size ( b );
         break;
-    case BOX_HORIZONTAL:
+    case ROFI_ORIENTATION_HORIZONTAL:
     default:
         hori_calculate_size ( b );
     }

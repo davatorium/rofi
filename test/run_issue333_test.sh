@@ -3,7 +3,7 @@
 # wait till it is up, run rofi with error message
 rm -f output.txt
 sleep 1;
-echo -e -n "aap\nnoot\nmies" | rofi -dmenu -no-custom -kb-custom-1 F5  -kb-custom-2 "Control+a" > output.txt & 
+echo -e -n "aap\nnoot\nmies" | rofi -dmenu -no-custom -kb-custom-1 F5 -kb-move-front "" -kb-custom-2 "Control+a" > output.txt &
 RPID=$!
 
 # send enter.

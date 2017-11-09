@@ -1,6 +1,34 @@
+/*
+ * rofi
+ *
+ * MIT/X11 License
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 #ifndef ROFI_XRMOPTIONS_H
 #define ROFI_XRMOPTIONS_H
 #include "xcb.h"
+#include "theme.h"
 // Big thanks to Sean Pringle for this code.
 
 /**
@@ -77,30 +105,6 @@ void config_parse_xresource_options_file ( const char *filename );
 void config_parse_cmd_options ( void );
 
 /**
- * Parse dynamic commandline options.
- * @ingroup CONFCommandline
- */
-void config_parse_cmd_options_dynamic ( void );
-
-/**
- * @param xcb Handler object that holds connection to X11 server to fetch the settings from.
- *
- * Parse the rofi related X resource options of the
- * connected X server.
- *
- * @ingroup CONFXServer
- */
-void config_parse_xresource_options_dynamic ( xcb_stuff *xcb );
-
-/**
- * @param filename The xresources file to parse
- *
- * Parses filename and updates the config. For dynamic options.
- * @ingroup CONFFile
- */
-void config_parse_xresource_options_dynamic_file ( const char *filename );
-
-/**
  * Free any allocated memory.
  *
  * @ingroup CONFXResources
@@ -114,14 +118,6 @@ void config_xresource_free ( void );
  * @ingroup CONFXResources
  */
 void config_parse_xresource_dump ( void );
-
-/**
- * Dump the theme related settings in Xresources compatible way to
- * stdout.
- *
- * @ingroup CONFXResources
- */
-void config_parse_xresources_theme_dump ( void );
 
 /**
  * @param type The type of the value
@@ -158,5 +154,23 @@ void print_help_msg ( const char *option, const char *type, const char*text, con
  */
 char ** config_parser_return_display_help ( unsigned int *length );
 
+/**
+ * @brief Set config option.
+ *
+ * Sets both the static as  dynamic config option.
+ *
+ * @param p Property to set
+ * @param error Error msg when not found.
+ *
+ * @returns true when failed to set property.
+ */
+gboolean config_parse_set_property ( const Property *p, char **error );
+
+/**
+ * @param changes Only print the changed options.
+ *
+ * @brief Dump configuration in rasi format.
+ */
+void config_parse_dump_config_rasi_format ( gboolean changes );
 /* @}*/
 #endif

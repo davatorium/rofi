@@ -1,3 +1,30 @@
+/*
+ * rofi
+ *
+ * MIT/X11 License
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 #ifndef ROFI_SETTINGS_H
 #define ROFI_SETTINGS_H
 
@@ -15,37 +42,6 @@ typedef enum
     MM_GLOB   = 2,
     MM_FUZZY  = 3
 } MatchingMethod;
-
-/**
- * Enumeration indicating location or gravity of window.
- *
- * \verbatim WL_NORTH_WEST      WL_NORTH      WL_NORTH_EAST \endverbatim
- * \verbatim WL_EAST            WL_CENTER     WL_EAST \endverbatim
- * \verbatim WL_SOUTH_WEST      WL_SOUTH      WL_SOUTH_EAST\endverbatim
- *
- * @ingroup CONFIGURATION
- */
-typedef enum
-{
-    /** Center */
-    WL_CENTER     = 0,
-    /** Left top corner. */
-    WL_NORTH_WEST = 1,
-    /** Top middle */
-    WL_NORTH      = 2,
-    /** Top right */
-    WL_NORTH_EAST = 3,
-    /** Middle right */
-    WL_EAST       = 4,
-    /** Bottom right */
-    WL_SOUTH_EAST = 5,
-    /** Bottom middle */
-    WL_SOUTH      = 6,
-    /** Bottom left */
-    WL_SOUTH_WEST = 7,
-    /** Middle left */
-    WL_WEST       = 8
-} WindowLocation;
 
 /**
  * Settings structure holding all (static) configurable options.
@@ -71,6 +67,10 @@ typedef struct
     char           * color_active;
     char           * color_urgent;
     char           * color_window;
+
+    /** Whether to load and show icons  */
+    gboolean       show_icons;
+
     /** Terminal to use  */
     char           * terminal_emulator;
     /** SSH client to use */
@@ -85,6 +85,8 @@ typedef struct
     char           * run_list_command;
     /** Command for window */
     char           * window_command;
+    /** Theme for icons */
+    char           * drun_icon_theme;
 
     /** Windows location/gravity */
     WindowLocation location;
@@ -142,8 +144,8 @@ typedef struct
     int            dpi;
     /** Number threads (1 to disable) */
     unsigned int   threads;
-    unsigned int   scrollbar_width;
     unsigned int   scroll_method;
+    unsigned int   scrollbar_width;
     /** Background type */
     char           *fake_background;
 
@@ -153,6 +155,8 @@ typedef struct
     gboolean       show_match;
 
     char           *theme;
+    /** Path where plugins can be found. */
+    char           * plugin_path;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

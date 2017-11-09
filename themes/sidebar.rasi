@@ -3,8 +3,8 @@
  * Copyright: Dave Davenport
  */
 * {
-    foreground:  #ffeedd;
-    background:  rgba(0,0,0,0);
+    text-color:  #ffeedd;
+    background-color:  rgba(0,0,0,0);
     dark: #1c1c1c;
     // Black
     black:       #3d352a;
@@ -42,68 +42,70 @@
     highlight:     bold #ffffff;
 }
 #window {
-    width: 30em;
+    fullscreen: true;
     location: west;
     anchor:   west;
-}
-#window box {
     border:  0px 2px 0px 0px;
-    foreground: @lightwhite;
-    background: #ee1c1c1c;
+    text-color: @lightwhite;
+
+    orientation: horizontal;
+    children: [mainbox, dummy];
 }
 
-#window mainbox sidebar box {
+#dummy {
+    expand: true;
+}
+
+#sidebar {
     border: 2px 0px 0px 0px;
-    background: @lightblack;
+    background-color: @lightblack;
     padding: 10px;
 }
-#window mainbox sidebar selected {
-    foreground: @lightgreen;
-    text: @lightgreen;
+#button selected {
+    border-color: @lightgreen;
+    text-color: @lightgreen;
 }
-#window mainbox inputbar {
-    background: @lightblack;
-    text: @lightgreen;
+#entry {
+    width: 20em;
+}
+#inputbar {
+    background-color: @lightblack;
+    text-color: @lightgreen;
     padding: 4px;
-}
-#window mainbox inputbar box {
     border: 0px 0px 2px 0px;
 }
-#window mainbox box {
+#mainbox {
+    expand: false;
+    background-color: #1c1c1cee;
     spacing: 1em;
 }
-#window mainbox listview box {
+#listview {
     padding: 0em 0.4em 0em 1em;
-}
-#window mainbox listview {
     dynamic: false;
     lines: 0;
 }
-#window mainbox listview element selected  normal {
-    background: @blue;
+#element selected  normal {
+    background-color: @blue;
 }
-#window mainbox listview element normal active {
-    foreground: @lightblue;
+#element normal active {
+    text-color: @lightblue;
 }
-#window mainbox listview element normal urgent {
-    foreground: @lightred;
+#element normal urgent {
+    text-color: @lightred;
 }
-#window mainbox listview element alternate normal {
+#element alternate normal {
 }
-#window mainbox listview element alternate active {
-    foreground: @lightblue;
+#element alternate active {
+    text-color: @lightblue;
 }
-#window mainbox listview element alternate urgent {
-    foreground: @lightred;
+#element alternate urgent {
+    text-color: @lightred;
 }
-#window mainbox listview element selected active {
-    background: @lightblue;
-    foreground: @dark;
+#element selected active {
+    background-color: @lightblue;
+    text-color: @dark;
 }
-#window mainbox listview element selected urgent {
-    background: @lightred;
-    foreground: @dark;
-}
-#window mainbox listview element normal normal {
-
+#element selected urgent {
+    background-color: @lightred;
+    text-color: @dark;
 }

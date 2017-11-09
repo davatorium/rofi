@@ -1,8 +1,8 @@
-/**
+/*
  * rofi
  *
  * MIT/X11 License
- * Modified 2013-2017 Qball  Cow <qball@gmpclient.org>
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -24,32 +24,35 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
+#include "rofi-types.h"
 #include "settings.h"
 
 Settings config = {
     /** List of enabled modi. */
     /** -modi */
+#ifdef WINDOW_MODE
     .modi              = "window,run,ssh",
+#else
+    .modi              = "run,ssh",
+#endif
     /** Border width around the window. */
-    .menu_bw           =                                         1,
+    .menu_bw           =                                   1,
     /** The width of the switcher. (0100 in % > 100 in pixels) */
-    .menu_width        =                                        50,
+    .menu_width        =                                  50,
     /** Maximum number of options to show. */
-    .menu_lines        =                                        15,
+    .menu_lines        =                                  15,
     /** Number of columns */
-    .menu_columns      =                                         1,
+    .menu_columns      =                                   1,
     /** Font */
     .menu_font         = "mono 12",
 
-    /** Row colors */
-    // Enable new color
-    .color_normal = "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5",
-    .color_urgent = "#fdf6e3,#dc322f,#eee8d5,#dc322f,#fdf6e3",
-    .color_active = "#fdf6e3,#268bd2,#eee8d5,#268bd2,#fdf6e3",
-    .color_window = "#fdf6e3,#002b36",
+    /** Whether to load and show icons */
+    .show_icons        = FALSE,
 
     /** Terminal to use. (for ssh and open in terminal) */
     .terminal_emulator = "rofi-sensible-terminal",
@@ -64,6 +67,8 @@ Settings config = {
     .run_shell_command = "{terminal} -e {cmd}",
     /** Command executed on accep-entry-custom for window modus */
     .window_command    = "xkill -id {window}",
+    /** No default icon theme, we search Adwaita and gnome as fallback */
+    .drun_icon_theme   = NULL,
     /**
      * Location of the window.
      * Enumeration indicating location or gravity of window.
@@ -77,11 +82,11 @@ Settings config = {
      */
     .location          = WL_CENTER,
     /** Padding between elements */
-    .padding           =                                         5,
+    .padding           =                                   5,
     /** Y offset */
-    .y_offset          =                                         0,
+    .y_offset          =                                   0,
     /** X offset */
-    .x_offset          =                                         0,
+    .x_offset          =                                   0,
     /** Always show config.menu_lines lines, even if less lines are available */
     .fixed_num_lines   = TRUE,
     /** Do not use history */
@@ -95,7 +100,7 @@ Settings config = {
     /** Cycle through in the element list */
     .cycle             = TRUE,
     /** Height of an element in #chars */
-    .element_height    =                                         1,
+    .element_height    =                                   1,
     /** Sidebar mode, show the modi */
     .sidebar_mode      = FALSE,
     /** auto select */
@@ -112,8 +117,8 @@ Settings config = {
     /** Monitor */
     .monitor           = "-5",
     /** set line margin */
-    .line_margin  =                                         2,
-    .line_padding =                                         1,
+    .line_margin  =                                   2,
+    .line_padding =                                   1,
     /** Set filter */
     .filter            = NULL,
     /** Separator style: dash/solid */
@@ -122,13 +127,18 @@ Settings config = {
     .hide_scrollbar    = FALSE,
     .fullscreen        = FALSE,
     .fake_transparency = FALSE,
-    .dpi               =                                        -1,
-    .threads           =                                         0,
-    .scrollbar_width   =                                         8,
-    .scroll_method     =                                         0,
+    .dpi               =                                  -1,
+    .threads           =                                   0,
+    .scroll_method     =                                   0,
+    .scrollbar_width   =                                   8,
     .fake_background   = "screenshot",
-    .window_format     = "{w}   {c}   {t}",
+    .window_format     = "{w}    {i}{c}   {t}",
     .click_to_exit     = TRUE,
     .show_match        = TRUE,
     .theme             = NULL,
+    .color_normal      = NULL,
+    .color_active      = NULL,
+    .color_urgent      = NULL,
+    .color_window      = NULL,
+    .plugin_path       = PLUGIN_PATH,
 };

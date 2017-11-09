@@ -1,8 +1,8 @@
-/**
+/*
  * rofi
  *
  * MIT/X11 License
- * Copyright 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -25,6 +25,8 @@
  *
  */
 
+#define G_LOG_DOMAIN    "Dialogs.DMenu"
+
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,8 +48,6 @@
 #include "helper.h"
 #include "xrmoptions.h"
 #include "view.h"
-
-#define LOG_DOMAIN    "Dialogs.DMenu"
 
 struct range_pair
 {
@@ -105,7 +105,7 @@ typedef struct
 static void async_close_callback ( GObject *source_object, GAsyncResult *res, G_GNUC_UNUSED gpointer user_data )
 {
     g_input_stream_close_finish ( G_INPUT_STREAM ( source_object ), res, NULL );
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Closing data stream." );
+    g_debug ( "Closing data stream." );
 }
 
 static void read_add ( DmenuModePrivateData * pd, char *data, gsize len )
@@ -157,7 +157,7 @@ static void async_read_callback ( GObject *source_object, GAsyncResult *res, gpo
     }
     if ( !g_cancellable_is_cancelled ( pd->cancel ) ) {
         // Hack, don't use get active.
-        g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Clearing overlay" );
+        g_debug ( "Clearing overlay" );
         rofi_view_set_overlay ( rofi_view_get_active (), NULL );
         g_input_stream_close_async ( G_INPUT_STREAM ( stream ), G_PRIORITY_LOW, pd->cancel, async_close_callback, pd );
     }
@@ -165,7 +165,7 @@ static void async_read_callback ( GObject *source_object, GAsyncResult *res, gpo
 
 static void async_read_cancel ( G_GNUC_UNUSED GCancellable *cancel, G_GNUC_UNUSED gpointer data )
 {
-    g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Cancelled the async read." );
+    g_debug ( "Cancelled the async read." );
 }
 
 static int get_dmenu_async ( DmenuModePrivateData *pd, int sync_pre_read )
@@ -443,7 +443,7 @@ static int dmenu_mode_init ( Mode *sw )
         char *estr = rofi_expand_path ( str );
         fd = open ( str, O_RDONLY );
         if ( fd < 0 ) {
-            char *msg = g_markup_printf_escaped ( "Failed to open file: <b>%s</b>:\n\t<i>%s</i>", estr, strerror ( errno ) );
+            char *msg = g_markup_printf_escaped ( "Failed to open file: <b>%s</b>:\n\t<i>%s</i>", estr, g_strerror ( errno ) );
             rofi_view_error_dialog ( msg, TRUE );
             g_free ( msg );
             g_free ( estr );
@@ -451,11 +451,13 @@ static int dmenu_mode_init ( Mode *sw )
         }
         g_free ( estr );
     }
-    pd->cancel            = g_cancellable_new ();
-    pd->cancel_source     = g_cancellable_connect ( pd->cancel, G_CALLBACK ( async_read_cancel ), pd, NULL );
-    pd->input_stream      = g_unix_input_stream_new ( fd, fd != STDIN_FILENO );
-    pd->data_input_stream = g_data_input_stream_new ( pd->input_stream );
-
+    // If input is stdin, and a tty, do not read as rofi grabs input and therefor blocks.
+    if ( !( fd == STDIN_FILENO && isatty ( fd ) == 1 ) ) {
+        pd->cancel            = g_cancellable_new ();
+        pd->cancel_source     = g_cancellable_connect ( pd->cancel, G_CALLBACK ( async_read_cancel ), pd, NULL );
+        pd->input_stream      = g_unix_input_stream_new ( fd, fd != STDIN_FILENO );
+        pd->data_input_stream = g_data_input_stream_new ( pd->input_stream );
+    }
     gchar *columns = NULL;
     if ( find_arg_str ( "-display-columns", &columns ) ) {
         pd->columns          = g_strsplit ( columns, ",", 0 );
@@ -560,7 +562,25 @@ static void dmenu_finalize ( RofiViewState *state )
             restart = ( find_arg ( "-only-match" ) >= 0 );
         }
         else if ( pd->selected_line != UINT32_MAX ) {
-            if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line] != NULL ) {
+            if ( ( mretv & MENU_CUSTOM_ACTION ) && pd->multi_select ) {
+                restart = TRUE;
+                if ( pd->selected_list == NULL ) {
+                    pd->selected_list = g_malloc0 ( sizeof ( uint32_t ) * ( pd->cmd_list_length / 32 + 1 ) );
+                }
+                pd->selected_count += ( bitget ( pd->selected_list, pd->selected_line ) ? ( -1 ) : ( 1 ) );
+                bittoggle ( pd->selected_list, pd->selected_line );
+                // Move to next line.
+                pd->selected_line = MIN ( next_pos, cmd_list_length - 1 );
+                if ( pd->selected_count > 0 ) {
+                    char *str = g_strdup_printf ( "%u/%u", pd->selected_count, pd->cmd_list_length );
+                    rofi_view_set_overlay ( state, str );
+                    g_free ( str );
+                }
+                else {
+                    rofi_view_set_overlay ( state, NULL );
+                }
+            }
+            else if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line] != NULL ) {
                 dmenu_print_results ( pd, input );
                 retv = TRUE;
                 if ( ( mretv & MENU_QUICK_SWITCH ) ) {
@@ -570,7 +590,9 @@ static void dmenu_finalize ( RofiViewState *state )
                 dmenu_finish ( state, retv );
                 return;
             }
-            pd->selected_line = next_pos - 1;
+            else {
+                pd->selected_line = next_pos - 1;
+            }
         }
         // Restart
         rofi_view_restart ( state );
@@ -636,19 +658,23 @@ int dmenu_switcher_dialog ( void )
     MenuFlags            menu_flags = MENU_NORMAL;
     DmenuModePrivateData *pd        = (DmenuModePrivateData *) dmenu_mode.private_data;
     int                  async      = TRUE;
+
     // For now these only work in sync mode.
     if ( find_arg ( "-sync" ) >= 0 || find_arg ( "-dump" ) >= 0 || find_arg ( "-select" ) >= 0
          || find_arg ( "-no-custom" ) >= 0 || find_arg ( "-only-match" ) >= 0 || config.auto_select ||
          find_arg ( "-selected-row" ) >= 0 ) {
         async = FALSE;
     }
-    if ( async ) {
-        unsigned int pre_read = 25;
-        find_arg_uint ( "-async-pre-read", &pre_read );
-        async = get_dmenu_async ( pd, pre_read );
-    }
-    else {
-        get_dmenu_sync ( pd );
+    // Check if the subsystem is setup for reading, otherwise do not read.
+    if ( pd->cancel != NULL ) {
+        if ( async ) {
+            unsigned int pre_read = 25;
+            find_arg_uint ( "-async-pre-read", &pre_read );
+            async = get_dmenu_async ( pd, pre_read );
+        }
+        else {
+            get_dmenu_sync ( pd );
+        }
     }
     char         *input          = NULL;
     unsigned int cmd_list_length = pd->cmd_list_length;
@@ -708,7 +734,7 @@ int dmenu_switcher_dialog ( void )
     find_arg_str (  "-p", &( dmenu_mode.display_name ) );
     RofiViewState *state = rofi_view_create ( &dmenu_mode, input, menu_flags, dmenu_finalize );
     // @TODO we should do this better.
-    if ( async ) {
+    if ( async && ( pd->cancel != NULL ) ) {
         rofi_view_set_overlay ( state, "Loading.. " );
     }
     rofi_view_set_selected_line ( state, pd->selected_line );
@@ -737,4 +763,5 @@ void print_dmenu_options ( void )
     print_help_msg ( "-input", "[filename]", "Read input from file instead from standard input.", NULL, is_term );
     print_help_msg ( "-sync", "", "Force dmenu to first read all input data, then show dialog.", NULL, is_term );
     print_help_msg ( "-async-pre-read", "[number]", "Read several entries blocking before switching to async mode", "25", is_term );
+    print_help_msg ( "-w", "windowid", "Position over window with X11 windowid.", NULL, is_term );
 }

@@ -1,5 +1,34 @@
+/*
+ * rofi
+ *
+ * MIT/X11 License
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 #ifndef ROFI_MODE_H
 #define ROFI_MODE_H
+
+#include <cairo.h>
 /**
  * @defgroup MODE Mode
  *
@@ -72,13 +101,13 @@ int mode_init ( Mode *mode );
 void mode_destroy ( Mode *mode );
 
 /**
- * @param sw The mode to query
+ * @param mode The mode to query
  *
  * Get the number of entries in the mode.
  *
  * @returns an unsigned in with the number of entries.
  */
-unsigned int mode_get_num_entries ( const Mode *sw );
+unsigned int mode_get_num_entries ( const Mode *mode );
 
 /**
  * @param mode The mode to query
@@ -92,6 +121,17 @@ unsigned int mode_get_num_entries ( const Mode *sw );
  * @returns allocated new string and state when get_entry is TRUE otherwise just the state.
  */
 char * mode_get_display_value ( const Mode *mode, unsigned int selected_line, int *state, GList **attribute_list, int get_entry );
+
+/**
+ * @param mode The mode to query
+ * @param selected_line The entry to query
+ * @param height The desired height of the icon.
+ *
+ * Returns the icon for the selected_line
+ *
+ * @returns allocated new cairo_surface_t if applicable
+ */
+cairo_surface_t * mode_get_icon ( const Mode *mode, unsigned int selected_line, int height );
 
 /**
  * @param mode The mode to query

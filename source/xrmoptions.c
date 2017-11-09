@@ -1,8 +1,8 @@
-/**
+/*
  * rofi
  *
  * MIT/X11 License
- * Copyright 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -24,6 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,23 +33,21 @@
 #include <xcb/xcb.h>
 #include <xcb/xkb.h>
 #include <xcb/xcb_xrm.h>
-#include <xkbcommon/xkbcommon.h>
-#include <xkbcommon/xkbcommon-compose.h>
-#include <xkbcommon/xkbcommon-x11.h>
 #include <glib.h>
 #include "xcb.h"
 #include "xcb-internal.h"
-#include "x11-helper.h"
 #include "rofi.h"
 #include "xrmoptions.h"
 #include "settings.h"
 #include "helper.h"
+#include "rofi-types.h"
 
 /** Different sources of configuration. */
 const char * const ConfigSourceStr[] = {
     "Default",
     "XResources",
     "File",
+    "Rasi File",
     "Commandline",
 };
 /** Enumerator of different sources of configuration. */
@@ -57,7 +56,8 @@ enum ConfigSource
     CONFIG_DEFAULT    = 0,
     CONFIG_XRESOURCES = 1,
     CONFIG_FILE       = 2,
-    CONFIG_CMDLINE    = 3
+    CONFIG_FILE_THEME = 3,
+    CONFIG_CMDLINE    = 4
 };
 
 typedef struct
@@ -81,123 +81,129 @@ typedef struct
  * Currently supports string, boolean and number (signed and unsigned).
  */
 static XrmOption xrmOptions[] = {
-    { xrm_String,  "switchers",         { .str  = &config.modi                  }, NULL,
+    { xrm_String,  "switchers",         { .str  = &config.modi                   }, NULL,
       "", CONFIG_DEFAULT },
-    { xrm_String,  "modi",              { .str  = &config.modi                  }, NULL,
+    { xrm_String,  "modi",              { .str  = &config.modi                   }, NULL,
       "Enabled modi", CONFIG_DEFAULT },
-    { xrm_SNumber, "width",             { .snum = &config.menu_width            }, NULL,
+    { xrm_SNumber, "width",             { .snum = &config.menu_width             }, NULL,
       "Window width", CONFIG_DEFAULT },
-    { xrm_Number,  "lines",             { .num  = &config.menu_lines            }, NULL,
+    { xrm_Number,  "lines",             { .num  = &config.menu_lines             }, NULL,
       "Number of lines", CONFIG_DEFAULT },
-    { xrm_Number,  "columns",           { .num  = &config.menu_columns          }, NULL,
+    { xrm_Number,  "columns",           { .num  = &config.menu_columns           }, NULL,
       "Number of columns", CONFIG_DEFAULT },
 
-    { xrm_String,  "font",              { .str  = &config.menu_font             }, NULL,
+    { xrm_String,  "font",              { .str  = &config.menu_font              }, NULL,
       "Font to use", CONFIG_DEFAULT },
-    { xrm_String,  "color-normal",      { .str  = &config.color_normal          }, NULL,
-      "Color scheme for normal row", CONFIG_DEFAULT },
-    { xrm_String,  "color-urgent",      { .str  = &config.color_urgent          }, NULL,
-      "Color scheme for urgent row", CONFIG_DEFAULT },
-    { xrm_String,  "color-active",      { .str  = &config.color_active          }, NULL,
-      "Color scheme for active row", CONFIG_DEFAULT },
-    { xrm_String,  "color-window",      { .str  = &config.color_window          }, NULL,
-      "Color scheme window", CONFIG_DEFAULT },
-
-    { xrm_Number,  "borderwidth",       { .num  = &config.menu_bw               }, NULL,
+    { xrm_Number,  "borderwidth",       { .num  = &config.menu_bw                }, NULL,
       "", CONFIG_DEFAULT },
-    { xrm_Number,  "bw",                { .num  = &config.menu_bw               }, NULL,
+    { xrm_Number,  "bw",                { .num  = &config.menu_bw                }, NULL,
       "Border width", CONFIG_DEFAULT },
 
-    { xrm_Number,  "location",          { .num  = &config.location              }, NULL,
+    { xrm_Number,  "location",          { .num  = &config.location               }, NULL,
       "Location on screen", CONFIG_DEFAULT },
 
-    { xrm_Number,  "padding",           { .num  = &config.padding               }, NULL,
+    { xrm_Number,  "padding",           { .num  = &config.padding                }, NULL,
       "Padding", CONFIG_DEFAULT },
-    { xrm_SNumber, "yoffset",           { .snum = &config.y_offset              }, NULL,
+    { xrm_SNumber, "yoffset",           { .snum = &config.y_offset               }, NULL,
       "Y-offset relative to location", CONFIG_DEFAULT },
-    { xrm_SNumber, "xoffset",           { .snum = &config.x_offset              }, NULL,
+    { xrm_SNumber, "xoffset",           { .snum = &config.x_offset               }, NULL,
       "X-offset relative to location", CONFIG_DEFAULT },
-    { xrm_Boolean, "fixed-num-lines",   { .num  = &config.fixed_num_lines       }, NULL,
+    { xrm_Boolean, "fixed-num-lines",   { .num  = &config.fixed_num_lines        }, NULL,
       "Always show number of lines", CONFIG_DEFAULT },
 
-    { xrm_String,  "terminal",          { .str  = &config.terminal_emulator     }, NULL,
-      "Terminal to use", CONFIG_DEFAULT },
-    { xrm_String,  "ssh-client",        { .str  = &config.ssh_client            }, NULL,
-      "Ssh client to use", CONFIG_DEFAULT },
-    { xrm_String,  "ssh-command",       { .str  = &config.ssh_command           }, NULL,
-      "Ssh command to execute", CONFIG_DEFAULT },
-    { xrm_String,  "run-command",       { .str  = &config.run_command           }, NULL,
-      "Run command to execute", CONFIG_DEFAULT },
-    { xrm_String,  "run-list-command",  { .str  = &config.run_list_command      }, NULL,
-      "Command to get extra run targets", CONFIG_DEFAULT },
-    { xrm_String,  "run-shell-command", { .str  = &config.run_shell_command     }, NULL,
-      "Run command to execute that runs in shell", CONFIG_DEFAULT },
-    { xrm_String,  "window-command",    { .str  = &config.window_command        }, NULL,
-      "Command executed on accep-entry-custom for window modus", CONFIG_DEFAULT },
+    { xrm_Boolean, "show-icons",        { .snum = &config.show_icons             }, NULL,
+      "Whether to load and show icons", CONFIG_DEFAULT },
 
-    { xrm_Boolean, "disable-history",   { .num  = &config.disable_history       }, NULL,
+    { xrm_String,  "terminal",          { .str  = &config.terminal_emulator      }, NULL,
+      "Terminal to use", CONFIG_DEFAULT },
+    { xrm_String,  "ssh-client",        { .str  = &config.ssh_client             }, NULL,
+      "Ssh client to use", CONFIG_DEFAULT },
+    { xrm_String,  "ssh-command",       { .str  = &config.ssh_command            }, NULL,
+      "Ssh command to execute", CONFIG_DEFAULT },
+    { xrm_String,  "run-command",       { .str  = &config.run_command            }, NULL,
+      "Run command to execute", CONFIG_DEFAULT },
+    { xrm_String,  "run-list-command",  { .str  = &config.run_list_command       }, NULL,
+      "Command to get extra run targets", CONFIG_DEFAULT },
+    { xrm_String,  "run-shell-command", { .str  = &config.run_shell_command      }, NULL,
+      "Run command to execute that runs in shell", CONFIG_DEFAULT },
+    { xrm_String,  "window-command",    { .str  = &config.window_command         }, NULL,
+      "Command executed on accep-entry-custom for window modus", CONFIG_DEFAULT },
+    { xrm_String,  "drun-icon-theme",   { .str  = &config.drun_icon_theme        }, NULL,
+      "Theme to use to look for icons", CONFIG_DEFAULT },
+
+    { xrm_Boolean, "disable-history",   { .num  = &config.disable_history        }, NULL,
       "Disable history in run/ssh", CONFIG_DEFAULT },
-    { xrm_Boolean, "sort",              { .num  = &config.sort                  }, NULL,
+    { xrm_Boolean, "sort",              { .num  = &config.sort                   }, NULL,
       "Use sorting", CONFIG_DEFAULT },
-    { xrm_Boolean, "levenshtein-sort",  { .num  = &config.levenshtein_sort      }, NULL,
+    { xrm_Boolean, "levenshtein-sort",  { .num  = &config.levenshtein_sort       }, NULL,
       "Use levenshtein sorting also for fuzzy matching", CONFIG_DEFAULT },
-    { xrm_Boolean, "case-sensitive",    { .num  = &config.case_sensitive        }, NULL,
+    { xrm_Boolean, "case-sensitive",    { .num  = &config.case_sensitive         }, NULL,
       "Set case-sensitivity", CONFIG_DEFAULT },
-    { xrm_Boolean, "cycle",             { .num  = &config.cycle                 }, NULL,
+    { xrm_Boolean, "cycle",             { .num  = &config.cycle                  }, NULL,
       "Cycle through the results list", CONFIG_DEFAULT },
-    { xrm_Boolean, "sidebar-mode",      { .num  = &config.sidebar_mode          }, NULL,
+    { xrm_Boolean, "sidebar-mode",      { .num  = &config.sidebar_mode           }, NULL,
       "Enable sidebar-mode", CONFIG_DEFAULT },
-    { xrm_SNumber, "eh",                { .snum = &config.element_height        }, NULL,
+    { xrm_SNumber, "eh",                { .snum = &config.element_height         }, NULL,
       "Row height (in chars)", CONFIG_DEFAULT },
-    { xrm_Boolean, "auto-select",       { .num  = &config.auto_select           }, NULL,
+    { xrm_Boolean, "auto-select",       { .num  = &config.auto_select            }, NULL,
       "Enable auto select mode", CONFIG_DEFAULT },
-    { xrm_Boolean, "parse-hosts",       { .num  = &config.parse_hosts           }, NULL,
+    { xrm_Boolean, "parse-hosts",       { .num  = &config.parse_hosts            }, NULL,
       "Parse hosts file for ssh mode", CONFIG_DEFAULT },
-    { xrm_Boolean, "parse-known-hosts", { .num  = &config.parse_known_hosts     }, NULL,
+    { xrm_Boolean, "parse-known-hosts", { .num  = &config.parse_known_hosts      }, NULL,
       "Parse known_hosts file for ssh mode", CONFIG_DEFAULT },
-    { xrm_String,  "combi-modi",        { .str  = &config.combi_modi            }, NULL,
+    { xrm_String,  "combi-modi",        { .str  = &config.combi_modi             }, NULL,
       "Set the modi to combine in combi mode", CONFIG_DEFAULT },
-    { xrm_String,  "matching",          { .str  = &config.matching              }, NULL,
+    { xrm_String,  "matching",          { .str  = &config.matching               }, NULL,
       "Set the matching algorithm. (normal, regex, glob, fuzzy)", CONFIG_DEFAULT },
-    { xrm_Boolean, "tokenize",          { .num  = &config.tokenize              }, NULL,
+    { xrm_Boolean, "tokenize",          { .num  = &config.tokenize               }, NULL,
       "Tokenize input string", CONFIG_DEFAULT },
-    { xrm_String,  "monitor",           { .str  = &config.monitor               }, NULL,
+    { xrm_String,  "monitor",           { .str  = &config.monitor                }, NULL,
       "", CONFIG_DEFAULT },
     /* Alias for dmenu compatibility. */
-    { xrm_String,  "m",                 { .str  = &config.monitor               }, NULL,
+    { xrm_String,  "m",                 { .str  = &config.monitor                }, NULL,
       "Monitor id to show on", CONFIG_DEFAULT },
-    { xrm_Number,  "line-margin",       { .num  = &config.line_margin           }, NULL,
-      "Margin between rows", CONFIG_DEFAULT },
-    { xrm_Number,  "line-padding",      { .num  = &config.line_padding          }, NULL,
-      "Padding within rows", CONFIG_DEFAULT },
-    { xrm_String,  "filter",            { .str  = &config.filter                }, NULL,
+    { xrm_Number,  "line-margin",       { .num  = &config.line_margin            }, NULL,
+      "Margin between rows *DEPRECATED*", CONFIG_DEFAULT },
+    { xrm_Number,  "line-padding",      { .num  = &config.line_padding           }, NULL,
+      "Padding within rows *DEPRECATED*", CONFIG_DEFAULT },
+    { xrm_String,  "filter",            { .str  = &config.filter                 }, NULL,
       "Pre-set filter", CONFIG_DEFAULT },
-    { xrm_String,  "separator-style",   { .str  = &config.separator_style       }, NULL,
-      "Separator style (none, dash, solid)", CONFIG_DEFAULT },
-    { xrm_Boolean, "hide-scrollbar",    { .num  = &config.hide_scrollbar        }, NULL,
-      "Hide scroll-bar", CONFIG_DEFAULT },
-    { xrm_Boolean, "fullscreen",        { .num  = &config.fullscreen            }, NULL,
+    { xrm_String,  "separator-style",   { .str  = &config.separator_style        }, NULL,
+      "Separator style (none, dash, solid) *DEPRECATED*", CONFIG_DEFAULT },
+    { xrm_Boolean, "hide-scrollbar",    { .num  = &config.hide_scrollbar         }, NULL,
+      "Hide scroll-bar *DEPRECATED*", CONFIG_DEFAULT },
+    { xrm_Boolean, "fullscreen",        { .num  = &config.fullscreen             }, NULL,
       "Fullscreen", CONFIG_DEFAULT },
-    { xrm_Boolean, "fake-transparency", { .num  = &config.fake_transparency     }, NULL,
-      "Fake transparency", CONFIG_DEFAULT },
-    { xrm_SNumber, "dpi",               { .snum = &config.dpi                   }, NULL,
+    { xrm_Boolean, "fake-transparency", { .num  = &config.fake_transparency      }, NULL,
+      "Fake transparency *DEPRECATED*", CONFIG_DEFAULT },
+    { xrm_SNumber, "dpi",               { .snum = &config.dpi                    }, NULL,
       "DPI", CONFIG_DEFAULT },
-    { xrm_Number,  "threads",           { .num  = &config.threads               }, NULL,
+    { xrm_Number,  "threads",           { .num  = &config.threads                }, NULL,
       "Threads to use for string matching", CONFIG_DEFAULT },
-    { xrm_Number,  "scrollbar-width",   { .num  = &config.scrollbar_width       }, NULL,
-      "Scrollbar width", CONFIG_DEFAULT },
-    { xrm_Number,  "scroll-method",     { .num  = &config.scroll_method         }, NULL,
+    { xrm_Number,  "scrollbar-width",   { .num  = &config.scrollbar_width        }, NULL,
+      "Scrollbar width *DEPRECATED*", CONFIG_DEFAULT },
+    { xrm_Number,  "scroll-method",     { .num  = &config.scroll_method          }, NULL,
       "Scrolling method. (0: Page, 1: Centered)", CONFIG_DEFAULT },
-    { xrm_String,  "fake-background",   { .str  = &config.fake_background       }, NULL,
+    { xrm_String,  "fake-background",   { .str  = &config.fake_background        }, NULL,
       "Background to use for fake transparency. (background or screenshot)", CONFIG_DEFAULT },
-    { xrm_String,  "window-format",     { .str  = &config.window_format         }, NULL,
-      "Window Format. w (desktop name), t (title), n (name), r (role), c (class)", CONFIG_DEFAULT },
-    { xrm_Boolean, "click-to-exit",     { .snum = &config.click_to_exit         }, NULL,
+    { xrm_String,  "window-format",     { .str  = &config.window_format          }, NULL,
+      "Window Format. w (desktop name), t (title), n (name), r (role), c (class) *DEPRECATED*", CONFIG_DEFAULT },
+    { xrm_Boolean, "click-to-exit",     { .snum = &config.click_to_exit          }, NULL,
       "Click outside the window to exit", CONFIG_DEFAULT },
-    { xrm_Boolean, "show-match",        { .snum = &config.show_match            }, NULL,
+    { xrm_Boolean, "show-match",        { .snum = &config.show_match             }, NULL,
       "Indicate how it match by underlining it.", CONFIG_DEFAULT },
-    { xrm_String,  "theme",             { .str  = &config.theme                 }, NULL,
+    { xrm_String,  "theme",             { .str  = &config.theme                  }, NULL,
       "New style theme file", CONFIG_DEFAULT },
+    { xrm_String,  "color-normal",      { .str  = &config.color_normal           }, NULL,
+      "Color scheme for normal row", CONFIG_DEFAULT },
+    { xrm_String,  "color-urgent",      { .str  = &config.color_urgent           }, NULL,
+      "Color scheme for urgent row", CONFIG_DEFAULT },
+    { xrm_String,  "color-active",      { .str  = &config.color_active           }, NULL,
+      "Color scheme for active row", CONFIG_DEFAULT },
+    { xrm_String,  "color-window",      { .str  = &config.color_window           }, NULL,
+      "Color scheme window", CONFIG_DEFAULT },
+    { xrm_String,  "plugin-path",       { .str  = &config.plugin_path            }, NULL,
+      "Directory containing plugins", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */
@@ -275,11 +281,31 @@ static void __config_parse_xresource_options ( xcb_xrm_database_t *xDB, enum Con
         g_free ( name );
     }
 }
+static void __config_parse_xresource_options_dynamic ( xcb_xrm_database_t *xDB, enum ConfigSource source )
+{
+    const char * namePrefix = "rofi";
+
+    for ( unsigned int i = 0; i < num_extra_options; ++i ) {
+        char *name;
+
+        name = g_strdup_printf ( "%s.%s", namePrefix, extra_options[i].name );
+        char *xrmValue = NULL;
+        if ( xcb_xrm_resource_get_string ( xDB, name, NULL, &xrmValue ) == 0 ) {
+            config_parser_set ( &( extra_options[i] ), xrmValue, source );
+        }
+        if ( xrmValue ) {
+            free ( xrmValue );
+        }
+
+        g_free ( name );
+    }
+}
 void config_parse_xresource_options ( xcb_stuff *xcb )
 {
     xcb_xrm_database_t *xDB = xcb_xrm_database_from_default ( xcb->connection );
     if ( xDB ) {
         __config_parse_xresource_options ( xDB, CONFIG_XRESOURCES );
+        __config_parse_xresource_options_dynamic ( xDB, CONFIG_XRESOURCES );
         xcb_xrm_database_free ( xDB );
     }
 }
@@ -294,6 +320,7 @@ void config_parse_xresource_options_file ( const char *filename )
         return;
     }
     __config_parse_xresource_options ( xDB, CONFIG_FILE );
+    __config_parse_xresource_options_dynamic ( xDB, CONFIG_FILE );
     xcb_xrm_database_free ( xDB );
 }
 
@@ -356,58 +383,93 @@ void config_parse_cmd_options ( void )
         XrmOption *op = &( xrmOptions[i] );
         config_parse_cmd_option ( op );
     }
-}
-
-void config_parse_cmd_options_dynamic ( void )
-{
     for ( unsigned int i = 0; i < num_extra_options; ++i ) {
         XrmOption *op = &( extra_options[i] );
         config_parse_cmd_option ( op  );
     }
 }
 
-static void __config_parse_xresource_options_dynamic ( xcb_xrm_database_t *xDB, enum ConfigSource source )
+static gboolean __config_parser_set_property ( XrmOption *option, const Property *p, char **error  )
 {
-    const char * namePrefix = "rofi";
+    if ( option->type == xrm_String  ) {
+        if ( p->type != P_STRING && p->type != P_LIST ) {
+            *error = g_strdup_printf ( "Option: %s needs to be set with a string not a %s.", option->name, PropertyTypeName[p->type] );
+            return TRUE;
+        }
+        gchar *value = NULL;
+        if ( p->type == P_LIST ) {
+            for ( GList *iter = p->value.list; iter != NULL; iter = g_list_next ( iter ) ) {
+                if ( value == NULL ) {
+                    value = g_strdup ( (char *) ( iter->data ) );
+                }
+                else {
+                    char *nv = g_strjoin ( ",", value, (char *) ( iter->data ), NULL );
+                    g_free ( value );
+                    value = nv;
+                }
+            }
+        }
+        else {
+            value = g_strdup ( p->value.s );
+        }
+        if ( ( option )->mem != NULL ) {
+            g_free ( option->mem );
+            option->mem = NULL;
+        }
+        *( option->value.str ) = value;
 
+        // Memory
+        ( option )->mem = *( option->value.str );
+        option->source  = CONFIG_FILE_THEME;
+    }
+    else if ( option->type == xrm_Number ) {
+        if ( p->type != P_INTEGER ) {
+            *error = g_strdup_printf ( "Option: %s needs to be set with a numger not a %s.", option->name, PropertyTypeName[p->type] );
+            return TRUE;
+        }
+        *( option->value.snum ) = p->value.i;
+        option->source          = CONFIG_FILE_THEME;
+    }
+    else if ( option->type == xrm_SNumber ) {
+        if ( p->type != P_INTEGER ) {
+            *error = g_strdup_printf ( "Option: %s needs to be set with a numger not a %s.", option->name, PropertyTypeName[p->type] );
+            return TRUE;
+        }
+        *( option->value.num ) = (unsigned int ) ( p->value.i );
+        option->source         = CONFIG_FILE_THEME;
+    }
+    else if ( option->type == xrm_Boolean ) {
+        if ( p->type != P_BOOLEAN ) {
+            *error = g_strdup_printf ( "Option: %s needs to be set with a boolean not a %s.", option->name, PropertyTypeName[p->type] );
+            return TRUE;
+        }
+        *( option->value.num ) = ( p->value.b );
+        option->source         = CONFIG_FILE_THEME;
+    }
+    else {
+        // TODO add type
+        *error = g_strdup_printf ( "Option: %s is not of a supported type: %s.", option->name, PropertyTypeName[p->type] );
+        return TRUE;
+    }
+    return FALSE;
+}
+
+gboolean config_parse_set_property ( const Property *p, char **error )
+{
+    for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( XrmOption ); ++i ) {
+        XrmOption *op = &( xrmOptions[i] );
+        if ( g_strcmp0 ( op->name, p->name ) == 0 ) {
+            return __config_parser_set_property ( op, p, error );
+        }
+    }
     for ( unsigned int i = 0; i < num_extra_options; ++i ) {
-        char *name;
-
-        name = g_strdup_printf ( "%s.%s", namePrefix, extra_options[i].name );
-        char *xrmValue = NULL;
-        if ( xcb_xrm_resource_get_string ( xDB, name, NULL, &xrmValue ) == 0 ) {
-            config_parser_set ( &( extra_options[i] ), xrmValue, source );
+        XrmOption *op = &( extra_options[i] );
+        if ( g_strcmp0 ( op->name, p->name ) == 0 ) {
+            return __config_parser_set_property ( op, p, error );
         }
-        if ( xrmValue ) {
-            free ( xrmValue );
-        }
-
-        g_free ( name );
     }
-}
-
-void config_parse_xresource_options_dynamic ( xcb_stuff *xcb )
-{
-    char *name = window_get_text_prop ( xcb_stuff_get_root_window ( xcb ), XCB_ATOM_RESOURCE_MANAGER );
-    if ( name ) {
-        xcb_xrm_database_t *xDB = xcb_xrm_database_from_string ( name );
-        __config_parse_xresource_options_dynamic ( xDB, CONFIG_XRESOURCES );
-        xcb_xrm_database_free ( xDB );
-        g_free ( name );
-    }
-}
-void config_parse_xresource_options_dynamic_file ( const char *filename )
-{
-    if ( !filename ) {
-        return;
-    }
-    // Map Xresource entries to rofi config options.
-    xcb_xrm_database_t *xDB = xcb_xrm_database_from_file ( filename );
-    if ( xDB == NULL ) {
-        return;
-    }
-    __config_parse_xresource_options_dynamic ( xDB, CONFIG_FILE );
-    xcb_xrm_database_free ( xDB );
+    *error = g_strdup_printf ( "Option: %s is not found.", p->name );
+    return TRUE;
 }
 
 void config_xresource_free ( void )
@@ -484,6 +546,75 @@ void config_parse_xresource_dump ( void )
     for ( unsigned int i = 0; i < num_extra_options; i++ ) {
         xresource_dump_entry ( namePrefix, &( extra_options[i] ) );
     }
+}
+
+static void config_parse_dump_config_option ( XrmOption *option )
+{
+    if ( option->type == xrm_Char || option->source == CONFIG_DEFAULT ) {
+        printf ( "/*" );
+    }
+    printf ( "\t%s: ", option->name );
+    switch ( option->type )
+    {
+    case xrm_Number:
+        printf ( "%u", *( option->value.num ) );
+        break;
+    case xrm_SNumber:
+        printf ( "%i", *( option->value.snum ) );
+        break;
+    case xrm_String:
+        if ( ( *( option->value.str ) ) != NULL ) {
+            // TODO should this be escaped?
+            printf ( "\"%s\"", *( option->value.str ) );
+        }
+        break;
+    case xrm_Boolean:
+        printf ( "%s", ( *( option->value.num ) == TRUE ) ? "true" : "false" );
+        break;
+    case xrm_Char:
+        // TODO
+        if ( *( option->value.charc ) > 32 && *( option->value.charc ) < 127 ) {
+            printf ( "'%c'", *( option->value.charc ) );
+        }
+        else {
+            printf ( "'\\x%02X'", *( option->value.charc ) );
+        }
+        printf ( " /* unsupported */" );
+        break;
+    default:
+        break;
+    }
+
+    printf ( ";" );
+    if ( option->type == xrm_Char || option->source == CONFIG_DEFAULT ) {
+        printf ( "*/" );
+    }
+    printf ( "\n" );
+}
+
+void config_parse_dump_config_rasi_format ( gboolean changes )
+{
+    printf ( "configuration {\n" );
+
+    unsigned int entries = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
+    for ( unsigned int i = 0; i < entries; ++i ) {
+        // Skip duplicates.
+        if ( ( i + 1 ) < entries ) {
+            if ( xrmOptions[i].value.str == xrmOptions[i + 1].value.str ) {
+                continue;
+            }
+        }
+        if ( !changes || xrmOptions[i].source != CONFIG_DEFAULT ) {
+            config_parse_dump_config_option ( &( xrmOptions[i] ) );
+        }
+    }
+    for ( unsigned int i = 0; i < num_extra_options; i++ ) {
+        if ( !changes || extra_options[i].source != CONFIG_DEFAULT ) {
+            config_parse_dump_config_option ( &( extra_options[i] ) );
+        }
+    }
+
+    printf ( "}\n" );
 }
 
 static void print_option_string ( XrmOption *xo, int is_term )
@@ -615,26 +746,6 @@ void print_help_msg ( const char *option, const char *type, const char*text, con
     }
 }
 
-void config_parse_xresources_theme_dump ( void )
-{
-    printf ( "! ------------------------------------------------------------------------------\n" );
-    printf ( "! ROFI Color theme\n" );
-    printf ( "! User: %s\n", g_get_user_name () );
-    printf ( "! ------------------------------------------------------------------------------\n" );
-    const char   * const namePrefix       = "rofi";
-    const char           colorPrefix[]    = "color-";
-    const char           separatorStyle[] = "separator-style";
-    unsigned int         entries          = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
-    for ( unsigned int i = 0; i < entries; ++i ) {
-        if ( strncmp ( xrmOptions[i].name, colorPrefix, sizeof ( colorPrefix ) - 1 ) == 0 ) {
-            xresource_dump_entry ( namePrefix, &xrmOptions[i] );
-        }
-        else if ( strcmp ( xrmOptions[i].name, separatorStyle ) == 0 ) {
-            xresource_dump_entry ( namePrefix, &xrmOptions[i] );
-        }
-    }
-}
-
 static char * config_parser_return_display_help_entry ( XrmOption *option, size_t l )
 {
     int ll = (int) l;
@@ -642,27 +753,27 @@ static char * config_parser_return_display_help_entry ( XrmOption *option, size_
     {
     case xrm_Number:
         return g_markup_printf_escaped ( "<b%-*s</b> (%u) <span style='italic' size='small'>%s</span>",
-                                         ll, option->name + 3, *( option->value.num ), option->comment );
+                                         ll, option->name, *( option->value.num ), option->comment );
     case xrm_SNumber:
         return g_markup_printf_escaped ( "<b%-*s</b> (%d) <span style='italic' size='small'>%s</span>",
-                                         ll, option->name + 3, *( option->value.snum ), option->comment );
+                                         ll, option->name, *( option->value.snum ), option->comment );
     case xrm_String:
         return g_markup_printf_escaped ( "<b>%-*s</b> (%s) <span style='italic' size='small'>%s</span>",
-                                         ll, option->name + 3,
+                                         ll, option->name,
                                          ( *( option->value.str ) != NULL ) ? *( option->value.str ) : "null",
                                          option->comment
                                          );
     case xrm_Boolean:
         return g_markup_printf_escaped ( "<b>%-*s</b> (%s) <span style='italic' size='small'>%s</span>",
-                                         ll, option->name + 3, ( *( option->value.num ) == TRUE ) ? "true" : "false", option->comment );
+                                         ll, option->name, ( *( option->value.num ) == TRUE ) ? "true" : "false", option->comment );
     case xrm_Char:
         if ( *( option->value.charc ) > 32 && *( option->value.charc ) < 127 ) {
             return g_markup_printf_escaped ( "<b>%-*s</b> (%c) <span style='italic' size='small'>%s</span>",
-                                             ll, option->name + 3, *( option->value.charc ), option->comment );
+                                             ll, option->name, *( option->value.charc ), option->comment );
         }
         else {
             return g_markup_printf_escaped ( "<b%-*s</b> (\\x%02X) <span style='italic' size='small'>%s</span>",
-                                             ll, option->name + 3, *( option->value.charc ), option->comment );
+                                             ll, option->name, *( option->value.charc ), option->comment );
         }
     default:
         break;
@@ -696,7 +807,7 @@ char ** config_parser_return_display_help ( unsigned int *length )
                 continue;
             }
         }
-        if ( strncmp ( xrmOptions[i].name, "kb", 2 ) != 0 ) {
+        if ( strncmp ( xrmOptions[i].name, "kb", 2 ) != 0 && strncmp ( xrmOptions[i].name, "ml", 2 ) != 0 && strncmp ( xrmOptions[i].name, "me", 2 ) != 0 ) {
             continue;
         }
 
@@ -706,7 +817,7 @@ char ** config_parser_return_display_help ( unsigned int *length )
         ( *length )++;
     }
     for ( unsigned int i = 0; i < num_extra_options; i++ ) {
-        if ( strncmp ( extra_options[i].name, "kb", 2 ) != 0 ) {
+        if ( strncmp ( extra_options[i].name, "kb", 2 ) != 0 && strncmp ( extra_options[i].name, "ml", 2 ) != 0 && strncmp ( extra_options[i].name, "me", 2 ) != 0 ) {
             continue;
         }
         retv              = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );

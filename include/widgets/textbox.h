@@ -1,3 +1,30 @@
+/*
+ * rofi
+ *
+ * MIT/X11 License
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 #ifndef ROFI_TEXTBOX_H
 #define ROFI_TEXTBOX_H
 
@@ -8,7 +35,6 @@
 #include <cairo.h>
 #include "widgets/widget.h"
 #include "widgets/widget-internal.h"
-#include "x11-helper.h"
 #include "keyb.h"
 
 /**
@@ -26,17 +52,23 @@ typedef struct
     widget           widget;
     unsigned long    flags;
     short            cursor;
-    Color            color_fg, color_bg;
     char             *text;
     PangoLayout      *layout;
     int              tbft;
     int              markup;
     int              changed;
 
+    cairo_surface_t  *icon; // AA TODO - pass in icons for a textbox line if needed
+    int              icon_index;
+
     int              blink;
     guint            blink_timeout;
 
+    double           yalign;
+    double           xalign;
+
     PangoFontMetrics *metrics;
+    int              left_offset;
     //
     const char       *theme_name;
 } textbox;
@@ -48,14 +80,12 @@ typedef enum
 {
     TB_AUTOHEIGHT    = 1 << 0,
         TB_AUTOWIDTH = 1 << 1,
-        TB_LEFT      = 1 << 16,
-        TB_RIGHT     = 1 << 17,
-        TB_CENTER    = 1 << 18,
         TB_EDITABLE  = 1 << 19,
         TB_MARKUP    = 1 << 20,
         TB_WRAP      = 1 << 21,
         TB_PASSWORD  = 1 << 22,
         TB_INDICATOR = 1 << 23,
+        TB_ICON      = 1 << 24,
 } TextboxFlags;
 /**
  * Flags indicating current state of the textbox.
@@ -84,19 +114,22 @@ typedef enum
 } TextBoxFontType;
 
 /**
+ * @param parent The widget's parent.
+ * @param type The type of the to be created widget.
  * @param name The name of the to be created widget.
  * @param flags #TextboxFlags indicating the type of textbox.
  * @param tbft #TextBoxFontType current state of textbox.
  * @param text intial text to display.
+ * @param xalign Set the Xalign value.
+ * @param yalign set the yalign value.
  *
  * Create a new textbox widget.
  *
  * free with #widget_free
  * @returns a new #textbox
  */
-textbox* textbox_create ( const char *name, TextboxFlags flags,
-                          TextBoxFontType tbft,
-                          const char *text );
+textbox* textbox_create ( widget *parent, WidgetType type, const char *name, TextboxFlags flags,
+                          TextBoxFontType tbft, const char *text, double xalign, double yalign );
 /**
  * @param tb  Handle to the textbox
  * @param tbft The style of font to render.
@@ -112,6 +145,14 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft );
  * Set the text to show. Cursor is moved to end (if visible)
  */
 void textbox_text ( textbox *tb, const char *text );
+
+/**
+ * @param tb  Handle to the textbox
+ * @param icon The icon to show on the textbox
+ *
+ * Set the text to show. Cursor is moved to end (if visible)
+ */
+void textbox_icon ( textbox *tb, cairo_surface_t *icon );
 
 /**
  * @param tb Handle to the textbox
@@ -130,7 +171,7 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action );
  * The text should be one insert from a keypress..  the first gunichar is validated to be (or not) control
  * return TRUE if inserted
  */
-gboolean textbox_append_char ( textbox *tb, const char *pad, const int pad_len );
+gboolean textbox_append_text ( textbox *tb, const char *pad, const int pad_len );
 
 /**
  * @param tb  Handle to the textbox
@@ -142,13 +183,13 @@ void textbox_cursor ( textbox *tb, int pos );
 
 /**
  * @param tb   Handle to the textbox
- * @param pos  The position to insert the string at
+ * @param char_pos  The position to insert the string at
  * @param str  The string to insert.
  * @param slen The length of the string.
  *
  * Insert the string str at position pos.
  */
-void textbox_insert ( textbox *tb, const int pos, const char *str, const int slen );
+void textbox_insert ( textbox *tb, const int char_pos, const char *str, const int slen );
 
 /**
  * Setup the cached fonts. This is required to do
@@ -196,6 +237,12 @@ int textbox_get_font_width ( const textbox *tb );
  */
 double textbox_get_estimated_char_width ( void );
 
+/**
+ * Estimate the width of a 0.
+ *
+ * @returns the width of a 0 in pixels.
+ */
+double textbox_get_estimated_ch ( void );
 /**
  * Estimate the height of a character.
  *
@@ -251,6 +298,14 @@ void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list );
 
 /**
  * @param tb Handle to the textbox
+ * @param index character index to draw the icon at. -1 for no icon
+ *
+ * Sets the character index where the icon should be drawn
+ */
+void textbox_set_icon_index ( textbox *tb, int index );
+
+/**
+ * @param tb Handle to the textbox
  *
  * Get the list of currently active pango attributes.
  *
@@ -264,5 +319,13 @@ PangoAttrList *textbox_get_pango_attributes ( textbox *tb );
  * @returns the visible text.
  */
 const char *textbox_get_visible_text ( const textbox *tb );
+int textbox_get_desired_width ( widget *wid );
+
+/**
+ * @param tb  Handle to the textbox
+ *
+ * Move the cursor to the end of the string.
+ */
+void textbox_cursor_end ( textbox *tb );
 /*@}*/
 #endif //ROFI_TEXTBOX_H

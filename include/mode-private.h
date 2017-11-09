@@ -1,10 +1,37 @@
+/*
+ * rofi
+ *
+ * MIT/X11 License
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 #ifndef ROFI_MODE_PRIVATE_H
 #define ROFI_MODE_PRIVATE_H
 
 #include <gmodule.h>
 
 /** ABI version to check if loaded plugin is compatible. */
-#define ABI_VERSION    0x00000004
+#define ABI_VERSION    0x00000005
 
 /**
  * @param data Pointer to #Mode object.
@@ -25,6 +52,16 @@ typedef void ( *_mode_free )( Mode *data );
  * @return the string and state for displaying.
  */
 typedef char * ( *_mode_get_display_value )( const Mode *sw, unsigned int selected_line, int *state, GList **attribute_list, int get_entry );
+
+/**
+ * @param sw The #Mode pointer
+ * @param selected_line The selected line
+ *
+ * Obtains the icon if available
+ *
+ * @return Get the icon
+ */
+typedef cairo_surface_t * ( *_mode_get_icon )( const Mode *sw, unsigned int selected_line, int height );
 
 /**
  * @param sw The #Mode pointer
@@ -104,7 +141,7 @@ typedef char* ( *_mode_preprocess_input )( Mode *sw, const char *input );
  *
  * @returns the (valid pango markup) message to display.
  */
-typedef char * (*_mode_get_message )( const Mode *sw );
+typedef char * ( *_mode_get_message )( const Mode *sw );
 
 /**
  * Structure defining a switcher.
@@ -116,7 +153,7 @@ struct rofi_mode
     /** Used for external plugins. */
     unsigned int abi_version;
     /** Name (max 31 char long) */
-    char         name[32];
+    char         *name;
     char         cfg_name_key[128];
     char         *display_name;
 
@@ -135,6 +172,8 @@ struct rofi_mode
     _mode_token_match       _token_match;
     /** Get the string to display for the entry. */
     _mode_get_display_value _get_display_value;
+    /** Get the icon for the entry. */
+    _mode_get_icon          _get_icon;
     /** Get the 'completed' entry. */
     _mode_get_completion    _get_completion;
 

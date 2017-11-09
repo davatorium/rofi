@@ -1,3 +1,30 @@
+/*
+ * rofi
+ *
+ * MIT/X11 License
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 #include <assert.h>
 #include <locale.h>
 #include <glib.h>
@@ -5,12 +32,13 @@
 #include <helper.h>
 #include <string.h>
 #include <xcb/xcb_ewmh.h>
+#include "display.h"
+#include "xcb.h"
 #include "xcb-internal.h"
 #include "rofi.h"
 #include "settings.h"
 
 static int       test = 0;
-struct xcb_stuff *xcb;
 
 #define TASSERT( a )        {                            \
         assert ( a );                                    \
@@ -24,7 +52,15 @@ struct xcb_stuff *xcb;
             abort ( );                                                                   \
         }                                                                                \
 }
-void rofi_add_error_message ( GString *msg )
+#define TASSERTL( a, b )    {                                                            \
+        if ( ( a ) == ( b ) ) {                                                          \
+            printf ( "Test %i passed (%s == %s) (%d == %d)\n", ++test, # a, # b, a, b ); \
+        }else {                                                                          \
+            printf ( "Test %i failed (%s == %s) (%d != %d)\n", ++test, # a, # b, a, b ); \
+            abort ( );                                                                   \
+        }                                                                                \
+}
+void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {
 
 }
@@ -35,15 +71,14 @@ int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
     return TRUE;
 }
 
-int show_error_message ( const char *msg, int markup )
+int monitor_active ( G_GNUC_UNUSED workarea *mon )
 {
-    rofi_view_error_dialog ( msg, markup );
     return 0;
 }
-xcb_screen_t          *xcb_screen;
-xcb_ewmh_connection_t xcb_ewmh;
-int                   xcb_screen_nbr;
-#include <x11-helper.h>
+
+void display_startup_notification ( G_GNUC_UNUSED RofiHelperExecuteContext *context, G_GNUC_UNUSED GSpawnChildSetupFunc *child_setup, G_GNUC_UNUSED gpointer *user_data )
+{
+}
 
 int main ( int argc, char ** argv )
 {
@@ -117,5 +152,24 @@ int main ( int argc, char ** argv )
         fd = create_pid_file ( path );
         TASSERT ( fd >= 0 );
         remove_pid_file ( fd );
+    }
+    {
+        TASSERT ( utf8_strncmp ( "aapno", "aap€",3) == 0 );
+        TASSERT ( utf8_strncmp ( "aapno", "aap€",4) != 0 );
+        TASSERT ( utf8_strncmp ( "aapno", "a",4) != 0 );
+        TASSERT ( utf8_strncmp ( "a", "aap€",4) != 0 );
+//        char in[] = "Valid utf8 until \xc3\x28 we continue here";
+//        TASSERT ( utf8_strncmp ( in, "Valid", 3 ) == 0);
+    }
+    {
+        TASSERTL ( rofi_scorer_fuzzy_evaluate ("aap noot mies", 12 , "aap noot mies", 12), -605);
+        TASSERTL ( rofi_scorer_fuzzy_evaluate ("anm", 3, "aap noot mies", 12), -155);
+        TASSERTL ( rofi_scorer_fuzzy_evaluate ("blu", 3, "aap noot mies", 12), 1073741824);
+        config.case_sensitive = TRUE;
+        TASSERTL ( rofi_scorer_fuzzy_evaluate ("Anm", 3, "aap noot mies", 12), 1073741754);
+        config.case_sensitive = FALSE;
+        TASSERTL ( rofi_scorer_fuzzy_evaluate ("Anm", 3, "aap noot mies", 12), -155);
+        TASSERTL ( rofi_scorer_fuzzy_evaluate ("aap noot mies", 12,"Anm", 3 ), 1073741824);
+
     }
 }

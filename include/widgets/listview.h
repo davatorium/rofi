@@ -1,3 +1,30 @@
+/*
+ * rofi
+ *
+ * MIT/X11 License
+ * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 #ifndef ROFI_LISTVIEW_H
 #define ROFI_LISTVIEW_H
 
@@ -39,9 +66,10 @@ typedef void ( *listview_update_callback )( textbox *tb, unsigned int entry, voi
 /**
  * Callback when a element is activated.
  */
-typedef void ( *listview_mouse_activated_cb )( listview *, xcb_button_press_event_t *, void * );
+typedef void ( *listview_mouse_activated_cb )( listview *, gboolean, void * );
 
 /**
+ * @param parent The widget's parent.
  * @param name The name of the to be created widget.
  * @param cb The update callback.
  * @param udata The user data to pass to the callback
@@ -50,7 +78,7 @@ typedef void ( *listview_mouse_activated_cb )( listview *, xcb_button_press_even
  *
  * @returns a new listview
  */
-listview *listview_create ( const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse );
+listview *listview_create ( widget *parent, const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse );
 
 /**
  * @param lv The listview handle
