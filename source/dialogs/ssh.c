@@ -78,7 +78,15 @@ static inline int execshssh ( const char *host )
 {
     char **args = NULL;
     int  argsv  = 0;
-    helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, NULL );
+
+    char *port = strstr ( host, ":" );
+    if (port != NULL) {
+      *port = '\0';
+      helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, "{port}", port + 1, NULL );
+      *port = ':';
+    } else {
+      helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, "{port}", "22", NULL );
+    }
 
     GError *error = NULL;
     g_spawn_async ( NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error );
@@ -153,19 +161,34 @@ static char **read_known_hosts_file ( char ** retv, unsigned int *length )
         size_t buffer_length = 0;
         // Reading one line per time.
         while ( getline ( &buffer, &buffer_length, fd ) > 0 ) {
-            char *sep = strstr ( buffer, "]" );
+            // There may be more than one hostname, use first.
+            char *sep = strstr ( buffer, "," );
             if (sep == NULL) {
-                sep = strstr ( buffer, "," );
+              sep = strstr( buffer, " " );
             }
 
             if ( sep != NULL ) {
                 *sep = '\0';
+
+                // detect [host]:port situation
+                char *host = buffer;
+                if (buffer[0] == '[') {
+                  char *src = buffer + 1;
+                  char *dest = buffer;
+                  char c;
+                  while ( (c = *src++) != '\0' ) {
+                    if (c != '[' && c != ']') {
+                      *dest++ = c;
+                    }
+                  }
+                  *dest = '\0';
+                }
+
                 // Is this host name already in the list?
                 // We often get duplicates in hosts file, so lets check this.
                 int found = 0;
-                int skip = buffer[0] == '[' ? 1 : 0;
                 for ( unsigned int j = 0; j < ( *length ); j++ ) {
-                    if ( !g_ascii_strcasecmp ( buffer + skip, retv[j] ) ) {
+                    if ( !g_ascii_strcasecmp ( host, retv[j] ) ) {
                         found = 1;
                         break;
                     }
@@ -174,7 +197,7 @@ static char **read_known_hosts_file ( char ** retv, unsigned int *length )
                 if ( !found ) {
                     // Add this host name to the list.
                     retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-                    retv[( *length )]     = g_strdup ( buffer + skip );
+                    retv[( *length )]     = g_strdup ( host );
                     retv[( *length ) + 1] = NULL;
                     ( *length )++;
                 }

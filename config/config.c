@@ -55,7 +55,7 @@ Settings config = {
     .terminal_emulator = "rofi-sensible-terminal",
     .ssh_client        = "ssh",
     /** Command when executing ssh. */
-    .ssh_command       = "{terminal} -e {ssh-client} {host}",
+    .ssh_command       = "{terminal} -e {ssh-client} {host} -p {port}",
     /** Command when running */
     .run_command       = "{cmd}",
     /** Command used to list executable commands. empty -> internal */

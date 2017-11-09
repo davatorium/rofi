@@ -33,7 +33,7 @@ rofi.terminal:                       sakura
 ! "Ssh client to use" Set from: File
 rofi.ssh-client:                     ssh
 ! "Ssh command to execute" Set from: File
-rofi.ssh-command:                    {terminal} -e {ssh-client} {host}
+rofi.ssh-command:                    {terminal} -e {ssh-client} {host} -p {port}
 ! "Run command to execute" Set from: File
 rofi.run-command:                    bash -c "{cmd}"
 ! "Command to get extra run targets" Set from: Default
