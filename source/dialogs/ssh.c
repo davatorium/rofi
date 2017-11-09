@@ -165,11 +165,12 @@ static char **read_known_hosts_file ( char ** retv, unsigned int *length )
                 *sep = '\0';
 
                 // detect [host]:port situation
-                char *host = buffer;
                 if (buffer[0] == '[') {
                   char *src = buffer + 1;
                   char *dest = buffer;
                   char c;
+
+                  // remove brackets
                   while ( (c = *src++) != '\0' ) {
                     if (c != '[' && c != ']') {
                       *dest++ = c;
@@ -182,7 +183,7 @@ static char **read_known_hosts_file ( char ** retv, unsigned int *length )
                 // We often get duplicates in hosts file, so lets check this.
                 int found = 0;
                 for ( unsigned int j = 0; j < ( *length ); j++ ) {
-                    if ( !g_ascii_strcasecmp ( host, retv[j] ) ) {
+                    if ( !g_ascii_strcasecmp ( buffer, retv[j] ) ) {
                         found = 1;
                         break;
                     }
@@ -191,7 +192,7 @@ static char **read_known_hosts_file ( char ** retv, unsigned int *length )
                 if ( !found ) {
                     // Add this host name to the list.
                     retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-                    retv[( *length )]     = g_strdup ( host );
+                    retv[( *length )]     = g_strdup ( buffer );
                     retv[( *length ) + 1] = NULL;
                     ( *length )++;
                 }
