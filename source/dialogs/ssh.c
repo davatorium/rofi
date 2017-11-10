@@ -80,12 +80,19 @@ static int execshssh ( const char *host )
     int  argsv  = 0;
 
     char *port = strstr ( host, ":" );
+
+    gchar *port_param = "";
     if (port != NULL) {
       *port = '\0';
-      helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, "{port}", port + 1, (char *) 0 );
+      gsize l =  2 + strlen( port + 1 ) + 1;
+      port_param = g_newa ( gchar, l );
+      g_snprintf ( port_param, l, "-p%s", port + 1 );
+    }
+
+    helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, "{port}", port_param, (char *) 0 );
+
+    if ( port != NULL ) {
       *port = ':';
-    } else {
-      helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, "{port}", "22", (char *) 0 );
     }
 
     gsize l     = strlen ( "Connecting to '' via rofi" ) + strlen ( host ) + 1;
