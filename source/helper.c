@@ -54,6 +54,7 @@
 #include "settings.h"
 #include "rofi.h"
 #include "view.h"
+#include "nkutils-token.h"
 
 /**
  * Textual description of positioning rofi.
@@ -85,70 +86,69 @@ void cmd_set_arguments ( int argc, char **argv )
  *
  * @returns TRUE to stop replacement, FALSE to continue
  */
-static gboolean helper_eval_cb ( const GMatchInfo *info, GString *res, gpointer data )
+static const gchar *helper_eval_cb ( G_GNUC_UNUSED const gchar *token, guint64 value, G_GNUC_UNUSED const gchar *key, G_GNUC_UNUSED gint64 index, gpointer user_data)
 {
-    gchar *match;
-    // Get the match
-    match = g_match_info_fetch ( info, 0 );
-    if ( match != NULL ) {
-        // Lookup the match, so we can replace it.
-        gchar *r = g_hash_table_lookup ( (GHashTable *) data, match );
-        if ( r != NULL ) {
-            // Append the replacement to the string.
-            g_string_append ( res, r );
-        }
-        // Free match.
-        g_free ( match );
-    }
-    // Continue replacement.
-    return FALSE;
+    gchar **data = user_data;
+    return data[value];
 }
 
-int helper_parse_setup ( char * string, char ***output, int *length, ... )
+int helper_parse_setup ( rofi_format_string * string, char ***output, int *length, ... )
 {
     GError     *error = NULL;
-    GHashTable *h;
-    h = g_hash_table_new ( g_str_hash, g_str_equal );
+    gchar *common_data[] = {
+        [ROFI_TOKEN_TERMINAL] = config.terminal_emulator,
+        [ROFI_TOKEN_SSH_CLIENT] = config.ssh_client,
+    };
+    gchar **data;
+    gint first_custom = ROFI_TOKEN_CUSTOM;
+
+    data = g_newa(gchar *, string->tokens_length);
     // By default, we insert terminal and ssh-client
-    g_hash_table_insert ( h, "{terminal}", config.terminal_emulator );
-    g_hash_table_insert ( h, "{ssh-client}", config.ssh_client );
     // Add list from variable arguments.
     va_list ap;
     va_start ( ap, length );
     while ( 1 ) {
-        char * key = va_arg ( ap, char * );
-        if ( key == (char *) 0 ) {
+        int key = va_arg ( ap, int );
+        if ( key < 0 || key >= string->tokens_length ) {
             break;
         }
         char *value = va_arg ( ap, char * );
         if ( value == (char *) 0 ) {
             break;
         }
-        g_hash_table_insert ( h, key, value );
+        data[key] = value;
+        if ( key < first_custom )
+            first_custom = key;
     }
     va_end ( ap );
 
-    // Replace hits within {-\w+}.
-    GRegex *reg = g_regex_new ( "{[-\\w]+}", 0, 0, NULL );
-    char   *res = g_regex_replace_eval ( reg, string, -1, 0, 0, helper_eval_cb, h, NULL );
-    // Free regex.
-    g_regex_unref ( reg );
-    // Destroy key-value storage.
-    g_hash_table_destroy ( h );
+    /* Add common values, but stop at the first non-NULL, for backward compatibility */
+    gint i;
+    for ( i = ROFI_TOKEN_TERMINAL ; i < first_custom ; ++i )
+        data[i] = common_data[i];
+
+    if ( string->token_list == NULL ) {
+        string->token_list = nk_token_list_parse_enum(g_strdup(string->str), string->identifier, string->tokens, string->tokens_length, NULL, NULL);
+    }
+
+    char   *res = nk_token_list_replace ( string->token_list, helper_eval_cb, data );
+    g_debug("string: %s", string->str);
+    g_debug("result: %s", res);
+
     // Parse the string into shell arguments.
     if ( g_shell_parse_argv ( res, length, output, &error ) ) {
         g_free ( res );
         return TRUE;
     }
-    g_free ( res );
     // Throw error if shell parsing fails.
     if ( error ) {
-        char *msg = g_strdup_printf ( "Failed to parse: '%s'\nError: '%s'", string, error->message );
+        char *msg = g_strdup_printf ( "Failed to parse: '%s'\nError: '%s'", res, error->message );
         rofi_view_error_dialog ( msg, FALSE );
         g_free ( msg );
         // print error.
         g_error_free ( error );
     }
+    g_free ( res );
     return FALSE;
 }
 
@@ -487,7 +487,7 @@ int execute_generator ( const char * cmd )
 {
     char **args = NULL;
     int  argv   = 0;
-    helper_parse_setup ( config.run_command, &args, &argv, "{cmd}", cmd, (char *) 0 );
+    helper_parse_setup ( &config.run_command, &args, &argv, ROFI_TOKEN_RUN_CMD, cmd, -1 );
 
     int    fd     = -1;
     GError *error = NULL;
@@ -1003,10 +1003,10 @@ gboolean helper_execute_command ( const char *wd, const char *cmd, gboolean run_
     int  argc   = 0;
 
     if ( run_in_term ) {
-        helper_parse_setup ( config.run_shell_command, &args, &argc, "{cmd}", cmd, (char *) 0 );
+        helper_parse_setup ( &config.run_shell_command, &args, &argc, ROFI_TOKEN_RUN_CMD, cmd, -1 );
     }
     else {
-        helper_parse_setup ( config.run_command, &args, &argc, "{cmd}", cmd, (char *) 0 );
+        helper_parse_setup ( &config.run_shell_command, &args, &argc, ROFI_TOKEN_RUN_CMD, cmd, -1 );
     }
 
     if ( context != NULL ) {

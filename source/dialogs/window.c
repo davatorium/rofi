@@ -618,7 +618,7 @@ static inline int act_on_window ( xcb_window_t window )
 
     g_snprintf ( window_regex, sizeof window_regex, "%d", window );
 
-    helper_parse_setup ( config.window_command, &args, &argc, "{window}", window_regex, (char *) 0 );
+    helper_parse_setup ( &config.window_command, &args, &argc, ROFI_TOKEN_WINDOW_WINDOWID, window_regex, -1 );
 
     GError *error = NULL;
     g_spawn_async ( NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error );

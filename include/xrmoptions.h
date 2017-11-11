@@ -77,7 +77,9 @@ typedef enum
     /** Config option is a boolean (true/false) value*/
     xrm_Boolean = 3,
     /** Config option is a character */
-    xrm_Char    = 4
+    xrm_Char    = 4,
+    /** Config option is a format string */
+    xrm_FormatString  = 5,
 } XrmOptionType;
 
 /**

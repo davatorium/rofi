@@ -76,15 +76,15 @@ typedef struct
     /** SSH client to use */
     char           * ssh_client;
     /** Command to execute when ssh session is selected */
-    char           * ssh_command;
+    rofi_format_string ssh_command;
     /** Command for executing an application */
-    char           * run_command;
+    rofi_format_string run_command;
     /** Command for executing an application in a terminal */
-    char           * run_shell_command;
+    rofi_format_string run_shell_command;
     /** Command for listing executables */
     char           * run_list_command;
     /** Command for window */
-    char           * window_command;
+    rofi_format_string window_command;
     /** Window fields to match in window mode */
     char           * window_match_fields;
     /** Theme for icons */

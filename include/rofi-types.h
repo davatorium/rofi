@@ -234,4 +234,36 @@ typedef struct rofi_int_matcher_t
     gboolean invert;
 } rofi_int_matcher;
 
+typedef struct _NkTokenList rofi_token_list;
+typedef struct {
+    gchar *str;
+    gunichar identifier;
+    const gchar * const *tokens;
+    gint tokens_length;
+    rofi_token_list *token_list;
+} rofi_format_string;
+
+typedef enum {
+    ROFI_TOKEN_TERMINAL = 0,
+    ROFI_TOKEN_SSH_CLIENT,
+    ROFI_TOKEN_CUSTOM,
+} rofi_token_common;
+
+#define ROFI_TOKEN_FILL_COMMON \
+    [ROFI_TOKEN_TERMINAL] = "terminal", \
+    [ROFI_TOKEN_SSH_CLIENT] = "ssh-client", \
+
+
+typedef enum {
+    ROFI_TOKEN_RUN_CMD = ROFI_TOKEN_CUSTOM,
+} rofi_token_run;
+
+typedef enum {
+    ROFI_TOKEN_SSH_HOST = ROFI_TOKEN_CUSTOM,
+} rofi_token_ssh;
+
+typedef enum {
+    ROFI_TOKEN_WINDOW_WINDOWID = ROFI_TOKEN_CUSTOM,
+} rofi_token_window;
+
 #endif // INCLUDE_ROFI_TYPES_H

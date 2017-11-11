@@ -32,6 +32,21 @@
 #include "rofi-types.h"
 #include "settings.h"
 
+static const gchar * const rofi_tokens_run[] = {
+    ROFI_TOKEN_FILL_COMMON
+    [ROFI_TOKEN_RUN_CMD] = "cmd",
+};
+
+static const gchar * const rofi_tokens_ssh[] = {
+    ROFI_TOKEN_FILL_COMMON
+    [ROFI_TOKEN_SSH_HOST] = "host",
+};
+
+static const gchar * const rofi_tokens_window[] = {
+    ROFI_TOKEN_FILL_COMMON
+    [ROFI_TOKEN_WINDOW_WINDOWID] = "window",
+};
+
 Settings config = {
     /** List of enabled modi. */
     /** -modi */
@@ -58,15 +73,31 @@ Settings config = {
     .terminal_emulator = "rofi-sensible-terminal",
     .ssh_client        = "ssh",
     /** Command when executing ssh. */
-    .ssh_command            = "{terminal} -e {ssh-client} {host}",
+    .ssh_command = {
+        .str            = "{terminal} -e {ssh-client} {host}",
+        .tokens = rofi_tokens_ssh,
+        .tokens_length = G_N_ELEMENTS(rofi_tokens_ssh),
+    },
     /** Command when running */
-    .run_command            = "{cmd}",
+    .run_command = {
+        .str            = "{cmd}",
+        .tokens = rofi_tokens_run,
+        .tokens_length = G_N_ELEMENTS(rofi_tokens_run),
+    },
     /** Command used to list executable commands. empty -> internal */
     .run_list_command       = "",
     /** Command executed when running application in terminal */
-    .run_shell_command      = "{terminal} -e {cmd}",
+    .run_shell_command = {
+        .str      = "{terminal} -e {cmd}",
+        .tokens = rofi_tokens_run,
+        .tokens_length = G_N_ELEMENTS(rofi_tokens_run),
+    },
     /** Command executed on accep-entry-custom for window modus */
-    .window_command         = "xkill -id {window}",
+    .window_command = {
+        .str         = "xkill -id {window}",
+        .tokens = rofi_tokens_window,
+        .tokens_length = G_N_ELEMENTS(rofi_tokens_window),
+    },
     /** No default icon theme, we search Adwaita and gnome as fallback */
     .drun_icon_theme        = NULL,
     /**

@@ -90,6 +90,7 @@ header_conf.set_quoted('THEME_DIR', themedir)
 config_h = configure_file(output: 'config.h', configuration: header_conf)
 
 nk_options = [
+    'token=true',
     'bindings=true',
     'xdg-theme=true',
     'git-work-tree=@0@'.format(meson.source_root()),

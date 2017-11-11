@@ -41,6 +41,7 @@
 #include "settings.h"
 #include "helper.h"
 #include "rofi-types.h"
+#include "nkutils-token.h"
 
 /** Different sources of configuration. */
 const char * const ConfigSourceStr[] = {
@@ -71,6 +72,7 @@ typedef struct
         char         ** str;
         void         *pointer;
         char         * charc;
+        rofi_format_string * fstr;
     }                 value;
     char              *mem;
     const char        *comment;
@@ -118,15 +120,15 @@ static XrmOption xrmOptions[] = {
       "Terminal to use", CONFIG_DEFAULT },
     { xrm_String,  "ssh-client",             { .str  = &config.ssh_client                     }, NULL,
       "Ssh client to use", CONFIG_DEFAULT },
-    { xrm_String,  "ssh-command",            { .str  = &config.ssh_command                    }, NULL,
+    { xrm_FormatString,  "ssh-command",            { .fstr  = &config.ssh_command                    }, NULL,
       "Ssh command to execute", CONFIG_DEFAULT },
-    { xrm_String,  "run-command",            { .str  = &config.run_command                    }, NULL,
+    { xrm_FormatString,  "run-command",            { .fstr  = &config.run_command                    }, NULL,
       "Run command to execute", CONFIG_DEFAULT },
     { xrm_String,  "run-list-command",       { .str  = &config.run_list_command               }, NULL,
       "Command to get extra run targets", CONFIG_DEFAULT },
-    { xrm_String,  "run-shell-command",      { .str  = &config.run_shell_command              }, NULL,
+    { xrm_FormatString,  "run-shell-command",      { .fstr  = &config.run_shell_command              }, NULL,
       "Run command to execute that runs in shell", CONFIG_DEFAULT },
-    { xrm_String,  "window-command",         { .str  = &config.window_command                 }, NULL,
+    { xrm_FormatString,  "window-command",         { .fstr  = &config.window_command                 }, NULL,
       "Command executed on accep-entry-custom for window modus", CONFIG_DEFAULT },
     { xrm_String,  "window-match-fields",    { .str  = &config.window_match_fields            }, NULL,
       "Window fields to match in window mode", CONFIG_DEFAULT },
@@ -230,6 +232,9 @@ void config_parser_add_option ( XrmOptionType type, const char *key, void **valu
     case xrm_String:
         extra_options[num_extra_options].mem = ( (char *) ( *value ) );
         break;
+    case xrm_FormatString:
+        extra_options[num_extra_options].mem = ( ((rofi_format_string *) value)->str );
+        break;
     default:
         extra_options[num_extra_options].mem = NULL;
         break;
@@ -268,6 +273,16 @@ static void config_parser_set ( XrmOption *option, char *xrmValue, enum ConfigSo
         break;
     case xrm_Char:
         *( option->value.charc ) = helper_parse_char ( xrmValue );
+        break;
+    case xrm_FormatString:
+        if ( ( option )->mem != NULL ) {
+            g_free ( option->mem );
+            option->mem = NULL;
+        }
+        option->value.fstr->str = g_strchomp ( g_strdup ( xrmValue ) );
+
+        // Memory
+        ( option )->mem = *( option->value.str );
         break;
     }
     option->source = source;

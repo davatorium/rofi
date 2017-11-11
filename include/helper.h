@@ -51,7 +51,7 @@
  *
  * @returns TRUE when successful, FALSE when failed.
  */
-int helper_parse_setup ( char * string, char ***output, int *length, ... );
+int helper_parse_setup ( rofi_format_string * string, char ***output, int *length, ... );
 
 /**
  * @param input The input string.
