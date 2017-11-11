@@ -1002,7 +1002,7 @@ gboolean helper_execute_command ( const char *wd, const char *cmd, gboolean run_
         helper_parse_setup ( &config.run_shell_command, &args, &argc, ROFI_TOKEN_RUN_CMD, cmd, -1 );
     }
     else {
-        helper_parse_setup ( &config.run_shell_command, &args, &argc, ROFI_TOKEN_RUN_CMD, cmd, -1 );
+        helper_parse_setup ( &config.run_command, &args, &argc, ROFI_TOKEN_RUN_CMD, cmd, -1 );
     }
 
     if ( context != NULL ) {
