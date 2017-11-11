@@ -100,9 +100,12 @@ int helper_parse_setup ( rofi_format_string * string, char ***output, int *lengt
         [ROFI_TOKEN_SSH_CLIENT] = config.ssh_client,
     };
     gchar **data;
-    gint first_custom = ROFI_TOKEN_CUSTOM;
-
     data = g_newa(gchar *, string->tokens_length);
+
+    gint i;
+    for ( i = ROFI_TOKEN_TERMINAL ; i < ROFI_TOKEN_CUSTOM ; ++i )
+        data[i] = common_data[i];
+
     // By default, we insert terminal and ssh-client
     // Add list from variable arguments.
     va_list ap;
@@ -117,15 +120,8 @@ int helper_parse_setup ( rofi_format_string * string, char ***output, int *lengt
             break;
         }
         data[key] = value;
-        if ( key < first_custom )
-            first_custom = key;
     }
     va_end ( ap );
-
-    /* Add common values, but stop at the first non-NULL, for backward compatibility */
-    gint i;
-    for ( i = ROFI_TOKEN_TERMINAL ; i < first_custom ; ++i )
-        data[i] = common_data[i];
 
     if ( string->token_list == NULL ) {
         string->token_list = nk_token_list_parse_enum(g_strdup(string->str), string->identifier, string->tokens, string->tokens_length, NULL, NULL);
