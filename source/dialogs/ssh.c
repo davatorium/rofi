@@ -79,20 +79,20 @@ static int execshssh ( const char *host )
     char **args = NULL;
     int  argsv  = 0;
 
-    char *port = strstr ( host, ":" );
+    char *colon = strstr ( host, ":" );
 
     gchar *port_param = "";
-    if (port != NULL) {
-      *port = '\0';
-      gsize l =  2 + strlen( port + 1 ) + 1;
+    if (colon != NULL) {
+      *colon = '\0';
+      gsize l =  2 + strlen( colon + 1 ) + 1;
       port_param = g_newa ( gchar, l );
-      g_snprintf ( port_param, l, "-p%s", port + 1 );
+      g_snprintf ( port_param, l, "-p%s", colon + 1 );
     }
 
     helper_parse_setup ( config.ssh_command, &args, &argsv, "{host}", host, "{port}", port_param, (char *) 0 );
 
-    if ( port != NULL ) {
-      *port = ':';
+    if ( colon != NULL ) {
+      *colon = ':';
     }
 
     gsize l     = strlen ( "Connecting to '' via rofi" ) + strlen ( host ) + 1;
