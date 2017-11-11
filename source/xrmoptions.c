@@ -226,11 +226,13 @@ void config_parser_add_option ( XrmOptionType type, const char *key, void **valu
     extra_options[num_extra_options].value.pointer = value;
     extra_options[num_extra_options].comment       = comment;
     extra_options[num_extra_options].source        = CONFIG_DEFAULT;
-    if ( type == xrm_String ) {
+    switch ( type ) {
+    case xrm_String:
         extra_options[num_extra_options].mem = ( (char *) ( *value ) );
-    }
-    else {
+        break;
+    default:
         extra_options[num_extra_options].mem = NULL;
+        break;
     }
 
     num_extra_options++;
@@ -238,7 +240,8 @@ void config_parser_add_option ( XrmOptionType type, const char *key, void **valu
 
 static void config_parser_set ( XrmOption *option, char *xrmValue, enum ConfigSource source )
 {
-    if ( option->type == xrm_String ) {
+    switch ( option->type ) {
+    case xrm_String:
         if ( ( option )->mem != NULL ) {
             g_free ( option->mem );
             option->mem = NULL;
@@ -247,14 +250,14 @@ static void config_parser_set ( XrmOption *option, char *xrmValue, enum ConfigSo
 
         // Memory
         ( option )->mem = *( option->value.str );
-    }
-    else if ( option->type == xrm_Number ) {
+        break;
+    case xrm_Number:
         *( option->value.num ) = (unsigned int) g_ascii_strtoull ( xrmValue, NULL, 10 );
-    }
-    else if ( option->type == xrm_SNumber ) {
+        break;
+    case xrm_SNumber:
         *( option->value.snum ) = (int) g_ascii_strtoll ( xrmValue, NULL, 10 );
-    }
-    else if ( option->type == xrm_Boolean ) {
+        break;
+    case xrm_Boolean:
         if ( strlen ( xrmValue ) > 0 &&
              g_ascii_strcasecmp ( xrmValue, "true" ) == 0 ) {
             *( option->value.num ) = TRUE;
@@ -262,9 +265,10 @@ static void config_parser_set ( XrmOption *option, char *xrmValue, enum ConfigSo
         else{
             *( option->value.num ) = FALSE;
         }
-    }
-    else if ( option->type == xrm_Char ) {
+        break;
+    case xrm_Char:
         *( option->value.charc ) = helper_parse_char ( xrmValue );
+        break;
     }
     option->source = source;
 }
