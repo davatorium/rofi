@@ -549,6 +549,11 @@ static void xresource_dump_entry ( const char *namePrefix, XrmOption *option )
             printf ( "\\x%02X", *( option->value.charc ) );
         }
         break;
+    case xrm_FormatString:
+        if ( ( option->value.fstr->str ) != NULL ) {
+            printf ( "%s", option->value.fstr->str );
+        }
+        break;
     default:
         break;
     }
