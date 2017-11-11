@@ -79,10 +79,17 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
     }
     char **list     = NULL;
     int  llength    = 0;
-    char * test_str =
-        "{host} {terminal} -e bash -c \"{ssh-client} {host}; echo '{terminal} {host}'\" -i -3 -u 4";
-    helper_parse_setup ( test_str, &list, &llength, "{host}", "chuck",
-                         "{terminal}", "x-terminal-emulator", NULL );
+    const gchar * const tokens[] = {
+        ROFI_TOKEN_FILL_COMMON
+        [ROFI_TOKEN_CUSTOM] = "host",
+    };
+    rofi_format_string test_str = {
+        .str = "{host} {terminal} -e bash -c \"{ssh-client} {host}; echo '{terminal} {host}'\" -i -3 -u 4",
+        .tokens = tokens,
+        .tokens_length = G_N_ELEMENTS(tokens),
+    };
+    helper_parse_setup ( &test_str, &list, &llength, ROFI_TOKEN_CUSTOM, "chuck",
+                         ROFI_TOKEN_TERMINAL, "x-terminal-emulator", -1 );
 
     TASSERT ( llength == 10);
     TASSERT ( strcmp ( list[0], "chuck" ) == 0 );
