@@ -46,6 +46,7 @@
 #include "widgets/textbox.h"
 #include "dialogs/dmenu.h"
 #include "helper.h"
+#include "history.h"
 #include "xrmoptions.h"
 #include "view.h"
 
@@ -92,6 +93,8 @@ typedef struct
     unsigned int      only_selected;
     unsigned int      selected_count;
 
+    unsigned int      num_favorites;
+
     gchar             **columns;
     gchar             *column_separator;
     gboolean          multi_select;
@@ -110,11 +113,23 @@ static void async_close_callback ( GObject *source_object, GAsyncResult *res, G_
 
 static void read_add ( DmenuModePrivateData * pd, char *data, gsize len )
 {
+    char *utfstr = rofi_force_utf8 ( data, len );
+
+    int found = 0;
+    for ( unsigned int j = 0; found == 0 && j < pd->num_favorites; j++ ) {
+        if ( g_strcmp0 ( data, pd->cmd_list[j] ) == 0 ) {
+            found = 1;
+        }
+    }
+
+    if ( found == 1 ) {
+        return;
+    }
+
     if ( ( pd->cmd_list_length + 2 ) > pd->cmd_list_real_length ) {
         pd->cmd_list_real_length = MAX ( pd->cmd_list_real_length * 2, 512 );
         pd->cmd_list             = g_realloc ( pd->cmd_list, ( pd->cmd_list_real_length ) * sizeof ( char* ) );
     }
-    char *utfstr = rofi_force_utf8 ( data, len );
     pd->cmd_list[pd->cmd_list_length]     = utfstr;
     pd->cmd_list[pd->cmd_list_length + 1] = NULL;
 
@@ -187,6 +202,13 @@ static int get_dmenu_async ( DmenuModePrivateData *pd, int sync_pre_read )
 }
 static void get_dmenu_sync ( DmenuModePrivateData *pd )
 {
+    char *history_file = NULL;
+    if ( find_arg_str ( "-dmenu-history", &history_file ) ) {
+        pd->cmd_list = history_get_list ( history_file, &pd->cmd_list_length );
+        pd->cmd_list_real_length = pd->cmd_list_length + 1;
+        pd->num_favorites = pd->cmd_list_length;
+    }
+
     while  ( TRUE ) {
         gsize len   = 0;
         char  *data = g_data_input_stream_read_upto ( pd->data_input_stream, &( pd->separator ), 1, &len, NULL, NULL );
@@ -349,6 +371,10 @@ static void dmenu_output_formatted_line ( const char *format, const char *string
     }
     fputc ( '\n', stdout );
     fflush ( stdout );
+    char *history_file = NULL;
+    if ( find_arg_str ( "-dmenu-history", &history_file ) ) {
+        history_set ( history_file, string );
+    }
 }
 static void dmenu_mode_free ( Mode *sw )
 {
@@ -397,6 +423,8 @@ static int dmenu_mode_init ( Mode *sw )
 
     pd->separator     = '\n';
     pd->selected_line = UINT32_MAX;
+
+    pd->num_favorites = 0;
 
     find_arg_str ( "-mesg", &( pd->message ) );
 
@@ -662,7 +690,7 @@ int dmenu_switcher_dialog ( void )
     // For now these only work in sync mode.
     if ( find_arg ( "-sync" ) >= 0 || find_arg ( "-dump" ) >= 0 || find_arg ( "-select" ) >= 0
          || find_arg ( "-no-custom" ) >= 0 || find_arg ( "-only-match" ) >= 0 || config.auto_select ||
-         find_arg ( "-selected-row" ) >= 0 ) {
+         find_arg ( "-selected-row" ) >= 0 || find_arg ( "-dmenu-history" ) >= 0 ) {
         async = FALSE;
     }
     // Check if the subsystem is setup for reading, otherwise do not read.
