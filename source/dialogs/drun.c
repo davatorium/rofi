@@ -262,20 +262,15 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
 
     // Check if item is on disabled list.
     if ( g_hash_table_contains ( pd->disabled_entries, id ) ) {
-        g_debug ( "Skipping: %s, was previously seen.", id );
+        g_debug ( "[%s] [%s] Skipping, was previously seen.", id, path );
         return TRUE;
     }
     GKeyFile *kf    = g_key_file_new ();
     GError   *error = NULL;
     gboolean res    = g_key_file_load_from_file ( kf, path, 0, &error );
-    if ( !res && error == NULL ) {
-        g_debug ( "Failed to parse desktop file: %s because: unknown.", path );
-        g_key_file_free ( kf );
-        return FALSE;
-    }
     // If error, skip to next entry
-    if ( error != NULL ) {
-        g_debug ( "Failed to parse desktop file: %s because: %s", path, error->message );
+    if ( !res ) {
+        g_debug ( "[%s] [%s] Failed to parse desktop file because: %s.", id, path, error->message );
         g_error_free ( error );
         g_key_file_free ( kf );
         return FALSE;
@@ -284,12 +279,12 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     gchar *key = g_key_file_get_string ( kf, "Desktop Entry", "Type", NULL );
     if ( key == NULL ) {
         // No type? ignore.
-        g_debug ( "Skipping desktop file: %s because: No type indicated", path );
+        g_debug ( "[%s] [%s] Invalid desktop file: No type indicated", id, path );
         g_key_file_free ( kf );
         return FALSE;
     }
     if ( g_strcmp0 ( key, "Application" ) ) {
-        g_debug ( "Skipping desktop file: %s because: Not of type application (%s)", path, key );
+        g_debug ( "[%s] [%s] Skipping desktop file: Not of type application (%s)", id, path, key );
         g_free ( key );
         g_key_file_free ( kf );
         return FALSE;
@@ -298,14 +293,14 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
 
     // Name key is required.
     if ( !g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
-        g_debug ( "Invalid DesktopFile: '%s', no 'Name' key present.", path );
+        g_debug ( "[%s] [%s] Invalid desktop file: no 'Name' key present.", id, path );
         g_key_file_free ( kf );
         return FALSE;
     }
 
     // Skip hidden entries.
     if ( g_key_file_get_boolean ( kf, "Desktop Entry", "Hidden", NULL ) ) {
-        g_debug ( "Adding desktop file: %s to disabled list because: Hdden", path );
+        g_debug ( "[%s] [%s] Adding desktop file to disabled list: 'Hidden' key is true", id, path );
         g_key_file_free ( kf );
         g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
         return FALSE;
@@ -340,7 +335,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         }
 
         if ( !show ) {
-            g_debug ( "Adding desktop file: %s to disabled list because: OnlyShowIn/NotShowIn", path );
+            g_debug ( "[%s] [%s] Adding desktop file to disabled list: 'OnlyShowIn'/'NotShowIn' keys don't match current desktop", id, path );
             g_key_file_free ( kf );
             g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
             return FALSE;
@@ -348,14 +343,14 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     }
     // Skip entries that have NoDisplay set.
     if ( g_key_file_get_boolean ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
-        g_debug ( "Adding desktop file: %s to disabled list because: NoDisplay", path );
+        g_debug ( "[%s] [%s] Adding desktop file to disabled list: 'NoDisplay' key is true", id, path );
         g_key_file_free ( kf );
         g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
         return FALSE;
     }
     // We need Exec, don't support DBusActivatable
     if ( !g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
-        g_debug ( "Unsupported DesktopFile: '%s', no 'Exec' key present.", path );
+        g_debug ( "[%s] [%s] Unsupported desktop file: no 'Exec' key present.", id, path );
         g_key_file_free ( kf );
         return FALSE;
     }
@@ -419,6 +414,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     pd->entry_list[pd->cmd_list_length].key_file = kf;
     // We don't want to parse items with this id anymore.
     g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
+    g_debug ( "[%s] Using file %s.", id, path );
     ( pd->cmd_list_length )++;
     return TRUE;
 }
