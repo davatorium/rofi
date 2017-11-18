@@ -893,7 +893,7 @@ Pop up a text message claiming that this is the end:
 
 Pop up a text message in red, bold font claiming that this is still the end:
 
-    rofi -e "<span color='red'><b>This is still the end</b></span>>" -markup
+    rofi -e "<span color='red'><b>This is still the end</b></span>" -markup
 
 Show all key bindings:
 
