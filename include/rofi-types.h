@@ -1,11 +1,8 @@
 #ifndef INCLUDE_ROFI_TYPES_H
 #define INCLUDE_ROFI_TYPES_H
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 #include <glib.h>
+G_BEGIN_DECLS
 
 /**
  * Type of property
@@ -238,7 +235,5 @@ typedef struct rofi_int_matcher_t
     gboolean invert;
 } rofi_int_matcher;
 
-#ifdef __cplusplus
-}
-#endif
+G_END_DECLS
 #endif // INCLUDE_ROFI_TYPES_H

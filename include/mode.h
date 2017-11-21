@@ -27,12 +27,9 @@
 
 #ifndef ROFI_MODE_H
 #define ROFI_MODE_H
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 #include <cairo.h>
 #include "rofi-types.h"
+G_BEGIN_DECLS
 /**
  * @defgroup MODE Mode
  *
@@ -239,7 +236,5 @@ char * mode_preprocess_input ( Mode *mode, const char *input );
  */
 char *mode_get_message ( const Mode *mode );
 /*@}*/
-#ifdef __cplusplus
-}
-#endif
+G_END_DECLS
 #endif

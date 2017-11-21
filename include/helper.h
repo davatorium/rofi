@@ -27,12 +27,9 @@
 
 #ifndef ROFI_HELPER_H
 #define ROFI_HELPER_H
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 #include <cairo.h>
 #include "rofi-types.h"
+G_BEGIN_DECLS
 
 /**
  * @defgroup HELPERS Helpers
@@ -339,7 +336,5 @@ void parse_ranges ( char *input, rofi_range_pair **list, unsigned int *length );
  * @param filter
  */
 void rofi_output_formatted_line ( const char *format, const char *string, int selected_line, const char *filter );
-#ifdef __cplusplus
-}
-#endif
+G_END_DECLS
 #endif // ROFI_HELPER_H

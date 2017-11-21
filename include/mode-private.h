@@ -27,11 +27,8 @@
 
 #ifndef ROFI_MODE_PRIVATE_H
 #define ROFI_MODE_PRIVATE_H
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 #include <gmodule.h>
+G_BEGIN_DECLS
 
 /** ABI version to check if loaded plugin is compatible. */
 #define ABI_VERSION    0x00000006
@@ -199,7 +196,5 @@ struct rofi_mode
     /** Module */
     GModule    *module;
 };
-#ifdef __cplusplus
-}
-#endif
+G_END_DECLS
 #endif // ROFI_MODE_PRIVATE_H
