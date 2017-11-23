@@ -185,7 +185,7 @@ void widget_draw ( widget *widget, cairo_t *d )
         }
 
         // Background painting.
-        // Set new x/y possition.
+        // Set new x/y position.
         cairo_translate ( d, widget->x, widget->y );
         cairo_set_line_width ( d, 0 );
         // Set outlines.

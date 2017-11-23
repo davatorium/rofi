@@ -491,7 +491,7 @@ t_property_distance_zero
 ;
 /** Distance. */
 t_property_distance
-/** Interger unit and line style */
+/** Integer unit and line style */
 : T_INT t_property_unit t_property_line_style {
     $$.distance = (double)$1;
     $$.type     = $2;

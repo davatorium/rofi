@@ -1827,7 +1827,7 @@ void rofi_view_workers_initialize ( void )
         // We are allowed to have
         g_thread_pool_set_max_threads ( tpool, config.threads, &error );
     }
-    // If error occured during setup of pool, tell user and exit.
+    // If error occurred during setup of pool, tell user and exit.
     if ( error != NULL ) {
         g_warning ( "Failed to setup thread pool: '%s'", error->message );
         g_error_free ( error );

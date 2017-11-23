@@ -56,7 +56,7 @@
 
 #include "timings.h"
 /**
- * Name of the history file where previously choosen commands are stored.
+ * Name of the history file where previously chosen commands are stored.
  */
 #define RUN_CACHE_FILE    "rofi-3.runcache"
 

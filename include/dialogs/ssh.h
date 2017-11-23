@@ -34,7 +34,7 @@
  *
  * SSH Mode, returns a list of known SSH hosts the user can log into.
  * It does this by parsing the SSH config file and optional the known host  and host list
- * It also keeps history of the last choosen hosts.
+ * It also keeps history of the last chosen hosts.
  *
  * This mode uses the following options from the #config object:
  *  * #Settings::ssh_command

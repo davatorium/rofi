@@ -36,7 +36,7 @@
  *
  * Widget used to pack multiple widgets either horizontally or vertically.
  * It supports packing widgets horizontally or vertically. Child widgets are always
- * expanded to the maximum size in the oposite direction of the packing direction.
+ * expanded to the maximum size in the opposite direction of the packing direction.
  * e.g. vertically packed widgets use the full box width.
  *
  * @{

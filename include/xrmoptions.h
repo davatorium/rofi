@@ -121,7 +121,7 @@ void config_parse_xresource_dump ( void );
 
 /**
  * @param type The type of the value
- * @param key  The key refering to this configuration option
+ * @param key  The key referring to this configuration option
  * @param value The value to update based [out][in]
  * @param comment Description of this configuration option
  *
