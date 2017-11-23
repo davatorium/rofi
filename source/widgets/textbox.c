@@ -108,7 +108,7 @@ static WidgetTriggerActionResult textbox_editable_trigger_action ( widget *wid, 
     case MOUSE_CLICK_DOWN:
     {
         gint i;
-        // substract padding on left.
+        // subtract padding on left.
         x -= widget_padding_get_left ( wid );
         gint max = textbox_get_font_width ( tb );
         // Right of text, move to end.

@@ -57,7 +57,7 @@
 #include "dialogs/ssh.h"
 
 /**
- * Name of the history file where previously choosen hosts are stored.
+ * Name of the history file where previously chosen hosts are stored.
  */
 #define SSH_CACHE_FILE     "rofi-2.sshcache"
 

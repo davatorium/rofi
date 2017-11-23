@@ -203,14 +203,14 @@ int widget_get_width ( widget *widget );
 /**
  * @param widget The widget handle
  *
- * @returns the y postion of the widget relative to its parent.
+ * @returns the y position of the widget relative to its parent.
  */
 int widget_get_y_pos ( widget *widget );
 
 /**
  * @param widget The widget handle
  *
- * @returns the x postion of the widget relative to its parent.
+ * @returns the x position of the widget relative to its parent.
  */
 int widget_get_x_pos ( widget *widget );
 

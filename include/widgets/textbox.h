@@ -119,7 +119,7 @@ typedef enum
  * @param name The name of the to be created widget.
  * @param flags #TextboxFlags indicating the type of textbox.
  * @param tbft #TextBoxFontType current state of textbox.
- * @param text intial text to display.
+ * @param text initial text to display.
  * @param xalign Set the Xalign value.
  * @param yalign set the yalign value.
  *

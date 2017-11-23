@@ -238,7 +238,7 @@ gchar *rofi_escape_markup ( gchar *text );
  * @param pattern   The user input to match against.
  * @param plen      Pattern length.
  * @param str       The input to match against pattern.
- * @param slen      Lenght of str.
+ * @param slen      Length of str.
  *
  * FZF like fuzzy sorting algorithm.
  *

@@ -865,7 +865,7 @@ static int rofi_scorer_get_score_for ( enum CharClass prev, enum CharClass curr 
  * @param pattern   The user input to match against.
  * @param plen      Pattern length.
  * @param str       The input to match against pattern.
- * @param slen      Lenght of str.
+ * @param slen      Length of str.
  *
  *  rofi_scorer_fuzzy_evaluate implements a global sequence alignment algorithm to find the maximum accumulated score by
  *  aligning `pattern` to `str`. It applies when `pattern` is a subsequence of `str`.

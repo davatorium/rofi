@@ -106,7 +106,7 @@ struct RofiViewState
     int              mouse_seen;
     /** Flag indicating if view needs to be reloaded. */
     int              reload;
-    /** The funciton to be called when finalizing this view */
+    /** The function to be called when finalizing this view */
     void             ( *finalize )( struct RofiViewState *state );
 
     /** Width of the view */

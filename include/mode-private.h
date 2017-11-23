@@ -91,7 +91,7 @@ typedef int ( *_mode_token_match )( const Mode *data, rofi_int_matcher **tokens,
  *
  * Initialize the mode.
  *
- * @returns TRUE is successfull
+ * @returns TRUE is successful
  */
 typedef int ( *__mode_init )( Mode *sw );
 

@@ -165,7 +165,7 @@ This option can be changed at run-time using the `-kb-toggle-case-sensitivity` k
 
 `-cycle`
 
-Cycle thru the result list. Default is 'true'.
+Cycle through the result list. Default is 'true'.
 
 `-filter` *filter*
 
@@ -754,7 +754,7 @@ Or:
 The first two fields specify the alpha level. This determines the amount of transparency (00 everything, FF nothing). The other fields represent the actual color, in hex.
 
 Transparency can be used within **rofi**, for example if the selected background color is 50% transparent, the background color
-of the window will be visible thru it.
+of the window will be visible through it.
 
 ## KEY BINDINGS
 

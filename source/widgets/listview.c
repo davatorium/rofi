@@ -206,7 +206,7 @@ static void barview_draw ( widget *wid, cairo_t *draw )
     int right_offset = lv->widget.w - widget_padding_get_right ( wid );
     int top_offset   = widget_padding_get_top ( wid );
     if ( lv->cur_elements > 0 ) {
-        // Set new x/y possition.
+        // Set new x/y position.
         unsigned int max = MIN ( lv->cur_elements, lv->req_elements - offset );
         if ( lv->rchanged ) {
             int first = TRUE;
@@ -302,7 +302,7 @@ static void listview_draw ( widget *wid, cairo_t *draw )
        }
      */
     if ( lv->cur_elements > 0 && lv->max_rows > 0 ) {
-        // Set new x/y possition.
+        // Set new x/y position.
         unsigned int max = MIN ( lv->cur_elements, lv->req_elements - offset );
         if ( lv->rchanged ) {
             unsigned int width = lv->widget.w - spacing_hori * ( lv->cur_columns - 1 );
