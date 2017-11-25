@@ -113,7 +113,7 @@ Multiple elements can be specified by a `,`.
 This is a valid element name:
 
 ```
-element normal.normal {
+#element normal.normal {
     background-color: blue;
 }
 button {
@@ -124,7 +124,7 @@ button {
 And is identical to:
 
 ```
-element normal normal, button {
+#element normal normal, button {
     background-color: blue;
 }
 ```
@@ -464,7 +464,7 @@ Some widgets have an extra state.
 For example:
 
 ```
-element selected {
+#element selected {
 }
 ```
 
@@ -473,11 +473,11 @@ Here `element selected` is the name of the widget, `selected` is the state of th
 The difference between dots and spaces is purely cosmetic. These are all the same:
 
 ```
-element .selected {
+#element .selected {
 
-element.selected {
+#element.selected {
 }
-element selected {
+#element selected {
 }
 ```
 
