@@ -655,29 +655,30 @@ static void drun_mode_parse_entry_fields ()
 
 static int drun_mode_init ( Mode *sw )
 {
-    if ( mode_get_private_data ( sw ) == NULL ) {
-        static const gchar * const drun_icon_fallback_themes[] = {
-            "Adwaita",
-            "gnome",
-            NULL
-        };
-        const gchar                *themes[2] = {
-            config.drun_icon_theme,
-            NULL
-        };
-        DRunModePrivateData        *pd = g_malloc0 ( sizeof ( *pd ) );
-        pd->disabled_entries = g_hash_table_new_full ( g_str_hash, g_str_equal, g_free, NULL );
-        mode_set_private_data ( sw, (void *) pd );
-        // current destkop
-        const char *current_desktop = g_getenv ( "XDG_CURRENT_DESKTOP" );
-        pd->current_desktop_list = current_desktop ? g_strsplit ( current_desktop, ":", 0 ) : NULL;
+    if ( mode_get_private_data ( sw ) != NULL )
+        return TRUE;
 
-        // Theme
-        pd->xdg_context = nk_xdg_theme_context_new ( drun_icon_fallback_themes, NULL );
-        nk_xdg_theme_preload_themes_icon ( pd->xdg_context, themes );
-        get_apps ( pd );
-        drun_mode_parse_entry_fields ();
-    }
+    static const gchar * const drun_icon_fallback_themes[] = {
+        "Adwaita",
+        "gnome",
+        NULL
+    };
+    const gchar                *themes[2] = {
+        config.drun_icon_theme,
+        NULL
+    };
+    DRunModePrivateData        *pd = g_malloc0 ( sizeof ( *pd ) );
+    pd->disabled_entries = g_hash_table_new_full ( g_str_hash, g_str_equal, g_free, NULL );
+    mode_set_private_data ( sw, (void *) pd );
+    // current destkop
+    const char *current_desktop = g_getenv ( "XDG_CURRENT_DESKTOP" );
+    pd->current_desktop_list = current_desktop ? g_strsplit ( current_desktop, ":", 0 ) : NULL;
+
+    // Theme
+    pd->xdg_context = nk_xdg_theme_context_new ( drun_icon_fallback_themes, NULL );
+    nk_xdg_theme_preload_themes_icon ( pd->xdg_context, themes );
+    get_apps ( pd );
+    drun_mode_parse_entry_fields ();
     return TRUE;
 }
 static void drun_entry_clear ( DRunModeEntry *e )
