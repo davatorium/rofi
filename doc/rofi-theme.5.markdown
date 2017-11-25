@@ -134,11 +134,11 @@ Each section inherits the global properties. Properties can be explicitely inher
 In the following example:
 
 ```
-window {
+#window {
  a: 1;
  b: 2;
 }
-mainbox {
+#mainbox {
     a: inherit;
     b: 4;
     c: 8;
@@ -739,7 +739,7 @@ Below is an example of a theme emulating dmenu:
     font:            "Times New Roman 12";
 }
 
-window {
+#window {
     anchor:     north;
     location:   north;
     width:      100%;
@@ -747,26 +747,26 @@ window {
     children:   [ horibox ];
 }
 
-horibox {
+#horibox {
     orientation: horizontal;
     children:   [ prompt, entry, listview ];
 }
 
-listview {
+#listview {
     layout:     horizontal;
     spacing:    5px;
     lines:      10;
 }
 
-entry {
+#entry {
     expand:     false;
     width:      10em;
 }
 
-element {
+#element {
     padding: 0px 2px;
 }
-element selected {
+#element selected {
     background-color: SteelBlue;
 }
 ```
