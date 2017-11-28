@@ -400,7 +400,7 @@ Mode dmenu_mode =
     ._get_message       = dmenu_get_message,
     .private_data       = NULL,
     .free               = NULL,
-    .display_name       = "dmenu:"
+    .display_name       = "dmenu"
 };
 
 static void dmenu_finish ( RofiViewState *state, int retv )
