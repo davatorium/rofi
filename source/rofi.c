@@ -848,8 +848,9 @@ int main ( int argc, char *argv[] )
                 rofi_theme_free ( rofi_theme );
                 rofi_theme = NULL;
             }
-        }
-        else {
+        } else {
+            g_free ( config_path_new );
+            config_path_new = NULL;
             config_parse_xresource_options_file ( config_path );
         }
     }
