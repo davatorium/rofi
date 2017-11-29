@@ -26,14 +26,15 @@ It lets you preview each theme with the Enter key and apply the theme to your
 * $XDG_CONFIG_HOME/rofi
 * $XDG_DATA_HOME/share/rofi/themes
 
-${PREFIX} reflects the install location of rofi. In most cases this will be "/usr".
-$XDG_CONFIG_HOME is normally unset. Default path is "$HOME/.config".
+${PREFIX} reflects the install location of rofi. In most cases this will be "/usr".<br>
+$XDG_CONFIG_HOME is normally unset. Default path is "$HOME/.config".<br>
 $XDG_DATA_HOME is normally unset. Default path is "$HOME/.local/share".
 
-SEE ALSO
-       rofi(1)
+## SEE ALSO
 
-AUTHOR
-       Qball Cow qball@gmpclient.org
+rofi(1)
 
-       Rasmus Steinke rasi@xssn.at
+## AUTHORS
+
+Qball Cow qball@gmpclient.org<br>
+Rasmus Steinke rasi@xssn.at
