@@ -1702,10 +1702,12 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Only needed when window is fixed size.
     if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == MENU_NORMAL_WINDOW ) {
         listview_set_fixed_num_lines ( state->list_view );
-        rofi_view_window_update_size ( state );
     }
+
+    state->height = rofi_view_calculate_height ( state );
     // Move the window to the correct x,y position.
     rofi_view_calculate_window_position ( state );
+    rofi_view_window_update_size ( state );
 
     state->quit = FALSE;
     rofi_view_refilter ( state );
