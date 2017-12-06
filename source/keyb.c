@@ -112,21 +112,21 @@ ActionBindingEntry rofi_bindings[] =
 
     /* Mouse-aware bindings */
 
-    { .id = SCROLL_LEFT,             .scope = SCOPE_MOUSE_LISTVIEW,         .name    = "ml-row-left",                          .binding = "Mouse6", .comment = "Go to the previous column"                        },
-    { .id = SCROLL_RIGHT,            .scope = SCOPE_MOUSE_LISTVIEW,         .name    = "ml-row-right",                         .binding = "Mouse7", .comment = "Go to the next column"                            },
-    { .id = SCROLL_UP,               .scope = SCOPE_MOUSE_LISTVIEW,         .name    = "ml-row-up",                            .binding = "Mouse4", .comment = "Select previous entry"                            },
-    { .id = SCROLL_DOWN,             .scope = SCOPE_MOUSE_LISTVIEW,         .name    = "ml-row-down",                          .binding = "Mouse5", .comment = "Select next entry"                                },
+    { .id = SCROLL_LEFT,             .scope = SCOPE_MOUSE_LISTVIEW,         .name    = "ml-row-left",                          .binding = "ScrollLeft", .comment = "Go to the previous column"                        },
+    { .id = SCROLL_RIGHT,            .scope = SCOPE_MOUSE_LISTVIEW,         .name    = "ml-row-right",                         .binding = "ScrollRight", .comment = "Go to the next column"                            },
+    { .id = SCROLL_UP,               .scope = SCOPE_MOUSE_LISTVIEW,         .name    = "ml-row-up",                            .binding = "ScrollUp", .comment = "Select previous entry"                            },
+    { .id = SCROLL_DOWN,             .scope = SCOPE_MOUSE_LISTVIEW,         .name    = "ml-row-down",                          .binding = "ScrollDown", .comment = "Select next entry"                                },
 
-    { .id = SELECT_HOVERED_ENTRY,    .scope = SCOPE_MOUSE_LISTVIEW_ELEMENT, .name    = "me-select-entry",                      .binding = "Mouse1", .comment = "Select hovered row"                               },
-    { .id = ACCEPT_HOVERED_ENTRY,    .scope = SCOPE_MOUSE_LISTVIEW_ELEMENT, .name    = "me-accept-entry",                      .binding = "MouseD1", .comment = "Accept hovered row"                              },
-    { .id = ACCEPT_HOVERED_CUSTOM,   .scope = SCOPE_MOUSE_LISTVIEW_ELEMENT, .name    = "me-accept-custom",                     .binding = "Control+MouseD1", .comment = "Accept hovered row with custom action"   },
+    { .id = SELECT_HOVERED_ENTRY,    .scope = SCOPE_MOUSE_LISTVIEW_ELEMENT, .name    = "me-select-entry",                      .binding = "MousePrimary", .comment = "Select hovered row"                               },
+    { .id = ACCEPT_HOVERED_ENTRY,    .scope = SCOPE_MOUSE_LISTVIEW_ELEMENT, .name    = "me-accept-entry",                      .binding = "MouseDPrimary", .comment = "Accept hovered row"                              },
+    { .id = ACCEPT_HOVERED_CUSTOM,   .scope = SCOPE_MOUSE_LISTVIEW_ELEMENT, .name    = "me-accept-custom",                     .binding = "Control+MouseDPrimary", .comment = "Accept hovered row with custom action"   },
 };
 
 static const gchar *mouse_default_bindings[] = {
-    [MOUSE_CLICK_DOWN]  = "Mouse1",
-    [MOUSE_CLICK_UP]    = "!Mouse1",
-    [MOUSE_DCLICK_DOWN] = "MouseD1",
-    [MOUSE_DCLICK_UP]   = "!MouseD1",
+    [MOUSE_CLICK_DOWN]  = "MousePrimary",
+    [MOUSE_CLICK_UP]    = "!MousePrimary",
+    [MOUSE_DCLICK_DOWN] = "MouseDPrimary",
+    [MOUSE_DCLICK_UP]   = "!MouseDPrimary",
 };
 
 void setup_abe ( void )

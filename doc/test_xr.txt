@@ -245,16 +245,16 @@ rofi.kb-custom-19:                   Alt+parenleft
 ! "Select row 10" Set from: Default
 ! rofi.kb-select-10:                   Super+0
 ! "Go to the previous column" Set from: Default
-! rofi.ml-row-left:                    Mouse6
+! rofi.ml-row-left:                    ScrollLeft
 ! "Go to the next column" Set from: Default
-! rofi.ml-row-right:                   Mouse7
+! rofi.ml-row-right:                   ScrollRight
 ! "Select previous entry" Set from: Default
-! rofi.ml-row-up:                      Mouse4
+! rofi.ml-row-up:                      ScrollUp
 ! "Select next entry" Set from: Default
-! rofi.ml-row-down:                    Mouse5
+! rofi.ml-row-down:                    ScrollDown
 ! "Select hovered row" Set from: Default
-! rofi.me-select-entry:                Mouse1
+! rofi.me-select-entry:                MousePrimary
 ! "Accept hovered row" Set from: Default
-! rofi.me-accept-entry:                MouseD1
+! rofi.me-accept-entry:                MouseDPrimary
 ! "Accept hovered row with custom action" Set from: Default
-! rofi.me-accept-custom:               Control+MouseD1
+! rofi.me-accept-custom:               Control+MouseDPrimary

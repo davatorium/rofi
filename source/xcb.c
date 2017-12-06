@@ -671,6 +671,59 @@ static void rofi_view_paste ( RofiViewState *state, xcb_selection_notify_event_t
     }
 }
 
+static gboolean x11_button_to_nk_bindings_button ( guint32 x11_button, NkBindingsMouseButton *button )
+{
+    switch ( x11_button )
+    {
+    case 1:
+        *button = NK_BINDINGS_MOUSE_BUTTON_PRIMARY;
+        break;
+    case 3:
+        *button = NK_BINDINGS_MOUSE_BUTTON_SECONDARY;
+        break;
+    case 2:
+        *button = NK_BINDINGS_MOUSE_BUTTON_MIDDLE;
+        break;
+    case 8:
+        *button = NK_BINDINGS_MOUSE_BUTTON_BACK;
+        break;
+    case 9:
+        *button = NK_BINDINGS_MOUSE_BUTTON_FORWARD;
+        break;
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+        return FALSE;
+    default:
+        *button = NK_BINDINGS_MOUSE_BUTTON_EXTRA + x11_button;
+    }
+    return TRUE;
+}
+
+static gboolean x11_button_to_nk_bindings_scroll ( guint32 x11_button, NkBindingsScrollAxis *axis, gint32 *steps )
+{
+    *steps = 1;
+    switch ( x11_button )
+    {
+    case 4:
+        *steps = -1;
+        /* fallthrough */
+    case 5:
+        *axis = NK_BINDINGS_SCROLL_AXIS_VERTICAL;
+        break;
+    case 6:
+        *steps = -1;
+        /* fallthrough */
+    case 7:
+        *axis = NK_BINDINGS_SCROLL_AXIS_HORIZONTAL;
+        break;
+    default:
+        return FALSE;
+    }
+    return TRUE;
+}
+
 /**
  * Process X11 events in the main-loop (gui-thread) of the application.
  */
@@ -704,16 +757,26 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
     case XCB_BUTTON_PRESS:
     {
         xcb_button_press_event_t *bpe = (xcb_button_press_event_t *) event;
+        NkBindingsMouseButton button;
+        NkBindingsScrollAxis axis;
+        gint32 steps;
+
         xcb->last_timestamp = bpe->time;
         rofi_view_handle_mouse_motion ( state, bpe->event_x, bpe->event_y );
-        nk_bindings_seat_handle_button ( xcb->bindings_seat, NULL, bpe->detail, NK_BINDINGS_BUTTON_STATE_PRESS, bpe->time );
+        if ( x11_button_to_nk_bindings_button ( bpe->detail, &button ) )
+            nk_bindings_seat_handle_button ( xcb->bindings_seat, NULL, button, NK_BINDINGS_BUTTON_STATE_PRESS, bpe->time );
+        else if ( x11_button_to_nk_bindings_scroll ( bpe->detail, &axis, &steps) )
+            nk_bindings_seat_handle_scroll ( xcb->bindings_seat, NULL, axis, steps );
         break;
     }
     case XCB_BUTTON_RELEASE:
     {
         xcb_button_release_event_t *bre = (xcb_button_release_event_t *) event;
+        NkBindingsMouseButton button;
+
         xcb->last_timestamp = bre->time;
-        nk_bindings_seat_handle_button ( xcb->bindings_seat, NULL, bre->detail, NK_BINDINGS_BUTTON_STATE_RELEASE, bre->time );
+        if ( x11_button_to_nk_bindings_button ( bre->detail, &button ) )
+            nk_bindings_seat_handle_button ( xcb->bindings_seat, NULL, button, NK_BINDINGS_BUTTON_STATE_RELEASE, bre->time );
         if ( config.click_to_exit == TRUE ) {
             if ( !xcb->mouse_seen ) {
                 rofi_view_temp_click_to_exit ( state, bre->event );
