@@ -55,6 +55,14 @@ static int box_get_desired_width  ( widget *wid )
     box *b      = (box *) wid;
     int spacing = distance_get_pixel ( b->spacing, b->type );
     int width   = 0;
+
+    // Allow user to override.
+    RofiDistance w  = rofi_theme_get_distance ( wid, "width", 0 );
+    width = distance_get_pixel ( w, ROFI_ORIENTATION_HORIZONTAL );
+    if ( width > 0 ) {
+        return width ;
+    }
+
     if ( b->type == ROFI_ORIENTATION_HORIZONTAL ) {
         int active_widgets = 0;
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
