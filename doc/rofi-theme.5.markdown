@@ -589,7 +589,7 @@ The following properties are currently supported:
   **screenshot** - Take a screenshot of the screen and use that.
   **Path** to png file - Use an image.
 
-* **position**:       position
+* **location**:       position
     The place of the anchor on the monitor
 * **anchor**:         anchor
     The anchor position on the window
