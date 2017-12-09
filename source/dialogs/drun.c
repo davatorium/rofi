@@ -55,6 +55,8 @@
 
 #define DRUN_CACHE_FILE    "rofi3.druncache"
 
+#define DRUN_GROUP_NAME    "Desktop Entry"
+
 /**
  * Store extra information about the entry.
  * Currently the executable and if it should run in terminal.
@@ -83,7 +85,10 @@ typedef struct
     char            *name;
     /* Generic Name */
     char            *generic_name;
+    /* Categories */
     char            **categories;
+    /* Comments */
+    char            *comment;
 
     GKeyFile        *key_file;
 
@@ -102,14 +107,16 @@ typedef enum
     DRUN_MATCH_FIELD_GENERIC,
     DRUN_MATCH_FIELD_EXEC,
     DRUN_MATCH_FIELD_CATEGORIES,
+    DRUN_MATCH_FIELD_COMMENT,
     DRUN_MATCH_NUM_FIELDS,
 } DRunMatchingFields;
 
 static DRunEntryField matching_entry_fields[DRUN_MATCH_NUM_FIELDS] = {
-    { .entry_field_name = "name",       .enabled = TRUE, },
-    { .entry_field_name = "generic",    .enabled = TRUE, },
-    { .entry_field_name = "exec",       .enabled = TRUE, },
-    { .entry_field_name = "categories", .enabled = TRUE, }
+    { .entry_field_name = "name",       .enabled = TRUE,  },
+    { .entry_field_name = "generic",    .enabled = TRUE,  },
+    { .entry_field_name = "exec",       .enabled = TRUE,  },
+    { .entry_field_name = "categories", .enabled = TRUE,  },
+    { .entry_field_name = "comment",    .enabled = FALSE, }
 };
 
 typedef struct
@@ -214,7 +221,7 @@ static void exec_cmd_entry ( DRunModeEntry *e )
     }
 
     const gchar *fp        = g_strstrip ( str );
-    gchar       *exec_path = g_key_file_get_string ( e->key_file, "Desktop Entry", "Path", NULL );
+    gchar       *exec_path = g_key_file_get_string ( e->key_file, DRUN_GROUP_NAME, "Path", NULL );
     if ( exec_path != NULL && strlen ( exec_path ) == 0 ) {
         // If it is empty, ignore this property. (#529)
         g_free ( exec_path );
@@ -226,14 +233,14 @@ static void exec_cmd_entry ( DRunModeEntry *e )
         .icon   = e->icon_name,
         .app_id = e->app_id,
     };
-    gboolean                 sn       = g_key_file_get_boolean ( e->key_file, "Desktop Entry", "StartupNotify", NULL );
+    gboolean                 sn       = g_key_file_get_boolean ( e->key_file, DRUN_GROUP_NAME, "StartupNotify", NULL );
     gchar                    *wmclass = NULL;
-    if ( sn && g_key_file_has_key ( e->key_file, "Desktop Entry", "StartupWMClass", NULL ) ) {
-        context.wmclass = wmclass = g_key_file_get_string ( e->key_file, "Desktop Entry", "StartupWMClass", NULL );
+    if ( sn && g_key_file_has_key ( e->key_file, DRUN_GROUP_NAME, "StartupWMClass", NULL ) ) {
+        context.wmclass = wmclass = g_key_file_get_string ( e->key_file, DRUN_GROUP_NAME, "StartupWMClass", NULL );
     }
 
     // Returns false if not found, if key not found, we don't want run in terminal.
-    gboolean terminal = g_key_file_get_boolean ( e->key_file, "Desktop Entry", "Terminal", NULL );
+    gboolean terminal = g_key_file_get_boolean ( e->key_file, DRUN_GROUP_NAME, "Terminal", NULL );
     if ( helper_execute_command ( exec_path, fp, terminal, sn ? &context : NULL ) ) {
         char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
         // Store it based on the unique identifiers (desktop_id).
@@ -276,7 +283,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         return FALSE;
     }
     // Skip non Application entries.
-    gchar *key = g_key_file_get_string ( kf, "Desktop Entry", "Type", NULL );
+    gchar *key = g_key_file_get_string ( kf, DRUN_GROUP_NAME, "Type", NULL );
     if ( key == NULL ) {
         // No type? ignore.
         g_debug ( "[%s] [%s] Invalid desktop file: No type indicated", id, path );
@@ -292,14 +299,14 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     g_free ( key );
 
     // Name key is required.
-    if ( !g_key_file_has_key ( kf, "Desktop Entry", "Name", NULL ) ) {
+    if ( !g_key_file_has_key ( kf, DRUN_GROUP_NAME, "Name", NULL ) ) {
         g_debug ( "[%s] [%s] Invalid desktop file: no 'Name' key present.", id, path );
         g_key_file_free ( kf );
         return FALSE;
     }
 
     // Skip hidden entries.
-    if ( g_key_file_get_boolean ( kf, "Desktop Entry", "Hidden", NULL ) ) {
+    if ( g_key_file_get_boolean ( kf, DRUN_GROUP_NAME, "Hidden", NULL ) ) {
         g_debug ( "[%s] [%s] Adding desktop file to disabled list: 'Hidden' key is true", id, path );
         g_key_file_free ( kf );
         g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
@@ -308,10 +315,10 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     if ( pd->current_desktop_list ) {
         gboolean show = TRUE;
         // If the DE is set, check the keys.
-        if ( g_key_file_has_key ( kf, "Desktop Entry", "OnlyShowIn", NULL ) ) {
+        if ( g_key_file_has_key ( kf, DRUN_GROUP_NAME, "OnlyShowIn", NULL ) ) {
             gsize llength = 0;
             show = FALSE;
-            gchar **list = g_key_file_get_string_list ( kf, "Desktop Entry", "OnlyShowIn", &llength, NULL );
+            gchar **list = g_key_file_get_string_list ( kf, DRUN_GROUP_NAME, "OnlyShowIn", &llength, NULL );
             if ( list ) {
                 for ( gsize lcd = 0; !show && pd->current_desktop_list[lcd]; lcd++ ) {
                     for ( gsize lle = 0; !show && lle < llength; lle++ ) {
@@ -321,9 +328,9 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
                 g_strfreev ( list );
             }
         }
-        if ( show && g_key_file_has_key ( kf, "Desktop Entry", "NotShowIn", NULL ) ) {
+        if ( show && g_key_file_has_key ( kf, DRUN_GROUP_NAME, "NotShowIn", NULL ) ) {
             gsize llength = 0;
-            gchar **list  = g_key_file_get_string_list ( kf, "Desktop Entry", "NotShowIn", &llength, NULL );
+            gchar **list  = g_key_file_get_string_list ( kf, DRUN_GROUP_NAME, "NotShowIn", &llength, NULL );
             if ( list ) {
                 for ( gsize lcd = 0; show && pd->current_desktop_list[lcd]; lcd++ ) {
                     for ( gsize lle = 0; show && lle < llength; lle++ ) {
@@ -342,21 +349,21 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         }
     }
     // Skip entries that have NoDisplay set.
-    if ( g_key_file_get_boolean ( kf, "Desktop Entry", "NoDisplay", NULL ) ) {
+    if ( g_key_file_get_boolean ( kf, DRUN_GROUP_NAME, "NoDisplay", NULL ) ) {
         g_debug ( "[%s] [%s] Adding desktop file to disabled list: 'NoDisplay' key is true", id, path );
         g_key_file_free ( kf );
         g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
         return FALSE;
     }
     // We need Exec, don't support DBusActivatable
-    if ( !g_key_file_has_key ( kf, "Desktop Entry", "Exec", NULL ) ) {
+    if ( !g_key_file_has_key ( kf, DRUN_GROUP_NAME, "Exec", NULL ) ) {
         g_debug ( "[%s] [%s] Unsupported desktop file: no 'Exec' key present.", id, path );
         g_key_file_free ( kf );
         return FALSE;
     }
 
-    if ( g_key_file_has_key ( kf, "Desktop Entry", "TryExec", NULL ) ) {
-        char *te = g_key_file_get_string ( kf, "Desktop Entry", "TryExec", NULL );
+    if ( g_key_file_has_key ( kf, DRUN_GROUP_NAME, "TryExec", NULL ) ) {
+        char *te = g_key_file_get_string ( kf, DRUN_GROUP_NAME, "TryExec", NULL );
         if ( !g_path_is_absolute ( te ) ) {
             char *fp = g_find_program_in_path ( te );
             if ( fp == NULL ) {
@@ -395,15 +402,27 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     pd->entry_list[pd->cmd_list_length].path       = g_strdup ( path );
     pd->entry_list[pd->cmd_list_length].desktop_id = g_strdup ( id );
     pd->entry_list[pd->cmd_list_length].app_id     = g_strndup ( basename, strlen ( basename ) - strlen ( ".desktop" ) );
-    gchar *n = g_key_file_get_locale_string ( kf, "Desktop Entry", "Name", NULL, NULL );
+    gchar *n = g_key_file_get_locale_string ( kf, DRUN_GROUP_NAME, "Name", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].name = n;
-    gchar *gn = g_key_file_get_locale_string ( kf, "Desktop Entry", "GenericName", NULL, NULL );
+    gchar *gn = g_key_file_get_locale_string ( kf, DRUN_GROUP_NAME, "GenericName", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].generic_name = gn;
-    pd->entry_list[pd->cmd_list_length].categories   = g_key_file_get_locale_string_list ( kf, "Desktop Entry", "Categories", NULL, NULL, NULL );
-    pd->entry_list[pd->cmd_list_length].exec         = g_key_file_get_string ( kf, "Desktop Entry", "Exec", NULL );
+    if ( matching_entry_fields[DRUN_MATCH_FIELD_CATEGORIES].enabled ) {
+        pd->entry_list[pd->cmd_list_length].categories = g_key_file_get_locale_string_list ( kf, DRUN_GROUP_NAME, "Categories", NULL, NULL, NULL );
+    }
+    else {
+        pd->entry_list[pd->cmd_list_length].categories = NULL;
+    }
+    pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, DRUN_GROUP_NAME, "Exec", NULL );
 
+    if ( matching_entry_fields[DRUN_MATCH_FIELD_COMMENT].enabled ) {
+        pd->entry_list[pd->cmd_list_length].comment = g_key_file_get_locale_string ( kf,
+                                                                                     DRUN_GROUP_NAME, "Comment", NULL, NULL );
+    }
+    else {
+        pd->entry_list[pd->cmd_list_length].comment = NULL;
+    }
     if ( config.show_icons ) {
-        pd->entry_list[pd->cmd_list_length].icon_name = g_key_file_get_locale_string ( kf, "Desktop Entry", "Icon", NULL, NULL );
+        pd->entry_list[pd->cmd_list_length].icon_name = g_key_file_get_locale_string ( kf, DRUN_GROUP_NAME, "Icon", NULL, NULL );
     }
     else{
         pd->entry_list[pd->cmd_list_length].icon_name = NULL;
@@ -639,7 +658,7 @@ static void drun_mode_parse_entry_fields ()
             gboolean matched = FALSE;
             for ( unsigned int i = 0; i < DRUN_MATCH_NUM_FIELDS; i++ ) {
                 const char * entry_name = matching_entry_fields[i].entry_field_name;
-                if ( strcmp ( token, entry_name ) == 0 ) {
+                if ( g_ascii_strcasecmp ( token, entry_name ) == 0 ) {
                     matching_entry_fields[i].enabled = TRUE;
                     matched                          = TRUE;
                 }
@@ -655,8 +674,9 @@ static void drun_mode_parse_entry_fields ()
 
 static int drun_mode_init ( Mode *sw )
 {
-    if ( mode_get_private_data ( sw ) != NULL )
+    if ( mode_get_private_data ( sw ) != NULL ) {
         return TRUE;
+    }
 
     static const gchar * const drun_icon_fallback_themes[] = {
         "Adwaita",
@@ -677,8 +697,8 @@ static int drun_mode_init ( Mode *sw )
     // Theme
     pd->xdg_context = nk_xdg_theme_context_new ( drun_icon_fallback_themes, NULL );
     nk_xdg_theme_preload_themes_icon ( pd->xdg_context, themes );
-    get_apps ( pd );
     drun_mode_parse_entry_fields ();
+    get_apps ( pd );
     return TRUE;
 }
 static void drun_entry_clear ( DRunModeEntry *e )
@@ -694,6 +714,7 @@ static void drun_entry_clear ( DRunModeEntry *e )
     g_free ( e->exec );
     g_free ( e->name );
     g_free ( e->generic_name );
+    g_free ( e->comment );
     g_strfreev ( e->categories );
     g_key_file_free ( e->key_file );
 }
@@ -845,6 +866,12 @@ static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsig
                     for ( int iter = 0; test == tokens[j]->invert && list && list[iter]; iter++ ) {
                         test = helper_token_match ( ftokens, list[iter] );
                     }
+                }
+            }
+            if ( matching_entry_fields[DRUN_MATCH_FIELD_COMMENT].enabled ) {
+                // Match executable name.
+                if ( test == tokens[j]->invert && rmpd->entry_list[index].comment ) {
+                    test = helper_token_match ( ftokens, rmpd->entry_list[index].comment );
                 }
             }
             if ( test == 0 ) {
