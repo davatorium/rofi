@@ -69,6 +69,7 @@ function find_themes()
     fi
     # Add user dir.
     DIRS+=":${HOME}/.local/share/"
+    DIRS+=":${HOME}/.config/"
     for p in ${DIRS}; do 
     	p=${p%/}
         TD=${p}/rofi/themes

@@ -23,7 +23,7 @@ It lets you preview each theme with the Enter key and apply the theme to your
 **rofi-theme-selector** searches the following directories for themes:
 
 * ${PREFIX}/share/rofi/themes
-* $XDG_CONFIG_HOME/rofi
+* $XDG_CONFIG_HOME/rofi/themes
 * $XDG_DATA_HOME/share/rofi/themes
 
 ${PREFIX} reflects the install location of rofi. In most cases this will be "/usr".<br>
