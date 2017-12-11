@@ -69,7 +69,7 @@ static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
 {
     ScriptModePrivateData *pd        = (ScriptModePrivateData *) sw->private_data;
     ssize_t               length_key = 0;//strlen ( line );
-    while ( line[length_key] != '\x1f' && length_key <= length ) {
+    while ( length_key <= length && line[length_key] != '\x1f' ) {
         length_key++;
     }
 
@@ -99,7 +99,6 @@ static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
 
 static char **get_script_output ( Mode *sw, char *command, char *arg, unsigned int *length )
 {
-    size_t actual_size = 0;
     int    fd          = -1;
     GError *error      = NULL;
     char   **retv      = NULL;
@@ -126,6 +125,7 @@ static char **get_script_output ( Mode *sw, char *command, char *arg, unsigned i
             char    *buffer       = NULL;
             size_t  buffer_length = 0;
             ssize_t read_length   = 0;
+            size_t actual_size    = 0;
             while ( ( read_length = getline ( &buffer, &buffer_length, inp ) ) > 0 ) {
                 // Filter out line-end.
                 if ( buffer[read_length - 1] == '\n' ) {
