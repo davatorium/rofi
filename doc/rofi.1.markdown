@@ -793,7 +793,8 @@ of the window will be visible through it.
   * `Alt-grave`: Toggle levenshtein sorting.
   * `Alt-Shift-S`: Take a screenshot and store it in the Pictures directory.
 
-To get a full list of key bindings on the commandline, see `rofi -dump-xresources | grep kb-`.
+To get a full list of key bindings on the commandline, see `rofi -h`.
+The options starting with `-kb` are keybindings.
 Key bindings can be modified using the configuration systems.
 To get a searchable list of key bindings, run `rofi -show keys`.
 
