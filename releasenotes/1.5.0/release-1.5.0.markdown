@@ -1,18 +1,27 @@
-# V1.5.0: P rofi table. 
+# V1.5.0: The Hoff uses it.
 
 After the large previous release, we are hopefully back to more regular smaller releases.
 This release is focused on squashing some bugs and hopefully improving the user experience.
-But to satify people hunkering for new things, we also included a few new features.
+But to satisfy people hunkering for new things, we also included a few new features.
 
 ## New features
 
 ### Specify matching field
 
+What field rofi should match on the drun view has been a source of long discussions. Some people only want to match the
+name, others want to include the field with the tooltip text. In this release you can now set what fields are used for
+matching for both the drun as window browser.
+
 ### Pass extra properties in script mode
+
+As a first step in improving script mode, support for passing properties where added.
+You can now, from the script, set the `prompt`, a `message`, if the row contain `markup` and `active`, `urgent`.
+
 
 ### Negated matching
 
-## Bug fixes
+The matching engine has been extended so, part of, queries can be negated. Searching for `terminal -vim` will list all
+fields that match `terminal` but do not contain `vim`.
 
 ### Hashtag rofi?
 
@@ -26,14 +35,23 @@ entry,prompt {
 }
 ```
 
+## Bug fixes
+
 ### Prompt colon
+
+This is a controversial one, being the cause of heated issues in the past. The prompt string of rofi is now left
+unmodified. Themes, like the default theme, can re-add the colon if desired. 
 
 ### History size
 
+On frequent request, you can now tweak the size of the history each modi keeps. While not recommended to change as it
+can cause performance issues, this allows power users to tweak it to their liking.
 
 
 ## Full Changelog
 
+ - Add konsole to list of sensible terminals. (#739)
+ - Allow drun to filter based on comment field. (#733)
  - Add prompt widget to default theme.
  - Add manpage for rofi-theme-selector.
  - Dump theme without # prefix and separator .
