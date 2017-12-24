@@ -1081,7 +1081,11 @@ static void rofi_view_refilter ( RofiViewState *state )
         for ( unsigned int i = 0; i < state->num_lines; i++ ) {
             state->line_map[i] = i;
         }
-        state->filtered_lines = state->num_lines;
+        if ( config.search_mode == FALSE ) {
+            state->filtered_lines = state->num_lines;
+        } else {
+            state->filtered_lines = 0;
+        }
     }
     listview_set_num_elements ( state->list_view, state->filtered_lines );
 

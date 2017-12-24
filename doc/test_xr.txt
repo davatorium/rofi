@@ -114,6 +114,8 @@ rofi.scroll-method:                  0
 ! rofi.max-history-size:               25
 ! "Hide the prefix mode prefix on the combi view." Set from: Default
 ! rofi.combi-hide-mode-prefix:         false
+! "Switch from filter to search mode." Set from: Default
+! rofi.search-mode:                    false
 ! "Pidfile location" Set from: File
 rofi.pid:                            /tmp/rofi.pid
 ! "Paste primary selection" Set from: File

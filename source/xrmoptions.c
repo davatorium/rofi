@@ -210,6 +210,8 @@ static XrmOption xrmOptions[] = {
       "Max history size (WARNING: can cause slowdowns when set to high).", CONFIG_DEFAULT },
     { xrm_Boolean, "combi-hide-mode-prefix", { .snum = &config.combi_hide_mode_prefix         }, NULL,
       "Hide the prefix mode prefix on the combi view.", CONFIG_DEFAULT },
+    { xrm_Boolean, "search-mode"           , { .snum = &config.search_mode                    }, NULL,
+      "Switch from filter to search mode.", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */

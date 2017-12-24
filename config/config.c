@@ -147,4 +147,5 @@ Settings config = {
     .plugin_path            = PLUGIN_PATH,
     .max_history_size       =                                  25,
     .combi_hide_mode_prefix = FALSE,
+    .search_mode            = FALSE,
 };
