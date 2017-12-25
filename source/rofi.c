@@ -820,7 +820,7 @@ int main ( int argc, char *argv[] )
 
     TICK_N ( "Setup mainloop" );
 
-    bindings = nk_bindings_new ( -1 );
+    bindings = nk_bindings_new ( 0 );
     TICK_N ( "NK Bindings" );
 
     if ( !display_setup ( main_loop, bindings ) ) {
