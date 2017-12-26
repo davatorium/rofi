@@ -35,6 +35,31 @@ entry,prompt {
 }
 ```
 
+## Backward incompatible changes
+
+### Mouse bindings
+
+Mouse button and scroll bindings are now separated, and names have changed.
+
+For the 3 base buttons:
+
+- `Mouse1` is now `MousePrimary`
+- `Mouse2` is now `MouseMiddle`
+- `Mouse3` is `MouseSecondary`
+
+For the scroll wheel:
+
+- `Mouse4` is `ScrollUp`
+- `Mouse5` is `ScrollDown`
+- `Mouse6` is `ScrollLeft`
+- `Mouse7` is `ScrollRight`
+
+For extra buttons:
+
+- `Mouse8` is `MouseBack`
+- `Mouse9` is `MouseForward`
+- Above 10, you have to use the platform-specific `MouseExtra<number>` (replace `<number>`). Under X11, these buttons will go on from 10.
+
 ## Bug fixes
 
 ### Prompt colon
