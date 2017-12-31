@@ -115,7 +115,7 @@ Settings config = {
     .matching        = "normal",
     .matching_method = MM_NORMAL,
     /** Desktop entry fields to match*/
-    .drun_match_fields      = "all",
+    .drun_match_fields      = "name,generic,exec,categories",
     /** Window fields to match in window mode*/
     .window_match_fields    = "all",
     /** Monitor */

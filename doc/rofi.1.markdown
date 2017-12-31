@@ -234,9 +234,10 @@ The different fields are:
 * **generic**: the application's generic name
 * **exec**: the application's  executable 
 * **categories**: the application's categories
+* **comment**: the application comment
 * **all**: all of the above
 
-    Default: *all*
+    Default: *name,generic,exec,categories*
 
 `-window-match-fields` *field1*,*field2*,...
 
