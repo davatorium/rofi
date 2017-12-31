@@ -12,16 +12,61 @@ What field rofi should match on the drun view has been a source of long discussi
 name, others want to include the field with the tooltip text. In this release you can now set what fields are used for
 matching for both the drun as window browser.
 
+    `-drun-match-fields` *field1*,*field2*,...
+
+    When using drun, match only with the specified Desktop entry fields.
+    The different fields are:
+
+    * **name**: the application's name
+    * **generic**: the application's generic name
+    * **exec**: the application's  executable
+    * **categories**: the application's categories
+    * **comment**: the application comment
+    * **all**: all of the above
+
+        Default: *name,generic,exec,categories*
+
+    `-window-match-fields` *field1*,*field2*,...
+
+    When using window mode, match only with the specified fields.
+    The different fields are:
+
+    * **title**: window's title
+    * **class**: window's class
+    * **role**: window's role
+    * **name**: window's name
+    * **desktop**: window's current desktop
+    * **all**: all of the above
+
+    Default: *all*
+
 ### Pass extra properties in script mode
 
 As a first step in improving script mode, support for passing properties where added.
 You can now, from the script, set the `prompt`, a `message`, if the row contain `markup` and `active`, `urgent`.
 
+For example to set the prompt from a bash mode script:
+
+```bash
+echo -en "\x00prompt\x1ftesting\n"
+```
+
+or to mark the first 4 rows urgent and add message:
+```bash
+echo -en "\x00urgent\x1f0-3\n"
+echo -en "\0message\x1fSpecial <b>bold</b> message\n"
+```
+
+The `urgent` and `active` syntax is identical to the dmenu commandline argument.
 
 ### Negated matching
 
-The matching engine has been extended so, part of, queries can be negated. Searching for `terminal -vim` will list all
-fields that match `terminal` but do not contain `vim`.
+The matching engine has been extended so, part of, queries can be negated. Searching for `deconz -sh` will list all
+fields that match `deconz` but do not contain `sh`.
+
+![match](rofi-match.png)
+
+![match negated](rofi-neg-match.png)
 
 ### Hashtag rofi?
 
@@ -65,7 +110,18 @@ For extra buttons:
 ### Prompt colon
 
 This is a controversial one, being the cause of heated issues in the past. The prompt string of rofi is now left
-unmodified. Themes, like the default theme, can re-add the colon if desired. 
+unmodified. Themes, like the default theme, can re-add the colon if desired.
+
+```css
+inputbar {
+    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
+}
+textbox-prompt-colon {
+    expand:     false;
+    str:        ":";
+    margin:     0px 0.3000em 0.0000em 0.0000em ;
+}
+```
 
 ### History size
 
