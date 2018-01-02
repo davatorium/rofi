@@ -4,6 +4,9 @@ After the large previous release, we are hopefully back to more regular smaller 
 This release is focused on squashing some bugs and hopefully improving the user experience.
 But to satisfy people hunkering for new things, we also included a few new features.
 
+Big thanks to [SardemFF7](https://www.sardemff7.net/), without his help and contributions this release would not have been possible.
+
+
 ## New features
 
 ### Specify matching field
@@ -139,7 +142,7 @@ rofi.max-history-size: 500
 ```
 
 ## Full Changelog
-
+ - Rofi 1.4.2 doesn't capture ←, ↑, →, ↓ binding to keys to work in combination with Mode_switch (#744)
  - Add konsole to list of sensible terminals. (#739)
  - Allow drun to filter based on comment field. (#733)
  - Add prompt widget to default theme.
