@@ -125,6 +125,10 @@ textbox-prompt-colon {
 }
 ```
 
+Results in:
+
+![rofi colon](rofi-colon.png)
+
 ### History size
 
 On frequent request, you can now tweak the size of the history each modi keeps. While not recommended to change as it
