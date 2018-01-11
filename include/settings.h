@@ -89,6 +89,8 @@ typedef struct
     char           * window_match_fields;
     /** Theme for icons */
     char           * drun_icon_theme;
+    /** User's specified path's for Desktop entries */
+    char           * drun_apps_dir;
 
     /** Windows location/gravity */
     WindowLocation location;

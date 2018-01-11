@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI" "1" "December 2017" "" ""
+.TH "ROFI" "1" "January 2018" "" ""
 .
 .SH "NAME"
 \fBrofi\fR \- A window switcher, application launcher, ssh dialog and dmenu replacement
@@ -351,6 +351,12 @@ Show application icons in drun and window modes\.
 .
 .P
 Specify icon theme to be used in drun mode if show\-icons setting is enabled\. If not specified default theme from DE is used, \fIAdwaita\fR and \fIgnome\fR themes act as fallback themes\.
+.
+.P
+\fB\-drun\-apps\-dir\fR \fIdirectory\fR
+.
+.P
+Specify Desktop entries location to be used in drun mode\. If this option specified, Desktop entries will be used only from \fIapplications\fR subdirectory of \fIdirectory\fR\. Optionally the \fIdirectory\fR may content \fIicons\fR or/and \fIpixmaps\fR subdirectories\. If the environment variable XDG_DATA_HOME is set to \fIdirectory\fR, then the icons will be used from \fIicons\fR or/and \fIpixmaps\fR subdirectories\.
 .
 .SS "Matching"
 \fB\-matching\fR \fImethod\fR

@@ -553,29 +553,37 @@ static void get_apps ( DRunModePrivateData *pd )
 
     gchar *dir;
     // First read the user directory.
-    dir = g_build_filename ( g_get_user_data_dir (), "applications", NULL );
+    if ( config.drun_apps_dir != NULL ) {
+        // User's specified directories
+        dir = g_build_filename ( config.drun_apps_dir, "applications", NULL );
+    }
+    else {
+        dir = g_build_filename ( g_get_user_data_dir (), "applications", NULL );
+    }
     walk_dir ( pd, dir, dir );
     g_free ( dir );
     TICK_N ( "Get Desktop apps (user dir)" );
     // Then read thee system data dirs.
-    const gchar * const * sys = g_get_system_data_dirs ();
-    for ( const gchar * const *iter = sys; *iter != NULL; ++iter ) {
-        gboolean unique = TRUE;
-        // Stupid duplicate detection, better then walking dir.
-        for ( const gchar *const *iterd = sys; iterd != iter; ++iterd ) {
-            if ( g_strcmp0 ( *iter, *iterd ) == 0 ) {
-                unique = FALSE;
+    if ( config.drun_apps_dir == NULL ) {
+        const gchar * const * sys = g_get_system_data_dirs ();
+        for ( const gchar * const *iter = sys; *iter != NULL; ++iter ) {
+            gboolean unique = TRUE;
+            // Stupid duplicate detection, better then walking dir.
+            for ( const gchar *const *iterd = sys; iterd != iter; ++iterd ) {
+                if ( g_strcmp0 ( *iter, *iterd ) == 0 ) {
+                    unique = FALSE;
+                }
+            }
+            // Check, we seem to be getting empty string...
+            if ( unique && ( **iter ) != '\0' ) {
+                dir = g_build_filename ( *iter, "applications", NULL );
+                walk_dir ( pd, dir, dir );
+                g_free ( dir );
             }
         }
-        // Check, we seem to be getting empty string...
-        if ( unique && ( **iter ) != '\0' ) {
-            dir = g_build_filename ( *iter, "applications", NULL );
-            walk_dir ( pd, dir, dir );
-            g_free ( dir );
-        }
+        TICK_N ( "Get Desktop apps (system dirs)" );
+        get_apps_history ( pd );
     }
-    TICK_N ( "Get Desktop apps (system dirs)" );
-    get_apps_history ( pd );
 
     g_qsort_with_data ( pd->entry_list, pd->cmd_list_length, sizeof ( DRunModeEntry ), drun_int_sort_list, NULL );
 
