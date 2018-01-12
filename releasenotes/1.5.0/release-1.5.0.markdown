@@ -1,19 +1,18 @@
 # V1.5.0: The Hoff uses it.
 
-After the large previous release, we are hopefully back to more regular smaller releases.
-This release is focused on squashing some bugs and hopefully improving the user experience.
-But to satisfy people hunkering for new things, we also included a few new features.
+After the last release turned out to be fairly large we are hopefully back to more regular, smaller releases.
+This release focuses on squashing some bugs and hopefully improving the user experience.
+Nevertheless this release also includes some new features.
 
-Big thanks to [SardemFF7](https://www.sardemff7.net/), without his help and contributions this release would not have been possible.
+Big thanks to [SardemFF7](https://www.sardemff7.net/), without whose  help and contributions this release would not have been possible.
 
 
 ## New features
 
 ### Specify matching field
 
-What field rofi should match on the drun view has been a source of long discussions. Some people only want to match the
-name, others want to include the field with the tooltip text. In this release you can now set what fields are used for
-matching for both the drun as window browser.
+What field rofi should match on the drun view has been a source of [long discussions](https://github.com/DaveDavenport/rofi/pull/690),
+which resulted in new options to specify, which fields rofi should match against in either drun or window mode.
 
 `-drun-match-fields` *field1*,*field2*,...
 
@@ -45,16 +44,16 @@ Default: *all*
 
 ### Pass extra properties in script mode
 
-As a first step in improving script mode, support for passing properties where added.
-You can now, from the script, set the `prompt`, a `message`, if the row contain `markup` and `active`, `urgent`.
+To further improve script mode, support for passing properties has been added.
+You can now set the `prompt`, a `message` or use `markup` and `active`/`urgent` colors from the script itself.
 
-For example to set the prompt from a bash mode script:
+E.g. to set the prompt from a bash mode script:
 
 ```bash
 echo -en "\x00prompt\x1ftesting\n"
 ```
 
-Or to mark the first 4 rows urgent and add message:
+Or to mark the first 4 rows urgent and add a message:
 ```bash
 echo -en "\x00urgent\x1f0-3\n"
 echo -en "\0message\x1fSpecial <b>bold</b> message\n"
@@ -64,7 +63,7 @@ The `urgent` and `active` syntax is identical to the dmenu command-line argument
 
 ### Negated matching
 
-The matching engine has been extended so, part of, queries can be negated. Searching for `deconz -sh` will list all
+The matching engine has been extended. It’s now possible to negate parts of the query. Searching for `deconz -sh` will list all
 fields that match `deconz` but do not contain `sh`.
 
 ![match](rofi-match.png)
@@ -73,8 +72,8 @@ fields that match `deconz` but do not contain `sh`.
 
 ### Hashtag rofi?
 
-We have updated the theme format so that the '#' prefix before the element name is now optional.
-Beside being unneeded, it made the multi-selector look weird.
+In themes the '#' prefix before the element name is now optional.
+As well as not being needed, it made the multi-selector look weird.
 
 Example:
 
@@ -89,33 +88,33 @@ entry,prompt {
 
 ### Mouse bindings
 
-Mouse button and scroll bindings are now separated, and names have changed.
+Mouse button and scroll bindings are now separated and naming has changed.
 
 For the 3 base buttons:
 
 - `Mouse1` is now `MousePrimary`
 - `Mouse2` is now `MouseMiddle`
-- `Mouse3` is `MouseSecondary`
+- `Mouse3` is now `MouseSecondary`
 
 For the scroll wheel:
 
-- `Mouse4` is `ScrollUp`
-- `Mouse5` is `ScrollDown`
-- `Mouse6` is `ScrollLeft`
-- `Mouse7` is `ScrollRight`
+- `Mouse4` is now `ScrollUp`
+- `Mouse5` is now `ScrollDown`
+- `Mouse6` is now `ScrollLeft`
+- `Mouse7` is now `ScrollRight`
 
 For extra buttons:
 
-- `Mouse8` is `MouseBack`
-- `Mouse9` is `MouseForward`
-- Above 10, you have to use the platform-specific `MouseExtra<number>` (replace `<number>`). Under X11, these buttons will go on from 10.
+- `Mouse8` is now `MouseBack`
+- `Mouse9` is now `MouseForward`
+- Above 10, you have to use the platform-specific `MouseExtra<number>` (replace `<number>`).
 
 ## Bug fixes
 
 ### Prompt colon
 
-This is a controversial one, being the cause of heated issues in the past. The prompt string of rofi is now left
-unmodified. Themes, like the default theme, can re-add the colon if desired.
+This is a controversial one, abeing the cause of heated [discussions](https://github.com/DaveDavenport/rofi/issues/637) in the past.
+The prompt string of rofi is now left unmodified. Themes, like the default theme, can re-add the colon if desired.
 
 ```css
 inputbar {
@@ -134,7 +133,7 @@ Results in:
 
 ### History size
 
-On frequent request, you can now tweak the size of the history each modi keeps. While not recommended to change as it
+By frequent request, you can now tweak the size of the history each modi keeps. While not recommended to change it as it
 can cause performance issues, this allows power users to tweak it to their liking.
 
 ```
