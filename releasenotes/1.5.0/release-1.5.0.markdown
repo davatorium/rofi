@@ -141,6 +141,8 @@ rofi.max-history-size: 500
 ```
 
 ## Full Changelog
+ - [Theme] Accept integer notation for double properties. (#752)
+ - [View] Theme textboxes are vertically sized and horizontal wrapped. (#754)
  - Rofi 1.4.2 doesn't capture ←, ↑, →, ↓ binding to keys to work in combination with Mode_switch (#744)
  - Add konsole to list of sensible terminals. (#739)
  - Allow drun to filter based on comment field. (#733)

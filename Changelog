@@ -1,4 +1,6 @@
 v1.4.3 (dev):
+	- [Theme] Accept integer notation for double properties. (#752)
+	- [View] Theme textboxes are vertically sized and horizontal wrapped. (#754)
 	- Add height property on the Window width.
 	- Add prompt widget to default theme.
 	- Add manpage for rofi-theme-selector.
