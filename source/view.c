@@ -1634,7 +1634,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         }
     }
     else if (  g_ascii_strncasecmp ( name, "textbox", 7 ) == 0 ) {
-        textbox *t = textbox_create ( parent_widget, WIDGET_TYPE_TEXTBOX_TEXT, name, TB_WRAP, NORMAL, "", 0, 0 );
+        textbox *t = textbox_create ( parent_widget, WIDGET_TYPE_TEXTBOX_TEXT, name, TB_AUTOHEIGHT | TB_WRAP, NORMAL, "", 0, 0 );
         box_add ( (box *) parent_widget, WIDGET ( t ), TRUE );
     }
     else {
