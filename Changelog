@@ -1,7 +1,9 @@
-v1.4.3 (dev):
+v1.5.0 (dev):
 	- [Theme] Accept integer notation for double properties. (#752)
 	- [View] Theme textboxes are vertically sized and horizontal wrapped. (#754)
-	- Add height property on the Window width.
+	- Rofi 1.4.2 doesn't capture ←, ↑, →, ↓ binding to keys to work in combination with Mode_switch (#744)
+	- Add konsole to list of sensible terminals. (#739)
+	- Allow drun to filter based on comment field. (#733)
 	- Add prompt widget to default theme.
 	- Add manpage for rofi-theme-selector.
 	- Dump theme without # prefix and separator .
