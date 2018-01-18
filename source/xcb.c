@@ -845,13 +845,6 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
     if ( type == xcb->xkb.first_event ) {
         switch ( ev->pad0 )
         {
-        case XCB_XKB_NEW_KEYBOARD_NOTIFY:
-        {
-            xcb_xkb_new_keyboard_notify_event_t *knkne = (xcb_xkb_new_keyboard_notify_event_t *) ev;
-            if ( ! ( knkne->changed & XCB_XKB_NKN_DETAIL_KEYCODES ) )
-                break;
-        }
-        /* fallthrough */
         case XCB_XKB_MAP_NOTIFY:
         {
             struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( nk_bindings_seat_get_context ( xcb->bindings_seat ), xcb->connection, xcb->xkb.device_id, 0 );
