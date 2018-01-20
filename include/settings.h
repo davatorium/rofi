@@ -30,6 +30,8 @@
 
 #include <glib.h>
 
+#include "rofi-types.h"
+
 /**
  * Enumeration indicating the matching method to use.
  *
