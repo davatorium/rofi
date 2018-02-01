@@ -1,5 +1,5 @@
 project('rofi', 'c',
-    version: '1.4.99-dev',
+    version: '1.5.0',
     meson_version: '>=0.39.1',
     license: [ 'MIT' ],
     default_options: [
