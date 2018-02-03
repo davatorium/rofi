@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-THEME" "5" "December 2017" "" ""
+.TH "ROFI\-THEME" "5" "February 2018" "" ""
 .
 .SH "NAME"
 \fBrofi\-theme\fR \- Rofi theme format files
@@ -118,7 +118,7 @@ It is advised to define the \fIglobal properties section\fR on top of the file t
 .IP "" 0
 .
 .P
-If there are mulitple sections with the same name, they are merged\. Duplicate properties are overwritten and the last parsed entry kept\.
+If there are multiple sections with the same name, they are merged\. Duplicate properties are overwritten and the last parsed entry kept\.
 .
 .SH "Global properties section"
 A theme can have one or more global properties sections\. If there is more than one, they will be merged\.
@@ -169,7 +169,7 @@ element normal normal, button {
 .IP "" 0
 .
 .P
-Each section inherits the global properties\. Properties can be explicitely inherited from there parent with the \fBinherit\fR keyword\. In the following example:
+Each section inherits the global properties\. Properties can be explicitly inherited from their parent with the \fBinherit\fR keyword\. In the following example:
 .
 .IP "" 4
 .
@@ -221,7 +221,7 @@ The properties in a section consist of:
 .IP "" 0
 .
 .P
-Both fields are manditory for a property\.
+Both fields are mandatory for a property\.
 .
 .P
 The \fBidentifier\fR names the specified property\. Identifiers can consist of any combination of numbers, letters and \'\-\'\. It must not contain any whitespace\. The structure of the \fBvalue\fR defines the type of the property\. The current parser does not define or enforce a certain type of a particular \fBidentifier\fR\. When used, values with the wrong type that cannot be converted are ignored\.
@@ -419,7 +419,7 @@ The white\-space format proposed in CSS4 is also supported\.
 The different values are:
 .
 .IP "\(bu" 4
-\fB{HEX}\fR is a hexidecimal number (\'0\-9a\-f\' case insensitive)\.
+\fB{HEX}\fR is a hexadecimal number (\'0\-9a\-f\' case insensitive)\.
 .
 .IP "\(bu" 4
 \fB{INTEGER}\fR value can be between 0 and 255 or 0\-100 when representing percentage\.
@@ -888,7 +888,7 @@ nametotextbox selected\.active {
 .IP "" 0
 .
 .P
-Sets all selected textboxes marked active to the given foreground and background color\. Note that a state modifies the original element, it therefor contains all the properties of that element\.
+Sets all selected textboxes marked active to the given foreground and background color\. Note that a state modifies the original element, it therefore contains all the properties of that element\.
 .
 .SS "Scrollbar"
 The scrollbar uses the \fBhandle\fR state when drawing the small scrollbar handle\. This allows the colors used for drawing the handle to be set independently\.
