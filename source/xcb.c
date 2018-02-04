@@ -195,43 +195,39 @@ static void x11_monitors_free ( void )
     }
 }
 
+
 /**
- * Create monitor based on output id
+ * Create monitor based on xrandr monitor id.
  */
-static workarea * x11_get_monitor_from_output ( xcb_randr_output_t out )
+static workarea *x11_get_monitor_from_randr_monitor ( xcb_randr_monitor_info_t *mon )
 {
-    xcb_randr_get_output_info_reply_t  *op_reply;
-    xcb_randr_get_crtc_info_reply_t    *crtc_reply;
-    xcb_randr_get_output_info_cookie_t it = xcb_randr_get_output_info ( xcb->connection, out, XCB_CURRENT_TIME );
-    op_reply = xcb_randr_get_output_info_reply ( xcb->connection, it, NULL );
-    if ( op_reply->crtc == XCB_NONE ) {
-        free ( op_reply );
+    xcb_generic_error_t *err;
+    xcb_get_atom_name_cookie_t anc =  xcb_get_atom_name(xcb->connection, mon->name);
+    xcb_get_atom_name_reply_t *atom_reply = xcb_get_atom_name_reply( xcb->connection, anc, &err);
+    if (err != NULL) {
+        g_warning ("Could not get RandR monitor name: X11 error code %d\n", err->error_code);
+        free(err);
         return NULL;
     }
-    xcb_randr_get_crtc_info_cookie_t ct = xcb_randr_get_crtc_info ( xcb->connection, op_reply->crtc, XCB_CURRENT_TIME );
-    crtc_reply = xcb_randr_get_crtc_info_reply ( xcb->connection, ct, NULL );
-    if ( !crtc_reply ) {
-        free ( op_reply );
-        return NULL;
-    }
+    char *name;
+    name = g_strdup_printf("%.*s", xcb_get_atom_name_name_length(atom_reply), xcb_get_atom_name_name(atom_reply));
+    free(atom_reply);
+
+
     workarea *retv = g_malloc0 ( sizeof ( workarea ) );
-    retv->x = crtc_reply->x;
-    retv->y = crtc_reply->y;
-    retv->w = crtc_reply->width;
-    retv->h = crtc_reply->height;
+    retv->x          = mon->x;
+    retv->y          = mon->y;
+    retv->w          = mon->width;
+    retv->h          = mon->height;
 
-    retv->mw = op_reply->mm_width;
-    retv->mh = op_reply->mm_height;
+    retv->mw = mon->width_in_millimeters;
+    retv->mh = mon->height_in_millimeters;
 
-    char *tname    = (char *) xcb_randr_get_output_info_name ( op_reply );
-    int  tname_len = xcb_randr_get_output_info_name_length ( op_reply );
+    retv->primary = mon->primary;
+    retv->name = name;
 
-    retv->name = g_malloc0 ( ( tname_len + 1 ) * sizeof ( char ) );
-    memcpy ( retv->name, tname, tname_len );
-
-    free ( crtc_reply );
-    free ( op_reply );
     return retv;
+
 }
 
 static int x11_is_extension_present ( const char *extension )
@@ -301,40 +297,26 @@ static void x11_build_monitor_layout ()
     }
     g_debug ( "Query RANDR for monitor layout." );
 
-    xcb_randr_get_screen_resources_current_reply_t  *res_reply;
-    xcb_randr_get_screen_resources_current_cookie_t src;
-    src       = xcb_randr_get_screen_resources_current ( xcb->connection, xcb->screen->root );
-    res_reply = xcb_randr_get_screen_resources_current_reply ( xcb->connection, src, NULL );
-    if ( !res_reply ) {
-        return;  //just report error
-    }
-    int                mon_num = xcb_randr_get_screen_resources_current_outputs_length ( res_reply );
-    xcb_randr_output_t *ops    = xcb_randr_get_screen_resources_current_outputs ( res_reply );
-
-    // Get primary.
-    xcb_randr_get_output_primary_cookie_t pc      = xcb_randr_get_output_primary ( xcb->connection, xcb->screen->root );
-    xcb_randr_get_output_primary_reply_t  *pc_rep = xcb_randr_get_output_primary_reply ( xcb->connection, pc, NULL );
-
-    for ( int i = mon_num - 1; i >= 0; i-- ) {
-        workarea *w = x11_get_monitor_from_output ( ops[i] );
-        if ( w ) {
-            w->next       = xcb->monitors;
-            xcb->monitors = w;
-            if ( pc_rep && pc_rep->output == ops[i] ) {
-                w->primary = TRUE;
+    xcb_randr_get_monitors_cookie_t t = xcb_randr_get_monitors( xcb->connection, xcb->screen->root, 1 );
+    xcb_randr_get_monitors_reply_t *mreply = xcb_randr_get_monitors_reply ( xcb->connection, t, NULL );
+    if( mreply ) {
+        xcb_randr_monitor_info_iterator_t iter = xcb_randr_get_monitors_monitors_iterator ( mreply );
+        while ( iter.rem > 0 ) {
+            workarea *w = x11_get_monitor_from_randr_monitor ( iter.data );
+            if ( w ) {
+                w->next       = xcb->monitors;
+                xcb->monitors = w;
             }
+            xcb_randr_monitor_info_next (&iter);
         }
+        free ( mreply );
     }
+
     // Number monitor
     int index = 0;
     for ( workarea *iter = xcb->monitors; iter; iter = iter->next ) {
         iter->monitor_id = index++;
     }
-    // If exists, free primary output reply.
-    if ( pc_rep ) {
-        free ( pc_rep );
-    }
-    free ( res_reply );
 }
 
 void display_dump_monitor_layout ( void )
