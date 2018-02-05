@@ -191,7 +191,13 @@ apt install rofi
 
 **Please note that the latest version of rofi in Ubuntu 16.04 is extremely outdated (v0.15.11)** 
 
-This will cause issues with newer scripts (i.e. with clerk) and we recommend to manually download and install the deb file for zesty instead. You can find the deb on [ubuntu's launchpad page for rofi](https://launchpad.net/ubuntu/+source/rofi).
+This will cause issues with newer scripts (i.e. with clerk) and we recommend to use [Jason Pleau’s PPA](https://launchpad.net/~jasonpleau/+archive/ubuntu/rofi) to get updates:
+
+```
+add-apt-repository ppa:jasonpleau/rofi
+apt update
+apt install rofi
+```
 
 ### Fedora
 
