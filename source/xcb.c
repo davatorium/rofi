@@ -62,6 +62,10 @@
 #include "timings.h"
 
 #include <rofi.h>
+
+#define RANDR_PREF_MAJOR_VERSION 1
+#define RANDR_PREF_MINOR_VERSION 5
+
 /** Checks if the if x and y is inside rectangle. */
 #define INTERSECT( x, y, x1, y1, w1, h1 )    ( ( ( ( x ) >= ( x1 ) ) && ( ( x ) < ( x1 + w1 ) ) ) && ( ( ( y ) >= ( y1 ) ) && ( ( y ) < ( y1 + h1 ) ) ) )
 WindowManagerQuirk current_window_manager = WM_EWHM;
@@ -234,7 +238,8 @@ static workarea * x11_get_monitor_from_output ( xcb_randr_output_t out )
     return retv;
 }
 
-#if  ( (XCB_RANDR_MAJOR_VERSION >= 1) && (XCB_RANDR_MINOR_VERSION >= 5) )
+#if  ( ( (XCB_RANDR_MAJOR_VERSION >= RANDR_PREF_MAJOR_VERSION ) && (XCB_RANDR_MINOR_VERSION >= RANDR_PREF_MINOR_VERSION ) ) \
+        || XCB_RANDR_MAJOR_VERSION > RANDR_PREF_MAJOR_VERSION  )
 /**
  * Create monitor based on xrandr monitor id.
  */
@@ -337,20 +342,32 @@ static void x11_build_monitor_layout ()
     }
     g_debug ( "Query RANDR for monitor layout." );
 
-#if  ( (XCB_RANDR_MAJOR_VERSION >= 1) && (XCB_RANDR_MINOR_VERSION >= 5) )
-    xcb_randr_get_monitors_cookie_t t = xcb_randr_get_monitors( xcb->connection, xcb->screen->root, 1 );
-    xcb_randr_get_monitors_reply_t *mreply = xcb_randr_get_monitors_reply ( xcb->connection, t, NULL );
-    if( mreply ) {
-        xcb_randr_monitor_info_iterator_t iter = xcb_randr_get_monitors_monitors_iterator ( mreply );
-        while ( iter.rem > 0 ) {
-            workarea *w = x11_get_monitor_from_randr_monitor ( iter.data );
-            if ( w ) {
-                w->next       = xcb->monitors;
-                xcb->monitors = w;
+    g_debug ( "Randr XCB api version: %d.%d.", XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION );
+#if  ( ( ( XCB_RANDR_MAJOR_VERSION == RANDR_PREF_MAJOR_VERSION ) && (XCB_RANDR_MINOR_VERSION >= RANDR_PREF_MINOR_VERSION ) ) \
+        || XCB_RANDR_MAJOR_VERSION > RANDR_PREF_MAJOR_VERSION  )
+    xcb_randr_query_version_cookie_t cversion = xcb_randr_query_version(xcb->connection, RANDR_PREF_MAJOR_VERSION, RANDR_PREF_MINOR_VERSION);
+    xcb_randr_query_version_reply_t *rversion = xcb_randr_query_version_reply( xcb->connection, cversion, NULL );
+    if ( rversion ) {
+        g_debug ( "Found randr version: %d.%d", rversion->major_version, rversion->minor_version );
+        // Check if we are 1.5 and up.
+        if ( ( ( rversion->major_version == XCB_RANDR_MAJOR_VERSION ) && (rversion->minor_version >= XCB_RANDR_MINOR_VERSION ) ) ||
+                ( rversion->major_version > XCB_RANDR_MAJOR_VERSION ) ){
+            xcb_randr_get_monitors_cookie_t t = xcb_randr_get_monitors( xcb->connection, xcb->screen->root, 1 );
+            xcb_randr_get_monitors_reply_t *mreply = xcb_randr_get_monitors_reply ( xcb->connection, t, NULL );
+            if( mreply ) {
+                xcb_randr_monitor_info_iterator_t iter = xcb_randr_get_monitors_monitors_iterator ( mreply );
+                while ( iter.rem > 0 ) {
+                    workarea *w = x11_get_monitor_from_randr_monitor ( iter.data );
+                    if ( w ) {
+                        w->next       = xcb->monitors;
+                        xcb->monitors = w;
+                    }
+                    xcb_randr_monitor_info_next (&iter);
+                }
+                free ( mreply );
             }
-            xcb_randr_monitor_info_next (&iter);
         }
-        free ( mreply );
+        free ( rversion );
     }
 #endif
 
