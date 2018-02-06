@@ -63,6 +63,7 @@
 
 #include <rofi.h>
 
+/** Minimal randr prefered for running rofi (1.5) */
 #define RANDR_PREF_MAJOR_VERSION 1
 #define RANDR_PREF_MINOR_VERSION 5
 
@@ -241,10 +242,15 @@ static workarea * x11_get_monitor_from_output ( xcb_randr_output_t out )
 #if  ( ( (XCB_RANDR_MAJOR_VERSION >= RANDR_PREF_MAJOR_VERSION ) && (XCB_RANDR_MINOR_VERSION >= RANDR_PREF_MINOR_VERSION ) ) \
         || XCB_RANDR_MAJOR_VERSION > RANDR_PREF_MAJOR_VERSION  )
 /**
+ * @param mon The randr monitor to parse.
+ *
  * Create monitor based on xrandr monitor id.
+ *
+ * @returns A workarea representing the monitor mon
  */
 static workarea *x11_get_monitor_from_randr_monitor ( xcb_randr_monitor_info_t *mon )
 {
+    // Query to the name of the monitor.
     xcb_generic_error_t *err;
     xcb_get_atom_name_cookie_t anc =  xcb_get_atom_name(xcb->connection, mon->name);
     xcb_get_atom_name_reply_t *atom_reply = xcb_get_atom_name_reply( xcb->connection, anc, &err);
@@ -253,25 +259,28 @@ static workarea *x11_get_monitor_from_randr_monitor ( xcb_randr_monitor_info_t *
         free(err);
         return NULL;
     }
-    char *name;
-    name = g_strdup_printf("%.*s", xcb_get_atom_name_name_length(atom_reply), xcb_get_atom_name_name(atom_reply));
-    free(atom_reply);
-
-
     workarea *retv = g_malloc0 ( sizeof ( workarea ) );
+
+    // Is primary monitor.
+    retv->primary = mon->primary;
+
+    // Position and size.
     retv->x          = mon->x;
     retv->y          = mon->y;
     retv->w          = mon->width;
     retv->h          = mon->height;
 
+    // Physical
     retv->mw = mon->width_in_millimeters;
     retv->mh = mon->height_in_millimeters;
 
-    retv->primary = mon->primary;
-    retv->name = name;
+    // Name
+    retv->name = g_strdup_printf("%.*s", xcb_get_atom_name_name_length(atom_reply), xcb_get_atom_name_name(atom_reply));
+
+    // Free name atom.
+    free ( atom_reply );
 
     return retv;
-
 }
 #endif
 
@@ -345,7 +354,8 @@ static void x11_build_monitor_layout ()
     g_debug ( "Randr XCB api version: %d.%d.", XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION );
 #if  ( ( ( XCB_RANDR_MAJOR_VERSION == RANDR_PREF_MAJOR_VERSION ) && (XCB_RANDR_MINOR_VERSION >= RANDR_PREF_MINOR_VERSION ) ) \
         || XCB_RANDR_MAJOR_VERSION > RANDR_PREF_MAJOR_VERSION  )
-    xcb_randr_query_version_cookie_t cversion = xcb_randr_query_version(xcb->connection, RANDR_PREF_MAJOR_VERSION, RANDR_PREF_MINOR_VERSION);
+    xcb_randr_query_version_cookie_t cversion = xcb_randr_query_version(xcb->connection,
+            RANDR_PREF_MAJOR_VERSION, RANDR_PREF_MINOR_VERSION);
     xcb_randr_query_version_reply_t *rversion = xcb_randr_query_version_reply( xcb->connection, cversion, NULL );
     if ( rversion ) {
         g_debug ( "Found randr version: %d.%d", rversion->major_version, rversion->minor_version );
