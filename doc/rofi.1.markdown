@@ -205,6 +205,13 @@ Specify icon theme to be used in drun mode if show-icons setting is enabled.
 If not specified default theme from DE is used, *Adwaita* and *gnome* themes act as
 fallback themes.
 
+`-drun-apps-dir` *directory*
+
+Specify Desktop entries location to be used in drun mode.
+If this option specified, Desktop entries will be used only from *applications* subdirectory of *directory*.
+Optionally the *directory* may content *icons* or/and *pixmaps* subdirectories. If the environment variable
+XDG_DATA_HOME is set to *directory*, then the icons will be used from *icons* or/and *pixmaps* subdirectories.
+
 ### Matching
 
 `-matching` *method*

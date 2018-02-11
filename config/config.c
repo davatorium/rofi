@@ -67,6 +67,8 @@ Settings config = {
     .run_shell_command      = "{terminal} -e {cmd}",
     /** Command executed on accep-entry-custom for window modus */
     .window_command         = "xkill -id {window}",
+    /** User's specified paths for Desktop entries */
+    .drun_apps_dir          = NULL,
     /** No default icon theme, we search Adwaita and gnome as fallback */
     .drun_icon_theme        = NULL,
     /**
