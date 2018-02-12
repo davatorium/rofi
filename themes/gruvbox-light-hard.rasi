@@ -8,7 +8,7 @@
    Desc: Gruvbox light (hard contrast) color theme for Rofi
    Author: bardisty <b@bah.im>
    Source: https://github.com/bardisty/gruvbox-rofi
-   Modified: Mon Feb 12 2018 04:09:14 PST -0800
+   Modified: Mon Feb 12 2018 05:40:56 PST -0800
    ========================================================================== */
 
 * {
@@ -23,7 +23,7 @@
     gruvbox-light-fg0:          #282828;
     gruvbox-light-fg1:          #3c3836;
     gruvbox-light-red-dark:     #9d0006;
-    grubbox-light-red-light:    #cc241d;
+    gruvbox-light-red-light:    #cc241d;
     gruvbox-light-yellow-dark:  #b57614;
     gruvbox-light-yellow-light: #d79921;
     gruvbox-light-gray:         #7c6f64;

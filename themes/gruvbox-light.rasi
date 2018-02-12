@@ -8,7 +8,7 @@
    Desc: Gruvbox light color theme for rofi
    Author: bardisty <b@bah.im>
    Source: https://github.com/bardisty/gruvbox-rofi
-   Modified: Mon Feb 12 2018 04:09:29 PST -0800
+   Modified: Mon Feb 12 2018 05:41:26 PST -0800
    ========================================================================== */
 
 * {
@@ -24,7 +24,7 @@
     gruvbox-light-fg1:          #3c3836;
     gruvbox-light-gray:         #7c6f64;
     gruvbox-light-red-dark:     #9d0006;
-    grubbox-light-red-light:    #cc241d;
+    gruvbox-light-red-light:    #cc241d;
     gruvbox-light-yellow-dark:  #b57614;
     gruvbox-light-yellow-light: #d79921;
 
