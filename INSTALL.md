@@ -190,9 +190,10 @@ apt install rofi
 #### Ubuntu 16.04 Xenial
 
 **Please note that the latest version of rofi in Ubuntu 16.04 is extremely outdated (v0.15.11)** 
-**This workaround of installing packages from later versions is not advised, use at your own risk.**
 
-This will cause issues with newer scripts (i.e. with clerk) and we recommend to manually download and install newer deb files for rofi and dependencies from Zesty instead. You can find the rofi deb on [ubuntu's launchpad page for rofi](https://launchpad.net/ubuntu/+source/rofi) and you will also need [xcb-util-xrm](https://launchpad.net/ubuntu/+source/xcb-util-xrm) and a newer [libxkbcommon](https://launchpad.net/ubuntu/+source/libxkbcommon). First install the dependencies using `sudo dpkg -i <each-package-name>.deb` and then you should be able to `sudo dpkg -i rofi*.deb` and enjoy the features of the latest version.
+This will cause issues with newer scripts (i.e. with clerk) and misses important updates and bug-fixes.
+Newer versions of Rofi however requires versions of xcb-util-xrm and libxkbcommon then are not available in the 16.04 repositories.
+These need to be manually installed before rofi can be installed either via source code or Zesty version from the [ubuntu's launchpad page for rofi](https://launchpad.net/ubuntu/+source/rofi).
 
 ### Fedora
 
