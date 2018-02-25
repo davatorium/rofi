@@ -218,6 +218,7 @@ install_man(
 install_data(
     'themes/Adapta-Nokto.rasi',
     'themes/Arc.rasi',
+    'themes/Arc-Dark.rasi',
     'themes/DarkBlue.rasi',
     'themes/Pop-Dark.rasi',
     'themes/Indego.rasi',
@@ -229,6 +230,7 @@ install_data(
     'themes/c64.rasi',
     'themes/dmenu.rasi',
     'themes/glue_pro_blue.rasi',
+    'themes/gruvbox-common.rasi',
     'themes/gruvbox-dark-hard.rasi',
     'themes/gruvbox-dark-soft.rasi',
     'themes/gruvbox-dark.rasi',
