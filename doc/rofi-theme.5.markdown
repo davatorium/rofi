@@ -87,7 +87,7 @@ make inheritance of properties clearer.
 }
 ```
 
-If there are mulitple sections with the same name, they are merged. Duplicate properties are overwritten and the last
+If there are multiple sections with the same name, they are merged. Duplicate properties are overwritten and the last
 parsed entry kept.
 
 ## Global properties section
@@ -129,7 +129,7 @@ element normal normal, button {
 }
 ```
 
-Each section inherits the global properties. Properties can be explicitely inherited from there parent with the
+Each section inherits the global properties. Properties can be explicitly inherited from their parent with the
 `inherit` keyword.
 In the following example:
 
@@ -165,7 +165,7 @@ The properties in a section consist of:
 {identifier}: {value};
 ```
 
-Both fields are manditory for a property.
+Both fields are mandatory for a property.
 
 The `identifier` names the specified property. Identifiers can consist of any
 combination of numbers, letters and '-'. It must not contain any whitespace.
@@ -265,7 +265,7 @@ The white-space format proposed in CSS4 is also supported.
 
 The different values are:
 
- * `{HEX}` is a hexidecimal number ('0-9a-f' case insensitive).
+ * `{HEX}` is a hexadecimal number ('0-9a-f' case insensitive).
  * `{INTEGER}` value can be between 0 and 255 or 0-100 when representing percentage.
  * `{ANGLE}` is the angle on the color wheel, can be in `deg`, `rad`, `grad` or `turn`. When no unit is specified, degrees is assumed.
  * `{PERCENTAGE}` can be between 0-1.0, or 0%-100%
@@ -549,7 +549,7 @@ nametotextbox selected.active {
 ```
 
 Sets all selected textboxes marked active to the given foreground and background color.
-Note that a state modifies the original element, it therefor contains all the properties of that element.
+Note that a state modifies the original element, it therefore contains all the properties of that element.
 
 ### Scrollbar
 
@@ -686,7 +686,7 @@ The current layout of **rofi** is structured as follows:
 | | |-----------------------------------------------------------------------------|  |
 | |                                                                               |  |
 | | |---------------------------------------------------------------------------| |  |
-| | |  sidebar {BOX:horizontal}                                                | |  |
+| | |  sidebar {BOX:horizontal}                                                 | |  |
 | | | |---------------|   |---------------|  |--------------| |---------------| | |  |
 | | | | Button        |   | Button        |  | Button       | | Button        | | |  |
 | | | |---------------|   |---------------|  |--------------| |---------------| | |  |

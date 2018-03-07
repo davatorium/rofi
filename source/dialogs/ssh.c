@@ -433,6 +433,20 @@ static unsigned int ssh_mode_get_num_entries ( const Mode *sw )
     const SSHModePrivateData *rmpd = (const SSHModePrivateData *) mode_get_private_data ( sw );
     return rmpd->hosts_list_length;
 }
+/**
+ * @param sw Object handle to the SSH Mode object
+ *
+ * Cleanup the SSH Mode. Free all allocated memory and NULL the private data pointer.
+ */
+static void ssh_mode_destroy ( Mode *sw )
+{
+    SSHModePrivateData *rmpd = (SSHModePrivateData *) mode_get_private_data ( sw );
+    if ( rmpd != NULL ) {
+        g_strfreev ( rmpd->hosts_list );
+        g_free ( rmpd );
+        mode_set_private_data ( sw, NULL );
+    }
+}
 
 /**
  * @param sw Object handle to the SSH Mode object
@@ -465,29 +479,14 @@ static ModeMode ssh_mode_result ( Mode *sw, int mretv, char **input, unsigned in
     }
     else if ( ( mretv & MENU_ENTRY_DELETE ) && rmpd->hosts_list[selected_line] ) {
         delete_ssh ( rmpd->hosts_list[selected_line] );
-        g_strfreev ( rmpd->hosts_list );
-        rmpd->hosts_list_length = 0;
-        rmpd->hosts_list        = NULL;
         // Stay
         retv = RELOAD_DIALOG;
+        ssh_mode_destroy ( sw );
+        ssh_mode_init ( sw );
     }
     return retv;
 }
 
-/**
- * @param sw Object handle to the SSH Mode object
- *
- * Cleanup the SSH Mode. Free all allocated memory and NULL the private data pointer.
- */
-static void ssh_mode_destroy ( Mode *sw )
-{
-    SSHModePrivateData *rmpd = (SSHModePrivateData *) mode_get_private_data ( sw );
-    if ( rmpd != NULL ) {
-        g_strfreev ( rmpd->hosts_list );
-        g_free ( rmpd );
-        mode_set_private_data ( sw, NULL );
-    }
-}
 
 /**
  * @param sw Object handle to the SSH Mode object

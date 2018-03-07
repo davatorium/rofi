@@ -62,6 +62,11 @@
 #include "timings.h"
 
 #include <rofi.h>
+
+/** Minimal randr prefered for running rofi (1.5) */
+#define RANDR_PREF_MAJOR_VERSION 1
+#define RANDR_PREF_MINOR_VERSION 5
+
 /** Checks if the if x and y is inside rectangle. */
 #define INTERSECT( x, y, x1, y1, w1, h1 )    ( ( ( ( x ) >= ( x1 ) ) && ( ( x ) < ( x1 + w1 ) ) ) && ( ( ( y ) >= ( y1 ) ) && ( ( y ) < ( y1 + h1 ) ) ) )
 WindowManagerQuirk current_window_manager = WM_EWHM;
@@ -99,25 +104,25 @@ const char              *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 cairo_surface_t *x11_helper_get_screenshot_surface ( void )
 {
     return cairo_xcb_surface_create ( xcb->connection,
-                                      xcb_stuff_get_root_window (), root_visual,
-                                      xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
+            xcb_stuff_get_root_window (), root_visual,
+            xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
 }
 
 static xcb_pixmap_t get_root_pixmap ( xcb_connection_t *c,
-                                      xcb_screen_t *screen,
-                                      xcb_atom_t atom )
+        xcb_screen_t *screen,
+        xcb_atom_t atom )
 {
     xcb_get_property_cookie_t cookie;
     xcb_get_property_reply_t  *reply;
     xcb_pixmap_t              rootpixmap = XCB_NONE;
 
     cookie = xcb_get_property ( c,
-                                0,
-                                screen->root,
-                                atom,
-                                XCB_ATOM_PIXMAP,
-                                0,
-                                1 );
+            0,
+            screen->root,
+            atom,
+            XCB_ATOM_PIXMAP,
+            0,
+            1 );
 
     reply = xcb_get_property_reply ( c, cookie, NULL );
 
@@ -138,7 +143,7 @@ cairo_surface_t * x11_helper_get_bg_surface ( void )
         return NULL;
     }
     return cairo_xcb_surface_create ( xcb->connection, pm, root_visual,
-                                      xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
+            xcb->screen->width_in_pixels, xcb->screen->height_in_pixels );
 }
 
 // retrieve a text property from a window
@@ -234,6 +239,51 @@ static workarea * x11_get_monitor_from_output ( xcb_randr_output_t out )
     return retv;
 }
 
+#if  ( ( (XCB_RANDR_MAJOR_VERSION >= RANDR_PREF_MAJOR_VERSION ) && (XCB_RANDR_MINOR_VERSION >= RANDR_PREF_MINOR_VERSION ) ) \
+        || XCB_RANDR_MAJOR_VERSION > RANDR_PREF_MAJOR_VERSION  )
+/**
+ * @param mon The randr monitor to parse.
+ *
+ * Create monitor based on xrandr monitor id.
+ *
+ * @returns A workarea representing the monitor mon
+ */
+static workarea *x11_get_monitor_from_randr_monitor ( xcb_randr_monitor_info_t *mon )
+{
+    // Query to the name of the monitor.
+    xcb_generic_error_t *err;
+    xcb_get_atom_name_cookie_t anc =  xcb_get_atom_name(xcb->connection, mon->name);
+    xcb_get_atom_name_reply_t *atom_reply = xcb_get_atom_name_reply( xcb->connection, anc, &err);
+    if (err != NULL) {
+        g_warning ("Could not get RandR monitor name: X11 error code %d\n", err->error_code);
+        free(err);
+        return NULL;
+    }
+    workarea *retv = g_malloc0 ( sizeof ( workarea ) );
+
+    // Is primary monitor.
+    retv->primary = mon->primary;
+
+    // Position and size.
+    retv->x          = mon->x;
+    retv->y          = mon->y;
+    retv->w          = mon->width;
+    retv->h          = mon->height;
+
+    // Physical
+    retv->mw = mon->width_in_millimeters;
+    retv->mh = mon->height_in_millimeters;
+
+    // Name
+    retv->name = g_strdup_printf("%.*s", xcb_get_atom_name_name_length(atom_reply), xcb_get_atom_name_name(atom_reply));
+
+    // Free name atom.
+    free ( atom_reply );
+
+    return retv;
+}
+#endif
+
 static int x11_is_extension_present ( const char *extension )
 {
     xcb_query_extension_cookie_t randr_cookie = xcb_query_extension ( xcb->connection, strlen ( extension ), extension );
@@ -250,18 +300,18 @@ static int x11_is_extension_present ( const char *extension )
 static void x11_build_monitor_layout_xinerama ()
 {
     xcb_xinerama_query_screens_cookie_t screens_cookie = xcb_xinerama_query_screens_unchecked (
-        xcb->connection
-        );
+            xcb->connection
+            );
 
     xcb_xinerama_query_screens_reply_t *screens_reply = xcb_xinerama_query_screens_reply (
-        xcb->connection,
-        screens_cookie,
-        NULL
-        );
+            xcb->connection,
+            screens_cookie,
+            NULL
+            );
 
     xcb_xinerama_screen_info_iterator_t screens_iterator = xcb_xinerama_query_screens_screen_info_iterator (
-        screens_reply
-        );
+            screens_reply
+            );
 
     for (; screens_iterator.rem > 0; xcb_xinerama_screen_info_next ( &screens_iterator ) ) {
         workarea *w = g_malloc0 ( sizeof ( workarea ) );
@@ -301,40 +351,75 @@ static void x11_build_monitor_layout ()
     }
     g_debug ( "Query RANDR for monitor layout." );
 
-    xcb_randr_get_screen_resources_current_reply_t  *res_reply;
-    xcb_randr_get_screen_resources_current_cookie_t src;
-    src       = xcb_randr_get_screen_resources_current ( xcb->connection, xcb->screen->root );
-    res_reply = xcb_randr_get_screen_resources_current_reply ( xcb->connection, src, NULL );
-    if ( !res_reply ) {
-        return;  //just report error
-    }
-    int                mon_num = xcb_randr_get_screen_resources_current_outputs_length ( res_reply );
-    xcb_randr_output_t *ops    = xcb_randr_get_screen_resources_current_outputs ( res_reply );
-
-    // Get primary.
-    xcb_randr_get_output_primary_cookie_t pc      = xcb_randr_get_output_primary ( xcb->connection, xcb->screen->root );
-    xcb_randr_get_output_primary_reply_t  *pc_rep = xcb_randr_get_output_primary_reply ( xcb->connection, pc, NULL );
-
-    for ( int i = mon_num - 1; i >= 0; i-- ) {
-        workarea *w = x11_get_monitor_from_output ( ops[i] );
-        if ( w ) {
-            w->next       = xcb->monitors;
-            xcb->monitors = w;
-            if ( pc_rep && pc_rep->output == ops[i] ) {
-                w->primary = TRUE;
+    g_debug ( "Randr XCB api version: %d.%d.", XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION );
+#if  ( ( ( XCB_RANDR_MAJOR_VERSION == RANDR_PREF_MAJOR_VERSION ) && (XCB_RANDR_MINOR_VERSION >= RANDR_PREF_MINOR_VERSION ) ) \
+        || XCB_RANDR_MAJOR_VERSION > RANDR_PREF_MAJOR_VERSION  )
+    xcb_randr_query_version_cookie_t cversion = xcb_randr_query_version(xcb->connection,
+            RANDR_PREF_MAJOR_VERSION, RANDR_PREF_MINOR_VERSION);
+    xcb_randr_query_version_reply_t *rversion = xcb_randr_query_version_reply( xcb->connection, cversion, NULL );
+    if ( rversion ) {
+        g_debug ( "Found randr version: %d.%d", rversion->major_version, rversion->minor_version );
+        // Check if we are 1.5 and up.
+        if ( ( ( rversion->major_version == XCB_RANDR_MAJOR_VERSION ) && (rversion->minor_version >= XCB_RANDR_MINOR_VERSION ) ) ||
+                ( rversion->major_version > XCB_RANDR_MAJOR_VERSION ) ){
+            xcb_randr_get_monitors_cookie_t t = xcb_randr_get_monitors( xcb->connection, xcb->screen->root, 1 );
+            xcb_randr_get_monitors_reply_t *mreply = xcb_randr_get_monitors_reply ( xcb->connection, t, NULL );
+            if( mreply ) {
+                xcb_randr_monitor_info_iterator_t iter = xcb_randr_get_monitors_monitors_iterator ( mreply );
+                while ( iter.rem > 0 ) {
+                    workarea *w = x11_get_monitor_from_randr_monitor ( iter.data );
+                    if ( w ) {
+                        w->next       = xcb->monitors;
+                        xcb->monitors = w;
+                    }
+                    xcb_randr_monitor_info_next (&iter);
+                }
+                free ( mreply );
             }
         }
+        free ( rversion );
     }
+#endif
+
+    // If no monitors found.
+    if ( xcb->monitors == NULL ) {
+        xcb_randr_get_screen_resources_current_reply_t  *res_reply;
+        xcb_randr_get_screen_resources_current_cookie_t src;
+        src       = xcb_randr_get_screen_resources_current ( xcb->connection, xcb->screen->root );
+        res_reply = xcb_randr_get_screen_resources_current_reply ( xcb->connection, src, NULL );
+        if ( !res_reply ) {
+            return;  //just report error
+        }
+        int                mon_num = xcb_randr_get_screen_resources_current_outputs_length ( res_reply );
+        xcb_randr_output_t *ops    = xcb_randr_get_screen_resources_current_outputs ( res_reply );
+
+        // Get primary.
+        xcb_randr_get_output_primary_cookie_t pc      = xcb_randr_get_output_primary ( xcb->connection, xcb->screen->root );
+        xcb_randr_get_output_primary_reply_t  *pc_rep = xcb_randr_get_output_primary_reply ( xcb->connection, pc, NULL );
+
+        for ( int i = mon_num - 1; i >= 0; i-- ) {
+            workarea *w = x11_get_monitor_from_output ( ops[i] );
+            if ( w ) {
+                w->next       = xcb->monitors;
+                xcb->monitors = w;
+                if ( pc_rep && pc_rep->output == ops[i] ) {
+                    w->primary = TRUE;
+                }
+            }
+        }
+        // If exists, free primary output reply.
+        if ( pc_rep ) {
+            free ( pc_rep );
+        }
+        free ( res_reply );
+
+    }
+
     // Number monitor
     int index = 0;
     for ( workarea *iter = xcb->monitors; iter; iter = iter->next ) {
         iter->monitor_id = index++;
     }
-    // If exists, free primary output reply.
-    if ( pc_rep ) {
-        free ( pc_rep );
-    }
-    free ( res_reply );
 }
 
 void display_dump_monitor_layout ( void )
@@ -352,13 +437,13 @@ void display_dump_monitor_layout ( void )
         printf ( "%s            size%s: %d,%d\n", ( is_term ) ? color_bold : "", is_term ? color_reset : "", iter->w, iter->h );
         if ( iter->mw > 0 && iter->mh > 0 ) {
             printf ( "%s            size%s: %dmm,%dmm  dpi: %.0f,%.0f\n",
-                     ( is_term ) ? color_bold : "",
-                     is_term ? color_reset : "",
-                     iter->mw,
-                     iter->mh,
-                     iter->w * 25.4 / (double) iter->mw,
-                     iter->h * 25.4 / (double) iter->mh
-                     );
+                    ( is_term ) ? color_bold : "",
+                    is_term ? color_reset : "",
+                    iter->mw,
+                    iter->mh,
+                    iter->w * 25.4 / (double) iter->mw,
+                    iter->h * 25.4 / (double) iter->mh
+                   );
         }
         printf ( "\n" );
     }
@@ -556,7 +641,7 @@ static int monitor_active_from_id ( int mon_id, workarea *mon )
             if ( xcb_ewmh_get_desktop_viewport_reply ( &xcb->ewmh, c, &vp, NULL ) ) {
                 if ( current_desktop < vp.desktop_viewport_len ) {
                     monitor_dimensions ( vp.desktop_viewport[current_desktop].x,
-                                         vp.desktop_viewport[current_desktop].y, mon );
+                            vp.desktop_viewport[current_desktop].y, mon );
                     xcb_ewmh_get_desktop_viewport_reply_wipe ( &vp );
                     return TRUE;
                 }
@@ -675,28 +760,28 @@ static gboolean x11_button_to_nk_bindings_button ( guint32 x11_button, NkBinding
 {
     switch ( x11_button )
     {
-    case 1:
-        *button = NK_BINDINGS_MOUSE_BUTTON_PRIMARY;
-        break;
-    case 3:
-        *button = NK_BINDINGS_MOUSE_BUTTON_SECONDARY;
-        break;
-    case 2:
-        *button = NK_BINDINGS_MOUSE_BUTTON_MIDDLE;
-        break;
-    case 8:
-        *button = NK_BINDINGS_MOUSE_BUTTON_BACK;
-        break;
-    case 9:
-        *button = NK_BINDINGS_MOUSE_BUTTON_FORWARD;
-        break;
-    case 4:
-    case 5:
-    case 6:
-    case 7:
-        return FALSE;
-    default:
-        *button = NK_BINDINGS_MOUSE_BUTTON_EXTRA + x11_button;
+        case 1:
+            *button = NK_BINDINGS_MOUSE_BUTTON_PRIMARY;
+            break;
+        case 3:
+            *button = NK_BINDINGS_MOUSE_BUTTON_SECONDARY;
+            break;
+        case 2:
+            *button = NK_BINDINGS_MOUSE_BUTTON_MIDDLE;
+            break;
+        case 8:
+            *button = NK_BINDINGS_MOUSE_BUTTON_BACK;
+            break;
+        case 9:
+            *button = NK_BINDINGS_MOUSE_BUTTON_FORWARD;
+            break;
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+            return FALSE;
+        default:
+            *button = NK_BINDINGS_MOUSE_BUTTON_EXTRA + x11_button;
     }
     return TRUE;
 }
@@ -706,20 +791,20 @@ static gboolean x11_button_to_nk_bindings_scroll ( guint32 x11_button, NkBinding
     *steps = 1;
     switch ( x11_button )
     {
-    case 4:
-        *steps = -1;
-        /* fallthrough */
-    case 5:
-        *axis = NK_BINDINGS_SCROLL_AXIS_VERTICAL;
-        break;
-    case 6:
-        *steps = -1;
-        /* fallthrough */
-    case 7:
-        *axis = NK_BINDINGS_SCROLL_AXIS_HORIZONTAL;
-        break;
-    default:
-        return FALSE;
+        case 4:
+            *steps = -1;
+            /* fallthrough */
+        case 5:
+            *axis = NK_BINDINGS_SCROLL_AXIS_VERTICAL;
+            break;
+        case 6:
+            *steps = -1;
+            /* fallthrough */
+        case 7:
+            *axis = NK_BINDINGS_SCROLL_AXIS_HORIZONTAL;
+            break;
+        default:
+            return FALSE;
     }
     return TRUE;
 }
@@ -736,93 +821,93 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
 
     switch ( event->response_type & ~0x80 )
     {
-    case XCB_EXPOSE:
-        rofi_view_frame_callback ();
-        break;
-    case XCB_CONFIGURE_NOTIFY:
-    {
-        xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
-        rofi_view_temp_configure_notify ( state, xce );
-        break;
-    }
-    case XCB_MOTION_NOTIFY:
-    {
-        if ( config.click_to_exit == TRUE ) {
-            xcb->mouse_seen = TRUE;
-        }
-        xcb_motion_notify_event_t *xme = (xcb_motion_notify_event_t *) event;
-        rofi_view_handle_mouse_motion ( state, xme->event_x, xme->event_y );
-        break;
-    }
-    case XCB_BUTTON_PRESS:
-    {
-        xcb_button_press_event_t *bpe = (xcb_button_press_event_t *) event;
-        NkBindingsMouseButton button;
-        NkBindingsScrollAxis axis;
-        gint32 steps;
-
-        xcb->last_timestamp = bpe->time;
-        rofi_view_handle_mouse_motion ( state, bpe->event_x, bpe->event_y );
-        if ( x11_button_to_nk_bindings_button ( bpe->detail, &button ) )
-            nk_bindings_seat_handle_button ( xcb->bindings_seat, NULL, button, NK_BINDINGS_BUTTON_STATE_PRESS, bpe->time );
-        else if ( x11_button_to_nk_bindings_scroll ( bpe->detail, &axis, &steps) )
-            nk_bindings_seat_handle_scroll ( xcb->bindings_seat, NULL, axis, steps );
-        break;
-    }
-    case XCB_BUTTON_RELEASE:
-    {
-        xcb_button_release_event_t *bre = (xcb_button_release_event_t *) event;
-        NkBindingsMouseButton button;
-
-        xcb->last_timestamp = bre->time;
-        if ( x11_button_to_nk_bindings_button ( bre->detail, &button ) )
-            nk_bindings_seat_handle_button ( xcb->bindings_seat, NULL, button, NK_BINDINGS_BUTTON_STATE_RELEASE, bre->time );
-        if ( config.click_to_exit == TRUE ) {
-            if ( !xcb->mouse_seen ) {
-                rofi_view_temp_click_to_exit ( state, bre->event );
+        case XCB_EXPOSE:
+            rofi_view_frame_callback ();
+            break;
+        case XCB_CONFIGURE_NOTIFY:
+            {
+                xcb_configure_notify_event_t *xce = (xcb_configure_notify_event_t *) event;
+                rofi_view_temp_configure_notify ( state, xce );
+                break;
             }
-            xcb->mouse_seen = FALSE;
-        }
-        break;
-    }
-    // Paste event.
-    case XCB_SELECTION_NOTIFY:
-        rofi_view_paste ( state, (xcb_selection_notify_event_t *) event );
-        break;
-    case XCB_KEYMAP_NOTIFY:
-    {
-        xcb_keymap_notify_event_t *kne = (xcb_keymap_notify_event_t *) event;
-        for ( gint32 by = 0; by < 31; ++by ) {
-            for ( gint8 bi = 0; bi < 7; ++bi ) {
-                if ( kne->keys[by] & ( 1 << bi ) ) {
-                    // X11 keycodes starts at 8
-                    nk_bindings_seat_handle_key ( xcb->bindings_seat, NULL, ( 8 * by + bi ) + 8, NK_BINDINGS_KEY_STATE_PRESSED );
+        case XCB_MOTION_NOTIFY:
+            {
+                if ( config.click_to_exit == TRUE ) {
+                    xcb->mouse_seen = TRUE;
                 }
+                xcb_motion_notify_event_t *xme = (xcb_motion_notify_event_t *) event;
+                rofi_view_handle_mouse_motion ( state, xme->event_x, xme->event_y );
+                break;
             }
-        }
-        break;
-    }
-    case XCB_KEY_PRESS:
-    {
-        xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *) event;
-        gchar                 *text;
+        case XCB_BUTTON_PRESS:
+            {
+                xcb_button_press_event_t *bpe = (xcb_button_press_event_t *) event;
+                NkBindingsMouseButton button;
+                NkBindingsScrollAxis axis;
+                gint32 steps;
 
-        xcb->last_timestamp = xkpe->time;
-        text                = nk_bindings_seat_handle_key_with_modmask ( xcb->bindings_seat, NULL, xkpe->state, xkpe->detail, NK_BINDINGS_KEY_STATE_PRESS );
-        if ( text != NULL ) {
-            rofi_view_handle_text ( state, text );
-        }
-        break;
-    }
-    case XCB_KEY_RELEASE:
-    {
-        xcb_key_release_event_t *xkre = (xcb_key_release_event_t *) event;
-        xcb->last_timestamp = xkre->time;
-        nk_bindings_seat_handle_key ( xcb->bindings_seat, NULL, xkre->detail, NK_BINDINGS_KEY_STATE_RELEASE );
-        break;
-    }
-    default:
-        break;
+                xcb->last_timestamp = bpe->time;
+                rofi_view_handle_mouse_motion ( state, bpe->event_x, bpe->event_y );
+                if ( x11_button_to_nk_bindings_button ( bpe->detail, &button ) )
+                    nk_bindings_seat_handle_button ( xcb->bindings_seat, NULL, button, NK_BINDINGS_BUTTON_STATE_PRESS, bpe->time );
+                else if ( x11_button_to_nk_bindings_scroll ( bpe->detail, &axis, &steps) )
+                    nk_bindings_seat_handle_scroll ( xcb->bindings_seat, NULL, axis, steps );
+                break;
+            }
+        case XCB_BUTTON_RELEASE:
+            {
+                xcb_button_release_event_t *bre = (xcb_button_release_event_t *) event;
+                NkBindingsMouseButton button;
+
+                xcb->last_timestamp = bre->time;
+                if ( x11_button_to_nk_bindings_button ( bre->detail, &button ) )
+                    nk_bindings_seat_handle_button ( xcb->bindings_seat, NULL, button, NK_BINDINGS_BUTTON_STATE_RELEASE, bre->time );
+                if ( config.click_to_exit == TRUE ) {
+                    if ( !xcb->mouse_seen ) {
+                        rofi_view_temp_click_to_exit ( state, bre->event );
+                    }
+                    xcb->mouse_seen = FALSE;
+                }
+                break;
+            }
+            // Paste event.
+        case XCB_SELECTION_NOTIFY:
+            rofi_view_paste ( state, (xcb_selection_notify_event_t *) event );
+            break;
+        case XCB_KEYMAP_NOTIFY:
+            {
+                xcb_keymap_notify_event_t *kne = (xcb_keymap_notify_event_t *) event;
+                for ( gint32 by = 0; by < 31; ++by ) {
+                    for ( gint8 bi = 0; bi < 7; ++bi ) {
+                        if ( kne->keys[by] & ( 1 << bi ) ) {
+                            // X11 keycodes starts at 8
+                            nk_bindings_seat_handle_key ( xcb->bindings_seat, NULL, ( 8 * by + bi ) + 8, NK_BINDINGS_KEY_STATE_PRESSED );
+                        }
+                    }
+                }
+                break;
+            }
+        case XCB_KEY_PRESS:
+            {
+                xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *) event;
+                gchar                 *text;
+
+                xcb->last_timestamp = xkpe->time;
+                text                = nk_bindings_seat_handle_key_with_modmask ( xcb->bindings_seat, NULL, xkpe->state, xkpe->detail, NK_BINDINGS_KEY_STATE_PRESS );
+                if ( text != NULL ) {
+                    rofi_view_handle_text ( state, text );
+                }
+                break;
+            }
+        case XCB_KEY_RELEASE:
+            {
+                xcb_key_release_event_t *xkre = (xcb_key_release_event_t *) event;
+                xcb->last_timestamp = xkre->time;
+                nk_bindings_seat_handle_key ( xcb->bindings_seat, NULL, xkre->detail, NK_BINDINGS_KEY_STATE_RELEASE );
+                break;
+            }
+        default:
+            break;
     }
     rofi_view_maybe_update ( state );
 }
@@ -845,28 +930,28 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
     if ( type == xcb->xkb.first_event ) {
         switch ( ev->pad0 )
         {
-        case XCB_XKB_MAP_NOTIFY:
-        {
-            struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( nk_bindings_seat_get_context ( xcb->bindings_seat ), xcb->connection, xcb->xkb.device_id, 0 );
-            struct xkb_state  *state  = xkb_x11_state_new_from_device ( keymap, xcb->connection, xcb->xkb.device_id );
-            nk_bindings_seat_update_keymap ( xcb->bindings_seat, keymap, state );
-            xkb_keymap_unref ( keymap );
-            xkb_state_unref ( state );
-            break;
-        }
-        case XCB_XKB_STATE_NOTIFY:
-        {
-            xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
-            nk_bindings_seat_update_mask ( xcb->bindings_seat, NULL,
-                                           ksne->baseMods,
-                                           ksne->latchedMods,
-                                           ksne->lockedMods,
-                                           ksne->baseGroup,
-                                           ksne->latchedGroup,
-                                           ksne->lockedGroup );
-            rofi_view_maybe_update ( rofi_view_get_active () );
-            break;
-        }
+            case XCB_XKB_MAP_NOTIFY:
+                {
+                    struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( nk_bindings_seat_get_context ( xcb->bindings_seat ), xcb->connection, xcb->xkb.device_id, 0 );
+                    struct xkb_state  *state  = xkb_x11_state_new_from_device ( keymap, xcb->connection, xcb->xkb.device_id );
+                    nk_bindings_seat_update_keymap ( xcb->bindings_seat, keymap, state );
+                    xkb_keymap_unref ( keymap );
+                    xkb_state_unref ( state );
+                    break;
+                }
+            case XCB_XKB_STATE_NOTIFY:
+                {
+                    xcb_xkb_state_notify_event_t *ksne = (xcb_xkb_state_notify_event_t *) ev;
+                    nk_bindings_seat_update_mask ( xcb->bindings_seat, NULL,
+                            ksne->baseMods,
+                            ksne->latchedMods,
+                            ksne->lockedMods,
+                            ksne->baseGroup,
+                            ksne->latchedGroup,
+                            ksne->lockedGroup );
+                    rofi_view_maybe_update ( rofi_view_get_active () );
+                    break;
+                }
         }
         return G_SOURCE_CONTINUE;
     }
@@ -886,7 +971,7 @@ static int take_pointer ( xcb_window_t w, int iters )
             exit ( EXIT_FAILURE );
         }
         xcb_grab_pointer_cookie_t cc = xcb_grab_pointer ( xcb->connection, 1, w, XCB_EVENT_MASK_BUTTON_RELEASE,
-                                                          XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, w, XCB_NONE, XCB_CURRENT_TIME );
+                XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, w, XCB_NONE, XCB_CURRENT_TIME );
         xcb_grab_pointer_reply_t  *r = xcb_grab_pointer_reply ( xcb->connection, cc, NULL );
         if ( r ) {
             if ( r->status == XCB_GRAB_STATUS_SUCCESS ) {
@@ -912,8 +997,8 @@ static int take_keyboard ( xcb_window_t w, int iters )
             exit ( EXIT_FAILURE );
         }
         xcb_grab_keyboard_cookie_t cc = xcb_grab_keyboard ( xcb->connection,
-                                                            1, w, XCB_CURRENT_TIME, XCB_GRAB_MODE_ASYNC,
-                                                            XCB_GRAB_MODE_ASYNC );
+                1, w, XCB_CURRENT_TIME, XCB_GRAB_MODE_ASYNC,
+                XCB_GRAB_MODE_ASYNC );
         xcb_grab_keyboard_reply_t *r = xcb_grab_keyboard_reply ( xcb->connection, cc, NULL );
         if ( r ) {
             if ( r->status == XCB_GRAB_STATUS_SUCCESS ) {
@@ -977,7 +1062,7 @@ static void x11_helper_discover_window_manager ( void )
 {
     xcb_window_t              wm_win = 0;
     xcb_get_property_cookie_t cc     = xcb_ewmh_get_supporting_wm_check_unchecked ( &xcb->ewmh,
-                                                                                    xcb_stuff_get_root_window () );
+            xcb_stuff_get_root_window () );
 
     if ( xcb_ewmh_get_supporting_wm_check_reply ( &xcb->ewmh, cc, &wm_win, NULL ) ) {
         xcb_ewmh_get_utf8_strings_reply_t wtitle;
@@ -1027,7 +1112,7 @@ gboolean display_setup ( GMainLoop *main_loop, NkBindings *bindings )
     TICK_N ( "Setup XCB" );
 
     if ( xkb_x11_setup_xkb_extension ( xcb->connection, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION,
-                                       XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS, NULL, NULL, &xcb->xkb.first_event, NULL ) < 0 ) {
+                XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS, NULL, NULL, &xcb->xkb.first_event, NULL ) < 0 ) {
         g_warning ( "cannot setup XKB extension!" );
         return FALSE;
     }
@@ -1069,11 +1154,11 @@ gboolean display_setup ( GMainLoop *main_loop, NkBindings *bindings )
         .stateDetails       = required_state_details,
     };
     xcb_xkb_select_events ( xcb->connection, xcb->xkb.device_id, required_events, /* affectWhich */
-                            0,                                                    /* clear */
-                            required_events,                                      /* selectAll */
-                            required_map_parts,                                   /* affectMap */
-                            required_map_parts,                                   /* map */
-                            &details );
+            0,                                                    /* clear */
+            required_events,                                      /* selectAll */
+            required_map_parts,                                   /* affectMap */
+            required_map_parts,                                   /* map */
+            &details );
 
     xcb->bindings_seat = nk_bindings_seat_new ( bindings, XKB_CONTEXT_NO_FLAGS );
     struct xkb_keymap *keymap = xkb_x11_keymap_new_from_device ( nk_bindings_seat_get_context ( xcb->bindings_seat ), xcb->connection, xcb->xkb.device_id, XKB_KEYMAP_COMPILE_NO_FLAGS );

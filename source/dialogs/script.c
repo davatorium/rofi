@@ -78,7 +78,7 @@ static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
         char *value = line + length_key + 1;
         if ( strcasecmp ( line, "message" ) == 0 ) {
             g_free ( pd->message );
-            pd->message = g_strdup ( value );
+            pd->message = strlen(value)? g_strdup ( value ):NULL;
         }
         else if ( strcasecmp ( line, "prompt" ) == 0 ) {
             g_free ( pd->prompt );
@@ -187,6 +187,19 @@ static unsigned int script_mode_get_num_entries ( const Mode *sw )
     return rmpd->cmd_list_length;
 }
 
+static void script_mode_reset_highlight ( Mode *sw )
+{
+    ScriptModePrivateData *rmpd      = (ScriptModePrivateData *) sw->private_data;
+
+    rmpd->num_urgent_list = 0;
+    g_free ( rmpd->urgent_list );
+    rmpd->urgent_list = NULL;
+    rmpd->num_active_list = 0;
+    g_free ( rmpd->active_list );
+    rmpd->active_list = NULL;
+
+}
+
 static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
 {
     ScriptModePrivateData *rmpd      = (ScriptModePrivateData *) sw->private_data;
@@ -204,9 +217,11 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
         retv = ( mretv & MENU_LOWER_MASK );
     }
     else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
+        script_mode_reset_highlight ( sw );
         new_list = execute_executor ( sw, rmpd->cmd_list[selected_line], &new_length );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
+        script_mode_reset_highlight ( sw );
         new_list = execute_executor ( sw, *input, &new_length );
     }
 

@@ -66,7 +66,7 @@ configuration {
     highlight:     underline bold #ffffff;
 
     transparent: rgba(0,0,0,0);
-    font: "Sauce Code Powerline Medium 10";
+    font: "Source Code Pro 10";
 }
 #window {
     location: center;
@@ -95,7 +95,7 @@ configuration {
     background-color: @tcyan;
 }
 #message {
-    font: "Sauce Code Powerline ExtraLight 8";
+    font: "Source Code Pro 8";
     color: @black;
 }
 
@@ -106,11 +106,14 @@ configuration {
     border: 2px 2px 2px 2px;
     border-radius:  15px 15px 0px 0px;
     border-color: @foreground;
-    font: "Sauce Code Pro 18";
+    font: "Source Code Pro 18";
 }
 #entry,prompt,case-indicator {
     text-font: inherit;
     text-color:inherit;
+}
+#prompt {
+    margin:     0px 0.3em 0em 0em ;
 }
 #listview {
     padding: 8px;
