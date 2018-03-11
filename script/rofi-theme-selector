@@ -164,7 +164,12 @@ Current theme: <b>${CUR}</b>"""
 ###
 function set_theme()
 {
-    CDIR="${HOME}/.config/rofi/"
+    if [ -d "${XDG_CONFIG_HOME}" ]; then
+      CDIR="${XDG_CONFIG_HOME}/rofi/"
+    else
+      CDIR="${HOME}/.config/rofi/"
+    fi
+
     if [ ! -d "${CDIR}" ]
     then
         mkdir -p ${CDIR}
