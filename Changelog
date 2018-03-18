@@ -1,3 +1,12 @@
+v1.5.1:
+	- Egor Zvorykin: Fix typos in theme manpage. (#760)
+	- Ben: Fix README config file location. (#761)
+	- [SSH] Reload when ssh entry is deleted.
+	- Add support for randr 1.5 monitors. (#749)
+	- Diki Anata: Fix border layout structure.
+	- Remove duplicate tests. (#543)
+	- Fix make test in libnkutils.
+
 v1.5.0:
 	- [Theme] Accept integer notation for double properties. (#752)
 	- [View] Theme textboxes are vertically sized and horizontal wrapped. (#754)
