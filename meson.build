@@ -69,6 +69,7 @@ check = dependency('check', version: '>= 0.11.0', required: get_option('enable-c
 header_conf = configuration_data()
 header_conf.set_quoted('PACKAGE_NAME', meson.project_name())
 header_conf.set_quoted('PACKAGE_VERSION', meson.project_version())
+header_conf.set_quoted('VERSION', meson.project_version())
 header_conf.set_quoted('GETTEXT_PACKAGE', meson.project_name())
 header_conf.set_quoted('PACKAGE_BUGREPORT', 'https://github.com/DaveDavenport/rofi/')
 header_conf.set_quoted('PACKAGE_URL', 'https://reddit.com/r/qtools/')
