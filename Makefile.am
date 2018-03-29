@@ -172,6 +172,12 @@ dist_man1_MANS=\
 dist_man5_MANS=\
 	doc/rofi-theme.5
 
+EXTRA_DIST += \
+	doc/rofi-theme.5.markdown \
+	doc/rofi-theme-selector.1.markdown \
+	doc/rofi.1.markdown
+
+
 ##
 # Readme.md
 ##
