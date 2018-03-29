@@ -7,6 +7,7 @@ AM_YFLAGS = -d
 
 noinst_LIBRARIES =
 EXTRA_DIST=
+noinst_PROGRAMS=
 check_PROGRAMS=
 TESTS=
 include $(top_srcdir)/subprojects/libnkutils/libnkutils-nolibtool.mk
