@@ -57,7 +57,7 @@ ActionBindingEntry rofi_bindings[] =
     { .id = REMOVE_WORD_BACK,        .name  = "kb-remove-word-back",        .binding = "Control+Alt+h,Control+BackSpace",      .comment = "Delete previous word"                                                  },
     { .id = REMOVE_WORD_FORWARD,     .name  = "kb-remove-word-forward",     .binding = "Control+Alt+d",                        .comment = "Delete next word"                                                      },
     { .id = REMOVE_CHAR_FORWARD,     .name  = "kb-remove-char-forward",     .binding = "Delete,Control+d",                     .comment = "Delete next char"                                                      },
-    { .id = REMOVE_CHAR_BACK,        .name  = "kb-remove-char-back",        .binding = "BackSpace,Control+h",                  .comment = "Delete previous char"                                                  },
+    { .id = REMOVE_CHAR_BACK,        .name  = "kb-remove-char-back",        .binding = "BackSpace,Shift+BackSpace,Control+h",  .comment = "Delete previous char"                                                  },
     { .id = REMOVE_TO_EOL,           .name  = "kb-remove-to-eol",           .binding = "Control+k",                            .comment = "Delete till the end of line"                                           },
     { .id = REMOVE_TO_SOL,           .name  = "kb-remove-to-sol",           .binding = "Control+u",                            .comment = "Delete till the start of line"                                         },
     { .id = ACCEPT_ENTRY,            .name  = "kb-accept-entry",            .binding = "Control+j,Control+m,Return,KP_Enter",  .comment = "Accept entry"                                                          },

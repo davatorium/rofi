@@ -773,7 +773,7 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action )
     case MOVE_WORD_FORWARD:
         textbox_cursor_inc_word ( tb );
         return 2;
-    // BackSpace, Ctrl-h
+    // BackSpace, Shift-BackSpace, Ctrl-h
     case REMOVE_CHAR_BACK:
         textbox_cursor_bkspc ( tb );
         return 1;

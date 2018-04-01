@@ -141,7 +141,7 @@ rofi.kb-remove-word-forward:         Control+Alt+d
 ! "Delete next char" Set from: File
 rofi.kb-remove-char-forward:         Delete,Control+d
 ! "Delete previous char" Set from: File
-rofi.kb-remove-char-back:            BackSpace,Control+h
+rofi.kb-remove-char-back:            BackSpace,Shift+BackSpace,Control+h
 ! "Delete till the end of line" Set from: File
 rofi.kb-remove-to-eol:               Control+k
 ! "Delete till the start of line" Set from: File

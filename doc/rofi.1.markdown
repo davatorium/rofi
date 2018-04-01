@@ -772,7 +772,7 @@ of the window will be visible through it.
   * `Alt-b`: Back one word
   * `Ctrl-d, Delete`: Delete character
   * `Ctrl-Alt-d`: Delete word
-  * `Ctrl-h, Backspace`: Backspace (delete previous character)
+  * `Ctrl-h, Backspace, Shift-Backspace`: Backspace (delete previous character)
   * `Ctrl-Alt-h`: Delete previous word
   * `Ctrl-j,Ctrl-m,Enter`: Accept entry
   * `Ctrl-n,Down`: Select next entry
