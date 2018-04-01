@@ -767,9 +767,9 @@ of the window will be visible through it.
   * `Ctrl-a`: Beginning of line
   * `Ctrl-e`: End of line
   * `Ctrl-f, Right`: Forward one character
-  * `Alt-f`: Forward one word
+  * `Alt-f, Ctrl-Right`: Forward one word
   * `Ctrl-b, Left`: Back one character
-  * `Alt-b`: Back one word
+  * `Alt-b, Ctrl-Left`: Back one word
   * `Ctrl-d, Delete`: Delete character
   * `Ctrl-Alt-d`: Delete word
   * `Ctrl-h, Backspace, Shift-Backspace`: Backspace (delete previous character)

@@ -127,9 +127,9 @@ rofi.kb-move-front:                  Control+a
 ! "End of line" Set from: File
 rofi.kb-move-end:                    Control+e
 ! "Move back one word" Set from: File
-rofi.kb-move-word-back:              Alt+b
+rofi.kb-move-word-back:              Alt+b,Ctrl+Left
 ! "Move forward one word" Set from: File
-rofi.kb-move-word-forward:           Alt+f
+rofi.kb-move-word-forward:           Alt+f,Ctrl+Right
 ! "Move back one char" Set from: File
 rofi.kb-move-char-back:              Left,Control+b
 ! "Move forward one char" Set from: File

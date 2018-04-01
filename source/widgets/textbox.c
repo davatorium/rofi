@@ -765,11 +765,11 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action )
     case REMOVE_CHAR_FORWARD:
         textbox_cursor_del ( tb );
         return 1;
-    // Alt-B
+    // Alt-B, Ctrl-Left
     case MOVE_WORD_BACK:
         textbox_cursor_dec_word ( tb );
         return 2;
-    // Alt-F
+    // Alt-F, Ctrl-Right
     case MOVE_WORD_FORWARD:
         textbox_cursor_inc_word ( tb );
         return 2;

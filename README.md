@@ -169,9 +169,9 @@ Type `Shift-/Left/Right` to switch between active modi.
 |`Ctrl-a`                              | Move to beginning of line |
 |`Ctrl-e`                              | Move to end of line |
 |`Ctrl-f, Right`                       | Move forward one character |
-|`Alt-f`                               | Move forward one word |
+|`Alt-f, Ctrl-Right`                   | Move forward one word |
 |`Ctrl-b, Left`                        | Move back one character |
-|`Alt-b`                               | Move back one word |
+|`Alt-b, Ctrl-Left`                    | Move back one word |
 |`Ctrl-d, Delete`                      | Delete character |
 |`Ctrl-Alt-d`                          | Delete word |
 |`Ctrl-h, Backspace, Shift-Backspace`  | Backspace (delete previous character) |
