@@ -164,22 +164,22 @@ void widget_draw ( widget *widget, cairo_t *d )
         double    vspace = widget->h - margin_top - margin_bottom - top / 2.0 - bottom / 2.0;
         double    hspace = widget->w - margin_left - margin_right - left / 2.0 - right / 2.0;
         if ( ( radius_bl + radius_tl ) > ( vspace ) ) {
-            int j = floor ( ( vspace ) / 2.0 );
+            int j =  ( ( vspace ) / 2.0 );
             radius_bl = MIN ( radius_bl, j );
             radius_tl = MIN ( radius_tl, j );
         }
         if ( ( radius_br + radius_tr ) > ( vspace ) ) {
-            int j = floor ( ( vspace  ) / 2.0 );
+            int j =  ( ( vspace  ) / 2.0 );
             radius_br = MIN ( radius_br, j );
             radius_tr = MIN ( radius_tr, j );
         }
         if ( ( radius_tl + radius_tr ) > ( hspace ) ) {
-            int j = floor ( ( hspace ) / 2.0 );
+            int j =  ( ( hspace ) / 2.0 );
             radius_tr = MIN ( radius_tr, j );
             radius_tl = MIN ( radius_tl, j );
         }
         if ( ( radius_bl + radius_br ) > ( hspace ) ) {
-            int j = floor ( ( hspace ) / 2.0 );
+            int j =  ( ( hspace ) / 2.0 );
             radius_br = MIN ( radius_br, j );
             radius_bl = MIN ( radius_bl, j );
         }
@@ -218,138 +218,133 @@ void widget_draw ( widget *widget, cairo_t *d )
 
         cairo_restore ( d );
 
+#if 1
         if ( left || top || right || bottom ) {
             cairo_save ( d );
             cairo_translate ( d, widget->x, widget->y );
             cairo_new_path ( d );
             rofi_theme_get_color ( widget, "border-color", d );
+            double minof_tr  =  ( MIN ( right / 2.0, top / 2.0 ) );
+            double minof_tl  =  ( MIN ( left / 2.0, top / 2.0 ) );
+            double minof_br  =  ( MIN ( right / 2.0, bottom / 2.0 ) );
+            double minof_bl  =  ( MIN ( left / 2.0, bottom / 2.0 ) );
+            double radius_im_tl = radius_tl - minof_tl;
+            double radius_im_tr = radius_tr - minof_tr;
+            double radius_im_bl = radius_bl - minof_bl;
+            double radius_im_br = radius_br - minof_br;
+            double offset_tl  = ( radius_im_tl > 0 ) ? ( left  ) +radius_im_tl : left;
+            double offset_tr  = ( radius_im_tr > 0 ) ? ( right ) +radius_im_tr : right;
+            double offset_bl  = ( radius_im_bl > 0 ) ? ( left  ) +radius_im_bl : left;
+            double offset_br  = ( radius_im_br > 0 ) ? ( right ) +radius_im_br : right;
+            double offset_ttl  = ( radius_im_tl > 0 ) ? ( top  ) +radius_im_tl : (radius_tl>0)?top:0;
+            double offset_ttr  = ( radius_im_tr > 0 ) ? ( top  ) +radius_im_tr : (radius_tr>0)?top:0;
+            double offset_bbl  = ( radius_im_bl > 0 ) ? ( bottom) +radius_im_bl : (radius_bl>0)?bottom:0;
+            double offset_bbr  = ( radius_im_br > 0 ) ? ( bottom ) +radius_im_br : (radius_br>0)?bottom:0;
             if ( left > 0 ) {
-                double offset = ( radius_tl > 0 ) ? floor ( top / 2.0 ) : 0;
                 cairo_set_line_width ( d, left );
                 distance_get_linestyle ( widget->border.left, d );
-                cairo_move_to ( d, margin_left + left / 2.0, margin_top + radius_tl + offset );
-                offset = ( radius_bl > 0 ) ? floor ( bottom / 2.0 ) : 0;
-                cairo_line_to ( d, margin_left + left / 2.0, widget->h - margin_bottom - radius_bl - offset );
+                cairo_move_to ( d, margin_left + (left / 2.0), margin_top + offset_ttl );
+                cairo_line_to ( d, margin_left + left / 2.0, widget->h - margin_bottom - offset_bbl );
                 cairo_stroke ( d );
             }
             if ( radius_tl > 0  ) {
                 distance_get_linestyle ( widget->border.left, d );
-                if ( left == top ) {
-                    cairo_set_line_width ( d, left );
-                    cairo_arc ( d,
-                                margin_left + left / 2.0 + radius_tl, margin_top + radius_tl + top / 2.0, radius_tl, -G_PI, -G_PI_2 );
-                    cairo_stroke ( d );
-                }
-                else {
+                {
                     cairo_set_line_width ( d, 0 );
-                    double minof        = ceil ( MIN ( left / 2.0, top / 2.0 ) );
-                    double radius_outer = radius_tl + minof;
-                    double radius_inner = radius_tl - minof;
+                    double radius_outer = radius_tl + minof_tl;
+                    double radius_inner = radius_tl - minof_tl;
                     cairo_arc ( d, margin_left + radius_outer, margin_top + radius_outer, radius_outer, -G_PI, -G_PI_2 );
-                    cairo_line_to   ( d, margin_left + radius_tl + ceil ( left / 2.0 ), margin_top );
-                    cairo_line_to   ( d, margin_left + radius_tl + ceil ( left / 2.0 ), margin_top + top );
-                    cairo_arc_negative ( d, margin_left + left + radius_inner, margin_top + top + radius_inner, radius_inner, -G_PI_2, G_PI );
-                    cairo_line_to   ( d, margin_left + left, margin_top + radius_tl + ceil ( top / 2.0 ) );
-                    cairo_line_to   ( d, margin_left, margin_top + radius_tl + ceil ( top / 2.0 ) );
+                    cairo_line_to   ( d, margin_left + offset_tl, margin_top );
+                    cairo_line_to   ( d, margin_left + offset_tl, margin_top + top );
+                    if ( radius_inner > 0 ) {
+                        cairo_arc_negative ( d, margin_left + left + radius_inner, margin_top + top + radius_inner, radius_inner, -G_PI_2, G_PI );
+                        cairo_line_to   ( d, margin_left + left, margin_top + offset_ttl );
+                    }
+                    cairo_line_to   ( d, margin_left, margin_top + offset_ttl );
                     cairo_close_path ( d );
                     cairo_fill ( d );
                 }
             }
             if ( top > 0 ) {
-                double offset = ( radius_tl > 0 ) ? floor ( left / 2.0 ) : 0;
                 cairo_set_line_width ( d, top );
                 distance_get_linestyle ( widget->border.top, d );
-                cairo_move_to ( d, margin_left + radius_tl + offset, margin_top + top / 2.0 );
-                offset = ( radius_tr > 0 ) ? floor ( right / 2.0 ) : 0;
-                cairo_line_to ( d, widget->w - margin_right - radius_tr - offset, margin_top + top / 2.0 );
+                cairo_move_to ( d, margin_left + offset_tl, margin_top + top / 2.0 );
+                cairo_line_to ( d, widget->w - margin_right - offset_tr, margin_top + top / 2.0 );
                 cairo_stroke ( d );
             }
             if ( radius_tr > 0  ) {
                 distance_get_linestyle ( widget->border.right, d );
-                if ( top == right ) {
-                    cairo_set_line_width ( d, right );
-                    cairo_arc ( d, widget->w - margin_right - right / 2.0 - radius_tr, margin_top + radius_tr + right / 2.0, radius_tr, -G_PI_2, 0 * G_PI );
-                    cairo_stroke ( d );
-                }
-                else {
+                {
                     cairo_set_line_width ( d, 0 );
-                    double minof        = ceil ( MIN ( right / 2.0, top / 2.0 ) );
-                    double radius_outer = radius_tr + minof;
-                    double radius_inner = radius_tr - minof;
+                    double radius_outer = radius_tr + minof_tr;
+                    double radius_inner = radius_tr - minof_tr;
                     cairo_arc ( d, widget->w - margin_right - radius_outer, margin_top + radius_outer, radius_outer, -G_PI_2, 0 );
-                    cairo_line_to   ( d, widget->w - margin_right, margin_top + radius_tr + ceil ( top / 2.0 ) );
-                    cairo_line_to   ( d, widget->w - margin_right - right, margin_top + radius_tr + ceil ( top / 2.0 ) );
-                    cairo_arc_negative ( d, widget->w - margin_right - right - radius_inner, margin_top + top + radius_inner, radius_inner, 0, -G_PI_2 );
-                    cairo_line_to   ( d, widget->w - margin_right - radius_tr - ceil ( right / 2.0 ), margin_top + top );
-                    cairo_line_to   ( d, widget->w - margin_right - radius_tr - ceil ( right / 2.0 ), margin_top );
+                    cairo_line_to   ( d, widget->w - margin_right,         margin_top + offset_ttr);
+                    cairo_line_to   ( d, widget->w - margin_right - right, margin_top + offset_ttr);
+                    if ( radius_inner > 0 ) {
+                        cairo_arc_negative ( d, widget->w - margin_right - right - radius_inner, margin_top + top + radius_inner, radius_inner, 0, -G_PI_2 );
+                        cairo_line_to   ( d, widget->w - margin_right - offset_tr, margin_top + top );
+                    }
+                    cairo_line_to   ( d, widget->w - margin_right - offset_tr, margin_top );
                     cairo_close_path ( d );
                     cairo_fill ( d );
                 }
             }
             if ( right > 0 ) {
-                double offset = ( radius_tr > 0 ) ? floor ( top / 2.0 ) : 0;
                 cairo_set_line_width ( d, right );
                 distance_get_linestyle ( widget->border.right, d );
-                cairo_move_to ( d, widget->w - margin_right - right / 2.0, margin_top + radius_tr + offset );
-                offset = ( radius_br > 0 ) ? floor ( bottom / 2.0 ) : 0;
-                cairo_line_to ( d, widget->w - margin_right - right / 2.0, widget->h - margin_bottom - radius_br - offset );
+                cairo_move_to ( d, widget->w - margin_right - right / 2.0, margin_top + offset_ttr );
+                cairo_line_to ( d, widget->w - margin_right - right / 2.0, widget->h - margin_bottom - offset_bbr );
                 cairo_stroke ( d );
             }
             if ( radius_br > 0  ) {
                 distance_get_linestyle ( widget->border.right, d );
-                if ( bottom == right ) {
-                    cairo_set_line_width ( d, right );
-                    cairo_arc ( d, widget->w - margin_right - right / 2.0 - radius_br, widget->h - margin_bottom - radius_br - right / 2.0, radius_br, 0.0, G_PI_2 );
-                    cairo_stroke ( d );
-                }
-                else {
-                    cairo_set_line_width ( d, 0 );
-                    double minof        = ceil ( MIN ( right / 2.0, bottom / 2.0 ) );
-                    double radius_outer = radius_br + minof;
-                    double radius_inner = radius_br - minof;
+                {
+                    cairo_set_line_width ( d, 1 );
+                    double radius_outer = radius_br + minof_br;
+                    double radius_inner = radius_br - minof_br;
                     cairo_arc ( d, widget->w - margin_right - radius_outer, widget->h - margin_bottom - radius_outer, radius_outer, 0.0, G_PI_2 );
-                    cairo_line_to   ( d, widget->w - margin_right - radius_br - ceil ( right / 2.0 ), widget->h - margin_bottom );
-                    cairo_line_to   ( d, widget->w - margin_right - radius_br - ceil ( right / 2.0 ), widget->h - margin_bottom - bottom );
-                    cairo_arc_negative ( d, widget->w - margin_right - right - radius_inner, widget->h - margin_bottom - bottom - radius_inner, radius_inner, G_PI_2, 0.0 );
-                    cairo_line_to   ( d, widget->w - margin_right - right, widget->h - margin_bottom - radius_br - ceil ( bottom / 2.0 ) );
-                    cairo_line_to   ( d, widget->w - margin_right, widget->h - margin_bottom - radius_br - ceil ( bottom / 2.0 ) );
+                    cairo_line_to   ( d, widget->w - margin_right - offset_br, widget->h - margin_bottom );
+                    cairo_line_to   ( d, widget->w - margin_right - offset_br, widget->h - margin_bottom - bottom );
+                    if ( radius_inner > 0 ){
+                        cairo_arc_negative ( d,
+                                widget->w - margin_right - right - radius_inner,
+                                widget->h - margin_bottom - bottom - radius_inner, radius_inner, G_PI_2, 0.0 );
+                       cairo_line_to   ( d, widget->w - margin_right -right, widget->h - margin_bottom - offset_bbr );
+                    }
+                    cairo_line_to   ( d, widget->w - margin_right, widget->h - margin_bottom - offset_bbr);
                     cairo_close_path ( d );
                     cairo_fill ( d );
                 }
             }
             if ( bottom > 0 ) {
-                double offset = ( radius_bl > 0 ) ?  floor ( left / 2.0 ) : 0;
                 cairo_set_line_width ( d, bottom );
                 distance_get_linestyle ( widget->border.bottom, d );
-                cairo_move_to ( d, margin_left + radius_bl + offset, widget->h - bottom / 2.0 - margin_bottom );
-                offset = ( radius_br > 0 ) ? floor ( right / 2.0 ) : 0;
-                cairo_line_to ( d, widget->w - margin_right - radius_br - offset, widget->h - bottom / 2.0 - margin_bottom );
+                cairo_move_to ( d, margin_left + offset_bl, widget->h - (bottom / 2.0) - margin_bottom );
+                cairo_line_to ( d, widget->w - margin_right - offset_br, widget->h - bottom / 2.0 - margin_bottom );
                 cairo_stroke ( d );
             }
             if ( radius_bl > 0  ) {
                 distance_get_linestyle ( widget->border.left, d );
-                if ( bottom == left ) {
-                    cairo_set_line_width ( d, left );
-                    cairo_arc ( d, margin_left + left / 2.0 + radius_bl, widget->h - margin_bottom - radius_bl - left / 2.0, radius_bl, G_PI_2, G_PI );
-                    cairo_stroke ( d );
-                }
-                else {
-                    cairo_set_line_width ( d, 0 );
-                    double minof        = ceil ( MIN ( left / 2.0, bottom / 2.0 ) );
-                    double radius_outer = radius_bl + minof;
-                    double radius_inner = radius_bl - minof;
+                {
+                    cairo_set_line_width ( d, 1.0 );
+                    double radius_outer = radius_bl + minof_bl;
+                    double radius_inner = radius_bl - minof_bl;
                     cairo_arc ( d, margin_left + radius_outer, widget->h - margin_bottom - radius_outer, radius_outer, G_PI_2, G_PI );
-                    cairo_line_to   ( d, margin_left, widget->h - margin_bottom - radius_bl - ceil ( bottom / 2.0 ) );
-                    cairo_line_to   ( d, margin_left + left, widget->h - margin_bottom - radius_bl - ceil ( bottom / 2.0 ) );
-                    cairo_arc_negative ( d, margin_left + left + radius_inner, widget->h - margin_bottom - bottom - radius_inner, radius_inner, G_PI, G_PI_2 );
-                    cairo_line_to   ( d, margin_left + radius_bl + ceil ( left / 2.0 ), widget->h - margin_bottom - bottom );
-                    cairo_line_to   ( d, margin_left + radius_bl + ceil ( left / 2.0 ), widget->h - margin_bottom );
+                    cairo_line_to   ( d, margin_left       , widget->h - margin_bottom - offset_bbl );
+                    cairo_line_to   ( d, margin_left + left, widget->h - margin_bottom - offset_bbl );
+                    if ( radius_inner > 0 ) {
+                        cairo_arc_negative ( d, margin_left + left + radius_inner, widget->h - margin_bottom - bottom - radius_inner, radius_inner, G_PI, G_PI_2 );
+                        cairo_line_to   ( d, margin_left + offset_bl, widget->h - margin_bottom - bottom );
+                    }
+                    cairo_line_to   ( d, margin_left + offset_bl, widget->h - margin_bottom );
                     cairo_close_path ( d );
-                    cairo_fill ( d );
+                    cairo_fill( d );
                 }
             }
             cairo_restore ( d );
         }
+#endif
     }
 }
 void widget_free ( widget *wid )
