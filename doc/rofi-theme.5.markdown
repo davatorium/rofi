@@ -571,9 +571,9 @@ The following properties are currently supported:
   Border around the widget (between padding and margin)/
 * **border-radius**:    padding
   Sets a radius on the corners of the borders.
-* **background**:      color
+* **background-color**:      color
   Background color
-* **foreground**:      color
+* **foreground-color**:      color
   Foreground color
 * **index**:           integer  (This one does not inherit it value from the parent widget)
 
@@ -585,7 +585,7 @@ The following properties are currently supported:
 * **transparency**:    string
   Indicating if transparency should be used and what type:
   **real** - True transparency. Only works with a compositor.
-  **background** - Take a screenshot of the background image and use that.
+  **background-color** - Take a screenshot of the background image and use that.
   **screenshot** - Take a screenshot of the screen and use that.
   **Path** to png file - Use an image.
 
@@ -618,7 +618,7 @@ The following properties are currently supported:
 
 ### textbox:
 
-* **background**:       color
+* **background-color**:       color
 * **foreground**:       color
 * **font**:             the font used by this textbox (string)
 * **str**:              the string to display by this textbox (string)
