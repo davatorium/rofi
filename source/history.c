@@ -182,7 +182,7 @@ void history_set ( const char *filename, const char *entry )
     char *current_ignored = strtok(config.ignored_programs, ", ");
     while (current_ignored != NULL) {
 	if (!strcmp(current_ignored, program)) return;
-	current_ignored = strtok(config.ignored_programs, ", ");
+	current_ignored = strtok(NULL, ", ");
     }
     int          found  = 0;
     unsigned int curr   = 0;
