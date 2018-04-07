@@ -177,6 +177,13 @@ void history_set ( const char *filename, const char *entry )
     if ( config.disable_history ) {
         return;
     }
+    // Check if program should be ignored
+    char *program = strtok(entry, " ");
+    char *current_ignored = strtok(config.ignored_programs, ", ");
+    while (current_ignored != NULL) {
+	if (!strcmp(current_ignored, program)) return;
+	current_ignored = strtok(config.ignored_programs, ", ");
+    }
     int          found  = 0;
     unsigned int curr   = 0;
     unsigned int length = 0;
