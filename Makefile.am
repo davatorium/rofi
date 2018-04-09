@@ -629,3 +629,10 @@ EXTRA_DIST += \
 	subprojects/libgwater/xcb/meson.build \
 	meson_options.txt \
 	meson.build
+
+distcheck-hook:
+	cd $(distdir) && \
+	rm -rf ../meson-test-build && \
+	meson ../meson-test-build && \
+	ninja -C ../meson-test-build test && \
+	rm -rf ../meson-test-build
