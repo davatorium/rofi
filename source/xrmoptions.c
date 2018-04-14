@@ -32,7 +32,9 @@
 #include <unistd.h>
 #include <xcb/xcb.h>
 #include <xcb/xkb.h>
+#ifdef HAVE_XRM
 #include <xcb/xcb_xrm.h>
+#endif
 #include <glib.h>
 #include "xcb.h"
 #include "xcb-internal.h"
@@ -239,6 +241,7 @@ void config_parser_add_option ( XrmOptionType type, const char *key, void **valu
     num_extra_options++;
 }
 
+#ifdef HAVE_XRM
 static void config_parser_set ( XrmOption *option, char *xrmValue, enum ConfigSource source )
 {
     switch ( option->type )
@@ -312,20 +315,24 @@ static void __config_parse_xresource_options_dynamic ( xcb_xrm_database_t *xDB, 
         g_free ( name );
     }
 }
+#endif
 void config_parse_xresource_options ( xcb_stuff *xcb )
 {
+#ifdef HAVE_XRM
     xcb_xrm_database_t *xDB = xcb_xrm_database_from_default ( xcb->connection );
     if ( xDB ) {
         __config_parse_xresource_options ( xDB, CONFIG_XRESOURCES );
         __config_parse_xresource_options_dynamic ( xDB, CONFIG_XRESOURCES );
         xcb_xrm_database_free ( xDB );
     }
+#endif
 }
 void config_parse_xresource_options_file ( const char *filename )
 {
     if ( !filename ) {
         return;
     }
+#ifdef HAVE_XRM
     // Map Xresource entries to rofi config options.
     xcb_xrm_database_t *xDB = xcb_xrm_database_from_file ( filename );
     if ( xDB == NULL ) {
@@ -334,6 +341,7 @@ void config_parse_xresource_options_file ( const char *filename )
     __config_parse_xresource_options ( xDB, CONFIG_FILE );
     __config_parse_xresource_options_dynamic ( xDB, CONFIG_FILE );
     xcb_xrm_database_free ( xDB );
+#endif
 }
 
 /**

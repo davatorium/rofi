@@ -132,6 +132,7 @@ rofi_SOURCES=\
 rofi_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
+	$(xrm_CFLAGS)\
 	$(NKUTILS_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
 	$(pango_CFLAGS)\
@@ -153,6 +154,7 @@ rofi_CFLAGS=\
 
 rofi_LDADD=\
 	$(glib_LIBS)\
+	$(xrm_LIBS)\
 	$(NKUTILS_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(libsn_LIBS)\
@@ -325,8 +327,8 @@ textbox_test_LDADD=\
 	$(librsvg_LIBS)\
 	$(libsn_LIBS)
 
-helper_pidfile_CFLAGS=$(textbox_test_CFLAGS)
-helper_pidfile_LDADD=$(textbox_test_LDADD)
+helper_pidfile_CFLAGS=$(textbox_test_CFLAGS) $(xrm_CFLAGS)
+helper_pidfile_LDADD=$(textbox_test_LDADD) $(xrm_LIBS)
 helper_pidfile_SOURCES=\
 					   config/config.c\
 					   include/rofi.h\
@@ -453,6 +455,7 @@ helper_test_SOURCES=\
 helper_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
+	$(xrm_CFLAGS)\
 	$(pango_CFLAGS)\
 	$(NKUTILS_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
@@ -469,6 +472,7 @@ helper_test_CFLAGS=\
 
 helper_test_LDADD=\
 	$(glib_LIBS)\
+	$(xrm_LIBS)\
 	$(pango_LIBS)\
 	$(NKUTILS_LIBS)\
 	$(GW_XCB_LIBS)\
@@ -514,8 +518,8 @@ helper_config_cmdline_parser_SOURCES=\
 
 
 if USE_CHECK
-mode_test_CFLAGS=$(textbox_test_CFLAGS) $(check_CFLAGS)
-mode_test_LDADD=$(textbox_test_LDADD) $(check_LIBS)
+mode_test_CFLAGS=$(textbox_test_CFLAGS) $(check_CFLAGS) $(xrm_CFLAGS)
+mode_test_LDADD=$(textbox_test_LDADD) $(check_LIBS) $(xrm_LIBS)
 mode_test_SOURCES=\
 				  config/config.c\
 				  test/mode-test.c\
@@ -528,8 +532,8 @@ mode_test_SOURCES=\
 				  source/keyb.c\
 				  include/mode.h\
 				  include/mode-private.h
-helper_tokenize_CFLAGS=$(textbox_test_CFLAGS) $(check_CFLAGS)
-helper_tokenize_LDADD=$(textbox_test_LDADD) $(check_LIBS)
+helper_tokenize_CFLAGS=$(textbox_test_CFLAGS) $(check_CFLAGS) $(xrm_CFLAGS)
+helper_tokenize_LDADD=$(textbox_test_LDADD) $(check_LIBS) $(xrm_LIBS)
 helper_tokenize_SOURCES=\
 					   config/config.c\
 					   include/rofi.h\

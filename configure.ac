@@ -120,7 +120,7 @@ dnl PKG_CONFIG based dependencies
 dnl ---------------------------------------------------------------------
 NK_INIT([bindings xdg-theme])
 PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40 gio-unix-2.0 gmodule-2.0])
-GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11 xcb-ewmh xcb-icccm xcb-xrm xcb-randr xcb-xinerama])
+GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11 xcb-ewmh xcb-icccm xcb-randr xcb-xinerama])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])
 PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0 ])
@@ -133,6 +133,17 @@ AC_ARG_ENABLE([check], AS_HELP_STRING([--disable-check], [Build with checks usin
 
 AS_IF([test "x${enable_check}" != "xno"], [ PKG_CHECK_MODULES([check],[check >= 0.11.0], [HAVE_CHECK=1]) ])
 AM_CONDITIONAL([USE_CHECK],  [test "x${enable_check}" != "xno" && test "$HAVE_CHECK" -eq 1])
+
+
+AC_ARG_ENABLE([xrm], AS_HELP_STRING([--disable-xrm], [Build with xresources support  using xcb-xrm library (default: enabled)]))
+
+AS_IF([test "x${enable_xrm}" != "xno"], [ PKG_CHECK_MODULES([xrm],[xcb-xrm ], [HAVE_XRMPKG=1]) ])
+AS_IF([test "x${enable_xrm}" != "xno" && test "$HAVE_XRMPKG" -eq 1], [
+       AM_CONDITIONAL([HAVE_XRM],  [1])
+       AC_DEFINE([HAVE_XRM],[1],[Enable Xresources support])
+       ],[
+          AM_CONDITIONAL([HAVE_XRM], [0])
+          ])
 
 
 dnl ---------------------------------------------------------------------
