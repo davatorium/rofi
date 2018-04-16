@@ -244,6 +244,11 @@ static rofi_int_matcher * create_regex ( const char *input, int case_sensitive )
         retv = R ( r, case_sensitive );
         g_free ( r );
         break;
+    case MM_START: 
+        r    = g_regex_escape_string ( input, -1 );
+        retv = R ( g_strconcat ( "^", r, (char *) NULL ), case_sensitive );
+        g_free ( r );
+        break;
     default:
         r    = g_regex_escape_string ( input, -1 );
         retv = R ( r, case_sensitive );
@@ -588,10 +593,13 @@ int config_sanity_check ( void )
             config.matching_method = MM_FUZZY;
         }
         else if ( g_strcmp0 ( config.matching, "normal" ) == 0 ) {
-            config.matching_method = MM_NORMAL;;
+            config.matching_method = MM_NORMAL;
+        }
+        else if ( g_strcmp0 ( config.matching, "start" ) == 0 ) {
+            config.matching_method = MM_START;
         }
         else {
-            g_string_append_printf ( msg, "\t<b>config.matching</b>=%s is not a valid matching strategy.\nValid options are: glob, regex, fuzzy or normal.\n",
+            g_string_append_printf ( msg, "\t<b>config.matching</b>=%s is not a valid matching strategy.\nValid options are: glob, regex, fuzzy, start or normal.\n",
                                      config.matching );
             found_error = 1;
         }
