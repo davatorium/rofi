@@ -321,7 +321,11 @@ t_config_property
     char *error = NULL;
     if ( config_parse_set_property ( $1, &error ) ) {
         // TODO Generate error.
+#ifdef FATAL_CONFIG_ERROR
         yyerror ( &(@$), @$.filename, error );
+#else
+        g_warning("%s:%d:%d: %s\n", @$.filename, @$.first_line, @$.first_column, error);
+#endif
         g_free(error);
     }
 }
