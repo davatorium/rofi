@@ -585,6 +585,11 @@ if ( queue == NULL ){
     yylval->sval = g_strdup(yytext);
     return T_ELEMENT;
 }
+<PROPERTIES_LIST>{STRING} {
+    yytext[yyleng-1] = '\0';
+    yylval->sval = g_strdup(yytext+1);
+    return T_ELEMENT;
+}
 
 <PROPERTIES,PROPERTIES_LIST>. {
     return T_ERROR_PROPERTY;
