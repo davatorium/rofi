@@ -71,6 +71,7 @@ SOURCES=\
 	source/rofi-types.c\
 	source/widgets/box.c\
 	source/widgets/container.c\
+	source/widgets/icon.c\
 	source/widgets/widget.c\
 	source/widgets/textbox.c\
 	source/widgets/listview.c\
@@ -105,6 +106,7 @@ SOURCES=\
 	include/css-colors.h\
 	include/widgets/box.h\
 	include/widgets/container.h\
+	include/widgets/icon.h\
 	include/widgets/widget.h\
 	include/widgets/widget-internal.h\
 	include/widgets/textbox.h\
