@@ -134,14 +134,16 @@ icon * icon_create ( widget *parent, const char *name )
     b->size = rofi_theme_get_integer ( WIDGET ( b ), "size", b->size );
 
     const char * filename = rofi_theme_get_string ( WIDGET ( b ), "filename", NULL );
-    b->icon = cairo_image_surface_create_from_png ( filename );
-    if ( b->icon == NULL ) {
-        g_warning("Failed to load icon: %s\n", filename);
-    } else {
-        if ( cairo_surface_status ( b->icon ) != CAIRO_STATUS_SUCCESS ) {
-            g_warning ( "Failed to load icon: %s\n", filename );
-            cairo_surface_destroy ( b->icon );
-            b->icon = NULL;
+    if ( filename ) {
+        b->icon = cairo_image_surface_create_from_png ( filename );
+        if ( b->icon == NULL ) {
+            g_warning("Failed to load icon: %s\n", filename);
+        } else {
+            if ( cairo_surface_status ( b->icon ) != CAIRO_STATUS_SUCCESS ) {
+                g_warning ( "Failed to load icon: %s\n", filename );
+                cairo_surface_destroy ( b->icon );
+                b->icon = NULL;
+            }
         }
     }
 
