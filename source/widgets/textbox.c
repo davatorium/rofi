@@ -334,6 +334,14 @@ void textbox_text ( textbox *tb, const char *text )
 
 void textbox_icon ( textbox *tb, cairo_surface_t *icon )
 {
+    // Add our reference to the surface.
+    if ( icon != NULL ) {
+        cairo_surface_reference ( icon );
+    }
+    if ( tb->icon ) {
+        // If we overwrite an old one, destroy the reference we hold.
+        cairo_surface_destroy ( tb->icon );
+    }
     tb->icon = icon;
 
     widget_queue_redraw ( WIDGET ( tb ) );
@@ -390,6 +398,10 @@ static void textbox_free ( widget *wid )
     }
     g_free ( tb->text );
 
+    if ( tb->icon ) {
+        cairo_surface_destroy ( tb->icon );
+        tb->icon = NULL;
+    }
     if ( tb->layout != NULL ) {
         g_object_unref ( tb->layout );
     }
