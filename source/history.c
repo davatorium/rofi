@@ -179,13 +179,14 @@ void history_set ( const char *filename, const char *entry )
     }
 
     // Check if program should be ignored
-    char *program = malloc(sizeof(char) * strlen(entry) + 1);
+    char         *program = malloc ( sizeof ( char ) * strlen ( entry ) + 1 );
     strcpy(program, entry);
-    program = strtok(program, " ");
-    char *current_ignored = strtok(config.ignored_programs, ", ");
-    while (current_ignored != NULL) {
-	    if (strcmp(current_ignored, program) == 0) return;
-	    current_ignored = strtok(NULL, ", ");
+    program = strtok ( program, " ") ;
+    char         *current_ignored = strtok ( config.ignored_programs, ", " );
+    while ( current_ignored != NULL ) {
+	    if ( strcmp ( current_ignored, program ) == 0 )
+            return;
+	    current_ignored = strtok ( NULL, ", " );
     }
 
     int          found  = 0;
