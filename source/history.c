@@ -180,7 +180,7 @@ void history_set ( const char *filename, const char *entry )
 
     // Copy the entry
     char *program = malloc(sizeof(char) * strlen(entry) + 1);
-    strcpy(program, entry)
+    strcpy(program, entry);
     // Check if program should be ignored
     program = strtok(program, " ");
     printf("program: %s\n", program);
