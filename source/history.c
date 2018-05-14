@@ -177,8 +177,12 @@ void history_set ( const char *filename, const char *entry )
     if ( config.disable_history ) {
         return;
     }
+
+    // Copy the entry
+    char *program = malloc(sizeof(char) * strlen(entry) + 1);
+    strcpy(program, entry)
     // Check if program should be ignored
-    char *program = strtok(entry, " ");
+    program = strtok(program, " ");
     printf("program: %s\n", program);
     char *current_ignored = strtok(config.ignored_programs, ", ");
     while (current_ignored != NULL) {
