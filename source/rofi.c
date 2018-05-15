@@ -442,6 +442,7 @@ static void cleanup ()
     }
     TIMINGS_STOP ();
     rofi_collect_modi_destroy ( );
+    rofi_icon_fetcher_destroy ( );
 }
 
 /**
@@ -956,6 +957,7 @@ int main ( int argc, char *argv[] )
     }
 
     rofi_view_workers_initialize ();
+    rofi_icon_fetcher_init ( );
 
     // Create pid file
     int pfd = create_pid_file ( pidfile );

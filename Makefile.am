@@ -69,6 +69,7 @@ SOURCES=\
 	source/history.c\
 	source/theme.c\
 	source/rofi-types.c\
+	source/rofi-icon-fetcher.c\
 	source/widgets/box.c\
 	source/widgets/container.c\
 	source/widgets/icon.c\
@@ -92,6 +93,7 @@ SOURCES=\
 	include/xcb-internal.h\
 	include/rofi.h\
 	include/rofi-types.h\
+	include/rofi-icon-fetcher.h\
 	include/mode.h\
 	include/mode-private.h\
 	include/settings.h\

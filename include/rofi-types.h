@@ -235,5 +235,19 @@ typedef struct rofi_int_matcher_t
     gboolean invert;
 } rofi_int_matcher;
 
+/**
+ * Structure with data to process by each worker thread.
+ * TODO: Make this more generic wrapper.
+ */
+typedef struct _thread_state
+{
+    void ( *callback )( struct _thread_state *t, gpointer data );
+    GCond         *cond;
+    GMutex        *mutex;
+    unsigned int  *acount;
+} thread_state;
+
+extern GThreadPool *tpool;
+
 G_END_DECLS
 #endif // INCLUDE_ROFI_TYPES_H
