@@ -34,12 +34,16 @@
 #include "widgets/icon.h"
 #include "theme.h"
 
+#include "rofi-icon-fetcher.h"
+
 struct _icon
 {
     widget widget;
 
     // Size of the icon.
     int size;
+
+    uint32_t icon_fetch_id;
 
     // Source surface.
     cairo_surface_t  *icon;
@@ -65,7 +69,14 @@ static void icon_draw ( widget *wid, cairo_t *draw )
 {
     icon *b = (icon *) wid;
     // If no icon is loaded. quit.
-    if ( b->icon == NULL ) {
+    if ( b->icon == NULL && b->icon_fetch_id > 0 ) {
+
+        b->icon = rofi_icon_fetcher_get ( b->icon_fetch_id );
+        if ( b->icon ) {
+            cairo_surface_reference ( b->icon );
+        }
+    }
+    if ( b->icon == NULL  ) {
         return;
     }
     int    iconh = cairo_image_surface_get_height ( b->icon );
@@ -106,6 +117,7 @@ static void icon_resize ( widget *widget, short w, short h )
 
 void icon_set_surface ( icon *icon, cairo_surface_t *surf )
 {
+    icon->icon_fetch_id = 0;
     if ( icon->icon ) {
         cairo_surface_destroy ( icon->icon );
         icon->icon = NULL;
@@ -135,16 +147,7 @@ icon * icon_create ( widget *parent, const char *name )
 
     const char * filename = rofi_theme_get_string ( WIDGET ( b ), "filename", NULL );
     if ( filename ) {
-        b->icon = cairo_image_surface_create_from_png ( filename );
-        if ( b->icon == NULL ) {
-            g_warning("Failed to load icon: %s\n", filename);
-        } else {
-            if ( cairo_surface_status ( b->icon ) != CAIRO_STATUS_SUCCESS ) {
-                g_warning ( "Failed to load icon: %s\n", filename );
-                cairo_surface_destroy ( b->icon );
-                b->icon = NULL;
-            }
-        }
+        b->icon_fetch_id = rofi_icon_fetcher_query ( filename, b->size );
     }
 
 
