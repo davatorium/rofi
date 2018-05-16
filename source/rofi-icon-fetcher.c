@@ -113,7 +113,7 @@ void rofi_icon_fetcher_init ( void )
 
 void rofi_icon_fetcher_destroy ( void )
 {
-    g_assert ( rofi_icon_fetcher_data != NULL );
+    if ( rofi_icon_fetcher_data == NULL ) return;
 
     nk_xdg_theme_context_free ( rofi_icon_fetcher_data->xdg_context );
 
