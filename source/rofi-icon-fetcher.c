@@ -51,6 +51,7 @@ typedef struct {
     char *name;
     GList *sizes;
 } IconFetcherNameEntry;
+
 typedef struct {
     thread_state state;
 
@@ -63,6 +64,25 @@ typedef struct {
 
 IconFetcher *data = NULL;
 
+
+static void rofi_icon_fetch_entry_free ( gpointer data )
+{
+    IconFetcherNameEntry *entry = (IconFetcherNameEntry*) data;
+
+    // Free name/key.
+    g_free ( entry->name );
+
+
+    for ( GList *iter = g_list_first ( entry->sizes ); iter; iter = g_list_next ( iter ) ) {
+        IconFetcherEntry *sentry = (IconFetcherEntry *)(iter->data);
+
+        cairo_surface_destroy ( sentry->surface );
+        g_free ( sentry );
+    }
+
+    g_list_free ( entry->sizes );
+    g_free ( entry );
+}
 
 
 void rofi_icon_fetcher_init ( void )
@@ -83,7 +103,7 @@ void rofi_icon_fetcher_init ( void )
 
 
     data->icon_cache_uid = g_hash_table_new ( g_direct_hash, g_direct_equal );
-    data->icon_cache     = g_hash_table_new_full ( g_str_hash, g_str_equal, g_free, g_free );
+    data->icon_cache     = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, rofi_icon_fetch_entry_free );
 }
 
 
@@ -162,13 +182,13 @@ uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
     } else {
         printf("name found\n");
     }
-    IconFetcherEntry *sentry; 
+    IconFetcherEntry *sentry;
     for ( GList *iter = g_list_first(entry->sizes); iter; iter = g_list_next ( iter ) ) {
         sentry = iter->data;
         if ( sentry->size == size ){
             printf("size found\n");
             return sentry->uid;
-        } 
+        }
     }
 
     // Not found.
@@ -185,7 +205,7 @@ uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
     sentry->state.callback = rofi_icon_fetcher_worker;
     g_thread_pool_push ( tpool, sentry, NULL);
 
-    return sentry->uid; 
+    return sentry->uid;
 }
 
 
