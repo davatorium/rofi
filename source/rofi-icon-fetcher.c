@@ -55,6 +55,10 @@ typedef struct {
 typedef struct {
     thread_state state;
 
+    GCond         *cond;
+    GMutex        *mutex;
+    unsigned int  *acount;
+
     uint32_t uid;
     int size;
     cairo_surface_t *surface;

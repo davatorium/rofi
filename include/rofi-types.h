@@ -242,9 +242,6 @@ typedef struct rofi_int_matcher_t
 typedef struct _thread_state
 {
     void ( *callback )( struct _thread_state *t, gpointer data );
-    GCond         *cond;
-    GMutex        *mutex;
-    unsigned int  *acount;
 } thread_state;
 
 extern GThreadPool *tpool;
