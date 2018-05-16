@@ -401,13 +401,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
-static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, int height )
-{
-    RunModePrivateData *pd = (RunModePrivateData *) mode_get_private_data ( sw );
-    // TODO should cache this.
-    uint32_t uid = rofi_icon_fetcher_query ( pd->cmd_list[selected_line], height);
-    return rofi_icon_fetcher_get ( uid );
-}
+
 static int run_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
@@ -425,7 +419,7 @@ Mode run_mode =
     ._destroy           = run_mode_destroy,
     ._token_match       = run_token_match,
     ._get_display_value = _get_display_value,
-    ._get_icon          = _get_icon,
+    ._get_icon          = NULL,
     ._get_completion    = NULL,
     ._preprocess_input  = NULL,
     .private_data       = NULL,
