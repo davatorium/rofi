@@ -71,7 +71,8 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
     // Tests basic functionality of writing it, locking, seeing if I can write same again
     // And close/reopen it again.
     {
-        char *path = tempnam(NULL, "rofi-pid");
+        const char *tmpd = g_get_tmp_dir ();
+        char *path = g_build_filename (tmpd, "rofi-pid.pid", NULL);
         TASSERT( create_pid_file ( NULL ) == -1 );
         int fd = create_pid_file ( path );
         TASSERT( fd >= 0 );
