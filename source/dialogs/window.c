@@ -56,6 +56,8 @@
 
 #include "timings.h"
 
+#include "rofi-icon-fetcher.h"
+
 #define WINLIST             32
 
 #define CLIENTSTATE         10

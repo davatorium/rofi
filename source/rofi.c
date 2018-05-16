@@ -68,6 +68,7 @@
 #include "view-internal.h"
 
 #include "theme.h"
+#include "rofi-icon-fetcher.h"
 
 #include "timings.h"
 

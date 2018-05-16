@@ -62,7 +62,7 @@ typedef struct {
     IconFetcherNameEntry *entry;
 } IconFetcherEntry;
 
-IconFetcher *data = NULL;
+IconFetcher *rofi_icon_fetcher_data = NULL;
 
 
 static void rofi_icon_fetch_entry_free ( gpointer data )
@@ -87,7 +87,7 @@ static void rofi_icon_fetch_entry_free ( gpointer data )
 
 void rofi_icon_fetcher_init ( void )
 {
-    g_assert ( data == NULL );
+    g_assert ( rofi_icon_fetcher_data == NULL );
 
     static const gchar * const icon_fallback_themes[] = {
         "Adwaita",
@@ -96,32 +96,31 @@ void rofi_icon_fetcher_init ( void )
     };
     const char *themes[2] = { NULL, NULL};
 
-    data = g_malloc0(sizeof(IconFetcher));
+    rofi_icon_fetcher_data = g_malloc0(sizeof(IconFetcher));
 
-    data->xdg_context = nk_xdg_theme_context_new ( icon_fallback_themes, NULL );
-    nk_xdg_theme_preload_themes_icon ( data->xdg_context, themes );
+    rofi_icon_fetcher_data->xdg_context = nk_xdg_theme_context_new ( icon_fallback_themes, NULL );
+    nk_xdg_theme_preload_themes_icon ( rofi_icon_fetcher_data->xdg_context, themes );
 
 
-    data->icon_cache_uid = g_hash_table_new ( g_direct_hash, g_direct_equal );
-    data->icon_cache     = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, rofi_icon_fetch_entry_free );
+    rofi_icon_fetcher_data->icon_cache_uid = g_hash_table_new ( g_direct_hash, g_direct_equal );
+    rofi_icon_fetcher_data->icon_cache     = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, rofi_icon_fetch_entry_free );
 }
 
 
 void rofi_icon_fetcher_destroy ( void )
 {
-    printf("destroy\n");
-    g_assert ( data != NULL );
+    g_assert ( rofi_icon_fetcher_data != NULL );
 
-    nk_xdg_theme_context_free ( data->xdg_context );
+    nk_xdg_theme_context_free ( rofi_icon_fetcher_data->xdg_context );
 
 
-    g_hash_table_unref ( data->icon_cache_uid );
-    g_hash_table_unref ( data->icon_cache );
+    g_hash_table_unref ( rofi_icon_fetcher_data->icon_cache_uid );
+    g_hash_table_unref ( rofi_icon_fetcher_data->icon_cache );
 
-    g_free ( data );
+    g_free ( rofi_icon_fetcher_data );
 }
 void rofi_view_reload ();
-static void rofi_icon_fetcher_worker ( gpointer sdata, G_GNUC_UNUSED gpointer user_data )
+static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpointer user_data )
 {
     g_debug ( "starting up icon fetching thread." );
     // as long as dr->icon is updated atomicly.. (is a pointer write atomic?)
@@ -138,7 +137,7 @@ static void rofi_icon_fetcher_worker ( gpointer sdata, G_GNUC_UNUSED gpointer us
         icon_path = sentry->entry->name;
     }
     else {
-        icon_path = icon_path_ = nk_xdg_theme_get_icon ( data->xdg_context, themes, NULL, sentry->entry->name, sentry->size, 1, TRUE );
+        icon_path = icon_path_ = nk_xdg_theme_get_icon ( rofi_icon_fetcher_data->xdg_context, themes, NULL, sentry->entry->name, sentry->size, 1, TRUE );
         if ( icon_path_ == NULL ) {
             g_debug ( "failed to get icon %s(%d): n/a",sentry->entry->name, sentry->size  );
             return;
@@ -174,32 +173,29 @@ static void rofi_icon_fetcher_worker ( gpointer sdata, G_GNUC_UNUSED gpointer us
 uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
 {
     g_debug ("Query: %s(%d)", name, size);
-    IconFetcherNameEntry *entry = g_hash_table_lookup ( data->icon_cache, name );
+    IconFetcherNameEntry *entry = g_hash_table_lookup ( rofi_icon_fetcher_data->icon_cache, name );
     if ( entry == NULL ) {
         entry = g_new0(IconFetcherNameEntry,1);
         entry->name = g_strdup(name);
-        g_hash_table_insert ( data->icon_cache, entry->name, entry );
-    } else {
-        printf("name found\n");
+        g_hash_table_insert ( rofi_icon_fetcher_data->icon_cache, entry->name, entry );
     }
     IconFetcherEntry *sentry;
     for ( GList *iter = g_list_first(entry->sizes); iter; iter = g_list_next ( iter ) ) {
         sentry = iter->data;
         if ( sentry->size == size ){
-            printf("size found\n");
             return sentry->uid;
         }
     }
 
     // Not found.
     sentry        = g_new0(IconFetcherEntry, 1);
-    sentry->uid   = ++(data->last_uid);
+    sentry->uid   = ++(rofi_icon_fetcher_data->last_uid);
     sentry->size  = size;
     sentry->entry = entry;
     sentry->surface = NULL;
 
     entry->sizes = g_list_prepend ( entry->sizes, sentry );
-    g_hash_table_insert ( data->icon_cache_uid, GINT_TO_POINTER(sentry->uid), sentry );
+    g_hash_table_insert ( rofi_icon_fetcher_data->icon_cache_uid, GINT_TO_POINTER(sentry->uid), sentry );
 
     // Push into fetching queue.
     sentry->state.callback = rofi_icon_fetcher_worker;
@@ -211,7 +207,7 @@ uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
 
 cairo_surface_t * rofi_icon_fetcher_get  ( const uint32_t uid )
 {
-    IconFetcherEntry *sentry = g_hash_table_lookup ( data->icon_cache_uid, GINT_TO_POINTER(uid) );
+    IconFetcherEntry *sentry = g_hash_table_lookup ( rofi_icon_fetcher_data->icon_cache_uid, GINT_TO_POINTER(uid) );
     if ( sentry ) {
         return sentry->surface;
     }
