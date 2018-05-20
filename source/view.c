@@ -595,11 +595,15 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
                 // This is inefficient, need to fix it.
                 char  * str = mode_get_completion ( t->state->sw, i );
                 glong slen  = g_utf8_strlen ( str, -1 );
-                if ( config.levenshtein_sort || config.matching_method != MM_FUZZY  ) {
-                    t->state->distance[i] = levenshtein ( t->pattern, t->plen, str, slen );
-                }
-                else {
-                    t->state->distance[i] = rofi_scorer_fuzzy_evaluate ( t->pattern, t->plen, str, slen );
+                switch ( config.sorting_method_enum )
+                {
+                    case SORT_FZF:
+                        t->state->distance[i] = rofi_scorer_fuzzy_evaluate ( t->pattern, t->plen, str, slen );
+                        break;
+                    case SORT_NORMAL:
+                    default:
+                        t->state->distance[i] = levenshtein ( t->pattern, t->plen, str, slen );
+                        break;
                 }
                 g_free ( str );
             }
