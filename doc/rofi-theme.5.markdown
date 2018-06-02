@@ -548,7 +548,7 @@ nametotextbox selected.active {
 }
 ```
 
-Sets all selected textboxes marked active to the given foreground and background color.
+Sets all selected textboxes marked active to the given text and background color.
 Note that a state modifies the original element, it therefore contains all the properties of that element.
 
 ### Scrollbar
@@ -573,8 +573,8 @@ The following properties are currently supported:
   Sets a radius on the corners of the borders.
 * **background-color**:      color
   Background color
-* **foreground-color**:      color
-  Foreground color
+* **border-color**:      color
+  Color of the border
 * **index**:           integer  (This one does not inherit it value from the parent widget)
 
 ### window:
@@ -619,12 +619,12 @@ The following properties are currently supported:
 ### textbox:
 
 * **background-color**:       color
-* **foreground**:       color
+* **border-color**:     the color used for the border around the widget.
 * **font**:             the font used by this textbox (string)
 * **str**:              the string to display by this textbox (string)
 * **vertical-align**:   vertical alignment of the text (`0` top, `1` bottom)
 * **horizontal-align**: horizontal alignment of the text (`0` left, `1` right)
-* **text**:             the text color to use (falls back to foreground if not set)
+* **text-color**:       the text color to use 
 * **highlight**:        text style {color}
     color is optional, multiple highlight styles can be added like: bold underline italic #000000;
 * **width**:            override the desired width for the textbox
@@ -796,7 +796,7 @@ Explanation of the different parts:
  * Padding - Clears an area around the widget.
    The padding shows the background color of the widget.
  * Border - A border that goes around the padding and content.
-   The border use the foreground color of the widget.
+   The border use the border-color of the widget.
  * Margin - Clears an area outside the border.
    The margin is transparent.
 
