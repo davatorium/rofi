@@ -68,8 +68,8 @@ function find_themes()
         echo "${DIRS}"
     fi
     # Add user dir.
-    DIRS+=":${HOME}/.local/share/"
-    DIRS+=":${HOME}/.config/"
+    DIRS+=":${XDG_DATA_HOME:-${HOME}/.local/share}"
+    DIRS+=":${XDG_CONFIG_HOME:-${HOME}/.config}"
     for p in ${DIRS}; do 
     	p=${p%/}
         TD=${p}/rofi/themes
@@ -164,12 +164,7 @@ Current theme: <b>${CUR}</b>"""
 ###
 function set_theme()
 {
-    if [ -d "${XDG_CONFIG_HOME}" ]; then
-      CDIR="${XDG_CONFIG_HOME}/rofi/"
-    else
-      CDIR="${HOME}/.config/rofi/"
-    fi
-
+    CDIR="${XDG_CONFIG_HOME:-${HOME}/.config}/rofi"
     if [ ! -d "${CDIR}" ]
     then
         mkdir -p ${CDIR}
