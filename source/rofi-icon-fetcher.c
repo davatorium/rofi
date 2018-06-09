@@ -30,6 +30,7 @@
 #include "rofi-icon-fetcher.h"
 #include "rofi-types.h"
 #include "helper.h"
+#include "settings.h"
 
 
 typedef struct {
@@ -131,6 +132,7 @@ static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpoint
     // this should be fine running in another thread.
     IconFetcherEntry *sentry        = (IconFetcherEntry*) sdata;
     const gchar         *themes[1] = {
+        config.icon_theme,
         NULL
     };
 

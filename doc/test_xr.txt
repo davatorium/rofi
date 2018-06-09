@@ -39,7 +39,7 @@ rofi.window-command:                 xkill -id {window}
 ! "Window fields to match in window mode" Set from: Default
 ! rofi.window-match-fields:            all
 ! "Theme to use to look for icons" Set from: Default
-! rofi.drun-icon-theme:                
+! rofi.icon-theme:                
 ! "Desktop entry fields to match in drun" Set from: Default
 ! rofi.drun-match-fields:              name,generic,exec,categories
 ! "Disable history in run/ssh" Set from: File

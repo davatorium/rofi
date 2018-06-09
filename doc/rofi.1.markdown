@@ -199,9 +199,9 @@ Specify the directory where **rofi** should look for plugins.
 
 Show application icons in drun and window modes.
 
-`-drun-icon-theme`
+`-icon-theme`
 
-Specify icon theme to be used in drun mode if show-icons setting is enabled.
+Specify icon theme to be used.
 If not specified default theme from DE is used, *Adwaita* and *gnome* themes act as
 fallback themes.
 

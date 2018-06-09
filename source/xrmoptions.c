@@ -130,7 +130,7 @@ static XrmOption xrmOptions[] = {
       "Command executed on accep-entry-custom for window modus", CONFIG_DEFAULT },
     { xrm_String,  "window-match-fields",    { .str  = &config.window_match_fields            }, NULL,
       "Window fields to match in window mode", CONFIG_DEFAULT },
-    { xrm_String,  "drun-icon-theme",        { .str  = &config.drun_icon_theme                }, NULL,
+    { xrm_String,  "icon-theme",             { .str  = &config.icon_theme                     }, NULL,
       "Theme to use to look for icons", CONFIG_DEFAULT },
 
     { xrm_String,  "drun-match-fields",      { .str  = &config.drun_match_fields              }, NULL,
