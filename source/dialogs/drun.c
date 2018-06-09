@@ -50,19 +50,24 @@
 #include "widgets/textbox.h"
 #include "history.h"
 #include "dialogs/drun.h"
-#include "nkutils-xdg-theme.h"
 #include "xcb.h"
+
+#include "rofi-icon-fetcher.h"
 
 #define DRUN_CACHE_FILE    "rofi3.druncache"
 
 #define DRUN_GROUP_NAME    "Desktop Entry"
 
+
+typedef struct _DRunModePrivateData DRunModePrivateData;
 /**
  * Store extra information about the entry.
  * Currently the executable and if it should run in terminal.
  */
 typedef struct
 {
+    thread_state st;
+    DRunModePrivateData *pd;
     /* Root */
     char *root;
     /* Path to desktop file */
@@ -93,6 +98,8 @@ typedef struct
     GKeyFile        *key_file;
 
     gint            sort_index;
+
+    uint32_t        icon_fetch_uid;
 } DRunModeEntry;
 
 typedef struct
@@ -119,24 +126,21 @@ static DRunEntryField matching_entry_fields[DRUN_MATCH_NUM_FIELDS] = {
     { .entry_field_name = "comment",    .enabled = FALSE, }
 };
 
-typedef struct
+struct _DRunModePrivateData
 {
-    NkXdgThemeContext *xdg_context;
     DRunModeEntry     *entry_list;
     unsigned int      cmd_list_length;
     unsigned int      cmd_list_length_actual;
     // List of disabled entries.
     GHashTable        *disabled_entries;
     unsigned int      disabled_entries_length;
-    GThreadPool       *pool;
     unsigned int      expected_line_height;
-    DRunModeEntry     quit_entry;
 
     // Theme
     const gchar       *icon_theme;
     // DE
     gchar             **current_desktop_list;
-} DRunModePrivateData;
+};
 
 struct RegexEvalArg
 {
@@ -398,6 +402,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         pd->entry_list[pd->cmd_list_length].sort_index = -pd->cmd_list_length;
     }
     pd->entry_list[pd->cmd_list_length].icon_size  = 0;
+    pd->entry_list[pd->cmd_list_length].icon_fetch_uid = 0;
     pd->entry_list[pd->cmd_list_length].root       = g_strdup ( root );
     pd->entry_list[pd->cmd_list_length].path       = g_strdup ( path );
     pd->entry_list[pd->cmd_list_length].desktop_id = g_strdup ( id );
@@ -582,59 +587,6 @@ static void get_apps ( DRunModePrivateData *pd )
     TICK_N ( "Sorting done." );
 }
 
-static void drun_icon_fetch ( gpointer data, gpointer user_data )
-{
-    g_debug ( "Starting up icon fetching thread." );
-    // as long as dr->icon is updated atomicly.. (is a pointer write atomic?)
-    // this should be fine running in another thread.
-    DRunModePrivateData *pd        = (DRunModePrivateData *) user_data;
-    DRunModeEntry       *dr        = (DRunModeEntry *) data;
-    const gchar         *themes[2] = {
-        config.drun_icon_theme,
-        NULL
-    };
-
-    if ( dr->icon_name == NULL ) {
-        return;
-    }
-    const gchar *icon_path;
-    gchar       *icon_path_ = NULL;
-
-    if ( g_path_is_absolute ( dr->icon_name ) ) {
-        icon_path = dr->icon_name;
-    }
-    else {
-        icon_path = icon_path_ = nk_xdg_theme_get_icon ( pd->xdg_context, themes, NULL, dr->icon_name, dr->icon_size, 1, TRUE );
-        if ( icon_path_ == NULL ) {
-            g_debug ( "Failed to get Icon %s(%d): n/a", dr->icon_name, dr->icon_size  );
-            return;
-        }
-        else{
-            g_debug ( "Found Icon %s(%d): %s", dr->icon_name, dr->icon_size, icon_path  );
-        }
-    }
-    cairo_surface_t *icon_surf = NULL;
-    if ( g_str_has_suffix ( icon_path, ".png" ) ) {
-        icon_surf = cairo_image_surface_create_from_png ( icon_path );
-    }
-    else if ( g_str_has_suffix ( icon_path, ".svg" ) ) {
-        icon_surf = cairo_image_surface_create_from_svg ( icon_path, dr->icon_size );
-    }
-    else {
-        g_debug ( "Icon type not yet supported: %s", icon_path  );
-    }
-    if ( icon_surf ) {
-        // Check if surface is valid.
-        if ( cairo_surface_status ( icon_surf ) != CAIRO_STATUS_SUCCESS ) {
-            g_debug ( "Icon failed to open: %s(%d): %s", dr->icon_name, dr->icon_size, icon_path );
-            cairo_surface_destroy ( icon_surf );
-            icon_surf = NULL;
-        }
-        dr->icon = icon_surf;
-    }
-    g_free ( icon_path_ );
-    rofi_view_reload ();
-}
 
 static void drun_mode_parse_entry_fields ()
 {
@@ -677,16 +629,6 @@ static int drun_mode_init ( Mode *sw )
     if ( mode_get_private_data ( sw ) != NULL ) {
         return TRUE;
     }
-
-    static const gchar * const drun_icon_fallback_themes[] = {
-        "Adwaita",
-        "gnome",
-        NULL
-    };
-    const gchar                *themes[2] = {
-        config.drun_icon_theme,
-        NULL
-    };
     DRunModePrivateData        *pd = g_malloc0 ( sizeof ( *pd ) );
     pd->disabled_entries = g_hash_table_new_full ( g_str_hash, g_str_equal, g_free, NULL );
     mode_set_private_data ( sw, (void *) pd );
@@ -694,9 +636,6 @@ static int drun_mode_init ( Mode *sw )
     const char *current_desktop = g_getenv ( "XDG_CURRENT_DESKTOP" );
     pd->current_desktop_list = current_desktop ? g_strsplit ( current_desktop, ":", 0 ) : NULL;
 
-    // Theme
-    pd->xdg_context = nk_xdg_theme_context_new ( drun_icon_fallback_themes, NULL );
-    nk_xdg_theme_preload_themes_icon ( pd->xdg_context, themes );
     drun_mode_parse_entry_fields ();
     get_apps ( pd );
     return TRUE;
@@ -746,10 +685,6 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
     else if ( ( mretv & MENU_ENTRY_DELETE ) && selected_line < rmpd->cmd_list_length ) {
         // Possitive sort index means it is in history.
         if ( rmpd->entry_list[selected_line].sort_index >= 0 ) {
-            if ( rmpd->pool ) {
-                g_thread_pool_free ( rmpd->pool, TRUE, TRUE );
-                rmpd->pool = NULL;
-            }
             delete_entry_history ( &( rmpd->entry_list[selected_line] ) );
             drun_entry_clear ( &( rmpd->entry_list[selected_line] ) );
             memmove ( &( rmpd->entry_list[selected_line] ), &rmpd->entry_list[selected_line + 1],
@@ -764,16 +699,11 @@ static void drun_mode_destroy ( Mode *sw )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( sw );
     if ( rmpd != NULL ) {
-        if ( rmpd->pool ) {
-            g_thread_pool_free ( rmpd->pool, TRUE, TRUE );
-            rmpd->pool = NULL;
-        }
         for ( size_t i = 0; i < rmpd->cmd_list_length; i++ ) {
             drun_entry_clear ( &( rmpd->entry_list[i] ) );
         }
         g_hash_table_destroy ( rmpd->disabled_entries );
         g_free ( rmpd->entry_list );
-        nk_xdg_theme_context_free ( rmpd->xdg_context );
 
         g_strfreev ( rmpd->current_desktop_list );
         g_free ( rmpd );
@@ -808,16 +738,12 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
     DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
     g_return_val_if_fail ( pd->entry_list != NULL, NULL );
     DRunModeEntry       *dr = &( pd->entry_list[selected_line] );
-    if ( pd->pool == NULL ) {
-        /* TODO: 4 threads good? */
-        pd->pool = g_thread_pool_new ( drun_icon_fetch, pd, 4, FALSE, NULL );
+    if ( dr->icon_name == NULL ) return NULL;
+    if ( dr->icon_fetch_uid >0){
+        return rofi_icon_fetcher_get ( dr->icon_fetch_uid );
     }
-    if ( dr->icon_size == 0 ) {
-        dr->icon_size = height;
-        //g_async_queue_push ( pd->icon_fetch_queue, dr );
-        g_thread_pool_push ( pd->pool, dr, NULL );
-    }
-    return dr->icon;
+    dr->icon_fetch_uid = rofi_icon_fetcher_query ( dr->icon_name, height );
+    return NULL;
 }
 
 static char *drun_get_completion ( const Mode *sw, unsigned int index )

@@ -32,6 +32,7 @@
 #include "widgets/textbox.h"
 #include "widgets/listview.h"
 #include "widgets/box.h"
+#include "widgets/icon.h"
 #include "keyb.h"
 #include "xcb.h"
 #include "theme.h"
@@ -67,6 +68,9 @@ struct RofiViewState
     container        *mesg_box;
     /** #textbox containing the message entry */
     textbox          *mesg_tb;
+
+
+    icon             *cur_icon;
 
     /** Array with the levenshtein distance for each eleemnt. */
     int              *distance;
