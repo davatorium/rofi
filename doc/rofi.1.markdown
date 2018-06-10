@@ -491,6 +491,11 @@ Disable history
 Enable, disable sorting.
 This setting can be changed at runtime (see `-kb-toggle-sort`).
 
+`-pin-last` to enable
+`-no-pin-last` to disable
+
+Always place the last-executed item in first place
+
 `-levenshtein-sort` to enable
 `-no-levenshtein-sort` to disable
 

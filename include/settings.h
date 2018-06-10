@@ -30,6 +30,8 @@
 
 #include <glib.h>
 
+#include "rofi-types.h"
+
 /**
  * Enumeration indicating the matching method to use.
  *
@@ -102,6 +104,8 @@ typedef struct
     unsigned int   fixed_num_lines;
     /** Do not use history */
     unsigned int   disable_history;
+    /** Always place the last-executed item in first place */
+    unsigned int   pin_last;
     /** Toggle to enable sorting. */
     unsigned int   sort;
     /** Desktop entries to match in drun */

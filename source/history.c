@@ -62,7 +62,12 @@ static void __history_write_element_list ( FILE *fd, _element **list, unsigned i
         return;
     }
     // Sort the list before writing out.
-    g_qsort_with_data ( list, length, sizeof ( _element* ), __element_sort_func, NULL );
+    if ( config.pin_last ) {
+        // Leave the pinned element at the top.
+        g_qsort_with_data ( list + 1, length - 1, sizeof ( _element* ), __element_sort_func, NULL );
+    } else {
+        g_qsort_with_data ( list, length, sizeof ( _element* ), __element_sort_func, NULL );
+    }
 
     // Get minimum index.
     int min_value = list[length - 1]->index;
@@ -217,9 +222,19 @@ void history_set ( const char *filename, const char *entry )
             // set # hits
             list[length]->index = 1;
 
+            // save position
+            curr = length;
+
             length++;
             list[length] = NULL;
         }
+    }
+
+    if ( config.pin_last && curr != 0 ) {
+        // Move the updated item to the top of the list.
+        _element *tmp = list[curr];
+        memmove ( list + 1, list, curr * sizeof ( _element* ) );
+        list[0] = tmp;
     }
 
     fd = fopen ( filename, "w" );
