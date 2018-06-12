@@ -323,11 +323,5 @@ int widget_get_absolute_xpos ( widget *wid );
  */
 int widget_get_absolute_ypos ( widget *wid );
 
-/**
- * @param wid The widget handle
- *
- * Increment the reference count on the widget.
- */
-void widget_ref ( widget *wid );
 /*@}*/
 #endif // ROFI_WIDGET_H

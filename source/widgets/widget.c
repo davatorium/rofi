@@ -27,7 +27,6 @@
 
 #include <glib.h>
 #include <math.h>
-#include <stdatomic.h>
 #include "widgets/widget.h"
 #include "widgets/widget-internal.h"
 #include "theme.h"
@@ -37,8 +36,6 @@
 
 void widget_init ( widget *wid, widget *parent, WidgetType type, const char *name )
 {
-    wid->ref_count         = 1;
-
     wid->type              = type;
     wid->parent            = parent;
     wid->name              = g_strdup ( name );
@@ -363,26 +360,17 @@ void widget_draw ( widget *widget, cairo_t *d )
     }
 }
 
-void widget_ref ( widget *wid )
-{
-    g_assert ( wid != NULL );
-    g_assert ( wid->ref_count > 0 );
-
-    atomic_fetch_add( &(wid->ref_count), 1);
-}
 
 void widget_free ( widget *wid )
 {
     if ( wid ) {
-        if ( atomic_fetch_sub ( &(wid->ref_count), 1) == 1 ) {
-            if ( wid->name ) {
-                g_free ( wid->name );
-            }
-            if ( wid->free ) {
-                wid->free ( wid );
-            }
-            return;
+        if ( wid->name ) {
+            g_free ( wid->name );
         }
+        if ( wid->free ) {
+            wid->free ( wid );
+        }
+        return;
     }
 }
 

@@ -94,9 +94,6 @@ struct _widget
     /** Name of widget (used for theming) */
     char                        *name;
     const char                  *state;
-
-    /** Used for reference counting */
-    int                         ref_count;
 };
 
 /**
