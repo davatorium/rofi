@@ -283,7 +283,7 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
 /**
  * @param widget   The widget to query
  * @param property The property to query.
- * @param pad      The default value.
+ * @param defaults The default value.
  *
  * Obtain list of elements (strings) of the widget.
  *

@@ -46,6 +46,7 @@
 #include <cairo.h>
 #include <cairo-xcb.h>
 
+/** Indicated we understand the startup notification api is not yet stable.*/
 #define SN_API_NOT_YET_FROZEN
 #include <libsn/sn.h>
 #include "rofi.h"
@@ -552,20 +553,33 @@ static RofiViewState * __rofi_view_state_create ( void )
     return g_malloc0 ( sizeof ( RofiViewState ) );
 }
 
+/**
+ * Thread state for workers started for the view.
+ */
 typedef struct _thread_state_view
 {
+    /** Generic thread state. */
     thread_state st;
 
+    /** Condition. */
     GCond        *cond;
+    /** Lock for condition. */
     GMutex       *mutex;
+    /** Count that is protected by lock. */
     unsigned int *acount;
 
+    /** Current state. */
     RofiViewState *state;
+    /** Start row for this worker. */
     unsigned int  start;
+    /** Stop row for this worker. */
     unsigned int  stop;
+    /** Rows processed. */
     unsigned int  count;
 
+    /** Pattern input to filter. */
     const char    *pattern;
+    /** Length of pattern. */
     glong         plen;
 
 } thread_state_view;
