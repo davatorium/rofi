@@ -25,6 +25,7 @@
  *
  */
 
+/** Log domain used by the theme engine.*/
 #define G_LOG_DOMAIN    "Theme"
 
 #include "config.h"

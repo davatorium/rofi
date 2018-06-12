@@ -26,6 +26,7 @@
  *
  */
 
+/** The log domain for this helper. */
 #define G_LOG_DOMAIN    "Helper"
 
 #include <config.h>
