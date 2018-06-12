@@ -1431,6 +1431,10 @@ void rofi_view_maybe_update ( RofiViewState *state )
     rofi_view_update ( state, TRUE );
 }
 
+/**
+ * Handle window configure event.
+ * Handles resizes.
+ */
 void rofi_view_temp_configure_notify ( RofiViewState *state, xcb_configure_notify_event_t *xce )
 {
     if ( xce->window == CacheState.main_window ) {
@@ -1459,6 +1463,9 @@ void rofi_view_temp_configure_notify ( RofiViewState *state, xcb_configure_notif
     }
 }
 
+/**
+ * Quit rofi on click (outside of view )
+ */
 void rofi_view_temp_click_to_exit ( RofiViewState *state, xcb_window_t target )
 {
     if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {

@@ -72,6 +72,9 @@ typedef struct {
     IconFetcherNameEntry *entry;
 } IconFetcherEntry;
 
+/**
+ * The icon fetcher internal state.
+ */
 IconFetcher *rofi_icon_fetcher_data = NULL;
 
 
