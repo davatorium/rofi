@@ -32,6 +32,7 @@
 #include "widgets/textbox.h"
 #include "widgets/listview.h"
 #include "widgets/box.h"
+#include "widgets/icon.h"
 #include "keyb.h"
 #include "xcb.h"
 #include "theme.h"

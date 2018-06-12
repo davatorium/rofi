@@ -551,23 +551,24 @@ static RofiViewState * __rofi_view_state_create ( void )
 {
     return g_malloc0 ( sizeof ( RofiViewState ) );
 }
-/**
- * Structure with data to process by each worker thread.
- */
-typedef struct _thread_state
+
+typedef struct _thread_state_view
 {
+    thread_state st;
+
+    GCond        *cond;
+    GMutex       *mutex;
+    unsigned int *acount;
+
     RofiViewState *state;
     unsigned int  start;
     unsigned int  stop;
     unsigned int  count;
-    GCond         *cond;
-    GMutex        *mutex;
-    unsigned int  *acount;
 
     const char    *pattern;
     glong         plen;
-    void ( *callback )( struct _thread_state *t, gpointer data );
-}thread_state;
+
+} thread_state_view;
 /**
  * @param data A thread_state object.
  * @param user_data User data to pass to thread_state callback
@@ -578,14 +579,11 @@ static void rofi_view_call_thread ( gpointer data, gpointer user_data )
 {
     thread_state *t = (thread_state *) data;
     t->callback ( t, user_data );
-    g_mutex_lock ( t->mutex );
-    ( *( t->acount ) )--;
-    g_cond_signal ( t->cond );
-    g_mutex_unlock ( t->mutex );
 }
 
-static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
+static void filter_elements ( thread_state *ts, G_GNUC_UNUSED gpointer user_data )
 {
+    thread_state_view *t = (thread_state_view *)ts;
     for ( unsigned int i = t->start; i < t->stop; i++ ) {
         int match = mode_token_match ( t->state->sw, t->state->tokens, i );
         // If each token was matched, add it to list.
@@ -609,6 +607,12 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
             }
             t->count++;
         }
+    }
+    if ( t->acount != NULL  ) {
+        g_mutex_lock ( t->mutex );
+        ( *( t->acount ) )--;
+        g_cond_signal ( t->cond );
+        g_mutex_unlock ( t->mutex );
     }
 }
 static void rofi_view_setup_fake_transparency ( const char* const fake_background )
@@ -992,6 +996,7 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
     if ( state->overlay ) {
         widget_draw ( WIDGET ( state->overlay ), d );
     }
+
     TICK_N ( "widgets" );
     cairo_surface_flush ( CacheState.edit_surf );
     if ( qr ) {
@@ -1033,7 +1038,7 @@ static void rofi_view_refilter ( RofiViewState *state )
          * For large lists with 8 threads I see a factor three speedup of the whole function.
          */
         unsigned int nt = MAX ( 1, state->num_lines / 500 );
-        thread_state states[nt];
+        thread_state_view states[nt];
         GCond        cond;
         GMutex       mutex;
         g_mutex_init ( &mutex );
@@ -1050,7 +1055,7 @@ static void rofi_view_refilter ( RofiViewState *state )
             states[i].acount   = &count;
             states[i].plen     = plen;
             states[i].pattern  = pattern;
-            states[i].callback = filter_elements;
+            states[i].st.callback = filter_elements;
             if ( i > 0 ) {
                 g_thread_pool_push ( tpool, &states[i], NULL );
             }
@@ -1639,6 +1644,10 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     }
     else if (  g_ascii_strncasecmp ( name, "textbox", 7 ) == 0 ) {
         textbox *t = textbox_create ( parent_widget, WIDGET_TYPE_TEXTBOX_TEXT, name, TB_AUTOHEIGHT | TB_WRAP, NORMAL, "", 0, 0 );
+        box_add ( (box *) parent_widget, WIDGET ( t ), TRUE );
+    }
+    else if (  g_ascii_strncasecmp ( name, "icon", 4 ) == 0 ) {
+        icon *t = icon_create ( parent_widget,  name );
         box_add ( (box *) parent_widget, WIDGET ( t ), TRUE );
     }
     else {

@@ -30,6 +30,7 @@
 %option nounput
 %option never-interactive
 %option bison-locations
+%option bison-bridge
 
 %{
 #include <stdio.h>

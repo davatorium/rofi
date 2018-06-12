@@ -359,6 +359,8 @@ void widget_draw ( widget *widget, cairo_t *d )
         }
     }
 }
+
+
 void widget_free ( widget *wid )
 {
     if ( wid ) {
@@ -368,6 +370,7 @@ void widget_free ( widget *wid )
         if ( wid->free ) {
             wid->free ( wid );
         }
+        return;
     }
 }
 

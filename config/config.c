@@ -68,7 +68,7 @@ Settings config = {
     /** Command executed on accep-entry-custom for window modus */
     .window_command         = "xkill -id {window}",
     /** No default icon theme, we search Adwaita and gnome as fallback */
-    .drun_icon_theme        = NULL,
+    .icon_theme        = NULL,
     /**
      * Location of the window.
      * Enumeration indicating location or gravity of window.

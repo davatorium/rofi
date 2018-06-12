@@ -56,6 +56,8 @@
 
 #include "timings.h"
 
+#include "rofi-icon-fetcher.h"
+
 #define WINLIST             32
 
 #define CLIENTSTATE         10
@@ -108,6 +110,7 @@ typedef struct
     char                              *wmdesktopstr;
     cairo_surface_t                   *icon;
     gboolean                          icon_checked;
+    uint32_t                          icon_fetch_uid;
 } client;
 
 // window lists
@@ -909,6 +912,13 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
     if ( c->icon_checked == FALSE ) {
         c->icon         = get_net_wm_icon ( rmpd->ids->array[selected_line], size );
         c->icon_checked = TRUE;
+    }
+    if ( c->icon == NULL  && c->class ){
+        if ( c->icon_fetch_uid > 0){
+            return rofi_icon_fetcher_get ( c->icon_fetch_uid );
+        }
+        c->icon_fetch_uid = rofi_icon_fetcher_query ( c->class, size);
+    
     }
     return c->icon;
 }
