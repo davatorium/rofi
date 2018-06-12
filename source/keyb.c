@@ -122,6 +122,7 @@ ActionBindingEntry rofi_bindings[] =
     { .id = ACCEPT_HOVERED_CUSTOM,   .scope = SCOPE_MOUSE_LISTVIEW_ELEMENT, .name    = "me-accept-custom",                     .binding = "Control+MouseDPrimary", .comment = "Accept hovered row with custom action"   },
 };
 
+/** Default binding of mouse button to action. */
 static const gchar *mouse_default_bindings[] = {
     [MOUSE_CLICK_DOWN]  = "MousePrimary",
     [MOUSE_CLICK_UP]    = "!MousePrimary",
