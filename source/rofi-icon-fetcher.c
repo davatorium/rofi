@@ -25,7 +25,8 @@
  *
  */
 
-#define G_LOG_DOMAIN    "Util.IconFetcher"
+/** The log domain of this Helper. */
+#define G_LOG_DOMAIN    "Helpers.IconFetcher"
 
 #include "rofi-icon-fetcher.h"
 #include "rofi-types.h"

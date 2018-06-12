@@ -25,6 +25,7 @@
  *
  */
 
+/** The log domain of this dialog. */
 #define G_LOG_DOMAIN    "Dialogs.DRun"
 
 #include <config.h>
