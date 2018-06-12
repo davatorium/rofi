@@ -52,7 +52,7 @@ typedef struct _icon icon;
 icon * icon_create ( widget *parent, const char *name );
 
 /**
- * @param widget The icon widget handle.
+ * @param icon The icon widget handle.
  * @param size  The size of the icon.
  *
  */
