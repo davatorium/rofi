@@ -32,6 +32,10 @@
 #include "helper.h"
 #include "settings.h"
 
+#include "xcb.h"
+#include "keyb.h"
+#include "view.h"
+
 
 typedef struct {
     // Context for icon-themes.
@@ -124,7 +128,6 @@ void rofi_icon_fetcher_destroy ( void )
 
     g_free ( rofi_icon_fetcher_data );
 }
-void rofi_view_reload ();
 static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpointer user_data )
 {
     g_debug ( "starting up icon fetching thread." );
