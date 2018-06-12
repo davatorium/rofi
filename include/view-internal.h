@@ -69,9 +69,6 @@ struct RofiViewState
     /** #textbox containing the message entry */
     textbox          *mesg_tb;
 
-
-    icon             *cur_icon;
-
     /** Array with the levenshtein distance for each eleemnt. */
     int              *distance;
     /** Array with the translation between the filtered and unfiltered list. */

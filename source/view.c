@@ -935,11 +935,6 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
 
         cairo_surface_t *icon = mode_get_icon ( state->sw, state->line_map[index], icon_height );
         textbox_icon ( t, icon );
-        if ( state->cur_icon ) {
-            if ( index == listview_get_selected ( state->list_view  ) ){
-                icon_set_surface ( state->cur_icon, icon );
-            }
-        }
 
         if ( state->tokens && config.show_match ) {
             RofiHighlightColorStyle th = { ROFI_HL_BOLD | ROFI_HL_UNDERLINE, { 0.0, 0.0, 0.0, 0.0 } };
@@ -998,11 +993,6 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
         widget_draw ( WIDGET ( state->overlay ), d );
     }
 
-    int selected = listview_get_selected ( state->list_view );
-    cairo_surface_t *icon = mode_get_icon ( state->sw, state->line_map[selected], 32);
-    if ( state->cur_icon ) {
-        icon_set_surface ( state->cur_icon, icon );
-    }
     TICK_N ( "widgets" );
     cairo_surface_flush ( CacheState.edit_surf );
     if ( qr ) {
@@ -1655,9 +1645,6 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     else if (  g_ascii_strncasecmp ( name, "icon", 4 ) == 0 ) {
         icon *t = icon_create ( parent_widget,  name );
         box_add ( (box *) parent_widget, WIDGET ( t ), TRUE );
-        if ( rofi_theme_get_boolean ( WIDGET ( t ), "show-current", FALSE ) ) {
-            state->cur_icon = t;
-        }
     }
     else {
         wid = (widget *) box_create ( parent_widget, name, ROFI_ORIENTATION_VERTICAL );
