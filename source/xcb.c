@@ -49,8 +49,9 @@
 #include <xcb/xkb.h>
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-x11.h>
+/** Indicate that we know the startup notification api is not yet stable. */
 #define SN_API_NOT_YET_FROZEN
-/* This function is declared as sn_launcher_context_set_application_id but implemented as sn_launcher_set_application_id */
+/** This function is declared as sn_launcher_context_set_application_id but implemented as sn_launcher_set_application_id. Quick Fix. */
 #define sn_launcher_context_set_application_id    sn_launcher_set_application_id
 #include "rofi-types.h"
 #include <libsn/sn.h>
@@ -63,8 +64,9 @@
 
 #include <rofi.h>
 
-/** Minimal randr prefered for running rofi (1.5) */
+/** Minimal randr prefered for running rofi (1.5) (Major version number) */
 #define RANDR_PREF_MAJOR_VERSION 1
+/** Minimal randr prefered for running rofi (1.5) (Minor version number) */
 #define RANDR_PREF_MINOR_VERSION 5
 
 /** Checks if the if x and y is inside rectangle. */

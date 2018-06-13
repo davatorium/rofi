@@ -25,6 +25,7 @@
  *
  */
 
+/** The log domain of this widget. */
 #define G_LOG_DOMAIN    "Widgets.Box"
 
 #include <config.h>

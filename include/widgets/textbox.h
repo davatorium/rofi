@@ -319,6 +319,13 @@ PangoAttrList *textbox_get_pango_attributes ( textbox *tb );
  * @returns the visible text.
  */
 const char *textbox_get_visible_text ( const textbox *tb );
+/**
+ * @param wid The handle to the textbox.
+ *
+ * TODO: is this deprecated by widget::get_desired_width
+ *
+ * @returns the desired width of the textbox.
+ */
 int textbox_get_desired_width ( widget *wid );
 
 /**

@@ -35,14 +35,23 @@
 #include "settings.h"
 #include "theme.h"
 
+/** Default spacing between the elements in the listview. */
 #define DEFAULT_SPACING    2
 
+/**
+ * Orientation of the listview
+ */
 typedef enum
 {
+    /** Vertical (classical) list */
     LISTVIEW = ROFI_ORIENTATION_VERTICAL,
+    /** Horizontal list. (barview) */
     BARVIEW  = ROFI_ORIENTATION_HORIZONTAL,
 } ViewType;
 
+/**
+ * The moving direction of the selection, this (in barview) affects the scrolling.
+ */
 typedef enum
 {
     LEFT_TO_RIGHT = 0,

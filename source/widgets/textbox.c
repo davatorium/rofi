@@ -41,6 +41,7 @@
 
 #include "theme.h"
 
+/** The space reserved for the DOT when enabling multi-select. */
 #define DOT_OFFSET    15
 
 static void textbox_draw ( widget *, cairo_t * );
@@ -890,7 +891,7 @@ int textbox_get_font_width ( const textbox *tb )
     return rect.width + rect.x;
 }
 
-/** Caching for the expected character height. */
+/** Caching for the estimated character height. (em) */
 static double char_height = -1;
 double textbox_get_estimated_char_height ( void )
 {
@@ -912,6 +913,7 @@ double textbox_get_estimated_char_width ( void )
     return char_width;
 }
 
+/** Cache storing the estimated width of a digit (ch). */
 static double ch_width = -1;
 double textbox_get_estimated_ch ( void )
 {

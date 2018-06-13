@@ -25,12 +25,17 @@
  *
  */
 
-#define G_LOG_DOMAIN    "Util.IconFetcher"
+/** The log domain of this Helper. */
+#define G_LOG_DOMAIN    "Helpers.IconFetcher"
 
 #include "rofi-icon-fetcher.h"
 #include "rofi-types.h"
 #include "helper.h"
 #include "settings.h"
+
+#include "xcb.h"
+#include "keyb.h"
+#include "view.h"
 
 
 typedef struct {
@@ -67,6 +72,9 @@ typedef struct {
     IconFetcherNameEntry *entry;
 } IconFetcherEntry;
 
+/**
+ * The icon fetcher internal state.
+ */
 IconFetcher *rofi_icon_fetcher_data = NULL;
 
 
@@ -124,7 +132,6 @@ void rofi_icon_fetcher_destroy ( void )
 
     g_free ( rofi_icon_fetcher_data );
 }
-void rofi_view_reload ();
 static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpointer user_data )
 {
     g_debug ( "starting up icon fetching thread." );

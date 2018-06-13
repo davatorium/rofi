@@ -26,6 +26,7 @@
  *
  */
 
+/** Log domain */
 #define G_LOG_DOMAIN    "Rofi"
 
 #include <config.h>
@@ -76,8 +77,9 @@
 // TODO: move this check to mode.c
 #include "mode-private.h"
 
-// Pidfile.
+/** Location of pidfile for this instance. */
 char       *pidfile   = NULL;
+/** Location of Cache directory. */
 const char *cache_dir = NULL;
 
 /** List of error messages.*/
@@ -91,6 +93,7 @@ void rofi_add_error_message ( GString *str )
 
 /** Path to the configuration file */
 G_MODULE_EXPORT char *config_path     = NULL;
+/** Path to the configuration file in the new format */
 G_MODULE_EXPORT char *config_path_new = NULL;
 /** Array holding all activated modi. */
 Mode                 **modi = NULL;
@@ -104,6 +107,7 @@ unsigned int num_modi = 0;
 /** Current selected mode */
 unsigned int curr_switcher = 0;
 
+/** Handle to NkBindings object for input devices. */
 NkBindings   *bindings = NULL;
 
 /** Glib main loop. */
@@ -620,6 +624,10 @@ static gboolean setup_modi ( void )
     return FALSE;
 }
 
+/**
+ * Quit rofi mainloop.
+ * This will exit program.
+ **/
 void rofi_quit_main_loop ( void )
 {
     g_main_loop_quit ( main_loop );

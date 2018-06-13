@@ -34,6 +34,7 @@
 
 #include "theme.h"
 
+/** The default width of the scrollbar */
 #define DEFAULT_SCROLLBAR_WIDTH    8
 
 static void scrollbar_draw ( widget *, cairo_t * );

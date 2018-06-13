@@ -119,10 +119,14 @@ struct RofiViewState
     /** Y position of the view */
     int              y;
 
+    /** Position and target of the mouse. */
     struct
     {
+        /** X position */
         int    x;
+        /** Y position */
         int    y;
+        /** Widget being targetted. */
         widget *motion_target;
     }                mouse;
 
