@@ -491,14 +491,13 @@ Disable history
 Enable, disable sorting.
 This setting can be changed at runtime (see `-kb-toggle-sort`).
 
-`-levenshtein-sort` to enable
-`-no-levenshtein-sort` to disable
+`-sort-method` 'method'  to specify the sorting method.
 
-When searching, always sort the result based on levenshtein distance.
-If disabled, fzf sorting is used when fuzzy matching is used.
-If enabled, levenshtein sorting is used event fuzzy matching is used.
+There are 2 sorting method:
 
-For other matching modes sorting is always done via levenshtein-sort.
+ * levenshtein (Default)
+ * fzf sorting.
+
 
 ### Dmenu specific
 
@@ -791,7 +790,7 @@ of the window will be visible through it.
   * `Ctrl-space`: Set selected item as input text.
   * `Shift-Del`: Delete entry from history.
   * `grave`: Toggle case sensitivity.
-  * `Alt-grave`: Toggle levenshtein sorting.
+  * `Alt-grave`: Toggle sorting.
   * `Alt-Shift-S`: Take a screenshot and store it in the Pictures directory.
 
 To get a full list of key bindings on the commandline, see `rofi -h`.

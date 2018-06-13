@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-THEME" "5" "February 2018" "" ""
+.TH "ROFI\-THEME" "5" "June 2018" "" ""
 .
 .SH "NAME"
 \fBrofi\-theme\fR \- Rofi theme format files
@@ -888,7 +888,7 @@ nametotextbox selected\.active {
 .IP "" 0
 .
 .P
-Sets all selected textboxes marked active to the given foreground and background color\. Note that a state modifies the original element, it therefore contains all the properties of that element\.
+Sets all selected textboxes marked active to the given text and background color\. Note that a state modifies the original element, it therefore contains all the properties of that element\.
 .
 .SS "Scrollbar"
 The scrollbar uses the \fBhandle\fR state when drawing the small scrollbar handle\. This allows the colors used for drawing the handle to be set independently\.
@@ -911,10 +911,10 @@ The following properties are currently supported:
 \fBborder\-radius\fR: padding Sets a radius on the corners of the borders\.
 .
 .IP "\(bu" 4
-\fBbackground\fR: color Background color
+\fBbackground\-color\fR: color Background color
 .
 .IP "\(bu" 4
-\fBforeground\fR: color Foreground color
+\fBborder\-color\fR: color Color of the border
 .
 .IP "\(bu" 4
 \fBindex\fR: integer (This one does not inherit it value from the parent widget)
@@ -927,7 +927,7 @@ The following properties are currently supported:
 \fBfont\fR: string The font used in the window
 .
 .IP "\(bu" 4
-\fBtransparency\fR: string Indicating if transparency should be used and what type: \fBreal\fR \- True transparency\. Only works with a compositor\. \fBbackground\fR \- Take a screenshot of the background image and use that\. \fBscreenshot\fR \- Take a screenshot of the screen and use that\. \fBPath\fR to png file \- Use an image\.
+\fBtransparency\fR: string Indicating if transparency should be used and what type: \fBreal\fR \- True transparency\. Only works with a compositor\. \fBbackground\-color\fR \- Take a screenshot of the background image and use that\. \fBscreenshot\fR \- Take a screenshot of the screen and use that\. \fBPath\fR to png file \- Use an image\.
 .
 .IP "\(bu" 4
 \fBlocation\fR: position The place of the anchor on the monitor
@@ -978,10 +978,10 @@ The following properties are currently supported:
 .SS "textbox:"
 .
 .IP "\(bu" 4
-\fBbackground\fR: color
+\fBbackground\-color\fR: color
 .
 .IP "\(bu" 4
-\fBforeground\fR: color
+\fBborder\-color\fR: the color used for the border around the widget\.
 .
 .IP "\(bu" 4
 \fBfont\fR: the font used by this textbox (string)
@@ -996,7 +996,7 @@ The following properties are currently supported:
 \fBhorizontal\-align\fR: horizontal alignment of the text (\fB0\fR left, \fB1\fR right)
 .
 .IP "\(bu" 4
-\fBtext\fR: the text color to use (falls back to foreground if not set)
+\fBtext\-color\fR: the text color to use
 .
 .IP "\(bu" 4
 \fBhighlight\fR: text style {color} color is optional, multiple highlight styles can be added like: bold underline italic #000000;
@@ -1221,7 +1221,7 @@ Content \- The content of the widget\.
 Padding \- Clears an area around the widget\. The padding shows the background color of the widget\.
 .
 .IP "\(bu" 4
-Border \- A border that goes around the padding and content\. The border use the foreground color of the widget\.
+Border \- A border that goes around the padding and content\. The border use the border\-color of the widget\.
 .
 .IP "\(bu" 4
 Margin \- Clears an area outside the border\. The margin is transparent\.

@@ -46,8 +46,8 @@ rofi.window-command:                 xkill -id {window}
 rofi.disable-history:                false
 ! "Use sorting" Set from: Default
 ! rofi.sort:                           false
-! "Use levenshtein sorting also for fuzzy matching" Set from: File
-rofi.levenshtein-sort:               false
+! "Choose the strategy used for sorting: normal (levenshtein) or fzf." Set from: Default
+! rofi.sorting-method:                 
 ! "Set case-sensitivity" Set from: File
 rofi.case-sensitive:                 false
 ! "Cycle through the results list" Set from: File
