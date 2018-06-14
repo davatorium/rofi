@@ -6,7 +6,7 @@ function create_fake_x ( )
 {
     export DISPLAY=":$1"
     echo -n "Starting fake X for display ${DISPLAY}: "
-    Xvfb +extension XINERAMA +xinerama -screen 0 1280x1024x24 -screen 1 800x600x24  ${DISPLAY} &>$2-server.log &
+    Xvfb -nolisten tcp +extension XINERAMA +xinerama -screen 0 1280x1024x24  ${DISPLAY} &>$2-server.log &
     XPID=$!
     echo "pid ${XPID}"
     sleep 1;

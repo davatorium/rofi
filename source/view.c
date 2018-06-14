@@ -1765,7 +1765,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->finalize   = process_result;
 
     state->main_window = box_create ( NULL, "window", ROFI_ORIENTATION_VERTICAL );
-    box *box = box_create ( WIDGET ( state->main_window ), "message", ROFI_ORIENTATION_VERTICAL );
+    box *box = box_create ( WIDGET ( state->main_window ), "error-message", ROFI_ORIENTATION_VERTICAL );
     box_add ( state->main_window, WIDGET ( box ), TRUE );
     state->text = textbox_create ( WIDGET ( box ), WIDGET_TYPE_TEXTBOX_TEXT, "textbox", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
                                    NORMAL, ( msg != NULL ) ? msg : "", 0, 0 );
