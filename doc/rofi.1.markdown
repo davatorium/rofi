@@ -213,6 +213,7 @@ Specify the matching algorithm used.
 Current the following methods are supported.
 
 * **normal**: match the int string
+* **start**: Match at the start of the string.
 * **regex**: match a regex input
 * **glob**: match a glob pattern
 * **fuzzy**: do a fuzzy match

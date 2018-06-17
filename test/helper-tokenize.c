@@ -423,6 +423,40 @@ START_TEST ( test_tokenizer_match_regex_single_two_word_till_end )
 }
 END_TEST
 
+START_TEST ( test_tokenizer_match_start )
+    config.matching_method = MM_START;
+    GRegex **tokens = tokenize ( "noot", FALSE );
+
+    TASSERT ( helper_token_match ( tokens, "aap noot mies") == FALSE );
+    TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+    TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+    TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+    TASSERT ( helper_token_match ( tokens, "aap Noot mies") == FALSE );
+    TASSERT ( helper_token_match ( tokens, "Nooaap mies") == FALSE );
+    TASSERT ( helper_token_match ( tokens, "noOTap mies") == TRUE );
+
+    tokenize_free ( tokens );
+
+    tokens = tokenize ( "noot", TRUE );
+
+    TASSERT ( helper_token_match ( tokens, "aap noot mies") == FALSE );
+    TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+    TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+    TASSERT ( helper_token_match ( tokens, "nootap mies") == TRUE );
+    TASSERT ( helper_token_match ( tokens, "aap Noot mies") == FALSE );
+    TASSERT ( helper_token_match ( tokens, "Nooaap mies") == FALSE );
+    TASSERT ( helper_token_match ( tokens, "noOTap mies") == FALSE );
+
+    tokenize_free ( tokens );
+    tokens = tokenize ( "no ot", FALSE );
+    TASSERT ( helper_token_match ( tokens, "aap noot mies") == FALSE );
+    TASSERT ( helper_token_match ( tokens, "aap mies") == FALSE );
+    TASSERT ( helper_token_match ( tokens, "nooaap mies") == FALSE );
+    TASSERT ( helper_token_match ( tokens, "nootap mies") == FALSE );
+    TASSERT ( helper_token_match ( tokens, "noap miesot") == FALSE );
+    tokenize_free ( tokens );
+END_TEST
+
 static Suite * helper_tokenizer_suite (void)
 {
     Suite *s;
@@ -474,6 +508,11 @@ static Suite * helper_tokenizer_suite (void)
         tcase_add_test(tc_regex, test_tokenizer_match_regex_multiple_ci);
         suite_add_tcase(s, tc_regex);
     }
+    {
+        TCase *tc_regex = tcase_create ("Start");
+        tcase_add_test(tc_regex, test_tokenizer_match_start);
+        suite_add_tcase(s, tc_start);
+    }
 
 
     return s;
@@ -497,5 +536,4 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
     number_failed = srunner_ntests_failed(sr);
     srunner_free(sr);
     return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
-    
 }
