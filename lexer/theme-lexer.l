@@ -177,7 +177,7 @@ INHERIT    (inherit)
 
 ASTERIX    \*
 
-ENV        $\{[A-Z0-9]*\}
+ENV        $\{[[:alnum:]]*\}
 
  /* Position */
 CENTER     (?i:center)
