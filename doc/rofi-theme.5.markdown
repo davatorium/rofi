@@ -189,6 +189,7 @@ The current theme format supports different types:
  * a reference
  * an orientation
  * a list of keywords
+ * an environment variable
  * Inherit
 
 Some of these types are a combination of other types.
@@ -442,6 +443,19 @@ Specify the orientation of the widget.
 
 A list starts with a '[' and ends with a ']'. The entries in the list are comma-separated.
 The `keyword` in the list refers to an widget name.
+
+## Environment variable
+
+* Format: `${:alnum:}`
+
+This will parse the environment variable as the property value. (that then can be any of the above types).
+The environment variable should be an alphanumeric string without white-space.
+
+```
+* {
+    background-color: ${BG};
+}
+```
 
 ## Inherit
 

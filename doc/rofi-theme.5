@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-THEME" "5" "June 2018" "" ""
+.TH "ROFI\-THEME" "5" "July 2018" "" ""
 .
 .SH "NAME"
 \fBrofi\-theme\fR \- Rofi theme format files
@@ -270,6 +270,9 @@ an orientation
 .
 .IP "\(bu" 4
 a list of keywords
+.
+.IP "\(bu" 4
+an environment variable
 .
 .IP "\(bu" 4
 Inherit
@@ -713,6 +716,28 @@ Format: \fB[ keyword, keyword ]\fR
 .
 .P
 A list starts with a \'[\' and ends with a \']\'\. The entries in the list are comma\-separated\. The \fBkeyword\fR in the list refers to an widget name\.
+.
+.SH "Environment variable"
+.
+.IP "\(bu" 4
+Format: \fB${:alnum:}\fR
+.
+.IP "" 0
+.
+.P
+This will parse the environment variable as the property value\. (that then can be any of the above types)\. The environment variable should be an alphanumeric string without white\-space\.
+.
+.IP "" 4
+.
+.nf
+
+* {
+    background\-color: ${BG};
+}
+.
+.fi
+.
+.IP "" 0
 .
 .SH "Inherit"
 .
