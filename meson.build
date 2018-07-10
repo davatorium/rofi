@@ -1,6 +1,6 @@
 project('rofi', 'c',
     version: '1.5.1-dev',
-    meson_version: '>=0.39.1',
+    meson_version: '>=0.47.0',
     license: [ 'MIT' ],
     default_options: [
         'c_std=c99',
@@ -103,6 +103,7 @@ foreach o : nk_options + nk_subproject_options
     endif
 endforeach
 deps += nk.get_variable('libnkutils')
+deps += nk.get_variable('libnkutils_bindings')
 
 install_headers([
         'include/mode.h',
