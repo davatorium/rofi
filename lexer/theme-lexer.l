@@ -54,7 +54,9 @@ typedef enum {
     /** Parse a file */
     PT_FILE,
     /** Parse a string */
-    PT_STRING
+    PT_STRING,
+    /** Parse environment */
+    PT_ENV
 } ParseType;
 
 /**
@@ -123,6 +125,7 @@ static double rofi_theme_parse_convert_hex ( char high, char low)
                 } \
                 break;\
             }\
+            case PT_ENV:\
             case PT_STRING:\
             {\
                 yy_size_t len = MIN (max_size, current->str_len);\
@@ -446,7 +449,7 @@ if ( queue == NULL ){
         ParseObject *top = g_queue_peek_head ( file_queue );
         top->location = *yylloc;
         ParseObject *po = g_malloc0(sizeof(ParseObject));
-        po->type = PT_STRING;
+        po->type = PT_ENV;
         po->input_str = val;
         po->str_len = strlen(val);
         current = po;

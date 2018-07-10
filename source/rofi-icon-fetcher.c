@@ -138,7 +138,7 @@ static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpoint
     // as long as dr->icon is updated atomicly.. (is a pointer write atomic?)
     // this should be fine running in another thread.
     IconFetcherEntry *sentry        = (IconFetcherEntry*) sdata;
-    const gchar         *themes[1] = {
+    const gchar         *themes[] = {
         config.icon_theme,
         NULL
     };
