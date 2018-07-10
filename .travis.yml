@@ -61,8 +61,8 @@ before_install:
 # TODO: We install xkbcommon here, until Travis use an up-to-date enough Ubuntu
 install:
     - sudo apt-get install -y --force-yes flex/trusty-backports libfl-dev/trusty-backports
-    - sudo apt-get install -y --force-yes python3-pip
-    - pip3 install --user meson
+    - sudo apt-get install -y --force-yes python3.5-pip
+    - pip3.5 install --user meson
     - wget https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-linux.zip
     - unzip ninja-linux.zip
     - export PATH=$(pwd):$PATH
