@@ -19,6 +19,7 @@ addons:
       branch_pattern: coverity_scan
     apt:
         packages:
+            - python3.5
             - autoconf
             - automake
             - make
@@ -61,9 +62,10 @@ before_install:
 # TODO: We install xkbcommon here, until Travis use an up-to-date enough Ubuntu
 install:
     - sudo apt-get install -y --force-yes flex/trusty-backports libfl-dev/trusty-backports
-    - sudo apt-get install -y --force-yes python3.5-pip
-    - pip3.5 install --user meson
+    - wget https://github.com/mesonbuild/meson/releases/download/0.47.0/meson-0.47.0.tar.gz
+    - tar xf meson-0.47.0.tar.gz
     - wget https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-linux.zip
+    - export MESON=$(pwd)/meson-0.47.0/meson.py
     - unzip ninja-linux.zip
     - export PATH=$(pwd):$PATH
     - git clone https://github.com/alobbs/doxy-coverage
@@ -82,7 +84,7 @@ install:
     - cd -
 
 before_script:
-    - meson build -Db_coverage=true
+    - python3.5 ${MESON} build -Db_coverage=true
 
 script:
     - ninja -C build
