@@ -44,7 +44,7 @@ Its main features are:
 * easily extensible using scripts
 * theming
 
-**Rofi** has several built-in modes implementing common use cases and can be exteneded by scripts (either called from
+**Rofi** has several built-in modes implementing common use cases and can be extended by scripts (either called from
 **Rofi** or calling **Rofi**).
 
 Below the different modes are listed:
