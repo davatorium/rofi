@@ -7,12 +7,12 @@
 \fBrofi\-theme\fR \- Rofi theme format files
 .
 .SH "DESCRIPTION"
-The need for a new theme format was motivated by the fact that the way rofi handled widgets has changed\. From a very static drawing of lines and text to a nice structured form of packing widgets\. This change made it possible to provide a more flexible theme framework\. The old theme format and config file are not flexible enough to expose these options in a user\-friendly way\. Therefor, a new file format has been created, replacing the old one\.
+The need for a new theme format was motivated by the fact that the way rofi handled widgets has changed\. From a very static drawing of lines and text to a nice structured form of packing widgets\. This change made it possible to provide a more flexible theme framework\. The old theme format and config file are not flexible enough to expose these options in a user\-friendly way\. Therefore, a new file format has been created, replacing the old one\.
 .
 .SH "FORMAT SPECIFICATION"
 .
 .SH "Encoding"
-The encoding of the file is utf\-8\. Both unix (\fB\en\fR) and windows (\fB\er\en\fR) newlines format are supported\. But unix is preferred\.
+The encoding of the file is utf\-8\. Both unix (\fB\en\fR) and windows (\fB\er\en\fR) newline formats are supported, though unix is preferred\.
 .
 .SH "Comments"
 C and C++ file comments are supported\.
@@ -121,7 +121,7 @@ It is advised to define the \fIglobal properties section\fR on top of the file t
 If there are multiple sections with the same name, they are merged\. Duplicate properties are overwritten and the last parsed entry kept\.
 .
 .SH "Global properties section"
-A theme can have one or more global properties sections\. If there is more than one, they will be merged\.
+A theme can have one or more global properties sections\. If there are more than one, they will be merged\.
 .
 .P
 The global properties section denotes the defaults for each element\. Each property of this section can be referenced with \fB@{identifier}\fR (See Properties section)
