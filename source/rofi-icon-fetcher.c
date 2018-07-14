@@ -37,6 +37,7 @@
 #include "keyb.h"
 #include "view.h"
 
+#include "nkutils-xdg-theme.h"
 
 typedef struct {
     // Context for icon-themes.

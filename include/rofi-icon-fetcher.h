@@ -4,7 +4,6 @@
 #include <glib.h>
 #include <stdint.h>
 #include <cairo.h>
-#include "nkutils-xdg-theme.h"
 
 /**
  * @defgroup ICONFETCHER IconFetcher

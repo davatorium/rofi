@@ -110,6 +110,7 @@ install_headers([
         'include/mode-private.h',
         'include/helper.h',
         'include/rofi-types.h',
+        'include/rofi-icon-fetcher.h'
     ],
     subdir: meson.project_name(),
 )

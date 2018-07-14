@@ -44,7 +44,8 @@ rofiinclude_HEADERS=\
 			include/mode.h\
 			include/mode-private.h\
 			include/helper.h\
-			include/rofi-types.h
+			include/rofi-types.h\
+			include/rofi-icon-fetcher.h
 
 ##
 # Rofi the program
