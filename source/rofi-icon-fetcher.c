@@ -107,7 +107,7 @@ void rofi_icon_fetcher_init ( void )
         "gnome",
         NULL
     };
-    const char *themes[2] = { NULL, NULL};
+    const char *themes[2] = { config.icon_theme, NULL};
 
     rofi_icon_fetcher_data = g_malloc0(sizeof(IconFetcher));
 
