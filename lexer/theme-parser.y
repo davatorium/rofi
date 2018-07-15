@@ -250,9 +250,23 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %type <list>           t_property_element_list_optional
 %type <ival>           t_property_orientation
 %type <ival>           t_name_prefix_optional
-%start t_entry_list
+%start t_main
 
 %%
+
+/**
+ * First have the configuration blocks, then the theme.
+ */
+t_main
+: %empty {}
+| t_configuration_list t_entry_list {
+    // Dummy at this point.
+}
+;
+
+t_configuration_list:
+ %empty {}
+| t_configuration_list T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {};
 
 t_entry_list:
   %empty {
@@ -299,9 +313,6 @@ t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optio
     if ( $3 ) {
         g_hash_table_destroy ( $3 );
     }
-}
-| T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {
-    // Dummy at this point.
 }
 ;
 

@@ -4,21 +4,6 @@
  * Copyright: Dave Davenport
  */
 
-configuration {
-
-    // The display name of this browser
-    display-ssh:                   "  ";
-    // The display name of this browser
-    display-run:                    "";
-    // The display name of this browser
-    display-drun:                   "";
-    // The display name of this browser
-    display-window:                 "";
-    display-combi:                  "";
-    show-icons: true;
-}
-
-
 /**
  * User: Qball
  * Copyright: Dave Davenport
