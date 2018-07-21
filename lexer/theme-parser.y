@@ -258,8 +258,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
  * First have the configuration blocks, then the theme.
  */
 t_main
-: %empty {}
-| t_configuration_list t_entry_list {
+: t_configuration_list t_entry_list {
     // Dummy at this point.
 }
 ;
@@ -276,9 +275,8 @@ t_entry_list:
             $$ =  rofi_theme;
         }
   }
-|  t_entry_list
-   t_entry {
-    }
+|  t_entry_list t_entry {
+   }
 ;
 
 /**
