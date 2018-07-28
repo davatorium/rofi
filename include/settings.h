@@ -116,6 +116,8 @@ typedef struct
     char           * sorting_method;
     /** Desktop entries to match in drun */
     char           * drun_match_fields;
+    /** Desktop entry show actions */
+    unsigned int   drun_show_actions;
     /** Search case sensitivity */
     unsigned int   case_sensitive;
     /** Cycle through in the element list */

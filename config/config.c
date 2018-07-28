@@ -116,6 +116,9 @@ Settings config = {
     .matching_method = MM_NORMAL,
     /** Desktop entry fields to match*/
     .drun_match_fields      = "name,generic,exec,categories",
+    /** Desktop entry show actions */
+    .drun_show_actions      = FALSE,
+    /** Desktop entry show actions */
     /** Window fields to match in window mode*/
     .window_match_fields    = "all",
     /** Monitor */

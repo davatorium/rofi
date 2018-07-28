@@ -57,7 +57,7 @@
 
 #define DRUN_CACHE_FILE    "rofi3.druncache"
 
-#define DRUN_GROUP_NAME    "Desktop Entry"
+char *DRUN_GROUP_NAME = "Desktop Entry";
 
 
 typedef struct _DRunModePrivateData DRunModePrivateData;
@@ -69,6 +69,8 @@ typedef struct
 {
     thread_state st;
     DRunModePrivateData *pd;
+    /* category */
+    char *action;
     /* Root */
     char *root;
     /* Path to desktop file */
@@ -226,7 +228,7 @@ static void exec_cmd_entry ( DRunModeEntry *e )
     }
 
     const gchar *fp        = g_strstrip ( str );
-    gchar       *exec_path = g_key_file_get_string ( e->key_file, DRUN_GROUP_NAME, "Path", NULL );
+    gchar       *exec_path = g_key_file_get_string ( e->key_file, e->action, "Path", NULL );
     if ( exec_path != NULL && strlen ( exec_path ) == 0 ) {
         // If it is empty, ignore this property. (#529)
         g_free ( exec_path );
@@ -238,14 +240,14 @@ static void exec_cmd_entry ( DRunModeEntry *e )
         .icon   = e->icon_name,
         .app_id = e->app_id,
     };
-    gboolean                 sn       = g_key_file_get_boolean ( e->key_file, DRUN_GROUP_NAME, "StartupNotify", NULL );
+    gboolean                 sn       = g_key_file_get_boolean ( e->key_file, e->action, "StartupNotify", NULL );
     gchar                    *wmclass = NULL;
-    if ( sn && g_key_file_has_key ( e->key_file, DRUN_GROUP_NAME, "StartupWMClass", NULL ) ) {
-        context.wmclass = wmclass = g_key_file_get_string ( e->key_file, DRUN_GROUP_NAME, "StartupWMClass", NULL );
+    if ( sn && g_key_file_has_key ( e->key_file, e->action, "StartupWMClass", NULL ) ) {
+        context.wmclass = wmclass = g_key_file_get_string ( e->key_file, e->action, "StartupWMClass", NULL );
     }
 
     // Returns false if not found, if key not found, we don't want run in terminal.
-    gboolean terminal = g_key_file_get_boolean ( e->key_file, DRUN_GROUP_NAME, "Terminal", NULL );
+    gboolean terminal = g_key_file_get_boolean ( e->key_file, e->action, "Terminal", NULL );
     if ( helper_execute_command ( exec_path, fp, terminal, sn ? &context : NULL ) ) {
         char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
         // Store it based on the unique identifiers (desktop_id).
@@ -259,8 +261,9 @@ static void exec_cmd_entry ( DRunModeEntry *e )
 /**
  * This function absorbs/freeś path, so this is no longer available afterwards.
  */
-static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, const char *path, const gchar *basename )
+static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, const char *path, const gchar *basename, char *action )
 {
+    int parse_action = ( config.drun_show_actions && action != DRUN_GROUP_NAME );
     // Create ID on stack.
     // We know strlen (path ) > strlen(root)+1
     const ssize_t id_len = strlen ( path ) - strlen ( root );
@@ -273,7 +276,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     }
 
     // Check if item is on disabled list.
-    if ( g_hash_table_contains ( pd->disabled_entries, id ) ) {
+    if ( g_hash_table_contains ( pd->disabled_entries, id ) && !parse_action ) {
         g_debug ( "[%s] [%s] Skipping, was previously seen.", id, path );
         return TRUE;
     }
@@ -284,6 +287,13 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     if ( !res ) {
         g_debug ( "[%s] [%s] Failed to parse desktop file because: %s.", id, path, error->message );
         g_error_free ( error );
+        g_key_file_free ( kf );
+        return FALSE;
+    }
+
+    if ( g_key_file_has_group ( kf, action ) == FALSE ) {
+        // No type? ignore.
+        g_debug ( "[%s] [%s] Invalid desktop file: No %s group", id, path, action );
         g_key_file_free ( kf );
         return FALSE;
     }
@@ -409,7 +419,15 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     pd->entry_list[pd->cmd_list_length].desktop_id = g_strdup ( id );
     pd->entry_list[pd->cmd_list_length].app_id     = g_strndup ( basename, strlen ( basename ) - strlen ( ".desktop" ) );
     gchar *n = g_key_file_get_locale_string ( kf, DRUN_GROUP_NAME, "Name", NULL, NULL );
+
+    if ( action != DRUN_GROUP_NAME ){
+        gchar *na = g_key_file_get_locale_string ( kf, action, "Name", NULL, NULL );
+        gchar *l = g_strdup_printf("%s - %s", n, na);
+        g_free(n);
+        n = l;
+    }
     pd->entry_list[pd->cmd_list_length].name = n;
+    pd->entry_list[pd->cmd_list_length].action = DRUN_GROUP_NAME;
     gchar *gn = g_key_file_get_locale_string ( kf, DRUN_GROUP_NAME, "GenericName", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].generic_name = gn;
     if ( matching_entry_fields[DRUN_MATCH_FIELD_CATEGORIES].enabled ) {
@@ -418,7 +436,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     else {
         pd->entry_list[pd->cmd_list_length].categories = NULL;
     }
-    pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, DRUN_GROUP_NAME, "Exec", NULL );
+    pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, action, "Exec", NULL );
 
     if ( matching_entry_fields[DRUN_MATCH_FIELD_COMMENT].enabled ) {
         pd->entry_list[pd->cmd_list_length].comment = g_key_file_get_locale_string ( kf,
@@ -441,6 +459,18 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
     g_debug ( "[%s] Using file %s.", id, path );
     ( pd->cmd_list_length )++;
+
+    if ( !parse_action ) {
+        gsize actions_length = 0;
+        char **actions = g_key_file_get_string_list ( kf, DRUN_GROUP_NAME, "Actions", &actions_length, NULL );
+        for ( gsize iter = 0; iter < actions_length; iter++ ){
+            char *new_action = g_strdup_printf("Desktop Action %s", actions[iter]);
+            if (! read_desktop_file ( pd, root, path, basename, new_action ) ){
+                g_free ( new_action );
+            }
+        }
+        g_strfreev(actions);
+    }
     return TRUE;
 }
 
@@ -495,7 +525,7 @@ static void walk_dir ( DRunModePrivateData *pd, const char *root, const char *di
         case DT_REG:
             // Skip files not ending on .desktop.
             if ( g_str_has_suffix ( file->d_name, ".desktop" ) ) {
-                read_desktop_file ( pd, root, filename, file->d_name );
+                read_desktop_file ( pd, root, filename, file->d_name, DRUN_GROUP_NAME );
             }
             break;
         case DT_DIR:
@@ -655,6 +685,9 @@ static void drun_entry_clear ( DRunModeEntry *e )
     g_free ( e->name );
     g_free ( e->generic_name );
     g_free ( e->comment );
+    if ( e->action != DRUN_GROUP_NAME ) {
+        g_free ( e->action );
+    }
     g_strfreev ( e->categories );
     g_key_file_free ( e->key_file );
 }

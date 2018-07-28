@@ -42,6 +42,8 @@ rofi.window-command:                 xkill -id {window}
 ! rofi.icon-theme:                     
 ! "Desktop entry fields to match in drun" Set from: Default
 ! rofi.drun-match-fields:              name,generic,exec,categories
+! "Desktop entry show actions." Set from: Default
+! rofi.drun-show-actions:              false
 ! "Disable history in run/ssh" Set from: File
 rofi.disable-history:                false
 ! "Use sorting" Set from: Default

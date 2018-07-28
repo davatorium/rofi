@@ -239,6 +239,12 @@ The different fields are:
 
     Default: *name,generic,exec,categories*
 
+`-[no-]drun-show-actions`
+
+Show actions present in the Desktop files.
+
+    Default: false
+
 `-window-match-fields` *field1*,*field2*,...
 
 When using window mode, match only with the specified fields. 
