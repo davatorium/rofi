@@ -58,10 +58,10 @@ static int box_get_desired_width  ( widget *wid )
     int width   = 0;
 
     // Allow user to override.
-    RofiDistance w  = rofi_theme_get_distance ( wid, "width", 0 );
+    RofiDistance w = rofi_theme_get_distance ( wid, "width", 0 );
     width = distance_get_pixel ( w, ROFI_ORIENTATION_HORIZONTAL );
     if ( width > 0 ) {
-        return width ;
+        return width;
     }
 
     if ( b->type == ROFI_ORIENTATION_HORIZONTAL ) {

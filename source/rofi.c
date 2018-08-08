@@ -78,7 +78,7 @@
 #include "mode-private.h"
 
 /** Location of pidfile for this instance. */
-char       *pidfile   = NULL;
+char       *pidfile = NULL;
 /** Location of Cache directory. */
 const char *cache_dir = NULL;
 
@@ -92,7 +92,7 @@ void rofi_add_error_message ( GString *str )
 }
 
 /** Path to the configuration file */
-G_MODULE_EXPORT char *config_path     = NULL;
+G_MODULE_EXPORT char *config_path = NULL;
 /** Path to the configuration file in the new format */
 G_MODULE_EXPORT char *config_path_new = NULL;
 /** Array holding all activated modi. */
@@ -108,7 +108,7 @@ unsigned int num_modi = 0;
 unsigned int curr_switcher = 0;
 
 /** Handle to NkBindings object for input devices. */
-NkBindings   *bindings = NULL;
+NkBindings *bindings = NULL;
 
 /** Glib main loop. */
 GMainLoop *main_loop = NULL;
@@ -858,7 +858,8 @@ int main ( int argc, char *argv[] )
                 rofi_theme_free ( rofi_theme );
                 rofi_theme = NULL;
             }
-        } else {
+        }
+        else {
             g_free ( config_path_new );
             config_path_new = NULL;
             config_parse_xresource_options_file ( config_path );

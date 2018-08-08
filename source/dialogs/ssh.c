@@ -487,7 +487,6 @@ static ModeMode ssh_mode_result ( Mode *sw, int mretv, char **input, unsigned in
     return retv;
 }
 
-
 /**
  * @param sw Object handle to the SSH Mode object
  * @param selected_line The line to view

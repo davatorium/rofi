@@ -59,7 +59,6 @@
 
 char *DRUN_GROUP_NAME = "Desktop Entry";
 
-
 typedef struct _DRunModePrivateData DRunModePrivateData;
 /**
  * Store extra information about the entry.
@@ -67,20 +66,20 @@ typedef struct _DRunModePrivateData DRunModePrivateData;
  */
 typedef struct
 {
-    thread_state st;
+    thread_state        st;
     DRunModePrivateData *pd;
     /* category */
-    char *action;
+    char                *action;
     /* Root */
-    char *root;
+    char                *root;
     /* Path to desktop file */
-    char *path;
+    char                *path;
     /* Application id (.desktop filename) */
-    char *app_id;
+    char                *app_id;
     /* Desktop id */
-    char *desktop_id;
+    char                *desktop_id;
     /* Icon stuff */
-    char *icon_name;
+    char                *icon_name;
     /* Icon size is used to indicate what size is requested by the gui.
      * secondary it indicates if the request for a lookup has been issued (0 not issued )
      */
@@ -131,18 +130,18 @@ static DRunEntryField matching_entry_fields[DRUN_MATCH_NUM_FIELDS] = {
 
 struct _DRunModePrivateData
 {
-    DRunModeEntry     *entry_list;
-    unsigned int      cmd_list_length;
-    unsigned int      cmd_list_length_actual;
+    DRunModeEntry *entry_list;
+    unsigned int  cmd_list_length;
+    unsigned int  cmd_list_length_actual;
     // List of disabled entries.
-    GHashTable        *disabled_entries;
-    unsigned int      disabled_entries_length;
-    unsigned int      expected_line_height;
+    GHashTable    *disabled_entries;
+    unsigned int  disabled_entries_length;
+    unsigned int  expected_line_height;
 
     // Theme
-    const gchar       *icon_theme;
+    const gchar   *icon_theme;
     // DE
-    gchar             **current_desktop_list;
+    gchar         **current_desktop_list;
 };
 
 struct RegexEvalArg
@@ -412,21 +411,21 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     else {
         pd->entry_list[pd->cmd_list_length].sort_index = -pd->cmd_list_length;
     }
-    pd->entry_list[pd->cmd_list_length].icon_size  = 0;
+    pd->entry_list[pd->cmd_list_length].icon_size      = 0;
     pd->entry_list[pd->cmd_list_length].icon_fetch_uid = 0;
-    pd->entry_list[pd->cmd_list_length].root       = g_strdup ( root );
-    pd->entry_list[pd->cmd_list_length].path       = g_strdup ( path );
-    pd->entry_list[pd->cmd_list_length].desktop_id = g_strdup ( id );
-    pd->entry_list[pd->cmd_list_length].app_id     = g_strndup ( basename, strlen ( basename ) - strlen ( ".desktop" ) );
+    pd->entry_list[pd->cmd_list_length].root           = g_strdup ( root );
+    pd->entry_list[pd->cmd_list_length].path           = g_strdup ( path );
+    pd->entry_list[pd->cmd_list_length].desktop_id     = g_strdup ( id );
+    pd->entry_list[pd->cmd_list_length].app_id         = g_strndup ( basename, strlen ( basename ) - strlen ( ".desktop" ) );
     gchar *n = g_key_file_get_locale_string ( kf, DRUN_GROUP_NAME, "Name", NULL, NULL );
 
-    if ( action != DRUN_GROUP_NAME ){
+    if ( action != DRUN_GROUP_NAME ) {
         gchar *na = g_key_file_get_locale_string ( kf, action, "Name", NULL, NULL );
-        gchar *l = g_strdup_printf("%s - %s", n, na);
-        g_free(n);
+        gchar *l  = g_strdup_printf ( "%s - %s", n, na );
+        g_free ( n );
         n = l;
     }
-    pd->entry_list[pd->cmd_list_length].name = n;
+    pd->entry_list[pd->cmd_list_length].name   = n;
     pd->entry_list[pd->cmd_list_length].action = DRUN_GROUP_NAME;
     gchar *gn = g_key_file_get_locale_string ( kf, DRUN_GROUP_NAME, "GenericName", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].generic_name = gn;
@@ -462,14 +461,14 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
 
     if ( !parse_action ) {
         gsize actions_length = 0;
-        char **actions = g_key_file_get_string_list ( kf, DRUN_GROUP_NAME, "Actions", &actions_length, NULL );
-        for ( gsize iter = 0; iter < actions_length; iter++ ){
-            char *new_action = g_strdup_printf("Desktop Action %s", actions[iter]);
-            if (! read_desktop_file ( pd, root, path, basename, new_action ) ){
+        char  **actions      = g_key_file_get_string_list ( kf, DRUN_GROUP_NAME, "Actions", &actions_length, NULL );
+        for ( gsize iter = 0; iter < actions_length; iter++ ) {
+            char *new_action = g_strdup_printf ( "Desktop Action %s", actions[iter] );
+            if ( !read_desktop_file ( pd, root, path, basename, new_action ) ) {
                 g_free ( new_action );
             }
         }
-        g_strfreev(actions);
+        g_strfreev ( actions );
     }
     return TRUE;
 }
@@ -618,7 +617,6 @@ static void get_apps ( DRunModePrivateData *pd )
     TICK_N ( "Sorting done." );
 }
 
-
 static void drun_mode_parse_entry_fields ()
 {
     char               *savept = NULL;
@@ -660,7 +658,7 @@ static int drun_mode_init ( Mode *sw )
     if ( mode_get_private_data ( sw ) != NULL ) {
         return TRUE;
     }
-    DRunModePrivateData        *pd = g_malloc0 ( sizeof ( *pd ) );
+    DRunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
     pd->disabled_entries = g_hash_table_new_full ( g_str_hash, g_str_equal, g_free, NULL );
     mode_set_private_data ( sw, (void *) pd );
     // current destkop
@@ -772,8 +770,10 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
     DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
     g_return_val_if_fail ( pd->entry_list != NULL, NULL );
     DRunModeEntry       *dr = &( pd->entry_list[selected_line] );
-    if ( dr->icon_name == NULL ) return NULL;
-    if ( dr->icon_fetch_uid >0){
+    if ( dr->icon_name == NULL ) {
+        return NULL;
+    }
+    if ( dr->icon_fetch_uid > 0 ) {
         return rofi_icon_fetcher_get ( dr->icon_fetch_uid );
     }
     dr->icon_fetch_uid = rofi_icon_fetcher_query ( dr->icon_name, height );

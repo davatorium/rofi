@@ -39,29 +39,28 @@
 
 struct _icon
 {
-    widget widget;
+    widget          widget;
 
     // Size of the icon.
-    int size;
+    int             size;
 
-    uint32_t icon_fetch_id;
+    uint32_t        icon_fetch_id;
 
     // Source surface.
-    cairo_surface_t  *icon;
+    cairo_surface_t *icon;
 };
-
 
 static int icon_get_desired_height ( widget *widget )
 {
     icon *b     = (icon *) widget;
-    int       height = b->size;
+    int  height = b->size;
     height += widget_padding_get_padding_height ( widget );
     return height;
 }
 static int icon_get_desired_width ( widget *widget )
 {
-    icon *b     = (icon *) widget;
-    int       width = b->size;
+    icon *b    = (icon *) widget;
+    int  width = b->size;
     width += widget_padding_get_padding_width ( widget );
     return width;
 }
@@ -71,7 +70,6 @@ static void icon_draw ( widget *wid, cairo_t *draw )
     icon *b = (icon *) wid;
     // If no icon is loaded. quit.
     if ( b->icon == NULL && b->icon_fetch_id > 0 ) {
-
         b->icon = rofi_icon_fetcher_get ( b->icon_fetch_id );
         if ( b->icon ) {
             cairo_surface_reference ( b->icon );
@@ -83,7 +81,7 @@ static void icon_draw ( widget *wid, cairo_t *draw )
     int    iconh = cairo_image_surface_get_height ( b->icon );
     int    iconw = cairo_image_surface_get_width ( b->icon );
     int    icons = MAX ( iconh, iconw );
-    double scale = (double) b->size/ icons;
+    double scale = (double) b->size / icons;
 
     cairo_save ( draw );
 
@@ -92,7 +90,6 @@ static void icon_draw ( widget *wid, cairo_t *draw )
     cairo_set_source_surface ( draw, b->icon, 0, 0 );
     cairo_paint ( draw );
     cairo_restore ( draw );
-
 }
 
 static void icon_free ( widget *wid )
@@ -134,7 +131,7 @@ icon * icon_create ( widget *parent, const char *name )
 {
     icon *b = g_malloc0 ( sizeof ( icon ) );
 
-    b->size                      = 16;
+    b->size = 16;
     // Initialize widget.
     widget_init ( WIDGET ( b ), parent, WIDGET_TYPE_UNKNOWN, name );
     b->widget.draw               = icon_draw;
@@ -143,7 +140,6 @@ icon * icon_create ( widget *parent, const char *name )
     b->widget.get_desired_height = icon_get_desired_height;
     b->widget.get_desired_width  = icon_get_desired_width;
 
-
     b->size = rofi_theme_get_integer ( WIDGET ( b ), "size", b->size );
 
     const char * filename = rofi_theme_get_string ( WIDGET ( b ), "filename", NULL );
@@ -151,7 +147,5 @@ icon * icon_create ( widget *parent, const char *name )
         b->icon_fetch_id = rofi_icon_fetcher_query ( filename, b->size );
     }
 
-
     return b;
 }
-

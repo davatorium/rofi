@@ -23,7 +23,6 @@ void rofi_icon_fetcher_init ( void );
  */
 void rofi_icon_fetcher_destroy ( void );
 
-
 /**
  * @param name The name of the icon to fetch.
  * @param size The size of the icon to fetch.
@@ -36,7 +35,6 @@ void rofi_icon_fetcher_destroy ( void );
  * @returns the uid identifying the request.
  */
 uint32_t rofi_icon_fetcher_query ( const char *name, const int size );
-
 
 /**
  * @param uid The unique id representing the matching request.

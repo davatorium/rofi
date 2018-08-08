@@ -45,8 +45,8 @@ typedef enum
 
 typedef enum
 {
-    SORT_NORMAL      = 0,
-    SORT_FZF         = 1
+    SORT_NORMAL = 0,
+    SORT_FZF    = 1
 } SortingMethod;
 
 /**

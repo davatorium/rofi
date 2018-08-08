@@ -126,9 +126,9 @@ struct
     .fake_bgrel     = FALSE,
     .flags          = MENU_NORMAL,
     .views          = G_QUEUE_INIT,
-    .idle_timeout   =               0,
-    .count          =              0L,
-    .repaint_source =               0,
+    .idle_timeout   = 0,
+    .count          = 0L,
+    .repaint_source = 0,
     .fullscreen     = FALSE,
 };
 
@@ -559,14 +559,14 @@ static RofiViewState * __rofi_view_state_create ( void )
 typedef struct _thread_state_view
 {
     /** Generic thread state. */
-    thread_state st;
+    thread_state  st;
 
     /** Condition. */
-    GCond        *cond;
+    GCond         *cond;
     /** Lock for condition. */
-    GMutex       *mutex;
+    GMutex        *mutex;
     /** Count that is protected by lock. */
-    unsigned int *acount;
+    unsigned int  *acount;
 
     /** Current state. */
     RofiViewState *state;
@@ -581,7 +581,6 @@ typedef struct _thread_state_view
     const char    *pattern;
     /** Length of pattern. */
     glong         plen;
-
 } thread_state_view;
 /**
  * @param data A thread_state object.
@@ -597,7 +596,7 @@ static void rofi_view_call_thread ( gpointer data, gpointer user_data )
 
 static void filter_elements ( thread_state *ts, G_GNUC_UNUSED gpointer user_data )
 {
-    thread_state_view *t = (thread_state_view *)ts;
+    thread_state_view *t = (thread_state_view *) ts;
     for ( unsigned int i = t->start; i < t->stop; i++ ) {
         int match = mode_token_match ( t->state->sw, t->state->tokens, i );
         // If each token was matched, add it to list.
@@ -609,13 +608,13 @@ static void filter_elements ( thread_state *ts, G_GNUC_UNUSED gpointer user_data
                 glong slen  = g_utf8_strlen ( str, -1 );
                 switch ( config.sorting_method_enum )
                 {
-                    case SORT_FZF:
-                        t->state->distance[i] = rofi_scorer_fuzzy_evaluate ( t->pattern, t->plen, str, slen );
-                        break;
-                    case SORT_NORMAL:
-                    default:
-                        t->state->distance[i] = levenshtein ( t->pattern, t->plen, str, slen );
-                        break;
+                case SORT_FZF:
+                    t->state->distance[i] = rofi_scorer_fuzzy_evaluate ( t->pattern, t->plen, str, slen );
+                    break;
+                case SORT_NORMAL:
+                default:
+                    t->state->distance[i] = levenshtein ( t->pattern, t->plen, str, slen );
+                    break;
                 }
                 g_free ( str );
             }
@@ -804,7 +803,8 @@ void __create_window ( MenuFlags menu_flags )
     const char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
     if ( transparency ) {
         rofi_view_setup_fake_transparency ( transparency  );
-    } else if ( config.fake_transparency && config.fake_background ) {
+    }
+    else if ( config.fake_transparency && config.fake_background ) {
         rofi_view_setup_fake_transparency ( config.fake_background );
     }
     if ( xcb->sncontext != NULL ) {
@@ -1051,24 +1051,24 @@ static void rofi_view_refilter ( RofiViewState *state )
          * If number of threads > 1 and there are enough (> 1000) items, spawn jobs for the thread pool.
          * For large lists with 8 threads I see a factor three speedup of the whole function.
          */
-        unsigned int nt = MAX ( 1, state->num_lines / 500 );
+        unsigned int      nt = MAX ( 1, state->num_lines / 500 );
         thread_state_view states[nt];
-        GCond        cond;
-        GMutex       mutex;
+        GCond             cond;
+        GMutex            mutex;
         g_mutex_init ( &mutex );
         g_cond_init ( &cond );
         unsigned int count = nt;
         unsigned int steps = ( state->num_lines + nt ) / nt;
         for ( unsigned int i = 0; i < nt; i++ ) {
-            states[i].state    = state;
-            states[i].start    = i * steps;
-            states[i].stop     = MIN ( state->num_lines, ( i + 1 ) * steps );
-            states[i].count    = 0;
-            states[i].cond     = &cond;
-            states[i].mutex    = &mutex;
-            states[i].acount   = &count;
-            states[i].plen     = plen;
-            states[i].pattern  = pattern;
+            states[i].state       = state;
+            states[i].start       = i * steps;
+            states[i].stop        = MIN ( state->num_lines, ( i + 1 ) * steps );
+            states[i].count       = 0;
+            states[i].cond        = &cond;
+            states[i].mutex       = &mutex;
+            states[i].acount      = &count;
+            states[i].plen        = plen;
+            states[i].pattern     = pattern;
             states[i].st.callback = filter_elements;
             if ( i > 0 ) {
                 g_thread_pool_push ( tpool, &states[i], NULL );
@@ -1668,7 +1668,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         box_add ( (box *) parent_widget, WIDGET ( t ), TRUE );
     }
     else if (  g_ascii_strncasecmp ( name, "icon", 4 ) == 0 ) {
-        icon *t = icon_create ( parent_widget,  name );
+        icon *t = icon_create ( parent_widget, name );
         box_add ( (box *) parent_widget, WIDGET ( t ), TRUE );
     }
     else {

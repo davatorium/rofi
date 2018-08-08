@@ -141,7 +141,7 @@ static XrmOption xrmOptions[] = {
       "Disable history in run/ssh", CONFIG_DEFAULT },
     { xrm_Boolean, "sort",                   { .num  = &config.sort                           }, NULL,
       "Use sorting", CONFIG_DEFAULT },
-    { xrm_String, "sorting-method",          { .str  = &config.sorting_method                 }, NULL,
+    { xrm_String,  "sorting-method",         { .str  = &config.sorting_method                 }, NULL,
       "Choose the strategy used for sorting: normal (levenshtein) or fzf.", CONFIG_DEFAULT },
     { xrm_Boolean, "case-sensitive",         { .num  = &config.case_sensitive                 }, NULL,
       "Set case-sensitivity", CONFIG_DEFAULT },

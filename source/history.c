@@ -113,7 +113,7 @@ static char ** __history_get_element_list_fields ( FILE *fd, unsigned int *lengt
 
         ( *length )++;
     }
-    if ( buffer_length > 0 ){
+    if ( buffer_length > 0 ) {
         g_free ( buffer );
     }
     return retv;

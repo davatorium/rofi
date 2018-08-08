@@ -24,7 +24,7 @@ typedef struct CSSColor
 /**
  * Array with all the named colors. Of type #CSSColor, there are #num_CSSColors items in this array.
  */
-extern const CSSColor     CSSColors[];
+extern const CSSColor CSSColors[];
 /**
  * Number of named colors.
  */
