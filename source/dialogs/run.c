@@ -55,6 +55,7 @@
 #include "mode-private.h"
 
 #include "timings.h"
+#include "rofi-icon-fetcher.h"
 /**
  * Name of the history file where previously chosen commands are stored.
  */
@@ -400,6 +401,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
+
 static int run_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
@@ -417,6 +419,7 @@ Mode run_mode =
     ._destroy           = run_mode_destroy,
     ._token_match       = run_token_match,
     ._get_display_value = _get_display_value,
+    ._get_icon          = NULL,
     ._get_completion    = NULL,
     ._preprocess_input  = NULL,
     .private_data       = NULL,

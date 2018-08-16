@@ -106,7 +106,7 @@ void mode_destroy ( Mode *mode );
  *
  * Get the number of entries in the mode.
  *
- * @returns an unsigned in with the number of entries.
+ * @returns an unsigned int with the number of entries.
  */
 unsigned int mode_get_num_entries ( const Mode *mode );
 

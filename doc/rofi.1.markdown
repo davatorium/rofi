@@ -199,9 +199,9 @@ Specify the directory where **rofi** should look for plugins.
 
 Show application icons in drun and window modes.
 
-`-drun-icon-theme`
+`-icon-theme`
 
-Specify icon theme to be used in drun mode if show-icons setting is enabled.
+Specify icon theme to be used.
 If not specified default theme from DE is used, *Adwaita* and *gnome* themes act as
 fallback themes.
 
@@ -238,6 +238,12 @@ The different fields are:
 * **all**: all of the above
 
     Default: *name,generic,exec,categories*
+
+`-[no-]drun-show-actions`
+
+Show actions present in the Desktop files.
+
+    Default: false
 
 `-window-match-fields` *field1*,*field2*,...
 
@@ -491,14 +497,13 @@ Disable history
 Enable, disable sorting.
 This setting can be changed at runtime (see `-kb-toggle-sort`).
 
-`-levenshtein-sort` to enable
-`-no-levenshtein-sort` to disable
+`-sort-method` 'method'  to specify the sorting method.
 
-When searching, always sort the result based on levenshtein distance.
-If disabled, fzf sorting is used when fuzzy matching is used.
-If enabled, levenshtein sorting is used event fuzzy matching is used.
+There are 2 sorting method:
 
-For other matching modes sorting is always done via levenshtein-sort.
+ * levenshtein (Default)
+ * fzf sorting.
+
 
 ### Dmenu specific
 
@@ -767,12 +772,12 @@ of the window will be visible through it.
   * `Ctrl-a`: Beginning of line
   * `Ctrl-e`: End of line
   * `Ctrl-f, Right`: Forward one character
-  * `Alt-f`: Forward one word
+  * `Alt-f, Ctrl-Right`: Forward one word
   * `Ctrl-b, Left`: Back one character
-  * `Alt-b`: Back one word
+  * `Alt-b, Ctrl-Left`: Back one word
   * `Ctrl-d, Delete`: Delete character
   * `Ctrl-Alt-d`: Delete word
-  * `Ctrl-h, Backspace`: Backspace (delete previous character)
+  * `Ctrl-h, Backspace, Shift-Backspace`: Backspace (delete previous character)
   * `Ctrl-Alt-h`: Delete previous word
   * `Ctrl-j,Ctrl-m,Enter`: Accept entry
   * `Ctrl-n,Down`: Select next entry
@@ -791,7 +796,7 @@ of the window will be visible through it.
   * `Ctrl-space`: Set selected item as input text.
   * `Shift-Del`: Delete entry from history.
   * `grave`: Toggle case sensitivity.
-  * `Alt-grave`: Toggle levenshtein sorting.
+  * `Alt-grave`: Toggle sorting.
   * `Alt-Shift-S`: Take a screenshot and store it in the Pictures directory.
 
 To get a full list of key bindings on the commandline, see `rofi -h`.

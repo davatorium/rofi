@@ -46,6 +46,7 @@
 #include <cairo.h>
 #include <cairo-xcb.h>
 
+/** Indicated we understand the startup notification api is not yet stable.*/
 #define SN_API_NOT_YET_FROZEN
 #include <libsn/sn.h>
 #include "rofi.h"
@@ -125,9 +126,9 @@ struct
     .fake_bgrel     = FALSE,
     .flags          = MENU_NORMAL,
     .views          = G_QUEUE_INIT,
-    .idle_timeout   =               0,
-    .count          =              0L,
-    .repaint_source =               0,
+    .idle_timeout   = 0,
+    .count          = 0L,
+    .repaint_source = 0,
     .fullscreen     = FALSE,
 };
 
@@ -551,23 +552,36 @@ static RofiViewState * __rofi_view_state_create ( void )
 {
     return g_malloc0 ( sizeof ( RofiViewState ) );
 }
+
 /**
- * Structure with data to process by each worker thread.
+ * Thread state for workers started for the view.
  */
-typedef struct _thread_state
+typedef struct _thread_state_view
 {
-    RofiViewState *state;
-    unsigned int  start;
-    unsigned int  stop;
-    unsigned int  count;
+    /** Generic thread state. */
+    thread_state  st;
+
+    /** Condition. */
     GCond         *cond;
+    /** Lock for condition. */
     GMutex        *mutex;
+    /** Count that is protected by lock. */
     unsigned int  *acount;
 
+    /** Current state. */
+    RofiViewState *state;
+    /** Start row for this worker. */
+    unsigned int  start;
+    /** Stop row for this worker. */
+    unsigned int  stop;
+    /** Rows processed. */
+    unsigned int  count;
+
+    /** Pattern input to filter. */
     const char    *pattern;
+    /** Length of pattern. */
     glong         plen;
-    void ( *callback )( struct _thread_state *t, gpointer data );
-}thread_state;
+} thread_state_view;
 /**
  * @param data A thread_state object.
  * @param user_data User data to pass to thread_state callback
@@ -578,14 +592,11 @@ static void rofi_view_call_thread ( gpointer data, gpointer user_data )
 {
     thread_state *t = (thread_state *) data;
     t->callback ( t, user_data );
-    g_mutex_lock ( t->mutex );
-    ( *( t->acount ) )--;
-    g_cond_signal ( t->cond );
-    g_mutex_unlock ( t->mutex );
 }
 
-static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data )
+static void filter_elements ( thread_state *ts, G_GNUC_UNUSED gpointer user_data )
 {
+    thread_state_view *t = (thread_state_view *) ts;
     for ( unsigned int i = t->start; i < t->stop; i++ ) {
         int match = mode_token_match ( t->state->sw, t->state->tokens, i );
         // If each token was matched, add it to list.
@@ -595,16 +606,26 @@ static void filter_elements ( thread_state *t, G_GNUC_UNUSED gpointer user_data 
                 // This is inefficient, need to fix it.
                 char  * str = mode_get_completion ( t->state->sw, i );
                 glong slen  = g_utf8_strlen ( str, -1 );
-                if ( config.levenshtein_sort || config.matching_method != MM_FUZZY  ) {
-                    t->state->distance[i] = levenshtein ( t->pattern, t->plen, str, slen );
-                }
-                else {
+                switch ( config.sorting_method_enum )
+                {
+                case SORT_FZF:
                     t->state->distance[i] = rofi_scorer_fuzzy_evaluate ( t->pattern, t->plen, str, slen );
+                    break;
+                case SORT_NORMAL:
+                default:
+                    t->state->distance[i] = levenshtein ( t->pattern, t->plen, str, slen );
+                    break;
                 }
                 g_free ( str );
             }
             t->count++;
         }
+    }
+    if ( t->acount != NULL  ) {
+        g_mutex_lock ( t->mutex );
+        ( *( t->acount ) )--;
+        g_cond_signal ( t->cond );
+        g_mutex_unlock ( t->mutex );
     }
 }
 static void rofi_view_setup_fake_transparency ( const char* const fake_background )
@@ -782,7 +803,8 @@ void __create_window ( MenuFlags menu_flags )
     const char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
     if ( transparency ) {
         rofi_view_setup_fake_transparency ( transparency  );
-    } else if ( config.fake_transparency && config.fake_background ) {
+    }
+    else if ( config.fake_transparency && config.fake_background ) {
         rofi_view_setup_fake_transparency ( config.fake_background );
     }
     if ( xcb->sncontext != NULL ) {
@@ -988,6 +1010,7 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
     if ( state->overlay ) {
         widget_draw ( WIDGET ( state->overlay ), d );
     }
+
     TICK_N ( "widgets" );
     cairo_surface_flush ( CacheState.edit_surf );
     if ( qr ) {
@@ -1028,25 +1051,25 @@ static void rofi_view_refilter ( RofiViewState *state )
          * If number of threads > 1 and there are enough (> 1000) items, spawn jobs for the thread pool.
          * For large lists with 8 threads I see a factor three speedup of the whole function.
          */
-        unsigned int nt = MAX ( 1, state->num_lines / 500 );
-        thread_state states[nt];
-        GCond        cond;
-        GMutex       mutex;
+        unsigned int      nt = MAX ( 1, state->num_lines / 500 );
+        thread_state_view states[nt];
+        GCond             cond;
+        GMutex            mutex;
         g_mutex_init ( &mutex );
         g_cond_init ( &cond );
         unsigned int count = nt;
         unsigned int steps = ( state->num_lines + nt ) / nt;
         for ( unsigned int i = 0; i < nt; i++ ) {
-            states[i].state    = state;
-            states[i].start    = i * steps;
-            states[i].stop     = MIN ( state->num_lines, ( i + 1 ) * steps );
-            states[i].count    = 0;
-            states[i].cond     = &cond;
-            states[i].mutex    = &mutex;
-            states[i].acount   = &count;
-            states[i].plen     = plen;
-            states[i].pattern  = pattern;
-            states[i].callback = filter_elements;
+            states[i].state       = state;
+            states[i].start       = i * steps;
+            states[i].stop        = MIN ( state->num_lines, ( i + 1 ) * steps );
+            states[i].count       = 0;
+            states[i].cond        = &cond;
+            states[i].mutex       = &mutex;
+            states[i].acount      = &count;
+            states[i].plen        = plen;
+            states[i].pattern     = pattern;
+            states[i].st.callback = filter_elements;
             if ( i > 0 ) {
                 g_thread_pool_push ( tpool, &states[i], NULL );
             }
@@ -1412,6 +1435,10 @@ void rofi_view_maybe_update ( RofiViewState *state )
     rofi_view_update ( state, TRUE );
 }
 
+/**
+ * Handle window configure event.
+ * Handles resizes.
+ */
 void rofi_view_temp_configure_notify ( RofiViewState *state, xcb_configure_notify_event_t *xce )
 {
     if ( xce->window == CacheState.main_window ) {
@@ -1440,6 +1467,9 @@ void rofi_view_temp_configure_notify ( RofiViewState *state, xcb_configure_notif
     }
 }
 
+/**
+ * Quit rofi on click (outside of view )
+ */
 void rofi_view_temp_click_to_exit ( RofiViewState *state, xcb_window_t target )
 {
     if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
@@ -1637,6 +1667,10 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         textbox *t = textbox_create ( parent_widget, WIDGET_TYPE_TEXTBOX_TEXT, name, TB_AUTOHEIGHT | TB_WRAP, NORMAL, "", 0, 0 );
         box_add ( (box *) parent_widget, WIDGET ( t ), TRUE );
     }
+    else if (  g_ascii_strncasecmp ( name, "icon", 4 ) == 0 ) {
+        icon *t = icon_create ( parent_widget, name );
+        box_add ( (box *) parent_widget, WIDGET ( t ), TRUE );
+    }
     else {
         wid = (widget *) box_create ( parent_widget, name, ROFI_ORIENTATION_VERTICAL );
         box_add ( (box *) parent_widget, WIDGET ( wid ), TRUE );
@@ -1731,7 +1765,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     state->finalize   = process_result;
 
     state->main_window = box_create ( NULL, "window", ROFI_ORIENTATION_VERTICAL );
-    box *box = box_create ( WIDGET ( state->main_window ), "message", ROFI_ORIENTATION_VERTICAL );
+    box *box = box_create ( WIDGET ( state->main_window ), "error-message", ROFI_ORIENTATION_VERTICAL );
     box_add ( state->main_window, WIDGET ( box ), TRUE );
     state->text = textbox_create ( WIDGET ( box ), WIDGET_TYPE_TEXTBOX_TEXT, "textbox", ( TB_AUTOHEIGHT | TB_WRAP ) + ( ( markup ) ? TB_MARKUP : 0 ),
                                    NORMAL, ( msg != NULL ) ? msg : "", 0, 0 );

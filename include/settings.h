@@ -43,6 +43,12 @@ typedef enum
     MM_FUZZY  = 3
 } MatchingMethod;
 
+typedef enum
+{
+    SORT_NORMAL = 0,
+    SORT_FZF    = 1
+} SortingMethod;
+
 /**
  * Settings structure holding all (static) configurable options.
  * @ingroup CONFIGURATION
@@ -88,7 +94,7 @@ typedef struct
     /** Window fields to match in window mode */
     char           * window_match_fields;
     /** Theme for icons */
-    char           * drun_icon_theme;
+    char           * icon_theme;
 
     /** Windows location/gravity */
     WindowLocation location;
@@ -104,10 +110,14 @@ typedef struct
     unsigned int   disable_history;
     /** Toggle to enable sorting. */
     unsigned int   sort;
+    /** Sorting method. */
+    SortingMethod  sorting_method_enum;
+    /** Sorting method. */
+    char           * sorting_method;
     /** Desktop entries to match in drun */
     char           * drun_match_fields;
-    /** Use levenshtein sorting when matching */
-    unsigned int   levenshtein_sort;
+    /** Desktop entry show actions */
+    unsigned int   drun_show_actions;
     /** Search case sensitivity */
     unsigned int   case_sensitive;
     /** Cycle through in the element list */

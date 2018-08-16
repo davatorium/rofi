@@ -280,6 +280,15 @@ ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state, gbool
  */
 Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, const char *property, gboolean exact );
 
+/**
+ * @param widget   The widget to query
+ * @param property The property to query.
+ * @param defaults The default value.
+ *
+ * Obtain list of elements (strings) of the widget.
+ *
+ * @returns a GList holding the names in the list of this property for this widget.
+ */
 GList *rofi_theme_get_list ( const widget *widget, const char * property, const char *defaults );
 /**
  * Checks if a theme is set, or is empty.

@@ -10,9 +10,6 @@
     font:            "Times New Roman 12";
 }
 
-configuration {
-}
-
 #window {
     anchor:     north;
     location:   north;

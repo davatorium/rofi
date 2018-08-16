@@ -25,6 +25,7 @@
  *
  */
 
+/** Log domain used by the theme engine.*/
 #define G_LOG_DOMAIN    "Theme"
 
 #include "config.h"
@@ -631,7 +632,7 @@ double rofi_theme_get_double ( const widget *widget, const char *property, doubl
         return p->value.f;
     }
     // Fallback to integer if double is not found.
-    p   = rofi_theme_find_property ( wid, P_INTEGER, property, FALSE );
+    p = rofi_theme_find_property ( wid, P_INTEGER, property, FALSE );
     if ( p ) {
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
@@ -639,7 +640,7 @@ double rofi_theme_get_double ( const widget *widget, const char *property, doubl
             }
             return def;
         }
-        return (double)p->value.i;
+        return (double) p->value.i;
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return def;

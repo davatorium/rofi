@@ -32,6 +32,7 @@
 #include "widgets/textbox.h"
 #include "widgets/listview.h"
 #include "widgets/box.h"
+#include "widgets/icon.h"
 #include "keyb.h"
 #include "xcb.h"
 #include "theme.h"
@@ -118,10 +119,14 @@ struct RofiViewState
     /** Y position of the view */
     int              y;
 
+    /** Position and target of the mouse. */
     struct
     {
+        /** X position */
         int    x;
+        /** Y position */
         int    y;
+        /** Widget being targetted. */
         widget *motion_target;
     }                mouse;
 
