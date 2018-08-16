@@ -108,6 +108,8 @@ typedef struct
     unsigned int   fixed_num_lines;
     /** Do not use history */
     unsigned int   disable_history;
+    /** Programs ignored for history */
+    char           * ignored_programs;
     /** Toggle to enable sorting. */
     unsigned int   sort;
     /** Sorting method. */
