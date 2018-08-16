@@ -139,6 +139,8 @@ static XrmOption xrmOptions[] = {
       "Desktop entry show actions.", CONFIG_DEFAULT },
     { xrm_Boolean, "disable-history",        { .num  = &config.disable_history                }, NULL,
       "Disable history in run/ssh", CONFIG_DEFAULT },
+    { xrm_String, "ignored-programs",        { .str  = &config.ignored_programs               }, NULL,
+      "Programs ignored for history", CONFIG_DEFAULT },
     { xrm_Boolean, "sort",                   { .num  = &config.sort                           }, NULL,
       "Use sorting", CONFIG_DEFAULT },
     { xrm_String,  "sorting-method",         { .str  = &config.sorting_method                 }, NULL,
