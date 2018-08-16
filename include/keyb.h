@@ -36,6 +36,9 @@
  * @{
  */
 
+/**
+ * List of all scopes the mouse can interact on.
+ */
 typedef enum
 {
     SCOPE_GLOBAL,
@@ -136,6 +139,9 @@ typedef enum
     SELECT_ELEMENT_10,
 } KeyBindingAction;
 
+/**
+ * Actions mouse can take on the ListView.
+ */
 typedef enum
 {
     SCROLL_LEFT = 1,
@@ -144,6 +150,9 @@ typedef enum
     SCROLL_UP,
 } MouseBindingListviewAction;
 
+/**
+ * Actions mouse can take on the ListView element.
+ */
 typedef enum
 {
     SELECT_HOVERED_ENTRY = 1,
@@ -151,6 +160,9 @@ typedef enum
     ACCEPT_HOVERED_CUSTOM,
 } MouseBindingListviewElementAction;
 
+/**
+ * Default mouse actions.
+ */
 typedef enum
 {
     MOUSE_CLICK_DOWN = 1,

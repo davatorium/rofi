@@ -1,4 +1,9 @@
- :arrow_right: First read the [guidelines](https://github.com/DaveDavenport/rofi/blob/next/.github/CONTRIBUTING.md)! :arrow_left:
+:exclamation:
+First read the [guidelines](https://github.com/DaveDavenport/rofi/blob/next/.github/CONTRIBUTING.md)!
+This is not optional for any report/question. People must be able to understand the full context of the report when reading it, at any time.
+If you feel like you “just have a simple question”, please consider you’re wrong and still fill the full report.
+Any report missing these informations will be labeled as “Incomplete Report - Please follow the guidelines” and may not be answered in a timely fashion.
+:exclamation:
 
 ## Version
 

@@ -189,6 +189,7 @@ The current theme format supports different types:
  * a reference
  * an orientation
  * a list of keywords
+ * an environment variable
  * Inherit
 
 Some of these types are a combination of other types.
@@ -443,6 +444,19 @@ Specify the orientation of the widget.
 A list starts with a '[' and ends with a ']'. The entries in the list are comma-separated.
 The `keyword` in the list refers to an widget name.
 
+## Environment variable
+
+* Format: `${:alnum:}`
+
+This will parse the environment variable as the property value. (that then can be any of the above types).
+The environment variable should be an alphanumeric string without white-space.
+
+```
+* {
+    background-color: ${BG};
+}
+```
+
 ## Inherit
 
  * Format: `inherit`
@@ -548,7 +562,7 @@ nametotextbox selected.active {
 }
 ```
 
-Sets all selected textboxes marked active to the given foreground and background color.
+Sets all selected textboxes marked active to the given text and background color.
 Note that a state modifies the original element, it therefore contains all the properties of that element.
 
 ### Scrollbar
@@ -571,10 +585,10 @@ The following properties are currently supported:
   Border around the widget (between padding and margin)/
 * **border-radius**:    padding
   Sets a radius on the corners of the borders.
-* **background**:      color
+* **background-color**:      color
   Background color
-* **foreground**:      color
-  Foreground color
+* **border-color**:      color
+  Color of the border
 * **index**:           integer  (This one does not inherit it value from the parent widget)
 
 ### window:
@@ -585,7 +599,7 @@ The following properties are currently supported:
 * **transparency**:    string
   Indicating if transparency should be used and what type:
   **real** - True transparency. Only works with a compositor.
-  **background** - Take a screenshot of the background image and use that.
+  **background-color** - Take a screenshot of the background image and use that.
   **screenshot** - Take a screenshot of the screen and use that.
   **Path** to png file - Use an image.
 
@@ -618,13 +632,13 @@ The following properties are currently supported:
 
 ### textbox:
 
-* **background**:       color
-* **foreground**:       color
+* **background-color**:       color
+* **border-color**:     the color used for the border around the widget.
 * **font**:             the font used by this textbox (string)
 * **str**:              the string to display by this textbox (string)
 * **vertical-align**:   vertical alignment of the text (`0` top, `1` bottom)
 * **horizontal-align**: horizontal alignment of the text (`0` left, `1` right)
-* **text**:             the text color to use (falls back to foreground if not set)
+* **text-color**:       the text color to use 
 * **highlight**:        text style {color}
     color is optional, multiple highlight styles can be added like: bold underline italic #000000;
 * **width**:            override the desired width for the textbox
@@ -697,6 +711,22 @@ The current layout of **rofi** is structured as follows:
 
 ```
 > ci is the case-indicator
+
+### Error message structure
+
+```
+|-----------------------------------------------------------------------------------|
+| window {BOX:vertical}                                                             |
+| |------------------------------------------------------------------------------|  |
+| | error-message {BOX:vertical}                                                 |  |
+| | |-------------------------------------------------------------------------|  |  |
+| | | textbox                                                                 |  |  |
+| | |-------------------------------------------------------------------------|  |  |
+| |------------------------------------------------------------------------------|  |
+|-----------------------------------------------------------------------------------|
+
+
+```
 
 ### Advanced layout
 
@@ -796,7 +826,7 @@ Explanation of the different parts:
  * Padding - Clears an area around the widget.
    The padding shows the background color of the widget.
  * Border - A border that goes around the padding and content.
-   The border use the foreground color of the widget.
+   The border use the border-color of the widget.
  * Margin - Clears an area outside the border.
    The margin is transparent.
 

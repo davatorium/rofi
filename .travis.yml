@@ -19,6 +19,7 @@ addons:
       branch_pattern: coverity_scan
     apt:
         packages:
+            - python3.5
             - autoconf
             - automake
             - make
@@ -33,6 +34,8 @@ addons:
             - libxcb-xkb-dev
             - libxcb-randr0-dev
             - libxcb1-dev
+            - libxkbcommon-dev
+            - libxkbcommon-x11-dev
             - xvfb
             - discount
             - xdotool
@@ -50,18 +53,19 @@ compiler:
     - gcc
 
 before_install:
-    - sudo add-apt-repository -y 'deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse'
-    - sudo add-apt-repository -y 'deb http://debian.jpleau.ca/ jessie-backports main contrib non-free'
+    - sudo add-apt-repository -y 'deb https://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse'
+    - sudo add-apt-repository -y 'deb https://debian.jpleau.ca/ jessie-backports main contrib non-free'
     - sudo apt-get update -qq
     - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 
 # TODO: We install xkbcommon here, until Travis use an up-to-date enough Ubuntu
 install:
-    - sudo apt-get install -y --force-yes libxkbcommon-dev libxkbcommon-x11-dev flex/trusty-backports libfl-dev/trusty-backports
-    - sudo apt-get install -y --force-yes python3-pip
-    - pip3 install --user meson==0.41.2
+    - sudo apt-get install -y --force-yes flex/trusty-backports libfl-dev/trusty-backports
+    - wget https://github.com/mesonbuild/meson/releases/download/0.47.0/meson-0.47.0.tar.gz
+    - tar xf meson-0.47.0.tar.gz
     - wget https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-linux.zip
+    - export MESON=$(pwd)/meson-0.47.0/meson.py
     - unzip ninja-linux.zip
     - export PATH=$(pwd):$PATH
     - git clone https://github.com/alobbs/doxy-coverage
@@ -80,7 +84,7 @@ install:
     - cd -
 
 before_script:
-    - meson build -Db_coverage=true
+    - python3.5 ${MESON} build -Db_coverage=true
 
 script:
     - ninja -C build

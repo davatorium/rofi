@@ -30,6 +30,7 @@
 %option nounput
 %option never-interactive
 %option bison-locations
+%option bison-bridge
 
 %{
 #include <stdio.h>
@@ -53,7 +54,9 @@ typedef enum {
     /** Parse a file */
     PT_FILE,
     /** Parse a string */
-    PT_STRING
+    PT_STRING,
+    /** Parse environment */
+    PT_ENV
 } ParseType;
 
 /**
@@ -122,6 +125,7 @@ static double rofi_theme_parse_convert_hex ( char high, char low)
                 } \
                 break;\
             }\
+            case PT_ENV:\
             case PT_STRING:\
             {\
                 yy_size_t len = MIN (max_size, current->str_len);\
@@ -175,6 +179,8 @@ PERCENT    (\%)
 INHERIT    (inherit)
 
 ASTERIX    \*
+
+ENV        $\{[[:alnum:]]*\}
 
  /* Position */
 CENTER     (?i:center)
@@ -234,6 +240,7 @@ CONFIGURATION (?i:configuration)
 
 %x INCLUDE
 %x PROPERTIES
+%x PROPERTIES_ENV
 %x PROPERTIES_LIST
 %x NAMESTR
 %x SECTION
@@ -412,81 +419,103 @@ if ( queue == NULL ){
 
   /* After Namestr/Classstr we want to go to state str, then to  { */
 <INITIAL,SECTION>{WHITESPACE}+	; // ignore all whitespace
-<PROPERTIES,PROPERTIES_LIST>{WHITESPACE}+	; // ignore all whitespace
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_LIST>{WHITESPACE}+	; // ignore all whitespace
 
 <SECTION>":"                      { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return T_PSEP; }
 <PROPERTIES>";"                   { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return T_PCLOSE;}
-<PROPERTIES>(true|false)          { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
-<PROPERTIES>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
-<PROPERTIES>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
-<PROPERTIES>{STRING}              { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
+<PROPERTIES,PROPERTIES_ENV>(true|false)          { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
+<PROPERTIES,PROPERTIES_ENV>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
+<PROPERTIES,PROPERTIES_ENV>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
+<PROPERTIES,PROPERTIES_ENV>{STRING}              { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
 
-<PROPERTIES>@{WORD}               {
+<PROPERTIES,PROPERTIES_ENV>@{WORD}               {
     yylval->sval = g_strdup(yytext);
     return T_LINK;
 }
 
-<PROPERTIES>{EM}       { return T_UNIT_EM; }
-<PROPERTIES>{CH}       { return T_UNIT_CH; }
-<PROPERTIES>{PX}       { return T_UNIT_PX; }
-<PROPERTIES>{PERCENT}  { return T_PERCENT; }
-<PROPERTIES>{LS_SOLID} { return T_SOLID;   }
-<PROPERTIES>{LS_DASH}  { return T_DASH;    }
+<PROPERTIES,PROPERTIES_ENV>{EM}       { return T_UNIT_EM; }
+<PROPERTIES,PROPERTIES_ENV>{CH}       { return T_UNIT_CH; }
+<PROPERTIES,PROPERTIES_ENV>{PX}       { return T_UNIT_PX; }
+<PROPERTIES,PROPERTIES_ENV>{PERCENT}  { return T_PERCENT; }
+<PROPERTIES,PROPERTIES_ENV>{LS_SOLID} { return T_SOLID;   }
+<PROPERTIES,PROPERTIES_ENV>{LS_DASH}  { return T_DASH;    }
 
-<PROPERTIES>{INHERIT}  { return T_INHERIT; }
+<PROPERTIES,PROPERTIES_ENV>{INHERIT}  { return T_INHERIT; }
+
+<PROPERTIES,PROPERTIES_ENV>{ENV} {
+    yytext[yyleng-1] = '\0';
+    const char *val = g_getenv(yytext+2);
+    if ( val ) {
+        ParseObject *top = g_queue_peek_head ( file_queue );
+        top->location = *yylloc;
+        ParseObject *po = g_malloc0(sizeof(ParseObject));
+        po->type = PT_ENV;
+        po->input_str = val;
+        po->str_len = strlen(val);
+        current = po;
+        g_queue_push_head ( file_queue, po );
+        imported_files = g_list_append ( imported_files, po->filename );
+
+        yypush_buffer_state (yy_create_buffer ( 0, YY_BUF_SIZE ));
+        yylloc->first_line = yylloc->last_line = 1;
+        yylloc->first_column = yylloc->last_column = 1;
+        yylloc->filename = current->filename;
+        g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES_ENV);
+    }
+}
 
  /**
   * Color parsing. It is easier to do this at lexer level.
   * Other schemes are done at yacc level.
   */
-<PROPERTIES>#{HEX}{8}       {
+<PROPERTIES,PROPERTIES_ENV>#{HEX}{8}       {
     yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[1],yytext[2]);
     yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[3],yytext[4]);
     yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[5],yytext[6]);
     yylval->colorval.alpha = rofi_theme_parse_convert_hex(yytext[7],yytext[8]);
     return T_COLOR;
 }
-<PROPERTIES>#{HEX}{6}       {
+<PROPERTIES,PROPERTIES_ENV>#{HEX}{6}       {
     yylval->colorval.alpha = 1.0;
     yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[1],yytext[2]);
     yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[3],yytext[4]);
     yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[5],yytext[6]);
     return T_COLOR;
 }
-<PROPERTIES>#{HEX}{3}       {
+<PROPERTIES,PROPERTIES_ENV>#{HEX}{3}       {
     yylval->colorval.alpha = 1.0;
     yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[1],yytext[1]);
     yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[2],yytext[2]);
     yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[3],yytext[3]);
     return T_COLOR;
 }
-<PROPERTIES>#{HEX}{4}       {
+<PROPERTIES,PROPERTIES_ENV>#{HEX}{4}       {
     yylval->colorval.alpha = rofi_theme_parse_convert_hex(yytext[4],yytext[4]);
     yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[1],yytext[1]);
     yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[2],yytext[2]);
     yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[3],yytext[3]);
     return T_COLOR;
 }
-<PROPERTIES>argb:{HEX}{8}       {
+<PROPERTIES,PROPERTIES_ENV>argb:{HEX}{8}       {
     yylval->colorval.alpha = rofi_theme_parse_convert_hex(yytext[5],yytext[6]);
     yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[7],yytext[8]);
     yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[9],yytext[10]);
     yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[11],yytext[12]);
     return T_COLOR;
 }
-<PROPERTIES>argb:{HEX}{7}       {
+<PROPERTIES,PROPERTIES_ENV>argb:{HEX}{7}       {
     return T_ERROR_ARGB_SPEC;
 }
  /* Color schemes */
-<PROPERTIES>{RGBA}             { return T_COL_RGBA;       }
-<PROPERTIES>{HSL}              { return T_COL_HSL;        }
-<PROPERTIES>{HWB}              { return T_COL_HWB;        }
-<PROPERTIES>{CMYK}             { return T_COL_CMYK;       }
+<PROPERTIES,PROPERTIES_ENV>{RGBA}             { return T_COL_RGBA;       }
+<PROPERTIES,PROPERTIES_ENV>{HSL}              { return T_COL_HSL;        }
+<PROPERTIES,PROPERTIES_ENV>{HWB}              { return T_COL_HWB;        }
+<PROPERTIES,PROPERTIES_ENV>{CMYK}             { return T_COL_CMYK;       }
  /* Fluff */
-<PROPERTIES>{S_T_PARENT_LEFT}  { return T_PARENT_LEFT;    }
-<PROPERTIES>{S_T_PARENT_RIGHT} { return T_PARENT_RIGHT;   }
-<PROPERTIES,PROPERTIES_LIST>{COMMA}            { return T_COMMA;          }
-<PROPERTIES>{LIST_OPEN}        {
+<PROPERTIES,PROPERTIES_ENV>{S_T_PARENT_LEFT}  { return T_PARENT_LEFT;    }
+<PROPERTIES,PROPERTIES_ENV>{S_T_PARENT_RIGHT} { return T_PARENT_RIGHT;   }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_LIST>{COMMA}            { return T_COMMA;          }
+<PROPERTIES,PROPERTIES_ENV>{LIST_OPEN}        {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(PROPERTIES_LIST);
     return T_LIST_OPEN;
@@ -495,33 +524,33 @@ if ( queue == NULL ){
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
     return T_LIST_CLOSE;
 }
-<PROPERTIES>{FORWARD_SLASH}    { return T_FORWARD_SLASH;  }
+<PROPERTIES,PROPERTIES_ENV>{FORWARD_SLASH}    { return T_FORWARD_SLASH;  }
  /* Position */
-<PROPERTIES>{CENTER}           { return T_POS_CENTER;     }
-<PROPERTIES>{EAST}             { return T_POS_EAST;       }
-<PROPERTIES>{WEST}             { return T_POS_WEST;       }
-<PROPERTIES>{SOUTH}            { return T_POS_SOUTH;      }
-<PROPERTIES>{NORTH}            { return T_POS_NORTH;      }
+<PROPERTIES,PROPERTIES_ENV>{CENTER}           { return T_POS_CENTER;     }
+<PROPERTIES,PROPERTIES_ENV>{EAST}             { return T_POS_EAST;       }
+<PROPERTIES,PROPERTIES_ENV>{WEST}             { return T_POS_WEST;       }
+<PROPERTIES,PROPERTIES_ENV>{SOUTH}            { return T_POS_SOUTH;      }
+<PROPERTIES,PROPERTIES_ENV>{NORTH}            { return T_POS_NORTH;      }
  /* Highlight style */
-<PROPERTIES>{NONE}             { return T_NONE;           }
-<PROPERTIES>{BOLD}             { return T_BOLD;           }
-<PROPERTIES>{ITALIC}           { return T_ITALIC;         }
-<PROPERTIES>{UNDERLINE}        { return T_UNDERLINE;      }
-<PROPERTIES>{STRIKETHROUGH}    { return T_STRIKETHROUGH;  }
-<PROPERTIES>{SMALLCAPS}        { return T_SMALLCAPS;      }
+<PROPERTIES,PROPERTIES_ENV>{NONE}             { return T_NONE;           }
+<PROPERTIES,PROPERTIES_ENV>{BOLD}             { return T_BOLD;           }
+<PROPERTIES,PROPERTIES_ENV>{ITALIC}           { return T_ITALIC;         }
+<PROPERTIES,PROPERTIES_ENV>{UNDERLINE}        { return T_UNDERLINE;      }
+<PROPERTIES,PROPERTIES_ENV>{STRIKETHROUGH}    { return T_STRIKETHROUGH;  }
+<PROPERTIES,PROPERTIES_ENV>{SMALLCAPS}        { return T_SMALLCAPS;      }
 
-<PROPERTIES>{ANGLE_DEG}        { return T_ANGLE_DEG;      }
-<PROPERTIES>{ANGLE_RAD}        { return T_ANGLE_RAD;      }
-<PROPERTIES>{ANGLE_GRAD}       { return T_ANGLE_GRAD;     }
-<PROPERTIES>{ANGLE_TURN}       { return T_ANGLE_TURN;     }
+<PROPERTIES,PROPERTIES_ENV>{ANGLE_DEG}        { return T_ANGLE_DEG;      }
+<PROPERTIES,PROPERTIES_ENV>{ANGLE_RAD}        { return T_ANGLE_RAD;      }
+<PROPERTIES,PROPERTIES_ENV>{ANGLE_GRAD}       { return T_ANGLE_GRAD;     }
+<PROPERTIES,PROPERTIES_ENV>{ANGLE_TURN}       { return T_ANGLE_TURN;     }
 
-<PROPERTIES>{ORIENTATION_HORI} { return ORIENTATION_HORI; }
-<PROPERTIES>{ORIENTATION_VERT} { return ORIENTATION_VERT; }
+<PROPERTIES,PROPERTIES_ENV>{ORIENTATION_HORI} { return ORIENTATION_HORI; }
+<PROPERTIES,PROPERTIES_ENV>{ORIENTATION_VERT} { return ORIENTATION_VERT; }
 
-<PROPERTIES>{COLOR_TRANSPARENT} {
+<PROPERTIES,PROPERTIES_ENV>{COLOR_TRANSPARENT} {
     return T_COLOR_TRANSPARENT;
 }
-<PROPERTIES>{COLOR_NAME} {
+<PROPERTIES,PROPERTIES_ENV>{COLOR_NAME} {
     for ( unsigned int iter = 0; iter < num_CSSColors; iter++){
         if ( strcasecmp(yytext, CSSColors[iter].name )== 0 ) {
             yylval->colorval.alpha = 1.0;
@@ -534,7 +563,7 @@ if ( queue == NULL ){
     REJECT;
 }
 
-<INITIAL><<EOF>>  {
+<INITIAL,PROPERTIES_ENV><<EOF>>  {
     ParseObject *po = g_queue_pop_head ( file_queue );
     if ( po ) {
         if ( po->type == PT_FILE ){
@@ -585,8 +614,13 @@ if ( queue == NULL ){
     yylval->sval = g_strdup(yytext);
     return T_ELEMENT;
 }
+<PROPERTIES_LIST>{STRING} {
+    yytext[yyleng-1] = '\0';
+    yylval->sval = g_strdup(yytext+1);
+    return T_ELEMENT;
+}
 
-<PROPERTIES,PROPERTIES_LIST>. {
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_LIST>. {
     return T_ERROR_PROPERTY;
 }
 <NAMESTR>. {

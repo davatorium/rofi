@@ -29,10 +29,14 @@ if kill ${TPID}; then
     wait ${TPID}
 fi
 
-if pgrep -u $USER xterm
+if ps -q ${XPID} # pgrep -u $USER xterm
 then
     echo "Found remaining xterms: $(pgrep -u $USER xterm)"
     kill ${XPID}
+fi
+if ps -q ${RPID}
+then
+    echo "Rofi still running"
     kill ${RPID}
     exit 1
 fi

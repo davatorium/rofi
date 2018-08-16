@@ -39,15 +39,17 @@ rofi.window-command:                 xkill -id {window}
 ! "Window fields to match in window mode" Set from: Default
 ! rofi.window-match-fields:            all
 ! "Theme to use to look for icons" Set from: Default
-! rofi.drun-icon-theme:                
+! rofi.icon-theme:                     
 ! "Desktop entry fields to match in drun" Set from: Default
 ! rofi.drun-match-fields:              name,generic,exec,categories
+! "Desktop entry show actions." Set from: Default
+! rofi.drun-show-actions:              false
 ! "Disable history in run/ssh" Set from: File
 rofi.disable-history:                false
 ! "Use sorting" Set from: Default
 ! rofi.sort:                           false
-! "Use levenshtein sorting also for fuzzy matching" Set from: File
-rofi.levenshtein-sort:               false
+! "Choose the strategy used for sorting: normal (levenshtein) or fzf." Set from: Default
+! rofi.sorting-method:                 
 ! "Set case-sensitivity" Set from: File
 rofi.case-sensitive:                 false
 ! "Cycle through the results list" Set from: File
@@ -127,9 +129,9 @@ rofi.kb-move-front:                  Control+a
 ! "End of line" Set from: File
 rofi.kb-move-end:                    Control+e
 ! "Move back one word" Set from: File
-rofi.kb-move-word-back:              Alt+b
+rofi.kb-move-word-back:              Alt+b,Ctrl+Left
 ! "Move forward one word" Set from: File
-rofi.kb-move-word-forward:           Alt+f
+rofi.kb-move-word-forward:           Alt+f,Ctrl+Right
 ! "Move back one char" Set from: File
 rofi.kb-move-char-back:              Left,Control+b
 ! "Move forward one char" Set from: File
@@ -141,7 +143,7 @@ rofi.kb-remove-word-forward:         Control+Alt+d
 ! "Delete next char" Set from: File
 rofi.kb-remove-char-forward:         Delete,Control+d
 ! "Delete previous char" Set from: File
-rofi.kb-remove-char-back:            BackSpace,Control+h
+rofi.kb-remove-char-back:            BackSpace,Shift+BackSpace,Control+h
 ! "Delete till the end of line" Set from: File
 rofi.kb-remove-to-eol:               Control+k
 ! "Delete till the start of line" Set from: File

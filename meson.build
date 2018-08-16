@@ -1,6 +1,6 @@
 project('rofi', 'c',
     version: '1.5.1-dev',
-    meson_version: '>=0.39.1',
+    meson_version: '>=0.47.0',
     license: [ 'MIT' ],
     default_options: [
         'c_std=c99',
@@ -103,12 +103,14 @@ foreach o : nk_options + nk_subproject_options
     endif
 endforeach
 deps += nk.get_variable('libnkutils')
+deps += nk.get_variable('libnkutils_bindings')
 
 install_headers([
         'include/mode.h',
         'include/mode-private.h',
         'include/helper.h',
         'include/rofi-types.h',
+        'include/rofi-icon-fetcher.h'
     ],
     subdir: meson.project_name(),
 )
@@ -137,8 +139,10 @@ rofi_sources = files(
         'source/timings.c',
         'source/history.c',
         'source/theme.c',
+        'source/rofi-icon-fetcher.c',
         'source/css-colors.c',
         'source/widgets/box.c',
+        'source/widgets/icon.c',
         'source/widgets/container.c',
         'source/widgets/widget.c',
         'source/widgets/textbox.c',
@@ -165,6 +169,7 @@ rofi_sources = files(
         'include/keyb.h',
         'include/view.h',
         'include/view-internal.h',
+        'include/rofi-icon-fetcher.h',
         'include/helper.h',
         'include/helper-theme.h',
         'include/timings.h',
@@ -173,6 +178,7 @@ rofi_sources = files(
         'include/rofi-types.h',
         'include/css-colors.h',
         'include/widgets/box.h',
+        'include/widgets/icon.h',
         'include/widgets/container.h',
         'include/widgets/widget.h',
         'include/widgets/widget-internal.h',

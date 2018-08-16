@@ -44,7 +44,7 @@ Its main features are:
 * easily extensible using scripts
 * theming
 
-**Rofi** has several built-in modes implementing common use cases and can be exteneded by scripts (either called from
+**Rofi** has several built-in modes implementing common use cases and can be extended by scripts (either called from
 **Rofi** or calling **Rofi**).
 
 Below the different modes are listed:
@@ -160,41 +160,41 @@ Type `Shift-/Left/Right` to switch between active modi.
 
 ## Key bindings
 
-| Key                         | Action                                                             |
-|:----------------------------|:-------------------------------------------------------------------|
-|`Ctrl-v, Insert`             | Paste from clipboard |
-|`Ctrl-Shift-v, Shift-Insert` | Paste primary selection |
-|`Ctrl-w`                     | Clear the line |
-|`Ctrl-u`                     | Delete till the start of line |
-|`Ctrl-a`                     | Move to beginning of line |
-|`Ctrl-e`                     | Move to end of line |
-|`Ctrl-f, Right`              | Move forward one character |
-|`Alt-f`                      | Move forward one word |
-|`Ctrl-b, Left`               | Move back one character |
-|`Alt-b`                      | Move back one word |
-|`Ctrl-d, Delete`             | Delete character |
-|`Ctrl-Alt-d`                 | Delete word |
-|`Ctrl-h, Backspace`          | Backspace (delete previous character) |
-|`Ctrl-Alt-h`                 | Delete previous word |
-|`Ctrl-j,Ctrl-m,Enter`        | Accept entry |
-|`Ctrl-n,Down`                | Select next entry |
-|`Ctrl-p,Up`                  | Select previous entry |
-|`Page Up`                    | Go to the previous page |
-|`Page Down`                  | Go to the next page |
-|`Ctrl-Page Up`               | Go to the previous column |
-|`Ctrl-Page Down`             | Go to the next column |
-|`Ctrl-Enter`                 | Use entered text as a command (in `ssh/run modi`) |
-|`Shift-Enter`                | Launch the application in a terminal (in run mode) |
-|`Shift-Enter`                | Return the selected entry and move to the next item while keeping Rofi open. (in dmenu) |
-|`Shift-Right`                | Switch to the next modi. The list can be customized with the -modi option. |
-|`Shift-Left`                 | Switch to the previous modi. The list can be customized with the -modi option. |
-|`Ctrl-Tab`                   | Switch to the next modi. The list can be customized with the -modi option. |
-|`Ctrl-Shift-Tab`             | Switch to the previous modi. The list can be customized with the -modi option. |
-|`Ctrl-space`                 | Set selected item as input text. |
-|`Shift-Del`                  | Delete entry from history. |
-|`grave`                      | Toggle case sensitivity. |
-|`Alt-grave`                  | Toggle levenshtein sort. |
-|`Alt-Shift-S`                | Take a screenshot and store it in the Pictures directory. |
+| Key                                  | Action                                                             |
+|:-------------------------------------|:-------------------------------------------------------------------|
+|`Ctrl-v, Insert`                      | Paste from clipboard |
+|`Ctrl-Shift-v, Shift-Insert`          | Paste primary selection |
+|`Ctrl-w`                              | Clear the line |
+|`Ctrl-u`                              | Delete till the start of line |
+|`Ctrl-a`                              | Move to beginning of line |
+|`Ctrl-e`                              | Move to end of line |
+|`Ctrl-f, Right`                       | Move forward one character |
+|`Alt-f, Ctrl-Right`                   | Move forward one word |
+|`Ctrl-b, Left`                        | Move back one character |
+|`Alt-b, Ctrl-Left`                    | Move back one word |
+|`Ctrl-d, Delete`                      | Delete character |
+|`Ctrl-Alt-d`                          | Delete word |
+|`Ctrl-h, Backspace, Shift-Backspace`  | Backspace (delete previous character) |
+|`Ctrl-Alt-h`                          | Delete previous word |
+|`Ctrl-j,Ctrl-m,Enter`                 | Accept entry |
+|`Ctrl-n,Down`                         | Select next entry |
+|`Ctrl-p,Up`                           | Select previous entry |
+|`Page Up`                             | Go to the previous page |
+|`Page Down`                           | Go to the next page |
+|`Ctrl-Page Up`                        | Go to the previous column |
+|`Ctrl-Page Down`                      | Go to the next column |
+|`Ctrl-Enter`                          | Use entered text as a command (in `ssh/run modi`) |
+|`Shift-Enter`                         | Launch the application in a terminal (in run mode) |
+|`Shift-Enter`                         | Return the selected entry and move to the next item while keeping Rofi open. (in dmenu) |
+|`Shift-Right`                         | Switch to the next modi. The list can be customized with the -modi option. |
+|`Shift-Left`                          | Switch to the previous modi. The list can be customized with the -modi option. |
+|`Ctrl-Tab`                            | Switch to the next modi. The list can be customized with the -modi option. |
+|`Ctrl-Shift-Tab`                      | Switch to the previous modi. The list can be customized with the -modi option. |
+|`Ctrl-space`                          | Set selected item as input text. |
+|`Shift-Del`                           | Delete entry from history. |
+|`grave`                               | Toggle case sensitivity. |
+|`Alt-grave`                           | Toggle levenshtein sort. |
+|`Alt-Shift-S`                         | Take a screenshot and store it in the Pictures directory. |
 
 For the full list of key bindings, see: `rofi -show keys` or `rofi -help`.
 

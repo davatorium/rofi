@@ -41,6 +41,7 @@
 
 #include "theme.h"
 
+/** The space reserved for the DOT when enabling multi-select. */
 #define DOT_OFFSET    15
 
 static void textbox_draw ( widget *, cairo_t * );
@@ -334,6 +335,14 @@ void textbox_text ( textbox *tb, const char *text )
 
 void textbox_icon ( textbox *tb, cairo_surface_t *icon )
 {
+    // Add our reference to the surface.
+    if ( icon != NULL ) {
+        cairo_surface_reference ( icon );
+    }
+    if ( tb->icon ) {
+        // If we overwrite an old one, destroy the reference we hold.
+        cairo_surface_destroy ( tb->icon );
+    }
     tb->icon = icon;
 
     widget_queue_redraw ( WIDGET ( tb ) );
@@ -390,6 +399,10 @@ static void textbox_free ( widget *wid )
     }
     g_free ( tb->text );
 
+    if ( tb->icon ) {
+        cairo_surface_destroy ( tb->icon );
+        tb->icon = NULL;
+    }
     if ( tb->layout != NULL ) {
         g_object_unref ( tb->layout );
     }
@@ -765,15 +778,15 @@ int textbox_keybinding ( textbox *tb, KeyBindingAction action )
     case REMOVE_CHAR_FORWARD:
         textbox_cursor_del ( tb );
         return 1;
-    // Alt-B
+    // Alt-B, Ctrl-Left
     case MOVE_WORD_BACK:
         textbox_cursor_dec_word ( tb );
         return 2;
-    // Alt-F
+    // Alt-F, Ctrl-Right
     case MOVE_WORD_FORWARD:
         textbox_cursor_inc_word ( tb );
         return 2;
-    // BackSpace, Ctrl-h
+    // BackSpace, Shift-BackSpace, Ctrl-h
     case REMOVE_CHAR_BACK:
         textbox_cursor_bkspc ( tb );
         return 1;
@@ -878,7 +891,7 @@ int textbox_get_font_width ( const textbox *tb )
     return rect.width + rect.x;
 }
 
-/** Caching for the expected character height. */
+/** Caching for the estimated character height. (em) */
 static double char_height = -1;
 double textbox_get_estimated_char_height ( void )
 {
@@ -900,6 +913,7 @@ double textbox_get_estimated_char_width ( void )
     return char_width;
 }
 
+/** Cache storing the estimated width of a digit (ch). */
 static double ch_width = -1;
 double textbox_get_estimated_ch ( void )
 {

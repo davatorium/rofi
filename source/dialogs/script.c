@@ -25,6 +25,7 @@
  *
  */
 
+/** The log domain of this dialog. */
 #define G_LOG_DOMAIN    "Dialogs.Script"
 
 #include <config.h>
@@ -78,7 +79,7 @@ static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
         char *value = line + length_key + 1;
         if ( strcasecmp ( line, "message" ) == 0 ) {
             g_free ( pd->message );
-            pd->message = strlen(value)? g_strdup ( value ):NULL;
+            pd->message = strlen ( value ) ? g_strdup ( value ) : NULL;
         }
         else if ( strcasecmp ( line, "prompt" ) == 0 ) {
             g_free ( pd->prompt );
@@ -99,11 +100,11 @@ static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
 
 static char **get_script_output ( Mode *sw, char *command, char *arg, unsigned int *length )
 {
-    int    fd          = -1;
-    GError *error      = NULL;
-    char   **retv      = NULL;
-    char   **argv      = NULL;
-    int    argc        = 0;
+    int    fd     = -1;
+    GError *error = NULL;
+    char   **retv = NULL;
+    char   **argv = NULL;
+    int    argc   = 0;
     *length = 0;
     if ( g_shell_parse_argv ( command, &argc, &argv, &error ) ) {
         argv           = g_realloc ( argv, ( argc + 2 ) * sizeof ( char* ) );
@@ -125,7 +126,7 @@ static char **get_script_output ( Mode *sw, char *command, char *arg, unsigned i
             char    *buffer       = NULL;
             size_t  buffer_length = 0;
             ssize_t read_length   = 0;
-            size_t actual_size    = 0;
+            size_t  actual_size   = 0;
             while ( ( read_length = getline ( &buffer, &buffer_length, inp ) ) > 0 ) {
                 // Filter out line-end.
                 if ( buffer[read_length - 1] == '\n' ) {
@@ -189,15 +190,14 @@ static unsigned int script_mode_get_num_entries ( const Mode *sw )
 
 static void script_mode_reset_highlight ( Mode *sw )
 {
-    ScriptModePrivateData *rmpd      = (ScriptModePrivateData *) sw->private_data;
+    ScriptModePrivateData *rmpd = (ScriptModePrivateData *) sw->private_data;
 
     rmpd->num_urgent_list = 0;
     g_free ( rmpd->urgent_list );
-    rmpd->urgent_list = NULL;
+    rmpd->urgent_list     = NULL;
     rmpd->num_active_list = 0;
     g_free ( rmpd->active_list );
     rmpd->active_list = NULL;
-
 }
 
 static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )

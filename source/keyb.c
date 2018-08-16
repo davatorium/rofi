@@ -50,14 +50,14 @@ ActionBindingEntry rofi_bindings[] =
     { .id = CLEAR_LINE,              .name  = "kb-clear-line",              .binding = "Control+w",                            .comment = "Clear input line"                                                      },
     { .id = MOVE_FRONT,              .name  = "kb-move-front",              .binding = "Control+a",                            .comment = "Beginning of line"                                                     },
     { .id = MOVE_END,                .name  = "kb-move-end",                .binding = "Control+e",                            .comment = "End of line"                                                           },
-    { .id = MOVE_WORD_BACK,          .name  = "kb-move-word-back",          .binding = "Alt+b",                                .comment = "Move back one word"                                                    },
-    { .id = MOVE_WORD_FORWARD,       .name  = "kb-move-word-forward",       .binding = "Alt+f",                                .comment = "Move forward one word"                                                 },
+    { .id = MOVE_WORD_BACK,          .name  = "kb-move-word-back",          .binding = "Alt+b,Control+Left",                   .comment = "Move back one word"                                                    },
+    { .id = MOVE_WORD_FORWARD,       .name  = "kb-move-word-forward",       .binding = "Alt+f,Control+Right",                  .comment = "Move forward one word"                                                 },
     { .id = MOVE_CHAR_BACK,          .name  = "kb-move-char-back",          .binding = "Left,Control+b",                       .comment = "Move back one char"                                                    },
     { .id = MOVE_CHAR_FORWARD,       .name  = "kb-move-char-forward",       .binding = "Right,Control+f",                      .comment = "Move forward one char"                                                 },
     { .id = REMOVE_WORD_BACK,        .name  = "kb-remove-word-back",        .binding = "Control+Alt+h,Control+BackSpace",      .comment = "Delete previous word"                                                  },
     { .id = REMOVE_WORD_FORWARD,     .name  = "kb-remove-word-forward",     .binding = "Control+Alt+d",                        .comment = "Delete next word"                                                      },
     { .id = REMOVE_CHAR_FORWARD,     .name  = "kb-remove-char-forward",     .binding = "Delete,Control+d",                     .comment = "Delete next char"                                                      },
-    { .id = REMOVE_CHAR_BACK,        .name  = "kb-remove-char-back",        .binding = "BackSpace,Control+h",                  .comment = "Delete previous char"                                                  },
+    { .id = REMOVE_CHAR_BACK,        .name  = "kb-remove-char-back",        .binding = "BackSpace,Shift+BackSpace,Control+h",  .comment = "Delete previous char"                                                  },
     { .id = REMOVE_TO_EOL,           .name  = "kb-remove-to-eol",           .binding = "Control+k",                            .comment = "Delete till the end of line"                                           },
     { .id = REMOVE_TO_SOL,           .name  = "kb-remove-to-sol",           .binding = "Control+u",                            .comment = "Delete till the start of line"                                         },
     { .id = ACCEPT_ENTRY,            .name  = "kb-accept-entry",            .binding = "Control+j,Control+m,Return,KP_Enter",  .comment = "Accept entry"                                                          },
@@ -112,16 +112,17 @@ ActionBindingEntry rofi_bindings[] =
 
     /* Mouse-aware bindings */
 
-    { .id = SCROLL_LEFT,             .scope = SCOPE_MOUSE_LISTVIEW,         .name    = "ml-row-left",                          .binding = "ScrollLeft", .comment = "Go to the previous column"                        },
-    { .id = SCROLL_RIGHT,            .scope = SCOPE_MOUSE_LISTVIEW,         .name    = "ml-row-right",                         .binding = "ScrollRight", .comment = "Go to the next column"                            },
-    { .id = SCROLL_UP,               .scope = SCOPE_MOUSE_LISTVIEW,         .name    = "ml-row-up",                            .binding = "ScrollUp", .comment = "Select previous entry"                            },
-    { .id = SCROLL_DOWN,             .scope = SCOPE_MOUSE_LISTVIEW,         .name    = "ml-row-down",                          .binding = "ScrollDown", .comment = "Select next entry"                                },
+    { .id = SCROLL_LEFT,             .scope = SCOPE_MOUSE_LISTVIEW,         .name    = "ml-row-left",                          .binding = "ScrollLeft", .comment = "Go to the previous column"                    },
+    { .id = SCROLL_RIGHT,            .scope = SCOPE_MOUSE_LISTVIEW,         .name    = "ml-row-right",                         .binding = "ScrollRight", .comment = "Go to the next column"                       },
+    { .id = SCROLL_UP,               .scope = SCOPE_MOUSE_LISTVIEW,         .name    = "ml-row-up",                            .binding = "ScrollUp", .comment = "Select previous entry"                          },
+    { .id = SCROLL_DOWN,             .scope = SCOPE_MOUSE_LISTVIEW,         .name    = "ml-row-down",                          .binding = "ScrollDown", .comment = "Select next entry"                            },
 
-    { .id = SELECT_HOVERED_ENTRY,    .scope = SCOPE_MOUSE_LISTVIEW_ELEMENT, .name    = "me-select-entry",                      .binding = "MousePrimary", .comment = "Select hovered row"                               },
-    { .id = ACCEPT_HOVERED_ENTRY,    .scope = SCOPE_MOUSE_LISTVIEW_ELEMENT, .name    = "me-accept-entry",                      .binding = "MouseDPrimary", .comment = "Accept hovered row"                              },
-    { .id = ACCEPT_HOVERED_CUSTOM,   .scope = SCOPE_MOUSE_LISTVIEW_ELEMENT, .name    = "me-accept-custom",                     .binding = "Control+MouseDPrimary", .comment = "Accept hovered row with custom action"   },
+    { .id = SELECT_HOVERED_ENTRY,    .scope = SCOPE_MOUSE_LISTVIEW_ELEMENT, .name    = "me-select-entry",                      .binding = "MousePrimary", .comment = "Select hovered row"                         },
+    { .id = ACCEPT_HOVERED_ENTRY,    .scope = SCOPE_MOUSE_LISTVIEW_ELEMENT, .name    = "me-accept-entry",                      .binding = "MouseDPrimary", .comment = "Accept hovered row"                        },
+    { .id = ACCEPT_HOVERED_CUSTOM,   .scope = SCOPE_MOUSE_LISTVIEW_ELEMENT, .name    = "me-accept-custom",                     .binding = "Control+MouseDPrimary", .comment = "Accept hovered row with custom action"},
 };
 
+/** Default binding of mouse button to action. */
 static const gchar *mouse_default_bindings[] = {
     [MOUSE_CLICK_DOWN]  = "MousePrimary",
     [MOUSE_CLICK_UP]    = "!MousePrimary",

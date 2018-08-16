@@ -41,13 +41,13 @@ Settings config = {
     .modi                   = "run,ssh",
 #endif
     /** Border width around the window. */
-    .menu_bw                =                                   1,
+    .menu_bw                = 1,
     /** The width of the switcher. (0100 in % > 100 in pixels) */
-    .menu_width             =                                  50,
+    .menu_width             = 50,
     /** Maximum number of options to show. */
-    .menu_lines             =                                  15,
+    .menu_lines             = 15,
     /** Number of columns */
-    .menu_columns           =                                   1,
+    .menu_columns           = 1,
     /** Font */
     .menu_font              = "mono 12",
 
@@ -68,7 +68,7 @@ Settings config = {
     /** Command executed on accep-entry-custom for window modus */
     .window_command         = "xkill -id {window}",
     /** No default icon theme, we search Adwaita and gnome as fallback */
-    .drun_icon_theme        = NULL,
+    .icon_theme             = NULL,
     /**
      * Location of the window.
      * Enumeration indicating location or gravity of window.
@@ -82,11 +82,11 @@ Settings config = {
      */
     .location               = WL_CENTER,
     /** Padding between elements */
-    .padding                =                                   5,
+    .padding                = 5,
     /** Y offset */
-    .y_offset               =                                   0,
+    .y_offset               = 0,
     /** X offset */
-    .x_offset               =                                   0,
+    .x_offset               = 0,
     /** Always show config.menu_lines lines, even if less lines are available */
     .fixed_num_lines        = TRUE,
     /** Do not use history */
@@ -96,13 +96,13 @@ Settings config = {
     /** Sort the displayed list */
     .sort                   = FALSE,
     /** Use levenshtein sorting when matching */
-    .levenshtein_sort       = FALSE,
+    .sorting_method         = SORT_NORMAL,
     /** Case sensitivity of the search */
     .case_sensitive         = FALSE,
     /** Cycle through in the element list */
     .cycle                  = TRUE,
     /** Height of an element in #chars */
-    .element_height         =                                   1,
+    .element_height         = 1,
     /** Sidebar mode, show the modi */
     .sidebar_mode           = FALSE,
     /** auto select */
@@ -118,13 +118,16 @@ Settings config = {
     .matching_method = MM_NORMAL,
     /** Desktop entry fields to match*/
     .drun_match_fields      = "name,generic,exec,categories",
+    /** Desktop entry show actions */
+    .drun_show_actions      = FALSE,
+    /** Desktop entry show actions */
     /** Window fields to match in window mode*/
     .window_match_fields    = "all",
     /** Monitor */
     .monitor                = "-5",
     /** set line margin */
-    .line_margin  =                                   2,
-    .line_padding =                                   1,
+    .line_margin  = 2,
+    .line_padding = 1,
     /** Set filter */
     .filter                 = NULL,
     /** Separator style: dash/solid */
@@ -133,10 +136,10 @@ Settings config = {
     .hide_scrollbar         = FALSE,
     .fullscreen             = FALSE,
     .fake_transparency      = FALSE,
-    .dpi                    =                                  -1,
-    .threads                =                                   0,
-    .scroll_method          =                                   0,
-    .scrollbar_width        =                                   8,
+    .dpi                    = -1,
+    .threads                = 0,
+    .scroll_method          = 0,
+    .scrollbar_width        = 8,
     .fake_background        = "screenshot",
     .window_format          = "{w}    {i}{c}   {t}",
     .click_to_exit          = TRUE,
@@ -147,6 +150,6 @@ Settings config = {
     .color_urgent           = NULL,
     .color_window           = NULL,
     .plugin_path            = PLUGIN_PATH,
-    .max_history_size       =                                  25,
+    .max_history_size       = 25,
     .combi_hide_mode_prefix = FALSE,
 };

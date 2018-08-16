@@ -26,6 +26,7 @@
  *
  */
 
+/** Log domain */
 #define G_LOG_DOMAIN    "Rofi"
 
 #include <config.h>
@@ -68,6 +69,7 @@
 #include "view-internal.h"
 
 #include "theme.h"
+#include "rofi-icon-fetcher.h"
 
 #include "timings.h"
 
@@ -75,8 +77,9 @@
 // TODO: move this check to mode.c
 #include "mode-private.h"
 
-// Pidfile.
-char       *pidfile   = NULL;
+/** Location of pidfile for this instance. */
+char       *pidfile = NULL;
+/** Location of Cache directory. */
 const char *cache_dir = NULL;
 
 /** List of error messages.*/
@@ -89,7 +92,8 @@ void rofi_add_error_message ( GString *str )
 }
 
 /** Path to the configuration file */
-G_MODULE_EXPORT char *config_path     = NULL;
+G_MODULE_EXPORT char *config_path = NULL;
+/** Path to the configuration file in the new format */
 G_MODULE_EXPORT char *config_path_new = NULL;
 /** Array holding all activated modi. */
 Mode                 **modi = NULL;
@@ -103,7 +107,8 @@ unsigned int num_modi = 0;
 /** Current selected mode */
 unsigned int curr_switcher = 0;
 
-NkBindings   *bindings = NULL;
+/** Handle to NkBindings object for input devices. */
+NkBindings *bindings = NULL;
 
 /** Glib main loop. */
 GMainLoop *main_loop = NULL;
@@ -442,6 +447,7 @@ static void cleanup ()
     }
     TIMINGS_STOP ();
     rofi_collect_modi_destroy ( );
+    rofi_icon_fetcher_destroy ( );
 }
 
 /**
@@ -618,6 +624,10 @@ static gboolean setup_modi ( void )
     return FALSE;
 }
 
+/**
+ * Quit rofi mainloop.
+ * This will exit program.
+ **/
 void rofi_quit_main_loop ( void )
 {
     g_main_loop_quit ( main_loop );
@@ -848,7 +858,8 @@ int main ( int argc, char *argv[] )
                 rofi_theme_free ( rofi_theme );
                 rofi_theme = NULL;
             }
-        } else {
+        }
+        else {
             g_free ( config_path_new );
             config_path_new = NULL;
             config_parse_xresource_options_file ( config_path );
@@ -956,6 +967,7 @@ int main ( int argc, char *argv[] )
     }
 
     rofi_view_workers_initialize ();
+    rofi_icon_fetcher_init ( );
 
     // Create pid file
     int pfd = create_pid_file ( pidfile );
