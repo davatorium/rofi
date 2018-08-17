@@ -182,7 +182,7 @@ void history_set ( const char *filename, const char *entry )
     }
 
     // Check if program should be ignored
-    char *program = malloc ( sizeof ( char ) * strlen ( entry ) + 1 );
+    gchar *program = g_newa ( gchar, strlen ( entry ) + 1 );
     strcpy ( program, entry );
     program = strtok ( program, " " );  // Name of the executable
     for ( char *current_ignored = strtok ( config.ignored_programs, ", " ); current_ignored != NULL; current_ignored = strtok ( NULL, ", " ) ) {
