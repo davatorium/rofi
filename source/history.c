@@ -182,7 +182,7 @@ void history_set ( const char *filename, const char *entry )
     }
 
     // Check if program should be ignored
-    for ( char *checked_prefix = strtok ( config.ignored_programs, ";" ); checked_prefix != NULL; checked_prefix = strtok ( NULL, ";" ) ) {
+    for ( char *checked_prefix = strtok ( config.ignored_prefixes, ";" ); checked_prefix != NULL; checked_prefix = strtok ( NULL, ";" ) ) {
         // For each ignored prefix
 
         if ( checked_prefix[0] == ' ' ) {

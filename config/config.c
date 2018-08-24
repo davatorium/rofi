@@ -92,7 +92,7 @@ Settings config = {
     /** Do not use history */
     .disable_history        = FALSE,
     /** Programs ignored for history */
-    .ignored_programs       = "",
+    .ignored_prefixes       = "",
     /** Sort the displayed list */
     .sort                   = FALSE,
     /** Use levenshtein sorting when matching */

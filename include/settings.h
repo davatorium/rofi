@@ -109,7 +109,7 @@ typedef struct
     /** Do not use history */
     unsigned int   disable_history;
     /** Programs ignored for history */
-    char           * ignored_programs;
+    char           * ignored_prefixes;
     /** Toggle to enable sorting. */
     unsigned int   sort;
     /** Sorting method. */
