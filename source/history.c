@@ -182,12 +182,24 @@ void history_set ( const char *filename, const char *entry )
     }
 
     // Check if program should be ignored
-    gchar *program = g_newa ( gchar, strlen ( entry ) + 1 );
-    strcpy ( program, entry );
-    program = strtok ( program, " " );  // Name of the executable
-    for ( char *current_ignored = strtok ( config.ignored_programs, ", " ); current_ignored != NULL; current_ignored = strtok ( NULL, ", " ) ) {
-        if ( strcmp ( current_ignored, program ) == 0 ) {
-            return;
+    for ( char *checked_prefix = strtok ( config.ignored_programs, ";" ); checked_prefix != NULL; checked_prefix = strtok ( NULL, ";" ) ) {
+        // For each ignored prefix
+
+        if ( checked_prefix[0] == ' ' ) {
+            checked_prefix++;                            // Some users will probably want "; " as their separator for aesthetics.
+        }
+        if ( strlen ( entry ) < strlen ( checked_prefix ) ) {
+            continue;                                          // Cannot be a prefix if it's longer.
+        }
+        for ( int i = 0; i < strlen ( checked_prefix ); ++i ) {
+            // For each character in the prefix
+
+            if ( checked_prefix[i] != entry[i] ) {
+                break;                                 // Break from the loop on the first unidentical character.
+            }
+            if ( i == strlen ( checked_prefix ) - 1 ) {
+                return;                                   // If we've reached the last letter and did not break, return.
+            }
         }
     }
 
