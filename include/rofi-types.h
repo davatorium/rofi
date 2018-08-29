@@ -1,8 +1,27 @@
 #ifndef INCLUDE_ROFI_TYPES_H
 #define INCLUDE_ROFI_TYPES_H
 
-#include <glib.h>
-G_BEGIN_DECLS
+#ifdef  __cplusplus
+# define ROFI_BEGIN_DECLS  extern "C" {
+# define ROFI_END_DECLS    }
+#else
+# define ROFI_BEGIN_DECLS
+# define ROFI_END_DECLS
+#endif
+
+ROFI_BEGIN_DECLS
+
+typedef char gchar;
+typedef int gint;
+typedef gint gboolean;
+typedef long glong;
+typedef signed long gssize;
+typedef void* gpointer;
+typedef struct _GList GList;
+typedef struct _GModule GModule;
+typedef struct _GRegex GRegex;
+typedef struct _GThreadPool GThreadPool;
+typedef struct _cairo_surface cairo_surface_t;
 
 /**
  * Type of property
@@ -42,6 +61,23 @@ typedef enum
  * It is important this is kept in sync.
  */
 extern const char * const PropertyTypeName[P_NUM_TYPES];
+
+/**
+ * Enum used to sum the possible states of ROFI.
+ */
+typedef enum
+{
+    /** Exit. */
+    MODE_EXIT       = 1000,
+    /** Skip to the next cycle-able dialog. */
+    NEXT_DIALOG     = 1001,
+    /** Reload current DIALOG */
+    RELOAD_DIALOG   = 1002,
+    /** Previous dialog */
+    PREVIOUS_DIALOG = 1003,
+    /** Reloads the dialog and unset user input */
+    RESET_DIALOG    = 1004,
+} ModeMode;
 
 /** Style of text highlight */
 typedef enum
@@ -246,5 +282,5 @@ typedef struct _thread_state
 
 extern GThreadPool *tpool;
 
-G_END_DECLS
+ROFI_END_DECLS
 #endif // INCLUDE_ROFI_TYPES_H

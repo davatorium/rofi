@@ -1,9 +1,10 @@
 #ifndef ROFI_ICON_FETCHER_H
 #define ROFI_ICON_FETCHER_H
 
-#include <glib.h>
+#include "rofi-types.h"
 #include <stdint.h>
-#include <cairo.h>
+
+ROFI_BEGIN_DECLS
 
 /**
  * @defgroup ICONFETCHER IconFetcher
@@ -46,4 +47,6 @@ uint32_t rofi_icon_fetcher_query ( const char *name, const int size );
 cairo_surface_t * rofi_icon_fetcher_get ( const uint32_t uid );
 
 /* @} */
+
+ROFI_END_DECLS
 #endif // ROFI_ICON_FETCHER_H

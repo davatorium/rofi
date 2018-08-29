@@ -27,11 +27,13 @@
 
 #ifndef ROFI_MODE_PRIVATE_H
 #define ROFI_MODE_PRIVATE_H
-#include <gmodule.h>
-G_BEGIN_DECLS
+#include "rofi-types.h"
+ROFI_BEGIN_DECLS
 
 /** ABI version to check if loaded plugin is compatible. */
 #define ABI_VERSION    0x00000006
+
+typedef struct rofi_mode Mode;
 
 /**
  * @param data Pointer to #Mode object.
@@ -196,5 +198,5 @@ struct rofi_mode
     /** Module */
     GModule    *module;
 };
-G_END_DECLS
+ROFI_END_DECLS
 #endif // ROFI_MODE_PRIVATE_H

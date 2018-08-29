@@ -27,9 +27,8 @@
 
 #ifndef ROFI_MODE_H
 #define ROFI_MODE_H
-#include <cairo.h>
 #include "rofi-types.h"
-G_BEGIN_DECLS
+ROFI_BEGIN_DECLS
 /**
  * @defgroup MODE Mode
  *
@@ -42,23 +41,6 @@ G_BEGIN_DECLS
  * Access should be done via mode_* functions.
  */
 typedef struct rofi_mode Mode;
-
-/**
- * Enum used to sum the possible states of ROFI.
- */
-typedef enum
-{
-    /** Exit. */
-    MODE_EXIT       = 1000,
-    /** Skip to the next cycle-able dialog. */
-    NEXT_DIALOG     = 1001,
-    /** Reload current DIALOG */
-    RELOAD_DIALOG   = 1002,
-    /** Previous dialog */
-    PREVIOUS_DIALOG = 1003,
-    /** Reloads the dialog and unset user input */
-    RESET_DIALOG    = 1004,
-} ModeMode;
 
 /**
  * State returned by the rofi window.
@@ -236,5 +218,5 @@ char * mode_preprocess_input ( Mode *mode, const char *input );
  */
 char *mode_get_message ( const Mode *mode );
 /*@}*/
-G_END_DECLS
+ROFI_END_DECLS
 #endif
