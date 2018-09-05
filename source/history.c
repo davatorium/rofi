@@ -185,21 +185,12 @@ void history_set ( const char *filename, const char *entry )
     for ( char *checked_prefix = strtok ( config.ignored_prefixes, ";" ); checked_prefix != NULL; checked_prefix = strtok ( NULL, ";" ) ) {
         // For each ignored prefix
 
-        if ( checked_prefix[0] == ' ' ) {
-            checked_prefix++;                            // Some users will probably want "; " as their separator for aesthetics.
+        while ( g_unichar_isspace ( g_utf8_get_char ( checked_prefix ) ) ) {
+            checked_prefix = g_utf8_next_char ( checked_prefix ); // Some users will probably want "; " as their separator for aesthetics.
         }
-        if ( strlen ( entry ) < strlen ( checked_prefix ) ) {
-            continue;                                          // Cannot be a prefix if it's longer.
-        }
-        for ( int i = 0; i < strlen ( checked_prefix ); ++i ) {
-            // For each character in the prefix
 
-            if ( checked_prefix[i] != entry[i] ) {
-                break;                                 // Break from the loop on the first unidentical character.
-            }
-            if ( i == strlen ( checked_prefix ) - 1 ) {
-                return;                                   // If we've reached the last letter and did not break, return.
-            }
+        if ( g_str_has_prefix ( entry, checked_prefix ) ) {
+            return;
         }
     }
 
