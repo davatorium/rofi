@@ -197,7 +197,21 @@ These need to be manually installed before rofi can be installed either via sour
 
 ### Fedora
 
-rofi from [russianfedora repository](http://ru.fedoracommunity.org/repository)
+You can build it on Fedora 27 or 28, you would need to have these external libraries beside the build packages that were mentioned above: 
+
+```
+sudo dnf install -y pango pango-devel cairo cairo-devel glib2 glib2-devel librsvg2 librsvg2-devel libxkbcommon libxkbcommon-devel libxkbcommon-x11 libxkbcommon-x11-devel libxcb libxcb-devel startup-notification startup-notification-devel xcb-util xcb-util-devel xcb-util-wm xcb-util-wm-devel xcb-util-xrm xcb-util-xrm-devel check check-devel
+```
+
+
+Then proceed to build as previously mentioned. 
+To debug you might need to have this package:
+
+```
+sudo dnf install -y libasan
+```
+
+Aternatively you could install rofi from [russianfedora repository](http://ru.fedoracommunity.org/repository)
 and also
 [Yaroslav's COPR (Cool Other Package Repo)](https://copr.fedorainfracloud.org/coprs/yaroslav/i3desktop/)
 
