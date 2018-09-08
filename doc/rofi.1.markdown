@@ -497,7 +497,7 @@ Disable history
 Enable, disable sorting.
 This setting can be changed at runtime (see `-kb-toggle-sort`).
 
-`-sort-method` 'method'  to specify the sorting method.
+`-sorting-method` 'method'  to specify the sorting method.
 
 There are 2 sorting method:
 
