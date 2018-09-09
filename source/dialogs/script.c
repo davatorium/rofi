@@ -45,12 +45,22 @@
 
 #include "mode-private.h"
 
+
+#include "rofi-icon-fetcher.h"
+
+typedef struct {
+        char *entry;
+        char *icon_name;
+        uint32_t        icon_fetch_uid;
+
+} ScriptEntry;
+
 typedef struct
 {
     /** ID of the current script. */
     unsigned int           id;
     /** List of visible items. */
-    char                   **cmd_list;
+    ScriptEntry            *cmd_list;
     /** length list of visible items. */
     unsigned int           cmd_list_length;
 
@@ -65,6 +75,24 @@ typedef struct
     char                   *prompt;
     gboolean               do_markup;
 } ScriptModePrivateData;
+
+static void parse_entry_extras ( G_GNUC_UNUSED Mode *sw, ScriptEntry *entry, char *buffer, size_t length )
+{
+    size_t               length_key = 0;//strlen ( line );
+    while ( length_key <= length && buffer[length_key] != '\x1f' ) {
+        length_key++;
+    }
+    if ( length_key < length ) {
+        buffer[length_key] = '\0';
+        char *value = buffer + length_key + 1;
+        if ( strcasecmp(buffer, "icon" ) == 0 ) {
+            entry->icon_name = g_strdup(value);
+        }
+    }
+
+
+
+}
 
 static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
 {
@@ -98,11 +126,11 @@ static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
     }
 }
 
-static char **get_script_output ( Mode *sw, char *command, char *arg, unsigned int *length )
+static ScriptEntry *get_script_output ( Mode *sw, char *command, char *arg, unsigned int *length )
 {
     int    fd     = -1;
     GError *error = NULL;
-    char   **retv = NULL;
+    ScriptEntry *retv = NULL;
     char   **argv = NULL;
     int    argc   = 0;
     *length = 0;
@@ -138,10 +166,16 @@ static char **get_script_output ( Mode *sw, char *command, char *arg, unsigned i
                 else {
                     if ( actual_size < ( ( *length ) + 2 ) ) {
                         actual_size += 256;
-                        retv         = g_realloc ( retv, ( actual_size ) * sizeof ( char* ) );
+                        retv         = g_realloc ( retv, ( actual_size ) * sizeof ( ScriptEntry ) );
                     }
-                    retv[( *length )]     = g_strdup ( buffer );
-                    retv[( *length ) + 1] = NULL;
+                    size_t buf_length = strlen(buffer)+1;
+                    retv[( *length )].entry     = g_memdup ( buffer, buf_length);
+                    retv[( *length )].icon_name = NULL;
+                    retv[(*length)].icon_fetch_uid = 0;
+                    if ( buf_length > 0 && (read_length > (ssize_t)buf_length)  ) {
+                        parse_entry_extras ( sw, &(retv[(*length)]), buffer+buf_length, read_length-buf_length);
+                    }
+                    retv[( *length ) + 1].entry = NULL;
                     ( *length )++;
                 }
             }
@@ -157,9 +191,9 @@ static char **get_script_output ( Mode *sw, char *command, char *arg, unsigned i
     return retv;
 }
 
-static char **execute_executor ( Mode *sw, char *result, unsigned int *length )
+static ScriptEntry *execute_executor ( Mode *sw, char *result, unsigned int *length )
 {
-    char **retv = get_script_output ( sw, sw->ed, result, length );
+    ScriptEntry *retv = get_script_output ( sw, sw->ed, result, length );
     return retv;
 }
 
@@ -204,7 +238,7 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
 {
     ScriptModePrivateData *rmpd      = (ScriptModePrivateData *) sw->private_data;
     ModeMode              retv       = MODE_EXIT;
-    char                  **new_list = NULL;
+    ScriptEntry           *new_list  = NULL;
     unsigned int          new_length = 0;
 
     if ( ( mretv & MENU_NEXT ) ) {
@@ -216,9 +250,9 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
     else if ( ( mretv & MENU_QUICK_SWITCH ) ) {
         retv = ( mretv & MENU_LOWER_MASK );
     }
-    else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
+    else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line].entry != NULL ) {
         script_mode_reset_highlight ( sw );
-        new_list = execute_executor ( sw, rmpd->cmd_list[selected_line], &new_length );
+        new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
         script_mode_reset_highlight ( sw );
@@ -227,7 +261,11 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
 
     // If a new list was generated, use that an loop around.
     if ( new_list != NULL ) {
-        g_strfreev ( rmpd->cmd_list );
+        for ( unsigned int i = 0; i < rmpd->cmd_list_length; i++ ){
+            g_free ( rmpd->cmd_list[i].entry );
+            g_free ( rmpd->cmd_list[i].icon_name );
+        }
+        g_free ( rmpd->cmd_list );
 
         rmpd->cmd_list        = new_list;
         rmpd->cmd_list_length = new_length;
@@ -240,7 +278,11 @@ static void script_mode_destroy ( Mode *sw )
 {
     ScriptModePrivateData *rmpd = (ScriptModePrivateData *) sw->private_data;
     if ( rmpd != NULL ) {
-        g_strfreev ( rmpd->cmd_list );
+        for ( unsigned int i = 0; i < rmpd->cmd_list_length; i++ ){
+            g_free ( rmpd->cmd_list[i].entry );
+            g_free ( rmpd->cmd_list[i].icon_name );
+        }
+        g_free ( rmpd->cmd_list );
         g_free ( rmpd->message );
         g_free ( rmpd->prompt );
         g_free ( rmpd->urgent_list );
@@ -265,18 +307,32 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
     if ( pd->do_markup ) {
         *state |= MARKUP;
     }
-    return get_entry ? g_strdup ( pd->cmd_list[selected_line] ) : NULL;
+    return get_entry ? g_strdup ( pd->cmd_list[selected_line].entry ) : NULL;
 }
 
 static int script_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
     ScriptModePrivateData *rmpd = sw->private_data;
-    return helper_token_match ( tokens, rmpd->cmd_list[index] );
+    return helper_token_match ( tokens, rmpd->cmd_list[index].entry );
 }
 static char *script_get_message ( const Mode *sw )
 {
     ScriptModePrivateData *pd = sw->private_data;
     return g_strdup ( pd->message );
+}
+static cairo_surface_t *script_get_icon ( const Mode *sw, unsigned int selected_line, int height )
+{
+    ScriptModePrivateData *pd = (ScriptModePrivateData *) mode_get_private_data ( sw );
+    g_return_val_if_fail ( pd->cmd_list != NULL, NULL );
+    ScriptEntry *dr = &( pd->cmd_list[selected_line] );
+    if ( dr->icon_name == NULL ) {
+        return NULL;
+    }
+    if ( dr->icon_fetch_uid > 0 ) {
+        return rofi_icon_fetcher_get ( dr->icon_fetch_uid );
+    }
+    dr->icon_fetch_uid = rofi_icon_fetcher_query ( dr->icon_name, height );
+    return NULL;
 }
 
 #include "mode-private.h"
@@ -305,6 +361,7 @@ Mode *script_switcher_parse_setup ( const char *str )
         sw->_destroy           = script_mode_destroy;
         sw->_token_match       = script_token_match;
         sw->_get_message       = script_get_message;
+        sw->_get_icon          = script_get_icon;
         sw->_get_completion    = NULL,
         sw->_preprocess_input  = NULL,
         sw->_get_display_value = _get_display_value;

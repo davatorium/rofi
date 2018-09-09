@@ -19,7 +19,7 @@ else
     echo -en "\0markup-rows\x1ftrue\n"
     echo -en "\0message\x1fSpecial <b>bold</b>message\n"
 
-    echo "aap"
+    echo -en "aap\0icon\x1ffolder\n"
     echo "noot"
     echo "mies"
     echo "testing"
