@@ -197,7 +197,7 @@ These need to be manually installed before rofi can be installed either via sour
 
 ### Fedora
 
-You can build it on Fedora 27 or 28, you would need to have these external libraries beside the build packages that were mentioned above: 
+You can build it on Fedora 27 or 28, you would need to have the developer versions for some of the packages that were mentioned above: 
 
 ```
 sudo dnf install -y pango pango-devel cairo cairo-devel glib2 glib2-devel librsvg2 librsvg2-devel libxkbcommon libxkbcommon-devel libxkbcommon-x11 libxkbcommon-x11-devel libxcb libxcb-devel startup-notification startup-notification-devel xcb-util xcb-util-devel xcb-util-wm xcb-util-wm-devel xcb-util-xrm xcb-util-xrm-devel check check-devel
