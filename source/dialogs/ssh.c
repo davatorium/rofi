@@ -148,15 +148,38 @@ static char **read_known_hosts_file ( char ** retv, unsigned int *length )
         size_t buffer_length = 0;
         // Reading one line per time.
         while ( getline ( &buffer, &buffer_length, fd ) > 0 ) {
-            char *sep = strstr ( buffer, "," );
-
-            if ( sep != NULL ) {
-                *sep = '\0';
+            // Strip whitespace.
+            char *start = g_strstrip(&(buffer[0]));
+            // Find start.
+            if ( *start == '#' || *start == '@' ){
+                // skip comments or cert-authority or revoked items.
+                printf("Comment.\n");
+                continue;
+            }
+            if ( *start == '|' ) {
+                // Skip hashed hostnames.
+                continue;
+            }
+            if ( *start == '[' ) {
+                // Don't support port versions yet, TODO
+                continue;
+            }
+            // Find end of hostname set.
+            char *end  = strstr ( start, " " );
+            if ( end == NULL  ) {
+                // Something is wrong.
+                continue;
+            }
+            *end = '\0';
+            char *sep = start;
+            start = strsep(&sep,", " );
+            while (  start )
+            {
                 // Is this host name already in the list?
                 // We often get duplicates in hosts file, so lets check this.
                 int found = 0;
                 for ( unsigned int j = 0; j < ( *length ); j++ ) {
-                    if ( !g_ascii_strcasecmp ( buffer, retv[j] ) ) {
+                    if ( !g_ascii_strcasecmp ( start, retv[j] ) ) {
                         found = 1;
                         break;
                     }
@@ -165,10 +188,11 @@ static char **read_known_hosts_file ( char ** retv, unsigned int *length )
                 if ( !found ) {
                     // Add this host name to the list.
                     retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-                    retv[( *length )]     = g_strdup ( buffer );
+                    retv[( *length )]     = g_strdup ( start );
                     retv[( *length ) + 1] = NULL;
                     ( *length )++;
                 }
+                start = strsep(&sep,", " );
             }
         }
         if ( buffer != NULL ) {
