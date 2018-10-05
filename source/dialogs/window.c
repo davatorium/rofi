@@ -919,6 +919,7 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
             return rofi_icon_fetcher_get ( c->icon_fetch_uid );
         }
         c->icon_fetch_uid = rofi_icon_fetcher_query ( c->class, size );
+        return rofi_icon_fetcher_get ( c->icon_fetch_uid );
     }
     return c->icon;
 }

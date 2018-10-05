@@ -332,7 +332,7 @@ static cairo_surface_t *script_get_icon ( const Mode *sw, unsigned int selected_
         return rofi_icon_fetcher_get ( dr->icon_fetch_uid );
     }
     dr->icon_fetch_uid = rofi_icon_fetcher_query ( dr->icon_name, height );
-    return NULL;
+    return rofi_icon_fetcher_get ( dr->icon_fetch_uid );
 }
 
 #include "mode-private.h"
