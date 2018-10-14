@@ -438,7 +438,7 @@ static gboolean __config_parser_set_property ( XrmOption *option, const Property
     }
     else if ( option->type == xrm_Number ) {
         if ( p->type != P_INTEGER ) {
-            *error = g_strdup_printf ( "Option: %s needs to be set with a numger not a %s.", option->name, PropertyTypeName[p->type] );
+            *error = g_strdup_printf ( "Option: %s needs to be set with a number not a %s.", option->name, PropertyTypeName[p->type] );
             return TRUE;
         }
         *( option->value.snum ) = p->value.i;
@@ -446,7 +446,7 @@ static gboolean __config_parser_set_property ( XrmOption *option, const Property
     }
     else if ( option->type == xrm_SNumber ) {
         if ( p->type != P_INTEGER ) {
-            *error = g_strdup_printf ( "Option: %s needs to be set with a numger not a %s.", option->name, PropertyTypeName[p->type] );
+            *error = g_strdup_printf ( "Option: %s needs to be set with a number not a %s.", option->name, PropertyTypeName[p->type] );
             return TRUE;
         }
         *( option->value.num ) = (unsigned int ) ( p->value.i );
