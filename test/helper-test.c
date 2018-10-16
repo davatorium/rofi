@@ -156,4 +156,30 @@ int main ( int argc, char ** argv )
         TASSERTL ( rofi_scorer_fuzzy_evaluate ("aap noot mies", 12,"Anm", 3 ), 1073741824);
 
     }
+
+
+    char *a;
+    a = helper_string_replace_if_exists ( "{terminal} [-t {title} blub ]-e {cmd}", "{cmd}", "aap", "{title}", "some title", NULL);
+    printf("%s\n",a);
+    TASSERT ( g_utf8_collate ( a, "rofi-sensible-terminal -t some title blub -e aap") == 0);
+    g_free(a);
+    a = helper_string_replace_if_exists ( "{terminal} [-t {title} blub ]-e {cmd}", "{cmd}", "aap",  NULL);
+    printf("%s\n",a);
+    TASSERT ( g_utf8_collate ( a, "rofi-sensible-terminal -e aap") == 0);
+    g_free(a);
+    a = helper_string_replace_if_exists ( "{name} [<span weight='light' size='small'><i>({category})</i></span>]", "{name}", "Librecad", "{category}", "Desktop app", NULL );
+    printf("%s\n",a);
+    TASSERT ( g_utf8_collate ( a, "Librecad <span weight='light' size='small'><i>(Desktop app)</i></span>") == 0);
+    g_free(a);
+    a = helper_string_replace_if_exists ( "{name}[ <span weight='light' size='small'><i>({category})</i></span>]", "{name}", "Librecad", NULL );
+    TASSERT ( g_utf8_collate ( a, "Librecad") == 0);
+    g_free(a);
+    a = helper_string_replace_if_exists ( "{terminal} [{title} blub ]-e {cmd}", "{cmd}", "aap", "{title}", "some title", NULL);
+    printf("%s\n",a);
+    TASSERT ( g_utf8_collate ( a, "rofi-sensible-terminal some title blub -e aap") == 0);
+    g_free(a);
+    a = helper_string_replace_if_exists ( "{terminal} [{title} blub ]-e {cmd}", "{cmd}", "aap", "{title}", NULL, NULL);
+    printf("%s\n",a);
+    TASSERT ( g_utf8_collate ( a, "rofi-sensible-terminal -e aap") == 0);
+    g_free(a);
 }

@@ -1233,3 +1233,95 @@ void rofi_output_formatted_line ( const char *format, const char *string, int se
     fputc ( '\n', stdout );
     fflush ( stdout );
 }
+
+
+static gboolean helper_eval_cb2 ( const GMatchInfo *info, GString *res, gpointer data )
+{
+    GHashTable *h = (GHashTable*)h;
+    gchar *match;
+    // Get the match
+    int num_match = g_match_info_get_match_count(info);
+    // Just {text} This is inside () 5.
+    if ( num_match == 5 ) {
+        match = g_match_info_fetch ( info, 4);
+        if ( match != NULL ) {
+            // Lookup the match, so we can replace it.
+            gchar *r = g_hash_table_lookup ( (GHashTable *) data, match );
+            if ( r != NULL ) {
+                // Append the replacement to the string.
+                g_string_append ( res, r );
+            }
+            // Free match.
+            g_free ( match );
+        }
+    }
+    // {} with [] guard around it.
+    else if ( num_match == 4 ) {
+        match = g_match_info_fetch ( info, 2);
+        if ( match != NULL ) {
+            // Lookup the match, so we can replace it.
+            gchar *r = g_hash_table_lookup ( (GHashTable *) data, match );
+            if ( r != NULL ) {
+                // Add (optional) prefix
+                gchar *prefix = g_match_info_fetch (info, 1);
+                g_string_append ( res, prefix );
+                g_free (prefix );
+                // Append the replacement to the string.
+                g_string_append ( res, r );
+                // Add (optional) postfix
+                gchar *post = g_match_info_fetch (info, 3);
+                g_string_append ( res, post );
+                g_free (post );
+            }
+            // Free match.
+            g_free ( match );
+        }
+    }
+    // Else we have an invalid match.
+    // Continue replacement.
+    return FALSE;
+}
+
+char *helper_string_replace_if_exists ( char * string, ... )
+{
+    GError     *error = NULL;
+    GHashTable *h;
+    h = g_hash_table_new ( g_str_hash, g_str_equal );
+    // By default, we insert terminal and ssh-client
+    g_hash_table_insert ( h, "{terminal}", config.terminal_emulator );
+    g_hash_table_insert ( h, "{ssh-client}", config.ssh_client );
+    // Add list from variable arguments.
+    va_list ap;
+    va_start ( ap, string );
+    while ( 1 ) {
+        char * key = va_arg ( ap, char * );
+        if ( key == (char *) 0 ) {
+            break;
+        }
+        char *value = va_arg ( ap, char * );
+        if ( value == (char *) 0 ) {
+            break;
+        }
+        g_hash_table_insert ( h, key, value );
+    }
+    va_end ( ap );
+
+    // Replace hits within {-\w+}.
+    GRegex *reg = g_regex_new ( "\\[(.*)({[-\\w]+})(.*)\\]|({[\\w-]+})", 0, 0, NULL );
+    char   *res = g_regex_replace_eval ( reg, string, -1, 0, 0, helper_eval_cb2, h, NULL );
+    // Free regex.
+    g_regex_unref ( reg );
+    // Destroy key-value storage.
+    g_hash_table_destroy ( h );
+    // Throw error if shell parsing fails.
+    if ( error ) {
+        char *msg = g_strdup_printf ( "Failed to parse: '%s'\nError: '%s'", string, error->message );
+        rofi_view_error_dialog ( msg, FALSE );
+        g_free ( msg );
+        // print error.
+        g_error_free ( error );
+        g_free ( res );
+        return NULL;
+    }
+    return res;
+}
