@@ -118,6 +118,8 @@ typedef struct
     char           * drun_match_fields;
     /** Desktop entry show actions */
     unsigned int   drun_show_actions;
+    /** Desktop entry show */
+    char           * drun_display_format;
     /** Search case sensitivity */
     unsigned int   case_sensitive;
     /** Cycle through in the element list */

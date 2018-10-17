@@ -137,6 +137,8 @@ static XrmOption xrmOptions[] = {
       "Desktop entry fields to match in drun", CONFIG_DEFAULT },
     { xrm_Boolean, "drun-show-actions",      { .num  = &config.drun_show_actions              }, NULL,
       "Desktop entry show actions.", CONFIG_DEFAULT },
+    { xrm_String,  "drun-display-format",    { .str  = &config.drun_display_format            }, NULL,
+      "DRUN format string. (Supports: generic,name,comment,exec,categories)", CONFIG_DEFAULT },
     { xrm_Boolean, "disable-history",        { .num  = &config.disable_history                }, NULL,
       "Disable history in run/ssh", CONFIG_DEFAULT },
     { xrm_Boolean, "sort",                   { .num  = &config.sort                           }, NULL,

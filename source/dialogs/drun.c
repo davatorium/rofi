@@ -756,13 +756,19 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     }
     /* Free temp storage. */
     DRunModeEntry *dr = &( pd->entry_list[selected_line] );
-    if ( dr->generic_name == NULL ) {
-        return g_markup_printf_escaped ( "%s", dr->name );
+    gchar *cats = NULL;
+    if ( dr->categories ){
+        cats = g_strjoinv(",", dr->categories);
     }
-    else {
-        return g_markup_printf_escaped ( "%s <span weight='light' size='small'><i>(%s)</i></span>", dr->name,
-                                         dr->generic_name );
-    }
+    char *retv = helper_string_replace_if_exists ( config.drun_display_format,
+            "{generic}", dr->generic_name,
+            "{name}", dr->name,
+            "{comment}", dr->comment,
+            "{exec}", dr->exec,
+            "{categories}", cats,
+            NULL);
+    g_free(cats);
+    return retv;
 }
 
 static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, int height )

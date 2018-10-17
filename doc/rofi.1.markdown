@@ -227,17 +227,29 @@ Tokenize the input.
 
 `-drun-match-fields` *field1*,*field2*,...
 
-When using drun, match only with the specified Desktop entry fields. 
+When using drun, match only with the specified Desktop entry fields.
 The different fields are:
 
 * **name**: the application's name
 * **generic**: the application's generic name
-* **exec**: the application's  executable 
+* **exec**: the application's  executable
 * **categories**: the application's categories
 * **comment**: the application comment
 * **all**: all of the above
 
     Default: *name,generic,exec,categories*
+
+`-drun-display-format`
+
+The format string for the drun dialog:
+
+* **name**: the application's name
+* **generic**: the application's generic name
+* **exec**: the application's  executable
+* **categories**: the application's categories
+* **comment**: the application comment
+
+    Default: *{name} [<span weight='light' size='small'><i>({generic})</i></span>]*
 
 `-[no-]drun-show-actions`
 
@@ -247,12 +259,12 @@ Show actions present in the Desktop files.
 
 `-window-match-fields` *field1*,*field2*,...
 
-When using window mode, match only with the specified fields. 
+When using window mode, match only with the specified fields.
 The different fields are:
 
 * **title**: window's title
 * **class**: window's class
-* **role**: window's role 
+* **role**: window's role
 * **name**: window's name
 * **desktop**: window's current desktop
 * **all**: all of the above
