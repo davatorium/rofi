@@ -159,26 +159,30 @@ int main ( int argc, char ** argv )
 
 
     char *a;
-    a = helper_string_replace_if_exists ( "{terminal} [-t {title} blub ]-e {cmd}", "{cmd}", "aap", "{title}", "some title", NULL);
+    a = helper_string_replace_if_exists ( "{terminal} [-t {title} blub ]-e {cmd}", "{cmd}", "aap", "{title}", "some title", "{terminal}", "rofi-sensible-terminal", NULL);
     printf("%s\n",a);
     TASSERT ( g_utf8_collate ( a, "rofi-sensible-terminal -t some title blub -e aap") == 0);
     g_free(a);
-    a = helper_string_replace_if_exists ( "{terminal} [-t {title} blub ]-e {cmd}", "{cmd}", "aap",  NULL);
+    a = helper_string_replace_if_exists ( "{terminal} [-t {title} blub ]-e {cmd}", "{cmd}", "aap",  "{terminal}", "rofi-sensible-terminal", NULL);
     printf("%s\n",a);
     TASSERT ( g_utf8_collate ( a, "rofi-sensible-terminal -e aap") == 0);
     g_free(a);
-    a = helper_string_replace_if_exists ( "{name} [<span weight='light' size='small'><i>({category})</i></span>]", "{name}", "Librecad", "{category}", "Desktop app", NULL );
+    a = helper_string_replace_if_exists ( "{name} [<span weight='light' size='small'><i>({category})</i></span>]", "{name}", "Librecad", "{category}", "Desktop app", "{terminal}", "rofi-sensible-terminal", NULL );
     printf("%s\n",a);
     TASSERT ( g_utf8_collate ( a, "Librecad <span weight='light' size='small'><i>(Desktop app)</i></span>") == 0);
     g_free(a);
-    a = helper_string_replace_if_exists ( "{name}[ <span weight='light' size='small'><i>({category})</i></span>]", "{name}", "Librecad", NULL );
+    a = helper_string_replace_if_exists ( "{name}[ <span weight='light' size='small'><i>({category})</i></span>]", "{name}", "Librecad", "{terminal}", "rofi-sensible-terminal", NULL );
     TASSERT ( g_utf8_collate ( a, "Librecad") == 0);
     g_free(a);
-    a = helper_string_replace_if_exists ( "{terminal} [{title} blub ]-e {cmd}", "{cmd}", "aap", "{title}", "some title", NULL);
+    a = helper_string_replace_if_exists ( "{terminal} [{title} blub ]-e {cmd}", "{cmd}", "aap", "{title}", "some title", "{terminal}", "rofi-sensible-terminal", NULL);
     printf("%s\n",a);
     TASSERT ( g_utf8_collate ( a, "rofi-sensible-terminal some title blub -e aap") == 0);
     g_free(a);
-    a = helper_string_replace_if_exists ( "{terminal} [{title} blub ]-e {cmd}", "{cmd}", "aap", "{title}", NULL, NULL);
+    a = helper_string_replace_if_exists ( "{terminal} [{title} blub ]-e {cmd}",
+            "{cmd}", "aap",
+            "{title}", NULL,
+            "{terminal}", "rofi-sensible-terminal",
+            NULL);
     printf("%s\n",a);
     TASSERT ( g_utf8_collate ( a, "rofi-sensible-terminal -e aap") == 0);
     g_free(a);

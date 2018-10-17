@@ -1287,9 +1287,6 @@ char *helper_string_replace_if_exists ( char * string, ... )
     GError     *error = NULL;
     GHashTable *h;
     h = g_hash_table_new ( g_str_hash, g_str_equal );
-    // By default, we insert terminal and ssh-client
-    g_hash_table_insert ( h, "{terminal}", config.terminal_emulator );
-    g_hash_table_insert ( h, "{ssh-client}", config.ssh_client );
     // Add list from variable arguments.
     va_list ap;
     va_start ( ap, string );
@@ -1299,9 +1296,6 @@ char *helper_string_replace_if_exists ( char * string, ... )
             break;
         }
         char *value = va_arg ( ap, char * );
-        if ( value == (char *) 0 ) {
-            break;
-        }
         g_hash_table_insert ( h, key, value );
     }
     va_end ( ap );
