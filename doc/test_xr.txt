@@ -44,6 +44,8 @@ rofi.window-command:                 xkill -id {window}
 ! rofi.drun-match-fields:              name,generic,exec,categories
 ! "Desktop entry show actions." Set from: Default
 ! rofi.drun-show-actions:              false
+! "DRUN format string. (Supports: generic,name,comment,exec,categories)" Set from: Default
+! rofi.drun-display-format:            {name} [<span weight='light' size='small'><i>({generic})</i></span>]
 ! "Disable history in run/ssh" Set from: File
 rofi.disable-history:                false
 ! "Use sorting" Set from: Default
