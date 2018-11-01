@@ -240,6 +240,9 @@ EXTRA_DIST+=\
 	$(markdown_FILES)\
 	$(markdown_SC_FILES)\
 	Examples/i3_switch_workspaces.sh\
+	Examples/i3_empty_workspace.sh\
+	Examples/test_script_mode.sh\
+	Examples/rofi-file-browser.sh\
 	INSTALL.md\
 	AUTHORS\
 	doc/rofi.doxy.in\
