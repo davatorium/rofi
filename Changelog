@@ -1,3 +1,18 @@
+v1.5.2:
+	- Add missing example Script (#869)
+	- Add drun-display-format option. (#858)
+	- Fixing typos (#867,#837,#831,#804)
+	- Fix loading icons that are in cache (#860)
+	- Improve ssh known_host parser. (#820)
+	- Add terminals to rofi-sensible-terminal (#808)
+	- Lexer Fix several ambiguity and handling of empty input.
+	- IconFetcher preload the user set icon theme.
+	- IconFetcher use generic threadpool.
+	- Lexer support environment variables.
+	- Cleanup syntax for sorting. (#816)
+	- Documents update.
+	- Fix how borders are drawn. (#792, #783)
+
 v1.5.1:
 	- Egor Zvorykin: Fix typos in theme manpage. (#760)
 	- Ben: Fix README config file location. (#761)
