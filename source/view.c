@@ -1337,6 +1337,13 @@ static void rofi_view_trigger_global_action ( KeyBindingAction action )
         state->quit          = TRUE;
         break;
     }
+    case ACCEPT_CUSTOM_ALT:
+    {
+        state->selected_line = UINT32_MAX;
+        state->retv          = MENU_CUSTOM_INPUT | MENU_CUSTOM_ACTION;
+        state->quit          = TRUE;
+        break;
+    }
     case ACCEPT_ENTRY:
     {
         // If a valid item is selected, return that..
