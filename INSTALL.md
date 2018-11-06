@@ -16,6 +16,7 @@ Rofi uses autotools (GNU Build system), for more information see
 * pkg-config
 * flex 2.5.39 or higher
 * bison
+* check (Can be disabled using the `--disable-check` configure flag)
 * Developer packages of the external libraries
 
 ### External libraries
@@ -34,7 +35,8 @@ Rofi uses autotools (GNU Build system), for more information see
 * libxcb (sometimes split, you need libxcb, libxcb-xkb and libxcb-randr libxcb-xinerama)
 * xcb-util
 * xcb-util-wm (sometimes split as libxcb-ewmh and libxcb-icccm)
-* xcb-util-xrm [new module, can be found here](https://github.com/Airblader/xcb-util-xrm/)
+* xcb-util-xrm [new module might not be available in your distribution. The source can be found
+  here](https://github.com/Airblader/xcb-util-xrm/)
 
 On debian based systems, the developer packages are in the form of: `<package>-dev` on rpm based
 `<package>-devel`.

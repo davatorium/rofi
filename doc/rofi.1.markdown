@@ -179,9 +179,11 @@ Load an alternative configuration file.
 
 Select the scrolling method. 0: Per page, 1: continuous.
 
-`-no-show-match`
+`-[no-]show-match`
 
-Hide the indicator that shows what part of the string is matched.
+Show the indicator that shows what part of the string is matched.
+
+    Default: *true*
 
 `-no-lazy-grab`
 
