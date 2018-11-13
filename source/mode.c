@@ -98,7 +98,7 @@ ModeMode mode_result ( Mode *mode, int menu_retv, char **input, unsigned int sel
 {
     g_assert ( mode != NULL );
     g_assert ( mode->_result != NULL );
-    g_assert ( ( *input ) != NULL );
+    g_assert ( input != NULL );
     return mode->_result ( mode, menu_retv, input, selected_line );
 }
 
