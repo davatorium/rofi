@@ -135,7 +135,7 @@ END_TEST
 
 START_TEST(test_mode_result)
 {
-    const char *res = "";
+    char res[] = "";
     ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_NEXT, &res,0), NEXT_DIALOG);
     ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_PREVIOUS, &res,0), PREVIOUS_DIALOG);
     ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_QUICK_SWITCH|1, &res,0), 1);
