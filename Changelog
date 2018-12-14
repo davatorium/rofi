@@ -1,4 +1,7 @@
 v1.5.2:
+	- Clearify Check dependency. (#879)
+	- Add option to change negate character. (#877)
+	- Fix assert and update test. (#875)
 	- Add missing example Script (#869)
 	- Add drun-display-format option. (#858)
 	- Fixing typos (#867,#837,#831,#804)
