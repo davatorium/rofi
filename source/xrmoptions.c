@@ -214,6 +214,8 @@ static XrmOption xrmOptions[] = {
       "Max history size (WARNING: can cause slowdowns when set to high).", CONFIG_DEFAULT },
     { xrm_Boolean, "combi-hide-mode-prefix", { .snum = &config.combi_hide_mode_prefix         }, NULL,
       "Hide the prefix mode prefix on the combi view.", CONFIG_DEFAULT },
+    { xrm_Char, "matching-negate-char",     { .charc= &config.matching_negate_char            }, NULL,
+      "Set the character used to negate the matching. ('\\0' to disable)", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */

@@ -177,6 +177,8 @@ typedef struct
     /** Maximum history length per mode. */
     unsigned int   max_history_size;
     gboolean       combi_hide_mode_prefix;
+
+    char           matching_negate_char;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

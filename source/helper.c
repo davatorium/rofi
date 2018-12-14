@@ -221,7 +221,7 @@ static rofi_int_matcher * create_regex ( const char *input, int case_sensitive )
     GRegex           * retv = NULL;
     gchar            *r;
     rofi_int_matcher *rv = g_malloc0 ( sizeof ( rofi_int_matcher ) );
-    if ( input && input[0] == '-' ) {
+    if ( input && input[0] == config.matching_negate_char ) {
         rv->invert = 1;
         input++;
     }
