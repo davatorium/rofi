@@ -17,6 +17,7 @@ Rofi uses autotools (GNU Build system), for more information see
 * flex 2.5.39 or higher
 * bison
 * check (Can be disabled using the `--disable-check` configure flag)
+  check is used for build-time tests and does not affect functionality.
 * Developer packages of the external libraries
 
 ### External libraries
