@@ -1237,7 +1237,6 @@ void rofi_output_formatted_line ( const char *format, const char *string, int se
 
 static gboolean helper_eval_cb2 ( const GMatchInfo *info, GString *res, gpointer data )
 {
-    GHashTable *h = (GHashTable*)h;
     gchar *match;
     // Get the match
     int num_match = g_match_info_get_match_count(info);
