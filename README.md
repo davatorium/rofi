@@ -127,7 +127,7 @@ write them to stdout.
 
 # Usage
 
-If used with `-show [mode]`, rofi will immediately open in the specified [mode]
+If used with `-show [mode]`, rofi will immediately open in the specified [mode].
 
 If used with `-dmenu`, rofi will use data from STDIN to let the user select an option.
 
