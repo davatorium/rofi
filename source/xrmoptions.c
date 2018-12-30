@@ -141,6 +141,8 @@ static XrmOption xrmOptions[] = {
       "DRUN format string. (Supports: generic,name,comment,exec,categories)", CONFIG_DEFAULT },
     { xrm_Boolean, "disable-history",        { .num  = &config.disable_history                }, NULL,
       "Disable history in run/ssh", CONFIG_DEFAULT },
+    { xrm_String,  "ignored-prefixes",       { .str  = &config.ignored_prefixes               }, NULL,
+      "Programs ignored for history", CONFIG_DEFAULT },
     { xrm_Boolean, "sort",                   { .num  = &config.sort                           }, NULL,
       "Use sorting", CONFIG_DEFAULT },
     { xrm_String,  "sorting-method",         { .str  = &config.sorting_method                 }, NULL,
