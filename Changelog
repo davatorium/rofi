@@ -1,3 +1,5 @@
+v1.5.3: (unreleased)
+
 v1.5.2: Procrastination in progress
 	- Clearify Check dependency. (#879)
 	- Add option to change negate character. (#877)
