@@ -1,4 +1,4 @@
-v1.5.2:
+v1.5.2: Procrastination in progress
 	- Clearify Check dependency. (#879)
 	- Add option to change negate character. (#877)
 	- Fix assert and update test. (#875)
@@ -67,7 +67,7 @@ v1.4.2:
 v1.4.1: All Hail Rasi
 	- Bump meson release version
 
-v1.4.0: I reject your truth and substitute my own (unreleased)
+v1.4.0: I reject your truth and substitute my own
 	New Features:
 		- FZF style sorting for fuzzy matching (thanks to MaskRay) (#533)
 		- Improve error messages.

@@ -1,4 +1,4 @@
-1.5.2: 
+# 1.5.2: Procrastination in progress
 
 Rofi 1.5.2 is another bug-fix release in the 1.5 series. 
 
