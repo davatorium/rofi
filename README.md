@@ -9,45 +9,45 @@
 
 # A window switcher, Application launcher and dmenu replacement
 
-**Rofi** started as a clone of simpleswitcher, written by [Sean Pringle](http://github.com/seanpringle/simpleswitcher) a
+**Rofi** started as a clone of simpleswitcher, written by [Sean Pringle](http://github.com/seanpringle/simpleswitcher) - a
 popup window switcher roughly based on [superswitcher](http://code.google.com/p/superswitcher/).
-Simpleswitcher laid the foundations, and therefor Sean Pringle deserves most of the credit for this tool. **Rofi**
-(renamed, as it lost the *simple* property) has been extended with extra features, like an application launcher,
-ssh-launcher and can act as a drop-in dmenu replacement, making it a very versatile tool.
+Simpleswitcher laid the foundations, and therefore Sean Pringle deserves most of the credit for this tool. **Rofi**
+(renamed, as it lost the *simple* property) has been extended with extra features, like an application launcher and 
+ssh-launcher, and can act as a drop-in dmenu replacement, making it a very versatile tool.
 
 **Rofi**, like dmenu, will provide the user with a textual list of options where one or more can be selected.
-This can either be, running an application, selecting a window or options provided by an external script.
+This can either be running an application, selecting a window, or options provided by an external script.
 
 Its main features are:
 
-* fully configurable keyboard navigation
-* type to filter
-    - tokenized: type any word in any order to filter
-    - (togglable) case insensitive
-    - support for fuzzy-, regex-, and glob matching
-* UTF-8 enabled
+ * Fully configurable keyboard navigation
+ * Type to filter
+    - Tokenized: type any word in any order to filter
+    - Case insensitive (togglable)
+    - Support for fuzzy-, regex-, and glob matching
+ * UTF-8 enabled
     - UTF-8-aware string collating
-    - international keyboard support (`e -> è)
-* RTL language support
-* Cairo drawing and Pango font rendering
-* built-in modes:
-    - window switcher mode
+    - International keyboard support (`e -> è)
+ * RTL language support
+ * Cairo drawing and Pango font rendering
+ * Built-in modes:
+    - Window switcher mode
         - EWMH compatible WM
-    - application launcher
-    - desktop file application launcher
+    - Application launcher
+    - Desktop file application launcher
     - SSH launcher mode
     - Combi mode, allowing several modes to be merged into one list
-* history-based ordering — last 25 choices are ordered on top based on use (optional)
-* Levenshtein distance ordering of matches (optional)
-* drop-in dmenu replacement
-    - many added improvements
-* easily extensible using scripts
-* theming
+ * History-based ordering — last 25 choices are ordered on top based on use (optional)
+ * Levenshtein distance ordering of matches (optional)
+ * Drop-in dmenu replacement
+    - Many added improvements
+ * Easily extensible using scripts
+ * Theming
 
 **Rofi** has several built-in modes implementing common use cases and can be extended by scripts (either called from
 **Rofi** or calling **Rofi**).
 
-Below the different modes are listed:
+Below is a list of the different modes:
 
 ## Window Switcher
 
@@ -61,8 +61,8 @@ The window switcher shows the following informations in columns (can be customiz
 
 Window mode features:
 
-  - closing applications with `Shift-Delete`
-  - custom command with `Shift-Return`
+ * Closing applications with `Shift-Delete`
+ * Custom command with `Shift-Return`
 
 
 ## Application launcher
@@ -73,9 +73,9 @@ The run mode allows users to quickly search for and launch a program.
 
 Run mode features:
 
-  - `Shift-Return` to run the selected program in a terminal
-  - favorites list, with frequently used programs sorted on top
-  - custom entries, like aliases, added by executing a command
+ * `Shift-Return` to run the selected program in a terminal
+ * Favorites list, with frequently used programs sorted on top
+ * Custom entries, like aliases, added by executing a command
 
 
 ## Desktop File Application launcher
@@ -84,16 +84,14 @@ The desktop run mode allows users to quickly search and launch an application fr
 Entries. These are used by most Desktop Environments to populate launchers and menus.
 Drun mode features:
 
-  - favorites list, with frequently used programs sorted on top
-  - auto starting terminal applications in a terminal
+ * Favorites list, with frequently used programs sorted on top
+ * Auto starting terminal applications in a terminal
 
 ## SSH launcher
 
 ![SSH Launcher](https://davedavenport.github.io/rofi/images/rofi/ssh-dialog.png)
 
-Quickly `ssh` into remote machines
-
-  - parses `~/.ssh/config` to find hosts
+Quickly `ssh` into remote machines. Parses `~/.ssh/config` to find hosts.
 
 ## Script mode
 
@@ -129,7 +127,7 @@ write them to stdout.
 
 # Usage
 
-If used with `-show [mode]`, rofi will immediately open in the specified [mode]
+If used with `-show [mode]`, rofi will immediately open in the specified [mode].
 
 If used with `-dmenu`, rofi will use data from STDIN to let the user select an option.
 
@@ -211,35 +209,35 @@ A distribution can ship defaults in `/etc/rofi.conf`.
 
 The Xresources options and the command line options are aliased. To define option X set:
 
-    rofi.X: value
+    `rofi.X: value`
 
 In the Xresources file. To set/override this from command line pass the same key
 prefixed with '-':
 
-    rofi -X value
+    `rofi -X value`
 
 To get a list of available options formatted as Xresources entries, run:
 
-    rofi -dump-Xresources
+    `rofi -dump-Xresources`
 
 or in a more readable format:
 
-    rofi -help
+    `rofi -help`
 
 The configuration system supports the following types:
 
- * string
- * integer (signed and unsigned)
- * char
+ * String
+ * Integer (signed and unsigned)
+ * Char
  * Boolean
 
 The Boolean option has a non-default command line syntax, to enable option X you do:
 
-    rofi -X
+    `rofi -X`
 
 to disable it:
 
-    rofi -no-X
+    `rofi -no-X`
 
 # Manpage
 
