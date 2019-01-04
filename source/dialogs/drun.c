@@ -402,15 +402,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         pd->cmd_list_length_actual += 256;
         pd->entry_list              = g_realloc ( pd->entry_list, pd->cmd_list_length_actual * sizeof ( *( pd->entry_list ) ) );
     }
-    // Make sure order is preserved, this will break when cmd_list_length is bigger then INT_MAX.
-    // This is not likely to happen.
-    if ( G_UNLIKELY ( pd->cmd_list_length > INT_MAX ) ) {
-        // Default to smallest value.
-        pd->entry_list[pd->cmd_list_length].sort_index = INT_MIN;
-    }
-    else {
-        pd->entry_list[pd->cmd_list_length].sort_index = -pd->cmd_list_length;
-    }
+    pd->entry_list[pd->cmd_list_length].sort_index     = 0;
     pd->entry_list[pd->cmd_list_length].icon_size      = 0;
     pd->entry_list[pd->cmd_list_length].icon_fetch_uid = 0;
     pd->entry_list[pd->cmd_list_length].root           = g_strdup ( root );
@@ -578,6 +570,10 @@ static gint drun_int_sort_list ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED
 {
     DRunModeEntry *da = (DRunModeEntry *) a;
     DRunModeEntry *db = (DRunModeEntry *) b;
+
+    if (db->sort_index == da->sort_index) {
+        return strcmp(g_ascii_strup(da->name, strlen(da->name)), g_ascii_strup(db->name, strlen(db->name)));
+    }
 
     return db->sort_index - da->sort_index;
 }
