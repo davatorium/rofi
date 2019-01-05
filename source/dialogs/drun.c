@@ -90,6 +90,8 @@ typedef struct
     char            *exec;
     /* Name of the Entry */
     char            *name;
+    /* Name used for sorting */
+    char            *sort_name;
     /* Generic Name */
     char            *generic_name;
     /* Categories */
@@ -418,6 +420,9 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         n = l;
     }
     pd->entry_list[pd->cmd_list_length].name   = n;
+    gchar *n_cf = g_utf8_casefold(n, -1);
+    pd->entry_list[pd->cmd_list_length].sort_name   = g_utf8_collate_key(n_cf, -1);
+    g_free ( n_cf );
     pd->entry_list[pd->cmd_list_length].action = DRUN_GROUP_NAME;
     gchar *gn = g_key_file_get_locale_string ( kf, DRUN_GROUP_NAME, "GenericName", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].generic_name = gn;
@@ -572,11 +577,7 @@ static gint drun_int_sort_list ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED
     DRunModeEntry *db = (DRunModeEntry *) b;
 
     if (db->sort_index == da->sort_index) {
-        const gchar *da_caseless = g_utf8_casefold(da->name, -1);
-        const gchar *db_caseless = g_utf8_casefold(db->name, -1);
-        return g_utf8_collate(da_caseless, db_caseless);
-        g_free(da_caseless);
-        g_free(db_caseless);
+        return strcmp(da->sort_name, db->sort_name);
     }
 
     return db->sort_index - da->sort_index;
@@ -681,6 +682,7 @@ static void drun_entry_clear ( DRunModeEntry *e )
     g_free ( e->icon_name );
     g_free ( e->exec );
     g_free ( e->name );
+    g_free ( e->sort_name );
     g_free ( e->generic_name );
     g_free ( e->comment );
     if ( e->action != DRUN_GROUP_NAME ) {
