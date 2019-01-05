@@ -572,7 +572,11 @@ static gint drun_int_sort_list ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED
     DRunModeEntry *db = (DRunModeEntry *) b;
 
     if (db->sort_index == da->sort_index) {
-        return strcmp(g_ascii_strup(da->name, strlen(da->name)), g_ascii_strup(db->name, strlen(db->name)));
+        const gchar *da_caseless = g_utf8_casefold(da->name, -1);
+        const gchar *db_caseless = g_utf8_casefold(db->name, -1);
+        return g_utf8_collate(da_caseless, db_caseless);
+        g_free(da_caseless);
+        g_free(db_caseless);
     }
 
     return db->sort_index - da->sort_index;
