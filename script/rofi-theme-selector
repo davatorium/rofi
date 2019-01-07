@@ -149,7 +149,10 @@ Current theme: <b>${CUR}</b>"""
         if [ ${RTR} = 10 ]
         then
             return 0;
-        elif [ ${RTR} = 1 ] 
+        elif [ ${RTR} = 1 ]
+        then
+            return 1;
+        elif [ ${RTR} = 65 ]
         then
             return 1;
         fi
