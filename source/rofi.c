@@ -41,6 +41,7 @@
 #include <gmodule.h>
 #include <xcb/xcb.h>
 #include <sys/types.h>
+#include <sysexits.h>
 
 #include <glib-unix.h>
 
@@ -675,6 +676,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         }
         rofi_view_error_dialog ( emesg->str, ERROR_MSG_MARKUP );
         g_string_free ( emesg, TRUE );
+        rofi_set_return_code ( EX_DATAERR );
         return G_SOURCE_REMOVE;
     }
     // Dmenu mode.

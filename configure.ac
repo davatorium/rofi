@@ -109,6 +109,8 @@ AC_CHECK_HEADER([math.h],, AC_MSG_ERROR("Could not find math.h header file"))
 AC_SEARCH_LIBS([floor],[m],,      AC_MSG_ERROR("Could not find floor in math library"))
 AC_SEARCH_LIBS([ceil], [m],,      AC_MSG_ERROR("Could not find ceil in math library"))
 
+AC_CHECK_HEADER([sysexits.h],, AC_MSG_ERROR("Could not find the sysexists.h header file"))
+
 dnl ---------------------------------------------------------------------
 dnl Check dependencies
 dnl ---------------------------------------------------------------------
