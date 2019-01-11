@@ -251,7 +251,9 @@ The format string for the drun dialog:
 * **categories**: the application's categories
 * **comment**: the application comment
 
-    Default: *{name} [<span weight='light' size='small'><i>({generic})</i></span>]*
+Pango markup can be used to formatting the output.
+
+    Default: {name} [<span weight='light' size='small'><i>({generic})</i></span>]
 
 `-[no-]drun-show-actions`
 

@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI" "1" "November 2018" "" ""
+.TH "ROFI" "1" "January 2019" "" ""
 .
 .SH "NAME"
 \fBrofi\fR \- A window switcher, application launcher, ssh dialog and dmenu replacement
@@ -444,8 +444,18 @@ The format string for the drun dialog:
 .IP "\(bu" 4
 \fBcomment\fR: the application comment
 .
-.IP
-Default: \fI{name} [\fI({generic})\fR]\fR
+.IP "" 0
+.
+.P
+Pango markup can be used to formatting the output\.
+.
+.IP "" 4
+.
+.nf
+
+Default: {name} [<span weight=\'light\' size=\'small\'><i>({generic})</i></span>]
+.
+.fi
 .
 .IP "" 0
 .
