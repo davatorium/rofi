@@ -255,6 +255,8 @@ Pango markup can be used to formatting the output.
 
     Default: {name} [<span weight='light' size='small'><i>({generic})</i></span>]
 
+Note: Only fields enabled in `-drun-match-fields` can be used in the format string.
+
 `-[no-]drun-show-actions`
 
 Show actions present in the Desktop files.
