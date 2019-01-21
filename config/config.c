@@ -66,7 +66,7 @@ Settings config = {
     /** Command executed when running application in terminal */
     .run_shell_command      = "{terminal} -e {cmd}",
     /** Command executed on accep-entry-custom for window modus */
-    .window_command         = "xkill -id {window}",
+    .window_command         = "wmctrl -i -R {window}",
     /** No default icon theme, we search Adwaita and gnome as fallback */
     .icon_theme             = NULL,
     /**

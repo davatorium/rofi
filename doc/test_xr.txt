@@ -48,6 +48,8 @@ rofi.window-command:                 xkill -id {window}
 ! rofi.drun-display-format:            {name} [<span weight='light' size='small'><i>({generic})</i></span>]
 ! "Disable history in run/ssh" Set from: File
 rofi.disable-history:                false
+! "Programs ignored for history" Set from: Default
+! rofi.ignored-prefixes:               
 ! "Use sorting" Set from: Default
 ! rofi.sort:                           false
 ! "Choose the strategy used for sorting: normal (levenshtein) or fzf." Set from: Default

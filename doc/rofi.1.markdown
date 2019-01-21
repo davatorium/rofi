@@ -487,7 +487,7 @@ default: {w}  {c}   {t}
 Set command to execute on selected window for a custom action.
 See *PATTERN*.
 
-Default: *"xkill -id {window}"*
+Default: *"wmctrl -i -R {window}"*
 
 ### Combi settings
 
