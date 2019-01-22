@@ -178,12 +178,17 @@ function set_theme()
         ${SED} -i "/@import.*/d" "${get_link}"
         echo "@import \"${1}\"" >> "${get_link}"
     else
-        if [ -f "${CDIR}/config" ]
+        if [ ! -e "${CDIR}/config" ]
         then
+            # No file.
+            echo "rofi.theme: ${1}" >> "${CDIR}/config"
+        elif [ -f "${CDIR}/config" ]
+        then
+            # Regular file
     		get_link=$(readlink -f "${CDIR}/config")
             ${SED} -i "/rofi\.theme: .*\.rasi$/d" "${get_link}"
+            echo "rofi.theme: ${1}" >> "${get_link}"
         fi
-        echo "rofi.theme: ${1}" >> "${get_link}"
 	fi
 }
 
