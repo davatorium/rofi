@@ -599,7 +599,7 @@ The following properties are currently supported:
 * **transparency**:    string
   Indicating if transparency should be used and what type:
   **real** - True transparency. Only works with a compositor.
-  **background-color** - Take a screenshot of the background image and use that.
+  **background** - Take a screenshot of the background image and use that.
   **screenshot** - Take a screenshot of the screen and use that.
   **Path** to png file - Use an image.
 
