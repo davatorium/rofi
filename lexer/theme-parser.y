@@ -337,6 +337,8 @@ t_config_property
 #endif
         g_free(error);
     }
+    // We don't keep any reference to this after this point, so the property can be free'ed.
+    rofi_theme_property_free ( $1 );
 }
 
 /**
