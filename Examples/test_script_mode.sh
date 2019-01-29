@@ -7,6 +7,8 @@ fi
 
 if [ "$@" ]
 then
+    # Override the previously set prompt.
+    echo -en "\x00prompt\x1fChange prompt\n"
     for a in {1..10}
     do
         echo "$a"
