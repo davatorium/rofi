@@ -91,6 +91,9 @@ Property* rofi_theme_property_copy ( Property *p )
     case P_LINK:
         retv->value.link.name = g_strdup ( p->value.link.name );
         retv->value.link.ref  = NULL;
+        if ( p->value.link.def_value ){
+            retv->value.link.def_value = rofi_theme_property_copy(p->value.link.def_value); 
+        }
         break;
     default:
         retv->value = p->value;
@@ -109,6 +112,9 @@ void rofi_theme_property_free ( Property *p )
     }
     else if ( p->type == P_LINK ) {
         g_free ( p->value.link.name );
+        if ( p->value.link.def_value ) {
+            rofi_theme_property_free ( p->value.link.def_value );
+        }
     }
     g_slice_free ( Property, p );
 }
@@ -176,103 +182,114 @@ const char * const WindowLocationStr[9] = {
     "west"
 };
 
+static void int_rofi_theme_print_property ( Property *p )
+{
+    switch ( p->type )
+    {
+        case P_LIST:
+            printf ( "[ " );
+            for ( GList *iter = p->value.list; iter != NULL; iter = g_list_next ( iter ) ) {
+                printf ( "%s", (char *) ( iter->data ) );
+                if ( iter->next != NULL ) {
+                    printf ( "," );
+                }
+            }
+            printf ( " ]" );
+            break;
+        case P_ORIENTATION:
+            printf ( "%s", ( p->value.i == ROFI_ORIENTATION_HORIZONTAL ) ? "horizontal" : "vertical" );
+            break;
+        case P_HIGHLIGHT:
+            if ( p->value.highlight.style & ROFI_HL_BOLD ) {
+                printf ( "bold " );
+            }
+            if ( p->value.highlight.style & ROFI_HL_UNDERLINE ) {
+                printf ( "underline " );
+            }
+            if ( p->value.highlight.style & ROFI_HL_STRIKETHROUGH ) {
+                printf ( "strikethrough " );
+            }
+            if ( p->value.highlight.style & ROFI_HL_ITALIC ) {
+                printf ( "italic " );
+            }
+            if ( p->value.highlight.style & ROFI_HL_COLOR ) {
+                printf ( "rgba ( %.0f, %.0f, %.0f, %.0f %% )",
+                        ( p->value.highlight.color.red * 255.0 ),
+                        ( p->value.highlight.color.green * 255.0 ),
+                        ( p->value.highlight.color.blue * 255.0 ),
+                        ( p->value.highlight.color.alpha * 100.0 ) );
+            }
+            break;
+        case P_POSITION:
+            printf ( "%s", WindowLocationStr[p->value.i] );
+            break;
+        case P_STRING:
+            printf ( "\"%s\"", p->value.s );
+            break;
+        case P_INTEGER:
+            printf ( "%d", p->value.i );
+            break;
+        case P_DOUBLE:
+            printf ( "%.2f", p->value.f );
+            break;
+        case P_BOOLEAN:
+            printf ( "%s", p->value.b ? "true" : "false" );
+            break;
+        case P_COLOR:
+            printf ( "rgba ( %.0f, %.0f, %.0f, %.0f %% )",
+                    ( p->value.color.red * 255.0 ),
+                    ( p->value.color.green * 255.0 ),
+                    ( p->value.color.blue * 255.0 ),
+                    ( p->value.color.alpha * 100.0 ) );
+            break;
+        case P_PADDING:
+            if ( distance_compare ( p->value.padding.top, p->value.padding.bottom ) &&
+                    distance_compare ( p->value.padding.left, p->value.padding.right ) &&
+                    distance_compare ( p->value.padding.left, p->value.padding.top ) ) {
+                rofi_theme_print_distance ( p->value.padding.left );
+            }
+            else if ( distance_compare ( p->value.padding.top, p->value.padding.bottom ) &&
+                    distance_compare ( p->value.padding.left, p->value.padding.right ) ) {
+                rofi_theme_print_distance ( p->value.padding.top );
+                rofi_theme_print_distance ( p->value.padding.left );
+            }
+            else if ( !distance_compare ( p->value.padding.top, p->value.padding.bottom ) &&
+                    distance_compare ( p->value.padding.left, p->value.padding.right ) ) {
+                rofi_theme_print_distance ( p->value.padding.top );
+                rofi_theme_print_distance ( p->value.padding.left );
+                rofi_theme_print_distance ( p->value.padding.bottom );
+            }
+            else {
+                rofi_theme_print_distance ( p->value.padding.top );
+                rofi_theme_print_distance ( p->value.padding.right );
+                rofi_theme_print_distance ( p->value.padding.bottom );
+                rofi_theme_print_distance ( p->value.padding.left );
+            }
+            break;
+        case P_LINK:
+            if ( p->value.link.def_value) {
+                printf( "var( %s, ", p->value.link.name );
+                int_rofi_theme_print_property ( p->value.link.def_value );
+                printf (")");
+            }else {
+                printf ( "var(%s)", p->value.link.name );
+            }
+            break;
+        case P_INHERIT:
+            printf ( "inherit" );
+            break;
+        default:
+            break;
+    }
+
+}
+
 static void rofi_theme_print_property_index ( size_t pnl, int depth, Property *p )
 {
     int pl = strlen ( p->name );
     printf ( "%*s%s:%*s ", depth, "", p->name, (int) pnl - pl, "" );
-    switch ( p->type )
-    {
-    case P_LIST:
-        printf ( "[ " );
-        for ( GList *iter = p->value.list; iter != NULL; iter = g_list_next ( iter ) ) {
-            printf ( "%s", (char *) ( iter->data ) );
-            if ( iter->next != NULL ) {
-                printf ( "," );
-            }
-        }
-        printf ( " ];" );
-        break;
-    case P_ORIENTATION:
-        printf ( "%s;", ( p->value.i == ROFI_ORIENTATION_HORIZONTAL ) ? "horizontal" : "vertical" );
-        break;
-    case P_HIGHLIGHT:
-        if ( p->value.highlight.style & ROFI_HL_BOLD ) {
-            printf ( "bold " );
-        }
-        if ( p->value.highlight.style & ROFI_HL_UNDERLINE ) {
-            printf ( "underline " );
-        }
-        if ( p->value.highlight.style & ROFI_HL_STRIKETHROUGH ) {
-            printf ( "strikethrough " );
-        }
-        if ( p->value.highlight.style & ROFI_HL_ITALIC ) {
-            printf ( "italic " );
-        }
-        if ( p->value.highlight.style & ROFI_HL_COLOR ) {
-            printf ( "rgba ( %.0f, %.0f, %.0f, %.0f %% )",
-                     ( p->value.highlight.color.red * 255.0 ),
-                     ( p->value.highlight.color.green * 255.0 ),
-                     ( p->value.highlight.color.blue * 255.0 ),
-                     ( p->value.highlight.color.alpha * 100.0 ) );
-        }
-        printf ( ";" );
-        break;
-    case P_POSITION:
-        printf ( "%s;", WindowLocationStr[p->value.i] );
-        break;
-    case P_STRING:
-        printf ( "\"%s\";", p->value.s );
-        break;
-    case P_INTEGER:
-        printf ( "%d;", p->value.i );
-        break;
-    case P_DOUBLE:
-        printf ( "%.2f;", p->value.f );
-        break;
-    case P_BOOLEAN:
-        printf ( "%s;", p->value.b ? "true" : "false" );
-        break;
-    case P_COLOR:
-        printf ( "rgba ( %.0f, %.0f, %.0f, %.0f %% );",
-                 ( p->value.color.red * 255.0 ),
-                 ( p->value.color.green * 255.0 ),
-                 ( p->value.color.blue * 255.0 ),
-                 ( p->value.color.alpha * 100.0 ) );
-        break;
-    case P_PADDING:
-        if ( distance_compare ( p->value.padding.top, p->value.padding.bottom ) &&
-             distance_compare ( p->value.padding.left, p->value.padding.right ) &&
-             distance_compare ( p->value.padding.left, p->value.padding.top ) ) {
-            rofi_theme_print_distance ( p->value.padding.left );
-        }
-        else if ( distance_compare ( p->value.padding.top, p->value.padding.bottom ) &&
-                  distance_compare ( p->value.padding.left, p->value.padding.right ) ) {
-            rofi_theme_print_distance ( p->value.padding.top );
-            rofi_theme_print_distance ( p->value.padding.left );
-        }
-        else if ( !distance_compare ( p->value.padding.top, p->value.padding.bottom ) &&
-                  distance_compare ( p->value.padding.left, p->value.padding.right ) ) {
-            rofi_theme_print_distance ( p->value.padding.top );
-            rofi_theme_print_distance ( p->value.padding.left );
-            rofi_theme_print_distance ( p->value.padding.bottom );
-        }
-        else {
-            rofi_theme_print_distance ( p->value.padding.top );
-            rofi_theme_print_distance ( p->value.padding.right );
-            rofi_theme_print_distance ( p->value.padding.bottom );
-            rofi_theme_print_distance ( p->value.padding.left );
-        }
-        printf ( ";" );
-        break;
-    case P_LINK:
-        printf ( "%s;", p->value.link.name );
-        break;
-    case P_INHERIT:
-        printf ( "inherit;" );
-        break;
-    default:
-        break;
-    }
+    int_rofi_theme_print_property ( p );
+    putchar ( ';' );
     putchar ( '\n' );
 }
 
@@ -439,7 +456,8 @@ static ThemeWidget *rofi_theme_find ( ThemeWidget *widget, const char *name, con
 static void rofi_theme_resolve_link_property ( Property *p, int depth )
 {
     // Set name, remove '@' prefix.
-    const char *name = p->value.link.name + 1;
+    const char *name = p->value.link.name;// + (*(p->value.link.name)== '@'?1:0;
+    g_info ( "Resolving link to %s", p->value.link.name);
     if ( depth > 20 ) {
         g_warning ( "Found more then 20 redirects for property. Stopping." );
         p->value.link.ref = p;
@@ -448,6 +466,7 @@ static void rofi_theme_resolve_link_property ( Property *p, int depth )
 
     if ( rofi_theme->properties && g_hash_table_contains ( rofi_theme->properties, name ) ) {
         Property *pr = g_hash_table_lookup ( rofi_theme->properties, name );
+        g_info ("Resolving link %s found: %s", p->value.link.name, pr->name);
         if ( pr->type == P_LINK ) {
             if ( pr->value.link.ref == NULL ) {
                 rofi_theme_resolve_link_property ( pr, depth + 1 );
@@ -461,6 +480,11 @@ static void rofi_theme_resolve_link_property ( Property *p, int depth )
             p->value.link.ref = pr;
             return;
         }
+    }
+    // No found and we have default value.
+    if ( p->value.link.def_value ){
+        p->value.link.ref = p->value.link.def_value;
+        return;
     }
 
     // No found, set ref to self.
