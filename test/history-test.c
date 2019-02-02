@@ -87,8 +87,8 @@ static void history_test ( void )
     g_strfreev ( retv );
 
     for ( unsigned int in = length + 1; in < 26; in++ ) {
-        char *p = g_strdup_printf ( "aap%i", in );
-        printf ( "%s- %d\n", p, in );
+        char *p = g_strdup_printf ( "aap%u", in );
+        printf ( "%s- %u\n", p, in );
         history_set ( file, p );
         retv = history_get_list ( file, &length );
 

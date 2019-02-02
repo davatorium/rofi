@@ -74,7 +74,6 @@ struct _listview
     unsigned int                selected;
 
     unsigned int                element_height;
-    unsigned int                element_width;
     unsigned int                max_rows;
     unsigned int                max_elements;
 

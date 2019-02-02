@@ -1264,13 +1264,12 @@ END_TEST
 static Suite * theme_parser_suite (void)
 {
     Suite *s;
-    TCase *tc_core;
 
     s = suite_create("Theme");
 
     /* Core test case */
     {
-        tc_core = tcase_create("Core");
+        TCase *tc_core = tcase_create("Core");
         tcase_add_checked_fixture(tc_core, theme_parser_setup, theme_parser_teardown);
         tcase_add_test(tc_core, test_properties_types_names);
         tcase_add_test(tc_core, test_core_empty_string);
