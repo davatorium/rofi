@@ -195,6 +195,11 @@ static void run_switcher ( ModeMode mode )
     if ( rofi_view_get_active () == NULL ) {
         g_main_loop_quit ( main_loop  );
     }
+
+    unsigned int start_select = 0;
+    if ( find_arg_uint ( "-selected-row", &start_select ) ) {
+        rofi_view_set_selected_line ( state, start_select );
+    }
 }
 void process_result ( RofiViewState *state )
 {
